@@ -36,6 +36,7 @@ function setAllianceLogo(imgId,fallbackId){
   const custom=String(state.alliance?.logo_url||'').trim();
   const legacyDefault=/wfgg-train-app\.pages\.dev\/assets\/icon-192\.png/i.test(custom);
   const src=(custom&&!legacyDefault)?custom:DEFAULT_ALLIANCE_LOGO;
+  img.classList.toggle('r2q-integrated-logo',src===DEFAULT_ALLIANCE_LOGO);
   fallback.classList.remove('hidden');
   img.classList.add('hidden');
   if(!src)return;

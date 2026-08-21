@@ -271,3 +271,167 @@
     height:46px;
   }
 }
+
+/* =========================================================
+   V0.7.3 · INTEGRATION PROFESSIONNELLE DU LOGO R2Q
+   IMPORTANT : aucun pixel du logo source n'est modifié.
+   Le blanc résiduel est intégré au fond par composition CSS.
+   ========================================================= */
+
+/*
+ * Le hero n'est plus un rectangle sombre posé sur la page.
+ * Le décor R2Q devient une lumière/texture très diffuse qui
+ * se perd dans le violet du portail.
+ */
+.home-brand-stage{
+  min-height:392px;
+  margin:0 -7px 8px;
+  padding:18px 0 12px;
+  overflow:hidden;
+}
+
+.home-cover-bg{
+  inset:-18% -24%;
+  opacity:.26;
+  transform:scale(1.08);
+  filter:hue-rotate(34deg) saturate(.62) brightness(.66) blur(.2px);
+  background:
+    radial-gradient(ellipse at 50% 43%,
+      rgba(223,196,255,.16) 0%,
+      rgba(143,99,255,.10) 32%,
+      rgba(16,13,22,0) 67%),
+    url('assets/wfgg-hero-bg-r2q.webp') center 43%/cover no-repeat;
+  -webkit-mask-image:radial-gradient(
+    ellipse at 50% 46%,
+    #000 0%,
+    rgba(0,0,0,.96) 44%,
+    rgba(0,0,0,.62) 63%,
+    rgba(0,0,0,.18) 79%,
+    transparent 94%
+  );
+  mask-image:radial-gradient(
+    ellipse at 50% 46%,
+    #000 0%,
+    rgba(0,0,0,.96) 44%,
+    rgba(0,0,0,.62) 63%,
+    rgba(0,0,0,.18) 79%,
+    transparent 94%
+  );
+}
+
+.home-cover-vignette{
+  inset:-1px;
+  background:
+    radial-gradient(ellipse at 50% 42%,
+      rgba(131,91,189,.30) 0%,
+      rgba(77,51,112,.19) 38%,
+      rgba(16,13,22,.06) 63%,
+      rgba(16,13,22,.88) 100%),
+    linear-gradient(180deg,
+      var(--bg) 0%,
+      rgba(16,13,22,.05) 14%,
+      rgba(16,13,22,.02) 69%,
+      var(--bg) 100%);
+}
+
+/*
+ * Le logo reste le fichier R2Q original.
+ * soft-light transforme son blanc résiduel en nuance du fond,
+ * au lieu de laisser apparaître une découpe blanche.
+ * Le traitement est appliqué uniquement au fallback R2Q :
+ * un logo personnalisé conserve un rendu normal.
+ */
+.home-alliance-logo.r2q-integrated-logo{
+  width:min(390px,76vw);
+  max-height:none;
+  object-fit:contain;
+  mix-blend-mode:soft-light;
+  opacity:1;
+  filter:
+    brightness(1.38)
+    saturate(1.30)
+    contrast(1.07)
+    drop-shadow(0 19px 28px rgba(0,0,0,.30));
+}
+
+/* Pas de crop : on réserve la hauteur nécessaire à la baseline. */
+.home-brand-logo-wrap{
+  width:min(520px,100%);
+  min-height:0;
+  padding:4px 0 2px;
+  overflow:visible;
+}
+
+/*
+ * Les informations de l'alliance commencent APRÈS la baseline.
+ * L'ancienne marge négative était la cause du chevauchement.
+ */
+.home-alliance-meta{
+  margin-top:10px;
+  gap:3px;
+}
+
+.home-alliance-meta strong{
+  font-size:20px;
+}
+
+.home-alliance-server{
+  font-size:12px;
+}
+
+/* L'identité WfGg interne au logo suffit : le kicker devient discret. */
+.home-alliance-kicker{
+  font-size:9px;
+  opacity:.68;
+  letter-spacing:.16em;
+}
+
+/* La transition vers Bienvenue est continue, sans second cadre visuel. */
+.home-welcome-row{
+  margin-top:18px;
+}
+
+@media(max-width:760px){
+  .home-brand-stage{
+    min-height:370px;
+    padding-top:14px;
+  }
+  .home-alliance-logo.r2q-integrated-logo{
+    width:min(365px,78vw);
+  }
+}
+
+@media(max-width:560px){
+  .home-brand-stage{
+    min-height:344px;
+    padding:10px 0 8px;
+    margin-bottom:4px;
+  }
+  .home-cover-bg{
+    inset:-18% -38%;
+    opacity:.23;
+  }
+  .home-alliance-logo.r2q-integrated-logo{
+    width:min(330px,79vw);
+    filter:
+      brightness(1.42)
+      saturate(1.30)
+      contrast(1.07)
+      drop-shadow(0 16px 23px rgba(0,0,0,.26));
+  }
+  .home-alliance-meta{
+    margin-top:8px;
+  }
+  .home-welcome-row{
+    margin-top:16px;
+  }
+}
+
+@media(max-width:390px){
+  .home-brand-stage{
+    min-height:322px;
+  }
+  .home-alliance-logo.r2q-integrated-logo{
+    width:min(295px,80vw);
+  }
+}
