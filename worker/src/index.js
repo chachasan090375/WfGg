@@ -1,7 +1,9 @@
 const JSON_HEADERS = { 'Content-Type': 'application/json; charset=utf-8' };
 const ALLOWED_LANGS = new Set(['fr', 'it', 'en', 'es']);
 const ALLOWED_RANKS = new Set(['R1', 'R2', 'R3', 'R4', 'R5']);
+const ALLOWED_OFFICER_TITLES = new Set(['WARLORD', 'RECRUITER', 'MUSE', 'BUTLER']);
 const ADMIN_RANKS = new Set(['R4', 'R5']);
+const SYSTEM_OWNER = 'OWNER';
 const SESSION_DAYS = 365;
 const LOGIN_WINDOW_MS = 15 * 60 * 1000;
 const LOGIN_BLOCK_MS = 15 * 60 * 1000;
@@ -25,7 +27,7 @@ export default {
       let response;
 
       if (url.pathname === '/api/health' && request.method === 'GET') {
-        response = json({ ok: true, service: 'wfgg-api', version: '0.2.0' });
+        response = json({ ok: true, service: 'wfgg-api', version: '0.3.0' });
       } else if (url.pathname === '/api/bootstrap' && request.method === 'POST') {
         response = await bootstrap(request, env);
       } else if (url.pathname === '/api/auth' && request.method === 'POST') {
@@ -44,6 +46,8 @@ export default {
         response = await listMembers(request, env);
       } else if (url.pathname === '/api/admin/members' && request.method === 'POST') {
         response = await createMember(request, env);
+      } else if (url.pathname === '/api/admin/leadership/transfer' && request.method === 'POST') {
+        response = await transferLeadership(request, env);
       } else if (/^\/api\/admin\/members\/[^/]+$/.test(url.pathname) && request.method === 'PATCH') {
         response = await updateMember(request, env, decodeURIComponent(url.pathname.split('/').pop()));
       } else if (/^\/api\/admin\/members\/[^/]+\/code$/.test(url.pathname) && request.method === 'POST') {
@@ -118,6 +122,33 @@ function normalizeRank(rank) {
   return normalized;
 }
 
+function normalizeOfficerTitle(value) {
+  if (value === null || value === undefined || String(value).trim() === '') return null;
+  const normalized = String(value).trim().toUpperCase();
+  if (!ALLOWED_OFFICER_TITLES.has(normalized)) fail('INVALID_OFFICER_TITLE', 400);
+  return normalized;
+}
+
+function isOwner(ctx) {
+  return ctx.system_role === SYSTEM_OWNER;
+}
+
+function canTransferLeadership(ctx) {
+  return isOwner(ctx) ||
+    ctx.rank === 'R5' ||
+    (ctx.rank === 'R4' && ctx.officer_title === 'BUTLER');
+}
+
+function permissionsFor(ctx) {
+  return {
+    is_owner: isOwner(ctx),
+    can_admin_members: isOwner(ctx) || ADMIN_RANKS.has(ctx.rank),
+    can_manage_alliance: isOwner(ctx) || ADMIN_RANKS.has(ctx.rank),
+    can_assign_r4_offices: isOwner(ctx) || ctx.rank === 'R5',
+    can_transfer_r5: canTransferLeadership(ctx)
+  };
+}
+
 function toBase64Url(bytes) {
   return btoa(String.fromCharCode(...bytes))
     .replace(/\+/g, '-')
@@ -146,6 +177,22 @@ async function hmacHex(secret, value) {
 
 async function codeKey(env, code) {
   return hmacHex(env.APP_SECRET, `wfgg-auth-code:v2:${normalizeCode(code)}`);
+}
+
+function constantTimeEqual(a, b) {
+  const left = String(a || '');
+  const right = String(b || '');
+  if (left.length !== right.length) return false;
+  let diff = 0;
+  for (let i = 0; i < left.length; i += 1) {
+    diff |= left.charCodeAt(i) ^ right.charCodeAt(i);
+  }
+  return diff === 0;
+}
+
+async function verifyOwnCode(ctx, env, code) {
+  const supplied = await codeKey(env, code);
+  if (!constantTimeEqual(supplied, ctx.auth_code_key)) fail('REAUTH_REQUIRED', 403);
 }
 
 async function audit(env, actor, action, targetType = null, targetId = null, details = null) {
@@ -225,6 +272,7 @@ async function bootstrap(request, env) {
   const allianceName = String(body.alliance_name || 'WfGg').trim();
   const server = String(body.server || '').trim().slice(0, 30) || null;
   const language = ALLOWED_LANGS.has(body.language) ? body.language : 'fr';
+  const officerTitle = normalizeOfficerTitle(body.officer_title);
 
   if (!playerName || playerName.length > 40) fail('PLAYER_NAME_REQUIRED');
   if (!allianceName || allianceName.length > 50) fail('ALLIANCE_NAME_REQUIRED');
@@ -239,13 +287,44 @@ async function bootstrap(request, env) {
       'INSERT INTO users(id,player_name,display_name,language,auth_code_key,active,created_at,updated_at) VALUES(?,?,?,?,?,1,?,?)'
     ).bind(userId, playerName, playerName, language, key, ts, ts),
     env.DB.prepare(
-      'INSERT INTO memberships(user_id,alliance_id,rank,created_at,updated_at) VALUES(?,?,?,?,?)'
-    ).bind(userId, allianceId, 'R5', ts, ts)
+      'INSERT INTO memberships(user_id,alliance_id,rank,officer_title,created_at,updated_at) VALUES(?,?,?,?,?,?)'
+    ).bind(userId, allianceId, 'R4', officerTitle, ts, ts),
+    env.DB.prepare(
+      'INSERT INTO system_roles(user_id,role,created_at) VALUES(?,?,?)'
+    ).bind(userId, SYSTEM_OWNER, ts)
   ]);
 
-  await audit(env, userId, 'BOOTSTRAP', 'alliance', allianceId, { rank: 'R5' });
-  return json({ ok: true, user_id: userId, alliance_id: allianceId }, 201);
+  await audit(env, userId, 'BOOTSTRAP_OWNER', 'alliance', allianceId, {
+    rank: 'R4',
+    officer_title: officerTitle,
+    system_role: SYSTEM_OWNER
+  });
+
+  return json({
+    ok: true,
+    user_id: userId,
+    alliance_id: allianceId,
+    rank: 'R4',
+    officer_title: officerTitle,
+    system_role: SYSTEM_OWNER
+  }, 201);
 }
+
+const SESSION_SELECT = `
+  SELECT
+    u.*,
+    m.alliance_id,
+    m.rank,
+    m.officer_title,
+    sr.role AS system_role,
+    a.name AS alliance_name,
+    a.server AS alliance_server,
+    a.logo_url AS alliance_logo_url
+  FROM users u
+  JOIN memberships m ON m.user_id = u.id
+  JOIN alliances a ON a.id = m.alliance_id
+  LEFT JOIN system_roles sr ON sr.user_id = u.id
+`;
 
 async function authenticate(request, env) {
   const clientKey = await authClientKey(request, env);
@@ -254,16 +333,7 @@ async function authenticate(request, env) {
   const { code } = await request.json();
   const key = await codeKey(env, code);
   const row = await env.DB.prepare(`
-    SELECT
-      u.*,
-      m.alliance_id,
-      m.rank,
-      a.name AS alliance_name,
-      a.server AS alliance_server,
-      a.logo_url AS alliance_logo_url
-    FROM users u
-    JOIN memberships m ON m.user_id = u.id
-    JOIN alliances a ON a.id = m.alliance_id
+    ${SESSION_SELECT}
     WHERE u.auth_code_key = ? AND u.active = 1
     LIMIT 1
   `).bind(key).first();
@@ -319,6 +389,8 @@ async function sessionContext(request, env) {
       u.*,
       m.alliance_id,
       m.rank,
+      m.officer_title,
+      sr.role AS system_role,
       a.name AS alliance_name,
       a.server AS alliance_server,
       a.logo_url AS alliance_logo_url
@@ -326,6 +398,7 @@ async function sessionContext(request, env) {
     JOIN users u ON u.id = s.user_id
     JOIN memberships m ON m.user_id = u.id
     JOIN alliances a ON a.id = m.alliance_id
+    LEFT JOIN system_roles sr ON sr.user_id = u.id
     WHERE s.token_hash = ? AND s.expires_at > ? AND u.active = 1
     LIMIT 1
   `).bind(hash, now()).first();
@@ -353,8 +426,13 @@ function shapeContext(row) {
     },
     membership: {
       alliance_id: row.alliance_id,
-      rank: row.rank
+      rank: row.rank,
+      officer_title: row.officer_title || null
     },
+    system: {
+      role: row.system_role || null
+    },
+    permissions: permissionsFor(row),
     alliance: {
       id: row.alliance_id,
       name: row.alliance_name,
@@ -448,11 +526,11 @@ async function serveAvatar(key, env) {
 }
 
 function requireAllianceAdmin(ctx) {
-  if (!ADMIN_RANKS.has(ctx.rank)) fail('FORBIDDEN', 403);
+  if (!isOwner(ctx) && !ADMIN_RANKS.has(ctx.rank)) fail('FORBIDDEN', 403);
 }
 
-function requireR5(ctx) {
-  if (ctx.rank !== 'R5') fail('R5_REQUIRED', 403);
+function requireR5OrOwner(ctx) {
+  if (!isOwner(ctx) && ctx.rank !== 'R5') fail('R5_OR_OWNER_REQUIRED', 403);
 }
 
 async function updateAlliance(request, env) {
@@ -497,12 +575,16 @@ async function listMembers(request, env) {
       u.active,
       u.last_login_at,
       u.profile_completed_at,
-      m.rank
+      m.rank,
+      m.officer_title,
+      sr.role AS system_role
     FROM users u
     JOIN memberships m ON m.user_id = u.id
+    LEFT JOIN system_roles sr ON sr.user_id = u.id
     WHERE m.alliance_id = ?
     ORDER BY
       CASE m.rank WHEN 'R5' THEN 0 WHEN 'R4' THEN 1 WHEN 'R3' THEN 2 WHEN 'R2' THEN 3 ELSE 4 END,
+      CASE WHEN sr.role = 'OWNER' THEN 0 ELSE 1 END,
       u.display_name COLLATE NOCASE
   `).bind(ctx.alliance_id).all();
 
@@ -516,9 +598,19 @@ async function createMember(request, env) {
   const body = await request.json();
   const playerName = String(body.player_name || '').trim();
   const rank = normalizeRank(body.rank);
+  const officerTitle = normalizeOfficerTitle(body.officer_title);
 
   if (!playerName || playerName.length > 40) fail('INVALID_PLAYER_NAME');
-  if (rank === 'R5') requireR5(ctx);
+  if (rank === 'R5') fail('CREATE_AS_R4_THEN_TRANSFER_R5', 409);
+
+  if (officerTitle) {
+    requireR5OrOwner(ctx);
+    if (rank !== 'R4') fail('OFFICER_REQUIRES_R4', 409);
+  }
+
+  if (rank === 'R4' && !isOwner(ctx) && ctx.rank !== 'R5') {
+    fail('R5_OR_OWNER_REQUIRED_FOR_R4', 403);
+  }
 
   const key = await codeKey(env, body.code);
   const userId = id('user');
@@ -531,56 +623,76 @@ async function createMember(request, env) {
         VALUES(?,?,?,?,?,1,?,?)
       `).bind(userId, playerName, playerName, 'fr', key, ts, ts),
       env.DB.prepare(`
-        INSERT INTO memberships(user_id,alliance_id,rank,created_at,updated_at)
-        VALUES(?,?,?,?,?)
-      `).bind(userId, ctx.alliance_id, rank, ts, ts)
+        INSERT INTO memberships(user_id,alliance_id,rank,officer_title,created_at,updated_at)
+        VALUES(?,?,?,?,?,?)
+      `).bind(userId, ctx.alliance_id, rank, officerTitle, ts, ts)
     ]);
   } catch (err) {
     console.error(err);
+    if (String(err?.message || '').includes('idx_memberships_unique_officer_per_alliance')) {
+      fail('OFFICER_TITLE_ALREADY_ASSIGNED', 409);
+    }
     fail('PLAYER_OR_CODE_ALREADY_EXISTS', 409);
   }
 
-  await audit(env, ctx.id, 'MEMBER_CREATE', 'user', userId, { rank });
+  await audit(env, ctx.id, 'MEMBER_CREATE', 'user', userId, {
+    rank,
+    officer_title: officerTitle
+  });
+
   return json({ ok: true, id: userId }, 201);
 }
 
 async function getTargetMembership(env, allianceId, userId) {
   return env.DB.prepare(`
-    SELECT u.id,u.active,m.rank
+    SELECT
+      u.id,
+      u.active,
+      u.auth_code_key,
+      m.rank,
+      m.officer_title,
+      sr.role AS system_role
     FROM users u
     JOIN memberships m ON m.user_id=u.id
+    LEFT JOIN system_roles sr ON sr.user_id=u.id
     WHERE u.id=? AND m.alliance_id=?
   `).bind(userId, allianceId).first();
 }
 
-async function activeR5Count(env, allianceId) {
-  const row = await env.DB.prepare(`
-    SELECT COUNT(*) AS n
+async function currentR5(env, allianceId) {
+  return env.DB.prepare(`
+    SELECT u.id, u.active
     FROM users u
     JOIN memberships m ON m.user_id=u.id
-    WHERE m.alliance_id=? AND m.rank='R5' AND u.active=1
+    WHERE m.alliance_id=? AND m.rank='R5'
+    LIMIT 1
   `).bind(allianceId).first();
-  return Number(row?.n || 0);
 }
 
 async function updateMember(request, env, userId) {
   const ctx = await sessionContext(request, env);
   requireAllianceAdmin(ctx);
 
-  const target = await getTargetMembership(env, ctx.alliance_id, userId);
+  let target = await getTargetMembership(env, ctx.alliance_id, userId);
   if (!target) fail('MEMBER_NOT_FOUND', 404);
+
+  if (target.system_role === SYSTEM_OWNER && !isOwner(ctx)) fail('OWNER_PROTECTED', 403);
 
   const body = await request.json();
 
   if (Object.prototype.hasOwnProperty.call(body, 'rank')) {
     const nextRank = normalizeRank(body.rank);
 
-    if (nextRank === 'R5' || target.rank === 'R5') requireR5(ctx);
-    if (userId === ctx.id && target.rank === 'R5' && nextRank !== 'R5') {
-      fail('CANNOT_DEMOTE_SELF_R5', 409);
+    if (nextRank === 'R5' || target.rank === 'R5') {
+      fail('USE_LEADERSHIP_TRANSFER', 409);
     }
-    if (target.rank === 'R5' && nextRank !== 'R5' && target.active && await activeR5Count(env, ctx.alliance_id) <= 1) {
-      fail('ALLIANCE_REQUIRES_ACTIVE_R5', 409);
+
+    if ((nextRank === 'R4' || target.rank === 'R4') && !isOwner(ctx) && ctx.rank !== 'R5') {
+      fail('R5_OR_OWNER_REQUIRED_FOR_R4', 403);
+    }
+
+    if (target.officer_title && nextRank !== 'R4') {
+      fail('CLEAR_OFFICER_TITLE_FIRST', 409);
     }
 
     await env.DB.prepare(
@@ -589,17 +701,38 @@ async function updateMember(request, env, userId) {
 
     await env.DB.prepare('DELETE FROM sessions WHERE user_id=?').bind(userId).run();
     await audit(env, ctx.id, 'MEMBER_RANK_UPDATE', 'user', userId, { rank: nextRank });
+    target = await getTargetMembership(env, ctx.alliance_id, userId);
+  }
+
+  if (Object.prototype.hasOwnProperty.call(body, 'officer_title')) {
+    requireR5OrOwner(ctx);
+    const officerTitle = normalizeOfficerTitle(body.officer_title);
+
+    if (target.rank !== 'R4' && officerTitle) fail('OFFICER_REQUIRES_R4', 409);
+
+    try {
+      await env.DB.prepare(
+        'UPDATE memberships SET officer_title=?,updated_at=? WHERE user_id=? AND alliance_id=?'
+      ).bind(officerTitle, now(), userId, ctx.alliance_id).run();
+    } catch (err) {
+      console.error(err);
+      fail('OFFICER_TITLE_ALREADY_ASSIGNED', 409);
+    }
+
+    await env.DB.prepare('DELETE FROM sessions WHERE user_id=?').bind(userId).run();
+    await audit(env, ctx.id, 'MEMBER_OFFICER_UPDATE', 'user', userId, {
+      officer_title: officerTitle
+    });
+    target = await getTargetMembership(env, ctx.alliance_id, userId);
   }
 
   if (Object.prototype.hasOwnProperty.call(body, 'active')) {
-    if (target.rank === 'R5') requireR5(ctx);
+    if (target.rank === 'R5') fail('TRANSFER_R5_BEFORE_DISABLE', 409);
+    if (target.rank === 'R4') requireR5OrOwner(ctx);
     if (userId === ctx.id) fail('CANNOT_DISABLE_SELF', 409);
+    if (target.system_role === SYSTEM_OWNER) fail('OWNER_CANNOT_BE_DISABLED', 409);
 
     const active = body.active ? 1 : 0;
-    if (!active && target.rank === 'R5' && await activeR5Count(env, ctx.alliance_id) <= 1) {
-      fail('ALLIANCE_REQUIRES_ACTIVE_R5', 409);
-    }
-
     await env.DB.prepare('UPDATE users SET active=?,updated_at=? WHERE id=?')
       .bind(active, now(), userId)
       .run();
@@ -614,13 +747,75 @@ async function updateMember(request, env, userId) {
   return json({ ok: true });
 }
 
+async function transferLeadership(request, env) {
+  const ctx = await sessionContext(request, env);
+  if (!canTransferLeadership(ctx)) fail('LEADERSHIP_TRANSFER_FORBIDDEN', 403);
+
+  const body = await request.json();
+  const targetUserId = String(body.target_user_id || '').trim();
+  if (!targetUserId) fail('TARGET_USER_REQUIRED', 400);
+
+  await verifyOwnCode(ctx, env, body.current_code);
+
+  const target = await getTargetMembership(env, ctx.alliance_id, targetUserId);
+  if (!target || !target.active) fail('TARGET_MEMBER_NOT_ACTIVE', 404);
+  if (target.system_role === SYSTEM_OWNER && !isOwner(ctx)) fail('OWNER_PROTECTED', 403);
+  if (target.rank !== 'R4') fail('R5_TARGET_MUST_BE_R4', 409);
+
+  const oldR5 = await currentR5(env, ctx.alliance_id);
+  const ts = now();
+
+  const statements = [];
+
+  if (oldR5 && oldR5.id !== targetUserId) {
+    statements.push(
+      env.DB.prepare(
+        "UPDATE memberships SET rank='R4',officer_title=NULL,updated_at=? WHERE user_id=? AND alliance_id=?"
+      ).bind(ts, oldR5.id, ctx.alliance_id)
+    );
+  }
+
+  statements.push(
+    env.DB.prepare(
+      "UPDATE memberships SET rank='R5',officer_title=NULL,updated_at=? WHERE user_id=? AND alliance_id=?"
+    ).bind(ts, targetUserId, ctx.alliance_id)
+  );
+
+  if (oldR5 && oldR5.id !== targetUserId) {
+    statements.push(
+      env.DB.prepare('DELETE FROM sessions WHERE user_id=?').bind(oldR5.id)
+    );
+  }
+
+  statements.push(
+    env.DB.prepare('DELETE FROM sessions WHERE user_id=?').bind(targetUserId)
+  );
+
+  await env.DB.batch(statements);
+
+  await audit(env, ctx.id, 'LEADERSHIP_TRANSFER', 'user', targetUserId, {
+    previous_r5_user_id: oldR5?.id || null,
+    new_r5_user_id: targetUserId,
+    actor_rank: ctx.rank,
+    actor_officer_title: ctx.officer_title || null,
+    actor_system_role: ctx.system_role || null
+  });
+
+  return json({
+    ok: true,
+    previous_r5_user_id: oldR5?.id || null,
+    new_r5_user_id: targetUserId
+  });
+}
+
 async function resetMemberCode(request, env, userId) {
   const ctx = await sessionContext(request, env);
   requireAllianceAdmin(ctx);
 
   const target = await getTargetMembership(env, ctx.alliance_id, userId);
   if (!target) fail('MEMBER_NOT_FOUND', 404);
-  if (target.rank === 'R5' && ctx.rank !== 'R5') fail('R5_REQUIRED', 403);
+  if (target.system_role === SYSTEM_OWNER && !isOwner(ctx)) fail('OWNER_PROTECTED', 403);
+  if (target.rank === 'R5' || target.rank === 'R4') requireR5OrOwner(ctx);
 
   const { code } = await request.json();
   const key = await codeKey(env, code);
