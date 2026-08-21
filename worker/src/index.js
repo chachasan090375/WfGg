@@ -27,7 +27,7 @@ export default {
       let response;
 
       if (url.pathname === '/api/health' && request.method === 'GET') {
-        response = json({ ok: true, service: 'wfgg-api', version: '0.3.0' });
+        response = json({ ok: true, service: 'wfgg-api', version: '0.4.0' });
       } else if (url.pathname === '/api/bootstrap' && request.method === 'POST') {
         response = await bootstrap(request, env);
       } else if (url.pathname === '/api/auth' && request.method === 'POST') {
@@ -40,6 +40,14 @@ export default {
         response = await updateProfile(request, env);
       } else if (url.pathname === '/api/profile/avatar' && request.method === 'POST') {
         response = await uploadAvatar(request, env);
+      } else if (url.pathname === '/api/me/code' && request.method === 'PATCH') {
+        response = await updateOwnCode(request, env);
+      } else if (url.pathname === '/api/me/sessions' && request.method === 'GET') {
+        response = await listOwnSessions(request, env);
+      } else if (url.pathname === '/api/me/sessions/others' && request.method === 'DELETE') {
+        response = await revokeOtherSessions(request, env);
+      } else if (url.pathname === '/api/portal/settings' && request.method === 'PATCH') {
+        response = await updatePortalSettings(request, env);
       } else if (url.pathname === '/api/alliance' && request.method === 'PATCH') {
         response = await updateAlliance(request, env);
       } else if (url.pathname === '/api/admin/members' && request.method === 'GET') {
@@ -90,7 +98,7 @@ function cors(response, request, env) {
     response.headers.set('Vary', 'Origin');
   }
   response.headers.set('Access-Control-Allow-Headers', 'Authorization, Content-Type, X-Bootstrap-Secret');
-  response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PATCH, OPTIONS');
+  response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE, OPTIONS');
   response.headers.set('Cache-Control', 'no-store');
   response.headers.set('X-Content-Type-Options', 'nosniff');
   return response;
@@ -134,18 +142,18 @@ function isOwner(ctx) {
 }
 
 function canTransferLeadership(ctx) {
-  return isOwner(ctx) ||
-    ctx.rank === 'R5' ||
-    (ctx.rank === 'R4' && ctx.officer_title === 'BUTLER');
+  return isOwner(ctx) || ADMIN_RANKS.has(ctx.rank);
 }
 
 function permissionsFor(ctx) {
+  const admin = isOwner(ctx) || ADMIN_RANKS.has(ctx.rank);
   return {
     is_owner: isOwner(ctx),
-    can_admin_members: isOwner(ctx) || ADMIN_RANKS.has(ctx.rank),
-    can_manage_alliance: isOwner(ctx) || ADMIN_RANKS.has(ctx.rank),
-    can_assign_r4_offices: isOwner(ctx) || ctx.rank === 'R5',
-    can_transfer_r5: canTransferLeadership(ctx)
+    can_admin_members: admin,
+    can_manage_alliance: admin,
+    can_manage_portal_settings: admin,
+    can_assign_r4_offices: admin,
+    can_transfer_r5: admin
   };
 }
 
@@ -319,7 +327,8 @@ const SESSION_SELECT = `
     sr.role AS system_role,
     a.name AS alliance_name,
     a.server AS alliance_server,
-    a.logo_url AS alliance_logo_url
+    a.logo_url AS alliance_logo_url,
+    a.settings_json AS alliance_settings_json
   FROM users u
   JOIN memberships m ON m.user_id = u.id
   JOIN alliances a ON a.id = m.alliance_id
@@ -393,7 +402,8 @@ async function sessionContext(request, env) {
       sr.role AS system_role,
       a.name AS alliance_name,
       a.server AS alliance_server,
-      a.logo_url AS alliance_logo_url
+      a.logo_url AS alliance_logo_url,
+      a.settings_json AS alliance_settings_json
     FROM sessions s
     JOIN users u ON u.id = s.user_id
     JOIN memberships m ON m.user_id = u.id
@@ -412,6 +422,37 @@ async function sessionContext(request, env) {
 
   row.session_hash = hash;
   return row;
+}
+
+function parseSettingsJson(raw) {
+  try {
+    const parsed = JSON.parse(String(raw || '{}'));
+    return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
+  } catch (_) {
+    return {};
+  }
+}
+
+function portalSettingsFromRaw(raw) {
+  const root = parseSettingsJson(raw);
+  const p = root.portal && typeof root.portal === 'object' ? root.portal : {};
+  return {
+    welcome_text: String(p.welcome_text || '').slice(0, 180),
+    guides_title: String(p.guides_title || '').slice(0, 40),
+    guides_url: p.guides_url ? String(p.guides_url).slice(0, 500) : null,
+    train_title: String(p.train_title || '').slice(0, 40),
+    train_url: p.train_url ? String(p.train_url).slice(0, 500) : null
+  };
+}
+
+function validateHttpsUrl(value, field) {
+  const text = String(value || '').trim();
+  if (!text) return null;
+  if (text.length > 500) fail(`${field}_TOO_LONG`, 400);
+  let url;
+  try { url = new URL(text); } catch (_) { fail(`${field}_INVALID`, 400); }
+  if (url.protocol !== 'https:') fail(`${field}_HTTPS_REQUIRED`, 400);
+  return url.toString();
 }
 
 function shapeContext(row) {
@@ -438,7 +479,8 @@ function shapeContext(row) {
       name: row.alliance_name,
       server: row.alliance_server,
       logo_url: row.alliance_logo_url
-    }
+    },
+    portal_settings: portalSettingsFromRaw(row.alliance_settings_json)
   };
 }
 
@@ -475,6 +517,65 @@ async function updateProfile(request, env) {
   });
 
   return me(request, env);
+}
+
+async function updateOwnCode(request, env) {
+  const ctx = await sessionContext(request, env);
+  const body = await request.json();
+  await verifyOwnCode(ctx, env, body.current_code);
+  const nextKey = await codeKey(env, body.new_code);
+  try {
+    await env.DB.prepare('UPDATE users SET auth_code_key=?,updated_at=? WHERE id=?')
+      .bind(nextKey, now(), ctx.id).run();
+  } catch (err) {
+    console.error(err);
+    fail('CODE_ALREADY_EXISTS', 409);
+  }
+  await env.DB.prepare('DELETE FROM sessions WHERE user_id=? AND token_hash<>?')
+    .bind(ctx.id, ctx.session_hash).run();
+  await audit(env, ctx.id, 'OWN_CODE_UPDATE', 'user', ctx.id);
+  return json({ ok: true });
+}
+
+async function listOwnSessions(request, env) {
+  const ctx = await sessionContext(request, env);
+  const rows = await env.DB.prepare(`
+    SELECT token_hash,created_at,expires_at,last_seen_at,user_agent
+    FROM sessions WHERE user_id=? AND expires_at>? ORDER BY last_seen_at DESC
+  `).bind(ctx.id, now()).all();
+  return json({ sessions: (rows.results || []).map((row) => ({
+    created_at: row.created_at,
+    expires_at: row.expires_at,
+    last_seen_at: row.last_seen_at,
+    user_agent: row.user_agent,
+    current: row.token_hash === ctx.session_hash
+  })) });
+}
+
+async function revokeOtherSessions(request, env) {
+  const ctx = await sessionContext(request, env);
+  await env.DB.prepare('DELETE FROM sessions WHERE user_id=? AND token_hash<>?')
+    .bind(ctx.id, ctx.session_hash).run();
+  await audit(env, ctx.id, 'OTHER_SESSIONS_REVOKED', 'user', ctx.id);
+  return json({ ok: true });
+}
+
+async function updatePortalSettings(request, env) {
+  const ctx = await sessionContext(request, env);
+  requireAllianceAdmin(ctx);
+  const body = await request.json();
+  const welcomeText = String(body.welcome_text || '').trim().slice(0, 180);
+  const guidesTitle = String(body.guides_title || 'Guides').trim().slice(0, 40) || 'Guides';
+  const trainTitle = String(body.train_title || 'Train').trim().slice(0, 40) || 'Train';
+  const guidesUrl = validateHttpsUrl(body.guides_url, 'GUIDES_URL');
+  const trainUrl = validateHttpsUrl(body.train_url, 'TRAIN_URL');
+  const row = await env.DB.prepare('SELECT settings_json FROM alliances WHERE id=?').bind(ctx.alliance_id).first();
+  const root = parseSettingsJson(row?.settings_json);
+  root.portal = { welcome_text: welcomeText, guides_title: guidesTitle, guides_url: guidesUrl, train_title: trainTitle, train_url: trainUrl };
+  await env.DB.prepare('UPDATE alliances SET settings_json=?,updated_at=? WHERE id=?')
+    .bind(JSON.stringify(root), now(), ctx.alliance_id).run();
+  await audit(env, ctx.id, 'PORTAL_SETTINGS_UPDATE', 'alliance', ctx.alliance_id, root.portal);
+  return json({ portal_settings: root.portal });
 }
 
 async function uploadAvatar(request, env) {
@@ -530,7 +631,7 @@ function requireAllianceAdmin(ctx) {
 }
 
 function requireR5OrOwner(ctx) {
-  if (!isOwner(ctx) && ctx.rank !== 'R5') fail('R5_OR_OWNER_REQUIRED', 403);
+  requireAllianceAdmin(ctx);
 }
 
 async function updateAlliance(request, env) {
@@ -608,9 +709,6 @@ async function createMember(request, env) {
     if (rank !== 'R4') fail('OFFICER_REQUIRES_R4', 409);
   }
 
-  if (rank === 'R4' && !isOwner(ctx) && ctx.rank !== 'R5') {
-    fail('R5_OR_OWNER_REQUIRED_FOR_R4', 403);
-  }
 
   const key = await codeKey(env, body.code);
   const userId = id('user');
@@ -685,10 +783,6 @@ async function updateMember(request, env, userId) {
 
     if (nextRank === 'R5' || target.rank === 'R5') {
       fail('USE_LEADERSHIP_TRANSFER', 409);
-    }
-
-    if ((nextRank === 'R4' || target.rank === 'R4') && !isOwner(ctx) && ctx.rank !== 'R5') {
-      fail('R5_OR_OWNER_REQUIRED_FOR_R4', 403);
     }
 
     if (target.officer_title && nextRank !== 'R4') {

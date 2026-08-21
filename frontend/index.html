@@ -2,198 +2,89 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#17131f" />
-  <meta name="color-scheme" content="dark" />
-  <meta name="description" content="Portail WfGg — accès aux modules Train, Guides et Simulateur." />
-  <title>WfGg Portal</title>
-  <link rel="manifest" href="manifest.webmanifest" />
-  <link rel="stylesheet" href="styles.css" />
-  <link rel="stylesheet" href="members-admin-v060.css?v=060" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#100d16" />
+  <title>WfGg · Portail</title>
+  <link rel="stylesheet" href="portal-v070.css?v=070" />
 </head>
 <body>
-  <div class="ambient ambient-one"></div>
-  <div class="ambient ambient-two"></div>
-
-  <main id="app" class="app-shell" aria-live="polite">
-    <section id="bootView" class="center-view">
-      <div class="boot-stack">
-        <div class="brand-mark" aria-hidden="true">W</div>
-        <div class="spinner"></div>
-      </div>
-    </section>
+  <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
+  <main id="app" class="app-shell">
+    <section id="bootView" class="center-view"><div class="spinner" aria-label="Chargement"></div></section>
 
     <section id="authView" class="center-view hidden">
       <div class="auth-card glass-card">
-        <div class="brand-row">
-          <div class="brand-mark">W</div>
-          <div>
-            <div class="eyebrow">WfGg</div>
-            <h1 data-i18n="auth.title">Portail</h1>
-          </div>
-        </div>
+        <div class="brand-row"><div class="brand-mark">W</div><div><p class="eyebrow">WfGg</p><h1 data-i18n="auth.title">Portail</h1></div></div>
         <p class="muted" data-i18n="auth.subtitle">Entrez votre code WfGg pour vous connecter.</p>
         <form id="authForm" class="stack">
-          <label class="field-label" for="authCode" data-i18n="auth.codeLabel">Code d’authentification</label>
-          <input id="authCode" class="code-input" type="password" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" placeholder="••••••" required />
+          <label class="field-label" for="authCode" data-i18n="auth.code">Code d’authentification</label>
+          <input id="authCode" class="code-input" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" placeholder="••••••" required />
           <button class="primary-button" type="submit" data-i18n="auth.login">Se connecter</button>
-          <p id="authError" class="error-text hidden" role="alert"></p>
+          <p id="authError" class="error-text hidden"></p>
         </form>
-        <div class="language-strip" aria-label="Language">
-          <button type="button" data-lang="fr">FR</button>
-          <button type="button" data-lang="it">IT</button>
-          <button type="button" data-lang="en">EN</button>
-          <button type="button" data-lang="es">ES</button>
+        <div class="language-strip" id="languageStrip">
+          <button type="button" data-lang="fr">FR</button><button type="button" data-lang="it">IT</button><button type="button" data-lang="en">EN</button><button type="button" data-lang="es">ES</button>
         </div>
       </div>
     </section>
 
     <section id="portalView" class="portal hidden">
       <header class="topbar glass-card">
-        <button id="homeButton" class="brand-button" type="button" aria-label="WfGg">
-          <span class="brand-mark small">W</span>
-          <span class="brand-copy"><strong>WfGg</strong><small data-i18n="portal.brandSub">Portail</small></span>
-        </button>
-        <button id="profileMenuButton" class="profile-chip" type="button" aria-haspopup="true" aria-expanded="false">
-          <span id="topAvatar" class="avatar initials">?</span>
-          <span class="profile-chip-copy">
-            <strong id="topName">—</strong>
-            <small id="topRole">—</small>
-          </span>
-          <span class="chevron">⌄</span>
-        </button>
-        <div id="profileMenu" class="profile-menu glass-card hidden">
-          <button id="openSettingsButton" type="button">⚙️ <span data-i18n="menu.settings">Paramètres</span></button>
-          <button id="logoutButton" type="button">↪ <span data-i18n="menu.logout">Déconnexion</span></button>
+        <button id="homeButton" class="brand-button" type="button"><div class="brand-mark small">W</div><div class="brand-copy"><strong>WfGg</strong><small data-i18n="home.portal">Portail</small></div></button>
+        <div class="top-actions">
+          <button id="profileChip" class="profile-chip" type="button">
+            <div class="profile-chip-copy"><strong id="topName">—</strong><small id="topRole">—</small></div><span id="topAvatar" class="avatar"></span><span class="chevron">⌄</span>
+          </button>
+          <div id="profileMenu" class="profile-menu glass-card hidden">
+            <button type="button" data-action="settings" data-i18n="home.settings">⚙️ Paramètres</button>
+            <button type="button" data-action="logout" data-i18n="home.logout">Déconnexion</button>
+          </div>
         </div>
       </header>
 
       <section class="hero">
-        <p class="eyebrow" data-i18n="portal.welcomeLabel">Bienvenue</p>
+        <p class="eyebrow" data-i18n="home.welcome">Bienvenue</p>
         <h2><span id="heroName">—</span></h2>
-        <p class="muted" data-i18n="portal.subtitle">Choisissez votre espace WfGg.</p>
+        <p id="homeWelcome" class="muted">Choisissez votre espace WfGg.</p>
       </section>
+      <div id="profileRequiredBanner" class="profile-required glass-card hidden"><span>ℹ️</span><strong data-i18n="home.profileIncomplete">Votre profil est incomplet. Vous pouvez le compléter dans Paramètres.</strong></div>
 
-      <div id="profileRequiredBanner" class="profile-required glass-card hidden">
-        <span>👤</span>
-        <strong data-i18n="portal.profileRequired">Complétez votre profil avant d’ouvrir les modules.</strong>
-      </div>
-
-      <section class="module-grid" aria-label="Modules">
-        <button class="module-card glass-card" data-module="train" type="button">
-          <span class="module-icon">🚆</span>
-          <span class="module-copy"><strong>Train</strong><small data-i18n="modules.train">Organisation et rotations</small></span>
-          <span class="module-arrow">→</span>
-        </button>
-        <button class="module-card glass-card" data-module="guides" type="button">
-          <span class="module-icon">📚</span>
-          <span class="module-copy"><strong>Guides</strong><small data-i18n="modules.guides">Saison 6 et Inter-Saison</small></span>
-          <span class="module-arrow">→</span>
-        </button>
-        <button class="module-card glass-card disabled-card" data-module="simulator" type="button" aria-disabled="true">
-          <span class="module-icon">⚔️</span>
-          <span class="module-copy"><strong data-i18n="modules.simulatorTitle">Simulateur</strong><small data-i18n="modules.simulator">Module autonome en préparation</small></span>
-          <span class="module-status" data-i18n="common.soon">Bientôt</span>
-        </button>
+      <section class="module-grid" aria-label="Navigation principale">
+        <button class="module-card glass-card" type="button" data-module="guides"><span class="module-icon">📚</span><span class="module-arrow">↗</span><span class="module-copy"><strong id="guidesCardTitle">Guides</strong><small data-i18n="home.guidesSub">Saison 6 et Inter-Saison</small></span></button>
+        <button class="module-card glass-card" type="button" data-module="train"><span class="module-icon">🚂</span><span class="module-arrow">↗</span><span class="module-copy"><strong id="trainCardTitle">Train</strong><small data-i18n="home.trainSub">Organisation et rotations</small></span></button>
+        <button class="module-card glass-card settings-card" type="button" data-action="settings"><span class="module-icon">⚙️</span><span class="module-arrow">→</span><span class="module-copy"><strong data-i18n="home.settings">Paramètres</strong><small data-i18n="home.settingsSub">Profil, alliance et administration</small></span></button>
       </section>
     </section>
   </main>
 
-  <div id="settingsOverlay" class="overlay hidden" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
-    <section class="settings-panel glass-card">
-      <header class="settings-header">
-        <div>
-          <p class="eyebrow">WfGg</p>
-          <h2 id="settingsTitle" data-i18n="settings.title">Paramètres</h2>
-        </div>
-        <button id="closeSettingsButton" class="icon-button" type="button" aria-label="Close">×</button>
-      </header>
-
-      <div id="onboardingNotice" class="onboarding-notice hidden">
-        <strong data-i18n="settings.onboardingTitle">Première connexion</strong>
-        <p data-i18n="settings.onboardingText">Choisissez votre pseudo affiché et votre langue. Vous pourrez ajouter ou changer votre photo à tout moment.</p>
-      </div>
-
-      <nav class="tabs" aria-label="Settings tabs">
-        <button class="tab active" type="button" data-tab="profile" data-i18n="settings.profileTab">Mon profil</button>
-        <button id="allianceTabButton" class="tab hidden" type="button" data-tab="alliance" data-i18n="settings.allianceTab">Alliance</button>
-      </nav>
-
-      <div id="profileTab" class="tab-panel">
-        <form id="profileForm" class="settings-form">
-          <div class="avatar-editor">
-            <span id="settingsAvatar" class="avatar large initials">?</span>
-            <div>
-              <label class="secondary-button file-button">
-                <span data-i18n="profile.avatar">Changer la photo</span>
-                <input id="avatarInput" type="file" accept="image/png,image/jpeg,image/webp" hidden />
-              </label>
-              <small class="muted" data-i18n="profile.avatarHint">JPG, PNG ou WebP — 2 Mo max.</small>
-            </div>
-          </div>
-
-          <label class="field-label" for="displayName" data-i18n="profile.displayName">Pseudo affiché</label>
-          <input id="displayName" type="text" maxlength="40" required />
-
-          <label class="field-label" for="languageSelect" data-i18n="profile.language">Langue</label>
-          <select id="languageSelect">
-            <option value="fr">Français</option>
-            <option value="it">Italiano</option>
-            <option value="en">English</option>
-            <option value="es">Español</option>
-          </select>
-
-          <div class="readonly-grid">
-            <div><small data-i18n="profile.alliance">Alliance</small><strong id="profileAlliance">—</strong></div>
-            <div><small data-i18n="profile.server">Serveur</small><strong id="profileServer">—</strong></div>
-            <div><small data-i18n="profile.rank">Rang</small><strong id="profileRank">—</strong></div>
-          </div>
-
-          <button class="primary-button" type="submit" data-i18n="common.save">Enregistrer</button>
-          <p id="profileMessage" class="form-message hidden"></p>
-        </form>
-      </div>
-
-      <div id="allianceTab" class="tab-panel hidden">
-        <form id="allianceForm" class="settings-form">
-          <label class="field-label" for="allianceName" data-i18n="alliance.name">Nom de l’alliance</label>
-          <input id="allianceName" type="text" maxlength="50" />
-          <label class="field-label" for="allianceServer" data-i18n="alliance.server">Serveur</label>
-          <input id="allianceServer" type="text" maxlength="30" />
-          <label class="field-label" for="allianceLogo" data-i18n="alliance.logo">URL du logo</label>
-          <input id="allianceLogo" type="url" placeholder="https://…" />
-          <button class="primary-button" type="submit" data-i18n="common.save">Enregistrer</button>
-          <p id="allianceMessage" class="form-message hidden"></p>
-        </form>
-
-        <div class="section-divider"></div>
-        <div class="section-heading">
-          <div><p class="eyebrow" data-i18n="alliance.admin">Administration</p><h3 data-i18n="alliance.members">Membres & codes</h3></div>
-          <button id="refreshMembersButton" class="secondary-button" type="button" data-i18n="common.refresh">Actualiser</button>
-        </div>
-
-        <form id="addMemberForm" class="member-create">
-          <input id="newMemberName" type="text" maxlength="40" data-i18n-placeholder="alliance.playerName" placeholder="Pseudo" required />
-          <select id="newMemberRank" aria-label="Rang">
-            <option value="R1">R1</option>
-            <option value="R2">R2</option>
-            <option value="R3" selected>R3</option>
-            <option value="R4">R4</option>
-            <option value="R5">R5</option>
-          </select>
-          <input id="newMemberCode" type="password" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" data-i18n-placeholder="alliance.codePlaceholder" placeholder="Code 6 chiffres" required />
-          <button class="primary-button" type="submit" data-i18n="alliance.add">Ajouter</button>
-        </form>
-        <p id="memberMessage" class="form-message hidden"></p>
-        <div id="memberList" class="member-list"></div>
-      </div>
+  <div id="settingsOverlay" class="overlay hidden">
+    <section class="settings-panel glass-card" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+      <header class="settings-header"><div><p class="eyebrow">WfGg</p><h2 id="settingsTitle" data-i18n="settings.title">Paramètres</h2></div><button class="icon-button" type="button" data-action="close-settings" aria-label="Fermer">×</button></header>
+      <nav id="settingsTabs" class="tabs"></nav>
+      <div id="settingsContent"></div>
     </section>
   </div>
 
-  <script src="config.js"></script>
-  <script src="app.js"></script>
-  <script src="legacy-avatars.js?v=060"></script>
-  <script src="members-admin-v060.js?v=060"></script>
+  <div id="membersView" class="members-view hidden" aria-hidden="true">
+    <header class="members-topbar">
+      <button class="members-back" type="button" data-action="close-members">←</button>
+      <div><p class="eyebrow">WfGg</p><h2 data-i18n="members.title">Joueurs de l’alliance</h2></div>
+      <span id="membersCount" class="members-count">0</span>
+    </header>
+    <div class="members-page">
+      <div class="members-tools">
+        <button class="compact-primary" type="button" data-action="add-member">＋ <span data-i18n="members.add">Ajouter un joueur</span></button>
+        <label class="member-search"><span>🔎</span><input id="memberSearch" type="search" autocomplete="off" data-i18n-placeholder="members.search" placeholder="Rechercher un pseudo…" /></label>
+        <div id="rankFilters" class="rank-filters" aria-label="Filtres de rang"></div>
+      </div>
+      <div id="memberList" class="member-list"></div>
+    </div>
+  </div>
 
+  <div id="modal" class="modal hidden"><div class="modal-backdrop" data-action="close-modal"></div><section class="modal-sheet"><div class="modal-handle"></div><button class="modal-close" type="button" data-action="close-modal">×</button><div id="modalBody"></div></section></div>
+
+  <script src="config.js"></script>
+  <script src="legacy-avatars.js?v=070"></script>
+  <script src="portal-v070.js?v=070"></script>
 </body>
 </html>
