@@ -1,4 +1,4 @@
-/* WfGg Portal admin enhancements v0.4.0 */
+/* WfGg Portal admin enhancements v0.4.1 */
 window.WFGG_LEGACY_AVATARS = Object.freeze({
   "Metatouk": "https://wfgg-train-app.pages.dev/assets/avatars/p001-metatouk.jpg",
   "Ogie Ogilthorpe 7": "https://wfgg-train-app.pages.dev/assets/avatars/p007-ogie-ogilthorpe-7.jpg",
@@ -260,13 +260,13 @@ window.WFGG_LEGACY_AVATARS = Object.freeze({
     toolbar.querySelector('#wfggRankChips').addEventListener('click', e => {
       const b = e.target.closest('button[data-rank]'); if (!b) return;
       state.rank = b.dataset.rank;
-      toolbar.querySelectorAll('#wfggRankChips button').forEach(x => x.classList.toggle('active', x === b));
+      toolbar.querySelectorAll('#wfggRankChips button').forEach(x => { const on=x===b; x.classList.toggle('active', on); x.setAttribute('aria-pressed', String(on)); });
       renderMembers();
     });
     toolbar.querySelector('#wfggStatusFilter').addEventListener('click', e => {
       const b = e.target.closest('button[data-status]'); if (!b) return;
       state.status = b.dataset.status;
-      toolbar.querySelectorAll('#wfggStatusFilter button').forEach(x => x.classList.toggle('active', x === b));
+      toolbar.querySelectorAll('#wfggStatusFilter button').forEach(x => { const on=x===b; x.classList.toggle('active', on); x.setAttribute('aria-pressed', String(on)); });
       renderMembers();
     });
   }
@@ -332,7 +332,21 @@ window.WFGG_LEGACY_AVATARS = Object.freeze({
         ${canEdit ? `<button type="button" class="wfgg-edit-member" data-member-id="${esc(m.id)}">✎ <span>${esc(L().edit)}</span></button>` : ''}
       </article>`;
     }).join('');
-    list.querySelectorAll('.wfgg-edit-member').forEach(btn => btn.addEventListener('click', () => openEditor(btn.dataset.memberId)));
+    if (list.dataset.wfggEditDelegated !== '1') {
+      list.dataset.wfggEditDelegated = '1';
+      list.addEventListener('click', (event) => {
+        const btn = event.target.closest('.wfgg-edit-member');
+        if (!btn || !list.contains(btn)) return;
+        event.preventDefault();
+        event.stopPropagation();
+        const memberId = btn.dataset.memberId;
+        try {
+          openEditor(memberId);
+        } catch (error) {
+          console.error('[WfGg] member editor failed', error, memberId);
+        }
+      });
+    }
   }
 
   async function loadMembers() {
@@ -537,4 +551,52 @@ window.WFGG_LEGACY_AVATARS = Object.freeze({
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start, { once:true }); else start();
+})();
+
+
+/* WfGg admin UI v0.4.1 visual overrides */
+(() => {
+  const css = document.createElement('style');
+  css.id = 'wfgg-admin-v041-overrides';
+  css.textContent = `
+    .wfgg-member-avatar {
+      width:58px; height:58px; aspect-ratio:1 / 1;
+      border-radius:10px;
+      background-size:contain;
+      background-repeat:no-repeat;
+      background-position:center;
+      background-color:#0d0b12;
+      border:2px solid rgba(178,150,255,.34);
+      box-shadow:0 5px 16px rgba(0,0,0,.24);
+    }
+    .wfgg-editor-head .wfgg-member-avatar { width:76px; height:76px; border-radius:13px; }
+    .wfgg-rank-chips button, .wfgg-segmented button {
+      border:1px solid rgba(255,255,255,.16);
+      background:rgba(255,255,255,.045);
+      color:#c8bfd6;
+      transition:background .14s ease, border-color .14s ease, color .14s ease, box-shadow .14s ease, transform .14s ease;
+    }
+    .wfgg-rank-chips button.active, .wfgg-segmented button.active,
+    .wfgg-rank-chips button[aria-pressed="true"], .wfgg-segmented button[aria-pressed="true"] {
+      color:#fff !important;
+      background:linear-gradient(135deg,#9c74ff,#7247df) !important;
+      border-color:#c7b0ff !important;
+      box-shadow:0 0 0 2px rgba(178,150,255,.20),0 8px 20px rgba(92,54,190,.30) !important;
+      transform:translateY(-1px);
+    }
+    .wfgg-rank-chips button.active::before, .wfgg-segmented button.active::before,
+    .wfgg-rank-chips button[aria-pressed="true"]::before, .wfgg-segmented button[aria-pressed="true"]::before {
+      content:'✓'; margin-right:5px; font-weight:1000;
+    }
+    .wfgg-edit-member {
+      position:relative; z-index:2;
+      min-height:40px;
+      touch-action:manipulation;
+      -webkit-tap-highlight-color:rgba(143,99,255,.22);
+      background:rgba(143,99,255,.13);
+      border-color:rgba(178,150,255,.30);
+    }
+    .wfgg-edit-member:active { transform:scale(.985); background:rgba(143,99,255,.25); }
+  `;
+  document.head.appendChild(css);
 })();
