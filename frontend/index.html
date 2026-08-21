@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#100d16" />
   <title>WfGg · Portail</title>
-  <link rel="stylesheet" href="portal-v070.css?v=070" />
+  <link rel="stylesheet" href="portal-v070.css?v=071" />
 </head>
 <body>
   <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
@@ -30,7 +30,7 @@
 
     <section id="portalView" class="portal hidden">
       <header class="topbar glass-card">
-        <button id="homeButton" class="brand-button" type="button"><div class="brand-mark small">W</div><div class="brand-copy"><strong>WfGg</strong><small data-i18n="home.portal">Portail</small></div></button>
+        <button id="homeButton" class="brand-button alliance-brand-button" type="button"><span class="alliance-logo-shell small"><img id="topAllianceLogo" class="alliance-logo" alt="Logo WfGg"><span id="topAllianceFallback" class="alliance-logo-fallback">W</span></span><div class="brand-copy"><strong id="topAllianceName">WfGg</strong><small id="topAllianceMeta">Alliance · Portail</small></div></button>
         <div class="top-actions">
           <button id="profileChip" class="profile-chip" type="button">
             <div class="profile-chip-copy"><strong id="topName">—</strong><small id="topRole">—</small></div><span id="topAvatar" class="avatar"></span><span class="chevron">⌄</span>
@@ -43,6 +43,14 @@
       </header>
 
       <section class="hero">
+        <div class="alliance-identity">
+          <span class="alliance-logo-shell hero-logo"><img id="heroAllianceLogo" class="alliance-logo" alt="Logo de l’alliance"><span id="heroAllianceFallback" class="alliance-logo-fallback">W</span></span>
+          <div class="alliance-identity-copy">
+            <span class="alliance-kicker">ALLIANCE · LAST WAR</span>
+            <strong id="heroAllianceName">WfGg</strong>
+            <span id="heroAllianceServer" class="alliance-server">Serveur —</span>
+          </div>
+        </div>
         <p class="eyebrow" data-i18n="home.welcome">Bienvenue</p>
         <h2><span id="heroName">—</span></h2>
         <p id="homeWelcome" class="muted">Choisissez votre espace WfGg.</p>
@@ -84,7 +92,7 @@
   <div id="modal" class="modal hidden"><div class="modal-backdrop" data-action="close-modal"></div><section class="modal-sheet"><div class="modal-handle"></div><button class="modal-close" type="button" data-action="close-modal">×</button><div id="modalBody"></div></section></div>
 
   <script src="config.js"></script>
-  <script src="legacy-avatars.js?v=070"></script>
-  <script src="portal-v070.js?v=070"></script>
+  <script src="legacy-avatars.js?v=071"></script>
+  <script src="portal-v070.js?v=071"></script>
 </body>
 </html>

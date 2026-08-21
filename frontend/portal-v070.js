@@ -29,7 +29,29 @@ function applyLanguage(){document.documentElement.lang=state.lang;document.query
 function hydrate(d){state.user=d.user;state.membership=d.membership;state.alliance=d.alliance;state.system=d.system||{};state.permissions=d.permissions||{};state.portalSettings=d.portal_settings||{};if(d.user?.language&&I18N[d.user.language]){state.lang=d.user.language;localStorage.setItem(LANG_KEY,state.lang)}applyLanguage();}
 function showAuth(){setView('authView');setTimeout(()=>$('authCode')?.focus(),30)}
 function showPortal(){setView('portalView');renderHome();}
-function renderHome(){if(!state.user)return;const name=state.user.display_name||state.user.player_name;$('topName').textContent=name;$('heroName').textContent=name;$('topRole').textContent=state.membership?.rank||'—';paintAvatar($('topAvatar'),state.user);$('profileRequiredBanner').classList.toggle('hidden',profileComplete());$('homeWelcome').textContent=state.portalSettings?.welcome_text||t('home.settingsSub').replace('Profil, alliance et administration','Choisissez votre espace WfGg.').replace('Profile, alliance and administration','Choose your WfGg space.').replace('Profilo, alleanza e amministrazione','Scegli il tuo spazio WfGg.').replace('Perfil, alianza y administración','Elige tu espacio WfGg.');$('guidesCardTitle').textContent=state.portalSettings?.guides_title||'Guides';$('trainCardTitle').textContent=state.portalSettings?.train_title||'Train';}
+const DEFAULT_ALLIANCE_LOGO='https://wfgg-train-app.pages.dev/assets/icon-192.png';
+function setAllianceLogo(imgId,fallbackId){
+  const img=$(imgId),fallback=$(fallbackId);
+  if(!img||!fallback)return;
+  const src=state.alliance?.logo_url||DEFAULT_ALLIANCE_LOGO;
+  fallback.classList.remove('hidden');
+  img.classList.add('hidden');
+  if(!src)return;
+  img.onload=()=>{img.classList.remove('hidden');fallback.classList.add('hidden')};
+  img.onerror=()=>{img.classList.add('hidden');fallback.classList.remove('hidden')};
+  img.src=src;
+}
+function paintAllianceIdentity(){
+  const allianceName=state.alliance?.name||'WfGg';
+  const server=state.alliance?.server||'—';
+  if($('topAllianceName'))$('topAllianceName').textContent=allianceName;
+  if($('topAllianceMeta'))$('topAllianceMeta').textContent='Alliance · Serveur '+server;
+  if($('heroAllianceName'))$('heroAllianceName').textContent=allianceName;
+  if($('heroAllianceServer'))$('heroAllianceServer').textContent='Serveur '+server;
+  setAllianceLogo('topAllianceLogo','topAllianceFallback');
+  setAllianceLogo('heroAllianceLogo','heroAllianceFallback');
+}
+function renderHome(){if(!state.user)return;paintAllianceIdentity();const name=state.user.display_name||state.user.player_name;$('topName').textContent=name;$('heroName').textContent=name;$('topRole').textContent=state.membership?.rank||'—';paintAvatar($('topAvatar'),state.user);$('profileRequiredBanner').classList.toggle('hidden',profileComplete());$('homeWelcome').textContent=state.portalSettings?.welcome_text||t('home.settingsSub').replace('Profil, alliance et administration','Choisissez votre espace WfGg.').replace('Profile, alliance and administration','Choose your WfGg space.').replace('Profilo, alleanza e amministrazione','Scegli il tuo spazio WfGg.').replace('Perfil, alianza y administración','Elige tu espacio WfGg.');$('guidesCardTitle').textContent=state.portalSettings?.guides_title||'Guides';$('trainCardTitle').textContent=state.portalSettings?.train_title||'Train';}
 function moduleUrl(k){const stored=state.portalSettings?.[`${k}_url`];return stored||cfg.MODULES?.[k]||''}
 function openModule(k){const u=moduleUrl(k);if(u)location.href=u}
 function showMessage(id,text,error=false){const el=$(id);if(!el)return;el.textContent=text;el.className=`form-message${error?' error':''}`;setTimeout(()=>el.classList.add('hidden'),3500)}
