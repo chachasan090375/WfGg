@@ -29,11 +29,13 @@ function applyLanguage(){document.documentElement.lang=state.lang;document.query
 function hydrate(d){state.user=d.user;state.membership=d.membership;state.alliance=d.alliance;state.system=d.system||{};state.permissions=d.permissions||{};state.portalSettings=d.portal_settings||{};if(d.user?.language&&I18N[d.user.language]){state.lang=d.user.language;localStorage.setItem(LANG_KEY,state.lang)}applyLanguage();}
 function showAuth(){setView('authView');setTimeout(()=>$('authCode')?.focus(),30)}
 function showPortal(){setView('portalView');renderHome();}
-const DEFAULT_ALLIANCE_LOGO='https://wfgg-train-app.pages.dev/assets/icon-192.png';
+const DEFAULT_ALLIANCE_LOGO='assets/wfgg-logo-transparent-r2q.webp';
 function setAllianceLogo(imgId,fallbackId){
   const img=$(imgId),fallback=$(fallbackId);
   if(!img||!fallback)return;
-  const src=state.alliance?.logo_url||DEFAULT_ALLIANCE_LOGO;
+  const custom=String(state.alliance?.logo_url||'').trim();
+  const legacyDefault=/wfgg-train-app\.pages\.dev\/assets\/icon-192\.png/i.test(custom);
+  const src=(custom&&!legacyDefault)?custom:DEFAULT_ALLIANCE_LOGO;
   fallback.classList.remove('hidden');
   img.classList.add('hidden');
   if(!src)return;
@@ -44,14 +46,12 @@ function setAllianceLogo(imgId,fallbackId){
 function paintAllianceIdentity(){
   const allianceName=state.alliance?.name||'WfGg';
   const server=state.alliance?.server||'—';
-  if($('topAllianceName'))$('topAllianceName').textContent=allianceName;
-  if($('topAllianceMeta'))$('topAllianceMeta').textContent='Alliance · Serveur '+server;
+  const serverLabel={fr:'Alliance · Serveur',it:'Alleanza · Server',en:'Alliance · Server',es:'Alianza · Servidor'}[state.lang]||'Alliance · Serveur';
   if($('heroAllianceName'))$('heroAllianceName').textContent=allianceName;
-  if($('heroAllianceServer'))$('heroAllianceServer').textContent='Serveur '+server;
-  setAllianceLogo('topAllianceLogo','topAllianceFallback');
+  if($('heroAllianceServer'))$('heroAllianceServer').textContent=serverLabel+' '+server;
   setAllianceLogo('heroAllianceLogo','heroAllianceFallback');
 }
-function renderHome(){if(!state.user)return;paintAllianceIdentity();const name=state.user.display_name||state.user.player_name;$('topName').textContent=name;$('heroName').textContent=name;$('topRole').textContent=state.membership?.rank||'—';paintAvatar($('topAvatar'),state.user);$('profileRequiredBanner').classList.toggle('hidden',profileComplete());$('homeWelcome').textContent=state.portalSettings?.welcome_text||t('home.settingsSub').replace('Profil, alliance et administration','Choisissez votre espace WfGg.').replace('Profile, alliance and administration','Choose your WfGg space.').replace('Profilo, alleanza e amministrazione','Scegli il tuo spazio WfGg.').replace('Perfil, alianza y administración','Elige tu espacio WfGg.');$('guidesCardTitle').textContent=state.portalSettings?.guides_title||'Guides';$('trainCardTitle').textContent=state.portalSettings?.train_title||'Train';}
+function renderHome(){if(!state.user)return;paintAllianceIdentity();const name=state.user.display_name||state.user.player_name;if($('heroName'))$('heroName').textContent=name;paintAvatar($('topAvatar'),state.user);$('profileRequiredBanner').classList.toggle('hidden',profileComplete());$('homeWelcome').textContent=state.portalSettings?.welcome_text||t('home.settingsSub').replace('Profil, alliance et administration','Choisissez votre espace WfGg.').replace('Profile, alliance and administration','Choose your WfGg space.').replace('Profilo, alleanza e amministrazione','Scegli il tuo spazio WfGg.').replace('Perfil, alianza y administración','Elige tu espacio WfGg.');$('guidesCardTitle').textContent=state.portalSettings?.guides_title||'Guides';$('trainCardTitle').textContent=state.portalSettings?.train_title||'Train';}
 function moduleUrl(k){const stored=state.portalSettings?.[`${k}_url`];return stored||cfg.MODULES?.[k]||''}
 function openModule(k){const u=moduleUrl(k);if(u)location.href=u}
 function showMessage(id,text,error=false){const el=$(id);if(!el)return;el.textContent=text;el.className=`form-message${error?' error':''}`;setTimeout(()=>el.classList.add('hidden'),3500)}
@@ -61,8 +61,8 @@ async function boot(){applyLanguage();if(!token())return showAuth();try{hydrate(
 $('authForm').addEventListener('submit',async e=>{e.preventDefault();$('authError').classList.add('hidden');try{const d=await api('/api/auth',{method:'POST',body:JSON.stringify({code:$('authCode').value.trim()})});localStorage.setItem(TOKEN_KEY,d.session_token);hydrate(d);$('authCode').value='';showPortal()}catch{$('authError').textContent=t('auth.bad');$('authError').classList.remove('hidden')}});
 $('languageStrip').addEventListener('click',e=>{const b=e.target.closest('[data-lang]');if(!b)return;state.lang=b.dataset.lang;localStorage.setItem(LANG_KEY,state.lang);applyLanguage()});
 $('profileChip').addEventListener('click',()=>{$('profileMenu').classList.toggle('hidden')});
-$('homeButton').addEventListener('click',()=>{showPortal();scrollTo({top:0,behavior:'smooth'})});
-document.addEventListener('click',async e=>{const module=e.target.closest('[data-module]');if(module)return openModule(module.dataset.module);const a=e.target.closest('[data-action]');if(!a)return;const x=a.dataset.action;if(x==='settings')return openSettings('profile');if(x==='logout'){try{await api('/api/logout',{method:'POST'})}catch{}clearSession();$('settingsOverlay').classList.add('hidden');$('membersView').classList.add('hidden');showAuth();return}if(x==='close-settings')return closeSettings();if(x==='close-members')return closeMembers();if(x==='add-member')return openMemberModal();if(x==='edit-member')return openMemberModal(a.dataset.id);if(x==='toggle-member')return toggleMember(a.dataset.id);if(x==='close-modal')return closeModal();if(x==='save-member')return saveMember();if(x==='reset-member-code')return resetMemberCode(a.dataset.id);if(x==='transfer-r5')return openTransfer(a.dataset.id);if(x==='confirm-transfer')return confirmTransfer(a.dataset.id);if(x==='copy-code')return copyText(a.dataset.code,a);if(x==='revoke-others')return revokeOthers();});
+$('homeButton')?.addEventListener('click',()=>{showPortal();scrollTo({top:0,behavior:'smooth'})});
+document.addEventListener('click',async e=>{const module=e.target.closest('[data-module]');if(module)return openModule(module.dataset.module);const a=e.target.closest('[data-action]');if(!a)return;const x=a.dataset.action;if(x==='settings')return openSettings('profile');if(x==='profile')return openSettings('profile');if(x==='logout'){try{await api('/api/logout',{method:'POST'})}catch{}clearSession();$('settingsOverlay').classList.add('hidden');$('membersView').classList.add('hidden');showAuth();return}if(x==='close-settings')return closeSettings();if(x==='close-members')return closeMembers();if(x==='add-member')return openMemberModal();if(x==='edit-member')return openMemberModal(a.dataset.id);if(x==='toggle-member')return toggleMember(a.dataset.id);if(x==='close-modal')return closeModal();if(x==='save-member')return saveMember();if(x==='reset-member-code')return resetMemberCode(a.dataset.id);if(x==='transfer-r5')return openTransfer(a.dataset.id);if(x==='confirm-transfer')return confirmTransfer(a.dataset.id);if(x==='copy-code')return copyText(a.dataset.code,a);if(x==='revoke-others')return revokeOthers();});
 
 // settings
 const tabDefs=()=>[{id:'profile',label:t('settings.profile')},...(isAdmin()?[{id:'alliance',label:t('settings.alliance')},{id:'application',label:t('settings.application')},{id:'rights',label:t('settings.rights')}]:[])];
