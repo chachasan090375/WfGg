@@ -214,10 +214,39 @@ function renderHome(){
   $('guidesCardTitle').textContent=(useFrenchMaster&&state.portalSettings?.guides_title)||t('home.guidesTitle');
   $('trainCardTitle').textContent=(useFrenchMaster&&state.portalSettings?.train_title)||t('home.trainTitle');
 }
-function moduleUrl(k){const stored=state.portalSettings?.[`${k}_url`];return stored||cfg.MODULES?.[k]||''}
+function normalizeUnifiedModuleUrl(k,raw){
+  const value=String(raw||'').trim();
+  if(!value)return '';
+
+  try{
+    const u=new URL(value,location.href);
+
+    if(u.hostname==='wfgg-guides.pages.dev'){
+      if(k==='simulator'){
+        return '/simulateur/';
+      }
+      return '/guides'+(u.pathname==='/'?'/':u.pathname)+u.search+u.hash;
+    }
+
+    if(u.hostname==='wfgg-train-app.pages.dev'){
+      return '/train'+(u.pathname==='/'?'/':u.pathname)+u.search+u.hash;
+    }
+  }catch{}
+
+  return value;
+}
+function moduleUrl(k){
+  const stored=state.portalSettings?.[`${k}_url`];
+  const raw=stored||cfg.MODULES?.[k]||'';
+  return normalizeUnifiedModuleUrl(k,raw);
+}
 function localizedModuleUrl(k){
   const raw=moduleUrl(k); if(!raw)return '';
-  try{const u=new URL(raw,location.href);u.searchParams.set('lang',state.lang);return u.toString()}catch{return raw}
+  try{
+    const u=new URL(raw,location.href);
+    u.searchParams.set('lang',state.lang);
+    return u.toString();
+  }catch{return raw}
 }
 function openModule(k){const u=localizedModuleUrl(k);if(u)location.href=u}
 function showMessage(id,text,error=false){const el=$(id);if(!el)return;el.textContent=text;el.className=`form-message${error?' error':''}`;setTimeout(()=>el.classList.add('hidden'),3500)}
