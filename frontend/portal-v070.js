@@ -116,154 +116,82 @@ function hydrate(d){
 function showAuth(){setView('authView');setTimeout(()=>$('authCode')?.focus(),30)}
 function showPortal(){setView('portalView');renderHome();}
 function returnPortalTop(){
+  const active=document.activeElement;
+  if(active&&typeof active.blur==='function')active.blur();
+
   closeSettings();
   showPortal();
-  const reset=()=>{
+
+  if('scrollRestoration' in history)history.scrollRestoration='manual';
+
+  const forceTop=()=>{
+    const root=document.scrollingElement||document.documentElement;
+    const portal=$('portalView');
+
+    document.documentElement.style.scrollBehavior='auto';
+    document.body.style.scrollBehavior='auto';
+
+    root.scrollTop=0;
     document.documentElement.scrollTop=0;
     document.body.scrollTop=0;
-    window.scrollTo(0,0);
+    window.scrollTo({top:0,left:0,behavior:'auto'});
+    portal?.scrollIntoView({block:'start',inline:'nearest',behavior:'auto'});
+
+    root.scrollTop=0;
+    document.documentElement.scrollTop=0;
+    document.body.scrollTop=0;
   };
-  reset();
-  requestAnimationFrame(()=>requestAnimationFrame(reset));
+
+  forceTop();
+  requestAnimationFrame(forceTop);
+  requestAnimationFrame(()=>requestAnimationFrame(forceTop));
+  setTimeout(forceTop,60);
+  setTimeout(forceTop,180);
+  setTimeout(forceTop,420);
 }
-const DEFAULT_ALLIANCE_LOGO='assets/wfgg-logo-premium-transparent-v2.png';
+const DEFAULT_ALLIANCE_LOGOS={
+  fr:'assets/wfgg-logo-premium-transparent-v2.png',
+  it:'assets/wfgg-logo-premium-it.png',
+  en:'assets/wfgg-logo-premium-en.png',
+  es:'assets/wfgg-logo-premium-es.png'
+};
+function isMasterLogoReference(custom){
+  return !custom||/(wfgg-train-app\.pages\.dev\/assets\/icon-192\.png|wfgg-logo-transparent-r2q\.webp|wfgg-logo-premium-transparent-v2\.png|wfgg-logo-premium-(?:it|en|es)\.png)/i.test(custom);
+}
 function setAllianceLogo(imgId,fallbackId){
-  const img=$(imgId),fallback=$(fallbackId),localized=$('heroLocalizedLogo');
+  const img=$(imgId),fallback=$(fallbackId);
   if(!img||!fallback)return;
-  if(localized){localized.classList.add('hidden');localized.innerHTML=''}
-  img.onload=null;img.onerror=null;
+
+  img.onload=null;
+  img.onerror=null;
 
   const custom=String(state.alliance?.logo_url||'').trim();
-  const legacyDefault=/(wfgg-train-app\.pages\.dev\/assets\/icon-192\.png|wfgg-logo-transparent-r2q\.webp|wfgg-logo-premium-transparent-v2\.png)/i.test(custom);
-  const src=(custom&&!legacyDefault)?custom:DEFAULT_ALLIANCE_LOGO;
+  const useMaster=isMasterLogoReference(custom);
+  const src=useMaster
+    ? (DEFAULT_ALLIANCE_LOGOS[state.lang]||DEFAULT_ALLIANCE_LOGOS.fr)
+    : custom;
 
-  img.classList.toggle('premium-integrated-logo',src===DEFAULT_ALLIANCE_LOGO);
+  const renderToken=`${state.lang}|${src}|${Date.now()}`;
+  img.dataset.renderToken=renderToken;
+  img.classList.toggle('premium-integrated-logo',useMaster);
+  img.alt=`Logo WfGg ${String(state.lang||'fr').toUpperCase()}`;
+
   fallback.classList.remove('hidden');
   img.classList.add('hidden');
+
   if(!src)return;
 
   img.onload=()=>{
-    if(state.lang!=='fr'&&usesMasterLogo())return;
+    if(img.dataset.renderToken!==renderToken)return;
     img.classList.remove('hidden');
     fallback.classList.add('hidden');
   };
   img.onerror=()=>{
+    if(img.dataset.renderToken!==renderToken)return;
     img.classList.add('hidden');
     fallback.classList.remove('hidden');
   };
   img.src=src;
-}
-const LOGO_COPY={
-  it:{ribbon:'UNITI · FORTI · SOLIDALI',baseline:'AVANZARE INSIEME · VINCERE INSIEME'},
-  en:{ribbon:'UNITED · STRONG · SUPPORTIVE',baseline:'ADVANCE TOGETHER · WIN TOGETHER'},
-  es:{ribbon:'UNIDOS · FUERTES · SOLIDARIOS',baseline:'AVANZAR JUNTOS · GANAR JUNTOS'}
-};
-function usesMasterLogo(){
-  const custom=String(state.alliance?.logo_url||'').trim();
-  return !custom||/(wfgg-train-app\.pages\.dev\/assets\/icon-192\.png|wfgg-logo-transparent-r2q\.webp|wfgg-logo-premium-transparent-v2\.png)/i.test(custom);
-}
-function paintLocalizedMasterLogo(){
-  const box=$('heroLocalizedLogo'),img=$('heroAllianceLogo'),fallback=$('heroAllianceFallback');
-  if(!box||!img||!fallback)return false;
-
-  if(state.lang==='fr'||!usesMasterLogo()){
-    box.classList.add('hidden');
-    box.innerHTML='';
-    return false;
-  }
-
-  const copy=LOGO_COPY[state.lang];
-  if(!copy){
-    box.classList.add('hidden');
-    box.innerHTML='';
-    return false;
-  }
-
-  /* Neutralise définitivement un onload FR encore en attente. */
-  img.onload=null;
-  img.onerror=null;
-  img.classList.add('hidden');
-  img.removeAttribute('src');
-  fallback.classList.add('hidden');
-
-  const ribbonSize=state.lang==='en'?37:state.lang==='es'?36:39;
-  const baseSize=state.lang==='it'?31:state.lang==='es'?30:32;
-
-  box.innerHTML=`
-  <svg viewBox="0 0 1254 1254" role="img"
-       aria-label="WfGg — ${esc(copy.ribbon)} — ${esc(copy.baseline)}"
-       xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <clipPath id="wfggTopClip"><rect x="0" y="0" width="1254" height="920"/></clipPath>
-      <clipPath id="wfggMedalClip"><circle cx="627" cy="913" r="166"/></clipPath>
-      <linearGradient id="wfggRibbonBlue" x1="0" x2="0" y1="0" y2="1">
-        <stop offset="0" stop-color="#0b66b8"/>
-        <stop offset=".48" stop-color="#074781"/>
-        <stop offset="1" stop-color="#032953"/>
-      </linearGradient>
-      <linearGradient id="wfggGold" x1="0" x2="1">
-        <stop offset="0" stop-color="#b76b00"/>
-        <stop offset=".32" stop-color="#fff0a6"/>
-        <stop offset=".62" stop-color="#e5a818"/>
-        <stop offset="1" stop-color="#8e4c00"/>
-      </linearGradient>
-      <filter id="wfggTextShadow" x="-20%" y="-20%" width="140%" height="140%">
-        <feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#000" flood-opacity=".62"/>
-      </filter>
-    </defs>
-
-    <!-- Partie haute officielle, sans les textes français du bas -->
-    <image href="assets/wfgg-logo-premium-transparent-v2.png"
-           x="0" y="0" width="1254" height="1254"
-           preserveAspectRatio="xMidYMid meet"
-           clip-path="url(#wfggTopClip)"/>
-
-    <!-- Médaillon central conservé au-dessus du nouveau ruban -->
-    <image href="assets/wfgg-logo-premium-transparent-v2.png"
-           x="0" y="0" width="1254" height="1254"
-           preserveAspectRatio="xMidYMid meet"
-           clip-path="url(#wfggMedalClip)"/>
-
-    <!-- Ruban reconstruit -->
-    <path d="M118 904
-             Q248 956 365 980
-             Q500 1008 627 1013
-             Q754 1008 889 980
-             Q1006 956 1136 904
-             L1108 1038
-             Q1000 1080 884 1104
-             Q754 1131 627 1137
-             Q500 1131 370 1104
-             Q254 1080 146 1038 Z"
-          fill="url(#wfggRibbonBlue)"
-          stroke="url(#wfggGold)" stroke-width="14"/>
-
-    <path id="wfggRibbonPath"
-          d="M184 973 Q627 1118 1070 973"
-          fill="none"/>
-
-    <text fill="#fff9e9" stroke="#061b35" stroke-width="6"
-          paint-order="stroke fill" filter="url(#wfggTextShadow)"
-          font-family="Georgia, 'Times New Roman', serif"
-          font-weight="900" font-size="${ribbonSize}" letter-spacing="1.5">
-      <textPath href="#wfggRibbonPath" startOffset="50%" text-anchor="middle">${esc(copy.ribbon)}</textPath>
-    </text>
-
-    <!-- Baseline localisée -->
-    <text x="627" y="1182" text-anchor="middle"
-          fill="#fff9e9" stroke="#123768" stroke-width="6"
-          paint-order="stroke fill" filter="url(#wfggTextShadow)"
-          font-family="Georgia, 'Times New Roman', serif"
-          font-weight="900" font-size="${baseSize}" letter-spacing="1.2">${esc(copy.baseline)}</text>
-
-    <path d="M390 1217 H544 L574 1202 L604 1217 L627 1200 L650 1217 L680 1202 L710 1217 H864"
-          fill="none" stroke="url(#wfggGold)" stroke-width="7" stroke-linecap="round"/>
-    <path d="M390 1230 H864"
-          fill="none" stroke="#2a86d4" stroke-width="5" stroke-linecap="round"/>
-  </svg>`;
-
-  box.classList.remove('hidden');
-  return true;
 }
 function paintAllianceIdentity(){
   const allianceName=state.alliance?.name||'WfGg';

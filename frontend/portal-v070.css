@@ -617,3 +617,21 @@ button[aria-busy="true"]{cursor:progress;opacity:.82}
 .home-alliance-logo.hidden{
   display:none!important;
 }
+
+/* =========================================================
+   V0.7.6 FIX3 · ASSETS LOGO COMPLETS PAR LANGUE
+   FR reste strictement le master validé.
+   IT/EN/ES utilisent chacun leur image complète transparente.
+   ========================================================= */
+.home-alliance-logo.premium-integrated-logo{
+  width:min(430px,86vw);
+  height:auto;
+  max-height:none;
+  object-fit:contain;
+  mix-blend-mode:normal;
+  opacity:1;
+}
+#heroLocalizedLogo{display:none!important}
+@media(max-width:560px){
+  .home-alliance-logo.premium-integrated-logo{width:min(360px,90vw)}
+}
