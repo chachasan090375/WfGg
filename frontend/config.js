@@ -1,5 +1,5 @@
 window.WFGG_PORTAL_CONFIG = {
-  API_BASE: "https://wfgg-api.chachasan090375.workers.dev",
+  API_BASE: "",
   MODULES: {
     train: "/train/",
     guides: "/guides/",
