@@ -41,10 +41,20 @@ function redirectSlash(request, pathname) {
   return Response.redirect(url.toString(), 308);
 }
 
-function upstreamRequest(request, targetUrl) {
+function upstreamRequest(request, targetUrl, options = {}) {
+  const headers = new Headers(request.headers);
+
+  /* WFGG_PORTAL_PROXY_STRIP_ORIGIN_V1
+     Le navigateur parle en same-origin au portail.
+     L'Origin navigateur ne doit pas être retransmis au hop interne wfgg-api.
+  */
+  if (options.stripOrigin) {
+    headers.delete('Origin');
+  }
+
   return new Request(targetUrl.toString(), {
     method: request.method,
-    headers: request.headers,
+    headers,
     body: ['GET', 'HEAD'].includes(request.method) ? undefined : request.body,
     redirect: 'manual'
   });
@@ -405,7 +415,11 @@ async function proxyRoute(request, route, upstreamPath, options = {}) {
   target.pathname = upstreamPath;
   target.search = incoming.search;
 
-  const upstream = await fetch(upstreamRequest(request, target));
+  const upstream = await fetch(
+    upstreamRequest(request, target, {
+      stripOrigin: route === UPSTREAMS.portalApi
+    })
+  );
   const headers = new Headers(upstream.headers);
 
   const location = headers.get('Location');
