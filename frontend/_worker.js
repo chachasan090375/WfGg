@@ -6,6 +6,10 @@ const UPSTREAMS = {
   train: {
     prefix: '/train',
     origin: 'https://wfgg-train-app.pages.dev'
+  },
+  trainApi: {
+    prefix: '/api',
+    origin: 'https://wfgg-train.chachasan090375.workers.dev'
   }
 };
 
@@ -519,7 +523,7 @@ export default {
       if (url.pathname === '/api' || url.pathname.startsWith('/api/')) {
         return await proxyRoute(
           request,
-          UPSTREAMS.train,
+          UPSTREAMS.trainApi,
           url.pathname,
           { routeName: 'train-api' }
         );
