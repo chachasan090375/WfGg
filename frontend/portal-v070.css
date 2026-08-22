@@ -583,3 +583,15 @@
     width:min(335px,90vw);
   }
 }
+
+/* === V0.7.6 · logo multilingue + feedback sauvegarde === */
+.home-localized-logo{
+  display:block;
+  width:min(430px,86vw);
+  margin:0 auto;
+  filter:drop-shadow(0 18px 28px rgba(0,0,0,.32));
+}
+.home-localized-logo svg{display:block;width:100%;height:auto;overflow:visible}
+button.saved{box-shadow:0 0 0 2px rgba(179,137,255,.28),0 12px 30px rgba(0,0,0,.22)}
+button[aria-busy="true"]{cursor:progress;opacity:.82}
+@media(max-width:560px){.home-localized-logo{width:min(360px,90vw)}}

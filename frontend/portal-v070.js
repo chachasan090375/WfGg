@@ -62,6 +62,10 @@ Object.assign(I18N.es.home,{
   profileMenu:'Menú del perfil',
   mainNav:'Navegación principal'
 });
+Object.assign(I18N.fr.settings,{saving:'Enregistrement…',saved:'✓ Enregistré'});
+Object.assign(I18N.it.settings,{saving:'Salvataggio…',saved:'✓ Salvato'});
+Object.assign(I18N.en.settings,{saving:'Saving…',saved:'✓ Saved'});
+Object.assign(I18N.es.settings,{saving:'Guardando…',saved:'✓ Guardado'});
 const t=path=>path.split('.').reduce((o,k)=>o?.[k],I18N[state.lang]||I18N.fr)||path;
 const isAdmin=()=>Boolean(state.permissions?.can_admin_members && ['R4','R5'].includes(state.membership?.rank));
 const profileComplete=()=>Boolean(state.user?.profile_completed);
@@ -126,13 +130,57 @@ function setAllianceLogo(imgId,fallbackId){
   img.onerror=()=>{img.classList.add('hidden');fallback.classList.remove('hidden')};
   img.src=src;
 }
+const LOGO_COPY={
+  it:{ribbon:'UNITI · FORTI · SOLIDALI',baseline:'AVANZARE INSIEME · VINCERE INSIEME'},
+  en:{ribbon:'UNITED · STRONG · SUPPORTIVE',baseline:'ADVANCE TOGETHER · WIN TOGETHER'},
+  es:{ribbon:'UNIDOS · FUERTES · SOLIDARIOS',baseline:'AVANZAR JUNTOS · GANAR JUNTOS'}
+};
+function usesMasterLogo(){
+  const custom=String(state.alliance?.logo_url||'').trim();
+  return !custom||/(wfgg-train-app\.pages\.dev\/assets\/icon-192\.png|wfgg-logo-transparent-r2q\.webp|wfgg-logo-premium-transparent-v2\.png)/i.test(custom);
+}
+function paintLocalizedMasterLogo(){
+  const box=$('heroLocalizedLogo'),img=$('heroAllianceLogo'),fallback=$('heroAllianceFallback');
+  if(!box||!img||!fallback)return false;
+  if(state.lang==='fr'||!usesMasterLogo()){box.classList.add('hidden');return false}
+  const copy=LOGO_COPY[state.lang]; if(!copy){box.classList.add('hidden');return false}
+  const ribbonSize=state.lang==='en'?38:state.lang==='es'?37:40;
+  const baseSize=state.lang==='it'?32:34;
+  box.innerHTML=`
+  <svg viewBox="0 0 1254 1254" role="img" aria-label="WfGg — ${esc(copy.ribbon)} — ${esc(copy.baseline)}">
+    <defs>
+      <mask id="wfggBaseMask"><rect width="1254" height="1254" fill="black"/><rect width="1254" height="938" fill="white"/></mask>
+      <clipPath id="wfggHandshake"><circle cx="627" cy="925" r="155"/></clipPath>
+      <linearGradient id="wfggRibbonBlue" x1="0" x2="0" y1="0" y2="1">
+        <stop offset="0" stop-color="#0b5bab"/><stop offset=".52" stop-color="#06417f"/><stop offset="1" stop-color="#032b5b"/>
+      </linearGradient>
+    </defs>
+    <image href="assets/wfgg-logo-premium-transparent-v2.png" width="1254" height="1254" mask="url(#wfggBaseMask)"/>
+    <path d="M145 925 Q627 1090 1109 925 L1084 1048 Q627 1174 170 1048 Z"
+          fill="url(#wfggRibbonBlue)" stroke="#f6c84c" stroke-width="12"/>
+    <image href="assets/wfgg-logo-premium-transparent-v2.png" width="1254" height="1254" clip-path="url(#wfggHandshake)"/>
+    <path id="wfggRibbonPath" d="M205 990 Q627 1110 1049 990" fill="none"/>
+    <text fill="#fff8e8" stroke="#021936" stroke-width="5" paint-order="stroke fill"
+          font-family="Georgia, 'Times New Roman', serif" font-weight="900" font-size="${ribbonSize}" letter-spacing="2">
+      <textPath href="#wfggRibbonPath" startOffset="50%" text-anchor="middle">${esc(copy.ribbon)}</textPath>
+    </text>
+    <text x="627" y="1170" text-anchor="middle"
+          fill="#fff7df" stroke="#0a2a5b" stroke-width="5" paint-order="stroke fill"
+          font-family="Georgia, 'Times New Roman', serif" font-weight="900" font-size="${baseSize}" letter-spacing="1.4">${esc(copy.baseline)}</text>
+    <path d="M365 1208 H555 L585 1193 L615 1208 L645 1193 L675 1208 L705 1193 L735 1208 H889"
+          fill="none" stroke="#f4bd2c" stroke-width="7" stroke-linecap="round"/>
+    <path d="M365 1222 H889" fill="none" stroke="#1e76c4" stroke-width="5" stroke-linecap="round"/>
+  </svg>`;
+  box.classList.remove('hidden');img.classList.add('hidden');fallback.classList.add('hidden');
+  return true;
+}
 function paintAllianceIdentity(){
   const allianceName=state.alliance?.name||'WfGg';
   const server=state.alliance?.server||'—';
   const serverLabel={fr:'Alliance · Serveur',it:'Alleanza · Server',en:'Alliance · Server',es:'Alianza · Servidor'}[state.lang]||'Alliance · Serveur';
   if($('heroAllianceName'))$('heroAllianceName').textContent=allianceName;
   if($('heroAllianceServer'))$('heroAllianceServer').textContent=serverLabel+' '+server;
-  setAllianceLogo('heroAllianceLogo','heroAllianceFallback');
+  if(!paintLocalizedMasterLogo())setAllianceLogo('heroAllianceLogo','heroAllianceFallback');
 }
 function renderHome(){
   if(!state.user)return;
@@ -148,9 +196,45 @@ function renderHome(){
   $('trainCardTitle').textContent=(useFrenchMaster&&state.portalSettings?.train_title)||t('home.trainTitle');
 }
 function moduleUrl(k){const stored=state.portalSettings?.[`${k}_url`];return stored||cfg.MODULES?.[k]||''}
-function openModule(k){const u=moduleUrl(k);if(u)location.href=u}
+function localizedModuleUrl(k){
+  const raw=moduleUrl(k); if(!raw)return '';
+  try{const u=new URL(raw,location.href);u.searchParams.set('lang',state.lang);return u.toString()}catch{return raw}
+}
+function openModule(k){const u=localizedModuleUrl(k);if(u)location.href=u}
 function showMessage(id,text,error=false){const el=$(id);if(!el)return;el.textContent=text;el.className=`form-message${error?' error':''}`;setTimeout(()=>el.classList.add('hidden'),3500)}
-async function boot(){applyLanguage();if(!token())return showAuth();try{hydrate(await api('/api/me'));showPortal()}catch(e){if(e.message!=='UNAUTHORIZED')showAuth()}}
+async function handleLanguageRelay(){
+  const url=new URL(location.href);
+  const relayLang=normalizeLanguage(url.searchParams.get('setlang'));
+  if(!relayLang)return false;
+  const returnUrl=url.searchParams.get('return')||'';
+  state.lang=relayLang;
+  localStorage.setItem(LANG_KEY,relayLang);
+  localStorage.setItem(LANG_SOURCE_KEY,token()?'profile':'manual');
+  applyLanguage();
+  if(token()){
+    try{
+      const updated=await api('/api/profile/language',{method:'PATCH',body:JSON.stringify({language:relayLang})});
+      hydrate(updated);
+    }catch(e){
+      console.warn('WfGg language relay:',e);
+    }
+  }
+  if(returnUrl){
+    try{
+      const target=new URL(returnUrl);
+      if(/^https:$/.test(target.protocol)){location.replace(target.toString());return true}
+    }catch{}
+  }
+  url.searchParams.delete('setlang');url.searchParams.delete('return');
+  history.replaceState(null,'',url.pathname+url.search+url.hash);
+  return false;
+}
+async function boot(){
+  applyLanguage();
+  if(await handleLanguageRelay())return;
+  if(!token())return showAuth();
+  try{hydrate(await api('/api/me'));showPortal()}catch(e){if(e.message!=='UNAUTHORIZED')showAuth()}
+}
 
 // auth + main navigation
 $('authForm').addEventListener('submit',async e=>{e.preventDefault();$('authError').classList.add('hidden');try{const d=await api('/api/auth',{method:'POST',body:JSON.stringify({code:$('authCode').value.trim()})});localStorage.setItem(TOKEN_KEY,d.session_token);hydrate(d);$('authCode').value='';showPortal()}catch{$('authError').textContent=t('auth.bad');$('authError').classList.remove('hidden')}});
@@ -181,28 +265,37 @@ function rightsHtml(){const rank=state.membership?.rank||'—',owner=state.syste
 function bindSettingsForms(){paintAvatar($('settingsAvatar'),state.user);if($('languageSelect'))$('languageSelect').value=state.user?.language||state.lang;$('profileForm')?.addEventListener('submit',saveProfile);$('avatarInput')?.addEventListener('change',uploadAvatar);$('codeForm')?.addEventListener('submit',changeOwnCode);$('refreshSessions')?.addEventListener('click',loadSessions);$('allianceForm')?.addEventListener('submit',saveAlliance);$('applicationForm')?.addEventListener('submit',saveApplication);$('openMembersButton')?.addEventListener('click',openMembers);if(state.settingsTab==='profile')loadSessions();}
 async function saveProfile(e){
   e.preventDefault();
-  const previousLang=state.lang;
+  const form=e.currentTarget;
+  const btn=e.submitter||form.querySelector('button[type="submit"]');
+  const original=btn?.textContent||t('settings.save');
   const requestedLang=normalizeLanguage($('languageSelect').value)||'fr';
+  const previousLang=state.lang;
+  if(btn){btn.disabled=true;btn.setAttribute('aria-busy','true');btn.textContent=t('settings.saving')}
   try{
-    const updated=await api('/api/profile',{
-      method:'PATCH',
-      body:JSON.stringify({
-        display_name:$('displayName').value.trim(),
-        language:requestedLang
-      })
-    });
+    const displayName=$('displayName').value.trim();
+    let updated;
+    if(requestedLang!==state.user?.language){
+      updated=await api('/api/profile/language',{method:'PATCH',body:JSON.stringify({language:requestedLang})});
+      if(displayName && displayName!==(updated.user?.display_name||'')){
+        updated=await api('/api/profile',{method:'PATCH',body:JSON.stringify({display_name:displayName,language:requestedLang})});
+      }
+    }else{
+      updated=await api('/api/profile',{method:'PATCH',body:JSON.stringify({display_name:displayName,language:requestedLang})});
+    }
     localStorage.setItem(LANG_KEY,requestedLang);
     localStorage.setItem(LANG_SOURCE_KEY,'profile');
     hydrate(updated);
-    if(state.lang!==previousLang){
-      closeSettings();
-      showPortal();
-      scrollTo({top:0,behavior:'smooth'});
-    }else{
-      showMessage('profileMessage',t('settings.save'));
-    }
+    if(btn){btn.textContent=t('settings.saved');btn.classList.add('saved')}
+    showMessage('profileMessage',t('settings.saved'));
+    await new Promise(r=>setTimeout(r,650));
+    if(state.lang!==previousLang){closeSettings();showPortal();scrollTo({top:0,behavior:'smooth'})}
   }catch(err){
     showMessage('profileMessage',err.message,true);
+  }finally{
+    if(btn){
+      btn.disabled=false;btn.removeAttribute('aria-busy');btn.classList.remove('saved');
+      if(document.body.contains(btn))btn.textContent=t('settings.save')||original;
+    }
   }
 }
 async function uploadAvatar(e){const f=e.target.files?.[0];if(!f)return;if(f.size>2*1024*1024)return showMessage('profileMessage','Fichier trop volumineux.',true);const fd=new FormData();fd.append('avatar',f);try{hydrate(await api('/api/profile/avatar',{method:'POST',body:fd}));paintAvatar($('settingsAvatar'),state.user);showMessage('profileMessage','Photo enregistrée.')}catch(err){showMessage('profileMessage',err.message,true)}e.target.value=''}

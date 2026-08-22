@@ -27,7 +27,7 @@ export default {
       let response;
 
       if (url.pathname === '/api/health' && request.method === 'GET') {
-        response = json({ ok: true, service: 'wfgg-api', version: '0.4.0' });
+        response = json({ ok: true, service: 'wfgg-api', version: '0.4.1' });
       } else if (url.pathname === '/api/bootstrap' && request.method === 'POST') {
         response = await bootstrap(request, env);
       } else if (url.pathname === '/api/auth' && request.method === 'POST') {
@@ -38,6 +38,8 @@ export default {
         response = await logout(request, env);
       } else if (url.pathname === '/api/profile' && request.method === 'PATCH') {
         response = await updateProfile(request, env);
+      } else if (url.pathname === '/api/profile/language' && request.method === 'PATCH') {
+        response = await updateProfileLanguage(request, env);
       } else if (url.pathname === '/api/profile/avatar' && request.method === 'POST') {
         response = await uploadAvatar(request, env);
       } else if (url.pathname === '/api/me/code' && request.method === 'PATCH') {
@@ -493,6 +495,20 @@ async function logout(request, env) {
   await env.DB.prepare('DELETE FROM sessions WHERE token_hash=?').bind(ctx.session_hash).run();
   await audit(env, ctx.id, 'LOGOUT', 'user', ctx.id);
   return json({ ok: true });
+}
+
+async function updateProfileLanguage(request, env) {
+  const ctx = await sessionContext(request, env);
+  const body = await request.json();
+  const language = String(body.language || '').trim().toLowerCase();
+  if (!ALLOWED_LANGS.has(language)) fail('INVALID_LANGUAGE');
+
+  const ts = now();
+  await env.DB.prepare('UPDATE users SET language=?, updated_at=? WHERE id=?')
+    .bind(language, ts, ctx.id).run();
+
+  await audit(env, ctx.id, 'LANGUAGE_UPDATE', 'user', ctx.id, { language });
+  return me(request, env);
 }
 
 async function updateProfile(request, env) {
