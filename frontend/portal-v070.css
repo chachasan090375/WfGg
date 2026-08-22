@@ -435,3 +435,151 @@
     width:min(295px,80vw);
   }
 }
+
+/* =========================================================
+   V0.7.4 · LOGO PREMIUM TRANSPARENT VALIDE
+   Le fichier du logo n'est pas retraité par CSS :
+   - pas de blend mode
+   - pas de masque sur le logo
+   - pas de crop
+   - couleurs originales préservées
+   ========================================================= */
+
+.home-brand-stage{
+  min-height:auto;
+  margin:0 -7px 4px;
+  padding:14px 0 8px;
+  overflow:visible;
+  background:
+    radial-gradient(ellipse at 50% 42%,
+      rgba(122,78,181,.18) 0%,
+      rgba(54,36,76,.10) 46%,
+      rgba(16,13,22,0) 74%);
+}
+
+.home-cover-bg{
+  inset:-16% -30%;
+  opacity:.13;
+  transform:scale(1.08);
+  filter:hue-rotate(34deg) saturate(.55) brightness(.58);
+  background:
+    radial-gradient(ellipse at 50% 44%,
+      rgba(183,145,244,.14) 0%,
+      rgba(16,13,22,0) 65%),
+    url('assets/wfgg-hero-bg-r2q.webp') center 43%/cover no-repeat;
+  -webkit-mask-image:radial-gradient(
+    ellipse at 50% 46%,
+    rgba(0,0,0,.90) 0%,
+    rgba(0,0,0,.58) 55%,
+    rgba(0,0,0,.12) 78%,
+    transparent 94%
+  );
+  mask-image:radial-gradient(
+    ellipse at 50% 46%,
+    rgba(0,0,0,.90) 0%,
+    rgba(0,0,0,.58) 55%,
+    rgba(0,0,0,.12) 78%,
+    transparent 94%
+  );
+}
+
+.home-cover-vignette{
+  inset:0;
+  background:
+    radial-gradient(ellipse at 50% 48%,
+      transparent 0%,
+      rgba(16,13,22,.05) 58%,
+      rgba(16,13,22,.56) 100%),
+    linear-gradient(180deg,
+      var(--bg) 0%,
+      transparent 10%,
+      transparent 82%,
+      var(--bg) 100%);
+}
+
+.home-brand-logo-wrap{
+  width:100%;
+  min-height:0;
+  padding:0;
+  overflow:visible;
+  display:grid;
+  place-items:center;
+}
+
+.home-alliance-logo.premium-integrated-logo{
+  display:block;
+  width:min(430px,86vw);
+  height:auto;
+  max-height:none;
+  object-fit:contain;
+  mix-blend-mode:normal;
+  opacity:1;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  filter:
+    drop-shadow(0 18px 28px rgba(0,0,0,.32))
+    drop-shadow(0 0 18px rgba(179,137,255,.08));
+}
+
+.home-alliance-meta{
+  margin-top:3px;
+  gap:0;
+}
+
+.home-alliance-kicker,
+.home-alliance-meta strong{
+  display:none!important;
+}
+
+.home-alliance-server{
+  color:#cbbbe0;
+  font-size:12px;
+  line-height:1.35;
+  font-weight:750;
+  letter-spacing:.025em;
+  text-shadow:0 3px 10px rgba(0,0,0,.32);
+}
+
+.home-welcome-row{
+  margin-top:18px;
+}
+
+@media(max-width:760px){
+  .home-brand-stage{
+    padding-top:10px;
+  }
+  .home-alliance-logo.premium-integrated-logo{
+    width:min(390px,88vw);
+  }
+}
+
+@media(max-width:560px){
+  .home-brand-stage{
+    padding:8px 0 5px;
+    margin-bottom:2px;
+  }
+  .home-cover-bg{
+    inset:-18% -42%;
+    opacity:.10;
+  }
+  .home-alliance-logo.premium-integrated-logo{
+    width:min(360px,90vw);
+    filter:
+      drop-shadow(0 15px 23px rgba(0,0,0,.28))
+      drop-shadow(0 0 14px rgba(179,137,255,.06));
+  }
+  .home-alliance-meta{
+    margin-top:1px;
+  }
+  .home-welcome-row{
+    margin-top:15px;
+  }
+}
+
+@media(max-width:390px){
+  .home-alliance-logo.premium-integrated-logo{
+    width:min(335px,90vw);
+  }
+}

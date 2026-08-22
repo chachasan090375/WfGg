@@ -29,14 +29,14 @@ function applyLanguage(){document.documentElement.lang=state.lang;document.query
 function hydrate(d){state.user=d.user;state.membership=d.membership;state.alliance=d.alliance;state.system=d.system||{};state.permissions=d.permissions||{};state.portalSettings=d.portal_settings||{};if(d.user?.language&&I18N[d.user.language]){state.lang=d.user.language;localStorage.setItem(LANG_KEY,state.lang)}applyLanguage();}
 function showAuth(){setView('authView');setTimeout(()=>$('authCode')?.focus(),30)}
 function showPortal(){setView('portalView');renderHome();}
-const DEFAULT_ALLIANCE_LOGO='assets/wfgg-logo-transparent-r2q.webp';
+const DEFAULT_ALLIANCE_LOGO='assets/wfgg-logo-premium-transparent-v2.png';
 function setAllianceLogo(imgId,fallbackId){
   const img=$(imgId),fallback=$(fallbackId);
   if(!img||!fallback)return;
   const custom=String(state.alliance?.logo_url||'').trim();
-  const legacyDefault=/wfgg-train-app\.pages\.dev\/assets\/icon-192\.png/i.test(custom);
+  const legacyDefault=/(wfgg-train-app\.pages\.dev\/assets\/icon-192\.png|wfgg-logo-transparent-r2q\.webp)/i.test(custom);
   const src=(custom&&!legacyDefault)?custom:DEFAULT_ALLIANCE_LOGO;
-  img.classList.toggle('r2q-integrated-logo',src===DEFAULT_ALLIANCE_LOGO);
+  img.classList.toggle('premium-integrated-logo',src===DEFAULT_ALLIANCE_LOGO);
   fallback.classList.remove('hidden');
   img.classList.add('hidden');
   if(!src)return;
