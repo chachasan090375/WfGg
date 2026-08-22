@@ -2,11 +2,30 @@
 'use strict';
 const cfg=window.WFGG_PORTAL_CONFIG||{API_BASE:'',MODULES:{}};
 const LEGACY=window.WFGG_LEGACY_AVATARS||{};
-const TOKEN_KEY='wfgg_portal_session', LANG_KEY='wfgg_portal_language';
+const TOKEN_KEY='wfgg_portal_session', LANG_KEY='wfgg_portal_language', LANG_SOURCE_KEY='wfgg_portal_language_source';
+const SUPPORTED_LANGS=['fr','it','en','es'];
+const normalizeLanguage=v=>{
+  const x=String(v||'').trim().toLowerCase().replace('_','-').split('-')[0];
+  return SUPPORTED_LANGS.includes(x)?x:'';
+};
+const detectDeviceLanguage=()=>{
+  const candidates=[...(Array.isArray(navigator.languages)?navigator.languages:[]),navigator.language];
+  for(const candidate of candidates){
+    const lang=normalizeLanguage(candidate);
+    if(lang)return lang;
+  }
+  return 'fr';
+};
+const initialLanguage=()=>{
+  const source=localStorage.getItem(LANG_SOURCE_KEY);
+  const saved=normalizeLanguage(localStorage.getItem(LANG_KEY));
+  if(saved&&['manual','profile'].includes(source))return saved;
+  return detectDeviceLanguage()||saved||'fr';
+};
 const RANKS=['R5','R4','R3','R2','R1'];
 const OFFICES=['','WARLORD','RECRUITER','MUSE','BUTLER'];
 const OFFICE_FR={WARLORD:'Seigneur de guerre',RECRUITER:'Recruteur',MUSE:'Muse',BUTLER:'Majordome'};
-const state={user:null,membership:null,alliance:null,system:null,permissions:null,portalSettings:{},lang:localStorage.getItem(LANG_KEY)||'fr',members:[],filters:new Set(),search:'',settingsTab:'profile',sessions:[]};
+const state={user:null,membership:null,alliance:null,system:null,permissions:null,portalSettings:{},lang:initialLanguage(),members:[],filters:new Set(),search:'',settingsTab:'profile',sessions:[]};
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const I18N={
@@ -15,6 +34,34 @@ const I18N={
  en:{auth:{title:'Portal',subtitle:'Enter your WfGg code to sign in.',code:'Authentication code',login:'Sign in',bad:'Invalid code or disabled account.'},home:{portal:'Portal',welcome:'Welcome',settings:'⚙️ Settings',logout:'Sign out',profileIncomplete:'Your profile is incomplete. You can complete it in Settings.',guidesSub:'Season 6 and Interseason',trainSub:'Organisation and rotations',settingsSub:'Profile, alliance and administration'},settings:{title:'Settings',profile:'My profile',alliance:'Alliance',application:'Application',rights:'Rights & access',save:'Save',security:'My profile security',sessions:'My sessions'},members:{title:'Alliance players',add:'Add player',search:'Search a player…',edit:'Edit',disable:'Disable',enable:'Enable'}},
  es:{auth:{title:'Portal',subtitle:'Introduce tu código WfGg para iniciar sesión.',code:'Código de autenticación',login:'Entrar',bad:'Código no válido o cuenta desactivada.'},home:{portal:'Portal',welcome:'Bienvenido',settings:'⚙️ Ajustes',logout:'Cerrar sesión',profileIncomplete:'Tu perfil está incompleto. Puedes completarlo en Ajustes.',guidesSub:'Temporada 6 e Intertemporada',trainSub:'Organización y rotaciones',settingsSub:'Perfil, alianza y administración'},settings:{title:'Ajustes',profile:'Mi perfil',alliance:'Alianza',application:'Aplicación',rights:'Derechos y acceso',save:'Guardar',security:'Seguridad de mi perfil',sessions:'Mis sesiones'},members:{title:'Jugadores de la alianza',add:'Añadir jugador',search:'Buscar jugador…',edit:'Editar',disable:'Desactivar',enable:'Reactivar'}}
 };
+Object.assign(I18N.fr.home,{
+  welcomeText:'Choisissez votre espace WfGg.',
+  guidesTitle:'Guides',
+  trainTitle:'Train',
+  profileMenu:'Menu du profil',
+  mainNav:'Navigation principale'
+});
+Object.assign(I18N.it.home,{
+  welcomeText:'Scegli il tuo spazio WfGg.',
+  guidesTitle:'Guide',
+  trainTitle:'Treno',
+  profileMenu:'Menu del profilo',
+  mainNav:'Navigazione principale'
+});
+Object.assign(I18N.en.home,{
+  welcomeText:'Choose your WfGg space.',
+  guidesTitle:'Guides',
+  trainTitle:'Train',
+  profileMenu:'Profile menu',
+  mainNav:'Main navigation'
+});
+Object.assign(I18N.es.home,{
+  welcomeText:'Elige tu espacio WfGg.',
+  guidesTitle:'Guías',
+  trainTitle:'Tren',
+  profileMenu:'Menú del perfil',
+  mainNav:'Navegación principal'
+});
 const t=path=>path.split('.').reduce((o,k)=>o?.[k],I18N[state.lang]||I18N.fr)||path;
 const isAdmin=()=>Boolean(state.permissions?.can_admin_members && ['R4','R5'].includes(state.membership?.rank));
 const profileComplete=()=>Boolean(state.user?.profile_completed);
@@ -25,8 +72,43 @@ function clearSession(){localStorage.removeItem(TOKEN_KEY);Object.assign(state,{
 function initials(n='?'){return n.trim().split(/\s+/).slice(0,2).map(x=>x[0]?.toUpperCase()).join('')||'?'}
 function avatarUrl(u){return u?.avatar_url||LEGACY[u?.player_name]||LEGACY[u?.display_name]||''}
 function paintAvatar(el,u){if(!el||!u)return;const src=avatarUrl(u);el.innerHTML=src?`<img src="${esc(src)}" alt="${esc(u.display_name||u.player_name||'joueur')}">`:esc(initials(u.display_name||u.player_name))}
-function applyLanguage(){document.documentElement.lang=state.lang;document.querySelectorAll('[data-i18n]').forEach(el=>el.textContent=t(el.dataset.i18n));document.querySelectorAll('[data-i18n-placeholder]').forEach(el=>el.placeholder=t(el.dataset.i18nPlaceholder));document.querySelectorAll('[data-lang]').forEach(b=>b.classList.toggle('active',b.dataset.lang===state.lang));renderHome();}
-function hydrate(d){state.user=d.user;state.membership=d.membership;state.alliance=d.alliance;state.system=d.system||{};state.permissions=d.permissions||{};state.portalSettings=d.portal_settings||{};if(d.user?.language&&I18N[d.user.language]){state.lang=d.user.language;localStorage.setItem(LANG_KEY,state.lang)}applyLanguage();}
+function applyLanguage(){
+  document.documentElement.lang=state.lang;
+  document.title='WfGg · '+t('home.portal');
+  document.querySelectorAll('[data-i18n]').forEach(el=>el.textContent=t(el.dataset.i18n));
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el=>el.placeholder=t(el.dataset.i18nPlaceholder));
+  document.querySelectorAll('[data-lang]').forEach(b=>b.classList.toggle('active',b.dataset.lang===state.lang));
+  if($('profileChip'))$('profileChip').setAttribute('aria-label',t('home.profileMenu'));
+  const mainNav=document.querySelector('.module-grid');
+  if(mainNav)mainNav.setAttribute('aria-label',t('home.mainNav'));
+  renderHome();
+}
+function hydrate(d){
+  state.user=d.user;
+  state.membership=d.membership;
+  state.alliance=d.alliance;
+  state.system=d.system||{};
+  state.permissions=d.permissions||{};
+  state.portalSettings=d.portal_settings||{};
+
+  const serverLang=normalizeLanguage(d.user?.language);
+  const localLang=normalizeLanguage(localStorage.getItem(LANG_KEY));
+  const localSource=localStorage.getItem(LANG_SOURCE_KEY);
+  const completed=Boolean(d.user?.profile_completed);
+
+  if(serverLang&&(completed||serverLang!=='fr')){
+    state.lang=serverLang;
+    localStorage.setItem(LANG_KEY,state.lang);
+    localStorage.setItem(LANG_SOURCE_KEY,'profile');
+  }else if(localLang&&localSource==='manual'){
+    state.lang=localLang;
+  }else{
+    state.lang=detectDeviceLanguage()||serverLang||'fr';
+    localStorage.setItem(LANG_KEY,state.lang);
+    localStorage.setItem(LANG_SOURCE_KEY,'device');
+  }
+  applyLanguage();
+}
 function showAuth(){setView('authView');setTimeout(()=>$('authCode')?.focus(),30)}
 function showPortal(){setView('portalView');renderHome();}
 const DEFAULT_ALLIANCE_LOGO='assets/wfgg-logo-premium-transparent-v2.png';
@@ -52,7 +134,19 @@ function paintAllianceIdentity(){
   if($('heroAllianceServer'))$('heroAllianceServer').textContent=serverLabel+' '+server;
   setAllianceLogo('heroAllianceLogo','heroAllianceFallback');
 }
-function renderHome(){if(!state.user)return;paintAllianceIdentity();const name=state.user.display_name||state.user.player_name;if($('heroName'))$('heroName').textContent=name;paintAvatar($('topAvatar'),state.user);$('profileRequiredBanner').classList.toggle('hidden',profileComplete());$('homeWelcome').textContent=state.portalSettings?.welcome_text||t('home.settingsSub').replace('Profil, alliance et administration','Choisissez votre espace WfGg.').replace('Profile, alliance and administration','Choose your WfGg space.').replace('Profilo, alleanza e amministrazione','Scegli il tuo spazio WfGg.').replace('Perfil, alianza y administración','Elige tu espacio WfGg.');$('guidesCardTitle').textContent=state.portalSettings?.guides_title||'Guides';$('trainCardTitle').textContent=state.portalSettings?.train_title||'Train';}
+function renderHome(){
+  if(!state.user)return;
+  paintAllianceIdentity();
+  const name=state.user.display_name||state.user.player_name;
+  if($('heroName'))$('heroName').textContent=name;
+  paintAvatar($('topAvatar'),state.user);
+  $('profileRequiredBanner').classList.toggle('hidden',profileComplete());
+
+  const useFrenchMaster=state.lang==='fr';
+  $('homeWelcome').textContent=(useFrenchMaster&&state.portalSettings?.welcome_text)||t('home.welcomeText');
+  $('guidesCardTitle').textContent=(useFrenchMaster&&state.portalSettings?.guides_title)||t('home.guidesTitle');
+  $('trainCardTitle').textContent=(useFrenchMaster&&state.portalSettings?.train_title)||t('home.trainTitle');
+}
 function moduleUrl(k){const stored=state.portalSettings?.[`${k}_url`];return stored||cfg.MODULES?.[k]||''}
 function openModule(k){const u=moduleUrl(k);if(u)location.href=u}
 function showMessage(id,text,error=false){const el=$(id);if(!el)return;el.textContent=text;el.className=`form-message${error?' error':''}`;setTimeout(()=>el.classList.add('hidden'),3500)}
@@ -60,7 +154,14 @@ async function boot(){applyLanguage();if(!token())return showAuth();try{hydrate(
 
 // auth + main navigation
 $('authForm').addEventListener('submit',async e=>{e.preventDefault();$('authError').classList.add('hidden');try{const d=await api('/api/auth',{method:'POST',body:JSON.stringify({code:$('authCode').value.trim()})});localStorage.setItem(TOKEN_KEY,d.session_token);hydrate(d);$('authCode').value='';showPortal()}catch{$('authError').textContent=t('auth.bad');$('authError').classList.remove('hidden')}});
-$('languageStrip').addEventListener('click',e=>{const b=e.target.closest('[data-lang]');if(!b)return;state.lang=b.dataset.lang;localStorage.setItem(LANG_KEY,state.lang);applyLanguage()});
+$('languageStrip').addEventListener('click',e=>{
+  const b=e.target.closest('[data-lang]');
+  if(!b)return;
+  state.lang=normalizeLanguage(b.dataset.lang)||'fr';
+  localStorage.setItem(LANG_KEY,state.lang);
+  localStorage.setItem(LANG_SOURCE_KEY,'manual');
+  applyLanguage();
+});
 $('profileChip').addEventListener('click',()=>{$('profileMenu').classList.toggle('hidden')});
 $('homeButton')?.addEventListener('click',()=>{showPortal();scrollTo({top:0,behavior:'smooth'})});
 document.addEventListener('click',async e=>{const module=e.target.closest('[data-module]');if(module)return openModule(module.dataset.module);const a=e.target.closest('[data-action]');if(!a)return;const x=a.dataset.action;if(x==='settings')return openSettings('profile');if(x==='profile')return openSettings('profile');if(x==='logout'){try{await api('/api/logout',{method:'POST'})}catch{}clearSession();$('settingsOverlay').classList.add('hidden');$('membersView').classList.add('hidden');showAuth();return}if(x==='close-settings')return closeSettings();if(x==='close-members')return closeMembers();if(x==='add-member')return openMemberModal();if(x==='edit-member')return openMemberModal(a.dataset.id);if(x==='toggle-member')return toggleMember(a.dataset.id);if(x==='close-modal')return closeModal();if(x==='save-member')return saveMember();if(x==='reset-member-code')return resetMemberCode(a.dataset.id);if(x==='transfer-r5')return openTransfer(a.dataset.id);if(x==='confirm-transfer')return confirmTransfer(a.dataset.id);if(x==='copy-code')return copyText(a.dataset.code,a);if(x==='revoke-others')return revokeOthers();});
@@ -78,7 +179,32 @@ function allianceSettingsHtml(){return `<div class="settings-section"><form id="
 function applicationSettingsHtml(){const p=state.portalSettings||{};return `<form id="applicationForm" class="settings-form"><div class="settings-card-block"><h3>✨ Application</h3><p class="muted">Réglages généraux du portail. Les paramètres de rotation restent dans Train.</p><label class="field-label">Texte d’accueil</label><textarea id="welcomeText" maxlength="180" rows="3">${esc(p.welcome_text||'Choisissez votre espace WfGg.')}</textarea><label class="field-label">Titre Guides</label><input id="guidesTitle" maxlength="40" value="${esc(p.guides_title||'Guides')}"><label class="field-label">URL Guides</label><input id="guidesUrl" maxlength="500" value="${esc(p.guides_url||cfg.MODULES?.guides||'')}"><label class="field-label">Titre Train</label><input id="trainTitle" maxlength="40" value="${esc(p.train_title||'Train')}"><label class="field-label">URL Train</label><input id="trainUrl" maxlength="500" value="${esc(p.train_url||cfg.MODULES?.train||'')}"><button class="primary-button" type="submit">${esc(t('settings.save'))}</button><div id="applicationMessage" class="hidden"></div></div></form>`}
 function rightsHtml(){const rank=state.membership?.rank||'—',owner=state.system?.role==='OWNER';return `<div class="settings-section"><div class="settings-card-block"><h3>🛡️ Politique des droits</h3><p class="muted">Les droits sont calculés côté API à chaque requête. Un changement de rang invalide la session du joueur concerné.</p><div class="permission-grid"><div class="permission-row"><b>Fonction</b><strong>R4/R5</strong><strong>R1–R3</strong></div>${['Profil personnel','Paramètres généraux','Alliance & membres','Gestion des rangs','Fonctions R4','Changer le R5','Administration'].map((x,i)=>`<div class="permission-row"><span>${x}</span><strong class="ok">✓</strong><strong class="${i===0?'ok':'no'}">${i===0?'✓':'—'}</strong></div>`).join('')}</div></div><div class="settings-card-block"><h3>Ton accès</h3><p>Rang : <strong>${esc(rank)}</strong>${state.membership?.officer_title?` · ${esc(OFFICE_FR[state.membership.officer_title]||state.membership.officer_title)}`:''}${owner?' · <strong>OWNER</strong>':''}</p><p class="muted">OWNER est un rôle système séparé du rang de jeu et reste protégé.</p></div></div>`}
 function bindSettingsForms(){paintAvatar($('settingsAvatar'),state.user);if($('languageSelect'))$('languageSelect').value=state.user?.language||state.lang;$('profileForm')?.addEventListener('submit',saveProfile);$('avatarInput')?.addEventListener('change',uploadAvatar);$('codeForm')?.addEventListener('submit',changeOwnCode);$('refreshSessions')?.addEventListener('click',loadSessions);$('allianceForm')?.addEventListener('submit',saveAlliance);$('applicationForm')?.addEventListener('submit',saveApplication);$('openMembersButton')?.addEventListener('click',openMembers);if(state.settingsTab==='profile')loadSessions();}
-async function saveProfile(e){e.preventDefault();try{hydrate(await api('/api/profile',{method:'PATCH',body:JSON.stringify({display_name:$('displayName').value.trim(),language:$('languageSelect').value})}));showMessage('profileMessage','Enregistré.')}catch(err){showMessage('profileMessage',err.message,true)}}
+async function saveProfile(e){
+  e.preventDefault();
+  const previousLang=state.lang;
+  const requestedLang=normalizeLanguage($('languageSelect').value)||'fr';
+  try{
+    const updated=await api('/api/profile',{
+      method:'PATCH',
+      body:JSON.stringify({
+        display_name:$('displayName').value.trim(),
+        language:requestedLang
+      })
+    });
+    localStorage.setItem(LANG_KEY,requestedLang);
+    localStorage.setItem(LANG_SOURCE_KEY,'profile');
+    hydrate(updated);
+    if(state.lang!==previousLang){
+      closeSettings();
+      showPortal();
+      scrollTo({top:0,behavior:'smooth'});
+    }else{
+      showMessage('profileMessage',t('settings.save'));
+    }
+  }catch(err){
+    showMessage('profileMessage',err.message,true);
+  }
+}
 async function uploadAvatar(e){const f=e.target.files?.[0];if(!f)return;if(f.size>2*1024*1024)return showMessage('profileMessage','Fichier trop volumineux.',true);const fd=new FormData();fd.append('avatar',f);try{hydrate(await api('/api/profile/avatar',{method:'POST',body:fd}));paintAvatar($('settingsAvatar'),state.user);showMessage('profileMessage','Photo enregistrée.')}catch(err){showMessage('profileMessage',err.message,true)}e.target.value=''}
 async function changeOwnCode(e){e.preventDefault();const cur=$('currentCode').value.trim(),n=$('newCode').value.trim();if(!/^\d{6}$/.test(cur)||!/^\d{6}$/.test(n))return showMessage('codeMessage','Deux codes à 6 chiffres sont requis.',true);try{await api('/api/me/code',{method:'PATCH',body:JSON.stringify({current_code:cur,new_code:n})});$('currentCode').value='';$('newCode').value='';showMessage('codeMessage','Code modifié. Les autres sessions ont été fermées.');loadSessions()}catch(err){showMessage('codeMessage',err.message,true)}}
 async function loadSessions(){const el=$('sessionList');if(!el)return;try{const d=await api('/api/me/sessions');state.sessions=d.sessions||[];el.innerHTML=state.sessions.map(s=>`<div class="session-row"><div><strong>${s.current?'Session actuelle':'Session'}</strong><br><small>${esc(s.user_agent||'Appareil inconnu')}</small></div><small>${new Date(s.last_seen_at).toLocaleString(state.lang)}</small></div>`).join('')||'<span class="muted">Aucune session.</span>'}catch(err){el.innerHTML=`<span class="error-text">${esc(err.message)}</span>`}}
