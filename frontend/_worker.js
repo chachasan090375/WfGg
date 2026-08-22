@@ -7,6 +7,10 @@ const UPSTREAMS = {
     prefix: '/train',
     origin: 'https://wfgg-train-app.pages.dev'
   },
+  portalApi: {
+    prefix: '/api',
+    origin: 'https://wfgg-api.chachasan090375.workers.dev'
+  },
   trainApi: {
     prefix: '/api',
     origin: 'https://portal-auth-phase1-wfgg-train.chachasan090375.workers.dev'
@@ -520,12 +524,43 @@ export default {
          Les API historiques du frontend Train utilisent /api/*.
          Le Portail les transmet au backend Train.
       */
+      /* WFGG_API_CONTEXT_SPLIT_V1
+         Les API du Portail restent sur wfgg-api.
+         Les appels provenant de /train/ utilisent le backend Train.
+      */
       if (url.pathname === '/api' || url.pathname.startsWith('/api/')) {
+        const referer = request.headers.get('Referer') || '';
+        const hasPortalTrainToken =
+          request.headers.has('X-WfGg-Portal-Token');
+
+        let fromTrainPage = false;
+
+        try {
+          const refUrl = new URL(referer);
+
+          fromTrainPage =
+            refUrl.origin === url.origin &&
+            (
+              refUrl.pathname === '/train' ||
+              refUrl.pathname.startsWith('/train/')
+            );
+        } catch {}
+
+        const apiRoute =
+          (fromTrainPage || hasPortalTrainToken)
+            ? UPSTREAMS.trainApi
+            : UPSTREAMS.portalApi;
+
         return await proxyRoute(
           request,
-          UPSTREAMS.trainApi,
+          apiRoute,
           url.pathname,
-          { routeName: 'train-api' }
+          {
+            routeName:
+              apiRoute === UPSTREAMS.trainApi
+                ? 'train-api'
+                : 'portal-api'
+          }
         );
       }
 
