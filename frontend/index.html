@@ -66,8 +66,8 @@
       <div id="profileRequiredBanner" class="profile-required glass-card hidden"><span>ℹ️</span><strong data-i18n="home.profileIncomplete">Votre profil est incomplet. Vous pouvez le compléter dans Paramètres.</strong></div>
 
       <section class="module-grid" aria-label="Navigation principale">
-        <button class="module-card glass-card" type="button" data-module="guides"><span class="module-icon">📚</span><span class="module-arrow">↗</span><span class="module-copy"><strong id="guidesCardTitle">Guides</strong><small data-i18n="home.guidesSub">Saison 6 et Inter-Saison</small></span></button>
-        <button class="module-card glass-card" type="button" data-module="train"><span class="module-icon">🚂</span><span class="module-arrow">↗</span><span class="module-copy"><strong id="trainCardTitle">Train</strong><small data-i18n="home.trainSub">Organisation et rotations</small></span></button>
+        <a id="guidesModuleLink" class="module-card glass-card" data-module="guides" href="/guides/"><span class="module-icon">📚</span><span class="module-arrow">↗</span><span class="module-copy"><strong id="guidesCardTitle">Guides</strong><small data-i18n="home.guidesSub">Saison 6 et Inter-Saison</small></span></a>
+        <a id="trainModuleLink" class="module-card glass-card" data-module="train" href="/train/"><span class="module-icon">🚂</span><span class="module-arrow">↗</span><span class="module-copy"><strong id="trainCardTitle">Train</strong><small data-i18n="home.trainSub">Organisation et rotations</small></span></a>
         <button class="module-card glass-card settings-card" type="button" data-action="settings"><span class="module-icon">⚙️</span><span class="module-arrow">→</span><span class="module-copy"><strong data-i18n="home.settings">Paramètres</strong><small data-i18n="home.settingsSub">Profil, alliance et administration</small></span></button>
       </section>
     </section>
@@ -101,6 +101,6 @@
 
   <script src="config.js?v=077"></script>
   <script src="legacy-avatars.js?v=072-r2q"></script>
-  <script src="portal-v070.js?v=077"></script>
+  <script src="portal-v070.js?v=077-fix2a"></script>
 </body>
 </html>

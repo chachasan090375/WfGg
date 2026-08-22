@@ -213,6 +213,7 @@ function renderHome(){
   $('homeWelcome').textContent=(useFrenchMaster&&state.portalSettings?.welcome_text)||t('home.welcomeText');
   $('guidesCardTitle').textContent=(useFrenchMaster&&state.portalSettings?.guides_title)||t('home.guidesTitle');
   $('trainCardTitle').textContent=(useFrenchMaster&&state.portalSettings?.train_title)||t('home.trainTitle');
+  refreshModuleLinks();
 }
 function normalizeUnifiedModuleUrl(k,raw){
   const value=String(raw||'').trim();
@@ -235,7 +236,13 @@ function normalizeUnifiedModuleUrl(k,raw){
 
   return value;
 }
+const CANONICAL_MODULE_ROUTES={
+  guides:'/guides/',
+  train:'/train/',
+  simulator:'/simulateur/'
+};
 function moduleUrl(k){
+  if(CANONICAL_MODULE_ROUTES[k])return CANONICAL_MODULE_ROUTES[k];
   const stored=state.portalSettings?.[`${k}_url`];
   const raw=stored||cfg.MODULES?.[k]||'';
   return normalizeUnifiedModuleUrl(k,raw);
@@ -248,7 +255,13 @@ function localizedModuleUrl(k){
     return u.toString();
   }catch{return raw}
 }
-function openModule(k){const u=localizedModuleUrl(k);if(u)location.href=u}
+function refreshModuleLinks(){
+  const guides=$('guidesModuleLink');
+  const train=$('trainModuleLink');
+  if(guides)guides.href=localizedModuleUrl('guides');
+  if(train)train.href=localizedModuleUrl('train');
+}
+function openModule(k){const u=localizedModuleUrl(k);if(u)location.assign(u)}
 function showMessage(id,text,error=false){const el=$(id);if(!el)return;el.textContent=text;el.className=`form-message${error?' error':''}`;setTimeout(()=>el.classList.add('hidden'),3500)}
 async function handleLanguageRelay(){
   const url=new URL(location.href);
@@ -342,7 +355,7 @@ $('languageStrip').addEventListener('click',e=>{
 });
 $('profileChip').addEventListener('click',()=>{$('profileMenu').classList.toggle('hidden')});
 $('homeButton')?.addEventListener('click',()=>{showPortal();scrollTo({top:0,behavior:'smooth'})});
-document.addEventListener('click',async e=>{const module=e.target.closest('[data-module]');if(module)return openModule(module.dataset.module);const a=e.target.closest('[data-action]');if(!a)return;const x=a.dataset.action;if(x==='settings')return openSettings('profile');if(x==='profile')return openSettings('profile');if(x==='logout'){try{await api('/api/logout',{method:'POST'})}catch{}clearSession();$('settingsOverlay').classList.add('hidden');$('membersView').classList.add('hidden');showAuth();return}if(x==='close-settings')return closeSettings();if(x==='close-members')return closeMembers();if(x==='add-member')return openMemberModal();if(x==='edit-member')return openMemberModal(a.dataset.id);if(x==='toggle-member')return toggleMember(a.dataset.id);if(x==='close-modal')return closeModal();if(x==='save-member')return saveMember();if(x==='reset-member-code')return resetMemberCode(a.dataset.id);if(x==='transfer-r5')return openTransfer(a.dataset.id);if(x==='confirm-transfer')return confirmTransfer(a.dataset.id);if(x==='copy-code')return copyText(a.dataset.code,a);if(x==='revoke-others')return revokeOthers();});
+document.addEventListener('click',async e=>{const module=e.target.closest('[data-module]');if(module){if(module.tagName==='A')return;return openModule(module.dataset.module)}const a=e.target.closest('[data-action]');if(!a)return;const x=a.dataset.action;if(x==='settings')return openSettings('profile');if(x==='profile')return openSettings('profile');if(x==='logout'){try{await api('/api/logout',{method:'POST'})}catch{}clearSession();$('settingsOverlay').classList.add('hidden');$('membersView').classList.add('hidden');showAuth();return}if(x==='close-settings')return closeSettings();if(x==='close-members')return closeMembers();if(x==='add-member')return openMemberModal();if(x==='edit-member')return openMemberModal(a.dataset.id);if(x==='toggle-member')return toggleMember(a.dataset.id);if(x==='close-modal')return closeModal();if(x==='save-member')return saveMember();if(x==='reset-member-code')return resetMemberCode(a.dataset.id);if(x==='transfer-r5')return openTransfer(a.dataset.id);if(x==='confirm-transfer')return confirmTransfer(a.dataset.id);if(x==='copy-code')return copyText(a.dataset.code,a);if(x==='revoke-others')return revokeOthers();});
 
 // settings
 const tabDefs=()=>[{id:'profile',label:t('settings.profile')},...(isAdmin()?[{id:'alliance',label:t('settings.alliance')},{id:'application',label:t('settings.application')},{id:'rights',label:t('settings.rights')}]:[])];
