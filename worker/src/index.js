@@ -34,6 +34,8 @@ export default {
         response = await authenticate(request, env);
       } else if (url.pathname === '/api/me' && request.method === 'GET') {
         response = await me(request, env);
+      } else if (url.pathname === '/api/train/context' && request.method === 'GET') {
+        response = await trainContext(request, env);
       } else if (url.pathname === '/api/logout' && request.method === 'POST') {
         response = await logout(request, env);
       } else if (url.pathname === '/api/profile' && request.method === 'PATCH') {
@@ -488,6 +490,69 @@ function shapeContext(row) {
 
 async function me(request, env) {
   return json(shapeContext(await sessionContext(request, env)));
+}
+
+async function trainContext(request, env) {
+  const ctx = await sessionContext(request, env);
+  const current = shapeContext(ctx);
+
+  const rows = await env.DB.prepare(`
+    SELECT
+      u.id,
+      u.player_name,
+      u.display_name,
+      u.language,
+      u.avatar_url,
+      u.active,
+      u.last_login_at,
+      u.updated_at,
+      m.rank,
+      m.officer_title,
+      sr.role AS system_role
+    FROM users u
+    JOIN memberships m ON m.user_id = u.id
+    LEFT JOIN system_roles sr ON sr.user_id = u.id
+    WHERE m.alliance_id = ?
+    ORDER BY
+      CASE m.rank
+        WHEN 'R5' THEN 0
+        WHEN 'R4' THEN 1
+        WHEN 'R3' THEN 2
+        WHEN 'R2' THEN 3
+        ELSE 4
+      END,
+      u.display_name COLLATE NOCASE
+  `).bind(ctx.alliance_id).all();
+
+  return json({
+    ok: true,
+    source: 'wfgg-portal',
+    me: {
+      id: current.user.id,
+      pseudo: current.user.display_name || current.user.player_name,
+      player_name: current.user.player_name,
+      display_name: current.user.display_name,
+      language: current.user.language,
+      avatar: current.user.avatar_url || null,
+      rank: current.membership.rank,
+      officer_title: current.membership.officer_title || null
+    },
+    alliance: current.alliance,
+    roster: (rows.results || []).map((row) => ({
+      id: row.id,
+      pseudo: row.display_name || row.player_name,
+      player_name: row.player_name,
+      display_name: row.display_name,
+      language: row.language,
+      avatar: row.avatar_url || null,
+      rank: row.rank,
+      officer_title: row.officer_title || null,
+      active: Boolean(row.active),
+      last_login_at: row.last_login_at || null,
+      updated_at: row.updated_at || null,
+      system_role: row.system_role || null
+    }))
+  });
 }
 
 async function logout(request, env) {

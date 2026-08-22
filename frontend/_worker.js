@@ -113,6 +113,52 @@ function languageBridgeScript(routeName) {
   const MODULE_KEY=ROUTE==='train'?'wfgg_train_lang':'wfgg_lang';
   const API='https://wfgg-api.chachasan090375.workers.dev';
 
+  /* WFGG_PORTAL_TRAIN_FETCH_BRIDGE
+     Ajoute la session Portail en parallèle.
+     L'ancien Authorization Train n'est jamais remplacé.
+  */
+  if(ROUTE==='train'){
+    const WFGG_NATIVE_FETCH=window.fetch.bind(window);
+
+    window.fetch=function(input,init){
+      const options=init?{...init}:{};
+
+      try{
+        const raw=
+          typeof input==='string'||input instanceof URL
+            ? String(input)
+            : input?.url;
+
+        const target=new URL(raw||'',location.href);
+
+        if(
+          target.origin===location.origin &&
+          target.pathname.startsWith('/api/')
+        ){
+          const portalToken=localStorage.getItem(PORTAL_TOKEN);
+
+          if(portalToken){
+            const headers=new Headers(
+              options.headers ||
+              (input instanceof Request ? input.headers : undefined)
+            );
+
+            headers.set('X-WfGg-Portal-Token',portalToken);
+            options.headers=headers;
+
+            if(input instanceof Request){
+              return WFGG_NATIVE_FETCH(
+                new Request(input,options)
+              );
+            }
+          }
+        }
+      }catch(e){}
+
+      return WFGG_NATIVE_FETCH(input,options);
+    };
+  }
+
   const norm=v=>{
     const x=String(v||'').trim().toLowerCase().replace('_','-').split('-')[0];
     return SUPPORTED.includes(x)?x:'';
@@ -466,6 +512,19 @@ export default {
     const url = new URL(request.url);
 
     try {
+      /* WFGG_TRAIN_API_PROXY
+         Les API historiques du frontend Train utilisent /api/*.
+         Le Portail les transmet au backend Train.
+      */
+      if (url.pathname === '/api' || url.pathname.startsWith('/api/')) {
+        return await proxyRoute(
+          request,
+          UPSTREAMS.train,
+          url.pathname,
+          { routeName: 'train-api' }
+        );
+      }
+
       if (url.pathname === '/guides' || url.pathname.startsWith('/guides/')) {
         return await routeGuides(request);
       }
