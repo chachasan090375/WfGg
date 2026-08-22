@@ -595,3 +595,25 @@
 button.saved{box-shadow:0 0 0 2px rgba(179,137,255,.28),0 12px 30px rgba(0,0,0,.22)}
 button[aria-busy="true"]{cursor:progress;opacity:.82}
 @media(max-width:560px){.home-localized-logo{width:min(360px,90vw)}}
+
+/* =========================================================
+   V0.7.6 FIX2 · LOGO LOCALISE FIABLE
+   ========================================================= */
+.home-brand-logo-wrap{
+  isolation:isolate;
+}
+.home-localized-logo{
+  position:relative;
+  z-index:3;
+}
+.home-localized-logo.hidden{
+  display:none!important;
+}
+.home-localized-logo svg{
+  display:block;
+  width:100%;
+  height:auto;
+}
+.home-alliance-logo.hidden{
+  display:none!important;
+}

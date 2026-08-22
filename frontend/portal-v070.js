@@ -115,19 +115,42 @@ function hydrate(d){
 }
 function showAuth(){setView('authView');setTimeout(()=>$('authCode')?.focus(),30)}
 function showPortal(){setView('portalView');renderHome();}
+function returnPortalTop(){
+  closeSettings();
+  showPortal();
+  const reset=()=>{
+    document.documentElement.scrollTop=0;
+    document.body.scrollTop=0;
+    window.scrollTo(0,0);
+  };
+  reset();
+  requestAnimationFrame(()=>requestAnimationFrame(reset));
+}
 const DEFAULT_ALLIANCE_LOGO='assets/wfgg-logo-premium-transparent-v2.png';
 function setAllianceLogo(imgId,fallbackId){
-  const img=$(imgId),fallback=$(fallbackId);
+  const img=$(imgId),fallback=$(fallbackId),localized=$('heroLocalizedLogo');
   if(!img||!fallback)return;
+  if(localized){localized.classList.add('hidden');localized.innerHTML=''}
+  img.onload=null;img.onerror=null;
+
   const custom=String(state.alliance?.logo_url||'').trim();
-  const legacyDefault=/(wfgg-train-app\.pages\.dev\/assets\/icon-192\.png|wfgg-logo-transparent-r2q\.webp)/i.test(custom);
+  const legacyDefault=/(wfgg-train-app\.pages\.dev\/assets\/icon-192\.png|wfgg-logo-transparent-r2q\.webp|wfgg-logo-premium-transparent-v2\.png)/i.test(custom);
   const src=(custom&&!legacyDefault)?custom:DEFAULT_ALLIANCE_LOGO;
+
   img.classList.toggle('premium-integrated-logo',src===DEFAULT_ALLIANCE_LOGO);
   fallback.classList.remove('hidden');
   img.classList.add('hidden');
   if(!src)return;
-  img.onload=()=>{img.classList.remove('hidden');fallback.classList.add('hidden')};
-  img.onerror=()=>{img.classList.add('hidden');fallback.classList.remove('hidden')};
+
+  img.onload=()=>{
+    if(state.lang!=='fr'&&usesMasterLogo())return;
+    img.classList.remove('hidden');
+    fallback.classList.add('hidden');
+  };
+  img.onerror=()=>{
+    img.classList.add('hidden');
+    fallback.classList.remove('hidden');
+  };
   img.src=src;
 }
 const LOGO_COPY={
@@ -142,36 +165,104 @@ function usesMasterLogo(){
 function paintLocalizedMasterLogo(){
   const box=$('heroLocalizedLogo'),img=$('heroAllianceLogo'),fallback=$('heroAllianceFallback');
   if(!box||!img||!fallback)return false;
-  if(state.lang==='fr'||!usesMasterLogo()){box.classList.add('hidden');return false}
-  const copy=LOGO_COPY[state.lang]; if(!copy){box.classList.add('hidden');return false}
-  const ribbonSize=state.lang==='en'?38:state.lang==='es'?37:40;
-  const baseSize=state.lang==='it'?32:34;
+
+  if(state.lang==='fr'||!usesMasterLogo()){
+    box.classList.add('hidden');
+    box.innerHTML='';
+    return false;
+  }
+
+  const copy=LOGO_COPY[state.lang];
+  if(!copy){
+    box.classList.add('hidden');
+    box.innerHTML='';
+    return false;
+  }
+
+  /* Neutralise définitivement un onload FR encore en attente. */
+  img.onload=null;
+  img.onerror=null;
+  img.classList.add('hidden');
+  img.removeAttribute('src');
+  fallback.classList.add('hidden');
+
+  const ribbonSize=state.lang==='en'?37:state.lang==='es'?36:39;
+  const baseSize=state.lang==='it'?31:state.lang==='es'?30:32;
+
   box.innerHTML=`
-  <svg viewBox="0 0 1254 1254" role="img" aria-label="WfGg — ${esc(copy.ribbon)} — ${esc(copy.baseline)}">
+  <svg viewBox="0 0 1254 1254" role="img"
+       aria-label="WfGg — ${esc(copy.ribbon)} — ${esc(copy.baseline)}"
+       xmlns="http://www.w3.org/2000/svg">
     <defs>
-      <mask id="wfggBaseMask"><rect width="1254" height="1254" fill="black"/><rect width="1254" height="938" fill="white"/></mask>
-      <clipPath id="wfggHandshake"><circle cx="627" cy="925" r="155"/></clipPath>
+      <clipPath id="wfggTopClip"><rect x="0" y="0" width="1254" height="920"/></clipPath>
+      <clipPath id="wfggMedalClip"><circle cx="627" cy="913" r="166"/></clipPath>
       <linearGradient id="wfggRibbonBlue" x1="0" x2="0" y1="0" y2="1">
-        <stop offset="0" stop-color="#0b5bab"/><stop offset=".52" stop-color="#06417f"/><stop offset="1" stop-color="#032b5b"/>
+        <stop offset="0" stop-color="#0b66b8"/>
+        <stop offset=".48" stop-color="#074781"/>
+        <stop offset="1" stop-color="#032953"/>
       </linearGradient>
+      <linearGradient id="wfggGold" x1="0" x2="1">
+        <stop offset="0" stop-color="#b76b00"/>
+        <stop offset=".32" stop-color="#fff0a6"/>
+        <stop offset=".62" stop-color="#e5a818"/>
+        <stop offset="1" stop-color="#8e4c00"/>
+      </linearGradient>
+      <filter id="wfggTextShadow" x="-20%" y="-20%" width="140%" height="140%">
+        <feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#000" flood-opacity=".62"/>
+      </filter>
     </defs>
-    <image href="assets/wfgg-logo-premium-transparent-v2.png" width="1254" height="1254" mask="url(#wfggBaseMask)"/>
-    <path d="M145 925 Q627 1090 1109 925 L1084 1048 Q627 1174 170 1048 Z"
-          fill="url(#wfggRibbonBlue)" stroke="#f6c84c" stroke-width="12"/>
-    <image href="assets/wfgg-logo-premium-transparent-v2.png" width="1254" height="1254" clip-path="url(#wfggHandshake)"/>
-    <path id="wfggRibbonPath" d="M205 990 Q627 1110 1049 990" fill="none"/>
-    <text fill="#fff8e8" stroke="#021936" stroke-width="5" paint-order="stroke fill"
-          font-family="Georgia, 'Times New Roman', serif" font-weight="900" font-size="${ribbonSize}" letter-spacing="2">
+
+    <!-- Partie haute officielle, sans les textes français du bas -->
+    <image href="assets/wfgg-logo-premium-transparent-v2.png"
+           x="0" y="0" width="1254" height="1254"
+           preserveAspectRatio="xMidYMid meet"
+           clip-path="url(#wfggTopClip)"/>
+
+    <!-- Médaillon central conservé au-dessus du nouveau ruban -->
+    <image href="assets/wfgg-logo-premium-transparent-v2.png"
+           x="0" y="0" width="1254" height="1254"
+           preserveAspectRatio="xMidYMid meet"
+           clip-path="url(#wfggMedalClip)"/>
+
+    <!-- Ruban reconstruit -->
+    <path d="M118 904
+             Q248 956 365 980
+             Q500 1008 627 1013
+             Q754 1008 889 980
+             Q1006 956 1136 904
+             L1108 1038
+             Q1000 1080 884 1104
+             Q754 1131 627 1137
+             Q500 1131 370 1104
+             Q254 1080 146 1038 Z"
+          fill="url(#wfggRibbonBlue)"
+          stroke="url(#wfggGold)" stroke-width="14"/>
+
+    <path id="wfggRibbonPath"
+          d="M184 973 Q627 1118 1070 973"
+          fill="none"/>
+
+    <text fill="#fff9e9" stroke="#061b35" stroke-width="6"
+          paint-order="stroke fill" filter="url(#wfggTextShadow)"
+          font-family="Georgia, 'Times New Roman', serif"
+          font-weight="900" font-size="${ribbonSize}" letter-spacing="1.5">
       <textPath href="#wfggRibbonPath" startOffset="50%" text-anchor="middle">${esc(copy.ribbon)}</textPath>
     </text>
-    <text x="627" y="1170" text-anchor="middle"
-          fill="#fff7df" stroke="#0a2a5b" stroke-width="5" paint-order="stroke fill"
-          font-family="Georgia, 'Times New Roman', serif" font-weight="900" font-size="${baseSize}" letter-spacing="1.4">${esc(copy.baseline)}</text>
-    <path d="M365 1208 H555 L585 1193 L615 1208 L645 1193 L675 1208 L705 1193 L735 1208 H889"
-          fill="none" stroke="#f4bd2c" stroke-width="7" stroke-linecap="round"/>
-    <path d="M365 1222 H889" fill="none" stroke="#1e76c4" stroke-width="5" stroke-linecap="round"/>
+
+    <!-- Baseline localisée -->
+    <text x="627" y="1182" text-anchor="middle"
+          fill="#fff9e9" stroke="#123768" stroke-width="6"
+          paint-order="stroke fill" filter="url(#wfggTextShadow)"
+          font-family="Georgia, 'Times New Roman', serif"
+          font-weight="900" font-size="${baseSize}" letter-spacing="1.2">${esc(copy.baseline)}</text>
+
+    <path d="M390 1217 H544 L574 1202 L604 1217 L627 1200 L650 1217 L680 1202 L710 1217 H864"
+          fill="none" stroke="url(#wfggGold)" stroke-width="7" stroke-linecap="round"/>
+    <path d="M390 1230 H864"
+          fill="none" stroke="#2a86d4" stroke-width="5" stroke-linecap="round"/>
   </svg>`;
-  box.classList.remove('hidden');img.classList.add('hidden');fallback.classList.add('hidden');
+
+  box.classList.remove('hidden');
   return true;
 }
 function paintAllianceIdentity(){
@@ -267,34 +358,57 @@ async function saveProfile(e){
   e.preventDefault();
   const form=e.currentTarget;
   const btn=e.submitter||form.querySelector('button[type="submit"]');
-  const original=btn?.textContent||t('settings.save');
   const requestedLang=normalizeLanguage($('languageSelect').value)||'fr';
-  const previousLang=state.lang;
-  if(btn){btn.disabled=true;btn.setAttribute('aria-busy','true');btn.textContent=t('settings.saving')}
+
+  if(btn){
+    btn.disabled=true;
+    btn.setAttribute('aria-busy','true');
+    btn.textContent=t('settings.saving');
+  }
+
   try{
     const displayName=$('displayName').value.trim();
     let updated;
+
     if(requestedLang!==state.user?.language){
-      updated=await api('/api/profile/language',{method:'PATCH',body:JSON.stringify({language:requestedLang})});
+      updated=await api('/api/profile/language',{
+        method:'PATCH',
+        body:JSON.stringify({language:requestedLang})
+      });
+
       if(displayName && displayName!==(updated.user?.display_name||'')){
-        updated=await api('/api/profile',{method:'PATCH',body:JSON.stringify({display_name:displayName,language:requestedLang})});
+        updated=await api('/api/profile',{
+          method:'PATCH',
+          body:JSON.stringify({display_name:displayName,language:requestedLang})
+        });
       }
     }else{
-      updated=await api('/api/profile',{method:'PATCH',body:JSON.stringify({display_name:displayName,language:requestedLang})});
+      updated=await api('/api/profile',{
+        method:'PATCH',
+        body:JSON.stringify({display_name:displayName,language:requestedLang})
+      });
     }
+
     localStorage.setItem(LANG_KEY,requestedLang);
     localStorage.setItem(LANG_SOURCE_KEY,'profile');
     hydrate(updated);
-    if(btn){btn.textContent=t('settings.saved');btn.classList.add('saved')}
+
+    if(btn){
+      btn.textContent=t('settings.saved');
+      btn.classList.add('saved');
+    }
     showMessage('profileMessage',t('settings.saved'));
-    await new Promise(r=>setTimeout(r,650));
-    if(state.lang!==previousLang){closeSettings();showPortal();scrollTo({top:0,behavior:'smooth'})}
+
+    await new Promise(r=>setTimeout(r,550));
+    returnPortalTop();
   }catch(err){
     showMessage('profileMessage',err.message,true);
   }finally{
-    if(btn){
-      btn.disabled=false;btn.removeAttribute('aria-busy');btn.classList.remove('saved');
-      if(document.body.contains(btn))btn.textContent=t('settings.save')||original;
+    if(btn && document.body.contains(btn)){
+      btn.disabled=false;
+      btn.removeAttribute('aria-busy');
+      btn.classList.remove('saved');
+      btn.textContent=t('settings.save');
     }
   }
 }
