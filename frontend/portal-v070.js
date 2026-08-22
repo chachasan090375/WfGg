@@ -199,7 +199,7 @@ function paintAllianceIdentity(){
   const serverLabel={fr:'Alliance · Serveur',it:'Alleanza · Server',en:'Alliance · Server',es:'Alianza · Servidor'}[state.lang]||'Alliance · Serveur';
   if($('heroAllianceName'))$('heroAllianceName').textContent=allianceName;
   if($('heroAllianceServer'))$('heroAllianceServer').textContent=serverLabel+' '+server;
-  if(!paintLocalizedMasterLogo())setAllianceLogo('heroAllianceLogo','heroAllianceFallback');
+  setAllianceLogo('heroAllianceLogo','heroAllianceFallback');
 }
 function renderHome(){
   if(!state.user)return;
@@ -252,11 +252,57 @@ async function boot(){
   applyLanguage();
   if(await handleLanguageRelay())return;
   if(!token())return showAuth();
-  try{hydrate(await api('/api/me'));showPortal()}catch(e){if(e.message!=='UNAUTHORIZED')showAuth()}
+
+  let d;
+  try{
+    d=await api('/api/me');
+  }catch(e){
+    /* api() gère déjà le vrai 401 et supprime seulement une session refusée. */
+    if(e.message!=='UNAUTHORIZED')console.error('SESSION_CHECK_ERROR',e);
+    return showAuth();
+  }
+
+  try{
+    hydrate(d);
+    showPortal();
+  }catch(e){
+    console.error('PORTAL_RENDER_ERROR',e);
+    /* La session reste intacte : pas de faux retour à l'écran code. */
+    setView('portalView');
+  }
 }
 
 // auth + main navigation
-$('authForm').addEventListener('submit',async e=>{e.preventDefault();$('authError').classList.add('hidden');try{const d=await api('/api/auth',{method:'POST',body:JSON.stringify({code:$('authCode').value.trim()})});localStorage.setItem(TOKEN_KEY,d.session_token);hydrate(d);$('authCode').value='';showPortal()}catch{$('authError').textContent=t('auth.bad');$('authError').classList.remove('hidden')}});
+$('authForm').addEventListener('submit',async e=>{
+  e.preventDefault();
+  $('authError').classList.add('hidden');
+
+  let d;
+  try{
+    d=await api('/api/auth',{
+      method:'POST',
+      body:JSON.stringify({code:$('authCode').value.trim()})
+    });
+  }catch(err){
+    $('authError').textContent=t('auth.bad');
+    $('authError').classList.remove('hidden');
+    return;
+  }
+
+  /* À partir d'ici, le code a été accepté par l'API. */
+  localStorage.setItem(TOKEN_KEY,d.session_token);
+  $('authCode').value='';
+
+  try{
+    hydrate(d);
+    showPortal();
+    window.scrollTo({top:0,left:0,behavior:'auto'});
+  }catch(err){
+    console.error('POST_LOGIN_RENDER_ERROR',err);
+    /* Ne jamais transformer une erreur de rendu en "code invalide". */
+    location.reload();
+  }
+});
 $('languageStrip').addEventListener('click',e=>{
   const b=e.target.closest('[data-lang]');
   if(!b)return;
