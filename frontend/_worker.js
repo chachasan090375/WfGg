@@ -5,7 +5,7 @@ const UPSTREAMS = {
   },
   train: {
     prefix: '/train',
-    origin: 'https://wfgg-train-app.pages.dev'
+    origin: 'https://portal-only-auth.wfgg-train-app.pages.dev'
   },
   portalApi: {
     prefix: '/api',
