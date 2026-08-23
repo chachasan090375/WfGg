@@ -131,6 +131,14 @@ function languageBridgeScript(routeName) {
   const MODULE_KEY=ROUTE==='train'?'wfgg_train_lang':'wfgg_lang';
   const API='https://wfgg-api.chachasan090375.workers.dev';
 
+  /* WFGG_GUEST_ROUTE_GUARD_V1 */
+  const GUEST_KEY='wfgg_portal_guest_v1';
+  if(localStorage.getItem(GUEST_KEY)==='1' && ROUTE!=='guides'){
+    const gl=norm(localStorage.getItem(PORTAL_LANG))||'fr';
+    location.replace('/guides/?lang='+gl);
+    return;
+  }
+
   /* WFGG_PORTAL_TRAIN_FETCH_BRIDGE
      Ajoute la session Portail en parallèle.
      L'ancien Authorization Train n'est jamais remplacé.
