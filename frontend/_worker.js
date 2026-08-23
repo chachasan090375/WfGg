@@ -395,14 +395,48 @@ function languageBridgeScript(routeName) {
     setTimeout(apply,1100);
   }
 
+  function forceTrainPortalEntry(){
+    if(ROUTE!=='train')return;
+    if(!localStorage.getItem(PORTAL_TOKEN))return;
+
+    const boot=()=>{
+      if(typeof window.bootApp!=='function')return false;
+
+      try{
+        /* WFGG_PORTAL_TRAIN_AUTOBOOT_V1 */
+        const login=document.getElementById('loginView');
+        if(login)login.classList.add('hidden');
+
+        Promise.resolve(window.bootApp()).catch(function(error){
+          console.warn(
+            'WFGG_PORTAL_TRAIN_AUTOBOOT_ERROR',
+            String(error&&error.message||error)
+          );
+        });
+
+        return true;
+      }catch(error){
+        return false;
+      }
+    };
+
+    if(boot())return;
+
+    setTimeout(boot,50);
+    setTimeout(boot,250);
+    setTimeout(boot,750);
+  }
+
   if(document.readyState==='loading'){
     document.addEventListener('DOMContentLoaded',function(){
       localizeGuideLanding();
       forceTrainLanguage();
+      forceTrainPortalEntry();
     },{once:true});
   }else{
     localizeGuideLanding();
     forceTrainLanguage();
+    forceTrainPortalEntry();
   }
 })();
 </script>`;
