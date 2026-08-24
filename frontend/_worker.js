@@ -41,6 +41,25 @@ function redirectSlash(request, pathname) {
   return Response.redirect(url.toString(), 308);
 }
 
+/* WFGG_GUEST_SERVER_GUARD_V2
+   Le cookie invité est contrôlé côté Worker : un invité ne peut pas ouvrir
+   Train/Simulateur ni appeler l'API en contournant l'interface du Portail.
+*/
+function isGuestRequest(request) {
+  const cookie = request.headers.get('Cookie') || '';
+  return /(?:^|;\s*)wfgg_guest=1(?:;|$)/.test(cookie);
+}
+
+function guestRedirect(request) {
+  const incoming = new URL(request.url);
+  const target = new URL(request.url);
+  const lang = explicitLang(incoming.searchParams.get('lang'));
+  target.pathname = '/guides/';
+  target.search = lang ? `?lang=${lang}` : '';
+  target.hash = '';
+  return Response.redirect(target.toString(), 302);
+}
+
 function upstreamRequest(request, targetUrl, options = {}) {
   const headers = new Headers(request.headers);
 
@@ -131,19 +150,33 @@ function languageBridgeScript(routeName) {
   const MODULE_KEY=ROUTE==='train'?'wfgg_train_lang':'wfgg_lang';
   const API='https://wfgg-api.chachasan090375.workers.dev';
 
-  /* WFGG_GUEST_ROUTE_GUARD_V1 */
+  /* WFGG_GUEST_ROUTE_GUARD_V2
+     Ne dépend pas de norm() : ce guard s'exécute avant la déclaration de norm.
+  */
   const GUEST_KEY='wfgg_portal_guest_v1';
   if(localStorage.getItem(GUEST_KEY)==='1' && ROUTE!=='guides'){
-    const gl=norm(localStorage.getItem(PORTAL_LANG))||'fr';
+    const rawGuestLang=String(localStorage.getItem(PORTAL_LANG)||'fr')
+      .trim().toLowerCase().replace('_','-').split('-')[0];
+    const gl=SUPPORTED.includes(rawGuestLang)?rawGuestLang:'fr';
     location.replace('/guides/?lang='+gl);
     return;
   }
 
-  /* WFGG_PORTAL_TRAIN_FETCH_BRIDGE
-     Ajoute la session Portail en parallèle.
-     L'ancien Authorization Train n'est jamais remplacé.
+  /* WFGG_PORTAL_TRAIN_FETCH_BRIDGE_V2
+     Le frontend Train V1.12 ne lance son snapshot que si wfgg_train_session existe.
+     Une sentinelle locale réveille ce chemin, mais elle n'est jamais envoyée au backend :
+     l'identité réelle reste exclusivement la session Portail transmise par X-WfGg-Portal-Token.
   */
+  const TRAIN_TOKEN='wfgg_train_session';
+  const TRAIN_BRIDGE_SENTINEL='__WFGG_PORTAL_BRIDGE_V2__';
   if(ROUTE==='train'){
+    const initialPortalToken=localStorage.getItem(PORTAL_TOKEN);
+    if(initialPortalToken){
+      localStorage.setItem(TRAIN_TOKEN,TRAIN_BRIDGE_SENTINEL);
+    }else if(localStorage.getItem(TRAIN_TOKEN)===TRAIN_BRIDGE_SENTINEL){
+      localStorage.removeItem(TRAIN_TOKEN);
+    }
+
     const WFGG_NATIVE_FETCH=window.fetch.bind(window);
 
     window.fetch=function(input,init){
@@ -159,7 +192,7 @@ function languageBridgeScript(routeName) {
 
         if(
           target.origin===location.origin &&
-          target.pathname.startsWith('/api/')
+          (target.pathname==='/api'||target.pathname.startsWith('/api/'))
         ){
           const portalToken=localStorage.getItem(PORTAL_TOKEN);
 
@@ -170,6 +203,9 @@ function languageBridgeScript(routeName) {
             );
 
             headers.set('X-WfGg-Portal-Token',portalToken);
+            if(headers.get('Authorization')==='Bearer '+TRAIN_BRIDGE_SENTINEL){
+              headers.delete('Authorization');
+            }
             options.headers=headers;
 
             if(input instanceof Request){
@@ -407,32 +443,82 @@ function languageBridgeScript(routeName) {
     if(ROUTE!=='train')return;
     if(!localStorage.getItem(PORTAL_TOKEN))return;
 
-    const boot=()=>{
-      if(typeof window.bootApp!=='function')return false;
-
-      try{
-        /* WFGG_PORTAL_TRAIN_AUTOBOOT_V1 */
-        const login=document.getElementById('loginView');
-        if(login)login.classList.add('hidden');
-
-        Promise.resolve(window.bootApp()).catch(function(error){
-          console.warn(
-            'WFGG_PORTAL_TRAIN_AUTOBOOT_ERROR',
-            String(error&&error.message||error)
-          );
-        });
-
-        return true;
-      }catch(error){
-        return false;
-      }
+    const T={
+      fr:{loading:'Ouverture de Train…',failed:'Impossible d’ouvrir Train avec la session Portail.',back:'Retour au portail WfGg'},
+      it:{loading:'Apertura di Train…',failed:'Impossibile aprire Train con la sessione del Portale.',back:'Torna al portale WfGg'},
+      en:{loading:'Opening Train…',failed:'Unable to open Train with the Portal session.',back:'Back to WfGg portal'},
+      es:{loading:'Abriendo Train…',failed:'No se puede abrir Train con la sesión del Portal.',back:'Volver al portal WfGg'}
     };
 
-    if(boot())return;
+    const words=()=>T[norm(localStorage.getItem(PORTAL_LANG))||'fr']||T.fr;
+    const globalPortal=()=>location.assign('/?lang='+(norm(localStorage.getItem(PORTAL_LANG))||'fr'));
 
-    setTimeout(boot,50);
-    setTimeout(boot,250);
-    setTimeout(boot,750);
+    const hideLegacyEntry=()=>{
+      document.getElementById('loginView')?.classList.add('hidden');
+      document.getElementById('portalView')?.classList.add('hidden');
+    };
+
+    const gate=()=>{
+      let el=document.getElementById('wfggTrainPortalGate');
+      if(el)return el;
+      el=document.createElement('div');
+      el.id='wfggTrainPortalGate';
+      el.setAttribute('role','status');
+      el.style.cssText='position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;padding:24px;background:#101019;color:#fff;font:600 16px/1.4 system-ui,sans-serif;text-align:center';
+      el.innerHTML='<div><div id="wfggTrainGateText">'+words().loading+'</div></div>';
+      document.documentElement.appendChild(el);
+      return el;
+    };
+
+    const fail=()=>{
+      const w=words();
+      const el=gate();
+      const currentLang=norm(localStorage.getItem(PORTAL_LANG))||'fr';
+      el.innerHTML='<div><p>'+w.failed+'</p><p><a href="/?lang='+currentLang+'" style="color:inherit">'+w.back+'</a></p></div>';
+    };
+
+    /* WFGG_PORTAL_TRAIN_NAV_GUARD_V2
+       Le Home et le Logout historiques reviennent au Portail global et ne doivent
+       jamais réafficher la landing/login locale Train en mode session Portail.
+    */
+    document.addEventListener('click',function(event){
+      if(!localStorage.getItem(PORTAL_TOKEN))return;
+      const target=event.target.closest('#brandHome,#logoutBtn,#loginPortalBack');
+      if(!target)return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      if(localStorage.getItem(TRAIN_TOKEN)===TRAIN_BRIDGE_SENTINEL){
+        localStorage.removeItem(TRAIN_TOKEN);
+      }
+      globalPortal();
+    },true);
+
+    gate();
+    hideLegacyEntry();
+
+    let attempts=0;
+    const maxAttempts=80;
+    const open=()=>{
+      attempts++;
+      hideLegacyEntry();
+
+      try{
+        if(window.W&&typeof window.W.showTrainEntry==='function'){
+          window.W.showTrainEntry();
+          const app=document.getElementById('appView');
+          if(app&&!app.classList.contains('hidden')){
+            document.getElementById('wfggTrainPortalGate')?.remove();
+            return;
+          }
+        }
+      }catch(error){}
+
+      hideLegacyEntry();
+      if(attempts<maxAttempts)setTimeout(open,150);
+      else fail();
+    };
+
+    open();
   }
 
   if(document.readyState==='loading'){
@@ -576,6 +662,28 @@ export default {
     const url = new URL(request.url);
 
     try {
+      /* WFGG_GUEST_SERVER_ENFORCEMENT_V2 */
+      if (isGuestRequest(request)) {
+        if (url.pathname === '/api' || url.pathname.startsWith('/api/')) {
+          return new Response('Guest access is read-only', {
+            status: 403,
+            headers: {
+              'Content-Type': 'text/plain; charset=utf-8',
+              'Cache-Control': 'no-store'
+            }
+          });
+        }
+
+        if (
+          url.pathname === '/train' ||
+          url.pathname.startsWith('/train/') ||
+          url.pathname === '/simulateur' ||
+          url.pathname.startsWith('/simulateur/')
+        ) {
+          return guestRedirect(request);
+        }
+      }
+
       /* WFGG_TRAIN_API_PROXY
          Les API historiques du frontend Train utilisent /api/*.
          Le Portail les transmet au backend Train.
