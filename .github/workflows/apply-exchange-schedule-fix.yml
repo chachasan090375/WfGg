@@ -1,0 +1,39 @@
+name: Apply exchange schedule parity
+
+on:
+  push:
+    branches: [exchange-diagnosis]
+    paths:
+      - '.github/scripts/patch_exchange_schedule.py'
+      - '.github/workflows/apply-exchange-schedule-fix.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: exchange-diagnosis
+      - name: Patch unified Worker
+        run: python .github/scripts/patch_exchange_schedule.py
+      - name: Validate syntax and marker
+        run: |
+          node --check frontend/_worker.js
+          grep -q 'WFGG_TRAIN_SCHEDULE_PARITY_V1' frontend/_worker.js
+          grep -q 'cycleDrivers' frontend/_worker.js
+          grep -q 'cycleVips' frontend/_worker.js
+      - name: Commit patch
+        run: |
+          if git diff --quiet -- frontend/_worker.js; then
+            echo 'No runtime change needed'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add frontend/_worker.js
+          git commit -m 'fix: align Train frontend schedule with R3 cycle [exchange-parity-auto]'
+          git push origin HEAD:exchange-diagnosis
