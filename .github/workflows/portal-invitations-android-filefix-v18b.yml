@@ -1,0 +1,51 @@
+name: Portal invitations Android filefix recette
+
+on:
+  push:
+    branches: [portal-invitations-android-filefix-v18b]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  filefix-recette:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: portal-invitations-android-filefix-v18b
+      - name: Validate sources
+        run: |
+          node --check frontend/portal-invitations-v1.js
+          node --check frontend/portal-invitations-android-filefix-v1.js
+          node --check .github/qa/portal-invitations-recette.mjs
+          grep -q 'portal-invitations-android-filefix-v1.js?v=001' frontend/index.html
+          grep -q 'WFGG_PORTAL_INVITATIONS_ANDROID_FILEFIX_V1' frontend/portal-invitations-android-filefix-v1.js
+          grep -q "removeAttribute('accept')" frontend/portal-invitations-android-filefix-v1.js
+          grep -q "input.value=''" frontend/portal-invitations-android-filefix-v1.js
+      - name: Wait for Cloudflare preview
+        shell: bash
+        run: |
+          set -euo pipefail
+          ROOT='https://portal-invitations-android-filefix-v18b.wfgg.pages.dev'
+          ok=0
+          for i in $(seq 1 60); do
+            curl -fsSL "$ROOT/?qa_wait=$i" -o /tmp/root.html || true
+            curl -fsSL "$ROOT/portal-invitations-android-filefix-v1.js?v=001&qa_wait=$i" -o /tmp/filefix.js || true
+            if grep -Fq 'portal-invitations-android-filefix-v1.js?v=001' /tmp/root.html && grep -Fq 'WFGG_PORTAL_INVITATIONS_ANDROID_FILEFIX_V1' /tmp/filefix.js; then
+              ok=1; break
+            fi
+            sleep 5
+          done
+          test "$ok" = 1
+          node --check /tmp/filefix.js
+      - name: Install Playwright
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Run invitations Android picker recette
+        env:
+          WFGG_PREVIEW: https://portal-invitations-android-filefix-v18b.wfgg.pages.dev
+        run: node .github/qa/portal-invitations-recette.mjs
