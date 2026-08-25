@@ -108,7 +108,23 @@ class RootAttributeRewriter {
       if (!value) continue;
 
       if (value.startsWith('/') && !value.startsWith('//')) {
-        element.setAttribute(attr, `${this.prefix}${value}`);
+        let rewrittenValue = `${this.prefix}${value}`;
+
+        /* WFGG_TRAIN_APP_CACHE_BUST_V1
+           La Preview Train doit toujours charger le bridge JS courant, même
+           si un ancien service worker / cache HTTP connaît déjà /app.js.
+        */
+        if (
+          this.prefix === '/train' &&
+          attr === 'src' &&
+          /^\/app\.js(?:[?#]|$)/i.test(value)
+        ) {
+          rewrittenValue +=
+            (rewrittenValue.includes('?') ? '&' : '?') +
+            'wfgg_bridge=v6';
+        }
+
+        element.setAttribute(attr, rewrittenValue);
         continue;
       }
 
@@ -170,6 +186,47 @@ function languageBridgeScript(routeName) {
   const TRAIN_TOKEN='wfgg_train_session';
   const TRAIN_BRIDGE_SENTINEL='__WFGG_PORTAL_BRIDGE_V2__';
   if(ROUTE==='train'){
+    /* WFGG_TRAIN_SW_CACHE_RESET_V1
+       Le frontend historique enregistrait un service worker sous /train/.
+       Il peut continuer à servir un ancien app.js malgré les corrections du
+       proxy. On retire uniquement les registrations dont le scope est /train/
+       et les caches Train/WfGg. localStorage (donc la session Portail) reste intact.
+    */
+    const WFGG_SW_RESET_KEY='wfgg_train_sw_reset_v1';
+    if('serviceWorker' in navigator){
+      const hadTrainController=!!navigator.serviceWorker.controller;
+
+      Promise.all([
+        navigator.serviceWorker.getRegistrations()
+          .then(registrations=>Promise.all(
+            registrations
+              .filter(registration=>{
+                try{
+                  return new URL(registration.scope).pathname.startsWith('/train/');
+                }catch(_){return false;}
+              })
+              .map(registration=>registration.unregister())
+          )),
+        ('caches' in window)
+          ? caches.keys().then(keys=>Promise.all(
+              keys
+                .filter(key=>/train|wfgg/i.test(key))
+                .map(key=>caches.delete(key))
+            ))
+          : Promise.resolve([])
+      ]).finally(()=>{
+        if(
+          hadTrainController &&
+          sessionStorage.getItem(WFGG_SW_RESET_KEY)!=='1'
+        ){
+          sessionStorage.setItem(WFGG_SW_RESET_KEY,'1');
+          const fresh=new URL(location.href);
+          fresh.searchParams.set('wfgg_fresh','v6');
+          location.replace(fresh.toString());
+        }
+      });
+    }
+
     const initialPortalToken=localStorage.getItem(PORTAL_TOKEN);
     if(initialPortalToken){
       localStorage.setItem(TRAIN_TOKEN,TRAIN_BRIDGE_SENTINEL);
@@ -690,12 +747,25 @@ async function proxyRoute(request, route, upstreamPath, options = {}) {
       "        setSyncStatus('work');"
     );
 
+    /* WFGG_TRAIN_PROXY_NO_SERVICE_WORKER_V1
+       Sous le Portail unifié, le proxy est la source de vérité pour app.js.
+       Ne pas réenregistrer le service worker historique qui pourrait remettre
+       une version antérieure du frontend dans le chemin d'exécution.
+    */
+    rewritten = rewritten.replace(
+      "        if ('serviceWorker' in navigator)\n            navigator.serviceWorker.register('service-worker.js?v=44').catch(() => { });",
+      "        /* WFGG_TRAIN_PROXY_NO_SERVICE_WORKER_V1 */"
+    );
+
     const jsHeaders = new Headers(headers);
     jsHeaders.delete('Content-Length');
     jsHeaders.delete('Content-Encoding');
     jsHeaders.delete('ETag');
     jsHeaders.set('Cache-Control', 'no-store');
+    jsHeaders.set('Pragma', 'no-cache');
+    jsHeaders.set('Expires', '0');
     jsHeaders.set('X-WfGg-Train-Api-Bridge', 'v3');
+    jsHeaders.set('X-WfGg-Train-Cache-Bridge', 'v1');
 
     return new Response(rewritten, {
       status: upstream.status,
