@@ -1,0 +1,63 @@
+name: Portal responsive v17
+
+on:
+  push:
+    branches: [portal-responsive-v17]
+    paths:
+      - 'frontend/index.html'
+      - 'frontend/portal-responsive-v1.css'
+      - '.github/qa/portal-responsive-recette.mjs'
+      - '.github/workflows/portal-responsive-v17.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  responsive-preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: portal-responsive-v17
+
+      - name: Validate responsive sources
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check .github/qa/portal-responsive-recette.mjs
+          grep -q 'WFGG_PORTAL_RESPONSIVE_GUARD_V1' frontend/portal-responsive-v1.css
+          grep -q 'portal-responsive-v1.css?v=001' frontend/index.html
+          grep -q 'overflow:hidden' frontend/portal-responsive-v1.css
+          grep -q 'max-width:100%' frontend/portal-responsive-v1.css
+
+      - name: Wait for Cloudflare preview
+        shell: bash
+        run: |
+          set -euo pipefail
+          ROOT='https://portal-responsive-v17.wfgg.pages.dev'
+          ok=0
+          for i in $(seq 1 60); do
+            curl -fsSL "$ROOT/?responsive_wait=$i" -o /tmp/root.html || true
+            curl -fsSL "$ROOT/portal-responsive-v1.css?v=001&responsive_wait=$i" -o /tmp/responsive.css || true
+            if grep -Fq 'portal-responsive-v1.css?v=001' /tmp/root.html \
+              && grep -Fq 'WFGG_PORTAL_RESPONSIVE_GUARD_V1' /tmp/responsive.css; then
+              echo 'WFGG_RESPONSIVE_PREVIEW_ASSETS=OK'
+              ok=1
+              break
+            fi
+            echo "attempt=$i waiting_for_responsive_preview"
+            sleep 5
+          done
+          test "$ok" = 1
+
+      - name: Install Playwright
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: Run responsive portal recette
+        env:
+          WFGG_PREVIEW: https://portal-responsive-v17.wfgg.pages.dev
+        run: node .github/qa/portal-responsive-recette.mjs
