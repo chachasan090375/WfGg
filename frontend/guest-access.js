@@ -13,6 +13,7 @@
     en:{name:'Guest',welcome:'Guest access · Guides are read-only',logout:'Sign out'},
     es:{name:'Invitado',welcome:'Acceso invitado · Guías en solo lectura',logout:'Cerrar sesión'}
   };
+  const setText=(el,value)=>{if(el&&el.textContent!==value)el.textContent=value;};
   function setGuest(on){
     if(on){localStorage.setItem(GUEST_KEY,'1');localStorage.removeItem(TOKEN_KEY);document.cookie='wfgg_guest=1; Path=/; SameSite=Lax; Secure';}
     else{localStorage.removeItem(GUEST_KEY);document.cookie='wfgg_guest=; Path=/; Max-Age=0; SameSite=Lax; Secure';}
@@ -23,8 +24,8 @@
     document.getElementById('bootView')?.classList.add('hidden');
     document.getElementById('authView')?.classList.add('hidden');
     document.getElementById('portalView')?.classList.remove('hidden');
-    const hero=document.getElementById('heroName'); if(hero)hero.textContent=w.name;
-    const welcome=document.getElementById('homeWelcome'); if(welcome)welcome.textContent=w.welcome;
+    setText(document.getElementById('heroName'),w.name);
+    setText(document.getElementById('homeWelcome'),w.welcome);
     document.getElementById('profileRequiredBanner')?.classList.add('hidden');
     document.getElementById('profileChip')?.classList.add('hidden');
     document.getElementById('profileMenu')?.classList.add('hidden');
@@ -37,7 +38,7 @@
       const anchor=document.querySelector('.home-profile-anchor')||document.querySelector('.home-welcome-row');
       anchor?.appendChild(out);
     }
-    out.textContent=w.logout;
+    setText(out,w.logout);
   }
   document.getElementById('authForm')?.addEventListener('submit',e=>{
     const input=document.getElementById('authCode');
