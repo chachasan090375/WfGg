@@ -27,7 +27,7 @@ export default {
       let response;
 
       if (url.pathname === '/api/health' && request.method === 'GET') {
-        response = json({ ok: true, service: 'wfgg-api', version: '0.4.1' });
+        response = json({ ok: true, service: 'wfgg-api', version: '0.4.2', admin_gate: 'R4_R5_ONLY' });
       } else if (url.pathname === '/api/bootstrap' && request.method === 'POST') {
         response = await bootstrap(request, env);
       } else if (url.pathname === '/api/auth' && request.method === 'POST') {
@@ -150,7 +150,7 @@ function canTransferLeadership(ctx) {
 }
 
 function permissionsFor(ctx) {
-  const admin = isOwner(ctx) || ADMIN_RANKS.has(ctx.rank);
+  const admin = ADMIN_RANKS.has(ctx.rank);
   return {
     is_owner: isOwner(ctx),
     can_admin_members: admin,
@@ -708,7 +708,7 @@ async function serveAvatar(key, env) {
 }
 
 function requireAllianceAdmin(ctx) {
-  if (!isOwner(ctx) && !ADMIN_RANKS.has(ctx.rank)) fail('FORBIDDEN', 403);
+  if (!ADMIN_RANKS.has(ctx.rank)) fail('FORBIDDEN', 403);
 }
 
 function requireR5OrOwner(ctx) {
