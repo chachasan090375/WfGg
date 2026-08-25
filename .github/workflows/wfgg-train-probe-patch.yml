@@ -1,31 +1,13 @@
-name: WfGg Train dangling token fix
+name: WfGg Train dangling token fix (disabled)
 
 on:
-  push:
-    branches:
-      - train-bridge-phase3
+  workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  patch:
-    if: ${{ !contains(github.event.head_commit.message, '[token-fix-auto]') }}
+  noop:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: train-bridge-phase3
-          fetch-depth: 0
-      - name: Apply dangling token fix
-        run: python .github/scripts/fix_train_dangling_token.py
-      - name: Validate Worker syntax
-        run: node --check frontend/_worker.js
-      - name: Commit fix
-        run: |
-          set -euo pipefail
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add frontend/_worker.js
-          git commit -m 'fix: remove dangling Train token guard [token-fix-auto]'
-          git push origin HEAD:train-bridge-phase3
+      - run: echo 'Temporary patch workflow disabled; dangling token fix is deployed.'
