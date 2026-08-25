@@ -511,11 +511,12 @@ function languageBridgeScript(routeName) {
       return el;
     };
 
-    const fail=()=>{
+    const fail=(code='')=>{
       const w=words();
       const el=gate();
       const currentLang=norm(localStorage.getItem(PORTAL_LANG))||'fr';
-      el.innerHTML='<div><p>'+w.failed+'</p><p><a href="/?lang='+currentLang+'" style="color:inherit">'+w.back+'</a></p></div>';
+      const safeCode=String(code||'').replace(/[^A-Z0-9_:\-]/gi,'').slice(0,90);
+      el.innerHTML='<div><p>'+w.failed+'</p>'+(safeCode?'<p style="margin:.65rem 0 1rem;opacity:.62;font:500 12px/1.4 ui-monospace,SFMono-Regular,Consolas,monospace">Diagnostic : '+safeCode+'</p>':'')+'<p><a href="/?lang='+currentLang+'" style="color:inherit">'+w.back+'</a></p></div>';
     };
 
     /* WFGG_PORTAL_TRAIN_NAV_GUARD_V2
@@ -536,6 +537,54 @@ function languageBridgeScript(routeName) {
 
     gate();
     hideLegacyEntry();
+
+    /* WFGG_PORTAL_TRAIN_SESSION_PROBE_V1
+       Vérifie la vraie session Portail avant d'attendre le boot du frontend Train.
+       Le résultat non sensible est conservé en sessionStorage pour diagnostic.
+    */
+    const probePortalTrain=async()=>{
+      const token=localStorage.getItem(PORTAL_TOKEN);
+      if(!token)return {ok:false,code:'NO_PORTAL_SESSION'};
+
+      try{
+        const response=await fetch(
+          'https://portal-auth-phase1-wfgg-train.chachasan090375.workers.dev/api/snapshot',
+          {
+            method:'GET',
+            headers:{
+              'X-WfGg-Portal-Token':token,
+              'Accept':'application/json'
+            },
+            mode:'cors',
+            credentials:'omit',
+            cache:'no-store'
+          }
+        );
+
+        let data=null;
+        try{data=await response.clone().json();}catch(_){}
+        const code=String((data&&data.error)||('HTTP_'+response.status));
+        const bridge=response.headers.get('X-WfGg-Portal-Bridge')||'';
+        sessionStorage.setItem(
+          'wfgg_train_bridge_probe_v1',
+          JSON.stringify({
+            ok:response.ok,
+            status:response.status,
+            code,
+            bridge,
+            at:Date.now()
+          })
+        );
+        return {ok:response.ok,code,bridge};
+      }catch(error){
+        const code='NETWORK_'+String(error&&error.name||'ERROR').toUpperCase();
+        sessionStorage.setItem(
+          'wfgg_train_bridge_probe_v1',
+          JSON.stringify({ok:false,status:0,code,at:Date.now()})
+        );
+        return {ok:false,code};
+      }
+    };
 
     let attempts=0;
     const maxAttempts=80;
@@ -561,7 +610,13 @@ function languageBridgeScript(routeName) {
       else fail();
     };
 
-    open();
+    probePortalTrain().then((probe)=>{
+      if(!probe.ok){
+        fail(probe.code);
+        return;
+      }
+      open();
+    });
   }
 
   if(document.readyState==='loading'){
