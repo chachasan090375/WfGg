@@ -1103,6 +1103,9 @@ async function proxyRoute(request, route, upstreamPath, options = {}) {
     .on('head', {
       element(element) {
         let html = languageBridgeScript(options.routeName || route.prefix.slice(1));
+        /* WFGG_DESIGN_SYSTEM_PREVIEW_PROXY_V1: preview branch common visual mask. */
+        html = '<link rel="stylesheet" href="/wfgg-design-system-preview-v1.css?v=001">' +
+          '<script src="/wfgg-design-system-preview-v1.js?v=001" defer><\/script>' + html;
         if (options.baseHref) {
           html = `<base href="${options.baseHref}">` + html;
         }
