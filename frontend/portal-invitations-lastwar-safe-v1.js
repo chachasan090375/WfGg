@@ -1,12 +1,13 @@
 (() => {
 'use strict';
-/* WFGG_LASTWAR_SINGLE_V1
-   Single-message Last War experiment.
-   The portal address is deliberately broken into spaced fragments so the game chat
-   is less likely to classify it as a clickable link. Messages stay browser-local,
-   contain no Unicode emoji, and vary deterministically from one player to another.
+/* WFGG_LASTWAR_ALLIANCE_NOTICE_V2
+   Last War delivery model:
+   - one alliance notification carries the public Portal address;
+   - private player messages contain NO URL/domain fragment;
+   - private messages may use emoji and remain personalized;
+   - personal codes stay browser-local and are never included in the alliance notice.
 */
-const BROKEN_ADDRESS='wfgg . pages . dev';
+const PORTAL_URL='https://wfgg.pages.dev/';
 const THANKED=['Metatouk','Ogie Ogilthorpe 7','ValFada','Shockwave XY','Sab93fr','εlο ツ','cat 49','Flawene'];
 const canonicalPseudo=p=>{
   const s=String(p||'').trim();
@@ -17,86 +18,88 @@ function stableVariant(value){
   for(const ch of String(value||'')){h^=ch.codePointAt(0);h=Math.imul(h,16777619)}
   return h>>>0;
 }
+const ALLIANCE_NOTICE=[
+  '📣 Nouveau portail WfGg',
+  '',
+  'Le nouveau portail de l’alliance est ouvert 🚀',
+  'Vous y trouverez le Train et les rotations Conducteur/VIP, la Bourse d’échanges, les Guides Saison 6 / Inter-Saison, puis progressivement de nouveaux outils.',
+  '',
+  `🌐 ${PORTAL_URL}`,
+  '',
+  '🔐 Votre code personnel vous sera envoyé séparément en message privé.',
+  '',
+  `💜 Merci à ${THANKED.join(', ')} pour leur travail sur le projet et leur investissement durant toute l’Inter-Saison.`
+].join('\n');
 const openings=[
-  p=>`Salut ${p}. Petite nouveauté WfGg : ton accès au nouveau portail est prêt.`,
-  p=>`Hello ${p}. Après quelques mois de bricolage sérieux côté WfGg, ton accès au portail est prêt.`,
-  p=>`Salut ${p}. Le bureau a enfin sorti le nouveau portail WfGg de l'atelier, et ton accès est prêt.`,
-  p=>`Hello ${p}. Bonne nouvelle : le nouveau portail WfGg est ouvert et ton accès personnel t'attend.`,
-  p=>`Salut ${p}. On a survécu aux tableaux, aux rotations et au code : le portail WfGg est prêt pour toi.`,
-  p=>`Hello ${p}. La nouvelle boîte à outils WfGg est ouverte, et tu fais partie des premiers à recevoir ton accès.`,
-  p=>`Salut ${p}. Le portail WfGg est maintenant en ligne : voici ton accès personnel.`,
-  p=>`Hello ${p}. Le chantier WfGg avance : le portail est prêt et ton accès vient d'être préparé.`
+  p=>`Salut ${p} 👋 Ton accès au nouveau portail WfGg est prêt !`,
+  p=>`Hello ${p} 👋 Bonne nouvelle : ton accès perso WfGg est prêt.`,
+  p=>`Salut ${p} 🚀 Le nouveau portail WfGg t’attend !`,
+  p=>`Hello ${p} ! On a survécu au code et aux tableaux 😄 Ton accès est prêt.`,
+  p=>`Salut ${p} 👋 La nouvelle boîte à outils WfGg est ouverte pour toi.`,
+  p=>`Hello ${p} 🚂 Ton accès WfGg vient de sortir de l’atelier.`,
+  p=>`Salut ${p} ! Petite nouveauté WfGg : ton accès personnel est actif ✨`,
+  p=>`Hello ${p} 👋 Le chantier WfGg avance, et ton accès est maintenant prêt.`
 ];
-const project=[
-  `Le bureau R4/R5 travaille dessus depuis plusieurs mois pour réunir au même endroit les outils utiles à l'alliance.`,
-  `L'idée est simple : arrêter de courir après les infos et regrouper nos outils WfGg dans un seul espace.`,
-  `Ce portail est le résultat de plusieurs mois de travail du bureau pour centraliser l'organisation de l'alliance.`,
-  `On voulait un point d'entrée unique, plus clair et plus pratique pour les outils WfGg : c'est maintenant chose faite.`,
-  `Le projet a mûri pendant plusieurs mois avec un objectif très simple : rendre l'organisation WfGg plus fluide.`,
-  `Le bureau a construit ce portail pour rassembler progressivement les outils de l'alliance au même endroit.`,
-  `Après plusieurs mois de préparation, on dispose enfin d'un espace commun pour les outils et infos WfGg.`,
-  `Le portail doit devenir notre boîte à outils commune, avec les fonctions actuelles et celles qui arrivent ensuite.`
+const summaries=[
+  `Tu y retrouveras le Train, les rotations Conducteur/VIP, la Bourse d’échanges et les Guides Saison 6 / Inter-Saison.`,
+  `Au menu : Train, planning Conducteur/VIP, Bourse pour les échanges et Guides WfGg.`,
+  `Le portail regroupe déjà le Train, les rotations, la Bourse et les Guides au même endroit.`,
+  `Tu peux déjà y suivre le Train et tes rotations, utiliser la Bourse et consulter les Guides.`,
+  `On y centralise les outils utiles à l’alliance : Train, rotations, échanges et Guides.`,
+  `Le premier objectif est simple : retrouver Train, rotations, Bourse et Guides sans courir partout.`
 ];
-const tools=[
-  `Tu y trouveras déjà le Train, les rotations Conducteur/VIP, la Bourse d'échanges et les Guides Saison 6 / Inter-Saison.`,
-  `Au programme : Train, planning Conducteur/VIP, Bourse pour les échanges et Guides Saison 6 / Inter-Saison.`,
-  `Le Train et ses rotations sont déjà intégrés, avec la Bourse d'échanges et les Guides Saison 6 / Inter-Saison.`,
-  `Tu peux déjà consulter le Train, suivre les rotations, utiliser la Bourse et retrouver les Guides au même endroit.`,
-  `Les premiers outils disponibles sont le Train, les rotations Conducteur/VIP, la Bourse et les Guides WfGg.`,
-  `Le portail centralise déjà le Train, les passages Conducteur/VIP, les échanges de dates et les Guides.`,
-  `Tu retrouveras les rotations du Train, la Bourse d'échanges et les contenus Saison 6 / Inter-Saison sans changer d'espace.`
+const future=[
+  `Le simulateur d’équipes et d’autres outils arriveront ensuite.`,
+  `Et ce n’est que le début : d’autres modules sont déjà prévus.`,
+  `Le portail continuera d’évoluer avec le simulateur d’équipes et de nouveaux outils.`,
+  `La suite est déjà en préparation, notamment le simulateur d’équipes.`
 ];
-const futures=[
-  `Le simulateur d'équipes et d'autres générateurs arriveront ensuite.`,
-  `Et ce n'est que le début : le simulateur d'équipes et d'autres outils sont déjà prévus.`,
-  `La suite comprendra notamment le simulateur d'équipes et de nouveaux outils de communication.`,
-  `D'autres modules suivront, dont le simulateur d'équipes et des générateurs pour nous faire gagner du temps.`,
-  `Le portail continuera d'évoluer avec le simulateur d'équipes et d'autres fonctions en préparation.`,
-  `Prochaine étape : enrichir progressivement le portail avec le simulateur d'équipes et de nouveaux outils.`
+const notificationHints=[
+  `🌐 Tu trouveras l’adresse de l’appli dans les notifications d’alliance.`,
+  `🌐 Pour l’adresse de l’appli, regarde les notifications d’alliance.`,
+  `🌐 L’adresse du portail est dans les notifications d’alliance : pas de lien dans ce message privé.`,
+  `🌐 Direction les notifications d’alliance pour récupérer l’adresse de l’appli.`,
+  `🌐 L’adresse est publiée dans les notifications d’alliance ; ici je t’envoie seulement ton accès perso.`,
+  `🌐 Tu trouveras le chemin vers l’appli dans les notifications d’alliance.`
 ];
 const thanks=[
-  `Un grand merci à ${THANKED.join(', ')} pour leur travail sur le projet et leur investissement durant toute l'Inter-Saison.`,
-  `Merci à ${THANKED.join(', ')} pour le temps consacré au projet et pour leur investissement pendant toute l'Inter-Saison.`,
-  `Ce lancement doit aussi beaucoup à ${THANKED.join(', ')} : merci pour leur implication sur le projet et durant toute l'Inter-Saison.`,
-  `Merci tout particulièrement à ${THANKED.join(', ')} pour leur contribution au portail et leur investissement durant toute l'Inter-Saison.`
+  `💜 Merci à ${THANKED.join(', ')} pour leur travail sur le projet et leur investissement durant toute l’Inter-Saison.`,
+  `💜 Un grand merci à ${THANKED.join(', ')} pour le temps consacré au projet et à toute l’Inter-Saison.`,
+  `💜 Ce lancement doit aussi beaucoup à ${THANKED.join(', ')} : merci pour le projet et pour toute l’Inter-Saison.`,
+  `💜 Merci tout particulièrement à ${THANKED.join(', ')} pour leur contribution au portail et leur investissement pendant l’Inter-Saison.`
 ];
-const linkJokes=[
-  `(Oui, l'adresse est découpée exprès : le chat Last War joue parfois au videur et refuse les liens.)`,
-  `(Adresse en kit volontaire : Last War aime tellement filtrer les liens qu'on lui donne les points séparément.)`,
-  `(Les espaces sont volontaires : petit camouflage maison pour éviter que le chat Last War fasse son difficile.)`,
-  `(Ne recolle pas les morceaux avant de la saisir dans ton navigateur : c'est notre petite ruse anti-filtre Last War.)`,
-  `(C'est bien l'adresse, simplement déguisée avec des espaces pour essayer de passer sous le radar du filtre Last War.)`,
-  `(Oui, on écrit l'adresse façon puzzle : c'est juste pour éviter que le filtre du chat ne décide de faire du zèle.)`
+const codeLines=[
+  c=>`🔐 Ton code personnel : ${c}`,
+  c=>`🔐 Code personnel : ${c}`,
+  c=>`🔐 Ta clé d’entrée WfGg : ${c}`,
+  c=>`🔐 Pour te connecter, ton code personnel est : ${c}`
 ];
 const closings=[
-  `Tu peux tester ton accès dès maintenant. Bonne découverte.`,
-  `Ton accès est prêt. Fais un tour et dis-nous ce qui peut encore être amélioré.`,
-  `Tu peux l'utiliser dès maintenant ; les prochains modules arriveront progressivement.`,
-  `Voilà, tu as tout ce qu'il faut pour commencer. Bonne visite sur le portail WfGg.`,
-  `À toi de jouer maintenant : ton accès est actif et le portail continuera d'évoluer avec vos retours.`,
-  `Tu peux commencer tout de suite. Bienvenue dans la nouvelle boîte à outils WfGg.`
+  `Bonne découverte 😎`,
+  `À toi de jouer maintenant 🚀`,
+  `Fais un tour et dis-nous ce qu’on peut encore améliorer 👍`,
+  `Bienvenue dans la nouvelle boîte à outils WfGg 💜`,
+  `Tu peux tester dès maintenant. Bonne visite !`,
+  `Et voilà, mission accès accomplie 😄`
 ];
 function adminParagraph(rank){
-  if(rank==='R4')return `Ton rang R4 donne aussi accès aux outils du bureau : paramètres alliance, Joueurs & accès, statistiques, droits, gestion des profils et réinitialisation des codes.`;
-  if(rank==='R5')return `Ton rang R5 donne aussi accès aux outils du bureau : paramètres alliance, Joueurs & accès, statistiques, droits, gestion des profils et réinitialisation des codes, avec les fonctions de leadership R5.`;
+  if(rank==='R4')return `⚙️ Ton rang R4 donne aussi accès aux outils du bureau : alliance, Joueurs & accès, statistiques, droits, profils et réinitialisation des codes.`;
+  if(rank==='R5')return `👑 Ton rang R5 donne aussi accès aux outils du bureau et aux fonctions de leadership : alliance, Joueurs & accès, statistiques, droits, profils et réinitialisation des codes.`;
   return '';
 }
 function buildMessage(pseudo,rank,code){
   pseudo=canonicalPseudo(pseudo);rank=String(rank||'').toUpperCase();code=String(code||'').trim();
   const h=stableVariant(pseudo);
-  const parts=[
+  return [
     openings[h%openings.length](pseudo),
-    project[(h>>>3)%project.length],
-    tools[(h>>>6)%tools.length],
-    futures[(h>>>9)%futures.length],
+    summaries[(h>>>3)%summaries.length],
+    future[(h>>>6)%future.length],
+    notificationHints[(h>>>9)%notificationHints.length],
     thanks[(h>>>12)%thanks.length],
     adminParagraph(rank),
-    `Adresse : ${BROKEN_ADDRESS}`,
-    linkJokes[(h>>>15)%linkJokes.length],
-    `Code personnel : ${code}.`,
+    codeLines[(h>>>15)%codeLines.length](code),
     closings[(h>>>18)%closings.length]
-  ].filter(Boolean);
-  return parts.join('\n\n');
+  ].filter(Boolean).join('\n\n');
 }
 function parseCurrent(ta){
   const card=ta.closest('.invite-workspace');
@@ -106,24 +109,48 @@ function parseCurrent(ta){
   const code=(full.match(/(?:Ton\s+)?code personnel\s*:\s*(\d{6})/i)||[])[1]||'';
   return pseudo&&/^R[1-5]$/.test(rank)&&/^\d{6}$/.test(code)?{pseudo,rank,code}:null;
 }
+async function copyText(text,button){
+  try{
+    await navigator.clipboard.writeText(text);
+  }catch{
+    const ta=document.createElement('textarea');
+    ta.value=text;ta.setAttribute('readonly','');ta.style.position='fixed';ta.style.opacity='0';
+    document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();
+  }
+  if(button){const old=button.textContent;button.textContent='✅ Copié';setTimeout(()=>button.textContent=old,1200);}
+}
+function ensureAllianceNotice(host){
+  if(!host||host.querySelector('[data-alliance-notice-v2]'))return;
+  const box=document.createElement('section');
+  box.dataset.allianceNoticeV2='v2';
+  box.className='settings-card-block';
+  const title=document.createElement('h3');title.textContent='📣 Notification d’alliance';
+  const help=document.createElement('p');help.className='muted';help.textContent='À publier une seule fois dans les notifications d’alliance. Elle contient l’adresse du Portail, jamais les codes personnels.';
+  const ta=document.createElement('textarea');ta.id='inviteAllianceNotice';ta.readOnly=true;ta.rows=10;ta.value=ALLIANCE_NOTICE;ta.spellcheck=false;
+  const button=document.createElement('button');button.id='inviteAllianceCopy';button.type='button';button.className='secondary-button';button.textContent='📋 Copier la notification d’alliance';
+  button.addEventListener('click',()=>copyText(ALLIANCE_NOTICE,button));
+  box.append(title,help,ta,button);
+  host.prepend(box);
+}
 function enhance(ta){
-  if(!ta||ta.dataset.lastwarSingle==='v1')return;
+  if(!ta||ta.dataset.lastwarAlliance==='v2')return;
   const row=parseCurrent(ta);if(!row)return;
   const text=buildMessage(row.pseudo,row.rank,row.code);
-  ta.dataset.lastwarSingle='v1';ta.spellcheck=false;ta.value=text;
+  ta.dataset.lastwarAlliance='v2';ta.spellcheck=false;ta.value=text;
   const host=ta.closest('.invite-workspace');
+  ensureAllianceNotice(host);
   host?.querySelector('[data-lastwar-safe-controls]')?.remove();
-  const oldMeta=host?.querySelector('[data-lastwar-single-meta]');
-  if(oldMeta)oldMeta.remove();
+  host?.querySelector('[data-lastwar-single-meta]')?.remove();
+  const oldMeta=host?.querySelector('[data-lastwar-alliance-meta]');if(oldMeta)oldMeta.remove();
   const meta=document.createElement('div');
-  meta.dataset.lastwarSingleMeta='v1';meta.className='muted';
-  meta.textContent=`Message unique · ${text.length} caractères · adresse découpée · sans emoji`;
+  meta.dataset.lastwarAllianceMeta='v2';meta.className='muted';
+  meta.textContent=`Message privé · ${text.length} caractères · avec emoji · adresse via notifications d’alliance`;
   ta.after(meta);
-  const copy=host?.querySelector('#inviteCopy');if(copy)copy.textContent='Copier le message';
-  const copySent=host?.querySelector('#inviteCopySent');if(copySent){copySent.textContent='Copier + marquer envoyé';copySent.disabled=false;}
+  const copy=host?.querySelector('#inviteCopy');if(copy)copy.textContent='📋 Copier le message privé';
+  const copySent=host?.querySelector('#inviteCopySent');if(copySent){copySent.textContent='📋 Copier + marquer envoyé';copySent.disabled=false;}
 }
 function scan(){document.querySelectorAll('#inviteMessage').forEach(enhance)}
 new MutationObserver(()=>queueMicrotask(scan)).observe(document.documentElement,{childList:true,subtree:true});
 scan();
-window.WFGG_LASTWAR_CHAT_SAFE_TEST={MODE:'single-v1',BROKEN_ADDRESS,buildMessage,canonicalPseudo};
+window.WFGG_LASTWAR_CHAT_SAFE_TEST={MODE:'alliance-notice-v2',PORTAL_URL,ALLIANCE_NOTICE,buildMessage,canonicalPseudo};
 })();
