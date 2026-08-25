@@ -55,3 +55,5 @@ jobs:
         env:
           WFGG_PREVIEW: https://portal-invitations-v18.wfgg.pages.dev
         run: node .github/qa/portal-invitations-recette.mjs
+
+# trigger: 2026-08-25 invitations v18
