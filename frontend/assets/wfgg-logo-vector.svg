@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">WfGg</title>
+  <desc id="desc">Logo vectoriel WfGg, alliance unie, forte et solidaire.</desc>
+  <defs>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff1a8"/>
+      <stop offset=".22" stop-color="#d59a22"/>
+      <stop offset=".48" stop-color="#fff0a0"/>
+      <stop offset=".72" stop-color="#a96510"/>
+      <stop offset="1" stop-color="#f2c35c"/>
+    </linearGradient>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2c83b9"/>
+      <stop offset=".55" stop-color="#8fd0df"/>
+      <stop offset="1" stop-color="#f5d78b"/>
+    </linearGradient>
+    <linearGradient id="hill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#69852d"/>
+      <stop offset="1" stop-color="#1d421f"/>
+    </linearGradient>
+    <linearGradient id="blue" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b4674"/>
+      <stop offset="1" stop-color="#062746"/>
+    </linearGradient>
+    <radialGradient id="sun">
+      <stop offset="0" stop-color="#fffbd2" stop-opacity="1"/>
+      <stop offset=".5" stop-color="#ffe783" stop-opacity=".72"/>
+      <stop offset="1" stop-color="#ffe783" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="7" stdDeviation="7" flood-color="#000" flood-opacity=".32"/>
+    </filter>
+    <clipPath id="disc"><circle cx="256" cy="234" r="181"/></clipPath>
+  </defs>
+
+  <g filter="url(#shadow)">
+    <circle cx="256" cy="234" r="202" fill="url(#gold)"/>
+    <circle cx="256" cy="234" r="188" fill="#112e48" stroke="#fff0a2" stroke-width="5"/>
+    <g clip-path="url(#disc)">
+      <rect x="70" y="50" width="372" height="370" fill="url(#sky)"/>
+      <circle cx="256" cy="151" r="118" fill="url(#sun)"/>
+      <g stroke="#fff6c5" stroke-width="3" opacity=".52">
+        <path d="M256 55v70M172 78l48 58M340 78l-48 58M113 137l101 28M399 137l-101 28"/>
+      </g>
+      <path d="M65 310c65-80 127-102 190-81 58-25 126-4 197 82v115H65z" fill="#789044"/>
+      <path d="M65 353c61-55 124-70 192-45 66-26 126-7 195 47v72H65z" fill="url(#hill)"/>
+      <path d="M92 218l77-83 33 47 45-67 39 60 47-55 93 101-51-18-40 23-44-18-45 26-47-23-40 19z" fill="#edf4e8" opacity=".72"/>
+      <path d="M121 218l50-55 31 42 44-63 39 60 47-54 59 67-57-20-48 30-39-27-46 28-42-21z" fill="#587587" opacity=".7"/>
+
+      <g fill="#173149" stroke="#f3c65a" stroke-width="2.2">
+        <circle cx="194" cy="196" r="13"/><path d="M181 211q13-10 26 0l12 70h-51z"/>
+        <circle cx="226" cy="188" r="14"/><path d="M211 204q15-12 30 0l10 83h-50z"/>
+        <circle cx="256" cy="181" r="15"/><path d="M240 198q16-12 32 0l8 94h-48z"/>
+        <circle cx="288" cy="188" r="14"/><path d="M273 204q15-12 30 0l10 83h-50z"/>
+        <circle cx="320" cy="196" r="13"/><path d="M307 211q13-10 26 0l13 70h-52z"/>
+      </g>
+      <g stroke="#173149" stroke-width="9" stroke-linecap="round">
+        <path d="M181 225l-25 29M207 224l25 27M212 220l-27 26M240 216l24 28M272 216l-24 28M301 220l27 26M307 224l-25 27M333 225l25 29"/>
+      </g>
+    </g>
+
+    <g fill="none" stroke="url(#gold)" stroke-width="13" stroke-linecap="round">
+      <path d="M83 321C42 239 61 144 130 80"/>
+      <path d="M429 321c41-82 22-177-47-241"/>
+    </g>
+    <g fill="#2e80b3" stroke="#d9a33b" stroke-width="2">
+      <path d="M88 306l-49-24 34-17-48-35 51-4-35-47 51 12-19-58 47 31-1-62 38 46"/>
+    </g>
+    <g fill="#65853d" stroke="#d9a33b" stroke-width="2">
+      <path d="M424 306l49-24-34-17 48-35-51-4 35-47-51 12 19-58-47 31 1-62-38 46"/>
+    </g>
+
+    <g transform="translate(217 20)">
+      <path d="M39 0l43 15-6 56-37 28L2 71-4 15z" fill="url(#gold)"/>
+      <path d="M39 10l32 11-5 43-27 21-28-21-4-43z" fill="url(#blue)"/>
+      <g fill="#ffe37a">
+        <circle cx="39" cy="34" r="7"/><path d="M30 44h18v28H30z"/>
+        <circle cx="21" cy="40" r="5"/><path d="M15 47h12v20H15z"/>
+        <circle cx="57" cy="40" r="5"/><path d="M51 47h12v20H51z"/>
+      </g>
+    </g>
+
+    <text x="256" y="337" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="112" font-weight="700" letter-spacing="-7" fill="#5d360b" stroke="#fff4bc" stroke-width="8" paint-order="stroke">WfGg</text>
+    <text x="256" y="337" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="112" font-weight="700" letter-spacing="-7" fill="url(#gold)" stroke="#7c490c" stroke-width="2" paint-order="stroke">WfGg</text>
+
+    <g transform="translate(256 374)">
+      <circle cx="0" cy="0" r="34" fill="url(#gold)" stroke="#73470f" stroke-width="4"/>
+      <path d="M-27-4c11-12 20-9 28 1 8-10 18-13 29-2-6 21-18 31-29 31S-19 17-27-4z" fill="#e8b75e" stroke="#744c18" stroke-width="3"/>
+      <path d="M-20-2l17 15M-10-10L7 8M4-10l14 13" fill="none" stroke="#744c18" stroke-width="3" stroke-linecap="round"/>
+    </g>
+
+    <path d="M86 383q170 70 340 0l-18 65q-152 54-304 0z" fill="url(#blue)" stroke="url(#gold)" stroke-width="7"/>
+    <text x="256" y="429" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="24" font-weight="700" letter-spacing="2" fill="#fff7dd">UNIS · FORTS · SOLIDAIRES</text>
+  </g>
+</svg>
