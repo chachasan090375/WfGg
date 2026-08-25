@@ -53,7 +53,7 @@ jobs:
           grep -q "removeAttribute('accept')" frontend/portal-invitations-android-filefix-v1.js
           grep -q "input.value=''" frontend/portal-invitations-android-filefix-v1.js
           grep -q 'DecompressionStream' frontend/portal-invitations-xlsx-v1.js
-          grep -q 'data.xlsxSupport' frontend/portal-invitations-xlsx-v1.js
+          grep -q 'dataset.xlsxSupport' frontend/portal-invitations-xlsx-v1.js
           grep -q 'https://wfgg.pages.dev/' frontend/portal-invitations-v1.js
           ! grep -q 'fetch(' frontend/portal-invitations-v1.js
           ! grep -q 'XMLHttpRequest' frontend/portal-invitations-v1.js
