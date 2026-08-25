@@ -1,0 +1,31 @@
+name: Debug live exchange flow
+
+on:
+  push:
+    branches: [train-bridge-phase3]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Inspect production exchange JavaScript
+        shell: bash
+        run: |
+          set -eu
+          ROOT='https://wfgg.pages.dev'
+          curl -fsSL "$ROOT/train/app.js?wfgg_bridge=v13&exchange_debug=1" -o /tmp/app.js
+          node --check /tmp/app.js
+          echo '=== EXCHANGE API REFERENCES ==='
+          grep -nE "api/exchanges|publishMarketExchange|cancelMarketExchange|executeMarketSwap|renderExchanges|Mes demandes|state\.exchanges" /tmp/app.js | head -n 120 || true
+          echo '=== renderExchanges context ==='
+          python - <<'PY'
+          s=open('/tmp/app.js',encoding='utf-8').read()
+          for needle in ['function renderExchanges','async function publishMarketExchange','async function cancelMarketExchange','async function executeMarketSwap']:
+              i=s.find(needle)
+              print('\n###',needle,'INDEX',i)
+              if i>=0: print(s[max(0,i-500):i+6500])
+          PY
