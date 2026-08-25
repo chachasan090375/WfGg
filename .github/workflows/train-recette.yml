@@ -11,7 +11,7 @@ permissions:
 jobs:
   browser-recette:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
         with:
@@ -19,6 +19,8 @@ jobs:
       - name: Validate bridge source
         run: |
           node --check frontend/_worker.js
+          node --check .github/qa/train-recette-e2e.mjs
+          node --check .github/qa/train-recette-extended.mjs
           grep -q 'WFGG_TRAIN_EXCHANGE_OWN_CANCEL_V2' frontend/_worker.js
           grep -q 'wfgg_bridge=v13' frontend/_worker.js
           grep -q '/assets/wfgg-logo-mini.svg' frontend/_worker.js
@@ -51,5 +53,7 @@ jobs:
         run: |
           npm install --no-save playwright@1.55.0
           npx playwright install --with-deps chromium
-      - name: Run browser recette
+      - name: Run primary browser recette
         run: node .github/qa/train-recette-e2e.mjs
+      - name: Run extended browser recette
+        run: node .github/qa/train-recette-extended.mjs
