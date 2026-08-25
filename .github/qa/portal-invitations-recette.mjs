@@ -46,6 +46,7 @@ try{
   const r4=await page.locator('#inviteMessage').inputValue();
   assert.ok(r4.includes('Alpha R4'));
   assert.ok(r4.includes('https://wfgg.pages.dev/'));
+  assert.ok(r4.includes("investissement durant toute l'Inter-Saison"));
   assert.ok(r4.includes('111111'));
   for(const name of ['Metatouk','Ogie Ogilthorpe 7','ValFada','Shockwave XY','Sab93fr','εlο ツ','cat 49','Flawene']) assert.ok(r4.includes(name),`missing thanks ${name}`);
   assert.ok(!r4.includes('εlα ツ'),'old alpha alias leaked into invitation');

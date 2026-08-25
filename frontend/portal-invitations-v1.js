@@ -122,10 +122,10 @@ const futureBlocks=[
   `Nous allons progressivement ajouter de nouveaux modules, dont le simulateur d'équipes et des générateurs de notifications et de communications.`
 ];
 const thankBlocks=[
-  `Un grand merci à ${THANKED_OFFICERS.join(', ')} pour leur travail et leur implication dans la mise en place du projet.`,
-  `Merci tout particulièrement à ${THANKED_OFFICERS.join(', ')}, qui ont participé au travail du bureau autour de ce projet.`,
-  `Ce lancement doit aussi beaucoup au travail de ${THANKED_OFFICERS.join(', ')} : merci à eux pour le temps et l'énergie consacrés au projet.`,
-  `Je tiens à remercier ${THANKED_OFFICERS.join(', ')} pour leur contribution au travail mené par le bureau sur cette plateforme.`
+  `Un grand merci à ${THANKED_OFFICERS.join(', ')} pour leur travail et leur implication dans la mise en place du projet, ainsi que pour leur investissement durant toute l'Inter-Saison.`,
+  `Merci tout particulièrement à ${THANKED_OFFICERS.join(', ')}, qui ont participé au travail du bureau autour de ce projet et pour leur investissement durant toute l'Inter-Saison.`,
+  `Ce lancement doit aussi beaucoup au travail de ${THANKED_OFFICERS.join(', ')} : merci à eux pour le temps et l'énergie consacrés au projet et pour leur investissement durant toute l'Inter-Saison.`,
+  `Je tiens à remercier ${THANKED_OFFICERS.join(', ')} pour leur contribution au travail mené par le bureau sur cette plateforme et pour leur investissement durant toute l'Inter-Saison.`
 ];
 const closings=[
   `Tu peux te connecter dès maintenant. Bonne découverte !`,
