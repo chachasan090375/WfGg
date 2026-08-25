@@ -22,11 +22,13 @@ jobs:
           node --check frontend/portal-v070.js
           node --check frontend/portal-invitations-v1.js
           node --check frontend/portal-invitations-android-filefix-v1.js
+          node --check frontend/portal-invitations-xlsx-v1.js
           node --check .github/qa/train-recette-e2e.mjs
           node --check .github/qa/train-recette-extended.mjs
           node --check .github/qa/exchange-authority-recette.mjs
           node --check .github/qa/portal-responsive-recette.mjs
           node --check .github/qa/portal-invitations-recette.mjs
+          python3 -m py_compile .github/qa/make-invitations-xlsx-fixture.py
           grep -q 'https://wfgg-train.chachasan090375.workers.dev' frontend/_worker.js
           grep -q 'https://wfgg-train.chachasan090375.workers.dev' frontend/portal-v070.js
           grep -q 'WFGG_TRAIN_SERVER_SCHEDULE_V1' frontend/_worker.js
@@ -43,14 +45,20 @@ jobs:
           grep -q 'portal-invitations-v1.css?v=001' frontend/index.html
           grep -q 'portal-invitations-v1.js?v=001' frontend/index.html
           grep -q 'portal-invitations-android-filefix-v1.js?v=001' frontend/index.html
+          grep -q 'portal-invitations-xlsx-v1.js?v=001' frontend/index.html
           grep -q 'WFGG_PORTAL_RESPONSIVE_GUARD_V1' frontend/portal-responsive-v1.css
           grep -q 'WFGG_PORTAL_INVITATIONS_V1' frontend/portal-invitations-v1.js
           grep -q 'WFGG_PORTAL_INVITATIONS_ANDROID_FILEFIX_V1' frontend/portal-invitations-android-filefix-v1.js
+          grep -q 'WFGG_PORTAL_INVITATIONS_XLSX_V1' frontend/portal-invitations-xlsx-v1.js
           grep -q "removeAttribute('accept')" frontend/portal-invitations-android-filefix-v1.js
           grep -q "input.value=''" frontend/portal-invitations-android-filefix-v1.js
+          grep -q 'DecompressionStream' frontend/portal-invitations-xlsx-v1.js
+          grep -q 'data.xlsxSupport' frontend/portal-invitations-xlsx-v1.js
           grep -q 'https://wfgg.pages.dev/' frontend/portal-invitations-v1.js
           ! grep -q 'fetch(' frontend/portal-invitations-v1.js
           ! grep -q 'XMLHttpRequest' frontend/portal-invitations-v1.js
+          ! grep -q 'fetch(' frontend/portal-invitations-xlsx-v1.js
+          ! grep -q 'XMLHttpRequest' frontend/portal-invitations-xlsx-v1.js
           ! grep -q 'portal-auth-phase1-wfgg-train.chachasan090375.workers.dev' frontend/_worker.js
           ! grep -q 'portal-auth-phase1-wfgg-train.chachasan090375.workers.dev' frontend/portal-v070.js
       - name: Wait for wfgg.pages.dev production assets
@@ -66,6 +74,7 @@ jobs:
             curl -fsSL -A "$UA" "$ROOT/portal-responsive-v1.css?v=001&production_recette=$i" -o /tmp/responsive.css || true
             curl -fsSL -A "$UA" "$ROOT/portal-invitations-v1.js?v=001&production_recette=$i" -o /tmp/invitations.js || true
             curl -fsSL -A "$UA" "$ROOT/portal-invitations-android-filefix-v1.js?v=001&production_recette=$i" -o /tmp/invitations-filefix.js || true
+            curl -fsSL -A "$UA" "$ROOT/portal-invitations-xlsx-v1.js?v=001&production_recette=$i" -o /tmp/invitations-xlsx.js || true
             curl -fsSL -A "$UA" "$ROOT/portal-invitations-v1.css?v=001&production_recette=$i" -o /tmp/invitations.css || true
             curl -fsSL -A "$UA" "$ROOT/train/?production_recette=$i" -o /tmp/train.html || true
             curl -fsSL -A "$UA" "$ROOT/train/app.js?wfgg_bridge=v14&production_recette=$i" -o /tmp/app.js || true
@@ -74,10 +83,12 @@ jobs:
               && grep -Fq 'portal-responsive-v1.css?v=001' /tmp/root.html \
               && grep -Fq 'portal-invitations-v1.js?v=001' /tmp/root.html \
               && grep -Fq 'portal-invitations-android-filefix-v1.js?v=001' /tmp/root.html \
+              && grep -Fq 'portal-invitations-xlsx-v1.js?v=001' /tmp/root.html \
               && grep -Fq 'portal-invitations-v1.css?v=001' /tmp/root.html \
               && grep -Fq 'WFGG_PORTAL_RESPONSIVE_GUARD_V1' /tmp/responsive.css \
               && grep -Fq 'WFGG_PORTAL_INVITATIONS_V1' /tmp/invitations.js \
               && grep -Fq 'WFGG_PORTAL_INVITATIONS_ANDROID_FILEFIX_V1' /tmp/invitations-filefix.js \
+              && grep -Fq 'WFGG_PORTAL_INVITATIONS_XLSX_V1' /tmp/invitations-xlsx.js \
               && grep -Fq 'WFGG_PORTAL_INVITATIONS_STYLE_V1' /tmp/invitations.css \
               && grep -Fq "profileSubpage:'main'" /tmp/portal.js \
               && grep -Fq 'profileTrainRotationHost' /tmp/portal.js \
@@ -91,17 +102,18 @@ jobs:
               && grep -Fq 'Joueur indisponible' /tmp/app.js \
               && ! grep -Fq 'portal-auth-phase1-wfgg-train.chachasan090375.workers.dev' /tmp/train.html \
               && [ "$cancel_refs" -ge 4 ]; then
-              echo "WFGG_PAGES_DEV_PROFILE_V16_RESPONSIVE_INVITATIONS_V18_ANDROID_FILEFIX=OK cancel_refs=$cancel_refs"
+              echo "WFGG_PAGES_DEV_INVITATIONS_XLSX_V19=OK cancel_refs=$cancel_refs"
               ok=1
               break
             fi
-            echo "attempt=$i waiting_for_profile_responsive_invitations_android_filefix_and_train cancel_refs=$cancel_refs"
+            echo "attempt=$i waiting_for_invitations_xlsx_and_train cancel_refs=$cancel_refs"
             sleep 5
           done
           test "$ok" = 1
           node --check /tmp/portal.js
           node --check /tmp/invitations.js
           node --check /tmp/invitations-filefix.js
+          node --check /tmp/invitations-xlsx.js
           node --check /tmp/app.js
           grep -Fq 'Historique des connexions' /tmp/portal.js
           grep -Fq 'https://wfgg.pages.dev/' /tmp/invitations.js
@@ -110,6 +122,9 @@ jobs:
           ! grep -Fq 'fetch(' /tmp/invitations.js
           grep -Fq "removeAttribute('accept')" /tmp/invitations-filefix.js
           grep -Fq "input.value=''" /tmp/invitations-filefix.js
+          grep -Fq 'DecompressionStream' /tmp/invitations-xlsx.js
+          grep -Fq 'xlsxToCsv' /tmp/invitations-xlsx.js
+          ! grep -Fq 'fetch(' /tmp/invitations-xlsx.js
           grep -Fq 'overflow:hidden' /tmp/responsive.css
           grep -Fq 'max-width:100%' /tmp/responsive.css
           ! grep -Fq 'renderHomeTrainRotationCard' /tmp/portal.js
@@ -129,13 +144,16 @@ jobs:
         run: |
           npm install --no-save playwright@1.55.0
           npx playwright install --with-deps chromium
+      - name: Generate invitations XLSX QA fixture
+        run: python3 .github/qa/make-invitations-xlsx-fixture.py /tmp/qa-members.xlsx
       - name: Run portal responsive mobile recette on production
         env:
           WFGG_PREVIEW: https://wfgg.pages.dev
         run: node .github/qa/portal-responsive-recette.mjs
-      - name: Run invitations browser recette on production
+      - name: Run invitations XLSX browser recette on production
         env:
           WFGG_PREVIEW: https://wfgg.pages.dev
+          WFGG_XLSX_FIXTURE: /tmp/qa-members.xlsx
         run: node .github/qa/portal-invitations-recette.mjs
       - name: Run primary browser recette on production
         env:

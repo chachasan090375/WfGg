@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import { chromium } from 'playwright';
 
-const ROOT=process.env.WFGG_PREVIEW||'https://portal-invitations-v18.wfgg.pages.dev';
+const ROOT=process.env.WFGG_PREVIEW||'http://127.0.0.1:4173';
+const XLSX_FIXTURE=process.env.WFGG_XLSX_FIXTURE||'/tmp/qa-members.xlsx';
 const me={
   user:{id:'qa-r4',player_name:'QA R4',display_name:'QA R4',language:'fr',profile_completed:true,avatar_url:null},
   membership:{rank:'R4',officer_title:'WARLORD'},
@@ -30,17 +31,17 @@ try{
 
   const input=page.locator('#inviteCsvInput');
   await input.waitFor({state:'attached'});
-  assert.equal(await input.getAttribute('accept'),null,'Android picker must not filter CSV by MIME type');
+  await page.waitForFunction(()=>document.querySelector('#inviteCsvInput')?.dataset.xlsxSupport==='v1');
+  assert.equal(await input.getAttribute('accept'),null,'Android picker must not filter files by MIME type');
   assert.equal(await input.getAttribute('data-android-filefix'),'v1','Android picker guard missing');
+  assert.equal(await input.getAttribute('data-xlsx-support'),'v1','XLSX local parser guard missing');
+  assert.match(await page.locator('.invite-file-button').innerText(),/CSV \/ Excel/);
 
-  const csvFile={
-    name:'qa-members.csv',
-    mimeType:'application/vnd.ms-excel',
-    buffer:Buffer.from('Pseudo;Rang;Code personnel\nAlpha R4;R4;111111\nBravo R3;R3;222222\nCharlie R5;R5;333333\n','utf8')
-  };
-  await input.setInputFiles(csvFile);
-  await page.locator('#inviteMessage').waitFor({state:'visible'});
+  await input.setInputFiles(XLSX_FIXTURE);
+  await page.locator('#inviteMessage').waitFor({state:'visible',timeout:15000});
   assert.match(await page.locator('#inviteFileMeta').textContent(),/3 joueurs chargés/);
+  assert.match(await page.locator('#inviteFileMeta').textContent(),/qa-members\.xlsx/);
+  assert.ok(await page.locator('#inviteError').evaluate(el=>el.classList.contains('hidden')),'XLSX import displayed an error');
 
   const r4=await page.locator('#inviteMessage').inputValue();
   assert.ok(r4.includes('Alpha R4'));
@@ -76,6 +77,6 @@ try{
   const metrics=await page.evaluate(()=>({innerWidth,scrollWidth:(document.scrollingElement||document.documentElement).scrollWidth}));
   assert.ok(metrics.scrollWidth<=metrics.innerWidth+1,`mobile overflow ${JSON.stringify(metrics)}`);
 
-  console.log('WFGG_PORTAL_INVITATIONS_RECETTE=PASS');
+  console.log('WFGG_PORTAL_INVITATIONS_XLSX_RECETTE=PASS');
   await context.close();
 } finally {await browser.close();}
