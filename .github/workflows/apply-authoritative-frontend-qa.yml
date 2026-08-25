@@ -1,0 +1,35 @@
+name: Apply authoritative frontend exchange QA
+
+on:
+  push:
+    branches: [train-bridge-phase3]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: ${{ !contains(github.event.head_commit.message, '[authoritative-frontend-qa-auto]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: train-bridge-phase3
+      - name: Harden frontend exchange QA
+        run: python .github/scripts/harden-authoritative-frontend-qa.py
+      - name: Validate QA
+        run: |
+          node --check .github/qa/train-recette-e2e.mjs
+          node --check .github/qa/train-recette-extended.mjs
+          grep -q 'planning serveur autoritaire' .github/qa/train-recette-e2e.mjs
+          grep -q 'wfgg_bridge=v14' .github/workflows/train-recette.yml
+          grep -q 'WFGG_TRAIN_AUTHORITATIVE_SCHEDULE_V1' .github/workflows/train-recette.yml
+      - name: Commit QA
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add .github/qa/train-recette-e2e.mjs .github/qa/train-recette-extended.mjs .github/workflows/train-recette.yml
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'test: enforce authoritative frontend exchange schedule [authoritative-frontend-qa-auto]'
+          git push origin HEAD:train-bridge-phase3
