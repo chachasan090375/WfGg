@@ -18,22 +18,23 @@ jobs:
           ref: train-bridge-phase3
       - name: Validate bridge source
         run: |
-          echo 'QA revision: browser-v5-production-worker'
+          echo 'QA revision: browser-v6-authoritative-exchange'
           node --check frontend/_worker.js
           node --check .github/qa/train-recette-e2e.mjs
           node --check .github/qa/train-recette-extended.mjs
           grep -q 'WFGG_TRAIN_EXCHANGE_OWN_CANCEL_V2' frontend/_worker.js
-          grep -q 'wfgg_bridge=v13' frontend/_worker.js
+          grep -q 'WFGG_TRAIN_AUTHORITATIVE_SCHEDULE_V1' frontend/_worker.js
+          grep -q 'wfgg_bridge=v14' frontend/_worker.js
           grep -q '/assets/wfgg-logo-mini.svg' frontend/_worker.js
           grep -q "selfPseudoField').waitFor" .github/qa/train-recette-extended.mjs
-      - name: Verify production backend R3 cycle marker
+      - name: Verify preview backend R3 cycle and authoritative snapshot source
         shell: bash
         run: |
           set -eu
-          curl -fsSi 'https://wfgg-train.chachasan090375.workers.dev/api/health?browser_r3_cycle=1' -o /tmp/backend-health.txt
+          curl -fsSi 'https://portal-auth-phase1-wfgg-train.chachasan090375.workers.dev/api/health?browser_authoritative=1' -o /tmp/backend-health.txt
           grep -iq '^x-wfgg-r3-cycle-model: v1' /tmp/backend-health.txt
           grep -iq '^x-wfgg-rotation-sequence-guard: v2' /tmp/backend-health.txt
-      - name: Wait for Cloudflare preview v13
+      - name: Wait for Cloudflare preview v14
         shell: bash
         run: |
           set -eu
@@ -42,13 +43,13 @@ jobs:
           ok=0
           for i in $(seq 1 40); do
             curl -fsSL -A "$UA" "$ROOT/train/?recette=$i" -o /tmp/train.html || true
-            if grep -Fq 'wfgg_bridge=v13' /tmp/train.html; then
-              curl -fsSL -A "$UA" "$ROOT/train/app.js?wfgg_bridge=v13&recette=$i" -o /tmp/app.js || true
+            if grep -Fq 'wfgg_bridge=v14' /tmp/train.html; then
+              curl -fsSL -A "$UA" "$ROOT/train/app.js?wfgg_bridge=v14&recette=$i" -o /tmp/app.js || true
               n=$(grep -o 'cancelMarketExchange' /tmp/app.js | wc -l | tr -d ' ')
-              echo "attempt=$i bridge=v13 cancel_refs=$n"
-              if [ "$n" -ge 4 ]; then ok=1; break; fi
+              echo "attempt=$i bridge=v14 cancel_refs=$n"
+              if [ "$n" -ge 4 ] && grep -Fq '__WFGG_SERVER_SCHEDULE__' /tmp/app.js; then ok=1; break; fi
             else
-              echo "attempt=$i waiting_for_v13"
+              echo "attempt=$i waiting_for_v14"
             fi
             sleep 5
           done
@@ -58,6 +59,7 @@ jobs:
           ! grep -Fq 'if (!token)' /tmp/app.js
           grep -Fq 'Retirer mon annonce' /tmp/app.js
           grep -Fq 'Mes demandes' /tmp/app.js
+          grep -Fq 'window.__WFGG_SERVER_SCHEDULE__' /tmp/app.js
       - name: Install Playwright
         run: |
           npm install --no-save playwright@1.55.0
