@@ -133,7 +133,7 @@ class RootAttributeRewriter {
         const versioned =
           value +
           (value.includes('?') ? '&' : '?') +
-          'wfgg_bridge=v12';
+          'wfgg_bridge=v13';
         element.setAttribute(attr, versioned);
         continue;
       }
@@ -152,7 +152,7 @@ class RootAttributeRewriter {
         ) {
           rewrittenValue +=
             (rewrittenValue.includes('?') ? '&' : '?') +
-            'wfgg_bridge=v12';
+            'wfgg_bridge=v13';
         }
 
         element.setAttribute(attr, rewrittenValue);
@@ -252,7 +252,7 @@ function languageBridgeScript(routeName) {
         ){
           sessionStorage.setItem(WFGG_SW_RESET_KEY,'1');
           const fresh=new URL(location.href);
-          fresh.searchParams.set('wfgg_fresh','v12');
+          fresh.searchParams.set('wfgg_fresh','v13');
           location.replace(fresh.toString());
         }
       });
@@ -976,6 +976,16 @@ async function proxyRoute(request, route, upstreamPath, options = {}) {
       const ownExchangeTail = "${x.status === 'accepted' && x.swapWithDate ? `<p>Nouvelle date : ${fmtShort(parseISO(x.swapWithDate))}</p>` : ''}</div>`).join('') : '<div class=\\\"empty\\\">Aucune demande publiée.</div>'}";
       const ownExchangeTailFixed = "${x.status === 'accepted' && x.swapWithDate ? `<p>Nouvelle date : ${fmtShort(parseISO(x.swapWithDate))}</p>` : ''}${x.status === 'open' ? `<button class=\\\"btn danger small\\\" onclick=\\\"W.cancelMarketExchange('${x.id}')\\\">Retirer mon annonce</button>` : ''}</div>`).join('') : '<div class=\\\"empty\\\">Aucune demande publiée.</div>'}";
       rewritten = rewritten.replace(ownExchangeTail, ownExchangeTailFixed);
+    }
+
+    /* WFGG_TRAIN_EXCHANGE_OWN_CANCEL_V2
+       Patch ciblé sur le fragment exact du rendu « Mes demandes ».
+       Le V1 incluait trop de contexte et ne correspondait pas au JS upstream.
+    */
+    {
+      const ownOpenTail = "${x.status === 'accepted' && x.swapWithDate ? `<p>Nouvelle date : ${fmtShort(parseISO(x.swapWithDate))}</p>` : ''}</div>";
+      const ownOpenTailFixed = "${x.status === 'accepted' && x.swapWithDate ? `<p>Nouvelle date : ${fmtShort(parseISO(x.swapWithDate))}</p>` : ''}${x.status === 'open' ? `<button class=\"btn danger small\" onclick=\"W.cancelMarketExchange('${x.id}')\">Retirer mon annonce</button>` : ''}</div>";
+      rewritten = rewritten.replace(ownOpenTail, ownOpenTailFixed);
     }
 
     /* WFGG_TRAIN_INIT_DOM_GUARD_V1
