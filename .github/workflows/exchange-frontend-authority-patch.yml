@@ -1,33 +1,13 @@
-name: Exchange frontend authority patch
+name: Exchange frontend authority patch (completed)
 
 on:
-  push:
-    branches: [exchange-fix]
+  workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  patch:
-    if: ${{ !contains(github.event.head_commit.message, '[exchange-front-auto]') }}
+  archived:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: exchange-fix
-      - name: Patch frontend bridge
-        run: python .github/scripts/exchange_frontend_authority_patch.py
-      - name: Validate worker
-        run: |
-          node --check frontend/_worker.js
-          grep -q 'WFGG_TRAIN_SERVER_SCHEDULE_V1' frontend/_worker.js
-          grep -q 'WFGG_TRAIN_MUTATE_REFRESH_GUARD_V1' frontend/_worker.js
-          grep -q 'WFGG_TRAIN_EXCHANGE_ORPHAN_FALLBACK_V1' frontend/_worker.js
-          grep -q 'wfgg_bridge=v14' frontend/_worker.js
-      - name: Commit patch
-        run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add frontend/_worker.js
-          git commit -m 'fix: use authoritative server schedule for exchange [exchange-front-auto]'
-          git push origin HEAD:exchange-fix
+      - run: echo 'Authoritative exchange frontend patch is already applied in v14.'
