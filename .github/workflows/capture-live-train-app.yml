@@ -1,4 +1,4 @@
-name: Verify live Train bridge final
+name: Inspect live Train interactions
 
 on:
   push:
@@ -9,46 +9,18 @@ permissions:
   contents: read
 
 jobs:
-  verify:
+  inspect:
     runs-on: ubuntu-latest
     steps:
-      - name: Wait for Cloudflare and verify final Train bridge
+      - name: Inspect served Train handlers
         shell: bash
         run: |
           set -eu
-          BASE='https://train-bridge-phase3.wfgg.pages.dev'
-          ok=0
-          for i in $(seq 1 24); do
-            html="$(curl -fsSL "$BASE/train/?verify=final-$i" 2>/dev/null || true)"
-            js="$(curl -fsSL "$BASE/train/app.js?wfgg_bridge=v6&verify=final-$i" 2>/dev/null || true)"
-            headers="$(curl -fsSI "$BASE/train/app.js?wfgg_bridge=v6&verify=final-$i" 2>/dev/null || true)"
-
-            html_versioned=0
-            html_seed=0
-            header_cache=0
-            js_api=0
-            js_token=0
-            js_sw=0
-
-            case "$html" in *'wfgg_bridge=v6'*) html_versioned=1;; esac
-            case "$html" in *'WFGG_PORTAL_TRAIN_SNAPSHOT_SEED_V1'*) html_seed=1;; esac
-            case "${headers,,}" in *'x-wfgg-train-cache-bridge: v1'*) header_cache=1;; esac
-            case "$js" in *"const API_BASE = '';"*) js_api=1;; esac
-            case "$js" in *'if (token)'*) js_token=1;; esac
-            case "$js" in *"navigator.serviceWorker.register('service-worker.js?v=44')"*) js_sw=1;; esac
-
-            echo "attempt=$i html_versioned=$html_versioned html_seed=$html_seed header_cache=$header_cache js_api=$js_api dangling_token=$js_token legacy_sw=$js_sw"
-
-            if [ "$html_versioned" = 1 ] \
-              && [ "$html_seed" = 1 ] \
-              && [ "$header_cache" = 1 ] \
-              && [ "$js_api" = 1 ] \
-              && [ "$js_token" = 0 ] \
-              && [ "$js_sw" = 0 ]; then
-              echo 'LIVE_TRAIN_FINAL_BRIDGE=OK'
-              ok=1
-              break
-            fi
-            sleep 5
-          done
-          test "$ok" = 1
+          URL='https://train-bridge-phase3.wfgg.pages.dev/train/app.js?wfgg_bridge=v6&inspect=interaction'
+          curl -fsSL "$URL" -o /tmp/app.js
+          echo '=== INIT / BIND / NAV SYMBOLS ==='
+          grep -nE 'function (init|bind|bindEvents|showView|setView|render|bootApp)|const (init|bindEvents|showView)|addEventListener\(.click|querySelectorAll\(.nav|nav-item|bottomNav|logoutBtn|brandHome|profileBtn|planning|exchanges|alerts|admin' /tmp/app.js | head -n 260 || true
+          echo '=== CONTEXT AROUND W EXPORT ==='
+          grep -n -C 8 -E 'window\.W|showTrainEntry|bootApp' /tmp/app.js | head -n 220 || true
+          echo '=== CONTEXT AROUND DOMCONTENTLOADED / INIT ==='
+          grep -n -C 10 -E 'DOMContentLoaded|init\(\)|bindEvents\(\)' /tmp/app.js | head -n 260 || true
