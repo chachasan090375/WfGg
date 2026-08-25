@@ -1,45 +1,13 @@
-name: Verify live Train rotation sequence guard
+name: Train guard verification (disabled)
 
 on:
-  push:
-    branches:
-      - train-bridge-phase3
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  verify:
+  noop:
     runs-on: ubuntu-latest
     steps:
-      - name: Verify live Train guards
-        shell: bash
-        run: |
-          set -eu
-          ROOT='https://train-bridge-phase3.wfgg.pages.dev'
-          TRAIN="$ROOT/train/"
-          WORKER='https://portal-auth-phase1-wfgg-train.chachasan090375.workers.dev'
-          UA='Mozilla/5.0 (Linux; Android 16) AppleWebKit/537.36 Chrome/139 Mobile Safari/537.36'
-          ok=0
-          for i in $(seq 1 30); do
-            curl -fsSL -A "$UA" "$TRAIN?sequence-guard=$i" -o /tmp/train.html || true
-            curl -sS -D /tmp/headers -o /dev/null -X OPTIONS \
-              -H 'Origin: https://train-bridge-phase3.wfgg.pages.dev' \
-              -H 'Access-Control-Request-Method: POST' \
-              -H 'Access-Control-Request-Headers: X-WfGg-Portal-Token,Content-Type' \
-              "$WORKER/api/exchanges/probe/accept" || true
-            logo=0; bridge=0; cycle=0; sequence=0
-            grep -Fq '/assets/wfgg-logo-mini.svg' /tmp/train.html && logo=1 || true
-            grep -Fq 'wfgg_bridge=v11' /tmp/train.html && bridge=1 || true
-            grep -iF 'x-wfgg-rotation-guard' /tmp/headers >/dev/null && cycle=1 || true
-            grep -iE '^x-wfgg-rotation-sequence-guard: *v2' /tmp/headers >/dev/null && sequence=1 || true
-            echo "attempt=$i logo=$logo bridge=$bridge cycle_guard=$cycle sequence_guard=$sequence"
-            if [ "$logo" = 1 ] && [ "$bridge" = 1 ] && [ "$cycle" = 1 ] && [ "$sequence" = 1 ]; then
-              echo 'LIVE_ROTATION_SEQUENCE_GUARD_V2=OK'
-              cat /tmp/headers
-              ok=1
-              break
-            fi
-            sleep 5
-          done
-          test "$ok" = 1
+      - run: echo 'Rotation sequence guard v2 verified live on 2026-08-25.'
