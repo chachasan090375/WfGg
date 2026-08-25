@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 
-const root=process.env.WFGG_PREVIEW||'https://exchange-diagnosis.wfgg.pages.dev';
-const res=await fetch(`${root}/train/app.js?wfgg_bridge=v13&exchange_parity=${Date.now()}`,{headers:{'user-agent':'Mozilla/5.0 (Linux; Android 16) AppleWebKit/537.36 Chrome/139 Mobile Safari/537.36'}});
+const root=process.env.WFGG_PREVIEW||'https://wfgg.pages.dev';
+const res=await fetch(`${root}/train/app.js?wfgg_bridge=v14&exchange_parity=${Date.now()}`,{headers:{'user-agent':'Mozilla/5.0 (Linux; Android 16) AppleWebKit/537.36 Chrome/139 Mobile Safari/537.36'}});
 assert.equal(res.ok,true,`app.js HTTP ${res.status}`);
 const src=await res.text();
 assert.match(src,/function wfggHistorySeed\(pool, role\)/);
@@ -40,7 +40,7 @@ function orderedPool(pool,key){const order=state.rotationOrder[key]||[];const po
 function pickFair(pool,date,history,exclude=[]){const filtered=pool.filter(m=>!exclude.includes(m.id)&&!isUnavailable(m.id,date));if(!filtered.length)return null;const orderIndex=Object.fromEntries(pool.map((m,i)=>[m.id,i]));return filtered.slice().sort((a,b)=>{const ha=history[a.id]||{count:0,last:'0000-00-00'},hb=history[b.id]||{count:0,last:'0000-00-00'};if(ha.count!==hb.count)return ha.count-hb.count;const lc=ha.last.localeCompare(hb.last);if(lc!==0)return lc;return (orderIndex[a.id]??9999)-(orderIndex[b.id]??9999)})[0]}
 function touchHistory(history,m,date){if(!m)return;history[m.id]||={count:0,last:'0000-00-00'};history[m.id].count++;history[m.id].last=date}
 
-// Execute the exact schedule functions served by the branch preview.
+// Execute the exact schedule functions served by the deployed frontend.
 (0,eval)(`globalThis.__wfggScheduleFactory=(state,ROSTER,parseISO,dateISO,addDays,ensureRotationRankSettings,ranksForRotation,isOut,isUnavailable,activePool,orderedPool,pickFair,touchHistory)=>{${scheduleSource};return {generateSchedule,wfggHistorySeed};}`);
 const factory=globalThis.__wfggScheduleFactory;
 let F=factory(state,ROSTER,parseISO,dateISO,addDays,ensureRotationRankSettings,ranksForRotation,isOut,isUnavailable,activePool,orderedPool,pickFair,touchHistory);
@@ -54,7 +54,7 @@ assert.deepEqual(days.slice(0,6).map(x=>[x.date,x.driverId,x.vipId,x.driverClass
   ['2026-08-22','r3a','r3b','r3',1]
 ]);
 
-// The manual-history seed must influence the next assignment exactly as the backend does.
+// Manual history must seed frontend fairness exactly like the backend.
 state=structuredClone(state);
 state.manualHistory={
   counts:{driver:{oldr5:{count:9,last:'2026-08-15'},oldr4:{count:0,last:'0000-00-00'}},vip:{}},
@@ -65,4 +65,3 @@ days=F.generateSchedule(1);
 assert.equal(days[0].driverId,'r4','manual history is not seeding frontend fairness');
 
 console.log('EXCHANGE_SCHEDULE_PARITY=PASS');
-console.log('cycle0=',JSON.stringify(days));
