@@ -1158,7 +1158,7 @@ async function routeTrain(request, env) {
   */
   if (suffix === '/app.js') {
     const assetUrl = new URL(request.url);
-    assetUrl.pathname = '/train-native/app.v14.live.js';
+    assetUrl.pathname = '/train-native/app.v15.js';
     assetUrl.search = '';
 
     const assetRequest = new Request(assetUrl.toString(), {

@@ -25,7 +25,7 @@ const initialLanguage=()=>{
 const RANKS=['R5','R4','R3','R2','R1'];
 const OFFICES=['','WARLORD','RECRUITER','MUSE','BUTLER'];
 const OFFICE_FR={WARLORD:'Seigneur de guerre',RECRUITER:'Recruteur',MUSE:'Muse',BUTLER:'Majordome'};
-const state={user:null,membership:null,alliance:null,system:null,permissions:null,portalSettings:{},lang:initialLanguage(),members:[],filters:new Set(),search:'',settingsTab:'profile',sessions:[]};
+const state={user:null,membership:null,alliance:null,system:null,permissions:null,portalSettings:{},lang:initialLanguage(),members:[],filters:new Set(),search:'',settingsTab:'profile',sessions:[],trainRotationSummary:null,trainRotationLoading:false};
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const I18N={
@@ -87,7 +87,7 @@ async function trainAdminApi(path,options={}){
   if(!r.ok)throw new Error(d?.error||`HTTP_${r.status}`);
   return d;
 }
-function clearSession(){localStorage.removeItem(TOKEN_KEY);Object.assign(state,{user:null,membership:null,alliance:null,system:null,permissions:null,portalSettings:{},members:[],sessions:[]});}
+function clearSession(){localStorage.removeItem(TOKEN_KEY);Object.assign(state,{user:null,membership:null,alliance:null,system:null,permissions:null,portalSettings:{},members:[],sessions:[],trainRotationSummary:null,trainRotationLoading:false});}
 function initials(n='?'){return n.trim().split(/\s+/).slice(0,2).map(x=>x[0]?.toUpperCase()).join('')||'?'}
 function avatarUrl(u){return u?.avatar_url||LEGACY[u?.player_name]||LEGACY[u?.display_name]||''}
 function paintAvatar(el,u){if(!el||!u)return;const src=avatarUrl(u);el.innerHTML=src?`<img src="${esc(src)}" alt="${esc(u.display_name||u.player_name||'joueur')}">`:esc(initials(u.display_name||u.player_name))}
@@ -208,6 +208,71 @@ function setAllianceLogo(imgId,fallbackId){
   };
   img.src=src;
 }
+
+/* WFGG_PORTAL_TRAIN_ROTATION_READONLY_V1
+   Le Portail ne génère jamais le planning Train. Il lit uniquement le snapshot
+   autoritatif fourni par Train puis en extrait les passages déjà programmés. */
+function trainRotationLabels(){
+  const all={
+    fr:{title:'Ma rotation Train',driverA:'Conducteur A',driverB:'Conducteur B',vip:'VIP',total:'Total',last:'Dernier',next:'Prochain',none:'—',statsTitle:'Rotations par joueur',statsDesc:'Historique et prochains passages issus directement du planning Train.'},
+    it:{title:'La mia rotazione Treno',driverA:'Conducente A',driverB:'Conducente B',vip:'VIP',total:'Totale',last:'Ultimo',next:'Prossimo',none:'—',statsTitle:'Rotazioni per giocatore',statsDesc:'Storico e prossimi turni letti direttamente dal calendario Treno.'},
+    en:{title:'My Train rotation',driverA:'Driver A',driverB:'Driver B',vip:'VIP',total:'Total',last:'Last',next:'Next',none:'—',statsTitle:'Rotations by player',statsDesc:'History and upcoming turns read directly from the Train schedule.'},
+    es:{title:'Mi rotación del Tren',driverA:'Conductor A',driverB:'Conductor B',vip:'VIP',total:'Total',last:'Último',next:'Próximo',none:'—',statsTitle:'Rotaciones por jugador',statsDesc:'Historial y próximos turnos leídos directamente del calendario del Tren.'}
+  };
+  return all[state.lang]||all.fr;
+}
+function trainLocalISO(d=new Date()){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
+function trainHistoryKey(v){return String(v||'').trim().normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'')}
+function trainManualBase(snapshot,user,role){
+  const mh=snapshot?.state?.manualHistory||{},counts=mh?.counts?.[role]||{},links=mh?.links||{};
+  const linked=links[user?.id];
+  if(linked&&counts[linked])return counts[linked];
+  const key=trainHistoryKey(user?.pseudo||user?.display_name||user?.player_name||'');
+  return Object.values(counts).find(x=>trainHistoryKey(x?.name)===key)||{count:0,last:null};
+}
+function trainRotationForUser(snapshot,user){
+  const schedule=Array.isArray(snapshot?.schedule)?snapshot.schedule:[],today=trainLocalISO(),mh=snapshot?.state?.manualHistory||{};
+  const cutoff=String(mh.cutoff||'0000-00-00'),id=String(user?.id||'');
+  const baseDriver=trainManualBase(snapshot,user,'driver'),baseVip=trainManualBase(snapshot,user,'vip');
+  const past=schedule.filter(x=>x?.date>cutoff&&x.date<today);
+  const pastDriver=past.filter(x=>String(x.driverId||'')===id),pastVip=past.filter(x=>String(x.vipId||'')===id);
+  const nextDriver=schedule.find(x=>x?.date>=today&&String(x.driverId||'')===id)||null;
+  const nextVip=schedule.find(x=>x?.date>=today&&String(x.vipId||'')===id)||null;
+  const lastDriver=pastDriver.length?pastDriver[pastDriver.length-1].date:(baseDriver.last||null);
+  const lastVip=pastVip.length?pastVip[pastVip.length-1].date:(baseVip.last||null);
+  const rank=String(user?.rank||'').toUpperCase();
+  const driverRole=nextDriver?.driverClass==='officer'||['R4','R5'].includes(rank)?'A':'B';
+  return {id:user?.id,pseudo:user?.pseudo||user?.display_name||user?.player_name||'',rank,
+    driver:Number(baseDriver.count||0)+pastDriver.length,driverLast:lastDriver,driverNext:nextDriver?.date||null,driverRole,
+    vip:Number(baseVip.count||0)+pastVip.length,vipLast:lastVip,vipNext:nextVip?.date||null};
+}
+function trainDateLabel(ds){if(!ds)return trainRotationLabels().none;try{return new Date(`${ds}T12:00:00`).toLocaleDateString(state.lang==='en'?'en-GB':state.lang==='it'?'it-IT':state.lang==='es'?'es-ES':'fr-FR',{day:'2-digit',month:'2-digit',year:'2-digit'});}catch{return ds}}
+function renderHomeTrainRotationCard(){
+  const grid=document.querySelector('.module-grid');if(!grid)return;
+  let card=$('homeTrainRotationCard');
+  if(!card){card=document.createElement('section');card.id='homeTrainRotationCard';card.className='glass-card settings-card-block';grid.parentNode.insertBefore(card,grid);}
+  const x=trainRotationLabels(),r=state.trainRotationSummary;
+  if(!r){card.innerHTML=`<div class="section-heading"><h3>🚂 ${esc(x.title)}</h3></div><span class="muted">…</span>`;return;}
+  const driverLabel=r.driverRole==='A'?x.driverA:x.driverB;
+  card.innerHTML=`<div class="section-heading"><h3>🚂 ${esc(x.title)}</h3></div><div class="readonly-grid"><div><small>${esc(driverLabel)} · ${esc(x.total)}</small><strong>${r.driver||0}</strong><small>${esc(x.last)} : ${esc(trainDateLabel(r.driverLast))}<br>${esc(x.next)} : ${esc(trainDateLabel(r.driverNext))}</small></div><div><small>⭐ ${esc(x.vip)} · ${esc(x.total)}</small><strong>${r.vip||0}</strong><small>${esc(x.last)} : ${esc(trainDateLabel(r.vipLast))}<br>${esc(x.next)} : ${esc(trainDateLabel(r.vipNext))}</small></div></div>`;
+}
+async function loadHomeTrainRotation(){
+  if(!state.user||state.trainRotationLoading)return;
+  state.trainRotationLoading=true;renderHomeTrainRotationCard();
+  try{const snap=await trainAdminApi('/api/snapshot',{method:'GET'});state.trainRotationSummary=trainRotationForUser(snap,snap.me||{});}catch(_){state.trainRotationSummary=null;}finally{state.trainRotationLoading=false;renderHomeTrainRotationCard();}
+}
+function buildPlayerRotationRows(analytics,snapshot){
+  const users=(snapshot?.roster||[]).filter(x=>x&&x.active!==false),baseline=Object.fromEntries((analytics?.historyActive||[]).map(x=>[String(x.id),x]));
+  const today=trainLocalISO(),cutoff=String(snapshot?.state?.manualHistory?.cutoff||'0000-00-00'),schedule=Array.isArray(snapshot?.schedule)?snapshot.schedule:[];
+  return users.map(u=>{
+    const b=baseline[String(u.id)]||{driver:0,driverLast:null,vip:0,vipLast:null};
+    const past=schedule.filter(x=>x?.date>cutoff&&x.date<today),pd=past.filter(x=>String(x.driverId||'')===String(u.id)),pv=past.filter(x=>String(x.vipId||'')===String(u.id));
+    const nd=schedule.find(x=>x?.date>=today&&String(x.driverId||'')===String(u.id)),nv=schedule.find(x=>x?.date>=today&&String(x.vipId||'')===String(u.id));
+    const rank=String(u.rank||'').toUpperCase(),driverRole=nd?.driverClass==='officer'||['R4','R5'].includes(rank)?'A':'B';
+    return {id:u.id,pseudo:u.pseudo,rank,driver:Number(b.driver||0)+pd.length,driverLast:pd.length?pd[pd.length-1].date:b.driverLast,driverNext:nd?.date||null,driverRole,vip:Number(b.vip||0)+pv.length,vipLast:pv.length?pv[pv.length-1].date:b.vipLast,vipNext:nv?.date||null};
+  }).sort((a,b)=>({R5:1,R4:2,R3:3,R2:4,R1:5}[a.rank]||9)-({R5:1,R4:2,R3:3,R2:4,R1:5}[b.rank]||9)||String(a.pseudo).localeCompare(String(b.pseudo)));
+}
+
 function paintAllianceIdentity(){
   const allianceName=state.alliance?.name||'WfGg';
   const server=state.alliance?.server||'—';
@@ -229,6 +294,8 @@ function renderHome(){
   $('guidesCardTitle').textContent=(useFrenchMaster&&state.portalSettings?.guides_title)||t('home.guidesTitle');
   $('trainCardTitle').textContent=(useFrenchMaster&&state.portalSettings?.train_title)||t('home.trainTitle');
   refreshModuleLinks();
+  renderHomeTrainRotationCard();
+  if(!state.trainRotationLoading)loadHomeTrainRotation();
 }
 function normalizeUnifiedModuleUrl(k,raw){
   const value=String(raw||'').trim();
@@ -385,10 +452,10 @@ function allianceSettingsHtml(){return `<div class="settings-section"><form id="
 /* WFGG_PORTAL_PLAYER_STATS_V1 */
 function portalAdminLabels(){
   const all={
-    fr:{membersTab:'Joueurs & accès',statsTab:'Statistiques joueurs',membersTitle:'Joueurs & accès',membersDesc:'Profils, rangs, fonctions R4, activation et réinitialisation des codes.',manage:'Gérer les joueurs',statsTitle:'Statistiques joueurs',statsDesc:'Activité des joueurs sur les 30 derniers jours. Les statistiques de rotations restent dans Train.',refresh:'Actualiser',loading:'Chargement…',empty:'Aucune activité enregistrée sur cette période.',actions7:'Actions · 7 j',actions30:'Actions · 30 j',active:'Joueurs actifs',actions:'actions',profile:'Profil',exchanges:'Échanges',members:'Admin joueurs',settings:'Réglages'},
-    it:{membersTab:'Giocatori e accessi',statsTab:'Statistiche giocatori',membersTitle:'Giocatori e accessi',membersDesc:'Profili, gradi, funzioni R4, attivazione e reimpostazione dei codici.',manage:'Gestisci giocatori',statsTitle:'Statistiche giocatori',statsDesc:'Attività dei giocatori negli ultimi 30 giorni. Le statistiche delle rotazioni restano in Treno.',refresh:'Aggiorna',loading:'Caricamento…',empty:'Nessuna attività registrata in questo periodo.',actions7:'Azioni · 7 g',actions30:'Azioni · 30 g',active:'Giocatori attivi',actions:'azioni',profile:'Profilo',exchanges:'Scambi',members:'Admin giocatori',settings:'Impostazioni'},
-    en:{membersTab:'Players & access',statsTab:'Player statistics',membersTitle:'Players & access',membersDesc:'Profiles, ranks, R4 roles, activation and access-code resets.',manage:'Manage players',statsTitle:'Player statistics',statsDesc:'Player activity over the last 30 days. Rotation statistics remain in Train.',refresh:'Refresh',loading:'Loading…',empty:'No activity recorded in this period.',actions7:'Actions · 7d',actions30:'Actions · 30d',active:'Active players',actions:'actions',profile:'Profile',exchanges:'Swaps',members:'Player admin',settings:'Settings'},
-    es:{membersTab:'Jugadores y accesos',statsTab:'Estadísticas jugadores',membersTitle:'Jugadores y accesos',membersDesc:'Perfiles, rangos, funciones R4, activación y restablecimiento de códigos.',manage:'Gestionar jugadores',statsTitle:'Estadísticas jugadores',statsDesc:'Actividad de jugadores durante los últimos 30 días. Las estadísticas de rotación permanecen en Tren.',refresh:'Actualizar',loading:'Cargando…',empty:'No hay actividad registrada en este período.',actions7:'Acciones · 7 d',actions30:'Acciones · 30 d',active:'Jugadores activos',actions:'acciones',profile:'Perfil',exchanges:'Intercambios',members:'Admin jugadores',settings:'Ajustes'}
+    fr:{membersTab:'Joueurs & accès',statsTab:'Statistiques joueurs',membersTitle:'Joueurs & accès',membersDesc:'Profils, rangs, fonctions R4, activation et réinitialisation des codes.',manage:'Gérer les joueurs',statsTitle:'Statistiques joueurs',statsDesc:'Activité des joueurs sur les 30 derniers jours et synthèse des rotations issue de Train.',refresh:'Actualiser',loading:'Chargement…',empty:'Aucune activité enregistrée sur cette période.',actions7:'Actions · 7 j',actions30:'Actions · 30 j',active:'Joueurs actifs',actions:'actions',profile:'Profil',exchanges:'Échanges',members:'Admin joueurs',settings:'Réglages'},
+    it:{membersTab:'Giocatori e accessi',statsTab:'Statistiche giocatori',membersTitle:'Giocatori e accessi',membersDesc:'Profili, gradi, funzioni R4, attivazione e reimpostazione dei codici.',manage:'Gestisci giocatori',statsTitle:'Statistiche giocatori',statsDesc:'Attività dei giocatori negli ultimi 30 giorni e sintesi delle rotazioni proveniente dal Treno.',refresh:'Aggiorna',loading:'Caricamento…',empty:'Nessuna attività registrata in questo periodo.',actions7:'Azioni · 7 g',actions30:'Azioni · 30 g',active:'Giocatori attivi',actions:'azioni',profile:'Profilo',exchanges:'Scambi',members:'Admin giocatori',settings:'Impostazioni'},
+    en:{membersTab:'Players & access',statsTab:'Player statistics',membersTitle:'Players & access',membersDesc:'Profiles, ranks, R4 roles, activation and access-code resets.',manage:'Manage players',statsTitle:'Player statistics',statsDesc:'Player activity over the last 30 days and a rotation summary read from Train.',refresh:'Refresh',loading:'Loading…',empty:'No activity recorded in this period.',actions7:'Actions · 7d',actions30:'Actions · 30d',active:'Active players',actions:'actions',profile:'Profile',exchanges:'Swaps',members:'Player admin',settings:'Settings'},
+    es:{membersTab:'Jugadores y accesos',statsTab:'Estadísticas jugadores',membersTitle:'Jugadores y accesos',membersDesc:'Perfiles, rangos, funciones R4, activación y restablecimiento de códigos.',manage:'Gestionar jugadores',statsTitle:'Estadísticas jugadores',statsDesc:'Actividad de jugadores durante los últimos 30 días y resumen de rotaciones leído del Tren.',refresh:'Actualizar',loading:'Cargando…',empty:'No hay actividad registrada en este período.',actions7:'Acciones · 7 d',actions30:'Acciones · 30 d',active:'Jugadores activos',actions:'acciones',profile:'Perfil',exchanges:'Intercambios',members:'Admin jugadores',settings:'Ajustes'}
   };
   return all[state.lang]||all.fr;
 }
@@ -398,10 +465,11 @@ async function loadPlayerStatistics(){
   const host=$('playerStatsHost');if(!host||!isAdmin())return;
   const x=portalAdminLabels();host.innerHTML=`<span class="muted">${esc(x.loading)}</span>`;
   try{
-    const d=await trainAdminApi('/api/admin/analytics',{method:'GET'}),s=d.summary||{};
+    const [d,snapshot]=await Promise.all([trainAdminApi('/api/admin/analytics',{method:'GET'}),trainAdminApi('/api/snapshot',{method:'GET'})]),s=d.summary||{};
     const rows=[...(d.activityByActor||[])].sort((a,b)=>(b.total||0)-(a.total||0)||String(a.pseudo||'').localeCompare(String(b.pseudo||'')));
+    const rotations=buildPlayerRotationRows(d,snapshot),rx=trainRotationLabels();
     if(!$('playerStatsHost'))return;
-    host.innerHTML=`<div class="portal-stats-kpis"><div><small>${esc(x.actions7)}</small><strong>${s.actions7||0}</strong></div><div><small>${esc(x.actions30)}</small><strong>${s.actions30||0}</strong></div><div><small>${esc(x.active)}</small><strong>${s.activeMembers||0}</strong></div></div><div class="portal-player-stats-list">${rows.length?rows.map(row=>`<div class="portal-player-stat-row"><div class="portal-stat-avatar">${esc(initials(row.pseudo||'?'))}</div><div class="portal-stat-main"><b>${esc(row.pseudo||'—')}</b><small>${esc(row.rank||'')} · ${row.total||0} ${esc(x.actions)}</small><div class="portal-stat-breakdown"><span>👤 ${esc(x.profile)} ${row.players||0}</span><span>🔄 ${esc(x.exchanges)} ${row.exchanges||0}</span><span>👥 ${esc(x.members)} ${row.members||0}</span><span>⚙️ ${esc(x.settings)} ${row.settings||0}</span></div></div><strong class="portal-stat-total">${row.total||0}</strong></div>`).join(''):`<div class="empty-state">${esc(x.empty)}</div>`}</div>`;
+    host.innerHTML=`<div class="portal-stats-kpis"><div><small>${esc(x.actions7)}</small><strong>${s.actions7||0}</strong></div><div><small>${esc(x.actions30)}</small><strong>${s.actions30||0}</strong></div><div><small>${esc(x.active)}</small><strong>${s.activeMembers||0}</strong></div></div><div class="portal-player-stats-list">${rows.length?rows.map(row=>`<div class="portal-player-stat-row"><div class="portal-stat-avatar">${esc(initials(row.pseudo||'?'))}</div><div class="portal-stat-main"><b>${esc(row.pseudo||'—')}</b><small>${esc(row.rank||'')} · ${row.total||0} ${esc(x.actions)}</small><div class="portal-stat-breakdown"><span>👤 ${esc(x.profile)} ${row.players||0}</span><span>🔄 ${esc(x.exchanges)} ${row.exchanges||0}</span><span>👥 ${esc(x.members)} ${row.members||0}</span><span>⚙️ ${esc(x.settings)} ${row.settings||0}</span></div></div><strong class="portal-stat-total">${row.total||0}</strong></div>`).join(''):`<div class="empty-state">${esc(x.empty)}</div>`}</div><div class="section-heading" style="margin-top:22px"><div><h3>🚂 ${esc(rx.statsTitle)}</h3><p class="muted">${esc(rx.statsDesc)}</p></div></div><div class="portal-player-stats-list">${rotations.map(r=>{const dl=r.driverRole==='A'?rx.driverA:rx.driverB;return `<div class="portal-player-stat-row"><div class="portal-stat-avatar">${esc(initials(r.pseudo||'?'))}</div><div class="portal-stat-main"><b>${esc(r.pseudo||'—')}</b><small>${esc(r.rank||'')}</small><div class="portal-stat-breakdown"><span>🚂 ${esc(dl)} : <b>${r.driver||0}</b> · ${esc(rx.last)} ${esc(trainDateLabel(r.driverLast))} · ${esc(rx.next)} ${esc(trainDateLabel(r.driverNext))}</span><span>⭐ ${esc(rx.vip)} : <b>${r.vip||0}</b> · ${esc(rx.last)} ${esc(trainDateLabel(r.vipLast))} · ${esc(rx.next)} ${esc(trainDateLabel(r.vipNext))}</span></div></div></div>`}).join('')}</div>`;
   }catch(error){if($('playerStatsHost'))host.innerHTML=`<div class="form-message error">${esc(error.message)}</div>`;}
 }
 function applicationSettingsHtml(){const p=state.portalSettings||{};return `<form id="applicationForm" class="settings-form"><div class="settings-card-block"><h3>✨ Application</h3><p class="muted">Réglages généraux du portail. Les paramètres de rotation restent dans Train.</p><label class="field-label">Texte d’accueil</label><textarea id="welcomeText" maxlength="180" rows="3">${esc(p.welcome_text||'Choisissez votre espace WfGg.')}</textarea><label class="field-label">Titre Guides</label><input id="guidesTitle" maxlength="40" value="${esc(p.guides_title||'Guides')}"><label class="field-label">URL Guides</label><input id="guidesUrl" maxlength="500" value="${esc(p.guides_url||cfg.MODULES?.guides||'')}"><label class="field-label">Titre Train</label><input id="trainTitle" maxlength="40" value="${esc(p.train_title||'Train')}"><label class="field-label">URL Train</label><input id="trainUrl" maxlength="500" value="${esc(p.train_url||cfg.MODULES?.train||'')}"><button class="primary-button" type="submit">${esc(t('settings.save'))}</button><div id="applicationMessage" class="hidden"></div></div></form>`}
