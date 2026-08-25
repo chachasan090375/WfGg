@@ -938,7 +938,7 @@ async function proxyRoute(request, route, upstreamPath, options = {}) {
       ''
     );
     rewritten = rewritten.replace(
-      /\n\s*<button class="analytics-icon-card (?:activity|settings|history)"[\s\S]*?<\/button>/g,
+      /\n\s*<button class="analytics-icon-card (?:overview|activity|settings|history)"[\s\S]*?<\/button>/g,
       ''
     );
     rewritten = rewritten
