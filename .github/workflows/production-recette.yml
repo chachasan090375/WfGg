@@ -23,6 +23,7 @@ jobs:
           node --check .github/qa/train-recette-e2e.mjs
           node --check .github/qa/train-recette-extended.mjs
           node --check .github/qa/exchange-authority-recette.mjs
+          node --check .github/qa/portal-responsive-recette.mjs
           grep -q 'https://wfgg-train.chachasan090375.workers.dev' frontend/_worker.js
           grep -q 'https://wfgg-train.chachasan090375.workers.dev' frontend/portal-v070.js
           grep -q 'WFGG_TRAIN_SERVER_SCHEDULE_V1' frontend/_worker.js
@@ -35,6 +36,8 @@ jobs:
           ! grep -q 'renderHomeTrainRotationCard' frontend/portal-v070.js
           ! grep -q 'loadHomeTrainRotation' frontend/portal-v070.js
           grep -q 'portal-v070.js?v=080-profile-v16' frontend/index.html
+          grep -q 'portal-responsive-v1.css?v=001' frontend/index.html
+          grep -q 'WFGG_PORTAL_RESPONSIVE_GUARD_V1' frontend/portal-responsive-v1.css
           ! grep -q 'portal-auth-phase1-wfgg-train.chachasan090375.workers.dev' frontend/_worker.js
           ! grep -q 'portal-auth-phase1-wfgg-train.chachasan090375.workers.dev' frontend/portal-v070.js
       - name: Wait for wfgg.pages.dev production assets
@@ -47,10 +50,13 @@ jobs:
           for i in $(seq 1 60); do
             curl -fsSL -A "$UA" "$ROOT/?production_recette=$i" -o /tmp/root.html || true
             curl -fsSL -A "$UA" "$ROOT/portal-v070.js?v=080-profile-v16&production_recette=$i" -o /tmp/portal.js || true
+            curl -fsSL -A "$UA" "$ROOT/portal-responsive-v1.css?v=001&production_recette=$i" -o /tmp/responsive.css || true
             curl -fsSL -A "$UA" "$ROOT/train/?production_recette=$i" -o /tmp/train.html || true
             curl -fsSL -A "$UA" "$ROOT/train/app.js?wfgg_bridge=v14&production_recette=$i" -o /tmp/app.js || true
             cancel_refs=$(grep -o 'cancelMarketExchange' /tmp/app.js 2>/dev/null | wc -l | tr -d ' ' || true)
             if grep -Fq 'portal-v070.js?v=080-profile-v16' /tmp/root.html \
+              && grep -Fq 'portal-responsive-v1.css?v=001' /tmp/root.html \
+              && grep -Fq 'WFGG_PORTAL_RESPONSIVE_GUARD_V1' /tmp/responsive.css \
               && grep -Fq "profileSubpage:'main'" /tmp/portal.js \
               && grep -Fq 'profileTrainRotationHost' /tmp/portal.js \
               && grep -Fq 'openSessionHistory' /tmp/portal.js \
@@ -63,17 +69,19 @@ jobs:
               && grep -Fq 'Joueur indisponible' /tmp/app.js \
               && ! grep -Fq 'portal-auth-phase1-wfgg-train.chachasan090375.workers.dev' /tmp/train.html \
               && [ "$cancel_refs" -ge 4 ]; then
-              echo "WFGG_PAGES_DEV_PROFILE_V16=OK cancel_refs=$cancel_refs"
+              echo "WFGG_PAGES_DEV_PROFILE_V16_RESPONSIVE=OK cancel_refs=$cancel_refs"
               ok=1
               break
             fi
-            echo "attempt=$i waiting_for_profile_v16_and_train_v14 cancel_refs=$cancel_refs"
+            echo "attempt=$i waiting_for_profile_v16_responsive_and_train_v14 cancel_refs=$cancel_refs"
             sleep 5
           done
           test "$ok" = 1
           node --check /tmp/portal.js
           node --check /tmp/app.js
           grep -Fq 'Historique des connexions' /tmp/portal.js
+          grep -Fq 'overflow:hidden' /tmp/responsive.css
+          grep -Fq 'max-width:100%' /tmp/responsive.css
           ! grep -Fq 'renderHomeTrainRotationCard' /tmp/portal.js
           ! grep -Fq 'if (token)' /tmp/app.js
           ! grep -Fq 'if (!token)' /tmp/app.js
@@ -91,6 +99,10 @@ jobs:
         run: |
           npm install --no-save playwright@1.55.0
           npx playwright install --with-deps chromium
+      - name: Run portal responsive mobile recette on production
+        env:
+          WFGG_PREVIEW: https://wfgg.pages.dev
+        run: node .github/qa/portal-responsive-recette.mjs
       - name: Run primary browser recette on production
         env:
           WFGG_PREVIEW: https://wfgg.pages.dev

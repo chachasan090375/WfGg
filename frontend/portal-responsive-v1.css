@@ -1,0 +1,97 @@
+/* WFGG_PORTAL_RESPONSIVE_GUARD_V1
+   Empêche tout débordement horizontal du Portail sur mobile.
+   Le décor du hero peut dépasser visuellement, mais jamais agrandir le document.
+*/
+html,body{
+  width:100%;
+  max-width:100%;
+  overflow-x:hidden;
+  overflow-x:clip;
+}
+
+#app,.app-shell,.portal,.premium-home-hero,.home-brand-stage,.home-brand-logo-wrap,
+.home-welcome-row,.home-welcome-copy,.module-grid,.module-card,.module-copy,
+.overlay,.settings-panel,.settings-section,.settings-card-block,
+.members-view,.members-page,.members-topbar,.member-list,.member-row,
+.modal,.modal-sheet,.portal-player-stats,.portal-player-stats-list,.portal-player-stat-row{
+  min-width:0;
+  max-width:100%;
+}
+
+/* Les fonds du hero ont des inset négatifs : on les clippe au conteneur. */
+.home-brand-stage{
+  overflow:hidden;
+}
+.home-cover-bg,.home-cover-vignette{
+  pointer-events:none;
+}
+
+.module-grid,.module-card,.settings-section,.settings-card-block,.members-page{
+  width:100%;
+}
+
+.home-welcome-copy h2,.home-welcome-copy p,.module-copy strong,.module-copy small,
+.settings-card-block,.session-row,.session-row small,.portal-stat-main,
+.portal-stat-breakdown span,.member-main,.member-meta,.member-last{
+  overflow-wrap:anywhere;
+  word-break:break-word;
+}
+
+.session-row>*{min-width:0}
+.section-heading>*{min-width:0}
+.portal-stat-main{min-width:0}
+
+@media(max-width:760px){
+  .app-shell{
+    width:calc(100% - 18px);
+    max-width:1120px;
+  }
+  .portal,.premium-home-hero,.home-brand-stage,.home-welcome-row,.module-grid{
+    width:100%;
+  }
+  .premium-home-hero{
+    padding-left:5px;
+    padding-right:5px;
+  }
+  .home-brand-stage{
+    margin-left:-5px;
+    margin-right:-5px;
+  }
+  .home-profile-anchor{
+    flex:0 0 auto;
+    max-width:72px;
+  }
+  .overlay{
+    width:100vw;
+    max-width:100vw;
+  }
+  .settings-panel{
+    width:100%;
+    max-width:100vw;
+  }
+  .section-heading{
+    flex-wrap:wrap;
+  }
+  .section-heading .secondary-button,
+  .section-heading .primary-button{
+    max-width:100%;
+  }
+  .permission-row,.readonly-grid,.form-grid{
+    max-width:100%;
+  }
+}
+
+@media(max-width:480px){
+  .home-welcome-row{
+    align-items:flex-start;
+  }
+  .home-welcome-copy h2{
+    font-size:clamp(30px,10vw,38px);
+  }
+  .home-welcome-copy .muted{
+    font-size:clamp(15px,4.5vw,17px);
+  }
+  .module-card,.session-row,.portal-player-stat-row{
+    width:100%;
+  }
+}
