@@ -20,11 +20,18 @@ jobs:
         run: |
           node --check frontend/_worker.js
           node --check frontend/portal-v070.js
+          node --check .github/qa/train-recette-e2e.mjs
+          node --check .github/qa/train-recette-extended.mjs
+          node --check .github/qa/exchange-authority-recette.mjs
           grep -q 'https://wfgg-train.chachasan090375.workers.dev' frontend/_worker.js
           grep -q 'https://wfgg-train.chachasan090375.workers.dev' frontend/portal-v070.js
+          grep -q 'WFGG_TRAIN_SERVER_SCHEDULE_V1' frontend/_worker.js
+          grep -q 'WFGG_TRAIN_MUTATE_REFRESH_GUARD_V1' frontend/_worker.js
+          grep -q 'WFGG_TRAIN_EXCHANGE_ORPHAN_FALLBACK_V1' frontend/_worker.js
+          grep -q 'wfgg_bridge=v14' frontend/_worker.js
           ! grep -q 'portal-auth-phase1-wfgg-train.chachasan090375.workers.dev' frontend/_worker.js
           ! grep -q 'portal-auth-phase1-wfgg-train.chachasan090375.workers.dev' frontend/portal-v070.js
-      - name: Wait for wfgg.pages.dev production deployment
+      - name: Wait for wfgg.pages.dev production exchange v14
         shell: bash
         run: |
           set -eu
@@ -34,18 +41,21 @@ jobs:
           for i in $(seq 1 60); do
             curl -fsSL -A "$UA" "$ROOT/?production_recette=$i" -o /tmp/root.html || true
             curl -fsSL -A "$UA" "$ROOT/train/?production_recette=$i" -o /tmp/train.html || true
-            curl -fsSL -A "$UA" "$ROOT/train/app.js?wfgg_bridge=v13&production_recette=$i" -o /tmp/app.js || true
+            curl -fsSL -A "$UA" "$ROOT/train/app.js?wfgg_bridge=v14&production_recette=$i" -o /tmp/app.js || true
             cancel_refs=$(grep -o 'cancelMarketExchange' /tmp/app.js 2>/dev/null | wc -l | tr -d ' ' || true)
             if grep -Fq 'portal-v070.js?v=078-admin-split1' /tmp/root.html \
-              && grep -Fq 'wfgg_bridge=v13' /tmp/train.html \
+              && grep -Fq 'wfgg_bridge=v14' /tmp/train.html \
               && grep -Fq 'https://wfgg-train.chachasan090375.workers.dev' /tmp/train.html \
+              && grep -Fq 'state.__serverSchedule' /tmp/app.js \
+              && grep -Fq 'Modification enregistrée mais synchronisation impossible' /tmp/app.js \
+              && grep -Fq 'Joueur indisponible' /tmp/app.js \
               && ! grep -Fq 'portal-auth-phase1-wfgg-train.chachasan090375.workers.dev' /tmp/train.html \
               && [ "$cancel_refs" -ge 4 ]; then
-              echo "WFGG_PAGES_DEV_DEPLOYMENT=OK cancel_refs=$cancel_refs"
+              echo "WFGG_PAGES_DEV_EXCHANGE_V14=OK cancel_refs=$cancel_refs"
               ok=1
               break
             fi
-            echo "attempt=$i waiting_for_wfgg_pages_dev cancel_refs=$cancel_refs"
+            echo "attempt=$i waiting_for_wfgg_pages_dev_v14 cancel_refs=$cancel_refs"
             sleep 5
           done
           test "$ok" = 1
@@ -59,14 +69,9 @@ jobs:
         shell: bash
         run: |
           set -eu
-          curl -fsSi 'https://wfgg-train.chachasan090375.workers.dev/api/health?production_recette=1' -o /tmp/backend-health.txt
+          curl -fsSi 'https://wfgg-train.chachasan090375.workers.dev/api/health?production_recette=v14' -o /tmp/backend-health.txt
           grep -iq '^x-wfgg-r3-cycle-model: v1' /tmp/backend-health.txt
           grep -iq '^x-wfgg-rotation-sequence-guard: v2' /tmp/backend-health.txt
-      - name: Prepare browser recette for production host
-        run: |
-          sed -i 's/portal-auth-phase1-wfgg-train\.chachasan090375\.workers\.dev/wfgg-train.chachasan090375.workers.dev/g' .github/qa/train-recette-e2e.mjs
-          node --check .github/qa/train-recette-e2e.mjs
-          node --check .github/qa/train-recette-extended.mjs
       - name: Install Playwright
         run: |
           npm install --no-save playwright@1.55.0
@@ -79,3 +84,7 @@ jobs:
         env:
           WFGG_PREVIEW: https://wfgg.pages.dev
         run: node .github/qa/train-recette-extended.mjs
+      - name: Run exchange authority recette on production
+        env:
+          WFGG_PREVIEW: https://wfgg.pages.dev
+        run: node .github/qa/exchange-authority-recette.mjs
