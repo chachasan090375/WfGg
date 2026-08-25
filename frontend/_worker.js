@@ -133,7 +133,7 @@ class RootAttributeRewriter {
         const versioned =
           value +
           (value.includes('?') ? '&' : '?') +
-          'wfgg_bridge=v13';
+          'wfgg_bridge=v14';
         element.setAttribute(attr, versioned);
         continue;
       }
@@ -152,7 +152,7 @@ class RootAttributeRewriter {
         ) {
           rewrittenValue +=
             (rewrittenValue.includes('?') ? '&' : '?') +
-            'wfgg_bridge=v13';
+            'wfgg_bridge=v14';
         }
 
         element.setAttribute(attr, rewrittenValue);
@@ -252,7 +252,7 @@ function languageBridgeScript(routeName) {
         ){
           sessionStorage.setItem(WFGG_SW_RESET_KEY,'1');
           const fresh=new URL(location.href);
-          fresh.searchParams.set('wfgg_fresh','v13');
+          fresh.searchParams.set('wfgg_fresh','v14');
           location.replace(fresh.toString());
         }
       });
@@ -709,6 +709,7 @@ function languageBridgeScript(routeName) {
             const seededState={
               ...(data.state||{}),
               currentUserId:meId,
+              __serverSchedule:Array.isArray(data.schedule)?data.schedule:[],
               messageVariant:localVariants,
               playerEdits:{},
               addedPlayers:[],
@@ -904,6 +905,44 @@ async function proxyRoute(request, route, upstreamPath, options = {}) {
     const legacyOrigin =
       'https://wfgg-train.chachasan090375.workers.dev';
     let rewritten = source.split(legacyOrigin).join('');
+
+
+    /* WFGG_TRAIN_SERVER_SCHEDULE_V1
+       La Bourse doit valider exactement le même planning que le backend.
+       Le snapshot renvoie désormais le planning autoritatif; on l'attache à
+       l'état local et schedule() l'utilise au lieu de recalculer une variante
+       historique dans le navigateur.
+    */
+    {
+      const applySnapshotTail = "        refreshRoster();\n        const serverLang=state.languages?.[state.currentUserId];";
+      const applySnapshotTailFixed = "        state.__serverSchedule=Array.isArray(snap.schedule)?snap.schedule:[];\n        refreshRoster();\n        const serverLang=state.languages?.[state.currentUserId];";
+      rewritten = rewritten.replace(applySnapshotTail, applySnapshotTailFixed);
+
+      const scheduleLegacy = "    function schedule() { return generateSchedule(); }";
+      const scheduleServer = "    function schedule() { return Array.isArray(state.__serverSchedule) && state.__serverSchedule.length ? state.__serverSchedule : generateSchedule(); }";
+      rewritten = rewritten.replace(scheduleLegacy, scheduleServer);
+    }
+
+    /* WFGG_TRAIN_MUTATE_REFRESH_GUARD_V1
+       Une mutation n'est annoncée comme réussie que si le snapshot serveur a
+       pu être relu. Cela évite le faux positif 'Annonce publiée' avec un écran
+       resté sur un état local périmé.
+    */
+    {
+      const mutateRefresh = "            await syncSnapshot({ render: true, quiet: true });";
+      const mutateRefreshGuard = "            const refreshed = await syncSnapshot({ render: true, quiet: true });\n            if (!refreshed) throw new Error('Modification enregistrée mais synchronisation impossible');";
+      rewritten = rewritten.replace(mutateRefresh, mutateRefreshGuard);
+    }
+
+    /* WFGG_TRAIN_EXCHANGE_ORPHAN_FALLBACK_V1
+       Une annonce ouverte ne doit jamais disparaître silencieusement lorsque
+       son auteur n'est plus résolu dans le roster courant.
+    */
+    {
+      const orphanLegacy = "            const p = byId[x.fromId];\n            if (!p)\n                return '';";
+      const orphanFallback = "            const p = byId[x.fromId] || {id:x.fromId,pseudo:'Joueur indisponible',rank:'',avatar:'assets/icon-192.png',active:false};";
+      rewritten = rewritten.replace(orphanLegacy, orphanFallback);
+    }
 
     /* WFGG_TRAIN_DANGLING_TOKEN_FIX_V1
        Le frontend portal-only-auth ne déclare plus `token`, mais conserve
