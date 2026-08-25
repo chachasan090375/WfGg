@@ -1,33 +1,13 @@
-name: WfGg Train interaction fix
+name: Train interaction patch helper (disabled)
 
 on:
-  push:
-    branches:
-      - train-bridge-phase3
+  workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  patch:
-    if: ${{ !contains(github.event.head_commit.message, '[interaction-fix-auto]') }}
+  noop:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: train-bridge-phase3
-          fetch-depth: 0
-      - name: Apply interaction patch
-        run: python .github/scripts/train_interaction_fix.py
-      - name: Validate Worker
-        run: |
-          node --check frontend/_worker.js
-          grep -q 'WFGG_TRAIN_INIT_DOM_GUARD_V1' frontend/_worker.js
-          grep -q 'WFGG_PORTAL_TRAIN_SESSION_SWITCH_V1' frontend/_worker.js
-      - name: Commit patch
-        run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add frontend/_worker.js
-          git commit -m 'fix: restore Train navigation and session switch [interaction-fix-auto] [snapshot-seed-auto]'
-          git push origin HEAD:train-bridge-phase3
+      - run: echo 'Train interaction fix v8 is already applied.'
