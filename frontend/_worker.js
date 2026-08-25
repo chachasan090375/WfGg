@@ -107,6 +107,20 @@ class RootAttributeRewriter {
       const value = element.getAttribute(attr);
       if (!value) continue;
 
+      /* WFGG_TRAIN_VECTOR_LOGO_V1
+         Le Train intégré réutilise le logo vectoriel du Portail au lieu de
+         l'ancien PNG historique. Le lien brandHome conserve son rôle de retour
+         vers l'accueil général WfGg.
+      */
+      if (
+        this.prefix === '/train' &&
+        attr === 'src' &&
+        /^(?:\.\/)?assets\/wfgg-logo\.png(?:[?#]|$)/i.test(value)
+      ) {
+        element.setAttribute(attr, '/assets/wfgg-logo-vector.svg');
+        continue;
+      }
+
       /* WFGG_TRAIN_RELATIVE_APP_CACHE_BUST_V1
          L'upstream Train référence aussi app.js relativement à /train/.
          Versionner ce cas avant la réécriture des chemins absolus.
@@ -119,7 +133,7 @@ class RootAttributeRewriter {
         const versioned =
           value +
           (value.includes('?') ? '&' : '?') +
-          'wfgg_bridge=v9';
+          'wfgg_bridge=v10';
         element.setAttribute(attr, versioned);
         continue;
       }
@@ -138,7 +152,7 @@ class RootAttributeRewriter {
         ) {
           rewrittenValue +=
             (rewrittenValue.includes('?') ? '&' : '?') +
-            'wfgg_bridge=v9';
+            'wfgg_bridge=v10';
         }
 
         element.setAttribute(attr, rewrittenValue);
@@ -238,7 +252,7 @@ function languageBridgeScript(routeName) {
         ){
           sessionStorage.setItem(WFGG_SW_RESET_KEY,'1');
           const fresh=new URL(location.href);
-          fresh.searchParams.set('wfgg_fresh','v9');
+          fresh.searchParams.set('wfgg_fresh','v10');
           location.replace(fresh.toString());
         }
       });
@@ -912,6 +926,27 @@ async function proxyRoute(request, route, upstreamPath, options = {}) {
       "        if(!token || document.visibilityState!=='visible')return;",
       "        if(document.visibilityState!=='visible')return;"
     );
+
+    /* WFGG_TRAIN_ADMIN_OWNERSHIP_V1
+       Le Portail est l'unique propriétaire de l'identité alliance : joueurs,
+       codes d'accès, activité des joueurs, page d'accueil et ressources
+       globales. Train ne conserve que les réglages et statistiques propres au
+       train (messages, horaires, rotations, planning, équité, historique).
+    */
+    rewritten = rewritten.replace(
+      /\n\s*<button class="admin-menu-card (?:players|access|portal|help)"[\s\S]*?<\/button>/g,
+      ''
+    );
+    rewritten = rewritten.replace(
+      /\n\s*<button class="analytics-icon-card (?:activity|settings|history)"[\s\S]*?<\/button>/g,
+      ''
+    );
+    rewritten = rewritten
+      .replaceAll('Statistiques & historique', 'Statistiques du train')
+      .replaceAll(
+        'Rotations, activité des joueurs et journal des changements',
+        'Rotations, équité et historique des passages'
+      );
 
     /* WFGG_TRAIN_INIT_DOM_GUARD_V1
        Le HTML portal-only-auth ne contient plus loginBtn ni loginPortalBack,
