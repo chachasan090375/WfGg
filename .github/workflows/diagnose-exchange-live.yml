@@ -16,24 +16,24 @@ jobs:
         run: |
           set -eu
           curl -fsSL -A 'Mozilla/5.0 (Linux; Android 16) AppleWebKit/537.36 Chrome/139 Mobile Safari/537.36' \
-            'https://wfgg.pages.dev/train/app.js?wfgg_bridge=v13&exchange_diag=1' \
+            'https://wfgg.pages.dev/train/app.js?wfgg_bridge=v13&exchange_diag=2' \
             -o /tmp/app.js
           node --check /tmp/app.js
           wc -c /tmp/app.js
-      - name: Print exchange code contexts
+      - name: Print state sync code contexts
         shell: python
         run: |
           from pathlib import Path
           s=Path('/tmp/app.js').read_text(encoding='utf-8')
-          terms=['function openExchange','function renderExchange','function publishMarketExchange','function cancelMarketExchange','function pickMyDateForMarket','function executeMarketSwap','state.exchanges','Mes demandes','Annonces disponibles','exchangeScreen']
+          terms=['function mutate','function syncSnapshot','function applySnapshot','function normalizeState','function saveState','function loadState','function renderAll','exchanges:','state =','Object.assign(state']
           for term in terms:
               print('\n===== '+term+' =====')
               start=0
               hits=0
-              while hits<8:
+              while hits<10:
                   i=s.find(term,start)
                   if i<0: break
-                  a=max(0,i-1400); b=min(len(s),i+4200)
+                  a=max(0,i-1800); b=min(len(s),i+5200)
                   print(s[a:b])
                   print('\n--- HIT END ---')
                   hits+=1; start=i+len(term)
