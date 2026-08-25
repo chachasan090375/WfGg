@@ -1,0 +1,76 @@
+name: WfGg production recette
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  production-recette:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Validate production sources
+        run: |
+          node --check frontend/_worker.js
+          node --check frontend/portal-v070.js
+          grep -q 'https://wfgg-train.chachasan090375.workers.dev' frontend/_worker.js
+          grep -q 'https://wfgg-train.chachasan090375.workers.dev' frontend/portal-v070.js
+          ! grep -q 'portal-auth-phase1-wfgg-train.chachasan090375.workers.dev' frontend/_worker.js
+          ! grep -q 'portal-auth-phase1-wfgg-train.chachasan090375.workers.dev' frontend/portal-v070.js
+      - name: Wait for wfgg.app.dev production deployment
+        shell: bash
+        run: |
+          set -eu
+          ROOT='https://wfgg.app.dev'
+          UA='Mozilla/5.0 (Linux; Android 16) AppleWebKit/537.36 Chrome/139 Mobile Safari/537.36'
+          ok=0
+          for i in $(seq 1 60); do
+            curl -fsSL -A "$UA" "$ROOT/?production_recette=$i" -o /tmp/root.html || true
+            curl -fsSL -A "$UA" "$ROOT/train/?production_recette=$i" -o /tmp/train.html || true
+            curl -fsSL -A "$UA" "$ROOT/train/app.js?wfgg_bridge=v13&production_recette=$i" -o /tmp/app.js || true
+            if grep -Fq 'portal-v070.js?v=078-admin-split1' /tmp/root.html \
+              && grep -Fq 'wfgg_bridge=v13' /tmp/train.html \
+              && grep -Fq 'https://wfgg-train.chachasan090375.workers.dev' /tmp/app.js \
+              && ! grep -Fq 'portal-auth-phase1-wfgg-train.chachasan090375.workers.dev' /tmp/app.js; then
+              echo 'WFGG_APP_DEV_DEPLOYMENT=OK'
+              ok=1
+              break
+            fi
+            echo "attempt=$i waiting_for_wfgg_app_dev"
+            sleep 5
+          done
+          test "$ok" = 1
+          node --check /tmp/app.js
+          curl -fsSL -A "$UA" "$ROOT/assets/wfgg-logo-mini.svg?production_recette=1" -o /tmp/logo.svg
+          grep -Fq '<svg' /tmp/logo.svg
+      - name: Verify production Train backend
+        shell: bash
+        run: |
+          set -eu
+          curl -fsSi 'https://wfgg-train.chachasan090375.workers.dev/api/health?production_recette=1' -o /tmp/backend-health.txt
+          grep -iq '^x-wfgg-r3-cycle-model: v1' /tmp/backend-health.txt
+          grep -iq '^x-wfgg-rotation-sequence-guard: v2' /tmp/backend-health.txt
+      - name: Prepare browser recette for production host
+        run: |
+          sed -i 's/portal-auth-phase1-wfgg-train\.chachasan090375\.workers\.dev/wfgg-train.chachasan090375.workers.dev/g' .github/qa/train-recette-e2e.mjs
+          node --check .github/qa/train-recette-e2e.mjs
+          node --check .github/qa/train-recette-extended.mjs
+      - name: Install Playwright
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Run primary browser recette on production
+        env:
+          WFGG_PREVIEW: https://wfgg.app.dev
+        run: node .github/qa/train-recette-e2e.mjs
+      - name: Run extended browser recette on production
+        env:
+          WFGG_PREVIEW: https://wfgg.app.dev
+        run: node .github/qa/train-recette-extended.mjs
