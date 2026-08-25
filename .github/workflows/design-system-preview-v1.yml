@@ -1,4 +1,4 @@
-name: WfGg design system preview v1
+name: WfGg premium design preview v2
 
 on:
   push:
@@ -16,51 +16,62 @@ jobs:
         with:
           ref: design-system-preview-v1
           fetch-depth: 0
-      - name: Wire shared preview assets
+      - name: Wire premium preview assets
         run: |
           python3 - <<'PY'
           from pathlib import Path
+
           index=Path('frontend/index.html')
           s=index.read_text()
-          css='  <link rel="stylesheet" href="wfgg-design-system-preview-v1.css?v=001" />\n'
-          js='  <script src="wfgg-design-system-preview-v1.js?v=001" defer></script>\n'
-          if 'wfgg-design-system-preview-v1.css' not in s:
+          old_css='  <link rel="stylesheet" href="wfgg-design-system-preview-v1.css?v=001" />\n'
+          old_js='  <script src="wfgg-design-system-preview-v1.js?v=001" defer></script>\n'
+          new_css='  <link rel="stylesheet" href="wfgg-design-system-preview-v2.css?v=002-premium" />\n'
+          new_js='  <script src="wfgg-design-system-preview-v2.js?v=002-premium" defer></script>\n'
+          s=s.replace(old_css,new_css).replace(old_js,new_js)
+          if 'wfgg-design-system-preview-v2.css' not in s:
               anchor='  <link rel="stylesheet" href="portal-invitations-v1.css?v=001" />\n'
               if anchor not in s: raise SystemExit('index css anchor missing')
-              s=s.replace(anchor,anchor+css,1)
-          if 'wfgg-design-system-preview-v1.js' not in s:
+              s=s.replace(anchor,anchor+new_css,1)
+          if 'wfgg-design-system-preview-v2.js' not in s:
               anchor='  <script src="guest-access.js?v=001"></script>\n'
               if anchor not in s: raise SystemExit('index js anchor missing')
-              s=s.replace(anchor,js+anchor,1)
+              s=s.replace(anchor,new_js+anchor,1)
+          s=s.replace('<meta name="theme-color" content="#100d16" />','<meta name="theme-color" content="#0e0b12" />')
           index.write_text(s)
 
           worker=Path('frontend/_worker.js')
           w=worker.read_text()
-          marker='WFGG_DESIGN_SYSTEM_PREVIEW_PROXY_V1'
-          if marker not in w:
+          old=("        /* WFGG_DESIGN_SYSTEM_PREVIEW_PROXY_V1: preview branch common visual mask. */\n"
+               "        html = '<link rel=\"stylesheet\" href=\"/wfgg-design-system-preview-v1.css?v=001\">' +\n"
+               "          '<script src=\"/wfgg-design-system-preview-v1.js?v=001\" defer><\\/script>' + html;\n")
+          new=("        /* WFGG_DESIGN_SYSTEM_PREVIEW_PROXY_V2: premium preview common visual mask. */\n"
+               "        html = '<link rel=\"stylesheet\" href=\"/wfgg-design-system-preview-v2.css?v=002-premium\">' +\n"
+               "          '<script src=\"/wfgg-design-system-preview-v2.js?v=002-premium\" defer><\\/script>' + html;\n")
+          if old in w:
+              w=w.replace(old,new,1)
+          elif 'WFGG_DESIGN_SYSTEM_PREVIEW_PROXY_V2' not in w:
               anchor="        let html = languageBridgeScript(options.routeName || route.prefix.slice(1));\n"
               if anchor not in w: raise SystemExit('worker head anchor missing')
-              injected=(anchor+
-                "        /* WFGG_DESIGN_SYSTEM_PREVIEW_PROXY_V1: preview branch common visual mask. */\n"+
-                "        html = '<link rel=\"stylesheet\" href=\"/wfgg-design-system-preview-v1.css?v=001\">' +\n"+
-                "          '<script src=\"/wfgg-design-system-preview-v1.js?v=001\" defer><\\/script>' + html;\n")
-              w=w.replace(anchor,injected,1)
+              w=w.replace(anchor,anchor+new,1)
           worker.write_text(w)
           PY
           node --check frontend/_worker.js
-          node --check frontend/wfgg-design-system-preview-v1.js
-          grep -Fq 'WFGG_DESIGN_SYSTEM_PREVIEW_V1' frontend/wfgg-design-system-preview-v1.css
-          grep -Fq 'WFGG_DESIGN_SYSTEM_PREVIEW_PROXY_V1' frontend/_worker.js
-          grep -Fq 'wfgg-design-system-preview-v1.css?v=001' frontend/index.html
-          grep -Fq 'wfgg-design-system-preview-v1.js?v=001' frontend/index.html
+          node --check frontend/wfgg-design-system-preview-v2.js
+          grep -Fq 'WFGG_DESIGN_SYSTEM_PREVIEW_V2' frontend/wfgg-design-system-preview-v2.css
+          grep -Fq 'WFGG_DESIGN_SYSTEM_PREVIEW_V2' frontend/wfgg-design-system-preview-v2.js
+          grep -Fq 'WFGG_DESIGN_SYSTEM_PREVIEW_PROXY_V2' frontend/_worker.js
+          grep -Fq 'wfgg-design-system-preview-v2.css?v=002-premium' frontend/index.html
+          grep -Fq 'wfgg-design-system-preview-v2.js?v=002-premium' frontend/index.html
+          ! grep -Fq 'wfgg-design-system-preview-v1.css?v=001' frontend/index.html
+          ! grep -Fq 'wfgg-design-system-preview-v1.js?v=001' frontend/index.html
       - name: Commit wiring if needed
         run: |
           if git diff --quiet; then
-            echo 'Preview wiring already applied.'
+            echo 'Premium preview wiring already applied.'
             exit 0
           fi
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add frontend/index.html frontend/_worker.js
-          git commit -m 'preview: apply common design mask to portal guides and train'
+          git commit -m 'preview v2: apply premium mask to portal guides and train'
           git push origin HEAD:design-system-preview-v1
