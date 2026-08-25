@@ -1,4 +1,4 @@
-name: WfGg Train cache reset patch
+name: WfGg Train boot diagnostic patch
 
 on:
   push:
@@ -10,22 +10,22 @@ permissions:
 
 jobs:
   patch:
-    if: ${{ !contains(github.event.head_commit.message, '[cache-reset-auto]') }}
+    if: ${{ !contains(github.event.head_commit.message, '[bootdiag-auto]') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           ref: train-bridge-phase3
           fetch-depth: 0
-      - name: Apply Train cache reset patch
-        run: python .github/scripts/train_cache_reset_patch.py
+      - name: Apply Train boot diagnostic patch
+        run: python .github/scripts/train_boot_diagnostic_patch.py
       - name: Validate Worker syntax
         run: node --check frontend/_worker.js
-      - name: Commit fix
+      - name: Commit diagnostic
         run: |
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add frontend/_worker.js
-          git commit -m 'fix: bypass stale Train service worker cache [cache-reset-auto]'
+          git commit -m 'fix: expose precise Train boot failure [bootdiag-auto]'
           git push origin HEAD:train-bridge-phase3
