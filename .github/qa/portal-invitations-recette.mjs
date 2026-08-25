@@ -43,19 +43,27 @@ try{
   assert.match(await page.locator('#inviteFileMeta').textContent(),/qa-members\.xlsx/);
   assert.ok(await page.locator('#inviteError').evaluate(el=>el.classList.contains('hidden')),'XLSX import displayed an error');
 
-  await page.waitForFunction(()=>document.querySelector('#inviteMessage')?.dataset.lastwarSingle==='v1');
+  await page.waitForFunction(()=>document.querySelector('#inviteMessage')?.dataset.lastwarAlliance==='v2');
   const safe=await page.evaluate(()=>window.WFGG_LASTWAR_CHAT_SAFE_TEST);
-  assert.equal(safe.MODE,'single-v1');
-  assert.equal(safe.BROKEN_ADDRESS,'wfgg . pages . dev');
+  assert.equal(safe.MODE,'alliance-notice-v2');
+  assert.equal(safe.PORTAL_URL,'https://wfgg.pages.dev/');
+  assert.ok(safe.ALLIANCE_NOTICE.includes('https://wfgg.pages.dev/'));
+  assert.match(safe.ALLIANCE_NOTICE,/notifications? d’alliance|notification d’alliance/i);
+  for(const code of ['111111','222222','333333']) assert.ok(!safe.ALLIANCE_NOTICE.includes(code),'personal code leaked into alliance notification');
+
+  const allianceUi=page.locator('#inviteAllianceNotice');
+  await allianceUi.waitFor({state:'visible'});
+  assert.equal(await allianceUi.inputValue(),safe.ALLIANCE_NOTICE);
+  assert.ok(await page.locator('#inviteAllianceCopy').isVisible());
+  assert.match(await page.locator('#inviteAllianceCopy').innerText(),/notification d’alliance/i);
 
   const r4=await page.evaluate(()=>window.WFGG_LASTWAR_CHAT_SAFE_TEST.buildMessage('Alpha R4','R4','111111'));
   assert.ok(r4.includes('Alpha R4'));
-  assert.ok(r4.includes('wfgg . pages . dev'));
-  assert.ok(!r4.includes('wfgg.pages.dev'),'contiguous domain leaked into Last War single message');
-  assert.ok(!r4.includes('https://'),'full URL scheme leaked into Last War single message');
-  assert.match(r4,/Last War/);
-  assert.match(r4,/(filtr|videur|camouflage|puzzle|radar)/i);
-  assert.ok(r4.includes("Inter-Saison"));
+  assert.ok(!r4.includes('wfgg.pages.dev'),'portal domain leaked into private message');
+  assert.ok(!r4.includes('pages . dev'),'broken portal domain leaked into private message');
+  assert.ok(!r4.includes('https://'),'URL scheme leaked into private message');
+  assert.match(r4,/notifications d’alliance/i);
+  assert.ok(r4.includes('Inter-Saison'));
   assert.ok(r4.includes('111111'));
   for(const name of ['Metatouk','Ogie Ogilthorpe 7','ValFada','Shockwave XY','Sab93fr','εlο ツ','cat 49','Flawene']) assert.ok(r4.includes(name),`missing thanks ${name}`);
   assert.ok(!r4.includes('εlα ツ'),'old alpha alias leaked into invitation');
@@ -65,7 +73,7 @@ try{
   assert.ok(r4.includes('Joueurs & accès'));
   assert.ok(r4.includes('réinitialisation des codes'));
   const emoji=/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/u;
-  assert.ok(!emoji.test(r4),'Unicode emoji leaked into Last War single message');
+  assert.ok(emoji.test(r4),'emoji expected in private invitation');
 
   const variants=await page.evaluate(()=>[
     ['Delta','R3','444444'],['Echo','R3','555555'],['Foxtrot','R3','666666'],['Golf','R3','777777'],['Hotel','R3','888888']
@@ -74,13 +82,13 @@ try{
   assert.ok(new Set(normalized).size>=4,'player messages are not varied enough');
 
   const displayed=await page.locator('#inviteMessage').inputValue();
-  assert.equal(displayed,r4,'the UI must expose one complete message, not a partial block');
+  assert.equal(displayed,r4,'the UI must expose one complete private message');
   assert.equal(await page.locator('[data-lastwar-safe-controls]').count(),0,'old multi-block controls must be absent');
-  assert.equal(await page.locator('#inviteCopySent').isDisabled(),false,'copy + mark sent must work directly on the single message');
-  const meta=await page.locator('[data-lastwar-single-meta]').textContent();
-  assert.match(meta,/Message unique/);
-  assert.match(meta,/adresse découpée/);
-  assert.match(meta,/sans emoji/);
+  assert.equal(await page.locator('#inviteCopySent').isDisabled(),false,'copy + mark sent must work directly on the private message');
+  const meta=await page.locator('[data-lastwar-alliance-meta]').textContent();
+  assert.match(meta,/Message privé/);
+  assert.match(meta,/avec emoji/);
+  assert.match(meta,/notifications d’alliance/);
 
   await page.locator('#inviteToggleSent').click();
   const storage1=await page.evaluate(()=>JSON.stringify({...localStorage}));
@@ -89,24 +97,28 @@ try{
   assert.ok(!storage1.includes('333333'),'personal code persisted in localStorage');
 
   await page.locator('#inviteNext').click();
-  await page.waitForFunction(()=>document.querySelector('#inviteMessage')?.dataset.lastwarSingle==='v1');
+  await page.waitForFunction(()=>document.querySelector('#inviteMessage')?.dataset.lastwarAlliance==='v2');
   const r3=await page.locator('#inviteMessage').inputValue();
   assert.ok(r3.includes('Bravo R3'));
   assert.ok(r3.includes('222222'));
-  assert.ok(r3.includes('wfgg . pages . dev'));
+  assert.match(r3,/notifications d’alliance/i);
+  assert.ok(!r3.includes('wfgg.pages.dev'));
+  assert.ok(!r3.includes('pages . dev'));
   assert.ok(!r3.includes('Ton rang R3'));
   assert.ok(!r3.includes('outils du bureau'));
-  assert.ok(!emoji.test(r3));
+  assert.ok(emoji.test(r3));
 
   await page.locator('#inviteNext').click();
-  await page.waitForFunction(()=>document.querySelector('#inviteMessage')?.dataset.lastwarSingle==='v1');
+  await page.waitForFunction(()=>document.querySelector('#inviteMessage')?.dataset.lastwarAlliance==='v2');
   const r5=await page.locator('#inviteMessage').inputValue();
   assert.ok(r5.includes('Charlie R5'));
   assert.ok(r5.includes('333333'));
   assert.ok(r5.includes('Ton rang R5'));
-  assert.ok(r5.includes('leadership R5'));
-  assert.ok(r5.includes('wfgg . pages . dev'));
-  assert.ok(!emoji.test(r5));
+  assert.ok(r5.includes('leadership'));
+  assert.match(r5,/notifications d’alliance/i);
+  assert.ok(!r5.includes('wfgg.pages.dev'));
+  assert.ok(!r5.includes('pages . dev'));
+  assert.ok(emoji.test(r5));
 
   const metrics=await page.evaluate(()=>({innerWidth,scrollWidth:(document.scrollingElement||document.documentElement).scrollWidth}));
   assert.ok(metrics.scrollWidth<=metrics.innerWidth+1,`mobile overflow ${JSON.stringify(metrics)}`);
