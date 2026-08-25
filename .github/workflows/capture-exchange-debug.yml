@@ -1,0 +1,42 @@
+name: Capture live Train exchange UI
+
+on:
+  push:
+    branches:
+      - train-bridge-phase3
+
+permissions:
+  contents: write
+
+jobs:
+  capture:
+    if: ${{ !contains(github.event.head_commit.message, '[exchange-debug-auto]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: train-bridge-phase3
+      - name: Capture live transformed Train app
+        shell: bash
+        run: |
+          set -eu
+          mkdir -p .debug
+          ROOT='https://train-bridge-phase3.wfgg.pages.dev'
+          UA='Mozilla/5.0 (Linux; Android 16) AppleWebKit/537.36 Chrome/139 Mobile Safari/537.36'
+          for i in $(seq 1 20); do
+            if curl -fsSL -A "$UA" "$ROOT/train/app.js?exchange-debug=$i" -o .debug/train-app-live.js; then
+              if grep -Eq 'exchange|exchanges|bourse' .debug/train-app-live.js; then
+                break
+              fi
+            fi
+            sleep 3
+          done
+          test -s .debug/train-app-live.js
+          grep -Eq 'exchange|exchanges|bourse' .debug/train-app-live.js
+      - name: Commit capture
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add .debug/train-app-live.js
+          git commit -m 'chore: capture live exchange UI [exchange-debug-auto]'
+          git push origin HEAD:train-bridge-phase3
