@@ -27,11 +27,18 @@ try{
   const tab=page.locator('[data-invitations-tab]');
   await tab.waitFor({state:'visible',timeout:10000});
   await tab.click();
-  await page.locator('#inviteCsvInput').setInputFiles({
+
+  const input=page.locator('#inviteCsvInput');
+  await input.waitFor({state:'attached'});
+  assert.equal(await input.getAttribute('accept'),null,'Android picker must not filter CSV by MIME type');
+  assert.equal(await input.getAttribute('data-android-filefix'),'v1','Android picker guard missing');
+
+  const csvFile={
     name:'qa-members.csv',
-    mimeType:'text/csv',
+    mimeType:'application/vnd.ms-excel',
     buffer:Buffer.from('Pseudo;Rang;Code personnel\nAlpha R4;R4;111111\nBravo R3;R3;222222\nCharlie R5;R5;333333\n','utf8')
-  });
+  };
+  await input.setInputFiles(csvFile);
   await page.locator('#inviteMessage').waitFor({state:'visible'});
   assert.match(await page.locator('#inviteFileMeta').textContent(),/3 joueurs chargés/);
 
