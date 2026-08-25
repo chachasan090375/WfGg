@@ -1,0 +1,46 @@
+name: WfGg design preview check
+
+on:
+  push:
+    branches: [design-system-preview-v1]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  preview-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Wait for Cloudflare branch preview
+        shell: bash
+        run: |
+          set -eu
+          ROOT='https://design-system-preview-v1.wfgg.pages.dev'
+          ok=0
+          for i in $(seq 1 72); do
+            echo "attempt=$i url=$ROOT"
+            if curl -fsSL "$ROOT/?wfgg_charte_preview=$i" -o /tmp/root.html \
+              && grep -Fq 'wfgg-design-system-preview-v1.css?v=001' /tmp/root.html \
+              && grep -Fq 'wfgg-design-system-preview-v1.js?v=001' /tmp/root.html; then
+              ok=1
+              break
+            fi
+            sleep 5
+          done
+          test "$ok" = 1
+          curl -fsSL "$ROOT/wfgg-design-system-preview-v1.css?v=001" -o /tmp/design.css
+          curl -fsSL "$ROOT/wfgg-design-system-preview-v1.js?v=001" -o /tmp/design.js
+          grep -Fq 'WFGG_DESIGN_SYSTEM_PREVIEW_V1' /tmp/design.css
+          grep -Fq 'WFGG_DESIGN_SYSTEM_PREVIEW_V1' /tmp/design.js
+          curl -fsSL "$ROOT/guides/?wfgg_charte_preview=1" -o /tmp/guides.html
+          curl -fsSL "$ROOT/train/?wfgg_charte_preview=1" -o /tmp/train.html
+          grep -Fq '/wfgg-design-system-preview-v1.css?v=001' /tmp/guides.html
+          grep -Fq '/wfgg-design-system-preview-v1.js?v=001' /tmp/guides.html
+          grep -Fq '/wfgg-design-system-preview-v1.css?v=001' /tmp/train.html
+          grep -Fq '/wfgg-design-system-preview-v1.js?v=001' /tmp/train.html
+          echo "WFGG_DESIGN_PREVIEW_URL=$ROOT"
+          echo 'WFGG_DESIGN_PREVIEW_PORTAL=OK'
+          echo 'WFGG_DESIGN_PREVIEW_GUIDES=OK'
+          echo 'WFGG_DESIGN_PREVIEW_TRAIN=OK'
