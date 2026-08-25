@@ -223,7 +223,7 @@ function languageBridgeScript(routeName) {
        proxy. On retire uniquement les registrations dont le scope est /train/
        et les caches Train/WfGg. localStorage (donc la session Portail) reste intact.
     */
-    const WFGG_SW_RESET_KEY='wfgg_train_sw_reset_v1';
+    const WFGG_SW_RESET_KEY='wfgg_train_sw_reset_v2';
     if('serviceWorker' in navigator){
       const hadTrainController=!!navigator.serviceWorker.controller;
 
@@ -252,7 +252,7 @@ function languageBridgeScript(routeName) {
         ){
           sessionStorage.setItem(WFGG_SW_RESET_KEY,'1');
           const fresh=new URL(location.href);
-          fresh.searchParams.set('wfgg_fresh','v13');
+          fresh.searchParams.set('wfgg_fresh','v14');
           location.replace(fresh.toString());
         }
       });
