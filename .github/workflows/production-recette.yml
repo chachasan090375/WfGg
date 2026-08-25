@@ -24,11 +24,11 @@ jobs:
           grep -q 'https://wfgg-train.chachasan090375.workers.dev' frontend/portal-v070.js
           ! grep -q 'portal-auth-phase1-wfgg-train.chachasan090375.workers.dev' frontend/_worker.js
           ! grep -q 'portal-auth-phase1-wfgg-train.chachasan090375.workers.dev' frontend/portal-v070.js
-      - name: Wait for wfgg.app.dev production deployment
+      - name: Wait for wfgg.pages.dev production deployment
         shell: bash
         run: |
           set -eu
-          ROOT='https://wfgg.app.dev'
+          ROOT='https://wfgg.pages.dev'
           UA='Mozilla/5.0 (Linux; Android 16) AppleWebKit/537.36 Chrome/139 Mobile Safari/537.36'
           ok=0
           for i in $(seq 1 60); do
@@ -39,11 +39,11 @@ jobs:
               && grep -Fq 'wfgg_bridge=v13' /tmp/train.html \
               && grep -Fq 'https://wfgg-train.chachasan090375.workers.dev' /tmp/app.js \
               && ! grep -Fq 'portal-auth-phase1-wfgg-train.chachasan090375.workers.dev' /tmp/app.js; then
-              echo 'WFGG_APP_DEV_DEPLOYMENT=OK'
+              echo 'WFGG_PAGES_DEV_DEPLOYMENT=OK'
               ok=1
               break
             fi
-            echo "attempt=$i waiting_for_wfgg_app_dev"
+            echo "attempt=$i waiting_for_wfgg_pages_dev"
             sleep 5
           done
           test "$ok" = 1
@@ -68,9 +68,9 @@ jobs:
           npx playwright install --with-deps chromium
       - name: Run primary browser recette on production
         env:
-          WFGG_PREVIEW: https://wfgg.app.dev
+          WFGG_PREVIEW: https://wfgg.pages.dev
         run: node .github/qa/train-recette-e2e.mjs
       - name: Run extended browser recette on production
         env:
-          WFGG_PREVIEW: https://wfgg.app.dev
+          WFGG_PREVIEW: https://wfgg.pages.dev
         run: node .github/qa/train-recette-extended.mjs
