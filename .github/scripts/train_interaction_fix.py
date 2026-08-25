@@ -110,6 +110,10 @@ dom_guard = """    /* WFGG_TRAIN_INIT_DOM_GUARD_V1
 if 'WFGG_TRAIN_INIT_DOM_GUARD_V1' not in s:
     s = s.replace(anchor, dom_guard + anchor, 1)
 
+# Force une nouvelle URL d'app.js pour les navigateurs mobiles ayant encore v7 en cache.
+s = s.replace('wfgg_bridge=v7', 'wfgg_bridge=v8')
+s = s.replace("wfgg_fresh','v7", "wfgg_fresh','v8")
+
 if s == original:
     print('INTERACTION_PATCH=ALREADY_APPLIED')
 else:
