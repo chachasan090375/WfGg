@@ -35,19 +35,24 @@ jobs:
             curl -fsSL -A "$UA" "$ROOT/?production_recette=$i" -o /tmp/root.html || true
             curl -fsSL -A "$UA" "$ROOT/train/?production_recette=$i" -o /tmp/train.html || true
             curl -fsSL -A "$UA" "$ROOT/train/app.js?wfgg_bridge=v13&production_recette=$i" -o /tmp/app.js || true
+            cancel_refs=$(grep -o 'cancelMarketExchange' /tmp/app.js 2>/dev/null | wc -l | tr -d ' ' || true)
             if grep -Fq 'portal-v070.js?v=078-admin-split1' /tmp/root.html \
               && grep -Fq 'wfgg_bridge=v13' /tmp/train.html \
-              && grep -Fq 'https://wfgg-train.chachasan090375.workers.dev' /tmp/app.js \
-              && ! grep -Fq 'portal-auth-phase1-wfgg-train.chachasan090375.workers.dev' /tmp/app.js; then
-              echo 'WFGG_PAGES_DEV_DEPLOYMENT=OK'
+              && grep -Fq 'https://wfgg-train.chachasan090375.workers.dev' /tmp/train.html \
+              && ! grep -Fq 'portal-auth-phase1-wfgg-train.chachasan090375.workers.dev' /tmp/train.html \
+              && [ "$cancel_refs" -ge 4 ]; then
+              echo "WFGG_PAGES_DEV_DEPLOYMENT=OK cancel_refs=$cancel_refs"
               ok=1
               break
             fi
-            echo "attempt=$i waiting_for_wfgg_pages_dev"
+            echo "attempt=$i waiting_for_wfgg_pages_dev cancel_refs=$cancel_refs"
             sleep 5
           done
           test "$ok" = 1
           node --check /tmp/app.js
+          ! grep -Fq 'if (token)' /tmp/app.js
+          ! grep -Fq 'if (!token)' /tmp/app.js
+          grep -Fq 'Retirer mon annonce' /tmp/app.js
           curl -fsSL -A "$UA" "$ROOT/assets/wfgg-logo-mini.svg?production_recette=1" -o /tmp/logo.svg
           grep -Fq '<svg' /tmp/logo.svg
       - name: Verify production Train backend
