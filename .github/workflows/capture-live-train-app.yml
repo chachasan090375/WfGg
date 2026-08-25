@@ -1,13 +1,35 @@
-name: Verify live Train token fix (disabled)
+name: Verify live Train cache reset
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - train-bridge-phase3
 
 permissions:
   contents: read
 
 jobs:
-  noop:
+  verify:
     runs-on: ubuntu-latest
     steps:
-      - run: echo 'Temporary live Train verification disabled; token fix is deployed.'
+      - name: Wait for Cloudflare and verify Train proxy
+        run: |
+          set -euo pipefail
+          BASE='https://train-bridge-phase3.wfgg.pages.dev'
+          ok=0
+          for i in $(seq 1 18); do
+            html="$(curl -fsSL "$BASE/train/?verify=v6" || true)"
+            js="$(curl -fsSL "$BASE/train/app.js?wfgg_bridge=v6&verify=$i" || true)"
+            headers="$(curl -fsSI "$BASE/train/app.js?wfgg_bridge=v6&verify=$i" || true)"
+            if printf '%s' "$html" | grep -q 'wfgg_bridge=v6' \
+              && printf '%s' "$headers" | grep -qi '^x-wfgg-train-cache-bridge: v1' \
+              && printf '%s' "$js" | grep -q "const API_BASE = '';" \
+              && ! printf '%s' "$js" | grep -q 'if (token)' \
+              && ! printf '%s' "$js" | grep -q "navigator.serviceWorker.register('service-worker.js?v=44')"; then
+              echo 'LIVE_TRAIN_CACHE_RESET=OK'
+              ok=1
+              break
+            fi
+            sleep 5
+          done
+          test "$ok" = 1
