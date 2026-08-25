@@ -48,7 +48,7 @@ try{
   assert.equal(safe.MODE,'alliance-notice-v2');
   assert.equal(safe.PORTAL_URL,'https://wfgg.pages.dev/');
   assert.ok(safe.ALLIANCE_NOTICE.includes('https://wfgg.pages.dev/'));
-  assert.match(safe.ALLIANCE_NOTICE,/notifications? d’alliance|notification d’alliance/i);
+  assert.match(safe.ALLIANCE_NOTICE,/Nouveau portail WfGg/i);
   for(const code of ['111111','222222','333333']) assert.ok(!safe.ALLIANCE_NOTICE.includes(code),'personal code leaked into alliance notification');
 
   const allianceUi=page.locator('#inviteAllianceNotice');
