@@ -1,4 +1,4 @@
-name: Inspect live Train interactions
+name: Verify live Train interactions v7
 
 on:
   push:
@@ -9,18 +9,39 @@ permissions:
   contents: read
 
 jobs:
-  inspect:
+  verify:
     runs-on: ubuntu-latest
     steps:
-      - name: Inspect served Train handlers
+      - name: Wait for Cloudflare and verify interactive Train frontend
         shell: bash
         run: |
           set -eu
-          URL='https://train-bridge-phase3.wfgg.pages.dev/train/app.js?wfgg_bridge=v6&inspect=interaction'
-          curl -fsSL "$URL" -o /tmp/app.js
-          echo '=== INIT / BIND / NAV SYMBOLS ==='
-          grep -nE 'function (init|bind|bindEvents|showView|setView|render|bootApp)|const (init|bindEvents|showView)|addEventListener\(.click|querySelectorAll\(.nav|nav-item|bottomNav|logoutBtn|brandHome|profileBtn|planning|exchanges|alerts|admin' /tmp/app.js | head -n 260 || true
-          echo '=== CONTEXT AROUND W EXPORT ==='
-          grep -n -C 8 -E 'window\.W|showTrainEntry|bootApp' /tmp/app.js | head -n 220 || true
-          echo '=== CONTEXT AROUND DOMCONTENTLOADED / INIT ==='
-          grep -n -C 10 -E 'DOMContentLoaded|init\(\)|bindEvents\(\)' /tmp/app.js | head -n 260 || true
+          BASE='https://train-bridge-phase3.wfgg.pages.dev'
+          ok=0
+          for i in $(seq 1 24); do
+            html="$(curl -fsSL "$BASE/train/?verify=interaction-v7-$i" 2>/dev/null || true)"
+            js="$(curl -fsSL "$BASE/train/app.js?wfgg_bridge=v7&verify=interaction-v7-$i" 2>/dev/null || true)"
+
+            html_v7=0
+            lifecycle=0
+            nav_bind=0
+            old_init=0
+
+            case "$html" in *'wfgg_bridge=v7'*) html_v7=1;; esac
+            case "$js" in *"document.readyState === 'loading'"*"document.addEventListener('DOMContentLoaded', init, { once: true });"*) lifecycle=1;; esac
+            case "$js" in *"document.querySelectorAll('.nav-btn').forEach"*) nav_bind=1;; esac
+            case "$js" in *"document.addEventListener('DOMContentLoaded', init);"*) old_init=1;; esac
+
+            echo "attempt=$i html_v7=$html_v7 lifecycle=$lifecycle nav_bind=$nav_bind old_init=$old_init"
+
+            if [ "$html_v7" = 1 ] \
+              && [ "$lifecycle" = 1 ] \
+              && [ "$nav_bind" = 1 ] \
+              && [ "$old_init" = 0 ]; then
+              echo 'LIVE_TRAIN_INTERACTIONS_V7=OK'
+              ok=1
+              break
+            fi
+            sleep 5
+          done
+          test "$ok" = 1
