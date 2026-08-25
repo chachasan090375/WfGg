@@ -178,8 +178,14 @@ function languageBridgeScript(routeName) {
     }
 
     const WFGG_NATIVE_FETCH=window.fetch.bind(window);
+    const WFGG_TRAIN_API_DIRECT='https://portal-auth-phase1-wfgg-train.chachasan090375.workers.dev';
 
-    window.fetch=function(input,init){
+    /* WFGG_PORTAL_TRAIN_DIRECT_API_V1
+       En session Portail, le navigateur contacte directement le Worker Train.
+       Cela évite le sous-appel Pages Worker -> Worker, bloqué par Cloudflare.
+       Le token Portail reste transmis uniquement par en-tête et jamais dans l'URL.
+    */
+    window.fetch=async function(input,init){
       const options=init?{...init}:{};
 
       try{
@@ -206,16 +212,46 @@ function languageBridgeScript(routeName) {
             if(headers.get('Authorization')==='Bearer '+TRAIN_BRIDGE_SENTINEL){
               headers.delete('Authorization');
             }
-            options.headers=headers;
+
+            const directUrl=
+              WFGG_TRAIN_API_DIRECT+target.pathname+target.search;
 
             if(input instanceof Request){
-              return WFGG_NATIVE_FETCH(
-                new Request(input,options)
-              );
+              const bridged=new Request(input,{...options,headers});
+              const method=String(bridged.method||'GET').toUpperCase();
+              const directOptions={
+                method,
+                headers:new Headers(bridged.headers),
+                mode:'cors',
+                credentials:'omit',
+                cache:bridged.cache,
+                redirect:bridged.redirect,
+                referrerPolicy:bridged.referrerPolicy,
+                keepalive:bridged.keepalive,
+                signal:bridged.signal
+              };
+
+              if(method!=='GET'&&method!=='HEAD'){
+                directOptions.body=await bridged.clone().arrayBuffer();
+              }
+
+              return WFGG_NATIVE_FETCH(directUrl,directOptions);
             }
+
+            return WFGG_NATIVE_FETCH(directUrl,{
+              ...options,
+              headers,
+              mode:'cors',
+              credentials:'omit'
+            });
           }
         }
-      }catch(e){}
+      }catch(e){
+        console.warn(
+          'WFGG_TRAIN_DIRECT_API_BRIDGE_ERROR',
+          String(e&&e.message||e)
+        );
+      }
 
       return WFGG_NATIVE_FETCH(input,options);
     };
