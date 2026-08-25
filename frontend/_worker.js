@@ -568,6 +568,28 @@ function languageBridgeScript(routeName) {
       document.getElementById('portalView')?.classList.add('hidden');
     };
 
+    /* WFGG_PORTAL_TRAIN_SESSION_SWITCH_V1
+       Dans le Train intégré, l'ancien bouton d'installation devient le bouton
+       explicite de changement de session. Le clic est intercepté en capture
+       avant le handler historique d'installation.
+    */
+    const prepareSessionSwitch=()=>{
+      const button=document.getElementById('installBtn');
+      if(!button)return;
+      const labels={
+        fr:'Changer de session',
+        it:'Cambia sessione',
+        en:'Switch session',
+        es:'Cambiar de sesión'
+      };
+      const current=norm(localStorage.getItem(PORTAL_LANG))||'fr';
+      const label=labels[current]||labels.fr;
+      button.textContent='🚪';
+      button.title=label;
+      button.setAttribute('aria-label',label);
+      button.dataset.wfggSessionSwitch='1';
+    };
+
     const gate=()=>{
       let el=document.getElementById('wfggTrainPortalGate');
       if(el)return el;
@@ -599,18 +621,23 @@ function languageBridgeScript(routeName) {
     */
     document.addEventListener('click',function(event){
       if(!localStorage.getItem(PORTAL_TOKEN))return;
-      const target=event.target.closest('#brandHome,#logoutBtn,#loginPortalBack');
+      const target=event.target.closest('#brandHome,#logoutBtn,#loginPortalBack,#installBtn');
       if(!target)return;
       event.preventDefault();
       event.stopImmediatePropagation();
+      const isSessionSwitch=target.id==='installBtn'||target.id==='logoutBtn';
       if(localStorage.getItem(TRAIN_TOKEN)===TRAIN_BRIDGE_SENTINEL){
         localStorage.removeItem(TRAIN_TOKEN);
+      }
+      if(isSessionSwitch){
+        localStorage.removeItem(PORTAL_TOKEN);
       }
       globalPortal();
     },true);
 
     gate();
     hideLegacyEntry();
+    prepareSessionSwitch();
 
     /* WFGG_PORTAL_TRAIN_SESSION_PROBE_V1
        Vérifie la vraie session Portail avant d'attendre le boot du frontend Train.
@@ -873,6 +900,21 @@ async function proxyRoute(request, route, upstreamPath, options = {}) {
     rewritten = rewritten.replace(
       "        if (token)\n\n        setSyncStatus('work');",
       "        setSyncStatus('work');"
+    );
+
+    /* WFGG_TRAIN_INIT_DOM_GUARD_V1
+       Le HTML portal-only-auth ne contient plus loginBtn ni loginPortalBack,
+       alors que l'ancien init() les déréférence sans contrôle. Le premier
+       getElementById(...).onclick lançait donc une exception avant le câblage
+       des .nav-btn. On rend uniquement ces deux liaisons optionnelles.
+    */
+    rewritten = rewritten.replace(
+      "        document.getElementById('loginBtn').onclick = login;",
+      "        { const el = document.getElementById('loginBtn'); if (el) el.onclick = login; }"
+    );
+    rewritten = rewritten.replace(
+      "        document.getElementById('loginPortalBack').onclick = showPortal;",
+      "        { const el = document.getElementById('loginPortalBack'); if (el) el.onclick = showPortal; }"
     );
 
     /* WFGG_TRAIN_INIT_LIFECYCLE_FIX_V1
