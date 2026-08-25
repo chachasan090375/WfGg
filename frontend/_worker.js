@@ -1140,7 +1140,7 @@ async function routeGuides(request) {
   return proxyRoute(request, route, suffix, { routeName: 'guides' });
 }
 
-async function routeTrain(request) {
+async function routeTrain(request, env) {
   const url = new URL(request.url);
   const route = UPSTREAMS.train;
 
@@ -1149,6 +1149,36 @@ async function routeTrain(request) {
   }
 
   const suffix = url.pathname.slice(route.prefix.length) || '/';
+
+  /* WFGG_TRAIN_NATIVE_APP_V15_SHADOW
+     Première étape de consolidation : sur la branche native v15, app.js est
+     servi depuis une capture vérifiée du bridge v14 réellement déployé.
+     Le fallback proxy reste actif si l'asset est absent, afin de ne jamais
+     casser Train pendant la migration progressive.
+  */
+  if (suffix === '/app.js') {
+    const assetUrl = new URL(request.url);
+    assetUrl.pathname = '/train-native/app.v15.js';
+    assetUrl.search = '';
+
+    const assetRequest = new Request(assetUrl.toString(), {
+      method: 'GET',
+      headers: request.headers
+    });
+    const assetResponse = await env.ASSETS.fetch(assetRequest);
+
+    if (assetResponse.ok) {
+      const headers = new Headers(assetResponse.headers);
+      headers.set('Cache-Control', 'no-store');
+      headers.set('X-WfGg-Train-Frontend', 'native-v15-shadow');
+      return new Response(assetResponse.body, {
+        status: assetResponse.status,
+        statusText: assetResponse.statusText,
+        headers
+      });
+    }
+  }
+
   return proxyRoute(request, route, suffix, { routeName: 'train' });
 }
 
@@ -1254,7 +1284,7 @@ export default {
       }
 
       if (url.pathname === '/train' || url.pathname.startsWith('/train/')) {
-        return await routeTrain(request);
+        return await routeTrain(request, env);
       }
 
       if (url.pathname === '/simulateur' || url.pathname.startsWith('/simulateur/')) {

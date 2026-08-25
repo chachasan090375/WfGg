@@ -1,0 +1,73 @@
+name: Train native v15 — capture production bridge
+
+on:
+  push:
+    branches:
+      - train-native-v15
+    paths:
+      - '.github/workflows/train-native-v15-capture.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  capture:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: train-native-v15
+
+      - name: Capture production Train app v14
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p frontend/train-native
+          curl -fsSL -A 'WfGg-native-v15-capture' \
+            'https://wfgg.pages.dev/train/app.js?wfgg_bridge=v14&native_capture=v15' \
+            -o frontend/train-native/app.v14.live.js
+
+          node --check frontend/train-native/app.v14.live.js
+          grep -q 'state.__serverSchedule' frontend/train-native/app.v14.live.js
+          grep -q 'Modification enregistrée mais synchronisation impossible' frontend/train-native/app.v14.live.js
+          grep -q 'Joueur indisponible' frontend/train-native/app.v14.live.js
+
+          sha256sum frontend/train-native/app.v14.live.js > frontend/train-native/app.v14.live.js.sha256
+          wc -c frontend/train-native/app.v14.live.js > frontend/train-native/app.v14.live.js.size.txt
+
+      - name: Write capture metadata
+        shell: bash
+        run: |
+          cat > frontend/train-native/README.md <<'EOF'
+          # Train native v15 — source de référence
+
+          Ce dossier prépare la consolidation du frontend Train dans le dépôt WfGg.
+
+          `app.v14.live.js` est une capture du `app.js` réellement servi en production via
+          `https://wfgg.pages.dev/train/` avec le bridge v14 actif.
+
+          À ce stade :
+          - aucun routage de production n'est modifié ;
+          - `_worker.js` continue de servir le bridge v14 existant ;
+          - ce fichier sert uniquement de référence canonique pour supprimer progressivement
+            les réécritures runtime.
+
+          Contrôles de capture : syntaxe JS + présence des marqueurs fonctionnels v14.
+          EOF
+
+      - name: Commit captured reference
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add frontend/train-native/
+          if git diff --cached --quiet; then
+            echo 'No capture change to commit.'
+            exit 0
+          fi
+          git commit -m 'chore: capture production Train v14 for native v15 [native-capture]'
+          git push origin HEAD:train-native-v15

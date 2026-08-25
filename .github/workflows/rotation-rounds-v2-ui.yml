@@ -1,0 +1,56 @@
+name: Rotation rounds v2 — UI preview
+
+on:
+  push:
+    branches:
+      - train-native-v15
+    paths:
+      - '.github/workflows/rotation-rounds-v2-ui.yml'
+      - '.github/scripts/rotation_rounds_v2_apply.py'
+      - '.github/ROTATION_ROUNDS_V2_PLAN.md'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch-and-validate:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: train-native-v15
+
+      - name: Apply v2 UI patch
+        run: python .github/scripts/rotation_rounds_v2_apply.py
+
+      - name: Validate sources
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check frontend/train-native/app.v15.js
+          node --check frontend/portal-v070.js
+          node --check frontend/_worker.js
+          grep -q 'WFGG_TRAIN_MANUAL_14_DAYS_V1' frontend/train-native/app.v15.js
+          grep -q 'Array.from({ length: 14 }' frontend/train-native/app.v15.js
+          grep -q 'WFGG_PORTAL_TRAIN_ROTATION_READONLY_V1' frontend/portal-v070.js
+          grep -q 'Rotations par joueur' frontend/portal-v070.js
+          grep -q "/train-native/app.v15.js" frontend/_worker.js
+          sha256sum -c frontend/train-native/app.v14.live.js.sha256
+          sha256sum frontend/train-native/app.v15.js > frontend/train-native/app.v15.js.sha256
+
+      - name: Commit preview implementation
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add frontend/_worker.js frontend/portal-v070.js frontend/train-native/app.v15.js frontend/train-native/app.v15.js.sha256
+          if git diff --cached --quiet; then
+            echo 'No UI changes to commit.'
+            exit 0
+          fi
+          git commit -m 'feat: add 14-day Train planning and player rotation stats [rotation-v2]'
+          git push origin HEAD:train-native-v15

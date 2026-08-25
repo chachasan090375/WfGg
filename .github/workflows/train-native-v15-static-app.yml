@@ -1,0 +1,50 @@
+name: Train native v15 — static app shadow
+
+on:
+  push:
+    branches:
+      - train-native-v15
+    paths:
+      - '.github/workflows/train-native-v15-static-app.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch-and-validate:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: train-native-v15
+
+      - name: Apply static app shadow patch
+        run: python .github/scripts/train_native_v15_static_app_patch.py
+
+      - name: Validate worker and native app
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check frontend/_worker.js
+          node --check frontend/train-native/app.v14.live.js
+          grep -q 'WFGG_TRAIN_NATIVE_APP_V15_SHADOW' frontend/_worker.js
+          grep -q "routeTrain(request, env)" frontend/_worker.js
+          grep -q "X-WfGg-Train-Frontend.*native-v15-shadow" frontend/_worker.js
+          grep -q 'state.__serverSchedule' frontend/train-native/app.v14.live.js
+
+      - name: Commit shadow routing
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add frontend/_worker.js
+          if git diff --cached --quiet; then
+            echo 'No shadow routing change to commit.'
+            exit 0
+          fi
+          git commit -m 'refactor: serve captured Train app natively in v15 shadow [native-v15]'
+          git push origin HEAD:train-native-v15
