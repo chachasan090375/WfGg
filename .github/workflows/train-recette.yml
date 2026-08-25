@@ -18,6 +18,7 @@ jobs:
           ref: train-bridge-phase3
       - name: Validate bridge source
         run: |
+          echo 'QA revision: browser-v2-mobile-fixed'
           node --check frontend/_worker.js
           node --check .github/qa/train-recette-e2e.mjs
           node --check .github/qa/train-recette-extended.mjs
