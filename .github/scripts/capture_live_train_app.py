@@ -1,3 +1,4 @@
+# trigger: capture live Train frontend after workflow registration
 from pathlib import Path
 import re
 import urllib.request
