@@ -1,0 +1,29 @@
+name: Capture live Train frontend
+
+on:
+  push:
+    branches:
+      - train-bridge-phase3
+
+permissions:
+  contents: write
+
+jobs:
+  capture:
+    if: ${{ !contains(github.event.head_commit.message, '[capture-auto]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: train-bridge-phase3
+          fetch-depth: 0
+      - name: Capture live app.js snippets
+        run: python .github/scripts/capture_live_train_app.py
+      - name: Commit diagnostic snippets
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add .debug/train_app_snippets.txt
+          git commit -m 'chore: capture live Train frontend snippets [capture-auto]'
+          git push origin HEAD:train-bridge-phase3
