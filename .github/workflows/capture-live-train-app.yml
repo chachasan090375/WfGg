@@ -1,4 +1,4 @@
-name: Inspect live Train CSS click blockers
+name: Inspect Train init DOM contract
 
 on:
   push:
@@ -12,21 +12,30 @@ jobs:
   inspect:
     runs-on: ubuntu-latest
     steps:
-      - name: Inspect live CSS and control markup
+      - name: Compare init required IDs with live HTML
         shell: bash
         run: |
           set -eu
           BASE='https://train-bridge-phase3.wfgg.pages.dev/train/'
           UA='Mozilla/5.0 (Linux; Android 16) AppleWebKit/537.36 Chrome/139 Mobile Safari/537.36'
+          curl -fsSL -A "$UA" "${BASE}?inspect=init-dom-${GITHUB_SHA}" -o /tmp/train.html
+          curl -fsSL -A "$UA" -e "$BASE" "${BASE}app.js?wfgg_bridge=v7&inspect=${GITHUB_SHA}" -o /tmp/app.js
 
-          curl -fsSL -A "$UA" "${BASE}?inspect=css-${GITHUB_SHA}" -o /tmp/train.html
-          echo '=== TOP ACTIONS ==='
-          grep -nE -C 5 'top-actions|logoutBtn|brandHome' /tmp/train.html | head -n 120 || true
+          echo '=== INIT FUNCTION ==='
+          sed -n '1929,1985p' /tmp/app.js
 
-          curl -fsSL -A "$UA" -e "$BASE" "${BASE}styles.css?v=44&inspect=${GITHUB_SHA}" -o /tmp/styles.css
-
-          echo '=== CLICK RELATED CSS ==='
-          grep -nEi -C 4 'pointer-events|z-index|position:[[:space:]]*fixed|\.hidden|modal|backdrop|bottom-nav|nav-btn|topbar|top-actions|icon-btn|app-view' /tmp/styles.css | head -n 520 || true
-
-          echo '=== CSS SIZE ==='
-          wc -c /tmp/styles.css
+          echo '=== REQUIRED INIT IDS IN LIVE HTML ==='
+          python - <<'PY'
+          import re
+          html=open('/tmp/train.html',encoding='utf-8').read()
+          js=open('/tmp/app.js',encoding='utf-8').read()
+          m=re.search(r'async function init\(\) \{(.*?)\n    \}',js,re.S)
+          body=m.group(1) if m else ''
+          ids=[]
+          for x in re.findall(r"getElementById\('([^']+)'\)",body):
+              if x not in ids: ids.append(x)
+          for x in ids:
+              present=bool(re.search(r'id=["\']'+re.escape(x)+r'["\']',html))
+              print(f'{x}: {"PRESENT" if present else "MISSING"}')
+          print('NAV_BUTTON_COUNT:',len(re.findall(r'class=["\'][^"\']*\bnav-btn\b',html)))
+          PY
