@@ -1,4 +1,4 @@
-name: Verify live Portal Train admin split
+name: Inspect live Train rights and exchange UI
 
 on:
   push:
@@ -9,54 +9,31 @@ permissions:
   contents: read
 
 jobs:
-  verify:
+  inspect:
     runs-on: ubuntu-latest
     steps:
-      - name: Verify live ownership split and vector logo
+      - name: Inspect live Train frontend contracts
         shell: bash
         run: |
           set -eu
           ROOT='https://train-bridge-phase3.wfgg.pages.dev'
           TRAIN="$ROOT/train/"
           UA='Mozilla/5.0 (Linux; Android 16) AppleWebKit/537.36 Chrome/139 Mobile Safari/537.36'
-          echo 'verification revision: final-v10'
-          ok=0
-          for i in $(seq 1 30); do
-            curl -fsSL -A "$UA" "$ROOT/?verify=admin-split-$i" -o /tmp/root.html || true
-            curl -fsSL -A "$UA" "$ROOT/portal-v070.js?v=078-admin-split1&verify=$i" -o /tmp/portal.js || true
-            curl -fsSL -A "$UA" "$TRAIN?verify=admin-split-$i" -o /tmp/train.html || true
-            curl -fsSL -A "$UA" -e "$TRAIN" "$TRAIN/app.js?wfgg_bridge=v10&verify=$i" -o /tmp/train.js || true
-            curl -fsSL -A "$UA" "$ROOT/assets/wfgg-logo-vector.svg?verify=$i" -o /tmp/logo.svg || true
-
-            root_ver=0; portal_tabs=0; portal_stats=0; portal_reset=0; logo_train=0; logo_svg=0
-            no_players=0; no_access=0; no_portal=0; no_help=0; stats_train=0; rotations=0; history=0; no_activity=0; no_settings=0; no_overview=0; train_kpis=0
-
-            grep -Fq 'portal-v070.js?v=078-admin-split1' /tmp/root.html && root_ver=1 || true
-            grep -Fq "membersTab:'Joueurs & accès'" /tmp/portal.js && grep -Fq "statsTab:'Statistiques joueurs'" /tmp/portal.js && portal_tabs=1 || true
-            grep -Fq 'WFGG_PORTAL_PLAYER_STATS_V1' /tmp/portal.js && grep -Fq 'trainAdminApi' /tmp/portal.js && portal_stats=1 || true
-            grep -Fq 'resetMemberCode' /tmp/portal.js && portal_reset=1 || true
-            grep -Fq '/assets/wfgg-logo-vector.svg' /tmp/train.html && logo_train=1 || true
-            grep -Fq '<svg' /tmp/logo.svg && logo_svg=1 || true
-
-            ! grep -Fq 'admin-menu-card players' /tmp/train.js && no_players=1 || true
-            ! grep -Fq 'admin-menu-card access' /tmp/train.js && no_access=1 || true
-            ! grep -Fq 'admin-menu-card portal' /tmp/train.js && no_portal=1 || true
-            ! grep -Fq 'admin-menu-card help' /tmp/train.js && no_help=1 || true
-            grep -Fq 'Statistiques du train' /tmp/train.js && stats_train=1 || true
-            grep -Fq 'analytics-icon-card rotations' /tmp/train.js && rotations=1 || true
-            grep -Fq 'analytics-icon-card train-history' /tmp/train.js && history=1 || true
-            ! grep -Fq 'analytics-icon-card activity' /tmp/train.js && no_activity=1 || true
-            ! grep -Fq 'analytics-icon-card settings' /tmp/train.js && no_settings=1 || true
-            ! grep -Fq 'analytics-icon-card overview' /tmp/train.js && no_overview=1 || true
-            grep -Fq 'Trains historiques' /tmp/train.js && grep -Fq 'Écart Conducteur A' /tmp/train.js && train_kpis=1 || true
-
-            echo "attempt=$i root=$root_ver portal_tabs=$portal_tabs portal_stats=$portal_stats reset=$portal_reset train_logo=$logo_train svg=$logo_svg no_players=$no_players no_access=$no_access no_portal=$no_portal no_help=$no_help stats_train=$stats_train rotations=$rotations history=$history no_activity=$no_activity no_settings=$no_settings no_overview=$no_overview train_kpis=$train_kpis"
-
-            if [ "$root_ver" = 1 ] && [ "$portal_tabs" = 1 ] && [ "$portal_stats" = 1 ] && [ "$portal_reset" = 1 ] && [ "$logo_train" = 1 ] && [ "$logo_svg" = 1 ] && [ "$no_players" = 1 ] && [ "$no_access" = 1 ] && [ "$no_portal" = 1 ] && [ "$no_help" = 1 ] && [ "$stats_train" = 1 ] && [ "$rotations" = 1 ] && [ "$history" = 1 ] && [ "$no_activity" = 1 ] && [ "$no_settings" = 1 ] && [ "$no_overview" = 1 ] && [ "$train_kpis" = 1 ]; then
-              echo 'LIVE_PORTAL_TRAIN_ADMIN_SPLIT=OK'
-              ok=1
+          for i in $(seq 1 24); do
+            curl -fsSL -A "$UA" "$TRAIN?inspect=rights-$i" -o /tmp/train.html || true
+            curl -fsSL -A "$UA" -e "$TRAIN" "$ROOT/train/app.js?wfgg_bridge=v11&inspect=$i" -o /tmp/app.js || true
+            if grep -Fq '/assets/wfgg-logo-mini.svg' /tmp/train.html && grep -Fq 'function init' /tmp/app.js; then
               break
             fi
             sleep 5
           done
-          test "$ok" = 1
+          echo '=== LIVE VERSION ==='
+          grep -nE -C 3 'wfgg-logo-mini|app.js' /tmp/train.html | head -n 80 || true
+          echo '=== ADMIN GATING ==='
+          grep -nE -C 8 'nav-btn|adminView|isAdmin\(|data-view=.admin|Admin' /tmp/app.js | head -n 360 || true
+          echo '=== EXCHANGE ACCEPT / ERRORS ==='
+          grep -nE -C 10 'exchanges/.+accept|acceptExchange|swapWithDate|myDate|show.*error|toast|error' /tmp/app.js | head -n 520 || true
+          echo '=== BASIC ASSERTIONS ==='
+          grep -Fq '/assets/wfgg-logo-mini.svg' /tmp/train.html
+          grep -Fq 'wfgg_bridge=v11' /tmp/train.html
+          grep -Fq '/api/exchanges/' /tmp/app.js
