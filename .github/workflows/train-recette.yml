@@ -19,10 +19,10 @@ jobs:
       - name: Validate bridge source
         run: |
           node --check frontend/_worker.js
-          grep -q 'WFGG_TRAIN_EXCHANGE_OWN_CANCEL_V1' frontend/_worker.js
-          grep -q 'wfgg_bridge=v12' frontend/_worker.js
+          grep -q 'WFGG_TRAIN_EXCHANGE_OWN_CANCEL_V2' frontend/_worker.js
+          grep -q 'wfgg_bridge=v13' frontend/_worker.js
           grep -q '/assets/wfgg-logo-mini.svg' frontend/_worker.js
-      - name: Wait for Cloudflare preview v12
+      - name: Wait for Cloudflare preview v13
         shell: bash
         run: |
           set -eu
@@ -31,13 +31,13 @@ jobs:
           ok=0
           for i in $(seq 1 40); do
             curl -fsSL -A "$UA" "$ROOT/train/?recette=$i" -o /tmp/train.html || true
-            if grep -Fq 'wfgg_bridge=v12' /tmp/train.html; then
-              curl -fsSL -A "$UA" "$ROOT/train/app.js?wfgg_bridge=v12&recette=$i" -o /tmp/app.js || true
+            if grep -Fq 'wfgg_bridge=v13' /tmp/train.html; then
+              curl -fsSL -A "$UA" "$ROOT/train/app.js?wfgg_bridge=v13&recette=$i" -o /tmp/app.js || true
               n=$(grep -o 'cancelMarketExchange' /tmp/app.js | wc -l | tr -d ' ')
-              echo "attempt=$i bridge=v12 cancel_refs=$n"
+              echo "attempt=$i bridge=v13 cancel_refs=$n"
               if [ "$n" -ge 4 ]; then ok=1; break; fi
             else
-              echo "attempt=$i waiting_for_v12"
+              echo "attempt=$i waiting_for_v13"
             fi
             sleep 5
           done
