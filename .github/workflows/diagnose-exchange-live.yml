@@ -16,25 +16,22 @@ jobs:
         run: |
           set -eu
           curl -fsSL -A 'Mozilla/5.0 (Linux; Android 16) AppleWebKit/537.36 Chrome/139 Mobile Safari/537.36' \
-            'https://wfgg.pages.dev/train/app.js?wfgg_bridge=v13&exchange_diag=2' \
+            'https://wfgg.pages.dev/train/app.js?wfgg_bridge=v13&exchange_diag=3' \
             -o /tmp/app.js
           node --check /tmp/app.js
-          wc -c /tmp/app.js
-      - name: Print state sync code contexts
+      - name: Print schedule code contexts
         shell: python
         run: |
           from pathlib import Path
           s=Path('/tmp/app.js').read_text(encoding='utf-8')
-          terms=['function mutate','function syncSnapshot','function applySnapshot','function normalizeState','function saveState','function loadState','function renderAll','exchanges:','state =','Object.assign(state']
+          terms=['function schedule','function roleKey','function myAssignments','function findAssignment','function pickFair','r3Cycle','cycleDrivers','cycleVips','driverClass']
           for term in terms:
               print('\n===== '+term+' =====')
-              start=0
-              hits=0
-              while hits<10:
+              start=0; hits=0
+              while hits<8:
                   i=s.find(term,start)
                   if i<0: break
-                  a=max(0,i-1800); b=min(len(s),i+5200)
-                  print(s[a:b])
-                  print('\n--- HIT END ---')
+                  a=max(0,i-1800); b=min(len(s),i+6500)
+                  print(s[a:b]); print('\n--- HIT END ---')
                   hits+=1; start=i+len(term)
               if hits==0: print('NO_HIT')
