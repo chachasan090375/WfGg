@@ -464,8 +464,13 @@ function languageBridgeScript(routeName) {
       el=document.createElement('div');
       el.id='wfggTrainPortalGate';
       el.setAttribute('role','status');
+      el.setAttribute('aria-label',words().loading);
       el.style.cssText='position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;padding:24px;background:#101019;color:#fff;font:600 16px/1.4 system-ui,sans-serif;text-align:center';
-      el.innerHTML='<div><div id="wfggTrainGateText">'+words().loading+'</div></div>';
+      const style=document.createElement('style');
+      style.id='wfggTrainGateStyle';
+      style.textContent='@keyframes wfggTrainRide{0%{transform:translateX(-72px)}100%{transform:translateX(292px)}}@keyframes wfggTrainPulse{0%,100%{opacity:.55}50%{opacity:1}}#wfggTrainPortalGate .wfgg-train-stage{position:relative;width:min(320px,78vw);height:76px;overflow:hidden}#wfggTrainPortalGate .wfgg-train-track{position:absolute;left:0;right:0;bottom:18px;height:2px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.58) 12%,rgba(255,255,255,.58) 88%,transparent)}#wfggTrainPortalGate .wfgg-train-track:after{content:"";position:absolute;left:10%;right:10%;top:7px;height:2px;background:repeating-linear-gradient(90deg,rgba(255,255,255,.28) 0 8px,transparent 8px 18px)}#wfggTrainPortalGate .wfgg-train-sprite{position:absolute;left:0;bottom:24px;font-size:38px;line-height:1;filter:drop-shadow(0 4px 10px rgba(0,0,0,.45));animation:wfggTrainRide 1.9s cubic-bezier(.45,.05,.55,.95) infinite}#wfggTrainPortalGate .wfgg-train-light{position:absolute;left:50%;bottom:3px;width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.72);animation:wfggTrainPulse 1.15s ease-in-out infinite}@media (prefers-reduced-motion:reduce){#wfggTrainPortalGate .wfgg-train-sprite{animation-duration:4s}}';
+      document.head.appendChild(style);
+      el.innerHTML='<div class="wfgg-train-stage" aria-hidden="true"><div class="wfgg-train-track"></div><div class="wfgg-train-sprite">🚆</div><div class="wfgg-train-light"></div></div>';
       document.documentElement.appendChild(el);
       return el;
     };
@@ -503,13 +508,15 @@ function languageBridgeScript(routeName) {
       hideLegacyEntry();
 
       try{
+        const app=document.getElementById('appView');
+        if(app&&!app.classList.contains('hidden')){
+          document.getElementById('wfggTrainPortalGate')?.remove();
+          document.getElementById('wfggTrainGateStyle')?.remove();
+          return;
+        }
+
         if(window.W&&typeof window.W.showTrainEntry==='function'){
           window.W.showTrainEntry();
-          const app=document.getElementById('appView');
-          if(app&&!app.classList.contains('hidden')){
-            document.getElementById('wfggTrainPortalGate')?.remove();
-            return;
-          }
         }
       }catch(error){}
 
