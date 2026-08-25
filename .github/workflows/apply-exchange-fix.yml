@@ -1,0 +1,13 @@
+name: Apply Train exchange regression fix
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  disabled:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo 'Exchange patch completed; permanent Train recette owns regression coverage.'

@@ -635,3 +635,8 @@ button[aria-busy="true"]{cursor:progress;opacity:.82}
 @media(max-width:560px){
   .home-alliance-logo.premium-integrated-logo{width:min(360px,90vw)}
 }
+
+
+/* WFGG_PORTAL_PLAYER_STATS_STYLE_V1 */
+.portal-player-stats{display:grid;gap:14px;margin-top:16px}.portal-stats-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.portal-stats-kpis>div{display:grid;gap:4px;padding:12px;border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.03)}.portal-stats-kpis small{color:var(--muted);font-size:11px}.portal-stats-kpis strong{font-size:24px}.portal-player-stats-list{display:grid;gap:8px}.portal-player-stat-row{display:grid;grid-template-columns:42px minmax(0,1fr) auto;align-items:center;gap:10px;padding:10px 11px;border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.025)}.portal-stat-avatar{width:42px;height:42px;border-radius:11px;display:grid;place-items:center;background:var(--accent-soft);border:1px solid rgba(178,150,255,.25);font-weight:900}.portal-stat-main{min-width:0;display:grid;gap:3px}.portal-stat-main>b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.portal-stat-main>small{color:var(--muted);font-size:12px}.portal-stat-breakdown{display:flex;gap:6px;flex-wrap:wrap;margin-top:3px}.portal-stat-breakdown span{font-size:10px;color:#d7cdea;background:rgba(255,255,255,.045);border-radius:999px;padding:3px 6px}.portal-stat-total{font-size:20px;color:var(--accent2)}
+@media(max-width:560px){.portal-stats-kpis{grid-template-columns:1fr 1fr}.portal-player-stat-row{grid-template-columns:38px minmax(0,1fr) auto}.portal-stat-avatar{width:38px;height:38px}.portal-stat-breakdown{gap:4px}.portal-stat-breakdown span{font-size:9px}}

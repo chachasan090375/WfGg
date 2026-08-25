@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
+  <title id="title">WfGg</title>
+  <desc id="desc">Logo compact vectoriel WfGg optimisé pour la barre de navigation.</desc>
+  <defs>
+    <linearGradient id="rim" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ead9a7"/>
+      <stop offset="0.5" stop-color="#b99a5d"/>
+      <stop offset="1" stop-color="#e1cf9b"/>
+    </linearGradient>
+    <linearGradient id="field" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#314653"/>
+      <stop offset="1" stop-color="#172630"/>
+    </linearGradient>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#000" flood-opacity=".28"/>
+    </filter>
+  </defs>
+
+  <g filter="url(#softShadow)">
+    <circle cx="128" cy="128" r="116" fill="#101a21" stroke="url(#rim)" stroke-width="8"/>
+    <circle cx="128" cy="128" r="101" fill="url(#field)" stroke="#6e765f" stroke-width="2"/>
+
+    <path d="M38 156c23-28 48-40 73-35 22-14 47-14 73 0 16 7 28 19 36 35v47H38z" fill="#475947" opacity=".82"/>
+    <path d="M55 126l39-42 19 25 25-39 24 36 24-30 32 49-38-17-28 21-27-18-28 21-23-13z" fill="#d8ddd7" opacity=".60"/>
+
+    <g fill="#d8c28d" opacity=".86">
+      <circle cx="96" cy="103" r="7"/><path d="M88 112h16l5 34H83z"/>
+      <circle cx="128" cy="96" r="8"/><path d="M119 106h18l5 42h-28z"/>
+      <circle cx="160" cy="103" r="7"/><path d="M152 112h16l5 34h-26z"/>
+    </g>
+
+    <rect x="31" y="125" width="194" height="63" rx="18" fill="#13212b" opacity=".94" stroke="#c7ad72" stroke-width="2.5"/>
+    <text x="128" y="169" text-anchor="middle"
+          font-family="Georgia, 'Times New Roman', serif"
+          font-size="58" font-weight="700" letter-spacing="-3"
+          fill="#f4ead2" stroke="#594626" stroke-width="1.5" paint-order="stroke">WfGg</text>
+
+    <path d="M76 204h104" stroke="#c5aa70" stroke-width="3" stroke-linecap="round" opacity=".75"/>
+    <circle cx="128" cy="204" r="5" fill="#e3d19e"/>
+  </g>
+</svg>

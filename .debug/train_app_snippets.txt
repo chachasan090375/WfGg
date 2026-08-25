@@ -1,0 +1,2323 @@
+===== const API_BASE =====
+(() => {
+    'use strict';
+    let BASE_ROSTER = (() => { try {
+        return JSON.parse(localStorage.getItem('wfgg_train_roster_cache')) || window.WFGG_ROSTER || [];
+    }
+    catch (e) {
+        return window.WFGG_ROSTER || [];
+    } })();
+    const STORAGE = 'wfgg_train_v13';
+    const LEGACY_KEYS = ['wfgg_train_v1'];
+
+    const API_BASE = '';
+    const ROSTER_CACHE_KEY = 'wfgg_train_roster_cache';
+    let syncTimer = null;
+    let presenceTimer = null;
+    let syncing = false;
+    let adminPresence = {count:0,online:[],thresholdSeconds:90};
+    let presenceListOpen = false;
+    let publicGameLinks = [];
+    const DEFAULT_STATE = {
+        currentUserId: null,
+        settings: {
+            anchorDate: '2026-08-10',
+            trainTime: '20:00',
+            officersFirst: true,
+            reminderDayBefore: true,
+            reminder30: true,
+            rotationRanks: {
+                officer: ['R5', 'R4'],
+                r3driver: ['R3'],
+                vip: ['R3', 'R2', 'R1']
+            }
+        },
+        unavailable: {},
+        outRotation: [],
+        overrides: {},
+        exchanges: [],
+        alertsEnabled: {},
+        languages: {},
+        gameLinks: [],
+        playerEdits: {},
+        addedPlayers: [],
+        removedPlayers: [],
+        rotationOrder: { officer: [], r3driver: [], r3vip: [] },
+        messageVariant: { weekly: 0, daily: 0, driver: 0, vip: 0 }
+    };
+    let state = loadState();
+    let ROSTER = [];
+    let byId = {};
+    let deferredInstall = null;
+    function isStandaloneApp() {
+        return window.matchMedia('(display-mode: standalone)').matches
+            || window.matchMedia('(display-mode: fullscreen)').matches
+            || window.navigator.standalone === true
+            || document.referrer.startsWith('android-app://');
+    }
+    function updateInstallVisibility() {
+        const installed = isStandaloneApp();
+        document.querySelectorAll('.install-login-btn, .portal-install-btn').forEach(el => el.classList.toggle('hidden', installed));
+        const topInstall = document.getElementById('installBtn');
+        if (topInstall) topInstall.classList.toggle('hidden', installed);
+    }
+    let weekOffset = 0;
+    let currentAdminSection = null;
+    let DIRECTORY = [];
+    let adminAnalyticsCache = null;
+    let analyticsFilter = 'all';
+    let analyticsSearch = '';
+    let analyticsCurrentSub = null;
+    let analyticsRotationDays = 30;
+    let analyticsRotationPool = 'officer';
+    let analyticsRotationSort = 'count-desc';
+    let analyticsActivitySort = 'total-desc';
+    let analyticsSettingsFilter = 'all';
+    let analyticsHistorySort = 'newest';
+    let gameLinksDraft = null;
+
+    const LANG_KEY='wfgg_train_lang';
+    const SUPPORTED_LANGS=['fr','en','it','es'];
+    const LOCALES={fr:'fr-FR',en:'en-GB',it:'it-IT',es:'es-ES'};
+    const UI_TRANSLATIONS={"Train de l’alliance":{"en":"Alliance Train","it":"Treno dell’alleanza","es":"Tren de la alianza"},"Consulte tes passages, ton planning, tes alertes et tes échanges.":{"en":"Check your turns, schedule, alerts and swaps.","it":"Consulta i tuoi turni, il calendario, gli avvisi e gli scambi.","es":"Consulta tus turnos, calendario, alertas e intercambios."},"Ton pseudo":{"en":"Your nickname","it":"Il tuo nickname","es":"Tu apodo"},"Commence à saisir ton pseudo":{"en":"Start typing your nickname","it":"Inizia a digitare il tuo nickname","es":"Empieza a escribir tu apodo"},"Code R4 / R5":{"en":"R4 / R5 code","it":"Codice R4 / R5","es":"Código R4 / R5"},"6 chiffres":{"en":"6 digits","it":"6 cifre","es":"6 dígitos"},"Entrer dans WfGg Train":{"en":"Enter WfGg Train","it":"Entra in WfGg Train","es":"Entrar en WfGg Train"},"R3/R2/R1 : le pseudo suffit pour entrer":{"en":"R3/R2/R1: nickname only","it":"R3/R2/R1: basta il nickname","es":"R3/R2/R1: basta el apodo"},"Installer l’application":{"en":"Install the app","it":"Installa l’app","es":"Instalar la aplicación"},"Moi":{"en":"Me","it":"Io","es":"Yo"},"Planning":{"en":"Schedule","it":"Calendario","es":"Calendario"},"Échanges":{"en":"Swaps","it":"Scambi","es":"Intercambios"},"Alertes":{"en":"Alerts","it":"Avvisi","es":"Alertas"},"Admin":{"en":"Admin","it":"Admin","es":"Admin"},"Synchronisation":{"en":"Sync","it":"Sincronizzazione","es":"Sincronización"},"Synchronisation…":{"en":"Syncing…","it":"Sincronizzazione…","es":"Sincronizando…"},"Hors connexion":{"en":"Offline","it":"Offline","es":"Sin conexión"},"Synchronisé":{"en":"Synced","it":"Sincronizzato","es":"Sincronizado"},"Disponible":{"en":"Available","it":"Disponibile","es":"Disponible"},"Hors rotation":{"en":"Out of rotation","it":"Fuori rotazione","es":"Fuera de rotación"},"Actif":{"en":"Active","it":"Attivo","es":"Activo"},"Ton prochain train":{"en":"Your next train","it":"Il tuo prossimo treno","es":"Tu próximo tren"},"Tes prochains passages":{"en":"Your upcoming turns","it":"I tuoi prossimi turni","es":"Tus próximos turnos"},"Mon statut":{"en":"My status","it":"Il mio stato","es":"Mi estado"},"Touche une carte":{"en":"Tap a card","it":"Tocca una scheda","es":"Toca una tarjeta"},"Profil":{"en":"Profile","it":"Profilo","es":"Perfil"},"Pseudo & profil":{"en":"Nickname & profile","it":"Nickname e profilo","es":"Apodo y perfil"},"Gérer les rappels":{"en":"Manage reminders","it":"Gestisci promemoria","es":"Gestionar recordatorios"},"Indisponibilités":{"en":"Unavailability","it":"Indisponibilità","es":"Indisponibilidades"},"Voir / corriger":{"en":"View / edit","it":"Vedi / correggi","es":"Ver / corregir"},"Rotation":{"en":"Rotation","it":"Rotazione","es":"Rotación"},"Gérer mon statut":{"en":"Manage my status","it":"Gestisci il mio stato","es":"Gestionar mi estado"},"Modifier mon profil":{"en":"Edit my profile","it":"Modifica il mio profilo","es":"Editar mi perfil"},"Modifier mon pseudo / ma photo":{"en":"Edit nickname / photo","it":"Modifica nickname / foto","es":"Editar apodo / foto"},"Aucun passage prévu pour ton rang actuel ou ta rotation.":{"en":"No turn scheduled for your current rank or rotation.","it":"Nessun turno previsto per il tuo grado o la tua rotazione attuale.","es":"No hay turnos previstos para tu rango o rotación actual."},"Aucun autre passage à venir.":{"en":"No other upcoming turns.","it":"Nessun altro turno in arrivo.","es":"No hay otros turnos próximos."},"Aujourd’hui":{"en":"Today","it":"Oggi","es":"Hoy"},"Demain":{"en":"Tomorrow","it":"Domani","es":"Mañana"},"Calendrier":{"en":"Calendar","it":"Calendario","es":"Calendario"},"Échanger ma place":{"en":"Swap my slot","it":"Scambia il mio posto","es":"Intercambiar mi plaza"},"Indisponible":{"en":"Unavailable","it":"Indisponibile","es":"No disponible"},"CONDUCTEUR":{"en":"DRIVER","it":"CONDUCENTE","es":"CONDUCTOR"},"Conducteur":{"en":"Driver","it":"Conducente","es":"Conductor"},"VIP":{"en":"VIP","it":"VIP","es":"VIP"},"Planning hebdomadaire":{"en":"Weekly schedule","it":"Calendario settimanale","es":"Calendario semanal"},"À définir":{"en":"To be assigned","it":"Da definire","es":"Por definir"},"Bourse aux échanges":{"en":"Swap marketplace","it":"Borsa degli scambi","es":"Mercado de intercambios"},"Annonces ouvertes":{"en":"Open requests","it":"Richieste aperte","es":"Solicitudes abiertas"},"Mes demandes":{"en":"My requests","it":"Le mie richieste","es":"Mis solicitudes"},"Aucune annonce ouverte pour le moment.":{"en":"No open swap requests right now.","it":"Nessuna richiesta di scambio aperta al momento.","es":"No hay solicitudes de intercambio abiertas por ahora."},"Aucune demande publiée.":{"en":"No request published.","it":"Nessuna richiesta pubblicata.","es":"No hay solicitudes publicadas."},"OUVERT":{"en":"OPEN","it":"APERTO","es":"ABIERTO"},"Retirer mon annonce":{"en":"Remove my request","it":"Ritira la mia richiesta","es":"Retirar mi solicitud"},"Je propose une de mes dates":{"en":"Offer one of my dates","it":"Propongo una delle mie date","es":"Propongo una de mis fechas"},"Échanger":{"en":"Swap","it":"Scambia","es":"Intercambiar"},"Choisir ta date":{"en":"Choose your date","it":"Scegli la tua data","es":"Elige tu fecha"},"Aucune date compatible":{"en":"No compatible date","it":"Nessuna data compatibile","es":"No hay fecha compatible"},"Publier ma demande":{"en":"Publish my request","it":"Pubblica la mia richiesta","es":"Publicar mi solicitud"},"Publier un échange":{"en":"Publish a swap","it":"Pubblica uno scambio","es":"Publicar un intercambio"},"Pas maintenant":{"en":"Not now","it":"Non ora","es":"Ahora no"},"Annonce publiée":{"en":"Request published","it":"Richiesta pubblicata","es":"Solicitud publicada"},"Annonce retirée":{"en":"Request removed","it":"Richiesta ritirata","es":"Solicitud retirada"},"Échange effectué":{"en":"Swap completed","it":"Scambio effettuato","es":"Intercambio realizado"},"Une annonce existe déjà pour cette date":{"en":"A request already exists for this date","it":"Esiste già una richiesta per questa data","es":"Ya existe una solicitud para esta fecha"},"Tu ne choisis personne : les joueurs compatibles verront l’annonce et proposeront eux-mêmes leur date.":{"en":"You do not choose a player: compatible members will see the request and offer their own date.","it":"Non scegli tu il giocatore: i membri compatibili vedranno la richiesta e proporranno la propria data.","es":"No eliges a nadie: los jugadores compatibles verán la solicitud y propondrán su propia f
+
+---
+
+===== let state =====
+(() => {
+    'use strict';
+    let BASE_ROSTER = (() => { try {
+        return JSON.parse(localStorage.getItem('wfgg_train_roster_cache')) || window.WFGG_ROSTER || [];
+    }
+    catch (e) {
+        return window.WFGG_ROSTER || [];
+    } })();
+    const STORAGE = 'wfgg_train_v13';
+    const LEGACY_KEYS = ['wfgg_train_v1'];
+
+    const API_BASE = '';
+    const ROSTER_CACHE_KEY = 'wfgg_train_roster_cache';
+    let syncTimer = null;
+    let presenceTimer = null;
+    let syncing = false;
+    let adminPresence = {count:0,online:[],thresholdSeconds:90};
+    let presenceListOpen = false;
+    let publicGameLinks = [];
+    const DEFAULT_STATE = {
+        currentUserId: null,
+        settings: {
+            anchorDate: '2026-08-10',
+            trainTime: '20:00',
+            officersFirst: true,
+            reminderDayBefore: true,
+            reminder30: true,
+            rotationRanks: {
+                officer: ['R5', 'R4'],
+                r3driver: ['R3'],
+                vip: ['R3', 'R2', 'R1']
+            }
+        },
+        unavailable: {},
+        outRotation: [],
+        overrides: {},
+        exchanges: [],
+        alertsEnabled: {},
+        languages: {},
+        gameLinks: [],
+        playerEdits: {},
+        addedPlayers: [],
+        removedPlayers: [],
+        rotationOrder: { officer: [], r3driver: [], r3vip: [] },
+        messageVariant: { weekly: 0, daily: 0, driver: 0, vip: 0 }
+    };
+    let state = loadState();
+    let ROSTER = [];
+    let byId = {};
+    let deferredInstall = null;
+    function isStandaloneApp() {
+        return window.matchMedia('(display-mode: standalone)').matches
+            || window.matchMedia('(display-mode: fullscreen)').matches
+            || window.navigator.standalone === true
+            || document.referrer.startsWith('android-app://');
+    }
+    function updateInstallVisibility() {
+        const installed = isStandaloneApp();
+        document.querySelectorAll('.install-login-btn, .portal-install-btn').forEach(el => el.classList.toggle('hidden', installed));
+        const topInstall = document.getElementById('installBtn');
+        if (topInstall) topInstall.classList.toggle('hidden', installed);
+    }
+    let weekOffset = 0;
+    let currentAdminSection = null;
+    let DIRECTORY = [];
+    let adminAnalyticsCache = null;
+    let analyticsFilter = 'all';
+    let analyticsSearch = '';
+    let analyticsCurrentSub = null;
+    let analyticsRotationDays = 30;
+    let analyticsRotationPool = 'officer';
+    let analyticsRotationSort = 'count-desc';
+    let analyticsActivitySort = 'total-desc';
+    let analyticsSettingsFilter = 'all';
+    let analyticsHistorySort = 'newest';
+    let gameLinksDraft = null;
+
+    const LANG_KEY='wfgg_train_lang';
+    const SUPPORTED_LANGS=['fr','en','it','es'];
+    const LOCALES={fr:'fr-FR',en:'en-GB',it:'it-IT',es:'es-ES'};
+    const UI_TRANSLATIONS={"Train de l’alliance":{"en":"Alliance Train","it":"Treno dell’alleanza","es":"Tren de la alianza"},"Consulte tes passages, ton planning, tes alertes et tes échanges.":{"en":"Check your turns, schedule, alerts and swaps.","it":"Consulta i tuoi turni, il calendario, gli avvisi e gli scambi.","es":"Consulta tus turnos, calendario, alertas e intercambios."},"Ton pseudo":{"en":"Your nickname","it":"Il tuo nickname","es":"Tu apodo"},"Commence à saisir ton pseudo":{"en":"Start typing your nickname","it":"Inizia a digitare il tuo nickname","es":"Empieza a escribir tu apodo"},"Code R4 / R5":{"en":"R4 / R5 code","it":"Codice R4 / R5","es":"Código R4 / R5"},"6 chiffres":{"en":"6 digits","it":"6 cifre","es":"6 dígitos"},"Entrer dans WfGg Train":{"en":"Enter WfGg Train","it":"Entra in WfGg Train","es":"Entrar en WfGg Train"},"R3/R2/R1 : le pseudo suffit pour entrer":{"en":"R3/R2/R1: nickname only","it":"R3/R2/R1: basta il nickname","es":"R3/R2/R1: basta el apodo"},"Installer l’application":{"en":"Install the app","it":"Installa l’app","es":"Instalar la aplicación"},"Moi":{"en":"Me","it":"Io","es":"Yo"},"Planning":{"en":"Schedule","it":"Calendario","es":"Calendario"},"Échanges":{"en":"Swaps","it":"Scambi","es":"Intercambios"},"Alertes":{"en":"Alerts","it":"Avvisi","es":"Alertas"},"Admin":{"en":"Admin","it":"Admin","es":"Admin"},"Synchronisation":{"en":"Sync","it":"Sincronizzazione","es":"Sincronización"},"Synchronisation…":{"en":"Syncing…","it":"Sincronizzazione…","es":"Sincronizando…"},"Hors connexion":{"en":"Offline","it":"Offline","es":"Sin conexión"},"Synchronisé":{"en":"Synced","it":"Sincronizzato","es":"Sincronizado"},"Disponible":{"en":"Available","it":"Disponibile","es":"Disponible"},"Hors rotation":{"en":"Out of rotation","it":"Fuori rotazione","es":"Fuera de rotación"},"Actif":{"en":"Active","it":"Attivo","es":"Activo"},"Ton prochain train":{"en":"Your next train","it":"Il tuo prossimo treno","es":"Tu próximo tren"},"Tes prochains passages":{"en":"Your upcoming turns","it":"I tuoi prossimi turni","es":"Tus próximos turnos"},"Mon statut":{"en":"My status","it":"Il mio stato","es":"Mi estado"},"Touche une carte":{"en":"Tap a card","it":"Tocca una scheda","es":"Toca una tarjeta"},"Profil":{"en":"Profile","it":"Profilo","es":"Perfil"},"Pseudo & profil":{"en":"Nickname & profile","it":"Nickname e profilo","es":"Apodo y perfil"},"Gérer les rappels":{"en":"Manage reminders","it":"Gestisci promemoria","es":"Gestionar recordatorios"},"Indisponibilités":{"en":"Unavailability","it":"Indisponibilità","es":"Indisponibilidades"},"Voir / corriger":{"en":"View / edit","it":"Vedi / correggi","es":"Ver / corregir"},"Rotation":{"en":"Rotation","it":"Rotazione","es":"Rotación"},"Gérer mon statut":{"en":"Manage my status","it":"Gestisci il mio stato","es":"Gestionar mi estado"},"Modifier mon profil":{"en":"Edit my profile","it":"Modifica il mio profilo","es":"Editar mi perfil"},"Modifier mon pseudo / ma photo":{"en":"Edit nickname / photo","it":"Modifica nickname / foto","es":"Editar apodo / foto"},"Aucun passage prévu pour ton rang actuel ou ta rotation.":{"en":"No turn scheduled for your current rank or rotation.","it":"Nessun turno previsto per il tuo grado o la tua rotazione attuale.","es":"No hay turnos previstos para tu rango o rotación actual."},"Aucun autre passage à venir.":{"en":"No other upcoming turns.","it":"Nessun altro turno in arrivo.","es":"No hay otros turnos próximos."},"Aujourd’hui":{"en":"Today","it":"Oggi","es":"Hoy"},"Demain":{"en":"Tomorrow","it":"Domani","es":"Mañana"},"Calendrier":{"en":"Calendar","it":"Calendario","es":"Calendario"},"Échanger ma place":{"en":"Swap my slot","it":"Scambia il mio posto","es":"Intercambiar mi plaza"},"Indisponible":{"en":"Unavailable","it":"Indisponibile","es":"No disponible"},"CONDUCTEUR":{"en":"DRIVER","it":"CONDUCENTE","es":"CONDUCTOR"},"Conducteur":{"en":"Driver","it":"Conducente","es":"Conductor"},"VIP":{"en":"VIP","it":"VIP","es":"VIP"},"Planning hebdomadaire":{"en":"Weekly schedule","it":"Calendario settimanale","es":"Calendario semanal"},"À définir":{"en":"To be assigned","it":"Da definire","es":"Por definir"},"Bourse aux échanges":{"en":"Swap marketplace","it":"Borsa degli scambi","es":"Mercado de intercambios"},"Annonces ouvertes":{"en":"Open requests","it":"Richieste aperte","es":"Solicitudes abiertas"},"Mes demandes":{"en":"My requests","it":"Le mie richieste","es":"Mis solicitudes"},"Aucune annonce ouverte pour le moment.":{"en":"No open swap requests right now.","it":"Nessuna richiesta di scambio aperta al momento.","es":"No hay solicitudes de intercambio abiertas por ahora."},"Aucune demande publiée.":{"en":"No request published.","it":"Nessuna richiesta pubblicata.","es":"No hay solicitudes publicadas."},"OUVERT":{"en":"OPEN","it":"APERTO","es":"ABIERTO"},"Retirer mon annonce":{"en":"Remove my request","it":"Ritira la mia richiesta","es":"Retirar mi solicitud"},"Je propose une de mes dates":{"en":"Offer one of my dates","it":"Propongo una delle mie date","es":"Propongo una de mis fechas"},"Échanger":{"en":"Swap","it":"Scambia","es":"Intercambiar"},"Choisir ta date":{"en":"Choose your date","it":"Scegli la tua data","es":"Elige tu fecha"},"Aucune date compatible":{"en":"No compatible date","it":"Nessuna data compatibile","es":"No hay fecha compatible"},"Publier ma demande":{"en":"Publish my request","it":"Pubblica la mia richiesta","es":"Publicar mi solicitud"},"Publier un échange":{"en":"Publish a swap","it":"Pubblica uno scambio","es":"Publicar un intercambio"},"Pas maintenant":{"en":"Not now","it":"Non ora","es":"Ahora no"},"Annonce publiée":{"en":"Request published","it":"Richiesta pubblicata","es":"Solicitud publicada"},"Annonce retirée":{"en":"Request removed","it":"Richiesta ritirata","es":"Solicitud retirada"},"Échange effectué":{"en":"Swap completed","it":"Scambio effettuato","es":"Intercambio realizado"},"Une annonce existe déjà pour cette date":{"en":"A request already exists for this date","it":"Esiste già una richiesta per questa data","es":"Ya existe una solicitud para esta fecha"},"Tu ne choisis personne : les joueurs compatibles verront l’annonce et proposeront eux-mêmes leur date.":{"en":"You do not choose a player: compatible members will see the request and offer their own date.","it":"Non scegli tu il giocatore: i membri compatibili vedranno la richiesta e proporranno la propria data.","es":"No eliges a nadie: los jugadores compatibles verán la solicitud y propondrán su propia fecha."},"Alertes & calendrier":{"en":"Alerts & calendar","it":"Avvisi e calendario","es":"Alertas y calendario"},"Rappels personnels":{"en":"Personal reminders","it":"Promemoria personali","es":"Recordatorios personales"},"J-1 puis 30 minutes avant le départ.":{"en":"1 day before, then 30 minutes before departure.","it":"1 giorno prima, poi 30 minuti prima della partenza.","es":"1 día antes y luego 30 minutos antes de la salida."},"Ajouter mes passages au calendrier":{"en":"Add my turns to calendar","it":"Aggiungi i miei turni al calendario","es":"Añadir mis turnos al calendario"},"Ajouter mes prochains passages":{"en":"Add my upcoming turns","it":"Aggiungi i miei prossimi turni","es":"Añadir mis próximos turnos"},"Alertes activées":{"en":"Alerts enabled","it":"Avvisi attivati","es":"Alertas activadas"},"Alertes désactivées":{"en":"Alerts disabled","it":"Avvisi disattivati","es":"Alertas desactivadas"},"Événement calendrier créé":{"en":"Calendar event created","it":"Evento calendario creato","es":"Evento de calendario creado"},"Calendrier créé":{"en":"Calendar created","it":"
+
+---
+
+===== const state =====
+NOT FOUND
+===== currentUserId =====
+(() => {
+    'use strict';
+    let BASE_ROSTER = (() => { try {
+        return JSON.parse(localStorage.getItem('wfgg_train_roster_cache')) || window.WFGG_ROSTER || [];
+    }
+    catch (e) {
+        return window.WFGG_ROSTER || [];
+    } })();
+    const STORAGE = 'wfgg_train_v13';
+    const LEGACY_KEYS = ['wfgg_train_v1'];
+
+    const API_BASE = '';
+    const ROSTER_CACHE_KEY = 'wfgg_train_roster_cache';
+    let syncTimer = null;
+    let presenceTimer = null;
+    let syncing = false;
+    let adminPresence = {count:0,online:[],thresholdSeconds:90};
+    let presenceListOpen = false;
+    let publicGameLinks = [];
+    const DEFAULT_STATE = {
+        currentUserId: null,
+        settings: {
+            anchorDate: '2026-08-10',
+            trainTime: '20:00',
+            officersFirst: true,
+            reminderDayBefore: true,
+            reminder30: true,
+            rotationRanks: {
+                officer: ['R5', 'R4'],
+                r3driver: ['R3'],
+                vip: ['R3', 'R2', 'R1']
+            }
+        },
+        unavailable: {},
+        outRotation: [],
+        overrides: {},
+        exchanges: [],
+        alertsEnabled: {},
+        languages: {},
+        gameLinks: [],
+        playerEdits: {},
+        addedPlayers: [],
+        removedPlayers: [],
+        rotationOrder: { officer: [], r3driver: [], r3vip: [] },
+        messageVariant: { weekly: 0, daily: 0, driver: 0, vip: 0 }
+    };
+    let state = loadState();
+    let ROSTER = [];
+    let byId = {};
+    let deferredInstall = null;
+    function isStandaloneApp() {
+        return window.matchMedia('(display-mode: standalone)').matches
+            || window.matchMedia('(display-mode: fullscreen)').matches
+            || window.navigator.standalone === true
+            || document.referrer.startsWith('android-app://');
+    }
+    function updateInstallVisibility() {
+        const installed = isStandaloneApp();
+        document.querySelectorAll('.install-login-btn, .portal-install-btn').forEach(el => el.classList.toggle('hidden', installed));
+        const topInstall = document.getElementById('installBtn');
+        if (topInstall) topInstall.classList.toggle('hidden', installed);
+    }
+    let weekOffset = 0;
+    let currentAdminSection = null;
+    let DIRECTORY = [];
+    let adminAnalyticsCache = null;
+    let analyticsFilter = 'all';
+    let analyticsSearch = '';
+    let analyticsCurrentSub = null;
+    let analyticsRotationDays = 30;
+    let analyticsRotationPool = 'officer';
+    let analyticsRotationSort = 'count-desc';
+    let analyticsActivitySort = 'total-desc';
+    let analyticsSettingsFilter = 'all';
+    let analyticsHistorySort = 'newest';
+    let gameLinksDraft = null;
+
+    const LANG_KEY='wfgg_train_lang';
+    const SUPPORTED_LANGS=['fr','en','it','es'];
+    const LOCALES={fr:'fr-FR',en:'en-GB',it:'it-IT',es:'es-ES'};
+    const UI_TRANSLATIONS={"Train de l’alliance":{"en":"Alliance Train","it":"Treno dell’alleanza","es":"Tren de la alianza"},"Consulte tes passages, ton planning, tes alertes et tes échanges.":{"en":"Check your turns, schedule, alerts and swaps.","it":"Consulta i tuoi turni, il calendario, gli avvisi e gli scambi.","es":"Consulta tus turnos, calendario, alertas e intercambios."},"Ton pseudo":{"en":"Your nickname","it":"Il tuo nickname","es":"Tu apodo"},"Commence à saisir ton pseudo":{"en":"Start typing your nickname","it":"Inizia a digitare il tuo nickname","es":"Empieza a escribir tu apodo"},"Code R4 / R5":{"en":"R4 / R5 code","it":"Codice R4 / R5","es":"Código R4 / R5"},"6 chiffres":{"en":"6 digits","it":"6 cifre","es":"6 dígitos"},"Entrer dans WfGg Train":{"en":"Enter WfGg Train","it":"Entra in WfGg Train","es":"Entrar en WfGg Train"},"R3/R2/R1 : le pseudo suffit pour entrer":{"en":"R3/R2/R1: nickname only","it":"R3/R2/R1: basta il nickname","es":"R3/R2/R1: basta el apodo"},"Installer l’application":{"en":"Install the app","it":"Installa l’app","es":"Instalar la aplicación"},"Moi":{"en":"Me","it":"Io","es":"Yo"},"Planning":{"en":"Schedule","it":"Calendario","es":"Calendario"},"Échanges":{"en":"Swaps","it":"Scambi","es":"Intercambios"},"Alertes":{"en":"Alerts","it":"Avvisi","es":"Alertas"},"Admin":{"en":"Admin","it":"Admin","es":"Admin"},"Synchronisation":{"en":"Sync","it":"Sincronizzazione","es":"Sincronización"},"Synchronisation…":{"en":"Syncing…","it":"Sincronizzazione…","es":"Sincronizando…"},"Hors connexion":{"en":"Offline","it":"Offline","es":"Sin conexión"},"Synchronisé":{"en":"Synced","it":"Sincronizzato","es":"Sincronizado"},"Disponible":{"en":"Available","it":"Disponibile","es":"Disponible"},"Hors rotation":{"en":"Out of rotation","it":"Fuori rotazione","es":"Fuera de rotación"},"Actif":{"en":"Active","it":"Attivo","es":"Activo"},"Ton prochain train":{"en":"Your next train","it":"Il tuo prossimo treno","es":"Tu próximo tren"},"Tes prochains passages":{"en":"Your upcoming turns","it":"I tuoi prossimi turni","es":"Tus próximos turnos"},"Mon statut":{"en":"My status","it":"Il mio stato","es":"Mi estado"},"Touche une carte":{"en":"Tap a card","it":"Tocca una scheda","es":"Toca una tarjeta"},"Profil":{"en":"Profile","it":"Profilo","es":"Perfil"},"Pseudo & profil":{"en":"Nickname & profile","it":"Nickname e profilo","es":"Apodo y perfil"},"Gérer les rappels":{"en":"Manage reminders","it":"Gestisci promemoria","es":"Gestionar recordatorios"},"Indisponibilités":{"en":"Unavailability","it":"Indisponibilità","es":"Indisponibilidades"},"Voir / corriger":{"en":"View / edit","it":"Vedi / correggi","es":"Ver / corregir"},"Rotation":{"en":"Rotation","it":"Rotazione","es":"Rotación"},"Gérer mon statut":{"en":"Manage my status","it":"Gestisci il mio stato","es":"Gestionar mi estado"},"Modifier mon profil":{"en":"Edit my profile","it":"Modifica il mio profilo","es":"Editar mi perfil"},"Modifier mon pseudo / ma photo":{"en":"Edit nickname / photo","it":"Modifica nickname / foto","es":"Editar apodo / foto"},"Aucun passage prévu pour ton rang actuel ou ta rotation.":{"en":"No turn scheduled for your current rank or rotation.","it":"Nessun turno previsto per il tuo grado o la tua rotazione attuale.","es":"No hay turnos previstos para tu rango o rotación actual."},"Aucun autre passage à venir.":{"en":"No other upcoming turns.","it":"Nessun altro turno in arrivo.","es":"No hay otros turnos próximos."},"Aujourd’hui":{"en":"Today","it":"Oggi","es":"Hoy"},"Demain":{"en":"Tomorrow","it":"Domani","es":"Mañana"},"Calendrier":{"en":"Calendar","it":"Calendario","es":"Calendario"},"Échanger ma place":{"en":"Swap my slot","it":"Scambia il mio posto","es":"Intercambiar mi plaza"},"Indisponible":{"en":"Unavailable","it":"Indisponibile","es":"No disponible"},"CONDUCTEUR":{"en":"DRIVER","it":"CONDUCENTE","es":"CONDUCTOR"},"Conducteur":{"en":"Driver","it":"Conducente","es":"Conductor"},"VIP":{"en":"VIP","it":"VIP","es":"VIP"},"Planning hebdomadaire":{"en":"Weekly schedule","it":"Calendario settimanale","es":"Calendario semanal"},"À définir":{"en":"To be assigned","it":"Da definire","es":"Por definir"},"Bourse aux échanges":{"en":"Swap marketplace","it":"Borsa degli scambi","es":"Mercado de intercambios"},"Annonces ouvertes":{"en":"Open requests","it":"Richieste aperte","es":"Solicitudes abiertas"},"Mes demandes":{"en":"My requests","it":"Le mie richieste","es":"Mis solicitudes"},"Aucune annonce ouverte pour le moment.":{"en":"No open swap requests right now.","it":"Nessuna richiesta di scambio aperta al momento.","es":"No hay solicitudes de intercambio abiertas por ahora."},"Aucune demande publiée.":{"en":"No request published.","it":"Nessuna richiesta pubblicata.","es":"No hay solicitudes publicadas."},"OUVERT":{"en":"OPEN","it":"APERTO","es":"ABIERTO"},"Retirer mon annonce":{"en":"Remove my request","it":"Ritira la mia richiesta","es":"Retirar mi solicitud"},"Je propose une de mes dates":{"en":"Offer one of my dates","it":"Propongo una delle mie date","es":"Propongo una de mis fechas"},"Échanger":{"en":"Swap","it":"Scambia","es":"Intercambiar"},"Choisir ta date":{"en":"Choose your date","it":"Scegli la tua data","es":"Elige tu fecha"},"Aucune date compatible":{"en":"No compatible date","it":"Nessuna data compatibile","es":"No hay fecha compatible"},"Publier ma demande":{"en":"Publish my request","it":"Pubblica la mia richiesta","es":"Publicar mi solicitud"},"Publier un échange":{"en":"Publish a swap","it":"Pubblica uno scambio","es":"Publicar un intercambio"},"Pas maintenant":{"en":"Not now","it":"Non ora","es":"Ahora no"},"Annonce publiée":{"en":"Request published","it":"Richiesta pubblicata","es":"Solicitud publicada"},"Annonce retirée":{"en":"Request removed","it":"Richiesta ritirata","es":"Solicitud retirada"},"Échange effectué":{"en":"Swap completed","it":"Scambio effettuato","es":"Intercambio realizado"},"Une annonce existe déjà pour cette date":{"en":"A request already exists for this date","it":"Esiste già una richiesta per questa data","es":"Ya existe una solicitud para esta fecha"},"Tu ne choisis personne : les joueurs compatibles verront l’annonce et proposeront eux-mêmes leur date.":{"en":"You do not choose a player: compatible members will see the request and offer their own date.","it":"Non scegli tu il giocatore: i membri compatibili vedranno la richiesta e proporranno la propria data.","es":"No eliges a nadie: los jugadores compatibles verán la solicitud y propondrán su propia fecha."},"Alertes & calendrier":{"en":"Alerts & calendar","it":"Avvisi e calendario","es":"Alertas y calendario"},"Rappels personnels":{"en":"Personal reminders","it":"Promemoria personali","es":"Recordatorios personales"},"J-1 puis 30 minutes avant le départ.":{"en":"1 day before, then 30 minutes before departure.","it":"
+
+---
+
+===== function user( =====
+added];
+        byId = Object.fromEntries(ROSTER.map(m => [m.id, m]));
+        normalizeRotationOrders();
+        updateLoginList();
+    }
+    function normalizeRotationOrders() {
+        state.rotationOrder = state.rotationOrder || { officer: [], r3driver: [], r3vip: [] };
+        ensureRotationRankSettings();
+        const eligible = {
+            officer: ROSTER.filter(m => ranksForRotation('officer').includes(m.rank) && m.active).map(m => m.id),
+            r3driver: ROSTER.filter(m => ranksForRotation('r3driver').includes(m.rank) && m.active).map(m => m.id),
+            r3vip: ROSTER.filter(m => ranksForRotation('vip').includes(m.rank) && m.active).map(m => m.id)
+        };
+        Object.keys(eligible).forEach(key => {
+            const allowed = eligible[key];
+            const old = (state.rotationOrder[key] || []).filter(id => allowed.includes(id));
+            state.rotationOrder[key] = [...old, ...allowed.filter(id => !old.includes(id))];
+        });
+    }
+    function orderedPool(pool, key) {
+        const order = state.rotationOrder[key] || [];
+        const pos = Object.fromEntries(order.map((id, i) => [id, i]));
+        return pool.slice().sort((a, b) => { var _a, _b; return ((_a = pos[a.id]) !== null && _a !== void 0 ? _a : 9999) - ((_b = pos[b.id]) !== null && _b !== void 0 ? _b : 9999) || a.id.localeCompare(b.id); });
+    }
+    function updateLoginList() {
+        const dl = document.getElementById('memberList');
+        if (dl)
+            dl.innerHTML = ROSTER.filter(x => x.active).map(x => `<option value="${esc(x.pseudo)}">${x.rank}</option>`).join('');
+        const note = document.querySelector('.login-note');
+        if (note)
+            note.textContent = `Connexion par pseudo • ${ROSTER.filter(x => x.active).length} profils actifs`;
+    }
+    function user() { return byId[state.currentUserId]; }
+    function isAdmin(m = user()) { return !!m && ['R5', 'R4'].includes(m.rank); }
+    function canSelfManage(m = user()) { return !!m && ['R5', 'R4', 'R3', 'R2'].includes(m.rank); }
+    function isOut(id) { return (state.outRotation || []).includes(id); }
+    function isUnavailable(id, date) { return (state.unavailable[id] || []).includes(date); }
+    function activePool(ranks) { return ROSTER.filter(m => ranks.includes(m.rank) && m.active && !isOut(m.id)); }
+    function esc(s) { return String(s !== null && s !== void 0 ? s : '').replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m])); }
+    function uid() { return 'x' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+    function avatarSrc(m) {
+        const src = (m === null || m === void 0 ? void 0 : m.avatar) || 'assets/icon-192.png';
+        return src.startsWith('/api/') ? API_BASE + src : src;
+    }
+    function avatar(m, cls = 'sm') { return `<img class="avatar ${cls}" src="${esc(avatarSrc(m))}" alt="${esc((m === null || m === void 0 ? void 0 : m.pseudo) || 'joueur')}">`; }
+    function rankBadge(r) { return `<span class="rank rank-${r}">${r}</span>`; }
+    function dateISO(d) { return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
+    function parseISO(s) { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); }
+    function addDays(d, n) { const x = new Date(d); x.setDate(x.getDate() + n); return x; }
+    function mondayOf(d) { const x = new Date(d); const day = (x.getDay() + 6) % 7; x.setHours(0, 0, 0, 0); return addDays(x, -day); }
+    function fmtDate(d, opt = { weekday: 'long', day: 'numeric', month: 'long' }) { return new Intl.DateTimeFormat(currentLocale(), opt).format(d); }
+    function fmtShort(d) { return new Intl.DateTimeFormat(currentLocale(), { weekday: 'short', day: 'numeric', month: 'short' }).format(d); }
+    function toast(msg) {
+        const t = document.getElementById('toast');
+        if (!t)
+            return;
+        t.textContent = translatedString(msg);
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 2300);
+    }
+    function pickFair(pool, date, history, exclude = []) {
+        const filtered = pool.filter(m => !exclude.includes(m.id) && !isUnavailable(m.id, date));
+        if (!filtered.length)
+            return null;
+        const orderIndex = Object.fromEntries(pool.map((m, i) => [m.id, i]));
+        return filtered.slice().sort((a, b) => {
+            var _a, _b;
+            const ha = history[a.id] || { count: 0, last: '0000-00-00' };
+            const hb = history[b.id] || { count: 0, last: '0000-00-00' };
+            if (ha.count !== hb.count)
+                return ha.count - hb.count;
+            const lc = ha.last.localeCompare(hb.last);
+            if (lc !== 0)
+                return lc;
+            return ((_a = orderIndex[a.id]) !== null && _a !== void 0 ? _a : 9999) - ((_b = orderIndex[b.id]) !== null && _b !== void 0 ? _b : 9999);
+        })[0];
+    }
+    function touchHistory(history, m, date) {
+        if (!m)
+            return;
+        history[m.id] = history[m.id] || { count: 0, last: '0000-00-00' };
+        history[m.id].count++;
+        history[m.id].last = date;
+    }
+    function generateSchedule(days = 260) {
+        const anchor = parseISO(state.settings.anchorDate);
+        ensureRotationRankSettings();
+        const officers = orderedPool(activePool(ranksForRotation('officer')), 'officer');
+        const r3Drivers = orderedPool(activePool(ranksForRotation('r3driver')), 'r3driver');
+        const r3Vips = orderedPool(activePool(ranksForRotation('vip')), 'r3vip');
+        const officerHistory = {}, r3DriverHistory = {}, vipHistory = {};
+        const out = [];
+        for (let i = 0; i < days; i++) {
+            const d = addDays(anchor, i), ds = dateISO(d);
+            const officerDay = state.settings.officersFirst ? i % 2 === 0 : i % 2 === 1;
+            const driver = officerDay
+                ? pickFair(officers, ds, officerHistory, [])
+                : pickFair(r3Drivers, ds, r3DriverHistory, []);
+            if (officerDay)
+                touchHistory(officerHistory, driver, ds);
+            else
+                touchHistory(r3DriverHistory, driver, ds);
+            // VIP : rotation équitable entre R3, R2 et R1.
+            // Pas de règle artificielle J+1 : l'équité de comptage suffit.
+            // Seule incompatibilité : un joueur ne peut pas être Conducteur et VIP le même jour.
+            const vipExclude = driver ? [driver.id] : [];
+            const vip = pickFair(r3Vips, ds, vipHistory, vipExclude);
+            touchHistory(vipHistory, vip, ds);
+            let item = { date: ds, driverId: (driver === null || driver === void 0 ? void 0 : driver.id) || null, vipId: (vip === null || vip === void 0 ? void 0 : vip.id) || null, driverClass: officerDay ? 'officer' : 'r3' };
+            if (state.overrides[ds])
+                item = Object.assign(Object.assign({}, item), state.overrides[ds]);
+            out.push(item);
+        }
+        return out;
+    }
+    function schedule() { return generateSchedule(); }
+    function findAssignment(date) { return schedule().find(x => x.date === date); }
+    function roleKey(item, role) { return role === 'vip' ? 'vip' : (item.driverClass === 'officer' ? 'driver-officer' : 'driver-r3'); }
+    function myAssignments(id) {
+        var _a;
+        if (id === void 0) { id = (_a = user()) === null || _a === void 0 ? void 0 : _a.id; }
+        if (!id)
+            return [];
+        const list = [];
+        for (const x of schedule()) {
+            if (x.driverId === id)
+                list.push(Object.assign(Object.assign({}, x), { role: 'driver', roleKey: roleKey(x, 'driver') }));
+            if (x.vipId === id)
+                list.push(Object.assign(Object.assign({}, x), { role: 'vip', roleKey: 'vip' }));
+        }
+        return list;
+    }
+    function upcomingMine(limit = 8) {
+        const today = dateISO(new Date());
+        return myAssignments().filter(x => x.date >= today).sort((a, b) => a.date.localeCompare(b.date)).slice(0, limit);
+    }
+    function nextMine() { return upcomingMine(1)[0] || null; }
+    function otherOn(item, role) { return role === 'driver' ? byId[item.vipId] : byId[item.driverId]; }
+    function countdown(ds) {
+        const d = parseISO(ds), [hh, mm] = state.settings.trainTime.split(':').map(Number);
+        d.setHours(hh, mm, 0, 0);
+        const diff = d - new Date(), days = Math.ceil(diff / 86400000);
+        if (days <= 0)
+            return 'Aujourd’hui';
+        if (days === 1)
+            return 'Demain';
+        return `Dans ${days} jours`;
+    }
+    function renderHome() {
+        const m = user(), el = document.getElementById('homeScreen');
+        if (!m || !el)
+            return;
+        const next = nextMine(), mine = upcomingMine(6);
+        let nextHtml = '';
+        if (next) {
+            const d = parseISO(next.date), other = otherOn(next, next.role);
+            nextHtml = `<div class="next-card">
+      <div class="next-top"><div><div class="role-label">${next.role === 'driver' ? '🚂 CONDUCTEUR' : '⭐ VIP'}</div><div class="next-date">${fmtDate(d)}</div><div class="next-meta">Train à ${state.settings.trainTime}${other ? ` · avec ${esc(other.pseudo)}` : ''}</div></div><span class="countdown">${countdown(next.date)}</span></div>
+      <div class="actions home-next-actions">
+        <button class="btn gold" onclick="W.addCalendar('${next.date}','${next.role}')">📅 Calendrier</button>
+        ${canSelfManage() ? `<button class="btn exchange-btn" onclick="W.openExchange('${next.date}','${next.role}')">🔄 Échanger ma place</button><button class="btn outline" onclick="W.markUnavailable('${next.date}')">🚫 Indisponible</button>` : ''}
+      </div>
+    </div>`;
+        }
+        else
+            nextHtml = '<div class="empty">Aucun passage prévu pour ton rang actuel ou ta rotation.</div>';
+        const upcoming = mine.length ? mine.map(x => `<div class="assignment me">${avatar(m, 'xs')}<div class="who"><b>${fmtShort(parseISO(x.date))}</b><small>${state.settings.trainTime}</small></div><div class="assignment-role">${x.role === 'driver' ? 'CONDUCTEUR' : 'VIP'}</div></div>`).join('') : '<div class="empty">Aucun autre passage à venir.</div>';
+        el.innerHTML = `<div class="hero-card"><div class="profile-head">${avatar(m)}<div class="profile-name"><h2>${esc(m.pseudo)}</h2><p>${rankBadge(m.rank)} · ${isOut(m.id) ? 'Hors rotation' : 'Disponible'}</p></div></div><button class="btn outline profile-edit-btn" onclick="W.openSelfProfileEdit()">✏️ Modifier mon profil</button></div>
+  <div class="section-title"><h2>Ton prochain train</h2><p>${state.settings.trainTime}</p></div>${nextHtml}
+  <div class="section-title"><h2>Tes prochains passages</h2><p>${mine.length} affichés</p></div><div class="day-card
+
+---
+
+===== function saveState( =====
+="empty">Synchronisation…</div>`;
+      try{
+        if(force||!adminAnalyticsCache)adminAnalyticsCache=await api('/api/admin/analytics',{method:'GET'});
+        renderAnalyticsMenu();
+      }catch(e){el.innerHTML=`${adminBackButton()}<div class="empty">${esc(e.message)}</div>`;}
+    }
+
+    refreshRoster();
+    function cloneDefault() { return JSON.parse(JSON.stringify(DEFAULT_STATE)); }
+    function loadState() {
+        let raw = localStorage.getItem(STORAGE);
+        if (!raw) {
+            for (const key of LEGACY_KEYS) {
+                if (localStorage.getItem(key)) {
+                    raw = localStorage.getItem(key);
+                    break;
+                }
+            }
+        }
+        let parsed = {};
+        try {
+            parsed = raw ? JSON.parse(raw) : {};
+        }
+        catch (e) {
+            parsed = {};
+        }
+        const base = cloneDefault();
+        return Object.assign(Object.assign(Object.assign({}, base), parsed), { settings: Object.assign(Object.assign(Object.assign({}, base.settings), (parsed.settings || {})), { rotationRanks: Object.assign(Object.assign({}, base.settings.rotationRanks), ((parsed.settings || {}).rotationRanks || {})) }), unavailable: parsed.unavailable || {}, outRotation: parsed.outRotation || [], overrides: parsed.overrides || {}, exchanges: parsed.exchanges || [], alertsEnabled: parsed.alertsEnabled || {}, languages: parsed.languages || {}, gameLinks: parsed.gameLinks || [], playerEdits: parsed.playerEdits || {}, addedPlayers: parsed.addedPlayers || [], removedPlayers: parsed.removedPlayers || [], rotationOrder: Object.assign(Object.assign({}, base.rotationOrder), (parsed.rotationOrder || {})), messageVariant: Object.assign(Object.assign({}, base.messageVariant), (parsed.messageVariant || {})) });
+    }
+    function saveState() { localStorage.setItem(STORAGE, JSON.stringify(state)); }
+    
+
+    function setSyncStatus(kind = 'ok') {
+        const b = document.getElementById('syncBadge');
+        if (!b)
+            return;
+        b.classList.remove('sync-ok', 'sync-work', 'sync-off');
+        b.classList.add(kind === 'work' ? 'sync-work' : kind === 'off' ? 'sync-off' : 'sync-ok');
+        b.title = kind === 'work' ? 'Synchronisation…' : kind === 'off' ? 'Hors connexion' : 'Synchronisé';
+    }
+    async function api(path, options = {}) {
+        var _a, _b;
+        const headers = Object.assign({ 'content-type': 'application/json' }, (options.headers || {}));
+
+        if (token)
+
+        setSyncStatus('work');
+        let res;
+        try {
+            res = await fetch(API_BASE + path, Object.assign(Object.assign({}, options), { headers }));
+        }
+        catch (e) {
+            setSyncStatus('off');
+            throw new Error('Réseau indisponible');
+        }
+        let data = {};
+        try {
+            data = await res.json();
+        }
+        catch (e) { }
+        if (res.status === 401) {
+
+            state.currentUserId = null;
+            saveState();
+            setSyncStatus('off');
+            (_a = document.getElementById('appView')) === null || _a === void 0 ? void 0 : _a.classList.add('hidden');
+            throw new Error(data.error || 'Session expirée');
+        }
+        if (!res.ok) {
+            setSyncStatus('off');
+            throw new Error(data.error || `Erreur ${res.status}`);
+        }
+        setSyncStatus('ok');
+        return data;
+    }
+    function applySnapshot(snap) {
+        const localVariants = state.messageVariant || { weekly: 0, daily: 0, driver: 0, vip: 0 };
+        BASE_ROSTER = snap.roster || [];
+        localStorage.setItem(ROSTER_CACHE_KEY, JSON.stringify(BASE_ROSTER));
+        state = Object.assign(Object.assign(Object.assign({}, cloneDefault()), (snap.state || {})), { currentUserId: snap.me.id, messageVariant: localVariants, playerEdits: {}, addedPlayers: [], removedPlayers: [] });
+        refreshRoster();
+        const serverLang=state.languages?.[state.currentUserId];
+        if(SUPPORTED_LANGS.includes(serverLang))localStorage.setItem(LANG_KEY,serverLang);
+        saveState();
+        queueApplyLanguage();
+    }
+    async function syncSnapshot({ render = true, quiet = false } = {}) {
+        var _a;
+        if (syncing)
+            return false;
+        syncing = true;
+        try {
+            const snap = await api('/api/snapshot', { method: 'GET' });
+            applySnapshot(snap);
+            if (render && document.getElementById('appView') && !document.getElementById('appView').classList.contains('hidden')) {
+                const active = (_a = document.querySelector('.screen.active')) === null || _a === void 0 ? void 0 : _a.id;
+                if (active === 'adminScreen' && currentAdminSection)
+                    openAdminSection(currentAdminSection);
+                else
+                    renderAll();
+            }
+            return true;
+        }
+        catch (e) {
+            if (!quiet)
+                toast(e.message);
+            return false;
+        }
+        finally {
+            syncing = false;
+        }
+    }
+    async function mutate(path, options = {}, success = 'Modification enregistrée') {
+        try {
+            await api(path, options);
+            await syncSnapshot({ render: true, quiet: true });
+            if (success)
+                toast(success);
+            return true;
+        }
+        catch (e) {
+            toast(e.message);
+            return false;
+        }
+    }
+    function ensureRotationRankSettings() {
+        state.settings = state.settings || {};
+        state.settings.rotationRanks = state.settings.rotationRanks || {};
+        if (!Array.isArray(state.settings.rotationRanks.officer) || !state.settings.rotationRanks.officer.length)
+            state.settings.rotationRanks.officer = ['R5', 'R4'];
+        if (!Array.isArray(state.settings.rotationRanks.r3driver) || !state.settings.rotationRanks.r3driver.length)
+            state.settings.rotationRanks.r3driver = ['R3'];
+        if (!Array.isArray(state.settings.rotationRanks.vip) || !state.settings.rotationRanks.vip.length)
+            state.settings.rotationRanks.vip = ['R3', 'R2', 'R1'];
+    }
+    function ranksForRotation(key) {
+        ensureRotationRankSettings();
+        return [...state.settings.rotationRanks[key]];
+    }
+    function rolePoolLabel(key) {
+        const names = { officer: 'Conducteur A', r3driver: 'Conducteur B', vip: 'VIP' };
+        return `${names[key]} · ${ranksForRotation(key).join('/')}`;
+    }
+    function roleKeyLabel(key) {
+        if (key === 'vip')
+            return rolePoolLabel('vip');
+        if (key === 'driver-r3')
+            return rolePoolLabel('r3driver');
+        return rolePoolLabel('officer');
+    }
+    function rankCheckHtml(key, label) {
+        const selected = new Set(ranksForRotation(key));
+        return `<div class="rank-config-block">
+    <h4>${label}</h4>
+    <div class="rank-toggle-grid">${['R5', 'R4', 'R3', 'R2', 'R1'].map(r => `
+      <label class="rank-toggle">
+        <input type="checkbox" data-rotation-key="${key}" value="${r}" ${selected.has(r) ? 'checked' : ''}>
+        <span>${r}</span>
+      </label>`).join('')}
+    </div>
+  </div>`;
+    }
+    function refreshRoster() {
+        const removed = new Set(state.removedPlayers || []);
+        const edits = state.playerEdits || {};
+        const base = BASE_ROSTER
+            .filter(m => !removed.has(m.id))
+            .map(m => (Object.assign(Object.assign({}, m), (edits[m.id] || {}))));
+        const added = (state.addedPlayers || []).filter(m => !removed.has(m.id));
+        ROSTER = [...base, ...added];
+        byId = Object.fromEntries(ROSTER.map(m => [m.id, m]));
+        normalizeRotationOrders();
+        updateLoginList();
+    }
+    function normalizeRotationOrders() {
+        state.rotationOrder = state.rotationOrder || { officer: [], r3driver: [], r3vip: [] };
+        ensureRotationRankSettings();
+        const eligible = {
+            officer: ROSTER.filter(m => ranksForRotation('officer').includes(m.rank) && m.active).map(m => m.id),
+            r3driver: ROSTER.filter(m => ranksForRotation('r3driver').includes(m.rank) && m.active).map(m => m.id),
+            r3vip: ROSTER.filter(m => ranksForRotation('vip').includes(m.rank) && m.active).map(m => m.id)
+        };
+        Object.keys(eligible).forEach(key => {
+            const allowed = eligible[key];
+            const old = (state.rotationOrder[key] || []).filter(id => allowed.includes(id));
+            state.rotationOrder[key] = [...old, ...allowed.filter(id => !old.includes(id))];
+        });
+    }
+    function orderedPool(pool, key) {
+        const order = state.rotationOrder[key] || [];
+        const pos = Object.fromEntries(order.map((id, i) => [id, i]));
+        return pool.slice().sort((a, b) => { var _a, _b; return ((_a = pos[a.id]) !== null && _a !== void 0 ? _a : 9999) - ((_b = pos[b.id]) !== null && _b !== void 0 ? _b : 9999) || a.id.localeCompare(b.id); });
+    }
+    function updateLoginList() {
+        const dl = document.getElementById('memberList');
+        if (dl)
+            dl.innerHTML = ROSTER.filter(x => x.active).map(x => `<option value="${esc(x.pseudo)}">${x.rank}</option>`).join('');
+        const note = document.querySelector('.login-note');
+        if (note)
+            note.textContent = `Connexion par pseudo • ${ROSTER.filter(x => x.active).length} profils actifs`;
+    }
+    function user() { return byId[state.currentUserId]; }
+    function isAdmin(m = user()) { return !!m && ['R5', 'R4'].includes(m.rank); }
+    function canSelfManage(m = user()) { return !!m && ['R5', 'R4', 'R3', 'R2'].includes(m.rank); }
+    function isOut(id) { return (state.outRotation || []).includes(id); }
+    function isUnavailable(id, date) { return (state.unavailable[id] || []).includes(date); }
+    function activePool(ranks) { return ROSTER.filter(m => ranks.includes(m.rank) && m.active && !isOut(m.id)); }
+    function esc(s) { return String(s !== null && s !== void 0 ? s : '').replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m])); }
+    function uid() { return 'x' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+    function avatarSrc(m) {
+        const src = (m === null || m === void 0 ? void 0 : m.avatar) || 'assets/icon-192.png';
+        return src.startsWith('/api/') ? API_BASE + src : src;
+    }
+    function avatar(m, cls = 'sm') { return `<img class="avatar ${cls}" src="${esc(avatarSrc(m))}" alt="${esc((m === null || m === void 0 ? void 0 : m.pseudo) || 'joueur')}">`; }
+    function rankBadge(r) { return `<span class="rank rank-${r}">${r}</span>`; }
+    function dateISO(d) { return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
+    function parseISO(s) { const 
+
+---
+
+===== function loadState( =====
+view"><summary>⚠️ À vérifier</summary><div class="pseudo-correction-list review">${Object.entries(reviews).map(([a,b])=>`<div><span>${esc(a)}</span><i>?</i><b>${esc(b)}</b></div>`).join('')}</div></details>`:''}
+        </div>
+        <div class="admin-panel">
+          <h3>🔎 Comparaison avec le fichier de référence</h3>
+          <p class="admin-lead">Membres du fichier absents de l’application</p>
+          ${missing.length?`<div class="history-name-chips">${missing.map(x=>`<span>${esc(x.pseudo)} · ${x.rank}</span>`).join('')}</div>`:'<div class="success">✅ Aucun</div>'}
+          <p class="admin-lead" style="margin-top:14px">Membres de l’application absents du fichier</p>
+          ${extra.length?`<div class="history-name-chips warning-chips">${extra.map(x=>`<span>${esc(x.pseudo)} · ${x.rank}</span>`).join('')}</div>`:'<div class="success">✅ Aucun</div>'}
+        </div>
+        <div class="history-source-note">📄 Source : historique manuel WfGg · ${esc(h.source||'Train Wfgg')}</div>`;
+      queueApplyLanguage();window.scrollTo({top:0,behavior:'smooth'});
+    }
+
+    async function openAdminAnalytics(force=false){
+      if(!isAdmin())return;
+      currentAdminSection='analytics';
+      analyticsCurrentSub=null;
+      const el=document.getElementById('adminScreen');
+      el.innerHTML=`${adminBackButton()}<div class="section-title"><h2>📊 Statistiques & historique</h2></div><div class="empty">Synchronisation…</div>`;
+      try{
+        if(force||!adminAnalyticsCache)adminAnalyticsCache=await api('/api/admin/analytics',{method:'GET'});
+        renderAnalyticsMenu();
+      }catch(e){el.innerHTML=`${adminBackButton()}<div class="empty">${esc(e.message)}</div>`;}
+    }
+
+    refreshRoster();
+    function cloneDefault() { return JSON.parse(JSON.stringify(DEFAULT_STATE)); }
+    function loadState() {
+        let raw = localStorage.getItem(STORAGE);
+        if (!raw) {
+            for (const key of LEGACY_KEYS) {
+                if (localStorage.getItem(key)) {
+                    raw = localStorage.getItem(key);
+                    break;
+                }
+            }
+        }
+        let parsed = {};
+        try {
+            parsed = raw ? JSON.parse(raw) : {};
+        }
+        catch (e) {
+            parsed = {};
+        }
+        const base = cloneDefault();
+        return Object.assign(Object.assign(Object.assign({}, base), parsed), { settings: Object.assign(Object.assign(Object.assign({}, base.settings), (parsed.settings || {})), { rotationRanks: Object.assign(Object.assign({}, base.settings.rotationRanks), ((parsed.settings || {}).rotationRanks || {})) }), unavailable: parsed.unavailable || {}, outRotation: parsed.outRotation || [], overrides: parsed.overrides || {}, exchanges: parsed.exchanges || [], alertsEnabled: parsed.alertsEnabled || {}, languages: parsed.languages || {}, gameLinks: parsed.gameLinks || [], playerEdits: parsed.playerEdits || {}, addedPlayers: parsed.addedPlayers || [], removedPlayers: parsed.removedPlayers || [], rotationOrder: Object.assign(Object.assign({}, base.rotationOrder), (parsed.rotationOrder || {})), messageVariant: Object.assign(Object.assign({}, base.messageVariant), (parsed.messageVariant || {})) });
+    }
+    function saveState() { localStorage.setItem(STORAGE, JSON.stringify(state)); }
+    
+
+    function setSyncStatus(kind = 'ok') {
+        const b = document.getElementById('syncBadge');
+        if (!b)
+            return;
+        b.classList.remove('sync-ok', 'sync-work', 'sync-off');
+        b.classList.add(kind === 'work' ? 'sync-work' : kind === 'off' ? 'sync-off' : 'sync-ok');
+        b.title = kind === 'work' ? 'Synchronisation…' : kind === 'off' ? 'Hors connexion' : 'Synchronisé';
+    }
+    async function api(path, options = {}) {
+        var _a, _b;
+        const headers = Object.assign({ 'content-type': 'application/json' }, (options.headers || {}));
+
+        if (token)
+
+        setSyncStatus('work');
+        let res;
+        try {
+            res = await fetch(API_BASE + path, Object.assign(Object.assign({}, options), { headers }));
+        }
+        catch (e) {
+            setSyncStatus('off');
+            throw new Error('Réseau indisponible');
+        }
+        let data = {};
+        try {
+            data = await res.json();
+        }
+        catch (e) { }
+        if (res.status === 401) {
+
+            state.currentUserId = null;
+            saveState();
+            setSyncStatus('off');
+            (_a = document.getElementById('appView')) === null || _a === void 0 ? void 0 : _a.classList.add('hidden');
+            throw new Error(data.error || 'Session expirée');
+        }
+        if (!res.ok) {
+            setSyncStatus('off');
+            throw new Error(data.error || `Erreur ${res.status}`);
+        }
+        setSyncStatus('ok');
+        return data;
+    }
+    function applySnapshot(snap) {
+        const localVariants = state.messageVariant || { weekly: 0, daily: 0, driver: 0, vip: 0 };
+        BASE_ROSTER = snap.roster || [];
+        localStorage.setItem(ROSTER_CACHE_KEY, JSON.stringify(BASE_ROSTER));
+        state = Object.assign(Object.assign(Object.assign({}, cloneDefault()), (snap.state || {})), { currentUserId: snap.me.id, messageVariant: localVariants, playerEdits: {}, addedPlayers: [], removedPlayers: [] });
+        refreshRoster();
+        const serverLang=state.languages?.[state.currentUserId];
+        if(SUPPORTED_LANGS.includes(serverLang))localStorage.setItem(LANG_KEY,serverLang);
+        saveState();
+        queueApplyLanguage();
+    }
+    async function syncSnapshot({ render = true, quiet = false } = {}) {
+        var _a;
+        if (syncing)
+            return false;
+        syncing = true;
+        try {
+            const snap = await api('/api/snapshot', { method: 'GET' });
+            applySnapshot(snap);
+            if (render && document.getElementById('appView') && !document.getElementById('appView').classList.contains('hidden')) {
+                const active = (_a = document.querySelector('.screen.active')) === null || _a === void 0 ? void 0 : _a.id;
+                if (active === 'adminScreen' && currentAdminSection)
+                    openAdminSection(currentAdminSection);
+                else
+                    renderAll();
+            }
+            return true;
+        }
+        catch (e) {
+            if (!quiet)
+                toast(e.message);
+            return false;
+        }
+        finally {
+            syncing = false;
+        }
+    }
+    async function mutate(path, options = {}, success = 'Modification enregistrée') {
+        try {
+            await api(path, options);
+            await syncSnapshot({ render: true, quiet: true });
+            if (success)
+                toast(success);
+            return true;
+        }
+        catch (e) {
+            toast(e.message);
+            return false;
+        }
+    }
+    function ensureRotationRankSettings() {
+        state.settings = state.settings || {};
+        state.settings.rotationRanks = state.settings.rotationRanks || {};
+        if (!Array.isArray(state.settings.rotationRanks.officer) || !state.settings.rotationRanks.officer.length)
+            state.settings.rotationRanks.officer = ['R5', 'R4'];
+        if (!Array.isArray(state.settings.rotationRanks.r3driver) || !state.settings.rotationRanks.r3driver.length)
+            state.settings.rotationRanks.r3driver = ['R3'];
+        if (!Array.isArray(state.settings.rotationRanks.vip) || !state.settings.rotationRanks.vip.length)
+            state.settings.rotationRanks.vip = ['R3', 'R2', 'R1'];
+    }
+    function ranksForRotation(key) {
+        ensureRotationRankSettings();
+        return [...state.settings.rotationRanks[key]];
+    }
+    function rolePoolLabel(key) {
+        const names = { officer: 'Conducteur A', r3driver: 'Conducteur B', vip: 'VIP' };
+        return `${names[key]} · ${ranksForRotation(key).join('/')}`;
+    }
+    function roleKeyLabel(key) {
+        if (key === 'vip')
+            return rolePoolLabel('vip');
+        if (key === 'driver-r3')
+            return rolePoolLabel('r3driver');
+        return rolePoolLabel('officer');
+    }
+    function rankCheckHtml(key, label) {
+        const selected = new Set(ranksForRotation(key));
+        return `<div class="rank-config-block">
+    <h4>${label}</h4>
+    <div class="rank-toggle-grid">${['R5', 'R4', 'R3', 'R2', 'R1'].map(r => `
+      <label class="rank-toggle">
+        <input type="checkbox" data-rotation-key="${key}" value="${r}" ${selected.has(r) ? 'checked' : ''}>
+        <span>${r}</span>
+      </label>`).join('')}
+    </div>
+  </div>`;
+    }
+    function refreshRoster() {
+        const removed = new Set(state.removedPlayers || []);
+        const edits = state.playerEdits || {};
+        const base = BASE_ROSTER
+            .filter(m => !removed.has(m.id))
+            .map(m => (Object.assign(Object.assign({}, m), (edits[m.id] || {}))));
+        const added = (state.addedPlayers || []).filter(m => !removed.has(m.id));
+        ROSTER = [...base, ...added];
+        byId = Object.fromEntries(ROSTER.map(m => [m.id, m]));
+        normalizeRotationOrders();
+        updateLoginList();
+    }
+    function normalizeRotationOrders() {
+        state.rotationOrder = state.rotationOrder || { officer: [], r3driver: [], r3vip: [] };
+        ensureRotationRankSettings();
+        const eligible = {
+            officer: ROSTER.filter(m => ranksForRotation('officer').includes(m.rank) && m.active).map(m => m.id),
+            r3driver: ROSTER.filter(m => ranksForRotation('r3driver').includes(m.rank) && m.active).map(m => m.id),
+            r3vip: ROSTER.filter(m => ranksForRotation('vip').includes(m.rank) && m.active).map(m => m.id)
+        };
+        Object.keys(eligible).forEach(key => {
+            const allowed = eligible[key];
+            const old = (state.rotationOrder[key] || []).filter(id => allowed.includes(id));
+            state.rotationOrder[key] = [...old, ...allowed.filter(id => !old.includes(id))];
+        });
+    }
+    function orderedPool(pool, key) {
+        const order = state.rotationOrder[key] || [];
+        const pos = Object.fromEntries(order.map((id, i) => [id, i]));
+        return pool.slice().sort((a, b) => { var _a, _b; return ((_a = pos[a.id]) !== null && _a !== void 0 ? _a : 9999) - ((_b = pos[b.id]) !== null && _b !== void 0 ? _b : 9999) || a.id.localeCompare(b.id); });
+    }
+    function updateLoginList() {
+        const dl = document.getElementById('memberList');
+        if (dl)
+            dl.innerHTML = ROSTER.filter(x => x.active).map(x => `<option value="${esc(x.pseudo)}">${x.rank}</option>`).join('');
+        const note = document.querySelector('.login-note');
+        if (note)
+            note.textContent = `Connexion par pseudo • ${ROSTER.filter(x => x.active).length} profils actifs`;
+    }
+    function user() { ret
+
+---
+
+===== function api( =====
+onst key of LEGACY_KEYS) {
+                if (localStorage.getItem(key)) {
+                    raw = localStorage.getItem(key);
+                    break;
+                }
+            }
+        }
+        let parsed = {};
+        try {
+            parsed = raw ? JSON.parse(raw) : {};
+        }
+        catch (e) {
+            parsed = {};
+        }
+        const base = cloneDefault();
+        return Object.assign(Object.assign(Object.assign({}, base), parsed), { settings: Object.assign(Object.assign(Object.assign({}, base.settings), (parsed.settings || {})), { rotationRanks: Object.assign(Object.assign({}, base.settings.rotationRanks), ((parsed.settings || {}).rotationRanks || {})) }), unavailable: parsed.unavailable || {}, outRotation: parsed.outRotation || [], overrides: parsed.overrides || {}, exchanges: parsed.exchanges || [], alertsEnabled: parsed.alertsEnabled || {}, languages: parsed.languages || {}, gameLinks: parsed.gameLinks || [], playerEdits: parsed.playerEdits || {}, addedPlayers: parsed.addedPlayers || [], removedPlayers: parsed.removedPlayers || [], rotationOrder: Object.assign(Object.assign({}, base.rotationOrder), (parsed.rotationOrder || {})), messageVariant: Object.assign(Object.assign({}, base.messageVariant), (parsed.messageVariant || {})) });
+    }
+    function saveState() { localStorage.setItem(STORAGE, JSON.stringify(state)); }
+    
+
+    function setSyncStatus(kind = 'ok') {
+        const b = document.getElementById('syncBadge');
+        if (!b)
+            return;
+        b.classList.remove('sync-ok', 'sync-work', 'sync-off');
+        b.classList.add(kind === 'work' ? 'sync-work' : kind === 'off' ? 'sync-off' : 'sync-ok');
+        b.title = kind === 'work' ? 'Synchronisation…' : kind === 'off' ? 'Hors connexion' : 'Synchronisé';
+    }
+    async function api(path, options = {}) {
+        var _a, _b;
+        const headers = Object.assign({ 'content-type': 'application/json' }, (options.headers || {}));
+
+        if (token)
+
+        setSyncStatus('work');
+        let res;
+        try {
+            res = await fetch(API_BASE + path, Object.assign(Object.assign({}, options), { headers }));
+        }
+        catch (e) {
+            setSyncStatus('off');
+            throw new Error('Réseau indisponible');
+        }
+        let data = {};
+        try {
+            data = await res.json();
+        }
+        catch (e) { }
+        if (res.status === 401) {
+
+            state.currentUserId = null;
+            saveState();
+            setSyncStatus('off');
+            (_a = document.getElementById('appView')) === null || _a === void 0 ? void 0 : _a.classList.add('hidden');
+            throw new Error(data.error || 'Session expirée');
+        }
+        if (!res.ok) {
+            setSyncStatus('off');
+            throw new Error(data.error || `Erreur ${res.status}`);
+        }
+        setSyncStatus('ok');
+        return data;
+    }
+    function applySnapshot(snap) {
+        const localVariants = state.messageVariant || { weekly: 0, daily: 0, driver: 0, vip: 0 };
+        BASE_ROSTER = snap.roster || [];
+        localStorage.setItem(ROSTER_CACHE_KEY, JSON.stringify(BASE_ROSTER));
+        state = Object.assign(Object.assign(Object.assign({}, cloneDefault()), (snap.state || {})), { currentUserId: snap.me.id, messageVariant: localVariants, playerEdits: {}, addedPlayers: [], removedPlayers: [] });
+        refreshRoster();
+        const serverLang=state.languages?.[state.currentUserId];
+        if(SUPPORTED_LANGS.includes(serverLang))localStorage.setItem(LANG_KEY,serverLang);
+        saveState();
+        queueApplyLanguage();
+    }
+    async function syncSnapshot({ render = true, quiet = false } = {}) {
+        var _a;
+        if (syncing)
+            return false;
+        syncing = true;
+        try {
+            const snap = await api('/api/snapshot', { method: 'GET' });
+            applySnapshot(snap);
+            if (render && document.getElementById('appView') && !document.getElementById('appView').classList.contains('hidden')) {
+                const active = (_a = document.querySelector('.screen.active')) === null || _a === void 0 ? void 0 : _a.id;
+                if (active === 'adminScreen' && currentAdminSection)
+                    openAdminSection(currentAdminSection);
+                else
+                    renderAll();
+            }
+            return true;
+        }
+        catch (e) {
+            if (!quiet)
+                toast(e.message);
+            return false;
+        }
+        finally {
+            syncing = false;
+        }
+    }
+    async function mutate(path, options = {}, success = 'Modification enregistrée') {
+        try {
+            await api(path, options);
+            await syncSnapshot({ render: true, quiet: true });
+            if (success)
+                toast(success);
+            return true;
+        }
+        catch (e) {
+            toast(e.message);
+            return false;
+        }
+    }
+    function ensureRotationRankSettings() {
+        state.settings = state.settings || {};
+        state.settings.rotationRanks = state.settings.rotationRanks || {};
+        if (!Array.isArray(state.settings.rotationRanks.officer) || !state.settings.rotationRanks.officer.length)
+            state.settings.rotationRanks.officer = ['R5', 'R4'];
+        if (!Array.isArray(state.settings.rotationRanks.r3driver) || !state.settings.rotationRanks.r3driver.length)
+            state.settings.rotationRanks.r3driver = ['R3'];
+        if (!Array.isArray(state.settings.rotationRanks.vip) || !state.settings.rotationRanks.vip.length)
+            state.settings.rotationRanks.vip = ['R3', 'R2', 'R1'];
+    }
+    function ranksForRotation(key) {
+        ensureRotationRankSettings();
+        return [...state.settings.rotationRanks[key]];
+    }
+    function rolePoolLabel(key) {
+        const names = { officer: 'Conducteur A', r3driver: 'Conducteur B', vip: 'VIP' };
+        return `${names[key]} · ${ranksForRotation(key).join('/')}`;
+    }
+    function roleKeyLabel(key) {
+        if (key === 'vip')
+            return rolePoolLabel('vip');
+        if (key === 'driver-r3')
+            return rolePoolLabel('r3driver');
+        return rolePoolLabel('officer');
+    }
+    function rankCheckHtml(key, label) {
+        const selected = new Set(ranksForRotation(key));
+        return `<div class="rank-config-block">
+    <h4>${label}</h4>
+    <div class="rank-toggle-grid">${['R5', 'R4', 'R3', 'R2', 'R1'].map(r => `
+      <label class="rank-toggle">
+        <input type="checkbox" data-rotation-key="${key}" value="${r}" ${selected.has(r) ? 'checked' : ''}>
+        <span>${r}</span>
+      </label>`).join('')}
+    </div>
+  </div>`;
+    }
+    function refreshRoster() {
+        const removed = new Set(state.removedPlayers || []);
+        const edits = state.playerEdits || {};
+        const base = BASE_ROSTER
+            .filter(m => !removed.has(m.id))
+            .map(m => (Object.assign(Object.assign({}, m), (edits[m.id] || {}))));
+        const added = (state.addedPlayers || []).filter(m => !removed.has(m.id));
+        ROSTER = [...base, ...added];
+        byId = Object.fromEntries(ROSTER.map(m => [m.id, m]));
+        normalizeRotationOrders();
+        updateLoginList();
+    }
+    function normalizeRotationOrders() {
+        state.rotationOrder = state.rotationOrder || { officer: [], r3driver: [], r3vip: [] };
+        ensureRotationRankSettings();
+        const eligible = {
+            officer: ROSTER.filter(m => ranksForRotation('officer').includes(m.rank) && m.active).map(m => m.id),
+            r3driver: ROSTER.filter(m => ranksForRotation('r3driver').includes(m.rank) && m.active).map(m => m.id),
+            r3vip: ROSTER.filter(m => ranksForRotation('vip').includes(m.rank) && m.active).map(m => m.id)
+        };
+        Object.keys(eligible).forEach(key => {
+            const allowed = eligible[key];
+            const old = (state.rotationOrder[key] || []).filter(id => allowed.includes(id));
+            state.rotationOrder[key] = [...old, ...allowed.filter(id => !old.includes(id))];
+        });
+    }
+    function orderedPool(pool, key) {
+        const order = state.rotationOrder[key] || [];
+        const pos = Object.fromEntries(order.map((id, i) => [id, i]));
+        return pool.slice().sort((a, b) => { var _a, _b; return ((_a = pos[a.id]) !== null && _a !== void 0 ? _a : 9999) - ((_b = pos[b.id]) !== null && _b !== void 0 ? _b : 9999) || a.id.localeCompare(b.id); });
+    }
+    function updateLoginList() {
+        const dl = document.getElementById('memberList');
+        if (dl)
+            dl.innerHTML = ROSTER.filter(x => x.active).map(x => `<option value="${esc(x.pseudo)}">${x.rank}</option>`).join('');
+        const note = document.querySelector('.login-note');
+        if (note)
+            note.textContent = `Connexion par pseudo • ${ROSTER.filter(x => x.active).length} profils actifs`;
+    }
+    function user() { return byId[state.currentUserId]; }
+    function isAdmin(m = user()) { return !!m && ['R5', 'R4'].includes(m.rank); }
+    function canSelfManage(m = user()) { return !!m && ['R5', 'R4', 'R3', 'R2'].includes(m.rank); }
+    function isOut(id) { return (state.outRotation || []).includes(id); }
+    function isUnavailable(id, date) { return (state.unavailable[id] || []).includes(date); }
+    function activePool(ranks) { return ROSTER.filter(m => ranks.includes(m.rank) && m.active && !isOut(m.id)); }
+    function esc(s) { return String(s !== null && s !== void 0 ? s : '').replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m])); }
+    function uid() { return 'x' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+    function avatarSrc(m) {
+        const src = (m === null || m === void 0 ? void 0 : m.avatar) || 'assets/icon-192.png';
+        return src.startsWith('/api/') ? API_BASE + src : src;
+    }
+    function avatar(m, cls = 'sm') { return `<img class="avatar ${cls}" src="${esc(avatarSrc(m))}" alt="${esc((m === null || m === void 0 ? void 0 : m.pseudo) || 'joueur')}">`; }
+    function rankBadge(r) { return `<span class="rank rank-${r}">${r}</span>`; }
+    function dateISO(d) { return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
+    function parseISO(s) { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); }
+    function addDays(d, n) { const x = new Date(d); x.setDate(x.getDate() + n); return x; }
+    function mondayOf(d) { const x = new Date(d); const day = (x.getDay() + 6) % 7; x.setHours(0, 0, 0, 0); return addDays(x, -day); }
+    function fmtDate(d, opt = { weekday: 'long', day: 'numeric', month: 'long' }) { return new Intl.DateTimeFormat(currentLocale(), opt).format(d); }
+    function fmtShort(d) { return new Intl.DateTimeFormat(
+
+---
+
+===== async function api( =====
+for (const key of LEGACY_KEYS) {
+                if (localStorage.getItem(key)) {
+                    raw = localStorage.getItem(key);
+                    break;
+                }
+            }
+        }
+        let parsed = {};
+        try {
+            parsed = raw ? JSON.parse(raw) : {};
+        }
+        catch (e) {
+            parsed = {};
+        }
+        const base = cloneDefault();
+        return Object.assign(Object.assign(Object.assign({}, base), parsed), { settings: Object.assign(Object.assign(Object.assign({}, base.settings), (parsed.settings || {})), { rotationRanks: Object.assign(Object.assign({}, base.settings.rotationRanks), ((parsed.settings || {}).rotationRanks || {})) }), unavailable: parsed.unavailable || {}, outRotation: parsed.outRotation || [], overrides: parsed.overrides || {}, exchanges: parsed.exchanges || [], alertsEnabled: parsed.alertsEnabled || {}, languages: parsed.languages || {}, gameLinks: parsed.gameLinks || [], playerEdits: parsed.playerEdits || {}, addedPlayers: parsed.addedPlayers || [], removedPlayers: parsed.removedPlayers || [], rotationOrder: Object.assign(Object.assign({}, base.rotationOrder), (parsed.rotationOrder || {})), messageVariant: Object.assign(Object.assign({}, base.messageVariant), (parsed.messageVariant || {})) });
+    }
+    function saveState() { localStorage.setItem(STORAGE, JSON.stringify(state)); }
+    
+
+    function setSyncStatus(kind = 'ok') {
+        const b = document.getElementById('syncBadge');
+        if (!b)
+            return;
+        b.classList.remove('sync-ok', 'sync-work', 'sync-off');
+        b.classList.add(kind === 'work' ? 'sync-work' : kind === 'off' ? 'sync-off' : 'sync-ok');
+        b.title = kind === 'work' ? 'Synchronisation…' : kind === 'off' ? 'Hors connexion' : 'Synchronisé';
+    }
+    async function api(path, options = {}) {
+        var _a, _b;
+        const headers = Object.assign({ 'content-type': 'application/json' }, (options.headers || {}));
+
+        if (token)
+
+        setSyncStatus('work');
+        let res;
+        try {
+            res = await fetch(API_BASE + path, Object.assign(Object.assign({}, options), { headers }));
+        }
+        catch (e) {
+            setSyncStatus('off');
+            throw new Error('Réseau indisponible');
+        }
+        let data = {};
+        try {
+            data = await res.json();
+        }
+        catch (e) { }
+        if (res.status === 401) {
+
+            state.currentUserId = null;
+            saveState();
+            setSyncStatus('off');
+            (_a = document.getElementById('appView')) === null || _a === void 0 ? void 0 : _a.classList.add('hidden');
+            throw new Error(data.error || 'Session expirée');
+        }
+        if (!res.ok) {
+            setSyncStatus('off');
+            throw new Error(data.error || `Erreur ${res.status}`);
+        }
+        setSyncStatus('ok');
+        return data;
+    }
+    function applySnapshot(snap) {
+        const localVariants = state.messageVariant || { weekly: 0, daily: 0, driver: 0, vip: 0 };
+        BASE_ROSTER = snap.roster || [];
+        localStorage.setItem(ROSTER_CACHE_KEY, JSON.stringify(BASE_ROSTER));
+        state = Object.assign(Object.assign(Object.assign({}, cloneDefault()), (snap.state || {})), { currentUserId: snap.me.id, messageVariant: localVariants, playerEdits: {}, addedPlayers: [], removedPlayers: [] });
+        refreshRoster();
+        const serverLang=state.languages?.[state.currentUserId];
+        if(SUPPORTED_LANGS.includes(serverLang))localStorage.setItem(LANG_KEY,serverLang);
+        saveState();
+        queueApplyLanguage();
+    }
+    async function syncSnapshot({ render = true, quiet = false } = {}) {
+        var _a;
+        if (syncing)
+            return false;
+        syncing = true;
+        try {
+            const snap = await api('/api/snapshot', { method: 'GET' });
+            applySnapshot(snap);
+            if (render && document.getElementById('appView') && !document.getElementById('appView').classList.contains('hidden')) {
+                const active = (_a = document.querySelector('.screen.active')) === null || _a === void 0 ? void 0 : _a.id;
+                if (active === 'adminScreen' && currentAdminSection)
+                    openAdminSection(currentAdminSection);
+                else
+                    renderAll();
+            }
+            return true;
+        }
+        catch (e) {
+            if (!quiet)
+                toast(e.message);
+            return false;
+        }
+        finally {
+            syncing = false;
+        }
+    }
+    async function mutate(path, options = {}, success = 'Modification enregistrée') {
+        try {
+            await api(path, options);
+            await syncSnapshot({ render: true, quiet: true });
+            if (success)
+                toast(success);
+            return true;
+        }
+        catch (e) {
+            toast(e.message);
+            return false;
+        }
+    }
+    function ensureRotationRankSettings() {
+        state.settings = state.settings || {};
+        state.settings.rotationRanks = state.settings.rotationRanks || {};
+        if (!Array.isArray(state.settings.rotationRanks.officer) || !state.settings.rotationRanks.officer.length)
+            state.settings.rotationRanks.officer = ['R5', 'R4'];
+        if (!Array.isArray(state.settings.rotationRanks.r3driver) || !state.settings.rotationRanks.r3driver.length)
+            state.settings.rotationRanks.r3driver = ['R3'];
+        if (!Array.isArray(state.settings.rotationRanks.vip) || !state.settings.rotationRanks.vip.length)
+            state.settings.rotationRanks.vip = ['R3', 'R2', 'R1'];
+    }
+    function ranksForRotation(key) {
+        ensureRotationRankSettings();
+        return [...state.settings.rotationRanks[key]];
+    }
+    function rolePoolLabel(key) {
+        const names = { officer: 'Conducteur A', r3driver: 'Conducteur B', vip: 'VIP' };
+        return `${names[key]} · ${ranksForRotation(key).join('/')}`;
+    }
+    function roleKeyLabel(key) {
+        if (key === 'vip')
+            return rolePoolLabel('vip');
+        if (key === 'driver-r3')
+            return rolePoolLabel('r3driver');
+        return rolePoolLabel('officer');
+    }
+    function rankCheckHtml(key, label) {
+        const selected = new Set(ranksForRotation(key));
+        return `<div class="rank-config-block">
+    <h4>${label}</h4>
+    <div class="rank-toggle-grid">${['R5', 'R4', 'R3', 'R2', 'R1'].map(r => `
+      <label class="rank-toggle">
+        <input type="checkbox" data-rotation-key="${key}" value="${r}" ${selected.has(r) ? 'checked' : ''}>
+        <span>${r}</span>
+      </label>`).join('')}
+    </div>
+  </div>`;
+    }
+    function refreshRoster() {
+        const removed = new Set(state.removedPlayers || []);
+        const edits = state.playerEdits || {};
+        const base = BASE_ROSTER
+            .filter(m => !removed.has(m.id))
+            .map(m => (Object.assign(Object.assign({}, m), (edits[m.id] || {}))));
+        const added = (state.addedPlayers || []).filter(m => !removed.has(m.id));
+        ROSTER = [...base, ...added];
+        byId = Object.fromEntries(ROSTER.map(m => [m.id, m]));
+        normalizeRotationOrders();
+        updateLoginList();
+    }
+    function normalizeRotationOrders() {
+        state.rotationOrder = state.rotationOrder || { officer: [], r3driver: [], r3vip: [] };
+        ensureRotationRankSettings();
+        const eligible = {
+            officer: ROSTER.filter(m => ranksForRotation('officer').includes(m.rank) && m.active).map(m => m.id),
+            r3driver: ROSTER.filter(m => ranksForRotation('r3driver').includes(m.rank) && m.active).map(m => m.id),
+            r3vip: ROSTER.filter(m => ranksForRotation('vip').includes(m.rank) && m.active).map(m => m.id)
+        };
+        Object.keys(eligible).forEach(key => {
+            const allowed = eligible[key];
+            const old = (state.rotationOrder[key] || []).filter(id => allowed.includes(id));
+            state.rotationOrder[key] = [...old, ...allowed.filter(id => !old.includes(id))];
+        });
+    }
+    function orderedPool(pool, key) {
+        const order = state.rotationOrder[key] || [];
+        const pos = Object.fromEntries(order.map((id, i) => [id, i]));
+        return pool.slice().sort((a, b) => { var _a, _b; return ((_a = pos[a.id]) !== null && _a !== void 0 ? _a : 9999) - ((_b = pos[b.id]) !== null && _b !== void 0 ? _b : 9999) || a.id.localeCompare(b.id); });
+    }
+    function updateLoginList() {
+        const dl = document.getElementById('memberList');
+        if (dl)
+            dl.innerHTML = ROSTER.filter(x => x.active).map(x => `<option value="${esc(x.pseudo)}">${x.rank}</option>`).join('');
+        const note = document.querySelector('.login-note');
+        if (note)
+            note.textContent = `Connexion par pseudo • ${ROSTER.filter(x => x.active).length} profils actifs`;
+    }
+    function user() { return byId[state.currentUserId]; }
+    function isAdmin(m = user()) { return !!m && ['R5', 'R4'].includes(m.rank); }
+    function canSelfManage(m = user()) { return !!m && ['R5', 'R4', 'R3', 'R2'].includes(m.rank); }
+    function isOut(id) { return (state.outRotation || []).includes(id); }
+    function isUnavailable(id, date) { return (state.unavailable[id] || []).includes(date); }
+    function activePool(ranks) { return ROSTER.filter(m => ranks.includes(m.rank) && m.active && !isOut(m.id)); }
+    function esc(s) { return String(s !== null && s !== void 0 ? s : '').replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m])); }
+    function uid() { return 'x' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+    function avatarSrc(m) {
+        const src = (m === null || m === void 0 ? void 0 : m.avatar) || 'assets/icon-192.png';
+        return src.startsWith('/api/') ? API_BASE + src : src;
+    }
+    function avatar(m, cls = 'sm') { return `<img class="avatar ${cls}" src="${esc(avatarSrc(m))}" alt="${esc((m === null || m === void 0 ? void 0 : m.pseudo) || 'joueur')}">`; }
+    function rankBadge(r) { return `<span class="rank rank-${r}">${r}</span>`; }
+    function dateISO(d) { return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
+    function parseISO(s) { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); }
+    function addDays(d, n) { const x = new Date(d); x.setDate(x.getDate() + n); return x; }
+    function mondayOf(d) { const x = new Date(d); const day = (x.getDay() + 6) % 7; x.setHours(0, 0, 0, 0); return addDays(x, -day); }
+    function fmtDate(d, opt = { weekday: 'long', day: 'numeric', month: 'long' }) { return new Intl.DateTimeFormat(currentLocale(), opt).format(d); }
+    function fmtShort(d) { return new Intl.DateTimeF
+
+---
+
+===== function syncSnapshot( =====
+pi(path, options = {}) {
+        var _a, _b;
+        const headers = Object.assign({ 'content-type': 'application/json' }, (options.headers || {}));
+
+        if (token)
+
+        setSyncStatus('work');
+        let res;
+        try {
+            res = await fetch(API_BASE + path, Object.assign(Object.assign({}, options), { headers }));
+        }
+        catch (e) {
+            setSyncStatus('off');
+            throw new Error('Réseau indisponible');
+        }
+        let data = {};
+        try {
+            data = await res.json();
+        }
+        catch (e) { }
+        if (res.status === 401) {
+
+            state.currentUserId = null;
+            saveState();
+            setSyncStatus('off');
+            (_a = document.getElementById('appView')) === null || _a === void 0 ? void 0 : _a.classList.add('hidden');
+            throw new Error(data.error || 'Session expirée');
+        }
+        if (!res.ok) {
+            setSyncStatus('off');
+            throw new Error(data.error || `Erreur ${res.status}`);
+        }
+        setSyncStatus('ok');
+        return data;
+    }
+    function applySnapshot(snap) {
+        const localVariants = state.messageVariant || { weekly: 0, daily: 0, driver: 0, vip: 0 };
+        BASE_ROSTER = snap.roster || [];
+        localStorage.setItem(ROSTER_CACHE_KEY, JSON.stringify(BASE_ROSTER));
+        state = Object.assign(Object.assign(Object.assign({}, cloneDefault()), (snap.state || {})), { currentUserId: snap.me.id, messageVariant: localVariants, playerEdits: {}, addedPlayers: [], removedPlayers: [] });
+        refreshRoster();
+        const serverLang=state.languages?.[state.currentUserId];
+        if(SUPPORTED_LANGS.includes(serverLang))localStorage.setItem(LANG_KEY,serverLang);
+        saveState();
+        queueApplyLanguage();
+    }
+    async function syncSnapshot({ render = true, quiet = false } = {}) {
+        var _a;
+        if (syncing)
+            return false;
+        syncing = true;
+        try {
+            const snap = await api('/api/snapshot', { method: 'GET' });
+            applySnapshot(snap);
+            if (render && document.getElementById('appView') && !document.getElementById('appView').classList.contains('hidden')) {
+                const active = (_a = document.querySelector('.screen.active')) === null || _a === void 0 ? void 0 : _a.id;
+                if (active === 'adminScreen' && currentAdminSection)
+                    openAdminSection(currentAdminSection);
+                else
+                    renderAll();
+            }
+            return true;
+        }
+        catch (e) {
+            if (!quiet)
+                toast(e.message);
+            return false;
+        }
+        finally {
+            syncing = false;
+        }
+    }
+    async function mutate(path, options = {}, success = 'Modification enregistrée') {
+        try {
+            await api(path, options);
+            await syncSnapshot({ render: true, quiet: true });
+            if (success)
+                toast(success);
+            return true;
+        }
+        catch (e) {
+            toast(e.message);
+            return false;
+        }
+    }
+    function ensureRotationRankSettings() {
+        state.settings = state.settings || {};
+        state.settings.rotationRanks = state.settings.rotationRanks || {};
+        if (!Array.isArray(state.settings.rotationRanks.officer) || !state.settings.rotationRanks.officer.length)
+            state.settings.rotationRanks.officer = ['R5', 'R4'];
+        if (!Array.isArray(state.settings.rotationRanks.r3driver) || !state.settings.rotationRanks.r3driver.length)
+            state.settings.rotationRanks.r3driver = ['R3'];
+        if (!Array.isArray(state.settings.rotationRanks.vip) || !state.settings.rotationRanks.vip.length)
+            state.settings.rotationRanks.vip = ['R3', 'R2', 'R1'];
+    }
+    function ranksForRotation(key) {
+        ensureRotationRankSettings();
+        return [...state.settings.rotationRanks[key]];
+    }
+    function rolePoolLabel(key) {
+        const names = { officer: 'Conducteur A', r3driver: 'Conducteur B', vip: 'VIP' };
+        return `${names[key]} · ${ranksForRotation(key).join('/')}`;
+    }
+    function roleKeyLabel(key) {
+        if (key === 'vip')
+            return rolePoolLabel('vip');
+        if (key === 'driver-r3')
+            return rolePoolLabel('r3driver');
+        return rolePoolLabel('officer');
+    }
+    function rankCheckHtml(key, label) {
+        const selected = new Set(ranksForRotation(key));
+        return `<div class="rank-config-block">
+    <h4>${label}</h4>
+    <div class="rank-toggle-grid">${['R5', 'R4', 'R3', 'R2', 'R1'].map(r => `
+      <label class="rank-toggle">
+        <input type="checkbox" data-rotation-key="${key}" value="${r}" ${selected.has(r) ? 'checked' : ''}>
+        <span>${r}</span>
+      </label>`).join('')}
+    </div>
+  </div>`;
+    }
+    function refreshRoster() {
+        const removed = new Set(state.removedPlayers || []);
+        const edits = state.playerEdits || {};
+        const base = BASE_ROSTER
+            .filter(m => !removed.has(m.id))
+            .map(m => (Object.assign(Object.assign({}, m), (edits[m.id] || {}))));
+        const added = (state.addedPlayers || []).filter(m => !removed.has(m.id));
+        ROSTER = [...base, ...added];
+        byId = Object.fromEntries(ROSTER.map(m => [m.id, m]));
+        normalizeRotationOrders();
+        updateLoginList();
+    }
+    function normalizeRotationOrders() {
+        state.rotationOrder = state.rotationOrder || { officer: [], r3driver: [], r3vip: [] };
+        ensureRotationRankSettings();
+        const eligible = {
+            officer: ROSTER.filter(m => ranksForRotation('officer').includes(m.rank) && m.active).map(m => m.id),
+            r3driver: ROSTER.filter(m => ranksForRotation('r3driver').includes(m.rank) && m.active).map(m => m.id),
+            r3vip: ROSTER.filter(m => ranksForRotation('vip').includes(m.rank) && m.active).map(m => m.id)
+        };
+        Object.keys(eligible).forEach(key => {
+            const allowed = eligible[key];
+            const old = (state.rotationOrder[key] || []).filter(id => allowed.includes(id));
+            state.rotationOrder[key] = [...old, ...allowed.filter(id => !old.includes(id))];
+        });
+    }
+    function orderedPool(pool, key) {
+        const order = state.rotationOrder[key] || [];
+        const pos = Object.fromEntries(order.map((id, i) => [id, i]));
+        return pool.slice().sort((a, b) => { var _a, _b; return ((_a = pos[a.id]) !== null && _a !== void 0 ? _a : 9999) - ((_b = pos[b.id]) !== null && _b !== void 0 ? _b : 9999) || a.id.localeCompare(b.id); });
+    }
+    function updateLoginList() {
+        const dl = document.getElementById('memberList');
+        if (dl)
+            dl.innerHTML = ROSTER.filter(x => x.active).map(x => `<option value="${esc(x.pseudo)}">${x.rank}</option>`).join('');
+        const note = document.querySelector('.login-note');
+        if (note)
+            note.textContent = `Connexion par pseudo • ${ROSTER.filter(x => x.active).length} profils actifs`;
+    }
+    function user() { return byId[state.currentUserId]; }
+    function isAdmin(m = user()) { return !!m && ['R5', 'R4'].includes(m.rank); }
+    function canSelfManage(m = user()) { return !!m && ['R5', 'R4', 'R3', 'R2'].includes(m.rank); }
+    function isOut(id) { return (state.outRotation || []).includes(id); }
+    function isUnavailable(id, date) { return (state.unavailable[id] || []).includes(date); }
+    function activePool(ranks) { return ROSTER.filter(m => ranks.includes(m.rank) && m.active && !isOut(m.id)); }
+    function esc(s) { return String(s !== null && s !== void 0 ? s : '').replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m])); }
+    function uid() { return 'x' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+    function avatarSrc(m) {
+        const src = (m === null || m === void 0 ? void 0 : m.avatar) || 'assets/icon-192.png';
+        return src.startsWith('/api/') ? API_BASE + src : src;
+    }
+    function avatar(m, cls = 'sm') { return `<img class="avatar ${cls}" src="${esc(avatarSrc(m))}" alt="${esc((m === null || m === void 0 ? void 0 : m.pseudo) || 'joueur')}">`; }
+    function rankBadge(r) { return `<span class="rank rank-${r}">${r}</span>`; }
+    function dateISO(d) { return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
+    function parseISO(s) { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); }
+    function addDays(d, n) { const x = new Date(d); x.setDate(x.getDate() + n); return x; }
+    function mondayOf(d) { const x = new Date(d); const day = (x.getDay() + 6) % 7; x.setHours(0, 0, 0, 0); return addDays(x, -day); }
+    function fmtDate(d, opt = { weekday: 'long', day: 'numeric', month: 'long' }) { return new Intl.DateTimeFormat(currentLocale(), opt).format(d); }
+    function fmtShort(d) { return new Intl.DateTimeFormat(currentLocale(), { weekday: 'short', day: 'numeric', month: 'short' }).format(d); }
+    function toast(msg) {
+        const t = document.getElementById('toast');
+        if (!t)
+            return;
+        t.textContent = translatedString(msg);
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 2300);
+    }
+    function pickFair(pool, date, history, exclude = []) {
+        const filtered = pool.filter(m => !exclude.includes(m.id) && !isUnavailable(m.id, date));
+        if (!filtered.length)
+            return null;
+        const orderIndex = Object.fromEntries(pool.map((m, i) => [m.id, i]));
+        return filtered.slice().sort((a, b) => {
+            var _a, _b;
+            const ha = history[a.id] || { count: 0, last: '0000-00-00' };
+            const hb = history[b.id] || { count: 0, last: '0000-00-00' };
+            if (ha.count !== hb.count)
+                return ha.count - hb.count;
+            const lc = ha.last.localeCompare(hb.last);
+            if (lc !== 0)
+                return lc;
+            return ((_a = orderIndex[a.id]) !== null && _a !== void 0 ? _a : 9999) - ((_b = orderIndex[b.id]) !== null && _b !== void 0 ? _b : 9999);
+        })[0];
+    }
+    function touchHistory(history, m, date) {
+        if (!m)
+            return;
+        history[m.id] = history[m.id] || { count: 0, last: '0000-00-00' };
+        history[m.id].count++;
+        history[m.id].last = date;
+    }
+    function generateSchedule(days = 260) {
+        const anchor = parseISO(state.settings.anchorDate);
+        ensureRotationRankSettings();
+        const officers = orderedPool(activePool(ranksForRotation('officer')), 'officer');
+        const r3Drivers = orderedPool(activePool(ranksForRotation('r3driver')), 'r3driver');
+        const r3Vips = orderedPool(acti
+
+---
+
+===== async function syncSnapshot( =====
+tion api(path, options = {}) {
+        var _a, _b;
+        const headers = Object.assign({ 'content-type': 'application/json' }, (options.headers || {}));
+
+        if (token)
+
+        setSyncStatus('work');
+        let res;
+        try {
+            res = await fetch(API_BASE + path, Object.assign(Object.assign({}, options), { headers }));
+        }
+        catch (e) {
+            setSyncStatus('off');
+            throw new Error('Réseau indisponible');
+        }
+        let data = {};
+        try {
+            data = await res.json();
+        }
+        catch (e) { }
+        if (res.status === 401) {
+
+            state.currentUserId = null;
+            saveState();
+            setSyncStatus('off');
+            (_a = document.getElementById('appView')) === null || _a === void 0 ? void 0 : _a.classList.add('hidden');
+            throw new Error(data.error || 'Session expirée');
+        }
+        if (!res.ok) {
+            setSyncStatus('off');
+            throw new Error(data.error || `Erreur ${res.status}`);
+        }
+        setSyncStatus('ok');
+        return data;
+    }
+    function applySnapshot(snap) {
+        const localVariants = state.messageVariant || { weekly: 0, daily: 0, driver: 0, vip: 0 };
+        BASE_ROSTER = snap.roster || [];
+        localStorage.setItem(ROSTER_CACHE_KEY, JSON.stringify(BASE_ROSTER));
+        state = Object.assign(Object.assign(Object.assign({}, cloneDefault()), (snap.state || {})), { currentUserId: snap.me.id, messageVariant: localVariants, playerEdits: {}, addedPlayers: [], removedPlayers: [] });
+        refreshRoster();
+        const serverLang=state.languages?.[state.currentUserId];
+        if(SUPPORTED_LANGS.includes(serverLang))localStorage.setItem(LANG_KEY,serverLang);
+        saveState();
+        queueApplyLanguage();
+    }
+    async function syncSnapshot({ render = true, quiet = false } = {}) {
+        var _a;
+        if (syncing)
+            return false;
+        syncing = true;
+        try {
+            const snap = await api('/api/snapshot', { method: 'GET' });
+            applySnapshot(snap);
+            if (render && document.getElementById('appView') && !document.getElementById('appView').classList.contains('hidden')) {
+                const active = (_a = document.querySelector('.screen.active')) === null || _a === void 0 ? void 0 : _a.id;
+                if (active === 'adminScreen' && currentAdminSection)
+                    openAdminSection(currentAdminSection);
+                else
+                    renderAll();
+            }
+            return true;
+        }
+        catch (e) {
+            if (!quiet)
+                toast(e.message);
+            return false;
+        }
+        finally {
+            syncing = false;
+        }
+    }
+    async function mutate(path, options = {}, success = 'Modification enregistrée') {
+        try {
+            await api(path, options);
+            await syncSnapshot({ render: true, quiet: true });
+            if (success)
+                toast(success);
+            return true;
+        }
+        catch (e) {
+            toast(e.message);
+            return false;
+        }
+    }
+    function ensureRotationRankSettings() {
+        state.settings = state.settings || {};
+        state.settings.rotationRanks = state.settings.rotationRanks || {};
+        if (!Array.isArray(state.settings.rotationRanks.officer) || !state.settings.rotationRanks.officer.length)
+            state.settings.rotationRanks.officer = ['R5', 'R4'];
+        if (!Array.isArray(state.settings.rotationRanks.r3driver) || !state.settings.rotationRanks.r3driver.length)
+            state.settings.rotationRanks.r3driver = ['R3'];
+        if (!Array.isArray(state.settings.rotationRanks.vip) || !state.settings.rotationRanks.vip.length)
+            state.settings.rotationRanks.vip = ['R3', 'R2', 'R1'];
+    }
+    function ranksForRotation(key) {
+        ensureRotationRankSettings();
+        return [...state.settings.rotationRanks[key]];
+    }
+    function rolePoolLabel(key) {
+        const names = { officer: 'Conducteur A', r3driver: 'Conducteur B', vip: 'VIP' };
+        return `${names[key]} · ${ranksForRotation(key).join('/')}`;
+    }
+    function roleKeyLabel(key) {
+        if (key === 'vip')
+            return rolePoolLabel('vip');
+        if (key === 'driver-r3')
+            return rolePoolLabel('r3driver');
+        return rolePoolLabel('officer');
+    }
+    function rankCheckHtml(key, label) {
+        const selected = new Set(ranksForRotation(key));
+        return `<div class="rank-config-block">
+    <h4>${label}</h4>
+    <div class="rank-toggle-grid">${['R5', 'R4', 'R3', 'R2', 'R1'].map(r => `
+      <label class="rank-toggle">
+        <input type="checkbox" data-rotation-key="${key}" value="${r}" ${selected.has(r) ? 'checked' : ''}>
+        <span>${r}</span>
+      </label>`).join('')}
+    </div>
+  </div>`;
+    }
+    function refreshRoster() {
+        const removed = new Set(state.removedPlayers || []);
+        const edits = state.playerEdits || {};
+        const base = BASE_ROSTER
+            .filter(m => !removed.has(m.id))
+            .map(m => (Object.assign(Object.assign({}, m), (edits[m.id] || {}))));
+        const added = (state.addedPlayers || []).filter(m => !removed.has(m.id));
+        ROSTER = [...base, ...added];
+        byId = Object.fromEntries(ROSTER.map(m => [m.id, m]));
+        normalizeRotationOrders();
+        updateLoginList();
+    }
+    function normalizeRotationOrders() {
+        state.rotationOrder = state.rotationOrder || { officer: [], r3driver: [], r3vip: [] };
+        ensureRotationRankSettings();
+        const eligible = {
+            officer: ROSTER.filter(m => ranksForRotation('officer').includes(m.rank) && m.active).map(m => m.id),
+            r3driver: ROSTER.filter(m => ranksForRotation('r3driver').includes(m.rank) && m.active).map(m => m.id),
+            r3vip: ROSTER.filter(m => ranksForRotation('vip').includes(m.rank) && m.active).map(m => m.id)
+        };
+        Object.keys(eligible).forEach(key => {
+            const allowed = eligible[key];
+            const old = (state.rotationOrder[key] || []).filter(id => allowed.includes(id));
+            state.rotationOrder[key] = [...old, ...allowed.filter(id => !old.includes(id))];
+        });
+    }
+    function orderedPool(pool, key) {
+        const order = state.rotationOrder[key] || [];
+        const pos = Object.fromEntries(order.map((id, i) => [id, i]));
+        return pool.slice().sort((a, b) => { var _a, _b; return ((_a = pos[a.id]) !== null && _a !== void 0 ? _a : 9999) - ((_b = pos[b.id]) !== null && _b !== void 0 ? _b : 9999) || a.id.localeCompare(b.id); });
+    }
+    function updateLoginList() {
+        const dl = document.getElementById('memberList');
+        if (dl)
+            dl.innerHTML = ROSTER.filter(x => x.active).map(x => `<option value="${esc(x.pseudo)}">${x.rank}</option>`).join('');
+        const note = document.querySelector('.login-note');
+        if (note)
+            note.textContent = `Connexion par pseudo • ${ROSTER.filter(x => x.active).length} profils actifs`;
+    }
+    function user() { return byId[state.currentUserId]; }
+    function isAdmin(m = user()) { return !!m && ['R5', 'R4'].includes(m.rank); }
+    function canSelfManage(m = user()) { return !!m && ['R5', 'R4', 'R3', 'R2'].includes(m.rank); }
+    function isOut(id) { return (state.outRotation || []).includes(id); }
+    function isUnavailable(id, date) { return (state.unavailable[id] || []).includes(date); }
+    function activePool(ranks) { return ROSTER.filter(m => ranks.includes(m.rank) && m.active && !isOut(m.id)); }
+    function esc(s) { return String(s !== null && s !== void 0 ? s : '').replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m])); }
+    function uid() { return 'x' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+    function avatarSrc(m) {
+        const src = (m === null || m === void 0 ? void 0 : m.avatar) || 'assets/icon-192.png';
+        return src.startsWith('/api/') ? API_BASE + src : src;
+    }
+    function avatar(m, cls = 'sm') { return `<img class="avatar ${cls}" src="${esc(avatarSrc(m))}" alt="${esc((m === null || m === void 0 ? void 0 : m.pseudo) || 'joueur')}">`; }
+    function rankBadge(r) { return `<span class="rank rank-${r}">${r}</span>`; }
+    function dateISO(d) { return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
+    function parseISO(s) { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); }
+    function addDays(d, n) { const x = new Date(d); x.setDate(x.getDate() + n); return x; }
+    function mondayOf(d) { const x = new Date(d); const day = (x.getDay() + 6) % 7; x.setHours(0, 0, 0, 0); return addDays(x, -day); }
+    function fmtDate(d, opt = { weekday: 'long', day: 'numeric', month: 'long' }) { return new Intl.DateTimeFormat(currentLocale(), opt).format(d); }
+    function fmtShort(d) { return new Intl.DateTimeFormat(currentLocale(), { weekday: 'short', day: 'numeric', month: 'short' }).format(d); }
+    function toast(msg) {
+        const t = document.getElementById('toast');
+        if (!t)
+            return;
+        t.textContent = translatedString(msg);
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 2300);
+    }
+    function pickFair(pool, date, history, exclude = []) {
+        const filtered = pool.filter(m => !exclude.includes(m.id) && !isUnavailable(m.id, date));
+        if (!filtered.length)
+            return null;
+        const orderIndex = Object.fromEntries(pool.map((m, i) => [m.id, i]));
+        return filtered.slice().sort((a, b) => {
+            var _a, _b;
+            const ha = history[a.id] || { count: 0, last: '0000-00-00' };
+            const hb = history[b.id] || { count: 0, last: '0000-00-00' };
+            if (ha.count !== hb.count)
+                return ha.count - hb.count;
+            const lc = ha.last.localeCompare(hb.last);
+            if (lc !== 0)
+                return lc;
+            return ((_a = orderIndex[a.id]) !== null && _a !== void 0 ? _a : 9999) - ((_b = orderIndex[b.id]) !== null && _b !== void 0 ? _b : 9999);
+        })[0];
+    }
+    function touchHistory(history, m, date) {
+        if (!m)
+            return;
+        history[m.id] = history[m.id] || { count: 0, last: '0000-00-00' };
+        history[m.id].count++;
+        history[m.id].last = date;
+    }
+    function generateSchedule(days = 260) {
+        const anchor = parseISO(state.settings.anchorDate);
+        ensureRotationRankSettings();
+        const officers = orderedPool(activePool(ranksForRotation('officer')), 'officer');
+        const r3Drivers = orderedPool(activePool(ranksForRotation('r3driver')), 'r3driver');
+        const r3Vips = orderedPoo
+
+---
+
+===== function refreshRoster( =====
+      toast(e.message);
+            return false;
+        }
+    }
+    function ensureRotationRankSettings() {
+        state.settings = state.settings || {};
+        state.settings.rotationRanks = state.settings.rotationRanks || {};
+        if (!Array.isArray(state.settings.rotationRanks.officer) || !state.settings.rotationRanks.officer.length)
+            state.settings.rotationRanks.officer = ['R5', 'R4'];
+        if (!Array.isArray(state.settings.rotationRanks.r3driver) || !state.settings.rotationRanks.r3driver.length)
+            state.settings.rotationRanks.r3driver = ['R3'];
+        if (!Array.isArray(state.settings.rotationRanks.vip) || !state.settings.rotationRanks.vip.length)
+            state.settings.rotationRanks.vip = ['R3', 'R2', 'R1'];
+    }
+    function ranksForRotation(key) {
+        ensureRotationRankSettings();
+        return [...state.settings.rotationRanks[key]];
+    }
+    function rolePoolLabel(key) {
+        const names = { officer: 'Conducteur A', r3driver: 'Conducteur B', vip: 'VIP' };
+        return `${names[key]} · ${ranksForRotation(key).join('/')}`;
+    }
+    function roleKeyLabel(key) {
+        if (key === 'vip')
+            return rolePoolLabel('vip');
+        if (key === 'driver-r3')
+            return rolePoolLabel('r3driver');
+        return rolePoolLabel('officer');
+    }
+    function rankCheckHtml(key, label) {
+        const selected = new Set(ranksForRotation(key));
+        return `<div class="rank-config-block">
+    <h4>${label}</h4>
+    <div class="rank-toggle-grid">${['R5', 'R4', 'R3', 'R2', 'R1'].map(r => `
+      <label class="rank-toggle">
+        <input type="checkbox" data-rotation-key="${key}" value="${r}" ${selected.has(r) ? 'checked' : ''}>
+        <span>${r}</span>
+      </label>`).join('')}
+    </div>
+  </div>`;
+    }
+    function refreshRoster() {
+        const removed = new Set(state.removedPlayers || []);
+        const edits = state.playerEdits || {};
+        const base = BASE_ROSTER
+            .filter(m => !removed.has(m.id))
+            .map(m => (Object.assign(Object.assign({}, m), (edits[m.id] || {}))));
+        const added = (state.addedPlayers || []).filter(m => !removed.has(m.id));
+        ROSTER = [...base, ...added];
+        byId = Object.fromEntries(ROSTER.map(m => [m.id, m]));
+        normalizeRotationOrders();
+        updateLoginList();
+    }
+    function normalizeRotationOrders() {
+        state.rotationOrder = state.rotationOrder || { officer: [], r3driver: [], r3vip: [] };
+        ensureRotationRankSettings();
+        const eligible = {
+            officer: ROSTER.filter(m => ranksForRotation('officer').includes(m.rank) && m.active).map(m => m.id),
+            r3driver: ROSTER.filter(m => ranksForRotation('r3driver').includes(m.rank) && m.active).map(m => m.id),
+            r3vip: ROSTER.filter(m => ranksForRotation('vip').includes(m.rank) && m.active).map(m => m.id)
+        };
+        Object.keys(eligible).forEach(key => {
+            const allowed = eligible[key];
+            const old = (state.rotationOrder[key] || []).filter(id => allowed.includes(id));
+            state.rotationOrder[key] = [...old, ...allowed.filter(id => !old.includes(id))];
+        });
+    }
+    function orderedPool(pool, key) {
+        const order = state.rotationOrder[key] || [];
+        const pos = Object.fromEntries(order.map((id, i) => [id, i]));
+        return pool.slice().sort((a, b) => { var _a, _b; return ((_a = pos[a.id]) !== null && _a !== void 0 ? _a : 9999) - ((_b = pos[b.id]) !== null && _b !== void 0 ? _b : 9999) || a.id.localeCompare(b.id); });
+    }
+    function updateLoginList() {
+        const dl = document.getElementById('memberList');
+        if (dl)
+            dl.innerHTML = ROSTER.filter(x => x.active).map(x => `<option value="${esc(x.pseudo)}">${x.rank}</option>`).join('');
+        const note = document.querySelector('.login-note');
+        if (note)
+            note.textContent = `Connexion par pseudo • ${ROSTER.filter(x => x.active).length} profils actifs`;
+    }
+    function user() { return byId[state.currentUserId]; }
+    function isAdmin(m = user()) { return !!m && ['R5', 'R4'].includes(m.rank); }
+    function canSelfManage(m = user()) { return !!m && ['R5', 'R4', 'R3', 'R2'].includes(m.rank); }
+    function isOut(id) { return (state.outRotation || []).includes(id); }
+    function isUnavailable(id, date) { return (state.unavailable[id] || []).includes(date); }
+    function activePool(ranks) { return ROSTER.filter(m => ranks.includes(m.rank) && m.active && !isOut(m.id)); }
+    function esc(s) { return String(s !== null && s !== void 0 ? s : '').replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m])); }
+    function uid() { return 'x' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+    function avatarSrc(m) {
+        const src = (m === null || m === void 0 ? void 0 : m.avatar) || 'assets/icon-192.png';
+        return src.startsWith('/api/') ? API_BASE + src : src;
+    }
+    function avatar(m, cls = 'sm') { return `<img class="avatar ${cls}" src="${esc(avatarSrc(m))}" alt="${esc((m === null || m === void 0 ? void 0 : m.pseudo) || 'joueur')}">`; }
+    function rankBadge(r) { return `<span class="rank rank-${r}">${r}</span>`; }
+    function dateISO(d) { return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
+    function parseISO(s) { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); }
+    function addDays(d, n) { const x = new Date(d); x.setDate(x.getDate() + n); return x; }
+    function mondayOf(d) { const x = new Date(d); const day = (x.getDay() + 6) % 7; x.setHours(0, 0, 0, 0); return addDays(x, -day); }
+    function fmtDate(d, opt = { weekday: 'long', day: 'numeric', month: 'long' }) { return new Intl.DateTimeFormat(currentLocale(), opt).format(d); }
+    function fmtShort(d) { return new Intl.DateTimeFormat(currentLocale(), { weekday: 'short', day: 'numeric', month: 'short' }).format(d); }
+    function toast(msg) {
+        const t = document.getElementById('toast');
+        if (!t)
+            return;
+        t.textContent = translatedString(msg);
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 2300);
+    }
+    function pickFair(pool, date, history, exclude = []) {
+        const filtered = pool.filter(m => !exclude.includes(m.id) && !isUnavailable(m.id, date));
+        if (!filtered.length)
+            return null;
+        const orderIndex = Object.fromEntries(pool.map((m, i) => [m.id, i]));
+        return filtered.slice().sort((a, b) => {
+            var _a, _b;
+            const ha = history[a.id] || { count: 0, last: '0000-00-00' };
+            const hb = history[b.id] || { count: 0, last: '0000-00-00' };
+            if (ha.count !== hb.count)
+                return ha.count - hb.count;
+            const lc = ha.last.localeCompare(hb.last);
+            if (lc !== 0)
+                return lc;
+            return ((_a = orderIndex[a.id]) !== null && _a !== void 0 ? _a : 9999) - ((_b = orderIndex[b.id]) !== null && _b !== void 0 ? _b : 9999);
+        })[0];
+    }
+    function touchHistory(history, m, date) {
+        if (!m)
+            return;
+        history[m.id] = history[m.id] || { count: 0, last: '0000-00-00' };
+        history[m.id].count++;
+        history[m.id].last = date;
+    }
+    function generateSchedule(days = 260) {
+        const anchor = parseISO(state.settings.anchorDate);
+        ensureRotationRankSettings();
+        const officers = orderedPool(activePool(ranksForRotation('officer')), 'officer');
+        const r3Drivers = orderedPool(activePool(ranksForRotation('r3driver')), 'r3driver');
+        const r3Vips = orderedPool(activePool(ranksForRotation('vip')), 'r3vip');
+        const officerHistory = {}, r3DriverHistory = {}, vipHistory = {};
+        const out = [];
+        for (let i = 0; i < days; i++) {
+            const d = addDays(anchor, i), ds = dateISO(d);
+            const officerDay = state.settings.officersFirst ? i % 2 === 0 : i % 2 === 1;
+            const driver = officerDay
+                ? pickFair(officers, ds, officerHistory, [])
+                : pickFair(r3Drivers, ds, r3DriverHistory, []);
+            if (officerDay)
+                touchHistory(officerHistory, driver, ds);
+            else
+                touchHistory(r3DriverHistory, driver, ds);
+            // VIP : rotation équitable entre R3, R2 et R1.
+            // Pas de règle artificielle J+1 : l'équité de comptage suffit.
+            // Seule incompatibilité : un joueur ne peut pas être Conducteur et VIP le même jour.
+            const vipExclude = driver ? [driver.id] : [];
+            const vip = pickFair(r3Vips, ds, vipHistory, vipExclude);
+            touchHistory(vipHistory, vip, ds);
+            let item = { date: ds, driverId: (driver === null || driver === void 0 ? void 0 : driver.id) || null, vipId: (vip === null || vip === void 0 ? void 0 : vip.id) || null, driverClass: officerDay ? 'officer' : 'r3' };
+            if (state.overrides[ds])
+                item = Object.assign(Object.assign({}, item), state.overrides[ds]);
+            out.push(item);
+        }
+        return out;
+    }
+    function schedule() { return generateSchedule(); }
+    function findAssignment(date) { return schedule().find(x => x.date === date); }
+    function roleKey(item, role) { return role === 'vip' ? 'vip' : (item.driverClass === 'officer' ? 'driver-officer' : 'driver-r3'); }
+    function myAssignments(id) {
+        var _a;
+        if (id === void 0) { id = (_a = user()) === null || _a === void 0 ? void 0 : _a.id; }
+        if (!id)
+            return [];
+        const list = [];
+        for (const x of schedule()) {
+            if (x.driverId === id)
+                list.push(Object.assign(Object.assign({}, x), { role: 'driver', roleKey: roleKey(x, 'driver') }));
+            if (x.vipId === id)
+                list.push(Object.assign(Object.assign({}, x), { role: 'vip', roleKey: 'vip' }));
+        }
+        return list;
+    }
+    function upcomingMine(limit = 8) {
+        const today = dateISO(new Date());
+        return myAssignments().filter(x => x.date >= today).sort((a, b) => a.date.localeCompare(b.date)).slice(0, limit);
+    }
+    function nextMine() { return upcomingMine(1)[0] || null; }
+    function otherOn(item, role) { return role === 'driver' ? byId[item.vipId] : byId[item.driverId]; }
+    function countdown(ds) {
+        const d = parseISO(ds), [hh, mm] = state.settings.trainTime.split(':').map(Number);
+        d.setHours(hh, mm, 0, 0);
+        const diff = d - new Date(), days = Math.ceil(diff / 86400000);
+        if (days <= 0)
+            return 'Aujourd’hui';
+        if (days === 1)
+            return 'Demain';
+        return `Dans ${d
+
+---
+
+===== function bootApp( =====
+guage();
+        document.querySelectorAll('[data-portal-lang]').forEach(b=>b.classList.toggle('active',b.dataset.portalLang===lang));
+        applyLanguage(document);
+    }
+    async function setPortalLanguage(lang){
+        await changeLanguage(lang);
+        updatePortalLanguage();
+    }
+    function showPortal(){
+        document.getElementById('portalView')?.classList.remove('hidden');
+        document.getElementById('portalHelpView')?.classList.add('hidden');
+        document.getElementById('appView')?.classList.add('hidden');
+        clearInterval(syncTimer); syncTimer=null;
+        updatePortalLanguage();
+        updateInstallVisibility();
+        window.scrollTo({top:0,behavior:'smooth'});
+    }
+    function showTrainEntry(){
+      document.getElementById('portalView')?.classList.add('hidden');
+      document.getElementById('portalHelpView')?.classList.add('hidden');
+
+      /* WFGG_PORTAL_ONLY_AUTH_V1 */
+
+      return bootApp();
+    }
+
+    function openGuidePortal(){
+        const lang=currentLanguage();
+        location.href=`/help/saison6/${lang}/index.html`;
+    }
+
+    function showScreen(id) {
+        if (id === 'adminScreen')
+            currentAdminSection = null;
+        document.querySelectorAll('.screen').forEach(x => x.classList.toggle('active', x.id === id));
+        document.querySelectorAll('.nav-btn').forEach(x => x.classList.toggle('active', x.dataset.screen === id));
+        if (id === 'homeScreen')
+            renderHome();
+        if (id === 'planningScreen')
+            renderPlanning();
+        if (id === 'exchangeScreen')
+            renderExchanges();
+        if (id === 'alertsScreen')
+            renderAlerts();
+        if (id === 'adminScreen')
+            renderAdmin();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    function bootApp() {
+        const m = user();
+        if (!m) {
+            state.currentUserId = null;
+            saveState();
+            return;
+        }
+        document.getElementById('portalView').classList.add('hidden');
+        document.getElementById('portalHelpView')?.classList.add('hidden');
+        document.getElementById('appView').classList.remove('hidden');
+        document.getElementById('adminNav').classList.toggle('hidden', !isAdmin(m));
+        renderAll();
+        showScreen('homeScreen');
+        clearInterval(syncTimer);
+        syncTimer = setInterval(() => syncSnapshot({ render: true, quiet: true }), 20000);
+        startPresenceLoop();
+    }
+    async function init() {
+        startLanguageObserver();
+        applyLanguage(document);
+        var _a;
+        refreshRoster();
+        document.getElementById('loginBtn').onclick = login;
+        document.getElementById('brandHome').onclick = showPortal;
+        document.getElementById('portalTrainBtn').onclick = showTrainEntry;
+        document.getElementById('portalHelpBtn').onclick = showPortalHelp;
+        document.getElementById('portalHelpBack').onclick = showPortal;
+        document.getElementById('portalHelpLogo').onclick = showPortal;
+        document.getElementById('loginPortalBack').onclick = showPortal;
+        document.querySelectorAll('.nav-btn').forEach(b => b.onclick = () => showScreen(b.dataset.screen));
+        document.querySelectorAll('[data-close-modal]').forEach(b => b.onclick = closeModal);
+        window.addEventListener('beforeinstallprompt', e => {
+            e.preventDefault();
+            deferredInstall = e;
+            updateInstallVisibility();
+        });
+        window.addEventListener('appinstalled', () => {
+            deferredInstall = null;
+            updateInstallVisibility();
+        });
+        const installBtn = document.getElementById('installBtn');
+        if (installBtn) installBtn.onclick = async () => {
+            if (isStandaloneApp()) {
+                updateInstallVisibility();
+                return;
+            }
+            if (deferredInstall) {
+                deferredInstall.prompt();
+                await deferredInstall.userChoice;
+                deferredInstall = null;
+                updateInstallVisibility();
+            }
+            else {
+                location.href = '/installer.html';
+            }
+        };
+        updateInstallVisibility();
+        document.addEventListener('visibilitychange', () => {
+            if(document.visibilityState==='visible'){
+                syncSnapshot({render:true,quiet:true});
+                startPresenceLoop();
+            }
+        });
+        window.addEventListener('online', () => syncSnapshot({ render: true, quiet: true }));
+        window.addEventListener('offline', () => setSyncStatus('off'));
+        if ('serviceWorker' in navigator)
+            navigator.serviceWorker.register('service-worker.js?v=44').catch(() => { });
+        try {
+            const d = await api('/api/directory', { method: 'GET' });
+            DIRECTORY = d.users || [];
+            const dl = document.getElementById('memberList');
+            if (dl)
+                dl.innerHTML = DIRECTORY.map(x => `<option value="${esc(x.pseudo)}">${x.rank}</option>`).join('');
+        }
+        catch (e) { }
+      const cachedId = state.currentUserId;
+      const ok = await syncSnapshot({ render: false, quiet: true });
+
+      if (!ok && cachedId && byId[cachedId]) {
+        state.currentUserId = cachedId;
+        setSyncStatus('off');
+      }
+
+      if (!ok && !(cachedId && byId[cachedId])) {
+        state.currentUserId = null;
+        saveState();
+        setSyncStatus('off');
+      }
+
+        try {
+            const st = await api('/api/bootstrap/status', { method: 'GET' });
+            if (!st.initialized)
+                document.querySelector('.login-note').innerHTML = '⚠️ Application à initialiser · ouvre <b>/setup.html</b>';
+        }
+        catch (e) { }
+        /* WFGG_PORTAL_DIRECT_TRAIN_V1
+           Sous /train/, l'identité a déjà été synchronisée
+           via le bridge du Portail. On ouvre donc Train directement.
+        */
+        if (location.pathname === '/train' ||
+            location.pathname.startsWith('/train/')) {
+
+          if (state.currentUserId && user()) {
+            bootApp();
+          } else {
+            console.warn('WFGG_PORTAL_TRAIN_IDENTITY_MISSING');
+            location.replace('/');
+          }
+
+        } else {
+          showPortal();
+        }
+
+        startPresenceLoop();
+    }
+    async function copyText(text) { try {
+        await navigator.clipboard.writeText(text);
+        toast('Copié');
+    }
+    catch (e) {
+        toast('Copie impossible');
+    } }
+    async function resetMemberPin(id) {
+        if (!isAdmin())
+            return;
+        try {
+            const r = await api(`/api/admin/members/${encodeURIComponent(id)}/reset-pin`, { method: 'POST', body: '{}' });
+            const p=byId[id];
+            rememberGeneratedCode(id,p?.pseudo||id,p?.rank||'',r.pin,'Code réinitialisé');
+            openModal(`<h2>🔑 Nouveau code</h2><p><strong>${esc(p?.pseudo||'Joueur')}</strong> · ${p?.rank||''}</p><div class="new-pin">${r.pin}</div><div class="warning">L’ancien code est invalide et toutes les sessions du joueur ont été fermées. Pour un R4/R5, ce nouveau code sera obligatoire à la prochaine connexion.</div><div class="actions"><button class="btn gold" onclick="W.copyText('${r.pin}')">📋 Copier</button><button class="btn outline" onclick="W.closeModal();W.openAdminSection('access')">🔐 Codes & accès</button></div>`);
+        }
+        catch (e) {
+            toast(e.message);
+        }
+    }
+    function openChangePin() { openModal(`<h2>🔑 Changer mon code</h2><label class="field-label">Code actuel</label><input id="oldPinField" type="password" inputmode="numeric" maxlength="6"><label class="field-label" style="margin-top:10px">Nouveau code (6 chiffres)</label><input id="newPinField" type="password" inputmode="numeric" maxlength="6"><button class="btn gold full" onclick="W.changeMyPin()">Enregistrer</button>`); }
+    async function changeMyPin() { const oldPin = document.getElementById('oldPinField').value, newPin = document.getElementById('newPinField').value; const ok = await mutate('/api/me/pin', { method: 'PUT', body: JSON.stringify({ oldPin, newPin }) }, 'Code personnel modifié'); if (ok)
+        closeModal(); }
+    window.W = {
+        addCalendar, addAllCalendar, toggleAlerts, changeWeek, openExchange, publishMarketExchange, cancelMarketExchange, pickMyDateForMarket, executeMarketSwap, markUnavailable, showUnavailableChoice, openUnavailableDayPicker, saveUnavailableDayFromPicker, openUnavailablePeriod, syncUnavailablePeriodMin, saveUnavailablePeriod, saveUnavailableDay, removeUnavailableRange, removeUnavailable, showUnavailable, toggleRotation, showRotationStatus, openProfileInfo, goAlerts, closeAndOpenExchange, closeModal, saveAdminSettings, saveDay, clearDayOverride, adminToggleRotation, filterMembers, searchMembers, openMemberForm, saveMemberForm, deleteMember, renderRotationOrder, moveRotation, generateMessage, nextMessage, copyGeneratedMessage, openAdminSection, renderAdminHome, openSelfProfileEdit, saveSelfProfile, saveRotationRanks, copyText, resetMemberPin, downloadGeneratedCodesCsv, clearGeneratedCodes, changeLanguage, setPortalLanguage, showPortal, showTrainEntry, showPortalHelp, openPortalResource, togglePresenceList, refreshAdminPresence, openGuidePortal, openGameHelp, openGameLink, addGameLinkDraft, removeGameLinkDraft, saveGameLinks, openAdminAnalytics, renderAnalyticsMenu, openAnalyticsSub, renderTrainHistory, setAnalyticsRotationDays, setAnalyticsRotationPool, setAnalyticsRotationSort, setAnalyticsActivitySort, setAnalyticsSettingsFilter, setAnalyticsFilter, setAnalyticsHistorySort, setAnalyticsSearch, openChangePin, changeMyPin
+    };
+    document.addEventListener('DOMContentLoaded', init);
+})();
+
+
+---
+
+===== async function init( =====
+op:0,behavior:'smooth'});
+    }
+    function showTrainEntry(){
+      document.getElementById('portalView')?.classList.add('hidden');
+      document.getElementById('portalHelpView')?.classList.add('hidden');
+
+      /* WFGG_PORTAL_ONLY_AUTH_V1 */
+
+      return bootApp();
+    }
+
+    function openGuidePortal(){
+        const lang=currentLanguage();
+        location.href=`/help/saison6/${lang}/index.html`;
+    }
+
+    function showScreen(id) {
+        if (id === 'adminScreen')
+            currentAdminSection = null;
+        document.querySelectorAll('.screen').forEach(x => x.classList.toggle('active', x.id === id));
+        document.querySelectorAll('.nav-btn').forEach(x => x.classList.toggle('active', x.dataset.screen === id));
+        if (id === 'homeScreen')
+            renderHome();
+        if (id === 'planningScreen')
+            renderPlanning();
+        if (id === 'exchangeScreen')
+            renderExchanges();
+        if (id === 'alertsScreen')
+            renderAlerts();
+        if (id === 'adminScreen')
+            renderAdmin();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    function bootApp() {
+        const m = user();
+        if (!m) {
+            state.currentUserId = null;
+            saveState();
+            return;
+        }
+        document.getElementById('portalView').classList.add('hidden');
+        document.getElementById('portalHelpView')?.classList.add('hidden');
+        document.getElementById('appView').classList.remove('hidden');
+        document.getElementById('adminNav').classList.toggle('hidden', !isAdmin(m));
+        renderAll();
+        showScreen('homeScreen');
+        clearInterval(syncTimer);
+        syncTimer = setInterval(() => syncSnapshot({ render: true, quiet: true }), 20000);
+        startPresenceLoop();
+    }
+    async function init() {
+        startLanguageObserver();
+        applyLanguage(document);
+        var _a;
+        refreshRoster();
+        document.getElementById('loginBtn').onclick = login;
+        document.getElementById('brandHome').onclick = showPortal;
+        document.getElementById('portalTrainBtn').onclick = showTrainEntry;
+        document.getElementById('portalHelpBtn').onclick = showPortalHelp;
+        document.getElementById('portalHelpBack').onclick = showPortal;
+        document.getElementById('portalHelpLogo').onclick = showPortal;
+        document.getElementById('loginPortalBack').onclick = showPortal;
+        document.querySelectorAll('.nav-btn').forEach(b => b.onclick = () => showScreen(b.dataset.screen));
+        document.querySelectorAll('[data-close-modal]').forEach(b => b.onclick = closeModal);
+        window.addEventListener('beforeinstallprompt', e => {
+            e.preventDefault();
+            deferredInstall = e;
+            updateInstallVisibility();
+        });
+        window.addEventListener('appinstalled', () => {
+            deferredInstall = null;
+            updateInstallVisibility();
+        });
+        const installBtn = document.getElementById('installBtn');
+        if (installBtn) installBtn.onclick = async () => {
+            if (isStandaloneApp()) {
+                updateInstallVisibility();
+                return;
+            }
+            if (deferredInstall) {
+                deferredInstall.prompt();
+                await deferredInstall.userChoice;
+                deferredInstall = null;
+                updateInstallVisibility();
+            }
+            else {
+                location.href = '/installer.html';
+            }
+        };
+        updateInstallVisibility();
+        document.addEventListener('visibilitychange', () => {
+            if(document.visibilityState==='visible'){
+                syncSnapshot({render:true,quiet:true});
+                startPresenceLoop();
+            }
+        });
+        window.addEventListener('online', () => syncSnapshot({ render: true, quiet: true }));
+        window.addEventListener('offline', () => setSyncStatus('off'));
+        if ('serviceWorker' in navigator)
+            navigator.serviceWorker.register('service-worker.js?v=44').catch(() => { });
+        try {
+            const d = await api('/api/directory', { method: 'GET' });
+            DIRECTORY = d.users || [];
+            const dl = document.getElementById('memberList');
+            if (dl)
+                dl.innerHTML = DIRECTORY.map(x => `<option value="${esc(x.pseudo)}">${x.rank}</option>`).join('');
+        }
+        catch (e) { }
+      const cachedId = state.currentUserId;
+      const ok = await syncSnapshot({ render: false, quiet: true });
+
+      if (!ok && cachedId && byId[cachedId]) {
+        state.currentUserId = cachedId;
+        setSyncStatus('off');
+      }
+
+      if (!ok && !(cachedId && byId[cachedId])) {
+        state.currentUserId = null;
+        saveState();
+        setSyncStatus('off');
+      }
+
+        try {
+            const st = await api('/api/bootstrap/status', { method: 'GET' });
+            if (!st.initialized)
+                document.querySelector('.login-note').innerHTML = '⚠️ Application à initialiser · ouvre <b>/setup.html</b>';
+        }
+        catch (e) { }
+        /* WFGG_PORTAL_DIRECT_TRAIN_V1
+           Sous /train/, l'identité a déjà été synchronisée
+           via le bridge du Portail. On ouvre donc Train directement.
+        */
+        if (location.pathname === '/train' ||
+            location.pathname.startsWith('/train/')) {
+
+          if (state.currentUserId && user()) {
+            bootApp();
+          } else {
+            console.warn('WFGG_PORTAL_TRAIN_IDENTITY_MISSING');
+            location.replace('/');
+          }
+
+        } else {
+          showPortal();
+        }
+
+        startPresenceLoop();
+    }
+    async function copyText(text) { try {
+        await navigator.clipboard.writeText(text);
+        toast('Copié');
+    }
+    catch (e) {
+        toast('Copie impossible');
+    } }
+    async function resetMemberPin(id) {
+        if (!isAdmin())
+            return;
+        try {
+            const r = await api(`/api/admin/members/${encodeURIComponent(id)}/reset-pin`, { method: 'POST', body: '{}' });
+            const p=byId[id];
+            rememberGeneratedCode(id,p?.pseudo||id,p?.rank||'',r.pin,'Code réinitialisé');
+            openModal(`<h2>🔑 Nouveau code</h2><p><strong>${esc(p?.pseudo||'Joueur')}</strong> · ${p?.rank||''}</p><div class="new-pin">${r.pin}</div><div class="warning">L’ancien code est invalide et toutes les sessions du joueur ont été fermées. Pour un R4/R5, ce nouveau code sera obligatoire à la prochaine connexion.</div><div class="actions"><button class="btn gold" onclick="W.copyText('${r.pin}')">📋 Copier</button><button class="btn outline" onclick="W.closeModal();W.openAdminSection('access')">🔐 Codes & accès</button></div>`);
+        }
+        catch (e) {
+            toast(e.message);
+        }
+    }
+    function openChangePin() { openModal(`<h2>🔑 Changer mon code</h2><label class="field-label">Code actuel</label><input id="oldPinField" type="password" inputmode="numeric" maxlength="6"><label class="field-label" style="margin-top:10px">Nouveau code (6 chiffres)</label><input id="newPinField" type="password" inputmode="numeric" maxlength="6"><button class="btn gold full" onclick="W.changeMyPin()">Enregistrer</button>`); }
+    async function changeMyPin() { const oldPin = document.getElementById('oldPinField').value, newPin = document.getElementById('newPinField').value; const ok = await mutate('/api/me/pin', { method: 'PUT', body: JSON.stringify({ oldPin, newPin }) }, 'Code personnel modifié'); if (ok)
+        closeModal(); }
+    window.W = {
+        addCalendar, addAllCalendar, toggleAlerts, changeWeek, openExchange, publishMarketExchange, cancelMarketExchange, pickMyDateForMarket, executeMarketSwap, markUnavailable, showUnavailableChoice, openUnavailableDayPicker, saveUnavailableDayFromPicker, openUnavailablePeriod, syncUnavailablePeriodMin, saveUnavailablePeriod, saveUnavailableDay, removeUnavailableRange, removeUnavailable, showUnavailable, toggleRotation, showRotationStatus, openProfileInfo, goAlerts, closeAndOpenExchange, closeModal, saveAdminSettings, saveDay, clearDayOverride, adminToggleRotation, filterMembers, searchMembers, openMemberForm, saveMemberForm, deleteMember, renderRotationOrder, moveRotation, generateMessage, nextMessage, copyGeneratedMessage, openAdminSection, renderAdminHome, openSelfProfileEdit, saveSelfProfile, saveRotationRanks, copyText, resetMemberPin, downloadGeneratedCodesCsv, clearGeneratedCodes, changeLanguage, setPortalLanguage, showPortal, showTrainEntry, showPortalHelp, openPortalResource, togglePresenceList, refreshAdminPresence, openGuidePortal, openGameHelp, openGameLink, addGameLinkDraft, removeGameLinkDraft, saveGameLinks, openAdminAnalytics, renderAnalyticsMenu, openAnalyticsSub, renderTrainHistory, setAnalyticsRotationDays, setAnalyticsRotationPool, setAnalyticsRotationSort, setAnalyticsActivitySort, setAnalyticsSettingsFilter, setAnalyticsFilter, setAnalyticsHistorySort, setAnalyticsSearch, openChangePin, changeMyPin
+    };
+    document.addEventListener('DOMContentLoaded', init);
+})();
+
+
+---

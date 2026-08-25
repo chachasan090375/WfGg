@@ -1,0 +1,13 @@
+name: Capture live Train exchange UI
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo 'Exchange capture disabled; full recette owns regression checks.'

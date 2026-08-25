@@ -1,0 +1,163 @@
+       if (!res.ok) {
+            setSyncStatus('off');
+            throw new Error(data.error || `Erreur ${res.status}`);
+        }
+        setSyncStatus('ok');
+        return data;
+    }
+    function applySnapshot(snap) {
+        const localVariants = state.messageVariant || { weekly: 0, daily: 0, driver: 0, vip: 0 };
+        BASE_ROSTER = snap.roster || [];
+        localStorage.setItem(ROSTER_CACHE_KEY, JSON.stringify(BASE_ROSTER));
+        state = Object.assign(Object.assign(Object.assign({}, cloneDefault()), (snap.state || {})), { currentUserId: snap.me.id, messageVariant: localVariants, playerEdits: {}, addedPlayers: [], removedPlayers: [] });
+        refreshRoster();
+        const serverLang=state.languages?.[state.currentUserId];
+        if(SUPPORTED_LANGS.includes(serverLang))localStorage.setItem(LANG_KEY,serverLang);
+        saveState();
+        queueApplyLanguage();
+    }
+    async function syncSnapshot({ render = true, quiet = false } = {}) {
+        var _a;
+        if (syncing)
+            return false;
+        syncing = true;
+        try {
+            const snap = await api('/api/snapshot', { method: 'GET' });
+            applySnapshot(snap);
+            if (render && document.getElementById('appView') && !document.getElementById('appView').classList.contains('hidden')) {
+                const active = (_a = document.querySelector('.screen.active')) === null || _a === void 0 ? void 0 : _a.id;
+                if (active === 'adminScreen' && currentAdminSection)
+                    openAdminSection(currentAdminSection);
+                else
+                    renderAll();
+            }
+            return true;
+        }
+        catch (e) {
+            if (!quiet)
+                toast(e.message);
+            return false;
+        }
+        finally {
+            syncing = false;
+        }
+    }
+    async function mutate(path, options = {}, success = 'Modification enregistrée') {
+        try {
+            await api(path, options);
+            await syncSnapshot({ render: true, quiet: true });
+            if (success)
+                toast(success);
+            return true;
+        }
+        catch (e) {
+            toast(e.message);
+            return false;
+        }
+    }
+    function ensureRotationRankSettings() {
+        state.settings = state.settings || {};
+        state.settings.rotationRanks = state.settings.rotationRanks || {};
+        if (!Array.isArray(state.settings.rotationRanks.officer) || !state.settings.rotationRanks.officer.length)
+            state.settings.rotationRanks.officer = ['R5', 'R4'];
+        if (!Array.isArray(state.settings.rotationRanks.r3driver) || !state.settings.rotationRanks.r3driver.length)
+            state.settings.rotationRanks.r3driver = ['R3'];
+        if (!Array.isArray(state.settings.rotationRanks.vip) || !state.settings.rotationRanks.vip.length)
+            state.settings.rotationRanks.vip = ['R3', 'R2', 'R1'];
+    }
+    function ranksForRotation(key) {
+        ensureRotationRankSettings();
+        return [...state.settings.rotationRanks[key]];
+    }
+    function rolePoolLabel(key) {
+        const names = { officer: 'Conducteur A', r3driver: 'Conducteur B', vip: 'VIP' };
+        return `${names[key]} · ${ranksForRotation(key).join('/')}`;
+    }
+    function roleKeyLabel(key) {
+        if (key === 'vip')
+            return rolePoolLabel('vip');
+        if (key === 'driver-r3')
+            return rolePoolLabel('r3driver');
+        return rolePoolLabel('officer');
+    }
+    function rankCheckHtml(key, label) {
+        const selected = new Set(ranksForRotation(key));
+        return `<div class="rank-config-block">
+    <h4>${label}</h4>
+    <div class="rank-toggle-grid">${['R5', 'R4', 'R3', 'R2', 'R1'].map(r => `
+      <label class="rank-toggle">
+        <input type="checkbox" data-rotation-key="${key}" value="${r}" ${selected.has(r) ? 'checked' : ''}>
+        <span>${r}</span>
+      </label>`).join('')}
+    </div>
+  </div>`;
+    }
+    function refreshRoster() {
+        const removed = new Set(state.removedPlayers || []);
+        const edits = state.playerEdits || {};
+        const base = BASE_ROSTER
+            .filter(m => !removed.has(m.id))
+            .map(m => (Object.assign(Object.assign({}, m), (edits[m.id] || {}))));
+        const added = (state.addedPlayers || []).filter(m => !removed.has(m.id));
+        ROSTER = [...base, ...added];
+        byId = Object.fromEntries(ROSTER.map(m => [m.id, m]));
+        normalizeRotationOrders();
+        updateLoginList();
+    }
+    function normalizeRotationOrders() {
+        state.rotationOrder = state.rotationOrder || { officer: [], r3driver: [], r3vip: [] };
+        ensureRotationRankSettings();
+        const eligible = {
+            officer: ROSTER.filter(m => ranksForRotation('officer').includes(m.rank) && m.active).map(m => m.id),
+            r3driver: ROSTER.filter(m => ranksForRotation('r3driver').includes(m.rank) && m.active).map(m => m.id),
+            r3vip: ROSTER.filter(m => ranksForRotation('vip').includes(m.rank) && m.active).map(m => m.id)
+        };
+        Object.keys(eligible).forEach(key => {
+            const allowed = eligible[key];
+            const old = (state.rotationOrder[key] || []).filter(id => allowed.includes(id));
+            state.rotationOrder[key] = [...old, ...allowed.filter(id => !old.includes(id))];
+        });
+    }
+    function orderedPool(pool, key) {
+        const order = state.rotationOrder[key] || [];
+        const pos = Object.fromEntries(order.map((id, i) => [id, i]));
+        return pool.slice().sort((a, b) => { var _a, _b; return ((_a = pos[a.id]) !== null && _a !== void 0 ? _a : 9999) - ((_b = pos[b.id]) !== null && _b !== void 0 ? _b : 9999) || a.id.localeCompare(b.id); });
+    }
+    function updateLoginList() {
+        const dl = document.getElementById('memberList');
+        if (dl)
+            dl.innerHTML = ROSTER.filter(x => x.active).map(x => `<option value="${esc(x.pseudo)}">${x.rank}</option>`).join('');
+        const note = document.querySelector('.login-note');
+        if (note)
+            note.textContent = `Connexion par pseudo • ${ROSTER.filter(x => x.active).length} profils actifs`;
+    }
+    function user() { return byId[state.currentUserId]; }
+    function isAdmin(m = user()) { return !!m && ['R5', 'R4'].includes(m.rank); }
+    function canSelfManage(m = user()) { return !!m && ['R5', 'R4', 'R3', 'R2'].includes(m.rank); }
+    function isOut(id) { return (state.outRotation || []).includes(id); }
+    function isUnavailable(id, date) { return (state.unavailable[id] || []).includes(date); }
+    function activePool(ranks) { return ROSTER.filter(m => ranks.includes(m.rank) && m.active && !isOut(m.id)); }
+    function esc(s) { return String(s !== null && s !== void 0 ? s : '').replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m])); }
+    function uid() { return 'x' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+    function avatarSrc(m) {
+        const src = (m === null || m === void 0 ? void 0 : m.avatar) || 'assets/icon-192.png';
+        return src.startsWith('/api/') ? API_BASE + src : src;
+    }
+    function avatar(m, cls = 'sm') { return `<img class="avatar ${cls}" src="${esc(avatarSrc(m))}" alt="${esc((m === null || m === void 0 ? void 0 : m.pseudo) || 'joueur')}">`; }
+    function rankBadge(r) { return `<span class="rank rank-${r}">${r}</span>`; }
+    function dateISO(d) { return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
+    function parseISO(s) { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); }
+    function addDays(d, n) { const x = new Date(d); x.setDate(x.getDate() + n); return x; }
+    function mondayOf(d) { const x = new Date(d); const day = (x.getDay() + 6) % 7; x.setHours(0, 0, 0, 0); return addDays(x, -day); }
+    function fmtDate(d, opt = { weekday: 'long', day: 'numeric', month: 'long' }) { return new Intl.DateTimeFormat(currentLocale(), opt).format(d); }
+    function fmtShort(d) { return new Intl.DateTimeFormat(currentLocale(), { weekday: 'short', day: 'numeric', month: 'short' }).format(d); }
+    function toast(msg) {
+        const t = document.getElementById('toast');
+        if (!t)
+            return;
+        t.textContent = translatedString(msg);
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 2300);
+    }
+    function pickFair(pool, date, history, exclude = []) {
+ 

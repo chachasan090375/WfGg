@@ -1,0 +1,150 @@
+        renderExchanges();
+        if (id === 'alertsScreen')
+            renderAlerts();
+        if (id === 'adminScreen')
+            renderAdmin();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    function bootApp() {
+        const m = user();
+        if (!m) {
+            state.currentUserId = null;
+            saveState();
+            return;
+        }
+        document.getElementById('portalView').classList.add('hidden');
+        document.getElementById('portalHelpView')?.classList.add('hidden');
+        document.getElementById('appView').classList.remove('hidden');
+        document.getElementById('adminNav').classList.toggle('hidden', !isAdmin(m));
+        renderAll();
+        showScreen('homeScreen');
+        clearInterval(syncTimer);
+        syncTimer = setInterval(() => syncSnapshot({ render: true, quiet: true }), 20000);
+        startPresenceLoop();
+    }
+    async function init() {
+        startLanguageObserver();
+        applyLanguage(document);
+        var _a;
+        refreshRoster();
+        document.getElementById('loginBtn').onclick = login;
+        document.getElementById('brandHome').onclick = showPortal;
+        document.getElementById('portalTrainBtn').onclick = showTrainEntry;
+        document.getElementById('portalHelpBtn').onclick = showPortalHelp;
+        document.getElementById('portalHelpBack').onclick = showPortal;
+        document.getElementById('portalHelpLogo').onclick = showPortal;
+        document.getElementById('loginPortalBack').onclick = showPortal;
+        document.querySelectorAll('.nav-btn').forEach(b => b.onclick = () => showScreen(b.dataset.screen));
+        document.querySelectorAll('[data-close-modal]').forEach(b => b.onclick = closeModal);
+        window.addEventListener('beforeinstallprompt', e => {
+            e.preventDefault();
+            deferredInstall = e;
+            updateInstallVisibility();
+        });
+        window.addEventListener('appinstalled', () => {
+            deferredInstall = null;
+            updateInstallVisibility();
+        });
+        const installBtn = document.getElementById('installBtn');
+        if (installBtn) installBtn.onclick = async () => {
+            if (isStandaloneApp()) {
+                updateInstallVisibility();
+                return;
+            }
+            if (deferredInstall) {
+                deferredInstall.prompt();
+                await deferredInstall.userChoice;
+                deferredInstall = null;
+                updateInstallVisibility();
+            }
+            else {
+                location.href = '/installer.html';
+            }
+        };
+        updateInstallVisibility();
+        document.addEventListener('visibilitychange', () => {
+            if(document.visibilityState==='visible'){
+                syncSnapshot({render:true,quiet:true});
+                startPresenceLoop();
+            }
+        });
+        window.addEventListener('online', () => syncSnapshot({ render: true, quiet: true }));
+        window.addEventListener('offline', () => setSyncStatus('off'));
+        if ('serviceWorker' in navigator)
+            navigator.serviceWorker.register('service-worker.js?v=44').catch(() => { });
+        try {
+            const d = await api('/api/directory', { method: 'GET' });
+            DIRECTORY = d.users || [];
+            const dl = document.getElementById('memberList');
+            if (dl)
+                dl.innerHTML = DIRECTORY.map(x => `<option value="${esc(x.pseudo)}">${x.rank}</option>`).join('');
+        }
+        catch (e) { }
+      const cachedId = state.currentUserId;
+      const ok = await syncSnapshot({ render: false, quiet: true });
+
+      if (!ok && cachedId && byId[cachedId]) {
+        state.currentUserId = cachedId;
+        setSyncStatus('off');
+      }
+
+      if (!ok && !(cachedId && byId[cachedId])) {
+        state.currentUserId = null;
+        saveState();
+        setSyncStatus('off');
+      }
+
+        try {
+            const st = await api('/api/bootstrap/status', { method: 'GET' });
+            if (!st.initialized)
+                document.querySelector('.login-note').innerHTML = '⚠️ Application à initialiser · ouvre <b>/setup.html</b>';
+        }
+        catch (e) { }
+        /* WFGG_PORTAL_DIRECT_TRAIN_V1
+           Sous /train/, l'identité a déjà été synchronisée
+           via le bridge du Portail. On ouvre donc Train directement.
+        */
+        if (location.pathname === '/train' ||
+            location.pathname.startsWith('/train/')) {
+
+          if (state.currentUserId && user()) {
+            bootApp();
+          } else {
+            console.warn('WFGG_PORTAL_TRAIN_IDENTITY_MISSING');
+            location.replace('/');
+          }
+
+        } else {
+          showPortal();
+        }
+
+        startPresenceLoop();
+    }
+    async function copyText(text) { try {
+        await navigator.clipboard.writeText(text);
+        toast('Copié');
+    }
+    catch (e) {
+        toast('Copie impossible');
+    } }
+    async function resetMemberPin(id) {
+        if (!isAdmin())
+            return;
+        try {
+            const r = await api(`/api/admin/members/${encodeURIComponent(id)}/reset-pin`, { method: 'POST', body: '{}' });
+            const p=byId[id];
+            rememberGeneratedCode(id,p?.pseudo||id,p?.rank||'',r.pin,'Code réinitialisé');
+            openModal(`<h2>🔑 Nouveau code</h2><p><strong>${esc(p?.pseudo||'Joueur')}</strong> · ${p?.rank||''}</p><div class="new-pin">${r.pin}</div><div class="warning">L’ancien code est invalide et toutes les sessions du joueur ont été fermées. Pour un R4/R5, ce nouveau code sera obligatoire à la prochaine connexion.</div><div class="actions"><button class="btn gold" onclick="W.copyText('${r.pin}')">📋 Copier</button><button class="btn outline" onclick="W.closeModal();W.openAdminSection('access')">🔐 Codes & accès</button></div>`);
+        }
+        catch (e) {
+            toast(e.message);
+        }
+    }
+    function openChangePin() { openModal(`<h2>🔑 Changer mon code</h2><label class="field-label">Code actuel</label><input id="oldPinField" type="password" inputmode="numeric" maxlength="6"><label class="field-label" style="margin-top:10px">Nouveau code (6 chiffres)</label><input id="newPinField" type="password" inputmode="numeric" maxlength="6"><button class="btn gold full" onclick="W.changeMyPin()">Enregistrer</button>`); }
+    async function changeMyPin() { const oldPin = document.getElementById('oldPinField').value, newPin = document.getElementById('newPinField').value; const ok = await mutate('/api/me/pin', { method: 'PUT', body: JSON.stringify({ oldPin, newPin }) }, 'Code personnel modifié'); if (ok)
+        closeModal(); }
+    window.W = {
+        addCalendar, addAllCalendar, toggleAlerts, changeWeek, openExchange, publishMarketExchange, cancelMarketExchange, pickMyDateForMarket, executeMarketSwap, markUnavailable, showUnavailableChoice, openUnavailableDayPicker, saveUnavailableDayFromPicker, openUnavailablePeriod, syncUnavailablePeriodMin, saveUnavailablePeriod, saveUnavailableDay, removeUnavailableRange, removeUnavailable, showUnavailable, toggleRotation, showRotationStatus, openProfileInfo, goAlerts, closeAndOpenExchange, closeModal, saveAdminSettings, saveDay, clearDayOverride, adminToggleRotation, filterMembers, searchMembers, openMemberForm, saveMemberForm, deleteMember, renderRotationOrder, moveRotation, generateMessage, nextMessage, copyGeneratedMessage, openAdminSection, renderAdminHome, openSelfProfileEdit, saveSelfProfile, saveRotationRanks, copyText, resetMemberPin, downloadGeneratedCodesCsv, clearGeneratedCodes, changeLanguage, setPortalLanguage, showPortal, showTrainEntry, showPortalHelp, openPortalResource, togglePresenceList, refreshAdminPresence, openGuidePortal, openGameHelp, openGameLink, addGameLinkDraft, removeGameLinkDraft, saveGameLinks, openAdminAnalytics, renderAnalyticsMenu, openAnalyticsSub, renderTrainHistory, setAnalyticsRotationDays, setAnalyticsRotationPool, setAnalyticsRotationSort, setAnalyticsActivitySort, setAnalyticsSettingsFilter, setAnalyticsFilter, setAnalyticsHistorySort, setAnalyticsSearch, openChangePin, changeMyPin
+    };
+    document.addEventListener('DOMContentLoaded', init);
+})();

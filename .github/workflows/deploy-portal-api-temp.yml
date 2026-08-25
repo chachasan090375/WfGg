@@ -1,0 +1,13 @@
+name: Portal API deploy helper (disabled)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  noop:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo 'Disabled - GitHub repository has no Cloudflare deployment secrets.'

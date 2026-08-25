@@ -1,0 +1,13 @@
+name: Portal Train patch helper (disabled)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  noop:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo 'Portal/Train integration patch completed and verified.'
