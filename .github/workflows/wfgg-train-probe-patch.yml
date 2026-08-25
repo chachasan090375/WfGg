@@ -1,31 +1,13 @@
-name: WfGg Train session probe patch
+name: WfGg Train session probe patch (disabled)
 
 on:
-  push:
-    branches:
-      - train-bridge-phase3
+  workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  patch:
-    if: ${{ !contains(github.event.head_commit.message, '[probe-auto]') }}
+  noop:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: train-bridge-phase3
-          fetch-depth: 0
-      - name: Apply Train probe patch
-        run: python .github/scripts/train_probe_patch.py
-      - name: Validate worker syntax
-        run: node --check frontend/_worker.js
-      - name: Commit patch
-        run: |
-          set -euo pipefail
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add frontend/_worker.js
-          git commit -m 'fix: probe Portal Train session before boot [probe-auto]'
-          git push origin HEAD:train-bridge-phase3
+      - run: echo 'Temporary patch workflow disabled; application code already updated.'
