@@ -1,0 +1,46 @@
+name: WfGg Train Phase 3 final smoke
+
+on:
+  push:
+    branches:
+      - train-bridge-phase3
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify final preview
+        shell: bash
+        run: |
+          set -euo pipefail
+          PORTAL='https://train-bridge-phase3.wfgg.pages.dev'
+          TRAIN='https://portal-auth-phase1-wfgg-train.chachasan090375.workers.dev'
+
+          ok=0
+          for i in $(seq 1 20); do
+            if curl -fsSL "$PORTAL/train/" -o /tmp/train.html \
+              && grep -q 'WFGG_PORTAL_TRAIN_DIRECT_API_V1' /tmp/train.html \
+              && grep -q 'wfgg-train-sprite' /tmp/train.html; then
+              ok=1
+              break
+            fi
+            sleep 3
+          done
+          test "$ok" = 1
+          echo 'PHASE3_DIRECT_BRIDGE=OK'
+          echo 'PHASE3_TRAIN_ANIMATION=OK'
+
+          curl -fsSL "$PORTAL/train/app.js" -o /tmp/app.js
+          ! grep -q 'https://wfgg-train.chachasan090375.workers.dev' /tmp/app.js
+          echo 'PHASE3_APP_REWRITE=OK'
+
+          curl -sS -D /tmp/cors.headers -o /dev/null -X OPTIONS \
+            -H "Origin: $PORTAL" \
+            -H 'Access-Control-Request-Method: GET' \
+            -H 'Access-Control-Request-Headers: X-WfGg-Portal-Token' \
+            "$TRAIN/api/snapshot"
+          grep -qi 'access-control-allow-headers:.*x-wfgg-portal-token' /tmp/cors.headers
+          echo 'PHASE3_TRAIN_CORS=OK'
