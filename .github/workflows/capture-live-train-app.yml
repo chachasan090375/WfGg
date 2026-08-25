@@ -19,6 +19,7 @@ jobs:
           ROOT='https://train-bridge-phase3.wfgg.pages.dev'
           TRAIN="$ROOT/train/"
           UA='Mozilla/5.0 (Linux; Android 16) AppleWebKit/537.36 Chrome/139 Mobile Safari/537.36'
+          echo 'verification revision: final-v10'
           ok=0
           for i in $(seq 1 30); do
             curl -fsSL -A "$UA" "$ROOT/?verify=admin-split-$i" -o /tmp/root.html || true
