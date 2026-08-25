@@ -1,4 +1,4 @@
-name: WfGg design preview check
+name: WfGg premium design preview check
 
 on:
   push:
@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
-      - name: Wait for Cloudflare branch preview
+      - name: Wait for Cloudflare premium branch preview
         shell: bash
         run: |
           set -eu
@@ -21,26 +21,32 @@ jobs:
           ok=0
           for i in $(seq 1 72); do
             echo "attempt=$i url=$ROOT"
-            if curl -fsSL "$ROOT/?wfgg_charte_preview=$i" -o /tmp/root.html \
-              && grep -Fq 'wfgg-design-system-preview-v1.css?v=001' /tmp/root.html \
-              && grep -Fq 'wfgg-design-system-preview-v1.js?v=001' /tmp/root.html; then
+            if curl -fsSL "$ROOT/?wfgg_charte_premium=$i" -o /tmp/root.html \
+              && grep -Fq 'wfgg-design-system-preview-v2.css?v=002-premium' /tmp/root.html \
+              && grep -Fq 'wfgg-design-system-preview-v2.js?v=002-premium' /tmp/root.html; then
               ok=1
               break
             fi
             sleep 5
           done
           test "$ok" = 1
-          curl -fsSL "$ROOT/wfgg-design-system-preview-v1.css?v=001" -o /tmp/design.css
-          curl -fsSL "$ROOT/wfgg-design-system-preview-v1.js?v=001" -o /tmp/design.js
-          grep -Fq 'WFGG_DESIGN_SYSTEM_PREVIEW_V1' /tmp/design.css
-          grep -Fq 'WFGG_DESIGN_SYSTEM_PREVIEW_V1' /tmp/design.js
-          curl -fsSL "$ROOT/guides/?wfgg_charte_preview=1" -o /tmp/guides.html
-          curl -fsSL "$ROOT/train/?wfgg_charte_preview=1" -o /tmp/train.html
-          grep -Fq '/wfgg-design-system-preview-v1.css?v=001' /tmp/guides.html
-          grep -Fq '/wfgg-design-system-preview-v1.js?v=001' /tmp/guides.html
-          grep -Fq '/wfgg-design-system-preview-v1.css?v=001' /tmp/train.html
-          grep -Fq '/wfgg-design-system-preview-v1.js?v=001' /tmp/train.html
-          echo "WFGG_DESIGN_PREVIEW_URL=$ROOT"
-          echo 'WFGG_DESIGN_PREVIEW_PORTAL=OK'
-          echo 'WFGG_DESIGN_PREVIEW_GUIDES=OK'
-          echo 'WFGG_DESIGN_PREVIEW_TRAIN=OK'
+          curl -fsSL "$ROOT/wfgg-design-system-preview-v2.css?v=002-premium" -o /tmp/design.css
+          curl -fsSL "$ROOT/wfgg-design-system-preview-v2.js?v=002-premium" -o /tmp/design.js
+          grep -Fq 'WFGG_DESIGN_SYSTEM_PREVIEW_V2' /tmp/design.css
+          grep -Fq 'WFGG_DESIGN_SYSTEM_PREVIEW_V2' /tmp/design.js
+          grep -Fq -- '--wfgg-champagne:#d8c69e' /tmp/design.css
+          grep -Fq 'preview-v2-premium' /tmp/design.js
+          grep -Fq "book:'<path" /tmp/design.js
+          grep -Fq "train:'<path" /tmp/design.js
+          curl -fsSL "$ROOT/guides/?wfgg_charte_premium=1" -o /tmp/guides.html
+          curl -fsSL "$ROOT/train/?wfgg_charte_premium=1" -o /tmp/train.html
+          grep -Fq '/wfgg-design-system-preview-v2.css?v=002-premium' /tmp/guides.html
+          grep -Fq '/wfgg-design-system-preview-v2.js?v=002-premium' /tmp/guides.html
+          grep -Fq '/wfgg-design-system-preview-v2.css?v=002-premium' /tmp/train.html
+          grep -Fq '/wfgg-design-system-preview-v2.js?v=002-premium' /tmp/train.html
+          ! grep -Fq '/wfgg-design-system-preview-v1.css?v=001' /tmp/guides.html
+          ! grep -Fq '/wfgg-design-system-preview-v1.css?v=001' /tmp/train.html
+          echo "WFGG_PREMIUM_DESIGN_PREVIEW_URL=$ROOT"
+          echo 'WFGG_PREMIUM_DESIGN_PORTAL=OK'
+          echo 'WFGG_PREMIUM_DESIGN_GUIDES=OK'
+          echo 'WFGG_PREMIUM_DESIGN_TRAIN=OK'
