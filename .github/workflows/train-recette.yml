@@ -1,8 +1,8 @@
-name: Train full recette
+name: Train full recette — exchange v14
 
 on:
   push:
-    branches: [train-bridge-phase3]
+    branches: [exchange-fix]
   workflow_dispatch:
 
 permissions:
@@ -15,54 +15,57 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: train-bridge-phase3
-      - name: Validate bridge source
+          ref: exchange-fix
+      - name: Validate exchange v14 source
         run: |
-          echo 'QA revision: browser-v5-production-worker'
           node --check frontend/_worker.js
           node --check .github/qa/train-recette-e2e.mjs
           node --check .github/qa/train-recette-extended.mjs
+          node --check .github/qa/exchange-authority-recette.mjs
           grep -q 'WFGG_TRAIN_EXCHANGE_OWN_CANCEL_V2' frontend/_worker.js
-          grep -q 'wfgg_bridge=v13' frontend/_worker.js
+          grep -q 'WFGG_TRAIN_SERVER_SCHEDULE_V1' frontend/_worker.js
+          grep -q 'WFGG_TRAIN_MUTATE_REFRESH_GUARD_V1' frontend/_worker.js
+          grep -q 'WFGG_TRAIN_EXCHANGE_ORPHAN_FALLBACK_V1' frontend/_worker.js
+          grep -q 'wfgg_bridge=v14' frontend/_worker.js
           grep -q '/assets/wfgg-logo-mini.svg' frontend/_worker.js
-          grep -q "selfPseudoField').waitFor" .github/qa/train-recette-extended.mjs
-      - name: Verify production backend R3 cycle marker
+      - name: Verify production backend authoritative schedule
         shell: bash
         run: |
           set -eu
-          curl -fsSi 'https://wfgg-train.chachasan090375.workers.dev/api/health?browser_r3_cycle=1' -o /tmp/backend-health.txt
+          curl -fsSi 'https://wfgg-train.chachasan090375.workers.dev/api/health?exchange_v14=1' -o /tmp/backend-health.txt
           grep -iq '^x-wfgg-r3-cycle-model: v1' /tmp/backend-health.txt
           grep -iq '^x-wfgg-rotation-sequence-guard: v2' /tmp/backend-health.txt
-      - name: Wait for Cloudflare preview v13
+      - name: Wait for Cloudflare exchange preview v14
         shell: bash
         run: |
           set -eu
-          ROOT='https://train-bridge-phase3.wfgg.pages.dev'
-          UA='Mozilla/5.0 (Linux; Android 16) AppleWebKit/537.36 Chrome/139 Mobile Safari/537.36'
+          ROOT='https://exchange-fix.wfgg.pages.dev'
           ok=0
-          for i in $(seq 1 40); do
-            curl -fsSL -A "$UA" "$ROOT/train/?recette=$i" -o /tmp/train.html || true
-            if grep -Fq 'wfgg_bridge=v13' /tmp/train.html; then
-              curl -fsSL -A "$UA" "$ROOT/train/app.js?wfgg_bridge=v13&recette=$i" -o /tmp/app.js || true
-              n=$(grep -o 'cancelMarketExchange' /tmp/app.js | wc -l | tr -d ' ')
-              echo "attempt=$i bridge=v13 cancel_refs=$n"
-              if [ "$n" -ge 4 ]; then ok=1; break; fi
-            else
-              echo "attempt=$i waiting_for_v13"
+          for i in $(seq 1 50); do
+            curl -fsSL "$ROOT/train/?recette=$i" -o /tmp/train.html || true
+            if grep -Fq 'wfgg_bridge=v14' /tmp/train.html; then
+              curl -fsSL "$ROOT/train/app.js?wfgg_bridge=v14&recette=$i" -o /tmp/app.js || true
+              if grep -Fq 'state.__serverSchedule' /tmp/app.js && grep -Fq 'Joueur indisponible' /tmp/app.js && grep -Fq 'Retirer mon annonce' /tmp/app.js; then
+                ok=1; break
+              fi
             fi
-            sleep 5
+            sleep 4
           done
           test "$ok" = 1
           node --check /tmp/app.js
-          ! grep -Fq 'if (token)' /tmp/app.js
-          ! grep -Fq 'if (!token)' /tmp/app.js
-          grep -Fq 'Retirer mon annonce' /tmp/app.js
-          grep -Fq 'Mes demandes' /tmp/app.js
       - name: Install Playwright
         run: |
           npm install --no-save playwright@1.55.0
           npx playwright install --with-deps chromium
       - name: Run primary browser recette
+        env:
+          WFGG_PREVIEW: https://exchange-fix.wfgg.pages.dev
         run: node .github/qa/train-recette-e2e.mjs
       - name: Run extended browser recette
+        env:
+          WFGG_PREVIEW: https://exchange-fix.wfgg.pages.dev
         run: node .github/qa/train-recette-extended.mjs
+      - name: Run exchange authority recette
+        env:
+          WFGG_PREVIEW: https://exchange-fix.wfgg.pages.dev
+        run: node .github/qa/exchange-authority-recette.mjs
