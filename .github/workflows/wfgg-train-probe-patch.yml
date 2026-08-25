@@ -16,15 +16,18 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: train-bridge-phase3
-      - name: Apply ownership, statistics scope and vector logo patches
+      - name: Apply ownership, statistics scope and compact logo patches
         run: |
           python .github/scripts/portal_train_architecture_fix.py
           python .github/scripts/train_stats_scope_fix.py
+          python .github/scripts/train_logo_v11.py
       - name: Validate JavaScript
         run: |
           node --check frontend/_worker.js
           node --check frontend/portal-v070.js
           grep -q 'WFGG_TRAIN_VECTOR_LOGO_V1' frontend/_worker.js
+          grep -q '/assets/wfgg-logo-mini.svg' frontend/_worker.js
+          grep -q 'wfgg_bridge=v11' frontend/_worker.js
           grep -q 'WFGG_TRAIN_ADMIN_OWNERSHIP_V1' frontend/_worker.js
           grep -q 'WFGG_PORTAL_PLAYER_STATS_V1' frontend/portal-v070.js
           grep -q 'WFGG_PORTAL_PLAYER_STATS_STYLE_V1' frontend/portal-v070.css
@@ -37,5 +40,5 @@ jobs:
             echo 'No application changes to commit.'
             exit 0
           fi
-          git commit -m 'fix: finalize Portal Train admin ownership [architecture-fix-auto]'
+          git commit -m 'fix: compact Train logo and refresh bridge [architecture-fix-auto]'
           git push origin HEAD:train-bridge-phase3
