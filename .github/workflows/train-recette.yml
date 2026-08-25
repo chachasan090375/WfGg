@@ -18,7 +18,7 @@ jobs:
           ref: train-bridge-phase3
       - name: Validate bridge source
         run: |
-          echo 'QA revision: browser-v3-mobile-fixed-head'
+          echo 'QA revision: browser-v4-r3-cycle-live'
           node --check frontend/_worker.js
           node --check .github/qa/train-recette-e2e.mjs
           node --check .github/qa/train-recette-extended.mjs
@@ -26,6 +26,13 @@ jobs:
           grep -q 'wfgg_bridge=v13' frontend/_worker.js
           grep -q '/assets/wfgg-logo-mini.svg' frontend/_worker.js
           grep -q "selfPseudoField').waitFor" .github/qa/train-recette-extended.mjs
+      - name: Verify live backend R3 cycle marker
+        shell: bash
+        run: |
+          set -eu
+          curl -fsSi 'https://portal-auth-phase1-wfgg-train.chachasan090375.workers.dev/api/health?browser_r3_cycle=1' -o /tmp/backend-health.txt
+          grep -iq '^x-wfgg-r3-cycle-model: v1' /tmp/backend-health.txt
+          grep -iq '^x-wfgg-rotation-sequence-guard: v2' /tmp/backend-health.txt
       - name: Wait for Cloudflare preview v13
         shell: bash
         run: |
