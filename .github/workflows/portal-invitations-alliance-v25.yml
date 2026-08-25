@@ -1,0 +1,42 @@
+name: Portal invitations alliance v25
+
+on:
+  push:
+    branches: [portal-invitations-alliance-notice-v25]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  recette:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: portal-invitations-alliance-notice-v25
+      - name: Validate sources
+        run: |
+          node --check frontend/portal-invitations-lastwar-safe-v1.js
+          node --check .github/qa/portal-invitations-recette.mjs
+          grep -Fq 'WFGG_LASTWAR_ALLIANCE_NOTICE_V2' frontend/portal-invitations-lastwar-safe-v1.js
+          grep -Fq 'portal-invitations-lastwar-safe-v1.js?v=003-alliance-notice' frontend/index.html
+      - name: Generate XLSX fixture
+        run: python3 .github/qa/make-invitations-xlsx-fixture.py /tmp/qa-members.xlsx
+      - name: Install Playwright
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start local portal
+        run: |
+          cd frontend
+          python3 -m http.server 4173 >/tmp/wfgg-v25-http.log 2>&1 &
+          for i in $(seq 1 20); do curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0; sleep 1; done
+          cat /tmp/wfgg-v25-http.log
+          exit 1
+      - name: Run invitation browser recette
+        env:
+          WFGG_PREVIEW: http://127.0.0.1:4173
+          WFGG_XLSX_FIXTURE: /tmp/qa-members.xlsx
+        run: node .github/qa/portal-invitations-recette.mjs
