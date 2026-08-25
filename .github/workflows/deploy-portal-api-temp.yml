@@ -1,45 +1,13 @@
-name: Deploy Portal API R4 R5 gate
+name: Portal API deploy helper (disabled)
 
 on:
-  push:
-    branches:
-      - train-bridge-phase3
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  deploy:
+  noop:
     runs-on: ubuntu-latest
-    env:
-      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
     steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: train-bridge-phase3
-      - name: Check Cloudflare credentials
-        run: |
-          test -n "$CLOUDFLARE_API_TOKEN" || { echo 'CLOUDFLARE_API_TOKEN_MISSING'; exit 2; }
-          test -n "$CLOUDFLARE_ACCOUNT_ID" || { echo 'CLOUDFLARE_ACCOUNT_ID_MISSING'; exit 3; }
-      - name: Validate Portal API source
-        working-directory: worker
-        run: node --check src/index.js
-      - name: Install Wrangler
-        working-directory: worker
-        run: npm install --no-audit --no-fund
-      - name: Deploy wfgg-api
-        working-directory: worker
-        run: npx wrangler deploy
-      - name: Verify live gate
-        run: |
-          for i in $(seq 1 24); do
-            body="$(curl -fsSL 'https://wfgg-api.chachasan090375.workers.dev/api/health' || true)"
-            echo "attempt=$i $body"
-            if printf '%s' "$body" | grep -Fq '"admin_gate":"R4_R5_ONLY"'; then
-              echo 'LIVE_PORTAL_R4_R5_GATE=OK'
-              exit 0
-            fi
-            sleep 5
-          done
-          exit 1
+      - run: echo 'Disabled - GitHub repository has no Cloudflare deployment secrets.'
