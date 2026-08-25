@@ -1,0 +1,55 @@
+name: Train full recette
+
+on:
+  push:
+    branches: [train-bridge-phase3]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  browser-recette:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: train-bridge-phase3
+      - name: Validate bridge source
+        run: |
+          node --check frontend/_worker.js
+          grep -q 'WFGG_TRAIN_EXCHANGE_OWN_CANCEL_V1' frontend/_worker.js
+          grep -q 'wfgg_bridge=v12' frontend/_worker.js
+          grep -q '/assets/wfgg-logo-mini.svg' frontend/_worker.js
+      - name: Wait for Cloudflare preview v12
+        shell: bash
+        run: |
+          set -eu
+          ROOT='https://train-bridge-phase3.wfgg.pages.dev'
+          UA='Mozilla/5.0 (Linux; Android 16) AppleWebKit/537.36 Chrome/139 Mobile Safari/537.36'
+          ok=0
+          for i in $(seq 1 40); do
+            curl -fsSL -A "$UA" "$ROOT/train/?recette=$i" -o /tmp/train.html || true
+            if grep -Fq 'wfgg_bridge=v12' /tmp/train.html; then
+              curl -fsSL -A "$UA" "$ROOT/train/app.js?wfgg_bridge=v12&recette=$i" -o /tmp/app.js || true
+              n=$(grep -o 'cancelMarketExchange' /tmp/app.js | wc -l | tr -d ' ')
+              echo "attempt=$i bridge=v12 cancel_refs=$n"
+              if [ "$n" -ge 4 ]; then ok=1; break; fi
+            else
+              echo "attempt=$i waiting_for_v12"
+            fi
+            sleep 5
+          done
+          test "$ok" = 1
+          node --check /tmp/app.js
+          ! grep -Fq 'if (token)' /tmp/app.js
+          ! grep -Fq 'if (!token)' /tmp/app.js
+          grep -Fq 'Retirer mon annonce' /tmp/app.js
+          grep -Fq 'Mes demandes' /tmp/app.js
+      - name: Install Playwright
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Run browser recette
+        run: node .github/qa/train-recette-e2e.mjs
