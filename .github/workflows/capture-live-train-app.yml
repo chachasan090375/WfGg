@@ -1,13 +1,49 @@
-name: Train bridge verification (disabled)
+name: Inspect live Train click blockers
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - train-bridge-phase3
 
 permissions:
   contents: read
 
 jobs:
-  noop:
+  inspect:
     runs-on: ubuntu-latest
     steps:
-      - run: echo 'Train bridge v7 interaction verification completed successfully.'
+      - name: Inspect live HTML and CSS around interactive controls
+        shell: bash
+        run: |
+          set -eu
+          BASE='https://train-bridge-phase3.wfgg.pages.dev/train/'
+          curl -fsSL "${BASE}?inspect=click-blockers-${GITHUB_SHA}" -o /tmp/train.html
+
+          echo '=== NAV / SESSION CONTROL MARKUP ==='
+          grep -nE -C 4 'nav-btn|logoutBtn|brandHome|loginPortalBack|appView|homeScreen|planningScreen|exchangeScreen|alertsScreen|adminScreen' /tmp/train.html | head -n 320 || true
+
+          echo '=== STYLESHEET SOURCES ==='
+          grep -oE '<link[^>]+href="[^"]+"' /tmp/train.html || true
+
+          python - <<'PY'
+          import re, urllib.parse, urllib.request
+          html=open('/tmp/train.html',encoding='utf-8').read()
+          base='https://train-bridge-phase3.wfgg.pages.dev/train/'
+          hrefs=re.findall(r'<link[^>]+href=["\']([^"\']+)["\']',html,re.I)
+          for i,href in enumerate(hrefs):
+              if not href.lower().split('?')[0].endswith('.css'):
+                  continue
+              url=urllib.parse.urljoin(base,href)
+              print(f'=== CSS {i}: {url} ===')
+              try:
+                  css=urllib.request.urlopen(url).read().decode('utf-8','replace')
+              except Exception as e:
+                  print('CSS_FETCH_ERROR',e)
+                  continue
+              for n,line in enumerate(css.splitlines(),1):
+                  if re.search(r'pointer-events|z-index|position:\s*fixed|\.hidden|modal|backdrop|bottom-nav|nav-btn|app-view|appView',line,re.I):
+                      print(f'{n}:{line[:1200]}')
+          PY
+
+          echo '=== INLINE CLICK-BLOCKER CSS ==='
+          grep -nEi -C 3 'pointer-events|z-index|position:[[:space:]]*fixed|modal|backdrop|bottom-nav|nav-btn' /tmp/train.html | head -n 360 || true
