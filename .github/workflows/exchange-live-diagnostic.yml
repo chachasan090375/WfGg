@@ -15,25 +15,37 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: exchange-fix
-      - name: Fetch production Train JavaScript
+      - name: Wait for frontend exchange fix v14
         run: |
-          curl -fsSL 'https://wfgg.pages.dev/train/app.js?wfgg_bridge=v13&exchange_diag=2' -o /tmp/app.js
+          set -eu
+          ROOT='https://exchange-fix.wfgg.pages.dev'
+          ok=0
+          for i in $(seq 1 50); do
+            curl -fsSL "$ROOT/train/?exchange_fix=$i" -o /tmp/train.html || true
+            if grep -q 'wfgg_bridge=v14' /tmp/train.html; then
+              curl -fsSL "$ROOT/train/app.js?wfgg_bridge=v14&exchange_fix=$i" -o /tmp/app.js || true
+              if grep -q 'state.__serverSchedule' /tmp/app.js \
+                && grep -q 'Modification enregistrée mais synchronisation impossible' /tmp/app.js \
+                && grep -q 'Joueur indisponible' /tmp/app.js; then
+                ok=1; break
+              fi
+            fi
+            sleep 4
+          done
+          test "$ok" = 1
           node --check /tmp/app.js
-      - name: Print exchange implementation
+          echo 'FRONTEND_EXCHANGE_V14=OK'
+      - name: Verify backend exchange-fix Worker deployment
         run: |
-          python - <<'PY'
-          from pathlib import Path
-          s=Path('/tmp/app.js').read_text(encoding='utf-8')
-          terms=[
-            'function roleKey','function roleKeyLabel','function myAssignments','function assignmentFor',
-            'function schedule','function generateSchedule','function applySnapshot','async function syncSnapshot',
-            'async function mutate','function renderExchanges','function openExchange','function publishMarketExchange',
-            'function pickMyDateForMarket','function executeMarketSwap'
-          ]
-          for term in terms:
-              print('\n===== '+term+' =====')
-              pos=s.find(term)
-              print('pos=',pos)
-              if pos>=0:
-                  print(s[max(0,pos-1600):min(len(s),pos+5200)])
-          PY
+          set -eu
+          URL='https://exchange-fix-wfgg-train.chachasan090375.workers.dev/api/health'
+          ok=0
+          for i in $(seq 1 40); do
+            code=$(curl -sS -o /tmp/backend.txt -w '%{http_code}' "$URL?exchange_fix=$i" || true)
+            echo "attempt=$i status=$code"
+            if [ "$code" = 200 ]; then ok=1; break; fi
+            sleep 4
+          done
+          test "$ok" = 1
+          grep -q 'ok' /tmp/backend.txt
+          echo 'BACKEND_EXCHANGE_FIX_DEPLOYED=OK'
