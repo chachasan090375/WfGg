@@ -119,7 +119,7 @@ class RootAttributeRewriter {
         const versioned =
           value +
           (value.includes('?') ? '&' : '?') +
-          'wfgg_bridge=v8';
+          'wfgg_bridge=v9';
         element.setAttribute(attr, versioned);
         continue;
       }
@@ -138,7 +138,7 @@ class RootAttributeRewriter {
         ) {
           rewrittenValue +=
             (rewrittenValue.includes('?') ? '&' : '?') +
-            'wfgg_bridge=v8';
+            'wfgg_bridge=v9';
         }
 
         element.setAttribute(attr, rewrittenValue);
@@ -238,7 +238,7 @@ function languageBridgeScript(routeName) {
         ){
           sessionStorage.setItem(WFGG_SW_RESET_KEY,'1');
           const fresh=new URL(location.href);
-          fresh.searchParams.set('wfgg_fresh','v8');
+          fresh.searchParams.set('wfgg_fresh','v9');
           location.replace(fresh.toString());
         }
       });
@@ -900,6 +900,17 @@ async function proxyRoute(request, route, upstreamPath, options = {}) {
     rewritten = rewritten.replace(
       "        if (token)\n\n        setSyncStatus('work');",
       "        setSyncStatus('work');"
+    );
+
+    /* WFGG_TRAIN_PORTAL_PRESENCE_TOKEN_FIX_V1
+       Le frontend Train historique vérifie encore `token` avant le heartbeat,
+       alors que cette variable n'existe plus dans le mode session Portail.
+       Le bridge fetch porte désormais l'authentification via
+       X-WfGg-Portal-Token : seul l'état de visibilité reste à vérifier ici.
+    */
+    rewritten = rewritten.replace(
+      "        if(!token || document.visibilityState!=='visible')return;",
+      "        if(document.visibilityState!=='visible')return;"
     );
 
     /* WFGG_TRAIN_INIT_DOM_GUARD_V1
