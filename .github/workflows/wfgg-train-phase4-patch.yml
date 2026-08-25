@@ -1,0 +1,66 @@
+name: WfGg Train Phase 4 guarded patch
+
+on:
+  push:
+    branches:
+      - train-bridge-phase4
+
+permissions:
+  contents: write
+
+jobs:
+  patch-train-bridge:
+    if: ${{ !contains(github.event.head_commit.message, '[phase4-auto]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout phase 4
+        uses: actions/checkout@v4
+        with:
+          ref: train-bridge-phase4
+          fetch-depth: 0
+
+      - name: Patch Train portal gate
+        shell: python
+        run: |
+          from pathlib import Path
+
+          path = Path('frontend/_worker.js')
+          src = path.read_text(encoding='utf-8')
+
+          old = """    const gate=()=>{\n      let el=document.getElementById('wfggTrainPortalGate');\n      if(el)return el;\n      el=document.createElement('div');\n      el.id='wfggTrainPortalGate';\n      el.setAttribute('role','status');\n      el.style.cssText='position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;padding:24px;background:#101019;color:#fff;font:600 16px/1.4 system-ui,sans-serif;text-align:center';\n      el.innerHTML='<div><div id=\"wfggTrainGateText\">'+words().loading+'</div></div>';\n      document.documentElement.appendChild(el);\n      return el;\n    };\n"""
+
+          new = """    const gate=()=>{\n      let el=document.getElementById('wfggTrainPortalGate');\n      if(el)return el;\n      el=document.createElement('div');\n      el.id='wfggTrainPortalGate';\n      el.setAttribute('role','status');\n      el.setAttribute('aria-label',words().loading);\n      el.style.cssText='position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;padding:24px;background:#101019;color:#fff;font:600 16px/1.4 system-ui,sans-serif;text-align:center';\n      const style=document.createElement('style');\n      style.id='wfggTrainGateStyle';\n      style.textContent='@keyframes wfggTrainRide{0%{transform:translateX(-72px)}100%{transform:translateX(292px)}}@keyframes wfggTrainPulse{0%,100%{opacity:.55}50%{opacity:1}}#wfggTrainPortalGate .wfgg-train-stage{position:relative;width:min(320px,78vw);height:76px;overflow:hidden}#wfggTrainPortalGate .wfgg-train-track{position:absolute;left:0;right:0;bottom:18px;height:2px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.58) 12%,rgba(255,255,255,.58) 88%,transparent)}#wfggTrainPortalGate .wfgg-train-track:after{content:\"\";position:absolute;left:10%;right:10%;top:7px;height:2px;background:repeating-linear-gradient(90deg,rgba(255,255,255,.28) 0 8px,transparent 8px 18px)}#wfggTrainPortalGate .wfgg-train-sprite{position:absolute;left:0;bottom:24px;font-size:38px;line-height:1;filter:drop-shadow(0 4px 10px rgba(0,0,0,.45));animation:wfggTrainRide 1.9s cubic-bezier(.45,.05,.55,.95) infinite}#wfggTrainPortalGate .wfgg-train-light{position:absolute;left:50%;bottom:3px;width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.72);animation:wfggTrainPulse 1.15s ease-in-out infinite}@media (prefers-reduced-motion:reduce){#wfggTrainPortalGate .wfgg-train-sprite{animation-duration:4s}}';\n      document.head.appendChild(style);\n      el.innerHTML='<div class=\"wfgg-train-stage\" aria-hidden=\"true\"><div class=\"wfgg-train-track\"></div><div class=\"wfgg-train-sprite\">🚆</div><div class=\"wfgg-train-light\"></div></div>';\n      document.documentElement.appendChild(el);\n      return el;\n    };\n"""
+
+          if old not in src:
+              raise SystemExit('Expected Train gate block not found; refusing blind patch')
+
+          src = src.replace(old, new, 1)
+
+          # Make gate removal independent of the optional W helper: if Train has
+          # already opened its app view, remove the overlay immediately.
+          old_open = """      try{\n        if(window.W&&typeof window.W.showTrainEntry==='function'){\n          window.W.showTrainEntry();\n          const app=document.getElementById('appView');\n          if(app&&!app.classList.contains('hidden')){\n            document.getElementById('wfggTrainPortalGate')?.remove();\n            return;\n          }\n        }\n      }catch(error){}\n"""
+
+          new_open = """      try{\n        const app=document.getElementById('appView');\n        if(app&&!app.classList.contains('hidden')){\n          document.getElementById('wfggTrainPortalGate')?.remove();\n          document.getElementById('wfggTrainGateStyle')?.remove();\n          return;\n        }\n\n        if(window.W&&typeof window.W.showTrainEntry==='function'){\n          window.W.showTrainEntry();\n        }\n      }catch(error){}\n"""
+
+          if old_open not in src:
+              raise SystemExit('Expected Train open loop not found; refusing blind patch')
+
+          src = src.replace(old_open, new_open, 1)
+          path.write_text(src, encoding='utf-8')
+
+      - name: Validate Worker syntax
+        run: node --check frontend/_worker.js
+
+      - name: Commit guarded patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- frontend/_worker.js; then
+            echo 'No patch required'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add frontend/_worker.js
+          git commit -m 'feat: animate Train portal handoff [phase4-auto]'
+          git push origin HEAD:train-bridge-phase4
