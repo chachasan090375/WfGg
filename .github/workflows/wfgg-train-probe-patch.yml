@@ -16,8 +16,10 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: train-bridge-phase3
-      - name: Apply ownership and vector logo patch
-        run: python .github/scripts/portal_train_architecture_fix.py
+      - name: Apply ownership, statistics scope and vector logo patches
+        run: |
+          python .github/scripts/portal_train_architecture_fix.py
+          python .github/scripts/train_stats_scope_fix.py
       - name: Validate JavaScript
         run: |
           node --check frontend/_worker.js
@@ -35,5 +37,5 @@ jobs:
             echo 'No application changes to commit.'
             exit 0
           fi
-          git commit -m 'fix: move global Train admin to Portal [architecture-fix-auto]'
+          git commit -m 'fix: finalize Portal Train admin ownership [architecture-fix-auto]'
           git push origin HEAD:train-bridge-phase3
