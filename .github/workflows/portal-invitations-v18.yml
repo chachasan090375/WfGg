@@ -1,0 +1,57 @@
+name: Portal invitations v18 recette
+
+on:
+  push:
+    branches: [portal-invitations-v18]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  invitations-recette:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: portal-invitations-v18
+      - name: Validate invitation sources
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check frontend/portal-invitations-v1.js
+          node --check .github/qa/portal-invitations-recette.mjs
+          grep -q 'WFGG_PORTAL_INVITATIONS_V1' frontend/portal-invitations-v1.js
+          grep -q 'https://wfgg.pages.dev/' frontend/portal-invitations-v1.js
+          grep -q 'Metatouk' frontend/portal-invitations-v1.js
+          grep -q 'Flawene' frontend/portal-invitations-v1.js
+          ! grep -q "THANKED_OFFICERS=.*El Tonton" frontend/portal-invitations-v1.js
+          ! grep -q 'fetch(' frontend/portal-invitations-v1.js
+          ! grep -q 'XMLHttpRequest' frontend/portal-invitations-v1.js
+          grep -q 'portal-invitations-v1.css?v=001' frontend/index.html
+          grep -q 'portal-invitations-v1.js?v=001' frontend/index.html
+      - name: Wait for Cloudflare preview
+        shell: bash
+        run: |
+          set -euo pipefail
+          ROOT='https://portal-invitations-v18.wfgg.pages.dev'
+          ok=0
+          for i in $(seq 1 60); do
+            curl -fsSL "$ROOT/?qa_wait=$i" -o /tmp/root.html || true
+            curl -fsSL "$ROOT/portal-invitations-v1.js?v=001&qa_wait=$i" -o /tmp/invites.js || true
+            if grep -Fq 'portal-invitations-v1.js?v=001' /tmp/root.html && grep -Fq 'WFGG_PORTAL_INVITATIONS_V1' /tmp/invites.js; then
+              ok=1; break
+            fi
+            sleep 5
+          done
+          test "$ok" = 1
+          node --check /tmp/invites.js
+      - name: Install Playwright
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Run invitation browser recette
+        env:
+          WFGG_PREVIEW: https://portal-invitations-v18.wfgg.pages.dev
+        run: node .github/qa/portal-invitations-recette.mjs
