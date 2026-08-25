@@ -622,6 +622,13 @@ function languageBridgeScript(routeName) {
         try{data=await response.clone().json();}catch(_){}
         const code=String((data&&data.error)||('HTTP_'+response.status));
         const bridge=response.headers.get('X-WfGg-Portal-Bridge')||'';
+        const meId=String(data&&data.me&&data.me.id||'');
+        const rosterHasMe=!!(
+          meId &&
+          data &&
+          Array.isArray(data.roster) &&
+          data.roster.some(row=>String(row&&row.id||'')===meId)
+        );
         sessionStorage.setItem(
           'wfgg_train_bridge_probe_v1',
           JSON.stringify({
@@ -629,10 +636,12 @@ function languageBridgeScript(routeName) {
             status:response.status,
             code,
             bridge,
+            meId:meId?meId.slice(0,24):'',
+            rosterHasMe,
             at:Date.now()
           })
         );
-        return {ok:response.ok,code,bridge};
+        return {ok:response.ok,code,bridge,meId,rosterHasMe};
       }catch(error){
         const code='NETWORK_'+String(error&&error.name||'ERROR').toUpperCase();
         sessionStorage.setItem(
@@ -644,7 +653,50 @@ function languageBridgeScript(routeName) {
     };
 
     let attempts=0;
+    let successfulProbe=null;
     const maxAttempts=80;
+
+    const bootDiagnostic=()=>{
+      try{
+        if(!window.W||typeof window.W.showTrainEntry!=='function'){
+          return 'BOOT_W_NOT_READY';
+        }
+
+        const app=document.getElementById('appView');
+        if(!app)return 'BOOT_APPVIEW_MISSING';
+
+        let trainState={};
+        try{
+          trainState=JSON.parse(localStorage.getItem('wfgg_train_v13')||'{}')||{};
+        }catch(_){return 'BOOT_STATE_INVALID';}
+
+        const currentUserId=String(trainState.currentUserId||'');
+        if(!currentUserId){
+          if(successfulProbe&&successfulProbe.meId){
+            return successfulProbe.rosterHasMe
+              ? 'BOOT_STATE_USER_MISSING'
+              : 'SNAPSHOT_ROSTER_USER_MISSING';
+          }
+          return 'BOOT_STATE_USER_MISSING';
+        }
+
+        let roster=[];
+        try{
+          roster=JSON.parse(localStorage.getItem('wfgg_train_roster_cache')||'[]');
+        }catch(_){return 'BOOT_ROSTER_CACHE_INVALID';}
+
+        if(!Array.isArray(roster)||!roster.some(row=>String(row&&row.id||'')===currentUserId)){
+          return 'BOOT_LOCAL_ROSTER_USER_MISSING';
+        }
+
+        return app.classList.contains('hidden')
+          ? 'BOOT_APPVIEW_STILL_HIDDEN'
+          : 'BOOT_UNKNOWN';
+      }catch(_){
+        return 'BOOT_DIAGNOSTIC_ERROR';
+      }
+    };
+
     const open=()=>{
       attempts++;
       hideLegacyEntry();
@@ -664,12 +716,17 @@ function languageBridgeScript(routeName) {
 
       hideLegacyEntry();
       if(attempts<maxAttempts)setTimeout(open,150);
-      else fail();
+      else fail(bootDiagnostic());
     };
 
     probePortalTrain().then((probe)=>{
       if(!probe.ok){
         fail(probe.code);
+        return;
+      }
+      successfulProbe=probe;
+      if(probe.meId&&!probe.rosterHasMe){
+        fail('SNAPSHOT_ROSTER_USER_MISSING');
         return;
       }
       open();
