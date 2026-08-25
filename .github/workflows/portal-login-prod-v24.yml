@@ -1,0 +1,24 @@
+name: Portal login production v24
+
+on:
+  push:
+    branches: [portal-auth-mobile-debug-v24]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  production-login:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: portal-auth-mobile-debug-v24
+      - name: Install Playwright
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Verify production mobile login
+        run: node .github/qa/portal-login-prod-v24.mjs
