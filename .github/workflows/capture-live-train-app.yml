@@ -1,13 +1,23 @@
-name: Train interaction verification (disabled)
+name: Inspect live Train presence loop
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - train-bridge-phase3
 
 permissions:
   contents: read
 
 jobs:
-  noop:
+  inspect:
     runs-on: ubuntu-latest
     steps:
-      - run: echo 'Train interactions v8 verified successfully.'
+      - name: Inspect presence lifecycle
+        shell: bash
+        run: |
+          set -eu
+          BASE='https://train-bridge-phase3.wfgg.pages.dev/train/'
+          UA='Mozilla/5.0 (Linux; Android 16) AppleWebKit/537.36 Chrome/139 Mobile Safari/537.36'
+          curl -fsSL -A "$UA" -e "$BASE" "${BASE}app.js?wfgg_bridge=v8&inspect=presence-${GITHUB_SHA}" -o /tmp/app.js
+          echo '=== PRESENCE DEFINITIONS / CALLS ==='
+          grep -nE -C 8 'startPresenceLoop|presence/heartbeat|admin/presence|renderAdminPresence' /tmp/app.js | head -n 420 || true
