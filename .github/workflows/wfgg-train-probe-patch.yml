@@ -1,0 +1,31 @@
+name: WfGg Train session probe patch
+
+on:
+  push:
+    branches:
+      - train-bridge-phase3
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: ${{ !contains(github.event.head_commit.message, '[probe-auto]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: train-bridge-phase3
+          fetch-depth: 0
+      - name: Apply Train probe patch
+        run: python .github/scripts/train_probe_patch.py
+      - name: Validate worker syntax
+        run: node --check frontend/_worker.js
+      - name: Commit patch
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add frontend/_worker.js
+          git commit -m 'fix: probe Portal Train session before boot [probe-auto]'
+          git push origin HEAD:train-bridge-phase3
