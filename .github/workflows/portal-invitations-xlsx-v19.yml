@@ -44,3 +44,5 @@ jobs:
           WFGG_PREVIEW: http://127.0.0.1:4173
           WFGG_XLSX_FIXTURE: /tmp/qa-members.xlsx
         run: node .github/qa/portal-invitations-recette.mjs
+
+# trigger-v19
