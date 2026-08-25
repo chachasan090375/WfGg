@@ -72,7 +72,7 @@ const profileComplete=()=>Boolean(state.user?.profile_completed);
 function setView(id){['bootView','authView','portalView'].forEach(x=>$(x)?.classList.add('hidden'));$(id)?.classList.remove('hidden')}
 function token(){return localStorage.getItem(TOKEN_KEY)}
 async function api(path,options={}){const h=new Headers(options.headers||{});if(token())h.set('Authorization',`Bearer ${token()}`);if(options.body&&!(options.body instanceof FormData)&&!h.has('Content-Type'))h.set('Content-Type','application/json');const r=await fetch(`${cfg.API_BASE}${path}`,{...options,headers:h,cache:'no-store'});let d=null;try{d=await r.json()}catch{}if(r.status===401){clearSession();showAuth();throw new Error('UNAUTHORIZED')}if(!r.ok)throw new Error(d?.error||`HTTP_${r.status}`);return d}
-const PORTAL_TRAIN_ADMIN_API='https://portal-auth-phase1-wfgg-train.chachasan090375.workers.dev';
+const PORTAL_TRAIN_ADMIN_API='https://wfgg-train.chachasan090375.workers.dev';
 /* WFGG_PORTAL_TRAIN_ADMIN_API_V1
    Les données d'activité restent produites par Train, mais leur administration
    appartient au Portail. Le token Portail est envoyé uniquement par header.

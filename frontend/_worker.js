@@ -13,7 +13,7 @@ const UPSTREAMS = {
   },
   trainApi: {
     prefix: '/api',
-    origin: 'https://portal-auth-phase1-wfgg-train.chachasan090375.workers.dev'
+    origin: 'https://wfgg-train.chachasan090375.workers.dev'
   }
 };
 
@@ -266,7 +266,7 @@ function languageBridgeScript(routeName) {
     }
 
     const WFGG_NATIVE_FETCH=window.fetch.bind(window);
-    const WFGG_TRAIN_API_DIRECT='https://portal-auth-phase1-wfgg-train.chachasan090375.workers.dev';
+    const WFGG_TRAIN_API_DIRECT='https://wfgg-train.chachasan090375.workers.dev';
 
     /* WFGG_PORTAL_TRAIN_DIRECT_API_V1
        En session Portail, le navigateur contacte directement le Worker Train.
@@ -663,7 +663,7 @@ function languageBridgeScript(routeName) {
 
       try{
         const response=await fetch(
-          'https://portal-auth-phase1-wfgg-train.chachasan090375.workers.dev/api/snapshot',
+          'https://wfgg-train.chachasan090375.workers.dev/api/snapshot',
           {
             method:'GET',
             headers:{
