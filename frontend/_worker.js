@@ -119,7 +119,7 @@ class RootAttributeRewriter {
         const versioned =
           value +
           (value.includes('?') ? '&' : '?') +
-          'wfgg_bridge=v6';
+          'wfgg_bridge=v7';
         element.setAttribute(attr, versioned);
         continue;
       }
@@ -138,7 +138,7 @@ class RootAttributeRewriter {
         ) {
           rewrittenValue +=
             (rewrittenValue.includes('?') ? '&' : '?') +
-            'wfgg_bridge=v6';
+            'wfgg_bridge=v7';
         }
 
         element.setAttribute(attr, rewrittenValue);
@@ -238,7 +238,7 @@ function languageBridgeScript(routeName) {
         ){
           sessionStorage.setItem(WFGG_SW_RESET_KEY,'1');
           const fresh=new URL(location.href);
-          fresh.searchParams.set('wfgg_fresh','v6');
+          fresh.searchParams.set('wfgg_fresh','v7');
           location.replace(fresh.toString());
         }
       });
@@ -873,6 +873,23 @@ async function proxyRoute(request, route, upstreamPath, options = {}) {
     rewritten = rewritten.replace(
       "        if (token)\n\n        setSyncStatus('work');",
       "        setSyncStatus('work');"
+    );
+
+    /* WFGG_TRAIN_INIT_LIFECYCLE_FIX_V1
+       Le frontend Train attache historiquement init() uniquement à
+       DOMContentLoaded. Quand app.js est servi/rechargé tardivement par le
+       bridge du Portail, cet événement peut déjà avoir eu lieu : bootApp()
+       affiche alors l'écran mais aucun onclick de navigation n'est branché.
+       On garde le comportement historique pendant le chargement du DOM et on
+       lance init() immédiatement lorsque le DOM est déjà prêt.
+    */
+    rewritten = rewritten.replace(
+      "    document.addEventListener('DOMContentLoaded', init);",
+      "    if (document.readyState === 'loading') {\n" +
+      "        document.addEventListener('DOMContentLoaded', init, { once: true });\n" +
+      "    } else {\n" +
+      "        init();\n" +
+      "    }"
     );
 
     /* WFGG_TRAIN_PROXY_NO_SERVICE_WORKER_V1
