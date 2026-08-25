@@ -47,7 +47,9 @@ try{
   assert.ok(r4.includes('Alpha R4'));
   assert.ok(r4.includes('https://wfgg.pages.dev/'));
   assert.ok(r4.includes('111111'));
-  for(const name of ['Metatouk','Ogie Ogilthorpe 7','ValFada','Shockwave XY','Sab93fr','εlα ツ','cat 49','Flawene']) assert.ok(r4.includes(name),`missing thanks ${name}`);
+  for(const name of ['Metatouk','Ogie Ogilthorpe 7','ValFada','Shockwave XY','Sab93fr','εlο ツ','cat 49','Flawene']) assert.ok(r4.includes(name),`missing thanks ${name}`);
+  assert.ok(!r4.includes('εlα ツ'),'old alpha alias leaked into invitation');
+  assert.ok(!r4.includes('εlo ツ'),'Latin-o alias leaked into invitation');
   for(const name of ['El Tonton','Le Ced83','SnooPsy']) assert.ok(!r4.includes(name),`excluded thanks leaked ${name}`);
   assert.ok(r4.includes('Ton statut de R4'));
   assert.ok(r4.includes("fonctions d'administration réservées au bureau"));

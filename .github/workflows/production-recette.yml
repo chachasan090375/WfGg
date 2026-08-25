@@ -44,11 +44,13 @@ jobs:
           grep -q 'portal-responsive-v1.css?v=001' frontend/index.html
           grep -q 'portal-invitations-v1.css?v=001' frontend/index.html
           grep -q 'portal-invitations-v1.js?v=001' frontend/index.html
-          grep -q 'portal-invitations-android-filefix-v1.js?v=001' frontend/index.html
+          grep -q 'portal-invitations-android-filefix-v1.js?v=002-elo-canonical' frontend/index.html
           grep -q 'portal-invitations-xlsx-v1.js?v=001' frontend/index.html
           grep -q 'WFGG_PORTAL_RESPONSIVE_GUARD_V1' frontend/portal-responsive-v1.css
           grep -q 'WFGG_PORTAL_INVITATIONS_V1' frontend/portal-invitations-v1.js
           grep -q 'WFGG_PORTAL_INVITATIONS_ANDROID_FILEFIX_V1' frontend/portal-invitations-android-filefix-v1.js
+          grep -q 'WFGG_PORTAL_INVITATIONS_ELO_CANONICAL_V1' frontend/portal-invitations-android-filefix-v1.js
+          grep -Fq "const CANONICAL_ELO='εlο ツ'" frontend/portal-invitations-android-filefix-v1.js
           grep -q 'WFGG_PORTAL_INVITATIONS_XLSX_V1' frontend/portal-invitations-xlsx-v1.js
           grep -q "removeAttribute('accept')" frontend/portal-invitations-android-filefix-v1.js
           grep -q "input.value=''" frontend/portal-invitations-android-filefix-v1.js
@@ -73,7 +75,7 @@ jobs:
             curl -fsSL -A "$UA" "$ROOT/portal-v070.js?v=080-profile-v16&production_recette=$i" -o /tmp/portal.js || true
             curl -fsSL -A "$UA" "$ROOT/portal-responsive-v1.css?v=001&production_recette=$i" -o /tmp/responsive.css || true
             curl -fsSL -A "$UA" "$ROOT/portal-invitations-v1.js?v=001&production_recette=$i" -o /tmp/invitations.js || true
-            curl -fsSL -A "$UA" "$ROOT/portal-invitations-android-filefix-v1.js?v=001&production_recette=$i" -o /tmp/invitations-filefix.js || true
+            curl -fsSL -A "$UA" "$ROOT/portal-invitations-android-filefix-v1.js?v=002-elo-canonical&production_recette=$i" -o /tmp/invitations-filefix.js || true
             curl -fsSL -A "$UA" "$ROOT/portal-invitations-xlsx-v1.js?v=001&production_recette=$i" -o /tmp/invitations-xlsx.js || true
             curl -fsSL -A "$UA" "$ROOT/portal-invitations-v1.css?v=001&production_recette=$i" -o /tmp/invitations.css || true
             curl -fsSL -A "$UA" "$ROOT/train/?production_recette=$i" -o /tmp/train.html || true
@@ -82,12 +84,14 @@ jobs:
             if grep -Fq 'portal-v070.js?v=080-profile-v16' /tmp/root.html \
               && grep -Fq 'portal-responsive-v1.css?v=001' /tmp/root.html \
               && grep -Fq 'portal-invitations-v1.js?v=001' /tmp/root.html \
-              && grep -Fq 'portal-invitations-android-filefix-v1.js?v=001' /tmp/root.html \
+              && grep -Fq 'portal-invitations-android-filefix-v1.js?v=002-elo-canonical' /tmp/root.html \
               && grep -Fq 'portal-invitations-xlsx-v1.js?v=001' /tmp/root.html \
               && grep -Fq 'portal-invitations-v1.css?v=001' /tmp/root.html \
               && grep -Fq 'WFGG_PORTAL_RESPONSIVE_GUARD_V1' /tmp/responsive.css \
               && grep -Fq 'WFGG_PORTAL_INVITATIONS_V1' /tmp/invitations.js \
               && grep -Fq 'WFGG_PORTAL_INVITATIONS_ANDROID_FILEFIX_V1' /tmp/invitations-filefix.js \
+              && grep -Fq 'WFGG_PORTAL_INVITATIONS_ELO_CANONICAL_V1' /tmp/invitations-filefix.js \
+              && grep -Fq "const CANONICAL_ELO='εlο ツ'" /tmp/invitations-filefix.js \
               && grep -Fq 'WFGG_PORTAL_INVITATIONS_XLSX_V1' /tmp/invitations-xlsx.js \
               && grep -Fq 'WFGG_PORTAL_INVITATIONS_STYLE_V1' /tmp/invitations.css \
               && grep -Fq "profileSubpage:'main'" /tmp/portal.js \
@@ -102,11 +106,11 @@ jobs:
               && grep -Fq 'Joueur indisponible' /tmp/app.js \
               && ! grep -Fq 'portal-auth-phase1-wfgg-train.chachasan090375.workers.dev' /tmp/train.html \
               && [ "$cancel_refs" -ge 4 ]; then
-              echo "WFGG_PAGES_DEV_INVITATIONS_XLSX_V19=OK cancel_refs=$cancel_refs"
+              echo "WFGG_PAGES_DEV_INVITATIONS_ELO_V20=OK cancel_refs=$cancel_refs"
               ok=1
               break
             fi
-            echo "attempt=$i waiting_for_invitations_xlsx_and_train cancel_refs=$cancel_refs"
+            echo "attempt=$i waiting_for_invitations_elo_and_train cancel_refs=$cancel_refs"
             sleep 5
           done
           test "$ok" = 1
@@ -122,6 +126,8 @@ jobs:
           ! grep -Fq 'fetch(' /tmp/invitations.js
           grep -Fq "removeAttribute('accept')" /tmp/invitations-filefix.js
           grep -Fq "input.value=''" /tmp/invitations-filefix.js
+          grep -Fq 'WFGG_PORTAL_INVITATIONS_ELO_CANONICAL_V1' /tmp/invitations-filefix.js
+          grep -Fq "const CANONICAL_ELO='εlο ツ'" /tmp/invitations-filefix.js
           grep -Fq 'DecompressionStream' /tmp/invitations-xlsx.js
           grep -Fq 'xlsxToCsv' /tmp/invitations-xlsx.js
           ! grep -Fq 'fetch(' /tmp/invitations-xlsx.js
