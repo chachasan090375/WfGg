@@ -1,4 +1,4 @@
-name: Inspect Train init DOM contract
+name: Verify live Train interactions v8
 
 on:
   push:
@@ -9,33 +9,46 @@ permissions:
   contents: read
 
 jobs:
-  inspect:
+  verify:
     runs-on: ubuntu-latest
     steps:
-      - name: Compare init required IDs with live HTML
+      - name: Wait for Cloudflare and verify interactive Train v8
         shell: bash
         run: |
           set -eu
           BASE='https://train-bridge-phase3.wfgg.pages.dev/train/'
           UA='Mozilla/5.0 (Linux; Android 16) AppleWebKit/537.36 Chrome/139 Mobile Safari/537.36'
-          curl -fsSL -A "$UA" "${BASE}?inspect=init-dom-${GITHUB_SHA}" -o /tmp/train.html
-          curl -fsSL -A "$UA" -e "$BASE" "${BASE}app.js?wfgg_bridge=v7&inspect=${GITHUB_SHA}" -o /tmp/app.js
+          ok=0
+          for i in $(seq 1 24); do
+            html="$(curl -fsSL -A "$UA" "${BASE}?verify=interaction-v8-$i" 2>/dev/null || true)"
+            js="$(curl -fsSL -A "$UA" -e "$BASE" "${BASE}app.js?wfgg_bridge=v8&verify=$i" 2>/dev/null || true)"
 
-          echo '=== INIT FUNCTION ==='
-          sed -n '1929,1985p' /tmp/app.js
+            html_v8=0
+            html_session=0
+            js_login_guard=0
+            js_back_guard=0
+            js_nav=0
+            js_unsafe_login=0
 
-          echo '=== REQUIRED INIT IDS IN LIVE HTML ==='
-          python - <<'PY'
-          import re
-          html=open('/tmp/train.html',encoding='utf-8').read()
-          js=open('/tmp/app.js',encoding='utf-8').read()
-          m=re.search(r'async function init\(\) \{(.*?)\n    \}',js,re.S)
-          body=m.group(1) if m else ''
-          ids=[]
-          for x in re.findall(r"getElementById\('([^']+)'\)",body):
-              if x not in ids: ids.append(x)
-          for x in ids:
-              present=bool(re.search(r'id=["\']'+re.escape(x)+r'["\']',html))
-              print(f'{x}: {"PRESENT" if present else "MISSING"}')
-          print('NAV_BUTTON_COUNT:',len(re.findall(r'class=["\'][^"\']*\bnav-btn\b',html)))
-          PY
+            case "$html" in *'wfgg_bridge=v8'*) html_v8=1;; esac
+            case "$html" in *'WFGG_PORTAL_TRAIN_SESSION_SWITCH_V1'*) html_session=1;; esac
+            case "$js" in *"{ const el = document.getElementById('loginBtn'); if (el) el.onclick = login; }"*) js_login_guard=1;; esac
+            case "$js" in *"{ const el = document.getElementById('loginPortalBack'); if (el) el.onclick = showPortal; }"*) js_back_guard=1;; esac
+            case "$js" in *"document.querySelectorAll('.nav-btn').forEach"*) js_nav=1;; esac
+            case "$js" in *"document.getElementById('loginBtn').onclick = login;"*) js_unsafe_login=1;; esac
+
+            echo "attempt=$i html_v8=$html_v8 session_switch=$html_session login_guard=$js_login_guard back_guard=$js_back_guard nav=$js_nav unsafe_login=$js_unsafe_login"
+
+            if [ "$html_v8" = 1 ] \
+              && [ "$html_session" = 1 ] \
+              && [ "$js_login_guard" = 1 ] \
+              && [ "$js_back_guard" = 1 ] \
+              && [ "$js_nav" = 1 ] \
+              && [ "$js_unsafe_login" = 0 ]; then
+              echo 'LIVE_TRAIN_INTERACTIONS_V8=OK'
+              ok=1
+              break
+            fi
+            sleep 5
+          done
+          test "$ok" = 1
