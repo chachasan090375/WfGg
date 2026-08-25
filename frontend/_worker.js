@@ -119,7 +119,7 @@ class RootAttributeRewriter {
         const versioned =
           value +
           (value.includes('?') ? '&' : '?') +
-          'wfgg_bridge=v7';
+          'wfgg_bridge=v8';
         element.setAttribute(attr, versioned);
         continue;
       }
@@ -138,7 +138,7 @@ class RootAttributeRewriter {
         ) {
           rewrittenValue +=
             (rewrittenValue.includes('?') ? '&' : '?') +
-            'wfgg_bridge=v7';
+            'wfgg_bridge=v8';
         }
 
         element.setAttribute(attr, rewrittenValue);
@@ -238,7 +238,7 @@ function languageBridgeScript(routeName) {
         ){
           sessionStorage.setItem(WFGG_SW_RESET_KEY,'1');
           const fresh=new URL(location.href);
-          fresh.searchParams.set('wfgg_fresh','v7');
+          fresh.searchParams.set('wfgg_fresh','v8');
           location.replace(fresh.toString());
         }
       });
