@@ -29,6 +29,18 @@ function makeRoster(){
     ['u2','QA R2','R2'],['u1','QA R1','R1']
   ].map(([id,pseudo,rank])=>({id,pseudo,rank,avatar:'assets/icon-192.png',active:true,lastSeen:null}));
 }
+function makeAuthoritativeSchedule(){
+  // Intentionally differs from the historical local generator. In particular,
+  // 2026-09-15 is forced to u4 Conducteur A although the old alternating
+  // browser generator would classify that offset as an R3-driver day.
+  return [
+    {date:'2026-08-29',driverId:'u4',vipId:'u3a',driverClass:'officer',r3Cycle:0},
+    {date:'2026-08-31',driverId:'u5',vipId:'u3b',driverClass:'officer',r3Cycle:0},
+    {date:'2026-09-04',driverId:'u4',vipId:'u2',driverClass:'officer',r3Cycle:1},
+    {date:'2026-09-15',driverId:'u4',vipId:'u1',driverClass:'officer',r3Cycle:2},
+    {date:'2026-09-17',driverId:'u3a',vipId:'u3b',driverClass:'r3',r3Cycle:2}
+  ];
+}
 function makeState(meId, withOwnExchange=false){
   const exchanges=[];
   if(withOwnExchange){
@@ -65,7 +77,7 @@ async function makeSession(browser, rank='R4', {withOwnExchange=false}={}){
 
   function snapshot(){
     const current=roster.find(x=>x.id===me.id);
-    return {ok:true,me:{id:current.id,pseudo:current.pseudo,rank:current.rank,avatar:current.avatar,active:true},roster:clone(roster),state:clone(state),version,updatedAt:new Date().toISOString(),serverTime:new Date().toISOString()};
+    return {ok:true,me:{id:current.id,pseudo:current.pseudo,rank:current.rank,avatar:current.avatar,active:true},roster:clone(roster),state:clone(state),schedule:clone(makeAuthoritativeSchedule()),version,updatedAt:new Date().toISOString(),serverTime:new Date().toISOString()};
   }
   async function body(req){ try{return req.postDataJSON();}catch{return {};}}
 
@@ -148,6 +160,8 @@ try{
     assert.equal(await s.page.locator('#appView').isVisible(),true);
     assert.ok(s.calls.some(c=>c.path==='/api/snapshot'));
     assert.ok(s.calls.some(c=>c.path==='/api/presence/heartbeat'));
+    const authoritative=await s.page.evaluate(()=>window.__WFGG_SERVER_SCHEDULE__||[]);
+    assert.ok(authoritative.some(x=>x.date==='2026-09-15'&&x.driverId==='u4'&&x.driverClass==='officer'),'planning serveur non chargé dans le frontend');
     assert.deepEqual(s.errors,[]);
     await s.context.close();
   });
@@ -196,8 +210,14 @@ try{
     await s.context.close();
   });
 
-  await test('Bourse : publication → apparition immédiate → retrait',async()=>{
+  await test('Bourse : planning serveur autoritaire → publication → apparition → retrait',async()=>{
     const s=await makeSession(browser,'R4');
+    // This date deliberately conflicts with the old local generator. Opening
+    // the exchange modal proves schedule() is reading the server snapshot.
+    await s.page.evaluate(()=>window.W.openExchange('2026-09-15','driver'));
+    await s.page.waitForTimeout(80);
+    const modalText=await s.page.locator('#modal').innerText();
+    assert.match(modalText,/15/,'la date autoritaire doit être reconnue par openExchange');
     await s.page.evaluate(()=>window.W.publishMarketExchange('2026-09-15','driver-officer'));
     await s.page.locator('.nav-btn[data-screen="exchangeScreen"]').click();
     await s.page.waitForTimeout(100);

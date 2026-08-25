@@ -9,6 +9,13 @@ const iso=d=>d.toISOString().slice(0,10);
 function roster(){return [
   ['u5','QA R5','R5'],['u4','QA R4','R4'],['u3a','QA R3 A','R3'],['u3b','QA R3 B','R3'],['u2','QA R2','R2'],['u1','QA R1','R1']
 ].map(([id,pseudo,rank])=>({id,pseudo,rank,avatar:'assets/icon-192.png',active:true,lastSeen:null}));}
+function authoritativeSchedule(){return [
+  {date:'2026-08-29',driverId:'u4',vipId:'u3a',driverClass:'officer',r3Cycle:0},
+  {date:'2026-08-31',driverId:'u5',vipId:'u3b',driverClass:'officer',r3Cycle:0},
+  {date:'2026-09-04',driverId:'u4',vipId:'u2',driverClass:'officer',r3Cycle:1},
+  {date:'2026-09-15',driverId:'u4',vipId:'u1',driverClass:'officer',r3Cycle:2},
+  {date:'2026-09-17',driverId:'u3a',vipId:'u3b',driverClass:'r3',r3Cycle:2}
+];}
 function state(meId){return {
   settings:{anchorDate:'2026-08-25',trainTime:'20:00',officersFirst:true,reminderDayBefore:true,reminder30:true,rotationRanks:{officer:['R5','R4'],r3driver:['R3'],vip:['R3','R2','R1']}},
   unavailable:{},outRotation:[],overrides:{},exchanges:[],alertsEnabled:{},languages:{[meId]:'fr'},gameLinks:[],
@@ -31,7 +38,7 @@ async function session(browser,rank='R4',opts={}){
   const page=await context.newPage();
   page.on('pageerror',e=>errors.push(`pageerror:${e.message}`));
   page.on('console',m=>{if(m.type()==='error')errors.push(`console:${m.text()}`)});
-  function snap(){const u=rows.find(x=>x.id===me.id);return {ok:true,me:{id:u.id,pseudo:u.pseudo,rank:u.rank,avatar:u.avatar,active:true},roster:clone(rows),state:clone(st),version,updatedAt:new Date().toISOString(),serverTime:new Date().toISOString()};}
+  function snap(){const u=rows.find(x=>x.id===me.id);return {ok:true,me:{id:u.id,pseudo:u.pseudo,rank:u.rank,avatar:u.avatar,active:true},roster:clone(rows),state:clone(st),schedule:clone(authoritativeSchedule()),version,updatedAt:new Date().toISOString(),serverTime:new Date().toISOString()};}
   async function body(req){try{return req.postDataJSON()}catch{return {}}}
   function json(route,data={ok:true},status=200){return route.fulfill({status,contentType:'application/json; charset=utf-8',body:JSON.stringify(data)});}
   await page.route('**/api/**',async route=>{
