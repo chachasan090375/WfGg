@@ -1,13 +1,28 @@
-name: Train presence verification (disabled)
+name: Inspect Train admin ownership and logo
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - train-bridge-phase3
 
 permissions:
   contents: read
 
 jobs:
-  noop:
+  inspect:
     runs-on: ubuntu-latest
     steps:
-      - run: echo 'Train presence v9 verified successfully.'
+      - name: Capture live admin and topbar contracts
+        shell: bash
+        run: |
+          set -eu
+          BASE='https://train-bridge-phase3.wfgg.pages.dev/train/'
+          UA='Mozilla/5.0 (Linux; Android 16) AppleWebKit/537.36 Chrome/139 Mobile Safari/537.36'
+          curl -fsSL -A "$UA" "${BASE}?inspect=admin-${GITHUB_SHA}" -o /tmp/train.html
+          curl -fsSL -A "$UA" -e "$BASE" "${BASE}app.js?wfgg_bridge=v9&inspect=${GITHUB_SHA}" -o /tmp/app.js
+          echo '=== TOPBAR / BRAND ==='
+          grep -nE -C 5 'brandHome|brand-logo|logo|WfGg Train|installBtn' /tmp/train.html | head -n 180 || true
+          echo '=== ADMIN MENU ==='
+          grep -nE -C 10 'Statistiques|analytics|Codes & accès|access|Joueurs de l.alliance|Paramètres du train|Messages & notifications|openAdminSection' /tmp/app.js | head -n 520 || true
+          echo '=== RESET / ANALYTICS FUNCTIONS ==='
+          grep -nE -C 8 'reset-pin|resetPin|openAdminAnalytics|admin/analytics|renderAnalytics|analytics' /tmp/app.js | head -n 520 || true
