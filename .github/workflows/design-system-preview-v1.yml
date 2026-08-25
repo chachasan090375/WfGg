@@ -20,38 +20,31 @@ jobs:
         run: |
           python3 - <<'PY'
           from pathlib import Path
-
           index=Path('frontend/index.html')
           s=index.read_text()
           css='  <link rel="stylesheet" href="wfgg-design-system-preview-v1.css?v=001" />\n'
           js='  <script src="wfgg-design-system-preview-v1.js?v=001" defer></script>\n'
           if 'wfgg-design-system-preview-v1.css' not in s:
-              needle='  <link rel="stylesheet" href="portal-invitations-v1.css?v=001" />\n'
-              if needle not in s: raise SystemExit('index css anchor missing')
-              s=s.replace(needle,needle+css,1)
+              anchor='  <link rel="stylesheet" href="portal-invitations-v1.css?v=001" />\n'
+              if anchor not in s: raise SystemExit('index css anchor missing')
+              s=s.replace(anchor,anchor+css,1)
           if 'wfgg-design-system-preview-v1.js' not in s:
-              needle='  <script src="guest-access.js?v=001"></script>\n'
-              if needle not in s: raise SystemExit('index js anchor missing')
-              s=s.replace(needle,js+needle,1)
+              anchor='  <script src="guest-access.js?v=001"></script>\n'
+              if anchor not in s: raise SystemExit('index js anchor missing')
+              s=s.replace(anchor,js+anchor,1)
           index.write_text(s)
 
           worker=Path('frontend/_worker.js')
           w=worker.read_text()
           marker='WFGG_DESIGN_SYSTEM_PREVIEW_PROXY_V1'
           if marker not in w:
-              old="""        let html = languageBridgeScript(options.routeName || route.prefix.slice(1));
-        if (options.baseHref) {
-"""
-              new="""        let html = languageBridgeScript(options.routeName || route.prefix.slice(1));
-        /* WFGG_DESIGN_SYSTEM_PREVIEW_PROXY_V1
-           Preview branch only: Portal, Guides and Train share the same visual mask.
-           The module sources and business logic remain untouched. */
-        html = '<link rel="stylesheet" href="/wfgg-design-system-preview-v1.css?v=001">' +
-          '<script src="/wfgg-design-system-preview-v1.js?v=001" defer><\\/script>' + html;
-        if (options.baseHref) {
-"""
-              if old not in w: raise SystemExit('worker head anchor missing')
-              w=w.replace(old,new,1)
+              anchor="        let html = languageBridgeScript(options.routeName || route.prefix.slice(1));\n"
+              if anchor not in w: raise SystemExit('worker head anchor missing')
+              injected=(anchor+
+                "        /* WFGG_DESIGN_SYSTEM_PREVIEW_PROXY_V1: preview branch common visual mask. */\n"+
+                "        html = '<link rel=\"stylesheet\" href=\"/wfgg-design-system-preview-v1.css?v=001\">' +\n"+
+                "          '<script src=\"/wfgg-design-system-preview-v1.js?v=001\" defer><\\/script>' + html;\n")
+              w=w.replace(anchor,injected,1)
           worker.write_text(w)
           PY
           node --check frontend/_worker.js
