@@ -146,7 +146,24 @@ try{
   });
 
   await test('Mobile : modale profil utilisable et scrollable sans sortir de l’écran',async()=>{
-    const s=await session(browser,'R4',{viewport:{width:360,height:640},isMobile:true,hasTouch:true});await s.page.evaluate(()=>window.W.openSelfProfileEdit());const box=await s.page.locator('#modal .modal-sheet').boundingBox();assert.ok(box);assert.ok(box.width<=360);const style=await s.page.locator('#modal .modal-sheet').evaluate(el=>({sh:el.scrollHeight,ch:el.clientHeight,oy:getComputedStyle(el).overflowY}));assert.ok(style.ch<=640);assert.deepEqual(s.errors,[]);await s.context.close();
+    const s=await session(browser,'R4',{viewport:{width:360,height:640},isMobile:true,hasTouch:true});
+    await s.page.evaluate(()=>window.W.openSelfProfileEdit());
+    await s.page.locator('#selfPseudoField').waitFor({state:'visible',timeout:5000});
+    const metrics=await s.page.evaluate(()=>{
+      const modal=document.getElementById('modal'),field=document.getElementById('selfPseudoField');
+      if(!modal||!field)return null;
+      let panel=field.parentElement;
+      while(panel&&panel.parentElement&&panel.parentElement!==modal)panel=panel.parentElement;
+      panel=panel||modal;
+      const r=panel.getBoundingClientRect(),cs=getComputedStyle(panel);
+      return {hidden:modal.classList.contains('hidden'),left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width,height:r.height,sh:panel.scrollHeight,ch:panel.clientHeight,oy:cs.overflowY};
+    });
+    assert.ok(metrics);assert.equal(metrics.hidden,false);
+    assert.ok(metrics.left>=-2&&metrics.right<=362,`horizontal ${metrics.left}/${metrics.right}`);
+    assert.ok(metrics.width<=362,`width ${metrics.width}`);
+    assert.ok(metrics.top>=-2&&metrics.bottom<=642,`vertical ${metrics.top}/${metrics.bottom}`);
+    assert.ok(metrics.sh<=metrics.ch+1||['auto','scroll'].includes(metrics.oy),`not scrollable sh=${metrics.sh} ch=${metrics.ch} oy=${metrics.oy}`);
+    assert.deepEqual(s.errors,[]);await s.context.close();
   });
 
   await test('Retour Portail et bouton Changer de session : éléments réellement interactifs',async()=>{
