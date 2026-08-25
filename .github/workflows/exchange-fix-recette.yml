@@ -1,0 +1,59 @@
+name: Exchange fix recette
+
+on:
+  push:
+    branches: [exchange-diagnosis]
+
+permissions:
+  contents: read
+
+jobs:
+  recette:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: exchange-diagnosis
+      - name: Wait for patched Cloudflare preview
+        shell: bash
+        run: |
+          set -eu
+          ROOT='https://exchange-diagnosis.wfgg.pages.dev'
+          ok=0
+          for i in $(seq 1 50); do
+            curl -fsSL -A 'Mozilla/5.0 (Linux; Android 16) AppleWebKit/537.36 Chrome/139 Mobile Safari/537.36' \
+              "$ROOT/train/app.js?wfgg_bridge=v13&exchange_fix=$i" -o /tmp/app.js || true
+            if grep -q 'function wfggHistorySeed' /tmp/app.js 2>/dev/null \
+              && grep -q 'cycleDrivers = new Set' /tmp/app.js \
+              && grep -q 'cycleVips = new Set' /tmp/app.js; then
+              echo "EXCHANGE_PREVIEW_PATCHED=OK attempt=$i"
+              ok=1
+              break
+            fi
+            echo "attempt=$i waiting"
+            sleep 5
+          done
+          test "$ok" = 1
+          node --check /tmp/app.js
+      - name: Verify exact schedule parity contract
+        env:
+          WFGG_PREVIEW: https://exchange-diagnosis.wfgg.pages.dev
+        run: node .github/qa/exchange-schedule-parity.mjs
+      - name: Prepare existing browser recettes
+        run: |
+          sed -i 's/portal-auth-phase1-wfgg-train\.chachasan090375\.workers\.dev/wfgg-train.chachasan090375.workers.dev/g' .github/qa/train-recette-e2e.mjs
+          node --check .github/qa/train-recette-e2e.mjs
+          node --check .github/qa/train-recette-extended.mjs
+      - name: Install Playwright
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Run primary browser recette
+        env:
+          WFGG_PREVIEW: https://exchange-diagnosis.wfgg.pages.dev
+        run: node .github/qa/train-recette-e2e.mjs
+      - name: Run extended browser recette
+        env:
+          WFGG_PREVIEW: https://exchange-diagnosis.wfgg.pages.dev
+        run: node .github/qa/train-recette-extended.mjs
