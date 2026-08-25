@@ -117,7 +117,7 @@ class RootAttributeRewriter {
         attr === 'src' &&
         /^(?:\.\/)?assets\/wfgg-logo\.png(?:[?#]|$)/i.test(value)
       ) {
-        element.setAttribute(attr, '/assets/wfgg-logo-vector.svg');
+        element.setAttribute(attr, '/assets/wfgg-logo-mini.svg');
         continue;
       }
 
@@ -133,7 +133,7 @@ class RootAttributeRewriter {
         const versioned =
           value +
           (value.includes('?') ? '&' : '?') +
-          'wfgg_bridge=v10';
+          'wfgg_bridge=v11';
         element.setAttribute(attr, versioned);
         continue;
       }
@@ -152,7 +152,7 @@ class RootAttributeRewriter {
         ) {
           rewrittenValue +=
             (rewrittenValue.includes('?') ? '&' : '?') +
-            'wfgg_bridge=v10';
+            'wfgg_bridge=v11';
         }
 
         element.setAttribute(attr, rewrittenValue);
@@ -252,7 +252,7 @@ function languageBridgeScript(routeName) {
         ){
           sessionStorage.setItem(WFGG_SW_RESET_KEY,'1');
           const fresh=new URL(location.href);
-          fresh.searchParams.set('wfgg_fresh','v10');
+          fresh.searchParams.set('wfgg_fresh','v11');
           location.replace(fresh.toString());
         }
       });
