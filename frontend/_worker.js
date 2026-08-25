@@ -133,7 +133,7 @@ class RootAttributeRewriter {
         const versioned =
           value +
           (value.includes('?') ? '&' : '?') +
-          'wfgg_bridge=v11';
+          'wfgg_bridge=v12';
         element.setAttribute(attr, versioned);
         continue;
       }
@@ -152,7 +152,7 @@ class RootAttributeRewriter {
         ) {
           rewrittenValue +=
             (rewrittenValue.includes('?') ? '&' : '?') +
-            'wfgg_bridge=v11';
+            'wfgg_bridge=v12';
         }
 
         element.setAttribute(attr, rewrittenValue);
@@ -252,7 +252,7 @@ function languageBridgeScript(routeName) {
         ){
           sessionStorage.setItem(WFGG_SW_RESET_KEY,'1');
           const fresh=new URL(location.href);
-          fresh.searchParams.set('wfgg_fresh','v11');
+          fresh.searchParams.set('wfgg_fresh','v12');
           location.replace(fresh.toString());
         }
       });
@@ -966,6 +966,17 @@ async function proxyRoute(request, route, upstreamPath, options = {}) {
         "          <div><span>🔄</span><small>Échanges ouverts</small><strong>${s.openExchanges||0}</strong></div>",
         "          <div><span>⭐</span><small>Écart VIP</small><strong>${adminAnalyticsCache.rotation30?.spread?.vip??0}</strong></div>"
       );
+
+    /* WFGG_TRAIN_EXCHANGE_OWN_CANCEL_V1
+       Une annonce ouverte du joueur doit toujours rester visible dans
+       « Mes demandes » avec la possibilité de la retirer. Le frontend amont
+       affichait le bouton uniquement dans la liste générale des annonces.
+    */
+    {
+      const ownExchangeTail = "${x.status === 'accepted' && x.swapWithDate ? `<p>Nouvelle date : ${fmtShort(parseISO(x.swapWithDate))}</p>` : ''}</div>`).join('') : '<div class=\\\"empty\\\">Aucune demande publiée.</div>'}";
+      const ownExchangeTailFixed = "${x.status === 'accepted' && x.swapWithDate ? `<p>Nouvelle date : ${fmtShort(parseISO(x.swapWithDate))}</p>` : ''}${x.status === 'open' ? `<button class=\\\"btn danger small\\\" onclick=\\\"W.cancelMarketExchange('${x.id}')\\\">Retirer mon annonce</button>` : ''}</div>`).join('') : '<div class=\\\"empty\\\">Aucune demande publiée.</div>'}";
+      rewritten = rewritten.replace(ownExchangeTail, ownExchangeTailFixed);
+    }
 
     /* WFGG_TRAIN_INIT_DOM_GUARD_V1
        Le HTML portal-only-auth ne contient plus loginBtn ni loginPortalBack,
