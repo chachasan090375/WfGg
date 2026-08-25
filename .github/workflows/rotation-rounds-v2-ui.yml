@@ -6,6 +6,8 @@ on:
       - train-native-v15
     paths:
       - '.github/workflows/rotation-rounds-v2-ui.yml'
+      - '.github/scripts/rotation_rounds_v2_apply.py'
+      - '.github/ROTATION_ROUNDS_V2_PLAN.md'
   workflow_dispatch:
 
 permissions:
