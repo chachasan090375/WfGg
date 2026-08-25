@@ -29,9 +29,15 @@ jobs:
           grep -q 'WFGG_TRAIN_MUTATE_REFRESH_GUARD_V1' frontend/_worker.js
           grep -q 'WFGG_TRAIN_EXCHANGE_ORPHAN_FALLBACK_V1' frontend/_worker.js
           grep -q 'wfgg_bridge=v14' frontend/_worker.js
+          grep -q "profileSubpage:'main'" frontend/portal-v070.js
+          grep -q 'profileTrainRotationHost' frontend/portal-v070.js
+          grep -q 'openSessionHistory' frontend/portal-v070.js
+          ! grep -q 'renderHomeTrainRotationCard' frontend/portal-v070.js
+          ! grep -q 'loadHomeTrainRotation' frontend/portal-v070.js
+          grep -q 'portal-v070.js?v=080-profile-v16' frontend/index.html
           ! grep -q 'portal-auth-phase1-wfgg-train.chachasan090375.workers.dev' frontend/_worker.js
           ! grep -q 'portal-auth-phase1-wfgg-train.chachasan090375.workers.dev' frontend/portal-v070.js
-      - name: Wait for wfgg.pages.dev production exchange v14
+      - name: Wait for wfgg.pages.dev production assets
         shell: bash
         run: |
           set -eu
@@ -40,10 +46,16 @@ jobs:
           ok=0
           for i in $(seq 1 60); do
             curl -fsSL -A "$UA" "$ROOT/?production_recette=$i" -o /tmp/root.html || true
+            curl -fsSL -A "$UA" "$ROOT/portal-v070.js?v=080-profile-v16&production_recette=$i" -o /tmp/portal.js || true
             curl -fsSL -A "$UA" "$ROOT/train/?production_recette=$i" -o /tmp/train.html || true
             curl -fsSL -A "$UA" "$ROOT/train/app.js?wfgg_bridge=v14&production_recette=$i" -o /tmp/app.js || true
             cancel_refs=$(grep -o 'cancelMarketExchange' /tmp/app.js 2>/dev/null | wc -l | tr -d ' ' || true)
-            if grep -Fq 'portal-v070.js?v=078-admin-split1' /tmp/root.html \
+            if grep -Fq 'portal-v070.js?v=080-profile-v16' /tmp/root.html \
+              && grep -Fq "profileSubpage:'main'" /tmp/portal.js \
+              && grep -Fq 'profileTrainRotationHost' /tmp/portal.js \
+              && grep -Fq 'openSessionHistory' /tmp/portal.js \
+              && ! grep -Fq 'renderHomeTrainRotationCard' /tmp/portal.js \
+              && ! grep -Fq 'loadHomeTrainRotation' /tmp/portal.js \
               && grep -Fq 'wfgg_bridge=v14' /tmp/train.html \
               && grep -Fq 'https://wfgg-train.chachasan090375.workers.dev' /tmp/train.html \
               && grep -Fq 'state.__serverSchedule' /tmp/app.js \
@@ -51,15 +63,18 @@ jobs:
               && grep -Fq 'Joueur indisponible' /tmp/app.js \
               && ! grep -Fq 'portal-auth-phase1-wfgg-train.chachasan090375.workers.dev' /tmp/train.html \
               && [ "$cancel_refs" -ge 4 ]; then
-              echo "WFGG_PAGES_DEV_EXCHANGE_V14=OK cancel_refs=$cancel_refs"
+              echo "WFGG_PAGES_DEV_PROFILE_V16=OK cancel_refs=$cancel_refs"
               ok=1
               break
             fi
-            echo "attempt=$i waiting_for_wfgg_pages_dev_v14 cancel_refs=$cancel_refs"
+            echo "attempt=$i waiting_for_profile_v16_and_train_v14 cancel_refs=$cancel_refs"
             sleep 5
           done
           test "$ok" = 1
+          node --check /tmp/portal.js
           node --check /tmp/app.js
+          grep -Fq 'Historique des connexions' /tmp/portal.js
+          ! grep -Fq 'renderHomeTrainRotationCard' /tmp/portal.js
           ! grep -Fq 'if (token)' /tmp/app.js
           ! grep -Fq 'if (!token)' /tmp/app.js
           grep -Fq 'Retirer mon annonce' /tmp/app.js
