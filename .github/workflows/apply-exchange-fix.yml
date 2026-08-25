@@ -1,37 +1,13 @@
 name: Apply Train exchange regression fix
 
 on:
-  push:
-    branches: [train-bridge-phase3]
+  workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  patch:
-    if: ${{ !contains(github.event.head_commit.message, '[exchange-fix-auto]') }}
+  disabled:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: train-bridge-phase3
-      - name: Apply exchange and recette patches
-        run: |
-          python .github/scripts/train_exchange_ui_fix.py
-          python .github/scripts/train_exchange_ui_fix_v2.py
-          python .github/scripts/fix_mobile_modal_recette.py
-      - name: Validate
-        run: |
-          node --check frontend/_worker.js
-          node --check .github/qa/train-recette-extended.mjs
-          grep -q 'WFGG_TRAIN_EXCHANGE_OWN_CANCEL_V2' frontend/_worker.js
-          grep -q 'wfgg_bridge=v13' frontend/_worker.js
-          grep -q "selfPseudoField').waitFor" .github/qa/train-recette-extended.mjs
-      - name: Commit
-        run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add frontend/_worker.js .github/qa/train-recette-extended.mjs
-          if git diff --cached --quiet; then exit 0; fi
-          git commit -m 'test: fix mobile modal acceptance check [exchange-fix-auto]'
-          git push origin HEAD:train-bridge-phase3
+      - run: echo 'Exchange patch completed; permanent Train recette owns regression coverage.'
