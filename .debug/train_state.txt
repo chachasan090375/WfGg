@@ -1,0 +1,137 @@
+lass="history-source-note">📄 Source : historique manuel WfGg · ${esc(h.source||'Train Wfgg')}</div>`;
+      queueApplyLanguage();window.scrollTo({top:0,behavior:'smooth'});
+    }
+
+    async function openAdminAnalytics(force=false){
+      if(!isAdmin())return;
+      currentAdminSection='analytics';
+      analyticsCurrentSub=null;
+      const el=document.getElementById('adminScreen');
+      el.innerHTML=`${adminBackButton()}<div class="section-title"><h2>📊 Statistiques & historique</h2></div><div class="empty">Synchronisation…</div>`;
+      try{
+        if(force||!adminAnalyticsCache)adminAnalyticsCache=await api('/api/admin/analytics',{method:'GET'});
+        renderAnalyticsMenu();
+      }catch(e){el.innerHTML=`${adminBackButton()}<div class="empty">${esc(e.message)}</div>`;}
+    }
+
+    refreshRoster();
+    function cloneDefault() { return JSON.parse(JSON.stringify(DEFAULT_STATE)); }
+    function loadState() {
+        let raw = localStorage.getItem(STORAGE);
+        if (!raw) {
+            for (const key of LEGACY_KEYS) {
+                if (localStorage.getItem(key)) {
+                    raw = localStorage.getItem(key);
+                    break;
+                }
+            }
+        }
+        let parsed = {};
+        try {
+            parsed = raw ? JSON.parse(raw) : {};
+        }
+        catch (e) {
+            parsed = {};
+        }
+        const base = cloneDefault();
+        return Object.assign(Object.assign(Object.assign({}, base), parsed), { settings: Object.assign(Object.assign(Object.assign({}, base.settings), (parsed.settings || {})), { rotationRanks: Object.assign(Object.assign({}, base.settings.rotationRanks), ((parsed.settings || {}).rotationRanks || {})) }), unavailable: parsed.unavailable || {}, outRotation: parsed.outRotation || [], overrides: parsed.overrides || {}, exchanges: parsed.exchanges || [], alertsEnabled: parsed.alertsEnabled || {}, languages: parsed.languages || {}, gameLinks: parsed.gameLinks || [], playerEdits: parsed.playerEdits || {}, addedPlayers: parsed.addedPlayers || [], removedPlayers: parsed.removedPlayers || [], rotationOrder: Object.assign(Object.assign({}, base.rotationOrder), (parsed.rotationOrder || {})), messageVariant: Object.assign(Object.assign({}, base.messageVariant), (parsed.messageVariant || {})) });
+    }
+    function saveState() { localStorage.setItem(STORAGE, JSON.stringify(state)); }
+    
+
+    function setSyncStatus(kind = 'ok') {
+        const b = document.getElementById('syncBadge');
+        if (!b)
+            return;
+        b.classList.remove('sync-ok', 'sync-work', 'sync-off');
+        b.classList.add(kind === 'work' ? 'sync-work' : kind === 'off' ? 'sync-off' : 'sync-ok');
+        b.title = kind === 'work' ? 'Synchronisation…' : kind === 'off' ? 'Hors connexion' : 'Synchronisé';
+    }
+    async function api(path, options = {}) {
+        var _a, _b;
+        const headers = Object.assign({ 'content-type': 'application/json' }, (options.headers || {}));
+
+        if (token)
+
+        setSyncStatus('work');
+        let res;
+        try {
+            res = await fetch(API_BASE + path, Object.assign(Object.assign({}, options), { headers }));
+        }
+        catch (e) {
+            setSyncStatus('off');
+            throw new Error('Réseau indisponible');
+        }
+        let data = {};
+        try {
+            data = await res.json();
+        }
+        catch (e) { }
+        if (res.status === 401) {
+
+            state.currentUserId = null;
+            saveState();
+            setSyncStatus('off');
+            (_a = document.getElementById('appView')) === null || _a === void 0 ? void 0 : _a.classList.add('hidden');
+            throw new Error(data.error || 'Session expirée');
+        }
+        if (!res.ok) {
+            setSyncStatus('off');
+            throw new Error(data.error || `Erreur ${res.status}`);
+        }
+        setSyncStatus('ok');
+        return data;
+    }
+    function applySnapshot(snap) {
+        const localVariants = state.messageVariant || { weekly: 0, daily: 0, driver: 0, vip: 0 };
+        BASE_ROSTER = snap.roster || [];
+        localStorage.setItem(ROSTER_CACHE_KEY, JSON.stringify(BASE_ROSTER));
+        state = Object.assign(Object.assign(Object.assign({}, cloneDefault()), (snap.state || {})), { currentUserId: snap.me.id, messageVariant: localVariants, playerEdits: {}, addedPlayers: [], removedPlayers: [] });
+        refreshRoster();
+        const serverLang=state.languages?.[state.currentUserId];
+        if(SUPPORTED_LANGS.includes(serverLang))localStorage.setItem(LANG_KEY,serverLang);
+        saveState();
+        queueApplyLanguage();
+    }
+    async function syncSnapshot({ render = true, quiet = false } = {}) {
+        var _a;
+        if (syncing)
+            return false;
+        syncing = true;
+        try {
+            const snap = await api('/api/snapshot', { method: 'GET' });
+            applySnapshot(snap);
+            if (render && document.getElementById('appView') && !document.getElementById('appView').classList.contains('hidden')) {
+                const active = (_a = document.querySelector('.screen.active')) === null || _a === void 0 ? void 0 : _a.id;
+                if (active === 'adminScreen' && currentAdminSection)
+                    openAdminSection(currentAdminSection);
+                else
+                    renderAll();
+            }
+            return true;
+        }
+        catch (e) {
+            if (!quiet)
+                toast(e.message);
+            return false;
+        }
+        finally {
+            syncing = false;
+        }
+    }
+    async function mutate(path, options = {}, success = 'Modification enregistrée') {
+        try {
+            await api(path, options);
+            await syncSnapshot({ render: true, quiet: true });
+            if (success)
+                toast(success);
+            return true;
+        }
+        catch (e) {
+            toast(e.message);
+            return false;
+        }
+    }
+    function ensureRotationRankSettings() {
+        state.settings = state.settings || {};
+        state.settings.rotationRanks = state.settings.rotationRanks || {
