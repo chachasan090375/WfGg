@@ -565,6 +565,36 @@ async function proxyRoute(request, route, upstreamPath, options = {}) {
   });
 
   const contentType = headers.get('Content-Type') || '';
+
+  /* WFGG_TRAIN_LEGACY_API_REWRITE_V3
+     Train V1.12 contient encore un API_BASE absolu vers son ancien Worker.
+     Lorsque /train/app.js passe par le Portail, on remplace uniquement cet
+     origin par une chaîne vide afin que les appels deviennent /api/... en
+     same-origin et passent par le bridge de session Portail.
+  */
+  if (
+    options.routeName === 'train' &&
+    upstreamPath === '/app.js'
+  ) {
+    const source = await response.text();
+    const legacyOrigin =
+      'https://wfgg-train.chachasan090375.workers.dev';
+    const rewritten = source.split(legacyOrigin).join('');
+
+    const jsHeaders = new Headers(headers);
+    jsHeaders.delete('Content-Length');
+    jsHeaders.delete('Content-Encoding');
+    jsHeaders.delete('ETag');
+    jsHeaders.set('Cache-Control', 'no-store');
+    jsHeaders.set('X-WfGg-Train-Api-Bridge', 'v3');
+
+    return new Response(rewritten, {
+      status: upstream.status,
+      statusText: upstream.statusText,
+      headers: jsHeaders
+    });
+  }
+
   if (!contentType.toLowerCase().includes('text/html')) {
     return response;
   }
