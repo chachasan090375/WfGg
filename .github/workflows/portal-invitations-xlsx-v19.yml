@@ -1,0 +1,46 @@
+name: Portal invitations XLSX v19 recette
+
+on:
+  push:
+    branches: [portal-invitations-xlsx-v19]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  xlsx-recette:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: portal-invitations-xlsx-v19
+      - name: Validate sources
+        run: |
+          node --check frontend/portal-invitations-v1.js
+          node --check frontend/portal-invitations-android-filefix-v1.js
+          node --check frontend/portal-invitations-xlsx-v1.js
+          node --check .github/qa/portal-invitations-recette.mjs
+          python3 -m py_compile .github/qa/make-invitations-xlsx-fixture.py
+          grep -q 'portal-invitations-xlsx-v1.js?v=001' frontend/index.html
+          grep -q 'WFGG_PORTAL_INVITATIONS_XLSX_V1' frontend/portal-invitations-xlsx-v1.js
+          grep -q 'DecompressionStream' frontend/portal-invitations-xlsx-v1.js
+          ! grep -q 'fetch(' frontend/portal-invitations-xlsx-v1.js
+      - name: Generate XLSX fixture
+        run: python3 .github/qa/make-invitations-xlsx-fixture.py /tmp/qa-members.xlsx
+      - name: Start local portal
+        run: |
+          python3 -m http.server 4173 --directory frontend >/tmp/wfgg-http.log 2>&1 &
+          for i in $(seq 1 20); do curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0; sleep 1; done
+          cat /tmp/wfgg-http.log
+          exit 1
+      - name: Install Playwright
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Run XLSX browser recette
+        env:
+          WFGG_PREVIEW: http://127.0.0.1:4173
+          WFGG_XLSX_FIXTURE: /tmp/qa-members.xlsx
+        run: node .github/qa/portal-invitations-recette.mjs
