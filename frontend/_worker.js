@@ -133,7 +133,7 @@ class RootAttributeRewriter {
         const versioned =
           value +
           (value.includes('?') ? '&' : '?') +
-          'wfgg_bridge=v13';
+          'wfgg_bridge=v14';
         element.setAttribute(attr, versioned);
         continue;
       }
@@ -152,7 +152,7 @@ class RootAttributeRewriter {
         ) {
           rewrittenValue +=
             (rewrittenValue.includes('?') ? '&' : '?') +
-            'wfgg_bridge=v13';
+            'wfgg_bridge=v14';
         }
 
         element.setAttribute(attr, rewrittenValue);
@@ -252,7 +252,7 @@ function languageBridgeScript(routeName) {
         ){
           sessionStorage.setItem(WFGG_SW_RESET_KEY,'1');
           const fresh=new URL(location.href);
-          fresh.searchParams.set('wfgg_fresh','v13');
+          fresh.searchParams.set('wfgg_fresh','v14');
           location.replace(fresh.toString());
         }
       });
@@ -947,6 +947,20 @@ async function proxyRoute(request, route, upstreamPath, options = {}) {
         'Rotations, activité des joueurs et journal des changements',
         'Rotations, équité et historique des passages'
       );
+
+    /* WFGG_TRAIN_AUTHORITATIVE_SCHEDULE_V1
+       Le planning calculé par le Worker est la source unique de vérité.
+       Le frontend ne doit plus recalculer un planning différent de celui
+       utilisé par les validations de la bourse d'échange.
+    */
+    rewritten = rewritten.replace(
+      "        const localVariants = state.messageVariant || { weekly: 0, daily: 0, driver: 0, vip: 0 };",
+      "        const localVariants = state.messageVariant || { weekly: 0, daily: 0, driver: 0, vip: 0 };\n        window.__WFGG_SERVER_SCHEDULE__ = Array.isArray(snap.schedule) ? snap.schedule : [];"
+    );
+    rewritten = rewritten.replace(
+      "    function schedule() { return generateSchedule(); }",
+      "    function schedule() { const authoritative = window.__WFGG_SERVER_SCHEDULE__; return Array.isArray(authoritative) && authoritative.length ? authoritative : generateSchedule(); }"
+    );
 
     /* WFGG_TRAIN_STATS_SCOPE_V1
        Les statistiques globales/joueurs sont administrées dans le Portail.
