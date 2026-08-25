@@ -1,35 +1,13 @@
-name: Debug live exchange flow
+name: Debug live exchange flow (disabled)
 
 on:
-  push:
-    branches: [train-bridge-phase3]
   workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  inspect:
+  archived:
     runs-on: ubuntu-latest
     steps:
-      - name: Inspect production mutation transport
-        shell: bash
-        run: |
-          set -eu
-          ROOT='https://wfgg.pages.dev'
-          curl -fsSL "$ROOT/train/?mutation_debug=1" -o /tmp/train.html
-          curl -fsSL "$ROOT/train/app.js?wfgg_bridge=v13&mutation_debug=1" -o /tmp/app.js
-          node --check /tmp/app.js
-          echo '=== MUTATION / API REFERENCES ==='
-          grep -nE "function api|async function api|function mutate|async function mutate|syncSnapshot|applySnapshot|fetch\(|Authorization|X-WfGg-Portal-Token|wfgg_portal_session|wfgg_train_token|TRAIN_TOKEN|const token|let token" /tmp/app.js | head -n 220 || true
-          echo '=== MUTATION CONTEXT ==='
-          python - <<'PY'
-          s=open('/tmp/app.js',encoding='utf-8').read()
-          needles=['async function api','function api','async function mutate','function mutate','async function syncSnapshot','function syncSnapshot','function applySnapshot']
-          for needle in needles:
-              i=s.find(needle)
-              print('\n###',needle,'INDEX',i)
-              if i>=0: print(s[max(0,i-700):i+8000])
-          PY
-          echo '=== INJECTED HTML BRIDGE REFERENCES ==='
-          grep -nE "WFGG_PORTAL_TRAIN_DIRECT_API|X-WfGg-Portal-Token|wfgg_portal_session|fetch|workers.dev" /tmp/train.html | head -n 220 || true
+      - run: echo 'Exchange schedule drift root cause identified; durable browser recette now covers it.'
