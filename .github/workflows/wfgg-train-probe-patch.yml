@@ -1,4 +1,4 @@
-name: WfGg Train snapshot seed patch
+name: WfGg Train init lifecycle patch
 
 on:
   push:
@@ -10,22 +10,24 @@ permissions:
 
 jobs:
   patch:
-    if: ${{ !contains(github.event.head_commit.message, '[snapshot-seed-auto]') }}
+    if: ${{ !contains(github.event.head_commit.message, '[init-lifecycle-auto]') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           ref: train-bridge-phase3
           fetch-depth: 0
-      - name: Apply Train snapshot seed patch
-        run: python .github/scripts/train_snapshot_seed_patch.py
+      - name: Apply Train init lifecycle patch
+        run: python .github/scripts/train_init_lifecycle_patch.py
       - name: Validate Worker syntax
         run: node --check frontend/_worker.js
+      - name: Validate lifecycle marker
+        run: grep -q 'WFGG_TRAIN_INIT_LIFECYCLE_FIX_V1' frontend/_worker.js
       - name: Commit patch
         run: |
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add frontend/_worker.js
-          git commit -m 'fix: seed Train state from Portal snapshot [snapshot-seed-auto] [relative-cache-auto] [bootdiag-auto] [cache-reset-auto]'
+          git commit -m 'fix: initialize Train interactions after late script load [init-lifecycle-auto] [snapshot-seed-auto]'
           git push origin HEAD:train-bridge-phase3
