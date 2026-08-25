@@ -677,7 +677,18 @@ async function proxyRoute(request, route, upstreamPath, options = {}) {
     const source = await response.text();
     const legacyOrigin =
       'https://wfgg-train.chachasan090375.workers.dev';
-    const rewritten = source.split(legacyOrigin).join('');
+    let rewritten = source.split(legacyOrigin).join('');
+
+    /* WFGG_TRAIN_DANGLING_TOKEN_FIX_V1
+       Le frontend portal-only-auth ne déclare plus `token`, mais conserve
+       encore un `if (token)` orphelin dans api(). Cela déclenche un
+       ReferenceError avant chaque fetch et empêche syncSnapshot() de poser
+       state.currentUserId. On retire uniquement ce garde devenu invalide.
+    */
+    rewritten = rewritten.replace(
+      "        if (token)\n\n        setSyncStatus('work');",
+      "        setSyncStatus('work');"
+    );
 
     const jsHeaders = new Headers(headers);
     jsHeaders.delete('Content-Length');
