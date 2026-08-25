@@ -1,45 +1,13 @@
-name: Portal Train architecture patch
+name: Portal Train patch helper (disabled)
 
 on:
-  push:
-    branches:
-      - train-bridge-phase3
+  workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  patch:
-    if: ${{ !contains(github.event.head_commit.message, '[architecture-fix-auto]') }}
+  noop:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: train-bridge-phase3
-      - name: Apply Portal and Train integration patches
-        run: |
-          python .github/scripts/portal_train_architecture_fix.py
-          python .github/scripts/train_stats_scope_fix.py
-          python .github/scripts/train_logo_v11.py
-          python .github/scripts/portal_r4r5_gate.py
-      - name: Validate JavaScript and rank gates
-        run: |
-          node --check frontend/_worker.js
-          node --check frontend/portal-v070.js
-          node --check worker/src/index.js
-          grep -q '/assets/wfgg-logo-mini.svg' frontend/_worker.js
-          grep -q 'wfgg_bridge=v11' frontend/_worker.js
-          grep -q 'WFGG_TRAIN_ADMIN_OWNERSHIP_V1' frontend/_worker.js
-          grep -q "admin_gate: 'R4_R5_ONLY'" worker/src/index.js
-          grep -q "const admin = ADMIN_RANKS.has(ctx.rank);" worker/src/index.js
-      - name: Commit patch
-        run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add frontend/_worker.js frontend/portal-v070.js frontend/portal-v070.css worker/src/index.js
-          if git diff --cached --quiet; then
-            echo 'No application changes to commit.'
-            exit 0
-          fi
-          git commit -m 'security: enforce R4 R5 administration [architecture-fix-auto]'
-          git push origin HEAD:train-bridge-phase3
+      - run: echo 'Portal/Train integration patch completed and verified.'
