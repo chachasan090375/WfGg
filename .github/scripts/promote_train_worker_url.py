@@ -6,7 +6,6 @@ NEW='https://wfgg-train.chachasan090375.workers.dev'
 paths=[
     Path('frontend/_worker.js'),
     Path('frontend/portal-v070.js'),
-    Path('.github/workflows/train-recette.yml'),
 ]
 
 changed=[]
