@@ -1,13 +1,40 @@
-name: Train interaction patch helper (disabled)
+name: WfGg Train presence frontend fix
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - train-bridge-phase3
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  noop:
+  patch:
+    if: ${{ !contains(github.event.head_commit.message, '[presence-fix-auto]') }}
     runs-on: ubuntu-latest
     steps:
-      - run: echo 'Train interaction fix v8 is already applied.'
+      - uses: actions/checkout@v4
+        with:
+          ref: train-bridge-phase3
+          fetch-depth: 0
+
+      - name: Apply presence frontend patch
+        run: python .github/scripts/train_presence_frontend_fix.py
+
+      - name: Validate Worker
+        run: |
+          node --check frontend/_worker.js
+          grep -q 'WFGG_TRAIN_PORTAL_PRESENCE_TOKEN_FIX_V1' frontend/_worker.js
+          grep -q 'wfgg_bridge=v9' frontend/_worker.js
+
+      - name: Commit patch
+        run: |
+          if git diff --quiet -- frontend/_worker.js; then
+            echo 'No application change needed.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add frontend/_worker.js
+          git commit -m 'fix: restore Train presence heartbeat [presence-fix-auto] [snapshot-seed-auto]'
+          git push origin HEAD:train-bridge-phase3
