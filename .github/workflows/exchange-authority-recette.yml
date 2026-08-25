@@ -1,0 +1,43 @@
+name: Exchange authority recette
+
+on:
+  push:
+    branches: [exchange-fix]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: exchange-fix
+      - name: Validate exchange fix source
+        run: |
+          node --check frontend/_worker.js
+          node --check .github/qa/exchange-authority-recette.mjs
+          grep -q 'WFGG_TRAIN_SERVER_SCHEDULE_V1' frontend/_worker.js
+          grep -q 'wfgg_bridge=v14' frontend/_worker.js
+      - name: Wait for v14 preview
+        run: |
+          set -eu
+          ROOT='https://exchange-fix.wfgg.pages.dev'
+          ok=0
+          for i in $(seq 1 50); do
+            curl -fsSL "$ROOT/train/?qa=$i" -o /tmp/train.html || true
+            if grep -q 'wfgg_bridge=v14' /tmp/train.html; then ok=1; break; fi
+            sleep 4
+          done
+          test "$ok" = 1
+      - name: Install Playwright
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Run exchange authority recette
+        env:
+          WFGG_PREVIEW: https://exchange-fix.wfgg.pages.dev
+        run: node .github/qa/exchange-authority-recette.mjs
