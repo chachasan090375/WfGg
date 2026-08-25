@@ -1,4 +1,4 @@
-name: Capture live Train frontend
+name: Verify live Train token fix
 
 on:
   push:
@@ -6,24 +6,25 @@ on:
       - train-bridge-phase3
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  capture:
+  verify:
     if: ${{ !contains(github.event.head_commit.message, '[capture-auto]') }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: train-bridge-phase3
-          fetch-depth: 0
-      - name: Capture live app.js snippets
-        run: python .github/scripts/capture_live_train_app.py
-      - name: Commit diagnostic snippets
+      - name: Wait for Cloudflare preview and verify app.js
         run: |
           set -euo pipefail
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add .debug/*.txt
-          git commit -m 'chore: capture live Train frontend snippets [capture-auto]'
-          git push origin HEAD:train-bridge-phase3
+          URL='https://train-bridge-phase3.wfgg.pages.dev/train/app.js'
+          for i in $(seq 1 24); do
+            curl -fsSL -A 'Mozilla/5.0 WfGg-Smoke/1.0' "$URL" -o /tmp/train-app.js || true
+            if [ -s /tmp/train-app.js ] && ! grep -Fq 'if (token)' /tmp/train-app.js; then
+              grep -Fq "const API_BASE = '';" /tmp/train-app.js
+              echo 'LIVE_TRAIN_TOKEN_FIX=OK'
+              exit 0
+            fi
+            sleep 5
+          done
+          echo 'LIVE_TRAIN_TOKEN_FIX=NOT_DEPLOYED'
+          exit 1
