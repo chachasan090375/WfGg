@@ -1,0 +1,165 @@
+name: Simulator DataTable 1295 hero schema audit v1
+
+on:
+  push:
+    branches: [simulator-standalone-v1]
+    paths: ['.github/workflows/simulator-datatable-schema-audit-v1.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: simulator-standalone-v1
+          fetch-depth: 0
+
+      - name: Download verified 1.0.359 build 1864 XAPK
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/lw/xapk simulator/research
+          url='https://d.apkpure.net/b/XAPK/com.fun.lastwar.gp?versionCode=1864'
+          curl -fL --retry 2 --connect-timeout 20 --max-time 900 "$url" -o /tmp/lw/current.xapk
+          python3 - <<'PY'
+          import json,sys,zipfile,pathlib,hashlib
+          p=pathlib.Path('/tmp/lw/current.xapk')
+          with zipfile.ZipFile(p) as z:
+              names=[n for n in z.namelist() if pathlib.PurePosixPath(n).name.lower() in ('manifest.json','xapk_manifest.json')]
+              if not names: raise SystemExit('No XAPK manifest')
+              d=json.loads(z.read(names[0]).decode('utf-8','replace'))
+          package=str(d.get('package_name') or d.get('packageName') or d.get('package') or '')
+          vname=str(d.get('version_name') or d.get('versionName') or '')
+          vcode=str(d.get('version_code') or d.get('versionCode') or '')
+          print(json.dumps({'package':package,'versionName':vname,'versionCode':vcode,'sha1':hashlib.sha1(p.read_bytes()).hexdigest()}))
+          if (package,vname,vcode) != ('com.fun.lastwar.gp','1.0.359','1864'):
+              raise SystemExit('Unexpected XAPK metadata')
+          PY
+          unzip -q /tmp/lw/current.xapk -d /tmp/lw/xapk
+
+      - name: Extract embedded DataTable archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import pathlib,zipfile,hashlib,json,re
+          root=pathlib.Path('/tmp/lw')
+          apks=sorted((root/'xapk').rglob('*.apk'),key=lambda p:p.stat().st_size,reverse=True)
+          found=[]
+          for apk in apks:
+              try:
+                  with zipfile.ZipFile(apk) as z:
+                      for n in z.namelist():
+                          if re.search(r'(^|/)assets/table/table_.*\.data$',n,re.I):
+                              data=z.read(n)
+                              out=root/'table.data'; out.write_bytes(data)
+                              found.append({'apk':apk.name,'path':n,'bytes':len(data),'md5':hashlib.md5(data).hexdigest(),'sha256':hashlib.sha256(data).hexdigest(),'magic':data[:8].hex()})
+                              break
+              except zipfile.BadZipFile:
+                  pass
+              if found: break
+          if not found: raise SystemExit('Embedded assets/table/table_*.data not found')
+          with zipfile.ZipFile(root/'table.data') as z:
+              names=z.namelist()
+              cand_rx=re.compile(r'(hero|role|army|soldier|troop|unit|skill|equip|equipment|weapon|research|science|rarity|quality|star|level)',re.I)
+              candidates=[{'name':n,'bytes':z.getinfo(n).file_size} for n in names if cand_rx.search(n)]
+          meta={'embedded':found[0],'entryCount':len(names),'candidateCount':len(candidates),'candidates':candidates}
+          (root/'datatable-meta.json').write_text(json.dumps(meta,indent=2,ensure_ascii=False)+'\n')
+          print(json.dumps({'embedded':found[0],'entryCount':len(names),'candidateCount':len(candidates)},indent=2))
+          PY
+
+      - name: Build Last War compatible unluac
+        shell: bash
+        run: |
+          set -euo pipefail
+          git clone --depth=1 https://github.com/HansWessels/unluac.git /tmp/unluac >/dev/null
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('/tmp/unluac/src/unluac/parse/LHeaderType.java')
+          s=p.read_text()
+          old='if(format != 0) {'
+          new='if(format != 0 && format != 1) {'
+          if old not in s: raise SystemExit('format guard not found')
+          s=s.replace(old,new,1)
+          marker='class LHeaderType53 extends LHeaderType {'
+          pos=s.index(marker)
+          head,tail=s[:pos],s[pos:]
+          old2='    parse_instruction_size(buffer, header, s);'
+          new2='    if(s.format != 1) parse_instruction_size(buffer, header, s);'
+          if old2 not in tail: raise SystemExit('Lua53 instruction size call not found')
+          tail=tail.replace(old2,new2,1)
+          p.write_text(head+tail)
+          PY
+          cd /tmp/unluac
+          bash build.sh >/dev/null
+          test -s bin/unluac.jar
+
+      - name: Decompile candidate tables and derive schemas
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import pathlib,zipfile,json,re,subprocess,tempfile,hashlib
+          root=pathlib.Path('/tmp/lw')
+          meta=json.loads((root/'datatable-meta.json').read_text())
+          table=root/'table.data'
+          jar='/tmp/unluac/bin/unluac.jar'
+          strong=re.compile(r'(hero|role|army|soldier|troop|unit|skill|equip|equipment|weapon|rarity|quality|star|level)',re.I)
+          field_rx=re.compile(r'([A-Za-z_][A-Za-z0-9_]*)\s*=\s*\{\s*(\d+)\s*,\s*["\x27]([A-Za-z]+)["\x27]')
+          data_key_rx=re.compile(r'\[\s*-?\d+\s*\]\s*=\s*\{')
+          interesting_fields=re.compile(r'(attack|atk|defen|def|health|hp|level|lv|star|quality|rarity|hero|role|skill|power|armor|armour|weapon|equip|troop|soldier|army)',re.I)
+          results=[]
+          with zipfile.ZipFile(table) as z:
+              names=[x['name'] for x in meta['candidates'] if strong.search(x['name'])]
+              for i,n in enumerate(names[:260]):
+                  raw=z.read(n)
+                  rec={'name':n,'bytes':len(raw),'magic':raw[:8].hex(),'sha256':hashlib.sha256(raw).hexdigest()}
+                  with tempfile.NamedTemporaryFile(suffix='.luac') as f:
+                      f.write(raw); f.flush()
+                      cp=subprocess.run(['java','-jar',jar,f.name],stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,timeout=25)
+                  if cp.returncode != 0:
+                      rec['decompileError']=cp.stderr.strip()[-500:]
+                      results.append(rec); continue
+                  src=cp.stdout
+                  fields=[]; seen=set()
+                  for m in field_rx.finditer(src):
+                      name,col,typ=m.groups()
+                      if name not in seen:
+                          seen.add(name); fields.append({'name':name,'column':int(col),'type':typ})
+                  rec['fields']=fields
+                  rec['interestingFields']=[x['name'] for x in fields if interesting_fields.search(x['name'])]
+                  rec['rowMarkers']=len(data_key_rx.findall(src))
+                  rec['sourceChars']=len(src)
+                  if rec['interestingFields'] or re.search(r'hero|role',n,re.I):
+                      results.append(rec)
+          ranked=sorted(results,key=lambda r:(-len(r.get('interestingFields',[])),-r.get('rowMarkers',0),r['name']))
+          out={
+            'target':{'package':'com.fun.lastwar.gp','appVersion':'1.0.359','buildId':1864,'dataTableDescriptor':'DataTable,1295,294,1768181284'},
+            'embedded':meta['embedded'],
+            'entryCount':meta['entryCount'],
+            'candidateCount':meta['candidateCount'],
+            'schemaCount':len(ranked),
+            'schemas':ranked,
+            'note':'Derived schema metadata only; compiled/decompiled game table payloads are not committed.'
+          }
+          p=pathlib.Path('simulator/research/datatable-hero-schema-audit.v1.json')
+          p.write_text(json.dumps(out,indent=2,ensure_ascii=False)+'\n')
+          print(json.dumps({'schemaCount':len(ranked),'top':[{'name':r['name'],'fields':r.get('interestingFields',[]),'rows':r.get('rowMarkers',0)} for r in ranked[:30]]},indent=2))
+          PY
+
+      - name: Commit derived schema metadata only
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add simulator/research/datatable-hero-schema-audit.v1.json
+          if ! git diff --cached --quiet; then
+            git commit -m 'simulator: capture DataTable 1295 hero schema audit'
+            git push origin HEAD:simulator-standalone-v1
+          fi
