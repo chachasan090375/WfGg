@@ -1,0 +1,87 @@
+name: Simulator browser E2E
+
+on:
+  push:
+    branches: [simulator-standalone-v1]
+    paths:
+      - 'simulator/**'
+      - 'frontend/simulator/**'
+      - '.github/workflows/simulator-browser-e2e.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  mobile-e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Playwright
+        run: |
+          mkdir -p /tmp/wfgg-e2e && cd /tmp/wfgg-e2e
+          npm init -y >/dev/null 2>&1
+          npm install playwright@1.55.0 >/dev/null 2>&1
+          npx playwright install --with-deps chromium >/dev/null
+      - name: Exercise public mobile preview and persistence
+        env:
+          NODE_PATH: /tmp/wfgg-e2e/node_modules
+        run: |
+          cat >/tmp/wfgg-e2e/test.cjs <<'JS'
+          const { chromium } = require('playwright');
+          (async()=>{
+            const browser=await chromium.launch({headless:true});
+            const context=await browser.newContext({viewport:{width:412,height:915},isMobile:true,hasTouch:true,deviceScaleFactor:2});
+            const page=await context.newPage();
+            const errors=[];
+            page.on('pageerror',e=>errors.push('pageerror: '+e.message));
+            page.on('console',m=>{ if(m.type()==='error') errors.push('console: '+m.text()); });
+            const url='https://simulator-standalone-v1.wfgg.pages.dev/simulator/?e2e='+Date.now();
+            let loaded=false;
+            for(let i=0;i<30;i++){
+              const r=await page.goto(url,{waitUntil:'domcontentloaded',timeout:20000}).catch(()=>null);
+              if(r && r.ok() && (await page.title())==='WfGg · Simulateur'){loaded=true;break;}
+              await page.waitForTimeout(2000);
+            }
+            if(!loaded) throw new Error('Preview did not become reachable');
+            await page.waitForTimeout(1500);
+            await page.screenshot({path:'/tmp/wfgg-e2e/01-cover.png',fullPage:true});
+            const steps=await page.locator('#stepNav [data-step]').count();
+            const workspaceText=(await page.locator('.workspace').innerText()).trim();
+            console.log('steps',steps,'workspace chars',workspaceText.length,'errors',errors);
+            if(errors.length) throw new Error('Browser errors: '+errors.join(' | '));
+            if(steps!==6) throw new Error('Expected 6 navigation steps, got '+steps);
+            if(workspaceText.length<20) throw new Error('Workspace did not render');
+            await page.locator('#nextBtn').click();
+            await page.waitForTimeout(250);
+            if(!(await page.locator('#step-heroes').isVisible())) throw new Error('Next button did not open Heroes');
+            await page.locator('#addHero').click();
+            const card=page.locator('.hero-card').first();
+            await card.locator('[data-field="heroId"]').fill('E2E Hero');
+            await card.locator('[data-field="displayedAttack"]').fill('123456');
+            await card.locator('[data-field="troopType"]').selectOption('aircraft');
+            await card.locator('[data-field="role"]').selectOption('attack');
+            await card.locator('[data-field="displayedAttack"]').blur();
+            await page.waitForTimeout(350);
+            await page.reload({waitUntil:'domcontentloaded'});
+            await page.waitForTimeout(900);
+            if(errors.length) throw new Error('Browser errors after reload: '+errors.join(' | '));
+            if(!(await page.locator('#step-heroes').isVisible())) throw new Error('Saved step did not survive reload');
+            const heroName=await page.locator('.hero-card').first().locator('[data-field="heroId"]').inputValue();
+            const attack=await page.locator('.hero-card').first().locator('[data-field="displayedAttack"]').inputValue();
+            if(heroName!=='E2E Hero'||attack!=='123456') throw new Error(`Hero persistence failed: ${heroName}/${attack}`);
+            await page.screenshot({path:'/tmp/wfgg-e2e/02-heroes-after-reload.png',fullPage:true});
+            await page.evaluate(()=>localStorage.clear());
+            console.log('E2E MOBILE OK');
+            await browser.close();
+          })().catch(e=>{console.error(e);process.exit(1)});
+          JS
+          node /tmp/wfgg-e2e/test.cjs
+      - name: Upload diagnostic screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: simulator-mobile-e2e-screens
+          path: /tmp/wfgg-e2e/*.png
+          if-no-files-found: ignore
