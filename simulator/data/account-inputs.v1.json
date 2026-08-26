@@ -1,5 +1,5 @@
 {
-  "version": "1.3.0",
+  "version": "1.4.0",
   "account": {
     "hqLevel": {"required":true,"range":[1,35]},
     "activeSquads": {"required":true,"allowed":[3,4],"note":"4 requires active Super Monthly Pass"},
@@ -14,7 +14,12 @@
     "fields": [
       "heroId","owned","troopType","role","damageType","rarity","level","stars",
       "displayedAttack","displayedDefense","displayedHp","displayedPower",
-      "monsterDamagePct","pveDamagePct","positionalPveBuffPct",
+      "monsterDamagePct","pveDamagePct",
+      "positionalPveBuffPct","positionalPveBuffDurationSeconds","positionalPveBuffCooldownSeconds",
+      "teamAttackBuffPct","teamAttackBuffDurationSeconds","teamAttackBuffCooldownSeconds",
+      "typeAttackBuffPct","typeAttackBuffDurationSeconds","typeAttackBuffCooldownSeconds",
+      "highestAtkSkillCooldownSpeedPct",
+      "monsterDamageReductionPct","frontRowMonsterDamageReductionPct","frontRowMonsterDamageReductionDurationSeconds","frontRowMonsterDamageReductionCooldownSeconds",
       "skillLevels","exclusiveWeaponLevel","awakeningUnlocked","awakeningStars","awakeningTier",
       "wallOfHonorLevel"
     ],
@@ -27,9 +32,15 @@
       "displayedDefensePurpose": "used by monster simulation for frontline survival diagnostics and placement; weight remains zero in Wanted Code offense scoring",
       "displayedHpPurpose": "used by monster simulation for frontline survival diagnostics and placement; weight remains zero in Wanted Code offense scoring",
       "displayedPowerPurpose": "reference/diagnostic only; never used as a direct optimization score",
-      "monsterDamagePctPurpose": "optional hero-specific current bonus against monsters when displayed or otherwise verified; applies only in monster-compatible PvE contexts",
+      "monsterDamagePctPurpose": "optional hero-specific current self bonus against monsters when displayed or otherwise verified; applies only in monster-compatible PvE contexts",
       "pveDamagePctPurpose": "optional current generic PvE damage bonus when displayed or otherwise verified",
-      "positionalPveBuffPctPurpose": "optional current percentage displayed by the game for an audited positional PvE hero effect; ignored unless formation-positioning.v1.json contains a matching verified effect template for that hero",
+      "positionalPveBuffPurpose": "current value for an audited positional PvE skill. Duration/cooldown are also required when the skill is timed, such as SSR Sarah MG Symphony; passive effects such as Mason or UR Sarah do not need them",
+      "teamAttackBuffPurpose": "current all-team Attack buff value/duration/cooldown for audited skills such as Marshall Command Strategy. Timed effects use average uptime until timeline calibration",
+      "typeAttackBuffPurpose": "current troop-type Attack buff value/duration/cooldown for audited skills such as UR Sarah Airspace Supremacy",
+      "highestAtkSkillCooldownSpeedPurpose": "diagnostic input for effects such as Marshall Rapid Start; currently stored but not scored because skill-damage share is not calibrated",
+      "monsterDamageReductionPurpose": "survival diagnostic only; not added to offensive score",
+      "frontRowMonsterDamageReductionPurpose": "timed survival diagnostic for front-row mitigation such as Elsa Armor Boost; not converted into fake Power",
+      "heroEffectCatalogSource": "hero-combat-effects.v1.json",
       "positionOptimizationSource": "formation-positioning.v1.json"
     }
   },
