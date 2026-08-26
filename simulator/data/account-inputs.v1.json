@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0",
+  "version": "1.1.0",
   "account": {
     "hqLevel": {"required":true,"range":[1,35]},
     "activeSquads": {"required":true,"allowed":[3,4],"note":"4 requires active Super Monthly Pass"},
@@ -13,6 +13,7 @@
   "heroes": {
     "fields": [
       "heroId","owned","troopType","role","damageType","rarity","level","stars",
+      "displayedAttack","displayedPower",
       "skillLevels","exclusiveWeaponLevel","awakeningUnlocked","awakeningStars","awakeningTier",
       "wallOfHonorLevel"
     ],
@@ -20,7 +21,10 @@
       "heroCannotAppearInTwoSimultaneousSquads": true,
       "heroLevelAffectsStats": true,
       "heroLevelAffectsCommandMarchSize": true,
-      "awakeningSeason6Heroes": ["Kimberly","DVA","Tesla"]
+      "awakeningSeason6Heroes": ["Kimberly","DVA","Tesla"],
+      "displayedAttackPurpose": "primary visible offensive anchor for early relative scoring; final 90-second damage also requires skills and offensive modifiers",
+      "displayedPowerPurpose": "reference/diagnostic only; weight is zero for Wanted Codes because defensive power must not inflate the damage score",
+      "positionOptimizationSource": "formation-positioning.v1.json"
     }
   },
   "gearInventory": {
