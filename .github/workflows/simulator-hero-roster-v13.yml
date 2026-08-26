@@ -64,21 +64,24 @@ jobs:
             const browser=await chromium.launch({headless:true});
             try{
               const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,deviceScaleFactor:2,locale:'fr-FR'});
+              await context.addInitScript(()=>{
+                localStorage.setItem('wfgg-simulator-profile-v1',JSON.stringify({locale:'fr',step:1,account:{hqLevel:35},heroes:[],gear:[],research:{},season6:{},metadata:{schema:'wfgg-simulator-profile-v1'}}));
+              });
               const page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(String(e)));
-              await page.goto('https://simulator-standalone-v1.wfgg.pages.dev/simulator/?hero_v13_e2e=1',{waitUntil:'networkidle',timeout:60000});
-              const cards=page.locator('.game-hero-card');await cards.first().waitFor({state:'visible',timeout:30000});assert.equal(await cards.count(),31);
-              await page.waitForFunction(()=>[...document.querySelectorAll('.game-hero-card')].every(c=>c.dataset.wfggV13Crop),{timeout:5000});
-              const murphy=page.locator('.game-hero-card[data-hero-id="murphy"]');assert.equal(await murphy.evaluate(el=>el.style.getPropertyValue('--wfgg-v13-y')),'-13%');assert.equal(await murphy.evaluate(el=>el.style.getPropertyValue('--wfgg-v13-zoom')),'1.3');
-              const initialShadow=await page.locator('.game-hero-card.rarity-UR').first().evaluate(el=>getComputedStyle(el).boxShadow);
+              await page.goto('https://simulator-standalone-v1.wfgg.pages.dev/simulator/?hero_v13_e2e=2',{waitUntil:'networkidle',timeout:60000});
+              const cards=page.locator('#gameHeroGrid .game-hero-card');await cards.first().waitFor({state:'visible',timeout:30000});assert.equal(await cards.count(),31);
+              await page.waitForFunction(()=>[...document.querySelectorAll('#gameHeroGrid .game-hero-card')].every(c=>c.dataset.wfggV13Crop),{timeout:5000});
+              const murphy=page.locator('#gameHeroGrid .game-hero-card[data-hero-id="murphy"]');assert.equal(await murphy.evaluate(el=>el.style.getPropertyValue('--wfgg-v13-y')),'-13%');assert.equal(await murphy.evaluate(el=>el.style.getPropertyValue('--wfgg-v13-zoom')),'1.3');
+              const initialShadow=await page.locator('#gameHeroGrid .game-hero-card.rarity-UR').first().evaluate(el=>getComputedStyle(el).boxShadow);
               const states=[];
               await page.exposeFunction('v13Phase',x=>states.push(x));
-              await page.evaluate(()=>new MutationObserver(()=>window.v13Phase({phase:document.documentElement.dataset.wfggV13Phase,count:document.querySelectorAll('.wfgg-v13-live').length})).observe(document.documentElement,{attributes:true,attributeFilter:['data-wfgg-v13-phase']}));
-              await page.waitForFunction(()=>[...document.querySelectorAll('.game-hero-card')].every(c=>c.dataset.wfggV13Seen==='1'),{timeout:22000});
-              const seen=await page.locator('.game-hero-card[data-wfgg-v13-seen="1"]').count();assert.equal(seen,31);
-              const live=page.locator('.game-hero-card.wfgg-v13-live').first();if(await live.count()){const anim=await live.locator('.hero-card-portrait img').evaluate(el=>getComputedStyle(el).animationName);assert.match(anim,/wfgg-v13-character-live/)}
-              const finalShadow=await page.locator('.game-hero-card.rarity-UR').first().evaluate(el=>getComputedStyle(el).boxShadow);assert.equal(finalShadow,initialShadow);
+              await page.evaluate(()=>new MutationObserver(()=>window.v13Phase({phase:document.documentElement.dataset.wfggV13Phase,count:document.querySelectorAll('#gameHeroGrid .wfgg-v13-live').length})).observe(document.documentElement,{attributes:true,attributeFilter:['data-wfgg-v13-phase']}));
+              await page.waitForFunction(()=>[...document.querySelectorAll('#gameHeroGrid .game-hero-card')].every(c=>c.dataset.wfggV13Seen==='1'),{timeout:22000});
+              const seen=await page.locator('#gameHeroGrid .game-hero-card[data-wfgg-v13-seen="1"]').count();assert.equal(seen,31);
+              const live=page.locator('#gameHeroGrid .game-hero-card.wfgg-v13-live').first();if(await live.count()){const anim=await live.locator('.hero-card-portrait img').evaluate(el=>getComputedStyle(el).animationName);assert.match(anim,/wfgg-v13-character-live/)}
+              const finalShadow=await page.locator('#gameHeroGrid .game-hero-card.rarity-UR').first().evaluate(el=>getComputedStyle(el).boxShadow);assert.equal(finalShadow,initialShadow);
               assert.ok(states.some(x=>x.phase==='rest'&&x.count===0),'no fully-resting gap detected');
-              const legacy=await page.locator('.game-hero-card.wfgg-v10-live,.game-hero-card.wfgg-v12-live').count();assert.equal(legacy,0);
+              const legacy=await page.locator('#gameHeroGrid .game-hero-card.wfgg-v10-live,#gameHeroGrid .game-hero-card.wfgg-v12-live').count();assert.equal(legacy,0);
               const metric=await page.evaluate(()=>({w:innerWidth,sw:(document.scrollingElement||document.documentElement).scrollWidth}));assert.ok(metric.sw<=metric.w+2);
               assert.equal(errors.length,0,errors.join(' | '));
               console.log(JSON.stringify({ok:true,cards:31,seen,restGap:true,murphy:'-13% / 1.30',metric},null,2));
