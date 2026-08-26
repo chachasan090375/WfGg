@@ -1,0 +1,15 @@
+.overlord-card{margin-top:14px;border:1px solid rgba(178,150,255,.22);background:rgba(24,19,33,.5)}
+.overlord-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}
+.overlord-head strong{font-size:1.02rem}
+.overlord-icon{display:inline-grid;place-items:center;width:38px;height:38px;border-radius:12px;background:rgba(143,99,255,.16);font-size:1.35rem;flex:0 0 auto}
+.overlord-title-row{display:flex;align-items:center;gap:10px}
+.overlord-status{display:inline-flex;align-items:center;gap:6px;padding:5px 9px;border-radius:999px;background:rgba(143,99,255,.13);border:1px solid rgba(178,150,255,.18);font-size:.76rem;color:var(--muted)}
+.overlord-status.active{color:var(--text);background:rgba(143,99,255,.22)}
+.overlord-note{margin-top:10px;font-size:.82rem;color:var(--muted);line-height:1.45}
+.overlord-skill-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.overlord-result{margin-top:12px;padding:12px;border-radius:14px;border:1px solid rgba(178,150,255,.2);background:rgba(143,99,255,.08)}
+.overlord-result-row{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.overlord-result strong{display:block;margin-bottom:3px}
+.overlord-result small{color:var(--muted);line-height:1.4}
+.overlord-sixth{font-weight:800;white-space:nowrap;color:var(--accent-2)}
+@media(max-width:620px){.overlord-head,.overlord-result-row{flex-direction:column}.overlord-skill-grid{grid-template-columns:1fr}}
