@@ -1,0 +1,147 @@
+name: Simulator seasonal UR promotion configs v3
+
+on:
+  push:
+    branches: [simulator-standalone-v1]
+    paths: ['.github/workflows/simulator-promotion-ur-config-v3.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: simulator-standalone-v1
+          fetch-depth: 0
+      - name: Prepare current DataTable and decompiler
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/lw/xapk /tmp/lw/decompiled simulator/research
+          curl -fL --retry 2 --connect-timeout 20 --max-time 900 'https://d.apkpure.net/b/XAPK/com.fun.lastwar.gp?versionCode=1864' -o /tmp/lw/current.xapk
+          python3 - <<'PY'
+          import json,zipfile,pathlib,re,subprocess,hashlib
+          root=pathlib.Path('/tmp/lw'); p=root/'current.xapk'
+          with zipfile.ZipFile(p) as z:
+              mans=[n for n in z.namelist() if pathlib.PurePosixPath(n).name.lower() in ('manifest.json','xapk_manifest.json')]
+              d=json.loads(z.read(mans[0]).decode('utf-8','replace'))
+          meta=(str(d.get('package_name') or d.get('packageName') or d.get('package') or ''),str(d.get('version_name') or d.get('versionName') or ''),str(d.get('version_code') or d.get('versionCode') or ''))
+          if meta!=('com.fun.lastwar.gp','1.0.359','1864'): raise SystemExit(f'Unexpected client metadata {meta}')
+          subprocess.run(['unzip','-q',str(p),'-d',str(root/'xapk')],check=True)
+          found=None
+          for apk in sorted((root/'xapk').rglob('*.apk'),key=lambda x:x.stat().st_size,reverse=True):
+              try:
+                  with zipfile.ZipFile(apk) as z:
+                      tn=next((n for n in z.namelist() if re.search(r'(^|/)assets/table/table_.*\.data$',n,re.I)),None)
+                      if not tn: continue
+                      raw=z.read(tn); (root/'table.data').write_bytes(raw); found={'apk':apk.name,'path':tn,'bytes':len(raw),'md5':hashlib.md5(raw).hexdigest(),'sha256':hashlib.sha256(raw).hexdigest()}; break
+              except zipfile.BadZipFile: pass
+          if not found: raise SystemExit('DataTable not found')
+          (root/'source.json').write_text(json.dumps(found,indent=2)+'\n')
+          PY
+          if ! command -v lua5.3 >/dev/null 2>&1; then sudo apt-get update -qq && sudo apt-get install -y -qq lua5.3; fi
+          git clone --depth=1 https://github.com/HansWessels/unluac.git /tmp/unluac >/dev/null
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('/tmp/unluac/src/unluac/parse/LHeaderType.java'); s=p.read_text(); s=s.replace('if(format != 0) {','if(format != 0 && format != 1) {',1)
+          marker='class LHeaderType53 extends LHeaderType {'; pos=s.index(marker); head,tail=s[:pos],s[pos:]; old='    parse_instruction_size(buffer, header, s);'
+          if old not in tail: raise SystemExit('Lua53 instruction size call not found')
+          p.write_text(head+tail.replace(old,'    if(s.format != 1) parse_instruction_size(buffer, header, s);',1))
+          PY
+          (cd /tmp/unluac && bash build.sh >/dev/null)
+      - name: Extract exact SSR and promoted UR hero rows plus skill rows
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import pathlib,zipfile,subprocess,tempfile
+          root=pathlib.Path('/tmp/lw'); jar='/tmp/unluac/bin/unluac.jar'
+          for n in ['lw_hero','lw_hero_skill']:
+              with zipfile.ZipFile(root/'table.data') as z: raw=z.read(n)
+              with tempfile.NamedTemporaryFile(suffix='.luac') as f:
+                  f.write(raw); f.flush(); cp=subprocess.run(['java','-jar',jar,f.name],stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,timeout=70)
+              if cp.returncode: raise SystemExit(f'{n}: {cp.stderr[-800:]}')
+              (root/'decompiled'/(n+'.lua')).write_text(cp.stdout)
+          PY
+          cat >/tmp/lw/dump.lua <<'LUA'
+          local function dense(t) local n=0 for k,_ in pairs(t) do if type(k)~='number' or k<1 or math.floor(k)~=k then return false,0 end if k>n then n=k end end for i=1,n do if rawget(t,i)==nil then return false,n end end return true,n end
+          local function esc(s) return (s:gsub('\\','\\\\'):gsub('"','\\"'):gsub('\n','\\n'):gsub('\r','\\r'):gsub('\t','\\t')) end
+          local function enc(v,d,seen) d=d or 0 seen=seen or {} local ty=type(v) if ty=='nil' then return 'null' elseif ty=='number' then return tostring(v) elseif ty=='boolean' then return v and 'true' or 'false' elseif ty=='string' then return '"'..esc(v)..'"' end if ty~='table' or d>14 or seen[v] then return 'null' end seen[v]=true local a,n=dense(v) local p={} if a then for i=1,n do p[#p+1]=enc(v[i],d+1,seen) end seen[v]=nil return '['..table.concat(p,',')..']' end local ks={} for k,_ in pairs(v) do ks[#ks+1]=k end table.sort(ks,function(a,b)return tostring(a)<tostring(b)end) for _,k in ipairs(ks) do p[#p+1]='"'..esc(tostring(k))..'":'..enc(v[k],d+1,seen) end seen[v]=nil return '{'..table.concat(p,',')..'}' end
+          local ok,T=pcall(dofile,arg[1]); if not ok then io.stderr:write(tostring(T)..'\n'); os.exit(2) end print(enc(T))
+          LUA
+          python3 - <<'PY'
+          import json,pathlib,subprocess
+          root=pathlib.Path('/tmp/lw'); source=json.loads((root/'source.json').read_text())
+          pairs={40010:50023,40012:50025,40006:50026,40019:50027,40018:50028,40013:50029}
+          names={40010:'Mason',40012:'Violet',40006:'Scarlett',40019:'Sarah',40018:'Venom',40013:'Braz'}
+          def load(name):
+              cp=subprocess.run(['lua5.3','/tmp/lw/dump.lua',str(root/'decompiled'/(name+'.lua'))],stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,timeout=70)
+              if cp.returncode: raise SystemExit(cp.stderr[-800:])
+              return json.loads(cp.stdout)
+          def decode(T):
+              idx=T.get('index',{}); data=T.get('data',{}); vext=T.get('vExt')
+              fields={n:{'column':int(d[0]),'linked':bool(d[2]) if len(d)>2 else False,'type':d[1]} for n,d in idx.items() if isinstance(d,list) and len(d)>=2}
+              def val(row,pos):
+                  if isinstance(row,list): return row[pos-1] if pos-1<len(row) else None
+                  if isinstance(row,dict): return row.get(str(pos),row.get(pos))
+              def ext(v):
+                  if not isinstance(v,(int,float)) or int(v)!=v or int(v)<1:return v
+                  k=int(v)
+                  if isinstance(vext,list) and k<=len(vext): return vext[k-1]
+                  if isinstance(vext,dict): return vext.get(str(k),vext.get(k,v))
+                  return v
+              out={}; items=list(data.items()) if isinstance(data,dict) else [(i+1,r) for i,r in enumerate(data or [])]
+              for key,row in items:
+                  rec={'_key':int(key) if str(key).isdigit() else key}
+                  for n,fd in fields.items():
+                      v=val(row,fd['column']); rec[n]=ext(v) if fd['linked'] else v
+                  rid=rec.get('id',rec['_key'])
+                  try: out[int(rid)]=rec
+                  except: pass
+              return fields,out
+          hf,heroes=decode(load('lw_hero')); sf,skills=decode(load('lw_hero_skill'))
+          hero_keep=['id','type','quality','template_id','base_hp','base_patk','base_pdef','base_acc','base_crit','army_type','army_job','skills','skills_unlock_lv','skills_unlock_rank','weapon','max_rank','unique_weapon_open','appearance','hero_effect','tags','specials','honor_level_effect','honor_level_unlock_effect']
+          skill_keep=['id','skill_cat','group','maxLevel','maxStar','star','need_rank','power','levelup_consume_sp','attack_interval','damage_ratio','damage_to_monster','is_normal_attack','property','property_out_of_battle','source_group','triggerType','triggerParam','target_type','buff','buff_param','buff_condition','cast_count','cast_interval','pre_cd','priority','skill_effect','effect_pvp','awake_not_stop','level_up_desc_param','enhance_desc_pre','bullet_damage_rate']
+          result={}; missing=[]
+          for ssr,ur in pairs.items():
+              a=heroes.get(ssr); b=heroes.get(ur)
+              if not a or not b: missing.append({'ssr':ssr,'ur':ur,'ssrFound':bool(a),'urFound':bool(b)}); continue
+              def compact_h(r): return {k:r.get(k) for k in hero_keep if k in r}
+              def compact_sk(ids):
+                  out={}
+                  for sid in ids or []:
+                      try: sid=int(sid)
+                      except: continue
+                      row=skills.get(sid)
+                      if row: out[str(sid)]={k:row.get(k) for k in skill_keep if k in row}
+                  return out
+              sa=compact_h(a); ub=compact_h(b)
+              result[str(ssr)]={'hero':names[ssr],'ssrNativeId':ssr,'urNativeId':ur,'ssr':sa,'ur':ub,'ssrSkills':compact_sk(a.get('skills')),'urSkills':compact_sk(b.get('skills')),'differences':{k:{'ssr':sa.get(k),'ur':ub.get(k)} for k in hero_keep if sa.get(k)!=ub.get(k)}}
+          if missing: raise SystemExit(f'Missing promotion rows {missing}')
+          # Braz hard safety assertion: UR skill set must be independently sourced and differ from SSR if game data says so.
+          braz=result['40013']
+          if braz['urNativeId']!=50029: raise SystemExit('Braz UR ID mismatch')
+          if not braz['ur'].get('skills'): raise SystemExit('Braz UR has no native skill set')
+          if braz['ur'].get('skills')==braz['ssr'].get('skills'): raise SystemExit('Braz UR skill set unexpectedly identical to SSR; refuse silent inheritance')
+          out={'source':source,'promotionPairs':pairs,'variants':result,'validation':{'allSixPairsFound':True,'brazUrNativeId':50029,'brazSkillSetDistinctFromSSR':True},'note':'Exact native SSR and promoted-UR hero rows and compact skill configuration for the six seasonal promotions. This dataset is the required source for rarity-specific combat variants; never reuse SSR stats/skills for the UR form.'}
+          p=pathlib.Path('simulator/research/promotion-ur-native-config.v1.json'); p.write_text(json.dumps(out,indent=2,ensure_ascii=False)+'\n')
+          summary={k:{'hero':v['hero'],'ssr':v['ssrNativeId'],'ur':v['urNativeId'],'ssrQuality':v['ssr'].get('quality'),'urQuality':v['ur'].get('quality'),'ssrTemplate':v['ssr'].get('template_id'),'urTemplate':v['ur'].get('template_id'),'ssrBase':[v['ssr'].get('base_hp'),v['ssr'].get('base_patk'),v['ssr'].get('base_pdef')],'urBase':[v['ur'].get('base_hp'),v['ur'].get('base_patk'),v['ur'].get('base_pdef')],'ssrSkills':v['ssr'].get('skills'),'urSkills':v['ur'].get('skills'),'differentFields':sorted(v['differences'])} for k,v in result.items()}
+          print(json.dumps({'pairs':summary,'validation':out['validation'],'bytes':p.stat().st_size},indent=2))
+          PY
+      - name: Commit exact promotion configurations
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add simulator/research/promotion-ur-native-config.v1.json
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'simulator: capture exact seasonal UR promotion configs'
+          git fetch origin simulator-standalone-v1
+          git rebase origin/simulator-standalone-v1
+          git push origin HEAD:simulator-standalone-v1
