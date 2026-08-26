@@ -1,0 +1,55 @@
+name: Simulator native engine wire v1
+
+on:
+  push:
+    branches: [simulator-standalone-v1]
+    paths: ['.github/workflows/simulator-native-engine-wire-v1.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  wire:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: simulator-standalone-v1
+          fetch-depth: 0
+      - name: Wire engine and enforce HQ35 cap in legacy editor
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('simulator/index.html')
+          s=p.read_text()
+          old='data-field="level" type="number" min="1" max="200" inputmode="numeric"'
+          count=s.count(old)
+          if count != 1:
+              raise SystemExit(f'Expected exactly one legacy hero level max=200 field, found {count}')
+          s=s.replace(old,'data-field="level" type="number" min="1" max="175" inputmode="numeric"')
+          script='<script src="native-stat-engine-v1.js?v=001-native-level-grade"></script>'
+          if script not in s:
+              marker='  <script src="hero-roster-v2.js?v=001-game-ui"></script>'
+              if marker not in s: raise SystemExit('Hero roster script marker not found')
+              s=s.replace(marker,'  '+script+'\n'+marker)
+          p.write_text(s)
+          print('Legacy hero cap set to 175 and native stat engine wired.')
+          PY
+          grep -q 'native-stat-engine-v1.js' simulator/index.html
+          ! grep -q 'data-field="level" type="number" min="1" max="200"' simulator/index.html
+      - name: Commit wiring
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add simulator/index.html
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'simulator: wire native stat engine and cap hero level at 175'
+          git fetch origin simulator-standalone-v1
+          git rebase origin/simulator-standalone-v1
+          git push origin HEAD:simulator-standalone-v1
