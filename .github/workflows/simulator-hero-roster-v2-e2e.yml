@@ -71,10 +71,10 @@ jobs:
 
             const card=page.locator('[data-hero-id="kimberly"]');
             const box=await card.boundingBox();assert(box,'Kimberly card missing');
-            await page.mouse.move(box.x+box.width/2,box.y+box.height/2);
-            await page.mouse.down();
+            const point={clientX:box.x+box.width/2,clientY:box.y+box.height/2,pointerId:7,pointerType:'touch',isPrimary:true,button:0,buttons:1};
+            await card.dispatchEvent('pointerdown',point);
             await page.waitForTimeout(620);
-            await page.mouse.up();
+            await page.locator('[data-hero-id="kimberly"]').dispatchEvent('pointerup',{...point,buttons:0});
             await page.waitForFunction(()=>window.WfGgHeroRosterV2.selectionMode()===true,{timeout:4000});
             await page.waitForSelector('#heroSelectAll',{timeout:4000});
             assert(await page.locator('.game-hero-grid.is-selecting').count()===1,'grey selection mode missing');
