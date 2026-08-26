@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="optimizer-v1.css?v=004-hero-effects" />
   <link rel="stylesheet" href="tactics-v1.css?v=001" />
   <link rel="stylesheet" href="overlord-v1.css?v=001" />
+  <link rel="stylesheet" href="team-theory-v1.css?v=001" />
 </head>
 <body>
   <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
@@ -72,7 +73,7 @@
 
   <template id="gearTemplate"><article class="entry-card gear-card"><div class="entry-head"><div><p class="eyebrow" data-ui="gearEyebrow">Équipement</p><strong class="entry-title">—</strong></div><button class="icon-button danger" data-action="remove-gear" type="button" aria-label="Supprimer">×</button></div><div class="form-grid"><label><span data-ui="gearId">Identifiant / nom</span><input data-field="itemId" autocomplete="off" /></label><label><span data-ui="gearSlot">Emplacement</span><select data-field="slot"></select></label><label><span data-ui="rarity">Rareté</span><select data-field="rarity"><option value="UR">UR</option><option value="SSR">SSR</option><option value="SR">SR</option><option value="R">R</option></select></label><label><span data-ui="level">Niveau</span><input data-field="level" type="number" min="0" max="100" inputmode="numeric" /></label><label><span data-ui="stars">Étoiles</span><input data-field="stars" type="number" min="0" max="5" step="0.1" inputmode="decimal" /></label><label><span data-ui="promotion">Promotion</span><input data-field="promotion" type="number" min="0" max="99" inputmode="numeric" /></label><label><span data-ui="assignedHero">Héros équipé</span><select data-field="currentlyAssignedHero"></select></label></div></article></template>
 
-  <script src="profile-persistence-v2.js?v=002-autosave"></script>
+  <script src="profile-persistence-v2.js?v=004-no-stale-change"></script>
   <script src="tactics-autosave-v2.js?v=002-synchronous"></script>
   <script src="positioning-engine.v1.js?v=005-braz-guard"></script>
   <script src="tactics-runtime-v1.js?v=003-unified-profile"></script>
@@ -84,5 +85,6 @@
   <script src="season6-result-ui-v1.js?v=001"></script>
   <script src="hero-effects-i18n-v1.js?v=002-awakening"></script>
   <script src="overlord-profile-v1.js?v=001-sixth-unit"></script>
+  <script src="overlord-team-summary-v1.js?v=001-custom-name-totals"></script>
 </body>
 </html>
