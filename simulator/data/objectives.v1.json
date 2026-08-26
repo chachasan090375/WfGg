@@ -1,5 +1,5 @@
 {
-  "version": "1.1.0",
+  "version": "1.2.0",
   "objectives": [
     {
       "id": "wanted-39",
@@ -59,6 +59,40 @@
       }
     },
     {
+      "id": "monster-generic",
+      "label": "Monstres PvE — simulation générique",
+      "mode": "sustained-pve-with-survival",
+      "rules": {
+        "enemyAttacks": true,
+        "typeBonus": null,
+        "targetMetric": "maximize-offensive-output-with-frontline-survival-constraint",
+        "scorePolicy": {
+          "displayedPowerWeight": 0,
+          "attack": "offensive score input",
+          "defense": "survival and frontline-placement input only",
+          "hp": "survival and frontline-placement input only",
+          "include": ["attack","skill-damage","damage-multipliers","crit","attack-speed","cooldown","pve-damage","monster-damage","team-buffs","positional-buffs","monster-specific-research"],
+          "doNotCollapse": "Offense and survivability stay separate until enemy damage and mitigation formulas are calibrated from battle reports."
+        },
+        "placementPolicy": {
+          "evaluateAllPlacements": true,
+          "preferDefenseRoleInFront": true,
+          "frontlineSlots": ["front-left","front-right"],
+          "backlineSlots": ["back-left","back-center","back-right"],
+          "survivalGate": "If the selected squad contains one or more Defense-role heroes, place as many of them as possible in the two frontline slots before maximizing offense."
+        },
+        "research": {
+          "include": ["squad-slot Terminator nodes when their displayed/verified bonus is available"],
+          "excludeByDefault": ["non-combat load and march-speed research"]
+        }
+      },
+      "calibration": {
+        "status": "research-mode",
+        "neededForExactDamagePrediction": ["enemy attack profile","damage mitigation formula","battle duration or kill time","hero skill curves","gear stat curves"],
+        "currentOutput": "relative offensive ranking plus frontline survivability diagnostics; not an exact kill-time prediction"
+      }
+    },
+    {
       "id": "crystal-boss",
       "label": "Crystal Boss — Crystal Event",
       "mode": "single-hit-pve-event",
@@ -79,14 +113,7 @@
           "stacking": true,
           "eligibleHeroes": "dynamic-daily-input"
         },
-        "disabledBuffs": [
-          "War Fever",
-          "Charge Battle Flag",
-          "Tactics Card active skills",
-          "Season Military Rank bonuses",
-          "fish buffs",
-          "PvE Tactics Cards"
-        ],
+        "disabledBuffs": ["War Fever","Charge Battle Flag","Tactics Card active skills","Season Military Rank bonuses","fish buffs","PvE Tactics Cards"],
         "phases": ["Weapon","Radar","Chip","Armor","Core"],
         "scoreRule": "best single hit for weekly damage progress"
       },
@@ -110,14 +137,9 @@
         "exclusiveWeaponFollowsHero": true,
         "squadResearchIsSlotSpecific": true,
         "droneChipPresetAllocationMustBeRespected": true,
-        "positionOptimization": {
-          "enabled": true,
-          "positionsPerSquad": 5,
-          "maxPlacementsPerComposition": 120,
-          "source": "formation-positioning.v1.json"
-        }
+        "positionOptimization": {"enabled":true,"positionsPerSquad":5,"maxPlacementsPerComposition":120,"source":"formation-positioning.v1.json"}
       },
-      "contexts": ["general-pvp","arena-3v3","world-map","season-6"]
+      "contexts": ["general-pvp","arena-3v3","world-map","season-6","monster-generic"]
     }
   ]
 }
