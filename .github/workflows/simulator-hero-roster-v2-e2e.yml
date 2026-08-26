@@ -38,11 +38,13 @@ jobs:
           (async()=>{
             for(let i=0;i<80;i++){
               try{
-                const u=URL+'hero-roster-v2.js?fresh='+Date.now();
-                const t=await fetch(u,{cache:'no-store'}).then(r=>r.ok?r.text():'');
-                if(t.includes("version:'2.0.0'"))break;
+                const [js,cat]=await Promise.all([
+                  fetch(URL+'hero-roster-v2.js?fresh='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.text():''),
+                  fetch(URL+'data/hero-catalog.v2.json?fresh='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.text():'')
+                ]);
+                if(js.includes("version:'2.1.0'")&&cat.includes('"version": "2.1.0"'))break;
               }catch(_){}
-              if(i===79)throw new Error('public preview missing hero roster v2');
+              if(i===79)throw new Error('public preview missing hero roster/catalog 2.1');
               await sleep(1500);
             }
             const browser=await chromium.launch({headless:true});
@@ -52,16 +54,19 @@ jobs:
             await page.goto(URL+'?heroE2E='+Date.now(),{waitUntil:'networkidle',timeout:30000});
             await page.evaluate(()=>localStorage.clear());
             await page.reload({waitUntil:'networkidle',timeout:30000});
-            await page.waitForFunction(()=>window.WfGgHeroRosterV2?.version==='2.0.0',{timeout:12000});
+            await page.waitForFunction(()=>window.WfGgHeroRosterV2?.version==='2.1.0',{timeout:12000});
             await page.locator('#stepNav [data-step="1"]').click();
             await page.waitForSelector('#gameHeroRosterV2 .game-hero-card',{timeout:12000});
             assert(await page.locator('#gameHeroRosterV2 .game-hero-card').count()===31,'31 hero cards expected');
+            assert(await page.locator('[data-hero-id="farhad"]').count()===1,'Farhad must be selectable');
+            assert(await page.locator('[data-hero-id="braz"]').count()===1,'Braz must be selectable');
+            assert(await page.locator('[data-hero-id="blaz"]').count()===0,'Blaz must remain research-only pending client proof');
             await page.locator('[data-filter="tank"]').click();
-            assert(await page.locator('#gameHeroGrid .game-hero-card').count()===12,'12 Tank cards expected');
+            assert(await page.locator('#gameHeroGrid .game-hero-card').count()===13,'13 Tank cards expected');
             await page.locator('[data-filter="aircraft"]').click();
             assert(await page.locator('#gameHeroGrid .game-hero-card').count()===9,'9 Aircraft cards expected');
             await page.locator('[data-filter="missile"]').click();
-            assert(await page.locator('#gameHeroGrid .game-hero-card').count()===10,'10 Missile cards expected including Braz');
+            assert(await page.locator('#gameHeroGrid .game-hero-card').count()===9,'9 Missile cards expected including Braz');
             await page.locator('[data-filter="all"]').click();
             await page.locator('[data-hero-id="kimberly"]').click();
             await page.waitForSelector('#heroGameSheet.open');
@@ -85,7 +90,7 @@ jobs:
             assert(await page.locator('#heroGameSheet [data-edit-field="level"]').inputValue()==='149','Kimberly level lost after reload');
             await page.screenshot({path:'/tmp/wfgg-hero-e2e/hero-roster-v2.png',fullPage:true});
             assert(errors.length===0,'browser errors: '+errors.join(' | '));
-            console.log('WFGG HERO ROSTER V2 E2E COMPLETE');
+            console.log('WFGG HERO ROSTER V2.1 E2E COMPLETE');
             await browser.close();
           })().catch(e=>{console.error(e);process.exit(1)});
           JS
