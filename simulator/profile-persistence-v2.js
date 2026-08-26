@@ -4,6 +4,7 @@
   const TACTICS_KEY='wfgg-simulator-tactics-v2';
   const OPTIMIZER_KEY='wfgg-simulator-optimizer-ui-v1';
   const SCHEMA='wfgg-simulator-profile-v1';
+  const STRUCTURAL_HERO_FIELDS=new Set(['heroId','troopType','role']);
   const nativeGet=Storage.prototype.getItem;
   const nativeSet=Storage.prototype.setItem;
   const parse=v=>{try{return JSON.parse(v)||{};}catch(_){return {};}};
@@ -172,19 +173,14 @@
     if(!el?.matches?.('input,textarea,select'))return;
     if(el.closest?.('#tacticsCardsV2'))return;
     saveMainInput(el);
+    if(e.type==='change'&&el.dataset.field&&el.closest?.('.hero-card')&&!STRUCTURAL_HERO_FIELDS.has(el.dataset.field)){
+      // The value has already been persisted. Prevent app.js's legacy onchange
+      // from re-rendering the entire hero card and erasing sibling inputs.
+      e.stopPropagation();
+    }
   }
   document.addEventListener('input',autosave,{capture:true});
   document.addEventListener('change',autosave,{capture:true});
-
-  // app.js attaches legacy onchange handlers directly on hero controls. Those
-  // handlers update its in-memory object, save the whole profile, and can then
-  // replace the card DOM. Re-apply the detached control's final value after that
-  // handler has completed so event ordering can never erase the user's edit.
-  document.addEventListener('change',e=>{
-    const el=e.target;
-    if(!el?.dataset?.field||!el.closest?.('.hero-card')||el.closest?.('#tacticsCardsV2'))return;
-    try{saveMainInput(el);}catch(_){}
-  },{capture:false});
 
   function commitFocused(){
     const el=document.activeElement;
@@ -200,5 +196,5 @@
   else document.addEventListener('DOMContentLoaded',()=>{new MutationObserver(queueHydrate).observe(document.body,{childList:true,subtree:true});queueHydrate();},{once:true});
 
   migrate();
-  window.WfGgProfilePersistence=Object.freeze({version:'2.4.0',revision:'blank-guard-rehydrate-v3',PROFILE_KEY,TACTICS_KEY,OPTIMIZER_KEY,migrate,commitFocused,rehydrateVisibleForm,profile:()=>clone(profile())});
+  window.WfGgProfilePersistence=Object.freeze({version:'2.5.0',revision:'hero-nonstructural-change-guard-v4',PROFILE_KEY,TACTICS_KEY,OPTIMIZER_KEY,migrate,commitFocused,rehydrateVisibleForm,profile:()=>clone(profile())});
 })();
