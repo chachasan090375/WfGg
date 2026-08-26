@@ -11,8 +11,11 @@ permissions:
 jobs:
   preview-check:
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 15
     steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: design-system-preview-v1
       - name: Wait for Cloudflare premium branch preview
         shell: bash
         run: |
@@ -50,3 +53,14 @@ jobs:
           echo 'WFGG_PREMIUM_DESIGN_PORTAL=OK'
           echo 'WFGG_PREMIUM_DESIGN_GUIDES=OK'
           echo 'WFGG_PREMIUM_DESIGN_TRAIN=OK'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browser QA runtime
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Run premium design browser QA
+        env:
+          WFGG_PREVIEW_ROOT: https://design-system-preview-v1.wfgg.pages.dev
+        run: node .github/qa/design-system-premium-preview-browser.mjs
