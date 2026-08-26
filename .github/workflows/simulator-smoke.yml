@@ -6,7 +6,6 @@ on:
       - simulator-standalone-v1
     paths:
       - 'simulator/**'
-      - 'frontend/simulator/**'
       - '.github/workflows/simulator-smoke.yml'
 
 permissions:
@@ -34,53 +33,50 @@ jobs:
           python3 - <<'PY'
           import json
           from pathlib import Path
-          files = sorted(Path('simulator').rglob('*.json'))
+          files=sorted(Path('simulator').rglob('*.json'))
           for p in files:
-              with p.open('r', encoding='utf-8') as f:
-                  json.load(f)
-              print('json ok', p)
+              with p.open('r',encoding='utf-8') as f: json.load(f)
+              print('json ok',p)
           print(f'{len(files)} JSON files valid')
           PY
 
-      - name: Check local page assets
+      - name: Check page assets
         shell: bash
         run: |
           python3 - <<'PY'
           from html.parser import HTMLParser
           from pathlib import Path
           from urllib.parse import urlparse
-
-          root = Path('simulator')
-          html = (root / 'index.html').read_text(encoding='utf-8')
-
+          root=Path('simulator'); html=(root/'index.html').read_text(encoding='utf-8')
           class P(HTMLParser):
-              def __init__(self):
-                  super().__init__(); self.urls=[]
-              def handle_starttag(self, tag, attrs):
+              def __init__(self): super().__init__(); self.urls=[]
+              def handle_starttag(self,tag,attrs):
                   d=dict(attrs)
-                  if tag == 'script' and d.get('src'): self.urls.append(d['src'])
-                  if tag == 'link' and d.get('href'): self.urls.append(d['href'])
-
-          p=P(); p.feed(html)
-          missing=[]
+                  if tag=='script' and d.get('src'): self.urls.append(d['src'])
+                  if tag=='link' and d.get('href'): self.urls.append(d['href'])
+          p=P();p.feed(html);missing=[]
           for raw in p.urls:
               path=urlparse(raw).path
               if not path or path.startswith('/') or '://' in raw: continue
-              target=root / path
-              if not target.exists(): missing.append((raw, str(target)))
-              else: print('asset ok', raw)
-          if missing:
-              raise SystemExit('Missing assets: '+repr(missing))
+              target=root/path
+              if not target.exists(): missing.append((raw,str(target)))
+              else: print('asset ok',raw)
+          if missing: raise SystemExit('Missing assets: '+repr(missing))
           PY
 
-      - name: Verify Pages mirror
+      - name: Bootstrap ordering guard
         shell: bash
         run: |
-          set -euo pipefail
-          diff -qr simulator frontend/simulator
-          echo 'Pages mirror matches simulator source'
+          python3 - <<'PY'
+          from pathlib import Path
+          s=Path('simulator/app.js').read_text(encoding='utf-8')
+          assert s.index('const clone =') < s.index('let state = loadState()'), 'loadState must run after clone initialization'
+          index=Path('simulator/index.html').read_text(encoding='utf-8')
+          assert index.index('profile-persistence-v2.js') < index.index('app.js'), 'persistence bridge must load before app.js'
+          print('bootstrap ordering ok')
+          PY
 
-      - name: HTTP smoke
+      - name: Local HTTP smoke
         shell: bash
         run: |
           set -euo pipefail
@@ -92,25 +88,7 @@ jobs:
             sleep 0.25
           done
           grep -q 'WfGg · Simulateur' /tmp/wfgg-simulator-index.html
+          curl -fsS http://127.0.0.1:4173/profile-persistence-v2.js | grep -q "version:'2.1.0'"
           curl -fsS http://127.0.0.1:4173/data/tactics-card-catalog.v2.json >/dev/null
           curl -fsS http://127.0.0.1:4173/positioning-engine.v1.js >/dev/null
-          echo 'Simulator HTTP smoke OK'
-
-      - name: Cloudflare branch preview smoke
-        shell: bash
-        run: |
-          set -euo pipefail
-          base='https://simulator-standalone-v1.wfgg.pages.dev/simulator/'
-          ok=0
-          for i in {1..45}; do
-            if curl -fsS "${base}" >/tmp/wfgg-pages-index.html \
-              && grep -q 'WfGg · Simulateur' /tmp/wfgg-pages-index.html \
-              && curl -fsS "${base}data/tactics-card-catalog.v2.json" >/dev/null \
-              && curl -fsS "${base}positioning-engine.v1.js" >/dev/null; then
-              ok=1
-              break
-            fi
-            sleep 2
-          done
-          test "$ok" = 1
-          echo 'Cloudflare simulator branch preview OK'
+          echo 'Simulator source smoke OK'
