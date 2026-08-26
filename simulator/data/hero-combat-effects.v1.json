@@ -1,97 +1,146 @@
 {
-  "version": "1.0.0-research",
+  "version": "1.1.0-research",
   "auditedAt": "2026-08-26",
-  "policy": "Never turn a qualitative hero skill into a numeric score unless the current value/variant is known.",
-  "effects": [
+  "policy": "Never turn a qualitative hero skill into a numeric score unless the current player value/variant is known. Community values are references, not account values.",
+  "engineEffects": [
     {
-      "hero": "Mason",
-      "skill": "Zombie Purge",
-      "status": "production-structure-with-player-value",
-      "contexts": ["monster-generic","wanted"],
-      "selector": "back-row",
-      "targetFilter": {"troopType":"tank"},
-      "stat": "monsterDamage",
-      "valueSourceField": "positionalPveBuffPct",
-      "sources": [
-        {"authority":"platform-localized","url":"https://play.google.com/store/apps/editorial?id=mc_games_editorialevergreen_postinstall_troops_in_last_war_survival_fcp"},
-        {"authority":"community-detailed","url":"https://lastwar-guide.org/heroes/mason"}
-      ]
-    },
-    {
-      "hero": "Marshall",
-      "skill": "Command Strategy",
-      "status": "researched-await-current-value-input",
-      "contexts": ["all-combat"],
+      "id": "marshall-command-strategy-team-attack",
+      "providerHeroId": "Marshall",
       "selector": "all-allies",
       "stat": "attack",
-      "timed": true,
-      "researchReference": {"attackPct":16.5,"durationSeconds":6,"cooldownSeconds":12},
-      "warning": "Reference values are not assumed to match every star/skill/weapon state. Do not score until current Attack %, duration and cooldown/skill-cycle state are represented.",
-      "sources": [
-        {"authority":"community-detailed","url":"https://lastwar.wiki/heroes/marshall/"},
-        {"authority":"community-detailed","url":"https://theriagames.com/guide/last-war-survival-marshall-guide/"}
-      ]
+      "valueSourceField": "teamAttackBuffPct",
+      "durationSourceField": "teamAttackBuffDurationSeconds",
+      "cooldownSourceField": "teamAttackBuffCooldownSeconds",
+      "timeAggregation": "average-uptime",
+      "stacking": "percent",
+      "contexts": ["pve"],
+      "confidence": "verified",
+      "notes": "Command Strategy increases all team members' Attack for a timed window. WfGg uses the player's displayed Attack %, duration and cooldown; the averaged uptime is a research proxy, not exact cast-timeline simulation."
     },
+    {
+      "id": "sarah-ssr-mg-symphony-back-row-monster-damage",
+      "providerHeroId": "Sarah",
+      "providerRarity": "SSR",
+      "selector": "back-row",
+      "stat": "monsterDamage",
+      "valueSourceField": "positionalPveBuffPct",
+      "durationSourceField": "positionalPveBuffDurationSeconds",
+      "cooldownSourceField": "positionalPveBuffCooldownSeconds",
+      "timeAggregation": "average-uptime",
+      "stacking": "percent",
+      "contexts": ["pve"],
+      "confidence": "verified",
+      "notes": "SSR Sarah MG Symphony buffs the three back-row units against Monsters for a timed window. Current displayed value/duration/cooldown are required."
+    },
+    {
+      "id": "sarah-ur-falcon-strike-back-row-aircraft-monster-damage",
+      "providerHeroId": "Sarah",
+      "providerRarity": "UR",
+      "selector": "back-row",
+      "troopTypeFilter": "aircraft",
+      "stat": "monsterDamage",
+      "valueSourceField": "positionalPveBuffPct",
+      "stacking": "percent",
+      "contexts": ["pve"],
+      "confidence": "verified",
+      "notes": "UR Sarah Falcon Strike passively increases back-row Aircraft heroes' Damage to monsters. Player current displayed percentage is used."
+    },
+    {
+      "id": "sarah-ur-airspace-supremacy-aircraft-attack",
+      "providerHeroId": "Sarah",
+      "providerRarity": "UR",
+      "selector": "all-allies",
+      "troopTypeFilter": "aircraft",
+      "stat": "attack",
+      "valueSourceField": "typeAttackBuffPct",
+      "durationSourceField": "typeAttackBuffDurationSeconds",
+      "cooldownSourceField": "typeAttackBuffCooldownSeconds",
+      "timeAggregation": "average-uptime",
+      "stacking": "percent",
+      "contexts": ["pve"],
+      "confidence": "verified",
+      "notes": "UR Sarah Airspace Supremacy buffs allied Aircraft Attack for a timed window. WfGg requires the current displayed Attack %, duration and cooldown instead of assuming a max-level curve."
+    }
+  ],
+  "diagnosticEffects": [
     {
       "hero": "Marshall",
       "skill": "Rapid Start",
-      "status": "researched-await-current-value-input",
-      "contexts": ["all-combat"],
+      "status": "recognized-not-scored-yet",
       "selector": "highest-atk",
-      "stat": "cooldownSpeed",
-      "researchReference": {"cooldownSpeedPct":30},
-      "warning": "The defensive part of Rapid Start must not be converted into Code offense. Current star/skill value required before scoring.",
-      "sources": [{"authority":"community-detailed","url":"https://lastwar.wiki/heroes/marshall/"}]
-    },
-    {
-      "hero": "Sarah",
-      "variant": "UR",
-      "skill": "Falcon Strike",
-      "status": "researched-await-variant-and-current-value-input",
-      "contexts": ["monster-generic","wanted-if-target-qualifies-as-monster"],
-      "selector": "back-row",
-      "targetFilter": {"troopType":"aircraft"},
-      "stat": "monsterDamage",
-      "researchReference": {"maxGuideValuePct":25.5},
-      "warning": "Do not reuse this value for SSR Sarah. SSR and UR skills are separate variants.",
-      "sources": [{"authority":"community-current","url":"https://cpt-hedge.com/guides/season-4-sarah-ur-promotion"}]
-    },
-    {
-      "hero": "Sarah",
-      "variant": "UR",
-      "skill": "Airspace Supremacy",
-      "status": "researched-await-current-value-input",
-      "contexts": ["all-combat"],
-      "selector": "all-aircraft-allies",
-      "stat": "attack",
-      "timed": true,
-      "researchReference": {"maxGuideAttackPct":15,"durationSeconds":9},
-      "sources": [{"authority":"community-current","url":"https://cpt-hedge.com/guides/season-4-sarah-ur-promotion"}]
+      "stat": "skillCooldownSpeed",
+      "valueSourceField": "highestAtkSkillCooldownSpeedPct",
+      "reason": "Cooldown speed changes only skill-cycle output. Applying it to all displayed ATK would overstate the effect until the share of damage coming from skills is modeled."
     },
     {
       "hero": "Monica",
-      "status": "official-qualitative-await-current-value",
-      "contexts": ["monster-generic"],
+      "skill": "Treasure Hunter",
+      "status": "use-generic-self-monster-damage-input",
       "stat": "monsterDamage",
-      "sources": [{"authority":"platform-localized","url":"https://play.google.com/store/apps/editorial?id=mc_games_editorialevergreen_postinstall_troops_in_last_war_survival_fcp"}],
-      "note": "Google Play describes Weak Spot Scan/Treasure Hunter as monster-specific utility, but WfGg does not infer a current percentage."
+      "valueSourceField": "monsterDamagePct",
+      "reason": "The passive boosts Monica's damage against monsters; the current displayed percentage is entered on Monica herself."
     },
     {
-      "hero": "Braz",
-      "status": "official-qualitative-await-current-value",
-      "contexts": ["monster-generic"],
+      "hero": "Monica",
+      "skill": "Weak Spot Scan",
+      "status": "recognized-not-scored-yet",
+      "stat": "monster-target-damage-window",
+      "reason": "Published wording confirms extra damage to monster targets but does not safely establish whether the timed increase is a self-only modifier or a target-wide debuff for all allies."
+    },
+    {
+      "hero": "Blaz",
+      "aliases": ["Braz"],
+      "skill": "Zombie Killer",
+      "status": "use-generic-self-monster-damage-input",
       "stat": "monsterDamage",
-      "sources": [{"authority":"platform-localized","url":"https://play.google.com/store/apps/editorial?id=mc_games_editorialevergreen_postinstall_troops_in_last_war_survival_fcp"}],
-      "note": "Zombie Killer is described as boosting damage to monsters; exact current value is not guessed."
+      "valueSourceField": "monsterDamagePct",
+      "reason": "The passive boosts this hero's damage to Monsters; the current displayed percentage is entered on the hero."
     },
     {
       "hero": "Elsa",
-      "status": "official-qualitative-survival-layer",
-      "contexts": ["monster-generic"],
-      "selector": "all-allies",
+      "skill": "Special Armor",
+      "status": "survival-diagnostic-only",
       "stat": "monsterDamageReduction",
-      "sources": [{"authority":"platform-localized","url":"https://play.google.com/store/apps/editorial?id=mc_games_editorialevergreen_postinstall_troops_in_last_war_survival_fcp"}],
-      "note": "This belongs to monster survivability, never to the offensive Code score."
+      "valueSourceField": "monsterDamageReductionPct",
+      "reason": "This is a survivability modifier and must never inflate Wanted Code offense."
+    },
+    {
+      "hero": "Elsa",
+      "skill": "Armor Boost",
+      "status": "survival-diagnostic-only",
+      "selector": "front-row",
+      "stat": "monsterDamageReduction",
+      "valueSourceField": "frontRowMonsterDamageReductionPct",
+      "durationSourceField": "frontRowMonsterDamageReductionDurationSeconds",
+      "cooldownSourceField": "frontRowMonsterDamageReductionCooldownSeconds",
+      "reason": "Front-row monster mitigation is collected for the future calibrated survival model, but is not converted into fake power today."
+    }
+  ],
+  "references": [
+    {
+      "hero": "Marshall",
+      "source": "https://lastwar.wiki/heroes/marshall/",
+      "observed": "Command Strategy +16.50% Attack for 6s, 12s cooldown at the referenced state; Rapid Start +30% skill cooldown speed to the highest-ATK hero at the referenced state."
+    },
+    {
+      "hero": "Sarah",
+      "source": "https://cpt-hedge.com/guides/season-4-sarah-ur-promotion",
+      "observed": "UR Airspace Supremacy boosts Aircraft Attack and UR Falcon Strike boosts back-row Aircraft monster damage; SSR MG Symphony is a distinct timed back-row monster buff."
+    },
+    {
+      "hero": "Monica",
+      "source": "https://play.google.com/store/apps/editorial?id=mc_games_editorialevergreen_postinstall_troops_in_last_war_survival_fcp",
+      "observed": "Treasure Hunter boosts damage against monsters; Weak Spot Scan gains extra damage if the target is a monster."
+    },
+    {
+      "hero": "Blaz",
+      "source": "https://play.google.com/store/apps/editorial?id=mc_games_editorialevergreen_postinstall_troops_in_last_war_survival_fcp",
+      "observed": "Zombie Killer boosts damage to monsters."
+    },
+    {
+      "hero": "Elsa",
+      "source": "https://play.google.com/store/apps/editorial?id=mc_games_editorialevergreen_postinstall_troops_in_last_war_survival_fcp",
+      "observed": "Armor Boost protects the front row and Special Armor reduces monster damage taken."
     }
   ]
 }
