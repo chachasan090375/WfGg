@@ -1,0 +1,35 @@
+name: Simulator hero UI public probe v3
+
+on:
+  push:
+    branches:
+      - simulator-standalone-v1
+    paths:
+      - '.github/workflows/simulator-hero-ui-public-probe-v3.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - name: Wait for Cloudflare preview UI v3
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://simulator-standalone-v1.wfgg.pages.dev/simulator/'
+          ok=0
+          for i in $(seq 1 90); do
+            js=$(curl -fsSL --max-time 15 "$base/hero-roster-v2.js?probe=$RANDOM" || true)
+            css=$(curl -fsSL --max-time 15 "$base/hero-roster-v2.css?probe=$RANDOM" || true)
+            if grep -q "version:'3.0.0'" <<<"$js" && grep -q 'heroSelectAll' <<<"$js" && grep -q 'hero-select-dot' <<<"$css" && ! grep -q 'hero-card-info' <<<"$js"; then
+              echo 'PUBLIC HERO UI V3 CONFIRMED'
+              ok=1
+              break
+            fi
+            sleep 2
+          done
+          test "$ok" = 1
