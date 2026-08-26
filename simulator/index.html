@@ -58,6 +58,7 @@
         <label><span data-ui="heroStars">Étoiles</span><input data-field="stars" type="number" min="0" max="5" step="0.1" inputmode="decimal" /></label>
         <label class="optimizer-input"><span data-opt-label="attack">ATK affichée</span><input data-field="displayedAttack" type="number" min="0" step="1" inputmode="numeric" /><small data-opt-help="attack">Ancre offensive pour les Codes.</small></label>
         <label class="optimizer-input reference-only"><span data-opt-label="power">Puissance affichée</span><input data-field="displayedPower" type="number" min="0" step="1" inputmode="numeric" /><small data-opt-help="power">Référence uniquement · poids 0 dans les Codes.</small></label>
+        <label class="optimizer-input"><span data-opt-label="positionalBuff">Buff positionnel PvE affiché (%)</span><input data-field="positionalPveBuffPct" type="number" min="0" step="0.01" inputmode="decimal" /><small data-opt-help="positionalBuff">Utilisé seulement si ce héros possède un effet positionnel audité (ex. Mason).</small></label>
         <label><span data-ui="heroEw">Arme exclusive · niveau</span><input data-field="exclusiveWeaponLevel" type="number" min="0" max="40" inputmode="numeric" /></label>
         <label><span data-ui="heroWall">Wall of Honor · niveau</span><input data-field="wallOfHonorLevel" type="number" min="0" max="999" inputmode="numeric" /></label>
         <label class="toggle-field"><span data-ui="heroAwakening">Awakening débloqué</span><input data-field="awakeningUnlocked" type="checkbox" /></label>
@@ -80,8 +81,8 @@
     </article>
   </template>
 
-  <script src="positioning-engine.v1.js?v=001"></script>
+  <script src="positioning-engine.v1.js?v=002"></script>
   <script src="app.js?v=001"></script>
-  <script src="optimizer-ui-v1.js?v=001"></script>
+  <script src="optimizer-ui-v1.js?v=002"></script>
 </body>
 </html>
