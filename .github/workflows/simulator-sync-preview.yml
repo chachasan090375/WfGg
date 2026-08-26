@@ -1,0 +1,39 @@
+name: Sync simulator preview
+
+on:
+  push:
+    branches:
+      - simulator-standalone-v1
+    paths:
+      - 'simulator/**'
+      - '.github/workflows/simulator-sync-preview.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: simulator-standalone-v1
+          fetch-depth: 0
+
+      - name: Mirror simulator into Pages output
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf frontend/simulator
+          mkdir -p frontend
+          cp -a simulator frontend/simulator
+          if git diff --quiet -- frontend/simulator; then
+            echo 'Preview mirror already synchronized'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add frontend/simulator
+          git commit -m 'preview: sync simulator into Pages output'
+          git push origin HEAD:simulator-standalone-v1
