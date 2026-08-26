@@ -19,24 +19,14 @@ jobs:
         with:
           ref: simulator-standalone-v1
           fetch-depth: 0
-      - name: Download official Last War semantic icons
-        shell: bash
-        run: |
-          set -euo pipefail
-          mkdir -p simulator/assets/icons/lastwar
-          base='https://www.lastwar.com/fr/img/heroes/skill'
-          for name in Tank Aircraft Missile Attack Defense Support; do
-            curl -fL --retry 3 --retry-delay 1 "$base/$name.png" -o "simulator/assets/icons/lastwar/$name.png"
-            test -s "simulator/assets/icons/lastwar/$name.png"
-            file "simulator/assets/icons/lastwar/$name.png" | grep -qi PNG
-          done
-      - name: Validate V15 source
+      - name: Validate V15C source and official icons
         run: |
           node --check simulator/hero-roster-v15.js
+          grep -Fq 'wfgg-v15-motion-layer' simulator/hero-roster-v15.js
           grep -Fq 'wfgg-v15-character-live' simulator/hero-roster-v15.css
-          grep -Fq 'wfgg-v15-card-semantics' simulator/hero-roster-v15.js
+          test "$(find simulator/assets/icons/lastwar -name '*.png' | wc -l)" -eq 6
           grep -Fq "murphy:{x:'1%',y:'-20%',zoom:1.55}" simulator/hero-roster-v15.js
-      - name: Wire V15
+      - name: Wire V15C
         run: |
           python3 .github/scripts/patch-simulator-hero-roster-v15.py
           mkdir -p frontend/simulator/assets/icons/lastwar
@@ -44,33 +34,31 @@ jobs:
       - name: Validate bundle
         run: |
           node --check frontend/simulator/hero-roster-v15.js
-          grep -Fq 'hero-roster-v15.css?v=015b-stable-official-icons-motion' simulator/index.html
-          grep -Fq 'hero-roster-v15.js?v=015b-stable-official-icons-motion' frontend/simulator/index.html
-          test "$(find frontend/simulator/assets/icons/lastwar -name '*.png' | wc -l)" -eq 6
-      - name: Commit V15 bundle
+          grep -Fq 'hero-roster-v15.css?v=015c-dedicated-portrait-motion' simulator/index.html
+          grep -Fq 'hero-roster-v15.js?v=015c-dedicated-portrait-motion' frontend/simulator/index.html
+      - name: Commit V15C bundle
         shell: bash
         run: |
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add simulator/index.html simulator/UI_VERSION.txt simulator/assets/icons/lastwar frontend/simulator/index.html frontend/simulator/hero-roster-v15.js frontend/simulator/hero-roster-v15.css frontend/simulator/assets/icons/lastwar
+          git add simulator/index.html simulator/UI_VERSION.txt frontend/simulator/index.html frontend/simulator/hero-roster-v15.js frontend/simulator/hero-roster-v15.css frontend/simulator/assets/icons/lastwar
           git diff --cached --check
           if ! git diff --cached --quiet; then
-            git commit -m 'simulator: stabilize v15 official icons and motion'
+            git commit -m 'simulator: enable v15c dedicated portrait motion layer'
             git fetch origin simulator-standalone-v1
             git rebase origin/simulator-standalone-v1
             git push origin HEAD:simulator-standalone-v1
           fi
-      - name: Wait for Cloudflare V15B
+      - name: Wait for Cloudflare V15C
         shell: bash
         run: |
           set -euo pipefail
           root='https://simulator-standalone-v1.wfgg.pages.dev/simulator'
           ok=0
           for i in $(seq 1 70); do
-            curl -fsSL "$root/?hero_v15b=$i" -o /tmp/index.html || true
-            curl -fsSL "$root/assets/icons/lastwar/Tank.png?v=$i" -o /tmp/tank.png || true
-            if grep -Fq 'hero-roster-v15.js?v=015b-stable-official-icons-motion' /tmp/index.html && [ -s /tmp/tank.png ]; then ok=1; break; fi
+            curl -fsSL "$root/?hero_v15c=$i" -o /tmp/index.html || true
+            if grep -Fq 'hero-roster-v15.js?v=015c-dedicated-portrait-motion' /tmp/index.html; then ok=1; break; fi
             sleep 3
           done
           test "$ok" = 1
@@ -78,7 +66,7 @@ jobs:
         run: |
           npm install --no-save playwright@1.55.0
           npx playwright install --with-deps chromium
-      - name: Android V15B visual behavior recette
+      - name: Android V15C visual behavior recette
         run: |
           node <<'JS'
           const assert=require('node:assert/strict');
@@ -89,19 +77,25 @@ jobs:
               const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,deviceScaleFactor:2,locale:'fr-FR'});
               await context.addInitScript(()=>localStorage.setItem('wfgg-simulator-profile-v1',JSON.stringify({locale:'fr',step:1,account:{hqLevel:35},heroes:[],gear:[],research:{},season6:{},metadata:{schema:'wfgg-simulator-profile-v1'}})));
               const page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(String(e)));
-              await page.goto('https://simulator-standalone-v1.wfgg.pages.dev/simulator/?hero_v15b_e2e=1',{waitUntil:'networkidle',timeout:60000});
+              await page.goto('https://simulator-standalone-v1.wfgg.pages.dev/simulator/?hero_v15c_e2e=1',{waitUntil:'networkidle',timeout:60000});
               const cards=page.locator('#gameHeroGrid .game-hero-card');await cards.first().waitFor({state:'visible',timeout:30000});assert.equal(await cards.count(),31);
-              await page.waitForFunction(()=>window.WfGgHeroMotionOwner==='v15'&&[...document.querySelectorAll('#gameHeroGrid .game-hero-card')].every(c=>c.dataset.wfggV15Crop&&c.querySelector(':scope > .wfgg-v15-card-semantics')),{timeout:10000});
+              await page.waitForFunction(()=>window.WfGgHeroMotionOwner==='v15'&&window.WfGgHeroRosterV15?.version==='15.2.0'&&[...document.querySelectorAll('#gameHeroGrid .game-hero-card')].every(c=>c.dataset.wfggV15Crop&&c.querySelector('.wfgg-v15-motion-layer')&&c.querySelector(':scope > .wfgg-v15-card-semantics')),{timeout:10000});
               const iconCount=await page.locator('#gameHeroGrid > .game-hero-card > .wfgg-v15-card-semantics .wfgg-v15-semantic-icon img').count();assert.equal(iconCount,62);
               const badIcon=await page.locator('#gameHeroGrid > .game-hero-card > .wfgg-v15-card-semantics .wfgg-v15-semantic-icon img').evaluateAll(imgs=>imgs.filter(i=>!i.complete||i.naturalWidth<4).length);assert.equal(badIcon,0);
               const colors=await page.evaluate(()=>Object.fromEntries(['UR','SSR','SR'].map(r=>{const c=document.querySelector(`#gameHeroGrid .rarity-${r} .hero-card-footer`);return[r,getComputedStyle(c).backgroundImage]})));assert.notEqual(colors.UR,colors.SSR);assert.notEqual(colors.SSR,colors.SR);assert.notEqual(colors.UR,colors.SR);
               const crop=await page.evaluate(()=>Object.fromEntries(['williams','murphy','kimberly','schuyler','morrison','fiona','adam','monica'].map(id=>{const c=document.querySelector(`[data-hero-id="${id}"]`);return[id,{y:c.style.getPropertyValue('--wfgg-v15-y'),z:c.style.getPropertyValue('--wfgg-v15-zoom')}]})));assert.equal(crop.murphy.y,'-20%');assert.equal(crop.schuyler.y,'5%');assert.equal(crop.monica.y,'5%');
               const shadowCard=page.locator('#gameHeroGrid .game-hero-card.rarity-UR').first();const shadow0=await shadowCard.evaluate(el=>getComputedStyle(el).boxShadow);
-              await page.waitForFunction(()=>document.querySelector('#gameHeroGrid .wfgg-v15-live'),{timeout:7000});
-              const live=page.locator('#gameHeroGrid .wfgg-v15-live').first();const img=live.locator('.hero-card-portrait img');const anim=await img.evaluate(el=>getComputedStyle(el).animationName);assert.match(anim,/wfgg-v15-character-live/);const t0=await img.evaluate(el=>getComputedStyle(el).transform);await page.waitForTimeout(950);const t1=await img.evaluate(el=>getComputedStyle(el).transform);assert.notEqual(t0,t1,'portrait transform did not visibly change');const shadow1=await shadowCard.evaluate(el=>getComputedStyle(el).boxShadow);assert.equal(shadow1,shadow0,'frame shadow changed during hero animation');
-              const phases=[];await page.exposeFunction('captureV15',v=>phases.push(v));await page.evaluate(()=>new MutationObserver(()=>window.captureV15({phase:document.documentElement.dataset.wfggV15Phase,count:document.querySelectorAll('#gameHeroGrid .wfgg-v15-live').length})).observe(document.documentElement,{attributes:true,attributeFilter:['data-wfgg-v15-phase']}));await page.waitForFunction(()=>[...document.querySelectorAll('#gameHeroGrid .game-hero-card')].every(c=>c.dataset.wfggV15Seen==='1'),{timeout:32000});assert.equal(await page.locator('#gameHeroGrid .game-hero-card[data-wfgg-v15-seen="1"]').count(),31);assert.ok(phases.some(x=>x.phase==='rest'&&x.count===0),'no clean rest phase between groups');
+              await page.waitForFunction(()=>document.documentElement.dataset.wfggV15Phase==='rest',{timeout:5000}).catch(()=>{});
+              await page.waitForFunction(()=>document.documentElement.dataset.wfggV15Phase==='active'&&document.querySelector('#gameHeroGrid .wfgg-v15-live .wfgg-v15-motion-layer'),{timeout:5000});
+              const motion=page.locator('#gameHeroGrid .wfgg-v15-live .wfgg-v15-motion-layer').first();
+              const anim=await motion.evaluate(el=>getComputedStyle(el).animationName);assert.match(anim,/wfgg-v15-character-live/);
+              const samples=[];for(let i=0;i<5;i++){samples.push(await motion.evaluate(el=>getComputedStyle(el).transform));await page.waitForTimeout(230)}
+              assert.ok(new Set(samples).size>=3,`portrait motion layer remained static: ${samples.join(' | ')}`);
+              const shadow1=await shadowCard.evaluate(el=>getComputedStyle(el).boxShadow);assert.equal(shadow1,shadow0,'frame shadow changed during hero animation');
+              const phases=[];await page.exposeFunction('captureV15',v=>phases.push(v));await page.evaluate(()=>new MutationObserver(()=>window.captureV15({phase:document.documentElement.dataset.wfggV15Phase,count:document.querySelectorAll('#gameHeroGrid .wfgg-v15-live').length})).observe(document.documentElement,{attributes:true,attributeFilter:['data-wfgg-v15-phase']}));
+              await page.waitForFunction(()=>[...document.querySelectorAll('#gameHeroGrid .game-hero-card')].every(c=>c.dataset.wfggV15Seen==='1'),{timeout:32000});assert.equal(await page.locator('#gameHeroGrid .game-hero-card[data-wfgg-v15-seen="1"]').count(),31);assert.ok(phases.some(x=>x.phase==='rest'&&x.count===0),'no clean rest phase between groups');
               await page.locator('#gameHeroGrid .game-hero-card').first().click();await page.locator('#heroGameSheet.open').waitFor({state:'visible',timeout:5000});await page.waitForFunction(()=>document.querySelectorAll('#heroGameSheet.open .wfgg-v15-sheet-semantics .wfgg-v15-semantic-icon img').length>=2,{timeout:3000});const sheetIcons=await page.locator('#heroGameSheet.open .wfgg-v15-sheet-semantics .wfgg-v15-semantic-icon img').count();assert.ok(sheetIcons>=2);
-              const metric=await page.evaluate(()=>({w:innerWidth,sw:(document.scrollingElement||document.documentElement).scrollWidth}));assert.ok(metric.sw<=metric.w+2);assert.equal(errors.length,0,errors.join(' | '));console.log(JSON.stringify({ok:true,cards:31,iconCount,anim,motionChanged:t0!==t1,frameStable:true,colors,crop,sheetIcons,metric},null,2));
+              const metric=await page.evaluate(()=>({w:innerWidth,sw:(document.scrollingElement||document.documentElement).scrollWidth}));assert.ok(metric.sw<=metric.w+2);assert.equal(errors.length,0,errors.join(' | '));console.log(JSON.stringify({ok:true,cards:31,iconCount,anim,motionSamples:[...new Set(samples)],frameStable:true,colors,crop,sheetIcons,metric},null,2));
             }finally{await browser.close()}
           })().catch(e=>{console.error(e);process.exit(1)});
           JS
