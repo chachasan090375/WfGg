@@ -1,0 +1,10 @@
+(() => {
+'use strict';
+const UI_KEY='wfgg-simulator-optimizer-ui-v1';
+const T={fr:{title:'Cartes tactiques appliquées',none:'Aucune carte tactique ne modifie cet objectif.',ignored:'ignorée',season:'S6',off:'intersaison'},en:{title:'Applied Tactics Cards',none:'No Tactics Card modifies this objective.',ignored:'ignored',season:'S6',off:'off-season'},it:{title:'Carte tattiche applicate',none:'Nessuna Carta Tattica modifica questo obiettivo.',ignored:'ignorata',season:'S6',off:'fuori stagione'},es:{title:'Cartas tácticas aplicadas',none:'Ninguna Carta Táctica modifica este objetivo.',ignored:'ignorada',season:'S6',off:'intertemporada'}};
+const lang=()=>T[document.documentElement.lang]?document.documentElement.lang:'fr',t=k=>T[lang()][k]||T.fr[k]||k,esc=v=>String(v??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function objective(){try{return(JSON.parse(localStorage.getItem(UI_KEY))||{}).objective||'wanted-39';}catch(_){return'wanted-39';}}
+function line(a){const vals=Object.entries(a.values||{}).map(([k,v])=>`${k} +${Number(v).toFixed(2)}`).join(' · ');return `<span>${esc(a.cardId)}${vals?' · '+esc(vals):''}</span>`;}
+function render(){const out=document.querySelector('#optimizerResult'),runtime=window.WfGgTacticsRuntime;if(!out||!runtime)return;let box=out.querySelector('.tactics-result-trace');const r=runtime.resolve(objective());if(!box){box=document.createElement('div');box.className='tactics-result-trace';out.appendChild(box);}const phase=r.phase==='offseason'?t('off'):t('season');const applied=(r.applied||[]).filter(x=>Object.keys(x.values||{}).length);const ignored=(r.ignored||[]).filter(x=>x.reason==='inactive-in-current-phase'||x.reason==='context-mismatch');box.innerHTML=`<strong>${esc(t('title'))} · ${esc(phase)}</strong>${applied.length?applied.map(line).join(''):`<span>${esc(t('none'))}</span>`}${ignored.length?`<span>${ignored.length} ${esc(t('ignored'))}</span>`:''}`;}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setInterval(render,700));else setInterval(render,700);
+})();
