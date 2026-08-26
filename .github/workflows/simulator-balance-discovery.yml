@@ -1,0 +1,141 @@
+name: Simulator balance discovery
+
+on:
+  push:
+    branches: [simulator-standalone-v1]
+    paths:
+      - '.github/workflows/simulator-balance-discovery.yml'
+      - '.github/BALANCE_DISCOVERY_TRIGGER.txt'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: simulator-standalone-v1
+          fetch-depth: 0
+
+      - name: Query public Last War version metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/wfgg-balance simulator/research
+          base='https://lastwar-serverlist-cf.lastwarapp.net/gameservice/getlsu3dversion.php'
+          url="$base?packageName=com.fun.lastwar.gp&platform=Android&appVersion=1.0.351&gm=0&server=&uid=&deviceId=&table_env=&buildId=1835&returnJson=1&unityVersion=440"
+          curl --fail --silent --show-error --location --retry 3 --connect-timeout 15 --max-time 45 "$url" -o /tmp/wfgg-balance/version.json
+          python3 - <<'PY'
+          import json, pathlib
+          src = json.load(open('/tmp/wfgg-balance/version.json', encoding='utf-8'))
+          # Keep only public update metadata. Never persist resMsg, tokens, IDs or account/session data.
+          allowed = ['code','msg','updateType','downloadurl','hotUpdateMsg','lwfile2','table_version','client_config','appVersion','version']
+          out = {k: src.get(k) for k in allowed if k in src}
+          out['source'] = 'public getlsu3dversion.php; anonymous request; no account credentials'
+          pathlib.Path('simulator/research/public-balance-discovery.json').write_text(json.dumps(out, ensure_ascii=False, indent=2)+"\n", encoding='utf-8')
+          print(json.dumps(out, ensure_ascii=False, indent=2))
+          if not src.get('table_version'):
+              raise SystemExit('table_version missing from public response')
+          PY
+
+      - name: Probe table archive candidates
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY' > /tmp/wfgg-balance/candidates.txt
+          import json, re
+          d=json.load(open('/tmp/wfgg-balance/version.json'))
+          desc=str(d.get('table_version','')).split(';')[0]
+          parts=desc.split(',')
+          version=parts[0].strip() if parts else ''
+          md5=parts[2].strip() if len(parts)>2 else ''
+          download=str(d.get('downloadurl','') or '').strip()
+          names=[]
+          if version and md5:
+              names += [f'table_{version}_{md5}.data', f'table_{version}.data']
+          if download:
+              if download.endswith('.data'): print(download)
+              for n in names: print(download.rstrip('/')+'/'+n)
+          for base in [
+              'https://lastwar-cdn.akamaized.net/hotupdate',
+              'https://lastwar-cdn.lastwarapp.net/hotupdate',
+              'https://cdn.lastwar.com/hotupdate']:
+              for n in names:
+                  print(base+'/'+n)
+                  print(base+'/table/'+n)
+          PY
+          : > /tmp/wfgg-balance/probe.tsv
+          found=''
+          while IFS= read -r u; do
+            [[ -z "$u" ]] && continue
+            code=$(curl -L -sS -o /tmp/wfgg-balance/candidate.data -w '%{http_code}' --connect-timeout 10 --max-time 40 "$u" || true)
+            size=$(wc -c </tmp/wfgg-balance/candidate.data 2>/dev/null || echo 0)
+            magic=$(xxd -p -l 8 /tmp/wfgg-balance/candidate.data 2>/dev/null || true)
+            printf '%s\t%s\t%s\t%s\n' "$code" "$size" "$magic" "$u" >> /tmp/wfgg-balance/probe.tsv
+            if [[ "$code" == 200 && "$size" -gt 10000 && ( "$magic" == 504b0304* || "$magic" == 43484143* ) ]]; then
+              cp /tmp/wfgg-balance/candidate.data /tmp/wfgg-balance/table.data
+              printf '%s' "$u" > /tmp/wfgg-balance/found_url.txt
+              found=1
+              break
+            fi
+          done < /tmp/wfgg-balance/candidates.txt
+          python3 - <<'PY'
+          import json, pathlib
+          rows=[]
+          p=pathlib.Path('/tmp/wfgg-balance/probe.tsv')
+          if p.exists():
+              for line in p.read_text().splitlines():
+                  code,size,magic,url=line.split('\t',3)
+                  rows.append({'http':int(code or 0),'bytes':int(size or 0),'magic':magic,'url':url})
+          pathlib.Path('simulator/research/public-balance-probe.json').write_text(json.dumps({'candidates':rows},indent=2)+"\n")
+          PY
+          if [[ -z "$found" ]]; then
+            echo 'No table archive candidate resolved yet; metadata discovery is still useful.'
+            exit 0
+          fi
+          echo "FOUND $(cat /tmp/wfgg-balance/found_url.txt)"
+
+      - name: Inspect plain ZIP table archive
+        if: ${{ hashFiles('/tmp/wfgg-balance/table.data') != '' }}
+        shell: bash
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          magic=$(xxd -p -l 4 /tmp/wfgg-balance/table.data)
+          if [[ "$magic" != 504b0304* ]]; then
+            echo "Archive is wrapped ($magic); leave deobfuscation for audited follow-up."
+            exit 0
+          fi
+          mkdir -p /tmp/wfgg-balance/tables
+          unzip -q /tmp/wfgg-balance/table.data -d /tmp/wfgg-balance/tables
+          find /tmp/wfgg-balance/tables -maxdepth 1 -type f -printf '%f\n' | sort > simulator/research/public-table-file-list.txt
+          find /tmp/wfgg-balance/tables -maxdepth 1 -type f \( -iname '*hero*' -o -iname '*skill*' -o -iname '*rank*' -o -iname '*star*' -o -iname '*weapon*' \) -printf '%f\n' | sort > simulator/research/public-hero-table-candidates.txt
+          echo '=== HERO TABLE CANDIDATES ==='
+          cat simulator/research/public-hero-table-candidates.txt
+          mkdir -p simulator/research/client-table-samples
+          while IFS= read -r f; do
+            [[ -z "$f" ]] && continue
+            # Persist text tables only, capped to relevant small/medium files. No player/session data exists in these balance tables.
+            src="/tmp/wfgg-balance/tables/$f"
+            if file "$src" | grep -qi text && [[ $(wc -c < "$src") -le 2000000 ]]; then
+              cp "$src" "simulator/research/client-table-samples/$f"
+            fi
+          done < simulator/research/public-hero-table-candidates.txt
+
+      - name: Commit sanitized public balance discovery
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add simulator/research/public-balance-discovery.json simulator/research/public-balance-probe.json
+          git add simulator/research/public-table-file-list.txt simulator/research/public-hero-table-candidates.txt simulator/research/client-table-samples 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo 'No discovery changes to commit.'
+          else
+            git commit -m 'simulator: capture public balance table metadata'
+            git push origin HEAD:simulator-standalone-v1
+          fi
