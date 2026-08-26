@@ -1,13 +1,33 @@
 {
-  "version": "1.0.0-research",
+  "version": "1.1.0-research",
   "auditedAt": "2026-08-26",
   "purpose": "Define a layered, rarity-aware hero progression model before replacing displayed account stats with reconstructed native hero stats.",
+  "nativeDataDiscovery": {
+    "status": "embedded-datatable-verified-schema-extraction-pending",
+    "client": {"package":"com.fun.lastwar.gp","version":"1.0.359","buildId":1864},
+    "embeddedTable": {
+      "path": "assets/table/table_38781_cfcbee99d7064f86d09dd682babdbc2b.data",
+      "version": 38781,
+      "bytes": 19270680,
+      "md5": "cfcbee99d7064f86d09dd682babdbc2b",
+      "sha256": "be74b18971508b511c3fb306572dae330af85b4e7ae105143056638233b085e1",
+      "container": "plain ZIP"
+    },
+    "embeddedManifest": {"path":"assets/table/version","bytes":58,"status":"content-extraction-pending"},
+    "hotUpdateDescriptor": "DataTable,1295,294,1768181284",
+    "identityTable": "lw_hero",
+    "identityFilter": "type=1",
+    "profileJoinKey": "nativeId",
+    "selectableRosterNativeIdCoverage": "31/31",
+    "note": "The embedded DataTable version and the public hot-update descriptor are separate version layers. Do not equate 38781 with hot-update descriptor 1295."
+  },
   "hardRules": [
     "Do not use displayed account ATK/DEF/HP as native hero inputs because they can already include account-wide buffs.",
     "Never assume UR, SSR and SR use the same level-growth curve until cross-rarity validation succeeds.",
     "Never treat an SSR-to-UR promotion as a cosmetic rarity change. SSR and UR states are distinct combat/stat variants.",
     "Do not derive total hero power from one table. Power is composed from native level stats plus stars/grade, skills, exclusive weapon, awakening/promotion and other modeled layers.",
-    "Unknown coefficients remain pending; no silent fallback from one rarity or variant to another."
+    "Unknown coefficients remain pending; no silent fallback from one rarity or variant to another.",
+    "Join native hero configuration by numeric nativeId, never by localized display name."
   ],
   "layerOrder": [
     "nativeHeroBase",
@@ -21,18 +41,19 @@
     "contextSpecificBuffs"
   ],
   "nativeLevelModelResearch": {
-    "candidateShape": "stat(hero, rarity, level) = base(hero, rarity, stat) + growth(hero, rarity, stat) * F_rarity(level), with exact rounding/piecewise rules still to be recovered",
+    "candidateShape": "stat(hero, rarity, level) = base(hero, rarity, stat) + growth(hero, rarity, stat) * F_rarity(level), with exact rounding/piecewise rules still to be recovered from DataTable schemas",
     "rarityCurves": {
-      "UR": {"status":"pending-cross-hero-fit"},
-      "SSR": {"status":"pending-cross-hero-fit"},
-      "SR": {"status":"pending-cross-hero-fit"}
+      "UR": {"status":"pending-datatable-schema-and-cross-hero-fit"},
+      "SSR": {"status":"pending-datatable-schema-and-cross-hero-fit"},
+      "SR": {"status":"pending-datatable-schema-and-cross-hero-fit"}
     },
-    "validationRequirement": "A curve becomes verified only if one F_rarity(level) reproduces ATK, DEF and HP for multiple heroes at multiple levels within observed client rounding."
+    "validationRequirement": "A curve becomes verified only if the recovered native table fields and one F_rarity(level) reproduce ATK, DEF and HP for multiple heroes at multiple levels within observed client rounding."
   },
   "starGradeModelResearch": {
     "status": "partial-verified-anchor",
     "knownAnchor": {
       "hero": "Williams",
+      "nativeId": 50007,
       "rarity": "UR",
       "level": 150,
       "grade": "5-star",
@@ -56,12 +77,12 @@
     ]
   },
   "seasonalRarityPromotions": [
-    {"hero":"Mason","troopType":"tank","season":1,"from":"SSR","to":"UR","modelRule":"mason-ssr and mason-ur are distinct variants"},
-    {"hero":"Violet","troopType":"tank","season":2,"from":"SSR","to":"UR","modelRule":"violet-ssr and violet-ur are distinct variants"},
-    {"hero":"Scarlett","troopType":"tank","season":3,"from":"SSR","to":"UR","modelRule":"scarlett-ssr and scarlett-ur are distinct variants"},
-    {"hero":"Sarah","troopType":"aircraft","season":4,"from":"SSR","to":"UR","modelRule":"sarah-ssr and sarah-ur are distinct variants"},
-    {"hero":"Venom","troopType":"missile","season":5,"from":"SSR","to":"UR","modelRule":"venom-ssr and venom-ur are distinct variants"},
-    {"hero":"Braz","troopType":"missile","season":6,"from":"SSR","to":"UR","modelRule":"braz-ssr and braz-ur are distinct variants; UR must not inherit SSR Zombie Killer"}
+    {"hero":"Mason","nativeId":40010,"troopType":"tank","season":1,"from":"SSR","to":"UR","modelRule":"mason-ssr and mason-ur are distinct variants"},
+    {"hero":"Violet","nativeId":40012,"troopType":"tank","season":2,"from":"SSR","to":"UR","modelRule":"violet-ssr and violet-ur are distinct variants"},
+    {"hero":"Scarlett","nativeId":40006,"troopType":"tank","season":3,"from":"SSR","to":"UR","modelRule":"scarlett-ssr and scarlett-ur are distinct variants"},
+    {"hero":"Sarah","nativeId":40019,"troopType":"aircraft","season":4,"from":"SSR","to":"UR","modelRule":"sarah-ssr and sarah-ur are distinct variants"},
+    {"hero":"Venom","nativeId":40018,"troopType":"missile","season":5,"from":"SSR","to":"UR","modelRule":"venom-ssr and venom-ur are distinct variants"},
+    {"hero":"Braz","nativeId":40013,"troopType":"missile","season":6,"from":"SSR","to":"UR","modelRule":"braz-ssr and braz-ur are distinct variants; UR must not inherit SSR Zombie Killer"}
   ],
   "promotionCommonObservedRules": {
     "sourceConfidence": "strong-community-current-season-guides",
@@ -75,12 +96,14 @@
     "warning": "Historical early Mason promotions briefly reset to 0 stars before the mechanic was changed; simulator models the current 3-star rule unless a historical-season mode is explicitly requested."
   },
   "season6AwakeningVariants": [
-    {"hero":"Kimberly","rarity":"UR","mechanic":"Awakening","separateFromRarityPromotion":true},
-    {"hero":"DVA","rarity":"UR","mechanic":"Awakening","separateFromRarityPromotion":true},
-    {"hero":"Tesla","rarity":"UR","mechanic":"Awakening","separateFromRarityPromotion":true}
+    {"hero":"Kimberly","nativeId":50009,"rarity":"UR","mechanic":"Awakening","separateFromRarityPromotion":true},
+    {"hero":"DVA","nativeId":10060,"rarity":"UR","mechanic":"Awakening","separateFromRarityPromotion":true},
+    {"hero":"Tesla","nativeId":10051,"rarity":"UR","mechanic":"Awakening","separateFromRarityPromotion":true}
   ],
-  "season6PromotionVariant": {"hero":"Braz","mechanic":"SSR-to-UR promotion","separateFromAwakening":true},
+  "season6PromotionVariant": {"hero":"Braz","nativeId":40013,"mechanic":"SSR-to-UR promotion","separateFromAwakening":true},
   "sources": [
+    "simulator/research/current-apk-pack-audit.v1.json",
+    "public game-data reference: lw_hero type=1 numeric IDs",
     "https://cpt-hedge.com/guides/timeline",
     "https://cpt-hedge.com/guides/season-4-sarah-ur-promotion",
     "https://cpt-hedge.com/guides/season-5-venom-ur-promotion",
