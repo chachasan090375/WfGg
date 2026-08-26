@@ -1,0 +1,65 @@
+from pathlib import Path
+
+p=Path('frontend/portal-invitations-v1.js')
+s=p.read_text(encoding='utf-8')
+s=s.replace("const THANKED_OFFICERS=['Metatouk','Ogie Ogilthorpe 7','ValFada','Shockwave XY','Sab93fr','εlα ツ','cat 49','Flawene'];\nconst EXCLUDED_FROM_THANKS=['El Tonton','Le Ced83','SnooPsy'];\n", "")
+old="""const thankBlocks=[
+  `Un grand merci à ${THANKED_OFFICERS.join(', ')} pour leur travail et leur implication dans la mise en place du projet, ainsi que pour leur investissement durant toute l'Inter-Saison.`,
+  `Merci tout particulièrement à ${THANKED_OFFICERS.join(', ')}, qui ont participé au travail du bureau autour de ce projet et pour leur investissement durant toute l'Inter-Saison.`,
+  `Ce lancement doit aussi beaucoup au travail de ${THANKED_OFFICERS.join(', ')} : merci à eux pour le temps et l'énergie consacrés au projet et pour leur investissement durant toute l'Inter-Saison.`,
+  `Je tiens à remercier ${THANKED_OFFICERS.join(', ')} pour leur contribution au travail mené par le bureau sur cette plateforme et pour leur investissement durant toute l'Inter-Saison.`
+];"""
+new="""const thankBlocks=[
+  `Un grand merci à l'ensemble du bureau R4/R5 pour son travail et son implication dans la mise en place du projet, ainsi que pour son investissement durant toute l'Inter-Saison.`,
+  `Merci tout particulièrement au bureau R4/R5 pour le travail collectif mené autour de ce projet et pour son investissement durant toute l'Inter-Saison.`,
+  `Ce lancement doit aussi beaucoup au travail du bureau R4/R5 : un grand merci pour le temps et l'énergie consacrés au projet et à toute l'Inter-Saison.`,
+  `Je tiens à remercier l'ensemble du bureau R4/R5 pour sa contribution à cette plateforme et pour son investissement durant toute l'Inter-Saison.`
+];"""
+if old not in s: raise SystemExit('base thank block marker missing')
+s=s.replace(old,new,1)
+p.write_text(s,encoding='utf-8')
+
+p=Path('frontend/portal-invitations-lastwar-safe-v1.js')
+s=p.read_text(encoding='utf-8')
+s=s.replace("const THANKED=['Metatouk','Ogie Ogilthorpe 7','ValFada','Shockwave XY','Sab93fr','εlο ツ','cat 49','Flawene'];\n","")
+old="`💜 Merci à ${THANKED.join(', ')} pour leur travail sur le projet et leur investissement durant toute l’Inter-Saison.`"
+new="`💜 Un grand merci à l’ensemble du bureau R4/R5 pour son travail sur le projet et son investissement durant toute l’Inter-Saison.`"
+if old not in s: raise SystemExit('alliance notice thanks marker missing')
+s=s.replace(old,new,1)
+old="""const thanks=[
+  `💜 Merci à ${THANKED.join(', ')} pour leur travail sur le projet et leur investissement durant toute l’Inter-Saison.`,
+  `💜 Un grand merci à ${THANKED.join(', ')} pour le temps consacré au projet et à toute l’Inter-Saison.`,
+  `💜 Ce lancement doit aussi beaucoup à ${THANKED.join(', ')} : merci pour le projet et pour toute l’Inter-Saison.`,
+  `💜 Merci tout particulièrement à ${THANKED.join(', ')} pour leur contribution au portail et leur investissement pendant l’Inter-Saison.`
+];"""
+new="""const thanks=[
+  `💜 Un grand merci à l’ensemble du bureau R4/R5 pour son travail sur le projet et son investissement durant toute l’Inter-Saison.`,
+  `💜 Merci au bureau R4/R5 pour le travail collectif, le temps consacré au projet et l’investissement de toute l’Inter-Saison.`,
+  `💜 Ce lancement doit aussi beaucoup au travail du bureau R4/R5 : merci pour l’énergie consacrée au projet et à toute l’Inter-Saison.`,
+  `💜 Merci à l’ensemble du bureau R4/R5 pour sa contribution au portail et son investissement pendant l’Inter-Saison.`
+];"""
+if old not in s: raise SystemExit('private thanks block marker missing')
+s=s.replace(old,new,1)
+p.write_text(s,encoding='utf-8')
+
+p=Path('.github/qa/portal-invitations-recette.mjs')
+s=p.read_text(encoding='utf-8')
+old="""  for(const name of ['Metatouk','Ogie Ogilthorpe 7','ValFada','Shockwave XY','Sab93fr','εlο ツ','cat 49','Flawene']) assert.ok(r4.includes(name),`missing thanks ${name}`);
+  assert.ok(!r4.includes('εlα ツ'),'old alpha alias leaked into invitation');
+  assert.ok(!r4.includes('εlo ツ'),'Latin-o alias leaked into invitation');
+  for(const name of ['El Tonton','Le Ced83','SnooPsy']) assert.ok(!r4.includes(name),`excluded thanks leaked ${name}`);"""
+new="""  assert.match(r4,/bureau R4\\/R5/i);
+  for(const name of ['Metatouk','Ogie Ogilthorpe 7','ValFada','Shockwave XY','Sab93fr','εlο ツ','εlα ツ','εlo ツ','cat 49','Flawene','El Tonton','Le Ced83','SnooPsy']) assert.ok(!r4.includes(name),`named thanks leaked ${name}`);"""
+if old not in s: raise SystemExit('QA named thanks marker missing')
+s=s.replace(old,new,1)
+marker="  assert.match(safe.ALLIANCE_NOTICE,/Nouveau portail WfGg/i);\n"
+extra="  assert.match(safe.ALLIANCE_NOTICE,/bureau R4\\/R5/i);\n  for(const name of ['Metatouk','Ogie Ogilthorpe 7','ValFada','Shockwave XY','Sab93fr','εlο ツ','cat 49','Flawene','El Tonton','Le Ced83','SnooPsy']) assert.ok(!safe.ALLIANCE_NOTICE.includes(name),`named thanks leaked into alliance notification ${name}`);\n"
+if marker not in s: raise SystemExit('QA alliance marker missing')
+s=s.replace(marker,marker+extra,1)
+p.write_text(s,encoding='utf-8')
+
+p=Path('frontend/index.html')
+s=p.read_text(encoding='utf-8')
+s=s.replace('portal-invitations-v1.js?v=001&v21=interseason-thanks','portal-invitations-v1.js?v=002&v26=generic-r4r5-thanks')
+s=s.replace('portal-invitations-lastwar-safe-v1.js?v=003-alliance-notice','portal-invitations-lastwar-safe-v1.js?v=004-generic-r4r5-thanks')
+p.write_text(s,encoding='utf-8')
