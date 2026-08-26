@@ -1,0 +1,100 @@
+{
+  "version": "1.0.0-research",
+  "auditedAt": "2026-08-26",
+  "entityModel": {
+    "kind": "overlord",
+    "isHero": false,
+    "squadRole": "sixth-auxiliary-unit",
+    "heroSlotsConsumed": 0,
+    "maxHeroesAlongside": 5,
+    "maxOverlordsPerSquad": 1,
+    "sameOverlordMayBeAssignedToMultipleSimultaneousSquads": false,
+    "multiSquadOptimizerRule": "Treat each owned Overlord as a unique allocatable resource, separate from the five hero slots."
+  },
+  "knownOverlords": [
+    {
+      "id": "gorilla-overlord",
+      "canonicalWorkingName": "Gorilla Overlord",
+      "aliases": ["Overlord", "Battle Gorilla", "Gorilla"],
+      "status": "production-profile-enabled",
+      "deployment": {
+        "unlockEra": "Season 2",
+        "currentGuideUnlockDay": 89,
+        "minimumTrainingLevels": {
+          "jointAttack": 100,
+          "defenseSupport": 100,
+          "survivalTraining": 100
+        },
+        "minimumBondRating": "Rookie Partner I",
+        "confidence": "strong-current-guide-consensus",
+        "conflictNote": "An older community guide labels the level-100 gate New Partner I. Current Cpt Hedgehog and current calculator datasets place New Partner at level 50 and Rookie Partner I at level 100; keep in-game capture as final authority."
+      },
+      "training": [
+        {"id": "jointAttack", "auditedEnglish": "Joint Attack", "maxKnownLevel": 800, "effectFamily": "offense/account-training", "localGameTerms": "pending-in-game-capture"},
+        {"id": "defenseSupport", "auditedEnglish": "Defense Support", "maxKnownLevel": 800, "effectFamily": "defense/account-training", "localGameTerms": "pending-in-game-capture"},
+        {"id": "survivalTraining", "auditedEnglish": "Survival Training", "maxKnownLevel": 800, "effectFamily": "hp-survival/account-training", "localGameTerms": "pending-in-game-capture"}
+      ],
+      "skills": [
+        {
+          "id": "riotShot",
+          "auditedEnglish": "Riot Shot",
+          "maxKnownLevel": 40,
+          "effectFamily": "direct-attack",
+          "wantedCodePolicy": "offensive-but-formula-not-calibrated",
+          "localGameTerms": "pending-in-game-capture"
+        },
+        {
+          "id": "overlordsArmor",
+          "auditedEnglish": "Overlord's Armor",
+          "maxKnownLevel": 40,
+          "effectFamily": "self-damage-reduction",
+          "wantedCodePolicy": "zero-score-boss-does-not-attack",
+          "localGameTerms": "pending-in-game-capture"
+        },
+        {
+          "id": "brutalRoar",
+          "auditedEnglish": "Brutal Roar",
+          "maxKnownLevel": 40,
+          "effectFamily": "enemy-crit-reduction",
+          "wantedCodePolicy": "zero-score-boss-does-not-attack",
+          "localGameTerms": "pending-in-game-capture"
+        },
+        {
+          "id": "furiousHunt",
+          "auditedEnglish": "Furious Hunt",
+          "maxKnownLevel": 40,
+          "effectFamily": "conditional-damage-after-hero-crits-taken",
+          "wantedCodePolicy": "zero-trigger-boss-does-not-attack",
+          "monsterPolicy": "pending-trigger-validation",
+          "localGameTerms": "pending-in-game-capture"
+        },
+        {
+          "id": "expertOverlord",
+          "auditedEnglish": "Expert Overlord",
+          "maxKnownLevel": 1,
+          "unlockPromotionLevel": 51,
+          "effectFamily": "promotion-unlock",
+          "wantedCodePolicy": "pending-exact-effect",
+          "localGameTerms": "pending-in-game-capture"
+        }
+      ],
+      "scorePolicy": {
+        "displayedPower": "reference-only-never-direct-score",
+        "trainingLevels": "store-but-do-not-directly-add-to-score; account-wide training may already be reflected in displayed hero ATK/DEF/HP",
+        "wantedCodes": "include Gorilla as sixth unit structurally; defensive skills have zero offensive weight; Riot Shot/direct damage remains calibration-pending",
+        "genericMonster": "include Gorilla structurally; survival and conditional skills require encounter calibration before numerical weighting",
+        "pvp": "future timeline model required for crit reduction, survival and reactive attacks"
+      },
+      "sources": [
+        "https://cpt-hedge.com/guides/overlord-gorilla-guide",
+        "https://cpt-hedge.com/calculators/overlord-training",
+        "https://www.lastwartutorial.com/overlord-gorilla/",
+        "https://lastwararchive.com/overlord"
+      ]
+    }
+  ],
+  "futureCompatibility": {
+    "multipleOverlordTypes": true,
+    "note": "Recent community datasets mention additional Overlord types such as a Hawk/Skybreaker. Do not activate another Overlord in scoring until its current in-game rules are audited."
+  }
+}
