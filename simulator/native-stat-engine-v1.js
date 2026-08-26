@@ -33,7 +33,25 @@
     return n;
   };
 
-  function calculateSync({ nativeId, level, rank }) {
+  function rankFromStars(stars) {
+    const n = Number(stars);
+    if (!Number.isFinite(n) || n < 0 || n > 5) {
+      throw new RangeError('stars must be from 0 to 5');
+    }
+    const tiers = n * 5;
+    const rounded = Math.round(tiers);
+    if (Math.abs(tiers - rounded) > 1e-8) {
+      throw new RangeError('stars must align to one of the five tiers per star (increments of 0.2)');
+    }
+    return rounded + 1;
+  }
+
+  function starsFromRank(rank) {
+    const rk = intInRange(rank, 1, 26, 'rank');
+    return (rk - 1) / 5;
+  }
+
+  function calculateSync({ nativeId, level, rank, stars }) {
     if (!dataset) {
       if (loadError) throw loadError;
       throw new Error('native stat dataset is not loaded yet');
@@ -41,7 +59,8 @@
 
     const id = intInRange(nativeId, 1, Number.MAX_SAFE_INTEGER, 'nativeId');
     const lv = intInRange(level, 1, 175, 'level');
-    const rk = intInRange(rank, 1, 26, 'rank');
+    if (rank != null && stars != null) throw new Error('provide rank or stars, not both');
+    const rk = rank != null ? intInRange(rank, 1, 26, 'rank') : rankFromStars(stars ?? 0);
     const hero = dataset.heroes?.[String(id)];
     if (!hero) throw new Error(`unsupported native hero id ${id}`);
 
@@ -69,6 +88,7 @@
       nativeId: id,
       level: lv,
       rank: rk,
+      stars: starsFromRank(rk),
       templateId: hero.templateId,
       quality: hero.quality,
       stats: Object.freeze(stats),
@@ -88,29 +108,34 @@
 
   async function selfTest() {
     await readyPromise;
-    const got = calculateSync({ nativeId: 50007, level: 150, rank: 26 });
+    const byRank = calculateSync({ nativeId: 50007, level: 150, rank: 26 });
+    const byStars = calculateSync({ nativeId: 50007, level: 150, stars: 5 });
     const grade = {
-      hp: got.stats.hp.gradeBonus,
-      attack: got.stats.attack.gradeBonus,
-      defense: got.stats.defense.gradeBonus
+      hp: byRank.stats.hp.gradeBonus,
+      attack: byRank.stats.attack.gradeBonus,
+      defense: byRank.stats.defense.gradeBonus
     };
     const expected = { hp: 201433, attack: 2837, defense: 741 };
-    const ok = Object.keys(expected).every(k => grade[k] === expected[k]);
+    const ok = Object.keys(expected).every(k => grade[k] === expected[k]) && byStars.rank === 26;
     if (!ok) throw new Error(`Williams self-test failed: ${JSON.stringify(grade)}`);
-    return Object.freeze({ ok: true, grade, expected, maxHeroLevelAtHQ35: 175, heroCount: dataset.coverage.heroCount });
+    const tierChecks = [0, 0.2, 1, 2, 3, 4, 5].map(s => ({ stars: s, rank: rankFromStars(s) }));
+    return Object.freeze({ ok: true, grade, expected, tierChecks, maxHeroLevelAtHQ35: 175, heroCount: dataset.coverage.heroCount });
   }
 
   window.WfGgNativeStats = Object.freeze({
-    version: '1.0.0',
+    version: '1.1.0',
     ready: () => readyPromise,
     calculate,
     calculateSync,
+    rankFromStars,
+    starsFromRank,
     selfTest,
     metadata: () => dataset ? Object.freeze({
       heroCount: dataset.coverage.heroCount,
       templateIds: [...dataset.coverage.templateIds],
       levelRange: [...dataset.formula.heroLevelRange],
       rankRange: [...dataset.formula.rankRange],
+      starTierStep: 0.2,
       maxHeroLevelAtHQ35: dataset.formula.maxHeroLevelAtHQ35,
       dataTableMd5: dataset.source.dataTableMd5
     }) : null
