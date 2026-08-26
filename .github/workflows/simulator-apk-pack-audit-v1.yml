@@ -19,12 +19,11 @@ jobs:
           ref: simulator-standalone-v1
           fetch-depth: 0
 
-      - name: Download verified current public XAPK and audit DataTable/bootstrap assets
+      - name: Download and verify current public XAPK by embedded metadata
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p /tmp/lw simulator/research
-          EXPECTED_SHA1='a5c3bc2cb56678339fd3fa3d124945c4ccca2e01'
           candidates=(
             'https://d.apkpure.net/b/XAPK/com.fun.lastwar.gp?versionCode=1864'
             'https://d.apkpure.net/b/XAPK/com.fun.lastwar.gp?version=1.0.359'
@@ -34,18 +33,43 @@ jobs:
             echo "Trying $url"
             rm -f /tmp/lw/current.xapk
             if curl -fL --retry 2 --connect-timeout 20 --max-time 900 "$url" -o /tmp/lw/current.xapk; then
-              got=$(sha1sum /tmp/lw/current.xapk | awk '{print $1}')
-              echo "SHA1=$got"
-              if [[ "$got" == "$EXPECTED_SHA1" ]]; then found="$url"; break; fi
+              if python3 - <<'PY'
+          import json,sys,zipfile,pathlib
+          p=pathlib.Path('/tmp/lw/current.xapk')
+          try:
+            with zipfile.ZipFile(p) as z:
+              candidates=[n for n in z.namelist() if pathlib.PurePosixPath(n).name.lower() in ('manifest.json','xapk_manifest.json')]
+              if not candidates:
+                print('No XAPK metadata manifest found')
+                sys.exit(3)
+              d=json.loads(z.read(candidates[0]).decode('utf-8','replace'))
+          except Exception as e:
+            print('Manifest read failed:',repr(e)); sys.exit(4)
+          package=str(d.get('package_name') or d.get('packageName') or d.get('package') or '')
+          version_name=str(d.get('version_name') or d.get('versionName') or '')
+          version_code=str(d.get('version_code') or d.get('versionCode') or '')
+          print(json.dumps({'manifest':candidates[0],'package':package,'versionName':version_name,'versionCode':version_code},ensure_ascii=False))
+          ok=(package=='com.fun.lastwar.gp' and version_name=='1.0.359' and version_code=='1864')
+          sys.exit(0 if ok else 5)
+          PY
+              then
+                found="$url"
+                break
+              fi
             fi
           done
           if [[ -z "$found" ]]; then
-            echo 'Current 1.0.359 arm64 XAPK could not be verified; refusing mismatched package.' >&2
+            echo 'Could not obtain an XAPK whose embedded metadata matches com.fun.lastwar.gp 1.0.359 / build 1864.' >&2
             exit 2
           fi
-
+          sha1sum /tmp/lw/current.xapk | tee /tmp/lw/xapk.sha1
+          sha256sum /tmp/lw/current.xapk | tee /tmp/lw/xapk.sha256
           unzip -q /tmp/lw/current.xapk -d /tmp/lw/xapk
 
+      - name: Audit DataTable/bootstrap assets
+        shell: bash
+        run: |
+          set -euo pipefail
           python3 - <<'PY'
           import pathlib,re,json,hashlib,zipfile
           root=pathlib.Path('/tmp/lw')
@@ -96,8 +120,7 @@ jobs:
                   if not any(x.lower() in lower for x in byte_needles):
                     continue
                   for m in ascii_rx.finditer(data):
-                    s=m.group()
-                    sl=s.lower()
+                    s=m.group(); sl=s.lower()
                     if any(x.lower() in sl for x in byte_needles):
                       bootstrap_strings.append({'apk':apk.name,'entry':n,'text':s.decode('ascii','ignore')[:360]})
                       if len(bootstrap_strings)>=350: break
@@ -111,7 +134,7 @@ jobs:
               seen.add(key); dedup.append(h)
 
           out={
-            'source':{'version':'1.0.359','buildId':1864,'architecture':'arm64-v8a','xapkSha1':hashlib.sha1(xapk.read_bytes()).hexdigest()},
+            'source':{'package':'com.fun.lastwar.gp','version':'1.0.359','buildId':1864,'architecture':'arm64-v8a','xapkSha1':hashlib.sha1(xapk.read_bytes()).hexdigest(),'xapkSha256':hashlib.sha256(xapk.read_bytes()).hexdigest()},
             'apks':apk_meta,
             'tables':table_meta,
             'groups':{k:{'count':len(v),'sample':v[:500]} for k,v in groups.items()},
@@ -121,7 +144,7 @@ jobs:
           }
           p=pathlib.Path('simulator/research/current-apk-pack-audit.v1.json')
           p.write_text(json.dumps(out,indent=2,ensure_ascii=False)+'\n',encoding='utf-8')
-          print(json.dumps({'apkCount':len(apk_meta),'tableEntries':len(table_meta),'bootstrapStringHits':len(dedup),'groupCounts':{k:len(v) for k,v in groups.items()}},indent=2))
+          print(json.dumps({'apkCount':len(apk_meta),'tableEntries':len(table_meta),'bootstrapStringHits':len(dedup),'groupCounts':{k:len(v) for k,v in groups.items()},'xapkSha1':out['source']['xapkSha1']},indent=2))
           PY
 
       - name: Commit sanitized metadata only
