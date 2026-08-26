@@ -1,0 +1,116 @@
+name: Simulator hero roster v12
+
+on:
+  push:
+    branches:
+      - simulator-standalone-v1
+    paths:
+      - '.github/workflows/simulator-hero-roster-v12.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  deploy-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: simulator-standalone-v1
+          fetch-depth: 0
+      - name: Validate source JavaScript
+        run: |
+          node --check simulator/hero-grade-wall-v11.js
+          node --check simulator/hero-roster-polish-v12.js
+      - name: Wire V11 and V12
+        run: python3 .github/scripts/patch-simulator-grade-wall-v11.py
+      - name: Validate bundle wiring
+        run: |
+          node --check simulator/hero-ux-v10.js
+          node --check frontend/simulator/hero-grade-wall-v11.js
+          node --check frontend/simulator/hero-roster-polish-v12.js
+          grep -Fq "wall:'Grade'" simulator/hero-ux-v10.js
+          grep -Fq 'hero-grade-wall-v11.js?v=011-grade-wall' simulator/index.html
+          grep -Fq 'hero-roster-polish-v12.js?v=012-roster-polish' simulator/index.html
+          grep -Fq 'hero-roster-polish-v12.css?v=012-roster-polish' frontend/simulator/index.html
+      - name: Commit bundle wiring
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add simulator/hero-ux-v10.js simulator/index.html simulator/UI_VERSION.txt frontend/simulator/hero-ux-v10.js frontend/simulator/index.html frontend/simulator/hero-grade-wall-v11.js frontend/simulator/hero-grade-wall-v11.css frontend/simulator/hero-roster-polish-v12.js frontend/simulator/hero-roster-polish-v12.css
+          git diff --cached --check
+          if ! git diff --cached --quiet; then
+            git commit -m 'simulator: enable hero roster polish v12'
+            git fetch origin simulator-standalone-v1
+            git rebase origin/simulator-standalone-v1
+            git push origin HEAD:simulator-standalone-v1
+          fi
+      - name: Wait for Cloudflare preview V12
+        shell: bash
+        run: |
+          set -euo pipefail
+          ROOT='https://simulator-standalone-v1.wfgg.pages.dev/simulator'
+          for i in $(seq 1 60); do
+            curl -fsSL "$ROOT/?hero_v12=$i" -o /tmp/index.html || true
+            a=0;b=0;c=0
+            if grep -Fq 'hero-grade-wall-v11.js?v=011-grade-wall' /tmp/index.html; then a=1; fi
+            if grep -Fq 'hero-roster-polish-v12.js?v=012-roster-polish' /tmp/index.html; then b=1; fi
+            if grep -Fq 'hero-roster-polish-v12.css?v=012-roster-polish' /tmp/index.html; then c=1; fi
+            echo "attempt=$i v11=$a js12=$b css12=$c"
+            if [ "$a" = 1 ] && [ "$b" = 1 ] && [ "$c" = 1 ]; then exit 0; fi
+            sleep 3
+          done
+          exit 1
+      - name: Install Playwright
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Android roster and Grade Wall recette
+        run: |
+          node <<'JS'
+          const assert=require('node:assert/strict');
+          const {chromium}=require('playwright');
+          (async()=>{
+            const browser=await chromium.launch({headless:true});
+            try{
+              const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,deviceScaleFactor:2,locale:'fr-FR'});
+              await context.addInitScript(()=>{
+                const p={locale:'fr',step:1,account:{hqLevel:35},heroes:[
+                  {heroId:'Williams',troopType:'tank',role:'defense',rarity:'UR',level:175,stars:5,exclusiveWeaponLevel:20,wallOfHonorLevel:0},
+                  {heroId:'Schuyler',troopType:'aircraft',role:'attack',rarity:'UR',level:175,stars:5,exclusiveWeaponLevel:0,wallOfHonorLevel:0},
+                  {heroId:'Tesla',troopType:'missile',role:'attack',rarity:'UR',level:175,stars:5,exclusiveWeaponLevel:30,wallOfHonorLevel:0},
+                  {heroId:'Adam',troopType:'missile',role:'defense',rarity:'UR',level:175,stars:5,exclusiveWeaponLevel:0,wallOfHonorLevel:0}
+                ],gear:[],research:{},season6:{},metadata:{schema:'wfgg-simulator-profile-v1'}};
+                localStorage.setItem('wfgg-simulator-profile-v1',JSON.stringify(p));
+              });
+              const page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(String(e)));
+              await page.goto('https://simulator-standalone-v1.wfgg.pages.dev/simulator/?hero_v12_e2e=1',{waitUntil:'networkidle',timeout:60000});
+              const cards=page.locator('.game-hero-card');await cards.first().waitFor({state:'visible',timeout:30000});assert.equal(await cards.count(),31);
+              const topPos=await page.locator('.sim-topbar').evaluate(el=>getComputedStyle(el).position);assert.notEqual(topPos,'sticky');assert.notEqual(topPos,'fixed');
+              const sky=page.locator('.game-hero-card[data-hero-id="schuyler"] .wfgg-v10-name');assert.equal((await sky.innerText()).trim(),'Skyler');
+              await page.locator('#languageStrip [data-lang="en"]').tap();await page.waitForTimeout(120);assert.equal((await sky.innerText()).trim(),'Schuyler');
+              await page.locator('#languageStrip [data-lang="fr"]').tap();await page.waitForTimeout(120);assert.equal((await sky.innerText()).trim(),'Skyler');
+              const murphy=page.locator('.game-hero-card[data-hero-id="murphy"]');assert.equal(await murphy.evaluate(el=>el.style.getPropertyValue('--wfgg-v12-base-y')),'-8%');assert.equal(await murphy.evaluate(el=>el.style.getPropertyValue('--wfgg-v12-zoom')),'1.18');
+              await page.waitForFunction(()=>document.querySelectorAll('.game-hero-card.wfgg-v12-live').length>=5,{timeout:8000});
+              const live=page.locator('.game-hero-card.wfgg-v12-live').first();const anim=await live.locator('.hero-card-portrait img').evaluate(el=>getComputedStyle(el).animationName);assert.match(anim,/wfgg-v12-character-live/);
+              const pseudo=await live.evaluate(el=>getComputedStyle(el,'::before').display);assert.equal(pseudo,'none');
+              await page.waitForTimeout(1200);
+              const tesla=page.locator('.game-hero-card[data-hero-id="tesla"] .hero-card-portrait img');
+              const adam=page.locator('.game-hero-card[data-hero-id="adam"] .hero-card-portrait img');
+              const teslaSrc=await tesla.getAttribute('src');const adamSrc=await adam.getAttribute('src');
+              assert.ok(teslaSrc);assert.ok(adamSrc);
+              await page.locator('.game-hero-card[data-hero-id="williams"]').tap();await page.locator('#heroGameSheet.open').waitFor({state:'visible',timeout:10000});
+              const tabLabels=await page.locator('#heroGameSheet [data-sheet-tab] span').allTextContents();assert.deepEqual(tabLabels,['Attributs','Compétences','Grade','Armes exclusives']);
+              await page.locator('#heroGameSheet [data-sheet-tab="wall"]').tap();await page.locator('[data-v11-page="grade"]').waitFor({state:'visible',timeout:10000});
+              const go=page.locator('[data-v11-open-honor]');assert.equal(await go.isEnabled(),true);await go.tap();await page.locator('[data-v11-page="honor"]').waitFor({state:'visible',timeout:10000});
+              const level=page.locator('[data-v11-honor-level]');await level.fill('42');await level.press('Enter');
+              const hp=page.locator('[data-v11-honor-bonus="hp"]');await hp.fill('123');await hp.press('Tab');
+              await page.locator('[data-v11-honor-back]').tap();await page.locator('[data-v11-open-honor]').tap();
+              assert.equal(await page.locator('[data-v11-honor-level]').inputValue(),'42');assert.equal(await page.locator('[data-v11-honor-bonus="hp"]').inputValue(),'123');
+              const metric=await page.evaluate(()=>({w:innerWidth,sw:(document.scrollingElement||document.documentElement).scrollWidth}));assert.ok(metric.sw<=metric.w+2);
+              assert.equal(errors.length,0,errors.join(' | '));
+              console.log(JSON.stringify({ok:true,cards:31,topPos,skylerFr:'Skyler',anim,pseudo,murphyY:'-8%',murphyZoom:'1.18',teslaSrc,adamSrc,tabs:tabLabels,honorLevel:await page.locator('[data-v11-honor-level]').inputValue(),metric},null,2));
+            }finally{await browser.close()}
+          })().catch(e=>{console.error(e);process.exit(1)});
+          JS
