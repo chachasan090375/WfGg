@@ -1,0 +1,277 @@
+{
+  "version": "2.0.0-research",
+  "auditedAt": "2026-08-26",
+  "policy": "Card lifecycle, season availability and current live wording are separate from old-season guides. When live wording conflicts with launch guides, WfGg stores the conflict and does not silently apply the stale rule.",
+  "lifecycle": {
+    "core": {
+      "rarity": "Legendary/Gold",
+      "slots": 2,
+      "activeDuringSeason": true,
+      "activeDuringOffSeason": true,
+      "maxLevel": 10,
+      "upgradeCurrency": "Profession EXP",
+      "note": "Owned Core Cards persist and remain usable in off-season."
+    },
+    "regular": {
+      "battleSlots": 4,
+      "resourceSlots": 4,
+      "activeDuringSeason": true,
+      "activeDuringOffSeason": false,
+      "season6BaseMaxLevel": 12,
+      "season6PossibleEffectiveLevelWithURLevelTraits": 15,
+      "note": "Regular cards disappear/become inactive in off-season. Their exact catalog is season-dependent."
+    }
+  },
+  "season6": {
+    "catalogRevision": "post-launch-live-snapshot",
+    "hybridSquadAvailable": false,
+    "globalExpedition": {
+      "nonCoreTotalLevelProvidesSeparateStatBonus": true,
+      "mainEffectRule": "Do not assume a card's own main effect works in Global Expedition when current live wording says PvP-only. Total equipped non-Core levels still feed the separate Expedition bonus system.",
+      "conflictNote": "Early Season 6 guides described the three new Universal cards as PvP + Global Expedition. Current live card text indexed by Last War Archive says PvP-only for their main effects. WfGg follows current displayed card text and requires in-game confirmation before applying those main effects to Expedition."
+    }
+  },
+  "currentSeason6CombatCards": [
+    {
+      "id": "universal-aftermath-burst",
+      "name": "Universal - Aftermath Burst",
+      "category": "regular-battle",
+      "season6Available": true,
+      "season6MaxLevel": 12,
+      "targetTroopType": "missile",
+      "currentLiveMax12Text": "At battle start, all Missile Heroes gain +106.25% damage over time and +4.08% Attack Boost until battle ends; PvP only.",
+      "effects": ["missile-dot-damage","missile-attack-boost"],
+      "contexts": ["pvp"],
+      "inputPolicy": "Use current displayed card values; do not extrapolate a stale launch curve.",
+      "source": "https://lastwararchive.com/battle-cards"
+    },
+    {
+      "id": "universal-dimensional-crit",
+      "name": "Universal - Dimensional Crit",
+      "category": "regular-battle",
+      "season6Available": true,
+      "season6MaxLevel": 12,
+      "targetTroopType": "tank",
+      "currentLiveMax12Text": "At battle start, the Tank Hero with the highest Attack gains +15.30% Crit Rate until battle ends; PvP only.",
+      "effects": ["highest-atk-tank-crit-rate"],
+      "contexts": ["pvp"],
+      "placementDependency": "indirect-highest-atk-target",
+      "inputPolicy": "Use current displayed card value.",
+      "source": "https://lastwararchive.com/battle-cards"
+    },
+    {
+      "id": "universal-frontal-suppression",
+      "name": "Universal - Frontal Suppression",
+      "category": "regular-battle",
+      "season6Available": true,
+      "season6MaxLevel": 12,
+      "targetTroopType": "aircraft",
+      "currentLiveMax12Text": "At battle start, all Aircraft Heroes gain +8.50% Attack Speed and +8.50% AUTO ATK damage until battle ends; PvP only.",
+      "effects": ["aircraft-attack-speed","aircraft-auto-attack-damage"],
+      "contexts": ["pvp"],
+      "launchGuideConflict": "Early S6 guides said 3 Aircraft heroes in the back row gained Attack Speed. Current live catalog no longer has that targeting and also includes AUTO ATK damage.",
+      "inputPolicy": "Current live displayed wording overrides launch guide wording.",
+      "source": "https://lastwararchive.com/battle-cards"
+    },
+    {
+      "id": "universal-counter-reversal",
+      "name": "Universal - Counter Reversal",
+      "category": "regular-battle",
+      "season6Available": true,
+      "season6MaxLevel": 12,
+      "currentLiveMax12Text": "When countered, increase damage dealt by 8.5% and reduce damage taken by 8.5%.",
+      "effects": ["countered-damage-dealt","countered-damage-reduction"],
+      "contexts": ["pvp-countered"],
+      "source": "https://lastwararchive.com/battle-cards"
+    },
+    {
+      "id": "universal-zombie-killer",
+      "name": "Universal - Zombie Killer",
+      "category": "regular-battle",
+      "season6Available": true,
+      "season6MaxLevel": 12,
+      "currentLiveMax12Text": "During World PvE battles, the Squad receives +17% Attack, Defense and HP.",
+      "effects": ["world-pve-attack","world-pve-defense","world-pve-hp"],
+      "contexts": ["world-pve"],
+      "wantedPolicy": "Do not assume World PvE includes Wanted Codes without battle-report or in-game confirmation.",
+      "source": "https://lastwararchive.com/battle-cards"
+    },
+    {
+      "id": "quickstride-attribute-boost",
+      "name": "Quickstride - Attribute Boost",
+      "category": "regular-battle",
+      "season6Available": true,
+      "season6MaxLevel": 12,
+      "currentLiveMax12Text": "Increase March Speed by 17%. During offensive PvP World Map battles, every 50 percentage points of Additional March Speed grants +4.5% Attack/Defense/HP, up to 22.5%.",
+      "contexts": ["world-map-offensive-pvp"],
+      "source": "https://lastwararchive.com/battle-cards"
+    },
+    {
+      "id": "quickstride-contaminated-land",
+      "name": "Quickstride - Contaminated Land",
+      "category": "regular-battle",
+      "season6Available": true,
+      "season6MaxLevel": 12,
+      "currentLiveMax12Text": "Increase March Speed by 17%; while under Quick March, contaminated-land March Speed +15%.",
+      "contexts": ["world-map"],
+      "source": "https://lastwararchive.com/battle-cards"
+    },
+    {
+      "id": "quickstride-ally-quickening",
+      "name": "Quickstride - Ally Quickening",
+      "category": "regular-battle",
+      "season6Available": true,
+      "season6MaxLevel": 12,
+      "currentLiveMax12Text": "Increase March Speed by 17%; on Quick March, nearby allies gain +15% March Speed for 10 minutes.",
+      "contexts": ["world-map"],
+      "source": "https://lastwararchive.com/battle-cards"
+    },
+    {
+      "id": "garrison-attribute-boost",
+      "name": "Garrison - Attribute Boost",
+      "category": "regular-battle",
+      "season6Available": true,
+      "season6MaxLevel": 12,
+      "currentLiveMax12Text": "Reduce Severe Wound Rate by 8.5%; Defense Support battles grant +22.5% Attack/Defense/HP.",
+      "contexts": ["defense-support-pvp"],
+      "source": "https://lastwararchive.com/battle-cards"
+    },
+    {
+      "id": "garrison-duration",
+      "name": "Garrison - Duration",
+      "category": "regular-battle",
+      "season6Available": true,
+      "season6MaxLevel": 12,
+      "currentLiveMax12Text": "Reduce Severe Wound Rate by 8.5%; winning Defense Support under Defensive Regroup extends it by 45s, up to 60 minutes.",
+      "contexts": ["defense-support-pvp"],
+      "source": "https://lastwararchive.com/battle-cards"
+    },
+    {
+      "id": "garrison-assisted-repair",
+      "name": "Garrison - Assisted Repair",
+      "category": "regular-battle",
+      "season6Available": true,
+      "season6MaxLevel": 12,
+      "currentLiveMax12Text": "Reduce Severe Wound Rate by 8.5%; under Defensive Regroup, losing Defense Support restores 750 durability to allied base.",
+      "contexts": ["defense-support-pvp"],
+      "source": "https://lastwararchive.com/battle-cards"
+    },
+    {
+      "id": "battlestreak-attribute-boost",
+      "name": "Battlestreak - Attribute Boost",
+      "category": "regular-battle",
+      "season6Available": true,
+      "season6MaxLevel": 12,
+      "currentLiveMax12Text": "Reduce under-capacity penalty by 17%; after PvP World Map victories gain +4.5% Attack/Defense/HP per stack up to 22.5%, lost on return to base.",
+      "contexts": ["world-map-pvp-streak"],
+      "source": "https://lastwararchive.com/battle-cards"
+    },
+    {
+      "id": "battlestreak-duration",
+      "name": "Battlestreak - Duration",
+      "category": "regular-battle",
+      "season6Available": true,
+      "season6MaxLevel": 12,
+      "contexts": ["world-map-pvp-streak"],
+      "source": "https://lastwararchive.com/battle-cards"
+    },
+    {
+      "id": "battlestreak-victory-cap",
+      "name": "Battlestreak - Victory Cap",
+      "category": "regular-battle",
+      "season6Available": true,
+      "season6MaxLevel": 12,
+      "contexts": ["world-map-pvp-streak"],
+      "source": "https://lastwararchive.com/battle-cards"
+    },
+    {
+      "id": "destruction-attribute-boost",
+      "name": "Destruction - Attribute Boost",
+      "category": "regular-battle",
+      "season6Availability": "owned/history-dependent; verify in current client",
+      "season6MaxLevel": 12,
+      "currentLiveMax12Text": "Durability Damage +8.5%; under Demolition Expert, heroes gain +22.5% Attack/Defense/HP.",
+      "contexts": ["demolition-expert"],
+      "source": "https://lastwararchive.com/battle-cards"
+    },
+    {
+      "id": "destruction-duration",
+      "name": "Destruction - Duration",
+      "category": "regular-battle",
+      "season6Availability": "owned/history-dependent; verify in current client",
+      "season6MaxLevel": 12,
+      "contexts": ["demolition-expert"],
+      "source": "https://lastwararchive.com/battle-cards"
+    },
+    {
+      "id": "destruction-lethality-boost",
+      "name": "Destruction - Lethality Boost",
+      "category": "regular-battle",
+      "season6Availability": "owned/history-dependent; verify in current client",
+      "season6MaxLevel": 12,
+      "contexts": ["demolition-expert"],
+      "source": "https://lastwararchive.com/battle-cards"
+    },
+    {
+      "id": "universal-hybrid-squad",
+      "name": "Universal - Hybrid Squad",
+      "category": "regular-battle-legacy",
+      "season4Available": true,
+      "season5Available": true,
+      "season6Available": false,
+      "legacyMax7Text": "Deploying 4 heroes from the same troop type grants the full troop-type bonus; each unique troop type adds 5.5% Attack/Defense/HP at the archived max state.",
+      "source": "https://lastwararchive.com/battle-cards"
+    }
+  ],
+  "coreCards": [
+    {"id":"core-battlestreak-bloody-recovery","name":"Battlestreak - Bloody Recovery","contexts":["world-map-pvp"],"maxLevel":10,"offSeasonActive":true},
+    {"id":"core-battlestreak-morale-boost","name":"Battlestreak - Morale Boost","contexts":["world-map-pvp"],"maxLevel":10,"offSeasonActive":true},
+    {"id":"core-garrison-defensive-regroup","name":"Garrison - Defensive Regroup","contexts":["defense-support-pvp"],"maxLevel":10,"offSeasonActive":true},
+    {"id":"core-garrison-morale-boost","name":"Garrison - Morale Boost","contexts":["defense-support-pvp"],"maxLevel":10,"offSeasonActive":true},
+    {"id":"core-purgator-monster-slayer","name":"Purgator - Monster Slayer","contexts":["pve-monsters"],"maxLevel":10,"offSeasonActive":true,"currentLiveText":"For 15 minutes after activation, +250 Resistance and 20% less damage taken from monsters in PvE battles."},
+    {"id":"core-quickstride-morale-boost","name":"Quickstride - Morale Boost","contexts":["world-map"],"maxLevel":10,"offSeasonActive":true},
+    {"id":"core-quickstride-quick-march","name":"Quickstride - Quick March","contexts":["world-map"],"maxLevel":10,"offSeasonActive":true,"currentLiveText":"Quick March for 15 minutes: World Map March Speed +30%, contaminated-land March Speed +10%."},
+    {"id":"core-destruction-demolition-expert","name":"Destruction - Demolition Expert","contexts":["city-ruin"],"maxLevel":10,"offSeasonActive":true,"availabilityNote":"persists if owned; acquisition was season-dependent"},
+    {"id":"core-destruction-morale-boost","name":"Destruction - Morale Boost","contexts":["city-ruin"],"maxLevel":10,"offSeasonActive":true,"availabilityNote":"persists if owned; acquisition was season-dependent"},
+    {"id":"core-bulwark-comprehensive-enhancement","name":"Bulwark - Comprehensive Enhancement","maxLevel":10,"offSeasonActive":true,"effectStatus":"archive-text-unresolved"},
+    {"id":"core-bulwark-morale-boost","name":"Bulwark - Morale Boost","maxLevel":10,"offSeasonActive":true,"effectStatus":"archive-text-unresolved"},
+    {"id":"core-harvester-rapid-gather","name":"Harvester - Rapid Gather","maxLevel":10,"offSeasonActive":true,"effectStatus":"archive-text-unresolved"},
+    {"id":"core-rapid-training","name":"Rapid Training","maxLevel":10,"offSeasonActive":true,"effectStatus":"archive-text-unresolved"},
+    {"id":"core-warmind-morale-boost","name":"Warmind - Morale Boost","maxLevel":10,"offSeasonActive":true,"effectStatus":"archive-text-unresolved"},
+    {"id":"core-warmind-rapid-rescue","name":"Warmind - Rapid Rescue","maxLevel":10,"offSeasonActive":true,"effectStatus":"archive-text-unresolved"},
+    {"id":"core-windrusher-morale-boost","name":"Windrusher - Morale Boost","maxLevel":10,"offSeasonActive":true,"effectStatus":"archive-text-unresolved"},
+    {"id":"core-windrusher-rapid-rescue","name":"Windrusher - Rapid Rescue","maxLevel":10,"offSeasonActive":true,"effectStatus":"archive-text-unresolved"}
+  ],
+  "nonCombatAndRewardCards": {
+    "cataloguedButExcludedFromSquadScoreByDefault": [
+      "Universal - Garrison Reward",
+      "Universal - Gathering Reward",
+      "Universal - Streak Reward",
+      "Universal - Zombie Reward",
+      "Universal - Zombie Resources",
+      "Agriculture Giant",
+      "Gold Miner",
+      "Iron Miner",
+      "Helping Hand",
+      "Idle Master",
+      "Master Healer"
+    ],
+    "rule": "Keep these in the inventory catalog, but do not let resource/reward effects distort combat recommendations. Secondary random combat attributes are modeled separately."
+  },
+  "randomSecondaryAttributes": {
+    "mustBeStoredPerOwnedCard": true,
+    "reason": "Two copies of the same card can materially differ because secondary traits can add PvP Attack/Defense/HP, counter damage reduction, card levels, profession XP, etc.",
+    "season6Examples": [
+      "Tactics Card Level Up (UR)",
+      "PvP Defending Hero Attack",
+      "PvP Defending Hero Defense",
+      "PvP Defending Hero HP",
+      "Reduces Damage Taken when countered"
+    ]
+  },
+  "sources": [
+    "https://lastwararchive.com/battle-cards",
+    "https://cpt-hedge.com/guides/season-6-tactics-cards",
+    "https://cpt-hedge.com/guides/season-5-tactics-cards"
+  ]
+}
