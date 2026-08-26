@@ -1,9 +1,9 @@
 {
-  "version": "1.1.0-research",
+  "version": "2.0.0-native-level-grade-verified",
   "auditedAt": "2026-08-26",
-  "purpose": "Define a layered, rarity-aware hero progression model before replacing displayed account stats with reconstructed native hero stats.",
+  "purpose": "Define the verified native hero level + grade layer while keeping final displayed Attributes separated from skills, exclusive weapon, awakening/promotion, gear and account-wide effects.",
   "nativeDataDiscovery": {
-    "status": "embedded-datatable-verified-schema-extraction-pending",
+    "status": "embedded-datatable-verified-native-level-grade-formula-verified",
     "client": {"package":"com.fun.lastwar.gp","version":"1.0.359","buildId":1864},
     "embeddedTable": {
       "path": "assets/table/table_38781_cfcbee99d7064f86d09dd682babdbc2b.data",
@@ -13,21 +13,26 @@
       "sha256": "be74b18971508b511c3fb306572dae330af85b4e7ae105143056638233b085e1",
       "container": "plain ZIP"
     },
-    "embeddedManifest": {"path":"assets/table/version","bytes":58,"status":"content-extraction-pending"},
+    "embeddedManifest": {"path":"assets/table/version","content":"38781,19270680,cfcbee99d7064f86d09dd682babdbc2b,2605089705"},
     "hotUpdateDescriptor": "DataTable,1295,294,1768181284",
     "identityTable": "lw_hero",
     "identityFilter": "type=1",
     "profileJoinKey": "nativeId",
     "selectableRosterNativeIdCoverage": "31/31",
+    "levelCurveTable": "lw_template_property",
+    "gradeTable": "lw_hero_rank",
+    "levelTemplatesUsedByRoster": [1,2],
+    "levelTemplateCoverage": "31/31 without fallback",
     "note": "The embedded DataTable version and the public hot-update descriptor are separate version layers. Do not equate 38781 with hot-update descriptor 1295."
   },
   "hardRules": [
     "Do not use displayed account ATK/DEF/HP as native hero inputs because they can already include account-wide buffs.",
-    "Never assume UR, SSR and SR use the same level-growth curve until cross-rarity validation succeeds.",
+    "Use each hero's native template_id from lw_hero; never substitute template 1 for template 2 or vice versa.",
     "Never treat an SSR-to-UR promotion as a cosmetic rarity change. SSR and UR states are distinct combat/stat variants.",
-    "Do not derive total hero power from one table. Power is composed from native level stats plus stars/grade, skills, exclusive weapon, awakening/promotion and other modeled layers.",
-    "Unknown coefficients remain pending; no silent fallback from one rarity or variant to another.",
-    "Join native hero configuration by numeric nativeId, never by localized display name."
+    "Do not derive total hero power from the native level+grade layer alone. Final Attributes also depend on skills, exclusive weapon, awakening/promotion, gear and other modeled layers.",
+    "Unknown coefficients remain pending; no silent fallback from one rarity, template or variant to another.",
+    "Join native hero configuration by numeric nativeId, never by localized display name.",
+    "HQ35 hero level cap is 175. The 174 rows in lw_hero_level represent transitions ending at level 174 and therefore lead to terminal level 175."
   ],
   "layerOrder": [
     "nativeHeroBase",
@@ -40,35 +45,69 @@
     "differentialResearchAndHeroEffects",
     "contextSpecificBuffs"
   ],
-  "nativeLevelModelResearch": {
-    "candidateShape": "stat(hero, rarity, level) = base(hero, rarity, stat) + growth(hero, rarity, stat) * F_rarity(level), with exact rounding/piecewise rules still to be recovered from DataTable schemas",
-    "rarityCurves": {
-      "UR": {"status":"pending-datatable-schema-and-cross-hero-fit"},
-      "SSR": {"status":"pending-datatable-schema-and-cross-hero-fit"},
-      "SR": {"status":"pending-datatable-schema-and-cross-hero-fit"}
+  "nativeLevelModel": {
+    "status": "verified-for-roster-31-of-31",
+    "heroLevelRange": [1,175],
+    "maxHeroLevelAtHQ35": 175,
+    "sourceHeroFields": ["nativeId","template_id","base_hp","base_patk","base_pdef"],
+    "sourceCurveFields": ["type","level","base_hp","base_patk","base_pdef"],
+    "formula": {
+      "hp": "floor(lw_template_property[hero.template_id][level].base_hp * hero.base_hp / 10000)",
+      "attack": "floor(lw_template_property[hero.template_id][level].base_patk * hero.base_patk / 10000)",
+      "defense": "floor(lw_template_property[hero.template_id][level].base_pdef * hero.base_pdef / 10000)"
     },
-    "validationRequirement": "A curve becomes verified only if the recovered native table fields and one F_rarity(level) reproduce ATK, DEF and HP for multiple heroes at multiple levels within observed client rounding."
+    "rounding": "floor each native level component after hero-base scaling",
+    "templateCurves": {
+      "1": {"status":"verified-levels-1-through-175","source":"simulator/research/template1-growth-audit.v1.json"},
+      "2": {"status":"verified-levels-1-through-175","source":"simulator/research/template-property-growth-audit.v1.json"}
+    },
+    "dataset": "simulator/data/native-hero-stats-v2.json"
   },
-  "starGradeModelResearch": {
-    "status": "partial-verified-anchor",
+  "starGradeModel": {
+    "status": "native-rank-values-and-formula-verified-star-ui-mapping-pending",
+    "rankRange": [1,26],
+    "sourceTable": "lw_hero_rank",
+    "propertyIds": {"hp":50006,"attack":50007,"defense":50009},
+    "formula": {
+      "hp": "floor(lw_hero_rank[rank].attr_add[50006] * hero.base_hp / 10000)",
+      "attack": "floor(lw_hero_rank[rank].attr_add[50007] * hero.base_patk / 10000)",
+      "defense": "floor(lw_hero_rank[rank].attr_add[50009] * hero.base_pdef / 10000)"
+    },
+    "rounding": "floor each Grade component after hero-base scaling",
     "knownAnchor": {
       "hero": "Williams",
       "nativeId": 50007,
       "rarity": "UR",
       "level": 150,
-      "grade": "5-star",
+      "rank": 26,
+      "grade": "5-star observed endpoint",
+      "heroBase": {"hp":13648,"attack":8075,"defense":10549},
+      "rank26AttrAdd": {"50006":147592,"50007":3514.25,"50009":702.9},
+      "predictedGradePanelBonus": {"hp":201433,"attack":2837,"defense":741},
       "observedGradePanelBonus": {"hp":201433,"attack":2837,"defense":741},
-      "derivedRelation": "The three observed Grade bonuses are consistent with +28% of the pre-Grade native level-150 stat layer after rounding.",
-      "confidence": "strong-single-hero-anchor-needs-cross-hero-and-subtier-validation"
+      "exactMatch": true,
+      "warning": "Do not simplify this to a generic 28% Grade rule. The verified model uses the exact attr_add values stored for each rank."
     },
     "requiredNext": [
-      "Recover every 1/5-star sub-tier multiplier from 0-star through 5-star.",
-      "Validate whether UR, SSR and SR use identical star multipliers or rarity-specific multipliers.",
-      "Separate stat multipliers from star-unlocked skill effects."
+      "Verify the exact user-facing star/sub-rank mapping for ranks 1 through 26 before converting a decimal stars field directly to native rank.",
+      "Keep star-unlocked skill effects separate from the Grade stat layer."
     ]
   },
+  "verifiedNativeLayer": {
+    "definition": "native level contribution + native Grade contribution only",
+    "formula": "nativeLevelPlusGrade = floor(levelCurve * heroBase / 10000) + floor(rankAttrAdd * heroBase / 10000)",
+    "coverage": {"heroes":31,"templates":[1,2],"levels":[1,175],"ranks":[1,26],"fallbacks":0},
+    "williamsLevel175Rank26Diagnostic": {
+      "hp": {"levelBase":1034369,"gradeBonus":201433,"nativeLevelPlusGrade":1235802},
+      "attack": {"levelBase":14571,"gradeBonus":2837,"nativeLevelPlusGrade":17408},
+      "defense": {"levelBase":3807,"gradeBonus":741,"nativeLevelPlusGrade":4548}
+    },
+    "warning": "These are not final displayed in-game Attributes. Do not overwrite displayed ATK/DEF/HP until remaining layers are modeled and validated."
+  },
   "skillModelResearch": {
-    "status": "catalog-per-hero-required",
+    "status": "native-table-identified-extraction-next",
+    "sourceTable": "lw_hero_skill",
+    "knownFields": ["damage_ratio","damage_to_monster","attack_interval","power","star","need_rank","maxLevel","maxStar"],
     "rules": [
       "Track each skill level independently.",
       "Track star breakpoints separately from medal-level scaling.",
@@ -103,11 +142,11 @@
   "season6PromotionVariant": {"hero":"Braz","nativeId":40013,"mechanic":"SSR-to-UR promotion","separateFromAwakening":true},
   "sources": [
     "simulator/research/current-apk-pack-audit.v1.json",
-    "public game-data reference: lw_hero type=1 numeric IDs",
-    "https://cpt-hedge.com/guides/timeline",
-    "https://cpt-hedge.com/guides/season-4-sarah-ur-promotion",
-    "https://cpt-hedge.com/guides/season-5-venom-ur-promotion",
-    "https://cpt-hedge.com/guides/season-6-braz-ur-promotion",
+    "simulator/research/datatable-native-hero-values.v3.json",
+    "simulator/research/native-stat-formula-analysis.v1.json",
+    "simulator/research/template-property-growth-audit.v1.json",
+    "simulator/research/template1-growth-audit.v1.json",
+    "simulator/data/native-hero-stats-v2.json",
     "simulator/data/season6-hero-evolution.v1.json",
     "user-provided Williams Grade/Attributes capture, 2026-08-26"
   ]
