@@ -1,0 +1,90 @@
+name: Simulator hero roster v14
+
+on:
+  push:
+    branches:
+      - simulator-standalone-v1
+    paths:
+      - '.github/workflows/simulator-hero-roster-v14.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  deploy-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: simulator-standalone-v1
+          fetch-depth: 0
+      - name: Validate source
+        run: node --check simulator/hero-roster-uniform-v14.js
+      - name: Wire V14
+        run: python3 .github/scripts/patch-simulator-hero-roster-v14.py
+      - name: Validate bundle
+        run: |
+          node --check frontend/simulator/hero-roster-uniform-v14.js
+          grep -Fq 'hero-roster-uniform-v14.css?v=014-no-flash-uniform' simulator/index.html
+          grep -Fq 'hero-roster-uniform-v14.js?v=014-no-flash-uniform' frontend/simulator/index.html
+      - name: Commit wiring
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add simulator/index.html simulator/UI_VERSION.txt frontend/simulator/index.html frontend/simulator/hero-roster-uniform-v14.js frontend/simulator/hero-roster-uniform-v14.css
+          git diff --cached --check
+          if ! git diff --cached --quiet; then
+            git commit -m 'simulator: enable hero roster v14 no-flash uniform crop'
+            git fetch origin simulator-standalone-v1
+            git rebase origin/simulator-standalone-v1
+            git push origin HEAD:simulator-standalone-v1
+          fi
+      - name: Wait for Cloudflare V14
+        shell: bash
+        run: |
+          set -euo pipefail
+          ROOT='https://simulator-standalone-v1.wfgg.pages.dev/simulator'
+          for i in $(seq 1 60); do
+            curl -fsSL "$ROOT/?hero_v14=$i" -o /tmp/index.html || true
+            if grep -Fq 'hero-roster-uniform-v14.js?v=014-no-flash-uniform' /tmp/index.html && grep -Fq 'hero-roster-uniform-v14.css?v=014-no-flash-uniform' /tmp/index.html; then exit 0; fi
+            sleep 3
+          done
+          exit 1
+      - name: Install Playwright
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Android no-flash and all-hero motion recette
+        run: |
+          node <<'JS'
+          const assert=require('node:assert/strict');
+          const {chromium}=require('playwright');
+          (async()=>{
+            const browser=await chromium.launch({headless:true});
+            try{
+              const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,deviceScaleFactor:2,locale:'fr-FR'});
+              await context.addInitScript(()=>localStorage.setItem('wfgg-simulator-profile-v1',JSON.stringify({locale:'fr',step:1,account:{hqLevel:35},heroes:[],gear:[],research:{},season6:{},metadata:{schema:'wfgg-simulator-profile-v1'}})));
+              const page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(String(e)));
+              await page.goto('https://simulator-standalone-v1.wfgg.pages.dev/simulator/?hero_v14_e2e=1',{waitUntil:'networkidle',timeout:60000});
+              const cards=page.locator('#gameHeroGrid .game-hero-card');await cards.first().waitFor({state:'visible',timeout:30000});assert.equal(await cards.count(),31);
+              await page.waitForFunction(()=>window.WfGgHeroMotionOwner==='v14'&&[...document.querySelectorAll('#gameHeroGrid .game-hero-card')].every(c=>c.dataset.wfggV14Crop),{timeout:10000});
+              const crops=await page.evaluate(()=>Object.fromEntries(['williams','murphy','lucius','schuyler','morrison','swift','adam'].map(id=>{const c=document.querySelector(`[data-hero-id="${id}"]`);return[id,[c.style.getPropertyValue('--wfgg-v14-y'),c.style.getPropertyValue('--wfgg-v14-zoom')]]})));
+              assert.equal(crops.murphy[1],'1.48');assert.equal(crops.morrison[1],'1.4');assert.equal(crops.williams[1],'.94');
+              const ur=page.locator('#gameHeroGrid .game-hero-card.rarity-UR').first();const shadow0=await ur.evaluate(el=>getComputedStyle(el).boxShadow);const cardAnim=await ur.evaluate(el=>getComputedStyle(el).animationName);assert.equal(cardAnim,'none');
+              const phases=[];await page.exposeFunction('captureV14',v=>phases.push(v));
+              await page.evaluate(()=>new MutationObserver(()=>window.captureV14({phase:document.documentElement.dataset.wfggV14Phase,count:document.querySelectorAll('#gameHeroGrid .wfgg-v14-live').length})).observe(document.documentElement,{attributes:true,attributeFilter:['data-wfgg-v14-phase']}));
+              await page.waitForFunction(()=>document.querySelector('#gameHeroGrid .wfgg-v14-live'),{timeout:6000});
+              const live=page.locator('#gameHeroGrid .wfgg-v14-live').first();const imageAnim=await live.locator('.hero-card-portrait img').evaluate(el=>getComputedStyle(el).animationName);assert.match(imageAnim,/wfgg-v14-character-live/);
+              await page.waitForTimeout(700);const shadowMid=await ur.evaluate(el=>getComputedStyle(el).boxShadow);assert.equal(shadowMid,shadow0);
+              const legacyNow=await page.locator('#gameHeroGrid .wfgg-live-card,#gameHeroGrid .wfgg-v10-live,#gameHeroGrid .wfgg-v12-live,#gameHeroGrid .wfgg-v13-live').count();assert.equal(legacyNow,0);
+              await page.waitForFunction(()=>[...document.querySelectorAll('#gameHeroGrid .game-hero-card')].every(c=>c.dataset.wfggV14Seen==='1'),{timeout:24000});
+              const seen=await page.locator('#gameHeroGrid .game-hero-card[data-wfgg-v14-seen="1"]').count();assert.equal(seen,31);
+              assert.ok(phases.some(x=>x.phase==='rest'&&x.count===0),'missing all-rest gap');
+              const legacyEnd=await page.locator('#gameHeroGrid .wfgg-live-card,#gameHeroGrid .wfgg-v10-live,#gameHeroGrid .wfgg-v12-live,#gameHeroGrid .wfgg-v13-live').count();assert.equal(legacyEnd,0);
+              const metric=await page.evaluate(()=>({w:innerWidth,sw:(document.scrollingElement||document.documentElement).scrollWidth}));assert.ok(metric.sw<=metric.w+2);
+              assert.equal(errors.length,0,errors.join(' | '));
+              console.log(JSON.stringify({ok:true,cards:31,seen,imageAnim,shadowStable:true,restGap:true,crops,metric},null,2));
+            }finally{await browser.close()}
+          })().catch(e=>{console.error(e);process.exit(1)});
+          JS
