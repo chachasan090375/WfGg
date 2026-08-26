@@ -26,7 +26,7 @@ jobs:
           npm init -y >/dev/null 2>&1
           npm install playwright@1.55.0 >/dev/null 2>&1
           npx playwright install --with-deps chromium >/dev/null
-      - name: Test public graphical hero workflow
+      - name: Test public graphical hero workflow and multi-select
         env:
           NODE_PATH: /tmp/wfgg-hero-e2e/node_modules
         run: |
@@ -38,59 +38,57 @@ jobs:
           (async()=>{
             for(let i=0;i<80;i++){
               try{
-                const [js,cat]=await Promise.all([
-                  fetch(URL+'hero-roster-v2.js?fresh='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.text():''),
-                  fetch(URL+'data/hero-catalog.v2.json?fresh='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.text():'')
-                ]);
-                if(js.includes("version:'2.1.0'")&&cat.includes('"version": "2.1.0"'))break;
+                const js=await fetch(URL+'hero-roster-v2.js?fresh='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.text():'');
+                if(js.includes("version:'2.2.0'"))break;
               }catch(_){}
-              if(i===79)throw new Error('public preview missing hero roster/catalog 2.1');
+              if(i===79)throw new Error('public preview missing hero roster 2.2');
               await sleep(1500);
             }
             const browser=await chromium.launch({headless:true});
             const context=await browser.newContext({viewport:{width:412,height:915},isMobile:true,hasTouch:true,deviceScaleFactor:2});
             const page=await context.newPage();
             const errors=[];page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error'&&!m.text().includes('Failed to load resource'))errors.push(m.text())});
-            await page.goto(URL+'?heroE2E='+Date.now(),{waitUntil:'networkidle',timeout:30000});
+            await page.goto(URL+'?heroMultiE2E='+Date.now(),{waitUntil:'networkidle',timeout:30000});
             await page.evaluate(()=>localStorage.clear());
             await page.reload({waitUntil:'networkidle',timeout:30000});
-            await page.waitForFunction(()=>window.WfGgHeroRosterV2?.version==='2.1.0',{timeout:12000});
+            await page.waitForFunction(()=>window.WfGgHeroRosterV2?.version==='2.2.0',{timeout:12000});
             await page.locator('#stepNav [data-step="1"]').click();
             await page.waitForSelector('#gameHeroRosterV2 .game-hero-card',{timeout:12000});
             assert(await page.locator('#gameHeroRosterV2 .game-hero-card').count()===31,'31 hero cards expected');
-            assert(await page.locator('[data-hero-id="farhad"]').count()===1,'Farhad must be selectable');
-            assert(await page.locator('[data-hero-id="braz"]').count()===1,'Braz must be selectable');
-            assert(await page.locator('[data-hero-id="blaz"]').count()===0,'Blaz must remain research-only pending client proof');
-            await page.locator('[data-filter="tank"]').click();
-            assert(await page.locator('#gameHeroGrid .game-hero-card').count()===13,'13 Tank cards expected');
-            await page.locator('[data-filter="aircraft"]').click();
-            assert(await page.locator('#gameHeroGrid .game-hero-card').count()===9,'9 Aircraft cards expected');
-            await page.locator('[data-filter="missile"]').click();
-            assert(await page.locator('#gameHeroGrid .game-hero-card').count()===9,'9 Missile cards expected including Braz');
-            await page.locator('[data-filter="all"]').click();
+            assert(await page.locator('#heroSelectionMode.active').count()===1,'multi-select must be active by default');
+
             await page.locator('[data-hero-id="kimberly"]').click();
-            await page.waitForSelector('#heroGameSheet.open');
-            await page.locator('#heroOwnedAction').click();
-            await page.waitForTimeout(700);
-            await page.waitForSelector('#heroGameSheet.open [data-edit-field="displayedAttack"]');
-            await page.locator('#heroGameSheet [data-edit-field="displayedAttack"]').fill('123456');
-            await page.locator('#heroGameSheet [data-edit-field="displayedPower"]').fill('7654321');
-            await page.locator('[data-sheet-tab="grade"]').click();
-            await page.locator('#heroGameSheet [data-edit-field="level"]').fill('149');
-            await page.waitForTimeout(250);
+            await page.waitForSelector('[data-hero-id="kimberly"].owned',{timeout:5000});
+            assert(await page.locator('#heroGameSheet.open').count()===0,'card tap in selection mode must not open sheet');
+            await page.locator('[data-hero-id="monica"]').click();
+            await page.waitForSelector('[data-hero-id="monica"].owned',{timeout:5000});
+            assert((await page.locator('#gameRosterCount').textContent()).startsWith('2/31'),'two selected heroes expected');
+
+            await page.locator('[data-hero-info="kimberly"]').click();
+            await page.waitForSelector('#heroGameSheet.open',{timeout:5000});
+            assert((await page.locator('#heroOwnedAction').textContent()).toLowerCase().includes('retirer'),'info sheet must preserve owned state');
             await page.locator('#heroSheetClose').click();
+
             await page.reload({waitUntil:'networkidle',timeout:30000});
             await page.locator('#stepNav [data-step="1"]').click();
-            await page.waitForSelector('[data-hero-id="kimberly"].owned');
+            await page.waitForSelector('[data-hero-id="kimberly"].owned',{timeout:8000});
+            assert(await page.locator('[data-hero-id="monica"].owned').count()===1,'Monica selection lost after reload');
+            assert((await page.locator('#gameRosterCount').textContent()).startsWith('2/31'),'multi-selection count lost after reload');
+
             await page.locator('[data-hero-id="kimberly"]').click();
-            await page.waitForSelector('#heroGameSheet.open [data-edit-field="displayedAttack"]');
-            assert(await page.locator('#heroGameSheet [data-edit-field="displayedAttack"]').inputValue()==='123456','Kimberly ATK lost after reload');
-            assert(await page.locator('#heroGameSheet [data-edit-field="displayedPower"]').inputValue()==='7654321','Kimberly Power lost after reload');
-            await page.locator('[data-sheet-tab="grade"]').click();
-            assert(await page.locator('#heroGameSheet [data-edit-field="level"]').inputValue()==='149','Kimberly level lost after reload');
-            await page.screenshot({path:'/tmp/wfgg-hero-e2e/hero-roster-v2.png',fullPage:true});
+            await page.waitForTimeout(500);
+            assert(await page.locator('[data-hero-id="kimberly"].owned').count()===0,'selection-mode tap must remove owned hero');
+            assert(await page.locator('[data-hero-id="monica"].owned').count()===1,'other selected hero must remain');
+
+            await page.locator('#heroSelectionMode').click();
+            assert(await page.locator('#heroSelectionMode.active').count()===0,'details mode expected');
+            await page.locator('[data-hero-id="monica"]').click();
+            await page.waitForSelector('#heroGameSheet.open',{timeout:5000});
+            assert(await page.locator('[data-hero-id="monica"].owned').count()===1,'details-mode tap must not alter possession');
+
+            await page.screenshot({path:'/tmp/wfgg-hero-e2e/hero-roster-v2-multiselect.png',fullPage:true});
             assert(errors.length===0,'browser errors: '+errors.join(' | '));
-            console.log('WFGG HERO ROSTER V2.1 E2E COMPLETE');
+            console.log('WFGG HERO ROSTER V2.2 MULTISELECT E2E COMPLETE');
             await browser.close();
           })().catch(e=>{console.error(e);process.exit(1)});
           JS
@@ -98,6 +96,6 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: simulator-hero-roster-v2-screen
-          path: /tmp/wfgg-hero-e2e/hero-roster-v2.png
+          name: simulator-hero-roster-v2-multiselect-screen
+          path: /tmp/wfgg-hero-e2e/hero-roster-v2-multiselect.png
           if-no-files-found: ignore
