@@ -17,86 +17,51 @@ jobs:
         with:
           ref: simulator-standalone-v1
           fetch-depth: 0
-      - name: Get current public metadata and probe table archive
+
+      - name: Probe current public table metadata and table_env variants
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p /tmp/wfgg simulator/research
+          mkdir -p simulator/research /tmp/wfgg
+          python3 - <<'PY'
+          import json, pathlib, urllib.parse, urllib.request
           endpoint='https://lastwar-serverlist-cf.lastwarapp.net/gameservice/getlsu3dversion.php'
-          q='packageName=com.fun.lastwar.gp&platform=Android&appVersion=1.0.359&gm=0&server=&uid=&deviceId=&table_env=&buildId=1864&returnJson=1&unityVersion=440'
-          curl -fsSL --retry 3 --connect-timeout 15 --max-time 45 "$endpoint?$q" -o /tmp/wfgg/version.json
-          python3 - <<'PY'
-          import json,pathlib
-          d=json.load(open('/tmp/wfgg/version.json'))
-          dt=None
-          for item in str(d.get('hotUpdateMsg') or '').split(';'):
-              p=[x.strip() for x in item.split(',')]
-              if p and p[0].lower()=='datatable':
-                  dt={'raw':item,'version':p[1] if len(p)>1 else None,'field2':p[2] if len(p)>2 else None,'field3':p[3] if len(p)>3 else None}
-          allowed=['code','msg','updateType','downloadurl','hotUpdateMsg','lwfile2','table_version','client_config','appVersion','version']
-          out={k:d.get(k) for k in allowed if k in d}
-          out['dataTableDescriptor']=dt
-          out['responseKeys']=sorted(k for k in d if k!='resMsg')
-          out['requestVersion']={'appVersion':'1.0.359','buildId':1864}
-          pathlib.Path('simulator/research/public-balance-discovery.json').write_text(json.dumps(out,indent=2)+"\n")
-          print(json.dumps(out,indent=2))
-          if not d.get('table_version') and not (dt and dt['version']): raise SystemExit('no DataTable descriptor')
-          PY
-          python3 - <<'PY' > /tmp/wfgg/urls
-          import json
-          d=json.load(open('/tmp/wfgg/version.json'))
-          vals=[]
-          tv=str(d.get('table_version') or '').split(';')[0]
-          if tv:
-              p=[x.strip() for x in tv.split(',')]; vals.append((p[0],p[2] if len(p)>2 else ''))
-          for item in str(d.get('hotUpdateMsg') or '').split(';'):
-              p=[x.strip() for x in item.split(',')]
-              if p and p[0].lower()=='datatable': vals.append((p[1],p[3] if len(p)>3 else (p[2] if len(p)>2 else '')))
-          bases=['https://lastwar-cdn.akamaized.net/hotupdate','https://lastwar-cdn.lastwarapp.net/hotupdate','https://cdn.lastwar.com/hotupdate']
-          for v,h in vals:
-              names=[f'table_{v}.data',f'table_{v}_{h}.data',f'DataTable_{v}.data',f'{v}.data']
-              for b in bases:
-                  for sub in ['', 'table','DataTable','datatable','android']:
-                      for n in names: print(b+('/'+sub if sub else '')+'/'+n)
-          PY
-          awk '!seen[$0]++' /tmp/wfgg/urls >/tmp/wfgg/unique
-          : >/tmp/wfgg/probe.tsv
-          while IFS= read -r u; do
-            code=$(curl -LsS -o /tmp/wfgg/cand -w '%{http_code}' --connect-timeout 7 --max-time 20 "$u" || true)
-            size=$(wc -c </tmp/wfgg/cand 2>/dev/null || echo 0); magic=$(xxd -p -l 8 /tmp/wfgg/cand 2>/dev/null || true)
-            printf '%s\t%s\t%s\t%s\n' "$code" "$size" "$magic" "$u" >>/tmp/wfgg/probe.tsv
-            if [[ "$code" == 200 && "$size" -gt 10000 && ( "$magic" == 504b0304* || "$magic" == 43484143* ) ]]; then cp /tmp/wfgg/cand /tmp/wfgg/table.data; echo "$u" >/tmp/wfgg/found; break; fi
-          done </tmp/wfgg/unique
-          python3 - <<'PY'
-          import json,pathlib
+          variants=['','0','1','prod','production','release','online','formal','stable','1295','294','1295,294','1295|294']
           rows=[]
-          for l in pathlib.Path('/tmp/wfgg/probe.tsv').read_text().splitlines():
+          for env in variants:
+              q={
+                'packageName':'com.fun.lastwar.gp','platform':'Android','appVersion':'1.0.359','gm':'0',
+                'server':'','uid':'','deviceId':'','table_env':env,'buildId':'1864','returnJson':'1','unityVersion':'440'
+              }
+              url=endpoint+'?'+urllib.parse.urlencode(q)
               try:
-                  a,b,c,d=l.split('\t',3); rows.append({'http':int(a),'bytes':int(b),'magic':c,'url':d})
-              except: pass
-          f=pathlib.Path('/tmp/wfgg/found')
-          pathlib.Path('simulator/research/public-balance-probe.json').write_text(json.dumps({'found':f.read_text().strip() if f.exists() else None,'candidates':rows},indent=2)+"\n")
-          print('FOUND',f.read_text().strip() if f.exists() else None)
+                  req=urllib.request.Request(url,headers={'User-Agent':'WfGg-public-balance-audit/1.0'})
+                  with urllib.request.urlopen(req,timeout=20) as r:
+                      d=json.load(r)
+                  row={'table_env':env,'keys':sorted(k for k in d if k!='resMsg')}
+                  for k in ['code','msg','updateType','hotUpdateMsg','table_version']:
+                      if k in d: row[k]=d[k]
+                  rows.append(row)
+              except Exception as e:
+                  rows.append({'table_env':env,'error':type(e).__name__+': '+str(e)[:180]})
+          out={
+            'requestVersion':{'appVersion':'1.0.359','buildId':1864},
+            'variants':rows,
+            'note':'Anonymous public version endpoint probe. resMsg and account/session data are intentionally not persisted.'
+          }
+          p=pathlib.Path('simulator/research/public-table-env-probe.v1.json')
+          p.write_text(json.dumps(out,indent=2,ensure_ascii=False)+'\n',encoding='utf-8')
+          print(json.dumps(out,indent=2,ensure_ascii=False))
           PY
-          if [[ -f /tmp/wfgg/table.data ]]; then
-            magic=$(xxd -p -l 4 /tmp/wfgg/table.data)
-            echo "TABLE_MAGIC=$magic"
-            if [[ "$magic" == 504b0304* ]]; then
-              mkdir -p /tmp/wfgg/tables simulator/research/client-table-samples
-              unzip -q /tmp/wfgg/table.data -d /tmp/wfgg/tables
-              find /tmp/wfgg/tables -type f -printf '%P\n'|sort > simulator/research/public-table-file-list.txt
-              grep -Ei '(hero|skill|rank|star|weapon)' simulator/research/public-table-file-list.txt > simulator/research/public-hero-table-candidates.txt || true
-              while IFS= read -r f; do
-                [[ -z "$f" ]] && continue; src="/tmp/wfgg/tables/$f"
-                if file "$src"|grep -Eqi 'text|script|JSON'; then cp "$src" "simulator/research/client-table-samples/$(echo "$f"|tr / _)"; fi
-              done < simulator/research/public-hero-table-candidates.txt
-            fi
-          fi
-      - name: Commit discovery
+
+      - name: Commit sanitized discovery
         shell: bash
         run: |
           set -euo pipefail
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add simulator/research
-          if ! git diff --cached --quiet; then git commit -m 'simulator: capture current balance discovery v2'; git push origin HEAD:simulator-standalone-v1; fi
+          git add simulator/research/public-table-env-probe.v1.json
+          if ! git diff --cached --quiet; then
+            git commit -m 'simulator: capture public table_env probe'
+            git push origin HEAD:simulator-standalone-v1
+          fi
