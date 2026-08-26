@@ -44,12 +44,14 @@ jobs:
           grep -q 'portal-v070.js?v=080-profile-v16' frontend/index.html
           grep -q 'portal-responsive-v1.css?v=001' frontend/index.html
           grep -q 'portal-invitations-v1.css?v=001' frontend/index.html
-          grep -q 'portal-invitations-v1.js?v=001' frontend/index.html
+          grep -q 'portal-invitations-v1.js?v=002&v26=generic-r4r5-thanks' frontend/index.html
           grep -q 'portal-invitations-android-filefix-v1.js?v=002-elo-canonical' frontend/index.html
           grep -q 'portal-invitations-xlsx-v1.js?v=001' frontend/index.html
-          grep -q 'portal-invitations-lastwar-safe-v1.js?v=003-alliance-notice' frontend/index.html
+          grep -q 'portal-invitations-lastwar-safe-v1.js?v=004-generic-r4r5-thanks' frontend/index.html
           grep -q 'WFGG_PORTAL_RESPONSIVE_GUARD_V1' frontend/portal-responsive-v1.css
           grep -q 'WFGG_PORTAL_INVITATIONS_V1' frontend/portal-invitations-v1.js
+          grep -q 'bureau R4/R5' frontend/portal-invitations-v1.js
+          ! grep -q 'THANKED_OFFICERS' frontend/portal-invitations-v1.js
           grep -q 'WFGG_PORTAL_INVITATIONS_ANDROID_FILEFIX_V1' frontend/portal-invitations-android-filefix-v1.js
           grep -q 'WFGG_PORTAL_INVITATIONS_ELO_CANONICAL_V1' frontend/portal-invitations-android-filefix-v1.js
           grep -Fq "const CANONICAL_ELO='εlο ツ'" frontend/portal-invitations-android-filefix-v1.js
@@ -57,6 +59,8 @@ jobs:
           grep -q 'WFGG_LASTWAR_ALLIANCE_NOTICE_V2' frontend/portal-invitations-lastwar-safe-v1.js
           grep -q "MODE:'alliance-notice-v2'" frontend/portal-invitations-lastwar-safe-v1.js
           grep -q 'notifications d.alliance' frontend/portal-invitations-lastwar-safe-v1.js
+          grep -q 'bureau R4/R5' frontend/portal-invitations-lastwar-safe-v1.js
+          ! grep -q 'const THANKED=' frontend/portal-invitations-lastwar-safe-v1.js
           grep -q "removeAttribute('accept')" frontend/portal-invitations-android-filefix-v1.js
           grep -q "input.value=''" frontend/portal-invitations-android-filefix-v1.js
           grep -q 'DecompressionStream' frontend/portal-invitations-xlsx-v1.js
@@ -81,29 +85,31 @@ jobs:
             curl -fsSL -A "$UA" "$ROOT/?production_recette=$i" -o /tmp/root.html || true
             curl -fsSL -A "$UA" "$ROOT/portal-v070.js?v=080-profile-v16&production_recette=$i" -o /tmp/portal.js || true
             curl -fsSL -A "$UA" "$ROOT/portal-responsive-v1.css?v=001&production_recette=$i" -o /tmp/responsive.css || true
-            curl -fsSL -A "$UA" "$ROOT/portal-invitations-v1.js?v=001&production_recette=$i" -o /tmp/invitations.js || true
+            curl -fsSL -A "$UA" "$ROOT/portal-invitations-v1.js?v=002&v26=generic-r4r5-thanks&production_recette=$i" -o /tmp/invitations.js || true
             curl -fsSL -A "$UA" "$ROOT/portal-invitations-android-filefix-v1.js?v=002-elo-canonical&production_recette=$i" -o /tmp/invitations-filefix.js || true
             curl -fsSL -A "$UA" "$ROOT/portal-invitations-xlsx-v1.js?v=001&production_recette=$i" -o /tmp/invitations-xlsx.js || true
-            curl -fsSL -A "$UA" "$ROOT/portal-invitations-lastwar-safe-v1.js?v=003-alliance-notice&production_recette=$i" -o /tmp/invitations-lastwar.js || true
+            curl -fsSL -A "$UA" "$ROOT/portal-invitations-lastwar-safe-v1.js?v=004-generic-r4r5-thanks&production_recette=$i" -o /tmp/invitations-lastwar.js || true
             curl -fsSL -A "$UA" "$ROOT/portal-invitations-v1.css?v=001&production_recette=$i" -o /tmp/invitations.css || true
             curl -fsSL -A "$UA" "$ROOT/train/?production_recette=$i" -o /tmp/train.html || true
             curl -fsSL -A "$UA" "$ROOT/train/app.js?wfgg_bridge=v14&production_recette=$i" -o /tmp/app.js || true
             cancel_refs=$(grep -o 'cancelMarketExchange' /tmp/app.js 2>/dev/null | wc -l | tr -d ' ' || true)
             if grep -Fq 'portal-v070.js?v=080-profile-v16' /tmp/root.html \
               && grep -Fq 'portal-responsive-v1.css?v=001' /tmp/root.html \
-              && grep -Fq 'portal-invitations-v1.js?v=001' /tmp/root.html \
+              && grep -Fq 'portal-invitations-v1.js?v=002&v26=generic-r4r5-thanks' /tmp/root.html \
               && grep -Fq 'portal-invitations-android-filefix-v1.js?v=002-elo-canonical' /tmp/root.html \
               && grep -Fq 'portal-invitations-xlsx-v1.js?v=001' /tmp/root.html \
-              && grep -Fq 'portal-invitations-lastwar-safe-v1.js?v=003-alliance-notice' /tmp/root.html \
+              && grep -Fq 'portal-invitations-lastwar-safe-v1.js?v=004-generic-r4r5-thanks' /tmp/root.html \
               && grep -Fq 'portal-invitations-v1.css?v=001' /tmp/root.html \
               && grep -Fq 'WFGG_PORTAL_RESPONSIVE_GUARD_V1' /tmp/responsive.css \
               && grep -Fq 'WFGG_PORTAL_INVITATIONS_V1' /tmp/invitations.js \
+              && grep -Fq 'bureau R4/R5' /tmp/invitations.js \
               && grep -Fq 'WFGG_PORTAL_INVITATIONS_ANDROID_FILEFIX_V1' /tmp/invitations-filefix.js \
               && grep -Fq 'WFGG_PORTAL_INVITATIONS_ELO_CANONICAL_V1' /tmp/invitations-filefix.js \
               && grep -Fq "const CANONICAL_ELO='εlο ツ'" /tmp/invitations-filefix.js \
               && grep -Fq 'WFGG_PORTAL_INVITATIONS_XLSX_V1' /tmp/invitations-xlsx.js \
               && grep -Fq 'WFGG_LASTWAR_ALLIANCE_NOTICE_V2' /tmp/invitations-lastwar.js \
               && grep -Fq "MODE:'alliance-notice-v2'" /tmp/invitations-lastwar.js \
+              && grep -Fq 'bureau R4/R5' /tmp/invitations-lastwar.js \
               && grep -Fq 'WFGG_PORTAL_INVITATIONS_STYLE_V1' /tmp/invitations.css \
               && grep -Fq "profileSubpage:'main'" /tmp/portal.js \
               && grep -Fq 'profileTrainRotationHost' /tmp/portal.js \
@@ -117,11 +123,11 @@ jobs:
               && grep -Fq 'Joueur indisponible' /tmp/app.js \
               && ! grep -Fq 'portal-auth-phase1-wfgg-train.chachasan090375.workers.dev' /tmp/train.html \
               && [ "$cancel_refs" -ge 4 ]; then
-              echo "WFGG_PAGES_DEV_INVITATIONS_ALLIANCE_V25=OK cancel_refs=$cancel_refs"
+              echo "WFGG_PAGES_DEV_INVITATIONS_ALLIANCE_V26=OK cancel_refs=$cancel_refs"
               ok=1
               break
             fi
-            echo "attempt=$i waiting_for_invitations_alliance_v25 cancel_refs=$cancel_refs"
+            echo "attempt=$i waiting_for_invitations_alliance_v26 cancel_refs=$cancel_refs"
             sleep 5
           done
           test "$ok" = 1
@@ -133,8 +139,9 @@ jobs:
           node --check /tmp/app.js
           grep -Fq 'Historique des connexions' /tmp/portal.js
           grep -Fq 'https://wfgg.pages.dev/' /tmp/invitations.js
-          grep -Fq 'Metatouk' /tmp/invitations.js
-          grep -Fq 'Flawene' /tmp/invitations.js
+          grep -Fq 'bureau R4/R5' /tmp/invitations.js
+          ! grep -Fq 'Metatouk' /tmp/invitations.js
+          ! grep -Fq 'Flawene' /tmp/invitations.js
           ! grep -Fq 'fetch(' /tmp/invitations.js
           grep -Fq "removeAttribute('accept')" /tmp/invitations-filefix.js
           grep -Fq "input.value=''" /tmp/invitations-filefix.js
@@ -146,6 +153,9 @@ jobs:
           grep -Fq 'WFGG_LASTWAR_ALLIANCE_NOTICE_V2' /tmp/invitations-lastwar.js
           grep -Fq 'https://wfgg.pages.dev/' /tmp/invitations-lastwar.js
           grep -Fq 'notifications d’alliance' /tmp/invitations-lastwar.js
+          grep -Fq 'bureau R4/R5' /tmp/invitations-lastwar.js
+          ! grep -Fq 'Metatouk' /tmp/invitations-lastwar.js
+          ! grep -Fq 'Flawene' /tmp/invitations-lastwar.js
           ! grep -Fq 'fetch(' /tmp/invitations-lastwar.js
           grep -Fq 'overflow:hidden' /tmp/responsive.css
           grep -Fq 'max-width:100%' /tmp/responsive.css
