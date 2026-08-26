@@ -87,3 +87,22 @@ jobs:
           curl -fsS http://127.0.0.1:4173/data/tactics-card-catalog.v2.json >/dev/null
           curl -fsS http://127.0.0.1:4173/positioning-engine.v1.js >/dev/null
           echo 'Simulator HTTP smoke OK'
+
+      - name: Cloudflare branch preview smoke
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://simulator-standalone-v1.wfgg.pages.dev/simulator/'
+          ok=0
+          for i in {1..30}; do
+            if curl -fsS "${base}" >/tmp/wfgg-pages-index.html \
+              && grep -q 'WfGg · Simulateur' /tmp/wfgg-pages-index.html \
+              && curl -fsS "${base}data/tactics-card-catalog.v2.json" >/dev/null \
+              && curl -fsS "${base}positioning-engine.v1.js" >/dev/null; then
+              ok=1
+              break
+            fi
+            sleep 2
+          done
+          test "$ok" = 1
+          echo 'Cloudflare simulator branch preview OK'
