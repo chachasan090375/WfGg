@@ -1,0 +1,49 @@
+/* WFGG HERO ROSTER V13 — uniform framing + sequential all-hero motion */
+
+/* Never animate or flash the card itself. Only the portrait can move. */
+.game-hero-card,.game-hero-card .hero-card-footer{transition:none!important;filter:none!important}
+.game-hero-card:before,.game-hero-card.wfgg-v10-live:before,.game-hero-card.wfgg-v12-live:before,.game-hero-card.wfgg-v13-live:before{display:none!important;animation:none!important;opacity:0!important}
+.game-hero-card.wfgg-v10-live,.game-hero-card.wfgg-v12-live,.game-hero-card.wfgg-v13-live{z-index:auto!important;filter:none!important}
+.game-hero-card.rarity-UR,.game-hero-card.rarity-UR.wfgg-v10-live,.game-hero-card.rarity-UR.wfgg-v12-live,.game-hero-card.rarity-UR.wfgg-v13-live{box-shadow:0 2px 2px #0005,inset 0 0 0 1px #ffe9a8!important}
+.game-hero-card.rarity-SSR,.game-hero-card.rarity-SSR.wfgg-v10-live,.game-hero-card.rarity-SSR.wfgg-v12-live,.game-hero-card.rarity-SSR.wfgg-v13-live{box-shadow:0 2px 2px #0005,inset 0 0 0 1px #d8b2f2!important}
+.game-hero-card.rarity-SR,.game-hero-card.rarity-SR.wfgg-v10-live,.game-hero-card.rarity-SR.wfgg-v12-live,.game-hero-card.rarity-SR.wfgg-v13-live{box-shadow:0 2px 2px #0005,inset 0 0 0 1px #a9e7ff!important}
+.game-hero-card.wfgg-v10-live .hero-card-footer,.game-hero-card.wfgg-v12-live .hero-card-footer,.game-hero-card.wfgg-v13-live .hero-card-footer{animation:none!important;filter:none!important}
+
+/* Each source gets a compensated X/Y/zoom so heads and occupied area read uniformly. */
+.game-hero-card .hero-card-portrait{overflow:hidden!important;background:radial-gradient(circle at 50% 28%,#526b8f,#162946 75%)!important}
+.game-hero-card .hero-card-portrait img{
+  object-fit:cover!important;
+  object-position:center top!important;
+  transform:translate3d(var(--wfgg-v13-x,0%),var(--wfgg-v13-y,-2%),0) scale(var(--wfgg-v13-zoom,1.05))!important;
+  transform-origin:50% 0%!important;
+  filter:saturate(1.03) contrast(1.02)!important;
+  animation:none!important;
+  backface-visibility:hidden!important;
+}
+
+/* Legacy motion classes are deliberately visually inert under V13. */
+.game-hero-card.wfgg-v10-live .hero-card-portrait img,.game-hero-card.wfgg-v12-live .hero-card-portrait img{animation:none!important}
+
+/* One gentle character animation shared by every hero. It returns exactly to rest. */
+.game-hero-card.wfgg-v13-live .hero-card-portrait img{
+  animation:wfgg-v13-character-live 1.34s cubic-bezier(.22,.67,.25,1) var(--wfgg-v13-delay,0ms) 1 both!important;
+  will-change:transform,filter!important;
+}
+@keyframes wfgg-v13-character-live{
+  0%{transform:translate3d(var(--wfgg-v13-x,0%),var(--wfgg-v13-y,-2%),0) scale(var(--wfgg-v13-zoom,1.05));filter:saturate(1.03) contrast(1.02)}
+  30%{transform:translate3d(calc(var(--wfgg-v13-x,0%) - .65%),calc(var(--wfgg-v13-y,-2%) - .45%),0) scale(calc(var(--wfgg-v13-zoom,1.05) + .012));filter:saturate(1.045) contrast(1.025)}
+  62%{transform:translate3d(calc(var(--wfgg-v13-x,0%) + .55%),calc(var(--wfgg-v13-y,-2%) - 1.15%),0) scale(calc(var(--wfgg-v13-zoom,1.05) + .022));filter:saturate(1.055) contrast(1.03) brightness(1.012)}
+  82%{transform:translate3d(calc(var(--wfgg-v13-x,0%) - .18%),calc(var(--wfgg-v13-y,-2%) - .38%),0) scale(calc(var(--wfgg-v13-zoom,1.05) + .008));filter:saturate(1.04) contrast(1.02)}
+  100%{transform:translate3d(var(--wfgg-v13-x,0%),var(--wfgg-v13-y,-2%),0) scale(var(--wfgg-v13-zoom,1.05));filter:saturate(1.03) contrast(1.02)}
+}
+
+/* Keep the semantic footer fully stable while characters move. */
+.wfgg-v10-footer,.wfgg-v10-name,.wfgg-v10-meta,.wfgg-v10-flags{transform:none!important;animation:none!important}
+
+@media(max-width:430px){
+  .game-hero-card .hero-card-portrait img{image-rendering:auto!important}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .game-hero-card.wfgg-v13-live .hero-card-portrait img{animation:none!important}
+}
