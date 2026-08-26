@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0-research",
+  "version": "1.1.0-research",
   "auditedAt": "2026-08-26",
   "purpose": "Model hero placement independently from squad composition so positional and adjacency buffs can affect optimization without inventing unverified hero effects.",
   "positions": [
@@ -53,15 +53,39 @@
     "targetDamageTaken"
   ],
   "effectSchema": {
-    "required": ["id","providerHeroId","selector","stat","value","stacking","contexts","confidence"],
-    "optional": ["troopTypeFilter","roleFilter","damageTypeFilter","explicitSlots","condition","durationSeconds","source","notes"],
+    "required": ["id","providerHeroId","selector","stat","stacking","contexts","confidence"],
+    "optional": ["value","valueSourceField","troopTypeFilter","roleFilter","damageTypeFilter","explicitSlots","condition","durationSeconds","source","notes"],
     "confidenceAllowed": ["verified","strong-community","needs-in-game-validation"],
-    "productionRule": "Effects marked needs-in-game-validation must not change a production recommendation by default."
+    "productionRule": "Effects marked needs-in-game-validation must not change a production recommendation by default. A verified structural effect may still require the player's current displayed percentage instead of guessing a value."
   },
-  "verifiedHeroEffects": [],
+  "verifiedHeroEffects": [
+    {
+      "id": "mason-zombie-purge-back-row-tank-monster-damage",
+      "providerHeroId": "Mason",
+      "selector": "back-row",
+      "stat": "monsterDamage",
+      "valueSourceField": "positionalPveBuffPct",
+      "stacking": "percent",
+      "contexts": ["pve","wanted","wanted-39","wanted-64","wanted-87"],
+      "troopTypeFilter": "tank",
+      "confidence": "verified",
+      "condition": "Mason is deployed; targets are Tank heroes occupying one of the three back-row slots.",
+      "source": "https://play.google.com/store/apps/editorial?id=mc_games_editorialevergreen_postinstall_troops_in_last_war_survival_fcp",
+      "notes": "Google Play's localized Last War editorial confirms that Zombie Purge boosts Tank heroes in the back row. The exact current percentage varies with the hero/skill state, so WfGg requires the displayed current percentage from the player instead of hard-coding an unverified curve."
+    }
+  ],
+  "researchedNotYetProductionEffects": [
+    {
+      "id": "sarah-back-row-monster-damage",
+      "providerHeroId": "Sarah",
+      "status": "needs-variant-and-current-value-input",
+      "reason": "SSR MG Symphony and UR Falcon Strike both affect back-row monster damage but use different targeting/value/duration rules; WfGg will not collapse them into one effect until promotion state and exact current skill values are represented."
+    }
+  ],
   "pendingWork": [
-    "Populate hero skill effects from audited sources or in-game captures.",
+    "Populate additional hero skill effects from audited sources or in-game captures.",
     "Confirm the exact geometry used by skills whose wording only says adjacent.",
-    "Record whether each positional buff affects the provider, targets, or both and whether it stacks."
+    "Record whether each positional buff affects the provider, targets, or both and whether it stacks.",
+    "Add Sarah SSR/UR as separate effect variants rather than mixing their different skill rules."
   ]
 }
