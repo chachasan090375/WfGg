@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#100d16" />
+  <title>WfGg · Simulateur</title>
+  <link rel="stylesheet" href="style.css?v=001" />
+</head>
+<body>
+  <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
+  <main class="sim-shell">
+    <header class="sim-topbar glass-card">
+      <div class="brand-row compact"><div class="brand-mark small">W</div><div><p class="eyebrow">WfGg</p><strong id="topTitle">Simulateur</strong></div></div>
+      <div class="top-actions">
+        <span id="saveState" class="save-state">Sauvegardé</span>
+        <div id="languageStrip" class="language-strip compact" aria-label="Langue"><button data-lang="fr">FR</button><button data-lang="it">IT</button><button data-lang="en">EN</button><button data-lang="es">ES</button></div>
+      </div>
+    </header>
+
+    <section class="intro">
+      <p class="eyebrow" data-ui="introEyebrow">Module autonome</p>
+      <h1 data-ui="introTitle">Construisez votre compte</h1>
+      <p class="muted" data-ui="introText">Renseignez uniquement les éléments qui peuvent changer le classement relatif de vos équipes. Vos données restent enregistrées localement sur cet appareil.</p>
+    </section>
+
+    <section id="terminologyNotice" class="notice glass-card">
+      <div><strong data-ui="termTitle">Terminologie Last War contrôlée</strong><p class="muted" data-ui="termText">Les libellés non confirmés dans le client du jeu restent signalés comme provisoires. Le moteur stocke des IDs sémantiques indépendants des traductions.</p></div>
+      <span id="termPendingCount" class="status-pill">—</span>
+    </section>
+
+    <nav id="stepNav" class="step-nav" aria-label="Étapes"></nav>
+
+    <section class="workspace glass-card">
+      <div id="step-account" class="step-panel"></div>
+      <div id="step-heroes" class="step-panel hidden"></div>
+      <div id="step-gear" class="step-panel hidden"></div>
+      <div id="step-research" class="step-panel hidden"></div>
+      <div id="step-season" class="step-panel hidden"></div>
+      <div id="step-summary" class="step-panel hidden"></div>
+    </section>
+
+    <footer class="step-actions">
+      <button id="prevBtn" class="secondary-button" type="button">← <span data-ui="previous">Précédent</span></button>
+      <button id="nextBtn" class="primary-button" type="button"><span data-ui="next">Suivant</span> →</button>
+    </footer>
+  </main>
+
+  <template id="heroTemplate">
+    <article class="entry-card hero-card">
+      <div class="entry-head"><div><p class="eyebrow">Héros</p><strong class="entry-title">—</strong></div><button class="icon-button danger" data-action="remove-hero" type="button" aria-label="Supprimer">×</button></div>
+      <div class="form-grid hero-grid">
+        <label><span data-ui="heroName">Nom du héros</span><input data-field="heroId" autocomplete="off" /></label>
+        <label><span data-ui="heroType">Type</span><select data-field="troopType"></select></label>
+        <label><span data-ui="heroRole">Rôle</span><select data-field="role"></select></label>
+        <label><span data-ui="heroLevel">Niveau</span><input data-field="level" type="number" min="1" max="200" inputmode="numeric" /></label>
+        <label><span data-ui="heroStars">Étoiles</span><input data-field="stars" type="number" min="0" max="5" step="0.1" inputmode="decimal" /></label>
+        <label><span data-ui="heroEw">Arme exclusive · niveau</span><input data-field="exclusiveWeaponLevel" type="number" min="0" max="40" inputmode="numeric" /></label>
+        <label><span data-ui="heroWall">Wall of Honor · niveau</span><input data-field="wallOfHonorLevel" type="number" min="0" max="999" inputmode="numeric" /></label>
+        <label class="toggle-field"><span data-ui="heroAwakening">Awakening débloqué</span><input data-field="awakeningUnlocked" type="checkbox" /></label>
+      </div>
+    </article>
+  </template>
+
+  <template id="gearTemplate">
+    <article class="entry-card gear-card">
+      <div class="entry-head"><div><p class="eyebrow" data-ui="gearEyebrow">Équipement</p><strong class="entry-title">—</strong></div><button class="icon-button danger" data-action="remove-gear" type="button" aria-label="Supprimer">×</button></div>
+      <div class="form-grid">
+        <label><span data-ui="gearId">Identifiant / nom</span><input data-field="itemId" autocomplete="off" /></label>
+        <label><span data-ui="gearSlot">Emplacement</span><select data-field="slot"></select></label>
+        <label><span data-ui="rarity">Rareté</span><select data-field="rarity"><option value="UR">UR</option><option value="SSR">SSR</option><option value="SR">SR</option><option value="R">R</option></select></label>
+        <label><span data-ui="level">Niveau</span><input data-field="level" type="number" min="0" max="100" inputmode="numeric" /></label>
+        <label><span data-ui="stars">Étoiles</span><input data-field="stars" type="number" min="0" max="5" step="0.1" inputmode="decimal" /></label>
+        <label><span data-ui="promotion">Promotion</span><input data-field="promotion" type="number" min="0" max="99" inputmode="numeric" /></label>
+        <label><span data-ui="assignedHero">Héros équipé</span><select data-field="currentlyAssignedHero"></select></label>
+      </div>
+    </article>
+  </template>
+
+  <script src="app.js?v=001"></script>
+</body>
+</html>
