@@ -1,0 +1,17 @@
+/* V8 — a closed hero sheet must never intercept the roster beneath it */
+.hero-game-sheet:not(.open),
+.hero-game-sheet:not(.open) *{
+  pointer-events:none!important;
+}
+.hero-game-sheet:not(.open){
+  visibility:hidden!important;
+}
+.hero-game-sheet.open{
+  visibility:visible!important;
+  pointer-events:auto!important;
+}
+.hero-game-sheet.open *{
+  pointer-events:auto!important;
+}
+.hero-game-sheet-backdrop:not(.open){pointer-events:none!important;visibility:hidden!important}
+.hero-game-sheet-backdrop.open{pointer-events:auto!important;visibility:visible!important}
