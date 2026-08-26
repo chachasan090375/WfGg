@@ -1,0 +1,104 @@
+{
+  "version": "1.0.0-research",
+  "auditedAt": "2026-08-26",
+  "awakeningCommon": {
+    "unlockRequirements": {"heroStars":5,"exclusiveWeaponMinLevel":20,"namedAwakeningShards":50},
+    "replacesExpertiseSkill": true,
+    "inheritsSuperSensingEffects": true,
+    "awakeningSkillMaxLevel": 40,
+    "statGrowth": ["HP","Attack","Defense"],
+    "damageReductionByAwakeningStarsPct": {"0":2.5,"1":3.0,"2":3.5,"3":4.0,"4":4.5,"5":5.0},
+    "note": "Displayed hero stats already absorb part of this progression; awakened-skill damage and composition mechanics must still be modeled separately."
+  },
+  "heroes": [
+    {
+      "hero":"Kimberly",
+      "troopType":"tank",
+      "release":"Season 6 Week 1",
+      "awakeningSkill":"Priceless Resolve",
+      "baseSkillReference": {
+        "level":1,
+        "barrages":10,
+        "energyDamagePctOfAttackPerBarrage":140.04,
+        "extraBarragesPerEnergyAmplificationStack":3,
+        "maxBarrages":25
+      },
+      "starBonuses": {
+        "1":"Starts battle in Resolve state",
+        "2":"Awakening skill +20% Extra Damage",
+        "3":"On Awakening Skill use, immediately gains 2 Energy Amplification stacks",
+        "4":"Awakening skill +40% Extra Damage",
+        "5":"Launches 1 additional barrage per Energy Amplification stack"
+      },
+      "scoringStatus":"structure-audited-needs-skill-level-curve-and-energy-amplification-state"
+    },
+    {
+      "hero":"DVA",
+      "troopType":"aircraft",
+      "release":"Season 6 Week 3",
+      "awakeningSkill":"Starred Ace",
+      "baseSkillReference": {
+        "level":1,
+        "airborneDurationSeconds":5,
+        "followUpEnergyDamagePctOfAttack":251.09,
+        "aceBoostStacksPerAircraftHero":1,
+        "aceBoostAttackSpeedPctPerStack":20,
+        "maxAceBoostStacks":5
+      },
+      "starBonuses": {
+        "1":"Ace Boost +10% additional Attack Speed per stack",
+        "2":"Follow-up attacks +20% damage",
+        "3":"Ace Boost +5% Attack per stack",
+        "4":"Follow-up attacks +40% damage",
+        "5":"Airborne duration +1 second"
+      },
+      "compositionDependency":"number of Aircraft heroes in squad",
+      "scoringStatus":"structure-audited-needs-skill-level-curve"
+    },
+    {
+      "hero":"Tesla",
+      "troopType":"missile",
+      "release":"Season 6 Week 5",
+      "awakeningSkill":"Vortex Resonance",
+      "baseSkillReference": {
+        "cooldownSeconds":15,
+        "baseBounces":7,
+        "level40EnergyDamagePctOfAttackPerBounce":726.47,
+        "inductiveCurrentDamagePctOfTeslaAttackPerSecond":3,
+        "inductiveCurrentDurationSeconds":30,
+        "maxInductiveCurrentStacksFormula":"min(15, missileHeroesInSquad * 3)"
+      },
+      "starBonuses": {
+        "1":"Each bounce applies 2 Inductive Current stacks",
+        "2":"Awakening skill +20% additional damage",
+        "3":"+1 bounce",
+        "4":"Awakening skill +40% additional damage",
+        "5":"+1 bounce"
+      },
+      "compositionDependency":"Missile hero count controls Inductive Current stack ceiling",
+      "scoringStatus":"structure-audited-needs-skill-level-curve-and-target-count-model"
+    }
+  ],
+  "brazPromotion": {
+    "hero":"Braz",
+    "troopType":"missile",
+    "season":"Season 6",
+    "opens":"Week 3",
+    "requirements":{"ssrStars":5,"urHeroBadge":1},
+    "afterPromotion":{"rarity":"UR","starsResetTo":3,"skillLevelsResetTo":1,"heroLevelRetained":true},
+    "ssrMonsterPassive":{"skill":"Zombie Killer","referenceMonsterDamagePct":28.3},
+    "urKit": {
+      "losesZombieKiller":true,
+      "tactics":"Ancestral Wrath: AoE Physical Damage and Attack Speed reduction",
+      "passive":"Promotion Synergy: Physical Damage scales with promoted heroes in squad",
+      "expertise":"Super Sensing: HP/Attack/Defense +20% and skill cooldown speed +10%"
+    },
+    "simulatorRule":"Treat Braz SSR and Braz UR as different combat variants; UR promotion must not silently inherit SSR monster-damage passive."
+  },
+  "sources": [
+    "https://cpt-hedge.com/guides/season-6-kim-awakening",
+    "https://cpt-hedge.com/guides/season-6-dva-awakening",
+    "https://cpt-hedge.com/guides/season-6-tesla-awakening",
+    "https://cpt-hedge.com/guides/season-6-braz-ur-promotion"
+  ]
+}
