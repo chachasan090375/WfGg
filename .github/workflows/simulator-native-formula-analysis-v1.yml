@@ -28,26 +28,29 @@ jobs:
           import json,pathlib
           src=pathlib.Path('simulator/research/datatable-native-hero-values.v3.json')
           if not src.exists(): raise SystemExit('v3 native values not present')
-          d=json.loads(src.read_text())
-          tables=d.get('tables',{})
+          d=json.loads(src.read_text()); tables=d.get('tables',{})
           def rows(name): return tables.get(name,{}).get('rows',[])
           will=d.get('anchors',{}).get('williamsRow')
           level_rows=rows('lw_hero_level')
           levels=[int(r['level']) for r in level_rows if isinstance(r.get('level'),(int,float))]
-          max_transition=max(levels) if levels else None
-          max_reachable=max_transition+1 if max_transition is not None else None
-          rank_rows=rows('lw_hero_rank')
-          parsed=[]; prop_ids=set()
+          max_transition=max(levels) if levels else None; max_reachable=max_transition+1 if max_transition is not None else None
+          rank_rows=rows('lw_hero_rank'); parsed=[]; prop_ids=set()
           def parse_add(v):
               out=[]
-              if not isinstance(v,str): return out
-              for part in v.split('|'):
-                  if not part: continue
-                  bits=part.split(';',1)
-                  if len(bits)!=2: continue
-                  try: pid=int(bits[0]); val=float(bits[1])
-                  except: continue
-                  prop_ids.add(pid); out.append({'propertyId':pid,'value':val})
+              if isinstance(v,dict):
+                  for k,val in v.items():
+                      try: pid=int(k); num=float(val)
+                      except: continue
+                      prop_ids.add(pid); out.append({'propertyId':pid,'value':num})
+                  return sorted(out,key=lambda x:x['propertyId'])
+              if isinstance(v,str):
+                  for part in v.split('|'):
+                      if not part: continue
+                      bits=part.split(';',1)
+                      if len(bits)!=2: continue
+                      try: pid=int(bits[0]); num=float(bits[1])
+                      except: continue
+                      prop_ids.add(pid); out.append({'propertyId':pid,'value':num})
               return out
           for r in rank_rows:
               ratio=r.get('attr_ratio')
@@ -60,26 +63,15 @@ jobs:
               return {k:r.get(k) for k in ('id','exp','lv_attr_atk1','lv_attr_atk2','lv_attr_atk3','lv_attr_atk4','lv_attr_def1','lv_attr_def2','lv_attr_def3','lv_attr_def4')}
           out={
             'source':d.get('source'),
-            'levelEncoding':{
-              'transitionRowCount':len(level_rows),
-              'minTransitionLevel':min(levels) if levels else None,
-              'maxTransitionLevel':max_transition,
-              'maxReachableHeroLevel':max_reachable,
-              'interpretation':'Rows encode transitions from the stored level to the next level. Therefore 174 transition rows ending at level 174 imply a terminal reachable hero level of 175, not 174.'
-            },
+            'levelEncoding':{'transitionRowCount':len(level_rows),'minTransitionLevel':min(levels) if levels else None,'maxTransitionLevel':max_transition,'maxReachableHeroLevel':max_reachable,'interpretation':'Rows encode transitions from the stored level to the next level. Therefore 174 transition rows ending at level 174 imply a terminal reachable hero level of 175, not 174.'},
             'williams':{'nativeId':50007,'base':will},
             'rankModel':{'rowCount':len(rank_rows),'propertyIds':sorted(prop_ids),'rows':parsed},
             'growthTableCandidate':{'table':'heroes_levelup','rowCount':len(growth),'first':pick_growth(growth[0]) if growth else None,'last':pick_growth(growth[-1]) if growth else None,'status':'candidate_only_not_yet_proven_for_current_lw_hero_formula'},
             'awakenRankRowsForRoster':rows('lw_hero_awaken_rank'),
             'uniqueWeaponUnitRowsForRoster':rows('lw_hero_unique_weapon_unit'),
-            'blockers':[
-              'Map rank attr_add property IDs to canonical HP/ATK/DEF property semantics from an authoritative property table.',
-              'Locate the current client formula that combines lw_hero base stats, hero level and lw_hero_rank attr_add/attr_ratio.',
-              'Validate the resulting formula against known in-game anchors before enabling automatic displayed stats.'
-            ]
+            'blockers':['Map rank attr_add property IDs to canonical HP/ATK/DEF property semantics from an authoritative property table.','Locate the current client formula that combines lw_hero base stats, hero level and lw_hero_rank attr_add/attr_ratio.','Validate the resulting formula against known in-game anchors before enabling automatic displayed stats.']
           }
-          p=pathlib.Path('simulator/research/native-stat-formula-analysis.v1.json')
-          p.write_text(json.dumps(out,indent=2,ensure_ascii=False)+'\n')
+          p=pathlib.Path('simulator/research/native-stat-formula-analysis.v1.json'); p.write_text(json.dumps(out,indent=2,ensure_ascii=False)+'\n')
           print(json.dumps({'williamsFound':will is not None,'transitionRows':len(level_rows),'maxTransitionLevel':max_transition,'maxReachableHeroLevel':max_reachable,'rankRows':len(rank_rows),'propertyIds':sorted(prop_ids),'outputBytes':p.stat().st_size},indent=2))
           PY
       - name: Commit formula analysis
