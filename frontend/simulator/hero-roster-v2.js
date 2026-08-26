@@ -10,13 +10,14 @@
   let query='';
   let selectedId=null;
   let selectedTab='attributes';
+  let selectionMode=true;
   let enhancing=false;
 
   const L={
-    fr:{search:'Rechercher un héros…',all:'Tous',tank:'Tank',aircraft:'Avion',missile:'Véhicule Missile',owned:'possédés',level:'Niv.',attack:'Attaque',defense:'Défense',support:'Soutien',attributes:'Attributs',grade:'Grade',weapon:'Arme exclusive',wall:'Mur d’honneur',add:'Ajouter à mon profil',remove:'Retirer du profil',power:'Puissance',hp:'PV',stars:'Étoiles',rarity:'Rareté / variante',awaken:'Éveil débloqué',awakenStars:'Étoiles d’éveil',awakenTier:'Palier d’éveil',awakenSkill:'Compétence d’éveil',weaponLevel:'Niveau de l’arme exclusive',wallLevel:'Niveau au Mur d’honneur',monster:'Bonus dégâts monstres %',pve:'Bonus dégâts PvE %',advanced:'Ouvrir les réglages avancés',advancedTitle:'Réglages avancés / compétences',notOwned:'Ce héros n’est pas encore dans votre profil. Touchez « Ajouter » puis renseignez ses valeurs réelles.',saved:'Chaque changement est sauvegardé automatiquement.',promotion:'Promotion saison',awakening:'Awakening'},
-    en:{search:'Search hero…',all:'All',tank:'Tank',aircraft:'Aircraft',missile:'Missile Vehicle',owned:'owned',level:'Lv.',attack:'Attack',defense:'Defense',support:'Support',attributes:'Attributes',grade:'Grade',weapon:'Exclusive Weapon',wall:'Wall of Honor',add:'Add to my profile',remove:'Remove from profile',power:'Power',hp:'HP',stars:'Stars',rarity:'Rarity / variant',awaken:'Awakening unlocked',awakenStars:'Awakening stars',awakenTier:'Awakening tier',awakenSkill:'Awakening skill',weaponLevel:'Exclusive Weapon level',wallLevel:'Wall of Honor level',monster:'Monster damage bonus %',pve:'PvE damage bonus %',advanced:'Open advanced settings',advancedTitle:'Advanced settings / skills',notOwned:'This hero is not in your profile yet. Tap Add, then enter the real values shown in game.',saved:'Every change is saved automatically.',promotion:'Season promotion',awakening:'Awakening'},
-    it:{search:'Cerca eroe…',all:'Tutti',tank:'Tank',aircraft:'Aereo',missile:'Veicolo Missile',owned:'posseduti',level:'Liv.',attack:'Attacco',defense:'Difesa',support:'Supporto',attributes:'Attributi',grade:'Grado',weapon:'Arma esclusiva',wall:'Wall of Honor',add:'Aggiungi al profilo',remove:'Rimuovi dal profilo',power:'Potenza',hp:'PV',stars:'Stelle',rarity:'Rarità / variante',awaken:'Awakening sbloccato',awakenStars:'Stelle Awakening',awakenTier:'Tier Awakening',awakenSkill:'Abilità Awakening',weaponLevel:'Livello arma esclusiva',wallLevel:'Livello Wall of Honor',monster:'Bonus danni mostri %',pve:'Bonus danni PvE %',advanced:'Apri impostazioni avanzate',advancedTitle:'Impostazioni avanzate / abilità',notOwned:'Questo eroe non è ancora nel profilo. Tocca Aggiungi e inserisci i valori reali mostrati nel gioco.',saved:'Ogni modifica viene salvata automaticamente.',promotion:'Promozione stagione',awakening:'Awakening'},
-    es:{search:'Buscar héroe…',all:'Todos',tank:'Tank',aircraft:'Avión',missile:'Vehículo de misiles',owned:'guardados',level:'Nv.',attack:'Ataque',defense:'Defensa',support:'Apoyo',attributes:'Atributos',grade:'Grado',weapon:'Arma exclusiva',wall:'Wall of Honor',add:'Añadir a mi perfil',remove:'Quitar del perfil',power:'Potencia',hp:'PV',stars:'Estrellas',rarity:'Rareza / variante',awaken:'Awakening desbloqueado',awakenStars:'Estrellas Awakening',awakenTier:'Nivel Awakening',awakenSkill:'Habilidad Awakening',weaponLevel:'Nivel del arma exclusiva',wallLevel:'Nivel Wall of Honor',monster:'Bonus daño monstruos %',pve:'Bonus daño PvE %',advanced:'Abrir ajustes avanzados',advancedTitle:'Ajustes avanzados / habilidades',notOwned:'Este héroe aún no está en tu perfil. Toca Añadir y escribe los valores reales mostrados en el juego.',saved:'Cada cambio se guarda automáticamente.',promotion:'Promoción de temporada',awakening:'Awakening'}
+    fr:{search:'Rechercher un héros…',all:'Tous',tank:'Tank',aircraft:'Avion',missile:'Véhicule Missile',owned:'possédés',level:'Niv.',attack:'Attaque',defense:'Défense',support:'Soutien',attributes:'Attributs',grade:'Grade',weapon:'Arme exclusive',wall:'Mur d’honneur',add:'Ajouter à mon profil',remove:'Retirer du profil',power:'Puissance',hp:'PV',stars:'Étoiles',rarity:'Rareté / variante',awaken:'Éveil débloqué',awakenStars:'Étoiles d’éveil',awakenTier:'Palier d’éveil',awakenSkill:'Compétence d’éveil',weaponLevel:'Niveau de l’arme exclusive',wallLevel:'Niveau au Mur d’honneur',monster:'Bonus dégâts monstres %',pve:'Bonus dégâts PvE %',advanced:'Ouvrir les réglages avancés',advancedTitle:'Réglages avancés / compétences',notOwned:'Ce héros n’est pas encore dans votre profil. Touchez « Ajouter » puis renseignez ses valeurs réelles.',saved:'Chaque changement est sauvegardé automatiquement.',promotion:'Promotion saison',awakening:'Awakening',multi:'Sélection multiple',multiHint:'Touchez les cartes pour ajouter ou retirer plusieurs héros. ⓘ ouvre la fiche.',detailsMode:'Mode fiches',details:'Ouvrir la fiche'},
+    en:{search:'Search hero…',all:'All',tank:'Tank',aircraft:'Aircraft',missile:'Missile Vehicle',owned:'owned',level:'Lv.',attack:'Attack',defense:'Defense',support:'Support',attributes:'Attributes',grade:'Grade',weapon:'Exclusive Weapon',wall:'Wall of Honor',add:'Add to my profile',remove:'Remove from profile',power:'Power',hp:'HP',stars:'Stars',rarity:'Rarity / variant',awaken:'Awakening unlocked',awakenStars:'Awakening stars',awakenTier:'Awakening tier',awakenSkill:'Awakening skill',weaponLevel:'Exclusive Weapon level',wallLevel:'Wall of Honor level',monster:'Monster damage bonus %',pve:'PvE damage bonus %',advanced:'Open advanced settings',advancedTitle:'Advanced settings / skills',notOwned:'This hero is not in your profile yet. Tap Add, then enter the real values shown in game.',saved:'Every change is saved automatically.',promotion:'Season promotion',awakening:'Awakening',multi:'Multi-select',multiHint:'Tap cards to add or remove several heroes. ⓘ opens details.',detailsMode:'Details mode',details:'Open details'},
+    it:{search:'Cerca eroe…',all:'Tutti',tank:'Tank',aircraft:'Aereo',missile:'Veicolo Missile',owned:'posseduti',level:'Liv.',attack:'Attacco',defense:'Difesa',support:'Supporto',attributes:'Attributi',grade:'Grado',weapon:'Arma esclusiva',wall:'Wall of Honor',add:'Aggiungi al profilo',remove:'Rimuovi dal profilo',power:'Potenza',hp:'PV',stars:'Stelle',rarity:'Rarità / variante',awaken:'Awakening sbloccato',awakenStars:'Stelle Awakening',awakenTier:'Tier Awakening',awakenSkill:'Abilità Awakening',weaponLevel:'Livello arma esclusiva',wallLevel:'Livello Wall of Honor',monster:'Bonus danni mostri %',pve:'Bonus danni PvE %',advanced:'Apri impostazioni avanzate',advancedTitle:'Impostazioni avanzate / abilità',notOwned:'Questo eroe non è ancora nel profilo. Tocca Aggiungi e inserisci i valori reali mostrati nel gioco.',saved:'Ogni modifica viene salvata automaticamente.',promotion:'Promozione stagione',awakening:'Awakening',multi:'Selezione multipla',multiHint:'Tocca le carte per aggiungere o rimuovere più eroi. ⓘ apre la scheda.',detailsMode:'Modalità schede',details:'Apri scheda'},
+    es:{search:'Buscar héroe…',all:'Todos',tank:'Tank',aircraft:'Avión',missile:'Vehículo de misiles',owned:'guardados',level:'Nv.',attack:'Ataque',defense:'Defensa',support:'Apoyo',attributes:'Atributos',grade:'Grado',weapon:'Arma exclusiva',wall:'Wall of Honor',add:'Añadir a mi perfil',remove:'Quitar del perfil',power:'Potencia',hp:'PV',stars:'Estrellas',rarity:'Rareza / variante',awaken:'Awakening desbloqueado',awakenStars:'Estrellas Awakening',awakenTier:'Nivel Awakening',awakenSkill:'Habilidad Awakening',weaponLevel:'Nivel del arma exclusiva',wallLevel:'Nivel Wall of Honor',monster:'Bonus daño monstruos %',pve:'Bonus daño PvE %',advanced:'Abrir ajustes avanzados',advancedTitle:'Ajustes avanzados / habilidades',notOwned:'Este héroe aún no está en tu perfil. Toca Añadir y escribe los valores reales mostrados en el juego.',saved:'Cada cambio se guarda automáticamente.',promotion:'Promoción de temporada',awakening:'Awakening',multi:'Selección múltiple',multiHint:'Toca las cartas para añadir o quitar varios héroes. ⓘ abre la ficha.',detailsMode:'Modo fichas',details:'Abrir ficha'}
   };
 
   function locale(){return document.documentElement.lang||'fr'}
@@ -57,14 +58,22 @@
 
   function cardHtml(cat){
     const own=ownedHero(cat);const d=own?.data||{};const rarity=d.rarity||cat.rarity;const lvl=d.level||'';const st=d.stars||0;
-    return `<button class="game-hero-card rarity-${esc(rarity)} ${own?'owned':''} ${selectedId===cat.id?'selected':''}" data-hero-id="${esc(cat.id)}" type="button" aria-label="${esc(cat.name)}">
+    return `<article class="game-hero-card rarity-${esc(rarity)} ${own?'owned':''} ${selectedId===cat.id?'selected':''} ${selectionMode?'selection-mode':''}" data-hero-id="${esc(cat.id)}" role="button" tabindex="0" aria-label="${esc(cat.name)}" aria-pressed="${own?'true':'false'}">
       <span class="hero-card-portrait">${portrait(cat)}</span>
       <span class="hero-role-badge" title="${esc(roleLabel(cat.role))}">${roleIcon(cat.role)}</span>
       ${cat.promotableTo?`<span class="hero-promote-mark">${esc(cat.rarity)}→${esc(cat.promotableTo)}</span>`:''}
       <span class="hero-type-mini">${troopSvg(cat.troopType)}</span>
       <span class="hero-rarity-badge">${esc(rarity)}</span>
+      <button class="hero-card-info" data-hero-info="${esc(cat.id)}" type="button" aria-label="${esc(t('details'))}">ⓘ</button>
+      <button class="hero-owned-toggle ${own?'on':''}" data-hero-toggle="${esc(cat.id)}" type="button" aria-label="${esc(own?t('remove'):t('add'))}">${own?'✓':'＋'}</button>
       <span class="hero-card-footer"><span class="hero-card-name">${esc(cat.name)}</span><span class="hero-card-meta"><span>${lvl?`${esc(t('level'))}${esc(lvl)}`:own?'—':''}</span><span class="hero-card-stars">${own?stars(st):'☆☆☆☆☆'}</span></span></span>
-    </button>`;
+    </article>`;
+  }
+
+  async function toggleOwned(cat){
+    if(ownedHero(cat))removeHero(cat,false);else await addHero(cat,false);
+    await delay(100);
+    const shell=document.querySelector('#gameHeroRosterV2');if(shell)renderGrid(shell);
   }
 
   function renderGrid(shell){
@@ -72,11 +81,18 @@
     const rows=filtered();grid.innerHTML=rows.length?rows.map(cardHtml).join(''):`<div class="game-roster-empty">Aucun héros</div>`;
     bindImageFallbacks(grid);
     const count=shell.querySelector('#gameRosterCount');const owned=(profile().heroes||[]).filter(h=>h.heroId).length;if(count)count.textContent=`${owned}/${catalog.length} ${t('owned')}`;
-    grid.querySelectorAll('[data-hero-id]').forEach(b=>b.onclick=()=>openSheet(b.dataset.heroId));
+    grid.querySelectorAll('.game-hero-card[data-hero-id]').forEach(card=>{
+      const activate=()=>{const cat=catalog.find(h=>h.id===card.dataset.heroId);if(!cat)return;if(selectionMode)toggleOwned(cat);else openSheet(cat.id)};
+      card.onclick=activate;
+      card.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();activate()}};
+    });
+    grid.querySelectorAll('[data-hero-info]').forEach(b=>b.onclick=e=>{e.stopPropagation();openSheet(b.dataset.heroInfo)});
+    grid.querySelectorAll('[data-hero-toggle]').forEach(b=>b.onclick=e=>{e.stopPropagation();const cat=catalog.find(h=>h.id===b.dataset.heroToggle);if(cat)toggleOwned(cat)});
   }
 
   function renderRoster(shell){
     shell.innerHTML=`<div class="game-roster-head"><div class="game-roster-search"><input id="gameHeroSearch" value="${esc(query)}" placeholder="${esc(t('search'))}" autocomplete="off"></div><span id="gameRosterCount" class="game-roster-count"></span></div>
+      <div class="game-roster-mode"><button id="heroSelectionMode" class="game-selection-toggle ${selectionMode?'active':''}" type="button">${selectionMode?'✓ ':''}${esc(selectionMode?t('multi'):t('detailsMode'))}</button><span>${esc(selectionMode?t('multiHint'):t('details'))}</span></div>
       <div class="game-type-tabs">
         <button class="game-type-tab ${filter==='all'?'active':''}" data-filter="all" type="button">${esc(t('all'))}</button>
         <button class="game-type-tab ${filter==='tank'?'active':''}" data-filter="tank" type="button">${troopSvg('tank')}<span>${esc(t('tank'))}</span></button>
@@ -84,6 +100,7 @@
         <button class="game-type-tab ${filter==='aircraft'?'active':''}" data-filter="aircraft" type="button">${troopSvg('aircraft')}<span>${esc(t('aircraft'))}</span></button>
       </div><div id="gameHeroGrid" class="game-hero-grid"></div>`;
     shell.querySelector('#gameHeroSearch').oninput=e=>{query=e.target.value;renderGrid(shell)};
+    shell.querySelector('#heroSelectionMode').onclick=()=>{selectionMode=!selectionMode;renderRoster(shell)};
     shell.querySelectorAll('[data-filter]').forEach(b=>b.onclick=()=>{filter=b.dataset.filter;shell.querySelectorAll('[data-filter]').forEach(x=>x.classList.toggle('active',x.dataset.filter===filter));renderGrid(shell)});
     renderGrid(shell);
   }
@@ -113,7 +130,7 @@
       <div class="hero-sheet-body"><div class="hero-stat-banner"><div class="hero-stat-chip"><strong>${fmt(d.displayedPower)}</strong><small>${esc(t('power'))}</small></div><div class="hero-stat-chip"><strong>${fmt(d.displayedAttack)}</strong><small>${esc(t('attack'))}</small></div><div class="hero-stat-chip"><strong>${fmt(d.displayedDefense)}</strong><small>${esc(t('defense'))}</small></div><div class="hero-stat-chip"><strong>${fmt(d.displayedHp)}</strong><small>${esc(t('hp'))}</small></div></div><div class="hero-star-row">${stars(d.stars)}</div>${own?tabFields(cat,d,true):`<div class="hero-sheet-note">${esc(t('notOwned'))}</div>`}<button id="heroAdvancedJump" class="hero-advanced-jump" type="button" ${own?'':'disabled'}>${esc(t('advanced'))}</button><div class="hero-sheet-note">${esc(t('saved'))}</div></div>`;
     bindImageFallbacks(sheet);
     sheet.querySelector('#heroSheetClose').onclick=closeSheet;
-    sheet.querySelector('#heroOwnedAction').onclick=async()=>{if(own)removeHero(cat);else await addHero(cat)};
+    sheet.querySelector('#heroOwnedAction').onclick=async()=>{if(own)removeHero(cat,true);else await addHero(cat,true)};
     sheet.querySelectorAll('[data-sheet-tab]').forEach(b=>b.onclick=()=>{selectedTab=b.dataset.sheetTab;renderSheet()});
     sheet.querySelectorAll('[data-edit-field]').forEach(el=>{
       const handler=()=>editOwnedField(cat,el.dataset.editField,el.type==='checkbox'?el.checked:el.value,el.type==='checkbox');
@@ -135,16 +152,17 @@
   }
   async function waitField(index,field,timeout=1800){const start=Date.now();while(Date.now()-start<timeout){const el=hiddenField(index,field);if(el)return el;await delay(25)}return null}
   async function setStructural(index,field,value){const el=await waitField(index,field);if(!el)return false;pushInput(el,value,false,true);await delay(80);return true}
-  async function addHero(cat){
-    if(ownedHero(cat)){renderSheet();return}
+  async function addHero(cat,openAfter=true){
+    if(ownedHero(cat)){if(openAfter)renderSheet();return}
     const before=(profile().heroes||[]).length;const add=document.querySelector('#step-heroes #addHero');if(!add)return;add.click();
     const index=before;await setStructural(index,'heroId',cat.name);await setStructural(index,'troopType',cat.troopType);await setStructural(index,'role',cat.role);
     let el=await waitField(index,'rarity');if(el)pushInput(el,cat.rarity,false,false);
     el=await waitField(index,'level');if(el)pushInput(el,150,false,false);
     el=await waitField(index,'stars');if(el)pushInput(el,5,false,false);
-    await delay(120);selectedId=cat.id;enhance(true);renderSheet();
+    await delay(120);enhance(true);
+    if(openAfter){selectedId=cat.id;renderSheet()}
   }
-  function removeHero(cat){const own=ownedHero(cat);if(!own)return;const card=document.querySelector(`.hero-card[data-index="${own.index}"]`);const btn=card?.querySelector('[data-action="remove-hero"]');closeSheet();if(btn)btn.click();setTimeout(()=>enhance(true),80)}
+  function removeHero(cat,closeAfter=true){const own=ownedHero(cat);if(!own)return;const card=document.querySelector(`.hero-card[data-index="${own.index}"]`);const btn=card?.querySelector('[data-action="remove-hero"]');if(closeAfter)closeSheet();if(btn)btn.click();setTimeout(()=>enhance(true),80)}
   function jumpAdvanced(cat){const own=ownedHero(cat);if(!own)return;closeSheet();const details=document.querySelector('.legacy-hero-editor');if(details)details.open=true;setTimeout(()=>document.querySelector(`.hero-card[data-index="${own.index}"]`)?.scrollIntoView({behavior:'smooth',block:'start'}),120)}
 
   function enhance(force=false){
@@ -164,5 +182,5 @@
     if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>enhance(false),{once:true});else enhance(false);
   }
   init();
-  window.WfGgHeroRosterV2=Object.freeze({version:'2.1.0',catalog:()=>catalog.slice(),openHero:id=>openSheet(id),refresh:()=>enhance(true)});
+  window.WfGgHeroRosterV2=Object.freeze({version:'2.2.0',catalog:()=>catalog.slice(),openHero:id=>openSheet(id),refresh:()=>enhance(true),selectionMode:()=>selectionMode});
 })();
