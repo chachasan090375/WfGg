@@ -1,6 +1,7 @@
 (() => {
   'use strict';
   const STORAGE_KEY='wfgg-simulator-tactics-v2';
+  const PROFILE_KEY='wfgg-simulator-profile-v1';
   const RULES={
     'universal-zombie-killer':{availability:'season6-only',contexts:['world-pve'],score:{attackPct:'attackPct'},survival:{defensePct:'defensePct',hpPct:'hpPct'}},
     'core-purgator-monster-slayer':{availability:'season-and-offseason',contexts:['pve-monsters'],survival:{resistanceFlat:'resistanceFlat',monsterDamageReductionPct:'monsterDamageReductionPct'}},
@@ -17,7 +18,14 @@
     'monster-generic':['world-pve','pve-monsters','monster']
   };
   const n=v=>{const x=Number(v);return Number.isFinite(x)?x:0;};
-  function state(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY))||{};}catch(_){return {};}}
+  function state(){
+    try{
+      const profile=JSON.parse(localStorage.getItem(PROFILE_KEY))||{};
+      const unified=profile.season6?.tacticsV2;
+      if(unified && typeof unified==='object') return unified;
+      return JSON.parse(localStorage.getItem(STORAGE_KEY))||{};
+    }catch(_){return {};}
+  }
   function available(rule,phase,kind){if(kind==='battle'&&phase!=='season6')return false;if(rule?.availability==='legacy-not-season6'&&phase==='season6')return false;if(rule?.availability==='season6-only'&&phase!=='season6')return false;return true;}
   function slots(s){const out=[];(s.coreSlots||[]).forEach((x,i)=>out.push({...x,kind:'core',slot:i+1}));(s.battleSlots||[]).forEach((x,i)=>out.push({...x,kind:'battle',slot:i+1}));return out;}
   function contextMatches(slot,rule,objectiveId,contexts){if((rule.contexts||[]).some(c=>contexts.includes(c)))return true;if(slot.cardId==='universal-zombie-killer'&&/^wanted-/.test(objectiveId)&&slot.confirmWantedApplicability===true)return true;return false;}
@@ -42,7 +50,7 @@
     return {phase,objectiveId,contextBonuses,survival,applied,ignored,globalExpeditionNonCoreTotalLevel:n(s.globalExpeditionNonCoreTotalLevel)};
   }
   function mergeBonuses(base,extra){const out={...(base||{})};Object.entries(extra||{}).forEach(([k,v])=>out[k]=n(out[k])+n(v));return out;}
-  const api={version:'1.1.0-research',STORAGE_KEY,resolve,state};
+  const api={version:'1.2.0-research',STORAGE_KEY,PROFILE_KEY,resolve,state};
   window.WfGgTacticsRuntime=Object.freeze(api);
   const engine=window.WfGgSimulatorEngine;
   if(engine?.optimizePlacement){
