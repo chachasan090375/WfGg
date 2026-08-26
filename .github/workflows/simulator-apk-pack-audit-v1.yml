@@ -19,7 +19,7 @@ jobs:
           ref: simulator-standalone-v1
           fetch-depth: 0
 
-      - name: Download verified current public XAPK and inventory useful assets
+      - name: Download verified current public XAPK and audit DataTable/bootstrap assets
         shell: bash
         run: |
           set -euo pipefail
@@ -40,27 +40,21 @@ jobs:
             fi
           done
           if [[ -z "$found" ]]; then
-            echo 'Current 1.0.359 arm64 XAPK could not be verified; refusing to inspect a mismatched package.' >&2
+            echo 'Current 1.0.359 arm64 XAPK could not be verified; refusing mismatched package.' >&2
             exit 2
           fi
 
-          unzip -l /tmp/lw/current.xapk > /tmp/lw/xapk-list.txt
           unzip -q /tmp/lw/current.xapk -d /tmp/lw/xapk
-          feature=$(find /tmp/lw/xapk -maxdepth 2 -type f \( -iname '*install*time*pack*.apk' -o -iname '*install_time_pack*' \) | head -n1 || true)
-          if [[ -z "$feature" ]]; then
-            feature=$(find /tmp/lw/xapk -maxdepth 2 -type f -name '*.apk' -printf '%s %p\n' | sort -nr | head -n1 | cut -d' ' -f2-)
-          fi
-          test -n "$feature"
-          echo "FEATURE=$feature"
-          unzip -l "$feature" > /tmp/lw/feature-list.txt
 
           python3 - <<'PY'
-          import pathlib,re,json,hashlib,zipfile,os
+          import pathlib,re,json,hashlib,zipfile
           root=pathlib.Path('/tmp/lw')
           xapk=root/'current.xapk'
           xdir=root/'xapk'
           apks=sorted(xdir.rglob('*.apk'),key=lambda p:p.stat().st_size,reverse=True)
-          feature=next((p for p in apks if 'install_time_pack' in p.name.lower()),apks[0])
+          if not apks:
+            raise SystemExit('No APK found in verified XAPK')
+
           pats={
             'tables': re.compile(r'(^|/)assets/table/|table_.*\.data$',re.I),
             'heroes': re.compile(r'hero|portrait|avatar|head|role|rarity',re.I),
@@ -68,35 +62,69 @@ jobs:
             'tactics': re.compile(r'tactic|battle.?card|strategy.?card|card[_/.-]',re.I),
             'research': re.compile(r'research|science|tech|technology',re.I),
             'overlord': re.compile(r'overlord|gorilla|ape|monkey|skybreaker|hawk',re.I),
-            'ui': re.compile(r'ui|atlas|sprite|frame|border|badge|icon',re.I),
-            'animation': re.compile(r'anim|controller|timeline|spine|skeleton|effect',re.I),
+            'bootstrap': re.compile(r'table[_-]?version|table[_-]?env|getlsu3dversion|hotupdate|lastwar-cdn|manifest|download',re.I),
           }
-          with zipfile.ZipFile(feature) as z:
-            names=z.namelist()
-            groups={k:[n for n in names if rx.search(n)][:5000] for k,rx in pats.items()}
-            table_names=[n for n in names if pats['tables'].search(n)]
-            table_meta=[]
-            for n in table_names:
-              info=z.getinfo(n)
-              rec={'path':n,'bytes':info.file_size,'compressedBytes':info.compress_size,'crc32':f'{info.CRC:08x}'}
-              if n.lower().endswith('.data') and info.file_size < 30_000_000:
-                data=z.read(n)
-                rec['md5']=hashlib.md5(data).hexdigest()
-                rec['sha256']=hashlib.sha256(data).hexdigest()
-                rec['magic']=data[:8].hex()
-              table_meta.append(rec)
+          byte_needles=[b'table_version',b'table_env',b'getlsu3dversion.php',b'lastwar-cdn',b'hotupdate',b'DataTable']
+          ascii_rx=re.compile(rb'[\x20-\x7e]{8,360}')
+          table_meta=[]; groups={k:[] for k in pats}; bootstrap_strings=[]; apk_meta=[]
+
+          for apk in apks:
+            apk_meta.append({'name':apk.name,'bytes':apk.stat().st_size,'sha1':hashlib.sha1(apk.read_bytes()).hexdigest()})
+            try:
+              with zipfile.ZipFile(apk) as z:
+                names=z.namelist()
+                for k,rx in pats.items():
+                  groups[k].extend({'apk':apk.name,'path':n} for n in names if rx.search(n))
+                for n in names:
+                  info=z.getinfo(n)
+                  if pats['tables'].search(n):
+                    rec={'apk':apk.name,'path':n,'bytes':info.file_size,'compressedBytes':info.compress_size,'crc32':f'{info.CRC:08x}'}
+                    if n.lower().endswith('.data') and info.file_size < 30_000_000:
+                      data=z.read(n)
+                      rec['md5']=hashlib.md5(data).hexdigest()
+                      rec['sha256']=hashlib.sha256(data).hexdigest()
+                      rec['magic']=data[:8].hex()
+                    table_meta.append(rec)
+
+                  low=n.lower()
+                  likely=('global-metadata.dat' in low or low.endswith(('.json','.xml','.txt','.bytes','.config','.ini','.properties')) or ('assets/' in low and info.file_size <= 12_000_000) or (low.endswith(('.so','.dll')) and info.file_size <= 80_000_000))
+                  if not likely or info.file_size <= 0 or len(bootstrap_strings)>=350:
+                    continue
+                  try: data=z.read(n)
+                  except Exception: continue
+                  lower=data.lower()
+                  if not any(x.lower() in lower for x in byte_needles):
+                    continue
+                  for m in ascii_rx.finditer(data):
+                    s=m.group()
+                    sl=s.lower()
+                    if any(x.lower() in sl for x in byte_needles):
+                      bootstrap_strings.append({'apk':apk.name,'entry':n,'text':s.decode('ascii','ignore')[:360]})
+                      if len(bootstrap_strings)>=350: break
+            except zipfile.BadZipFile:
+              apk_meta[-1]['badZip']=True
+
+          seen=set(); dedup=[]
+          for h in bootstrap_strings:
+            key=(h['apk'],h['entry'],h['text'])
+            if key not in seen:
+              seen.add(key); dedup.append(h)
+
           out={
             'source':{'version':'1.0.359','buildId':1864,'architecture':'arm64-v8a','xapkSha1':hashlib.sha1(xapk.read_bytes()).hexdigest()},
-            'featureApk':{'name':feature.name,'bytes':feature.stat().st_size,'sha1':hashlib.sha1(feature.read_bytes()).hexdigest()},
-            'entryCount':len(names),'tables':table_meta,
-            'groups':{k:{'count':sum(1 for n in names if pats[k].search(n)),'sample':v[:400]} for k,v in groups.items()},
-            'note':'Inventory only. The full XAPK/asset pack and copyrighted bulk assets are not committed.'
+            'apks':apk_meta,
+            'tables':table_meta,
+            'groups':{k:{'count':len(v),'sample':v[:500]} for k,v in groups.items()},
+            'bootstrapStringHits':dedup[:350],
+            'target':{'dataTableVersion':'1295','descriptor':'DataTable,1295,294,1768181284'},
+            'note':'Metadata/string inventory only. No XAPK/APK, bulk copyrighted assets, account/session data, secrets, tokens or private player codes are committed.'
           }
-          pathlib.Path('simulator/research/current-apk-pack-audit.v1.json').write_text(json.dumps(out,indent=2,ensure_ascii=False)+'\n',encoding='utf-8')
-          print(json.dumps({k:(v if k not in ('groups',) else {g:x['count'] for g,x in v.items()}) for k,v in out.items()},indent=2,ensure_ascii=False))
+          p=pathlib.Path('simulator/research/current-apk-pack-audit.v1.json')
+          p.write_text(json.dumps(out,indent=2,ensure_ascii=False)+'\n',encoding='utf-8')
+          print(json.dumps({'apkCount':len(apk_meta),'tableEntries':len(table_meta),'bootstrapStringHits':len(dedup),'groupCounts':{k:len(v) for k,v in groups.items()}},indent=2))
           PY
 
-      - name: Commit metadata only
+      - name: Commit sanitized metadata only
         shell: bash
         run: |
           set -euo pipefail
@@ -104,6 +132,6 @@ jobs:
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git add simulator/research/current-apk-pack-audit.v1.json
           if ! git diff --cached --quiet; then
-            git commit -m 'simulator: capture current APK pack asset inventory'
+            git commit -m 'simulator: capture current APK pack and DataTable bootstrap audit'
             git push origin HEAD:simulator-standalone-v1
           fi
