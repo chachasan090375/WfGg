@@ -44,10 +44,11 @@ jobs:
           node --check frontend/simulator/hero-game-ui-v4.js
           grep -Fq 'hero-game-ui-v4.css?v=004-lastwar-hero-pages' simulator/index.html
           grep -Fq 'hero-game-ui-v4.js?v=004-lastwar-hero-pages' simulator/index.html
+          grep -Fq 'hero-game-ui-v4.css?v=004-lastwar-hero-pages' frontend/simulator/index.html
+          grep -Fq 'hero-game-ui-v4.js?v=004-lastwar-hero-pages' frontend/simulator/index.html
           grep -Fq "grade:['Compétences','skill']" simulator/hero-game-ui-v4.js
           grep -Fq "wall:['Tier','tier']" simulator/hero-game-ui-v4.js
           grep -Fq "weapon:['Arme exclusive','weapon']" simulator/hero-game-ui-v4.js
-          cmp simulator/hero-game-ui-v4.js frontend/simulator/hero-game-ui-v4.js
           cmp simulator/hero-game-ui-v4.css frontend/simulator/hero-game-ui-v4.css
       - name: Commit wiring
         run: |
