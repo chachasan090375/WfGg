@@ -1,0 +1,21 @@
+/* V7 — restore absolute hitboxes above the hero sheet tabs */
+.hero-game-sheet .hero-sheet-close{
+  position:absolute!important;
+  right:9px!important;
+  top:8px!important;
+  left:auto!important;
+  bottom:auto!important;
+  z-index:80!important;
+  pointer-events:auto!important;
+}
+.hero-game-sheet .hero-owned-action{
+  position:absolute!important;
+  right:10px!important;
+  bottom:9px!important;
+  left:auto!important;
+  top:auto!important;
+  z-index:70!important;
+  pointer-events:auto!important;
+}
+.hero-game-sheet .hero-sheet-tabs{position:relative!important;z-index:10!important}
+.hero-game-sheet .hero-sheet-tab{position:relative!important;z-index:11!important;pointer-events:auto!important}
