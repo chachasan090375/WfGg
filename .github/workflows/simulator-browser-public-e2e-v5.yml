@@ -1,0 +1,205 @@
+name: Simulator public E2E v5
+
+on:
+  push:
+    branches: [simulator-standalone-v1]
+    paths:
+      - '.github/workflows/simulator-browser-public-e2e-v5.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  public-mobile-e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Record tested HEAD
+        run: |
+          echo "TESTED_HEAD=$(git rev-parse HEAD)"
+          git log -1 --oneline
+      - name: Install Playwright Chromium
+        run: |
+          mkdir -p /tmp/wfgg-public-e2e && cd /tmp/wfgg-public-e2e
+          npm init -y >/dev/null 2>&1
+          npm install playwright@1.55.0 >/dev/null 2>&1
+          npx playwright install --with-deps chromium >/dev/null
+      - name: Full public mobile recipe
+        env:
+          NODE_PATH: /tmp/wfgg-public-e2e/node_modules
+        run: |
+          cat >/tmp/wfgg-public-e2e/test.cjs <<'JS'
+          const {chromium}=require('playwright');
+          const PROFILE='wfgg-simulator-profile-v1';
+          const OPT='wfgg-simulator-optimizer-ui-v1';
+          const URL='https://simulator-standalone-v1.wfgg.pages.dev/simulator/';
+          const assert=(ok,msg)=>{if(!ok)throw new Error(msg)};
+
+          const HEROES=[
+            ['Mason','tank','attack',110000,80000,900000,1000000],
+            ['Marshall','tank','support',95000,80000,1000000,900000],
+            ['DVA','aircraft','attack',130000,65000,850000,1200000],
+            ['Carlie','aircraft','defense',85000,115000,1450000,1100000],
+            ['Schuyler','aircraft','attack',120000,62000,820000,1150000]
+          ];
+
+          async function ready(page){
+            await page.waitForFunction(()=>window.WfGgProfilePersistence?.version==='2.5.0',{timeout:12000});
+            await page.waitForFunction(()=>window.WfGgOverlordRuntime?.version==='1.0.1',{timeout:12000});
+            await page.waitForFunction(()=>window.WfGgTeamTheory?.version==='1.0.0',{timeout:12000});
+            await page.waitForFunction(()=>window.WfGgSimulatorEngine&&window.WfGgSeason6Runtime,{timeout:12000});
+            await page.waitForSelector('#stepNav [data-step]',{timeout:12000});
+          }
+
+          (async()=>{
+            const browser=await chromium.launch({headless:true});
+            const context=await browser.newContext({viewport:{width:412,height:915},isMobile:true,hasTouch:true,deviceScaleFactor:2});
+            const page=await context.newPage();
+            const errors=[];
+            page.on('pageerror',e=>errors.push('pageerror: '+e.message));
+            page.on('console',m=>{if(m.type()==='error')errors.push('console: '+m.text())});
+            const failed=[];
+            page.on('requestfailed',r=>failed.push(r.url()+' :: '+JSON.stringify(r.failure())));
+
+            // Let the first navigation finish completely before resetting storage.
+            let r=await page.goto(URL+'?e2e5seed='+Date.now(),{waitUntil:'networkidle',timeout:30000});
+            assert(r&&r.ok(),'initial public navigation failed');
+            await ready(page);
+            await page.evaluate(()=>localStorage.clear());
+            errors.length=0; failed.length=0;
+
+            r=await page.reload({waitUntil:'networkidle',timeout:30000});
+            assert(r&&r.ok(),'clean public reload failed');
+            await ready(page);
+            await page.waitForTimeout(300);
+            assert(errors.length===0,'clean public bootstrap errors: '+errors.join(' | '));
+            assert(failed.length===0,'clean public request failures: '+failed.join(' | '));
+
+            // Six-step navigation and account autosave.
+            assert(await page.locator('#stepNav [data-step]').count()===6,'six steps expected');
+            for(let i=0;i<6;i++){
+              await page.locator(`#stepNav [data-step="${i}"]`).click();
+              assert(await page.locator('.step-panel:not(.hidden)').count()===1,'broken step '+i);
+            }
+            await page.locator('#stepNav [data-step="0"]').click();
+            await page.locator('[data-account="hqLevel"]').fill('31');
+            await page.reload({waitUntil:'networkidle'});await ready(page);
+            assert(await page.locator('[data-account="hqLevel"]').inputValue()==='31','HQ autosave failed');
+
+            // Five heroes, immediate persistence and reload validation.
+            await page.locator('#stepNav [data-step="1"]').click();
+            for(let i=0;i<HEROES.length;i++){
+              await page.locator('#addHero').click();
+              const h=HEROES[i];
+              const f=n=>page.locator('.hero-card').nth(i).locator(`[data-field="${n}"]`);
+              await f('heroId').fill(h[0]);
+              await f('troopType').selectOption(h[1]);
+              await f('role').selectOption(h[2]);
+              await f('displayedAttack').fill(String(h[3]));
+              await f('displayedDefense').fill(String(h[4]));
+              await f('displayedHp').fill(String(h[5]));
+              await f('displayedPower').fill(String(h[6]));
+              const s=await page.evaluate(({k,i})=>JSON.parse(localStorage.getItem(k)||'{}').heroes?.[i],{k:PROFILE,i});
+              assert(s?.heroId===h[0],`hero ${i} name not saved`);
+              assert(Number(s?.displayedAttack)===h[3],`hero ${i} ATK not saved`);
+              assert(Number(s?.displayedDefense)===h[4],`hero ${i} DEF not saved`);
+              assert(Number(s?.displayedHp)===h[5],`hero ${i} HP not saved`);
+              assert(Number(s?.displayedPower)===h[6],`hero ${i} Power not saved`);
+              if(i===0){
+                await page.reload({waitUntil:'networkidle'});await ready(page);
+                const ff=n=>page.locator('.hero-card').first().locator(`[data-field="${n}"]`);
+                for(const [n,v] of [['heroId','Mason'],['displayedAttack','110000'],['displayedDefense','80000'],['displayedHp','900000'],['displayedPower','1000000']])
+                  assert(await ff(n).inputValue()===v,`hero ${n} lost on reload`);
+                await page.locator('#stepNav [data-step="1"]').click();
+              }
+            }
+            assert(await page.locator('.hero-card').count()===5,'five heroes expected');
+
+            // Gorilla as unique sixth unit, custom name and persisted stats.
+            await page.locator('#stepNav [data-step="0"]').click();
+            const owned=page.locator('[data-overlord="owned"]');if(!(await owned.isChecked()))await owned.check();
+            await page.waitForTimeout(350);
+            const deploy=page.locator('[data-overlord="deployable"]');if(!(await deploy.isChecked()))await deploy.check();
+            await page.waitForTimeout(350);
+            await page.locator('[data-overlord="assignedSquadSlot"]').selectOption('1');
+            await page.locator('[data-overlord="displayedPower"]').fill('500000');
+            await page.locator('[data-overlord-extra="displayName"]').fill('Kong E2E');
+            const details=page.locator('.overlord-extra-stats');if(!(await details.getAttribute('open')))await details.locator('summary').click();
+            await page.locator('[data-overlord-extra="displayedAttack"]').fill('25000');
+            await page.locator('[data-overlord-extra="displayedDefense"]').fill('20000');
+            await page.locator('[data-overlord-extra="displayedHp"]').fill('300000');
+            await page.reload({waitUntil:'networkidle'});await ready(page);
+            assert(await page.locator('[data-overlord-extra="displayName"]').inputValue()==='Kong E2E','Gorilla custom name lost');
+            assert(await page.locator('[data-overlord="assignedSquadSlot"]').inputValue()==='1','Gorilla allocation lost');
+            const alloc=await page.evaluate(()=>({s1:window.WfGgOverlordRuntime.allocationState(1).included,s2:window.WfGgOverlordRuntime.allocationState(2).included}));
+            assert(alloc.s1&&!alloc.s2,'Gorilla must be unique to one squad');
+
+            // Gear persistence.
+            await page.locator('#stepNav [data-step="2"]').click();
+            await page.locator('#addGear').click();
+            await page.locator('.gear-card [data-field="itemId"]').first().fill('E2E Railgun');
+            await page.locator('.gear-card [data-field="level"]').first().fill('40');
+            await page.reload({waitUntil:'networkidle'});await ready(page);await page.locator('#stepNav [data-step="2"]').click();
+            assert(await page.locator('.gear-card [data-field="itemId"]').first().inputValue()==='E2E Railgun','gear ID lost');
+            assert(await page.locator('.gear-card [data-field="level"]').first().inputValue()==='40','gear level lost');
+
+            // Research persistence.
+            await page.locator('#stepNav [data-step="3"]').click();
+            const rl=page.locator('[data-research-level]').first();const rid=await rl.getAttribute('data-research-level');
+            await rl.fill('3');await page.locator(`[data-research-bonus="${rid}"]`).fill('2.5');
+            await page.reload({waitUntil:'networkidle'});await ready(page);await page.locator('#stepNav [data-step="3"]').click();
+            assert(await page.locator(`[data-research-level="${rid}"]`).inputValue()==='3','research level lost');
+            assert(await page.locator(`[data-research-bonus="${rid}"]`).inputValue()==='2.5','research bonus lost');
+
+            // S6, tactical cards, and off-season gating.
+            await page.locator('#stepNav [data-step="4"]').click();
+            await page.locator('[data-totem="bearTank"]').fill('12');
+            await page.locator('[data-tactics-phase]').selectOption('season6');
+            let card=page.locator('.tactics-slot[data-kind="battle"]').first();
+            await card.locator('[data-card-id]').selectOption('universal-zombie-killer');
+            await page.waitForTimeout(180);card=page.locator('.tactics-slot[data-kind="battle"]').first();
+            await card.locator('[data-card-level]').fill('5');
+            await card.locator('[data-card-value="attackPct"]').fill('12.5');
+            await page.waitForTimeout(180);
+            const ts=await page.evaluate(k=>JSON.parse(localStorage.getItem(k)||'{}').season6?.tacticsV2?.battleSlots?.[0],PROFILE);
+            assert(ts?.cardId==='universal-zombie-killer'&&Number(ts?.values?.attackPct)===12.5,'tactics autosave failed');
+            assert(await page.evaluate(k=>window.WfGgSeason6Runtime.totemPct(JSON.parse(localStorage.getItem(k)),'tank'),PROFILE)===6,'Bear Totem S6 bonus wrong');
+            await page.locator('[data-tactics-phase]').selectOption('offseason');await page.waitForTimeout(150);
+            assert(await page.locator('.tactics-slot[data-kind="battle"].inactive').count()===4,'Battle cards not disabled off-season');
+            assert(await page.evaluate(k=>window.WfGgSeason6Runtime.totemPct(JSON.parse(localStorage.getItem(k)),'tank'),PROFILE)===0,'S6 Totem active off-season');
+            await page.locator('[data-tactics-phase]').selectOption('season6');
+
+            // Both engines and theoretical team totals.
+            await page.evaluate(({k,v})=>localStorage.setItem(k,JSON.stringify(v)),{k:OPT,v:{objective:'wanted-39',heroes:['Mason','Marshall','DVA','Carlie','Schuyler'],squadSlot:1}});
+            await page.reload({waitUntil:'networkidle'});await ready(page);
+            const modes=await page.evaluate(k=>{const h=JSON.parse(localStorage.getItem(k)||'{}').heroes;return {w:window.WfGgSimulatorEngine.optimizePlacement(h,'wanted-39',{})?.best?.score?.mode,m:window.WfGgSimulatorEngine.optimizePlacement(h,'monster-generic',{})?.best?.score?.mode};},PROFILE);
+            assert(modes.w==='wanted'&&modes.m==='monster','Wanted/Monster engines broken');
+            await page.locator('#stepNav [data-step="5"]').click();
+            await page.waitForSelector('#teamTheoreticalSummary');
+            const t=await page.evaluate(()=>window.WfGgTeamTheory.theoreticalStats());
+            assert(t.power===5850000,'Power total wrong '+t.power);
+            assert(t.attack===565000,'ATK total wrong '+t.attack);
+            assert(t.defense===422000,'DEF total wrong '+t.defense);
+            assert(t.hp===5320000,'HP total wrong '+t.hp);
+            const txt=(await page.locator('#teamTheoreticalSummary').innerText()).toLowerCase();
+            assert(txt.includes('kong e2e'),'Gorilla name missing from result');
+            assert(txt.includes('théorique')||txt.includes('theoretical'),'theoretical disclaimer missing');
+            assert(txt.includes('buff'),'common-buff disclaimer missing');
+
+            await page.screenshot({path:'/tmp/wfgg-public-e2e/public-final.png',fullPage:true});
+            assert(errors.length===0,'public browser errors after clean bootstrap: '+errors.join(' | '));
+            assert(failed.length===0,'public failed requests after clean bootstrap: '+failed.join(' | '));
+            console.log('WFGG PUBLIC MOBILE E2E V5 COMPLETE');
+            await browser.close();
+          })().catch(e=>{console.error(e);process.exit(1)});
+          JS
+          node /tmp/wfgg-public-e2e/test.cjs
+      - name: Upload final screenshot
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: simulator-public-e2e-v5-screen
+          path: /tmp/wfgg-public-e2e/public-final.png
+          if-no-files-found: ignore
