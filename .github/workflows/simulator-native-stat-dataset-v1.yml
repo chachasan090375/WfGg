@@ -1,0 +1,130 @@
+name: Simulator native stat dataset v1
+
+on:
+  push:
+    branches: [simulator-standalone-v1]
+    paths: ['.github/workflows/simulator-native-stat-dataset-v1.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: simulator-standalone-v1
+          fetch-depth: 0
+      - name: Compile and validate native stat dataset
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json,pathlib,math
+          root=pathlib.Path('simulator')
+          v3=json.loads((root/'research/datatable-native-hero-values.v3.json').read_text())
+          growth=json.loads((root/'research/template-property-growth-audit.v1.json').read_text())
+          formula=json.loads((root/'research/native-stat-formula-analysis.v1.json').read_text())
+          hero_ids=set(v3.get('heroIds',[]))
+          hero_rows=[r for r in v3.get('tables',{}).get('lw_hero',{}).get('rows',[]) if r.get('id') in hero_ids]
+          if len(hero_rows)!=31: raise SystemExit(f'Expected 31 hero rows, got {len(hero_rows)}')
+          template_ids=sorted({int(r['template_id']) for r in hero_rows if isinstance(r.get('template_id'),(int,float))})
+          qualities=sorted({int(r['quality']) for r in hero_rows if isinstance(r.get('quality'),(int,float))})
+          # Current audited curve. Abort rather than silently substituting another template.
+          curve_rows=growth.get('type2Rows',[])
+          curve={int(r['level']):{
+              'hp':float(r['base_hp']), 'attack':float(r['base_patk']), 'defense':float(r['base_pdef'])
+          } for r in curve_rows if isinstance(r.get('level'),(int,float))}
+          if sorted(curve)!=list(range(1,176)): raise SystemExit('Template type 2 curve is not complete from level 1 through 175')
+          rank_rows=formula.get('rankModel',{}).get('rows',[])
+          prop={'hp':'50006','attack':'50007','defense':'50009'}
+          ranks={}
+          for r in rank_rows:
+              rid=int(r['id']); raw=r.get('attrAddRaw') or {}
+              if not isinstance(raw,dict): raw={}
+              ranks[rid]={
+                'ratio':float(r.get('attrRatio') or 1),
+                'hp':float(raw.get(prop['hp'],0)),
+                'attack':float(raw.get(prop['attack'],0)),
+                'defense':float(raw.get(prop['defense'],0)),
+                'shardNeed':r.get('shardNeed')
+              }
+          if sorted(ranks)!=list(range(1,27)): raise SystemExit('Expected rank 1..26')
+          heroes={}
+          for r in sorted(hero_rows,key=lambda x:int(x['id'])):
+              hid=str(int(r['id']))
+              heroes[hid]={
+                'nativeId':int(r['id']),
+                'quality':int(r['quality']),
+                'templateId':int(r['template_id']),
+                'armyType':int(r['army_type']) if isinstance(r.get('army_type'),(int,float)) else None,
+                'maxRank':int(r['max_rank']) if isinstance(r.get('max_rank'),(int,float)) else None,
+                'base':{'hp':float(r['base_hp']),'attack':float(r['base_patk']),'defense':float(r['base_pdef'])},
+                'skills':r.get('skills') or [],
+                'weapon':r.get('weapon')
+              }
+          def calc(hid,level,rank):
+              h=heroes[str(hid)]
+              if h['templateId']!=2: raise ValueError(f'Unsupported templateId {h["templateId"]} for hero {hid}')
+              c=curve[level]; rr=ranks[rank]; out={}
+              for stat in ('hp','attack','defense'):
+                  factor=h['base'][stat]/10000.0
+                  lv=math.floor(c[stat]*factor)
+                  grade=math.floor(rr[stat]*factor)
+                  out[stat]={'levelBase':lv,'gradeBonus':grade,'nativeLevelPlusGrade':lv+grade}
+              return out
+          # Exact user-observed Williams Grade panel anchor.
+          w=calc(50007,150,26)
+          observed={'hp':201433,'attack':2837,'defense':741}
+          predicted={s:w[s]['gradeBonus'] for s in observed}
+          if predicted!=observed: raise SystemExit(f'Williams grade anchor mismatch: predicted={predicted} observed={observed}')
+          w175=calc(50007,175,26)
+          unsupported=sorted(int(hid) for hid,h in heroes.items() if h['templateId']!=2)
+          out={
+            'version':'1.0.0-native-level-grade',
+            'source':{
+              'client':'1.0.359','buildId':1864,
+              'dataTableMd5':v3.get('source',{}).get('md5'),
+              'heroTable':'lw_hero','levelCurveTable':'lw_template_property','gradeTable':'lw_hero_rank'
+            },
+            'formula':{
+              'rounding':'floor_each_component_after_hero_base_scaling',
+              'levelBase':'floor(templateCurve[templateId][level][stat] * hero.base[stat] / 10000)',
+              'gradeBonus':'floor(heroRank[rank][propertyId(stat)] * hero.base[stat] / 10000)',
+              'nativeLevelPlusGrade':'levelBase + gradeBonus',
+              'propertyIds':{'hp':50006,'attack':50007,'defense':50009},
+              'maxHeroLevelAtHQ35':175,
+              'rank26Means':'5-star / 25 sub-rank upgrades after initial rank'
+            },
+            'coverage':{
+              'heroCount':len(heroes),'templateIds':template_ids,'qualities':qualities,
+              'unsupportedTemplateHeroIds':unsupported,
+              'curveLevelRange':[1,175],'rankRange':[1,26]
+            },
+            'heroes':heroes,
+            'templateCurves':{'2':{str(k):curve[k] for k in sorted(curve)}},
+            'ranks':{str(k):ranks[k] for k in sorted(ranks)},
+            'validation':{
+              'williams150Rank26':{'predictedGradeBonus':predicted,'observedGradeBonus':observed,'exactMatch':True,'components':w},
+              'williams175Rank26NativeLayerOnly':w175,
+              'warning':'Native level + grade only. Do not present as final in-game Attributes until skills, exclusive weapon, awakening/promotion, gear and account/research layers are modeled.'
+            }
+          }
+          p=root/'data/native-hero-stats-v1.json'; p.write_text(json.dumps(out,indent=2,ensure_ascii=False)+'\n')
+          print(json.dumps({'heroCount':len(heroes),'templateIds':template_ids,'qualities':qualities,'unsupportedTemplateHeroIds':unsupported,'williams150Grade':predicted,'williams175':w175,'bytes':p.stat().st_size},indent=2))
+          PY
+      - name: Commit verified dataset
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add simulator/data/native-hero-stats-v1.json
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'simulator: add verified native level and grade dataset'
+          git fetch origin simulator-standalone-v1
+          git rebase origin/simulator-standalone-v1
+          git push origin HEAD:simulator-standalone-v1
