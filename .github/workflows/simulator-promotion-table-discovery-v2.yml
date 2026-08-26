@@ -1,0 +1,129 @@
+name: Simulator promotion table discovery v2
+
+on:
+  push:
+    branches: [simulator-standalone-v1]
+    paths: ['.github/workflows/simulator-promotion-table-discovery-v2.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: simulator-standalone-v1
+          fetch-depth: 0
+      - name: Prepare verified DataTable and unluac
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/lw/xapk /tmp/lw/decompiled simulator/research
+          curl -fL --retry 2 --connect-timeout 20 --max-time 900 'https://d.apkpure.net/b/XAPK/com.fun.lastwar.gp?versionCode=1864' -o /tmp/lw/current.xapk
+          python3 - <<'PY'
+          import json,zipfile,pathlib,re,subprocess,hashlib
+          root=pathlib.Path('/tmp/lw'); p=root/'current.xapk'
+          with zipfile.ZipFile(p) as z:
+              mans=[n for n in z.namelist() if pathlib.PurePosixPath(n).name.lower() in ('manifest.json','xapk_manifest.json')]
+              d=json.loads(z.read(mans[0]).decode('utf-8','replace'))
+          meta=(str(d.get('package_name') or d.get('packageName') or d.get('package') or ''),str(d.get('version_name') or d.get('versionName') or ''),str(d.get('version_code') or d.get('versionCode') or ''))
+          if meta!=('com.fun.lastwar.gp','1.0.359','1864'): raise SystemExit(f'Unexpected client metadata {meta}')
+          subprocess.run(['unzip','-q',str(p),'-d',str(root/'xapk')],check=True)
+          found=None
+          for apk in sorted((root/'xapk').rglob('*.apk'),key=lambda x:x.stat().st_size,reverse=True):
+              try:
+                  with zipfile.ZipFile(apk) as z:
+                      tn=next((n for n in z.namelist() if re.search(r'(^|/)assets/table/table_.*\.data$',n,re.I)),None)
+                      if not tn: continue
+                      raw=z.read(tn); (root/'table.data').write_bytes(raw); found={'apk':apk.name,'path':tn,'bytes':len(raw),'md5':hashlib.md5(raw).hexdigest(),'sha256':hashlib.sha256(raw).hexdigest()}; break
+              except zipfile.BadZipFile: pass
+          if not found: raise SystemExit('DataTable not found')
+          (root/'source.json').write_text(json.dumps(found,indent=2)+'\n')
+          with zipfile.ZipFile(root/'table.data') as z:
+              names=z.namelist()
+          rx=re.compile(r'(hero|energy|promot|quality|evol|upgrade|season|awaken|rank)',re.I)
+          candidates=sorted(n for n in names if rx.search(n))
+          (root/'candidate-names.json').write_text(json.dumps(candidates,indent=2)+'\n')
+          print(json.dumps({'tableCount':len(names),'candidateCount':len(candidates),'candidateNames':candidates},indent=2))
+          PY
+          if ! command -v lua5.3 >/dev/null 2>&1; then sudo apt-get update -qq && sudo apt-get install -y -qq lua5.3; fi
+          git clone --depth=1 https://github.com/HansWessels/unluac.git /tmp/unluac >/dev/null
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('/tmp/unluac/src/unluac/parse/LHeaderType.java'); s=p.read_text(); s=s.replace('if(format != 0) {','if(format != 0 && format != 1) {',1)
+          marker='class LHeaderType53 extends LHeaderType {'; pos=s.index(marker); head,tail=s[:pos],s[pos:]; old='    parse_instruction_size(buffer, header, s);'
+          if old not in tail: raise SystemExit('Lua53 instruction size call not found')
+          p.write_text(head+tail.replace(old,'    if(s.format != 1) parse_instruction_size(buffer, header, s);',1))
+          PY
+          (cd /tmp/unluac && bash build.sh >/dev/null)
+      - name: Decompile likely promotion tables and scan six hero IDs
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json,pathlib,zipfile,re,subprocess,tempfile
+          root=pathlib.Path('/tmp/lw'); jar='/tmp/unluac/bin/unluac.jar'; names=json.loads((root/'candidate-names.json').read_text())
+          # Exclude obvious giant/non-promotion families to keep the audit compact.
+          priority=re.compile(r'(promot|energy|evol|upgrade|quality|season|awaken|hero.*change|change.*hero|rank)',re.I)
+          targets=[n for n in names if priority.search(n)]
+          # Keep key hero tables for cross-reference.
+          for n in ['lw_hero','lw_hero_skill','lw_hero_energy_levelup']:
+              if n in names and n not in targets: targets.append(n)
+          targets=sorted(set(targets))
+          records=[]
+          with zipfile.ZipFile(root/'table.data') as z:
+              for n in targets:
+                  raw=z.read(n)
+                  with tempfile.NamedTemporaryFile(suffix='.luac') as f:
+                      f.write(raw); f.flush(); cp=subprocess.run(['java','-jar',jar,f.name],stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,timeout=60)
+                  rec={'name':n,'bytes':len(raw),'ok':cp.returncode==0}
+                  if cp.returncode==0:
+                      text=cp.stdout; (root/'decompiled'/(re.sub(r'[^A-Za-z0-9_.-]+','_',n)+'.lua')).write_text(text)
+                      ids=['40010','40012','40006','40019','40018','40013','400100','400120','400060','400190']
+                      rec['heroIdHits']={i:len(re.findall(r'(?<!\d)'+re.escape(i)+r'(?!\d)',text)) for i in ids if re.search(r'(?<!\d)'+re.escape(i)+r'(?!\d)',text)}
+                      rec['sourceChars']=len(text)
+                  else: rec['error']=cp.stderr.strip()[-300:]
+                  records.append(rec)
+          (root/'decompile-index.json').write_text(json.dumps(records,indent=2)+'\n')
+          print(json.dumps({'targetCount':len(records),'hitTables':[r for r in records if r.get('heroIdHits')]},indent=2))
+          PY
+      - name: Capture compact source contexts around hero IDs
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json,pathlib,re
+          root=pathlib.Path('/tmp/lw'); idx=json.loads((root/'decompile-index.json').read_text()); ids=['40010','40012','40006','40019','40018','40013','400100','400120','400060','400190']
+          contexts=[]
+          for rec in idx:
+              if not rec.get('heroIdHits'): continue
+              p=root/'decompiled'/(re.sub(r'[^A-Za-z0-9_.-]+','_',rec['name'])+'.lua')
+              text=p.read_text(errors='replace'); lines=text.splitlines()
+              for i,line in enumerate(lines):
+                  matched=[x for x in ids if re.search(r'(?<!\d)'+re.escape(x)+r'(?!\d)',line)]
+                  if not matched: continue
+                  lo=max(0,i-3); hi=min(len(lines),i+4)
+                  contexts.append({'table':rec['name'],'line':i+1,'ids':matched,'context':'\n'.join(lines[lo:hi])[:2200]})
+                  if len(contexts)>=300: break
+              if len(contexts)>=300: break
+          source=json.loads((root/'source.json').read_text())
+          out={'source':source,'candidateNames':json.loads((root/'candidate-names.json').read_text()),'decompiledTables':idx,'contexts':contexts,'note':'Compact discovery contexts only. No bulk decompiled tables are committed.'}
+          p=pathlib.Path('simulator/research/promotion-table-discovery.v2.json'); p.write_text(json.dumps(out,indent=2,ensure_ascii=False)+'\n')
+          print(json.dumps({'contextCount':len(contexts),'contextTables':sorted({c['table'] for c in contexts}),'bytes':p.stat().st_size},indent=2))
+          PY
+      - name: Commit promotion discovery
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add simulator/research/promotion-table-discovery.v2.json
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'simulator: capture seasonal promotion table discovery v2'
+          git fetch origin simulator-standalone-v1
+          git rebase origin/simulator-standalone-v1
+          git push origin HEAD:simulator-standalone-v1
