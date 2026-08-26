@@ -42,14 +42,25 @@ jobs:
         run: |
           node --check simulator/hero-game-ui-v4.js
           node --check frontend/simulator/hero-game-ui-v4.js
-          grep -Fq 'hero-game-ui-v4.css?v=004-lastwar-hero-pages' simulator/index.html
-          grep -Fq 'hero-game-ui-v4.js?v=004-lastwar-hero-pages' simulator/index.html
-          grep -Fq 'hero-game-ui-v4.css?v=004-lastwar-hero-pages' frontend/simulator/index.html
-          grep -Fq 'hero-game-ui-v4.js?v=004-lastwar-hero-pages' frontend/simulator/index.html
-          grep -Fq "grade:['Compétences','skill']" simulator/hero-game-ui-v4.js
-          grep -Fq "wall:['Tier','tier']" simulator/hero-game-ui-v4.js
-          grep -Fq "weapon:['Arme exclusive','weapon']" simulator/hero-game-ui-v4.js
-          cmp simulator/hero-game-ui-v4.css frontend/simulator/hero-game-ui-v4.css
+          for f in simulator/index.html frontend/simulator/index.html; do
+            grep -Fq 'hero-game-ui-v4.css?v=004-lastwar-hero-pages' "$f"
+            grep -Fq 'hero-game-ui-v4.js?v=004-lastwar-hero-pages' "$f"
+          done
+          for f in simulator/hero-game-ui-v4.js frontend/simulator/hero-game-ui-v4.js; do
+            grep -Fq "grade:['Compétences','skill']" "$f"
+            grep -Fq "wall:['Tier','tier']" "$f"
+            grep -Fq "weapon:['Arme exclusive','weapon']" "$f"
+            grep -Fq 'lw4-skill-icons' "$f"
+            grep -Fq 'lw4-tier-stars' "$f"
+            grep -Fq 'lw4-weapon-stage' "$f"
+          done
+          for f in simulator/hero-game-ui-v4.css frontend/simulator/hero-game-ui-v4.css; do
+            grep -Fq '.game-hero-grid' "$f"
+            grep -Fq '.hero-game-sheet' "$f"
+            grep -Fq '.lw4-skill-icons' "$f"
+            grep -Fq '.lw4-tier-stars' "$f"
+            grep -Fq '.lw4-weapon-stage' "$f"
+          done
       - name: Commit wiring
         run: |
           git config user.name 'github-actions[bot]'
