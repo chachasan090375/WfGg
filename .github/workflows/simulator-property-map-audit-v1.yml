@@ -1,0 +1,160 @@
+name: Simulator property ID map audit v1
+
+on:
+  push:
+    branches: [simulator-standalone-v1]
+    paths: ['.github/workflows/simulator-property-map-audit-v1.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: simulator-standalone-v1
+          fetch-depth: 0
+      - name: Prepare verified DataTable and decompiler
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/lw/xapk /tmp/lw/decompiled simulator/research
+          curl -fL --retry 2 --connect-timeout 20 --max-time 900 'https://d.apkpure.net/b/XAPK/com.fun.lastwar.gp?versionCode=1864' -o /tmp/lw/current.xapk
+          python3 - <<'PY'
+          import json,zipfile,pathlib,re,hashlib,subprocess
+          root=pathlib.Path('/tmp/lw'); p=root/'current.xapk'
+          with zipfile.ZipFile(p) as z:
+              manifests=[n for n in z.namelist() if pathlib.PurePosixPath(n).name.lower() in ('manifest.json','xapk_manifest.json')]
+              d=json.loads(z.read(manifests[0]).decode('utf-8','replace'))
+          package=str(d.get('package_name') or d.get('packageName') or d.get('package') or '')
+          vname=str(d.get('version_name') or d.get('versionName') or '')
+          vcode=str(d.get('version_code') or d.get('versionCode') or '')
+          if (package,vname,vcode)!=('com.fun.lastwar.gp','1.0.359','1864'): raise SystemExit('Unexpected client metadata')
+          subprocess.run(['unzip','-q',str(p),'-d',str(root/'xapk')],check=True)
+          found=None
+          for apk in sorted((root/'xapk').rglob('*.apk'),key=lambda x:x.stat().st_size,reverse=True):
+              try:
+                  with zipfile.ZipFile(apk) as z:
+                      tn=next((n for n in z.namelist() if re.search(r'(^|/)assets/table/table_.*\.data$',n,re.I)),None)
+                      if not tn: continue
+                      raw=z.read(tn); (root/'table.data').write_bytes(raw)
+                      found={'apk':apk.name,'path':tn,'bytes':len(raw),'md5':hashlib.md5(raw).hexdigest(),'sha256':hashlib.sha256(raw).hexdigest()}
+                      break
+              except zipfile.BadZipFile: pass
+          if not found: raise SystemExit('DataTable not found')
+          (root/'source.json').write_text(json.dumps(found,indent=2)+'\n')
+          PY
+          if ! command -v lua5.3 >/dev/null 2>&1; then sudo apt-get update -qq && sudo apt-get install -y -qq lua5.3; fi
+          git clone --depth=1 https://github.com/HansWessels/unluac.git /tmp/unluac >/dev/null
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('/tmp/unluac/src/unluac/parse/LHeaderType.java'); s=p.read_text()
+          s=s.replace('if(format != 0) {','if(format != 0 && format != 1) {',1)
+          marker='class LHeaderType53 extends LHeaderType {'; pos=s.index(marker); head,tail=s[:pos],s[pos:]
+          old='    parse_instruction_size(buffer, header, s);'
+          if old not in tail: raise SystemExit('Lua53 instruction size call not found')
+          p.write_text(head+tail.replace(old,'    if(s.format != 1) parse_instruction_size(buffer, header, s);',1))
+          PY
+          (cd /tmp/unluac && bash build.sh >/dev/null)
+      - name: Decompile property and attribute candidate tables
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import pathlib,zipfile,re,subprocess,tempfile,json
+          root=pathlib.Path('/tmp/lw'); out=root/'decompiled'; jar='/tmp/unluac/bin/unluac.jar'
+          rx=re.compile(r'(property|propert|attribute|attr|fight.*prop|battle.*prop|buff.*prop)',re.I)
+          with zipfile.ZipFile(root/'table.data') as z:
+              names=sorted(n for n in z.namelist() if rx.search(n))
+              recs=[]
+              for n in names:
+                  raw=z.read(n)
+                  with tempfile.NamedTemporaryFile(suffix='.luac') as f:
+                      f.write(raw); f.flush(); cp=subprocess.run(['java','-jar',jar,f.name],stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,timeout=45)
+                  rec={'name':n,'bytes':len(raw),'ok':cp.returncode==0}
+                  if cp.returncode==0:
+                      (out/(re.sub(r'[^A-Za-z0-9_.-]+','_',n)+'.lua')).write_text(cp.stdout); rec['sourceChars']=len(cp.stdout)
+                  else: rec['error']=cp.stderr.strip()[-300:]
+                  recs.append(rec)
+          (root/'targets.json').write_text(json.dumps(recs,indent=2)+'\n')
+          print(json.dumps({'candidateCount':len(recs),'names':[r['name'] for r in recs]},indent=2))
+          PY
+      - name: Resolve target property IDs
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat >/tmp/lw/dump.lua <<'LUA'
+          local function dense(t)
+            local n=0
+            for k,_ in pairs(t) do if type(k)~='number' or k<1 or math.floor(k)~=k then return false,0 end; if k>n then n=k end end
+            for i=1,n do if rawget(t,i)==nil then return false,n end end
+            return true,n
+          end
+          local function esc(s) return (s:gsub('\\','\\\\'):gsub('"','\\"'):gsub('\n','\\n'):gsub('\r','\\r'):gsub('\t','\\t')) end
+          local function enc(v,d,seen)
+            d=d or 0; seen=seen or {}; local ty=type(v)
+            if ty=='nil' then return 'null' elseif ty=='number' then return tostring(v) elseif ty=='boolean' then return v and 'true' or 'false' elseif ty=='string' then return '"'..esc(v)..'"' end
+            if ty~='table' or d>12 or seen[v] then return 'null' end; seen[v]=true
+            local a,n=dense(v); local p={}
+            if a then for i=1,n do p[#p+1]=enc(v[i],d+1,seen) end; seen[v]=nil; return '['..table.concat(p,',')..']' end
+            local ks={}; for k,_ in pairs(v) do ks[#ks+1]=k end; table.sort(ks,function(a,b)return tostring(a)<tostring(b)end)
+            for _,k in ipairs(ks) do p[#p+1]='"'..esc(tostring(k))..'":'..enc(v[k],d+1,seen) end; seen[v]=nil; return '{'..table.concat(p,',')..'}'
+          end
+          local ok,T=pcall(dofile,arg[1]); if not ok then io.stderr:write(tostring(T)..'\n'); os.exit(2) end
+          print(enc(T))
+          LUA
+          python3 - <<'PY'
+          import json,pathlib,re,subprocess
+          root=pathlib.Path('/tmp/lw'); ddir=root/'decompiled'; targets=json.loads((root/'targets.json').read_text()); source=json.loads((root/'source.json').read_text())
+          TARGETS={50006,50007,50009,50063,75053}
+          def load(name):
+              p=ddir/(re.sub(r'[^A-Za-z0-9_.-]+','_',name)+'.lua')
+              cp=subprocess.run(['lua5.3','/tmp/lw/dump.lua',str(p)],stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,timeout=45)
+              if cp.returncode: raise RuntimeError(cp.stderr[-300:])
+              return json.loads(cp.stdout)
+          def contains_target(v):
+              if isinstance(v,(int,float)) and int(v)==v and int(v) in TARGETS: return True
+              if isinstance(v,str):
+                  return any(re.search(r'(?<!\d)'+str(t)+r'(?!\d)',v) for t in TARGETS)
+              if isinstance(v,dict): return any(contains_target(k) or contains_target(x) for k,x in v.items())
+              if isinstance(v,list): return any(contains_target(x) for x in v)
+              return False
+          def compact(v,depth=0):
+              if depth>5: return '<depth-limit>'
+              if isinstance(v,dict): return {str(k):compact(x,depth+1) for k,x in list(v.items())[:80]}
+              if isinstance(v,list): return [compact(x,depth+1) for x in v[:80]]
+              if isinstance(v,str) and len(v)>300: return v[:300]+'…'
+              return v
+          hits=[]; schemas=[]; errors={}
+          for m in targets:
+              if not m.get('ok'): continue
+              try: T=load(m['name'])
+              except Exception as e: errors[m['name']]=str(e); continue
+              idx=T.get('index') if isinstance(T,dict) else None; data=T.get('data') if isinstance(T,dict) else None
+              schemas.append({'name':m['name'],'index':compact(idx),'dataType':type(data).__name__,'rowCount':len(data) if isinstance(data,(dict,list)) else 0})
+              items=list(data.items()) if isinstance(data,dict) else [(i+1,x) for i,x in enumerate(data or [])]
+              for key,row in items:
+                  if contains_target(key) or contains_target(row):
+                      hits.append({'table':m['name'],'key':key,'row':compact(row)})
+                      if len(hits)>=500: break
+              if len(hits)>=500: break
+          out={'source':source,'targetPropertyIds':sorted(TARGETS),'candidateTables':schemas,'hits':hits,'errors':errors,'note':'Derived mapping audit only; no bulk game tables or assets committed.'}
+          p=pathlib.Path('simulator/research/property-id-map-audit.v1.json'); p.write_text(json.dumps(out,indent=2,ensure_ascii=False)+'\n')
+          print(json.dumps({'candidateTables':len(schemas),'hitCount':len(hits),'hitTables':sorted({h['table'] for h in hits}),'outputBytes':p.stat().st_size,'errors':errors},indent=2))
+          PY
+      - name: Commit property ID map audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add simulator/research/property-id-map-audit.v1.json
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'simulator: capture property ID mapping audit'
+          git fetch origin simulator-standalone-v1
+          git rebase origin/simulator-standalone-v1
+          git push origin HEAD:simulator-standalone-v1
