@@ -58,11 +58,12 @@ jobs:
           import re
           from pathlib import Path
           bad=[]
+          patterns=[re.compile(r'\.style\.[A-Za-z_$][\w$]*\s*='), re.compile(r'\bstyle\s*=\s*["\x27]')]
           for p in Path('simulator').rglob('*'):
               if not p.is_file() or p.suffix not in {'.js','.html'}: continue
               text=p.read_text(encoding='utf-8')
-              for pat in (r'\.style\.[A-Za-z_$][\w$]*\s*=', r'\bstyle\s*=\s*["\']'):
-                  for m in re.finditer(pat,text):
+              for pat in patterns:
+                  for m in pat.finditer(text):
                       line=text.count('\n',0,m.start())+1
                       bad.append((str(p),line,text[m.start():m.start()+120].replace('\n',' ')))
           if bad:
