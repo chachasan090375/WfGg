@@ -1,0 +1,115 @@
+name: Simulator hero UX v10
+
+on:
+  push:
+    branches:
+      - simulator-standalone-v1
+    paths:
+      - '.github/workflows/simulator-hero-ux-v10.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  deploy-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: simulator-standalone-v1
+          fetch-depth: 0
+      - name: Validate V10 JavaScript
+        run: node --check simulator/hero-ux-v10.js
+      - name: Mirror and wire V10
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp simulator/hero-ux-v10.css frontend/simulator/hero-ux-v10.css
+          cp simulator/hero-ux-v10.js frontend/simulator/hero-ux-v10.js
+          python3 - <<'PY'
+          from pathlib import Path
+          css='  <link rel="stylesheet" href="hero-ux-v10.css?v=010-roster-sheet-graphic" />\n'
+          js='  <script src="hero-ux-v10.js?v=010-roster-sheet-graphic"></script>\n'
+          for name in ('simulator/index.html','frontend/simulator/index.html'):
+              p=Path(name); s=p.read_text(encoding='utf-8')
+              if 'hero-ux-v10.css' not in s:
+                  marker='  <link rel="stylesheet" href="hero-ux-v9.css?v=009-selective-motion-gear-ew" />\n'
+                  if marker not in s: raise SystemExit(f'CSS marker missing in {name}')
+                  s=s.replace(marker,marker+css,1)
+              if 'hero-ux-v10.js' not in s:
+                  marker='  <script src="hero-ux-v9.js?v=009-selective-motion-gear-ew"></script>\n'
+                  if marker not in s: raise SystemExit(f'JS marker missing in {name}')
+                  s=s.replace(marker,marker+js,1)
+              p.write_text(s,encoding='utf-8')
+          Path('simulator/UI_VERSION.txt').write_text('HERO_UX_V10\nstrong selective card motion / clean portraits / purple semantic footer / compact graphical hero sheet\n2026-08-26\n',encoding='utf-8')
+          PY
+          grep -Fq 'hero-ux-v10.css?v=010-roster-sheet-graphic' simulator/index.html
+          grep -Fq 'hero-ux-v10.js?v=010-roster-sheet-graphic' simulator/index.html
+          grep -Fq 'hero-ux-v10.css?v=010-roster-sheet-graphic' frontend/simulator/index.html
+          grep -Fq 'hero-ux-v10.js?v=010-roster-sheet-graphic' frontend/simulator/index.html
+      - name: Commit V10 wiring
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add simulator/index.html simulator/UI_VERSION.txt frontend/simulator/index.html frontend/simulator/hero-ux-v10.css frontend/simulator/hero-ux-v10.js
+          git diff --cached --check
+          if ! git diff --cached --quiet; then
+            git commit -m 'simulator: enable hero UX v10'
+            git fetch origin simulator-standalone-v1
+            git rebase origin/simulator-standalone-v1
+            git push origin HEAD:simulator-standalone-v1
+          fi
+      - name: Verify public V10 propagation
+        shell: bash
+        run: |
+          set -euo pipefail
+          ROOT='https://simulator-standalone-v1.wfgg.pages.dev/simulator'
+          for i in $(seq 1 50); do
+            curl -fsSL "$ROOT/?hero_ux_v10=$i" -o /tmp/index.html || true
+            cssok=0; jsok=0
+            if grep -Fq 'hero-ux-v10.css?v=010-roster-sheet-graphic' /tmp/index.html; then curl -fsSL "$ROOT/hero-ux-v10.css?v=010-roster-sheet-graphic&n=$i" | grep -Fq 'wfgg-v10-live' && cssok=1 || true; fi
+            if grep -Fq 'hero-ux-v10.js?v=010-roster-sheet-graphic' /tmp/index.html; then curl -fsSL "$ROOT/hero-ux-v10.js?v=010-roster-sheet-graphic&n=$i" | grep -Fq 'WfGgHeroUxV10' && jsok=1 || true; fi
+            echo "attempt=$i css=$cssok js=$jsok"
+            if [ "$cssok" = 1 ] && [ "$jsok" = 1 ]; then exit 0; fi
+            sleep 3
+          done
+          exit 1
+      - name: Install Playwright
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Android V10 interaction recette
+        run: |
+          node <<'JS'
+          const assert=require('node:assert/strict');
+          const {chromium}=require('playwright');
+          (async()=>{
+            const browser=await chromium.launch({headless:true});
+            try{
+              const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,deviceScaleFactor:2,locale:'fr-FR'});
+              await context.addInitScript(()=>{
+                const p={locale:'fr',step:1,account:{hqLevel:35,activeSquads:3,superMonthlyPass:false,troopTier:'T10',troopCenters:{tankLevel:35,aircraftLevel:35,missileLevel:35},marchSizeAdditional:{survivorShirleyBonus:0,decorationsBonus:0}},heroes:[{heroId:'Williams',troopType:'tank',role:'defense',rarity:'UR',level:175,stars:5,exclusiveWeaponLevel:20,wallOfHonorLevel:0},{heroId:'Kimberly',troopType:'tank',role:'attack',rarity:'UR',level:175,stars:5,exclusiveWeaponLevel:30,wallOfHonorLevel:0},{heroId:'Mason',troopType:'tank',role:'attack',rarity:'SSR',level:175,stars:5,exclusiveWeaponLevel:0,wallOfHonorLevel:0}],gear:[],research:{},season6:{totemLevels:{bearTank:0,eagleAircraft:0,jaguarMissile:0},tacticsCards:{dimensionalCrit:0,frontalSuppression:0,aftermathBurst:0}},metadata:{schema:'wfgg-simulator-profile-v1',updatedAt:new Date().toISOString()}};
+                localStorage.setItem('wfgg-simulator-profile-v1',JSON.stringify(p));
+              });
+              const page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(String(e)));
+              await page.goto('https://simulator-standalone-v1.wfgg.pages.dev/simulator/?hero_ux_v10_e2e=1',{waitUntil:'networkidle',timeout:60000});
+              const cards=page.locator('.game-hero-card');await cards.first().waitFor({state:'visible',timeout:30000});assert.equal(await cards.count(),31);
+              await page.waitForFunction(()=>{const n=document.querySelectorAll('.game-hero-card.wfgg-v10-live').length;return n>=5&&n<=6},null,{timeout:6000});
+              const animated=await page.locator('.game-hero-card.wfgg-v10-live').count();assert.ok(animated>=5&&animated<=6);
+              const animName=await page.locator('.game-hero-card.wfgg-v10-live .hero-card-portrait img').first().evaluate(el=>getComputedStyle(el).animationName);assert.match(animName,/wfgg-v10-hero-live/);
+              const william=page.locator('.game-hero-card[data-hero-id="williams"]');assert.match(await william.locator('.hero-card-footer').innerText(),/Williams/);assert.match(await william.locator('.hero-card-footer').innerText(),/UR/);
+              assert.equal(await william.locator('.hero-role-badge').evaluate(el=>getComputedStyle(el).display),'none');assert.equal(await william.locator('.hero-rarity-badge').evaluate(el=>getComputedStyle(el).display),'none');
+              const crop=await william.locator('.hero-card-portrait img').evaluate(el=>getComputedStyle(el).objectPosition);assert.match(crop,/0%|4%/);
+              const kim=page.locator('.game-hero-card[data-hero-id="kimberly"]');assert.match(await kim.locator('.hero-card-footer').innerText(),/S6/);assert.match(await kim.locator('.hero-card-footer').innerText(),/Éveil/);
+              const mason=page.locator('.game-hero-card[data-hero-id="mason"]');assert.match(await mason.locator('.hero-card-footer').innerText(),/SSR→UR/);assert.match(await mason.locator('.hero-card-footer').innerText(),/S1/);
+              await william.tap();await page.locator('#heroGameSheet.open').waitFor({state:'visible',timeout:10000});assert.equal(await page.locator('#heroGameSheet').evaluate(el=>el.classList.contains('wfgg-v10-sheet')),true);
+              const labels=await page.locator('#heroGameSheet [data-sheet-tab] span').allTextContents();assert.deepEqual(labels,['Attributs','Compétences','Étoiles','Arme']);
+              const noteDisplay=await page.locator('#heroGameSheet .lw4-page-note').first().evaluate(el=>getComputedStyle(el).display);assert.equal(noteDisplay,'none');
+              await page.locator('[data-sheet-tab="weapon"]').tap();const buff=page.locator('#heroGameSheet .lw4-buff-list');if(await buff.count())assert.equal(await buff.evaluate(el=>getComputedStyle(el).display),'none');
+              const metric=await page.evaluate(()=>({w:innerWidth,sw:(document.scrollingElement||document.documentElement).scrollWidth}));assert.ok(metric.sw<=metric.w+2);
+              assert.equal(errors.length,0,errors.join(' | '));
+              console.log(JSON.stringify({ok:true,cards:31,animated,animation:animName,crop,labels,metric},null,2));
+            }finally{await browser.close()}
+          })().catch(e=>{console.error(e);process.exit(1)});
+          JS
