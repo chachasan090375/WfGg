@@ -14,6 +14,37 @@ Le comparateur ne doit pas additionner aveuglément toute la puissance d'un comp
 
 Un bonus strictement global, appliqué de façon identique à toutes les compositions comparées, est classé `global-common` et exclu du score différentiel initial.
 
+## Wanted Codes 39 / 64 / 87
+
+Les Codes sont traités comme des objectifs offensifs de 90 secondes : le boss n'attaque pas. Le classement ne doit donc pas utiliser la puissance globale affichée comme raccourci.
+
+Pour ces trois objectifs :
+
+- `displayedPower` a un poids de 0 ;
+- DEF a un poids de 0 ;
+- HP/PV a un poids de 0 ;
+- l'ancre visible initiale est l'ATK affichée ;
+- le score final doit représenter les dégâts offensifs estimés sur 90 s en ajoutant les compétences, multiplicateurs de dégâts, critique, vitesse d'attaque, cooldown, bonus PvE/monstres, buffs d'équipe, buffs de placement et debuffs offensifs vérifiés ;
+- une statistique normalement défensive ne peut réentrer dans le calcul que si une compétence offensive vérifiée scale explicitement dessus ou est déclenchée par elle.
+
+Bonus spécifiques déjà gelés : Code 39 = Aircraft +50 % dégâts ; Code 64 = Missile +50 % ; Code 87 = Tank +50 %.
+
+Le moteur `positioning-engine.v1.js` expose actuellement un **score offensif relatif de recherche**, pas encore une prédiction exacte des dégâts 90 s.
+
+## Placement des 5 héros
+
+La composition et le placement sont deux variables distinctes. Le schéma `data/formation-positioning.v1.json` définit les cinq positions :
+
+- front-left ;
+- front-right ;
+- back-left ;
+- back-center ;
+- back-right.
+
+Lorsqu'un buff actif dépend du placement, d'une ligne, d'un héros adjacent ou d'une position relative, le moteur doit évaluer les **120 permutations (5!)** de la même composition et conserver le meilleur placement.
+
+La géométrie générique du mot « adjacent » reste marquée `needs-in-game-validation`. Elle ne doit pas modifier une recommandation de production tant qu'une capture du client ou un test validé ne confirme pas le ciblage exact. Les effets de héros non vérifiés ne sont pas inventés : `verifiedHeroEffects` est volontairement vide à ce stade.
+
 ## Modèle de données
 
 Chaque buff possède au minimum :
@@ -48,8 +79,9 @@ Chaque pièce devra pouvoir enregistrer au minimum : rareté, niveau, étoiles/p
 - Wanted Boss 39 / 64 / 87 ;
 - bâtiments saisonniers différentiels ;
 - Tactics Cards qui changent les règles de composition (notamment 4+1) ;
-- équipement des héros.
+- équipement des héros ;
+- placement exact des cinq héros et buffs d'adjacence / ligne / position.
 
 ## Prudence sur la formule finale
 
-Les pourcentages visibles et documentés peuvent être modélisés précisément. En revanche, la formule interne complète de dégâts (ordre des multiplicateurs, mitigation, critique, résistances et interactions) n'est pas publiée de façon exhaustive. Le premier moteur donnera donc un score relatif traçable, puis sera calibré à partir de rapports de combat si nécessaire.
+Les pourcentages visibles et documentés peuvent être modélisés précisément. En revanche, la formule interne complète de dégâts (ordre des multiplicateurs, mitigation, critique, résistances et interactions) n'est pas publiée de façon exhaustive. Le premier moteur donne donc un score relatif traçable, puis sera calibré à partir de rapports de combat si nécessaire.
