@@ -73,8 +73,8 @@
 
   function portrait(cat){
     const fallback=`<span class="hero-fallback">${esc(initials(cat.name))}</span>`;
-    if(!cat.portrait)return fallback;
-    return `<img src="${esc(cat.portrait)}" alt="${esc(cat.name)}" loading="lazy" referrerpolicy="no-referrer">${fallback}`;
+    const src=cat.localPortrait||cat.portrait;if(!src)return fallback;
+    return `<img src="${esc(src)}" alt="${esc(cat.name)}" loading="lazy" referrerpolicy="no-referrer">${fallback}`;
   }
   function bindImageFallbacks(root){
     root?.querySelectorAll?.('.hero-card-portrait img,.hero-sheet-portrait img').forEach(img=>{
