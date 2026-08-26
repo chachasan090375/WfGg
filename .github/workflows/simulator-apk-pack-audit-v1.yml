@@ -79,6 +79,13 @@ jobs:
           if not apks:
             raise SystemExit('No APK found in verified XAPK')
 
+          architecture='unknown'
+          apk_names=' '.join(p.name.lower() for p in apks)
+          if 'arm64_v8a' in apk_names or 'arm64-v8a' in apk_names: architecture='arm64-v8a'
+          elif 'armeabi_v7a' in apk_names or 'armeabi-v7a' in apk_names: architecture='armeabi-v7a'
+          elif 'x86_64' in apk_names or 'x86-64' in apk_names: architecture='x86_64'
+          elif re.search(r'(^|[^a-z])x86([^a-z]|$)',apk_names): architecture='x86'
+
           pats={
             'tables': re.compile(r'(^|/)assets/table/|table_.*\.data$',re.I),
             'heroes': re.compile(r'hero|portrait|avatar|head|role|rarity',re.I),
@@ -101,6 +108,7 @@ jobs:
                   groups[k].extend({'apk':apk.name,'path':n} for n in names if rx.search(n))
                 for n in names:
                   info=z.getinfo(n)
+                  low=n.lower()
                   if pats['tables'].search(n):
                     rec={'apk':apk.name,'path':n,'bytes':info.file_size,'compressedBytes':info.compress_size,'crc32':f'{info.CRC:08x}'}
                     if n.lower().endswith('.data') and info.file_size < 30_000_000:
@@ -108,9 +116,12 @@ jobs:
                       rec['md5']=hashlib.md5(data).hexdigest()
                       rec['sha256']=hashlib.sha256(data).hexdigest()
                       rec['magic']=data[:8].hex()
+                    elif low.endswith('assets/table/version') or low=='assets/table/version':
+                      data=z.read(n)
+                      rec['text']=data.decode('utf-8','replace').strip()
+                      rec['sha256']=hashlib.sha256(data).hexdigest()
                     table_meta.append(rec)
 
-                  low=n.lower()
                   likely=('global-metadata.dat' in low or low.endswith(('.json','.xml','.txt','.bytes','.config','.ini','.properties')) or ('assets/' in low and info.file_size <= 12_000_000) or (low.endswith(('.so','.dll')) and info.file_size <= 80_000_000))
                   if not likely or info.file_size <= 0 or len(bootstrap_strings)>=350:
                     continue
@@ -133,18 +144,22 @@ jobs:
             if key not in seen:
               seen.add(key); dedup.append(h)
 
+          embedded_data=next((x for x in table_meta if str(x.get('path','')).lower().endswith('.data')),None)
+          embedded_manifest=next((x for x in table_meta if str(x.get('path','')).lower().endswith('assets/table/version')),None)
           out={
-            'source':{'package':'com.fun.lastwar.gp','version':'1.0.359','buildId':1864,'architecture':'arm64-v8a','xapkSha1':hashlib.sha1(xapk.read_bytes()).hexdigest(),'xapkSha256':hashlib.sha256(xapk.read_bytes()).hexdigest()},
+            'source':{'package':'com.fun.lastwar.gp','version':'1.0.359','buildId':1864,'architecture':architecture,'xapkSha1':hashlib.sha1(xapk.read_bytes()).hexdigest(),'xapkSha256':hashlib.sha256(xapk.read_bytes()).hexdigest()},
             'apks':apk_meta,
             'tables':table_meta,
+            'embeddedDataTable':embedded_data,
+            'embeddedTableManifest':embedded_manifest,
             'groups':{k:{'count':len(v),'sample':v[:500]} for k,v in groups.items()},
             'bootstrapStringHits':dedup[:350],
-            'target':{'dataTableVersion':'1295','descriptor':'DataTable,1295,294,1768181284'},
+            'target':{'hotUpdateDataTableVersion':'1295','descriptor':'DataTable,1295,294,1768181284'},
             'note':'Metadata/string inventory only. No XAPK/APK, bulk copyrighted assets, account/session data, secrets, tokens or private player codes are committed.'
           }
           p=pathlib.Path('simulator/research/current-apk-pack-audit.v1.json')
           p.write_text(json.dumps(out,indent=2,ensure_ascii=False)+'\n',encoding='utf-8')
-          print(json.dumps({'apkCount':len(apk_meta),'tableEntries':len(table_meta),'bootstrapStringHits':len(dedup),'groupCounts':{k:len(v) for k,v in groups.items()},'xapkSha1':out['source']['xapkSha1']},indent=2))
+          print(json.dumps({'architecture':architecture,'apkCount':len(apk_meta),'tableEntries':len(table_meta),'embeddedTableManifest':embedded_manifest,'bootstrapStringHits':len(dedup),'groupCounts':{k:len(v) for k,v in groups.items()},'xapkSha1':out['source']['xapkSha1']},indent=2))
           PY
 
       - name: Commit sanitized metadata only
@@ -154,7 +169,11 @@ jobs:
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git add simulator/research/current-apk-pack-audit.v1.json
-          if ! git diff --cached --quiet; then
-            git commit -m 'simulator: capture current APK pack and DataTable bootstrap audit'
-            git push origin HEAD:simulator-standalone-v1
+          if git diff --cached --quiet; then
+            echo 'No audit changes to commit.'
+            exit 0
           fi
+          git commit -m 'simulator: capture current APK pack and DataTable bootstrap audit'
+          git fetch origin simulator-standalone-v1
+          git rebase origin/simulator-standalone-v1
+          git push origin HEAD:simulator-standalone-v1
