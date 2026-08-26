@@ -1,0 +1,1756 @@
+{
+  "version": "1.0.0-native-level-grade",
+  "source": {
+    "client": "1.0.359",
+    "buildId": 1864,
+    "dataTableMd5": "cfcbee99d7064f86d09dd682babdbc2b",
+    "heroTable": "lw_hero",
+    "levelCurveTable": "lw_template_property",
+    "gradeTable": "lw_hero_rank"
+  },
+  "formula": {
+    "rounding": "floor_each_component_after_hero_base_scaling",
+    "levelBase": "floor(templateCurve[templateId][level][stat] * hero.base[stat] / 10000)",
+    "gradeBonus": "floor(heroRank[rank][propertyId(stat)] * hero.base[stat] / 10000)",
+    "nativeLevelPlusGrade": "levelBase + gradeBonus",
+    "propertyIds": {
+      "hp": 50006,
+      "attack": 50007,
+      "defense": 50009
+    },
+    "maxHeroLevelAtHQ35": 175,
+    "rank26Means": "5-star / 25 sub-rank upgrades after initial rank"
+  },
+  "coverage": {
+    "heroCount": 31,
+    "templateIds": [
+      1,
+      2
+    ],
+    "qualities": [
+      3,
+      4,
+      5
+    ],
+    "unsupportedTemplateHeroIds": [
+      30002,
+      30003,
+      30004,
+      30005,
+      40006,
+      40007,
+      40008,
+      40009,
+      40010,
+      40012,
+      40013,
+      40015,
+      40016,
+      40018,
+      40019,
+      40020
+    ],
+    "curveLevelRange": [
+      1,
+      175
+    ],
+    "rankRange": [
+      1,
+      26
+    ]
+  },
+  "heroes": {
+    "10051": {
+      "nativeId": 10051,
+      "quality": 5,
+      "templateId": 2,
+      "armyType": 2,
+      "maxRank": 26,
+      "base": {
+        "hp": 5689.0,
+        "attack": 3000.0,
+        "defense": 9007.0
+      },
+      "skills": [
+        101600
+      ],
+      "weapon": 5016
+    },
+    "10060": {
+      "nativeId": 10060,
+      "quality": 5,
+      "templateId": 2,
+      "armyType": 3,
+      "maxRank": 26,
+      "base": {
+        "hp": 10345.0,
+        "attack": 20000.0,
+        "defense": 3053.0
+      },
+      "skills": [
+        100001
+      ],
+      "weapon": 5017
+    },
+    "30002": {
+      "nativeId": 30002,
+      "quality": 3,
+      "templateId": 1,
+      "armyType": 1,
+      "maxRank": 26,
+      "base": {
+        "hp": 3362.0,
+        "attack": 7693.0,
+        "defense": 4961.0
+      },
+      "skills": [
+        300200,
+        300210,
+        300230
+      ],
+      "weapon": 3001
+    },
+    "30003": {
+      "nativeId": 30003,
+      "quality": 3,
+      "templateId": 1,
+      "armyType": 2,
+      "maxRank": 26,
+      "base": {
+        "hp": 3102.0,
+        "attack": 8186.0,
+        "defense": 4885.0
+      },
+      "skills": [
+        300300,
+        300310,
+        300330
+      ],
+      "weapon": 3002
+    },
+    "30004": {
+      "nativeId": 30004,
+      "quality": 3,
+      "templateId": 1,
+      "armyType": 3,
+      "maxRank": 26,
+      "base": {
+        "hp": 3452.0,
+        "attack": 7539.0,
+        "defense": 4986.0
+      },
+      "skills": [
+        300400,
+        300410,
+        300430
+      ],
+      "weapon": 3003
+    },
+    "30005": {
+      "nativeId": 30005,
+      "quality": 3,
+      "templateId": 1,
+      "armyType": 1,
+      "maxRank": 26,
+      "base": {
+        "hp": 7174.0,
+        "attack": 4462.0,
+        "defense": 5685.0
+      },
+      "skills": [
+        300500,
+        300510,
+        300530
+      ],
+      "weapon": 3005
+    },
+    "40006": {
+      "nativeId": 40006,
+      "quality": 4,
+      "templateId": 1,
+      "armyType": 1,
+      "maxRank": 26,
+      "base": {
+        "hp": 8961.0,
+        "attack": 5438.0,
+        "defense": 7014.0
+      },
+      "skills": [
+        400600,
+        400610,
+        400620,
+        400630
+      ],
+      "weapon": 4006
+    },
+    "40007": {
+      "nativeId": 40007,
+      "quality": 4,
+      "templateId": 1,
+      "armyType": 2,
+      "maxRank": 26,
+      "base": {
+        "hp": 7880.0,
+        "attack": 5933.0,
+        "defense": 6863.0
+      },
+      "skills": [
+        400700,
+        400710,
+        400720,
+        400730
+      ],
+      "weapon": 4007
+    },
+    "40008": {
+      "nativeId": 40008,
+      "quality": 4,
+      "templateId": 1,
+      "armyType": 1,
+      "maxRank": 26,
+      "base": {
+        "hp": 4165.0,
+        "attack": 9421.0,
+        "defense": 6114.0
+      },
+      "skills": [
+        400800,
+        400810,
+        400820,
+        400830
+      ],
+      "weapon": 4008
+    },
+    "40009": {
+      "nativeId": 40009,
+      "quality": 4,
+      "templateId": 1,
+      "armyType": 1,
+      "maxRank": 26,
+      "base": {
+        "hp": 4110.0,
+        "attack": 9517.0,
+        "defense": 6098.0
+      },
+      "skills": [
+        400900,
+        400910,
+        400920,
+        400930
+      ],
+      "weapon": 4009
+    },
+    "40010": {
+      "nativeId": 40010,
+      "quality": 4,
+      "templateId": 1,
+      "armyType": 1,
+      "maxRank": 26,
+      "base": {
+        "hp": 4138.0,
+        "attack": 9469.0,
+        "defense": 6106.0
+      },
+      "skills": [
+        401000,
+        401010,
+        401020,
+        401030
+      ],
+      "weapon": 4010
+    },
+    "40012": {
+      "nativeId": 40012,
+      "quality": 4,
+      "templateId": 1,
+      "armyType": 1,
+      "maxRank": 26,
+      "base": {
+        "hp": 8828.0,
+        "attack": 5493.0,
+        "defense": 6997.0
+      },
+      "skills": [
+        401200,
+        401210,
+        401220,
+        401230
+      ],
+      "weapon": 4012
+    },
+    "40013": {
+      "nativeId": 40013,
+      "quality": 4,
+      "templateId": 1,
+      "armyType": 2,
+      "maxRank": 26,
+      "base": {
+        "hp": 4006.0,
+        "attack": 9707.0,
+        "defense": 6068.0
+      },
+      "skills": [
+        401300,
+        401310,
+        401320,
+        401330
+      ],
+      "weapon": 4013
+    },
+    "40015": {
+      "nativeId": 40015,
+      "quality": 4,
+      "templateId": 1,
+      "armyType": 3,
+      "maxRank": 26,
+      "base": {
+        "hp": 8480.0,
+        "attack": 5644.0,
+        "defense": 6949.0
+      },
+      "skills": [
+        401500,
+        401510,
+        401520,
+        401530
+      ],
+      "weapon": 4015
+    },
+    "40016": {
+      "nativeId": 40016,
+      "quality": 4,
+      "templateId": 1,
+      "armyType": 3,
+      "maxRank": 26,
+      "base": {
+        "hp": 4277.0,
+        "attack": 9232.0,
+        "defense": 6145.0
+      },
+      "skills": [
+        401600,
+        401610,
+        401620,
+        401630
+      ],
+      "weapon": 4016
+    },
+    "40018": {
+      "nativeId": 40018,
+      "quality": 4,
+      "templateId": 1,
+      "armyType": 2,
+      "maxRank": 26,
+      "base": {
+        "hp": 3454.0,
+        "attack": 10898.0,
+        "defense": 5895.0
+      },
+      "skills": [
+        401800,
+        401810,
+        401820,
+        401830
+      ],
+      "weapon": 4018
+    },
+    "40019": {
+      "nativeId": 40019,
+      "quality": 4,
+      "templateId": 1,
+      "armyType": 3,
+      "maxRank": 26,
+      "base": {
+        "hp": 5183.0,
+        "attack": 7994.0,
+        "defense": 6370.0
+      },
+      "skills": [
+        401900,
+        401910,
+        401920,
+        401930
+      ],
+      "weapon": 4019
+    },
+    "40020": {
+      "nativeId": 40020,
+      "quality": 4,
+      "templateId": 1,
+      "armyType": 1,
+      "maxRank": 26,
+      "base": {
+        "hp": 5043.0,
+        "attack": 8157.0,
+        "defense": 6338.0
+      },
+      "skills": [
+        402000,
+        402010,
+        402020,
+        402030
+      ],
+      "weapon": 4019
+    },
+    "50006": {
+      "nativeId": 50006,
+      "quality": 5,
+      "templateId": 2,
+      "armyType": 1,
+      "maxRank": 26,
+      "base": {
+        "hp": 13442.0,
+        "attack": 8157.0,
+        "defense": 10522.0
+      },
+      "skills": [
+        500600,
+        500610,
+        500620,
+        500630
+      ],
+      "weapon": 5006
+    },
+    "50007": {
+      "nativeId": 50007,
+      "quality": 5,
+      "templateId": 2,
+      "armyType": 1,
+      "maxRank": 26,
+      "base": {
+        "hp": 13648.0,
+        "attack": 8075.0,
+        "defense": 10549.0
+      },
+      "skills": [
+        500700,
+        500710,
+        500720,
+        500730
+      ],
+      "weapon": 5007
+    },
+    "50008": {
+      "nativeId": 50008,
+      "quality": 5,
+      "templateId": 2,
+      "armyType": 1,
+      "maxRank": 26,
+      "base": {
+        "hp": 7004.0,
+        "attack": 12958.0,
+        "defense": 9372.0
+      },
+      "skills": [
+        500800,
+        500810,
+        500820,
+        500830
+      ],
+      "weapon": 5008
+    },
+    "50009": {
+      "nativeId": 50009,
+      "quality": 5,
+      "templateId": 2,
+      "armyType": 1,
+      "maxRank": 26,
+      "base": {
+        "hp": 5836.0,
+        "attack": 14893.0,
+        "defense": 9052.0
+      },
+      "skills": [
+        500900,
+        500910,
+        500920,
+        500930
+      ],
+      "weapon": 5009
+    },
+    "50010": {
+      "nativeId": 50010,
+      "quality": 5,
+      "templateId": 2,
+      "armyType": 1,
+      "maxRank": 26,
+      "base": {
+        "hp": 5451.0,
+        "attack": 15706.0,
+        "defense": 8932.0
+      },
+      "skills": [
+        501000,
+        501010,
+        501020,
+        501030
+      ],
+      "weapon": 5010
+    },
+    "50013": {
+      "nativeId": 50013,
+      "quality": 5,
+      "templateId": 2,
+      "armyType": 2,
+      "maxRank": 26,
+      "base": {
+        "hp": 12672.0,
+        "attack": 8488.0,
+        "defense": 10418.0
+      },
+      "skills": [
+        501300,
+        501310,
+        501320,
+        501330
+      ],
+      "weapon": 5013
+    },
+    "50014": {
+      "nativeId": 50014,
+      "quality": 5,
+      "templateId": 2,
+      "armyType": 2,
+      "maxRank": 26,
+      "base": {
+        "hp": 5933.0,
+        "attack": 14705.0,
+        "defense": 9080.0
+      },
+      "skills": [
+        501400,
+        501410,
+        501420,
+        501430
+      ],
+      "weapon": 5014
+    },
+    "50015": {
+      "nativeId": 50015,
+      "quality": 5,
+      "templateId": 2,
+      "armyType": 2,
+      "maxRank": 26,
+      "base": {
+        "hp": 6049.0,
+        "attack": 14487.0,
+        "defense": 9114.0
+      },
+      "skills": [
+        501500,
+        501510,
+        501520,
+        501530
+      ],
+      "weapon": 5015
+    },
+    "50018": {
+      "nativeId": 50018,
+      "quality": 5,
+      "templateId": 2,
+      "armyType": 3,
+      "maxRank": 26,
+      "base": {
+        "hp": 6030.0,
+        "attack": 14521.0,
+        "defense": 9109.0
+      },
+      "skills": [
+        501800,
+        501810,
+        501820,
+        501830
+      ],
+      "weapon": 5018
+    },
+    "50019": {
+      "nativeId": 50019,
+      "quality": 5,
+      "templateId": 2,
+      "armyType": 3,
+      "maxRank": 26,
+      "base": {
+        "hp": 14281.0,
+        "attack": 7834.0,
+        "defense": 10629.0
+      },
+      "skills": [
+        501900,
+        501910,
+        501920,
+        501930
+      ],
+      "weapon": 5015
+    },
+    "50020": {
+      "nativeId": 50020,
+      "quality": 5,
+      "templateId": 2,
+      "armyType": 3,
+      "maxRank": 26,
+      "base": {
+        "hp": 6543.0,
+        "attack": 13642.0,
+        "defense": 9252.0
+      },
+      "skills": [
+        502000,
+        502010,
+        502020,
+        502030
+      ],
+      "weapon": 5015
+    },
+    "50021": {
+      "nativeId": 50021,
+      "quality": 5,
+      "templateId": 2,
+      "armyType": 3,
+      "maxRank": 26,
+      "base": {
+        "hp": 13104.0,
+        "attack": 8298.0,
+        "defense": 10477.0
+      },
+      "skills": [
+        502100,
+        502110,
+        502120,
+        502130
+      ],
+      "weapon": 5015
+    },
+    "50022": {
+      "nativeId": 50022,
+      "quality": 5,
+      "templateId": 2,
+      "armyType": 2,
+      "maxRank": 26,
+      "base": {
+        "hp": 10495.0,
+        "attack": 9665.0,
+        "defense": 10085.0
+      },
+      "skills": [
+        502200,
+        502210,
+        502220,
+        502230
+      ],
+      "weapon": 5015
+    }
+  },
+  "templateCurves": {
+    "2": {
+      "1": {
+        "hp": 1620.0,
+        "attack": 38.58,
+        "defense": 7.72
+      },
+      "2": {
+        "hp": 1822.5,
+        "attack": 43.4,
+        "defense": 8.68
+      },
+      "3": {
+        "hp": 2025.0,
+        "attack": 48.22,
+        "defense": 9.65
+      },
+      "4": {
+        "hp": 2227.5,
+        "attack": 53.04,
+        "defense": 10.61
+      },
+      "5": {
+        "hp": 2430.0,
+        "attack": 57.86,
+        "defense": 11.58
+      },
+      "6": {
+        "hp": 2624.4,
+        "attack": 62.49,
+        "defense": 12.5
+      },
+      "7": {
+        "hp": 2843.1,
+        "attack": 67.7,
+        "defense": 13.54
+      },
+      "8": {
+        "hp": 3086.1,
+        "attack": 73.48,
+        "defense": 14.7
+      },
+      "9": {
+        "hp": 3353.4,
+        "attack": 79.85,
+        "defense": 15.97
+      },
+      "10": {
+        "hp": 3645.0,
+        "attack": 86.79,
+        "defense": 17.36
+      },
+      "11": {
+        "hp": 3936.6,
+        "attack": 93.73,
+        "defense": 18.75
+      },
+      "12": {
+        "hp": 4264.65,
+        "attack": 101.54,
+        "defense": 20.31
+      },
+      "13": {
+        "hp": 4629.15,
+        "attack": 110.22,
+        "defense": 22.05
+      },
+      "14": {
+        "hp": 5030.1,
+        "attack": 119.77,
+        "defense": 23.96
+      },
+      "15": {
+        "hp": 5467.5,
+        "attack": 130.18,
+        "defense": 26.04
+      },
+      "16": {
+        "hp": 5904.9,
+        "attack": 140.6,
+        "defense": 28.12
+      },
+      "17": {
+        "hp": 6396.98,
+        "attack": 152.31,
+        "defense": 30.47
+      },
+      "18": {
+        "hp": 6943.73,
+        "attack": 165.33,
+        "defense": 33.07
+      },
+      "19": {
+        "hp": 7545.15,
+        "attack": 179.65,
+        "defense": 35.93
+      },
+      "20": {
+        "hp": 8201.25,
+        "attack": 195.27,
+        "defense": 39.06
+      },
+      "21": {
+        "hp": 8830.02,
+        "attack": 210.24,
+        "defense": 42.05
+      },
+      "22": {
+        "hp": 9537.38,
+        "attack": 227.09,
+        "defense": 45.42
+      },
+      "23": {
+        "hp": 10323.33,
+        "attack": 245.8,
+        "defense": 49.16
+      },
+      "24": {
+        "hp": 11187.88,
+        "attack": 266.38,
+        "defense": 53.28
+      },
+      "25": {
+        "hp": 12131.02,
+        "attack": 288.84,
+        "defense": 57.77
+      },
+      "26": {
+        "hp": 12983.62,
+        "attack": 309.14,
+        "defense": 61.83
+      },
+      "27": {
+        "hp": 13942.8,
+        "attack": 331.98,
+        "defense": 66.4
+      },
+      "28": {
+        "hp": 15008.55,
+        "attack": 357.35,
+        "defense": 71.47
+      },
+      "29": {
+        "hp": 16180.88,
+        "attack": 385.26,
+        "defense": 77.06
+      },
+      "30": {
+        "hp": 17459.78,
+        "attack": 415.71,
+        "defense": 83.15
+      },
+      "31": {
+        "hp": 18563.9,
+        "attack": 442.0,
+        "defense": 88.4
+      },
+      "32": {
+        "hp": 19806.04,
+        "attack": 471.58,
+        "defense": 94.32
+      },
+      "33": {
+        "hp": 21186.19,
+        "attack": 504.44,
+        "defense": 100.89
+      },
+      "34": {
+        "hp": 22704.35,
+        "attack": 540.58,
+        "defense": 108.12
+      },
+      "35": {
+        "hp": 24360.53,
+        "attack": 580.02,
+        "defense": 116.01
+      },
+      "36": {
+        "hp": 25748.57,
+        "attack": 613.07,
+        "defense": 122.62
+      },
+      "37": {
+        "hp": 27310.11,
+        "attack": 650.25,
+        "defense": 130.05
+      },
+      "38": {
+        "hp": 29045.15,
+        "attack": 691.56,
+        "defense": 138.32
+      },
+      "39": {
+        "hp": 30953.7,
+        "attack": 737.0,
+        "defense": 147.4
+      },
+      "40": {
+        "hp": 33035.75,
+        "attack": 786.57,
+        "defense": 157.32
+      },
+      "41": {
+        "hp": 34274.66,
+        "attack": 816.07,
+        "defense": 163.22
+      },
+      "42": {
+        "hp": 35675.27,
+        "attack": 849.42,
+        "defense": 169.89
+      },
+      "43": {
+        "hp": 37229.06,
+        "attack": 886.41,
+        "defense": 177.29
+      },
+      "44": {
+        "hp": 38927.53,
+        "attack": 926.85,
+        "defense": 185.37
+      },
+      "45": {
+        "hp": 40762.17,
+        "attack": 970.53,
+        "defense": 194.11
+      },
+      "46": {
+        "hp": 42058.94,
+        "attack": 1001.41,
+        "defense": 200.29
+      },
+      "47": {
+        "hp": 43532.74,
+        "attack": 1036.5,
+        "defense": 207.3
+      },
+      "48": {
+        "hp": 45173.34,
+        "attack": 1075.56,
+        "defense": 215.12
+      },
+      "49": {
+        "hp": 46970.53,
+        "attack": 1118.35,
+        "defense": 223.67
+      },
+      "50": {
+        "hp": 48914.1,
+        "attack": 1164.63,
+        "defense": 232.93
+      },
+      "51": {
+        "hp": 50213.0,
+        "attack": 1195.55,
+        "defense": 239.11
+      },
+      "52": {
+        "hp": 51700.22,
+        "attack": 1230.96,
+        "defense": 246.2
+      },
+      "53": {
+        "hp": 53363.73,
+        "attack": 1270.57,
+        "defense": 254.12
+      },
+      "54": {
+        "hp": 55191.52,
+        "attack": 1314.09,
+        "defense": 262.82
+      },
+      "55": {
+        "hp": 57171.56,
+        "attack": 1361.23,
+        "defense": 272.25
+      },
+      "56": {
+        "hp": 58405.57,
+        "attack": 1390.61,
+        "defense": 278.13
+      },
+      "57": {
+        "hp": 59834.17,
+        "attack": 1424.63,
+        "defense": 284.93
+      },
+      "58": {
+        "hp": 61443.47,
+        "attack": 1462.94,
+        "defense": 292.59
+      },
+      "59": {
+        "hp": 63219.56,
+        "attack": 1505.23,
+        "defense": 301.05
+      },
+      "60": {
+        "hp": 65148.55,
+        "attack": 1551.16,
+        "defense": 310.24
+      },
+      "61": {
+        "hp": 66240.78,
+        "attack": 1577.17,
+        "defense": 315.44
+      },
+      "62": {
+        "hp": 67528.02,
+        "attack": 1607.81,
+        "defense": 321.57
+      },
+      "63": {
+        "hp": 68994.44,
+        "attack": 1642.73,
+        "defense": 328.55
+      },
+      "64": {
+        "hp": 70624.24,
+        "attack": 1681.53,
+        "defense": 336.31
+      },
+      "65": {
+        "hp": 72401.6,
+        "attack": 1723.85,
+        "defense": 344.77
+      },
+      "66": {
+        "hp": 74785.38,
+        "attack": 1780.61,
+        "defense": 356.13
+      },
+      "67": {
+        "hp": 77467.13,
+        "attack": 1844.46,
+        "defense": 368.9
+      },
+      "68": {
+        "hp": 80446.86,
+        "attack": 1915.41,
+        "defense": 383.09
+      },
+      "69": {
+        "hp": 83724.55,
+        "attack": 1993.45,
+        "defense": 398.69
+      },
+      "70": {
+        "hp": 87300.22,
+        "attack": 2078.58,
+        "defense": 415.72
+      },
+      "71": {
+        "hp": 89981.97,
+        "attack": 2142.43,
+        "defense": 428.49
+      },
+      "72": {
+        "hp": 92998.95,
+        "attack": 2214.27,
+        "defense": 442.86
+      },
+      "73": {
+        "hp": 96351.13,
+        "attack": 2294.08,
+        "defense": 458.82
+      },
+      "74": {
+        "hp": 100038.54,
+        "attack": 2381.87,
+        "defense": 476.38
+      },
+      "75": {
+        "hp": 104061.17,
+        "attack": 2477.65,
+        "defense": 495.53
+      },
+      "76": {
+        "hp": 107064.73,
+        "attack": 2549.17,
+        "defense": 509.84
+      },
+      "77": {
+        "hp": 110443.74,
+        "attack": 2629.62,
+        "defense": 525.93
+      },
+      "78": {
+        "hp": 114198.19,
+        "attack": 2719.01,
+        "defense": 543.81
+      },
+      "79": {
+        "hp": 118328.09,
+        "attack": 2817.34,
+        "defense": 563.47
+      },
+      "80": {
+        "hp": 122833.43,
+        "attack": 2924.61,
+        "defense": 584.93
+      },
+      "81": {
+        "hp": 126184.28,
+        "attack": 3004.39,
+        "defense": 600.88
+      },
+      "82": {
+        "hp": 129953.98,
+        "attack": 3094.15,
+        "defense": 618.83
+      },
+      "83": {
+        "hp": 134142.54,
+        "attack": 3193.87,
+        "defense": 638.78
+      },
+      "84": {
+        "hp": 138749.96,
+        "attack": 3303.58,
+        "defense": 660.72
+      },
+      "85": {
+        "hp": 143776.23,
+        "attack": 3423.25,
+        "defense": 684.65
+      },
+      "86": {
+        "hp": 147501.59,
+        "attack": 3511.95,
+        "defense": 702.39
+      },
+      "87": {
+        "hp": 151692.61,
+        "attack": 3611.73,
+        "defense": 722.35
+      },
+      "88": {
+        "hp": 156349.31,
+        "attack": 3722.61,
+        "defense": 744.53
+      },
+      "89": {
+        "hp": 161471.67,
+        "attack": 3844.57,
+        "defense": 768.92
+      },
+      "90": {
+        "hp": 167059.7,
+        "attack": 3977.62,
+        "defense": 795.53
+      },
+      "91": {
+        "hp": 171188.64,
+        "attack": 4075.92,
+        "defense": 815.19
+      },
+      "92": {
+        "hp": 175833.69,
+        "attack": 4186.52,
+        "defense": 837.31
+      },
+      "93": {
+        "hp": 180994.86,
+        "attack": 4309.41,
+        "defense": 861.89
+      },
+      "94": {
+        "hp": 186672.14,
+        "attack": 4444.58,
+        "defense": 888.92
+      },
+      "95": {
+        "hp": 192865.55,
+        "attack": 4592.04,
+        "defense": 918.41
+      },
+      "96": {
+        "hp": 197429.11,
+        "attack": 4700.7,
+        "defense": 940.14
+      },
+      "97": {
+        "hp": 202563.11,
+        "attack": 4822.94,
+        "defense": 964.59
+      },
+      "98": {
+        "hp": 208267.56,
+        "attack": 4958.76,
+        "defense": 991.76
+      },
+      "99": {
+        "hp": 214542.46,
+        "attack": 5108.16,
+        "defense": 1021.64
+      },
+      "100": {
+        "hp": 221387.8,
+        "attack": 5271.14,
+        "defense": 1054.23
+      },
+      "101": {
+        "hp": 226035.78,
+        "attack": 5381.81,
+        "defense": 1076.37
+      },
+      "102": {
+        "hp": 231264.77,
+        "attack": 5506.31,
+        "defense": 1101.27
+      },
+      "103": {
+        "hp": 237074.75,
+        "attack": 5644.64,
+        "defense": 1128.93
+      },
+      "104": {
+        "hp": 243465.73,
+        "attack": 5796.81,
+        "defense": 1159.37
+      },
+      "105": {
+        "hp": 250437.71,
+        "attack": 5962.81,
+        "defense": 1192.57
+      },
+      "106": {
+        "hp": 255160.95,
+        "attack": 6075.27,
+        "defense": 1215.06
+      },
+      "107": {
+        "hp": 260474.59,
+        "attack": 6201.78,
+        "defense": 1240.36
+      },
+      "108": {
+        "hp": 266378.64,
+        "attack": 6342.35,
+        "defense": 1268.47
+      },
+      "109": {
+        "hp": 272873.09,
+        "attack": 6496.98,
+        "defense": 1299.4
+      },
+      "110": {
+        "hp": 279957.95,
+        "attack": 6665.67,
+        "defense": 1333.14
+      },
+      "111": {
+        "hp": 284747.75,
+        "attack": 6779.71,
+        "defense": 1355.95
+      },
+      "112": {
+        "hp": 290136.26,
+        "attack": 6908.01,
+        "defense": 1381.61
+      },
+      "113": {
+        "hp": 296123.51,
+        "attack": 7050.56,
+        "defense": 1410.12
+      },
+      "114": {
+        "hp": 302709.47,
+        "attack": 7207.37,
+        "defense": 1441.48
+      },
+      "115": {
+        "hp": 309894.16,
+        "attack": 7378.44,
+        "defense": 1475.69
+      },
+      "116": {
+        "hp": 314742.27,
+        "attack": 7493.87,
+        "defense": 1498.78
+      },
+      "117": {
+        "hp": 320196.38,
+        "attack": 7623.73,
+        "defense": 1524.75
+      },
+      "118": {
+        "hp": 326256.51,
+        "attack": 7768.02,
+        "defense": 1553.61
+      },
+      "119": {
+        "hp": 332922.66,
+        "attack": 7926.73,
+        "defense": 1585.35
+      },
+      "120": {
+        "hp": 340194.81,
+        "attack": 8099.88,
+        "defense": 1619.98
+      },
+      "121": {
+        "hp": 345093.42,
+        "attack": 8216.51,
+        "defense": 1643.31
+      },
+      "122": {
+        "hp": 350604.35,
+        "attack": 8347.73,
+        "defense": 1669.55
+      },
+      "123": {
+        "hp": 356727.61,
+        "attack": 8493.52,
+        "defense": 1698.71
+      },
+      "124": {
+        "hp": 363463.19,
+        "attack": 8653.89,
+        "defense": 1730.78
+      },
+      "125": {
+        "hp": 370811.1,
+        "attack": 8828.84,
+        "defense": 1765.77
+      },
+      "126": {
+        "hp": 375752.81,
+        "attack": 8946.5,
+        "defense": 1789.3
+      },
+      "127": {
+        "hp": 381312.24,
+        "attack": 9078.87,
+        "defense": 1815.78
+      },
+      "128": {
+        "hp": 387489.38,
+        "attack": 9225.94,
+        "defense": 1845.19
+      },
+      "129": {
+        "hp": 394284.23,
+        "attack": 9387.72,
+        "defense": 1877.55
+      },
+      "130": {
+        "hp": 401696.8,
+        "attack": 9564.21,
+        "defense": 1912.85
+      },
+      "131": {
+        "hp": 406674.63,
+        "attack": 9682.73,
+        "defense": 1936.55
+      },
+      "132": {
+        "hp": 412274.68,
+        "attack": 9816.07,
+        "defense": 1963.22
+      },
+      "133": {
+        "hp": 418496.96,
+        "attack": 9964.22,
+        "defense": 1992.85
+      },
+      "134": {
+        "hp": 425341.47,
+        "attack": 10127.18,
+        "defense": 2025.44
+      },
+      "135": {
+        "hp": 432808.21,
+        "attack": 10304.96,
+        "defense": 2061.0
+      },
+      "136": {
+        "hp": 437815.54,
+        "attack": 10424.18,
+        "defense": 2084.84
+      },
+      "137": {
+        "hp": 443448.77,
+        "attack": 10558.31,
+        "defense": 2111.67
+      },
+      "138": {
+        "hp": 449707.93,
+        "attack": 10707.34,
+        "defense": 2141.47
+      },
+      "139": {
+        "hp": 456593.0,
+        "attack": 10871.27,
+        "defense": 2174.26
+      },
+      "140": {
+        "hp": 464103.99,
+        "attack": 11050.1,
+        "defense": 2210.02
+      },
+      "141": {
+        "hp": 469134.56,
+        "attack": 11169.88,
+        "defense": 2233.98
+      },
+      "142": {
+        "hp": 474793.95,
+        "attack": 11304.62,
+        "defense": 2260.93
+      },
+      "143": {
+        "hp": 481082.17,
+        "attack": 11454.34,
+        "defense": 2290.87
+      },
+      "144": {
+        "hp": 487999.2,
+        "attack": 11619.03,
+        "defense": 2323.81
+      },
+      "145": {
+        "hp": 495545.06,
+        "attack": 11798.7,
+        "defense": 2359.74
+      },
+      "146": {
+        "hp": 500592.98,
+        "attack": 11918.89,
+        "defense": 2383.78
+      },
+      "147": {
+        "hp": 506271.89,
+        "attack": 12054.1,
+        "defense": 2410.82
+      },
+      "148": {
+        "hp": 512581.79,
+        "attack": 12204.33,
+        "defense": 2440.87
+      },
+      "149": {
+        "hp": 519522.67,
+        "attack": 12369.59,
+        "defense": 2473.92
+      },
+      "150": {
+        "hp": 527094.55,
+        "attack": 12549.88,
+        "defense": 2509.98
+      },
+      "151": {
+        "hp": 533353.97,
+        "attack": 12698.91,
+        "defense": 2539.79
+      },
+      "152": {
+        "hp": 540395.82,
+        "attack": 12866.57,
+        "defense": 2573.32
+      },
+      "153": {
+        "hp": 548220.09,
+        "attack": 13052.86,
+        "defense": 2610.58
+      },
+      "154": {
+        "hp": 556826.79,
+        "attack": 13257.79,
+        "defense": 2651.56
+      },
+      "155": {
+        "hp": 566215.92,
+        "attack": 13481.34,
+        "defense": 2696.27
+      },
+      "156": {
+        "hp": 573000.33,
+        "attack": 13642.87,
+        "defense": 2728.58
+      },
+      "157": {
+        "hp": 580632.78,
+        "attack": 13824.59,
+        "defense": 2764.92
+      },
+      "158": {
+        "hp": 589113.28,
+        "attack": 14026.51,
+        "defense": 2805.31
+      },
+      "159": {
+        "hp": 598441.84,
+        "attack": 14248.62,
+        "defense": 2849.73
+      },
+      "160": {
+        "hp": 608618.44,
+        "attack": 14490.92,
+        "defense": 2898.19
+      },
+      "161": {
+        "hp": 615964.68,
+        "attack": 14665.83,
+        "defense": 2933.17
+      },
+      "162": {
+        "hp": 624229.19,
+        "attack": 14862.6,
+        "defense": 2972.52
+      },
+      "163": {
+        "hp": 633411.99,
+        "attack": 15081.24,
+        "defense": 3016.25
+      },
+      "164": {
+        "hp": 643513.06,
+        "attack": 15321.74,
+        "defense": 3064.35
+      },
+      "165": {
+        "hp": 654532.42,
+        "attack": 15584.11,
+        "defense": 3116.83
+      },
+      "166": {
+        "hp": 662479.71,
+        "attack": 15773.33,
+        "defense": 3154.67
+      },
+      "167": {
+        "hp": 671420.41,
+        "attack": 15986.21,
+        "defense": 3197.25
+      },
+      "168": {
+        "hp": 681354.53,
+        "attack": 16222.73,
+        "defense": 3244.55
+      },
+      "169": {
+        "hp": 692282.06,
+        "attack": 16482.91,
+        "defense": 3296.59
+      },
+      "170": {
+        "hp": 704202.99,
+        "attack": 16766.74,
+        "defense": 3353.35
+      },
+      "171": {
+        "hp": 712793.08,
+        "attack": 16971.27,
+        "defense": 3394.26
+      },
+      "172": {
+        "hp": 722456.93,
+        "attack": 17201.36,
+        "defense": 3440.28
+      },
+      "173": {
+        "hp": 733194.54,
+        "attack": 17457.02,
+        "defense": 3491.41
+      },
+      "174": {
+        "hp": 745005.91,
+        "attack": 17738.24,
+        "defense": 3547.65
+      },
+      "175": {
+        "hp": 757891.04,
+        "attack": 18045.03,
+        "defense": 3609.01
+      }
+    }
+  },
+  "ranks": {
+    "1": {
+      "ratio": 1.0,
+      "hp": 0.0,
+      "attack": 0.0,
+      "defense": 0.0,
+      "shardNeed": 5
+    },
+    "2": {
+      "ratio": 1.0,
+      "hp": 3577.99,
+      "attack": 85.2,
+      "defense": 17.04,
+      "shardNeed": 5
+    },
+    "3": {
+      "ratio": 1.0,
+      "hp": 7155.98,
+      "attack": 170.4,
+      "defense": 34.08,
+      "shardNeed": 5
+    },
+    "4": {
+      "ratio": 1.0,
+      "hp": 10733.97,
+      "attack": 255.6,
+      "defense": 51.12,
+      "shardNeed": 5
+    },
+    "5": {
+      "ratio": 1.0,
+      "hp": 14311.96,
+      "attack": 340.8,
+      "defense": 68.16,
+      "shardNeed": 5
+    },
+    "6": {
+      "ratio": 1.0,
+      "hp": 17889.95,
+      "attack": 426.0,
+      "defense": 85.2,
+      "shardNeed": 10
+    },
+    "7": {
+      "ratio": 1.0,
+      "hp": 22362.44,
+      "attack": 532.49,
+      "defense": 106.5,
+      "shardNeed": 10
+    },
+    "8": {
+      "ratio": 1.0,
+      "hp": 26834.93,
+      "attack": 638.98,
+      "defense": 127.8,
+      "shardNeed": 10
+    },
+    "9": {
+      "ratio": 1.0,
+      "hp": 31307.42,
+      "attack": 745.47,
+      "defense": 149.1,
+      "shardNeed": 10
+    },
+    "10": {
+      "ratio": 1.0,
+      "hp": 35779.91,
+      "attack": 851.96,
+      "defense": 170.4,
+      "shardNeed": 10
+    },
+    "11": {
+      "ratio": 1.0,
+      "hp": 40252.4,
+      "attack": 958.45,
+      "defense": 191.7,
+      "shardNeed": 20
+    },
+    "12": {
+      "ratio": 1.0,
+      "hp": 45619.38,
+      "attack": 1086.24,
+      "defense": 217.26,
+      "shardNeed": 20
+    },
+    "13": {
+      "ratio": 1.0,
+      "hp": 50986.36,
+      "attack": 1214.03,
+      "defense": 242.82,
+      "shardNeed": 20
+    },
+    "14": {
+      "ratio": 1.0,
+      "hp": 56353.34,
+      "attack": 1341.82,
+      "defense": 268.38,
+      "shardNeed": 20
+    },
+    "15": {
+      "ratio": 1.0,
+      "hp": 61720.32,
+      "attack": 1469.61,
+      "defense": 293.94,
+      "shardNeed": 20
+    },
+    "16": {
+      "ratio": 1.0,
+      "hp": 67087.3,
+      "attack": 1597.4,
+      "defense": 319.5,
+      "shardNeed": 60
+    },
+    "17": {
+      "ratio": 1.0,
+      "hp": 74243.27,
+      "attack": 1767.79,
+      "defense": 353.58,
+      "shardNeed": 60
+    },
+    "18": {
+      "ratio": 1.0,
+      "hp": 81399.24,
+      "attack": 1938.18,
+      "defense": 387.66,
+      "shardNeed": 60
+    },
+    "19": {
+      "ratio": 1.0,
+      "hp": 88555.21,
+      "attack": 2108.57,
+      "defense": 421.74,
+      "shardNeed": 60
+    },
+    "20": {
+      "ratio": 1.0,
+      "hp": 95711.18,
+      "attack": 2278.96,
+      "defense": 455.82,
+      "shardNeed": 60
+    },
+    "21": {
+      "ratio": 1.0,
+      "hp": 102867.15,
+      "attack": 2449.35,
+      "defense": 489.9,
+      "shardNeed": 100
+    },
+    "22": {
+      "ratio": 1.0,
+      "hp": 111812.12,
+      "attack": 2662.33,
+      "defense": 532.5,
+      "shardNeed": 100
+    },
+    "23": {
+      "ratio": 1.0,
+      "hp": 120757.09,
+      "attack": 2875.31,
+      "defense": 575.1,
+      "shardNeed": 100
+    },
+    "24": {
+      "ratio": 1.0,
+      "hp": 129702.06,
+      "attack": 3088.29,
+      "defense": 617.7,
+      "shardNeed": 100
+    },
+    "25": {
+      "ratio": 1.0,
+      "hp": 138647.03,
+      "attack": 3301.27,
+      "defense": 660.3,
+      "shardNeed": 100
+    },
+    "26": {
+      "ratio": 1.0,
+      "hp": 147592.0,
+      "attack": 3514.25,
+      "defense": 702.9,
+      "shardNeed": 0
+    }
+  },
+  "validation": {
+    "williams150Rank26": {
+      "predictedGradeBonus": {
+        "hp": 201433,
+        "attack": 2837,
+        "defense": 741
+      },
+      "observedGradeBonus": {
+        "hp": 201433,
+        "attack": 2837,
+        "defense": 741
+      },
+      "exactMatch": true,
+      "components": {
+        "hp": {
+          "levelBase": 719378,
+          "gradeBonus": 201433,
+          "nativeLevelPlusGrade": 920811
+        },
+        "attack": {
+          "levelBase": 10134,
+          "gradeBonus": 2837,
+          "nativeLevelPlusGrade": 12971
+        },
+        "defense": {
+          "levelBase": 2647,
+          "gradeBonus": 741,
+          "nativeLevelPlusGrade": 3388
+        }
+      }
+    },
+    "williams175Rank26NativeLayerOnly": {
+      "hp": {
+        "levelBase": 1034369,
+        "gradeBonus": 201433,
+        "nativeLevelPlusGrade": 1235802
+      },
+      "attack": {
+        "levelBase": 14571,
+        "gradeBonus": 2837,
+        "nativeLevelPlusGrade": 17408
+      },
+      "defense": {
+        "levelBase": 3807,
+        "gradeBonus": 741,
+        "nativeLevelPlusGrade": 4548
+      }
+    },
+    "warning": "Native level + grade only. Do not present as final in-game Attributes until skills, exclusive weapon, awakening/promotion, gear and account/research layers are modeled."
+  }
+}

@@ -1,0 +1,4843 @@
+{
+  "source": {
+    "package": "com.fun.lastwar.gp",
+    "appVersion": "1.0.359",
+    "buildId": 1864,
+    "apk": "install_time_pack.apk",
+    "path": "assets/table/table_38781_cfcbee99d7064f86d09dd682babdbc2b.data",
+    "bytes": 19270680,
+    "md5": "cfcbee99d7064f86d09dd682babdbc2b",
+    "sha256": "be74b18971508b511c3fb306572dae330af85b4e7ae105143056638233b085e1",
+    "versionManifest": "38781,19270680,cfcbee99d7064f86d09dd682babdbc2b,2605089705"
+  },
+  "heroIds": [
+    10051,
+    10060,
+    30002,
+    30003,
+    30004,
+    30005,
+    40006,
+    40007,
+    40008,
+    40009,
+    40010,
+    40012,
+    40013,
+    40015,
+    40016,
+    40018,
+    40019,
+    40020,
+    50006,
+    50007,
+    50008,
+    50009,
+    50010,
+    50013,
+    50014,
+    50015,
+    50018,
+    50019,
+    50020,
+    50021,
+    50022
+  ],
+  "discoveries": [
+    {
+      "name": "lw_hero",
+      "rowCount": 0,
+      "fields": {
+        "angular_speed": {
+          "column": 28,
+          "type": "number",
+          "linked": false
+        },
+        "appearance": {
+          "column": 23,
+          "type": "number",
+          "linked": false
+        },
+        "armor_pivot": {
+          "column": 38,
+          "type": "array",
+          "linked": true
+        },
+        "armor_points": {
+          "column": 37,
+          "type": "string",
+          "linked": false
+        },
+        "army_job": {
+          "column": 25,
+          "type": "number",
+          "linked": false
+        },
+        "army_type": {
+          "column": 24,
+          "type": "number",
+          "linked": false
+        },
+        "backstory_desc": {
+          "column": 58,
+          "type": "string",
+          "linked": false
+        },
+        "backstory_image": {
+          "column": 57,
+          "type": "string",
+          "linked": false
+        },
+        "backstory_show_condition": {
+          "column": 59,
+          "type": "string",
+          "linked": false
+        },
+        "base_acc": {
+          "column": 12,
+          "type": "number",
+          "linked": false
+        },
+        "base_crit": {
+          "column": 13,
+          "type": "number",
+          "linked": false
+        },
+        "base_hp": {
+          "column": 9,
+          "type": "number",
+          "linked": false
+        },
+        "base_load": {
+          "column": 14,
+          "type": "number",
+          "linked": false
+        },
+        "base_patk": {
+          "column": 10,
+          "type": "number",
+          "linked": false
+        },
+        "base_pdef": {
+          "column": 11,
+          "type": "number",
+          "linked": false
+        },
+        "core_pivot": {
+          "column": 40,
+          "type": "array",
+          "linked": true
+        },
+        "core_points": {
+          "column": 39,
+          "type": "string",
+          "linked": false
+        },
+        "default_level": {
+          "column": 55,
+          "type": "string",
+          "linked": false
+        },
+        "desc": {
+          "column": 6,
+          "type": "string",
+          "linked": false
+        },
+        "display_in_hero_list": {
+          "column": 44,
+          "type": "string",
+          "linked": false
+        },
+        "download_packs_id": {
+          "column": 62,
+          "type": "number",
+          "linked": false
+        },
+        "draw_days": {
+          "column": 64,
+          "type": "string",
+          "linked": false
+        },
+        "equip_recommend_group": {
+          "column": 60,
+          "type": "string",
+          "linked": false
+        },
+        "equip_recommend_season": {
+          "column": 61,
+          "type": "string",
+          "linked": false
+        },
+        "equipt_path": {
+          "column": 34,
+          "type": "string",
+          "linked": true
+        },
+        "first_name": {
+          "column": 4,
+          "type": "string",
+          "linked": false
+        },
+        "hero_effect": {
+          "column": 33,
+          "type": "number",
+          "linked": false
+        },
+        "hero_pieces": {
+          "column": 21,
+          "type": "array",
+          "linked": true
+        },
+        "hero_promotion_peace_num": {
+          "column": 54,
+          "type": "string",
+          "linked": false
+        },
+        "hero_skill_points": {
+          "column": 22,
+          "type": "number",
+          "linked": false
+        },
+        "honor_level_effect": {
+          "column": 53,
+          "type": "string",
+          "linked": true
+        },
+        "honor_level_unlock_effect": {
+          "column": 52,
+          "type": "array",
+          "linked": true
+        },
+        "id": {
+          "column": 1,
+          "type": "number",
+          "linked": false
+        },
+        "idle_attack": {
+          "column": 45,
+          "type": "string",
+          "linked": false
+        },
+        "if_bp_show": {
+          "column": 65,
+          "type": "number",
+          "linked": false
+        },
+        "is_front": {
+          "column": 27,
+          "type": "number",
+          "linked": false
+        },
+        "is_human": {
+          "column": 26,
+          "type": "number",
+          "linked": false
+        },
+        "last_name": {
+          "column": 5,
+          "type": "string",
+          "linked": false
+        },
+        "max_honorLevel": {
+          "column": 51,
+          "type": "string",
+          "linked": false
+        },
+        "max_rank": {
+          "column": 43,
+          "type": "number",
+          "linked": false
+        },
+        "parkour_type": {
+          "column": 63,
+          "type": "number",
+          "linked": false
+        },
+        "plots": {
+          "column": 47,
+          "type": "number",
+          "linked": false
+        },
+        "quality": {
+          "column": 7,
+          "type": "number",
+          "linked": false
+        },
+        "rador_pivot": {
+          "column": 42,
+          "type": "array",
+          "linked": true
+        },
+        "rador_points": {
+          "column": 41,
+          "type": "string",
+          "linked": false
+        },
+        "show_days": {
+          "column": 46,
+          "type": "number",
+          "linked": false
+        },
+        "skills": {
+          "column": 17,
+          "type": "array",
+          "linked": true
+        },
+        "skills_unlock_lv": {
+          "column": 18,
+          "type": "array",
+          "linked": true
+        },
+        "skills_unlock_rank": {
+          "column": 19,
+          "type": "array",
+          "linked": true
+        },
+        "sound_show": {
+          "column": 48,
+          "type": "string",
+          "linked": false
+        },
+        "sound_show_delay": {
+          "column": 49,
+          "type": "string",
+          "linked": false
+        },
+        "sound_talk": {
+          "column": 50,
+          "type": "string",
+          "linked": true
+        },
+        "specials": {
+          "column": 15,
+          "type": "string",
+          "linked": false
+        },
+        "speed_battle": {
+          "column": 29,
+          "type": "number",
+          "linked": false
+        },
+        "speed_city": {
+          "column": 31,
+          "type": "number",
+          "linked": false
+        },
+        "speed_control": {
+          "column": 30,
+          "type": "number",
+          "linked": false
+        },
+        "tags": {
+          "column": 16,
+          "type": "string",
+          "linked": false
+        },
+        "team_location": {
+          "column": 32,
+          "type": "number",
+          "linked": false
+        },
+        "template_id": {
+          "column": 8,
+          "type": "number",
+          "linked": false
+        },
+        "title_name": {
+          "column": 3,
+          "type": "string",
+          "linked": false
+        },
+        "type": {
+          "column": 2,
+          "type": "number",
+          "linked": false
+        },
+        "unique_weapon_open": {
+          "column": 56,
+          "type": "array",
+          "linked": true
+        },
+        "weapon": {
+          "column": 20,
+          "type": "number",
+          "linked": false
+        },
+        "weapon_pivot": {
+          "column": 36,
+          "type": "array",
+          "linked": true
+        },
+        "weapon_points": {
+          "column": 35,
+          "type": "string",
+          "linked": false
+        }
+      }
+    },
+    {
+      "name": "lw_hero_awaken",
+      "rowCount": 3,
+      "fields": {
+        "advanced_awaken_skin_id": {
+          "column": 9,
+          "type": "number",
+          "linked": false
+        },
+        "awaken_goods_id": {
+          "column": 3,
+          "type": "number",
+          "linked": false
+        },
+        "awaken_max_level": {
+          "column": 4,
+          "type": "number",
+          "linked": false
+        },
+        "awaken_skin_id": {
+          "column": 8,
+          "type": "number",
+          "linked": false
+        },
+        "awaken_unlock_time": {
+          "column": 2,
+          "type": "array",
+          "linked": true
+        },
+        "extra_skill_effect_line": {
+          "column": 15,
+          "type": "string",
+          "linked": false
+        },
+        "guide_plot_id": {
+          "column": 10,
+          "type": "number",
+          "linked": false
+        },
+        "id": {
+          "column": 1,
+          "type": "number",
+          "linked": false
+        },
+        "new_hero_brief": {
+          "column": 5,
+          "type": "string",
+          "linked": false
+        },
+        "normal_skin_id": {
+          "column": 6,
+          "type": "number",
+          "linked": false
+        },
+        "skill_preview_key": {
+          "column": 14,
+          "type": "string",
+          "linked": false
+        },
+        "skill_short_desc": {
+          "column": 11,
+          "type": "string",
+          "linked": true
+        },
+        "spine_preview_key": {
+          "column": 13,
+          "type": "string",
+          "linked": false
+        },
+        "spine_preview_pic": {
+          "column": 12,
+          "type": "string",
+          "linked": true
+        },
+        "unique_weapon_skin_id": {
+          "column": 7,
+          "type": "number",
+          "linked": false
+        }
+      }
+    },
+    {
+      "name": "lw_hero_awaken_rank",
+      "rowCount": 78,
+      "fields": {
+        "attr_add": {
+          "column": 4,
+          "type": "table",
+          "linked": true
+        },
+        "fix_power": {
+          "column": 8,
+          "type": "number",
+          "linked": false
+        },
+        "hero_id": {
+          "column": 2,
+          "type": "number",
+          "linked": false
+        },
+        "id": {
+          "column": 1,
+          "type": "number",
+          "linked": false
+        },
+        "is_advanced_skin": {
+          "column": 7,
+          "type": "number",
+          "linked": false
+        },
+        "level": {
+          "column": 3,
+          "type": "number",
+          "linked": false
+        },
+        "rank_cost": {
+          "column": 5,
+          "type": "number",
+          "linked": false
+        },
+        "skill_list": {
+          "column": 6,
+          "type": "array",
+          "linked": true
+        }
+      }
+    },
+    {
+      "name": "lw_hero_energy_levelup",
+      "rowCount": 50,
+      "fields": {
+        "energy_extra": {
+          "column": 5,
+          "type": "array",
+          "linked": true
+        },
+        "energy_lv1": {
+          "column": 2,
+          "type": "array",
+          "linked": true
+        },
+        "energy_lv2": {
+          "column": 3,
+          "type": "array",
+          "linked": true
+        },
+        "energy_lv3": {
+          "column": 4,
+          "type": "array",
+          "linked": true
+        },
+        "id": {
+          "column": 1,
+          "type": "number",
+          "linked": false
+        }
+      }
+    },
+    {
+      "name": "lw_hero_honorLevel",
+      "rowCount": 600,
+      "fields": {
+        "base_value1": {
+          "column": 3,
+          "type": "string",
+          "linked": false
+        },
+        "base_value2": {
+          "column": 4,
+          "type": "string",
+          "linked": false
+        },
+        "base_value3": {
+          "column": 5,
+          "type": "string",
+          "linked": false
+        },
+        "base_value4": {
+          "column": 6,
+          "type": "string",
+          "linked": false
+        },
+        "base_value5": {
+          "column": 7,
+          "type": "string",
+          "linked": false
+        },
+        "id": {
+          "column": 1,
+          "type": "number",
+          "linked": false
+        },
+        "shard_need": {
+          "column": 2,
+          "type": "number",
+          "linked": false
+        },
+        "shard_need_promotion": {
+          "column": 8,
+          "type": "number",
+          "linked": false
+        }
+      }
+    },
+    {
+      "name": "lw_hero_level",
+      "loadError": "'list' object has no attribute 'items'"
+    },
+    {
+      "name": "lw_hero_level_reset",
+      "loadError": "'list' object has no attribute 'items'"
+    },
+    {
+      "name": "lw_hero_rank",
+      "loadError": "'list' object has no attribute 'items'"
+    },
+    {
+      "name": "lw_hero_rank_old",
+      "loadError": "'list' object has no attribute 'items'"
+    },
+    {
+      "name": "lw_hero_rank_reset",
+      "loadError": "'list' object has no attribute 'items'"
+    },
+    {
+      "name": "lw_hero_skill",
+      "rowCount": 0,
+      "fields": {
+        "actionParam": {
+          "column": 37,
+          "type": "string",
+          "linked": false
+        },
+        "actionType": {
+          "column": 36,
+          "type": "number",
+          "linked": false
+        },
+        "animation": {
+          "column": 57,
+          "type": "array",
+          "linked": true
+        },
+        "animation_move": {
+          "column": 58,
+          "type": "array",
+          "linked": true
+        },
+        "apType": {
+          "column": 33,
+          "type": "number",
+          "linked": false
+        },
+        "attack_interval": {
+          "column": 24,
+          "type": "string",
+          "linked": false
+        },
+        "attack_range": {
+          "column": 39,
+          "type": "string",
+          "linked": false
+        },
+        "awake_not_stop": {
+          "column": 18,
+          "type": "number",
+          "linked": false
+        },
+        "buff": {
+          "column": 52,
+          "type": "string",
+          "linked": false
+        },
+        "buff_condition": {
+          "column": 50,
+          "type": "string",
+          "linked": false
+        },
+        "buff_param": {
+          "column": 51,
+          "type": "string",
+          "linked": false
+        },
+        "bullet": {
+          "column": 40,
+          "type": "string",
+          "linked": false
+        },
+        "bullet_critical": {
+          "column": 41,
+          "type": "string",
+          "linked": false
+        },
+        "bullet_damage_rate": {
+          "column": 42,
+          "type": "array",
+          "linked": true
+        },
+        "cast_count": {
+          "column": 48,
+          "type": "string",
+          "linked": false
+        },
+        "cast_interval": {
+          "column": 49,
+          "type": "string",
+          "linked": false
+        },
+        "damage_ratio": {
+          "column": 28,
+          "type": "number",
+          "linked": false
+        },
+        "damage_to_monster": {
+          "column": 29,
+          "type": "string",
+          "linked": false
+        },
+        "desc": {
+          "column": 4,
+          "type": "string",
+          "linked": false
+        },
+        "desc_para": {
+          "column": 5,
+          "type": "string",
+          "linked": false
+        },
+        "displayCast_type": {
+          "column": 16,
+          "type": "string",
+          "linked": false
+        },
+        "displayCast_type_new": {
+          "column": 17,
+          "type": "string",
+          "linked": false
+        },
+        "display_type": {
+          "column": 15,
+          "type": "string",
+          "linked": false
+        },
+        "effect_incity": {
+          "column": 22,
+          "type": "string",
+          "linked": false
+        },
+        "effect_pvp": {
+          "column": 69,
+          "type": "array",
+          "linked": true
+        },
+        "enhance_desc_pre": {
+          "column": 21,
+          "type": "table",
+          "linked": true
+        },
+        "enhance_fragment": {
+          "column": 14,
+          "type": "string",
+          "linked": false
+        },
+        "firelogic": {
+          "column": 56,
+          "type": "number",
+          "linked": false
+        },
+        "firepoint": {
+          "column": 55,
+          "type": "array",
+          "linked": true
+        },
+        "forming_effect": {
+          "column": 54,
+          "type": "string",
+          "linked": false
+        },
+        "group": {
+          "column": 10,
+          "type": "number",
+          "linked": false
+        },
+        "icon": {
+          "column": 6,
+          "type": "string",
+          "linked": true
+        },
+        "id": {
+          "column": 1,
+          "type": "number",
+          "linked": false
+        },
+        "is_focus": {
+          "column": 27,
+          "type": "string",
+          "linked": false
+        },
+        "is_normal_attack": {
+          "column": 26,
+          "type": "string",
+          "linked": false
+        },
+        "level_up_desc": {
+          "column": 19,
+          "type": "string",
+          "linked": false
+        },
+        "level_up_desc_param": {
+          "column": 20,
+          "type": "array",
+          "linked": true
+        },
+        "levelup_consume_sp": {
+          "column": 13,
+          "type": "array",
+          "linked": true
+        },
+        "matching_animation": {
+          "column": 61,
+          "type": "array",
+          "linked": true
+        },
+        "matching_animation_move": {
+          "column": 62,
+          "type": "array",
+          "linked": true
+        },
+        "maxLevel": {
+          "column": 7,
+          "type": "number",
+          "linked": false
+        },
+        "maxStar": {
+          "column": 8,
+          "type": "number",
+          "linked": false
+        },
+        "moving_logic": {
+          "column": 63,
+          "type": "array",
+          "linked": true
+        },
+        "name": {
+          "column": 3,
+          "type": "string",
+          "linked": false
+        },
+        "need_rank": {
+          "column": 11,
+          "type": "string",
+          "linked": false
+        },
+        "other_condition": {
+          "column": 46,
+          "type": "string",
+          "linked": false
+        },
+        "other_condition_para": {
+          "column": 47,
+          "type": "string",
+          "linked": false
+        },
+        "pos_condition": {
+          "column": 43,
+          "type": "string",
+          "linked": false
+        },
+        "pos_num": {
+          "column": 44,
+          "type": "string",
+          "linked": false
+        },
+        "power": {
+          "column": 12,
+          "type": "array",
+          "linked": true
+        },
+        "pre_cd": {
+          "column": 23,
+          "type": "string",
+          "linked": false
+        },
+        "priority": {
+          "column": 25,
+          "type": "string",
+          "linked": false
+        },
+        "property": {
+          "column": 31,
+          "type": "string",
+          "linked": false
+        },
+        "property_out_of_battle": {
+          "column": 32,
+          "type": "string",
+          "linked": true
+        },
+        "pve_animation": {
+          "column": 59,
+          "type": "array",
+          "linked": true
+        },
+        "pve_animation_move": {
+          "column": 60,
+          "type": "array",
+          "linked": true
+        },
+        "pve_buff_bullet": {
+          "column": 53,
+          "type": "string",
+          "linked": false
+        },
+        "pvp_triggerType": {
+          "column": 68,
+          "type": "string",
+          "linked": false
+        },
+        "skill_cat": {
+          "column": 2,
+          "type": "number",
+          "linked": false
+        },
+        "skill_effect": {
+          "column": 65,
+          "type": "string",
+          "linked": false
+        },
+        "skin_skill_effect": {
+          "column": 66,
+          "type": "table",
+          "linked": true
+        },
+        "source_group": {
+          "column": 30,
+          "type": "string",
+          "linked": false
+        },
+        "star": {
+          "column": 9,
+          "type": "number",
+          "linked": false
+        },
+        "summon_formation": {
+          "column": 38,
+          "type": "string",
+          "linked": false
+        },
+        "target_type": {
+          "column": 67,
+          "type": "string",
+          "linked": false
+        },
+        "triggerParam": {
+          "column": 35,
+          "type": "string",
+          "linked": false
+        },
+        "triggerType": {
+          "column": 34,
+          "type": "number",
+          "linked": false
+        },
+        "troop_condition": {
+          "column": 45,
+          "type": "string",
+          "linked": false
+        },
+        "world_bullet": {
+          "column": 64,
+          "type": "string",
+          "linked": false
+        }
+      }
+    },
+    {
+      "name": "lw_hero_skill_effect",
+      "rowCount": 0,
+      "fields": {
+        "bone_effect_slot": {
+          "column": 5,
+          "type": "number",
+          "linked": false
+        },
+        "cast_effect": {
+          "column": 4,
+          "type": "string",
+          "linked": true
+        },
+        "cast_effect_time": {
+          "column": 8,
+          "type": "string",
+          "linked": false
+        },
+        "eff_fire": {
+          "column": 10,
+          "type": "string",
+          "linked": false
+        },
+        "fire_action": {
+          "column": 2,
+          "type": "string",
+          "linked": false
+        },
+        "fire_audio": {
+          "column": 11,
+          "type": "string",
+          "linked": false
+        },
+        "fire_audio_1": {
+          "column": 12,
+          "type": "string",
+          "linked": false
+        },
+        "fire_delay": {
+          "column": 9,
+          "type": "number",
+          "linked": false
+        },
+        "fire_effect": {
+          "column": 3,
+          "type": "string",
+          "linked": true
+        },
+        "fire_effect_bullet": {
+          "column": 20,
+          "type": "number",
+          "linked": false
+        },
+        "fire_effect_time": {
+          "column": 7,
+          "type": "string",
+          "linked": false
+        },
+        "fire_shake": {
+          "column": 13,
+          "type": "string",
+          "linked": false
+        },
+        "fire_vibrate": {
+          "column": 14,
+          "type": "array",
+          "linked": true
+        },
+        "id": {
+          "column": 1,
+          "type": "number",
+          "linked": false
+        },
+        "position_effect": {
+          "column": 6,
+          "type": "array",
+          "linked": true
+        },
+        "sound_id_fire_1": {
+          "column": 18,
+          "type": "number",
+          "linked": false
+        },
+        "sound_id_fire_2": {
+          "column": 19,
+          "type": "number",
+          "linked": false
+        },
+        "sound_level_id": {
+          "column": 21,
+          "type": "string",
+          "linked": false
+        },
+        "sound_level_num": {
+          "column": 22,
+          "type": "string",
+          "linked": false
+        },
+        "warn_effect": {
+          "column": 15,
+          "type": "string",
+          "linked": false
+        },
+        "warn_effect_bullet": {
+          "column": 17,
+          "type": "string",
+          "linked": false
+        },
+        "warn_effect_time": {
+          "column": 16,
+          "type": "string",
+          "linked": false
+        }
+      }
+    },
+    {
+      "name": "lw_hero_skill_effect_pvp",
+      "rowCount": 0,
+      "fields": {
+        "buff_evaluate_score": {
+          "column": 29,
+          "type": "string",
+          "linked": false
+        },
+        "damage_delay": {
+          "column": 27,
+          "type": "number",
+          "linked": false
+        },
+        "damage_to_shield": {
+          "column": 7,
+          "type": "string",
+          "linked": false
+        },
+        "debuff_evaluate_score": {
+          "column": 30,
+          "type": "string",
+          "linked": false
+        },
+        "dispel_type": {
+          "column": 6,
+          "type": "number",
+          "linked": false
+        },
+        "firelogic": {
+          "column": 4,
+          "type": "number",
+          "linked": false
+        },
+        "firepoint": {
+          "column": 3,
+          "type": "array",
+          "linked": true
+        },
+        "horizontal_speed": {
+          "column": 28,
+          "type": "number",
+          "linked": false
+        },
+        "id": {
+          "column": 1,
+          "type": "number",
+          "linked": false
+        },
+        "pvp_actionType": {
+          "column": 5,
+          "type": "number",
+          "linked": false
+        },
+        "pvp_buff_ID": {
+          "column": 23,
+          "type": "string",
+          "linked": false
+        },
+        "pvp_buff_bullet": {
+          "column": 26,
+          "type": "number",
+          "linked": false
+        },
+        "pvp_buff_condition": {
+          "column": 21,
+          "type": "string",
+          "linked": false
+        },
+        "pvp_buff_level": {
+          "column": 24,
+          "type": "string",
+          "linked": false
+        },
+        "pvp_buff_level_special": {
+          "column": 25,
+          "type": "string",
+          "linked": false
+        },
+        "pvp_buff_param": {
+          "column": 22,
+          "type": "string",
+          "linked": false
+        },
+        "pvp_bullet": {
+          "column": 19,
+          "type": "number",
+          "linked": false
+        },
+        "pvp_bullet_critical": {
+          "column": 20,
+          "type": "number",
+          "linked": false
+        },
+        "pvp_cast_count": {
+          "column": 14,
+          "type": "number",
+          "linked": false
+        },
+        "pvp_cast_count_buff": {
+          "column": 15,
+          "type": "string",
+          "linked": false
+        },
+        "pvp_cast_first_interval": {
+          "column": 16,
+          "type": "string",
+          "linked": false
+        },
+        "pvp_cast_interval": {
+          "column": 17,
+          "type": "string",
+          "linked": false
+        },
+        "pvp_damage_type": {
+          "column": 18,
+          "type": "number",
+          "linked": false
+        },
+        "pvp_other_condition": {
+          "column": 12,
+          "type": "string",
+          "linked": false
+        },
+        "pvp_other_condition_para": {
+          "column": 13,
+          "type": "string",
+          "linked": false
+        },
+        "pvp_pos_condition": {
+          "column": 8,
+          "type": "string",
+          "linked": false
+        },
+        "pvp_pos_num": {
+          "column": 9,
+          "type": "string",
+          "linked": false
+        },
+        "pvp_pos_num_buff": {
+          "column": 10,
+          "type": "string",
+          "linked": false
+        },
+        "pvp_troop_condition": {
+          "column": 11,
+          "type": "string",
+          "linked": false
+        },
+        "target_type": {
+          "column": 2,
+          "type": "array",
+          "linked": true
+        }
+      }
+    },
+    {
+      "name": "lw_hero_unique_weapon",
+      "rowCount": 29,
+      "fields": {
+        "attr": {
+          "column": 5,
+          "type": "table",
+          "linked": true
+        },
+        "desc_para": {
+          "column": 12,
+          "type": "array",
+          "linked": true
+        },
+        "effect_desc": {
+          "column": 11,
+          "type": "string",
+          "linked": false
+        },
+        "effect_icon": {
+          "column": 13,
+          "type": "string",
+          "linked": true
+        },
+        "effect_name": {
+          "column": 10,
+          "type": "string",
+          "linked": false
+        },
+        "effect_preview": {
+          "column": 15,
+          "type": "string",
+          "linked": false
+        },
+        "hero": {
+          "column": 2,
+          "type": "number",
+          "linked": false
+        },
+        "id": {
+          "column": 1,
+          "type": "number",
+          "linked": false
+        },
+        "item_cost": {
+          "column": 4,
+          "type": "table",
+          "linked": true
+        },
+        "lv": {
+          "column": 3,
+          "type": "number",
+          "linked": false
+        },
+        "model": {
+          "column": 6,
+          "type": "number",
+          "linked": false
+        },
+        "model_icon_path": {
+          "column": 14,
+          "type": "string",
+          "linked": true
+        },
+        "power": {
+          "column": 18,
+          "type": "number",
+          "linked": false
+        },
+        "skill_add": {
+          "column": 8,
+          "type": "table",
+          "linked": true
+        },
+        "skill_change": {
+          "column": 7,
+          "type": "table",
+          "linked": true
+        },
+        "skill_level": {
+          "column": 17,
+          "type": "number",
+          "linked": false
+        },
+        "skill_preview_list": {
+          "column": 16,
+          "type": "string",
+          "linked": false
+        },
+        "skillist": {
+          "column": 9,
+          "type": "string",
+          "linked": false
+        }
+      }
+    },
+    {
+      "name": "lw_hero_unique_weapon_effect",
+      "rowCount": 65,
+      "fields": {
+        "cost": {
+          "column": 9,
+          "type": "number",
+          "linked": false
+        },
+        "effect": {
+          "column": 7,
+          "type": "table",
+          "linked": true
+        },
+        "effect_desc": {
+          "column": 8,
+          "type": "string",
+          "linked": false
+        },
+        "effect_icon": {
+          "column": 6,
+          "type": "string",
+          "linked": false
+        },
+        "effect_name": {
+          "column": 5,
+          "type": "string",
+          "linked": false
+        },
+        "group": {
+          "column": 2,
+          "type": "number",
+          "linked": false
+        },
+        "id": {
+          "column": 1,
+          "type": "number",
+          "linked": false
+        },
+        "is_speical_effect": {
+          "column": 10,
+          "type": "number",
+          "linked": false
+        },
+        "level": {
+          "column": 3,
+          "type": "number",
+          "linked": false
+        },
+        "level_max": {
+          "column": 4,
+          "type": "number",
+          "linked": false
+        },
+        "power": {
+          "column": 11,
+          "type": "number",
+          "linked": false
+        },
+        "skill_add": {
+          "column": 13,
+          "type": "string",
+          "linked": false
+        },
+        "skill_powerup": {
+          "column": 12,
+          "type": "array",
+          "linked": true
+        },
+        "special_desc": {
+          "column": 14,
+          "type": "string",
+          "linked": false
+        }
+      }
+    },
+    {
+      "name": "lw_hero_unique_weapon_unit",
+      "rowCount": 45,
+      "fields": {
+        "hero": {
+          "column": 2,
+          "type": "number",
+          "linked": false
+        },
+        "id": {
+          "column": 1,
+          "type": "number",
+          "linked": false
+        },
+        "max_lv": {
+          "column": 4,
+          "type": "number",
+          "linked": false
+        },
+        "overall_attr": {
+          "column": 5,
+          "type": "number",
+          "linked": false
+        },
+        "overall_value": {
+          "column": 6,
+          "type": "array",
+          "linked": true
+        },
+        "personal_attr": {
+          "column": 7,
+          "type": "number",
+          "linked": false
+        },
+        "personal_value": {
+          "column": 8,
+          "type": "array",
+          "linked": true
+        },
+        "type": {
+          "column": 3,
+          "type": "number",
+          "linked": false
+        }
+      }
+    },
+    {
+      "name": "lw_hero_unique_weapon_unit_cost",
+      "rowCount": 900,
+      "fields": {
+        "cost": {
+          "column": 4,
+          "type": "number",
+          "linked": false
+        },
+        "id": {
+          "column": 1,
+          "type": "number",
+          "linked": false
+        },
+        "lv": {
+          "column": 3,
+          "type": "number",
+          "linked": false
+        },
+        "type": {
+          "column": 2,
+          "type": "number",
+          "linked": false
+        },
+        "unit_condition": {
+          "column": 5,
+          "type": "table",
+          "linked": true
+        }
+      }
+    },
+    {
+      "name": "lw_hero_unlock_skill",
+      "loadError": "'list' object has no attribute 'items'"
+    },
+    {
+      "name": "lw_hero_upgrade",
+      "loadError": "'list' object has no attribute 'items'"
+    },
+    {
+      "name": "lw_hero_upgrade_newbie",
+      "rowCount": 12,
+      "fields": {
+        "hero_newattack": {
+          "column": 4,
+          "type": "number",
+          "linked": false
+        },
+        "hero_newenergy_levelup": {
+          "column": 2,
+          "type": "number",
+          "linked": false
+        },
+        "hero_newskill": {
+          "column": 3,
+          "type": "number",
+          "linked": false
+        },
+        "id": {
+          "column": 1,
+          "type": "number",
+          "linked": false
+        }
+      }
+    }
+  ],
+  "tables": {
+    "lw_hero_awaken": {
+      "rowCount": 3,
+      "selectedCount": 3,
+      "fields": {
+        "advanced_awaken_skin_id": {
+          "column": 9,
+          "type": "number",
+          "linked": false
+        },
+        "awaken_goods_id": {
+          "column": 3,
+          "type": "number",
+          "linked": false
+        },
+        "awaken_max_level": {
+          "column": 4,
+          "type": "number",
+          "linked": false
+        },
+        "awaken_skin_id": {
+          "column": 8,
+          "type": "number",
+          "linked": false
+        },
+        "awaken_unlock_time": {
+          "column": 2,
+          "type": "array",
+          "linked": true
+        },
+        "extra_skill_effect_line": {
+          "column": 15,
+          "type": "string",
+          "linked": false
+        },
+        "guide_plot_id": {
+          "column": 10,
+          "type": "number",
+          "linked": false
+        },
+        "id": {
+          "column": 1,
+          "type": "number",
+          "linked": false
+        },
+        "new_hero_brief": {
+          "column": 5,
+          "type": "string",
+          "linked": false
+        },
+        "normal_skin_id": {
+          "column": 6,
+          "type": "number",
+          "linked": false
+        },
+        "skill_preview_key": {
+          "column": 14,
+          "type": "string",
+          "linked": false
+        },
+        "skill_short_desc": {
+          "column": 11,
+          "type": "string",
+          "linked": true
+        },
+        "spine_preview_key": {
+          "column": 13,
+          "type": "string",
+          "linked": false
+        },
+        "spine_preview_pic": {
+          "column": 12,
+          "type": "string",
+          "linked": true
+        },
+        "unique_weapon_skin_id": {
+          "column": 7,
+          "type": "number",
+          "linked": false
+        }
+      },
+      "rows": [
+        {
+          "_key": 50009,
+          "advanced_awaken_skin_id": 50009004,
+          "awaken_goods_id": 570009,
+          "awaken_max_level": 25,
+          "awaken_skin_id": 50009003,
+          "extra_skill_effect_line": "hero_awaken_desc_30",
+          "guide_plot_id": 9432,
+          "id": 50009,
+          "new_hero_brief": "hero_awaken_name_50009",
+          "normal_skin_id": 50009001,
+          "skill_preview_key": "hero_awaken_desc_27",
+          "skill_short_desc": "hero_awaken_skill_desc_abstract_5009500_limit30",
+          "unique_weapon_skin_id": 50009002
+        },
+        {
+          "_key": 50016,
+          "advanced_awaken_skin_id": 50016004,
+          "awaken_goods_id": 570016,
+          "awaken_max_level": 25,
+          "awaken_skin_id": 50016003,
+          "extra_skill_effect_line": "hero_awaken_desc_30",
+          "guide_plot_id": 9434,
+          "id": 50016,
+          "new_hero_brief": "hero_awaken_name_50016",
+          "normal_skin_id": 50016001,
+          "skill_preview_key": "hero_awaken_desc_27",
+          "skill_short_desc": "hero_awaken_skill_Tesla_limit30",
+          "unique_weapon_skin_id": 50016002
+        },
+        {
+          "_key": 50017,
+          "advanced_awaken_skin_id": 50017004,
+          "awaken_goods_id": 570017,
+          "awaken_max_level": 25,
+          "awaken_skin_id": 50017003,
+          "extra_skill_effect_line": "hero_awaken_desc_30",
+          "guide_plot_id": 9433,
+          "id": 50017,
+          "new_hero_brief": "hero_awaken_name_50017",
+          "normal_skin_id": 50017001,
+          "skill_preview_key": "hero_awaken_desc_27",
+          "skill_short_desc": "hero_awaken_skill_DVA_limit30",
+          "unique_weapon_skin_id": 50017002
+        }
+      ]
+    },
+    "lw_hero_awaken_rank": {
+      "rowCount": 78,
+      "selectedCount": 26,
+      "fields": {
+        "attr_add": {
+          "column": 4,
+          "type": "table",
+          "linked": true
+        },
+        "fix_power": {
+          "column": 8,
+          "type": "number",
+          "linked": false
+        },
+        "hero_id": {
+          "column": 2,
+          "type": "number",
+          "linked": false
+        },
+        "id": {
+          "column": 1,
+          "type": "number",
+          "linked": false
+        },
+        "is_advanced_skin": {
+          "column": 7,
+          "type": "number",
+          "linked": false
+        },
+        "level": {
+          "column": 3,
+          "type": "number",
+          "linked": false
+        },
+        "rank_cost": {
+          "column": 5,
+          "type": "number",
+          "linked": false
+        },
+        "skill_list": {
+          "column": 6,
+          "type": "array",
+          "linked": true
+        }
+      },
+      "rows": [
+        {
+          "_key": 5000900,
+          "attr_add": {
+            "51000": 60224.3,
+            "51050": 717,
+            "51100": 358.6,
+            "76150": 0.025
+          },
+          "fix_power": 250000,
+          "hero_id": 50009,
+          "id": 5000900,
+          "level": 0,
+          "rank_cost": 50,
+          "skill_list": []
+        },
+        {
+          "_key": 5000901,
+          "attr_add": {
+            "51000": 72269.1,
+            "51050": 860.4,
+            "51100": 430.3,
+            "76150": 0.025
+          },
+          "fix_power": 250000,
+          "hero_id": 50009,
+          "id": 5000901,
+          "level": 1,
+          "rank_cost": 20,
+          "skill_list": [
+            5009500
+          ]
+        },
+        {
+          "_key": 5000902,
+          "attr_add": {
+            "51000": 84314,
+            "51050": 1003.7,
+            "51100": 502,
+            "76150": 0.025
+          },
+          "fix_power": 250000,
+          "hero_id": 50009,
+          "id": 5000902,
+          "level": 2,
+          "rank_cost": 20,
+          "skill_list": [
+            5009500
+          ]
+        },
+        {
+          "_key": 5000903,
+          "attr_add": {
+            "51000": 96358.8,
+            "51050": 1147.1,
+            "51100": 573.7,
+            "76150": 0.025
+          },
+          "fix_power": 250000,
+          "hero_id": 50009,
+          "id": 5000903,
+          "level": 3,
+          "rank_cost": 20,
+          "skill_list": [
+            5009500
+          ]
+        },
+        {
+          "_key": 5000904,
+          "attr_add": {
+            "51000": 108403.6,
+            "51050": 1290.5,
+            "51100": 645.4,
+            "76150": 0.025
+          },
+          "fix_power": 250000,
+          "hero_id": 50009,
+          "id": 5000904,
+          "level": 4,
+          "rank_cost": 20,
+          "skill_list": [
+            5009500
+          ]
+        },
+        {
+          "_key": 5000905,
+          "attr_add": {
+            "51000": 126470.9,
+            "51050": 1505.6,
+            "51100": 753,
+            "76150": 0.03
+          },
+          "fix_power": 500000,
+          "hero_id": 50009,
+          "id": 5000905,
+          "level": 5,
+          "rank_cost": 40,
+          "skill_list": [
+            5009500,
+            5009600
+          ]
+        },
+        {
+          "_key": 5000906,
+          "attr_add": {
+            "51000": 144538.2,
+            "51050": 1720.7,
+            "51100": 860.5,
+            "76150": 0.03
+          },
+          "fix_power": 500000,
+          "hero_id": 50009,
+          "id": 5000906,
+          "level": 6,
+          "rank_cost": 40,
+          "skill_list": [
+            5009500,
+            5009600
+          ]
+        },
+        {
+          "_key": 5000907,
+          "attr_add": {
+            "51000": 162605.4,
+            "51050": 1935.7,
+            "51100": 968.1,
+            "76150": 0.03
+          },
+          "fix_power": 500000,
+          "hero_id": 50009,
+          "id": 5000907,
+          "level": 7,
+          "rank_cost": 40,
+          "skill_list": [
+            5009500,
+            5009600
+          ]
+        },
+        {
+          "_key": 5000908,
+          "attr_add": {
+            "51000": 180672.7,
+            "51050": 2150.8,
+            "51100": 1075.7,
+            "76150": 0.03
+          },
+          "fix_power": 500000,
+          "hero_id": 50009,
+          "id": 5000908,
+          "level": 8,
+          "rank_cost": 40,
+          "skill_list": [
+            5009500,
+            5009600
+          ]
+        },
+        {
+          "_key": 5000909,
+          "attr_add": {
+            "51000": 198740,
+            "51050": 2365.9,
+            "51100": 1183.2,
+            "76150": 0.03
+          },
+          "fix_power": 500000,
+          "hero_id": 50009,
+          "id": 5000909,
+          "level": 9,
+          "rank_cost": 40,
+          "skill_list": [
+            5009500,
+            5009600
+          ]
+        },
+        {
+          "_key": 5000910,
+          "attr_add": {
+            "51000": 222829.7,
+            "51050": 2652.7,
+            "51100": 1326.6,
+            "76150": 0.035
+          },
+          "fix_power": 750000,
+          "hero_id": 50009,
+          "id": 5000910,
+          "level": 10,
+          "rank_cost": 70,
+          "skill_list": [
+            5009500,
+            5009600
+          ]
+        },
+        {
+          "_key": 5000911,
+          "attr_add": {
+            "51000": 246919.3,
+            "51050": 2939.4,
+            "51100": 1470,
+            "76150": 0.035
+          },
+          "fix_power": 750000,
+          "hero_id": 50009,
+          "id": 5000911,
+          "level": 11,
+          "rank_cost": 70,
+          "skill_list": [
+            5009500,
+            5009600
+          ]
+        },
+        {
+          "_key": 5000912,
+          "attr_add": {
+            "51000": 271009,
+            "51050": 3226.2,
+            "51100": 1613.5,
+            "76150": 0.035
+          },
+          "fix_power": 750000,
+          "hero_id": 50009,
+          "id": 5000912,
+          "level": 12,
+          "rank_cost": 70,
+          "skill_list": [
+            5009500,
+            5009600
+          ]
+        },
+        {
+          "_key": 5000913,
+          "attr_add": {
+            "51000": 295098.7,
+            "51050": 3513,
+            "51100": 1756.9,
+            "76150": 0.035
+          },
+          "fix_power": 750000,
+          "hero_id": 50009,
+          "id": 5000913,
+          "level": 13,
+          "rank_cost": 70,
+          "skill_list": [
+            5009500,
+            5009600
+          ]
+        },
+        {
+          "_key": 5000914,
+          "attr_add": {
+            "51000": 319188.4,
+            "51050": 3799.7,
+            "51100": 1900.3,
+            "76150": 0.035
+          },
+          "fix_power": 750000,
+          "hero_id": 50009,
+          "id": 5000914,
+          "level": 14,
+          "rank_cost": 70,
+          "skill_list": [
+            5009500,
+            5009600
+          ]
+        },
+        {
+          "_key": 5000915,
+          "attr_add": {
+            "51000": 349300.5,
+            "51050": 4158.2,
+            "51100": 2079.6,
+            "76150": 0.04
+          },
+          "fix_power": 1000000,
+          "hero_id": 50009,
+          "id": 5000915,
+          "level": 15,
+          "rank_cost": 80,
+          "skill_list": [
+            5009500,
+            5009600,
+            5009700
+          ]
+        },
+        {
+          "_key": 5000916,
+          "attr_add": {
+            "51000": 379412.6,
+            "51050": 4516.7,
+            "51100": 2258.8,
+            "76150": 0.04
+          },
+          "fix_power": 1000000,
+          "hero_id": 50009,
+          "id": 5000916,
+          "level": 16,
+          "rank_cost": 80,
+          "skill_list": [
+            5009500,
+            5009600,
+            5009700
+          ]
+        },
+        {
+          "_key": 5000917,
+          "attr_add": {
+            "51000": 409524.7,
+            "51050": 4875.1,
+            "51100": 2438.1,
+            "76150": 0.04
+          },
+          "fix_power": 1000000,
+          "hero_id": 50009,
+          "id": 5000917,
+          "level": 17,
+          "rank_cost": 80,
+          "skill_list": [
+            5009500,
+            5009600,
+            5009700
+          ]
+        },
+        {
+          "_key": 5000918,
+          "attr_add": {
+            "51000": 439636.8,
+            "51050": 5233.6,
+            "51100": 2617.4,
+            "76150": 0.04
+          },
+          "fix_power": 1000000,
+          "hero_id": 50009,
+          "id": 5000918,
+          "level": 18,
+          "rank_cost": 80,
+          "skill_list": [
+            5009500,
+            5009600,
+            5009700
+          ]
+        },
+        {
+          "_key": 5000919,
+          "attr_add": {
+            "51000": 469748.9,
+            "51050": 5592,
+            "51100": 2796.6,
+            "76150": 0.04
+          },
+          "fix_power": 1000000,
+          "hero_id": 50009,
+          "id": 5000919,
+          "level": 19,
+          "rank_cost": 80,
+          "skill_list": [
+            5009500,
+            5009600,
+            5009700
+          ]
+        },
+        {
+          "_key": 5000920,
+          "attr_add": {
+            "51000": 505883.5,
+            "51050": 6022.2,
+            "51100": 3011.8,
+            "76150": 0.045
+          },
+          "fix_power": 1250000,
+          "hero_id": 50009,
+          "id": 5000920,
+          "level": 20,
+          "rank_cost": 100,
+          "skill_list": [
+            5009500,
+            5009600,
+            5009700
+          ]
+        },
+        {
+          "_key": 5000921,
+          "attr_add": {
+            "51000": 542018,
+            "51050": 6452.3,
+            "51100": 3226.9,
+            "76150": 0.045
+          },
+          "fix_power": 1250000,
+          "hero_id": 50009,
+          "id": 5000921,
+          "level": 21,
+          "rank_cost": 100,
+          "skill_list": [
+            5009500,
+            5009600,
+            5009700
+          ]
+        },
+        {
+          "_key": 5000922,
+          "attr_add": {
+            "51000": 578152.5,
+            "51050": 6882.5,
+            "51100": 3442,
+            "76150": 0.045
+          },
+          "fix_power": 1250000,
+          "hero_id": 50009,
+          "id": 5000922,
+          "level": 22,
+          "rank_cost": 100,
+          "skill_list": [
+            5009500,
+            5009600,
+            5009700
+          ]
+        },
+        {
+          "_key": 5000923,
+          "attr_add": {
+            "51000": 614287.1,
+            "51050": 7312.7,
+            "51100": 3657.1,
+            "76150": 0.045
+          },
+          "fix_power": 1250000,
+          "hero_id": 50009,
+          "id": 5000923,
+          "level": 23,
+          "rank_cost": 100,
+          "skill_list": [
+            5009500,
+            5009600,
+            5009700
+          ]
+        },
+        {
+          "_key": 5000924,
+          "attr_add": {
+            "51000": 650421.6,
+            "51050": 7742.8,
+            "51100": 3872.2,
+            "76150": 0.045
+          },
+          "fix_power": 1250000,
+          "hero_id": 50009,
+          "id": 5000924,
+          "level": 24,
+          "rank_cost": 100,
+          "skill_list": [
+            5009500,
+            5009600,
+            5009700
+          ]
+        },
+        {
+          "_key": 5000925,
+          "attr_add": {
+            "51000": 698601,
+            "51050": 8316.3,
+            "51100": 4159.1,
+            "76150": 0.05
+          },
+          "fix_power": 1550000,
+          "hero_id": 50009,
+          "id": 5000925,
+          "level": 25,
+          "rank_cost": 0,
+          "skill_list": [
+            5009500,
+            5009600,
+            5009700
+          ]
+        }
+      ]
+    },
+    "lw_hero_energy_levelup": {
+      "rowCount": 50,
+      "selectedCount": 50,
+      "fields": {
+        "energy_extra": {
+          "column": 5,
+          "type": "array",
+          "linked": true
+        },
+        "energy_lv1": {
+          "column": 2,
+          "type": "array",
+          "linked": true
+        },
+        "energy_lv2": {
+          "column": 3,
+          "type": "array",
+          "linked": true
+        },
+        "energy_lv3": {
+          "column": 4,
+          "type": "array",
+          "linked": true
+        },
+        "id": {
+          "column": 1,
+          "type": "number",
+          "linked": false
+        }
+      },
+      "rows": [
+        {
+          "_key": 30002,
+          "energy_lv1": [
+            300205
+          ],
+          "energy_lv2": [
+            300201
+          ],
+          "energy_lv3": [
+            300202,
+            300203
+          ],
+          "id": 30002
+        },
+        {
+          "_key": 30003,
+          "energy_lv1": [
+            300305
+          ],
+          "energy_lv2": [
+            300301
+          ],
+          "energy_lv3": [
+            300302,
+            300303
+          ],
+          "id": 30003
+        },
+        {
+          "_key": 30004,
+          "energy_lv1": [
+            300405
+          ],
+          "energy_lv2": [
+            300401
+          ],
+          "energy_lv3": [
+            300402,
+            300403
+          ],
+          "id": 30004
+        },
+        {
+          "_key": 30005,
+          "energy_lv1": [
+            300505
+          ],
+          "energy_lv2": [
+            300501
+          ],
+          "energy_lv3": [
+            300502,
+            300503
+          ],
+          "id": 30005
+        },
+        {
+          "_key": 40006,
+          "energy_lv1": [
+            400601
+          ],
+          "energy_lv2": [
+            400602
+          ],
+          "energy_lv3": [
+            400603
+          ],
+          "id": 40006
+        },
+        {
+          "_key": 400060,
+          "energy_lv1": [
+            400611,
+            400614
+          ],
+          "energy_lv2": [
+            400612
+          ],
+          "energy_lv3": [
+            400613
+          ],
+          "id": 400060
+        },
+        {
+          "_key": 40007,
+          "energy_lv1": [
+            400705
+          ],
+          "energy_lv2": [
+            400701
+          ],
+          "energy_lv3": [
+            400702,
+            400703
+          ],
+          "id": 40007
+        },
+        {
+          "_key": 400070,
+          "energy_lv1": [
+            400711,
+            400716
+          ],
+          "energy_lv2": [
+            400712
+          ],
+          "energy_lv3": [
+            400713
+          ],
+          "id": 400070
+        },
+        {
+          "_key": 40008,
+          "energy_lv1": [
+            400805
+          ],
+          "energy_lv2": [
+            400801
+          ],
+          "energy_lv3": [
+            400802,
+            400803
+          ],
+          "id": 40008
+        },
+        {
+          "_key": 400080,
+          "energy_lv1": [
+            400811
+          ],
+          "energy_lv2": [
+            400812
+          ],
+          "energy_lv3": [
+            400813,
+            400814
+          ],
+          "id": 400080
+        },
+        {
+          "_key": 40009,
+          "energy_lv1": [
+            400905
+          ],
+          "energy_lv2": [
+            400901
+          ],
+          "energy_lv3": [
+            400902,
+            400903
+          ],
+          "id": 40009
+        },
+        {
+          "_key": 400090,
+          "energy_lv1": [
+            400911
+          ],
+          "energy_lv2": [
+            400912,
+            400914
+          ],
+          "energy_lv3": [
+            400913
+          ],
+          "id": 400090
+        },
+        {
+          "_key": 40010,
+          "energy_lv1": [
+            401005
+          ],
+          "energy_lv2": [
+            401001
+          ],
+          "energy_lv3": [
+            401002,
+            401003
+          ],
+          "id": 40010
+        },
+        {
+          "_key": 400100,
+          "energy_lv1": [
+            401011,
+            401014
+          ],
+          "energy_lv2": [
+            401012
+          ],
+          "energy_lv3": [
+            401013,
+            4010140
+          ],
+          "id": 400100
+        },
+        {
+          "_key": 40012,
+          "energy_lv1": [
+            401205
+          ],
+          "energy_lv2": [
+            401201
+          ],
+          "energy_lv3": [
+            401202,
+            401203
+          ],
+          "id": 40012
+        },
+        {
+          "_key": 400120,
+          "energy_lv1": [
+            401211
+          ],
+          "energy_lv2": [
+            401212,
+            401214
+          ],
+          "energy_lv3": [
+            401213
+          ],
+          "id": 400120
+        },
+        {
+          "_key": 40013,
+          "energy_lv1": [
+            401305
+          ],
+          "energy_lv2": [
+            401301
+          ],
+          "energy_lv3": [
+            401302,
+            401303
+          ],
+          "id": 40013
+        },
+        {
+          "_key": 40015,
+          "energy_lv1": [
+            401505
+          ],
+          "energy_lv2": [
+            401501
+          ],
+          "energy_lv3": [
+            401502,
+            401503
+          ],
+          "id": 40015
+        },
+        {
+          "_key": 40016,
+          "energy_lv1": [
+            401605
+          ],
+          "energy_lv2": [
+            401601
+          ],
+          "energy_lv3": [
+            401602,
+            401603
+          ],
+          "id": 40016
+        },
+        {
+          "_key": 400160,
+          "energy_lv1": [
+            401611
+          ],
+          "energy_lv2": [
+            401612,
+            401614
+          ],
+          "energy_lv3": [
+            401613
+          ],
+          "id": 400160
+        },
+        {
+          "_key": 40018,
+          "energy_lv1": [
+            401805
+          ],
+          "energy_lv2": [
+            401801
+          ],
+          "energy_lv3": [
+            401802,
+            401803
+          ],
+          "id": 40018
+        },
+        {
+          "_key": 40019,
+          "energy_lv1": [
+            401905
+          ],
+          "energy_lv2": [
+            401901
+          ],
+          "energy_lv3": [
+            401902,
+            401903
+          ],
+          "id": 40019
+        },
+        {
+          "_key": 400190,
+          "energy_lv1": [
+            401911,
+            401914
+          ],
+          "energy_lv2": [
+            401912
+          ],
+          "energy_lv3": [
+            401913
+          ],
+          "id": 400190
+        },
+        {
+          "_key": 40020,
+          "energy_lv1": [
+            402005
+          ],
+          "energy_lv2": [
+            402001
+          ],
+          "energy_lv3": [
+            402002,
+            402003
+          ],
+          "id": 40020
+        },
+        {
+          "_key": 50006,
+          "energy_lv1": [
+            500605
+          ],
+          "energy_lv2": [
+            500601
+          ],
+          "energy_lv3": [
+            500602,
+            500603
+          ],
+          "id": 50006
+        },
+        {
+          "_key": 500060,
+          "energy_lv1": [
+            500611,
+            500614
+          ],
+          "energy_lv2": [
+            500612
+          ],
+          "energy_lv3": [
+            500613
+          ],
+          "id": 500060
+        },
+        {
+          "_key": 50007,
+          "energy_lv1": [
+            500705
+          ],
+          "energy_lv2": [
+            500701
+          ],
+          "energy_lv3": [
+            500702,
+            500703
+          ],
+          "id": 50007
+        },
+        {
+          "_key": 50008,
+          "energy_lv1": [
+            500805
+          ],
+          "energy_lv2": [
+            500801
+          ],
+          "energy_lv3": [
+            500802,
+            500803
+          ],
+          "id": 50008
+        },
+        {
+          "_key": 50009,
+          "energy_lv1": [
+            500905
+          ],
+          "energy_lv2": [
+            500901
+          ],
+          "energy_lv3": [
+            500902,
+            500903
+          ],
+          "id": 50009
+        },
+        {
+          "_key": 500090,
+          "energy_lv1": [
+            500911
+          ],
+          "energy_lv2": [
+            500912,
+            500914
+          ],
+          "energy_lv3": [
+            500913
+          ],
+          "id": 500090
+        },
+        {
+          "_key": 50010,
+          "energy_lv1": [
+            501005
+          ],
+          "energy_lv2": [
+            501001
+          ],
+          "energy_lv3": [
+            501002,
+            501003
+          ],
+          "id": 50010
+        },
+        {
+          "_key": 50011,
+          "energy_lv1": [
+            501105
+          ],
+          "energy_lv2": [
+            501101
+          ],
+          "energy_lv3": [
+            501102,
+            501103
+          ],
+          "id": 50011
+        },
+        {
+          "_key": 50013,
+          "energy_lv1": [
+            501305
+          ],
+          "energy_lv2": [
+            501301
+          ],
+          "energy_lv3": [
+            501302,
+            501303
+          ],
+          "id": 50013
+        },
+        {
+          "_key": 50014,
+          "energy_lv1": [
+            501405
+          ],
+          "energy_lv2": [
+            501401
+          ],
+          "energy_lv3": [
+            501402,
+            501403
+          ],
+          "id": 50014
+        },
+        {
+          "_key": 50015,
+          "energy_lv1": [
+            501505
+          ],
+          "energy_lv2": [
+            501501
+          ],
+          "energy_lv3": [
+            501502,
+            501503
+          ],
+          "id": 50015
+        },
+        {
+          "_key": 50016,
+          "energy_lv1": [
+            501605
+          ],
+          "energy_lv2": [
+            501601
+          ],
+          "energy_lv3": [
+            501602,
+            501603
+          ],
+          "id": 50016
+        },
+        {
+          "_key": 500160,
+          "energy_lv1": [
+            501611
+          ],
+          "energy_lv2": [
+            501612
+          ],
+          "energy_lv3": [
+            501613,
+            501614
+          ],
+          "id": 500160
+        },
+        {
+          "_key": 50017,
+          "energy_lv1": [
+            501705
+          ],
+          "energy_lv2": [
+            501701
+          ],
+          "energy_lv3": [
+            501702,
+            501703
+          ],
+          "id": 50017
+        },
+        {
+          "_key": 500170,
+          "energy_lv1": [
+            501711,
+            5017110
+          ],
+          "energy_lv2": [
+            501712
+          ],
+          "energy_lv3": [
+            501713,
+            501714
+          ],
+          "id": 500170
+        },
+        {
+          "_key": 50018,
+          "energy_lv1": [
+            501805
+          ],
+          "energy_lv2": [
+            501801
+          ],
+          "energy_lv3": [
+            501802,
+            501803
+          ],
+          "id": 50018
+        },
+        {
+          "_key": 50019,
+          "energy_lv1": [
+            501905
+          ],
+          "energy_lv2": [
+            501901
+          ],
+          "energy_lv3": [
+            501902,
+            501903
+          ],
+          "id": 50019
+        },
+        {
+          "_key": 50020,
+          "energy_lv1": [
+            502005
+          ],
+          "energy_lv2": [
+            502001
+          ],
+          "energy_lv3": [
+            502002,
+            502003
+          ],
+          "id": 50020
+        },
+        {
+          "_key": 50021,
+          "energy_lv1": [
+            502105
+          ],
+          "energy_lv2": [
+            502101
+          ],
+          "energy_lv3": [
+            502102,
+            502103
+          ],
+          "id": 50021
+        },
+        {
+          "_key": 50022,
+          "energy_lv1": [
+            502205
+          ],
+          "energy_lv2": [
+            502201
+          ],
+          "energy_lv3": [
+            502202,
+            502203
+          ],
+          "id": 50022
+        },
+        {
+          "_key": 50023,
+          "energy_lv1": [
+            401005
+          ],
+          "energy_lv2": [
+            401001
+          ],
+          "energy_lv3": [
+            401002,
+            401003
+          ],
+          "id": 50023
+        },
+        {
+          "_key": 50025,
+          "energy_lv1": [
+            401205
+          ],
+          "energy_lv2": [
+            401201
+          ],
+          "energy_lv3": [
+            401202,
+            401203
+          ],
+          "id": 50025
+        },
+        {
+          "_key": 50026,
+          "energy_lv1": [
+            400601
+          ],
+          "energy_lv2": [
+            400602
+          ],
+          "energy_lv3": [
+            400603
+          ],
+          "id": 50026
+        },
+        {
+          "_key": 50027,
+          "energy_lv1": [
+            401905
+          ],
+          "energy_lv2": [
+            401901
+          ],
+          "energy_lv3": [
+            401902,
+            401903
+          ],
+          "id": 50027
+        },
+        {
+          "_key": 50028,
+          "energy_lv1": [
+            401805
+          ],
+          "energy_lv2": [
+            401801
+          ],
+          "energy_lv3": [
+            401802,
+            401803
+          ],
+          "id": 50028
+        },
+        {
+          "_key": 50029,
+          "energy_lv1": [
+            401305
+          ],
+          "energy_lv2": [
+            401301
+          ],
+          "energy_lv3": [
+            401302,
+            401303
+          ],
+          "id": 50029
+        }
+      ]
+    },
+    "lw_hero_unique_weapon": {
+      "rowCount": 29,
+      "selectedCount": 25,
+      "fields": {
+        "attr": {
+          "column": 5,
+          "type": "table",
+          "linked": true
+        },
+        "desc_para": {
+          "column": 12,
+          "type": "array",
+          "linked": true
+        },
+        "effect_desc": {
+          "column": 11,
+          "type": "string",
+          "linked": false
+        },
+        "effect_icon": {
+          "column": 13,
+          "type": "string",
+          "linked": true
+        },
+        "effect_name": {
+          "column": 10,
+          "type": "string",
+          "linked": false
+        },
+        "effect_preview": {
+          "column": 15,
+          "type": "string",
+          "linked": false
+        },
+        "hero": {
+          "column": 2,
+          "type": "number",
+          "linked": false
+        },
+        "id": {
+          "column": 1,
+          "type": "number",
+          "linked": false
+        },
+        "item_cost": {
+          "column": 4,
+          "type": "table",
+          "linked": true
+        },
+        "lv": {
+          "column": 3,
+          "type": "number",
+          "linked": false
+        },
+        "model": {
+          "column": 6,
+          "type": "number",
+          "linked": false
+        },
+        "model_icon_path": {
+          "column": 14,
+          "type": "string",
+          "linked": true
+        },
+        "power": {
+          "column": 18,
+          "type": "number",
+          "linked": false
+        },
+        "skill_add": {
+          "column": 8,
+          "type": "table",
+          "linked": true
+        },
+        "skill_change": {
+          "column": 7,
+          "type": "table",
+          "linked": true
+        },
+        "skill_level": {
+          "column": 17,
+          "type": "number",
+          "linked": false
+        },
+        "skill_preview_list": {
+          "column": 16,
+          "type": "string",
+          "linked": false
+        },
+        "skillist": {
+          "column": 9,
+          "type": "string",
+          "linked": false
+        }
+      },
+      "rows": [
+        {
+          "_key": 50006001,
+          "attr": {
+            "51000": 49146.3,
+            "51050": 585.1,
+            "51100": 292.5,
+            "76057": 0.02
+          },
+          "hero": 50006,
+          "id": 50006001,
+          "item_cost": {
+            "550006": 50
+          },
+          "lv": 1,
+          "power": 250000,
+          "skill_add": {
+            "500660": 0
+          },
+          "skill_change": {
+            "500600": 500640
+          },
+          "skill_level": 30,
+          "skill_preview_list": "500640",
+          "skillist": "500640;500610;500620;500630;500660"
+        },
+        {
+          "_key": 50006010,
+          "attr": {
+            "51000": 162183,
+            "51050": 1930.6,
+            "51100": 965.5,
+            "76057": 0.03,
+            "90027": 3
+          },
+          "hero": 50006,
+          "id": 50006010,
+          "item_cost": {
+            "550006": 40
+          },
+          "lv": 10,
+          "power": 500000,
+          "skill_add": {
+            "500661": 0
+          },
+          "skill_change": {
+            "500610": 500650
+          },
+          "skill_level": 33,
+          "skill_preview_list": "500650",
+          "skillist": "500640;500650;500620;500630;500660;500661"
+        },
+        {
+          "_key": 50007001,
+          "attr": {
+            "51000": 49146.3,
+            "51050": 585.1,
+            "51100": 292.5,
+            "76057": 0.02
+          },
+          "hero": 50007,
+          "id": 50007001,
+          "item_cost": {
+            "550007": 50
+          },
+          "lv": 1,
+          "power": 250000,
+          "skill_add": {
+            "500780": 0
+          },
+          "skill_change": {
+            "500700": 500740
+          },
+          "skill_level": 30,
+          "skill_preview_list": "500740",
+          "skillist": "500740;500710;500720;500730;500780"
+        },
+        {
+          "_key": 50007030,
+          "attr": {
+            "51000": 702792.5,
+            "51050": 8366.1,
+            "51100": 4183.5,
+            "76057": 0.05,
+            "90027": 10
+          },
+          "hero": 50007,
+          "id": 50007030,
+          "item_cost": {
+            "550007": 200
+          },
+          "lv": 30,
+          "power": 1000000,
+          "skill_add": [],
+          "skill_change": {
+            "500750": 500770
+          },
+          "skill_level": 40,
+          "skill_preview_list": "500770",
+          "skillist": "500740;500770;500720;500730;500780;500760"
+        },
+        {
+          "_key": 50008001,
+          "attr": {
+            "51000": 49146.3,
+            "51050": 585.1,
+            "51100": 292.5,
+            "76057": 0.02
+          },
+          "hero": 50008,
+          "id": 50008001,
+          "item_cost": {
+            "550008": 50
+          },
+          "lv": 1,
+          "power": 250000,
+          "skill_add": [],
+          "skill_change": {
+            "500800": 500840
+          },
+          "skill_level": 30,
+          "skill_preview_list": "500840",
+          "skillist": "500840;500810;500820;500830"
+        },
+        {
+          "_key": 50008010,
+          "attr": {
+            "51000": 162183,
+            "51050": 1930.6,
+            "51100": 965.5,
+            "76057": 0.03,
+            "90027": 3
+          },
+          "hero": 50008,
+          "id": 50008010,
+          "item_cost": {
+            "550008": 40
+          },
+          "lv": 10,
+          "power": 500000,
+          "skill_add": [],
+          "skill_change": {
+            "500810": 500850
+          },
+          "skill_level": 33,
+          "skill_preview_list": "500850",
+          "skillist": "500840;500850;500820;500830"
+        },
+        {
+          "_key": 50009001,
+          "attr": {
+            "51000": 49146.3,
+            "51050": 585.1,
+            "51100": 292.5,
+            "76057": 0.02
+          },
+          "hero": 50009,
+          "id": 50009001,
+          "item_cost": {
+            "550009": 50
+          },
+          "lv": 1,
+          "power": 250000,
+          "skill_add": [],
+          "skill_change": {
+            "500900": 500940
+          },
+          "skill_level": 30,
+          "skill_preview_list": "500940",
+          "skillist": "500940;500910;500920;500930"
+        },
+        {
+          "_key": 50009010,
+          "attr": {
+            "51000": 162183,
+            "51050": 1930.6,
+            "51100": 965.5,
+            "76057": 0.03,
+            "90027": 3
+          },
+          "hero": 50009,
+          "id": 50009010,
+          "item_cost": {
+            "550009": 40
+          },
+          "lv": 10,
+          "power": 500000,
+          "skill_add": [],
+          "skill_change": {
+            "500910": 500950
+          },
+          "skill_level": 33,
+          "skill_preview_list": "500950",
+          "skillist": "500940;500950;500920;500930"
+        },
+        {
+          "_key": 50010001,
+          "attr": {
+            "51000": 49146.3,
+            "51050": 585.1,
+            "51100": 292.5,
+            "76057": 0.02
+          },
+          "hero": 50010,
+          "id": 50010001,
+          "item_cost": {
+            "550010": 50
+          },
+          "lv": 1,
+          "power": 250000,
+          "skill_add": [],
+          "skill_change": {
+            "501000": 501040
+          },
+          "skill_level": 30,
+          "skill_preview_list": "501040",
+          "skillist": "501040;501010;501020;501030"
+        },
+        {
+          "_key": 50010010,
+          "attr": {
+            "51000": 162183,
+            "51050": 1930.6,
+            "51100": 965.5,
+            "76057": 0.03,
+            "90027": 3
+          },
+          "hero": 50010,
+          "id": 50010010,
+          "item_cost": {
+            "550010": 40
+          },
+          "lv": 10,
+          "power": 500000,
+          "skill_add": {
+            "501060": 1
+          },
+          "skill_change": {
+            "501040": 501050
+          },
+          "skill_level": 33,
+          "skill_preview_list": "501060",
+          "skillist": "501050;501010;501020;501030;501060"
+        },
+        {
+          "_key": 50013001,
+          "attr": {
+            "51000": 49146.3,
+            "51050": 585.1,
+            "51100": 292.5,
+            "76057": 0.02
+          },
+          "hero": 50013,
+          "id": 50013001,
+          "item_cost": {
+            "550013": 50
+          },
+          "lv": 1,
+          "power": 250000,
+          "skill_add": [],
+          "skill_change": {
+            "501300": 501340
+          },
+          "skill_level": 30,
+          "skill_preview_list": "501340",
+          "skillist": "501340;501310;501320;501330"
+        },
+        {
+          "_key": 50014001,
+          "attr": {
+            "51000": 49146.3,
+            "51050": 585.1,
+            "51100": 292.5,
+            "76057": 0.02
+          },
+          "hero": 50014,
+          "id": 50014001,
+          "item_cost": {
+            "550014": 50
+          },
+          "lv": 1,
+          "power": 250000,
+          "skill_add": [],
+          "skill_change": {
+            "501400": 501440
+          },
+          "skill_level": 30,
+          "skill_preview_list": "501440",
+          "skillist": "501440;501410;501420;501430"
+        },
+        {
+          "_key": 50014010,
+          "attr": {
+            "51000": 162183,
+            "51050": 1930.6,
+            "51100": 965.5,
+            "76057": 0.03,
+            "90027": 3
+          },
+          "hero": 50014,
+          "id": 50014010,
+          "item_cost": {
+            "550014": 40
+          },
+          "lv": 10,
+          "power": 500000,
+          "skill_add": [],
+          "skill_change": {
+            "501410": 501450
+          },
+          "skill_level": 33,
+          "skill_preview_list": "501450",
+          "skillist": "501440;501450;501420;501430"
+        },
+        {
+          "_key": 50015001,
+          "attr": {
+            "51000": 49146.3,
+            "51050": 585.1,
+            "51100": 292.5,
+            "76057": 0.02
+          },
+          "hero": 50015,
+          "id": 50015001,
+          "item_cost": {
+            "550015": 50
+          },
+          "lv": 1,
+          "power": 250000,
+          "skill_add": [],
+          "skill_change": {
+            "501500": 501540
+          },
+          "skill_level": 30,
+          "skill_preview_list": "501540",
+          "skillist": "501540;501510;501520;501530"
+        },
+        {
+          "_key": 50015010,
+          "attr": {
+            "51000": 162183,
+            "51050": 1930.6,
+            "51100": 965.5,
+            "76057": 0.03,
+            "90027": 3
+          },
+          "hero": 50015,
+          "id": 50015010,
+          "item_cost": {
+            "550015": 40
+          },
+          "lv": 10,
+          "power": 500000,
+          "skill_add": {
+            "501562": 0
+          },
+          "skill_change": {
+            "501510": 501550
+          },
+          "skill_level": 33,
+          "skill_preview_list": "501550",
+          "skillist": "501540;501550;501520;501530;501562"
+        },
+        {
+          "_key": 50018001,
+          "attr": {
+            "51000": 49146.3,
+            "51050": 585.1,
+            "51100": 292.5,
+            "76057": 0.02
+          },
+          "hero": 50018,
+          "id": 50018001,
+          "item_cost": {
+            "550018": 50
+          },
+          "lv": 1,
+          "power": 250000,
+          "skill_add": [],
+          "skill_change": {
+            "501800": 501840
+          },
+          "skill_level": 30,
+          "skill_preview_list": "501840",
+          "skillist": "501840;501810;501820;501830"
+        },
+        {
+          "_key": 50018010,
+          "attr": {
+            "51000": 162183,
+            "51050": 1930.6,
+            "51100": 965.5,
+            "76057": 0.03,
+            "90027": 3
+          },
+          "hero": 50018,
+          "id": 50018010,
+          "item_cost": {
+            "550018": 40
+          },
+          "lv": 10,
+          "power": 500000,
+          "skill_add": [],
+          "skill_change": {
+            "501810": 501850
+          },
+          "skill_level": 33,
+          "skill_preview_list": "501850",
+          "skillist": "501840;501850;501820;501830"
+        },
+        {
+          "_key": 50019001,
+          "attr": {
+            "51000": 49146.3,
+            "51050": 585.1,
+            "51100": 292.5,
+            "76057": 0.02
+          },
+          "hero": 50019,
+          "id": 50019001,
+          "item_cost": {
+            "550019": 50
+          },
+          "lv": 1,
+          "power": 250000,
+          "skill_add": {
+            "501960": 0
+          },
+          "skill_change": {
+            "501920": 501940
+          },
+          "skill_level": 30,
+          "skill_preview_list": "501940",
+          "skillist": "501900;501910;501940;501930;501960"
+        },
+        {
+          "_key": 50019010,
+          "attr": {
+            "51000": 162183,
+            "51050": 1930.6,
+            "51100": 965.5,
+            "76057": 0.03,
+            "90027": 3
+          },
+          "hero": 50019,
+          "id": 50019010,
+          "item_cost": {
+            "550019": 40
+          },
+          "lv": 10,
+          "power": 500000,
+          "skill_add": {
+            "501961": 0
+          },
+          "skill_change": {
+            "501910": 501950
+          },
+          "skill_level": 33,
+          "skill_preview_list": "501950",
+          "skillist": "501900;501950;501940;501930;501960;501961"
+        },
+        {
+          "_key": 50020001,
+          "attr": {
+            "51000": 49146.3,
+            "51050": 585.1,
+            "51100": 292.5,
+            "76057": 0.02
+          },
+          "hero": 50020,
+          "id": 50020001,
+          "item_cost": {
+            "550020": 50
+          },
+          "lv": 1,
+          "power": 250000,
+          "skill_add": {
+            "502080": 0
+          },
+          "skill_change": {
+            "502000": 502040
+          },
+          "skill_level": 30,
+          "skill_preview_list": "502040",
+          "skillist": "502040;502010;502020;502030;502080"
+        },
+        {
+          "_key": 50020010,
+          "attr": {
+            "51000": 162183,
+            "51050": 1930.6,
+            "51100": 965.5,
+            "76057": 0.03,
+            "90027": 3
+          },
+          "hero": 50020,
+          "id": 50020010,
+          "item_cost": {
+            "550020": 40
+          },
+          "lv": 10,
+          "power": 500000,
+          "skill_add": {
+            "502090": 0
+          },
+          "skill_change": {
+            "502010": 502050
+          },
+          "skill_level": 33,
+          "skill_preview_list": "502050",
+          "skillist": "502040;502050;502020;502030;502080;502090"
+        },
+        {
+          "_key": 50021001,
+          "attr": {
+            "51000": 49146.3,
+            "51050": 585.1,
+            "51100": 292.5,
+            "76057": 0.02
+          },
+          "hero": 50021,
+          "id": 50021001,
+          "item_cost": {
+            "550021": 50
+          },
+          "lv": 1,
+          "power": 250000,
+          "skill_add": {
+            "502180": 0
+          },
+          "skill_change": {
+            "502100": 502140
+          },
+          "skill_level": 30,
+          "skill_preview_list": "502140",
+          "skillist": "502140;502110;502120;502130;502180"
+        },
+        {
+          "_key": 50021010,
+          "attr": {
+            "51000": 162183,
+            "51050": 1930.6,
+            "51100": 965.5,
+            "76057": 0.03,
+            "90027": 3
+          },
+          "hero": 50021,
+          "id": 50021010,
+          "item_cost": {
+            "550021": 40
+          },
+          "lv": 10,
+          "power": 500000,
+          "skill_add": [],
+          "skill_change": {
+            "502110": 502150
+          },
+          "skill_level": 33,
+          "skill_preview_list": "502150",
+          "skillist": "502140;502150;502120;502130;502180"
+        },
+        {
+          "_key": 50022001,
+          "attr": {
+            "51000": 49146.3,
+            "51050": 585.1,
+            "51100": 292.5,
+            "76057": 0.02
+          },
+          "hero": 50022,
+          "id": 50022001,
+          "item_cost": {
+            "550022": 50
+          },
+          "lv": 1,
+          "power": 250000,
+          "skill_add": [],
+          "skill_change": {
+            "502200": 502240,
+            "502220": 502260
+          },
+          "skill_level": 30,
+          "skill_preview_list": "502260",
+          "skillist": "502240;502210;502260;502230"
+        },
+        {
+          "_key": 50022010,
+          "attr": {
+            "51000": 162183,
+            "51050": 1930.6,
+            "51100": 965.5,
+            "76057": 0.03,
+            "90027": 3
+          },
+          "hero": 50022,
+          "id": 50022010,
+          "item_cost": {
+            "550022": 40
+          },
+          "lv": 10,
+          "power": 500000,
+          "skill_add": [],
+          "skill_change": {
+            "502210": 502250
+          },
+          "skill_level": 33,
+          "skill_preview_list": "502250",
+          "skillist": "502240;502250;502260;502230"
+        }
+      ]
+    },
+    "lw_hero_unique_weapon_effect": {
+      "rowCount": 65,
+      "selectedCount": 65,
+      "fields": {
+        "cost": {
+          "column": 9,
+          "type": "number",
+          "linked": false
+        },
+        "effect": {
+          "column": 7,
+          "type": "table",
+          "linked": true
+        },
+        "effect_desc": {
+          "column": 8,
+          "type": "string",
+          "linked": false
+        },
+        "effect_icon": {
+          "column": 6,
+          "type": "string",
+          "linked": false
+        },
+        "effect_name": {
+          "column": 5,
+          "type": "string",
+          "linked": false
+        },
+        "group": {
+          "column": 2,
+          "type": "number",
+          "linked": false
+        },
+        "id": {
+          "column": 1,
+          "type": "number",
+          "linked": false
+        },
+        "is_speical_effect": {
+          "column": 10,
+          "type": "number",
+          "linked": false
+        },
+        "level": {
+          "column": 3,
+          "type": "number",
+          "linked": false
+        },
+        "level_max": {
+          "column": 4,
+          "type": "number",
+          "linked": false
+        },
+        "power": {
+          "column": 11,
+          "type": "number",
+          "linked": false
+        },
+        "skill_add": {
+          "column": 13,
+          "type": "string",
+          "linked": false
+        },
+        "skill_powerup": {
+          "column": 12,
+          "type": "array",
+          "linked": true
+        },
+        "special_desc": {
+          "column": 14,
+          "type": "string",
+          "linked": false
+        }
+      },
+      "rows": [
+        {
+          "_key": 10011,
+          "cost": 5,
+          "id": 10011,
+          "level": 1,
+          "level_max": 5,
+          "power": 10000,
+          "skill_add": null,
+          "skill_powerup": []
+        },
+        {
+          "_key": 10012,
+          "cost": 5,
+          "id": 10012,
+          "level": 2,
+          "level_max": 5,
+          "power": 15000,
+          "skill_add": null,
+          "skill_powerup": []
+        },
+        {
+          "_key": 10013,
+          "cost": 5,
+          "id": 10013,
+          "level": 3,
+          "level_max": 5,
+          "power": 20000,
+          "skill_add": null,
+          "skill_powerup": []
+        },
+        {
+          "_key": 10014,
+          "cost": 5,
+          "id": 10014,
+          "level": 4,
+          "level_max": 5,
+          "power": 25000,
+          "skill_add": null,
+          "skill_powerup": []
+        },
+        {
+          "_key": 10015,
+          "cost": 0,
+          "id": 10015,
+          "level": 5,
+          "level_max": 5,
+          "power": 30000,
+          "skill_add": null,
+          "skill_powerup": []
+        },
+        {
+          "_key": 10021,
+          "cost": 5,
+          "id": 10021,
+          "level": 1,
+          "level_max": 5,
+          "power": 10000,
+          "skill_add": null,
+          "skill_powerup": []
+        },
+        {
+          "_key": 10022,
+          "cost": 5,
+          "id": 10022,
+          "level": 2,
+          "level_max": 5,
+          "power": 15000,
+          "skill_add": null,
+          "skill_powerup": []
+        },
+        {
+          "_key": 10023,
+          "cost": 5,
+          "id": 10023,
+          "level": 3,
+          "level_max": 5,
+          "power": 20000,
+          "skill_add": null,
+          "skill_powerup": []
+        },
+        {
+          "_key": 10024,
+          "cost": 5,
+          "id": 10024,
+          "level": 4,
+          "level_max": 5,
+          "power": 25000,
+          "skill_add": null,
+          "skill_powerup": []
+        },
+        {
+          "_key": 10025,
+          "cost": 0,
+          "id": 10025,
+          "level": 5,
+          "level_max": 5,
+          "power": 30000,
+          "skill_add": null,
+          "skill_powerup": []
+        },
+        {
+          "_key": 10031,
+          "cost": 5,
+          "id": 10031,
+          "level": 1,
+          "level_max": 5,
+          "power": 10000,
+          "skill_add": null,
+          "skill_powerup": []
+        },
+        {
+          "_key": 10032,
+          "cost": 5,
+          "id": 10032,
+          "level": 2,
+          "level_max": 5,
+          "power": 15000,
+          "skill_add": null,
+          "skill_powerup": []
+        },
+        {
+          "_key": 10033,
+          "cost": 5,
+          "id": 10033,
+          "level": 3,
+          "level_max": 5,
+          "power": 20000,
+          "skill_add": null,
+          "skill_powerup": []
+        },
+        {
+          "_key": 10034,
+          "cost": 5,
+          "id": 10034,
+          "level": 4,
+          "level_max": 5,
+          "power": 25000,
+          "skill_add": null,
+          "skill_powerup": []
+        },
+        {
+          "_key": 10035,
+          "cost": 0,
+          "id": 10035,
+          "level": 5,
+          "level_max": 5,
+          "power": 30000,
+          "skill_add": null,
+          "skill_powerup": []
+        },
+        {
+          "_key": 10041,
+          "cost": 5,
+          "id": 10041,
+          "level": 1,
+          "level_max": 5,
+          "power": 10000,
+          "skill_add": null,
+          "skill_powerup": []
+        },
+        {
+          "_key": 10042,
+          "cost": 5,
+          "id": 10042,
+          "level": 2,
+          "level_max": 5,
+          "power": 15000,
+          "skill_add": null,
+          "skill_powerup": []
+        },
+        {
+          "_key": 10043,
+          "cost": 5,
+          "id": 10043,
+          "level": 3,
+          "level_max": 5,
+          "power": 20000,
+          "skill_add": null,
+          "skill_powerup": []
+        },
+        {
+          "_key": 10044,
+          "cost": 5,
+          "id": 10044,
+          "level": 4,
+          "level_max": 5,
+          "power": 25000,
+          "skill_add": null,
+          "skill_powerup": []
+        },
+        {
+          "_key": 10045,
+          "cost": 0,
+          "id": 10045,
+          "level": 5,
+          "level_max": 5,
+          "power": 30000,
+          "skill_add": null,
+          "skill_powerup": []
+        },
+        {
+          "_key": 10051,
+          "cost": 5,
+          "id": 10051,
+          "level": 1,
+          "level_max": 5,
+          "power": 10000,
+          "skill_add": null,
+          "skill_powerup": []
+        },
+        {
+          "_key": 10052,
+          "cost": 5,
+          "id": 10052,
+          "level": 2,
+          "level_max": 5,
+          "power": 15000,
+          "skill_add": null,
+          "skill_powerup": []
+        },
+        {
+          "_key": 10053,
+          "cost": 5,
+          "id": 10053,
+          "level": 3,
+          "level_max": 5,
+          "power": 20000,
+          "skill_add": null,
+          "skill_powerup": []
+        },
+        {
+          "_key": 10054,
+          "cost": 5,
+          "id": 10054,
+          "level": 4,
+          "level_max": 5,
+          "power": 25000,
+          "skill_add": null,
+          "skill_powerup": []
+        },
+        {
+          "_key": 10055,
+          "cost": 0,
+          "id": 10055,
+          "level": 5,
+          "level_max": 5,
+          "power": 30000,
+          "skill_add": null,
+          "skill_powerup": []
+        },
+        {
+          "_key": 10061,
+          "cost": 5,
+          "id": 10061,
+          "level": 1,
+          "level_max": 5,
+          "power": 10000,
+          "skill_add": null,
+          "skill_powerup": []
+        },
+        {
+          "_key": 10062,
+          "cost": 5,
+          "id": 10062,
+          "level": 2,
+          "level_max": 5,
+          "power": 15000,
+          "skill_add": null,
+          "skill_powerup": []
+        },
+        {
+          "_key": 10063,
+          "cost": 5,
+          "id": 10063,
+          "level": 3,
+          "level_max": 5,
+          "power": 20000,
+          "skill_add": null,
+          "skill_powerup": []
+        },
+        {
+          "_key": 10064,
+          "cost": 5,
+          "id": 10064,
+          "level": 4,
+          "level_max": 5,
+          "power": 25000,
+          "skill_add": null,
+          "skill_powerup": []
+        },
+        {
+          "_key": 10065,
+          "cost": 0,
+          "id": 10065,
+          "level": 5,
+          "level_max": 5,
+          "power": 30000,
+          "skill_add": null,
+          "skill_powerup": []
+        },
+        {
+          "_key": 10071,
+          "cost": 5,
+          "id": 10071,
+          "level": 1,
+          "level_max": 5,
+          "power": 10000,
+          "skill_add": null,
+          "skill_powerup": []
+        },
+        {
+          "_key": 10072,
+          "cost": 5,
+          "id": 10072,
+          "level": 2,
+          "level_max": 5,
+          "power": 15000,
+          "skill_add": null,
+          "skill_powerup": []
+        },
+        {
+          "_key": 10073,
+          "cost": 5,
+          "id": 10073,
+          "level": 3,
+          "level_max": 5,
+          "power": 20000,
+          "skill_add": null,
+          "skill_powerup": []
+        },
+        {
+          "_key": 10074,
+          "cost": 5,
+          "id": 10074,
+          "level": 4,
+          "level_max": 5,
+          "power": 25000,
+          "skill_add": null,
+          "skill_powerup": []
+        },
+        {
+          "_key": 10075,
+          "cost": 0,
+          "id": 10075,
+          "level": 5,
+          "level_max": 5,
+          "power": 30000,
+          "skill_add": null,
+          "skill_powerup": []
+        },
+        {
+          "_key": 10081,
+          "cost": 5,
+          "id": 10081,
+          "level": 1,
+          "level_max": 5,
+          "power": 10000,
+          "skill_add": null,
+          "skill_powerup": []
+        },
+        {
+          "_key": 10082,
+          "cost": 5,
+          "id": 10082,
+          "level": 2,
+          "level_max": 5,
+          "power": 15000,
+          "skill_add": null,
+          "skill_powerup": []
+        },
+        {
+          "_key": 10083,
+          "cost": 5,
+          "id": 10083,
+          "level": 3,
+          "level_max": 5,
+          "power": 20000,
+          "skill_add": null,
+          "skill_powerup": []
+        },
+        {
+          "_key": 10084,
+          "cost": 5,
+          "id": 10084,
+          "level": 4,
+          "level_max": 5,
+          "power": 25000,
+          "skill_add": null,
+          "skill_powerup": []
+        },
+        {
+          "_key": 10085,
+          "cost": 0,
+          "id": 10085,
+          "level": 5,
+          "level_max": 5,
+          "power": 30000,
+          "skill_add": null,
+          "skill_powerup": []
+        },
+        {
+          "_key": 10091,
+          "cost": 5,
+          "id": 10091,
+          "level": 1,
+          "level_max": 5,
+          "power": 10000,
+          "skill_add": null,
+          "skill_powerup": []
+        },
+        {
+          "_key": 10092,
+          "cost": 5,
+          "id": 10092,
+          "level": 2,
+          "level_max": 5,
+          "power": 15000,
+          "skill_add": null,
+          "skill_powerup": []
+        },
+        {
+          "_key": 10093,
+          "cost": 5,
+          "id": 10093,
+          "level": 3,
+          "level_max": 5,
+          "power": 20000,
+          "skill_add": null,
+          "skill_powerup": []
+        },
+        {
+          "_key": 10094,
+          "cost": 5,
+          "id": 10094,
+          "level": 4,
+          "level_max": 5,
+          "power": 25000,
+          "skill_add": null,
+          "skill_powerup": []
+        },
+        {
+          "_key": 10095,
+          "cost": 0,
+          "id": 10095,
+          "level": 5,
+          "level_max": 5,
+          "power": 30000,
+          "skill_add": null,
+          "skill_powerup": []
+        },
+        {
+          "_key": 10101,
+          "cost": 5,
+          "id": 10101,
+          "level": 1,
+          "level_max": 5,
+          "power": 10000,
+          "skill_add": null,
+          "skill_powerup": []
+        },
+        {
+          "_key": 10102,
+          "cost": 5,
+          "id": 10102,
+          "level": 2,
+          "level_max": 5,
+          "power": 15000,
+          "skill_add": null,
+          "skill_powerup": []
+        },
+        {
+          "_key": 10103,
+          "cost": 5,
+          "id": 10103,
+          "level": 3,
+          "level_max": 5,
+          "power": 20000,
+          "skill_add": null,
+          "skill_powerup": []
+        },
+        {
+          "_key": 10104,
+          "cost": 5,
+          "id": 10104,
+          "level": 4,
+          "level_max": 5,
+          "power": 25000,
+          "skill_add": null,
+          "skill_powerup": []
+        },
+        {
+          "_key": 10105,
+          "cost": 0,
+          "id": 10105,
+          "level": 5,
+          "level_max": 5,
+          "power": 30000,
+          "skill_add": null,
+          "skill_powerup": []
+        },
+        {
+          "_key": 10111,
+          "cost": 5,
+          "id": 10111,
+          "level": 1,
+          "level_max": 5,
+          "power": 10000,
+          "skill_add": null,
+          "skill_powerup": []
+        },
+        {
+          "_key": 10112,
+          "cost": 5,
+          "id": 10112,
+          "level": 2,
+          "level_max": 5,
+          "power": 15000,
+          "skill_add": null,
+          "skill_powerup": []
+        },
+        {
+          "_key": 10113,
+          "cost": 5,
+          "id": 10113,
+          "level": 3,
+          "level_max": 5,
+          "power": 20000,
+          "skill_add": null,
+          "skill_powerup": []
+        },
+        {
+          "_key": 10114,
+          "cost": 5,
+          "id": 10114,
+          "level": 4,
+          "level_max": 5,
+          "power": 25000,
+          "skill_add": null,
+          "skill_powerup": []
+        },
+        {
+          "_key": 10115,
+          "cost": 0,
+          "id": 10115,
+          "level": 5,
+          "level_max": 5,
+          "power": 30000,
+          "skill_add": null,
+          "skill_powerup": []
+        },
+        {
+          "_key": 10121,
+          "cost": 5,
+          "id": 10121,
+          "level": 1,
+          "level_max": 5,
+          "power": 10000,
+          "skill_add": null,
+          "skill_powerup": []
+        },
+        {
+          "_key": 10122,
+          "cost": 5,
+          "id": 10122,
+          "level": 2,
+          "level_max": 5,
+          "power": 15000,
+          "skill_add": null,
+          "skill_powerup": []
+        },
+        {
+          "_key": 10123,
+          "cost": 5,
+          "id": 10123,
+          "level": 3,
+          "level_max": 5,
+          "power": 20000,
+          "skill_add": null,
+          "skill_powerup": []
+        },
+        {
+          "_key": 10124,
+          "cost": 5,
+          "id": 10124,
+          "level": 4,
+          "level_max": 5,
+          "power": 25000,
+          "skill_add": null,
+          "skill_powerup": []
+        },
+        {
+          "_key": 10125,
+          "cost": 0,
+          "id": 10125,
+          "level": 5,
+          "level_max": 5,
+          "power": 30000,
+          "skill_add": null,
+          "skill_powerup": []
+        },
+        {
+          "_key": 10131,
+          "cost": 5,
+          "id": 10131,
+          "level": 1,
+          "level_max": 5,
+          "power": 10000,
+          "skill_add": null,
+          "skill_powerup": []
+        },
+        {
+          "_key": 10132,
+          "cost": 5,
+          "id": 10132,
+          "level": 2,
+          "level_max": 5,
+          "power": 15000,
+          "skill_add": null,
+          "skill_powerup": []
+        },
+        {
+          "_key": 10133,
+          "cost": 5,
+          "id": 10133,
+          "level": 3,
+          "level_max": 5,
+          "power": 20000,
+          "skill_add": null,
+          "skill_powerup": []
+        },
+        {
+          "_key": 10134,
+          "cost": 5,
+          "id": 10134,
+          "level": 4,
+          "level_max": 5,
+          "power": 25000,
+          "skill_add": null,
+          "skill_powerup": []
+        },
+        {
+          "_key": 10135,
+          "cost": 0,
+          "id": 10135,
+          "level": 5,
+          "level_max": 5,
+          "power": 30000,
+          "skill_add": null,
+          "skill_powerup": []
+        }
+      ]
+    },
+    "lw_hero_unique_weapon_unit": {
+      "rowCount": 45,
+      "selectedCount": 39,
+      "fields": {
+        "hero": {
+          "column": 2,
+          "type": "number",
+          "linked": false
+        },
+        "id": {
+          "column": 1,
+          "type": "number",
+          "linked": false
+        },
+        "max_lv": {
+          "column": 4,
+          "type": "number",
+          "linked": false
+        },
+        "overall_attr": {
+          "column": 5,
+          "type": "number",
+          "linked": false
+        },
+        "overall_value": {
+          "column": 6,
+          "type": "array",
+          "linked": true
+        },
+        "personal_attr": {
+          "column": 7,
+          "type": "number",
+          "linked": false
+        },
+        "personal_value": {
+          "column": 8,
+          "type": "array",
+          "linked": true
+        },
+        "type": {
+          "column": 3,
+          "type": "number",
+          "linked": false
+        }
+      },
+      "rows": [
+        {
+          "_key": 5000601,
+          "hero": 50006,
+          "id": 5000601,
+          "max_lv": 300,
+          "overall_attr": 51053,
+          "personal_attr": 51052,
+          "type": 1
+        },
+        {
+          "_key": 5000602,
+          "hero": 50006,
+          "id": 5000602,
+          "max_lv": 300,
+          "overall_attr": 51003,
+          "personal_attr": 51002,
+          "type": 2
+        },
+        {
+          "_key": 5000603,
+          "hero": 50006,
+          "id": 5000603,
+          "max_lv": 300,
+          "overall_attr": 51103,
+          "personal_attr": 51102,
+          "type": 3
+        },
+        {
+          "_key": 5000701,
+          "hero": 50007,
+          "id": 5000701,
+          "max_lv": 300,
+          "overall_attr": 51053,
+          "personal_attr": 51052,
+          "type": 1
+        },
+        {
+          "_key": 5000702,
+          "hero": 50007,
+          "id": 5000702,
+          "max_lv": 300,
+          "overall_attr": 51003,
+          "personal_attr": 51002,
+          "type": 2
+        },
+        {
+          "_key": 5000703,
+          "hero": 50007,
+          "id": 5000703,
+          "max_lv": 300,
+          "overall_attr": 51103,
+          "personal_attr": 51102,
+          "type": 3
+        },
+        {
+          "_key": 5000801,
+          "hero": 50008,
+          "id": 5000801,
+          "max_lv": 300,
+          "overall_attr": 51053,
+          "personal_attr": 51052,
+          "type": 1
+        },
+        {
+          "_key": 5000802,
+          "hero": 50008,
+          "id": 5000802,
+          "max_lv": 300,
+          "overall_attr": 51003,
+          "personal_attr": 51002,
+          "type": 2
+        },
+        {
+          "_key": 5000803,
+          "hero": 50008,
+          "id": 5000803,
+          "max_lv": 300,
+          "overall_attr": 51103,
+          "personal_attr": 51102,
+          "type": 3
+        },
+        {
+          "_key": 5000901,
+          "hero": 50009,
+          "id": 5000901,
+          "max_lv": 300,
+          "overall_attr": 51053,
+          "personal_attr": 51052,
+          "type": 1
+        },
+        {
+          "_key": 5000902,
+          "hero": 50009,
+          "id": 5000902,
+          "max_lv": 300,
+          "overall_attr": 51003,
+          "personal_attr": 51002,
+          "type": 2
+        },
+        {
+          "_key": 5000903,
+          "hero": 50009,
+          "id": 5000903,
+          "max_lv": 300,
+          "overall_attr": 51103,
+          "personal_attr": 51102,
+          "type": 3
+        },
+        {
+          "_key": 5001001,
+          "hero": 50010,
+          "id": 5001001,
+          "max_lv": 300,
+          "overall_attr": 51053,
+          "personal_attr": 51052,
+          "type": 1
+        },
+        {
+          "_key": 5001002,
+          "hero": 50010,
+          "id": 5001002,
+          "max_lv": 300,
+          "overall_attr": 51003,
+          "personal_attr": 51002,
+          "type": 2
+        },
+        {
+          "_key": 5001003,
+          "hero": 50010,
+          "id": 5001003,
+          "max_lv": 300,
+          "overall_attr": 51103,
+          "personal_attr": 51102,
+          "type": 3
+        },
+        {
+          "_key": 5001301,
+          "hero": 50013,
+          "id": 5001301,
+          "max_lv": 300,
+          "overall_attr": 51053,
+          "personal_attr": 51052,
+          "type": 1
+        },
+        {
+          "_key": 5001302,
+          "hero": 50013,
+          "id": 5001302,
+          "max_lv": 300,
+          "overall_attr": 51003,
+          "personal_attr": 51002,
+          "type": 2
+        },
+        {
+          "_key": 5001303,
+          "hero": 50013,
+          "id": 5001303,
+          "max_lv": 300,
+          "overall_attr": 51103,
+          "personal_attr": 51102,
+          "type": 3
+        },
+        {
+          "_key": 5001401,
+          "hero": 50014,
+          "id": 5001401,
+          "max_lv": 300,
+          "overall_attr": 51053,
+          "personal_attr": 51052,
+          "type": 1
+        },
+        {
+          "_key": 5001402,
+          "hero": 50014,
+          "id": 5001402,
+          "max_lv": 300,
+          "overall_attr": 51003,
+          "personal_attr": 51002,
+          "type": 2
+        },
+        {
+          "_key": 5001403,
+          "hero": 50014,
+          "id": 5001403,
+          "max_lv": 300,
+          "overall_attr": 51103,
+          "personal_attr": 51102,
+          "type": 3
+        },
+        {
+          "_key": 5001501,
+          "hero": 50015,
+          "id": 5001501,
+          "max_lv": 300,
+          "overall_attr": 51053,
+          "personal_attr": 51052,
+          "type": 1
+        },
+        {
+          "_key": 5001502,
+          "hero": 50015,
+          "id": 5001502,
+          "max_lv": 300,
+          "overall_attr": 51003,
+          "personal_attr": 51002,
+          "type": 2
+        },
+        {
+          "_key": 5001503,
+          "hero": 50015,
+          "id": 5001503,
+          "max_lv": 300,
+          "overall_attr": 51103,
+          "personal_attr": 51102,
+          "type": 3
+        },
+        {
+          "_key": 5001801,
+          "hero": 50018,
+          "id": 5001801,
+          "max_lv": 300,
+          "overall_attr": 51053,
+          "personal_attr": 51052,
+          "type": 1
+        },
+        {
+          "_key": 5001802,
+          "hero": 50018,
+          "id": 5001802,
+          "max_lv": 300,
+          "overall_attr": 51003,
+          "personal_attr": 51002,
+          "type": 2
+        },
+        {
+          "_key": 5001803,
+          "hero": 50018,
+          "id": 5001803,
+          "max_lv": 300,
+          "overall_attr": 51103,
+          "personal_attr": 51102,
+          "type": 3
+        },
+        {
+          "_key": 5001901,
+          "hero": 50019,
+          "id": 5001901,
+          "max_lv": 300,
+          "overall_attr": 51053,
+          "personal_attr": 51052,
+          "type": 1
+        },
+        {
+          "_key": 5001902,
+          "hero": 50019,
+          "id": 5001902,
+          "max_lv": 300,
+          "overall_attr": 51003,
+          "personal_attr": 51002,
+          "type": 2
+        },
+        {
+          "_key": 5001903,
+          "hero": 50019,
+          "id": 5001903,
+          "max_lv": 300,
+          "overall_attr": 51103,
+          "personal_attr": 51102,
+          "type": 3
+        },
+        {
+          "_key": 5002001,
+          "hero": 50020,
+          "id": 5002001,
+          "max_lv": 300,
+          "overall_attr": 51053,
+          "personal_attr": 51052,
+          "type": 1
+        },
+        {
+          "_key": 5002002,
+          "hero": 50020,
+          "id": 5002002,
+          "max_lv": 300,
+          "overall_attr": 51003,
+          "personal_attr": 51002,
+          "type": 2
+        },
+        {
+          "_key": 5002003,
+          "hero": 50020,
+          "id": 5002003,
+          "max_lv": 300,
+          "overall_attr": 51103,
+          "personal_attr": 51102,
+          "type": 3
+        },
+        {
+          "_key": 5002101,
+          "hero": 50021,
+          "id": 5002101,
+          "max_lv": 300,
+          "overall_attr": 51053,
+          "personal_attr": 51052,
+          "type": 1
+        },
+        {
+          "_key": 5002102,
+          "hero": 50021,
+          "id": 5002102,
+          "max_lv": 300,
+          "overall_attr": 51003,
+          "personal_attr": 51002,
+          "type": 2
+        },
+        {
+          "_key": 5002103,
+          "hero": 50021,
+          "id": 5002103,
+          "max_lv": 300,
+          "overall_attr": 51103,
+          "personal_attr": 51102,
+          "type": 3
+        },
+        {
+          "_key": 5002201,
+          "hero": 50022,
+          "id": 5002201,
+          "max_lv": 300,
+          "overall_attr": 51053,
+          "personal_attr": 51052,
+          "type": 1
+        },
+        {
+          "_key": 5002202,
+          "hero": 50022,
+          "id": 5002202,
+          "max_lv": 300,
+          "overall_attr": 51003,
+          "personal_attr": 51002,
+          "type": 2
+        },
+        {
+          "_key": 5002203,
+          "hero": 50022,
+          "id": 5002203,
+          "max_lv": 300,
+          "overall_attr": 51103,
+          "personal_attr": 51102,
+          "type": 3
+        }
+      ]
+    },
+    "lw_hero_upgrade_newbie": {
+      "rowCount": 12,
+      "selectedCount": 12,
+      "fields": {
+        "hero_newattack": {
+          "column": 4,
+          "type": "number",
+          "linked": false
+        },
+        "hero_newenergy_levelup": {
+          "column": 2,
+          "type": "number",
+          "linked": false
+        },
+        "hero_newskill": {
+          "column": 3,
+          "type": "number",
+          "linked": false
+        },
+        "id": {
+          "column": 1,
+          "type": "number",
+          "linked": false
+        }
+      },
+      "rows": [
+        {
+          "_key": 40006,
+          "hero_newattack": 4006000,
+          "hero_newenergy_levelup": 400060,
+          "hero_newskill": 0,
+          "id": 40006
+        },
+        {
+          "_key": 40007,
+          "hero_newattack": 4007000,
+          "hero_newenergy_levelup": 400070,
+          "hero_newskill": 0,
+          "id": 40007
+        },
+        {
+          "_key": 40008,
+          "hero_newattack": 4008000,
+          "hero_newenergy_levelup": 400080,
+          "hero_newskill": 4008100,
+          "id": 40008
+        },
+        {
+          "_key": 40009,
+          "hero_newattack": 0,
+          "hero_newenergy_levelup": 400090,
+          "hero_newskill": 0,
+          "id": 40009
+        },
+        {
+          "_key": 40010,
+          "hero_newattack": 0,
+          "hero_newenergy_levelup": 400100,
+          "hero_newskill": 0,
+          "id": 40010
+        },
+        {
+          "_key": 40012,
+          "hero_newattack": 0,
+          "hero_newenergy_levelup": 400120,
+          "hero_newskill": 0,
+          "id": 40012
+        },
+        {
+          "_key": 40016,
+          "hero_newattack": 0,
+          "hero_newenergy_levelup": 400160,
+          "hero_newskill": 4016100,
+          "id": 40016
+        },
+        {
+          "_key": 40019,
+          "hero_newattack": 4019000,
+          "hero_newenergy_levelup": 400190,
+          "hero_newskill": 0,
+          "id": 40019
+        },
+        {
+          "_key": 50006,
+          "hero_newattack": 5006000,
+          "hero_newenergy_levelup": 500060,
+          "hero_newskill": 0,
+          "id": 50006
+        },
+        {
+          "_key": 50009,
+          "hero_newattack": 5009000,
+          "hero_newenergy_levelup": 500090,
+          "hero_newskill": 0,
+          "id": 50009
+        },
+        {
+          "_key": 50016,
+          "hero_newattack": 5016000,
+          "hero_newenergy_levelup": 500160,
+          "hero_newskill": 0,
+          "id": 50016
+        },
+        {
+          "_key": 50017,
+          "hero_newattack": 5017000,
+          "hero_newenergy_levelup": 500170,
+          "hero_newskill": 0,
+          "id": 50017
+        }
+      ]
+    }
+  },
+  "anchors": {
+    "williamsNativeId": 50007,
+    "williamsRow": null,
+    "rankRows": []
+  },
+  "note": "Compact derived configuration values for the WfGg simulator only. No APK/XAPK, images, locale text, bulk decompiled Lua or player/account data are committed."
+}
