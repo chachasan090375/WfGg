@@ -8,13 +8,14 @@ for root in ('simulator','frontend/simulator'):
     p.write_text(s,encoding='utf-8')
 
 # Mirror V11 Grade / Wall and V12 roster polish into the Cloudflare bundle.
-for filename in ('hero-grade-wall-v11.js','hero-grade-wall-v11.css','hero-roster-polish-v12.js','hero-roster-polish-v12.css'):
+for filename in ('hero-grade-wall-v11.js','hero-grade-wall-v11.css','hero-roster-polish-v12.js','hero-roster-polish-v12.css','hero-wall-persistence-v12b.js'):
     Path('frontend/simulator',filename).write_text(Path('simulator',filename).read_text(encoding='utf-8'),encoding='utf-8')
 
 css11='  <link rel="stylesheet" href="hero-grade-wall-v11.css?v=011-grade-wall" />\n'
 js11='  <script src="hero-grade-wall-v11.js?v=011-grade-wall"></script>\n'
 css12='  <link rel="stylesheet" href="hero-roster-polish-v12.css?v=012-roster-polish" />\n'
 js12='  <script src="hero-roster-polish-v12.js?v=012-roster-polish"></script>\n'
+js12b='  <script src="hero-wall-persistence-v12b.js?v=012b-wall-persistence"></script>\n'
 for name in ('simulator/index.html','frontend/simulator/index.html'):
     p=Path(name);s=p.read_text(encoding='utf-8')
     if 'hero-grade-wall-v11.css' not in s:
@@ -33,9 +34,13 @@ for name in ('simulator/index.html','frontend/simulator/index.html'):
         marker=js11 if js11 in s else '  <script src="hero-grade-wall-v11.js?v=011-grade-wall"></script>\n'
         if marker not in s: raise SystemExit(f'V11 JS marker missing in {name}')
         s=s.replace(marker,marker+js12,1)
+    if 'hero-wall-persistence-v12b.js' not in s:
+        marker=js12 if js12 in s else '  <script src="hero-roster-polish-v12.js?v=012-roster-polish"></script>\n'
+        if marker not in s: raise SystemExit(f'V12 JS marker missing in {name}')
+        s=s.replace(marker,marker+js12b,1)
     p.write_text(s,encoding='utf-8')
 
 Path('simulator/UI_VERSION.txt').write_text(
-    'HERO_UX_V12\nGrade + Wall of Honor / fixed top language selector / aligned portraits / HQ Tesla Adam / soft live character motion / FR Skyler\n2026-08-26\n',
+    'HERO_UX_V12B\nGrade + Wall of Honor / fixed top language selector / aligned portraits / HQ Tesla Adam / soft live character motion / FR Skyler / persistent per-hero honor bonuses\n2026-08-26\n',
     encoding='utf-8'
 )
