@@ -5,7 +5,6 @@ on:
     branches: [simulator-standalone-v1]
     paths:
       - 'simulator/**'
-      - 'frontend/simulator/**'
       - '.github/workflows/simulator-browser-e2e.yml'
   workflow_dispatch:
 
@@ -15,69 +14,231 @@ permissions:
 jobs:
   mobile-e2e:
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+
       - name: Install Playwright
         run: |
           mkdir -p /tmp/wfgg-e2e && cd /tmp/wfgg-e2e
           npm init -y >/dev/null 2>&1
           npm install playwright@1.55.0 >/dev/null 2>&1
           npx playwright install --with-deps chromium >/dev/null
-      - name: Exercise public mobile preview and persistence
+
+      - name: Start source server
+        run: |
+          python3 -m http.server 4173 --directory simulator >/tmp/wfgg-source-http.log 2>&1 &
+          echo $! >/tmp/wfgg-source-http.pid
+
+      - name: Full mobile recipe — source and public preview
         env:
           NODE_PATH: /tmp/wfgg-e2e/node_modules
         run: |
           cat >/tmp/wfgg-e2e/test.cjs <<'JS'
           const { chromium } = require('playwright');
-          (async()=>{
-            const browser=await chromium.launch({headless:true});
+          const PROFILE='wfgg-simulator-profile-v1';
+          const TACTICS='wfgg-simulator-tactics-v2';
+          const PUBLIC='https://simulator-standalone-v1.wfgg.pages.dev/simulator/';
+          const LOCAL='http://127.0.0.1:4173/';
+          const wait=ms=>new Promise(r=>setTimeout(r,ms));
+          const assert=(ok,msg)=>{if(!ok)throw new Error(msg)};
+
+          async function waitPublicFresh(){
+            for(let i=0;i<60;i++){
+              try{
+                const [a,b]=await Promise.all([
+                  fetch(PUBLIC+'profile-persistence-v2.js?fresh='+Date.now()).then(r=>r.ok?r.text():''),
+                  fetch(PUBLIC+'app.js?fresh='+Date.now()).then(r=>r.ok?r.text():'')
+                ]);
+                if(a.includes("version:'2.1.0'") && a.includes("document.addEventListener('input'") && b.indexOf('const clone =') < b.indexOf('let state = loadState()')) return;
+              }catch(_){}
+              await wait(2000);
+            }
+            throw new Error('Public preview did not reach required autosave/bootstrap version');
+          }
+
+          async function makePage(browser){
             const context=await browser.newContext({viewport:{width:412,height:915},isMobile:true,hasTouch:true,deviceScaleFactor:2});
             const page=await context.newPage();
             const errors=[];
             page.on('pageerror',e=>errors.push('pageerror: '+e.message));
-            page.on('console',m=>{ if(m.type()==='error') errors.push('console: '+m.text()); });
-            const url='https://simulator-standalone-v1.wfgg.pages.dev/simulator/?e2e='+Date.now();
-            let loaded=false;
-            for(let i=0;i<30;i++){
-              const r=await page.goto(url,{waitUntil:'domcontentloaded',timeout:20000}).catch(()=>null);
-              if(r && r.ok() && (await page.title())==='WfGg · Simulateur'){loaded=true;break;}
-              await page.waitForTimeout(2000);
-            }
-            if(!loaded) throw new Error('Preview did not become reachable');
-            await page.waitForTimeout(1500);
-            await page.screenshot({path:'/tmp/wfgg-e2e/01-cover.png',fullPage:true});
-            const steps=await page.locator('#stepNav [data-step]').count();
-            const workspaceText=(await page.locator('.workspace').innerText()).trim();
-            console.log('steps',steps,'workspace chars',workspaceText.length,'errors',errors);
-            if(errors.length) throw new Error('Browser errors: '+errors.join(' | '));
-            if(steps!==6) throw new Error('Expected 6 navigation steps, got '+steps);
-            if(workspaceText.length<20) throw new Error('Workspace did not render');
-            await page.locator('#nextBtn').click();
-            await page.waitForTimeout(250);
-            if(!(await page.locator('#step-heroes').isVisible())) throw new Error('Next button did not open Heroes');
-            await page.locator('#addHero').click();
-            const card=page.locator('.hero-card').first();
-            await card.locator('[data-field="heroId"]').fill('E2E Hero');
-            await card.locator('[data-field="displayedAttack"]').fill('123456');
-            await card.locator('[data-field="troopType"]').selectOption('aircraft');
-            await card.locator('[data-field="role"]').selectOption('attack');
-            await card.locator('[data-field="displayedAttack"]').blur();
-            await page.waitForTimeout(350);
-            await page.reload({waitUntil:'domcontentloaded'});
-            await page.waitForTimeout(900);
-            if(errors.length) throw new Error('Browser errors after reload: '+errors.join(' | '));
-            if(!(await page.locator('#step-heroes').isVisible())) throw new Error('Saved step did not survive reload');
-            const heroName=await page.locator('.hero-card').first().locator('[data-field="heroId"]').inputValue();
-            const attack=await page.locator('.hero-card').first().locator('[data-field="displayedAttack"]').inputValue();
-            if(heroName!=='E2E Hero'||attack!=='123456') throw new Error(`Hero persistence failed: ${heroName}/${attack}`);
-            await page.screenshot({path:'/tmp/wfgg-e2e/02-heroes-after-reload.png',fullPage:true});
+            page.on('console',m=>{if(m.type()==='error')errors.push('console: '+m.text())});
+            return {context,page,errors};
+          }
+
+          async function openClean(page,url){
+            const r=await page.goto(url+'?e2e='+Date.now(),{waitUntil:'domcontentloaded',timeout:30000});
+            assert(r&&r.ok(),'HTTP navigation failed '+url);
             await page.evaluate(()=>localStorage.clear());
-            console.log('E2E MOBILE OK');
+            await page.reload({waitUntil:'domcontentloaded'});
+            await page.waitForFunction(()=>window.WfGgProfilePersistence?.version==='2.1.0',{timeout:10000});
+            await page.waitForSelector('#stepNav [data-step]',{timeout:10000});
+          }
+
+          async function checkBase(page,errors,label){
+            await page.waitForTimeout(700);
+            assert(errors.length===0,label+' browser errors: '+errors.join(' | '));
+            assert(await page.title()==='WfGg · Simulateur',label+' wrong title');
+            assert(await page.locator('#stepNav [data-step]').count()===6,label+' missing 6 steps');
+            assert((await page.locator('#step-account').innerText()).trim().length>20,label+' account workspace empty');
+            for(let i=0;i<6;i++){
+              await page.locator(`#stepNav [data-step="${i}"]`).click();
+              await page.waitForTimeout(80);
+              assert(await page.locator(`.step-panel:not(.hidden)`).count()===1,label+` step ${i} visibility broken`);
+            }
+            await page.locator('#stepNav [data-step="0"]').click();
+          }
+
+          async function checkAutosaveNoButton(page,label){
+            const hq=page.locator('[data-account="hqLevel"]');
+            await hq.fill('31');
+            // No blur, no Save button: reload immediately. input-event autosave must be enough.
+            await page.reload({waitUntil:'domcontentloaded'});
+            await page.waitForSelector('[data-account="hqLevel"]');
+            assert(await page.locator('[data-account="hqLevel"]').inputValue()==='31',label+' account input did not autosave on typing');
+          }
+
+          async function buildHeroes(page){
+            await page.locator('#stepNav [data-step="1"]').click();
+            const heroes=[
+              ['Mason','tank','attack',110000,70000,900000],
+              ['Marshall','tank','support',95000,80000,1000000],
+              ['DVA','aircraft','attack',130000,65000,850000],
+              ['Carlie','aircraft','defense',85000,115000,1450000],
+              ['Schuyler','aircraft','attack',120000,62000,820000]
+            ];
+            for(const h of heroes){
+              await page.locator('#addHero').click();
+              const card=page.locator('.hero-card').last();
+              await card.locator('[data-field="heroId"]').fill(h[0]); await card.locator('[data-field="heroId"]').blur();
+              await card.locator('[data-field="troopType"]').selectOption(h[1]);
+              await card.locator('[data-field="role"]').selectOption(h[2]);
+              await card.locator('[data-field="displayedAttack"]').fill(String(h[3])); await card.locator('[data-field="displayedAttack"]').blur();
+              await card.locator('[data-field="displayedDefense"]').fill(String(h[4])); await card.locator('[data-field="displayedDefense"]').blur();
+              await card.locator('[data-field="displayedHp"]').fill(String(h[5])); await card.locator('[data-field="displayedHp"]').blur();
+            }
+            assert(await page.locator('.hero-card').count()===5,'hero creation count broken');
+            await page.reload({waitUntil:'domcontentloaded'});
+            await page.waitForSelector('.hero-card');
+            assert(await page.locator('.hero-card').count()===5,'heroes lost after reload');
+            assert(await page.locator('.hero-card').first().locator('[data-field="heroId"]').inputValue()==='Mason','hero name persistence failed');
+          }
+
+          async function checkGear(page){
+            await page.locator('#stepNav [data-step="2"]').click();
+            await page.locator('#addGear').click();
+            const g=page.locator('.gear-card').first();
+            await g.locator('[data-field="itemId"]').fill('E2E Railgun'); await g.locator('[data-field="itemId"]').blur();
+            await g.locator('[data-field="level"]').fill('40'); await g.locator('[data-field="level"]').blur();
+            await g.locator('[data-field="currentlyAssignedHero"]').selectOption('DVA');
+            await page.reload({waitUntil:'domcontentloaded'}); await page.waitForSelector('.gear-card');
+            assert(await page.locator('.gear-card').first().locator('[data-field="itemId"]').inputValue()==='E2E Railgun','gear persistence failed');
+          }
+
+          async function checkResearch(page){
+            await page.locator('#stepNav [data-step="3"]').click();
+            const level=page.locator('[data-research-level]').first();
+            const id=await level.getAttribute('data-research-level');
+            await level.fill('3'); await level.blur();
+            const bonus=page.locator(`[data-research-bonus="${id}"]`);
+            await bonus.fill('2.5'); await bonus.blur();
+            await page.reload({waitUntil:'domcontentloaded'});
+            await page.locator('#stepNav [data-step="3"]').click();
+            assert(await page.locator(`[data-research-level="${id}"]`).inputValue()==='3','research level persistence failed');
+            assert(await page.locator(`[data-research-bonus="${id}"]`).inputValue()==='2.5','research bonus persistence failed');
+          }
+
+          async function checkSeasonAndTactics(page){
+            await page.locator('#stepNav [data-step="4"]').click();
+            const bear=page.locator('[data-totem="bearTank"]');
+            await bear.fill('12'); await bear.blur();
+            await page.waitForSelector('#tacticsCardsV2',{timeout:10000});
+            await page.locator('[data-tactics-phase]').selectOption('season6');
+            const b=page.locator('.tactics-slot[data-kind="battle"]').first();
+            await b.locator('[data-card-id]').selectOption('universal-zombie-killer');
+            await page.waitForTimeout(250);
+            const b2=page.locator('.tactics-slot[data-kind="battle"]').first();
+            await b2.locator('[data-card-level]').fill('5');
+            await b2.locator('[data-card-value="attackPct"]').fill('12.5');
+            await b2.locator('[data-card-secondary]').fill('E2E secondary attribute');
+            await page.waitForTimeout(150);
+            let p=await page.evaluate(k=>JSON.parse(localStorage.getItem(k)),PROFILE);
+            assert(p?.season6?.tacticsV2?.battleSlots?.[0]?.cardId==='universal-zombie-killer','tactics not mirrored into unified profile');
+            assert(Number(p.season6.tacticsV2.battleSlots[0].values.attackPct)===12.5,'tactics displayed value not autosaved into profile');
+            assert(Number(p?.season6?.totemLevels?.bearTank)===12,'totem missing from profile');
+            await page.reload({waitUntil:'domcontentloaded'});
+            await page.locator('#stepNav [data-step="4"]').click(); await page.waitForSelector('#tacticsCardsV2');
+            assert(await page.locator('.tactics-slot[data-kind="battle"]').first().locator('[data-card-id]').inputValue()==='universal-zombie-killer','tactics UI persistence failed');
+            await page.locator('[data-tactics-phase]').selectOption('offseason'); await page.waitForTimeout(250);
+            assert(await page.locator('.tactics-slot[data-kind="battle"].inactive').count()===4,'battle cards not inactive off-season');
+            p=await page.evaluate(k=>JSON.parse(localStorage.getItem(k)),PROFILE);
+            assert(p.season6.tacticsV2.phase==='offseason','offseason phase not in unified profile');
+            const runtimeState=await page.evaluate(()=>window.WfGgTacticsRuntime.state());
+            assert(runtimeState.phase==='offseason','tactics runtime not reading unified profile');
+            const offTotem=await page.evaluate(k=>window.WfGgSeason6Runtime.totemPct(JSON.parse(localStorage.getItem(k)),'tank'),PROFILE);
+            assert(offTotem===0,'S6 totem active during off-season');
+            await page.locator('[data-tactics-phase]').selectOption('season6'); await page.waitForTimeout(100);
+            const onTotem=await page.evaluate(k=>window.WfGgSeason6Runtime.totemPct(JSON.parse(localStorage.getItem(k)),'tank'),PROFILE);
+            assert(onTotem===6,'S6 totem value incorrect');
+          }
+
+          async function checkEngines(page){
+            const result=await page.evaluate(()=>{
+              const heroes=[
+                {heroId:'A',troopType:'aircraft',role:'defense',displayedAttack:100000,displayedDefense:100000,displayedHp:1000000},
+                {heroId:'B',troopType:'aircraft',role:'defense',displayedAttack:105000,displayedDefense:90000,displayedHp:950000},
+                {heroId:'C',troopType:'aircraft',role:'attack',displayedAttack:130000,displayedDefense:60000,displayedHp:800000},
+                {heroId:'D',troopType:'aircraft',role:'attack',displayedAttack:125000,displayedDefense:60000,displayedHp:800000},
+                {heroId:'E',troopType:'aircraft',role:'support',displayedAttack:90000,displayedDefense:70000,displayedHp:850000}
+              ];
+              const c=window.WfGgSimulatorEngine.optimizePlacement(heroes,'wanted-39',{});
+              const m=window.WfGgSimulatorEngine.optimizePlacement(heroes,'monster-generic',{});
+              return {c:!!c?.best?.score,m:!!m?.best?.score,cmode:c?.best?.score?.mode,mmode:m?.best?.score?.mode};
+            });
+            assert(result.c&&result.m,'Code/Monster engine did not return scores');
+            assert(result.mmode==='monster','monster objective wrong engine mode');
+          }
+
+          async function checkSummaryAndLocale(page){
+            await page.locator('#stepNav [data-step="5"]').click();
+            await page.waitForTimeout(900);
+            assert(await page.locator('#optimizerResult').count()===1,'optimizer result bridge missing on summary');
+            const text=(await page.locator('#step-summary').innerText()).trim();
+            assert(text.length>100,'summary empty');
+            await page.locator('#languageStrip [data-lang="it"]').click(); await page.waitForTimeout(200);
+            await page.reload({waitUntil:'domcontentloaded'});
+            assert((await page.locator('#topTitle').innerText()).toLowerCase().includes('simulatore'),'locale persistence failed');
+          }
+
+          async function recipe(browser,url,label){
+            const {context,page,errors}=await makePage(browser);
+            await openClean(page,url);
+            await checkBase(page,errors,label);
+            await checkAutosaveNoButton(page,label);
+            await buildHeroes(page);
+            await checkGear(page);
+            await checkResearch(page);
+            await checkSeasonAndTactics(page);
+            await checkEngines(page);
+            await checkSummaryAndLocale(page);
+            await page.screenshot({path:`/tmp/wfgg-e2e/${label}-final.png`,fullPage:true});
+            assert(errors.length===0,label+' final browser errors: '+errors.join(' | '));
+            await page.evaluate(()=>localStorage.clear());
+            await context.close();
+            console.log(label,'FULL RECIPE OK');
+          }
+
+          (async()=>{
+            const browser=await chromium.launch({headless:true});
+            await recipe(browser,LOCAL,'source');
+            await waitPublicFresh();
+            await recipe(browser,PUBLIC,'public');
             await browser.close();
+            console.log('WFGG SIMULATOR FULL MOBILE E2E OK');
           })().catch(e=>{console.error(e);process.exit(1)});
           JS
           node /tmp/wfgg-e2e/test.cjs
+
       - name: Upload diagnostic screenshots
         if: always()
         uses: actions/upload-artifact@v4
