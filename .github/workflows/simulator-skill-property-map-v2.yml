@@ -1,0 +1,105 @@
+name: Simulator skill property map v2
+
+on:
+  push:
+    branches: [simulator-standalone-v1]
+    paths: ['.github/workflows/simulator-skill-property-map-v2.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  map:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: simulator-standalone-v1
+          fetch-depth: 0
+      - name: Prepare DataTable and candidate property tables
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/lw/xapk /tmp/lw/decompiled simulator/research
+          curl -fL --retry 2 --connect-timeout 20 --max-time 900 'https://d.apkpure.net/b/XAPK/com.fun.lastwar.gp?versionCode=1864' -o /tmp/lw/current.xapk
+          python3 - <<'PY'
+          import json,zipfile,pathlib,re,subprocess,hashlib
+          root=pathlib.Path('/tmp/lw'); p=root/'current.xapk'
+          with zipfile.ZipFile(p) as z:
+              mans=[n for n in z.namelist() if pathlib.PurePosixPath(n).name.lower() in ('manifest.json','xapk_manifest.json')]
+              d=json.loads(z.read(mans[0]).decode('utf-8','replace'))
+          if (str(d.get('package_name') or d.get('packageName') or d.get('package') or ''),str(d.get('version_name') or d.get('versionName') or ''),str(d.get('version_code') or d.get('versionCode') or ''))!=('com.fun.lastwar.gp','1.0.359','1864'): raise SystemExit('Unexpected client metadata')
+          subprocess.run(['unzip','-q',str(p),'-d',str(root/'xapk')],check=True)
+          found=None
+          for apk in sorted((root/'xapk').rglob('*.apk'),key=lambda x:x.stat().st_size,reverse=True):
+              try:
+                  with zipfile.ZipFile(apk) as z:
+                      tn=next((n for n in z.namelist() if re.search(r'(^|/)assets/table/table_.*\.data$',n,re.I)),None)
+                      if not tn: continue
+                      raw=z.read(tn); (root/'table.data').write_bytes(raw); found={'apk':apk.name,'path':tn,'bytes':len(raw),'md5':hashlib.md5(raw).hexdigest(),'sha256':hashlib.sha256(raw).hexdigest()}; break
+              except zipfile.BadZipFile: pass
+          if not found: raise SystemExit('DataTable not found')
+          (root/'source.json').write_text(json.dumps(found,indent=2)+'\n')
+          with zipfile.ZipFile(root/'table.data') as z:
+              names=z.namelist()
+          rx=re.compile(r'(property|propert|attribute|attr)',re.I)
+          candidates=sorted(n for n in names if rx.search(n))
+          (root/'candidates.json').write_text(json.dumps(candidates,indent=2)+'\n')
+          print(json.dumps({'candidateCount':len(candidates),'names':candidates},indent=2))
+          PY
+          if ! command -v lua5.3 >/dev/null 2>&1; then sudo apt-get update -qq && sudo apt-get install -y -qq lua5.3; fi
+          git clone --depth=1 https://github.com/HansWessels/unluac.git /tmp/unluac >/dev/null
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('/tmp/unluac/src/unluac/parse/LHeaderType.java'); s=p.read_text(); s=s.replace('if(format != 0) {','if(format != 0 && format != 1) {',1)
+          marker='class LHeaderType53 extends LHeaderType {'; pos=s.index(marker); head,tail=s[:pos],s[pos:]; old='    parse_instruction_size(buffer, header, s);'
+          if old not in tail: raise SystemExit('Lua53 instruction size call not found')
+          p.write_text(head+tail.replace(old,'    if(s.format != 1) parse_instruction_size(buffer, header, s);',1))
+          PY
+          (cd /tmp/unluac && bash build.sh >/dev/null)
+      - name: Search exact skill property IDs
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json,pathlib,zipfile,re,subprocess,tempfile
+          root=pathlib.Path('/tmp/lw'); jar='/tmp/unluac/bin/unluac.jar'; names=json.loads((root/'candidates.json').read_text())
+          ids=['76050','75050','75150','75250','75750']
+          records=[]; contexts=[]
+          with zipfile.ZipFile(root/'table.data') as z:
+              for n in names:
+                  raw=z.read(n)
+                  with tempfile.NamedTemporaryFile(suffix='.luac') as f:
+                      f.write(raw); f.flush(); cp=subprocess.run(['java','-jar',jar,f.name],stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,timeout=45)
+                  rec={'name':n,'bytes':len(raw),'ok':cp.returncode==0}
+                  if cp.returncode==0:
+                      text=cp.stdout; hits={i:len(re.findall(r'(?<!\d)'+i+r'(?!\d)',text)) for i in ids if re.search(r'(?<!\d)'+i+r'(?!\d)',text)}
+                      rec['hits']=hits
+                      if hits:
+                          lines=text.splitlines()
+                          for ix,line in enumerate(lines):
+                              matched=[i for i in ids if re.search(r'(?<!\d)'+i+r'(?!\d)',line)]
+                              if matched:
+                                  contexts.append({'table':n,'line':ix+1,'ids':matched,'context':'\n'.join(lines[max(0,ix-4):min(len(lines),ix+5)])[:2600]})
+                                  if len(contexts)>=200: break
+                  else: rec['error']=cp.stderr.strip()[-250:]
+                  records.append(rec)
+          source=json.loads((root/'source.json').read_text())
+          out={'source':source,'targetPropertyIds':[76050,75050,75150,75250,75750],'candidateTables':records,'contexts':contexts,'coverage':{i:sum(1 for c in contexts if i in c['ids']) for i in ids},'note':'Compact source contexts for exact roster skill property IDs; no bulk decompiled tables committed.'}
+          p=pathlib.Path('simulator/research/skill-property-map.v2.json'); p.write_text(json.dumps(out,indent=2,ensure_ascii=False)+'\n')
+          print(json.dumps({'hitTables':[r for r in records if r.get('hits')],'contextCount':len(contexts),'coverage':out['coverage'],'bytes':p.stat().st_size},indent=2))
+          PY
+      - name: Commit skill property mapping
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add simulator/research/skill-property-map.v2.json
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'simulator: capture roster skill property mapping v2'
+          git fetch origin simulator-standalone-v1
+          git rebase origin/simulator-standalone-v1
+          git push origin HEAD:simulator-standalone-v1
