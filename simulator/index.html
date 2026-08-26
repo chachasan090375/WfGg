@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#100d16" />
   <title>WfGg · Simulateur</title>
   <link rel="stylesheet" href="style.css?v=001" />
-  <link rel="stylesheet" href="optimizer-v1.css?v=003-monsters" />
+  <link rel="stylesheet" href="optimizer-v1.css?v=004-hero-effects" />
 </head>
 <body>
   <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
@@ -54,19 +54,44 @@
         <label><span data-ui="heroName">Nom du héros</span><input data-field="heroId" autocomplete="off" /></label>
         <label><span data-ui="heroType">Type</span><select data-field="troopType"></select></label>
         <label><span data-ui="heroRole">Rôle</span><select data-field="role"></select></label>
+        <label><span data-opt-label="heroRarity">Rareté / variante</span><select data-field="rarity"><option value="">—</option><option value="UR">UR</option><option value="SSR">SSR</option><option value="SR">SR</option><option value="R">R</option></select></label>
         <label><span data-ui="heroLevel">Niveau</span><input data-field="level" type="number" min="1" max="200" inputmode="numeric" /></label>
         <label><span data-ui="heroStars">Étoiles</span><input data-field="stars" type="number" min="0" max="5" step="0.1" inputmode="decimal" /></label>
         <label class="optimizer-input"><span data-opt-label="attack">ATK affichée</span><input data-field="displayedAttack" type="number" min="0" step="1" inputmode="numeric" /><small data-opt-help="attack">Ancre offensive pour les simulations.</small></label>
-        <label class="optimizer-input monster-stat"><span data-opt-label="defense">DEF affichée</span><input data-field="displayedDefense" type="number" min="0" step="1" inputmode="numeric" /><small data-opt-help="defense">Utilisée pour la survie contre les monstres, jamais pour gonfler le score Code.</small></label>
-        <label class="optimizer-input monster-stat"><span data-opt-label="hp">PV affichés</span><input data-field="displayedHp" type="number" min="0" step="1" inputmode="numeric" /><small data-opt-help="hp">Utilisés pour la survie contre les monstres, jamais pour gonfler le score Code.</small></label>
+        <label class="optimizer-input monster-stat"><span data-opt-label="defense">DEF affichée</span><input data-field="displayedDefense" type="number" min="0" step="1" inputmode="numeric" /><small data-opt-help="defense">Utilisée pour la survie contre les monstres uniquement.</small></label>
+        <label class="optimizer-input monster-stat"><span data-opt-label="hp">PV affichés</span><input data-field="displayedHp" type="number" min="0" step="1" inputmode="numeric" /><small data-opt-help="hp">Utilisés pour la survie contre les monstres uniquement.</small></label>
         <label class="optimizer-input reference-only"><span data-opt-label="power">Puissance affichée</span><input data-field="displayedPower" type="number" min="0" step="1" inputmode="numeric" /><small data-opt-help="power">Référence uniquement · jamais utilisée comme score direct.</small></label>
         <label class="optimizer-input"><span data-opt-label="monsterDamage">Bonus dégâts monstres (%)</span><input data-field="monsterDamagePct" type="number" min="0" step="0.01" inputmode="decimal" /><small data-opt-help="monsterDamage">À saisir seulement si le bonus actuel est affiché ou vérifié.</small></label>
         <label class="optimizer-input"><span data-opt-label="pveDamage">Bonus dégâts PvE (%)</span><input data-field="pveDamagePct" type="number" min="0" step="0.01" inputmode="decimal" /><small data-opt-help="pveDamage">Bonus PvE générique vérifié, si disponible.</small></label>
-        <label class="optimizer-input"><span data-opt-label="positionalBuff">Buff positionnel PvE affiché (%)</span><input data-field="positionalPveBuffPct" type="number" min="0" step="0.01" inputmode="decimal" /><small data-opt-help="positionalBuff">Utilisé seulement si ce héros possède un effet positionnel audité (ex. Mason).</small></label>
+        <label class="optimizer-input"><span data-opt-label="positionalBuff">Buff positionnel PvE affiché (%)</span><input data-field="positionalPveBuffPct" type="number" min="0" step="0.01" inputmode="decimal" /><small data-opt-help="positionalBuff">Mason/Sarah : valeur actuelle du buff de ligne si elle est affichée.</small></label>
         <label><span data-ui="heroEw">Arme exclusive · niveau</span><input data-field="exclusiveWeaponLevel" type="number" min="0" max="40" inputmode="numeric" /></label>
         <label><span data-ui="heroWall">Wall of Honor · niveau</span><input data-field="wallOfHonorLevel" type="number" min="0" max="999" inputmode="numeric" /></label>
         <label class="toggle-field"><span data-ui="heroAwakening">Awakening débloqué</span><input data-field="awakeningUnlocked" type="checkbox" /></label>
       </div>
+
+      <details class="hero-buff-details">
+        <summary data-opt-label="advancedBuffs">Buffs / compétences avancés</summary>
+        <p class="fine-print" data-opt-help="advancedBuffs">Saisissez uniquement les valeurs actuellement affichées dans le jeu. Les champs ne sont utilisés que si le catalogue audité reconnaît l’effet pour ce héros et cette variante.</p>
+        <div class="form-grid hero-grid">
+          <label class="optimizer-input"><span data-opt-label="teamAttackBuff">Buff ATK équipe (%)</span><input data-field="teamAttackBuffPct" type="number" min="0" step="0.01" inputmode="decimal" /><small data-opt-help="teamAttackBuff">Ex. Marshall · Command Strategy.</small></label>
+          <label class="optimizer-input"><span data-opt-label="teamAttackDuration">Durée buff équipe (s)</span><input data-field="teamAttackBuffDurationSeconds" type="number" min="0" step="0.1" inputmode="decimal" /></label>
+          <label class="optimizer-input"><span data-opt-label="teamAttackCooldown">Cooldown buff équipe (s)</span><input data-field="teamAttackBuffCooldownSeconds" type="number" min="0" step="0.1" inputmode="decimal" /></label>
+
+          <label class="optimizer-input"><span data-opt-label="typeAttackBuff">Buff ATK du type (%)</span><input data-field="typeAttackBuffPct" type="number" min="0" step="0.01" inputmode="decimal" /><small data-opt-help="typeAttackBuff">Ex. Sarah UR · Aircraft.</small></label>
+          <label class="optimizer-input"><span data-opt-label="typeAttackDuration">Durée buff du type (s)</span><input data-field="typeAttackBuffDurationSeconds" type="number" min="0" step="0.1" inputmode="decimal" /></label>
+          <label class="optimizer-input"><span data-opt-label="typeAttackCooldown">Cooldown buff du type (s)</span><input data-field="typeAttackBuffCooldownSeconds" type="number" min="0" step="0.1" inputmode="decimal" /></label>
+
+          <label class="optimizer-input"><span data-opt-label="positionalDuration">Durée buff positionnel (s)</span><input data-field="positionalPveBuffDurationSeconds" type="number" min="0" step="0.1" inputmode="decimal" /><small data-opt-help="positionalDuration">Nécessaire pour Sarah SSR ; laissez vide pour un passif comme Mason/Sarah UR.</small></label>
+          <label class="optimizer-input"><span data-opt-label="positionalCooldown">Cooldown buff positionnel (s)</span><input data-field="positionalPveBuffCooldownSeconds" type="number" min="0" step="0.1" inputmode="decimal" /></label>
+
+          <label class="optimizer-input reference-only"><span data-opt-label="cooldownSpeed">Vitesse cooldown héros ATK max (%)</span><input data-field="highestAtkSkillCooldownSpeedPct" type="number" min="0" step="0.01" inputmode="decimal" /><small data-opt-help="cooldownSpeed">Marshall Rapid Start : enregistré mais pas encore converti en score tant que la part de dégâts des compétences n’est pas calibrée.</small></label>
+
+          <label class="optimizer-input reference-only"><span data-opt-label="monsterReduction">Réduction dégâts monstres personnelle (%)</span><input data-field="monsterDamageReductionPct" type="number" min="0" step="0.01" inputmode="decimal" /><small data-opt-help="monsterReduction">Diagnostic de survie uniquement.</small></label>
+          <label class="optimizer-input reference-only"><span data-opt-label="frontMonsterReduction">Réduction dégâts monstres ligne avant (%)</span><input data-field="frontRowMonsterDamageReductionPct" type="number" min="0" step="0.01" inputmode="decimal" /><small data-opt-help="frontMonsterReduction">Ex. Elsa Armor Boost · non converti en fausse puissance.</small></label>
+          <label class="optimizer-input reference-only"><span data-opt-label="frontMonsterReductionDuration">Durée réduction ligne avant (s)</span><input data-field="frontRowMonsterDamageReductionDurationSeconds" type="number" min="0" step="0.1" inputmode="decimal" /></label>
+          <label class="optimizer-input reference-only"><span data-opt-label="frontMonsterReductionCooldown">Cooldown réduction ligne avant (s)</span><input data-field="frontRowMonsterDamageReductionCooldownSeconds" type="number" min="0" step="0.1" inputmode="decimal" /></label>
+        </div>
+      </details>
     </article>
   </template>
 
@@ -85,8 +110,8 @@
     </article>
   </template>
 
-  <script src="positioning-engine.v1.js?v=003-monsters"></script>
+  <script src="positioning-engine.v1.js?v=004-hero-effects"></script>
   <script src="app.js?v=001"></script>
-  <script src="optimizer-ui-v1.js?v=003-monsters"></script>
+  <script src="optimizer-ui-v1.js?v=004-hero-effects"></script>
 </body>
 </html>
