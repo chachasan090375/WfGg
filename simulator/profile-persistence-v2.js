@@ -10,16 +10,40 @@
   const clone=v=>JSON.parse(JSON.stringify(v));
   const stamp=p=>{p.metadata=p.metadata||{};p.metadata.schema=p.metadata.schema||SCHEMA;p.metadata.updatedAt=new Date().toISOString();return p;};
   const numeric=el=>el.type==='number'?Number(el.value||0):el.value;
+  const isPlain=v=>!!v&&typeof v==='object'&&!Array.isArray(v);
 
   function profile(){return parse(nativeGet.call(localStorage,PROFILE_KEY));}
   function writeProfile(p){nativeSet.call(localStorage,PROFILE_KEY,JSON.stringify(stamp(p)));}
+
+  // Keep fields that were autosaved from the live DOM when an older app.js state
+  // subsequently writes the whole profile. Arrays keep the incoming length so
+  // deleting heroes/gear still works, while each surviving item preserves newer
+  // fields that the older state does not know about yet.
+  function preserveMissing(existing,incoming){
+    if(Array.isArray(incoming)){
+      const old=Array.isArray(existing)?existing:[];
+      return incoming.map((v,i)=>preserveMissing(old[i],v));
+    }
+    if(isPlain(incoming)){
+      const out={...incoming};
+      const old=isPlain(existing)?existing:{};
+      Object.keys(old).forEach(k=>{
+        if(!(k in out))out[k]=clone(old[k]);
+        else out[k]=preserveMissing(old[k],out[k]);
+      });
+      return out;
+    }
+    return incoming;
+  }
+
   function enrichProfileString(value){
     const incoming=parse(value),existing=profile();
-    incoming.season6=incoming.season6||{};
-    if(incoming.season6.tacticsV2==null && existing.season6?.tacticsV2!=null) incoming.season6.tacticsV2=existing.season6.tacticsV2;
-    incoming.simulatorUi=incoming.simulatorUi||{};
-    if(incoming.simulatorUi.optimizer==null && existing.simulatorUi?.optimizer!=null) incoming.simulatorUi.optimizer=existing.simulatorUi.optimizer;
-    return JSON.stringify(stamp(incoming));
+    const merged=preserveMissing(existing,incoming);
+    merged.season6=merged.season6||{};
+    if(merged.season6.tacticsV2==null && existing.season6?.tacticsV2!=null) merged.season6.tacticsV2=existing.season6.tacticsV2;
+    merged.simulatorUi=merged.simulatorUi||{};
+    if(merged.simulatorUi.optimizer==null && existing.simulatorUi?.optimizer!=null) merged.simulatorUi.optimizer=existing.simulatorUi.optimizer;
+    return JSON.stringify(stamp(merged));
   }
 
   function mirrorSidecar(key,value){
@@ -79,5 +103,5 @@
   document.addEventListener('visibilitychange',()=>{if(document.hidden)commitFocused();},{capture:true});
   window.addEventListener('beforeunload',commitFocused,{capture:true});
   migrate();
-  window.WfGgProfilePersistence=Object.freeze({version:'2.2.0',PROFILE_KEY,TACTICS_KEY,OPTIMIZER_KEY,migrate,commitFocused,profile:()=>clone(profile())});
+  window.WfGgProfilePersistence=Object.freeze({version:'2.3.0',PROFILE_KEY,TACTICS_KEY,OPTIMIZER_KEY,migrate,commitFocused,profile:()=>clone(profile())});
 })();
