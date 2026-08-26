@@ -1,0 +1,98 @@
+name: Simulator hero roster v2 E2E
+
+on:
+  push:
+    branches: [simulator-standalone-v1]
+    paths:
+      - 'simulator/hero-roster-v2.js'
+      - 'simulator/hero-roster-v2.css'
+      - 'simulator/data/hero-catalog.v2.json'
+      - 'simulator/index.html'
+      - '.github/workflows/simulator-hero-roster-v2-e2e.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  hero-roster-mobile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Playwright Chromium
+        run: |
+          mkdir -p /tmp/wfgg-hero-e2e && cd /tmp/wfgg-hero-e2e
+          npm init -y >/dev/null 2>&1
+          npm install playwright@1.55.0 >/dev/null 2>&1
+          npx playwright install --with-deps chromium >/dev/null
+      - name: Test public graphical hero workflow
+        env:
+          NODE_PATH: /tmp/wfgg-hero-e2e/node_modules
+        run: |
+          cat >/tmp/wfgg-hero-e2e/test.cjs <<'JS'
+          const {chromium}=require('playwright');
+          const URL='https://simulator-standalone-v1.wfgg.pages.dev/simulator/';
+          const assert=(ok,msg)=>{if(!ok)throw new Error(msg)};
+          const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+          (async()=>{
+            for(let i=0;i<80;i++){
+              try{
+                const u=URL+'hero-roster-v2.js?fresh='+Date.now();
+                const t=await fetch(u,{cache:'no-store'}).then(r=>r.ok?r.text():'');
+                if(t.includes("version:'2.0.0'"))break;
+              }catch(_){}
+              if(i===79)throw new Error('public preview missing hero roster v2');
+              await sleep(1500);
+            }
+            const browser=await chromium.launch({headless:true});
+            const context=await browser.newContext({viewport:{width:412,height:915},isMobile:true,hasTouch:true,deviceScaleFactor:2});
+            const page=await context.newPage();
+            const errors=[];page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error'&&!m.text().includes('Failed to load resource'))errors.push(m.text())});
+            await page.goto(URL+'?heroE2E='+Date.now(),{waitUntil:'networkidle',timeout:30000});
+            await page.evaluate(()=>localStorage.clear());
+            await page.reload({waitUntil:'networkidle',timeout:30000});
+            await page.waitForFunction(()=>window.WfGgHeroRosterV2?.version==='2.0.0',{timeout:12000});
+            await page.locator('#stepNav [data-step="1"]').click();
+            await page.waitForSelector('#gameHeroRosterV2 .game-hero-card',{timeout:12000});
+            assert(await page.locator('#gameHeroRosterV2 .game-hero-card').count()===31,'31 hero cards expected');
+            await page.locator('[data-filter="tank"]').click();
+            assert(await page.locator('#gameHeroGrid .game-hero-card').count()===12,'12 Tank cards expected');
+            await page.locator('[data-filter="aircraft"]').click();
+            assert(await page.locator('#gameHeroGrid .game-hero-card').count()===9,'9 Aircraft cards expected');
+            await page.locator('[data-filter="missile"]').click();
+            assert(await page.locator('#gameHeroGrid .game-hero-card').count()===10,'10 Missile cards expected including Braz');
+            await page.locator('[data-filter="all"]').click();
+            await page.locator('[data-hero-id="kimberly"]').click();
+            await page.waitForSelector('#heroGameSheet.open');
+            await page.locator('#heroOwnedAction').click();
+            await page.waitForTimeout(700);
+            await page.waitForSelector('#heroGameSheet.open [data-edit-field="displayedAttack"]');
+            await page.locator('#heroGameSheet [data-edit-field="displayedAttack"]').fill('123456');
+            await page.locator('#heroGameSheet [data-edit-field="displayedPower"]').fill('7654321');
+            await page.locator('[data-sheet-tab="grade"]').click();
+            await page.locator('#heroGameSheet [data-edit-field="level"]').fill('149');
+            await page.waitForTimeout(250);
+            await page.locator('#heroSheetClose').click();
+            await page.reload({waitUntil:'networkidle',timeout:30000});
+            await page.locator('#stepNav [data-step="1"]').click();
+            await page.waitForSelector('[data-hero-id="kimberly"].owned');
+            await page.locator('[data-hero-id="kimberly"]').click();
+            await page.waitForSelector('#heroGameSheet.open [data-edit-field="displayedAttack"]');
+            assert(await page.locator('#heroGameSheet [data-edit-field="displayedAttack"]').inputValue()==='123456','Kimberly ATK lost after reload');
+            assert(await page.locator('#heroGameSheet [data-edit-field="displayedPower"]').inputValue()==='7654321','Kimberly Power lost after reload');
+            await page.locator('[data-sheet-tab="grade"]').click();
+            assert(await page.locator('#heroGameSheet [data-edit-field="level"]').inputValue()==='149','Kimberly level lost after reload');
+            await page.screenshot({path:'/tmp/wfgg-hero-e2e/hero-roster-v2.png',fullPage:true});
+            assert(errors.length===0,'browser errors: '+errors.join(' | '));
+            console.log('WFGG HERO ROSTER V2 E2E COMPLETE');
+            await browser.close();
+          })().catch(e=>{console.error(e);process.exit(1)});
+          JS
+          node /tmp/wfgg-hero-e2e/test.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: simulator-hero-roster-v2-screen
+          path: /tmp/wfgg-hero-e2e/hero-roster-v2.png
+          if-no-files-found: ignore
