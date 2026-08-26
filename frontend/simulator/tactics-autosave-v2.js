@@ -53,5 +53,5 @@
   document.addEventListener('input',autosave,true);
   document.addEventListener('change',autosave,true);
   window.addEventListener('pagehide',persist,true);
-  window.WfGgTacticsAutosave=Object.freeze({version:'2.1.0',serialize,persist});
+  window.WfGgTacticsAutosave=Object.freeze({version:'2.0.0',serialize,persist});
 })();
