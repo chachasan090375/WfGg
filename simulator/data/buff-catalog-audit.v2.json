@@ -1,0 +1,295 @@
+{
+  "version": "2.0.0-research",
+  "auditedAt": "2026-08-26",
+  "scope": "Large cross-guide inventory of buffs and modifiers that may change WfGg squad ranking. It is not claimed to be permanently exhaustive because Last War live rules and seasonal catalogs change.",
+  "policy": {
+    "sourcePriority": [
+      "current in-game client / battle report",
+      "official Last War / platform editorial",
+      "current specialist guides with screenshots",
+      "community guides for discovery and cross-check only"
+    ],
+    "doNotGuessUnknownValues": true,
+    "doNotTreatDisplayedPowerAsDamage": true,
+    "globalCommonBuffs": "Store when useful for absolute calibration, but exclude from relative composition ranking when they affect every candidate equally.",
+    "seasonAndObjectiveGatingRequired": true
+  },
+  "coverage": [
+    {
+      "family": "formation-composition",
+      "buffs": [
+        "3 same troop type: +5% ATK/DEF/HP",
+        "3+2: +10% ATK/DEF/HP",
+        "4 same: +15% ATK/DEF/HP",
+        "5 same: +20% ATK/DEF/HP"
+      ],
+      "runtimeStatus": "implemented-relative-offense-and-monster-frontline",
+      "confidence": "strong-current-guide-consensus",
+      "sources": ["https://www.lastwarvault.com/guides/general/squad-building/"]
+    },
+    {
+      "family": "troop-counter-triangle",
+      "buffs": ["Tank > Missile", "Missile > Aircraft", "Aircraft > Tank", "disadvantaged type described as dealing 20% less damage"],
+      "runtimeStatus": "catalogued-not-yet-applied-to-generic-pvp-engine",
+      "confidence": "mechanic-verified-formula-calibration-pending",
+      "sources": ["https://www.lastwarvault.com/guides/general/pvp-guide/"]
+    },
+    {
+      "family": "wanted-codes",
+      "buffs": ["Code 39 Aircraft +50% damage", "Code 64 Missile +50% damage", "Code 87 Tank +50% damage"],
+      "runtimeStatus": "implemented",
+      "objectiveRules": "90s offense proxy; DEF/HP/displayed Power weight 0 because boss does not attack",
+      "confidence": "verified"
+    },
+    {
+      "family": "crystal-boss",
+      "buffs": [
+        "daily eligible Defense hero: +20% damage for all allied units, stackable per eligible hero",
+        "5 heroes of same troop type: +30% Attack damage"
+      ],
+      "disabledForObjective": [
+        "War Fever",
+        "Charge Battle Flag",
+        "Tactics Card active skills",
+        "Season Military Rank bonuses",
+        "fish buffs",
+        "PvE Tactics Cards",
+        "troop counter mechanics"
+      ],
+      "runtimeStatus": "objective-model-documented-not-yet-in-current-positioning-engine",
+      "confidence": "current-2026-guide-confirmed",
+      "sources": ["https://cpt-hedge.com/guides/crystal-event"]
+    },
+    {
+      "family": "troop-centers",
+      "buffs": ["Tank Center type stats", "Aircraft Center type stats", "Missile Center type stats"],
+      "runtimeStatus": "profile-input-present-not-directly-scored",
+      "reason": "Displayed hero ATK/DEF/HP already act as account anchors; adding center curves without exact decomposition risks double counting.",
+      "confidence": "mechanic-known-exact-curve-use-pending"
+    },
+    {
+      "family": "hero-type-research",
+      "buffs": [
+        "Tank Mastery I/II damage",
+        "Cannon Enhancement I/II attack",
+        "Aircraft Mastery I/II damage",
+        "Airborne Weapon I/II attack",
+        "Missile Mastery I/II damage",
+        "Precision Targeting I/II attack",
+        "type HP/DEF research lines"
+      ],
+      "runtimeStatus": "profile-schema-present-most-nodes-not-yet-applied-to-score",
+      "verifiedExamples": ["type Damage I/II +5% each", "type Attack I/II +7.5% each in Mastery", "Precision Targeting II +10% in Hero research"],
+      "sources": ["https://www.lastwarvault.com/tech-center-priority/"]
+    },
+    {
+      "family": "global-hero-research",
+      "buffs": ["Firepower Boost", "Weapons Upgrade", "Hero Armor Enhancement", "Hero Endurance Upgrade"],
+      "runtimeStatus": "catalogued-excluded-from-relative-score-when-common",
+      "reason": "Affects candidate squads symmetrically unless a context makes it differential.",
+      "sources": ["https://www.lastwarvault.com/tech-center-priority/"]
+    },
+    {
+      "family": "squad-slot-research",
+      "buffs": ["Squad 1-4 Terminator", "Assault Training", "Formation Training", "Survival Training", "Physical Suppression", "Energy Barrage", "Fierce Assault", "Final Stand", "Vigilant Formation", "Counter Defense", "Hold The Line", "Solid Defense"],
+      "runtimeStatus": "Terminator-current-displayed-bonus-applied; remaining nodes stored/not-fully-typed",
+      "confidence": "node-structure-audited-values-partial"
+    },
+    {
+      "family": "wall-of-honor",
+      "rule": "Every 50 Wall levels grants the hero-specific type-wide bonus; bonuses from multiple heroes stack for all heroes of that troop type.",
+      "buffsPer50Levels": {
+        "tank": {
+          "attack": {"Kimberly": 0.5, "Mason UR": 0.5, "Mason SSR": 0.25},
+          "defense": {"Marshall": 0.5, "Stetmann": 0.5, "Richard": 0.25, "Farhad": 0.25},
+          "hp": {"Murphy": 0.5, "Williams": 0.5, "Violet UR": 0.5, "Violet SSR": 0.25, "Monica": 0.25, "Scarlett": 0.25},
+          "troopLoad": {"Loki": 1.0, "Gump": 1.0}
+        },
+        "aircraft": {
+          "attack": {"Morrison": 0.5, "Schuyler": 0.5, "Maxwell": 0.25},
+          "defense": {"DVA": 0.5, "Lucius": 0.5, "Sarah": 0.25},
+          "hp": {"Carlie": 0.5, "Cage": 0.25},
+          "troopLoad": {"Ambolt": 1.0}
+        },
+        "missile": {
+          "attack": {"Fiona": 0.5, "Swift": 0.5, "Braz": 0.25},
+          "defense": {"Tesla": 0.5, "Venom": 0.25},
+          "hp": {"Adam": 0.5, "McGregor": 0.5, "Esla": 0.25},
+          "troopLoad": {"Kane": 1.0}
+        }
+      },
+      "runtimeStatus": "hero-wall-level-input-present-aggregate-type-buff-not-yet-scored",
+      "sources": ["https://www.lastwarvault.com/guides/general/wall-of-honor-guide/"]
+    },
+    {
+      "family": "exclusive-weapons",
+      "buffs": [
+        "hero-specific base ATK/DEF/HP increases",
+        "skill milestones at levels 1/10/20/30",
+        "type Specialist effects at level 20 on audited heroes",
+        "DVA Aircraft Specialist Lv20: all Aircraft ATK/DEF/HP +7.5%"
+      ],
+      "runtimeStatus": "EW level stored; hero-specific milestone catalog partial; generic specialist not automatically scored to avoid false stacking",
+      "confidence": "milestones-verified-provider-stacking-needs-account-aware-model",
+      "sources": [
+        "https://www.lastwarvault.com/guides/general/exclusive-weapons-guide/",
+        "https://cpt-hedge.com/guides/season-1-dva-exclusive-weapon"
+      ]
+    },
+    {
+      "family": "hero-support-and-position",
+      "buffs": [
+        "Mason Zombie Purge / back-row Tank monster damage",
+        "Marshall Command Strategy / team ATK timed buff",
+        "Marshall Rapid Start / highest-ATK hero skill cooldown speed",
+        "Sarah SSR timed back-row monster buff",
+        "Sarah UR back-row Aircraft monster damage",
+        "Sarah UR Aircraft team ATK timed buff",
+        "Monica personal monster damage",
+        "Braz/Blaz SSR Zombie Killer personal monster damage",
+        "Elsa monster damage reduction/front-row mitigation"
+      ],
+      "runtimeStatus": "Mason/Marshall/Sarah offensive effects partially implemented from player-displayed values; diagnostic effects stored separately",
+      "confidence": "structure-audited-current-value-player-driven"
+    },
+    {
+      "family": "drone-global",
+      "buffs": ["Drone global ATK", "Drone global DEF", "Drone global HP"],
+      "runtimeStatus": "catalogued-not-profiled-not-scored",
+      "relativeRule": "Can be excluded when identical for all compared squads, but must enter absolute calibration and any squad-specific differential.",
+      "sources": ["https://www.lastwarvault.com/guides/general/drone-guide/"]
+    },
+    {
+      "family": "drone-skill-chips",
+      "buffs": {
+        "Absolute Quantum Field": "opening shield",
+        "Lethal Firestorm": "drone attack; target count changes at star milestones",
+        "Memory Ultra Fission": "type-matched damage amplification and tactic-damage mitigation",
+        "Gravitational Resonance Armor": "battle-long type defense plus global squad defense"
+      },
+      "runtimeStatus": "catalogued-not-yet-profiled-or-scored",
+      "criticalRule": "Type-matched chip variants matter and chip resources/presets cannot be duplicated across simultaneous squads.",
+      "sources": [
+        "https://www.lastwarvault.com/guides/pre-season-1/chip-lab-guide/",
+        "https://www.lastwarvault.com/guides/general/drone-guide/"
+      ]
+    },
+    {
+      "family": "gear",
+      "buffs": ["Gun/Railgun offense", "Data Chip attack/crit", "Armor physical defense", "Radar energy/skill defense"],
+      "runtimeStatus": "inventory-profile-present-not-yet-converted-from-rarity-level-star-promotion-to-stats",
+      "reason": "Exact gear curves and mythic effects need account-grade calibration before scoring."
+    },
+    {
+      "family": "season-1",
+      "buffs": ["Tank/Aircraft/Missile seasonal Base type stats"],
+      "runtimeStatus": "catalogued-not-current-S6-runtime",
+      "confidence": "mechanic-known-exact-account-use-needs-season-versioning"
+    },
+    {
+      "family": "season-2",
+      "buffs": ["type seasonal building damage +0.5% per level, max level 30 / +15%"],
+      "runtimeStatus": "catalogued-not-current-S6-runtime",
+      "confidence": "verified"
+    },
+    {
+      "family": "season-4-5-tactics",
+      "buffs": [
+        "Hybrid Squad 4+1 preserves full +20% type formation bonus",
+        "Mixed Formation / stats by distinct troop type",
+        "Counter/Damage Reversal family",
+        "Quickstride/Garrison/Battlestreak cards",
+        "PvE Zombie Killer + Purgator-oriented setup"
+      ],
+      "runtimeStatus": "catalogued/version-gated; Hybrid explicitly unavailable in S6",
+      "sources": ["https://cpt-hedge.com/guides/season-5-tactics-cards"]
+    },
+    {
+      "family": "season-6-totems",
+      "buffs": [
+        "Bear Totem Tank damage +0.5%/level, max 30",
+        "Eagle Totem Aircraft damage +0.5%/level, max 30",
+        "Jaguar Totem Missile damage +0.5%/level, max 30"
+      ],
+      "runtimeStatus": "implemented-season6-only",
+      "sources": ["https://cpt-hedge.com/guides/season-6-quickstart"]
+    },
+    {
+      "family": "season-6-temporary-hero-monster-buffs",
+      "buffs": ["Braz +10% Damage to Monsters", "Kimberly +10% Damage to Monsters", "DVA +10% Damage to Monsters", "Tesla +10% Damage to Monsters"],
+      "runtimeStatus": "catalogued-new-not-yet-auto-applied",
+      "reason": "Temporary season state must be explicit so it disappears outside S6 and Braz UR/SSR rules are not mixed.",
+      "sources": ["https://cpt-hedge.com/guides/season-6-preseason"]
+    },
+    {
+      "family": "season-6-awakening",
+      "buffs": {
+        "Kimberly": "Priceless Resolve replaces Expertise; barrage scaling and Awakening-star modifiers; Awakening also raises base HP/ATK/DEF and damage reduction",
+        "DVA": "Starred Ace / Ace Boost scales strongly with number of Aircraft; Awakening-star modifiers",
+        "Tesla": "Vortex Resonance / Inductive Current, Missile-composition-dependent mechanics"
+      },
+      "runtimeStatus": "profile-and-result-trace-present-not-yet-fully-scored",
+      "reason": "Need skill-level/tier/star timeline and exact damage-cycle model to avoid treating skill damage as raw ATK.",
+      "sources": [
+        "https://cpt-hedge.com/guides/season-6-kim-awakening",
+        "https://cpt-hedge.com/guides/season-6-dva-awakening",
+        "https://cpt-hedge.com/guides/season-6-tesla-awakening"
+      ]
+    },
+    {
+      "family": "season-6-braz-ur",
+      "buffs": ["SSR Zombie Killer monster damage does not carry into UR kit", "UR Promotion Synergy physical-damage effect by promoted heroes"],
+      "runtimeStatus": "SSR-monster-bonus guard implemented; UR promotion synergy not yet scored",
+      "confidence": "variant-separation-required"
+    },
+    {
+      "family": "season-6-tactics-current",
+      "buffs": [
+        "Aftermath Burst / Missile DoT-oriented modifier",
+        "Dimensional Crit / highest-ATK Tank Crit Rate",
+        "Frontal Suppression / Aircraft modifier",
+        "Counter Reversal and type/role setup cards",
+        "UR +1 Tactics Card Level secondary attribute",
+        "SSR PvP defending Hero ATK/DEF/HP secondary attributes",
+        "SSR reduced damage taken when countered secondary attribute"
+      ],
+      "runtimeStatus": "profile/catalog implemented; PvP-specific main effects stored but intentionally not injected into current PvE Code/Monster score",
+      "versionWarning": "Launch guide wording and current live card text have diverged for some S6 cards. Current in-game/live catalog must override launch-guide wording.",
+      "sources": ["https://cpt-hedge.com/guides/season-6-tactics-cards"]
+    },
+    {
+      "family": "global-expedition",
+      "buffs": [
+        "historic highest total Non-Core Tactics Card level grants stage-stat thresholds",
+        "area/round-specific combat rules and effects",
+        "Core Cards excluded from Non-Core total-level calculation"
+      ],
+      "runtimeStatus": "total level field stored; threshold table and area-specific effects not yet scored",
+      "sources": ["https://cpt-hedge.com/guides/season-6-global-expedition"]
+    },
+    {
+      "family": "season-6-fungus-faction-map",
+      "buffs": ["Fungus Institute Virus Resistance", "Mushroom Puff base-skin active +250 Virus Resistance for 24h in 9x9 range", "faction/alliance/area buffs may alter specific seasonal battles"],
+      "runtimeStatus": "catalogued-contextual-not-part-of-generic-Code-or-Monster-score",
+      "sources": ["https://cpt-hedge.com/guides/season-6-preseason"]
+    },
+    {
+      "family": "temporary-world-and-account-buffs",
+      "buffs": ["War Fever", "Battle/Charge Flag", "fish buffs", "season rank/tier buffs", "coffee/event buffs", "decorations/base-skin combat buffs"],
+      "runtimeStatus": "contextual-manual-catalog-needed-before-general-battle-simulator",
+      "objectiveException": "Crystal Boss explicitly disables several of these; never apply a generic temporary-buff bucket blindly."
+    }
+  ],
+  "highestPriorityRuntimeGaps": [
+    "Wall of Honor aggregate type-wide calculation",
+    "Drone Skill Chip inventory/type/preset model",
+    "Exclusive Weapon provider milestone and stacking model",
+    "full type/Mastery/Squad research contribution ledger without double counting displayed stats",
+    "Season 6 Awakening skill-cycle model for Kimberly/DVA/Tesla",
+    "Season 6 temporary +10% monster hero buffs with automatic season gating",
+    "Crystal Boss objective engine",
+    "Global Expedition historic Non-Core level thresholds and area-rule versioning",
+    "gear stat curves and unique-allocation optimization",
+    "general PvP engine with counter/card/defense timeline"
+  ]
+}
