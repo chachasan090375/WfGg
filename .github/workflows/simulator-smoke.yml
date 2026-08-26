@@ -74,6 +74,7 @@ jobs:
           index=Path('simulator/index.html').read_text(encoding='utf-8')
           assert index.index('profile-persistence-v2.js') < index.index('app.js'), 'persistence bridge must load before app.js'
           assert index.index('app.js') < index.index('overlord-profile-v1.js'), 'Overlord UI must load after base app'
+          assert index.index('overlord-profile-v1.js') < index.index('overlord-team-summary-v1.js'), 'team summary extension must load after Overlord runtime'
           print('bootstrap ordering ok')
           PY
 
@@ -89,9 +90,11 @@ jobs:
             sleep 0.25
           done
           grep -q 'WfGg · Simulateur' /tmp/wfgg-simulator-index.html
-          curl -fsS http://127.0.0.1:4173/profile-persistence-v2.js | grep -q "version:'2.3.0'"
+          curl -fsS http://127.0.0.1:4173/profile-persistence-v2.js | grep -q "version:'2.4.0'"
           curl -fsS http://127.0.0.1:4173/data/tactics-card-catalog.v2.json >/dev/null
           curl -fsS http://127.0.0.1:4173/data/overlords.v1.json | grep -q 'gorilla-overlord'
           curl -fsS http://127.0.0.1:4173/overlord-profile-v1.js | grep -q "version:'1.0.1'"
+          curl -fsS http://127.0.0.1:4173/overlord-team-summary-v1.js | grep -q "version:'1.0.0'"
+          curl -fsS http://127.0.0.1:4173/team-theory-v1.css | grep -q 'team-theory-grid'
           curl -fsS http://127.0.0.1:4173/positioning-engine.v1.js >/dev/null
           echo 'Simulator source smoke OK'
