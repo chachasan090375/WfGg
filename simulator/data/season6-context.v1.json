@@ -1,11 +1,16 @@
 {
-  "version": "1.1.0",
+  "version": "1.2.0",
   "season": 6,
   "vehicleTotems": [
     {"name":"Bear Totem","targetType":"tank","damagePctPerLevel":0.5,"maxLevel":30,"maxDamagePct":15},
     {"name":"Eagle Totem","targetType":"aircraft","damagePctPerLevel":0.5,"maxLevel":30,"maxDamagePct":15},
     {"name":"Jaguar Totem","targetType":"missile","damagePctPerLevel":0.5,"maxLevel":30,"maxDamagePct":15}
   ],
+  "runtime": {
+    "seasonPhaseSource":"wfgg-simulator-tactics-v2.phase",
+    "totemRuntime":"season6-runtime-v1.js",
+    "rule":"Vehicle Totems apply only while the tactics profile phase is season6; they contribute +0.5% damage per level to the matching troop type and are zero in off-season."
+  },
   "awakening": {
     "systemIntroduced": true,
     "permanentProgressionAfterUnlock": true,
@@ -15,7 +20,8 @@
       {"hero":"DVA","type":"aircraft","opens":"week-3","awakeningSkill":"Starred Ace","skillMaxLevel":40,"input":["awakeningUnlocked","awakeningStars","awakeningTier","awakeningSkillLevel"]},
       {"hero":"Tesla","type":"missile","opens":"week-5","awakeningSkill":"Vortex Resonance","skillMaxLevel":40,"input":["awakeningUnlocked","awakeningStars","awakeningTier","awakeningSkillLevel"]}
     ],
-    "scoringRule": "Displayed ATK already reflects part of Awakening stat growth, but the new Awakening skill materially changes damage output. Do not treat awakening as a cosmetic checkbox; skill level and Awakening Stars must be represented before high-accuracy Code/PvE scoring."
+    "scoringRule": "Displayed ATK already reflects part of Awakening stat growth, but the new Awakening skill materially changes damage output. Do not treat awakening as a cosmetic checkbox; skill level and Awakening Stars must be represented before high-accuracy Code/PvE scoring.",
+    "currentRuntimeStatus":"Season6 runtime flags awakened Kimberly/DVA/Tesla as pending skill-curve calibration. No unverified level 1-to-40 interpolation is applied."
   },
   "heroPromotion": {
     "hero":"Braz",
@@ -29,6 +35,9 @@
   },
   "tacticsCards": {
     "catalogSource":"tactics-card-catalog.v2.json",
+    "profileSchema":"tactics-profile.v1.json",
+    "runtimeSource":"tactics-card-runtime.v1.json",
+    "runtimeEvaluator":"tactics-runtime-v1.js",
     "offSeason":"Only owned Core Cards remain active; regular Battle/Resource cards are inactive.",
     "season6":"Core Cards + Season 6 regular cards. Hybrid Squad (4+1) is removed.",
     "liveCatalogPriority":true,
