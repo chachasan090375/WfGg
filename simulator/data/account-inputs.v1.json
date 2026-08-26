@@ -1,5 +1,5 @@
 {
-  "version": "1.2.0",
+  "version": "1.3.0",
   "account": {
     "hqLevel": {"required":true,"range":[1,35]},
     "activeSquads": {"required":true,"allowed":[3,4],"note":"4 requires active Super Monthly Pass"},
@@ -13,7 +13,8 @@
   "heroes": {
     "fields": [
       "heroId","owned","troopType","role","damageType","rarity","level","stars",
-      "displayedAttack","displayedPower","positionalPveBuffPct",
+      "displayedAttack","displayedDefense","displayedHp","displayedPower",
+      "monsterDamagePct","pveDamagePct","positionalPveBuffPct",
       "skillLevels","exclusiveWeaponLevel","awakeningUnlocked","awakeningStars","awakeningTier",
       "wallOfHonorLevel"
     ],
@@ -22,8 +23,12 @@
       "heroLevelAffectsStats": true,
       "heroLevelAffectsCommandMarchSize": true,
       "awakeningSeason6Heroes": ["Kimberly","DVA","Tesla"],
-      "displayedAttackPurpose": "primary visible offensive anchor for early relative scoring; final 90-second damage also requires skills and offensive modifiers",
-      "displayedPowerPurpose": "reference/diagnostic only; weight is zero for Wanted Codes because defensive power must not inflate the damage score",
+      "displayedAttackPurpose": "primary visible offensive anchor for early relative scoring; final damage also requires skills and offensive modifiers",
+      "displayedDefensePurpose": "used by monster simulation for frontline survival diagnostics and placement; weight remains zero in Wanted Code offense scoring",
+      "displayedHpPurpose": "used by monster simulation for frontline survival diagnostics and placement; weight remains zero in Wanted Code offense scoring",
+      "displayedPowerPurpose": "reference/diagnostic only; never used as a direct optimization score",
+      "monsterDamagePctPurpose": "optional hero-specific current bonus against monsters when displayed or otherwise verified; applies only in monster-compatible PvE contexts",
+      "pveDamagePctPurpose": "optional current generic PvE damage bonus when displayed or otherwise verified",
       "positionalPveBuffPctPurpose": "optional current percentage displayed by the game for an audited positional PvE hero effect; ignored unless formation-positioning.v1.json contains a matching verified effect template for that hero",
       "positionOptimizationSource": "formation-positioning.v1.json"
     }
@@ -41,10 +46,7 @@
   },
   "wallOfHonor": {
     "requiredForHighAccuracy": true,
-    "inputStrategies": [
-      "per-hero Wall of Honor level",
-      "fallback: aggregate Tank/Aircraft/Missile ATK/DEF/HP bonuses if player prefers"
-    ],
+    "inputStrategies": ["per-hero Wall of Honor level","fallback: aggregate Tank/Aircraft/Missile ATK/DEF/HP bonuses if player prefers"],
     "effect": "hero entries can buff all heroes of the same troop type"
   },
   "drone": {
