@@ -9,11 +9,10 @@ for name in ['hero-roster-v15.js','hero-roster-v15.css']:
 
 for path in [root/'simulator'/'index.html',front/'index.html']:
     s=path.read_text(encoding='utf-8')
-    old='015-official-icons-rarity-motion'
-    new='015b-stable-official-icons-motion'
-    s=s.replace(old,new)
-    css=f'  <link rel="stylesheet" href="hero-roster-v15.css?v={new}" />\n'
-    js=f'  <script src="hero-roster-v15.js?v={new}"></script>\n'
+    for old in ['015-official-icons-rarity-motion','015b-stable-official-icons-motion']:
+        s=s.replace(old,'015c-dedicated-portrait-motion')
+    css='  <link rel="stylesheet" href="hero-roster-v15.css?v=015c-dedicated-portrait-motion" />\n'
+    js='  <script src="hero-roster-v15.js?v=015c-dedicated-portrait-motion"></script>\n'
     if 'hero-roster-v15.css' not in s:
         marker='  <link rel="stylesheet" href="hero-roster-uniform-v14.css?v=014-no-flash-uniform" />\n'
         if marker not in s: raise SystemExit(f'v14 css marker missing in {path}')
@@ -24,4 +23,4 @@ for path in [root/'simulator'/'index.html',front/'index.html']:
         s=s.replace(marker,marker+js,1)
     path.write_text(s,encoding='utf-8')
 
-(root/'simulator'/'UI_VERSION.txt').write_text('hero-roster-v15b-stable-official-icons-motion\n',encoding='utf-8')
+(root/'simulator'/'UI_VERSION.txt').write_text('hero-roster-v15c-dedicated-portrait-motion\n',encoding='utf-8')
