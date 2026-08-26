@@ -145,6 +145,8 @@ jobs:
             await page.locator('[data-overlord="displayedPower"]').fill('500000');
             await page.waitForSelector('[data-overlord-extra="displayName"]');
             await page.locator('[data-overlord-extra="displayName"]').fill('Kong E2E');
+            const details=page.locator('.overlord-extra-stats');
+            if(!(await details.getAttribute('open'))) await details.locator('summary').click();
             await page.locator('[data-overlord-extra="displayedAttack"]').fill('25000');
             await page.locator('[data-overlord-extra="displayedDefense"]').fill('20000');
             await page.locator('[data-overlord-extra="displayedHp"]').fill('300000');
