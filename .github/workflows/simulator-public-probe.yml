@@ -1,0 +1,43 @@
+name: Simulator public probe
+
+on:
+  push:
+    branches: [simulator-standalone-v1]
+    paths:
+      - '.github/workflows/simulator-public-probe.yml'
+      - 'frontend/_headers'
+      - 'frontend/simulator/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe preview HTTP and JSON
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://simulator-standalone-v1.wfgg.pages.dev/simulator'
+          echo '=== PAGE HEADERS ==='
+          curl -fsSIL "$base/" | sed -n '1,80p'
+          echo
+          for p in \
+            profile-persistence-v2.js \
+            data/tactics-card-catalog.v2.json \
+            data/account-inputs.v1.json \
+            data/research-inputs.v1.json \
+            data/objectives.v1.json \
+            data/season6-context.v1.json \
+            data/season6-hero-evolution.v1.json \
+            data/overlords.v1.json; do
+            echo "=== $p ==="
+            code=$(curl -sS -o /tmp/body -w '%{http_code}' "$base/$p")
+            type=$(curl -sSI "$base/$p" | awk 'BEGIN{IGNORECASE=1}/^content-type:/{sub(/\r$/,"",$0);print substr($0,15);exit}')
+            echo "HTTP=$code content-type=$type bytes=$(wc -c </tmp/body)"
+            test "$code" = 200
+            if [[ "$p" == *.json ]]; then python3 -m json.tool /tmp/body >/dev/null; fi
+          done
+          echo 'PUBLIC HTTP PROBE OK'
