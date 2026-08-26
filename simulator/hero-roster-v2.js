@@ -37,10 +37,17 @@
     if(type==='missile')return '<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 20h17l6-5-6-5H4l4 5-4 5zm0 3h18v4H4zm2-18h16v3H6z"/></svg>';
     return '<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M6 10h17l4 5v8H5v-9l1-4zm4-5h9l2 4H9l1-4zM8 24a3 3 0 1 0 0 6 3 3 0 0 0 0-6zm15 0a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/></svg>';
   }
-  function portrait(cat,large=false){
+  function portrait(cat){
     const fallback=`<span class="hero-fallback">${esc(initials(cat.name))}</span>`;
     if(!cat.portrait)return fallback;
-    return `<img src="${esc(cat.portrait)}" alt="${esc(cat.name)}" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">${fallback}`;
+    return `<img src="${esc(cat.portrait)}" alt="${esc(cat.name)}" loading="lazy" referrerpolicy="no-referrer">${fallback}`;
+  }
+  function bindImageFallbacks(root){
+    root?.querySelectorAll?.('.hero-card-portrait img,.hero-sheet-portrait img').forEach(img=>{
+      if(img.dataset.fallbackBound)return;
+      img.dataset.fallbackBound='1';
+      img.addEventListener('error',()=>img.remove(),{once:true});
+    });
   }
 
   function filtered(){
@@ -63,6 +70,7 @@
   function renderGrid(shell){
     if(!shell)return;const grid=shell.querySelector('#gameHeroGrid');if(!grid)return;
     const rows=filtered();grid.innerHTML=rows.length?rows.map(cardHtml).join(''):`<div class="game-roster-empty">Aucun héros</div>`;
+    bindImageFallbacks(grid);
     const count=shell.querySelector('#gameRosterCount');const owned=(profile().heroes||[]).filter(h=>h.heroId).length;if(count)count.textContent=`${owned}/${catalog.length} ${t('owned')}`;
     grid.querySelectorAll('[data-hero-id]').forEach(b=>b.onclick=()=>openSheet(b.dataset.heroId));
   }
@@ -100,9 +108,10 @@
   function renderSheet(){
     const cat=catalog.find(h=>h.id===selectedId);if(!cat)return;const own=ownedHero(cat);const d=own?.data||{};const {backdrop,sheet}=ensureSheet();
     const rarity=d.rarity||cat.rarity;const title=cat.title?.[locale()]||cat.title?.en||'';
-    sheet.innerHTML=`<div class="hero-sheet-hero"><div class="hero-sheet-portrait rarity-${esc(rarity)}">${portrait(cat,true)}</div><div class="hero-sheet-title">${title?`<small>${esc(title)}</small>`:''}<h3>${esc(cat.name)}</h3><div class="hero-sheet-tags"><span class="hero-sheet-tag">${troopSvg(cat.troopType)} ${esc(t(cat.troopType))}</span><span class="hero-sheet-tag">${roleIcon(cat.role)} ${esc(roleLabel(cat.role))}</span><span class="hero-sheet-tag">${esc(rarity)}</span>${cat.awakening?`<span class="hero-sheet-tag">✦ ${esc(t('awakening'))}</span>`:''}</div></div><button id="heroSheetClose" class="hero-sheet-close" type="button">×</button><button id="heroOwnedAction" class="hero-owned-action ${own?'remove':''}" type="button">${esc(own?t('remove'):t('add'))}</button></div>
+    sheet.innerHTML=`<div class="hero-sheet-hero"><div class="hero-sheet-portrait rarity-${esc(rarity)}">${portrait(cat)}</div><div class="hero-sheet-title">${title?`<small>${esc(title)}</small>`:''}<h3>${esc(cat.name)}</h3><div class="hero-sheet-tags"><span class="hero-sheet-tag">${troopSvg(cat.troopType)} ${esc(t(cat.troopType))}</span><span class="hero-sheet-tag">${roleIcon(cat.role)} ${esc(roleLabel(cat.role))}</span><span class="hero-sheet-tag">${esc(rarity)}</span>${cat.awakening?`<span class="hero-sheet-tag">✦ ${esc(t('awakening'))}</span>`:''}</div></div><button id="heroSheetClose" class="hero-sheet-close" type="button">×</button><button id="heroOwnedAction" class="hero-owned-action ${own?'remove':''}" type="button">${esc(own?t('remove'):t('add'))}</button></div>
       <div class="hero-sheet-tabs">${[['attributes',t('attributes')],['grade',t('grade')],['weapon',t('weapon')],['wall',t('wall')]].map(([id,label])=>`<button class="hero-sheet-tab ${selectedTab===id?'active':''}" data-sheet-tab="${id}" type="button">${esc(label)}</button>`).join('')}</div>
       <div class="hero-sheet-body"><div class="hero-stat-banner"><div class="hero-stat-chip"><strong>${fmt(d.displayedPower)}</strong><small>${esc(t('power'))}</small></div><div class="hero-stat-chip"><strong>${fmt(d.displayedAttack)}</strong><small>${esc(t('attack'))}</small></div><div class="hero-stat-chip"><strong>${fmt(d.displayedDefense)}</strong><small>${esc(t('defense'))}</small></div><div class="hero-stat-chip"><strong>${fmt(d.displayedHp)}</strong><small>${esc(t('hp'))}</small></div></div><div class="hero-star-row">${stars(d.stars)}</div>${own?tabFields(cat,d,true):`<div class="hero-sheet-note">${esc(t('notOwned'))}</div>`}<button id="heroAdvancedJump" class="hero-advanced-jump" type="button" ${own?'':'disabled'}>${esc(t('advanced'))}</button><div class="hero-sheet-note">${esc(t('saved'))}</div></div>`;
+    bindImageFallbacks(sheet);
     sheet.querySelector('#heroSheetClose').onclick=closeSheet;
     sheet.querySelector('#heroOwnedAction').onclick=async()=>{if(own)removeHero(cat);else await addHero(cat)};
     sheet.querySelectorAll('[data-sheet-tab]').forEach(b=>b.onclick=()=>{selectedTab=b.dataset.sheetTab;renderSheet()});
@@ -155,5 +164,5 @@
     if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>enhance(false),{once:true});else enhance(false);
   }
   init();
-  window.WfGgHeroRosterV2=Object.freeze({version:'2.0.0',catalog:()=>catalog.slice(),openHero:id=>openSheet(id),refresh:()=>enhance(true)});
+  window.WfGgHeroRosterV2=Object.freeze({version:'2.1.0',catalog:()=>catalog.slice(),openHero:id=>openSheet(id),refresh:()=>enhance(true)});
 })();
