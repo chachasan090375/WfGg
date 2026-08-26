@@ -43,7 +43,7 @@
   function saveState(){
     state.metadata.updatedAt = new Date().toISOString();
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    const el=$('#saveState'); if(el){el.textContent=ui('saved'); el.style.opacity='1'; setTimeout(()=>el.style.opacity='.7',650);}
+    const el=$('#saveState'); if(el){el.textContent=ui('saved'); el.classList.add('save-state-flash'); setTimeout(()=>el.classList.remove('save-state-flash'),650);}
   }
   async function loadSchemas(){
     const files = {
@@ -185,7 +185,7 @@
     const researchFilled=Object.values(state.research).filter(x=>Number(x.level)>0 || x.displayedBonusPct!=='').length;
     const title=state.locale==='fr'?'Résumé du profil':state.locale==='it'?'Riepilogo profilo':state.locale==='es'?'Resumen del perfil':'Profile summary';
     const text=state.locale==='fr'?'Cette première interface de saisie est prête pour le futur moteur de scoring relatif. Aucun calcul de classement n’est encore appliqué ici.':state.locale==='en'?'This first input interface is ready for the future relative-scoring engine. No squad ranking calculation is applied here yet.':'This input interface is ready for the future relative-scoring engine. No ranking calculation is applied yet.';
-    $('#step-summary').innerHTML=heading(title,text)+`<div class="summary-grid"><div class="summary-tile"><strong>${state.heroes.length}</strong><small>${ui('steps')[1]}</small></div><div class="summary-tile"><strong>${state.gear.length}</strong><small>${ui('steps')[2]}</small></div><div class="summary-tile"><strong>${researchFilled}</strong><small>${ui('steps')[3]}</small></div></div><div class="section-card" style="margin-top:12px"><h3>Profil JSON local</h3><textarea id="jsonPreview" class="json-box" readonly>${esc(JSON.stringify(state,null,2))}</textarea><div class="toolbar" style="margin-top:10px;margin-bottom:0"><button id="copyJson" class="secondary-button" type="button">Copier JSON</button><button id="resetProfile" class="ghost-button" type="button">Réinitialiser</button></div></div><p class="fine-print">Le profil ne contient aucun code d’authentification WfGg et n’est envoyé à aucun serveur par cette interface.</p>`;
+    $('#step-summary').innerHTML=heading(title,text)+`<div class="summary-grid"><div class="summary-tile"><strong>${state.heroes.length}</strong><small>${ui('steps')[1]}</small></div><div class="summary-tile"><strong>${state.gear.length}</strong><small>${ui('steps')[2]}</small></div><div class="summary-tile"><strong>${researchFilled}</strong><small>${ui('steps')[3]}</small></div></div><div class="section-card summary-json-card"><h3>Profil JSON local</h3><textarea id="jsonPreview" class="json-box" readonly>${esc(JSON.stringify(state,null,2))}</textarea><div class="toolbar summary-json-toolbar"><button id="copyJson" class="secondary-button" type="button">Copier JSON</button><button id="resetProfile" class="ghost-button" type="button">Réinitialiser</button></div></div><p class="fine-print">Le profil ne contient aucun code d’authentification WfGg et n’est envoyé à aucun serveur par cette interface.</p>`;
     $('#copyJson').onclick=async()=>{try{await navigator.clipboard.writeText(JSON.stringify(state,null,2));$('#copyJson').textContent='✓';setTimeout(()=>renderSummary(),800);}catch(_){$('#jsonPreview').select();document.execCommand('copy');}};
     $('#resetProfile').onclick=()=>{if(confirm('Réinitialiser le profil local ?')){state=clone(DEFAULT_STATE);saveState();renderAll();}};
   }

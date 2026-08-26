@@ -46,12 +46,12 @@
         <label>${esc(t('bond'))}<input data-overlord="bondRating" value="${esc(g.bondRating)}" autocomplete="off" placeholder="Rookie Partner I"></label>
         <label class="reference-only">${esc(t('power'))}<input data-overlord="displayedPower" type="number" min="0" value="${num(g.displayedPower)}" inputmode="numeric"><small>${esc(t('reference'))}</small></label>
       </div>
-      <details><summary>${esc(t('training'))} · <span class="pending-tag">${esc(t('pending'))}</span></summary><div class="form-grid three" style="margin-top:10px">
+      <details><summary>${esc(t('training'))} · <span class="pending-tag">${esc(t('pending'))}</span></summary><div class="form-grid three">
         <label>Joint Attack<input data-overlord-training="jointAttack" type="number" min="0" max="800" value="${num(g.training.jointAttack)}" inputmode="numeric"></label>
         <label>Defense Support<input data-overlord-training="defenseSupport" type="number" min="0" max="800" value="${num(g.training.defenseSupport)}" inputmode="numeric"></label>
         <label>Survival Training<input data-overlord-training="survivalTraining" type="number" min="0" max="800" value="${num(g.training.survivalTraining)}" inputmode="numeric"></label>
       </div></details>
-      <details style="margin-top:10px"><summary>${esc(t('skills'))} · <span class="pending-tag">${esc(t('pending'))}</span></summary><div class="overlord-skill-grid" style="margin-top:10px">
+      <details><summary>${esc(t('skills'))} · <span class="pending-tag">${esc(t('pending'))}</span></summary><div class="overlord-skill-grid">
         <label>Riot Shot<input data-overlord-skill="riotShot" type="number" min="0" max="40" value="${num(g.skills.riotShot)}" inputmode="numeric"></label>
         <label>Overlord's Armor<input data-overlord-skill="overlordsArmor" type="number" min="0" max="40" value="${num(g.skills.overlordsArmor)}" inputmode="numeric"></label>
         <label>Brutal Roar<input data-overlord-skill="brutalRoar" type="number" min="0" max="40" value="${num(g.skills.brutalRoar)}" inputmode="numeric"></label>
