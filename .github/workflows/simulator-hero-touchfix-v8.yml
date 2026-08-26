@@ -1,0 +1,95 @@
+name: Simulator hero touchfix v8
+
+on:
+  push:
+    branches:
+      - simulator-standalone-v1
+    paths:
+      - '.github/workflows/simulator-hero-touchfix-v8.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  fix-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: simulator-standalone-v1
+          fetch-depth: 0
+      - name: Wire v8 stylesheet
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          link='  <link rel="stylesheet" href="hero-sheet-closed-v8.css?v=008-closed-pointer" />\n'
+          for name in ('simulator/index.html','frontend/simulator/index.html'):
+              p=Path(name);s=p.read_text(encoding='utf-8')
+              if 'hero-sheet-closed-v8.css' not in s:
+                  marker='  <link rel="stylesheet" href="hero-sheet-touchfix-v7.css?v=007-hitbox" />\n'
+                  if marker not in s: raise SystemExit(f'v7 marker missing {name}')
+                  s=s.replace(marker,marker+link,1)
+              p.write_text(s,encoding='utf-8')
+          Path('simulator/UI_VERSION.txt').write_text('HERO_ROSTER_V8_TOUCH_COMPLETE\n31 local portraits / UR SSR SR / touch tabs close reopen\n2026-08-26\n',encoding='utf-8')
+          PY
+          grep -Fq 'hero-sheet-closed-v8.css?v=008-closed-pointer' simulator/index.html
+          grep -Fq 'hero-sheet-closed-v8.css?v=008-closed-pointer' frontend/simulator/index.html
+      - name: Commit v8 wiring
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add simulator/index.html frontend/simulator/index.html simulator/UI_VERSION.txt
+          git diff --cached --check
+          git commit -m 'simulator: enable complete hero touchfix v8'
+          git push origin HEAD:simulator-standalone-v1
+      - name: Verify public v8
+        shell: bash
+        run: |
+          set -euo pipefail
+          ROOT='https://simulator-standalone-v1.wfgg.pages.dev/simulator'
+          for i in $(seq 1 40); do
+            curl -fsSL "$ROOT/?touchfix_v8=$i" -o /tmp/index.html || true
+            if grep -Fq 'hero-sheet-closed-v8.css?v=008-closed-pointer' /tmp/index.html && curl -fsSL "$ROOT/hero-sheet-closed-v8.css?v=008-closed-pointer&n=$i" | grep -Fq '.hero-game-sheet:not(.open)'; then
+              echo "HERO_TOUCHFIX_V8_DEPLOYED=YES attempt=$i"; exit 0
+            fi
+            sleep 3
+          done
+          exit 1
+      - name: Install Playwright
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Android full hero interaction recette
+        shell: bash
+        run: |
+          node <<'JS'
+          const assert=require('node:assert/strict');
+          const {chromium}=require('playwright');
+          (async()=>{
+            const browser=await chromium.launch({headless:true});
+            try{
+              const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,deviceScaleFactor:2,locale:'fr-FR'});
+              const page=await context.newPage(); const errors=[]; page.on('pageerror',e=>errors.push(String(e)));
+              await page.goto('https://simulator-standalone-v1.wfgg.pages.dev/simulator/?touchfix_v8_e2e=1',{waitUntil:'networkidle',timeout:60000});
+              await page.locator('#stepNav [data-step="1"]').tap();
+              const cards=page.locator('.game-hero-card'); await cards.first().waitFor({state:'visible'}); assert.equal(await cards.count(),31);
+              await page.waitForFunction(()=>[...document.querySelectorAll('.game-hero-card img')].length===31 && [...document.querySelectorAll('.game-hero-card img')].every(i=>i.complete&&i.naturalWidth>100),null,{timeout:30000});
+              const cardInfo=await page.locator('.game-hero-card').evaluateAll(cs=>cs.map(c=>({rarity:[...c.classList].find(x=>x.startsWith('rarity-')),role:!!c.querySelector('.hero-role-badge'),type:!!c.querySelector('.hero-type-mini'),stars:c.querySelector('.hero-card-stars')?.textContent}))); assert.ok(cardInfo.every(x=>x.rarity&&x.role&&x.type));
+              await cards.first().tap(); await page.locator('#heroGameSheet.open').waitFor({state:'visible'});
+              for(const [id,target] of [['grade','.lw4-skill-icons'],['wall','.lw4-tier-stars'],['weapon','.lw4-weapon-stage'],['attributes','.lw4-stage']]){await page.locator(`[data-sheet-tab="${id}"]`).tap();await page.locator(target).waitFor({state:'visible'});}
+              const close=page.locator('#heroSheetClose'); const cb=await close.boundingBox(); assert.ok(cb);
+              const closeHit=await page.evaluate(({x,y})=>{const e=document.elementFromPoint(x,y);return {id:e?.id,tag:e?.tagName}}, {x:cb.x+cb.width/2,y:cb.y+cb.height/2}); assert.equal(closeHit.id,'heroSheetClose');
+              await close.tap(); await page.waitForTimeout(180); assert.equal(await page.locator('#heroGameSheet.open').count(),0);
+              const closedPointer=await page.locator('#heroGameSheet').evaluate(el=>getComputedStyle(el).pointerEvents); assert.equal(closedPointer,'none');
+              await cards.nth(1).tap(); await page.locator('#heroGameSheet.open').waitFor({state:'visible'});
+              assert.match(await page.locator('.hero-sheet-title h3').textContent(),/Murphy/i);
+              const action=page.locator('#heroOwnedAction'); const ab=await action.boundingBox(); assert.ok(ab);
+              const actionHit=await page.evaluate(({x,y})=>{const e=document.elementFromPoint(x,y);return {id:e?.id,tag:e?.tagName}}, {x:ab.x+ab.width/2,y:ab.y+ab.height/2}); assert.equal(actionHit.id,'heroOwnedAction');
+              await page.locator('#heroSheetClose').tap(); await page.waitForTimeout(120);
+              const metric=await page.evaluate(()=>({w:innerWidth,sw:(document.scrollingElement||document.documentElement).scrollWidth})); assert.ok(metric.sw<=metric.w+2);
+              assert.equal(errors.length,0,errors.join(' | '));
+              console.log(JSON.stringify({ok:true,cards:31,portraits:31,roleAndType:31,tabsTouch:true,closeTouch:true,reopenTouch:true,closeHit,actionHit,metric},null,2));
+            }finally{await browser.close()}
+          })().catch(e=>{console.error(e);process.exit(1)});
+          JS
