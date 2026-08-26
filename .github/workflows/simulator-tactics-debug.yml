@@ -1,0 +1,49 @@
+name: Simulator tactics debug
+
+on:
+  push:
+    branches: [simulator-standalone-v1]
+    paths: ['.github/workflows/simulator-tactics-debug.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  trace:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Trace tactics local persistence
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/e2e && cd /tmp/e2e
+          npm init -y >/dev/null 2>&1
+          npm install playwright@1.55.0 >/dev/null 2>&1
+          npx playwright install --with-deps chromium >/dev/null
+          cd "$GITHUB_WORKSPACE"
+          python3 -m http.server 4173 --directory simulator >/tmp/http.log 2>&1 &
+          pid=$!; trap 'kill $pid 2>/dev/null || true' EXIT
+          for i in {1..30}; do curl -fsS http://127.0.0.1:4173/ >/dev/null && break || sleep .2; done
+          NODE_PATH=/tmp/e2e/node_modules node <<'JS'
+          const {chromium}=require('playwright');
+          const P='wfgg-simulator-profile-v1',T='wfgg-simulator-tactics-v2';
+          (async()=>{const b=await chromium.launch({headless:true});const p=await b.newPage();
+            p.on('pageerror',e=>console.log('PAGEERROR',e.message));
+            p.on('console',m=>console.log('CONSOLE',m.type(),m.text()));
+            await p.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded'});await p.evaluate(()=>localStorage.clear());await p.reload();
+            await p.waitForSelector('#stepNav [data-step="4"]');await p.locator('#stepNav [data-step="4"]').click();await p.waitForSelector('#tacticsCardsV2');
+            const dump=async label=>console.log('DUMP',label,JSON.stringify(await p.evaluate(([P,T])=>({profile:JSON.parse(localStorage.getItem(P)||'{}'),tactics:JSON.parse(localStorage.getItem(T)||'{}'),serialized:window.WfGgTacticsAutosave?.serialize?.()}),[P,T])));
+            await dump('initial');
+            let card=p.locator('.tactics-slot[data-kind="battle"]').first();
+            await card.locator('[data-card-id]').selectOption('universal-zombie-killer');await p.waitForTimeout(100);await dump('after-card');
+            card=p.locator('.tactics-slot[data-kind="battle"]').first();
+            await card.locator('[data-card-level]').fill('5');await p.waitForTimeout(50);await dump('after-level-input');
+            await card.locator('[data-card-value="attackPct"]').fill('12.5');await p.waitForTimeout(50);await dump('after-attack-input');
+            await card.locator('[data-card-secondary]').fill('E2E secondary');await p.waitForTimeout(50);await dump('after-secondary-input');
+            await p.waitForTimeout(1000);await dump('after-1s');
+            await b.close();
+          })().catch(e=>{console.error(e);process.exit(1)});
+          JS
