@@ -1,0 +1,448 @@
+{
+  "source": {
+    "apk": "install_time_pack.apk",
+    "path": "assets/table/table_38781_cfcbee99d7064f86d09dd682babdbc2b.data",
+    "bytes": 19270680,
+    "md5": "cfcbee99d7064f86d09dd682babdbc2b",
+    "sha256": "be74b18971508b511c3fb306572dae330af85b4e7ae105143056638233b085e1"
+  },
+  "basePromotionHeroIds": {
+    "40010": "Mason",
+    "40012": "Violet",
+    "40006": "Scarlett",
+    "40019": "Sarah",
+    "40018": "Venom",
+    "40013": "Braz"
+  },
+  "variants": {
+    "40010": {
+      "hero": "Mason",
+      "lwHeroCandidates": [
+        {
+          "id": 40010,
+          "type": 1,
+          "quality": 4,
+          "template_id": 1,
+          "base_hp": 4138,
+          "base_patk": 9469,
+          "base_pdef": 6106,
+          "army_type": 1,
+          "army_job": 2,
+          "skills": [
+            401000,
+            401010,
+            401020,
+            401030
+          ],
+          "skills_unlock_lv": [
+            1,
+            5,
+            21,
+            31
+          ],
+          "skills_unlock_rank": [
+            1,
+            1,
+            1,
+            21
+          ],
+          "weapon": 4010,
+          "max_rank": 26,
+          "unique_weapon_open": [],
+          "appearance": 40010,
+          "hero_effect": 2,
+          "tags": null,
+          "specials": null
+        }
+      ],
+      "energyLevelupCandidates": [
+        {
+          "_key": 40010,
+          "energy_extra": [
+            401004
+          ],
+          "energy_lv1": [
+            401005
+          ],
+          "energy_lv2": [
+            401001
+          ],
+          "energy_lv3": [
+            401002,
+            401003
+          ],
+          "id": 40010
+        },
+        {
+          "_key": 400100,
+          "energy_extra": [
+            401015
+          ],
+          "energy_lv1": [
+            401011,
+            401014
+          ],
+          "energy_lv2": [
+            401012
+          ],
+          "energy_lv3": [
+            401013,
+            4010140
+          ],
+          "id": 400100
+        }
+      ]
+    },
+    "40012": {
+      "hero": "Violet",
+      "lwHeroCandidates": [
+        {
+          "id": 40012,
+          "type": 1,
+          "quality": 4,
+          "template_id": 1,
+          "base_hp": 8828,
+          "base_patk": 5493,
+          "base_pdef": 6997,
+          "army_type": 1,
+          "army_job": 1,
+          "skills": [
+            401200,
+            401210,
+            401220,
+            401230
+          ],
+          "skills_unlock_lv": [
+            1,
+            5,
+            21,
+            31
+          ],
+          "skills_unlock_rank": [
+            1,
+            1,
+            1,
+            21
+          ],
+          "weapon": 4012,
+          "max_rank": 26,
+          "unique_weapon_open": [],
+          "appearance": 40012,
+          "hero_effect": 2,
+          "tags": null,
+          "specials": null
+        }
+      ],
+      "energyLevelupCandidates": [
+        {
+          "_key": 40012,
+          "energy_extra": [
+            401204
+          ],
+          "energy_lv1": [
+            401205
+          ],
+          "energy_lv2": [
+            401201
+          ],
+          "energy_lv3": [
+            401202,
+            401203
+          ],
+          "id": 40012
+        },
+        {
+          "_key": 400120,
+          "energy_extra": [
+            401215
+          ],
+          "energy_lv1": [
+            401211
+          ],
+          "energy_lv2": [
+            401212,
+            401214
+          ],
+          "energy_lv3": [
+            401213
+          ],
+          "id": 400120
+        }
+      ]
+    },
+    "40006": {
+      "hero": "Scarlett",
+      "lwHeroCandidates": [
+        {
+          "id": 40006,
+          "type": 1,
+          "quality": 4,
+          "template_id": 1,
+          "base_hp": 8961,
+          "base_patk": 5438,
+          "base_pdef": 7014,
+          "army_type": 1,
+          "army_job": 1,
+          "skills": [
+            400600,
+            400610,
+            400620,
+            400630
+          ],
+          "skills_unlock_lv": [
+            1,
+            5,
+            21,
+            31
+          ],
+          "skills_unlock_rank": [
+            1,
+            1,
+            1,
+            21
+          ],
+          "weapon": 4006,
+          "max_rank": 26,
+          "unique_weapon_open": [],
+          "appearance": 40006,
+          "hero_effect": 2,
+          "tags": null,
+          "specials": null
+        }
+      ],
+      "energyLevelupCandidates": [
+        {
+          "_key": 40006,
+          "energy_extra": [
+            400604
+          ],
+          "energy_lv1": [
+            400601
+          ],
+          "energy_lv2": [
+            400602
+          ],
+          "energy_lv3": [
+            400603
+          ],
+          "id": 40006
+        },
+        {
+          "_key": 400060,
+          "energy_extra": [
+            400615
+          ],
+          "energy_lv1": [
+            400611,
+            400614
+          ],
+          "energy_lv2": [
+            400612
+          ],
+          "energy_lv3": [
+            400613
+          ],
+          "id": 400060
+        }
+      ]
+    },
+    "40019": {
+      "hero": "Sarah",
+      "lwHeroCandidates": [
+        {
+          "id": 40019,
+          "type": 1,
+          "quality": 4,
+          "template_id": 1,
+          "base_hp": 5183,
+          "base_patk": 7994,
+          "base_pdef": 6370,
+          "army_type": 3,
+          "army_job": 3,
+          "skills": [
+            401900,
+            401910,
+            401920,
+            401930
+          ],
+          "skills_unlock_lv": [
+            1,
+            5,
+            21,
+            31
+          ],
+          "skills_unlock_rank": [
+            1,
+            1,
+            1,
+            21
+          ],
+          "weapon": 4019,
+          "max_rank": 26,
+          "unique_weapon_open": [],
+          "appearance": 40019,
+          "hero_effect": 1,
+          "tags": null,
+          "specials": null
+        }
+      ],
+      "energyLevelupCandidates": [
+        {
+          "_key": 40019,
+          "energy_extra": [
+            401904
+          ],
+          "energy_lv1": [
+            401905
+          ],
+          "energy_lv2": [
+            401901
+          ],
+          "energy_lv3": [
+            401902,
+            401903
+          ],
+          "id": 40019
+        },
+        {
+          "_key": 400190,
+          "energy_extra": [
+            401915
+          ],
+          "energy_lv1": [
+            401911,
+            401914
+          ],
+          "energy_lv2": [
+            401912
+          ],
+          "energy_lv3": [
+            401913
+          ],
+          "id": 400190
+        }
+      ]
+    },
+    "40018": {
+      "hero": "Venom",
+      "lwHeroCandidates": [
+        {
+          "id": 40018,
+          "type": 1,
+          "quality": 4,
+          "template_id": 1,
+          "base_hp": 3454,
+          "base_patk": 10898,
+          "base_pdef": 5895,
+          "army_type": 2,
+          "army_job": 2,
+          "skills": [
+            401800,
+            401810,
+            401820,
+            401830
+          ],
+          "skills_unlock_lv": [
+            1,
+            5,
+            21,
+            31
+          ],
+          "skills_unlock_rank": [
+            1,
+            1,
+            1,
+            21
+          ],
+          "weapon": 4018,
+          "max_rank": 26,
+          "unique_weapon_open": [],
+          "appearance": 40018,
+          "hero_effect": 2,
+          "tags": null,
+          "specials": null
+        }
+      ],
+      "energyLevelupCandidates": [
+        {
+          "_key": 40018,
+          "energy_extra": [
+            401804
+          ],
+          "energy_lv1": [
+            401805
+          ],
+          "energy_lv2": [
+            401801
+          ],
+          "energy_lv3": [
+            401802,
+            401803
+          ],
+          "id": 40018
+        }
+      ]
+    },
+    "40013": {
+      "hero": "Braz",
+      "lwHeroCandidates": [
+        {
+          "id": 40013,
+          "type": 1,
+          "quality": 4,
+          "template_id": 1,
+          "base_hp": 4006,
+          "base_patk": 9707,
+          "base_pdef": 6068,
+          "army_type": 2,
+          "army_job": 2,
+          "skills": [
+            401300,
+            401310,
+            401320,
+            401330
+          ],
+          "skills_unlock_lv": [
+            1,
+            5,
+            21,
+            31
+          ],
+          "skills_unlock_rank": [
+            1,
+            1,
+            1,
+            21
+          ],
+          "weapon": 4013,
+          "max_rank": 26,
+          "unique_weapon_open": [],
+          "appearance": 40013,
+          "hero_effect": 2,
+          "tags": null,
+          "specials": null
+        }
+      ],
+      "energyLevelupCandidates": [
+        {
+          "_key": 40013,
+          "energy_extra": [
+            401304
+          ],
+          "energy_lv1": [
+            401305
+          ],
+          "energy_lv2": [
+            401301
+          ],
+          "energy_lv3": [
+            401302,
+            401303
+          ],
+          "id": 40013
+        }
+      ]
+    }
+  },
+  "note": "Candidate rows are selected by exact/prefix native IDs for the six SSR-to-UR seasonal promotions. No variant equivalence is assumed until rows are reconciled."
+}
