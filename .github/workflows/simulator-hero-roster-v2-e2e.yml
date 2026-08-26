@@ -1,8 +1,9 @@
-name: Simulator hero roster v2 E2E
+name: Simulator hero roster v3 E2E
 
 on:
   push:
-    branches: [simulator-standalone-v1]
+    branches:
+      - simulator-standalone-v1
     paths:
       - 'simulator/hero-roster-v2.js'
       - 'simulator/hero-roster-v2.css'
@@ -20,75 +21,99 @@ jobs:
     timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: simulator-standalone-v1
       - name: Install Playwright Chromium
         run: |
           mkdir -p /tmp/wfgg-hero-e2e && cd /tmp/wfgg-hero-e2e
           npm init -y >/dev/null 2>&1
           npm install playwright@1.55.0 >/dev/null 2>&1
           npx playwright install --with-deps chromium >/dev/null
-      - name: Test public graphical hero workflow and multi-select
+      - name: Test mobile long press and game-style sheets
         env:
           NODE_PATH: /tmp/wfgg-hero-e2e/node_modules
         run: |
+          set -euo pipefail
+          python3 -m http.server 4173 --directory simulator >/tmp/wfgg-hero-e2e/http.log 2>&1 &
+          server_pid=$!
+          trap 'kill $server_pid 2>/dev/null || true' EXIT
+          for i in {1..40}; do curl -fsS http://127.0.0.1:4173/ >/dev/null && break || sleep .25; done
           cat >/tmp/wfgg-hero-e2e/test.cjs <<'JS'
           const {chromium}=require('playwright');
-          const URL='https://simulator-standalone-v1.wfgg.pages.dev/simulator/';
+          const URL='http://127.0.0.1:4173/';
           const assert=(ok,msg)=>{if(!ok)throw new Error(msg)};
-          const sleep=ms=>new Promise(r=>setTimeout(r,ms));
           (async()=>{
-            for(let i=0;i<80;i++){
-              try{
-                const js=await fetch(URL+'hero-roster-v2.js?fresh='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.text():'');
-                if(js.includes("version:'2.2.0'"))break;
-              }catch(_){}
-              if(i===79)throw new Error('public preview missing hero roster 2.2');
-              await sleep(1500);
-            }
             const browser=await chromium.launch({headless:true});
             const context=await browser.newContext({viewport:{width:412,height:915},isMobile:true,hasTouch:true,deviceScaleFactor:2});
             const page=await context.newPage();
-            const errors=[];page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error'&&!m.text().includes('Failed to load resource'))errors.push(m.text())});
-            await page.goto(URL+'?heroMultiE2E='+Date.now(),{waitUntil:'networkidle',timeout:30000});
+            const errors=[];
+            page.on('pageerror',e=>errors.push('pageerror: '+e.message));
+            page.on('console',m=>{if(m.type()==='error'&&!m.text().includes('Failed to load resource'))errors.push('console: '+m.text())});
+            await page.goto(URL+'?heroV3='+Date.now(),{waitUntil:'domcontentloaded',timeout:30000});
             await page.evaluate(()=>localStorage.clear());
-            await page.reload({waitUntil:'networkidle',timeout:30000});
-            await page.waitForFunction(()=>window.WfGgHeroRosterV2?.version==='2.2.0',{timeout:12000});
+            await page.reload({waitUntil:'domcontentloaded',timeout:30000});
+            await page.waitForFunction(()=>window.WfGgHeroRosterV2?.version==='3.0.0',{timeout:12000});
             await page.locator('#stepNav [data-step="1"]').click();
             await page.waitForSelector('#gameHeroRosterV2 .game-hero-card',{timeout:12000});
-            assert(await page.locator('#gameHeroRosterV2 .game-hero-card').count()===31,'31 hero cards expected');
-            assert(await page.locator('#heroSelectionMode.active').count()===1,'multi-select must be active by default');
+
+            assert(await page.locator('.game-hero-card').count()===31,'31 hero cards expected');
+            assert(await page.locator('.hero-card-info').count()===0,'info i button must be gone');
+            assert(await page.locator('.hero-owned-toggle').count()===0,'card plus/check button must be gone');
+            assert(await page.locator('#heroSelectionMode').count()===0,'explicit multi-select button must be gone');
+            assert(await page.evaluate(()=>window.WfGgHeroRosterV2.selectionMode())===false,'normal mode must be default');
+            assert(await page.locator('.hero-select-dot').count()===0,'selection dots must be hidden in normal mode');
 
             await page.locator('[data-hero-id="kimberly"]').click();
+            await page.waitForSelector('#heroGameSheet.open',{timeout:5000});
+            assert(await page.locator('.hero-sheet-tab').count()===4,'four graphical tabs expected');
+            assert(await page.locator('.hero-sheet-tab svg').count()===4,'each tab must have an icon');
+            await page.locator('#heroSheetClose').click();
+
+            const card=page.locator('[data-hero-id="kimberly"]');
+            const box=await card.boundingBox();assert(box,'Kimberly card missing');
+            await page.mouse.move(box.x+box.width/2,box.y+box.height/2);
+            await page.mouse.down();
+            await page.waitForTimeout(620);
+            await page.mouse.up();
+            await page.waitForFunction(()=>window.WfGgHeroRosterV2.selectionMode()===true,{timeout:4000});
+            await page.waitForSelector('#heroSelectAll',{timeout:4000});
+            assert(await page.locator('.game-hero-grid.is-selecting').count()===1,'grey selection mode missing');
+            assert(await page.locator('.hero-select-dot').count()===31,'one round selection dot per hero expected');
             await page.waitForSelector('[data-hero-id="kimberly"].owned',{timeout:5000});
-            assert(await page.locator('#heroGameSheet.open').count()===0,'card tap in selection mode must not open sheet');
+            assert(await page.locator('[data-hero-id="kimberly"] .hero-select-dot.on').count()===1,'long-pressed hero must be checked');
+
             await page.locator('[data-hero-id="monica"]').click();
             await page.waitForSelector('[data-hero-id="monica"].owned',{timeout:5000});
             assert((await page.locator('#gameRosterCount').textContent()).startsWith('2/31'),'two selected heroes expected');
 
-            await page.locator('[data-hero-info="kimberly"]').click();
-            await page.waitForSelector('#heroGameSheet.open',{timeout:5000});
-            assert((await page.locator('#heroOwnedAction').textContent()).toLowerCase().includes('retirer'),'info sheet must preserve owned state');
-            await page.locator('#heroSheetClose').click();
+            await page.locator('[data-filter="tank"]').click();
+            await page.waitForTimeout(100);
+            assert(await page.locator('#heroSelectAll').count()===1,'select-all must remain available with filters');
+            const tankCount=await page.locator('.game-hero-card').count();
+            assert(tankCount>0&&tankCount<31,'tank filter expected');
+            await page.locator('#heroSelectAll').click();
+            await page.waitForFunction(()=>[...document.querySelectorAll('.game-hero-card')].every(x=>x.classList.contains('owned')),{timeout:10000});
 
-            await page.reload({waitUntil:'networkidle',timeout:30000});
-            await page.locator('#stepNav [data-step="1"]').click();
-            await page.waitForSelector('[data-hero-id="kimberly"].owned',{timeout:8000});
-            assert(await page.locator('[data-hero-id="monica"].owned').count()===1,'Monica selection lost after reload');
-            assert((await page.locator('#gameRosterCount').textContent()).startsWith('2/31'),'multi-selection count lost after reload');
+            await page.locator('#heroSelectionDone').click();
+            assert(await page.evaluate(()=>window.WfGgHeroRosterV2.selectionMode())===false,'done must exit selection mode');
+            assert(await page.locator('.hero-select-dot').count()===0,'selection dots must disappear after done');
 
+            await page.locator('[data-filter="all"]').click();
             await page.locator('[data-hero-id="kimberly"]').click();
-            await page.waitForTimeout(500);
-            assert(await page.locator('[data-hero-id="kimberly"].owned').count()===0,'selection-mode tap must remove owned hero');
-            assert(await page.locator('[data-hero-id="monica"].owned').count()===1,'other selected hero must remain');
-
-            await page.locator('#heroSelectionMode').click();
-            assert(await page.locator('#heroSelectionMode.active').count()===0,'details mode expected');
-            await page.locator('[data-hero-id="monica"]').click();
             await page.waitForSelector('#heroGameSheet.open',{timeout:5000});
-            assert(await page.locator('[data-hero-id="monica"].owned').count()===1,'details-mode tap must not alter possession');
+            for(const id of ['attributes','grade','weapon','wall']){
+              await page.locator(`[data-sheet-tab="${id}"]`).click();
+              await page.waitForTimeout(60);
+              assert(await page.locator(`[data-sheet-tab="${id}"].active`).count()===1,`${id} tab not active`);
+            }
+            await page.locator('[data-sheet-tab="grade"]').click();
+            assert(await page.locator('[data-edit-field="level"]').first().getAttribute('max')==='175','hero level max must be 175');
+            assert(await page.locator('[data-edit-field="stars"]').first().getAttribute('step')==='0.2','star tier step must be 0.2');
+            assert(await page.locator('.hero-field-icon svg').count()>0,'graphical field icons expected');
 
-            await page.screenshot({path:'/tmp/wfgg-hero-e2e/hero-roster-v2-multiselect.png',fullPage:true});
+            await page.screenshot({path:'/tmp/wfgg-hero-e2e/hero-roster-v3-longpress.png',fullPage:true});
             assert(errors.length===0,'browser errors: '+errors.join(' | '));
-            console.log('WFGG HERO ROSTER V2.2 MULTISELECT E2E COMPLETE');
+            console.log('WFGG HERO ROSTER V3 LONG-PRESS E2E COMPLETE');
             await browser.close();
           })().catch(e=>{console.error(e);process.exit(1)});
           JS
@@ -96,6 +121,6 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: simulator-hero-roster-v2-multiselect-screen
-          path: /tmp/wfgg-hero-e2e/hero-roster-v2-multiselect.png
+          name: simulator-hero-roster-v3-longpress-screen
+          path: /tmp/wfgg-hero-e2e/hero-roster-v3-longpress.png
           if-no-files-found: ignore
