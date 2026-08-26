@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0",
+  "version": "1.1.0",
   "objectives": [
     {
       "id": "wanted-39",
@@ -9,7 +9,15 @@
       "rules": {
         "bossDoesNotAttack": true,
         "durationSeconds": 90,
-        "typeBonus": {"targetType":"aircraft","damagePct":50}
+        "typeBonus": {"targetType":"aircraft","damagePct":50},
+        "targetMetric": "estimated-total-offensive-output-over-90s",
+        "scorePolicy": {
+          "displayedPowerWeight": 0,
+          "defenseWeight": 0,
+          "hpWeight": 0,
+          "include": ["attack","skill-damage","damage-multipliers","crit","attack-speed","cooldown","pve-damage","monster-damage","team-buffs","positional-buffs","debuffs-increasing-target-damage"],
+          "exception": "A normally defensive stat may affect the score only when a verified offensive skill explicitly scales from it or triggers from it."
+        }
       }
     },
     {
@@ -20,7 +28,15 @@
       "rules": {
         "bossDoesNotAttack": true,
         "durationSeconds": 90,
-        "typeBonus": {"targetType":"missile","damagePct":50}
+        "typeBonus": {"targetType":"missile","damagePct":50},
+        "targetMetric": "estimated-total-offensive-output-over-90s",
+        "scorePolicy": {
+          "displayedPowerWeight": 0,
+          "defenseWeight": 0,
+          "hpWeight": 0,
+          "include": ["attack","skill-damage","damage-multipliers","crit","attack-speed","cooldown","pve-damage","monster-damage","team-buffs","positional-buffs","debuffs-increasing-target-damage"],
+          "exception": "A normally defensive stat may affect the score only when a verified offensive skill explicitly scales from it or triggers from it."
+        }
       }
     },
     {
@@ -31,7 +47,15 @@
       "rules": {
         "bossDoesNotAttack": true,
         "durationSeconds": 90,
-        "typeBonus": {"targetType":"tank","damagePct":50}
+        "typeBonus": {"targetType":"tank","damagePct":50},
+        "targetMetric": "estimated-total-offensive-output-over-90s",
+        "scorePolicy": {
+          "displayedPowerWeight": 0,
+          "defenseWeight": 0,
+          "hpWeight": 0,
+          "include": ["attack","skill-damage","damage-multipliers","crit","attack-speed","cooldown","pve-damage","monster-damage","team-buffs","positional-buffs","debuffs-increasing-target-damage"],
+          "exception": "A normally defensive stat may affect the score only when a verified offensive skill explicitly scales from it or triggers from it."
+        }
       }
     },
     {
@@ -85,7 +109,13 @@
         "gearCannotBeReused": true,
         "exclusiveWeaponFollowsHero": true,
         "squadResearchIsSlotSpecific": true,
-        "droneChipPresetAllocationMustBeRespected": true
+        "droneChipPresetAllocationMustBeRespected": true,
+        "positionOptimization": {
+          "enabled": true,
+          "positionsPerSquad": 5,
+          "maxPlacementsPerComposition": 120,
+          "source": "formation-positioning.v1.json"
+        }
       },
       "contexts": ["general-pvp","arena-3v3","world-map","season-6"]
     }
