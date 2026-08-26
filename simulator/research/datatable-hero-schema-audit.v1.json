@@ -1,0 +1,4038 @@
+{
+  "target": {
+    "package": "com.fun.lastwar.gp",
+    "appVersion": "1.0.359",
+    "buildId": 1864,
+    "dataTableDescriptor": "DataTable,1295,294,1768181284"
+  },
+  "embedded": {
+    "apk": "install_time_pack.apk",
+    "path": "assets/table/table_38781_cfcbee99d7064f86d09dd682babdbc2b.data",
+    "bytes": 19270680,
+    "md5": "cfcbee99d7064f86d09dd682babdbc2b",
+    "sha256": "be74b18971508b511c3fb306572dae330af85b4e7ae105143056638233b085e1",
+    "magic": "504b030414000000"
+  },
+  "entryCount": 1286,
+  "candidateCount": 155,
+  "schemaCount": 84,
+  "schemas": [
+    {
+      "name": "lw_army",
+      "bytes": 844819,
+      "magic": "1b4c756153011993",
+      "sha256": "94d660fd842c8ed8ee9c7e0e7db51e025ff010db0fe4a44afaabebc55b58f9e2",
+      "fields": [
+        {
+          "name": "id",
+          "column": 1,
+          "type": "number"
+        },
+        {
+          "name": "name",
+          "column": 2,
+          "type": "string"
+        },
+        {
+          "name": "army_icon",
+          "column": 3,
+          "type": "string"
+        },
+        {
+          "name": "army_awaken",
+          "column": 4,
+          "type": "array"
+        },
+        {
+          "name": "hero1",
+          "column": 5,
+          "type": "string"
+        },
+        {
+          "name": "hero1_property",
+          "column": 6,
+          "type": "string"
+        },
+        {
+          "name": "hero1_soldier",
+          "column": 7,
+          "type": "string"
+        },
+        {
+          "name": "hero2",
+          "column": 8,
+          "type": "string"
+        },
+        {
+          "name": "hero2_property",
+          "column": 9,
+          "type": "string"
+        },
+        {
+          "name": "hero2_soldier",
+          "column": 10,
+          "type": "string"
+        },
+        {
+          "name": "hero3",
+          "column": 11,
+          "type": "string"
+        },
+        {
+          "name": "hero3_property",
+          "column": 12,
+          "type": "string"
+        },
+        {
+          "name": "hero3_soldier",
+          "column": 13,
+          "type": "string"
+        },
+        {
+          "name": "hero4",
+          "column": 14,
+          "type": "string"
+        },
+        {
+          "name": "hero4_property",
+          "column": 15,
+          "type": "string"
+        },
+        {
+          "name": "hero4_soldier",
+          "column": 16,
+          "type": "string"
+        },
+        {
+          "name": "hero5",
+          "column": 17,
+          "type": "string"
+        },
+        {
+          "name": "hero5_property",
+          "column": 18,
+          "type": "string"
+        },
+        {
+          "name": "hero5_soldier",
+          "column": 19,
+          "type": "string"
+        },
+        {
+          "name": "hero6",
+          "column": 20,
+          "type": "string"
+        },
+        {
+          "name": "hero6_property",
+          "column": 21,
+          "type": "string"
+        },
+        {
+          "name": "hero6_soldier",
+          "column": 22,
+          "type": "string"
+        },
+        {
+          "name": "rec_uav_power",
+          "column": 23,
+          "type": "string"
+        },
+        {
+          "name": "rec_equip_power",
+          "column": 24,
+          "type": "string"
+        },
+        {
+          "name": "rec_sci_power",
+          "column": 25,
+          "type": "string"
+        },
+        {
+          "name": "rec_honor_power",
+          "column": 26,
+          "type": "string"
+        },
+        {
+          "name": "pve_power",
+          "column": 27,
+          "type": "string"
+        },
+        {
+          "name": "effect",
+          "column": 28,
+          "type": "string"
+        },
+        {
+          "name": "uav_property",
+          "column": 29,
+          "type": "string"
+        },
+        {
+          "name": "uav_skill",
+          "column": 30,
+          "type": "string"
+        },
+        {
+          "name": "replace_icon",
+          "column": 31,
+          "type": "string"
+        }
+      ],
+      "interestingFields": [
+        "army_icon",
+        "army_awaken",
+        "hero1",
+        "hero1_property",
+        "hero1_soldier",
+        "hero2",
+        "hero2_property",
+        "hero2_soldier",
+        "hero3",
+        "hero3_property",
+        "hero3_soldier",
+        "hero4",
+        "hero4_property",
+        "hero4_soldier",
+        "hero5",
+        "hero5_property",
+        "hero5_soldier",
+        "hero6",
+        "hero6_property",
+        "hero6_soldier",
+        "rec_uav_power",
+        "rec_equip_power",
+        "rec_sci_power",
+        "rec_honor_power",
+        "pve_power",
+        "uav_skill"
+      ],
+      "rowMarkers": 12,
+      "sourceChars": 843823
+    },
+    {
+      "name": "alliance_government_skill",
+      "bytes": 9442,
+      "magic": "1b4c756153011993",
+      "sha256": "7f627654904aaa0b2697fdfdf21b3189a17ee3b5295bccd3f308016c587942fa",
+      "fields": [
+        {
+          "name": "id",
+          "column": 1,
+          "type": "number"
+        },
+        {
+          "name": "type",
+          "column": 2,
+          "type": "number"
+        },
+        {
+          "name": "use_type",
+          "column": 3,
+          "type": "string"
+        },
+        {
+          "name": "skill_flag",
+          "column": 4,
+          "type": "number"
+        },
+        {
+          "name": "skill_icon",
+          "column": 5,
+          "type": "string"
+        },
+        {
+          "name": "name",
+          "column": 6,
+          "type": "string"
+        },
+        {
+          "name": "desc",
+          "column": 7,
+          "type": "string"
+        },
+        {
+          "name": "rule",
+          "column": 8,
+          "type": "string"
+        },
+        {
+          "name": "pre_time",
+          "column": 9,
+          "type": "number"
+        },
+        {
+          "name": "during_time",
+          "column": 10,
+          "type": "number"
+        },
+        {
+          "name": "cd_time",
+          "column": 11,
+          "type": "number"
+        },
+        {
+          "name": "effect_scope",
+          "column": 12,
+          "type": "number"
+        },
+        {
+          "name": "announce_id",
+          "column": 13,
+          "type": "number"
+        },
+        {
+          "name": "announce_id_prepare",
+          "column": 14,
+          "type": "number"
+        },
+        {
+          "name": "announce_id_defeat",
+          "column": 15,
+          "type": "number"
+        },
+        {
+          "name": "mail_id",
+          "column": 16,
+          "type": "number"
+        },
+        {
+          "name": "mail_id_1",
+          "column": 17,
+          "type": "string"
+        },
+        {
+          "name": "activity_type",
+          "column": 18,
+          "type": "array"
+        },
+        {
+          "name": "effect_desc",
+          "column": 19,
+          "type": "string"
+        },
+        {
+          "name": "effect_desc_num",
+          "column": 20,
+          "type": "string"
+        },
+        {
+          "name": "skill_para1",
+          "column": 21,
+          "type": "number"
+        },
+        {
+          "name": "skill_para2",
+          "column": 22,
+          "type": "string"
+        },
+        {
+          "name": "skill_para4",
+          "column": 23,
+          "type": "string"
+        },
+        {
+          "name": "skill_para5",
+          "column": 24,
+          "type": "string"
+        },
+        {
+          "name": "skill_para6",
+          "column": 25,
+          "type": "string"
+        },
+        {
+          "name": "skill_para7",
+          "column": 26,
+          "type": "string"
+        },
+        {
+          "name": "skill_para8",
+          "column": 27,
+          "type": "string"
+        },
+        {
+          "name": "skill_vibrate",
+          "column": 28,
+          "type": "string"
+        },
+        {
+          "name": "skill_sound",
+          "column": 29,
+          "type": "number"
+        },
+        {
+          "name": "skill_shake",
+          "column": 30,
+          "type": "string"
+        },
+        {
+          "name": "is_cumulative",
+          "column": 31,
+          "type": "string"
+        },
+        {
+          "name": "consume_energy",
+          "column": 32,
+          "type": "number"
+        },
+        {
+          "name": "prerequisites_effect",
+          "column": 33,
+          "type": "number"
+        },
+        {
+          "name": "skill_score",
+          "column": 34,
+          "type": "number"
+        },
+        {
+          "name": "unlock_condition_desc",
+          "column": 35,
+          "type": "array"
+        },
+        {
+          "name": "UnityConfigPath",
+          "column": 36,
+          "type": "string"
+        },
+        {
+          "name": "Skill_Icon_Path",
+          "column": 37,
+          "type": "string"
+        }
+      ],
+      "interestingFields": [
+        "skill_flag",
+        "skill_icon",
+        "announce_id_defeat",
+        "skill_para1",
+        "skill_para2",
+        "skill_para4",
+        "skill_para5",
+        "skill_para6",
+        "skill_para7",
+        "skill_para8",
+        "skill_vibrate",
+        "skill_sound",
+        "skill_shake",
+        "skill_score",
+        "Skill_Icon_Path"
+      ],
+      "rowMarkers": 15,
+      "sourceChars": 10775
+    },
+    {
+      "name": "lw_drone_skillchip",
+      "bytes": 28785,
+      "magic": "1b4c756153011993",
+      "sha256": "f55a870b8c5ff52afa79640d1af7ab59b250e43255c80e4a7d4088601dcd4c12",
+      "fields": [
+        {
+          "name": "id",
+          "column": 1,
+          "type": "number"
+        },
+        {
+          "name": "name",
+          "column": 2,
+          "type": "string"
+        },
+        {
+          "name": "skill_type",
+          "column": 3,
+          "type": "number"
+        },
+        {
+          "name": "quality",
+          "column": 4,
+          "type": "number"
+        },
+        {
+          "name": "heroType",
+          "column": 5,
+          "type": "number"
+        },
+        {
+          "name": "chipSeries",
+          "column": 6,
+          "type": "number"
+        },
+        {
+          "name": "icon",
+          "column": 7,
+          "type": "string"
+        },
+        {
+          "name": "selfExp",
+          "column": 8,
+          "type": "array"
+        },
+        {
+          "name": "maxLevel",
+          "column": 9,
+          "type": "number"
+        },
+        {
+          "name": "exp_id",
+          "column": 10,
+          "type": "number"
+        },
+        {
+          "name": "attribute_id",
+          "column": 11,
+          "type": "array"
+        },
+        {
+          "name": "maxStar",
+          "column": 12,
+          "type": "number"
+        },
+        {
+          "name": "upStarReplaceGoods",
+          "column": 13,
+          "type": "number"
+        },
+        {
+          "name": "promoteNeedChips",
+          "column": 14,
+          "type": "array"
+        },
+        {
+          "name": "skill_id",
+          "column": 15,
+          "type": "array"
+        },
+        {
+          "name": "additional_skill_id",
+          "column": 16,
+          "type": "array"
+        },
+        {
+          "name": "isShow",
+          "column": 17,
+          "type": "number"
+        },
+        {
+          "name": "craft_material",
+          "column": 18,
+          "type": "array"
+        },
+        {
+          "name": "craft_time",
+          "column": 19,
+          "type": "number"
+        },
+        {
+          "name": "craft_factory_level",
+          "column": 20,
+          "type": "number"
+        },
+        {
+          "name": "dismantle_material",
+          "column": 21,
+          "type": "array"
+        },
+        {
+          "name": "chip_bonus_desc",
+          "column": 22,
+          "type": "string"
+        },
+        {
+          "name": "chip_bonus_desc_para",
+          "column": 23,
+          "type": "string"
+        }
+      ],
+      "interestingFields": [
+        "skill_type",
+        "quality",
+        "heroType",
+        "maxLevel",
+        "maxStar",
+        "upStarReplaceGoods",
+        "skill_id",
+        "additional_skill_id",
+        "craft_factory_level"
+      ],
+      "rowMarkers": 32,
+      "sourceChars": 25677
+    },
+    {
+      "name": "common_boss_skill",
+      "bytes": 1785,
+      "magic": "1b4c756153011993",
+      "sha256": "a555084431b24ca83721d67f554260a0c427b9ebe8e43c886bd5e7b597876de7",
+      "fields": [
+        {
+          "name": "id",
+          "column": 1,
+          "type": "number"
+        },
+        {
+          "name": "skill_type",
+          "column": 2,
+          "type": "number"
+        },
+        {
+          "name": "attack_effect_list",
+          "column": 3,
+          "type": "number"
+        },
+        {
+          "name": "attack_effect_content_map",
+          "column": 4,
+          "type": "string"
+        },
+        {
+          "name": "attack_mode_type",
+          "column": 5,
+          "type": "number"
+        },
+        {
+          "name": "para1",
+          "column": 6,
+          "type": "string"
+        },
+        {
+          "name": "is_alliance_attack",
+          "column": 7,
+          "type": "number"
+        },
+        {
+          "name": "attack_count_limit",
+          "column": 8,
+          "type": "number"
+        },
+        {
+          "name": "attack_range_limit",
+          "column": 9,
+          "type": "string"
+        },
+        {
+          "name": "attack_delay_sec",
+          "column": 10,
+          "type": "number"
+        },
+        {
+          "name": "mail",
+          "column": 11,
+          "type": "number"
+        },
+        {
+          "name": "drop_effect_duration",
+          "column": 12,
+          "type": "number"
+        },
+        {
+          "name": "select_effect",
+          "column": 13,
+          "type": "string"
+        },
+        {
+          "name": "hit_client_effect",
+          "column": 14,
+          "type": "string"
+        },
+        {
+          "name": "hit_sound_effect",
+          "column": 15,
+          "type": "number"
+        },
+        {
+          "name": "fall_type",
+          "column": 16,
+          "type": "number"
+        },
+        {
+          "name": "fall_client_effect",
+          "column": 17,
+          "type": "string"
+        },
+        {
+          "name": "boom_effect_delay",
+          "column": 18,
+          "type": "number"
+        },
+        {
+          "name": "attack_pre_time",
+          "column": 19,
+          "type": "number"
+        }
+      ],
+      "interestingFields": [
+        "skill_type",
+        "attack_effect_list",
+        "attack_effect_content_map",
+        "attack_mode_type",
+        "is_alliance_attack",
+        "attack_count_limit",
+        "attack_range_limit",
+        "attack_delay_sec",
+        "attack_pre_time"
+      ],
+      "rowMarkers": 4,
+      "sourceChars": 1724
+    },
+    {
+      "name": "lw_hero_awaken",
+      "bytes": 1957,
+      "magic": "1b4c756153011993",
+      "sha256": "58e5ade360628c7550ae4a6748bf481e8942b56733f0795b5cd41a97efa9501f",
+      "fields": [
+        {
+          "name": "id",
+          "column": 1,
+          "type": "number"
+        },
+        {
+          "name": "awaken_unlock_time",
+          "column": 2,
+          "type": "array"
+        },
+        {
+          "name": "awaken_goods_id",
+          "column": 3,
+          "type": "number"
+        },
+        {
+          "name": "awaken_max_level",
+          "column": 4,
+          "type": "number"
+        },
+        {
+          "name": "new_hero_brief",
+          "column": 5,
+          "type": "string"
+        },
+        {
+          "name": "normal_skin_id",
+          "column": 6,
+          "type": "number"
+        },
+        {
+          "name": "unique_weapon_skin_id",
+          "column": 7,
+          "type": "number"
+        },
+        {
+          "name": "awaken_skin_id",
+          "column": 8,
+          "type": "number"
+        },
+        {
+          "name": "advanced_awaken_skin_id",
+          "column": 9,
+          "type": "number"
+        },
+        {
+          "name": "guide_plot_id",
+          "column": 10,
+          "type": "number"
+        },
+        {
+          "name": "skill_short_desc",
+          "column": 11,
+          "type": "string"
+        },
+        {
+          "name": "spine_preview_pic",
+          "column": 12,
+          "type": "string"
+        },
+        {
+          "name": "spine_preview_key",
+          "column": 13,
+          "type": "string"
+        },
+        {
+          "name": "skill_preview_key",
+          "column": 14,
+          "type": "string"
+        },
+        {
+          "name": "extra_skill_effect_line",
+          "column": 15,
+          "type": "string"
+        }
+      ],
+      "interestingFields": [
+        "awaken_max_level",
+        "new_hero_brief",
+        "unique_weapon_skin_id",
+        "skill_short_desc",
+        "skill_preview_key",
+        "extra_skill_effect_line"
+      ],
+      "rowMarkers": 3,
+      "sourceChars": 1838
+    },
+    {
+      "name": "YiBianJinQu_skills_s4",
+      "bytes": 4419,
+      "magic": "1b4c756153011993",
+      "sha256": "36b664be5f8285a89c0c384901b0a256886a54cd6bb5a41aa510be60f03e9dcb",
+      "fields": [
+        {
+          "name": "id",
+          "column": 1,
+          "type": "number"
+        },
+        {
+          "name": "season_days",
+          "column": 2,
+          "type": "number"
+        },
+        {
+          "name": "type",
+          "column": 3,
+          "type": "string"
+        },
+        {
+          "name": "tag",
+          "column": 4,
+          "type": "string"
+        },
+        {
+          "name": "name",
+          "column": 5,
+          "type": "string"
+        },
+        {
+          "name": "desc",
+          "column": 6,
+          "type": "string"
+        },
+        {
+          "name": "model",
+          "column": 7,
+          "type": "string"
+        },
+        {
+          "name": "brief",
+          "column": 8,
+          "type": "string"
+        },
+        {
+          "name": "icon",
+          "column": 9,
+          "type": "string"
+        },
+        {
+          "name": "map_icon",
+          "column": 10,
+          "type": "string"
+        },
+        {
+          "name": "example",
+          "column": 11,
+          "type": "string"
+        },
+        {
+          "name": "example_preview",
+          "column": 12,
+          "type": "string"
+        },
+        {
+          "name": "skill_probability",
+          "column": 13,
+          "type": "string"
+        },
+        {
+          "name": "points_required",
+          "column": 14,
+          "type": "string"
+        },
+        {
+          "name": "activite_time",
+          "column": 15,
+          "type": "string"
+        },
+        {
+          "name": "skill_CD",
+          "column": 16,
+          "type": "string"
+        },
+        {
+          "name": "para1",
+          "column": 17,
+          "type": "string"
+        },
+        {
+          "name": "para2",
+          "column": 18,
+          "type": "string"
+        },
+        {
+          "name": "para3",
+          "column": 19,
+          "type": "string"
+        },
+        {
+          "name": "para4",
+          "column": 20,
+          "type": "string"
+        },
+        {
+          "name": "para5",
+          "column": 21,
+          "type": "string"
+        },
+        {
+          "name": "para6",
+          "column": 22,
+          "type": "string"
+        },
+        {
+          "name": "para7",
+          "column": 23,
+          "type": "string"
+        },
+        {
+          "name": "skill_para_show_map",
+          "column": 24,
+          "type": "string"
+        },
+        {
+          "name": "battlefield_skill_sound",
+          "column": 25,
+          "type": "number"
+        },
+        {
+          "name": "battlefield_attack_sound",
+          "column": 26,
+          "type": "number"
+        },
+        {
+          "name": "battlefield_hit_sound",
+          "column": 27,
+          "type": "number"
+        }
+      ],
+      "interestingFields": [
+        "skill_probability",
+        "skill_CD",
+        "skill_para_show_map",
+        "battlefield_skill_sound",
+        "battlefield_attack_sound"
+      ],
+      "rowMarkers": 8,
+      "sourceChars": 4701
+    },
+    {
+      "name": "lw_squad_equip_lv",
+      "bytes": 11899,
+      "magic": "1b4c756153011993",
+      "sha256": "cbbbfe049b19eacda36ba64b604ad3d7893b593f8b6047edf54e820d019976e4",
+      "fields": [
+        {
+          "name": "id",
+          "column": 1,
+          "type": "number"
+        },
+        {
+          "name": "group",
+          "column": 2,
+          "type": "number"
+        },
+        {
+          "name": "squad_equip_lv",
+          "column": 3,
+          "type": "number"
+        },
+        {
+          "name": "order",
+          "column": 4,
+          "type": "number"
+        },
+        {
+          "name": "percent_range",
+          "column": 5,
+          "type": "array"
+        },
+        {
+          "name": "small_percent_point",
+          "column": 6,
+          "type": "number"
+        },
+        {
+          "name": "small_percent_effect",
+          "column": 7,
+          "type": "table"
+        },
+        {
+          "name": "small_percent_effect_hero",
+          "column": 8,
+          "type": "table"
+        },
+        {
+          "name": "big_percent_point",
+          "column": 9,
+          "type": "number"
+        },
+        {
+          "name": "big_percent_effect",
+          "column": 10,
+          "type": "table"
+        },
+        {
+          "name": "big_percent_effect_dominator",
+          "column": 11,
+          "type": "table"
+        },
+        {
+          "name": "small_percent_power",
+          "column": 12,
+          "type": "number"
+        },
+        {
+          "name": "big_percent_power",
+          "column": 13,
+          "type": "number"
+        }
+      ],
+      "interestingFields": [
+        "squad_equip_lv",
+        "small_percent_effect_hero",
+        "small_percent_power",
+        "big_percent_power"
+      ],
+      "rowMarkers": 120,
+      "sourceChars": 14956
+    },
+    {
+      "name": "lw_hero_awaken_rank",
+      "bytes": 6409,
+      "magic": "1b4c756153011993",
+      "sha256": "98205885eb48e914aec7df89615702824161e4c14836567f157e259db55d4d04",
+      "fields": [
+        {
+          "name": "id",
+          "column": 1,
+          "type": "number"
+        },
+        {
+          "name": "hero_id",
+          "column": 2,
+          "type": "number"
+        },
+        {
+          "name": "level",
+          "column": 3,
+          "type": "number"
+        },
+        {
+          "name": "attr_add",
+          "column": 4,
+          "type": "table"
+        },
+        {
+          "name": "rank_cost",
+          "column": 5,
+          "type": "number"
+        },
+        {
+          "name": "skill_list",
+          "column": 6,
+          "type": "array"
+        },
+        {
+          "name": "is_advanced_skin",
+          "column": 7,
+          "type": "number"
+        },
+        {
+          "name": "fix_power",
+          "column": 8,
+          "type": "number"
+        }
+      ],
+      "interestingFields": [
+        "hero_id",
+        "level",
+        "skill_list",
+        "fix_power"
+      ],
+      "rowMarkers": 78,
+      "sourceChars": 9043
+    },
+    {
+      "name": "lw_random_hero_skill_list",
+      "bytes": 2281,
+      "magic": "1b4c756153011993",
+      "sha256": "2895de31314341959068a1948c478b9730c0890bd4c9bab5e9a5b652346d36e5",
+      "fields": [
+        {
+          "name": "id",
+          "column": 1,
+          "type": "number"
+        },
+        {
+          "name": "quality",
+          "column": 2,
+          "type": "number"
+        },
+        {
+          "name": "weapon",
+          "column": 3,
+          "type": "string"
+        },
+        {
+          "name": "actve_skill_list",
+          "column": 4,
+          "type": "string"
+        },
+        {
+          "name": "passive_skill_list",
+          "column": 5,
+          "type": "string"
+        }
+      ],
+      "interestingFields": [
+        "quality",
+        "weapon",
+        "actve_skill_list",
+        "passive_skill_list"
+      ],
+      "rowMarkers": 14,
+      "sourceChars": 2220
+    },
+    {
+      "name": "battle_card_level",
+      "bytes": 6364,
+      "magic": "1b4c756153011993",
+      "sha256": "81c4957c49cc45f3a0c2e9ef1234ffc3a3f16682a74b359f0fffab67fefaaec5",
+      "fields": [
+        {
+          "name": "id",
+          "column": 1,
+          "type": "number"
+        },
+        {
+          "name": "type",
+          "column": 2,
+          "type": "number"
+        },
+        {
+          "name": "color",
+          "column": 3,
+          "type": "number"
+        },
+        {
+          "name": "level_group",
+          "column": 4,
+          "type": "number"
+        },
+        {
+          "name": "level",
+          "column": 5,
+          "type": "number"
+        },
+        {
+          "name": "cost",
+          "column": 6,
+          "type": "array"
+        },
+        {
+          "name": "resolve_reward",
+          "column": 7,
+          "type": "string"
+        }
+      ],
+      "interestingFields": [
+        "level_group",
+        "level",
+        "resolve_reward"
+      ],
+      "rowMarkers": 100,
+      "sourceChars": 7673
+    },
+    {
+      "name": "battle_card_star",
+      "bytes": 7650,
+      "magic": "1b4c756153011993",
+      "sha256": "6cb40e6a363439de5ee98cdf72b6d9485279299b607a59cd1c61759c3cced17f",
+      "fields": [
+        {
+          "name": "id",
+          "column": 1,
+          "type": "number"
+        },
+        {
+          "name": "card_id",
+          "column": 2,
+          "type": "number"
+        },
+        {
+          "name": "star",
+          "column": 3,
+          "type": "number"
+        },
+        {
+          "name": "cost",
+          "column": 4,
+          "type": "number"
+        },
+        {
+          "name": "attr",
+          "column": 5,
+          "type": "table"
+        },
+        {
+          "name": "skill_list",
+          "column": 6,
+          "type": "array"
+        },
+        {
+          "name": "power",
+          "column": 7,
+          "type": "number"
+        }
+      ],
+      "interestingFields": [
+        "star",
+        "skill_list",
+        "power"
+      ],
+      "rowMarkers": 85,
+      "sourceChars": 8008
+    },
+    {
+      "name": "lw_equip_upgrade",
+      "bytes": 4883,
+      "magic": "1b4c756153011993",
+      "sha256": "48a076e0736f3e690ab72e2443696dd8dceccfa8e14015ef7922aff0c28f630f",
+      "fields": [
+        {
+          "name": "id",
+          "column": 1,
+          "type": "number"
+        },
+        {
+          "name": "slot",
+          "column": 2,
+          "type": "number"
+        },
+        {
+          "name": "quality",
+          "column": 3,
+          "type": "number"
+        },
+        {
+          "name": "army_type",
+          "column": 4,
+          "type": "number"
+        },
+        {
+          "name": "highest_level",
+          "column": 5,
+          "type": "number"
+        },
+        {
+          "name": "stone_upgrade_cost",
+          "column": 6,
+          "type": "array"
+        },
+        {
+          "name": "coin_upgrade_cost",
+          "column": 7,
+          "type": "string"
+        }
+      ],
+      "interestingFields": [
+        "quality",
+        "army_type",
+        "highest_level"
+      ],
+      "rowMarkers": 64,
+      "sourceChars": 5462
+    },
+    {
+      "name": "lw_hero_energy_levelup",
+      "bytes": 8246,
+      "magic": "1b4c756153011993",
+      "sha256": "7d360327f7af04d275292cafe067adc451d7318d605a1101d1ccea831447a780",
+      "fields": [
+        {
+          "name": "id",
+          "column": 1,
+          "type": "number"
+        },
+        {
+          "name": "energy_lv1",
+          "column": 2,
+          "type": "array"
+        },
+        {
+          "name": "energy_lv2",
+          "column": 3,
+          "type": "array"
+        },
+        {
+          "name": "energy_lv3",
+          "column": 4,
+          "type": "array"
+        },
+        {
+          "name": "energy_extra",
+          "column": 5,
+          "type": "array"
+        }
+      ],
+      "interestingFields": [
+        "energy_lv1",
+        "energy_lv2",
+        "energy_lv3"
+      ],
+      "rowMarkers": 50,
+      "sourceChars": 5387
+    },
+    {
+      "name": "lw_equip_upgrade_old",
+      "bytes": 3346,
+      "magic": "1b4c756153011993",
+      "sha256": "f495eb2fb41a4708894174073d067a9523a6dc996b3580c277480be011e186a4",
+      "fields": [
+        {
+          "name": "id",
+          "column": 1,
+          "type": "number"
+        },
+        {
+          "name": "slot",
+          "column": 2,
+          "type": "number"
+        },
+        {
+          "name": "quality",
+          "column": 3,
+          "type": "number"
+        },
+        {
+          "name": "army_type",
+          "column": 4,
+          "type": "number"
+        },
+        {
+          "name": "highest_level",
+          "column": 5,
+          "type": "number"
+        },
+        {
+          "name": "stone_upgrade_cost",
+          "column": 6,
+          "type": "string"
+        },
+        {
+          "name": "coin_upgrade_cost",
+          "column": 7,
+          "type": "string"
+        }
+      ],
+      "interestingFields": [
+        "quality",
+        "army_type",
+        "highest_level"
+      ],
+      "rowMarkers": 48,
+      "sourceChars": 3526
+    },
+    {
+      "name": "lw_uav_level_preview",
+      "bytes": 2260,
+      "magic": "1b4c756153011993",
+      "sha256": "0f261b26f00e7a1725899abbc38552d68bfb9060b0df23b1950d343bfa7ed0e9",
+      "fields": [
+        {
+          "name": "id",
+          "column": 1,
+          "type": "number"
+        },
+        {
+          "name": "display_level",
+          "column": 2,
+          "type": "number"
+        },
+        {
+          "name": "location_level",
+          "column": 3,
+          "type": "number"
+        },
+        {
+          "name": "display_type",
+          "column": 4,
+          "type": "number"
+        },
+        {
+          "name": "skill_level",
+          "column": 5,
+          "type": "number"
+        },
+        {
+          "name": "display_drone_icon",
+          "column": 6,
+          "type": "string"
+        },
+        {
+          "name": "display_drone_text",
+          "column": 7,
+          "type": "string"
+        }
+      ],
+      "interestingFields": [
+        "display_level",
+        "location_level",
+        "skill_level"
+      ],
+      "rowMarkers": 26,
+      "sourceChars": 2039
+    },
+    {
+      "name": "lw_season_military_level",
+      "bytes": 8261,
+      "magic": "1b4c756153011993",
+      "sha256": "e4f1ad35d5d814cd4633498f6aeef97c8ca62c4446c7356024685a336b48dcb8",
+      "fields": [
+        {
+          "name": "id",
+          "column": 1,
+          "type": "number"
+        },
+        {
+          "name": "group",
+          "column": 2,
+          "type": "string"
+        },
+        {
+          "name": "level",
+          "column": 3,
+          "type": "string"
+        },
+        {
+          "name": "level_group",
+          "column": 4,
+          "type": "string"
+        },
+        {
+          "name": "status",
+          "column": 5,
+          "type": "string"
+        },
+        {
+          "name": "effect_desc",
+          "column": 6,
+          "type": "string"
+        },
+        {
+          "name": "effect_num",
+          "column": 7,
+          "type": "string"
+        },
+        {
+          "name": "daily_salary",
+          "column": 8,
+          "type": "string"
+        },
+        {
+          "name": "title",
+          "column": 9,
+          "type": "string"
+        },
+        {
+          "name": "title_show",
+          "column": 10,
+          "type": "string"
+        },
+        {
+          "name": "unlock_score",
+          "column": 11,
+          "type": "string"
+        },
+        {
+          "name": "unlock_score_desc",
+          "column": 12,
+          "type": "string"
+        },
+        {
+          "name": "unlock_condition_type",
+          "column": 13,
+          "type": "string"
+        },
+        {
+          "name": "unlock_condition_para",
+          "column": 14,
+          "type": "string"
+        },
+        {
+          "name": "unlock_condition_desc",
+          "column": 15,
+          "type": "string"
+        },
+        {
+          "name": "standard_level",
+          "column": 16,
+          "type": "string"
+        },
+        {
+          "name": "need_rank",
+          "column": 17,
+          "type": "string"
+        },
+        {
+          "name": "rank_value",
+          "column": 18,
+          "type": "string"
+        },
+        {
+          "name": "rank_desc",
+          "column": 19,
+          "type": "string"
+        },
+        {
+          "name": "final_rewards",
+          "column": 20,
+          "type": "string"
+        },
+        {
+          "name": "final_title",
+          "column": 21,
+          "type": "string"
+        },
+        {
+          "name": "name",
+          "column": 22,
+          "type": "string"
+        },
+        {
+          "name": "icon",
+          "column": 23,
+          "type": "string"
+        }
+      ],
+      "interestingFields": [
+        "level",
+        "level_group",
+        "standard_level"
+      ],
+      "rowMarkers": 19,
+      "sourceChars": 9723
+    },
+    {
+      "name": "lw_hero_unique_weapon_unit",
+      "bytes": 3564,
+      "magic": "1b4c756153011993",
+      "sha256": "e5b51bce4c4920e2e8e51eb5dccad978da9f428d445c6f8f8d86a9638d8cadec",
+      "fields": [
+        {
+          "name": "id",
+          "column": 1,
+          "type": "number"
+        },
+        {
+          "name": "hero",
+          "column": 2,
+          "type": "number"
+        },
+        {
+          "name": "type",
+          "column": 3,
+          "type": "number"
+        },
+        {
+          "name": "max_lv",
+          "column": 4,
+          "type": "number"
+        },
+        {
+          "name": "overall_attr",
+          "column": 5,
+          "type": "number"
+        },
+        {
+          "name": "overall_value",
+          "column": 6,
+          "type": "array"
+        },
+        {
+          "name": "personal_attr",
+          "column": 7,
+          "type": "number"
+        },
+        {
+          "name": "personal_value",
+          "column": 8,
+          "type": "array"
+        }
+      ],
+      "interestingFields": [
+        "hero",
+        "max_lv"
+      ],
+      "rowMarkers": 45,
+      "sourceChars": 4520
+    },
+    {
+      "name": "heroevent",
+      "bytes": 15112,
+      "magic": "1b4c756153011993",
+      "sha256": "4bdfa4bc822553baa8fdfc310e6994af0d8ca7538a1b6f98086960b1a69ca6fb",
+      "fields": [
+        {
+          "name": "id",
+          "column": 1,
+          "type": "number"
+        },
+        {
+          "name": "type",
+          "column": 2,
+          "type": "number"
+        },
+        {
+          "name": "name",
+          "column": 3,
+          "type": "string"
+        },
+        {
+          "name": "desc",
+          "column": 4,
+          "type": "string"
+        },
+        {
+          "name": "cross",
+          "column": 5,
+          "type": "string"
+        },
+        {
+          "name": "isStay",
+          "column": 6,
+          "type": "string"
+        },
+        {
+          "name": "score",
+          "column": 7,
+          "type": "string"
+        },
+        {
+          "name": "condition_score",
+          "column": 8,
+          "type": "string"
+        },
+        {
+          "name": "sub",
+          "column": 9,
+          "type": "string"
+        },
+        {
+          "name": "target",
+          "column": 10,
+          "type": "string"
+        },
+        {
+          "name": "effect_show",
+          "column": 11,
+          "type": "string"
+        },
+        {
+          "name": "reward",
+          "column": 12,
+          "type": "string"
+        },
+        {
+          "name": "reward_science",
+          "column": 13,
+          "type": "string"
+        },
+        {
+          "name": "reward1",
+          "column": 14,
+          "type": "string"
+        },
+        {
+          "name": "value",
+          "column": 15,
+          "type": "string"
+        },
+        {
+          "name": "reward_addition",
+          "column": 16,
+          "type": "string"
+        },
+        {
+          "name": "box_addition",
+          "column": 17,
+          "type": "string"
+        },
+        {
+          "name": "effect_show_addition",
+          "column": 18,
+          "type": "string"
+        },
+        {
+          "name": "heroevent_point",
+          "column": 19,
+          "type": "string"
+        },
+        {
+          "name": "random_reward1",
+          "column": 20,
+          "type": "string"
+        },
+        {
+          "name": "random_reward2",
+          "column": 21,
+          "type": "string"
+        },
+        {
+          "name": "random_reward3",
+          "column": 22,
+          "type": "string"
+        },
+        {
+          "name": "first_reward1",
+          "column": 23,
+          "type": "string"
+        },
+        {
+          "name": "first_reward2",
+          "column": 24,
+          "type": "string"
+        },
+        {
+          "name": "first_reward3",
+          "column": 25,
+          "type": "string"
+        },
+        {
+          "name": "ranksub",
+          "column": 26,
+          "type": "string"
+        },
+        {
+          "name": "rankreward",
+          "column": 27,
+          "type": "string"
+        },
+        {
+          "name": "ranklist",
+          "column": 28,
+          "type": "string"
+        },
+        {
+          "name": "minscore",
+          "column": 29,
+          "type": "number"
+        },
+        {
+          "name": "mailId",
+          "column": 30,
+          "type": "string"
+        },
+        {
+          "name": "statesub",
+          "column": 31,
+          "type": "string"
+        },
+        {
+          "name": "statereward",
+          "column": 32,
+          "type": "number"
+        },
+        {
+          "name": "staterewardvalue",
+          "column": 33,
+          "type": "number"
+        },
+        {
+          "name": "cross_fight",
+          "column": 34,
+          "type": "string"
+        },
+        {
+          "name": "cross_server_time",
+          "column": 35,
+          "type": "string"
+        },
+        {
+          "name": "attack_city",
+          "column": 36,
+          "type": "string"
+        },
+        {
+          "name": "score_way_icon",
+          "column": 37,
+          "type": "string"
+        },
+        {
+          "name": "score_way_name",
+          "column": 38,
+          "type": "string"
+        },
+        {
+          "name": "score_way_icon_name_addition",
+          "column": 39,
+          "type": "string"
+        },
+        {
+          "name": "score_way_reward",
+          "column": 40,
+          "type": "string"
+        },
+        {
+          "name": "score_way_reward_addition",
+          "column": 41,
+          "type": "string"
+        },
+        {
+          "name": "score_way_mainUI_tips_icon",
+          "column": 42,
+          "type": "string"
+        },
+        {
+          "name": "score_way_mainUI_tips_name",
+          "column": 43,
+          "type": "string"
+        }
+      ],
+      "interestingFields": [
+        "heroevent_point",
+        "attack_city"
+      ],
+      "rowMarkers": 39,
+      "sourceChars": 21362
+    },
+    {
+      "name": "lw_hero_skin",
+      "bytes": 3799,
+      "magic": "1b4c756153011993",
+      "sha256": "c0919cb9a714017f409a385e5b2d44644d46315bbf04412c09b5e5299eca44ec",
+      "fields": [
+        {
+          "name": "id",
+          "column": 1,
+          "type": "number"
+        },
+        {
+          "name": "hero_id",
+          "column": 2,
+          "type": "number"
+        },
+        {
+          "name": "spine_type",
+          "column": 3,
+          "type": "number"
+        },
+        {
+          "name": "tag",
+          "column": 4,
+          "type": "number"
+        },
+        {
+          "name": "apperance_id",
+          "column": 5,
+          "type": "number"
+        },
+        {
+          "name": "model_path",
+          "column": 6,
+          "type": "array"
+        },
+        {
+          "name": "city_model_path",
+          "column": 7,
+          "type": "array"
+        },
+        {
+          "name": "queue_model_path",
+          "column": 8,
+          "type": "array"
+        },
+        {
+          "name": "Heroimg_model",
+          "column": 9,
+          "type": "array"
+        },
+        {
+          "name": "world_model_path",
+          "column": 10,
+          "type": "array"
+        }
+      ],
+      "interestingFields": [
+        "hero_id",
+        "Heroimg_model"
+      ],
+      "rowMarkers": 12,
+      "sourceChars": 4049
+    },
+    {
+      "name": "lw_decoration_skill",
+      "bytes": 4212,
+      "magic": "1b4c756153011993",
+      "sha256": "44628033d748d59d5103936716f4e01c399e27afe0e3a35e6ff6c69623313746",
+      "fields": [
+        {
+          "name": "id",
+          "column": 1,
+          "type": "number"
+        },
+        {
+          "name": "type",
+          "column": 2,
+          "type": "number"
+        },
+        {
+          "name": "name",
+          "column": 3,
+          "type": "string"
+        },
+        {
+          "name": "desc",
+          "column": 4,
+          "type": "string"
+        },
+        {
+          "name": "icon",
+          "column": 5,
+          "type": "string"
+        },
+        {
+          "name": "status_id",
+          "column": 6,
+          "type": "number"
+        },
+        {
+          "name": "virus_num",
+          "column": 7,
+          "type": "string"
+        },
+        {
+          "name": "cool_down",
+          "column": 8,
+          "type": "number"
+        },
+        {
+          "name": "cd_show",
+          "column": 9,
+          "type": "number"
+        },
+        {
+          "name": "use_times",
+          "column": 10,
+          "type": "number"
+        },
+        {
+          "name": "recovery_speed",
+          "column": 11,
+          "type": "number"
+        },
+        {
+          "name": "init_times",
+          "column": 12,
+          "type": "number"
+        },
+        {
+          "name": "skill_tips",
+          "column": 13,
+          "type": "string"
+        },
+        {
+          "name": "use_type",
+          "column": 14,
+          "type": "number"
+        },
+        {
+          "name": "trigger_type",
+          "column": 15,
+          "type": "string"
+        },
+        {
+          "name": "trigger_param",
+          "column": 16,
+          "type": "string"
+        },
+        {
+          "name": "sp_type",
+          "column": 17,
+          "type": "number"
+        },
+        {
+          "name": "wear_skin_id",
+          "column": 18,
+          "type": "number"
+        },
+        {
+          "name": "quality",
+          "column": 19,
+          "type": "number"
+        },
+        {
+          "name": "order",
+          "column": 20,
+          "type": "number"
+        },
+        {
+          "name": "lock_tips",
+          "column": 21,
+          "type": "string"
+        },
+        {
+          "name": "range",
+          "column": 22,
+          "type": "number"
+        },
+        {
+          "name": "camera_height",
+          "column": 23,
+          "type": "number"
+        },
+        {
+          "name": "act_para",
+          "column": 24,
+          "type": "string"
+        },
+        {
+          "name": "act_sound_para",
+          "column": 25,
+          "type": "string"
+        },
+        {
+          "name": "passive_act_para",
+          "column": 26,
+          "type": "string"
+        },
+        {
+          "name": "range_effect",
+          "column": 27,
+          "type": "string"
+        },
+        {
+          "name": "para_1",
+          "column": 28,
+          "type": "string"
+        },
+        {
+          "name": "para_2",
+          "column": 29,
+          "type": "string"
+        },
+        {
+          "name": "range_effect_new",
+          "column": 30,
+          "type": "string"
+        }
+      ],
+      "interestingFields": [
+        "skill_tips",
+        "quality"
+      ],
+      "rowMarkers": 9,
+      "sourceChars": 4633
+    },
+    {
+      "name": "lw_random_hero_special_list",
+      "bytes": 2457,
+      "magic": "1b4c756153011993",
+      "sha256": "d2d046b9218a666e2eb65eec1eb6449d5daed41c2eea2e6734251c35389fca48",
+      "fields": [
+        {
+          "name": "id",
+          "column": 1,
+          "type": "number"
+        },
+        {
+          "name": "quality",
+          "column": 2,
+          "type": "number"
+        },
+        {
+          "name": "gender",
+          "column": 3,
+          "type": "number"
+        },
+        {
+          "name": "categotry",
+          "column": 4,
+          "type": "number"
+        },
+        {
+          "name": "special_list",
+          "column": 5,
+          "type": "string"
+        }
+      ],
+      "interestingFields": [
+        "quality"
+      ],
+      "rowMarkers": 24,
+      "sourceChars": 2330
+    },
+    {
+      "name": "lw_stage_feature_chapter_unity",
+      "bytes": 6207,
+      "magic": "1b4c756153011993",
+      "sha256": "1d9b4798e3051e8c07cf1142ad527784a2492f9b200fbd381697ac80583f34fa",
+      "fields": [
+        {
+          "name": "id",
+          "column": 1,
+          "type": "number"
+        },
+        {
+          "name": "rank",
+          "column": 2,
+          "type": "number"
+        },
+        {
+          "name": "chapter",
+          "column": 3,
+          "type": "number"
+        },
+        {
+          "name": "title",
+          "column": 4,
+          "type": "string"
+        },
+        {
+          "name": "stages",
+          "column": 5,
+          "type": "array"
+        },
+        {
+          "name": "unlock_pre_chapter",
+          "column": 6,
+          "type": "number"
+        },
+        {
+          "name": "sign_up_day",
+          "column": 7,
+          "type": "number"
+        },
+        {
+          "name": "main_building_level",
+          "column": 8,
+          "type": "number"
+        },
+        {
+          "name": "bgImg",
+          "column": 9,
+          "type": "string"
+        },
+        {
+          "name": "nodePos",
+          "column": 10,
+          "type": "array"
+        },
+        {
+          "name": "nodeTipStyle",
+          "column": 11,
+          "type": "array"
+        }
+      ],
+      "interestingFields": [
+        "main_building_level"
+      ],
+      "rowMarkers": 24,
+      "sourceChars": 6699
+    },
+    {
+      "name": "hero_monthcard",
+      "bytes": 4622,
+      "magic": "1b4c756153011993",
+      "sha256": "211cc62d76308a2a99bb1a223a233bcadfe7ff14393535388ac0d90794e1be0d",
+      "fields": [
+        {
+          "name": "id",
+          "column": 1,
+          "type": "number"
+        },
+        {
+          "name": "exchange",
+          "column": 2,
+          "type": "string"
+        },
+        {
+          "name": "group",
+          "column": 3,
+          "type": "number"
+        },
+        {
+          "name": "condition",
+          "column": 4,
+          "type": "string"
+        },
+        {
+          "name": "mail_id",
+          "column": 5,
+          "type": "number"
+        },
+        {
+          "name": "spec_mail_id",
+          "column": 6,
+          "type": "number"
+        },
+        {
+          "name": "reward",
+          "column": 7,
+          "type": "string"
+        },
+        {
+          "name": "server",
+          "column": 8,
+          "type": "string"
+        },
+        {
+          "name": "inner_server",
+          "column": 9,
+          "type": "string"
+        },
+        {
+          "name": "name",
+          "column": 10,
+          "type": "string"
+        },
+        {
+          "name": "description",
+          "column": 11,
+          "type": "string"
+        },
+        {
+          "name": "sub_des",
+          "column": 12,
+          "type": "string"
+        },
+        {
+          "name": "sale_num",
+          "column": 13,
+          "type": "string"
+        },
+        {
+          "name": "hot_list",
+          "column": 14,
+          "type": "string"
+        },
+        {
+          "name": "backup_card",
+          "column": 15,
+          "type": "string"
+        },
+        {
+          "name": "first_condition",
+          "column": 16,
+          "type": "string"
+        },
+        {
+          "name": "hero_pic",
+          "column": 17,
+          "type": "string"
+        },
+        {
+          "name": "interface_banner",
+          "column": 18,
+          "type": "string"
+        },
+        {
+          "name": "bg",
+          "column": 19,
+          "type": "string"
+        },
+        {
+          "name": "banner",
+          "column": 20,
+          "type": "string"
+        },
+        {
+          "name": "banner_icon",
+          "column": 21,
+          "type": "string"
+        }
+      ],
+      "interestingFields": [
+        "hero_pic"
+      ],
+      "rowMarkers": 22,
+      "sourceChars": 9068
+    },
+    {
+      "name": "lw_hero_rank_reset",
+      "bytes": 3906,
+      "magic": "1b4c756153011993",
+      "sha256": "54137ec0a9345d8132ce8bb6ac7209b4c5a1b5037714031f0d28180646dd720f",
+      "fields": [
+        {
+          "name": "id",
+          "column": 1,
+          "type": "number"
+        },
+        {
+          "name": "name",
+          "column": 2,
+          "type": "number"
+        },
+        {
+          "name": "attr_add",
+          "column": 3,
+          "type": "string"
+        },
+        {
+          "name": "star_show",
+          "column": 4,
+          "type": "string"
+        },
+        {
+          "name": "attr_ratio",
+          "column": 5,
+          "type": "string"
+        },
+        {
+          "name": "shard_need",
+          "column": 6,
+          "type": "string"
+        },
+        {
+          "name": "icon",
+          "column": 7,
+          "type": "string"
+        },
+        {
+          "name": "icon_simple",
+          "column": 8,
+          "type": "string"
+        }
+      ],
+      "interestingFields": [
+        "star_show"
+      ],
+      "rowMarkers": 22,
+      "sourceChars": 3976
+    },
+    {
+      "name": "lw_hero_try_out_tag",
+      "bytes": 2200,
+      "magic": "1b4c756153011993",
+      "sha256": "5333baf34ef6e1cc8b93110ac1c461b5b8118adedddc3e5bae1f8e57cd076f0d",
+      "fields": [
+        {
+          "name": "id",
+          "column": 1,
+          "type": "number"
+        },
+        {
+          "name": "order",
+          "column": 2,
+          "type": "number"
+        },
+        {
+          "name": "hero_id",
+          "column": 3,
+          "type": "number"
+        },
+        {
+          "name": "tag_key",
+          "column": 4,
+          "type": "string"
+        },
+        {
+          "name": "open_time_type",
+          "column": 5,
+          "type": "string"
+        },
+        {
+          "name": "skip_limit",
+          "column": 6,
+          "type": "string"
+        },
+        {
+          "name": "try_out_id",
+          "column": 7,
+          "type": "array"
+        },
+        {
+          "name": "stage_open_time",
+          "column": 8,
+          "type": "array"
+        },
+        {
+          "name": "group_key",
+          "column": 9,
+          "type": "array"
+        }
+      ],
+      "interestingFields": [
+        "hero_id"
+      ],
+      "rowMarkers": 18,
+      "sourceChars": 2553
+    },
+    {
+      "name": "lw_hero_unlock_skill",
+      "bytes": 902,
+      "magic": "1b4c756153011993",
+      "sha256": "26a1842fe5e36cfaca1aad07236029cf68bd096ba7c75b151b53ef7b11595346",
+      "fields": [
+        {
+          "name": "id",
+          "column": 1,
+          "type": "number"
+        },
+        {
+          "name": "quality",
+          "column": 2,
+          "type": "number"
+        },
+        {
+          "name": "slots",
+          "column": 3,
+          "type": "number"
+        },
+        {
+          "name": "cost",
+          "column": 4,
+          "type": "table"
+        }
+      ],
+      "interestingFields": [
+        "quality"
+      ],
+      "rowMarkers": 15,
+      "sourceChars": 912
+    },
+    {
+      "name": "lw_random_hero_appearance_list",
+      "bytes": 691,
+      "magic": "1b4c756153011993",
+      "sha256": "5e8b4a561be5673570a1f1e96c0343937c34970c491ec2c936f2744a64430e51",
+      "fields": [
+        {
+          "name": "id",
+          "column": 1,
+          "type": "number"
+        },
+        {
+          "name": "quality",
+          "column": 2,
+          "type": "number"
+        },
+        {
+          "name": "gender",
+          "column": 3,
+          "type": "number"
+        },
+        {
+          "name": "model_path",
+          "column": 4,
+          "type": "string"
+        }
+      ],
+      "interestingFields": [
+        "quality"
+      ],
+      "rowMarkers": 8,
+      "sourceChars": 625
+    },
+    {
+      "name": "lw_random_hero_name_list",
+      "bytes": 3484,
+      "magic": "1b4c756153011993",
+      "sha256": "f1498dfcf2d394d718372394d96b7964d7ab674a0b94f56cde7199e5eeaa4946",
+      "fields": [
+        {
+          "name": "id",
+          "column": 1,
+          "type": "number"
+        },
+        {
+          "name": "quality",
+          "column": 2,
+          "type": "string"
+        },
+        {
+          "name": "gender",
+          "column": 3,
+          "type": "string"
+        },
+        {
+          "name": "first_name_list",
+          "column": 4,
+          "type": "string"
+        },
+        {
+          "name": "last_name_list",
+          "column": 5,
+          "type": "string"
+        }
+      ],
+      "interestingFields": [
+        "quality"
+      ],
+      "rowMarkers": 8,
+      "sourceChars": 3446
+    },
+    {
+      "name": "alliance_government_skill_score",
+      "bytes": 1908,
+      "magic": "1b4c756153011993",
+      "sha256": "e31d634651dec0fcc490b745986f2b963816473c1d794d2e63fa26ff39b7b1c4",
+      "fields": [
+        {
+          "name": "id",
+          "column": 1,
+          "type": "number"
+        },
+        {
+          "name": "type",
+          "column": 2,
+          "type": "number"
+        },
+        {
+          "name": "value",
+          "column": 3,
+          "type": "number"
+        },
+        {
+          "name": "points",
+          "column": 4,
+          "type": "number"
+        },
+        {
+          "name": "skill_name",
+          "column": 5,
+          "type": "string"
+        },
+        {
+          "name": "name",
+          "column": 6,
+          "type": "string"
+        },
+        {
+          "name": "group",
+          "column": 7,
+          "type": "string"
+        },
+        {
+          "name": "icon_get",
+          "column": 8,
+          "type": "string"
+        },
+        {
+          "name": "get_score_desc",
+          "column": 9,
+          "type": "string"
+        }
+      ],
+      "interestingFields": [
+        "skill_name"
+      ],
+      "rowMarkers": 6,
+      "sourceChars": 1802
+    },
+    {
+      "name": "soldier_eleven_stage",
+      "bytes": 4005,
+      "magic": "1b4c756153011993",
+      "sha256": "4e6ce894a55ecb4595a246fc089a8cba5c6f9b5f15891629fc2a8e506ea51a5f",
+      "fields": [
+        {
+          "name": "id",
+          "column": 1,
+          "type": "number"
+        },
+        {
+          "name": "stage",
+          "column": 2,
+          "type": "number"
+        },
+        {
+          "name": "cost_resItem",
+          "column": 3,
+          "type": "array"
+        },
+        {
+          "name": "cost_time",
+          "column": 4,
+          "type": "number"
+        },
+        {
+          "name": "effect_a",
+          "column": 5,
+          "type": "table"
+        },
+        {
+          "name": "effect_b",
+          "column": 6,
+          "type": "table"
+        },
+        {
+          "name": "power",
+          "column": 7,
+          "type": "number"
+        },
+        {
+          "name": "effect_icon_a",
+          "column": 8,
+          "type": "string"
+        },
+        {
+          "name": "effect_icon_b",
+          "column": 9,
+          "type": "string"
+        },
+        {
+          "name": "effect_name_a",
+          "column": 10,
+          "type": "string"
+        },
+        {
+          "name": "effect_name_b",
+          "column": 11,
+          "type": "string"
+        },
+        {
+          "name": "effect_info_a",
+          "column": 12,
+          "type": "string"
+        },
+        {
+          "name": "effect_info_b",
+          "column": 13,
+          "type": "string"
+        },
+        {
+          "name": "if_core_effect",
+          "column": 14,
+          "type": "number"
+        },
+        {
+          "name": "effect_unlock_info",
+          "column": 15,
+          "type": "string"
+        },
+        {
+          "name": "effect_mummy",
+          "column": 16,
+          "type": "table"
+        },
+        {
+          "name": "effect_icon_mummy",
+          "column": 17,
+          "type": "string"
+        },
+        {
+          "name": "effect_name_mummy",
+          "column": 18,
+          "type": "string"
+        },
+        {
+          "name": "effect_info_mummy",
+          "column": 19,
+          "type": "string"
+        }
+      ],
+      "interestingFields": [
+        "power"
+      ],
+      "rowMarkers": 5,
+      "sourceChars": 4312
+    },
+    {
+      "name": "soldier_eleven",
+      "bytes": 2359,
+      "magic": "1b4c756153011993",
+      "sha256": "cc8fcd1655320f53581a87af3f64b4539638ab6356c00aeceac9a4477dc79ec3",
+      "fields": [
+        {
+          "name": "id",
+          "column": 1,
+          "type": "number"
+        },
+        {
+          "name": "solider",
+          "column": 2,
+          "type": "string"
+        },
+        {
+          "name": "name",
+          "column": 3,
+          "type": "string"
+        },
+        {
+          "name": "stage",
+          "column": 4,
+          "type": "string"
+        },
+        {
+          "name": "model",
+          "column": 5,
+          "type": "string"
+        },
+        {
+          "name": "model_jc",
+          "column": 6,
+          "type": "string"
+        },
+        {
+          "name": "hero_appearance_id",
+          "column": 7,
+          "type": "number"
+        },
+        {
+          "name": "image",
+          "column": 8,
+          "type": "string"
+        },
+        {
+          "name": "icon",
+          "column": 9,
+          "type": "string"
+        },
+        {
+          "name": "bubble_icon",
+          "column": 10,
+          "type": "string"
+        }
+      ],
+      "interestingFields": [
+        "hero_appearance_id"
+      ],
+      "rowMarkers": 4,
+      "sourceChars": 2222
+    },
+    {
+      "name": "heroevent_matchtest",
+      "bytes": 16669,
+      "magic": "1b4c756153011993",
+      "sha256": "25d27b8f48cab13d08f01cc3ceb15406eaab4a22e357e22cb7d658dbf83acd2b",
+      "fields": [
+        {
+          "name": "id",
+          "column": 1,
+          "type": "number"
+        },
+        {
+          "name": "online",
+          "column": 2,
+          "type": "string"
+        },
+        {
+          "name": "test",
+          "column": 3,
+          "type": "string"
+        },
+        {
+          "name": "server",
+          "column": 5,
+          "type": "string"
+        },
+        {
+          "name": "match_manuel",
+          "column": 6,
+          "type": "string"
+        }
+      ],
+      "interestingFields": [],
+      "rowMarkers": 103,
+      "sourceChars": 18105
+    },
+    {
+      "name": "hero_event",
+      "bytes": 16891,
+      "magic": "1b4c756153011993",
+      "sha256": "c0c22f9510895f876b48e8be87cf7430cd8720d1725847cbf23924e08e3ff650",
+      "fields": [
+        {
+          "name": "id",
+          "column": 1,
+          "type": "number"
+        },
+        {
+          "name": "type",
+          "column": 2,
+          "type": "number"
+        },
+        {
+          "name": "name",
+          "column": 3,
+          "type": "number"
+        },
+        {
+          "name": "desc",
+          "column": 4,
+          "type": "string"
+        },
+        {
+          "name": "pic",
+          "column": 5,
+          "type": "string"
+        },
+        {
+          "name": "cross",
+          "column": 6,
+          "type": "string"
+        },
+        {
+          "name": "isStay",
+          "column": 7,
+          "type": "string"
+        },
+        {
+          "name": "score",
+          "column": 8,
+          "type": "string"
+        },
+        {
+          "name": "sub",
+          "column": 9,
+          "type": "string"
+        },
+        {
+          "name": "target",
+          "column": 10,
+          "type": "string"
+        },
+        {
+          "name": "reward",
+          "column": 11,
+          "type": "string"
+        },
+        {
+          "name": "reward1",
+          "column": 12,
+          "type": "string"
+        },
+        {
+          "name": "value",
+          "column": 13,
+          "type": "string"
+        },
+        {
+          "name": "random_reward1",
+          "column": 14,
+          "type": "string"
+        },
+        {
+          "name": "random_reward2",
+          "column": 15,
+          "type": "string"
+        },
+        {
+          "name": "random_reward3",
+          "column": 16,
+          "type": "string"
+        },
+        {
+          "name": "first_reward1",
+          "column": 17,
+          "type": "string"
+        },
+        {
+          "name": "first_reward2",
+          "column": 18,
+          "type": "string"
+        },
+        {
+          "name": "first_reward3",
+          "column": 19,
+          "type": "string"
+        },
+        {
+          "name": "ranksub",
+          "column": 20,
+          "type": "string"
+        },
+        {
+          "name": "rankreward",
+          "column": 21,
+          "type": "string"
+        },
+        {
+          "name": "rankmail",
+          "column": 22,
+          "type": "string"
+        },
+        {
+          "name": "ranklist",
+          "column": 23,
+          "type": "string"
+        },
+        {
+          "name": "minscore",
+          "column": 24,
+          "type": "string"
+        },
+        {
+          "name": "mailId",
+          "column": 25,
+          "type": "string"
+        },
+        {
+          "name": "statesub",
+          "column": 26,
+          "type": "string"
+        },
+        {
+          "name": "statereward",
+          "column": 27,
+          "type": "string"
+        },
+        {
+          "name": "staterewardvalue",
+          "column": 28,
+          "type": "string"
+        },
+        {
+          "name": "cross_fight",
+          "column": 29,
+          "type": "string"
+        },
+        {
+          "name": "reissue_mail",
+          "column": 30,
+          "type": "string"
+        }
+      ],
+      "interestingFields": [],
+      "rowMarkers": 38,
+      "sourceChars": 19412
+    },
+    {
+      "name": "hero_activity",
+      "bytes": 6298,
+      "magic": "1b4c756153011993",
+      "sha256": "c88f0b1754b6595d372461d7e2a339ff36ad26be7338eb7fe4f45ef645ad4749",
+      "fields": [
+        {
+          "name": "id",
+          "column": 1,
+          "type": "number"
+        },
+        {
+          "name": "type",
+          "column": 2,
+          "type": "number"
+        },
+        {
+          "name": "type_infotype",
+          "column": 3,
+          "type": "number"
+        },
+        {
+          "name": "day",
+          "column": 4,
+          "type": "number"
+        },
+        {
+          "name": "cycle",
+          "column": 5,
+          "type": "number"
+        },
+        {
+          "name": "activity",
+          "column": 6,
+          "type": "string"
+        },
+        {
+          "name": "day_reward",
+          "column": 7,
+          "type": "string"
+        },
+        {
+          "name": "event_change",
+          "column": 8,
+          "type": "string"
+        },
+        {
+          "name": "ranklist",
+          "column": 9,
+          "type": "string"
+        },
+        {
+          "name": "ranksub",
+          "column": 10,
+          "type": "string"
+        },
+        {
+          "name": "rank_reward",
+          "column": 11,
+          "type": "string"
+        },
+        {
+          "name": "minscore",
+          "column": 12,
+          "type": "string"
+        },
+        {
+          "name": "reward_value",
+          "column": 13,
+          "type": "string"
+        },
+        {
+          "name": "mailId",
+          "column": 14,
+          "type": "string"
+        },
+        {
+          "name": "next_activity",
+          "column": 15,
+          "type": "string"
+        },
+        {
+          "name": "chooseId",
+          "column": 16,
+          "type": "string"
+        },
+        {
+          "name": "constraint_finish",
+          "column": 17,
+          "type": "string"
+        },
+        {
+          "name": "season_condition_up",
+          "column": 18,
+          "type": "string"
+        },
+        {
+          "name": "day_reward_up",
+          "column": 19,
+          "type": "string"
+        },
+        {
+          "name": "rank_reward_up",
+          "column": 20,
+          "type": "string"
+        }
+      ],
+      "interestingFields": [],
+      "rowMarkers": 28,
+      "sourceChars": 8828
+    },
+    {
+      "name": "lw_hero_rank",
+      "bytes": 2885,
+      "magic": "1b4c756153011993",
+      "sha256": "4b0cff1e1afb23342f65ce5fbed5d17e11d290a867c78320f8c4c063e9608778",
+      "fields": [
+        {
+          "name": "id",
+          "column": 1,
+          "type": "number"
+        },
+        {
+          "name": "name",
+          "column": 2,
+          "type": "number"
+        },
+        {
+          "name": "attr_add",
+          "column": 3,
+          "type": "table"
+        },
+        {
+          "name": "attr_ratio",
+          "column": 4,
+          "type": "number"
+        },
+        {
+          "name": "shard_need",
+          "column": 5,
+          "type": "number"
+        },
+        {
+          "name": "shard_need_promotion",
+          "column": 6,
+          "type": "number"
+        }
+      ],
+      "interestingFields": [],
+      "rowMarkers": 26,
+      "sourceChars": 3566
+    },
+    {
+      "name": "lw_hero_effect",
+      "bytes": 5853,
+      "magic": "1b4c756153011993",
+      "sha256": "503cf8701a6a20fae4d998e81b288065b75c49a79f1718e457d4a274b500c866",
+      "fields": [
+        {
+          "name": "id",
+          "column": 1,
+          "type": "number"
+        },
+        {
+          "name": "hit_point",
+          "column": 2,
+          "type": "string"
+        },
+        {
+          "name": "hit_effect",
+          "column": 3,
+          "type": "string"
+        },
+        {
+          "name": "hit_effect_num",
+          "column": 4,
+          "type": "number"
+        },
+        {
+          "name": "hit_action",
+          "column": 5,
+          "type": "string"
+        },
+        {
+          "name": "hit_effect_direction",
+          "column": 6,
+          "type": "string"
+        },
+        {
+          "name": "hit_vibrate",
+          "column": 7,
+          "type": "array"
+        },
+        {
+          "name": "hit_sound",
+          "column": 8,
+          "type": "string"
+        },
+        {
+          "name": "death_effect_nomal",
+          "column": 9,
+          "type": "string"
+        },
+        {
+          "name": "death_effect_blue",
+          "column": 10,
+          "type": "string"
+        },
+        {
+          "name": "death_effect_red",
+          "column": 11,
+          "type": "string"
+        },
+        {
+          "name": "death_pos",
+          "column": 12,
+          "type": "number"
+        },
+        {
+          "name": "death_effect_fire",
+          "column": 13,
+          "type": "string"
+        },
+        {
+          "name": "death_effect_ice",
+          "column": 14,
+          "type": "string"
+        },
+        {
+          "name": "death_effect_crash",
+          "column": 15,
+          "type": "string"
+        },
+        {
+          "name": "death_blood_path",
+          "column": 16,
+          "type": "string"
+        },
+        {
+          "name": "death_shake",
+          "column": 17,
+          "type": "string"
+        },
+        {
+          "name": "death_sound",
+          "column": 18,
+          "type": "string"
+        },
+        {
+          "name": "death_action",
+          "column": 19,
+          "type": "string"
+        },
+        {
+          "name": "death_vibrate",
+          "column": 20,
+          "type": "array"
+        },
+        {
+          "name": "sound_id_hit",
+          "column": 21,
+          "type": "number"
+        },
+        {
+          "name": "sound_id_dead",
+          "column": 22,
+          "type": "number"
+        },
+        {
+          "name": "bubble_point",
+          "column": 23,
+          "type": "string"
+        },
+        {
+          "name": "born_shake",
+          "column": 24,
+          "type": "string"
+        },
+        {
+          "name": "sound_id_impact",
+          "column": 25,
+          "type": "number"
+        }
+      ],
+      "interestingFields": [],
+      "rowMarkers": 24,
+      "sourceChars": 7907
+    },
+    {
+      "name": "parkour_hero",
+      "bytes": 560,
+      "magic": "1b4c756153011993",
+      "sha256": "1e72a0f2715bcfe447109524738565b0fe792533f9c9cbe593b93492214ef8fb",
+      "fields": [
+        {
+          "name": "id",
+          "column": 1,
+          "type": "number"
+        },
+        {
+          "name": "warm_animation",
+          "column": 2,
+          "type": "array"
+        },
+        {
+          "name": "finish_animation",
+          "column": 3,
+          "type": "array"
+        },
+        {
+          "name": "enemy_id",
+          "column": 4,
+          "type": "number"
+        }
+      ],
+      "interestingFields": [],
+      "rowMarkers": 3,
+      "sourceChars": 537
+    },
+    {
+      "name": "heroactivity",
+      "bytes": 990,
+      "magic": "1b4c756153011993",
+      "sha256": "5f3dec0a9b366687d74620f1cc483e91298029a5151b83a50746cb8e559a58a8",
+      "fields": [
+        {
+          "name": "id",
+          "column": 1,
+          "type": "number"
+        },
+        {
+          "name": "type",
+          "column": 2,
+          "type": "number"
+        },
+        {
+          "name": "type_para",
+          "column": 3,
+          "type": "string"
+        },
+        {
+          "name": "server",
+          "column": 4,
+          "type": "string"
+        },
+        {
+          "name": "openservice",
+          "column": 5,
+          "type": "string"
+        },
+        {
+          "name": "date",
+          "column": 6,
+          "type": "string"
+        },
+        {
+          "name": "week",
+          "column": 7,
+          "type": "number"
+        },
+        {
+          "name": "season",
+          "column": 8,
+          "type": "number"
+        },
+        {
+          "name": "cycle",
+          "column": 9,
+          "type": "string"
+        },
+        {
+          "name": "activity",
+          "column": 10,
+          "type": "string"
+        },
+        {
+          "name": "activity_extra",
+          "column": 11,
+          "type": "number"
+        },
+        {
+          "name": "event_change",
+          "column": 12,
+          "type": "string"
+        },
+        {
+          "name": "mailId",
+          "column": 13,
+          "type": "string"
+        },
+        {
+          "name": "next_activity",
+          "column": 14,
+          "type": "number"
+        },
+        {
+          "name": "chooseId",
+          "column": 15,
+          "type": "string"
+        },
+        {
+          "name": "constraint_finish",
+          "column": 16,
+          "type": "string"
+        }
+      ],
+      "interestingFields": [],
+      "rowMarkers": 1,
+      "sourceChars": 832
+    },
+    {
+      "name": "APS_hero_color",
+      "bytes": 1023,
+      "magic": "1b4c756153011993",
+      "sha256": "0a5d3552e0db5ffbcb7ebcee1e948ba4e6190b4baf6a42fefa8f6570f786af8b",
+      "fields": [
+        {
+          "name": "L3_3",
+          "column": 1,
+          "type": "number"
+        }
+      ],
+      "interestingFields": [],
+      "rowMarkers": 0,
+      "sourceChars": 1193
+    },
+    {
+      "name": "YiBianJinQu_role",
+      "bytes": 344,
+      "magic": "1b4c756153011993",
+      "sha256": "a38b6e249fc435e5e77fa1bde24e913bb916b3b49f2a451b6342f97463e71659",
+      "fields": [
+        {
+          "name": "L2_2",
+          "column": 1,
+          "type": "number"
+        }
+      ],
+      "interestingFields": [],
+      "rowMarkers": 0,
+      "sourceChars": 345
+    },
+    {
+      "name": "aps_hero_levelup",
+      "bytes": 3838,
+      "magic": "1b4c756153011993",
+      "sha256": "a3c88a98728e5bcbec9179aee556776badf61bb2fc0dd3fe7abab6a508d353c2",
+      "fields": [
+        {
+          "name": "L2_2",
+          "column": 1,
+          "type": "number"
+        }
+      ],
+      "interestingFields": [],
+      "rowMarkers": 0,
+      "sourceChars": 3746
+    },
+    {
+      "name": "aps_heroes_quality",
+      "bytes": 2408,
+      "magic": "1b4c756153011993",
+      "sha256": "582c6fefebf977f1c60c6db1c07b1e0b11f187c6d6a9e1d148b99ca47aa81010",
+      "fields": [
+        {
+          "name": "L3_3",
+          "column": 1,
+          "type": "number"
+        }
+      ],
+      "interestingFields": [],
+      "rowMarkers": 0,
+      "sourceChars": 3371
+    },
+    {
+      "name": "aps_heroes_rank",
+      "bytes": 15329,
+      "magic": "1b4c756153011993",
+      "sha256": "5b9604dad744b0b912db5a075a2e35f858f675a02438eecae505a5bb2da02adb",
+      "fields": [
+        {
+          "name": "L3_3",
+          "column": 1,
+          "type": "number"
+        }
+      ],
+      "interestingFields": [],
+      "rowMarkers": 0,
+      "sourceChars": 22422
+    },
+    {
+      "name": "aps_heroes_rankLv",
+      "bytes": 1189,
+      "magic": "1b4c756153011993",
+      "sha256": "29ab190401f379836290dfd609ebc66157c7a7c6d02daa6f8e3d9e7fd7b9f993",
+      "fields": [
+        {
+          "name": "L3_3",
+          "column": 1,
+          "type": "number"
+        }
+      ],
+      "interestingFields": [],
+      "rowMarkers": 0,
+      "sourceChars": 1475
+    },
+    {
+      "name": "aps_new_heroes",
+      "bytes": 91219,
+      "magic": "1b4c756153011993",
+      "sha256": "6c05ffa093c13adfeda7791bdaae295b0b2e4ff8bf49952c6e6427d9189fde76",
+      "fields": [
+        {
+          "name": "L3_3",
+          "column": 1,
+          "type": "number"
+        }
+      ],
+      "interestingFields": [],
+      "rowMarkers": 0,
+      "sourceChars": 173906
+    },
+    {
+      "name": "aps_new_heroes_B",
+      "bytes": 95362,
+      "magic": "1b4c756153011993",
+      "sha256": "5e87e4a12f7d90bafaa0ff7f7393cbd9eba3ee128a1505dfbed2c8cd96b61693",
+      "fields": [
+        {
+          "name": "L3_3",
+          "column": 1,
+          "type": "number"
+        }
+      ],
+      "interestingFields": [],
+      "rowMarkers": 0,
+      "sourceChars": 184045
+    },
+    {
+      "name": "armed_truck_hero",
+      "bytes": 1902,
+      "magic": "1b4c756153011993",
+      "sha256": "0943d2acd8bf4e26c9bb2db1169010d6db24f0bf28f3035b7b004599c22dc53b",
+      "fields": [
+        {
+          "name": "L2_2",
+          "column": 1,
+          "type": "number"
+        }
+      ],
+      "interestingFields": [],
+      "rowMarkers": 0,
+      "sourceChars": 2067
+    },
+    {
+      "name": "desert_strom_hero_actions",
+      "bytes": 755,
+      "magic": "1b4c756153011993",
+      "sha256": "532595d106ce8d3728bd23d4614ad7022b71404b6366f70d1294e551403d4f20",
+      "fields": [
+        {
+          "name": "L2_2",
+          "column": 1,
+          "type": "number"
+        }
+      ],
+      "interestingFields": [],
+      "rowMarkers": 0,
+      "sourceChars": 922
+    },
+    {
+      "name": "hero_bounty",
+      "bytes": 4314,
+      "magic": "1b4c756153011993",
+      "sha256": "1b7988aebae838bce3bac98281dae4ca20fb455d7aab3bc98aeeb0e06ade724a",
+      "fields": [
+        {
+          "name": "L3_3",
+          "column": 1,
+          "type": "number"
+        }
+      ],
+      "interestingFields": [],
+      "rowMarkers": 0,
+      "sourceChars": 5764
+    },
+    {
+      "name": "hero_core",
+      "bytes": 566,
+      "magic": "1b4c756153011993",
+      "sha256": "9cd2cb8bfe44a18e699fa09dd75203c6d8af9208d0cdbd7bd78975a013c0180f",
+      "fields": [
+        {
+          "name": "L3_3",
+          "column": 1,
+          "type": "number"
+        }
+      ],
+      "interestingFields": [],
+      "rowMarkers": 0,
+      "sourceChars": 657
+    },
+    {
+      "name": "hero_entrust",
+      "bytes": 120,
+      "magic": "1b4c756153011993",
+      "sha256": "558b484a77e3839108381791823697d83d141918601235a172aa365a14f2c1f3",
+      "fields": [],
+      "interestingFields": [],
+      "rowMarkers": 0,
+      "sourceChars": 104
+    },
+    {
+      "name": "hero_lack_tips",
+      "bytes": 4230,
+      "magic": "1b4c756153011993",
+      "sha256": "eef1848af3193c6e65d551d77b5972b17c42fc72357844fea5261e6a8fd0e2ef",
+      "fields": [
+        {
+          "name": "L3_3",
+          "column": 1,
+          "type": "number"
+        }
+      ],
+      "interestingFields": [],
+      "rowMarkers": 0,
+      "sourceChars": 6407
+    },
+    {
+      "name": "hero_official",
+      "bytes": 5454,
+      "magic": "1b4c756153011993",
+      "sha256": "ace3da5b2702064a853ea5cb4dc623bca5f02ae0f849ce8c351327e6848bfd83",
+      "fields": [
+        {
+          "name": "L3_3",
+          "column": 1,
+          "type": "number"
+        }
+      ],
+      "interestingFields": [],
+      "rowMarkers": 0,
+      "sourceChars": 6665
+    },
+    {
+      "name": "hero_skill_perform",
+      "bytes": 56560,
+      "magic": "1b4c756153011993",
+      "sha256": "ca91fa1d24f4cb4faea8b14e9983e6d27c248db4468180fdd79596b0e8a6a2d4",
+      "fields": [
+        {
+          "name": "L2_2",
+          "column": 1,
+          "type": "number"
+        }
+      ],
+      "interestingFields": [],
+      "rowMarkers": 0,
+      "sourceChars": 86330
+    },
+    {
+      "name": "hero_station",
+      "bytes": 1644,
+      "magic": "1b4c756153011993",
+      "sha256": "5f23ceff67da3e9a88d50513d52372c55507f168443e3ac8cbdd170374a6df7d",
+      "fields": [
+        {
+          "name": "L3_3",
+          "column": 1,
+          "type": "number"
+        }
+      ],
+      "interestingFields": [],
+      "rowMarkers": 0,
+      "sourceChars": 1714
+    },
+    {
+      "name": "hero_tag",
+      "bytes": 1787,
+      "magic": "1b4c756153011993",
+      "sha256": "d1cea67a7b57d3917581a80dda53cb1460ac526b6d809fece9591ddd498c2bb6",
+      "fields": [
+        {
+          "name": "L3_3",
+          "column": 1,
+          "type": "number"
+        }
+      ],
+      "interestingFields": [],
+      "rowMarkers": 0,
+      "sourceChars": 1861
+    },
+    {
+      "name": "heroes_levelup",
+      "bytes": 13457,
+      "magic": "1b4c756153011993",
+      "sha256": "15b395e0dde42ee7cfec1b5c7f02923a2648bfe31a04c3bd6a94bf3199f03d14",
+      "fields": [
+        {
+          "name": "L3_3",
+          "column": 1,
+          "type": "number"
+        }
+      ],
+      "interestingFields": [],
+      "rowMarkers": 0,
+      "sourceChars": 14885
+    },
+    {
+      "name": "heroevent_schedule",
+      "bytes": 606,
+      "magic": "1b4c756153011993",
+      "sha256": "b9a5a834db798eab6010e56159a91928a744e6b9ce12ea9a2694e2ba132fe292",
+      "fields": [
+        {
+          "name": "L2_2",
+          "column": 1,
+          "type": "number"
+        }
+      ],
+      "interestingFields": [],
+      "rowMarkers": 0,
+      "sourceChars": 681
+    },
+    {
+      "name": "lw_hero",
+      "bytes": 125890,
+      "magic": "1b4c756153011993",
+      "sha256": "daf128176aeecb79d3b2ca5bac1e27a6fdc955295a1ca27f6805dee4215dc4e3",
+      "fields": [
+        {
+          "name": "L2_2",
+          "column": 1,
+          "type": "number"
+        }
+      ],
+      "interestingFields": [],
+      "rowMarkers": 0,
+      "sourceChars": 252664
+    },
+    {
+      "name": "lw_hero-dev",
+      "bytes": 10623,
+      "magic": "1b4c756153011993",
+      "sha256": "3f4c1ccaf51fdd61147e88a2fdab2c09dcc7c4cf03cb9878dab7a02b0856b350",
+      "fields": [
+        {
+          "name": "L3_3",
+          "column": 1,
+          "type": "number"
+        }
+      ],
+      "interestingFields": [],
+      "rowMarkers": 0,
+      "sourceChars": 13484
+    },
+    {
+      "name": "lw_hero_appearance",
+      "bytes": 259513,
+      "magic": "1b4c756153011993",
+      "sha256": "419c1276079f0b286f8695d1dd21f9728d8d58e67ff259f7d834112817d8d44e",
+      "fields": [
+        {
+          "name": "L2_2",
+          "column": 1,
+          "type": "number"
+        }
+      ],
+      "interestingFields": [],
+      "rowMarkers": 0,
+      "sourceChars": 342543
+    },
+    {
+      "name": "lw_hero_appearance_B",
+      "bytes": 259513,
+      "magic": "1b4c756153011993",
+      "sha256": "b9e894d9da9aada553b0e71014dbb24a3734ce20c94d70bf276ffb661d38c34c",
+      "fields": [
+        {
+          "name": "L2_2",
+          "column": 1,
+          "type": "number"
+        }
+      ],
+      "interestingFields": [],
+      "rowMarkers": 0,
+      "sourceChars": 342535
+    },
+    {
+      "name": "lw_hero_appearance_opt",
+      "bytes": 207413,
+      "magic": "1b4c756153011993",
+      "sha256": "f61ed6541cae2ff062a654207ab6cf3280d25d2712a10e38e86a6f5f9f8497d1",
+      "fields": [
+        {
+          "name": "L2_2",
+          "column": 1,
+          "type": "number"
+        }
+      ],
+      "interestingFields": [],
+      "rowMarkers": 0,
+      "sourceChars": 276078
+    },
+    {
+      "name": "lw_hero_honorLevel",
+      "bytes": 58703,
+      "magic": "1b4c756153011993",
+      "sha256": "4fa8996c7ec21cc45eee816914edac100609e24a0762dd27cad78c4ddaa97143",
+      "fields": [
+        {
+          "name": "L2_2",
+          "column": 1,
+          "type": "number"
+        }
+      ],
+      "interestingFields": [],
+      "rowMarkers": 0,
+      "sourceChars": 78105
+    },
+    {
+      "name": "lw_hero_level",
+      "bytes": 11423,
+      "magic": "1b4c756153011993",
+      "sha256": "a3d774f9d450b063cf1b15d990171479e15d8bbe97a2e2e7f200ab22fc367a02",
+      "fields": [
+        {
+          "name": "L2_2",
+          "column": 1,
+          "type": "number"
+        }
+      ],
+      "interestingFields": [],
+      "rowMarkers": 0,
+      "sourceChars": 13245
+    },
+    {
+      "name": "lw_hero_level_reset",
+      "bytes": 5802,
+      "magic": "1b4c756153011993",
+      "sha256": "63eaab3d19bcc6f16948e95ee1c05f89157b98a8cb881e577ab3597763c6c7c6",
+      "fields": [
+        {
+          "name": "L2_2",
+          "column": 1,
+          "type": "number"
+        }
+      ],
+      "interestingFields": [],
+      "rowMarkers": 0,
+      "sourceChars": 7824
+    },
+    {
+      "name": "lw_hero_para",
+      "bytes": 1723,
+      "magic": "1b4c756153011993",
+      "sha256": "e8333af265912ee27e8fdcfb7f9eedc6f32424f74957104cdf8d87800feecae1",
+      "fields": [
+        {
+          "name": "L2_2",
+          "column": 1,
+          "type": "number"
+        }
+      ],
+      "interestingFields": [],
+      "rowMarkers": 0,
+      "sourceChars": 1806
+    },
+    {
+      "name": "lw_hero_pentagon",
+      "bytes": 589,
+      "magic": "1b4c756153011993",
+      "sha256": "7d75bd6cfdbc39e4201d38aeeb3e26eb76bc56d031a1d246ff53f3b7e9b3dd06",
+      "fields": [
+        {
+          "name": "L2_2",
+          "column": 1,
+          "type": "number"
+        }
+      ],
+      "interestingFields": [],
+      "rowMarkers": 0,
+      "sourceChars": 721
+    },
+    {
+      "name": "lw_hero_rank_old",
+      "bytes": 3822,
+      "magic": "1b4c756153011993",
+      "sha256": "fb956dd022b22f7c263879eadd317eb430e963b0239361176608505552af2b72",
+      "fields": [
+        {
+          "name": "L3_3",
+          "column": 1,
+          "type": "number"
+        }
+      ],
+      "interestingFields": [],
+      "rowMarkers": 0,
+      "sourceChars": 6132
+    },
+    {
+      "name": "lw_hero_skill",
+      "bytes": 905771,
+      "magic": "1b4c756153011993",
+      "sha256": "90903df2cca5b823d5f3a8aaf7af3f2f57cc815584c83a1a56d60566d43fcc8d",
+      "fields": [
+        {
+          "name": "L2_2",
+          "column": 1,
+          "type": "number"
+        }
+      ],
+      "interestingFields": [],
+      "rowMarkers": 0,
+      "sourceChars": 1693647
+    },
+    {
+      "name": "lw_hero_skill_effect",
+      "bytes": 26959,
+      "magic": "1b4c756153011993",
+      "sha256": "2f04973867b41e7c26fa236265cabf44c6141d90313192da28bc8a6a541b7392",
+      "fields": [
+        {
+          "name": "L2_2",
+          "column": 1,
+          "type": "number"
+        }
+      ],
+      "interestingFields": [],
+      "rowMarkers": 0,
+      "sourceChars": 40767
+    },
+    {
+      "name": "lw_hero_skill_effect_pvp",
+      "bytes": 257594,
+      "magic": "1b4c756153011993",
+      "sha256": "c2487e2515f77a786dad118f87f1550753372caf5be9583f6b6d1e71c8efd2ea",
+      "fields": [
+        {
+          "name": "L2_2",
+          "column": 1,
+          "type": "number"
+        }
+      ],
+      "interestingFields": [],
+      "rowMarkers": 0,
+      "sourceChars": 467744
+    },
+    {
+      "name": "lw_hero_special",
+      "bytes": 29598,
+      "magic": "1b4c756153011993",
+      "sha256": "569f8889efb1d1b908f923894918f73c5dd852f1ebfb57389d3aaa9b7f5fa00a",
+      "fields": [
+        {
+          "name": "L2_2",
+          "column": 1,
+          "type": "number"
+        }
+      ],
+      "interestingFields": [],
+      "rowMarkers": 0,
+      "sourceChars": 40251
+    },
+    {
+      "name": "lw_hero_tag",
+      "bytes": 526,
+      "magic": "1b4c756153011993",
+      "sha256": "ddb807ca16701b3d5ee28c54518c22fff35e17c1575a1e541a31e94a1e56d10c",
+      "fields": [
+        {
+          "name": "L2_2",
+          "column": 1,
+          "type": "number"
+        }
+      ],
+      "interestingFields": [],
+      "rowMarkers": 0,
+      "sourceChars": 556
+    },
+    {
+      "name": "lw_hero_try_out",
+      "bytes": 15093,
+      "magic": "1b4c756153011993",
+      "sha256": "223f82ec055bf0a72ccd74ce4ae28f00231c9c78d25eeebbef8c18c43cfc984b",
+      "fields": [
+        {
+          "name": "L2_2",
+          "column": 1,
+          "type": "number"
+        }
+      ],
+      "interestingFields": [],
+      "rowMarkers": 0,
+      "sourceChars": 16615
+    },
+    {
+      "name": "lw_hero_unique_weapon",
+      "bytes": 64550,
+      "magic": "1b4c756153011993",
+      "sha256": "2842591de70969c89a1012d9bcc7316b95a8f43eb1eb65b6772acb434a6a0886",
+      "fields": [
+        {
+          "name": "L2_2",
+          "column": 1,
+          "type": "number"
+        }
+      ],
+      "interestingFields": [],
+      "rowMarkers": 0,
+      "sourceChars": 108459
+    },
+    {
+      "name": "lw_hero_unique_weapon_effect",
+      "bytes": 59243,
+      "magic": "1b4c756153011993",
+      "sha256": "d7f14f76cecc61a609e2db2d484fdf8fb3b30c96f2c3ebb27e0498c76a38749d",
+      "fields": [
+        {
+          "name": "L2_2",
+          "column": 1,
+          "type": "number"
+        }
+      ],
+      "interestingFields": [],
+      "rowMarkers": 0,
+      "sourceChars": 112827
+    },
+    {
+      "name": "lw_hero_unique_weapon_unit_cost",
+      "bytes": 43273,
+      "magic": "1b4c756153011993",
+      "sha256": "45502d3fdce5a57e116a15f633856d77fdb28dc11ffc8523ab12e81e1db56ceb",
+      "fields": [
+        {
+          "name": "L2_2",
+          "column": 1,
+          "type": "number"
+        }
+      ],
+      "interestingFields": [],
+      "rowMarkers": 0,
+      "sourceChars": 57358
+    },
+    {
+      "name": "lw_hero_upgrade",
+      "bytes": 877,
+      "magic": "1b4c756153011993",
+      "sha256": "a465e38d85a1945bc8df713d841caf1b829e40468cbf400357a7574787ae9f6f",
+      "fields": [
+        {
+          "name": "L2_2",
+          "column": 1,
+          "type": "number"
+        }
+      ],
+      "interestingFields": [],
+      "rowMarkers": 0,
+      "sourceChars": 1178
+    },
+    {
+      "name": "lw_hero_upgrade_newbie",
+      "bytes": 950,
+      "magic": "1b4c756153011993",
+      "sha256": "3c79aaa97f180d3ac2dbe31e23bd55246043b3cd2c24b5783a5635507a9bc936",
+      "fields": [
+        {
+          "name": "L2_2",
+          "column": 1,
+          "type": "number"
+        }
+      ],
+      "interestingFields": [],
+      "rowMarkers": 0,
+      "sourceChars": 1037
+    },
+    {
+      "name": "lw_opening_hero",
+      "bytes": 491,
+      "magic": "1b4c756153011993",
+      "sha256": "0aa84d2c208b907da5d4b5f91133db8b2ace269b8fc158ef38bf6cda7baba6f0",
+      "fields": [
+        {
+          "name": "L2_2",
+          "column": 1,
+          "type": "number"
+        }
+      ],
+      "interestingFields": [],
+      "rowMarkers": 0,
+      "sourceChars": 522
+    },
+    {
+      "name": "lw_random_hero_base_property",
+      "bytes": 941,
+      "magic": "1b4c756153011993",
+      "sha256": "5688d4d63094aec887ac078525c4143c0b9ab28ac0b1e2b2a3a47d0197ecaeff",
+      "fields": [
+        {
+          "name": "L3_3",
+          "column": 1,
+          "type": "number"
+        }
+      ],
+      "interestingFields": [],
+      "rowMarkers": 0,
+      "sourceChars": 1066
+    },
+    {
+      "name": "lw_random_hero_unique_weapon_list",
+      "bytes": 385,
+      "magic": "1b4c756153011993",
+      "sha256": "a92b78a36f6911c53407289220794b65abddae79954c9bf8f1871775a042fc26",
+      "fields": [
+        {
+          "name": "L2_2",
+          "column": 1,
+          "type": "number"
+        }
+      ],
+      "interestingFields": [],
+      "rowMarkers": 0,
+      "sourceChars": 399
+    },
+    {
+      "name": "lw_role",
+      "bytes": 11974,
+      "magic": "1b4c756153011993",
+      "sha256": "41f6480d50007e2085e1faa5946fb801f2bc3866953b68b9a9b8f3edec4905dc",
+      "fields": [
+        {
+          "name": "L2_2",
+          "column": 1,
+          "type": "number"
+        }
+      ],
+      "interestingFields": [],
+      "rowMarkers": 0,
+      "sourceChars": 14322
+    }
+  ],
+  "note": "Derived schema metadata only; compiled/decompiled game table payloads are not committed."
+}
