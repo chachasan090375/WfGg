@@ -1,0 +1,544 @@
+{
+  "source": {
+    "apk": "install_time_pack.apk",
+    "path": "assets/table/table_38781_cfcbee99d7064f86d09dd682babdbc2b.data",
+    "bytes": 19270680,
+    "md5": "cfcbee99d7064f86d09dd682babdbc2b",
+    "sha256": "be74b18971508b511c3fb306572dae330af85b4e7ae105143056638233b085e1"
+  },
+  "targetPropertyIds": [
+    50006,
+    50007,
+    50009,
+    50063,
+    75053
+  ],
+  "candidateTables": [
+    {
+      "name": "activity_alliance_boss_property",
+      "index": {
+        "alliance_bonus": [
+          14,
+          "string",
+          true
+        ],
+        "alliance_reward": [
+          12,
+          "string",
+          true
+        ],
+        "desc": [
+          4,
+          "string"
+        ],
+        "difficulty": [
+          2,
+          "number"
+        ],
+        "donate_level": [
+          6,
+          "string"
+        ],
+        "donate_level_bouns": [
+          7,
+          "string"
+        ],
+        "id": [
+          1,
+          "number"
+        ],
+        "is_confirm": [
+          10,
+          "string"
+        ],
+        "monsterId": [
+          3,
+          "number"
+        ],
+        "name": [
+          5,
+          "number"
+        ],
+        "reward": [
+          13,
+          "string",
+          true
+        ],
+        "show_condition": [
+          8,
+          "string"
+        ],
+        "stage": [
+          9,
+          "number"
+        ],
+        "unlock_condition": [
+          11,
+          "string"
+        ]
+      },
+      "dataType": "list",
+      "rowCount": 12
+    },
+    {
+      "name": "battle_card_random_attr",
+      "index": {
+        "attr_pool": [
+          2,
+          "string",
+          true
+        ],
+        "id": [
+          1,
+          "number"
+        ],
+        "power_range": [
+          3,
+          "string"
+        ]
+      },
+      "dataType": "dict",
+      "rowCount": 31
+    },
+    {
+      "name": "battle_card_random_attr_detail",
+      "index": {
+        "effect_num": [
+          2,
+          "number"
+        ],
+        "id": [
+          1,
+          "number"
+        ],
+        "quality_range": [
+          3,
+          "array",
+          true
+        ],
+        "random_step": [
+          4,
+          "number"
+        ]
+      },
+      "dataType": "dict",
+      "rowCount": 94
+    },
+    {
+      "name": "battle_card_random_attr_show",
+      "index": {
+        "effect_name": [
+          2,
+          "string"
+        ],
+        "id": [
+          1,
+          "number"
+        ],
+        "quality": [
+          3,
+          "array",
+          true
+        ],
+        "quality_range": [
+          4,
+          "array",
+          true
+        ]
+      },
+      "dataType": "dict",
+      "rowCount": 47
+    },
+    {
+      "name": "lw_drone_skillchip_attribute",
+      "index": {
+        "effects": [
+          2,
+          "string"
+        ],
+        "id": [
+          1,
+          "number"
+        ],
+        "power": [
+          3,
+          "number"
+        ]
+      },
+      "dataType": "dict",
+      "rowCount": 1200
+    },
+    {
+      "name": "lw_equip_attribute",
+      "index": {
+        "effects": [
+          2,
+          "table",
+          true
+        ],
+        "id": [
+          1,
+          "number"
+        ]
+      },
+      "dataType": "dict",
+      "rowCount": 1188
+    },
+    {
+      "name": "lw_random_hero_base_property",
+      "index": {
+        "base_agile_down": [
+          5,
+          "number"
+        ],
+        "base_agile_up": [
+          6,
+          "number"
+        ],
+        "base_knowledge_down": [
+          7,
+          "number"
+        ],
+        "base_knowledge_up": [
+          8,
+          "number"
+        ],
+        "base_produce_down": [
+          11,
+          "number"
+        ],
+        "base_produce_up": [
+          12,
+          "number"
+        ],
+        "base_strengh_down": [
+          3,
+          "number"
+        ],
+        "base_strengh_up": [
+          4,
+          "number"
+        ],
+        "base_trade_down": [
+          9,
+          "number"
+        ],
+        "base_trade_up": [
+          10,
+          "number"
+        ],
+        "id": [
+          1,
+          "number"
+        ],
+        "quality": [
+          2,
+          "number"
+        ]
+      },
+      "dataType": "list",
+      "rowCount": 4
+    },
+    {
+      "name": "lw_template_property",
+      "index": {
+        "base_acc": [
+          7,
+          "number"
+        ],
+        "base_crit": [
+          8,
+          "string"
+        ],
+        "base_hp": [
+          4,
+          "string"
+        ],
+        "base_load": [
+          9,
+          "string"
+        ],
+        "base_patk": [
+          5,
+          "string"
+        ],
+        "base_pdef": [
+          6,
+          "string"
+        ],
+        "base_soldier_capacity": [
+          10,
+          "number"
+        ],
+        "id": [
+          1,
+          "number"
+        ],
+        "level": [
+          3,
+          "number"
+        ],
+        "type": [
+          2,
+          "number"
+        ]
+      },
+      "dataType": "dict",
+      "rowCount": 351
+    },
+    {
+      "name": "lw_template_property_category",
+      "index": {
+        "base_acc": [
+          14,
+          "string"
+        ],
+        "base_agile": [
+          6,
+          "string"
+        ],
+        "base_crit": [
+          15,
+          "string"
+        ],
+        "base_hp": [
+          9,
+          "string"
+        ],
+        "base_matk": [
+          12,
+          "string"
+        ],
+        "base_mdef": [
+          13,
+          "string"
+        ],
+        "base_patk": [
+          10,
+          "string"
+        ],
+        "base_pdef": [
+          11,
+          "string"
+        ],
+        "base_produce": [
+          7,
+          "string"
+        ],
+        "base_strengh": [
+          4,
+          "string"
+        ],
+        "base_trade": [
+          8,
+          "string"
+        ],
+        "base_vit": [
+          5,
+          "string"
+        ],
+        "id": [
+          1,
+          "number"
+        ],
+        "quality": [
+          2,
+          "number"
+        ],
+        "template_id": [
+          3,
+          "number"
+        ]
+      },
+      "dataType": "list",
+      "rowCount": 24
+    },
+    {
+      "name": "lw_worker_template_property",
+      "index": {
+        "base_collect": [
+          4,
+          "number"
+        ],
+        "base_process": [
+          5,
+          "number"
+        ],
+        "base_produce": [
+          6,
+          "number"
+        ],
+        "base_supply": [
+          7,
+          "number"
+        ],
+        "id": [
+          1,
+          "number"
+        ],
+        "level": [
+          3,
+          "number"
+        ],
+        "type": [
+          2,
+          "number"
+        ]
+      },
+      "dataType": "dict",
+      "rowCount": 1
+    },
+    {
+      "name": "lw_worker_template_property_category",
+      "index": {
+        "base_collect": [
+          4,
+          "string"
+        ],
+        "base_process": [
+          5,
+          "string"
+        ],
+        "base_produce": [
+          6,
+          "string"
+        ],
+        "base_supply": [
+          7,
+          "string"
+        ],
+        "id": [
+          1,
+          "number"
+        ],
+        "quality": [
+          2,
+          "number"
+        ],
+        "template_id": [
+          3,
+          "number"
+        ]
+      },
+      "dataType": "list",
+      "rowCount": 25
+    },
+    {
+      "name": "train_property",
+      "index": {
+        "Guard_max": [
+          4,
+          "number"
+        ],
+        "HQLevel": [
+          3,
+          "number"
+        ],
+        "bg_icon": [
+          15,
+          "string",
+          true
+        ],
+        "city_model": [
+          13,
+          "string",
+          true
+        ],
+        "icon": [
+          14,
+          "string",
+          true
+        ],
+        "id": [
+          1,
+          "number"
+        ],
+        "length": [
+          5,
+          "number"
+        ],
+        "lowest_reward": [
+          7,
+          "number"
+        ],
+        "quality": [
+          2,
+          "number"
+        ],
+        "reward1": [
+          9,
+          "number"
+        ],
+        "reward_extra": [
+          20,
+          "number"
+        ],
+        "reward_extra_num": [
+          19,
+          "number"
+        ],
+        "season": [
+          18,
+          "string"
+        ],
+        "share_icon": [
+          16,
+          "string",
+          true
+        ],
+        "slot_number": [
+          10,
+          "number"
+        ],
+        "slot_specially_reward": [
+          17,
+          "string",
+          true
+        ],
+        "speed": [
+          6,
+          "string"
+        ],
+        "train_route_length": [
+          8,
+          "string"
+        ],
+        "type": [
+          11,
+          "number"
+        ],
+        "world_model": [
+          12,
+          "string",
+          true
+        ]
+      },
+      "dataType": "dict",
+      "rowCount": 422
+    }
+  ],
+  "hits": [
+    {
+      "table": "battle_card_random_attr_detail",
+      "key": "12",
+      "row": [
+        12,
+        75053,
+        5,
+        0.001
+      ]
+    },
+    {
+      "table": "battle_card_random_attr_show",
+      "key": "75053",
+      "row": [
+        75053,
+        "210173",
+        5,
+        8
+      ]
+    }
+  ],
+  "errors": {},
+  "note": "Derived mapping audit only; no bulk game tables or assets committed."
+}
