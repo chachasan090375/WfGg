@@ -62,23 +62,12 @@
     return changed;
   }
 
-  function tacticsState(){return parse(nativeGet.call(localStorage,TACTICS_KEY));}
-  function writeTactics(s){const value=JSON.stringify(s);nativeSet.call(localStorage,TACTICS_KEY,value);mirrorSidecar(TACTICS_KEY,value);}
-  function saveTacticsInput(el){
-    const root=el.closest('#tacticsCardsV2');if(!root)return false;
-    const s=tacticsState();
-    if(el.dataset.expeditionLevel!==undefined){s.globalExpeditionNonCoreTotalLevel=numeric(el);writeTactics(s);return true;}
-    const node=el.closest('.tactics-slot');if(!node)return false;
-    const kind=node.dataset.kind,index=Number(node.dataset.index),key=kind+'Slots';s[key]=Array.isArray(s[key])?s[key]:[];s[key][index]=s[key][index]||{values:{}};const slot=s[key][index];slot.values=slot.values||{};
-    if(el.hasAttribute('data-card-level'))slot.level=numeric(el);
-    else if(el.hasAttribute('data-card-bonus-levels'))slot.bonusLevels=numeric(el);
-    else if(el.dataset.cardValue)slot.values[el.dataset.cardValue]=el.value===''?'':Number(el.value);
-    else if(el.hasAttribute('data-card-secondary'))slot.secondaryText=el.value;
-    else return false;
-    writeTactics(s);return true;
+  function autosave(e){
+    const el=e.target;
+    if(!el?.matches?.('input,textarea'))return;
+    if(el.closest?.('#tacticsCardsV2'))return;
+    saveMainInput(el);
   }
-
-  function autosave(e){const el=e.target;if(!el?.matches?.('input,textarea'))return;if(saveTacticsInput(el))return;saveMainInput(el);}
   document.addEventListener('input',autosave,{capture:true});
 
   function commitFocused(){
@@ -90,5 +79,5 @@
   document.addEventListener('visibilitychange',()=>{if(document.hidden)commitFocused();},{capture:true});
   window.addEventListener('beforeunload',commitFocused,{capture:true});
   migrate();
-  window.WfGgProfilePersistence=Object.freeze({version:'2.1.0',PROFILE_KEY,TACTICS_KEY,OPTIMIZER_KEY,migrate,commitFocused,profile:()=>clone(profile())});
+  window.WfGgProfilePersistence=Object.freeze({version:'2.2.0',PROFILE_KEY,TACTICS_KEY,OPTIMIZER_KEY,migrate,commitFocused,profile:()=>clone(profile())});
 })();
