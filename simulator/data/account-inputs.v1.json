@@ -1,0 +1,73 @@
+{
+  "version": "1.0.0",
+  "account": {
+    "hqLevel": {"required":true,"range":[1,35]},
+    "activeSquads": {"required":true,"allowed":[3,4],"note":"4 requires active Super Monthly Pass"},
+    "troopTier": {"required":true,"examples":["T9","T10","T11"]},
+    "troopCenters": {
+      "tankLevel":{"required":true,"range":[1,35]},
+      "aircraftLevel":{"required":true,"range":[1,35]},
+      "missileLevel":{"required":true,"range":[1,35]}
+    }
+  },
+  "heroes": {
+    "fields": [
+      "heroId","owned","troopType","role","damageType","rarity","level","stars",
+      "skillLevels","exclusiveWeaponLevel","awakeningUnlocked","awakeningStars","awakeningTier",
+      "wallOfHonorLevel"
+    ],
+    "rules": {
+      "heroCannotAppearInTwoSimultaneousSquads": true,
+      "heroLevelAffectsStats": true,
+      "heroLevelAffectsCommandMarchSize": true,
+      "awakeningSeason6Heroes": ["Kimberly","DVA","Tesla"]
+    }
+  },
+  "gearInventory": {
+    "uniqueItems": true,
+    "slots": ["gun","chip","armor","radar"],
+    "fields": ["itemId","slot","rarity","level","stars","promotion","currentlyAssignedHero"],
+    "optimizationRule": "a gear item can be assigned to only one hero across simultaneous squads"
+  },
+  "exclusiveWeapons": {
+    "storedOnHero": true,
+    "importantBreakpoints": [10,20,30],
+    "note": "EW effects and same-type specialist bonuses are hero-specific and follow the hero"
+  },
+  "wallOfHonor": {
+    "requiredForHighAccuracy": true,
+    "inputStrategies": [
+      "per-hero Wall of Honor level",
+      "fallback: aggregate Tank/Aircraft/Missile ATK/DEF/HP bonuses if player prefers"
+    ],
+    "effect": "hero entries can buff all heroes of the same troop type"
+  },
+  "drone": {
+    "globalDroneLevel": {"relativeRankingDefault":"common/excluded unless objective needs absolute score"},
+    "skillChips": {
+      "typeSpecific": true,
+      "types": ["tank","aircraft","missile"],
+      "fields": ["chipName","rarity","stars","presetId"],
+      "allocationMustBeRespectedAcrossSquads": true
+    }
+  },
+  "overlords": {
+    "inventory": true,
+    "examples": ["Battle Gorilla","Hawk/Skybreaker"],
+    "fields": ["overlordId","unlocked","promotion","trainingLevels","skillLevels"],
+    "assignmentRule": "each Overlord can be assigned to at most one squad at a time"
+  },
+  "marchSizeAdditional": {
+    "survivorShirley": {"optional":true,"input":"star/level or displayed bonus"},
+    "decorations": {"optional":true,"input":"verified march-size bonus total"},
+    "masteryMarchSize": {"source":"research-inputs.v1.json"}
+  },
+  "season6": {
+    "totemLevels": {
+      "bearTank":{"range":[0,30],"damagePctPerLevel":0.5},
+      "eagleAircraft":{"range":[0,30],"damagePctPerLevel":0.5},
+      "jaguarMissile":{"range":[0,30],"damagePctPerLevel":0.5}
+    },
+    "tacticsCards": {"source":"season6-context.v1.json"}
+  }
+}
