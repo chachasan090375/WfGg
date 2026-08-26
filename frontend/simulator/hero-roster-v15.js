@@ -40,7 +40,7 @@
   let scanQueued=false;
 
   window.WfGgHeroMotionOwner='v15';
-  window.WfGgHeroRosterV15={version:'15.1.0'};
+  window.WfGgHeroRosterV15={version:'15.2.0'};
   document.documentElement.dataset.wfggRosterMotion='v15';
 
   const norm=v=>String(v||'').trim().toLowerCase();
@@ -57,6 +57,14 @@
   function icon(kind){return `<span class="wfgg-v15-semantic-icon" title="${label(kind)}" aria-label="${label(kind)}"><img src="${ICON[kind]}" alt="" aria-hidden="true"><span class="wfgg-v15-sr-only">${label(kind)}</span></span>`}
   function stripLegacy(root=document){root.querySelectorAll?.('.game-hero-card').forEach(c=>LEGACY.forEach(k=>c.classList.remove(k)))}
 
+  function ensureMotionLayer(card){
+    const portrait=card.querySelector('.hero-card-portrait');if(!portrait)return null;
+    let layer=portrait.querySelector(':scope > .wfgg-v15-motion-layer');
+    const looseImg=portrait.querySelector(':scope > img');
+    if(!layer){layer=document.createElement('div');layer.className='wfgg-v15-motion-layer';portrait.insertBefore(layer,portrait.firstChild)}
+    if(looseImg)layer.appendChild(looseImg);
+    return layer;
+  }
   function decorateCard(card){
     const id=card.dataset.heroId;if(!id)return;
     const cat=byId(id);if(!cat)return;
@@ -66,6 +74,7 @@
     card.style.setProperty('--wfgg-v15-zoom',String(c.zoom));
     card.dataset.wfggV15Crop=`${c.x},${c.y},${c.zoom}`;
     card.dataset.wfggV15Rarity=card.classList.contains('rarity-SSR')?'SSR':card.classList.contains('rarity-SR')?'SR':'UR';
+    const motion=ensureMotionLayer(card);if(motion)motion.dataset.wfggV15Motion='1';
     let layer=card.querySelector(':scope > .wfgg-v15-card-semantics');
     if(!layer){layer=document.createElement('div');layer.className='wfgg-v15-card-semantics';layer.setAttribute('aria-label',`${label(cat.troopType)}, ${label(cat.role)}`);card.appendChild(layer)}
     const signature=`${cat.troopType}|${cat.role}|${lang()}`;
