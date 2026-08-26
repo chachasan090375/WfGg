@@ -1,0 +1,53 @@
+name: Simulator hero selection apply v4
+
+on:
+  push:
+    branches:
+      - simulator-standalone-v1
+    paths:
+      - '.github/workflows/simulator-hero-native-selection-apply-v4.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: simulator-standalone-v1
+          fetch-depth: 0
+
+      - name: Apply hero UI patch
+        run: python3 .github/scripts/simulator_hero_native_selection_ui_v3.py
+
+      - name: Validate hero UI
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check simulator/hero-roster-v2.js
+          grep -q "version:'3.0.0'" simulator/hero-roster-v2.js
+          grep -q "heroSelectAll" simulator/hero-roster-v2.js
+          grep -q "heroSelectionDone" simulator/hero-roster-v2.js
+          grep -q "hero-select-dot" simulator/hero-roster-v2.js
+          grep -q "480" simulator/hero-roster-v2.js
+          ! grep -q "hero-card-info" simulator/hero-roster-v2.js
+          ! grep -q "hero-owned-toggle" simulator/hero-roster-v2.js
+          ! grep -q "heroSelectionMode" simulator/hero-roster-v2.js
+
+      - name: Commit hero UI
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add simulator/hero-roster-v2.js simulator/hero-roster-v2.css
+          git diff --cached --check
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'simulator: long-press hero selection and game-style sheets'
+          git fetch origin simulator-standalone-v1
+          git rebase origin/simulator-standalone-v1
+          git push origin HEAD:simulator-standalone-v1
