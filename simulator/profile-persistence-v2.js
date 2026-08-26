@@ -15,10 +15,9 @@
   function profile(){return parse(nativeGet.call(localStorage,PROFILE_KEY));}
   function writeProfile(p){nativeSet.call(localStorage,PROFILE_KEY,JSON.stringify(stamp(p)));}
 
-  // Keep fields that were autosaved from the live DOM when an older app.js state
-  // subsequently writes the whole profile. Arrays keep the incoming length so
-  // deleting heroes/gear still works, while each surviving item preserves newer
-  // fields that the older state does not know about yet.
+  // Preserve fields introduced/autosaved outside the legacy app state when that
+  // state subsequently writes the whole profile. Incoming array length remains
+  // authoritative so deleting heroes or gear still works.
   function preserveMissing(existing,incoming){
     if(Array.isArray(incoming)){
       const old=Array.isArray(existing)?existing:[];
@@ -88,20 +87,25 @@
 
   function autosave(e){
     const el=e.target;
-    if(!el?.matches?.('input,textarea'))return;
+    if(!el?.matches?.('input,textarea,select'))return;
     if(el.closest?.('#tacticsCardsV2'))return;
     saveMainInput(el);
   }
   document.addEventListener('input',autosave,{capture:true});
+  document.addEventListener('change',autosave,{capture:true});
 
+  // On page close/reload, persist the focused field directly. Do NOT synthesize
+  // a change event here: legacy app.js may still hold an older in-memory object
+  // and a synthetic change could rewrite freshly autosaved sibling fields.
   function commitFocused(){
     const el=document.activeElement;
     if(!el||!el.matches?.('input,select,textarea')||el.disabled||el.readOnly)return;
-    try{el.dispatchEvent(new Event('change',{bubbles:true}));}catch(_){}
+    if(el.closest?.('#tacticsCardsV2'))return;
+    try{saveMainInput(el);}catch(_){}
   }
   window.addEventListener('pagehide',commitFocused,{capture:true});
   document.addEventListener('visibilitychange',()=>{if(document.hidden)commitFocused();},{capture:true});
   window.addEventListener('beforeunload',commitFocused,{capture:true});
   migrate();
-  window.WfGgProfilePersistence=Object.freeze({version:'2.3.0',PROFILE_KEY,TACTICS_KEY,OPTIMIZER_KEY,migrate,commitFocused,profile:()=>clone(profile())});
+  window.WfGgProfilePersistence=Object.freeze({version:'2.4.0',PROFILE_KEY,TACTICS_KEY,OPTIMIZER_KEY,migrate,commitFocused,profile:()=>clone(profile())});
 })();
