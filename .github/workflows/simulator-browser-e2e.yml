@@ -52,11 +52,11 @@ jobs:
                   fetch(PUBLIC+'app.js'+q).then(r=>r.ok?r.text():''),
                   fetch(PUBLIC+'tactics-autosave-v2.js'+q).then(r=>r.ok?r.text():'')
                 ]);
-                if(p.includes("version:'2.2.0'") && a.indexOf('const clone =') < a.indexOf('let state = loadState()') && t.includes("version:'2.1.0'")) return;
+                if(p.includes("version:'2.3.0'") && a.indexOf('const clone =') < a.indexOf('let state = loadState()') && t.includes("version:'2.1.0'")) return;
               }catch(_){}
               await wait(2000);
             }
-            throw new Error('Public preview did not reach persistence 2.2.0 / tactics 2.1.0');
+            throw new Error('Public preview did not reach persistence 2.3.0 / tactics 2.1.0');
           }
 
           async function makePage(browser){
@@ -73,7 +73,7 @@ jobs:
             assert(r&&r.ok(),'HTTP navigation failed '+url);
             await page.evaluate(()=>localStorage.clear());
             await page.reload({waitUntil:'domcontentloaded'});
-            await page.waitForFunction(()=>window.WfGgProfilePersistence?.version==='2.2.0',{timeout:12000});
+            await page.waitForFunction(()=>window.WfGgProfilePersistence?.version==='2.3.0',{timeout:12000});
             await page.waitForFunction(()=>window.WfGgTacticsAutosave?.version==='2.1.0',{timeout:12000});
             await page.waitForSelector('#stepNav [data-step]',{timeout:12000});
           }
@@ -97,7 +97,7 @@ jobs:
             }
             await page.locator('#stepNav [data-step="0"]').click();
             await page.locator('[data-account="hqLevel"]').fill('31');
-            await page.reload({waitUntil:'domcontentloaded'}); // no blur, no save button
+            await page.reload({waitUntil:'domcontentloaded'});
             await page.waitForSelector('[data-account="hqLevel"]');
             assert(await page.locator('[data-account="hqLevel"]').inputValue()==='31',label+' account typing not persisted');
           }
@@ -108,7 +108,7 @@ jobs:
             let card=page.locator('.hero-card').first();
             await card.locator('[data-field="heroId"]').fill('Mason');
             await card.locator('[data-field="displayedAttack"]').fill('110000');
-            await page.reload({waitUntil:'domcontentloaded'}); // persistence while field may still be focused
+            await page.reload({waitUntil:'domcontentloaded'});
             await page.waitForSelector('.hero-card');
             card=page.locator('.hero-card').first();
             assert(await card.locator('[data-field="heroId"]').inputValue()==='Mason','hero name typing not persisted');
@@ -141,7 +141,7 @@ jobs:
             let g=page.locator('.gear-card').first();
             await g.locator('[data-field="itemId"]').fill('E2E Railgun');
             await g.locator('[data-field="level"]').fill('40');
-            await page.reload({waitUntil:'domcontentloaded'}); // no blur
+            await page.reload({waitUntil:'domcontentloaded'});
             await page.waitForSelector('.gear-card');
             g=page.locator('.gear-card').first();
             assert(await g.locator('[data-field="itemId"]').inputValue()==='E2E Railgun','gear name typing not persisted');
@@ -155,7 +155,7 @@ jobs:
             const id=await level.getAttribute('data-research-level');
             await level.fill('3');
             await page.locator(`[data-research-bonus="${id}"]`).fill('2.5');
-            await page.reload({waitUntil:'domcontentloaded'}); // no blur
+            await page.reload({waitUntil:'domcontentloaded'});
             await page.locator('#stepNav [data-step="3"]').click();
             assert(await page.locator(`[data-research-level="${id}"]`).inputValue()==='3','research level typing not persisted');
             assert(await page.locator(`[data-research-bonus="${id}"]`).inputValue()==='2.5','research bonus typing not persisted');
@@ -164,7 +164,7 @@ jobs:
           async function seasonAndTactics(page){
             await page.locator('#stepNav [data-step="4"]').click();
             await page.locator('[data-totem="bearTank"]').fill('12');
-            await page.reload({waitUntil:'domcontentloaded'}); // no blur
+            await page.reload({waitUntil:'domcontentloaded'});
             await page.locator('#stepNav [data-step="4"]').click();
             assert(await page.locator('[data-totem="bearTank"]').inputValue()==='12','totem typing not persisted');
             await page.waitForSelector('#tacticsCardsV2');
@@ -183,7 +183,7 @@ jobs:
             await assertPersisted(page,['season6','tacticsV2','battleSlots',0,'values','attackPct'],12.5,'tactics ATK value not autosaved');
             await assertPersisted(page,['season6','tacticsV2','battleSlots',0,'values','defensePct'],7.5,'tactics DEF value not autosaved');
             await assertPersisted(page,['season6','tacticsV2','battleSlots',0,'secondaryText'],'E2E secondary attribute','tactics text not autosaved');
-            await page.reload({waitUntil:'domcontentloaded'}); // values must survive reload
+            await page.reload({waitUntil:'domcontentloaded'});
             await page.locator('#stepNav [data-step="4"]').click(); await page.waitForSelector('#tacticsCardsV2');
             b=page.locator('.tactics-slot[data-kind="battle"]').first();
             assert(await b.locator('[data-card-id]').inputValue()==='universal-zombie-killer','tactics card UI lost');
