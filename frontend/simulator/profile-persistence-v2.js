@@ -10,6 +10,7 @@
   const clone=v=>JSON.parse(JSON.stringify(v));
   const stamp=p=>{p.metadata=p.metadata||{};p.metadata.schema=p.metadata.schema||SCHEMA;p.metadata.updatedAt=new Date().toISOString();return p;};
   const numeric=el=>el.type==='number'?Number(el.value||0):el.value;
+  const fieldValue=el=>el.type==='checkbox'?el.checked:(el.type==='number'?(el.value===''?'':Number(el.value)):el.value);
   const isPlain=v=>!!v&&typeof v==='object'&&!Array.isArray(v);
 
   function profile(){return parse(nativeGet.call(localStorage,PROFILE_KEY));}
@@ -32,10 +33,6 @@
     return incoming;
   }
 
-  // Hero inputs are autosaved in capture phase before the legacy app receives
-  // the event. Therefore, for surviving hero indices, the already-persisted
-  // object is newer than app.js's in-memory copy. Incoming array length remains
-  // authoritative so add/remove operations continue to work normally.
   function preserveAutosavedHeroes(existing,incoming){
     if(!Array.isArray(incoming))return incoming;
     const old=Array.isArray(existing)?existing:[];
@@ -43,6 +40,46 @@
       if(!isPlain(hero)||!isPlain(old[i]))return hero;
       return {...hero,...clone(old[i])};
     });
+  }
+
+  // Any full-profile write from the legacy app is reconciled with the form that
+  // is actually visible at that instant. This prevents an older in-memory copy
+  // from erasing the last character/value typed immediately before navigation,
+  // reload, backgrounding or another module save.
+  function overlayLiveForm(p){
+    if(typeof document==='undefined'||!document.querySelector)return p;
+    try{
+      p.account=p.account||{};
+      document.querySelectorAll('[data-account]').forEach(el=>{p.account[el.dataset.account]=fieldValue(el);});
+      p.account.troopCenters=p.account.troopCenters||{};
+      document.querySelectorAll('[data-center]').forEach(el=>{p.account.troopCenters[el.dataset.center]=fieldValue(el);});
+      p.account.marchSizeAdditional=p.account.marchSizeAdditional||{};
+      document.querySelectorAll('[data-march]').forEach(el=>{p.account.marchSizeAdditional[el.dataset.march]=fieldValue(el);});
+
+      const heroCards=[...document.querySelectorAll('.hero-card')];
+      if(heroCards.length&&Array.isArray(p.heroes))heroCards.forEach((card,order)=>{
+        const raw=Number(card.dataset.index),i=Number.isInteger(raw)&&raw>=0?raw:order;
+        if(i>=p.heroes.length)return;
+        p.heroes[i]=p.heroes[i]||{};
+        card.querySelectorAll('[data-field]').forEach(el=>{p.heroes[i][el.dataset.field]=fieldValue(el);});
+      });
+
+      const gearCards=[...document.querySelectorAll('.gear-card')];
+      if(gearCards.length&&Array.isArray(p.gear))gearCards.forEach((card,i)=>{
+        if(i>=p.gear.length)return;
+        p.gear[i]=p.gear[i]||{};
+        card.querySelectorAll('[data-field]').forEach(el=>{p.gear[i][el.dataset.field]=fieldValue(el);});
+      });
+
+      p.research=p.research||{};
+      document.querySelectorAll('[data-research-level]').forEach(el=>{const id=el.dataset.researchLevel;p.research[id]=p.research[id]||{};p.research[id].level=fieldValue(el);});
+      document.querySelectorAll('[data-research-bonus]').forEach(el=>{const id=el.dataset.researchBonus;p.research[id]=p.research[id]||{};p.research[id].displayedBonusPct=fieldValue(el);});
+
+      p.season6=p.season6||{};p.season6.totemLevels=p.season6.totemLevels||{};p.season6.tacticsCards=p.season6.tacticsCards||{};
+      document.querySelectorAll('[data-totem]').forEach(el=>{p.season6.totemLevels[el.dataset.totem]=fieldValue(el);});
+      document.querySelectorAll('[data-card]').forEach(el=>{p.season6.tacticsCards[el.dataset.card]=fieldValue(el);});
+    }catch(_){}
+    return p;
   }
 
   function enrichProfileString(value){
@@ -53,6 +90,7 @@
     if(merged.season6.tacticsV2==null && existing.season6?.tacticsV2!=null) merged.season6.tacticsV2=existing.season6.tacticsV2;
     merged.simulatorUi=merged.simulatorUi||{};
     if(merged.simulatorUi.optimizer==null && existing.simulatorUi?.optimizer!=null) merged.simulatorUi.optimizer=existing.simulatorUi.optimizer;
+    overlayLiveForm(merged);
     return JSON.stringify(stamp(merged));
   }
 
@@ -60,7 +98,7 @@
     const p=profile();p.season6=p.season6||{};p.simulatorUi=p.simulatorUi||{};
     if(key===TACTICS_KEY)p.season6.tacticsV2=parse(value);
     if(key===OPTIMIZER_KEY)p.simulatorUi.optimizer=parse(value);
-    writeProfile(p);
+    writeProfile(overlayLiveForm(p));
   }
 
   if(!window.__wfggProfileStoragePatched){
@@ -92,7 +130,7 @@
     else if(el.dataset.totem){p.season6=p.season6||{};p.season6.totemLevels=p.season6.totemLevels||{};p.season6.totemLevels[el.dataset.totem]=numeric(el);}
     else if(el.dataset.card){p.season6=p.season6||{};p.season6.tacticsCards=p.season6.tacticsCards||{};p.season6.tacticsCards[el.dataset.card]=numeric(el);}
     else changed=false;
-    if(changed)writeProfile(p);
+    if(changed)writeProfile(overlayLiveForm(p));
     return changed;
   }
 
@@ -115,5 +153,5 @@
   document.addEventListener('visibilitychange',()=>{if(document.hidden)commitFocused();},{capture:true});
   window.addEventListener('beforeunload',commitFocused,{capture:true});
   migrate();
-  window.WfGgProfilePersistence=Object.freeze({version:'2.4.0',revision:'hero-existing-wins-v1',PROFILE_KEY,TACTICS_KEY,OPTIMIZER_KEY,migrate,commitFocused,profile:()=>clone(profile())});
+  window.WfGgProfilePersistence=Object.freeze({version:'2.4.0',revision:'live-dom-authority-v2',PROFILE_KEY,TACTICS_KEY,OPTIMIZER_KEY,migrate,commitFocused,profile:()=>clone(profile())});
 })();
