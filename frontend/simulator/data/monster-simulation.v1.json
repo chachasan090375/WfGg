@@ -1,0 +1,60 @@
+{
+  "version": "1.0.0-research",
+  "auditedAt": "2026-08-26",
+  "purpose": "Keep generic monster PvE separate from Wanted Codes because ordinary monsters can attack and therefore survivability and frontline placement matter.",
+  "objectiveId": "monster-generic",
+  "contexts": ["world-map-monsters","zombies","doom-elite-like-pve","generic-monster-pve"],
+  "rules": {
+    "enemyAttacks": true,
+    "displayedPowerIsNotAScore": true,
+    "offenseInputs": ["displayedAttack","pveDamagePct","monsterDamagePct","skill damage","attack speed","cooldown","team buffs","positional buffs","monster-specific research"],
+    "survivalInputs": ["displayedDefense","displayedHp","Defense role","frontline placement","verified damage-reduction effects"],
+    "frontlineRule": "When Defense-role heroes are present, fill as many of the two frontline slots with them as possible before comparing offensive output.",
+    "noFakeCompositePower": "Do not add ATK + DEF + HP or reuse displayed Power. Offense and survival remain separate dimensions until the damage/mitigation model is calibrated.",
+    "positionSearch": "Evaluate all 120 placements for five heroes because monster-specific row effects can conflict with ordinary front/back role placement."
+  },
+  "verifiedExamples": [
+    {
+      "hero": "Mason",
+      "skill": "Zombie Purge",
+      "effect": "back-row Tank heroes receive a monster-specific offensive buff",
+      "sourceAuthority": "Google Play localized Last War editorial",
+      "source": "https://play.google.com/store/apps/editorial?id=mc_games_editorialevergreen_postinstall_troops_in_last_war_survival_fcp",
+      "implementation": "use the player's displayed positionalPveBuffPct rather than guessing the current percentage"
+    },
+    {
+      "hero": "Monica",
+      "effect": "official Google Play editorial describes monster-specific damage utility",
+      "sourceAuthority": "Google Play localized Last War editorial",
+      "source": "https://play.google.com/store/apps/editorial?id=mc_games_editorialevergreen_postinstall_troops_in_last_war_survival_fcp",
+      "implementation": "structure only; exact current percentage still requires player/game value before scoring"
+    },
+    {
+      "hero": "Braz",
+      "effect": "official Google Play editorial describes Zombie Killer as boosting damage to monsters",
+      "sourceAuthority": "Google Play localized Last War editorial",
+      "source": "https://play.google.com/store/apps/editorial?id=mc_games_editorialevergreen_postinstall_troops_in_last_war_survival_fcp",
+      "implementation": "structure only; exact current percentage still requires player/game value before scoring"
+    },
+    {
+      "hero": "Elsa",
+      "effect": "official Google Play editorial describes Special Armor as reducing allies' damage taken from monsters",
+      "sourceAuthority": "Google Play localized Last War editorial",
+      "source": "https://play.google.com/store/apps/editorial?id=mc_games_editorialevergreen_postinstall_troops_in_last_war_survival_fcp",
+      "implementation": "survival layer only; do not translate this into offense"
+    }
+  ],
+  "researchIntegration": {
+    "source": "research-inputs.v1.json",
+    "include": ["squad.1.terminator","squad.2.terminator","squad.3.terminator","squad.4.terminator"],
+    "note": "The exact per-level curve is not guessed. Use displayed bonus input until verified."
+  },
+  "calibrationNeeded": [
+    "monster attack and damage profile by target type/level",
+    "mitigation order and Defense scaling",
+    "battle timeout/kill-time behavior",
+    "verified hero skill curves",
+    "gear stat curves",
+    "battle reports for predicted-versus-observed calibration"
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "version": "1.2.0-research",
+  "auditedAt": "2026-08-26",
+  "purpose": "Model hero placement independently from squad composition so positional and adjacency buffs can affect optimization without inventing unverified hero effects.",
+  "positions": [
+    {"id":"front-left","row":"front","column":"left","index":0},
+    {"id":"front-right","row":"front","column":"right","index":1},
+    {"id":"back-left","row":"back","column":"left","index":2},
+    {"id":"back-center","row":"back","column":"center","index":3},
+    {"id":"back-right","row":"back","column":"right","index":4}
+  ],
+  "optimization": {
+    "heroesPerSquad": 5,
+    "permutationCount": 120,
+    "rule": "Every five-hero composition must be evaluated over all 5! placements when at least one active effect depends on position, row, adjacency or relative placement.",
+    "skipPermutationOptimizationWhenNoActivePositionalEffect": true
+  },
+  "geometry": {
+    "status": "needs-in-game-validation-for-generic-adjacent-wording",
+    "note": "Do not assume that the word adjacent in a skill maps to this generic graph unless the in-game skill text or a validated test confirms it. Explicit row/slot targeting remains safe.",
+    "candidateAdjacencyGraph": {
+      "front-left": ["front-right","back-left","back-center"],
+      "front-right": ["front-left","back-center","back-right"],
+      "back-left": ["front-left","back-center"],
+      "back-center": ["front-left","front-right","back-left","back-right"],
+      "back-right": ["front-right","back-center"]
+    }
+  },
+  "targetSelectors": ["self","all-allies","all-other-allies","same-row","front-row","back-row","adjacent","explicit-slots","highest-atk","lowest-atk","same-troop-type","different-troop-type"],
+  "offensiveStats": ["attack","damage","skillDamage","critRate","critDamage","attackSpeed","cooldownReduction","pveDamage","monsterDamage","targetDamageTaken"],
+  "effectSchema": {
+    "required": ["id","providerHeroId","selector","stat","stacking","contexts","confidence"],
+    "optional": ["value","valueSourceField","providerRarity","providerTroopType","troopTypeFilter","roleFilter","damageTypeFilter","explicitSlots","condition","durationSeconds","durationSourceField","cooldownSeconds","cooldownSourceField","timeAggregation","source","notes"],
+    "confidenceAllowed": ["verified","strong-community","needs-in-game-validation"],
+    "productionRule": "Effects marked needs-in-game-validation must not change a production recommendation by default. A verified structural effect may still require the player's current displayed value instead of guessing a curve.",
+    "timedRule": "Timed effects may use average-uptime only as a research proxy until exact cast timelines are calibrated."
+  },
+  "verifiedHeroEffects": [
+    {
+      "id": "mason-zombie-purge-back-row-tank-monster-damage",
+      "providerHeroId": "Mason",
+      "selector": "back-row",
+      "stat": "monsterDamage",
+      "valueSourceField": "positionalPveBuffPct",
+      "stacking": "percent",
+      "contexts": ["pve","wanted","wanted-39","wanted-64","wanted-87"],
+      "troopTypeFilter": "tank",
+      "confidence": "verified",
+      "condition": "Mason is deployed; targets are Tank heroes occupying one of the three back-row slots.",
+      "source": "https://play.google.com/store/apps/editorial?id=mc_games_editorialevergreen_postinstall_troops_in_last_war_survival_fcp",
+      "notes": "Google Play confirms the structural back-row Tank monster-damage effect. WfGg uses the player's current displayed percentage instead of hard-coding a skill curve."
+    }
+  ],
+  "heroEffectCatalog": "hero-combat-effects.v1.json",
+  "catalogNote": "Sarah SSR/UR and non-positional timed support effects now live in hero-combat-effects.v1.json so variant logic is not duplicated here.",
+  "pendingWork": [
+    "Populate additional hero skill effects from audited sources or in-game captures.",
+    "Confirm the exact geometry used by skills whose wording only says adjacent.",
+    "Record whether each positional buff affects the provider, targets, or both and whether it stacks.",
+    "Calibrate timed buffs against real combat reports instead of relying permanently on average uptime."
+  ]
+}

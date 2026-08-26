@@ -1,0 +1,61 @@
+{
+  "version": "1.5.0",
+  "account": {
+    "hqLevel": {"required":true,"range":[1,35]},
+    "activeSquads": {"required":true,"allowed":[3,4],"note":"4 requires active Super Monthly Pass"},
+    "troopTier": {"required":true,"examples":["T9","T10","T11"]},
+    "troopCenters": {
+      "tankLevel":{"required":true,"range":[1,35]},
+      "aircraftLevel":{"required":true,"range":[1,35]},
+      "missileLevel":{"required":true,"range":[1,35]}
+    }
+  },
+  "heroes": {
+    "fields": [
+      "heroId","owned","troopType","role","damageType","rarity","level","stars",
+      "displayedAttack","displayedDefense","displayedHp","displayedPower",
+      "monsterDamagePct","pveDamagePct",
+      "positionalPveBuffPct","positionalPveBuffDurationSeconds","positionalPveBuffCooldownSeconds",
+      "teamAttackBuffPct","teamAttackBuffDurationSeconds","teamAttackBuffCooldownSeconds",
+      "typeAttackBuffPct","typeAttackBuffDurationSeconds","typeAttackBuffCooldownSeconds",
+      "highestAtkSkillCooldownSpeedPct",
+      "monsterDamageReductionPct","frontRowMonsterDamageReductionPct","frontRowMonsterDamageReductionDurationSeconds","frontRowMonsterDamageReductionCooldownSeconds",
+      "skillLevels","exclusiveWeaponLevel","awakeningUnlocked","awakeningStars","awakeningTier","awakeningSkillLevel",
+      "wallOfHonorLevel"
+    ],
+    "rules": {
+      "heroCannotAppearInTwoSimultaneousSquads": true,
+      "heroLevelAffectsStats": true,
+      "heroLevelAffectsCommandMarchSize": true,
+      "awakeningSeason6Heroes": ["Kimberly","DVA","Tesla"],
+      "awakeningCatalogSource": "season6-hero-evolution.v1.json",
+      "awakeningHighAccuracyRule": "For Kimberly/DVA/Tesla, awakeningUnlocked alone is insufficient. awakeningStars, awakeningTier and awakeningSkillLevel must be represented because the awakened skill changes combat mechanics beyond displayed stats.",
+      "displayedAttackPurpose": "primary visible offensive anchor for early relative scoring; final damage also requires skills and offensive modifiers",
+      "displayedDefensePurpose": "used by monster simulation for frontline survival diagnostics and placement; weight remains zero in Wanted Code offense scoring",
+      "displayedHpPurpose": "used by monster simulation for frontline survival diagnostics and placement; weight remains zero in Wanted Code offense scoring",
+      "displayedPowerPurpose": "reference/diagnostic only; never used as a direct optimization score",
+      "monsterDamagePctPurpose": "optional hero-specific current self bonus against monsters when displayed or otherwise verified; applies only in monster-compatible PvE contexts",
+      "pveDamagePctPurpose": "optional current generic PvE damage bonus when displayed or otherwise verified",
+      "positionalPveBuffPurpose": "current value for an audited positional PvE skill. Duration/cooldown are also required when the skill is timed, such as SSR Sarah MG Symphony; passive effects such as Mason or UR Sarah do not need them",
+      "teamAttackBuffPurpose": "current all-team Attack buff value/duration/cooldown for audited skills such as Marshall Command Strategy. Timed effects use average uptime until timeline calibration",
+      "typeAttackBuffPurpose": "current troop-type Attack buff value/duration/cooldown for audited skills such as UR Sarah Airspace Supremacy",
+      "highestAtkSkillCooldownSpeedPurpose": "diagnostic input for effects such as Marshall Rapid Start; currently stored but not scored because skill-damage share is not calibrated",
+      "monsterDamageReductionPurpose": "survival diagnostic only; not added to offensive score",
+      "frontRowMonsterDamageReductionPurpose": "timed survival diagnostic for front-row mitigation such as Elsa Armor Boost; not converted into fake Power",
+      "heroEffectCatalogSource": "hero-combat-effects.v1.json",
+      "positionOptimizationSource": "formation-positioning.v1.json"
+    }
+  },
+  "gearInventory": {
+    "uniqueItems": true,
+    "slots": ["gun","chip","armor","radar"],
+    "fields": ["itemId","slot","rarity","level","stars","promotion","currentlyAssignedHero"],
+    "optimizationRule": "a gear item can be assigned to only one hero across simultaneous squads"
+  },
+  "exclusiveWeapons": {"storedOnHero":true,"importantBreakpoints":[10,20,30],"note":"EW effects and same-type specialist bonuses are hero-specific and follow the hero"},
+  "wallOfHonor": {"requiredForHighAccuracy":true,"inputStrategies":["per-hero Wall of Honor level","fallback: aggregate Tank/Aircraft/Missile ATK/DEF/HP bonuses if player prefers"],"effect":"hero entries can buff all heroes of the same troop type"},
+  "drone": {"globalDroneLevel":{"relativeRankingDefault":"common/excluded unless objective needs absolute score"},"skillChips":{"typeSpecific":true,"types":["tank","aircraft","missile"],"fields":["chipName","rarity","stars","presetId"],"allocationMustBeRespectedAcrossSquads":true}},
+  "overlords": {"inventory":true,"examples":["Battle Gorilla","Hawk/Skybreaker"],"fields":["overlordId","unlocked","promotion","trainingLevels","skillLevels"],"assignmentRule":"each Overlord can be assigned to at most one squad at a time"},
+  "marchSizeAdditional": {"survivorShirley":{"optional":true,"input":"star/level or displayed bonus"},"decorations":{"optional":true,"input":"verified march-size bonus total"},"masteryMarchSize":{"source":"research-inputs.v1.json"}},
+  "season6": {"totemLevels":{"bearTank":{"range":[0,30],"damagePctPerLevel":0.5},"eagleAircraft":{"range":[0,30],"damagePctPerLevel":0.5},"jaguarMissile":{"range":[0,30],"damagePctPerLevel":0.5}},"tacticsCards":{"source":"tactics-card-catalog.v2.json"},"heroEvolution":{"source":"season6-hero-evolution.v1.json"}}
+}

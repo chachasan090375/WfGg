@@ -1,0 +1,120 @@
+{
+  "version": "1.1.0-research",
+  "auditedAt": "2026-08-26",
+  "policy": "TERMINOLOGY_POLICY.md",
+  "locales": ["fr", "en", "it", "es"],
+  "sourceRegistry": {
+    "lastwar-site-en": {"authority":"official-public","url":"https://www.lastwar.com/en/home.html"},
+    "lastwar-site-fr": {"authority":"official-public","url":"https://www.lastwar.com/fr/home.html"},
+    "lastwar-site-es": {"authority":"official-public","url":"https://www.lastwar.com/es/home.html"},
+    "gplay-heroes-it": {"authority":"platform-localized","url":"https://play.google.com/store/apps/editorial?hl=it&id=mc_games_editorialevergreen_postinstall_heroes_last_war_survival_fcp_now"},
+    "gplay-heroes-es": {"authority":"platform-localized","url":"https://play.google.com/store/apps/editorial?hl=es&id=mc_games_editorialevergreen_postinstall_troops_in_last_war_survival_fcp"},
+    "gplay-gears-en": {"authority":"platform-localized","url":"https://play.google.com/store/apps/editorial?hl=en_GB&id=mc_games_editorial_evergreen_postinstall_gears_last_war_survival_now_fcp"},
+    "gplay-gears-fr": {"authority":"platform-localized","url":"https://play.google.com/store/apps/editorial?hl=fr&id=mc_games_editorial_evergreen_postinstall_gears_last_war_survival_now_fcp"},
+    "gplay-gears-it": {"authority":"platform-localized","url":"https://play.google.com/store/apps/editorial?hl=it&id=mc_games_editorial_evergreen_postinstall_gears_last_war_survival_now_fcp"},
+    "gplay-gears-es": {"authority":"platform-localized","url":"https://play.google.com/store/apps/editorial?hl=es&id=mc_games_editorial_evergreen_postinstall_gears_last_war_survival_gamehub_fcp"}
+  },
+  "terms": {
+    "troop.tank": {
+      "en": {"display":"Tank","status":"official-public","sources":["lastwar-site-en"]},
+      "fr": {"display":"Tank","status":"official-public","sources":["lastwar-site-fr"]},
+      "it": {"display":"Carro armato","status":"platform-localized","finalInGame":"pending","sources":["gplay-heroes-it"]},
+      "es": {"display":"Tanque","status":"official-public","sources":["lastwar-site-es","gplay-heroes-es"]}
+    },
+    "troop.aircraft": {
+      "en": {"display":"Aircraft","status":"official-public","sources":["lastwar-site-en"]},
+      "fr": {"display":"Avion","status":"official-public","sources":["lastwar-site-fr"]},
+      "it": {"display":"Aereo","status":"platform-localized","finalInGame":"pending","sources":["gplay-heroes-it"]},
+      "es": {"display":"Aeronave","status":"official-public","sources":["lastwar-site-es","gplay-heroes-es"]}
+    },
+    "troop.missile": {
+      "en": {"display":"Missile","status":"official-public","observedVariants":["Missile","Missile Vehicle"],"finalInGame":"pending","sources":["lastwar-site-en"]},
+      "fr": {"display":"Véhicule Missile","status":"official-public","observedVariants":["Véhicule Missile","Missile","Missiles","véhicule lance-missiles"],"finalInGame":"pending","sources":["lastwar-site-fr"]},
+      "it": {"display":"Veicolo missilistico","status":"platform-localized","finalInGame":"pending","sources":["gplay-heroes-it"]},
+      "es": {"display":"Misiles","status":"official-public","observedVariants":["Misiles","Vehículo de misiles"],"finalInGame":"pending","sources":["lastwar-site-es","gplay-heroes-es"]}
+    },
+    "role.attack": {
+      "en": {"display":"Attack","status":"official-public","sources":["lastwar-site-en"]},
+      "fr": {"display":"Attaque","status":"official-public","sources":["lastwar-site-fr"]},
+      "it": {"display":"Attacco","status":"platform-localized","finalInGame":"pending","sources":["gplay-heroes-it"]},
+      "es": {"display":"Ataque","status":"official-public","sources":["lastwar-site-es"]}
+    },
+    "role.defense": {
+      "en": {"display":"Defense","status":"official-public","sources":["lastwar-site-en"]},
+      "fr": {"display":"Défense","status":"official-public","sources":["lastwar-site-fr"]},
+      "it": {"display":"Difesa","status":"platform-localized","finalInGame":"pending","sources":["gplay-heroes-it"]},
+      "es": {"display":"Defensa","status":"official-public","sources":["lastwar-site-es"]}
+    },
+    "role.support": {
+      "en": {"display":"Support","status":"official-public","sources":["lastwar-site-en"]},
+      "fr": {"display":"Soutien","status":"official-public","sources":["lastwar-site-fr"]},
+      "it": {"display":"Supporto","status":"platform-localized","finalInGame":"pending","sources":["gplay-heroes-it"]},
+      "es": {"display":"Apoyo","status":"official-public","sources":["lastwar-site-es"]}
+    },
+    "stat.hp": {
+      "en": {"display":"HP","status":"platform-localized","finalInGame":"pending","sources":["gplay-gears-en"]},
+      "fr": {"display":"PV","status":"platform-localized","finalInGame":"pending","sources":["gplay-gears-fr"]},
+      "it": {"display":"PS","status":"platform-localized","finalInGame":"pending","sources":["gplay-heroes-it","gplay-gears-it"]},
+      "es": {"display":"PV","status":"platform-localized","finalInGame":"pending","sources":["gplay-gears-es"]}
+    },
+    "stat.attack": {
+      "en": {"display":"Attack","status":"platform-localized","finalInGame":"pending","sources":["gplay-gears-en"]},
+      "fr": {"display":"Attaque","status":"platform-localized","finalInGame":"pending","sources":["gplay-gears-fr"]},
+      "it": {"display":"Attacco","status":"platform-localized","finalInGame":"pending","sources":["gplay-heroes-it","gplay-gears-it"]},
+      "es": {"display":"Ataque","status":"platform-localized","finalInGame":"pending","sources":["gplay-gears-es"]}
+    },
+    "stat.defense": {
+      "en": {"display":"Defense","status":"platform-localized","finalInGame":"pending","sources":["gplay-gears-en"]},
+      "fr": {"display":"Défense","status":"platform-localized","finalInGame":"pending","sources":["gplay-gears-fr"]},
+      "it": {"display":"Difesa","status":"platform-localized","finalInGame":"pending","sources":["gplay-heroes-it","gplay-gears-it"]},
+      "es": {"display":"Defensa","status":"platform-localized","finalInGame":"pending","sources":["gplay-gears-es"]}
+    },
+    "gear.category": {
+      "en": {"display":"Gear","status":"platform-localized","finalInGame":"pending","sources":["gplay-gears-en"]},
+      "fr": {"display":"Équipement","status":"platform-localized","finalInGame":"pending","sources":["gplay-gears-fr"]},
+      "it": {"display":"Equipaggiamento","status":"platform-localized","finalInGame":"pending","sources":["gplay-gears-it"]},
+      "es": {"display":"Equipamiento","status":"platform-localized","finalInGame":"pending","sources":["gplay-gears-es"]}
+    },
+    "gear.gun": {
+      "en": {"display":"Cannons","status":"platform-localized","observedVariants":["Cannons","Railguns","Cannon","Railgun"],"finalInGame":"pending","sources":["gplay-gears-en"]},
+      "fr": {"display":"Canons","status":"platform-localized","observedVariants":["Canons","canons magnétiques","Canon","Tourelle"],"finalInGame":"pending","sources":["gplay-gears-fr"]},
+      "it": {"display":"Cannoni","status":"platform-localized","observedVariants":["Cannoni","Cannoni a rotaia","Cannone"],"finalInGame":"pending","sources":["gplay-gears-it"]},
+      "es": {"display":"Cañones","status":"platform-localized","observedVariants":["Cañones","rieles","Cañones de Riel","Cañón"],"finalInGame":"pending","sources":["gplay-gears-es"]}
+    },
+    "gear.armor": {
+      "en": {"display":"Armor","status":"platform-localized","finalInGame":"pending","sources":["gplay-gears-en"]},
+      "fr": {"display":"Armure","status":"platform-localized","finalInGame":"pending","sources":["gplay-gears-fr"]},
+      "it": {"display":"Armatura","status":"platform-localized","finalInGame":"pending","sources":["gplay-gears-it"]},
+      "es": {"display":"Armadura","status":"platform-localized","finalInGame":"pending","sources":["gplay-gears-es"]}
+    },
+    "gear.chip": {
+      "en": {"display":"Chips","status":"platform-localized","observedVariants":["Chips","Data Chip"],"finalInGame":"pending","sources":["gplay-gears-en"]},
+      "fr": {"display":"Puces","status":"platform-localized","observedVariants":["Puces","puce de données"],"finalInGame":"pending","sources":["gplay-gears-fr"]},
+      "it": {"display":"Chip","status":"platform-localized","observedVariants":["Chip","Chip dati"],"finalInGame":"pending","sources":["gplay-gears-it"]},
+      "es": {"display":"Chips","status":"platform-localized","observedVariants":["Chips","chip de datos"],"finalInGame":"pending","sources":["gplay-gears-es"]}
+    },
+    "gear.radar": {
+      "en": {"display":"Radar","status":"platform-localized","finalInGame":"pending","sources":["gplay-gears-en"]},
+      "fr": {"display":"Radar","status":"platform-localized","finalInGame":"pending","sources":["gplay-gears-fr"]},
+      "it": {"display":"Radar","status":"platform-localized","finalInGame":"pending","sources":["gplay-gears-it"]},
+      "es": {"display":"Radar","status":"platform-localized","finalInGame":"pending","sources":["gplay-gears-es"]}
+    },
+    "exclusiveWeapon": {
+      "en": {"display":"Exclusive Weapon","status":"official-public","finalInGame":"pending","sources":[]},
+      "fr": {"display":"Arme Exclusive","status":"official-public","finalInGame":"pending","sources":[]},
+      "it": {"display":null,"status":"pending","sources":[]},
+      "es": {"display":null,"status":"pending","sources":[]}
+    },
+    "squad": {
+      "en": {"display":"Squad","status":"official-public","finalInGame":"pending","sources":[]},
+      "fr": {"display":null,"status":"pending","observedVariants":["Équipe","Formation","Escouade"],"sources":[]},
+      "it": {"display":null,"status":"pending","observedVariants":["Squadra"],"sources":[]},
+      "es": {"display":null,"status":"pending","observedVariants":["Equipo","Escuadrón"],"sources":[]}
+    },
+    "research.tankMastery": {"en":{"display":"Tank Mastery","status":"game-data-mirror","finalInGame":"pending"},"fr":{"display":null,"status":"pending"},"it":{"display":null,"status":"pending"},"es":{"display":null,"status":"pending"}},
+    "research.aircraftMastery": {"en":{"display":"Aircraft Mastery","status":"game-data-mirror","finalInGame":"pending"},"fr":{"display":null,"status":"pending"},"it":{"display":null,"status":"pending"},"es":{"display":null,"status":"pending"}},
+    "research.missileMastery": {"en":{"display":"Missile Mastery","status":"game-data-mirror","finalInGame":"pending"},"fr":{"display":null,"status":"pending"},"it":{"display":null,"status":"pending"},"es":{"display":null,"status":"pending"}},
+    "objective.crystalBoss": {"en":{"display":"Crystal Boss","status":"research-only","finalInGame":"pending"},"fr":{"display":null,"status":"pending"},"it":{"display":null,"status":"pending"},"es":{"display":null,"status":"pending"}}
+  },
+  "blockingRule": "Any production UI term with status pending or finalInGame pending must be resolved before the corresponding screen is declared final."
+}

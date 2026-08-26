@@ -1,0 +1,186 @@
+{
+  "version": "1.0.1-research",
+  "purpose": "Buffs capables de modifier le classement relatif des compositions WfGg. Les buffs global-common sont documentés mais exclus par défaut du score différentiel.",
+  "vehicleTypes": ["tank", "aircraft", "missile"],
+  "rules": {
+    "excludeGlobalCommonByDefault": true,
+    "unknownValuesAreNeverGuessed": true,
+    "formulaMode": "relative-score-until-battle-calibration"
+  },
+  "formation": [
+    {"id":"formation-3-same","scope":"composition","stat":["attack","defense","hp"],"valuePct":5,"condition":"3 heroes of one troop type","confidence":"strong-community"},
+    {"id":"formation-3-plus-2","scope":"composition","stat":["attack","defense","hp"],"valuePct":10,"condition":"3 heroes of one troop type + 2 heroes of another single troop type","confidence":"strong-community"},
+    {"id":"formation-4-same","scope":"composition","stat":["attack","defense","hp"],"valuePct":15,"condition":"4 heroes of one troop type","confidence":"strong-community"},
+    {"id":"formation-5-same","scope":"composition","stat":["attack","defense","hp"],"valuePct":20,"condition":"5 heroes of one troop type","confidence":"strong-community"}
+  ],
+  "heroTypeResearch": {
+    "tank": [
+      {"name":"Tank Mastery I","stat":"damage","maxValuePct":5},
+      {"name":"Tank Mastery II","stat":"damage","maxValuePct":10},
+      {"name":"Cannon Enhancement I","stat":"attack","maxValuePct":5},
+      {"name":"Cannon Enhancement II","stat":"attack","maxValuePct":10},
+      {"name":"Armor Hardening I/II","stat":"defense","exactMax":"pending-validation"},
+      {"name":"Track Fortification I/II","stat":"hp","exactMax":"pending-validation"}
+    ],
+    "aircraft": [
+      {"name":"Aircraft Mastery I","stat":"damage","maxValuePct":5},
+      {"name":"Aircraft Mastery II","stat":"damage","maxValuePct":10},
+      {"name":"Airborne Weapon I","stat":"attack","maxValuePct":5},
+      {"name":"Airborne Weapon II","stat":"attack","maxValuePct":10},
+      {"name":"Reinforced Body I/II","stat":"defense","exactMax":"pending-validation"},
+      {"name":"Wingman Tactics I/II","stat":"hp","exactMax":"pending-validation"}
+    ],
+    "missile": [
+      {"name":"Missile Mastery I","stat":"damage","maxValuePct":5},
+      {"name":"Missile Mastery II","stat":"damage","maxValuePct":10},
+      {"name":"Precision Targeting I","stat":"attack","maxValuePct":5},
+      {"name":"Precision Targeting II","stat":"attack","maxValuePct":10},
+      {"name":"Metal Barricade I/II","stat":"defense","exactMax":"pending-validation"},
+      {"name":"Missile Expansion I/II","stat":"hp","exactMax":"pending-validation"}
+    ],
+    "confidence":"verified-for-names-and-listed-damage-attack-values"
+  },
+  "masteryResearch": {
+    "appliesSymmetricallyTo": ["tank","aircraft","missile"],
+    "verifiedNodes": [
+      {"id":"mastery-attack-i","scope":"vehicle-type","stat":"attack","maxValuePct":7.5,"stacking":"percent","confidence":"verified"},
+      {"id":"mastery-attack-ii","scope":"vehicle-type","stat":"attack","maxValuePct":7.5,"stacking":"percent","confidence":"verified"},
+      {"id":"mastery-damage-i","scope":"vehicle-type","stat":"damage","maxValuePct":5,"stacking":"percent","confidence":"verified"},
+      {"id":"mastery-damage-ii","scope":"vehicle-type","stat":"damage","maxValuePct":5,"stacking":"percent","confidence":"verified"},
+      {"id":"mastery-synergy-attack-i","scope":"composition","stat":"attack","maxValuePctPerMatchingHero":1.5,"stacking":"per-matching-hero","confidence":"verified"},
+      {"id":"mastery-synergy-attack-ii","scope":"composition","stat":"attack","maxValuePctPerMatchingHero":1.5,"stacking":"per-matching-hero","confidence":"verified"},
+      {"id":"mastery-synergy-damage-i","scope":"composition","stat":"damage","maxValuePctPerMatchingHero":1,"stacking":"per-matching-hero","confidence":"verified"},
+      {"id":"mastery-synergy-damage-ii","scope":"composition","stat":"damage","maxValuePctPerMatchingHero":1,"stacking":"per-matching-hero","confidence":"verified"}
+    ],
+    "presentButExactMaxPendingValidation": [
+      "HP I", "HP II", "Defense I", "Defense II", "Ultimate Defense I", "Ultimate Defense II",
+      "Synergy HP I", "Synergy HP II", "Synergy Defense I", "Synergy Defense II", "March Size I", "March Size II"
+    ]
+  },
+  "exclusiveWeapons": {
+    "rule": "Certain Exclusive Weapons unlock a troop-type specialist buff; model only when its provider/activation conditions are satisfied.",
+    "specialistBreakpoint": {
+      "level": 20,
+      "stats": {"attackPct":7.5,"defensePct":7.5,"hpPct":7.5},
+      "target": "all allied heroes of provider troop type in battle",
+      "stacking": "provider-dependent; do not assume stacking until validated in-game",
+      "confidence": "verified-across-multiple-heroes"
+    },
+    "verifiedExamples": [
+      {"hero":"Murphy","type":"tank"},
+      {"hero":"DVA","type":"aircraft"},
+      {"hero":"Carlie","type":"aircraft"},
+      {"hero":"Lucius","type":"aircraft"},
+      {"hero":"Morrison","type":"aircraft"},
+      {"hero":"Schuyler","type":"aircraft"},
+      {"hero":"Tesla","type":"missile"},
+      {"hero":"Fiona","type":"missile"},
+      {"hero":"McGregor","type":"missile"}
+    ]
+  },
+  "counterTriangle": {
+    "relations": [
+      {"advantaged":"aircraft","against":"tank"},
+      {"advantaged":"tank","against":"missile"},
+      {"advantaged":"missile","against":"aircraft"}
+    ],
+    "documentedDefensiveExpressionPct":20,
+    "note":"Sources describe the disadvantaged type as dealing 20% less damage. Keep implementation configurable instead of double-applying an offensive and defensive 20% modifier.",
+    "confidence":"verified-mechanic-expression-needs-calibration"
+  },
+  "wantedBoss": [
+    {"code":39,"context":"wanted-39","targetType":"aircraft","stat":"damage","valuePct":50,"confidence":"verified"},
+    {"code":64,"context":"wanted-64","targetType":"missile","stat":"damage","valuePct":50,"confidence":"verified"},
+    {"code":87,"context":"wanted-87","targetType":"tank","stat":"damage","valuePct":50,"confidence":"verified"}
+  ],
+  "seasonal": {
+    "season1": {
+      "activeOnlyDuringSeason": true,
+      "buildings": [
+        {"name":"Tank Base","targetType":"tank"},
+        {"name":"Air Force Base","targetType":"aircraft"},
+        {"name":"Missile Base","targetType":"missile"}
+      ],
+      "perLevel": {"attackPct":1,"defensePct":1,"hpPct":1},
+      "maxLevel":30,
+      "maxAtLevel30":{"attackPct":30,"defensePct":30,"hpPct":30},
+      "confidence":"verified"
+    },
+    "season2": {
+      "activeOnlyDuringSeason": true,
+      "buildings": [
+        {"name":"Tank Base","targetType":"tank","stat":"damage"},
+        {"name":"Air Force Base","targetType":"aircraft","stat":"damage"},
+        {"name":"Missile Base","targetType":"missile","stat":"damage"}
+      ],
+      "valuePctPerLevel":0.5,
+      "maxLevel":30,
+      "maxValuePct":15,
+      "confidence":"verified"
+    },
+    "season3": {
+      "initialClassification":"no vehicle-specific seasonal building identified",
+      "excludeFromTypeScoreByDefault":true,
+      "note":"Altar/Protectors are separate mechanics and should be modeled only if a differential effect is verified."
+    },
+    "season4": {
+      "vehicleSpecificBuildings":false,
+      "tacticsCards": [
+        {"name":"Efficient Unity","context":"pvp","effect":"full troop-type formation bonus with 4 heroes of same troop type","scope":"composition","confidence":"verified"},
+        {"name":"Mixed Formation","context":"pvp","effect":"ATK/DEF/HP per distinct troop type in squad","maxValuePctPerDistinctType":3,"rarity":"purple","scope":"composition","confidence":"verified"},
+        {"name":"Damage Reversal","context":"pvp","effect":"increased damage when countered","maxValuePct":2.55,"rarity":"purple","scope":"opponent","confidence":"verified"},
+        {"name":"Damage Reduction Reversal","context":"pvp","effect":"reduced damage taken when countered","maxValuePct":5.10,"rarity":"purple","scope":"opponent","confidence":"verified"}
+      ]
+    },
+    "season5": {
+      "activeOnlyDuringSeason": true,
+      "bars": [
+        {"name":"Tanker Bar","targetType":"tank","stat":"damage","valuePctPerLevel":0.5,"maxLevel":30,"maxValuePct":15,"confidence":"verified"},
+        {"name":"Pilot Bar","targetType":"aircraft","stat":"damage","valuePctPerLevel":0.5,"maxLevel":30,"maxValuePct":15,"confidence":"verified"},
+        {"name":"Missileer Bar","targetType":"missile","stat":"damage","valuePctPerLevel":0.5,"maxLevel":30,"maxValuePct":15,"confidence":"verified"}
+      ],
+      "coffee": {
+        "globalCommonExcludedByDefault": [
+          {"name":"Caramel Coffee","effect":"Skill Damage +5% on World Map"},
+          {"name":"Truffle Coffee","effect":"Damage Against Monsters +5%"}
+        ],
+        "reason":"not vehicle-specific under the current differential-only rule"
+      },
+      "tacticsCards":"reuse/extend Season 4 model; exact Season 5 card values to be versioned separately"
+    },
+    "season6": {
+      "activeOnlyDuringSeason": true,
+      "totems": [
+        {"name":"Bear Totem","targetType":"tank","stat":"damage","valuePctPerLevel":0.5,"maxLevel":30,"maxValuePct":15,"confidence":"verified"},
+        {"name":"Eagle Totem","targetType":"aircraft","stat":"damage","valuePctPerLevel":0.5,"maxLevel":30,"maxValuePct":15,"confidence":"verified"},
+        {"name":"Jaguar Totem","targetType":"missile","stat":"damage","valuePctPerLevel":0.5,"maxLevel":30,"maxValuePct":15,"confidence":"verified"}
+      ],
+      "awakening":"hero-specific; model at hero layer rather than account-wide buff layer"
+    }
+  },
+  "gearInventory": {
+    "slots": [
+      {"id":"gun","labels":["Gun","Cannon","Railgun"],"primaryRole":"attack"},
+      {"id":"chip","labels":["Data Chip","Chip"],"primaryRole":"attack-crit"},
+      {"id":"armor","labels":["Armor","Reactive Armor"],"primaryRole":"physical-defense"},
+      {"id":"radar","labels":["Radar"],"primaryRole":"energy-defense"}
+    ],
+    "fieldsPlanned": ["rarity","level","stars","promotion","assignedHero","availableForSimulation"]
+  },
+  "globalCommonExamplesExcluded": [
+    "Hero Armor Enhancement affecting all heroes equally",
+    "Hero Endurance Upgrade affecting all heroes equally",
+    "Hero Firepower Boost affecting all heroes equally",
+    "Hero Weapons Upgrade affecting all heroes equally",
+    "Drone global ATK/DEF/HP when identical for every compared composition"
+  ],
+  "pendingResearch": [
+    "exact HP/Defense values in the early Hero troop-type research lines",
+    "exact HP/Defense/Ultimate Defense values for all three late-game Mastery trees",
+    "complete Season 5 tactics-card deltas vs Season 4",
+    "type-specific Wall of Honor totals and how best to input them",
+    "exclusive-weapon specialist stacking and provider survival/deployment conditions",
+    "gear stat curves by rarity/level/star",
+    "physical-vs-energy research for later full battle simulation"
+  ]
+}

@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#100d16" />
+  <title>WfGg · Simulateur</title>
+  <link rel="stylesheet" href="style.css?v=001" />
+  <link rel="stylesheet" href="optimizer-v1.css?v=004-hero-effects" />
+  <link rel="stylesheet" href="tactics-v1.css?v=001" />
+</head>
+<body>
+  <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
+  <main class="sim-shell">
+    <header class="sim-topbar glass-card">
+      <div class="brand-row compact"><div class="brand-mark small">W</div><div><p class="eyebrow">WfGg</p><strong id="topTitle">Simulateur</strong></div></div>
+      <div class="top-actions"><span id="saveState" class="save-state">Sauvegardé</span><div id="languageStrip" class="language-strip compact" aria-label="Langue"><button data-lang="fr">FR</button><button data-lang="it">IT</button><button data-lang="en">EN</button><button data-lang="es">ES</button></div></div>
+    </header>
+    <section class="intro"><p class="eyebrow" data-ui="introEyebrow">Module autonome</p><h1 data-ui="introTitle">Construisez votre compte</h1><p class="muted" data-ui="introText">Renseignez uniquement les éléments qui peuvent changer le classement relatif de vos équipes. Vos données restent enregistrées localement sur cet appareil.</p></section>
+    <section id="terminologyNotice" class="notice glass-card"><div><strong data-ui="termTitle">Terminologie Last War contrôlée</strong><p class="muted" data-ui="termText">Les libellés non confirmés dans le client du jeu restent signalés comme provisoires. Le moteur stocke des IDs sémantiques indépendants des traductions.</p></div><span id="termPendingCount" class="status-pill">—</span></section>
+    <nav id="stepNav" class="step-nav" aria-label="Étapes"></nav>
+    <section class="workspace glass-card"><div id="step-account" class="step-panel"></div><div id="step-heroes" class="step-panel hidden"></div><div id="step-gear" class="step-panel hidden"></div><div id="step-research" class="step-panel hidden"></div><div id="step-season" class="step-panel hidden"></div><div id="step-summary" class="step-panel hidden"></div></section>
+    <footer class="step-actions"><button id="prevBtn" class="secondary-button" type="button">← <span data-ui="previous">Précédent</span></button><button id="nextBtn" class="primary-button" type="button"><span data-ui="next">Suivant</span> →</button></footer>
+  </main>
+
+  <template id="heroTemplate">
+    <article class="entry-card hero-card">
+      <div class="entry-head"><div><p class="eyebrow">Héros</p><strong class="entry-title">—</strong></div><button class="icon-button danger" data-action="remove-hero" type="button" aria-label="Supprimer">×</button></div>
+      <div class="form-grid hero-grid">
+        <label><span data-ui="heroName">Nom du héros</span><input data-field="heroId" autocomplete="off" /></label>
+        <label><span data-ui="heroType">Type</span><select data-field="troopType"></select></label>
+        <label><span data-ui="heroRole">Rôle</span><select data-field="role"></select></label>
+        <label><span data-opt-label="heroRarity">Rareté / variante</span><select data-field="rarity"><option value="">—</option><option value="UR">UR</option><option value="SSR">SSR</option><option value="SR">SR</option><option value="R">R</option></select></label>
+        <label><span data-ui="heroLevel">Niveau</span><input data-field="level" type="number" min="1" max="200" inputmode="numeric" /></label>
+        <label><span data-ui="heroStars">Étoiles</span><input data-field="stars" type="number" min="0" max="5" step="0.1" inputmode="decimal" /></label>
+        <label class="optimizer-input"><span data-opt-label="attack">ATK affichée</span><input data-field="displayedAttack" type="number" min="0" step="1" inputmode="numeric" /><small data-opt-help="attack">Ancre offensive pour les simulations.</small></label>
+        <label class="optimizer-input monster-stat"><span data-opt-label="defense">DEF affichée</span><input data-field="displayedDefense" type="number" min="0" step="1" inputmode="numeric" /><small data-opt-help="defense">Utilisée pour la survie contre les monstres uniquement.</small></label>
+        <label class="optimizer-input monster-stat"><span data-opt-label="hp">PV affichés</span><input data-field="displayedHp" type="number" min="0" step="1" inputmode="numeric" /><small data-opt-help="hp">Utilisés pour la survie contre les monstres uniquement.</small></label>
+        <label class="optimizer-input reference-only"><span data-opt-label="power">Puissance affichée</span><input data-field="displayedPower" type="number" min="0" step="1" inputmode="numeric" /><small data-opt-help="power">Référence uniquement · jamais utilisée comme score direct.</small></label>
+        <label class="optimizer-input"><span data-opt-label="monsterDamage">Bonus dégâts monstres (%)</span><input data-field="monsterDamagePct" type="number" min="0" step="0.01" inputmode="decimal" /><small data-opt-help="monsterDamage">À saisir seulement si le bonus actuel est affiché ou vérifié.</small></label>
+        <label class="optimizer-input"><span data-opt-label="pveDamage">Bonus dégâts PvE (%)</span><input data-field="pveDamagePct" type="number" min="0" step="0.01" inputmode="decimal" /><small data-opt-help="pveDamage">Bonus PvE générique vérifié, si disponible.</small></label>
+        <label class="optimizer-input"><span data-opt-label="positionalBuff">Buff positionnel PvE affiché (%)</span><input data-field="positionalPveBuffPct" type="number" min="0" step="0.01" inputmode="decimal" /><small data-opt-help="positionalBuff">Mason/Sarah : valeur actuelle du buff de ligne si elle est affichée.</small></label>
+        <label><span data-ui="heroEw">Arme exclusive · niveau</span><input data-field="exclusiveWeaponLevel" type="number" min="0" max="40" inputmode="numeric" /></label>
+        <label><span data-ui="heroWall">Wall of Honor · niveau</span><input data-field="wallOfHonorLevel" type="number" min="0" max="999" inputmode="numeric" /></label>
+        <label class="toggle-field"><span data-ui="heroAwakening">Awakening débloqué</span><input data-field="awakeningUnlocked" type="checkbox" /></label>
+        <label class="optimizer-input"><span data-opt-label="awakeningStars">Étoiles Awakening</span><input data-field="awakeningStars" type="number" min="0" max="5" step="1" inputmode="numeric" /><small data-opt-help="awakeningStars">Kimberly / DVA / Tesla · progression permanente S6.</small></label>
+        <label class="optimizer-input"><span data-opt-label="awakeningTier">Tier Awakening</span><input data-field="awakeningTier" type="number" min="0" step="1" inputmode="numeric" /><small data-opt-help="awakeningTier">Saisissez le tier actuellement affiché.</small></label>
+        <label class="optimizer-input"><span data-opt-label="awakeningSkillLevel">Compétence Awakening · niveau</span><input data-field="awakeningSkillLevel" type="number" min="0" max="40" step="1" inputmode="numeric" /><small data-opt-help="awakeningSkillLevel">La compétence éveillée remplace l’Expertise et peut modifier fortement les dégâts.</small></label>
+      </div>
+
+      <details class="hero-buff-details">
+        <summary data-opt-label="advancedBuffs">Buffs / compétences avancés</summary><p class="fine-print" data-opt-help="advancedBuffs">Saisissez uniquement les valeurs actuellement affichées dans le jeu. Les champs ne sont utilisés que si le catalogue audité reconnaît l’effet pour ce héros et cette variante.</p>
+        <div class="form-grid hero-grid">
+          <label class="optimizer-input"><span data-opt-label="teamAttackBuff">Buff ATK équipe (%)</span><input data-field="teamAttackBuffPct" type="number" min="0" step="0.01" inputmode="decimal" /><small data-opt-help="teamAttackBuff">Ex. Marshall · Command Strategy.</small></label>
+          <label class="optimizer-input"><span data-opt-label="teamAttackDuration">Durée buff équipe (s)</span><input data-field="teamAttackBuffDurationSeconds" type="number" min="0" step="0.1" inputmode="decimal" /></label>
+          <label class="optimizer-input"><span data-opt-label="teamAttackCooldown">Cooldown buff équipe (s)</span><input data-field="teamAttackBuffCooldownSeconds" type="number" min="0" step="0.1" inputmode="decimal" /></label>
+          <label class="optimizer-input"><span data-opt-label="typeAttackBuff">Buff ATK du type (%)</span><input data-field="typeAttackBuffPct" type="number" min="0" step="0.01" inputmode="decimal" /><small data-opt-help="typeAttackBuff">Ex. Sarah UR · Aircraft.</small></label>
+          <label class="optimizer-input"><span data-opt-label="typeAttackDuration">Durée buff du type (s)</span><input data-field="typeAttackBuffDurationSeconds" type="number" min="0" step="0.1" inputmode="decimal" /></label>
+          <label class="optimizer-input"><span data-opt-label="typeAttackCooldown">Cooldown buff du type (s)</span><input data-field="typeAttackBuffCooldownSeconds" type="number" min="0" step="0.1" inputmode="decimal" /></label>
+          <label class="optimizer-input"><span data-opt-label="positionalDuration">Durée buff positionnel (s)</span><input data-field="positionalPveBuffDurationSeconds" type="number" min="0" step="0.1" inputmode="decimal" /><small data-opt-help="positionalDuration">Nécessaire pour Sarah SSR ; laissez vide pour un passif comme Mason/Sarah UR.</small></label>
+          <label class="optimizer-input"><span data-opt-label="positionalCooldown">Cooldown buff positionnel (s)</span><input data-field="positionalPveBuffCooldownSeconds" type="number" min="0" step="0.1" inputmode="decimal" /></label>
+          <label class="optimizer-input reference-only"><span data-opt-label="cooldownSpeed">Vitesse cooldown héros ATK max (%)</span><input data-field="highestAtkSkillCooldownSpeedPct" type="number" min="0" step="0.01" inputmode="decimal" /><small data-opt-help="cooldownSpeed">Marshall Rapid Start : enregistré mais pas encore converti en score tant que la part de dégâts des compétences n’est pas calibrée.</small></label>
+          <label class="optimizer-input reference-only"><span data-opt-label="monsterReduction">Réduction dégâts monstres personnelle (%)</span><input data-field="monsterDamageReductionPct" type="number" min="0" step="0.01" inputmode="decimal" /><small data-opt-help="monsterReduction">Diagnostic de survie uniquement.</small></label>
+          <label class="optimizer-input reference-only"><span data-opt-label="frontMonsterReduction">Réduction dégâts monstres ligne avant (%)</span><input data-field="frontRowMonsterDamageReductionPct" type="number" min="0" step="0.01" inputmode="decimal" /><small data-opt-help="frontMonsterReduction">Ex. Elsa Armor Boost · non converti en fausse puissance.</small></label>
+          <label class="optimizer-input reference-only"><span data-opt-label="frontMonsterReductionDuration">Durée réduction ligne avant (s)</span><input data-field="frontRowMonsterDamageReductionDurationSeconds" type="number" min="0" step="0.1" inputmode="decimal" /></label>
+          <label class="optimizer-input reference-only"><span data-opt-label="frontMonsterReductionCooldown">Cooldown réduction ligne avant (s)</span><input data-field="frontRowMonsterDamageReductionCooldownSeconds" type="number" min="0" step="0.1" inputmode="decimal" /></label>
+        </div>
+      </details>
+    </article>
+  </template>
+
+  <template id="gearTemplate"><article class="entry-card gear-card"><div class="entry-head"><div><p class="eyebrow" data-ui="gearEyebrow">Équipement</p><strong class="entry-title">—</strong></div><button class="icon-button danger" data-action="remove-gear" type="button" aria-label="Supprimer">×</button></div><div class="form-grid"><label><span data-ui="gearId">Identifiant / nom</span><input data-field="itemId" autocomplete="off" /></label><label><span data-ui="gearSlot">Emplacement</span><select data-field="slot"></select></label><label><span data-ui="rarity">Rareté</span><select data-field="rarity"><option value="UR">UR</option><option value="SSR">SSR</option><option value="SR">SR</option><option value="R">R</option></select></label><label><span data-ui="level">Niveau</span><input data-field="level" type="number" min="0" max="100" inputmode="numeric" /></label><label><span data-ui="stars">Étoiles</span><input data-field="stars" type="number" min="0" max="5" step="0.1" inputmode="decimal" /></label><label><span data-ui="promotion">Promotion</span><input data-field="promotion" type="number" min="0" max="99" inputmode="numeric" /></label><label><span data-ui="assignedHero">Héros équipé</span><select data-field="currentlyAssignedHero"></select></label></div></article></template>
+
+  <script src="positioning-engine.v1.js?v=005-braz-guard"></script>
+  <script src="tactics-runtime-v1.js?v=002-context-guard"></script>
+  <script src="season6-runtime-v1.js?v=001"></script>
+  <script src="app.js?v=001"></script>
+  <script src="tactics-profile-v1.js?v=002-per-copy"></script>
+  <script src="optimizer-ui-v1.js?v=004-hero-effects"></script>
+  <script src="tactics-result-ui-v1.js?v=001"></script>
+  <script src="season6-result-ui-v1.js?v=001"></script>
+  <script src="hero-effects-i18n-v1.js?v=002-awakening"></script>
+</body>
+</html>

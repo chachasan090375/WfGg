@@ -1,0 +1,99 @@
+{
+  "version": "1.1.0",
+  "principle": "Only ask for research that can change vehicle-type strength, hero-type synergy, march size, damage profile, or the relative strength of Squad slots 1-4. Universal research is excluded from composition ranking by default.",
+  "terminology": {
+    "auditSource": "../i18n/research-terminology-audit.v1.json",
+    "rule": "Calculation and saved-profile data use semantic IDs only. Display labels must be resolved by locale from the i18n terminology layer."
+  },
+  "heroTree": {
+    "maxLevelPerNode": 5,
+    "tank": [
+      "hero.tank.mastery.1","hero.tank.attack.1","hero.tank.defense.1","hero.tank.hp.1",
+      "hero.tank.mastery.2","hero.tank.attack.2","hero.tank.defense.2","hero.tank.hp.2"
+    ],
+    "aircraft": [
+      "hero.aircraft.mastery.1","hero.aircraft.attack.1","hero.aircraft.defense.1","hero.aircraft.hp.1",
+      "hero.aircraft.mastery.2","hero.aircraft.attack.2","hero.aircraft.defense.2","hero.aircraft.hp.2"
+    ],
+    "missile": [
+      "hero.missile.mastery.1","hero.missile.attack.1","hero.missile.defense.1","hero.missile.hp.1",
+      "hero.missile.mastery.2","hero.missile.attack.2","hero.missile.defense.2","hero.missile.hp.2"
+    ],
+    "knownMaxBonuses": {
+      "typeMasteryI_damagePct": 5,
+      "typeMasteryII_damagePct": 10,
+      "typeAttackI_attackPct": 5,
+      "typeAttackII_attackPct": 10
+    }
+  },
+  "typeMastery": {
+    "sameLayoutFor": ["tank","aircraft","missile"],
+    "tiers": ["I","II"],
+    "semanticNodeFamilies": [
+      {"idSuffix":"synergy.hp","maxLevel":10,"scope":"per matching hero"},
+      {"idSuffix":"synergy.attack","maxLevel":10,"scope":"per matching hero","maxBonusPctPerMatchingHero":1.5},
+      {"idSuffix":"synergy.defense","maxLevel":10,"scope":"per matching hero"},
+      {"idSuffix":"synergy.damage","maxLevel":5,"scope":"per matching hero","maxBonusPctPerMatchingHero":1},
+      {"idSuffix":"marchSize","maxLevel":5,"scope":"matching hero type"},
+      {"idSuffix":"hp","maxLevel":10,"scope":"matching hero type"},
+      {"idSuffix":"attack","maxLevel":10,"scope":"matching hero type","maxBonusPct":7.5},
+      {"idSuffix":"defense","maxLevel":10,"scope":"matching hero type"},
+      {"idSuffix":"damage","maxLevel":5,"scope":"matching hero type","maxBonusPct":5},
+      {"idSuffix":"ultimateDefense","maxLevel":10,"scope":"matching hero type","effect":"damage reduction"}
+    ],
+    "semanticIdPattern": "{troopType}.{idSuffix}.{tier}",
+    "inputMode": "research-level",
+    "fallbackUntilEveryCurveIsVerified": "also allow optional displayed-current-bonus input for nodes whose per-level curve is not yet encoded"
+  },
+  "squadSlotResearch": {
+    "appliesTo": [1,2,3,4],
+    "maxLevelPerNode": 5,
+    "fourthSlotRequires": "Super Monthly Pass active",
+    "semanticNodeFamilies": [
+      {"id":"terminator","effect":"damage against monsters","contexts":["pve","wanted","crystal-if-applicable"]},
+      {"id":"assaultTraining","effect":"hero attack","contexts":["all"]},
+      {"id":"formationTraining","effect":"hero defense","contexts":["all"]},
+      {"id":"survivalTraining","effect":"hero hp","contexts":["all"]},
+      {"id":"physicalSuppression","effect":"physical damage","contexts":["all"]},
+      {"id":"energyBarrage","effect":"energy damage","contexts":["all"]},
+      {"id":"fierceAssault","effect":"attack when assaulting enemy base","contexts":["pvp-attacker"]},
+      {"id":"finalStand","effect":"hp when assaulting enemy base","contexts":["pvp-attacker"]},
+      {"id":"vigilantFormation","effect":"defense when assaulting enemy base","contexts":["pvp-attacker"]},
+      {"id":"counterDefense","effect":"attack while defending base","contexts":["pvp-defender"]},
+      {"id":"holdTheLine","effect":"hp while defending base","contexts":["pvp-defender"]},
+      {"id":"solidDefense","effect":"defense while defending base","contexts":["pvp-defender"]}
+    ],
+    "semanticIdPattern": "squad.{slot}.{familyId}",
+    "excludedAsNonCombatRankingInputs": ["powerBoostLoad","rapidMarch","assaultTacticsNonDifferential","fastExploration","resourceReaper","zombieRadar"]
+  },
+  "buildingsAndMarchSize": {
+    "requiredInputs": [
+      {"id":"hq-level","reason":"sets hero level cap and global hero base stats"},
+      {"id":"tank-center-level","reason":"Tank hero HP/Attack/Defense and Tank hero march size"},
+      {"id":"aircraft-center-level","reason":"Aircraft hero HP/Attack/Defense and Aircraft hero march size"},
+      {"id":"missile-center-level","reason":"Missile hero HP/Attack/Defense and Missile hero march size"}
+    ],
+    "heroLevel": {
+      "requiredPerHero": true,
+      "reason":"hero level changes hero stats and Command/march size"
+    },
+    "otherMarchSizeSourcesToModelSeparately": [
+      "Type Mastery March Size I/II",
+      "Survivor Shirley",
+      "God of Judgement / other verified march-size decorations",
+      "event/companion systems that explicitly add march size"
+    ],
+    "doNotConfuseWith": "Troop Load; load is resource carrying capacity, not squad march size"
+  },
+  "universalResearch": {
+    "excludedFromRelativeTypeSelectionByDefault": [
+      "Hero Firepower Boost",
+      "Hero Weapons Upgrade",
+      "Hero Armor Enhancement",
+      "Hero Endurance Upgrade",
+      "Units universal Attack/HP/Defense",
+      "Special Forces universal Attack/HP/Defense when identical for every candidate squad"
+    ],
+    "exception": "Context-specific universal nodes may be included if comparing different squad slots or attacker/defender contexts where they do not apply equally."
+  }
+}

@@ -1,0 +1,134 @@
+{
+  "version": "1.0.0-research",
+  "auditedAt": "2026-08-26",
+  "policy": "TERMINOLOGY_POLICY.md",
+  "purpose": "Identify every research input required by the simulator while preventing unofficial FR/IT/ES translations from leaking into the UI.",
+  "sources": {
+    "hero-mirror": "https://github.com/extremesecrecy/lastwar-research-trees/blob/main/tree_data/hero.json",
+    "tank-mastery-mirror": "https://github.com/extremesecrecy/lastwar-research-trees/blob/main/tree_data/tank-mastery.json",
+    "aircraft-mastery-mirror": "https://github.com/extremesecrecy/lastwar-research-trees/blob/main/tree_data/aircraft-mastery.json",
+    "missile-mastery-mirror": "https://github.com/extremesecrecy/lastwar-research-trees/blob/main/tree_data/missile-mastery.json",
+    "squad-1-mirror": "https://github.com/extremesecrecy/lastwar-research-trees/blob/main/tree_data/squad-1.json",
+    "squad-2-mirror": "https://github.com/extremesecrecy/lastwar-research-trees/blob/main/tree_data/squad-2.json",
+    "squad-3-mirror": "https://github.com/extremesecrecy/lastwar-research-trees/blob/main/tree_data/squad-3.json",
+    "squad-4-mirror": "https://github.com/extremesecrecy/lastwar-research-trees/blob/main/tree_data/squad-4.json"
+  },
+  "localizationGate": {
+    "en": "game-data-mirror; exact in-game confirmation still required before linguistic finalization",
+    "fr": "pending",
+    "it": "pending",
+    "es": "pending",
+    "rule": "Never derive FR/IT/ES from the English mirror. Missing labels stay null."
+  },
+  "heroTree": [
+    {"id":"hero.tank.mastery.1","tree":"Hero","type":"tank","en":"Tank Mastery I","maxLevel":5,"fr":null,"it":null,"es":null},
+    {"id":"hero.tank.attack.1","tree":"Hero","type":"tank","en":"Cannon Enhancement I","maxLevel":5,"fr":null,"it":null,"es":null},
+    {"id":"hero.tank.defense.1","tree":"Hero","type":"tank","en":"Armor Hardening I","maxLevel":5,"fr":null,"it":null,"es":null},
+    {"id":"hero.tank.hp.1","tree":"Hero","type":"tank","en":"Track Fortification I","maxLevel":5,"fr":null,"it":null,"es":null},
+    {"id":"hero.aircraft.mastery.1","tree":"Hero","type":"aircraft","en":"Aircraft Mastery I","maxLevel":5,"fr":null,"it":null,"es":null},
+    {"id":"hero.aircraft.attack.1","tree":"Hero","type":"aircraft","en":"Airborne Weapon I","maxLevel":5,"fr":null,"it":null,"es":null},
+    {"id":"hero.aircraft.defense.1","tree":"Hero","type":"aircraft","en":"Reinforced Body I","maxLevel":5,"fr":null,"it":null,"es":null},
+    {"id":"hero.aircraft.hp.1","tree":"Hero","type":"aircraft","en":"Wingman Tactics I","maxLevel":5,"fr":null,"it":null,"es":null},
+    {"id":"hero.missile.mastery.1","tree":"Hero","type":"missile","en":"Missile Mastery I","maxLevel":5,"fr":null,"it":null,"es":null},
+    {"id":"hero.missile.attack.1","tree":"Hero","type":"missile","en":"Precision Targeting I","maxLevel":5,"fr":null,"it":null,"es":null},
+    {"id":"hero.missile.defense.1","tree":"Hero","type":"missile","en":"Metal Barricade I","maxLevel":5,"fr":null,"it":null,"es":null},
+    {"id":"hero.missile.hp.1","tree":"Hero","type":"missile","en":"Missile Expansion I","maxLevel":5,"fr":null,"it":null,"es":null},
+    {"id":"hero.tank.mastery.2","tree":"Hero","type":"tank","en":"Tank Mastery II","maxLevel":5,"fr":null,"it":null,"es":null},
+    {"id":"hero.tank.attack.2","tree":"Hero","type":"tank","en":"Cannon Enhancement II","maxLevel":5,"fr":null,"it":null,"es":null},
+    {"id":"hero.tank.defense.2","tree":"Hero","type":"tank","en":"Armor Hardening II","maxLevel":5,"fr":null,"it":null,"es":null},
+    {"id":"hero.tank.hp.2","tree":"Hero","type":"tank","en":"Track Fortification II","maxLevel":5,"fr":null,"it":null,"es":null},
+    {"id":"hero.aircraft.mastery.2","tree":"Hero","type":"aircraft","en":"Aircraft Mastery II","maxLevel":5,"fr":null,"it":null,"es":null},
+    {"id":"hero.aircraft.attack.2","tree":"Hero","type":"aircraft","en":"Airborne Weapon II","maxLevel":5,"fr":null,"it":null,"es":null},
+    {"id":"hero.aircraft.defense.2","tree":"Hero","type":"aircraft","en":"Reinforced Body II","maxLevel":5,"fr":null,"it":null,"es":null},
+    {"id":"hero.aircraft.hp.2","tree":"Hero","type":"aircraft","en":"Wingman Tactics II","maxLevel":5,"fr":null,"it":null,"es":null},
+    {"id":"hero.missile.mastery.2","tree":"Hero","type":"missile","en":"Missile Mastery II","maxLevel":5,"fr":null,"it":null,"es":null},
+    {"id":"hero.missile.attack.2","tree":"Hero","type":"missile","en":"Precision Targeting II","maxLevel":5,"fr":null,"it":null,"es":null},
+    {"id":"hero.missile.defense.2","tree":"Hero","type":"missile","en":"Metal Barricade II","maxLevel":5,"fr":null,"it":null,"es":null},
+    {"id":"hero.missile.hp.2","tree":"Hero","type":"missile","en":"Missile Expansion II","maxLevel":5,"fr":null,"it":null,"es":null}
+  ],
+  "advancedTypeMastery": {
+    "tank": {
+      "treeTitleEn":"Tank Mastery",
+      "source":"tank-mastery-mirror",
+      "nodes":[
+        {"id":"tank.synergy.hp","en":{"I":"Tank Synergy - HP I","II":"Tank Synergy - HP II"},"maxLevel":10},
+        {"id":"tank.synergy.attack","en":{"I":"Tank Synergy - Attack I","II":"Tank Synergy - Attack II"},"maxLevel":10},
+        {"id":"tank.synergy.defense","en":{"I":"Tank Synergy - Defense I","II":"Tank Synergy - Defense II"},"maxLevel":10},
+        {"id":"tank.synergy.damage","en":{"I":"Tank Synergy - Damage I","II":"Tank Synergy - Damage II"},"maxLevel":5},
+        {"id":"tank.marchSize","en":{"I":"Tank - March Size I","II":"Tank - March Size II"},"maxLevel":5},
+        {"id":"tank.hp","en":{"I":"Tank - HP I","II":"Tank - HP II"},"maxLevel":10},
+        {"id":"tank.attack","en":{"I":"Tank - Attack I","II":"Tank - Attack II"},"maxLevel":10},
+        {"id":"tank.defense","en":{"I":"Tank - Defense I","II":"Tank - Defense II"},"maxLevel":10},
+        {"id":"tank.damage","en":{"I":"Tank - Damage I","II":"Tank - Damage II"},"maxLevel":5},
+        {"id":"tank.ultimateDefense","en":{"I":"Tank - Ultimate Defense I","II":"Tank - Ultimate Defense II"},"maxLevel":10}
+      ]
+    },
+    "aircraft": {
+      "treeTitleEn":"Aircraft Mastery",
+      "source":"aircraft-mastery-mirror",
+      "nodes":[
+        {"id":"aircraft.synergy.hp","en":{"I":"Aircraft Synergy - HP I","II":"Aircraft Synergy - HP II"},"maxLevel":10},
+        {"id":"aircraft.synergy.attack","en":{"I":"Aircraft Synergy - Attack I","II":"Aircraft Synergy - Attack II"},"maxLevel":10},
+        {"id":"aircraft.synergy.defense","en":{"I":"Aircraft Synergy - Defense I","II":"Aircraft Synergy - Defense II"},"maxLevel":10},
+        {"id":"aircraft.synergy.damage","en":{"I":"Aircraft Synergy - Damage I","II":"Aircraft Synergy - Damage II"},"maxLevel":5},
+        {"id":"aircraft.marchSize","en":{"I":"Aircraft - March Size I","II":"Aircraft - March Size II"},"maxLevel":5},
+        {"id":"aircraft.hp","en":{"I":"Aircraft - HP I","II":"Aircraft - HP II"},"maxLevel":10},
+        {"id":"aircraft.attack","en":{"I":"Aircraft - Attack I","II":"Aircraft - Attack II"},"maxLevel":10},
+        {"id":"aircraft.defense","en":{"I":"Aircraft - Defense I","II":"Aircraft - Defense II"},"maxLevel":10},
+        {"id":"aircraft.damage","en":{"I":"Aircraft - Damage I","II":"Aircraft - Damage II"},"maxLevel":5},
+        {"id":"aircraft.ultimateDefense","en":{"I":"Aircraft - Ultimate Defense I","II":"Aircraft - Ultimate Defense II"},"maxLevel":10}
+      ]
+    },
+    "missile": {
+      "treeTitleEn":"Missile Mastery",
+      "nodePrefixWarning":"The mirror uses 'Missile Vehicle' inside node labels even though the tree title is 'Missile Mastery'. Do not normalize this difference.",
+      "source":"missile-mastery-mirror",
+      "nodes":[
+        {"id":"missile.synergy.hp","en":{"I":"Missile Vehicle Synergy - HP I","II":"Missile Vehicle Synergy - HP II"},"maxLevel":10},
+        {"id":"missile.synergy.attack","en":{"I":"Missile Vehicle Synergy - Attack I","II":"Missile Vehicle Synergy - Attack II"},"maxLevel":10},
+        {"id":"missile.synergy.defense","en":{"I":"Missile Vehicle Synergy - Defense I","II":"Missile Vehicle Synergy - Defense II"},"maxLevel":10},
+        {"id":"missile.synergy.damage","en":{"I":"Missile Vehicle Synergy - Damage I","II":"Missile Vehicle Synergy - Damage II"},"maxLevel":5},
+        {"id":"missile.marchSize","en":{"I":"Missile Vehicle - March Size I","II":"Missile Vehicle - March Size II"},"maxLevel":5},
+        {"id":"missile.hp","en":{"I":"Missile Vehicle - HP I","II":"Missile Vehicle - HP II"},"maxLevel":10},
+        {"id":"missile.attack","en":{"I":"Missile Vehicle - Attack I","II":"Missile Vehicle - Attack II"},"maxLevel":10},
+        {"id":"missile.defense","en":{"I":"Missile Vehicle - Defense I","II":"Missile Vehicle - Defense II"},"maxLevel":10},
+        {"id":"missile.damage","en":{"I":"Missile Vehicle - Damage I","II":"Missile Vehicle - Damage II"},"maxLevel":5},
+        {"id":"missile.ultimateDefense","en":{"I":"Missile Vehicle - Ultimate Defense I","II":"Missile Vehicle - Ultimate Defense II"},"maxLevel":10}
+      ]
+    },
+    "localizedLabels": {"fr":null,"it":null,"es":null},
+    "localizedStatus":"pending"
+  },
+  "squadSlotResearch": {
+    "slots": {
+      "1":{"treeEn":"Squad 1","roman":"I","source":"squad-1-mirror"},
+      "2":{"treeEn":"Squad 2","roman":"II","source":"squad-2-mirror"},
+      "3":{"treeEn":"Squad 3","roman":"III","source":"squad-3-mirror"},
+      "4":{"treeEn":"Squad 4","roman":"IV","source":"squad-4-mirror"}
+    },
+    "familiesNeededBySimulator": [
+      {"id":"terminator","baseEn":"Terminator","maxLevel":5,"context":"PvE / monsters"},
+      {"id":"assaultTraining","baseEn":"Assault Training","maxLevel":5,"context":"hero attack"},
+      {"id":"formationTraining","baseEn":"Formation Training","maxLevel":5,"context":"hero defense"},
+      {"id":"survivalTraining","baseEn":"Survival Training","maxLevel":5,"context":"hero HP"},
+      {"id":"physicalSuppression","baseEn":"Physical Suppression","maxLevel":5,"context":"physical damage"},
+      {"id":"energyBarrage","baseEn":"Energy Barrage","maxLevel":5,"context":"energy damage"},
+      {"id":"fierceAssault","baseEn":"Fierce Assault","maxLevel":5,"context":"assaulting enemy base"},
+      {"id":"finalStand","baseEn":"Final Stand","maxLevel":5,"context":"assaulting enemy base"},
+      {"id":"vigilantFormation","baseEn":"Vigilant Formation","maxLevel":5,"context":"assaulting enemy base"},
+      {"id":"counterDefense","baseEn":"Counter Defense","maxLevel":5,"context":"defending base"},
+      {"id":"holdTheLine","baseEn":"Hold the Line","maxLevel":5,"context":"defending base"},
+      {"id":"solidDefense","baseEn":"Solid Defense","maxLevel":5,"context":"defending base"}
+    ],
+    "exactEnglishConstruction":"{baseEn} + space + Roman suffix matching the Squad slot; mirrors for Squad 1-4 confirm the I/II/III/IV model.",
+    "localizedLabels":{"fr":null,"it":null,"es":null},
+    "localizedStatus":"pending"
+  },
+  "finalizationChecklist": {
+    "englishClientCaptureRequired": true,
+    "frenchClientCaptureRequired": true,
+    "italianClientCaptureRequired": true,
+    "spanishClientCaptureRequired": true,
+    "doNotTranslatePendingTerms": true
+  }
+}

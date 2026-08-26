@@ -1,0 +1,11 @@
+{
+  "version":"1.0.0",
+  "storageKey":"wfgg-simulator-tactics-v2",
+  "phase":{"allowed":["season6","offseason"],"default":"season6"},
+  "coreSlots":{"count":2,"cardSource":"tactics-card-catalog.v2.json#coreCards","activeDuringSeason":true,"activeDuringOffSeason":true,"maxLevel":10,"fields":["cardId","level","enabled","values"]},
+  "battleSlots":{"count":4,"cardSource":"tactics-card-catalog.v2.json#currentSeason6CombatCards","activeDuringSeason":true,"activeDuringOffSeason":false,"season6BaseMaxLevel":12,"fields":["cardId","level","enabled","values"]},
+  "globalExpedition":{"nonCoreTotalLevelStoredSeparately":true,"mainEffectRule":"PvP-only main card effects are not applied to Global Expedition unless current in-game wording explicitly allows it."},
+  "valuePolicy":"Do not infer current card effect values from stale curves. Store the percentage/value currently displayed by the player when an effect is used by the runtime.",
+  "legacyMigration":{"from":"wfgg-simulator-profile-v1.season6.tacticsCards","mappedIds":{"dimensionalCrit":"universal-dimensional-crit","frontalSuppression":"universal-frontal-suppression","aftermathBurst":"universal-aftermath-burst"}},
+  "runtimeSource":"tactics-card-runtime.v1.json"
+}
