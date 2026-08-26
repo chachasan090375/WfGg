@@ -1,0 +1,53 @@
+{
+  "version": "1.0.0",
+  "season": 6,
+  "vehicleTotems": [
+    {"name":"Bear Totem","targetType":"tank","damagePctPerLevel":0.5,"maxLevel":30,"maxDamagePct":15},
+    {"name":"Eagle Totem","targetType":"aircraft","damagePctPerLevel":0.5,"maxLevel":30,"maxDamagePct":15},
+    {"name":"Jaguar Totem","targetType":"missile","damagePctPerLevel":0.5,"maxLevel":30,"maxDamagePct":15}
+  ],
+  "awakening": [
+    {"hero":"Kimberly","type":"tank","permanent":true,"input":["unlocked","awakeningStars","awakeningTier"]},
+    {"hero":"DVA","type":"aircraft","permanent":true,"input":["unlocked","awakeningStars","awakeningTier"]},
+    {"hero":"Tesla","type":"missile","permanent":true,"input":["unlocked","awakeningStars","awakeningTier"]}
+  ],
+  "pvpTacticsCards": [
+    {
+      "name":"Dimensional Crit",
+      "targetType":"tank",
+      "contexts":["pvp","global-expedition"],
+      "baseEffect":"highest-ATK Tank hero gains Crit Rate",
+      "level1ValuePct":2.7,
+      "incrementPctPerLevel":0.9,
+      "disabledAgainstCrystalBoss":true
+    },
+    {
+      "name":"Frontal Suppression",
+      "targetType":"aircraft",
+      "contexts":["pvp","global-expedition"],
+      "baseEffect":"3 Aircraft heroes on back row gain Attack Speed",
+      "level1ValuePct":1.5,
+      "incrementPctPerLevel":0.9,
+      "disabledAgainstCrystalBoss":true
+    },
+    {
+      "name":"Aftermath Burst",
+      "targetType":"missile",
+      "contexts":["pvp","global-expedition"],
+      "baseEffect":"all Missile heroes gain damage over time at start of battle",
+      "level1ValuePct":18.75,
+      "incrementPctPerLevel":6.25,
+      "disabledAgainstCrystalBoss":true
+    }
+  ],
+  "fungusInstitute": {
+    "primaryEffect":"Virus Resistance",
+    "vehicleDifferentialDefault":false,
+    "note":"Do not treat Fungus Institute level itself as Tank/Aircraft/Missile strength unless a context-specific class buff is explicitly active."
+  },
+  "crystalBoss": {
+    "season6Specific": false,
+    "source":"objectives.v1.json",
+    "note":"Crystal Event was rolled out to servers at Season 1+; keep it as an event objective, not a hard-coded Season 6 boss."
+  }
+}
