@@ -19,13 +19,13 @@
   };
 
   let schemas = {};
-  let state = loadState();
   let researchTab = 'hero';
 
   const $ = s => document.querySelector(s);
   const $$ = s => [...document.querySelectorAll(s)];
   const esc = value => String(value ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
   const clone = obj => JSON.parse(JSON.stringify(obj));
+  let state = loadState();
   const ui = key => (UI[state.locale] || UI.fr)[key] ?? UI.fr[key] ?? key;
 
   function loadState(){
