@@ -25,7 +25,7 @@ jobs:
           npm init -y >/dev/null 2>&1
           npm install playwright@1.55.0 >/dev/null 2>&1
           npx playwright install --with-deps chromium >/dev/null
-      - name: Trace profile
+      - name: Trace full hero sequence
         env:
           NODE_PATH: /tmp/wfgg-debug/node_modules
         run: |
@@ -40,14 +40,8 @@ jobs:
             const x=await page.evaluate(k=>{
               let parsed={};try{parsed=JSON.parse(localStorage.getItem(k)||'{}')}catch(_){}
               const c=document.querySelector('.hero-card');
-              const field=c?.querySelector('[data-field="displayedPower"]');
-              return {
-                revision:window.WfGgProfilePersistence?.revision,
-                rawHero:parsed.heroes?.[0]||null,
-                domPower:field?.value??null,
-                activeField:document.activeElement?.dataset?.field||null,
-                cardIndex:c?.dataset?.index??null
-              };
+              const dom={};c?.querySelectorAll('[data-field]').forEach(el=>dom[el.dataset.field]=el.type==='checkbox'?el.checked:el.value);
+              return {revision:window.WfGgProfilePersistence?.revision,rawHero:parsed.heroes?.[0]||null,dom,activeField:document.activeElement?.dataset?.field||null,cardIndex:c?.dataset?.index??null};
             },k=K);
             console.log('TRACE '+label+' '+JSON.stringify(x));
             return x;
@@ -57,20 +51,27 @@ jobs:
             const p=await b.newPage({viewport:{width:412,height:915}});
             await p.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded'});
             await p.evaluate(()=>localStorage.clear());await p.reload({waitUntil:'domcontentloaded'});
-            await p.waitForFunction(()=>window.WfGgProfilePersistence?.version==='2.4.0');
+            await p.waitForFunction(()=>window.WfGgProfilePersistence?.revision==='blank-guard-rehydrate-v3');
             await p.locator('#stepNav [data-step="1"]').click();await p.locator('#addHero').click();
-            let c=p.locator('.hero-card').first();
-            await c.locator('[data-field="heroId"]').fill('Mason');
-            c=p.locator('.hero-card').first();await c.locator('[data-field="displayedAttack"]').fill('110000');
-            c=p.locator('.hero-card').first();await c.locator('[data-field="displayedPower"]').fill('1000000');
+            const field=async(name)=>p.locator('.hero-card').first().locator(`[data-field="${name}"]`);
+            await (await field('heroId')).fill('Mason');
+            await (await field('troopType')).selectOption('tank');
+            await (await field('role')).selectOption('attack');
+            await (await field('displayedAttack')).fill('110000');
+            await (await field('displayedDefense')).fill('80000');
+            await (await field('displayedHp')).fill('900000');
+            await (await field('displayedPower')).fill('1000000');
             const before=await snap(p,'BEFORE_RELOAD');
-            if(String(before.rawHero?.displayedPower)!=='1000000')throw new Error('Power absent from storage before reload');
-            await p.reload({waitUntil:'domcontentloaded'});
-            await p.waitForSelector('.hero-card');
+            for(const [k,v] of Object.entries({heroId:'Mason',displayedAttack:110000,displayedDefense:80000,displayedHp:900000,displayedPower:1000000})){
+              if(String(before.rawHero?.[k])!==String(v))throw new Error(`${k} storage before reload ${before.rawHero?.[k]} != ${v}`);
+            }
+            await p.reload({waitUntil:'domcontentloaded'});await p.waitForSelector('.hero-card');await p.waitForTimeout(250);
             const after=await snap(p,'AFTER_RELOAD');
-            if(String(after.rawHero?.displayedPower)!=='1000000')throw new Error('Power lost from storage during reload');
-            if(after.domPower!=='1000000')throw new Error('Storage retains power but UI fails to render it');
-            await b.close();console.log('PERSISTENCE TRACE OK');
+            for(const [k,v] of Object.entries({heroId:'Mason',displayedAttack:110000,displayedDefense:80000,displayedHp:900000,displayedPower:1000000})){
+              if(String(after.rawHero?.[k])!==String(v))throw new Error(`${k} storage after reload ${after.rawHero?.[k]} != ${v}`);
+              if(String(after.dom?.[k])!==String(v))throw new Error(`${k} DOM after reload ${after.dom?.[k]} != ${v}`);
+            }
+            await b.close();console.log('FULL HERO PERSISTENCE TRACE OK');
           })().catch(e=>{console.error(e);process.exit(1)});
           JS
           node /tmp/wfgg-debug/test.cjs
