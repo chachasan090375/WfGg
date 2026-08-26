@@ -1,0 +1,191 @@
+name: Simulator hero roster v6 finalize
+
+on:
+  push:
+    branches:
+      - simulator-standalone-v1
+    paths:
+      - '.github/workflows/simulator-hero-roster-v6-finalize.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: simulator-standalone-v1
+          fetch-depth: 0
+
+      - name: Cache hero portraits locally and wire v6
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m pip install --quiet pillow requests
+          python3 - <<'PY'
+          from pathlib import Path
+          import json, io, re, requests
+          from PIL import Image, ImageOps
+
+          roots=[Path('simulator'),Path('frontend/simulator')]
+          src=json.loads((roots[0]/'data/hero-catalog.v2.json').read_text(encoding='utf-8'))
+          overrides={
+            'gump':['https://theriagames.com/wp-content/uploads/2025/05/Gump.gif','https://cdn-www.bluestacks.com/bs-images/Last-War-Survival_Tier-List_EN_16.png'],
+            'loki':['https://theriagames.com/wp-content/uploads/2024/12/Loki.png'],
+          }
+          headers={'User-Agent':'Mozilla/5.0 (Linux; Android 16) AppleWebKit/537.36 Chrome/139 Mobile Safari/537.36','Accept':'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8'}
+          downloaded={}
+          misses=[]
+          for hero in src['heroes']:
+            hid=hero['id']; name=hero['name']
+            candidates=[]
+            if hero.get('portrait'): candidates.append(hero['portrait'])
+            candidates += overrides.get(hid,[])
+            clean=name.replace(' ','')
+            candidates += [
+              f'https://theriagames.com/wp-content/uploads/2025/05/{clean}.gif',
+              f'https://theriagames.com/wp-content/uploads/2024/12/{clean}.png',
+              f'https://theriagames.com/wp-content/uploads/2024/12/{clean}-1024x1024.png',
+              f'https://www.lastwar.com/en/img/heroes/{clean}.png',
+            ]
+            if name=='DVA': candidates.append('https://www.lastwar.com/en/img/heroes/DVa.png')
+            ok=False
+            for url in dict.fromkeys(candidates):
+              try:
+                r=requests.get(url,headers=headers,timeout=18,allow_redirects=True)
+                if r.status_code!=200 or len(r.content)<1500: continue
+                im=Image.open(io.BytesIO(r.content))
+                try: im.seek(0)
+                except: pass
+                im=im.convert('RGB')
+                # Portrait crop optimized for the in-game roster card.
+                im=ImageOps.fit(im,(360,440),method=Image.Resampling.LANCZOS,centering=(0.5,0.28))
+                for root in roots:
+                  out=root/'assets/heroes'/f'{hid}.webp'; out.parent.mkdir(parents=True,exist_ok=True)
+                  im.save(out,'WEBP',quality=88,method=6)
+                downloaded[hid]=f'assets/heroes/{hid}.webp'; ok=True; break
+              except Exception:
+                continue
+            if not ok: misses.append(hid)
+          print('PORTRAITS_DOWNLOADED',len(downloaded),'MISSES',misses)
+          if len(downloaded)<29:
+            raise SystemExit(f'not enough portraits cached: {len(downloaded)}')
+
+          for root in roots:
+            p=root/'data/hero-catalog.v2.json'
+            data=json.loads(p.read_text(encoding='utf-8'))
+            for h in data['heroes']:
+              if h['id'] in downloaded: h['localPortrait']=downloaded[h['id']]
+            p.write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+
+            p=root/'hero-roster-v2.js'; s=p.read_text(encoding='utf-8')
+            s=s.replace("if(!cat.portrait)return fallback;\n    return `<img src=\"${esc(cat.portrait)}\"", "const src=cat.localPortrait||cat.portrait;if(!src)return fallback;\n    return `<img src=\"${esc(src)}\"")
+            p.write_text(s,encoding='utf-8')
+
+            p=root/'hero-game-ui-v4.js'; s=p.read_text(encoding='utf-8')
+            if 'function heroPortraitSrc(cat)' not in s:
+              s=s.replace("function portraitHtml(cat){", "function heroPortraitSrc(cat){return cat?.localPortrait||cat?.portrait||''}\nfunction portraitHtml(cat){")
+            s=s.replace("cat?.portrait?`<img class=\"lw4-unit-portrait\" src=\"${esc(cat.portrait)}\"", "heroPortraitSrc(cat)?`<img class=\"lw4-unit-portrait\" src=\"${esc(heroPortraitSrc(cat))}\"")
+            s=s.replace("cat.portrait?`<img src=\"${esc(cat.portrait)}\"", "heroPortraitSrc(cat)?`<img src=\"${esc(heroPortraitSrc(cat))}\"")
+            p.write_text(s,encoding='utf-8')
+
+            p=root/'index.html'; s=p.read_text(encoding='utf-8')
+            css='  <link rel="stylesheet" href="hero-roster-game-v6.css?v=006-game-roster" />\n'
+            js='  <script src="hero-touch-v6.js?v=006-touch"></script>\n'
+            if 'hero-roster-game-v6.css' not in s:
+              marker='  <link rel="stylesheet" href="hero-game-ui-v4.css?v=005-lastwar-hero-pages" />\n'
+              if marker not in s: raise SystemExit(f'css marker missing {p}')
+              s=s.replace(marker,marker+css,1)
+            if 'hero-touch-v6.js' not in s:
+              marker='  <script src="hero-game-ui-v4.js?v=005-lastwar-hero-pages"></script>\n'
+              if marker not in s: raise SystemExit(f'js marker missing {p}')
+              s=s.replace(marker,marker+js,1)
+            p.write_text(s,encoding='utf-8')
+
+          Path('simulator/UI_VERSION.txt').write_text('HERO_ROSTER_V6_GAME_FAITHFUL\nLocal portraits / touch fixed / UR SSR SR game cards\n2026-08-26\n',encoding='utf-8')
+          PY
+
+      - name: Validate v6 sources
+        run: |
+          set -euo pipefail
+          node --check simulator/hero-roster-v2.js
+          node --check simulator/hero-game-ui-v4.js
+          node --check simulator/hero-touch-v6.js
+          node --check frontend/simulator/hero-touch-v6.js
+          grep -Fq 'hero-roster-game-v6.css?v=006-game-roster' simulator/index.html
+          grep -Fq 'hero-touch-v6.js?v=006-touch' simulator/index.html
+          grep -Fq 'cat.localPortrait||cat.portrait' simulator/hero-roster-v2.js
+          grep -Fq 'heroPortraitSrc(cat)' simulator/hero-game-ui-v4.js
+          test $(find simulator/assets/heroes -name '*.webp' | wc -l) -ge 29
+
+      - name: Commit v6
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add simulator frontend/simulator
+          git diff --cached --check
+          git commit -m 'simulator: publish game-faithful hero roster v6'
+          git push origin HEAD:simulator-standalone-v1
+
+      - name: Wait for public preview v6
+        shell: bash
+        run: |
+          set -euo pipefail
+          ROOT='https://simulator-standalone-v1.wfgg.pages.dev/simulator/'
+          ok=0
+          for i in $(seq 1 60); do
+            curl -fsSL "$ROOT?hero_roster_v6=$i" -o /tmp/sim.html || true
+            if grep -Fq 'hero-roster-game-v6.css?v=006-game-roster' /tmp/sim.html && grep -Fq 'hero-touch-v6.js?v=006-touch' /tmp/sim.html; then
+              ok=1; echo "HERO_ROSTER_V6_DEPLOYED=YES attempt=$i"; break
+            fi
+            sleep 5
+          done
+          test "$ok" = 1
+
+      - name: Install Playwright Chromium
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: Android touch and roster recette
+        shell: bash
+        run: |
+          node <<'JS'
+          const assert=require('node:assert/strict');
+          const {chromium}=require('playwright');
+          (async()=>{
+            const browser=await chromium.launch({headless:true});
+            try{
+              const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,deviceScaleFactor:2,locale:'fr-FR'});
+              const page=await context.newPage(); const errors=[]; page.on('pageerror',e=>errors.push(String(e)));
+              await page.goto('https://simulator-standalone-v1.wfgg.pages.dev/simulator/?hero_roster_v6_e2e=1',{waitUntil:'domcontentloaded',timeout:60000});
+              await page.locator('#stepNav [data-step="1"]').tap();
+              await page.locator('.game-hero-card').first().waitFor({state:'visible',timeout:30000});
+              assert.equal(await page.locator('.game-hero-card').count(),31);
+              const cols=await page.locator('.game-hero-grid').evaluate(el=>getComputedStyle(el).gridTemplateColumns.split(' ').filter(Boolean).length);assert.equal(cols,4);
+              const portraits=await page.locator('.game-hero-card .hero-card-portrait img').evaluateAll(imgs=>imgs.map(i=>({src:i.getAttribute('src'),w:i.naturalWidth,h:i.naturalHeight,display:getComputedStyle(i).display})));
+              const bad=portraits.filter(x=>!x.src?.startsWith('assets/heroes/')||x.w<100||x.h<100||x.display==='none');
+              assert.equal(bad.length,0,'all cached roster portraits should load');
+              assert.equal(await page.locator('.hero-role-badge').count(),31);
+              assert.equal(await page.locator('.hero-type-mini').count(),31);
+              const rarity=await page.evaluate(()=>({ur:getComputedStyle(document.querySelector('.game-hero-card.rarity-UR')).backgroundImage,ssr:getComputedStyle(document.querySelector('.game-hero-card.rarity-SSR')).backgroundImage,sr:getComputedStyle(document.querySelector('.game-hero-card.rarity-SR')).backgroundImage}));
+              assert.notEqual(rarity.ur,rarity.ssr);assert.notEqual(rarity.ssr,rarity.sr);
+              await page.locator('.game-hero-card').first().tap();
+              await page.locator('#heroGameSheet.open').waitFor({state:'visible'});
+              await page.locator('[data-sheet-tab="grade"]').tap(); await page.locator('.lw4-skill-icons').waitFor({state:'visible'});
+              await page.locator('[data-sheet-tab="wall"]').tap(); await page.locator('.lw4-tier-stars').waitFor({state:'visible'});
+              await page.locator('[data-sheet-tab="weapon"]').tap(); await page.locator('.lw4-weapon-stage').waitFor({state:'visible'});
+              await page.locator('[data-sheet-tab="attributes"]').tap(); await page.locator('.lw4-stage').waitFor({state:'visible'});
+              await page.locator('#heroSheetClose').tap();
+              await page.waitForTimeout(250);assert.equal(await page.locator('#heroGameSheet.open').count(),0,'close must work on touch');
+              const metric=await page.evaluate(()=>({w:innerWidth,sw:(document.scrollingElement||document.documentElement).scrollWidth}));assert.ok(metric.sw<=metric.w+2);
+              assert.equal(errors.length,0,errors.join(' | '));
+              console.log(JSON.stringify({ok:true,cards:31,columns:4,portraits:portraits.length,rarity,touchClose:true,metric},null,2));
+              await context.close();
+            } finally {await browser.close()}
+          })().catch(e=>{console.error(e);process.exit(1)});
+          JS
