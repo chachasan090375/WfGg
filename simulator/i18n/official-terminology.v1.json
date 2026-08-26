@@ -1,0 +1,108 @@
+{
+  "version": "1.0.0-research",
+  "policy": "TERMINOLOGY_POLICY.md",
+  "locales": ["fr","en","it","es"],
+  "terms": {
+    "troop.tank": {
+      "en": {"display":"Tank","status":"official-public","sources":["lastwar.com","Last War Help Center"]},
+      "fr": {"display":"Tank","status":"official-public","sources":["lastwar.com/fr","Last War Centre d'Aide"]},
+      "it": {"display":"Carro armato","status":"platform-localized","sources":["Google Play editorial / Last War"]},
+      "es": {"display":"Tanque","status":"official-public","sources":["lastwar.com/es"]}
+    },
+    "troop.aircraft": {
+      "en": {"display":"Aircraft","status":"official-public","sources":["lastwar.com","Last War Help Center"]},
+      "fr": {"display":"Avion","status":"official-public","sources":["lastwar.com/fr"]},
+      "it": {"display":"Aereo","status":"platform-localized","sources":["Google Play editorial / Last War"]},
+      "es": {"display":"Aeronave","status":"official-public","sources":["lastwar.com/es"]}
+    },
+    "troop.missile": {
+      "en": {"display":"Missile","status":"official-public","observedVariants":["Missile","Missile Vehicle"],"finalInGame":"pending","sources":["lastwar.com","Google Play editorial / Last War"]},
+      "fr": {"display":"Véhicule Missile","status":"official-public","observedVariants":["Véhicule Missile","Missile","Missiles"],"finalInGame":"pending","sources":["lastwar.com/fr","Last War Centre d'Aide"]},
+      "it": {"display":"Veicolo missilistico","status":"platform-localized","finalInGame":"pending","sources":["Google Play editorial / Last War"]},
+      "es": {"display":"Misiles","status":"official-public","observedVariants":["Misiles","Vehículo de misiles"],"finalInGame":"pending","sources":["lastwar.com/es","Google Play editorial / Last War"]}
+    },
+    "role.attack": {
+      "en": {"display":"Attack","status":"official-public","sources":["lastwar.com"]},
+      "fr": {"display":"Attaque","status":"official-public","sources":["lastwar.com/fr"]},
+      "it": {"display":"Attacco","status":"platform-localized","sources":["Google Play editorial / Last War"]},
+      "es": {"display":"Ataque","status":"official-public","sources":["lastwar.com/es"]}
+    },
+    "role.defense": {
+      "en": {"display":"Defense","status":"official-public","sources":["lastwar.com"]},
+      "fr": {"display":"Défense","status":"official-public","sources":["lastwar.com/fr"]},
+      "it": {"display":"Difesa","status":"platform-localized","sources":["Google Play editorial / Last War"]},
+      "es": {"display":"Defensa","status":"official-public","sources":["lastwar.com/es"]}
+    },
+    "role.support": {
+      "en": {"display":"Support","status":"official-public","sources":["lastwar.com"]},
+      "fr": {"display":"Soutien","status":"official-public","sources":["lastwar.com/fr"]},
+      "it": {"display":"Supporto","status":"platform-localized","sources":["Google Play editorial / Last War"]},
+      "es": {"display":"Apoyo","status":"official-public","sources":["lastwar.com/es"]}
+    },
+    "stat.hp": {
+      "en": {"display":"HP","status":"official-public","sources":["Last War Help Center"]},
+      "fr": {"display":"PV","status":"official-public","sources":["Last War Centre d'Aide"]},
+      "it": {"display":"PS","status":"platform-localized","sources":["Google Play editorial / Last War"]},
+      "es": {"display":"PV","status":"platform-localized","sources":["Google Play editorial / Last War"]}
+    },
+    "stat.attack": {
+      "en": {"display":"Attack","status":"official-public","sources":["Last War Help Center"]},
+      "fr": {"display":"Attaque","status":"official-public","sources":["Last War Centre d'Aide"]},
+      "it": {"display":"Attacco","status":"platform-localized","sources":["Google Play editorial / Last War"]},
+      "es": {"display":"Ataque","status":"platform-localized","sources":["Google Play editorial / Last War"]}
+    },
+    "stat.defense": {
+      "en": {"display":"Defense","status":"official-public","sources":["Last War Help Center"]},
+      "fr": {"display":"Défense","status":"official-public","sources":["Last War Centre d'Aide"]},
+      "it": {"display":"Difesa","status":"platform-localized","sources":["Google Play editorial / Last War"]},
+      "es": {"display":"Defensa","status":"platform-localized","sources":["Google Play editorial / Last War"]}
+    },
+    "gear.category": {
+      "en": {"display":"Gear","status":"platform-localized","sources":["Google Play editorial / Last War"]},
+      "fr": {"display":"Équipement","status":"official-public","sources":["Last War Centre d'Aide"]},
+      "it": {"display":"Equipaggiamento","status":"platform-localized","sources":["Google Play editorial / Last War"]},
+      "es": {"display":"Equipamiento","status":"platform-localized","sources":["Google Play editorial / Last War"]}
+    },
+    "gear.gun": {
+      "en": {"display":"Cannon","status":"platform-localized","observedVariants":["Cannon","Railgun","turret"],"finalInGame":"pending","sources":["Google Play editorial / Last War","Last War Help Center"]},
+      "fr": {"display":"Canon","status":"platform-localized","observedVariants":["Canon","canon magnétique","Tourelle"],"finalInGame":"pending","sources":["Google Play editorial / Last War","Last War Centre d'Aide"]},
+      "it": {"display":"Cannone","status":"platform-localized","observedVariants":["Cannone","Cannone a rotaia"],"finalInGame":"pending","sources":["Google Play editorial / Last War"]},
+      "es": {"display":"Cañón","status":"platform-localized","observedVariants":["Cañón","Cañón de Riel"],"finalInGame":"pending","sources":["Google Play editorial / Last War"]}
+    },
+    "gear.armor": {
+      "en": {"display":"Armor","status":"platform-localized","sources":["Google Play editorial / Last War"]},
+      "fr": {"display":"Armure","status":"platform-localized","sources":["Google Play editorial / Last War"]},
+      "it": {"display":"Armatura","status":"platform-localized","sources":["Google Play editorial / Last War"]},
+      "es": {"display":"Armadura","status":"platform-localized","sources":["Google Play editorial / Last War"]}
+    },
+    "gear.chip": {
+      "en": {"display":"Chip","status":"official-public","sources":["Last War Help Center"]},
+      "fr": {"display":"Puce","status":"official-public","sources":["Last War Centre d'Aide"]},
+      "it": {"display":"Chip","status":"platform-localized","sources":["Google Play editorial / Last War"]},
+      "es": {"display":"Chip","status":"platform-localized","sources":["Google Play editorial / Last War"]}
+    },
+    "gear.radar": {
+      "en": {"display":"Radar","status":"platform-localized","sources":["Google Play editorial / Last War"]},
+      "fr": {"display":"Radar","status":"platform-localized","sources":["Google Play editorial / Last War"]},
+      "it": {"display":"Radar","status":"platform-localized","sources":["Google Play editorial / Last War"]},
+      "es": {"display":"Radar","status":"platform-localized","sources":["Google Play editorial / Last War"]}
+    },
+    "exclusiveWeapon": {
+      "en": {"display":"Exclusive Weapon","status":"official-public","sources":["Last War Help Center"]},
+      "fr": {"display":"Arme Exclusive","status":"official-public","sources":["Last War Centre d'Aide"]},
+      "it": {"display":null,"status":"pending","sources":[]},
+      "es": {"display":null,"status":"pending","sources":[]}
+    },
+    "squad": {
+      "en": {"display":"Squad","status":"official-public","sources":["Last War Help Center"]},
+      "fr": {"display":"Équipe","status":"official-public","observedVariants":["Équipe","Formation","Escouade"],"finalInGame":"pending","sources":["Last War Centre d'Aide"]},
+      "it": {"display":null,"status":"pending","sources":[]},
+      "es": {"display":null,"status":"pending","sources":[]}
+    },
+    "research.tankMastery": {"en":{"display":"Tank Mastery","status":"pending"},"fr":{"display":null,"status":"pending"},"it":{"display":null,"status":"pending"},"es":{"display":null,"status":"pending"}},
+    "research.aircraftMastery": {"en":{"display":"Aircraft Mastery","status":"pending"},"fr":{"display":null,"status":"pending"},"it":{"display":null,"status":"pending"},"es":{"display":null,"status":"pending"}},
+    "research.missileMastery": {"en":{"display":"Missile Mastery","status":"pending"},"fr":{"display":null,"status":"pending"},"it":{"display":null,"status":"pending"},"es":{"display":null,"status":"pending"}},
+    "objective.crystalBoss": {"en":{"display":"Crystal Boss","status":"pending"},"fr":{"display":null,"status":"pending"},"it":{"display":null,"status":"pending"},"es":{"display":null,"status":"pending"}}
+  },
+  "blockingRule": "Any production UI term with status pending or finalInGame pending must be resolved before the corresponding screen is declared final."
+}
