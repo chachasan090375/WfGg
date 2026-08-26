@@ -1,29 +1,11 @@
 /* WFGG HERO ROSTER V15 — visible hero motion, official semantic icons, stronger rarity identity */
-
-/* The card itself must never animate or flash. */
-.game-hero-card,
-.game-hero-card::before,
-.game-hero-card::after,
-.game-hero-card .hero-card-footer,
-.game-hero-card .hero-role-badge,
-.game-hero-card .hero-rarity-badge,
-.game-hero-card .hero-type-mini,
-.game-hero-card.wfgg-live-card,
-.game-hero-card.wfgg-v10-live,
-.game-hero-card.wfgg-v12-live,
-.game-hero-card.wfgg-v13-live,
-.game-hero-card.wfgg-v14-live,
-.game-hero-card.wfgg-v15-live{animation:none!important;transition:none!important;filter:none!important}
+.game-hero-card,.game-hero-card::before,.game-hero-card::after,.game-hero-card .hero-card-footer,.game-hero-card .hero-role-badge,.game-hero-card .hero-rarity-badge,.game-hero-card .hero-type-mini,.game-hero-card.wfgg-live-card,.game-hero-card.wfgg-v10-live,.game-hero-card.wfgg-v12-live,.game-hero-card.wfgg-v13-live,.game-hero-card.wfgg-v14-live,.game-hero-card.wfgg-v15-live{animation:none!important;transition:none!important;filter:none!important}
 .game-hero-card::before,.game-hero-card.wfgg-live-card::before,.game-hero-card.wfgg-v10-live::before,.game-hero-card.wfgg-v12-live::before,.game-hero-card.wfgg-v13-live::before,.game-hero-card.wfgg-v14-live::before,.game-hero-card.wfgg-v15-live::before{display:none!important;content:none!important;opacity:0!important;animation:none!important}
-
-/* Owned state must not paint a cyan frame over rarity. */
 .game-hero-card.owned::after{border:0!important;box-shadow:none!important;background:transparent!important}
 
-/* Strong Last War rarity palette — frame, portrait atmosphere and footer all agree. */
 .game-hero-card.rarity-UR{border-color:#e8a21e!important;background:linear-gradient(145deg,#ffd469 0%,#d37a17 52%,#7b3f0d 100%)!important;box-shadow:0 2px 3px #0007,inset 0 0 0 1px #fff1b4!important}
 .game-hero-card.rarity-SSR{border-color:#8c4fc8!important;background:linear-gradient(145deg,#c887ff 0%,#7135a5 52%,#3b1d62 100%)!important;box-shadow:0 2px 3px #0007,inset 0 0 0 1px #e5c3ff!important}
 .game-hero-card.rarity-SR{border-color:#2d91c4!important;background:linear-gradient(145deg,#67d7ff 0%,#257cae 52%,#15496c 100%)!important;box-shadow:0 2px 3px #0007,inset 0 0 0 1px #b9efff!important}
-
 .game-hero-card .hero-card-portrait{position:absolute!important;overflow:hidden!important;isolation:isolate!important}
 .game-hero-card.rarity-UR .hero-card-portrait{background:radial-gradient(circle at 50% 26%,#72501f 0,#4a331e 38%,#1e2636 100%)!important}
 .game-hero-card.rarity-SSR .hero-card-portrait{background:radial-gradient(circle at 50% 26%,#65447f 0,#332852 42%,#17233b 100%)!important}
@@ -33,59 +15,32 @@
 .game-hero-card.rarity-SSR .hero-card-portrait::after{background:linear-gradient(90deg,#8c45c83a 0,transparent 25%,transparent 75%,#8c45c83a 100%),linear-gradient(0deg,#6c359b52 0,transparent 38%)!important}
 .game-hero-card.rarity-SR .hero-card-portrait::after{background:linear-gradient(90deg,#2d94c947 0,transparent 25%,transparent 75%,#2d94c947 100%),linear-gradient(0deg,#277ba64d 0,transparent 38%)!important}
 
-/* V15 owns the portrait crop. */
-.game-hero-card .hero-card-portrait img,
-.game-hero-card.wfgg-live-card .hero-card-portrait img,
-.game-hero-card.wfgg-v10-live .hero-card-portrait img,
-.game-hero-card.wfgg-v12-live .hero-card-portrait img,
-.game-hero-card.wfgg-v13-live .hero-card-portrait img,
-.game-hero-card.wfgg-v14-live .hero-card-portrait img{
-  position:absolute!important;inset:0!important;width:100%!important;height:100%!important;
-  object-fit:cover!important;object-position:center top!important;
-  transform-origin:50% 22%!important;
-  transform:translate3d(var(--wfgg-v15-x,0%),var(--wfgg-v15-y,2%),0) scale(var(--wfgg-v15-zoom,1))!important;
-  animation:none!important;transition:none!important;filter:saturate(1.035) contrast(1.025)!important;
-  image-rendering:auto!important;backface-visibility:hidden!important;z-index:1!important
-}
+.game-hero-card .hero-card-portrait img,.game-hero-card.wfgg-live-card .hero-card-portrait img,.game-hero-card.wfgg-v10-live .hero-card-portrait img,.game-hero-card.wfgg-v12-live .hero-card-portrait img,.game-hero-card.wfgg-v13-live .hero-card-portrait img,.game-hero-card.wfgg-v14-live .hero-card-portrait img{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:cover!important;object-position:center top!important;transform-origin:50% 22%!important;transform:translate3d(var(--wfgg-v15-x,0%),var(--wfgg-v15-y,2%),0) scale(var(--wfgg-v15-zoom,1))!important;animation:none!important;transition:none!important;filter:saturate(1.035) contrast(1.025)!important;image-rendering:auto!important;backface-visibility:hidden!important;z-index:1!important}
+.game-hero-card.wfgg-v15-live .hero-card-portrait img{animation:wfgg-v15-character-live 2.02s cubic-bezier(.19,.73,.21,1) var(--wfgg-v15-delay,0ms) 1 both!important;will-change:transform,filter!important}
+@keyframes wfgg-v15-character-live{0%{transform:translate3d(var(--wfgg-v15-x,0%),var(--wfgg-v15-y,2%),0) scale(var(--wfgg-v15-zoom,1));filter:saturate(1.035) contrast(1.025)}22%{transform:translate3d(calc(var(--wfgg-v15-x,0%) - 3.2%),calc(var(--wfgg-v15-y,2%) - 1.2%),0) scale(calc(var(--wfgg-v15-zoom,1) + .025)) rotate(-.35deg);filter:saturate(1.06) contrast(1.03)}52%{transform:translate3d(calc(var(--wfgg-v15-x,0%) + 3.8%),calc(var(--wfgg-v15-y,2%) - 4.6%),0) scale(calc(var(--wfgg-v15-zoom,1) + .072)) rotate(.48deg);filter:saturate(1.10) contrast(1.045) brightness(1.025)}76%{transform:translate3d(calc(var(--wfgg-v15-x,0%) - 1.7%),calc(var(--wfgg-v15-y,2%) - 2.0%),0) scale(calc(var(--wfgg-v15-zoom,1) + .032)) rotate(-.18deg);filter:saturate(1.07) contrast(1.035)}100%{transform:translate3d(var(--wfgg-v15-x,0%),var(--wfgg-v15-y,2%),0) scale(var(--wfgg-v15-zoom,1));filter:saturate(1.035) contrast(1.025)}}
 
-/* Deliberately perceptible movement: roughly 5–8 px on a phone card, frame stays fixed. */
-.game-hero-card.wfgg-v15-live .hero-card-portrait img{
-  animation:wfgg-v15-character-live 2.02s cubic-bezier(.19,.73,.21,1) var(--wfgg-v15-delay,0ms) 1 both!important;
-  will-change:transform,filter!important
-}
-@keyframes wfgg-v15-character-live{
-  0%{transform:translate3d(var(--wfgg-v15-x,0%),var(--wfgg-v15-y,2%),0) scale(var(--wfgg-v15-zoom,1));filter:saturate(1.035) contrast(1.025)}
-  22%{transform:translate3d(calc(var(--wfgg-v15-x,0%) - 3.2%),calc(var(--wfgg-v15-y,2%) - 1.2%),0) scale(calc(var(--wfgg-v15-zoom,1) + .025)) rotate(-.35deg);filter:saturate(1.06) contrast(1.03)}
-  52%{transform:translate3d(calc(var(--wfgg-v15-x,0%) + 3.8%),calc(var(--wfgg-v15-y,2%) - 4.6%),0) scale(calc(var(--wfgg-v15-zoom,1) + .072)) rotate(.48deg);filter:saturate(1.10) contrast(1.045) brightness(1.025)}
-  76%{transform:translate3d(calc(var(--wfgg-v15-x,0%) - 1.7%),calc(var(--wfgg-v15-y,2%) - 2.0%),0) scale(calc(var(--wfgg-v15-zoom,1) + .032)) rotate(-.18deg);filter:saturate(1.07) contrast(1.035)}
-  100%{transform:translate3d(var(--wfgg-v15-x,0%),var(--wfgg-v15-y,2%),0) scale(var(--wfgg-v15-zoom,1));filter:saturate(1.035) contrast(1.025)}
-}
-
-/* Footer follows rarity instead of always being purple. */
 .game-hero-card.rarity-UR .hero-card-footer{background:linear-gradient(180deg,#9a621c 0,#6c3b12 48%,#45250c 100%)!important;border-top-color:#f4c558!important;box-shadow:inset 0 1px #fff3b033!important}
 .game-hero-card.rarity-SSR .hero-card-footer{background:linear-gradient(180deg,#71419e 0,#4c276f 48%,#2e194d 100%)!important;border-top-color:#c58bf0!important;box-shadow:inset 0 1px #f2d9ff2b!important}
 .game-hero-card.rarity-SR .hero-card-footer{background:linear-gradient(180deg,#277fa9 0,#1c6086 48%,#12425f 100%)!important;border-top-color:#78d8f5!important;box-shadow:inset 0 1px #d9f7ff2b!important}
 .wfgg-v10-name{font-size:10px!important;line-height:13px!important;text-shadow:0 1px 2px #000!important}
-.wfgg-v10-flags{gap:4px!important;overflow:visible!important}
+.wfgg-v10-flags .wfgg-v10-type,.wfgg-v10-flags .wfgg-v10-role{display:none!important}
+.wfgg-v10-flags{justify-content:flex-end!important;padding-right:2px!important;overflow:visible!important}
 
-/* Official Last War semantic icons — no ATK/DEF/Tank text visible. */
 .wfgg-v15-semantic-icon{width:18px;height:14px;display:inline-grid!important;place-items:center!important;border-radius:3px;border:1px solid #ffffff45;background:#1118279c;padding:1px!important;box-sizing:border-box;overflow:hidden;flex:0 0 auto}
 .wfgg-v15-semantic-icon img{display:block!important;width:13px!important;height:13px!important;object-fit:contain!important;filter:drop-shadow(0 1px 1px #0009)!important}
 .wfgg-v15-sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
-.wfgg-v10-flags>.wfgg-v15-semantic-icon{height:12px;width:18px}
-.wfgg-v10-flags>.wfgg-v15-semantic-icon img{width:11px!important;height:11px!important}
-#heroGameSheet .hero-sheet-tag.wfgg-v15-sheet-icon{min-width:34px!important;height:30px!important;padding:3px!important;display:grid!important;place-items:center!important;background:#172841c9!important;border-color:#7089a7!important}
-#heroGameSheet .hero-sheet-tag.wfgg-v15-sheet-icon .wfgg-v15-semantic-icon{width:27px;height:24px;border:0;background:transparent;padding:0!important}
-#heroGameSheet .hero-sheet-tag.wfgg-v15-sheet-icon img{width:23px!important;height:23px!important}
+.wfgg-v15-card-semantics{position:absolute!important;left:4px!important;bottom:3px!important;z-index:14!important;height:12px!important;display:flex!important;align-items:center!important;gap:3px!important;pointer-events:none!important}
+.wfgg-v15-card-semantics .wfgg-v15-semantic-icon{height:12px!important;width:18px!important}
+.wfgg-v15-card-semantics .wfgg-v15-semantic-icon img{width:11px!important;height:11px!important}
+
+#heroGameSheet .hero-sheet-tags>.hero-sheet-tag:nth-child(1),#heroGameSheet .hero-sheet-tags>.hero-sheet-tag:nth-child(2){display:none!important}
+#heroGameSheet .hero-sheet-title{position:relative!important}
+#heroGameSheet .wfgg-v15-sheet-semantics{display:flex!important;gap:5px!important;justify-content:center!important;align-items:center!important;margin-top:4px!important;min-height:28px!important}
+#heroGameSheet .wfgg-v15-sheet-semantics .wfgg-v15-semantic-icon{width:30px!important;height:26px!important;padding:2px!important;background:#172841c9!important;border-color:#7089a7!important}
+#heroGameSheet .wfgg-v15-sheet-semantics .wfgg-v15-semantic-icon img{width:23px!important;height:23px!important}
 #heroGameSheet .hero-sheet-tag.rarity-UR{background:linear-gradient(#b87b24,#774315)!important;border-color:#e7b64a!important;color:#ffe093!important}
 #heroGameSheet .hero-sheet-tag.rarity-SSR{background:linear-gradient(#7446a1,#472864)!important;border-color:#b87ce8!important;color:#ead2ff!important}
 #heroGameSheet .hero-sheet-tag.rarity-SR{background:linear-gradient(#2c82ad,#1a5678)!important;border-color:#68cbea!important;color:#c9f4ff!important}
 
-/* Keep semantic/footer layers stable while portrait moves. */
-.wfgg-v10-footer,.wfgg-v10-name,.wfgg-v10-meta,.wfgg-v10-flags,.wfgg-v15-semantic-icon{animation:none!important;transition:none!important;transform:none!important;filter:none!important}
-
-@media(max-width:430px){
-  .wfgg-v10-name{font-size:9.6px!important}
-  .wfgg-v15-semantic-icon{width:17px;height:12px}
-  .wfgg-v15-semantic-icon img{width:11px!important;height:11px!important}
-}
+.wfgg-v10-footer,.wfgg-v10-name,.wfgg-v10-meta,.wfgg-v10-flags,.wfgg-v15-semantic-icon,.wfgg-v15-card-semantics,.wfgg-v15-sheet-semantics{animation:none!important;transition:none!important;filter:none!important}
+@media(max-width:430px){.wfgg-v10-name{font-size:9.6px!important}.wfgg-v15-card-semantics .wfgg-v15-semantic-icon{width:17px!important}}
