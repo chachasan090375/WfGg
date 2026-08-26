@@ -1,8 +1,17 @@
 {
-  "version":"1.0.0-research",
+  "version":"1.1.0-research",
   "auditedAt":"2026-08-26",
-  "policy":"A card affects a simulation only when its current audited context explicitly matches the objective. Unknown or conflicting contexts remain inactive.",
-  "profile":{"phaseAllowed":["season6","offseason"],"coreSlots":2,"battleSlots":4,"resourceSlots":4},
+  "policy":"A card affects a simulation only when its current audited context explicitly matches the objective. Unknown, stale or conflicting contexts remain inactive.",
+  "profile":{
+    "phaseAllowed":["season6","offseason"],
+    "coreSlots":2,
+    "battleSlots":4,
+    "resourceSlots":4,
+    "perCoreCopyFields":["cardId","level","enabled","values","secondaryText"],
+    "perBattleCopyFields":["cardId","level","bonusLevels","enabled","values","secondaryText","confirmWantedApplicability"],
+    "globalExpeditionNonCoreTotalLevel":"stored separately; main PvP-only card effects are not inferred to apply in Expedition",
+    "secondaryAttributePolicy":"preserve exact per-copy client text; do not score it until the attribute has a typed context and verified formula"
+  },
   "objectiveContextMap":{
     "wanted-39":["wanted-39","wanted"],
     "wanted-64":["wanted-64","wanted"],
@@ -17,14 +26,15 @@
       "inputs":["attackPct","defensePct","hpPct"],
       "scoreEffects":{"attackPct":"attackPct"},
       "survivalEffects":{"defensePct":"defensePct","hpPct":"hpPct"},
-      "note":"World PvE only. Never auto-applied to Wanted Codes without in-game confirmation."
+      "wantedOverride":"disabled by default. It can only be enabled through confirmWantedApplicability after explicit in-game or battle-report proof.",
+      "note":"World PvE only under current evidence; never silently auto-applied to Wanted Codes."
     },
     "core-purgator-monster-slayer":{
       "availability":"season-and-offseason",
       "contexts":["pve-monsters"],
       "selector":"all-allies",
       "inputs":["resistanceFlat","monsterDamageReductionPct"],
-      "survivalEffects":{"monsterDamageReductionPct":"monsterDamageReductionPct"},
+      "survivalEffects":{"resistanceFlat":"resistanceFlat","monsterDamageReductionPct":"monsterDamageReductionPct"},
       "durationSeconds":900,
       "note":"Survival layer only; does not increase offensive Code score."
     },
