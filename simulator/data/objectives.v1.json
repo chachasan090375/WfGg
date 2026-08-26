@@ -1,0 +1,93 @@
+{
+  "version": "1.0.0",
+  "objectives": [
+    {
+      "id": "wanted-39",
+      "label": "Wanted Boss 39 — Mutant Bulldog",
+      "mode": "single-hit-pve",
+      "preferredTroopType": "aircraft",
+      "rules": {
+        "bossDoesNotAttack": true,
+        "durationSeconds": 90,
+        "typeBonus": {"targetType":"aircraft","damagePct":50}
+      }
+    },
+    {
+      "id": "wanted-64",
+      "label": "Wanted Boss 64 — Frankenstein",
+      "mode": "single-hit-pve",
+      "preferredTroopType": "missile",
+      "rules": {
+        "bossDoesNotAttack": true,
+        "durationSeconds": 90,
+        "typeBonus": {"targetType":"missile","damagePct":50}
+      }
+    },
+    {
+      "id": "wanted-87",
+      "label": "Wanted Boss 87 — Frenzied Butcher",
+      "mode": "single-hit-pve",
+      "preferredTroopType": "tank",
+      "rules": {
+        "bossDoesNotAttack": true,
+        "durationSeconds": 90,
+        "typeBonus": {"targetType":"tank","damagePct":50}
+      }
+    },
+    {
+      "id": "crystal-boss",
+      "label": "Crystal Boss — Crystal Event",
+      "mode": "single-hit-pve-event",
+      "availability": {
+        "serverGate": "Season 1 Day 1 or later; Base level 20+",
+        "schedule": "Monday-Saturday",
+        "dailyAttempts": 3,
+        "longTermAvailability": "event/rotation controlled; keep feature-flagged"
+      },
+      "rules": {
+        "rallyAllowed": false,
+        "recallAllowed": false,
+        "troopCounterMechanic": false,
+        "sameTroopTypeFiveBonus": {"attackDamagePct":30,"condition":"5 heroes of same troop type"},
+        "dailyDefenseHeroBonus": {
+          "enabled": true,
+          "damagePctPerEligibleHero": 20,
+          "stacking": true,
+          "eligibleHeroes": "dynamic-daily-input"
+        },
+        "disabledBuffs": [
+          "War Fever",
+          "Charge Battle Flag",
+          "Tactics Card active skills",
+          "Season Military Rank bonuses",
+          "fish buffs",
+          "PvE Tactics Cards"
+        ],
+        "phases": ["Weapon","Radar","Chip","Armor","Core"],
+        "scoreRule": "best single hit for weekly damage progress"
+      },
+      "optimizerNotes": [
+        "Do not apply Tank/Aircraft/Missile counter triangle.",
+        "Evaluate mono-type squads explicitly because the +30% condition is unique to this objective.",
+        "Daily eligible Defense Heroes must be user-selectable because the list can rotate.",
+        "Do not assume seasonal/PvE temporary buffs apply unless explicitly whitelisted."
+      ]
+    },
+    {
+      "id": "best-squads",
+      "label": "Meilleures escouades disponibles",
+      "mode": "multi-squad-optimizer",
+      "rules": {
+        "squadCountOptions": [3,4],
+        "defaultSquadCount": 3,
+        "fourthSquadRequirement": "Super Monthly Pass active",
+        "heroesCannotBeReused": true,
+        "gearCannotBeReused": true,
+        "exclusiveWeaponFollowsHero": true,
+        "squadResearchIsSlotSpecific": true,
+        "droneChipPresetAllocationMustBeRespected": true
+      },
+      "contexts": ["general-pvp","arena-3v3","world-map","season-6"]
+    }
+  ]
+}
