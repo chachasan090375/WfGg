@@ -1,0 +1,160 @@
+name: Simulator hero UX v9
+
+on:
+  push:
+    branches: [simulator-standalone-v1]
+    paths:
+      - 'simulator/hero-ux-v9.css'
+      - 'simulator/hero-ux-v9.js'
+      - '.github/workflows/simulator-hero-ux-v9.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: simulator-hero-ux-v9
+  cancel-in-progress: false
+
+jobs:
+  deploy-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: simulator-standalone-v1
+          fetch-depth: 0
+
+      - name: Validate V9 JavaScript
+        run: node --check simulator/hero-ux-v9.js
+
+      - name: Mirror V9 assets and wire both simulator entries
+        run: |
+          set -euo pipefail
+          cp simulator/hero-ux-v9.css frontend/simulator/hero-ux-v9.css
+          cp simulator/hero-ux-v9.js frontend/simulator/hero-ux-v9.js
+          python3 - <<'PY'
+          from pathlib import Path
+          css='  <link rel="stylesheet" href="hero-ux-v9.css?v=009-selective-motion-gear-ew" />\n'
+          js='  <script src="hero-ux-v9.js?v=009-selective-motion-gear-ew"></script>\n'
+          for name in ('simulator/index.html','frontend/simulator/index.html'):
+              p=Path(name); s=p.read_text(encoding='utf-8')
+              if 'hero-ux-v9.css' not in s:
+                  marker='  <link rel="stylesheet" href="hero-sheet-closed-v8.css?v=008-closed-pointer" />\n'
+                  if marker not in s: raise SystemExit(f'CSS marker missing in {name}')
+                  s=s.replace(marker,marker+css,1)
+              if 'hero-ux-v9.js' not in s:
+                  marker='  <script src="hero-touch-v6.js?v=006-touch"></script>\n'
+                  if marker not in s: raise SystemExit(f'JS marker missing in {name}')
+                  s=s.replace(marker,marker+js,1)
+              p.write_text(s,encoding='utf-8')
+          Path('simulator/UI_VERSION.txt').write_text(
+              'HERO_UX_V9\nselective 5-6 card motion / global gear picker / exclusive weapon visual tiers 1-10-20-30\n2026-08-26\n',
+              encoding='utf-8'
+          )
+          PY
+          grep -Fq 'hero-ux-v9.css?v=009-selective-motion-gear-ew' simulator/index.html
+          grep -Fq 'hero-ux-v9.js?v=009-selective-motion-gear-ew' simulator/index.html
+          grep -Fq 'hero-ux-v9.css?v=009-selective-motion-gear-ew' frontend/simulator/index.html
+          grep -Fq 'hero-ux-v9.js?v=009-selective-motion-gear-ew' frontend/simulator/index.html
+
+      - name: Commit V9 wiring
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add simulator/index.html simulator/UI_VERSION.txt frontend/simulator/index.html frontend/simulator/hero-ux-v9.css frontend/simulator/hero-ux-v9.js
+          git diff --cached --check
+          if git diff --cached --quiet; then
+            echo 'No V9 wiring changes to commit'
+          else
+            git commit -m 'simulator: enable hero UX v9'
+            git fetch origin simulator-standalone-v1
+            git rebase origin/simulator-standalone-v1
+            git push origin HEAD:simulator-standalone-v1
+          fi
+
+      - name: Verify public V9 propagation
+        run: |
+          set -euo pipefail
+          ROOT='https://simulator-standalone-v1.wfgg.pages.dev/simulator'
+          for i in $(seq 1 45); do
+            curl -fsSL "$ROOT/?hero_ux_v9=$i" -o /tmp/index.html || true
+            cssok=0; jsok=0
+            if grep -Fq 'hero-ux-v9.css?v=009-selective-motion-gear-ew' /tmp/index.html; then
+              curl -fsSL "$ROOT/hero-ux-v9.css?v=009-selective-motion-gear-ew&n=$i" | grep -Fq 'wfgg-live-card' && cssok=1 || true
+            fi
+            if grep -Fq 'hero-ux-v9.js?v=009-selective-motion-gear-ew' /tmp/index.html; then
+              curl -fsSL "$ROOT/hero-ux-v9.js?v=009-selective-motion-gear-ew&n=$i" | grep -Fq 'WfGgHeroUxV9' && jsok=1 || true
+            fi
+            echo "attempt=$i css=$cssok js=$jsok"
+            if [ "$cssok" = 1 ] && [ "$jsok" = 1 ]; then exit 0; fi
+            sleep 3
+          done
+          exit 1
+
+      - name: Install Playwright
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: Android V9 interaction recette
+        run: |
+          node <<'JS'
+          const assert=require('node:assert/strict');
+          const {chromium}=require('playwright');
+          (async()=>{
+            const browser=await chromium.launch({headless:true});
+            try{
+              const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,deviceScaleFactor:2,locale:'fr-FR'});
+              await context.addInitScript(()=>{
+                if(!location.hostname.includes('wfgg.pages.dev')) return;
+                const p={
+                  locale:'fr',step:1,
+                  account:{hqLevel:35,activeSquads:3,superMonthlyPass:false,troopTier:'T10',troopCenters:{tankLevel:35,aircraftLevel:35,missileLevel:35},marchSizeAdditional:{survivorShirleyBonus:0,decorationsBonus:0}},
+                  heroes:[
+                    {heroId:'Williams',troopType:'tank',role:'defense',rarity:'UR',level:175,stars:5,exclusiveWeaponLevel:20,wallOfHonorLevel:0},
+                    {heroId:'Murphy',troopType:'tank',role:'defense',rarity:'UR',level:175,stars:5,exclusiveWeaponLevel:10,wallOfHonorLevel:0}
+                  ],
+                  gear:[
+                    {itemId:'Railgun A',slot:'gun',rarity:'UR',level:40,stars:3,promotion:0,currentlyAssignedHero:'Williams'},
+                    {itemId:'Railgun B',slot:'gun',rarity:'UR',level:40,stars:4,promotion:1,currentlyAssignedHero:'Murphy'},
+                    {itemId:'Armor A',slot:'armor',rarity:'UR',level:40,stars:2,promotion:0,currentlyAssignedHero:'Williams'},
+                    {itemId:'Chip A',slot:'chip',rarity:'SSR',level:35,stars:1,promotion:0,currentlyAssignedHero:''}
+                  ],
+                  research:{},season6:{totemLevels:{bearTank:0,eagleAircraft:0,jaguarMissile:0},tacticsCards:{dimensionalCrit:0,frontalSuppression:0,aftermathBurst:0}},
+                  metadata:{schema:'wfgg-simulator-profile-v1',updatedAt:new Date().toISOString()}
+                };
+                localStorage.setItem('wfgg-simulator-profile-v1',JSON.stringify(p));
+              });
+              const page=await context.newPage(); const errors=[]; page.on('pageerror',e=>errors.push(String(e)));
+              await page.goto('https://simulator-standalone-v1.wfgg.pages.dev/simulator/?hero_ux_v9_e2e=1',{waitUntil:'networkidle',timeout:60000});
+              const cards=page.locator('.game-hero-card'); await cards.first().waitFor({state:'visible',timeout:30000}); assert.equal(await cards.count(),31);
+              await page.waitForFunction(()=>{const n=document.querySelectorAll('.game-hero-card.wfgg-live-card').length;return n>=5&&n<=6},null,{timeout:6000});
+              const animated=await page.locator('.game-hero-card.wfgg-live-card').count(); assert.ok(animated>=5&&animated<=6);
+
+              await page.locator('.game-hero-card[data-hero-id="williams"]').tap();
+              await page.locator('#heroGameSheet.open .lw4-stage').waitFor({state:'visible',timeout:10000});
+              const gearSlots=page.locator('#heroGameSheet.open .lw4-gear.wfgg-gear-slot'); assert.equal(await gearSlots.count(),4);
+              assert.deepEqual(await gearSlots.evaluateAll(xs=>xs.map(x=>x.dataset.gearSlot)),['gun','armor','chip','radar']);
+              await page.locator('#heroGameSheet.open .lw4-gear[data-gear-slot="gun"]').tap();
+              await page.locator('#wfggGearPicker.open').waitFor({state:'visible'});
+              assert.equal(await page.locator('#wfggGearPicker [data-gear-index="1"]').count(),1);
+              await page.locator('#wfggGearPicker [data-gear-index="1"]').tap();
+              await page.waitForTimeout(250);
+              const assigned=await page.evaluate(()=>JSON.parse(localStorage.getItem('wfgg-simulator-profile-v1')).gear.map(g=>g.currentlyAssignedHero));
+              assert.equal(assigned[0],''); assert.equal(assigned[1],'Williams');
+              await page.locator('#wfggGearPicker [data-picker-close]').first().tap();
+
+              await page.locator('[data-sheet-tab="weapon"]').tap();
+              await page.locator('.lw4-weapon-stage[data-wfgg-ew="tier20"]').waitFor({state:'visible',timeout:10000});
+              const anim20=await page.locator('.lw4-weapon-stage .lw4-weapon-art').evaluate(el=>getComputedStyle(el).animationName); assert.match(anim20,/tier20/);
+              const ew=page.locator('[data-lw4-weapon-level]'); await ew.fill('30'); await ew.dispatchEvent('change');
+              await page.locator('.lw4-weapon-stage[data-wfgg-ew="tier30"]').waitFor({state:'visible',timeout:10000});
+              const anim30=await page.locator('.lw4-weapon-stage .lw4-weapon-art').evaluate(el=>getComputedStyle(el).animationName); assert.match(anim30,/tier30/); assert.notEqual(anim20,anim30);
+              const metric=await page.evaluate(()=>({w:innerWidth,sw:(document.scrollingElement||document.documentElement).scrollWidth}));assert.ok(metric.sw<=metric.w+2);
+              assert.equal(errors.length,0,errors.join(' | '));
+              console.log(JSON.stringify({ok:true,cards:31,animated,gearSlots:4,gearTransfer:true,exclusiveWeapon:{level20:anim20,level30:anim30},metric},null,2));
+            } finally {await browser.close()}
+          })().catch(e=>{console.error(e);process.exit(1)});
+          JS
