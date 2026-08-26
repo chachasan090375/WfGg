@@ -1,5 +1,5 @@
 {
-  "version": "1.1.0-research",
+  "version": "1.2.0-research",
   "auditedAt": "2026-08-26",
   "purpose": "Model hero placement independently from squad composition so positional and adjacency buffs can affect optimization without inventing unverified hero effects.",
   "positions": [
@@ -26,37 +26,14 @@
       "back-right": ["front-right","back-center"]
     }
   },
-  "targetSelectors": [
-    "self",
-    "all-allies",
-    "all-other-allies",
-    "same-row",
-    "front-row",
-    "back-row",
-    "adjacent",
-    "explicit-slots",
-    "highest-atk",
-    "lowest-atk",
-    "same-troop-type",
-    "different-troop-type"
-  ],
-  "offensiveStats": [
-    "attack",
-    "damage",
-    "skillDamage",
-    "critRate",
-    "critDamage",
-    "attackSpeed",
-    "cooldownReduction",
-    "pveDamage",
-    "monsterDamage",
-    "targetDamageTaken"
-  ],
+  "targetSelectors": ["self","all-allies","all-other-allies","same-row","front-row","back-row","adjacent","explicit-slots","highest-atk","lowest-atk","same-troop-type","different-troop-type"],
+  "offensiveStats": ["attack","damage","skillDamage","critRate","critDamage","attackSpeed","cooldownReduction","pveDamage","monsterDamage","targetDamageTaken"],
   "effectSchema": {
     "required": ["id","providerHeroId","selector","stat","stacking","contexts","confidence"],
-    "optional": ["value","valueSourceField","troopTypeFilter","roleFilter","damageTypeFilter","explicitSlots","condition","durationSeconds","source","notes"],
+    "optional": ["value","valueSourceField","providerRarity","providerTroopType","troopTypeFilter","roleFilter","damageTypeFilter","explicitSlots","condition","durationSeconds","durationSourceField","cooldownSeconds","cooldownSourceField","timeAggregation","source","notes"],
     "confidenceAllowed": ["verified","strong-community","needs-in-game-validation"],
-    "productionRule": "Effects marked needs-in-game-validation must not change a production recommendation by default. A verified structural effect may still require the player's current displayed percentage instead of guessing a value."
+    "productionRule": "Effects marked needs-in-game-validation must not change a production recommendation by default. A verified structural effect may still require the player's current displayed value instead of guessing a curve.",
+    "timedRule": "Timed effects may use average-uptime only as a research proxy until exact cast timelines are calibrated."
   },
   "verifiedHeroEffects": [
     {
@@ -71,21 +48,15 @@
       "confidence": "verified",
       "condition": "Mason is deployed; targets are Tank heroes occupying one of the three back-row slots.",
       "source": "https://play.google.com/store/apps/editorial?id=mc_games_editorialevergreen_postinstall_troops_in_last_war_survival_fcp",
-      "notes": "Google Play's localized Last War editorial confirms that Zombie Purge boosts Tank heroes in the back row. The exact current percentage varies with the hero/skill state, so WfGg requires the displayed current percentage from the player instead of hard-coding an unverified curve."
+      "notes": "Google Play confirms the structural back-row Tank monster-damage effect. WfGg uses the player's current displayed percentage instead of hard-coding a skill curve."
     }
   ],
-  "researchedNotYetProductionEffects": [
-    {
-      "id": "sarah-back-row-monster-damage",
-      "providerHeroId": "Sarah",
-      "status": "needs-variant-and-current-value-input",
-      "reason": "SSR MG Symphony and UR Falcon Strike both affect back-row monster damage but use different targeting/value/duration rules; WfGg will not collapse them into one effect until promotion state and exact current skill values are represented."
-    }
-  ],
+  "heroEffectCatalog": "hero-combat-effects.v1.json",
+  "catalogNote": "Sarah SSR/UR and non-positional timed support effects now live in hero-combat-effects.v1.json so variant logic is not duplicated here.",
   "pendingWork": [
     "Populate additional hero skill effects from audited sources or in-game captures.",
     "Confirm the exact geometry used by skills whose wording only says adjacent.",
     "Record whether each positional buff affects the provider, targets, or both and whether it stacks.",
-    "Add Sarah SSR/UR as separate effect variants rather than mixing their different skill rules."
+    "Calibrate timed buffs against real combat reports instead of relying permanently on average uptime."
   ]
 }
