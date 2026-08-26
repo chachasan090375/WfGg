@@ -9,6 +9,7 @@
   };
 
   function n(v, fallback=0){const x=Number(v);return Number.isFinite(x)?x:fallback;}
+  function norm(v){return String(v??'').trim().toLowerCase();}
 
   function permutations(items){
     if(items.length<=1) return [items.slice()];
@@ -28,17 +29,17 @@
 
   function heroAt(placement, position){return placement[position]||null;}
   function entries(placement){return POSITIONS.map(position=>({position,hero:heroAt(placement,position)})).filter(x=>x.hero);}
-  function findProviderPosition(placement, heroId){return entries(placement).find(x=>x.hero.heroId===heroId)?.position||null;}
+  function findProviderEntry(placement, heroId){const wanted=norm(heroId);return entries(placement).find(x=>norm(x.hero.heroId)===wanted)||null;}
+  function findProviderPosition(placement, heroId){return findProviderEntry(placement,heroId)?.position||null;}
 
   function sameRowPositions(position){
     return position.startsWith('front-') ? ['front-left','front-right'] : ['back-left','back-center','back-right'];
   }
 
   function selectorTargets(effect, placement, geometry){
-    const providerPosition=findProviderPosition(placement,effect.providerHeroId);
-    if(!providerPosition) return [];
-    const provider=heroAt(placement,providerPosition);
-    const all=entries(placement);
+    const providerEntry=findProviderEntry(placement,effect.providerHeroId);
+    if(!providerEntry) return [];
+    const providerPosition=providerEntry.position, provider=providerEntry.hero, all=entries(placement);
     let targetPositions=[];
     switch(effect.selector){
       case 'self': targetPositions=[providerPosition]; break;
@@ -77,6 +78,14 @@
     return contexts.includes('all') || contexts.includes('pve') || contexts.includes('wanted') || contexts.includes(objectiveId);
   }
 
+  function effectValue(effect, placement){
+    if(effect.valueSourceField){
+      const provider=findProviderEntry(placement,effect.providerHeroId)?.hero;
+      return provider?n(provider[effect.valueSourceField]):0;
+    }
+    return n(effect.value);
+  }
+
   function formationAttackPct(heroes){
     const counts={tank:0,aircraft:0,missile:0};
     heroes.forEach(h=>{if(counts[h.troopType]!=null) counts[h.troopType]++;});
@@ -108,11 +117,13 @@
     const applied=[];
     (effects||[]).forEach(effect=>{
       if(!isEffectActive(effect,objectiveId,options)) return;
+      const value=effectValue(effect,placement);
+      if(!value) return;
       const targets=selectorTargets(effect,placement,geometry);
       targets.forEach(({hero,position})=>{
         const m=modifiers[hero.heroId]; if(!m) return;
         const key=effect.stat.endsWith('Pct')?effect.stat:effect.stat+'Pct';
-        if(key in m){m[key]+=n(effect.value);applied.push({effectId:effect.id,providerHeroId:effect.providerHeroId,targetHeroId:hero.heroId,targetPosition:position,stat:key,value:n(effect.value)});}
+        if(key in m){m[key]+=value;applied.push({effectId:effect.id,providerHeroId:effect.providerHeroId,targetHeroId:hero.heroId,targetPosition:position,stat:key,value});}
       });
     });
     return {modifiers,applied};
@@ -159,8 +170,9 @@
   function optimizePlacement(heroes, objectiveId, config={}){
     if(!Array.isArray(heroes)||heroes.length!==5) throw new Error('Exactly five heroes are required for placement optimization.');
     const ids=heroes.map(h=>h.heroId);
-    if(new Set(ids).size!==5 || ids.some(x=>!x)) throw new Error('Five unique heroId values are required.');
-    const activePositional=(config.heroEffects||[]).some(e=>isEffectActive(e,objectiveId,config.options||{}) && ['same-row','front-row','back-row','adjacent','explicit-slots','highest-atk','lowest-atk'].includes(e.selector));
+    if(new Set(ids.map(norm)).size!==5 || ids.some(x=>!x)) throw new Error('Five unique heroId values are required.');
+    const probe=placementFromHeroes(heroes);
+    const activePositional=(config.heroEffects||[]).some(e=>isEffectActive(e,objectiveId,config.options||{}) && effectValue(e,probe)!==0 && findProviderEntry(probe,e.providerHeroId) && ['same-row','front-row','back-row','adjacent','explicit-slots','highest-atk','lowest-atk'].includes(e.selector));
     const candidates=activePositional?permutations(heroes):[heroes.slice()];
     let best=null;
     candidates.forEach(order=>{
@@ -172,7 +184,7 @@
   }
 
   window.WfGgSimulatorEngine = Object.freeze({
-    version:'1.0.0-research',
+    version:'1.1.0-research',
     POSITIONS:POSITIONS.slice(),
     CODE_OBJECTIVES,
     permutations,
