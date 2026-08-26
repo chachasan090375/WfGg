@@ -1,0 +1,245 @@
+name: Simulator browser E2E v2
+
+on:
+  push:
+    branches: [simulator-standalone-v1]
+    paths:
+      - 'simulator/**'
+      - '.github/workflows/simulator-browser-e2e-v2.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  mobile-e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Playwright Chromium
+        run: |
+          mkdir -p /tmp/wfgg-e2e && cd /tmp/wfgg-e2e
+          npm init -y >/dev/null 2>&1
+          npm install playwright@1.55.0 >/dev/null 2>&1
+          npx playwright install --with-deps chromium >/dev/null
+
+      - name: Full mobile recipe — source and public preview
+        env:
+          NODE_PATH: /tmp/wfgg-e2e/node_modules
+        run: |
+          set -euo pipefail
+          python3 -m http.server 4173 --directory simulator >/tmp/wfgg-source-http.log 2>&1 &
+          server_pid=$!
+          trap 'kill $server_pid 2>/dev/null || true' EXIT
+          for i in {1..40}; do curl -fsS http://127.0.0.1:4173/ >/dev/null && break || sleep .2; done
+
+          cat >/tmp/wfgg-e2e/test.cjs <<'JS'
+          const { chromium } = require('playwright');
+          const PROFILE='wfgg-simulator-profile-v1';
+          const OPT='wfgg-simulator-optimizer-ui-v1';
+          const PUBLIC='https://simulator-standalone-v1.wfgg.pages.dev/simulator/';
+          const LOCAL='http://127.0.0.1:4173/';
+          const assert=(ok,msg)=>{if(!ok)throw new Error(msg)};
+          const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+
+          async function waitPublicFresh(){
+            for(let i=0;i<90;i++){
+              try{
+                const q='?fresh='+Date.now();
+                const [p,o,h]=await Promise.all([
+                  fetch(PUBLIC+'profile-persistence-v2.js'+q).then(r=>r.ok?r.text():''),
+                  fetch(PUBLIC+'overlord-team-summary-v1.js'+q).then(r=>r.ok?r.text():''),
+                  fetch(PUBLIC+'index.html'+q).then(r=>r.ok?r.text():'')
+                ]);
+                if(p.includes("version:'2.4.0'")&&o.includes("version:'1.0.0'")&&h.includes('team-theory-v1.css'))return;
+              }catch(_){}
+              await sleep(2000);
+            }
+            throw new Error('Public preview did not reach persistence 2.4 + Gorilla team summary');
+          }
+
+          async function newPage(browser){
+            const context=await browser.newContext({viewport:{width:412,height:915},isMobile:true,hasTouch:true,deviceScaleFactor:2});
+            const page=await context.newPage();
+            const errors=[];
+            page.on('pageerror',e=>errors.push('pageerror: '+e.message));
+            page.on('console',m=>{if(m.type()==='error')errors.push('console: '+m.text())});
+            return {context,page,errors};
+          }
+
+          async function openClean(page,url){
+            const r=await page.goto(url+'?e2e='+Date.now(),{waitUntil:'domcontentloaded',timeout:30000});
+            assert(r&&r.ok(),'navigation failed '+url);
+            await page.evaluate(()=>localStorage.clear());
+            await page.reload({waitUntil:'domcontentloaded'});
+            await page.waitForFunction(()=>window.WfGgProfilePersistence?.version==='2.4.0',{timeout:12000});
+            await page.waitForFunction(()=>window.WfGgOverlordRuntime?.version==='1.0.1',{timeout:12000});
+            await page.waitForFunction(()=>window.WfGgTeamTheory?.version==='1.0.0',{timeout:12000});
+            await page.waitForSelector('#stepNav [data-step]',{timeout:12000});
+          }
+
+          async function navigationAndAccount(page,errors,label){
+            await page.waitForTimeout(500);
+            assert(errors.length===0,label+' bootstrap errors: '+errors.join(' | '));
+            assert(await page.locator('#stepNav [data-step]').count()===6,label+' must expose 6 steps');
+            for(let i=0;i<6;i++){
+              await page.locator(`#stepNav [data-step="${i}"]`).click();
+              assert(await page.locator('.step-panel:not(.hidden)').count()===1,label+' broken step '+i);
+            }
+            await page.locator('#stepNav [data-step="0"]').click();
+            await page.locator('[data-account="hqLevel"]').fill('31');
+            await page.reload({waitUntil:'domcontentloaded'});
+            await page.waitForSelector('[data-account="hqLevel"]');
+            assert(await page.locator('[data-account="hqLevel"]').inputValue()==='31',label+' HQ lost on immediate reload');
+          }
+
+          const HEROES=[
+            ['Mason','tank','attack',110000,80000,900000,1000000],
+            ['Marshall','tank','support',95000,80000,1000000,900000],
+            ['DVA','aircraft','attack',130000,65000,850000,1200000],
+            ['Carlie','aircraft','defense',85000,115000,1450000,1100000],
+            ['Schuyler','aircraft','attack',120000,62000,820000,1150000]
+          ];
+
+          async function heroes(page){
+            await page.locator('#stepNav [data-step="1"]').click();
+            for(let i=0;i<HEROES.length;i++){
+              await page.locator('#addHero').click();
+              let c=page.locator('.hero-card').nth(i),h=HEROES[i];
+              await c.locator('[data-field="heroId"]').fill(h[0]);
+              c=page.locator('.hero-card').nth(i);await c.locator('[data-field="troopType"]').selectOption(h[1]);
+              c=page.locator('.hero-card').nth(i);await c.locator('[data-field="role"]').selectOption(h[2]);
+              c=page.locator('.hero-card').nth(i);await c.locator('[data-field="displayedAttack"]').fill(String(h[3]));
+              c=page.locator('.hero-card').nth(i);await c.locator('[data-field="displayedDefense"]').fill(String(h[4]));
+              c=page.locator('.hero-card').nth(i);await c.locator('[data-field="displayedHp"]').fill(String(h[5]));
+              c=page.locator('.hero-card').nth(i);await c.locator('[data-field="displayedPower"]').fill(String(h[6]));
+              if(i===0){
+                await page.reload({waitUntil:'domcontentloaded'});
+                await page.waitForSelector('.hero-card');
+                c=page.locator('.hero-card').nth(i);
+                assert(await c.locator('[data-field="heroId"]').inputValue()==='Mason','hero name lost on reload');
+                assert(await c.locator('[data-field="displayedPower"]').inputValue()==='1000000','hero power lost on reload');
+                await page.locator('#stepNav [data-step="1"]').click();
+              }
+            }
+            assert(await page.locator('.hero-card').count()===5,'five heroes expected');
+          }
+
+          async function gorilla(page){
+            await page.locator('#stepNav [data-step="0"]').click();
+            await page.waitForSelector('#overlordProfileV1');
+            const owned=page.locator('[data-overlord="owned"]');if(!(await owned.isChecked()))await owned.check();
+            await page.waitForTimeout(450);
+            const deploy=page.locator('[data-overlord="deployable"]');if(!(await deploy.isChecked()))await deploy.check();
+            await page.waitForTimeout(450);
+            await page.locator('[data-overlord="assignedSquadSlot"]').selectOption('1');
+            await page.locator('[data-overlord="displayedPower"]').fill('500000');
+            await page.waitForSelector('[data-overlord-extra="displayName"]');
+            await page.locator('[data-overlord-extra="displayName"]').fill('Kong E2E');
+            await page.locator('[data-overlord-extra="displayedAttack"]').fill('25000');
+            await page.locator('[data-overlord-extra="displayedDefense"]').fill('20000');
+            await page.locator('[data-overlord-extra="displayedHp"]').fill('300000');
+            await page.reload({waitUntil:'domcontentloaded'});
+            await page.waitForSelector('[data-overlord-extra="displayName"]');
+            assert(await page.locator('[data-overlord-extra="displayName"]').inputValue()==='Kong E2E','custom Gorilla name lost');
+            assert(await page.locator('[data-overlord="assignedSquadSlot"]').inputValue()==='1','Gorilla squad allocation lost');
+            const allocation=await page.evaluate(()=>({a:window.WfGgOverlordRuntime.allocationState(1).included,b:window.WfGgOverlordRuntime.allocationState(2).included}));
+            assert(allocation.a===true&&allocation.b===false,'Gorilla must be unique to one squad');
+          }
+
+          async function gearResearchSeasonTactics(page){
+            await page.locator('#stepNav [data-step="2"]').click();
+            await page.locator('#addGear').click();
+            let g=page.locator('.gear-card').first();
+            await g.locator('[data-field="itemId"]').fill('E2E Railgun');
+            g=page.locator('.gear-card').first();await g.locator('[data-field="level"]').fill('40');
+            await page.reload({waitUntil:'domcontentloaded'});
+            await page.locator('#stepNav [data-step="2"]').click();
+            assert(await page.locator('.gear-card [data-field="itemId"]').first().inputValue()==='E2E Railgun','gear lost on reload');
+
+            await page.locator('#stepNav [data-step="3"]').click();
+            const rl=page.locator('[data-research-level]').first(),id=await rl.getAttribute('data-research-level');
+            await rl.fill('3');await page.locator(`[data-research-bonus="${id}"]`).fill('2.5');
+            await page.reload({waitUntil:'domcontentloaded'});await page.locator('#stepNav [data-step="3"]').click();
+            assert(await page.locator(`[data-research-level="${id}"]`).inputValue()==='3','research level lost');
+            assert(await page.locator(`[data-research-bonus="${id}"]`).inputValue()==='2.5','research bonus lost');
+
+            await page.locator('#stepNav [data-step="4"]').click();
+            await page.locator('[data-totem="bearTank"]').fill('12');
+            await page.waitForSelector('#tacticsCardsV2');
+            await page.locator('[data-tactics-phase]').selectOption('season6');
+            let b=page.locator('.tactics-slot[data-kind="battle"]').first();
+            await b.locator('[data-card-id]').selectOption('universal-zombie-killer');
+            await page.waitForTimeout(120);b=page.locator('.tactics-slot[data-kind="battle"]').first();
+            await b.locator('[data-card-level]').fill('5');
+            await b.locator('[data-card-value="attackPct"]').fill('12.5');
+            await page.waitForTimeout(120);
+            const stored=await page.evaluate(k=>JSON.parse(localStorage.getItem(k)||'{}').season6?.tacticsV2?.battleSlots?.[0],PROFILE);
+            assert(stored?.cardId==='universal-zombie-killer'&&Number(stored?.values?.attackPct)===12.5,'tactics bridge broken');
+            const on=await page.evaluate(k=>window.WfGgSeason6Runtime.totemPct(JSON.parse(localStorage.getItem(k)),'tank'),PROFILE);
+            assert(on===6,'S6 Bear Totem +6% expected');
+            await page.locator('[data-tactics-phase]').selectOption('offseason');await page.waitForTimeout(100);
+            assert(await page.locator('.tactics-slot[data-kind="battle"].inactive').count()===4,'battle cards must be inactive off-season');
+            const off=await page.evaluate(k=>window.WfGgSeason6Runtime.totemPct(JSON.parse(localStorage.getItem(k)),'tank'),PROFILE);
+            assert(off===0,'S6 totem must be inactive off-season');
+            await page.locator('[data-tactics-phase]').selectOption('season6');
+          }
+
+          async function enginesAndTotals(page){
+            await page.evaluate(({opt})=>localStorage.setItem(opt,JSON.stringify({objective:'wanted-39',heroes:['Mason','Marshall','DVA','Carlie','Schuyler'],squadSlot:1})),{opt:OPT});
+            await page.reload({waitUntil:'domcontentloaded'});
+            const engine=await page.evaluate(k=>{
+              const p=JSON.parse(localStorage.getItem(k)||'{}'),h=p.heroes;
+              const w=window.WfGgSimulatorEngine.optimizePlacement(h,'wanted-39',{});
+              const m=window.WfGgSimulatorEngine.optimizePlacement(h,'monster-generic',{});
+              return {w:w?.best?.score?.mode,m:m?.best?.score?.mode};
+            },PROFILE);
+            assert(engine.w==='wanted'&&engine.m==='monster','Wanted/Monster engine bridge broken');
+            await page.locator('#stepNav [data-step="5"]').click();
+            await page.waitForSelector('#optimizerResult');
+            await page.waitForSelector('#teamTheoreticalSummary');
+            const totals=await page.evaluate(()=>window.WfGgTeamTheory.theoreticalStats());
+            assert(totals.power===5850000,'global Power total wrong: '+totals.power);
+            assert(totals.attack===565000,'global ATK total wrong: '+totals.attack);
+            assert(totals.defense===422000,'global DEF total wrong: '+totals.defense);
+            assert(totals.hp===5320000,'global HP total wrong: '+totals.hp);
+            const txt=await page.locator('#teamTheoreticalSummary').innerText();
+            assert(txt.includes('Kong E2E'),'custom Gorilla name missing from team result');
+            assert(txt.toLowerCase().includes('théorique')||txt.toLowerCase().includes('theoretical'),'theoretical disclaimer missing');
+            assert(txt.toLowerCase().includes('buff'),'common-buff disclaimer missing');
+          }
+
+          async function recipe(browser,url,label){
+            const {context,page,errors}=await newPage(browser);
+            await openClean(page,url);
+            await navigationAndAccount(page,errors,label);
+            await heroes(page);
+            await gorilla(page);
+            await gearResearchSeasonTactics(page);
+            await enginesAndTotals(page);
+            await page.screenshot({path:`/tmp/wfgg-e2e/${label}-final.png`,fullPage:true});
+            assert(errors.length===0,label+' browser errors: '+errors.join(' | '));
+            await context.close();
+            console.log(label,'FULL RECIPE OK');
+          }
+
+          (async()=>{
+            const browser=await chromium.launch({headless:true});
+            await recipe(browser,LOCAL,'source');
+            await waitPublicFresh();
+            await recipe(browser,PUBLIC,'public');
+            await browser.close();
+            console.log('WFGG SIMULATOR E2E V2 COMPLETE');
+          })().catch(e=>{console.error(e);process.exit(1)});
+          JS
+          node /tmp/wfgg-e2e/test.cjs
+
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: simulator-e2e-v2-screens
+          path: /tmp/wfgg-e2e/*.png
+          if-no-files-found: ignore
