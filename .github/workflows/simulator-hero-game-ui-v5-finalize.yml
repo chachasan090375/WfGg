@@ -1,0 +1,164 @@
+name: Simulator hero game UI v5 finalize
+
+on:
+  push:
+    branches:
+      - simulator-standalone-v1
+    paths:
+      - '.github/workflows/simulator-hero-game-ui-v5-finalize.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: simulator-standalone-v1
+          fetch-depth: 0
+
+      - name: Guard render loop and bump preview cache
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          for name in ('simulator/hero-game-ui-v4.js','frontend/simulator/hero-game-ui-v4.js'):
+              p=Path(name)
+              s=p.read_text(encoding='utf-8')
+              s=s.replace("skillSelection=Number(b.dataset.lw4Skill)||0;renderCustom(sheet)}", "skillSelection=Number(b.dataset.lw4Skill)||0;renderCustom(sheet,true)}")
+              s=s.replace("saveSkill(cat.name,skillSelection,v);renderCustom(sheet)}", "saveSkill(cat.name,skillSelection,v);renderCustom(sheet,true)}")
+              s=s.replace("setTimeout(()=>renderCustom(sheet),70)", "setTimeout(()=>renderCustom(sheet,true),70)")
+              pattern=r"function renderCustom\(sheet\)\{.*?\}\nfunction transform\(\)\{"
+              replacement="""function renderCustom(sheet,force=false){
+                if(lock||!sheet?.classList.contains('open'))return;
+                const name=heroName(sheet),cat=catByName(name);if(!cat)return;
+                const d=owned(name)||{};const tab=activeTab(sheet);
+                const body=sheet.querySelector('.hero-sheet-body');if(!body)return;
+                if(!force&&body.dataset.lw4==='1'&&body.dataset.lw4Hero===name&&body.dataset.lw4Tab===tab)return;
+                lock=true;
+                try{
+                  relabelTabs(sheet);
+                  if(tab==='grade')body.innerHTML=skillsPage(cat,d);
+                  else if(tab==='wall')body.innerHTML=tierPage(cat,d);
+                  else if(tab==='weapon')body.innerHTML=weaponPage(cat,d);
+                  else body.innerHTML=attributesPage(cat,d);
+                  body.dataset.lw4='1';body.dataset.lw4Hero=name;body.dataset.lw4Tab=tab;
+                  bindCustom(sheet,cat,d,tab);
+                }finally{lock=false}
+              }
+              function transform(){"""
+              s2,n=re.subn(pattern,replacement,s,flags=re.S)
+              if n!=1: raise SystemExit(f'renderCustom patch count {n} in {name}')
+              p.write_text(s2,encoding='utf-8')
+
+          for name in ('simulator/index.html','frontend/simulator/index.html'):
+              p=Path(name);s=p.read_text(encoding='utf-8')
+              s=s.replace('hero-game-ui-v4.css?v=004-lastwar-hero-pages','hero-game-ui-v4.css?v=005-lastwar-hero-pages')
+              s=s.replace('hero-game-ui-v4.js?v=004-lastwar-hero-pages','hero-game-ui-v4.js?v=005-lastwar-hero-pages')
+              p.write_text(s,encoding='utf-8')
+
+          Path('simulator/UI_VERSION.txt').write_text(
+              'HERO_GAME_UI_V5_LASTWAR_FINAL_PREVIEW\nAttributs / Compétences / Tier / Arme exclusive\n2026-08-26\n',encoding='utf-8')
+          PY
+
+      - name: Validate source structure
+        run: |
+          set -euo pipefail
+          node --check simulator/hero-game-ui-v4.js
+          node --check frontend/simulator/hero-game-ui-v4.js
+          for f in simulator/index.html frontend/simulator/index.html; do
+            grep -Fq 'hero-game-ui-v4.css?v=005-lastwar-hero-pages' "$f"
+            grep -Fq 'hero-game-ui-v4.js?v=005-lastwar-hero-pages' "$f"
+          done
+          for f in simulator/hero-game-ui-v4.js frontend/simulator/hero-game-ui-v4.js; do
+            grep -Fq "grade:['Compétences','skill']" "$f"
+            grep -Fq "wall:['Tier','tier']" "$f"
+            grep -Fq "weapon:['Arme exclusive','weapon']" "$f"
+            grep -Fq "body.dataset.lw4Hero===name" "$f"
+            grep -Fq 'renderCustom(sheet,true)' "$f"
+          done
+
+      - name: Commit final preview version
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add simulator/hero-game-ui-v4.js frontend/simulator/hero-game-ui-v4.js simulator/index.html frontend/simulator/index.html simulator/UI_VERSION.txt
+          git diff --cached --check
+          git commit -m 'simulator: finalize Last War hero UI v5 preview'
+          git push origin HEAD:simulator-standalone-v1
+
+      - name: Wait for Cloudflare branch preview v5
+        shell: bash
+        run: |
+          set -euo pipefail
+          ROOT='https://simulator-standalone-v1.wfgg.pages.dev/simulator/'
+          ok=0
+          for i in $(seq 1 60); do
+            curl -fsSL "$ROOT?hero_ui_v5=$i" -o /tmp/sim.html || true
+            if grep -Fq 'hero-game-ui-v4.js?v=005-lastwar-hero-pages' /tmp/sim.html \
+              && grep -Fq 'hero-game-ui-v4.css?v=005-lastwar-hero-pages' /tmp/sim.html; then
+              ok=1; echo "SIMULATOR_HERO_UI_V5_DEPLOYED=YES attempt=$i"; break
+            fi
+            sleep 5
+          done
+          test "$ok" = 1
+          curl -fsSL "$ROOT/hero-game-ui-v4.js?v=005-lastwar-hero-pages" -o /tmp/hero-v5.js
+          curl -fsSL "$ROOT/hero-game-ui-v4.css?v=005-lastwar-hero-pages" -o /tmp/hero-v5.css
+          node --check /tmp/hero-v5.js
+          grep -Fq "grade:['Compétences','skill']" /tmp/hero-v5.js
+          grep -Fq "wall:['Tier','tier']" /tmp/hero-v5.js
+          grep -Fq '.lw4-weapon-stage' /tmp/hero-v5.css
+
+      - name: Install Playwright Chromium
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: Android browser recette on public preview
+        shell: bash
+        run: |
+          node <<'JS'
+          const assert=require('node:assert/strict');
+          const {chromium}=require('playwright');
+          (async()=>{
+            const browser=await chromium.launch({headless:true});
+            try{
+              const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,deviceScaleFactor:2,locale:'fr-FR'});
+              const page=await context.newPage();
+              const errors=[];
+              page.on('pageerror',e=>errors.push(String(e)));
+              await page.goto('https://simulator-standalone-v1.wfgg.pages.dev/simulator/?hero_ui_v5_e2e=1',{waitUntil:'domcontentloaded',timeout:60000});
+              await page.locator('#stepNav [data-step="1"]').click();
+              await page.locator('.game-hero-card').first().waitFor({state:'visible',timeout:30000});
+              const cols=await page.locator('.game-hero-grid').evaluate(el=>getComputedStyle(el).gridTemplateColumns.split(' ').filter(Boolean).length);
+              assert.equal(cols,4,'hero roster must be four columns on Android width');
+              await page.locator('.game-hero-card').first().click();
+              await page.locator('#heroGameSheet.open').waitFor({state:'visible',timeout:10000});
+              await page.locator('.lw4-stage').waitFor({state:'visible',timeout:10000});
+              const labels=await page.locator('.hero-sheet-tab span').allTextContents();
+              assert.deepEqual(labels.slice(0,4),['Attributs','Compétences','Tier','Arme exclusive']);
+              await page.locator('[data-sheet-tab="grade"]').click();
+              await page.locator('.lw4-skill-icons').waitFor({state:'visible'});
+              assert.equal(await page.locator('.lw4-skill-btn').count(),4,'four skill slots expected');
+              await page.locator('[data-sheet-tab="wall"]').click();
+              await page.locator('.lw4-tier-stars').waitFor({state:'visible'});
+              assert.equal(await page.locator('.lw4-tier-pip').count(),25,'five stars x five tier pips expected');
+              await page.locator('[data-sheet-tab="weapon"]').click();
+              await page.locator('.lw4-weapon-stage').waitFor({state:'visible'});
+              assert.equal(await page.locator('.lw4-weapon-node').count(),3,'exclusive weapon milestones 10/20/30 expected');
+              await page.locator('[data-sheet-tab="attributes"]').click();
+              await page.locator('.lw4-statbar').waitFor({state:'visible'});
+              const metric=await page.evaluate(()=>({w:innerWidth,sw:(document.scrollingElement||document.documentElement).scrollWidth}));
+              assert.ok(metric.sw<=metric.w+2,`horizontal overflow ${JSON.stringify(metric)}`);
+              assert.equal(errors.length,0,`page errors: ${errors.join(' | ')}`);
+              console.log(JSON.stringify({ok:true,columns:cols,tabs:labels.slice(0,4),skills:4,tierPips:25,weaponNodes:3,metric},null,2));
+              await context.close();
+            } finally {await browser.close()}
+          })().catch(e=>{console.error(e);process.exit(1)});
+          JS
