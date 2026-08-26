@@ -4,6 +4,7 @@
   const TACTICS_KEY='wfgg-simulator-tactics-v2';
   const parse=v=>{try{return JSON.parse(v)||{};}catch(_){return {};}};
   const n=v=>{const x=Number(v);return Number.isFinite(x)?x:0;};
+  let pendingTimer=null;
 
   function readSlot(node){
     const values={};
@@ -35,6 +36,7 @@
   }
 
   function persist(){
+    if(pendingTimer!==null){clearTimeout(pendingTimer);pendingTimer=null;}
     const state=serialize();if(!state)return;
     localStorage.setItem(TACTICS_KEY,JSON.stringify(state));
     const profile=parse(localStorage.getItem(PROFILE_KEY));
@@ -46,12 +48,15 @@
     localStorage.setItem(PROFILE_KEY,JSON.stringify(profile));
   }
 
-  function autosave(e){
+  function schedulePersist(e){
     if(!e.target?.closest?.('#tacticsCardsV2'))return;
-    persist();
+    if(pendingTimer!==null)clearTimeout(pendingTimer);
+    pendingTimer=setTimeout(()=>{pendingTimer=null;persist();},20);
   }
-  document.addEventListener('input',autosave,true);
-  document.addEventListener('change',autosave,true);
+
+  document.addEventListener('input',schedulePersist,true);
+  document.addEventListener('change',schedulePersist,true);
   window.addEventListener('pagehide',persist,true);
-  window.WfGgTacticsAutosave=Object.freeze({version:'2.0.0',serialize,persist});
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)persist();},true);
+  window.WfGgTacticsAutosave=Object.freeze({version:'2.1.0',serialize,persist});
 })();
