@@ -42,6 +42,49 @@ jobs:
               print('bootstrap already correct')
           PY
 
+      - name: Remove simulator inline styles for strict CSP
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+
+          app=Path('simulator/app.js')
+          s=app.read_text(encoding='utf-8')
+          old="const el=$('#saveState'); if(el){el.textContent=ui('saved'); el.style.opacity='1'; setTimeout(()=>el.style.opacity='.7',650);}"
+          new="const el=$('#saveState'); if(el){el.textContent=ui('saved'); el.classList.add('save-state-flash'); setTimeout(()=>el.classList.remove('save-state-flash'),650);}"
+          if old in s: s=s.replace(old,new,1)
+          s=s.replace('class=\"section-card\" style=\"margin-top:12px\"','class=\"section-card summary-json-card\"')
+          s=s.replace('class=\"toolbar\" style=\"margin-top:10px;margin-bottom:0\"','class=\"toolbar summary-json-toolbar\"')
+          app.write_text(s,encoding='utf-8')
+
+          tactics=Path('simulator/tactics-profile-v1.js')
+          s=tactics.read_text(encoding='utf-8')
+          s=s.replace("if(s)s.style.display='none';","if(s)s.classList.add('legacy-tactics-hidden');",1)
+          tactics.write_text(s,encoding='utf-8')
+
+          css=Path('simulator/style.css')
+          s=css.read_text(encoding='utf-8')
+          add="\n.save-state{opacity:.7;transition:opacity .2s ease}.save-state.save-state-flash{opacity:1}.summary-json-card{margin-top:12px}.summary-json-toolbar{margin-top:10px;margin-bottom:0}.legacy-tactics-hidden{display:none!important}\n"
+          if '.legacy-tactics-hidden{' not in s: s += add
+          css.write_text(s,encoding='utf-8')
+
+          bad=[]
+          patterns=[re.compile(r'\.style\.[A-Za-z_$][\w$]*\s*='), re.compile(r'\bstyle\s*=\s*["\x27]')]
+          for p in Path('simulator').rglob('*'):
+              if not p.is_file() or p.suffix not in {'.js','.html'}: continue
+              text=p.read_text(encoding='utf-8')
+              for pat in patterns:
+                  for m in pat.finditer(text):
+                      line=text.count('\n',0,m.start())+1
+                      bad.append((str(p),line,text[m.start():m.start()+120].replace('\n',' ')))
+          if bad:
+              for x in bad: print('CSP_INLINE_STYLE',*x)
+              raise SystemExit(f'{len(bad)} inline/dynamic style writes remain')
+          print('STRICT CSP STYLE AUDIT OK')
+          PY
+
       - name: Mirror simulator into Pages output
         shell: bash
         run: |
@@ -49,13 +92,13 @@ jobs:
           rm -rf frontend/simulator
           mkdir -p frontend
           cp -a simulator frontend/simulator
-          if git diff --quiet -- simulator/app.js frontend/simulator; then
+          if git diff --quiet -- simulator frontend/simulator; then
             echo 'Simulator and preview mirror already synchronized'
             exit 0
           fi
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add simulator/app.js frontend/simulator
+          git add simulator frontend/simulator
           git diff --cached --check
-          git commit -m 'fix: repair simulator bootstrap and sync preview'
+          git commit -m 'fix: strict CSP simulator preview sync'
           git push origin HEAD:simulator-standalone-v1
