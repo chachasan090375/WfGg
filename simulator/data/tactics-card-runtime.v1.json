@@ -1,0 +1,67 @@
+{
+  "version":"1.0.0-research",
+  "auditedAt":"2026-08-26",
+  "policy":"A card affects a simulation only when its current audited context explicitly matches the objective. Unknown or conflicting contexts remain inactive.",
+  "profile":{"phaseAllowed":["season6","offseason"],"coreSlots":2,"battleSlots":4,"resourceSlots":4},
+  "objectiveContextMap":{
+    "wanted-39":["wanted-39","wanted"],
+    "wanted-64":["wanted-64","wanted"],
+    "wanted-87":["wanted-87","wanted"],
+    "monster-generic":["world-pve","pve-monsters","monster"]
+  },
+  "cards":{
+    "universal-zombie-killer":{
+      "availability":"season6-only",
+      "contexts":["world-pve"],
+      "selector":"all-allies",
+      "inputs":["attackPct","defensePct","hpPct"],
+      "scoreEffects":{"attackPct":"attackPct"},
+      "survivalEffects":{"defensePct":"defensePct","hpPct":"hpPct"},
+      "note":"World PvE only. Never auto-applied to Wanted Codes without in-game confirmation."
+    },
+    "core-purgator-monster-slayer":{
+      "availability":"season-and-offseason",
+      "contexts":["pve-monsters"],
+      "selector":"all-allies",
+      "inputs":["resistanceFlat","monsterDamageReductionPct"],
+      "survivalEffects":{"monsterDamageReductionPct":"monsterDamageReductionPct"},
+      "durationSeconds":900,
+      "note":"Survival layer only; does not increase offensive Code score."
+    },
+    "universal-dimensional-crit":{
+      "availability":"season6-only",
+      "contexts":["pvp"],
+      "selector":"highest-atk-tank",
+      "inputs":["critRatePct"],
+      "note":"Current live text is PvP only. Stored for future PvP engine, inactive in current PvE objectives."
+    },
+    "universal-frontal-suppression":{
+      "availability":"season6-only",
+      "contexts":["pvp"],
+      "selector":"all-aircraft-allies",
+      "inputs":["attackSpeedPct","autoAttackDamagePct"],
+      "note":"Uses post-launch live wording: all Aircraft, not back-row-only. PvP only."
+    },
+    "universal-aftermath-burst":{
+      "availability":"season6-only",
+      "contexts":["pvp"],
+      "selector":"all-missile-allies",
+      "inputs":["dotDamagePct","attackPct"],
+      "note":"Current live wording includes Missile Attack Boost in addition to DoT; PvP only."
+    },
+    "universal-counter-reversal":{
+      "availability":"season6-only",
+      "contexts":["pvp-countered"],
+      "selector":"all-allies",
+      "inputs":["damagePct","damageReductionPct"],
+      "note":"Only when the squad is being countered."
+    },
+    "universal-hybrid-squad":{
+      "availability":"legacy-not-season6",
+      "contexts":["pvp"],
+      "selector":"composition",
+      "inputs":["mixedTypeStatsPct"],
+      "note":"Legacy S4/S5 card. Explicitly unavailable in the Season 6 catalog."
+    }
+  }
+}
