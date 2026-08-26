@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0-research",
+  "version": "1.0.1-research",
   "purpose": "Buffs capables de modifier le classement relatif des compositions WfGg. Les buffs global-common sont documentés mais exclus par défaut du score différentiel.",
   "vehicleTypes": ["tank", "aircraft", "missile"],
   "rules": {
@@ -13,6 +13,33 @@
     {"id":"formation-4-same","scope":"composition","stat":["attack","defense","hp"],"valuePct":15,"condition":"4 heroes of one troop type","confidence":"strong-community"},
     {"id":"formation-5-same","scope":"composition","stat":["attack","defense","hp"],"valuePct":20,"condition":"5 heroes of one troop type","confidence":"strong-community"}
   ],
+  "heroTypeResearch": {
+    "tank": [
+      {"name":"Tank Mastery I","stat":"damage","maxValuePct":5},
+      {"name":"Tank Mastery II","stat":"damage","maxValuePct":10},
+      {"name":"Cannon Enhancement I","stat":"attack","maxValuePct":5},
+      {"name":"Cannon Enhancement II","stat":"attack","maxValuePct":10},
+      {"name":"Armor Hardening I/II","stat":"defense","exactMax":"pending-validation"},
+      {"name":"Track Fortification I/II","stat":"hp","exactMax":"pending-validation"}
+    ],
+    "aircraft": [
+      {"name":"Aircraft Mastery I","stat":"damage","maxValuePct":5},
+      {"name":"Aircraft Mastery II","stat":"damage","maxValuePct":10},
+      {"name":"Airborne Weapon I","stat":"attack","maxValuePct":5},
+      {"name":"Airborne Weapon II","stat":"attack","maxValuePct":10},
+      {"name":"Reinforced Body I/II","stat":"defense","exactMax":"pending-validation"},
+      {"name":"Wingman Tactics I/II","stat":"hp","exactMax":"pending-validation"}
+    ],
+    "missile": [
+      {"name":"Missile Mastery I","stat":"damage","maxValuePct":5},
+      {"name":"Missile Mastery II","stat":"damage","maxValuePct":10},
+      {"name":"Precision Targeting I","stat":"attack","maxValuePct":5},
+      {"name":"Precision Targeting II","stat":"attack","maxValuePct":10},
+      {"name":"Metal Barricade I/II","stat":"defense","exactMax":"pending-validation"},
+      {"name":"Missile Expansion I/II","stat":"hp","exactMax":"pending-validation"}
+    ],
+    "confidence":"verified-for-names-and-listed-damage-attack-values"
+  },
   "masteryResearch": {
     "appliesSymmetricallyTo": ["tank","aircraft","missile"],
     "verifiedNodes": [
@@ -58,7 +85,7 @@
       {"advantaged":"missile","against":"aircraft"}
     ],
     "documentedDefensiveExpressionPct":20,
-    "note":"Sources often describe the counter as the disadvantaged type dealing 20% less damage. Keep the implementation configurable instead of double-applying +damage and -damage.",
+    "note":"Sources describe the disadvantaged type as dealing 20% less damage. Keep implementation configurable instead of double-applying an offensive and defensive 20% modifier.",
     "confidence":"verified-mechanic-expression-needs-calibration"
   },
   "wantedBoss": [
@@ -76,14 +103,20 @@
       ],
       "perLevel": {"attackPct":1,"defensePct":1,"hpPct":1},
       "maxLevel":30,
+      "maxAtLevel30":{"attackPct":30,"defensePct":30,"hpPct":30},
       "confidence":"verified"
     },
     "season2": {
       "activeOnlyDuringSeason": true,
-      "buildingsPresent": ["Tank Base","Air Force Base","Missile Base"],
-      "effect":"type-specific stats",
-      "exactCurve":"pending-validation",
-      "confidence":"verified-presence-value-pending"
+      "buildings": [
+        {"name":"Tank Base","targetType":"tank","stat":"damage"},
+        {"name":"Air Force Base","targetType":"aircraft","stat":"damage"},
+        {"name":"Missile Base","targetType":"missile","stat":"damage"}
+      ],
+      "valuePctPerLevel":0.5,
+      "maxLevel":30,
+      "maxValuePct":15,
+      "confidence":"verified"
     },
     "season3": {
       "initialClassification":"no vehicle-specific seasonal building identified",
@@ -142,8 +175,8 @@
     "Drone global ATK/DEF/HP when identical for every compared composition"
   ],
   "pendingResearch": [
+    "exact HP/Defense values in the early Hero troop-type research lines",
     "exact HP/Defense/Ultimate Defense values for all three late-game Mastery trees",
-    "exact Season 2 type-base progression curve",
     "complete Season 5 tactics-card deltas vs Season 4",
     "type-specific Wall of Honor totals and how best to input them",
     "exclusive-weapon specialist stacking and provider survival/deployment conditions",
