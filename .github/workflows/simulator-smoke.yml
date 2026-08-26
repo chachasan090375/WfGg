@@ -6,6 +6,7 @@ on:
       - simulator-standalone-v1
     paths:
       - 'simulator/**'
+      - 'frontend/simulator/**'
       - '.github/workflows/simulator-smoke.yml'
 
 permissions:
@@ -72,6 +73,13 @@ jobs:
               raise SystemExit('Missing assets: '+repr(missing))
           PY
 
+      - name: Verify Pages mirror
+        shell: bash
+        run: |
+          set -euo pipefail
+          diff -qr simulator frontend/simulator
+          echo 'Pages mirror matches simulator source'
+
       - name: HTTP smoke
         shell: bash
         run: |
@@ -94,7 +102,7 @@ jobs:
           set -euo pipefail
           base='https://simulator-standalone-v1.wfgg.pages.dev/simulator/'
           ok=0
-          for i in {1..30}; do
+          for i in {1..45}; do
             if curl -fsS "${base}" >/tmp/wfgg-pages-index.html \
               && grep -q 'WfGg · Simulateur' /tmp/wfgg-pages-index.html \
               && curl -fsS "${base}data/tactics-card-catalog.v2.json" >/dev/null \
