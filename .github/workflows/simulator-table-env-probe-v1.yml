@@ -1,0 +1,62 @@
+name: Simulator table env probe v1
+
+on:
+  push:
+    branches: [simulator-standalone-v1]
+    paths:
+      - '.github/workflows/simulator-table-env-probe-v1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: simulator-standalone-v1
+          fetch-depth: 0
+      - name: Probe public table_env variants
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p simulator/research /tmp/wfgg-env
+          python3 - <<'PY'
+          import json, urllib.parse, urllib.request, pathlib
+          endpoint='https://lastwar-serverlist-cf.lastwarapp.net/gameservice/getlsu3dversion.php'
+          variants=['','0','1','prod','production','release','online','formal','stable','1295','294','1295,294','1295|294']
+          rows=[]
+          for env in variants:
+              q={
+                'packageName':'com.fun.lastwar.gp','platform':'Android','appVersion':'1.0.359','gm':'0',
+                'server':'','uid':'','deviceId':'','table_env':env,'buildId':'1864','returnJson':'1','unityVersion':'440'
+              }
+              url=endpoint+'?'+urllib.parse.urlencode(q)
+              try:
+                  with urllib.request.urlopen(url, timeout=20) as r:
+                      d=json.load(r)
+                  # Deliberately omit resMsg and any unneeded response payloads.
+                  row={'table_env':env,'keys':sorted(k for k in d if k!='resMsg')}
+                  for k in ['code','msg','updateType','hotUpdateMsg','table_version']:
+                      if k in d: row[k]=d[k]
+                  rows.append(row)
+              except Exception as e:
+                  rows.append({'table_env':env,'error':type(e).__name__+': '+str(e)[:180]})
+          out={'requestVersion':{'appVersion':'1.0.359','buildId':1864},'variants':rows,
+               'note':'Anonymous public version endpoint probe. resMsg/session/account data intentionally not persisted.'}
+          pathlib.Path('simulator/research/public-table-env-probe.v1.json').write_text(json.dumps(out,indent=2,ensure_ascii=False)+'\n')
+          print(json.dumps(out,indent=2,ensure_ascii=False))
+          PY
+      - name: Commit sanitized results
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add simulator/research/public-table-env-probe.v1.json
+          if ! git diff --cached --quiet; then
+            git commit -m 'simulator: capture public table_env probe'
+            git push origin HEAD:simulator-standalone-v1
+          fi
