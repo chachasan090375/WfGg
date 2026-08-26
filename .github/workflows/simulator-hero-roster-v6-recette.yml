@@ -1,0 +1,92 @@
+name: Simulator hero roster v6 recette
+
+on:
+  push:
+    branches:
+      - simulator-standalone-v1
+    paths:
+      - '.github/workflows/simulator-hero-roster-v6-recette.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  recette:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: simulator-standalone-v1
+      - name: Verify all 31 public portraits and catalog
+        shell: bash
+        run: |
+          set -euo pipefail
+          ROOT='https://simulator-standalone-v1.wfgg.pages.dev/simulator'
+          for attempt in $(seq 1 30); do
+            curl -fsSL "$ROOT/data/hero-catalog.v2.json?v6=$attempt" -o /tmp/catalog.json || true
+            count=$(python3 - <<'PY'
+          import json
+          try:
+            d=json.load(open('/tmp/catalog.json'))
+            print(sum(1 for h in d.get('heroes',[]) if h.get('localPortrait','').startswith('assets/heroes/')))
+          except Exception: print(0)
+          PY
+            )
+            good=0
+            if [ "$count" = 31 ]; then
+              for id in $(python3 - <<'PY'
+          import json
+          d=json.load(open('/tmp/catalog.json'))
+          print(' '.join(h['id'] for h in d['heroes']))
+          PY
+              ); do
+                if curl -fsSI "$ROOT/assets/heroes/$id.webp?v6=$attempt" | grep -qi '^content-type: image/'; then good=$((good+1)); fi
+              done
+            fi
+            echo "attempt=$attempt catalog_local=$count public_images=$good"
+            if [ "$count" = 31 ] && [ "$good" = 31 ]; then exit 0; fi
+            sleep 3
+          done
+          exit 1
+      - name: Install Playwright
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Android interaction recette
+        shell: bash
+        run: |
+          node <<'JS'
+          const assert=require('node:assert/strict');
+          const {chromium}=require('playwright');
+          (async()=>{
+            const browser=await chromium.launch({headless:true});
+            try{
+              const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,deviceScaleFactor:2,locale:'fr-FR'});
+              const page=await context.newPage(); const errors=[]; page.on('pageerror',e=>errors.push(String(e)));
+              await page.goto('https://simulator-standalone-v1.wfgg.pages.dev/simulator/?hero_v6_recette=2',{waitUntil:'networkidle',timeout:60000});
+              await page.locator('#stepNav [data-step="1"]').tap();
+              const cards=page.locator('.game-hero-card'); await cards.first().waitFor({state:'visible',timeout:30000});
+              assert.equal(await cards.count(),31);
+              assert.equal(await page.locator('.hero-role-badge').count(),31);
+              assert.equal(await page.locator('.hero-type-mini').count(),31);
+              const cols=await page.locator('.game-hero-grid').evaluate(el=>getComputedStyle(el).gridTemplateColumns.split(' ').filter(Boolean).length); assert.equal(cols,4);
+              await page.waitForFunction(()=>[...document.querySelectorAll('.game-hero-card .hero-card-portrait img')].length===31 && [...document.querySelectorAll('.game-hero-card .hero-card-portrait img')].every(i=>i.complete&&i.naturalWidth>100),null,{timeout:30000});
+              const portraitState=await page.locator('.game-hero-card .hero-card-portrait').evaluateAll(boxes=>boxes.map(b=>({img:getComputedStyle(b.querySelector('img')).display,fallback:b.querySelector('.hero-fallback')?getComputedStyle(b.querySelector('.hero-fallback')).display:'none'})));
+              assert.ok(portraitState.every(x=>x.img!=='none'&&x.fallback==='none'));
+              const colors=await page.evaluate(()=>({ur:getComputedStyle(document.querySelector('.rarity-UR')).borderColor,ssr:getComputedStyle(document.querySelector('.rarity-SSR')).borderColor,sr:getComputedStyle(document.querySelector('.rarity-SR')).borderColor}));
+              assert.notEqual(colors.ur,colors.ssr); assert.notEqual(colors.ssr,colors.sr);
+              await cards.first().tap(); await page.locator('#heroGameSheet.open').waitFor({state:'visible',timeout:10000});
+              const tabs=[['grade','.lw4-skill-icons'],['wall','.lw4-tier-stars'],['weapon','.lw4-weapon-stage'],['attributes','.lw4-stage']];
+              for(const [id,target] of tabs){await page.locator(`[data-sheet-tab="${id}"]`).tap();await page.locator(target).waitFor({state:'visible',timeout:5000});}
+              const close=page.locator('#heroSheetClose');
+              const box=await close.boundingBox(); assert.ok(box&&box.width>20&&box.height>20);
+              const hit=await page.evaluate(({x,y})=>{const e=document.elementFromPoint(x,y);return {tag:e?.tagName,id:e?.id,cls:e?.className}}, {x:box.x+box.width/2,y:box.y+box.height/2});
+              assert.equal(hit.id,'heroSheetClose',`close hit target=${JSON.stringify(hit)}`);
+              await close.tap(); await page.waitForTimeout(200); assert.equal(await page.locator('#heroGameSheet.open').count(),0);
+              const metric=await page.evaluate(()=>({w:innerWidth,sw:(document.scrollingElement||document.documentElement).scrollWidth})); assert.ok(metric.sw<=metric.w+2);
+              assert.equal(errors.length,0,errors.join(' | '));
+              console.log(JSON.stringify({ok:true,cards:31,columns:cols,portraits:31,tabs:tabs.map(x=>x[0]),closeHit:hit,touchClose:true,colors,metric},null,2));
+            } finally {await browser.close()}
+          })().catch(e=>{console.error(e);process.exit(1)});
+          JS
