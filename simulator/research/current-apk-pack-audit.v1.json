@@ -1,0 +1,1594 @@
+{
+  "source": {
+    "package": "com.fun.lastwar.gp",
+    "version": "1.0.359",
+    "buildId": 1864,
+    "architecture": "arm64-v8a",
+    "xapkSha1": "bed2cb826d46a008854fe1b8b57bcb2e494d2d3a",
+    "xapkSha256": "7b4704953d770868aca6771cf376fa87682d7cfa1ad490544c051c21ad67cefd"
+  },
+  "apks": [
+    {
+      "name": "install_time_pack.apk",
+      "bytes": 752768742,
+      "sha1": "44e66dad8d297cf444dc5b0ced65bebe4787e84f"
+    },
+    {
+      "name": "com.fun.lastwar.gp.apk",
+      "bytes": 51020648,
+      "sha1": "dd8edfbf556f0ca312965d7ad2c64b0747e80db2"
+    },
+    {
+      "name": "config.armeabi_v7a.apk",
+      "bytes": 18646939,
+      "sha1": "007e11bf105b57e7c7d9fd908341f328f5d2eb11"
+    }
+  ],
+  "tables": [
+    {
+      "apk": "install_time_pack.apk",
+      "path": "assets/table/table_38781_cfcbee99d7064f86d09dd682babdbc2b.data",
+      "bytes": 19270680,
+      "compressedBytes": 19270680,
+      "crc32": "9b4683a9",
+      "md5": "cfcbee99d7064f86d09dd682babdbc2b",
+      "sha256": "be74b18971508b511c3fb306572dae330af85b4e7ae105143056638233b085e1",
+      "magic": "504b030414000000"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "path": "assets/table/version",
+      "bytes": 58,
+      "compressedBytes": 58,
+      "crc32": "080da971"
+    }
+  ],
+  "groups": {
+    "tables": {
+      "count": 2,
+      "sample": [
+        {
+          "apk": "install_time_pack.apk",
+          "path": "assets/table/table_38781_cfcbee99d7064f86d09dd682babdbc2b.data"
+        },
+        {
+          "apk": "install_time_pack.apk",
+          "path": "assets/table/version"
+        }
+      ]
+    },
+    "heroes": {
+      "count": 25,
+      "sample": [
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/anim/linear_indeterminate_line1_head_interpolator.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/anim/linear_indeterminate_line2_head_interpolator.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/drawable/aihelp_svg_portrait_agent.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/drawable/aihelp_svg_portrait_robot.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/drawable/aihelp_svg_portrait_user.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/drawable/com_facebook_auth_dialog_header_background.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/drawable/zuia_avatar_circular_background.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/drawable/zuia_avatar_default.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/drawable/zuia_conversation_avatar_default.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/drawable-mdpi-v4/com_facebook_profile_picture_blank_portrait.png"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/layout/abc_popup_menu_header_item_layout.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/layout/design_navigation_item_header.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/layout/design_navigation_item_subheader.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/layout/layout_avatar_popup.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/layout/mtrl_picker_header_dialog.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/layout/mtrl_picker_header_fullscreen.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/layout/mtrl_picker_header_selection_text.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/layout/mtrl_picker_header_title_text.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/layout/mtrl_picker_header_toggle.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/layout/zuia_view_article_header.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/layout/zuia_view_avatar_image.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/layout/zuia_view_carousel_item_avatar.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/layout/zuia_view_conversation_extension_header.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/layout/zuia_view_conversation_header.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/layout-land/mtrl_picker_header_dialog.xml"
+        }
+      ]
+    },
+    "gear": {
+      "count": 30,
+      "sample": [
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/animator/m3_chip_state_list_anim.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/animator/m3_elevated_chip_state_list_anim.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/animator/mtrl_chip_state_list_anim.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/color/m3_assist_chip_icon_tint_color.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/color/m3_assist_chip_stroke_color.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/color/m3_chip_assist_text_color.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/color/m3_chip_background_color.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/color/m3_chip_ripple_color.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/color/m3_chip_stroke_color.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/color/m3_chip_text_color.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/color/m3_elevated_chip_background_color.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/color/m3_navigation_rail_item_with_indicator_icon_tint.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/color/m3_navigation_rail_item_with_indicator_label_tint.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/color/m3_navigation_rail_ripple_color_selector.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/color/mtrl_chip_background_color.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/color/mtrl_chip_close_icon_tint.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/color/mtrl_chip_surface_color.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/color/mtrl_chip_text_color.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/color/mtrl_choice_chip_background_color.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/color/mtrl_choice_chip_ripple_color.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/color/mtrl_choice_chip_text_color.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/drawable/ic_m3_chip_check.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/drawable/ic_m3_chip_checked_circle.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/drawable/ic_m3_chip_close.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/drawable/ic_mtrl_chip_checked_black.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/drawable/ic_mtrl_chip_checked_circle.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/drawable/ic_mtrl_chip_close_circle.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/layout/material_chip_input_combo.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/layout/material_time_chip.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/layout/mtrl_navigation_rail_item.xml"
+        }
+      ]
+    },
+    "tactics": {
+      "count": 10,
+      "sample": [
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/anim/mtrl_card_lowers_interpolator.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/animator/m3_card_elevated_state_list_anim.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/animator/m3_card_state_list_anim.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/animator/mtrl_card_state_list_anim.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/color/m3_card_foreground_color.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/color/m3_card_ripple_color.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/color/m3_card_stroke_color.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/color/mtrl_card_view_foreground.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/color/mtrl_card_view_ripple.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/layout/aihelp_layout_faq_card_layout.xml"
+        }
+      ]
+    },
+    "research": {
+      "count": 0,
+      "sample": []
+    },
+    "overlord": {
+      "count": 24,
+      "sample": [
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/drawable/abc_btn_default_mtrl_shape.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/drawable/ucrop_wrapper_controls_shape.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/drawable/zuia_conversations_unread_messages_cell_shape.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/drawable/zuia_ic_carousel_cell_border_shape.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/drawable/zuia_image_cell_message_inbound_shape_middle.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/drawable/zuia_image_cell_message_inbound_shape_single.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/drawable/zuia_image_cell_message_outbound_shape_middle.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/drawable/zuia_image_cell_message_outbound_shape_single.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/drawable/zuia_message_cell_inbound_shape_bottom.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/drawable/zuia_message_cell_inbound_shape_middle.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/drawable/zuia_message_cell_inbound_shape_single.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/drawable/zuia_message_cell_inbound_shape_top.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/drawable/zuia_message_cell_outbound_shape_bottom.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/drawable/zuia_message_cell_outbound_shape_middle.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/drawable/zuia_message_cell_outbound_shape_single.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/drawable/zuia_message_cell_outbound_shape_top.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/drawable-ldrtl-v17/zuia_image_cell_message_inbound_shape_middle.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/drawable-ldrtl-v17/zuia_image_cell_message_outbound_shape_middle.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/drawable-ldrtl-v17/zuia_message_cell_inbound_shape_bottom.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/drawable-ldrtl-v17/zuia_message_cell_inbound_shape_middle.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/drawable-ldrtl-v17/zuia_message_cell_inbound_shape_top.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/drawable-ldrtl-v17/zuia_message_cell_outbound_shape_bottom.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/drawable-ldrtl-v17/zuia_message_cell_outbound_shape_middle.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/drawable-ldrtl-v17/zuia_message_cell_outbound_shape_top.xml"
+        }
+      ]
+    },
+    "bootstrap": {
+      "count": 9,
+      "sample": [
+        {
+          "apk": "install_time_pack.apk",
+          "path": "AndroidManifest.xml"
+        },
+        {
+          "apk": "install_time_pack.apk",
+          "path": "assets/AssetBundles/download"
+        },
+        {
+          "apk": "install_time_pack.apk",
+          "path": "assets/AssetBundles/download.version"
+        },
+        {
+          "apk": "install_time_pack.apk",
+          "path": "META-INF/MANIFEST.MF"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "AndroidManifest.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "res/drawable/aihelp_svg_ic_download.xml"
+        },
+        {
+          "apk": "com.fun.lastwar.gp.apk",
+          "path": "META-INF/MANIFEST.MF"
+        },
+        {
+          "apk": "config.armeabi_v7a.apk",
+          "path": "AndroidManifest.xml"
+        },
+        {
+          "apk": "config.armeabi_v7a.apk",
+          "path": "META-INF/MANIFEST.MF"
+        }
+      ]
+    }
+  },
+  "bootstrapStringHits": [
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/Newtonsoft.Json.mdl",
+      "text": "DataTable"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/Newtonsoft.Json.mdl",
+      "text": "DataTableCollection"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/Newtonsoft.Json.mdl",
+      "text": "DataTableConverter"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.DataSetExtensions.mdl",
+      "text": "CopyToDataTable"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.DataSetExtensions.mdl",
+      "text": "DataTableExtensions"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "DataTable_DuplicateName2"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "MSD_MAINDATATABLE"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "GetDataTableSchema"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "SetDataTable_Unchecked"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "DataTableReader_DataTableCleared"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "Xml_DataTableInferenceNotSupported"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "DataTableReaderSchemaIsInvalid"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "DataTable_TableNotFound"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "_dataTableSource"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "DataTable_OutOfRange"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "get_DataTable"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "get_IsTypedDataTable"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "_isTypedDataTable"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "IsSelfRelatedDataTable"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "DataTable_CanNotRemoteDataTable"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "SerializeDataTable"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "DeserializeDataTable"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "GetSchemaTableFromDataTable"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "UpdateFromDataTable"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "UpdateRequiresDataTable"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "SetDataTable"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "get_CurrentDataTable"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "_currentDataTable"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "_dataTable"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "UpdataTable"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "datatable"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "DataTable_DuplicateName"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "DataTable_DatasetConflictingName"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "DataTable_SelfnestedDatasetConflictingName"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "DataTable_NoName"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "DataTable_CanNotSerializeDataTableWithEmptyName"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "DataTableReader_ArgumentContainsNullValue"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "NotADataTableMapping"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "DataTable_InvalidSortString"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "DataTable_InRelation"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "GetDataTableBySchemaAction"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "DataTableCollection"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "DataTableMappingCollection"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "DataTableRelationCollection"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "DataTableReader_InvalidDataTableReader"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "DataTableReader_SchemaInvalidDataTableReader"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "DataTableReader_InvalidRowInDataTableReader"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "InvalidCurrentRowInDataTableReader"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "EmptyDataTableReader"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "DataTableClearEventHandler"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "DataTableNewRowEventHandler"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "DataTableReaderListener"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "DataTableTypeConverter"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "DataTableMappingConverter"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "DataTablePropertyDescriptor"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "dataTables"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "datatables"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "DataTableClearEventArgs"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "DataTableNewRowEventArgs"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "DataTable_MultipleSimpleContentColumns"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "DataTable_CanNotSetRemotingFormat"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "DataTable_NotInTheDataSet"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "DataTable_AlreadyInTheDataSet"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "DataTable_AlreadyInOtherDataSet"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "DataTableReader_CannotCreateDataReaderOnEmptyDataSet"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "DataTable_CannotAddToSimpleContent"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "DataTable_InConstraint"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "MDF_DataTableDoesNotExist"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "AddDataTableToArray"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "DataTable_MissingPrimaryKey"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "DataTable_ForeignPrimaryKey"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "DataTable_CanNotSerializeDataTableHierarchy"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "DataTableReader_DataTableReaderArgumentIsEmpty"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "=System.Data.Common.DataTableMapping+DataTableMappingConverter"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "\"System.Data.DataTableTypeConverter"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Data.mdl",
+      "text": "    <PopulationMechanism>DataTable</PopulationMechanism>"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Runtime.Serialization.mdl",
+      "text": "get_SurrogateDataTable"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/System.Runtime.Serialization.mdl",
+      "text": "surrogateDataTable"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/XAssetProRuntime.mdl",
+      "text": "QUEUE_HotUpdate"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/mscorlib.mdl",
+      "text": "m_DataTable"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/netstandard.mdl",
+      "text": "DataTable"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/netstandard.mdl",
+      "text": "DataTableMapping"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/netstandard.mdl",
+      "text": "DataTableCollection"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/netstandard.mdl",
+      "text": "DataTableMappingCollection"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/netstandard.mdl",
+      "text": "DataTableRelationCollection"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/netstandard.mdl",
+      "text": "DataTableReader"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/netstandard.mdl",
+      "text": "DataTableClearEventHandler"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/netstandard.mdl",
+      "text": "DataTableNewRowEventHandler"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/netstandard.mdl",
+      "text": "DataTableMappingConverter"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/netstandard.mdl",
+      "text": "DataTableClearEventArgs"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/netstandard.mdl",
+      "text": "DataTableNewRowEventArgs"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/Assemblies/netstandard.mdl",
+      "text": "DataTableExtensions"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/datatable",
+      "text": "0,Assets/DataTable/PlaceHolder"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/datatable",
+      "text": "0,datatable_config_datatable_placeholder_5bd7cf4ce3cc5eeab4ae3830cdfbbf6d.bundle,1306768616,1168,0,,0,2845abacbfdc3bb46263324dc17b770d790c3a257f0eda3469dc4574266c8552.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "0,Assets/Main/HotUpdateDll"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "0,dllres_hotupdatedll_hotupdatedll__aihelper_encrypt_373892c0051a99ba31b6ae85ce3cb5fd.bundle,3998227620,8904,0,,0,e200c13b9f6e813ed56717421554699fa030957d30b61dde699bbb156d9afc30.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "1,dllres_hotupdatedll_hotupdatedll__appsflyer_encrypt_237b732d43f29e24375e6faab34222e4.bundle,1511606748,15706,1,,0,e7a9e43f7e4870125d33d615f2e0866da45287374c518e5616c322795434b9ec.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "2,dllres_hotupdatedll_hotupdatedll__arabicsupportruntime_encrypt_48a66360b7067851cd41ce4c8332cbe0.bundle,1444109296,22873,2,,0,fc8538911c5ce15b2f1c499c58887feff3c7f74dac642d9c87b5f2534b84668a.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "3,dllres_hotupdatedll_hotupdatedll__assembly-csharp-firstpass_encrypt_221105e7ee2fc23c5544d7a0f3e1359d.bundle,674897661,41030,3,,0,ca8d70268c00ba1d20cf9346f313ab98b007d189203efaf402c8a09835057139.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "4,dllres_hotupdatedll_hotupdatedll__assembly-csharp_encrypt_6424da91d081837cc91df6f97815c532.bundle,3446583983,7195113,4,,0,680ac19c3cf5d74a4d3d8dda1507ca263b41569ec9be6f0c2fa2754e18a4f55b.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "5,dllres_hotupdatedll_hotupdatedll__balasoruntime_encrypt_140920b38a16f06e6932ae2db382d331.bundle,2976288377,3081,5,,0,cfbaa6c61de19dff6ded3be7a4e158d65f6f4c5651844246e98662d5b7b07912.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "6,dllres_hotupdatedll_hotupdatedll__baseutils_encrypt_2c6d5bb29a2449f10e3e3b95cbc2c336.bundle,420455102,273846,6,,0,47137d710efda355502ed7ba165747966936cdeb477c78342f2cfb31cab17f9b.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "7,dllres_hotupdatedll_hotupdatedll__besthttp_encrypt_d3d8267b49b61be10efe37a223d98887.bundle,984531176,1116794,7,,0,6894fe221915c793e83b366d585cb4f29f234d12ad6284fc6f21c44e9b23ce9b.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "8,dllres_hotupdatedll_hotupdatedll__cinemachine_encrypt_4fbad0fcd360b2fd8fff6860d390cdeb.bundle,1964274141,98344,8,,0,90da385505acdaa8c06b4398bca74dfef52be42fed854f48222e3428b6075071.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "9,dllres_hotupdatedll_hotupdatedll__dotween_encrypt_efe67d16f4f725a94d464f7dc293adff.bundle,992280706,81042,9,,0,8764ad12bfaa800d42fe5f50d5e8d55a3ec38fa52d35708b7fcbd1a6b0f1f2eb.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "10,dllres_hotupdatedll_hotupdatedll__dotweenpro_encrypt_8edcf62a07f628f9b53bf5372ec7820c.bundle,3190009532,10903,10,,0,ec3e3ab00455debe0ae9e628b360d3934a24c0251afdc8602f341a2416e72d1d.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "11,dllres_hotupdatedll_hotupdatedll__definesruntime_encrypt_7fafae170f866e3d2df89c734c60e9ad.bundle,3634854348,80267,11,,0,b79a629947c5f9a16d56f7cfd894963ff85ef560ee3f3443ff6746629138b2bf.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "12,dllres_hotupdatedll_hotupdatedll__fm_monolib_encrypt_890381cc96d619c6fc2815493493adad.bundle,3512004565,3278,12,,0,a986b0c48b839990f4f798d997a338c4714b9f555aae9c5861f8505ed61dc945.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "13,dllres_hotupdatedll_hotupdatedll__fibmatrix_baseutils_encrypt_cf5dcc47d31dc566f0eacb4a1eb4405f.bundle,1187878701,7851,13,,0,1e8a8d4fc4bb0274fe8fa91288d18f7014e141935421f66afe44ea680b3cc8aa.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "14,dllres_hotupdatedll_hotupdatedll__fibmatrix_perftools_encrypt_fa830ebfb789301d67b766169978f806.bundle,1029627839,25051,14,,0,a1687706b2c3c283d2ca71430cfbf2508e3376c9d2f1ea32e9196b12bd6ba56b.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "15,dllres_hotupdatedll_hotupdatedll__fibmatrix_rendering_encrypt_ca6a5dfeed8825f032faf1d980d503c1.bundle,102888584,54244,15,,0,bc168c7ba73c49824ecdad1c114a376914c05470fd668d672b9b7d8ee730a141.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "16,dllres_hotupdatedll_hotupdatedll__gpuskinning_encrypt_dce467927b8ad95bde776de24a60fa1f.bundle,1488457006,7697,16,,0,0c4f1c400ef474ceafcc86c90bb13cb51e826219377234f9bb4176c868ff9868.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "17,dllres_hotupdatedll_hotupdatedll__heightfog_encrypt_bb2bc8b68e2dcfe931f94eeb438cf9bc.bundle,3739274649,15130,17,,0,b218d8f222f62e0542ee3d6d06f5d48753b93f8db1e257b8bb938cda5b5881ce.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "18,dllres_hotupdatedll_hotupdatedll__icsharpcode_sharpziplib_encrypt_1284af95da5dc5d6d216b617b1fc151d.bundle,3530198814,107266,18,,0,7f4b69bf1bb10edd8b807012412554f0f5f64fff4cc6e92b51b14d2f548918a7.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "19,dllres_hotupdatedll_hotupdatedll__joker_share_encrypt_7edc534204a792a64c0a5bd951b2b267.bundle,3132237486,87056,19,,0,b8875d1c4faddd6be57941e0e6b9992ddad0c87707f18dac02bfe6499b203f2a.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "20,dllres_hotupdatedll_hotupdatedll__lz4_encrypt_4a1ff5f5aa339aac7b0122209f59f865.bundle,392387075,19988,20,,0,4e8a9c2c565fa0e3c28e4b303e8797bd0ceaad4268abc152495cb59b7140281f.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "21,dllres_hotupdatedll_hotupdatedll__mono_android_encrypt_90808855bdcdf46bbd4c29afceb42d3d.bundle,2673846282,3741,21,,0,8ea1cb0bbea2e4004ba5ec119fbe3934c1b36fee6ddd02aa6b94924a6d070081.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "22,dllres_hotupdatedll_hotupdatedll__mono_security_encrypt_228a34059d3ef8bfd3c359e4cc727eb3.bundle,2819822060,127876,22,,0,c2375a28066e75eefe138d34abbf3289560c421f0137e8c5218023ee76c5f63f.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "23,dllres_hotupdatedll_hotupdatedll__moremountains_nicevibrations_demos_encrypt_5640dc2f1d0b326a1a96893e478e1a6f.bundle,3260352645,30398,23,,0,48fb333a16b01919ce32eb721f1856b991ff193d66609d58da0bf979315e4573.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "24,dllres_hotupdatedll_hotupdatedll__moremountains_nicevibrations_haptics_encrypt_84582a92202c55b578747f177e08e2fa.bundle,1136592418,10025,24,,0,ffb0f933ac4b9a1c03c78fddf9f764a5d063d1b8f5b6ab053ef05676862a5788.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "25,dllres_hotupdatedll_hotupdatedll__moremountains_nicevibrations_encrypt_9f6d67bb00a90fdf3c41cfbf2e8f4d16.bundle,3191389747,8888,25,,0,2d1612c70c5caf7a0eeb91e021155bd23974ddf7d2bca308876287b41b371650.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "26,dllres_hotupdatedll_hotupdatedll__newtonsoft_json_encrypt_32bbdf1ae7dd653d232cd279bd11d593.bundle,1937093241,325492,26,,0,3bcff8852bd09f3adea3832538c4e313e6faa2e04c6f943484b5b627986288da.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "27,dllres_hotupdatedll_hotupdatedll__nova_encrypt_608b5efc570a35201027093916d10f91.bundle,376232375,7171,27,,0,b020e12e0ed890f441acea261d09294cc881a1617ce7701096cda0c4d766eabd.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "28,dllres_hotupdatedll_hotupdatedll__parkourstage_runtime_encrypt_bf33bfc8a279be33fa002baa082bc55b.bundle,2052011854,23037,28,,0,1855c0ed35bbc0a79d51292d385797a6f07bcd79e4a74320898f6f8b8ea23cbd.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "29,dllres_hotupdatedll_hotupdatedll__quadtreeruntime_encrypt_c5c4dce4ff891a533b2318e736b7357e.bundle,1945639180,8837,29,,0,9b9abbadb766f9c228677de187ebdbe2fc901383c3b5591aa7f924bbe29543fb.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "30,dllres_hotupdatedll_hotupdatedll__runtimeinspector_runtime_encrypt_a7d7c8a1aa2ac27eeb16248961f201f4.bundle,588474602,79087,30,,0,1e9dd17e10266a3b96f9b6eacb704d41bb5d04051c739b66152b26a7864ff222.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "31,dllres_hotupdatedll_hotupdatedll__sqliteforunity3d_encrypt_e1cb9b62fc3147112569b5fb7b19a38d.bundle,2141386836,33153,31,,0,8669612bf48696c299f625cb9711ef237eecb1faa87999bda5a485000a9510f3.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "32,dllres_hotupdatedll_hotupdatedll__sirenix_odininspector_attributes_encrypt_73ede42549b2ad30a06bb9c7b3a61b83.bundle,2525199140,21454,32,,0,8be33c6c42fb1f4a1363583b92f5c5fccd6de17234f7a1ef6c228041711b64d9.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "33,dllres_hotupdatedll_hotupdatedll__smartfox2x_encrypt_d91258894fbc77bb4219653ab2ac75a9.bundle,838205180,258339,33,,0,62186fe99879f7425431f4b6087f9ad778f1d14031bb558055eec30e50597423.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "34,dllres_hotupdatedll_hotupdatedll__smartfox2xlw_encrypt_3d7043e2c4fcb3fd7897a60b3200ef6e.bundle,2041295358,133274,34,,0,fee42912cd91dbfe193137f4781a958a2db856900119704c034a56c428549812.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "35,dllres_hotupdatedll_hotupdatedll__system_buffers_encrypt_fda1fa0fce6a51d7664a03fca0be2895.bundle,1143142884,3196,35,,0,262eab98586baf8d7f09c470c7961f635ac5dc7337de8ba2836f67b230e2f052.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "36,dllres_hotupdatedll_hotupdatedll__system_componentmodel_composition_encrypt_ce9173202aab277859bc7699a98cf292.bundle,2710593161,127073,36,,0,828d6447860d6608c318fd66cfcd28fa215fe15fe7847f7869cd8bee94a78e5e.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "37,dllres_hotupdatedll_hotupdatedll__system_configuration_encrypt_76a740a8c89d473e6e36ad5c0d24d747.bundle,939006265,21540,37,,0,a25941d0a78d2a2df9a93ede5971497e0e09fd8fb29d7ce983fe9c133cb4c8f8.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "38,dllres_hotupdatedll_hotupdatedll__system_core_encrypt_b35cdbcc02e75bab87ad043ad802d3ad.bundle,1778458036,476970,38,,0,459614b019a7bd403c531c19985bff736ae7c4adfc317c284c01c9bfe73bebfe.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "39,dllres_hotupdatedll_hotupdatedll__system_data_datasetextensions_encrypt_0e9ee9b06bd9134b66d1df01e177a6b4.bundle,756796885,15678,39,,0,ca42abac05613138b15d1e8eef859e1f433a96d2fd416d2bb364d6f67bf623b4.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "40,dllres_hotupdatedll_hotupdatedll__system_data_encrypt_c7c3a8a122b756c05576923d09de07b7.bundle,942601857,830597,40,,0,d18c7031efa321239bd2726635d9994b700cc9203ea378dc25226ef33aa7e940.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "41,dllres_hotupdatedll_hotupdatedll__system_diagnostics_stacktrace_encrypt_3c7539a9b878338b991595cfa136ce13.bundle,965531576,3514,41,,0,0100582a137f913886e1a21b40a1eb35e61b3a58298701b5b7bbf33555b00917.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "42,dllres_hotupdatedll_hotupdatedll__system_drawing_common_encrypt_c2e9f211efb98651bb9ee8a71c8bbe7d.bundle,547395877,85248,42,,0,2c60d0af7dfa66e39e72490f7fa871a31d8578b09a6ae9a90b27f2339b30526d.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "43,dllres_hotupdatedll_hotupdatedll__system_globalization_extensions_encrypt_2a2a298a76a72fc706a6a4eb27d15e2f.bundle,4274853872,3300,43,,0,ff5f909f71d6ca7b1a276a11482e0f658d60ba2e97d7bb73a6f61d6dcc4399df.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "44,dllres_hotupdatedll_hotupdatedll__system_io_compression_filesystem_encrypt_0e08f2e57a3b24328a979b22d87839ad.bundle,3081430852,9638,44,,0,baec7ba56bb2f4eb95ec8166c925d97224bd6f832f5a317c7aaec23cdf3b0e53.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "45,dllres_hotupdatedll_hotupdatedll__system_io_compression_encrypt_6d3cb3b2386cbeba8e509873a37b6735.bundle,427410429,63518,45,,0,b72596f8425ea8b63a290cf26295d9d7a7a8b2c158a2b7f065b6c78bde45e264.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "46,dllres_hotupdatedll_hotupdatedll__system_memory_encrypt_edad310e23a44f1d152fcd0648dcb9c1.bundle,3093386543,3579,46,,0,7821d3f64443179f29235c1c340e7912848f732e1e55ed6f65216ab98b326e0f.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "47,dllres_hotupdatedll_hotupdatedll__system_net_http_encrypt_8e5ccbc488102ebf1a12102212eb642d.bundle,3924643726,147125,47,,0,9b1be7c541a7dfb4dd0c63610e709493e7508498c751c29e729dee621ca0cdf8.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "48,dllres_hotupdatedll_hotupdatedll__system_numerics_vectors_encrypt_745a31860a23a2e666e534345fd85e83.bundle,1283013808,5611,48,,0,e9524f05a03b576cea8d9a1e0ca80f4a54969f59096e8ec4408ddbb44fd53e06.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "49,dllres_hotupdatedll_hotupdatedll__system_numerics_encrypt_0d303085e0166b076a50322bd6340673.bundle,3384487220,56021,49,,0,76226b6aa8e56e99ab0731e428c3cdffb1a6bf27b902967488b572fe1dd4b11e.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "50,dllres_hotupdatedll_hotupdatedll__system_runtime_compilerservices_unsafe_encrypt_bcb6c43b0433eff6e4e3c972ec4da249.bundle,4203317415,3063,50,,0,e3482e44df75b0cd5a8d7d285769ac87a453ca8b6cc6e1dea3a852cef5c3e45a.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "51,dllres_hotupdatedll_hotupdatedll__system_runtime_serialization_encrypt_02ac306157e7e8a5bce03a94ab34002b.bundle,2439944594,354066,51,,0,4423e6b0c236f1412d79e7e8932dd74c5bff86e6048b44dd3cffa88f9d168bbb.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "52,dllres_hotupdatedll_hotupdatedll__system_runtime_encrypt_b71539a2bbc040c8d485edff349fecef.bundle,3347411954,6763,52,,0,0fad73f14379ef0bc12d08efcda84d13bb9e855f3b0bcf2a521e7cb00cd53077.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "53,dllres_hotupdatedll_hotupdatedll__system_servicemodel_internals_encrypt_2fc99d907c5d6d1ec8e8e2b86013f97e.bundle,621355132,107780,53,,0,2313607d0cdaccde17668d9b045b58b0c28b199cf6a5d1d0d09711d553dc62c3.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "54,dllres_hotupdatedll_hotupdatedll__system_transactions_encrypt_84aefcfeaa65c5444eb03aeb10361e79.bundle,135311983,17499,54,,0,8c865451741f72d1cd1b4e508123e6776f44543e6a4bc7e606a2fad2e9852fdd.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "55,dllres_hotupdatedll_hotupdatedll__system_web_services_encrypt_c5424b915f80c584dc17322dfab2e85b.bundle,1376760688,94494,55,,0,c1960ac5e30cc4bd9cbea7747e9cdfb28c4cb8e1a5b2aabf4e5dd0fa62f8c0cd.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "56,dllres_hotupdatedll_hotupdatedll__system_xml_linq_encrypt_8dc14d1df603c88e1dbfbd829781cbc1.bundle,3187880621,71813,56,,0,ca84afb3a1a630b0eb759ec287ea1120621122fe2f6c6dd2b017745d950ef0c0.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "57,dllres_hotupdatedll_hotupdatedll__system_xml_encrypt_4aae9fe4f98264717639642a09c4648c.bundle,2065737526,1021459,57,,0,7c88ba3d2609389c09be6dd6af590e2fd8f6115f7896eafa0d384301ed9d8b00.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "58,dllres_hotupdatedll_hotupdatedll__system_encrypt_dea410e545a80f4ea93d5895c364b0c9.bundle,1848793576,949134,58,,0,32961615787d1f0ae35ee3590e4158634ee63204067d72599476dc0167b568d8.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "59,dllres_hotupdatedll_hotupdatedll__tayx_graphy_encrypt_3d85ba26327e1b6ee1123a156e0c9a26.bundle,1052490373,27385,59,,0,a5b5907e04ec14b4ef5e4d66f8bc978942e543a23fd14bccdfe8471f26cea1b4.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "60,dllres_hotupdatedll_hotupdatedll__thinkinganalytics_encrypt_9c91ac9220695ced4a8c2641ead43c1b.bundle,3563574245,24497,60,,0,7abd03f13948cc7fb5d4c9a17dfb35296535db227a0ade2ad89648393252aa93.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "61,dllres_hotupdatedll_hotupdatedll__thinkingsdk_encrypt_852f05e2d98a0a5d4cfea2ef10e762a4.bundle,1316641445,31691,61,,0,be36b8ecf7b16a1537c6a6747eeb228a8fd365a3571c80378ef7391b34b078a0.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "62,dllres_hotupdatedll_hotupdatedll__uiextensionruntime_encrypt_7f136b894932ab14a5beb567a7d7206e.bundle,3339576473,180597,62,,0,7097d9f72979017be89481b2fc0352a545be3e5e8b1a500c061a8f65f3e69715.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "63,dllres_hotupdatedll_hotupdatedll__unity_collections_encrypt_b56b42e494fc92f5249c5bc297186870.bundle,3622305262,23504,63,,0,5a3032ca0ed482d6af5f4d184f9b18cdc1698a330f496846d18e1411b08d8bc5.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "64,dllres_hotupdatedll_hotupdatedll__unity_mathematics_encrypt_5494b0fbba890f752b8b154082b19bee.bundle,1038672031,265193,64,,0,12f34acf959f6016180d1262ef047a7c4a815536c8cf2e9e91ddb3374f6642ce.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "65,dllres_hotupdatedll_hotupdatedll__unity_renderpipeline_universal_shaderlibrary_encrypt_f3a3a02a849f58ad0ea020722732c0bd.bundle,2522502162,3009,65,,0,62cbca97690afcca8d007fbba9d16d5053b61180fc41da0edadf1a167d780d70.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "66,dllres_hotupdatedll_hotupdatedll__unity_renderpipelines_core_runtime_encrypt_c6aaafbe50525a1bff32f41fb086c16d.bundle,4056369595,99243,66,,0,3ebc5df2bcfcba27e376108222e4f2fe287eb0962071784d62ba7a12d57c5c2e.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "67,dllres_hotupdatedll_hotupdatedll__unity_renderpipelines_universal_runtime_encrypt_f5bb18db4fb28927b689c646e97e900d.bundle,2792150761,126886,67,,0,e04c7cf9ee28264c33844bdd48e61d79e8849acd33274f67eff5fe22f26947e2.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "68,dllres_hotupdatedll_hotupdatedll__unity_textmeshpro_encrypt_200f0616933f1388cbede6acb3f91401.bundle,3898003930,194098,68,,0,ff4611063478f6a6cc20cf0bb1faeae4ec0d3c67ee90f0950d7c3dceafcc3772.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "69,dllres_hotupdatedll_hotupdatedll__unity_timeline_encrypt_5fd291addbefa61f47316baebddb2bb1.bundle,1516169009,67016,69,,0,1c2dfed49d3a47d1314da5be96934a4f256408a4401cd6050d656f921d66b57b.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "70,dllres_hotupdatedll_hotupdatedll__unityengine_aimodule_encrypt_81fe76fc27053a5948579f12c5d3b729.bundle,3743088961,23735,70,,0,9fe199add2e84d27e24de82b134a4b144766338a69e68be635e341c9a3a6c980.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "71,dllres_hotupdatedll_hotupdatedll__unityengine_androidjnimodule_encrypt_114fd9c4b85ea30fb3c68ebc993b9394.bundle,3046743899,30334,71,,0,ca32d1e0d60f6ab12ce02ba5076703eb39fe0aedb158baae6dea112320397ea5.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "72,dllres_hotupdatedll_hotupdatedll__unityengine_animationmodule_encrypt_d2a57136b379d8acdf95cc532cef689e.bundle,1974399460,64139,72,,0,ae1d5b878945fe46dc05a26dcb8772649f2e328b86ff183dedb63be91f33f55c.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "73,dllres_hotupdatedll_hotupdatedll__unityengine_assetbundlemodule_encrypt_5cbdca71dd4910a54b3f1522cdc5c7e3.bundle,122018372,11252,73,,0,a42d5f34cc155f70bbdc69dace12f5e6c8e953c2b3e7655022acdc5ed036d3d3.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "74,dllres_hotupdatedll_hotupdatedll__unityengine_audiomodule_encrypt_52eba3c25f785b28646682a3a90e4131.bundle,3333360853,29314,74,,0,ace0b0c1e9a140e080b2851240176b444297cda1c0452b1d41f9e40e617ea32a.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "75,dllres_hotupdatedll_hotupdatedll__unityengine_coremodule_encrypt_cb6fbf20e7b5b699a5c26ab759cab7b4.bundle,3860607431,423075,75,,0,4c0fa89159ab8fcc358f47ac2419b7700f21a93859cc844cfd76944a0b4e7a5d.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "76,dllres_hotupdatedll_hotupdatedll__unityengine_directormodule_encrypt_c4d6b7b039ad3b75b9370ec0770cc0bf.bundle,3357354468,7186,76,,0,c66ec81ffc21e97a6b527aa8b174974afc926db54423d3a3b6941b1a41f02a01.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "77,dllres_hotupdatedll_hotupdatedll__unityengine_gridmodule_encrypt_0a58d45988425c9c3948dbcea8b032d0.bundle,147012215,6891,77,,0,01ea6721eec3c8704c2ca19f0a75c23058a3d57e33fcbe46c7395e65549cc52b.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "78,dllres_hotupdatedll_hotupdatedll__unityengine_imguimodule_encrypt_7bd509bb69da50eeeb8766b4d1b2bec8.bundle,725344442,77910,78,,0,76384eb4f5a6272e8f39f974eb6fea173a892bfaea83e3cfc97aafd412aa9aeb.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "79,dllres_hotupdatedll_hotupdatedll__unityengine_imageconversionmodule_encrypt_199656c7ec0f1bacbcc227b7e87667ac.bundle,119063277,6498,79,,0,f6cb449415237ab46403888efbf16455a7a15d0c452e58fb8f3ec51ad6871017.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "80,dllres_hotupdatedll_hotupdatedll__unityengine_inputlegacymodule_encrypt_1a0cb5bddbf6eec31c3599c90c2cba94.bundle,2292225570,14584,80,,0,d0a82c1147acf69c5cc8850c3fb790c8a504ff5a28e015d67708cf6d892aad36.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "81,dllres_hotupdatedll_hotupdatedll__unityengine_inputmodule_encrypt_6eace4a1e1b39b0e8c47ffa689849204.bundle,659089364,6961,81,,0,bf8fd600903e0f5018ab4049990d91f99c5871fd7d17cf75f38a51b43da2b3c8.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "82,dllres_hotupdatedll_hotupdatedll__unityengine_jsonserializemodule_encrypt_584bbc493ea929483b180b6c440a049b.bundle,835641597,5870,82,,0,dcacfc4fd25f0da2a8f0e4af4834c24b4c251587c2b1f9d9cdce2892c48de243.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "83,dllres_hotupdatedll_hotupdatedll__unityengine_particlesystemmodule_encrypt_c241cfed838b0929179a8debc2a52e31.bundle,1268226908,60533,83,,0,4296eba58c16d0e2ae4cd78a517785781e2542104479e68597b09b6d85f1d8c1.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "84,dllres_hotupdatedll_hotupdatedll__unityengine_physics2dmodule_encrypt_499c77c75496225f5881ae4288cd8780.bundle,3503904262,44262,84,,0,3ceb11b796ec0cb4e41b554ba13974a4398b818690aa000f03179bb1e09add97.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "85,dllres_hotupdatedll_hotupdatedll__unityengine_physicsmodule_encrypt_1a6bb456a3ee8c0eb86f424bdd2a3113.bundle,2361744364,40143,85,,0,bb212321eb6fa8eaea1fd7a41919294a4b61617a303a4c07819e6d41046111a5.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "86,dllres_hotupdatedll_hotupdatedll__unityengine_screencapturemodule_encrypt_f011f44cefb84750acecbc27ddc5f01d.bundle,3052082834,5159,86,,0,c996e79c540f1feb38f987bd72c37fd205028334a1b628f4af5130fe176c1f17.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "87,dllres_hotupdatedll_hotupdatedll__unityengine_sharedinternalsmodule_encrypt_25b99ca535ae99007a00bfbb838e4f1c.bundle,218642165,10429,87,,0,d405ad288d2300f5e5822f413c5aa0338876729a73adf7fab57108fc6d8e506b.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "88,dllres_hotupdatedll_hotupdatedll__unityengine_subsystemsmodule_encrypt_4f778c9220eb623da0e35853bdf4b841.bundle,1312914865,9136,88,,0,93fae84f1d3d5fb04bdaf0980c7dfb73dd77bb00684cf4af4dfcbb12de25f215.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "89,dllres_hotupdatedll_hotupdatedll__unityengine_terrainmodule_encrypt_b78f3a29b53a4216f7fcb04713e4727e.bundle,3133514938,40381,89,,0,abacb433f7b9ba397a4fb293b916992b32f567f59832f8f6c6b08b7b8935246f.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "90,dllres_hotupdatedll_hotupdatedll__unityengine_textcoremodule_encrypt_4034c33ec3889e76e52137233ca56af1.bundle,2871680440,89796,90,,0,475eada4033e54a1b9baaec2abedb0ca2882075b5b8f68341a42b9635c260338.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "91,dllres_hotupdatedll_hotupdatedll__unityengine_textrenderingmodule_encrypt_a1a7501f74a753eb45b44a08f3ac862e.bundle,2396653438,15357,91,,0,95b1293054d375c8d7442855591afc2d86b8923952de9910d466a102d3c85acf.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "92,dllres_hotupdatedll_hotupdatedll__unityengine_tilemapmodule_encrypt_376c1b6657ba07c32a5be9b57cc1390c.bundle,3572607537,13364,92,,0,9bf8c9329a0c9064d45591aca84f8f473c103940ad326ebd26dbb44d01649f8e.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "93,dllres_hotupdatedll_hotupdatedll__unityengine_ui_encrypt_b50b0c65207c316d98b593b397dafbab.bundle,36986873,123304,93,,0,325b99266c283c5cf96813fe44a965f21fc54e16e7875359164e33526ed03230.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "94,dllres_hotupdatedll_hotupdatedll__unityengine_uielementsmodule_encrypt_504e8637e4acb111b2036cd5d2e9ba1b.bundle,780595855,354706,94,,0,e37d153f81e631dc3127ce7a1eae496ebac6be8ec16881182f47867747534ebc.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "95,dllres_hotupdatedll_hotupdatedll__unityengine_uimodule_encrypt_c69f0944c58ac89a16e5811c96e4bc6d.bundle,4103104779,13295,95,,0,d307f512993423fd30debfe437121196f89570ed7b8cb7fe6dafabe0b21e8e9e.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "96,dllres_hotupdatedll_hotupdatedll__unityengine_unityanalyticsmodule_encrypt_67eb49242c84ad5e09c383ba48192171.bundle,550870918,17715,96,,0,c0b5432ed0eac530ce11e3948a04dc2f72d6ffadc6de2f5623662537b3765efc.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "97,dllres_hotupdatedll_hotupdatedll__unityengine_unitywebrequestassetbundlemodule_encrypt_eed3adb741a115841ec2ec7cce2372fe.bundle,910548518,6036,97,,0,c9f8321c9dbd67fd24f000b857ad55a09614772d2acdf8ced349b6fe30828929.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "98,dllres_hotupdatedll_hotupdatedll__unityengine_unitywebrequestaudiomodule_encrypt_d049e608c7f125a5c985b019f39f44e4.bundle,1655561992,5809,98,,0,7875622db25edd6d7733c2337e623b40cae33a7d3eadbfae02aaa329b806c32f.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "99,dllres_hotupdatedll_hotupdatedll__unityengine_unitywebrequestmodule_encrypt_0509d712dfb5175e55fe0010b06934bc.bundle,1893816198,23063,99,,0,d48c54574a0492ebd9b54552d4127e9f582aa73f9c651207e6b05814120a495e.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "100,dllres_hotupdatedll_hotupdatedll__unityengine_unitywebrequesttexturemodule_encrypt_f88cbebc18cd4ec9b57c5bb2206c15cd.bundle,2206396983,5676,100,,0,a158d402b4a24fa72f471f76909a5cbc5fc7853b123d3ddfa6f80d01be880f4e.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "101,dllres_hotupdatedll_hotupdatedll__unityengine_unitywebrequestwwwmodule_encrypt_e810dd511c061e242ad74734f661ae5c.bundle,2306186460,10385,101,,0,02a7b6597d11bd03d088004ca3389c6baee6ffe17d4db8b7374da0d2f11c4449.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "102,dllres_hotupdatedll_hotupdatedll__unityengine_vfxmodule_encrypt_5d6b52bcf194aed55727591d84f48e13.bundle,3695713708,18017,102,,0,66b6dda91a8193def32e1fbff6ab050d13749aeea1b13566700a391aca4733d0.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "103,dllres_hotupdatedll_hotupdatedll__unityengine_vrmodule_encrypt_665d22f0361caaa83cb46d83f5a20137.bundle,775122807,17991,103,,0,1fa2c273a502e581fb7208c4eb7b1ab718492ec7f66e32d1be390a6415694d74.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "104,dllres_hotupdatedll_hotupdatedll__unityengine_videomodule_encrypt_2db481c54013ce196df8a379ac98ec0a.bundle,1116082862,15286,104,,0,8fe000477344fd4317d9be2dec16bd15fc74520ace36320856ace6a76b51113f.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "105,dllres_hotupdatedll_hotupdatedll__unityengine_xrmodule_encrypt_c152b83928745d238958a3178a562e87.bundle,3433109383,27641,105,,0,3589a6d5d515ba17967533a6b02b9f1f0d7d8e7887ade1078523a64213fec10f.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "106,dllres_hotupdatedll_hotupdatedll__unityengine_encrypt_7179eb247c5813941609d9ba3aa81902.bundle,3552473342,33471,106,,0,aa69080173a2686a59af69379a3a45c477e0898d94a313fd3a851cd39ec31805.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "107,dllres_hotupdatedll_hotupdatedll__whinarn_unitymeshsimplifier_runtime_encrypt_f41c78dfb6b0281cf797fa5740edd0c3.bundle,1754448233,38169,107,,0,f19839ef37cb3daf3ade055b20d2d9905693fb3b63f6a2038fb5320df6786671.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "108,dllres_hotupdatedll_hotupdatedll__xassetproruntime_encrypt_2ce7157a68b39b9cb40779ffd37966b9.bundle,2858932005,69879,108,,0,279c11124fa7d9e029743ade0155d70323473e1556eeed88981b49686d18b4c6.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "109,dllres_hotupdatedll_hotupdatedll__xluaruntime_encrypt_42873603ff260b15ffa9257aa16a6509.bundle,1143319042,13288,109,,0,d5ca79472bce3008c7d43e71f08ebe8142fc8f494a2722817c7ab712fafa26bf.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "110,dllres_hotupdatedll_hotupdatedll__zstdnetnativewrapper_encrypt_12a3c4230b9e820f5ca2ca201efaa771.bundle,481786518,16161,110,,0,03e76204e897b0eb5b3d41e4b289164eca42c315858e6a01b028cadcee251dff.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "111,dllres_hotupdatedll_hotupdatedll__netstandard_encrypt_500cfd944cf03da78191b980b939f70c.bundle,3235302153,34771,111,,0,48da4018abd4ae78af761080a2408ab58b4ca8efc416dc87d164d89fa6473910.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "112,dllres_hotupdatedll_hotupdatedll__noupdateassemblies_50945b2096b8d65b166c259054df6a13.bundle,2217849214,1224,112,,0,586fdb51b69189b60c81edb5a7f341b204f6ed70ecefbbe6bcb02c64d766ef87.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "113,dllres_hotupdatedll_hotupdatedll__spine-csharp_encrypt_d1df3435ea45501b0581cf45316676cb.bundle,2296046928,97191,113,,0,b236a00b9303ae3c2984595d453a7c3ebb9b23c956273fcdba16d38d502e3ef6.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "114,dllres_hotupdatedll_hotupdatedll__spine-timeline_encrypt_f19d6bfa47117f70009c2a900d82a661.bundle,4219294907,10203,114,,0,5ace76ae98dbee4eb3b73b7669518800f74b301c94a538529653c7384d71b91f.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "115,dllres_hotupdatedll_hotupdatedll__spine-unity_encrypt_062e1b968c1518538b5276cd6a4da708.bundle,3523329790,82906,115,,0,4f9aee9b29f64bef04bf61c424816e7340c61ada0eb87d101c098c2b5ef2b22e.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "116,dllres_hotupdatedll_hotupdatedll__unity-webview_encrypt_ac198b56433090e194bd87cfff907d27.bundle,2443400926,10802,116,,0,cf5d59481137ea110713b5986c71ca2fc08e3af020256a2fa5458879fae1479f.bundle"
+    },
+    {
+      "apk": "install_time_pack.apk",
+      "entry": "assets/AssetBundles/dllres",
+      "text": "HotUpdateDll,0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19|20|21|22|23|24|25|26|27|28|29|30|31|32|33|34|35|36|37|38|39|40|41|42|43|44|45|46|47|48|49|50|51|52|53|54|55|56|57|58|59|60|61|62|63|64|65|66|67|68|69|70|71|72|73|74|75|76|77|78|79|80|81|82|83|84|85|86|87|88|89|90|91|92|93|94|95|96|97|98|99|100|101|102|103|104|105|106|107|108|109|110|111|112|113|1"
+    },
+    {
+      "apk": "com.fun.lastwar.gp.apk",
+      "entry": "assets/bin/Data/ea783c2ccf76e449abcebd03ac1a7a14",
+      "text": "datatable"
+    },
+    {
+      "apk": "com.fun.lastwar.gp.apk",
+      "entry": "assets/bin/Data/ea783c2ccf76e449abcebd03ac1a7a14",
+      "text": "datatable.version"
+    },
+    {
+      "apk": "com.fun.lastwar.gp.apk",
+      "entry": "assets/bin/Data/ea783c2ccf76e449abcebd03ac1a7a14",
+      "text": "datatable_config_luatxt"
+    },
+    {
+      "apk": "com.fun.lastwar.gp.apk",
+      "entry": "assets/bin/Data/ea783c2ccf76e449abcebd03ac1a7a14",
+      "text": "datatable_lang_localization"
+    },
+    {
+      "apk": "com.fun.lastwar.gp.apk",
+      "entry": "assets/bin/Data/ea783c2ccf76e449abcebd03ac1a7a14",
+      "text": "datatable_config_csv"
+    },
+    {
+      "apk": "com.fun.lastwar.gp.apk",
+      "entry": "assets/bin/Data/ea783c2ccf76e449abcebd03ac1a7a14",
+      "text": "DataTable"
+    },
+    {
+      "apk": "com.fun.lastwar.gp.apk",
+      "entry": "assets/bin/Data/globalgamemanagers.assets.split0",
+      "text": "LoadDataTableState"
+    },
+    {
+      "apk": "com.fun.lastwar.gp.apk",
+      "entry": "assets/bin/Data/globalgamemanagers.assets.split0",
+      "text": "ClientConfig.DataTable.Parallel"
+    }
+  ],
+  "target": {
+    "dataTableVersion": "1295",
+    "descriptor": "DataTable,1295,294,1768181284"
+  },
+  "note": "Metadata/string inventory only. No XAPK/APK, bulk copyrighted assets, account/session data, secrets, tokens or private player codes are committed."
+}
