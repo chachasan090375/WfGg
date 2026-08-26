@@ -66,7 +66,7 @@
 
   function localizeTabs(sheet){
     if(document.documentElement.lang!=='fr')return;
-    const labels={attributes:'Attributs',grade:'Compétences',wall:'Étoiles',weapon:'Arme'};
+    const labels={attributes:'Attributs',grade:'Compétences',wall:'Grade',weapon:'Armes exclusives'};
     sheet.querySelectorAll('[data-sheet-tab]').forEach(btn=>{const id=btn.dataset.sheetTab;const span=btn.querySelector('span');if(span&&labels[id])span.textContent=labels[id];btn.setAttribute('aria-label',labels[id]||id)});
   }
   function compactSheet(){

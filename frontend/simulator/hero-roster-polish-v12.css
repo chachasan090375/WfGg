@@ -1,0 +1,39 @@
+/* WFGG HERO ROSTER V12 — fixed top controls, aligned portraits, softer living animation */
+
+/* Language selector stays in the page header; it no longer follows the viewport. */
+.sim-topbar{position:relative!important;top:auto!important}
+.sim-topbar .top-actions,.sim-topbar .language-strip{position:static!important;inset:auto!important;transform:none!important}
+.sim-topbar .language-strip{z-index:auto!important}
+
+/* Neutralize V10 flash/glow: V12 moves the character, never the whole card. */
+.game-hero-card.wfgg-v10-live,.game-hero-card.wfgg-v10-live.rarity-UR,.game-hero-card.wfgg-v10-live.rarity-SSR,.game-hero-card.wfgg-v10-live.rarity-SR{box-shadow:0 2px 2px #0005,inset 0 0 0 1px #ffffff30!important}
+.game-hero-card.wfgg-v10-live:before{display:none!important;animation:none!important;opacity:0!important}
+.game-hero-card.wfgg-v10-live .hero-card-portrait img,.game-hero-card.wfgg-v10-live .hero-card-footer{animation:none!important;filter:none!important}
+
+/* All portraits share the same visual head line. Per-hero variables compensate source framing. */
+.game-hero-card .hero-card-portrait{background:radial-gradient(circle at 50% 25%,#526b8f,#162946 74%)!important}
+.game-hero-card .hero-card-portrait img{object-fit:cover!important;object-position:center top!important;transform:translate3d(0,var(--wfgg-v12-base-y,-2%),0) scale(var(--wfgg-v12-zoom,1.07))!important;transform-origin:50% 0%!important;filter:saturate(1.03) contrast(1.02)!important;backface-visibility:hidden!important}
+
+/* The wanted 'living hero' effect: no blinking frame, just the character moving gently. */
+.game-hero-card.wfgg-v12-live .hero-card-portrait img{animation:wfgg-v12-character-live var(--wfgg-v12-duration,1.7s) cubic-bezier(.22,.68,.25,1) var(--wfgg-v12-delay,0ms) 1 both!important;will-change:transform,filter!important}
+.game-hero-card.wfgg-v12-live .hero-card-footer{animation:none!important}
+.game-hero-card.wfgg-v12-live:before{display:none!important}
+@keyframes wfgg-v12-character-live{
+  0%{transform:translate3d(0,var(--wfgg-v12-base-y,-2%),0) scale(var(--wfgg-v12-zoom,1.07));filter:saturate(1.03) contrast(1.02)}
+  26%{transform:translate3d(-1.2%,calc(var(--wfgg-v12-base-y,-2%) - .6%),0) scale(calc(var(--wfgg-v12-zoom,1.07) + .018));filter:saturate(1.08) contrast(1.03) brightness(1.015)}
+  55%{transform:translate3d(1.3%,calc(var(--wfgg-v12-base-y,-2%) - 1.7%),0) scale(calc(var(--wfgg-v12-zoom,1.07) + .032));filter:saturate(1.1) contrast(1.035) brightness(1.025)}
+  78%{transform:translate3d(-.35%,calc(var(--wfgg-v12-base-y,-2%) - .7%),0) scale(calc(var(--wfgg-v12-zoom,1.07) + .014));filter:saturate(1.06) contrast(1.025)}
+  100%{transform:translate3d(0,var(--wfgg-v12-base-y,-2%),0) scale(var(--wfgg-v12-zoom,1.07));filter:saturate(1.03) contrast(1.02)}
+}
+
+/* Murphy's source has much more empty space above/around the body. */
+.game-hero-card[data-hero-id="murphy"] .hero-card-portrait img{transform-origin:50% 0%!important}
+
+/* Preserve clean semantic footer; localized display name is injected by JS. */
+.wfgg-v10-name{font-size:10px!important;line-height:13px!important}
+
+@media(max-width:430px){
+  .sim-topbar{top:auto!important}
+  .language-strip{flex-wrap:nowrap!important}
+  .language-strip button{min-width:31px!important;padding:6px 7px!important}
+}
