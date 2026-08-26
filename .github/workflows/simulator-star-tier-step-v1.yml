@@ -1,0 +1,59 @@
+name: Simulator star tier step v1
+
+on:
+  push:
+    branches: [simulator-standalone-v1]
+    paths: ['.github/workflows/simulator-star-tier-step-v1.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: simulator-standalone-v1
+          fetch-depth: 0
+      - name: Enforce five tiers per star
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          roster=Path('simulator/hero-roster-v2.js')
+          s=roster.read_text()
+          old="number('stars',t('stars'),0,5,'0.1')"
+          if s.count(old)!=2: raise SystemExit(f'Expected 2 modern star-step occurrences, got {s.count(old)}')
+          roster.write_text(s.replace(old,"number('stars',t('stars'),0,5,'0.2')"))
+
+          index=Path('simulator/index.html')
+          h=index.read_text()
+          old_html='data-field="stars" type="number" min="0" max="5" step="0.1" inputmode="decimal"'
+          if h.count(old_html)!=2:
+              # one hero + one gear field may both use 0.1; change only the hero occurrence by anchoring heroStars.
+              hero_old='<span data-ui="heroStars">Étoiles</span><input data-field="stars" type="number" min="0" max="5" step="0.1" inputmode="decimal" />'
+              if h.count(hero_old)!=1: raise SystemExit('Could not uniquely locate legacy hero star field')
+              h=h.replace(hero_old,'<span data-ui="heroStars">Étoiles</span><input data-field="stars" type="number" min="0" max="5" step="0.2" inputmode="decimal" />')
+          else:
+              hero_old='<span data-ui="heroStars">Étoiles</span><input data-field="stars" type="number" min="0" max="5" step="0.1" inputmode="decimal" />'
+              if h.count(hero_old)!=1: raise SystemExit('Could not uniquely locate legacy hero star field')
+              h=h.replace(hero_old,'<span data-ui="heroStars">Étoiles</span><input data-field="stars" type="number" min="0" max="5" step="0.2" inputmode="decimal" />')
+          index.write_text(h)
+          print('Hero star inputs now use 0.2 = one of five tiers per star. Gear star input left unchanged.')
+          PY
+      - name: Commit star tier step
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add simulator/hero-roster-v2.js simulator/index.html
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'simulator: align hero stars to five native tiers'
+          git fetch origin simulator-standalone-v1
+          git rebase origin/simulator-standalone-v1
+          git push origin HEAD:simulator-standalone-v1
