@@ -1,0 +1,15 @@
+(() => {
+'use strict';
+const PROFILE_KEY='wfgg-simulator-profile-v1',UI_KEY='wfgg-simulator-optimizer-ui-v1';
+const T={
+fr:{title:'Saison 6 · effets appliqués',off:'Intersaison · totems désactivés',totems:'Totems',awakening:'Awakening enregistré · calcul détaillé en attente',braz:'Braz UR : ancien bonus monstres SSR neutralisé',none:'Aucun effet S6 différentiel actif.'},
+en:{title:'Season 6 · applied effects',off:'Off-season · Totems disabled',totems:'Totems',awakening:'Awakening stored · detailed scoring pending',braz:'UR Braz: old SSR monster bonus suppressed',none:'No active differential Season 6 effect.'},
+it:{title:'Stagione 6 · effetti applicati',off:'Fuori stagione · Totem disattivati',totems:'Totem',awakening:'Awakening registrato · calcolo dettagliato in attesa',braz:'Braz UR: vecchio bonus mostri SSR neutralizzato',none:'Nessun effetto differenziale S6 attivo.'},
+es:{title:'Temporada 6 · efectos aplicados',off:'Intertemporada · Tótems desactivados',totems:'Tótems',awakening:'Awakening guardado · cálculo detallado pendiente',braz:'Braz UR: antiguo bonus monstruos SSR neutralizado',none:'Ningún efecto diferencial S6 activo.'}
+};
+const lang=()=>T[document.documentElement.lang]?document.documentElement.lang:'fr',t=k=>T[lang()][k]||T.fr[k]||k,esc=v=>String(v??'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+function profile(){try{return JSON.parse(localStorage.getItem(PROFILE_KEY))||{};}catch(_){return{};}}
+function selectedHeroes(){const p=profile();let ui={};try{ui=JSON.parse(localStorage.getItem(UI_KEY))||{};}catch(_){}const ids=Array.isArray(ui.heroes)?ui.heroes:[];return ids.map(id=>(p.heroes||[]).find(h=>h.heroId===id)).filter(Boolean);}
+function render(){const out=document.querySelector('#optimizerResult'),runtime=window.WfGgSeason6Runtime;if(!out||!runtime)return;let box=out.querySelector('.season6-result-trace');if(!box){box=document.createElement('div');box.className='tactics-result-trace season6-result-trace';out.appendChild(box);}const heroes=selectedHeroes(),trace=runtime.trace(heroes),lines=[];if(trace.phase!=='season6')lines.push(`<span>${esc(t('off'))}</span>`);else{const active=Object.entries(trace.totemDamagePct||{}).filter(([,v])=>Number(v)>0);if(active.length)lines.push(`<span><b>${esc(t('totems'))}</b> · ${active.map(([k,v])=>`${esc(k)} +${Number(v).toFixed(1)}%`).join(' · ')}</span>`);}(trace.awakeningPending||[]).forEach(a=>lines.push(`<span><b>${esc(a.heroId)}</b> · ${esc(t('awakening'))} · ★${Number(a.awakeningStars)||0} · Tier ${Number(a.awakeningTier)||0} · Skill ${Number(a.awakeningSkillLevel)||0}</span>`));heroes.filter(h=>['braz','blaz'].includes(String(h.heroId||'').trim().toLowerCase())&&String(h.rarity||'').trim().toUpperCase()==='UR'&&Number(h.monsterDamagePct)>0).forEach(h=>lines.push(`<span class="warning-text"><b>${esc(t('braz'))}</b> · ${Number(h.monsterDamagePct).toFixed(2)}% ignoré</span>`));box.innerHTML=`<strong>${esc(t('title'))}</strong>${lines.length?lines.join(''):`<span>${esc(t('none'))}</span>`}`;}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setInterval(render,700));else setInterval(render,700);
+})();
