@@ -15,9 +15,6 @@
   function profile(){return parse(nativeGet.call(localStorage,PROFILE_KEY));}
   function writeProfile(p){nativeSet.call(localStorage,PROFILE_KEY,JSON.stringify(stamp(p)));}
 
-  // Preserve fields introduced/autosaved outside the legacy app state when that
-  // state subsequently writes the whole profile. Incoming array length remains
-  // authoritative so deleting heroes or gear still works.
   function preserveMissing(existing,incoming){
     if(Array.isArray(incoming)){
       const old=Array.isArray(existing)?existing:[];
@@ -35,9 +32,23 @@
     return incoming;
   }
 
+  // Hero inputs are autosaved in capture phase before the legacy app receives
+  // the event. Therefore, for surviving hero indices, the already-persisted
+  // object is newer than app.js's in-memory copy. Incoming array length remains
+  // authoritative so add/remove operations continue to work normally.
+  function preserveAutosavedHeroes(existing,incoming){
+    if(!Array.isArray(incoming))return incoming;
+    const old=Array.isArray(existing)?existing:[];
+    return incoming.map((hero,i)=>{
+      if(!isPlain(hero)||!isPlain(old[i]))return hero;
+      return {...hero,...clone(old[i])};
+    });
+  }
+
   function enrichProfileString(value){
     const incoming=parse(value),existing=profile();
     const merged=preserveMissing(existing,incoming);
+    if(Array.isArray(incoming.heroes)) merged.heroes=preserveAutosavedHeroes(existing.heroes,incoming.heroes);
     merged.season6=merged.season6||{};
     if(merged.season6.tacticsV2==null && existing.season6?.tacticsV2!=null) merged.season6.tacticsV2=existing.season6.tacticsV2;
     merged.simulatorUi=merged.simulatorUi||{};
@@ -94,9 +105,6 @@
   document.addEventListener('input',autosave,{capture:true});
   document.addEventListener('change',autosave,{capture:true});
 
-  // On page close/reload, persist the focused field directly. Do NOT synthesize
-  // a change event here: legacy app.js may still hold an older in-memory object
-  // and a synthetic change could rewrite freshly autosaved sibling fields.
   function commitFocused(){
     const el=document.activeElement;
     if(!el||!el.matches?.('input,select,textarea')||el.disabled||el.readOnly)return;
@@ -107,5 +115,5 @@
   document.addEventListener('visibilitychange',()=>{if(document.hidden)commitFocused();},{capture:true});
   window.addEventListener('beforeunload',commitFocused,{capture:true});
   migrate();
-  window.WfGgProfilePersistence=Object.freeze({version:'2.4.0',PROFILE_KEY,TACTICS_KEY,OPTIMIZER_KEY,migrate,commitFocused,profile:()=>clone(profile())});
+  window.WfGgProfilePersistence=Object.freeze({version:'2.4.0',revision:'hero-existing-wins-v1',PROFILE_KEY,TACTICS_KEY,OPTIMIZER_KEY,migrate,commitFocused,profile:()=>clone(profile())});
 })();

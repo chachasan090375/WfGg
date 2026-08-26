@@ -1,0 +1,203 @@
+{
+  "version": "1.0.0-research",
+  "auditedAt": "2026-08-26",
+  "purpose": "Prevent common/account-wide buffs from artificially changing relative squad ranking while preserving every differential or objective-specific modifier that can change the recommended composition or placement.",
+  "displayPolicy": {
+    "theoreticalTotals": "Sum stored displayed hero values plus explicitly entered Overlord values. Do not add a second layer of buffs that is common to every candidate squad.",
+    "commonBuffWording": "Theoretical values: common buffs shared by all squads are not added again.",
+    "rankingWording": "Composition and placement are the engine recommendation for the selected objective within the differential effects currently modeled.",
+    "doubleCountingGuard": "If a bonus is already baked into the player's displayed ATK/DEF/HP anchor, do not add it again unless the simulator is explicitly modeling a context change that is not represented in those displayed stats."
+  },
+  "classes": [
+    {
+      "id": "common-account-wide",
+      "rankingEffect": "exclude-when-identical-across-candidates",
+      "examples": [
+        "Drone global ATK/DEF/HP when identical for all compared squads",
+        "account-wide decorations/base effects that are already reflected equally",
+        "global research lines that affect every candidate identically"
+      ],
+      "reason": "They may change absolute battle values but not which candidate squad is relatively best.",
+      "sources": [
+        "https://www.lastwarvault.com/guides/general/drone-guide/"
+      ]
+    },
+    {
+      "id": "profile-anchored-type-progression",
+      "rankingEffect": "use-displayed-anchor-first-and-avoid-double-counting",
+      "examples": [
+        "Tank/Aircraft/Missile Center stats",
+        "Wall of Honor type-wide ATK/DEF/HP",
+        "hero level/star/base progression",
+        "gear base stats when already visible in displayed hero stats"
+      ],
+      "specialRule": "Wall of Honor is genuinely type-differential. If displayed hero stats already include it, do not add it again; if a future decomposed model uses pre-buff base stats, aggregate the audited per-type Wall values explicitly.",
+      "sources": [
+        "https://www.lastwarvault.com/guides/general/wall-of-honor-guide/",
+        "https://www.lastwarvault.com/squad-builder/",
+        "https://www.lastwarvault.com/guides/pre-season-1/gear-guide/"
+      ]
+    },
+    {
+      "id": "formation-and-type-differential",
+      "rankingEffect": "always-consider-when-objective-allows",
+      "examples": [
+        "3 same type +5% ATK/DEF/HP",
+        "3+2 +10% ATK/DEF/HP",
+        "4 same type +15% ATK/DEF/HP",
+        "5 same type +20% ATK/DEF/HP",
+        "Tank/Missile/Aircraft counter triangle in objectives where counters apply"
+      ],
+      "sources": [
+        "https://lastwarvault.com/guides/general/squad-building/"
+      ]
+    },
+    {
+      "id": "objective-specific-pve",
+      "rankingEffect": "apply-only-to-matching-objective",
+      "examples": [
+        "Wanted Code 39 Aircraft +50% damage",
+        "Wanted Code 64 Missile +50% damage",
+        "Wanted Code 87 Tank +50% damage",
+        "monster/PvE damage bonuses",
+        "Crystal Boss daily Defense-hero +20% damage and 5-same-type +30% Attack damage"
+      ],
+      "specialRule": "Wanted bosses do not attack, so DEF/HP and defensive Overlord effects have zero offensive ranking weight. Generic monsters do attack, so survival remains a separate constraint.",
+      "sources": []
+    },
+    {
+      "id": "drone-differential",
+      "rankingEffect": "include-when-chip-type-preset-or-resource-differs",
+      "examples": [
+        "Memory Ultra Fission type-matched damage amplification",
+        "Lethal Firestorm attack contribution",
+        "Gravitational Resonance Armor type/global defense",
+        "Absolute Quantum Field opening shield"
+      ],
+      "specialRule": "Type-matched chip variants and unique presets/resources can change which squad should receive the stronger Drone setup; do not collapse them into a single global Drone Power value.",
+      "sources": [
+        "https://www.lastwarvault.com/guides/general/drone-guide/",
+        "https://www.lastwarvault.com/guides/pre-season-1/chip-lab-guide/"
+      ]
+    },
+    {
+      "id": "hero-skill-position-support",
+      "rankingEffect": "include-when-verified-and-current-value-known",
+      "examples": [
+        "Mason back-row Tank monster damage",
+        "Marshall team ATK timed buff",
+        "Marshall highest-ATK cooldown support",
+        "Sarah positional/type support",
+        "Monica/Braz monster damage",
+        "Elsa monster survival support"
+      ],
+      "specialRule": "Provider contribution must be credited even when the provider has lower raw ATK. Positional selectors can change the best front/back arrangement."
+    },
+    {
+      "id": "exclusive-weapons-and-awakening",
+      "rankingEffect": "include-hero-specific-milestones-and-skill-cycle-effects",
+      "examples": [
+        "Exclusive Weapon level 10/20/30 milestones",
+        "type Specialist effects",
+        "Kimberly Awakening",
+        "DVA Awakening composition scaling",
+        "Tesla Awakening Missile-composition scaling"
+      ],
+      "specialRule": "Do not model skill damage as a simple raw ATK percentage when the effect depends on cooldown, hit count, target count or team composition.",
+      "sources": [
+        "https://cpt-hedge.com/guides/season-6-kim-awakening",
+        "https://cpt-hedge.com/guides/season-6-dva-awakening",
+        "https://cpt-hedge.com/guides/season-6-tesla-awakening"
+      ]
+    },
+    {
+      "id": "season6-differential",
+      "rankingEffect": "season6-only",
+      "examples": [
+        "Bear Totem Tank damage +0.5% per level",
+        "Eagle Totem Aircraft damage +0.5% per level",
+        "Jaguar Totem Missile damage +0.5% per level",
+        "temporary Braz/Kimberly/DVA/Tesla +10% Damage to Monsters",
+        "Season 6 Tactics Cards",
+        "Braz SSR to UR variant change"
+      ],
+      "specialRule": "Season 6 temporary hero monster buffs disappear outside Season 6. Braz SSR Zombie Killer must never carry into his UR kit.",
+      "sources": [
+        "https://cpt-hedge.com/guides/season-6-preseason",
+        "https://cpt-hedge.com/guides/season-6-quickstart",
+        "https://cpt-hedge.com/buildings/jaguar-totem",
+        "https://cpt-hedge.com/guides/season-6-braz-ur-promotion",
+        "https://cpt-hedge.com/guides/season-6-tactics-cards"
+      ]
+    },
+    {
+      "id": "tactics-season-gating",
+      "rankingEffect": "context-and-season-gated",
+      "examples": [
+        "Core Cards retained outside the active season",
+        "regular Battle Cards active only in their supported seasonal context",
+        "S6 Aftermath Burst",
+        "S6 Dimensional Crit",
+        "S6 Frontal Suppression",
+        "random per-card attributes"
+      ],
+      "specialRule": "Use current live card wording over launch-guide wording when the catalog changed during Season 6. Never apply PvP-only card effects to Wanted/Monster PvE unless an in-game source confirms that context.",
+      "sources": [
+        "https://cpt-hedge.com/guides/season-6-tactics-cards"
+      ]
+    },
+    {
+      "id": "overlord",
+      "rankingEffect": "unique-sixth-unit-resource",
+      "examples": [
+        "Gorilla Overlord Riot Shot",
+        "Overlord's Armor",
+        "Brutal Roar",
+        "Furious Hunt",
+        "Expert Overlord",
+        "Joint Attack / Defense Support / Survival Training"
+      ],
+      "specialRule": "An owned Overlord can be assigned to only one simultaneous squad. Displayed Overlord Power is never a direct optimization score. Wanted Codes ignore defensive/reactive effects that cannot trigger against a non-attacking boss; direct offensive skill contribution requires calibration.",
+      "sources": [
+        "https://cpt-hedge.com/guides/overlord-gorilla-guide",
+        "https://cpt-hedge.com/calculators/overlord-training"
+      ]
+    },
+    {
+      "id": "global-expedition",
+      "rankingEffect": "round-and-area-specific",
+      "examples": [
+        "Area buffs that reward skill/Awakening hit frequency",
+        "Non-Core Tactics Card total-level ATK/DEF bonuses"
+      ],
+      "specialRule": "Area buffs change by round. Core Cards are excluded from the Non-Core total-level calculation. This objective needs a versioned round/area context rather than a permanent account buff.",
+      "sources": [
+        "https://cpt-hedge.com/guides/season-6-global-expedition"
+      ]
+    },
+    {
+      "id": "seasonal-resistance-and-map",
+      "rankingEffect": "encounter-access-or-survival-context-not-generic-damage",
+      "examples": [
+        "Fungus Institute Virus Resistance",
+        "Mushroom Puff +250 Virus Resistance",
+        "Protector/Faction/area-specific effects"
+      ],
+      "specialRule": "Do not inject Resistance into generic Wanted or monster damage unless the selected encounter actually uses the Season 6 virus mechanic.",
+      "sources": [
+        "https://cpt-hedge.com/guides/season-6-preseason",
+        "https://cpt-hedge.com/guides/season-6-quickstart"
+      ]
+    }
+  ],
+  "runtimePriorities": [
+    "Finish exact autosave and profile persistence recipe",
+    "Use this policy in every team result disclaimer",
+    "Add type-matched Drone Skill Chip inventory and unique allocation",
+    "Add Wall of Honor aggregate only in a decomposition mode that prevents double counting",
+    "Apply Season 6 temporary +10% monster buffs with explicit season gating",
+    "Calibrate Awakening and Exclusive Weapon skill timelines",
+    "Calibrate Gorilla direct offense and reactive skills",
+    "Build Crystal Boss and Global Expedition objective engines"
+  ]
+}
