@@ -1,42 +1,66 @@
 {
-  "version": "1.0.0",
+  "version": "1.1.0",
   "season": 6,
   "vehicleTotems": [
     {"name":"Bear Totem","targetType":"tank","damagePctPerLevel":0.5,"maxLevel":30,"maxDamagePct":15},
     {"name":"Eagle Totem","targetType":"aircraft","damagePctPerLevel":0.5,"maxLevel":30,"maxDamagePct":15},
     {"name":"Jaguar Totem","targetType":"missile","damagePctPerLevel":0.5,"maxLevel":30,"maxDamagePct":15}
   ],
-  "awakening": [
-    {"hero":"Kimberly","type":"tank","permanent":true,"input":["unlocked","awakeningStars","awakeningTier"]},
-    {"hero":"DVA","type":"aircraft","permanent":true,"input":["unlocked","awakeningStars","awakeningTier"]},
-    {"hero":"Tesla","type":"missile","permanent":true,"input":["unlocked","awakeningStars","awakeningTier"]}
-  ],
-  "pvpTacticsCards": [
+  "awakening": {
+    "systemIntroduced": true,
+    "permanentProgressionAfterUnlock": true,
+    "commonRequirements": {"heroStars":5,"exclusiveWeaponMinLevel":20,"namedAwakeningShards":50},
+    "heroes": [
+      {"hero":"Kimberly","type":"tank","opens":"week-1","awakeningSkill":"Priceless Resolve","skillMaxLevel":40,"input":["awakeningUnlocked","awakeningStars","awakeningTier","awakeningSkillLevel"]},
+      {"hero":"DVA","type":"aircraft","opens":"week-3","awakeningSkill":"Starred Ace","skillMaxLevel":40,"input":["awakeningUnlocked","awakeningStars","awakeningTier","awakeningSkillLevel"]},
+      {"hero":"Tesla","type":"missile","opens":"week-5","awakeningSkill":"Vortex Resonance","skillMaxLevel":40,"input":["awakeningUnlocked","awakeningStars","awakeningTier","awakeningSkillLevel"]}
+    ],
+    "scoringRule": "Displayed ATK already reflects part of Awakening stat growth, but the new Awakening skill materially changes damage output. Do not treat awakening as a cosmetic checkbox; skill level and Awakening Stars must be represented before high-accuracy Code/PvE scoring."
+  },
+  "heroPromotion": {
+    "hero":"Braz",
+    "type":"missile",
+    "from":"SSR",
+    "to":"UR",
+    "opens":"week-3",
+    "permanentAfterPromotion":true,
+    "monsterTradeoff":"SSR Braz has Zombie Killer monster-damage passive; UR Braz loses it and shifts to Promotion Synergy/PvP-oriented kit.",
+    "simulatorRule":"SSR and UR Braz must be distinct variants because promoting him can reduce his dedicated monster-farming bonus even while improving general combat."
+  },
+  "tacticsCards": {
+    "catalogSource":"tactics-card-catalog.v2.json",
+    "offSeason":"Only owned Core Cards remain active; regular Battle/Resource cards are inactive.",
+    "season6":"Core Cards + Season 6 regular cards. Hybrid Squad (4+1) is removed.",
+    "liveCatalogPriority":true,
+    "launchGuideConflict":"Early S6 documentation for Frontal Suppression is stale versus the current live catalog. WfGg must use current displayed wording/values."
+  },
+  "season6TypeCardsCurrentLive": [
     {
       "name":"Dimensional Crit",
       "targetType":"tank",
-      "contexts":["pvp","global-expedition"],
-      "baseEffect":"highest-ATK Tank hero gains Crit Rate",
-      "level1ValuePct":2.7,
-      "incrementPctPerLevel":0.9,
+      "contexts":["pvp"],
+      "currentLiveEffect":"highest-ATK Tank hero gains Crit Rate",
+      "currentLiveMax12ValuePct":15.3,
       "disabledAgainstCrystalBoss":true
     },
     {
       "name":"Frontal Suppression",
       "targetType":"aircraft",
-      "contexts":["pvp","global-expedition"],
-      "baseEffect":"3 Aircraft heroes on back row gain Attack Speed",
-      "level1ValuePct":1.5,
-      "incrementPctPerLevel":0.9,
+      "contexts":["pvp"],
+      "currentLiveEffect":"all Aircraft heroes gain Attack Speed and AUTO ATK damage",
+      "currentLiveMax12AttackSpeedPct":8.5,
+      "currentLiveMax12AutoAttackDamagePct":8.5,
+      "legacyLaunchWording":"3 Aircraft heroes on back row gain Attack Speed",
+      "legacyLaunchWordingStatus":"stale-do-not-use-for-current-scoring",
       "disabledAgainstCrystalBoss":true
     },
     {
       "name":"Aftermath Burst",
       "targetType":"missile",
-      "contexts":["pvp","global-expedition"],
-      "baseEffect":"all Missile heroes gain damage over time at start of battle",
-      "level1ValuePct":18.75,
-      "incrementPctPerLevel":6.25,
+      "contexts":["pvp"],
+      "currentLiveEffect":"all Missile heroes gain damage-over-time bonus and Attack Boost",
+      "currentLiveMax12DotPct":106.25,
+      "currentLiveMax12AttackBoostPct":4.08,
       "disabledAgainstCrystalBoss":true
     }
   ],
@@ -49,5 +73,12 @@
     "season6Specific": false,
     "source":"objectives.v1.json",
     "note":"Crystal Event was rolled out to servers at Season 1+; keep it as an event objective, not a hard-coded Season 6 boss."
-  }
+  },
+  "sources": [
+    "https://lastwararchive.com/battle-cards",
+    "https://cpt-hedge.com/guides/season-6-kim-awakening",
+    "https://cpt-hedge.com/guides/season-6-dva-awakening",
+    "https://cpt-hedge.com/guides/season-6-tesla-awakening",
+    "https://cpt-hedge.com/guides/season-6-braz-ur-promotion"
+  ]
 }
