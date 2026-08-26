@@ -9,7 +9,6 @@
   const parse=v=>{try{return JSON.parse(v)||{};}catch(_){return {};}};
   const clone=v=>JSON.parse(JSON.stringify(v));
   const stamp=p=>{p.metadata=p.metadata||{};p.metadata.schema=p.metadata.schema||SCHEMA;p.metadata.updatedAt=new Date().toISOString();return p;};
-  const numeric=el=>el.type==='number'?Number(el.value||0):el.value;
   const fieldValue=el=>el.type==='checkbox'?el.checked:(el.type==='number'?(el.value===''?'':Number(el.value)):el.value);
   const isPlain=v=>!!v&&typeof v==='object'&&!Array.isArray(v);
 
@@ -42,10 +41,6 @@
     });
   }
 
-  // A freshly re-rendered legacy field can temporarily be blank even though the
-  // profile already contains the user's value. Blank DOM is therefore not
-  // allowed to erase a non-blank stored value. An intentional clear still works
-  // because the input event updates the stored value first.
   function assignVisible(obj,key,el){
     const v=fieldValue(el),old=obj?.[key];
     if(v===''&&old!==undefined&&old!==null&&old!=='')return;
@@ -95,8 +90,6 @@
     el.value=String(value);
   }
 
-  // Rehydrate controls after legacy render functions replace their DOM. This is
-  // display-only: it does not fire input/change and cannot create a save loop.
   function rehydrateVisibleForm(){
     if(typeof document==='undefined'||!document.querySelector)return;
     const p=profile();
@@ -164,7 +157,7 @@
     else if(el.dataset.field&&el.closest('.hero-card')){
       const card=el.closest('.hero-card'),i=Number(card.dataset.index);p.heroes=Array.isArray(p.heroes)?p.heroes:[];p.heroes[i]=p.heroes[i]||{};p.heroes[i][el.dataset.field]=fieldValue(el);
     } else if(el.dataset.field&&el.closest('.gear-card')){
-      const card=el.closest('.gear-card'),cards=[...document.querySelectorAll('.gear-card')],i=cards.indexOf(card);p.gear=Array.isArray(p.gear)?p.gear:[];p.gear[i]=p.gear[i]||{};p.gear[i][el.dataset.field]=fieldValue(el);
+      const card=el.closest('.gear-card'),cards=[...document.querySelectorAll('.gear-card')],i=cards.indexOf(card);if(i<0)return false;p.gear=Array.isArray(p.gear)?p.gear:[];p.gear[i]=p.gear[i]||{};p.gear[i][el.dataset.field]=fieldValue(el);
     } else if(el.dataset.researchLevel){p.research=p.research||{};const id=el.dataset.researchLevel;p.research[id]=p.research[id]||{};p.research[id].level=fieldValue(el);}
     else if(el.dataset.researchBonus){p.research=p.research||{};const id=el.dataset.researchBonus;p.research[id]=p.research[id]||{};p.research[id].displayedBonusPct=fieldValue(el);}
     else if(el.dataset.totem){p.season6=p.season6||{};p.season6.totemLevels=p.season6.totemLevels||{};p.season6.totemLevels[el.dataset.totem]=fieldValue(el);}
@@ -182,6 +175,16 @@
   }
   document.addEventListener('input',autosave,{capture:true});
   document.addEventListener('change',autosave,{capture:true});
+
+  // app.js attaches legacy onchange handlers directly on hero controls. Those
+  // handlers update its in-memory object, save the whole profile, and can then
+  // replace the card DOM. Re-apply the detached control's final value after that
+  // handler has completed so event ordering can never erase the user's edit.
+  document.addEventListener('change',e=>{
+    const el=e.target;
+    if(!el?.dataset?.field||!el.closest?.('.hero-card')||el.closest?.('#tacticsCardsV2'))return;
+    try{saveMainInput(el);}catch(_){}
+  },{capture:false});
 
   function commitFocused(){
     const el=document.activeElement;
