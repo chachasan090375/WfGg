@@ -49,6 +49,8 @@ try{
   assert.equal(safe.PORTAL_URL,'https://wfgg.pages.dev/');
   assert.ok(safe.ALLIANCE_NOTICE.includes('https://wfgg.pages.dev/'));
   assert.match(safe.ALLIANCE_NOTICE,/Nouveau portail WfGg/i);
+  assert.match(safe.ALLIANCE_NOTICE,/bureau R4\/R5/i);
+  for(const name of ['Metatouk','Ogie Ogilthorpe 7','ValFada','Shockwave XY','Sab93fr','εlο ツ','cat 49','Flawene','El Tonton','Le Ced83','SnooPsy']) assert.ok(!safe.ALLIANCE_NOTICE.includes(name),`named thanks leaked into alliance notification ${name}`);
   for(const code of ['111111','222222','333333']) assert.ok(!safe.ALLIANCE_NOTICE.includes(code),'personal code leaked into alliance notification');
 
   const allianceUi=page.locator('#inviteAllianceNotice');
@@ -65,10 +67,8 @@ try{
   assert.match(r4,/notifications d’alliance/i);
   assert.ok(r4.includes('Inter-Saison'));
   assert.ok(r4.includes('111111'));
-  for(const name of ['Metatouk','Ogie Ogilthorpe 7','ValFada','Shockwave XY','Sab93fr','εlο ツ','cat 49','Flawene']) assert.ok(r4.includes(name),`missing thanks ${name}`);
-  assert.ok(!r4.includes('εlα ツ'),'old alpha alias leaked into invitation');
-  assert.ok(!r4.includes('εlo ツ'),'Latin-o alias leaked into invitation');
-  for(const name of ['El Tonton','Le Ced83','SnooPsy']) assert.ok(!r4.includes(name),`excluded thanks leaked ${name}`);
+  assert.match(r4,/bureau R4\/R5/i);
+  for(const name of ['Metatouk','Ogie Ogilthorpe 7','ValFada','Shockwave XY','Sab93fr','εlο ツ','εlα ツ','εlo ツ','cat 49','Flawene','El Tonton','Le Ced83','SnooPsy']) assert.ok(!r4.includes(name),`named thanks leaked ${name}`);
   assert.ok(r4.includes('Ton rang R4'));
   assert.ok(r4.includes('Joueurs & accès'));
   assert.ok(r4.includes('réinitialisation des codes'));

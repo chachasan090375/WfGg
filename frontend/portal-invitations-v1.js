@@ -7,8 +7,6 @@
 
 const SENT_KEY='wfgg_invites_sent_v1';
 const PORTAL_URL='https://wfgg.pages.dev/';
-const THANKED_OFFICERS=['Metatouk','Ogie Ogilthorpe 7','ValFada','Shockwave XY','Sab93fr','εlα ツ','cat 49','Flawene'];
-const EXCLUDED_FROM_THANKS=['El Tonton','Le Ced83','SnooPsy'];
 let records=[];
 let activeIndex=0;
 let sourceName='';
@@ -122,10 +120,10 @@ const futureBlocks=[
   `Nous allons progressivement ajouter de nouveaux modules, dont le simulateur d'équipes et des générateurs de notifications et de communications.`
 ];
 const thankBlocks=[
-  `Un grand merci à ${THANKED_OFFICERS.join(', ')} pour leur travail et leur implication dans la mise en place du projet, ainsi que pour leur investissement durant toute l'Inter-Saison.`,
-  `Merci tout particulièrement à ${THANKED_OFFICERS.join(', ')}, qui ont participé au travail du bureau autour de ce projet et pour leur investissement durant toute l'Inter-Saison.`,
-  `Ce lancement doit aussi beaucoup au travail de ${THANKED_OFFICERS.join(', ')} : merci à eux pour le temps et l'énergie consacrés au projet et pour leur investissement durant toute l'Inter-Saison.`,
-  `Je tiens à remercier ${THANKED_OFFICERS.join(', ')} pour leur contribution au travail mené par le bureau sur cette plateforme et pour leur investissement durant toute l'Inter-Saison.`
+  `Un grand merci à l'ensemble du bureau R4/R5 pour son travail et son implication dans la mise en place du projet, ainsi que pour son investissement durant toute l'Inter-Saison.`,
+  `Merci tout particulièrement au bureau R4/R5 pour le travail collectif mené autour de ce projet et pour son investissement durant toute l'Inter-Saison.`,
+  `Ce lancement doit aussi beaucoup au travail du bureau R4/R5 : un grand merci pour le temps et l'énergie consacrés au projet et à toute l'Inter-Saison.`,
+  `Je tiens à remercier l'ensemble du bureau R4/R5 pour sa contribution à cette plateforme et pour son investissement durant toute l'Inter-Saison.`
 ];
 const closings=[
   `Tu peux te connecter dès maintenant. Bonne découverte !`,

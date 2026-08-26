@@ -8,7 +8,6 @@
    - personal codes stay browser-local and are never included in the alliance notice.
 */
 const PORTAL_URL='https://wfgg.pages.dev/';
-const THANKED=['Metatouk','Ogie Ogilthorpe 7','ValFada','Shockwave XY','Sab93fr','εlο ツ','cat 49','Flawene'];
 const canonicalPseudo=p=>{
   const s=String(p||'').trim();
   return (s==='εlα ツ'||s==='εlo ツ')?'εlο ツ':s;
@@ -28,7 +27,7 @@ const ALLIANCE_NOTICE=[
   '',
   '🔐 Votre code personnel vous sera envoyé séparément en message privé.',
   '',
-  `💜 Merci à ${THANKED.join(', ')} pour leur travail sur le projet et leur investissement durant toute l’Inter-Saison.`
+  `💜 Un grand merci à l’ensemble du bureau R4/R5 pour son travail sur le projet et son investissement durant toute l’Inter-Saison.`
 ].join('\n');
 const openings=[
   p=>`Salut ${p} 👋 Ton accès au nouveau portail WfGg est prêt !`,
@@ -63,10 +62,10 @@ const notificationHints=[
   `🌐 Tu trouveras le chemin vers l’appli dans les notifications d’alliance.`
 ];
 const thanks=[
-  `💜 Merci à ${THANKED.join(', ')} pour leur travail sur le projet et leur investissement durant toute l’Inter-Saison.`,
-  `💜 Un grand merci à ${THANKED.join(', ')} pour le temps consacré au projet et à toute l’Inter-Saison.`,
-  `💜 Ce lancement doit aussi beaucoup à ${THANKED.join(', ')} : merci pour le projet et pour toute l’Inter-Saison.`,
-  `💜 Merci tout particulièrement à ${THANKED.join(', ')} pour leur contribution au portail et leur investissement pendant l’Inter-Saison.`
+  `💜 Un grand merci à l’ensemble du bureau R4/R5 pour son travail sur le projet et son investissement durant toute l’Inter-Saison.`,
+  `💜 Merci au bureau R4/R5 pour le travail collectif, le temps consacré au projet et l’investissement de toute l’Inter-Saison.`,
+  `💜 Ce lancement doit aussi beaucoup au travail du bureau R4/R5 : merci pour l’énergie consacrée au projet et à toute l’Inter-Saison.`,
+  `💜 Merci à l’ensemble du bureau R4/R5 pour sa contribution au portail et son investissement pendant l’Inter-Saison.`
 ];
 const codeLines=[
   c=>`🔐 Ton code personnel : ${c}`,
