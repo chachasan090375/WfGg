@@ -1,0 +1,50 @@
+name: Simulator hero level cap 175 v1
+
+on:
+  push:
+    branches: [simulator-standalone-v1]
+    paths: ['.github/workflows/simulator-hero-level-cap-175-v1.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: simulator-standalone-v1
+          fetch-depth: 0
+      - name: Patch only hero level input caps
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('simulator/hero-roster-v2.js')
+          s=p.read_text()
+          old="number('level',t('level'),1,200)"
+          count=s.count(old)
+          if count != 2:
+              raise SystemExit(f'Expected exactly 2 level-cap occurrences, found {count}')
+          s=s.replace(old,"number('level',t('level'),1,175)")
+          if "number('level',t('level'),1,200)" in s:
+              raise SystemExit('A 200 hero-level cap remains')
+          p.write_text(s)
+          print('Patched exactly 2 hero level inputs: max 200 -> 175')
+          PY
+      - name: Commit level cap
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add simulator/hero-roster-v2.js
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'simulator: cap hero level inputs at 175 for HQ35'
+          git fetch origin simulator-standalone-v1
+          git rebase origin/simulator-standalone-v1
+          git push origin HEAD:simulator-standalone-v1
