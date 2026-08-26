@@ -11,7 +11,7 @@
   };
   const lang=()=>L[document.documentElement.lang]?document.documentElement.lang:'fr';
   const t=k=>L[lang()][k]||L.fr[k]||k;
-  const esc=v=>String(v??'').replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]||c));
+  const esc=v=>String(v??'').replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]||c));
   const num=v=>{const x=Number(v);return Number.isFinite(x)?x:0;};
   const readJson=(key)=>{try{return JSON.parse(localStorage.getItem(key))||{};}catch(_){return{};}};
   const defaultGorilla=()=>({id:OVERLORD_ID,owned:false,deployable:false,assignedSquadSlot:0,promotionLevel:0,bondRating:'',displayedPower:0,training:{jointAttack:0,defenseSupport:0,survivalTraining:0},skills:{riotShot:0,overlordsArmor:0,brutalRoar:0,furiousHunt:0,expertOverlordUnlocked:false}});
@@ -112,5 +112,5 @@
   }
 
   setInterval(()=>{renderAccount(false);renderOptimizer();renderSummary();},450);
-  window.WfGgOverlordRuntime=Object.freeze({version:'1.0.0',OVERLORD_ID,getGorilla,allocationState,objectiveContribution:(objectiveId,slot)=>{const a=allocationState(slot);return{...a,objectiveId,numericScoreAdjustment:0,directOffenseCalibrationPending:a.included&&String(objectiveId).startsWith('wanted-')}}});
+  window.WfGgOverlordRuntime=Object.freeze({version:'1.0.1',OVERLORD_ID,getGorilla,allocationState,objectiveContribution:(objectiveId,slot)=>{const a=allocationState(slot);return{...a,objectiveId,numericScoreAdjustment:0,directOffenseCalibrationPending:a.included&&String(objectiveId).startsWith('wanted-')}}});
 })();
