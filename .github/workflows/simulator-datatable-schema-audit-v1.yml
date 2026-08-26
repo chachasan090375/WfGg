@@ -116,7 +116,7 @@ jobs:
           results=[]
           with zipfile.ZipFile(table) as z:
               names=[x['name'] for x in meta['candidates'] if strong.search(x['name'])]
-              for i,n in enumerate(names[:260]):
+              for n in names[:260]:
                   raw=z.read(n)
                   rec={'name':n,'bytes':len(raw),'magic':raw[:8].hex(),'sha256':hashlib.sha256(raw).hexdigest()}
                   with tempfile.NamedTemporaryFile(suffix='.luac') as f:
@@ -159,7 +159,11 @@ jobs:
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git add simulator/research/datatable-hero-schema-audit.v1.json
-          if ! git diff --cached --quiet; then
-            git commit -m 'simulator: capture DataTable 1295 hero schema audit'
-            git push origin HEAD:simulator-standalone-v1
+          if git diff --cached --quiet; then
+            echo 'No schema changes to commit.'
+            exit 0
           fi
+          git commit -m 'simulator: capture DataTable 1295 hero schema audit'
+          git fetch origin simulator-standalone-v1
+          git rebase origin/simulator-standalone-v1
+          git push origin HEAD:simulator-standalone-v1
