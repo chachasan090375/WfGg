@@ -1,0 +1,89 @@
+name: Simulator smoke
+
+on:
+  push:
+    branches:
+      - simulator-standalone-v1
+    paths:
+      - 'simulator/**'
+      - '.github/workflows/simulator-smoke.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check JavaScript syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS= read -r -d '' file; do
+            echo "node --check $file"
+            node --check "$file"
+          done < <(find simulator -type f -name '*.js' -print0)
+
+      - name: Validate JSON
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          files = sorted(Path('simulator').rglob('*.json'))
+          for p in files:
+              with p.open('r', encoding='utf-8') as f:
+                  json.load(f)
+              print('json ok', p)
+          print(f'{len(files)} JSON files valid')
+          PY
+
+      - name: Check local page assets
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from html.parser import HTMLParser
+          from pathlib import Path
+          from urllib.parse import urlparse
+
+          root = Path('simulator')
+          html = (root / 'index.html').read_text(encoding='utf-8')
+
+          class P(HTMLParser):
+              def __init__(self):
+                  super().__init__(); self.urls=[]
+              def handle_starttag(self, tag, attrs):
+                  d=dict(attrs)
+                  if tag == 'script' and d.get('src'): self.urls.append(d['src'])
+                  if tag == 'link' and d.get('href'): self.urls.append(d['href'])
+
+          p=P(); p.feed(html)
+          missing=[]
+          for raw in p.urls:
+              path=urlparse(raw).path
+              if not path or path.startswith('/') or '://' in raw: continue
+              target=root / path
+              if not target.exists(): missing.append((raw, str(target)))
+              else: print('asset ok', raw)
+          if missing:
+              raise SystemExit('Missing assets: '+repr(missing))
+          PY
+
+      - name: HTTP smoke
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m http.server 4173 --directory simulator >/tmp/wfgg-simulator-http.log 2>&1 &
+          pid=$!
+          trap 'kill $pid 2>/dev/null || true' EXIT
+          for i in {1..20}; do
+            if curl -fsS http://127.0.0.1:4173/ >/tmp/wfgg-simulator-index.html; then break; fi
+            sleep 0.25
+          done
+          grep -q 'WfGg · Simulateur' /tmp/wfgg-simulator-index.html
+          curl -fsS http://127.0.0.1:4173/data/tactics-card-catalog.v2.json >/dev/null
+          curl -fsS http://127.0.0.1:4173/positioning-engine.v1.js >/dev/null
+          echo 'Simulator HTTP smoke OK'
