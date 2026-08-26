@@ -2,8 +2,10 @@ name: Repair simulator bootstrap
 
 on:
   push:
-    branches: [simulator-standalone-v1]
-    paths: ['.github/workflows/simulator-fix-bootstrap.yml']
+    branches:
+      - simulator-standalone-v1
+    paths:
+      - '.github/workflows/simulator-fix-bootstrap.yml'
 
 permissions:
   contents: write
@@ -15,39 +17,25 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: simulator-standalone-v1
-      - name: Fix temporal-dead-zone bootstrap and commit
+      - name: Repair app bootstrap ordering
         shell: bash
         run: |
+          set -euo pipefail
           python3 - <<'PY'
           from pathlib import Path
-          p=Path('simulator/app.js')
-          s=p.read_text(encoding='utf-8')
-          old="""  let schemas = {};
-  let state = loadState();
-  let researchTab = 'hero';
-
-  const $ = s => document.querySelector(s);
-  const $$ = s => [...document.querySelectorAll(s)];
-  const esc = value => String(value ?? '').replace(/[&<>\\\"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','\\\"':'&quot;'}[c]));
-  const clone = obj => JSON.parse(JSON.stringify(obj));
-  const ui = key => (UI[state.locale] || UI.fr)[key] ?? UI.fr[key] ?? key;
-"""
-          new="""  let schemas = {};
-  let researchTab = 'hero';
-
-  const $ = s => document.querySelector(s);
-  const $$ = s => [...document.querySelectorAll(s)];
-  const esc = value => String(value ?? '').replace(/[&<>\\\"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','\\\"':'&quot;'}[c]));
-  const clone = obj => JSON.parse(JSON.stringify(obj));
-  let state = loadState();
-  const ui = key => (UI[state.locale] || UI.fr)[key] ?? UI.fr[key] ?? key;
-"""
-          if old not in s:
-              raise SystemExit('expected bootstrap block not found; refusing blind edit')
-          p.write_text(s.replace(old,new,1),encoding='utf-8')
+          p = Path('simulator/app.js')
+          s = p.read_text(encoding='utf-8')
+          bad = "  let state = loadState();\n"
+          marker = "  const clone = obj => JSON.parse(JSON.stringify(obj));\n"
+          if bad not in s or marker not in s:
+              raise SystemExit('bootstrap markers missing')
+          s = s.replace(bad, '', 1)
+          s = s.replace(marker, marker + bad, 1)
+          p.write_text(s, encoding='utf-8')
           PY
-          git config user.name 'wfgg-simulator-ci'
-          git config user.email 'actions@users.noreply.github.com'
+          git config user.name wfgg-simulator-ci
+          git config user.email actions@users.noreply.github.com
           git add simulator/app.js
+          git diff --cached --check
           git commit -m 'fix: initialize simulator helpers before loading profile'
           git push origin HEAD:simulator-standalone-v1
