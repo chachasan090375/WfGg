@@ -20,25 +20,37 @@ jobs:
           ref: simulator-standalone-v1
           fetch-depth: 0
 
-      - name: Query public Last War version metadata
+      - name: Query current public Last War version metadata
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p /tmp/wfgg-balance simulator/research
           base='https://lastwar-serverlist-cf.lastwarapp.net/gameservice/getlsu3dversion.php'
-          url="$base?packageName=com.fun.lastwar.gp&platform=Android&appVersion=1.0.351&gm=0&server=&uid=&deviceId=&table_env=&buildId=1835&returnJson=1&unityVersion=440"
+          # Current Android release as of 2026-08-26: 1.0.359, versionCode/buildId 1864.
+          url="$base?packageName=com.fun.lastwar.gp&platform=Android&appVersion=1.0.359&gm=0&server=&uid=&deviceId=&table_env=&buildId=1864&returnJson=1&unityVersion=440"
           curl --fail --silent --show-error --location --retry 3 --connect-timeout 15 --max-time 45 "$url" -o /tmp/wfgg-balance/version.json
           python3 - <<'PY'
           import json, pathlib
-          src = json.load(open('/tmp/wfgg-balance/version.json', encoding='utf-8'))
-          # Keep only public update metadata. Never persist resMsg, tokens, IDs or account/session data.
-          allowed = ['code','msg','updateType','downloadurl','hotUpdateMsg','lwfile2','table_version','client_config','appVersion','version']
-          out = {k: src.get(k) for k in allowed if k in src}
-          out['source'] = 'public getlsu3dversion.php; anonymous request; no account credentials'
-          pathlib.Path('simulator/research/public-balance-discovery.json').write_text(json.dumps(out, ensure_ascii=False, indent=2)+"\n", encoding='utf-8')
-          print(json.dumps(out, ensure_ascii=False, indent=2))
-          if not src.get('table_version'):
-              raise SystemExit('table_version missing from public response')
+          src=json.load(open('/tmp/wfgg-balance/version.json',encoding='utf-8'))
+          hot=str(src.get('hotUpdateMsg') or '')
+          dt=None
+          for item in hot.split(';'):
+              p=[x.strip() for x in item.split(',')]
+              if p and p[0].lower()=='datatable':
+                  dt={'raw':item,'version':p[1] if len(p)>1 else None,'field2':p[2] if len(p)>2 else None,'field3':p[3] if len(p)>3 else None}
+                  break
+          tv=str(src.get('table_version') or '')
+          # Persist public hot-update metadata only; never persist RSA material or any account/session fields.
+          allowed=['code','msg','updateType','downloadurl','hotUpdateMsg','lwfile2','table_version','client_config','appVersion','version']
+          out={k:src.get(k) for k in allowed if k in src}
+          out['dataTableDescriptor']=dt
+          out['responseKeys']=sorted(k for k in src.keys() if k not in {'resMsg'})
+          out['requestVersion']={'appVersion':'1.0.359','buildId':1864,'platform':'Android'}
+          out['source']='public getlsu3dversion.php; anonymous request; no account credentials'
+          pathlib.Path('simulator/research/public-balance-discovery.json').write_text(json.dumps(out,ensure_ascii=False,indent=2)+"\n",encoding='utf-8')
+          print(json.dumps(out,ensure_ascii=False,indent=2))
+          if not tv and not (dt and dt.get('version')):
+              raise SystemExit('No table_version and no DataTable descriptor in public response')
           PY
 
       - name: Probe table archive candidates
@@ -46,32 +58,47 @@ jobs:
         run: |
           set -euo pipefail
           python3 - <<'PY' > /tmp/wfgg-balance/candidates.txt
-          import json, re
+          import json
           d=json.load(open('/tmp/wfgg-balance/version.json'))
-          desc=str(d.get('table_version','')).split(';')[0]
-          parts=desc.split(',')
-          version=parts[0].strip() if parts else ''
-          md5=parts[2].strip() if len(parts)>2 else ''
-          download=str(d.get('downloadurl','') or '').strip()
+          versions=[]; hashes=[]
+          tv=str(d.get('table_version') or '').split(';')[0]
+          if tv:
+              p=[x.strip() for x in tv.split(',')]
+              if p and p[0]: versions.append(p[0])
+              if len(p)>2 and p[2]: hashes.append(p[2])
+          hot=str(d.get('hotUpdateMsg') or '')
+          for item in hot.split(';'):
+              p=[x.strip() for x in item.split(',')]
+              if p and p[0].lower()=='datatable':
+                  if len(p)>1 and p[1]: versions.append(p[1])
+                  # Probe both trailing fields because client builds have changed descriptor shape.
+                  if len(p)>2 and p[2]: hashes.append(p[2])
+                  if len(p)>3 and p[3]: hashes.append(p[3])
+          versions=list(dict.fromkeys(versions)); hashes=list(dict.fromkeys(hashes))
           names=[]
-          if version and md5:
-              names += [f'table_{version}_{md5}.data', f'table_{version}.data']
-          if download:
+          for v in versions:
+              names += [f'table_{v}.data',f'Table_{v}.data',f'DataTable_{v}.data',f'datatable_{v}.data',f'{v}.data']
+              for h in hashes:
+                  names += [f'table_{v}_{h}.data',f'DataTable_{v}_{h}.data',f'table_{h}_{v}.data']
+          names=list(dict.fromkeys(names))
+          download=str(d.get('downloadurl') or '').strip()
+          if download.startswith('http') and 'play.google.com' not in download:
               if download.endswith('.data'): print(download)
-              for n in names: print(download.rstrip('/')+'/'+n)
-          for base in [
-              'https://lastwar-cdn.akamaized.net/hotupdate',
-              'https://lastwar-cdn.lastwarapp.net/hotupdate',
-              'https://cdn.lastwar.com/hotupdate']:
-              for n in names:
-                  print(base+'/'+n)
-                  print(base+'/table/'+n)
+              else:
+                  for n in names: print(download.rstrip('/')+'/'+n)
+          bases=['https://lastwar-cdn.akamaized.net/hotupdate','https://lastwar-cdn.lastwarapp.net/hotupdate','https://cdn.lastwar.com/hotupdate']
+          subdirs=['','table','DataTable','datatable','data','android','Android']
+          for base in bases:
+              for sub in subdirs:
+                  prefix=base if not sub else base+'/'+sub
+                  for n in names: print(prefix+'/'+n)
           PY
+          awk '!seen[$0]++' /tmp/wfgg-balance/candidates.txt > /tmp/wfgg-balance/candidates.unique
           : > /tmp/wfgg-balance/probe.tsv
           found=''
           while IFS= read -r u; do
             [[ -z "$u" ]] && continue
-            code=$(curl -L -sS -o /tmp/wfgg-balance/candidate.data -w '%{http_code}' --connect-timeout 10 --max-time 40 "$u" || true)
+            code=$(curl -L -sS -o /tmp/wfgg-balance/candidate.data -w '%{http_code}' --connect-timeout 8 --max-time 25 "$u" || true)
             size=$(wc -c </tmp/wfgg-balance/candidate.data 2>/dev/null || echo 0)
             magic=$(xxd -p -l 8 /tmp/wfgg-balance/candidate.data 2>/dev/null || true)
             printf '%s\t%s\t%s\t%s\n' "$code" "$size" "$magic" "$u" >> /tmp/wfgg-balance/probe.tsv
@@ -81,29 +108,28 @@ jobs:
               found=1
               break
             fi
-          done < /tmp/wfgg-balance/candidates.txt
+          done < /tmp/wfgg-balance/candidates.unique
           python3 - <<'PY'
-          import json, pathlib
+          import json,pathlib
           rows=[]
           p=pathlib.Path('/tmp/wfgg-balance/probe.tsv')
           if p.exists():
               for line in p.read_text().splitlines():
-                  code,size,magic,url=line.split('\t',3)
-                  rows.append({'http':int(code or 0),'bytes':int(size or 0),'magic':magic,'url':url})
-          pathlib.Path('simulator/research/public-balance-probe.json').write_text(json.dumps({'candidates':rows},indent=2)+"\n")
+                  try:
+                      code,size,magic,url=line.split('\t',3)
+                      rows.append({'http':int(code or 0),'bytes':int(size or 0),'magic':magic,'url':url})
+                  except Exception: pass
+          found=pathlib.Path('/tmp/wfgg-balance/found_url.txt')
+          pathlib.Path('simulator/research/public-balance-probe.json').write_text(json.dumps({'found':found.read_text() if found.exists() else None,'candidates':rows},indent=2)+"\n")
           PY
-          if [[ -z "$found" ]]; then
-            echo 'No table archive candidate resolved yet; metadata discovery is still useful.'
-            exit 0
-          fi
-          echo "FOUND $(cat /tmp/wfgg-balance/found_url.txt)"
+          if [[ -n "$found" ]]; then echo "FOUND $(cat /tmp/wfgg-balance/found_url.txt)"; else echo 'No archive candidate resolved yet.'; fi
 
       - name: Inspect plain ZIP table archive
-        if: ${{ hashFiles('/tmp/wfgg-balance/table.data') != '' }}
         shell: bash
         continue-on-error: true
         run: |
           set -euo pipefail
+          [[ -f /tmp/wfgg-balance/table.data ]] || { echo 'No table archive found in probe.'; exit 0; }
           magic=$(xxd -p -l 4 /tmp/wfgg-balance/table.data)
           if [[ "$magic" != 504b0304* ]]; then
             echo "Archive is wrapped ($magic); leave deobfuscation for audited follow-up."
@@ -111,17 +137,17 @@ jobs:
           fi
           mkdir -p /tmp/wfgg-balance/tables
           unzip -q /tmp/wfgg-balance/table.data -d /tmp/wfgg-balance/tables
-          find /tmp/wfgg-balance/tables -maxdepth 1 -type f -printf '%f\n' | sort > simulator/research/public-table-file-list.txt
-          find /tmp/wfgg-balance/tables -maxdepth 1 -type f \( -iname '*hero*' -o -iname '*skill*' -o -iname '*rank*' -o -iname '*star*' -o -iname '*weapon*' \) -printf '%f\n' | sort > simulator/research/public-hero-table-candidates.txt
+          find /tmp/wfgg-balance/tables -type f -printf '%P\n' | sort > simulator/research/public-table-file-list.txt
+          grep -Ei '(^|/).*(hero|skill|rank|star|weapon).*' simulator/research/public-table-file-list.txt > simulator/research/public-hero-table-candidates.txt || true
           echo '=== HERO TABLE CANDIDATES ==='
-          cat simulator/research/public-hero-table-candidates.txt
+          cat simulator/research/public-hero-table-candidates.txt || true
           mkdir -p simulator/research/client-table-samples
           while IFS= read -r f; do
             [[ -z "$f" ]] && continue
-            # Persist text tables only, capped to relevant small/medium files. No player/session data exists in these balance tables.
             src="/tmp/wfgg-balance/tables/$f"
-            if file "$src" | grep -qi text && [[ $(wc -c < "$src") -le 2000000 ]]; then
-              cp "$src" "simulator/research/client-table-samples/$f"
+            if file "$src" | grep -Eqi 'text|JSON|script' && [[ $(wc -c < "$src") -le 3000000 ]]; then
+              safe=$(echo "$f" | tr '/' '_')
+              cp "$src" "simulator/research/client-table-samples/$safe"
             fi
           done < simulator/research/public-hero-table-candidates.txt
 
@@ -136,6 +162,6 @@ jobs:
           if git diff --cached --quiet; then
             echo 'No discovery changes to commit.'
           else
-            git commit -m 'simulator: capture public balance table metadata'
+            git commit -m 'simulator: capture current public balance metadata'
             git push origin HEAD:simulator-standalone-v1
           fi
