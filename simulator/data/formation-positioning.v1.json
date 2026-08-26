@@ -1,0 +1,67 @@
+{
+  "version": "1.0.0-research",
+  "auditedAt": "2026-08-26",
+  "purpose": "Model hero placement independently from squad composition so positional and adjacency buffs can affect optimization without inventing unverified hero effects.",
+  "positions": [
+    {"id":"front-left","row":"front","column":"left","index":0},
+    {"id":"front-right","row":"front","column":"right","index":1},
+    {"id":"back-left","row":"back","column":"left","index":2},
+    {"id":"back-center","row":"back","column":"center","index":3},
+    {"id":"back-right","row":"back","column":"right","index":4}
+  ],
+  "optimization": {
+    "heroesPerSquad": 5,
+    "permutationCount": 120,
+    "rule": "Every five-hero composition must be evaluated over all 5! placements when at least one active effect depends on position, row, adjacency or relative placement.",
+    "skipPermutationOptimizationWhenNoActivePositionalEffect": true
+  },
+  "geometry": {
+    "status": "needs-in-game-validation-for-generic-adjacent-wording",
+    "note": "Do not assume that the word adjacent in a skill maps to this generic graph unless the in-game skill text or a validated test confirms it. Explicit row/slot targeting remains safe.",
+    "candidateAdjacencyGraph": {
+      "front-left": ["front-right","back-left","back-center"],
+      "front-right": ["front-left","back-center","back-right"],
+      "back-left": ["front-left","back-center"],
+      "back-center": ["front-left","front-right","back-left","back-right"],
+      "back-right": ["front-right","back-center"]
+    }
+  },
+  "targetSelectors": [
+    "self",
+    "all-allies",
+    "all-other-allies",
+    "same-row",
+    "front-row",
+    "back-row",
+    "adjacent",
+    "explicit-slots",
+    "highest-atk",
+    "lowest-atk",
+    "same-troop-type",
+    "different-troop-type"
+  ],
+  "offensiveStats": [
+    "attack",
+    "damage",
+    "skillDamage",
+    "critRate",
+    "critDamage",
+    "attackSpeed",
+    "cooldownReduction",
+    "pveDamage",
+    "monsterDamage",
+    "targetDamageTaken"
+  ],
+  "effectSchema": {
+    "required": ["id","providerHeroId","selector","stat","value","stacking","contexts","confidence"],
+    "optional": ["troopTypeFilter","roleFilter","damageTypeFilter","explicitSlots","condition","durationSeconds","source","notes"],
+    "confidenceAllowed": ["verified","strong-community","needs-in-game-validation"],
+    "productionRule": "Effects marked needs-in-game-validation must not change a production recommendation by default."
+  },
+  "verifiedHeroEffects": [],
+  "pendingWork": [
+    "Populate hero skill effects from audited sources or in-game captures.",
+    "Confirm the exact geometry used by skills whose wording only says adjacent.",
+    "Record whether each positional buff affects the provider, targets, or both and whether it stacks."
+  ]
+}
