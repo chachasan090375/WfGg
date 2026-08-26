@@ -64,6 +64,11 @@ jobs:
           s=s.replace("if(s)s.style.display='none';","if(s)s.classList.add('legacy-tactics-hidden');",1)
           tactics.write_text(s,encoding='utf-8')
 
+          overlord=Path('simulator/overlord-profile-v1.js')
+          s=overlord.read_text(encoding='utf-8')
+          s=s.replace(' style=\"margin-top:10px\"','')
+          overlord.write_text(s,encoding='utf-8')
+
           css=Path('simulator/style.css')
           s=css.read_text(encoding='utf-8')
           add="\n.save-state{opacity:.7;transition:opacity .2s ease}.save-state.save-state-flash{opacity:1}.summary-json-card{margin-top:12px}.summary-json-toolbar{margin-top:10px;margin-bottom:0}.legacy-tactics-hidden{display:none!important}\n"
