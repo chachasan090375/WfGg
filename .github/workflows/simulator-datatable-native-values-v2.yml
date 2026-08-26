@@ -1,0 +1,236 @@
+name: Simulator DataTable native hero values v2
+
+on:
+  push:
+    branches: [simulator-standalone-v1]
+    paths: ['.github/workflows/simulator-datatable-native-values-v2.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: simulator-standalone-v1
+          fetch-depth: 0
+
+      - name: Prepare verified DataTable and tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/lw/xapk /tmp/lw/decompiled simulator/research
+          curl -fL --retry 2 --connect-timeout 20 --max-time 900 'https://d.apkpure.net/b/XAPK/com.fun.lastwar.gp?versionCode=1864' -o /tmp/lw/current.xapk
+          python3 - <<'PY'
+          import json,zipfile,pathlib,re,hashlib
+          root=pathlib.Path('/tmp/lw'); p=root/'current.xapk'
+          with zipfile.ZipFile(p) as z:
+              manifests=[n for n in z.namelist() if pathlib.PurePosixPath(n).name.lower() in ('manifest.json','xapk_manifest.json')]
+              if not manifests: raise SystemExit('No XAPK manifest')
+              d=json.loads(z.read(manifests[0]).decode('utf-8','replace'))
+          package=str(d.get('package_name') or d.get('packageName') or d.get('package') or '')
+          vname=str(d.get('version_name') or d.get('versionName') or '')
+          vcode=str(d.get('version_code') or d.get('versionCode') or '')
+          if (package,vname,vcode)!=('com.fun.lastwar.gp','1.0.359','1864'): raise SystemExit('Unexpected client metadata')
+          found=None
+          import subprocess
+          subprocess.run(['unzip','-q',str(p),'-d',str(root/'xapk')],check=True)
+          for apk in sorted((root/'xapk').rglob('*.apk'),key=lambda x:x.stat().st_size,reverse=True):
+              try:
+                  with zipfile.ZipFile(apk) as z:
+                      names=z.namelist(); tn=next((n for n in names if re.search(r'(^|/)assets/table/table_.*\.data$',n,re.I)),None)
+                      if not tn: continue
+                      raw=z.read(tn); (root/'table.data').write_bytes(raw)
+                      vn=next((n for n in names if n.lower()=='assets/table/version'),None)
+                      found={'apk':apk.name,'path':tn,'bytes':len(raw),'md5':hashlib.md5(raw).hexdigest(),'sha256':hashlib.sha256(raw).hexdigest(),'versionManifest':z.read(vn).decode().strip() if vn else None}
+                      break
+              except zipfile.BadZipFile: pass
+          if not found: raise SystemExit('DataTable not found')
+          (root/'source-meta.json').write_text(json.dumps(found,indent=2)+'\n')
+          print(json.dumps(found,indent=2))
+          PY
+          if ! command -v lua5.3 >/dev/null 2>&1; then sudo apt-get update -qq && sudo apt-get install -y -qq lua5.3; fi
+          git clone --depth=1 https://github.com/HansWessels/unluac.git /tmp/unluac >/dev/null
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('/tmp/unluac/src/unluac/parse/LHeaderType.java'); s=p.read_text()
+          s=s.replace('if(format != 0) {','if(format != 0 && format != 1) {',1)
+          marker='class LHeaderType53 extends LHeaderType {'; pos=s.index(marker); head,tail=s[:pos],s[pos:]
+          old='    parse_instruction_size(buffer, header, s);'
+          if old not in tail: raise SystemExit('Lua53 instruction size call not found')
+          p.write_text(head+tail.replace(old,'    if(s.format != 1) parse_instruction_size(buffer, header, s);',1))
+          PY
+          (cd /tmp/unluac && bash build.sh >/dev/null)
+
+      - name: Decompile all hero-family and progression tables
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import pathlib,zipfile,re,subprocess,tempfile,json
+          root=pathlib.Path('/tmp/lw'); out=root/'decompiled'; jar='/tmp/unluac/bin/unluac.jar'
+          extra={'heroes_levelup','aps_hero_levelup','aps_heroes_quality','aps_heroes_rank','aps_heroes_rankLv','lw_random_hero_base_property'}
+          with zipfile.ZipFile(root/'table.data') as z:
+              all_names=z.namelist()
+              names=sorted({n for n in all_names if n.lower().startswith('lw_hero') or n in extra})
+              recs=[]
+              for n in names:
+                  raw=z.read(n)
+                  with tempfile.NamedTemporaryFile(suffix='.luac') as f:
+                      f.write(raw); f.flush(); cp=subprocess.run(['java','-jar',jar,f.name],stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,timeout=40)
+                  rec={'name':n,'bytes':len(raw),'ok':cp.returncode==0}
+                  if cp.returncode==0:
+                      path=out/(re.sub(r'[^A-Za-z0-9_.-]+','_',n)+'.lua'); path.write_text(cp.stdout); rec['sourceChars']=len(cp.stdout)
+                  else: rec['error']=cp.stderr.strip()[-500:]
+                  recs.append(rec)
+          (root/'targets.json').write_text(json.dumps(recs,indent=2)+'\n')
+          print(json.dumps({'count':len(recs),'names':[x['name'] for x in recs]},indent=2))
+          PY
+
+      - name: Resolve table shapes, partitions and native hero rows
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat >/tmp/lw/dump.lua <<'LUA'
+          local function is_array(t)
+            local n=0
+            for k,_ in pairs(t) do if type(k)~='number' or k<1 or math.floor(k)~=k then return false,0 end; if k>n then n=k end end
+            for i=1,n do if rawget(t,i)==nil then return false,0 end end
+            return true,n
+          end
+          local function esc(s) return (s:gsub('\\','\\\\'):gsub('"','\\"'):gsub('\n','\\n'):gsub('\r','\\r'):gsub('\t','\\t')) end
+          local function enc(v,d,seen)
+            d=d or 0; seen=seen or {}; local t=type(v)
+            if t=='nil' then return 'null' elseif t=='number' then return tostring(v) elseif t=='boolean' then return v and 'true' or 'false' elseif t=='string' then return '"'..esc(v)..'"' end
+            if t~='table' or d>12 or seen[v] then return 'null' end; seen[v]=true
+            local a,n=is_array(v); local p={}
+            if a then for i=1,n do p[#p+1]=enc(v[i],d+1,seen) end; seen[v]=nil; return '['..table.concat(p,',')..']' end
+            local keys={}; for k,_ in pairs(v) do keys[#keys+1]=k end; table.sort(keys,function(x,y)return tostring(x)<tostring(y)end)
+            for _,k in ipairs(keys) do p[#p+1]='"'..esc(tostring(k))..'":'..enc(v[k],d+1,seen) end; seen[v]=nil; return '{'..table.concat(p,',')..'}'
+          end
+          local ok,T=pcall(dofile,arg[1]); if not ok then io.stderr:write(tostring(T)..'\n'); os.exit(2) end
+          print(enc(T))
+          LUA
+
+          python3 - <<'PY'
+          import pathlib,json,re,subprocess
+          root=pathlib.Path('/tmp/lw'); ddir=root/'decompiled'; metas=json.loads((root/'targets.json').read_text()); source=json.loads((root/'source-meta.json').read_text())
+          HERO_IDS={10051,10060,30002,30003,30004,30005,40006,40007,40008,40009,40010,40012,40013,40015,40016,40018,40019,40020,50006,50007,50008,50009,50010,50013,50014,50015,50018,50019,50020,50021,50022}
+          KEEP=re.compile(r'(id$|hero|type|quality|rarity|level|lv|rank|star|attr|property|ratio|add|power|skill|weapon|max|growth|grow|base|hp|health|attack|atk|def|shard|exp|cost|damage|interval|honor)',re.I)
+
+          def load(name):
+              p=ddir/(re.sub(r'[^A-Za-z0-9_.-]+','_',name)+'.lua')
+              cp=subprocess.run(['lua5.3','/tmp/lw/dump.lua',str(p)],stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,timeout=45)
+              if cp.returncode: raise RuntimeError(cp.stderr[-500:])
+              return json.loads(cp.stdout)
+
+          raw={}; errors={}
+          for m in metas:
+              if not m.get('ok'): continue
+              try: raw[m['name']]=load(m['name'])
+              except Exception as e: errors[m['name']]=str(e)
+
+          def shape(v):
+              if isinstance(v,dict): return {'type':'object','size':len(v),'keys':list(v)[:12]}
+              if isinstance(v,list): return {'type':'array','size':len(v),'sample':v[:3]}
+              return {'type':type(v).__name__,'value':v}
+
+          def fields_from_index(idx):
+              fields={}
+              if isinstance(idx,dict):
+                  for name,desc in idx.items():
+                      if isinstance(desc,list) and len(desc)>=2 and isinstance(desc[0],(int,float)):
+                          fields[str(name)]={'column':int(desc[0]),'type':desc[1],'linked':bool(desc[2]) if len(desc)>2 else False}
+              elif isinstance(idx,list):
+                  # Legacy/inverse variants: infer only when a field name is explicit.
+                  for i,x in enumerate(idx,1):
+                      if isinstance(x,str): fields[x]={'column':i,'type':'unknown','linked':False}
+                      elif isinstance(x,list) and x and isinstance(x[0],str): fields[x[0]]={'column':i,'type':x[1] if len(x)>1 and isinstance(x[1],str) else 'unknown','linked':bool(x[2]) if len(x)>2 else False}
+                      elif isinstance(x,dict):
+                          name=x.get('name') or x.get('field')
+                          if name: fields[str(name)]={'column':int(x.get('column',i)),'type':x.get('type','unknown'),'linked':bool(x.get('linked',False))}
+              return fields
+
+          def data_rows(data):
+              if isinstance(data,dict): return list(data.items())
+              if isinstance(data,list): return [(str(i+1),v) for i,v in enumerate(data)]
+              return []
+
+          def map_rows(T,forced_fields=None):
+              idx=T.get('index') if isinstance(T,dict) else None; data=T.get('data') if isinstance(T,dict) else None; vext=T.get('vExt') if isinstance(T,dict) else []
+              fields=forced_fields or fields_from_index(idx)
+              rows=[]
+              for key,row in data_rows(data):
+                  if not isinstance(row,list): continue
+                  rec={'_key':int(key) if str(key).lstrip('-').isdigit() else key}
+                  for name,fd in fields.items():
+                      pos=fd['column']-1; val=row[pos] if 0<=pos<len(row) else None
+                      if fd.get('linked') and isinstance(vext,list) and isinstance(val,(int,float)) and int(val)==val and 1<=int(val)<=len(vext): val=vext[int(val)-1]
+                      rec[name]=val
+                  rows.append(rec)
+              return fields,rows
+
+          # Authoritative known field maps recovered by the schema audit for key modern-format tables.
+          schema=json.loads(pathlib.Path('simulator/research/datatable-hero-schema-audit.v1.json').read_text())
+          schema_fields={s['name']:{f['name']:{'column':f['column'],'type':f['type'],'linked':False} for f in s.get('fields',[])} for s in schema.get('schemas',[]) if s.get('fields')}
+
+          decoded={}; diagnostics=[]
+          for name,T in raw.items():
+              idx=T.get('index') if isinstance(T,dict) else None; data=T.get('data') if isinstance(T,dict) else None; link=T.get('link') if isinstance(T,dict) else None
+              fields=fields_from_index(idx) or schema_fields.get(name,{})
+              f,rows=map_rows(T,fields)
+              diagnostics.append({'name':name,'index':shape(idx),'data':shape(data),'link':shape(link),'fields':f,'rowCount':len(rows)})
+              decoded[name]={'fields':f,'rows':rows,'link':link}
+
+          # Merge data-only numbered siblings into the longest matching base table with a field map.
+          for pname,pv in list(decoded.items()):
+              if pv['fields'] or not pv['rows']: continue
+              bases=[b for b,bv in decoded.items() if bv['fields'] and pname!=b and pname.startswith(b) and re.fullmatch(r'[_-]?\d+',pname[len(b):] or '')]
+              if not bases: continue
+              base=max(bases,key=len); bf=decoded[base]['fields']; _,rows=map_rows(raw[pname],bf); decoded[base]['rows'].extend(rows)
+
+          # If a base table advertises links but still has no rows, probe every same-prefix data-only table as a partition.
+          for base,bv in decoded.items():
+              if bv['rows'] or not bv['fields'] or not bv.get('link'): continue
+              for pname,pv in decoded.items():
+                  if pname==base or not pname.startswith(base) or pv['fields'] or not pv['rows']: continue
+                  _,rows=map_rows(raw[pname],bv['fields']); bv['rows'].extend(rows)
+
+          tables={}
+          for name,bv in decoded.items():
+              rows=bv['rows']; fields=bv['fields']; selected=[]; lname=name.lower()
+              for rec in rows:
+                  refs=[int(rec[x]) for x in ('id','hero_id','hero') if isinstance(rec.get(x),(int,float))]
+                  if lname=='lw_hero': include=any(x in HERO_IDS for x in refs)
+                  elif lname=='lw_hero_rank': include=True
+                  elif 'hero_id' in fields or 'hero' in fields: include=any(x in HERO_IDS for x in refs)
+                  else: include=len(rows)<=700
+                  if not include: continue
+                  compact={'_key':rec['_key']}
+                  for k,v in rec.items():
+                      if k=='_key' or KEEP.search(k): compact[k]=v
+                  selected.append(compact)
+              if selected: tables[name]={'rowCount':len(rows),'selectedCount':len(selected),'fields':fields,'rows':selected}
+
+          william=next((r for r in tables.get('lw_hero',{}).get('rows',[]) if r.get('id')==50007 or r.get('_key')==50007),None)
+          out={'source':source,'heroIds':sorted(HERO_IDS),'diagnostics':diagnostics,'errors':errors,'tables':tables,'anchors':{'williamsNativeId':50007,'williamsRow':william},'note':'Derived numeric/configuration subset for WfGg model reconstruction; no bulk Lua/assets or player data.'}
+          p=pathlib.Path('simulator/research/datatable-native-hero-values.v2.json'); p.write_text(json.dumps(out,indent=2,ensure_ascii=False)+'\n')
+          print(json.dumps({'tables':sorted(tables),'williamsFound':william is not None,'lwHeroRows':tables.get('lw_hero',{}).get('rowCount',0),'outputBytes':p.stat().st_size,'errors':errors},indent=2))
+          PY
+
+      - name: Commit derived native values v2
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add simulator/research/datatable-native-hero-values.v2.json
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'simulator: capture split-table native hero values v2'
+          git fetch origin simulator-standalone-v1
+          git rebase origin/simulator-standalone-v1
+          git push origin HEAD:simulator-standalone-v1
