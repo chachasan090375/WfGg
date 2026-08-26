@@ -3,7 +3,7 @@
     "package": "com.fun.lastwar.gp",
     "version": "1.0.359",
     "buildId": 1864,
-    "architecture": "arm64-v8a",
+    "architecture": "armeabi-v7a",
     "xapkSha1": "bed2cb826d46a008854fe1b8b57bcb2e494d2d3a",
     "xapkSha256": "7b4704953d770868aca6771cf376fa87682d7cfa1ad490544c051c21ad67cefd"
   },
@@ -40,9 +40,30 @@
       "path": "assets/table/version",
       "bytes": 58,
       "compressedBytes": 58,
-      "crc32": "080da971"
+      "crc32": "080da971",
+      "text": "38781,19270680,cfcbee99d7064f86d09dd682babdbc2b,2605089705",
+      "sha256": "8d72ceeaee20630dc6b085672de950aca9c3634688190cf4a1ea79d46f1e4e70"
     }
   ],
+  "embeddedDataTable": {
+    "apk": "install_time_pack.apk",
+    "path": "assets/table/table_38781_cfcbee99d7064f86d09dd682babdbc2b.data",
+    "bytes": 19270680,
+    "compressedBytes": 19270680,
+    "crc32": "9b4683a9",
+    "md5": "cfcbee99d7064f86d09dd682babdbc2b",
+    "sha256": "be74b18971508b511c3fb306572dae330af85b4e7ae105143056638233b085e1",
+    "magic": "504b030414000000"
+  },
+  "embeddedTableManifest": {
+    "apk": "install_time_pack.apk",
+    "path": "assets/table/version",
+    "bytes": 58,
+    "compressedBytes": 58,
+    "crc32": "080da971",
+    "text": "38781,19270680,cfcbee99d7064f86d09dd682babdbc2b,2605089705",
+    "sha256": "8d72ceeaee20630dc6b085672de950aca9c3634688190cf4a1ea79d46f1e4e70"
+  },
   "groups": {
     "tables": {
       "count": 2,
@@ -1587,7 +1608,7 @@
     }
   ],
   "target": {
-    "dataTableVersion": "1295",
+    "hotUpdateDataTableVersion": "1295",
     "descriptor": "DataTable,1295,294,1768181284"
   },
   "note": "Metadata/string inventory only. No XAPK/APK, bulk copyrighted assets, account/session data, secrets, tokens or private player codes are committed."
