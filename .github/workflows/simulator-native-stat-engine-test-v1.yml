@@ -1,0 +1,61 @@
+name: Simulator native stat engine test v1
+
+on:
+  push:
+    branches: [simulator-standalone-v1]
+    paths:
+      - 'simulator/native-stat-engine-v1.js'
+      - 'simulator/data/native-hero-stats-v2.json'
+      - '.github/workflows/simulator-native-stat-engine-test-v1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: simulator-standalone-v1
+      - name: Execute engine against verified dataset
+        shell: bash
+        run: |
+          set -euo pipefail
+          node <<'JS'
+          const fs=require('fs');
+          const vm=require('vm');
+          const dataset=JSON.parse(fs.readFileSync('simulator/data/native-hero-stats-v2.json','utf8'));
+          const source=fs.readFileSync('simulator/native-stat-engine-v1.js','utf8');
+          const context={
+            window:{},
+            console,
+            fetch:async url=>({ok:url==='data/native-hero-stats-v2.json',status:200,json:async()=>dataset}),
+            Number,Math,Object,Array,String,Error,RangeError,Promise,JSON
+          };
+          vm.createContext(context);
+          vm.runInContext(source,context,{filename:'native-stat-engine-v1.js'});
+          (async()=>{
+            const e=context.window.WfGgNativeStats;
+            if(!e) throw new Error('WfGgNativeStats not exposed');
+            const self=await e.selfTest();
+            if(!self.ok) throw new Error('selfTest not OK');
+            const expected=[[0,1],[0.2,2],[1,6],[2,11],[3,16],[4,21],[5,26]];
+            for(const [stars,rank] of expected){if(e.rankFromStars(stars)!==rank)throw new Error(`stars ${stars} rank mismatch`)}
+            let rejected=false;try{e.rankFromStars(0.1)}catch(err){rejected=err instanceof RangeError || err?.name==='RangeError'}
+            if(!rejected) throw new Error('0.1-star invalid half-tier was not rejected');
+            const w150=await e.calculate({nativeId:50007,level:150,stars:5});
+            if(w150.rank!==26||w150.stats.hp.gradeBonus!==201433||w150.stats.attack.gradeBonus!==2837||w150.stats.defense.gradeBonus!==741)throw new Error('Williams anchor mismatch');
+            if(w150.finalDisplayedAttributes!==false)throw new Error('native layer incorrectly marked as final Attributes');
+            const w175=await e.calculate({nativeId:50007,level:175,stars:5});
+            if(w175.stats.hp.nativeLevelPlusGrade!==1235802||w175.stats.attack.nativeLevelPlusGrade!==17408||w175.stats.defense.nativeLevelPlusGrade!==4548)throw new Error('Williams level175 diagnostic mismatch');
+            for(const id of Object.keys(dataset.heroes)){
+              for(const level of [1,50,100,150,175]){
+                for(const stars of [0,1,2,3,4,5]) await e.calculate({nativeId:Number(id),level,stars});
+              }
+            }
+            console.log(JSON.stringify({ok:true,version:e.version,self,williams175:w175.stats,heroCount:Object.keys(dataset.heroes).length},null,2));
+          })().catch(err=>{console.error(err);process.exit(1)});
+          JS
