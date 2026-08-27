@@ -1,0 +1,32 @@
+name: WfGg API container dry-run
+
+on:
+  push:
+    branches:
+      - connector-readonly-v1
+    paths:
+      - '.github/workflows/wfgg-api-container-dryrun.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  dryrun:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Worker dependencies
+        working-directory: worker
+        run: npm install --no-audit --no-fund
+
+      - name: Validate JS
+        run: |
+          node --check worker/src/index.js
+          node --check worker/src/lastwar-identity.js
+          node --check worker/src/lastwar-container.js
+
+      - name: Wrangler dry-run with container build
+        working-directory: worker
+        run: npx wrangler deploy --dry-run --outdir /tmp/wfgg-api-container-dryrun
