@@ -1,0 +1,265 @@
+name: Simulator hero cutouts V21
+
+on:
+  push:
+    branches: [simulator-standalone-v1]
+    paths:
+      - '.github/workflows/simulator-hero-cutout-v21.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  cutout:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: simulator-standalone-v1
+          fetch-depth: 0
+
+      - name: Install cutout tooling
+        run: |
+          python3 -m pip install --quiet "rembg[cpu]" pillow requests
+
+      - name: Build 31 transparent normalized heroes
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          from io import BytesIO
+          import json, requests, shutil
+          from PIL import Image, ImageOps
+          from rembg import remove, new_session
+
+          ROOT=Path('simulator')
+          FROOT=Path('frontend/simulator')
+          SIZE=512
+          TOP=round(SIZE*0.045)
+          OUT=ROOT/'assets/heroes/cutout-v21'
+          OUT.mkdir(parents=True,exist_ok=True)
+          catalog=json.loads((ROOT/'data/hero-catalog.v2.json').read_text())
+          heroes=catalog['heroes']
+          headers={'User-Agent':'Mozilla/5.0 (Linux; Android 16) AppleWebKit/537.36 Chrome/140 Safari/537.36'}
+          session=new_session('isnet-anime')
+
+          # Small calibration factors only compensate source composition; Kimberly = 1.00 master.
+          factors={
+            'williams':1.04,'murphy':1.03,'kimberly':1.00,'marshall':1.05,
+            'stetmann':1.05,'dva':1.00,'carlie':1.02,'lucius':1.04,
+            'schuyler':1.03,'morrison':1.02,'tesla':1.02,'swift':1.03,
+            'fiona':1.00,'adam':1.03,'mcgregor':1.02,'monica':1.00,
+            'mason':1.03,'violet':1.02,'scarlett':1.01,'richard':1.03,
+            'farhad':1.16,'sarah':1.04,'maxwell':1.04,'cage':1.04,
+            'venom':1.04,'braz':1.04,'elsa':1.02,'gump':1.03,
+            'loki':1.08,'ambolt':1.04,'kane':1.04
+          }
+
+          explicit={
+            'gump': [],
+            'loki': []
+          }
+
+          def open_remote(url):
+            r=requests.get(url,headers=headers,timeout=25)
+            r.raise_for_status()
+            im=Image.open(BytesIO(r.content))
+            try: im.seek(0)
+            except Exception: pass
+            return ImageOps.exif_transpose(im.convert('RGBA'))
+
+          def source_for(h):
+            hid=h['id']
+            urls=[]
+            if h.get('portrait'): urls.append(h['portrait'])
+            urls += explicit.get(hid,[])
+            for u in urls:
+              try:
+                im=open_remote(u)
+                if im.width>=220 and im.height>=220:
+                  return im,'remote:'+u
+              except Exception as e:
+                print('REMOTE_SKIP',hid,u,type(e).__name__,e)
+            for rel in [
+              f'assets/heroes/master-v20/{hid}.webp',
+              f'assets/heroes/animated-still/{hid}.webp',
+              f'assets/heroes/{hid}.webp'
+            ]:
+              p=ROOT/rel
+              if p.exists():
+                im=Image.open(p).convert('RGBA')
+                return im,'local:'+rel
+            raise RuntimeError(f'no source for {hid}')
+
+          def normalize(hid, src):
+            rgba=remove(src,session=session,alpha_matting=False)
+            if not isinstance(rgba,Image.Image): rgba=Image.open(BytesIO(rgba)).convert('RGBA')
+            rgba=rgba.convert('RGBA')
+            alpha=rgba.getchannel('A')
+            bbox=alpha.getbbox()
+            if not bbox: raise RuntimeError(f'empty cutout {hid}')
+            subject=rgba.crop(bbox)
+            bw,bh=subject.size
+            # Kimberly master composition: subject fills most of width, head at 4.5%,
+            # shoulders/bust reach or slightly pass the lower portrait edge.
+            target_w=SIZE*0.84
+            target_h=SIZE*0.94
+            s=max(target_w/bw,target_h/bh)*factors.get(hid,1.0)
+            # Avoid grotesque over-zoom from very narrow source crops.
+            s=min(s,(SIZE*1.18)/bh)
+            nw=max(1,round(bw*s)); nh=max(1,round(bh*s))
+            subject=subject.resize((nw,nh),Image.Resampling.LANCZOS)
+            canvas=Image.new('RGBA',(SIZE,SIZE),(0,0,0,0))
+            x=(SIZE-nw)//2
+            canvas.alpha_composite(subject,(x,TOP))
+            return canvas,{'bbox':list(bbox),'subjectSize':[bw,bh],'scale':round(s,4),'normalizedSize':[nw,nh],'top':TOP}
+
+          report={'version':'21.0.0','master':'kimberly','canvas':[SIZE,SIZE],'topGapPct':4.5,'heroes':{}}
+          for h in heroes:
+            hid=h['id']
+            src,source=source_for(h)
+            out,meta=normalize(hid,src)
+            dst=OUT/f'{hid}.webp'
+            out.save(dst,'WEBP',lossless=True,method=6)
+            meta.update({'source':source,'rarity':h['rarity'],'output':str(dst.relative_to(ROOT))})
+            report['heroes'][hid]=meta
+            print('CUTOUT',hid,source,meta)
+
+          (ROOT/'data/hero-cutout-v21.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
+          for rel in ['assets/heroes/cutout-v21']:
+            dst=FROOT/rel
+            if dst.exists(): shutil.rmtree(dst)
+            shutil.copytree(ROOT/rel,dst)
+          shutil.copy2(ROOT/'data/hero-cutout-v21.json',FROOT/'data/hero-cutout-v21.json')
+          PY
+
+      - name: Add shared rarity backgrounds and V21 runtime
+        run: |
+          cat > simulator/hero-cutout-v21.css <<'CSS'
+          /* V21 — one shared background per rarity, transparent hero subject above it. */
+          .game-hero-card .hero-card-portrait{
+            overflow:hidden!important;
+            isolation:isolate!important;
+          }
+          .game-hero-card .hero-card-portrait::before{
+            content:''!important;display:block!important;position:absolute!important;inset:0!important;
+            z-index:0!important;pointer-events:none!important;opacity:1!important;
+            background:
+              linear-gradient(90deg,transparent 0 18%,#ffffff0b 18% 18.8%,transparent 18.8% 49%,#ffffff09 49% 49.8%,transparent 49.8% 81%,#ffffff0b 81% 81.8%,transparent 81.8%),
+              linear-gradient(0deg,transparent 0 23%,#ffffff08 23% 23.8%,transparent 23.8% 56%,#ffffff07 56% 56.8%,transparent 56.8%);
+          }
+          .game-hero-card.rarity-UR .hero-card-portrait{
+            background:
+              radial-gradient(ellipse at 50% 24%,#ffdd7b66 0 18%,transparent 48%),
+              radial-gradient(ellipse at 50% 105%,#c8752199 0 24%,transparent 62%),
+              linear-gradient(180deg,#5a4a34 0%,#343745 44%,#1d2738 100%)!important;
+          }
+          .game-hero-card.rarity-SSR .hero-card-portrait{
+            background:
+              radial-gradient(ellipse at 50% 24%,#d69cff55 0 18%,transparent 48%),
+              radial-gradient(ellipse at 50% 105%,#743bbd9e 0 24%,transparent 62%),
+              linear-gradient(180deg,#4a3b64 0%,#2f3151 44%,#19263c 100%)!important;
+          }
+          .game-hero-card.rarity-SR .hero-card-portrait{
+            background:
+              radial-gradient(ellipse at 50% 24%,#8de7ff50 0 18%,transparent 48%),
+              radial-gradient(ellipse at 50% 105%,#268fc2a0 0 24%,transparent 62%),
+              linear-gradient(180deg,#31566d 0%,#283f55 44%,#172b3e 100%)!important;
+          }
+          .game-hero-card .hero-card-portrait::after{
+            z-index:3!important;opacity:.35!important;
+            background:linear-gradient(180deg,transparent 60%,#07111f66 100%)!important;
+          }
+          .game-hero-card .wfgg-v15-motion-layer{
+            position:absolute!important;inset:0!important;z-index:2!important;
+            transform:none!important;animation:none!important;overflow:visible!important;
+          }
+          .game-hero-card .wfgg-v15-motion-layer>img{
+            position:absolute!important;inset:0!important;width:100%!important;height:100%!important;
+            object-fit:contain!important;object-position:50% 0%!important;
+            transform:none!important;filter:drop-shadow(0 5px 5px #0006) saturate(1.035) contrast(1.02)!important;
+          }
+          .game-hero-card[data-wfgg-cutout='v21'] .hero-card-portrait{background-clip:padding-box!important}
+          CSS
+          cp simulator/hero-cutout-v21.css frontend/simulator/hero-cutout-v21.css
+
+          cat > simulator/hero-cutout-v21.js <<'JS'
+          (()=>{
+            'use strict';
+            const BASE=id=>`assets/heroes/cutout-v21/${id}.webp`;
+            const FALLBACK=id=>`assets/heroes/master-v20/${id}.webp`;
+            const step=()=>document.getElementById('step-heroes');
+            const cards=()=>[...document.querySelectorAll('#gameHeroGrid .game-hero-card[data-hero-id]')];
+            const imgFor=c=>c.querySelector('.wfgg-v15-motion-layer>img')||c.querySelector('.hero-card-portrait img');
+            let queued=false;
+            function apply(){
+              if(step()?.classList.contains('hidden'))return;
+              for(const c of cards()){
+                const id=c.dataset.heroId,img=imgFor(c);if(!id||!img)continue;
+                c.dataset.wfggCutout='v21';
+                c.style.setProperty('--wfgg-v15-x','0%');
+                c.style.setProperty('--wfgg-v15-y','0%');
+                c.style.setProperty('--wfgg-v15-zoom','1');
+                const wanted=BASE(id);
+                if(!img.src.includes(`/cutout-v21/${id}.webp`)){
+                  img.dataset.wfggV21Fallback=FALLBACK(id);img.src=wanted;
+                }
+              }
+              document.documentElement.dataset.wfggHeroCutout='v21';
+              document.documentElement.dataset.wfggHeroCutoutCount=String(cards().length);
+            }
+            function schedule(){if(queued)return;queued=true;requestAnimationFrame(()=>{queued=false;apply()})}
+            function err(e){const img=e.target;if(!(img instanceof HTMLImageElement))return;const c=img.closest('.game-hero-card[data-hero-id]');if(!c)return;const fb=img.dataset.wfggV21Fallback;if(fb&&img.getAttribute('src')!==fb)img.src=fb}
+            function init(){
+              const s=step();if(s)new MutationObserver(schedule).observe(s,{attributes:true,attributeFilter:['class']});
+              const g=document.getElementById('gameHeroGrid');if(g){g.addEventListener('error',err,true);new MutationObserver(schedule).observe(g,{childList:true,subtree:true})}
+              schedule();
+            }
+            if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
+          })();
+          JS
+          cp simulator/hero-cutout-v21.js frontend/simulator/hero-cutout-v21.js
+          node --check simulator/hero-cutout-v21.js
+
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          for root in [Path('simulator'),Path('frontend/simulator')]:
+            p=root/'index.html'; s=p.read_text()
+            if 'hero-cutout-v21.css' not in s:
+              s=s.replace('</head>','  <link rel="stylesheet" href="hero-cutout-v21.css?v=021-cutout-rarity-bg" />\n</head>')
+            if 'hero-cutout-v21.js' not in s:
+              s=s.replace('</body>','  <script src="hero-cutout-v21.js?v=021-cutout-rarity-bg"></script>\n</body>')
+            p.write_text(s)
+          PY
+
+      - name: Validate V21 assets and wiring
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          from PIL import Image
+          import json
+          for root in [Path('simulator'),Path('frontend/simulator')]:
+            r=json.loads((root/'data/hero-cutout-v21.json').read_text())
+            assert len(r['heroes'])==31
+            for hid in r['heroes']:
+              p=root/'assets/heroes/cutout-v21'/f'{hid}.webp'
+              assert p.exists(),p
+              im=Image.open(p).convert('RGBA')
+              assert im.size==(512,512),(p,im.size)
+              assert im.getchannel('A').getbbox(),f'empty alpha {hid}'
+            html=(root/'index.html').read_text()
+            assert 'hero-cutout-v21.css?v=021-cutout-rarity-bg' in html
+            assert 'hero-cutout-v21.js?v=021-cutout-rarity-bg' in html
+          print('V21_CUTOUTS_OK=31')
+          PY
+          git diff --check
+
+      - name: Commit V21 preview
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add simulator frontend/simulator
+          git commit -m 'simulator: use transparent hero cutouts on shared rarity backgrounds v21'
+          git push origin HEAD:simulator-standalone-v1
