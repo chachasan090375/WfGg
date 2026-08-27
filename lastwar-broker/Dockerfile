@@ -3,16 +3,18 @@ FROM golang:1.25-bookworm AS build
 ARG LASTWAR_CLIENT_REVISION=ee5f64de160a8051c2f9f98189b75038dd225a0a
 
 RUN apt-get update \
- && apt-get install -y --no-install-recommends git ca-certificates \
+ && apt-get install -y --no-install-recommends git ca-certificates python3 \
  && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /src
 RUN git clone --filter=blob:none https://github.com/ljagiello/lastwar-client.git . \
  && git checkout "${LASTWAR_CLIENT_REVISION}"
 
-COPY patches/0001-wfgg-staged-email-auth.patch /tmp/0001-wfgg-staged-email-auth.patch
-RUN git apply --check /tmp/0001-wfgg-staged-email-auth.patch \
- && git apply /tmp/0001-wfgg-staged-email-auth.patch
+COPY patches/apply-staged-email-auth.py /tmp/apply-staged-email-auth.py
+RUN python3 /tmp/apply-staged-email-auth.py /src/internal/auth/login.go \
+ && git diff --check \
+ && grep -q "VerificationCodeProvider func() (string, error)" /src/internal/auth/login.go \
+ && grep -q "OnVerificationCodeSent" /src/internal/auth/login.go
 
 COPY go/wfgg-broker-main.go /src/cmd/wfgg-broker/main.go
 
