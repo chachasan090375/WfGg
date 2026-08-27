@@ -1,0 +1,118 @@
+name: Simulator portrait normalization V18
+
+on:
+  push:
+    branches:
+      - simulator-standalone-v1
+    paths:
+      - '.github/workflows/simulator-portrait-normalize-v18.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  wire-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: simulator-standalone-v1
+          fetch-depth: 0
+
+      - name: Wire V18 after GIF runtime
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          for p in [Path('simulator/index.html'),Path('frontend/simulator/index.html')]:
+              s=p.read_text()
+              needle='  <script src="hero-native-animation-v17c.js?v=017c-navigation-hotfix"></script>\n'
+              add=needle+'  <script src="hero-portrait-normalize-v18.js?v=018-uniform-head-shoulders"></script>\n'
+              if 'hero-portrait-normalize-v18.js?v=018-uniform-head-shoulders' not in s:
+                  if needle not in s: raise SystemExit(f'missing V17C hook in {p}')
+                  s=s.replace(needle,add)
+              p.write_text(s)
+          PY
+          node --check simulator/hero-portrait-normalize-v18.js
+          node --check frontend/simulator/hero-portrait-normalize-v18.js
+          grep -Fq 'hero-portrait-normalize-v18.js?v=018-uniform-head-shoulders' simulator/index.html
+          grep -Fq 'hero-portrait-normalize-v18.js?v=018-uniform-head-shoulders' frontend/simulator/index.html
+
+      - name: Commit V18 wiring
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add simulator/index.html frontend/simulator/index.html
+          if ! git diff --cached --quiet; then
+            git diff --cached --check
+            git commit -m 'simulator: activate uniform hero framing v18'
+            git push origin HEAD:simulator-standalone-v1
+          fi
+
+      - name: Wait for Cloudflare V18
+        run: |
+          ROOT='https://simulator-standalone-v1.wfgg.pages.dev/simulator/'
+          ok=0
+          for i in $(seq 1 80); do
+            curl -fsSL "$ROOT?portrait_v18=$i" -o /tmp/sim.html || true
+            if grep -Fq 'hero-portrait-normalize-v18.js?v=018-uniform-head-shoulders' /tmp/sim.html; then ok=1; break; fi
+            sleep 5
+          done
+          test "$ok" = 1
+          curl -fsSL "$ROOT/hero-portrait-normalize-v18.js?verify=1" | grep -Fq "version:'18.0.0'"
+          for id in elsa loki kane; do curl -fsSI "$ROOT/assets/heroes/$id.webp" | head -1 | grep -Eq '200|304'; done
+
+      - name: Install Playwright
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: Android V18 framing and navigation smoke test
+        run: |
+          node <<'JS'
+          const assert=require('node:assert/strict');
+          const {chromium}=require('playwright');
+          (async()=>{
+            const browser=await chromium.launch({headless:true});
+            try{
+              const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,deviceScaleFactor:2,locale:'fr-FR'});
+              const page=await context.newPage();
+              const errors=[]; page.on('pageerror',e=>errors.push(String(e)));
+              await page.goto('https://simulator-standalone-v1.wfgg.pages.dev/simulator/?portrait_v18_e2e=1',{waitUntil:'domcontentloaded',timeout:60000});
+              await page.waitForFunction(()=>window.WfGgHeroPortraitV18?.version==='18.0.0',{timeout:20000});
+              const heroNav=page.locator('#stepNav [data-step="1"]');
+              if(await heroNav.count()) await heroNav.click(); else await page.locator('#nextBtn').click();
+              await page.waitForFunction(()=>document.querySelectorAll('#gameHeroGrid .game-hero-card').length===31,{timeout:30000});
+              await page.waitForFunction(()=>document.documentElement.dataset.wfggPortraitCount==='31',{timeout:10000});
+              const cropCount=await page.locator('#gameHeroGrid .game-hero-card[data-wfgg-v18-crop]').count();
+              assert.equal(cropCount,31);
+              const bad=await page.locator('#gameHeroGrid .game-hero-card').evaluateAll(cards=>cards.map(c=>{
+                const img=c.querySelector('.hero-card-portrait img');
+                return {id:c.dataset.heroId,src:img?.getAttribute('src')||'',w:img?.naturalWidth||0,h:img?.naturalHeight||0,crop:c.dataset.wfggV18Crop||''};
+              }).filter(x=>!x.src.startsWith('assets/heroes/')||x.w<150||x.h<200||!x.crop));
+              assert.deepEqual(bad,[],JSON.stringify(bad));
+              for(const id of ['elsa','loki','kane']){
+                const st=await page.locator(`#gameHeroGrid .game-hero-card[data-hero-id="${id}"] .hero-card-portrait img`).evaluate(img=>({src:img.getAttribute('src'),w:img.naturalWidth,h:img.naturalHeight}));
+                assert.ok(st.src.startsWith('assets/heroes/'),`${id}:${JSON.stringify(st)}`);
+                assert.ok(st.w>=150&&st.h>=200,`${id}:${JSON.stringify(st)}`);
+              }
+              assert.match(await page.locator('[data-hero-id="monica"]').getAttribute('data-wfgg-v18-crop'),/-13%/);
+              assert.match(await page.locator('[data-hero-id="ambolt"]').getAttribute('data-wfgg-v18-crop'),/-24%/);
+              await page.waitForFunction(()=>document.documentElement.dataset.wfggV17cPhase==='active',{timeout:15000});
+              const active=page.locator('#gameHeroGrid .game-hero-card.wfgg-native-gif-active-v17c').first();
+              if(await active.count()){
+                const st=await active.evaluate(c=>({src:c.querySelector('.hero-card-portrait img')?.getAttribute('src')||'',crop:c.dataset.wfggV18Crop||''}));
+                assert.match(st.src,/assets\/heroes\/animated\/.+\.gif$/);
+                assert.ok(st.crop);
+              }
+              const gearNav=page.locator('#stepNav [data-step="2"]');
+              if(await gearNav.count()) await gearNav.click(); else await page.locator('#nextBtn').click();
+              await page.waitForTimeout(350);
+              const metric=await page.evaluate(()=>({w:innerWidth,sw:(document.scrollingElement||document.documentElement).scrollWidth,phase:document.documentElement.dataset.wfggV17cPhase,errors:0}));
+              assert.ok(metric.sw<=metric.w+2,JSON.stringify(metric));
+              assert.equal(errors.length,0,errors.join(' | '));
+              console.log(JSON.stringify({ok:true,cropCount,metric},null,2));
+              await context.close();
+            } finally {await browser.close()}
+          })().catch(e=>{console.error(e);process.exit(1)});
+          JS
