@@ -1,0 +1,135 @@
+name: Simulator portrait V18D final recette
+
+on:
+  push:
+    branches:
+      - simulator-standalone-v1
+    paths:
+      - '.github/workflows/simulator-portrait-v18d-final-recette.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  final:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: simulator-standalone-v1
+          fetch-depth: 0
+
+      - name: Normalize locale and bump V18 cache
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          for p in [Path('simulator/hero-portrait-normalize-v18.js'),Path('frontend/simulator/hero-portrait-normalize-v18.js')]:
+              s=p.read_text()
+              s=s.replace("const locale=()=>document.documentElement.lang||'fr';","const locale=()=>String(document.documentElement.lang||'fr').toLowerCase().split('-')[0];")
+              s=s.replace("version:'18.1.0'","version:'18.2.0'")
+              p.write_text(s)
+          for p in [Path('simulator/index.html'),Path('frontend/simulator/index.html')]:
+              s=p.read_text().replace('hero-portrait-normalize-v18.js?v=018c-single-owner','hero-portrait-normalize-v18.js?v=018d-uniform-final')
+              p.write_text(s)
+          PY
+          node --check simulator/hero-portrait-normalize-v18.js
+          grep -Fq "split('-')[0]" simulator/hero-portrait-normalize-v18.js
+          grep -Fq 'hero-portrait-normalize-v18.js?v=018d-uniform-final' simulator/index.html
+          ! grep -Fq 'hero-roster-polish-v12.js' simulator/index.html
+          ! grep -Fq 'hero-roster-uniform-v13.js' simulator/index.html
+          ! grep -Fq 'hero-roster-uniform-v14.js' simulator/index.html
+          ! grep -Fq 'scan();startLive();' simulator/hero-ux-v10.js
+
+      - name: Commit V18D
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add simulator frontend/simulator
+          git diff --cached --check
+          git commit -m 'simulator: finalize uniform portrait runtime v18d'
+          git push origin HEAD:simulator-standalone-v1
+
+      - name: Wait for Cloudflare V18D
+        run: |
+          ROOT='https://simulator-standalone-v1.wfgg.pages.dev/simulator/'
+          ok=0
+          for i in $(seq 1 80); do
+            curl -fsSL "$ROOT?portrait_v18d=$i" -o /tmp/index.html || true
+            if grep -Fq 'hero-portrait-normalize-v18.js?v=018d-uniform-final' /tmp/index.html && ! grep -Fq 'hero-roster-polish-v12.js' /tmp/index.html; then ok=1; break; fi
+            sleep 5
+          done
+          test "$ok" = 1
+          curl -fsSL "$ROOT/hero-portrait-normalize-v18.js?v18d=1" | grep -Fq "version:'18.2.0'"
+          for id in elsa loki kane; do curl -fsSI "$ROOT/assets/heroes/$id.webp" | head -1 | grep -Eq '200|304'; done
+
+      - name: Install Playwright
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: Android V18D final test
+        run: |
+          node <<'JS'
+          const assert=require('node:assert/strict');
+          const {chromium}=require('playwright');
+          (async()=>{
+            const browser=await chromium.launch({headless:true});
+            try{
+              const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,deviceScaleFactor:2,locale:'fr-FR'});
+              const page=await context.newPage();
+              const errors=[];page.on('pageerror',e=>errors.push(String(e)));
+              await page.goto('https://simulator-standalone-v1.wfgg.pages.dev/simulator/?portrait_v18d_final=1',{waitUntil:'domcontentloaded',timeout:60000});
+              await page.waitForFunction(()=>window.WfGgHeroPortraitV18?.version==='18.2.0',{timeout:20000});
+              const heroNav=page.locator('#stepNav [data-step="1"]');
+              if(await heroNav.count())await heroNav.click();else await page.locator('#nextBtn').click();
+              await page.waitForFunction(()=>document.querySelectorAll('#gameHeroGrid .game-hero-card').length===31,{timeout:30000});
+              await page.waitForFunction(()=>document.documentElement.dataset.wfggPortraitCount==='31',{timeout:10000});
+              assert.equal(await page.locator('#gameHeroGrid .game-hero-card[data-wfgg-v18-crop]').count(),31);
+              await page.waitForTimeout(900);
+
+              const external=await page.locator('#gameHeroGrid .game-hero-card:not(.wfgg-native-gif-active-v17c)').evaluateAll(cards=>cards.map(c=>({id:c.dataset.heroId,src:c.querySelector('.hero-card-portrait img')?.getAttribute('src')||''})).filter(x=>!x.src.startsWith('assets/heroes/')));
+              assert.deepEqual(external,[],JSON.stringify(external));
+              const synthetic=await page.locator('#gameHeroGrid .game-hero-card.wfgg-live-card,#gameHeroGrid .game-hero-card.wfgg-v10-live,#gameHeroGrid .game-hero-card.wfgg-v12-live,#gameHeroGrid .game-hero-card.wfgg-v13-live,#gameHeroGrid .game-hero-card.wfgg-v14-live,#gameHeroGrid .game-hero-card.wfgg-v15-live').count();
+              assert.equal(synthetic,0,`synthetic=${synthetic}`);
+              assert.equal((await page.locator('[data-hero-id="schuyler"] .wfgg-v10-name').textContent()).trim(),'Skyler');
+
+              const restored={};
+              for(const id of ['elsa','loki','kane']){
+                const card=page.locator(`#gameHeroGrid .game-hero-card[data-hero-id="${id}"]`);
+                await card.scrollIntoViewIfNeeded();
+                const img=card.locator('.hero-card-portrait img');
+                await img.waitFor({state:'visible'});
+                const h=await img.elementHandle();
+                await page.waitForFunction(el=>el.complete&&el.naturalWidth>=150&&el.naturalHeight>=200,h,{timeout:10000});
+                restored[id]=await img.evaluate(el=>({src:el.getAttribute('src'),w:el.naturalWidth,h:el.naturalHeight}));
+                assert.match(restored[id].src,/^assets\/heroes\//);
+              }
+
+              await page.locator('#gameHeroGrid .game-hero-card').first().scrollIntoViewIfNeeded();
+              await page.waitForFunction(()=>document.documentElement.dataset.wfggV17cPhase==='active',{timeout:15000});
+              const activeCount=await page.locator('#gameHeroGrid .game-hero-card.wfgg-native-gif-active-v17c').count();
+              assert.ok(activeCount>=1&&activeCount<=3,`activeCount=${activeCount}`);
+              const active=page.locator('#gameHeroGrid .game-hero-card.wfgg-native-gif-active-v17c').first();
+              const anim=await active.evaluate(c=>({src:c.querySelector('.hero-card-portrait img')?.getAttribute('src')||'',crop:c.dataset.wfggV18Crop||''}));
+              assert.match(anim.src,/assets\/heroes\/animated\/.+\.gif$/);
+              assert.ok(anim.crop);
+
+              const en=page.locator('#languageStrip [data-lang="en"]');
+              if(await en.count()){
+                await en.click();
+                await page.waitForFunction(()=>document.querySelector('[data-hero-id="schuyler"] .wfgg-v10-name')?.textContent?.trim()==='Schuyler',{timeout:3000});
+              }
+
+              const gearNav=page.locator('#stepNav [data-step="2"]');
+              if(await gearNav.count())await gearNav.click();else await page.locator('#nextBtn').click();
+              await page.waitForTimeout(500);
+              const metric=await page.evaluate(()=>({w:innerWidth,sw:(document.scrollingElement||document.documentElement).scrollWidth,phase:document.documentElement.dataset.wfggV17cPhase}));
+              assert.equal(metric.phase,'idle');
+              assert.ok(metric.sw<=metric.w+2,JSON.stringify(metric));
+              assert.equal(errors.length,0,errors.join(' | '));
+              console.log(JSON.stringify({ok:true,activeCount,restored,metric},null,2));
+              await context.close();
+            }finally{await browser.close()}
+          })().catch(e=>{console.error(e);process.exit(1)});
+          JS
