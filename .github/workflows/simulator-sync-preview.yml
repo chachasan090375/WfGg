@@ -32,18 +32,26 @@ jobs:
           mkdir -p frontend/simulator
           rsync -a --delete simulator/ frontend/simulator/
 
-          # The published copy must be byte-identical to the canonical source.
+          # Published copy must be byte-identical to canonical source.
           diff -qr simulator frontend/simulator
 
           echo -n 'CANONICAL_INDEX='; sha256sum simulator/index.html | cut -d' ' -f1
           echo -n 'PUBLISHED_INDEX='; sha256sum frontend/simulator/index.html | cut -d' ' -f1
-          echo -n 'CANONICAL_OWNER='; sha256sum simulator/hero-portrait-owner-v223.js | cut -d' ' -f1
-          echo -n 'PUBLISHED_OWNER='; sha256sum frontend/simulator/hero-portrait-owner-v223.js | cut -d' ' -f1
+          echo -n 'CANONICAL_STATIC_OWNER='; sha256sum simulator/hero-static-premium-v24.js | cut -d' ' -f1
+          echo -n 'PUBLISHED_STATIC_OWNER='; sha256sum frontend/simulator/hero-static-premium-v24.js | cut -d' ' -f1
 
-          grep -q '0224-frame2-handoff' frontend/simulator/index.html
-          grep -q "22.3.2-frame2-handoff" frontend/simulator/hero-portrait-owner-v223.js
-          grep -q 'wfgg-v223-owned' frontend/simulator/hero-portrait-owner-v223.js
-          grep -q 'wfgg-v223-frame2' frontend/simulator/hero-portrait-owner-v223.js
+          grep -q '024-static-premium' frontend/simulator/index.html
+          grep -q '24.0-static-premium' frontend/simulator/hero-static-premium-v24.js
+          grep -q 'wfgg-static-v24-owned' frontend/simulator/hero-static-premium-v24.js
+          grep -q "wfggHeroAnimation='off'" frontend/simulator/hero-static-premium-v24.js
+
+          # Animation engines/assets must not return to the published tree.
+          ! grep -q 'hero-portrait-owner-v223' frontend/simulator/index.html
+          ! grep -q 'hero-native-animation' frontend/simulator/index.html
+          test ! -d frontend/simulator/assets/heroes/animated
+          test ! -d frontend/simulator/assets/heroes/animated-still
+          test ! -d frontend/simulator/assets/heroes/animated-cutout-v22
+          test ! -d frontend/simulator/assets/heroes/animated-cutout-v223
 
       - name: Commit synchronized Cloudflare output
         shell: bash
