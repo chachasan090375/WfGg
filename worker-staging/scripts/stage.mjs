@@ -18,7 +18,7 @@ const identityPath = path.join(targetWorker, 'lastwar-identity.js');
 let identityText = fs.readFileSync(identityPath, 'utf8');
 identityText = identityText.replace(
   "      'LASTWAR_RATE_LIMITED'\n    ]);",
-  "      'LASTWAR_RATE_LIMITED',\n      'LASTWAR_UPSTREAM_UNAVAILABLE',\n      'LASTWAR_ACCOUNT_DATA_MISSING',\n      'LASTWAR_RECONNECT_STATE_MISSING',\n      'BROKER_STATE_ENCRYPTION_FAILED'\n    ]);"
+  "      'LASTWAR_RATE_LIMITED',\n      'LASTWAR_UPSTREAM_UNAVAILABLE',\n      'LASTWAR_ACCOUNT_DATA_MISSING',\n      'LASTWAR_RECONNECT_STATE_MISSING',\n      'LASTWAR_RECONNECT_STATE_RESTORE_FAILED',\n      'LASTWAR_RELINK_REQUIRED',\n      'LASTWAR_RECONNECT_AUTH_REJECTED',\n      'LASTWAR_RECONNECT_FAILED',\n      'BROKER_STATE_ENCRYPTION_FAILED'\n    ]);"
 );
 identityText = identityText.replace(
   'let stateTableReady = false;',
@@ -94,7 +94,7 @@ fs.writeFileSync(identityPath, identityText, 'utf8');
 const indexPath = path.join(targetWorker, 'index.js');
 let indexText = fs.readFileSync(indexPath, 'utf8');
 indexText = indexText.replace("export { LastWarUserContainer } from './lastwar-container.js';\n", '');
-indexText = indexText.replace("version: '0.5.0-lastwar-container', admin_gate: 'R4_R5_ONLY', lastwar_container: Boolean(env.LASTWAR_USER)", "version: '0.6.1-lastwar-external-d1', admin_gate: 'R4_R5_ONLY', lastwar_external: Boolean(env.LASTWAR_BROKER_URL)");
+indexText = indexText.replace("version: '0.5.0-lastwar-container', admin_gate: 'R4_R5_ONLY', lastwar_container: Boolean(env.LASTWAR_USER)", "version: '0.6.2-lastwar-role-reconnect', admin_gate: 'R4_R5_ONLY', lastwar_external: Boolean(env.LASTWAR_BROKER_URL)");
 fs.writeFileSync(indexPath, indexText, 'utf8');
 
-console.log('[wfgg staging] canonical Worker staged with external Last War broker override + D1 self-heal');
+console.log('[wfgg staging] canonical Worker staged with external Last War broker override + D1 self-heal + role reconnect diagnostics');
