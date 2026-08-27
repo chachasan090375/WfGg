@@ -28,6 +28,7 @@ COPY patches/apply-reconnect-access-token-v3.py /tmp/apply-reconnect-access-toke
 COPY patches/apply-reconnect-coherent-gsl-v5.py /tmp/apply-reconnect-coherent-gsl-v5.py
 COPY patches/apply-reconnect-login-key-fastpath-v6.py /tmp/apply-reconnect-login-key-fastpath-v6.py
 COPY patches/apply-reconnect-rejection-diagnostics-v4.py /tmp/apply-reconnect-rejection-diagnostics-v4.py
+COPY patches/apply-reconnect-stage-diagnostics-v7.py /tmp/apply-reconnect-stage-diagnostics-v7.py
 RUN python3 /tmp/apply-broker-child-runtime.py /src/cmd/wfgg-broker/main.go \
  && python3 /tmp/apply-recursive-uid-match.py /src/cmd/wfgg-broker/main.go \
  && python3 /tmp/apply-reconnect-session-v2.py /src/cmd/wfgg-broker/main.go \
@@ -36,12 +37,15 @@ RUN python3 /tmp/apply-broker-child-runtime.py /src/cmd/wfgg-broker/main.go \
  && python3 /tmp/apply-reconnect-coherent-gsl-v5.py /src/cmd/wfgg-broker/main.go \
  && python3 /tmp/apply-reconnect-login-key-fastpath-v6.py /src/cmd/wfgg-broker/main.go \
  && python3 /tmp/apply-reconnect-rejection-diagnostics-v4.py /src/cmd/wfgg-broker/main.go \
+ && python3 /tmp/apply-reconnect-stage-diagnostics-v7.py /src/cmd/wfgg-broker/main.go \
  && grep -q '127.0.0.1:' /src/cmd/wfgg-broker/main.go \
  && grep -q 'nestedValueContainsUID' /src/cmd/wfgg-broker/main.go \
  && grep -q 'AccessTok' /src/cmd/wfgg-broker/main.go \
  && grep -q 'Version = 3' /src/cmd/wfgg-broker/main.go \
  && grep -q 'coherent GSL role reconnect' /src/cmd/wfgg-broker/main.go \
  && grep -q 'login-key-fastpath-v6' /src/cmd/wfgg-broker/main.go \
+ && grep -q 'reconnectFailureCode' /src/cmd/wfgg-broker/main.go \
+ && grep -q 'LASTWAR_RECONNECT_INIT_CONNECTION_LOST' /src/cmd/wfgg-broker/main.go \
  && grep -q 'LASTWAR_RECONNECT_AUTH_E005' /src/cmd/wfgg-broker/main.go \
  && grep -q 'LASTWAR_RECONNECT_AUTH_E011' /src/cmd/wfgg-broker/main.go \
  && grep -q 'DoCrossServerLogin' /src/cmd/wfgg-broker/main.go \
