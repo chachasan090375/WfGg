@@ -1,0 +1,95 @@
+name: Simulator Monica original animation audit v1
+
+on:
+  push:
+    branches:
+      - simulator-standalone-v1
+    paths:
+      - '.github/workflows/simulator-monica-original-animation-audit-v1.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: simulator-standalone-v1
+          fetch-depth: 0
+
+      - name: Download original Monica GIF
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p simulator/assets/heroes/animated frontend/simulator/assets/heroes/animated simulator/research
+          url='https://theriagames.com/wp-content/uploads/2025/05/Monica.gif'
+          curl -fL --retry 4 --retry-delay 2 -A 'Mozilla/5.0' "$url" -o simulator/assets/heroes/animated/monica.gif
+          test -s simulator/assets/heroes/animated/monica.gif
+          file simulator/assets/heroes/animated/monica.gif | grep -qi 'GIF image data'
+          cp simulator/assets/heroes/animated/monica.gif frontend/simulator/assets/heroes/animated/monica.gif
+
+      - name: Audit animation frames
+        shell: bash
+        run: |
+          python3 -m pip install --quiet pillow
+          python3 - <<'PY'
+          from PIL import Image, ImageChops, ImageStat
+          from pathlib import Path
+          import json, hashlib
+
+          p=Path('simulator/assets/heroes/animated/monica.gif')
+          im=Image.open(p)
+          frames=getattr(im,'n_frames',1)
+          durations=[]
+          samples=[]
+          prev=None
+          diffs=[]
+          for i in range(frames):
+              im.seek(i)
+              durations.append(int(im.info.get('duration',0) or 0))
+              fr=im.convert('RGB').resize((96,96))
+              if prev is not None:
+                  d=ImageChops.difference(prev,fr)
+                  stat=ImageStat.Stat(d)
+                  diffs.append(sum(stat.mean)/3.0)
+              prev=fr
+              if i in {0, frames//4, frames//2, (3*frames)//4, frames-1}:
+                  samples.append(i)
+          meta={
+              'source':'https://theriagames.com/wp-content/uploads/2025/05/Monica.gif',
+              'format':im.format,
+              'width':im.width,
+              'height':im.height,
+              'frames':frames,
+              'loop':im.info.get('loop'),
+              'durationTotalMs':sum(durations),
+              'durationMinMs':min(durations) if durations else 0,
+              'durationMaxMs':max(durations) if durations else 0,
+              'meanAdjacentFrameDifference':round(sum(diffs)/len(diffs),3) if diffs else 0,
+              'maxAdjacentFrameDifference':round(max(diffs),3) if diffs else 0,
+              'sampleFrameIndexes':samples,
+              'bytes':p.stat().st_size,
+              'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),
+              'animated':frames>1 and (max(diffs) if diffs else 0)>0.5,
+          }
+          Path('simulator/research/monica-original-animation-audit.v1.json').write_text(json.dumps(meta,indent=2)+'\n')
+          print(json.dumps(meta,indent=2))
+          if not meta['animated']:
+              raise SystemExit('Monica source is not meaningfully animated')
+          PY
+
+      - name: Commit recovered Monica animation
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add simulator/assets/heroes/animated/monica.gif frontend/simulator/assets/heroes/animated/monica.gif simulator/research/monica-original-animation-audit.v1.json
+          git diff --cached --check
+          git commit -m 'simulator: recover original Monica animated portrait'
+          git fetch origin simulator-standalone-v1
+          git rebase origin/simulator-standalone-v1
+          git push origin HEAD:simulator-standalone-v1
