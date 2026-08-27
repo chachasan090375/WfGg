@@ -86,7 +86,7 @@
 
   async function init(){
     try{const r=await fetch(CATALOG_URL,{cache:'no-store'});if(r.ok)catalog=(await r.json()).heroes||[]}catch(e){console.error('WfGg hero UX v10 catalog',e)}
-    scan();startLive();
+    scan();
     const mo=new MutationObserver(queueScan);mo.observe(document.body,{childList:true,subtree:true});
     document.addEventListener('visibilitychange',()=>{if(!document.hidden){queueScan();if(!liveTimer)startLive()}});
   }
