@@ -1,0 +1,78 @@
+name: Simulator portrait source audit
+
+on:
+  push:
+    branches: [simulator-standalone-v1]
+    paths:
+      - '.github/workflows/simulator-portrait-source-audit.yml'
+  workflow_dispatch:
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Pillow
+        run: python3 -m pip install --quiet pillow
+      - name: Measure and render source frames
+        run: |
+          mkdir -p portrait-source-audit
+          cat > /tmp/audit.py <<'PY'
+          from PIL import Image,ImageDraw,ImageFont
+          import json, os, statistics
+          root='simulator/assets/heroes'
+          ids=['williams','morrison','kimberly']
+          report={}
+          def metrics(path):
+              im=Image.open(path)
+              frames=[]
+              n=getattr(im,'n_frames',1)
+              picks=sorted(set([0,1,min(2,n-1),n//4,n//2,max(0,n-2),n-1]))
+              for i in range(n):
+                  im.seek(i); f=im.convert('RGBA'); a=f.getchannel('A'); box=a.getbbox()
+                  if box:
+                      l,t,r,b=box; frames.append({'i':i,'bbox':[l,t,r,b],'w':r-l,'h':b-t,'topPct':round(100*t/f.height,2),'heightPct':round(100*(b-t)/f.height,2),'widthPct':round(100*(r-l)/f.width,2)})
+                  else: frames.append({'i':i,'bbox':None,'w':0,'h':0,'topPct':None,'heightPct':0,'widthPct':0})
+              return im.size,n,picks,frames
+          def sheet(path,label,out):
+              im=Image.open(path); n=getattr(im,'n_frames',1); picks=sorted(set([0,1,min(2,n-1),n//4,n//2,max(0,n-2),n-1]))
+              thumbs=[]
+              for i in picks:
+                  im.seek(i); f=im.convert('RGBA')
+                  bg=Image.new('RGBA',(400,460),(45,45,50,255));
+                  # checker grid
+                  d=ImageDraw.Draw(bg)
+                  for x in range(0,400,50): d.line((x,0,x,400),fill=(75,75,80,255),width=1)
+                  for y in range(0,400,50): d.line((0,y,400,y),fill=(75,75,80,255),width=1)
+                  bg.alpha_composite(f.resize((400,400),Image.Resampling.LANCZOS),(0,0))
+                  d=ImageDraw.Draw(bg); d.text((10,415),f'{label} frame {i}/{n-1}',fill='white')
+                  thumbs.append(bg.convert('RGB'))
+              canvas=Image.new('RGB',(400*len(thumbs),460),(20,20,20))
+              for j,t in enumerate(thumbs): canvas.paste(t,(400*j,0))
+              canvas.save(out,quality=92)
+          for hid in ids:
+              report[hid]={}
+              for kind,rel in [('static',f'cutout-v21/{hid}.webp'),('animated',f'animated-cutout-v223/{hid}.webp')]:
+                  p=os.path.join(root,rel)
+                  if not os.path.exists(p): continue
+                  size,n,picks,frames=metrics(p)
+                  report[hid][kind]={'path':p,'size':size,'frames':n,'picks':picks,'frameMetrics':frames}
+                  sheet(p,f'{hid} {kind}',f'portrait-source-audit/{hid}-{kind}-sheet.jpg')
+          # compact comparison stats
+          compact={}
+          for hid,v in report.items():
+              compact[hid]={}
+              for kind,m in v.items():
+                  fs=[x for x in m['frameMetrics'] if x['bbox']]
+                  compact[hid][kind]={'size':m['size'],'frames':m['frames'],'first':fs[0] if fs else None,'last':fs[-1] if fs else None,'medianHeightPct':round(statistics.median(x['heightPct'] for x in fs),2) if fs else None,'medianTopPct':round(statistics.median(x['topPct'] for x in fs),2) if fs else None,'medianWidthPct':round(statistics.median(x['widthPct'] for x in fs),2) if fs else None}
+          with open('portrait-source-audit/report-full.json','w') as f: json.dump(report,f,indent=2)
+          with open('portrait-source-audit/report-compact.json','w') as f: json.dump(compact,f,indent=2)
+          print(json.dumps(compact,indent=2))
+          PY
+          python3 /tmp/audit.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: simulator-portrait-source-audit
+          path: portrait-source-audit/
+          retention-days: 7
