@@ -1,13 +1,23 @@
 (()=>{
   'use strict';
 
-  const VERSION='24.0-static-premium';
+  const VERSION='24.1-static-premium-lean';
   const CATALOG_URL='data/hero-catalog.v2.json';
   const BASE=id=>`assets/heroes/cutout-v21/${id}.webp`;
   const LEGACY_CLASSES=[
     'wfgg-live-card','wfgg-v10-live','wfgg-v12-live','wfgg-v13-live','wfgg-v14-live','wfgg-v15-live',
     'wfgg-native-gif-active-v17b','wfgg-native-gif-active-v17c','wfgg-v22-native-active','wfgg-v223-native-active'
   ];
+  const ICON={
+    tank:'assets/icons/lastwar/Tank.png', aircraft:'assets/icons/lastwar/Aircraft.png', missile:'assets/icons/lastwar/Missile.png',
+    attack:'assets/icons/lastwar/Attack.png', defense:'assets/icons/lastwar/Defense.png', support:'assets/icons/lastwar/Support.png'
+  };
+  const LABEL={
+    fr:{tank:'Tank',aircraft:'Avion',missile:'Véhicule Missile',attack:'Attaque',defense:'Défense',support:'Soutien'},
+    en:{tank:'Tank',aircraft:'Aircraft',missile:'Missile',attack:'Attack',defense:'Defense',support:'Support'},
+    it:{tank:'Tank',aircraft:'Aereo',missile:'Veicolo Missile',attack:'Attacco',defense:'Difesa',support:'Supporto'},
+    es:{tank:'Tank',aircraft:'Avión',missile:'Vehículo de misiles',attack:'Ataque',defense:'Defensa',support:'Apoyo'}
+  };
 
   /* Kimberly-master framing. One profile per hero, deliberately static. */
   const FRAME={
@@ -24,13 +34,23 @@
   let catalog=[];
   let queued=false;
   const norm=v=>String(v||'').trim().toLowerCase();
+  const currentLang=()=>document.documentElement.lang||'fr';
+  const label=k=>(LABEL[currentLang()]||LABEL.fr)[k]||k;
   const heroStep=()=>document.getElementById('step-heroes');
   const cards=()=>[...document.querySelectorAll('#gameHeroGrid .game-hero-card[data-hero-id]')];
+  const byId=id=>catalog.find(h=>h.id===id)||null;
 
   window.WfGgHeroMotionOwner='static-v24';
   window.WfGgHeroStaticV24={version:VERSION,frame:FRAME};
   document.documentElement.dataset.wfggHeroAnimation='off';
   document.documentElement.dataset.wfggHeroPortraitOwner='static-v24';
+
+  function iconMarkup(kind){
+    const src=ICON[kind];
+    if(!src)return '';
+    const text=label(kind);
+    return `<span class="wfgg-v15-semantic-icon" title="${text}" aria-label="${text}"><img src="${src}" alt="" aria-hidden="true"><span class="wfgg-v15-sr-only">${text}</span></span>`;
+  }
 
   function neutralize(card){
     LEGACY_CLASSES.forEach(c=>card.classList.remove(c));
@@ -42,7 +62,7 @@
   function staticStage(card){
     const host=card.querySelector('.hero-card-portrait');
     if(!host)return null;
-    host.querySelectorAll(':scope > .wfgg-v223-stage,:scope > .wfgg-v22-stage').forEach(n=>n.remove());
+    host.querySelectorAll(':scope > .wfgg-v223-stage,:scope > .wfgg-v22-stage,:scope > .wfgg-v15-motion-layer').forEach(n=>n.remove());
     let stage=host.querySelector(':scope > .wfgg-static-v24-stage');
     if(!stage){
       stage=document.createElement('span');
@@ -53,11 +73,26 @@
       img.alt='';
       img.decoding='async';
       img.loading='lazy';
-      img.referrerPolicy='no-referrer';
       stage.appendChild(img);
       host.appendChild(stage);
     }
     return stage;
+  }
+
+  function decorateCardSemantics(card,cat){
+    if(!cat)return;
+    let layer=card.querySelector(':scope > .wfgg-v15-card-semantics');
+    if(!layer){
+      layer=document.createElement('div');
+      layer.className='wfgg-v15-card-semantics';
+      card.appendChild(layer);
+    }
+    const signature=`${cat.troopType}|${cat.role}|${currentLang()}`;
+    if(layer.dataset.signature!==signature){
+      layer.innerHTML=`${iconMarkup(cat.troopType)}${iconMarkup(cat.role)}`;
+      layer.setAttribute('aria-label',`${label(cat.troopType)}, ${label(cat.role)}`);
+      layer.dataset.signature=signature;
+    }
   }
 
   function applyCard(card){
@@ -71,9 +106,11 @@
     card.dataset.wfggStaticFrame=`${f.x},${f.y},${f.z}`;
     const stage=staticStage(card);
     const img=stage?.querySelector('.wfgg-static-v24-img');
-    if(!img)return;
-    const wanted=BASE(id);
-    if(!img.getAttribute('src')?.includes(`/cutout-v21/${id}.webp`))img.src=wanted;
+    if(img){
+      const wanted=BASE(id);
+      if(!img.getAttribute('src')?.includes(`/cutout-v21/${id}.webp`))img.src=wanted;
+    }
+    decorateCardSemantics(card,byId(id));
   }
 
   function idFromSheet(){
@@ -85,19 +122,35 @@
     return catalog.find(h=>norm(h.name)===name)?.id||null;
   }
 
+  function decorateSheetSemantics(sheet,cat){
+    const title=sheet.querySelector('.hero-sheet-title');
+    if(!title||!cat)return;
+    let layer=title.querySelector(':scope > .wfgg-v15-sheet-semantics');
+    if(!layer){
+      layer=document.createElement('div');
+      layer.className='wfgg-v15-sheet-semantics';
+      title.appendChild(layer);
+    }
+    const signature=`${cat.troopType}|${cat.role}|${currentLang()}`;
+    if(layer.dataset.signature!==signature){
+      layer.innerHTML=`${iconMarkup(cat.troopType)}${iconMarkup(cat.role)}`;
+      layer.dataset.signature=signature;
+    }
+  }
+
   function applySheet(){
     const sheet=document.getElementById('heroGameSheet');
     const id=idFromSheet();
     if(!sheet||!id)return;
     const src=BASE(id);
-    const selectors=['.lw4-unit-portrait','.lw4-skill-hero img','.lw4-tier-portrait img'];
-    sheet.querySelectorAll(selectors.join(',')).forEach(img=>{
+    sheet.querySelectorAll('.lw4-unit-portrait,.lw4-skill-hero img,.lw4-tier-portrait img').forEach(img=>{
       if(!(img instanceof HTMLImageElement))return;
       if(!img.getAttribute('src')?.includes(`/cutout-v21/${id}.webp`))img.src=src;
       img.decoding='async';
       img.loading='eager';
       img.dataset.wfggStaticSource='v24';
     });
+    decorateSheetSemantics(sheet,byId(id));
     sheet.dataset.wfggStaticHero=id;
   }
 
