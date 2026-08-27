@@ -1,0 +1,53 @@
+name: Simulator V22.3 public recette
+
+on:
+  push:
+    branches: [simulator-standalone-v1]
+    paths:
+      - '.github/workflows/simulator-v223-public-recette.yml'
+  workflow_dispatch:
+
+jobs:
+  recette:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Wait for Cloudflare V22.3
+        run: |
+          set -euo pipefail
+          URL='https://simulator-standalone-v1.wfgg.pages.dev/simulator/'
+          ok=0
+          for i in $(seq 1 60); do
+            html="$(curl -fsSL --max-time 15 "${URL}?recette_v223=${i}" || true)"
+            if printf '%s' "$html" | grep -q 'hero-portrait-owner-v223.js?v=0223-smooth-no-flicker'; then
+              echo "V223_PUBLIC=YES attempt=$i"
+              ok=1
+              break
+            fi
+            echo "waiting attempt=$i"
+            sleep 10
+          done
+          test "$ok" = 1
+
+      - name: Validate public V22.3 assets
+        run: |
+          set -euo pipefail
+          BASE='https://simulator-standalone-v1.wfgg.pages.dev/simulator/'
+          html="$(curl -fsSL --max-time 20 "${BASE}?recette_v223=final")"
+          printf '%s' "$html" | grep -q 'hero-portrait-owner-v223.css?v=0223-smooth-no-flicker'
+          printf '%s' "$html" | grep -q 'hero-portrait-owner-v223.js?v=0223-smooth-no-flicker'
+          ! printf '%s' "$html" | grep -q 'hero-portrait-owner-v22.js?v=0222'
+          curl -fsSL --max-time 20 "${BASE}hero-portrait-owner-v223.js?v=0223-smooth-no-flicker" | grep -q 'portrait-owner-v223'
+          curl -fsSL --max-time 20 "${BASE}hero-portrait-owner-v223.css?v=0223-smooth-no-flicker" | grep -q 'hero-fallback'
+          curl -fsSL --max-time 20 "${BASE}data/hero-portrait-owner-v223.json?x=1" > /tmp/m.json
+          python3 - <<'PY'
+          import json
+          m=json.load(open('/tmp/m.json'))
+          assert m['version']=='22.3.0-smooth-single-owner',m.get('version')
+          assert m['canvas']==400,m.get('canvas')
+          assert len(m['animated'])==24,len(m['animated'])
+          assert min(v['frames'] for v in m['animated'].values())>=40
+          print('PUBLIC_MANIFEST_OK',len(m['animated']),min(v['frames'] for v in m['animated'].values()))
+          PY
+          curl -fsSI --max-time 20 "${BASE}assets/heroes/animated-cutout-v223/monica.webp?x=1" | head
+          echo 'V223_PUBLIC_RECETTE=OK'
