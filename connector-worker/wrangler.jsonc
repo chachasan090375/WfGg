@@ -1,0 +1,17 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "wfgg-lastwar-connector",
+  "main": "src/index.js",
+  "compatibility_date": "2026-08-27",
+  "keep_vars": true,
+  "vars": {
+    "CONNECTOR_ORIGINS": "https://wfgg.pages.dev,https://simulator-standalone-v1.wfgg.pages.dev"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "wfgg-db",
+      "database_id": "fda272af-36f9-4f4b-8e44-857271f9d016"
+    }
+  ]
+}
