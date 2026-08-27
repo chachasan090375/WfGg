@@ -1,0 +1,94 @@
+name: Simulator staged authentic GIF roster v17b
+
+on:
+  push:
+    branches:
+      - simulator-standalone-v1
+    paths:
+      - '.github/workflows/simulator-native-gif-roster-v17b.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  deploy-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: simulator-standalone-v1
+          fetch-depth: 0
+      - name: Build staged native GIF UI
+        run: |
+          python3 -m pip install --quiet pillow
+          python3 .github/scripts/simulator-native-gif-roster-v17b.py
+      - name: Validate sources
+        run: |
+          node --check simulator/hero-native-animation-v17b.js
+          node --check frontend/simulator/hero-native-animation-v17b.js
+          grep -Fq 'hero-native-animation-v17b.css?v=017b-staged-native-gifs' simulator/index.html
+          grep -Fq 'hero-native-animation-v17b.js?v=017b-staged-native-gifs' simulator/index.html
+          ! grep -Fq 'hero-native-animation-v16.js' simulator/index.html
+          ! grep -Fq 'hero-native-animation-v17.js?v=017-native-gifs-only' simulator/index.html
+          test $(find simulator/assets/heroes/animated-still -name '*.webp' | wc -l) -ge 20
+      - name: Commit V17B
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add simulator frontend/simulator
+          git diff --cached --check
+          git commit -m 'simulator: stage authentic GIF hero animations v17b'
+          git push origin HEAD:simulator-standalone-v1
+      - name: Wait for Cloudflare V17B
+        run: |
+          ROOT='https://simulator-standalone-v1.wfgg.pages.dev/simulator/'
+          ok=0
+          for i in $(seq 1 70); do
+            curl -fsSL "$ROOT?native_gif_v17b=$i" -o /tmp/sim.html || true
+            if grep -Fq 'hero-native-animation-v17b.js?v=017b-staged-native-gifs' /tmp/sim.html; then ok=1; break; fi
+            sleep 5
+          done
+          test "$ok" = 1
+      - name: Install Playwright
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Android V17B recette
+        run: |
+          node <<'JS'
+          const assert=require('node:assert/strict');
+          const {chromium}=require('playwright');
+          (async()=>{
+            const browser=await chromium.launch({headless:true});
+            try{
+              const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,deviceScaleFactor:2,locale:'fr-FR'});
+              const page=await context.newPage();
+              await page.goto('https://simulator-standalone-v1.wfgg.pages.dev/simulator/?native_gif_v17b_e2e=1',{waitUntil:'domcontentloaded',timeout:60000});
+              await page.evaluate(()=>document.querySelector('#stepNav [data-step="1"]')?.click());
+              await page.locator('.game-hero-card').first().waitFor({state:'visible',timeout:30000});
+              await page.waitForFunction(()=>window.WfGgHeroMotionOwner==='native-v17b',{timeout:15000});
+              const manifest=await page.evaluate(()=>fetch('data/hero-native-animations.v17.json?e2e=2').then(r=>r.json()));
+              assert.equal(manifest.version,'17.1.0-staged-native-gifs');
+              await page.waitForFunction(()=>document.documentElement.dataset.wfggV17bPhase==='active',{timeout:15000});
+              const active=await page.locator('.game-hero-card.wfgg-native-gif-active-v17b').count();
+              assert.ok(active>=5&&active<=6,`active=${active}`);
+              assert.equal(await page.locator('.game-hero-card.wfgg-v15-live').count(),0,'no synthetic V15 class');
+              const playing=await page.locator('.game-hero-card.wfgg-native-gif-active-v17b img').evaluateAll(imgs=>imgs.map(i=>i.getAttribute('src')));
+              assert.ok(playing.every(s=>/assets\/heroes\/animated\/.+\.gif$/.test(s)),JSON.stringify(playing));
+              const capableInactive=page.locator('.game-hero-card.wfgg-native-gif-capable-v17b:not(.wfgg-native-gif-active-v17b) img').first();
+              await capableInactive.waitFor({state:'visible'});
+              assert.match(await capableInactive.getAttribute('src'),/assets\/heroes\/animated-still\/.+\.webp$/);
+              await page.waitForFunction(()=>document.documentElement.dataset.wfggV17bPhase==='rest',{timeout:8000});
+              assert.equal(await page.locator('.game-hero-card.wfgg-native-gif-active-v17b').count(),0,'rest has zero active GIFs');
+              const loki=page.locator('.game-hero-card[data-hero-id="loki"] img');
+              const lokiSrc=await loki.getAttribute('src'); assert.ok(/assets\/heroes\/(animated-still\/loki\.webp|animated\/loki\.gif|loki\.webp)$/.test(lokiSrc),lokiSrc);
+              const monica=page.locator('.game-hero-card[data-hero-id="monica"]');
+              assert.match(await monica.getAttribute('data-wfgg-v17b-crop'),/-9%/);
+              const metric=await page.evaluate(()=>({w:innerWidth,sw:(document.scrollingElement||document.documentElement).scrollWidth,owner:window.WfGgHeroMotionOwner}));
+              assert.equal(metric.owner,'native-v17b');assert.ok(metric.sw<=metric.w+2,JSON.stringify(metric));
+              console.log(JSON.stringify({ok:true,animatedCount:manifest.animatedCount,active,playing,lokiSrc,metric},null,2));
+              await context.close();
+            } finally {await browser.close()}
+          })().catch(e=>{console.error(e);process.exit(1)});
+          JS
