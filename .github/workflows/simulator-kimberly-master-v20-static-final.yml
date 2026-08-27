@@ -1,0 +1,169 @@
+name: Simulator Kimberly master static V20 final
+
+on:
+  push:
+    branches: [simulator-standalone-v1]
+    paths:
+      - '.github/workflows/simulator-kimberly-master-v20-static-final.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  static-master:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: simulator-standalone-v1
+          fetch-depth: 0
+
+      - name: Install image tooling
+        run: python3 -m pip install --quiet pillow requests
+
+      - name: Generate 31 non-cropped master canvases
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          from io import BytesIO
+          import json, shutil, requests
+          from PIL import Image, ImageOps, ImageFilter, ImageEnhance
+
+          HEROES=['williams','murphy','kimberly','marshall','stetmann','dva','carlie','lucius','schuyler','morrison','tesla','swift','fiona','adam','mcgregor','monica','mason','violet','scarlett','richard','farhad','sarah','maxwell','cage','venom','braz','elsa','gump','loki','ambolt','kane']
+          SIZE=400
+          ROOT=Path('simulator')
+          OUT=ROOT/'assets/heroes/master-v20'
+          if OUT.exists(): shutil.rmtree(OUT)
+          OUT.mkdir(parents=True,exist_ok=True)
+
+          catalog=json.loads((ROOT/'data/hero-catalog.v2.json').read_text())
+          byid={h['id']:h for h in catalog['heroes']}
+          manifest=json.loads((ROOT/'data/hero-native-animations.v17.json').read_text())
+          animated=set(manifest.get('animated',{}))
+          headers={'User-Agent':'Mozilla/5.0 (Linux; Android 16) AppleWebKit/537.36 Chrome/140 Safari/537.36'}
+          special={
+            'elsa':['https://theriagames.com/wp-content/uploads/2024/12/Elsa.png','https://www.allclash.com/wp-content/uploads/2024/01/last-war-survival-best-build-for-elsa.jpg'],
+            'kane':['https://theriagames.com/wp-content/uploads/2024/12/Kane-1024x1024.png','https://theriagames.com/wp-content/uploads/2024/12/Kane.png']
+          }
+
+          def remote(url):
+            r=requests.get(url,headers=headers,timeout=18); r.raise_for_status()
+            return Image.open(BytesIO(r.content)).convert('RGB')
+
+          def source(hero):
+            # Match native GIF stills where available; this source contains pixels that object-fit:cover used to hide.
+            still=ROOT/'assets/heroes/animated-still'/f'{hero}.webp'
+            if hero in animated and still.exists():
+              return Image.open(still).convert('RGB'),str(still)
+            urls=list(special.get(hero,[]))
+            u=byid.get(hero,{}).get('portrait')
+            if u and not str(u).lower().endswith('.gif'): urls.append(u)
+            for url in urls:
+              try:
+                im=remote(url)
+                if im.width>=250 and im.height>=250: return im,url
+              except Exception as e: print('SOURCE_SKIP',hero,url,e)
+            p=ROOT/'assets/heroes'/f'{hero}.webp'
+            return Image.open(p).convert('RGB'),str(p)
+
+          def master(im):
+            im=ImageOps.exif_transpose(im).convert('RGB')
+            # Blur only fills the side bands created when a portrait source is fitted into a square.
+            bg=ImageOps.fit(im,(SIZE,SIZE),method=Image.Resampling.LANCZOS,centering=(0.5,0.32))
+            bg=ImageEnhance.Brightness(bg.filter(ImageFilter.GaussianBlur(18))).enhance(0.68)
+            fg=ImageOps.contain(im,(SIZE,SIZE),method=Image.Resampling.LANCZOS)
+            # MASTER RULE: preserve 100% of the source; top aligned; no crop before display.
+            bg.paste(fg,((SIZE-fg.width)//2,0))
+            return bg
+
+          report={'version':'20.2.0-static-kimberly-master','master':'kimberly','canvas':[SIZE,SIZE],'rule':'preserve-100pct-source-top-aligned-square-before-roster-crop','heroes':{}}
+          for h in HEROES:
+            im,src=source(h)
+            out=master(im)
+            out.save(OUT/f'{h}.webp','WEBP',quality=92,method=6)
+            report['heroes'][h]={'source':src,'sourceSize':[im.width,im.height],'masterSize':[SIZE,SIZE]}
+          (ROOT/'data/hero-master-framing.v20.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
+
+          F=Path('frontend/simulator')
+          dst=F/'assets/heroes/master-v20'
+          if dst.exists(): shutil.rmtree(dst)
+          shutil.copytree(OUT,dst)
+          shutil.copy2(ROOT/'data/hero-master-framing.v20.json',F/'data/hero-master-framing.v20.json')
+          PY
+
+      - name: Make the browser display only master canvases
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          js="""(() => {
+            'use strict';
+            const BASE=id=>`assets/heroes/master-v20/${id}.webp`;
+            const FALLBACK=id=>`assets/heroes/${id}.webp`;
+            const NAMES={fr:{schuyler:'Skyler'},en:{schuyler:'Schuyler'},it:{schuyler:'Schuyler'},es:{schuyler:'Schuyler'}};
+            let scheduled=false;
+            const step=()=>document.getElementById('step-heroes');
+            const grid=()=>document.getElementById('gameHeroGrid');
+            const visible=()=>{const s=step();return !!s&&!s.classList.contains('hidden')};
+            const cards=()=>[...document.querySelectorAll('#gameHeroGrid .game-hero-card[data-hero-id]')];
+            const imgFor=c=>c.querySelector('.wfgg-v15-motion-layer > img')||c.querySelector('.hero-card-portrait img');
+            const locale=()=>String(document.documentElement.lang||'fr').toLowerCase().split('-')[0];
+            function decorate(c){
+              const id=c.dataset.heroId,img=imgFor(c);if(!id||!img)return;
+              c.style.setProperty('--wfgg-v15-x','0%');c.style.setProperty('--wfgg-v15-y','0%');c.style.setProperty('--wfgg-v15-zoom','1');
+              c.dataset.wfggMasterFrame='kimberly-v20-static';c.dataset.wfggV18Crop='0%,0%,1';
+              const translated=(NAMES[locale()]||NAMES.en)[id];if(translated){const n=c.querySelector('.wfgg-v10-name');if(n)n.textContent=translated;img.alt=translated}
+              const wanted=BASE(id);if(img.getAttribute('src')!==wanted){img.dataset.wfggV20Fallback=FALLBACK(id);img.src=wanted}
+            }
+            function apply(){if(!visible())return;cards().forEach(decorate);document.documentElement.dataset.wfggPortraitNormalize='v20-static-kimberly-master';document.documentElement.dataset.wfggPortraitCount=String(cards().length)}
+            function schedule(){if(scheduled)return;scheduled=true;requestAnimationFrame(()=>{scheduled=false;apply()})}
+            function onError(ev){const img=ev.target;if(!(img instanceof HTMLImageElement))return;const c=img.closest('.game-hero-card[data-hero-id]');if(!c)return;const fb=img.dataset.wfggV20Fallback||FALLBACK(c.dataset.heroId);if(img.getAttribute('src')!==fb){img.src=fb;c.dataset.wfggV20Recovered='1'}}
+            function init(){const s=step();if(s)new MutationObserver(schedule).observe(s,{attributes:true,attributeFilter:['class']});const g=grid();if(g){g.addEventListener('error',onError,true);new MutationObserver(schedule).observe(g,{childList:true,subtree:true})}new MutationObserver(schedule).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});window.WfGgHeroPortraitV18={version:'20.2.0-static-kimberly-master',master:{id:'kimberly',topGapPct:5,canvas:400},profileFor:()=>({x:'0%',y:'0%',zoom:1}),apply};schedule()}
+            if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
+          })();
+          """
+          css="""
+          /* V20.2 static Kimberly master — normalized assets own composition; CSS owns none. */
+          .game-hero-card .wfgg-v15-motion-layer{transform:none!important;transform-origin:50% 0%!important;inset:0!important;animation:none!important}
+          .game-hero-card .wfgg-v15-motion-layer>img{width:100%!important;height:100%!important;object-fit:cover!important;object-position:50% 0%!important;transform:none!important;transform-origin:50% 0%!important;animation:none!important}
+          """
+          for root in [Path('simulator'),Path('frontend/simulator')]:
+            (root/'hero-portrait-normalize-v18.js').write_text(js)
+            p=root/'hero-roster-v15.css';s=p.read_text();
+            if 'V20.2 static Kimberly master' not in s:s+=css
+            p.write_text(s)
+            p=root/'index.html';s=p.read_text()
+            # Freeze native GIF switching only while the master framing is being visually validated.
+            s=re.sub(r'\s*<script src="hero-native-animation-v17c\.js\?v=[^\"]+"></script>', '\n  <!-- V20.2: native GIF switching paused during master-framing validation -->', s)
+            s=re.sub(r'hero-roster-v15\.css\?v=[^\"]+', 'hero-roster-v15.css?v=0202-static-master', s)
+            s=re.sub(r'hero-portrait-normalize-v18\.js\?v=[^\"]+', 'hero-portrait-normalize-v18.js?v=0202-static-master', s)
+            p.write_text(s)
+          PY
+          node --check simulator/hero-portrait-normalize-v18.js
+          node --check frontend/simulator/hero-portrait-normalize-v18.js
+
+      - name: Validate master contract
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          from PIL import Image
+          import json
+          heroes=['williams','murphy','kimberly','marshall','stetmann','dva','carlie','lucius','schuyler','morrison','tesla','swift','fiona','adam','mcgregor','monica','mason','violet','scarlett','richard','farhad','sarah','maxwell','cage','venom','braz','elsa','gump','loki','ambolt','kane']
+          for root in ['simulator','frontend/simulator']:
+            for h in heroes:
+              p=Path(root)/'assets/heroes/master-v20'/f'{h}.webp';assert p.exists(),p;assert Image.open(p).size==(400,400),(p,Image.open(p).size)
+            r=json.loads((Path(root)/'data/hero-master-framing.v20.json').read_text());assert len(r['heroes'])==31
+            html=(Path(root)/'index.html').read_text();assert 'hero-native-animation-v17c.js' not in html;assert '0202-static-master' in html
+          print('STATIC_MASTER_CONTRACT_OK=31')
+          PY
+
+      - name: Commit V20.2 static master
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add simulator frontend/simulator
+          git diff --cached --check
+          git commit -m 'simulator: lock 31 portraits to static Kimberly master canvas v20.2'
+          git push origin HEAD:simulator-standalone-v1
