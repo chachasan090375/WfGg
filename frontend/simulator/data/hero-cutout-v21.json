@@ -1,0 +1,662 @@
+{
+  "version": "21.0.0",
+  "master": "kimberly",
+  "canvas": [
+    512,
+    512
+  ],
+  "topGapPct": 4.5,
+  "heroes": {
+    "williams": {
+      "bbox": [
+        62,
+        0,
+        741,
+        497
+      ],
+      "subjectSize": [
+        679,
+        497
+      ],
+      "scale": 1.0071,
+      "normalizedSize": [
+        684,
+        501
+      ],
+      "top": 23,
+      "source": "remote:https://shop.ldrescdn.com/rms/ld-space/process/img/5fbdab09f81149348fddbe1a50f40b461778073679.jpg?x-oss-process=image%2Fformat%2Cwebp",
+      "rarity": "UR",
+      "output": "assets/heroes/cutout-v21/williams.webp"
+    },
+    "murphy": {
+      "bbox": [
+        0,
+        79,
+        400,
+        502
+      ],
+      "subjectSize": [
+        400,
+        423
+      ],
+      "scale": 1.1719,
+      "normalizedSize": [
+        469,
+        496
+      ],
+      "top": 23,
+      "source": "remote:https://theriagames.com/wp-content/uploads/2025/04/Murphy.gif",
+      "rarity": "UR",
+      "output": "assets/heroes/cutout-v21/murphy.webp"
+    },
+    "kimberly": {
+      "bbox": [
+        0,
+        0,
+        450,
+        555
+      ],
+      "subjectSize": [
+        450,
+        555
+      ],
+      "scale": 0.9557,
+      "normalizedSize": [
+        430,
+        530
+      ],
+      "top": 23,
+      "source": "remote:https://ufkkkjzukfxitxjfugag.supabase.co/storage/v1/object/public/heroes/kimberly.png",
+      "rarity": "UR",
+      "output": "assets/heroes/cutout-v21/kimberly.webp"
+    },
+    "marshall": {
+      "bbox": [
+        0,
+        0,
+        400,
+        467
+      ],
+      "subjectSize": [
+        400,
+        467
+      ],
+      "scale": 1.129,
+      "normalizedSize": [
+        452,
+        527
+      ],
+      "top": 23,
+      "source": "remote:https://www.lastwar.com/en/img/heroes/Marshall.png",
+      "rarity": "UR",
+      "output": "assets/heroes/cutout-v21/marshall.webp"
+    },
+    "stetmann": {
+      "bbox": [
+        3,
+        0,
+        492,
+        507
+      ],
+      "subjectSize": [
+        489,
+        507
+      ],
+      "scale": 0.9967,
+      "normalizedSize": [
+        487,
+        505
+      ],
+      "top": 23,
+      "source": "remote:https://lastwar.wiki/wp-content/uploads/2024/09/stetmann-last-war-survival.webp",
+      "rarity": "UR",
+      "output": "assets/heroes/cutout-v21/stetmann.webp"
+    },
+    "dva": {
+      "bbox": [
+        0,
+        0,
+        400,
+        526
+      ],
+      "subjectSize": [
+        400,
+        526
+      ],
+      "scale": 1.0752,
+      "normalizedSize": [
+        430,
+        566
+      ],
+      "top": 23,
+      "source": "remote:https://www.lastwar.com/en/img/heroes/DVa.png",
+      "rarity": "UR",
+      "output": "assets/heroes/cutout-v21/dva.webp"
+    },
+    "carlie": {
+      "bbox": [
+        0,
+        0,
+        400,
+        1072
+      ],
+      "subjectSize": [
+        400,
+        1072
+      ],
+      "scale": 0.5636,
+      "normalizedSize": [
+        225,
+        604
+      ],
+      "top": 23,
+      "source": "remote:https://www.lastwar.com/en/img/heroes/Carlie.png",
+      "rarity": "UR",
+      "output": "assets/heroes/cutout-v21/carlie.webp"
+    },
+    "lucius": {
+      "bbox": [
+        0,
+        0,
+        1458,
+        1150
+      ],
+      "subjectSize": [
+        1458,
+        1150
+      ],
+      "scale": 0.4352,
+      "normalizedSize": [
+        635,
+        501
+      ],
+      "top": 23,
+      "source": "remote:https://www.allclash.com/wp-content/uploads/2024/02/last-war-best-lucius-build.jpg",
+      "rarity": "UR",
+      "output": "assets/heroes/cutout-v21/lucius.webp"
+    },
+    "schuyler": {
+      "bbox": [
+        0,
+        80,
+        400,
+        524
+      ],
+      "subjectSize": [
+        400,
+        444
+      ],
+      "scale": 1.1165,
+      "normalizedSize": [
+        447,
+        496
+      ],
+      "top": 23,
+      "source": "remote:https://theriagames.com/wp-content/uploads/2025/05/Schuyler.gif",
+      "rarity": "UR",
+      "output": "assets/heroes/cutout-v21/schuyler.webp"
+    },
+    "morrison": {
+      "bbox": [
+        0,
+        14,
+        497,
+        502
+      ],
+      "subjectSize": [
+        497,
+        488
+      ],
+      "scale": 1.006,
+      "normalizedSize": [
+        500,
+        491
+      ],
+      "top": 23,
+      "source": "remote:https://lastwar.wiki/wp-content/uploads/2024/09/morrison-last-war-survival-game.webp",
+      "rarity": "UR",
+      "output": "assets/heroes/cutout-v21/morrison.webp"
+    },
+    "tesla": {
+      "bbox": [
+        23,
+        18,
+        451,
+        458
+      ],
+      "subjectSize": [
+        428,
+        440
+      ],
+      "scale": 1.1157,
+      "normalizedSize": [
+        478,
+        491
+      ],
+      "top": 23,
+      "source": "remote:https://lastwar.wiki/wp-content/uploads/2024/09/tesla-last-war-survival.webp",
+      "rarity": "UR",
+      "output": "assets/heroes/cutout-v21/tesla.webp"
+    },
+    "swift": {
+      "bbox": [
+        0,
+        18,
+        486,
+        510
+      ],
+      "subjectSize": [
+        486,
+        492
+      ],
+      "scale": 1.0076,
+      "normalizedSize": [
+        490,
+        496
+      ],
+      "top": 23,
+      "source": "remote:https://lastwar.wiki/wp-content/uploads/2024/09/swift-last-war-survival-game.webp",
+      "rarity": "UR",
+      "output": "assets/heroes/cutout-v21/swift.webp"
+    },
+    "fiona": {
+      "bbox": [
+        77,
+        0,
+        764,
+        768
+      ],
+      "subjectSize": [
+        687,
+        768
+      ],
+      "scale": 0.6267,
+      "normalizedSize": [
+        431,
+        481
+      ],
+      "top": 23,
+      "source": "remote:https://theriagames.com/wp-content/uploads/2024/12/Fiona-768x768.png",
+      "rarity": "UR",
+      "output": "assets/heroes/cutout-v21/fiona.webp"
+    },
+    "adam": {
+      "bbox": [
+        37,
+        17,
+        578,
+        427
+      ],
+      "subjectSize": [
+        541,
+        410
+      ],
+      "scale": 1.2091,
+      "normalizedSize": [
+        654,
+        496
+      ],
+      "top": 23,
+      "source": "remote:https://lastwar.wiki/wp-content/uploads/2024/09/adam-last-war-survival.webp",
+      "rarity": "UR",
+      "output": "assets/heroes/cutout-v21/adam.webp"
+    },
+    "mcgregor": {
+      "bbox": [
+        17,
+        13,
+        397,
+        500
+      ],
+      "subjectSize": [
+        380,
+        487
+      ],
+      "scale": 1.1544,
+      "normalizedSize": [
+        439,
+        562
+      ],
+      "top": 23,
+      "source": "remote:https://www.lastwar.com/en/img/heroes/McGregor.png",
+      "rarity": "UR",
+      "output": "assets/heroes/cutout-v21/mcgregor.webp"
+    },
+    "monica": {
+      "bbox": [
+        5,
+        45,
+        400,
+        554
+      ],
+      "subjectSize": [
+        395,
+        509
+      ],
+      "scale": 1.0888,
+      "normalizedSize": [
+        430,
+        554
+      ],
+      "top": 23,
+      "source": "remote:https://theriagames.com/wp-content/uploads/2025/05/Monica.gif",
+      "rarity": "SSR",
+      "output": "assets/heroes/cutout-v21/monica.webp"
+    },
+    "mason": {
+      "bbox": [
+        86,
+        0,
+        735,
+        508
+      ],
+      "subjectSize": [
+        649,
+        508
+      ],
+      "scale": 0.9758,
+      "normalizedSize": [
+        633,
+        496
+      ],
+      "top": 23,
+      "source": "remote:https://www.allclash.com/wp-content/uploads/2024/01/last-war-survival-best-build-for-mason.jpg",
+      "rarity": "SSR",
+      "output": "assets/heroes/cutout-v21/mason.webp"
+    },
+    "violet": {
+      "bbox": [
+        0,
+        0,
+        380,
+        587
+      ],
+      "subjectSize": [
+        380,
+        587
+      ],
+      "scale": 1.0292,
+      "normalizedSize": [
+        391,
+        604
+      ],
+      "top": 23,
+      "source": "remote:https://www.lastwar.com/en/img/heroes/Violet.png",
+      "rarity": "SSR",
+      "output": "assets/heroes/cutout-v21/violet.webp"
+    },
+    "scarlett": {
+      "bbox": [
+        119,
+        33,
+        1200,
+        1200
+      ],
+      "subjectSize": [
+        1081,
+        1167
+      ],
+      "scale": 0.4165,
+      "normalizedSize": [
+        450,
+        486
+      ],
+      "top": 23,
+      "source": "remote:https://theriagames.com/wp-content/uploads/2024/12/Scarlett.png",
+      "rarity": "SSR",
+      "output": "assets/heroes/cutout-v21/scarlett.webp"
+    },
+    "richard": {
+      "bbox": [
+        0,
+        59,
+        1024,
+        1024
+      ],
+      "subjectSize": [
+        1024,
+        965
+      ],
+      "scale": 0.5137,
+      "normalizedSize": [
+        526,
+        496
+      ],
+      "top": 23,
+      "source": "remote:https://theriagames.com/wp-content/uploads/2024/12/Richard-1024x1024.png",
+      "rarity": "SSR",
+      "output": "assets/heroes/cutout-v21/richard.webp"
+    },
+    "farhad": {
+      "bbox": [
+        0,
+        51,
+        1200,
+        1200
+      ],
+      "subjectSize": [
+        1200,
+        1149
+      ],
+      "scale": 0.4859,
+      "normalizedSize": [
+        583,
+        558
+      ],
+      "top": 23,
+      "source": "remote:https://theriagames.com/wp-content/uploads/2024/12/Farhad.png",
+      "rarity": "SSR",
+      "output": "assets/heroes/cutout-v21/farhad.webp"
+    },
+    "sarah": {
+      "bbox": [
+        24,
+        92,
+        400,
+        515
+      ],
+      "subjectSize": [
+        376,
+        423
+      ],
+      "scale": 1.1896,
+      "normalizedSize": [
+        447,
+        503
+      ],
+      "top": 23,
+      "source": "remote:https://theriagames.com/wp-content/uploads/2025/05/giphy-3-1.gif",
+      "rarity": "SSR",
+      "output": "assets/heroes/cutout-v21/sarah.webp"
+    },
+    "maxwell": {
+      "bbox": [
+        0,
+        47,
+        1000,
+        1024
+      ],
+      "subjectSize": [
+        1000,
+        977
+      ],
+      "scale": 0.5123,
+      "normalizedSize": [
+        512,
+        501
+      ],
+      "top": 23,
+      "source": "remote:https://theriagames.com/wp-content/uploads/2024/12/Maxwell-1024x1024.png",
+      "rarity": "SSR",
+      "output": "assets/heroes/cutout-v21/maxwell.webp"
+    },
+    "cage": {
+      "bbox": [
+        0,
+        69,
+        1200,
+        1200
+      ],
+      "subjectSize": [
+        1200,
+        1131
+      ],
+      "scale": 0.4426,
+      "normalizedSize": [
+        531,
+        501
+      ],
+      "top": 23,
+      "source": "remote:https://theriagames.com/wp-content/uploads/2024/12/Cage.png",
+      "rarity": "SSR",
+      "output": "assets/heroes/cutout-v21/cage.webp"
+    },
+    "venom": {
+      "bbox": [
+        111,
+        0,
+        745,
+        558
+      ],
+      "subjectSize": [
+        634,
+        558
+      ],
+      "scale": 0.897,
+      "normalizedSize": [
+        569,
+        501
+      ],
+      "top": 23,
+      "source": "remote:https://www.allclash.com/wp-content/uploads/2024/01/last-war-survival-best-build-for-venom.jpg",
+      "rarity": "SSR",
+      "output": "assets/heroes/cutout-v21/venom.webp"
+    },
+    "braz": {
+      "bbox": [
+        6,
+        80,
+        1197,
+        1199
+      ],
+      "subjectSize": [
+        1191,
+        1119
+      ],
+      "scale": 0.4473,
+      "normalizedSize": [
+        533,
+        501
+      ],
+      "top": 23,
+      "source": "remote:https://theriagames.com/wp-content/uploads/2024/12/Braz.png",
+      "rarity": "SSR",
+      "output": "assets/heroes/cutout-v21/braz.webp"
+    },
+    "elsa": {
+      "bbox": [
+        0,
+        18,
+        739,
+        464
+      ],
+      "subjectSize": [
+        739,
+        446
+      ],
+      "scale": 1.1007,
+      "normalizedSize": [
+        813,
+        491
+      ],
+      "top": 23,
+      "source": "remote:https://www.allclash.com/wp-content/uploads/2024/01/last-war-survival-best-build-for-elsa.jpg",
+      "rarity": "SSR",
+      "output": "assets/heroes/cutout-v21/elsa.webp"
+    },
+    "gump": {
+      "bbox": [
+        35,
+        47,
+        400,
+        400
+      ],
+      "subjectSize": [
+        365,
+        353
+      ],
+      "scale": 1.4043,
+      "normalizedSize": [
+        513,
+        496
+      ],
+      "top": 23,
+      "source": "local:assets/heroes/master-v20/gump.webp",
+      "rarity": "SR",
+      "output": "assets/heroes/cutout-v21/gump.webp"
+    },
+    "loki": {
+      "bbox": [
+        63,
+        84,
+        334,
+        400
+      ],
+      "subjectSize": [
+        271,
+        316
+      ],
+      "scale": 1.714,
+      "normalizedSize": [
+        464,
+        542
+      ],
+      "top": 23,
+      "source": "local:assets/heroes/master-v20/loki.webp",
+      "rarity": "SR",
+      "output": "assets/heroes/cutout-v21/loki.webp"
+    },
+    "ambolt": {
+      "bbox": [
+        85,
+        68,
+        893,
+        1024
+      ],
+      "subjectSize": [
+        808,
+        956
+      ],
+      "scale": 0.5536,
+      "normalizedSize": [
+        447,
+        529
+      ],
+      "top": 23,
+      "source": "remote:https://theriagames.com/wp-content/uploads/2024/12/Ambolt-1024x1024.png",
+      "rarity": "SR",
+      "output": "assets/heroes/cutout-v21/ambolt.webp"
+    },
+    "kane": {
+      "bbox": [
+        0,
+        85,
+        1024,
+        1024
+      ],
+      "subjectSize": [
+        1024,
+        939
+      ],
+      "scale": 0.533,
+      "normalizedSize": [
+        546,
+        501
+      ],
+      "top": 23,
+      "source": "remote:https://theriagames.com/wp-content/uploads/2024/12/Kane-1024x1024.png",
+      "rarity": "SR",
+      "output": "assets/heroes/cutout-v21/kane.webp"
+    }
+  }
+}
