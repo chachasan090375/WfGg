@@ -14,6 +14,14 @@ fs.rmSync(targetWorker, { recursive: true, force: true });
 fs.cpSync(sourceWorker, targetWorker, { recursive: true });
 fs.copyFileSync(overrideIdentity, path.join(targetWorker, 'lastwar-identity.js'));
 
+const identityPath = path.join(targetWorker, 'lastwar-identity.js');
+let identityText = fs.readFileSync(identityPath, 'utf8');
+identityText = identityText.replace(
+  "      'LASTWAR_RATE_LIMITED'\n    ]);",
+  "      'LASTWAR_RATE_LIMITED',\n      'LASTWAR_UPSTREAM_UNAVAILABLE',\n      'LASTWAR_ACCOUNT_DATA_MISSING',\n      'LASTWAR_RECONNECT_STATE_MISSING',\n      'BROKER_STATE_ENCRYPTION_FAILED'\n    ]);"
+);
+fs.writeFileSync(identityPath, identityText, 'utf8');
+
 const indexPath = path.join(targetWorker, 'index.js');
 let indexText = fs.readFileSync(indexPath, 'utf8');
 indexText = indexText.replace("export { LastWarUserContainer } from './lastwar-container.js';\n", '');
