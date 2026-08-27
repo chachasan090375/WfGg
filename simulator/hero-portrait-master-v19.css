@@ -1,0 +1,17 @@
+/* V19 — Kimberly master composition. Kimberly is the visual reference for all 31 roster portraits. */
+.game-hero-card .hero-card-portrait{background-position:center top!important}
+.game-hero-card .wfgg-v15-motion-layer{
+  transform-origin:50% 0%!important;
+  left:0!important;
+  right:0!important;
+  top:0!important;
+  bottom:0!important;
+}
+.game-hero-card .wfgg-v15-motion-layer>img{
+  object-position:50% 0%!important;
+  transform-origin:50% 0%!important;
+}
+.game-hero-card[data-wfgg-master-frame="kimberly-v19"] .wfgg-v15-motion-layer,
+.game-hero-card[data-wfgg-master-frame="kimberly-v19"] .wfgg-v15-motion-layer>img{
+  transition:none!important;
+}
