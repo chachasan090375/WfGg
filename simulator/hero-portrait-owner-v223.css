@@ -1,5 +1,5 @@
 .game-hero-card .hero-card-portrait{overflow:hidden!important;isolation:isolate!important}
-/* V22.3.1 single-source portrait owner: no legacy portrait is allowed under the active surface. */
+/* V22.3.2 frame-2 handoff: legacy portrait layers stay disabled; frame 1 may overlap only the identical rest surface. */
 #gameHeroGrid .game-hero-card.wfgg-v223-owned .hero-fallback{display:none!important;visibility:hidden!important;opacity:0!important}
 #gameHeroGrid .game-hero-card.wfgg-v223-owned .wfgg-v15-motion-layer{opacity:0!important;visibility:hidden!important;animation:none!important;transition:none!important;pointer-events:none!important}
 #gameHeroGrid .game-hero-card.wfgg-v223-owned .hero-card-portrait>img:not(.wfgg-v223-anim){opacity:0!important;visibility:hidden!important}
@@ -7,14 +7,15 @@
 .game-hero-card .wfgg-v223-rest,
 .game-hero-card .wfgg-v223-rest-fallback,
 .game-hero-card .wfgg-v223-anim{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;margin:0!important;padding:0!important;border:0!important;transform:none!important;animation:none!important;transition:none!important;filter:drop-shadow(0 5px 5px #0006) saturate(1.035) contrast(1.02)!important;pointer-events:none!important;backface-visibility:hidden!important}
-.game-hero-card .wfgg-v223-rest{display:block!important;opacity:1!important}
-.game-hero-card .wfgg-v223-rest-fallback{display:none!important;object-fit:contain!important;object-position:50% 0%!important;opacity:1!important}
+.game-hero-card .wfgg-v223-rest{display:block!important;opacity:1!important;visibility:visible!important}
+.game-hero-card .wfgg-v223-rest-fallback{display:none!important;object-fit:contain!important;object-position:50% 0%!important;opacity:1!important;visibility:visible!important}
 .game-hero-card .wfgg-v223-stage.wfgg-v223-rest-fallback-active .wfgg-v223-rest{display:none!important}
 .game-hero-card .wfgg-v223-stage.wfgg-v223-rest-fallback-active .wfgg-v223-rest-fallback{display:block!important}
-.game-hero-card .wfgg-v223-anim{object-fit:contain!important;object-position:50% 0%!important;z-index:2!important;opacity:0!important}
-.game-hero-card.wfgg-v223-native-active .wfgg-v223-rest,
-.game-hero-card.wfgg-v223-native-active .wfgg-v223-rest-fallback{opacity:0!important;visibility:hidden!important}
+.game-hero-card .wfgg-v223-anim{object-fit:contain!important;object-position:50% 0%!important;z-index:2!important;opacity:0!important;visibility:hidden!important}
 .game-hero-card.wfgg-v223-native-active .wfgg-v223-anim{opacity:1!important;visibility:visible!important}
+/* From the second animation frame onward the fixed rest surface is completely absent. */
+.game-hero-card .wfgg-v223-stage.wfgg-v223-frame2 .wfgg-v223-rest,
+.game-hero-card .wfgg-v223-stage.wfgg-v223-frame2 .wfgg-v223-rest-fallback{opacity:0!important;visibility:hidden!important;display:none!important}
 .game-hero-card.wfgg-v223-native-active,
 .game-hero-card.wfgg-v223-native-active::before,
 .game-hero-card.wfgg-v223-native-active::after{animation:none!important;transition:none!important}
