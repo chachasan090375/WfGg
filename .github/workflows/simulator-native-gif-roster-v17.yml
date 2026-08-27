@@ -1,0 +1,101 @@
+name: Simulator authentic GIF roster v17
+
+on:
+  push:
+    branches:
+      - simulator-standalone-v1
+    paths:
+      - '.github/workflows/simulator-native-gif-roster-v17.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  deploy-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: simulator-standalone-v1
+          fetch-depth: 0
+      - name: Recover authentic animated portraits and Loki
+        run: |
+          python3 -m pip install --quiet pillow requests
+          python3 .github/scripts/simulator-native-gif-roster-v17.py
+      - name: Validate sources
+        run: |
+          node --check simulator/hero-native-animation-v17.js
+          node --check frontend/simulator/hero-native-animation-v17.js
+          grep -Fq 'hero-native-animation-v17.css?v=017-native-gifs-only' simulator/index.html
+          grep -Fq 'hero-native-animation-v17.js?v=017-native-gifs-only' simulator/index.html
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          m=json.loads(Path('simulator/data/hero-native-animations.v17.json').read_text())
+          assert m['animatedCount'] >= 4, m
+          assert Path('simulator/assets/heroes/loki.webp').stat().st_size > 5000
+          print('ANIMATED',sorted(m['animated']))
+          PY
+      - name: Commit V17
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add simulator frontend/simulator
+          git diff --cached --check
+          git commit -m 'simulator: use authentic hero GIF animations v17'
+          git push origin HEAD:simulator-standalone-v1
+      - name: Wait for Cloudflare V17
+        run: |
+          ROOT='https://simulator-standalone-v1.wfgg.pages.dev/simulator/'
+          ok=0
+          for i in $(seq 1 70); do
+            curl -fsSL "$ROOT?native_gif_v17=$i" -o /tmp/sim.html || true
+            curl -fsSL "$ROOT/data/hero-native-animations.v17.json?x=$i" -o /tmp/native.json || true
+            if grep -Fq 'hero-native-animation-v17.js?v=017-native-gifs-only' /tmp/sim.html && grep -Fq '17.0.0-native-gifs-only' /tmp/native.json; then ok=1; break; fi
+            sleep 5
+          done
+          test "$ok" = 1
+      - name: Install Playwright
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Android V17 recette
+        run: |
+          node <<'JS'
+          const assert=require('node:assert/strict');
+          const {chromium}=require('playwright');
+          (async()=>{
+            const browser=await chromium.launch({headless:true});
+            try{
+              const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,deviceScaleFactor:2,locale:'fr-FR'});
+              const page=await context.newPage();
+              await page.goto('https://simulator-standalone-v1.wfgg.pages.dev/simulator/?native_gif_v17_e2e=1',{waitUntil:'domcontentloaded',timeout:60000});
+              await page.locator('#stepNav [data-step="1"]').tap();
+              await page.locator('.game-hero-card').first().waitFor({state:'visible',timeout:30000});
+              await page.waitForTimeout(1600);
+              const manifest=await page.evaluate(()=>fetch('data/hero-native-animations.v17.json?e2e=1').then(r=>r.json()));
+              assert.ok(manifest.animatedCount>=4,JSON.stringify(manifest));
+              assert.equal(await page.locator('.game-hero-card.wfgg-v15-live').count(),0,'synthetic V15 motion must be absent');
+              for(const [id,a] of Object.entries(manifest.animated)){
+                const img=page.locator(`.game-hero-card[data-hero-id="${id}"] .hero-card-portrait img`);
+                assert.equal(await img.count(),1,`missing img ${id}`);
+                const state=await img.evaluate(el=>({src:el.getAttribute('src'),w:el.naturalWidth,h:el.naturalHeight}));
+                assert.equal(state.src,a.src,`wrong native GIF ${id}`); assert.ok(state.w>100&&state.h>100,`bad GIF ${id}`);
+              }
+              const loki=page.locator('.game-hero-card[data-hero-id="loki"] .hero-card-portrait img');
+              assert.equal(await loki.count(),1,'Loki image restored');
+              const lokiState=await loki.evaluate(el=>({src:el.getAttribute('src'),w:el.naturalWidth,h:el.naturalHeight}));
+              assert.equal(lokiState.src,'assets/heroes/loki.webp'); assert.ok(lokiState.w>=300&&lokiState.h>=400,lokiState);
+              const monica=page.locator('.game-hero-card[data-hero-id="monica"]');
+              if(manifest.animated.monica){
+                const crop=await monica.getAttribute('data-wfgg-v17-crop');
+                assert.ok(crop?.includes('-7%'),crop);
+              }
+              const metric=await page.evaluate(()=>({w:innerWidth,sw:(document.scrollingElement||document.documentElement).scrollWidth,owner:window.WfGgHeroMotionOwner}));
+              assert.equal(metric.owner,'native-v17'); assert.ok(metric.sw<=metric.w+2,JSON.stringify(metric));
+              console.log(JSON.stringify({ok:true,animated:Object.keys(manifest.animated),loki:lokiState,metric},null,2));
+              await context.close();
+            } finally {await browser.close()}
+          })().catch(e=>{console.error(e);process.exit(1)});
+          JS
