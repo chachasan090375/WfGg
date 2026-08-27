@@ -1,0 +1,90 @@
+name: Simulator visual audit after sync
+
+on:
+  push:
+    branches: [simulator-standalone-v1]
+    paths:
+      - '.github/workflows/simulator-visual-audit-after-sync.yml'
+  workflow_dispatch:
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Wait for public V22.3.2
+        run: |
+          set -euo pipefail
+          BASE='https://simulator-standalone-v1.wfgg.pages.dev/simulator/'
+          ok=0
+          for i in $(seq 1 60); do
+            html="$(curl -fsSL --max-time 15 "${BASE}?audit_sync=${GITHUB_SHA}-${i}" || true)"
+            js="$(curl -fsSL --max-time 15 "${BASE}hero-portrait-owner-v223.js?audit_sync=${GITHUB_SHA}-${i}" || true)"
+            if printf '%s' "$html" | grep -q '0224-frame2-handoff' && printf '%s' "$js" | grep -q '22.3.2-frame2-handoff' && printf '%s' "$js" | grep -q 'wfgg-v223-owned'; then
+              echo "PUBLIC_V2232=YES attempt=$i"
+              ok=1
+              break
+            fi
+            echo "waiting for V22.3.2 attempt=$i"
+            sleep 10
+          done
+          test "$ok" = 1
+      - name: Install Playwright
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm i playwright@1.55.0 >/dev/null 2>&1
+          npx playwright install --with-deps chromium >/dev/null
+      - name: Capture Williams and Morrison
+        env:
+          PREVIEW_URL: https://simulator-standalone-v1.wfgg.pages.dev/simulator/
+        run: |
+          mkdir -p visual-audit
+          cat > audit-after-sync.mjs <<'EOF'
+          import { chromium } from 'playwright';
+          import fs from 'node:fs';
+          const browser=await chromium.launch({headless:true});
+          const page=await browser.newPage({viewport:{width:430,height:1200},deviceScaleFactor:2});
+          const url=`${process.env.PREVIEW_URL}?visual_after_sync=${process.env.GITHUB_SHA}`;
+          await page.goto(url,{waitUntil:'domcontentloaded',timeout:90000});
+          await page.waitForTimeout(3500);
+          const nav=page.locator('#stepNav button');
+          const texts=await nav.allTextContents();
+          let ix=texts.findIndex(t=>/Héros|Heroes|Eroi|Héroes/i.test(t));
+          if(ix<0)ix=1;
+          await nav.nth(ix).click();
+          await page.locator('#gameHeroGrid .game-hero-card[data-hero-id]').first().waitFor({state:'visible',timeout:30000});
+          await page.waitForTimeout(1800);
+          const report={url,ownerVersion:await page.evaluate(()=>window.WfGgHeroPortraitOwnerV223?.version||null),heroes:{}};
+          const info=async id=>page.locator(`.game-hero-card[data-hero-id="${id}"]`).evaluate(card=>{
+            const q=s=>card.querySelector(s),cs=e=>e?getComputedStyle(e):null;
+            const rest=q('.wfgg-v223-rest'),anim=q('.wfgg-v223-anim'),legacy=q('.wfgg-v15-motion-layer'),stage=q('.wfgg-v223-stage');
+            return {owned:card.classList.contains('wfgg-v223-owned'),active:card.classList.contains('wfgg-v223-native-active'),frame2:stage?.classList.contains('wfgg-v223-frame2')||false,rest:{display:cs(rest)?.display,opacity:cs(rest)?.opacity,visibility:cs(rest)?.visibility},anim:{display:cs(anim)?.display,opacity:cs(anim)?.opacity,visibility:cs(anim)?.visibility,naturalWidth:anim?.naturalWidth||0,naturalHeight:anim?.naturalHeight||0},legacy:{display:cs(legacy)?.display,opacity:cs(legacy)?.opacity,visibility:cs(legacy)?.visibility},handoff:document.documentElement.dataset.wfggV223Handoff||''};
+          });
+          async function waitState(id,active,timeout=50000){const t=Date.now();while(Date.now()-t<timeout){const ok=await page.locator(`.game-hero-card[data-hero-id="${id}"]`).evaluate((c,a)=>c.classList.contains('wfgg-v223-native-active')===a,active).catch(()=>false);if(ok)return true;await page.waitForTimeout(100)}return false}
+          async function audit(id){
+            const card=page.locator(`.game-hero-card[data-hero-id="${id}"]`);
+            await card.scrollIntoViewIfNeeded(); await page.waitForTimeout(300); await waitState(id,false,12000);
+            report.heroes[id]={idle:await info(id)}; await card.screenshot({path:`visual-audit/${id}-idle.png`});
+            const active=await waitState(id,true,50000); report.heroes[id].becameActive=active;
+            if(active){await page.waitForTimeout(180);report.heroes[id].active180=await info(id);await card.screenshot({path:`visual-audit/${id}-active-180.png`});await page.waitForTimeout(700);report.heroes[id].active880=await info(id);await card.screenshot({path:`visual-audit/${id}-active-880.png`});}
+          }
+          await page.screenshot({path:'visual-audit/grid-before.png',fullPage:true});
+          await audit('williams');
+          await audit('morrison');
+          await page.screenshot({path:'visual-audit/grid-after.png',fullPage:true});
+          fs.writeFileSync('visual-audit/report.json',JSON.stringify(report,null,2));
+          console.log(JSON.stringify(report,null,2));
+          await browser.close();
+          EOF
+          node audit-after-sync.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: simulator-visual-audit-after-sync
+          path: visual-audit/
+          if-no-files-found: warn
+          retention-days: 7
