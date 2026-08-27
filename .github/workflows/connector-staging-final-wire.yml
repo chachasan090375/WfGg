@@ -6,6 +6,7 @@ on:
       - connector-readonly-v1
     paths:
       - '.github/workflows/connector-staging-final-wire.yml'
+      - 'scripts/connector_staging_final_wire.py'
 
 permissions:
   contents: write
@@ -19,72 +20,12 @@ jobs:
           ref: connector-readonly-v1
           fetch-depth: 0
 
-      - name: Wire Pages proxy to staging Worker
-        run: |
-          python3 - <<'PY'
-          from pathlib import Path
-          p=Path('frontend/_worker.js')
-          s=p.read_text()
-          old='https://connector-readonly-v1-wfgg-api.chachasan090375.workers.dev'
-          new='https://wfgg-api-staging.chachasan090375.workers.dev'
-          if old not in s and new not in s:
-              raise SystemExit('portalApi origin marker not found')
-          if old in s:
-              if s.count(old) != 1:
-                  raise SystemExit(f'unexpected old origin count: {s.count(old)}')
-              s=s.replace(old,new)
-              p.write_text(s)
-          print('portalApi staging origin OK')
-          PY
-
-      - name: Add broker runtime health endpoint
-        run: |
-          python3 - <<'PY'
-          from pathlib import Path
-          p=Path('worker/src/lastwar-identity.js')
-          s=p.read_text()
-          marker="export async function routeLastWarIdentity(request, env, url, deps) {\n  if (!url.pathname.startsWith('/api/lastwar/identity/')) return null;\n\n  const { sessionContext, json, fail, audit, now, sha256Text } = deps;"
-          replacement="""export async function routeLastWarIdentity(request, env, url, deps) {
-  const { sessionContext, json, fail, audit, now, sha256Text } = deps;
-
-  if (url.pathname === '/api/lastwar/health') {
-    if (request.method !== 'GET') return json({ error: 'METHOD_NOT_ALLOWED' }, 405);
-    if (!env.LASTWAR_USER) return json({ ok: false, error: 'LASTWAR_BROKER_NOT_CONFIGURED' }, 503);
-    try {
-      const instance = getContainer(env.LASTWAR_USER, 'wfgg-lastwar-health-v1');
-      const response = await instance.fetch(new Request('https://container.internal/ping', {
-        method: 'GET',
-        headers: { 'Cache-Control': 'no-store' }
-      }));
-      let data = {};
-      try { data = await response.json(); } catch (_) {}
-      if (!response.ok || data?.ok !== true || data?.service !== 'wfgg-lastwar-go-broker') {
-        return json({ ok: false, error: 'LASTWAR_BROKER_HEALTH_FAILED' }, 503);
-      }
-      return json({
-        ok: true,
-        service: 'wfgg-lastwar-connector',
-        broker: 'wfgg-lastwar-go-broker',
-        mode: data.mode === 'read-only' ? 'read-only' : 'unknown',
-        revision: BROKER_REVISION.slice(0, 8),
-        container: true
-      });
-    } catch (_) {
-      return json({ ok: false, error: 'LASTWAR_BROKER_UNAVAILABLE' }, 503);
-    }
-  }
-
-  if (!url.pathname.startsWith('/api/lastwar/identity/')) return null;"""
-          if "url.pathname === '/api/lastwar/health'" not in s:
-              if marker not in s:
-                  raise SystemExit('routeLastWarIdentity marker not found')
-              s=s.replace(marker,replacement,1)
-              p.write_text(s)
-          print('broker health endpoint OK')
-          PY
+      - name: Apply final staging wire
+        run: python3 scripts/connector_staging_final_wire.py
 
       - name: Validate sources
         run: |
+          set -euo pipefail
           node --check frontend/_worker.js
           node --check worker/src/lastwar-identity.js
           grep -q 'wfgg-api-staging.chachasan090375.workers.dev' frontend/_worker.js
@@ -93,12 +34,12 @@ jobs:
       - name: Commit final staging wire
         run: |
           set -euo pipefail
-          if git diff --quiet; then
-            echo 'Nothing to commit'
-            exit 0
-          fi
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add frontend/_worker.js worker/src/lastwar-identity.js
+          if git diff --cached --quiet; then
+            echo 'Nothing to commit'
+            exit 0
+          fi
           git commit -m 'connector: wire preview to staging broker runtime'
           git push origin HEAD:connector-readonly-v1
