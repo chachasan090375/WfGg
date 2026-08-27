@@ -1,0 +1,34 @@
+name: WfGg API preview command recette
+
+on:
+  push:
+    branches:
+      - connector-readonly-v1
+    paths:
+      - 'worker/package.json'
+      - 'worker/scripts/deploy-preview.mjs'
+      - '.github/workflows/wfgg-api-preview-command-recette.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  recette:
+    runs-on: ubuntu-latest
+    env:
+      WORKERS_CI_BRANCH: connector-readonly-v1
+      WFGG_PREVIEW_DEPLOY_DRY_RUN: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Worker dependencies
+        working-directory: worker
+        run: npm install --no-audit --no-fund
+      - name: Validate branch-aware deploy command
+        working-directory: worker
+        run: npm run deploy:preview
+      - name: Assert staging Container build
+        run: |
+          set -euo pipefail
+          test -d /tmp/wfgg-api-staging-preview-command
+          echo 'PREVIEW_DEPLOY_COMMAND_OK'
