@@ -1,6 +1,6 @@
-// WFGG_LASTWAR_IDENTITIES_V1
-// Provider-neutral identity bridge, prepared for a future verified Last War login.
-// IMPORTANT: a user claim is never treated as verified authentication.
+// WFGG_LASTWAR_IDENTITIES_V2
+// All writes go to env.LAB_DB, never to the production WfGg database.
+// The WfGg user is validated upstream through /api/me before these functions run.
 
 const PROVIDER = 'lastwar';
 const STATUS_PENDING = 'PENDING';
@@ -40,17 +40,18 @@ export function lastWarProviderCapability() {
     prepared: true,
     login_enabled: false,
     verification_enabled: false,
+    claim_enabled: true,
     reason: 'OFFICIAL_VERIFICATION_NOT_CONFIGURED'
   };
 }
 
 export async function listExternalIdentities(request, env, sessionContext) {
   const ctx = await sessionContext(request, env);
-  const rows = await env.DB.prepare(`
-    SELECT id,user_id,provider,provider_subject,server_id,alliance_subject,status,
+  const rows = await env.LAB_DB.prepare(`
+    SELECT id,wfgg_user_id,provider,provider_subject,server_id,alliance_subject,status,
            verification_source,verified_at,last_verified_at,created_at,updated_at
     FROM external_identities
-    WHERE user_id=?
+    WHERE wfgg_user_id=?
     ORDER BY provider, created_at
   `).bind(ctx.id).all();
 
@@ -69,30 +70,30 @@ export async function claimLastWarIdentity(request, env, sessionContext, audit, 
   const allianceId = clean(body.alliance_id, 80, 'LASTWAR_ALLIANCE_ID');
   const ts = now();
 
-  const existing = await env.DB.prepare(`
-    SELECT id,user_id,status
+  const existing = await env.LAB_DB.prepare(`
+    SELECT id,wfgg_user_id,status
     FROM external_identities
     WHERE provider=? AND provider_subject=? AND server_id=?
     LIMIT 1
   `).bind(PROVIDER, playerUid, serverId).first();
 
-  if (existing && existing.user_id !== ctx.id) {
+  if (existing && existing.wfgg_user_id !== ctx.id) {
     fail('LASTWAR_IDENTITY_ALREADY_CLAIMED', 409);
   }
 
   const identityId = existing?.id || id('extid');
 
   if (existing) {
-    await env.DB.prepare(`
+    await env.LAB_DB.prepare(`
       UPDATE external_identities
       SET alliance_subject=?, status=?, verification_source=NULL,
           verified_at=NULL, last_verified_at=NULL, metadata_json=NULL, updated_at=?
-      WHERE id=? AND user_id=?
+      WHERE id=? AND wfgg_user_id=?
     `).bind(allianceId, STATUS_PENDING, ts, identityId, ctx.id).run();
   } else {
-    await env.DB.prepare(`
+    await env.LAB_DB.prepare(`
       INSERT INTO external_identities(
-        id,user_id,provider,provider_subject,server_id,alliance_subject,status,
+        id,wfgg_user_id,provider,provider_subject,server_id,alliance_subject,status,
         verification_source,verified_at,last_verified_at,metadata_json,created_at,updated_at
       ) VALUES(?,?,?,?,?,?,?,NULL,NULL,NULL,NULL,?,?)
     `).bind(
@@ -109,10 +110,10 @@ export async function claimLastWarIdentity(request, env, sessionContext, audit, 
     status: STATUS_PENDING
   });
 
-  const row = await env.DB.prepare(`
-    SELECT id,user_id,provider,provider_subject,server_id,alliance_subject,status,
+  const row = await env.LAB_DB.prepare(`
+    SELECT id,wfgg_user_id,provider,provider_subject,server_id,alliance_subject,status,
            verification_source,verified_at,last_verified_at,created_at,updated_at
-    FROM external_identities WHERE id=? AND user_id=?
+    FROM external_identities WHERE id=? AND wfgg_user_id=?
   `).bind(identityId, ctx.id).first();
 
   return {
@@ -123,18 +124,18 @@ export async function claimLastWarIdentity(request, env, sessionContext, audit, 
 
 export async function revokeLastWarIdentity(request, env, sessionContext, audit, now, identityId) {
   const ctx = await sessionContext(request, env);
-  const row = await env.DB.prepare(`
-    SELECT id,user_id,provider,status FROM external_identities
-    WHERE id=? AND user_id=? AND provider=?
+  const row = await env.LAB_DB.prepare(`
+    SELECT id,wfgg_user_id,provider,status FROM external_identities
+    WHERE id=? AND wfgg_user_id=? AND provider=?
   `).bind(identityId, ctx.id, PROVIDER).first();
 
   if (!row) fail('LASTWAR_IDENTITY_NOT_FOUND', 404);
 
-  await env.DB.prepare(`
+  await env.LAB_DB.prepare(`
     UPDATE external_identities
     SET status='REVOKED', verification_source=NULL, verified_at=NULL,
         last_verified_at=NULL, updated_at=?
-    WHERE id=? AND user_id=?
+    WHERE id=? AND wfgg_user_id=?
   `).bind(now(), identityId, ctx.id).run();
 
   await audit(env, ctx.id, 'LASTWAR_IDENTITY_REVOKE', 'external_identity', identityId, {
