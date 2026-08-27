@@ -1,3 +1,7 @@
+import { routeLastWarConnector } from './lastwar-connector.js';
+import { routeLastWarIdentity, routeLastWarCloudSync } from './lastwar-identity.js';
+export { LastWarUserContainer } from './lastwar-container.js';
+
 const JSON_HEADERS = { 'Content-Type': 'application/json; charset=utf-8' };
 const ALLOWED_LANGS = new Set(['fr', 'it', 'en', 'es']);
 const ALLOWED_RANKS = new Set(['R1', 'R2', 'R3', 'R4', 'R5']);
@@ -26,8 +30,33 @@ export default {
       assertOriginAllowed(request, env);
       let response;
 
-      if (url.pathname === '/api/health' && request.method === 'GET') {
-        response = json({ ok: true, service: 'wfgg-api', version: '0.4.2', admin_gate: 'R4_R5_ONLY' });
+      const lastWarDeps = {
+        sessionContext,
+        json,
+        fail,
+        audit,
+        now,
+        sha256Text,
+        hmacHex,
+        toBase64Url,
+        id
+      };
+      const identityResponse = await routeLastWarIdentity(request, env, url, lastWarDeps);
+      const cloudSyncResponse = identityResponse
+        ? null
+        : await routeLastWarCloudSync(request, env, url, lastWarDeps);
+      const connectorResponse = identityResponse || cloudSyncResponse
+        ? null
+        : await routeLastWarConnector(request, env, lastWarDeps);
+
+      if (identityResponse) {
+        response = identityResponse;
+      } else if (cloudSyncResponse) {
+        response = cloudSyncResponse;
+      } else if (connectorResponse) {
+        response = connectorResponse;
+      } else if (url.pathname === '/api/health' && request.method === 'GET') {
+        response = json({ ok: true, service: 'wfgg-api', version: '0.5.0-lastwar-container', admin_gate: 'R4_R5_ONLY', lastwar_container: Boolean(env.LASTWAR_USER) });
       } else if (url.pathname === '/api/bootstrap' && request.method === 'POST') {
         response = await bootstrap(request, env);
       } else if (url.pathname === '/api/auth' && request.method === 'POST') {

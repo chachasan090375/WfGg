@@ -9,7 +9,7 @@ const UPSTREAMS = {
   },
   portalApi: {
     prefix: '/api',
-    origin: 'https://wfgg-api.chachasan090375.workers.dev'
+    origin: 'https://connector-readonly-v1-wfgg-api.chachasan090375.workers.dev'
   },
   trainApi: {
     prefix: '/api',
