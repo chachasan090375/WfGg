@@ -9,15 +9,16 @@
     it:{schuyler:'Schuyler'},
     es:{schuyler:'Schuyler'}
   };
+  const MASTER={id:'kimberly',version:'v19',topGapPct:5,composition:'head-shoulders-half-body'};
   const PROFILE={
-    williams:{x:'0%',y:'1%',zoom:.92}, murphy:{x:'0%',y:'-11%',zoom:1.28}, kimberly:{x:'0%',y:'1%',zoom:.96}, marshall:{x:'0%',y:'2%',zoom:.94},
-    stetmann:{x:'0%',y:'0%',zoom:.97}, dva:{x:'0%',y:'1%',zoom:.96}, carlie:{x:'0%',y:'0%',zoom:.99}, lucius:{x:'0%',y:'0%',zoom:.91},
-    schuyler:{x:'0%',y:'1%',zoom:.91}, morrison:{x:'0%',y:'-8%',zoom:1.22}, tesla:{x:'0%',y:'1%',zoom:.95}, swift:{x:'0%',y:'1%',zoom:.91},
-    fiona:{x:'0%',y:'0%',zoom:.93}, adam:{x:'0%',y:'-1%',zoom:.94}, mcgregor:{x:'0%',y:'-2%',zoom:1.00}, monica:{x:'0%',y:'-13%',zoom:1.00},
-    mason:{x:'0%',y:'0%',zoom:.94}, violet:{x:'0%',y:'-1%',zoom:.96}, scarlett:{x:'0%',y:'-5%',zoom:.94}, richard:{x:'0%',y:'0%',zoom:.95},
-    farhad:{x:'0%',y:'-2%',zoom:.99}, sarah:{x:'0%',y:'-7%',zoom:.98}, maxwell:{x:'0%',y:'0%',zoom:.97}, cage:{x:'0%',y:'0%',zoom:.97},
-    venom:{x:'0%',y:'-3%',zoom:.96}, braz:{x:'0%',y:'-1%',zoom:.97}, elsa:{x:'0%',y:'-3%',zoom:.98}, gump:{x:'0%',y:'0%',zoom:.96},
-    loki:{x:'0%',y:'-2%',zoom:.98}, ambolt:{x:'0%',y:'-24%',zoom:1.18}, kane:{x:'0%',y:'-2%',zoom:.98}
+    williams:{x:'0%',y:'4%',zoom:.84}, murphy:{x:'0%',y:'4%',zoom:.88}, kimberly:{x:'0%',y:'1%',zoom:.96}, marshall:{x:'0%',y:'-7%',zoom:.90},
+    stetmann:{x:'0%',y:'-7%',zoom:.89}, dva:{x:'0%',y:'2%',zoom:.89}, carlie:{x:'0%',y:'1%',zoom:.91}, lucius:{x:'0%',y:'-8%',zoom:.87},
+    schuyler:{x:'0%',y:'-9%',zoom:.87}, morrison:{x:'0%',y:'4%',zoom:.82}, tesla:{x:'0%',y:'3%',zoom:.89}, swift:{x:'0%',y:'-3%',zoom:.87},
+    fiona:{x:'0%',y:'2%',zoom:.89}, adam:{x:'0%',y:'5%',zoom:.83}, mcgregor:{x:'0%',y:'3%',zoom:.89}, monica:{x:'0%',y:'1%',zoom:.93},
+    mason:{x:'0%',y:'5%',zoom:.79}, violet:{x:'0%',y:'4%',zoom:.83}, scarlett:{x:'0%',y:'3%',zoom:.87}, richard:{x:'0%',y:'1%',zoom:.89},
+    farhad:{x:'0%',y:'-8%',zoom:.88}, sarah:{x:'0%',y:'-6%',zoom:.89}, maxwell:{x:'0%',y:'-8%',zoom:.87}, cage:{x:'0%',y:'-6%',zoom:.87},
+    venom:{x:'0%',y:'2%',zoom:.89}, braz:{x:'0%',y:'-7%',zoom:.89}, elsa:{x:'0%',y:'1%',zoom:.90}, gump:{x:'0%',y:'2%',zoom:.89},
+    loki:{x:'0%',y:'5%',zoom:.72}, ambolt:{x:'0%',y:'4%',zoom:.80}, kane:{x:'0%',y:'1%',zoom:.90}
   };
 
   let manifest={animated:{}};
@@ -44,12 +45,14 @@
 
   function applyProfile(card){
     const id=card.dataset.heroId;
-    const p=PROFILE[id]||{x:'0%',y:'0%',zoom:1};
+    const p=PROFILE[id]||PROFILE.kimberly;
     card.style.setProperty('--wfgg-v15-x',p.x);
     card.style.setProperty('--wfgg-v15-y',p.y);
     card.style.setProperty('--wfgg-v15-zoom',String(p.zoom));
     card.dataset.wfggV18Crop=`${p.x},${p.y},${p.zoom}`;
     card.dataset.wfggV18Portrait='1';
+    card.dataset.wfggMasterFrame='kimberly-v19';
+    card.dataset.wfggMasterTop=String(MASTER.topGapPct);
     localize(card);
   }
 
@@ -73,7 +76,7 @@
   function applyAll(){
     if(!stepVisible())return;
     cards().forEach(decorate);
-    document.documentElement.dataset.wfggPortraitNormalize='v18c';
+    document.documentElement.dataset.wfggPortraitNormalize='v19-kimberly-master';
     document.documentElement.dataset.wfggPortraitCount=String(cards().length);
   }
 
@@ -134,7 +137,7 @@
       scrollTimer=setTimeout(applyAll,120);
     },{passive:true});
 
-    window.WfGgHeroPortraitV18={version:'18.2.0',profileFor:id=>PROFILE[id]||null,apply:applyAll};
+    window.WfGgHeroPortraitV18={version:'19.0.0-kimberly-master',master:MASTER,profileFor:id=>PROFILE[id]||PROFILE.kimberly,apply:applyAll};
     schedule();
   }
 
