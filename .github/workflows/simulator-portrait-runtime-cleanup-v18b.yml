@@ -1,0 +1,127 @@
+name: Simulator portrait runtime cleanup V18B
+
+on:
+  push:
+    branches:
+      - simulator-standalone-v1
+    paths:
+      - '.github/workflows/simulator-portrait-runtime-cleanup-v18b.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: simulator-standalone-v1
+          fetch-depth: 0
+
+      - name: Remove legacy V13 V14 runtimes
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          old=[
+            '  <script src="hero-roster-uniform-v13.js?v=013-uniform-motion"></script>\n',
+            '  <script src="hero-roster-uniform-v14.js?v=014-no-flash-uniform"></script>\n'
+          ]
+          for p in [Path('simulator/index.html'),Path('frontend/simulator/index.html')]:
+              s=p.read_text()
+              for line in old: s=s.replace(line,'')
+              if 'hero-portrait-normalize-v18.js?v=018-uniform-head-shoulders' not in s: raise SystemExit(f'V18 missing in {p}')
+              p.write_text(s)
+          PY
+          ! grep -Fq 'hero-roster-uniform-v13.js' simulator/index.html
+          ! grep -Fq 'hero-roster-uniform-v14.js' simulator/index.html
+          ! grep -Fq 'hero-roster-uniform-v13.js' frontend/simulator/index.html
+          ! grep -Fq 'hero-roster-uniform-v14.js' frontend/simulator/index.html
+
+      - name: Commit cleanup
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add simulator/index.html frontend/simulator/index.html
+          git diff --cached --check
+          git commit -m 'simulator: remove conflicting V13 V14 portrait runtimes'
+          git push origin HEAD:simulator-standalone-v1
+
+      - name: Wait for Cloudflare V18B
+        run: |
+          ROOT='https://simulator-standalone-v1.wfgg.pages.dev/simulator/'
+          ok=0
+          for i in $(seq 1 80); do
+            curl -fsSL "$ROOT?portrait_v18b=$i" -o /tmp/index.html || true
+            if grep -Fq 'hero-portrait-normalize-v18.js?v=018-uniform-head-shoulders' /tmp/index.html && ! grep -Fq 'hero-roster-uniform-v14.js' /tmp/index.html; then ok=1; break; fi
+            sleep 5
+          done
+          test "$ok" = 1
+          for id in elsa loki kane; do curl -fsSI "$ROOT/assets/heroes/$id.webp" | head -1 | grep -Eq '200|304'; done
+
+      - name: Install Playwright
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: Android V18B portrait source and navigation test
+        run: |
+          node <<'JS'
+          const assert=require('node:assert/strict');
+          const {chromium}=require('playwright');
+          (async()=>{
+            const browser=await chromium.launch({headless:true});
+            try{
+              const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,deviceScaleFactor:2,locale:'fr-FR'});
+              const page=await context.newPage();
+              const errors=[]; page.on('pageerror',e=>errors.push(String(e)));
+              await page.goto('https://simulator-standalone-v1.wfgg.pages.dev/simulator/?portrait_v18b_e2e=1',{waitUntil:'domcontentloaded',timeout:60000});
+              await page.waitForFunction(()=>window.WfGgHeroPortraitV18?.version==='18.0.0',{timeout:20000});
+              const heroNav=page.locator('#stepNav [data-step="1"]');
+              if(await heroNav.count()) await heroNav.click(); else await page.locator('#nextBtn').click();
+              await page.waitForFunction(()=>document.querySelectorAll('#gameHeroGrid .game-hero-card').length===31,{timeout:30000});
+              await page.waitForFunction(()=>document.documentElement.dataset.wfggPortraitCount==='31',{timeout:10000});
+              assert.equal(await page.locator('#gameHeroGrid .game-hero-card[data-wfgg-v18-crop]').count(),31);
+
+              // Give all post-render decorators one frame to settle, then V18 must own all static sources.
+              await page.waitForTimeout(500);
+              window;
+              const external=await page.locator('#gameHeroGrid .game-hero-card:not(.wfgg-native-gif-active-v17c)').evaluateAll(cards=>cards.map(c=>({id:c.dataset.heroId,src:c.querySelector('.hero-card-portrait img')?.getAttribute('src')||''})).filter(x=>!x.src.startsWith('assets/heroes/')));
+              assert.deepEqual(external,[],JSON.stringify(external));
+
+              for(const id of ['elsa','loki','kane']){
+                const card=page.locator(`#gameHeroGrid .game-hero-card[data-hero-id="${id}"]`);
+                await card.scrollIntoViewIfNeeded();
+                await page.waitForTimeout(180);
+                const img=card.locator('.hero-card-portrait img');
+                await img.waitFor({state:'visible'});
+                await page.waitForFunction(el=>el.complete&&el.naturalWidth>=150&&el.naturalHeight>=200,await img.elementHandle(),{timeout:10000});
+                const st=await img.evaluate(el=>({src:el.getAttribute('src'),w:el.naturalWidth,h:el.naturalHeight}));
+                assert.match(st.src,/^assets\/heroes\//,`${id}:${JSON.stringify(st)}`);
+              }
+
+              assert.match(await page.locator('[data-hero-id="monica"]').getAttribute('data-wfgg-v18-crop'),/-13%/);
+              assert.match(await page.locator('[data-hero-id="ambolt"]').getAttribute('data-wfgg-v18-crop'),/-24%/);
+
+              await page.locator('#gameHeroGrid .game-hero-card').first().scrollIntoViewIfNeeded();
+              await page.waitForFunction(()=>document.documentElement.dataset.wfggV17cPhase==='active',{timeout:15000});
+              const active=page.locator('#gameHeroGrid .game-hero-card.wfgg-native-gif-active-v17c').first();
+              if(await active.count()){
+                const st=await active.evaluate(c=>({src:c.querySelector('.hero-card-portrait img')?.getAttribute('src')||'',crop:c.dataset.wfggV18Crop||''}));
+                assert.match(st.src,/assets\/heroes\/animated\/.+\.gif$/);
+                assert.ok(st.crop);
+              }
+
+              const gearNav=page.locator('#stepNav [data-step="2"]');
+              if(await gearNav.count()) await gearNav.click(); else await page.locator('#nextBtn').click();
+              await page.waitForTimeout(400);
+              const metric=await page.evaluate(()=>({w:innerWidth,sw:(document.scrollingElement||document.documentElement).scrollWidth,phase:document.documentElement.dataset.wfggV17cPhase}));
+              assert.equal(metric.phase,'idle');
+              assert.ok(metric.sw<=metric.w+2,JSON.stringify(metric));
+              assert.equal(errors.length,0,errors.join(' | '));
+              console.log(JSON.stringify({ok:true,metric},null,2));
+              await context.close();
+            } finally {await browser.close()}
+          })().catch(e=>{console.error(e);process.exit(1)});
+          JS
