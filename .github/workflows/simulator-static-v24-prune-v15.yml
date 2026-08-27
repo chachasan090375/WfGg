@@ -1,0 +1,68 @@
+name: Remove dormant simulator vignette motion runtime
+
+on:
+  push:
+    branches: [simulator-standalone-v1]
+    paths:
+      - '.github/workflows/simulator-static-v24-prune-v15.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  prune:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: simulator-standalone-v1
+          fetch-depth: 0
+
+      - name: Remove dormant V15 JavaScript motion engine
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('simulator/index.html')
+          s=p.read_text()
+          s='\n'.join(line for line in s.splitlines() if 'hero-roster-v15.js' not in line)+'\n'
+          s=s.replace('hero-static-premium-v24.js?v=024-static-premium','hero-static-premium-v24.js?v=0241-static-premium-lean')
+          if 'hero-roster-v15.js' in s:
+              raise SystemExit('V15 runtime reference remains')
+          if 'hero-static-premium-v24.js?v=0241-static-premium-lean' not in s:
+              raise SystemExit('V24.1 cache signature missing')
+          p.write_text(s)
+          PY
+          rm -f simulator/hero-roster-v15.js
+          test ! -f simulator/hero-roster-v15.js
+          grep -q '24.1-static-premium-lean' simulator/hero-static-premium-v24.js
+          ! grep -q 'hero-roster-v15.js' simulator/index.html
+
+      - name: Mirror canonical simulator to Cloudflare output
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p frontend/simulator
+          rsync -a --delete simulator/ frontend/simulator/
+          diff -qr simulator frontend/simulator
+          test ! -f frontend/simulator/hero-roster-v15.js
+          ! grep -q 'hero-roster-v15.js' frontend/simulator/index.html
+          grep -q 'hero-static-premium-v24.js?v=0241-static-premium-lean' frontend/simulator/index.html
+
+      - name: Commit lean static runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A simulator frontend/simulator
+          git diff --cached --check
+          if git diff --cached --quiet; then
+            echo 'V15_RUNTIME_ALREADY_REMOVED=YES'
+            exit 0
+          fi
+          git commit -m 'simulator: remove dormant vignette motion runtime'
+          git push origin HEAD:simulator-standalone-v1
