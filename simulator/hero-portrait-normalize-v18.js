@@ -3,12 +3,11 @@
 
   const MANIFEST='data/hero-native-animations.v17.json';
   const BASE=id=>`assets/heroes/${id}.webp`;
-  const NAMES={
-    fr:{schuyler:'Skyler'},
-    en:{schuyler:'Schuyler'},
-    it:{schuyler:'Schuyler'},
-    es:{schuyler:'Schuyler'}
+  const SPECIAL_STILL={
+    elsa:'https://theriagames.com/wp-content/uploads/2024/12/Elsa.png',
+    kane:'https://theriagames.com/wp-content/uploads/2024/12/Kane-1024x1024.png'
   };
+  const NAMES={fr:{schuyler:'Skyler'},en:{schuyler:'Schuyler'},it:{schuyler:'Schuyler'},es:{schuyler:'Schuyler'}};
   const MASTER={id:'kimberly',version:'v19',topGapPct:5,composition:'head-shoulders-half-body'};
   const PROFILE={
     williams:{x:'0%',y:'4%',zoom:.84}, murphy:{x:'0%',y:'4%',zoom:.88}, kimberly:{x:'0%',y:'1%',zoom:.96}, marshall:{x:'0%',y:'-7%',zoom:.90},
@@ -29,9 +28,17 @@
   const cards=()=>[...document.querySelectorAll('#gameHeroGrid .game-hero-card[data-hero-id]')];
   const imgFor=card=>card.querySelector('.wfgg-v15-motion-layer > img')||card.querySelector('.hero-card-portrait img');
   const animated=id=>manifest.animated?.[id]||null;
-  const stillFor=id=>animated(id)?.still||BASE(id);
+  const stillFor=id=>animated(id)?.still||SPECIAL_STILL[id]||BASE(id);
   const isPlaying=card=>card.classList.contains('wfgg-native-gif-active-v17c');
   const locale=()=>String(document.documentElement.lang||'fr').toLowerCase().split('-')[0];
+
+  function installMasterCss(){
+    if(document.getElementById('wfgg-kimberly-master-v19'))return;
+    const style=document.createElement('style');
+    style.id='wfgg-kimberly-master-v19';
+    style.textContent='.game-hero-card .wfgg-v15-motion-layer{transform-origin:50% 0%!important}.game-hero-card .wfgg-v15-motion-layer>img{object-position:50% 0%!important;transform-origin:50% 0%!important}';
+    document.head.appendChild(style);
+  }
 
   function localize(card){
     const id=card.dataset.heroId;
@@ -65,26 +72,18 @@
     if(current!==wanted){
       img.dataset.wfggV18Fallback=BASE(id);
       img.src=wanted;
-      card.dataset.wfggV18Source='local';
-    }else{
-      card.dataset.wfggV18Source='local';
     }
+    card.dataset.wfggV18Source=SPECIAL_STILL[id]?'official-web-fallback':'local';
   }
 
   function decorate(card){applyProfile(card);ensureSource(card)}
-
   function applyAll(){
     if(!stepVisible())return;
     cards().forEach(decorate);
     document.documentElement.dataset.wfggPortraitNormalize='v19-kimberly-master';
     document.documentElement.dataset.wfggPortraitCount=String(cards().length);
   }
-
-  function schedule(){
-    if(scheduled)return;
-    scheduled=true;
-    requestAnimationFrame(()=>{scheduled=false;applyAll()});
-  }
+  function schedule(){if(scheduled)return;scheduled=true;requestAnimationFrame(()=>{scheduled=false;applyAll()})}
 
   function onImageError(ev){
     const img=ev.target;
@@ -92,24 +91,14 @@
     const card=img.closest('.game-hero-card[data-hero-id]');
     if(!card)return;
     const fallback=BASE(card.dataset.heroId);
-    if(img.getAttribute('src')!==fallback){
-      img.src=fallback;
-      card.dataset.wfggV18Recovered='1';
-      card.dataset.wfggV18Source='fallback-local';
-    }
+    if(img.getAttribute('src')!==fallback){img.src=fallback;card.dataset.wfggV18Recovered='1';card.dataset.wfggV18Source='fallback-local'}
   }
 
   async function init(){
-    try{
-      const r=await fetch(MANIFEST,{cache:'force-cache'});
-      if(r.ok)manifest=await r.json();
-    }catch(_){manifest={animated:{}}}
-
-    const s=step();
-    if(s)new MutationObserver(schedule).observe(s,{attributes:true,attributeFilter:['class']});
-
-    const g=grid();
-    if(g){
+    installMasterCss();
+    try{const r=await fetch(MANIFEST,{cache:'force-cache'});if(r.ok)manifest=await r.json()}catch(_){manifest={animated:{}}}
+    const s=step();if(s)new MutationObserver(schedule).observe(s,{attributes:true,attributeFilter:['class']});
+    const g=grid();if(g){
       g.addEventListener('error',onImageError,true);
       new MutationObserver(muts=>{
         let needed=false;
@@ -117,30 +106,19 @@
           if(m.type==='childList')needed=true;
           if(m.type==='attributes'){
             const card=m.target?.classList?.contains('game-hero-card')?m.target:m.target?.closest?.('.game-hero-card[data-hero-id]');
-            if(card){
-              applyProfile(card);
-              if(!isPlaying(card))ensureSource(card);
-            }
+            if(card){applyProfile(card);if(!isPlaying(card))ensureSource(card)}
           }
         }
         if(needed)schedule();
       }).observe(g,{subtree:true,childList:true,attributes:true,attributeFilter:['class','src']});
     }
-
     new MutationObserver(schedule).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
     document.getElementById('languageStrip')?.addEventListener('click',()=>setTimeout(schedule,40));
-
     let scrollTimer=0;
-    window.addEventListener('scroll',()=>{
-      if(!stepVisible())return;
-      clearTimeout(scrollTimer);
-      scrollTimer=setTimeout(applyAll,120);
-    },{passive:true});
-
-    window.WfGgHeroPortraitV18={version:'19.0.0-kimberly-master',master:MASTER,profileFor:id=>PROFILE[id]||PROFILE.kimberly,apply:applyAll};
+    window.addEventListener('scroll',()=>{if(!stepVisible())return;clearTimeout(scrollTimer);scrollTimer=setTimeout(applyAll,120)},{passive:true});
+    window.WfGgHeroPortraitV18={version:'19.1.0-kimberly-master',master:MASTER,profileFor:id=>PROFILE[id]||PROFILE.kimberly,apply:applyAll};
     schedule();
   }
 
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
-  else init();
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
