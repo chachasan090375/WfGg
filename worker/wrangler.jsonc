@@ -2,10 +2,11 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "wfgg-api",
   "main": "src/index.js",
-  "compatibility_date": "2026-08-20",
+  "compatibility_date": "2026-08-27",
   "keep_vars": true,
   "vars": {
-    "PORTAL_ORIGINS": "https://wfgg.pages.dev"
+    "PORTAL_ORIGINS": "https://wfgg.pages.dev",
+    "LASTWAR_BROKER_REVISION": "ee5f64de160a8051c2f9f98189b75038dd225a0a"
   },
   "d1_databases": [
     {
@@ -18,6 +19,27 @@
     {
       "binding": "AVATARS",
       "bucket_name": "wfgg-avatars"
+    }
+  ],
+  "containers": [
+    {
+      "class_name": "LastWarUserContainer",
+      "image": "../lastwar-broker/Dockerfile",
+      "max_instances": 20
+    }
+  ],
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "LASTWAR_USER",
+        "class_name": "LastWarUserContainer"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "lastwar-v1",
+      "new_sqlite_classes": ["LastWarUserContainer"]
     }
   ]
 }
