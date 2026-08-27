@@ -1,0 +1,18 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "wfgg-api-lastwar-preview",
+  "main": "worker/src/index-lastwar-preview.js",
+  "compatibility_date": "2026-08-20",
+  "keep_vars": true,
+  "vars": {
+    "PORTAL_ORIGINS": "https://portal-auth-mobile-debug-v24.wfgg.pages.dev",
+    "AUTH_API_BASE": "https://wfgg-api.chachasan090375.workers.dev"
+  },
+  "d1_databases": [
+    {
+      "binding": "LAB_DB",
+      "database_name": "wfgg-lastwar-lab",
+      "database_id": "4db7634f-1c1b-4479-976c-991e3c76495a"
+    }
+  ]
+}
