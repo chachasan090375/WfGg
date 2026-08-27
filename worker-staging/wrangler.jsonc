@@ -21,5 +21,18 @@
       "binding": "AVATARS",
       "bucket_name": "wfgg-avatars"
     }
+  ],
+  "durable_objects": {
+    "bindings": []
+  },
+  "migrations": [
+    {
+      "tag": "lastwar-staging-worker-v1",
+      "new_sqlite_classes": ["LastWarUserContainer"]
+    },
+    {
+      "tag": "lastwar-staging-worker-v2-external-broker",
+      "deleted_classes": ["LastWarUserContainer"]
+    }
   ]
 }
