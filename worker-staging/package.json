@@ -1,12 +1,12 @@
 {
   "name": "wfgg-api-staging-build",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "private": true,
   "type": "module",
   "scripts": {
     "stage": "node scripts/stage.mjs",
     "check": "node --check src/index.js && node --check src/lastwar-identity.js",
-    "deploy": "echo '== WFGG AUTH ==' && wrangler whoami && echo '== WFGG D1 ==' && wrangler d1 list && echo '== WFGG R2 ==' && wrangler r2 bucket list && echo '== WFGG DEPLOY ==' && wrangler deploy"
+    "deploy": "wrangler deploy"
   },
   "devDependencies": {
     "wrangler": "^4.45.0"
