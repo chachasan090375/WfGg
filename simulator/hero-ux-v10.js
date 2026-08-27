@@ -6,6 +6,7 @@
   const ROLE_FR={attack:'ATK',defense:'DEF',support:'SUP'};
   const ROLE_LONG_FR={attack:'Attaque',defense:'Défense',support:'Soutien'};
   const TYPE_FR={tank:'Tank',aircraft:'Avion',missile:'Missile'};
+  const HERO_NAMES={fr:{schuyler:'Skyler'},en:{schuyler:'Schuyler'},it:{schuyler:'Schuyler'},es:{schuyler:'Schuyler'}};
   const PORTRAIT_Y={
     williams:'4%',murphy:'0%',kimberly:'2%',marshall:'0%',stetmann:'0%',dva:'0%',carlie:'0%',lucius:'0%',schuyler:'0%',morrison:'0%',tesla:'0%',swift:'0%',fiona:'0%',adam:'0%',mcgregor:'0%',monica:'0%',mason:'0%',violet:'0%',scarlett:'0%',richard:'0%',farhad:'0%',sarah:'0%',maxwell:'0%',cage:'0%',venom:'0%',braz:'0%',elsa:'0%',gump:'0%',loki:'0%',ambolt:'0%',kane:'0%'
   };
@@ -20,6 +21,8 @@
   const profile=()=>{try{return window.WfGgProfilePersistence?.profile?.()||JSON.parse(localStorage.getItem(PROFILE_KEY)||'{}')||{}}catch{return {}}};
   const catById=id=>catalog.find(h=>h.id===id)||null;
   const ownedByName=name=>(profile().heroes||[]).find(h=>norm(h.heroId)===norm(name))||null;
+  const selectedLocale=()=>String(profile().locale||document.documentElement.lang||'fr').toLowerCase().split('-')[0];
+  const displayHeroName=cat=>(HERO_NAMES[selectedLocale()]||HERO_NAMES.en)[cat.id]||cat.name;
 
   function troopSvg(type){
     if(type==='aircraft')return '<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M28 15.2 18.8 11l-3.6-8H12l1.4 8.5-6.7 2.1-3.2-2.2H1.2l2 4.6-2 4.6h2.3l3.2-2.2 6.7 2.1L12 29h3.2l3.6-8 9.2-4.2z"/></svg>';
@@ -44,7 +47,7 @@
     card.dataset.wfggRole=cat.role||'';card.dataset.wfggType=cat.troopType||'';card.dataset.wfggRarity=rarity;
     const footer=card.querySelector('.hero-card-footer');if(!footer)return;
     const level=own?.level||'';const stars=starText(own?.stars);const promo=promoText(cat);
-    footer.innerHTML=`<div class="wfgg-v10-footer"><strong class="wfgg-v10-name">${esc(cat.name)}</strong><div class="wfgg-v10-meta"><span class="wfgg-v10-pill rarity-${esc(rarity)}">${esc(rarity)}</span>${level?`<span class="wfgg-v10-pill wfgg-v10-level">Lv.${esc(level)}</span>`:''}${stars?`<span class="wfgg-v10-pill">${esc(stars)}</span>`:''}</div><div class="wfgg-v10-flags"><span class="wfgg-v10-pill wfgg-v10-type" title="${esc(TYPE_FR[cat.troopType]||cat.troopType)}">${troopSvg(cat.troopType)}${esc(TYPE_FR[cat.troopType]||cat.troopType)}</span><span class="wfgg-v10-pill wfgg-v10-role" title="${esc(roleTitle(cat.role))}">${esc(ROLE_FR[cat.role]||cat.role||'')}</span>${promo?`<span class="wfgg-v10-pill ${AWAKENING_S6.has(cat.id)?'wfgg-v10-awaken':'wfgg-v10-promo'}">${esc(promo)}</span>`:''}</div></div>`;
+    footer.innerHTML=`<div class="wfgg-v10-footer"><strong class="wfgg-v10-name">${esc(displayHeroName(cat))}</strong><div class="wfgg-v10-meta"><span class="wfgg-v10-pill rarity-${esc(rarity)}">${esc(rarity)}</span>${level?`<span class="wfgg-v10-pill wfgg-v10-level">Lv.${esc(level)}</span>`:''}${stars?`<span class="wfgg-v10-pill">${esc(stars)}</span>`:''}</div><div class="wfgg-v10-flags"><span class="wfgg-v10-pill wfgg-v10-type" title="${esc(TYPE_FR[cat.troopType]||cat.troopType)}">${troopSvg(cat.troopType)}${esc(TYPE_FR[cat.troopType]||cat.troopType)}</span><span class="wfgg-v10-pill wfgg-v10-role" title="${esc(roleTitle(cat.role))}">${esc(ROLE_FR[cat.role]||cat.role||'')}</span>${promo?`<span class="wfgg-v10-pill ${AWAKENING_S6.has(cat.id)?'wfgg-v10-awaken':'wfgg-v10-promo'}">${esc(promo)}</span>`:''}</div></div>`;
   }
 
   function decorateCards(){document.querySelectorAll('.game-hero-card[data-hero-id]').forEach(decorateCard)}
