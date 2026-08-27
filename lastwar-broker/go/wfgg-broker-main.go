@@ -148,7 +148,7 @@ func resolveIdentity(w http.ResponseWriter, r *http.Request) {
 	// If this user was linked previously, the Durable Object gives us only the sealed blob.
 	// We can recognize the already-linked UID without exposing any reconnect secret.
 	if sealed := strings.TrimSpace(r.Header.Get("X-WfGg-Sealed-State")); sealed != "" {
-		if state, err := unsealState(sealed); err == nil && state.LinkedUID == uid {
+		if state, err := unsealState(sealed, stateSecret(r)); err == nil && state.LinkedUID == uid {
 			writeJSON(w, 200, map[string]any{
 				"uid":          uid,
 				"contact_hint": nil,
@@ -272,7 +272,7 @@ func verifyCode(w http.ResponseWriter, r *http.Request) {
 			writeError(w, 502, "LASTWAR_RECONNECT_STATE_MISSING")
 			return
 		}
-		sealed, err := sealState(state)
+		sealed, err := sealState(state, stateSecret(r))
 		if err != nil {
 			writeError(w, 500, "BROKER_STATE_ENCRYPTION_FAILED")
 			return
@@ -321,7 +321,7 @@ func syncSession(w http.ResponseWriter, r *http.Request) {
 		writeError(w, 502, "LASTWAR_RECONNECT_STATE_MISSING")
 		return
 	}
-	freshSealed, err := sealState(freshState)
+	freshSealed, err := sealState(freshState, stateSecret(r))
 	if err != nil {
 		writeError(w, 500, "BROKER_STATE_ENCRYPTION_FAILED")
 		return
@@ -524,8 +524,16 @@ func readStateFile(name string) (string, error) {
 	return strings.TrimSpace(string(data)), nil
 }
 
-func sealState(state sealedState) (string, error) {
-	secret := os.Getenv("WFGG_STATE_KEY")
+func stateSecret(r *http.Request) string {
+	if r != nil {
+		if secret := strings.TrimSpace(r.Header.Get("X-WfGg-State-Key")); len(secret) >= 16 {
+			return secret
+		}
+	}
+	return os.Getenv("WFGG_STATE_KEY")
+}
+
+func sealState(state sealedState, secret string) (string, error) {
 	if len(secret) < 16 {
 		return "", fmt.Errorf("state key missing or too short")
 	}
@@ -551,9 +559,8 @@ func sealState(state sealedState) (string, error) {
 	return "wfgs1." + base64.RawURLEncoding.EncodeToString(payload), nil
 }
 
-func unsealState(sealed string) (sealedState, error) {
+func unsealState(sealed string, secret string) (sealedState, error) {
 	var state sealedState
-	secret := os.Getenv("WFGG_STATE_KEY")
 	if len(secret) < 16 || !strings.HasPrefix(sealed, "wfgs1.") {
 		return state, fmt.Errorf("invalid sealed state")
 	}

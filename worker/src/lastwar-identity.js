@@ -18,7 +18,7 @@ export async function routeLastWarIdentity(request, env, url, deps) {
     const uid = normalizeUid(body.uid);
     if (!uid) fail('LASTWAR_UID_INVALID', 400);
 
-    const broker = await containerCall(env, ctx.id, '/v1/identity/resolve', {
+    const broker = await containerCall(env, ctx, '/v1/identity/resolve', {
       user_id: ctx.id,
       uid,
       locale: cleanLocale(ctx.language)
@@ -56,7 +56,7 @@ export async function routeLastWarIdentity(request, env, url, deps) {
     if (!uid) fail('LASTWAR_UID_INVALID', 400);
     if (!email) fail('LASTWAR_EMAIL_REQUIRED', 400);
 
-    const broker = await containerCall(env, ctx.id, '/v1/identity/send-code', {
+    const broker = await containerCall(env, ctx, '/v1/identity/send-code', {
       user_id: ctx.id,
       uid,
       email,
@@ -89,7 +89,7 @@ export async function routeLastWarIdentity(request, env, url, deps) {
     if (!CODE_RE.test(code)) fail('LASTWAR_VERIFY_CODE_INVALID', 400);
     if (!authTransaction) fail('LASTWAR_AUTH_TRANSACTION_REQUIRED', 400);
 
-    const broker = await containerCall(env, ctx.id, '/v1/identity/verify-code', {
+    const broker = await containerCall(env, ctx, '/v1/identity/verify-code', {
       user_id: ctx.id,
       uid,
       code,
@@ -163,7 +163,7 @@ export async function routeLastWarCloudSync(request, env, url, deps) {
   if (request.method !== 'POST') return json({ error: 'METHOD_NOT_ALLOWED' }, 405);
 
   const ctx = await sessionContext(request, env);
-  const broker = await containerCall(env, ctx.id, '/v1/profile/sync', {
+  const broker = await containerCall(env, ctx, '/v1/profile/sync', {
     user_id: ctx.id,
     locale: cleanLocale(ctx.language)
   }, sha256Text, fail);
@@ -191,15 +191,19 @@ export async function routeLastWarCloudSync(request, env, url, deps) {
   });
 }
 
-async function containerCall(env, userId, path, payload, sha256Text, fail) {
+async function containerCall(env, ctx, path, payload, sha256Text, fail) {
   if (!env.LASTWAR_USER) fail('LASTWAR_BROKER_NOT_CONFIGURED', 503);
+  const privateSeed = cleanText(ctx?.auth_code_key, 256);
+  if (!privateSeed) fail('LASTWAR_STATE_KEY_SOURCE_MISSING', 500);
+  const userId = String(ctx.id);
+  const stateKey = await sha256Text(`wfgg-lastwar-state:v1:${userId}:${privateSeed}`);
   const instanceKey = `u-${(await sha256Text(userId)).slice(0, 48)}`;
   const instance = getContainer(env.LASTWAR_USER, instanceKey);
   let response;
   try {
     response = await instance.fetch(new Request(`https://container.internal${path}`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'X-WfGg-State-Key': stateKey },
       body: JSON.stringify(payload)
     }));
   } catch (_) {

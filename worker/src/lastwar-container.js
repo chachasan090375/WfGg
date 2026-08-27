@@ -6,7 +6,6 @@ export class LastWarUserContainer extends Container {
   sleepAfter = '12m';
   enableInternet = true;
   envVars = {
-    WFGG_STATE_KEY: env.APP_SECRET || '',
     WFGG_UPSTREAM_REVISION: env.LASTWAR_BROKER_REVISION || ''
   };
 
