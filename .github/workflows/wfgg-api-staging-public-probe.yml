@@ -20,17 +20,18 @@ jobs:
         run: |
           set -euo pipefail
           url='https://wfgg-api-staging.chachasan090375.workers.dev/api/health'
-          echo "Probing $url after staging-wrapper deployment"
-          for i in $(seq 1 4); do
-            code=$(curl -sS -o /tmp/body.json -w '%{http_code}' --connect-timeout 10 --max-time 30 "$url" || true)
+          echo "Probing $url for external-broker staging V7"
+          for i in $(seq 1 24); do
+            code=$(curl -sS -o /tmp/body.json -w '%{http_code}' --connect-timeout 10 --max-time 30 "$url?probe=$i" || true)
             echo "attempt=$i status=$code"
             cat /tmp/body.json 2>/dev/null || true
             echo
             if [ "$code" = '200' ]; then
-              node -e "const fs=require('fs');const d=JSON.parse(fs.readFileSync('/tmp/body.json','utf8')); if(!d.ok||d.service!=='wfgg-api'||d.lastwar_container!==true) process.exit(2); console.log('STAGING_HEALTH_OK',d)"
-              exit 0
+              if node -e "const fs=require('fs');const d=JSON.parse(fs.readFileSync('/tmp/body.json','utf8')); if(!d.ok||d.service!=='wfgg-api'||d.version!=='0.6.2-lastwar-role-reconnect'||d.lastwar_external!==true) process.exit(2); console.log('STAGING_V7_LIVE',d)"; then
+                exit 0
+              fi
             fi
             sleep 5
           done
-          echo 'Staging Worker did not become healthy after wrapper deploy' >&2
+          echo 'Expected external staging V7 is not live yet' >&2
           exit 1
