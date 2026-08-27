@@ -44,6 +44,26 @@ export async function routeLastWarIdentity(request, env, url, deps) {
   const ctx = await sessionContext(request, env);
   const body = await safeJson(request, fail);
 
+  if (url.pathname === '/api/lastwar/identity/unlink') {
+    const ts = now();
+    await ensureStateTable(env);
+    try {
+      await env.DB.batch([
+        env.DB.prepare('DELETE FROM lastwar_snapshots WHERE user_id=?').bind(ctx.id),
+        env.DB.prepare('UPDATE lastwar_devices SET revoked_at=? WHERE user_id=? AND revoked_at IS NULL').bind(ts, ctx.id),
+        env.DB.prepare('DELETE FROM lastwar_cloud_state WHERE user_id=?').bind(ctx.id)
+      ]);
+    } catch (err) {
+      console.error('lastwar unlink persistence failed', err?.message || err);
+      fail('LASTWAR_UNLINK_FAILED', 500);
+    }
+    await audit(env, ctx.id, 'LASTWAR_ACCOUNT_UNLINKED', 'lastwar_account', ctx.id, {
+      broker_contacted: false,
+      state_purged: true
+    });
+    return json({ ok: true, connected: false, unlinked_at: ts });
+  }
+
   if (url.pathname === '/api/lastwar/identity/resolve') {
     const uid = normalizeUid(body.uid);
     if (!uid) fail('LASTWAR_UID_INVALID', 400);

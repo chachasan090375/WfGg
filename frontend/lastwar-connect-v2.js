@@ -102,7 +102,24 @@ async function verifyCode(){
 }
 
 async function refresh(){setBusy(true,t('refresh'));try{await connector('/api/lastwar/cloud-sync',{method:'POST',body:'{}'});await loadStatus();setBusy(false);render()}catch(e){setBusy(false);setMessage(friendlyError(e),'error')}}
-async function unlinkLocal(){setMessage(t('notReady'))}
+async function unlinkLocal(){
+ const danger=document.getElementById('lwDanger');
+ if(danger)danger.disabled=true;
+ setMessage('');
+ try{
+  await connector('/api/lastwar/identity/unlink',{method:'POST',body:'{}'});
+  sessionStorage.removeItem(PENDING_UID_KEY);
+  sessionStorage.removeItem(AUTH_TX_KEY);
+  maskedContact='';resolvedPlayer='';resolvedServer='';
+  status={connected:false,last_sync_at:null,snapshot:null};
+  step='uid';
+  render();
+  paintCard();
+ }catch(e){
+  if(danger)danger.disabled=false;
+  setMessage(friendlyError(e),'error');
+ }
+}
 function open(){ensureOverlay();if(status.connected)step='uid';else if(authTx())step='code';else if(uidValue())step='contact';else step='uid';render();document.getElementById('lastWarConnectOverlay').classList.remove('hidden');loadStatus().then(()=>{if(status.connected)render()})}
 function close(){document.getElementById('lastWarConnectOverlay')?.classList.add('hidden')}
 function boot(){ensureCard();ensureOverlay();loadStatus();new MutationObserver(()=>ensureCard()).observe(document.body,{childList:true,subtree:true});document.addEventListener('click',()=>setTimeout(paintCard,0),true)}
