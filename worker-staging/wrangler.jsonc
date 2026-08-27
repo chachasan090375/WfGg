@@ -1,0 +1,46 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "wfgg-api-staging",
+  "main": "src/index.js",
+  "compatibility_date": "2026-08-27",
+  "workers_dev": true,
+  "keep_vars": true,
+  "vars": {
+    "PORTAL_ORIGINS": "https://connector-readonly-v1.wfgg.pages.dev",
+    "LASTWAR_BROKER_REVISION": "ee5f64de160a8051c2f9f98189b75038dd225a0a"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "wfgg-db",
+      "database_id": "fda272af-36f9-4f4b-8e44-857271f9d016"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "AVATARS",
+      "bucket_name": "wfgg-avatars"
+    }
+  ],
+  "containers": [
+    {
+      "class_name": "LastWarUserContainer",
+      "image": "lastwar-broker/Dockerfile",
+      "max_instances": 5
+    }
+  ],
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "LASTWAR_USER",
+        "class_name": "LastWarUserContainer"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "lastwar-staging-worker-v1",
+      "new_sqlite_classes": ["LastWarUserContainer"]
+    }
+  ]
+}
