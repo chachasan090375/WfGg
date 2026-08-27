@@ -11,23 +11,30 @@ RUN git clone --filter=blob:none https://github.com/ljagiello/lastwar-client.git
  && git checkout "${LASTWAR_CLIENT_REVISION}"
 
 COPY patches/apply-staged-email-auth.py /tmp/apply-staged-email-auth.py
+COPY patches/apply-expose-login-access-token.py /tmp/apply-expose-login-access-token.py
 RUN python3 /tmp/apply-staged-email-auth.py /src/internal/auth/login.go \
+ && python3 /tmp/apply-expose-login-access-token.py /src/internal/auth/login.go \
  && git diff --check \
  && grep -q "VerificationCodeProvider func() (string, error)" /src/internal/auth/login.go \
- && grep -q "OnVerificationCodeSent" /src/internal/auth/login.go
+ && grep -q "OnVerificationCodeSent" /src/internal/auth/login.go \
+ && grep -q "AccessTok string" /src/internal/auth/login.go
 
 COPY go/wfgg-broker-main.go /src/cmd/wfgg-broker/main.go
 COPY patches/apply-broker-child-runtime.py /tmp/apply-broker-child-runtime.py
 COPY patches/apply-recursive-uid-match.py /tmp/apply-recursive-uid-match.py
 COPY patches/apply-reconnect-session-v2.py /tmp/apply-reconnect-session-v2.py
 COPY patches/apply-v1-relink-guard.py /tmp/apply-v1-relink-guard.py
+COPY patches/apply-reconnect-access-token-v3.py /tmp/apply-reconnect-access-token-v3.py
 RUN python3 /tmp/apply-broker-child-runtime.py /src/cmd/wfgg-broker/main.go \
  && python3 /tmp/apply-recursive-uid-match.py /src/cmd/wfgg-broker/main.go \
  && python3 /tmp/apply-reconnect-session-v2.py /src/cmd/wfgg-broker/main.go \
  && python3 /tmp/apply-v1-relink-guard.py /src/cmd/wfgg-broker/main.go \
+ && python3 /tmp/apply-reconnect-access-token-v3.py /src/cmd/wfgg-broker/main.go \
  && grep -q '127.0.0.1:' /src/cmd/wfgg-broker/main.go \
  && grep -q 'nestedValueContainsUID' /src/cmd/wfgg-broker/main.go \
  && grep -q 'role-session-v2' /src/cmd/wfgg-broker/main.go \
+ && grep -q 'AccessTok' /src/cmd/wfgg-broker/main.go \
+ && grep -q 'Version = 3' /src/cmd/wfgg-broker/main.go \
  && grep -q 'DoCrossServerLogin' /src/cmd/wfgg-broker/main.go \
  && grep -q 'LASTWAR_RELINK_REQUIRED' /src/cmd/wfgg-broker/main.go \
  && git diff --check
