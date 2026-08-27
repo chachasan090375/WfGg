@@ -1,0 +1,42 @@
+name: Simulator deployment probe
+
+on:
+  push:
+    branches: [simulator-standalone-v1]
+    paths:
+      - '.github/workflows/simulator-deployment-probe.yml'
+  workflow_dispatch:
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Probe alias and immutable deployment
+        run: |
+          set -euo pipefail
+          mkdir -p probe
+          for spec in \
+            'alias|https://simulator-standalone-v1.wfgg.pages.dev/simulator/' \
+            'immutable|https://b8ceaec1.wfgg.pages.dev/simulator/'
+          do
+            name="${spec%%|*}"
+            base="${spec#*|}"
+            curl -fsSL "${base}?probe=${GITHUB_SHA}" -o "probe/${name}-index.html"
+            curl -fsSL "${base}hero-portrait-owner-v223.js?probe=${GITHUB_SHA}" -o "probe/${name}-owner.js"
+            {
+              echo "NAME=$name"
+              echo "BASE=$base"
+              echo -n 'INDEX_REF='; grep -oE 'hero-portrait-owner-v223\.js\?v=[^"< ]+' "probe/${name}-index.html" | head -1 || true
+              echo -n 'OWNER_VERSION='; grep -oE "version:'[^']+'" "probe/${name}-owner.js" | tail -1 || true
+              echo -n 'HAS_OWNED='; if grep -q 'wfgg-v223-owned' "probe/${name}-owner.js"; then echo YES; else echo NO; fi
+              echo -n 'HAS_FRAME2='; if grep -q 'wfgg-v223-frame2' "probe/${name}-owner.js"; then echo YES; else echo NO; fi
+              sha256sum "probe/${name}-index.html" "probe/${name}-owner.js"
+            } > "probe/${name}-summary.txt"
+            cat "probe/${name}-summary.txt"
+          done
+      - uses: actions/upload-artifact@v4
+        with:
+          name: simulator-deployment-probe
+          path: probe/
+          retention-days: 7
