@@ -299,7 +299,7 @@ func syncSession(w http.ResponseWriter, r *http.Request) {
 		writeError(w, 401, "LASTWAR_RECONNECT_STATE_REQUIRED")
 		return
 	}
-	state, err := unsealState(sealed)
+	state, err := unsealState(sealed, stateSecret(r))
 	if err != nil {
 		writeError(w, 401, "LASTWAR_RECONNECT_STATE_INVALID")
 		return
