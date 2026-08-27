@@ -1,0 +1,47 @@
+name: Last War broker build recette
+
+on:
+  push:
+    branches:
+      - connector-readonly-v1
+    paths:
+      - 'lastwar-broker/**'
+      - '.github/workflows/lastwar-broker-build-recette.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  broker-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: JavaScript syntax
+        run: node --check lastwar-broker/src/index.js
+
+      - name: Install broker Worker dependencies
+        working-directory: lastwar-broker
+        run: npm install --no-audit --no-fund
+
+      - name: Cloudflare Worker config validation
+        working-directory: lastwar-broker
+        run: npx wrangler deploy --dry-run --outdir /tmp/wfgg-lastwar-broker-dry
+
+      - name: Build pinned Go broker image
+        run: docker build --pull -t wfgg-lastwar-broker:recette lastwar-broker
+
+      - name: Read-only and credential guards
+        run: |
+          grep -q "mode: 'read-only'" lastwar-broker/src/index.js
+          grep -q "LASTWAR_UID_LINK_NOT_CONFIRMED" lastwar-broker/go/wfgg-broker-main.go
+          grep -q "_wfgg_sealed_state" lastwar-broker/go/wfgg-broker-main.go
+          grep -q "WFGG_STATE_KEY" lastwar-broker/go/wfgg-broker-main.go
+          ! grep -Eq "building\.production\.collect|mail\.reward|al\.science\.donate|visitor\.operate" lastwar-broker/go/wfgg-broker-main.go
+
+      - name: Pinned upstream and attribution
+        run: |
+          grep -q "ee5f64de160a8051c2f9f98189b75038dd225a0a" lastwar-broker/Dockerfile
+          grep -q "Apache License 2.0" lastwar-broker/THIRD_PARTY_NOTICES.md
+          grep -q "0001-wfgg-staged-email-auth.patch" lastwar-broker/THIRD_PARTY_NOTICES.md
