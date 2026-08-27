@@ -34,3 +34,5 @@ jobs:
       - name: Isolated staging Worker dry-run
         working-directory: worker
         run: npx wrangler deploy --env staging --dry-run --outdir /tmp/wfgg-api-staging-container-dryrun
+
+      # Recette trigger after per-user state-key restore fix.
