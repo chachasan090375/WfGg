@@ -14,9 +14,19 @@ const catByName=name=>catalog.find(h=>String(h.name).toLowerCase()===String(name
 const skillStore=()=>{try{const v=JSON.parse(localStorage.getItem(SKILL_KEY)||'{}');return v&&typeof v==='object'?v:{}}catch{return {}}};
 function skillLevels(name){const s=skillStore();const arr=s[name];return Array.isArray(arr)&&arr.length===4?arr.map(x=>Math.max(1,Math.min(40,Number(x)||1))):[1,1,1,1]}
 function saveSkill(name,index,value){const s=skillStore();const a=skillLevels(name);a[index]=Math.max(1,Math.min(40,Math.round(Number(value)||1)));s[name]=a;localStorage.setItem(SKILL_KEY,JSON.stringify(s));}
+function findHeroIndex(name){return [...document.querySelectorAll('.hero-card[data-index]')].findIndex(card=>String(card.querySelector('[data-field="heroId"]')?.value||'').toLowerCase()===String(name).toLowerCase())}
 function hiddenField(name,field){const cards=[...document.querySelectorAll('.hero-card[data-index]')];const card=cards.find(c=>String(c.querySelector('[data-field="heroId"]')?.value||'').toLowerCase()===String(name).toLowerCase());return card?.querySelector(`[data-field="${field}"]`)||null}
 function setHidden(name,field,value){const el=hiddenField(name,field);if(!el)return false;if(el.type==='checkbox')el.checked=!!value;else el.value=String(value);el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}));return true}
-function icon(kind){const map={attr:'<svg viewBox="0 0 32 32"><path d="M5 25h5V14H5v11zm9 0h5V7h-5v18zm9 0h5V11h-5v14z"/></svg>',skill:'<svg viewBox="0 0 32 32"><path d="M18 2 7 18h8l-1 12 11-17h-8l1-11z"/></svg>',tier:'<svg viewBox="0 0 32 32"><path d="m16 2 4 8 9 1-6.5 6.4 1.5 9L16 22l-8 4.4 1.5-9L3 11l9-1 4-8z"/></svg>',weapon:'<svg viewBox="0 0 32 32"><path d="M4 18h15l4-4 5 5-4 4-4-1-4 6h-5l3-7H4zM7 9h12v5H7z"/></svg>',gun:'<svg viewBox="0 0 32 32"><path d="M4 13h17l4 4-4 4H11l-3 5H4l2-7H4v-6z"/></svg>',chip:'<svg viewBox="0 0 32 32"><path d="M8 8h16v16H8zM3 11h4v3H3zm0 7h4v3H3zm22-7h4v3h-4zm0 7h4v3h-4zM11 3h3v4h-3zm7 0h3v4h-3zm-7 22h3v4h-3zm7 0h3v4h-3z"/></svg>',armor:'<svg viewBox="0 0 32 32"><path d="M16 2 27 6v8c0 8-5 13-11 16C10 27 5 22 5 14V6z"/></svg>',radar:'<svg viewBox="0 0 32 32"><path d="M16 4a12 12 0 1 0 12 12h-4a8 8 0 1 1-8-8V4zm1 6v7l6 3 2-3-4-2h7v-4h-7z"/></svg>'};return map[kind]||map.attr}
+function icon(kind){const map={
+  attr:'<svg viewBox="0 0 32 32"><path d="M5 25h5V14H5v11zm9 0h5V7h-5v18zm9 0h5V11h-5v14z"/></svg>',
+  skill:'<svg viewBox="0 0 32 32"><path d="M18 2 7 18h8l-1 12 11-17h-8l1-11z"/></svg>',
+  tier:'<svg viewBox="0 0 32 32"><path d="m16 2 4 8 9 1-6.5 6.4 1.5 9L16 22l-8 4.4 1.5-9L3 11l9-1 4-8z"/></svg>',
+  weapon:'<svg viewBox="0 0 32 32"><path d="M4 18h15l4-4 5 5-4 4-4-1-4 6h-5l3-7H4zM7 9h12v5H7z"/></svg>',
+  gun:'<svg viewBox="0 0 32 32"><path d="M4 13h17l4 4-4 4H11l-3 5H4l2-7H4v-6z"/></svg>',
+  chip:'<svg viewBox="0 0 32 32"><path d="M8 8h16v16H8zM3 11h4v3H3zm0 7h4v3H3zm22-7h4v3h-4zm0 7h4v3h-4zM11 3h3v4h-3zm7 0h3v4h-3zm-7 22h3v4h-3zm7 0h3v4h-3z"/></svg>',
+  armor:'<svg viewBox="0 0 32 32"><path d="M16 2 27 6v8c0 8-5 13-11 16C10 27 5 22 5 14V6z"/></svg>',
+  radar:'<svg viewBox="0 0 32 32"><path d="M16 4a12 12 0 1 0 12 12h-4a8 8 0 1 1-8-8V4zm1 6v7l6 3 2-3-4-2h7v-4h-7z"/></svg>'
+};return map[kind]||map.attr}
 function heroName(sheet){return sheet.querySelector('.hero-sheet-title h3')?.textContent?.trim()||''}
 function activeTab(sheet){return sheet.querySelector('.hero-sheet-tab.active')?.dataset.sheetTab||'attributes'}
 function heroPortraitSrc(cat){return cat?.localPortrait||cat?.portrait||''}
@@ -53,6 +63,7 @@ function renderCustom(sheet,force=false){
       }finally{lock=false}
     }
     function transform(){const sheet=document.querySelector('#heroGameSheet');if(sheet?.classList.contains('open'))renderCustom(sheet)}
-async function init(){try{const [c,s]=await Promise.all([fetch('data/hero-catalog.v2.json',{cache:'no-store'}).then(r=>r.json()),fetch('research/native-hero-skill-values.v1.json',{cache:'no-store'}).then(r=>r.ok?r.json():null).catch(()=>null)]);catalog=c.heroes||[];skills=s||{}}catch(e){console.warn('hero ui v4 data',e)}const obs=new MutationObserver(()=>{if(lock)return;queueMicrotask(transform)});obs.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});transform();window.WfGgHeroGameUIV4={version:'4.0.0',refresh:transform};}
+async function init(){try{const [c,s]=await Promise.all([fetch('data/hero-catalog.v2.json',{cache:'no-store'}).then(r=>r.json()),fetch('research/native-hero-skill-values.v1.json',{cache:'no-store'}).then(r=>r.ok?r.json():null).catch(()=>null)]);catalog=c.heroes||[];skills=s||{}}catch(e){console.warn('hero ui v4 data',e)}
+const obs=new MutationObserver(()=>{if(lock)return;queueMicrotask(transform)});obs.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});transform();window.WfGgHeroGameUIV4={version:'4.0.0',refresh:transform};}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
