@@ -18,8 +18,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: JavaScript syntax
-        run: node --check lastwar-broker/src/index.js
+      - name: JavaScript and Python syntax
+        run: |
+          node --check lastwar-broker/src/index.js
+          python3 -m py_compile lastwar-broker/patches/apply-staged-email-auth.py
 
       - name: Install broker Worker dependencies
         working-directory: lastwar-broker
@@ -44,4 +46,5 @@ jobs:
         run: |
           grep -q "ee5f64de160a8051c2f9f98189b75038dd225a0a" lastwar-broker/Dockerfile
           grep -q "Apache License 2.0" lastwar-broker/THIRD_PARTY_NOTICES.md
-          grep -q "0001-wfgg-staged-email-auth.patch" lastwar-broker/THIRD_PARTY_NOTICES.md
+          grep -q "apply-staged-email-auth.py" lastwar-broker/THIRD_PARTY_NOTICES.md
+          grep -q "expected exactly 1 match" lastwar-broker/patches/apply-staged-email-auth.py
