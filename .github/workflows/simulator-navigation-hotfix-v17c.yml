@@ -1,0 +1,366 @@
+name: Simulator navigation hotfix V17C
+
+on:
+  push:
+    branches:
+      - simulator-standalone-v1
+    paths:
+      - '.github/workflows/simulator-navigation-hotfix-v17c.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  hotfix:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: simulator-standalone-v1
+          fetch-depth: 0
+
+      - name: Build non-blocking native GIF runtime
+        run: |
+          cat > /tmp/hero-native-animation-v17c.js <<'JS'
+          (() => {
+            'use strict';
+
+            const MANIFEST='data/hero-native-animations.v17.json';
+            const SYNTH=['wfgg-live-card','wfgg-v10-live','wfgg-v12-live','wfgg-v13-live','wfgg-v14-live','wfgg-v15-live'];
+            const ACTIVE_MS=3600;
+            const REST_MS=1500;
+            const START_DELAY_MS=900;
+            const CROP={
+              monica:{x:'0%',y:'-9%',zoom:1.03},
+              murphy:{x:'1%',y:'-20%',zoom:1.55},
+              schuyler:{x:'0%',y:'5%',zoom:.94},
+              sarah:{x:'0%',y:'1%',zoom:1.04},
+              gump:{x:'0%',y:'2%',zoom:1.00},
+              loki:{x:'0%',y:'0%',zoom:1.00}
+            };
+
+            let manifest={animated:{}};
+            let timer=0;
+            let running=false;
+            let generation=0;
+            let active=[];
+            let stepObserver=null;
+            let gridObserver=null;
+
+            window.WfGgHeroMotionOwner='native-v17c';
+            window.WfGgHeroNativeAnimationV17C={version:'17.2.0-nonblocking'};
+            document.documentElement.dataset.wfggRosterMotion='native-gifs-v17c-nonblocking';
+            document.documentElement.dataset.wfggV17cPhase='idle';
+
+            const info=id=>manifest.animated?.[id]||null;
+            const heroStep=()=>document.getElementById('step-heroes');
+            const grid=()=>document.getElementById('gameHeroGrid');
+            const stepVisible=()=>{
+              const s=heroStep();
+              return !!s && !s.classList.contains('hidden') && document.visibilityState==='visible';
+            };
+            const allCards=()=>[...document.querySelectorAll('#gameHeroGrid .game-hero-card[data-hero-id]')];
+            const viewportCards=()=>allCards().filter(card=>{
+              if(card.offsetParent===null)return false;
+              const r=card.getBoundingClientRect();
+              return r.bottom>0 && r.top<innerHeight && r.right>0 && r.left<innerWidth;
+            });
+            const shuffle=a=>{
+              a=a.slice();
+              for(let i=a.length-1;i>0;i--){
+                const j=Math.floor(Math.random()*(i+1));
+                [a[i],a[j]]=[a[j],a[i]];
+              }
+              return a;
+            };
+            const imgFor=card=>card.querySelector('.wfgg-v15-motion-layer > img')||card.querySelector('.hero-card-portrait img');
+
+            function neutralize(card){
+              SYNTH.forEach(cls=>card.classList.remove(cls));
+              card.style.removeProperty('--wfgg-v15-delay');
+            }
+
+            function applyCrop(card){
+              const c=CROP[card.dataset.heroId];
+              if(!c)return;
+              card.style.setProperty('--wfgg-v15-x',c.x);
+              card.style.setProperty('--wfgg-v15-y',c.y);
+              card.style.setProperty('--wfgg-v15-zoom',String(c.zoom));
+              card.dataset.wfggV17cCrop=`${c.x},${c.y},${c.zoom}`;
+            }
+
+            function toStill(card){
+              const a=info(card.dataset.heroId);
+              const img=imgFor(card);
+              if(!img)return;
+              neutralize(card);
+              card.classList.remove('wfgg-native-gif-active-v17b','wfgg-native-gif-active-v17c','wfgg-native-animated-monica');
+              if(a?.still){
+                if(img.getAttribute('src')!==a.still)img.src=a.still;
+                card.classList.add('wfgg-native-gif-capable-v17c');
+                card.classList.remove('wfgg-native-gif-capable-v17b');
+                card.dataset.wfggNativeAnimation='native-gif-ready-v17c';
+                applyCrop(card);
+              }
+            }
+
+            function stop({restore=true}={}){
+              generation++;
+              running=false;
+              clearTimeout(timer);
+              timer=0;
+              if(restore){
+                active.forEach(toStill);
+                active=[];
+              }
+              document.documentElement.dataset.wfggV17cPhase='idle';
+              document.documentElement.dataset.wfggV17cActive='0';
+            }
+
+            function preload(url,token){
+              return new Promise(resolve=>{
+                if(!url || token!==generation){resolve(false);return;}
+                const img=new Image();
+                let done=false;
+                const finish=ok=>{if(done)return;done=true;resolve(ok)};
+                img.onload=()=>finish(true);
+                img.onerror=()=>finish(false);
+                img.src=url;
+                if(img.complete)finish(true);
+                setTimeout(()=>finish(false),2500);
+              });
+            }
+
+            async function activateNext(token){
+              if(token!==generation || !running || !stepVisible())return;
+
+              const candidates=shuffle(viewportCards().filter(card=>info(card.dataset.heroId)));
+              if(!candidates.length){
+                timer=setTimeout(()=>activateNext(token),1200);
+                return;
+              }
+
+              // Mobile stability first: only 3 real GIF decoders at once; 4 on wider screens.
+              const maxActive=innerWidth<=600?3:4;
+              const group=candidates.slice(0,Math.min(maxActive,candidates.length));
+
+              document.documentElement.dataset.wfggV17cPhase='preload';
+              const loaded=[];
+              // Preload sequentially to avoid a CPU/memory spike on Android.
+              for(const card of group){
+                if(token!==generation || !running || !stepVisible())return;
+                const a=info(card.dataset.heroId);
+                if(await preload(a?.src||'',token))loaded.push(card);
+              }
+
+              if(token!==generation || !running || !stepVisible())return;
+              active=loaded.filter(card=>card.isConnected && card.offsetParent!==null);
+              for(const card of active){
+                neutralize(card);
+                applyCrop(card);
+                const a=info(card.dataset.heroId);
+                const img=imgFor(card);
+                if(a?.src && img){
+                  img.src=a.src;
+                  card.classList.add('wfgg-native-gif-active-v17c');
+                  card.dataset.wfggNativeAnimation='native-gif-playing-v17c';
+                }
+              }
+
+              document.documentElement.dataset.wfggV17cPhase='active';
+              document.documentElement.dataset.wfggV17cActive=String(active.length);
+              document.documentElement.dataset.wfggV17cBatch=active.map(c=>c.dataset.heroId).join(',');
+
+              timer=setTimeout(()=>{
+                if(token!==generation || !running)return;
+                active.forEach(toStill);
+                active=[];
+                document.documentElement.dataset.wfggV17cPhase='rest';
+                document.documentElement.dataset.wfggV17cActive='0';
+                timer=setTimeout(()=>activateNext(token),REST_MS);
+              },ACTIVE_MS);
+            }
+
+            function start(){
+              if(running || !stepVisible())return;
+              running=true;
+              const token=++generation;
+
+              // Prime only the visible cards, only after the Heroes panel is actually open.
+              viewportCards().forEach(card=>{
+                neutralize(card);
+                if(info(card.dataset.heroId))toStill(card);
+              });
+
+              const launch=()=>{
+                if(token!==generation || !running || !stepVisible())return;
+                activateNext(token);
+              };
+              if('requestIdleCallback' in window){
+                requestIdleCallback(launch,{timeout:START_DELAY_MS+1000});
+              }else{
+                timer=setTimeout(launch,START_DELAY_MS);
+              }
+            }
+
+            function syncVisibility(){
+              if(stepVisible()){
+                if(!running){
+                  clearTimeout(timer);
+                  timer=setTimeout(start,START_DELAY_MS);
+                }
+              }else{
+                stop({restore:true});
+              }
+            }
+
+            async function init(){
+              // Nothing touches hero images/classes before the app itself is interactive.
+              try{
+                const r=await fetch(MANIFEST,{cache:'force-cache'});
+                if(r.ok)manifest=await r.json();
+              }catch(_){
+                manifest={animated:{}};
+              }
+
+              const s=heroStep();
+              if(s){
+                stepObserver=new MutationObserver(syncVisibility);
+                stepObserver.observe(s,{attributes:true,attributeFilter:['class']});
+              }
+
+              const g=grid();
+              if(g){
+                gridObserver=new MutationObserver(()=>{
+                  if(stepVisible()){
+                    viewportCards().forEach(card=>{
+                      neutralize(card);
+                      if(info(card.dataset.heroId) && !card.classList.contains('wfgg-native-gif-active-v17c'))toStill(card);
+                    });
+                  }
+                });
+                gridObserver.observe(g,{childList:true,subtree:false});
+              }
+
+              document.addEventListener('visibilitychange',syncVisibility,{passive:true});
+              window.addEventListener('pagehide',()=>stop({restore:false}),{once:true});
+              window.addEventListener('scroll',()=>{
+                if(!stepVisible() || !running)return;
+                // Do not mutate while scrolling; restart cleanly after scrolling settles.
+                clearTimeout(timer);
+                timer=setTimeout(()=>{
+                  if(stepVisible()){
+                    active.forEach(toStill);
+                    active=[];
+                    const token=generation;
+                    activateNext(token);
+                  }
+                },450);
+              },{passive:true});
+
+              syncVisibility();
+            }
+
+            if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
+            else init();
+          })();
+          JS
+
+          cp /tmp/hero-native-animation-v17c.js simulator/hero-native-animation-v17c.js
+          cp /tmp/hero-native-animation-v17c.js frontend/simulator/hero-native-animation-v17c.js
+
+          python3 - <<'PY'
+          from pathlib import Path
+          for p in [Path('simulator/index.html'),Path('frontend/simulator/index.html')]:
+              s=p.read_text()
+              s=s.replace('<script src="hero-native-animation-v17b.js?v=017b-staged-native-gifs"></script>','<script src="hero-native-animation-v17c.js?v=017c-navigation-hotfix"></script>')
+              if 'hero-native-animation-v17c.js?v=017c-navigation-hotfix' not in s:
+                  raise SystemExit(f'V17C script reference not installed in {p}')
+              p.write_text(s)
+          PY
+
+      - name: Validate hotfix source
+        run: |
+          node --check simulator/hero-native-animation-v17c.js
+          node --check frontend/simulator/hero-native-animation-v17c.js
+          grep -Fq 'hero-native-animation-v17c.js?v=017c-navigation-hotfix' simulator/index.html
+          ! grep -Fq 'hero-native-animation-v17b.js?v=017b-staged-native-gifs' simulator/index.html
+          ! grep -Fq "observe(document.body" simulator/hero-native-animation-v17c.js
+          ! grep -Fq "attributes:true,attributeFilter:['class']});" simulator/hero-native-animation-v17c.js || true
+
+      - name: Commit V17C
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add simulator frontend/simulator
+          git diff --cached --check
+          git commit -m 'simulator: fix frozen navigation with lazy GIF runtime v17c'
+          git push origin HEAD:simulator-standalone-v1
+
+      - name: Wait for Cloudflare V17C
+        run: |
+          ROOT='https://simulator-standalone-v1.wfgg.pages.dev/simulator/'
+          ok=0
+          for i in $(seq 1 60); do
+            curl -fsSL "$ROOT?nav_hotfix_v17c=$i" -o /tmp/sim.html || true
+            if grep -Fq 'hero-native-animation-v17c.js?v=017c-navigation-hotfix' /tmp/sim.html; then ok=1; break; fi
+            sleep 5
+          done
+          test "$ok" = 1
+          curl -fsSL "$ROOT/hero-native-animation-v17c.js?check=1" -o /tmp/v17c.js
+          grep -Fq "WfGgHeroMotionOwner='native-v17c'" /tmp/v17c.js
+
+      - name: Install Playwright
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: Android navigation smoke test
+        run: |
+          node <<'JS'
+          const assert=require('node:assert/strict');
+          const {chromium}=require('playwright');
+          (async()=>{
+            const browser=await chromium.launch({headless:true});
+            try{
+              const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,deviceScaleFactor:2,locale:'fr-FR'});
+              const page=await context.newPage();
+              const errors=[];
+              page.on('pageerror',e=>errors.push(String(e)));
+              const started=Date.now();
+              await page.goto('https://simulator-standalone-v1.wfgg.pages.dev/simulator/?nav_hotfix_v17c_e2e=1',{waitUntil:'domcontentloaded',timeout:30000});
+              await page.waitForSelector('#stepNav [data-step="1"]',{timeout:15000});
+              const loadMs=Date.now()-started;
+
+              // Critical regression check: V17C must be idle while the Account step is shown.
+              await page.waitForFunction(()=>window.WfGgHeroMotionOwner==='native-v17c',{timeout:10000});
+              const before=await page.evaluate(()=>({phase:document.documentElement.dataset.wfggV17cPhase,active:document.documentElement.dataset.wfggV17cActive||'0'}));
+              assert.equal(before.phase,'idle');
+              assert.equal(before.active,'0');
+
+              // Navigation must react immediately.
+              await page.locator('#stepNav [data-step="1"]').click({timeout:5000});
+              await page.waitForFunction(()=>!document.querySelector('#step-heroes')?.classList.contains('hidden'),{timeout:5000});
+              await page.locator('#gameHeroGrid .game-hero-card').first().waitFor({state:'visible',timeout:10000});
+
+              // Native GIF runtime may start only now and must be bounded.
+              await page.waitForFunction(()=>['preload','active','rest'].includes(document.documentElement.dataset.wfggV17cPhase),{timeout:12000});
+              const active=await page.locator('#gameHeroGrid .game-hero-card.wfgg-native-gif-active-v17c').count();
+              assert.ok(active<=3,`Android must never decode more than 3 GIFs at once, got ${active}`);
+              assert.equal(await page.locator('#gameHeroGrid .game-hero-card.wfgg-v15-live').count(),0);
+
+              // Navigate away again while GIF subsystem exists.
+              await page.locator('#stepNav [data-step="2"]').click({timeout:5000});
+              await page.waitForFunction(()=>document.querySelector('#step-heroes')?.classList.contains('hidden'),{timeout:5000});
+              await page.waitForFunction(()=>document.documentElement.dataset.wfggV17cPhase==='idle',{timeout:5000});
+              assert.equal(await page.locator('#gameHeroGrid .game-hero-card.wfgg-native-gif-active-v17c').count(),0);
+
+              const metric=await page.evaluate(()=>({w:innerWidth,sw:(document.scrollingElement||document.documentElement).scrollWidth,phase:document.documentElement.dataset.wfggV17cPhase}));
+              assert.ok(metric.sw<=metric.w+2,JSON.stringify(metric));
+              assert.equal(errors.length,0,errors.join(' | '));
+              console.log(JSON.stringify({ok:true,loadMs,before,active,metric},null,2));
+              await context.close();
+            }finally{await browser.close()}
+          })().catch(e=>{console.error(e);process.exit(1)});
+          JS
