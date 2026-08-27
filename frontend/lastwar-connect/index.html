@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#100d16">
+  <title>WfGg · Connexion Last War</title>
+  <link rel="stylesheet" href="../portal-v070.css?v=078-admin-split1">
+  <link rel="stylesheet" href="../portal-responsive-v1.css?v=001">
+  <link rel="stylesheet" href="../lastwar-connect-v1.css?v=001">
+  <style>
+    .lw-preview-shell{width:min(100% - 28px,760px);margin:0 auto;padding:calc(28px + env(safe-area-inset-top)) 0 50px}.lw-preview-head{margin-bottom:22px}.lw-preview-head h1{margin:4px 0 8px}.lw-preview-head p{max-width:620px}.lw-preview-note{margin-top:18px;padding:12px 14px;border-radius:14px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.08);color:#aaa5b5;font-size:13px;line-height:1.45}
+  </style>
+</head>
+<body>
+  <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
+  <main class="lw-preview-shell">
+    <section class="lw-preview-head">
+      <p class="eyebrow">WfGg · Connecteur read-only</p>
+      <h1>Connexion Last War</h1>
+      <p class="muted">Le parcours utilisateur est volontairement simple : aucune commande, aucun jeton et aucun fichier technique à manipuler.</p>
+    </section>
+    <section class="module-grid" aria-label="Connexion Last War"></section>
+    <p class="lw-preview-note">Cette branche sert à valider le parcours. Le moteur de synchronisation Last War est développé séparément et ne sera activé ici qu’après validation de la méthode d’authentification read-only.</p>
+  </main>
+  <script>
+    window.WFGG_PORTAL_CONFIG={LASTWAR_CONNECTOR_API:'https://wfgg-lastwar-connector.workers.dev'};
+    localStorage.setItem('wfgg_portal_language',localStorage.getItem('wfgg_portal_language')||'fr');
+  </script>
+  <script src="../lastwar-connect-v1.js?v=001"></script>
+</body>
+</html>
