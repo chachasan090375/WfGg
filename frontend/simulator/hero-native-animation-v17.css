@@ -1,0 +1,14 @@
+/* WFGG V17 — only authentic multi-frame GIF portraits animate. No synthetic card/portrait motion. */
+.game-hero-card.wfgg-v15-live .wfgg-v15-motion-layer,
+.game-hero-card.wfgg-live-card .wfgg-v15-motion-layer,
+.game-hero-card.wfgg-v10-live .wfgg-v15-motion-layer,
+.game-hero-card.wfgg-v12-live .wfgg-v15-motion-layer,
+.game-hero-card.wfgg-v13-live .wfgg-v15-motion-layer,
+.game-hero-card.wfgg-v14-live .wfgg-v15-motion-layer,
+.game-hero-card .wfgg-v15-motion-layer{
+  animation:none!important;transition:none!important;will-change:auto!important;
+}
+.game-hero-card.wfgg-native-gif-v17 .wfgg-v15-motion-layer{animation:none!important;transition:none!important;will-change:auto!important}
+.game-hero-card.wfgg-native-gif-v17 .wfgg-v15-motion-layer>img{animation:none!important;transition:none!important;object-fit:cover!important;object-position:center top!important;image-rendering:auto!important}
+/* Monica source has more empty vertical room than the static crop: lift her to the same visual head line. */
+.game-hero-card[data-hero-id="monica"].wfgg-native-gif-v17 .wfgg-v15-motion-layer{transform:translate3d(0%,-7%,0) scale(1.02)!important}
