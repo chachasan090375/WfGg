@@ -1,0 +1,37 @@
+name: Connector read-only UX recette
+
+on:
+  push:
+    branches:
+      - connector-readonly-v1
+    paths:
+      - 'frontend/lastwar-connect-v1.js'
+      - 'frontend/lastwar-connect-v11.css'
+      - 'frontend/index.html'
+      - 'docs/LASTWAR_CONNECTOR_UX_V1.md'
+      - '.github/workflows/connector-readonly-ux-recette.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  recette:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: JavaScript syntax
+        run: node --check frontend/lastwar-connect-v1.js
+      - name: UID-first contract
+        run: |
+          grep -q "lwUid" frontend/lastwar-connect-v1.js
+          grep -q "PENDING_UID_KEY" frontend/lastwar-connect-v1.js
+          grep -q "Je ne sais plus quelle adresse e-mail est liée" frontend/lastwar-connect-v1.js
+          grep -q "UID first" docs/LASTWAR_CONNECTOR_UX_V1.md || grep -q "UID first" <(tr '[:upper:]' '[:lower:]' < docs/LASTWAR_CONNECTOR_UX_V1.md)
+      - name: Portal integration
+        run: |
+          grep -q "lastwar-connect-v11.css" frontend/index.html
+          grep -q "lastwar-connect-v1.js" frontend/index.html
+      - name: No technical UX leakage
+        run: |
+          ! grep -Eiq "Termux|SFS2X|bearer token|refresh token|loginKey" frontend/lastwar-connect-v1.js
