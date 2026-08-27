@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "postinstall": "node scripts/deploy-staging-if-cloudflare-ci.mjs",
     "check": "node --check src/index.js && node --check src/lastwar-identity.js && node --check src/lastwar-container.js",
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
