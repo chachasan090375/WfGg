@@ -5,10 +5,13 @@
   "type": "module",
   "scripts": {
     "check": "node --check src/index.js",
+    "check:lastwar-preview": "node --check src/index-lastwar-preview.js && node --check src/lastwar-identities.js",
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
+    "deploy:lastwar-preview": "wrangler deploy --config wrangler-lastwar-preview.jsonc",
     "db:local": "wrangler d1 execute wfgg-db --local --file=migrations/0001_initial.sql",
-    "db:remote": "wrangler d1 execute wfgg-db --remote --file=migrations/0001_initial.sql"
+    "db:remote": "wrangler d1 execute wfgg-db --remote --file=migrations/0001_initial.sql",
+    "db:lastwar-preview": "wrangler d1 execute wfgg-lastwar-lab --remote --config wrangler-lastwar-preview.jsonc --file=migrations-lastwar-preview/0001_external_identities.sql"
   },
   "devDependencies": {
     "wrangler": "^4.45.0"
