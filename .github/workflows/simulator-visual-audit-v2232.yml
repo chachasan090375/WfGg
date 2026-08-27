@@ -30,85 +30,82 @@ jobs:
           import { chromium } from 'playwright';
           import fs from 'node:fs';
 
-          const browser = await chromium.launch({headless:true});
-          const page = await browser.newPage({viewport:{width:430,height:1200}, deviceScaleFactor:2});
-          const url = `${process.env.PREVIEW_URL}?visual_audit=${process.env.GITHUB_SHA}`;
-          await page.goto(url,{waitUntil:'networkidle',timeout:90000});
-          await page.waitForTimeout(2500);
+          let browser;
+          const log=[];
+          const push=(...x)=>{const s=x.map(v=>typeof v==='string'?v:JSON.stringify(v)).join(' ');log.push(s);console.log(s)};
+          try{
+            browser=await chromium.launch({headless:true});
+            const page=await browser.newPage({viewport:{width:430,height:1200},deviceScaleFactor:2});
+            page.on('console',m=>push('PAGE',m.type(),m.text()));
+            page.on('pageerror',e=>push('PAGEERROR',e.message));
+            const url=`${process.env.PREVIEW_URL}?visual_audit=${process.env.GITHUB_SHA}`;
+            push('GOTO',url);
+            const response=await page.goto(url,{waitUntil:'domcontentloaded',timeout:90000});
+            push('HTTP',response?.status(),page.url());
+            await page.waitForTimeout(4500);
+            await page.screenshot({path:'visual-audit/page-loaded.png',fullPage:true});
+            fs.writeFileSync('visual-audit/page.html',await page.content());
 
-          const navTexts = await page.locator('#stepNav button').allTextContents();
-          let heroButton = page.locator('#stepNav button').filter({hasText:/Héros|Heroes|Eroi|Héroes/i}).first();
-          if (await heroButton.count() === 0) heroButton = page.locator('#stepNav button').nth(1);
-          await heroButton.click();
-          await page.locator('#gameHeroGrid .game-hero-card[data-hero-id]').first().waitFor({state:'visible',timeout:30000});
-          await page.waitForTimeout(1800);
+            const navTexts=await page.locator('#stepNav button').allTextContents();
+            push('NAV',navTexts);
+            if(!navTexts.length) throw new Error('No #stepNav buttons found');
+            let index=navTexts.findIndex(t=>/Héros|Heroes|Eroi|Héroes/i.test(t));
+            if(index<0) index=1;
+            push('CLICK_NAV_INDEX',index,navTexts[index]);
+            await page.locator('#stepNav button').nth(index).click({timeout:10000});
+            await page.waitForTimeout(1800);
+            await page.locator('#gameHeroGrid .game-hero-card[data-hero-id]').first().waitFor({state:'visible',timeout:30000});
 
-          const ownerVersion = await page.evaluate(()=>window.WfGgHeroPortraitOwnerV223?.version || null);
-          const summary = {url, ownerVersion, navTexts, heroes:{}};
+            const ownerVersion=await page.evaluate(()=>window.WfGgHeroPortraitOwnerV223?.version||null);
+            const summary={url,ownerVersion,navTexts,heroes:{}};
+            push('OWNER',ownerVersion);
 
-          async function stylesFor(id){
-            return await page.locator(`.game-hero-card[data-hero-id="${id}"]`).evaluate(card=>{
-              const q=s=>card.querySelector(s);
-              const css=el=>el?getComputedStyle(el):null;
-              const rect=el=>el?(()=>{const r=el.getBoundingClientRect();return {x:r.x,y:r.y,width:r.width,height:r.height}})():null;
-              const rest=q('.wfgg-v223-rest');
-              const fallback=q('.wfgg-v223-rest-fallback');
-              const anim=q('.wfgg-v223-anim');
-              const legacy=q('.wfgg-v15-motion-layer');
-              const portrait=q('.hero-card-portrait');
-              return {
-                active:card.classList.contains('wfgg-v223-native-active'),
-                phase:document.documentElement.dataset.wfggV223Phase||'',
-                batch:document.documentElement.dataset.wfggV223Batch||'',
-                card:rect(card), portrait:rect(portrait), legacy:rect(legacy), anim:rect(anim),
-                rest:{display:css(rest)?.display,opacity:css(rest)?.opacity,visibility:css(rest)?.visibility,canvasWidth:rest?.width,canvasHeight:rest?.height},
-                fallback:{display:css(fallback)?.display,opacity:css(fallback)?.opacity,visibility:css(fallback)?.visibility,src:fallback?.currentSrc||fallback?.src||''},
-                animStyle:{display:css(anim)?.display,opacity:css(anim)?.opacity,visibility:css(anim)?.visibility,objectFit:css(anim)?.objectFit,objectPosition:css(anim)?.objectPosition,naturalWidth:anim?.naturalWidth||0,naturalHeight:anim?.naturalHeight||0,src:anim?.currentSrc||anim?.src||''},
-                legacyStyle:{display:css(legacy)?.display,opacity:css(legacy)?.opacity,visibility:css(legacy)?.visibility},
-                owned:card.classList.contains('wfgg-v223-owned')
-              };
-            });
-          }
-
-          async function waitState(id,active,timeout=45000){
-            const start=Date.now();
-            while(Date.now()-start<timeout){
-              const ok=await page.locator(`.game-hero-card[data-hero-id="${id}"]`).evaluate((c,a)=>c.classList.contains('wfgg-v223-native-active')===a,active).catch(()=>false);
-              if(ok)return true;
-              await page.waitForTimeout(100);
+            async function stylesFor(id){
+              return await page.locator(`.game-hero-card[data-hero-id="${id}"]`).evaluate(card=>{
+                const q=s=>card.querySelector(s), css=el=>el?getComputedStyle(el):null;
+                const rect=el=>el?(()=>{const r=el.getBoundingClientRect();return {x:r.x,y:r.y,width:r.width,height:r.height}})():null;
+                const rest=q('.wfgg-v223-rest'),fallback=q('.wfgg-v223-rest-fallback'),anim=q('.wfgg-v223-anim'),legacy=q('.wfgg-v15-motion-layer'),portrait=q('.hero-card-portrait');
+                return {active:card.classList.contains('wfgg-v223-native-active'),phase:document.documentElement.dataset.wfggV223Phase||'',batch:document.documentElement.dataset.wfggV223Batch||'',card:rect(card),portrait:rect(portrait),legacy:rect(legacy),anim:rect(anim),rest:{display:css(rest)?.display,opacity:css(rest)?.opacity,visibility:css(rest)?.visibility,canvasWidth:rest?.width,canvasHeight:rest?.height},fallback:{display:css(fallback)?.display,opacity:css(fallback)?.opacity,visibility:css(fallback)?.visibility,src:fallback?.currentSrc||fallback?.src||''},animStyle:{display:css(anim)?.display,opacity:css(anim)?.opacity,visibility:css(anim)?.visibility,objectFit:css(anim)?.objectFit,objectPosition:css(anim)?.objectPosition,naturalWidth:anim?.naturalWidth||0,naturalHeight:anim?.naturalHeight||0,src:anim?.currentSrc||anim?.src||''},legacyStyle:{display:css(legacy)?.display,opacity:css(legacy)?.opacity,visibility:css(legacy)?.visibility},owned:card.classList.contains('wfgg-v223-owned')};
+              });
             }
-            return false;
-          }
-
-          async function auditHero(id){
-            const card=page.locator(`.game-hero-card[data-hero-id="${id}"]`);
-            await card.scrollIntoViewIfNeeded();
-            await page.waitForTimeout(350);
-            await waitState(id,false,12000);
-            summary.heroes[id]={idle:await stylesFor(id)};
-            await card.screenshot({path:`visual-audit/${id}-idle.png`});
-
-            const becameActive=await waitState(id,true,50000);
-            summary.heroes[id].becameActive=becameActive;
-            if(becameActive){
-              await page.waitForTimeout(180);
-              summary.heroes[id].active180ms=await stylesFor(id);
-              await card.screenshot({path:`visual-audit/${id}-active-180ms.png`});
-              await page.waitForTimeout(700);
-              summary.heroes[id].active880ms=await stylesFor(id);
-              await card.screenshot({path:`visual-audit/${id}-active-880ms.png`});
+            async function waitState(id,active,timeout=50000){
+              const start=Date.now();
+              while(Date.now()-start<timeout){
+                const ok=await page.locator(`.game-hero-card[data-hero-id="${id}"]`).evaluate((c,a)=>c.classList.contains('wfgg-v223-native-active')===a,active).catch(()=>false);
+                if(ok)return true;
+                await page.waitForTimeout(100);
+              }
+              return false;
             }
-          }
+            async function auditHero(id){
+              const card=page.locator(`.game-hero-card[data-hero-id="${id}"]`);
+              push('AUDIT',id,'count',await card.count());
+              if(await card.count()===0){summary.heroes[id]={missing:true};return}
+              await card.scrollIntoViewIfNeeded(); await page.waitForTimeout(450); await waitState(id,false,12000);
+              summary.heroes[id]={idle:await stylesFor(id)};
+              await card.screenshot({path:`visual-audit/${id}-idle.png`});
+              const becameActive=await waitState(id,true,50000); summary.heroes[id].becameActive=becameActive; push(id,'ACTIVE',becameActive);
+              if(becameActive){
+                await page.waitForTimeout(180); summary.heroes[id].active180ms=await stylesFor(id); await card.screenshot({path:`visual-audit/${id}-active-180ms.png`});
+                await page.waitForTimeout(700); summary.heroes[id].active880ms=await stylesFor(id); await card.screenshot({path:`visual-audit/${id}-active-880ms.png`});
+              }
+            }
 
-          await page.screenshot({path:'visual-audit/grid-initial.png',fullPage:true});
-          for (const id of ['williams','morrison']) await auditHero(id);
-          await page.screenshot({path:'visual-audit/grid-final.png',fullPage:true});
-          fs.writeFileSync('visual-audit/report.json',JSON.stringify(summary,null,2));
-          console.log(JSON.stringify(summary,null,2));
-          await browser.close();
+            await page.screenshot({path:'visual-audit/grid-initial.png',fullPage:true});
+            for(const id of ['williams','morrison']) await auditHero(id);
+            await page.screenshot({path:'visual-audit/grid-final.png',fullPage:true});
+            fs.writeFileSync('visual-audit/report.json',JSON.stringify(summary,null,2));
+          }catch(e){
+            push('ERROR',e?.stack||String(e));
+            fs.writeFileSync('visual-audit/error.txt',e?.stack||String(e));
+          }finally{
+            fs.writeFileSync('visual-audit/run.log',log.join('\n'));
+            if(browser) await browser.close();
+          }
           EOF
           node /tmp/audit.mjs
       - name: Upload visual audit
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: simulator-visual-audit-v2232
