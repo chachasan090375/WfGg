@@ -18,8 +18,11 @@ RUN python3 /tmp/apply-staged-email-auth.py /src/internal/auth/login.go \
 
 COPY go/wfgg-broker-main.go /src/cmd/wfgg-broker/main.go
 COPY patches/apply-broker-child-runtime.py /tmp/apply-broker-child-runtime.py
+COPY patches/apply-recursive-uid-match.py /tmp/apply-recursive-uid-match.py
 RUN python3 /tmp/apply-broker-child-runtime.py /src/cmd/wfgg-broker/main.go \
+ && python3 /tmp/apply-recursive-uid-match.py /src/cmd/wfgg-broker/main.go \
  && grep -q '127.0.0.1:' /src/cmd/wfgg-broker/main.go \
+ && grep -q 'nestedValueContainsUID' /src/cmd/wfgg-broker/main.go \
  && git diff --check
 
 RUN go test ./internal/auth ./internal/session ./internal/sfs \
