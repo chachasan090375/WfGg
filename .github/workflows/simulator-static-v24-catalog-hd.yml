@@ -1,0 +1,84 @@
+name: Migrate simulator hero catalog to V24 HD portraits
+
+on:
+  push:
+    branches: [simulator-standalone-v1]
+    paths:
+      - '.github/workflows/simulator-static-v24-catalog-hd.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: simulator-standalone-v1
+          fetch-depth: 0
+
+      - name: Point catalog at V24 HD cutouts and purge duplicate low-res portraits
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import json
+
+          catalog_path=Path('simulator/data/hero-catalog.v2.json')
+          data=json.loads(catalog_path.read_text())
+          heroes=data.get('heroes',[])
+          if len(heroes) != 31:
+              raise SystemExit(f'expected 31 heroes, got {len(heroes)}')
+
+          removed=[]
+          for hero in heroes:
+              hid=hero['id']
+              hd=f'assets/heroes/cutout-v21/{hid}.webp'
+              if not Path('simulator',hd).is_file():
+                  raise SystemExit(f'missing HD portrait: {hd}')
+              hero['localPortrait']=hd
+              old=Path('simulator/assets/heroes')/f'{hid}.webp'
+              if old.is_file():
+                  old.unlink()
+                  removed.append(str(old))
+
+          catalog_path.write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n')
+          print('HEROES_MIGRATED=',len(heroes))
+          print('LOW_RES_DUPLICATES_REMOVED=',len(removed))
+          for p in removed: print('REMOVED',p)
+          PY
+
+          # No catalog entry may point back to the old root portrait files.
+          ! grep -E '"localPortrait"[[:space:]]*:[[:space:]]*"assets/heroes/[^/]+\.webp"' simulator/data/hero-catalog.v2.json
+          test "$(grep -c 'assets/heroes/cutout-v21/' simulator/data/hero-catalog.v2.json)" -eq 31
+
+          # All 31 canonical HD portraits remain present.
+          test "$(find simulator/assets/heroes/cutout-v21 -maxdepth 1 -type f -name '*.webp' | wc -l)" -eq 31
+
+      - name: Mirror canonical simulator to published Cloudflare tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p frontend/simulator
+          rsync -a --delete simulator/ frontend/simulator/
+          diff -qr simulator frontend/simulator
+          test "$(grep -c 'assets/heroes/cutout-v21/' frontend/simulator/data/hero-catalog.v2.json)" -eq 31
+
+      - name: Commit catalog migration and published purge
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A simulator frontend/simulator
+          git diff --cached --check
+          if git diff --cached --quiet; then
+            echo 'HD_CATALOG_ALREADY_MIGRATED=YES'
+            exit 0
+          fi
+          git commit -m 'simulator: use HD static portraits throughout and purge low-res duplicates'
+          git push origin HEAD:simulator-standalone-v1
