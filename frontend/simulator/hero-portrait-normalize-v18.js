@@ -32,14 +32,6 @@
   const isPlaying=card=>card.classList.contains('wfgg-native-gif-active-v17c');
   const locale=()=>String(document.documentElement.lang||'fr').toLowerCase().split('-')[0];
 
-  function installMasterCss(){
-    if(document.getElementById('wfgg-kimberly-master-v19'))return;
-    const style=document.createElement('style');
-    style.id='wfgg-kimberly-master-v19';
-    style.textContent='.game-hero-card .wfgg-v15-motion-layer{transform-origin:50% 0%!important}.game-hero-card .wfgg-v15-motion-layer>img{object-position:50% 0%!important;transform-origin:50% 0%!important}';
-    document.head.appendChild(style);
-  }
-
   function localize(card){
     const id=card.dataset.heroId;
     const translated=(NAMES[locale()]||NAMES.en)[id];
@@ -74,7 +66,12 @@
   }
 
   function decorate(card){applyProfile(card);ensureSource(card)}
-  function applyAll(){if(!stepVisible())return;cards().forEach(decorate);document.documentElement.dataset.wfggPortraitNormalize='v19-kimberly-master';document.documentElement.dataset.wfggPortraitCount=String(cards().length)}
+  function applyAll(){
+    if(!stepVisible())return;
+    cards().forEach(decorate);
+    document.documentElement.dataset.wfggPortraitNormalize='v19-kimberly-master';
+    document.documentElement.dataset.wfggPortraitCount=String(cards().length);
+  }
   function schedule(){if(scheduled)return;scheduled=true;requestAnimationFrame(()=>{scheduled=false;applyAll()})}
 
   function onImageError(ev){
@@ -85,17 +82,27 @@
   }
 
   async function init(){
-    installMasterCss();
     try{const r=await fetch(MANIFEST,{cache:'force-cache'});if(r.ok)manifest=await r.json()}catch(_){manifest={animated:{}}}
     const s=step();if(s)new MutationObserver(schedule).observe(s,{attributes:true,attributeFilter:['class']});
     const g=grid();if(g){
       g.addEventListener('error',onImageError,true);
-      new MutationObserver(muts=>{let needed=false;for(const m of muts){if(m.type==='childList')needed=true;if(m.type==='attributes'){const card=m.target?.classList?.contains('game-hero-card')?m.target:m.target?.closest?.('.game-hero-card[data-hero-id]');if(card){applyProfile(card);if(!isPlaying(card))ensureSource(card)}}}if(needed)schedule()}).observe(g,{subtree:true,childList:true,attributes:true,attributeFilter:['class','src']});
+      new MutationObserver(muts=>{
+        let needed=false;
+        for(const m of muts){
+          if(m.type==='childList')needed=true;
+          if(m.type==='attributes'){
+            const card=m.target?.classList?.contains('game-hero-card')?m.target:m.target?.closest?.('.game-hero-card[data-hero-id]');
+            if(card){applyProfile(card);if(!isPlaying(card))ensureSource(card)}
+          }
+        }
+        if(needed)schedule();
+      }).observe(g,{subtree:true,childList:true,attributes:true,attributeFilter:['class','src']});
     }
     new MutationObserver(schedule).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
     document.getElementById('languageStrip')?.addEventListener('click',()=>setTimeout(schedule,40));
-    let scrollTimer=0;window.addEventListener('scroll',()=>{if(!stepVisible())return;clearTimeout(scrollTimer);scrollTimer=setTimeout(applyAll,120)},{passive:true});
-    window.WfGgHeroPortraitV18={version:'19.1.0-kimberly-master',master:MASTER,profileFor:id=>PROFILE[id]||PROFILE.kimberly,apply:applyAll};
+    let scrollTimer=0;
+    window.addEventListener('scroll',()=>{if(!stepVisible())return;clearTimeout(scrollTimer);scrollTimer=setTimeout(applyAll,120)},{passive:true});
+    window.WfGgHeroPortraitV18={version:'19.2.0-kimberly-master-static-css',master:MASTER,profileFor:id=>PROFILE[id]||PROFILE.kimberly,apply:applyAll};
     schedule();
   }
 
