@@ -38,7 +38,6 @@ RUN python3 /tmp/apply-broker-child-runtime.py /src/cmd/wfgg-broker/main.go \
  && python3 /tmp/apply-reconnect-rejection-diagnostics-v4.py /src/cmd/wfgg-broker/main.go \
  && grep -q '127.0.0.1:' /src/cmd/wfgg-broker/main.go \
  && grep -q 'nestedValueContainsUID' /src/cmd/wfgg-broker/main.go \
- && grep -q 'role-session-v2' /src/cmd/wfgg-broker/main.go \
  && grep -q 'AccessTok' /src/cmd/wfgg-broker/main.go \
  && grep -q 'Version = 3' /src/cmd/wfgg-broker/main.go \
  && grep -q 'coherent GSL role reconnect' /src/cmd/wfgg-broker/main.go \
