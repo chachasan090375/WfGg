@@ -44,9 +44,11 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add simulator/index.html frontend/simulator/index.html
-          git diff --cached --check
-          git commit -m 'simulator: remove conflicting V13 V14 portrait runtimes'
-          git push origin HEAD:simulator-standalone-v1
+          if ! git diff --cached --quiet; then
+            git diff --cached --check
+            git commit -m 'simulator: remove conflicting V13 V14 portrait runtimes'
+            git push origin HEAD:simulator-standalone-v1
+          fi
 
       - name: Wait for Cloudflare V18B
         run: |
@@ -76,7 +78,7 @@ jobs:
               const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,deviceScaleFactor:2,locale:'fr-FR'});
               const page=await context.newPage();
               const errors=[]; page.on('pageerror',e=>errors.push(String(e)));
-              await page.goto('https://simulator-standalone-v1.wfgg.pages.dev/simulator/?portrait_v18b_e2e=1',{waitUntil:'domcontentloaded',timeout:60000});
+              await page.goto('https://simulator-standalone-v1.wfgg.pages.dev/simulator/?portrait_v18b_e2e=2',{waitUntil:'domcontentloaded',timeout:60000});
               await page.waitForFunction(()=>window.WfGgHeroPortraitV18?.version==='18.0.0',{timeout:20000});
               const heroNav=page.locator('#stepNav [data-step="1"]');
               if(await heroNav.count()) await heroNav.click(); else await page.locator('#nextBtn').click();
@@ -86,7 +88,6 @@ jobs:
 
               // Give all post-render decorators one frame to settle, then V18 must own all static sources.
               await page.waitForTimeout(500);
-              window;
               const external=await page.locator('#gameHeroGrid .game-hero-card:not(.wfgg-native-gif-active-v17c)').evaluateAll(cards=>cards.map(c=>({id:c.dataset.heroId,src:c.querySelector('.hero-card-portrait img')?.getAttribute('src')||''})).filter(x=>!x.src.startsWith('assets/heroes/')));
               assert.deepEqual(external,[],JSON.stringify(external));
 
@@ -96,7 +97,8 @@ jobs:
                 await page.waitForTimeout(180);
                 const img=card.locator('.hero-card-portrait img');
                 await img.waitFor({state:'visible'});
-                await page.waitForFunction(el=>el.complete&&el.naturalWidth>=150&&el.naturalHeight>=200,await img.elementHandle(),{timeout:10000});
+                const handle=await img.elementHandle();
+                await page.waitForFunction(el=>el.complete&&el.naturalWidth>=150&&el.naturalHeight>=200,handle,{timeout:10000});
                 const st=await img.evaluate(el=>({src:el.getAttribute('src'),w:el.naturalWidth,h:el.naturalHeight}));
                 assert.match(st.src,/^assets\/heroes\//,`${id}:${JSON.stringify(st)}`);
               }
