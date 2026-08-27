@@ -1,0 +1,116 @@
+name: Simulator Monica native animation v16
+
+on:
+  push:
+    branches:
+      - simulator-standalone-v1
+    paths:
+      - '.github/workflows/simulator-monica-native-animation-v16.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  deploy-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: simulator-standalone-v1
+          fetch-depth: 0
+
+      - name: Validate recovered Monica source
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s simulator/assets/heroes/animated/monica.gif
+          file simulator/assets/heroes/animated/monica.gif | grep -qi 'GIF image data'
+          node --check simulator/hero-native-animation-v16.js
+
+      - name: Wire V16 witness
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp simulator/hero-native-animation-v16.js frontend/simulator/hero-native-animation-v16.js
+          cp simulator/hero-native-animation-v16.css frontend/simulator/hero-native-animation-v16.css
+          mkdir -p frontend/simulator/assets/heroes/animated
+          cp simulator/assets/heroes/animated/monica.gif frontend/simulator/assets/heroes/animated/monica.gif
+          python3 - <<'PY'
+          from pathlib import Path
+          for p in [Path('simulator/index.html'),Path('frontend/simulator/index.html')]:
+              s=p.read_text(encoding='utf-8')
+              css='  <link rel="stylesheet" href="hero-native-animation-v16.css?v=016-monica-original-gif" />\n'
+              js='  <script src="hero-native-animation-v16.js?v=016-monica-original-gif"></script>\n'
+              if 'hero-native-animation-v16.css' not in s:
+                  marker='  <link rel="stylesheet" href="hero-roster-v15.css?v=015c-dedicated-portrait-motion" />\n'
+                  if marker not in s: raise SystemExit(f'V15 css marker missing: {p}')
+                  s=s.replace(marker,marker+css,1)
+              if 'hero-native-animation-v16.js' not in s:
+                  marker='  <script src="hero-roster-v15.js?v=015c-dedicated-portrait-motion"></script>\n'
+                  if marker not in s: raise SystemExit(f'V15 js marker missing: {p}')
+                  s=s.replace(marker,marker+js,1)
+              p.write_text(s,encoding='utf-8')
+          Path('simulator/UI_VERSION.txt').write_text('hero-native-animation-v16-monica-original-gif\n',encoding='utf-8')
+          PY
+
+      - name: Commit V16 witness
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add simulator/index.html simulator/UI_VERSION.txt frontend/simulator/index.html frontend/simulator/hero-native-animation-v16.js frontend/simulator/hero-native-animation-v16.css frontend/simulator/assets/heroes/animated/monica.gif
+          git diff --cached --check
+          if ! git diff --cached --quiet; then
+            git commit -m 'simulator: preview Monica original native animation v16'
+            git fetch origin simulator-standalone-v1
+            git rebase origin/simulator-standalone-v1
+            git push origin HEAD:simulator-standalone-v1
+          fi
+
+      - name: Wait for Cloudflare V16
+        shell: bash
+        run: |
+          set -euo pipefail
+          root='https://simulator-standalone-v1.wfgg.pages.dev/simulator'
+          ok=0
+          for i in $(seq 1 70); do
+            curl -fsSL "$root/?monica_v16=$i" -o /tmp/index.html || true
+            curl -fsSL "$root/assets/heroes/animated/monica.gif?v=$i" -o /tmp/monica.gif || true
+            if grep -Fq 'hero-native-animation-v16.js?v=016-monica-original-gif' /tmp/index.html && file /tmp/monica.gif | grep -qi 'GIF image data'; then ok=1; break; fi
+            sleep 3
+          done
+          test "$ok" = 1
+
+      - name: Install Playwright
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: Android V16 Monica witness recette
+        shell: bash
+        run: |
+          node <<'JS'
+          const assert=require('node:assert/strict');
+          const {chromium}=require('playwright');
+          (async()=>{
+            const browser=await chromium.launch({headless:true});
+            try{
+              const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,deviceScaleFactor:2,locale:'fr-FR'});
+              await context.addInitScript(()=>localStorage.setItem('wfgg-simulator-profile-v1',JSON.stringify({locale:'fr',step:1,account:{hqLevel:35},heroes:[],gear:[],research:{},season6:{},metadata:{schema:'wfgg-simulator-profile-v1'}})));
+              const page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(String(e)));
+              await page.goto('https://simulator-standalone-v1.wfgg.pages.dev/simulator/?monica_v16_e2e=1',{waitUntil:'networkidle',timeout:60000});
+              const card=page.locator('#gameHeroGrid .game-hero-card[data-hero-id="monica"]');await card.waitFor({state:'visible',timeout:30000});
+              await page.waitForFunction(()=>window.WfGgHeroNativeAnimationV16?.version==='16.0.0'&&document.querySelector('[data-hero-id="monica"]')?.dataset.wfggNativeAnimation==='monica-original-gif',{timeout:10000});
+              const img=card.locator('.hero-card-portrait img');
+              const info=await img.evaluate(el=>({src:el.getAttribute('src'),w:el.naturalWidth,h:el.naturalHeight,complete:el.complete}));
+              assert.match(info.src,/assets\/heroes\/animated\/monica\.gif/);assert.equal(info.w,400);assert.equal(info.h,554);assert.equal(info.complete,true);
+              const animationName=await card.locator('.wfgg-v15-motion-layer').evaluate(el=>getComputedStyle(el).animationName);assert.equal(animationName,'none');
+              const icons=await card.locator('.wfgg-v15-card-semantics img').count();assert.equal(icons,2);
+              const metric=await page.evaluate(()=>({w:innerWidth,sw:(document.scrollingElement||document.documentElement).scrollWidth}));assert.ok(metric.sw<=metric.w+2);
+              assert.equal(errors.length,0,errors.join(' | '));
+              console.log(JSON.stringify({ok:true,monica:info,syntheticMotion:animationName,icons,metric},null,2));
+            }finally{await browser.close()}
+          })().catch(e=>{console.error(e);process.exit(1)});
+          JS
