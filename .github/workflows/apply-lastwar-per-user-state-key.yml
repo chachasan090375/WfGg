@@ -1,0 +1,45 @@
+name: Apply Last War per-user state key
+
+on:
+  push:
+    branches:
+      - connector-readonly-v1
+    paths:
+      - '.github/workflows/apply-lastwar-per-user-state-key.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: connector-readonly-v1
+
+      - name: Apply deterministic state-key patch
+        run: python3 .github/scripts/apply_lastwar_per_user_state_key.py
+
+      - name: Validate sources
+        run: |
+          node --check worker/src/lastwar-identity.js
+          node --check worker/src/lastwar-container.js
+          grep -q 'X-WfGg-State-Key' worker/src/lastwar-identity.js
+          grep -q 'stateSecret(r)' lastwar-broker/go/wfgg-broker-main.go
+          grep -q 'func sealState(state sealedState, secret string)' lastwar-broker/go/wfgg-broker-main.go
+          grep -q 'func unsealState(sealed string, secret string)' lastwar-broker/go/wfgg-broker-main.go
+          ! grep -q 'WFGG_STATE_KEY: env.APP_SECRET' worker/src/lastwar-container.js
+
+      - name: Commit branch patch
+        run: |
+          if git diff --quiet; then
+            echo "No changes required"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add lastwar-broker/go/wfgg-broker-main.go worker/src/lastwar-identity.js worker/src/lastwar-container.js
+          git commit -m "connector: derive broker state key per WfGg user"
+          git push origin HEAD:connector-readonly-v1
