@@ -27,6 +27,10 @@ jobs:
           node --check worker/src/lastwar-identity.js
           node --check worker/src/lastwar-container.js
 
-      - name: Wrangler dry-run with container build
+      - name: Default Worker dry-run
         working-directory: worker
         run: npx wrangler deploy --dry-run --outdir /tmp/wfgg-api-container-dryrun
+
+      - name: Isolated staging Worker dry-run
+        working-directory: worker
+        run: npx wrangler deploy --env staging --dry-run --outdir /tmp/wfgg-api-staging-container-dryrun
