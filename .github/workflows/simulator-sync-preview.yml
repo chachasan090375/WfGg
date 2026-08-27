@@ -7,103 +7,55 @@ on:
     paths:
       - 'simulator/**'
       - '.github/workflows/simulator-sync-preview.yml'
+  workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
   sync:
+    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-      - name: Checkout branch
+      - name: Checkout preview branch
         uses: actions/checkout@v4
         with:
           ref: simulator-standalone-v1
           fetch-depth: 0
 
-      - name: Repair bootstrap ordering if needed
+      - name: Mirror canonical simulator into Cloudflare output
         shell: bash
         run: |
           set -euo pipefail
-          python3 - <<'PY'
-          from pathlib import Path
-          p=Path('simulator/app.js')
-          s=p.read_text(encoding='utf-8')
-          state_line="  let state = loadState();\n"
-          clone_line="  const clone = obj => JSON.parse(JSON.stringify(obj));\n"
-          if state_line not in s or clone_line not in s:
-              raise SystemExit('bootstrap markers missing')
-          if s.index(state_line) < s.index(clone_line):
-              s=s.replace(state_line,'',1)
-              s=s.replace(clone_line,clone_line+state_line,1)
-              p.write_text(s,encoding='utf-8')
-              print('bootstrap repaired')
-          else:
-              print('bootstrap already correct')
-          PY
+          test -d simulator
+          mkdir -p frontend/simulator
+          rsync -a --delete simulator/ frontend/simulator/
 
-      - name: Remove simulator inline styles for strict CSP
+          # The published copy must be byte-identical to the canonical source.
+          diff -qr simulator frontend/simulator
+
+          echo -n 'CANONICAL_INDEX='; sha256sum simulator/index.html | cut -d' ' -f1
+          echo -n 'PUBLISHED_INDEX='; sha256sum frontend/simulator/index.html | cut -d' ' -f1
+          echo -n 'CANONICAL_OWNER='; sha256sum simulator/hero-portrait-owner-v223.js | cut -d' ' -f1
+          echo -n 'PUBLISHED_OWNER='; sha256sum frontend/simulator/hero-portrait-owner-v223.js | cut -d' ' -f1
+
+          grep -q '0224-frame2-handoff' frontend/simulator/index.html
+          grep -q "22.3.2-frame2-handoff" frontend/simulator/hero-portrait-owner-v223.js
+          grep -q 'wfgg-v223-owned' frontend/simulator/hero-portrait-owner-v223.js
+          grep -q 'wfgg-v223-frame2' frontend/simulator/hero-portrait-owner-v223.js
+
+      - name: Commit synchronized Cloudflare output
         shell: bash
         run: |
           set -euo pipefail
-          python3 - <<'PY'
-          import re
-          from pathlib import Path
-
-          app=Path('simulator/app.js')
-          s=app.read_text(encoding='utf-8')
-          old="const el=$('#saveState'); if(el){el.textContent=ui('saved'); el.style.opacity='1'; setTimeout(()=>el.style.opacity='.7',650);}"
-          new="const el=$('#saveState'); if(el){el.textContent=ui('saved'); el.classList.add('save-state-flash'); setTimeout(()=>el.classList.remove('save-state-flash'),650);}"
-          if old in s: s=s.replace(old,new,1)
-          s=s.replace('class=\"section-card\" style=\"margin-top:12px\"','class=\"section-card summary-json-card\"')
-          s=s.replace('class=\"toolbar\" style=\"margin-top:10px;margin-bottom:0\"','class=\"toolbar summary-json-toolbar\"')
-          app.write_text(s,encoding='utf-8')
-
-          tactics=Path('simulator/tactics-profile-v1.js')
-          s=tactics.read_text(encoding='utf-8')
-          s=s.replace("if(s)s.style.display='none';","if(s)s.classList.add('legacy-tactics-hidden');",1)
-          tactics.write_text(s,encoding='utf-8')
-
-          overlord=Path('simulator/overlord-profile-v1.js')
-          s=overlord.read_text(encoding='utf-8')
-          s=s.replace(' style=\"margin-top:10px\"','')
-          overlord.write_text(s,encoding='utf-8')
-
-          css=Path('simulator/style.css')
-          s=css.read_text(encoding='utf-8')
-          add="\n.save-state{opacity:.7;transition:opacity .2s ease}.save-state.save-state-flash{opacity:1}.summary-json-card{margin-top:12px}.summary-json-toolbar{margin-top:10px;margin-bottom:0}.legacy-tactics-hidden{display:none!important}\n"
-          if '.legacy-tactics-hidden{' not in s: s += add
-          css.write_text(s,encoding='utf-8')
-
-          bad=[]
-          patterns=[re.compile(r'\.style\.[A-Za-z_$][\w$]*\s*='), re.compile(r'\bstyle\s*=\s*["\x27]')]
-          for p in Path('simulator').rglob('*'):
-              if not p.is_file() or p.suffix not in {'.js','.html'}: continue
-              text=p.read_text(encoding='utf-8')
-              for pat in patterns:
-                  for m in pat.finditer(text):
-                      line=text.count('\n',0,m.start())+1
-                      bad.append((str(p),line,text[m.start():m.start()+120].replace('\n',' ')))
-          if bad:
-              for x in bad: print('CSP_INLINE_STYLE',*x)
-              raise SystemExit(f'{len(bad)} inline/dynamic style writes remain')
-          print('STRICT CSP STYLE AUDIT OK')
-          PY
-
-      - name: Mirror simulator into Pages output
-        shell: bash
-        run: |
-          set -euo pipefail
-          rm -rf frontend/simulator
-          mkdir -p frontend
-          cp -a simulator frontend/simulator
-          if git diff --quiet -- simulator frontend/simulator; then
-            echo 'Simulator and preview mirror already synchronized'
+          if git diff --quiet -- frontend/simulator; then
+            echo 'SIMULATOR_PREVIEW_ALREADY_SYNCED=YES'
             exit 0
           fi
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add simulator frontend/simulator
+          git add -A frontend/simulator
           git diff --cached --check
-          git commit -m 'fix: strict CSP simulator preview sync'
+          git commit -m 'simulator: sync canonical source to Cloudflare preview output'
           git push origin HEAD:simulator-standalone-v1
