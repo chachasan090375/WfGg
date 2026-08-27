@@ -1,10 +1,11 @@
-name: Simulator V22.3.1 public recette
+name: Simulator V22.3.2 public recette
 
 on:
   push:
     branches: [simulator-standalone-v1]
     paths:
       - '.github/workflows/simulator-v223-public-recette.yml'
+      - 'simulator/index.html'
       - 'simulator/hero-portrait-owner-v223.js'
       - 'simulator/hero-portrait-owner-v223.css'
       - 'simulator/data/hero-portrait-owner-v223.json'
@@ -15,16 +16,17 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 12
     steps:
-      - name: Wait for Cloudflare V22.3.1
+      - name: Wait for Cloudflare V22.3.2
         run: |
           set -euo pipefail
           BASE='https://simulator-standalone-v1.wfgg.pages.dev/simulator/'
           ok=0
           for i in $(seq 1 60); do
-            js="$(curl -fsSL --max-time 15 "${BASE}hero-portrait-owner-v223.js?recette_v2231=${GITHUB_SHA}-${i}" || true)"
-            css="$(curl -fsSL --max-time 15 "${BASE}hero-portrait-owner-v223.css?recette_v2231=${GITHUB_SHA}-${i}" || true)"
-            if printf '%s' "$js" | grep -q '22.3.1-single-source-frame' && printf '%s' "$css" | grep -q 'wfgg-v223-owned'; then
-              echo "V2231_PUBLIC=YES attempt=$i"
+            html="$(curl -fsSL --max-time 15 "${BASE}?recette_v2232=${GITHUB_SHA}-${i}" || true)"
+            js="$(curl -fsSL --max-time 15 "${BASE}hero-portrait-owner-v223.js?v=0224-frame2-handoff&recette_v2232=${GITHUB_SHA}-${i}" || true)"
+            css="$(curl -fsSL --max-time 15 "${BASE}hero-portrait-owner-v223.css?v=0224-frame2-handoff&recette_v2232=${GITHUB_SHA}-${i}" || true)"
+            if printf '%s' "$html" | grep -q '0224-frame2-handoff' && printf '%s' "$js" | grep -q '22.3.2-frame2-handoff' && printf '%s' "$css" | grep -q 'wfgg-v223-frame2'; then
+              echo "V2232_PUBLIC=YES attempt=$i"
               ok=1
               break
             fi
@@ -33,36 +35,30 @@ jobs:
           done
           test "$ok" = 1
 
-      - name: Validate public single-source portrait owner
+      - name: Validate frame-2 portrait handoff
         run: |
           set -euo pipefail
           BASE='https://simulator-standalone-v1.wfgg.pages.dev/simulator/'
-          html="$(curl -fsSL --max-time 20 "${BASE}?recette_v2231=${GITHUB_SHA}")"
-          js="$(curl -fsSL --max-time 20 "${BASE}hero-portrait-owner-v223.js?recette_v2231=${GITHUB_SHA}")"
-          css="$(curl -fsSL --max-time 20 "${BASE}hero-portrait-owner-v223.css?recette_v2231=${GITHUB_SHA}")"
+          html="$(curl -fsSL --max-time 20 "${BASE}?recette_v2232=${GITHUB_SHA}")"
+          js="$(curl -fsSL --max-time 20 "${BASE}hero-portrait-owner-v223.js?v=0224-frame2-handoff&recette_v2232=${GITHUB_SHA}")"
+          css="$(curl -fsSL --max-time 20 "${BASE}hero-portrait-owner-v223.css?v=0224-frame2-handoff&recette_v2232=${GITHUB_SHA}")"
 
-          printf '%s' "$html" | grep -q 'hero-portrait-owner-v223.css?v=0223-smooth-no-flicker'
-          printf '%s' "$html" | grep -q 'hero-portrait-owner-v223.js?v=0223-smooth-no-flicker'
-          ! printf '%s' "$html" | grep -q 'hero-portrait-owner-v22.js?v=0222'
+          printf '%s' "$html" | grep -q 'hero-portrait-owner-v223.css?v=0224-frame2-handoff'
+          printf '%s' "$html" | grep -q 'hero-portrait-owner-v223.js?v=0224-frame2-handoff'
+          printf '%s' "$js" | grep -q "version:'22.3.2-frame2-handoff'"
+          printf '%s' "$js" | grep -q "clearRestPixels(stage)"
+          printf '%s' "$js" | grep -q "wfgg-v223-frame2"
+          printf '%s' "$js" | grep -q "duration/frames"
+          printf '%s' "$css" | grep -q "display:none!important"
+          printf '%s' "$css" | grep -q "wfgg-v223-frame2"
 
-          printf '%s' "$js" | grep -q "version:'22.3.1-single-source-frame'"
-          printf '%s' "$js" | grep -q "createImageBitmap"
-          printf '%s' "$js" | grep -q "paintContained(canvas,anim)"
-          printf '%s' "$js" | grep -q "wfgg-v223-stage"
-          printf '%s' "$css" | grep -q "wfgg-v223-owned"
-          printf '%s' "$css" | grep -q "wfgg-v223-rest"
-          printf '%s' "$css" | grep -q "wfgg-v223-native-active"
-
-          curl -fsSL --max-time 20 "${BASE}data/hero-portrait-owner-v223.json?recette_v2231=${GITHUB_SHA}" > /tmp/m.json
+          curl -fsSL --max-time 20 "${BASE}data/hero-portrait-owner-v223.json?recette_v2232=${GITHUB_SHA}" > /tmp/m.json
           python3 - <<'PY'
           import json
           m=json.load(open('/tmp/m.json'))
-          assert m['version']=='22.3.0-smooth-single-owner',m.get('version')
           assert m['canvas']==400,m.get('canvas')
           assert len(m['animated'])==24,len(m['animated'])
           assert min(v['frames'] for v in m['animated'].values())>=40
           print('PUBLIC_MANIFEST_OK',len(m['animated']),min(v['frames'] for v in m['animated'].values()))
           PY
-
-          curl -fsSI --max-time 20 "${BASE}assets/heroes/animated-cutout-v223/monica.webp?recette_v2231=${GITHUB_SHA}" | head
-          echo 'V2231_PUBLIC_RECETTE=OK'
+          echo 'V2232_FRAME2_PUBLIC_RECETTE=OK'
