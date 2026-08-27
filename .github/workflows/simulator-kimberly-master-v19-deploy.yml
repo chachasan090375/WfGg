@@ -1,0 +1,115 @@
+name: Simulator Kimberly master V19 deploy
+
+on:
+  push:
+    branches:
+      - simulator-standalone-v1
+    paths:
+      - '.github/workflows/simulator-kimberly-master-v19-deploy.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: simulator-standalone-v1
+          fetch-depth: 0
+
+      - name: Patch cache markers and master CSS
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          master_css='''
+
+/* V19 KIMBERLY MASTER — top anchored composition */
+.game-hero-card .wfgg-v15-motion-layer{transform-origin:50% 0%!important}
+.game-hero-card .wfgg-v15-motion-layer>img{object-position:50% 0%!important;transform-origin:50% 0%!important}
+'''
+          for p in [Path('simulator/hero-roster-v15.css'),Path('frontend/simulator/hero-roster-v15.css')]:
+              s=p.read_text()
+              if 'V19 KIMBERLY MASTER' not in s:
+                  s+=master_css
+              p.write_text(s)
+          for p in [Path('simulator/index.html'),Path('frontend/simulator/index.html')]:
+              s=p.read_text()
+              s=s.replace('hero-roster-v15.css?v=015c-dedicated-portrait-motion','hero-roster-v15.css?v=015d-kimberly-master')
+              s=s.replace('hero-native-animation-v17c.js?v=017c-navigation-hotfix','hero-native-animation-v17c.js?v=017d-master-linked')
+              s=s.replace('hero-portrait-normalize-v18.js?v=018d-uniform-final','hero-portrait-normalize-v18.js?v=019-kimberly-master')
+              p.write_text(s)
+          PY
+          grep -Fq 'hero-roster-v15.css?v=015d-kimberly-master' simulator/index.html
+          grep -Fq 'hero-native-animation-v17c.js?v=017d-master-linked' simulator/index.html
+          grep -Fq 'hero-portrait-normalize-v18.js?v=019-kimberly-master' simulator/index.html
+          grep -Fq 'V19 KIMBERLY MASTER' simulator/hero-roster-v15.css
+          node --check simulator/hero-portrait-normalize-v18.js
+          node --check simulator/hero-native-animation-v17c.js
+
+      - name: Repair Elsa and Kane source portraits
+        run: |
+          python3 -m pip install --quiet pillow requests
+          python3 - <<'PY'
+          from pathlib import Path
+          from io import BytesIO
+          import requests
+          from PIL import Image,ImageStat
+          sources={
+            'elsa':[
+              'https://www.allclash.com/wp-content/uploads/2024/01/last-war-survival-best-build-for-elsa.jpg',
+              'https://theriagames.com/wp-content/uploads/2024/12/Elsa.png',
+              'https://theriagames.com/wp-content/uploads/2024/12/Elsa-1024x1024.png'],
+            'kane':[
+              'https://theriagames.com/wp-content/uploads/2024/12/Kane-1024x1024.png',
+              'https://theriagames.com/wp-content/uploads/2024/12/Kane.png']}
+          headers={'User-Agent':'Mozilla/5.0'}
+          for hero,urls in sources.items():
+              image=None
+              used=None
+              for url in urls:
+                  try:
+                      r=requests.get(url,headers=headers,timeout=20)
+                      r.raise_for_status()
+                      im=Image.open(BytesIO(r.content)).convert('RGB')
+                      if im.width<300 or im.height<300:
+                          continue
+                      spread=sum(b-a for a,b in ImageStat.Stat(im.resize((64,64))).extrema)
+                      if spread<80:
+                          continue
+                      image=im;used=url;break
+                  except Exception as e:
+                      print('skip',hero,url,e)
+              if image is None:
+                  raise SystemExit('No usable image for '+hero)
+              if max(image.size)>1024:
+                  ratio=1024/max(image.size)
+                  image=image.resize((round(image.width*ratio),round(image.height*ratio)),Image.Resampling.LANCZOS)
+              for root in [Path('simulator/assets/heroes'),Path('frontend/simulator/assets/heroes')]:
+                  image.save(root/(hero+'.webp'),'WEBP',quality=92,method=6)
+              print(hero,used,image.size)
+          PY
+
+      - name: Commit deploy
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add simulator frontend/simulator
+          git diff --cached --check
+          git commit -m 'simulator: deploy Kimberly master framing v19'
+          git push origin HEAD:simulator-standalone-v1
+
+      - name: Wait for public preview
+        run: |
+          ROOT='https://simulator-standalone-v1.wfgg.pages.dev/simulator/'
+          ok=0
+          for i in $(seq 1 80); do
+            curl -fsSL "$ROOT?master_v19_deploy=$i" -o /tmp/index.html || true
+            if grep -Fq 'hero-portrait-normalize-v18.js?v=019-kimberly-master' /tmp/index.html && grep -Fq 'hero-roster-v15.css?v=015d-kimberly-master' /tmp/index.html; then ok=1; break; fi
+            sleep 5
+          done
+          test "$ok" = 1
+          curl -fsSL "$ROOT/hero-portrait-normalize-v18.js?v19=1" | grep -Fq "19.0.0-kimberly-master"
+          curl -fsSL "$ROOT/hero-native-animation-v17c.js?v19=1" | grep -Fq "17.3.0-master-linked"
