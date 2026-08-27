@@ -1,0 +1,46 @@
+name: WfGg isolated staging Worker recette
+
+on:
+  push:
+    branches:
+      - connector-readonly-v1
+    paths:
+      - 'worker-staging/**'
+      - 'worker/src/**'
+      - 'lastwar-broker/**'
+      - '.github/workflows/wfgg-api-staging-isolated-recette.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  recette:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install isolated staging dependencies
+        working-directory: worker-staging
+        run: npm install --no-audit --no-fund
+
+      - name: Stage canonical runtime
+        working-directory: worker-staging
+        run: npm run stage
+
+      - name: Validate JavaScript
+        working-directory: worker-staging
+        run: npm run check
+
+      - name: Validate isolated Worker and Container build
+        working-directory: worker-staging
+        run: npx wrangler deploy --containers-rollout=immediate --dry-run --outdir /tmp/wfgg-isolated-staging
+
+      - name: Assert staging identity
+        run: |
+          set -euo pipefail
+          grep -q '"name": "wfgg-api-staging"' worker-staging/wrangler.jsonc
+          grep -q 'lastwar-broker/Dockerfile' worker-staging/wrangler.jsonc
+          test -f worker-staging/src/lastwar-identity.js
+          test -f worker-staging/lastwar-broker/Dockerfile
+          echo ISOLATED_STAGING_RECETTE_OK
