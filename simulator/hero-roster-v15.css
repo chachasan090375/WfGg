@@ -21,6 +21,39 @@
 .game-hero-card.wfgg-v15-live .wfgg-v15-motion-layer{animation:wfgg-v15-character-live 2.02s cubic-bezier(.19,.73,.21,1) var(--wfgg-v15-delay,0ms) 1 both;will-change:transform}
 @keyframes wfgg-v15-character-live{0%{transform:translate3d(var(--wfgg-v15-x,0%),var(--wfgg-v15-y,2%),0) scale(var(--wfgg-v15-zoom,1))}22%{transform:translate3d(calc(var(--wfgg-v15-x,0%) - 3.2%),calc(var(--wfgg-v15-y,2%) - 1.2%),0) scale(calc(var(--wfgg-v15-zoom,1) + .025)) rotate(-.35deg)}52%{transform:translate3d(calc(var(--wfgg-v15-x,0%) + 3.8%),calc(var(--wfgg-v15-y,2%) - 4.6%),0) scale(calc(var(--wfgg-v15-zoom,1) + .072)) rotate(.48deg)}76%{transform:translate3d(calc(var(--wfgg-v15-x,0%) - 1.7%),calc(var(--wfgg-v15-y,2%) - 2.0%),0) scale(calc(var(--wfgg-v15-zoom,1) + .032)) rotate(-.18deg)}100%{transform:translate3d(var(--wfgg-v15-x,0%),var(--wfgg-v15-y,2%),0) scale(var(--wfgg-v15-zoom,1))}}
 
+/* V19 KIMBERLY MASTER — static 31-hero framing profiles. */
+.game-hero-card[data-hero-id="williams"]{--wfgg-v15-x:0%!important;--wfgg-v15-y:4%!important;--wfgg-v15-zoom:.84!important}
+.game-hero-card[data-hero-id="murphy"]{--wfgg-v15-x:0%!important;--wfgg-v15-y:4%!important;--wfgg-v15-zoom:.88!important}
+.game-hero-card[data-hero-id="kimberly"]{--wfgg-v15-x:0%!important;--wfgg-v15-y:1%!important;--wfgg-v15-zoom:.96!important}
+.game-hero-card[data-hero-id="marshall"]{--wfgg-v15-x:0%!important;--wfgg-v15-y:-7%!important;--wfgg-v15-zoom:.90!important}
+.game-hero-card[data-hero-id="stetmann"]{--wfgg-v15-x:0%!important;--wfgg-v15-y:-7%!important;--wfgg-v15-zoom:.89!important}
+.game-hero-card[data-hero-id="dva"]{--wfgg-v15-x:0%!important;--wfgg-v15-y:2%!important;--wfgg-v15-zoom:.89!important}
+.game-hero-card[data-hero-id="carlie"]{--wfgg-v15-x:0%!important;--wfgg-v15-y:1%!important;--wfgg-v15-zoom:.91!important}
+.game-hero-card[data-hero-id="lucius"]{--wfgg-v15-x:0%!important;--wfgg-v15-y:-8%!important;--wfgg-v15-zoom:.87!important}
+.game-hero-card[data-hero-id="schuyler"]{--wfgg-v15-x:0%!important;--wfgg-v15-y:-9%!important;--wfgg-v15-zoom:.87!important}
+.game-hero-card[data-hero-id="morrison"]{--wfgg-v15-x:0%!important;--wfgg-v15-y:4%!important;--wfgg-v15-zoom:.82!important}
+.game-hero-card[data-hero-id="tesla"]{--wfgg-v15-x:0%!important;--wfgg-v15-y:3%!important;--wfgg-v15-zoom:.89!important}
+.game-hero-card[data-hero-id="swift"]{--wfgg-v15-x:0%!important;--wfgg-v15-y:-3%!important;--wfgg-v15-zoom:.87!important}
+.game-hero-card[data-hero-id="fiona"]{--wfgg-v15-x:0%!important;--wfgg-v15-y:2%!important;--wfgg-v15-zoom:.89!important}
+.game-hero-card[data-hero-id="adam"]{--wfgg-v15-x:0%!important;--wfgg-v15-y:5%!important;--wfgg-v15-zoom:.83!important}
+.game-hero-card[data-hero-id="mcgregor"]{--wfgg-v15-x:0%!important;--wfgg-v15-y:3%!important;--wfgg-v15-zoom:.89!important}
+.game-hero-card[data-hero-id="monica"]{--wfgg-v15-x:0%!important;--wfgg-v15-y:1%!important;--wfgg-v15-zoom:.93!important}
+.game-hero-card[data-hero-id="mason"]{--wfgg-v15-x:0%!important;--wfgg-v15-y:5%!important;--wfgg-v15-zoom:.79!important}
+.game-hero-card[data-hero-id="violet"]{--wfgg-v15-x:0%!important;--wfgg-v15-y:4%!important;--wfgg-v15-zoom:.83!important}
+.game-hero-card[data-hero-id="scarlett"]{--wfgg-v15-x:0%!important;--wfgg-v15-y:3%!important;--wfgg-v15-zoom:.87!important}
+.game-hero-card[data-hero-id="richard"]{--wfgg-v15-x:0%!important;--wfgg-v15-y:1%!important;--wfgg-v15-zoom:.89!important}
+.game-hero-card[data-hero-id="farhad"]{--wfgg-v15-x:0%!important;--wfgg-v15-y:-8%!important;--wfgg-v15-zoom:.88!important}
+.game-hero-card[data-hero-id="sarah"]{--wfgg-v15-x:0%!important;--wfgg-v15-y:-6%!important;--wfgg-v15-zoom:.89!important}
+.game-hero-card[data-hero-id="maxwell"]{--wfgg-v15-x:0%!important;--wfgg-v15-y:-8%!important;--wfgg-v15-zoom:.87!important}
+.game-hero-card[data-hero-id="cage"]{--wfgg-v15-x:0%!important;--wfgg-v15-y:-6%!important;--wfgg-v15-zoom:.87!important}
+.game-hero-card[data-hero-id="venom"]{--wfgg-v15-x:0%!important;--wfgg-v15-y:2%!important;--wfgg-v15-zoom:.89!important}
+.game-hero-card[data-hero-id="braz"]{--wfgg-v15-x:0%!important;--wfgg-v15-y:-7%!important;--wfgg-v15-zoom:.89!important}
+.game-hero-card[data-hero-id="elsa"]{--wfgg-v15-x:0%!important;--wfgg-v15-y:1%!important;--wfgg-v15-zoom:.90!important}
+.game-hero-card[data-hero-id="gump"]{--wfgg-v15-x:0%!important;--wfgg-v15-y:2%!important;--wfgg-v15-zoom:.89!important}
+.game-hero-card[data-hero-id="loki"]{--wfgg-v15-x:0%!important;--wfgg-v15-y:5%!important;--wfgg-v15-zoom:.72!important}
+.game-hero-card[data-hero-id="ambolt"]{--wfgg-v15-x:0%!important;--wfgg-v15-y:4%!important;--wfgg-v15-zoom:.80!important}
+.game-hero-card[data-hero-id="kane"]{--wfgg-v15-x:0%!important;--wfgg-v15-y:1%!important;--wfgg-v15-zoom:.90!important}
+
 .game-hero-card.rarity-UR .hero-card-footer{background:linear-gradient(180deg,#9a621c 0,#6c3b12 48%,#45250c 100%)!important;border-top-color:#f4c558!important;box-shadow:inset 0 1px #fff3b033!important}
 .game-hero-card.rarity-SSR .hero-card-footer{background:linear-gradient(180deg,#71419e 0,#4c276f 48%,#2e194d 100%)!important;border-top-color:#c58bf0!important;box-shadow:inset 0 1px #f2d9ff2b!important}
 .game-hero-card.rarity-SR .hero-card-footer{background:linear-gradient(180deg,#277fa9 0,#1c6086 48%,#12425f 100%)!important;border-top-color:#78d8f5!important;box-shadow:inset 0 1px #d9f7ff2b!important}
