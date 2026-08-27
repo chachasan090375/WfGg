@@ -1,0 +1,38 @@
+diff --git a/internal/auth/login.go b/internal/auth/login.go
+index 238572f..0000000 100644
+--- a/internal/auth/login.go
++++ b/internal/auth/login.go
+@@ -30,9 +30,15 @@ type LoginResult struct {
+ // LoginOptions configures how Login authenticates.
+ type LoginOptions struct {
+-	Email     string // required unless a LoginKey is already persisted
+-	CodePipe  string // FIFO path to read the email verification code from; "" reads stdin
+-	Handshake bool   // experimental: send the vanilla SFS2X pre-Login Handshake (see conn.go:DoHandshake)
++	Email     string // required unless a LoginKey is already persisted
++	CodePipe  string // FIFO path to read the email verification code from; "" reads stdin
++	Handshake bool   // experimental: send the vanilla SFS2X pre-Login Handshake (see conn.go:DoHandshake)
++
++	// WfGg staged-web-auth extension. When provided, Login signals once Last War has accepted
++	// the send-code request, then obtains the code from the provider instead of stdin/FIFO.
++	// Neither callback changes the wire protocol; they only replace the CLI interaction boundary.
++	OnVerificationCodeSent   func()
++	VerificationCodeProvider func() string
+ }
+@@ -548,10 +554,17 @@ func Login(opts LoginOptions) (*LoginResult, error) {
+ 	slog.Info("server accepted", "response", msg.Params.StringRedacted())
+ 	slog.Info("verification code should now be arriving", "emailLen", len(opts.Email))
++	if opts.OnVerificationCodeSent != nil {
++		opts.OnVerificationCodeSent()
++	}
+ 
+ 	slog.Info("step 7: waiting for verification code")
+ 	var code string
+-	if opts.CodePipe != "" {
++	if opts.VerificationCodeProvider != nil {
++		// Provider is controlled by the embedding application. Trim exactly as the stdin/FIFO
++		// readers do so browser-supplied whitespace cannot alter the code sent to Last War.
++		code = strings.TrimSpace(opts.VerificationCodeProvider())
++	} else if opts.CodePipe != "" {
+ 		slog.Info("waiting for a writer on code pipe", "codePipe", opts.CodePipe)
+ 		code = readCodeFromPipe(opts.CodePipe, conn)
+ 	} else {
