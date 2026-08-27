@@ -32,15 +32,18 @@ jobs:
         working-directory: worker-staging
         run: npm run check
 
-      - name: Validate isolated Worker and Container build
+      - name: Validate external staging Worker bundle
         working-directory: worker-staging
-        run: npx wrangler deploy --containers-rollout=immediate --dry-run --outdir /tmp/wfgg-isolated-staging
+        run: npx wrangler deploy --dry-run --outdir /tmp/wfgg-isolated-staging
 
       - name: Assert staging identity
         run: |
           set -euo pipefail
           grep -q '"name": "wfgg-api-staging"' worker-staging/wrangler.jsonc
-          grep -q 'lastwar-broker/Dockerfile' worker-staging/wrangler.jsonc
           test -f worker-staging/src/lastwar-identity.js
-          test -f worker-staging/lastwar-broker/Dockerfile
-          echo ISOLATED_STAGING_RECETTE_OK
+          grep -q 'LASTWAR_BROKER_URL' worker-staging/src/lastwar-identity.js
+          grep -q 'LASTWAR_BROKER_SHARED_SECRET' worker-staging/src/lastwar-identity.js
+          ! grep -q '"containers"' worker-staging/wrangler.jsonc
+          grep -q '"deleted_classes"' worker-staging/wrangler.jsonc
+          grep -q 'LastWarUserContainer' worker-staging/wrangler.jsonc
+          echo ISOLATED_STAGING_EXTERNAL_RECETTE_OK
