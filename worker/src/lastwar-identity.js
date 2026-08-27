@@ -6,9 +6,40 @@ const BROKER_SENSITIVE_KEY = /(password|passcode|access.?token|refresh.?token|lo
 const BROKER_REVISION = 'ee5f64de160a8051c2f9f98189b75038dd225a0a';
 
 export async function routeLastWarIdentity(request, env, url, deps) {
-  if (!url.pathname.startsWith('/api/lastwar/identity/')) return null;
-
   const { sessionContext, json, fail, audit, now, sha256Text } = deps;
+
+  if (url.pathname === '/api/lastwar/health') {
+    if (request.method !== 'GET') return json({ error: 'METHOD_NOT_ALLOWED' }, 405);
+    if (!env.LASTWAR_USER) return json({ ok: false, error: 'LASTWAR_BROKER_NOT_CONFIGURED' }, 503);
+
+    try {
+      const instance = getContainer(env.LASTWAR_USER, 'wfgg-lastwar-health-v1');
+      const response = await instance.fetch(new Request('https://container.internal/ping', {
+        method: 'GET',
+        headers: { 'Cache-Control': 'no-store' }
+      }));
+
+      let data = {};
+      try { data = await response.json(); } catch (_) {}
+
+      if (!response.ok || data?.ok !== true || data?.service !== 'wfgg-lastwar-go-broker') {
+        return json({ ok: false, error: 'LASTWAR_BROKER_HEALTH_FAILED' }, 503);
+      }
+
+      return json({
+        ok: true,
+        service: 'wfgg-lastwar-connector',
+        broker: 'wfgg-lastwar-go-broker',
+        mode: data.mode === 'read-only' ? 'read-only' : 'unknown',
+        revision: BROKER_REVISION.slice(0, 8),
+        container: true
+      });
+    } catch (_) {
+      return json({ ok: false, error: 'LASTWAR_BROKER_UNAVAILABLE' }, 503);
+    }
+  }
+
+  if (!url.pathname.startsWith('/api/lastwar/identity/')) return null;
   if (request.method !== 'POST') return json({ error: 'METHOD_NOT_ALLOWED' }, 405);
 
   const ctx = await sessionContext(request, env);
