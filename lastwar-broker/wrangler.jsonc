@@ -1,0 +1,31 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "wfgg-lastwar-broker",
+  "main": "src/index.js",
+  "compatibility_date": "2026-08-27",
+  "keep_vars": true,
+  "vars": {
+    "BROKER_REVISION": "ee5f64de160a8051c2f9f98189b75038dd225a0a"
+  },
+  "containers": [
+    {
+      "class_name": "LastWarUserContainer",
+      "image": "./Dockerfile",
+      "max_instances": 20
+    }
+  ],
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "LASTWAR_USER",
+        "class_name": "LastWarUserContainer"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": ["LastWarUserContainer"]
+    }
+  ]
+}
