@@ -1,0 +1,93 @@
+name: Simulator native GIF V17B recette
+
+on:
+  push:
+    branches:
+      - simulator-standalone-v1
+    paths:
+      - '.github/workflows/simulator-native-gif-v17b-recette.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  recette:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: simulator-standalone-v1
+      - name: Verify public V17B assets
+        run: |
+          set -euo pipefail
+          ROOT='https://simulator-standalone-v1.wfgg.pages.dev/simulator/'
+          curl -fsSL "$ROOT?native_gif_v17b_final=1" -o /tmp/index.html
+          curl -fsSL "$ROOT/data/hero-native-animations.v17.json?final=1" -o /tmp/manifest.json
+          grep -Fq 'hero-native-animation-v17b.js?v=017b-staged-native-gifs' /tmp/index.html
+          grep -Fq '17.1.0-staged-native-gifs' /tmp/manifest.json
+          python3 - <<'PY'
+          import json
+          m=json.load(open('/tmp/manifest.json'))
+          assert m['animatedCount']==24,m['animatedCount']
+          assert m['syntheticMotion'] is False
+          assert 'monica' in m['animated'] and 'loki' in m['animated']
+          print('PUBLIC_V17B_MANIFEST_OK',m['animatedCount'])
+          PY
+      - name: Install Playwright
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Validate staged authentic GIFs on Android viewport
+        run: |
+          node <<'JS'
+          const assert=require('node:assert/strict');
+          const {chromium}=require('playwright');
+          (async()=>{
+            const browser=await chromium.launch({headless:true});
+            try{
+              const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,deviceScaleFactor:2,locale:'fr-FR'});
+              const page=await context.newPage();
+              const errors=[]; page.on('pageerror',e=>errors.push(String(e)));
+              await page.goto('https://simulator-standalone-v1.wfgg.pages.dev/simulator/?native_gif_v17b_final_e2e=1',{waitUntil:'networkidle',timeout:60000});
+              await page.waitForFunction(()=>document.querySelectorAll('#gameHeroGrid .game-hero-card').length===31,{timeout:30000});
+              // Expose the already-rendered Heroes panel for this subsystem recette; navigation itself is tested elsewhere.
+              await page.evaluate(()=>{
+                document.querySelectorAll('.step-panel').forEach(p=>p.classList.add('hidden'));
+                document.querySelector('#step-heroes')?.classList.remove('hidden');
+              });
+              await page.locator('#gameHeroGrid .game-hero-card').first().waitFor({state:'visible',timeout:10000});
+              await page.waitForFunction(()=>window.WfGgHeroMotionOwner==='native-v17b',{timeout:10000});
+              const manifest=await page.evaluate(()=>fetch('data/hero-native-animations.v17.json?recette=3').then(r=>r.json()));
+              assert.equal(manifest.animatedCount,24);
+              assert.equal(manifest.syntheticMotion,false);
+              await page.waitForFunction(()=>document.documentElement.dataset.wfggV17bPhase==='active',{timeout:15000});
+              const activeCards=page.locator('#gameHeroGrid .game-hero-card.wfgg-native-gif-active-v17b');
+              const active=await activeCards.count();
+              assert.ok(active>=5&&active<=6,`expected 5-6 authentic GIFs, got ${active}`);
+              const playing=await activeCards.locator('.hero-card-portrait img').evaluateAll(imgs=>imgs.map(i=>i.getAttribute('src')));
+              assert.equal(playing.length,active);
+              assert.ok(playing.every(s=>/^assets\/heroes\/animated\/.+\.gif$/.test(s)),JSON.stringify(playing));
+              assert.equal(await page.locator('#gameHeroGrid .game-hero-card.wfgg-v15-live').count(),0,'synthetic V15 animation must never run');
+              assert.equal(await page.locator('#gameHeroGrid .game-hero-card.wfgg-live-card').count(),0,'legacy V9 animation must never run');
+              const inactive=page.locator('#gameHeroGrid .game-hero-card.wfgg-native-gif-capable-v17b:not(.wfgg-native-gif-active-v17b) .hero-card-portrait img').first();
+              await inactive.waitFor({state:'visible'});
+              assert.match(await inactive.getAttribute('src'),/^assets\/heroes\/animated-still\/.+\.webp$/);
+              const monica=page.locator('#gameHeroGrid .game-hero-card[data-hero-id="monica"]');
+              assert.match(await monica.getAttribute('data-wfgg-v17b-crop'),/-9%/);
+              const loki=page.locator('#gameHeroGrid .game-hero-card[data-hero-id="loki"] .hero-card-portrait img');
+              const lokiState=await loki.evaluate(el=>({src:el.getAttribute('src'),w:el.naturalWidth,h:el.naturalHeight}));
+              assert.ok(/assets\/heroes\/(animated-still\/loki\.webp|animated\/loki\.gif|loki\.webp)$/.test(lokiState.src),lokiState.src);
+              assert.ok(lokiState.w>=300&&lokiState.h>=400,JSON.stringify(lokiState));
+              await page.waitForFunction(()=>document.documentElement.dataset.wfggV17bPhase==='rest',{timeout:8000});
+              assert.equal(await activeCards.count(),0,'there must be a clean pause with zero GIFs active');
+              const restSrcs=await page.locator('#gameHeroGrid .game-hero-card.wfgg-native-gif-capable-v17b .hero-card-portrait img').evaluateAll(imgs=>imgs.map(i=>i.getAttribute('src')));
+              assert.ok(restSrcs.every(s=>/^assets\/heroes\/animated-still\/.+\.webp$/.test(s)),JSON.stringify(restSrcs.slice(0,5)));
+              const metric=await page.evaluate(()=>({w:innerWidth,sw:(document.scrollingElement||document.documentElement).scrollWidth,owner:window.WfGgHeroMotionOwner,phase:document.documentElement.dataset.wfggV17bPhase}));
+              assert.ok(metric.sw<=metric.w+2,JSON.stringify(metric));
+              assert.equal(errors.length,0,errors.join(' | '));
+              console.log(JSON.stringify({ok:true,animatedCount:manifest.animatedCount,active,playing,lokiState,metric},null,2));
+              await context.close();
+            } finally {await browser.close()}
+          })().catch(e=>{console.error(e);process.exit(1)});
+          JS
