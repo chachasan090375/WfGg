@@ -1,0 +1,355 @@
+name: Simulator smooth transparent portrait owner V22.3
+
+on:
+  push:
+    branches: [simulator-standalone-v1]
+    paths:
+      - '.github/workflows/simulator-portrait-owner-v22-3.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: simulator-standalone-v1
+          fetch-depth: 0
+
+      - name: Install image tooling
+        run: |
+          python3 -m pip install --quiet "rembg[cpu]" pillow
+
+      - name: Build smooth transparent native animations
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          from io import BytesIO
+          import json, shutil
+          from PIL import Image
+          from rembg import remove, new_session
+
+          ROOT=Path('simulator')
+          FROOT=Path('frontend/simulator')
+          CAN=400
+          TOP=round(CAN*0.05)
+          TARGET_FRAMES=48
+          MAX_SEG=320
+          OUT=ROOT/'assets/heroes/animated-cutout-v223'
+          if OUT.exists(): shutil.rmtree(OUT)
+          OUT.mkdir(parents=True,exist_ok=True)
+          manifest=json.loads((ROOT/'data/hero-native-animations.v17.json').read_text())
+          report=json.loads((ROOT/'data/hero-cutout-v21.json').read_text())
+          session=new_session('u2netp')
+
+          def segment(frame):
+            frame=frame.convert('RGBA')
+            scale=min(1.0,MAX_SEG/max(frame.width,frame.height))
+            if scale<1:
+              frame=frame.resize((max(1,round(frame.width*scale)),max(1,round(frame.height*scale))),Image.Resampling.LANCZOS)
+            out=remove(frame,session=session,alpha_matting=False)
+            if not isinstance(out,Image.Image): out=Image.open(BytesIO(out)).convert('RGBA')
+            return out.convert('RGBA')
+
+          def sampled_ranges(n,target):
+            count=min(target,n)
+            edges=[round(i*n/count) for i in range(count+1)]
+            edges[0]=0; edges[-1]=n
+            return [(edges[i],max(edges[i]+1,edges[i+1])) for i in range(count)]
+
+          out_manifest={
+            'version':'22.3.0-smooth-single-owner',
+            'master':'kimberly',
+            'canvas':CAN,
+            'topGapPct':5,
+            'animated':{}
+          }
+
+          for hid,a in manifest.get('animated',{}).items():
+            src=ROOT/a.get('src','')
+            if not src.exists():
+              print('SKIP_MISSING',hid,src); continue
+            gif=Image.open(src)
+            n=getattr(gif,'n_frames',1)
+            durations=[]
+            for i in range(n):
+              gif.seek(i)
+              durations.append(int(gif.info.get('duration',67) or 67))
+
+            cuts=[]; durs=[]; union=None
+            for start,end in sampled_ranges(n,TARGET_FRAMES):
+              gif.seek(start)
+              cut=segment(gif.convert('RGBA'))
+              bb=cut.getchannel('A').getbbox()
+              if not bb: continue
+              union=bb if union is None else (
+                min(union[0],bb[0]),min(union[1],bb[1]),
+                max(union[2],bb[2]),max(union[3],bb[3])
+              )
+              cuts.append(cut)
+              durs.append(max(35,sum(durations[start:end])))
+
+            if len(cuts)<2 or union is None:
+              print('SKIP_EMPTY',hid); continue
+
+            uw,uh=union[2]-union[0],union[3]-union[1]
+            meta=report.get('heroes',{}).get(hid,{})
+            static_h=(meta.get('normalizedSize') or [430,500])[1]
+            target_h=max(CAN*0.84,min(CAN*1.04,static_h/512*CAN))
+            scale=target_h/max(1,uh)
+            nw=max(1,round(uw*scale)); nh=max(1,round(uh*scale))
+            if nw>round(CAN*1.16):
+              scale*=round(CAN*1.16)/nw
+              nw=max(1,round(uw*scale)); nh=max(1,round(uh*scale))
+
+            frames=[]
+            for cut in cuts:
+              crop=cut.crop(union).resize((nw,nh),Image.Resampling.LANCZOS)
+              canvas=Image.new('RGBA',(CAN,CAN),(0,0,0,0))
+              canvas.alpha_composite(crop,((CAN-nw)//2,TOP))
+              frames.append(canvas)
+
+            dst=OUT/f'{hid}.webp'
+            frames[0].save(
+              dst,'WEBP',save_all=True,append_images=frames[1:],
+              duration=durs,loop=0,quality=92,method=4,lossless=False
+            )
+            out_manifest['animated'][hid]={
+              'src':f'assets/heroes/animated-cutout-v223/{hid}.webp',
+              'still':f'assets/heroes/cutout-v21/{hid}.webp',
+              'frames':len(frames),
+              'durationMs':sum(durs),
+              'normalizedSize':[nw,nh]
+            }
+            print('ANIM_OK',hid,len(frames),sum(durs),nw,nh,dst.stat().st_size)
+
+          (ROOT/'data/hero-portrait-owner-v223.json').write_text(json.dumps(out_manifest,ensure_ascii=False,indent=2)+'\n')
+          dst=FROOT/'assets/heroes/animated-cutout-v223'
+          if dst.exists(): shutil.rmtree(dst)
+          shutil.copytree(OUT,dst)
+          shutil.copy2(ROOT/'data/hero-portrait-owner-v223.json',FROOT/'data/hero-portrait-owner-v223.json')
+          print('ANIMATED_COUNT',len(out_manifest['animated']))
+          PY
+
+      - name: Install no-flicker portrait runtime
+        run: |
+          cat > simulator/hero-portrait-owner-v223.css <<'CSS'
+          .game-hero-card .hero-card-portrait{overflow:hidden!important;isolation:isolate!important}
+          /* Never show the letter placeholder in the roster once V22.3 owns portraits. */
+          #gameHeroGrid .game-hero-card .hero-fallback{display:none!important;visibility:hidden!important;opacity:0!important}
+          .game-hero-card .wfgg-v15-motion-layer{position:absolute!important;inset:0!important;z-index:2!important;transform:none!important;animation:none!important;overflow:visible!important}
+          .game-hero-card .wfgg-v15-motion-layer>img.wfgg-v223-base{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:contain!important;object-position:50% 0%!important;transform:none!important;animation:none!important;transition:none!important;filter:drop-shadow(0 5px 5px #0006) saturate(1.035) contrast(1.02)!important;opacity:1!important}
+          .game-hero-card .wfgg-v223-anim{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:contain!important;object-position:50% 0%!important;z-index:4!important;transform:none!important;animation:none!important;transition:none!important;filter:drop-shadow(0 5px 5px #0006) saturate(1.035) contrast(1.02)!important;pointer-events:none!important}
+          .game-hero-card.wfgg-v223-native-active .wfgg-v223-base{opacity:0!important}
+          .game-hero-card.wfgg-v223-native-active,.game-hero-card.wfgg-v223-native-active::before,.game-hero-card.wfgg-v223-native-active::after{animation:none!important;transition:none!important}
+          CSS
+          cp simulator/hero-portrait-owner-v223.css frontend/simulator/hero-portrait-owner-v223.css
+
+          cat > simulator/hero-portrait-owner-v223.js <<'JS'
+          (()=>{
+            'use strict';
+            const MANIFEST='data/hero-portrait-owner-v223.json';
+            const STILL=id=>`assets/heroes/cutout-v21/${id}.webp`;
+            const FB1=id=>`assets/heroes/master-v20/${id}.webp`;
+            const FB2=id=>`assets/heroes/${id}.webp`;
+            const REST_MS=1300,START_MS=900;
+            const SYNTH=['wfgg-live-card','wfgg-v10-live','wfgg-v12-live','wfgg-v13-live','wfgg-v14-live','wfgg-v15-live','wfgg-native-gif-active-v17b','wfgg-native-gif-active-v17c','wfgg-v22-native-active'];
+            let data={animated:{}},timer=0,running=false,generation=0,active=[],queued=false;
+            const step=()=>document.getElementById('step-heroes');
+            const grid=()=>document.getElementById('gameHeroGrid');
+            const visible=()=>{const s=step();return !!s&&!s.classList.contains('hidden')&&document.visibilityState==='visible'};
+            const cards=()=>[...document.querySelectorAll('#gameHeroGrid .game-hero-card[data-hero-id]')];
+            const viewport=()=>cards().filter(c=>{if(c.offsetParent===null)return false;const r=c.getBoundingClientRect();return r.bottom>0&&r.top<innerHeight&&r.right>0&&r.left<innerWidth});
+            const baseFor=c=>c.querySelector('.wfgg-v15-motion-layer>img:not(.wfgg-v223-anim)')||c.querySelector('.hero-card-portrait img:not(.wfgg-v223-anim)');
+            const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+
+            function neutral(c){
+              SYNTH.forEach(x=>c.classList.remove(x));
+              c.style.setProperty('--wfgg-v15-x','0%');
+              c.style.setProperty('--wfgg-v15-y','0%');
+              c.style.setProperty('--wfgg-v15-zoom','1');
+              c.dataset.wfggPortraitOwner='v223';
+            }
+
+            function bindBase(c){
+              const id=c?.dataset?.heroId, img=baseFor(c);
+              if(!id||!img)return;
+              neutral(c);
+              img.classList.add('wfgg-v223-base');
+              img.removeAttribute('srcset');
+              const desired=STILL(id);
+              if(!img.dataset.wfggBaseBound){
+                img.dataset.wfggBaseBound='1';
+                img.addEventListener('error',()=>{
+                  const src=img.getAttribute('src')||'';
+                  if(src.includes('/cutout-v21/'))img.src=FB1(id);
+                  else if(src.includes('/master-v20/'))img.src=FB2(id);
+                });
+              }
+              const src=img.getAttribute('src')||'';
+              if(!src.includes('/cutout-v21/')&&!src.includes('/master-v20/')&&!src.includes('/assets/heroes/'))img.src=desired;
+              else if(!src)img.src=desired;
+            }
+
+            function clearAnim(c){
+              if(!c)return;
+              c.classList.remove('wfgg-v223-native-active');
+              c.querySelectorAll('.wfgg-v223-anim').forEach(n=>n.remove());
+            }
+
+            function stop(restore=true){
+              generation++; running=false; clearTimeout(timer); timer=0;
+              if(restore)active.forEach(clearAnim);
+              active=[];
+              document.documentElement.dataset.wfggV223Phase='idle';
+              document.documentElement.dataset.wfggV223Active='0';
+            }
+
+            function preload(url,token){
+              return new Promise(res=>{
+                if(!url||token!==generation){res(false);return}
+                const i=new Image(); let done=false;
+                const fin=v=>{if(done)return;done=true;res(v)};
+                i.onload=()=>fin(true); i.onerror=()=>fin(false); i.src=url;
+                if(i.complete)fin(true); setTimeout(()=>fin(false),3500);
+              });
+            }
+
+            async function activate(c,a,token){
+              if(token!==generation||!c.isConnected||c.offsetParent===null)return false;
+              bindBase(c); clearAnim(c);
+              const host=c.querySelector('.wfgg-v15-motion-layer')||c.querySelector('.hero-card-portrait');
+              if(!host)return false;
+              const anim=new Image();
+              anim.className='wfgg-v223-anim';
+              anim.alt=''; anim.setAttribute('aria-hidden','true');
+              anim.src=a.src;
+              host.appendChild(anim);
+              await new Promise(resolve=>{
+                if(anim.complete){resolve();return}
+                anim.addEventListener('load',resolve,{once:true});
+                anim.addEventListener('error',resolve,{once:true});
+                setTimeout(resolve,1200);
+              });
+              if(token!==generation||!anim.isConnected||!anim.naturalWidth){anim.remove();return false}
+              c.classList.add('wfgg-v223-native-active');
+              return true;
+            }
+
+            async function next(token){
+              if(token!==generation||!running||!visible())return;
+              const candidates=shuffle(viewport().filter(c=>data.animated?.[c.dataset.heroId]));
+              if(!candidates.length){timer=setTimeout(()=>next(token),1000);return}
+              const group=candidates.slice(0,Math.min(innerWidth<=600?3:4,candidates.length));
+              const ready=[];
+              document.documentElement.dataset.wfggV223Phase='preload';
+              for(const c of group){
+                const a=data.animated[c.dataset.heroId];
+                if(await preload(a?.src,token))ready.push(c);
+                if(token!==generation||!running||!visible())return;
+              }
+              active=[];
+              for(const c of ready){
+                const a=data.animated[c.dataset.heroId];
+                if(await activate(c,a,token))active.push(c);
+              }
+              if(token!==generation||!running)return;
+              document.documentElement.dataset.wfggV223Phase='active';
+              document.documentElement.dataset.wfggV223Active=String(active.length);
+              document.documentElement.dataset.wfggV223Batch=active.map(c=>c.dataset.heroId).join(',');
+              const activeMs=Math.max(3000,...active.map(c=>Number(data.animated[c.dataset.heroId]?.durationMs)||4000));
+              timer=setTimeout(()=>{
+                if(token!==generation||!running)return;
+                active.forEach(clearAnim); active=[];
+                document.documentElement.dataset.wfggV223Phase='rest';
+                document.documentElement.dataset.wfggV223Active='0';
+                timer=setTimeout(()=>next(token),REST_MS);
+              },activeMs);
+            }
+
+            function start(){
+              if(running||!visible())return;
+              running=true; const token=++generation;
+              cards().forEach(bindBase);
+              timer=setTimeout(()=>next(token),START_MS);
+            }
+
+            function enforce(){
+              if(!visible())return;
+              cards().forEach(bindBase);
+              if(!running)start();
+            }
+            function schedule(){
+              if(queued)return; queued=true;
+              requestAnimationFrame(()=>{queued=false;enforce()});
+            }
+            function sync(){if(visible())schedule();else stop(true)}
+
+            async function init(){
+              try{const r=await fetch(MANIFEST,{cache:'no-cache'});if(r.ok)data=await r.json()}catch(_){data={animated:{}}}
+              window.WfGgHeroMotionOwner='portrait-owner-v223';
+              window.WfGgHeroPortraitOwnerV223={version:'22.3.0',manifest:data};
+              window.WfGgHeroPortraitV18={version:'223-compat',profileFor:()=>({x:'0%',y:'0%',zoom:1}),apply:schedule};
+              document.documentElement.dataset.wfggPortraitOwner='v223-single';
+              const s=step(); if(s)new MutationObserver(sync).observe(s,{attributes:true,attributeFilter:['class']});
+              const g=grid(); if(g)new MutationObserver(schedule).observe(g,{childList:true,subtree:true});
+              document.addEventListener('visibilitychange',sync,{passive:true});
+              window.addEventListener('pagehide',()=>stop(false),{once:true});
+              sync();
+            }
+            if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
+          })();
+          JS
+          cp simulator/hero-portrait-owner-v223.js frontend/simulator/hero-portrait-owner-v223.js
+          node --check simulator/hero-portrait-owner-v223.js
+
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          for root in [Path('simulator'),Path('frontend/simulator')]:
+            p=root/'index.html'; s=p.read_text()
+            for name in ['hero-portrait-owner-v22.js','hero-portrait-owner-v223.js']:
+              s=re.sub(r'\s*<script[^>]+src=["\'][^"\']*'+re.escape(name)+r'[^"\']*["\'][^>]*></script>\s*','\n',s)
+            for css in ['hero-portrait-owner-v22.css','hero-portrait-owner-v223.css']:
+              s=re.sub(r'\s*<link[^>]+href=["\'][^"\']*'+re.escape(css)+r'[^"\']*["\'][^>]*>\s*','\n',s)
+            s=s.replace('</head>','  <link rel="stylesheet" href="hero-portrait-owner-v223.css?v=0223-smooth-no-flicker" />\n</head>')
+            s=s.replace('</body>','  <script src="hero-portrait-owner-v223.js?v=0223-smooth-no-flicker"></script>\n</body>')
+            p.write_text(s)
+          for p in [Path('simulator/UI_VERSION.txt'),Path('frontend/simulator/UI_VERSION.txt')]:
+            p.write_text('HERO_PORTRAIT_OWNER_V22_3\n48-frame smooth transparent native animations; 400px canvas; no letter fallback flashes\n')
+          PY
+
+      - name: Validate V22.3 contract
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          from PIL import Image
+          import json
+          for root in [Path('simulator'),Path('frontend/simulator')]:
+            m=json.loads((root/'data/hero-portrait-owner-v223.json').read_text())
+            assert len(m['animated'])>=20,len(m['animated'])
+            assert m['canvas']==400
+            for h,a in m['animated'].items():
+              p=root/a['src']; assert p.exists(),p
+              im=Image.open(p)
+              assert getattr(im,'n_frames',1)>=40,(h,getattr(im,'n_frames',1))
+            html=(root/'index.html').read_text()
+            assert 'hero-portrait-owner-v223.js?v=0223-smooth-no-flicker' in html
+            assert 'hero-portrait-owner-v22.js' not in html
+            css=(root/'hero-portrait-owner-v223.css').read_text()
+            assert '.hero-fallback{display:none!important' in css
+          print('V223_OK')
+          PY
+          git diff --check
+
+      - name: Commit V22.3 preview
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add simulator frontend/simulator
+          git commit -m 'simulator: deploy smooth no-flicker native portrait animations v22.3'
+          git push origin HEAD:simulator-standalone-v1
