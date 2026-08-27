@@ -20,8 +20,8 @@ jobs:
         run: |
           set -euo pipefail
           url='https://wfgg-api-staging.chachasan090375.workers.dev/api/health'
-          echo "Probing $url"
-          for i in $(seq 1 12); do
+          echo "Probing $url after staging-wrapper deployment"
+          for i in $(seq 1 4); do
             code=$(curl -sS -o /tmp/body.json -w '%{http_code}' --connect-timeout 10 --max-time 30 "$url" || true)
             echo "attempt=$i status=$code"
             cat /tmp/body.json 2>/dev/null || true
@@ -30,7 +30,7 @@ jobs:
               node -e "const fs=require('fs');const d=JSON.parse(fs.readFileSync('/tmp/body.json','utf8')); if(!d.ok||d.service!=='wfgg-api'||d.lastwar_container!==true) process.exit(2); console.log('STAGING_HEALTH_OK',d)"
               exit 0
             fi
-            sleep 10
+            sleep 5
           done
-          echo 'Staging Worker did not become healthy' >&2
+          echo 'Staging Worker did not become healthy after wrapper deploy' >&2
           exit 1
