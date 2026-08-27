@@ -1,0 +1,243 @@
+name: Simulator unified portrait owner V22 fast
+
+on:
+  push:
+    branches: [simulator-standalone-v1]
+    paths:
+      - '.github/workflows/simulator-portrait-owner-v22-fast.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: simulator-standalone-v1
+          fetch-depth: 0
+
+      - name: Install image tooling
+        run: |
+          python3 -m pip install --quiet "rembg[cpu]" pillow
+
+      - name: Build fast transparent native animations
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          from io import BytesIO
+          import json, math, shutil
+          from PIL import Image
+          from rembg import remove, new_session
+
+          ROOT=Path('simulator')
+          FROOT=Path('frontend/simulator')
+          CAN=320
+          TOP=round(CAN*0.05)
+          TARGET_FRAMES=18
+          MAX_SEG=256
+          OUT=ROOT/'assets/heroes/animated-cutout-v22'
+          if OUT.exists(): shutil.rmtree(OUT)
+          OUT.mkdir(parents=True,exist_ok=True)
+          manifest=json.loads((ROOT/'data/hero-native-animations.v17.json').read_text())
+          report=json.loads((ROOT/'data/hero-cutout-v21.json').read_text())
+          session=new_session('u2netp')
+
+          # Carlie: turn the tall full-body cutout into the agreed Kimberly-like bust master.
+          for base in [ROOT,FROOT]:
+            cp=base/'assets/heroes/cutout-v21/carlie.webp'
+            if not cp.exists(): continue
+            im=Image.open(cp).convert('RGBA')
+            bb=im.getchannel('A').getbbox()
+            if not bb: continue
+            sub=im.crop(bb)
+            crop_h=min(sub.height,round(sub.width*1.24))
+            sub=sub.crop((0,0,sub.width,crop_h))
+            target_w=430
+            s=target_w/max(1,sub.width)
+            nw=max(1,round(sub.width*s)); nh=max(1,round(sub.height*s))
+            sub=sub.resize((nw,nh),Image.Resampling.LANCZOS)
+            canvas=Image.new('RGBA',(512,512),(0,0,0,0))
+            canvas.alpha_composite(sub,((512-nw)//2,23))
+            canvas.save(cp,'WEBP',lossless=True,method=6)
+            print('CARLIE_BUST_OK',base,nw,nh)
+
+          def segment(frame):
+            frame=frame.convert('RGBA')
+            s=min(1.0,MAX_SEG/max(frame.width,frame.height))
+            if s<1:
+              frame=frame.resize((max(1,round(frame.width*s)),max(1,round(frame.height*s))),Image.Resampling.LANCZOS)
+            out=remove(frame,session=session,alpha_matting=False)
+            if not isinstance(out,Image.Image): out=Image.open(BytesIO(out)).convert('RGBA')
+            return out.convert('RGBA')
+
+          def sampled_indices(n,target):
+            count=min(target,n)
+            edges=[round(i*n/count) for i in range(count+1)]
+            edges[0]=0; edges[-1]=n
+            idx=[]
+            for i in range(count):
+              a,b=edges[i],max(edges[i]+1,edges[i+1])
+              idx.append((a,b))
+            return idx
+
+          out_manifest={'version':'22.2.0-fast-single-owner','master':'kimberly','canvas':CAN,'topGapPct':5,'animated':{}}
+          for hid,a in manifest.get('animated',{}).items():
+            src=ROOT/a.get('src','')
+            if not src.exists():
+              print('SKIP_MISSING',hid,src); continue
+            gif=Image.open(src)
+            n=getattr(gif,'n_frames',1)
+            durations=[]
+            for i in range(n):
+              gif.seek(i); durations.append(int(gif.info.get('duration',67) or 67))
+            cuts=[]; durs=[]; union=None
+            for start,end in sampled_indices(n,TARGET_FRAMES):
+              gif.seek(start)
+              cut=segment(gif.convert('RGBA'))
+              bb=cut.getchannel('A').getbbox()
+              if not bb: continue
+              union=bb if union is None else (min(union[0],bb[0]),min(union[1],bb[1]),max(union[2],bb[2]),max(union[3],bb[3]))
+              cuts.append(cut)
+              durs.append(max(40,sum(durations[start:end])))
+            if len(cuts)<2 or union is None:
+              print('SKIP_EMPTY',hid); continue
+
+            uw,uh=union[2]-union[0],union[3]-union[1]
+            meta=report.get('heroes',{}).get(hid,{})
+            static_h=(meta.get('normalizedSize') or [430,500])[1]
+            target_h=max(CAN*0.84,min(CAN*1.04,static_h/512*CAN))
+            s=target_h/max(1,uh)
+            nw=max(1,round(uw*s)); nh=max(1,round(uh*s))
+            if nw>round(CAN*1.16):
+              s*=round(CAN*1.16)/nw
+              nw=max(1,round(uw*s)); nh=max(1,round(uh*s))
+
+            frames=[]
+            for cut in cuts:
+              crop=cut.crop(union).resize((nw,nh),Image.Resampling.LANCZOS)
+              canvas=Image.new('RGBA',(CAN,CAN),(0,0,0,0))
+              canvas.alpha_composite(crop,((CAN-nw)//2,TOP))
+              frames.append(canvas)
+            dst=OUT/f'{hid}.webp'
+            frames[0].save(dst,'WEBP',save_all=True,append_images=frames[1:],duration=durs,loop=0,quality=80,method=3,lossless=False)
+            out_manifest['animated'][hid]={'src':f'assets/heroes/animated-cutout-v22/{hid}.webp','still':f'assets/heroes/cutout-v21/{hid}.webp','frames':len(frames),'durationMs':sum(durs),'normalizedSize':[nw,nh]}
+            print('ANIM_OK',hid,len(frames),sum(durs),nw,nh)
+
+          (ROOT/'data/hero-portrait-owner-v22.json').write_text(json.dumps(out_manifest,ensure_ascii=False,indent=2)+'\n')
+          dst=FROOT/'assets/heroes/animated-cutout-v22'
+          if dst.exists(): shutil.rmtree(dst)
+          shutil.copytree(OUT,dst)
+          shutil.copy2(ROOT/'data/hero-portrait-owner-v22.json',FROOT/'data/hero-portrait-owner-v22.json')
+          print('ANIMATED_COUNT',len(out_manifest['animated']))
+          PY
+
+      - name: Install one portrait owner
+        run: |
+          cat > simulator/hero-portrait-owner-v22.css <<'CSS'
+          .game-hero-card .hero-card-portrait{overflow:hidden!important;isolation:isolate!important}
+          .game-hero-card .wfgg-v15-motion-layer{position:absolute!important;inset:0!important;z-index:2!important;transform:none!important;animation:none!important;overflow:visible!important}
+          .game-hero-card .wfgg-v15-motion-layer>img{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:contain!important;object-position:50% 0%!important;transform:none!important;animation:none!important;transition:none!important;filter:drop-shadow(0 5px 5px #0006) saturate(1.035) contrast(1.02)!important}
+          .game-hero-card.wfgg-v22-native-active,.game-hero-card.wfgg-v22-native-active::before,.game-hero-card.wfgg-v22-native-active::after{animation:none!important;transition:none!important}
+          CSS
+          cp simulator/hero-portrait-owner-v22.css frontend/simulator/hero-portrait-owner-v22.css
+
+          cat > simulator/hero-portrait-owner-v22.js <<'JS'
+          (()=>{
+            'use strict';
+            const MANIFEST='data/hero-portrait-owner-v22.json';
+            const STILL=id=>`assets/heroes/cutout-v21/${id}.webp`;
+            const FB1=id=>`assets/heroes/master-v20/${id}.webp`;
+            const FB2=id=>`assets/heroes/${id}.webp`;
+            const ACTIVE_MS=3500,REST_MS=1400,START_MS=1000;
+            const SYNTH=['wfgg-live-card','wfgg-v10-live','wfgg-v12-live','wfgg-v13-live','wfgg-v14-live','wfgg-v15-live','wfgg-native-gif-active-v17b','wfgg-native-gif-active-v17c'];
+            let data={animated:{}},timer=0,running=false,generation=0,active=[],queued=false;
+            const step=()=>document.getElementById('step-heroes');
+            const grid=()=>document.getElementById('gameHeroGrid');
+            const visible=()=>{const s=step();return !!s&&!s.classList.contains('hidden')&&document.visibilityState==='visible'};
+            const cards=()=>[...document.querySelectorAll('#gameHeroGrid .game-hero-card[data-hero-id]')];
+            const viewport=()=>cards().filter(c=>{if(c.offsetParent===null)return false;const r=c.getBoundingClientRect();return r.bottom>0&&r.top<innerHeight&&r.right>0&&r.left<innerWidth});
+            const imgFor=c=>c.querySelector('.wfgg-v15-motion-layer>img')||c.querySelector('.hero-card-portrait img');
+            const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+            function neutral(c){SYNTH.forEach(x=>c.classList.remove(x));c.style.setProperty('--wfgg-v15-x','0%');c.style.setProperty('--wfgg-v15-y','0%');c.style.setProperty('--wfgg-v15-zoom','1');c.dataset.wfggPortraitOwner='v22'}
+            function setSource(c,url,kind){const img=imgFor(c);if(!img)return;neutral(c);if(img.getAttribute('src')!==url)img.src=url;c.dataset.wfggPortraitKind=kind;c.classList.toggle('wfgg-v22-native-active',kind==='animated')}
+            function still(c){if(c?.dataset?.heroId)setSource(c,STILL(c.dataset.heroId),'still')}
+            function stop(restore=true){generation++;running=false;clearTimeout(timer);timer=0;if(restore)active.forEach(still);active=[];document.documentElement.dataset.wfggV22Phase='idle';document.documentElement.dataset.wfggV22Active='0'}
+            function preload(url,token){return new Promise(res=>{if(!url||token!==generation){res(false);return}const i=new Image();let done=false;const fin=v=>{if(done)return;done=true;res(v)};i.onload=()=>fin(true);i.onerror=()=>fin(false);i.src=url;if(i.complete)fin(true);setTimeout(()=>fin(false),2500)})}
+            async function next(token){
+              if(token!==generation||!running||!visible())return;
+              const candidates=shuffle(viewport().filter(c=>data.animated?.[c.dataset.heroId]));
+              if(!candidates.length){timer=setTimeout(()=>next(token),1000);return}
+              const group=candidates.slice(0,Math.min(innerWidth<=600?3:4,candidates.length));
+              const ready=[];document.documentElement.dataset.wfggV22Phase='preload';
+              for(const c of group){const a=data.animated[c.dataset.heroId];if(await preload(a?.src,token))ready.push(c);if(token!==generation||!running||!visible())return}
+              active=ready.filter(c=>c.isConnected&&c.offsetParent!==null);
+              active.forEach(c=>setSource(c,data.animated[c.dataset.heroId].src,'animated'));
+              document.documentElement.dataset.wfggV22Phase='active';document.documentElement.dataset.wfggV22Active=String(active.length);document.documentElement.dataset.wfggV22Batch=active.map(c=>c.dataset.heroId).join(',');
+              timer=setTimeout(()=>{if(token!==generation||!running)return;active.forEach(still);active=[];document.documentElement.dataset.wfggV22Phase='rest';document.documentElement.dataset.wfggV22Active='0';timer=setTimeout(()=>next(token),REST_MS)},ACTIVE_MS)
+            }
+            function start(){if(running||!visible())return;running=true;const token=++generation;cards().forEach(still);timer=setTimeout(()=>next(token),START_MS)}
+            function enforce(){if(!visible())return;for(const c of cards()){if(!c.classList.contains('wfgg-v22-native-active'))still(c)}if(!running)start()}
+            function schedule(){if(queued)return;queued=true;requestAnimationFrame(()=>{queued=false;enforce()})}
+            function sync(){if(visible())schedule();else stop(true)}
+            function onError(e){const img=e.target;if(!(img instanceof HTMLImageElement))return;const c=img.closest('.game-hero-card[data-hero-id]');if(!c)return;const id=c.dataset.heroId;if(c.classList.contains('wfgg-v22-native-active')){still(c);return}const s=img.getAttribute('src')||'';if(s.includes('/cutout-v21/'))img.src=FB1(id);else if(s.includes('/master-v20/'))img.src=FB2(id)}
+            async function init(){
+              try{const r=await fetch(MANIFEST,{cache:'no-cache'});if(r.ok)data=await r.json()}catch(_){data={animated:{}}}
+              window.WfGgHeroMotionOwner='portrait-owner-v22';window.WfGgHeroPortraitOwnerV22={version:'22.2.0',manifest:data};window.WfGgHeroPortraitV18={version:'22-compat',profileFor:()=>({x:'0%',y:'0%',zoom:1}),apply:schedule};
+              document.documentElement.dataset.wfggPortraitOwner='v22-single';
+              const s=step();if(s)new MutationObserver(sync).observe(s,{attributes:true,attributeFilter:['class']});
+              const g=grid();if(g){g.addEventListener('error',onError,true);new MutationObserver(schedule).observe(g,{childList:true,subtree:true,attributes:true,attributeFilter:['src']})}
+              document.addEventListener('visibilitychange',sync,{passive:true});window.addEventListener('pagehide',()=>stop(false),{once:true});sync();
+            }
+            if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
+          })();
+          JS
+          cp simulator/hero-portrait-owner-v22.js frontend/simulator/hero-portrait-owner-v22.js
+          node --check simulator/hero-portrait-owner-v22.js
+
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          for root in [Path('simulator'),Path('frontend/simulator')]:
+            p=root/'index.html'; s=p.read_text()
+            for name in ['hero-native-animation-v17b.js','hero-native-animation-v17c.js','hero-portrait-normalize-v18.js','hero-cutout-v21.js','hero-portrait-owner-v22.js']:
+              s=re.sub(r'\s*<script[^>]+src=["\'][^"\']*'+re.escape(name)+r'[^"\']*["\'][^>]*></script>\s*','\n',s)
+            s=re.sub(r'\s*<link[^>]+href=["\'][^"\']*hero-portrait-owner-v22\.css[^"\']*["\'][^>]*>\s*','\n',s)
+            s=s.replace('</head>','  <link rel="stylesheet" href="hero-portrait-owner-v22.css?v=0222-fast-single-owner" />\n</head>')
+            s=s.replace('</body>','  <script src="hero-portrait-owner-v22.js?v=0222-fast-single-owner"></script>\n</body>')
+            p.write_text(s)
+          for p in [Path('simulator/UI_VERSION.txt'),Path('frontend/simulator/UI_VERSION.txt')]:
+            p.write_text('HERO_PORTRAIT_OWNER_V22_2\nSingle portrait owner; shared rarity backgrounds; transparent native WebP animations; Carlie bust master\n')
+          PY
+
+      - name: Validate V22 fast contract
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          from PIL import Image
+          import json
+          for root in [Path('simulator'),Path('frontend/simulator')]:
+            m=json.loads((root/'data/hero-portrait-owner-v22.json').read_text())
+            assert len(m['animated'])>=20,len(m['animated'])
+            for h,a in m['animated'].items():
+              p=root/a['src']; assert p.exists(),p
+              im=Image.open(p); assert getattr(im,'n_frames',1)>=8,(h,getattr(im,'n_frames',1))
+            html=(root/'index.html').read_text()
+            assert 'hero-portrait-owner-v22.js?v=0222-fast-single-owner' in html
+            for old in ['hero-native-animation-v17c.js','hero-portrait-normalize-v18.js','hero-cutout-v21.js']:
+              assert old not in html,old
+            assert (root/'assets/heroes/cutout-v21/carlie.webp').exists()
+          print('V22_FAST_OK')
+          PY
+          git diff --check
+
+      - name: Commit V22 fast preview
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add simulator frontend/simulator
+          git commit -m 'simulator: deploy single portrait owner with transparent native animations v22.2'
+          git push origin HEAD:simulator-standalone-v1
