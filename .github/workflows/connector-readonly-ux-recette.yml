@@ -5,9 +5,11 @@ on:
     branches:
       - connector-readonly-v1
     paths:
-      - 'frontend/lastwar-connect-v1.js'
+      - 'frontend/lastwar-connect-v2.js'
       - 'frontend/lastwar-connect-v11.css'
       - 'frontend/index.html'
+      - 'connector-worker/src/index.js'
+      - 'worker/src/lastwar-connector.js'
       - 'docs/LASTWAR_CONNECTOR_UX_V1.md'
       - '.github/workflows/connector-readonly-ux-recette.yml'
   workflow_dispatch:
@@ -20,18 +22,41 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: JavaScript syntax
-        run: node --check frontend/lastwar-connect-v1.js
-      - name: UID-first contract
         run: |
-          grep -q "lwUid" frontend/lastwar-connect-v1.js
-          grep -q "PENDING_UID_KEY" frontend/lastwar-connect-v1.js
-          grep -q "Je ne sais plus quelle adresse e-mail est liée" frontend/lastwar-connect-v1.js
-          grep -q "UID first" docs/LASTWAR_CONNECTOR_UX_V1.md || grep -q "UID first" <(tr '[:upper:]' '[:lower:]' < docs/LASTWAR_CONNECTOR_UX_V1.md)
+          node --check frontend/lastwar-connect-v2.js
+          node --check connector-worker/src/index.js
+          node --check worker/src/lastwar-connector.js
+
+      - name: UID-first browser contract
+        run: |
+          grep -q "PENDING_UID_KEY" frontend/lastwar-connect-v2.js
+          grep -q "identity/resolve" frontend/lastwar-connect-v2.js
+          grep -q "identity/send-code" frontend/lastwar-connect-v2.js
+          grep -q "identity/verify-code" frontend/lastwar-connect-v2.js
+          grep -q "Je ne sais plus quelle adresse e-mail est liée" frontend/lastwar-connect-v2.js
+          grep -qi "UID first" docs/LASTWAR_CONNECTOR_UX_V1.md
+
+      - name: Worker broker contract
+        run: |
+          grep -q "/api/lastwar/identity/resolve" connector-worker/src/index.js
+          grep -q "/api/lastwar/identity/send-code" connector-worker/src/index.js
+          grep -q "/api/lastwar/identity/verify-code" connector-worker/src/index.js
+          grep -q "LASTWAR_BROKER_SECRET" connector-worker/src/index.js
+          grep -q "BROKER_SENSITIVE_FIELD_REJECTED" connector-worker/src/index.js
+
       - name: Portal integration
         run: |
-          grep -q "lastwar-connect-v11.css" frontend/index.html
-          grep -q "lastwar-connect-v1.js" frontend/index.html
+          grep -q "lastwar-connect-v11.css?v=012-uid-broker" frontend/index.html
+          grep -q "lastwar-connect-v2.js?v=012-uid-broker" frontend/index.html
+          ! grep -q "lastwar-connect-v1.js" frontend/index.html
+
       - name: No technical UX leakage
         run: |
-          ! grep -Eiq "Termux|SFS2X|bearer token|refresh token|loginKey" frontend/lastwar-connect-v1.js
+          ! grep -Eiq "Termux|SFS2X|bearer token|refresh token|loginKey|deviceId|shumei" frontend/lastwar-connect-v2.js
+
+      - name: Read-only guard remains present
+        run: |
+          grep -q "mode: 'read-only'" connector-worker/src/index.js
+          grep -q "SENSITIVE_FIELD_REJECTED" worker/src/lastwar-connector.js
