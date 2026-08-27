@@ -1,0 +1,50 @@
+name: Fix Last War sync unseal state key
+
+on:
+  push:
+    branches:
+      - connector-readonly-v1
+    paths:
+      - '.github/workflows/fix-lastwar-unseal-sync.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: connector-readonly-v1
+
+      - name: Patch the one remaining unseal call
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('lastwar-broker/go/wfgg-broker-main.go')
+          s=p.read_text()
+          old='state, err := unsealState(sealed)'
+          new='state, err := unsealState(sealed, stateSecret(r))'
+          if new in s and old not in s:
+              print('Already fixed')
+          else:
+              if s.count(old) != 1:
+                  raise SystemExit(f'Expected exactly one old call, found {s.count(old)}')
+              p.write_text(s.replace(old,new,1))
+          PY
+          grep -q 'state, err := unsealState(sealed, stateSecret(r))' lastwar-broker/go/wfgg-broker-main.go
+          ! grep -q 'state, err := unsealState(sealed)$' lastwar-broker/go/wfgg-broker-main.go
+
+      - name: Commit fix
+        run: |
+          if git diff --quiet; then
+            echo "No changes required"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add lastwar-broker/go/wfgg-broker-main.go
+          git commit -m "connector: pass per-user key when restoring broker state"
+          git push origin HEAD:connector-readonly-v1
