@@ -22,8 +22,8 @@ jobs:
         run: |
           set -euo pipefail
           ROOT='https://simulator-standalone-v1.wfgg.pages.dev/simulator/'
-          curl -fsSL "$ROOT?native_gif_v17b_final=1" -o /tmp/index.html
-          curl -fsSL "$ROOT/data/hero-native-animations.v17.json?final=1" -o /tmp/manifest.json
+          curl -fsSL "$ROOT?native_gif_v17b_final=2" -o /tmp/index.html
+          curl -fsSL "$ROOT/data/hero-native-animations.v17.json?final=2" -o /tmp/manifest.json
           grep -Fq 'hero-native-animation-v17b.js?v=017b-staged-native-gifs' /tmp/index.html
           grep -Fq '17.1.0-staged-native-gifs' /tmp/manifest.json
           python3 - <<'PY'
@@ -49,16 +49,15 @@ jobs:
               const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,deviceScaleFactor:2,locale:'fr-FR'});
               const page=await context.newPage();
               const errors=[]; page.on('pageerror',e=>errors.push(String(e)));
-              await page.goto('https://simulator-standalone-v1.wfgg.pages.dev/simulator/?native_gif_v17b_final_e2e=1',{waitUntil:'networkidle',timeout:60000});
+              await page.goto('https://simulator-standalone-v1.wfgg.pages.dev/simulator/?native_gif_v17b_final_e2e=2',{waitUntil:'domcontentloaded',timeout:60000});
               await page.waitForFunction(()=>document.querySelectorAll('#gameHeroGrid .game-hero-card').length===31,{timeout:30000});
-              // Expose the already-rendered Heroes panel for this subsystem recette; navigation itself is tested elsewhere.
               await page.evaluate(()=>{
                 document.querySelectorAll('.step-panel').forEach(p=>p.classList.add('hidden'));
                 document.querySelector('#step-heroes')?.classList.remove('hidden');
               });
               await page.locator('#gameHeroGrid .game-hero-card').first().waitFor({state:'visible',timeout:10000});
               await page.waitForFunction(()=>window.WfGgHeroMotionOwner==='native-v17b',{timeout:10000});
-              const manifest=await page.evaluate(()=>fetch('data/hero-native-animations.v17.json?recette=3').then(r=>r.json()));
+              const manifest=await page.evaluate(()=>fetch('data/hero-native-animations.v17.json?recette=4').then(r=>r.json()));
               assert.equal(manifest.animatedCount,24);
               assert.equal(manifest.syntheticMotion,false);
               await page.waitForFunction(()=>document.documentElement.dataset.wfggV17bPhase==='active',{timeout:15000});
