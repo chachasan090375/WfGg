@@ -21,26 +21,5 @@
       "binding": "AVATARS",
       "bucket_name": "wfgg-avatars"
     }
-  ],
-  "containers": [
-    {
-      "class_name": "LastWarUserContainer",
-      "image": "lastwar-broker/Dockerfile",
-      "max_instances": 5
-    }
-  ],
-  "durable_objects": {
-    "bindings": [
-      {
-        "name": "LASTWAR_USER",
-        "class_name": "LastWarUserContainer"
-      }
-    ]
-  },
-  "migrations": [
-    {
-      "tag": "lastwar-staging-worker-v1",
-      "new_sqlite_classes": ["LastWarUserContainer"]
-    }
   ]
 }
