@@ -1,0 +1,250 @@
+name: Simulator Kimberly master portrait V19
+
+on:
+  push:
+    branches: [simulator-standalone-v1]
+    paths:
+      - '.github/workflows/simulator-kimberly-master-v19.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: simulator-standalone-v1
+          fetch-depth: 0
+
+      - name: Install image tooling
+        run: python3 -m pip install --quiet pillow requests
+
+      - name: Rebuild missing Elsa and Kane portraits
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          from io import BytesIO
+          import requests
+          from PIL import Image, ImageStat
+
+          candidates={
+            'elsa':[
+              'https://www.allclash.com/wp-content/uploads/2024/01/last-war-survival-best-build-for-elsa.jpg',
+              'https://theriagames.com/wp-content/uploads/2024/12/Elsa.png',
+              'https://theriagames.com/wp-content/uploads/2024/12/Elsa-1024x1024.png',
+            ],
+            'kane':[
+              'https://theriagames.com/wp-content/uploads/2024/12/Kane-1024x1024.png',
+              'https://theriagames.com/wp-content/uploads/2024/12/Kane.png',
+            ],
+          }
+          headers={'User-Agent':'Mozilla/5.0 (Linux; Android 16) AppleWebKit/537.36 Chrome/140 Safari/537.36'}
+          for hero,urls in candidates.items():
+            chosen=None
+            for url in urls:
+              try:
+                r=requests.get(url,headers=headers,timeout=25)
+                r.raise_for_status()
+                im=Image.open(BytesIO(r.content)).convert('RGB')
+                if im.width < 300 or im.height < 300:
+                  continue
+                probe=im.resize((64,64))
+                extrema=ImageStat.Stat(probe).extrema
+                spread=sum(b-a for a,b in extrema)
+                if spread < 80:
+                  continue
+                chosen=(im,url)
+                break
+              except Exception as e:
+                print(hero,url,'FAILED',e)
+            if not chosen:
+              raise SystemExit(f'No usable source for {hero}')
+            im,url=chosen
+            # Keep native composition; only cap very large files. Runtime framing owns the crop.
+            if max(im.size)>1024:
+              scale=1024/max(im.size)
+              im=im.resize((round(im.width*scale),round(im.height*scale)),Image.Resampling.LANCZOS)
+            for root in [Path('simulator/assets/heroes'),Path('frontend/simulator/assets/heroes')]:
+              root.mkdir(parents=True,exist_ok=True)
+              im.save(root/f'{hero}.webp','WEBP',quality=92,method=6)
+            print(hero,'SOURCE',url,'SIZE',im.size)
+          PY
+
+      - name: Apply Kimberly master framing to all 31 heroes
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          profiles={
+            'williams':('0%','4%',.84), 'murphy':('0%','4%',.88), 'kimberly':('0%','1%',.96), 'marshall':('0%','-7%',.90),
+            'stetmann':('0%','-7%',.89), 'dva':('0%','2%',.89), 'carlie':('0%','1%',.91), 'lucius':('0%','-8%',.87),
+            'schuyler':('0%','-9%',.87), 'morrison':('0%','4%',.82), 'tesla':('0%','3%',.89), 'swift':('0%','-3%',.87),
+            'fiona':('0%','2%',.89), 'adam':('0%','5%',.83), 'mcgregor':('0%','3%',.89), 'monica':('0%','1%',.93),
+            'mason':('0%','5%',.79), 'violet':('0%','4%',.83), 'scarlett':('0%','3%',.87), 'richard':('0%','1%',.89),
+            'farhad':('0%','-8%',.88), 'sarah':('0%','-6%',.89), 'maxwell':('0%','-8%',.87), 'cage':('0%','-6%',.87),
+            'venom':('0%','2%',.89), 'braz':('0%','-7%',.89), 'elsa':('0%','1%',.90), 'gump':('0%','2%',.89),
+            'loki':('0%','5%',.72), 'ambolt':('0%','4%',.80), 'kane':('0%','1%',.90),
+          }
+          assert len(profiles)==31
+          rows=[]
+          items=list(profiles.items())
+          for i,(hero,(x,y,z)) in enumerate(items):
+            if i%4==0: rows.append('    ')
+            rows[-1]+=f"{hero}:{{x:'{x}',y:'{y}',zoom:{z:.2f}}}"
+            if i<len(items)-1: rows[-1]+=', '
+          profile_block='const MASTER={id:\'kimberly\',version:\'v19\',topGapPct:5,composition:\'head-shoulders-half-body\'};\n  const PROFILE={\n'+'\n'.join(rows)+'\n  };'
+
+          for p in [Path('simulator/hero-portrait-normalize-v18.js'),Path('frontend/simulator/hero-portrait-normalize-v18.js')]:
+            s=p.read_text()
+            s=re.sub(r"const PROFILE=\{.*?\n  \};",profile_block,s,count=1,flags=re.S)
+            s=s.replace("document.documentElement.dataset.wfggPortraitNormalize='v18c';","document.documentElement.dataset.wfggPortraitNormalize='v19-kimberly-master';")
+            s=s.replace("card.dataset.wfggV18Portrait='1';","card.dataset.wfggV18Portrait='1';\n    card.dataset.wfggMasterFrame='kimberly-v19';\n    card.dataset.wfggMasterTop=String(MASTER.topGapPct);")
+            s=re.sub(r"window\.WfGgHeroPortraitV18=\{version:'[^']+'", "window.WfGgHeroPortraitV18={version:'19.0.0-kimberly-master'", s)
+            p.write_text(s)
+
+          # V17C may animate source files, but V19 must remain the sole owner of x/y/zoom.
+          for p in [Path('simulator/hero-native-animation-v17c.js'),Path('frontend/simulator/hero-native-animation-v17c.js')]:
+            s=p.read_text()
+            pat=r"function applyCrop\(card\)\{.*?\n  \}"
+            repl="""function applyCrop(card){
+    const p=window.WfGgHeroPortraitV18?.profileFor?.(card.dataset.heroId);
+    if(p){
+      card.style.setProperty('--wfgg-v15-x',p.x);
+      card.style.setProperty('--wfgg-v15-y',p.y);
+      card.style.setProperty('--wfgg-v15-zoom',String(p.zoom));
+      return;
+    }
+    const c=CROP[card.dataset.heroId];
+    if(!c)return;
+    card.style.setProperty('--wfgg-v15-x',c.x);
+    card.style.setProperty('--wfgg-v15-y',c.y);
+    card.style.setProperty('--wfgg-v15-zoom',String(c.zoom));
+  }"""
+            s,n=re.subn(pat,repl,s,count=1,flags=re.S)
+            if n!=1: raise SystemExit(f'applyCrop patch failed {p}')
+            s=s.replace("version:'17.2.0-nonblocking'","version:'17.3.0-master-linked'")
+            p.write_text(s)
+
+          css="""/* V19 — Kimberly master composition.  Kimberly is the visual reference for all 31 roster portraits. */
+.game-hero-card .hero-card-portrait{background-position:center top!important}
+.game-hero-card .wfgg-v15-motion-layer{
+  transform-origin:50% 0%!important;
+  left:0!important;right:0!important;top:0!important;bottom:0!important;
+}
+.game-hero-card .wfgg-v15-motion-layer>img{
+  object-position:50% 0%!important;
+  transform-origin:50% 0%!important;
+}
+.game-hero-card[data-wfgg-master-frame="kimberly-v19"] .wfgg-v15-motion-layer,
+.game-hero-card[data-wfgg-master-frame="kimberly-v19"] .wfgg-v15-motion-layer>img{
+  transition:none!important;
+}
+"""
+          for p in [Path('simulator/hero-portrait-master-v19.css'),Path('frontend/simulator/hero-portrait-master-v19.css')]:
+            p.write_text(css)
+
+          for p in [Path('simulator/index.html'),Path('frontend/simulator/index.html')]:
+            s=p.read_text()
+            if 'hero-portrait-master-v19.css' not in s:
+              s=s.replace('  <link rel="stylesheet" href="hero-native-animation-v17b.css?v=017b-staged-native-gifs" />', '  <link rel="stylesheet" href="hero-native-animation-v17b.css?v=017b-staged-native-gifs" />\n  <link rel="stylesheet" href="hero-portrait-master-v19.css?v=019-kimberly-master" />')
+            s=s.replace('hero-native-animation-v17c.js?v=017c-navigation-hotfix','hero-native-animation-v17c.js?v=017d-master-linked')
+            s=re.sub(r'hero-portrait-normalize-v18\.js\?v=[^\"]+', 'hero-portrait-normalize-v18.js?v=019-kimberly-master', s)
+            p.write_text(s)
+          PY
+
+          node --check simulator/hero-portrait-normalize-v18.js
+          node --check simulator/hero-native-animation-v17c.js
+          grep -Fq "19.0.0-kimberly-master" simulator/hero-portrait-normalize-v18.js
+          grep -Fq 'hero-portrait-master-v19.css?v=019-kimberly-master' simulator/index.html
+
+      - name: Validate replacement portrait assets
+        run: |
+          python3 - <<'PY'
+          from PIL import Image,ImageStat
+          for root in ['simulator','frontend/simulator']:
+            for hero in ['elsa','kane']:
+              p=f'{root}/assets/heroes/{hero}.webp'
+              im=Image.open(p).convert('RGB')
+              stat=ImageStat.Stat(im.resize((64,64)))
+              spread=sum(b-a for a,b in stat.extrema)
+              assert im.width>=300 and im.height>=300,(p,im.size)
+              assert spread>=80,(p,spread)
+              print(p,im.size,'spread',spread)
+          PY
+
+      - name: Commit V19
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add simulator frontend/simulator
+          git diff --cached --check
+          git commit -m 'simulator: apply Kimberly master framing to 31 hero cards'
+          git push origin HEAD:simulator-standalone-v1
+
+      - name: Wait for Cloudflare V19
+        run: |
+          ROOT='https://simulator-standalone-v1.wfgg.pages.dev/simulator/'
+          ok=0
+          for i in $(seq 1 90); do
+            curl -fsSL "$ROOT?master_v19=$i" -o /tmp/index.html || true
+            if grep -Fq 'hero-portrait-master-v19.css?v=019-kimberly-master' /tmp/index.html && grep -Fq 'hero-portrait-normalize-v18.js?v=019-kimberly-master' /tmp/index.html; then ok=1; break; fi
+            sleep 5
+          done
+          test "$ok" = 1
+          curl -fsSL "$ROOT/hero-portrait-normalize-v18.js?master_v19=1" | grep -Fq "19.0.0-kimberly-master"
+          curl -fsSI "$ROOT/assets/heroes/elsa.webp?master_v19=1" | head -1 | grep -Eq '200|304'
+          curl -fsSI "$ROOT/assets/heroes/kane.webp?master_v19=1" | head -1 | grep -Eq '200|304'
+
+      - name: Install Playwright
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: Android V19 master framing recipe
+        run: |
+          node <<'JS'
+          const assert=require('node:assert/strict');
+          const {chromium}=require('playwright');
+          (async()=>{
+            const browser=await chromium.launch({headless:true});
+            try{
+              const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,deviceScaleFactor:2,locale:'fr-FR'});
+              const page=await context.newPage();
+              const errors=[]; page.on('pageerror',e=>errors.push(String(e)));
+              await page.goto('https://simulator-standalone-v1.wfgg.pages.dev/simulator/?master_v19_final=1',{waitUntil:'domcontentloaded',timeout:60000});
+              await page.waitForFunction(()=>window.WfGgHeroPortraitV18?.version==='19.0.0-kimberly-master',{timeout:20000});
+              const heroNav=page.locator('#stepNav [data-step="1"]');
+              if(await heroNav.count())await heroNav.click();else await page.locator('#nextBtn').click();
+              await page.waitForFunction(()=>document.querySelectorAll('#gameHeroGrid .game-hero-card').length===31,{timeout:30000});
+              await page.waitForFunction(()=>document.documentElement.dataset.wfggPortraitNormalize==='v19-kimberly-master',{timeout:10000});
+              assert.equal(await page.locator('#gameHeroGrid .game-hero-card[data-wfgg-master-frame="kimberly-v19"]').count(),31);
+              const kim=await page.locator('[data-hero-id="kimberly"]').evaluate(c=>({crop:c.dataset.wfggV18Crop,master:c.dataset.wfggMasterFrame,origin:getComputedStyle(c.querySelector('.wfgg-v15-motion-layer')).transformOrigin}));
+              assert.equal(kim.crop,'0%,1%,0.96');
+              assert.equal(kim.master,'kimberly-v19');
+              assert.match(kim.origin,/0px/);
+              for(const id of ['elsa','kane','loki']){
+                const card=page.locator(`[data-hero-id="${id}"]`);
+                await card.scrollIntoViewIfNeeded();
+                const img=card.locator('.hero-card-portrait img');
+                const h=await img.elementHandle();
+                await page.waitForFunction(el=>el.complete&&el.naturalWidth>=300&&el.naturalHeight>=300,h,{timeout:10000});
+              }
+              await page.locator('#gameHeroGrid .game-hero-card').first().scrollIntoViewIfNeeded();
+              await page.waitForFunction(()=>document.documentElement.dataset.wfggV17cPhase==='active',{timeout:15000});
+              const active=page.locator('.game-hero-card.wfgg-native-gif-active-v17c').first();
+              if(await active.count()){
+                const state=await active.evaluate(c=>({crop:c.dataset.wfggV18Crop,master:c.dataset.wfggMasterFrame,src:c.querySelector('.hero-card-portrait img')?.getAttribute('src')||''}));
+                assert.ok(state.crop); assert.equal(state.master,'kimberly-v19'); assert.match(state.src,/animated\/.+\.gif$/);
+              }
+              const metric=await page.evaluate(()=>({w:innerWidth,sw:(document.scrollingElement||document.documentElement).scrollWidth}));
+              assert.ok(metric.sw<=metric.w+2,JSON.stringify(metric));
+              assert.equal(errors.length,0,errors.join(' | '));
+              console.log(JSON.stringify({ok:true,kim,metric},null,2));
+              await context.close();
+            } finally { await browser.close(); }
+          })().catch(e=>{console.error(e);process.exit(1)});
+          JS
