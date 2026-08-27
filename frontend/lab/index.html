@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="theme-color" content="#100d16">
+  <title>WfGg — Module laboratoire</title>
+  <link rel="stylesheet" href="/lab/lab.css">
+</head>
+<body>
+  <main class="shell">
+    <header class="hero card">
+      <p class="eyebrow">BRANCHE DE TEST UNIQUEMENT</p>
+      <h1>Module laboratoire</h1>
+      <p class="muted">Ce module est séparé du portail. Il vérifie qu’une session WfGg existante peut être réutilisée automatiquement, sans seconde connexion.</p>
+      <div class="actions">
+        <a class="button secondary" href="/">← Retour au portail</a>
+        <button id="refreshButton" class="button primary" type="button">Actualiser</button>
+      </div>
+    </header>
+
+    <section class="card">
+      <h2>Connexion au socle WfGg</h2>
+      <div id="status" class="status pending">Vérification de la session…</div>
+    </section>
+
+    <section id="identityCard" class="card hidden">
+      <h2>Contexte reçu automatiquement</h2>
+      <div class="grid">
+        <div class="field"><span>Utilisateur</span><strong id="userName">—</strong></div>
+        <div class="field"><span>ID utilisateur</span><strong id="userId">—</strong></div>
+        <div class="field"><span>Alliance</span><strong id="allianceName">—</strong></div>
+        <div class="field"><span>Serveur</span><strong id="server">—</strong></div>
+        <div class="field"><span>Rang</span><strong id="rank">—</strong></div>
+        <div class="field"><span>Fonction officier</span><strong id="officer">—</strong></div>
+        <div class="field"><span>Rôle système</span><strong id="systemRole">—</strong></div>
+        <div class="field"><span>Langue</span><strong id="language">—</strong></div>
+      </div>
+    </section>
+
+    <section id="permissionCard" class="card hidden">
+      <h2>Permissions disponibles pour ce module</h2>
+      <div id="permissions" class="chips"></div>
+    </section>
+
+    <section id="rosterCard" class="card hidden">
+      <h2>Accès complémentaire sur demande</h2>
+      <p class="muted">Le module ne charge pas le roster automatiquement. Ce bouton vérifie seulement qu’il peut demander le contexte Train si sa fonction métier en a besoin.</p>
+      <button id="rosterButton" class="button secondary" type="button">Tester l’accès au roster</button>
+      <div id="rosterResult" class="status neutral hidden"></div>
+    </section>
+
+    <section class="card note">
+      <h2>Principe validé</h2>
+      <p>Le portail conserve la session. Le module récupère uniquement le contexte nécessaire via l’API. Aucun code d’authentification, secret ou jeton de session n’est affiché.</p>
+    </section>
+  </main>
+  <script src="/lab/lab.js"></script>
+</body>
+</html>
