@@ -59,6 +59,14 @@
     return true;
   }
 
+  function clearRestPixels(stage){
+    if(!stage)return;
+    const canvas=stage.querySelector('.wfgg-v223-rest');
+    if(!canvas)return;
+    const ctx=canvas.getContext('2d',{alpha:true,desynchronized:false});
+    if(ctx)ctx.clearRect(0,0,canvas.width,canvas.height);
+  }
+
   function makeStage(c){
     if(!c)return null;
     neutral(c);
@@ -80,7 +88,7 @@
       host.appendChild(stage);
       const redraw=()=>{
         const s=stageState.get(stage);
-        if(s?.bitmap)paintContained(canvas,s.bitmap);
+        if(s?.bitmap&&!stage.classList.contains('wfgg-v223-frame2'))paintContained(canvas,s.bitmap);
       };
       if('ResizeObserver' in window){
         const ro=new ResizeObserver(redraw); ro.observe(stage); stageState.set(stage,{ro,bitmap:null});
@@ -119,6 +127,7 @@
     const id=c.dataset.heroId;
     const stage=makeStage(c);
     if(!stage)return null;
+    stage.classList.remove('wfgg-v223-frame2');
     const canvas=stage.querySelector('.wfgg-v223-rest');
     const fallback=stage.querySelector('.wfgg-v223-rest-fallback');
     const asset=await loadAsset(id,a,token);
@@ -140,6 +149,7 @@
   function clearAnim(c){
     if(!c)return;
     c.classList.remove('wfgg-v223-native-active');
+    c.querySelectorAll('.wfgg-v223-stage').forEach(stage=>stage.classList.remove('wfgg-v223-frame2'));
     c.querySelectorAll('.wfgg-v223-stage .wfgg-v223-anim').forEach(n=>n.remove());
   }
 
@@ -176,20 +186,38 @@
     const ok=await loaded;
     if(token!==generation||!ok||!anim.naturalWidth||!anim.isConnected){anim.remove();return false}
 
+    const duration=Math.max(600,Number(a.durationMs)||4000);
+    const frames=Math.max(2,Number(a.frames)||48);
+    const firstFrameMs=Math.max(40,Math.min(160,duration/frames));
+    const startedAt=performance.now();
+
+    stage.classList.remove('wfgg-v223-frame2');
     c.classList.add('wfgg-v223-native-active');
     active.push(c);
-    const duration=Math.max(600,Number(a.durationMs)||4000);
-    const captureDelay=Math.max(0,duration-END_CAPTURE_LEAD_MS);
-    await wait(captureDelay);
+
+    /* Frame 1 is the rest image. From frame 2 onward the fixed surface is physically cleared. */
+    await wait(firstFrameMs);
+    if(token!==generation||!anim.isConnected){clearAnim(c);return false}
+    stage.classList.add('wfgg-v223-frame2');
+    clearRestPixels(stage);
+    document.documentElement.dataset.wfggV223Handoff='frame2';
+
+    const captureAt=Math.max(0,duration-END_CAPTURE_LEAD_MS);
+    const elapsedToFrame2=performance.now()-startedAt;
+    await wait(Math.max(0,captureAt-elapsedToFrame2));
     if(token!==generation||!anim.isConnected){clearAnim(c);return false}
 
     const canvas=stage.querySelector('.wfgg-v223-rest');
+    stage.classList.remove('wfgg-v223-rest-fallback-active');
     paintContained(canvas,anim);
-    await wait(Math.max(0,duration-captureDelay));
+
+    const elapsedToCapture=performance.now()-startedAt;
+    await wait(Math.max(0,duration-elapsedToCapture));
     if(token!==generation){clearAnim(c);return false}
 
-    c.classList.remove('wfgg-v223-native-active');
     anim.remove();
+    stage.classList.remove('wfgg-v223-frame2');
+    c.classList.remove('wfgg-v223-native-active');
     active=active.filter(x=>x!==c);
     return true;
   }
@@ -248,9 +276,9 @@
   async function init(){
     try{const r=await fetch(MANIFEST,{cache:'no-cache'});if(r.ok)data=await r.json()}catch(_){data={animated:{}}}
     window.WfGgHeroMotionOwner='portrait-owner-v223';
-    window.WfGgHeroPortraitOwnerV223={version:'22.3.1-single-source-frame',manifest:data};
-    window.WfGgHeroPortraitV18={version:'223.1-compat',profileFor:()=>({x:'0%',y:'0%',zoom:1}),apply:schedule};
-    document.documentElement.dataset.wfggPortraitOwner='v223-single-source';
+    window.WfGgHeroPortraitOwnerV223={version:'22.3.2-frame2-handoff',manifest:data};
+    window.WfGgHeroPortraitV18={version:'223.2-compat',profileFor:()=>({x:'0%',y:'0%',zoom:1}),apply:schedule};
+    document.documentElement.dataset.wfggPortraitOwner='v223-frame2-handoff';
     const s=step(); if(s)new MutationObserver(sync).observe(s,{attributes:true,attributeFilter:['class']});
     const g=grid(); if(g)new MutationObserver(schedule).observe(g,{childList:true,subtree:true});
     document.addEventListener('visibilitychange',sync,{passive:true});
