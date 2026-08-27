@@ -30,7 +30,7 @@
   const animated=id=>manifest.animated?.[id]||null;
   const stillFor=id=>animated(id)?.still||BASE(id);
   const isPlaying=card=>card.classList.contains('wfgg-native-gif-active-v17c');
-  const locale=()=>document.documentElement.lang||'fr';
+  const locale=()=>String(document.documentElement.lang||'fr').toLowerCase().split('-')[0];
 
   function localize(card){
     const id=card.dataset.heroId;
@@ -134,7 +134,7 @@
       scrollTimer=setTimeout(applyAll,120);
     },{passive:true});
 
-    window.WfGgHeroPortraitV18={version:'18.1.0',profileFor:id=>PROFILE[id]||null,apply:applyAll};
+    window.WfGgHeroPortraitV18={version:'18.2.0',profileFor:id=>PROFILE[id]||null,apply:applyAll};
     schedule();
   }
 
