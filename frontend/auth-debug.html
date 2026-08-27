@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="robots" content="noindex,nofollow">
+  <title>WfGg — Diagnostic authentification</title>
+  <link rel="stylesheet" href="/auth-debug.css">
+</head>
+<body>
+  <main class="shell">
+    <header class="hero">
+      <div class="eyebrow">BRANCHE DE TEST UNIQUEMENT</div>
+      <h1>Diagnostic authentification</h1>
+      <p>Cette page montre les données réutilisables par les futurs modules. Le jeton de session, les codes d’authentification et les secrets ne sont jamais affichés.</p>
+      <div class="actions">
+        <button id="refreshButton" type="button">Actualiser</button>
+        <a href="/">Retour au portail</a>
+      </div>
+    </header>
+
+    <section class="card">
+      <h2>État de la session</h2>
+      <div id="status" class="status">Lecture…</div>
+    </section>
+
+    <section class="card">
+      <h2>Résumé exploitable par un module</h2>
+      <div id="summary" class="grid"></div>
+    </section>
+
+    <section class="card">
+      <h2>Contexte utilisateur <code>/api/me</code></h2>
+      <pre id="meOutput">—</pre>
+    </section>
+
+    <section class="card">
+      <h2>Contexte Train <code>/api/train/context</code></h2>
+      <p class="hint">Le contenu du roster n’est pas affiché ici : uniquement son nombre d’entrées et les noms de champs disponibles.</p>
+      <pre id="trainOutput">—</pre>
+    </section>
+
+    <section class="card warning">
+      <h2>À retenir pour les futurs modules</h2>
+      <p>Le portail peut fournir l’identité, l’alliance, le serveur, le rang, les fonctions d’officier et les permissions. Chaque module devra recevoir uniquement les données dont il a besoin.</p>
+    </section>
+  </main>
+  <script src="/config.js" defer></script>
+  <script src="/auth-debug.js" defer></script>
+</body>
+</html>
