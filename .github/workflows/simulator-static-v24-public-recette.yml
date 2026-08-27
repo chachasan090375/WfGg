@@ -1,0 +1,162 @@
+name: Simulator static premium V24 public recette
+
+on:
+  push:
+    branches: [simulator-standalone-v1]
+    paths:
+      - '.github/workflows/simulator-static-v24-public-recette.yml'
+  workflow_dispatch:
+
+jobs:
+  recette:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Wait for public V24 static deployment
+        shell: bash
+        run: |
+          set -euo pipefail
+          URL='https://simulator-standalone-v1.wfgg.pages.dev/simulator/'
+          for i in $(seq 1 60); do
+            CB="${GITHUB_SHA}-${i}-$(date +%s)"
+            HTML="$(curl -fsSL --retry 2 --max-time 20 "${URL}?recette=${CB}" || true)"
+            JS="$(curl -fsSL --retry 2 --max-time 20 "${URL}hero-static-premium-v24.js?recette=${CB}" || true)"
+            if grep -q 'hero-static-premium-v24.css?v=024-static-premium' <<<"$HTML" \
+              && grep -q 'hero-static-premium-v24.js?v=024-static-premium' <<<"$HTML" \
+              && grep -q '24.0-static-premium' <<<"$JS"; then
+              echo 'PUBLIC_STATIC_V24=READY'
+              exit 0
+            fi
+            sleep 5
+          done
+          echo 'Public V24 did not become available' >&2
+          exit 1
+
+      - name: Install Playwright
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm i playwright@1.55.0 >/dev/null 2>&1
+          npx playwright install --with-deps chromium
+
+      - name: Audit real public static rendering
+        env:
+          PREVIEW_URL: https://simulator-standalone-v1.wfgg.pages.dev/simulator/
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p static-v24-recette
+          cat > static-v24-recette/audit.mjs <<'EOF'
+          import { chromium } from 'playwright';
+          import fs from 'node:fs';
+
+          const browser=await chromium.launch({headless:true});
+          const page=await browser.newPage({viewport:{width:430,height:1200},deviceScaleFactor:2});
+          const requests=[];
+          page.on('request',r=>requests.push(r.url()));
+          page.on('pageerror',e=>console.error('PAGEERROR',e.message));
+
+          const url=`${process.env.PREVIEW_URL}?static_v24_recette=${process.env.GITHUB_SHA}`;
+          const res=await page.goto(url,{waitUntil:'domcontentloaded',timeout:90000});
+          if(!res?.ok()) throw new Error(`HTTP ${res?.status()}`);
+          await page.waitForTimeout(3500);
+
+          const nav=page.locator('#stepNav button');
+          const texts=await nav.allTextContents();
+          let idx=texts.findIndex(t=>/Héros|Heroes|Eroi|Héroes/i.test(t));
+          if(idx<0) idx=1;
+          await nav.nth(idx).click();
+          await page.locator('#gameHeroGrid .game-hero-card[data-hero-id]').first().waitFor({state:'visible',timeout:30000});
+          await page.waitForTimeout(1800);
+
+          const initial=await page.evaluate(()=>{
+            const cards=[...document.querySelectorAll('#gameHeroGrid .game-hero-card[data-hero-id]')];
+            return {
+              owner:window.WfGgHeroStaticV24?.version||null,
+              animation:document.documentElement.dataset.wfggHeroAnimation||null,
+              ownerDataset:document.documentElement.dataset.wfggHeroPortraitOwner||null,
+              cards:cards.map(c=>{
+                const id=c.dataset.heroId;
+                const imgs=[...c.querySelectorAll('.wfgg-static-v24-img')];
+                const img=imgs[0];
+                const cs=img?getComputedStyle(img):null;
+                const stage=c.querySelector('.wfgg-static-v24-stage');
+                const ss=stage?getComputedStyle(stage):null;
+                return {
+                  id,
+                  owned:c.classList.contains('wfgg-static-v24-owned'),
+                  count:imgs.length,
+                  src:img?.currentSrc||img?.src||'',
+                  complete:!!img?.complete,
+                  naturalWidth:img?.naturalWidth||0,
+                  naturalHeight:img?.naturalHeight||0,
+                  imgAnimation:cs?.animationName||'',
+                  imgTransition:cs?.transitionDuration||'',
+                  stageTransform:ss?.transform||'',
+                  frame:c.dataset.wfggStaticFrame||''
+                };
+              }),
+              oldStages:document.querySelectorAll('.wfgg-v223-stage,.wfgg-v22-stage,.wfgg-v223-anim').length,
+              oldActive:document.querySelectorAll('.wfgg-v223-native-active,.wfgg-v22-native-active,.wfgg-native-gif-active-v17b,.wfgg-native-gif-active-v17c').length
+            };
+          });
+
+          if(initial.owner!=='24.0-static-premium') throw new Error(`wrong owner ${initial.owner}`);
+          if(initial.animation!=='off') throw new Error(`animation flag ${initial.animation}`);
+          if(initial.ownerDataset!=='static-v24') throw new Error(`owner dataset ${initial.ownerDataset}`);
+          if(initial.cards.length!==31) throw new Error(`expected 31 cards, got ${initial.cards.length}`);
+          if(initial.oldStages!==0 || initial.oldActive!==0) throw new Error(`old animation DOM remains stages=${initial.oldStages} active=${initial.oldActive}`);
+          for(const c of initial.cards){
+            if(!c.owned || c.count!==1) throw new Error(`static ownership failure ${c.id}`);
+            if(!c.src.includes(`/cutout-v21/${c.id}.webp`)) throw new Error(`wrong static source ${c.id}: ${c.src}`);
+            if(!c.complete || c.naturalWidth<300 || c.naturalHeight<300) throw new Error(`low/missing resolution ${c.id}: ${c.naturalWidth}x${c.naturalHeight}`);
+            if(c.imgAnimation!=='none') throw new Error(`animation still active ${c.id}: ${c.imgAnimation}`);
+          }
+
+          const watched=['kimberly','williams','morrison'];
+          const before={};
+          for(const id of watched){
+            before[id]=await page.locator(`.game-hero-card[data-hero-id="${id}"] .wfgg-static-v24-stage`).evaluate(el=>getComputedStyle(el).transform);
+          }
+          await page.waitForTimeout(6500);
+          for(const id of watched){
+            const after=await page.locator(`.game-hero-card[data-hero-id="${id}"] .wfgg-static-v24-stage`).evaluate(el=>getComputedStyle(el).transform);
+            if(after!==before[id]) throw new Error(`portrait moved ${id}: ${before[id]} -> ${after}`);
+          }
+
+          const legacyRequests=requests.filter(u=>/\/assets\/heroes\/(animated(?:-still|-cutout-v22|-cutout-v223)?\/)|hero-native-animation|hero-portrait-owner-v22|hero-portrait-owner-v223|\.gif(?:\?|$)/i.test(u));
+          if(legacyRequests.length) throw new Error(`legacy animation request(s): ${legacyRequests.join(', ')}`);
+
+          await page.screenshot({path:'static-v24-recette/grid-static-v24.png',fullPage:true});
+
+          const williams=page.locator('.game-hero-card[data-hero-id="williams"]');
+          await williams.scrollIntoViewIfNeeded();
+          await williams.click();
+          await page.waitForTimeout(1200);
+          const sheet=page.locator('#heroGameSheet');
+          await sheet.waitFor({state:'visible',timeout:10000});
+          const sheetSources=await sheet.locator('.lw4-unit-portrait,.lw4-skill-hero img,.lw4-tier-portrait img').evaluateAll(imgs=>imgs.filter(x=>x instanceof HTMLImageElement).map(x=>({src:x.currentSrc||x.src,naturalWidth:x.naturalWidth,naturalHeight:x.naturalHeight})));
+          if(!sheetSources.length) throw new Error('no Williams sheet portrait found');
+          for(const p of sheetSources){
+            if(!p.src.includes('/cutout-v21/williams.webp')) throw new Error(`sheet still uses low-res source: ${p.src}`);
+            if(p.naturalWidth<300 || p.naturalHeight<300) throw new Error(`sheet portrait too small: ${p.naturalWidth}x${p.naturalHeight}`);
+          }
+          await page.screenshot({path:'static-v24-recette/williams-sheet-static-v24.png',fullPage:true});
+
+          fs.writeFileSync('static-v24-recette/report.json',JSON.stringify({url,initial,watchedTransforms:before,legacyRequests,sheetSources,requestCount:requests.length},null,2));
+          await browser.close();
+          EOF
+          node static-v24-recette/audit.mjs
+
+      - name: Upload V24 public recette
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: simulator-static-v24-public-recette
+          path: static-v24-recette/
+          if-no-files-found: error
+          retention-days: 7
