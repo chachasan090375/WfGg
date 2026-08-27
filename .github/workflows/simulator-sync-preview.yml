@@ -1,4 +1,4 @@
-# Static portrait preview sync V24
+# Static portrait preview sync V24.1
 name: Sync simulator preview
 
 on:
@@ -41,10 +41,12 @@ jobs:
           echo -n 'CANONICAL_STATIC_OWNER='; sha256sum simulator/hero-static-premium-v24.js | cut -d' ' -f1
           echo -n 'PUBLISHED_STATIC_OWNER='; sha256sum frontend/simulator/hero-static-premium-v24.js | cut -d' ' -f1
 
-          grep -q '024-static-premium' frontend/simulator/index.html
-          grep -q '24.0-static-premium' frontend/simulator/hero-static-premium-v24.js
+          grep -q '0241-static-premium-lean' frontend/simulator/index.html
+          grep -q '24.1-static-premium-lean' frontend/simulator/hero-static-premium-v24.js
           grep -q 'wfgg-static-v24-owned' frontend/simulator/hero-static-premium-v24.js
           grep -q "wfggHeroAnimation='off'" frontend/simulator/hero-static-premium-v24.js
+          ! grep -q 'hero-roster-v15.js' frontend/simulator/index.html
+          test ! -f frontend/simulator/hero-roster-v15.js
 
           # Animation engines/assets must not return to the published tree.
           ! grep -q 'hero-portrait-owner-v223' frontend/simulator/index.html
