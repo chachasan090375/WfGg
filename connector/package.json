@@ -1,0 +1,16 @@
+{
+  "name": "wfgg-lastwar-local-connector",
+  "version": "1.0.0-readonly",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "wfgg-lastwar": "src/cli.mjs"
+  },
+  "scripts": {
+    "check": "node --check src/cli.mjs",
+    "doctor": "node src/cli.mjs doctor"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
