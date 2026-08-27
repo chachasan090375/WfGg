@@ -26,7 +26,7 @@ jobs:
           PREVIEW_URL: https://simulator-standalone-v1.wfgg.pages.dev/simulator/
         run: |
           mkdir -p visual-audit
-          cat > /tmp/audit.mjs <<'EOF'
+          cat > audit.mjs <<'EOF'
           import { chromium } from 'playwright';
           import fs from 'node:fs';
 
@@ -103,7 +103,7 @@ jobs:
             if(browser) await browser.close();
           }
           EOF
-          node /tmp/audit.mjs
+          node audit.mjs
       - name: Upload visual audit
         if: always()
         uses: actions/upload-artifact@v4
