@@ -13,7 +13,7 @@ permissions:
 jobs:
   build-master-assets:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
         with:
@@ -32,10 +32,12 @@ jobs:
           from PIL import Image, ImageOps, ImageFilter, ImageEnhance
 
           HEROES=['williams','murphy','kimberly','marshall','stetmann','dva','carlie','lucius','schuyler','morrison','tesla','swift','fiona','adam','mcgregor','monica','mason','violet','scarlett','richard','farhad','sarah','maxwell','cage','venom','braz','elsa','gump','loki','ambolt','kane']
-          SIZE=512
+          SIZE=400
           ROOT=Path('simulator')
           OUT=ROOT/'assets/heroes/master-v20'
           OUTGIF=ROOT/'assets/heroes/animated-master-v20'
+          if OUT.exists(): shutil.rmtree(OUT)
+          if OUTGIF.exists(): shutil.rmtree(OUTGIF)
           OUT.mkdir(parents=True,exist_ok=True)
           OUTGIF.mkdir(parents=True,exist_ok=True)
 
@@ -43,23 +45,24 @@ jobs:
           byid={h['id']:h for h in catalog['heroes']}
           anim_path=ROOT/'data/hero-native-animations.v17.json'
           manifest=json.loads(anim_path.read_text())
+          animated_ids=set(manifest.get('animated',{}))
           headers={'User-Agent':'Mozilla/5.0 (Linux; Android 16) AppleWebKit/537.36 Chrome/140 Safari/537.36'}
 
-          # Kimberly is the composition reference: preserve all source pixels first,
-          # then put every hero on the same square canvas. No CSS crop is allowed afterwards.
           special={
             'elsa':['https://theriagames.com/wp-content/uploads/2024/12/Elsa.png','https://www.allclash.com/wp-content/uploads/2024/01/last-war-survival-best-build-for-elsa.jpg'],
             'kane':['https://theriagames.com/wp-content/uploads/2024/12/Kane-1024x1024.png','https://theriagames.com/wp-content/uploads/2024/12/Kane.png']
           }
 
           def remote_image(url):
-            r=requests.get(url,headers=headers,timeout=25)
+            r=requests.get(url,headers=headers,timeout=20)
             r.raise_for_status()
             return Image.open(BytesIO(r.content)).convert('RGB')
 
           def choose_static(hero):
-            # Prefer the catalog portrait when it is a normal still because this generally
-            # retains more of the original character than our old cropped thumbnail.
+            # Animated heroes use their matching still first so fixed/animated framing cannot jump.
+            still=ROOT/'assets/heroes/animated-still'/f'{hero}.webp'
+            if hero in animated_ids and still.exists():
+              return Image.open(still).convert('RGB'),f'local:{still}'
             urls=[]
             urls.extend(special.get(hero,[]))
             u=byid.get(hero,{}).get('portrait')
@@ -72,56 +75,47 @@ jobs:
                   return im,f'catalog:{url}'
               except Exception as e:
                 print('REMOTE_SKIP',hero,url,e)
-            still=ROOT/'assets/heroes/animated-still'/f'{hero}.webp'
             base=ROOT/'assets/heroes'/f'{hero}.webp'
-            p=still if still.exists() else base
-            return Image.open(p).convert('RGB'),f'local:{p}'
+            return Image.open(base).convert('RGB'),f'local:{base}'
 
           def blurred_square(im):
-            bg=ImageOps.fit(im,(SIZE,SIZE),method=Image.Resampling.LANCZOS,centering=(0.5,0.35))
-            bg=bg.filter(ImageFilter.GaussianBlur(22))
-            bg=ImageEnhance.Brightness(bg).enhance(0.72)
-            bg=ImageEnhance.Color(bg).enhance(0.92)
+            bg=ImageOps.fit(im,(SIZE,SIZE),method=Image.Resampling.LANCZOS,centering=(0.5,0.33))
+            bg=bg.filter(ImageFilter.GaussianBlur(18))
+            bg=ImageEnhance.Brightness(bg).enhance(0.70)
+            bg=ImageEnhance.Color(bg).enhance(0.90)
             return bg
 
           def master_frame(im):
             im=ImageOps.exif_transpose(im).convert('RGB')
             bg=blurred_square(im)
-            # Core rule: keep the ENTIRE source image. Portrait sources are scaled by height,
-            # square/landscape sources by width. This is what the old object-fit:cover destroyed.
+            # Critical V20 rule: NEVER crop source pixels before the roster frame sees them.
+            # The whole source is contained in one square canvas, top-aligned like Kimberly.
             fg=ImageOps.contain(im,(SIZE,SIZE),method=Image.Resampling.LANCZOS)
             x=(SIZE-fg.width)//2
-            y=0
-            # Feather only the rectangle edges into the derived background so there is no hard bar.
-            mask=Image.new('L',fg.size,255)
-            feather=max(10,round(SIZE*0.025))
-            px=mask.load(); w,h=mask.size
-            for yy in range(h):
-              for xx in range(w):
-                d=min(xx,w-1-xx,yy,h-1-yy)
-                if d<feather: px[xx,yy]=max(0,min(255,round(255*d/feather)))
-            bg.paste(fg,(x,y),mask)
+            bg.paste(fg,(x,0))
             return bg
 
-          report={'version':'20.0.0-kimberly-master-canvas','size':SIZE,'master':'kimberly','rule':'preserve-entire-source-on-square-canvas-top-aligned','heroes':{}}
+          report={'version':'20.1.0-kimberly-master-canvas','size':SIZE,'master':'kimberly','rule':'entire-source-contained-square-top-aligned-no-runtime-crop','heroes':{}}
           for hero in HEROES:
             im,src=choose_static(hero)
             out=master_frame(im)
-            out.save(OUT/f'{hero}.webp','WEBP',quality=93,method=6)
+            out.save(OUT/f'{hero}.webp','WEBP',quality=92,method=6)
             report['heroes'][hero]={'source':src,'sourceSize':[im.width,im.height],'output':f'assets/heroes/master-v20/{hero}.webp','outputSize':[SIZE,SIZE]}
 
-          # Normalize every native GIF with the exact same square-canvas rule. No crop jump
-          # is allowed between the still frame and the animation.
+          # Apply the identical square transform to every frame of every native GIF.
           for hero,a in manifest.get('animated',{}).items():
-            src=ROOT/a['src']
+            oldsrc=a['src']
+            # Be able to rerun V20: recover original path if manifest was already rewritten.
+            if 'animated-master-v20/' in oldsrc:
+              oldsrc=f'assets/heroes/animated/{hero}.gif'
+            src=ROOT/oldsrc
             if not src.exists():
               print('GIF_MISSING',hero,src); continue
             gif=Image.open(src)
             frames=[]; durations=[]
             for i in range(getattr(gif,'n_frames',1)):
               gif.seek(i)
-              frame=gif.convert('RGB')
-              frames.append(master_frame(frame))
+              frames.append(master_frame(gif.convert('RGB')))
               durations.append(gif.info.get('duration',67))
             dst=OUTGIF/f'{hero}.gif'
             frames[0].save(dst,save_all=True,append_images=frames[1:],duration=durations,loop=0,optimize=True,disposal=2)
@@ -132,11 +126,10 @@ jobs:
 
           manifest['masterCanvas']='kimberly-v20'
           manifest['masterCanvasSize']=SIZE
-          manifest['version']='20.0.0-kimberly-master-canvas'
+          manifest['version']='20.1.0-kimberly-master-canvas'
           anim_path.write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n')
           (ROOT/'data/hero-master-framing.v20.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
 
-          # Mirror generated assets/data to frontend.
           F=Path('frontend/simulator')
           for rel in ['assets/heroes/master-v20','assets/heroes/animated-master-v20']:
             dst=F/rel
@@ -190,7 +183,7 @@ jobs:
               const s=step();if(s)new MutationObserver(schedule).observe(s,{attributes:true,attributeFilter:['class']});
               const g=grid();if(g){g.addEventListener('error',onError,true);new MutationObserver(schedule).observe(g,{childList:true,subtree:true,attributes:true,attributeFilter:['class']})}
               new MutationObserver(schedule).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
-              window.WfGgHeroPortraitV18={version:'20.0.0-kimberly-master-canvas',master:{id:'kimberly',topGapPct:5,canvas:512},profileFor:()=>({x:'0%',y:'0%',zoom:1}),apply};
+              window.WfGgHeroPortraitV18={version:'20.1.0-kimberly-master-canvas',master:{id:'kimberly',topGapPct:5,canvas:400},profileFor:()=>({x:'0%',y:'0%',zoom:1}),apply};
               schedule();
             }
             if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
@@ -218,9 +211,9 @@ jobs:
             if 'V20 Kimberly master canvas' not in s: s += css_add
             p.write_text(s)
             p=root/'index.html'; s=p.read_text()
-            s=re.sub(r'hero-roster-v15\.css\?v=[^\"]+', 'hero-roster-v15.css?v=020-kimberly-master-canvas', s)
-            s=re.sub(r'hero-portrait-normalize-v18\.js\?v=[^\"]+', 'hero-portrait-normalize-v18.js?v=020-kimberly-master-canvas', s)
-            s=re.sub(r'hero-native-animation-v17c\.js\?v=[^\"]+', 'hero-native-animation-v17c.js?v=020-master-assets', s)
+            s=re.sub(r'hero-roster-v15\.css\?v=[^\"]+', 'hero-roster-v15.css?v=0201-kimberly-master-canvas', s)
+            s=re.sub(r'hero-portrait-normalize-v18\.js\?v=[^\"]+', 'hero-portrait-normalize-v18.js?v=0201-kimberly-master-canvas', s)
+            s=re.sub(r'hero-native-animation-v17c\.js\?v=[^\"]+', 'hero-native-animation-v17c.js?v=0201-master-assets', s)
             p.write_text(s)
           PY
           node --check simulator/hero-portrait-normalize-v18.js
@@ -237,7 +230,7 @@ jobs:
             for h in heroes:
               p=Path(root)/'assets/heroes/master-v20'/f'{h}.webp'
               assert p.exists(),p
-              im=Image.open(p); assert im.size==(512,512),(p,im.size)
+              im=Image.open(p); assert im.size==(400,400),(p,im.size)
             m=json.loads((Path(root)/'data/hero-native-animations.v17.json').read_text())
             assert m['masterCanvas']=='kimberly-v20'
             for h,a in m['animated'].items():
@@ -245,9 +238,9 @@ jobs:
               assert 'master-v20' in a['still'],(h,a['still'])
           print('MASTER_ASSETS_OK=31')
           PY
-          grep -Fq 'hero-roster-v15.css?v=020-kimberly-master-canvas' simulator/index.html
-          grep -Fq 'hero-portrait-normalize-v18.js?v=020-kimberly-master-canvas' simulator/index.html
-          grep -Fq "20.0.0-kimberly-master-canvas" simulator/hero-portrait-normalize-v18.js
+          grep -Fq 'hero-roster-v15.css?v=0201-kimberly-master-canvas' simulator/index.html
+          grep -Fq 'hero-portrait-normalize-v18.js?v=0201-kimberly-master-canvas' simulator/index.html
+          grep -Fq "20.1.0-kimberly-master-canvas" simulator/hero-portrait-normalize-v18.js
 
       - name: Commit V20 assets
         run: |
