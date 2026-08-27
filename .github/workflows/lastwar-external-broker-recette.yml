@@ -1,0 +1,82 @@
+name: Last War external broker recette
+
+on:
+  push:
+    branches: [connector-readonly-v1]
+    paths:
+      - 'lastwar-broker/**'
+      - 'worker-staging/**'
+      - '.github/workflows/lastwar-external-broker-recette.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  recette:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate manager Python
+        run: python3 -m py_compile lastwar-broker/manager/wfgg_broker_manager.py lastwar-broker/patches/apply-broker-child-runtime.py
+
+      - name: Build external broker image
+        run: docker build -t wfgg-lastwar-external:test lastwar-broker
+
+      - name: Start external broker and check slot isolation
+        env:
+          TEST_SECRET: 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+        run: |
+          set -euo pipefail
+          docker run -d --rm --name wfgg-lastwar-external-test \
+            -e WFGG_BROKER_SHARED_SECRET="$TEST_SECRET" \
+            -e WFGG_BROKER_SLOTS=2 \
+            -p 18000:8080 \
+            wfgg-lastwar-external:test
+          trap 'docker logs wfgg-lastwar-external-test || true; docker stop wfgg-lastwar-external-test >/dev/null 2>&1 || true' EXIT
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:18000/ping > /tmp/ping.json; then break; fi
+            sleep 1
+          done
+          python3 - <<'PY'
+          import json
+          d=json.load(open('/tmp/ping.json'))
+          assert d['ok'] is True, d
+          assert d['service']=='wfgg-lastwar-broker-manager', d
+          assert d['mode']=='read-only', d
+          assert d['slots']==2, d
+          assert d['healthy_slots']==2, d
+          PY
+          code=$(curl -sS -o /tmp/forbidden.json -w '%{http_code}' \
+            -H 'Content-Type: application/json' \
+            -d '{"uid":"1540737422000992","user_id":"test"}' \
+            http://127.0.0.1:18000/v1/identity/resolve)
+          test "$code" = 403
+          grep -q 'FORBIDDEN' /tmp/forbidden.json
+          code=$(curl -sS -o /tmp/resolve.json -w '%{http_code}' \
+            -H 'Content-Type: application/json' \
+            -H "X-WfGg-Broker-Auth: $TEST_SECRET" \
+            -H 'X-WfGg-State-Key: 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef' \
+            -d '{"uid":"1540737422000992","user_id":"test"}' \
+            http://127.0.0.1:18000/v1/identity/resolve)
+          test "$code" = 200
+          python3 - <<'PY'
+          import json
+          d=json.load(open('/tmp/resolve.json'))
+          assert d['uid']=='1540737422000992', d
+          assert d['contact_hint'] is None, d
+          PY
+
+      - name: Validate external staging Worker
+        working-directory: worker-staging
+        run: |
+          npm install
+          npm run stage
+          node --check src/index.js
+          node --check src/lastwar-identity.js
+          ! grep -q 'LastWarUserContainer' src/index.js
+          grep -q 'LASTWAR_BROKER_URL' src/lastwar-identity.js
+          grep -q 'LASTWAR_BROKER_SHARED_SECRET' src/lastwar-identity.js
+          ! grep -q '"containers"' wrangler.jsonc
+          npx wrangler deploy --dry-run --outdir /tmp/wfgg-api-staging-external
