@@ -1,0 +1,105 @@
+name: Apply simulator static premium V24
+
+on:
+  push:
+    branches: [simulator-standalone-v1]
+    paths:
+      - '.github/workflows/simulator-static-v24-apply.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: simulator-standalone-v1
+          fetch-depth: 0
+
+      - name: Switch index to static V24
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('simulator/index.html')
+          s=p.read_text()
+          lines=s.splitlines()
+          out=[]
+          for line in lines:
+              if 'hero-native-animation-v17b.css' in line:
+                  continue
+              if 'hero-portrait-owner-v223.css' in line:
+                  out.append('  <link rel="stylesheet" href="hero-static-premium-v24.css?v=024-static-premium" />')
+                  continue
+              if 'hero-portrait-owner-v223.js' in line:
+                  out.append('  <script src="hero-static-premium-v24.js?v=024-static-premium"></script>')
+                  continue
+              if 'V20.2: native GIF switching paused' in line:
+                  out.append('  <!-- V24: hero vignettes are intentionally static; animation engines removed. -->')
+                  continue
+              out.append(line)
+          s='\n'.join(out)+'\n'
+          if 'hero-static-premium-v24.css?v=024-static-premium' not in s:
+              raise SystemExit('static V24 CSS not installed')
+          if 'hero-static-premium-v24.js?v=024-static-premium' not in s:
+              raise SystemExit('static V24 JS not installed')
+          if 'hero-portrait-owner-v223' in s or 'hero-native-animation-v17b' in s:
+              raise SystemExit('animation reference remains in index')
+          p.write_text(s)
+          PY
+
+      - name: Purge retired animation code and image assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf \
+            simulator/assets/heroes/animated \
+            simulator/assets/heroes/animated-still \
+            simulator/assets/heroes/animated-cutout-v22 \
+            simulator/assets/heroes/animated-cutout-v223
+
+          rm -f \
+            simulator/hero-native-animation-v16.css \
+            simulator/hero-native-animation-v16.js \
+            simulator/hero-native-animation-v17.css \
+            simulator/hero-native-animation-v17.js \
+            simulator/hero-native-animation-v17b.css \
+            simulator/hero-native-animation-v17b.js \
+            simulator/hero-native-animation-v17c.js \
+            simulator/hero-portrait-owner-v22.css \
+            simulator/hero-portrait-owner-v22.js \
+            simulator/hero-portrait-owner-v223.css \
+            simulator/hero-portrait-owner-v223.js \
+            simulator/data/hero-portrait-owner-v223.json
+
+          test -d simulator/assets/heroes/cutout-v21
+          test -f simulator/assets/heroes/cutout-v21/kimberly.webp
+          test -f simulator/assets/heroes/cutout-v21/williams.webp
+          test -f simulator/assets/heroes/cutout-v21/morrison.webp
+          test -f simulator/hero-static-premium-v24.js
+          test -f simulator/hero-static-premium-v24.css
+
+          ! grep -R -n -E 'animated-cutout-v22|animated-cutout-v223|assets/heroes/animated/' \
+            simulator/index.html simulator/*.js simulator/*.css || {
+              echo 'Retired animation asset reference remains in active simulator files'; exit 1;
+            }
+
+      - name: Commit V24 static simulator
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A simulator
+          git diff --cached --check
+          if git diff --cached --quiet; then
+            echo 'STATIC_V24_ALREADY_APPLIED=YES'
+            exit 0
+          fi
+          git commit -m 'simulator: switch hero vignettes to premium static v24'
+          git push origin HEAD:simulator-standalone-v1
