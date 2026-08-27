@@ -18,7 +18,7 @@ const identityPath = path.join(targetWorker, 'lastwar-identity.js');
 let identityText = fs.readFileSync(identityPath, 'utf8');
 identityText = identityText.replace(
   "      'LASTWAR_RATE_LIMITED'\n    ]);",
-  "      'LASTWAR_RATE_LIMITED',\n      'LASTWAR_UPSTREAM_UNAVAILABLE',\n      'LASTWAR_ACCOUNT_DATA_MISSING',\n      'LASTWAR_RECONNECT_STATE_MISSING',\n      'LASTWAR_RECONNECT_STATE_RESTORE_FAILED',\n      'LASTWAR_RELINK_REQUIRED',\n      'LASTWAR_RECONNECT_AUTH_REJECTED',\n      'LASTWAR_RECONNECT_FAILED',\n      'BROKER_STATE_ENCRYPTION_FAILED'\n    ]);"
+  "      'LASTWAR_RATE_LIMITED',\n      'LASTWAR_UPSTREAM_UNAVAILABLE',\n      'LASTWAR_ACCOUNT_DATA_MISSING',\n      'LASTWAR_RECONNECT_STATE_MISSING',\n      'LASTWAR_RECONNECT_STATE_RESTORE_FAILED',\n      'LASTWAR_RELINK_REQUIRED',\n      'LASTWAR_RECONNECT_AUTH_REJECTED',\n      'LASTWAR_RECONNECT_AUTH_E005',\n      'LASTWAR_RECONNECT_AUTH_E011',\n      'LASTWAR_RECONNECT_FAILED',\n      'BROKER_STATE_ENCRYPTION_FAILED'\n    ]);"
 );
 identityText = identityText.replace(
   'let stateTableReady = false;',
