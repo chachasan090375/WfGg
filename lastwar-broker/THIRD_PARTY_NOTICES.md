@@ -12,6 +12,6 @@ The broker build uses a pinned revision of the open-source project:
 
 WfGg applies a small local modification to `internal/auth/login.go` so the existing email verification flow can be driven by a staged web UX instead of stdin/FIFO. The modification does not change the Last War wire commands; it only adds callbacks for “verification code sent” and “provide verification code”.
 
-The complete local patch is kept in `patches/0001-wfgg-staged-email-auth.patch`.
+The complete deterministic source transform is kept in `patches/apply-staged-email-auth.py`. The transform is pinned to exact source blocks from the upstream revision and aborts the image build unless each expected block matches exactly once.
 
 Apache License 2.0 terms remain applicable to the upstream work and the modified upstream file included in the broker image build.
