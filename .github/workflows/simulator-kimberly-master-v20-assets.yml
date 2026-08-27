@@ -1,0 +1,259 @@
+name: Simulator Kimberly master assets V20
+
+on:
+  push:
+    branches: [simulator-standalone-v1]
+    paths:
+      - '.github/workflows/simulator-kimberly-master-v20-assets.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-master-assets:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: simulator-standalone-v1
+          fetch-depth: 0
+
+      - name: Install image tooling
+        run: python3 -m pip install --quiet pillow requests
+
+      - name: Build square Kimberly-master assets
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          from io import BytesIO
+          import json, shutil, requests
+          from PIL import Image, ImageOps, ImageFilter, ImageEnhance
+
+          HEROES=['williams','murphy','kimberly','marshall','stetmann','dva','carlie','lucius','schuyler','morrison','tesla','swift','fiona','adam','mcgregor','monica','mason','violet','scarlett','richard','farhad','sarah','maxwell','cage','venom','braz','elsa','gump','loki','ambolt','kane']
+          SIZE=512
+          ROOT=Path('simulator')
+          OUT=ROOT/'assets/heroes/master-v20'
+          OUTGIF=ROOT/'assets/heroes/animated-master-v20'
+          OUT.mkdir(parents=True,exist_ok=True)
+          OUTGIF.mkdir(parents=True,exist_ok=True)
+
+          catalog=json.loads((ROOT/'data/hero-catalog.v2.json').read_text())
+          byid={h['id']:h for h in catalog['heroes']}
+          anim_path=ROOT/'data/hero-native-animations.v17.json'
+          manifest=json.loads(anim_path.read_text())
+          headers={'User-Agent':'Mozilla/5.0 (Linux; Android 16) AppleWebKit/537.36 Chrome/140 Safari/537.36'}
+
+          # Kimberly is the composition reference: preserve all source pixels first,
+          # then put every hero on the same square canvas. No CSS crop is allowed afterwards.
+          special={
+            'elsa':['https://theriagames.com/wp-content/uploads/2024/12/Elsa.png','https://www.allclash.com/wp-content/uploads/2024/01/last-war-survival-best-build-for-elsa.jpg'],
+            'kane':['https://theriagames.com/wp-content/uploads/2024/12/Kane-1024x1024.png','https://theriagames.com/wp-content/uploads/2024/12/Kane.png']
+          }
+
+          def remote_image(url):
+            r=requests.get(url,headers=headers,timeout=25)
+            r.raise_for_status()
+            return Image.open(BytesIO(r.content)).convert('RGB')
+
+          def choose_static(hero):
+            # Prefer the catalog portrait when it is a normal still because this generally
+            # retains more of the original character than our old cropped thumbnail.
+            urls=[]
+            urls.extend(special.get(hero,[]))
+            u=byid.get(hero,{}).get('portrait')
+            if u and not str(u).lower().endswith('.gif'):
+              urls.append(u)
+            for url in urls:
+              try:
+                im=remote_image(url)
+                if im.width>=250 and im.height>=250:
+                  return im,f'catalog:{url}'
+              except Exception as e:
+                print('REMOTE_SKIP',hero,url,e)
+            still=ROOT/'assets/heroes/animated-still'/f'{hero}.webp'
+            base=ROOT/'assets/heroes'/f'{hero}.webp'
+            p=still if still.exists() else base
+            return Image.open(p).convert('RGB'),f'local:{p}'
+
+          def blurred_square(im):
+            bg=ImageOps.fit(im,(SIZE,SIZE),method=Image.Resampling.LANCZOS,centering=(0.5,0.35))
+            bg=bg.filter(ImageFilter.GaussianBlur(22))
+            bg=ImageEnhance.Brightness(bg).enhance(0.72)
+            bg=ImageEnhance.Color(bg).enhance(0.92)
+            return bg
+
+          def master_frame(im):
+            im=ImageOps.exif_transpose(im).convert('RGB')
+            bg=blurred_square(im)
+            # Core rule: keep the ENTIRE source image. Portrait sources are scaled by height,
+            # square/landscape sources by width. This is what the old object-fit:cover destroyed.
+            fg=ImageOps.contain(im,(SIZE,SIZE),method=Image.Resampling.LANCZOS)
+            x=(SIZE-fg.width)//2
+            y=0
+            # Feather only the rectangle edges into the derived background so there is no hard bar.
+            mask=Image.new('L',fg.size,255)
+            feather=max(10,round(SIZE*0.025))
+            px=mask.load(); w,h=mask.size
+            for yy in range(h):
+              for xx in range(w):
+                d=min(xx,w-1-xx,yy,h-1-yy)
+                if d<feather: px[xx,yy]=max(0,min(255,round(255*d/feather)))
+            bg.paste(fg,(x,y),mask)
+            return bg
+
+          report={'version':'20.0.0-kimberly-master-canvas','size':SIZE,'master':'kimberly','rule':'preserve-entire-source-on-square-canvas-top-aligned','heroes':{}}
+          for hero in HEROES:
+            im,src=choose_static(hero)
+            out=master_frame(im)
+            out.save(OUT/f'{hero}.webp','WEBP',quality=93,method=6)
+            report['heroes'][hero]={'source':src,'sourceSize':[im.width,im.height],'output':f'assets/heroes/master-v20/{hero}.webp','outputSize':[SIZE,SIZE]}
+
+          # Normalize every native GIF with the exact same square-canvas rule. No crop jump
+          # is allowed between the still frame and the animation.
+          for hero,a in manifest.get('animated',{}).items():
+            src=ROOT/a['src']
+            if not src.exists():
+              print('GIF_MISSING',hero,src); continue
+            gif=Image.open(src)
+            frames=[]; durations=[]
+            for i in range(getattr(gif,'n_frames',1)):
+              gif.seek(i)
+              frame=gif.convert('RGB')
+              frames.append(master_frame(frame))
+              durations.append(gif.info.get('duration',67))
+            dst=OUTGIF/f'{hero}.gif'
+            frames[0].save(dst,save_all=True,append_images=frames[1:],duration=durations,loop=0,optimize=True,disposal=2)
+            a['src']=f'assets/heroes/animated-master-v20/{hero}.gif'
+            a['still']=f'assets/heroes/master-v20/{hero}.webp'
+            a['masterCanvas']='kimberly-v20'
+            a['masterCanvasSize']=SIZE
+
+          manifest['masterCanvas']='kimberly-v20'
+          manifest['masterCanvasSize']=SIZE
+          manifest['version']='20.0.0-kimberly-master-canvas'
+          anim_path.write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n')
+          (ROOT/'data/hero-master-framing.v20.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
+
+          # Mirror generated assets/data to frontend.
+          F=Path('frontend/simulator')
+          for rel in ['assets/heroes/master-v20','assets/heroes/animated-master-v20']:
+            dst=F/rel
+            if dst.exists(): shutil.rmtree(dst)
+            shutil.copytree(ROOT/rel,dst)
+          for rel in ['data/hero-native-animations.v17.json','data/hero-master-framing.v20.json']:
+            (F/rel).parent.mkdir(parents=True,exist_ok=True)
+            shutil.copy2(ROOT/rel,F/rel)
+          PY
+
+      - name: Switch runtime from crop profiles to normalized assets
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          js="""(() => {
+            'use strict';
+            const MANIFEST='data/hero-native-animations.v17.json';
+            const BASE=id=>`assets/heroes/master-v20/${id}.webp`;
+            const FALLBACK=id=>`assets/heroes/${id}.webp`;
+            const NAMES={fr:{schuyler:'Skyler'},en:{schuyler:'Schuyler'},it:{schuyler:'Schuyler'},es:{schuyler:'Schuyler'}};
+            let manifest={animated:{}};
+            let scheduled=false;
+            const step=()=>document.getElementById('step-heroes');
+            const grid=()=>document.getElementById('gameHeroGrid');
+            const visible=()=>{const s=step();return !!s&&!s.classList.contains('hidden')};
+            const cards=()=>[...document.querySelectorAll('#gameHeroGrid .game-hero-card[data-hero-id]')];
+            const imgFor=c=>c.querySelector('.wfgg-v15-motion-layer > img')||c.querySelector('.hero-card-portrait img');
+            const isPlaying=c=>c.classList.contains('wfgg-native-gif-active-v17c');
+            const locale=()=>String(document.documentElement.lang||'fr').toLowerCase().split('-')[0];
+            function decorate(c){
+              const id=c.dataset.heroId, img=imgFor(c); if(!id||!img)return;
+              c.style.setProperty('--wfgg-v15-x','0%');
+              c.style.setProperty('--wfgg-v15-y','0%');
+              c.style.setProperty('--wfgg-v15-zoom','1');
+              c.dataset.wfggMasterFrame='kimberly-v20';
+              c.dataset.wfggV18Crop='0%,0%,1';
+              const translated=(NAMES[locale()]||NAMES.en)[id];
+              if(translated){const n=c.querySelector('.wfgg-v10-name');if(n)n.textContent=translated;img.alt=translated}
+              if(!isPlaying(c)){
+                const wanted=manifest.animated?.[id]?.still||BASE(id);
+                if(img.getAttribute('src')!==wanted){img.dataset.wfggV20Fallback=FALLBACK(id);img.src=wanted}
+              }
+            }
+            function apply(){if(!visible())return;cards().forEach(decorate);document.documentElement.dataset.wfggPortraitNormalize='v20-kimberly-master-canvas';document.documentElement.dataset.wfggPortraitCount=String(cards().length)}
+            function schedule(){if(scheduled)return;scheduled=true;requestAnimationFrame(()=>{scheduled=false;apply()})}
+            function onError(ev){const img=ev.target;if(!(img instanceof HTMLImageElement))return;const c=img.closest('.game-hero-card[data-hero-id]');if(!c)return;const fb=img.dataset.wfggV20Fallback||FALLBACK(c.dataset.heroId);if(img.getAttribute('src')!==fb){img.src=fb;c.dataset.wfggV20Recovered='1'}}
+            async function init(){
+              try{const r=await fetch(MANIFEST,{cache:'no-cache'});if(r.ok)manifest=await r.json()}catch(_){manifest={animated:{}}}
+              const s=step();if(s)new MutationObserver(schedule).observe(s,{attributes:true,attributeFilter:['class']});
+              const g=grid();if(g){g.addEventListener('error',onError,true);new MutationObserver(schedule).observe(g,{childList:true,subtree:true,attributes:true,attributeFilter:['class']})}
+              new MutationObserver(schedule).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
+              window.WfGgHeroPortraitV18={version:'20.0.0-kimberly-master-canvas',master:{id:'kimberly',topGapPct:5,canvas:512},profileFor:()=>({x:'0%',y:'0%',zoom:1}),apply};
+              schedule();
+            }
+            if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
+          })();
+          """
+          css_add="""
+          /* V20 Kimberly master canvas: assets are pre-normalized. Never crop/zoom the rendered image again. */
+          .game-hero-card .wfgg-v15-motion-layer{
+            transform:none!important;
+            transform-origin:50% 0%!important;
+            inset:0!important;
+          }
+          .game-hero-card .wfgg-v15-motion-layer>img{
+            width:100%!important;height:100%!important;
+            object-fit:cover!important;
+            object-position:50% 0%!important;
+            transform:none!important;
+            transform-origin:50% 0%!important;
+          }
+          .game-hero-card.wfgg-native-gif-active-v17c .wfgg-v15-motion-layer{transform:none!important}
+          """
+          for root in [Path('simulator'),Path('frontend/simulator')]:
+            (root/'hero-portrait-normalize-v18.js').write_text(js)
+            p=root/'hero-roster-v15.css'; s=p.read_text()
+            if 'V20 Kimberly master canvas' not in s: s += css_add
+            p.write_text(s)
+            p=root/'index.html'; s=p.read_text()
+            s=re.sub(r'hero-roster-v15\.css\?v=[^\"]+', 'hero-roster-v15.css?v=020-kimberly-master-canvas', s)
+            s=re.sub(r'hero-portrait-normalize-v18\.js\?v=[^\"]+', 'hero-portrait-normalize-v18.js?v=020-kimberly-master-canvas', s)
+            s=re.sub(r'hero-native-animation-v17c\.js\?v=[^\"]+', 'hero-native-animation-v17c.js?v=020-master-assets', s)
+            p.write_text(s)
+          PY
+          node --check simulator/hero-portrait-normalize-v18.js
+          node --check frontend/simulator/hero-portrait-normalize-v18.js
+
+      - name: Validate 31 master assets and animation manifest
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          from PIL import Image
+          import json
+          heroes=['williams','murphy','kimberly','marshall','stetmann','dva','carlie','lucius','schuyler','morrison','tesla','swift','fiona','adam','mcgregor','monica','mason','violet','scarlett','richard','farhad','sarah','maxwell','cage','venom','braz','elsa','gump','loki','ambolt','kane']
+          for root in ['simulator','frontend/simulator']:
+            for h in heroes:
+              p=Path(root)/'assets/heroes/master-v20'/f'{h}.webp'
+              assert p.exists(),p
+              im=Image.open(p); assert im.size==(512,512),(p,im.size)
+            m=json.loads((Path(root)/'data/hero-native-animations.v17.json').read_text())
+            assert m['masterCanvas']=='kimberly-v20'
+            for h,a in m['animated'].items():
+              assert 'animated-master-v20' in a['src'],(h,a['src'])
+              assert 'master-v20' in a['still'],(h,a['still'])
+          print('MASTER_ASSETS_OK=31')
+          PY
+          grep -Fq 'hero-roster-v15.css?v=020-kimberly-master-canvas' simulator/index.html
+          grep -Fq 'hero-portrait-normalize-v18.js?v=020-kimberly-master-canvas' simulator/index.html
+          grep -Fq "20.0.0-kimberly-master-canvas" simulator/hero-portrait-normalize-v18.js
+
+      - name: Commit V20 assets
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add simulator frontend/simulator
+          git diff --cached --check
+          git commit -m 'simulator: use normalized Kimberly master canvas for 31 heroes'
+          git push origin HEAD:simulator-standalone-v1
