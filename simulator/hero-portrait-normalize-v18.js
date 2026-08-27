@@ -32,14 +32,6 @@
   const isPlaying=card=>card.classList.contains('wfgg-native-gif-active-v17c');
   const locale=()=>String(document.documentElement.lang||'fr').toLowerCase().split('-')[0];
 
-  function installMasterCss(){
-    if(document.getElementById('wfgg-kimberly-master-v19'))return;
-    const style=document.createElement('style');
-    style.id='wfgg-kimberly-master-v19';
-    style.textContent='.game-hero-card .wfgg-v15-motion-layer{transform-origin:50% 0%!important}.game-hero-card .wfgg-v15-motion-layer>img{object-position:50% 0%!important;transform-origin:50% 0%!important}';
-    document.head.appendChild(style);
-  }
-
   function localize(card){
     const id=card.dataset.heroId;
     const translated=(NAMES[locale()]||NAMES.en)[id];
@@ -69,10 +61,7 @@
     if(!id||!img||isPlaying(card))return;
     const wanted=stillFor(id);
     const current=img.getAttribute('src')||'';
-    if(current!==wanted){
-      img.dataset.wfggV18Fallback=BASE(id);
-      img.src=wanted;
-    }
+    if(current!==wanted){img.dataset.wfggV18Fallback=BASE(id);img.src=wanted}
     card.dataset.wfggV18Source=SPECIAL_STILL[id]?'official-web-fallback':'local';
   }
 
@@ -86,16 +75,13 @@
   function schedule(){if(scheduled)return;scheduled=true;requestAnimationFrame(()=>{scheduled=false;applyAll()})}
 
   function onImageError(ev){
-    const img=ev.target;
-    if(!(img instanceof HTMLImageElement))return;
-    const card=img.closest('.game-hero-card[data-hero-id]');
-    if(!card)return;
+    const img=ev.target;if(!(img instanceof HTMLImageElement))return;
+    const card=img.closest('.game-hero-card[data-hero-id]');if(!card)return;
     const fallback=BASE(card.dataset.heroId);
     if(img.getAttribute('src')!==fallback){img.src=fallback;card.dataset.wfggV18Recovered='1';card.dataset.wfggV18Source='fallback-local'}
   }
 
   async function init(){
-    installMasterCss();
     try{const r=await fetch(MANIFEST,{cache:'force-cache'});if(r.ok)manifest=await r.json()}catch(_){manifest={animated:{}}}
     const s=step();if(s)new MutationObserver(schedule).observe(s,{attributes:true,attributeFilter:['class']});
     const g=grid();if(g){
@@ -116,7 +102,7 @@
     document.getElementById('languageStrip')?.addEventListener('click',()=>setTimeout(schedule,40));
     let scrollTimer=0;
     window.addEventListener('scroll',()=>{if(!stepVisible())return;clearTimeout(scrollTimer);scrollTimer=setTimeout(applyAll,120)},{passive:true});
-    window.WfGgHeroPortraitV18={version:'19.1.0-kimberly-master',master:MASTER,profileFor:id=>PROFILE[id]||PROFILE.kimberly,apply:applyAll};
+    window.WfGgHeroPortraitV18={version:'19.2.0-kimberly-master-static-css',master:MASTER,profileFor:id=>PROFILE[id]||PROFILE.kimberly,apply:applyAll};
     schedule();
   }
 
