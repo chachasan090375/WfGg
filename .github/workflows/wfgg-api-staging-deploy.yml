@@ -1,0 +1,64 @@
+name: WfGg staging Worker deploy
+
+on:
+  push:
+    branches:
+      - connector-readonly-v1
+    paths:
+      - 'worker-staging/**'
+      - 'worker/src/**'
+      - '.github/workflows/wfgg-api-staging-deploy.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: wfgg-api-staging-deploy
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    defaults:
+      run:
+        working-directory: worker-staging
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install staging dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Stage canonical runtime
+        run: npm run stage
+
+      - name: Validate staging JavaScript and diagnostics
+        run: |
+          npm run check
+          grep -q "LASTWAR_RECONNECT_GSL_FAILED" src/lastwar-identity.js
+          grep -q "LASTWAR_BROKER_UNAVAILABLE" src/lastwar-identity.js
+          grep -q '"name": "wfgg-api-staging"' wrangler.jsonc
+
+      - name: Deploy wfgg-api-staging
+        run: npx wrangler deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Verify public staging runtime
+        working-directory: .
+        run: |
+          set -euo pipefail
+          URL='https://wfgg-api-staging.chachasan090375.workers.dev/api/health'
+          ok=0
+          for i in $(seq 1 24); do
+            body="$(curl -fsSL --max-time 15 "$URL?deploy_probe=$i" || true)"
+            if printf '%s' "$body" | grep -q '0.6.2-lastwar-role-reconnect'; then
+              printf '%s\n' "$body"
+              ok=1
+              break
+            fi
+            sleep 5
+          done
+          test "$ok" = 1
