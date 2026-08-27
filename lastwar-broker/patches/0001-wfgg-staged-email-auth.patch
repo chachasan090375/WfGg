@@ -1,16 +1,10 @@
 diff --git a/internal/auth/login.go b/internal/auth/login.go
-index 238572f..0000000 100644
 --- a/internal/auth/login.go
 +++ b/internal/auth/login.go
-@@ -30,9 +30,15 @@ type LoginResult struct {
- // LoginOptions configures how Login authenticates.
- type LoginOptions struct {
--	Email     string // required unless a LoginKey is already persisted
--	CodePipe  string // FIFO path to read the email verification code from; "" reads stdin
--	Handshake bool   // experimental: send the vanilla SFS2X pre-Login Handshake (see conn.go:DoHandshake)
-+	Email     string // required unless a LoginKey is already persisted
-+	CodePipe  string // FIFO path to read the email verification code from; "" reads stdin
-+	Handshake bool   // experimental: send the vanilla SFS2X pre-Login Handshake (see conn.go:DoHandshake)
+@@ -35,4 +35,10 @@ type LoginOptions struct {
+ 	Email     string // required unless a LoginKey is already persisted
+ 	CodePipe  string // FIFO path to read the email verification code from; "" reads stdin
+ 	Handshake bool   // experimental: send the vanilla SFS2X pre-Login Handshake (see conn.go:DoHandshake)
 +
 +	// WfGg staged-web-auth extension. When provided, Login signals once Last War has accepted
 +	// the send-code request, then obtains the code from the provider instead of stdin/FIFO.
@@ -18,20 +12,15 @@ index 238572f..0000000 100644
 +	OnVerificationCodeSent   func()
 +	VerificationCodeProvider func() (string, error)
  }
-@@ -548,10 +554,23 @@ func Login(opts LoginOptions) (*LoginResult, error) {
- 	slog.Info("server accepted", "response", msg.Params.StringRedacted())
+@@ -550,1 +556,4 @@ func Login(opts LoginOptions) (*LoginResult, error) {
  	slog.Info("verification code should now be arriving", "emailLen", len(opts.Email))
 +	if opts.OnVerificationCodeSent != nil {
 +		opts.OnVerificationCodeSent()
 +	}
- 
- 	slog.Info("step 7: waiting for verification code")
- 	var code string
+@@ -554,1 +563,10 @@ func Login(opts LoginOptions) (*LoginResult, error) {
 -	if opts.CodePipe != "" {
 +	if opts.VerificationCodeProvider != nil {
-+		// Provider is controlled by the embedding application. It may abort the staged browser
-+		// transaction (expiry/user cancellation) without sending an empty or synthetic code to
-+		// Last War. Trim exactly as the stdin/FIFO readers do for the successful path.
++		// Abort browser expiry/cancellation cleanly without sending an empty code to Last War.
 +		provided, providerErr := opts.VerificationCodeProvider()
 +		if providerErr != nil {
 +			_ = conn.Close()
@@ -39,6 +28,3 @@ index 238572f..0000000 100644
 +		}
 +		code = strings.TrimSpace(provided)
 +	} else if opts.CodePipe != "" {
- 		slog.Info("waiting for a writer on code pipe", "codePipe", opts.CodePipe)
- 		code = readCodeFromPipe(opts.CodePipe, conn)
- 	} else {
