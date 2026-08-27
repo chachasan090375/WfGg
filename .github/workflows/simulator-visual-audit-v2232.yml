@@ -1,0 +1,117 @@
+name: Simulator visual audit V22.3.2
+
+on:
+  push:
+    branches: [simulator-standalone-v1]
+    paths:
+      - '.github/workflows/simulator-visual-audit-v2232.yml'
+  workflow_dispatch:
+
+jobs:
+  visual-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install Playwright
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm i playwright@1.55.0 >/dev/null 2>&1
+          npx playwright install --with-deps chromium
+      - name: Capture real Cloudflare preview
+        env:
+          PREVIEW_URL: https://simulator-standalone-v1.wfgg.pages.dev/simulator/
+        run: |
+          mkdir -p visual-audit
+          cat > /tmp/audit.mjs <<'EOF'
+          import { chromium } from 'playwright';
+          import fs from 'node:fs';
+
+          const browser = await chromium.launch({headless:true});
+          const page = await browser.newPage({viewport:{width:430,height:1200}, deviceScaleFactor:2});
+          const url = `${process.env.PREVIEW_URL}?visual_audit=${process.env.GITHUB_SHA}`;
+          await page.goto(url,{waitUntil:'networkidle',timeout:90000});
+          await page.waitForTimeout(2500);
+
+          const navTexts = await page.locator('#stepNav button').allTextContents();
+          let heroButton = page.locator('#stepNav button').filter({hasText:/Héros|Heroes|Eroi|Héroes/i}).first();
+          if (await heroButton.count() === 0) heroButton = page.locator('#stepNav button').nth(1);
+          await heroButton.click();
+          await page.locator('#gameHeroGrid .game-hero-card[data-hero-id]').first().waitFor({state:'visible',timeout:30000});
+          await page.waitForTimeout(1800);
+
+          const ownerVersion = await page.evaluate(()=>window.WfGgHeroPortraitOwnerV223?.version || null);
+          const summary = {url, ownerVersion, navTexts, heroes:{}};
+
+          async function stylesFor(id){
+            return await page.locator(`.game-hero-card[data-hero-id="${id}"]`).evaluate(card=>{
+              const q=s=>card.querySelector(s);
+              const css=el=>el?getComputedStyle(el):null;
+              const rect=el=>el?(()=>{const r=el.getBoundingClientRect();return {x:r.x,y:r.y,width:r.width,height:r.height}})():null;
+              const rest=q('.wfgg-v223-rest');
+              const fallback=q('.wfgg-v223-rest-fallback');
+              const anim=q('.wfgg-v223-anim');
+              const legacy=q('.wfgg-v15-motion-layer');
+              const portrait=q('.hero-card-portrait');
+              return {
+                active:card.classList.contains('wfgg-v223-native-active'),
+                phase:document.documentElement.dataset.wfggV223Phase||'',
+                batch:document.documentElement.dataset.wfggV223Batch||'',
+                card:rect(card), portrait:rect(portrait), legacy:rect(legacy), anim:rect(anim),
+                rest:{display:css(rest)?.display,opacity:css(rest)?.opacity,visibility:css(rest)?.visibility,canvasWidth:rest?.width,canvasHeight:rest?.height},
+                fallback:{display:css(fallback)?.display,opacity:css(fallback)?.opacity,visibility:css(fallback)?.visibility,src:fallback?.currentSrc||fallback?.src||''},
+                animStyle:{display:css(anim)?.display,opacity:css(anim)?.opacity,visibility:css(anim)?.visibility,objectFit:css(anim)?.objectFit,objectPosition:css(anim)?.objectPosition,naturalWidth:anim?.naturalWidth||0,naturalHeight:anim?.naturalHeight||0,src:anim?.currentSrc||anim?.src||''},
+                legacyStyle:{display:css(legacy)?.display,opacity:css(legacy)?.opacity,visibility:css(legacy)?.visibility},
+                owned:card.classList.contains('wfgg-v223-owned')
+              };
+            });
+          }
+
+          async function waitState(id,active,timeout=45000){
+            const start=Date.now();
+            while(Date.now()-start<timeout){
+              const ok=await page.locator(`.game-hero-card[data-hero-id="${id}"]`).evaluate((c,a)=>c.classList.contains('wfgg-v223-native-active')===a,active).catch(()=>false);
+              if(ok)return true;
+              await page.waitForTimeout(100);
+            }
+            return false;
+          }
+
+          async function auditHero(id){
+            const card=page.locator(`.game-hero-card[data-hero-id="${id}"]`);
+            await card.scrollIntoViewIfNeeded();
+            await page.waitForTimeout(350);
+            await waitState(id,false,12000);
+            summary.heroes[id]={idle:await stylesFor(id)};
+            await card.screenshot({path:`visual-audit/${id}-idle.png`});
+
+            const becameActive=await waitState(id,true,50000);
+            summary.heroes[id].becameActive=becameActive;
+            if(becameActive){
+              await page.waitForTimeout(180);
+              summary.heroes[id].active180ms=await stylesFor(id);
+              await card.screenshot({path:`visual-audit/${id}-active-180ms.png`});
+              await page.waitForTimeout(700);
+              summary.heroes[id].active880ms=await stylesFor(id);
+              await card.screenshot({path:`visual-audit/${id}-active-880ms.png`});
+            }
+          }
+
+          await page.screenshot({path:'visual-audit/grid-initial.png',fullPage:true});
+          for (const id of ['williams','morrison']) await auditHero(id);
+          await page.screenshot({path:'visual-audit/grid-final.png',fullPage:true});
+          fs.writeFileSync('visual-audit/report.json',JSON.stringify(summary,null,2));
+          console.log(JSON.stringify(summary,null,2));
+          await browser.close();
+          EOF
+          node /tmp/audit.mjs
+      - name: Upload visual audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: simulator-visual-audit-v2232
+          path: visual-audit/
+          if-no-files-found: error
+          retention-days: 7
