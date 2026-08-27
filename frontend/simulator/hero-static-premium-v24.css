@@ -1,0 +1,88 @@
+/* WfGg Simulator — Premium static hero portraits V24
+   One static portrait surface. No vignette animation, no glow/white outline. */
+
+.game-hero-card.wfgg-static-v24-owned .hero-card-portrait{
+  position:relative;
+  overflow:hidden;
+}
+
+.game-hero-card.wfgg-static-v24-owned .hero-card-portrait > img,
+.game-hero-card.wfgg-static-v24-owned .hero-card-portrait > .hero-fallback,
+.game-hero-card.wfgg-static-v24-owned .hero-card-portrait > .wfgg-v15-motion-layer,
+.game-hero-card.wfgg-static-v24-owned .hero-card-portrait > .wfgg-v223-stage,
+.game-hero-card.wfgg-static-v24-owned .hero-card-portrait > .wfgg-v22-stage{
+  display:none !important;
+  opacity:0 !important;
+  visibility:hidden !important;
+}
+
+.game-hero-card.wfgg-static-v24-owned .hero-card-portrait > .wfgg-static-v24-stage{
+  display:block !important;
+  position:absolute;
+  inset:0;
+  z-index:6;
+  overflow:visible;
+  pointer-events:none;
+  transform:translate3d(var(--wfgg-static-x,0%),var(--wfgg-static-y,0%),0) scale(var(--wfgg-static-zoom,1));
+  transform-origin:50% 0%;
+  animation:none !important;
+  transition:none !important;
+}
+
+.wfgg-static-v24-stage > .wfgg-static-v24-img{
+  display:block;
+  width:100%;
+  height:100%;
+  max-width:none;
+  object-fit:contain;
+  object-position:50% 0%;
+  image-rendering:auto;
+  backface-visibility:hidden;
+  transform:translateZ(0);
+  animation:none !important;
+  transition:none !important;
+  filter:
+    drop-shadow(0 2px 2px rgba(0,0,0,.68))
+    drop-shadow(0 7px 7px rgba(0,0,0,.48))
+    drop-shadow(0 14px 15px rgba(0,0,0,.28))
+    saturate(1.025)
+    contrast(1.025);
+}
+
+/* Kill every historical vignette motion state even if an old class is briefly re-added. */
+.game-hero-card.wfgg-static-v24-owned,
+.game-hero-card.wfgg-static-v24-owned *,
+.game-hero-card.wfgg-static-v24-owned.wfgg-live-card,
+.game-hero-card.wfgg-static-v24-owned.wfgg-v10-live,
+.game-hero-card.wfgg-static-v24-owned.wfgg-v12-live,
+.game-hero-card.wfgg-static-v24-owned.wfgg-v13-live,
+.game-hero-card.wfgg-static-v24-owned.wfgg-v14-live,
+.game-hero-card.wfgg-static-v24-owned.wfgg-v15-live,
+.game-hero-card.wfgg-static-v24-owned.wfgg-native-gif-active-v17b,
+.game-hero-card.wfgg-static-v24-owned.wfgg-native-gif-active-v17c,
+.game-hero-card.wfgg-static-v24-owned.wfgg-v22-native-active,
+.game-hero-card.wfgg-static-v24-owned.wfgg-v223-native-active{
+  animation:none !important;
+}
+
+/* Sheet: the V24 runtime replaces low-resolution localPortrait files with the same
+   high-definition transparent cutouts used by the roster. */
+#heroGameSheet .lw4-unit-portrait,
+#heroGameSheet .lw4-skill-hero img,
+#heroGameSheet .lw4-tier-portrait img{
+  image-rendering:auto !important;
+  object-fit:contain !important;
+  object-position:50% 0% !important;
+  filter:
+    drop-shadow(0 3px 3px rgba(0,0,0,.62))
+    drop-shadow(0 9px 10px rgba(0,0,0,.38))
+    saturate(1.02)
+    contrast(1.02) !important;
+}
+
+@media (prefers-reduced-motion: no-preference){
+  .game-hero-card.wfgg-static-v24-owned,
+  .game-hero-card.wfgg-static-v24-owned *{
+    animation:none !important;
+  }
+}
