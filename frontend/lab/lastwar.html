@@ -5,15 +5,18 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="robots" content="noindex,nofollow">
   <meta name="theme-color" content="#100d16">
-  <title>WfGg — Préparation Last War</title>
+  <title>WfGg — Liaison Last War LAB</title>
   <link rel="stylesheet" href="/lab/lab.css">
+  <style>
+    .lab-form{display:grid;gap:14px;margin-top:16px}.lab-form label{display:grid;gap:7px;color:#d8cadf;font-size:.9rem}.lab-form input{width:100%;box-sizing:border-box;border:1px solid rgba(255,255,255,.14);border-radius:14px;background:rgba(10,7,15,.42);color:#fff;padding:14px;font:inherit}.lab-form input:focus{outline:2px solid rgba(167,88,255,.5);outline-offset:1px}.identity-list{display:grid;gap:12px;margin-top:14px}.identity-row{padding:14px;border-radius:16px;background:rgba(12,8,18,.38);border:1px solid rgba(255,255,255,.08)}.identity-row strong{display:block;margin-bottom:5px}.identity-meta{color:#cbbfd0;font-size:.9rem;line-height:1.55}.badge{display:inline-flex;padding:5px 9px;border-radius:999px;font-size:.78rem;font-weight:800;margin-top:8px}.badge.pending{background:#57421c;color:#ffe8a3}.badge.verified{background:#174d3a;color:#caffdf}.badge.revoked{background:#52262b;color:#ffd0d3}.tiny{font-size:.86rem;color:#c7bbc9}.button[disabled]{opacity:.45;cursor:not-allowed}
+  </style>
 </head>
 <body>
   <main class="shell">
     <header class="hero card">
       <p class="eyebrow">PREVIEW · LABORATOIRE UNIQUEMENT</p>
-      <h1>Connexion Last War — socle préparé</h1>
-      <p class="muted">Cette page ne se connecte pas à Last War. Elle vérifie que WfGg est prêt à recevoir une identité Last War vérifiée sans modifier les modules existants.</p>
+      <h1>Liaison Last War — D1 isolée</h1>
+      <p class="muted">Le portail continue d’authentifier l’utilisateur. Les liaisons Last War de test seront enregistrées uniquement dans une base D1 laboratoire séparée.</p>
       <div class="actions">
         <a class="button secondary" href="/lab/">← Retour au laboratoire</a>
         <button id="refreshButton" class="button primary" type="button">Actualiser</button>
@@ -32,33 +35,45 @@
     </section>
 
     <section class="card">
-      <h2>Provider Last War</h2>
-      <div class="grid">
-        <div class="field"><span>Schéma d’identité externe</span><strong>prêt</strong></div>
-        <div class="field"><span>UID joueur Last War</span><strong>prévu</strong></div>
-        <div class="field"><span>Serveur Last War</span><strong>prévu</strong></div>
-        <div class="field"><span>Alliance Last War</span><strong>prévue si disponible</strong></div>
-        <div class="field"><span>Connexion Last War réelle</span><strong>désactivée</strong></div>
-        <div class="field"><span>Vérification officielle</span><strong>non configurée</strong></div>
-      </div>
-      <div class="status neutral">Une simple déclaration d’UID ne pourra jamais servir à se connecter. Il faudra une preuve Last War fiable pour passer l’identité au statut VERIFIED.</div>
+      <h2>Base Last War laboratoire</h2>
+      <div id="labStatus" class="status pending">Recherche de l’API laboratoire…</div>
+      <p class="tiny">Sécurité : l’API laboratoire ne possède aucun binding vers la D1 de production. Elle valide seulement la session via <code>/api/me</code>, puis écrit dans sa propre D1.</p>
+
+      <form id="linkForm" class="lab-form">
+        <label>UID joueur Last War
+          <input id="playerUid" name="player_uid" maxlength="80" autocomplete="off" placeholder="UID Last War" required disabled>
+        </label>
+        <label>Serveur Last War
+          <input id="serverId" name="server_id" maxlength="40" autocomplete="off" placeholder="992" required disabled>
+        </label>
+        <label>Alliance Last War (optionnel)
+          <input id="allianceId" name="alliance_id" maxlength="80" autocomplete="off" placeholder="Identifiant alliance si disponible" disabled>
+        </label>
+        <button id="claimButton" class="button primary" type="submit" disabled>Enregistrer en PENDING</button>
+      </form>
+      <div id="claimResult" class="status neutral hidden"></div>
     </section>
 
     <section class="card">
-      <h2>Flux cible</h2>
+      <h2>Liaisons enregistrées dans le LAB</h2>
+      <div id="identityList" class="identity-list"><p class="muted">La base laboratoire n’est pas encore interrogée.</p></div>
+    </section>
+
+    <section class="card">
+      <h2>Règle de confiance</h2>
       <div class="grid">
-        <div class="field"><span>1</span><strong>Last War vérifie le joueur</strong></div>
-        <div class="field"><span>2</span><strong>WfGg retrouve son user_id</strong></div>
-        <div class="field"><span>3</span><strong>WfGg crée sa session normale</strong></div>
-        <div class="field"><span>4</span><strong>Les modules utilisent /api/me sans changement</strong></div>
+        <div class="field"><span>PENDING</span><strong>UID déclaré, jamais utilisable pour se connecter</strong></div>
+        <div class="field"><span>VERIFIED</span><strong>Uniquement après preuve Last War fiable</strong></div>
+        <div class="field"><span>REVOKED</span><strong>Liaison désactivée</strong></div>
+        <div class="field"><span>Connexion Last War réelle</span><strong>toujours désactivée à ce stade</strong></div>
       </div>
     </section>
 
     <section class="card note">
       <h2>Protection</h2>
-      <p>Aucun mot de passe Last War, cookie Last War ou secret du jeu n’est demandé ni stocké. Le code WfGg actuel reste disponible comme solution de secours.</p>
+      <p>Aucun mot de passe Last War, cookie Last War ou secret du jeu n’est demandé. Tant que la D1 laboratoire dédiée n’est pas créée et reliée au Worker Preview, le formulaire reste automatiquement désactivé.</p>
     </section>
   </main>
-  <script src="/lab/lastwar.js"></script>
+  <script src="/lab/lastwar.js?v=002-lab-d1"></script>
 </body>
 </html>
