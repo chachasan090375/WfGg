@@ -1,0 +1,14 @@
+{
+  "name": "wfgg-lastwar-connector-worker",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "node --check src/index.js && node --check ../worker/src/lastwar-connector.js",
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "db:migrate:remote": "wrangler d1 execute wfgg-db --remote --file=../worker/migrations/0003_lastwar_readonly_connector.sql"
+  },
+  "devDependencies": {
+    "wrangler": "^4.33.1"
+  }
+}
