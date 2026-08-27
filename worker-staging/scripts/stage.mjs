@@ -4,17 +4,20 @@ import path from 'node:path';
 const here = process.cwd();
 const repoRoot = path.resolve(here, '..');
 const sourceWorker = path.join(repoRoot, 'worker', 'src');
-const sourceBroker = path.join(repoRoot, 'lastwar-broker');
 const targetWorker = path.join(here, 'src');
-const targetBroker = path.join(here, 'lastwar-broker');
+const overrideIdentity = path.join(here, 'overrides', 'lastwar-identity.js');
 
-for (const [source, target, label] of [
-  [sourceWorker, targetWorker, 'worker source'],
-  [sourceBroker, targetBroker, 'Last War broker']
-]) {
-  if (!fs.existsSync(source)) throw new Error(`Missing ${label}: ${source}`);
-  fs.rmSync(target, { recursive: true, force: true });
-  fs.cpSync(source, target, { recursive: true });
-}
+if (!fs.existsSync(sourceWorker)) throw new Error(`Missing worker source: ${sourceWorker}`);
+if (!fs.existsSync(overrideIdentity)) throw new Error(`Missing external broker override: ${overrideIdentity}`);
 
-console.log('[wfgg staging] sources staged inside Workers Builds root');
+fs.rmSync(targetWorker, { recursive: true, force: true });
+fs.cpSync(sourceWorker, targetWorker, { recursive: true });
+fs.copyFileSync(overrideIdentity, path.join(targetWorker, 'lastwar-identity.js'));
+
+const indexPath = path.join(targetWorker, 'index.js');
+let indexText = fs.readFileSync(indexPath, 'utf8');
+indexText = indexText.replace("export { LastWarUserContainer } from './lastwar-container.js';\n", '');
+indexText = indexText.replace("version: '0.5.0-lastwar-container', admin_gate: 'R4_R5_ONLY', lastwar_container: Boolean(env.LASTWAR_USER)", "version: '0.6.0-lastwar-external', admin_gate: 'R4_R5_ONLY', lastwar_external: Boolean(env.LASTWAR_BROKER_URL)");
+fs.writeFileSync(indexPath, indexText, 'utf8');
+
+console.log('[wfgg staging] canonical Worker staged with external Last War broker override');
