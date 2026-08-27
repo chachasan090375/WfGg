@@ -4,11 +4,11 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "postinstall": "node scripts/install-staging-wrangler-wrapper.mjs",
     "check": "node --check src/index.js && node --check src/lastwar-identity.js && node --check src/lastwar-container.js",
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
-    "deploy:staging": "wrangler deploy --env staging",
+    "deploy:preview": "node scripts/deploy-preview.mjs",
+    "deploy:staging": "wrangler deploy --env staging --containers-rollout=immediate",
     "db:local": "wrangler d1 execute wfgg-db --local --file=migrations/0001_initial.sql",
     "db:remote": "wrangler d1 execute wfgg-db --remote --file=migrations/0001_initial.sql"
   },
