@@ -1,15 +1,12 @@
 {
   "name": "wfgg-api-staging-build",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "scripts": {
     "stage": "node scripts/stage.mjs",
-    "check": "node --check src/index.js && node --check src/lastwar-identity.js && node --check src/lastwar-container.js",
-    "deploy": "wrangler deploy --containers-rollout=immediate"
-  },
-  "dependencies": {
-    "@cloudflare/containers": "^0.3.7"
+    "check": "node --check src/index.js && node --check src/lastwar-identity.js",
+    "deploy": "wrangler deploy"
   },
   "devDependencies": {
     "wrangler": "^4.45.0"
