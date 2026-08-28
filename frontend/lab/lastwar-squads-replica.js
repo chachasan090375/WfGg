@@ -9,10 +9,12 @@
   ]);
 
   const kit = window.WFGG_LASTWAR_GRAPHICS_KIT || null;
+  const heroCatalog = window.WFGG_LASTWAR_HERO_CATALOG || null;
   const assetStatus = $('assetStatus');
   const kitMetrics = $('kitMetrics');
 
-  function heroName(id) { return HERO_NAMES.get(Number(id)) || null; }
+  function catalogHero(id) { return heroCatalog?.heroes?.find(x => Number(x.heroId) === Number(id)) || null; }
+  function heroName(id) { return catalogHero(id)?.name || HERO_NAMES.get(Number(id)) || null; }
   function initials(name) { return String(name || '?').split(/\s+/).map(x => x[0]).join('').slice(0,2).toUpperCase(); }
   function heroRecord(id, data) { return (data?.heroes || []).find(x => Number(x.heroId) === Number(id)) || null; }
 
@@ -25,12 +27,16 @@
     }
     const s = kit.stats || {};
     const decoded = s.decodedRasterAssets ?? kit.extractedAssets?.length ?? 0;
-    assetStatus.textContent = `Kit local · ${fmt(decoded)} images Unity décodées`;
-    assetStatus.className = 'asset-status ok';
+    const nameCount = heroCatalog?.resolvedNames ?? 0;
+    const iconCount = heroCatalog?.resolvedLocalIcons ?? 0;
+    assetStatus.textContent = heroCatalog
+      ? `Catalogue héros · ${nameCount}/${heroCatalog.heroCount} noms · ${iconCount}/${heroCatalog.heroCount} icônes`
+      : `Kit local · ${fmt(decoded)} images Unity décodées · catalogue héros à générer`;
+    assetStatus.className = heroCatalog && nameCount === heroCatalog.heroCount ? 'asset-status ok' : 'asset-status warn';
     [
       ['Images Unity', decoded],
-      ['Sprites', s.phase30bDecodedSprites],
-      ['Textures', s.phase30bDecodedTextures],
+      ['Noms héros', heroCatalog ? `${nameCount}/${heroCatalog.heroCount}` : '—'],
+      ['Icônes héros', heroCatalog ? `${iconCount}/${heroCatalog.heroCount}` : '—'],
       ['Assets Drone', kit.droneAssets?.length ?? 0]
     ].forEach(([label,value]) => {
       const x = document.createElement('div'); x.className = 'kit-metric';
@@ -57,6 +63,8 @@
   }
 
   function directHeroAsset(id) {
+    const authoritative = catalogHero(id)?.localIconPath;
+    if (authoritative) return authoritative;
     if (!kit) return null;
     const name = heroName(id);
     if (!name) return null;
@@ -95,6 +103,7 @@
     const name = heroName(id);
     const rec = heroRecord(id,data);
     const resolved = Boolean(name);
+    const cat = catalogHero(id);
     const el = document.createElement('div');
     el.className = `hero-tile${resolved ? '' : ' unresolved'}`;
 
@@ -124,7 +133,9 @@
     const cap = document.createElement('div'); cap.className='hero-caption';
     const b = document.createElement('b'); b.textContent = resolved ? name : 'Héros non résolu';
     const s = document.createElement('span');
-    s.textContent = resolved ? (asset ? 'portrait officiel' : 'portrait à retrouver') : `ID ${id} · libellé à résoudre`;
+    if (!resolved) s.textContent = `ID ${id} · table à décoder`;
+    else if (cat?.authoritativeRowFound) s.textContent = asset ? 'table + icône officielle' : 'table résolue · icône à extraire';
+    else s.textContent = asset ? 'portrait officiel' : 'portrait à retrouver';
     cap.append(b,s); el.appendChild(cap);
     return el;
   }
@@ -212,7 +223,7 @@
     const ids=(data.armyFormations||[]).flatMap(x=>x.heroIds||[]);
     const resolved=ids.filter(id=>Boolean(heroName(id))).length;
     const portraits=ids.filter(id=>Boolean(directHeroAsset(id))).length;
-    $('replicaStatus').textContent=`${(data.armyFormations||[]).length} escouades · ${resolved}/${ids.length} libellés héros · ${portraits}/${ids.length} portraits officiels affichés`;
+    $('replicaStatus').textContent=`${(data.armyFormations||[]).length} escouades · ${resolved}/${ids.length} libellés héros · ${portraits}/${ids.length} icônes officielles`;
   }
 
   $('squadDataFile').addEventListener('change',async(e)=>{
