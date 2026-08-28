@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="theme-color" content="#07111b">
+  <title>WfGg LAB — Catalogue héros Last War</title>
+  <link rel="stylesheet" href="/lab/lastwar-heroes-catalog.css?v=001">
+</head>
+<body>
+  <main class="catalog-shell">
+    <header class="catalog-head">
+      <div>
+        <span class="eyebrow">WfGg LAB · LOCAL ONLY</span>
+        <h1>Catalogue héros exact</h1>
+        <p>31 identités issues de <code>LW_Hero</code>/<code>LW_Hero_Appearance</code>, associées uniquement aux icônes Unity exactes déjà extraites.</p>
+      </div>
+      <div class="head-actions">
+        <a class="btn" href="/lab/lastwar-squads-replica.html">Escouades</a>
+        <a class="btn secondary" href="/lab/lastwar-data.html">Explorateur</a>
+      </div>
+    </header>
+
+    <section class="status-panel">
+      <strong id="catalogStatus">Chargement du catalogue…</strong>
+      <span id="catalogDetail"></span>
+    </section>
+
+    <section class="companion-panel">
+      <div class="section-title"><span class="eyebrow">COMPAGNONS</span><h2>Profils exacts du compte témoin</h2></div>
+      <div id="companionGrid" class="companion-grid"></div>
+    </section>
+
+    <section class="heroes-panel">
+      <div class="section-title"><span class="eyebrow">HÉROS</span><h2>31 personnages identifiés</h2></div>
+      <div id="heroCatalogGrid" class="hero-grid"></div>
+    </section>
+  </main>
+
+  <script src="/lab/local-assets/lastwar-kit-v1/catalog.js?v=008"></script>
+  <script src="/lab/lastwar-hero-authoritative-map.js?v=001"></script>
+  <script src="/lab/lastwar-companion-authoritative-map.js?v=002"></script>
+  <script src="/lab/lastwar-heroes-catalog.js?v=001"></script>
+</body>
+</html>
