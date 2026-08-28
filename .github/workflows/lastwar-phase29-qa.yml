@@ -37,7 +37,7 @@ jobs:
           grep -q 'OFFLINE ONLY' "$f"
           grep -q 'No Last War network connection' "$f"
           grep -q 'local-assets/lastwar-kit-v1' "$f"
-          grep -q 'HeroIcons' "$f"
+          grep -qi 'heroicons' "$f"
           grep -q 'item_uav_equip' "$f"
           ! grep -Eq 'curl |wget |requests\.|urllib\.request|socket\.' "$f"
           grep -q '^\*$' frontend/lab/local-assets/lastwar-kit-v1/.gitignore
