@@ -9,6 +9,7 @@ on:
       - 'scripts/lastwar-termux-probe.sh'
       - 'scripts/lastwar-phase3-session-from-pcap.sh'
       - 'scripts/lastwar-phase4-login-diff.sh'
+      - 'scripts/lastwar-phase5-native-template-login.sh'
       - '.github/workflows/lastwar-probe-qa.yml'
 
 permissions:
@@ -26,6 +27,7 @@ jobs:
           bash -n scripts/lastwar-termux-probe.sh
           bash -n scripts/lastwar-phase3-session-from-pcap.sh
           bash -n scripts/lastwar-phase4-login-diff.sh
+          bash -n scripts/lastwar-phase5-native-template-login.sh
 
       - name: Setup Go 1.27
         uses: actions/setup-go@v6
@@ -115,17 +117,21 @@ jobs:
           grep -q 'Aucune connexion au serveur Last War' scripts/lastwar-phase4-login-diff.sh
           grep -q 'BuildLoginParams' scripts/lastwar-phase4-login-diff.sh
           grep -q 'DIFF masqué' scripts/lastwar-phase4-login-diff.sh
-          if grep -Eq -- '(^|[[:space:]])-collect([[:space:]]|$)' scripts/lastwar-phase4-login-diff.sh; then
-            echo 'Forbidden gameplay automation flag found in phase4 helper.' >&2
-            exit 1
-          fi
+
+      - name: Validate phase5 is one-login read-only
+        run: |
+          set -euo pipefail
+          grep -q 'native-template / lecture seule / local-only' scripts/lastwar-phase5-native-template-login.sh
+          grep -q 'LOGIN_RESPONSE=OK' scripts/lastwar-phase5-native-template-login.sh
+          grep -q 'INIT_RECEIVED=' scripts/lastwar-phase5-native-template-login.sh
+          grep -q 'FRESH_DYNAMIC' scripts/lastwar-phase5-native-template-login.sh
 
       - name: Verify probes stay non-automating
         run: |
           set -euo pipefail
           grep -q -- '-list-buildings' scripts/lastwar-termux-probe.sh
           grep -q -- '-list-buildings' scripts/lastwar-phase3-session-from-pcap.sh
-          for script in scripts/lastwar-termux-probe.sh scripts/lastwar-phase3-session-from-pcap.sh scripts/lastwar-phase4-login-diff.sh; do
+          for script in scripts/lastwar-termux-probe.sh scripts/lastwar-phase3-session-from-pcap.sh scripts/lastwar-phase4-login-diff.sh scripts/lastwar-phase5-native-template-login.sh; do
             if grep -Eq -- '(^|[[:space:]])-collect([[:space:]]|$)' "$script"; then
               echo "Forbidden gameplay automation flag found in $script" >&2
               exit 1
