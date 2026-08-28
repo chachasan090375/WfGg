@@ -27,7 +27,7 @@ jobs:
         with:
           go-version: '1.27.x'
 
-      - name: Reproduce local-only redacted snapshot patch and build
+      - name: Reproduce local-only patches and build
         shell: bash
         run: |
           set -euo pipefail
@@ -53,9 +53,47 @@ jobs:
             }
           ' "$auth_file" > "$tmp_file"
           mv "$tmp_file" "$auth_file"
-
           grep -q 'WFGG_LASTWAR_SNAPSHOT_PATH' "$auth_file"
-          gofmt -w "$auth_file"
+
+          identity_file="$upstream/internal/auth/identity.go"
+          tmp_file="$identity_file.wfgg.tmp"
+          awk '
+            {
+              if ($0 ~ /^[[:space:]]*return os\.Link\(tmpPath, path\)[[:space:]]*$/) {
+                print "\tif err := os.Link(tmpPath, path); err == nil {"
+                print "\t\treturn nil"
+                print "\t}"
+                print "\tf, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o600)"
+                print "\tif err != nil {"
+                print "\t\treturn err"
+                print "\t}"
+                print "\tcleanupCreated := true"
+                print "\tdefer func() {"
+                print "\t\t_ = f.Close()"
+                print "\t\tif cleanupCreated {"
+                print "\t\t\t_ = os.Remove(path)"
+                print "\t\t}"
+                print "\t}()"
+                print "\tif _, err := f.WriteString(id); err != nil {"
+                print "\t\treturn err"
+                print "\t}"
+                print "\tif err := f.Sync(); err != nil {"
+                print "\t\treturn err"
+                print "\t}"
+                print "\tif err := f.Close(); err != nil {"
+                print "\t\treturn err"
+                print "\t}"
+                print "\tcleanupCreated = false"
+                print "\treturn nil"
+                next
+              }
+              print
+            }
+          ' "$identity_file" > "$tmp_file"
+          mv "$tmp_file" "$identity_file"
+          grep -q 'cleanupCreated := true' "$identity_file"
+
+          gofmt -w "$auth_file" "$identity_file"
           GOTOOLCHAIN=auto go build -o "$RUNNER_TEMP/lastwar-client-probe" ./cmd/lastwar-client
           test -x "$RUNNER_TEMP/lastwar-client-probe"
 
