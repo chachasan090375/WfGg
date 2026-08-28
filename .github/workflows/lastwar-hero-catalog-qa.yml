@@ -6,6 +6,7 @@ on:
     paths:
       - 'scripts/lastwar-hero-catalog-authoritative.sh'
       - 'scripts/lastwar-export-static-table-container.sh'
+      - 'frontend/lab/lastwar-hero-authoritative-map.js'
       - 'frontend/lab/lastwar-squads-replica.html'
       - 'frontend/lab/lastwar-squads-replica.js'
       - '.github/workflows/lastwar-hero-catalog-qa.yml'
@@ -21,12 +22,24 @@ jobs:
           bash -n scripts/lastwar-hero-catalog-authoritative.sh
           bash -n scripts/lastwar-export-static-table-container.sh
       - name: JavaScript syntax
-        run: node --check frontend/lab/lastwar-squads-replica.js
-      - name: Guardrails and direct table path
         run: |
-          grep -q 'lw_hero' scripts/lastwar-hero-catalog-authoritative.sh
-          grep -q 'ZipFile(io.BytesIO' scripts/lastwar-hero-catalog-authoritative.sh
+          node --check frontend/lab/lastwar-hero-authoritative-map.js
+          node --check frontend/lab/lastwar-squads-replica.js
+      - name: Decoded hero-map assertions
+        run: |
+          test "$(grep -o 'heroId:' frontend/lab/lastwar-hero-authoritative-map.js | wc -l)" -eq 31
+          grep -q "heroId:50016,name:'Tesla'" frontend/lab/lastwar-hero-authoritative-map.js
+          grep -q "heroId:50017,name:'DVA'" frontend/lab/lastwar-hero-authoritative-map.js
+          grep -q "heroId:50023,name:'Mason'" frontend/lab/lastwar-hero-authoritative-map.js
+          grep -q "heroId:50025,name:'Violet'" frontend/lab/lastwar-hero-authoritative-map.js
+          grep -q "heroId:50026,name:'Scarlett'" frontend/lab/lastwar-hero-authoritative-map.js
+          grep -q "heroId:50027,name:'Sarah'" frontend/lab/lastwar-hero-authoritative-map.js
+          grep -q "heroId:50028,name:'Venom'" frontend/lab/lastwar-hero-authoritative-map.js
+          grep -q "queueIcon:'hero_icon_Tesla'" frontend/lab/lastwar-hero-authoritative-map.js
+          grep -q "queueIcon:'hero_icon_dva'" frontend/lab/lastwar-hero-authoritative-map.js
+          grep -q 'WFGG_LASTWAR_HERO_AUTHORITATIVE_MAP' frontend/lab/lastwar-squads-replica.js
+      - name: Guardrails and export helper
+        run: |
           grep -q 'no_game_write=true' scripts/lastwar-hero-catalog-authoritative.sh
           grep -q 'no_game_network=true' scripts/lastwar-hero-catalog-authoritative.sh
-          grep -q 'WFGG_LASTWAR_HERO_CATALOG' frontend/lab/lastwar-squads-replica.js
           grep -q 'STATIC GAME DATA ONLY' scripts/lastwar-export-static-table-container.sh
