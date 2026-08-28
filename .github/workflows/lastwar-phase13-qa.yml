@@ -1,0 +1,46 @@
+name: LastWar phase13 companion model QA
+
+on:
+  push:
+    branches: [portal-auth-lastwar-lab-v1]
+    paths:
+      - 'scripts/lastwar-phase13-companion-model.sh'
+      - '.github/workflows/lastwar-phase13-qa.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  phase13-static-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Bash syntax
+        run: bash -n scripts/lastwar-phase13-companion-model.sh
+      - name: Offline-only contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          f=scripts/lastwar-phase13-companion-model.sh
+          grep -q 'OFFLINE ONLY' "$f"
+          grep -q 'UUID/GUID/UID/owner' "$f"
+          ! grep -E '(^|[^[:alnum:]_])(curl|wget|ssh|nc|ncat|socat)([^[:alnum:]_]|$)' "$f"
+      - name: Companion topology coverage
+        shell: bash
+        run: |
+          set -euo pipefail
+          f=scripts/lastwar-phase13-companion-model.sh
+          grep -q 'DRONE_RELATION_MODEL' "$f"
+          grep -q 'OVERLORD_RELATION_MODEL' "$f"
+          grep -q 'userDominators' "$f"
+          grep -q 'army_formation' "$f"
+          grep -q 'formation_template' "$f"
+      - name: Privacy guards
+        shell: bash
+        run: |
+          set -euo pipefail
+          f=scripts/lastwar-phase13-companion-model.sh
+          grep -q 'strings.Contains(l,"uuid")' "$f"
+          grep -q 'strings.Contains(l,"guid")' "$f"
+          grep -q 'strings.Contains(l,"owner")' "$f"
