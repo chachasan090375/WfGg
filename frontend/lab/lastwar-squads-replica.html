@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="theme-color" content="#07111b">
+  <title>WfGg — Escouades Last War · page témoin</title>
+  <link rel="stylesheet" href="/lab/lastwar-squads-replica.css?v=001">
+</head>
+<body>
+  <main class="replica-shell">
+    <header class="replica-topbar">
+      <div>
+        <span class="lab-mark">WfGg LAB · LOCAL ONLY</span>
+        <h1>Escouades — page témoin</h1>
+        <p>Structure réelle V3 + kit graphique extrait localement de l’installation Last War.</p>
+      </div>
+      <a href="/lab/lastwar-data.html" class="ghost-button">Explorateur</a>
+    </header>
+
+    <section class="import-panel">
+      <label class="file-button" for="squadDataFile">Charger Phase 19 / V3</label>
+      <input id="squadDataFile" type="file" accept="application/json,.json">
+      <span id="replicaStatus">En attente du JSON V3.</span>
+      <span id="assetStatus" class="asset-status">Kit graphique non détecté.</span>
+    </section>
+
+    <section class="game-stage">
+      <div class="stage-header">
+        <div class="stage-title-block">
+          <span class="stage-kicker">FORMATION</span>
+          <strong>Escouades actives</strong>
+        </div>
+        <div class="power-pill"><span>Puissance équipement</span><b id="squadEquipPower">—</b></div>
+      </div>
+      <div id="squadGrid" class="squad-grid">
+        <div class="empty-state">Charge le fichier V3 pour construire les trois escouades.</div>
+      </div>
+    </section>
+
+    <section class="kit-panel">
+      <div>
+        <span class="stage-kicker">KIT GRAPHIQUE</span>
+        <strong>Couverture locale</strong>
+      </div>
+      <div id="kitMetrics" class="kit-metrics"></div>
+    </section>
+
+    <footer>
+      Cette page n’envoie rien au réseau. Les images extraites restent dans le dossier local ignoré par Git.
+    </footer>
+  </main>
+
+  <script src="/lab/local-assets/lastwar-kit-v1/catalog.js"></script>
+  <script src="/lab/lastwar-squads-replica.js?v=001"></script>
+</body>
+</html>
