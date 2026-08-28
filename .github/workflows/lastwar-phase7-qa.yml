@@ -1,0 +1,60 @@
+name: LastWar phase7 offline normalizer QA
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - portal-auth-lastwar-lab-v1
+    paths:
+      - 'scripts/lastwar-phase7-normalized-module-data.sh'
+      - '.github/workflows/lastwar-phase7-qa.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Shell syntax and offline contract
+        run: |
+          set -euo pipefail
+          script='scripts/lastwar-phase7-normalized-module-data.sh'
+          bash -n "$script"
+          grep -q 'OFFLINE ONLY' "$script"
+          grep -q 'WFGG_LASTWAR_MODULE_DATA_V1' "$script"
+          grep -q 'RawCredentialsExported:false' "$script"
+          grep -q 'RawInstanceUUIDsExported:false' "$script"
+          grep -q 'ResourceBalancesExported:false' "$script"
+          if grep -Ev '^[[:space:]]*#' "$script" | grep -Eq -- '(^|[[:space:]])-collect([[:space:]]|$)'; then
+            echo 'Forbidden gameplay automation flag found in executable phase7 code.' >&2
+            exit 1
+          fi
+
+      - uses: actions/setup-go@v6
+        with:
+          go-version: '1.27.x'
+
+      - name: Compile embedded normalizer against pinned protocol client
+        shell: bash
+        run: |
+          set -euo pipefail
+          upstream="$RUNNER_TEMP/lastwar-client"
+          git clone --quiet --filter=blob:none https://github.com/ljagiello/lastwar-client.git "$upstream"
+          cd "$upstream"
+          git fetch --quiet --depth 1 origin ee5f64de160a8051c2f9f98189b75038dd225a0a
+          git checkout --quiet --detach ee5f64de160a8051c2f9f98189b75038dd225a0a
+          script="$GITHUB_WORKSPACE/scripts/lastwar-phase7-normalized-module-data.sh"
+          cmd="$upstream/cmd/wfgg-normalized-module-data"
+          mkdir -p "$cmd"
+          awk '
+            /^cat > .*<<.GOEOF./ {inside=1; next}
+            inside && /^GOEOF$/ {exit}
+            inside {print}
+          ' "$script" > "$cmd/main.go"
+          test -s "$cmd/main.go"
+          gofmt -w "$cmd/main.go"
+          GOTOOLCHAIN=auto go build -o "$RUNNER_TEMP/wfgg-normalized-module-data" ./cmd/wfgg-normalized-module-data
+          test -x "$RUNNER_TEMP/wfgg-normalized-module-data"
