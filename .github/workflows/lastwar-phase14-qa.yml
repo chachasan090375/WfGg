@@ -1,0 +1,64 @@
+name: LastWar phase14 full PCAP drone discovery QA
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - portal-auth-lastwar-lab-v1
+    paths:
+      - 'scripts/lastwar-phase14-full-pcap-drone-discovery.sh'
+      - '.github/workflows/lastwar-phase14-qa.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Validate shell syntax
+        run: bash -n scripts/lastwar-phase14-full-pcap-drone-discovery.sh
+
+      - uses: actions/setup-go@v6
+        with:
+          go-version: '1.27.x'
+
+      - name: Compile embedded phase14 helper against pinned client
+        shell: bash
+        run: |
+          set -euo pipefail
+          upstream="$RUNNER_TEMP/lastwar-client"
+          git clone --quiet --filter=blob:none https://github.com/ljagiello/lastwar-client.git "$upstream"
+          cd "$upstream"
+          git fetch --quiet --depth 1 origin ee5f64de160a8051c2f9f98189b75038dd225a0a
+          git checkout --quiet --detach ee5f64de160a8051c2f9f98189b75038dd225a0a
+          script="$GITHUB_WORKSPACE/scripts/lastwar-phase14-full-pcap-drone-discovery.sh"
+          awk '
+            /^cat > .*<<.GOEOF./ {inside=1; next}
+            inside && /^GOEOF$/ {exit}
+            inside {print}
+          ' "$script" > "$RUNNER_TEMP/phase14-main.go"
+          test -s "$RUNNER_TEMP/phase14-main.go"
+          mkdir -p ./cmd/wfgg-phase14-drone-discovery
+          cp "$RUNNER_TEMP/phase14-main.go" ./cmd/wfgg-phase14-drone-discovery/main.go
+          gofmt -w ./cmd/wfgg-phase14-drone-discovery/main.go
+          GOTOOLCHAIN=auto go build -o "$RUNNER_TEMP/wfgg-phase14-drone-discovery" ./cmd/wfgg-phase14-drone-discovery
+          test -x "$RUNNER_TEMP/wfgg-phase14-drone-discovery"
+
+      - name: Enforce privacy and offline contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          f=scripts/lastwar-phase14-full-pcap-drone-discovery.sh
+          grep -q 'OFFLINE ONLY' "$f"
+          grep -q 'droneSkillArr' "$f"
+          grep -q 'userBattleCards' "$f"
+          grep -q 'UUID/GUID/UID' "$f"
+          grep -q 'DRONE_FORMATION_LINK_MODEL' "$f"
+          ! grep -E '(^|[^[:alnum:]_])(curl|wget|ssh|nc|ncat|socat)([^[:alnum:]_]|$)' "$f"
+          if grep -Eq -- '(^|[[:space:]])-collect([[:space:]]|$)' "$f"; then
+            echo 'Forbidden gameplay automation flag found in phase14.' >&2
+            exit 1
+          fi
