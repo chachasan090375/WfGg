@@ -8,7 +8,7 @@ set -Eeuo pipefail
 
 PKG="com.fun.lastwar.gp"
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-SRC="$ROOT/scripts/lastwar-phase30b-node-payload-extraction.sh"
+SRC="${WFGG_PHASE30B_SRC:-$ROOT/scripts/lastwar-phase30b-node-payload-extraction.sh}"
 DOWNLOADS="${HOME}/storage/downloads"
 OUT="${DOWNLOADS}/WFGG_LASTWAR_PHASE30D_ENGINE_VERSION_DISCOVERY_REDACTED.txt"
 SCAN="${TMPDIR:-${HOME}/.cache}/wfgg-phase30d-version-scan.py"
