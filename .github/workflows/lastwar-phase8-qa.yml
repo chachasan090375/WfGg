@@ -1,0 +1,66 @@
+name: LastWar phase8 formation resolver QA
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - portal-auth-lastwar-lab-v1
+    paths:
+      - 'scripts/lastwar-phase8-formations-normalized.sh'
+      - 'frontend/lab/lastwar-data.html'
+      - 'frontend/lab/lastwar-data.css'
+      - 'frontend/lab/lastwar-data.js'
+      - '.github/workflows/lastwar-phase8-qa.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Validate shell and JavaScript syntax
+        run: |
+          bash -n scripts/lastwar-phase8-formations-normalized.sh
+          node --check frontend/lab/lastwar-data.js
+
+      - uses: actions/setup-go@v6
+        with:
+          go-version: '1.27.x'
+
+      - name: Compile embedded phase8 resolver against pinned client
+        shell: bash
+        run: |
+          set -euo pipefail
+          upstream="$RUNNER_TEMP/lastwar-client"
+          git clone --quiet --filter=blob:none https://github.com/ljagiello/lastwar-client.git "$upstream"
+          cd "$upstream"
+          git fetch --quiet --depth 1 origin ee5f64de160a8051c2f9f98189b75038dd225a0a
+          git checkout --quiet --detach ee5f64de160a8051c2f9f98189b75038dd225a0a
+          script="$GITHUB_WORKSPACE/scripts/lastwar-phase8-formations-normalized.sh"
+          awk '
+            /^cat > .*<<.GOEOF./ {inside=1; next}
+            inside && /^GOEOF$/ {exit}
+            inside {print}
+          ' "$script" > "$RUNNER_TEMP/phase8-main.go"
+          test -s "$RUNNER_TEMP/phase8-main.go"
+          mkdir -p ./cmd/wfgg-phase8-formations
+          cp "$RUNNER_TEMP/phase8-main.go" ./cmd/wfgg-phase8-formations/main.go
+          gofmt -w ./cmd/wfgg-phase8-formations/main.go
+          GOTOOLCHAIN=auto go build -o "$RUNNER_TEMP/wfgg-phase8-formations" ./cmd/wfgg-phase8-formations
+          test -x "$RUNNER_TEMP/wfgg-phase8-formations"
+
+      - name: Enforce privacy and non-automation contract
+        run: |
+          set -euo pipefail
+          script='scripts/lastwar-phase8-formations-normalized.sh'
+          grep -q 'OFFLINE ONLY' "$script"
+          grep -q 'rawFormationRefsExported' "$script"
+          grep -q 'WFGG_LASTWAR_MODULE_DATA_V2' "$script"
+          grep -q 'WFGG_LASTWAR_PHASE8_NORMALIZED_MODULE_DATA.json' "$script"
+          if grep -Eq -- '(^|[[:space:]])-collect([[:space:]]|$)' "$script"; then
+            echo 'Forbidden gameplay automation flag found in phase8.' >&2
+            exit 1
+          fi
