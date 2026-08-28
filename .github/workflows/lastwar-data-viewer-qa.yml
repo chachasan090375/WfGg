@@ -1,0 +1,49 @@
+name: LastWar local data viewer QA
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - portal-auth-lastwar-lab-v1
+    paths:
+      - 'frontend/lab/lastwar.html'
+      - 'frontend/lab/lastwar-data.html'
+      - 'frontend/lab/lastwar-data.css'
+      - 'frontend/lab/lastwar-data.js'
+      - '.github/workflows/lastwar-data-viewer-qa.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Validate JavaScript syntax
+        run: node --check frontend/lab/lastwar-data.js
+
+      - name: Enforce local-only viewer contract
+        run: |
+          set -euo pipefail
+          js='frontend/lab/lastwar-data.js'
+          html='frontend/lab/lastwar-data.html'
+          grep -q 'WFGG_LASTWAR_MODULE_DATA_V1' "$js"
+          grep -q 'type="file"' "$html"
+          grep -q 'rawCredentialsExported' "$js"
+          grep -q 'rawInstanceUUIDsExported' "$js"
+          if grep -Eq '\b(fetch|XMLHttpRequest|WebSocket)\s*\(' "$js"; then
+            echo 'Network API found in local-only viewer.' >&2
+            exit 1
+          fi
+          if grep -Eq '\b(localStorage|sessionStorage)\b' "$js"; then
+            echo 'Persistent browser storage found in local-only viewer.' >&2
+            exit 1
+          fi
+
+      - name: Ensure no player dataset is committed
+        run: |
+          set -euo pipefail
+          test ! -e frontend/lab/WFGG_LASTWAR_PHASE7_NORMALIZED_MODULE_DATA.json
+          test ! -e frontend/lab/lastwar-module-data.json
