@@ -14,7 +14,7 @@
     <header class="hero card">
       <p class="eyebrow">PREVIEW · LABORATOIRE · LOCAL ONLY</p>
       <h1>Explorateur Last War</h1>
-      <p class="muted">Charge le JSON normalisé de phase 7. Le fichier reste dans la mémoire de ce navigateur : cette page ne l’envoie à aucune API.</p>
+      <p class="muted">Charge le JSON normalisé Phase 7 ou Phase 8. Le fichier reste dans la mémoire de ce navigateur : cette page ne l’envoie à aucune API.</p>
       <div class="actions">
         <a class="button secondary" href="/lab/lastwar.html">← Liaison Last War</a>
         <button id="resetButton" class="button secondary" type="button" disabled>Effacer les données</button>
@@ -24,8 +24,8 @@
     <section class="card import-card">
       <h2>Charger les données normalisées</h2>
       <label class="file-drop" for="dataFile">
-        <strong>WFGG_LASTWAR_PHASE7_NORMALIZED_MODULE_DATA.json</strong>
-        <span>Choisir le fichier depuis le téléphone</span>
+        <strong>WFGG_LASTWAR_PHASE8_NORMALIZED_MODULE_DATA.json</strong>
+        <span>Phase 8 recommandée · Phase 7 reste compatible</span>
         <input id="dataFile" type="file" accept="application/json,.json">
       </label>
       <div id="loadStatus" class="status neutral">Aucun fichier chargé.</div>
@@ -54,7 +54,7 @@
 
     <section id="formationsCard" class="card hidden">
       <div class="section-head"><h2>Formations</h2><span class="mini-badge">lecture seule</span></div>
-      <p class="muted small">La phase 7 confirme les formations et groupes d’équipement, mais ne résout pas encore les cinq héros de chaque formation. Cette relation sera traitée séparément avant le simulateur d’équipes.</p>
+      <p id="formationsStatus" class="muted small">Charge le fichier Phase 8 pour résoudre les héros des formations.</p>
       <div class="split-grid">
         <div><h3>Armées actives</h3><div id="armyFormations" class="list-stack"></div></div>
         <div><h3>Modèles</h3><div id="formationTemplates" class="list-stack"></div></div>
@@ -83,10 +83,10 @@
     </section>
 
     <section class="card note">
-      <h2>Limite actuelle</h2>
-      <p>Cette page est un visualiseur du jeu de données normalisé, pas encore un module connecté. Elle ne contient aucune donnée de joueur dans le dépôt et n’écrit rien dans D1. Le prochain branchement pourra se faire derrière un endpoint laboratoire qui ne renvoie que ce modèle normalisé.</p>
+      <h2>Statut du laboratoire</h2>
+      <p>Ce visualiseur reste entièrement local. Phase 8 ajoute la relation formation → héros sans exporter les UUID privés. Aucun dataset joueur n’est enregistré dans le dépôt et rien n’est écrit dans D1.</p>
     </section>
   </main>
-  <script src="/lab/lastwar-data.js?v=001"></script>
+  <script src="/lab/lastwar-data.js?v=002"></script>
 </body>
 </html>
