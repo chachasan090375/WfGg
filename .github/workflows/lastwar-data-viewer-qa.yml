@@ -30,9 +30,14 @@ jobs:
           js='frontend/lab/lastwar-data.js'
           html='frontend/lab/lastwar-data.html'
           grep -q 'WFGG_LASTWAR_MODULE_DATA_V1' "$js"
+          grep -q 'WFGG_LASTWAR_MODULE_DATA_V2' "$js"
+          grep -q 'WFGG_LASTWAR_MODULE_DATA_V3' "$js"
           grep -q 'type="file"' "$html"
           grep -q 'rawCredentialsExported' "$js"
           grep -q 'rawInstanceUUIDsExported' "$js"
+          grep -q 'rawDominatorRefsExported' "$js"
+          grep -q 'Drone' "$html"
+          grep -q 'Overlord' "$html"
           code="$(grep -Ev '^[[:space:]]*//' "$js")"
           if printf '%s\n' "$code" | grep -Eq '\b(fetch|XMLHttpRequest|WebSocket)\s*\('; then
             echo 'Network API found in local-only viewer.' >&2
@@ -47,4 +52,6 @@ jobs:
         run: |
           set -euo pipefail
           test ! -e frontend/lab/WFGG_LASTWAR_PHASE7_NORMALIZED_MODULE_DATA.json
+          test ! -e frontend/lab/WFGG_LASTWAR_PHASE8_NORMALIZED_MODULE_DATA.json
+          test ! -e frontend/lab/WFGG_LASTWAR_PHASE19_NORMALIZED_MODULE_DATA.json
           test ! -e frontend/lab/lastwar-module-data.json
