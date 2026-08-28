@@ -33,11 +33,12 @@ jobs:
           grep -q 'type="file"' "$html"
           grep -q 'rawCredentialsExported' "$js"
           grep -q 'rawInstanceUUIDsExported' "$js"
-          if grep -Eq '\b(fetch|XMLHttpRequest|WebSocket)\s*\(' "$js"; then
+          code="$(grep -Ev '^[[:space:]]*//' "$js")"
+          if printf '%s\n' "$code" | grep -Eq '\b(fetch|XMLHttpRequest|WebSocket)\s*\('; then
             echo 'Network API found in local-only viewer.' >&2
             exit 1
           fi
-          if grep -Eq '\b(localStorage|sessionStorage)\b' "$js"; then
+          if printf '%s\n' "$code" | grep -Eq '\b(localStorage|sessionStorage)\b'; then
             echo 'Persistent browser storage found in local-only viewer.' >&2
             exit 1
           fi
