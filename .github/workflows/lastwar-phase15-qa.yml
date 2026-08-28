@@ -1,0 +1,42 @@
+name: LastWar phase15 drone chip groups QA
+
+on:
+  push:
+    branches:
+      - portal-auth-lastwar-lab-v1
+    paths:
+      - 'scripts/lastwar-phase15-drone-chip-groups.sh'
+      - '.github/workflows/lastwar-phase15-qa.yml'
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Validate shell syntax
+        run: bash -n scripts/lastwar-phase15-drone-chip-groups.sh
+      - uses: actions/setup-go@v6
+        with:
+          go-version: '1.27.x'
+      - name: Compile embedded phase15 helper against pinned client
+        shell: bash
+        run: |
+          set -euo pipefail
+          git clone --quiet https://github.com/ljagiello/lastwar-client.git /tmp/lastwar-client
+          cd /tmp/lastwar-client
+          git checkout --quiet ee5f64de160a8051c2f9f98189b75038dd225a0a
+          mkdir -p internal/cmd/wfgg-phase15-drone-chip-groups
+          awk '/^cat > "\$TMP_CMD\/main.go" <<'"'"'GOEOF'"'"'/{flag=1;next}/^GOEOF$/{if(flag){exit}}flag' "$GITHUB_WORKSPACE/scripts/lastwar-phase15-drone-chip-groups.sh" > internal/cmd/wfgg-phase15-drone-chip-groups/main.go
+          test -s internal/cmd/wfgg-phase15-drone-chip-groups/main.go
+          gofmt -w internal/cmd/wfgg-phase15-drone-chip-groups/main.go
+          go build ./internal/cmd/wfgg-phase15-drone-chip-groups
+      - name: Enforce privacy and offline contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          f=scripts/lastwar-phase15-drone-chip-groups.sh
+          grep -q 'OFFLINE ONLY' "$f"
+          grep -q 'sensitiveKey' "$f"
+          grep -q 'drone_global_entity_with_per-formation_chipEquipGroup_preset' "$f"
+          ! grep -Eq 'curl |wget |http\.NewRequest|net\.Dial|websocket|combat|attack|march' "$f"
