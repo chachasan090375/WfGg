@@ -1,0 +1,31 @@
+name: LastWar exact hero catalog preview QA
+
+on:
+  push:
+    branches: [portal-auth-lastwar-lab-v1]
+    paths:
+      - 'frontend/lab/lastwar-heroes-catalog.html'
+      - 'frontend/lab/lastwar-heroes-catalog.css'
+      - 'frontend/lab/lastwar-heroes-catalog.js'
+      - 'frontend/lab/lastwar-squads-replica.html'
+      - '.github/workflows/lastwar-heroes-catalog-qa.yml'
+  workflow_dispatch:
+
+jobs:
+  qa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: JavaScript syntax
+        run: node --check frontend/lab/lastwar-heroes-catalog.js
+      - name: Catalog wiring
+        run: |
+          grep -q 'lastwar-hero-authoritative-map.js' frontend/lab/lastwar-heroes-catalog.html
+          grep -q 'lastwar-companion-authoritative-map.js' frontend/lab/lastwar-heroes-catalog.html
+          grep -q 'heroCatalogGrid' frontend/lab/lastwar-heroes-catalog.html
+          grep -q 'Catalogue 31 héros' frontend/lab/lastwar-squads-replica.html
+      - name: Exact-only logic
+        run: |
+          grep -q 'queueIcon' frontend/lab/lastwar-heroes-catalog.js
+          grep -q 'hero.halfIcon' frontend/lab/lastwar-heroes-catalog.js
+          grep -q 'hero.heroId===50006' frontend/lab/lastwar-heroes-catalog.js
