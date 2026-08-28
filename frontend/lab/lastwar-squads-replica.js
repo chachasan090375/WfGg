@@ -61,19 +61,20 @@
       const p=String(path||'').toLowerCase();
       let s=0;
       if (kind==='drone') {
-        if (p.includes('hero_icon_drone')) s+=1200;
-        if (p.includes('item_uav_equip_')) s+=900;
-        if (p.includes('tacticalchip') || p.includes('skillchip')) s+=600;
-        if (p.includes('drone') || p.includes('uav')) s+=350;
+        if (p.includes('hero_icon_drone')) s+=1800;
+        if ((p.includes('drone') || p.includes('uav')) && (p.includes('icon') || p.includes('portrait') || p.includes('head') || p.includes('avatar')) && !p.includes('item_uav_equip_')) s+=1100;
+        if (p.includes('item_uav_equip_')) s+=200;
+        if (p.includes('tacticalchip') || p.includes('skillchip')) s+=100;
       } else if (kind==='overlord') {
-        if (p.includes('dominator')) s+=1000;
-        if (p.includes('gorilla') || p.includes('cockatrice') || p.includes('hawk')) s+=800;
+        if (p.includes('dominator') && (p.includes('icon') || p.includes('portrait') || p.includes('head') || p.includes('pic'))) s+=1300;
+        if ((p.includes('gorilla') || p.includes('cockatrice') || p.includes('hawk')) && (p.includes('icon') || p.includes('portrait') || p.includes('head') || p.includes('pic'))) s+=1100;
       }
-      if (p.includes('eff_') || p.includes('effect') || p.includes('noise') || p.includes('smoke')) s-=900;
+      if (p.includes('eff_') || p.includes('effect') || p.includes('noise') || p.includes('smoke') || p.includes('particle')) s-=1200;
       return s;
     };
     const ranked=list.map(path=>({path,score:score(path)})).sort((a,b)=>b.score-a.score);
-    return ranked[0]?.score > 0 ? ranked[0].path : null;
+    const threshold=kind==='drone' ? 1000 : 1000;
+    return ranked[0]?.score >= threshold ? ranked[0].path : null;
   }
 
   function heroTile(id,index) {
