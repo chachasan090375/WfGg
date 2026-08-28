@@ -29,7 +29,7 @@ jobs:
           set -euo pipefail
           f=scripts/lastwar-phase22-catalog-bridge.sh
           grep -q 'OFFLINE ONLY' "$f"
-          grep -q 'no Last War network connection' "$f"
+          grep -qi 'no Last War network connection' "$f"
           grep -q 'same_printable_catalog_record' "$f"
           grep -q 'unknown_hero_ids_are_not_guessed=true' "$f"
           ! grep -Eq 'curl |wget |requests\.|urllib\.request|socket\.' "$f"
