@@ -1,0 +1,38 @@
+name: LastWar phase30 sprite extraction QA
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - portal-auth-lastwar-lab-v1
+    paths:
+      - 'scripts/lastwar-phase30-unity-sprite-extraction.sh'
+      - '.github/workflows/lastwar-phase30-qa.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Validate shell syntax
+        run: bash -n scripts/lastwar-phase30-unity-sprite-extraction.sh
+      - name: Validate embedded Python syntax
+        run: |
+          set -euo pipefail
+          awk '/^cat > "\$PY" <<'"'"'PYEOF'"'"'$/{f=1;next} /^PYEOF$/{if(f){exit}} f{print}' scripts/lastwar-phase30-unity-sprite-extraction.sh > /tmp/phase30.py
+          python -m py_compile /tmp/phase30.py
+      - name: Enforce local graphics extraction contract
+        run: |
+          set -euo pipefail
+          f=scripts/lastwar-phase30-unity-sprite-extraction.sh
+          grep -q 'No Last War network connection' "$f"
+          grep -q 'BundleFragment0.bytes' "$f"
+          grep -q 'Sprite' "$f"
+          grep -q 'Texture2D' "$f"
+          grep -q 'catalog.js' "$f"
+          grep -q 'unknown_50016_50017_remain_unresolved_without_authoritative_table_row=true' "$f"
+          grep -q 'no_generated_graphics_committed_to_git=true' "$f"
+          ! grep -Eq 'curl |wget |requests\.|urllib\.request|socket\.' "$f"
