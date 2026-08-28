@@ -152,10 +152,14 @@ from pathlib import Path
 import json,sys
 src=Path(sys.argv[1]).read_text(encoding='utf-8')
 version=sys.argv[3]
-needle='import UnityPy\nfrom PIL import Image\n'
-replacement=needle+f'\n# Phase 30D: authoritative version discovered from installed game files.\nUnityPy.config.FALLBACK_UNITY_VERSION={json.dumps(version)}\n'
+# Patch only the embedded Phase-30B extractor Python, not the small PYTEST preflight.
+needle='import UnityPy\nfrom PIL import Image\n\nout_path, kit_dir, catalog_path, *apk_paths = sys.argv[1:]\n'
+replacement=('import UnityPy\nfrom PIL import Image\n\n'
+             '# Phase 30D: authoritative version discovered from installed game files.\n'
+             f'UnityPy.config.FALLBACK_UNITY_VERSION={json.dumps(version)}\n\n'
+             'out_path, kit_dir, catalog_path, *apk_paths = sys.argv[1:]\n')
 if src.count(needle)!=1:
-    raise SystemExit(f'ERREUR: point de patch import UnityPy inattendu ({src.count(needle)})')
+    raise SystemExit(f'ERREUR: point de patch extracteur UnityPy inattendu ({src.count(needle)})')
 out=src.replace(needle,replacement,1)
 Path(sys.argv[2]).write_text(out,encoding='utf-8')
 PY
