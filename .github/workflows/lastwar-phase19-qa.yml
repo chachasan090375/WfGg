@@ -1,0 +1,46 @@
+name: LastWar phase19 normalized squad model QA
+
+on:
+  push:
+    branches:
+      - portal-auth-lastwar-lab-v1
+    paths:
+      - 'scripts/lastwar-phase19-normalized-squad-model.sh'
+      - '.github/workflows/lastwar-phase19-qa.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Validate shell syntax
+        run: bash -n scripts/lastwar-phase19-normalized-squad-model.sh
+      - uses: actions/setup-go@v6
+        with:
+          go-version: '1.27.x'
+      - name: Compile embedded phase19 helper against pinned client
+        run: |
+          set -euo pipefail
+          git clone -q https://github.com/ljagiello/lastwar-client.git /tmp/lastwar-client
+          git -C /tmp/lastwar-client checkout -q ee5f64de160a8051c2f9f98189b75038dd225a0a
+          mkdir -p /tmp/lastwar-client/internal/cmd/wfgg-phase19-normalized
+          awk '/^cat > "\$TMP_CMD\/main.go" <<'\''GOEOF'\''$/{f=1;next}/^GOEOF$/{if(f){exit}}f' scripts/lastwar-phase19-normalized-squad-model.sh > /tmp/lastwar-client/internal/cmd/wfgg-phase19-normalized/main.go
+          test -s /tmp/lastwar-client/internal/cmd/wfgg-phase19-normalized/main.go
+          cd /tmp/lastwar-client
+          gofmt -w internal/cmd/wfgg-phase19-normalized/main.go
+          go build ./internal/cmd/wfgg-phase19-normalized
+      - name: Enforce V3 privacy and semantic contract
+        run: |
+          set -euo pipefail
+          f=scripts/lastwar-phase19-normalized-squad-model.sh
+          grep -q 'OFFLINE ONLY' "$f"
+          grep -q 'WFGG_LASTWAR_MODULE_DATA_V3' "$f"
+          grep -q 'rawDominatorRefsExported' "$f"
+          grep -q 'OverlordOrdinals' "$f"
+          grep -q 'droneSkillArr' "$f"
+          grep -q 'TotalIdentityExact' "$f"
+          ! grep -Eq 'curl |wget |http\.NewRequest|websocket|net\.Dial|smtp' "$f"
