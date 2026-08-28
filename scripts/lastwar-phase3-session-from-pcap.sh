@@ -1,11 +1,16 @@
 #!/data/data/com.termux/files/usr/bin/bash
 set -Eeuo pipefail
 
-# WfGg Last War LAB — PHASE 3
+# WfGg Last War LAB — PHASE 3 V2
 # Extract the REAL Last War session identity from a local PCAP/PCAPNG and
 # immediately exercise it in read-only mode. The live credentials NEVER go
 # to stdout, GitHub, Cloudflare or D1: they are written only to a 0600 file
 # inside ~/.wfgg-lastwar-probe/home.
+#
+# V2 also aligns the locally-built client's Android appVersion/versionCode
+# with the values captured from the native Last War Login request. Access
+# tokens are identity-bound; replaying a token issued by a newer native build
+# with the pinned upstream defaults can otherwise be rejected with E005.
 
 BASE="${HOME}/.wfgg-lastwar-probe"
 SRC="${BASE}/src"
@@ -15,6 +20,7 @@ DOWNLOADS="${HOME}/storage/downloads"
 SHARED="${HOME}/storage/shared"
 ANDROID_SHARED="/storage/emulated/0"
 SESSION="${LAB_HOME}/.lastwar_goclient_session.json"
+OUT_RAW="${BASE}/WFGG_LASTWAR_PHASE3_REAL_SESSION_PRIVATE.log"
 OUT_PRIVATE="${BASE}/WFGG_LASTWAR_PHASE3_REAL_SESSION_REDACTED.txt"
 OUT_SHARE="${DOWNLOADS}/WFGG_LASTWAR_PHASE3_REAL_SESSION_REDACTED.txt"
 TMP_CMD="${SRC}/cmd/wfgg-session-from-pcap"
@@ -28,10 +34,6 @@ die() { printf 'ERREUR: %s\n' "$*" >&2; exit 1; }
 
 CAPTURE="${1:-}"
 if [[ -z "$CAPTURE" ]]; then
-  # PCAPdroid can save through Android's document picker, so the file is not
-  # guaranteed to land in ~/storage/downloads. Search the common shared-storage
-  # locations first, then the whole shared tree as a fallback. -L is important:
-  # Termux's ~/storage/* entries are symlinks.
   CANDIDATES="$({
     for root in \
       "$DOWNLOADS" \
@@ -61,7 +63,7 @@ TERMUX_PREFIX="${PREFIX:-/data/data/com.termux/files/usr}"
 REAL_GO="${TERMUX_PREFIX}/bin/go"
 [[ -x "$REAL_GO" ]] || die "compilateur Go Termux absent"
 
-say "=== WfGg Last War LAB · PHASE 3 ==="
+say "=== WfGg Last War LAB · PHASE 3 V2 ==="
 say "Capture locale: $CAPTURE"
 say "Extraction locale de l'identité de session réelle…"
 say "Aucun jeton/empreinte/deviceId ne sera affiché."
@@ -98,10 +100,8 @@ type sessionConfig struct {
 }
 
 type safeMeta struct {
-    IP        string `json:"ip"`
-    Port      int    `json:"port"`
     Zone      string `json:"zone"`
-    GameUid   string `json:"gameUid"`
+    Port      int    `json:"port"`
     Platform  string `json:"platform"`
     App       string `json:"appVersion"`
     Build     string `json:"versionCode"`
@@ -154,9 +154,7 @@ func main() {
             zone := login.GetString("zn")
             gameUid := login.GetString("un")
             if gameUid == "" { gameUid = params.GetString("gameUid") }
-            if token == "" || deviceID == "" || zone == "" || gameUid == "" {
-                continue
-            }
+            if token == "" || deviceID == "" || zone == "" || gameUid == "" { continue }
 
             server := conv.A
             if server.Addr == client { server = conv.B }
@@ -179,7 +177,7 @@ func main() {
             _ = os.Chmod(outPath, 0600)
 
             meta := safeMeta{
-                IP: cfg.IP, Port: cfg.Port, Zone: cfg.Zone, GameUid: cfg.GameUid,
+                Zone: cfg.Zone, Port: cfg.Port,
                 Platform: params.GetString("platform"), App: params.GetString("appVersion"),
                 Build: params.GetString("versionCode"), TokenLen: len(token), ShumeiLen: len(shumei),
             }
@@ -214,15 +212,38 @@ chmod 600 "$SESSION" 2>/dev/null || true
 say "Session extraite: oui"
 say "Métadonnées non sensibles: $META"
 say "Fichier session privé: $SESSION"
+
+APP_VERSION="$(printf '%s' "$META" | sed -n 's/.*"appVersion":"\([0-9][0-9.]*\)".*/\1/p')"
+VERSION_CODE="$(printf '%s' "$META" | sed -n 's/.*"versionCode":"\([0-9][0-9]*\)".*/\1/p')"
+[[ "$APP_VERSION" =~ ^[0-9]+([.][0-9]+)+$ ]] || die "appVersion capturée invalide ou absente"
+[[ "$VERSION_CODE" =~ ^[0-9]+$ ]] || die "versionCode capturée invalide ou absente"
+
+GSL_FILE="$SRC/internal/gsl/gsl.go"
+[[ -f "$GSL_FILE" ]] || die "gsl.go introuvable"
+
+sed -i -E "s/^([[:space:]]*AppVersion[[:space:]]*=[[:space:]]*)\"[^\"]*\"/\\1\"${APP_VERSION}\"/" "$GSL_FILE"
+sed -i -E "s/^([[:space:]]*VersionCode[[:space:]]*=[[:space:]]*)\"[^\"]*\"/\\1\"${VERSION_CODE}\"/" "$GSL_FILE"
+
+grep -Eq "AppVersion[[:space:]]*=[[:space:]]*\"${APP_VERSION//./\\.}\"" "$GSL_FILE" || die "patch appVersion non appliqué"
+grep -Eq "VersionCode[[:space:]]*=[[:space:]]*\"${VERSION_CODE}\"" "$GSL_FILE" || die "patch versionCode non appliqué"
+
+say "Identité applicative alignée sur la capture: version ${APP_VERSION}, build ${VERSION_CODE}."
+say "Recompilation locale du client…"
+GOTOOLCHAIN=auto "$REAL_GO" build -o "$BIN" ./cmd/lastwar-client
+chmod 700 "$BIN"
+
 say
 say "Test immédiat en lecture seule avec cette session réelle…"
-
-# The locally built probe binary is already patched for Android state-file persistence.
-# No -collect: this only logs in, consumes init, and prints the redacted building list.
 set +e
-HOME="$LAB_HOME" "$BIN" -config "$SESSION" -list-buildings -log-level info >"$OUT_PRIVATE" 2>&1
+HOME="$LAB_HOME" "$BIN" -config "$SESSION" -list-buildings -log-level info >"$OUT_RAW" 2>&1
 RC=$?
 set -e
+chmod 600 "$OUT_RAW" 2>/dev/null || true
+
+sed -E \
+  -e 's/("gameUid"[=:][[:space:]]*"?)[0-9]+/\1[REDACTED]/g' \
+  -e 's/(gameUid[=:][[:space:]]*)[0-9]+/\1[REDACTED]/g' \
+  "$OUT_RAW" > "$OUT_PRIVATE"
 chmod 600 "$OUT_PRIVATE" 2>/dev/null || true
 
 if [[ -d "$DOWNLOADS" ]]; then
@@ -230,13 +251,16 @@ if [[ -d "$DOWNLOADS" ]]; then
   chmod 600 "$OUT_SHARE" 2>/dev/null || true
 fi
 
-say "=== PHASE 3 TERMINEE ==="
+say "=== PHASE 3 V2 TERMINEE ==="
 say "EXIT=$RC"
 say "Session PCAP conservée localement avec permissions 0600: oui"
 if [[ -f "$OUT_SHARE" ]]; then
   say "Rapport expurgé: Téléchargements/WFGG_LASTWAR_PHASE3_REAL_SESSION_REDACTED.txt"
 else
   say "Rapport expurgé privé: $OUT_PRIVATE"
+fi
+if [[ "$RC" -eq 2 ]]; then
+  say "E005 persiste malgré l'alignement version/build: prochaine étape = diff local des autres champs d'identité du Login natif, sans exporter les secrets."
 fi
 say
 say "--- dernières lignes expurgées ---"
