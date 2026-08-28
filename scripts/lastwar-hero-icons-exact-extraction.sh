@@ -30,11 +30,9 @@ p=Path(sys.argv[1]); mp=Path(sys.argv[2])
 s=p.read_text(encoding='utf-8')
 m=mp.read_text(encoding='utf-8')
 
-# Parse authoritative internal object refs only.
 rows=[]
 for mm in re.finditer(r"\{heroId:(\d+),name:'([^']+)'[^\n]*?queueIcon:'([^']+)'[^\n]*?halfIcon:'([^']+)'",m):
-    hid=int(mm.group(1)); name=mm.group(2); q=mm.group(3); h=mm.group(4)
-    rows.append((hid,name,q,h))
+    rows.append((int(mm.group(1)),mm.group(2),mm.group(3),mm.group(4)))
 if len(rows)!=31:
     raise SystemExit(f'mapping autoritatif incomplet: {len(rows)}/31')
 
@@ -42,22 +40,18 @@ aliases=[]
 for hid,name,q,h in rows:
     vals=[]
     for x in (q,h):
-        low=x.lower()
-        vals += [low]
+        low=x.lower(); vals.append(low)
         if low.startswith('hero_icon_'): vals.append(low[len('hero_icon_'):])
     vals=list(dict.fromkeys(v for v in vals if v))
     aliases.append(f' "{name}":'+repr(vals).replace("'",'"'))
 hero_block='hero_aliases={\n'+',\n'.join(aliases)+'\n}'
-
 start=s.index('hero_aliases={')
 end=s.index('\nactive_names=',start)
 s=s[:start]+hero_block+s[end:]
 
-# Every authoritative hero is high priority; only exact icon objects are exportable.
 names=', '.join(repr(name) for _,name,_,_ in rows)
 s=re.sub(r'active_names=\{[^\n]*\}', 'active_names={'+names+'}', s, count=1)
 
-# This pass should be narrow after candidate discovery.
 s=s.replace('MAX_CANDIDATES_TO_LOAD=520','MAX_CANDIDATES_TO_LOAD=420')
 s=s.replace('MAX_EXPORTED=1200','MAX_EXPORTED=180')
 s=s.replace('MAX_OUTPUT_BYTES=350*1024*1024','MAX_OUTPUT_BYTES=80*1024*1024')
@@ -66,7 +60,6 @@ s=s.replace('PHASE30B_DONE','HERO_ICONS_EXACT_DONE')
 s=s.replace('WfGg Last War LAB — PHASE 30B NODE PAYLOAD EXTRACTION','WfGg Last War LAB — EXACT 31-HERO ICON EXTRACTION')
 s=s.replace('=== PHASE 30B TERMINEE ===','=== EXTRACTION ICONES HEROS TERMINEE ===')
 
-# Inject exact object-name whitelist before save_image.
 needle='def save_image(img,name,objtype,candidate,path_id):\n    global output_bytes\n'
 exact=sorted({x for _,_,q,h in rows for x in (q,h)})
 whitelist='EXACT_HERO_ICON_NAMES={'+','.join(repr(x.lower()) for x in exact)+'}\n\n'
@@ -79,7 +72,6 @@ if s.count(needle)!=1:
     raise SystemExit(f'point save_image inattendu: {s.count(needle)}')
 s=s.replace(needle,repl,1)
 
-# Make classification exact and map back to public hero name by decoded internal ref.
 old='''def classify_asset(name,candidate):
     low=name.lower()
     for hero,als in hero_aliases.items():
@@ -88,8 +80,6 @@ old='''def classify_asset(name,candidate):
 new='''def classify_asset(name,candidate):
     low=name.lower()
     for hero,als in hero_aliases.items():
-        if low in als or low == "hero_icon_"+als[0] if als else False:
-            return "heroes",hero,"authoritative_icon_object_name"
         if any(low == a for a in als):
             return "heroes",hero,"authoritative_icon_object_name"
 '''
@@ -97,7 +87,6 @@ if old not in s:
     raise SystemExit('bloc classify_asset introuvable')
 s=s.replace(old,new,1)
 
-# Report exact target coverage, independently of old heroCandidates.
 report_anchor='    o.write("\\nHERO_EXPLICIT_OBJECT_NAME_COVERAGE\\n")\n'
 report='''    o.write("\\nAUTHORITATIVE_ICON_TARGETS\\n")
     target_names={x.lower() for x in EXACT_HERO_ICON_NAMES}
@@ -112,9 +101,7 @@ if report_anchor not in s:
     raise SystemExit('ancre rapport introuvable')
 s=s.replace(report_anchor,report,1)
 
-# Old guardrail about unresolved IDs is obsolete after authoritative map decode.
 s=s.replace('  unknown_50016_50017_remain_unresolved_without_authoritative_table_row=true\\n','  hero_identity_source=decoded_lw_hero_and_lw_hero_appearance\\n')
-
 p.write_text(s,encoding='utf-8')
 PY
 
