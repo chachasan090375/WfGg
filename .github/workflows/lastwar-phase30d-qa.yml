@@ -27,4 +27,4 @@ jobs:
           grep -q 'types.ModuleType("fmod_toolkit")' "$f"
           grep -q 'FMOD audio conversion disabled' "$f"
           grep -q 'No Last War network connection' "$f"
-          ! grep -Eq 'FALLBACK_UNITY_VERSION=["'"''](202[0-9]|201[0-9])\.' "$f"
+          ! grep -Eq 'FALLBACK_UNITY_VERSION=.*20[0-9]{2}\.' "$f"
