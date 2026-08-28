@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="theme-color" content="#100d16">
+  <title>WfGg — Données Last War LAB</title>
+  <link rel="stylesheet" href="/lab/lab.css">
+  <link rel="stylesheet" href="/lab/lastwar-data.css">
+</head>
+<body>
+  <main class="shell data-shell">
+    <header class="hero card">
+      <p class="eyebrow">PREVIEW · LABORATOIRE · LOCAL ONLY</p>
+      <h1>Explorateur Last War</h1>
+      <p class="muted">Charge le JSON normalisé de phase 7. Le fichier reste dans la mémoire de ce navigateur : cette page ne l’envoie à aucune API.</p>
+      <div class="actions">
+        <a class="button secondary" href="/lab/lastwar.html">← Liaison Last War</a>
+        <button id="resetButton" class="button secondary" type="button" disabled>Effacer les données</button>
+      </div>
+    </header>
+
+    <section class="card import-card">
+      <h2>Charger les données normalisées</h2>
+      <label class="file-drop" for="dataFile">
+        <strong>WFGG_LASTWAR_PHASE7_NORMALIZED_MODULE_DATA.json</strong>
+        <span>Choisir le fichier depuis le téléphone</span>
+        <input id="dataFile" type="file" accept="application/json,.json">
+      </label>
+      <div id="loadStatus" class="status neutral">Aucun fichier chargé.</div>
+    </section>
+
+    <section id="privacyCard" class="card hidden">
+      <h2>Contrat de confidentialité</h2>
+      <div id="privacyGrid" class="privacy-grid"></div>
+    </section>
+
+    <section id="overviewCard" class="card hidden">
+      <div class="section-head"><h2>Vue d’ensemble</h2><span id="sourceBadge" class="mini-badge"></span></div>
+      <div id="overviewGrid" class="metric-grid"></div>
+    </section>
+
+    <section id="powerCard" class="card hidden">
+      <h2>Puissance & progression</h2>
+      <div id="powerGrid" class="metric-grid"></div>
+    </section>
+
+    <section id="heroesCard" class="card hidden">
+      <div class="section-head"><h2>Héros</h2><span id="heroesCount" class="mini-badge"></span></div>
+      <div id="heroFilters" class="filter-row"></div>
+      <div id="heroesGrid" class="hero-grid"></div>
+    </section>
+
+    <section id="formationsCard" class="card hidden">
+      <div class="section-head"><h2>Formations</h2><span class="mini-badge">lecture seule</span></div>
+      <p class="muted small">La phase 7 confirme les formations et groupes d’équipement, mais ne résout pas encore les cinq héros de chaque formation. Cette relation sera traitée séparément avant le simulateur d’équipes.</p>
+      <div class="split-grid">
+        <div><h3>Armées actives</h3><div id="armyFormations" class="list-stack"></div></div>
+        <div><h3>Modèles</h3><div id="formationTemplates" class="list-stack"></div></div>
+      </div>
+    </section>
+
+    <section id="equipmentCard" class="card hidden">
+      <div class="section-head"><h2>Équipement héros</h2><span id="equipmentCount" class="mini-badge"></span></div>
+      <div id="equipmentSummary" class="list-stack"></div>
+    </section>
+
+    <section id="weaponCard" class="card hidden">
+      <h2>Arme / système spécial</h2>
+      <div id="weaponGrid" class="metric-grid"></div>
+    </section>
+
+    <section id="buildingsCard" class="card hidden">
+      <div class="section-head"><h2>Bâtiments</h2><span id="buildingsCount" class="mini-badge"></span></div>
+      <div id="buildingsTable" class="table-wrap"></div>
+    </section>
+
+    <section id="scienceCard" class="card hidden">
+      <div class="section-head"><h2>Recherche</h2><span id="scienceCount" class="mini-badge"></span></div>
+      <div id="scienceSummary" class="metric-grid"></div>
+      <div id="scienceTable" class="table-wrap"></div>
+    </section>
+
+    <section class="card note">
+      <h2>Limite actuelle</h2>
+      <p>Cette page est un visualiseur du jeu de données normalisé, pas encore un module connecté. Elle ne contient aucune donnée de joueur dans le dépôt et n’écrit rien dans D1. Le prochain branchement pourra se faire derrière un endpoint laboratoire qui ne renvoie que ce modèle normalisé.</p>
+    </section>
+  </main>
+  <script src="/lab/lastwar-data.js?v=001"></script>
+</body>
+</html>
