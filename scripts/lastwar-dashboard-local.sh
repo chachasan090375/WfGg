@@ -2,26 +2,33 @@
 set -Eeuo pipefail
 
 # WfGg Last War LAB — local browser preview only.
-# Serves frontend/ on 127.0.0.1 so the phase-7 JSON can be opened in Chrome
-# without uploading player data to Cloudflare/GitHub/D1.
+# Serves frontend/ on 127.0.0.1 without uploading player data or extracted graphics.
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 FRONTEND="$ROOT/frontend"
 PORT="${WFGG_LASTWAR_VIEWER_PORT:-8877}"
-URL="http://127.0.0.1:${PORT}/lab/lastwar-data.html"
+MODE="${1:-data}"
+case "$MODE" in
+  squads|replica) PAGE="lastwar-squads-replica.html" ;;
+  data|explorer) PAGE="lastwar-data.html" ;;
+  *) echo "Usage: $0 [data|squads]" >&2; exit 2 ;;
+esac
+URL="http://127.0.0.1:${PORT}/lab/${PAGE}"
 
 command -v python >/dev/null 2>&1 || {
   echo "Installation de Python Termux…"
   pkg install -y python
 }
 
-[[ -f "$FRONTEND/lab/lastwar-data.html" ]] || {
-  echo "ERREUR: explorateur Last War absent. Fais d'abord git pull --ff-only." >&2
+[[ -f "$FRONTEND/lab/$PAGE" ]] || {
+  echo "ERREUR: page Last War absente. Fais d'abord git pull --ff-only." >&2
   exit 1
 }
 
-echo "=== WfGg Last War LAB · explorateur local ==="
+echo "=== WfGg Last War LAB · aperçu local ==="
 echo "Adresse: $URL"
+echo "Explorateur: http://127.0.0.1:${PORT}/lab/lastwar-data.html"
+echo "Escouades témoin: http://127.0.0.1:${PORT}/lab/lastwar-squads-replica.html"
 echo "Serveur lié uniquement à 127.0.0.1 (téléphone local)."
 echo "Arrêt: CTRL+C dans Termux."
 echo
