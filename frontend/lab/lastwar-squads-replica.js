@@ -14,6 +14,19 @@
   function heroRecord(id, data) { return (data?.heroes || []).find(x => Number(x.heroId) === Number(id)) || null; }
   function norm(s) { return String(s || '').trim().toLowerCase(); }
   function assetStem(s) { return norm(String(s || '').split('/').pop()).replace(/\.(png|jpg|jpeg|tga|webp)$/i,''); }
+  function rarityFor(id) {
+    const n = Number(id) || 0;
+    if (n >= 50000) return { key:'ur', label:'UR' };
+    if (n >= 40000) return { key:'ssr', label:'SSR' };
+    return { key:'sr', label:'SR' };
+  }
+  function formationProfile(f) {
+    const n = Number(f?.squadNo ?? f?.index) || 0;
+    if (n === 1) return { key:'tank', label:'BLINDÉS', mark:'T' };
+    if (n === 2) return { key:'aircraft', label:'AÉRIEN', mark:'A' };
+    if (n === 3) return { key:'missile', label:'MISSILES', mark:'M' };
+    return { key:'mixed', label:'FORMATION', mark:'+' };
+  }
 
   function exactAssetRows(name) {
     if (!kit || !name) return [];
@@ -43,8 +56,6 @@
     return rows.sort((a,b) => {
       const score = (x) => {
         if (murphy) {
-          // The 158x201 Murphy Sprite decoded from the atlas is fragmented on Android.
-          // Prefer the independent official 140x140 object with the SAME authoritative icon name.
           return (x.width===140 && x.height===140 ? 5000 : 0)
             + (x.width===154 && x.height===154 ? 2500 : 0)
             + (x.objectType==='Texture2D' ? 600 : 0)
@@ -61,7 +72,6 @@
   }
 
   function directHeroAsset(id) { return iconCandidatesFor(id)[0]?.localPath || null; }
-
   function resolvedDrone(level) { return companionMap?.drone?.resolve ? companionMap.drone.resolve(level) : null; }
   function resolvedGorilla(rank) { return companionMap?.dominator?.resolve ? companionMap.dominator.resolve(rank) : null; }
   function droneMainAsset(level) {
@@ -97,14 +107,44 @@
     });
   }
 
-  function heroTile(id,index,data) {
+  function starStrip(rankLv) {
+    const rank = Math.max(0, Number(rankLv) || 0);
+    const progress = Math.max(0, rank - 1);
+    const full = Math.min(5, Math.floor(progress / 5));
+    const partial = full < 5 && progress % 5 > 0;
+    const row = document.createElement('div');
+    row.className = 'star-strip';
+    row.title = rank ? `Rang héros ${rank}` : 'Rang inconnu';
+    for (let i=0; i<5; i++) {
+      const s = document.createElement('span');
+      s.className = `hero-star${i < full ? ' on' : (i === full && partial ? ' partial' : '')}`;
+      s.textContent = '★';
+      row.appendChild(s);
+    }
+    return row;
+  }
+
+  function gearRail(rec) {
+    const row = document.createElement('div'); row.className='gear-rail';
+    row.title = rec?.hasWeaponInfo ? 'Équipement détecté' : 'Équipement non résolu';
+    for (let i=0;i<4;i++) {
+      const slot=document.createElement('span');
+      slot.className=`gear-slot${rec?.hasWeaponInfo ? ' on' : ''}`;
+      row.appendChild(slot);
+    }
+    return row;
+  }
+
+  function heroTile(id,index,data,profile) {
     const mapped = mappedHero(id);
     const name = mapped?.name || null;
     const rec = heroRecord(id,data);
+    const rarity = rarityFor(id);
     const el = document.createElement('div');
-    el.className = `hero-tile${mapped ? '' : ' unresolved'}${Number(id)===50006 ? ' hero-murphy' : ''}`;
+    el.className = `hero-tile rarity-${rarity.key}${mapped ? '' : ' unresolved'}${Number(id)===50006 ? ' hero-murphy' : ''}`;
 
     const order = document.createElement('span'); order.className = 'hero-order'; order.textContent = String(index+1); el.appendChild(order);
+    const cls = document.createElement('span'); cls.className='hero-class-dot'; cls.textContent=profile.mark; cls.title=profile.label; el.appendChild(cls);
     const level = document.createElement('span'); level.className = 'hero-level'; level.textContent = rec?.level ? `Lv.${rec.level}` : 'Lv.—'; el.appendChild(level);
 
     const asset = directHeroAsset(id);
@@ -121,9 +161,14 @@
       const fb = document.createElement('div'); fb.className='hero-fallback'; fb.textContent = mapped ? initials(name) : '?'; el.appendChild(fb);
     }
 
+    const rarityBadge=document.createElement('span'); rarityBadge.className='rarity-badge'; rarityBadge.textContent=rarity.label; el.appendChild(rarityBadge);
+    el.appendChild(starStrip(rec?.rankLv));
+    el.appendChild(gearRail(rec));
+
     const cap = document.createElement('div'); cap.className='hero-caption';
     const b = document.createElement('b'); b.textContent = mapped ? name : `ID ${id}`;
-    const s = document.createElement('span'); s.textContent = mapped ? (asset ? mapped.queueIcon : `${mapped.queueIcon} · PNG à extraire`) : 'mapping absent';
+    const s = document.createElement('span');
+    s.textContent = mapped ? `${rarity.label} · ${rec?.skillCount ?? '—'} compétences` : 'mapping absent';
     cap.append(b,s); el.appendChild(cap);
     return el;
   }
@@ -132,16 +177,17 @@
     const row = document.createElement('div'); row.className='chip-strip';
     const chips = (group?.chips || []).filter(x => Number(x.slot) > 0).sort((a,b)=>Number(a.slot)-Number(b.slot));
     chips.forEach((chip,i) => {
-      const x = document.createElement('span'); x.className='chip-token';
+      const x = document.createElement('span'); x.className='chip-token'; x.title=`Puce ${chip.slot ?? i+1} · ${chip.star ?? 0} étoile(s)`;
+      const gem=document.createElement('i'); gem.className='chip-gem';
       const slot = document.createElement('small'); slot.textContent = `P${chip.slot ?? i+1}`;
       const star = document.createElement('b'); star.textContent = `★${chip.star ?? 0}`;
-      x.append(slot,star); row.appendChild(x);
+      x.append(gem,slot,star); row.appendChild(x);
     });
     return row;
   }
 
-  function companionBox(kind,title,lines,icon,asset,extra) {
-    const el = document.createElement('div'); el.className=`companion-box ${kind}`;
+  function companionBox(kind,title,lines,icon,asset,extra,inactive=false) {
+    const el = document.createElement('div'); el.className=`companion-box ${kind}${inactive?' inactive':''}`;
     const ic = document.createElement('div'); ic.className='companion-icon';
     if (asset) {
       const img = document.createElement('img'); img.className='companion-image'; img.src=asset; img.alt=title;
@@ -156,18 +202,24 @@
   }
 
   function squadCard(f,data) {
+    const profile=formationProfile(f);
+    const squadNo=f.squadNo ?? f.index ?? '?';
     const card=document.createElement('article'); card.className='squad-card';
     const head=document.createElement('div'); head.className='squad-card-head';
-    const left=document.createElement('div');
-    const strong=document.createElement('strong'); strong.textContent=`Escouade ${f.index ?? f.squadNo ?? '?'}`;
+    const left=document.createElement('div'); left.className='squad-head-copy';
+    const number=document.createElement('span'); number.className='squad-number'; number.textContent=String(squadNo);
+    const copy=document.createElement('div');
+    const strong=document.createElement('strong'); strong.textContent=`Escouade ${squadNo}`;
     const sub=document.createElement('div'); sub.className='squad-sub'; sub.textContent=`Priorité défense ${f.defencePriority ?? '—'}`;
-    left.append(strong,sub);
+    copy.append(strong,sub); left.append(number,copy);
+    const right=document.createElement('div'); right.className='squad-head-meta';
+    const type=document.createElement('span'); type.className=`formation-type ${profile.key}`; type.textContent=profile.label;
     const badge=document.createElement('span'); badge.className='stage-kicker'; badge.textContent='5 HÉROS';
-    head.append(left,badge); card.appendChild(head);
+    right.append(type,badge); head.append(left,right); card.appendChild(head);
 
     const grid=document.createElement('div'); grid.className='hero-row-grid';
     const ids=[...(f.heroIds||[]),...(f.tmpHeroIds||[])].slice(0,5);
-    ids.forEach((id,i)=>grid.appendChild(heroTile(id,i,data)));
+    ids.forEach((id,i)=>grid.appendChild(heroTile(id,i,data,profile)));
     while(grid.children.length<5){
       const tile=document.createElement('div'); tile.className='hero-tile unresolved';
       const fb=document.createElement('div'); fb.className='hero-fallback'; fb.textContent='?'; tile.appendChild(fb); grid.appendChild(tile);
@@ -200,7 +252,7 @@
         '◆',gorillaMainAsset(o?.rank),null
       ));
     } else {
-      strip.appendChild(companionBox('overlord','Overlord',['Non affecté à cette escouade'],'—',null,null));
+      strip.appendChild(companionBox('overlord','Overlord',['Non affecté à cette escouade'],'—',null,null,true));
     }
     card.appendChild(strip);
     return card;
