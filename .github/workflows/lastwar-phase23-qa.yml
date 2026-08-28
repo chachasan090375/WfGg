@@ -1,0 +1,36 @@
+name: LastWar phase23 asset index chain QA
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - portal-auth-lastwar-lab-v1
+    paths:
+      - 'scripts/lastwar-phase23-asset-index-chain.sh'
+      - '.github/workflows/lastwar-phase23-qa.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Validate shell syntax
+        run: bash -n scripts/lastwar-phase23-asset-index-chain.sh
+      - name: Validate embedded Python syntax
+        run: |
+          set -euo pipefail
+          awk '/^cat > "\$PY" <<'"'"'PYEOF'"'"'$/{f=1;next} /^PYEOF$/{if(f){exit}} f{print}' scripts/lastwar-phase23-asset-index-chain.sh > /tmp/phase23.py
+          python -m py_compile /tmp/phase23.py
+      - name: Enforce offline privacy and evidence guardrails
+        run: |
+          set -euo pipefail
+          f=scripts/lastwar-phase23-asset-index-chain.sh
+          grep -q 'OFFLINE ONLY' "$f"
+          grep -q 'no Last War network connection' "$f"
+          grep -q 'unknown_hero_ids_are_not_guessed=true' "$f"
+          grep -q 'exact_catalog_field_chain_or_decoded_Unity_object' "$f"
+          ! grep -Eq 'curl |wget |requests\.|urllib\.request|socket\.' "$f"
+          ! grep -Eq 'loginKey|accessToken|password' "$f"
