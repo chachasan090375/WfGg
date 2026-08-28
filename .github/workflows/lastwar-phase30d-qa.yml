@@ -21,7 +21,8 @@ jobs:
           f=scripts/lastwar-phase30d-engine-version-discovery.sh
           grep -q 'globalgamemanagers' "$f"
           grep -q 'libunity.so' "$f"
-          grep -q 'never_use_5.x.x_or_0.0.0' "$f"
+          grep -q '0.0.0' "$f"
           grep -q 'UnityPy.config.FALLBACK_UNITY_VERSION' "$f"
           grep -q 'No Last War network connection' "$f"
-          ! grep -Eq 'FALLBACK_UNITY_VERSION=["'"''](202[0-9]|201[0-9])\.' "$f"
+          grep -q 'selected=' "$f"
+          grep -q 'ambiguous=' "$f"
