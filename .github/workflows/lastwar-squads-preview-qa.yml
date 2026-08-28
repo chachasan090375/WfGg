@@ -1,0 +1,32 @@
+name: LastWar squads preview QA
+
+on:
+  push:
+    branches: [portal-auth-lastwar-lab-v1]
+    paths:
+      - 'frontend/lab/lastwar-squads-replica.html'
+      - 'frontend/lab/lastwar-squads-replica.css'
+      - 'frontend/lab/lastwar-squads-replica.js'
+      - 'frontend/lab/lastwar-companion-authoritative-map.js'
+      - '.github/workflows/lastwar-squads-preview-qa.yml'
+  workflow_dispatch:
+
+jobs:
+  qa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: JavaScript syntax
+        run: node --check frontend/lab/lastwar-squads-replica.js
+      - name: Exact companion mapping
+        run: |
+          grep -q "FX_wurenji_pifu04" frontend/lab/lastwar-companion-authoritative-map.js
+          grep -q "zxl_zhuzai_touxiang_04" frontend/lab/lastwar-companion-authoritative-map.js
+          grep -q "currentAppearance:n>=160&&n<170?1217" frontend/lab/lastwar-companion-authoritative-map.js
+          grep -q "appearance:1000005" frontend/lab/lastwar-companion-authoritative-map.js
+          grep -q "droneMainAsset" frontend/lab/lastwar-squads-replica.js
+          grep -q "gorillaMainAsset" frontend/lab/lastwar-squads-replica.js
+      - name: Murphy local witness fix
+        run: |
+          grep -q "x.width===140 && x.height===140 ? 5000" frontend/lab/lastwar-squads-replica.js
+          grep -q "hero-murphy .hero-image" frontend/lab/lastwar-squads-replica.css
