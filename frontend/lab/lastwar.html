@@ -13,7 +13,7 @@
     <header class="hero card">
       <p class="eyebrow">PREVIEW · LABORATOIRE UNIQUEMENT</p>
       <h1>Connexion Last War — socle préparé</h1>
-      <p class="muted">Cette page ne se connecte pas à Last War. Elle vérifie que WfGg est prêt à recevoir une identité Last War vérifiée sans modifier les modules existants.</p>
+      <p class="muted">Cette page reste séparée du portail de production. Le laboratoire sert à valider l’identité, la lecture des données et les futurs modèles WfGg sans modifier l’authentification existante.</p>
       <div class="actions">
         <a class="button secondary" href="/lab/">← Retour au laboratoire</a>
         <button id="refreshButton" class="button primary" type="button">Actualiser</button>
@@ -32,31 +32,39 @@
     </section>
 
     <section class="card">
+      <h2>Données Last War normalisées</h2>
+      <p class="muted">Le laboratoire sait maintenant produire un JSON normalisé à partir d’une capture locale. L’explorateur ci-dessous charge ce fichier directement depuis le téléphone et l’affiche sans l’envoyer à une API.</p>
+      <div class="actions">
+        <a class="button primary" href="/lab/lastwar-data.html">Ouvrir l’explorateur de données →</a>
+      </div>
+      <div class="status neutral">Le dépôt ne contient aucune donnée joueur. Le fichier choisi reste en mémoire dans la page et disparaît au rechargement.</div>
+    </section>
+
+    <section class="card">
       <h2>Provider Last War</h2>
       <div class="grid">
         <div class="field"><span>Schéma d’identité externe</span><strong>prêt</strong></div>
-        <div class="field"><span>UID joueur Last War</span><strong>prévu</strong></div>
-        <div class="field"><span>Serveur Last War</span><strong>prévu</strong></div>
-        <div class="field"><span>Alliance Last War</span><strong>prévue si disponible</strong></div>
-        <div class="field"><span>Connexion Last War réelle</span><strong>désactivée</strong></div>
-        <div class="field"><span>Vérification officielle</span><strong>non configurée</strong></div>
+        <div class="field"><span>Lecture protocolaire</span><strong>validée en laboratoire</strong></div>
+        <div class="field"><span>Modèle de données</span><strong>normalisation en cours</strong></div>
+        <div class="field"><span>Connexion production WfGg</span><strong>désactivée</strong></div>
+        <div class="field"><span>Authentification portail via Last War</span><strong>non activée</strong></div>
+        <div class="field"><span>D1 production</span><strong>non utilisée</strong></div>
       </div>
-      <div class="status neutral">Une simple déclaration d’UID ne pourra jamais servir à se connecter. Il faudra une preuve Last War fiable pour passer l’identité au statut VERIFIED.</div>
     </section>
 
     <section class="card">
       <h2>Flux cible</h2>
       <div class="grid">
-        <div class="field"><span>1</span><strong>Last War vérifie le joueur</strong></div>
-        <div class="field"><span>2</span><strong>WfGg retrouve son user_id</strong></div>
-        <div class="field"><span>3</span><strong>WfGg crée sa session normale</strong></div>
-        <div class="field"><span>4</span><strong>Les modules utilisent /api/me sans changement</strong></div>
+        <div class="field"><span>1</span><strong>Une preuve Last War fiable identifie le joueur</strong></div>
+        <div class="field"><span>2</span><strong>Le backend normalise uniquement les données utiles</strong></div>
+        <div class="field"><span>3</span><strong>WfGg associe l’identité au user_id</strong></div>
+        <div class="field"><span>4</span><strong>Les modules consomment un modèle sûr et stable</strong></div>
       </div>
     </section>
 
     <section class="card note">
       <h2>Protection</h2>
-      <p>Aucun mot de passe Last War, cookie Last War ou secret du jeu n’est demandé ni stocké. Le code WfGg actuel reste disponible comme solution de secours.</p>
+      <p>Les jetons Last War, empreintes appareil et autres secrets ne doivent jamais être exposés au navigateur ni stockés dans la D1 de production. Le code WfGg actuel reste inchangé tant que le laboratoire n’est pas terminé.</p>
     </section>
   </main>
   <script src="/lab/lastwar.js"></script>
