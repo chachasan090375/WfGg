@@ -1,0 +1,34 @@
+name: LastWar phase30c Unity fallback QA
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - portal-auth-lastwar-lab-v1
+    paths:
+      - 'scripts/lastwar-phase30c-unity-version-fallback.sh'
+      - '.github/workflows/lastwar-phase30c-qa.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Validate shell syntax
+        run: bash -n scripts/lastwar-phase30c-unity-version-fallback.sh
+      - name: Validate embedded patch Python
+        run: |
+          set -euo pipefail
+          awk '/^python - "\$SRC" "\$TMP" <<'"'"'PY'"'"'$/{f=1;next} /^PY$/{if(f){exit}} f{print}' scripts/lastwar-phase30c-unity-version-fallback.sh > /tmp/p.py
+          python -m py_compile /tmp/p.py
+      - name: Enforce fallback contract
+        run: |
+          set -euo pipefail
+          f=scripts/lastwar-phase30c-unity-version-fallback.sh
+          grep -q 'FALLBACK_UNITY_VERSION' "$f"
+          grep -q 'read_cstr(f)==b"UnityFS"' "$f"
+          grep -q 'No Last War network connection' "$f"
+          ! grep -Eq 'curl |wget |requests\.|urllib\.request|socket\.' "$f"
