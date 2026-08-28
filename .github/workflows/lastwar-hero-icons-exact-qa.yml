@@ -5,6 +5,7 @@ on:
     branches: [portal-auth-lastwar-lab-v1]
     paths:
       - 'scripts/lastwar-hero-icons-exact-extraction.sh'
+      - 'scripts/lastwar-hero-icons-exact-v2.sh'
       - 'frontend/lab/lastwar-hero-authoritative-map.js'
       - '.github/workflows/lastwar-hero-icons-exact-qa.yml'
   workflow_dispatch:
@@ -15,7 +16,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Shell syntax
-        run: bash -n scripts/lastwar-hero-icons-exact-extraction.sh
+        run: |
+          bash -n scripts/lastwar-hero-icons-exact-extraction.sh
+          bash -n scripts/lastwar-hero-icons-exact-v2.sh
       - name: Validate 31 authoritative rows and icon refs
         run: |
           python - <<'PY'
@@ -35,3 +38,7 @@ jobs:
           grep -q 'EXACT_HERO_ICON_NAMES' scripts/lastwar-hero-icons-exact-extraction.sh
           grep -q 'authoritative_icon_object_name' scripts/lastwar-hero-icons-exact-extraction.sh
           grep -q 'Aucune connexion Last War' scripts/lastwar-hero-icons-exact-extraction.sh
+          grep -q 'AUTHORITATIVE_ICON_TARGETS_V2' scripts/lastwar-hero-icons-exact-v2.sh
+          grep -q 'EXACT_HERO_ICON_NAMES' scripts/lastwar-hero-icons-exact-v2.sh
+          grep -q 'Texture2D' scripts/lastwar-hero-icons-exact-v2.sh
+          grep -q 'Aucune connexion Last War' scripts/lastwar-hero-icons-exact-v2.sh
