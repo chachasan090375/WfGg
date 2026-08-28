@@ -1,0 +1,37 @@
+name: LastWar exact hero icon extraction QA
+
+on:
+  push:
+    branches: [portal-auth-lastwar-lab-v1]
+    paths:
+      - 'scripts/lastwar-hero-icons-exact-extraction.sh'
+      - 'frontend/lab/lastwar-hero-authoritative-map.js'
+      - '.github/workflows/lastwar-hero-icons-exact-qa.yml'
+  workflow_dispatch:
+
+jobs:
+  qa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Shell syntax
+        run: bash -n scripts/lastwar-hero-icons-exact-extraction.sh
+      - name: Validate 31 authoritative rows and icon refs
+        run: |
+          python - <<'PY'
+          import re
+          from pathlib import Path
+          s=Path('frontend/lab/lastwar-hero-authoritative-map.js').read_text()
+          rows=re.findall(r"\{heroId:(\d+),name:'([^']+)'[^\n]*?queueIcon:'([^']+)'[^\n]*?halfIcon:'([^']+)'",s)
+          assert len(rows)==31, len(rows)
+          ids=[int(x[0]) for x in rows]
+          assert len(set(ids))==31
+          assert all(x[2].startswith('hero_icon_') and x[3].startswith('hero_icon_') for x in rows)
+          for hid,name in [(50016,'Tesla'),(50017,'DVA'),(50023,'Mason'),(50025,'Violet'),(50026,'Scarlett'),(50027,'Sarah'),(50028,'Venom')]:
+              assert any(int(x[0])==hid and x[1]==name for x in rows)
+          PY
+      - name: Exact-only guardrails
+        run: |
+          grep -q 'EXACT_HERO_ICON_NAMES' scripts/lastwar-hero-icons-exact-extraction.sh
+          grep -q 'authoritative_icon_object_name' scripts/lastwar-hero-icons-exact-extraction.sh
+          grep -q 'Aucune connexion Last War' scripts/lastwar-hero-icons-exact-extraction.sh
