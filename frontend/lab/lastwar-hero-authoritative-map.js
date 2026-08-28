@@ -1,0 +1,42 @@
+window.WFGG_LASTWAR_HERO_AUTHORITATIVE_MAP={
+  format:'WFGG_LASTWAR_HERO_AUTHORITATIVE_MAP_V1',
+  source:{
+    heroTable:'lw_hero',
+    appearanceTable:'lw_hero_appearance',
+    basis:'decoded Lua 5.3 table bytecode from installed static table container',
+    networkUsed:false
+  },
+  heroes:[
+    {heroId:30002,name:'Loki',nameKey:'hero_show_name_Loki',appearance:30002,queueIcon:'hero_icon_black_widow',halfIcon:'hero_icon_black_widow'},
+    {heroId:30003,name:'Kane',nameKey:'hero_show_name_Kane',appearance:30003,queueIcon:'hero_icon_Basilone',halfIcon:'hero_icon_Basilone'},
+    {heroId:30004,name:'Ambolt',nameKey:'hero_show_name_Ambolt',appearance:30004,queueIcon:'hero_icon_hager',halfIcon:'hero_icon_hager'},
+    {heroId:30005,name:'Gump',nameKey:'hero_show_name_Gump',appearance:30005,queueIcon:'hero_icon_gump3',halfIcon:'hero_icon_gump3'},
+    {heroId:40007,name:'Elsa',nameKey:'hero_show_name_Elsa',appearance:40007,queueIcon:'hero_icon_elsa',halfIcon:'hero_icon_elsa'},
+    {heroId:40008,name:'Farhad',nameKey:'hero_show_name_Farhad',appearance:40008,queueIcon:'hero_icon_Farhad',halfIcon:'hero_icon_Farhad'},
+    {heroId:40009,name:'Richard',nameKey:'hero_show_name_Richard',appearance:40009,queueIcon:'hero_icon_richard',halfIcon:'hero_icon_richard'},
+    {heroId:40013,name:'Braz',nameKey:'hero_show_name_Braz',appearance:40013,queueIcon:'hero_icon_lambo',halfIcon:'hero_icon_lambo'},
+    {heroId:40015,name:'Cage',nameKey:'hero_show_name_Cage',appearance:40015,queueIcon:'hero_icon_Cage',halfIcon:'hero_icon_Cage'},
+    {heroId:40016,name:'Maxwell',nameKey:'hero_show_name_Maxwell',appearance:40016,queueIcon:'hero_icon_Cruzo',halfIcon:'hero_icon_Cruzo'},
+    {heroId:40020,name:'Monica',nameKey:'hero_show_name_Monica',appearance:40020,queueIcon:'hero_icon_Monica',halfIcon:'hero_icon_Monica'},
+    {heroId:50006,name:'Murphy',nameKey:'hero_show_name_Murphy',appearance:50006,queueIcon:'hero_icon_Audie_Murphy',halfIcon:'hero_icon_Audie_Murphy'},
+    {heroId:50007,name:'Williams',nameKey:'hero_show_name_Williams',appearance:50007,queueIcon:'hero_icon_Rick',halfIcon:'hero_icon_Rick'},
+    {heroId:50008,name:'Marshall',nameKey:'hero_show_name_Marshall',appearance:50008,queueIcon:'hero_icon_Nimitz',halfIcon:'hero_icon_Nimitz'},
+    {heroId:50009,name:'Kimberly',nameKey:'hero_show_name_Kimberly',appearance:50009,queueIcon:'hero_icon_Katyusha',halfIcon:'hero_icon_Katyusha'},
+    {heroId:50010,name:'Stetmann',nameKey:'hero_show_name_Stetmann',appearance:50010,queueIcon:'hero_icon_Stetman',halfIcon:'hero_icon_Stetman'},
+    {heroId:50013,name:'McGregor',nameKey:'hero_show_name_McGregor',appearance:50013,queueIcon:'hero_icon_Ewan_McGregor',halfIcon:'hero_icon_Ewan_McGregor'},
+    {heroId:50014,name:'Fiona',nameKey:'hero_show_name_Fiona',appearance:50014,queueIcon:'hero_icon_Fiona',halfIcon:'hero_icon_Fiona'},
+    {heroId:50015,name:'Swift',nameKey:'hero_show_name_Swift',appearance:50015,queueIcon:'hero_icon_Tom',halfIcon:'hero_icon_Tom'},
+    {heroId:50016,name:'Tesla',nameKey:'hero_show_name_Tesla',appearance:50016,queueIcon:'hero_icon_Tesla',halfIcon:'hero_icon_Tesla'},
+    {heroId:50017,name:'DVA',nameKey:'hero_show_name_DVA',appearance:50017,queueIcon:'hero_icon_dva',halfIcon:'hero_icon_dva'},
+    {heroId:50018,name:'Schuyler',nameKey:'hero_show_name_Schuyler',appearance:50018,queueIcon:'hero_icon_Sally_Ride',halfIcon:'hero_icon_Sally_Ride'},
+    {heroId:50019,name:'Carlie',nameKey:'hero_show_name_Carlie',appearance:50019,queueIcon:'hero_icon_Carly',halfIcon:'hero_icon_Carly'},
+    {heroId:50020,name:'Morrison',nameKey:'hero_show_name_Morrison',appearance:50020,queueIcon:'hero_icon_Morrison',halfIcon:'hero_icon_Morrison'},
+    {heroId:50021,name:'Lucius',nameKey:'hero_show_name_Lucius',appearance:50021,queueIcon:'hero_icon_Lucius',halfIcon:'hero_icon_Lucius'},
+    {heroId:50022,name:'Adam',nameKey:'hero_show_name_Adam',appearance:50022,queueIcon:'hero_icon_Adam',halfIcon:'hero_icon_Adam'},
+    {heroId:50023,name:'Mason',nameKey:'hero_show_name_Mason',appearance:50023,queueIcon:'hero_icon_David_Stirling_ur',halfIcon:'hero_icon_David_Stirling_ur'},
+    {heroId:50025,name:'Violet',nameKey:'shared-localization:153432|900539',appearance:50025,queueIcon:'hero_icon_Doctor_Poison02',halfIcon:'hero_icon_Doctor_Poison3_ur',nameBasis:'same title_name/first_name keys as LW_Hero 40012 (hero_show_name_Violet)'},
+    {heroId:50026,name:'Scarlett',nameKey:'shared-localization:153426|900538',appearance:50026,queueIcon:'hero_icon_MissHot_UR',halfIcon:'hero_icon_MissHot_UR',nameBasis:'same title_name/first_name keys as LW_Hero 40006 (hero_show_name_Scarlett)'},
+    {heroId:50027,name:'Sarah',nameKey:'shared-localization:153439|900546',appearance:50027,queueIcon:'hero_icon_sara_ur',halfIcon:'hero_icon_m_sara_ur',nameBasis:'same title_name/first_name keys as LW_Hero 40019 (hero_show_name_Sarah)'},
+    {heroId:50028,name:'Venom',nameKey:'shared-localization:153438|900545',appearance:50028,queueIcon:'hero_icon_Alex_ur',halfIcon:'hero_icon_Alex_ur',nameBasis:'same title_name/first_name keys as LW_Hero 40018 (hero_show_name_Venom)'}
+  ]
+};
