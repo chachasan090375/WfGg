@@ -15,14 +15,21 @@
   function norm(s) { return String(s || '').trim().toLowerCase(); }
   function assetStem(s) { return norm(String(s || '').split('/').pop()).replace(/\.(png|jpg|jpeg|tga|webp)$/i,''); }
 
-  function exactAsset(name) {
-    if (!kit || !name) return null;
-    const wanted=assetStem(name);
-    const rows=(kit.extractedAssets || []).filter(x => assetStem(x?.name)===wanted || assetStem(x?.localPath)===wanted);
+  function exactAssetRows(name) {
+    if (!kit || !name) return [];
+    const wanted = assetStem(name);
+    return (kit.extractedAssets || []).filter(x => assetStem(x?.name) === wanted);
+  }
+
+  function exactAsset(name, preferSquare = true) {
+    const rows = exactAssetRows(name);
     return rows.sort((a,b) => {
-      const sa=(a.objectType==='Sprite'?100:0)+(a.width===a.height?40:0)+(a.width||0)+(a.height||0);
-      const sb=(b.objectType==='Sprite'?100:0)+(b.width===b.height?40:0)+(b.width||0)+(b.height||0);
-      return sb-sa;
+      const score = (x) => {
+        const square = Number(x.width) === Number(x.height);
+        const sprite = x.objectType === 'Sprite';
+        return (sprite ? 400 : 0) + (preferSquare && square ? 300 : 0) + Math.min(Number(x.width)||0, Number(x.height)||0);
+      };
+      return score(b)-score(a);
     })[0] || null;
   }
 
@@ -32,14 +39,22 @@
     if (!m) return [];
     const refs = [m.queueIcon,m.halfIcon].filter(Boolean).map(assetStem);
     const rows = (kit.extractedAssets || []).filter(x => refs.includes(assetStem(x?.name)));
-    const murphy = Number(id)===50006;
+    const murphy = Number(id) === 50006;
     return rows.sort((a,b) => {
-      // Murphy's 158x201 Sprite is visually fragmented in the local witness.
-      // The official 140x140 object with the same authoritative name is intact,
-      // so prefer that exact square variant only for Murphy.
       const score = (x) => {
-        if (murphy) return (x.width===140 && x.height===140 ? 1200 : 0) + (x.width===154 && x.height===154 ? 700 : 0) + (x.width===158 && x.height===201 ? 100 : 0) + (x.height||0);
-        return (x.width===158 && x.height===201 ? 500 : 0) + (x.width===140 && x.height===140 ? 200 : 0) + (x.height||0);
+        if (murphy) {
+          // The 158x201 Murphy Sprite decoded from the atlas is fragmented on Android.
+          // Prefer the independent official 140x140 object with the SAME authoritative icon name.
+          return (x.width===140 && x.height===140 ? 5000 : 0)
+            + (x.width===154 && x.height===154 ? 2500 : 0)
+            + (x.objectType==='Texture2D' ? 600 : 0)
+            - (x.width===158 && x.height===201 ? 1500 : 0)
+            + (x.height||0);
+        }
+        return (x.width===158 && x.height===201 ? 1000 : 0)
+          + (x.width===140 && x.height===140 ? 500 : 0)
+          + (x.objectType==='Sprite' ? 200 : 0)
+          + (x.height||0);
       };
       return score(b)-score(a);
     });
@@ -49,8 +64,14 @@
 
   function resolvedDrone(level) { return companionMap?.drone?.resolve ? companionMap.drone.resolve(level) : null; }
   function resolvedGorilla(rank) { return companionMap?.dominator?.resolve ? companionMap.dominator.resolve(rank) : null; }
-  function droneMainAsset(level) { const r=resolvedDrone(level); return r ? exactAsset(r.icon)?.localPath || null : null; }
-  function gorillaMainAsset(rank) { const r=resolvedGorilla(rank); return r ? exactAsset(r.icon)?.localPath || null : null; }
+  function droneMainAsset(level) {
+    const r = resolvedDrone(level);
+    return r ? exactAsset(r.icon, false)?.localPath || null : null;
+  }
+  function gorillaMainAsset(rank) {
+    const r = resolvedGorilla(rank);
+    return r ? exactAsset(r.icon, true)?.localPath || null : null;
+  }
 
   function renderKitStatus() {
     kitMetrics.innerHTML = '';
@@ -62,12 +83,12 @@
     assetStatus.textContent = heroMap
       ? `31 noms résolus · ${icons}/${total} icônes héros · Drone 162 ${drone162?'✓':'…'} · Gorilla rang 47 ${gorilla47?'✓':'…'}`
       : 'Mapping héros autoritatif absent.';
-    assetStatus.className = heroMap ? 'asset-status ok' : 'asset-status warn';
+    assetStatus.className = heroMap && drone162 && gorilla47 ? 'asset-status ok' : 'asset-status warn';
     [
       ['Images Unity', decoded],
       ['Icônes héros', heroMap ? `${icons}/${total}` : '—'],
-      ['Drone niv.162', drone162 ? 'exacte' : 'à extraire'],
-      ['Gorilla rang 47', gorilla47 ? 'exacte' : 'à extraire']
+      ['Drone niv.162', drone162 ? 'profil 1217 ✓' : 'à extraire'],
+      ['Gorilla rang 47', gorilla47 ? 'profil 1000005 ✓' : 'à extraire']
     ].forEach(([label,value]) => {
       const x = document.createElement('div'); x.className = 'kit-metric';
       const a = document.createElement('span'); a.textContent = label;
@@ -159,7 +180,10 @@
     const droneVisual=resolvedDrone(drone.level);
     strip.appendChild(companionBox(
       'drone','Drone global',
-      [`Niv. ${fmt(drone.level)} · ${fmt(drone.totalSquadEquipPower)} puissance`,`Profil ${droneVisual?.icon || 'non résolu'} · preset ${f.chipEquipGroup||'—'}`],
+      [
+        `Niv. ${fmt(drone.level)} · ${fmt(drone.totalSquadEquipPower)} puissance`,
+        `Apparence ${droneVisual?.currentAppearance ?? droneVisual?.appearance ?? '—'} · preset ${f.chipEquipGroup||'—'}`
+      ],
       '◇',droneMainAsset(drone.level),chipStrip(group)
     ));
 
@@ -169,7 +193,10 @@
       const gorilla=resolvedGorilla(o?.rank);
       strip.appendChild(companionBox(
         'overlord','Overlord · Gorilla',
-        [`Rang ${fmt(o?.rank)} · ${fmt(o?.power)} puissance`,`Apparence ${gorilla?.appearance || '—'} · ${fmt(o?.skillCount)} compétences`],
+        [
+          `Rang ${fmt(o?.rank)} · ${fmt(o?.power)} puissance`,
+          `Apparence ${gorilla?.appearance || '—'} · ${fmt(o?.skillCount)} compétences`
+        ],
         '◆',gorillaMainAsset(o?.rank),null
       ));
     } else {
