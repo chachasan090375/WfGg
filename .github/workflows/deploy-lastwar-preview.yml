@@ -2,6 +2,14 @@ name: Deploy LastWar preview API
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - portal-auth-lastwar-lab-v1
+    paths:
+      - '.github/workflows/deploy-lastwar-preview.yml'
+      - 'wrangler.jsonc'
+      - 'worker/src/index-lastwar-preview.js'
+      - 'worker/src/lastwar-identities.js'
 
 permissions:
   contents: read
@@ -21,7 +29,6 @@ jobs:
       - name: Deploy isolated LastWar preview Worker
         uses: cloudflare/wrangler-action@v4
         with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN_LASTWAR_PREVIEW }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           wranglerVersion: "4"
           command: deploy --config wrangler.jsonc
