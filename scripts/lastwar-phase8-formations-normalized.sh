@@ -171,7 +171,7 @@ func flattenRefs(v any)[]int64{
     case *sfs.SFSObject:
         if x==nil{return out}
         if id:=firstNum(x,"heroId");id!=0{return []int64{id}}
-        if id:=firstNum(x,"uuid","heroUid","uid");id!=0{return []int64{id}}
+        if id:=firstNum(x,"heroUuid","uuid","heroUid","uid");id!=0{return []int64{id}}
     case []int64:
         out=append(out,x...)
     case []int32:
