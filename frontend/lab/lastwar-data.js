@@ -19,6 +19,7 @@
     if (typeof value === 'number') return new Intl.NumberFormat('fr-FR').format(value);
     return String(value);
   };
+  const version = (data) => String(data.format || '').split('_').pop() || '?';
 
   function setStatus(text, kind = 'neutral') {
     const el = $('loadStatus');
@@ -36,11 +37,22 @@
     return el;
   }
 
-  function clearHost(id) { const el=$(id); el.innerHTML=''; return el; }
-  function showCards(show) { cards.forEach(id => $(id).classList.toggle('hidden', !show)); }
+  function listRow(title, subtitle, right = '') {
+    const row=document.createElement('div');row.className='list-row';
+    const l=document.createElement('div');l.className='left';
+    const a=document.createElement('strong');a.textContent=title;
+    const s=document.createElement('span');s.textContent=subtitle;
+    l.append(a,s);
+    const r=document.createElement('div');r.className='right';r.textContent=right;
+    row.append(l,r);return row;
+  }
+
+  function clearHost(id) { const el=$(id); if (!el) return null; el.innerHTML=''; return el; }
+  function showCards(show) { cards.forEach(id => $(id)?.classList.toggle('hidden', !show)); }
 
   function validate(data) {
-    if (!data || !['WFGG_LASTWAR_MODULE_DATA_V1','WFGG_LASTWAR_MODULE_DATA_V2'].includes(data.format)) throw new Error('FORMAT_NORMALISE_INVALIDE');
+    const formats=['WFGG_LASTWAR_MODULE_DATA_V1','WFGG_LASTWAR_MODULE_DATA_V2','WFGG_LASTWAR_MODULE_DATA_V3'];
+    if (!data || !formats.includes(data.format)) throw new Error('FORMAT_NORMALISE_INVALIDE');
     if (!data.privacy || data.privacy.networkUsed !== false) throw new Error('CONTRAT_CONFIDENTIALITE_INVALIDE');
     return data;
   }
@@ -55,6 +67,7 @@
       ['Soldes de ressources exportés', data.privacy.resourceBalancesExported === false]
     ];
     if ('rawFormationRefsExported' in data.privacy) checks.push(['Références privées de formation exportées', data.privacy.rawFormationRefsExported === false]);
+    if ('rawDominatorRefsExported' in data.privacy) checks.push(['Références privées Overlord exportées', data.privacy.rawDominatorRefsExported === false]);
     checks.forEach(([label, safe]) => {
       const row=document.createElement('div'); row.className='privacy-item';
       const span=document.createElement('span'); span.textContent=label;
@@ -65,13 +78,16 @@
 
   function renderOverview(data) {
     const c=data.counts||{}; const host=clearHost('overviewGrid');
-    [['Héros',c.heroes],['Formations actives',c.armyFormations],['Modèles',c.formationTemplates],['Équipements héros',c.heroEquipment],['Équipements généraux',c.generalEquipment],['Armes',c.weapons],['Bâtiments',c.buildings],['Recherches',c.science]].forEach(([a,b])=>host.appendChild(metric(a,b)));
-    $('sourceBadge').textContent=`${data.initTopLevelFields||0} champs init · ${data.format.endsWith('_V2')?'V2':'V1'}`;
+    const rows=[['Héros',c.heroes],['Formations actives',c.armyFormations],['Modèles',c.formationTemplates],['Équipements héros',c.heroEquipment],['Bâtiments',c.buildings],['Recherches',c.science]];
+    if (data.format.endsWith('_V3')) rows.splice(4,0,['Overlords',c.overlords||0],['Composants Drone',c.droneComponents||0],['Puces Drone',c.droneChipEntries||0]);
+    else rows.splice(4,0,['Équipements généraux',c.generalEquipment],['Système spécial',c.weapons]);
+    rows.forEach(([a,b])=>host.appendChild(metric(a,b)));
+    $('sourceBadge').textContent=`${data.initTopLevelFields||0} champs init · ${version(data)}`;
   }
 
   function renderPower(data) {
     const p=data.playerProgress||{}; const host=clearHost('powerGrid');
-    [['Puissance max','playerMaxPower'],['Héros','heroPower'],['Armée','armyPower'],['Bâtiments','buildingPower'],['Recherche','sciencePower'],['Équipement escouade','squadEquipPower'],['Cartes de bataille','battleCardPower'],['Dominator','dominatorPower'],['Décoration','decoPower'],['Kills armée','armyKill'],['Niveau PvE','pveLevel'],['Endurance','stamina']].forEach(([label,key])=>host.appendChild(metric(label,p[key])));
+    [['Puissance max','playerMaxPower'],['Héros','heroPower'],['Armée','armyPower'],['Bâtiments','buildingPower'],['Recherche','sciencePower'],['Équipement escouade','squadEquipPower'],['Cartes de bataille','battleCardPower'],['Overlord','dominatorPower'],['Décoration','decoPower'],['Kills armée','armyKill'],['Niveau PvE','pveLevel'],['Endurance','stamina']].forEach(([label,key])=>host.appendChild(metric(label,p[key])));
   }
 
   function equipmentByHero(data) {
@@ -107,57 +123,67 @@
     $('heroesCount').textContent=`${heroes.length}/${(data.heroes||[]).length}`;
   }
 
-  function listRow(title, subtitle, right) {
-    const row=document.createElement('div');row.className='list-row';
-    const l=document.createElement('div');l.className='left';const a=document.createElement('strong');a.textContent=title;const s=document.createElement('span');s.textContent=subtitle;l.append(a,s);
-    const r=document.createElement('div');r.className='right';r.textContent=right;row.append(l,r);return row;
-  }
-
   function formationState(f) {
     const slots=Number(f.slots||0);
-    const resolved=(f.heroIds||[]).length;
-    const unresolved=Number(f.unresolvedHeroRefs||0);
-    const missing=Math.max(0,slots-resolved);
-    const auxiliary=Math.max(0,unresolved-missing);
-    return {slots,resolved,unresolved,missing,auxiliary};
+    const resolved=(f.heroIds||[]).length+(f.tmpHeroIds||[]).length;
+    const unresolved=Number(f.unresolvedRefs ?? f.unresolvedHeroRefs ?? 0);
+    const missing=f.missingHeroSlots!==undefined?Number(f.missingHeroSlots):Math.max(0,slots-resolved);
+    return {slots,resolved,unresolved,missing};
   }
 
-  function formationNode(f,title) {
+  function formationNode(f,title,data) {
     const row=document.createElement('div'); row.className='formation-row';
     const head=document.createElement('div'); head.className='formation-head';
     const left=document.createElement('div');
     const strong=document.createElement('strong'); strong.textContent=title;
-    const meta=document.createElement('span'); meta.textContent=`${f.slots||0} emplacements · groupe ${f.chipEquipGroup||'—'}${f.defencePriority?` · priorité défense ${f.defencePriority}`:''}`;
+    const group=f.chipEquipGroup||'—';
+    const meta=document.createElement('span'); meta.textContent=`${f.slots||0} emplacements héros · preset Drone ${group}${f.defencePriority?` · priorité défense ${f.defencePriority}`:''}`;
     left.append(strong,meta); head.appendChild(left);
     if(f.squadNo){const badge=document.createElement('b');badge.className='mini-badge';badge.textContent=`Escouade ${f.squadNo}`;head.appendChild(badge);}
     row.appendChild(head);
 
-    const ids=f.heroIds||[]; const heroes=document.createElement('div'); heroes.className='formation-heroes';
+    const ids=[...(f.heroIds||[]),...(f.tmpHeroIds||[])]; const heroes=document.createElement('div'); heroes.className='formation-heroes';
     if(ids.length){ids.forEach((id,i)=>{const p=document.createElement('span');p.className='formation-hero';p.textContent=`${i+1}. ${heroLabel(id)}`;p.title=`heroId ${id}`;heroes.appendChild(p);});}
-    else {const p=document.createElement('span');p.className='muted small';p.textContent='Aucun héros résolu dans ce modèle';heroes.appendChild(p);}
+    else {const p=document.createElement('span');p.className='muted small';p.textContent='Aucun héros renseigné dans ce modèle';heroes.appendChild(p);}
     row.appendChild(heroes);
 
+    if (data.format.endsWith('_V3')) {
+      const companions=document.createElement('div'); companions.className='formation-companions';
+      if (f.chipEquipGroup>0) {
+        const d=document.createElement('span'); d.className='formation-drone'; d.textContent=`Drone · 4 puces preset ${f.chipEquipGroup}`; companions.appendChild(d);
+      }
+      (f.overlordOrdinals||[]).forEach(ord=>{
+        const o=(data.overlords||[]).find(x=>Number(x.ordinal)===Number(ord));
+        const p=document.createElement('span');p.className='formation-overlord';p.textContent=`Overlord #${ord}${o?.power?` · ${fmt(o.power)} puissance`:''}`;companions.appendChild(p);
+      });
+      if (companions.childNodes.length) row.appendChild(companions);
+    }
+
     const st=formationState(f);
-    if(st.slots>0 && st.resolved>=st.slots){
-      if(st.unresolved>0){const note=document.createElement('div');note.className='muted small';note.textContent=`Formation complète · ${st.unresolved} référence(s) supplémentaire(s) non classée(s), sans emplacement héros manquant`;row.appendChild(note);}
-    } else if(st.missing>0){
+    if(st.missing>0){
       const note=document.createElement('div');note.className='muted small';
-      if(st.resolved===0 && st.unresolved===0) note.textContent=`Modèle vide · ${st.missing} emplacement(s) non renseigné(s)`;
-      else note.textContent=`${st.missing} emplacement(s) héros non résolu(s) ou non renseigné(s)${st.unresolved?` · ${st.unresolved} référence(s) non classée(s) présente(s)`:''}`;
+      note.textContent=st.resolved===0?`Modèle vide · ${st.missing} emplacement(s) héros non renseigné(s)`:`${st.missing} emplacement(s) héros non renseigné(s)`;
+      if(st.unresolved) note.textContent+=` · ${st.unresolved} référence(s) encore non classée(s)`;
       row.appendChild(note);
+    } else if(st.unresolved>0){
+      const note=document.createElement('div');note.className='muted small';note.textContent=`Formation complète · ${st.unresolved} référence(s) non classée(s)`;row.appendChild(note);
     }
     return row;
   }
 
   function renderFormations(data) {
     const armies=data.armyFormations||[]; const templates=data.formationTemplates||[];
-    const a=clearHost('armyFormations'); armies.forEach(f=>a.appendChild(formationNode(f,`Armée ${f.index}`)));
-    const t=clearHost('formationTemplates'); templates.forEach(f=>t.appendChild(formationNode(f,`Modèle ${f.index}`)));
+    const a=clearHost('armyFormations'); armies.forEach(f=>a.appendChild(formationNode(f,`Armée ${f.index}`,data)));
+    const t=clearHost('formationTemplates'); templates.forEach(f=>t.appendChild(formationNode(f,`Modèle ${f.index}`,data)));
     const totalSlots=armies.reduce((n,f)=>n+Number(f.slots||0),0);
-    const resolved=armies.reduce((n,f)=>n+(f.heroIds||[]).length,0);
+    const resolved=armies.reduce((n,f)=>n+(f.heroIds||[]).length+(f.tmpHeroIds||[]).length,0);
     const complete=armies.filter(f=>formationState(f).missing===0).length;
-    if(data.formationResolution){$('formationsStatus').textContent=`Armées actives : ${resolved}/${totalSlots} héros résolus · ${complete}/${armies.length} formations complètes. Les références supplémentaires des modèles sont diagnostiquées séparément.`;}
-    else {$('formationsStatus').textContent='Phase 7 : relations héros non résolues. Charge le fichier Phase 8 pour les afficher.';}
+    if(data.format.endsWith('_V3')) {
+      const r=data.formationResolution||{};
+      $('formationsStatus').textContent=`Armées actives : ${resolved}/${totalSlots} héros · ${r.armyOverlordRefs||0} Overlord lié · Drone global avec preset de puces par escouade · ${r.unresolvedRefs||0} référence non classée.`;
+    } else if(data.formationResolution){
+      $('formationsStatus').textContent=`Armées actives : ${resolved}/${totalSlots} héros résolus · ${complete}/${armies.length} formations complètes.`;
+    } else {$('formationsStatus').textContent='Phase 7 : relations héros non résolues. Charge Phase 8 ou Phase 19.';}
   }
 
   function renderEquipment(data) {
@@ -169,8 +195,28 @@
     $('equipmentCount').textContent=`${map.size} héros liés / ${(data.heroEquipment||[]).length} entrées`;
   }
 
-  function renderWeapon(data) {
-    const host=clearHost('weaponGrid'); const w=(data.weapons||[])[0]; if(!w){host.appendChild(metric('Arme','Aucune'));return;}
+  function renderCompanions(data) {
+    const host=clearHost('weaponGrid');
+    const compHost=clearHost('droneComponents');
+    const chipHost=clearHost('droneChipGroups');
+    const overHost=clearHost('overlordSummary');
+    if(data.drone){
+      const d=data.drone;
+      [['Niveau Drone',d.level],['Puissance totale escouade',d.totalSquadEquipPower],['Puissance Drone hors puces',d.basePower],['Puissance puces',d.chipPower],['Puissance composants',d.componentPower],['Niveau puces',d.chipLevel],['EXP puces',d.chipExp],['Compétence',d.skillId],['Niveau compétence',d.skillLevel]].forEach(([k,v])=>host.appendChild(metric(k,v)));
+      const proof=document.createElement('div'); proof.className=`identity-proof ${d.totalIdentityExact?'good':'warn-text'}`; proof.textContent=d.totalIdentityExact?'Identité de puissance confirmée : Drone + puces = puissance équipement escouade.':'Identité de puissance non confirmée.'; host.appendChild(proof);
+      (d.components||[]).forEach(c=>compHost.appendChild(listRow(`Composant slot ${c.slot}`,`cfg ${c.cfgId} · EXP ${fmt(c.exp)}`,`${fmt(c.power)} puissance`)));
+      (data.droneChipGroups||[]).forEach(g=>{
+        const stars=(g.chips||[]).filter(c=>c.slot>0).map(c=>c.star??0).join('/');
+        const used=(g.usedByArmies||[]).length?`Armée(s) ${g.usedByArmies.join(', ')}`:(Number(g.equipGroup)===0?'Inventaire non affecté':'Preset non actif');
+        chipHost.appendChild(listRow(`Preset ${g.equipGroup}`,`${(g.chips||[]).length} puce(s) · étoiles ${stars||'—'}`,used));
+      });
+      (data.overlords||[]).forEach(o=>overHost.appendChild(listRow(`Overlord #${o.ordinal}`,`ID catalogue ${o.dominatorId||'—'} · rang ${o.rank||'—'} · ${o.skillCount||0} compétences`,`${fmt(o.power)} puissance`)));
+      if (!(data.overlords||[]).length) overHost.appendChild(listRow('Overlord','Aucun Overlord détecté'));
+      return;
+    }
+
+    const w=(data.weapons||[])[0];
+    if(!w){host.appendChild(metric('Système spécial','Aucun'));return;}
     [['Niveau',w.level],['Puissance',w.power],['EXP',w.exp],['Niveau puce',w.chipLv],['EXP puce',w.chipExp],['Compétence',w.skill],['Niveau compétence',w.skillLevel]].forEach(([k,v])=>host.appendChild(metric(k,v)));
   }
 
@@ -191,8 +237,8 @@
 
   function render(data) {
     currentData=data; showCards(true); $('resetButton').disabled=false;
-    renderPrivacy(data); renderOverview(data); renderPower(data); renderHeroFilters(data); renderHeroes(data); renderFormations(data); renderEquipment(data); renderWeapon(data); renderBuildings(data); renderScience(data);
-    setStatus(`Fichier chargé · ${(data.heroes||[]).length} héros · ${(data.buildings||[]).length} bâtiments · ${(data.science||[]).length} recherches`, 'success');
+    renderPrivacy(data); renderOverview(data); renderPower(data); renderHeroFilters(data); renderHeroes(data); renderFormations(data); renderEquipment(data); renderCompanions(data); renderBuildings(data); renderScience(data);
+    setStatus(`Fichier ${version(data)} chargé · ${(data.heroes||[]).length} héros · ${(data.armyFormations||[]).length} armées · ${(data.overlords||[]).length} Overlord`, 'success');
   }
 
   async function loadFile(file) {
@@ -201,5 +247,6 @@
   }
 
   $('dataFile').addEventListener('change',(e)=>loadFile(e.target.files?.[0]));
-  $('resetButton').addEventListener('click',()=>{ currentData=null; heroFilter='all'; $('dataFile').value=''; showCards(false); $('resetButton').disabled=true; setStatus('Données effacées de la mémoire de cette page.','neutral'); });
+  $('resetButton').addEventListener('click',()=>{ currentData=null; heroFilter='all'; $('dataFile').value=''; showCards(false); $('resetButton').disabled=true; setStatus('Données effacées de la mémoire de la page.','neutral'); });
+  showCards(false);
 })();
