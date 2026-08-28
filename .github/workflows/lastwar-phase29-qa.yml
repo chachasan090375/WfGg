@@ -1,0 +1,45 @@
+name: LastWar phase29 graphics kit QA
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - portal-auth-lastwar-lab-v1
+    paths:
+      - 'scripts/lastwar-phase29-graphics-kit-v1.sh'
+      - 'frontend/lab/lastwar-squads-replica.html'
+      - 'frontend/lab/lastwar-squads-replica.css'
+      - 'frontend/lab/lastwar-squads-replica.js'
+      - 'frontend/lab/local-assets/lastwar-kit-v1/.gitignore'
+      - '.github/workflows/lastwar-phase29-qa.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Validate shell syntax
+        run: bash -n scripts/lastwar-phase29-graphics-kit-v1.sh
+      - name: Validate embedded Python syntax
+        run: |
+          set -euo pipefail
+          awk '/^cat > "\$PY" <<'"'"'PYEOF'"'"'$/{f=1;next} /^PYEOF$/{if(f){exit}} f{print}' scripts/lastwar-phase29-graphics-kit-v1.sh > /tmp/phase29.py
+          python -m py_compile /tmp/phase29.py
+      - name: Validate replica JavaScript syntax
+        run: node --check frontend/lab/lastwar-squads-replica.js
+      - name: Enforce local-only graphics contract
+        run: |
+          set -euo pipefail
+          f=scripts/lastwar-phase29-graphics-kit-v1.sh
+          grep -q 'OFFLINE ONLY' "$f"
+          grep -q 'No Last War network connection' "$f"
+          grep -q 'local-assets/lastwar-kit-v1' "$f"
+          grep -q 'HeroIcons' "$f"
+          grep -q 'item_uav_equip' "$f"
+          ! grep -Eq 'curl |wget |requests\.|urllib\.request|socket\.' "$f"
+          grep -q '^\*$' frontend/lab/local-assets/lastwar-kit-v1/.gitignore
+          grep -q 'WFGG_LASTWAR_MODULE_DATA_V3' frontend/lab/lastwar-squads-replica.js
+          grep -q '5 HÉROS' frontend/lab/lastwar-squads-replica.js
