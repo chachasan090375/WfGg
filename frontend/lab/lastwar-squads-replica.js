@@ -3,86 +3,54 @@
 
   const $ = (id) => document.getElementById(id);
   const fmt = (v) => v === null || v === undefined || v === '' ? '—' : (typeof v === 'number' ? new Intl.NumberFormat('fr-FR').format(v) : String(v));
-  const HERO_NAMES = new Map([
-    [30002,'Loki'],[30003,'Kane'],[30004,'Ambolt'],[30005,'Gump'],[40007,'Elsa'],[40008,'Farhad'],[40009,'Richard'],[40013,'Braz'],[40015,'Cage'],[40016,'Maxwell'],[40020,'Monica'],
-    [50006,'Murphy'],[50007,'Williams'],[50008,'Marshall'],[50009,'Kimberly'],[50010,'Stetmann'],[50013,'McGregor'],[50014,'Fiona'],[50015,'Swift'],[50018,'Schuyler'],[50019,'Carlie'],[50020,'Morrison'],[50021,'Lucius'],[50022,'Adam']
-  ]);
-
   const kit = window.WFGG_LASTWAR_GRAPHICS_KIT || null;
-  const heroCatalog = window.WFGG_LASTWAR_HERO_CATALOG || null;
+  const heroMap = window.WFGG_LASTWAR_HERO_AUTHORITATIVE_MAP || null;
   const assetStatus = $('assetStatus');
   const kitMetrics = $('kitMetrics');
 
-  function catalogHero(id) { return heroCatalog?.heroes?.find(x => Number(x.heroId) === Number(id)) || null; }
-  function catalogProofValid(x) { return Boolean(x?.authoritativeRowFound && x?.name && x?.nameBasis); }
-  function catalogIconValid(x) { return Boolean(catalogProofValid(x) && x?.localIconPath); }
-  function heroName(id) { const x=catalogHero(id); return (catalogProofValid(x) ? x.name : null) || HERO_NAMES.get(Number(id)) || null; }
+  function mappedHero(id) { return heroMap?.heroes?.find(x => Number(x.heroId) === Number(id)) || null; }
+  function heroName(id) { return mappedHero(id)?.name || null; }
   function initials(name) { return String(name || '?').split(/\s+/).map(x => x[0]).join('').slice(0,2).toUpperCase(); }
   function heroRecord(id, data) { return (data?.heroes || []).find(x => Number(x.heroId) === Number(id)) || null; }
+  function norm(s) { return String(s || '').trim().toLowerCase(); }
+
+  function iconCandidatesFor(id) {
+    if (!kit) return [];
+    const m = mappedHero(id);
+    if (!m) return [];
+    const refs = [m.queueIcon,m.halfIcon].filter(Boolean).map(norm);
+    const rows = (kit.extractedAssets || []).filter(x => refs.includes(norm(x?.name)));
+    return rows.sort((a,b) => {
+      const sa = (a.width===158 && a.height===201 ? 500 : 0) + (a.width===140 && a.height===140 ? 200 : 0) + (a.height||0);
+      const sb = (b.width===158 && b.height===201 ? 500 : 0) + (b.width===140 && b.height===140 ? 200 : 0) + (b.height||0);
+      return sb-sa;
+    });
+  }
+
+  function directHeroAsset(id) {
+    return iconCandidatesFor(id)[0]?.localPath || null;
+  }
 
   function renderKitStatus() {
     kitMetrics.innerHTML = '';
-    if (!kit || kit.format !== 'WFGG_LASTWAR_GRAPHICS_KIT_V1') {
-      assetStatus.textContent = 'Kit graphique absent · extraction locale requise.';
-      assetStatus.className = 'asset-status warn';
-      return;
-    }
-    const s = kit.stats || {};
-    const decoded = s.decodedRasterAssets ?? kit.extractedAssets?.length ?? 0;
-    const provenNames = heroCatalog?.heroes?.filter(catalogProofValid).length ?? 0;
-    const provenIcons = heroCatalog?.heroes?.filter(catalogIconValid).length ?? 0;
-    const total = heroCatalog?.heroCount ?? 31;
-    assetStatus.textContent = heroCatalog
-      ? `Catalogue héros prouvé · ${provenNames}/${total} noms · ${provenIcons}/${total} icônes`
-      : `Kit local · ${fmt(decoded)} images Unity décodées · catalogue héros à générer`;
-    assetStatus.className = heroCatalog && provenNames === total && provenIcons === total ? 'asset-status ok' : 'asset-status warn';
+    const decoded = kit?.stats?.decodedRasterAssets ?? kit?.extractedAssets?.length ?? 0;
+    const total = heroMap?.heroes?.length ?? 0;
+    const icons = heroMap ? heroMap.heroes.filter(h => Boolean(directHeroAsset(h.heroId))).length : 0;
+    assetStatus.textContent = heroMap
+      ? `31 noms résolus · ${icons}/${total} icônes officielles déjà présentes localement`
+      : 'Mapping héros autoritatif absent.';
+    assetStatus.className = heroMap ? 'asset-status ok' : 'asset-status warn';
     [
       ['Images Unity', decoded],
-      ['Noms prouvés', heroCatalog ? `${provenNames}/${total}` : '—'],
-      ['Icônes prouvées', heroCatalog ? `${provenIcons}/${total}` : '—'],
-      ['Assets Drone', kit.droneAssets?.length ?? 0]
+      ['Noms héros', heroMap ? `${total}/${total}` : '—'],
+      ['Icônes exactes', heroMap ? `${icons}/${total}` : '—'],
+      ['Assets Drone', kit?.droneAssets?.length ?? 0]
     ].forEach(([label,value]) => {
       const x = document.createElement('div'); x.className = 'kit-metric';
       const a = document.createElement('span'); a.textContent = label;
       const b = document.createElement('b'); b.textContent = fmt(value);
       x.append(a,b); kitMetrics.appendChild(x);
     });
-  }
-
-  function heroAssetScore(asset) {
-    const p = `${asset?.name || ''} ${asset?.localPath || asset || ''}`.toLowerCase();
-    let score = 0;
-    if (p.includes('hero_icon_')) score += 1400;
-    if (p.includes('halfbody') || p.includes('herohead') || p.includes('headicon') || p.includes('portrait')) score += 700;
-    if (asset?.width && asset?.height) {
-      const ratio = asset.width / asset.height;
-      if (ratio > .68 && ratio < .9 && asset.height >= 180) score += 350;
-      if (asset.width === 158 && asset.height === 201) score += 500;
-      if (asset.width === 140 && asset.height === 140) score += 120;
-    }
-    if (p.includes('_zw') || p.includes('zhuanwu') || p.includes('lrb_') || p.includes('ljq_icon') || p.includes('weapon')) score -= 1100;
-    if (p.includes('eff_') || p.includes('effect') || p.includes('smoke') || p.includes('noise') || p.includes('crack') || p.includes('particle')) score -= 1800;
-    return score;
-  }
-
-  function directHeroAsset(id) {
-    const cat = catalogHero(id);
-    if (catalogIconValid(cat)) return cat.localIconPath;
-    if (!kit) return null;
-    const name = heroName(id);
-    if (!name) return null;
-
-    const rich = (kit.extractedAssets || [])
-      .filter(x => x && x.category === 'heroes' && x.heroName === name && x.mappingBasis === 'object_name')
-      .map(x => ({...x, score: heroAssetScore(x)}))
-      .sort((a,b) => b.score - a.score);
-    if (rich[0]?.score >= 900) return rich[0].localPath;
-
-    const node = kit.heroCandidates?.[name];
-    const ranked = (node?.directAssets || [])
-      .map(path => ({path,score:heroAssetScore(path)}))
-      .sort((a,b) => b.score-a.score);
-    return ranked[0]?.score >= 900 ? ranked[0].path : null;
   }
 
   function droneMainAsset() {
@@ -103,20 +71,17 @@
   }
 
   function heroTile(id,index,data) {
-    const name = heroName(id);
+    const mapped = mappedHero(id);
+    const name = mapped?.name || null;
     const rec = heroRecord(id,data);
-    const resolved = Boolean(name);
-    const cat = catalogHero(id);
     const el = document.createElement('div');
-    el.className = `hero-tile${resolved ? '' : ' unresolved'}`;
+    el.className = `hero-tile${mapped ? '' : ' unresolved'}`;
 
     const order = document.createElement('span');
     order.className = 'hero-order'; order.textContent = String(index+1); el.appendChild(order);
 
     const level = document.createElement('span');
-    level.className = 'hero-level';
-    level.textContent = rec?.level ? `Lv.${rec.level}` : 'Lv.—';
-    el.appendChild(level);
+    level.className = 'hero-level'; level.textContent = rec?.level ? `Lv.${rec.level}` : 'Lv.—'; el.appendChild(level);
 
     const asset = directHeroAsset(id);
     if (asset) {
@@ -129,16 +94,13 @@
       },{once:true});
       el.appendChild(img);
     } else {
-      const fb = document.createElement('div');
-      fb.className = 'hero-fallback'; fb.textContent = resolved ? initials(name) : '?'; el.appendChild(fb);
+      const fb = document.createElement('div'); fb.className='hero-fallback'; fb.textContent = mapped ? initials(name) : '?'; el.appendChild(fb);
     }
 
     const cap = document.createElement('div'); cap.className='hero-caption';
-    const b = document.createElement('b'); b.textContent = resolved ? name : 'Héros non résolu';
+    const b = document.createElement('b'); b.textContent = mapped ? name : `ID ${id}`;
     const s = document.createElement('span');
-    if (!resolved) s.textContent = `ID ${id} · table à décoder`;
-    else if (catalogProofValid(cat)) s.textContent = asset ? 'table + icône officielle' : 'table résolue · icône à extraire';
-    else s.textContent = asset ? 'portrait officiel' : 'portrait à retrouver';
+    s.textContent = mapped ? (asset ? mapped.queueIcon : `${mapped.queueIcon} · PNG à extraire`) : 'mapping absent';
     cap.append(b,s); el.appendChild(cap);
     return el;
   }
@@ -193,12 +155,9 @@
     const group=(data.droneChipGroups||[]).find(g=>Number(g.equipGroup)===Number(f.chipEquipGroup));
     const drone=data.drone||{};
     strip.appendChild(companionBox(
-      'drone',
-      'Drone global',
+      'drone','Drone global',
       [`Niv. ${fmt(drone.level)} · ${fmt(drone.totalSquadEquipPower)} puissance`,`Preset ${f.chipEquipGroup||'—'} · 4 puces`],
-      '◇',
-      droneMainAsset(),
-      chipStrip(group)
+      '◇',droneMainAsset(),chipStrip(group)
     ));
 
     const ord=(f.overlordOrdinals||[])[0];
@@ -222,11 +181,10 @@
     const host=$('squadGrid'); host.innerHTML='';
     (data.armyFormations||[]).forEach(f=>host.appendChild(squadCard(f,data)));
     $('squadEquipPower').textContent=fmt(data.playerProgress?.squadEquipPower ?? data.drone?.totalSquadEquipPower);
-
     const ids=(data.armyFormations||[]).flatMap(x=>x.heroIds||[]);
-    const resolved=ids.filter(id=>Boolean(heroName(id))).length;
+    const resolved=ids.filter(id=>Boolean(mappedHero(id))).length;
     const portraits=ids.filter(id=>Boolean(directHeroAsset(id))).length;
-    $('replicaStatus').textContent=`${(data.armyFormations||[]).length} escouades · ${resolved}/${ids.length} libellés héros · ${portraits}/${ids.length} icônes officielles`;
+    $('replicaStatus').textContent=`${(data.armyFormations||[]).length} escouades · ${resolved}/${ids.length} noms résolus · ${portraits}/${ids.length} icônes exactes`;
   }
 
   $('squadDataFile').addEventListener('change',async(e)=>{
