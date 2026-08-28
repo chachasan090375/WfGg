@@ -12,6 +12,8 @@ SRC="${BASE}/src"
 LAB_HOME="${BASE}/home"
 BIN="${BASE}/lastwar-client"
 DOWNLOADS="${HOME}/storage/downloads"
+SHARED="${HOME}/storage/shared"
+ANDROID_SHARED="/storage/emulated/0"
 SESSION="${LAB_HOME}/.lastwar_goclient_session.json"
 OUT_PRIVATE="${BASE}/WFGG_LASTWAR_PHASE3_REAL_SESSION_REDACTED.txt"
 OUT_SHARE="${DOWNLOADS}/WFGG_LASTWAR_PHASE3_REAL_SESSION_REDACTED.txt"
@@ -22,15 +24,38 @@ die() { printf 'ERREUR: %s\n' "$*" >&2; exit 1; }
 
 [[ -d "$SRC/.git" ]] || die "source du probe absente; exécute d'abord la phase 1"
 [[ -d "$LAB_HOME" ]] || die "HOME du laboratoire absent"
-[[ -d "$DOWNLOADS" ]] || die "accès Téléchargements absent; exécute termux-setup-storage"
+[[ -d "$DOWNLOADS" ]] || die "accès stockage Android absent; exécute termux-setup-storage"
 
 CAPTURE="${1:-}"
 if [[ -z "$CAPTURE" ]]; then
-  CAPTURE="$({
-    find "$DOWNLOADS" -maxdepth 4 -type f \( -iname '*.pcap' -o -iname '*.pcapng' -o -iname '*.cap' \) -printf '%T@ %p\n' 2>/dev/null || true
-  } | sort -nr | head -n1 | cut -d' ' -f2-)"
+  # PCAPdroid can save through Android's document picker, so the file is not
+  # guaranteed to land in ~/storage/downloads. Search the common shared-storage
+  # locations first, then the whole shared tree as a fallback. -L is important:
+  # Termux's ~/storage/* entries are symlinks.
+  CANDIDATES="$({
+    for root in \
+      "$DOWNLOADS" \
+      "$SHARED/Download" \
+      "$SHARED/Documents" \
+      "$SHARED/PCAPdroid" \
+      "$ANDROID_SHARED/Download" \
+      "$ANDROID_SHARED/Documents"; do
+      [[ -e "$root" ]] || continue
+      find -L "$root" -maxdepth 6 -type f \
+        \( -iname '*.pcap' -o -iname '*.pcapng' -o -iname '*.cap' \) \
+        -printf '%T@ %p\n' 2>/dev/null || true
+    done
+  } | sort -nr)"
+
+  if [[ -z "$CANDIDATES" && -e "$SHARED" ]]; then
+    CANDIDATES="$(find -L "$SHARED" -type f \
+      \( -iname '*.pcap' -o -iname '*.pcapng' -o -iname '*.cap' \) \
+      -printf '%T@ %p\n' 2>/dev/null | sort -nr || true)"
+  fi
+
+  CAPTURE="$(printf '%s\n' "$CANDIDATES" | head -n1 | cut -d' ' -f2-)"
 fi
-[[ -n "$CAPTURE" && -f "$CAPTURE" ]] || die "aucun PCAP/PCAPNG trouvé dans Téléchargements"
+[[ -n "$CAPTURE" && -f "$CAPTURE" ]] || die "aucun PCAP/PCAPNG trouvé dans le stockage Android. Depuis PCAPdroid, exporte/copier la capture vers Téléchargements, ou relance ce script en lui donnant le chemin exact."
 
 TERMUX_PREFIX="${PREFIX:-/data/data/com.termux/files/usr}"
 REAL_GO="${TERMUX_PREFIX}/bin/go"
@@ -73,15 +98,15 @@ type sessionConfig struct {
 }
 
 type safeMeta struct {
-    IP       string `json:"ip"`
-    Port     int    `json:"port"`
-    Zone     string `json:"zone"`
-    GameUid  string `json:"gameUid"`
-    Platform string `json:"platform"`
-    App      string `json:"appVersion"`
-    Build    string `json:"versionCode"`
-    TokenLen int    `json:"accessTokenLength"`
-    ShumeiLen int   `json:"shumeiLength"`
+    IP        string `json:"ip"`
+    Port      int    `json:"port"`
+    Zone      string `json:"zone"`
+    GameUid   string `json:"gameUid"`
+    Platform  string `json:"platform"`
+    App       string `json:"appVersion"`
+    Build     string `json:"versionCode"`
+    TokenLen  int    `json:"accessTokenLength"`
+    ShumeiLen int    `json:"shumeiLength"`
 }
 
 func main() {
