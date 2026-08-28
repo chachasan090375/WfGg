@@ -1,0 +1,69 @@
+name: LastWar isolated probe QA
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - portal-auth-lastwar-lab-v1
+    paths:
+      - 'scripts/lastwar-termux-probe.sh'
+      - '.github/workflows/lastwar-probe-qa.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout WfGg preview branch
+        uses: actions/checkout@v6
+
+      - name: Validate shell syntax
+        run: bash -n scripts/lastwar-termux-probe.sh
+
+      - name: Setup Go 1.27
+        uses: actions/setup-go@v6
+        with:
+          go-version: '1.27.x'
+
+      - name: Reproduce local-only redacted snapshot patch and build
+        shell: bash
+        run: |
+          set -euo pipefail
+          upstream="$RUNNER_TEMP/lastwar-client"
+          git clone --quiet --filter=blob:none https://github.com/ljagiello/lastwar-client.git "$upstream"
+          cd "$upstream"
+          git fetch --quiet --depth 1 origin ee5f64de160a8051c2f9f98189b75038dd225a0a
+          git checkout --quiet --detach ee5f64de160a8051c2f9f98189b75038dd225a0a
+          git reset --quiet --hard ee5f64de160a8051c2f9f98189b75038dd225a0a
+
+          auth_file="$upstream/internal/auth/login.go"
+          tmp_file="$auth_file.wfgg.tmp"
+          awk '
+            {
+              print
+              if ($0 ~ /^[[:space:]]*result\.Account = msg2\.Params[[:space:]]*$/) {
+                print "\tif snapshotPath := os.Getenv(\"WFGG_LASTWAR_SNAPSHOT_PATH\"); snapshotPath != \"\" {"
+                print "\t\tif err := os.WriteFile(snapshotPath, []byte(msg2.Params.StringRedacted()+\"\\n\"), 0o600); err != nil {"
+                print "\t\t\tslog.Warn(\"failed to write WfGg redacted Last War probe snapshot\", \"error\", err)"
+                print "\t\t}"
+                print "\t}"
+              }
+            }
+          ' "$auth_file" > "$tmp_file"
+          mv "$tmp_file" "$auth_file"
+
+          grep -q 'WFGG_LASTWAR_SNAPSHOT_PATH' "$auth_file"
+          gofmt -w "$auth_file"
+          GOTOOLCHAIN=auto go build -o "$RUNNER_TEMP/lastwar-client-probe" ./cmd/lastwar-client
+          test -x "$RUNNER_TEMP/lastwar-client-probe"
+
+      - name: Verify probe stays non-automating
+        run: |
+          set -euo pipefail
+          grep -q -- '-list-buildings' scripts/lastwar-termux-probe.sh
+          if grep -Eq -- '(^|[[:space:]])-collect([[:space:]]|$)' scripts/lastwar-termux-probe.sh; then
+            echo 'Forbidden gameplay automation flag found in probe script.' >&2
+            exit 1
+          fi
