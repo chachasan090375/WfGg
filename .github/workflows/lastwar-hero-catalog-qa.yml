@@ -1,0 +1,28 @@
+name: LastWar authoritative hero catalog QA
+
+on:
+  push:
+    branches: [portal-auth-lastwar-lab-v1]
+    paths:
+      - 'scripts/lastwar-hero-catalog-authoritative.sh'
+      - 'frontend/lab/lastwar-squads-replica.html'
+      - 'frontend/lab/lastwar-squads-replica.js'
+      - '.github/workflows/lastwar-hero-catalog-qa.yml'
+  workflow_dispatch:
+
+jobs:
+  qa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Shell syntax
+        run: bash -n scripts/lastwar-hero-catalog-authoritative.sh
+      - name: JavaScript syntax
+        run: node --check frontend/lab/lastwar-squads-replica.js
+      - name: Guardrails and direct table path
+        run: |
+          grep -q 'lw_hero' scripts/lastwar-hero-catalog-authoritative.sh
+          grep -q 'ZipFile(io.BytesIO' scripts/lastwar-hero-catalog-authoritative.sh
+          grep -q 'no_game_write=true' scripts/lastwar-hero-catalog-authoritative.sh
+          grep -q 'no_game_network=true' scripts/lastwar-hero-catalog-authoritative.sh
+          grep -q 'WFGG_LASTWAR_HERO_CATALOG' frontend/lab/lastwar-squads-replica.js
