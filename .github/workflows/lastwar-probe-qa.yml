@@ -10,6 +10,7 @@ on:
       - 'scripts/lastwar-phase3-session-from-pcap.sh'
       - 'scripts/lastwar-phase4-login-diff.sh'
       - 'scripts/lastwar-phase5-native-template-login.sh'
+      - 'scripts/lastwar-phase6-module-schema-export.sh'
       - '.github/workflows/lastwar-probe-qa.yml'
 
 permissions:
@@ -28,6 +29,7 @@ jobs:
           bash -n scripts/lastwar-phase3-session-from-pcap.sh
           bash -n scripts/lastwar-phase4-login-diff.sh
           bash -n scripts/lastwar-phase5-native-template-login.sh
+          bash -n scripts/lastwar-phase6-module-schema-export.sh
 
       - name: Setup Go 1.27
         uses: actions/setup-go@v6
@@ -126,12 +128,20 @@ jobs:
           grep -q 'INIT_RECEIVED=' scripts/lastwar-phase5-native-template-login.sh
           grep -q 'FRESH_DYNAMIC' scripts/lastwar-phase5-native-template-login.sh
 
+      - name: Validate phase6 is offline module export
+        run: |
+          set -euo pipefail
+          grep -q 'OFFLINE ONLY' scripts/lastwar-phase6-module-schema-export.sh
+          grep -q 'WFGG_LASTWAR_MODULE_SCHEMA_V1' scripts/lastwar-phase6-module-schema-export.sh
+          grep -q 'NetworkUsed: false' scripts/lastwar-phase6-module-schema-export.sh
+          grep -q 'WFGG_LASTWAR_PHASE6_MODULE_SCHEMA.json' scripts/lastwar-phase6-module-schema-export.sh
+
       - name: Verify probes stay non-automating
         run: |
           set -euo pipefail
           grep -q -- '-list-buildings' scripts/lastwar-termux-probe.sh
           grep -q -- '-list-buildings' scripts/lastwar-phase3-session-from-pcap.sh
-          for script in scripts/lastwar-termux-probe.sh scripts/lastwar-phase3-session-from-pcap.sh scripts/lastwar-phase4-login-diff.sh scripts/lastwar-phase5-native-template-login.sh; do
+          for script in scripts/lastwar-termux-probe.sh scripts/lastwar-phase3-session-from-pcap.sh scripts/lastwar-phase4-login-diff.sh scripts/lastwar-phase5-native-template-login.sh scripts/lastwar-phase6-module-schema-export.sh; do
             if grep -Eq -- '(^|[[:space:]])-collect([[:space:]]|$)' "$script"; then
               echo "Forbidden gameplay automation flag found in $script" >&2
               exit 1
