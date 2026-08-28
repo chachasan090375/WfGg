@@ -1,0 +1,42 @@
+name: LastWar phase16 drone core discovery QA
+
+on:
+  push:
+    branches:
+      - portal-auth-lastwar-lab-v1
+    paths:
+      - 'scripts/lastwar-phase16-drone-core-discovery.sh'
+      - '.github/workflows/lastwar-phase16-qa.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Validate shell syntax
+        run: bash -n scripts/lastwar-phase16-drone-core-discovery.sh
+      - uses: actions/setup-go@v6
+        with:
+          go-version: '1.27.x'
+      - name: Compile embedded phase16 helper against pinned client
+        run: |
+          set -euo pipefail
+          git clone -q https://github.com/ljagiello/lastwar-client.git /tmp/lastwar-client
+          git -C /tmp/lastwar-client checkout -q ee5f64de160a8051c2f9f98189b75038dd225a0a
+          mkdir -p /tmp/lastwar-client/internal/cmd/wfgg-phase16-drone-core
+          awk '/^cat > "\$TMP_CMD\/main.go" <<'\''GOEOF'\''$/{f=1;next}/^GOEOF$/{if(f){exit}}f' scripts/lastwar-phase16-drone-core-discovery.sh > /tmp/lastwar-client/internal/cmd/wfgg-phase16-drone-core/main.go
+          test -s /tmp/lastwar-client/internal/cmd/wfgg-phase16-drone-core/main.go
+          cd /tmp/lastwar-client
+          gofmt -w internal/cmd/wfgg-phase16-drone-core/main.go
+          go build ./internal/cmd/wfgg-phase16-drone-core
+      - name: Enforce privacy and offline contract
+        run: |
+          set -euo pipefail
+          f=scripts/lastwar-phase16-drone-core-discovery.sh
+          grep -q 'OFFLINE ONLY' "$f"
+          grep -q 'Raw UUID/GUID/UID/credentials are never exported' "$f"
+          ! grep -Eq 'curl |wget |http\.NewRequest|websocket|net\.Dial|smtp' "$f"
