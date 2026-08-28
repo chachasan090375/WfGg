@@ -1,0 +1,36 @@
+name: LastWar phase32 table zip QA
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - portal-auth-lastwar-lab-v1
+    paths:
+      - 'scripts/lastwar-phase32-table-zip-authoritative-decode.sh'
+      - '.github/workflows/lastwar-phase32-qa.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Validate shell syntax
+        run: bash -n scripts/lastwar-phase32-table-zip-authoritative-decode.sh
+      - name: Validate embedded Python syntax
+        run: |
+          set -euo pipefail
+          awk '/^cat > "\$PY" <<'"'"'PYEOF'"'"'$/{f=1;next} /^PYEOF$/{if(f){exit}} f{print}' scripts/lastwar-phase32-table-zip-authoritative-decode.sh > /tmp/phase32.py
+          python -m py_compile /tmp/phase32.py
+      - name: Enforce authoritative offline contract
+        run: |
+          set -euo pipefail
+          f=scripts/lastwar-phase32-table-zip-authoritative-decode.sh
+          grep -q 'OFFLINE ONLY' "$f"
+          grep -q 'nestedZipConfirmed' "$f"
+          grep -q 'lw_hero' "$f"
+          grep -q 'unknown_50016_50017_are_not_named_without_decoded_LW_Hero_record=true' "$f"
+          grep -q 'numeric_occurrence_alone_is_not_identity_mapping=true' "$f"
+          ! grep -Eq 'curl |wget |requests\.|urllib\.request|socket\.' "$f"
