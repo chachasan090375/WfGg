@@ -7,14 +7,14 @@
   <meta name="theme-color" content="#100d16">
   <title>WfGg — Données Last War LAB</title>
   <link rel="stylesheet" href="/lab/lab.css">
-  <link rel="stylesheet" href="/lab/lastwar-data.css">
+  <link rel="stylesheet" href="/lab/lastwar-data.css?v=004">
 </head>
 <body>
   <main class="shell data-shell">
     <header class="hero card">
       <p class="eyebrow">PREVIEW · LABORATOIRE · LOCAL ONLY</p>
       <h1>Explorateur Last War</h1>
-      <p class="muted">Charge le JSON normalisé Phase 7 ou Phase 8. Le fichier reste dans la mémoire de ce navigateur : cette page ne l’envoie à aucune API.</p>
+      <p class="muted">Charge le JSON normalisé Phase 19. Le modèle V3 sépare les 5 héros, le Drone global, son preset de 4 puces par escouade et l’Overlord. Le fichier reste uniquement dans la mémoire de ce navigateur.</p>
       <div class="actions">
         <a class="button secondary" href="/lab/lastwar.html">← Liaison Last War</a>
         <button id="resetButton" class="button secondary" type="button" disabled>Effacer les données</button>
@@ -24,8 +24,8 @@
     <section class="card import-card">
       <h2>Charger les données normalisées</h2>
       <label class="file-drop" for="dataFile">
-        <strong>WFGG_LASTWAR_PHASE8_NORMALIZED_MODULE_DATA.json</strong>
-        <span>Phase 8 recommandée · Phase 7 reste compatible</span>
+        <strong>WFGG_LASTWAR_PHASE19_NORMALIZED_MODULE_DATA.json</strong>
+        <span>Phase 19 / V3 recommandée · Phase 7 et Phase 8 restent compatibles</span>
         <input id="dataFile" type="file" accept="application/json,.json">
       </label>
       <div id="loadStatus" class="status neutral">Aucun fichier chargé.</div>
@@ -54,7 +54,7 @@
 
     <section id="formationsCard" class="card hidden">
       <div class="section-head"><h2>Formations</h2><span class="mini-badge">lecture seule</span></div>
-      <p id="formationsStatus" class="muted small">Charge le fichier Phase 8 pour résoudre les héros des formations.</p>
+      <p id="formationsStatus" class="muted small">Charge Phase 19 pour afficher séparément héros, Drone et Overlord.</p>
       <div class="split-grid">
         <div><h3>Armées actives</h3><div id="armyFormations" class="list-stack"></div></div>
         <div><h3>Modèles</h3><div id="formationTemplates" class="list-stack"></div></div>
@@ -67,8 +67,21 @@
     </section>
 
     <section id="weaponCard" class="card hidden">
-      <h2>Arme / système spécial</h2>
+      <div class="section-head"><h2>Drone & Overlord</h2><span class="mini-badge">modèle V3</span></div>
       <div id="weaponGrid" class="metric-grid"></div>
+      <div id="droneIdentity" class="identity-zone"></div>
+      <div class="companion-grid">
+        <div>
+          <h3>6 composants du Drone</h3>
+          <div id="droneComponents" class="list-stack"></div>
+        </div>
+        <div>
+          <h3>Presets de puces Drone</h3>
+          <div id="droneChipGroups" class="list-stack"></div>
+        </div>
+      </div>
+      <h3 class="subsection-title">Overlord</h3>
+      <div id="overlordSummary" class="list-stack"></div>
     </section>
 
     <section id="buildingsCard" class="card hidden">
@@ -84,9 +97,9 @@
 
     <section class="card note">
       <h2>Statut du laboratoire</h2>
-      <p>Ce visualiseur reste entièrement local. Phase 8 ajoute la relation formation → héros sans exporter les UUID privés. Aucun dataset joueur n’est enregistré dans le dépôt et rien n’est écrit dans D1.</p>
+      <p>Ce visualiseur reste entièrement local. Le modèle V3 représente une escouade comme 5 héros + Drone global avec preset de 4 puces + Overlord éventuel. Aucun UUID privé ni dataset joueur n’est enregistré dans le dépôt ou dans D1.</p>
     </section>
   </main>
-  <script src="/lab/lastwar-data.js?v=003"></script>
+  <script src="/lab/lastwar-data.js?v=004"></script>
 </body>
 </html>
