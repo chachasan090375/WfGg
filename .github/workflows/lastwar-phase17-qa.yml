@@ -1,0 +1,43 @@
+name: LastWar phase17 weapon-drone correlation QA
+
+on:
+  push:
+    branches:
+      - portal-auth-lastwar-lab-v1
+    paths:
+      - 'scripts/lastwar-phase17-weapon-drone-correlation.sh'
+      - '.github/workflows/lastwar-phase17-qa.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Validate shell syntax
+        run: bash -n scripts/lastwar-phase17-weapon-drone-correlation.sh
+      - uses: actions/setup-go@v6
+        with:
+          go-version: '1.27.x'
+      - name: Compile embedded phase17 helper against pinned client
+        run: |
+          set -euo pipefail
+          git clone -q https://github.com/ljagiello/lastwar-client.git /tmp/lastwar-client
+          git -C /tmp/lastwar-client checkout -q ee5f64de160a8051c2f9f98189b75038dd225a0a
+          mkdir -p /tmp/lastwar-client/internal/cmd/wfgg-phase17-weapon-drone
+          awk '/^cat > "\$TMP_CMD\/main.go" <<'\''GOEOF'\''$/{f=1;next}/^GOEOF$/{if(f){exit}}f' scripts/lastwar-phase17-weapon-drone-correlation.sh > /tmp/lastwar-client/internal/cmd/wfgg-phase17-weapon-drone/main.go
+          test -s /tmp/lastwar-client/internal/cmd/wfgg-phase17-weapon-drone/main.go
+          cd /tmp/lastwar-client
+          gofmt -w internal/cmd/wfgg-phase17-weapon-drone/main.go
+          go build ./internal/cmd/wfgg-phase17-weapon-drone
+      - name: Enforce privacy and offline contract
+        run: |
+          set -euo pipefail
+          f=scripts/lastwar-phase17-weapon-drone-correlation.sh
+          grep -q 'OFFLINE ONLY' "$f"
+          grep -q 'Raw UUID/GUID/UID/credentials' "$f"
+          grep -q 'do_not_rename_weaponArr_to_Drone' "$f"
+          ! grep -Eq 'curl |wget |http\.NewRequest|websocket|net\.Dial|smtp' "$f"
