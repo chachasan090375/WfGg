@@ -5,6 +5,7 @@ on:
     branches: [portal-auth-lastwar-lab-v1]
     paths:
       - 'scripts/lastwar-hero-catalog-authoritative.sh'
+      - 'scripts/lastwar-export-static-table-container.sh'
       - 'frontend/lab/lastwar-squads-replica.html'
       - 'frontend/lab/lastwar-squads-replica.js'
       - '.github/workflows/lastwar-hero-catalog-qa.yml'
@@ -16,7 +17,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Shell syntax
-        run: bash -n scripts/lastwar-hero-catalog-authoritative.sh
+        run: |
+          bash -n scripts/lastwar-hero-catalog-authoritative.sh
+          bash -n scripts/lastwar-export-static-table-container.sh
       - name: JavaScript syntax
         run: node --check frontend/lab/lastwar-squads-replica.js
       - name: Guardrails and direct table path
@@ -26,3 +29,4 @@ jobs:
           grep -q 'no_game_write=true' scripts/lastwar-hero-catalog-authoritative.sh
           grep -q 'no_game_network=true' scripts/lastwar-hero-catalog-authoritative.sh
           grep -q 'WFGG_LASTWAR_HERO_CATALOG' frontend/lab/lastwar-squads-replica.js
+          grep -q 'STATIC GAME DATA ONLY' scripts/lastwar-export-static-table-container.sh
