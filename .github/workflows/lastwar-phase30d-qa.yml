@@ -1,0 +1,27 @@
+name: LastWar phase30d engine version discovery QA
+
+on:
+  push:
+    branches: [portal-auth-lastwar-lab-v1]
+    paths:
+      - 'scripts/lastwar-phase30d-engine-version-discovery.sh'
+      - '.github/workflows/lastwar-phase30d-qa.yml'
+  workflow_dispatch:
+
+jobs:
+  qa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Shell syntax
+        run: bash -n scripts/lastwar-phase30d-engine-version-discovery.sh
+      - name: Static guardrails
+        run: |
+          set -euo pipefail
+          f=scripts/lastwar-phase30d-engine-version-discovery.sh
+          grep -q 'globalgamemanagers' "$f"
+          grep -q 'libunity.so' "$f"
+          grep -q 'never_use_5.x.x_or_0.0.0' "$f"
+          grep -q 'UnityPy.config.FALLBACK_UNITY_VERSION' "$f"
+          grep -q 'No Last War network connection' "$f"
+          ! grep -Eq 'FALLBACK_UNITY_VERSION=["'"''](202[0-9]|201[0-9])\.' "$f"
