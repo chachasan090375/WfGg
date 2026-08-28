@@ -154,7 +154,22 @@ src=Path(sys.argv[1]).read_text(encoding='utf-8')
 version=sys.argv[3]
 # Patch only the embedded Phase-30B extractor Python, not the small PYTEST preflight.
 needle='import UnityPy\nfrom PIL import Image\n\nout_path, kit_dir, catalog_path, *apk_paths = sys.argv[1:]\n'
-replacement=('import UnityPy\nfrom PIL import Image\n\n'
+replacement=(
+             '# Phase 30D: graphics-only Android compatibility shim.\n'
+             '# UnityPy.export imports its audio converter too; fmod_toolkit rejects\n'
+             '# platform.system()=="Android" even though no audio is used here.\n'
+             'import platform, types\n'
+             'if platform.system() == "Android":\n'
+             '    _fmod=types.ModuleType("fmod_toolkit")\n'
+             '    def _wfgg_audio_disabled(*args, **kwargs):\n'
+             '        raise RuntimeError("FMOD audio conversion disabled in WfGg graphics extraction")\n'
+             '    _fmod.raw_to_wav=_wfgg_audio_disabled\n'
+             '    _fmod.get_pyfmodex_system_instance=_wfgg_audio_disabled\n'
+             '    _fmod.sound_to_wav=_wfgg_audio_disabled\n'
+             '    _fmod.subsound_to_wav=_wfgg_audio_disabled\n'
+             '    _fmod.__version__="disabled-android-graphics-only"\n'
+             '    sys.modules["fmod_toolkit"]=_fmod\n\n'
+             'import UnityPy\nfrom PIL import Image\n\n'
              '# Phase 30D: authoritative version discovered from installed game files.\n'
              f'UnityPy.config.FALLBACK_UNITY_VERSION={json.dumps(version)}\n\n'
              'out_path, kit_dir, catalog_path, *apk_paths = sys.argv[1:]\n')
