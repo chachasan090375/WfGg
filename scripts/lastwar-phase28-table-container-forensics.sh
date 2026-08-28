@@ -43,9 +43,10 @@ m=re.search(r"source=[^:]+:(assets/table/[^\s]+\.data) size=(\d+) tokens=LW_Hero
 expected_entry=m.group(1) if m else None
 expected_size=int(m.group(2)) if m else None
 
-# Locate the exact static table container reported by Phase 27. If the filename
-# changed with a game update, accept only an assets/table/*.data entry that
-# itself contains the exact LW_Hero token.
+# Locate the exact static table container reported by Phase 27. Phase 27 counted
+# semantic tokens case-insensitively, so the container check must do the same.
+# If the filename changed with a game update, accept only an assets/table/*.data
+# entry that itself contains an LW_Hero token ignoring case.
 chosen=None
 for apk in apk_paths:
     try:z=zipfile.ZipFile(apk)
@@ -57,12 +58,13 @@ for apk in apk_paths:
     for name in candidates:
         try:raw=z.read(name)
         except Exception:continue
-        if b"LW_Hero" in raw:
+        if b"lw_hero" in raw.lower():
             chosen=(apk,name,raw);break
     z.close()
     if chosen:break
 if not chosen:raise SystemExit("conteneur assets/table/*.data avec LW_Hero introuvable")
 apk_path,entry,raw=chosen
+raw_lower=raw.lower()
 
 PRINTABLE=re.compile(rb"[\x20-\x7e]{4,}")
 ASCII_BOUNDARY=lambda n: re.compile(rb"(?<![0-9])"+str(n).encode()+rb"(?![0-9])")
@@ -123,9 +125,10 @@ def nearest(pos,arr):
     x=min(arr,key=lambda p:abs(p-pos))
     return x,pos-x
 
-# Exact table-name markers.
+# Table-name markers are located case-insensitively because the static container
+# may normalize names differently from the runtime strings in LWScripts.data.
 table_tokens=(b"LW_Hero",b"HeroAppearance",b"LW_Hero_Rank",b"LW_Hero_Para",b"HeroTemplateManager",b"DataConfig")
-token_positions={t.decode():all_positions(raw,t) for t in table_tokens}
+token_positions={t.decode():all_positions(raw_lower,t.lower()) for t in table_tokens}
 
 # Numeric representations. None of these alone proves identity; they only help
 # locate candidate row regions for later structural decoding.
@@ -196,6 +199,7 @@ with open(out_path,"w",encoding="utf-8") as o:
     o.write(f"  samplePrintableRatio={pr:.4f} sampleEntropy={entropy(sample):.4f}\n")
     o.write(f"  first64Hex={raw[:64].hex()}\n")
     o.write(f"  signatures={';'.join(f'{k}:{v}' for k,v in sig_hits.items()) or '-'}\n")
+    o.write("  tableTokenMatching=case_insensitive\n")
 
     o.write("\nTABLE_TOKEN_POSITIONS\n")
     for label in token_positions:
