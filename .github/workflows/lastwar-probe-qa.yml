@@ -11,6 +11,7 @@ on:
       - 'scripts/lastwar-phase4-login-diff.sh'
       - 'scripts/lastwar-phase5-native-template-login.sh'
       - 'scripts/lastwar-phase6-module-schema-export.sh'
+      - 'scripts/lastwar-phase7-normalized-module-data.sh'
       - '.github/workflows/lastwar-probe-qa.yml'
 
 permissions:
@@ -30,6 +31,7 @@ jobs:
           bash -n scripts/lastwar-phase4-login-diff.sh
           bash -n scripts/lastwar-phase5-native-template-login.sh
           bash -n scripts/lastwar-phase6-module-schema-export.sh
+          bash -n scripts/lastwar-phase7-normalized-module-data.sh
 
       - name: Setup Go 1.27
         uses: actions/setup-go@v6
@@ -136,12 +138,36 @@ jobs:
           grep -q 'NetworkUsed: false' scripts/lastwar-phase6-module-schema-export.sh
           grep -q 'WFGG_LASTWAR_PHASE6_MODULE_SCHEMA.json' scripts/lastwar-phase6-module-schema-export.sh
 
+      - name: Validate phase7 normalizer source and build
+        shell: bash
+        run: |
+          set -euo pipefail
+          script="scripts/lastwar-phase7-normalized-module-data.sh"
+          grep -q 'OFFLINE ONLY' "$script"
+          grep -q 'WFGG_LASTWAR_MODULE_DATA_V1' "$script"
+          grep -q 'RawInstanceUUIDsExported:false' "$script"
+          grep -q 'ResourceBalancesExported:false' "$script"
+          grep -q 'WFGG_LASTWAR_PHASE7_NORMALIZED_MODULE_DATA.json' "$script"
+          awk '
+            /^cat > .*<<.GOEOF./ {inside=1; next}
+            inside && /^GOEOF$/ {exit}
+            inside {print}
+          ' "$script" > "$RUNNER_TEMP/phase7-main.go"
+          test -s "$RUNNER_TEMP/phase7-main.go"
+          cmd="$RUNNER_TEMP/lastwar-client/cmd/wfgg-normalized-module-data"
+          mkdir -p "$cmd"
+          cp "$RUNNER_TEMP/phase7-main.go" "$cmd/main.go"
+          cd "$RUNNER_TEMP/lastwar-client"
+          gofmt -w ./cmd/wfgg-normalized-module-data/main.go
+          GOTOOLCHAIN=auto go build -o "$RUNNER_TEMP/wfgg-normalized-module-data" ./cmd/wfgg-normalized-module-data
+          test -x "$RUNNER_TEMP/wfgg-normalized-module-data"
+
       - name: Verify probes stay non-automating
         run: |
           set -euo pipefail
           grep -q -- '-list-buildings' scripts/lastwar-termux-probe.sh
           grep -q -- '-list-buildings' scripts/lastwar-phase3-session-from-pcap.sh
-          for script in scripts/lastwar-termux-probe.sh scripts/lastwar-phase3-session-from-pcap.sh scripts/lastwar-phase4-login-diff.sh scripts/lastwar-phase5-native-template-login.sh scripts/lastwar-phase6-module-schema-export.sh; do
+          for script in scripts/lastwar-termux-probe.sh scripts/lastwar-phase3-session-from-pcap.sh scripts/lastwar-phase4-login-diff.sh scripts/lastwar-phase5-native-template-login.sh scripts/lastwar-phase6-module-schema-export.sh scripts/lastwar-phase7-normalized-module-data.sh; do
             if grep -Eq -- '(^|[[:space:]])-collect([[:space:]]|$)' "$script"; then
               echo "Forbidden gameplay automation flag found in $script" >&2
               exit 1
