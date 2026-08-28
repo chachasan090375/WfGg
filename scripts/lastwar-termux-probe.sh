@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/bash
 set -Eeuo pipefail
 
-# WFGG_LASTWAR_TERMUX_PROBE_V1
+# WFGG_LASTWAR_TERMUX_PROBE_V2
 # Preview/laboratory helper only. Nothing here touches WfGg main or production D1.
 #
 # Purpose:
@@ -74,7 +74,7 @@ git fetch --quiet --depth 1 origin "$UPSTREAM_COMMIT"
 git checkout --quiet --detach "$UPSTREAM_COMMIT"
 git reset --quiet --hard "$UPSTREAM_COMMIT"
 
-# Patch local-only: after the successful push.account.login.new, ask the upstream
+# Patch local-only #1: after the successful push.account.login.new, ask the upstream
 # SFSObject formatter for its recursively REDACTED representation and save that
 # representation to a private file. The upstream formatter masks credential keys
 # at every nested level while keeping ordinary accountArr fields inspectable.
@@ -93,8 +93,50 @@ awk '
   }
 ' "$AUTH_FILE" > "$TMP_FILE"
 mv "$TMP_FILE" "$AUTH_FILE"
-
 grep -q 'WFGG_LASTWAR_SNAPSHOT_PATH' "$AUTH_FILE" || die "patch de snapshot non appliqué"
+
+# Patch local-only #2: Android/Termux can reject hard-link creation inside the app
+# sandbox (EPERM), while the upstream client uses os.Link() to publish a new device-id
+# state file atomically. Keep the upstream hard-link path first; only when it fails,
+# fall back to O_CREATE|O_EXCL + fsync. EEXIST semantics are preserved, so concurrent
+# identity creation is still rejected rather than overwritten.
+IDENTITY_FILE="$SRC/internal/auth/identity.go"
+TMP_FILE="$IDENTITY_FILE.wfgg.tmp"
+awk '
+  {
+    if ($0 ~ /^[[:space:]]*return os\.Link\(tmpPath, path\)[[:space:]]*$/) {
+      print "\tif err := os.Link(tmpPath, path); err == nil {"
+      print "\t\treturn nil"
+      print "\t}"
+      print "\tf, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o600)"
+      print "\tif err != nil {"
+      print "\t\treturn err"
+      print "\t}"
+      print "\tcleanupCreated := true"
+      print "\tdefer func() {"
+      print "\t\t_ = f.Close()"
+      print "\t\tif cleanupCreated {"
+      print "\t\t\t_ = os.Remove(path)"
+      print "\t\t}"
+      print "\t}()"
+      print "\tif _, err := f.WriteString(id); err != nil {"
+      print "\t\treturn err"
+      print "\t}"
+      print "\tif err := f.Sync(); err != nil {"
+      print "\t\treturn err"
+      print "\t}"
+      print "\tif err := f.Close(); err != nil {"
+      print "\t\treturn err"
+      print "\t}"
+      print "\tcleanupCreated = false"
+      print "\treturn nil"
+      next
+    }
+    print
+  }
+' "$IDENTITY_FILE" > "$TMP_FILE"
+mv "$TMP_FILE" "$IDENTITY_FILE"
+grep -q 'cleanupCreated := true' "$IDENTITY_FILE" || die "patch Android device-id non appliqué"
 
 say "Compilation du probe…"
 GOTOOLCHAIN=auto go build -o "$BIN" ./cmd/lastwar-client
