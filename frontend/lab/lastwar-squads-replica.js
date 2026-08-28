@@ -20,9 +20,10 @@
       return;
     }
     const s=kit.stats||{};
-    assetStatus.textContent=`Kit graphique V1 détecté · Last War ${kit.gameVersion||'?'}`;
+    const decoded=s.decodedRasterAssets ?? kit.extractedAssets?.length ?? 0;
+    assetStatus.textContent=`Kit graphique V1 détecté · ${fmt(decoded)} images Unity décodées`;
     assetStatus.className='asset-status ok';
-    [['Portraits candidats',s.heroPortraitPathCandidates],['Drone',s.dronePathCandidates],['Équipement',s.equipmentPathCandidates],['Images directes',s.directRasterAssets]].forEach(([label,value])=>{
+    [['Portraits candidats',s.heroPortraitPathCandidates],['Drone',s.dronePathCandidates],['Images Unity',decoded],['Sprites',s.phase30bDecodedSprites]].forEach(([label,value])=>{
       const x=document.createElement('div');x.className='kit-metric';
       const a=document.createElement('span');a.textContent=label;
       const b=document.createElement('b');b.textContent=fmt(value);
@@ -33,12 +34,46 @@
   function heroName(id){ return HERO_NAMES.get(Number(id)) || `Héros ${id}`; }
   function initials(name){ return String(name).split(/\s+/).map(x=>x[0]).join('').slice(0,2).toUpperCase(); }
 
+  function heroAssetScore(path) {
+    const p=String(path||'').toLowerCase();
+    let score=0;
+    if (p.includes('hero_icon_')) score+=1000;
+    if (p.includes('halfbody') || p.includes('herohead') || p.includes('headicon')) score+=500;
+    if (p.includes('_zw') || p.includes('zhuanwu') || p.includes('lrb_') || p.includes('ljq_icon')) score-=700;
+    if (p.includes('eff_') || p.includes('effect') || p.includes('smoke') || p.includes('noise') || p.includes('crack')) score-=1200;
+    if (/hero_icon_[^/]+\.png$/.test(p)) score+=180;
+    if (/_2\.png$/.test(p) || /_3\.png$/.test(p)) score-=20;
+    return score;
+  }
+
   function directHeroAsset(id) {
     if (!kit) return null;
     const name=heroName(id);
     const node=kit.heroCandidates?.[name];
     if (!node || !Array.isArray(node.directAssets) || !node.directAssets.length) return null;
-    return node.directAssets[0];
+    const ranked=node.directAssets.map(path=>({path,score:heroAssetScore(path)})).sort((a,b)=>b.score-a.score);
+    return ranked[0]?.score >= 700 ? ranked[0].path : null;
+  }
+
+  function categoryAsset(list,kind) {
+    if (!Array.isArray(list) || !list.length) return null;
+    const score=(path)=>{
+      const p=String(path||'').toLowerCase();
+      let s=0;
+      if (kind==='drone') {
+        if (p.includes('hero_icon_drone')) s+=1200;
+        if (p.includes('item_uav_equip_')) s+=900;
+        if (p.includes('tacticalchip') || p.includes('skillchip')) s+=600;
+        if (p.includes('drone') || p.includes('uav')) s+=350;
+      } else if (kind==='overlord') {
+        if (p.includes('dominator')) s+=1000;
+        if (p.includes('gorilla') || p.includes('cockatrice') || p.includes('hawk')) s+=800;
+      }
+      if (p.includes('eff_') || p.includes('effect') || p.includes('noise') || p.includes('smoke')) s-=900;
+      return s;
+    };
+    const ranked=list.map(path=>({path,score:score(path)})).sort((a,b)=>b.score-a.score);
+    return ranked[0]?.score > 0 ? ranked[0].path : null;
   }
 
   function heroTile(id,index) {
@@ -60,9 +95,14 @@
     return el;
   }
 
-  function companionBox(kind,title,subtitle,icon) {
+  function companionBox(kind,title,subtitle,icon,asset) {
     const el=document.createElement('div');el.className=`companion-box${kind==='overlord'?' overlord':''}`;
-    const ic=document.createElement('div');ic.className='companion-icon';ic.textContent=icon;
+    const ic=document.createElement('div');ic.className='companion-icon';
+    if (asset) {
+      const img=document.createElement('img');img.className='companion-image';img.src=asset;img.alt=title;
+      img.addEventListener('error',()=>{img.remove();ic.textContent=icon;},{once:true});
+      ic.appendChild(img);
+    } else ic.textContent=icon;
     const cp=document.createElement('div');cp.className='companion-copy';
     const b=document.createElement('b');b.textContent=title;
     const s=document.createElement('span');s.textContent=subtitle;
@@ -91,13 +131,14 @@
     const strip=document.createElement('div');strip.className='companion-strip';
     const group=(data.droneChipGroups||[]).find(g=>Number(g.equipGroup)===Number(f.chipEquipGroup));
     const stars=(group?.chips||[]).filter(x=>Number(x.slot)>0).map(x=>x.star??0).join('/');
-    strip.appendChild(companionBox('drone','Drone global',`Preset ${f.chipEquipGroup||'—'} · 4 puces${stars?` · ★ ${stars}`:''}`,'◈'));
+    const droneAsset=categoryAsset(kit?.droneAssets,'drone');
+    strip.appendChild(companionBox('drone','Drone global',`Preset ${f.chipEquipGroup||'—'} · 4 puces${stars?` · ★ ${stars}`:''}`,'◈',droneAsset));
     const ord=(f.overlordOrdinals||[])[0];
     if(ord!==undefined){
       const o=(data.overlords||[]).find(x=>Number(x.ordinal)===Number(ord));
-      strip.appendChild(companionBox('overlord',`Overlord #${ord}`,`${fmt(o?.power)} puissance · rang ${fmt(o?.rank)}`,'◆'));
+      strip.appendChild(companionBox('overlord',`Overlord #${ord}`,`${fmt(o?.power)} puissance · rang ${fmt(o?.rank)}`,'◆',categoryAsset(kit?.dominatorAssets,'overlord')));
     } else {
-      strip.appendChild(companionBox('overlord','Overlord','Non affecté à cette escouade','—'));
+      strip.appendChild(companionBox('overlord','Overlord','Non affecté à cette escouade','—',null));
     }
     card.appendChild(strip);
     return card;
