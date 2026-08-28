@@ -1,0 +1,36 @@
+name: LastWar exact companion icon QA
+
+on:
+  push:
+    branches: [portal-auth-lastwar-lab-v1]
+    paths:
+      - 'scripts/lastwar-companion-icons-exact.sh'
+      - 'frontend/lab/lastwar-companion-authoritative-map.js'
+      - 'frontend/lab/lastwar-squads-replica.js'
+      - 'frontend/lab/lastwar-squads-replica.html'
+      - '.github/workflows/lastwar-companion-icons-exact-qa.yml'
+  workflow_dispatch:
+
+jobs:
+  qa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Shell syntax
+        run: bash -n scripts/lastwar-companion-icons-exact.sh
+      - name: JavaScript syntax
+        run: |
+          node --check frontend/lab/lastwar-companion-authoritative-map.js
+          node --check frontend/lab/lastwar-squads-replica.js
+      - name: Exact static-table mapping contract
+        run: |
+          grep -q "currentAppearance:n>=160&&n<170?1217" frontend/lab/lastwar-companion-authoritative-map.js
+          grep -q "icon:'FX_wurenji_pifu04'" frontend/lab/lastwar-companion-authoritative-map.js
+          grep -q "minRank:40,starLevel:4,appearance:1000005,icon:'zxl_zhuzai_touxiang_04'" frontend/lab/lastwar-companion-authoritative-map.js
+          grep -q "EXACT_COMPANION_TARGETS" scripts/lastwar-companion-icons-exact.sh
+          grep -q "Aucune connexion Last War" scripts/lastwar-companion-icons-exact.sh
+      - name: Preview wiring
+        run: |
+          grep -q 'lastwar-companion-authoritative-map.js' frontend/lab/lastwar-squads-replica.html
+          grep -q 'Overlord · Gorilla' frontend/lab/lastwar-squads-replica.js
+          grep -q 'hero-murphy' frontend/lab/lastwar-squads-replica.js
