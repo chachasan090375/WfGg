@@ -7,6 +7,7 @@ on:
       - portal-auth-lastwar-lab-v1
     paths:
       - 'scripts/lastwar-termux-probe.sh'
+      - 'scripts/lastwar-phase3-session-from-pcap.sh'
       - '.github/workflows/lastwar-probe-qa.yml'
 
 permissions:
@@ -20,7 +21,9 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Validate shell syntax
-        run: bash -n scripts/lastwar-termux-probe.sh
+        run: |
+          bash -n scripts/lastwar-termux-probe.sh
+          bash -n scripts/lastwar-phase3-session-from-pcap.sh
 
       - name: Setup Go 1.27
         uses: actions/setup-go@v6
@@ -97,11 +100,22 @@ jobs:
           GOTOOLCHAIN=auto go build -o "$RUNNER_TEMP/lastwar-client-probe" ./cmd/lastwar-client
           test -x "$RUNNER_TEMP/lastwar-client-probe"
 
-      - name: Verify probe stays non-automating
+      - name: Validate phase3 build-alignment logic
+        run: |
+          set -euo pipefail
+          grep -q 'APP_VERSION=' scripts/lastwar-phase3-session-from-pcap.sh
+          grep -q 'VERSION_CODE=' scripts/lastwar-phase3-session-from-pcap.sh
+          grep -q 'Identité applicative alignée' scripts/lastwar-phase3-session-from-pcap.sh
+          grep -q 'lastwar-client.*-config' scripts/lastwar-phase3-session-from-pcap.sh || true
+
+      - name: Verify probes stay non-automating
         run: |
           set -euo pipefail
           grep -q -- '-list-buildings' scripts/lastwar-termux-probe.sh
-          if grep -Eq -- '(^|[[:space:]])-collect([[:space:]]|$)' scripts/lastwar-termux-probe.sh; then
-            echo 'Forbidden gameplay automation flag found in probe script.' >&2
-            exit 1
-          fi
+          grep -q -- '-list-buildings' scripts/lastwar-phase3-session-from-pcap.sh
+          for script in scripts/lastwar-termux-probe.sh scripts/lastwar-phase3-session-from-pcap.sh; do
+            if grep -Eq -- '(^|[[:space:]])-collect([[:space:]]|$)' "$script"; then
+              echo "Forbidden gameplay automation flag found in $script" >&2
+              exit 1
+            fi
+          done
