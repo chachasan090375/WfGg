@@ -6,6 +6,16 @@
   let currentData = null;
   let heroFilter = 'all';
 
+  // Public catalogue labels confirmed in the protocol reference available to this lab.
+  // Unknown/newer IDs deliberately fall back to "Héros <id>" instead of guessing a name.
+  const HERO_NAMES = new Map([
+    [30002,'Loki'],[30003,'Kane'],[30004,'Ambolt'],[30005,'Gump'],
+    [40007,'Elsa'],[40008,'Farhad'],[40009,'Richard'],[40013,'Braz'],[40015,'Cage'],[40016,'Maxwell'],[40020,'Monica'],
+    [50006,'Murphy'],[50007,'Williams'],[50008,'Marshall'],[50009,'Kimberly'],[50010,'Stetmann'],
+    [50013,'McGregor'],[50014,'Fiona'],[50015,'Swift'],[50018,'Schuyler'],[50019,'Carlie'],[50020,'Morrison'],[50021,'Lucius'],[50022,'Adam']
+  ]);
+
+  const heroLabel = (id) => HERO_NAMES.get(Number(id)) || `Héros ${id}`;
   const fmt = (value) => {
     if (value === null || value === undefined || value === '') return '—';
     if (typeof value === 'number') return new Intl.NumberFormat('fr-FR').format(value);
@@ -32,7 +42,7 @@
   function showCards(show) { cards.forEach(id => $(id).classList.toggle('hidden', !show)); }
 
   function validate(data) {
-    if (!data || data.format !== 'WFGG_LASTWAR_MODULE_DATA_V1') throw new Error('FORMAT_PHASE7_INVALIDE');
+    if (!data || !['WFGG_LASTWAR_MODULE_DATA_V1','WFGG_LASTWAR_MODULE_DATA_V2'].includes(data.format)) throw new Error('FORMAT_NORMALISE_INVALIDE');
     if (!data.privacy || data.privacy.networkUsed !== false) throw new Error('CONTRAT_CONFIDENTIALITE_INVALIDE');
     return data;
   }
@@ -46,6 +56,7 @@
       ['Noms exportés', data.privacy.namesExported === false],
       ['Soldes de ressources exportés', data.privacy.resourceBalancesExported === false]
     ];
+    if ('rawFormationRefsExported' in data.privacy) checks.push(['Références privées de formation exportées', data.privacy.rawFormationRefsExported === false]);
     checks.forEach(([label, safe]) => {
       const row=document.createElement('div'); row.className='privacy-item';
       const span=document.createElement('span'); span.textContent=label;
@@ -61,7 +72,7 @@
       ['Équipements héros',c.heroEquipment],['Équipements généraux',c.generalEquipment],['Armes',c.weapons],
       ['Bâtiments',c.buildings],['Recherches',c.science]
     ].forEach(([a,b])=>host.appendChild(metric(a,b)));
-    $('sourceBadge').textContent=`${data.initTopLevelFields||0} champs init`;
+    $('sourceBadge').textContent=`${data.initTopLevelFields||0} champs init · ${data.format.endsWith('_V2')?'V2':'V1'}`;
   }
 
   function renderPower(data) {
@@ -86,7 +97,6 @@
 
   function renderHeroFilters(data) {
     const host=clearHost('heroFilters');
-    const eq=equipmentByHero(data);
     const defs=[['all','Tous'],['weapon','Avec arme'],['equipped','Équipés'],['rank26','Rang 26']];
     defs.forEach(([key,label])=>{
       const b=document.createElement('button'); b.type='button'; b.className=`filter-chip${heroFilter===key?' active':''}`; b.textContent=label;
@@ -103,7 +113,7 @@
     if(heroFilter==='rank26') heroes=heroes.filter(h=>h.rankLv===26);
     heroes.forEach(h=>{
       const row=document.createElement('article'); row.className='hero-row';
-      const strong=document.createElement('strong'); strong.textContent=`Héros ${h.heroId}`;
+      const strong=document.createElement('strong'); strong.textContent=heroLabel(h.heroId);
       const id=document.createElement('div'); id.className='hero-id'; id.textContent=`ID catalogue ${h.heroId}`;
       const meta=document.createElement('div'); meta.className='hero-meta';
       const values=[['Niveau',h.level],['Rang',h.rankLv],['Compétences',h.skillCount],['Équipements',eq.get(h.heroId)?.length||0]];
@@ -122,11 +132,32 @@
     const r=document.createElement('div');r.className='right';r.textContent=right;row.append(l,r);return row;
   }
 
+  function formationNode(f,title) {
+    const row=document.createElement('div'); row.className='formation-row';
+    const head=document.createElement('div'); head.className='formation-head';
+    const left=document.createElement('div');
+    const strong=document.createElement('strong'); strong.textContent=title;
+    const meta=document.createElement('span'); meta.textContent=`${f.slots||0} emplacements · groupe ${f.chipEquipGroup||'—'}${f.defencePriority?` · priorité défense ${f.defencePriority}`:''}`;
+    left.append(strong,meta); head.appendChild(left);
+    if(f.squadNo){const badge=document.createElement('b');badge.className='mini-badge';badge.textContent=`Escouade ${f.squadNo}`;head.appendChild(badge);}
+    row.appendChild(head);
+    const ids=f.heroIds||[];
+    const heroes=document.createElement('div'); heroes.className='formation-heroes';
+    if(ids.length){ids.forEach((id,i)=>{const p=document.createElement('span');p.className='formation-hero';p.textContent=`${i+1}. ${heroLabel(id)}`;p.title=`heroId ${id}`;heroes.appendChild(p);});}
+    else {const p=document.createElement('span');p.className='muted small';p.textContent='Héros non résolus dans ce fichier';heroes.appendChild(p);}
+    row.appendChild(heroes);
+    if(f.unresolvedHeroRefs){const warn=document.createElement('div');warn.className='warn-text small';warn.textContent=`${f.unresolvedHeroRefs} référence(s) héros encore non résolue(s)`;row.appendChild(warn);}
+    return row;
+  }
+
   function renderFormations(data) {
     const a=clearHost('armyFormations');
-    (data.armyFormations||[]).forEach(f=>a.appendChild(listRow(`Armée ${f.index}`,`${f.slots||0} emplacements · groupe ${f.chipEquipGroup||'—'}`,`Priorité défense ${fmt(f.defencePriority)}`)));
+    (data.armyFormations||[]).forEach(f=>a.appendChild(formationNode(f,`Armée ${f.index}`)));
     const t=clearHost('formationTemplates');
-    (data.formationTemplates||[]).forEach(f=>t.appendChild(listRow(`Modèle ${f.index}`,`${f.slots||0} emplacements · groupe ${f.chipEquipGroup||'—'}`,f.squadNo?`Escouade ${f.squadNo}`:'Général')));
+    (data.formationTemplates||[]).forEach(f=>t.appendChild(formationNode(f,`Modèle ${f.index}`)));
+    const stats=data.formationResolution;
+    if(stats){$('formationsStatus').textContent=`${stats.armyHeroRefs||0} références héros actives résolues · ${stats.unresolvedHeroRefs||0} non résolues`;}
+    else {$('formationsStatus').textContent='Phase 7 : relations héros non résolues. Charge le fichier Phase 8 pour les afficher.';}
   }
 
   function renderEquipment(data) {
@@ -135,7 +166,7 @@
       const maxLevel=Math.max(...items.map(x=>Number(x.level||0)));
       const maxPromote=Math.max(...items.map(x=>Number(x.promote||0)));
       const configs=[...new Set(items.map(x=>x.cfgId))].join(', ');
-      host.appendChild(listRow(`Héros ${heroId}`,`${items.length} pièces · cfg ${configs}`,`niv. max ${maxLevel||'—'} · promo ${maxPromote||'—'}`));
+      host.appendChild(listRow(heroLabel(heroId),`${items.length} pièces · cfg ${configs}`,`niv. max ${maxLevel||'—'} · promo ${maxPromote||'—'}`));
     });
     $('equipmentCount').textContent=`${map.size} héros liés / ${(data.heroEquipment||[]).length} entrées`;
   }
@@ -148,9 +179,7 @@
 
   function renderBuildings(data) {
     const groups=new Map();
-    (data.buildings||[]).forEach(b=>{
-      if(!groups.has(b.bId)) groups.set(b.bId,[]); groups.get(b.bId).push(b);
-    });
+    (data.buildings||[]).forEach(b=>{if(!groups.has(b.bId)) groups.set(b.bId,[]); groups.get(b.bId).push(b);});
     const rows=[...groups.entries()].map(([id,items])=>({id,count:items.length,maxLevel:Math.max(...items.map(x=>Number(x.level||0))),active:items.filter(x=>x.prodStatus!==undefined).length})).sort((a,b)=>b.maxLevel-a.maxLevel||a.id-b.id);
     const host=clearHost('buildingsTable'); const table=document.createElement('table');
     table.innerHTML='<thead><tr><th>ID bâtiment</th><th>Instances</th><th>Niveau max</th><th>État production présent</th></tr></thead>';
@@ -193,6 +222,4 @@
   $('resetButton').addEventListener('click',()=>{
     currentData=null; heroFilter='all'; $('dataFile').value=''; showCards(false); $('resetButton').disabled=true; setStatus('Données effacées de la mémoire de cette page.','neutral');
   });
-
-  // Deliberately no fetch/XHR/WebSocket/localStorage/sessionStorage calls in this file.
 })();
