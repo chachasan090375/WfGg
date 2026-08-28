@@ -1,0 +1,34 @@
+name: LastWar phase20 label catalog QA
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - portal-auth-lastwar-lab-v1
+    paths:
+      - 'scripts/lastwar-phase20-label-catalog-discovery.sh'
+      - '.github/workflows/lastwar-phase20-qa.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Validate shell syntax
+        run: bash -n scripts/lastwar-phase20-label-catalog-discovery.sh
+      - name: Validate embedded Python syntax
+        run: |
+          set -euo pipefail
+          awk '/^cat > .* <<.PYEOF./{f=1;next}/^PYEOF$/{if(f){exit}}f' scripts/lastwar-phase20-label-catalog-discovery.sh > /tmp/phase20.py
+          python -m py_compile /tmp/phase20.py
+      - name: Enforce offline and privacy contract
+        run: |
+          set -euo pipefail
+          f=scripts/lastwar-phase20-label-catalog-discovery.sh
+          grep -q 'OFFLINE ONLY' "$f"
+          grep -q 'com.fun.lastwar.gp' "$f"
+          grep -q 'private account identifiers suppressed' "$f"
+          ! grep -Eq 'curl |wget |http.NewRequest|net.Dial' "$f"
