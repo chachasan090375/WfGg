@@ -32,3 +32,12 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           wranglerVersion: "4"
           command: deploy --config wrangler.jsonc
+
+      - name: Smoke test isolated preview health
+        run: |
+          set -euo pipefail
+          response="$(curl --fail --silent --show-error --retry 5 --retry-delay 2 https://wfgg-api-lastwar-preview.chachasan090375.workers.dev/api/health)"
+          printf '%s\n' "$response"
+          printf '%s' "$response" | grep -q '"ok":true'
+          printf '%s' "$response" | grep -q '"storage":"LAB_DB_ONLY"'
+          printf '%s' "$response" | grep -q '"production_db_binding":false'
