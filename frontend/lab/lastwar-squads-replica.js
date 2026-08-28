@@ -14,7 +14,9 @@
   const kitMetrics = $('kitMetrics');
 
   function catalogHero(id) { return heroCatalog?.heroes?.find(x => Number(x.heroId) === Number(id)) || null; }
-  function heroName(id) { return catalogHero(id)?.name || HERO_NAMES.get(Number(id)) || null; }
+  function catalogProofValid(x) { return Boolean(x?.authoritativeRowFound && x?.name && x?.nameBasis); }
+  function catalogIconValid(x) { return Boolean(catalogProofValid(x) && x?.localIconPath); }
+  function heroName(id) { const x=catalogHero(id); return (catalogProofValid(x) ? x.name : null) || HERO_NAMES.get(Number(id)) || null; }
   function initials(name) { return String(name || '?').split(/\s+/).map(x => x[0]).join('').slice(0,2).toUpperCase(); }
   function heroRecord(id, data) { return (data?.heroes || []).find(x => Number(x.heroId) === Number(id)) || null; }
 
@@ -27,16 +29,17 @@
     }
     const s = kit.stats || {};
     const decoded = s.decodedRasterAssets ?? kit.extractedAssets?.length ?? 0;
-    const nameCount = heroCatalog?.resolvedNames ?? 0;
-    const iconCount = heroCatalog?.resolvedLocalIcons ?? 0;
+    const provenNames = heroCatalog?.heroes?.filter(catalogProofValid).length ?? 0;
+    const provenIcons = heroCatalog?.heroes?.filter(catalogIconValid).length ?? 0;
+    const total = heroCatalog?.heroCount ?? 31;
     assetStatus.textContent = heroCatalog
-      ? `Catalogue héros · ${nameCount}/${heroCatalog.heroCount} noms · ${iconCount}/${heroCatalog.heroCount} icônes`
+      ? `Catalogue héros prouvé · ${provenNames}/${total} noms · ${provenIcons}/${total} icônes`
       : `Kit local · ${fmt(decoded)} images Unity décodées · catalogue héros à générer`;
-    assetStatus.className = heroCatalog && nameCount === heroCatalog.heroCount ? 'asset-status ok' : 'asset-status warn';
+    assetStatus.className = heroCatalog && provenNames === total && provenIcons === total ? 'asset-status ok' : 'asset-status warn';
     [
       ['Images Unity', decoded],
-      ['Noms héros', heroCatalog ? `${nameCount}/${heroCatalog.heroCount}` : '—'],
-      ['Icônes héros', heroCatalog ? `${iconCount}/${heroCatalog.heroCount}` : '—'],
+      ['Noms prouvés', heroCatalog ? `${provenNames}/${total}` : '—'],
+      ['Icônes prouvées', heroCatalog ? `${provenIcons}/${total}` : '—'],
       ['Assets Drone', kit.droneAssets?.length ?? 0]
     ].forEach(([label,value]) => {
       const x = document.createElement('div'); x.className = 'kit-metric';
@@ -63,8 +66,8 @@
   }
 
   function directHeroAsset(id) {
-    const authoritative = catalogHero(id)?.localIconPath;
-    if (authoritative) return authoritative;
+    const cat = catalogHero(id);
+    if (catalogIconValid(cat)) return cat.localIconPath;
     if (!kit) return null;
     const name = heroName(id);
     if (!name) return null;
@@ -134,7 +137,7 @@
     const b = document.createElement('b'); b.textContent = resolved ? name : 'Héros non résolu';
     const s = document.createElement('span');
     if (!resolved) s.textContent = `ID ${id} · table à décoder`;
-    else if (cat?.authoritativeRowFound) s.textContent = asset ? 'table + icône officielle' : 'table résolue · icône à extraire';
+    else if (catalogProofValid(cat)) s.textContent = asset ? 'table + icône officielle' : 'table résolue · icône à extraire';
     else s.textContent = asset ? 'portrait officiel' : 'portrait à retrouver';
     cap.append(b,s); el.appendChild(cap);
     return el;
