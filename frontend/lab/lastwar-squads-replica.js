@@ -5,46 +5,69 @@
   const fmt = (v) => v === null || v === undefined || v === '' ? '—' : (typeof v === 'number' ? new Intl.NumberFormat('fr-FR').format(v) : String(v));
   const kit = window.WFGG_LASTWAR_GRAPHICS_KIT || null;
   const heroMap = window.WFGG_LASTWAR_HERO_AUTHORITATIVE_MAP || null;
+  const companionMap = window.WFGG_LASTWAR_COMPANION_AUTHORITATIVE_MAP || null;
   const assetStatus = $('assetStatus');
   const kitMetrics = $('kitMetrics');
 
   function mappedHero(id) { return heroMap?.heroes?.find(x => Number(x.heroId) === Number(id)) || null; }
-  function heroName(id) { return mappedHero(id)?.name || null; }
   function initials(name) { return String(name || '?').split(/\s+/).map(x => x[0]).join('').slice(0,2).toUpperCase(); }
   function heroRecord(id, data) { return (data?.heroes || []).find(x => Number(x.heroId) === Number(id)) || null; }
   function norm(s) { return String(s || '').trim().toLowerCase(); }
+  function assetStem(s) { return norm(String(s || '').split('/').pop()).replace(/\.(png|jpg|jpeg|tga|webp)$/i,''); }
+
+  function exactAsset(name) {
+    if (!kit || !name) return null;
+    const wanted=assetStem(name);
+    const rows=(kit.extractedAssets || []).filter(x => assetStem(x?.name)===wanted || assetStem(x?.localPath)===wanted);
+    return rows.sort((a,b) => {
+      const sa=(a.objectType==='Sprite'?100:0)+(a.width===a.height?40:0)+(a.width||0)+(a.height||0);
+      const sb=(b.objectType==='Sprite'?100:0)+(b.width===b.height?40:0)+(b.width||0)+(b.height||0);
+      return sb-sa;
+    })[0] || null;
+  }
 
   function iconCandidatesFor(id) {
     if (!kit) return [];
     const m = mappedHero(id);
     if (!m) return [];
-    const refs = [m.queueIcon,m.halfIcon].filter(Boolean).map(norm);
-    const rows = (kit.extractedAssets || []).filter(x => refs.includes(norm(x?.name)));
+    const refs = [m.queueIcon,m.halfIcon].filter(Boolean).map(assetStem);
+    const rows = (kit.extractedAssets || []).filter(x => refs.includes(assetStem(x?.name)));
+    const murphy = Number(id)===50006;
     return rows.sort((a,b) => {
-      const sa = (a.width===158 && a.height===201 ? 500 : 0) + (a.width===140 && a.height===140 ? 200 : 0) + (a.height||0);
-      const sb = (b.width===158 && b.height===201 ? 500 : 0) + (b.width===140 && b.height===140 ? 200 : 0) + (b.height||0);
-      return sb-sa;
+      // Murphy's 158x201 Sprite is visually fragmented in the local witness.
+      // The official 140x140 object with the same authoritative name is intact,
+      // so prefer that exact square variant only for Murphy.
+      const score = (x) => {
+        if (murphy) return (x.width===140 && x.height===140 ? 1200 : 0) + (x.width===154 && x.height===154 ? 700 : 0) + (x.width===158 && x.height===201 ? 100 : 0) + (x.height||0);
+        return (x.width===158 && x.height===201 ? 500 : 0) + (x.width===140 && x.height===140 ? 200 : 0) + (x.height||0);
+      };
+      return score(b)-score(a);
     });
   }
 
-  function directHeroAsset(id) {
-    return iconCandidatesFor(id)[0]?.localPath || null;
-  }
+  function directHeroAsset(id) { return iconCandidatesFor(id)[0]?.localPath || null; }
+
+  function resolvedDrone(level) { return companionMap?.drone?.resolve ? companionMap.drone.resolve(level) : null; }
+  function resolvedGorilla(rank) { return companionMap?.dominator?.resolve ? companionMap.dominator.resolve(rank) : null; }
+  function droneMainAsset(level) { const r=resolvedDrone(level); return r ? exactAsset(r.icon)?.localPath || null : null; }
+  function gorillaMainAsset(rank) { const r=resolvedGorilla(rank); return r ? exactAsset(r.icon)?.localPath || null : null; }
 
   function renderKitStatus() {
     kitMetrics.innerHTML = '';
     const decoded = kit?.stats?.decodedRasterAssets ?? kit?.extractedAssets?.length ?? 0;
     const total = heroMap?.heroes?.length ?? 0;
     const icons = heroMap ? heroMap.heroes.filter(h => Boolean(directHeroAsset(h.heroId))).length : 0;
+    const drone162 = Boolean(droneMainAsset(162));
+    const gorilla47 = Boolean(gorillaMainAsset(47));
     assetStatus.textContent = heroMap
-      ? `31 noms résolus · ${icons}/${total} icônes officielles déjà présentes localement`
+      ? `31 noms résolus · ${icons}/${total} icônes héros · Drone 162 ${drone162?'✓':'…'} · Gorilla rang 47 ${gorilla47?'✓':'…'}`
       : 'Mapping héros autoritatif absent.';
     assetStatus.className = heroMap ? 'asset-status ok' : 'asset-status warn';
     [
       ['Images Unity', decoded],
-      ['Noms héros', heroMap ? `${total}/${total}` : '—'],
-      ['Icônes exactes', heroMap ? `${icons}/${total}` : '—'],
-      ['Assets Drone', kit?.droneAssets?.length ?? 0]
+      ['Icônes héros', heroMap ? `${icons}/${total}` : '—'],
+      ['Drone niv.162', drone162 ? 'exacte' : 'à extraire'],
+      ['Gorilla rang 47', gorilla47 ? 'exacte' : 'à extraire']
     ].forEach(([label,value]) => {
       const x = document.createElement('div'); x.className = 'kit-metric';
       const a = document.createElement('span'); a.textContent = label;
@@ -53,35 +76,15 @@
     });
   }
 
-  function droneMainAsset() {
-    if (!kit) return null;
-    const rows = (kit.extractedAssets || []).filter(x => x?.category === 'drone');
-    const score = (x) => {
-      const p = `${x.name || ''} ${x.localPath || ''}`.toLowerCase();
-      let s = 0;
-      if (/hero_icon_.*drone|drone.*hero_icon_/.test(p)) s += 1800;
-      if (/drone_(?:head|portrait|avatar|icon)|(?:head|portrait|avatar|icon)_drone/.test(p)) s += 1400;
-      if (/uav_(?:head|portrait|avatar|icon)|(?:head|portrait|avatar|icon)_uav/.test(p)) s += 1200;
-      if (p.includes('item_uav_equip_') || p.includes('tacticalchip') || p.includes('skillchip')) s -= 1600;
-      if (p.includes('eff_') || p.includes('effect') || p.includes('noise') || p.includes('smoke')) s -= 1600;
-      return s;
-    };
-    const ranked = rows.map(x => ({...x,score:score(x)})).sort((a,b)=>b.score-a.score);
-    return ranked[0]?.score >= 1000 ? ranked[0].localPath : null;
-  }
-
   function heroTile(id,index,data) {
     const mapped = mappedHero(id);
     const name = mapped?.name || null;
     const rec = heroRecord(id,data);
     const el = document.createElement('div');
-    el.className = `hero-tile${mapped ? '' : ' unresolved'}`;
+    el.className = `hero-tile${mapped ? '' : ' unresolved'}${Number(id)===50006 ? ' hero-murphy' : ''}`;
 
-    const order = document.createElement('span');
-    order.className = 'hero-order'; order.textContent = String(index+1); el.appendChild(order);
-
-    const level = document.createElement('span');
-    level.className = 'hero-level'; level.textContent = rec?.level ? `Lv.${rec.level}` : 'Lv.—'; el.appendChild(level);
+    const order = document.createElement('span'); order.className = 'hero-order'; order.textContent = String(index+1); el.appendChild(order);
+    const level = document.createElement('span'); level.className = 'hero-level'; level.textContent = rec?.level ? `Lv.${rec.level}` : 'Lv.—'; el.appendChild(level);
 
     const asset = directHeroAsset(id);
     if (asset) {
@@ -99,8 +102,7 @@
 
     const cap = document.createElement('div'); cap.className='hero-caption';
     const b = document.createElement('b'); b.textContent = mapped ? name : `ID ${id}`;
-    const s = document.createElement('span');
-    s.textContent = mapped ? (asset ? mapped.queueIcon : `${mapped.queueIcon} · PNG à extraire`) : 'mapping absent';
+    const s = document.createElement('span'); s.textContent = mapped ? (asset ? mapped.queueIcon : `${mapped.queueIcon} · PNG à extraire`) : 'mapping absent';
     cap.append(b,s); el.appendChild(cap);
     return el;
   }
@@ -154,16 +156,22 @@
     const strip=document.createElement('div'); strip.className='companion-strip';
     const group=(data.droneChipGroups||[]).find(g=>Number(g.equipGroup)===Number(f.chipEquipGroup));
     const drone=data.drone||{};
+    const droneVisual=resolvedDrone(drone.level);
     strip.appendChild(companionBox(
       'drone','Drone global',
-      [`Niv. ${fmt(drone.level)} · ${fmt(drone.totalSquadEquipPower)} puissance`,`Preset ${f.chipEquipGroup||'—'} · 4 puces`],
-      '◇',droneMainAsset(),chipStrip(group)
+      [`Niv. ${fmt(drone.level)} · ${fmt(drone.totalSquadEquipPower)} puissance`,`Profil ${droneVisual?.icon || 'non résolu'} · preset ${f.chipEquipGroup||'—'}`],
+      '◇',droneMainAsset(drone.level),chipStrip(group)
     ));
 
     const ord=(f.overlordOrdinals||[])[0];
     if(ord!==undefined){
       const o=(data.overlords||[]).find(x=>Number(x.ordinal)===Number(ord));
-      strip.appendChild(companionBox('overlord','Overlord',[`Rang ${fmt(o?.rank)} · ${fmt(o?.power)} puissance`,`${fmt(o?.skillCount)} compétences`],'◆',null,null));
+      const gorilla=resolvedGorilla(o?.rank);
+      strip.appendChild(companionBox(
+        'overlord','Overlord · Gorilla',
+        [`Rang ${fmt(o?.rank)} · ${fmt(o?.power)} puissance`,`Apparence ${gorilla?.appearance || '—'} · ${fmt(o?.skillCount)} compétences`],
+        '◆',gorillaMainAsset(o?.rank),null
+      ));
     } else {
       strip.appendChild(companionBox('overlord','Overlord',['Non affecté à cette escouade'],'—',null,null));
     }
