@@ -8,6 +8,7 @@ on:
     paths:
       - 'scripts/lastwar-termux-probe.sh'
       - 'scripts/lastwar-phase3-session-from-pcap.sh'
+      - 'scripts/lastwar-phase4-login-diff.sh'
       - '.github/workflows/lastwar-probe-qa.yml'
 
 permissions:
@@ -24,6 +25,7 @@ jobs:
         run: |
           bash -n scripts/lastwar-termux-probe.sh
           bash -n scripts/lastwar-phase3-session-from-pcap.sh
+          bash -n scripts/lastwar-phase4-login-diff.sh
 
       - name: Setup Go 1.27
         uses: actions/setup-go@v6
@@ -106,14 +108,24 @@ jobs:
           grep -q 'APP_VERSION=' scripts/lastwar-phase3-session-from-pcap.sh
           grep -q 'VERSION_CODE=' scripts/lastwar-phase3-session-from-pcap.sh
           grep -q 'Identité applicative alignée' scripts/lastwar-phase3-session-from-pcap.sh
-          grep -q 'lastwar-client.*-config' scripts/lastwar-phase3-session-from-pcap.sh || true
+
+      - name: Validate phase4 is local-only and redacted
+        run: |
+          set -euo pipefail
+          grep -q 'Aucune connexion au serveur Last War' scripts/lastwar-phase4-login-diff.sh
+          grep -q 'BuildLoginParams' scripts/lastwar-phase4-login-diff.sh
+          grep -q 'DIFF masqué' scripts/lastwar-phase4-login-diff.sh
+          if grep -Eq -- '(^|[[:space:]])-collect([[:space:]]|$)' scripts/lastwar-phase4-login-diff.sh; then
+            echo 'Forbidden gameplay automation flag found in phase4 helper.' >&2
+            exit 1
+          fi
 
       - name: Verify probes stay non-automating
         run: |
           set -euo pipefail
           grep -q -- '-list-buildings' scripts/lastwar-termux-probe.sh
           grep -q -- '-list-buildings' scripts/lastwar-phase3-session-from-pcap.sh
-          for script in scripts/lastwar-termux-probe.sh scripts/lastwar-phase3-session-from-pcap.sh; do
+          for script in scripts/lastwar-termux-probe.sh scripts/lastwar-phase3-session-from-pcap.sh scripts/lastwar-phase4-login-diff.sh; do
             if grep -Eq -- '(^|[[:space:]])-collect([[:space:]]|$)' "$script"; then
               echo "Forbidden gameplay automation flag found in $script" >&2
               exit 1
