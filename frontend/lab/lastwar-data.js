@@ -6,8 +6,6 @@
   let currentData = null;
   let heroFilter = 'all';
 
-  // Public catalogue labels confirmed in the protocol reference available to this lab.
-  // Unknown/newer IDs deliberately fall back to "Héros <id>" instead of guessing a name.
   const HERO_NAMES = new Map([
     [30002,'Loki'],[30003,'Kane'],[30004,'Ambolt'],[30005,'Gump'],
     [40007,'Elsa'],[40008,'Farhad'],[40009,'Richard'],[40013,'Braz'],[40015,'Cage'],[40016,'Maxwell'],[40020,'Monica'],
@@ -67,47 +65,31 @@
 
   function renderOverview(data) {
     const c=data.counts||{}; const host=clearHost('overviewGrid');
-    [
-      ['Héros',c.heroes],['Formations actives',c.armyFormations],['Modèles',c.formationTemplates],
-      ['Équipements héros',c.heroEquipment],['Équipements généraux',c.generalEquipment],['Armes',c.weapons],
-      ['Bâtiments',c.buildings],['Recherches',c.science]
-    ].forEach(([a,b])=>host.appendChild(metric(a,b)));
+    [['Héros',c.heroes],['Formations actives',c.armyFormations],['Modèles',c.formationTemplates],['Équipements héros',c.heroEquipment],['Équipements généraux',c.generalEquipment],['Armes',c.weapons],['Bâtiments',c.buildings],['Recherches',c.science]].forEach(([a,b])=>host.appendChild(metric(a,b)));
     $('sourceBadge').textContent=`${data.initTopLevelFields||0} champs init · ${data.format.endsWith('_V2')?'V2':'V1'}`;
   }
 
   function renderPower(data) {
     const p=data.playerProgress||{}; const host=clearHost('powerGrid');
-    const order=[
-      ['Puissance max','playerMaxPower'],['Héros','heroPower'],['Armée','armyPower'],['Bâtiments','buildingPower'],
-      ['Recherche','sciencePower'],['Équipement escouade','squadEquipPower'],['Cartes de bataille','battleCardPower'],
-      ['Dominator','dominatorPower'],['Décoration','decoPower'],['Kills armée','armyKill'],['Niveau PvE','pveLevel'],['Endurance','stamina']
-    ];
-    order.forEach(([label,key])=>host.appendChild(metric(label,p[key])));
+    [['Puissance max','playerMaxPower'],['Héros','heroPower'],['Armée','armyPower'],['Bâtiments','buildingPower'],['Recherche','sciencePower'],['Équipement escouade','squadEquipPower'],['Cartes de bataille','battleCardPower'],['Dominator','dominatorPower'],['Décoration','decoPower'],['Kills armée','armyKill'],['Niveau PvE','pveLevel'],['Endurance','stamina']].forEach(([label,key])=>host.appendChild(metric(label,p[key])));
   }
 
   function equipmentByHero(data) {
     const map=new Map();
-    (data.heroEquipment||[]).forEach(e=>{
-      if (!e.heroId) return;
-      if (!map.has(e.heroId)) map.set(e.heroId,[]);
-      map.get(e.heroId).push(e);
-    });
+    (data.heroEquipment||[]).forEach(e=>{ if (!e.heroId) return; if (!map.has(e.heroId)) map.set(e.heroId,[]); map.get(e.heroId).push(e); });
     return map;
   }
 
   function renderHeroFilters(data) {
     const host=clearHost('heroFilters');
-    const defs=[['all','Tous'],['weapon','Avec arme'],['equipped','Équipés'],['rank26','Rang 26']];
-    defs.forEach(([key,label])=>{
+    [['all','Tous'],['weapon','Avec arme'],['equipped','Équipés'],['rank26','Rang 26']].forEach(([key,label])=>{
       const b=document.createElement('button'); b.type='button'; b.className=`filter-chip${heroFilter===key?' active':''}`; b.textContent=label;
-      b.addEventListener('click',()=>{heroFilter=key; renderHeroes(data); renderHeroFilters(data);});
-      host.appendChild(b);
+      b.addEventListener('click',()=>{heroFilter=key; renderHeroes(data); renderHeroFilters(data);}); host.appendChild(b);
     });
   }
 
   function renderHeroes(data) {
-    const host=clearHost('heroesGrid'); const eq=equipmentByHero(data);
-    let heroes=[...(data.heroes||[])];
+    const host=clearHost('heroesGrid'); const eq=equipmentByHero(data); let heroes=[...(data.heroes||[])];
     if(heroFilter==='weapon') heroes=heroes.filter(h=>h.hasWeaponInfo);
     if(heroFilter==='equipped') heroes=heroes.filter(h=>eq.has(h.heroId));
     if(heroFilter==='rank26') heroes=heroes.filter(h=>h.rankLv===26);
@@ -116,8 +98,7 @@
       const strong=document.createElement('strong'); strong.textContent=heroLabel(h.heroId);
       const id=document.createElement('div'); id.className='hero-id'; id.textContent=`ID catalogue ${h.heroId}`;
       const meta=document.createElement('div'); meta.className='hero-meta';
-      const values=[['Niveau',h.level],['Rang',h.rankLv],['Compétences',h.skillCount],['Équipements',eq.get(h.heroId)?.length||0]];
-      values.forEach(([k,v])=>{const x=document.createElement('span');x.innerHTML=`${k}<br><b>${fmt(v)}</b>`;meta.appendChild(x);});
+      [['Niveau',h.level],['Rang',h.rankLv],['Compétences',h.skillCount],['Équipements',eq.get(h.heroId)?.length||0]].forEach(([k,v])=>{const x=document.createElement('span');x.innerHTML=`${k}<br><b>${fmt(v)}</b>`;meta.appendChild(x);});
       const flags=document.createElement('div'); flags.className='hero-flags';
       if(h.hasWeaponInfo){const f=document.createElement('span');f.className='hero-flag weapon';f.textContent='arme';flags.appendChild(f);}
       if(h.state!==undefined){const f=document.createElement('span');f.className='hero-flag';f.textContent=`état ${h.state}`;flags.appendChild(f);}
@@ -132,6 +113,15 @@
     const r=document.createElement('div');r.className='right';r.textContent=right;row.append(l,r);return row;
   }
 
+  function formationState(f) {
+    const slots=Number(f.slots||0);
+    const resolved=(f.heroIds||[]).length;
+    const unresolved=Number(f.unresolvedHeroRefs||0);
+    const missing=Math.max(0,slots-resolved);
+    const auxiliary=Math.max(0,unresolved-missing);
+    return {slots,resolved,unresolved,missing,auxiliary};
+  }
+
   function formationNode(f,title) {
     const row=document.createElement('div'); row.className='formation-row';
     const head=document.createElement('div'); head.className='formation-head';
@@ -141,63 +131,62 @@
     left.append(strong,meta); head.appendChild(left);
     if(f.squadNo){const badge=document.createElement('b');badge.className='mini-badge';badge.textContent=`Escouade ${f.squadNo}`;head.appendChild(badge);}
     row.appendChild(head);
-    const ids=f.heroIds||[];
-    const heroes=document.createElement('div'); heroes.className='formation-heroes';
+
+    const ids=f.heroIds||[]; const heroes=document.createElement('div'); heroes.className='formation-heroes';
     if(ids.length){ids.forEach((id,i)=>{const p=document.createElement('span');p.className='formation-hero';p.textContent=`${i+1}. ${heroLabel(id)}`;p.title=`heroId ${id}`;heroes.appendChild(p);});}
-    else {const p=document.createElement('span');p.className='muted small';p.textContent='Héros non résolus dans ce fichier';heroes.appendChild(p);}
+    else {const p=document.createElement('span');p.className='muted small';p.textContent='Aucun héros résolu dans ce modèle';heroes.appendChild(p);}
     row.appendChild(heroes);
-    if(f.unresolvedHeroRefs){const warn=document.createElement('div');warn.className='warn-text small';warn.textContent=`${f.unresolvedHeroRefs} référence(s) héros encore non résolue(s)`;row.appendChild(warn);}
+
+    const st=formationState(f);
+    if(st.slots>0 && st.resolved>=st.slots){
+      if(st.unresolved>0){const note=document.createElement('div');note.className='muted small';note.textContent=`Formation complète · ${st.unresolved} référence(s) supplémentaire(s) non classée(s), sans emplacement héros manquant`;row.appendChild(note);}
+    } else if(st.missing>0){
+      const note=document.createElement('div');note.className='muted small';
+      if(st.resolved===0 && st.unresolved===0) note.textContent=`Modèle vide · ${st.missing} emplacement(s) non renseigné(s)`;
+      else note.textContent=`${st.missing} emplacement(s) héros non résolu(s) ou non renseigné(s)${st.unresolved?` · ${st.unresolved} référence(s) non classée(s) présente(s)`:''}`;
+      row.appendChild(note);
+    }
     return row;
   }
 
   function renderFormations(data) {
-    const a=clearHost('armyFormations');
-    (data.armyFormations||[]).forEach(f=>a.appendChild(formationNode(f,`Armée ${f.index}`)));
-    const t=clearHost('formationTemplates');
-    (data.formationTemplates||[]).forEach(f=>t.appendChild(formationNode(f,`Modèle ${f.index}`)));
-    const stats=data.formationResolution;
-    if(stats){$('formationsStatus').textContent=`${stats.armyHeroRefs||0} références héros actives résolues · ${stats.unresolvedHeroRefs||0} non résolues`;}
+    const armies=data.armyFormations||[]; const templates=data.formationTemplates||[];
+    const a=clearHost('armyFormations'); armies.forEach(f=>a.appendChild(formationNode(f,`Armée ${f.index}`)));
+    const t=clearHost('formationTemplates'); templates.forEach(f=>t.appendChild(formationNode(f,`Modèle ${f.index}`)));
+    const totalSlots=armies.reduce((n,f)=>n+Number(f.slots||0),0);
+    const resolved=armies.reduce((n,f)=>n+(f.heroIds||[]).length,0);
+    const complete=armies.filter(f=>formationState(f).missing===0).length;
+    if(data.formationResolution){$('formationsStatus').textContent=`Armées actives : ${resolved}/${totalSlots} héros résolus · ${complete}/${armies.length} formations complètes. Les références supplémentaires des modèles sont diagnostiquées séparément.`;}
     else {$('formationsStatus').textContent='Phase 7 : relations héros non résolues. Charge le fichier Phase 8 pour les afficher.';}
   }
 
   function renderEquipment(data) {
     const map=equipmentByHero(data); const host=clearHost('equipmentSummary');
     [...map.entries()].sort((a,b)=>a[0]-b[0]).forEach(([heroId,items])=>{
-      const maxLevel=Math.max(...items.map(x=>Number(x.level||0)));
-      const maxPromote=Math.max(...items.map(x=>Number(x.promote||0)));
-      const configs=[...new Set(items.map(x=>x.cfgId))].join(', ');
+      const maxLevel=Math.max(...items.map(x=>Number(x.level||0))); const maxPromote=Math.max(...items.map(x=>Number(x.promote||0))); const configs=[...new Set(items.map(x=>x.cfgId))].join(', ');
       host.appendChild(listRow(heroLabel(heroId),`${items.length} pièces · cfg ${configs}`,`niv. max ${maxLevel||'—'} · promo ${maxPromote||'—'}`));
     });
     $('equipmentCount').textContent=`${map.size} héros liés / ${(data.heroEquipment||[]).length} entrées`;
   }
 
   function renderWeapon(data) {
-    const host=clearHost('weaponGrid'); const w=(data.weapons||[])[0];
-    if(!w){host.appendChild(metric('Arme','Aucune'));return;}
+    const host=clearHost('weaponGrid'); const w=(data.weapons||[])[0]; if(!w){host.appendChild(metric('Arme','Aucune'));return;}
     [['Niveau',w.level],['Puissance',w.power],['EXP',w.exp],['Niveau puce',w.chipLv],['EXP puce',w.chipExp],['Compétence',w.skill],['Niveau compétence',w.skillLevel]].forEach(([k,v])=>host.appendChild(metric(k,v)));
   }
 
   function renderBuildings(data) {
-    const groups=new Map();
-    (data.buildings||[]).forEach(b=>{if(!groups.has(b.bId)) groups.set(b.bId,[]); groups.get(b.bId).push(b);});
+    const groups=new Map(); (data.buildings||[]).forEach(b=>{if(!groups.has(b.bId)) groups.set(b.bId,[]); groups.get(b.bId).push(b);});
     const rows=[...groups.entries()].map(([id,items])=>({id,count:items.length,maxLevel:Math.max(...items.map(x=>Number(x.level||0))),active:items.filter(x=>x.prodStatus!==undefined).length})).sort((a,b)=>b.maxLevel-a.maxLevel||a.id-b.id);
-    const host=clearHost('buildingsTable'); const table=document.createElement('table');
-    table.innerHTML='<thead><tr><th>ID bâtiment</th><th>Instances</th><th>Niveau max</th><th>État production présent</th></tr></thead>';
+    const host=clearHost('buildingsTable'); const table=document.createElement('table'); table.innerHTML='<thead><tr><th>ID bâtiment</th><th>Instances</th><th>Niveau max</th><th>État production présent</th></tr></thead>';
     const body=document.createElement('tbody'); rows.forEach(r=>{const tr=document.createElement('tr');[r.id,r.count,r.maxLevel||'—',r.active].forEach(v=>{const td=document.createElement('td');td.textContent=fmt(v);tr.appendChild(td)});body.appendChild(tr)}); table.appendChild(body); host.appendChild(table);
     $('buildingsCount').textContent=`${(data.buildings||[]).length} instances · ${groups.size} types`;
   }
 
   function renderScience(data) {
-    const rows=[...(data.science||[])]; const host=clearHost('scienceSummary');
-    const levels=rows.map(x=>Number(x.level||0));
-    host.append(metric('Recherches',rows.length));
-    host.append(metric('Niveau moyen',levels.length?(levels.reduce((a,b)=>a+b,0)/levels.length).toFixed(2):0));
-    host.append(metric('Niveau max',levels.length?Math.max(...levels):0));
-    host.append(metric('Niveau 5',levels.filter(x=>x===5).length));
-    const tableHost=clearHost('scienceTable'); const table=document.createElement('table');
-    table.innerHTML='<thead><tr><th>ID recherche</th><th>Niveau</th></tr></thead>';
-    const body=document.createElement('tbody'); rows.sort((a,b)=>a.scienceId-b.scienceId).forEach(r=>{const tr=document.createElement('tr');const a=document.createElement('td');a.textContent=r.scienceId;const b=document.createElement('td');b.textContent=fmt(r.level);tr.append(a,b);body.appendChild(tr)});table.appendChild(body);tableHost.appendChild(table);
-    $('scienceCount').textContent=`${rows.length} entrées`;
+    const rows=[...(data.science||[])]; const host=clearHost('scienceSummary'); const levels=rows.map(x=>Number(x.level||0));
+    host.append(metric('Recherches',rows.length)); host.append(metric('Niveau moyen',levels.length?(levels.reduce((a,b)=>a+b,0)/levels.length).toFixed(2):0)); host.append(metric('Niveau max',levels.length?Math.max(...levels):0)); host.append(metric('Niveau 5',levels.filter(x=>x===5).length));
+    const tableHost=clearHost('scienceTable'); const table=document.createElement('table'); table.innerHTML='<thead><tr><th>ID recherche</th><th>Niveau</th></tr></thead>';
+    const body=document.createElement('tbody'); rows.sort((a,b)=>a.scienceId-b.scienceId).forEach(r=>{const tr=document.createElement('tr');const a=document.createElement('td');a.textContent=r.scienceId;const b=document.createElement('td');b.textContent=fmt(r.level);tr.append(a,b);body.appendChild(tr)});table.appendChild(body);tableHost.appendChild(table); $('scienceCount').textContent=`${rows.length} entrées`;
   }
 
   function render(data) {
@@ -207,19 +196,10 @@
   }
 
   async function loadFile(file) {
-    try {
-      if(!file) return;
-      if(file.size > 5*1024*1024) throw new Error('FICHIER_TROP_VOLUMINEUX');
-      const text=await file.text();
-      render(validate(JSON.parse(text)));
-    } catch(error) {
-      currentData=null; showCards(false); $('resetButton').disabled=true;
-      setStatus(`Fichier refusé : ${error.message}`, 'error');
-    }
+    try { if(!file) return; if(file.size > 5*1024*1024) throw new Error('FICHIER_TROP_VOLUMINEUX'); const text=await file.text(); render(validate(JSON.parse(text))); }
+    catch(error) { currentData=null; showCards(false); $('resetButton').disabled=true; setStatus(`Fichier refusé : ${error.message}`, 'error'); }
   }
 
   $('dataFile').addEventListener('change',(e)=>loadFile(e.target.files?.[0]));
-  $('resetButton').addEventListener('click',()=>{
-    currentData=null; heroFilter='all'; $('dataFile').value=''; showCards(false); $('resetButton').disabled=true; setStatus('Données effacées de la mémoire de cette page.','neutral');
-  });
+  $('resetButton').addEventListener('click',()=>{ currentData=null; heroFilter='all'; $('dataFile').value=''; showCards(false); $('resetButton').disabled=true; setStatus('Données effacées de la mémoire de cette page.','neutral'); });
 })();
