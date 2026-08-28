@@ -1,0 +1,46 @@
+name: LastWar phase31 targeted graphics QA
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - portal-auth-lastwar-lab-v1
+    paths:
+      - 'scripts/lastwar-phase31-targeted-graphics-extraction.sh'
+      - 'scripts/lastwar-phase30d-engine-version-discovery.sh'
+      - '.github/workflows/lastwar-phase31-qa.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Validate shell syntax
+        run: |
+          bash -n scripts/lastwar-phase31-targeted-graphics-extraction.sh
+          bash -n scripts/lastwar-phase30d-engine-version-discovery.sh
+      - name: Exercise phase31 patch against phase30b
+        run: |
+          set -euo pipefail
+          awk '/^python - "\$TMP" <<'"'"'PY'"'"'$/{f=1;next} /^PY$/{if(f){exit}} f{print}' scripts/lastwar-phase31-targeted-graphics-extraction.sh > /tmp/phase31-patch.py
+          cp scripts/lastwar-phase30b-node-payload-extraction.sh /tmp/targeted.sh
+          python /tmp/phase31-patch.py /tmp/targeted.sh
+          grep -q 'MAX_CANDIDATES_TO_LOAD=1800' /tmp/targeted.sh
+          grep -q 'MAX_EXPORTED=900' /tmp/targeted.sh
+          grep -q 'phase31_wanted_asset' /tmp/targeted.sh
+          grep -q 'hero_icon_' /tmp/targeted.sh
+          grep -q 'item_uav_equip' /tmp/targeted.sh
+          grep -q 'dominator' /tmp/targeted.sh
+          grep -q 'WFGG_LASTWAR_PHASE31_TARGETED_GRAPHICS_REDACTED.txt' /tmp/targeted.sh
+          bash -n /tmp/targeted.sh
+          awk '/^cat > "\$PY" <<'"'"'PYEOF'"'"'$/{f=1;next} /^PYEOF$/{if(f){exit}} f{print}' /tmp/targeted.sh > /tmp/phase31-extractor.py
+          python -m py_compile /tmp/phase31-extractor.py
+      - name: Enforce local-only reusable runner contract
+        run: |
+          set -euo pipefail
+          grep -q 'WFGG_PHASE30B_SRC' scripts/lastwar-phase30d-engine-version-discovery.sh
+          grep -q 'No Last War network connection' scripts/lastwar-phase31-targeted-graphics-extraction.sh
+          ! grep -Eq 'curl |wget |requests\.|urllib\.request|socket\.' scripts/lastwar-phase31-targeted-graphics-extraction.sh
