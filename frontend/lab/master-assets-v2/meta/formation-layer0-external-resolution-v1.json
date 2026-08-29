@@ -1,0 +1,434 @@
+{
+  "format": "WFGG_LASTWAR_FORMATION_LAYER0_EXTERNAL_RESOLUTION_V1",
+  "networkUsed": false,
+  "adbUsed": true,
+  "apkFragmentUsed": true,
+  "uiPanel": {
+    "bundleId": 6933,
+    "aliasName": "bdacc2c7ac1d4f95add68d497ded4527741bf003e62c1bb6a2940ebcbd9348bf.bundle",
+    "assetPaths": [
+      "Assets/Main/Prefabs/UI/UIHero/LWHero/UIHeroPVPFormationPanel.prefab"
+    ]
+  },
+  "targetRefs": [
+    {
+      "ownerMonoPathId": -3957975286359756321,
+      "gameObject": "FormationRT",
+      "field": "m_Material",
+      "fileId": 16,
+      "pathId": 2136757981436054356,
+      "externalEntry": {
+        "fileId": 16,
+        "path": "archive:/CAB-9a46429c8bac0e1cd467ec61b2a0f8a3/CAB-9a46429c8bac0e1cd467ec61b2a0f8a3",
+        "repr": "<FileIdentifier(archive:/CAB-9a46429c8bac0e1cd467ec61b2a0f8a3/CAB-9a46429c8bac0e1cd467ec61b2a0f8a3)>"
+      }
+    },
+    {
+      "ownerMonoPathId": 5197284809923598296,
+      "gameObject": "Bg",
+      "field": "m_Texture",
+      "fileId": 18,
+      "pathId": -7423839590894119823,
+      "externalEntry": {
+        "fileId": 18,
+        "path": "archive:/CAB-3ac573b6179353e997f14668c7e8a8d3/CAB-3ac573b6179353e997f14668c7e8a8d3",
+        "repr": "<FileIdentifier(archive:/CAB-3ac573b6179353e997f14668c7e8a8d3/CAB-3ac573b6179353e997f14668c7e8a8d3)>"
+      }
+    }
+  ],
+  "uiExternalTables": [
+    {
+      "ownerMonoPathId": -3957975286359756321,
+      "entries": [
+        {
+          "fileId": 1,
+          "path": "archive:/CAB-e3ee85a79d7b972d0bc1cbddf2952d37/CAB-e3ee85a79d7b972d0bc1cbddf2952d37",
+          "repr": "<FileIdentifier(archive:/CAB-e3ee85a79d7b972d0bc1cbddf2952d37/CAB-e3ee85a79d7b972d0bc1cbddf2952d37)>"
+        },
+        {
+          "fileId": 2,
+          "path": "archive:/CAB-a29ca1f2e3c9f582eb921fa7175a135e/CAB-a29ca1f2e3c9f582eb921fa7175a135e",
+          "repr": "<FileIdentifier(archive:/CAB-a29ca1f2e3c9f582eb921fa7175a135e/CAB-a29ca1f2e3c9f582eb921fa7175a135e)>"
+        },
+        {
+          "fileId": 3,
+          "path": "archive:/CAB-5bc62b98d5fa51f9a52fd8050780be0c/CAB-5bc62b98d5fa51f9a52fd8050780be0c",
+          "repr": "<FileIdentifier(archive:/CAB-5bc62b98d5fa51f9a52fd8050780be0c/CAB-5bc62b98d5fa51f9a52fd8050780be0c)>"
+        },
+        {
+          "fileId": 4,
+          "path": "archive:/CAB-d78863b4bb01d9b198882c138f447c06/CAB-d78863b4bb01d9b198882c138f447c06",
+          "repr": "<FileIdentifier(archive:/CAB-d78863b4bb01d9b198882c138f447c06/CAB-d78863b4bb01d9b198882c138f447c06)>"
+        },
+        {
+          "fileId": 5,
+          "path": "archive:/CAB-092bb7f433d7b8d8d3d64c30befb7c6a/CAB-092bb7f433d7b8d8d3d64c30befb7c6a",
+          "repr": "<FileIdentifier(archive:/CAB-092bb7f433d7b8d8d3d64c30befb7c6a/CAB-092bb7f433d7b8d8d3d64c30befb7c6a)>"
+        },
+        {
+          "fileId": 6,
+          "path": "archive:/CAB-ff2d98e7c7bd913913d5293de13c6725/CAB-ff2d98e7c7bd913913d5293de13c6725",
+          "repr": "<FileIdentifier(archive:/CAB-ff2d98e7c7bd913913d5293de13c6725/CAB-ff2d98e7c7bd913913d5293de13c6725)>"
+        },
+        {
+          "fileId": 7,
+          "path": "archive:/CAB-4d3cda826163b9dc9d21adfa0efde874/CAB-4d3cda826163b9dc9d21adfa0efde874",
+          "repr": "<FileIdentifier(archive:/CAB-4d3cda826163b9dc9d21adfa0efde874/CAB-4d3cda826163b9dc9d21adfa0efde874)>"
+        },
+        {
+          "fileId": 8,
+          "path": "archive:/CAB-3692ffd6b6f149c56ebf85f7153f2694/CAB-3692ffd6b6f149c56ebf85f7153f2694",
+          "repr": "<FileIdentifier(archive:/CAB-3692ffd6b6f149c56ebf85f7153f2694/CAB-3692ffd6b6f149c56ebf85f7153f2694)>"
+        },
+        {
+          "fileId": 9,
+          "path": "archive:/CAB-7d3f3fc73120597a732d4cbd110de272/CAB-7d3f3fc73120597a732d4cbd110de272",
+          "repr": "<FileIdentifier(archive:/CAB-7d3f3fc73120597a732d4cbd110de272/CAB-7d3f3fc73120597a732d4cbd110de272)>"
+        },
+        {
+          "fileId": 10,
+          "path": "archive:/CAB-0d572ca45c6326c008848e21c611744d/CAB-0d572ca45c6326c008848e21c611744d",
+          "repr": "<FileIdentifier(archive:/CAB-0d572ca45c6326c008848e21c611744d/CAB-0d572ca45c6326c008848e21c611744d)>"
+        },
+        {
+          "fileId": 11,
+          "path": "archive:/CAB-25298f8821ebd65c8a8054daaf7d1fa7/CAB-25298f8821ebd65c8a8054daaf7d1fa7",
+          "repr": "<FileIdentifier(archive:/CAB-25298f8821ebd65c8a8054daaf7d1fa7/CAB-25298f8821ebd65c8a8054daaf7d1fa7)>"
+        },
+        {
+          "fileId": 12,
+          "path": "archive:/CAB-9ddc099fd73f2245f0889d55c81930a4/CAB-9ddc099fd73f2245f0889d55c81930a4",
+          "repr": "<FileIdentifier(archive:/CAB-9ddc099fd73f2245f0889d55c81930a4/CAB-9ddc099fd73f2245f0889d55c81930a4)>"
+        },
+        {
+          "fileId": 13,
+          "path": "archive:/CAB-7fcab4c8595b4421d04e278fd36fee81/CAB-7fcab4c8595b4421d04e278fd36fee81",
+          "repr": "<FileIdentifier(archive:/CAB-7fcab4c8595b4421d04e278fd36fee81/CAB-7fcab4c8595b4421d04e278fd36fee81)>"
+        },
+        {
+          "fileId": 14,
+          "path": "archive:/CAB-b583383c2a6ed45fd83074b090ffcdae/CAB-b583383c2a6ed45fd83074b090ffcdae",
+          "repr": "<FileIdentifier(archive:/CAB-b583383c2a6ed45fd83074b090ffcdae/CAB-b583383c2a6ed45fd83074b090ffcdae)>"
+        },
+        {
+          "fileId": 15,
+          "path": "archive:/CAB-73219570d77dac52468aed2e1d558c47/CAB-73219570d77dac52468aed2e1d558c47",
+          "repr": "<FileIdentifier(archive:/CAB-73219570d77dac52468aed2e1d558c47/CAB-73219570d77dac52468aed2e1d558c47)>"
+        },
+        {
+          "fileId": 16,
+          "path": "archive:/CAB-9a46429c8bac0e1cd467ec61b2a0f8a3/CAB-9a46429c8bac0e1cd467ec61b2a0f8a3",
+          "repr": "<FileIdentifier(archive:/CAB-9a46429c8bac0e1cd467ec61b2a0f8a3/CAB-9a46429c8bac0e1cd467ec61b2a0f8a3)>"
+        },
+        {
+          "fileId": 17,
+          "path": "archive:/CAB-eca73a07174bdd732d10f09b3aee5c6f/CAB-eca73a07174bdd732d10f09b3aee5c6f",
+          "repr": "<FileIdentifier(archive:/CAB-eca73a07174bdd732d10f09b3aee5c6f/CAB-eca73a07174bdd732d10f09b3aee5c6f)>"
+        },
+        {
+          "fileId": 18,
+          "path": "archive:/CAB-3ac573b6179353e997f14668c7e8a8d3/CAB-3ac573b6179353e997f14668c7e8a8d3",
+          "repr": "<FileIdentifier(archive:/CAB-3ac573b6179353e997f14668c7e8a8d3/CAB-3ac573b6179353e997f14668c7e8a8d3)>"
+        },
+        {
+          "fileId": 19,
+          "path": "archive:/CAB-8f65ddc31139f26b9e990c937cc1a866/CAB-8f65ddc31139f26b9e990c937cc1a866",
+          "repr": "<FileIdentifier(archive:/CAB-8f65ddc31139f26b9e990c937cc1a866/CAB-8f65ddc31139f26b9e990c937cc1a866)>"
+        }
+      ]
+    },
+    {
+      "ownerMonoPathId": 5197284809923598296,
+      "entries": [
+        {
+          "fileId": 1,
+          "path": "archive:/CAB-e3ee85a79d7b972d0bc1cbddf2952d37/CAB-e3ee85a79d7b972d0bc1cbddf2952d37",
+          "repr": "<FileIdentifier(archive:/CAB-e3ee85a79d7b972d0bc1cbddf2952d37/CAB-e3ee85a79d7b972d0bc1cbddf2952d37)>"
+        },
+        {
+          "fileId": 2,
+          "path": "archive:/CAB-a29ca1f2e3c9f582eb921fa7175a135e/CAB-a29ca1f2e3c9f582eb921fa7175a135e",
+          "repr": "<FileIdentifier(archive:/CAB-a29ca1f2e3c9f582eb921fa7175a135e/CAB-a29ca1f2e3c9f582eb921fa7175a135e)>"
+        },
+        {
+          "fileId": 3,
+          "path": "archive:/CAB-5bc62b98d5fa51f9a52fd8050780be0c/CAB-5bc62b98d5fa51f9a52fd8050780be0c",
+          "repr": "<FileIdentifier(archive:/CAB-5bc62b98d5fa51f9a52fd8050780be0c/CAB-5bc62b98d5fa51f9a52fd8050780be0c)>"
+        },
+        {
+          "fileId": 4,
+          "path": "archive:/CAB-d78863b4bb01d9b198882c138f447c06/CAB-d78863b4bb01d9b198882c138f447c06",
+          "repr": "<FileIdentifier(archive:/CAB-d78863b4bb01d9b198882c138f447c06/CAB-d78863b4bb01d9b198882c138f447c06)>"
+        },
+        {
+          "fileId": 5,
+          "path": "archive:/CAB-092bb7f433d7b8d8d3d64c30befb7c6a/CAB-092bb7f433d7b8d8d3d64c30befb7c6a",
+          "repr": "<FileIdentifier(archive:/CAB-092bb7f433d7b8d8d3d64c30befb7c6a/CAB-092bb7f433d7b8d8d3d64c30befb7c6a)>"
+        },
+        {
+          "fileId": 6,
+          "path": "archive:/CAB-ff2d98e7c7bd913913d5293de13c6725/CAB-ff2d98e7c7bd913913d5293de13c6725",
+          "repr": "<FileIdentifier(archive:/CAB-ff2d98e7c7bd913913d5293de13c6725/CAB-ff2d98e7c7bd913913d5293de13c6725)>"
+        },
+        {
+          "fileId": 7,
+          "path": "archive:/CAB-4d3cda826163b9dc9d21adfa0efde874/CAB-4d3cda826163b9dc9d21adfa0efde874",
+          "repr": "<FileIdentifier(archive:/CAB-4d3cda826163b9dc9d21adfa0efde874/CAB-4d3cda826163b9dc9d21adfa0efde874)>"
+        },
+        {
+          "fileId": 8,
+          "path": "archive:/CAB-3692ffd6b6f149c56ebf85f7153f2694/CAB-3692ffd6b6f149c56ebf85f7153f2694",
+          "repr": "<FileIdentifier(archive:/CAB-3692ffd6b6f149c56ebf85f7153f2694/CAB-3692ffd6b6f149c56ebf85f7153f2694)>"
+        },
+        {
+          "fileId": 9,
+          "path": "archive:/CAB-7d3f3fc73120597a732d4cbd110de272/CAB-7d3f3fc73120597a732d4cbd110de272",
+          "repr": "<FileIdentifier(archive:/CAB-7d3f3fc73120597a732d4cbd110de272/CAB-7d3f3fc73120597a732d4cbd110de272)>"
+        },
+        {
+          "fileId": 10,
+          "path": "archive:/CAB-0d572ca45c6326c008848e21c611744d/CAB-0d572ca45c6326c008848e21c611744d",
+          "repr": "<FileIdentifier(archive:/CAB-0d572ca45c6326c008848e21c611744d/CAB-0d572ca45c6326c008848e21c611744d)>"
+        },
+        {
+          "fileId": 11,
+          "path": "archive:/CAB-25298f8821ebd65c8a8054daaf7d1fa7/CAB-25298f8821ebd65c8a8054daaf7d1fa7",
+          "repr": "<FileIdentifier(archive:/CAB-25298f8821ebd65c8a8054daaf7d1fa7/CAB-25298f8821ebd65c8a8054daaf7d1fa7)>"
+        },
+        {
+          "fileId": 12,
+          "path": "archive:/CAB-9ddc099fd73f2245f0889d55c81930a4/CAB-9ddc099fd73f2245f0889d55c81930a4",
+          "repr": "<FileIdentifier(archive:/CAB-9ddc099fd73f2245f0889d55c81930a4/CAB-9ddc099fd73f2245f0889d55c81930a4)>"
+        },
+        {
+          "fileId": 13,
+          "path": "archive:/CAB-7fcab4c8595b4421d04e278fd36fee81/CAB-7fcab4c8595b4421d04e278fd36fee81",
+          "repr": "<FileIdentifier(archive:/CAB-7fcab4c8595b4421d04e278fd36fee81/CAB-7fcab4c8595b4421d04e278fd36fee81)>"
+        },
+        {
+          "fileId": 14,
+          "path": "archive:/CAB-b583383c2a6ed45fd83074b090ffcdae/CAB-b583383c2a6ed45fd83074b090ffcdae",
+          "repr": "<FileIdentifier(archive:/CAB-b583383c2a6ed45fd83074b090ffcdae/CAB-b583383c2a6ed45fd83074b090ffcdae)>"
+        },
+        {
+          "fileId": 15,
+          "path": "archive:/CAB-73219570d77dac52468aed2e1d558c47/CAB-73219570d77dac52468aed2e1d558c47",
+          "repr": "<FileIdentifier(archive:/CAB-73219570d77dac52468aed2e1d558c47/CAB-73219570d77dac52468aed2e1d558c47)>"
+        },
+        {
+          "fileId": 16,
+          "path": "archive:/CAB-9a46429c8bac0e1cd467ec61b2a0f8a3/CAB-9a46429c8bac0e1cd467ec61b2a0f8a3",
+          "repr": "<FileIdentifier(archive:/CAB-9a46429c8bac0e1cd467ec61b2a0f8a3/CAB-9a46429c8bac0e1cd467ec61b2a0f8a3)>"
+        },
+        {
+          "fileId": 17,
+          "path": "archive:/CAB-eca73a07174bdd732d10f09b3aee5c6f/CAB-eca73a07174bdd732d10f09b3aee5c6f",
+          "repr": "<FileIdentifier(archive:/CAB-eca73a07174bdd732d10f09b3aee5c6f/CAB-eca73a07174bdd732d10f09b3aee5c6f)>"
+        },
+        {
+          "fileId": 18,
+          "path": "archive:/CAB-3ac573b6179353e997f14668c7e8a8d3/CAB-3ac573b6179353e997f14668c7e8a8d3",
+          "repr": "<FileIdentifier(archive:/CAB-3ac573b6179353e997f14668c7e8a8d3/CAB-3ac573b6179353e997f14668c7e8a8d3)>"
+        },
+        {
+          "fileId": 19,
+          "path": "archive:/CAB-8f65ddc31139f26b9e990c937cc1a866/CAB-8f65ddc31139f26b9e990c937cc1a866",
+          "repr": "<FileIdentifier(archive:/CAB-8f65ddc31139f26b9e990c937cc1a866/CAB-8f65ddc31139f26b9e990c937cc1a866)>"
+        }
+      ]
+    }
+  ],
+  "directDependencyCount": 194,
+  "scannedCount": 165,
+  "resolved": [
+    {
+      "target": {
+        "ownerMonoPathId": -3957975286359756321,
+        "gameObject": "FormationRT",
+        "field": "m_Material",
+        "fileId": 16,
+        "pathId": 2136757981436054356,
+        "externalEntry": {
+          "fileId": 16,
+          "path": "archive:/CAB-9a46429c8bac0e1cd467ec61b2a0f8a3/CAB-9a46429c8bac0e1cd467ec61b2a0f8a3",
+          "repr": "<FileIdentifier(archive:/CAB-9a46429c8bac0e1cd467ec61b2a0f8a3/CAB-9a46429c8bac0e1cd467ec61b2a0f8a3)>"
+        }
+      },
+      "type": "Material",
+      "name": "HeroShowBlend",
+      "objectPathId": 2136757981436054356,
+      "bundleId": 14169,
+      "bundleSource": "cache",
+      "bundleLogicalName": "gameres_main_dir_material_aa6c57305071f446b63899e2fcd60cfc.bundle",
+      "bundleAliasName": "9e5f8fb3a7b38f32626fc7187b5ce83b840561362ea9b0f2ac1b2725d0af6aa7.bundle",
+      "bundleAssetPaths": [
+        "Assets/Main/Material/BattleGuideLine.mat",
+        "Assets/Main/Material/BlurUI.mat",
+        "Assets/Main/Material/CircleFill.mat",
+        "Assets/Main/Material/CityGrid.mat",
+        "Assets/Main/Material/CityGridLess.mat",
+        "Assets/Main/Material/CityShowBlend.mat",
+        "Assets/Main/Material/CommonPlaneShadow.mat",
+        "Assets/Main/Material/CommonPlaneShadow_3009.mat",
+        "Assets/Main/Material/CommonPlaneShadow_audie.mat",
+        "Assets/Main/Material/CommonPlaneShadow_damen.mat",
+        "Assets/Main/Material/CommonPlaneShadow_dipi.mat",
+        "Assets/Main/Material/CommonPlaneShadow_park.mat",
+        "Assets/Main/Material/CommonPlaneShadow_sj.mat",
+        "Assets/Main/Material/CommonPlaneShadow_sjCity.mat",
+        "Assets/Main/Material/DebugGrid.mat",
+        "Assets/Main/Material/DynamicSticker_16.mat",
+        "Assets/Main/Material/DynamicSticker_20.mat",
+        "Assets/Main/Material/DynamicSticker_24.mat",
+        "Assets/Main/Material/DynamicSticker_32.mat",
+        "Assets/Main/Material/DynamicSticker_4.mat",
+        "Assets/Main/Material/Eff_ui_res_down.mat",
+        "Assets/Main/Material/Fog.mat",
+        "Assets/Main/Material/HappyAssistanceInstancing.mat",
+        "Assets/Main/Material/HappyHouseInstancing.mat",
+        "Assets/Main/Material/HappyLvInstancing.mat",
+        "Assets/Main/Material/HappyPinInstancing.mat",
+        "Assets/Main/Material/HappyShellInstancing.mat",
+        "Assets/Main/Material/HappyTroopCircleInstancing.mat",
+        "Assets/Main/Material/HappyTroopLinePointInstancing.mat",
+        "Assets/Main/Material/HappyWolfInstancing.mat",
+        "Assets/Main/Material/HappyWorldMonsterInstancing.mat",
+        "Assets/Main/Material/HappyWorldMonsterLvInstancing.mat",
+        "Assets/Main/Material/HappyWorldResInstancing.mat",
+        "Assets/Main/Material/HappyWorldResLvInstancing.mat",
+        "Assets/Main/Material/HeroShow.mat",
+        "Assets/Main/Material/HeroShowBlend.mat",
+        "Assets/Main/Material/HeroShowBlend_a.mat",
+        "Assets/Main/Material/HeroShowBlend_n.mat",
+        "Assets/Main/Material/HoriFill.mat",
+        "Assets/Main/Material/ImgBlendCustom.mat",
+        "Assets/Main/Material/MapSticker.mat",
+        "Assets/Main/Material/MaskHole.mat",
+        "Assets/Main/Material/MiniMapGreen.mat",
+        "Assets/Main/Material/O_terrain_NewS1.mat",
+        "Assets/Main/Material/O_terrain_grass02.mat",
+        "Assets/Main/Material/O_terrain_grass02_3TextureNS1.mat",
+        "Assets/Main/Material/O_terrain_road_01.mat",
+        "Assets/Main/Material/O_terrain_road_02_nsj.mat",
+        "Assets/Main/Material/O_terrain_road_02_sj.mat",
+        "Assets/Main/Material/O_terrain_road_02_snowsj.mat",
+        "Assets/Main/Material/O_terrain_shamo_01.mat",
+        "Assets/Main/Material/O_terrain_shamo_back.mat",
+        "Assets/Main/Material/O_terrain_shamo_sj.mat",
+        "Assets/Main/Material/OpaqueUI.mat",
+        "Assets/Main/Material/OutLine.mat",
+        "Assets/Main/Material/OutLineGolden.mat",
+        "Assets/Main/Material/PveCube.mat",
+        "Assets/Main/Material/STMDefault.mat",
+        "Assets/Main/Material/SoftMask.mat",
+        "Assets/Main/Material/SoftMaskTextMeshPro.mat",
+        "Assets/Main/Material/SoftMaskable.mat",
+        "Assets/Main/Material/SoftMaskableGray.mat",
+        "Assets/Main/Material/SpriteGray.mat",
+        "Assets/Main/Material/SpriteGrayDarker.mat",
+        "Assets/Main/Material/SpriteHeroDogHead.mat",
+        "Assets/Main/Material/SpritePlayerDogHead.mat",
+        "Assets/Main/Material/SpriteRendererGray.mat",
+        "Assets/Main/Material/SpriteRendererNormal.mat",
+        "Assets/Main/Material/SpriteTop.mat",
+        "Assets/Main/Material/SpriteTopGray.mat",
+        "Assets/Main/Material/SpriteTroop.mat",
+        "Assets/Main/Material/Terrain_0.mat",
+        "Assets/Main/Material/Terrain_0_High.mat",
+        "Assets/Main/Material/Terrain_1.mat",
+        "Assets/Main/Material/Terrain_City.mat",
+        "Assets/Main/Material/Terrain_City_High.mat",
+        "Assets/Main/Material/Terrain_Ground.mat",
+        "Assets/Main/Material/Terrain_Ground01.mat",
+        "Assets/Main/Material/Terrain_dragon.mat",
+        "Assets/Main/Material/TileUnlocked.mat",
+        "Assets/Main/Material/TriggerPoint.mat",
+        "Assets/Main/Material/TroopInstancing.mat",
+        "Assets/Main/Material/TroopLine 1.mat",
+        "Assets/Main/Material/TroopLine 2.mat",
+        "Assets/Main/Material/TroopLine 3.mat",
+        "Assets/Main/Material/TroopLine 4.mat",
+        "Assets/Main/Material/TroopLine.mat",
+        "Assets/Main/Material/TroopLineDrag 1.mat",
+        "Assets/Main/Material/TroopLineDrag 2.mat",
+        "Assets/Main/Material/TroopLineDrag 3.mat",
+        "Assets/Main/Material/TroopLineDrag.mat",
+        "Assets/Main/Material/TroopLineInstancing.mat",
+        "Assets/Main/Material/TroopSelectCircle.mat",
+        "Assets/Main/Material/UIImage.mat",
+        "Assets/Main/Material/UIMainWarning.mat",
+        "Assets/Main/Material/UnitRed.mat",
+        "Assets/Main/Material/UnitRed_backup.mat",
+        "Assets/Main/Material/UnitWhite.mat",
+        "Assets/Main/Material/UnitWhite_backup.mat",
+        "Assets/Main/Material/VertFill.mat",
+        "Assets/Main/Material/Vx_Effect_Touch_mat.mat",
+        "Assets/Main/Material/Workerline.mat",
+        "Assets/Main/Material/WorldMapGridInstancing.mat",
+        "Assets/Main/Material/WorldShadowCutMask.mat",
+        "Assets/Main/Material/WorldUI.mat",
+        "Assets/Main/Material/building_construct.mat",
+        "Assets/Main/Material/line.mat",
+        "Assets/Main/Material/pvrFix.mat"
+      ],
+      "serializedFiles": [
+        "/data/data/com.termux/files/usr/tmp/wfgg-layer0-ext-ycy2ojso/9e5f8fb3a7b38f32626fc7187b5ce83b840561362ea9b0f2ac1b2725d0af6aa7.bundle"
+      ],
+      "material": {
+        "name": "HeroShowBlend",
+        "shader": {
+          "ptrPathId": 8660307573436038645
+        },
+        "savedProperties": "UnityPropertySheet(m_Colors=[('_BaseColor', ColorRGBA(r=1.0, g=1.0, b=1.0, a=1.0)), ('_Color', ColorRGBA(r=1.0, g=1.0, b=1.0, a=1.0)), ('_EmissionColor', ColorRGBA(r=0.0, g=0.0, b=0.0, a=1.0)), ('_SpecColor', ColorRGBA(r=0.19999995827674866, g=0.19999995827674866, b=0.19999995827674866, a=1.0))], m_Floats=[('_AlphaClip', 0.0), ('_Blend', 0.0), ('_BumpScale', 1.0), ('_ColorMask', 15.0), ('_Cull', 2.0), ('_Cutoff', 0.5), ('_DstBlend', 0.0), ('_EnvironmentReflections', 1.0), ('_GlossMapScale', 0.0)"
+      }
+    },
+    {
+      "target": {
+        "ownerMonoPathId": 5197284809923598296,
+        "gameObject": "Bg",
+        "field": "m_Texture",
+        "fileId": 18,
+        "pathId": -7423839590894119823,
+        "externalEntry": {
+          "fileId": 18,
+          "path": "archive:/CAB-3ac573b6179353e997f14668c7e8a8d3/CAB-3ac573b6179353e997f14668c7e8a8d3",
+          "repr": "<FileIdentifier(archive:/CAB-3ac573b6179353e997f14668c7e8a8d3/CAB-3ac573b6179353e997f14668c7e8a8d3)>"
+        }
+      },
+      "type": "Texture2D",
+      "name": "bg265",
+      "objectPathId": -7423839590894119823,
+      "bundleId": 10347,
+      "bundleSource": "apk-fragment",
+      "bundleLogicalName": "gameres_main_dir_textureex_uilwmonthcard_75ff512f041b95967dd1abc433a725d2.bundle",
+      "bundleAliasName": "fd2dd51ae2a76ad8668f770a0dfc077deeeec437831a3df5fa399ee308d8d090.bundle",
+      "bundleAssetPaths": [
+        "Assets/Main/TextureEx/UILWMonthCard/bg265.png",
+        "Assets/Main/TextureEx/UILWMonthCard/cfm_youhua_shangcheng_chaojiyueka_beijing_4_tu.png",
+        "Assets/Main/TextureEx/UILWMonthCard/cfm_youhua_shangcheng_chaojiyueka_beijing_6_xia2.png",
+        "Assets/Main/TextureEx/UILWMonthCard/cfm_youhua_shangcheng_chaojiyueka_beijing_7.png",
+        "Assets/Main/TextureEx/UILWMonthCard/lrb_yueka_bg.png",
+        "Assets/Main/TextureEx/UILWMonthCard/yueka_linshiziyuan.png"
+      ],
+      "serializedFiles": [
+        "/data/data/com.termux/files/usr/tmp/wfgg-layer0-ext-ycy2ojso/fd2dd51ae2a76ad8668f770a0dfc077deeeec437831a3df5fa399ee308d8d090.bundle"
+      ],
+      "texture": {
+        "name": "bg265",
+        "width": 375,
+        "height": 512,
+        "format": "50"
+      },
+      "exportError": "ValueError('Unsupported system: Android')"
+    }
+  ],
+  "unresolved": [],
+  "exactTextureExport": null,
+  "guardrails": {
+    "directUiDependenciesOnly": true,
+    "exactPathIdsOnly": true,
+    "generatedArtwork": false,
+    "mainUntouched": true,
+    "previewUntouched": true
+  }
+}
