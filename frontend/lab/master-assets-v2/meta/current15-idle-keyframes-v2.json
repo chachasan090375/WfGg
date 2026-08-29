@@ -1,0 +1,962 @@
+{
+  "format": "WFGG_LASTWAR_CURRENT15_IDLE_KEYFRAMES_V2_DIRECT_AVATAR",
+  "networkUsed": false,
+  "unityFallback": "2019.4.41f1",
+  "heroCount": 15,
+  "parseOkCount": 15,
+  "expectedSelectedClipCount": 29,
+  "decodedClipCount": 29,
+  "animatedHeroCount": 0,
+  "transformBindingCount": 3022,
+  "resolvedTransformBindingCount": 0,
+  "transformTrackCount": 0,
+  "transformKeyCount": 0,
+  "heroes": [
+    {
+      "heroId": 50006,
+      "name": "Murphy",
+      "phase50RigReady": false,
+      "selectedClipNames": [
+        "Audie_01_show_idle",
+        "Audie_01_idle"
+      ],
+      "parseOk": true,
+      "decodedClipCount": 2,
+      "clips": [
+        {
+          "name": "Audie_01_show_idle",
+          "kind": "presentationIdle",
+          "decoded": true,
+          "file": "presentation-idle.json.gz",
+          "jsonBytes": 31729,
+          "gzipBytes": 3285,
+          "sha256": "22dea62faa1ecf1ed21ea3ce2ddd9329add77c8dab1a63e2242644efdb04b6a1",
+          "streamedCurves": 0,
+          "streamedFrames": 0,
+          "denseCurves": 0,
+          "denseFrames": 0,
+          "constantSamples": 0,
+          "transformBindings": 198,
+          "resolvedTransformBindings": 0,
+          "pathSources": {
+            "ambiguous": 198
+          },
+          "transformTracks": 0,
+          "transformKeys": 0,
+          "movingPathsSample": []
+        },
+        {
+          "name": "Audie_01_idle",
+          "kind": "idle",
+          "decoded": true,
+          "file": "idle.json.gz",
+          "jsonBytes": 9673,
+          "gzipBytes": 1281,
+          "sha256": "fead4bd32382705e1b32d7371cd3de8cbbb2ed73d515ddbbbfdd3bc8f9a2e2be",
+          "streamedCurves": 0,
+          "streamedFrames": 0,
+          "denseCurves": 0,
+          "denseFrames": 0,
+          "constantSamples": 0,
+          "transformBindings": 58,
+          "resolvedTransformBindings": 0,
+          "pathSources": {
+            "ambiguous": 58
+          },
+          "transformTracks": 0,
+          "transformKeys": 0,
+          "movingPathsSample": []
+        }
+      ],
+      "animated": false,
+      "rendererMode": "static",
+      "errors": [],
+      "transformPathCount": 400,
+      "avatarTosHashCount": 0,
+      "transformTrackCount": 0,
+      "transformKeyCount": 0
+    },
+    {
+      "heroId": 50007,
+      "name": "Williams",
+      "phase50RigReady": true,
+      "selectedClipNames": [
+        "Rick_01_show_idle",
+        "Rick_01_idle"
+      ],
+      "parseOk": true,
+      "decodedClipCount": 2,
+      "clips": [
+        {
+          "name": "Rick_01_show_idle",
+          "kind": "presentationIdle",
+          "decoded": true,
+          "file": "presentation-idle.json.gz",
+          "jsonBytes": 19419,
+          "gzipBytes": 2188,
+          "sha256": "e013d9e7f01fa67c767d1fedb1b394dcf15a872546c1c3a210eda47ad64468f9",
+          "streamedCurves": 0,
+          "streamedFrames": 0,
+          "denseCurves": 0,
+          "denseFrames": 0,
+          "constantSamples": 0,
+          "transformBindings": 120,
+          "resolvedTransformBindings": 0,
+          "pathSources": {
+            "ambiguous": 120
+          },
+          "transformTracks": 0,
+          "transformKeys": 0,
+          "movingPathsSample": []
+        },
+        {
+          "name": "Rick_01_idle",
+          "kind": "idle",
+          "decoded": true,
+          "file": "idle.json.gz",
+          "jsonBytes": 6690,
+          "gzipBytes": 1020,
+          "sha256": "dba6ea08554fe30c3397fe7bb9e4733c2b6a4fbcae89686760a791cb89cb0cf9",
+          "streamedCurves": 0,
+          "streamedFrames": 0,
+          "denseCurves": 0,
+          "denseFrames": 0,
+          "constantSamples": 0,
+          "transformBindings": 39,
+          "resolvedTransformBindings": 0,
+          "pathSources": {
+            "ambiguous": 39
+          },
+          "transformTracks": 0,
+          "transformKeys": 0,
+          "movingPathsSample": []
+        }
+      ],
+      "animated": false,
+      "rendererMode": "skinned-static",
+      "errors": [],
+      "transformPathCount": 837,
+      "avatarTosHashCount": 0,
+      "transformTrackCount": 0,
+      "transformKeyCount": 0
+    },
+    {
+      "heroId": 50008,
+      "name": "Marshall",
+      "phase50RigReady": true,
+      "selectedClipNames": [
+        "Nimitz_01_show_idle",
+        "Nimitz_01_idle"
+      ],
+      "parseOk": true,
+      "decodedClipCount": 2,
+      "clips": [
+        {
+          "name": "Nimitz_01_show_idle",
+          "kind": "presentationIdle",
+          "decoded": true,
+          "file": "presentation-idle.json.gz",
+          "jsonBytes": 31584,
+          "gzipBytes": 3267,
+          "sha256": "ccd6c9364ac353214dee24bf0f46354dcb564197aac31d9408fc9dbb0138e85c",
+          "streamedCurves": 0,
+          "streamedFrames": 0,
+          "denseCurves": 0,
+          "denseFrames": 0,
+          "constantSamples": 0,
+          "transformBindings": 197,
+          "resolvedTransformBindings": 0,
+          "pathSources": {
+            "ambiguous": 197
+          },
+          "transformTracks": 0,
+          "transformKeys": 0,
+          "movingPathsSample": []
+        },
+        {
+          "name": "Nimitz_01_idle",
+          "kind": "idle",
+          "decoded": true,
+          "file": "idle.json.gz",
+          "jsonBytes": 15485,
+          "gzipBytes": 1817,
+          "sha256": "4f186668976f222f924195807dbdb3476b1c9ceb64caf3227d9793bb5f0145f4",
+          "streamedCurves": 0,
+          "streamedFrames": 0,
+          "denseCurves": 0,
+          "denseFrames": 0,
+          "constantSamples": 0,
+          "transformBindings": 95,
+          "resolvedTransformBindings": 0,
+          "pathSources": {
+            "ambiguous": 95
+          },
+          "transformTracks": 0,
+          "transformKeys": 0,
+          "movingPathsSample": []
+        }
+      ],
+      "animated": false,
+      "rendererMode": "skinned-static",
+      "errors": [],
+      "transformPathCount": 1230,
+      "avatarTosHashCount": 0,
+      "transformTrackCount": 0,
+      "transformKeyCount": 0
+    },
+    {
+      "heroId": 50009,
+      "name": "Kimberly",
+      "phase50RigReady": true,
+      "selectedClipNames": [
+        "Katyusha_02_show_idle",
+        "Katyusha_02_idle"
+      ],
+      "parseOk": true,
+      "decodedClipCount": 2,
+      "clips": [
+        {
+          "name": "Katyusha_02_show_idle",
+          "kind": "presentationIdle",
+          "decoded": true,
+          "file": "presentation-idle.json.gz",
+          "jsonBytes": 44218,
+          "gzipBytes": 4360,
+          "sha256": "16516e6328a0abefa8f9868b2974a8e7e50844145df9ed7c1ed75df51447a4da",
+          "streamedCurves": 0,
+          "streamedFrames": 0,
+          "denseCurves": 0,
+          "denseFrames": 0,
+          "constantSamples": 0,
+          "transformBindings": 277,
+          "resolvedTransformBindings": 0,
+          "pathSources": {
+            "ambiguous": 277
+          },
+          "transformTracks": 0,
+          "transformKeys": 0,
+          "movingPathsSample": []
+        },
+        {
+          "name": "Katyusha_02_idle",
+          "kind": "idle",
+          "decoded": true,
+          "file": "idle.json.gz",
+          "jsonBytes": 15833,
+          "gzipBytes": 1871,
+          "sha256": "0f5af182bd19f623208e96026a62aa01a687280eab09635285f00ba5cb6f1f98",
+          "streamedCurves": 0,
+          "streamedFrames": 0,
+          "denseCurves": 0,
+          "denseFrames": 0,
+          "constantSamples": 0,
+          "transformBindings": 97,
+          "resolvedTransformBindings": 0,
+          "pathSources": {
+            "ambiguous": 97
+          },
+          "transformTracks": 0,
+          "transformKeys": 0,
+          "movingPathsSample": []
+        }
+      ],
+      "animated": false,
+      "rendererMode": "skinned-static",
+      "errors": [],
+      "transformPathCount": 1240,
+      "avatarTosHashCount": 0,
+      "transformTrackCount": 0,
+      "transformKeyCount": 0
+    },
+    {
+      "heroId": 50010,
+      "name": "Stetmann",
+      "phase50RigReady": true,
+      "selectedClipNames": [
+        "Stetman_01_show_idle",
+        "Stetman_01_idle"
+      ],
+      "parseOk": true,
+      "decodedClipCount": 2,
+      "clips": [
+        {
+          "name": "Stetman_01_show_idle",
+          "kind": "presentationIdle",
+          "decoded": true,
+          "file": "presentation-idle.json.gz",
+          "jsonBytes": 46552,
+          "gzipBytes": 4559,
+          "sha256": "61bdc25eccf74e8866a971eebd9f3c6fe14e5a90198382ee3700371a99c5d678",
+          "streamedCurves": 0,
+          "streamedFrames": 0,
+          "denseCurves": 0,
+          "denseFrames": 0,
+          "constantSamples": 0,
+          "transformBindings": 292,
+          "resolvedTransformBindings": 0,
+          "pathSources": {
+            "ambiguous": 292
+          },
+          "transformTracks": 0,
+          "transformKeys": 0,
+          "movingPathsSample": []
+        },
+        {
+          "name": "Stetman_01_idle",
+          "kind": "idle",
+          "decoded": true,
+          "file": "idle.json.gz",
+          "jsonBytes": 15316,
+          "gzipBytes": 1799,
+          "sha256": "144cbc87da2ce48e143f8dab3b74e42c20d5421fd61cabfe72718239c2468cc0",
+          "streamedCurves": 0,
+          "streamedFrames": 0,
+          "denseCurves": 0,
+          "denseFrames": 0,
+          "constantSamples": 0,
+          "transformBindings": 94,
+          "resolvedTransformBindings": 0,
+          "pathSources": {
+            "ambiguous": 94
+          },
+          "transformTracks": 0,
+          "transformKeys": 0,
+          "movingPathsSample": []
+        }
+      ],
+      "animated": false,
+      "rendererMode": "skinned-static",
+      "errors": [],
+      "transformPathCount": 1208,
+      "avatarTosHashCount": 0,
+      "transformTrackCount": 0,
+      "transformKeyCount": 0
+    },
+    {
+      "heroId": 50013,
+      "name": "McGregor",
+      "phase50RigReady": true,
+      "selectedClipNames": [
+        "Ewan_01_show_idle",
+        "Ewan_01_idle"
+      ],
+      "parseOk": true,
+      "decodedClipCount": 2,
+      "clips": [
+        {
+          "name": "Ewan_01_show_idle",
+          "kind": "presentationIdle",
+          "decoded": true,
+          "file": "presentation-idle.json.gz",
+          "jsonBytes": 41353,
+          "gzipBytes": 4141,
+          "sha256": "0aad3cc53df8ca65fe1732e4ed17ea032db61a8fb0b1f85bc9a978fbba30aed9",
+          "streamedCurves": 0,
+          "streamedFrames": 0,
+          "denseCurves": 0,
+          "denseFrames": 0,
+          "constantSamples": 0,
+          "transformBindings": 259,
+          "resolvedTransformBindings": 0,
+          "pathSources": {
+            "ambiguous": 259
+          },
+          "transformTracks": 0,
+          "transformKeys": 0,
+          "movingPathsSample": []
+        },
+        {
+          "name": "Ewan_01_idle",
+          "kind": "idle",
+          "decoded": true,
+          "file": "idle.json.gz",
+          "jsonBytes": 16731,
+          "gzipBytes": 1932,
+          "sha256": "08f22fec391a96d78be666446a8907e91a1d22a9683835d7542246cec0c25079",
+          "streamedCurves": 0,
+          "streamedFrames": 0,
+          "denseCurves": 0,
+          "denseFrames": 0,
+          "constantSamples": 0,
+          "transformBindings": 103,
+          "resolvedTransformBindings": 0,
+          "pathSources": {
+            "ambiguous": 103
+          },
+          "transformTracks": 0,
+          "transformKeys": 0,
+          "movingPathsSample": []
+        }
+      ],
+      "animated": false,
+      "rendererMode": "skinned-static",
+      "errors": [],
+      "transformPathCount": 528,
+      "avatarTosHashCount": 0,
+      "transformTrackCount": 0,
+      "transformKeyCount": 0
+    },
+    {
+      "heroId": 50014,
+      "name": "Fiona",
+      "phase50RigReady": true,
+      "selectedClipNames": [
+        "Katyusha01_show_idle",
+        "Katyusha01_idle"
+      ],
+      "parseOk": true,
+      "decodedClipCount": 2,
+      "clips": [
+        {
+          "name": "Katyusha01_show_idle",
+          "kind": "presentationIdle",
+          "decoded": true,
+          "file": "presentation-idle.json.gz",
+          "jsonBytes": 13773,
+          "gzipBytes": 1678,
+          "sha256": "ca6cbe79bbac05866f0a3aadefdaa3c72d130c751c54fa48726da389cad90bc4",
+          "streamedCurves": 0,
+          "streamedFrames": 0,
+          "denseCurves": 0,
+          "denseFrames": 0,
+          "constantSamples": 0,
+          "transformBindings": 84,
+          "resolvedTransformBindings": 0,
+          "pathSources": {
+            "ambiguous": 84
+          },
+          "transformTracks": 0,
+          "transformKeys": 0,
+          "movingPathsSample": []
+        },
+        {
+          "name": "Katyusha01_idle",
+          "kind": "idle",
+          "decoded": true,
+          "file": "idle.json.gz",
+          "jsonBytes": 13764,
+          "gzipBytes": 1668,
+          "sha256": "5cb177beedf9406d766db3721d916028177b78d2c09f812e7c5d06826867f650",
+          "streamedCurves": 0,
+          "streamedFrames": 0,
+          "denseCurves": 0,
+          "denseFrames": 0,
+          "constantSamples": 0,
+          "transformBindings": 84,
+          "resolvedTransformBindings": 0,
+          "pathSources": {
+            "ambiguous": 84
+          },
+          "transformTracks": 0,
+          "transformKeys": 0,
+          "movingPathsSample": []
+        }
+      ],
+      "animated": false,
+      "rendererMode": "skinned-static",
+      "errors": [],
+      "transformPathCount": 861,
+      "avatarTosHashCount": 0,
+      "transformTrackCount": 0,
+      "transformKeyCount": 0
+    },
+    {
+      "heroId": 50015,
+      "name": "Swift",
+      "phase50RigReady": false,
+      "selectedClipNames": [
+        "Einstein01_idle"
+      ],
+      "parseOk": true,
+      "decodedClipCount": 1,
+      "clips": [
+        {
+          "name": "Einstein01_idle",
+          "kind": "idle",
+          "decoded": true,
+          "file": "idle.json.gz",
+          "jsonBytes": 7973,
+          "gzipBytes": 1155,
+          "sha256": "09dbcd045da18af9a0a2d3a274c362d2717c4d5a1879020628ad299e0c84aa9c",
+          "streamedCurves": 0,
+          "streamedFrames": 0,
+          "denseCurves": 0,
+          "denseFrames": 0,
+          "constantSamples": 0,
+          "transformBindings": 47,
+          "resolvedTransformBindings": 0,
+          "pathSources": {
+            "ambiguous": 47
+          },
+          "transformTracks": 0,
+          "transformKeys": 0,
+          "movingPathsSample": []
+        }
+      ],
+      "animated": false,
+      "rendererMode": "static",
+      "errors": [],
+      "transformPathCount": 210,
+      "avatarTosHashCount": 0,
+      "transformTrackCount": 0,
+      "transformKeyCount": 0
+    },
+    {
+      "heroId": 50016,
+      "name": "Tesla",
+      "phase50RigReady": true,
+      "selectedClipNames": [
+        "Tesla_01_show_idle",
+        "Tesla_01_idle"
+      ],
+      "parseOk": true,
+      "decodedClipCount": 2,
+      "clips": [
+        {
+          "name": "Tesla_01_show_idle",
+          "kind": "presentationIdle",
+          "decoded": true,
+          "file": "presentation-idle.json.gz",
+          "jsonBytes": 36154,
+          "gzipBytes": 3662,
+          "sha256": "a769929546f6c34bda077708db2152a0cb6ab8d62626bb9e8218d97a8fe6fc28",
+          "streamedCurves": 0,
+          "streamedFrames": 0,
+          "denseCurves": 0,
+          "denseFrames": 0,
+          "constantSamples": 0,
+          "transformBindings": 226,
+          "resolvedTransformBindings": 0,
+          "pathSources": {
+            "ambiguous": 226
+          },
+          "transformTracks": 0,
+          "transformKeys": 0,
+          "movingPathsSample": []
+        },
+        {
+          "name": "Tesla_01_idle",
+          "kind": "idle",
+          "decoded": true,
+          "file": "idle.json.gz",
+          "jsonBytes": 12513,
+          "gzipBytes": 1559,
+          "sha256": "f0f99f865f09efa51c592d30e62466c57d4e47af751b50424ea9f27662f52c2f",
+          "streamedCurves": 0,
+          "streamedFrames": 0,
+          "denseCurves": 0,
+          "denseFrames": 0,
+          "constantSamples": 0,
+          "transformBindings": 76,
+          "resolvedTransformBindings": 0,
+          "pathSources": {
+            "ambiguous": 76
+          },
+          "transformTracks": 0,
+          "transformKeys": 0,
+          "movingPathsSample": []
+        }
+      ],
+      "animated": false,
+      "rendererMode": "skinned-static",
+      "errors": [],
+      "transformPathCount": 989,
+      "avatarTosHashCount": 0,
+      "transformTrackCount": 0,
+      "transformKeyCount": 0
+    },
+    {
+      "heroId": 50017,
+      "name": "DVA",
+      "phase50RigReady": true,
+      "selectedClipNames": [
+        "Dva01_show_idle",
+        "Dva01_idle"
+      ],
+      "parseOk": true,
+      "decodedClipCount": 2,
+      "clips": [
+        {
+          "name": "Dva01_show_idle",
+          "kind": "presentationIdle",
+          "decoded": true,
+          "file": "presentation-idle.json.gz",
+          "jsonBytes": 6234,
+          "gzipBytes": 996,
+          "sha256": "46c83d7964456bf2ff120eb5cbcab6ddaea9a9727a67c0809971d5b736d5d9b1",
+          "streamedCurves": 0,
+          "streamedFrames": 0,
+          "denseCurves": 0,
+          "denseFrames": 0,
+          "constantSamples": 0,
+          "transformBindings": 36,
+          "resolvedTransformBindings": 0,
+          "pathSources": {
+            "ambiguous": 36
+          },
+          "transformTracks": 0,
+          "transformKeys": 0,
+          "movingPathsSample": []
+        },
+        {
+          "name": "Dva01_idle",
+          "kind": "idle",
+          "decoded": true,
+          "file": "idle.json.gz",
+          "jsonBytes": 6229,
+          "gzipBytes": 978,
+          "sha256": "521f4412f6c23e4ca8c0ddd8d13a45605801707f23cbb8dc8f6a15e8aacf4d97",
+          "streamedCurves": 0,
+          "streamedFrames": 0,
+          "denseCurves": 0,
+          "denseFrames": 0,
+          "constantSamples": 0,
+          "transformBindings": 36,
+          "resolvedTransformBindings": 0,
+          "pathSources": {
+            "ambiguous": 36
+          },
+          "transformTracks": 0,
+          "transformKeys": 0,
+          "movingPathsSample": []
+        }
+      ],
+      "animated": false,
+      "rendererMode": "skinned-static",
+      "errors": [],
+      "transformPathCount": 199,
+      "avatarTosHashCount": 0,
+      "transformTrackCount": 0,
+      "transformKeyCount": 0
+    },
+    {
+      "heroId": 50018,
+      "name": "Schuyler",
+      "phase50RigReady": false,
+      "selectedClipNames": [
+        "Sally_01_show_idle",
+        "Sally_01_idle"
+      ],
+      "parseOk": true,
+      "decodedClipCount": 2,
+      "clips": [
+        {
+          "name": "Sally_01_show_idle",
+          "kind": "presentationIdle",
+          "decoded": true,
+          "file": "presentation-idle.json.gz",
+          "jsonBytes": 8277,
+          "gzipBytes": 1179,
+          "sha256": "3f4ec0fab2168119867c6348985ba798370743d75fed45a52f936dae54869e11",
+          "streamedCurves": 0,
+          "streamedFrames": 0,
+          "denseCurves": 0,
+          "denseFrames": 0,
+          "constantSamples": 0,
+          "transformBindings": 49,
+          "resolvedTransformBindings": 0,
+          "pathSources": {
+            "ambiguous": 49
+          },
+          "transformTracks": 0,
+          "transformKeys": 0,
+          "movingPathsSample": []
+        },
+        {
+          "name": "Sally_01_idle",
+          "kind": "idle",
+          "decoded": true,
+          "file": "idle.json.gz",
+          "jsonBytes": 8277,
+          "gzipBytes": 1170,
+          "sha256": "aa99bf5ca68f1d0b18804c6f66ac4329a6328d3bad36af54c2c9c145abff1a8e",
+          "streamedCurves": 0,
+          "streamedFrames": 0,
+          "denseCurves": 0,
+          "denseFrames": 0,
+          "constantSamples": 0,
+          "transformBindings": 49,
+          "resolvedTransformBindings": 0,
+          "pathSources": {
+            "ambiguous": 49
+          },
+          "transformTracks": 0,
+          "transformKeys": 0,
+          "movingPathsSample": []
+        }
+      ],
+      "animated": false,
+      "rendererMode": "static",
+      "errors": [],
+      "transformPathCount": 593,
+      "avatarTosHashCount": 0,
+      "transformTrackCount": 0,
+      "transformKeyCount": 0
+    },
+    {
+      "heroId": 50019,
+      "name": "Carlie",
+      "phase50RigReady": true,
+      "selectedClipNames": [
+        "Tom01_show_idle",
+        "Tom01_idle"
+      ],
+      "parseOk": true,
+      "decodedClipCount": 2,
+      "clips": [
+        {
+          "name": "Tom01_show_idle",
+          "kind": "presentationIdle",
+          "decoded": true,
+          "file": "presentation-idle.json.gz",
+          "jsonBytes": 11102,
+          "gzipBytes": 1442,
+          "sha256": "cc06075becec0e5cc5049bcc697eebdf75f5a115d5ba1edaff59f0f404a1494b",
+          "streamedCurves": 0,
+          "streamedFrames": 0,
+          "denseCurves": 0,
+          "denseFrames": 0,
+          "constantSamples": 0,
+          "transformBindings": 67,
+          "resolvedTransformBindings": 0,
+          "pathSources": {
+            "ambiguous": 67
+          },
+          "transformTracks": 0,
+          "transformKeys": 0,
+          "movingPathsSample": []
+        },
+        {
+          "name": "Tom01_idle",
+          "kind": "idle",
+          "decoded": true,
+          "file": "idle.json.gz",
+          "jsonBytes": 11097,
+          "gzipBytes": 1429,
+          "sha256": "987f9fa9187a92dd580e9f7a87827a2f743c37dd573eabf667d2a5ca8800b131",
+          "streamedCurves": 0,
+          "streamedFrames": 0,
+          "denseCurves": 0,
+          "denseFrames": 0,
+          "constantSamples": 0,
+          "transformBindings": 67,
+          "resolvedTransformBindings": 0,
+          "pathSources": {
+            "ambiguous": 67
+          },
+          "transformTracks": 0,
+          "transformKeys": 0,
+          "movingPathsSample": []
+        }
+      ],
+      "animated": false,
+      "rendererMode": "skinned-static",
+      "errors": [],
+      "transformPathCount": 875,
+      "avatarTosHashCount": 0,
+      "transformTrackCount": 0,
+      "transformKeyCount": 0
+    },
+    {
+      "heroId": 50020,
+      "name": "Morrison",
+      "phase50RigReady": true,
+      "selectedClipNames": [
+        "Morrison_01_show_idle",
+        "Morrison_01_idle"
+      ],
+      "parseOk": true,
+      "decodedClipCount": 2,
+      "clips": [
+        {
+          "name": "Morrison_01_show_idle",
+          "kind": "presentationIdle",
+          "decoded": true,
+          "file": "presentation-idle.json.gz",
+          "jsonBytes": 5301,
+          "gzipBytes": 909,
+          "sha256": "416c9adeb19af733b84061aa67b75c6c62adc73bc80a73d612db795ea4ef9276",
+          "streamedCurves": 0,
+          "streamedFrames": 0,
+          "denseCurves": 0,
+          "denseFrames": 0,
+          "constantSamples": 0,
+          "transformBindings": 30,
+          "resolvedTransformBindings": 0,
+          "pathSources": {
+            "ambiguous": 30
+          },
+          "transformTracks": 0,
+          "transformKeys": 0,
+          "movingPathsSample": []
+        },
+        {
+          "name": "Morrison_01_idle",
+          "kind": "idle",
+          "decoded": true,
+          "file": "idle.json.gz",
+          "jsonBytes": 5296,
+          "gzipBytes": 897,
+          "sha256": "757178c139c75cc95ccdd60abcf4077bdb44a1ee72ebbc76365009e6f406c43e",
+          "streamedCurves": 0,
+          "streamedFrames": 0,
+          "denseCurves": 0,
+          "denseFrames": 0,
+          "constantSamples": 0,
+          "transformBindings": 30,
+          "resolvedTransformBindings": 0,
+          "pathSources": {
+            "ambiguous": 30
+          },
+          "transformTracks": 0,
+          "transformKeys": 0,
+          "movingPathsSample": []
+        }
+      ],
+      "animated": false,
+      "rendererMode": "skinned-static",
+      "errors": [],
+      "transformPathCount": 374,
+      "avatarTosHashCount": 0,
+      "transformTrackCount": 0,
+      "transformKeyCount": 0
+    },
+    {
+      "heroId": 50021,
+      "name": "Lucius",
+      "phase50RigReady": false,
+      "selectedClipNames": [
+        "lucius_01_show_idle",
+        "lucius_01_idle"
+      ],
+      "parseOk": true,
+      "decodedClipCount": 2,
+      "clips": [
+        {
+          "name": "lucius_01_show_idle",
+          "kind": "presentationIdle",
+          "decoded": true,
+          "file": "presentation-idle.json.gz",
+          "jsonBytes": 6392,
+          "gzipBytes": 1015,
+          "sha256": "f71005ce3e2058489fab4d7c4fa0c50873af8738f45b7b540cd87b2975d2bbdf",
+          "streamedCurves": 0,
+          "streamedFrames": 0,
+          "denseCurves": 0,
+          "denseFrames": 0,
+          "constantSamples": 0,
+          "transformBindings": 37,
+          "resolvedTransformBindings": 0,
+          "pathSources": {
+            "ambiguous": 37
+          },
+          "transformTracks": 0,
+          "transformKeys": 0,
+          "movingPathsSample": []
+        },
+        {
+          "name": "lucius_01_idle",
+          "kind": "idle",
+          "decoded": true,
+          "file": "idle.json.gz",
+          "jsonBytes": 6389,
+          "gzipBytes": 1004,
+          "sha256": "ecaf60b7cd0df4aad17479c5078c562e747c1368a71ffb10b07d3ec83a7ba5f2",
+          "streamedCurves": 0,
+          "streamedFrames": 0,
+          "denseCurves": 0,
+          "denseFrames": 0,
+          "constantSamples": 0,
+          "transformBindings": 37,
+          "resolvedTransformBindings": 0,
+          "pathSources": {
+            "ambiguous": 37
+          },
+          "transformTracks": 0,
+          "transformKeys": 0,
+          "movingPathsSample": []
+        }
+      ],
+      "animated": false,
+      "rendererMode": "static",
+      "errors": [],
+      "transformPathCount": 440,
+      "avatarTosHashCount": 0,
+      "transformTrackCount": 0,
+      "transformKeyCount": 0
+    },
+    {
+      "heroId": 50022,
+      "name": "Adam",
+      "phase50RigReady": true,
+      "selectedClipNames": [
+        "Adam01_01_show_idle",
+        "Adam01_01_idle"
+      ],
+      "parseOk": true,
+      "decodedClipCount": 2,
+      "clips": [
+        {
+          "name": "Adam01_01_show_idle",
+          "kind": "presentationIdle",
+          "decoded": true,
+          "file": "presentation-idle.json.gz",
+          "jsonBytes": 23346,
+          "gzipBytes": 2560,
+          "sha256": "432b9169a5360a6b51d1fa93899e7e590d913be488e92024e8e3c3c5b30049d2",
+          "streamedCurves": 0,
+          "streamedFrames": 0,
+          "denseCurves": 0,
+          "denseFrames": 0,
+          "constantSamples": 0,
+          "transformBindings": 145,
+          "resolvedTransformBindings": 0,
+          "pathSources": {
+            "ambiguous": 145
+          },
+          "transformTracks": 0,
+          "transformKeys": 0,
+          "movingPathsSample": []
+        },
+        {
+          "name": "Adam01_01_idle",
+          "kind": "idle",
+          "decoded": true,
+          "file": "idle.json.gz",
+          "jsonBytes": 15158,
+          "gzipBytes": 1792,
+          "sha256": "d28dc44bd0f99e4e42a36b6e74a773a160bb5f862323733adb9b3ff10b199045",
+          "streamedCurves": 0,
+          "streamedFrames": 0,
+          "denseCurves": 0,
+          "denseFrames": 0,
+          "constantSamples": 0,
+          "transformBindings": 93,
+          "resolvedTransformBindings": 0,
+          "pathSources": {
+            "ambiguous": 93
+          },
+          "transformTracks": 0,
+          "transformKeys": 0,
+          "movingPathsSample": []
+        }
+      ],
+      "animated": false,
+      "rendererMode": "skinned-static",
+      "errors": [],
+      "transformPathCount": 674,
+      "avatarTosHashCount": 0,
+      "transformTrackCount": 0,
+      "transformKeyCount": 0
+    }
+  ],
+  "guardrails": {
+    "exactPhase47BundlesOnly": true,
+    "phase50ClipNamesOnly": true,
+    "avatarTosExactFallback": true,
+    "noFuzzyPathMatching": true,
+    "noAnimationSubstitution": true,
+    "noGeneratedMotion": true,
+    "noLastWarNetwork": true
+  }
+}
