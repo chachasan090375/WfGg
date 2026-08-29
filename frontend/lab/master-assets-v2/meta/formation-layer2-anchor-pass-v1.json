@@ -1,0 +1,30 @@
+{
+  "format": "WFGG_LASTWAR_FORMATION_LAYER2_ANCHOR_PASS_V1",
+  "referenceMasterSize": [1316, 1536],
+  "platform": "biandui_cheku_1",
+  "anchorsPercent": [
+    {"slot": 1, "left": 47.214, "top": 32.369, "z": 7},
+    {"slot": 2, "left": 64.535, "top": 42.685, "z": 8},
+    {"slot": 3, "left": 22.202, "top": 47.231, "z": 9},
+    {"slot": 4, "left": 81.835, "top": 52.993, "z": 10},
+    {"slot": 5, "left": 56.827, "top": 68.444, "z": 11}
+  ],
+  "anchorBasis": "centres of the five authentic X markers measured on the exact biandui_cheku_1 sprite after the frozen Layer1 transform",
+  "rendererWindowScaleFactor": 1.317,
+  "rendererSelection": {
+    "serialized": true,
+    "reason": "prevent older asynchronous hero loads from overwriting the requested exact vehicle scene"
+  },
+  "orientation": {
+    "required": "vehicles visually face right as in Last War reference",
+    "status": "awaiting visual camera calibration",
+    "noCssMirrorCommitted": true
+  },
+  "guardrails": {
+    "exactModels": true,
+    "exactAnimations": true,
+    "generatedVehicleSubstitute": false,
+    "layer0Untouched": true,
+    "mainUntouched": true
+  }
+}
