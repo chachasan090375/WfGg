@@ -1,0 +1,50 @@
+{
+  "format": "WFGG_LASTWAR_FORMATION_LAYER0_CONTRACT_V1",
+  "networkUsed": false,
+  "generatedArtwork": false,
+  "target": "Last War Formation upper-screen world background, below biandui_cheku_1",
+  "authoritativeRoots": [
+    {"pathId": 17775, "name": "Scene_World.prefab", "gameresBundleId": 2107},
+    {"pathId": 17782, "name": "Terrain_0.prefab", "gameresBundleId": 2114},
+    {"pathId": 17783, "name": "Terrain_0_High.prefab", "gameresBundleId": 2115},
+    {"pathId": 17788, "name": "Terrain_World.prefab", "gameresBundleId": 2120},
+    {"pathId": 17794, "name": "WorldCityGrass.prefab", "gameresBundleId": 2126}
+  ],
+  "environmentFamilies": [
+    "Assets/_Art_LastWar/Models/Environment/Prop/O_Prop_tree/",
+    "Assets/_Art_LastWar/Models/Environment/Prop/Rock/",
+    "Assets/_Art_LastWar/Models/Environment/Mountain/Rock/",
+    "Assets/_Art_LastWar/Models/Environment/Plant/Grass/",
+    "Assets/_Art_LastWar/Models/Environment/Map/Tree/",
+    "Assets/_Art_LastWar/Models/Environment/Map/Rock/"
+  ],
+  "knownTerrainMaterials": [
+    "O_terrain_grass02.mat",
+    "Terrain_0.mat",
+    "Terrain_0_High.mat"
+  ],
+  "bake": {
+    "runtimeDynamicBlur": false,
+    "masterWidth": 1316,
+    "masterHeight": 1536,
+    "gaussianSigmaPx": 11.8,
+    "sigmaSource": "estimated from the supplied native Formation screenshot; equivalent to about 9.7 px at 1080 px width",
+    "output": "master-assets-v2/background/formation-layer0-world-baked.webp",
+    "runtimeFit": "cover",
+    "runtimePosition": "center"
+  },
+  "layerOrder": [
+    "0 world/terrain baked background",
+    "1 biandui_cheku formation platform, sharp",
+    "2 animated vehicles + drone + overlord",
+    "3 hero labels, levels, stars",
+    "4 controls"
+  ],
+  "guardrails": {
+    "noCSSFakeLandscape": true,
+    "noRuntimeBlur": true,
+    "noGeneratedSubstituteArtwork": true,
+    "exactGameresRoots": true,
+    "mainUntouched": true
+  }
+}
