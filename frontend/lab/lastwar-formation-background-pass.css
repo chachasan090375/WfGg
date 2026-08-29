@@ -1,7 +1,6 @@
 /* WfGg LAB — Formation background stack
-   Layer0 = terrain reconstruit au runtime depuis les textures exactes extraites
-   du jeu + SplatControl exact. Aucune capture baked, donc aucun résidu de
-   véhicule, gorille, drone ou plateforme ne peut contaminer le fond.
+   Layer0 = pipeline natif FormationBg : vue Monde rendue puis BlurUI.
+   Aucune ancienne capture Formation baked n'est utilisee.
    Layer1 = sprite exact biandui_cheku_N, net.
 */
 
@@ -17,27 +16,32 @@
   filter:none!important;
   transform:none!important;
   opacity:1!important;
+  --lw-native-blur-px:3.725px;
+  --lw-native-saturation:.48;
+  --lw-native-lightness:.904;
 }
 .world-blur::after{display:none!important}
-.lw-world-canvas{
+.lw-world-canvas,.lw-world-runtime{
   position:absolute;
-  left:-3%;top:-3%;
-  width:106%;height:106%;
+  left:-4%;top:-4%;
+  width:108%;height:108%;
   display:block;
-  filter:blur(7px) saturate(.96) brightness(1.03);
-  transform:scale(1.025);
+  object-fit:cover;
+  filter:blur(var(--lw-native-blur-px)) saturate(var(--lw-native-saturation)) brightness(var(--lw-native-lightness));
+  transform:scale(1.035);
   transform-origin:center;
+  backface-visibility:hidden;
 }
 .lw-world-note{
   display:none;
-  position:absolute;z-index:3;left:12px;right:12px;bottom:12px;
+  position:absolute;z-index:30;left:12px;right:12px;bottom:12px;
   padding:8px 10px;border-radius:7px;
-  background:rgba(15,22,18,.78);color:#fff;font:12px/1.35 monospace;
+  background:rgba(15,22,18,.82);color:#fff;font:12px/1.35 monospace;
 }
 html:has(.lw-world-note:not(:empty)) .lw-world-note{display:block}
 .world-blur.lw-world-error{background:#8eb95d!important}
 
-/* Layer1 exact : placement conservé, on ne le retouche pas pendant le pass Layer0. */
+/* Layer1 exact : placement conserve, on ne le retouche pas pendant le pass Layer0. */
 .formation-ground{
   left:50%!important;
   top:52.013120%!important;
