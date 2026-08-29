@@ -2,10 +2,10 @@
 set -Eeuo pipefail
 
 # WfGg Last War LAB — fixed Layer 0 baker.
-# Uses the supplied/native 1316x1536 Formation capture as the pixel reference,
-# removes foreground/UI by deterministic masks, diffuses only the hidden areas,
-# and preserves the already-blurred visible world pixels.
-# Runtime applies NO blur. Output is a fixed WebP used by every device.
+# Accepts the supplied Formation capture at its device-stored resolution,
+# normalizes it to the 1316x1536 master coordinate space, removes foreground/UI
+# by deterministic masks, diffuses only hidden areas, and preserves the game's
+# already-blurred visible world pixels. Runtime applies NO blur.
 # Pillow-only: no NumPy dependency, Android/Termux safe.
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -43,22 +43,40 @@ import hashlib, json, sys
 from PIL import Image, ImageDraw, ImageFilter, ImageOps, ImageStat
 
 ref=Path(sys.argv[1]); out=Path(sys.argv[2]); meta=Path(sys.argv[3])
-im=Image.open(ref).convert('RGB')
-if im.size != (1316,1536):
-    raise SystemExit(f'expected native 1316x1536 reference, got {im.size[0]}x{im.size[1]}')
+src=Image.open(ref).convert('RGB')
+source_size=src.size
+MASTER=(1316,1536)
+source_ratio=source_size[0]/source_size[1]
+master_ratio=MASTER[0]/MASTER[1]
+ratio_error=abs(source_ratio-master_ratio)/master_ratio
+
+# Android may store/share the same screenshot resampled (e.g. 1080x1261).
+# Accept only the same crop/aspect; normalize once to the master coordinate space
+# so every deterministic mask remains aligned. Do not crop or invent content.
+if ratio_error > 0.005:
+    raise SystemExit(
+        f'reference aspect mismatch: got {source_size[0]}x{source_size[1]} '
+        f'ratio={source_ratio:.6f}, expected master ratio={master_ratio:.6f}'
+    )
+if source_size != MASTER:
+    im=src.resize(MASTER,Image.Resampling.LANCZOS)
+    normalized=True
+else:
+    im=src
+    normalized=False
 
 W,H=im.size
 mask=Image.new('L',(W,H),0)
 d=ImageDraw.Draw(mask)
 
-# Foreground masks measured on the native Formation reference.
+# Foreground masks measured in the 1316x1536 master coordinate space.
 # They cover platform, units, labels and controls. Visible outer-world pixels
 # remain untouched and therefore preserve the game's already-rendered blur.
 rects=[
-    (420,22,892,145),       # power badge
-    (84,175,224,340),       # left rank badge
-    (0,1015,330,1536),      # lower-left controls
-    (500,1190,1316,1536),   # lower-right team controls
+    (420,22,892,145),
+    (84,175,224,340),
+    (0,1015,330,1536),
+    (500,1190,1316,1536),
 ]
 for r in rects:
     d.rectangle(r,fill=255)
@@ -73,13 +91,10 @@ d.polygon(main,fill=255)
 d.ellipse((0,610,180,820),fill=255)
 d.rectangle((1120,865,1316,1110),fill=255)
 
-# Feather only the foreground boundary. Visible world remains the source image.
 feather=mask.filter(ImageFilter.GaussianBlur(18))
 
 # Pillow-only harmonic-style diffusion at quarter resolution.
-# Known/world pixels are restored after every blur pass; only hidden pixels are
-# allowed to evolve. This is the same boundary-condition principle as the old
-# NumPy Laplacian loop, without requiring NumPy on Android.
+# Known/world pixels are restored after every pass; only hidden pixels evolve.
 SW,SH=W//4,H//4
 small=im.resize((SW,SH),Image.Resampling.LANCZOS)
 smask=mask.resize((SW,SH),Image.Resampling.NEAREST)
@@ -90,8 +105,6 @@ mean=tuple(max(0,min(255,round(v))) for v in stats.mean[:3])
 fill_small=Image.new('RGB',(SW,SH),mean)
 fill_small=Image.composite(small,fill_small,known_mask)
 
-# Multi-scale diffusion converges quickly on this deliberately blurred layer.
-# Large radii propagate the boundary field inward; smaller radii settle edges.
 for radius,passes in ((18,14),(11,18),(7,24),(4,28),(2,32)):
     for _ in range(passes):
         blurred=fill_small.filter(ImageFilter.GaussianBlur(radius))
@@ -114,16 +127,22 @@ def sha256(p):
 info={
   'format':'WFGG_LASTWAR_FORMATION_LAYER0_BAKED_V1',
   'sourceCapture':ref.name,
-  'sourceSize':[W,H],
+  'sourceSize':list(source_size),
+  'sourceAspectRatio':source_ratio,
+  'masterAspectRatio':master_ratio,
+  'aspectRatioRelativeError':ratio_error,
+  'normalizedToMaster':normalized,
+  'normalizationMethod':'Pillow LANCZOS resize only when aspect matches within 0.5%',
+  'normalizedSize':[W,H],
   'output':'master-assets-v2/background/formation-layer0-world-baked.webp',
   'outputBytes':out.stat().st_size,
   'sha256':sha256(out),
-  'visibleWorldPixelsPreserved':True,
+  'visibleWorldPixelsPreservedAfterNormalization':True,
   'foregroundRemovedByDeterministicMask':True,
   'hiddenPixelsMethod':'Pillow multiscale boundary diffusion; known world pixels fixed each pass',
   'runtimeDynamicBlur':False,
-  'measuredNativeGaussianSigmaPx':11.8,
-  'important':'11.8 px documents the blur already present in the native capture; it is NOT applied again during this bake',
+  'measuredNativeGaussianSigmaPxAtMaster':11.8,
+  'important':'11.8 px documents the blur already present at the 1316px master width; it is NOT applied again during this bake or at runtime',
   'masterSize':[1316,1536],
   'runtimeFit':'cover',
   'runtimePosition':'center',
@@ -132,6 +151,8 @@ info={
   'mainUntouched':True
 }
 meta.write_text(json.dumps(info,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+print('LAYER0_SOURCE',f'{source_size[0]}x{source_size[1]}')
+print('LAYER0_NORMALIZED',f'{W}x{H}',str(normalized).lower())
 print('LAYER0_BAKE_OK',out)
 print('LAYER0_SHA256',info['sha256'])
 print('LAYER0_BYTES',info['outputBytes'])
