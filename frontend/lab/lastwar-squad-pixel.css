@@ -1,0 +1,104 @@
+/* WfGg LAB — PIXEL MASTER layout pass
+   Target: MASTER_SQUAD_SCREEN_LASTWAR_2026-08-29.jpg
+   CODE ONLY. No generated substitute artwork. */
+
+/* Once V3 is loaded, remove all LAB chrome from the fidelity viewport. */
+body.lw-native-loaded{background:#2d3449!important;overflow-x:hidden}
+body.lw-native-loaded .replica-shell{width:100%!important;max-width:none!important;margin:0!important;padding:0!important}
+body.lw-native-loaded .replica-topbar,
+body.lw-native-loaded .import-panel,
+body.lw-native-loaded .kit-panel,
+body.lw-native-loaded footer{display:none!important}
+body.lw-native-loaded .game-stage{margin:0!important;border:0!important;border-radius:0!important;box-shadow:none!important;background:#2d3449!important}
+body.lw-native-loaded .squad-grid{border-radius:0!important}
+
+/* Native reference is 658 px wide; formation area is ~770 px tall. */
+.lw-formation-field{
+  width:100%!important;
+  min-height:0!important;
+  aspect-ratio:658/770!important;
+  border:0!important;
+  border-bottom:12px solid #293148!important;
+  background:#8fbd58;
+}
+
+/* Native board geometry / camera crop measured from the reference screenshot. */
+.lw-formation-board{
+  left:50%!important;
+  top:51.8%!important;
+  width:82.5%!important;
+  max-width:none!important;
+  transform:translate(-50%,-50%)!important;
+  filter:none!important;
+}
+.lw-formation-members{inset:0!important}
+.lw-formation-member{width:18.2%!important;transform:translate(-50%,-50%)!important}
+
+/* Do not display fake vehicle silhouettes. Vehicle content is mounted only when
+   an authentic extracted renderer/frame exists. */
+.lw-formation-type{display:none!important}
+.lw-vehicle-mount{
+  position:absolute;
+  z-index:2;
+  left:50%;
+  top:29px;
+  width:122%;
+  aspect-ratio:1.18;
+  transform:translateX(-50%);
+  pointer-events:none;
+}
+.lw-vehicle-mount img,
+.lw-vehicle-mount canvas{width:100%;height:100%;object-fit:contain;display:block}
+
+/* Hero labels sit above / beside the vehicle and keep the game-like outline. */
+.lw-unit-label{z-index:5!important;gap:3px!important;align-items:flex-start!important}
+.lw-unit-thumb{width:31px!important;height:31px!important;flex-basis:31px!important;border-width:1px!important}
+.lw-unit-info>strong{font-size:.73rem!important;line-height:1!important}
+.lw-unit-stars{margin-top:1px!important;gap:0!important}
+.lw-unit-stars img{width:17px!important;height:17px!important}
+
+/* Drone position / size from the master reference. */
+.lw-drone-wrap{right:2.6%!important;top:12.8%!important;width:28.5%!important;height:24%!important;filter:none!important}
+
+/* Power block: exact relative placement rather than a generic centered pill. */
+.lw-formation-power{top:2.2%!important;left:50%!important;padding:6px 14px!important;border-radius:2px!important;background:rgba(77,79,52,.76)!important;box-shadow:0 4px 8px rgba(0,0,0,.32)!important}
+.lw-formation-power b{font-size:1.24rem!important;letter-spacing:.01em!important}
+
+/* Bottom control geometry follows the native screenshot. */
+.lw-side-controls{left:2.4%!important;bottom:2.5%!important;gap:5px!important}
+.lw-round-control{width:70px!important;height:70px!important;border-width:0!important;background:transparent!important;box-shadow:none!important;text-shadow:none!important;padding:0!important;overflow:visible!important}
+.lw-round-control>img{width:100%!important;height:100%!important;object-fit:contain!important;display:block!important}
+.lw-round-control>span,.lw-round-control>b{display:none!important}
+.lw-round-control.plus{display:none!important}
+
+.lw-team-switcher{right:3.2%!important;bottom:2.8%!important;height:72px!important;border:2px solid #242424!important;box-shadow:0 4px 5px rgba(0,0,0,.55)!important}
+.lw-team-switcher>strong{padding:0 11px!important;font-size:1rem!important}
+.lw-team-button,.lw-team-lock{width:57px!important;font-size:1.35rem!important}
+.lw-team-label{display:none!important}
+
+/* Roster reference: off-white panel, 5 columns, native spacing. */
+.lw-roster-panel{margin:0!important;padding:13px 18px 12px!important;border:0!important;border-radius:0!important;background:#efebe9!important;box-shadow:none!important}
+.lw-roster-grid{grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:13px 10px!important;max-height:none!important;overflow:visible!important;padding:0!important}
+.lw-master-card{aspect-ratio:99/118!important;border-radius:2px!important;border-width:2px!important}
+.lw-card-image{left:2px!important;right:2px!important;top:2px!important;width:calc(100% - 4px)!important;height:calc(100% - 22px)!important;object-position:center 8%!important}
+
+/* Card top-left must be the authentic hero-role badge, not Tank/Air/Missile. */
+.lw-unit-type{width:20px!important;height:20px!important;padding:0!important;background:transparent!important;border:0!important;box-shadow:none!important}
+.lw-level-line{left:4px!important;bottom:18px!important;height:18px!important}
+.lw-level-line img{width:17px!important;height:15px!important}
+.lw-level-line strong{font-size:.67rem!important}
+.lw-stars{height:19px!important;bottom:0!important;border-top:0!important;background:transparent!important}
+.lw-stars img{max-height:18px!important}
+.lw-selected-check{right:2px!important;bottom:23px!important;width:29px!important;height:29px!important}
+
+.lw-roster-filters{margin-top:13px!important;height:55px!important}
+.lw-roster-filters button{min-height:55px!important}
+
+@media(max-width:720px){
+  .lw-formation-field{aspect-ratio:658/770!important}
+  .lw-team-switcher{height:60px!important}.lw-team-button,.lw-team-lock{width:49px!important}.lw-team-switcher>strong{font-size:.84rem!important;padding:0 9px!important}
+  .lw-round-control{width:58px!important;height:58px!important}
+  .lw-unit-thumb{width:27px!important;height:27px!important;flex-basis:27px!important}.lw-unit-info>strong{font-size:.61rem!important}.lw-unit-stars img{width:14px!important;height:14px!important}
+  .lw-roster-panel{padding:12px 15px 10px!important}.lw-roster-grid{gap:11px 8px!important}
+  .lw-level-line strong{font-size:.58rem!important}.lw-level-line img{width:15px!important;height:13px!important}
+}
