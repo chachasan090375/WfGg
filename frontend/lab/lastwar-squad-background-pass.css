@@ -1,0 +1,75 @@
+/* WfGg LAB — Formation background pass
+   Target: MASTER_SQUAD_SCREEN_LASTWAR_2026-08-29.jpg
+   Background only. No generated artwork, no fake vehicle/UI layers.
+   Uses the authentic extracted biandui_cheku_N formation scene twice:
+   - blurred/full-bleed scene behind
+   - sharp native scene above
+*/
+
+.lw-formation-field{
+  isolation:isolate!important;
+  background:#56645f!important;
+}
+
+/* Kill the previous synthetic green/radial background. */
+.lw-formation-field::before{
+  content:""!important;
+  position:absolute!important;
+  z-index:0!important;
+  inset:-7%!important;
+  pointer-events:none!important;
+  background-image:var(--lw-scene-image)!important;
+  background-repeat:no-repeat!important;
+  background-size:cover!important;
+  background-position:center 49%!important;
+  filter:blur(15px) brightness(.76) saturate(.82)!important;
+  transform:scale(1.075)!important;
+  transform-origin:center!important;
+  opacity:1!important;
+}
+
+/* Very light neutral veil only; no invented scenery. */
+.lw-formation-field::after{
+  content:"";
+  position:absolute;
+  z-index:0;
+  inset:0;
+  pointer-events:none;
+  background:rgba(29,38,43,.10);
+}
+
+/* The authentic sharp garage/formation scene stays above its blurred copy. */
+.lw-formation-board{
+  z-index:1!important;
+  opacity:1!important;
+}
+
+/* All actual content stays above the two background layers. */
+.lw-formation-power,
+.lw-formation-members,
+.lw-drone-wrap,
+.lw-side-controls,
+.lw-team-switcher,
+.lw-team-label{
+  z-index:5!important;
+}
+
+/* Element-by-element inspection mode:
+   /lab/lastwar-squads-replica.html?layer=background
+*/
+html.lw-layer-background-only .lw-formation-field > :not(.lw-formation-board),
+html.lw-layer-background-only .lw-roster-panel{
+  display:none!important;
+}
+
+html.lw-layer-background-only .lw-formation-field{
+  border-bottom:0!important;
+}
+
+@media(max-width:720px){
+  .lw-formation-field::before{
+    inset:-9%!important;
+    filter:blur(12px) brightness(.76) saturate(.82)!important;
+    transform:scale(1.085)!important;
+  }
+}
