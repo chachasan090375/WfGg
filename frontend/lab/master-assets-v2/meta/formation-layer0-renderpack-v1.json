@@ -1,0 +1,2798 @@
+{
+  "format": "WFGG_LASTWAR_FORMATION_LAYER0_RENDERPACK_V1",
+  "networkUsed": false,
+  "generatedArtwork": false,
+  "unityFallback": "2019.4.41f1",
+  "sourceBundleCount": 51,
+  "objectTypeCounts": {
+    "Cubemap": 16,
+    "Texture2D": 168,
+    "AssetBundle": 51,
+    "Sprite": 1,
+    "MeshRenderer": 143,
+    "GameObject": 218,
+    "Transform": 218,
+    "MonoBehaviour": 84,
+    "MeshFilter": 143,
+    "Material": 79,
+    "MonoScript": 15,
+    "Mesh": 61,
+    "BoxCollider": 6,
+    "Light": 3,
+    "Shader": 371,
+    "ShaderVariantCollection": 4
+  },
+  "textureFormats": {
+    "ASTC_RGB_6x6": 58,
+    "ASTC_RGB_8x8": 95,
+    "ASTC_RGB_10x10": 14,
+    "RGBA32": 1
+  },
+  "textureCount": 168,
+  "textureExported": 168,
+  "textureErrors": 0,
+  "transformCount": 218,
+  "meshCount": 61,
+  "meshFilterCount": 143,
+  "rendererCount": 143,
+  "materialCount": 79,
+  "usedMaterialCount": 55,
+  "usedTextureCount": 45,
+  "unresolvedMeshCount": 1,
+  "unresolvedMaterialCount": 0,
+  "unresolvedTextureCount": 0,
+  "externalTargetFiles": [
+    "unity default resources"
+  ],
+  "roots": [
+    {
+      "name": "Scene_World",
+      "transformKey": {
+        "assetsFile": "cab-9d4a64e6d038790db39d86ae5a653f7c",
+        "pathId": 7100405152568602014,
+        "objectKey": "cab-9d4a64e6d038790db39d86ae5a653f7c::7100405152568602014"
+      },
+      "descendantTransforms": 4,
+      "renderComponents": 0
+    },
+    {
+      "name": "Terrain_0",
+      "transformKey": {
+        "assetsFile": "cab-9e0d933e2bcbf7a79cb8bac7b55a884d",
+        "pathId": 5064664699515204494,
+        "objectKey": "cab-9e0d933e2bcbf7a79cb8bac7b55a884d::5064664699515204494"
+      },
+      "descendantTransforms": 3,
+      "renderComponents": 2
+    },
+    {
+      "name": "Terrain_0_High",
+      "transformKey": {
+        "assetsFile": "cab-1e4ac613aa2e0dd18b2cab666edf61aa",
+        "pathId": -2345525902005094441,
+        "objectKey": "cab-1e4ac613aa2e0dd18b2cab666edf61aa::-2345525902005094441"
+      },
+      "descendantTransforms": 3,
+      "renderComponents": 2
+    },
+    {
+      "name": "Terrain_World",
+      "transformKey": {
+        "assetsFile": "cab-f81cbdd76ab528d4999f5a17e6d5e49c",
+        "pathId": 9099151976159369327,
+        "objectKey": "cab-f81cbdd76ab528d4999f5a17e6d5e49c::9099151976159369327"
+      },
+      "descendantTransforms": 2,
+      "renderComponents": 1
+    }
+  ],
+  "sceneFile": "scene/scene-graph.json",
+  "textures": [
+    {
+      "key": {
+        "assetsFile": "cab-dfbad28a7956eed1bda53a3f4431edd7",
+        "pathId": -7827399148491929160,
+        "objectKey": "cab-dfbad28a7956eed1bda53a3f4431edd7::-7827399148491929160"
+      },
+      "name": "beiguang_lan",
+      "format": "ASTC_RGB_6x6",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0001_beiguang_lan.png",
+      "rawBytes": 29584,
+      "bytes": 23815,
+      "sha256": "9ff491b8af90f409f97d8135884fc8c0c6a02066743d7aa7f83dbae1a46e7998"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-dfbad28a7956eed1bda53a3f4431edd7",
+        "pathId": -7737283367609738920,
+        "objectKey": "cab-dfbad28a7956eed1bda53a3f4431edd7::-7737283367609738920"
+      },
+      "name": "MatCap1",
+      "format": "ASTC_RGB_6x6",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0002_MatCap1.png",
+      "rawBytes": 29584,
+      "bytes": 60353,
+      "sha256": "37dbb5374f55bd382a0c3c1280da84fe71f316abe9abb67d658042453a54c35b"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-dfbad28a7956eed1bda53a3f4431edd7",
+        "pathId": -6189179774162979627,
+        "objectKey": "cab-dfbad28a7956eed1bda53a3f4431edd7::-6189179774162979627"
+      },
+      "name": "beiguang_huang",
+      "format": "ASTC_RGB_6x6",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0003_beiguang_huang.png",
+      "rawBytes": 29584,
+      "bytes": 23471,
+      "sha256": "fc124e453c8f4ebaa3f2e8fc4fbcab12f7dbc5f9ea6d9380ee41a231b5f94be8"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-dfbad28a7956eed1bda53a3f4431edd7",
+        "pathId": -4124010492204943292,
+        "objectKey": "cab-dfbad28a7956eed1bda53a3f4431edd7::-4124010492204943292"
+      },
+      "name": "fETqkYCCI",
+      "format": "ASTC_RGB_6x6",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0004_fETqkYCCI.png",
+      "rawBytes": 29584,
+      "bytes": 95200,
+      "sha256": "6104dc862dcb2e02735bf8b6c60a88f54e38b46e64df4f147d5087ad8f3bf6e0"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-dfbad28a7956eed1bda53a3f4431edd7",
+        "pathId": -2223504408592866908,
+        "objectKey": "cab-dfbad28a7956eed1bda53a3f4431edd7::-2223504408592866908"
+      },
+      "name": "Effect_0591",
+      "format": "ASTC_RGB_6x6",
+      "width": 64,
+      "height": 64,
+      "exported": true,
+      "file": "textures/0005_Effect_0591.png",
+      "rawBytes": 1936,
+      "bytes": 3066,
+      "sha256": "ebd3c0be61a991057e470fc73f66f366434e015ad11e7b999552967f7267ae11"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-dfbad28a7956eed1bda53a3f4431edd7",
+        "pathId": -349079467065036873,
+        "objectKey": "cab-dfbad28a7956eed1bda53a3f4431edd7::-349079467065036873"
+      },
+      "name": "NoiseTexture",
+      "format": "ASTC_RGB_6x6",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0006_NoiseTexture.png",
+      "rawBytes": 29584,
+      "bytes": 64748,
+      "sha256": "1fec949ad96121c8b639c728660e6e3926e5e47f876073618092a505793f3977"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-dfbad28a7956eed1bda53a3f4431edd7",
+        "pathId": 724545113683010630,
+        "objectKey": "cab-dfbad28a7956eed1bda53a3f4431edd7::724545113683010630"
+      },
+      "name": "beiguang_zi",
+      "format": "ASTC_RGB_6x6",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0007_beiguang_zi.png",
+      "rawBytes": 29584,
+      "bytes": 23729,
+      "sha256": "9d82cc002b56663f35816bc47eb31cde1bf3ace5b38613677399c14be44e99d9"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-dfbad28a7956eed1bda53a3f4431edd7",
+        "pathId": 3558280053083330366,
+        "objectKey": "cab-dfbad28a7956eed1bda53a3f4431edd7::3558280053083330366"
+      },
+      "name": "VX_Effect_Touch_tex",
+      "format": "ASTC_RGB_6x6",
+      "width": 128,
+      "height": 64,
+      "exported": true,
+      "file": "textures/0008_VX_Effect_Touch_tex.png",
+      "rawBytes": 3872,
+      "bytes": 2987,
+      "sha256": "fdd635a44c3f9d094cfb56d5bb79590909627361f0fa4fb9e605a385a9358539"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-dfbad28a7956eed1bda53a3f4431edd7",
+        "pathId": 9038058400085923940,
+        "objectKey": "cab-dfbad28a7956eed1bda53a3f4431edd7::9038058400085923940"
+      },
+      "name": "Matcap",
+      "format": "ASTC_RGB_6x6",
+      "width": 512,
+      "height": 512,
+      "exported": true,
+      "file": "textures/0009_Matcap.png",
+      "rawBytes": 118336,
+      "bytes": 111248,
+      "sha256": "62c7f9161e3b1e3d454d4ceea35037c24f81ad52e29f4d62cea1ab16832918de"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-edf2240ac3e3fc686bff4201992dd478",
+        "pathId": -617962840813175824,
+        "objectKey": "cab-edf2240ac3e3fc686bff4201992dd478::-617962840813175824"
+      },
+      "name": "O_env_shitou_01_b_M_s3",
+      "format": "ASTC_RGB_6x6",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0010_O_env_shitou_01_b_M_s3.png",
+      "rawBytes": 29584,
+      "bytes": 16684,
+      "sha256": "7390ed1a26b4495db3678406576b5c03fade41cf6b8ffa0d65d48d4606bc8a3e"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-edf2240ac3e3fc686bff4201992dd478",
+        "pathId": 5792717698926119135,
+        "objectKey": "cab-edf2240ac3e3fc686bff4201992dd478::5792717698926119135"
+      },
+      "name": "O_env_shitou_01_e_M_s3",
+      "format": "ASTC_RGB_6x6",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0011_O_env_shitou_01_e_M_s3.png",
+      "rawBytes": 29584,
+      "bytes": 19218,
+      "sha256": "7067ce7d1422e16e53fd3411aad98b5fbe2ee01156d88a96deb85245afe2b99b"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-edf2240ac3e3fc686bff4201992dd478",
+        "pathId": 8210691377217265715,
+        "objectKey": "cab-edf2240ac3e3fc686bff4201992dd478::8210691377217265715"
+      },
+      "name": "O_env_shitou_01_c_M_s3",
+      "format": "ASTC_RGB_6x6",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0012_O_env_shitou_01_c_M_s3.png",
+      "rawBytes": 29584,
+      "bytes": 16476,
+      "sha256": "25728a4282db949230f02026476c50bcd403c8b6998a1cb6b95e4869fcfb674a"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-d19fc7721ed2c5f108b41d3eaa6ac56e",
+        "pathId": -6200356911812396950,
+        "objectKey": "cab-d19fc7721ed2c5f108b41d3eaa6ac56e::-6200356911812396950"
+      },
+      "name": "O_env_th_cao_huang_D",
+      "format": "ASTC_RGB_8x8",
+      "width": 512,
+      "height": 512,
+      "exported": true,
+      "file": "textures/0013_O_env_th_cao_huang_D.png",
+      "rawBytes": 65536,
+      "bytes": 260747,
+      "sha256": "cbd3defbd4177e9ca572e9a7257b671a860b0c8a0b3161606374364225ff0510"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-d19fc7721ed2c5f108b41d3eaa6ac56e",
+        "pathId": -3951139575469610941,
+        "objectKey": "cab-d19fc7721ed2c5f108b41d3eaa6ac56e::-3951139575469610941"
+      },
+      "name": "O_Plant_grass_02_M",
+      "format": "ASTC_RGB_6x6",
+      "width": 128,
+      "height": 128,
+      "exported": true,
+      "file": "textures/0014_O_Plant_grass_02_M.png",
+      "rawBytes": 7744,
+      "bytes": 4907,
+      "sha256": "a26050add29f670fc8bda0b13524da58ea1900274aeb54d915529577347911af"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-d19fc7721ed2c5f108b41d3eaa6ac56e",
+        "pathId": -2937329774714179376,
+        "objectKey": "cab-d19fc7721ed2c5f108b41d3eaa6ac56e::-2937329774714179376"
+      },
+      "name": "O_Plant_grass_03_M",
+      "format": "ASTC_RGB_6x6",
+      "width": 128,
+      "height": 128,
+      "exported": true,
+      "file": "textures/0015_O_Plant_grass_03_M.png",
+      "rawBytes": 7744,
+      "bytes": 5562,
+      "sha256": "513b6cea9e6612748ffa5915c5f9c5191e0f3ebcd7f9a40a0d9cff6f14d107b2"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-d19fc7721ed2c5f108b41d3eaa6ac56e",
+        "pathId": -1057541430855712842,
+        "objectKey": "cab-d19fc7721ed2c5f108b41d3eaa6ac56e::-1057541430855712842"
+      },
+      "name": "O_Plant_grass_04_M",
+      "format": "ASTC_RGB_6x6",
+      "width": 128,
+      "height": 128,
+      "exported": true,
+      "file": "textures/0016_O_Plant_grass_04_M.png",
+      "rawBytes": 7744,
+      "bytes": 3976,
+      "sha256": "e5c9bf4cde0352ad70f5c9c54462b44b24810e52bcbe66d5dbf2327e15a0971e"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-d19fc7721ed2c5f108b41d3eaa6ac56e",
+        "pathId": 1414085203558135934,
+        "objectKey": "cab-d19fc7721ed2c5f108b41d3eaa6ac56e::1414085203558135934"
+      },
+      "name": "O_env_th_cao3_D_swsj",
+      "format": "ASTC_RGB_8x8",
+      "width": 512,
+      "height": 512,
+      "exported": true,
+      "file": "textures/0017_O_env_th_cao3_D_swsj.png",
+      "rawBytes": 65536,
+      "bytes": 190463,
+      "sha256": "39b5a92b735b503dd684ee361a34eab30398e11e420aaa4a036b7275e6f22383"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-d19fc7721ed2c5f108b41d3eaa6ac56e",
+        "pathId": 5097945643246250482,
+        "objectKey": "cab-d19fc7721ed2c5f108b41d3eaa6ac56e::5097945643246250482"
+      },
+      "name": "O_env_th_cao3_D",
+      "format": "ASTC_RGB_8x8",
+      "width": 512,
+      "height": 512,
+      "exported": true,
+      "file": "textures/0018_O_env_th_cao3_D.png",
+      "rawBytes": 65536,
+      "bytes": 242679,
+      "sha256": "bf6bedff0a3b43d8fbc432599f051f0bbd66e5e0811e23627baf806fecd6dcf6"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-d19fc7721ed2c5f108b41d3eaa6ac56e",
+        "pathId": 8556807756675938246,
+        "objectKey": "cab-d19fc7721ed2c5f108b41d3eaa6ac56e::8556807756675938246"
+      },
+      "name": "O_Plant_grass_01_M",
+      "format": "ASTC_RGB_6x6",
+      "width": 128,
+      "height": 128,
+      "exported": true,
+      "file": "textures/0019_O_Plant_grass_01_M.png",
+      "rawBytes": 7744,
+      "bytes": 7362,
+      "sha256": "61d3e0977228423a1f0dd7c2cefc6cdd6a59d92013be7ac68da8565ad09803c6"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-0880d6539794c10a2d264ad54f4ecc6a",
+        "pathId": 8526031376225084897,
+        "objectKey": "cab-0880d6539794c10a2d264ad54f4ecc6a::8526031376225084897"
+      },
+      "name": "O_env_shitou_01_f_M_s3",
+      "format": "ASTC_RGB_6x6",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0020_O_env_shitou_01_f_M_s3.png",
+      "rawBytes": 29584,
+      "bytes": 20258,
+      "sha256": "541559e064a75e636457289c6857340127bf573ba8c59e74cb801f6b7b944f24"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-265ec99ce1f901708d2d3bce434b8be0",
+        "pathId": 8337930902598245399,
+        "objectKey": "cab-265ec99ce1f901708d2d3bce434b8be0::8337930902598245399"
+      },
+      "name": "O_env_th_songshu2_D3_swsj_1",
+      "format": "ASTC_RGB_8x8",
+      "width": 512,
+      "height": 512,
+      "exported": true,
+      "file": "textures/0021_O_env_th_songshu2_D3_swsj_1.png",
+      "rawBytes": 65536,
+      "bytes": 309758,
+      "sha256": "c356bb6a7865ec7d62073775246f91e623bed0f1a30ebfec6414658e02ab287f"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-5f2f3e2aabe7a86cea950c332328c4cd",
+        "pathId": -9126194623801361973,
+        "objectKey": "cab-5f2f3e2aabe7a86cea950c332328c4cd::-9126194623801361973"
+      },
+      "name": "O_Prop_rock_01_shadow",
+      "format": "ASTC_RGB_10x10",
+      "width": 128,
+      "height": 128,
+      "exported": true,
+      "file": "textures/0022_O_Prop_rock_01_shadow.png",
+      "rawBytes": 2704,
+      "bytes": 11659,
+      "sha256": "7e44fcdfbbea3b82e9f0e6d0474b25d4009bd77840a780d95d485888c15abf6e"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-5f2f3e2aabe7a86cea950c332328c4cd",
+        "pathId": -4195118737455366733,
+        "objectKey": "cab-5f2f3e2aabe7a86cea950c332328c4cd::-4195118737455366733"
+      },
+      "name": "shitouyingzi_M",
+      "format": "ASTC_RGB_10x10",
+      "width": 128,
+      "height": 128,
+      "exported": true,
+      "file": "textures/0023_shitouyingzi_M.png",
+      "rawBytes": 2704,
+      "bytes": 5052,
+      "sha256": "b62d8362492f9cf3f5a75c2d135781a9bf850abaff9bf4e9dff75c3136ee2d0b"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-5f2f3e2aabe7a86cea950c332328c4cd",
+        "pathId": -3619190743339273373,
+        "objectKey": "cab-5f2f3e2aabe7a86cea950c332328c4cd::-3619190743339273373"
+      },
+      "name": "O_prop_th_rock_roup20_D",
+      "format": "ASTC_RGB_10x10",
+      "width": 512,
+      "height": 512,
+      "exported": true,
+      "file": "textures/0024_O_prop_th_rock_roup20_D.png",
+      "rawBytes": 43264,
+      "bytes": 214052,
+      "sha256": "244dae851d682bf85890e81e9959755bcf2101b3669bb0feda8c015bb322f094"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-5f2f3e2aabe7a86cea950c332328c4cd",
+        "pathId": -1427441414755033894,
+        "objectKey": "cab-5f2f3e2aabe7a86cea950c332328c4cd::-1427441414755033894"
+      },
+      "name": "O_Prop_rock_02_shadow",
+      "format": "ASTC_RGB_10x10",
+      "width": 64,
+      "height": 64,
+      "exported": true,
+      "file": "textures/0025_O_Prop_rock_02_shadow.png",
+      "rawBytes": 784,
+      "bytes": 1653,
+      "sha256": "4ae4fc45f24c86b2e8bd183cb3c1cea9d3fcba85eb71820987c7f386ff01673e"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-5f2f3e2aabe7a86cea950c332328c4cd",
+        "pathId": 394020240020366073,
+        "objectKey": "cab-5f2f3e2aabe7a86cea950c332328c4cd::394020240020366073"
+      },
+      "name": "O_Prop_rock_01",
+      "format": "ASTC_RGB_10x10",
+      "width": 512,
+      "height": 512,
+      "exported": true,
+      "file": "textures/0026_O_Prop_rock_01.png",
+      "rawBytes": 43264,
+      "bytes": 191787,
+      "sha256": "2372a7802ca35b61fc0a7fd72ba0071d8843ff192eb96631253b78eaaf1bf63e"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-5f2f3e2aabe7a86cea950c332328c4cd",
+        "pathId": 2924497073269992465,
+        "objectKey": "cab-5f2f3e2aabe7a86cea950c332328c4cd::2924497073269992465"
+      },
+      "name": "O_prop_th_rock_roup20_M",
+      "format": "ASTC_RGB_10x10",
+      "width": 128,
+      "height": 128,
+      "exported": true,
+      "file": "textures/0027_O_prop_th_rock_roup20_M.png",
+      "rawBytes": 2704,
+      "bytes": 14378,
+      "sha256": "feefc7fa024c9b41743ff5f0289724ff346b2b75dd00e2de32574480e33f60da"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-5f2f3e2aabe7a86cea950c332328c4cd",
+        "pathId": 4645840749399577712,
+        "objectKey": "cab-5f2f3e2aabe7a86cea950c332328c4cd::4645840749399577712"
+      },
+      "name": "O_env_th_rock_roup02_M 1",
+      "format": "ASTC_RGB_10x10",
+      "width": 128,
+      "height": 128,
+      "exported": true,
+      "file": "textures/0028_O_env_th_rock_roup02_M_1.png",
+      "rawBytes": 2704,
+      "bytes": 7307,
+      "sha256": "1ce49c0bc54b8dbae096430f659eabd96be612e2220d123afaaead7e83601d09"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-5f2f3e2aabe7a86cea950c332328c4cd",
+        "pathId": 6703920635065263174,
+        "objectKey": "cab-5f2f3e2aabe7a86cea950c332328c4cd::6703920635065263174"
+      },
+      "name": "O_prop_kushu_group_1_M",
+      "format": "ASTC_RGB_10x10",
+      "width": 128,
+      "height": 128,
+      "exported": true,
+      "file": "textures/0029_O_prop_kushu_group_1_M.png",
+      "rawBytes": 2704,
+      "bytes": 13661,
+      "sha256": "f1cd4ab27c88e578b09b7a4b1263a34e19d3c7bf1bb351dd00710d7c28f94ce6"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-5f2f3e2aabe7a86cea950c332328c4cd",
+        "pathId": 8201360051840477108,
+        "objectKey": "cab-5f2f3e2aabe7a86cea950c332328c4cd::8201360051840477108"
+      },
+      "name": "O_prop_th_rock_roup2",
+      "format": "ASTC_RGB_10x10",
+      "width": 512,
+      "height": 512,
+      "exported": true,
+      "file": "textures/0030_O_prop_th_rock_roup2.png",
+      "rawBytes": 43264,
+      "bytes": 214899,
+      "sha256": "29445d9a0dbee83162e6fb9df1e01a5e2fb6ae787ef6c15a05e414c1733ed32f"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-d10489ad64dc08fce587323d9fd03dd6",
+        "pathId": -2416333016504239800,
+        "objectKey": "cab-d10489ad64dc08fce587323d9fd03dd6::-2416333016504239800"
+      },
+      "name": "O_env_th_rock_roup19_D_sm",
+      "format": "ASTC_RGB_6x6",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0031_O_env_th_rock_roup19_D_sm.png",
+      "rawBytes": 29584,
+      "bytes": 79351,
+      "sha256": "a16c40b30d7a5711b3373f39e8b07737ef796fe4325f1b602de13bbbf4f9a4ba"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-4608f4effbdc296520967199f15fbaca",
+        "pathId": -6761543749971278338,
+        "objectKey": "cab-4608f4effbdc296520967199f15fbaca::-6761543749971278338"
+      },
+      "name": "Terrain_splatmap_06_snowsj",
+      "format": "ASTC_RGB_6x6",
+      "width": 512,
+      "height": 512,
+      "exported": true,
+      "file": "textures/0032_Terrain_splatmap_06_snowsj.png",
+      "rawBytes": 158432,
+      "bytes": 10979,
+      "sha256": "efacb4ed678bc6ca409a53368db7e64898c608b00933452a1356de62ad60da82"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-4608f4effbdc296520967199f15fbaca",
+        "pathId": -6509320415310670498,
+        "objectKey": "cab-4608f4effbdc296520967199f15fbaca::-6509320415310670498"
+      },
+      "name": "Terrain_splatmap_01",
+      "format": "ASTC_RGB_6x6",
+      "width": 512,
+      "height": 512,
+      "exported": true,
+      "file": "textures/0033_Terrain_splatmap_01.png",
+      "rawBytes": 158432,
+      "bytes": 17477,
+      "sha256": "7c659f0ff65167df71a30a1357d676fe1ededb8d53d08cc53fde077740ecce78"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-4608f4effbdc296520967199f15fbaca",
+        "pathId": 5609718113573389355,
+        "objectKey": "cab-4608f4effbdc296520967199f15fbaca::5609718113573389355"
+      },
+      "name": "Terrain_splatmap_sj",
+      "format": "ASTC_RGB_6x6",
+      "width": 512,
+      "height": 512,
+      "exported": true,
+      "file": "textures/0034_Terrain_splatmap_sj.png",
+      "rawBytes": 158432,
+      "bytes": 11312,
+      "sha256": "a1fefd7f34827d32b0157c14beca333426882dd2932d6f2c69d21ecb3a0326aa"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-4608f4effbdc296520967199f15fbaca",
+        "pathId": 8957081593271217504,
+        "objectKey": "cab-4608f4effbdc296520967199f15fbaca::8957081593271217504"
+      },
+      "name": "Terrain_splatmap_05",
+      "format": "ASTC_RGB_6x6",
+      "width": 512,
+      "height": 512,
+      "exported": true,
+      "file": "textures/0035_Terrain_splatmap_05.png",
+      "rawBytes": 158432,
+      "bytes": 10942,
+      "sha256": "ac3a33e28476a56e14b1643b98e59ea1d1658cfec553e7d81714a79a5fb1e0f2"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-4b5273603071ace326831b37d5351100",
+        "pathId": 3565396051027726283,
+        "objectKey": "cab-4b5273603071ace326831b37d5351100::3565396051027726283"
+      },
+      "name": "O_build_cangqiong_shu03_M",
+      "format": "ASTC_RGB_6x6",
+      "width": 128,
+      "height": 128,
+      "exported": true,
+      "file": "textures/0036_O_build_cangqiong_shu03_M.png",
+      "rawBytes": 7744,
+      "bytes": 7768,
+      "sha256": "4df5dea71b3b3c9c4efe3c34f427e5917183b8e10763060d7e821b94e7925474"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-4b5273603071ace326831b37d5351100",
+        "pathId": 8777108648356467941,
+        "objectKey": "cab-4b5273603071ace326831b37d5351100::8777108648356467941"
+      },
+      "name": "O_build_cangqiong_shu04_M",
+      "format": "ASTC_RGB_6x6",
+      "width": 128,
+      "height": 128,
+      "exported": true,
+      "file": "textures/0037_O_build_cangqiong_shu04_M.png",
+      "rawBytes": 7744,
+      "bytes": 9071,
+      "sha256": "999774ce4cb0b965de02d2ddb61247381b9083004005ef9791bcfda76891de1e"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-4acdb91bf5a829c80e4b56d43fe8ceaf",
+        "pathId": -8534127470032277107,
+        "objectKey": "cab-4acdb91bf5a829c80e4b56d43fe8ceaf::-8534127470032277107"
+      },
+      "name": "O_build_kushu_03_M",
+      "format": "ASTC_RGB_6x6",
+      "width": 128,
+      "height": 128,
+      "exported": true,
+      "file": "textures/0038_O_build_kushu_03_M.png",
+      "rawBytes": 7744,
+      "bytes": 9347,
+      "sha256": "9ca6c84cb11148622dbe8a69d700e69edfa83869f48272bf4308c343013ebe6b"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-4acdb91bf5a829c80e4b56d43fe8ceaf",
+        "pathId": -8118539184227399280,
+        "objectKey": "cab-4acdb91bf5a829c80e4b56d43fe8ceaf::-8118539184227399280"
+      },
+      "name": "O_build_kushu_04_M",
+      "format": "ASTC_RGB_6x6",
+      "width": 128,
+      "height": 128,
+      "exported": true,
+      "file": "textures/0039_O_build_kushu_04_M.png",
+      "rawBytes": 7744,
+      "bytes": 3771,
+      "sha256": "f94e7cb9e71aecb072048abb986cf5c3f436d9749aeec1a743ca8a10415da571"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-4acdb91bf5a829c80e4b56d43fe8ceaf",
+        "pathId": -6272657748849399985,
+        "objectKey": "cab-4acdb91bf5a829c80e4b56d43fe8ceaf::-6272657748849399985"
+      },
+      "name": "O_build_kushu_group_1_M",
+      "format": "ASTC_RGB_6x6",
+      "width": 128,
+      "height": 128,
+      "exported": true,
+      "file": "textures/0040_O_build_kushu_group_1_M.png",
+      "rawBytes": 7744,
+      "bytes": 8107,
+      "sha256": "a02c9a624e54ba7b5b0919cfaed063c73c8e59a6363d17263ec60381a1b90e37"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-4acdb91bf5a829c80e4b56d43fe8ceaf",
+        "pathId": -4614445586180376472,
+        "objectKey": "cab-4acdb91bf5a829c80e4b56d43fe8ceaf::-4614445586180376472"
+      },
+      "name": "O_build_kushu_group_2_M",
+      "format": "ASTC_RGB_6x6",
+      "width": 512,
+      "height": 512,
+      "exported": true,
+      "file": "textures/0041_O_build_kushu_group_2_M.png",
+      "rawBytes": 118336,
+      "bytes": 36734,
+      "sha256": "029b530b6aa7225d4856d31dc1be3de035e013a60f5b91c2e141a338e142b26d"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-4acdb91bf5a829c80e4b56d43fe8ceaf",
+        "pathId": -3372472701571667683,
+        "objectKey": "cab-4acdb91bf5a829c80e4b56d43fe8ceaf::-3372472701571667683"
+      },
+      "name": "O_build_kushu_01_M",
+      "format": "ASTC_RGB_6x6",
+      "width": 128,
+      "height": 128,
+      "exported": true,
+      "file": "textures/0042_O_build_kushu_01_M.png",
+      "rawBytes": 7744,
+      "bytes": 3947,
+      "sha256": "01dd64801572cb71ad2326532b348d17f1229e350654e9584ae50cc7cf51dc8e"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-4acdb91bf5a829c80e4b56d43fe8ceaf",
+        "pathId": -2736854514330090473,
+        "objectKey": "cab-4acdb91bf5a829c80e4b56d43fe8ceaf::-2736854514330090473"
+      },
+      "name": "O_build_kushu_01_D",
+      "format": "ASTC_RGB_8x8",
+      "width": 512,
+      "height": 512,
+      "exported": true,
+      "file": "textures/0043_O_build_kushu_01_D.png",
+      "rawBytes": 65536,
+      "bytes": 122401,
+      "sha256": "c999c7e64dd92603efe2d7d10248c0b5942c92772d64b9d9591ac6a59274e3ed"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-4acdb91bf5a829c80e4b56d43fe8ceaf",
+        "pathId": -2486148978657139489,
+        "objectKey": "cab-4acdb91bf5a829c80e4b56d43fe8ceaf::-2486148978657139489"
+      },
+      "name": "O_build_kushu_rock_group_2_D",
+      "format": "ASTC_RGB_8x8",
+      "width": 512,
+      "height": 512,
+      "exported": true,
+      "file": "textures/0044_O_build_kushu_rock_group_2_D.png",
+      "rawBytes": 65536,
+      "bytes": 298296,
+      "sha256": "8fa8e797a47652d5e5e9074f0600149025164c6b830bfbe91651595279486f6c"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-4acdb91bf5a829c80e4b56d43fe8ceaf",
+        "pathId": 596393154146594565,
+        "objectKey": "cab-4acdb91bf5a829c80e4b56d43fe8ceaf::596393154146594565"
+      },
+      "name": "O_build_shu2_N",
+      "format": "ASTC_RGB_6x6",
+      "width": 512,
+      "height": 512,
+      "exported": true,
+      "file": "textures/0045_O_build_shu2_N.png",
+      "rawBytes": 118336,
+      "bytes": 2198,
+      "sha256": "035cedee66b0825b2e8c1da47a914ef00b3672370c806afa196a2de114ccc473"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-4acdb91bf5a829c80e4b56d43fe8ceaf",
+        "pathId": 1483839766956742021,
+        "objectKey": "cab-4acdb91bf5a829c80e4b56d43fe8ceaf::1483839766956742021"
+      },
+      "name": "O_build_kushu_02_D",
+      "format": "ASTC_RGB_8x8",
+      "width": 512,
+      "height": 512,
+      "exported": true,
+      "file": "textures/0046_O_build_kushu_02_D.png",
+      "rawBytes": 65536,
+      "bytes": 138929,
+      "sha256": "ecf7daba91ef2fabe12b910a22c71bac39962b6e834dca256118dd03ff15a12b"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-4acdb91bf5a829c80e4b56d43fe8ceaf",
+        "pathId": 2102469698245582748,
+        "objectKey": "cab-4acdb91bf5a829c80e4b56d43fe8ceaf::2102469698245582748"
+      },
+      "name": "O_build_kushu_02_M",
+      "format": "ASTC_RGB_6x6",
+      "width": 128,
+      "height": 128,
+      "exported": true,
+      "file": "textures/0047_O_build_kushu_02_M.png",
+      "rawBytes": 7744,
+      "bytes": 7922,
+      "sha256": "464c8f757f1f0f8f8778df899775ea337cac066bd19d3c148bf671a4fba43b5d"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-4acdb91bf5a829c80e4b56d43fe8ceaf",
+        "pathId": 2737118214520252779,
+        "objectKey": "cab-4acdb91bf5a829c80e4b56d43fe8ceaf::2737118214520252779"
+      },
+      "name": "O_build_shu01_D",
+      "format": "ASTC_RGB_8x8",
+      "width": 512,
+      "height": 512,
+      "exported": true,
+      "file": "textures/0048_O_build_shu01_D.png",
+      "rawBytes": 65536,
+      "bytes": 249114,
+      "sha256": "a16960d3ccf01e27ca743b2dd187bafb8a64b8c0ab1273745cc1fc4dbf8e0a66"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-4acdb91bf5a829c80e4b56d43fe8ceaf",
+        "pathId": 5815238829036473771,
+        "objectKey": "cab-4acdb91bf5a829c80e4b56d43fe8ceaf::5815238829036473771"
+      },
+      "name": "O_build_cangqiong_shu_S",
+      "format": "ASTC_RGB_6x6",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0049_O_build_cangqiong_shu_S.png",
+      "rawBytes": 29584,
+      "bytes": 55567,
+      "sha256": "e12d5b3ff17547419765068cbf27e2d8dbd66341df5430a899a8cf8631e19704"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-4acdb91bf5a829c80e4b56d43fe8ceaf",
+        "pathId": 8339431489639554516,
+        "objectKey": "cab-4acdb91bf5a829c80e4b56d43fe8ceaf::8339431489639554516"
+      },
+      "name": "O_build_kushu_group_2_D",
+      "format": "ASTC_RGB_6x6",
+      "width": 512,
+      "height": 512,
+      "exported": true,
+      "file": "textures/0050_O_build_kushu_group_2_D.png",
+      "rawBytes": 118336,
+      "bytes": 330745,
+      "sha256": "1aa5dcab100b6ee4363eee1bdf8c5e91f47d5e67c7d738c81546f49c439863d1"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-577442e66f72ba0c4b6ac0b1325ffed5",
+        "pathId": -3610096921645866375,
+        "objectKey": "cab-577442e66f72ba0c4b6ac0b1325ffed5::-3610096921645866375"
+      },
+      "name": "O_env_shitou_01_a_M_s3",
+      "format": "ASTC_RGB_6x6",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0051_O_env_shitou_01_a_M_s3.png",
+      "rawBytes": 29584,
+      "bytes": 18869,
+      "sha256": "023980cf6c4f6891c65ff2a3ba2cbc19342edc90bd9b8407e9c7c5d4d5aebabe"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-577442e66f72ba0c4b6ac0b1325ffed5",
+        "pathId": -3000585768202070567,
+        "objectKey": "cab-577442e66f72ba0c4b6ac0b1325ffed5::-3000585768202070567"
+      },
+      "name": "O_env_kushu01c_D_s3",
+      "format": "ASTC_RGB_6x6",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0052_O_env_kushu01c_D_s3.png",
+      "rawBytes": 29584,
+      "bytes": 81745,
+      "sha256": "40891742dbb4b6bc475d66bff10ddc2e09ea0a7e174b5a092d08e14c3c0bfaeb"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-577442e66f72ba0c4b6ac0b1325ffed5",
+        "pathId": -820681916646078308,
+        "objectKey": "cab-577442e66f72ba0c4b6ac0b1325ffed5::-820681916646078308"
+      },
+      "name": "O_env_kushu01a_M_s3",
+      "format": "ASTC_RGB_6x6",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0053_O_env_kushu01a_M_s3.png",
+      "rawBytes": 29584,
+      "bytes": 13505,
+      "sha256": "c0533bfb3ff4c28e11f0a608c7692fa5f1c2f3f00051f7d7d2dd1ceadf6fbcba"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-577442e66f72ba0c4b6ac0b1325ffed5",
+        "pathId": -366561116776889454,
+        "objectKey": "cab-577442e66f72ba0c4b6ac0b1325ffed5::-366561116776889454"
+      },
+      "name": "O_env_kushu01c_M_s3",
+      "format": "ASTC_RGB_6x6",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0054_O_env_kushu01c_M_s3.png",
+      "rawBytes": 29584,
+      "bytes": 11937,
+      "sha256": "80146a4b8fc23a3df180e9c90845912e04ec06ddf58a772c1e17d67cc83483d8"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-577442e66f72ba0c4b6ac0b1325ffed5",
+        "pathId": 5478035838632852655,
+        "objectKey": "cab-577442e66f72ba0c4b6ac0b1325ffed5::5478035838632852655"
+      },
+      "name": "O_env_kushu01d_M_s3",
+      "format": "ASTC_RGB_6x6",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0055_O_env_kushu01d_M_s3.png",
+      "rawBytes": 29584,
+      "bytes": 12956,
+      "sha256": "6faf92a84e83b1f4dd280661822b76107d3505abdca585f70cc1295b915558e1"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-577442e66f72ba0c4b6ac0b1325ffed5",
+        "pathId": 5908500909272199179,
+        "objectKey": "cab-577442e66f72ba0c4b6ac0b1325ffed5::5908500909272199179"
+      },
+      "name": "O_env_kushu01d_D_s3",
+      "format": "ASTC_RGB_6x6",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0056_O_env_kushu01d_D_s3.png",
+      "rawBytes": 29584,
+      "bytes": 86276,
+      "sha256": "9e21ff56ecd7df4cc482eb1e79b34a6a974360a2567b8f955d93cd57e3c14d00"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-577442e66f72ba0c4b6ac0b1325ffed5",
+        "pathId": 7488210292655689796,
+        "objectKey": "cab-577442e66f72ba0c4b6ac0b1325ffed5::7488210292655689796"
+      },
+      "name": "O_env_kushu01a_D_s3",
+      "format": "ASTC_RGB_6x6",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0057_O_env_kushu01a_D_s3.png",
+      "rawBytes": 29584,
+      "bytes": 89645,
+      "sha256": "832fbd51f1716c897ea5c34f18474da2cd5c7c7afa9361af9c6a35d01b0b6895"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-c0119e1d0acacb31b964bdba319d1312",
+        "pathId": 8501139332677272989,
+        "objectKey": "cab-c0119e1d0acacb31b964bdba319d1312::8501139332677272989"
+      },
+      "name": "Default-Particle",
+      "format": "RGBA32",
+      "width": 64,
+      "height": 64,
+      "exported": true,
+      "file": "textures/0058_Default-Particle.png",
+      "rawBytes": 21844,
+      "bytes": 4214,
+      "sha256": "a546818a5f3a73031f8ffb6d9c4a2a797ab0c707f00cfe8788246a1156998242"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-66ff16aee1657fa6aa8cbbb44ad9f6cf",
+        "pathId": -7014798232891692843,
+        "objectKey": "cab-66ff16aee1657fa6aa8cbbb44ad9f6cf::-7014798232891692843"
+      },
+      "name": "O_terrain_desert_02_sj_far",
+      "format": "ASTC_RGB_6x6",
+      "width": 512,
+      "height": 512,
+      "exported": true,
+      "file": "textures/0059_O_terrain_desert_02_sj_far.png",
+      "rawBytes": 118336,
+      "bytes": 305557,
+      "sha256": "a829a68a8a5c86e98a56561f2f2101ffafd60d8e9d591c772cdc10001a0c6e60"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-66ff16aee1657fa6aa8cbbb44ad9f6cf",
+        "pathId": -4011843937155692026,
+        "objectKey": "cab-66ff16aee1657fa6aa8cbbb44ad9f6cf::-4011843937155692026"
+      },
+      "name": "O_terrain_desert_01_sj",
+      "format": "ASTC_RGB_6x6",
+      "width": 512,
+      "height": 512,
+      "exported": true,
+      "file": "textures/0060_O_terrain_desert_01_sj.png",
+      "rawBytes": 118336,
+      "bytes": 218828,
+      "sha256": "c785c86da1e9328b358631bbfbf9fc4c6746713ffe22218c8fc51007bfb7a04e"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-66ff16aee1657fa6aa8cbbb44ad9f6cf",
+        "pathId": 5113780170500490810,
+        "objectKey": "cab-66ff16aee1657fa6aa8cbbb44ad9f6cf::5113780170500490810"
+      },
+      "name": "O_terrain_desert_01_n_sj",
+      "format": "ASTC_RGB_6x6",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0061_O_terrain_desert_01_n_sj.png",
+      "rawBytes": 29584,
+      "bytes": 22965,
+      "sha256": "e87e8979e539030638a75f3d9e122074871da7cd7c226d2076246ac4ea367ec5"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-66ff16aee1657fa6aa8cbbb44ad9f6cf",
+        "pathId": 8760009935243148338,
+        "objectKey": "cab-66ff16aee1657fa6aa8cbbb44ad9f6cf::8760009935243148338"
+      },
+      "name": "O_terrain_desert_01",
+      "format": "ASTC_RGB_6x6",
+      "width": 512,
+      "height": 512,
+      "exported": true,
+      "file": "textures/0062_O_terrain_desert_01.png",
+      "rawBytes": 118336,
+      "bytes": 225896,
+      "sha256": "2a189fd0654c0801a8af97fb67417589d57419b18335d4eeff5149e0f805f82f"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-ab8ecce236e6acf72d0a0d64a1fd47b6",
+        "pathId": -1250786220883054791,
+        "objectKey": "cab-ab8ecce236e6acf72d0a0d64a1fd47b6::-1250786220883054791"
+      },
+      "name": "O_env_th_rock_roup19_D",
+      "format": "ASTC_RGB_8x8",
+      "width": 512,
+      "height": 512,
+      "exported": true,
+      "file": "textures/0063_O_env_th_rock_roup19_D.png",
+      "rawBytes": 65536,
+      "bytes": 249162,
+      "sha256": "ebcda3a210218367d22b95e29fdff38e067f1cd83ad55b76cc9446b02183a9bd"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-314628ea5535a644a10a7471f39ed390",
+        "pathId": -9218294990216406281,
+        "objectKey": "cab-314628ea5535a644a10a7471f39ed390::-9218294990216406281"
+      },
+      "name": "O_env_mountain_02_02_D",
+      "format": "ASTC_RGB_8x8",
+      "width": 512,
+      "height": 512,
+      "exported": true,
+      "file": "textures/0064_O_env_mountain_02_02_D.png",
+      "rawBytes": 65536,
+      "bytes": 267130,
+      "sha256": "ce2bb6d498ee13a492ab29fcdc913a9f3ffac1ef3fd8ea6506b87d6b261cda58"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-314628ea5535a644a10a7471f39ed390",
+        "pathId": -8354773850123751578,
+        "objectKey": "cab-314628ea5535a644a10a7471f39ed390::-8354773850123751578"
+      },
+      "name": "O_env_mountain_01_03_D",
+      "format": "ASTC_RGB_8x8",
+      "width": 512,
+      "height": 512,
+      "exported": true,
+      "file": "textures/0065_O_env_mountain_01_03_D.png",
+      "rawBytes": 65536,
+      "bytes": 227271,
+      "sha256": "0df3ce81519fdda364af8d204bde943ea18bef49ba0b7f332fb9020a0637b0af"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-314628ea5535a644a10a7471f39ed390",
+        "pathId": -5769156989975876514,
+        "objectKey": "cab-314628ea5535a644a10a7471f39ed390::-5769156989975876514"
+      },
+      "name": "O_env_mountain_01_03_D_dsj",
+      "format": "ASTC_RGB_8x8",
+      "width": 512,
+      "height": 512,
+      "exported": true,
+      "file": "textures/0066_O_env_mountain_01_03_D_dsj.png",
+      "rawBytes": 65536,
+      "bytes": 261075,
+      "sha256": "cc4b6c6a1d10fc45a92ffea6c94bd73169815325750a9b3f24649ecb0446af0b"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-314628ea5535a644a10a7471f39ed390",
+        "pathId": -5466964665890582150,
+        "objectKey": "cab-314628ea5535a644a10a7471f39ed390::-5466964665890582150"
+      },
+      "name": "O_env_mountain_DesertStorm_01_03_D",
+      "format": "ASTC_RGB_8x8",
+      "width": 512,
+      "height": 512,
+      "exported": true,
+      "file": "textures/0067_O_env_mountain_DesertStorm_01_03_D.png",
+      "rawBytes": 65536,
+      "bytes": 221832,
+      "sha256": "ece34f7bd04f0b0b1bd9b3962b31092ac1fbe8b963927e119be580261504d062"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-314628ea5535a644a10a7471f39ed390",
+        "pathId": -2651326512904062425,
+        "objectKey": "cab-314628ea5535a644a10a7471f39ed390::-2651326512904062425"
+      },
+      "name": "O_env_mountain_DesertStorm_01_01_D",
+      "format": "ASTC_RGB_8x8",
+      "width": 512,
+      "height": 512,
+      "exported": true,
+      "file": "textures/0068_O_env_mountain_DesertStorm_01_01_D.png",
+      "rawBytes": 65536,
+      "bytes": 241710,
+      "sha256": "4368bdf77d75b5988b3754fd8e7f3248999530795b6f3b3b3d75e9a8dd8866ec"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-314628ea5535a644a10a7471f39ed390",
+        "pathId": 1925676333332231422,
+        "objectKey": "cab-314628ea5535a644a10a7471f39ed390::1925676333332231422"
+      },
+      "name": "O_env_mountain_01_02_D",
+      "format": "ASTC_RGB_8x8",
+      "width": 512,
+      "height": 512,
+      "exported": true,
+      "file": "textures/0069_O_env_mountain_01_02_D.png",
+      "rawBytes": 65536,
+      "bytes": 225941,
+      "sha256": "3af96f48fd1a5edf0458202869498f5d9e81c6190aa70b12dc25a221de303802"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-314628ea5535a644a10a7471f39ed390",
+        "pathId": 2760962035554795344,
+        "objectKey": "cab-314628ea5535a644a10a7471f39ed390::2760962035554795344"
+      },
+      "name": "O_env_mountain_DesertStorm_01_02_D",
+      "format": "ASTC_RGB_8x8",
+      "width": 512,
+      "height": 512,
+      "exported": true,
+      "file": "textures/0070_O_env_mountain_DesertStorm_01_02_D.png",
+      "rawBytes": 65536,
+      "bytes": 225596,
+      "sha256": "a64fdba07a381e6edca642b0537f938c9c4dd639df4f6cf31c5cdad7b0934b83"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-314628ea5535a644a10a7471f39ed390",
+        "pathId": 2778711511875498950,
+        "objectKey": "cab-314628ea5535a644a10a7471f39ed390::2778711511875498950"
+      },
+      "name": "O_env_mountain_02_03_D",
+      "format": "ASTC_RGB_8x8",
+      "width": 512,
+      "height": 512,
+      "exported": true,
+      "file": "textures/0071_O_env_mountain_02_03_D.png",
+      "rawBytes": 65536,
+      "bytes": 275201,
+      "sha256": "fa1c1ecb6d9c3facb1453303df58c131eb0f1a78356c0289ec0e4d6cf67d696a"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-314628ea5535a644a10a7471f39ed390",
+        "pathId": 3296186727644015171,
+        "objectKey": "cab-314628ea5535a644a10a7471f39ed390::3296186727644015171"
+      },
+      "name": "O_env_mountain_01_01_D",
+      "format": "ASTC_RGB_8x8",
+      "width": 512,
+      "height": 512,
+      "exported": true,
+      "file": "textures/0072_O_env_mountain_01_01_D.png",
+      "rawBytes": 65536,
+      "bytes": 227111,
+      "sha256": "1e78018f24515b77c440d3517d5c4ccf65c0adb81eeabbbf7fbe8c37cf290b7f"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-314628ea5535a644a10a7471f39ed390",
+        "pathId": 3437494301467764829,
+        "objectKey": "cab-314628ea5535a644a10a7471f39ed390::3437494301467764829"
+      },
+      "name": "O_env_mountain_02_01_D",
+      "format": "ASTC_RGB_8x8",
+      "width": 512,
+      "height": 512,
+      "exported": true,
+      "file": "textures/0073_O_env_mountain_02_01_D.png",
+      "rawBytes": 65536,
+      "bytes": 272637,
+      "sha256": "35804c0e5d43854d1aa4cb7efb5bc9eed08a6dd9e02a019097000c367cb54c8b"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-314628ea5535a644a10a7471f39ed390",
+        "pathId": 4015445372457558902,
+        "objectKey": "cab-314628ea5535a644a10a7471f39ed390::4015445372457558902"
+      },
+      "name": "O_env_mountain_01_02_D_dsj",
+      "format": "ASTC_RGB_8x8",
+      "width": 512,
+      "height": 512,
+      "exported": true,
+      "file": "textures/0074_O_env_mountain_01_02_D_dsj.png",
+      "rawBytes": 65536,
+      "bytes": 261763,
+      "sha256": "13a35ce1a0bc1e7a75bfd56e392edcb3a51b3334605e13c8523ef7efe05e98e4"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-48634d66aee0a332851af626cc5fcada",
+        "pathId": 7412307315206253294,
+        "objectKey": "cab-48634d66aee0a332851af626cc5fcada::7412307315206253294"
+      },
+      "name": "A_Weapons_th_spear_S",
+      "format": "ASTC_RGB_6x6",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0075_A_Weapons_th_spear_S.png",
+      "rawBytes": 29584,
+      "bytes": 56766,
+      "sha256": "e3a12dd58e9b5415848def25aa51bf8e0f578baf681ac33bd1607140ab77fa53"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-0876c310be08ea3dd978980f1668f150",
+        "pathId": 2740902161717018409,
+        "objectKey": "cab-0876c310be08ea3dd978980f1668f150::2740902161717018409"
+      },
+      "name": "A_Weapons_th_spear_N",
+      "format": "ASTC_RGB_6x6",
+      "width": 512,
+      "height": 512,
+      "exported": true,
+      "file": "textures/0076_A_Weapons_th_spear_N.png",
+      "rawBytes": 118336,
+      "bytes": 161702,
+      "sha256": "1b723162e4ea7a73308c1c0008b287b69eff8e413cc4e610e784a09bd05418dd"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-195912569b374227cb44dc7e0a78381a",
+        "pathId": -6992697577466544937,
+        "objectKey": "cab-195912569b374227cb44dc7e0a78381a::-6992697577466544937"
+      },
+      "name": "01",
+      "format": "ASTC_RGB_6x6",
+      "width": 512,
+      "height": 512,
+      "exported": true,
+      "file": "textures/0077_01.png",
+      "rawBytes": 118336,
+      "bytes": 81868,
+      "sha256": "f1fbf16793eddb8602d1df7018a15f707ce6890c403cbe2d698bbfe3361192fb"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-1e242af08562fb3b9d428750f0060d9b",
+        "pathId": -8530919973026192267,
+        "objectKey": "cab-1e242af08562fb3b9d428750f0060d9b::-8530919973026192267"
+      },
+      "name": "O_terrain_grass04_D",
+      "format": "ASTC_RGB_6x6",
+      "width": 512,
+      "height": 512,
+      "exported": true,
+      "file": "textures/0078_O_terrain_grass04_D.png",
+      "rawBytes": 118336,
+      "bytes": 233460,
+      "sha256": "756fdaeabab91b71ddf1c5f1e1dcd308a909129a5c4ed8256c47654ccd233e10"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-1e242af08562fb3b9d428750f0060d9b",
+        "pathId": -8385839086962673090,
+        "objectKey": "cab-1e242af08562fb3b9d428750f0060d9b::-8385839086962673090"
+      },
+      "name": "O_terrain_desert_02_D",
+      "format": "ASTC_RGB_6x6",
+      "width": 512,
+      "height": 512,
+      "exported": true,
+      "file": "textures/0079_O_terrain_desert_02_D.png",
+      "rawBytes": 118336,
+      "bytes": 204954,
+      "sha256": "20bb90f0e2661863e35943df4f4e3ed07c792094914c3b0b4490ea7e0625569f"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-1e242af08562fb3b9d428750f0060d9b",
+        "pathId": -6377294827931511628,
+        "objectKey": "cab-1e242af08562fb3b9d428750f0060d9b::-6377294827931511628"
+      },
+      "name": "O_terrain_DesertStorm_01_D",
+      "format": "ASTC_RGB_6x6",
+      "width": 512,
+      "height": 512,
+      "exported": true,
+      "file": "textures/0080_O_terrain_DesertStorm_01_D.png",
+      "rawBytes": 118336,
+      "bytes": 231799,
+      "sha256": "3bf55971362b8c7e467c5a988e5c2af6ffea23b1a7d05c2fc040e4233fc46377"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-1e242af08562fb3b9d428750f0060d9b",
+        "pathId": -6371479750944982467,
+        "objectKey": "cab-1e242af08562fb3b9d428750f0060d9b::-6371479750944982467"
+      },
+      "name": "SplatControl_City_3",
+      "format": "ASTC_RGB_6x6",
+      "width": 512,
+      "height": 512,
+      "exported": true,
+      "file": "textures/0081_SplatControl_City_3.png",
+      "rawBytes": 118336,
+      "bytes": 193192,
+      "sha256": "ae14c6c47a63eff24efb0f654f81e9ae6691c3fe2a9233811cf0c59bd4900949"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-1e242af08562fb3b9d428750f0060d9b",
+        "pathId": -3562885246336798543,
+        "objectKey": "cab-1e242af08562fb3b9d428750f0060d9b::-3562885246336798543"
+      },
+      "name": "O_terrain_DesertStorm_02_D",
+      "format": "ASTC_RGB_6x6",
+      "width": 512,
+      "height": 512,
+      "exported": true,
+      "file": "textures/0082_O_terrain_DesertStorm_02_D.png",
+      "rawBytes": 118336,
+      "bytes": 230033,
+      "sha256": "4699cc7e53a8fe949ffd87b155be756c8c30146f450be615ec985ee48942245c"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-1e242af08562fb3b9d428750f0060d9b",
+        "pathId": 2886232983442666552,
+        "objectKey": "cab-1e242af08562fb3b9d428750f0060d9b::2886232983442666552"
+      },
+      "name": "O_terrain_grass01_D",
+      "format": "ASTC_RGB_6x6",
+      "width": 512,
+      "height": 512,
+      "exported": true,
+      "file": "textures/0083_O_terrain_grass01_D.png",
+      "rawBytes": 118336,
+      "bytes": 96055,
+      "sha256": "1f9511e1543fb32867aac9af464107c9f056f14a849d7b513f73f705755af415"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-1e242af08562fb3b9d428750f0060d9b",
+        "pathId": 5854022814988580228,
+        "objectKey": "cab-1e242af08562fb3b9d428750f0060d9b::5854022814988580228"
+      },
+      "name": "O_terrain_snow_D_drzc",
+      "format": "ASTC_RGB_6x6",
+      "width": 512,
+      "height": 512,
+      "exported": true,
+      "file": "textures/0084_O_terrain_snow_D_drzc.png",
+      "rawBytes": 118336,
+      "bytes": 58317,
+      "sha256": "4561cd298c583e29cd0e5bef906d6bc2121b4230f24a97e9183ac798bf5caf61"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-1e242af08562fb3b9d428750f0060d9b",
+        "pathId": 7328656676947753644,
+        "objectKey": "cab-1e242af08562fb3b9d428750f0060d9b::7328656676947753644"
+      },
+      "name": "O_ground_zhucheng_02n_drzc",
+      "format": "ASTC_RGB_6x6",
+      "width": 512,
+      "height": 512,
+      "exported": true,
+      "file": "textures/0085_O_ground_zhucheng_02n_drzc.png",
+      "rawBytes": 118336,
+      "bytes": 319618,
+      "sha256": "a0f9e1cc1539a2579d7d947304acfc69b26e67df1298ada88cc27f7a9e879587"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-1e4f4684aa4277596858a9520755911d",
+        "pathId": -5518437373861819486,
+        "objectKey": "cab-1e4f4684aa4277596858a9520755911d::-5518437373861819486"
+      },
+      "name": "O_terrain_desert_01_011_low_D",
+      "format": "ASTC_RGB_8x8",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0086_O_terrain_desert_01_011_low_D.png",
+      "rawBytes": 16384,
+      "bytes": 27376,
+      "sha256": "5a3fbabe5fcef3e14b3c15b53268f1057d7695785037f3e40fc65bcd14d637fc"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-1e4f4684aa4277596858a9520755911d",
+        "pathId": -1534823170340058664,
+        "objectKey": "cab-1e4f4684aa4277596858a9520755911d::-1534823170340058664"
+      },
+      "name": "O_terrain_desert_01_02_low_D",
+      "format": "ASTC_RGB_8x8",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0087_O_terrain_desert_01_02_low_D.png",
+      "rawBytes": 16384,
+      "bytes": 50303,
+      "sha256": "9c7dc3f87ddbb8fef76d9c94c8db959de318b943da74ac6f45f441fbf9407174"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-1e4f4684aa4277596858a9520755911d",
+        "pathId": 366320051472438647,
+        "objectKey": "cab-1e4f4684aa4277596858a9520755911d::366320051472438647"
+      },
+      "name": "O_terrain_desert_01_011_D",
+      "format": "ASTC_RGB_8x8",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0088_O_terrain_desert_01_011_D.png",
+      "rawBytes": 16384,
+      "bytes": 49821,
+      "sha256": "2f3cb9065935e1b2138f5bb0a6cc14cd650894ab26b45e8ce5cd2fd015989131"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-1e4f4684aa4277596858a9520755911d",
+        "pathId": 6321387525360888376,
+        "objectKey": "cab-1e4f4684aa4277596858a9520755911d::6321387525360888376"
+      },
+      "name": "O_terrain_desert_01_01_D",
+      "format": "ASTC_RGB_8x8",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0089_O_terrain_desert_01_01_D.png",
+      "rawBytes": 16384,
+      "bytes": 39937,
+      "sha256": "456780d250bacfe4aa273a739da7e4ddb5881e952af770899f899568531c4806"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-1e4f4684aa4277596858a9520755911d",
+        "pathId": 7069637118452445579,
+        "objectKey": "cab-1e4f4684aa4277596858a9520755911d::7069637118452445579"
+      },
+      "name": "O_terrain_desert_01_N",
+      "format": "ASTC_RGB_8x8",
+      "width": 512,
+      "height": 512,
+      "exported": true,
+      "file": "textures/0090_O_terrain_desert_01_N.png",
+      "rawBytes": 65536,
+      "bytes": 60632,
+      "sha256": "2a2a6cc69c445195c9ad50049d96dae5a07312e1d8c911cbdd43721fd506bff2"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-1e4f4684aa4277596858a9520755911d",
+        "pathId": 8080929886983359699,
+        "objectKey": "cab-1e4f4684aa4277596858a9520755911d::8080929886983359699"
+      },
+      "name": "O_terrain_desert_01_02_D",
+      "format": "ASTC_RGB_8x8",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0091_O_terrain_desert_01_02_D.png",
+      "rawBytes": 16384,
+      "bytes": 49055,
+      "sha256": "6e8c3bdeeef8b643dacfb90a26886050b1a42db606ed714e53c4d92468599b36"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-7fe09211d66e932ce9a2e32a615af5bf",
+        "pathId": -8504812149240101498,
+        "objectKey": "cab-7fe09211d66e932ce9a2e32a615af5bf::-8504812149240101498"
+      },
+      "name": "kushu_shu_1_1",
+      "format": "ASTC_RGB_8x8",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0092_kushu_shu_1_1.png",
+      "rawBytes": 16384,
+      "bytes": 88884,
+      "sha256": "5ba1caf48abb3bdd67b712cc3574546a89ff4a2129bf074c4ab409c976e41768"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-7fe09211d66e932ce9a2e32a615af5bf",
+        "pathId": -7291251643359885342,
+        "objectKey": "cab-7fe09211d66e932ce9a2e32a615af5bf::-7291251643359885342"
+      },
+      "name": "kushu_shu_4_dao",
+      "format": "ASTC_RGB_8x8",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0093_kushu_shu_4_dao.png",
+      "rawBytes": 16384,
+      "bytes": 87939,
+      "sha256": "344180651c9c35089cbbc0d763ffc44027d01f78bf571cdc86b44d105b0b0ef0"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-7fe09211d66e932ce9a2e32a615af5bf",
+        "pathId": -5993375321211680225,
+        "objectKey": "cab-7fe09211d66e932ce9a2e32a615af5bf::-5993375321211680225"
+      },
+      "name": "kushu_shu_2_1_shadow",
+      "format": "ASTC_RGB_8x8",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0094_kushu_shu_2_1_shadow.png",
+      "rawBytes": 16384,
+      "bytes": 9749,
+      "sha256": "11fe81ca73cd3b9dc33623a6d4a755ec825ed441b2b7b9c71dc948fe9bcc7f81"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-7fe09211d66e932ce9a2e32a615af5bf",
+        "pathId": -5902577967177338558,
+        "objectKey": "cab-7fe09211d66e932ce9a2e32a615af5bf::-5902577967177338558"
+      },
+      "name": "kushu_shu_1_shadow",
+      "format": "ASTC_RGB_8x8",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0095_kushu_shu_1_shadow.png",
+      "rawBytes": 16384,
+      "bytes": 12013,
+      "sha256": "fdf107cef44b5c9e9a061d3f2c009ff533ae78c374205620b8556a73e249a744"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-7fe09211d66e932ce9a2e32a615af5bf",
+        "pathId": -5257803819752491500,
+        "objectKey": "cab-7fe09211d66e932ce9a2e32a615af5bf::-5257803819752491500"
+      },
+      "name": "kushu_shu_4_dao_shadow",
+      "format": "ASTC_RGB_8x8",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0096_kushu_shu_4_dao_shadow.png",
+      "rawBytes": 16384,
+      "bytes": 13453,
+      "sha256": "37b1ab8f18a6becd99b7e23f7e6b8114b18796f7becd61677c860c2c331f4d99"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-7fe09211d66e932ce9a2e32a615af5bf",
+        "pathId": -5137634924717317904,
+        "objectKey": "cab-7fe09211d66e932ce9a2e32a615af5bf::-5137634924717317904"
+      },
+      "name": "kushu_shu_1_1_shadow",
+      "format": "ASTC_RGB_8x8",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0097_kushu_shu_1_1_shadow.png",
+      "rawBytes": 16384,
+      "bytes": 13012,
+      "sha256": "df44658a619ada12084aef63ee55ab99bdbd288a98c5f52f345d2103d2a9c32a"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-7fe09211d66e932ce9a2e32a615af5bf",
+        "pathId": -4901822370975462195,
+        "objectKey": "cab-7fe09211d66e932ce9a2e32a615af5bf::-4901822370975462195"
+      },
+      "name": "kushu_shu_1_2",
+      "format": "ASTC_RGB_8x8",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0098_kushu_shu_1_2.png",
+      "rawBytes": 16384,
+      "bytes": 88796,
+      "sha256": "95eb8119ff9d308f8d70b439dce28332408a7e3a4d98095b8dd1ce67c87efc05"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-7fe09211d66e932ce9a2e32a615af5bf",
+        "pathId": -4868458278186016722,
+        "objectKey": "cab-7fe09211d66e932ce9a2e32a615af5bf::-4868458278186016722"
+      },
+      "name": "kushu_shu_2_1",
+      "format": "ASTC_RGB_8x8",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0099_kushu_shu_2_1.png",
+      "rawBytes": 16384,
+      "bytes": 79609,
+      "sha256": "97e15a45b77ad0dceefbcfc35654d0d5cb6c72fdc0ebaa61f993c196ed6c0fc5"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-7fe09211d66e932ce9a2e32a615af5bf",
+        "pathId": -4154137691281177150,
+        "objectKey": "cab-7fe09211d66e932ce9a2e32a615af5bf::-4154137691281177150"
+      },
+      "name": "kushu_shu_4_2",
+      "format": "ASTC_RGB_8x8",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0100_kushu_shu_4_2.png",
+      "rawBytes": 16384,
+      "bytes": 95293,
+      "sha256": "eef2f4e05f1950e64de10caa90f31e69988b2e09bd79b0f87c1703dbf0b24b09"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-7fe09211d66e932ce9a2e32a615af5bf",
+        "pathId": -3436951533159452223,
+        "objectKey": "cab-7fe09211d66e932ce9a2e32a615af5bf::-3436951533159452223"
+      },
+      "name": "kushu_shu_3_2_shadow",
+      "format": "ASTC_RGB_8x8",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0101_kushu_shu_3_2_shadow.png",
+      "rawBytes": 16384,
+      "bytes": 6762,
+      "sha256": "9e742c9da684226f973cffd10fab851e8ab8930f361e44b6ad6b3b9c0b36a5e4"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-7fe09211d66e932ce9a2e32a615af5bf",
+        "pathId": -3087036115746269690,
+        "objectKey": "cab-7fe09211d66e932ce9a2e32a615af5bf::-3087036115746269690"
+      },
+      "name": "kushu_shu_4_kuoye",
+      "format": "ASTC_RGB_8x8",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0102_kushu_shu_4_kuoye.png",
+      "rawBytes": 16384,
+      "bytes": 96134,
+      "sha256": "b465fbe1bb5ebfb94fe8bfdc5911b1f36908f4222a826ee855532283a29dd7a6"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-7fe09211d66e932ce9a2e32a615af5bf",
+        "pathId": -2486639225326565403,
+        "objectKey": "cab-7fe09211d66e932ce9a2e32a615af5bf::-2486639225326565403"
+      },
+      "name": "kushu_shu_4_3_kuoye",
+      "format": "ASTC_RGB_8x8",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0103_kushu_shu_4_3_kuoye.png",
+      "rawBytes": 16384,
+      "bytes": 96991,
+      "sha256": "fbcc3fc98d9ef50c19951861100e163fd54cd0d4d81315891b6de75de61b9476"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-7fe09211d66e932ce9a2e32a615af5bf",
+        "pathId": -2216650768792051588,
+        "objectKey": "cab-7fe09211d66e932ce9a2e32a615af5bf::-2216650768792051588"
+      },
+      "name": "kushu_shu_2_3",
+      "format": "ASTC_RGB_8x8",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0104_kushu_shu_2_3.png",
+      "rawBytes": 16384,
+      "bytes": 71356,
+      "sha256": "6161f12d3d71f3083ea1ad1896f14154425e4fd9bae2aa52f2771d63996a4e64"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-7fe09211d66e932ce9a2e32a615af5bf",
+        "pathId": -2023942068508788017,
+        "objectKey": "cab-7fe09211d66e932ce9a2e32a615af5bf::-2023942068508788017"
+      },
+      "name": "kushu_shu_2_3_shadow",
+      "format": "ASTC_RGB_8x8",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0105_kushu_shu_2_3_shadow.png",
+      "rawBytes": 16384,
+      "bytes": 9115,
+      "sha256": "7616b6e86a29196fee6dd6d9da8e986eaa461f26adb53c5e6575567e0ac8c1a3"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-7fe09211d66e932ce9a2e32a615af5bf",
+        "pathId": -1882369372090566038,
+        "objectKey": "cab-7fe09211d66e932ce9a2e32a615af5bf::-1882369372090566038"
+      },
+      "name": "kushu_shu_2kandao_shadow",
+      "format": "ASTC_RGB_8x8",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0106_kushu_shu_2kandao_shadow.png",
+      "rawBytes": 16384,
+      "bytes": 13133,
+      "sha256": "5f4b6973c28d237de08eba21b5b2abd9b8ec8beb054f878003a9aa6b8d06b4fe"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-7fe09211d66e932ce9a2e32a615af5bf",
+        "pathId": -1679070830353942077,
+        "objectKey": "cab-7fe09211d66e932ce9a2e32a615af5bf::-1679070830353942077"
+      },
+      "name": "kushu_shu_3",
+      "format": "ASTC_RGB_8x8",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0107_kushu_shu_3.png",
+      "rawBytes": 16384,
+      "bytes": 83485,
+      "sha256": "487d30cd180e22bf58409e8d55076e5e47ba84b83ed70397c0bb0b2c980bc7bd"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-7fe09211d66e932ce9a2e32a615af5bf",
+        "pathId": -1575700454703055308,
+        "objectKey": "cab-7fe09211d66e932ce9a2e32a615af5bf::-1575700454703055308"
+      },
+      "name": "kushu_shu_5_shadow",
+      "format": "ASTC_RGB_8x8",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0108_kushu_shu_5_shadow.png",
+      "rawBytes": 16384,
+      "bytes": 11312,
+      "sha256": "6fa0a574042dcd8addef98bf45526edf60afe51a79e6103f49a69c1e8c57857c"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-7fe09211d66e932ce9a2e32a615af5bf",
+        "pathId": -241516535909959164,
+        "objectKey": "cab-7fe09211d66e932ce9a2e32a615af5bf::-241516535909959164"
+      },
+      "name": "kushu_shu_4_kuoye_shadow",
+      "format": "ASTC_RGB_8x8",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0109_kushu_shu_4_kuoye_shadow.png",
+      "rawBytes": 16384,
+      "bytes": 11050,
+      "sha256": "284aef6e135fc1ff2a18126bd0873c2e878897cb04c237b1243c6aa310a2abbf"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-7fe09211d66e932ce9a2e32a615af5bf",
+        "pathId": 224832272647612549,
+        "objectKey": "cab-7fe09211d66e932ce9a2e32a615af5bf::224832272647612549"
+      },
+      "name": "kushu_shu_2_shadow",
+      "format": "ASTC_RGB_8x8",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0110_kushu_shu_2_shadow.png",
+      "rawBytes": 16384,
+      "bytes": 7972,
+      "sha256": "a1e206a1b3b0bb159e2f468db7a28a9128da37152bd4756101ca2f2b5f36bce8"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-7fe09211d66e932ce9a2e32a615af5bf",
+        "pathId": 1065259602087277416,
+        "objectKey": "cab-7fe09211d66e932ce9a2e32a615af5bf::1065259602087277416"
+      },
+      "name": "kushu_shu_3_3_shadow",
+      "format": "ASTC_RGB_8x8",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0111_kushu_shu_3_3_shadow.png",
+      "rawBytes": 16384,
+      "bytes": 6247,
+      "sha256": "e96b34ea4129924c1bac0133ef697260a0ca3a2894b2a800b9559127539e9711"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-7fe09211d66e932ce9a2e32a615af5bf",
+        "pathId": 2083681086894427235,
+        "objectKey": "cab-7fe09211d66e932ce9a2e32a615af5bf::2083681086894427235"
+      },
+      "name": "kushu_shu_4_3_kuoye_shadow",
+      "format": "ASTC_RGB_8x8",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0112_kushu_shu_4_3_kuoye_shadow.png",
+      "rawBytes": 16384,
+      "bytes": 15105,
+      "sha256": "452a4f815250f27d5df5b56d68ad899d837410978c83af866e67e82531ca1a19"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-7fe09211d66e932ce9a2e32a615af5bf",
+        "pathId": 2559185793304947127,
+        "objectKey": "cab-7fe09211d66e932ce9a2e32a615af5bf::2559185793304947127"
+      },
+      "name": "kushu_shu_5",
+      "format": "ASTC_RGB_8x8",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0113_kushu_shu_5.png",
+      "rawBytes": 16384,
+      "bytes": 101675,
+      "sha256": "cbee9be010cd6dce79314bd9e1a6ebd93d3ae9e8e4ec0823c97ea144d1e9b901"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-7fe09211d66e932ce9a2e32a615af5bf",
+        "pathId": 3260738942962326992,
+        "objectKey": "cab-7fe09211d66e932ce9a2e32a615af5bf::3260738942962326992"
+      },
+      "name": "kushu_shu_3_2",
+      "format": "ASTC_RGB_8x8",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0114_kushu_shu_3_2.png",
+      "rawBytes": 16384,
+      "bytes": 76779,
+      "sha256": "aabf6683c146b5788a6d708b0f72a7f394936f261f842cddec4df35cc89a5a24"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-7fe09211d66e932ce9a2e32a615af5bf",
+        "pathId": 3309412441160919127,
+        "objectKey": "cab-7fe09211d66e932ce9a2e32a615af5bf::3309412441160919127"
+      },
+      "name": "kushu_shu_5_2_shadow",
+      "format": "ASTC_RGB_8x8",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0115_kushu_shu_5_2_shadow.png",
+      "rawBytes": 16384,
+      "bytes": 12357,
+      "sha256": "6de7920a167c61fafd348f4fd36290ecb8386b9a1dc74469d3316868778ab77b"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-7fe09211d66e932ce9a2e32a615af5bf",
+        "pathId": 4124885274841908041,
+        "objectKey": "cab-7fe09211d66e932ce9a2e32a615af5bf::4124885274841908041"
+      },
+      "name": "kushu_shu_2_2kandao",
+      "format": "ASTC_RGB_8x8",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0116_kushu_shu_2_2kandao.png",
+      "rawBytes": 16384,
+      "bytes": 80246,
+      "sha256": "48d4bbe38a76dfb4207818d2e7f109b78aa912fa5edc9e1348f4fb437581b687"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-7fe09211d66e932ce9a2e32a615af5bf",
+        "pathId": 4716857056077120910,
+        "objectKey": "cab-7fe09211d66e932ce9a2e32a615af5bf::4716857056077120910"
+      },
+      "name": "kushu_shu_5_2",
+      "format": "ASTC_RGB_8x8",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0117_kushu_shu_5_2.png",
+      "rawBytes": 16384,
+      "bytes": 96628,
+      "sha256": "83fbe0b37d5f2b963f8bc81272014c05e9852439a0ee0a1275ed03999127de4f"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-7fe09211d66e932ce9a2e32a615af5bf",
+        "pathId": 5323634944370435171,
+        "objectKey": "cab-7fe09211d66e932ce9a2e32a615af5bf::5323634944370435171"
+      },
+      "name": "kushu_shu_2",
+      "format": "ASTC_RGB_8x8",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0118_kushu_shu_2.png",
+      "rawBytes": 16384,
+      "bytes": 81903,
+      "sha256": "b92d4e04e3f97e2777a17fa56d1bf5c245976effdbcd7bcce3fcfff40a935645"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-7fe09211d66e932ce9a2e32a615af5bf",
+        "pathId": 6094766249245417270,
+        "objectKey": "cab-7fe09211d66e932ce9a2e32a615af5bf::6094766249245417270"
+      },
+      "name": "kushu_shu_3_3",
+      "format": "ASTC_RGB_8x8",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0119_kushu_shu_3_3.png",
+      "rawBytes": 16384,
+      "bytes": 77591,
+      "sha256": "85da4550d0ed6eb03e053fe2db0dea3ef165e86e9751009e3986eb28f58d2605"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-7fe09211d66e932ce9a2e32a615af5bf",
+        "pathId": 7713633191559705846,
+        "objectKey": "cab-7fe09211d66e932ce9a2e32a615af5bf::7713633191559705846"
+      },
+      "name": "kushu_shu_2_2dao_shadow",
+      "format": "ASTC_RGB_8x8",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0120_kushu_shu_2_2dao_shadow.png",
+      "rawBytes": 16384,
+      "bytes": 17383,
+      "sha256": "a41ee205fe7efd7eafe805a1b1562ce40a991eb548cd41d336e03f7722f7b3ae"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-7fe09211d66e932ce9a2e32a615af5bf",
+        "pathId": 7733376852926468261,
+        "objectKey": "cab-7fe09211d66e932ce9a2e32a615af5bf::7733376852926468261"
+      },
+      "name": "kushu_shu_4_shadow",
+      "format": "ASTC_RGB_8x8",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0121_kushu_shu_4_shadow.png",
+      "rawBytes": 16384,
+      "bytes": 13417,
+      "sha256": "5abac8c8c946db9aed11c8a78d15860943af310094660f6f80bb1a01cf788d4d"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-7fe09211d66e932ce9a2e32a615af5bf",
+        "pathId": 8060387021443626807,
+        "objectKey": "cab-7fe09211d66e932ce9a2e32a615af5bf::8060387021443626807"
+      },
+      "name": "kushu_shu_1",
+      "format": "ASTC_RGB_8x8",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0122_kushu_shu_1.png",
+      "rawBytes": 16384,
+      "bytes": 94204,
+      "sha256": "9e7162b47445d624df2dc35148ee2bc4af6cb67c51d6acb42b6918bf1d0c197a"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-7fe09211d66e932ce9a2e32a615af5bf",
+        "pathId": 8453472546627807381,
+        "objectKey": "cab-7fe09211d66e932ce9a2e32a615af5bf::8453472546627807381"
+      },
+      "name": "kushu_shu_4",
+      "format": "ASTC_RGB_8x8",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0123_kushu_shu_4.png",
+      "rawBytes": 16384,
+      "bytes": 102702,
+      "sha256": "07f53f20f3b8ed134ae5ef39b0df09ed6546ea2c00141d1965f28b36fd776041"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-7fe09211d66e932ce9a2e32a615af5bf",
+        "pathId": 8682071041867895760,
+        "objectKey": "cab-7fe09211d66e932ce9a2e32a615af5bf::8682071041867895760"
+      },
+      "name": "kushu_shu_3_shadow",
+      "format": "ASTC_RGB_8x8",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0124_kushu_shu_3_shadow.png",
+      "rawBytes": 16384,
+      "bytes": 8196,
+      "sha256": "26a5ff83931807b514bd55692ea56a0a329c4d6fb0b87cbef3829ae2d068858c"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-7fe09211d66e932ce9a2e32a615af5bf",
+        "pathId": 9147614055502067779,
+        "objectKey": "cab-7fe09211d66e932ce9a2e32a615af5bf::9147614055502067779"
+      },
+      "name": "kushu_shu_1_2_shadow",
+      "format": "ASTC_RGB_8x8",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0125_kushu_shu_1_2_shadow.png",
+      "rawBytes": 16384,
+      "bytes": 8963,
+      "sha256": "32b8b0ecb77dcec63d9bd4dcfd99a01de32b68aff504d6f452db7c22b14fba60"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-7fe09211d66e932ce9a2e32a615af5bf",
+        "pathId": 9174978528792713712,
+        "objectKey": "cab-7fe09211d66e932ce9a2e32a615af5bf::9174978528792713712"
+      },
+      "name": "kushu_shu_2kandao",
+      "format": "ASTC_RGB_8x8",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0126_kushu_shu_2kandao.png",
+      "rawBytes": 16384,
+      "bytes": 81823,
+      "sha256": "7f2cabb520c34fbc34b69bb6f86a2332dea73ea8eac48d5459a6a9310f454ee2"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-46985276678fc2bc959a867a19e48525",
+        "pathId": -567505103467052414,
+        "objectKey": "cab-46985276678fc2bc959a867a19e48525::-567505103467052414"
+      },
+      "name": "O_env_th_rock_roup14_M",
+      "format": "ASTC_RGB_6x6",
+      "width": 128,
+      "height": 128,
+      "exported": true,
+      "file": "textures/0127_O_env_th_rock_roup14_M.png",
+      "rawBytes": 7744,
+      "bytes": 6304,
+      "sha256": "93516f7d5131532ffc1e7f68e9e9416c05142e033e5c2fd5e680425ba997ab8f"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-46985276678fc2bc959a867a19e48525",
+        "pathId": 5855989196686247243,
+        "objectKey": "cab-46985276678fc2bc959a867a19e48525::5855989196686247243"
+      },
+      "name": "O_env_th_rock_roup15_M",
+      "format": "ASTC_RGB_6x6",
+      "width": 128,
+      "height": 128,
+      "exported": true,
+      "file": "textures/0128_O_env_th_rock_roup15_M.png",
+      "rawBytes": 7744,
+      "bytes": 6043,
+      "sha256": "ea28efe03d55398054c21dfa02fee715ae6f128b993dfb87c71ee3c3f2c6d53f"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-0bc253a8e1b56579e673d411caa8c638",
+        "pathId": -7621061925384788848,
+        "objectKey": "cab-0bc253a8e1b56579e673d411caa8c638::-7621061925384788848"
+      },
+      "name": "GrassMap01_basecolor",
+      "format": "ASTC_RGB_8x8",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0129_GrassMap01_basecolor.png",
+      "rawBytes": 16384,
+      "bytes": 64171,
+      "sha256": "f8765e4ca1b59ff459487921adde24cbbe246a1f5c75ff440bc095f71ab91444"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-0bc253a8e1b56579e673d411caa8c638",
+        "pathId": -6100492938981349958,
+        "objectKey": "cab-0bc253a8e1b56579e673d411caa8c638::-6100492938981349958"
+      },
+      "name": "mask_basedesert05_sj",
+      "format": "ASTC_RGB_8x8",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0130_mask_basedesert05_sj.png",
+      "rawBytes": 16384,
+      "bytes": 25489,
+      "sha256": "19ec36c6b7e14eb9135b3ff3a77ab3868d64f8c0d75c842bdf8b8590b33709d6"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-0bc253a8e1b56579e673d411caa8c638",
+        "pathId": -5305582748714046943,
+        "objectKey": "cab-0bc253a8e1b56579e673d411caa8c638::-5305582748714046943"
+      },
+      "name": "MixWorldMap_basecolor_2",
+      "format": "ASTC_RGB_8x8",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0131_MixWorldMap_basecolor_2.png",
+      "rawBytes": 16384,
+      "bytes": 80015,
+      "sha256": "e51f45dfce9e8aea5546d0af1a047ecc5bbd143c7dcef0776edbda79c6e97d52"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-0bc253a8e1b56579e673d411caa8c638",
+        "pathId": -3563332619181407105,
+        "objectKey": "cab-0bc253a8e1b56579e673d411caa8c638::-3563332619181407105"
+      },
+      "name": "GrassMap01_normal",
+      "format": "ASTC_RGB_8x8",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0132_GrassMap01_normal.png",
+      "rawBytes": 16384,
+      "bytes": 110878,
+      "sha256": "fbc41ac80d522ac58deb9723afe455f733456870f5cece3092b09332e11ceffd"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-0bc253a8e1b56579e673d411caa8c638",
+        "pathId": -2705270724174779230,
+        "objectKey": "cab-0bc253a8e1b56579e673d411caa8c638::-2705270724174779230"
+      },
+      "name": "Dust01_1_basecolor",
+      "format": "ASTC_RGB_8x8",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0133_Dust01_1_basecolor.png",
+      "rawBytes": 16384,
+      "bytes": 53674,
+      "sha256": "cba268df8dc7266647c2b0555826400ba80ae785415576e4a5ec41efd2c9d909"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-0bc253a8e1b56579e673d411caa8c638",
+        "pathId": -1359287044773899078,
+        "objectKey": "cab-0bc253a8e1b56579e673d411caa8c638::-1359287044773899078"
+      },
+      "name": "T_Terrain_tu_03_normal",
+      "format": "ASTC_RGB_8x8",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0134_T_Terrain_tu_03_normal.png",
+      "rawBytes": 16384,
+      "bytes": 120198,
+      "sha256": "1bb37fad49bfedaecb9f204c37f9c1bdc8553a6f6d130c9f8b3fb3f638e6cc6e"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-0bc253a8e1b56579e673d411caa8c638",
+        "pathId": -1175788661811277786,
+        "objectKey": "cab-0bc253a8e1b56579e673d411caa8c638::-1175788661811277786"
+      },
+      "name": "S1CityContaminate_basecolor",
+      "format": "ASTC_RGB_8x8",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0135_S1CityContaminate_basecolor.png",
+      "rawBytes": 16384,
+      "bytes": 24459,
+      "sha256": "3e8cbe2bd6b6436e9825c9c7dbf1c1a162471cf94978fcc2b2f9c84e3841b645"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-0bc253a8e1b56579e673d411caa8c638",
+        "pathId": 1605879015564831335,
+        "objectKey": "cab-0bc253a8e1b56579e673d411caa8c638::1605879015564831335"
+      },
+      "name": "T_Terrain_tu_03",
+      "format": "ASTC_RGB_8x8",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0136_T_Terrain_tu_03.png",
+      "rawBytes": 16384,
+      "bytes": 74659,
+      "sha256": "d98fb0ab3e5c9441137ae65a90c92f0d98a381325fd8b1d4c7b962335c3d03c9"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-0bc253a8e1b56579e673d411caa8c638",
+        "pathId": 3012728826931657319,
+        "objectKey": "cab-0bc253a8e1b56579e673d411caa8c638::3012728826931657319"
+      },
+      "name": "MixWorldMap_basecolor",
+      "format": "ASTC_RGB_8x8",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0137_MixWorldMap_basecolor.png",
+      "rawBytes": 16384,
+      "bytes": 66337,
+      "sha256": "65b725d93750684dcd6ff0f162baec77ae5a678ad43b4e4f3dad1594ff2e5284"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-0bc253a8e1b56579e673d411caa8c638",
+        "pathId": 3044217485611892897,
+        "objectKey": "cab-0bc253a8e1b56579e673d411caa8c638::3044217485611892897"
+      },
+      "name": "Dust01_1_normal",
+      "format": "ASTC_RGB_8x8",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0138_Dust01_1_normal.png",
+      "rawBytes": 16384,
+      "bytes": 82932,
+      "sha256": "2769a9e0a484d2e589f99a3de3ac0fcdf3cf259e1084a164a50e48c58e13f3a7"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-0bc253a8e1b56579e673d411caa8c638",
+        "pathId": 4586778888991601014,
+        "objectKey": "cab-0bc253a8e1b56579e673d411caa8c638::4586778888991601014"
+      },
+      "name": "T_Terrain_Grass_03_1",
+      "format": "ASTC_RGB_8x8",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0139_T_Terrain_Grass_03_1.png",
+      "rawBytes": 16384,
+      "bytes": 68239,
+      "sha256": "4be53a17886d0a0d1a84825b231464bd58b98d38dd8c4df0923704af985cd124"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-0bc253a8e1b56579e673d411caa8c638",
+        "pathId": 5044707400244241366,
+        "objectKey": "cab-0bc253a8e1b56579e673d411caa8c638::5044707400244241366"
+      },
+      "name": "MixWorldMap_basecolor1",
+      "format": "ASTC_RGB_8x8",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0140_MixWorldMap_basecolor1.png",
+      "rawBytes": 16384,
+      "bytes": 73981,
+      "sha256": "4190e5f86159925f41e9e535d08d5f205f7ffe72003723f3e62654b770371ad0"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-0bc253a8e1b56579e673d411caa8c638",
+        "pathId": 5608985405275211649,
+        "objectKey": "cab-0bc253a8e1b56579e673d411caa8c638::5608985405275211649"
+      },
+      "name": "T_Terrain_Grass_03_Normal",
+      "format": "ASTC_RGB_8x8",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0141_T_Terrain_Grass_03_Normal.png",
+      "rawBytes": 16384,
+      "bytes": 116854,
+      "sha256": "9262b0371cc532e74a39c54fc5a15b145eb5f006a5cfe17ccc53e5ebc0c0cedc"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-0bc253a8e1b56579e673d411caa8c638",
+        "pathId": 5814371858965881722,
+        "objectKey": "cab-0bc253a8e1b56579e673d411caa8c638::5814371858965881722"
+      },
+      "name": "mask_basedesert04",
+      "format": "ASTC_RGB_8x8",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0142_mask_basedesert04.png",
+      "rawBytes": 16384,
+      "bytes": 79283,
+      "sha256": "b09f8e4f3c659833880f50e3790bd04fdd4c807c1f24d9246559b6ecbf54e2f4"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-cac1e4e0d730f0881aabae0ff643dd9b",
+        "pathId": 2966309709428451475,
+        "objectKey": "cab-cac1e4e0d730f0881aabae0ff643dd9b::2966309709428451475"
+      },
+      "name": "O_env_th_rock_roup19_M",
+      "format": "ASTC_RGB_6x6",
+      "width": 128,
+      "height": 128,
+      "exported": true,
+      "file": "textures/0143_O_env_th_rock_roup19_M.png",
+      "rawBytes": 7744,
+      "bytes": 8239,
+      "sha256": "1fee91de174ed74d650ad11a4f1ba1707e86fb4ba2ae509e41693f8514892cc3"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-b1944a328d53da568611294a6ba384f2",
+        "pathId": -7032677220768404633,
+        "objectKey": "cab-b1944a328d53da568611294a6ba384f2::-7032677220768404633"
+      },
+      "name": "O_env_th_rock_roup14_D",
+      "format": "ASTC_RGB_8x8",
+      "width": 512,
+      "height": 512,
+      "exported": true,
+      "file": "textures/0144_O_env_th_rock_roup14_D.png",
+      "rawBytes": 65536,
+      "bytes": 235499,
+      "sha256": "bb2b58c9c49a37fdd72ee8e156717a396cbe4a11a51853f228e9502e58cdee6c"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-b1944a328d53da568611294a6ba384f2",
+        "pathId": -900398214567824704,
+        "objectKey": "cab-b1944a328d53da568611294a6ba384f2::-900398214567824704"
+      },
+      "name": "O_env_th_rock_roup01_D",
+      "format": "ASTC_RGB_8x8",
+      "width": 512,
+      "height": 512,
+      "exported": true,
+      "file": "textures/0145_O_env_th_rock_roup01_D.png",
+      "rawBytes": 65536,
+      "bytes": 220355,
+      "sha256": "6508603b6f32d6df32c435c4b0bcf2ea36d0dec6289ece1334c5c904258eb939"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-b1944a328d53da568611294a6ba384f2",
+        "pathId": 2018010696510403140,
+        "objectKey": "cab-b1944a328d53da568611294a6ba384f2::2018010696510403140"
+      },
+      "name": "O_env_th_rock_roup15_D",
+      "format": "ASTC_RGB_8x8",
+      "width": 512,
+      "height": 512,
+      "exported": true,
+      "file": "textures/0146_O_env_th_rock_roup15_D.png",
+      "rawBytes": 65536,
+      "bytes": 236237,
+      "sha256": "0f96d405d2aac240e9b1389880e1c33a8881cc39739667a68afd14c45fcec951"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-d47745162c90c186df313c3be9635467",
+        "pathId": -2074168551595558333,
+        "objectKey": "cab-d47745162c90c186df313c3be9635467::-2074168551595558333"
+      },
+      "name": "shu1_v003_tmp_swsj",
+      "format": "ASTC_RGB_8x8",
+      "width": 512,
+      "height": 512,
+      "exported": true,
+      "file": "textures/0147_shu1_v003_tmp_swsj.png",
+      "rawBytes": 65536,
+      "bytes": 251973,
+      "sha256": "9299538e12dd626e09e2fe8b17e23bc2f3b4b3f4b428c5159b6d03e02c665bf2"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-d47745162c90c186df313c3be9635467",
+        "pathId": 2446041819391398428,
+        "objectKey": "cab-d47745162c90c186df313c3be9635467::2446041819391398428"
+      },
+      "name": "O_env_th_songshu2_swsj",
+      "format": "ASTC_RGB_8x8",
+      "width": 512,
+      "height": 512,
+      "exported": true,
+      "file": "textures/0148_O_env_th_songshu2_swsj.png",
+      "rawBytes": 65536,
+      "bytes": 302592,
+      "sha256": "3fbe24dc5d9c74b5946cde72bacbad8e5e9864650d7599921bc9d4ee1d389004"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-d47745162c90c186df313c3be9635467",
+        "pathId": 2696525445346734223,
+        "objectKey": "cab-d47745162c90c186df313c3be9635467::2696525445346734223"
+      },
+      "name": "O_env_th_songshu2_D3_swsj",
+      "format": "ASTC_RGB_8x8",
+      "width": 512,
+      "height": 512,
+      "exported": true,
+      "file": "textures/0149_O_env_th_songshu2_D3_swsj.png",
+      "rawBytes": 65536,
+      "bytes": 288613,
+      "sha256": "0db0b023894a0c5d6a5b95f6d2cf0f0c4847ef7592fe62a708bea41b70741afd"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-1c642b19644e479a074bf51bbc0e8552",
+        "pathId": -7356224047385029962,
+        "objectKey": "cab-1c642b19644e479a074bf51bbc0e8552::-7356224047385029962"
+      },
+      "name": "O_env_shitou_01_e_D_s3_66",
+      "format": "ASTC_RGB_10x10",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0150_O_env_shitou_01_e_D_s3_66.png",
+      "rawBytes": 10816,
+      "bytes": 50916,
+      "sha256": "2f57a32e05cf3dd7be9cba6e8d9f22eca27154a0e374c805f9db018b53f1c2a9"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-1c642b19644e479a074bf51bbc0e8552",
+        "pathId": -2937697922301590932,
+        "objectKey": "cab-1c642b19644e479a074bf51bbc0e8552::-2937697922301590932"
+      },
+      "name": "O_env_shitou_01_a_D_s3_66",
+      "format": "ASTC_RGB_10x10",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0151_O_env_shitou_01_a_D_s3_66.png",
+      "rawBytes": 10816,
+      "bytes": 47348,
+      "sha256": "773b3058a28a11a14dec2f715d5bf3ea32d8ba9ff0227abda82061124fcabc5d"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-1c642b19644e479a074bf51bbc0e8552",
+        "pathId": 1915378022073503086,
+        "objectKey": "cab-1c642b19644e479a074bf51bbc0e8552::1915378022073503086"
+      },
+      "name": "O_env_shitou_01_b_D_s3_66",
+      "format": "ASTC_RGB_10x10",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0152_O_env_shitou_01_b_D_s3_66.png",
+      "rawBytes": 10816,
+      "bytes": 39467,
+      "sha256": "ec513470b99c15036c3917f3dde6f4324d28c87abfff5fe95297a075cddef3dc"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-1c642b19644e479a074bf51bbc0e8552",
+        "pathId": 3149805398289518445,
+        "objectKey": "cab-1c642b19644e479a074bf51bbc0e8552::3149805398289518445"
+      },
+      "name": "O_env_shitou_01_c_D_s3_66",
+      "format": "ASTC_RGB_10x10",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0153_O_env_shitou_01_c_D_s3_66.png",
+      "rawBytes": 10816,
+      "bytes": 56111,
+      "sha256": "dd32965c51945f2cf18f52865335d33430214c239a60826dae6286731155c0bf"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-1c642b19644e479a074bf51bbc0e8552",
+        "pathId": 4330027488713623792,
+        "objectKey": "cab-1c642b19644e479a074bf51bbc0e8552::4330027488713623792"
+      },
+      "name": "O_env_shitou_01_f_D_s3_66",
+      "format": "ASTC_RGB_10x10",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0154_O_env_shitou_01_f_D_s3_66.png",
+      "rawBytes": 10816,
+      "bytes": 56471,
+      "sha256": "18057b0c155041373369cb42622a91302b6f501a98b8c54e239562df64a2fabe"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-20796895fcb7ac141ef86393e19e3d2c",
+        "pathId": -8676774931042636995,
+        "objectKey": "cab-20796895fcb7ac141ef86393e19e3d2c::-8676774931042636995"
+      },
+      "name": "O_Prop_tree_02_D",
+      "format": "ASTC_RGB_8x8",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0155_O_Prop_tree_02_D.png",
+      "rawBytes": 16384,
+      "bytes": 71998,
+      "sha256": "746b176dcc368364f7006e3a90d221d57e5d7e8117179b2f34c52cd84e925f5f"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-20796895fcb7ac141ef86393e19e3d2c",
+        "pathId": -8146434079002024875,
+        "objectKey": "cab-20796895fcb7ac141ef86393e19e3d2c::-8146434079002024875"
+      },
+      "name": "O_Prop_tree_08_M",
+      "format": "ASTC_RGB_8x8",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0156_O_Prop_tree_08_M.png",
+      "rawBytes": 16384,
+      "bytes": 10819,
+      "sha256": "681f8fb129d4fcd542828120ea559f1bfb0e05e5a95564f0ab384ff93dc1d735"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-20796895fcb7ac141ef86393e19e3d2c",
+        "pathId": -7756165791043241835,
+        "objectKey": "cab-20796895fcb7ac141ef86393e19e3d2c::-7756165791043241835"
+      },
+      "name": "O_Prop_tree_06_M",
+      "format": "ASTC_RGB_8x8",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0157_O_Prop_tree_06_M.png",
+      "rawBytes": 16384,
+      "bytes": 9881,
+      "sha256": "1b36c80792d898d23c0a5df0fd3a3d4a09d2f55937c6fa278a1b94d81e4eb326"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-20796895fcb7ac141ef86393e19e3d2c",
+        "pathId": -7423472201236782506,
+        "objectKey": "cab-20796895fcb7ac141ef86393e19e3d2c::-7423472201236782506"
+      },
+      "name": "O_Prop_tree_05_D",
+      "format": "ASTC_RGB_8x8",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0158_O_Prop_tree_05_D.png",
+      "rawBytes": 16384,
+      "bytes": 39005,
+      "sha256": "fabbb6785aa4fc21b3f830a68ddec17b7c9d91d8ad18b83d719dcca06c4e0d0a"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-20796895fcb7ac141ef86393e19e3d2c",
+        "pathId": -6726910449432743383,
+        "objectKey": "cab-20796895fcb7ac141ef86393e19e3d2c::-6726910449432743383"
+      },
+      "name": "O_Prop_tree_03_D",
+      "format": "ASTC_RGB_8x8",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0159_O_Prop_tree_03_D.png",
+      "rawBytes": 16384,
+      "bytes": 72301,
+      "sha256": "090bf0521dea15fc13d4b50598c2f45a7288875ac7ba9500a0c8edfa1fea5189"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-20796895fcb7ac141ef86393e19e3d2c",
+        "pathId": -2443408597829352731,
+        "objectKey": "cab-20796895fcb7ac141ef86393e19e3d2c::-2443408597829352731"
+      },
+      "name": "O_Prop_tree_03_M",
+      "format": "ASTC_RGB_8x8",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0160_O_Prop_tree_03_M.png",
+      "rawBytes": 16384,
+      "bytes": 11953,
+      "sha256": "b1c5586e87443938f820e352a79349e65046113c04e80b36d465922029edf031"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-20796895fcb7ac141ef86393e19e3d2c",
+        "pathId": -343583064204382298,
+        "objectKey": "cab-20796895fcb7ac141ef86393e19e3d2c::-343583064204382298"
+      },
+      "name": "O_Prop_tree_06_D",
+      "format": "ASTC_RGB_8x8",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0161_O_Prop_tree_06_D.png",
+      "rawBytes": 16384,
+      "bytes": 69957,
+      "sha256": "fba12bb52b9ee7e0574c06cb096c7d472e3d3e423c74da308b58ce60cc77ef13"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-20796895fcb7ac141ef86393e19e3d2c",
+        "pathId": 72664310220018082,
+        "objectKey": "cab-20796895fcb7ac141ef86393e19e3d2c::72664310220018082"
+      },
+      "name": "O_Prop_tree_05_M",
+      "format": "ASTC_RGB_8x8",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0162_O_Prop_tree_05_M.png",
+      "rawBytes": 16384,
+      "bytes": 4628,
+      "sha256": "5103e8f628294662486a2b3177b7feb1bbc5e09c4d516525061e7eb04a5817de"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-20796895fcb7ac141ef86393e19e3d2c",
+        "pathId": 2012428443579803264,
+        "objectKey": "cab-20796895fcb7ac141ef86393e19e3d2c::2012428443579803264"
+      },
+      "name": "O_Prop_tree_04_D",
+      "format": "ASTC_RGB_8x8",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0163_O_Prop_tree_04_D.png",
+      "rawBytes": 16384,
+      "bytes": 67670,
+      "sha256": "bc5d139a0429dfe4648bca9579340fd74cbd503ed692ddb5549ce8e6ae4f005a"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-20796895fcb7ac141ef86393e19e3d2c",
+        "pathId": 2840796940629349051,
+        "objectKey": "cab-20796895fcb7ac141ef86393e19e3d2c::2840796940629349051"
+      },
+      "name": "O_Prop_tree_08_D",
+      "format": "ASTC_RGB_8x8",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0164_O_Prop_tree_08_D.png",
+      "rawBytes": 16384,
+      "bytes": 68627,
+      "sha256": "06220fd0bc539815f484851aaf58461bdcf8d6b673037e7946aaa2995ca08b6e"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-20796895fcb7ac141ef86393e19e3d2c",
+        "pathId": 3495055563745215333,
+        "objectKey": "cab-20796895fcb7ac141ef86393e19e3d2c::3495055563745215333"
+      },
+      "name": "O_Prop_tree_07_D",
+      "format": "ASTC_RGB_8x8",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0165_O_Prop_tree_07_D.png",
+      "rawBytes": 16384,
+      "bytes": 72198,
+      "sha256": "fd0c50937a4196af77e044f1056297d73e25a472b1171c1f5b7a293fe81de974"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-20796895fcb7ac141ef86393e19e3d2c",
+        "pathId": 4214857106388649732,
+        "objectKey": "cab-20796895fcb7ac141ef86393e19e3d2c::4214857106388649732"
+      },
+      "name": "O_Prop_tree_07_M",
+      "format": "ASTC_RGB_8x8",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0166_O_Prop_tree_07_M.png",
+      "rawBytes": 16384,
+      "bytes": 10992,
+      "sha256": "bdfd32ef1d7a6a2eb940909436191e594ae8b59635fb091cb21792163e77c963"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-20796895fcb7ac141ef86393e19e3d2c",
+        "pathId": 7375916139701939018,
+        "objectKey": "cab-20796895fcb7ac141ef86393e19e3d2c::7375916139701939018"
+      },
+      "name": "O_Prop_tree_02_M",
+      "format": "ASTC_RGB_8x8",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0167_O_Prop_tree_02_M.png",
+      "rawBytes": 16384,
+      "bytes": 7550,
+      "sha256": "c51fc5497773470ab48b0a653623cb8894164c224da2f253257a1e9d9a8583b5"
+    },
+    {
+      "key": {
+        "assetsFile": "cab-20796895fcb7ac141ef86393e19e3d2c",
+        "pathId": 8834701375450032884,
+        "objectKey": "cab-20796895fcb7ac141ef86393e19e3d2c::8834701375450032884"
+      },
+      "name": "O_Prop_tree_04_M",
+      "format": "ASTC_RGB_8x8",
+      "width": 256,
+      "height": 256,
+      "exported": true,
+      "file": "textures/0168_O_Prop_tree_04_M.png",
+      "rawBytes": 16384,
+      "bytes": 9241,
+      "sha256": "5497d014fe6eabacba50b83ef5a77336eaf6fcd87555dc5acce9ce97512c0ee3"
+    }
+  ],
+  "bake": {
+    "runtimeDynamicBlur": false,
+    "masterWidth": 1316,
+    "masterHeight": 1536,
+    "gaussianSigmaPx": 11.8,
+    "sigmaSource": "estimated from the supplied native Formation screenshot; equivalent to about 9.7 px at 1080 px width",
+    "output": "master-assets-v2/background/formation-layer0-world-baked.webp",
+    "runtimeFit": "cover",
+    "runtimePosition": "center"
+  },
+  "guardrails": {
+    "androidSafeDirectTextureDecode": true,
+    "exactObjectKeys": true,
+    "noNameFallback": true,
+    "noGeneratedLandscape": true,
+    "noRuntimeBlur": true,
+    "noLastWarNetwork": true
+  }
+}
