@@ -1,54 +1,45 @@
 <!doctype html>
 <html lang="fr">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Formation · Layer0 natif depuis vidéo</title>
-<style>
-:root{color-scheme:dark;font-family:system-ui,sans-serif}body{margin:0;background:#0f1115;color:#eee}.wrap{max-width:760px;margin:auto;padding:14px}.card{background:#171a20;border:1px solid #333;border-radius:14px;padding:12px;margin-bottom:12px}video,canvas{width:100%;border-radius:10px;background:#000;display:block}.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}button,a.btn{background:#252a33;color:#fff;border:1px solid #555;border-radius:9px;padding:10px 12px;text-decoration:none}.time{font:700 18px ui-monospace,monospace}.small{opacity:.75;font-size:13px}.status{white-space:pre-wrap;font:12px ui-monospace,monospace;max-height:240px;overflow:auto}.ok{border-color:#56d364}.bad{border-color:#f85149}.pill{display:inline-block;padding:3px 7px;border:1px solid #555;border-radius:999px;margin:2px;font:11px ui-monospace,monospace}
-</style>
-</head>
-<body><div class="wrap">
-<h2>Formation · sélection automatique du Layer0</h2>
-<div class="small">Source : vidéo Android <code>screenrecord</code> déjà capturée. Aucun nouveau prélèvement, aucun pixel généré. L'analyse s'exécute localement dans Chrome.</div>
-<div class="card" id="state"><b id="headline">Chargement de la vidéo…</b><div id="status" class="status"></div></div>
-<div class="card"><b>Frame retenue automatiquement</b><canvas id="best" width="540" height="960"></canvas><div class="row"><span class="time" id="bestTime">—</span><span class="pill" id="metrics">—</span></div><div class="small">Critère : après disparition du Monde, minimum de détail spatial tout en conservant la structure basse fréquence du Monde. Le timestamp est mémorisé pour <code>?layer=world</code>.</div><div class="row"><a class="btn" id="openWorld" href="lastwar-formation-screen.html?layer=world&source=video&debug=1">Ouvrir directement le Layer0</a><button id="rerun">Recalculer</button></div></div>
-<div class="card"><b>Vidéo native</b><video id="v" controls playsinline preload="auto" src="local_assets/lastwar-formation-runtime-video-v1/formation-transition-v1.mp4"></video><div class="row"><span class="time" id="time">0.000 s</span><span id="dim" class="pill">—</span></div></div>
-</div>
-<script>
-const v=document.querySelector('#v'),status=document.querySelector('#status'),headline=document.querySelector('#headline'),state=document.querySelector('#state');
-const best=document.querySelector('#best'),bx=best.getContext('2d'),bestTime=document.querySelector('#bestTime'),metrics=document.querySelector('#metrics'),time=document.querySelector('#time'),dim=document.querySelector('#dim');
-const probe=document.createElement('canvas');probe.width=72;probe.height=128;const px=probe.getContext('2d',{willReadFrequently:true});
-function upd(){time.textContent=(v.currentTime||0).toFixed(3)+' s';dim.textContent=(v.videoWidth||0)+'×'+(v.videoHeight||0)}
-v.addEventListener('timeupdate',upd);v.addEventListener('seeked',upd);
-function seek(t){return new Promise(r=>{const done=()=>{v.removeEventListener('seeked',done);requestAnimationFrame(()=>requestAnimationFrame(r))};v.addEventListener('seeked',done);v.currentTime=Math.max(0,Math.min((v.duration||16)-.02,t))})}
-function sample(){px.drawImage(v,0,0,probe.width,probe.height);return px.getImageData(0,0,probe.width,probe.height).data}
-function gray(a,i){return .2126*a[i]+.7152*a[i+1]+.0722*a[i+2]}
-function diff(a,b){let s=0,n=0;for(let y=10;y<112;y+=2)for(let x=5;x<67;x+=2){const i=(y*72+x)*4;s+=Math.abs(a[i]-b[i])+Math.abs(a[i+1]-b[i+1])+Math.abs(a[i+2]-b[i+2]);n+=3}return s/n}
-function edge(a){let s=0,n=0;for(let y=12;y<112;y+=2)for(let x=7;x<65;x+=2){const i=(y*72+x)*4,j=i+8,k=i+72*8;s+=Math.abs(gray(a,i)-gray(a,j))+Math.abs(gray(a,i)-gray(a,k));n+=2}return s/n}
-function low(a){const out=[];for(let by=0;by<8;by++)for(let bx0=0;bx0<5;bx0++){let r=0,g=0,b=0,n=0;const y0=8+by*14,y1=Math.min(120,y0+14),x0=6+bx0*12,x1=Math.min(66,x0+12);for(let y=y0;y<y1;y+=3)for(let x=x0;x<x1;x+=3){const i=(y*72+x)*4;r+=a[i];g+=a[i+1];b+=a[i+2];n++}out.push(r/n,g/n,b/n)}return out}
-function vdist(a,b){let s=0;for(let i=0;i<a.length;i++)s+=Math.abs(a[i]-b[i]);return s/a.length}
-async function captureBest(t){await seek(t);best.width=540;best.height=960;bx.drawImage(v,0,0,best.width,best.height)}
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Formation · diagnostic Layer0 vidéo</title>
+<style>:root{color-scheme:dark;font-family:system-ui,sans-serif}body{margin:0;background:#0f1115;color:#eee}.wrap{max-width:760px;margin:auto;padding:14px}.card{background:#171a20;border:1px solid #333;border-radius:14px;padding:12px;margin-bottom:12px}video,canvas{width:100%;border-radius:10px;background:#000;display:block}.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}a.btn,button{background:#252a33;color:#fff;border:1px solid #555;border-radius:9px;padding:10px 12px;text-decoration:none}.small{opacity:.75;font-size:13px}.status{white-space:pre-wrap;font:12px/1.45 ui-monospace,monospace}.ok{border-color:#56d364}.bad{border-color:#f85149}.pill{display:inline-block;padding:3px 7px;border:1px solid #555;border-radius:999px;font:11px ui-monospace,monospace}.time{font:700 18px ui-monospace,monospace}</style>
+</head><body><div class="wrap">
+<h2>Formation · diagnostic natif du Layer0</h2>
+<div class="small">Analyse uniquement de la vidéo Android déjà capturée. Aucun nouveau prélèvement et aucun pixel généré.</div>
+<div class="card" id="state"><b id="headline">Chargement…</b><div id="status" class="status"></div></div>
+<div class="card" id="result" hidden><b>Frame Layer0 réellement isolée</b><canvas id="best" width="540" height="960"></canvas><div class="row"><span class="time" id="bestTime"></span><span class="pill" id="metrics"></span></div><div class="row"><a class="btn" href="lastwar-formation-screen.html?layer=world&source=video&debug=1">Ouvrir le Layer0 validé</a></div></div>
+<div class="card"><b>Vidéo native</b><video id="v" controls playsinline preload="auto" src="local_assets/lastwar-formation-runtime-video-v1/formation-transition-v1.mp4"></video></div>
+</div><script>
+const v=document.querySelector('#v'),state=document.querySelector('#state'),headline=document.querySelector('#headline'),status=document.querySelector('#status'),result=document.querySelector('#result'),best=document.querySelector('#best'),bx=best.getContext('2d'),bestTime=document.querySelector('#bestTime'),metrics=document.querySelector('#metrics');
+const c=document.createElement('canvas');c.width=72;c.height=128;const x=c.getContext('2d',{willReadFrequently:true});
+function seek(t){return new Promise(r=>{const f=()=>{v.removeEventListener('seeked',f);requestAnimationFrame(()=>requestAnimationFrame(r))};v.addEventListener('seeked',f);v.currentTime=Math.max(0,Math.min(v.duration-.03,t))})}
+function snap(){x.drawImage(v,0,0,72,128);return x.getImageData(0,0,72,128).data}
+function g(a,i){return .2126*a[i]+.7152*a[i+1]+.0722*a[i+2]}
+function diff(a,b){let s=0,n=0;for(let y=8;y<118;y+=2)for(let xx=4;xx<68;xx+=2){const i=(y*72+xx)*4;s+=Math.abs(a[i]-b[i])+Math.abs(a[i+1]-b[i+1])+Math.abs(a[i+2]-b[i+2]);n+=3}return s/n}
+function edge(a){let s=0,n=0;for(let y=10;y<116;y+=2)for(let xx=6;xx<66;xx+=2){const i=(y*72+xx)*4,j=i+8,k=i+72*8;s+=Math.abs(g(a,i)-g(a,j))+Math.abs(g(a,i)-g(a,k));n+=2}return s/n}
+function med(a){const b=[...a].sort((p,q)=>p-q);return b[Math.floor(b.length/2)]||0}
 async function analyze(){
+ localStorage.removeItem('wfggFormationLayer0VideoTime');localStorage.removeItem('wfggFormationLayer0VideoMetrics');localStorage.removeItem('wfggFormationLayer0VideoValidated');
+ result.hidden=true;state.className='card';headline.textContent='Analyse robuste en cours…';status.textContent='Construction des références Monde et Formation…';v.pause();
  try{
-  headline.textContent='Analyse automatique en cours…';state.className='card';status.textContent='Lecture de la transition native…';v.pause();
-  if(!isFinite(v.duration)||v.duration<5)throw Error('vidéo non chargée');
-  const worldT=Math.min(2.6,v.duration*.18);await seek(worldT);const world=sample(),worldLow=low(world);
-  const coarse=[];let prev=world;
-  for(let t=worldT+.10;t<Math.min(v.duration-1,9.5);t+=.05){await seek(t);const a=sample(),d=diff(world,a),pd=diff(prev,a),e=edge(a);coarse.push({t,a,d,pd,e});prev=a;if(coarse.length%20===0)status.textContent=`Recherche du début de transition… ${t.toFixed(2)} s`}
-  // Début = première rupture soutenue par rapport au Monde, renforcée par un delta inter-frame.
-  const base=coarse.slice(0,Math.min(12,coarse.length));const baseD=base.reduce((s,r)=>s+r.d,0)/Math.max(1,base.length);let start=null;
-  for(let i=2;i<coarse.length-2;i++){const r=coarse[i],n=coarse[i+1];if(r.d>baseD+10 && (r.pd>4||n.pd>4) && n.d>baseD+8){start=r.t;break}}
-  if(start==null){const m=[...coarse].sort((a,b)=>b.pd-a.pd)[0];start=Math.max(worldT+.1,m.t-.12)}
-  status.textContent=`Transition détectée vers ${start.toFixed(3)} s. Analyse dense à ~60 fps…`;
-  const dense=[];
-  for(let t=Math.max(worldT+.05,start-.10);t<Math.min(v.duration-.2,start+1.35);t+=1/60){await seek(t);const a=sample(),e=edge(a),ld=vdist(low(a),worldLow),d=diff(world,a);let mean=0,n=0;for(let i=0;i<a.length;i+=16){mean+=gray(a,i);n++}mean/=n;const valid=mean>25&&mean<230&&d>baseD+6;const score=e*1.0+ld*.42+Math.abs(mean-115)*.018;dense.push({t,e,ld,d,mean,score,valid})}
-  let valid=dense.filter(r=>r.valid);if(!valid.length)valid=dense;valid.sort((a,b)=>a.score-b.score);const pick=valid[0];
-  localStorage.setItem('wfggFormationLayer0VideoTime',pick.t.toFixed(6));localStorage.setItem('wfggFormationLayer0VideoMetrics',JSON.stringify(pick));
-  await captureBest(pick.t);v.currentTime=pick.t;bestTime.textContent=pick.t.toFixed(3)+' s';metrics.textContent=`edge ${pick.e.toFixed(2)} · worldΔ ${pick.d.toFixed(2)} · lowΔ ${pick.ld.toFixed(2)}`;
-  headline.textContent='Layer0 candidat calculé';state.className='card ok';status.textContent=`Monde référence : ${worldT.toFixed(3)} s\nDébut transition : ${start.toFixed(3)} s\nFrame retenue : ${pick.t.toFixed(6)} s\nScore : ${pick.score.toFixed(3)}\nTimestamp enregistré pour la preview Layer0.`;
+  if(!isFinite(v.duration)||v.duration<8)throw Error('Vidéo non chargée');
+  const worldT=2.6, formT=Math.max(worldT+4,v.duration-1.2);await seek(worldT);const world=snap(),ew=edge(world);await seek(formT);const form=snap(),ef=edge(form);
+  const rows=[];for(let t=worldT+.15;t<formT-.1;t+=.05){await seek(t);const a=snap();rows.push({t,dw:diff(world,a),df:diff(form,a),e:edge(a)});if(rows.length%25===0)status.textContent=`Recherche de la vraie bascule… ${t.toFixed(2)} s`}
+  const wb=med(rows.slice(0,18).map(r=>r.dw)),fb=med(rows.slice(-18).map(r=>r.df));
+  let entry=-1;for(let i=0;i<rows.length-5;i++){const q=rows.slice(i,i+5);const formSide=q.every(r=>r.df+5<r.dw);if(formSide){entry=i;break}}
+  if(entry<0)throw Error('Impossible de localiser un état Formation stable dans cette vidéo.');
+  let dep=entry;while(dep>0&&rows[dep].dw>wb+7)dep--;const depart=rows[Math.min(dep+1,entry)].t, enter=rows[entry].t;
+  status.textContent=`Bascule réelle détectée : ${depart.toFixed(3)} → ${enter.toFixed(3)} s\nRecherche à ~60 fps d’un état intermédiaire réellement flouté…`;
+  const dense=[];for(let t=Math.max(worldT,depart-.08);t<Math.min(formT,enter+.18);t+=1/60){await seek(t);const a=snap();dense.push({t,dw:diff(world,a),df:diff(form,a),e:edge(a)})}
+  const edgeLimit=Math.min(ew,ef)*.72;
+  const candidates=dense.filter(r=>r.dw>wb+7&&r.df>fb+7&&r.e<edgeLimit);
+  if(!candidates.length){
+    headline.textContent='Aucun Layer0 isolé dans la vidéo';state.className='card bad';status.textContent=`Monde : ${worldT.toFixed(3)} s · Formation stable : ${formT.toFixed(3)} s\nBascule réelle : ${depart.toFixed(3)} → ${enter.toFixed(3)} s\nEdge Monde=${ew.toFixed(2)} · Formation=${ef.toFixed(2)} · seuil flou=${edgeLimit.toFixed(2)}\n\nConclusion : screenrecord ne contient aucun frame où FormationBg est affiché seul. La composition est atomique au niveau du framebuffer final. Aucun timestamp n’a été enregistré.`;return;
+  }
+  candidates.sort((a,b)=>a.e-b.e);const pick=candidates[0];localStorage.setItem('wfggFormationLayer0VideoTime',pick.t.toFixed(6));localStorage.setItem('wfggFormationLayer0VideoMetrics',JSON.stringify(pick));localStorage.setItem('wfggFormationLayer0VideoValidated','1');
+  await seek(pick.t);bx.drawImage(v,0,0,best.width,best.height);bestTime.textContent=pick.t.toFixed(3)+' s';metrics.textContent=`edge ${pick.e.toFixed(2)} · ΔW ${pick.dw.toFixed(1)} · ΔF ${pick.df.toFixed(1)}`;result.hidden=false;headline.textContent='Layer0 intermédiaire validé';state.className='card ok';status.textContent=`Monde : ${worldT.toFixed(3)} s\nFormation stable : ${formT.toFixed(3)} s\nBascule : ${depart.toFixed(3)} → ${enter.toFixed(3)} s\nFrame retenue : ${pick.t.toFixed(6)} s\nValidation : détail spatial < 72 % des deux écrans stables et frame distincte du Monde comme de Formation.`;
  }catch(e){headline.textContent='Analyse impossible';state.className='card bad';status.textContent=e.message;console.error(e)}
 }
-document.querySelector('#rerun').onclick=analyze;
-v.addEventListener('loadedmetadata',()=>{upd();setTimeout(analyze,150)});
+v.addEventListener('loadedmetadata',()=>setTimeout(analyze,120),{once:true});
 </script></body></html>
