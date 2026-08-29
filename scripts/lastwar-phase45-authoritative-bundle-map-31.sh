@@ -268,22 +268,56 @@ for p in (
     f'/storage/emulated/0/Android/obb/{pkg}',
     f'/sdcard/Android/obb/{pkg}',
 ):
-    pp=Path(p)
-    row={'path':p,'exists':pp.exists(),'readable':os.access(p,os.R_OK),'sampleFiles':[]}
-    if row['exists'] and row['readable']:
+    row={
+      'path':p,
+      'exists':None,
+      'readable':False,
+      'permissionDenied':False,
+      'sampleFiles':[]
+    }
+    # Android 11+ scoped storage can raise PermissionError even for stat()/exists().
+    # Never let visibility probing abort the authoritative manifest mapping.
+    try:
+        st=os.stat(p)
+        row['exists']=True
+    except FileNotFoundError:
+        row['exists']=False
+    except PermissionError as e:
+        row['exists']=None
+        row['permissionDenied']=True
+        row['probeError']=repr(e)
+    except OSError as e:
+        row['exists']=None
+        row['probeError']=repr(e)
+
+    if row['exists'] is True and not row['permissionDenied']:
+        try:
+            row['readable']=bool(os.access(p,os.R_OK))
+        except Exception as e:
+            row['readable']=False
+            row['probeError']=repr(e)
+
+    if row['exists'] is True and row['readable']:
         try:
             count=0
-            for root,dirs,files in os.walk(p):
+            for root,dirs,files in os.walk(p,topdown=True):
                 # Bound the probe: metadata only, no large file reads.
                 for fn in files:
                     low=fn.lower()
                     if any(x in low for x in ('bundle','gameres','fragment','asset')) or low.endswith(('.bytes','.dat','.data')):
                         full=os.path.join(root,fn)
-                        try:sz=os.path.getsize(full)
-                        except Exception:sz=None
+                        try: sz=os.path.getsize(full)
+                        except PermissionError:
+                            sz=None
+                        except OSError:
+                            sz=None
                         row['sampleFiles'].append({'path':full,'bytes':sz});count+=1
                         if count>=80:break
                 if count>=80:break
+        except PermissionError as e:
+            row['permissionDenied']=True
+            row['readable']=False
+            row['probeError']=repr(e)
         except Exception as e:
             row['probeError']=repr(e)
     cache_roots.append(row)
