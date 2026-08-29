@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Last War · Formation Layer0 · Frameburst</title>
+<style>
+  :root{color-scheme:dark;background:#111;color:#f4f4f4;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+  *{box-sizing:border-box} body{margin:0;background:#111}
+  header{position:sticky;top:0;z-index:4;padding:12px 14px;background:rgba(17,17,17,.96);border-bottom:1px solid #333}
+  h1{font-size:18px;margin:0 0 4px}.sub{font-size:12px;color:#bbb}.status{margin-top:8px;font:12px ui-monospace,SFMono-Regular,Menlo,monospace;color:#d7d7d7}
+  main{padding:12px}.section{margin:0 0 18px}.section h2{font-size:15px;margin:0 0 9px}
+  .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  @media(min-width:720px){.grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+  .card{background:#1c1c1c;border:1px solid #333;border-radius:10px;overflow:hidden;cursor:pointer}
+  .card.candidate{border-color:#ffd34d}.card img{display:block;width:100%;height:auto;background:#000}
+  .meta{padding:7px 8px;font:11px ui-monospace,SFMono-Regular,Menlo,monospace;line-height:1.35;color:#d8d8d8}
+  .badge{display:inline-block;margin-left:5px;padding:1px 5px;border-radius:6px;background:#5d4c00;color:#ffe77c}
+  dialog{width:min(96vw,720px);padding:0;border:1px solid #444;border-radius:12px;background:#111;color:#fff}
+  dialog::backdrop{background:rgba(0,0,0,.88)} dialog img{display:block;width:100%;height:auto;background:#000}
+  .viewerMeta{padding:10px 12px;font:12px ui-monospace,SFMono-Regular,Menlo,monospace}.close{position:absolute;right:8px;top:8px;border:0;border-radius:999px;width:38px;height:38px;font-size:22px;background:#000b;color:#fff}
+</style>
+</head>
+<body>
+<header>
+  <h1>Formation · Layer0 · frames natives ADB</h1>
+  <div class="sub">Aucun pixel généré. Les candidats sont classés uniquement par taille/delta PNG ; validation visuelle obligatoire.</div>
+  <div id="status" class="status">Chargement du manifeste local…</div>
+</header>
+<main>
+  <section class="section"><h2>Candidats de transition</h2><div id="candidates" class="grid"></div></section>
+  <section class="section"><h2>Toutes les frames</h2><div id="all" class="grid"></div></section>
+</main>
+<dialog id="viewer"><button class="close" aria-label="Fermer">×</button><img id="viewerImg" alt="frame"><div id="viewerMeta" class="viewerMeta"></div></dialog>
+<script>
+const BASE='./local_assets/lastwar-formation-runtime-frameburst-v2/';
+const MANIFEST=BASE+'manifest.json';
+const statusEl=document.querySelector('#status');
+const viewer=document.querySelector('#viewer');
+const viewerImg=document.querySelector('#viewerImg');
+const viewerMeta=document.querySelector('#viewerMeta');
+document.querySelector('.close').onclick=()=>viewer.close();
+function card(row,candidate=false){
+  const d=document.createElement('div'); d.className='card'+(candidate?' candidate':'');
+  const img=document.createElement('img'); img.loading='lazy'; img.src=BASE+row.file; img.alt=row.file;
+  const m=document.createElement('div'); m.className='meta';
+  m.innerHTML=`${row.file}${candidate?'<span class="badge">candidat</span>':''}<br>${(row.bytes/1024).toFixed(1)} KiB · Δ ${row.deltaBytes>=0?'+':''}${(row.deltaBytes/1024).toFixed(1)} KiB${row.reason?'<br>'+row.reason:''}`;
+  d.append(img,m); d.onclick=()=>{viewerImg.src=img.src;viewerMeta.textContent=`${row.file} · ${row.width}×${row.height} · ${row.bytes} octets · delta=${row.deltaBytes} · ${row.reason||''}`;viewer.showModal()};
+  return d;
+}
+fetch(MANIFEST,{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('manifest HTTP '+r.status);return r.json()}).then(data=>{
+  statusEl.textContent=`${data.frameCount} frames · ${data.width}×${data.height} · source=${data.source}`;
+  const byName=new Map(data.frames.map(x=>[x.file,x]));
+  data.candidates.forEach(c=>{const r=byName.get(c.file);if(r){r.reason=c.reason;document.querySelector('#candidates').append(card(r,true));}});
+  data.frames.forEach(r=>document.querySelector('#all').append(card(r,data.candidates.some(c=>c.file===r.file))));
+}).catch(e=>{statusEl.textContent='Manifeste absent : lance d’abord scripts/lastwar-formation-runtime-frameburst.sh · '+e.message;});
+</script>
+</body>
+</html>
