@@ -1,0 +1,2367 @@
+{
+  "format": "WFGG_LASTWAR_FORMATION_LAYER0_NATIVE_LINKS_V1",
+  "sourceManifest": "formation-native-recipe-v1.json",
+  "networkUsed": false,
+  "adbUsed": false,
+  "generatedArtwork": false,
+  "targetNames": [
+    "Bg",
+    "FormationBg",
+    "FormationContent",
+    "FormationRT"
+  ],
+  "targetGameObjectPathIds": [
+    -7674902717186483613,
+    -7192232893444160268,
+    -6468692439414824214,
+    -5198173225010405053,
+    -3811935467292256859,
+    -3053015901457934573,
+    -2412988824376172214,
+    -1243947023456924735,
+    571788940896971851,
+    999719083033875835,
+    1427369097129031599,
+    2616526778764705532,
+    2726074644948953871,
+    3448968544838803429,
+    3519289692077381591,
+    4032453664284183203,
+    5931110566302214318,
+    6036281184264896031,
+    9002573243182389321
+  ],
+  "targetTransformPathIds": [
+    -8549525970464073080,
+    -7989202007310814271,
+    -7249032543314585502,
+    -4504051317279800955,
+    -2845314238605181538,
+    -2565136170373558455,
+    2992944175380159706,
+    3074809845846659530,
+    3466051851586324127,
+    4018767244706724168,
+    4217500620190070067,
+    4337810137591353805,
+    4664740362138404874,
+    5344469006072735482,
+    5394872832012756200,
+    5408020068299543711,
+    5767953814753248977,
+    6735802174091822419,
+    7472605183693254817
+  ],
+  "hierarchyContext": [
+    {
+      "pathId": -6329381127239289583,
+      "gameObjectPathId": 4802375229923390354,
+      "name": "BottomBar",
+      "parent": 6449161687880227851,
+      "children": [
+        5344469006072735482,
+        -3275701864887917790,
+        -4577327849013460923,
+        3411987131357951161,
+        -3037254028029243835,
+        -2478644985096436001,
+        -4385570222611647575
+      ],
+      "localPosition": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "localRotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "localScale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "depth": 2,
+      "components": []
+    },
+    {
+      "pathId": -5818262406092589916,
+      "gameObjectPathId": -5235749847537914931,
+      "name": "MiddleContentContainer",
+      "parent": 6449161687880227851,
+      "children": [
+        4664740362138404874,
+        5905509525358511135
+      ],
+      "localPosition": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "localRotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "localScale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "depth": 2,
+      "components": []
+    },
+    {
+      "pathId": 7380225374527721023,
+      "gameObjectPathId": 3219282914133218046,
+      "name": "buffInfo",
+      "parent": 6449161687880227851,
+      "children": [
+        6949170249791462644,
+        6735802174091822419,
+        6906469367196589468,
+        7807679482858624591
+      ],
+      "localPosition": [
+        -126.41000366210938,
+        -225.99993896484375,
+        0.0
+      ],
+      "localRotation": [
+        -0.0,
+        -0.0,
+        -0.0,
+        1.0
+      ],
+      "localScale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "depth": 2,
+      "components": []
+    },
+    {
+      "pathId": 6735802174091822419,
+      "gameObjectPathId": 999719083033875835,
+      "name": "Bg",
+      "parent": 7380225374527721023,
+      "children": [
+        5165743240579166489,
+        -2572183803481669542,
+        4181678650987692974
+      ],
+      "localPosition": [
+        171.0,
+        137.3935546875,
+        0.0
+      ],
+      "localRotation": [
+        -0.0,
+        -0.0,
+        -0.0,
+        1.0
+      ],
+      "localScale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "depth": 3,
+      "components": []
+    },
+    {
+      "pathId": 5344469006072735482,
+      "gameObjectPathId": -5198173225010405053,
+      "name": "Bg",
+      "parent": -6329381127239289583,
+      "children": [],
+      "localPosition": [
+        0.0,
+        -402.3458251953125,
+        0.0
+      ],
+      "localRotation": [
+        -0.0,
+        -0.0,
+        -0.0,
+        1.0
+      ],
+      "localScale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "depth": 3,
+      "components": []
+    },
+    {
+      "pathId": 4664740362138404874,
+      "gameObjectPathId": -7674902717186483613,
+      "name": "FormationContent",
+      "parent": -5818262406092589916,
+      "children": [
+        4018767244706724168,
+        3074809845846659530,
+        4337810137591353805,
+        -3889265966629237047,
+        -5165974108802650857,
+        7394070097578654274,
+        -2582351630398962639,
+        5372629946379883680,
+        -6278594662027927383,
+        3916729858889320325,
+        2096179012749810340,
+        7459072803626137712
+      ],
+      "localPosition": [
+        0.0,
+        -472.0,
+        0.0
+      ],
+      "localRotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "localScale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "depth": 3,
+      "components": []
+    },
+    {
+      "pathId": -4006674463067907494,
+      "gameObjectPathId": -5482590175922450603,
+      "name": "top",
+      "parent": 696765801289597701,
+      "children": [
+        -7989202007310814271,
+        3653338159044314874,
+        2858352035444924784,
+        -6194440587812577475,
+        -5620329906596224298
+      ],
+      "localPosition": [
+        220.0,
+        120.0,
+        0.0
+      ],
+      "localRotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "localScale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "depth": 3,
+      "components": []
+    },
+    {
+      "pathId": 4018767244706724168,
+      "gameObjectPathId": 571788940896971851,
+      "name": "Bg",
+      "parent": 4664740362138404874,
+      "children": [],
+      "localPosition": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "localRotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "localScale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "depth": 4,
+      "components": []
+    },
+    {
+      "pathId": -7989202007310814271,
+      "gameObjectPathId": -6468692439414824214,
+      "name": "Bg",
+      "parent": -4006674463067907494,
+      "children": [],
+      "localPosition": [
+        0.0,
+        -29.5,
+        0.0
+      ],
+      "localRotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "localScale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "depth": 4,
+      "components": []
+    },
+    {
+      "pathId": -6278594662027927383,
+      "gameObjectPathId": -1407143138505953262,
+      "name": "Eff_ui_bdmb_glow",
+      "parent": 4664740362138404874,
+      "children": [
+        2262981484605179725,
+        8325356040736690851,
+        3490116840116144550,
+        4011050038390828116
+      ],
+      "localPosition": [
+        673.0,
+        120.0,
+        17.0
+      ],
+      "localRotation": [
+        -0.8523165583610535,
+        0.3540271520614624,
+        0.17970028519630432,
+        0.34048372507095337
+      ],
+      "localScale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "depth": 4,
+      "components": []
+    },
+    {
+      "pathId": -3889265966629237047,
+      "gameObjectPathId": -5510272986425290538,
+      "name": "Eff_ui_bdmb_shangzhen1",
+      "parent": 4664740362138404874,
+      "children": [
+        -4550808552147704198,
+        -2579797974464347,
+        4367045739307135424,
+        6027762226036886336,
+        -7902625487632017476,
+        -5399283878262519998
+      ],
+      "localPosition": [
+        -111.0,
+        -1145.0,
+        67.5999984741211
+      ],
+      "localRotation": [
+        -0.8523165583610535,
+        0.3540271520614624,
+        0.17970028519630432,
+        0.34048372507095337
+      ],
+      "localScale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "depth": 4,
+      "components": []
+    },
+    {
+      "pathId": -5165974108802650857,
+      "gameObjectPathId": 1423603009010961306,
+      "name": "Eff_ui_bdmb_shangzhen2",
+      "parent": 4664740362138404874,
+      "children": [
+        5752004481388950487,
+        6505617396345172466,
+        -694717217084096734,
+        5907778320649488411,
+        1423274995342239039,
+        4026033475934187071
+      ],
+      "localPosition": [
+        -111.0,
+        -1145.0,
+        67.5999984741211
+      ],
+      "localRotation": [
+        -0.8523165583610535,
+        0.3540271520614624,
+        0.17970028519630432,
+        0.34048372507095337
+      ],
+      "localScale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "depth": 4,
+      "components": []
+    },
+    {
+      "pathId": 7394070097578654274,
+      "gameObjectPathId": -3128914326920720122,
+      "name": "Eff_ui_bdmb_shangzhen3",
+      "parent": 4664740362138404874,
+      "children": [
+        -3167141399360108680,
+        2687523233696450000,
+        4385791120168356517,
+        -3176349649990813494,
+        -378595006739557288,
+        2788062888228203209
+      ],
+      "localPosition": [
+        -111.0,
+        -1145.0,
+        67.5999984741211
+      ],
+      "localRotation": [
+        -0.8523165583610535,
+        0.3540271520614624,
+        0.17970028519630432,
+        0.34048372507095337
+      ],
+      "localScale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "depth": 4,
+      "components": []
+    },
+    {
+      "pathId": -2582351630398962639,
+      "gameObjectPathId": -2931453744780904407,
+      "name": "Eff_ui_bdmb_shangzhen4",
+      "parent": 4664740362138404874,
+      "children": [
+        -8139529378242976902,
+        904384563829987373,
+        -4021865416931888947,
+        7137142395726708271,
+        -6633815002272886322,
+        6808739350659754256
+      ],
+      "localPosition": [
+        -111.0,
+        -1145.0,
+        67.5999984741211
+      ],
+      "localRotation": [
+        -0.8523165583610535,
+        0.3540271520614624,
+        0.17970028519630432,
+        0.34048372507095337
+      ],
+      "localScale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "depth": 4,
+      "components": []
+    },
+    {
+      "pathId": 5372629946379883680,
+      "gameObjectPathId": -5553165348364366488,
+      "name": "Eff_ui_bdmb_shangzhen5",
+      "parent": 4664740362138404874,
+      "children": [
+        6995419101409035960,
+        3179019923372960755,
+        -8178201634421167247,
+        8236837770586994780,
+        5660247015941000583,
+        4574777385680922049
+      ],
+      "localPosition": [
+        -111.0,
+        -1145.0,
+        67.5999984741211
+      ],
+      "localRotation": [
+        -0.8523165583610535,
+        0.3540271520614624,
+        0.17970028519630432,
+        0.34048372507095337
+      ],
+      "localScale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "depth": 4,
+      "components": []
+    },
+    {
+      "pathId": 3074809845846659530,
+      "gameObjectPathId": 2726074644948953871,
+      "name": "FormationBg",
+      "parent": 4664740362138404874,
+      "children": [],
+      "localPosition": [
+        0.0,
+        -20.0,
+        0.0
+      ],
+      "localRotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "localScale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "depth": 4,
+      "components": []
+    },
+    {
+      "pathId": 4337810137591353805,
+      "gameObjectPathId": 3519289692077381591,
+      "name": "FormationRT",
+      "parent": 4664740362138404874,
+      "children": [],
+      "localPosition": [
+        -384.0,
+        -380.5,
+        0.0
+      ],
+      "localRotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "localScale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "depth": 4,
+      "components": []
+    },
+    {
+      "pathId": 3916729858889320325,
+      "gameObjectPathId": -9077317091161456364,
+      "name": "HeroInfoBars",
+      "parent": 4664740362138404874,
+      "children": [
+        1606401764004061362,
+        3069819356225368163,
+        9033290563704837663,
+        -3484553829961205642,
+        -6130035256547764429
+      ],
+      "localPosition": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "localRotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "localScale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "depth": 4,
+      "components": []
+    },
+    {
+      "pathId": 1162581943691018004,
+      "gameObjectPathId": -2481755950218994809,
+      "name": "Pages",
+      "parent": -5562323829561489570,
+      "children": [
+        -7249032543314585502,
+        6961149076081298449,
+        -8238567284342801287,
+        3433927663651266958,
+        -8131397043230807142,
+        2336272557544263198
+      ],
+      "localPosition": [
+        0.0,
+        -404.0982666015625,
+        0.0
+      ],
+      "localRotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "localScale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "depth": 4,
+      "components": []
+    },
+    {
+      "pathId": 2096179012749810340,
+      "gameObjectPathId": 516890780748345296,
+      "name": "SlotAreas",
+      "parent": 4664740362138404874,
+      "children": [
+        5529127651405969335,
+        -2125836832661454456,
+        7236604240266759410,
+        7089106610292031522,
+        -7732129227510628979
+      ],
+      "localPosition": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "localRotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "localScale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "depth": 4,
+      "components": []
+    },
+    {
+      "pathId": -2572183803481669542,
+      "gameObjectPathId": -5403107715621196508,
+      "name": "firmationBufflView",
+      "parent": 6735802174091822419,
+      "children": [
+        797959873553301761
+      ],
+      "localPosition": [
+        -50.0,
+        -597.0,
+        0.0
+      ],
+      "localRotation": [
+        -0.0,
+        -0.0,
+        -0.0,
+        1.0
+      ],
+      "localScale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "depth": 4,
+      "components": []
+    },
+    {
+      "pathId": 7459072803626137712,
+      "gameObjectPathId": -1500163443367812959,
+      "name": "formationBtn",
+      "parent": 4664740362138404874,
+      "children": [
+        4846311503409318638
+      ],
+      "localPosition": [
+        -298.0,
+        303.0,
+        0.0
+      ],
+      "localRotation": [
+        -0.0,
+        -0.0,
+        -0.0,
+        1.0
+      ],
+      "localScale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "depth": 4,
+      "components": []
+    },
+    {
+      "pathId": 4181678650987692974,
+      "gameObjectPathId": 4949264231808297512,
+      "name": "lockContent",
+      "parent": 6735802174091822419,
+      "children": [
+        -9111687403078348040,
+        -3539511922892883593,
+        3569710967329303418,
+        -638178878176077118,
+        1018316341414662277
+      ],
+      "localPosition": [
+        -270.0,
+        0.0,
+        0.0
+      ],
+      "localRotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "localScale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "depth": 4,
+      "components": []
+    },
+    {
+      "pathId": 5165743240579166489,
+      "gameObjectPathId": -7639744612790462254,
+      "name": "titleBg",
+      "parent": 6735802174091822419,
+      "children": [
+        -6729792248102825251,
+        2744430147705380162
+      ],
+      "localPosition": [
+        -270.0,
+        0.0,
+        0.0
+      ],
+      "localRotation": [
+        -0.0,
+        -0.0,
+        -0.0,
+        1.0
+      ],
+      "localScale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "depth": 4,
+      "components": []
+    },
+    {
+      "pathId": -7249032543314585502,
+      "gameObjectPathId": 3448968544838803429,
+      "name": "Bg",
+      "parent": 1162581943691018004,
+      "children": [],
+      "localPosition": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "localRotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "localScale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "depth": 5,
+      "components": []
+    },
+    {
+      "pathId": 1606401764004061362,
+      "gameObjectPathId": -1645527927417262460,
+      "name": "Slot1HeroInfoBar",
+      "parent": 3916729858889320325,
+      "children": [
+        2992944175380159706,
+        3364293087739212696,
+        4062780610167997803
+      ],
+      "localPosition": [
+        29.0,
+        -41.0,
+        0.0
+      ],
+      "localRotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "localScale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "depth": 5,
+      "components": []
+    },
+    {
+      "pathId": 3069819356225368163,
+      "gameObjectPathId": -8364871113388248801,
+      "name": "Slot2HeroInfoBar",
+      "parent": 3916729858889320325,
+      "children": [
+        -8549525970464073080,
+        3251205300238520453,
+        -6848792419518873364
+      ],
+      "localPosition": [
+        -261.0,
+        159.0,
+        0.0
+      ],
+      "localRotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "localScale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "depth": 5,
+      "components": []
+    },
+    {
+      "pathId": 9033290563704837663,
+      "gameObjectPathId": -7218147308669564464,
+      "name": "Slot3HeroInfoBar",
+      "parent": 3916729858889320325,
+      "children": [
+        5408020068299543711,
+        -8683511880451141214,
+        5182389891686364431
+      ],
+      "localPosition": [
+        242.0,
+        109.0,
+        0.0
+      ],
+      "localRotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "localScale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "depth": 5,
+      "components": []
+    },
+    {
+      "pathId": -3484553829961205642,
+      "gameObjectPathId": -1734655081152826893,
+      "name": "Slot4HeroInfoBar",
+      "parent": 3916729858889320325,
+      "children": [
+        -2565136170373558455,
+        -1509411092691987338,
+        5912213107069526877
+      ],
+      "localPosition": [
+        97.0,
+        209.0,
+        0.0
+      ],
+      "localRotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "localScale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "depth": 5,
+      "components": []
+    },
+    {
+      "pathId": -6130035256547764429,
+      "gameObjectPathId": 5587036723404665142,
+      "name": "Slot5HeroInfoBar",
+      "parent": 3916729858889320325,
+      "children": [
+        3466051851586324127,
+        -8588638096504847866,
+        -8460479433911587114
+      ],
+      "localPosition": [
+        -48.0,
+        309.0,
+        0.0
+      ],
+      "localRotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "localScale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "depth": 5,
+      "components": []
+    },
+    {
+      "pathId": -2565136170373558455,
+      "gameObjectPathId": -2412988824376172214,
+      "name": "Bg",
+      "parent": -3484553829961205642,
+      "children": [],
+      "localPosition": [
+        54.599998474121094,
+        -34.20000076293945,
+        0.0
+      ],
+      "localRotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "localScale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "depth": 6,
+      "components": []
+    },
+    {
+      "pathId": -8549525970464073080,
+      "gameObjectPathId": -3811935467292256859,
+      "name": "Bg",
+      "parent": 3069819356225368163,
+      "children": [],
+      "localPosition": [
+        54.599998474121094,
+        -34.20000076293945,
+        0.0
+      ],
+      "localRotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "localScale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "depth": 6,
+      "components": []
+    },
+    {
+      "pathId": 3466051851586324127,
+      "gameObjectPathId": 1427369097129031599,
+      "name": "Bg",
+      "parent": -6130035256547764429,
+      "children": [],
+      "localPosition": [
+        54.599998474121094,
+        -34.20000076293945,
+        0.0
+      ],
+      "localRotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "localScale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "depth": 6,
+      "components": []
+    },
+    {
+      "pathId": 5408020068299543711,
+      "gameObjectPathId": 2616526778764705532,
+      "name": "Bg",
+      "parent": 9033290563704837663,
+      "children": [],
+      "localPosition": [
+        54.599998474121094,
+        -34.20000076293945,
+        0.0
+      ],
+      "localRotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "localScale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "depth": 6,
+      "components": []
+    },
+    {
+      "pathId": 2992944175380159706,
+      "gameObjectPathId": 4032453664284183203,
+      "name": "Bg",
+      "parent": 1606401764004061362,
+      "children": [],
+      "localPosition": [
+        54.599998474121094,
+        -34.20000076293945,
+        0.0
+      ],
+      "localRotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "localScale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "depth": 6,
+      "components": []
+    },
+    {
+      "pathId": -7349563839207715621,
+      "gameObjectPathId": -1554845774068933864,
+      "name": "Selected1",
+      "parent": 3433927663651266958,
+      "children": [
+        -2845314238605181538,
+        -2210229237611859987
+      ],
+      "localPosition": [
+        0.0,
+        4.0,
+        0.0
+      ],
+      "localRotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "localScale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "depth": 6,
+      "components": []
+    },
+    {
+      "pathId": -5832572730073947411,
+      "gameObjectPathId": -2322010030866396173,
+      "name": "Selected2",
+      "parent": -8131397043230807142,
+      "children": [
+        4217500620190070067,
+        -6721021320870126653
+      ],
+      "localPosition": [
+        0.0,
+        4.0,
+        0.0
+      ],
+      "localRotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "localScale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "depth": 6,
+      "components": []
+    },
+    {
+      "pathId": -3278320770907314249,
+      "gameObjectPathId": -6650679616447838364,
+      "name": "Selected3",
+      "parent": 2336272557544263198,
+      "children": [
+        7472605183693254817,
+        8478931908496671414
+      ],
+      "localPosition": [
+        0.0,
+        4.0,
+        0.0
+      ],
+      "localRotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "localScale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "depth": 6,
+      "components": []
+    },
+    {
+      "pathId": -7439723871401171373,
+      "gameObjectPathId": -2208717830306784466,
+      "name": "Unselected1",
+      "parent": 3433927663651266958,
+      "children": [
+        5767953814753248977,
+        328224018867076747
+      ],
+      "localPosition": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "localRotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "localScale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "depth": 6,
+      "components": []
+    },
+    {
+      "pathId": 2856302078234260098,
+      "gameObjectPathId": 833595511294363061,
+      "name": "Unselected2",
+      "parent": -8131397043230807142,
+      "children": [
+        -4504051317279800955,
+        -7234802726775981535
+      ],
+      "localPosition": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "localRotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "localScale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "depth": 6,
+      "components": []
+    },
+    {
+      "pathId": -1641465531626576433,
+      "gameObjectPathId": -7141632305239098245,
+      "name": "Unselected3",
+      "parent": 2336272557544263198,
+      "children": [
+        5394872832012756200,
+        -6922164241185597577
+      ],
+      "localPosition": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "localRotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "localScale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "depth": 6,
+      "components": []
+    },
+    {
+      "pathId": 4217500620190070067,
+      "gameObjectPathId": -3053015901457934573,
+      "name": "Bg",
+      "parent": -5832572730073947411,
+      "children": [],
+      "localPosition": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "localRotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "localScale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "depth": 7,
+      "components": []
+    },
+    {
+      "pathId": -4504051317279800955,
+      "gameObjectPathId": -1243947023456924735,
+      "name": "Bg",
+      "parent": 2856302078234260098,
+      "children": [],
+      "localPosition": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "localRotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "localScale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "depth": 7,
+      "components": []
+    },
+    {
+      "pathId": -2845314238605181538,
+      "gameObjectPathId": 5931110566302214318,
+      "name": "Bg",
+      "parent": -7349563839207715621,
+      "children": [],
+      "localPosition": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "localRotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "localScale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "depth": 7,
+      "components": []
+    },
+    {
+      "pathId": 7472605183693254817,
+      "gameObjectPathId": -7192232893444160268,
+      "name": "Bg",
+      "parent": -3278320770907314249,
+      "children": [],
+      "localPosition": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "localRotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "localScale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "depth": 7,
+      "components": []
+    },
+    {
+      "pathId": 5767953814753248977,
+      "gameObjectPathId": 6036281184264896031,
+      "name": "Bg",
+      "parent": -7439723871401171373,
+      "children": [],
+      "localPosition": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "localRotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "localScale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "depth": 7,
+      "components": []
+    },
+    {
+      "pathId": 5394872832012756200,
+      "gameObjectPathId": 9002573243182389321,
+      "name": "Bg",
+      "parent": -1641465531626576433,
+      "children": [],
+      "localPosition": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "localRotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "localScale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "depth": 7,
+      "components": []
+    }
+  ],
+  "targetMonoBehaviours": [
+    {
+      "pathId": -8750243804497027851,
+      "gameObject": "Bg",
+      "script": "VerticalLayoutGroup",
+      "fields": {
+        "m_Enabled": 1
+      },
+      "pointers": [
+        {
+          "path": "m_GameObject",
+          "fileId": 0,
+          "pathId": 999719083033875835
+        },
+        {
+          "path": "m_Script",
+          "fileId": 0,
+          "pathId": 348253180598357110
+        }
+      ],
+      "error": null
+    },
+    {
+      "pathId": -7740626595963206181,
+      "gameObject": "Bg",
+      "script": "Image",
+      "fields": {
+        "m_Enabled": 1,
+        "m_Material": {
+          "m_FileID": 0,
+          "m_PathID": 0
+        },
+        "m_Color": {
+          "r": 1.0,
+          "g": 1.0,
+          "b": 1.0,
+          "a": 1.0
+        },
+        "m_RaycastTarget": 0,
+        "m_Maskable": 1
+      },
+      "pointers": [
+        {
+          "path": "m_GameObject",
+          "fileId": 0,
+          "pathId": -3053015901457934573
+        },
+        {
+          "path": "m_Script",
+          "fileId": 0,
+          "pathId": -7030229213176759517
+        },
+        {
+          "path": "m_Material",
+          "fileId": 0,
+          "pathId": 0
+        },
+        {
+          "path": "m_Sprite",
+          "fileId": 5,
+          "pathId": 5291499892008815284
+        }
+      ],
+      "error": null
+    },
+    {
+      "pathId": -7497465332200101248,
+      "gameObject": "Bg",
+      "script": "Image",
+      "fields": {
+        "m_Enabled": 1,
+        "m_Material": {
+          "m_FileID": 0,
+          "m_PathID": 0
+        },
+        "m_Color": {
+          "r": 1.0,
+          "g": 1.0,
+          "b": 1.0,
+          "a": 1.0
+        },
+        "m_RaycastTarget": 0,
+        "m_Maskable": 1
+      },
+      "pointers": [
+        {
+          "path": "m_GameObject",
+          "fileId": 0,
+          "pathId": -2412988824376172214
+        },
+        {
+          "path": "m_Script",
+          "fileId": 0,
+          "pathId": -7030229213176759517
+        },
+        {
+          "path": "m_Material",
+          "fileId": 0,
+          "pathId": 0
+        },
+        {
+          "path": "m_Sprite",
+          "fileId": 1,
+          "pathId": -122317919055419587
+        }
+      ],
+      "error": null
+    },
+    {
+      "pathId": -7219121434454595184,
+      "gameObject": "Bg",
+      "script": "Image",
+      "fields": {
+        "m_Enabled": 1,
+        "m_Material": {
+          "m_FileID": 0,
+          "m_PathID": 0
+        },
+        "m_Color": {
+          "r": 1.0,
+          "g": 1.0,
+          "b": 1.0,
+          "a": 1.0
+        },
+        "m_RaycastTarget": 0,
+        "m_Maskable": 1
+      },
+      "pointers": [
+        {
+          "path": "m_GameObject",
+          "fileId": 0,
+          "pathId": 5931110566302214318
+        },
+        {
+          "path": "m_Script",
+          "fileId": 0,
+          "pathId": -7030229213176759517
+        },
+        {
+          "path": "m_Material",
+          "fileId": 0,
+          "pathId": 0
+        },
+        {
+          "path": "m_Sprite",
+          "fileId": 5,
+          "pathId": 5291499892008815284
+        }
+      ],
+      "error": null
+    },
+    {
+      "pathId": -7153213978570405731,
+      "gameObject": "Bg",
+      "script": "Image",
+      "fields": {
+        "m_Enabled": 1,
+        "m_Material": {
+          "m_FileID": 0,
+          "m_PathID": 0
+        },
+        "m_Color": {
+          "r": 1.0,
+          "g": 1.0,
+          "b": 1.0,
+          "a": 1.0
+        },
+        "m_RaycastTarget": 1,
+        "m_Maskable": 1
+      },
+      "pointers": [
+        {
+          "path": "m_GameObject",
+          "fileId": 0,
+          "pathId": 3448968544838803429
+        },
+        {
+          "path": "m_Script",
+          "fileId": 0,
+          "pathId": -7030229213176759517
+        },
+        {
+          "path": "m_Material",
+          "fileId": 0,
+          "pathId": 0
+        },
+        {
+          "path": "m_Sprite",
+          "fileId": 8,
+          "pathId": -8753834043310138955
+        }
+      ],
+      "error": null
+    },
+    {
+      "pathId": -6532315022106855917,
+      "gameObject": "Bg",
+      "script": "Image",
+      "fields": {
+        "m_Enabled": 1,
+        "m_Material": {
+          "m_FileID": 0,
+          "m_PathID": 0
+        },
+        "m_Color": {
+          "r": 1.0,
+          "g": 1.0,
+          "b": 1.0,
+          "a": 1.0
+        },
+        "m_RaycastTarget": 0,
+        "m_Maskable": 1
+      },
+      "pointers": [
+        {
+          "path": "m_GameObject",
+          "fileId": 0,
+          "pathId": -1243947023456924735
+        },
+        {
+          "path": "m_Script",
+          "fileId": 0,
+          "pathId": -7030229213176759517
+        },
+        {
+          "path": "m_Material",
+          "fileId": 0,
+          "pathId": 0
+        },
+        {
+          "path": "m_Sprite",
+          "fileId": 5,
+          "pathId": -4299994092143241774
+        }
+      ],
+      "error": null
+    },
+    {
+      "pathId": -4212932782756792853,
+      "gameObject": "Bg",
+      "script": "Image",
+      "fields": {
+        "m_Enabled": 1,
+        "m_Material": {
+          "m_FileID": 0,
+          "m_PathID": 0
+        },
+        "m_Color": {
+          "r": 1.0,
+          "g": 1.0,
+          "b": 1.0,
+          "a": 1.0
+        },
+        "m_RaycastTarget": 0,
+        "m_Maskable": 1
+      },
+      "pointers": [
+        {
+          "path": "m_GameObject",
+          "fileId": 0,
+          "pathId": 9002573243182389321
+        },
+        {
+          "path": "m_Script",
+          "fileId": 0,
+          "pathId": -7030229213176759517
+        },
+        {
+          "path": "m_Material",
+          "fileId": 0,
+          "pathId": 0
+        },
+        {
+          "path": "m_Sprite",
+          "fileId": 5,
+          "pathId": -4299994092143241774
+        }
+      ],
+      "error": null
+    },
+    {
+      "pathId": -3957975286359756321,
+      "gameObject": "FormationRT",
+      "script": "RawImage",
+      "fields": {
+        "m_Enabled": 1,
+        "m_Material": {
+          "m_FileID": 16,
+          "m_PathID": 2136757981436054356
+        },
+        "m_Color": {
+          "r": 1.0,
+          "g": 1.0,
+          "b": 1.0,
+          "a": 1.0
+        },
+        "m_RaycastTarget": 1,
+        "m_Maskable": 1,
+        "m_Texture": {
+          "m_FileID": 0,
+          "m_PathID": 0
+        },
+        "m_UVRect": {
+          "x": 0.0,
+          "y": 0.0,
+          "width": 1.0,
+          "height": 1.0
+        }
+      },
+      "pointers": [
+        {
+          "path": "m_GameObject",
+          "fileId": 0,
+          "pathId": 3519289692077381591
+        },
+        {
+          "path": "m_Script",
+          "fileId": 0,
+          "pathId": -8471220842657547617
+        },
+        {
+          "path": "m_Material",
+          "fileId": 16,
+          "pathId": 2136757981436054356
+        },
+        {
+          "path": "m_Texture",
+          "fileId": 0,
+          "pathId": 0
+        }
+      ],
+      "error": null
+    },
+    {
+      "pathId": -1569886987746922465,
+      "gameObject": "Bg",
+      "script": "Image",
+      "fields": {
+        "m_Enabled": 1,
+        "m_Material": {
+          "m_FileID": 0,
+          "m_PathID": 0
+        },
+        "m_Color": {
+          "r": 1.0,
+          "g": 1.0,
+          "b": 1.0,
+          "a": 1.0
+        },
+        "m_RaycastTarget": 0,
+        "m_Maskable": 1
+      },
+      "pointers": [
+        {
+          "path": "m_GameObject",
+          "fileId": 0,
+          "pathId": 1427369097129031599
+        },
+        {
+          "path": "m_Script",
+          "fileId": 0,
+          "pathId": -7030229213176759517
+        },
+        {
+          "path": "m_Material",
+          "fileId": 0,
+          "pathId": 0
+        },
+        {
+          "path": "m_Sprite",
+          "fileId": 1,
+          "pathId": -122317919055419587
+        }
+      ],
+      "error": null
+    },
+    {
+      "pathId": -13648272775773716,
+      "gameObject": "Bg",
+      "script": "Image",
+      "fields": {
+        "m_Enabled": 1,
+        "m_Material": {
+          "m_FileID": 0,
+          "m_PathID": 0
+        },
+        "m_Color": {
+          "r": 1.0,
+          "g": 1.0,
+          "b": 1.0,
+          "a": 1.0
+        },
+        "m_RaycastTarget": 0,
+        "m_Maskable": 1
+      },
+      "pointers": [
+        {
+          "path": "m_GameObject",
+          "fileId": 0,
+          "pathId": 2616526778764705532
+        },
+        {
+          "path": "m_Script",
+          "fileId": 0,
+          "pathId": -7030229213176759517
+        },
+        {
+          "path": "m_Material",
+          "fileId": 0,
+          "pathId": 0
+        },
+        {
+          "path": "m_Sprite",
+          "fileId": 1,
+          "pathId": -122317919055419587
+        }
+      ],
+      "error": null
+    },
+    {
+      "pathId": 596342853967071441,
+      "gameObject": "Bg",
+      "script": "Image",
+      "fields": {
+        "m_Enabled": 1,
+        "m_Material": {
+          "m_FileID": 0,
+          "m_PathID": 0
+        },
+        "m_Color": {
+          "r": 1.0,
+          "g": 1.0,
+          "b": 1.0,
+          "a": 1.0
+        },
+        "m_RaycastTarget": 1,
+        "m_Maskable": 1
+      },
+      "pointers": [
+        {
+          "path": "m_GameObject",
+          "fileId": 0,
+          "pathId": -5198173225010405053
+        },
+        {
+          "path": "m_Script",
+          "fileId": 0,
+          "pathId": -7030229213176759517
+        },
+        {
+          "path": "m_Material",
+          "fileId": 0,
+          "pathId": 0
+        },
+        {
+          "path": "m_Sprite",
+          "fileId": 8,
+          "pathId": -8453247013953252736
+        }
+      ],
+      "error": null
+    },
+    {
+      "pathId": 935766179200945348,
+      "gameObject": "FormationBg",
+      "script": "RawImage",
+      "fields": {
+        "m_Enabled": 1,
+        "m_Material": {
+          "m_FileID": 0,
+          "m_PathID": 0
+        },
+        "m_Color": {
+          "r": 1.0,
+          "g": 1.0,
+          "b": 1.0,
+          "a": 1.0
+        },
+        "m_RaycastTarget": 0,
+        "m_Maskable": 1,
+        "m_Texture": {
+          "m_FileID": 0,
+          "m_PathID": 0
+        },
+        "m_UVRect": {
+          "x": 0.0,
+          "y": 0.0,
+          "width": 1.0,
+          "height": 1.0
+        }
+      },
+      "pointers": [
+        {
+          "path": "m_GameObject",
+          "fileId": 0,
+          "pathId": 2726074644948953871
+        },
+        {
+          "path": "m_Script",
+          "fileId": 0,
+          "pathId": -8471220842657547617
+        },
+        {
+          "path": "m_Material",
+          "fileId": 0,
+          "pathId": 0
+        },
+        {
+          "path": "m_Texture",
+          "fileId": 0,
+          "pathId": 0
+        }
+      ],
+      "error": null
+    },
+    {
+      "pathId": 2591211998100095288,
+      "gameObject": "Bg",
+      "script": "Image",
+      "fields": {
+        "m_Enabled": 1,
+        "m_Material": {
+          "m_FileID": 0,
+          "m_PathID": 0
+        },
+        "m_Color": {
+          "r": 1.0,
+          "g": 1.0,
+          "b": 1.0,
+          "a": 1.0
+        },
+        "m_RaycastTarget": 0,
+        "m_Maskable": 1
+      },
+      "pointers": [
+        {
+          "path": "m_GameObject",
+          "fileId": 0,
+          "pathId": -7192232893444160268
+        },
+        {
+          "path": "m_Script",
+          "fileId": 0,
+          "pathId": -7030229213176759517
+        },
+        {
+          "path": "m_Material",
+          "fileId": 0,
+          "pathId": 0
+        },
+        {
+          "path": "m_Sprite",
+          "fileId": 5,
+          "pathId": 5291499892008815284
+        }
+      ],
+      "error": null
+    },
+    {
+      "pathId": 3258500511865582709,
+      "gameObject": "Bg",
+      "script": "Image",
+      "fields": {
+        "m_Enabled": 1,
+        "m_Material": {
+          "m_FileID": 0,
+          "m_PathID": 0
+        },
+        "m_Color": {
+          "r": 1.0,
+          "g": 1.0,
+          "b": 1.0,
+          "a": 1.0
+        },
+        "m_RaycastTarget": 0,
+        "m_Maskable": 1
+      },
+      "pointers": [
+        {
+          "path": "m_GameObject",
+          "fileId": 0,
+          "pathId": 6036281184264896031
+        },
+        {
+          "path": "m_Script",
+          "fileId": 0,
+          "pathId": -7030229213176759517
+        },
+        {
+          "path": "m_Material",
+          "fileId": 0,
+          "pathId": 0
+        },
+        {
+          "path": "m_Sprite",
+          "fileId": 5,
+          "pathId": -4299994092143241774
+        }
+      ],
+      "error": null
+    },
+    {
+      "pathId": 3434571163023087969,
+      "gameObject": "Bg",
+      "script": "Image",
+      "fields": {
+        "m_Enabled": 1,
+        "m_Material": {
+          "m_FileID": 0,
+          "m_PathID": 0
+        },
+        "m_Color": {
+          "r": 1.0,
+          "g": 1.0,
+          "b": 1.0,
+          "a": 1.0
+        },
+        "m_RaycastTarget": 0,
+        "m_Maskable": 1
+      },
+      "pointers": [
+        {
+          "path": "m_GameObject",
+          "fileId": 0,
+          "pathId": -3811935467292256859
+        },
+        {
+          "path": "m_Script",
+          "fileId": 0,
+          "pathId": -7030229213176759517
+        },
+        {
+          "path": "m_Material",
+          "fileId": 0,
+          "pathId": 0
+        },
+        {
+          "path": "m_Sprite",
+          "fileId": 1,
+          "pathId": -122317919055419587
+        }
+      ],
+      "error": null
+    },
+    {
+      "pathId": 3469619475273878939,
+      "gameObject": "Bg",
+      "script": "ContentSizeFitter",
+      "fields": {
+        "m_Enabled": 1
+      },
+      "pointers": [
+        {
+          "path": "m_GameObject",
+          "fileId": 0,
+          "pathId": 999719083033875835
+        },
+        {
+          "path": "m_Script",
+          "fileId": 0,
+          "pathId": -5392852106782294089
+        }
+      ],
+      "error": null
+    },
+    {
+      "pathId": 3493887702385720842,
+      "gameObject": "Bg",
+      "script": "Image",
+      "fields": {
+        "m_Enabled": 1,
+        "m_Material": {
+          "m_FileID": 0,
+          "m_PathID": 0
+        },
+        "m_Color": {
+          "r": 0.874509871006012,
+          "g": 0.8588235974311829,
+          "b": 0.8509804606437683,
+          "a": 1.0
+        },
+        "m_RaycastTarget": 1,
+        "m_Maskable": 1
+      },
+      "pointers": [
+        {
+          "path": "m_GameObject",
+          "fileId": 0,
+          "pathId": -6468692439414824214
+        },
+        {
+          "path": "m_Script",
+          "fileId": 0,
+          "pathId": -7030229213176759517
+        },
+        {
+          "path": "m_Material",
+          "fileId": 0,
+          "pathId": 0
+        },
+        {
+          "path": "m_Sprite",
+          "fileId": 8,
+          "pathId": 3955830724623607937
+        }
+      ],
+      "error": null
+    },
+    {
+      "pathId": 3796753507468291093,
+      "gameObject": "Bg",
+      "script": "Image",
+      "fields": {
+        "m_Enabled": 1,
+        "m_Material": {
+          "m_FileID": 0,
+          "m_PathID": 0
+        },
+        "m_Color": {
+          "r": 1.0,
+          "g": 1.0,
+          "b": 1.0,
+          "a": 1.0
+        },
+        "m_RaycastTarget": 1,
+        "m_Maskable": 1
+      },
+      "pointers": [
+        {
+          "path": "m_GameObject",
+          "fileId": 0,
+          "pathId": 999719083033875835
+        },
+        {
+          "path": "m_Script",
+          "fileId": 0,
+          "pathId": -7030229213176759517
+        },
+        {
+          "path": "m_Material",
+          "fileId": 0,
+          "pathId": 0
+        },
+        {
+          "path": "m_Sprite",
+          "fileId": 8,
+          "pathId": 3964911644941177351
+        }
+      ],
+      "error": null
+    },
+    {
+      "pathId": 5197284809923598296,
+      "gameObject": "Bg",
+      "script": "RawImage",
+      "fields": {
+        "m_Enabled": 1,
+        "m_Material": {
+          "m_FileID": 0,
+          "m_PathID": 0
+        },
+        "m_Color": {
+          "r": 1.0,
+          "g": 1.0,
+          "b": 1.0,
+          "a": 1.0
+        },
+        "m_RaycastTarget": 1,
+        "m_Maskable": 1,
+        "m_Texture": {
+          "m_FileID": 18,
+          "m_PathID": -7423839590894119823
+        },
+        "m_UVRect": {
+          "x": 0.0,
+          "y": 0.0,
+          "width": 1.0,
+          "height": 1.0
+        }
+      },
+      "pointers": [
+        {
+          "path": "m_GameObject",
+          "fileId": 0,
+          "pathId": 571788940896971851
+        },
+        {
+          "path": "m_Script",
+          "fileId": 0,
+          "pathId": -8471220842657547617
+        },
+        {
+          "path": "m_Material",
+          "fileId": 0,
+          "pathId": 0
+        },
+        {
+          "path": "m_Texture",
+          "fileId": 18,
+          "pathId": -7423839590894119823
+        }
+      ],
+      "error": null
+    },
+    {
+      "pathId": 6683156501883094655,
+      "gameObject": "Bg",
+      "script": "ForceArabicImage",
+      "fields": {
+        "m_Enabled": 1
+      },
+      "pointers": [
+        {
+          "path": "m_GameObject",
+          "fileId": 0,
+          "pathId": 571788940896971851
+        },
+        {
+          "path": "m_Script",
+          "fileId": 0,
+          "pathId": -6466724424463935614
+        }
+      ],
+      "error": null
+    },
+    {
+      "pathId": 7800264649806430116,
+      "gameObject": "Bg",
+      "script": "Image",
+      "fields": {
+        "m_Enabled": 1,
+        "m_Material": {
+          "m_FileID": 0,
+          "m_PathID": 0
+        },
+        "m_Color": {
+          "r": 1.0,
+          "g": 1.0,
+          "b": 1.0,
+          "a": 1.0
+        },
+        "m_RaycastTarget": 0,
+        "m_Maskable": 1
+      },
+      "pointers": [
+        {
+          "path": "m_GameObject",
+          "fileId": 0,
+          "pathId": 4032453664284183203
+        },
+        {
+          "path": "m_Script",
+          "fileId": 0,
+          "pathId": -7030229213176759517
+        },
+        {
+          "path": "m_Material",
+          "fileId": 0,
+          "pathId": 0
+        },
+        {
+          "path": "m_Sprite",
+          "fileId": 1,
+          "pathId": -122317919055419587
+        }
+      ],
+      "error": null
+    }
+  ],
+  "monoBehavioursReferencingTargets": [
+    {
+      "pathId": -3755011431292375246,
+      "gameObject": "UIHeroPVPFormationPanel",
+      "script": "ArabicMirror",
+      "fields": {
+        "m_Enabled": 1
+      },
+      "pointers": [
+        {
+          "path": "m_GameObject",
+          "fileId": 0,
+          "pathId": 8695854979998244933
+        },
+        {
+          "path": "m_Script",
+          "fileId": 0,
+          "pathId": 1449921518487060124
+        },
+        {
+          "path": "_autoMirrorCullObjects[0]",
+          "fileId": 0,
+          "pathId": -9077317091161456364
+        },
+        {
+          "path": "_autoMirrorCullObjects[1]",
+          "fileId": 0,
+          "pathId": 516890780748345296
+        },
+        {
+          "path": "_autoMirrorCullObjects[2]",
+          "fileId": 0,
+          "pathId": 2726074644948953871
+        },
+        {
+          "path": "_autoMirrorCullObjects[3]",
+          "fileId": 0,
+          "pathId": 3519289692077381591
+        }
+      ],
+      "error": null
+    }
+  ],
+  "renderingKeywordStrings": [
+    {
+      "bundleId": 6933,
+      "source": "cache",
+      "hits": [
+        "CameraVelocity7",
+        "2aCamera="
+      ]
+    },
+    {
+      "bundleId": 16574,
+      "source": "apk-fragment",
+      "hits": [
+        "_build_formation_0h"
+      ]
+    }
+  ],
+  "nativeBuildFormationFamily": [
+    {
+      "bundleId": 16574,
+      "logicalName": "gameres_art_dir_environment_build_formation_material_d089376913b3f26aecff02e370ae9acf.bundle",
+      "assetPaths": [
+        "Assets/_Art_LastWar/Models/Environment/Build/Formation/material/A_build_formation_0.mat",
+        "Assets/_Art_LastWar/Models/Environment/Build/Formation/material/A_build_formation_01.mat",
+        "Assets/_Art_LastWar/Models/Environment/Build/Formation/material/A_build_formation_02.mat",
+        "Assets/_Art_LastWar/Models/Environment/Build/Formation/material/A_build_formation_03.mat",
+        "Assets/_Art_LastWar/Models/Environment/Build/Formation/material/A_build_formation_04.mat",
+        "Assets/_Art_LastWar/Models/Environment/Build/Formation/material/A_build_formation_05.mat",
+        "Assets/_Art_LastWar/Models/Environment/Build/Formation/material/A_build_formation_06.mat"
+      ]
+    },
+    {
+      "bundleId": 16575,
+      "logicalName": "gameres_art_dir_environment_build_formation_mesh_424aecaf4c63fbfed9e180cec7225b79.bundle",
+      "assetPaths": [
+        "Assets/_Art_LastWar/Models/Environment/Build/Formation/mesh/A_build_formation.fbx",
+        "Assets/_Art_LastWar/Models/Environment/Build/Formation/mesh/A_build_formation_05.fbx"
+      ]
+    },
+    {
+      "bundleId": 16576,
+      "logicalName": "gameres_art_dir_environment_build_formation_prefab_105749291c5d5c252c3f7114b328e3d1.bundle",
+      "assetPaths": [
+        "Assets/_Art_LastWar/Models/Environment/Build/Formation/prefab/A_build_formation_0.prefab",
+        "Assets/_Art_LastWar/Models/Environment/Build/Formation/prefab/A_build_formation_01.prefab",
+        "Assets/_Art_LastWar/Models/Environment/Build/Formation/prefab/A_build_formation_02.prefab",
+        "Assets/_Art_LastWar/Models/Environment/Build/Formation/prefab/A_build_formation_03.prefab",
+        "Assets/_Art_LastWar/Models/Environment/Build/Formation/prefab/A_build_formation_04.prefab",
+        "Assets/_Art_LastWar/Models/Environment/Build/Formation/prefab/A_build_formation_05.prefab"
+      ]
+    },
+    {
+      "bundleId": 16577,
+      "logicalName": "gameres_art_dir_environment_build_formation_texture_eb0eba474f1c7e352630b3ead41adccd.bundle",
+      "assetPaths": [
+        "Assets/_Art_LastWar/Models/Environment/Build/Formation/texture/A_build_formation_01_D.png",
+        "Assets/_Art_LastWar/Models/Environment/Build/Formation/texture/A_build_formation_02_D.png",
+        "Assets/_Art_LastWar/Models/Environment/Build/Formation/texture/A_build_formation_03_D.png",
+        "Assets/_Art_LastWar/Models/Environment/Build/Formation/texture/A_build_formation_04_D.png",
+        "Assets/_Art_LastWar/Models/Environment/Build/Formation/texture/A_build_formation_05_D.tga",
+        "Assets/_Art_LastWar/Models/Environment/Build/Formation/texture/A_build_formation_0_D.png"
+      ]
+    }
+  ],
+  "classification": {
+    "nativeBuildFormationFamily": "separate formation-build/platform asset family; do not assume Layer0 world background",
+    "FormationBg": "UI RawImage candidate for Formation background",
+    "FormationRT": "UI RawImage candidate for runtime render target"
+  },
+  "guardrails": {
+    "sourceIsExistingNativeRecipeOnly": true,
+    "mainUntouched": true,
+    "noPreviewMutation": true
+  }
+}
