@@ -1,0 +1,49 @@
+{
+  "format": "WFGG_LASTWAR_FORMATION_SCREEN_TARGET_SPEC_V2",
+  "status": "locked-from-user-description",
+  "visualReferenceVideo": {
+    "requested": true,
+    "attachmentAvailableToAssistantAtLockTime": false,
+    "note": "Do not claim video-derived pixel measurements until the video file is actually available."
+  },
+  "animationRequirements": {
+    "allFormationUnitsAnimate": true,
+    "swiftMustAnimate": true,
+    "swiftClipPolicy": "ordinary idle is valid when show_idle is absent",
+    "aircraftPropellersOrHelicesMustAnimate": true,
+    "missileVehicleRotorOrRotatingPartsMustAnimate": true,
+    "smallMechanicalIdleDetailsMustBePreserved": true,
+    "droneMustAnimate": true,
+    "gorillaOverlordMustAnimate": true,
+    "noGeneratedMotion": true,
+    "noGenericVehicleSubstitution": true,
+    "sourcePolicy": "exact Unity assets and exact animation data only"
+  },
+  "screenVisualRequirements": {
+    "matchGameTypography": true,
+    "matchGameFontsFromInstalledAssetsWhenRecoverable": true,
+    "matchBlurredBackground": true,
+    "matchBackgroundTexture": true,
+    "matchIcons": true,
+    "matchFormationGroundAndControls": true,
+    "noCssFakeVehicles": true
+  },
+  "lowerScreenRoster": {
+    "showAllHeroes": false,
+    "showActiveSquadHeroesOnly": true,
+    "heroCount": 5,
+    "heroClickOpensSeparatePopup": true,
+    "popupDeferred": true,
+    "popupFutureContents": [
+      "technical hero information",
+      "hero equipment"
+    ]
+  },
+  "implementationOrder": [
+    "recover authentic animation tracks for current 15 formation units",
+    "recover drone and gorilla animation/assets",
+    "identify exact fonts/background textures/icons from installed game assets and reference video",
+    "build formation screen with one active squad and five-hero lower roster",
+    "add hero technical/equipment popup in a later pass"
+  ]
+}
