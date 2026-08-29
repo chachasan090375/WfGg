@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>WfGg · Last War Renderer LAB</title>
+<link rel="stylesheet" href="lastwar-auth-renderer.css">
+</head>
+<body>
+<main class="viewer">
+  <header class="topbar">
+    <div><strong>WfGg · Renderer LAB</strong><small>Phase 54/55 · assets Unity exacts</small></div>
+    <div id="status" class="status">Initialisation…</div>
+  </header>
+  <section class="stage">
+    <canvas id="gl"></canvas>
+    <div class="hud">
+      <div id="heroName" class="hero-name">—</div>
+      <div id="heroMeta" class="hero-meta">—</div>
+      <div id="warnings" class="warnings"></div>
+    </div>
+  </section>
+  <nav class="teams" aria-label="Escouades">
+    <button data-team="1" class="active">Équipe 1</button>
+    <button data-team="2">Équipe 2</button>
+    <button data-team="3">Équipe 3</button>
+  </nav>
+  <section id="heroes" class="heroes" aria-label="Héros de l'escouade"></section>
+  <footer class="help">Glisser pour tourner · pincer/molette pour zoomer · animation idle Unity réelle</footer>
+</main>
+<script src="lastwar-auth-renderer.js"></script>
+</body>
+</html>
