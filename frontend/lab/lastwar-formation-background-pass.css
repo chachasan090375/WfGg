@@ -2,6 +2,13 @@
    Layer0 = fixed native world background baked from the 1316x1536 Last War
    Formation reference. No runtime blur, no CSS-generated landscape.
    Layer1 = authentic biandui_cheku_N formation platform, sharp.
+
+   Layer1 placement for biandui_cheku_1 is locked from the exact 1024x1024
+   extracted sprite against the 1316x1536 reference capture:
+     width       = 126.401961% of master width
+     center x    = 50%
+     center y    = 52.013120%
+   This corresponds to the measured uniform scale 1.62446270 at master size.
 */
 
 .formation-stage{
@@ -26,20 +33,25 @@
   display:none!important;
 }
 
-/* Sharp authentic Formation platform/garage. */
+/* Sharp authentic Formation platform/garage.
+   No CSS shadow/filter: preserve the extracted sprite pixels exactly. */
 .formation-ground{
   left:50%!important;
-  top:50.5%!important;
-  width:min(96%,680px)!important;
+  top:52.013120%!important;
+  width:126.401961%!important;
   max-width:none!important;
   height:auto!important;
   transform:translate(-50%,-50%)!important;
   object-fit:contain!important;
-  filter:drop-shadow(0 8px 10px rgba(0,0,0,.24))!important;
+  filter:none!important;
   z-index:2!important;
 }
 
-.formation-label{z-index:5!important}
+/* biandui_cheku_N already contains the authentic FORMATION label. */
+.formation-label{
+  display:none!important;
+}
+
 .unit-layer{z-index:6!important}
 .companion{z-index:14!important}
 
@@ -83,11 +95,4 @@ html.lw-world-only .formation-stage{
 /* Layer0 alone. */
 html.lw-world-only .formation-ground{
   display:none!important;
-}
-
-@media(max-width:699px){
-  .formation-ground{
-    width:99%!important;
-    top:50.5%!important;
-  }
 }
