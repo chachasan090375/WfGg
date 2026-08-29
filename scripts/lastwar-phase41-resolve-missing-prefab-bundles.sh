@@ -19,7 +19,6 @@ PY="${TMPDIR:-${HOME}/.cache}/wfgg-phase41-exact-prefab.py"
 
 fail(){ printf 'ERREUR: %s\n' "$*" >&2; exit 1; }
 command -v python >/dev/null 2>&1 || fail "python absent"
-command -v zip >/dev/null 2>&1 || fail "zip absent"
 [[ -s "$P40" ]] || fail "Phase40 absente: $P40"
 cd "$ROOT"
 [[ "$(git branch --show-current)" == "$BRANCH" ]] || fail "branche active incorrecte"
@@ -294,7 +293,16 @@ rm -f "$PY"
 # handoff/recovery; Git receives only the exact-resolution metadata and script.
 rm -f "$PACK"
 if find "$LOCAL" -type f -name '*.bundle' -print -quit | grep -q .; then
-  (cd "$LOCAL" && zip -q -9 "$PACK" ./*.bundle)
+  python - "$LOCAL" "$PACK" <<'PYZIP'
+from pathlib import Path
+import sys, zipfile
+src=Path(sys.argv[1]); dst=Path(sys.argv[2])
+files=sorted(src.glob('*.bundle'))
+with zipfile.ZipFile(dst,'w',compression=zipfile.ZIP_DEFLATED,compresslevel=9) as z:
+    for f in files:
+        z.write(f,arcname=f.name)
+print(f"PHASE41_PACK_OK files={len(files)} bytes={dst.stat().st_size}")
+PYZIP
   sha256sum "$PACK" > "$PACK.sha256"
 fi
 cat > "$LOCAL/.gitignore" <<'EOF'
