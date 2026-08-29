@@ -19,7 +19,7 @@ cd "$ROOT"
 
 python - "$BASE" "$TMP" <<'PY'
 from pathlib import Path
-import sys
+import re, sys
 src=Path(sys.argv[1]).read_text(encoding='utf-8')
 
 repls=[
@@ -104,12 +104,13 @@ if old2 not in src:
     raise SystemExit('Phase51C patch failed: compact Clip block not found')
 src=src.replace(old2,new2,1)
 
-# Patch the runtime resolver call without assuming a pre-existing expected_root variable.
-needle='resolve=resolver(paths,hier_hashes,tos)'
-replacement="resolve=resolver(paths,hier_hashes,tos,Path(str(h.get('queueModelPath') or '')).stem)"
-if needle not in src:
-    raise SystemExit('Phase51C patch failed: resolver call not found')
-src=src.replace(needle,replacement,1)
+# Phase51B currently uses: paths,hh=...; tos=...; res=resolver(paths,hh,tos)
+# Patch robustly so harmless spacing changes do not break the wrapper again.
+pattern=r"res\s*=\s*resolver\(\s*paths\s*,\s*hh\s*,\s*tos\s*\)"
+replacement="res=resolver(paths,hh,tos,Path(str(h.get('queueModelPath') or '')).stem)"
+src,n=re.subn(pattern,replacement,src,count=1)
+if n!=1:
+    raise SystemExit(f'Phase51C patch failed: resolver call count={n}')
 
 # Keep Phase51B source untouched; execute a generated sibling so ROOT resolution stays valid.
 Path(sys.argv[2]).write_text(src,encoding='utf-8')
