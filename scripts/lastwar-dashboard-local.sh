@@ -10,8 +10,9 @@ PORT="${WFGG_LASTWAR_VIEWER_PORT:-8877}"
 MODE="${1:-data}"
 case "$MODE" in
   squads|replica) PAGE="lastwar-squads-replica.html" ;;
+  renderer|webgl|auth) PAGE="lastwar-auth-renderer.html" ;;
   data|explorer) PAGE="lastwar-data.html" ;;
-  *) echo "Usage: $0 [data|squads]" >&2; exit 2 ;;
+  *) echo "Usage: $0 [data|squads|renderer]" >&2; exit 2 ;;
 esac
 URL="http://127.0.0.1:${PORT}/lab/${PAGE}"
 
@@ -28,6 +29,7 @@ command -v python >/dev/null 2>&1 || {
 echo "=== WfGg Last War LAB · aperçu local ==="
 echo "Adresse: $URL"
 echo "Explorateur: http://127.0.0.1:${PORT}/lab/lastwar-data.html"
+echo "Renderer authentique: http://127.0.0.1:${PORT}/lab/lastwar-auth-renderer.html"
 echo "Escouades témoin: http://127.0.0.1:${PORT}/lab/lastwar-squads-replica.html"
 echo "Serveur lié uniquement à 127.0.0.1 (téléphone local)."
 echo "Arrêt: CTRL+C dans Termux."
