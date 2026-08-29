@@ -1,0 +1,35 @@
+{
+  "format": "WFGG_LASTWAR_FORMATION_LAYER0_BAKED_V1",
+  "sourceCapture": "Screenshot_20260829_171043_Last War.jpg",
+  "sourceSize": [
+    1080,
+    1261
+  ],
+  "sourceAspectRatio": 0.8564631245043616,
+  "masterAspectRatio": 0.8567708333333334,
+  "aspectRatioRelativeError": 0.0003591495146661712,
+  "normalizedToMaster": true,
+  "normalizationMethod": "Pillow LANCZOS resize only when aspect matches within 0.5%",
+  "normalizedSize": [
+    1316,
+    1536
+  ],
+  "output": "master-assets-v2/background/formation-layer0-world-baked.webp",
+  "outputBytes": 42020,
+  "sha256": "4f01439797cb729097dff6c6a5decf0f48794585bd89ba248f66d7e64f032741",
+  "visibleWorldPixelsPreservedAfterNormalization": true,
+  "foregroundRemovedByDeterministicMask": true,
+  "hiddenPixelsMethod": "Pillow multiscale boundary diffusion; known world pixels fixed each pass",
+  "runtimeDynamicBlur": false,
+  "measuredNativeGaussianSigmaPxAtMaster": 11.8,
+  "important": "11.8 px documents the blur already present at the 1316px master width; it is NOT applied again during this bake or at runtime",
+  "masterSize": [
+    1316,
+    1536
+  ],
+  "runtimeFit": "cover",
+  "runtimePosition": "center",
+  "numpyRequired": false,
+  "generatedSubstituteProps": false,
+  "mainUntouched": true
+}
