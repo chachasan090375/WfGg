@@ -21,7 +21,7 @@
   --lw-native-lightness:.904;
 }
 .world-blur::after{display:none!important}
-.lw-world-canvas,.lw-world-runtime{
+.lw-world-canvas,.lw-world-runtime,.lw-world-video{
   position:absolute;
   left:-4%;top:-4%;
   width:108%;height:108%;
@@ -32,6 +32,7 @@
   transform-origin:center;
   backface-visibility:hidden;
 }
+.lw-world-video{pointer-events:none;background:#8eb95d}
 .lw-world-note{
   display:none;
   position:absolute;z-index:30;left:12px;right:12px;bottom:12px;
