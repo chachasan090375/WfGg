@@ -1,0 +1,2013 @@
+{
+  "format": "WFGG_LASTWAR_FINAL_FOUR_VEHICLE_GRAPH_V1",
+  "networkUsed": false,
+  "sourceFiles": [
+    {
+      "apk": "split_install_time_pack.apk",
+      "entry": "assets/AssetBundles/gameres",
+      "bytes": 18135604
+    },
+    {
+      "apk": "split_install_time_pack.apk",
+      "entry": "assets/AssetBundles/BundleOffsetTable.bytes",
+      "bytes": 889082
+    },
+    {
+      "apk": "split_install_time_pack.apk",
+      "entry": "assets/AssetBundles/AliasOffsetTable.bytes",
+      "bytes": 640994
+    }
+  ],
+  "claimedVehicleFamilies": [
+    {
+      "heroId": 30002,
+      "name": "Loki",
+      "root": "a_hero_blackwidow",
+      "core": "blackwidow"
+    },
+    {
+      "heroId": 30003,
+      "name": "Kane",
+      "root": "a_hero_basilone",
+      "core": "basilone"
+    },
+    {
+      "heroId": 30004,
+      "name": "Ambolt",
+      "root": "a_hero_hager",
+      "core": "hager"
+    },
+    {
+      "heroId": 40007,
+      "name": "Elsa",
+      "root": "a_hero_elsa_01",
+      "core": "elsa"
+    },
+    {
+      "heroId": 40008,
+      "name": "Farhad",
+      "root": "a_hero_farhad_01",
+      "core": "farhad"
+    },
+    {
+      "heroId": 40009,
+      "name": "Richard",
+      "root": "a_hero_richard_01",
+      "core": "richard"
+    },
+    {
+      "heroId": 40013,
+      "name": "Braz",
+      "root": "a_hero_lambo_01_ur",
+      "core": "lambo"
+    },
+    {
+      "heroId": 40015,
+      "name": "Cage",
+      "root": "a_hero_cage_02",
+      "core": "cage"
+    },
+    {
+      "heroId": 40016,
+      "name": "Maxwell",
+      "root": "a_hero_maxwell_01",
+      "core": "maxwell"
+    },
+    {
+      "heroId": 40020,
+      "name": "Monica",
+      "root": "a_hero_japanmonica_wzsj",
+      "core": "japanmonica"
+    },
+    {
+      "heroId": 50006,
+      "name": "Murphy",
+      "root": "a_hero_audie_zhuanwu_03",
+      "core": "audie"
+    },
+    {
+      "heroId": 50007,
+      "name": "Williams",
+      "root": "a_hero_rick_01",
+      "core": "rick"
+    },
+    {
+      "heroId": 50008,
+      "name": "Marshall",
+      "root": "a_hero_nimitz_01",
+      "core": "nimitz"
+    },
+    {
+      "heroId": 50009,
+      "name": "Kimberly",
+      "root": "a_hero_katyusha_01_zhuanwu_a_hero_katyusha_01_zhuanwu_01",
+      "core": "katyusha"
+    },
+    {
+      "heroId": 50010,
+      "name": "Stetmann",
+      "root": "a_hero_stetman_01",
+      "core": "stetman"
+    },
+    {
+      "heroId": 50013,
+      "name": "McGregor",
+      "root": "a_hero_ewan_zhuanwu",
+      "core": "ewan"
+    },
+    {
+      "heroId": 50015,
+      "name": "Swift",
+      "root": "a_hero_tom_01",
+      "core": "tom"
+    },
+    {
+      "heroId": 50016,
+      "name": "Tesla",
+      "root": "a_hero_tesla_a_hero_tesla_01",
+      "core": "tesla"
+    },
+    {
+      "heroId": 50017,
+      "name": "DVA",
+      "root": "a_hero_dva_01",
+      "core": "dva"
+    },
+    {
+      "heroId": 50018,
+      "name": "Schuyler",
+      "root": "a_hero_sally_zhuanwu",
+      "core": "sally"
+    },
+    {
+      "heroId": 50020,
+      "name": "Morrison",
+      "root": "a_hero_morrison_zhuanwu_a_hero_morrison_zhuanwu02",
+      "core": "morrison"
+    },
+    {
+      "heroId": 50021,
+      "name": "Lucius",
+      "root": "a_hero_lucius01",
+      "core": "lucius"
+    },
+    {
+      "heroId": 50022,
+      "name": "Adam",
+      "root": "a_hero_adam_01",
+      "core": "adam"
+    },
+    {
+      "heroId": 50023,
+      "name": "Mason",
+      "root": "a_hero_david_01",
+      "core": "david"
+    },
+    {
+      "heroId": 50026,
+      "name": "Scarlett",
+      "root": "a_hero_misshot_01",
+      "core": "misshot"
+    },
+    {
+      "heroId": 50027,
+      "name": "Sarah",
+      "root": "a_hero_sara_02",
+      "core": "sara"
+    },
+    {
+      "heroId": 50028,
+      "name": "Venom",
+      "root": "a_hero_alex_01",
+      "core": "alex"
+    }
+  ],
+  "claimedCoreCount": 27,
+  "allVehicleRoots": 328,
+  "unclaimedVehicleRoots": 114,
+  "unclaimedFamilyCount": 16,
+  "targets": [
+    {
+      "heroId": 30005,
+      "name": "Gump",
+      "aliases": [
+        "gump",
+        "gump3"
+      ],
+      "selectionConfidence": "none",
+      "selected": null,
+      "candidates": []
+    },
+    {
+      "heroId": 50014,
+      "name": "Fiona",
+      "aliases": [
+        "fiona"
+      ],
+      "selectionConfidence": "none",
+      "selected": null,
+      "candidates": []
+    },
+    {
+      "heroId": 50019,
+      "name": "Carlie",
+      "aliases": [
+        "carlie",
+        "carly",
+        "carly_zw"
+      ],
+      "selectionConfidence": "none",
+      "selected": null,
+      "candidates": []
+    },
+    {
+      "heroId": 50025,
+      "name": "Violet",
+      "aliases": [
+        "violet",
+        "doctor",
+        "doctor_poison",
+        "doctorpoison",
+        "doctor_poison02",
+        "doctor_poison3_ur"
+      ],
+      "selectionConfidence": "low",
+      "selected": null,
+      "candidates": [
+        {
+          "vehicleRoot": "a_hero_doctor_01",
+          "core": "doctor",
+          "score": 32170,
+          "evidenceScore": 28450,
+          "assetKinds": [
+            "animation",
+            "animator",
+            "camera",
+            "mesh",
+            "prefab",
+            "texture",
+            "timeline"
+          ],
+          "sourceFamilies": [
+            "InSpecialDir",
+            "Models/Cars"
+          ],
+          "occurrences": 38,
+          "directEvidence": [
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/gameres",
+              "offset": 346953,
+              "aliases": [
+                "doctor"
+              ],
+              "context": "5749,Assets/_Art_LastWar/Models/Cars/A_Hero_Doctor_01/prefab"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/gameres",
+              "offset": 561141,
+              "aliases": [
+                "doctor"
+              ],
+              "context": "8786,Assets/_Art_LastWar/Models/Cars/A_Hero_Doctor_01/animation"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/gameres",
+              "offset": 561205,
+              "aliases": [
+                "doctor"
+              ],
+              "context": "8787,Assets/_Art_LastWar/Models/Cars/A_Hero_Doctor_01/animator"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/gameres",
+              "offset": 561268,
+              "aliases": [
+                "doctor"
+              ],
+              "context": "8788,Assets/_Art_LastWar/Models/Cars/A_Hero_Doctor_01/matetial"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/gameres",
+              "offset": 561331,
+              "aliases": [
+                "doctor"
+              ],
+              "context": "8789,Assets/_Art_LastWar/Models/Cars/A_Hero_Doctor_01/matetial/Common"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/gameres",
+              "offset": 561401,
+              "aliases": [
+                "doctor"
+              ],
+              "context": "8790,Assets/_Art_LastWar/Models/Cars/A_Hero_Doctor_01/matetial/PBR"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/gameres",
+              "offset": 561468,
+              "aliases": [
+                "doctor"
+              ],
+              "context": "8791,Assets/_Art_LastWar/Models/Cars/A_Hero_Doctor_01/mesh"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/gameres",
+              "offset": 561527,
+              "aliases": [
+                "doctor"
+              ],
+              "context": "8792,Assets/_Art_LastWar/Models/Cars/A_Hero_Doctor_01/mesh/PBR"
+            }
+          ],
+          "proximityEvidence": [
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/gameres",
+              "alias": "doctor",
+              "aliasOffset": 346997,
+              "distance": 7,
+              "context": ",Assets/_Art_LastWar/GenGPUAnim/Main/Prefabs/LWBattle/Zombie 5728,Assets/_Art_LastWar/GenGPUAnim/Main/Prefabs/NewBies/Prefab 5729,Assets/_Art_LastWar/GenGPUAnim/_Art_LastWar/Models/Cars/A_Hero_David_01/prefab 5730,Assets/_Art_LastWar/GenGPUAnim/_Art_LastWar/Models/Cars/A_Hero_Monica_01/prefab 5731,Assets/_Art_LastWar/GenGPUAnim/_Art_LastWar/Models/Characters/Soldier/bubing04/prefab 5732,Assets/_Art_LastWar/GenGPUAnim/_Art_LastWar/Models/Characters/Soldier/bubing05/prefab 5733,Assets/_Art_LastWar/GenGPUAnim/_Art_LastWar/Models/Characters/Soldier/bubing11/prefab 5734,Assets/_Art_LastWar/GenGPUAnim/test_qiu_skin 5735,Assets/_Art_LastWar/Models/Cars/A_Hero_Adam_01/prefab 5736,Assets/_Art_LastWar"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/gameres",
+              "alias": "doctor",
+              "aliasOffset": 561185,
+              "distance": 7,
+              "context": "rt_LastWar/Models/Cars/A_Hero_blackwidow/mesh 8762,Assets/_Art_LastWar/Models/Cars/A_Hero_blackwidow/texture 8763,Assets/_Art_LastWar/Models/Cars/A_Hero_Cage_02/animation 8764,Assets/_Art_LastWar/Models/Cars/A_Hero_Cage_02/animator 8765,Assets/_Art_LastWar/Models/Cars/A_Hero_Cage_02/material 8766,Assets/_Art_LastWar/Models/Cars/A_Hero_Cage_02/material/Common 8767,Assets/_Art_LastWar/Models/Cars/A_Hero_Cage_02/material/PBR 8768,Assets/_Art_LastWar/Models/Cars/A_Hero_Cage_02/mesh 8769,Assets/_Art_LastWar/Models/Cars/A_Hero_Cage_02/mesh/PBR 8770,Assets/_Art_LastWar/Models/Cars/A_Hero_Cage_02/texture 8771,Assets/_Art_LastWar/Models/Cars/A_Hero_Cage_02/texture/PBR 8772,Assets/_Art_LastWar/Models/"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/gameres",
+              "alias": "doctor",
+              "aliasOffset": 3085768,
+              "distance": 7,
+              "context": "_timeline.prefab 59092,5742,A_Hero_Audie_zhuanwu_04_world.prefab 59093,5743,A_Hero_Basilone_01_Weapons.prefab 59094,5743,Hero_Basilone.prefab 59095,5743,Hero_Basilone_battle.prefab 59096,5743,Hero_Basilone_city_hero.prefab 59097,5743,Hero_Basilone_pve_battle.prefab 59098,5743,Hero_Basilone_world.prefab 59099,5743,Hero_Basilone_zhanshi.prefab 59100,5744,Hero_blackwidow.prefab 59101,5744,Hero_blackwidow_battle.prefab 59102,5744,Hero_blackwidow_city_hero.prefab 59103,5744,Hero_blackwidow_pve_battle.prefab 59104,5744,Hero_blackwidow_world.prefab 59105,5744,Hero_blackwidow_zhanshi.prefab 59106,5745,A_Hero_Cage_02.prefab 59107,5745,A_Hero_Cage_02_PBR.prefab 59108,5745,A_Hero_Cage_02_PBR_zhanshi.pr"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/gameres",
+              "alias": "doctor",
+              "aliasOffset": 3958610,
+              "distance": 7,
+              "context": "1521,8773,Hero_david01_Timeline.playable 81522,8774,A_Hero_David_01.mat 81523,8774,shadow_show_david.mat 81524,8775,A_Hero_David_01_light_01.mat 81525,8775,A_Hero_David_01_light_02.mat 81526,8775,A_Hero_David_01_light_03.mat 81527,8775,A_Hero_David_01_light_04.mat 81528,8776,A_Hero_David_01_PBR.mat 81529,8776,A_Hero_David_01_soldier.mat 81530,8776,A_Hero_David_01_soldier_zhanshi.mat 81531,8777,A_Hero@David_01_skin.fbx 81532,8778,A_Hero_David_01_D.tga 81533,8778,A_Hero_David_01_N.tga 81534,8778,A_Hero_David_01_S.tga 81535,8779,A_Hero_David_01_D.tga 81536,8779,A_Hero_David_01_N.tga 81537,8779,A_Hero_David_01_S.tga 81538,8780,A_soldier_bubing01_body_D.tga 81539,8780,A_soldier_bubing02_body_N.tg"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/BundleOffsetTable.bytes",
+              "alias": "doctor",
+              "aliasOffset": 127035,
+              "distance": 7,
+              "context": "inspecialdir_a_hero_cage_02_prefab_a_hero_cage_02_city_a4e26705fe18a5fb2ccc96a61ee338b3.bundle jgameres_art_file_inspecialdir_a_hero_cage_02_prefab_a_hero_cage_02_ef879fa5193c94251ae7928208231cdf.bundle ngameres_art_file_inspecialdir_a_hero_cage_02_prefab_a_hero_cage_02_pbr_3e2899d35afbb018e365abb8531ffef4.bundle vgameres_art_file_inspecialdir_a_hero_cage_02_prefab_a_hero_cage_02_pbr_zhanshi_d086bc860b8bf1e4f7772a6e66a401a4.bundle1 ogameres_art_file_inspecialdir_a_hero_cage_02_prefab_hero_cage_02_camera_223988c2315d5f9ac879afc359dd5368.bundleQ qgameres_art_file_inspecialdir_a_hero_cage_02_prefab_hero_cage_02_timeline_ff5e3dd25eb7aa4b5e5bfecdd969d88b.bundleA lgameres_art_file_inspecialdir_a_h"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/BundleOffsetTable.bytes",
+              "alias": "doctor",
+              "aliasOffset": 272312,
+              "distance": 7,
+              "context": "hgameres_auto_assets__art_lastwar_models_cars_a_hero_cage_02_mesh_66ccc3b8ab91efc68b1d93b286344648.bundle lgameres_auto_assets__art_lastwar_models_cars_a_hero_cage_02_mesh_pbr_9122a31c193b11087798d636f0442732.bundle kgameres_auto_assets__art_lastwar_models_cars_a_hero_cage_02_texture_c40f41d47c61f70192cab089a647c240.bundlerzd ogameres_auto_assets__art_lastwar_models_cars_a_hero_cage_02_texture_pbr_886d658de2ea1abd2681064cfd9cf390.bundleW ngameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_animation_c523b89ad89383c96fef340d2af1836a.bundle mgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_animator_105376672601d8767f85f615ea3daf0c.bundle mgameres_auto_assets__art_lastwar_m"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/BundleOffsetTable.bytes",
+              "alias": "doctor",
+              "aliasOffset": 127059,
+              "distance": 31,
+              "context": "_02_prefab_a_hero_cage_02_city_a4e26705fe18a5fb2ccc96a61ee338b3.bundle jgameres_art_file_inspecialdir_a_hero_cage_02_prefab_a_hero_cage_02_ef879fa5193c94251ae7928208231cdf.bundle ngameres_art_file_inspecialdir_a_hero_cage_02_prefab_a_hero_cage_02_pbr_3e2899d35afbb018e365abb8531ffef4.bundle vgameres_art_file_inspecialdir_a_hero_cage_02_prefab_a_hero_cage_02_pbr_zhanshi_d086bc860b8bf1e4f7772a6e66a401a4.bundle1 ogameres_art_file_inspecialdir_a_hero_cage_02_prefab_hero_cage_02_camera_223988c2315d5f9ac879afc359dd5368.bundleQ qgameres_art_file_inspecialdir_a_hero_cage_02_prefab_hero_cage_02_timeline_ff5e3dd25eb7aa4b5e5bfecdd969d88b.bundleA lgameres_art_file_inspecialdir_a_hero_david_01_prefab_a_he"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/gameres",
+              "alias": "doctor",
+              "aliasOffset": 3958564,
+              "distance": 39,
+              "context": "81520,8773,david01_preview.controller 81521,8773,Hero_david01_Timeline.playable 81522,8774,A_Hero_David_01.mat 81523,8774,shadow_show_david.mat 81524,8775,A_Hero_David_01_light_01.mat 81525,8775,A_Hero_David_01_light_02.mat 81526,8775,A_Hero_David_01_light_03.mat 81527,8775,A_Hero_David_01_light_04.mat 81528,8776,A_Hero_David_01_PBR.mat 81529,8776,A_Hero_David_01_soldier.mat 81530,8776,A_Hero_David_01_soldier_zhanshi.mat 81531,8777,A_Hero@David_01_skin.fbx 81532,8778,A_Hero_David_01_D.tga 81533,8778,A_Hero_David_01_N.tga 81534,8778,A_Hero_David_01_S.tga 81535,8779,A_Hero_David_01_D.tga 81536,8779,A_Hero_David_01_N.tga 81537,8779,A_Hero_David_01_S.tga 81538,8780,A_soldier_bubing01_body_D.tga "
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/gameres",
+              "alias": "doctor",
+              "aliasOffset": 3958642,
+              "distance": 39,
+              "context": "81522,8774,A_Hero_David_01.mat 81523,8774,shadow_show_david.mat 81524,8775,A_Hero_David_01_light_01.mat 81525,8775,A_Hero_David_01_light_02.mat 81526,8775,A_Hero_David_01_light_03.mat 81527,8775,A_Hero_David_01_light_04.mat 81528,8776,A_Hero_David_01_PBR.mat 81529,8776,A_Hero_David_01_soldier.mat 81530,8776,A_Hero_David_01_soldier_zhanshi.mat 81531,8777,A_Hero@David_01_skin.fbx 81532,8778,A_Hero_David_01_D.tga 81533,8778,A_Hero_David_01_N.tga 81534,8778,A_Hero_David_01_S.tga 81535,8779,A_Hero_David_01_D.tga 81536,8779,A_Hero_David_01_N.tga 81537,8779,A_Hero_David_01_S.tga 81538,8780,A_soldier_bubing01_body_D.tga 81539,8780,A_soldier_bubing02_body_N.tga 81540,8780,A_soldier_bubing02_body_S.tg"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/gameres",
+              "alias": "doctor",
+              "aliasOffset": 3085803,
+              "distance": 42,
+              "context": "Audie_zhuanwu_04_world.prefab 59093,5743,A_Hero_Basilone_01_Weapons.prefab 59094,5743,Hero_Basilone.prefab 59095,5743,Hero_Basilone_battle.prefab 59096,5743,Hero_Basilone_city_hero.prefab 59097,5743,Hero_Basilone_pve_battle.prefab 59098,5743,Hero_Basilone_world.prefab 59099,5743,Hero_Basilone_zhanshi.prefab 59100,5744,Hero_blackwidow.prefab 59101,5744,Hero_blackwidow_battle.prefab 59102,5744,Hero_blackwidow_city_hero.prefab 59103,5744,Hero_blackwidow_pve_battle.prefab 59104,5744,Hero_blackwidow_world.prefab 59105,5744,Hero_blackwidow_zhanshi.prefab 59106,5745,A_Hero_Cage_02.prefab 59107,5745,A_Hero_Cage_02_PBR.prefab 59108,5745,A_Hero_Cage_02_PBR_zhanshi.prefab 59109,5745,A_Hero_Cage_02_batt"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/gameres",
+              "alias": "doctor",
+              "aliasOffset": 347058,
+              "distance": 68,
+              "context": "5728,Assets/_Art_LastWar/GenGPUAnim/Main/Prefabs/NewBies/Prefab 5729,Assets/_Art_LastWar/GenGPUAnim/_Art_LastWar/Models/Cars/A_Hero_David_01/prefab 5730,Assets/_Art_LastWar/GenGPUAnim/_Art_LastWar/Models/Cars/A_Hero_Monica_01/prefab 5731,Assets/_Art_LastWar/GenGPUAnim/_Art_LastWar/Models/Characters/Soldier/bubing04/prefab 5732,Assets/_Art_LastWar/GenGPUAnim/_Art_LastWar/Models/Characters/Soldier/bubing05/prefab 5733,Assets/_Art_LastWar/GenGPUAnim/_Art_LastWar/Models/Characters/Soldier/bubing11/prefab 5734,Assets/_Art_LastWar/GenGPUAnim/test_qiu_skin 5735,Assets/_Art_LastWar/Models/Cars/A_Hero_Adam_01/prefab 5736,Assets/_Art_LastWar/Models/Cars/A_Hero_Alex_01/prefab 5737,Assets/_Art_LastWar/M"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/gameres",
+              "alias": "doctor",
+              "aliasOffset": 561249,
+              "distance": 71,
+              "context": "astWar/Models/Cars/A_Hero_blackwidow/texture 8763,Assets/_Art_LastWar/Models/Cars/A_Hero_Cage_02/animation 8764,Assets/_Art_LastWar/Models/Cars/A_Hero_Cage_02/animator 8765,Assets/_Art_LastWar/Models/Cars/A_Hero_Cage_02/material 8766,Assets/_Art_LastWar/Models/Cars/A_Hero_Cage_02/material/Common 8767,Assets/_Art_LastWar/Models/Cars/A_Hero_Cage_02/material/PBR 8768,Assets/_Art_LastWar/Models/Cars/A_Hero_Cage_02/mesh 8769,Assets/_Art_LastWar/Models/Cars/A_Hero_Cage_02/mesh/PBR 8770,Assets/_Art_LastWar/Models/Cars/A_Hero_Cage_02/texture 8771,Assets/_Art_LastWar/Models/Cars/A_Hero_Cage_02/texture/PBR 8772,Assets/_Art_LastWar/Models/Cars/A_Hero_David_01/animation 8773,Assets/_Art_LastWar/Models/C"
+            }
+          ],
+          "paths": [
+            "Assets/_Art_LastWar/Models/Cars/A_Hero_Doctor_01/animation",
+            "Assets/_Art_LastWar/Models/Cars/A_Hero_Doctor_01/animator",
+            "Assets/_Art_LastWar/Models/Cars/A_Hero_Doctor_01/matetial",
+            "Assets/_Art_LastWar/Models/Cars/A_Hero_Doctor_01/matetial/Common",
+            "Assets/_Art_LastWar/Models/Cars/A_Hero_Doctor_01/matetial/PBR",
+            "Assets/_Art_LastWar/Models/Cars/A_Hero_Doctor_01/mesh",
+            "Assets/_Art_LastWar/Models/Cars/A_Hero_Doctor_01/mesh/PBR",
+            "Assets/_Art_LastWar/Models/Cars/A_Hero_Doctor_01/prefab",
+            "Assets/_Art_LastWar/Models/Cars/A_Hero_Doctor_01/texture",
+            "Assets/_Art_LastWar/Models/Cars/A_Hero_Doctor_01/texture/PBR",
+            "gameres_art_file_inspecialdir_a_hero_doctor_01_prefab_a_hero_doctor_01_48d477c3d2cba14071f830a29636a457.bundle",
+            "gameres_art_file_inspecialdir_a_hero_doctor_01_prefab_a_hero_doctor_01_battle_2b999a181cf9fea1c763f4b229477373.bundle",
+            "gameres_art_file_inspecialdir_a_hero_doctor_01_prefab_a_hero_doctor_01_city_hero_1b2b0037af56edb388011e88986cd8bf.bundle",
+            "gameres_art_file_inspecialdir_a_hero_doctor_01_prefab_a_hero_doctor_01_pbr_1866c22395a227e88abc5f788c476ad9.bundle",
+            "gameres_art_file_inspecialdir_a_hero_doctor_01_prefab_a_hero_doctor_01_pbr_zhanshi_b1c45abf0130aeefa539eee8320ebbb0.bundle",
+            "gameres_art_file_inspecialdir_a_hero_doctor_01_prefab_a_hero_doctor_01_pve_battle_2e27fd9f21ff2cb5907a151856ceb5d1.bundle",
+            "gameres_art_file_inspecialdir_a_hero_doctor_01_prefab_a_hero_doctor_01_world_1307db8e2d909db61b571a74106b142d.bundle",
+            "gameres_art_file_inspecialdir_a_hero_doctor_01_prefab_hero_doctor_01_camera_9b5f298b35152a9d3f3bd801ed57e91b.bundle",
+            "gameres_art_file_inspecialdir_a_hero_doctor_01_prefab_hero_doctor_01_timeline_93de8112ae383b408daaa2c2f19b9b52.bundle",
+            "gameres_auto_assets__art_lastwar_models_cars_a_hero_doctor_01_animation_5491911f627e4907b6f313e1048fe013.bundle"
+          ]
+        },
+        {
+          "vehicleRoot": "a_hero_doctor_02",
+          "core": "doctor",
+          "score": 31910,
+          "evidenceScore": 28450,
+          "assetKinds": [
+            "animation",
+            "camera",
+            "mesh",
+            "prefab",
+            "texture",
+            "timeline"
+          ],
+          "sourceFamilies": [
+            "InSpecialDir",
+            "Models/Cars"
+          ],
+          "occurrences": 24,
+          "directEvidence": [
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/gameres",
+              "offset": 347014,
+              "aliases": [
+                "doctor"
+              ],
+              "context": "5750,Assets/_Art_LastWar/Models/Cars/A_Hero_Doctor_02/prefab"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/gameres",
+              "offset": 561718,
+              "aliases": [
+                "doctor"
+              ],
+              "context": "8795,Assets/_Art_LastWar/Models/Cars/A_Hero_Doctor_02/animation"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/gameres",
+              "offset": 561782,
+              "aliases": [
+                "doctor"
+              ],
+              "context": "8796,Assets/_Art_LastWar/Models/Cars/A_Hero_Doctor_02/materail"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/gameres",
+              "offset": 561845,
+              "aliases": [
+                "doctor"
+              ],
+              "context": "8797,Assets/_Art_LastWar/Models/Cars/A_Hero_Doctor_02/materail/Common"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/gameres",
+              "offset": 561915,
+              "aliases": [
+                "doctor"
+              ],
+              "context": "8798,Assets/_Art_LastWar/Models/Cars/A_Hero_Doctor_02/materail/PBR"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/gameres",
+              "offset": 561982,
+              "aliases": [
+                "doctor"
+              ],
+              "context": "8799,Assets/_Art_LastWar/Models/Cars/A_Hero_Doctor_02/mesh"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/gameres",
+              "offset": 562041,
+              "aliases": [
+                "doctor"
+              ],
+              "context": "8800,Assets/_Art_LastWar/Models/Cars/A_Hero_Doctor_02/mesh/PBR"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/gameres",
+              "offset": 562104,
+              "aliases": [
+                "doctor"
+              ],
+              "context": "8801,Assets/_Art_LastWar/Models/Cars/A_Hero_Doctor_02/texture"
+            }
+          ],
+          "proximityEvidence": [
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/gameres",
+              "alias": "doctor",
+              "aliasOffset": 347058,
+              "distance": 7,
+              "context": "5728,Assets/_Art_LastWar/GenGPUAnim/Main/Prefabs/NewBies/Prefab 5729,Assets/_Art_LastWar/GenGPUAnim/_Art_LastWar/Models/Cars/A_Hero_David_01/prefab 5730,Assets/_Art_LastWar/GenGPUAnim/_Art_LastWar/Models/Cars/A_Hero_Monica_01/prefab 5731,Assets/_Art_LastWar/GenGPUAnim/_Art_LastWar/Models/Characters/Soldier/bubing04/prefab 5732,Assets/_Art_LastWar/GenGPUAnim/_Art_LastWar/Models/Characters/Soldier/bubing05/prefab 5733,Assets/_Art_LastWar/GenGPUAnim/_Art_LastWar/Models/Characters/Soldier/bubing11/prefab 5734,Assets/_Art_LastWar/GenGPUAnim/test_qiu_skin 5735,Assets/_Art_LastWar/Models/Cars/A_Hero_Adam_01/prefab 5736,Assets/_Art_LastWar/Models/Cars/A_Hero_Alex_01/prefab 5737,Assets/_Art_LastWar/M"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/gameres",
+              "alias": "doctor",
+              "aliasOffset": 561762,
+              "distance": 7,
+              "context": "ars/A_Hero_Cage_02/texture 8771,Assets/_Art_LastWar/Models/Cars/A_Hero_Cage_02/texture/PBR 8772,Assets/_Art_LastWar/Models/Cars/A_Hero_David_01/animation 8773,Assets/_Art_LastWar/Models/Cars/A_Hero_David_01/animator 8774,Assets/_Art_LastWar/Models/Cars/A_Hero_David_01/material 8775,Assets/_Art_LastWar/Models/Cars/A_Hero_David_01/material/Common 8776,Assets/_Art_LastWar/Models/Cars/A_Hero_David_01/material/PBR 8777,Assets/_Art_LastWar/Models/Cars/A_Hero_David_01/mesh 8778,Assets/_Art_LastWar/Models/Cars/A_Hero_David_01/texture 8779,Assets/_Art_LastWar/Models/Cars/A_Hero_David_01/texture/PBR 8780,Assets/_Art_LastWar/Models/Cars/A_Hero_David_01/texture/soldier 8781,Assets/_Art_LastWar/Models/Ca"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/gameres",
+              "alias": "doctor",
+              "aliasOffset": 3086145,
+              "distance": 7,
+              "context": "59101,5744,Hero_blackwidow_battle.prefab 59102,5744,Hero_blackwidow_city_hero.prefab 59103,5744,Hero_blackwidow_pve_battle.prefab 59104,5744,Hero_blackwidow_world.prefab 59105,5744,Hero_blackwidow_zhanshi.prefab 59106,5745,A_Hero_Cage_02.prefab 59107,5745,A_Hero_Cage_02_PBR.prefab 59108,5745,A_Hero_Cage_02_PBR_zhanshi.prefab 59109,5745,A_Hero_Cage_02_battle.prefab 59110,5745,A_Hero_Cage_02_city.prefab 59111,5745,A_Hero_Cage_02_world.prefab 59112,5745,Hero_Cage_02_Timeline.prefab 59113,5745,Hero_Cage_02_camera.prefab 59114,5746,A_Hero_David_01.prefab 59115,5746,A_Hero_David_01_PBR.prefab 59116,5746,A_Hero_David_01_PBR_zhanshi.prefab 59117,5746,A_Hero_David_01_battle.prefab 59118,5746,A_Hero_D"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/gameres",
+              "alias": "doctor",
+              "aliasOffset": 3958680,
+              "distance": 7,
+              "context": "81523,8774,shadow_show_david.mat 81524,8775,A_Hero_David_01_light_01.mat 81525,8775,A_Hero_David_01_light_02.mat 81526,8775,A_Hero_David_01_light_03.mat 81527,8775,A_Hero_David_01_light_04.mat 81528,8776,A_Hero_David_01_PBR.mat 81529,8776,A_Hero_David_01_soldier.mat 81530,8776,A_Hero_David_01_soldier_zhanshi.mat 81531,8777,A_Hero@David_01_skin.fbx 81532,8778,A_Hero_David_01_D.tga 81533,8778,A_Hero_David_01_N.tga 81534,8778,A_Hero_David_01_S.tga 81535,8779,A_Hero_David_01_D.tga 81536,8779,A_Hero_David_01_N.tga 81537,8779,A_Hero_David_01_S.tga 81538,8780,A_soldier_bubing01_body_D.tga 81539,8780,A_soldier_bubing02_body_N.tga 81540,8780,A_soldier_bubing02_body_S.tga 81541,8781,A_Hero@David_02_at"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/gameres",
+              "alias": "doctor",
+              "aliasOffset": 3958642,
+              "distance": 31,
+              "context": "81522,8774,A_Hero_David_01.mat 81523,8774,shadow_show_david.mat 81524,8775,A_Hero_David_01_light_01.mat 81525,8775,A_Hero_David_01_light_02.mat 81526,8775,A_Hero_David_01_light_03.mat 81527,8775,A_Hero_David_01_light_04.mat 81528,8776,A_Hero_David_01_PBR.mat 81529,8776,A_Hero_David_01_soldier.mat 81530,8776,A_Hero_David_01_soldier_zhanshi.mat 81531,8777,A_Hero@David_01_skin.fbx 81532,8778,A_Hero_David_01_D.tga 81533,8778,A_Hero_David_01_N.tga 81534,8778,A_Hero_David_01_S.tga 81535,8779,A_Hero_David_01_D.tga 81536,8779,A_Hero_David_01_N.tga 81537,8779,A_Hero_David_01_S.tga 81538,8780,A_soldier_bubing01_body_D.tga 81539,8780,A_soldier_bubing02_body_N.tga 81540,8780,A_soldier_bubing02_body_S.tg"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/gameres",
+              "alias": "doctor",
+              "aliasOffset": 3086103,
+              "distance": 35,
+              "context": "59100,5744,Hero_blackwidow.prefab 59101,5744,Hero_blackwidow_battle.prefab 59102,5744,Hero_blackwidow_city_hero.prefab 59103,5744,Hero_blackwidow_pve_battle.prefab 59104,5744,Hero_blackwidow_world.prefab 59105,5744,Hero_blackwidow_zhanshi.prefab 59106,5745,A_Hero_Cage_02.prefab 59107,5745,A_Hero_Cage_02_PBR.prefab 59108,5745,A_Hero_Cage_02_PBR_zhanshi.prefab 59109,5745,A_Hero_Cage_02_battle.prefab 59110,5745,A_Hero_Cage_02_city.prefab 59111,5745,A_Hero_Cage_02_world.prefab 59112,5745,Hero_Cage_02_Timeline.prefab 59113,5745,Hero_Cage_02_camera.prefab 59114,5746,A_Hero_David_01.prefab 59115,5746,A_Hero_David_01_PBR.prefab 59116,5746,A_Hero_David_01_PBR_zhanshi.prefab 59117,5746,A_Hero_David_01"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/gameres",
+              "alias": "doctor",
+              "aliasOffset": 3958712,
+              "distance": 39,
+              "context": "81524,8775,A_Hero_David_01_light_01.mat 81525,8775,A_Hero_David_01_light_02.mat 81526,8775,A_Hero_David_01_light_03.mat 81527,8775,A_Hero_David_01_light_04.mat 81528,8776,A_Hero_David_01_PBR.mat 81529,8776,A_Hero_David_01_soldier.mat 81530,8776,A_Hero_David_01_soldier_zhanshi.mat 81531,8777,A_Hero@David_01_skin.fbx 81532,8778,A_Hero_David_01_D.tga 81533,8778,A_Hero_David_01_N.tga 81534,8778,A_Hero_David_01_S.tga 81535,8779,A_Hero_David_01_D.tga 81536,8779,A_Hero_David_01_N.tga 81537,8779,A_Hero_David_01_S.tga 81538,8780,A_soldier_bubing01_body_D.tga 81539,8780,A_soldier_bubing02_body_N.tga 81540,8780,A_soldier_bubing02_body_S.tga 81541,8781,A_Hero@David_02_attack.fbx 81542,8781,A_Hero@David_"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/gameres",
+              "alias": "doctor",
+              "aliasOffset": 3086180,
+              "distance": 42,
+              "context": "59102,5744,Hero_blackwidow_city_hero.prefab 59103,5744,Hero_blackwidow_pve_battle.prefab 59104,5744,Hero_blackwidow_world.prefab 59105,5744,Hero_blackwidow_zhanshi.prefab 59106,5745,A_Hero_Cage_02.prefab 59107,5745,A_Hero_Cage_02_PBR.prefab 59108,5745,A_Hero_Cage_02_PBR_zhanshi.prefab 59109,5745,A_Hero_Cage_02_battle.prefab 59110,5745,A_Hero_Cage_02_city.prefab 59111,5745,A_Hero_Cage_02_world.prefab 59112,5745,Hero_Cage_02_Timeline.prefab 59113,5745,Hero_Cage_02_camera.prefab 59114,5746,A_Hero_David_01.prefab 59115,5746,A_Hero_David_01_PBR.prefab 59116,5746,A_Hero_David_01_PBR_zhanshi.prefab 59117,5746,A_Hero_David_01_battle.prefab 59118,5746,A_Hero_David_01_city_hero.prefab 59119,5746,A_Her"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/gameres",
+              "alias": "doctor",
+              "aliasOffset": 346997,
+              "distance": 54,
+              "context": ",Assets/_Art_LastWar/GenGPUAnim/Main/Prefabs/LWBattle/Zombie 5728,Assets/_Art_LastWar/GenGPUAnim/Main/Prefabs/NewBies/Prefab 5729,Assets/_Art_LastWar/GenGPUAnim/_Art_LastWar/Models/Cars/A_Hero_David_01/prefab 5730,Assets/_Art_LastWar/GenGPUAnim/_Art_LastWar/Models/Cars/A_Hero_Monica_01/prefab 5731,Assets/_Art_LastWar/GenGPUAnim/_Art_LastWar/Models/Characters/Soldier/bubing04/prefab 5732,Assets/_Art_LastWar/GenGPUAnim/_Art_LastWar/Models/Characters/Soldier/bubing05/prefab 5733,Assets/_Art_LastWar/GenGPUAnim/_Art_LastWar/Models/Characters/Soldier/bubing11/prefab 5734,Assets/_Art_LastWar/GenGPUAnim/test_qiu_skin 5735,Assets/_Art_LastWar/Models/Cars/A_Hero_Adam_01/prefab 5736,Assets/_Art_LastWar"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/gameres",
+              "alias": "doctor",
+              "aliasOffset": 561696,
+              "distance": 59,
+              "context": "els/Cars/A_Hero_Cage_02/mesh/PBR 8770,Assets/_Art_LastWar/Models/Cars/A_Hero_Cage_02/texture 8771,Assets/_Art_LastWar/Models/Cars/A_Hero_Cage_02/texture/PBR 8772,Assets/_Art_LastWar/Models/Cars/A_Hero_David_01/animation 8773,Assets/_Art_LastWar/Models/Cars/A_Hero_David_01/animator 8774,Assets/_Art_LastWar/Models/Cars/A_Hero_David_01/material 8775,Assets/_Art_LastWar/Models/Cars/A_Hero_David_01/material/Common 8776,Assets/_Art_LastWar/Models/Cars/A_Hero_David_01/material/PBR 8777,Assets/_Art_LastWar/Models/Cars/A_Hero_David_01/mesh 8778,Assets/_Art_LastWar/Models/Cars/A_Hero_David_01/texture 8779,Assets/_Art_LastWar/Models/Cars/A_Hero_David_01/texture/PBR 8780,Assets/_Art_LastWar/Models/Cars/"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/gameres",
+              "alias": "doctor",
+              "aliasOffset": 3958610,
+              "distance": 63,
+              "context": "1521,8773,Hero_david01_Timeline.playable 81522,8774,A_Hero_David_01.mat 81523,8774,shadow_show_david.mat 81524,8775,A_Hero_David_01_light_01.mat 81525,8775,A_Hero_David_01_light_02.mat 81526,8775,A_Hero_David_01_light_03.mat 81527,8775,A_Hero_David_01_light_04.mat 81528,8776,A_Hero_David_01_PBR.mat 81529,8776,A_Hero_David_01_soldier.mat 81530,8776,A_Hero_David_01_soldier_zhanshi.mat 81531,8777,A_Hero@David_01_skin.fbx 81532,8778,A_Hero_David_01_D.tga 81533,8778,A_Hero_David_01_N.tga 81534,8778,A_Hero_David_01_S.tga 81535,8779,A_Hero_David_01_D.tga 81536,8779,A_Hero_David_01_N.tga 81537,8779,A_Hero_David_01_S.tga 81538,8780,A_soldier_bubing01_body_D.tga 81539,8780,A_soldier_bubing02_body_N.tg"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/gameres",
+              "alias": "doctor",
+              "aliasOffset": 561826,
+              "distance": 71,
+              "context": "A_Hero_Cage_02/texture/PBR 8772,Assets/_Art_LastWar/Models/Cars/A_Hero_David_01/animation 8773,Assets/_Art_LastWar/Models/Cars/A_Hero_David_01/animator 8774,Assets/_Art_LastWar/Models/Cars/A_Hero_David_01/material 8775,Assets/_Art_LastWar/Models/Cars/A_Hero_David_01/material/Common 8776,Assets/_Art_LastWar/Models/Cars/A_Hero_David_01/material/PBR 8777,Assets/_Art_LastWar/Models/Cars/A_Hero_David_01/mesh 8778,Assets/_Art_LastWar/Models/Cars/A_Hero_David_01/texture 8779,Assets/_Art_LastWar/Models/Cars/A_Hero_David_01/texture/PBR 8780,Assets/_Art_LastWar/Models/Cars/A_Hero_David_01/texture/soldier 8781,Assets/_Art_LastWar/Models/Cars/A_Hero_David_02/animation 8782,Assets/_Art_LastWar/Models/Car"
+            }
+          ],
+          "paths": [
+            "Assets/_Art_LastWar/Models/Cars/A_Hero_Doctor_02/animation",
+            "Assets/_Art_LastWar/Models/Cars/A_Hero_Doctor_02/materail",
+            "Assets/_Art_LastWar/Models/Cars/A_Hero_Doctor_02/materail/Common",
+            "Assets/_Art_LastWar/Models/Cars/A_Hero_Doctor_02/materail/PBR",
+            "Assets/_Art_LastWar/Models/Cars/A_Hero_Doctor_02/mesh",
+            "Assets/_Art_LastWar/Models/Cars/A_Hero_Doctor_02/mesh/PBR",
+            "Assets/_Art_LastWar/Models/Cars/A_Hero_Doctor_02/prefab",
+            "Assets/_Art_LastWar/Models/Cars/A_Hero_Doctor_02/texture",
+            "Assets/_Art_LastWar/Models/Cars/A_Hero_Doctor_02/texture/PBR",
+            "Assets/_Art_LastWar/Models/Cars/A_Hero_Doctor_02/texture_guanzi",
+            "gameres_art_file_inspecialdir_a_hero_doctor_02_prefab_a_hero_doctor_02_a79249d5ecbd5916c68306852c353303.bundle",
+            "gameres_art_file_inspecialdir_a_hero_doctor_02_prefab_a_hero_doctor_02_battle_b2246fb482f9d827d93d91bacceeccba.bundle",
+            "gameres_art_file_inspecialdir_a_hero_doctor_02_prefab_a_hero_doctor_02_city_46920238f7c42ba269065bd27d99b82d.bundle",
+            "gameres_art_file_inspecialdir_a_hero_doctor_02_prefab_a_hero_doctor_02_pbr_56f7e36cf17a26fbc6dd232ded7012e6.bundle",
+            "gameres_art_file_inspecialdir_a_hero_doctor_02_prefab_a_hero_doctor_02_pbr_zhanshi_5df75bde4660bd6983a4cc2a4830e6cf.bundle",
+            "gameres_art_file_inspecialdir_a_hero_doctor_02_prefab_a_hero_doctor_02_world_20e71e8ab8536ff7c1afaf387a3c507f.bundle",
+            "gameres_art_file_inspecialdir_a_hero_doctor_02_prefab_hero_doctor_02_camera_e98c91375c057b8d9d3793e6b43dcfbc.bundle",
+            "gameres_art_file_inspecialdir_a_hero_doctor_02_prefab_hero_doctor_02_timeline_57190449bbcfff4177dd4a4e0dae5a0a.bundle",
+            "gameres_auto_assets__art_lastwar_models_cars_a_hero_doctor_02_animation_8db63b7dd55a3bfe12dbc4b533c78500.bundle",
+            "gameres_auto_assets__art_lastwar_models_cars_a_hero_doctor_02_mesh_309b992f87a34b901771e26a8cf2d5cb.bundle"
+          ]
+        },
+        {
+          "vehicleRoot": "a_hero_doctor_01_matetial_dad851c0d3e93fef51df66cba5aea5d5",
+          "core": "doctor",
+          "score": 25300,
+          "evidenceScore": 24850,
+          "assetKinds": [],
+          "sourceFamilies": [
+            "Models/Cars"
+          ],
+          "occurrences": 2,
+          "directEvidence": [
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/gameres",
+              "offset": 15071276,
+              "aliases": [
+                "doctor"
+              ],
+              "context": "26713,gameres_auto_assets__art_lastwar_models_cars_a_hero_doctor_01_matetial_dad851c0d3e93fef51df66cba5aea5d5.bundle,1715995203,3222,81563|81564|81565,26718|4670|9511,0|899999,633539b4b7137076e764a37552af94e7785e600dc2641fb867622792705742b3.bundle"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/BundleOffsetTable.bytes",
+              "offset": 272624,
+              "aliases": [
+                "doctor"
+              ],
+              "context": "ngameres_auto_assets__art_lastwar_models_cars_a_hero_doctor_01_matetial_dad851c0d3e93fef51df66cba5aea5d5.bundle"
+            }
+          ],
+          "proximityEvidence": [
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/BundleOffsetTable.bytes",
+              "alias": "doctor",
+              "aliasOffset": 272677,
+              "distance": 7,
+              "context": "ets__art_lastwar_models_cars_a_hero_cage_02_texture_pbr_886d658de2ea1abd2681064cfd9cf390.bundleW ngameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_animation_c523b89ad89383c96fef340d2af1836a.bundle mgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_animator_105376672601d8767f85f615ea3daf0c.bundle mgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_material_cccce00ccbe9b386f2f3bb96d6344a72.bundle tgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_material_common_6b6efaa59021847c4fe8a40076d82f01.bundle)k qgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_material_pbr_22c306587ff87a51b01436ad2422a49b.bundle igameres_auto_assets__art_lastwar_"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/BundleOffsetTable.bytes",
+              "alias": "doctor",
+              "aliasOffset": 272551,
+              "distance": 119,
+              "context": "s_auto_assets__art_lastwar_models_cars_a_hero_cage_02_texture_c40f41d47c61f70192cab089a647c240.bundlerzd ogameres_auto_assets__art_lastwar_models_cars_a_hero_cage_02_texture_pbr_886d658de2ea1abd2681064cfd9cf390.bundleW ngameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_animation_c523b89ad89383c96fef340d2af1836a.bundle mgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_animator_105376672601d8767f85f615ea3daf0c.bundle mgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_material_cccce00ccbe9b386f2f3bb96d6344a72.bundle tgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_material_common_6b6efaa59021847c4fe8a40076d82f01.bundle)k qgameres_auto_assets__art_l"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/BundleOffsetTable.bytes",
+              "alias": "doctor",
+              "aliasOffset": 272796,
+              "distance": 126,
+              "context": "sets__art_lastwar_models_cars_a_hero_david_01_animation_c523b89ad89383c96fef340d2af1836a.bundle mgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_animator_105376672601d8767f85f615ea3daf0c.bundle mgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_material_cccce00ccbe9b386f2f3bb96d6344a72.bundle tgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_material_common_6b6efaa59021847c4fe8a40076d82f01.bundle)k qgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_material_pbr_22c306587ff87a51b01436ad2422a49b.bundle igameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_mesh_7b5f1bb8c0ad3aebf8b66aa49e4d9f85.bundle lgameres_auto_assets__art_lastwar_models"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/BundleOffsetTable.bytes",
+              "alias": "doctor",
+              "aliasOffset": 272432,
+              "distance": 238,
+              "context": "res_auto_assets__art_lastwar_models_cars_a_hero_cage_02_mesh_pbr_9122a31c193b11087798d636f0442732.bundle kgameres_auto_assets__art_lastwar_models_cars_a_hero_cage_02_texture_c40f41d47c61f70192cab089a647c240.bundlerzd ogameres_auto_assets__art_lastwar_models_cars_a_hero_cage_02_texture_pbr_886d658de2ea1abd2681064cfd9cf390.bundleW ngameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_animation_c523b89ad89383c96fef340d2af1836a.bundle mgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_animator_105376672601d8767f85f615ea3daf0c.bundle mgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_material_cccce00ccbe9b386f2f3bb96d6344a72.bundle tgameres_auto_assets__art_lastwar_m"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/BundleOffsetTable.bytes",
+              "alias": "doctor",
+              "aliasOffset": 272919,
+              "distance": 249,
+              "context": "__art_lastwar_models_cars_a_hero_david_01_animator_105376672601d8767f85f615ea3daf0c.bundle mgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_material_cccce00ccbe9b386f2f3bb96d6344a72.bundle tgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_material_common_6b6efaa59021847c4fe8a40076d82f01.bundle)k qgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_material_pbr_22c306587ff87a51b01436ad2422a49b.bundle igameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_mesh_7b5f1bb8c0ad3aebf8b66aa49e4d9f85.bundle lgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_texture_765df5e72e5a7c7293a38bb94e273c92.bundle* pgameres_auto_assets__art_lastwar_models_cars"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/BundleOffsetTable.bytes",
+              "alias": "doctor",
+              "aliasOffset": 272312,
+              "distance": 358,
+              "context": "hgameres_auto_assets__art_lastwar_models_cars_a_hero_cage_02_mesh_66ccc3b8ab91efc68b1d93b286344648.bundle lgameres_auto_assets__art_lastwar_models_cars_a_hero_cage_02_mesh_pbr_9122a31c193b11087798d636f0442732.bundle kgameres_auto_assets__art_lastwar_models_cars_a_hero_cage_02_texture_c40f41d47c61f70192cab089a647c240.bundlerzd ogameres_auto_assets__art_lastwar_models_cars_a_hero_cage_02_texture_pbr_886d658de2ea1abd2681064cfd9cf390.bundleW ngameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_animation_c523b89ad89383c96fef340d2af1836a.bundle mgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_animator_105376672601d8767f85f615ea3daf0c.bundle mgameres_auto_assets__art_lastwar_m"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/BundleOffsetTable.bytes",
+              "alias": "doctor",
+              "aliasOffset": 273034,
+              "distance": 364,
+              "context": "ets__art_lastwar_models_cars_a_hero_david_01_material_cccce00ccbe9b386f2f3bb96d6344a72.bundle tgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_material_common_6b6efaa59021847c4fe8a40076d82f01.bundle)k qgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_material_pbr_22c306587ff87a51b01436ad2422a49b.bundle igameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_mesh_7b5f1bb8c0ad3aebf8b66aa49e4d9f85.bundle lgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_texture_765df5e72e5a7c7293a38bb94e273c92.bundle* pgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_texture_pbr_c567d3b4020aa3257a703743bebd92d6.bundle? tgameres_auto_assets__art_lastwar_mode"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/BundleOffsetTable.bytes",
+              "alias": "doctor",
+              "aliasOffset": 273153,
+              "distance": 483,
+              "context": "ts__art_lastwar_models_cars_a_hero_david_01_material_common_6b6efaa59021847c4fe8a40076d82f01.bundle)k qgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_material_pbr_22c306587ff87a51b01436ad2422a49b.bundle igameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_mesh_7b5f1bb8c0ad3aebf8b66aa49e4d9f85.bundle lgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_texture_765df5e72e5a7c7293a38bb94e273c92.bundle* pgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_texture_pbr_c567d3b4020aa3257a703743bebd92d6.bundle? tgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_texture_soldier_65655435abecfad518e48678735df734.bundle ogameres_auto_assets__art_lastwa"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/BundleOffsetTable.bytes",
+              "alias": "doctor",
+              "aliasOffset": 273271,
+              "distance": 601,
+              "context": "to_assets__art_lastwar_models_cars_a_hero_david_01_material_pbr_22c306587ff87a51b01436ad2422a49b.bundle igameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_mesh_7b5f1bb8c0ad3aebf8b66aa49e4d9f85.bundle lgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_texture_765df5e72e5a7c7293a38bb94e273c92.bundle* pgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_texture_pbr_c567d3b4020aa3257a703743bebd92d6.bundle? tgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_texture_soldier_65655435abecfad518e48678735df734.bundle ogameres_auto_assets__art_lastwar_models_cars_a_hero_doctor_01_animation_5491911f627e4907b6f313e1048fe013.bundle ngameres_auto_assets__art_lastwa"
+            }
+          ],
+          "paths": [
+            "gameres_auto_assets__art_lastwar_models_cars_a_hero_doctor_01_matetial_dad851c0d3e93fef51df66cba5aea5d5.bundle",
+            "ngameres_auto_assets__art_lastwar_models_cars_a_hero_doctor_01_matetial_dad851c0d3e93fef51df66cba5aea5d5.bundle"
+          ]
+        },
+        {
+          "vehicleRoot": "a_hero_doctor_01_matetial_common_43774ce9d9f18bddcb578c2dfbe04a90",
+          "core": "doctor",
+          "score": 25300,
+          "evidenceScore": 24850,
+          "assetKinds": [],
+          "sourceFamilies": [
+            "Models/Cars"
+          ],
+          "occurrences": 2,
+          "directEvidence": [
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/gameres",
+              "offset": 15071524,
+              "aliases": [
+                "doctor"
+              ],
+              "context": "26714,gameres_auto_assets__art_lastwar_models_cars_a_hero_doctor_01_matetial_common_43774ce9d9f18bddcb578c2dfbe04a90.bundle,623560425,3367,81566|81567,4670,0|899999,54a9aa816a5c91cf431a6d327095d4056914ce1c16629f77a507840cab921717.bundle"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/BundleOffsetTable.bytes",
+              "offset": 272498,
+              "aliases": [
+                "doctor"
+              ],
+              "context": "ugameres_auto_assets__art_lastwar_models_cars_a_hero_doctor_01_matetial_common_43774ce9d9f18bddcb578c2dfbe04a90.bundle"
+            }
+          ],
+          "proximityEvidence": [
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/BundleOffsetTable.bytes",
+              "alias": "doctor",
+              "aliasOffset": 272551,
+              "distance": 7,
+              "context": "s_auto_assets__art_lastwar_models_cars_a_hero_cage_02_texture_c40f41d47c61f70192cab089a647c240.bundlerzd ogameres_auto_assets__art_lastwar_models_cars_a_hero_cage_02_texture_pbr_886d658de2ea1abd2681064cfd9cf390.bundleW ngameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_animation_c523b89ad89383c96fef340d2af1836a.bundle mgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_animator_105376672601d8767f85f615ea3daf0c.bundle mgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_material_cccce00ccbe9b386f2f3bb96d6344a72.bundle tgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_material_common_6b6efaa59021847c4fe8a40076d82f01.bundle)k qgameres_auto_assets__art_l"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/BundleOffsetTable.bytes",
+              "alias": "doctor",
+              "aliasOffset": 272432,
+              "distance": 112,
+              "context": "res_auto_assets__art_lastwar_models_cars_a_hero_cage_02_mesh_pbr_9122a31c193b11087798d636f0442732.bundle kgameres_auto_assets__art_lastwar_models_cars_a_hero_cage_02_texture_c40f41d47c61f70192cab089a647c240.bundlerzd ogameres_auto_assets__art_lastwar_models_cars_a_hero_cage_02_texture_pbr_886d658de2ea1abd2681064cfd9cf390.bundleW ngameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_animation_c523b89ad89383c96fef340d2af1836a.bundle mgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_animator_105376672601d8767f85f615ea3daf0c.bundle mgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_material_cccce00ccbe9b386f2f3bb96d6344a72.bundle tgameres_auto_assets__art_lastwar_m"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/BundleOffsetTable.bytes",
+              "alias": "doctor",
+              "aliasOffset": 272677,
+              "distance": 133,
+              "context": "ets__art_lastwar_models_cars_a_hero_cage_02_texture_pbr_886d658de2ea1abd2681064cfd9cf390.bundleW ngameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_animation_c523b89ad89383c96fef340d2af1836a.bundle mgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_animator_105376672601d8767f85f615ea3daf0c.bundle mgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_material_cccce00ccbe9b386f2f3bb96d6344a72.bundle tgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_material_common_6b6efaa59021847c4fe8a40076d82f01.bundle)k qgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_material_pbr_22c306587ff87a51b01436ad2422a49b.bundle igameres_auto_assets__art_lastwar_"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/BundleOffsetTable.bytes",
+              "alias": "doctor",
+              "aliasOffset": 272312,
+              "distance": 232,
+              "context": "hgameres_auto_assets__art_lastwar_models_cars_a_hero_cage_02_mesh_66ccc3b8ab91efc68b1d93b286344648.bundle lgameres_auto_assets__art_lastwar_models_cars_a_hero_cage_02_mesh_pbr_9122a31c193b11087798d636f0442732.bundle kgameres_auto_assets__art_lastwar_models_cars_a_hero_cage_02_texture_c40f41d47c61f70192cab089a647c240.bundlerzd ogameres_auto_assets__art_lastwar_models_cars_a_hero_cage_02_texture_pbr_886d658de2ea1abd2681064cfd9cf390.bundleW ngameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_animation_c523b89ad89383c96fef340d2af1836a.bundle mgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_animator_105376672601d8767f85f615ea3daf0c.bundle mgameres_auto_assets__art_lastwar_m"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/BundleOffsetTable.bytes",
+              "alias": "doctor",
+              "aliasOffset": 272796,
+              "distance": 252,
+              "context": "sets__art_lastwar_models_cars_a_hero_david_01_animation_c523b89ad89383c96fef340d2af1836a.bundle mgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_animator_105376672601d8767f85f615ea3daf0c.bundle mgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_material_cccce00ccbe9b386f2f3bb96d6344a72.bundle tgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_material_common_6b6efaa59021847c4fe8a40076d82f01.bundle)k qgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_material_pbr_22c306587ff87a51b01436ad2422a49b.bundle igameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_mesh_7b5f1bb8c0ad3aebf8b66aa49e4d9f85.bundle lgameres_auto_assets__art_lastwar_models"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/BundleOffsetTable.bytes",
+              "alias": "doctor",
+              "aliasOffset": 272919,
+              "distance": 375,
+              "context": "__art_lastwar_models_cars_a_hero_david_01_animator_105376672601d8767f85f615ea3daf0c.bundle mgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_material_cccce00ccbe9b386f2f3bb96d6344a72.bundle tgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_material_common_6b6efaa59021847c4fe8a40076d82f01.bundle)k qgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_material_pbr_22c306587ff87a51b01436ad2422a49b.bundle igameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_mesh_7b5f1bb8c0ad3aebf8b66aa49e4d9f85.bundle lgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_texture_765df5e72e5a7c7293a38bb94e273c92.bundle* pgameres_auto_assets__art_lastwar_models_cars"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/BundleOffsetTable.bytes",
+              "alias": "doctor",
+              "aliasOffset": 273034,
+              "distance": 490,
+              "context": "ets__art_lastwar_models_cars_a_hero_david_01_material_cccce00ccbe9b386f2f3bb96d6344a72.bundle tgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_material_common_6b6efaa59021847c4fe8a40076d82f01.bundle)k qgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_material_pbr_22c306587ff87a51b01436ad2422a49b.bundle igameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_mesh_7b5f1bb8c0ad3aebf8b66aa49e4d9f85.bundle lgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_texture_765df5e72e5a7c7293a38bb94e273c92.bundle* pgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_texture_pbr_c567d3b4020aa3257a703743bebd92d6.bundle? tgameres_auto_assets__art_lastwar_mode"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/BundleOffsetTable.bytes",
+              "alias": "doctor",
+              "aliasOffset": 273153,
+              "distance": 609,
+              "context": "ts__art_lastwar_models_cars_a_hero_david_01_material_common_6b6efaa59021847c4fe8a40076d82f01.bundle)k qgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_material_pbr_22c306587ff87a51b01436ad2422a49b.bundle igameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_mesh_7b5f1bb8c0ad3aebf8b66aa49e4d9f85.bundle lgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_texture_765df5e72e5a7c7293a38bb94e273c92.bundle* pgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_texture_pbr_c567d3b4020aa3257a703743bebd92d6.bundle? tgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_texture_soldier_65655435abecfad518e48678735df734.bundle ogameres_auto_assets__art_lastwa"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/BundleOffsetTable.bytes",
+              "alias": "doctor",
+              "aliasOffset": 273271,
+              "distance": 727,
+              "context": "to_assets__art_lastwar_models_cars_a_hero_david_01_material_pbr_22c306587ff87a51b01436ad2422a49b.bundle igameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_mesh_7b5f1bb8c0ad3aebf8b66aa49e4d9f85.bundle lgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_texture_765df5e72e5a7c7293a38bb94e273c92.bundle* pgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_texture_pbr_c567d3b4020aa3257a703743bebd92d6.bundle? tgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_texture_soldier_65655435abecfad518e48678735df734.bundle ogameres_auto_assets__art_lastwar_models_cars_a_hero_doctor_01_animation_5491911f627e4907b6f313e1048fe013.bundle ngameres_auto_assets__art_lastwa"
+            }
+          ],
+          "paths": [
+            "gameres_auto_assets__art_lastwar_models_cars_a_hero_doctor_01_matetial_common_43774ce9d9f18bddcb578c2dfbe04a90.bundle",
+            "ugameres_auto_assets__art_lastwar_models_cars_a_hero_doctor_01_matetial_common_43774ce9d9f18bddcb578c2dfbe04a90.bundle"
+          ]
+        },
+        {
+          "vehicleRoot": "a_hero_doctor_01_matetial_pbr_2e1d13e08241e1b7b550423f7fa5e3c1",
+          "core": "doctor",
+          "score": 25300,
+          "evidenceScore": 24850,
+          "assetKinds": [],
+          "sourceFamilies": [
+            "Models/Cars"
+          ],
+          "occurrences": 2,
+          "directEvidence": [
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/gameres",
+              "offset": 15071761,
+              "aliases": [
+                "doctor"
+              ],
+              "context": "26715,gameres_auto_assets__art_lastwar_models_cars_a_hero_doctor_01_matetial_pbr_2e1d13e08241e1b7b550423f7fa5e3c1.bundle,1846494240,4076,81568|81569|81570,15692|26704|26719|4670,0,c85ce0302c3ebe194d27e82b35a3a0d53e24a92cfbc25bfbb081db95c7fbb665.bundle"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/BundleOffsetTable.bytes",
+              "offset": 272743,
+              "aliases": [
+                "doctor"
+              ],
+              "context": "rgameres_auto_assets__art_lastwar_models_cars_a_hero_doctor_01_matetial_pbr_2e1d13e08241e1b7b550423f7fa5e3c1.bundle"
+            }
+          ],
+          "proximityEvidence": [
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/BundleOffsetTable.bytes",
+              "alias": "doctor",
+              "aliasOffset": 272796,
+              "distance": 7,
+              "context": "sets__art_lastwar_models_cars_a_hero_david_01_animation_c523b89ad89383c96fef340d2af1836a.bundle mgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_animator_105376672601d8767f85f615ea3daf0c.bundle mgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_material_cccce00ccbe9b386f2f3bb96d6344a72.bundle tgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_material_common_6b6efaa59021847c4fe8a40076d82f01.bundle)k qgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_material_pbr_22c306587ff87a51b01436ad2422a49b.bundle igameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_mesh_7b5f1bb8c0ad3aebf8b66aa49e4d9f85.bundle lgameres_auto_assets__art_lastwar_models"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/BundleOffsetTable.bytes",
+              "alias": "doctor",
+              "aliasOffset": 272677,
+              "distance": 112,
+              "context": "ets__art_lastwar_models_cars_a_hero_cage_02_texture_pbr_886d658de2ea1abd2681064cfd9cf390.bundleW ngameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_animation_c523b89ad89383c96fef340d2af1836a.bundle mgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_animator_105376672601d8767f85f615ea3daf0c.bundle mgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_material_cccce00ccbe9b386f2f3bb96d6344a72.bundle tgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_material_common_6b6efaa59021847c4fe8a40076d82f01.bundle)k qgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_material_pbr_22c306587ff87a51b01436ad2422a49b.bundle igameres_auto_assets__art_lastwar_"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/BundleOffsetTable.bytes",
+              "alias": "doctor",
+              "aliasOffset": 272919,
+              "distance": 130,
+              "context": "__art_lastwar_models_cars_a_hero_david_01_animator_105376672601d8767f85f615ea3daf0c.bundle mgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_material_cccce00ccbe9b386f2f3bb96d6344a72.bundle tgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_material_common_6b6efaa59021847c4fe8a40076d82f01.bundle)k qgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_material_pbr_22c306587ff87a51b01436ad2422a49b.bundle igameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_mesh_7b5f1bb8c0ad3aebf8b66aa49e4d9f85.bundle lgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_texture_765df5e72e5a7c7293a38bb94e273c92.bundle* pgameres_auto_assets__art_lastwar_models_cars"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/BundleOffsetTable.bytes",
+              "alias": "doctor",
+              "aliasOffset": 272551,
+              "distance": 238,
+              "context": "s_auto_assets__art_lastwar_models_cars_a_hero_cage_02_texture_c40f41d47c61f70192cab089a647c240.bundlerzd ogameres_auto_assets__art_lastwar_models_cars_a_hero_cage_02_texture_pbr_886d658de2ea1abd2681064cfd9cf390.bundleW ngameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_animation_c523b89ad89383c96fef340d2af1836a.bundle mgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_animator_105376672601d8767f85f615ea3daf0c.bundle mgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_material_cccce00ccbe9b386f2f3bb96d6344a72.bundle tgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_material_common_6b6efaa59021847c4fe8a40076d82f01.bundle)k qgameres_auto_assets__art_l"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/BundleOffsetTable.bytes",
+              "alias": "doctor",
+              "aliasOffset": 273034,
+              "distance": 245,
+              "context": "ets__art_lastwar_models_cars_a_hero_david_01_material_cccce00ccbe9b386f2f3bb96d6344a72.bundle tgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_material_common_6b6efaa59021847c4fe8a40076d82f01.bundle)k qgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_material_pbr_22c306587ff87a51b01436ad2422a49b.bundle igameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_mesh_7b5f1bb8c0ad3aebf8b66aa49e4d9f85.bundle lgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_texture_765df5e72e5a7c7293a38bb94e273c92.bundle* pgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_texture_pbr_c567d3b4020aa3257a703743bebd92d6.bundle? tgameres_auto_assets__art_lastwar_mode"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/BundleOffsetTable.bytes",
+              "alias": "doctor",
+              "aliasOffset": 272432,
+              "distance": 357,
+              "context": "res_auto_assets__art_lastwar_models_cars_a_hero_cage_02_mesh_pbr_9122a31c193b11087798d636f0442732.bundle kgameres_auto_assets__art_lastwar_models_cars_a_hero_cage_02_texture_c40f41d47c61f70192cab089a647c240.bundlerzd ogameres_auto_assets__art_lastwar_models_cars_a_hero_cage_02_texture_pbr_886d658de2ea1abd2681064cfd9cf390.bundleW ngameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_animation_c523b89ad89383c96fef340d2af1836a.bundle mgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_animator_105376672601d8767f85f615ea3daf0c.bundle mgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_material_cccce00ccbe9b386f2f3bb96d6344a72.bundle tgameres_auto_assets__art_lastwar_m"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/BundleOffsetTable.bytes",
+              "alias": "doctor",
+              "aliasOffset": 273153,
+              "distance": 364,
+              "context": "ts__art_lastwar_models_cars_a_hero_david_01_material_common_6b6efaa59021847c4fe8a40076d82f01.bundle)k qgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_material_pbr_22c306587ff87a51b01436ad2422a49b.bundle igameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_mesh_7b5f1bb8c0ad3aebf8b66aa49e4d9f85.bundle lgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_texture_765df5e72e5a7c7293a38bb94e273c92.bundle* pgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_texture_pbr_c567d3b4020aa3257a703743bebd92d6.bundle? tgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_texture_soldier_65655435abecfad518e48678735df734.bundle ogameres_auto_assets__art_lastwa"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/BundleOffsetTable.bytes",
+              "alias": "doctor",
+              "aliasOffset": 272312,
+              "distance": 477,
+              "context": "hgameres_auto_assets__art_lastwar_models_cars_a_hero_cage_02_mesh_66ccc3b8ab91efc68b1d93b286344648.bundle lgameres_auto_assets__art_lastwar_models_cars_a_hero_cage_02_mesh_pbr_9122a31c193b11087798d636f0442732.bundle kgameres_auto_assets__art_lastwar_models_cars_a_hero_cage_02_texture_c40f41d47c61f70192cab089a647c240.bundlerzd ogameres_auto_assets__art_lastwar_models_cars_a_hero_cage_02_texture_pbr_886d658de2ea1abd2681064cfd9cf390.bundleW ngameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_animation_c523b89ad89383c96fef340d2af1836a.bundle mgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_animator_105376672601d8767f85f615ea3daf0c.bundle mgameres_auto_assets__art_lastwar_m"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/BundleOffsetTable.bytes",
+              "alias": "doctor",
+              "aliasOffset": 273271,
+              "distance": 482,
+              "context": "to_assets__art_lastwar_models_cars_a_hero_david_01_material_pbr_22c306587ff87a51b01436ad2422a49b.bundle igameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_mesh_7b5f1bb8c0ad3aebf8b66aa49e4d9f85.bundle lgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_texture_765df5e72e5a7c7293a38bb94e273c92.bundle* pgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_texture_pbr_c567d3b4020aa3257a703743bebd92d6.bundle? tgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_texture_soldier_65655435abecfad518e48678735df734.bundle ogameres_auto_assets__art_lastwar_models_cars_a_hero_doctor_01_animation_5491911f627e4907b6f313e1048fe013.bundle ngameres_auto_assets__art_lastwa"
+            }
+          ],
+          "paths": [
+            "gameres_auto_assets__art_lastwar_models_cars_a_hero_doctor_01_matetial_pbr_2e1d13e08241e1b7b550423f7fa5e3c1.bundle",
+            "rgameres_auto_assets__art_lastwar_models_cars_a_hero_doctor_01_matetial_pbr_2e1d13e08241e1b7b550423f7fa5e3c1.bundle"
+          ]
+        },
+        {
+          "vehicleRoot": "a_hero_doctor_02_materail_81852a13193254138b35a2fd84ca2088",
+          "core": "doctor",
+          "score": 14250,
+          "evidenceScore": 13800,
+          "assetKinds": [],
+          "sourceFamilies": [
+            "Models/Cars"
+          ],
+          "occurrences": 1,
+          "directEvidence": [
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/gameres",
+              "offset": 15073221,
+              "aliases": [
+                "doctor"
+              ],
+              "context": "26721,gameres_auto_assets__art_lastwar_models_cars_a_hero_doctor_02_materail_81852a13193254138b35a2fd84ca2088.bundle,78481935,3233,81592|81593,26726|26727|4670|9511,3012,67599cae0fd42c6a5019791ca55def587df1d55bbd96b0c2e3ce6c680d774dc1.bundle"
+            }
+          ],
+          "proximityEvidence": [],
+          "paths": [
+            "gameres_auto_assets__art_lastwar_models_cars_a_hero_doctor_02_materail_81852a13193254138b35a2fd84ca2088.bundle"
+          ]
+        },
+        {
+          "vehicleRoot": "a_hero_doctor_02_materail_common_814f8d883737ef07420bbafbe790f74f",
+          "core": "doctor",
+          "score": 14250,
+          "evidenceScore": 13800,
+          "assetKinds": [],
+          "sourceFamilies": [
+            "Models/Cars"
+          ],
+          "occurrences": 1,
+          "directEvidence": [
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/gameres",
+              "offset": 15073463,
+              "aliases": [
+                "doctor"
+              ],
+              "context": "26722,gameres_auto_assets__art_lastwar_models_cars_a_hero_doctor_02_materail_common_814f8d883737ef07420bbafbe790f74f.bundle,3114017121,3490,81594|81595,26728|23728|4670|9511,3012,ff4e8efb2434a20ec4cfcc3fb6fa4c27a1689dd41b72ac815d9138db798c0cb4.bundle"
+            }
+          ],
+          "proximityEvidence": [],
+          "paths": [
+            "gameres_auto_assets__art_lastwar_models_cars_a_hero_doctor_02_materail_common_814f8d883737ef07420bbafbe790f74f.bundle"
+          ]
+        },
+        {
+          "vehicleRoot": "a_hero_doctor_02_materail_pbr_dab31d2410ad5b4020d0840a634c4600",
+          "core": "doctor",
+          "score": 14250,
+          "evidenceScore": 13800,
+          "assetKinds": [],
+          "sourceFamilies": [
+            "Models/Cars"
+          ],
+          "occurrences": 1,
+          "directEvidence": [
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/gameres",
+              "offset": 15073714,
+              "aliases": [
+                "doctor"
+              ],
+              "context": "26723,gameres_auto_assets__art_lastwar_models_cars_a_hero_doctor_02_materail_pbr_dab31d2410ad5b4020d0840a634c4600.bundle,1988939519,3388,81596|81597,26727|4670|9511,3012,1ade76b0d57e04d33ab55d65107517cb569654e512a0fefa2e950d3d05c61975.bundle"
+            }
+          ],
+          "proximityEvidence": [],
+          "paths": [
+            "gameres_auto_assets__art_lastwar_models_cars_a_hero_doctor_02_materail_pbr_dab31d2410ad5b4020d0840a634c4600.bundle"
+          ]
+        },
+        {
+          "vehicleRoot": "a_hero_doss_01",
+          "core": "doss",
+          "score": 12450,
+          "evidenceScore": 9250,
+          "assetKinds": [
+            "animation",
+            "material",
+            "mesh",
+            "prefab",
+            "texture"
+          ],
+          "sourceFamilies": [
+            "InSpecialDir",
+            "Models/Cars"
+          ],
+          "occurrences": 19,
+          "directEvidence": [],
+          "proximityEvidence": [
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/gameres",
+              "alias": "doctor",
+              "aliasOffset": 347058,
+              "distance": 54,
+              "context": "5728,Assets/_Art_LastWar/GenGPUAnim/Main/Prefabs/NewBies/Prefab 5729,Assets/_Art_LastWar/GenGPUAnim/_Art_LastWar/Models/Cars/A_Hero_David_01/prefab 5730,Assets/_Art_LastWar/GenGPUAnim/_Art_LastWar/Models/Cars/A_Hero_Monica_01/prefab 5731,Assets/_Art_LastWar/GenGPUAnim/_Art_LastWar/Models/Characters/Soldier/bubing04/prefab 5732,Assets/_Art_LastWar/GenGPUAnim/_Art_LastWar/Models/Characters/Soldier/bubing05/prefab 5733,Assets/_Art_LastWar/GenGPUAnim/_Art_LastWar/Models/Characters/Soldier/bubing11/prefab 5734,Assets/_Art_LastWar/GenGPUAnim/test_qiu_skin 5735,Assets/_Art_LastWar/Models/Cars/A_Hero_Adam_01/prefab 5736,Assets/_Art_LastWar/Models/Cars/A_Hero_Alex_01/prefab 5737,Assets/_Art_LastWar/M"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/gameres",
+              "alias": "doctor",
+              "aliasOffset": 562276,
+              "distance": 62,
+              "context": "_David_01/texture 8779,Assets/_Art_LastWar/Models/Cars/A_Hero_David_01/texture/PBR 8780,Assets/_Art_LastWar/Models/Cars/A_Hero_David_01/texture/soldier 8781,Assets/_Art_LastWar/Models/Cars/A_Hero_David_02/animation 8782,Assets/_Art_LastWar/Models/Cars/A_Hero_David_02/material 8783,Assets/_Art_LastWar/Models/Cars/A_Hero_David_02/material/Common 8784,Assets/_Art_LastWar/Models/Cars/A_Hero_David_02/mesh 8785,Assets/_Art_LastWar/Models/Cars/A_Hero_David_02/texture 8786,Assets/_Art_LastWar/Models/Cars/A_Hero_Doctor_01/animation 8787,Assets/_Art_LastWar/Models/Cars/A_Hero_Doctor_01/animator 8788,Assets/_Art_LastWar/Models/Cars/A_Hero_Doctor_01/matetial 8789,Assets/_Art_LastWar/Models/Cars/A_Hero_D"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/gameres",
+              "alias": "doctor",
+              "aliasOffset": 346997,
+              "distance": 115,
+              "context": ",Assets/_Art_LastWar/GenGPUAnim/Main/Prefabs/LWBattle/Zombie 5728,Assets/_Art_LastWar/GenGPUAnim/Main/Prefabs/NewBies/Prefab 5729,Assets/_Art_LastWar/GenGPUAnim/_Art_LastWar/Models/Cars/A_Hero_David_01/prefab 5730,Assets/_Art_LastWar/GenGPUAnim/_Art_LastWar/Models/Cars/A_Hero_Monica_01/prefab 5731,Assets/_Art_LastWar/GenGPUAnim/_Art_LastWar/Models/Characters/Soldier/bubing04/prefab 5732,Assets/_Art_LastWar/GenGPUAnim/_Art_LastWar/Models/Characters/Soldier/bubing05/prefab 5733,Assets/_Art_LastWar/GenGPUAnim/_Art_LastWar/Models/Characters/Soldier/bubing11/prefab 5734,Assets/_Art_LastWar/GenGPUAnim/test_qiu_skin 5735,Assets/_Art_LastWar/Models/Cars/A_Hero_Adam_01/prefab 5736,Assets/_Art_LastWar"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/BundleOffsetTable.bytes",
+              "alias": "doctor",
+              "aliasOffset": 273271,
+              "distance": 115,
+              "context": "to_assets__art_lastwar_models_cars_a_hero_david_01_material_pbr_22c306587ff87a51b01436ad2422a49b.bundle igameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_mesh_7b5f1bb8c0ad3aebf8b66aa49e4d9f85.bundle lgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_texture_765df5e72e5a7c7293a38bb94e273c92.bundle* pgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_texture_pbr_c567d3b4020aa3257a703743bebd92d6.bundle? tgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_texture_soldier_65655435abecfad518e48678735df734.bundle ogameres_auto_assets__art_lastwar_models_cars_a_hero_doctor_01_animation_5491911f627e4907b6f313e1048fe013.bundle ngameres_auto_assets__art_lastwa"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/gameres",
+              "alias": "doctor",
+              "aliasOffset": 562210,
+              "distance": 128,
+              "context": "s/A_Hero_David_01/mesh 8778,Assets/_Art_LastWar/Models/Cars/A_Hero_David_01/texture 8779,Assets/_Art_LastWar/Models/Cars/A_Hero_David_01/texture/PBR 8780,Assets/_Art_LastWar/Models/Cars/A_Hero_David_01/texture/soldier 8781,Assets/_Art_LastWar/Models/Cars/A_Hero_David_02/animation 8782,Assets/_Art_LastWar/Models/Cars/A_Hero_David_02/material 8783,Assets/_Art_LastWar/Models/Cars/A_Hero_David_02/material/Common 8784,Assets/_Art_LastWar/Models/Cars/A_Hero_David_02/mesh 8785,Assets/_Art_LastWar/Models/Cars/A_Hero_David_02/texture 8786,Assets/_Art_LastWar/Models/Cars/A_Hero_Doctor_01/animation 8787,Assets/_Art_LastWar/Models/Cars/A_Hero_Doctor_01/animator 8788,Assets/_Art_LastWar/Models/Cars/A_Her"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/gameres",
+              "alias": "doctor",
+              "aliasOffset": 562148,
+              "distance": 190,
+              "context": "Hero_David_01/material/PBR 8777,Assets/_Art_LastWar/Models/Cars/A_Hero_David_01/mesh 8778,Assets/_Art_LastWar/Models/Cars/A_Hero_David_01/texture 8779,Assets/_Art_LastWar/Models/Cars/A_Hero_David_01/texture/PBR 8780,Assets/_Art_LastWar/Models/Cars/A_Hero_David_01/texture/soldier 8781,Assets/_Art_LastWar/Models/Cars/A_Hero_David_02/animation 8782,Assets/_Art_LastWar/Models/Cars/A_Hero_David_02/material 8783,Assets/_Art_LastWar/Models/Cars/A_Hero_David_02/material/Common 8784,Assets/_Art_LastWar/Models/Cars/A_Hero_David_02/mesh 8785,Assets/_Art_LastWar/Models/Cars/A_Hero_David_02/texture 8786,Assets/_Art_LastWar/Models/Cars/A_Hero_Doctor_01/animation 8787,Assets/_Art_LastWar/Models/Cars/A_Hero"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/BundleOffsetTable.bytes",
+              "alias": "doctor",
+              "aliasOffset": 273153,
+              "distance": 233,
+              "context": "ts__art_lastwar_models_cars_a_hero_david_01_material_common_6b6efaa59021847c4fe8a40076d82f01.bundle)k qgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_material_pbr_22c306587ff87a51b01436ad2422a49b.bundle igameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_mesh_7b5f1bb8c0ad3aebf8b66aa49e4d9f85.bundle lgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_texture_765df5e72e5a7c7293a38bb94e273c92.bundle* pgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_texture_pbr_c567d3b4020aa3257a703743bebd92d6.bundle? tgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_texture_soldier_65655435abecfad518e48678735df734.bundle ogameres_auto_assets__art_lastwa"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/gameres",
+              "alias": "doctor",
+              "aliasOffset": 562085,
+              "distance": 253,
+              "context": "avid_01/material/Common 8776,Assets/_Art_LastWar/Models/Cars/A_Hero_David_01/material/PBR 8777,Assets/_Art_LastWar/Models/Cars/A_Hero_David_01/mesh 8778,Assets/_Art_LastWar/Models/Cars/A_Hero_David_01/texture 8779,Assets/_Art_LastWar/Models/Cars/A_Hero_David_01/texture/PBR 8780,Assets/_Art_LastWar/Models/Cars/A_Hero_David_01/texture/soldier 8781,Assets/_Art_LastWar/Models/Cars/A_Hero_David_02/animation 8782,Assets/_Art_LastWar/Models/Cars/A_Hero_David_02/material 8783,Assets/_Art_LastWar/Models/Cars/A_Hero_David_02/material/Common 8784,Assets/_Art_LastWar/Models/Cars/A_Hero_David_02/mesh 8785,Assets/_Art_LastWar/Models/Cars/A_Hero_David_02/texture 8786,Assets/_Art_LastWar/Models/Cars/A_Hero_"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/gameres",
+              "alias": "doctor",
+              "aliasOffset": 562026,
+              "distance": 312,
+              "context": "8775,Assets/_Art_LastWar/Models/Cars/A_Hero_David_01/material/Common 8776,Assets/_Art_LastWar/Models/Cars/A_Hero_David_01/material/PBR 8777,Assets/_Art_LastWar/Models/Cars/A_Hero_David_01/mesh 8778,Assets/_Art_LastWar/Models/Cars/A_Hero_David_01/texture 8779,Assets/_Art_LastWar/Models/Cars/A_Hero_David_01/texture/PBR 8780,Assets/_Art_LastWar/Models/Cars/A_Hero_David_01/texture/soldier 8781,Assets/_Art_LastWar/Models/Cars/A_Hero_David_02/animation 8782,Assets/_Art_LastWar/Models/Cars/A_Hero_David_02/material 8783,Assets/_Art_LastWar/Models/Cars/A_Hero_David_02/material/Common 8784,Assets/_Art_LastWar/Models/Cars/A_Hero_David_02/mesh 8785,Assets/_Art_LastWar/Models/Cars/A_Hero_David_02/texture"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/BundleOffsetTable.bytes",
+              "alias": "doctor",
+              "aliasOffset": 273034,
+              "distance": 352,
+              "context": "ets__art_lastwar_models_cars_a_hero_david_01_material_cccce00ccbe9b386f2f3bb96d6344a72.bundle tgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_material_common_6b6efaa59021847c4fe8a40076d82f01.bundle)k qgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_material_pbr_22c306587ff87a51b01436ad2422a49b.bundle igameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_mesh_7b5f1bb8c0ad3aebf8b66aa49e4d9f85.bundle lgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_texture_765df5e72e5a7c7293a38bb94e273c92.bundle* pgameres_auto_assets__art_lastwar_models_cars_a_hero_david_01_texture_pbr_c567d3b4020aa3257a703743bebd92d6.bundle? tgameres_auto_assets__art_lastwar_mode"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/gameres",
+              "alias": "doctor",
+              "aliasOffset": 561959,
+              "distance": 379,
+              "context": "_David_01/animator 8774,Assets/_Art_LastWar/Models/Cars/A_Hero_David_01/material 8775,Assets/_Art_LastWar/Models/Cars/A_Hero_David_01/material/Common 8776,Assets/_Art_LastWar/Models/Cars/A_Hero_David_01/material/PBR 8777,Assets/_Art_LastWar/Models/Cars/A_Hero_David_01/mesh 8778,Assets/_Art_LastWar/Models/Cars/A_Hero_David_01/texture 8779,Assets/_Art_LastWar/Models/Cars/A_Hero_David_01/texture/PBR 8780,Assets/_Art_LastWar/Models/Cars/A_Hero_David_01/texture/soldier 8781,Assets/_Art_LastWar/Models/Cars/A_Hero_David_02/animation 8782,Assets/_Art_LastWar/Models/Cars/A_Hero_David_02/material 8783,Assets/_Art_LastWar/Models/Cars/A_Hero_David_02/material/Common 8784,Assets/_Art_LastWar/Models/Cars/"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/gameres",
+              "alias": "doctor",
+              "aliasOffset": 561889,
+              "distance": 449,
+              "context": "/A_Hero_David_01/animation 8773,Assets/_Art_LastWar/Models/Cars/A_Hero_David_01/animator 8774,Assets/_Art_LastWar/Models/Cars/A_Hero_David_01/material 8775,Assets/_Art_LastWar/Models/Cars/A_Hero_David_01/material/Common 8776,Assets/_Art_LastWar/Models/Cars/A_Hero_David_01/material/PBR 8777,Assets/_Art_LastWar/Models/Cars/A_Hero_David_01/mesh 8778,Assets/_Art_LastWar/Models/Cars/A_Hero_David_01/texture 8779,Assets/_Art_LastWar/Models/Cars/A_Hero_David_01/texture/PBR 8780,Assets/_Art_LastWar/Models/Cars/A_Hero_David_01/texture/soldier 8781,Assets/_Art_LastWar/Models/Cars/A_Hero_David_02/animation 8782,Assets/_Art_LastWar/Models/Cars/A_Hero_David_02/material 8783,Assets/_Art_LastWar/Models/Cars"
+            }
+          ],
+          "paths": [
+            "Assets/_Art_LastWar/Models/Cars/A_Hero_Doss_01/animation",
+            "Assets/_Art_LastWar/Models/Cars/A_Hero_Doss_01/material",
+            "Assets/_Art_LastWar/Models/Cars/A_Hero_Doss_01/mesh",
+            "Assets/_Art_LastWar/Models/Cars/A_Hero_Doss_01/prefab",
+            "Assets/_Art_LastWar/Models/Cars/A_Hero_Doss_01/texture",
+            "gameres_art_file_inspecialdir_a_hero_doss_01_prefab_a_hero_doss_01_weapon_0403c94d7b7a63cbfdd50037bd6e984f.bundle",
+            "gameres_art_file_inspecialdir_a_hero_doss_01_prefab_a_hero_doss_01_weapons_01_4f18f612b278e9b84734aaf91d2d1a66.bundle",
+            "gameres_art_file_inspecialdir_a_hero_doss_01_prefab_a_hero_doss_55e92faa61915d01abe17fe24ca86c50.bundle",
+            "gameres_art_file_inspecialdir_a_hero_doss_01_prefab_a_hero_doss_battle_6ec68a35820d60441a225c220cac5055.bundle",
+            "gameres_art_file_inspecialdir_a_hero_doss_01_prefab_a_hero_doss_city_hero_7bf2b67ed349511826c6688235a2f9d1.bundle",
+            "gameres_art_file_inspecialdir_a_hero_doss_01_prefab_a_hero_doss_pve_battle_242a6bafe2c80c46729b948743bf785d.bundle",
+            "gameres_art_file_inspecialdir_a_hero_doss_01_prefab_a_hero_doss_world_10d2e15aa5b59993cbe6c3ae15a4f105.bundle",
+            "gameres_art_file_inspecialdir_a_hero_doss_01_prefab_a_hero_doss_zhanshi_5ad8f702bf822ebe26b400e191c9f401.bundle",
+            "gameres_auto_assets__art_lastwar_models_cars_a_hero_doss_01_animation_449e4d7ac39dbc26a718fa7846808954.bundle",
+            "gameres_auto_assets__art_lastwar_models_cars_a_hero_doss_01_material_e5d17624579be3cacce63e922106f47c.bundle",
+            "gameres_auto_assets__art_lastwar_models_cars_a_hero_doss_01_mesh_7acc225b53f85656fb1df5dcc208f6c8.bundle",
+            "gameres_auto_assets__art_lastwar_models_cars_a_hero_doss_01_texture_ccbb371ac4518eaaafcdc5c69eacfec1.bundle",
+            "kgameres_auto_assets__art_lastwar_models_cars_a_hero_doss_01_texture_ccbb371ac4518eaaafcdc5c69eacfec1.bundle",
+            "lgameres_auto_assets__art_lastwar_models_cars_a_hero_doss_01_material_e5d17624579be3cacce63e922106f47c.bundle"
+          ]
+        },
+        {
+          "vehicleRoot": "a_hero_anna_01",
+          "core": "anna",
+          "score": 6300,
+          "evidenceScore": 3100,
+          "assetKinds": [
+            "material",
+            "mesh",
+            "prefab",
+            "texture",
+            "timeline"
+          ],
+          "sourceFamilies": [
+            "InSpecialDir",
+            "Models/Cars"
+          ],
+          "occurrences": 20,
+          "directEvidence": [],
+          "proximityEvidence": [
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/gameres",
+              "alias": "doctor",
+              "aliasOffset": 346997,
+              "distance": 828,
+              "context": ",Assets/_Art_LastWar/GenGPUAnim/Main/Prefabs/LWBattle/Zombie 5728,Assets/_Art_LastWar/GenGPUAnim/Main/Prefabs/NewBies/Prefab 5729,Assets/_Art_LastWar/GenGPUAnim/_Art_LastWar/Models/Cars/A_Hero_David_01/prefab 5730,Assets/_Art_LastWar/GenGPUAnim/_Art_LastWar/Models/Cars/A_Hero_Monica_01/prefab 5731,Assets/_Art_LastWar/GenGPUAnim/_Art_LastWar/Models/Characters/Soldier/bubing04/prefab 5732,Assets/_Art_LastWar/GenGPUAnim/_Art_LastWar/Models/Characters/Soldier/bubing05/prefab 5733,Assets/_Art_LastWar/GenGPUAnim/_Art_LastWar/Models/Characters/Soldier/bubing11/prefab 5734,Assets/_Art_LastWar/GenGPUAnim/test_qiu_skin 5735,Assets/_Art_LastWar/Models/Cars/A_Hero_Adam_01/prefab 5736,Assets/_Art_LastWar"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/gameres",
+              "alias": "doctor",
+              "aliasOffset": 347058,
+              "distance": 889,
+              "context": "5728,Assets/_Art_LastWar/GenGPUAnim/Main/Prefabs/NewBies/Prefab 5729,Assets/_Art_LastWar/GenGPUAnim/_Art_LastWar/Models/Cars/A_Hero_David_01/prefab 5730,Assets/_Art_LastWar/GenGPUAnim/_Art_LastWar/Models/Cars/A_Hero_Monica_01/prefab 5731,Assets/_Art_LastWar/GenGPUAnim/_Art_LastWar/Models/Characters/Soldier/bubing04/prefab 5732,Assets/_Art_LastWar/GenGPUAnim/_Art_LastWar/Models/Characters/Soldier/bubing05/prefab 5733,Assets/_Art_LastWar/GenGPUAnim/_Art_LastWar/Models/Characters/Soldier/bubing11/prefab 5734,Assets/_Art_LastWar/GenGPUAnim/test_qiu_skin 5735,Assets/_Art_LastWar/Models/Cars/A_Hero_Adam_01/prefab 5736,Assets/_Art_LastWar/Models/Cars/A_Hero_Alex_01/prefab 5737,Assets/_Art_LastWar/M"
+            }
+          ],
+          "paths": [
+            "Assets/_Art_LastWar/Models/Cars/A_Hero_Anna_01/material",
+            "Assets/_Art_LastWar/Models/Cars/A_Hero_Anna_01/material/Common",
+            "Assets/_Art_LastWar/Models/Cars/A_Hero_Anna_01/material/PBR",
+            "Assets/_Art_LastWar/Models/Cars/A_Hero_Anna_01/mesh",
+            "Assets/_Art_LastWar/Models/Cars/A_Hero_Anna_01/prefab",
+            "Assets/_Art_LastWar/Models/Cars/A_Hero_Anna_01/texture",
+            "Assets/_Art_LastWar/Models/Cars/A_Hero_Anna_01/texture/PBR",
+            "gameres_art_file_inspecialdir_a_hero_anna_01_prefab_a_hero_anna_01_b88d09be836f21efb423706cb43eed79.bundle",
+            "gameres_art_file_inspecialdir_a_hero_anna_01_prefab_a_hero_anna_01_city_8155ffac2520c1845d313d79399dba7c.bundle",
+            "gameres_art_file_inspecialdir_a_hero_anna_01_prefab_a_hero_anna_01_pbr_0f8032e56be76a76dd33e519ffab8af3.bundle",
+            "gameres_art_file_inspecialdir_a_hero_anna_01_prefab_a_hero_anna_01_pbr_zhanshi_ebc9c9e426ce38b051b63d3a9f90cd36.bundle",
+            "gameres_art_file_inspecialdir_a_hero_anna_01_prefab_a_hero_anna_01_pve_b2f10d403189b70100577829d0144791.bundle",
+            "gameres_art_file_inspecialdir_a_hero_anna_01_prefab_a_hero_anna_01_world_cbd52b619796cbf3ba9e3ed9c7f6272d.bundle",
+            "gameres_art_file_inspecialdir_a_hero_anna_01_prefab_hero_anna_01_timeline_ad585265c4ced1d46ca548ceebf01de8.bundle",
+            "gameres_auto_assets__art_lastwar_models_cars_a_hero_anna_01_material_6b9d1d3b79c3cb8c4e83849ff76db14b.bundle",
+            "gameres_auto_assets__art_lastwar_models_cars_a_hero_anna_01_material_common_ac2114b0567a0cdd2d7b0e55b7cbef5d.bundle",
+            "gameres_auto_assets__art_lastwar_models_cars_a_hero_anna_01_material_pbr_d368e32963011a08681528e1e9b209c6.bundle",
+            "gameres_auto_assets__art_lastwar_models_cars_a_hero_anna_01_mesh_b327d86fb0879ae974edd1bc119bb4e6.bundle",
+            "gameres_auto_assets__art_lastwar_models_cars_a_hero_anna_01_texture_1cd799eabb3d5ad441bf57a01cac67e3.bundle",
+            "gameres_auto_assets__art_lastwar_models_cars_a_hero_anna_01_texture_pbr_6f8ba243ac15a4e68dd271e4fab6d795.bundle"
+          ]
+        },
+        {
+          "vehicleRoot": "a_hero_wurenji_01",
+          "core": "wurenji",
+          "score": 6300,
+          "evidenceScore": 3100,
+          "assetKinds": [
+            "animation",
+            "material",
+            "mesh",
+            "prefab",
+            "texture"
+          ],
+          "sourceFamilies": [
+            "InSpecialDir",
+            "Models/Cars"
+          ],
+          "occurrences": 22,
+          "directEvidence": [],
+          "proximityEvidence": [
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/gameres",
+              "alias": "doctor",
+              "aliasOffset": 347058,
+              "distance": 650,
+              "context": "5728,Assets/_Art_LastWar/GenGPUAnim/Main/Prefabs/NewBies/Prefab 5729,Assets/_Art_LastWar/GenGPUAnim/_Art_LastWar/Models/Cars/A_Hero_David_01/prefab 5730,Assets/_Art_LastWar/GenGPUAnim/_Art_LastWar/Models/Cars/A_Hero_Monica_01/prefab 5731,Assets/_Art_LastWar/GenGPUAnim/_Art_LastWar/Models/Characters/Soldier/bubing04/prefab 5732,Assets/_Art_LastWar/GenGPUAnim/_Art_LastWar/Models/Characters/Soldier/bubing05/prefab 5733,Assets/_Art_LastWar/GenGPUAnim/_Art_LastWar/Models/Characters/Soldier/bubing11/prefab 5734,Assets/_Art_LastWar/GenGPUAnim/test_qiu_skin 5735,Assets/_Art_LastWar/Models/Cars/A_Hero_Adam_01/prefab 5736,Assets/_Art_LastWar/Models/Cars/A_Hero_Alex_01/prefab 5737,Assets/_Art_LastWar/M"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/gameres",
+              "alias": "doctor",
+              "aliasOffset": 346997,
+              "distance": 711,
+              "context": ",Assets/_Art_LastWar/GenGPUAnim/Main/Prefabs/LWBattle/Zombie 5728,Assets/_Art_LastWar/GenGPUAnim/Main/Prefabs/NewBies/Prefab 5729,Assets/_Art_LastWar/GenGPUAnim/_Art_LastWar/Models/Cars/A_Hero_David_01/prefab 5730,Assets/_Art_LastWar/GenGPUAnim/_Art_LastWar/Models/Cars/A_Hero_Monica_01/prefab 5731,Assets/_Art_LastWar/GenGPUAnim/_Art_LastWar/Models/Characters/Soldier/bubing04/prefab 5732,Assets/_Art_LastWar/GenGPUAnim/_Art_LastWar/Models/Characters/Soldier/bubing05/prefab 5733,Assets/_Art_LastWar/GenGPUAnim/_Art_LastWar/Models/Characters/Soldier/bubing11/prefab 5734,Assets/_Art_LastWar/GenGPUAnim/test_qiu_skin 5735,Assets/_Art_LastWar/Models/Cars/A_Hero_Adam_01/prefab 5736,Assets/_Art_LastWar"
+            }
+          ],
+          "paths": [
+            "Assets/_Art_LastWar/Models/Cars/A_Hero_wurenji_01/animation",
+            "Assets/_Art_LastWar/Models/Cars/A_Hero_wurenji_01/material",
+            "Assets/_Art_LastWar/Models/Cars/A_Hero_wurenji_01/mesh",
+            "Assets/_Art_LastWar/Models/Cars/A_Hero_wurenji_01/prefab",
+            "Assets/_Art_LastWar/Models/Cars/A_Hero_wurenji_01/texture",
+            "bgameres_art_file_inspecialdir_a_hero_wurenji_01_prefab_vfx_5f8e5b401a52852343229b600e694282.bundle",
+            "gameres_art_file_inspecialdir_a_hero_wurenji_01_prefab_a_hero_wurenji_01_ac56b7af434ea53b0d1874603e84fa9c.bundle",
+            "gameres_art_file_inspecialdir_a_hero_wurenji_01_prefab_a_hero_wurenji_01_city_b359a57a2d724f4a0026e35e43b9e7a0.bundle",
+            "gameres_art_file_inspecialdir_a_hero_wurenji_01_prefab_a_hero_wurenji_01_pve_fd1d8e7b3e49d496c72709a27569b7ee.bundle",
+            "gameres_art_file_inspecialdir_a_hero_wurenji_01_prefab_a_hero_wurenji_01_world_00ef686a2c8d33c498591a7f9eb8aa37.bundle",
+            "gameres_art_file_inspecialdir_a_hero_wurenji_01_prefab_a_hero_wurenji_01_zhanshi_a8bd6f940bdd488b3db149f377fddb82.bundle",
+            "gameres_art_file_inspecialdir_a_hero_wurenji_01_prefab_a_hero_wurenji_hongzha_c4d3bddc3a94462b714f7ca5803a2f69.bundle",
+            "gameres_art_file_inspecialdir_a_hero_wurenji_01_prefab_vfx_5f8e5b401a52852343229b600e694282.bundle",
+            "gameres_auto_assets__art_lastwar_models_cars_a_hero_wurenji_01_animation_5ee0285a51dd4fab57876b08b5c1f247.bundle",
+            "gameres_auto_assets__art_lastwar_models_cars_a_hero_wurenji_01_material_96f716d17cb4597b56b5325d6658029c.bundle",
+            "gameres_auto_assets__art_lastwar_models_cars_a_hero_wurenji_01_mesh_6c7ba4dfc026f273a88b6c1d1021d836.bundle",
+            "gameres_auto_assets__art_lastwar_models_cars_a_hero_wurenji_01_texture_5fdf71a1965f98347098fce8985a43f7.bundle",
+            "kgameres_auto_assets__art_lastwar_models_cars_a_hero_wurenji_01_mesh_6c7ba4dfc026f273a88b6c1d1021d836.bundle",
+            "ngameres_auto_assets__art_lastwar_models_cars_a_hero_wurenji_01_texture_5fdf71a1965f98347098fce8985a43f7.bundle",
+            "ogameres_auto_assets__art_lastwar_models_cars_a_hero_wurenji_01_material_96f716d17cb4597b56b5325d6658029c.bundle"
+          ]
+        },
+        {
+          "vehicleRoot": "a_hero_einstein",
+          "core": "einstein",
+          "score": 6110,
+          "evidenceScore": 3100,
+          "assetKinds": [
+            "animation",
+            "animator",
+            "material",
+            "mesh",
+            "prefab",
+            "texture"
+          ],
+          "sourceFamilies": [
+            "Models/Cars"
+          ],
+          "occurrences": 46,
+          "directEvidence": [],
+          "proximityEvidence": [
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/gameres",
+              "alias": "doctor",
+              "aliasOffset": 347058,
+              "distance": 712,
+              "context": "5728,Assets/_Art_LastWar/GenGPUAnim/Main/Prefabs/NewBies/Prefab 5729,Assets/_Art_LastWar/GenGPUAnim/_Art_LastWar/Models/Cars/A_Hero_David_01/prefab 5730,Assets/_Art_LastWar/GenGPUAnim/_Art_LastWar/Models/Cars/A_Hero_Monica_01/prefab 5731,Assets/_Art_LastWar/GenGPUAnim/_Art_LastWar/Models/Characters/Soldier/bubing04/prefab 5732,Assets/_Art_LastWar/GenGPUAnim/_Art_LastWar/Models/Characters/Soldier/bubing05/prefab 5733,Assets/_Art_LastWar/GenGPUAnim/_Art_LastWar/Models/Characters/Soldier/bubing11/prefab 5734,Assets/_Art_LastWar/GenGPUAnim/test_qiu_skin 5735,Assets/_Art_LastWar/Models/Cars/A_Hero_Adam_01/prefab 5736,Assets/_Art_LastWar/Models/Cars/A_Hero_Alex_01/prefab 5737,Assets/_Art_LastWar/M"
+            },
+            {
+              "apk": "split_install_time_pack.apk",
+              "entry": "assets/AssetBundles/gameres",
+              "alias": "doctor",
+              "aliasOffset": 346997,
+              "distance": 773,
+              "context": ",Assets/_Art_LastWar/GenGPUAnim/Main/Prefabs/LWBattle/Zombie 5728,Assets/_Art_LastWar/GenGPUAnim/Main/Prefabs/NewBies/Prefab 5729,Assets/_Art_LastWar/GenGPUAnim/_Art_LastWar/Models/Cars/A_Hero_David_01/prefab 5730,Assets/_Art_LastWar/GenGPUAnim/_Art_LastWar/Models/Cars/A_Hero_Monica_01/prefab 5731,Assets/_Art_LastWar/GenGPUAnim/_Art_LastWar/Models/Characters/Soldier/bubing04/prefab 5732,Assets/_Art_LastWar/GenGPUAnim/_Art_LastWar/Models/Characters/Soldier/bubing05/prefab 5733,Assets/_Art_LastWar/GenGPUAnim/_Art_LastWar/Models/Characters/Soldier/bubing11/prefab 5734,Assets/_Art_LastWar/GenGPUAnim/test_qiu_skin 5735,Assets/_Art_LastWar/Models/Cars/A_Hero_Adam_01/prefab 5736,Assets/_Art_LastWar"
+            }
+          ],
+          "paths": [
+            "Assets/_Art_LastWar/Models/Cars/A_Hero_Einstein/A_Hero_Einstein_01/animation",
+            "Assets/_Art_LastWar/Models/Cars/A_Hero_Einstein/A_Hero_Einstein_01/animator",
+            "Assets/_Art_LastWar/Models/Cars/A_Hero_Einstein/A_Hero_Einstein_01/material",
+            "Assets/_Art_LastWar/Models/Cars/A_Hero_Einstein/A_Hero_Einstein_01/material/Common",
+            "Assets/_Art_LastWar/Models/Cars/A_Hero_Einstein/A_Hero_Einstein_01/material/PBR",
+            "Assets/_Art_LastWar/Models/Cars/A_Hero_Einstein/A_Hero_Einstein_01/mesh",
+            "Assets/_Art_LastWar/Models/Cars/A_Hero_Einstein/A_Hero_Einstein_01/prefab",
+            "Assets/_Art_LastWar/Models/Cars/A_Hero_Einstein/A_Hero_Einstein_01/texture",
+            "Assets/_Art_LastWar/Models/Cars/A_Hero_Einstein/A_Hero_Einstein_01/texture/PBR",
+            "Assets/_Art_LastWar/Models/Cars/A_Hero_Einstein/A_Hero_Einstein_zhuanwu_01/animation",
+            "Assets/_Art_LastWar/Models/Cars/A_Hero_Einstein/A_Hero_Einstein_zhuanwu_01/animator",
+            "Assets/_Art_LastWar/Models/Cars/A_Hero_Einstein/A_Hero_Einstein_zhuanwu_01/material",
+            "Assets/_Art_LastWar/Models/Cars/A_Hero_Einstein/A_Hero_Einstein_zhuanwu_01/material/PBR",
+            "Assets/_Art_LastWar/Models/Cars/A_Hero_Einstein/A_Hero_Einstein_zhuanwu_01/mesh",
+            "Assets/_Art_LastWar/Models/Cars/A_Hero_Einstein/A_Hero_Einstein_zhuanwu_01/mesh/PBR",
+            "Assets/_Art_LastWar/Models/Cars/A_Hero_Einstein/A_Hero_Einstein_zhuanwu_01/prefab",
+            "Assets/_Art_LastWar/Models/Cars/A_Hero_Einstein/A_Hero_Einstein_zhuanwu_01/texture",
+            "Assets/_Art_LastWar/Models/Cars/A_Hero_Einstein/A_Hero_Einstein_zhuanwu_01/texture/PBR",
+            "Assets/_Art_LastWar/Models/Cars/A_Hero_Einstein/A_Hero_Einstein_zhuanwu_02/animation",
+            "Assets/_Art_LastWar/Models/Cars/A_Hero_Einstein/A_Hero_Einstein_zhuanwu_02/animator"
+          ]
+        }
+      ]
+    }
+  ],
+  "unclaimedFamilies": [
+    {
+      "core": "einstein",
+      "roots": [
+        "a_hero_einstein",
+        "a_hero_einstein_01",
+        "a_hero_einstein_a_hero_einstein_01",
+        "a_hero_einstein_a_hero_einstein_zhuanwu_01",
+        "a_hero_einstein_a_hero_einstein_zhuanwu_02",
+        "a_hero_einstein_a_hero_einstein_zhuanwu_03",
+        "a_hero_einstein_a_hero_einstein_zhuanwu_04",
+        "a_hero_einstein_zhuanwu_01",
+        "a_hero_einstein_zhuanwu_02",
+        "a_hero_einstein_zhuanwu_03",
+        "a_hero_einstein_zhuanwu_04"
+      ],
+      "assetKinds": [
+        "animation",
+        "animator",
+        "camera",
+        "material",
+        "mesh",
+        "prefab",
+        "texture",
+        "timeline"
+      ],
+      "sourceFamilies": [
+        "InSpecialDir",
+        "Models/Cars"
+      ],
+      "occurrences": 178,
+      "paths": [
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Einstein/A_Hero_Einstein_01/animation",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Einstein/A_Hero_Einstein_01/animator",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Einstein/A_Hero_Einstein_01/material",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Einstein/A_Hero_Einstein_01/material/Common",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Einstein/A_Hero_Einstein_01/material/PBR",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Einstein/A_Hero_Einstein_01/mesh",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Einstein/A_Hero_Einstein_01/prefab",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Einstein/A_Hero_Einstein_01/texture",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Einstein/A_Hero_Einstein_01/texture/PBR",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Einstein/A_Hero_Einstein_zhuanwu_01/animation",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Einstein/A_Hero_Einstein_zhuanwu_01/animator",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Einstein/A_Hero_Einstein_zhuanwu_01/material",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Einstein/A_Hero_Einstein_zhuanwu_01/material/PBR",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Einstein/A_Hero_Einstein_zhuanwu_01/mesh",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Einstein/A_Hero_Einstein_zhuanwu_01/mesh/PBR",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Einstein/A_Hero_Einstein_zhuanwu_01/prefab",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Einstein/A_Hero_Einstein_zhuanwu_01/texture",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Einstein/A_Hero_Einstein_zhuanwu_01/texture/PBR",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Einstein/A_Hero_Einstein_zhuanwu_02/animation",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Einstein/A_Hero_Einstein_zhuanwu_02/animator"
+      ]
+    },
+    {
+      "core": "doctor",
+      "roots": [
+        "a_hero_doctor_01",
+        "a_hero_doctor_01_matetial_common_43774ce9d9f18bddcb578c2dfbe04a90",
+        "a_hero_doctor_01_matetial_dad851c0d3e93fef51df66cba5aea5d5",
+        "a_hero_doctor_01_matetial_pbr_2e1d13e08241e1b7b550423f7fa5e3c1",
+        "a_hero_doctor_02",
+        "a_hero_doctor_02_materail_81852a13193254138b35a2fd84ca2088",
+        "a_hero_doctor_02_materail_common_814f8d883737ef07420bbafbe790f74f",
+        "a_hero_doctor_02_materail_pbr_dab31d2410ad5b4020d0840a634c4600"
+      ],
+      "assetKinds": [
+        "animation",
+        "animator",
+        "camera",
+        "mesh",
+        "prefab",
+        "texture",
+        "timeline"
+      ],
+      "sourceFamilies": [
+        "InSpecialDir",
+        "Models/Cars"
+      ],
+      "occurrences": 71,
+      "paths": [
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Doctor_01/animation",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Doctor_01/animator",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Doctor_01/matetial",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Doctor_01/matetial/Common",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Doctor_01/matetial/PBR",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Doctor_01/mesh",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Doctor_01/mesh/PBR",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Doctor_01/prefab",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Doctor_01/texture",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Doctor_01/texture/PBR",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Doctor_02/animation",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Doctor_02/materail",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Doctor_02/materail/Common",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Doctor_02/materail/PBR",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Doctor_02/mesh",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Doctor_02/mesh/PBR",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Doctor_02/prefab",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Doctor_02/texture",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Doctor_02/texture/PBR",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Doctor_02/texture_guanzi"
+      ]
+    },
+    {
+      "core": "wurenji_shengji",
+      "roots": [
+        "a_hero_wurenji_shengji"
+      ],
+      "assetKinds": [
+        "animation",
+        "animator",
+        "material",
+        "mesh",
+        "prefab",
+        "texture"
+      ],
+      "sourceFamilies": [
+        "Character/Vehicle",
+        "Models/Cars"
+      ],
+      "occurrences": 49,
+      "paths": [
+        "Assets/Main/Prefabs/PrefabsIncrement/Character/Vehicle/UAV/A_Hero_wurenji_shengji/prefab/animation",
+        "Assets/Main/Prefabs/PrefabsIncrement/Character/Vehicle/UAV/A_Hero_wurenji_shengji/prefab/prefab_daodan",
+        "Assets/Main/Prefabs/PrefabsIncrement/Character/Vehicle/UAV/A_Hero_wurenji_shengji/prefab/prefab_daodan/daodan_110_150",
+        "Assets/Main/Prefabs/PrefabsIncrement/Character/Vehicle/UAV/A_Hero_wurenji_shengji/prefab/prefab_daodan/daodan_160_200",
+        "Assets/Main/Prefabs/PrefabsIncrement/Character/Vehicle/UAV/A_Hero_wurenji_shengji/prefab/prefab_daodan/daodan_210_250",
+        "Assets/Main/Prefabs/PrefabsIncrement/Character/Vehicle/UAV/A_Hero_wurenji_shengji/prefab/prefab_daodan/daodan_60_100",
+        "Assets/Main/Prefabs/PrefabsIncrement/Character/Vehicle/UAV/A_Hero_wurenji_shengji/prefab/prefab_zhijia",
+        "Assets/Main/Prefabs/PrefabsIncrement/Character/Vehicle/UAV/A_Hero_wurenji_shengji/prefab/prefab_zhijia/zhijia_110_150",
+        "Assets/Main/Prefabs/PrefabsIncrement/Character/Vehicle/UAV/A_Hero_wurenji_shengji/prefab/prefab_zhijia/zhijia_160_200",
+        "Assets/Main/Prefabs/PrefabsIncrement/Character/Vehicle/UAV/A_Hero_wurenji_shengji/prefab/prefab_zhijia/zhijia_210_250",
+        "Assets/Main/Prefabs/PrefabsIncrement/Character/Vehicle/UAV/A_Hero_wurenji_shengji/prefab/prefab_zhijia/zhijia_60_100",
+        "Assets/_Art_LastWar/Models_New/Cars/Wurenji/A_Hero_wurenji_shengji/animation",
+        "Assets/_Art_LastWar/Models_New/Cars/Wurenji/A_Hero_wurenji_shengji/animator",
+        "Assets/_Art_LastWar/Models_New/Cars/Wurenji/A_Hero_wurenji_shengji/material",
+        "Assets/_Art_LastWar/Models_New/Cars/Wurenji/A_Hero_wurenji_shengji/mesh/wurenjishengji_daodan",
+        "Assets/_Art_LastWar/Models_New/Cars/Wurenji/A_Hero_wurenji_shengji/texture/texture_jixiebi",
+        "gameres_auto_assets__art_lastwar_models_new_cars_wurenji_a_hero_wurenji_shengji_animation_831c2583f2daf5a5429b1c1561aedf08.bundle",
+        "gameres_auto_assets__art_lastwar_models_new_cars_wurenji_a_hero_wurenji_shengji_animator_a6a177a12e034517ed3ccf7293237897.bundle",
+        "gameres_auto_assets__art_lastwar_models_new_cars_wurenji_a_hero_wurenji_shengji_material_1_3d311f86bc6c2a8c64aaf9ea05aac881.bundle",
+        "gameres_auto_assets__art_lastwar_models_new_cars_wurenji_a_hero_wurenji_shengji_material_9_14149fabe758bbd6242cb8b49dc58d35.bundle"
+      ]
+    },
+    {
+      "core": "monica",
+      "roots": [
+        "a_hero_monica_01",
+        "a_hero_monica_02",
+        "a_hero_monica_03",
+        "a_hero_monica_04_06",
+        "a_hero_monica_wzsj"
+      ],
+      "assetKinds": [
+        "animation",
+        "animator",
+        "material",
+        "mesh",
+        "prefab",
+        "texture"
+      ],
+      "sourceFamilies": [
+        "Models/Cars"
+      ],
+      "occurrences": 219,
+      "paths": [
+        "Assets/_Art_LastWar/GenGPUAnim/_Art_LastWar/Models/Cars/A_Hero_Monica_01/mesh",
+        "Assets/_Art_LastWar/GenGPUAnim/_Art_LastWar/Models/Cars/A_Hero_Monica_01/prefab",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/animation",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/animator",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/material",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/mesh",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/prefab",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/texture",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/texture/PBR",
+        "Assets/_Art_LastWar/Models_New/Cars/A_hero_Monica_WZSJ/animation/A_Hero_Monica_03",
+        "Assets/_Art_LastWar/Models_New/Cars/A_hero_Monica_WZSJ/animation/A_Hero_Monica_04_06",
+        "Assets/_Art_LastWar/Models_New/Cars/A_hero_Monica_WZSJ/animation/A_Hero_Monica_zhanshi",
+        "Assets/_Art_LastWar/Models_New/Cars/A_hero_Monica_WZSJ/animation/A_hero_Monica_01",
+        "Assets/_Art_LastWar/Models_New/Cars/A_hero_Monica_WZSJ/animation/A_hero_Monica_02",
+        "Assets/_Art_LastWar/Models_New/Cars/A_hero_Monica_WZSJ/animation/vfx_motuo",
+        "Assets/_Art_LastWar/Models_New/Cars/A_hero_Monica_WZSJ/material",
+        "Assets/_Art_LastWar/Models_New/Cars/A_hero_Monica_WZSJ/material/PBR",
+        "Assets/_Art_LastWar/Models_New/Cars/A_hero_Monica_WZSJ/mesh/vfx_motuo",
+        "Assets/_Art_LastWar/Models_New/Cars/A_hero_Monica_WZSJ/mesh/zhandou",
+        "Assets/_Art_LastWar/Models_New/Cars/A_hero_Monica_WZSJ/prefab/Monica_lod_01"
+      ]
+    },
+    {
+      "core": "revenger",
+      "roots": [
+        "a_hero_revenger_01"
+      ],
+      "assetKinds": [
+        "animation",
+        "animator",
+        "material",
+        "mesh",
+        "prefab",
+        "texture"
+      ],
+      "sourceFamilies": [
+        "Models/Cars"
+      ],
+      "occurrences": 24,
+      "paths": [
+        "Assets/_Art_LastWar/GenGPUAnim/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/mesh",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/animation",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/animator",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/material",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/mesh",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/prefab",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/texture",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/texture/PBR",
+        "Tgameres_art_dir_cars_a_hero_revenger_01_mesh_d5dc7613c4f5c81ff6a8e974d5a08be5.bundle",
+        "Vgameres_art_dir_cars_a_hero_revenger_01_prefab_8d36015754bf5f5df31a8287e15a6f0e.bundle",
+        "Wgameres_art_dir_cars_a_hero_revenger_01_texture_fe3ff3889d1f52416f59678e52cc501d.bundle",
+        "Xgameres_art_dir_cars_a_hero_revenger_01_animator_34a4c31824b6dc0756719a595ee7d05a.bundle",
+        "Xgameres_art_dir_cars_a_hero_revenger_01_material_7bc983e19cf80e8ad7b608560a5636fa.bundle",
+        "Ygameres_art_dir_cars_a_hero_revenger_01_animation_e1292ce08bcaa0dc4be4ecdfe43aa55b.bundle",
+        "gameres_art_dir_cars_a_hero_revenger_01_animation_e1292ce08bcaa0dc4be4ecdfe43aa55b.bundle",
+        "gameres_art_dir_cars_a_hero_revenger_01_animator_34a4c31824b6dc0756719a595ee7d05a.bundle",
+        "gameres_art_dir_cars_a_hero_revenger_01_material_7bc983e19cf80e8ad7b608560a5636fa.bundle",
+        "gameres_art_dir_cars_a_hero_revenger_01_mesh_d5dc7613c4f5c81ff6a8e974d5a08be5.bundle",
+        "gameres_art_dir_cars_a_hero_revenger_01_prefab_8d36015754bf5f5df31a8287e15a6f0e.bundle",
+        "gameres_art_dir_cars_a_hero_revenger_01_texture_fe3ff3889d1f52416f59678e52cc501d.bundle"
+      ]
+    },
+    {
+      "core": "kilian",
+      "roots": [
+        "a_hero_kilian_01"
+      ],
+      "assetKinds": [
+        "animation",
+        "animator",
+        "material",
+        "mesh",
+        "prefab",
+        "texture"
+      ],
+      "sourceFamilies": [
+        "Models/Cars"
+      ],
+      "occurrences": 21,
+      "paths": [
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Kilian_01/animation",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Kilian_01/animator",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Kilian_01/material",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Kilian_01/mesh",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Kilian_01/prefab",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Kilian_01/texture",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Kilian_01/texture/PBR",
+        "Rgameres_art_dir_cars_a_hero_kilian_01_mesh_6e73e19d4b9b0f6a5976f3d069f26de0.bundle",
+        "Tgameres_art_dir_cars_a_hero_kilian_01_prefab_051e3b2ddd22367d5a150dfadcc74154.bundle",
+        "Ugameres_art_dir_cars_a_hero_kilian_01_texture_ec3e2fcff4f645d51998eb77cdb6fe52.bundle",
+        "Vgameres_art_dir_cars_a_hero_kilian_01_animator_29b5b33fdef17c773752f4b6ab52676f.bundle",
+        "Vgameres_art_dir_cars_a_hero_kilian_01_material_fda005d71853a502f576dae774e45cf0.bundle",
+        "Wgameres_art_dir_cars_a_hero_kilian_01_animation_45b440c99fc4f77524d6b935078fcb02.bundle",
+        "Ygameres_art_dir_cars_a_hero_kilian_01_texture_pbr_bf8a7f854ec490a72d246f5b6e51cabc.bundle",
+        "gameres_art_dir_cars_a_hero_kilian_01_animation_45b440c99fc4f77524d6b935078fcb02.bundle",
+        "gameres_art_dir_cars_a_hero_kilian_01_animator_29b5b33fdef17c773752f4b6ab52676f.bundle",
+        "gameres_art_dir_cars_a_hero_kilian_01_material_fda005d71853a502f576dae774e45cf0.bundle",
+        "gameres_art_dir_cars_a_hero_kilian_01_mesh_6e73e19d4b9b0f6a5976f3d069f26de0.bundle",
+        "gameres_art_dir_cars_a_hero_kilian_01_prefab_051e3b2ddd22367d5a150dfadcc74154.bundle",
+        "gameres_art_dir_cars_a_hero_kilian_01_texture_ec3e2fcff4f645d51998eb77cdb6fe52.bundle"
+      ]
+    },
+    {
+      "core": "wurenji_shengdanjie",
+      "roots": [
+        "a_hero_wurenji_shengdanjie_01"
+      ],
+      "assetKinds": [
+        "animation",
+        "animator",
+        "material",
+        "mesh",
+        "prefab",
+        "texture"
+      ],
+      "sourceFamilies": [
+        "Models/Cars"
+      ],
+      "occurrences": 14,
+      "paths": [
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_wurenji_shengdanjie_01/animation",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_wurenji_shengdanjie_01/animator",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_wurenji_shengdanjie_01/material",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_wurenji_shengdanjie_01/mesh",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_wurenji_shengdanjie_01/prefab",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_wurenji_shengdanjie_01/texture",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_wurenji_shengdanjie_01/texture/PBR",
+        "gameres_art_dir_cars_a_hero_wurenji_shengdanjie_01_animation_a62b964e54c167fec364873849bef2ca.bundle",
+        "gameres_art_dir_cars_a_hero_wurenji_shengdanjie_01_animator_1c09dcd5ab1b7c8edab6b5c76eca9c65.bundle",
+        "gameres_art_dir_cars_a_hero_wurenji_shengdanjie_01_material_e665a228b0c84587f83594393c67eec6.bundle",
+        "gameres_art_dir_cars_a_hero_wurenji_shengdanjie_01_mesh_9ee90d2f0e18b2a3ef92240106470370.bundle",
+        "gameres_art_dir_cars_a_hero_wurenji_shengdanjie_01_prefab_0ec6058b56ccfc82023e7afab702fdd3.bundle",
+        "gameres_art_dir_cars_a_hero_wurenji_shengdanjie_01_texture_06b170c1373bf5d49ef1b5dfe1c298a9.bundle",
+        "gameres_art_dir_cars_a_hero_wurenji_shengdanjie_01_texture_pbr_9044ed38ac8713bd7da0b2bad628f28a.bundle"
+      ]
+    },
+    {
+      "core": "wurenji",
+      "roots": [
+        "a_hero_wurenji_01",
+        "a_hero_wurenji_02",
+        "a_hero_wurenji_10",
+        "a_hero_wurenji_100",
+        "a_hero_wurenji_10_50",
+        "a_hero_wurenji_10_50_a_hero_wurenji_10",
+        "a_hero_wurenji_10_50_a_hero_wurenji_10_50_gong",
+        "a_hero_wurenji_10_50_a_hero_wurenji_20",
+        "a_hero_wurenji_10_50_a_hero_wurenji_30",
+        "a_hero_wurenji_10_50_a_hero_wurenji_40",
+        "a_hero_wurenji_10_50_a_hero_wurenji_50",
+        "a_hero_wurenji_10_50_gong",
+        "a_hero_wurenji_110",
+        "a_hero_wurenji_110_150",
+        "a_hero_wurenji_110_150_a_hero_wurenji_110",
+        "a_hero_wurenji_110_150_a_hero_wurenji_110_150_gong",
+        "a_hero_wurenji_110_150_a_hero_wurenji_120",
+        "a_hero_wurenji_110_150_a_hero_wurenji_130",
+        "a_hero_wurenji_110_150_a_hero_wurenji_140",
+        "a_hero_wurenji_110_150_a_hero_wurenji_150",
+        "a_hero_wurenji_110_150_gong",
+        "a_hero_wurenji_120",
+        "a_hero_wurenji_130",
+        "a_hero_wurenji_140",
+        "a_hero_wurenji_150",
+        "a_hero_wurenji_160",
+        "a_hero_wurenji_160_200",
+        "a_hero_wurenji_160_200_a_hero_wurenji_160",
+        "a_hero_wurenji_160_200_a_hero_wurenji_160_200_gong",
+        "a_hero_wurenji_160_200_a_hero_wurenji_170"
+      ],
+      "assetKinds": [
+        "animation",
+        "material",
+        "mesh",
+        "prefab",
+        "texture"
+      ],
+      "sourceFamilies": [
+        "Character/Vehicle",
+        "InSpecialDir",
+        "Models/Cars"
+      ],
+      "occurrences": 234,
+      "paths": [
+        "Assets/Main/Prefabs/PrefabsIncrement/Character/Vehicle/UAV/A_Hero_wurenji_10_50/A_Hero_wurenji_10/prefab",
+        "Assets/Main/Prefabs/PrefabsIncrement/Character/Vehicle/UAV/A_Hero_wurenji_10_50/A_Hero_wurenji_20/prefab",
+        "Assets/Main/Prefabs/PrefabsIncrement/Character/Vehicle/UAV/A_Hero_wurenji_10_50/A_Hero_wurenji_30/prefab",
+        "Assets/Main/Prefabs/PrefabsIncrement/Character/Vehicle/UAV/A_Hero_wurenji_10_50/A_Hero_wurenji_40/prefab",
+        "Assets/Main/Prefabs/PrefabsIncrement/Character/Vehicle/UAV/A_Hero_wurenji_10_50/A_Hero_wurenji_50/prefab",
+        "Assets/Main/Prefabs/PrefabsIncrement/Character/Vehicle/UAV/A_Hero_wurenji_110_150/A_Hero_wurenji_110/prefab",
+        "Assets/Main/Prefabs/PrefabsIncrement/Character/Vehicle/UAV/A_Hero_wurenji_110_150/A_Hero_wurenji_120/prefab",
+        "Assets/Main/Prefabs/PrefabsIncrement/Character/Vehicle/UAV/A_Hero_wurenji_110_150/A_Hero_wurenji_130/prefab",
+        "Assets/Main/Prefabs/PrefabsIncrement/Character/Vehicle/UAV/A_Hero_wurenji_110_150/A_Hero_wurenji_140/prefab",
+        "Assets/Main/Prefabs/PrefabsIncrement/Character/Vehicle/UAV/A_Hero_wurenji_110_150/A_Hero_wurenji_150/prefab",
+        "Assets/Main/Prefabs/PrefabsIncrement/Character/Vehicle/UAV/A_Hero_wurenji_160_200/A_Hero_wurenji_160/prefab",
+        "Assets/Main/Prefabs/PrefabsIncrement/Character/Vehicle/UAV/A_Hero_wurenji_160_200/A_Hero_wurenji_170/prefab",
+        "Assets/Main/Prefabs/PrefabsIncrement/Character/Vehicle/UAV/A_Hero_wurenji_160_200/A_Hero_wurenji_180/prefab",
+        "Assets/Main/Prefabs/PrefabsIncrement/Character/Vehicle/UAV/A_Hero_wurenji_160_200/A_Hero_wurenji_190/prefab",
+        "Assets/Main/Prefabs/PrefabsIncrement/Character/Vehicle/UAV/A_Hero_wurenji_160_200/A_Hero_wurenji_200/prefab",
+        "Assets/Main/Prefabs/PrefabsIncrement/Character/Vehicle/UAV/A_Hero_wurenji_210_250/A_Hero_wurenji_210/prefab",
+        "Assets/Main/Prefabs/PrefabsIncrement/Character/Vehicle/UAV/A_Hero_wurenji_210_250/A_Hero_wurenji_220/prefab",
+        "Assets/Main/Prefabs/PrefabsIncrement/Character/Vehicle/UAV/A_Hero_wurenji_210_250/A_Hero_wurenji_230/prefab",
+        "Assets/Main/Prefabs/PrefabsIncrement/Character/Vehicle/UAV/A_Hero_wurenji_210_250/A_Hero_wurenji_240/prefab",
+        "Assets/Main/Prefabs/PrefabsIncrement/Character/Vehicle/UAV/A_Hero_wurenji_210_250/A_Hero_wurenji_250/prefab"
+      ]
+    },
+    {
+      "core": "anna",
+      "roots": [
+        "a_hero_anna_01"
+      ],
+      "assetKinds": [
+        "material",
+        "mesh",
+        "prefab",
+        "texture",
+        "timeline"
+      ],
+      "sourceFamilies": [
+        "InSpecialDir",
+        "Models/Cars"
+      ],
+      "occurrences": 20,
+      "paths": [
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Anna_01/material",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Anna_01/material/Common",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Anna_01/material/PBR",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Anna_01/mesh",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Anna_01/prefab",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Anna_01/texture",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Anna_01/texture/PBR",
+        "gameres_art_file_inspecialdir_a_hero_anna_01_prefab_a_hero_anna_01_b88d09be836f21efb423706cb43eed79.bundle",
+        "gameres_art_file_inspecialdir_a_hero_anna_01_prefab_a_hero_anna_01_city_8155ffac2520c1845d313d79399dba7c.bundle",
+        "gameres_art_file_inspecialdir_a_hero_anna_01_prefab_a_hero_anna_01_pbr_0f8032e56be76a76dd33e519ffab8af3.bundle",
+        "gameres_art_file_inspecialdir_a_hero_anna_01_prefab_a_hero_anna_01_pbr_zhanshi_ebc9c9e426ce38b051b63d3a9f90cd36.bundle",
+        "gameres_art_file_inspecialdir_a_hero_anna_01_prefab_a_hero_anna_01_pve_b2f10d403189b70100577829d0144791.bundle",
+        "gameres_art_file_inspecialdir_a_hero_anna_01_prefab_a_hero_anna_01_world_cbd52b619796cbf3ba9e3ed9c7f6272d.bundle",
+        "gameres_art_file_inspecialdir_a_hero_anna_01_prefab_hero_anna_01_timeline_ad585265c4ced1d46ca548ceebf01de8.bundle",
+        "gameres_auto_assets__art_lastwar_models_cars_a_hero_anna_01_material_6b9d1d3b79c3cb8c4e83849ff76db14b.bundle",
+        "gameres_auto_assets__art_lastwar_models_cars_a_hero_anna_01_material_common_ac2114b0567a0cdd2d7b0e55b7cbef5d.bundle",
+        "gameres_auto_assets__art_lastwar_models_cars_a_hero_anna_01_material_pbr_d368e32963011a08681528e1e9b209c6.bundle",
+        "gameres_auto_assets__art_lastwar_models_cars_a_hero_anna_01_mesh_b327d86fb0879ae974edd1bc119bb4e6.bundle",
+        "gameres_auto_assets__art_lastwar_models_cars_a_hero_anna_01_texture_1cd799eabb3d5ad441bf57a01cac67e3.bundle",
+        "gameres_auto_assets__art_lastwar_models_cars_a_hero_anna_01_texture_pbr_6f8ba243ac15a4e68dd271e4fab6d795.bundle"
+      ]
+    },
+    {
+      "core": "doss",
+      "roots": [
+        "a_hero_doss_01"
+      ],
+      "assetKinds": [
+        "animation",
+        "material",
+        "mesh",
+        "prefab",
+        "texture"
+      ],
+      "sourceFamilies": [
+        "InSpecialDir",
+        "Models/Cars"
+      ],
+      "occurrences": 19,
+      "paths": [
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Doss_01/animation",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Doss_01/material",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Doss_01/mesh",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Doss_01/prefab",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_Doss_01/texture",
+        "gameres_art_file_inspecialdir_a_hero_doss_01_prefab_a_hero_doss_01_weapon_0403c94d7b7a63cbfdd50037bd6e984f.bundle",
+        "gameres_art_file_inspecialdir_a_hero_doss_01_prefab_a_hero_doss_01_weapons_01_4f18f612b278e9b84734aaf91d2d1a66.bundle",
+        "gameres_art_file_inspecialdir_a_hero_doss_01_prefab_a_hero_doss_55e92faa61915d01abe17fe24ca86c50.bundle",
+        "gameres_art_file_inspecialdir_a_hero_doss_01_prefab_a_hero_doss_battle_6ec68a35820d60441a225c220cac5055.bundle",
+        "gameres_art_file_inspecialdir_a_hero_doss_01_prefab_a_hero_doss_city_hero_7bf2b67ed349511826c6688235a2f9d1.bundle",
+        "gameres_art_file_inspecialdir_a_hero_doss_01_prefab_a_hero_doss_pve_battle_242a6bafe2c80c46729b948743bf785d.bundle",
+        "gameres_art_file_inspecialdir_a_hero_doss_01_prefab_a_hero_doss_world_10d2e15aa5b59993cbe6c3ae15a4f105.bundle",
+        "gameres_art_file_inspecialdir_a_hero_doss_01_prefab_a_hero_doss_zhanshi_5ad8f702bf822ebe26b400e191c9f401.bundle",
+        "gameres_auto_assets__art_lastwar_models_cars_a_hero_doss_01_animation_449e4d7ac39dbc26a718fa7846808954.bundle",
+        "gameres_auto_assets__art_lastwar_models_cars_a_hero_doss_01_material_e5d17624579be3cacce63e922106f47c.bundle",
+        "gameres_auto_assets__art_lastwar_models_cars_a_hero_doss_01_mesh_7acc225b53f85656fb1df5dcc208f6c8.bundle",
+        "gameres_auto_assets__art_lastwar_models_cars_a_hero_doss_01_texture_ccbb371ac4518eaaafcdc5c69eacfec1.bundle",
+        "kgameres_auto_assets__art_lastwar_models_cars_a_hero_doss_01_texture_ccbb371ac4518eaaafcdc5c69eacfec1.bundle",
+        "lgameres_auto_assets__art_lastwar_models_cars_a_hero_doss_01_material_e5d17624579be3cacce63e922106f47c.bundle"
+      ]
+    },
+    {
+      "core": "liaoji",
+      "roots": [
+        "a_hero_liaoji_01"
+      ],
+      "assetKinds": [
+        "animation",
+        "material",
+        "mesh",
+        "prefab",
+        "texture"
+      ],
+      "sourceFamilies": [
+        "Models/Cars"
+      ],
+      "occurrences": 13,
+      "paths": [
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_liaoji_01/animation",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_liaoji_01/material",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_liaoji_01/mesh",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_liaoji_01/prefab",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_liaoji_01/texture",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_liaoji_01/texture/PBR",
+        "Wgameres_art_dir_cars_a_hero_liaoji_01_animation_3abffcc0ce206cce87972930f4959dae.bundle",
+        "gameres_art_dir_cars_a_hero_liaoji_01_animation_3abffcc0ce206cce87972930f4959dae.bundle",
+        "gameres_art_dir_cars_a_hero_liaoji_01_material_686d2cc89806ac1578e402c3ff45f1ff.bundle",
+        "gameres_art_dir_cars_a_hero_liaoji_01_mesh_04c58f03c4746f45005c89634a02af85.bundle",
+        "gameres_art_dir_cars_a_hero_liaoji_01_prefab_bd407c862fe938968740a6aa59e6f401.bundle",
+        "gameres_art_dir_cars_a_hero_liaoji_01_texture_2c3efad5ce4a2d24c64188935795a0c2.bundle",
+        "gameres_art_dir_cars_a_hero_liaoji_01_texture_pbr_1fe94f8e1eb330df95052f3a64d8b8d5.bundle"
+      ]
+    },
+    {
+      "core": "wurenji_xueguai",
+      "roots": [
+        "a_hero_wurenji_xueguai"
+      ],
+      "assetKinds": [
+        "animation",
+        "material",
+        "mesh",
+        "prefab",
+        "texture"
+      ],
+      "sourceFamilies": [
+        "Models/Cars"
+      ],
+      "occurrences": 12,
+      "paths": [
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_wurenji_xueguai/animation",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_wurenji_xueguai/material",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_wurenji_xueguai/mesh",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_wurenji_xueguai/prefab",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_wurenji_xueguai/texture",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_wurenji_xueguai/texture/PBR",
+        "gameres_art_dir_cars_a_hero_wurenji_xueguai_animation_3d7781036b2b474794d74222a5443f3c.bundle",
+        "gameres_art_dir_cars_a_hero_wurenji_xueguai_material_b26782eae1c0037fb292adcfd13651c4.bundle",
+        "gameres_art_dir_cars_a_hero_wurenji_xueguai_mesh_9838fb4e530357bb3129eaac0e7235d9.bundle",
+        "gameres_art_dir_cars_a_hero_wurenji_xueguai_prefab_841fbce2c9c779be07b073c07900db0e.bundle",
+        "gameres_art_dir_cars_a_hero_wurenji_xueguai_texture_92b292653c2cc506e5676360afde9f2e.bundle",
+        "gameres_art_dir_cars_a_hero_wurenji_xueguai_texture_pbr_a1d4d17a46b474a53d593b21d5d31c7f.bundle"
+      ]
+    },
+    {
+      "core": "wurenji_xinpian",
+      "roots": [
+        "a_hero_wurenji_xinpian"
+      ],
+      "assetKinds": [
+        "animation",
+        "animator",
+        "material",
+        "mesh",
+        "prefab"
+      ],
+      "sourceFamilies": [
+        "Models/Cars"
+      ],
+      "occurrences": 10,
+      "paths": [
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_wurenji_xinpian/animation",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_wurenji_xinpian/animator",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_wurenji_xinpian/material",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_wurenji_xinpian/mesh",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_wurenji_xinpian/prefab",
+        "gameres_art_dir_cars_a_hero_wurenji_xinpian_animation_a41bddc755d48a174bb727031134014a.bundle",
+        "gameres_art_dir_cars_a_hero_wurenji_xinpian_animator_bc70f83b20a4b5083b362ae1987c4593.bundle",
+        "gameres_art_dir_cars_a_hero_wurenji_xinpian_material_e43dbf257ca7c34cf04b81102fc8680e.bundle",
+        "gameres_art_dir_cars_a_hero_wurenji_xinpian_mesh_9b88c834d6636e2c1dee45e8616c19b5.bundle",
+        "gameres_art_dir_cars_a_hero_wurenji_xinpian_prefab_620cd8c97e55cf3118139cb5bd1998d7.bundle"
+      ]
+    },
+    {
+      "core": "wurenji_nianshou",
+      "roots": [
+        "a_hero_wurenji_nianshou_01"
+      ],
+      "assetKinds": [
+        "animation",
+        "animator"
+      ],
+      "sourceFamilies": [
+        "Models/Cars"
+      ],
+      "occurrences": 4,
+      "paths": [
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_wurenji_nianshou_01/animation",
+        "Assets/_Art_LastWar/Models/Cars/A_Hero_wurenji_nianshou_01/animator",
+        "gameres_art_dir_cars_a_hero_wurenji_nianshou_01_animation_26fdef94a0b90c503007564ed125cbf1.bundle",
+        "gameres_art_dir_cars_a_hero_wurenji_nianshou_01_animator_1abb417d9dc341de37752d21229efa4a.bundle"
+      ]
+    },
+    {
+      "core": "monica_pbr_zhanshi",
+      "roots": [
+        "a_hero_monica_pbr_zhanshi",
+        "a_hero_monica_pbr_zhanshi_0_a6e45fc87b2400ca6d7ef039b47d599f",
+        "a_hero_monica_pbr_zhanshi_1_d701c915688c7af43e21ecf68b42cbc4",
+        "a_hero_monica_pbr_zhanshi_2_69dbc78a9ee9f5da04d978861b5ef975",
+        "a_hero_monica_pbr_zhanshi_4_39d3a6b1debcf7a6b2420194061e1f46",
+        "a_hero_monica_pbr_zhanshi_5_917c33bcb79ae7e5c9850e6fda2c935e",
+        "a_hero_monica_pbr_zhanshi_5_ad3e098db36fe803e1fe71ab90d46b33",
+        "a_hero_monica_pbr_zhanshi_6_45f3e493e6a157f213c72549de1debef",
+        "a_hero_monica_pbr_zhanshi_7_2b8ac3e5fef2c15c4bb4711f2de7cf9a",
+        "a_hero_monica_pbr_zhanshi_7_fe73699056ae1dbf0e43104d45226d3e"
+      ],
+      "assetKinds": [
+        "prefab"
+      ],
+      "sourceFamilies": [
+        "LWBattle/Hero"
+      ],
+      "occurrences": 20,
+      "paths": [
+        "Assets/Main/Prefabs/LWBattle/Hero/JapanMonica_WZSJ/A_hero_Monica_PBR_zhanshi",
+        "Assets/Main/Prefabs/LWBattle/Hero/Monica_WZSJ/A_hero_Monica_PBR_zhanshi",
+        "gameres_main_dir_prefabs_lwbattle_hero_japanmonica_wzsj_a_hero_monica_pbr_zhanshi_0_a6e45fc87b2400ca6d7ef039b47d599f.bundle",
+        "gameres_main_dir_prefabs_lwbattle_hero_japanmonica_wzsj_a_hero_monica_pbr_zhanshi_1_d701c915688c7af43e21ecf68b42cbc4.bundle",
+        "gameres_main_dir_prefabs_lwbattle_hero_japanmonica_wzsj_a_hero_monica_pbr_zhanshi_2_69dbc78a9ee9f5da04d978861b5ef975.bundle",
+        "gameres_main_dir_prefabs_lwbattle_hero_japanmonica_wzsj_a_hero_monica_pbr_zhanshi_5_917c33bcb79ae7e5c9850e6fda2c935e.bundle",
+        "gameres_main_dir_prefabs_lwbattle_hero_japanmonica_wzsj_a_hero_monica_pbr_zhanshi_6_45f3e493e6a157f213c72549de1debef.bundle",
+        "gameres_main_dir_prefabs_lwbattle_hero_japanmonica_wzsj_a_hero_monica_pbr_zhanshi_7_fe73699056ae1dbf0e43104d45226d3e.bundle",
+        "gameres_main_dir_prefabs_lwbattle_hero_monica_wzsj_a_hero_monica_pbr_zhanshi_4_39d3a6b1debcf7a6b2420194061e1f46.bundle",
+        "gameres_main_dir_prefabs_lwbattle_hero_monica_wzsj_a_hero_monica_pbr_zhanshi_5_ad3e098db36fe803e1fe71ab90d46b33.bundle",
+        "gameres_main_dir_prefabs_lwbattle_hero_monica_wzsj_a_hero_monica_pbr_zhanshi_7_2b8ac3e5fef2c15c4bb4711f2de7cf9a.bundle",
+        "vgameres_main_dir_prefabs_lwbattle_hero_monica_wzsj_a_hero_monica_pbr_zhanshi_4_39d3a6b1debcf7a6b2420194061e1f46.bundle",
+        "vgameres_main_dir_prefabs_lwbattle_hero_monica_wzsj_a_hero_monica_pbr_zhanshi_5_ad3e098db36fe803e1fe71ab90d46b33.bundle",
+        "vgameres_main_dir_prefabs_lwbattle_hero_monica_wzsj_a_hero_monica_pbr_zhanshi_7_2b8ac3e5fef2c15c4bb4711f2de7cf9a.bundle"
+      ]
+    },
+    {
+      "core": "monica_zhanshi",
+      "roots": [
+        "a_hero_monica_zhanshi"
+      ],
+      "assetKinds": [
+        "animation"
+      ],
+      "sourceFamilies": [
+        "Models/Cars"
+      ],
+      "occurrences": 1,
+      "paths": [
+        "Assets/_Art_LastWar/Models_New/Cars/A_hero_Monica_WZSJ/animation/A_Hero_Monica_zhanshi"
+      ]
+    }
+  ],
+  "resolvedCount": 0,
+  "mediumOrHighCount": 0,
+  "unresolvedHeroIds": [
+    30005,
+    50014,
+    50019,
+    50025
+  ]
+}
