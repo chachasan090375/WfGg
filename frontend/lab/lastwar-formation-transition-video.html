@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Formation · transition native vidéo</title>
+<style>
+:root{color-scheme:dark;font-family:system-ui,sans-serif}body{margin:0;background:#0f1115;color:#eee}.wrap{max-width:760px;margin:auto;padding:14px}.card{background:#171a20;border:1px solid #333;border-radius:14px;padding:12px;margin-bottom:12px}video{width:100%;border-radius:10px;background:#000}.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}button{background:#252a33;color:#fff;border:1px solid #555;border-radius:9px;padding:10px 12px}.time{font:700 18px ui-monospace,monospace}.small{opacity:.75;font-size:13px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.thumb{border:1px solid #555;border-radius:10px;padding:5px;background:#121419}.thumb canvas{width:100%;border-radius:7px;display:block}.thumb b{font:12px ui-monospace,monospace}.hot{border-color:#f0c84b}.status{white-space:pre-wrap;font:12px ui-monospace,monospace;max-height:180px;overflow:auto}.pill{display:inline-block;padding:3px 7px;border:1px solid #555;border-radius:999px;margin:2px;font:11px ui-monospace,monospace}
+</style>
+</head>
+<body><div class="wrap">
+<h2>Formation · transition native vidéo</h2>
+<div class="small">Source : Android <code>screenrecord</code> natif. Aucun pixel généré. La page analyse la vidéo localement dans Chrome.</div>
+<div class="card">
+<video id="v" controls playsinline preload="auto" src="local_assets/lastwar-formation-runtime-video-v1/formation-transition-v1.mp4"></video>
+<div class="row"><span class="time" id="time">0.000 s</span><span id="dim" class="pill">—</span></div>
+<div class="row">
+<button data-step="-0.100">−100 ms</button><button data-step="-0.033333">−33 ms</button><button data-step="-0.016667">−16,7 ms</button>
+<button data-step="0.016667">+16,7 ms</button><button data-step="0.033333">+33 ms</button><button data-step="0.100">+100 ms</button>
+</div>
+</div>
+<div class="card"><b>Analyse automatique des changements</b><div class="small">Échantillonnage toutes les 100 ms, image réduite. Les plus gros deltas sont listés en premier.</div><div class="row"><button id="scan">Analyser la transition</button></div><div id="status" class="status"></div></div>
+<div class="card"><b>Candidats de transition</b><div id="grid" class="grid"></div></div>
+</div>
+<script>
+const v=document.querySelector('#v'),time=document.querySelector('#time'),dim=document.querySelector('#dim'),grid=document.querySelector('#grid'),status=document.querySelector('#status');
+const c=document.createElement('canvas'); c.width=90;c.height=160; const x=c.getContext('2d',{willReadFrequently:true});
+function upd(){time.textContent=(v.currentTime||0).toFixed(3)+' s';dim.textContent=(v.videoWidth||0)+'×'+(v.videoHeight||0)}
+v.addEventListener('loadedmetadata',upd);v.addEventListener('timeupdate',upd);v.addEventListener('seeked',upd);
+document.querySelectorAll('[data-step]').forEach(b=>b.onclick=()=>{v.pause();v.currentTime=Math.max(0,Math.min(v.duration||999,v.currentTime+Number(b.dataset.step)))});
+function seek(t){return new Promise(r=>{const f=()=>{v.removeEventListener('seeked',f);requestAnimationFrame(r)};v.addEventListener('seeked',f);v.currentTime=Math.max(0,Math.min(v.duration-.01,t))})}
+function frame(){x.drawImage(v,0,0,c.width,c.height);return x.getImageData(0,0,c.width,c.height).data}
+function diff(a,b){let s=0,n=a.length;for(let i=0;i<n;i+=4){s+=Math.abs(a[i]-b[i])+Math.abs(a[i+1]-b[i+1])+Math.abs(a[i+2]-b[i+2])}return s/(n/4)/3}
+async function snapshot(t,score){await seek(t);const cv=document.createElement('canvas');cv.width=180;cv.height=320;cv.getContext('2d').drawImage(v,0,0,180,320);const d=document.createElement('div');d.className='thumb hot';const b=document.createElement('b');b.textContent=`${t.toFixed(3)} s · Δ ${score.toFixed(1)}`;d.append(cv,b);d.onclick=()=>{v.pause();v.currentTime=t;scrollTo({top:0,behavior:'smooth'})};return d}
+document.querySelector('#scan').onclick=async()=>{
+ if(!isFinite(v.duration)){status.textContent='Vidéo non chargée.';return}
+ v.pause();grid.innerHTML='';status.textContent='Analyse en cours…';
+ const step=.10, rows=[];let prev=null;
+ for(let t=.5;t<Math.min(v.duration-.2,15.8);t+=step){await seek(t);const f=frame();if(prev)rows.push({t,score:diff(prev,f)});prev=f;if(rows.length%15===0)status.textContent=`Analyse… ${t.toFixed(1)} / ${v.duration.toFixed(1)} s`}
+ rows.sort((a,b)=>b.score-a.score);const picked=[];
+ for(const r of rows){if(picked.every(p=>Math.abs(p.t-r.t)>.18)){picked.push(r);if(picked.length===12)break}}
+ status.textContent='Top deltas :\n'+picked.map((r,i)=>`${String(i+1).padStart(2,'0')}  ${r.t.toFixed(3)} s   Δ ${r.score.toFixed(2)}`).join('\n');
+ for(const r of picked)grid.append(await snapshot(r.t,r.score));
+ if(picked[0]){v.currentTime=picked[0].t}
+};
+</script></body></html>
