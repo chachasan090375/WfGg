@@ -1,0 +1,255 @@
+/*
+ * WfGg LAB — Last War hero-card reference layer
+ * Visual target: native Last War “Liste des héros” card language.
+ * No generated mockup: this stylesheet is driven by the real user screenshot.
+ */
+
+.hero-row-grid{
+  gap:7px!important;
+  padding:12px 10px 14px!important;
+  align-items:start;
+}
+
+.hero-tile{
+  --card-bg-top:#ffad32;
+  --card-bg-bottom:#f17815;
+  --card-edge:#757981;
+  position:relative!important;
+  display:block!important;
+  aspect-ratio:0.70!important;
+  min-height:0!important;
+  overflow:hidden!important;
+  border:2px solid var(--card-edge)!important;
+  border-radius:4px!important;
+  background:linear-gradient(180deg,var(--card-bg-top),var(--card-bg-bottom))!important;
+  box-shadow:
+    0 2px 3px rgba(0,0,0,.48),
+    inset 0 0 0 1px rgba(255,255,255,.36),
+    inset 0 0 0 3px rgba(0,0,0,.10)!important;
+  filter:none!important;
+}
+
+.hero-tile.rarity-ur{
+  --card-bg-top:#ffad32;
+  --card-bg-bottom:#f17614;
+  --card-edge:#73767e;
+}
+.hero-tile.rarity-ssr{
+  --card-bg-top:#a64cf0;
+  --card-bg-bottom:#7133ba;
+  --card-edge:#73767e;
+}
+.hero-tile.rarity-sr{
+  --card-bg-top:#3faef1;
+  --card-bg-bottom:#2775bf;
+  --card-edge:#73767e;
+}
+
+/* Portrait: almost the whole card, exactly like the game. */
+.hero-image,.hero-fallback{
+  position:absolute!important;
+  z-index:1!important;
+  inset:3px 3px 23px 3px!important;
+  width:calc(100% - 6px)!important;
+  height:calc(100% - 26px)!important;
+  aspect-ratio:auto!important;
+  border:0!important;
+  border-radius:1px!important;
+  object-fit:cover!important;
+  object-position:center 12%!important;
+  background:transparent!important;
+  transform:none!important;
+}
+.hero-murphy .hero-image{
+  object-fit:cover!important;
+  object-position:center 10%!important;
+}
+.hero-fallback{
+  display:grid!important;
+  place-items:center!important;
+  background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(0,0,0,.12))!important;
+}
+
+/* The native game does not print the hero name inside this card. */
+.hero-caption{
+  display:none!important;
+}
+.rarity-badge,.gear-rail{
+  display:none!important;
+}
+
+/* Top-left unit marker. It stays in the corner, never over the face. */
+.hero-class-dot{
+  position:absolute!important;
+  z-index:6!important;
+  display:grid!important;
+  place-items:center!important;
+  top:5px!important;
+  left:5px!important;
+  width:20px!important;
+  height:20px!important;
+  border-radius:5px!important;
+  border:1px solid #8394a7!important;
+  background:linear-gradient(180deg,#e9f1f8,#879bb0)!important;
+  box-shadow:0 1px 2px rgba(0,0,0,.55)!important;
+  color:#40566e!important;
+  font-size:0!important;
+  font-weight:1000!important;
+  text-shadow:none!important;
+}
+.hero-class-dot::before{
+  content:'◆';
+  font-size:10px;
+  line-height:1;
+  color:#607a94;
+}
+.hero-class-dot[title="BLINDÉS"]::before{content:'▣';font-size:11px}
+.hero-class-dot[title="AÉRIEN"]::before{content:'✦';font-size:11px}
+.hero-class-dot[title="MISSILES"]::before{content:'◆';font-size:10px}
+
+/* Top-right assignment badge, matching the white/blue game badge. */
+.hero-order{
+  position:absolute!important;
+  z-index:7!important;
+  display:grid!important;
+  place-items:center!important;
+  top:4px!important;
+  right:4px!important;
+  left:auto!important;
+  bottom:auto!important;
+  width:21px!important;
+  min-width:21px!important;
+  height:23px!important;
+  margin:0!important;
+  padding:0!important;
+  border:1px solid #627891!important;
+  border-radius:4px!important;
+  background:linear-gradient(180deg,#edf4fa,#a8bfd1)!important;
+  box-shadow:0 1px 2px rgba(0,0,0,.6)!important;
+  color:#182737!important;
+  font-size:.69rem!important;
+  font-weight:1000!important;
+  line-height:1!important;
+  text-shadow:0 1px rgba(255,255,255,.7)!important;
+}
+
+/* Level sits at the lower edge of the portrait, like Last War. */
+.hero-level{
+  position:absolute!important;
+  z-index:7!important;
+  left:6px!important;
+  right:auto!important;
+  top:auto!important;
+  bottom:25px!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  color:#fff!important;
+  font-size:.72rem!important;
+  font-weight:1000!important;
+  line-height:1!important;
+  letter-spacing:-.02em!important;
+  text-shadow:
+    -1px -1px 0 #3e3e3e,
+     1px -1px 0 #3e3e3e,
+    -1px  1px 0 #3e3e3e,
+     1px  1px 0 #3e3e3e,
+     0 2px 2px rgba(0,0,0,.8)!important;
+}
+.hero-level::before{
+  content:'▰';
+  display:inline-block;
+  margin-right:2px;
+  color:#f6e656;
+  font-size:.61rem;
+  vertical-align:1px;
+  text-shadow:0 1px 1px #2d2d2d;
+}
+
+/* Five-star footer: dedicated strip, not on the face. */
+.star-strip{
+  position:absolute!important;
+  z-index:8!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-evenly!important;
+  gap:0!important;
+  left:3px!important;
+  right:3px!important;
+  bottom:2px!important;
+  top:auto!important;
+  height:21px!important;
+  margin:0!important;
+  padding:1px 1px 0!important;
+  background:linear-gradient(180deg,rgba(255,174,50,.35),rgba(181,78,9,.22))!important;
+  border-top:1px solid rgba(110,62,13,.38)!important;
+}
+.hero-star{
+  flex:1 1 0;
+  text-align:center;
+  font-size:.78rem!important;
+  line-height:1!important;
+  color:#8d7a4b!important;
+  text-shadow:
+    -1px -1px 0 #6c4917,
+     1px -1px 0 #6c4917,
+    -1px  1px 0 #6c4917,
+     1px  1px 0 #6c4917!important;
+}
+.hero-star.on,.hero-star.partial{
+  color:#ffd52f!important;
+  text-shadow:
+    -1px -1px 0 #9f6712,
+     1px -1px 0 #9f6712,
+    -1px  1px 0 #9f6712,
+     1px  1px 0 #9f6712,
+     0 1px 2px rgba(0,0,0,.55)!important;
+}
+
+/* On phones we keep five squad members on one line, but preserve the native proportions. */
+@media(max-width:720px){
+  .hero-row-grid{
+    gap:4px!important;
+    padding:9px 7px 12px!important;
+  }
+  .hero-tile{
+    aspect-ratio:.69!important;
+    border-width:1.5px!important;
+  }
+  .hero-image,.hero-fallback{
+    inset:2px 2px 20px 2px!important;
+    width:calc(100% - 4px)!important;
+    height:calc(100% - 22px)!important;
+  }
+  .hero-class-dot{
+    top:3px!important;
+    left:3px!important;
+    width:16px!important;
+    height:16px!important;
+    border-radius:4px!important;
+  }
+  .hero-class-dot::before{font-size:8px!important}
+  .hero-order{
+    top:3px!important;
+    right:3px!important;
+    width:17px!important;
+    min-width:17px!important;
+    height:19px!important;
+    font-size:.56rem!important;
+  }
+  .hero-level{
+    left:4px!important;
+    bottom:22px!important;
+    font-size:.56rem!important;
+  }
+  .hero-level::before{font-size:.49rem!important}
+  .star-strip{
+    left:2px!important;
+    right:2px!important;
+    bottom:1px!important;
+    height:19px!important;
+  }
+  .hero-star{font-size:.61rem!important}
+}
