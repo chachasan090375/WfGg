@@ -7,7 +7,7 @@
   <meta name="theme-color" content="#07111b">
   <title>WfGg — Escouades Last War · reconstruction locale</title>
   <link rel="stylesheet" href="/lab/lastwar-squads-replica.css?v=008">
-  <link rel="stylesheet" href="/lab/lastwar-squads-reference.css?v=001">
+  <link rel="stylesheet" href="/lab/lastwar-squad-authentic.css?v=001">
 </head>
 <body>
   <main class="replica-shell">
@@ -15,7 +15,7 @@
       <div>
         <span class="lab-mark">WfGg LAB · LOCAL ONLY</span>
         <h1>Escouades — reconstruction locale</h1>
-        <p>Données V3 + portraits officiels, Drone et Overlord résolus depuis les tables et assets locaux du jeu.</p>
+        <p>Gabarit Last War alimenté par les données V3 et les assets officiels extraits localement.</p>
       </div>
       <div class="topbar-actions">
         <a href="/lab/lastwar-heroes-catalog.html" class="ghost-button">Catalogue 31 héros</a>
@@ -27,7 +27,7 @@
       <label class="file-button" for="squadDataFile">Charger Phase 19 / V3</label>
       <input id="squadDataFile" type="file" accept="application/json,.json">
       <span id="replicaStatus">En attente du JSON V3.</span>
-      <span id="assetStatus" class="asset-status">Kit graphique non détecté.</span>
+      <span id="assetStatus" class="asset-status">Master assets V1 prêts.</span>
     </section>
 
     <section class="game-stage">
@@ -39,26 +39,25 @@
         <div class="power-pill"><span>Puissance équipement</span><b id="squadEquipPower">—</b></div>
       </div>
       <div id="squadGrid" class="squad-grid">
-        <div class="empty-state">Charge le fichier V3 pour construire les trois escouades.</div>
+        <div class="empty-state">Charge le fichier V3 pour ouvrir la formation.</div>
       </div>
     </section>
 
     <section class="kit-panel">
       <div>
-        <span class="stage-kicker">ASSETS LOCAUX</span>
-        <strong>Couverture réellement décodée</strong>
+        <span class="stage-kicker">MASTER ASSETS V1</span>
+        <strong>31 portraits + UI Formation officielle</strong>
       </div>
       <div id="kitMetrics" class="kit-metrics"></div>
     </section>
 
     <footer>
-      Lecture locale uniquement. Les images extraites restent dans le dossier ignoré par Git ; aucune donnée de compte n’est publiée.
+      Lecture locale uniquement. Aucun appel réseau Last War. Branche LAB uniquement.
     </footer>
   </main>
 
-  <script src="/lab/local-assets/lastwar-kit-v1/catalog.js?v=008"></script>
   <script src="/lab/lastwar-hero-authoritative-map.js?v=001"></script>
   <script src="/lab/lastwar-companion-authoritative-map.js?v=002"></script>
-  <script src="/lab/lastwar-squads-replica.js?v=007"></script>
+  <script src="/lab/lastwar-squad-authentic.js?v=001"></script>
 </body>
 </html>
