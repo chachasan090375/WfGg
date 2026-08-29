@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<title>WfGg · Last War Formation LAB</title>
+<link rel="stylesheet" href="lastwar-formation-screen.css">
+</head>
+<body>
+<main class="formation-app">
+  <header class="game-header">
+    <button class="back-button" aria-label="Retour"><img src="master-assets-v2/ui/back.png" alt=""></button>
+    <h1>Formation</h1>
+  </header>
+
+  <section class="formation-stage" aria-label="Formation active">
+    <div class="world-blur" aria-hidden="true"></div>
+    <img class="formation-ground" src="master-assets-v2/ui/formation-ground-1.png" alt="">
+
+    <div class="formation-label">FORMATION</div>
+
+    <div class="companion companion-gorilla">
+      <img src="master-assets-v1/companions/gorilla-47.png" alt="Gorille">
+      <span>Niv.47</span>
+    </div>
+    <div class="companion companion-drone">
+      <img src="master-assets-v1/companions/drone-162.png" alt="Drone">
+      <span>Niv.162</span>
+    </div>
+
+    <div id="unitLayer" class="unit-layer" aria-label="Véhicules de l'escouade"></div>
+  </section>
+
+  <section class="squad-panel">
+    <nav id="teamSwitcher" class="team-switcher" aria-label="Choix de l'équipe">
+      <button data-team="1" class="active" aria-label="Équipe 1"><img src="master-assets-v2/ui/squad-control-1.png" alt="1"></button>
+      <button data-team="2" aria-label="Équipe 2"><img src="master-assets-v2/ui/squad-control-2.png" alt="2"></button>
+      <button data-team="3" aria-label="Équipe 3"><img src="master-assets-v2/ui/squad-control-3.png" alt="3"></button>
+      <button class="locked" disabled aria-label="Équipe verrouillée"><img src="master-assets-v2/ui/lock.png" alt=""></button>
+    </nav>
+
+    <div id="heroStrip" class="hero-strip" aria-label="Héros de l'escouade active"></div>
+  </section>
+</main>
+<script src="lastwar-formation-screen.js"></script>
+</body>
+</html>
