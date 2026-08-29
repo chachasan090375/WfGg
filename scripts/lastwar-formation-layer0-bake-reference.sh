@@ -6,6 +6,7 @@ set -Eeuo pipefail
 # removes foreground/UI by deterministic masks, diffuses only the hidden areas,
 # and preserves the already-blurred visible world pixels.
 # Runtime applies NO blur. Output is a fixed WebP used by every device.
+# Pillow-only: no NumPy dependency, Android/Termux safe.
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BRANCH="portal-auth-lastwar-lab-v1"
@@ -39,8 +40,7 @@ mkdir -p "$OUTDIR" "$(dirname "$META")"
 python - "$REF" "$OUT" "$META" <<'PY'
 from pathlib import Path
 import hashlib, json, sys
-import numpy as np
-from PIL import Image, ImageDraw, ImageFilter
+from PIL import Image, ImageDraw, ImageFilter, ImageOps, ImageStat
 
 ref=Path(sys.argv[1]); out=Path(sys.argv[2]); meta=Path(sys.argv[3])
 im=Image.open(ref).convert('RGB')
@@ -51,18 +51,18 @@ W,H=im.size
 mask=Image.new('L',(W,H),0)
 d=ImageDraw.Draw(mask)
 
-# Foreground masks measured on MASTER_SQUAD_SCREEN_LASTWAR_2026-08-29.
-# They deliberately cover the formation platform, units, labels and controls.
-# The visible outer world remains untouched and therefore pixel-authentic.
+# Foreground masks measured on the native Formation reference.
+# They cover platform, units, labels and controls. Visible outer-world pixels
+# remain untouched and therefore preserve the game's already-rendered blur.
 rects=[
     (420,22,892,145),       # power badge
     (84,175,224,340),       # left rank badge
-    (0,1015,330,1536),      # drone/chip controls lower-left
-    (500,1190,1316,1536),   # team controls lower-right
+    (0,1015,330,1536),      # lower-left controls
+    (500,1190,1316,1536),   # lower-right team controls
 ]
-for r in rects:d.rectangle(r,fill=255)
+for r in rects:
+    d.rectangle(r,fill=255)
 
-# Main gameplay foreground: hero labels + units + platform + drone + overlord.
 main=[
     (0,350),(82,330),(172,360),(255,326),(322,245),(420,175),
     (735,150),(820,120),(1030,130),(1316,145),(1316,930),(1240,930),
@@ -70,34 +70,34 @@ main=[
     (260,1070),(120,1010),(0,930)
 ]
 d.polygon(main,fill=255)
+d.ellipse((0,610,180,820),fill=255)
+d.rectangle((1120,865,1316,1110),fill=255)
 
-# Extra small foreground islands outside the main polygon.
-d.ellipse((0,610,180,820),fill=255)       # left rock/gorilla overlap
-nd=(1120,865,1316,1110); d.rectangle(nd,fill=255) # right unit/rock overlap
-
-# Feather the mask so preserved world pixels transition cleanly into reconstructed
-# hidden regions. Hidden regions are later covered by Layer1/2 in normal use.
+# Feather only the foreground boundary. Visible world remains the source image.
 feather=mask.filter(ImageFilter.GaussianBlur(18))
 
-# Solve the hidden field at 1/4 resolution with Laplacian diffusion from the
-# actual visible world boundary. This does not invent props; it only fills pixels
-# that are occluded by foreground in the reference capture.
-small=im.resize((W//4,H//4),Image.Resampling.LANCZOS)
-smask=mask.resize(small.size,Image.Resampling.NEAREST)
-a=np.asarray(small,dtype=np.float32)
-m=np.asarray(smask,dtype=np.uint8)>127
-known=~m
-mean=a[known].mean(axis=0) if known.any() else np.array([128,128,128],dtype=np.float32)
-a[m]=mean
+# Pillow-only harmonic-style diffusion at quarter resolution.
+# Known/world pixels are restored after every blur pass; only hidden pixels are
+# allowed to evolve. This is the same boundary-condition principle as the old
+# NumPy Laplacian loop, without requiring NumPy on Android.
+SW,SH=W//4,H//4
+small=im.resize((SW,SH),Image.Resampling.LANCZOS)
+smask=mask.resize((SW,SH),Image.Resampling.NEAREST)
+known_mask=ImageOps.invert(smask)
 
-for _ in range(420):
-    p=np.pad(a,((1,1),(1,1),(0,0)),mode='edge')
-    avg=(p[:-2,1:-1]+p[2:,1:-1]+p[1:-1,:-2]+p[1:-1,2:])*0.25
-    a[m]=avg[m]
+stats=ImageStat.Stat(small,known_mask)
+mean=tuple(max(0,min(255,round(v))) for v in stats.mean[:3])
+fill_small=Image.new('RGB',(SW,SH),mean)
+fill_small=Image.composite(small,fill_small,known_mask)
 
-fill=Image.fromarray(np.clip(a,0,255).astype(np.uint8),'RGB').resize((W,H),Image.Resampling.BICUBIC)
-# A modest smoothing is used only on reconstructed hidden pixels. The native
-# visible world already contains the game's blur and is never blurred again.
+# Multi-scale diffusion converges quickly on this deliberately blurred layer.
+# Large radii propagate the boundary field inward; smaller radii settle edges.
+for radius,passes in ((18,14),(11,18),(7,24),(4,28),(2,32)):
+    for _ in range(passes):
+        blurred=fill_small.filter(ImageFilter.GaussianBlur(radius))
+        fill_small=Image.composite(small,blurred,known_mask)
+
+fill=fill_small.resize((W,H),Image.Resampling.BICUBIC)
 fill=fill.filter(ImageFilter.GaussianBlur(6))
 result=Image.composite(fill,im,feather)
 
@@ -107,7 +107,8 @@ result.save(out,'WEBP',quality=96,method=6)
 def sha256(p):
     h=hashlib.sha256()
     with p.open('rb') as f:
-        for b in iter(lambda:f.read(1024*1024),b''):h.update(b)
+        for b in iter(lambda:f.read(1024*1024),b''):
+            h.update(b)
     return h.hexdigest()
 
 info={
@@ -119,13 +120,14 @@ info={
   'sha256':sha256(out),
   'visibleWorldPixelsPreserved':True,
   'foregroundRemovedByDeterministicMask':True,
-  'hiddenPixelsMethod':'laplacian diffusion from visible world boundary',
+  'hiddenPixelsMethod':'Pillow multiscale boundary diffusion; known world pixels fixed each pass',
   'runtimeDynamicBlur':False,
   'measuredNativeGaussianSigmaPx':11.8,
   'important':'11.8 px documents the blur already present in the native capture; it is NOT applied again during this bake',
   'masterSize':[1316,1536],
   'runtimeFit':'cover',
   'runtimePosition':'center',
+  'numpyRequired':False,
   'generatedSubstituteProps':False,
   'mainUntouched':True
 }
@@ -133,6 +135,7 @@ meta.write_text(json.dumps(info,ensure_ascii=False,indent=2)+'\n',encoding='utf-
 print('LAYER0_BAKE_OK',out)
 print('LAYER0_SHA256',info['sha256'])
 print('LAYER0_BYTES',info['outputBytes'])
+print('LAYER0_NUMPY_REQUIRED false')
 PY
 
 git add "$OUT" "$META"
@@ -145,4 +148,5 @@ echo "=== LAYER0 BAKE TERMINE ==="
 echo "Source : $REF"
 echo "Sortie : $OUT"
 echo "Runtime blur : AUCUN"
+echo "NumPy : NON REQUIS"
 echo "main non modifiee."
