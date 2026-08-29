@@ -1,0 +1,3410 @@
+{
+  "format": "WFGG_LASTWAR_FORMATION_DIRECT_PREFAB_AUDIT_V1",
+  "networkUsed": false,
+  "generatedArtwork": false,
+  "uiPanelBundleId": 6933,
+  "directDependencyCount": 194,
+  "candidateBundleCount": 4,
+  "auditedCount": 4,
+  "results": [
+    {
+      "bundleId": 15389,
+      "logicalName": "gameres_art_lastwar_effect_prefab_ui_common_b1d8b868d582cae023da7d999efd300f.bundle",
+      "aliasName": "ff071025603dcb6fa7338c08aae0e9a999398e3406c328a1f89c2bd5624ef90e.bundle",
+      "declaredBytes": 127113,
+      "assetPaths": [
+        "Assets/_Art_LastWar/Effect/Prefab/UI/Common/Eff_UI_shanhong.prefab",
+        "Assets/_Art_LastWar/Effect/Prefab/UI/Common/Eff_UI_shanlv.prefab",
+        "Assets/_Art_LastWar/Effect/Prefab/UI/Common/Eff_UI_suduxian.prefab",
+        "Assets/_Art_LastWar/Effect/Prefab/UI/Common/Eff_ui_PlayerPicLoopList_saoguang_01.prefab",
+        "Assets/_Art_LastWar/Effect/Prefab/UI/Common/Eff_ui_S_PlayerDetailMain_01.prefab",
+        "Assets/_Art_LastWar/Effect/Prefab/UI/Common/Eff_ui_S_PlayerThumbsUpGlory_01.prefab",
+        "Assets/_Art_LastWar/Effect/Prefab/UI/Common/Eff_ui_bdmb_glow.prefab",
+        "Assets/_Art_LastWar/Effect/Prefab/UI/Common/Eff_ui_bdmb_shangzhen.prefab",
+        "Assets/_Art_LastWar/Effect/Prefab/UI/Common/Eff_ui_chengshijinsai_01.prefab",
+        "Assets/_Art_LastWar/Effect/Prefab/UI/Common/Eff_ui_chengshijinsai_02.prefab",
+        "Assets/_Art_LastWar/Effect/Prefab/UI/Common/Eff_ui_common_jiesuo.prefab",
+        "Assets/_Art_LastWar/Effect/Prefab/UI/Common/Eff_ui_common_jiesuo_new.prefab",
+        "Assets/_Art_LastWar/Effect/Prefab/UI/Common/Eff_ui_commonnew_item_lightsweep_noraml.prefab",
+        "Assets/_Art_LastWar/Effect/Prefab/UI/Common/Eff_ui_commonnew_item_lightsweep_special.prefab",
+        "Assets/_Art_LastWar/Effect/Prefab/UI/Common/Eff_ui_duqi.prefab",
+        "Assets/_Art_LastWar/Effect/Prefab/UI/Common/Eff_ui_duyan.prefab",
+        "Assets/_Art_LastWar/Effect/Prefab/UI/Common/Eff_ui_jingyingtiaozhan.prefab",
+        "Assets/_Art_LastWar/Effect/Prefab/UI/Common/Eff_ui_juntuanfangong.prefab",
+        "Assets/_Art_LastWar/Effect/Prefab/UI/Common/Eff_ui_qingjiaohuodong.prefab",
+        "Assets/_Art_LastWar/Effect/Prefab/UI/Common/Eff_ui_renwutiao_glow.prefab",
+        "Assets/_Art_LastWar/Effect/Prefab/UI/Common/Eff_ui_renwutiao_glow_loop.prefab",
+        "Assets/_Art_LastWar/Effect/Prefab/UI/Common/Eff_world_hero_guangquan.prefab",
+        "Assets/_Art_LastWar/Effect/Prefab/UI/Common/J_UI_mingzhong.prefab",
+        "Assets/_Art_LastWar/Effect/Prefab/UI/Common/J_ui_bachang_dailingquLoop.prefab",
+        "Assets/_Art_LastWar/Effect/Prefab/UI/Common/J_ui_bachang_xishou.prefab",
+        "Assets/_Art_LastWar/Effect/Prefab/UI/Common/J_ui_binding_tishi.prefab",
+        "Assets/_Art_LastWar/Effect/Prefab/UI/Common/J_ui_qiehuan.prefab",
+        "Assets/_Art_LastWar/Effect/Prefab/UI/Common/J_ui_qiehuan_shang.prefab",
+        "Assets/_Art_LastWar/Effect/Prefab/UI/Common/J_ui_qiehuan_xia.prefab"
+      ],
+      "matchedAssetPaths": [
+        "Assets/_Art_LastWar/Effect/Prefab/UI/Common/Eff_world_hero_guangquan.prefab"
+      ],
+      "source": "cache",
+      "objectTypeCounts": {
+        "ParticleSystem": 169,
+        "MonoBehaviour": 117,
+        "RectTransform": 157,
+        "GameObject": 174,
+        "Transform": 17,
+        "ParticleSystemRenderer": 169,
+        "CanvasRenderer": 118,
+        "MeshRenderer": 1,
+        "MonoScript": 3,
+        "Material": 7,
+        "MeshCollider": 1,
+        "Animator": 2,
+        "Texture2D": 1,
+        "AssetBundle": 1,
+        "MeshFilter": 1
+      },
+      "names": [
+        "J_ui_qiehuan_xia",
+        "suo",
+        "zhuzi",
+        "glow_shandian",
+        "J_ui_qiehuan",
+        "waifa",
+        "line",
+        "huxiguang",
+        "shansuo",
+        "Eff_ui_commonnew_item_lightsweep_noraml",
+        "Particle System (2)",
+        "xishoudian",
+        "xin",
+        "zhuti",
+        "kuang",
+        "flare2",
+        "lizipiao",
+        "liuguang",
+        "duqi",
+        "Eff_ui_common_jiesuo_new",
+        "yanjingglow (2)",
+        "xingxing",
+        "kaihuoglow (1)",
+        "J_ui_binding_tishi",
+        "jiahao",
+        "suduxian (4)",
+        "saoguang",
+        "quan",
+        "big glow",
+        "bao",
+        "glow_shang",
+        "Particle System",
+        "kaihuoglowxian",
+        "dise",
+        "diseshanshuo",
+        "flare",
+        "Book",
+        "kaihuoglow (2)",
+        "Eff_ui_common_jiesuo",
+        "path_glow",
+        "bao (1)",
+        "RONGJIE",
+        "yanjingglow",
+        "lizi",
+        "Eff_world_hero_guangquan",
+        "shan",
+        "duqi (1)",
+        "zhuti1",
+        "glow_xia",
+        "Eff_ui_duyan",
+        "kaihuoglow",
+        "liuguang2",
+        "liziq",
+        "kaihuo_huoxing (1)",
+        "saoguang (3)",
+        "xuli (1)",
+        "glow_dark",
+        "xishoudian (1)",
+        "flare (1)",
+        "glow_di",
+        "kaihuo_huoxing (2)",
+        "keji",
+        "Eff_ui_commonnew_item_lightsweep_special",
+        "suduxian (2)",
+        "scale",
+        "huoxing",
+        "Eff_ui_chengshijinsai_02",
+        "yanjingglow (1)",
+        "yuanzhui",
+        "xin2",
+        "Eff_ui_duqi",
+        "shanshuo",
+        "zhuti (1)",
+        "Eff_UI_shanlv",
+        "Eff_UI_shanhong",
+        "xishoudian (2)",
+        "shanshuo (2)",
+        "Particle System (1)",
+        "Eff_ui_bdmb_glow",
+        "duqifasan",
+        "suduxian (1)",
+        "guangquan",
+        "normal",
+        "lizi (1)",
+        "neisuo",
+        "waifa (1)",
+        "shansuo (1)",
+        "lizis",
+        "J_UI_mingzhong",
+        "Eff_world_hero_sfjn_glow",
+        "Eff_ui_bdmb_shangzhen",
+        "glow",
+        "kaihuo",
+        "kaihuoglowshanshuo",
+        "zhuti (2)",
+        "suduxian (3)",
+        "Eff_ui_S_PlayerThumbsUpGlory_01",
+        "baoguang",
+        "Eff_ui_chengshijinsai_01",
+        "duqi (2)",
+        "yanjingglow (3)",
+        "jianbianceng",
+        "Particle System (3)",
+        "Eff_ui_qingjiaohuodong",
+        "Eff_ui_renwutiao_glow_loop",
+        "Eff_ui_PlayerPicLoopList_saoguang_01",
+        "suduxian",
+        "Eff_ui_renwutiao_glow",
+        "huxi",
+        "caihong (1)",
+        "suodi",
+        "kaihuoglow (3)",
+        "kaihuo_huoxing",
+        "liuguang (1)",
+        "kaihuoglowxian (1)",
+        "glow_shan",
+        "Eff_ui_S_PlayerDetailMain_01",
+        "J_ui_bachang_dailingquLoop",
+        "Eff_UI_suduxian",
+        "J_ui_qiehuan_shang"
+      ],
+      "cameras": [],
+      "rendererCount": 1,
+      "renderers": [
+        {
+          "pathId": -9088406407141257599,
+          "name": "",
+          "type": "MeshRenderer"
+        }
+      ],
+      "transforms": [
+        {
+          "pathId": -9170584821304733256,
+          "name": "",
+          "position": [
+            2.4000000953674316,
+            24.700000762939453,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -9140927242879926586,
+          "name": "",
+          "position": [
+            -134.0,
+            157.0,
+            -133.0
+          ],
+          "scale": [
+            1.3315402269363403,
+            1.3315401077270508,
+            1.3315401077270508
+          ]
+        },
+        {
+          "pathId": -9132816446758245482,
+          "name": "",
+          "position": [
+            -362.0,
+            57.0,
+            0.0
+          ],
+          "scale": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "pathId": -9112453838035001329,
+          "name": "",
+          "position": [
+            -10.800000190734863,
+            0.0,
+            -2.0
+          ],
+          "scale": [
+            1.0,
+            1.1549999713897705,
+            1.0
+          ]
+        },
+        {
+          "pathId": -8897250217828041590,
+          "name": "",
+          "position": [
+            0.0,
+            11.300000190734863,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -8740343142905260815,
+          "name": "",
+          "position": [
+            -7.0,
+            1.0,
+            -0.0
+          ],
+          "scale": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "pathId": -8700816703594619685,
+          "name": "",
+          "position": [
+            1.9999909400939941,
+            8.000001907348633,
+            5.245208740234375e-06
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -8651062449143490436,
+          "name": "",
+          "position": [
+            -7.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "pathId": -8510266249728691504,
+          "name": "",
+          "position": [
+            0.0,
+            -539.0,
+            0.0
+          ],
+          "scale": [
+            7.844699859619141,
+            20.24216651916504,
+            7.844699859619141
+          ]
+        },
+        {
+          "pathId": -8035116552054596693,
+          "name": "",
+          "position": [
+            413.0,
+            174.0,
+            0.0
+          ],
+          "scale": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "pathId": -7968503214416963187,
+          "name": "",
+          "position": [
+            0.0,
+            257.0,
+            -89.0
+          ],
+          "scale": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "pathId": -7954325289991639066,
+          "name": "",
+          "position": [
+            20.0,
+            -196.0,
+            -70.0
+          ],
+          "scale": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "pathId": -7688129662990642608,
+          "name": "",
+          "position": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "pathId": -7637987972153527355,
+          "name": "",
+          "position": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -7591117929965088429,
+          "name": "",
+          "position": [
+            0.0,
+            6.599999904632568,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -7529171200899934909,
+          "name": "",
+          "position": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -7414936770135118354,
+          "name": "",
+          "position": [
+            0.0,
+            2.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -7390255746314560510,
+          "name": "",
+          "position": [
+            -11.0,
+            281.9999084472656,
+            -714.0001220703125
+          ],
+          "scale": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "pathId": -7349860921562772065,
+          "name": "",
+          "position": [
+            0.0,
+            -543.0,
+            0.0
+          ],
+          "scale": [
+            8.0,
+            11.0,
+            7.844699859619141
+          ]
+        },
+        {
+          "pathId": -7324452121835544462,
+          "name": "",
+          "position": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -7324395050676781075,
+          "name": "",
+          "position": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -7167949275383987537,
+          "name": "",
+          "position": [
+            8.0,
+            -260.5,
+            0.0
+          ],
+          "scale": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "pathId": -7154200480240650034,
+          "name": "",
+          "position": [
+            2.0,
+            -449.0,
+            -70.0
+          ],
+          "scale": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "pathId": -6730559262749228215,
+          "name": "",
+          "position": [
+            -7.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "pathId": -6545344799686487213,
+          "name": "",
+          "position": [
+            0.0,
+            0.0,
+            -0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -6457070571075580031,
+          "name": "",
+          "position": [
+            -1.7754005193710327,
+            34.1362419128418,
+            -69.2400894165039
+          ],
+          "scale": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "pathId": -6350291277325744564,
+          "name": "",
+          "position": [
+            24.0,
+            136.10000610351562,
+            0.0
+          ],
+          "scale": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "pathId": -6343035094290709526,
+          "name": "",
+          "position": [
+            221.5,
+            62.599998474121094,
+            0.0
+          ],
+          "scale": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "pathId": -6300727705875531237,
+          "name": "",
+          "position": [
+            2.4000000953674316,
+            -28.899999618530273,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -6127024535889055714,
+          "name": "",
+          "position": [
+            0.0,
+            0.5,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -5958047817056698874,
+          "name": "",
+          "position": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -5820351810519206632,
+          "name": "",
+          "position": [
+            -9.0,
+            471.8435974121094,
+            -388.61279296875
+          ],
+          "scale": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "pathId": -5685963589349731394,
+          "name": "",
+          "position": [
+            6.0,
+            224.29483032226562,
+            -203.81272888183594
+          ],
+          "scale": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "pathId": -5619723120133469951,
+          "name": "",
+          "position": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.2999999523162842,
+            1.2999999523162842,
+            1.2999999523162842
+          ]
+        },
+        {
+          "pathId": -5357303046143385671,
+          "name": "",
+          "position": [
+            13.0,
+            -0.20000000298023224,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -5221885444191632454,
+          "name": "",
+          "position": [
+            106.19999694824219,
+            243.60000610351562,
+            0.0
+          ],
+          "scale": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "pathId": -5136702379311619802,
+          "name": "",
+          "position": [
+            -3.0,
+            73.0,
+            -35.0
+          ],
+          "scale": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "pathId": -5104502883431763074,
+          "name": "",
+          "position": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "pathId": -5089807508181938900,
+          "name": "",
+          "position": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            0.7510099411010742,
+            0.7510101199150085,
+            0.7510101199150085
+          ]
+        },
+        {
+          "pathId": -5010595941475101004,
+          "name": "",
+          "position": [
+            -24.5,
+            33.00008010864258,
+            -35.0
+          ],
+          "scale": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "pathId": -4861567026077998011,
+          "name": "",
+          "position": [
+            -188.2999725341797,
+            406.7999572753906,
+            0.0
+          ],
+          "scale": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "pathId": -4861037556640331989,
+          "name": "",
+          "position": [
+            179.40008544921875,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -4822719738491608177,
+          "name": "",
+          "position": [
+            -9.0,
+            417.99993896484375,
+            -552.9999389648438
+          ],
+          "scale": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "pathId": -4760558548730016977,
+          "name": "",
+          "position": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "pathId": -4502714465010035032,
+          "name": "",
+          "position": [
+            393.0,
+            119.0,
+            0.0
+          ],
+          "scale": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "pathId": -4477493486280890511,
+          "name": "",
+          "position": [
+            0.0,
+            -24.583343505859375,
+            12.873624801635742
+          ],
+          "scale": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "pathId": -4456221016397791058,
+          "name": "",
+          "position": [
+            -21.0,
+            368.29510498046875,
+            -432.302978515625
+          ],
+          "scale": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "pathId": -4335872578634026667,
+          "name": "",
+          "position": [
+            6.5,
+            -27.700000762939453,
+            0.8000001311302185
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -4297769532606317949,
+          "name": "",
+          "position": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -4251475866533320980,
+          "name": "",
+          "position": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -4191091718503363606,
+          "name": "",
+          "position": [
+            -9.0,
+            -264.0,
+            -70.0
+          ],
+          "scale": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "pathId": -4135782704908792663,
+          "name": "",
+          "position": [
+            1.2000000476837158,
+            0.0,
+            -3.200000047683716
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -4054663558150239021,
+          "name": "",
+          "position": [
+            -1.0,
+            316.0,
+            -421.0
+          ],
+          "scale": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "pathId": -4050169822720767719,
+          "name": "",
+          "position": [
+            0.3999837338924408,
+            -54.18912887573242,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -3919535653021196529,
+          "name": "",
+          "position": [
+            26.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -3824180970890201543,
+          "name": "",
+          "position": [
+            -10.0,
+            29.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            0.6000000238418579,
+            1.0
+          ]
+        },
+        {
+          "pathId": -3812230114938159134,
+          "name": "",
+          "position": [
+            0.0,
+            -336.3999938964844,
+            0.0
+          ],
+          "scale": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "pathId": -3765284700601862718,
+          "name": "",
+          "position": [
+            0.3999837338924408,
+            -54.18912887573242,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -3717326398665334797,
+          "name": "",
+          "position": [
+            393.0,
+            -86.0,
+            0.0
+          ],
+          "scale": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "pathId": -3700495622785427418,
+          "name": "",
+          "position": [
+            11.0,
+            224.29483032226562,
+            -203.81272888183594
+          ],
+          "scale": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "pathId": -3516978098830347797,
+          "name": "",
+          "position": [
+            4.57763671875e-05,
+            -3.0517578125e-05,
+            0.0
+          ],
+          "scale": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "pathId": -3435731290398931155,
+          "name": "",
+          "position": [
+            80.0,
+            157.0,
+            -74.0
+          ],
+          "scale": [
+            1.3315402269363403,
+            1.3315401077270508,
+            1.3315401077270508
+          ]
+        },
+        {
+          "pathId": -3429728861579779419,
+          "name": "",
+          "position": [
+            67.0,
+            -45.0,
+            0.0
+          ],
+          "scale": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "pathId": -3410332674119133973,
+          "name": "",
+          "position": [
+            19.700000762939453,
+            -6.099999904632568,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -3378340757904767117,
+          "name": "",
+          "position": [
+            -338.0,
+            -82.0,
+            -70.0
+          ],
+          "scale": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "pathId": -3095047752199555615,
+          "name": "",
+          "position": [
+            26.299999237060547,
+            -0.20000000298023224,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -3086239592244678901,
+          "name": "",
+          "position": [
+            0.0,
+            347.4863586425781,
+            -181.97042846679688
+          ],
+          "scale": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "pathId": -3054972049742613963,
+          "name": "",
+          "position": [
+            171.39999389648438,
+            -3.0,
+            -4.7368998527526855
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -2947882371216725387,
+          "name": "",
+          "position": [
+            15.600000381469727,
+            -1.2000000476837158,
+            0.0
+          ],
+          "scale": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "pathId": -2900277243241556796,
+          "name": "",
+          "position": [
+            0.0,
+            0.019999999552965164,
+            0.0
+          ],
+          "scale": [
+            0.25,
+            1.0,
+            0.25
+          ]
+        },
+        {
+          "pathId": -2863518219890724882,
+          "name": "",
+          "position": [
+            1.0,
+            174.0,
+            -203.0
+          ],
+          "scale": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "pathId": -2602765855645388115,
+          "name": "",
+          "position": [
+            -7.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "pathId": -2522209327071475803,
+          "name": "",
+          "position": [
+            -9.0,
+            418.0,
+            -30.0
+          ],
+          "scale": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "pathId": -2358534803236874983,
+          "name": "",
+          "position": [
+            -9.059906005859375e-06,
+            6.600004196166992,
+            1.6689300537109375e-06
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -2282022307568158575,
+          "name": "",
+          "position": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -2219957506500584517,
+          "name": "",
+          "position": [
+            18.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -2143890672802986086,
+          "name": "",
+          "position": [
+            0.02800004556775093,
+            1.2010002136230469,
+            -0.11699998378753662
+          ],
+          "scale": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "pathId": -2109719357722306421,
+          "name": "",
+          "position": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "pathId": -2065770761277639997,
+          "name": "",
+          "position": [
+            -1.5,
+            407.13720703125,
+            -328.3478698730469
+          ],
+          "scale": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "pathId": -1945828876435975692,
+          "name": "",
+          "position": [
+            282.0,
+            -79.0,
+            -70.0
+          ],
+          "scale": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      ],
+      "monoCount": 80,
+      "sceneScore": 24
+    },
+    {
+      "bundleId": 6917,
+      "logicalName": "gameres_main_file_prefabs_ui_uihero_lwhero_formationbuffinfo_0b796e8e5bf79e1504d53a44c08f4612.bundle",
+      "aliasName": "6f276f2b97a6ebc3bd2a5d8b00085dcbb5c231de424a7b0398da214f0ab8f3b4.bundle",
+      "declaredBytes": 15808,
+      "assetPaths": [
+        "Assets/Main/Prefabs/UI/UIHero/LWHero/FormationBuffInfo.prefab"
+      ],
+      "matchedAssetPaths": [
+        "Assets/Main/Prefabs/UI/UIHero/LWHero/FormationBuffInfo.prefab"
+      ],
+      "source": "apk-fragment",
+      "objectTypeCounts": {
+        "GameObject": 45,
+        "CanvasRenderer": 39,
+        "RectTransform": 45,
+        "MonoBehaviour": 67,
+        "MonoScript": 11,
+        "AssetBundle": 1
+      },
+      "names": [
+        "Image (2)",
+        "firmationBufflView",
+        "lineup4",
+        "Text",
+        "Text (2)",
+        "bg",
+        "FormationBuffInfo",
+        "lineupText",
+        "Viewport",
+        "closeBtn",
+        "lineup3",
+        "lockContent",
+        "relationInfo",
+        "lineup2",
+        "Image (1)",
+        "titleBg",
+        "layout",
+        "Image (3)",
+        "icon1",
+        "lineup1",
+        "FormationBuffCell",
+        "infoText",
+        "lineupText (1)",
+        "myLineupInfo",
+        "icon4",
+        "additionText",
+        "BG",
+        "Text (1)",
+        "icon2",
+        "infoIcon",
+        "Content",
+        "Bg",
+        "iconBG",
+        "icon3",
+        "lineup5",
+        "Image",
+        "lineupText (2)",
+        "icon5"
+      ],
+      "cameras": [],
+      "rendererCount": 0,
+      "renderers": [],
+      "transforms": [
+        {
+          "pathId": -9120174797547180567,
+          "name": "",
+          "position": [
+            1.0,
+            90.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -8597395213456609105,
+          "name": "",
+          "position": [
+            0.20037999749183655,
+            -45.5,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -8576293649794577492,
+          "name": "",
+          "position": [
+            -106.20001220703125,
+            67.3935546875,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -8371495705234085248,
+          "name": "",
+          "position": [
+            170.99998474121094,
+            -94.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -6047914506987804396,
+          "name": "",
+          "position": [
+            1.0,
+            31.820068359375,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -6005318878010496677,
+          "name": "",
+          "position": [
+            -155.0,
+            2.2887999875820242e-05,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.5,
+            1.0
+          ]
+        },
+        {
+          "pathId": -5969322773603874769,
+          "name": "",
+          "position": [
+            -155.0,
+            2.2887999875820242e-05,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.5,
+            1.0
+          ]
+        },
+        {
+          "pathId": -5841225975656684073,
+          "name": "",
+          "position": [
+            33.5,
+            187.3000030517578,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -5589209895426801832,
+          "name": "",
+          "position": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -5536085170792780180,
+          "name": "",
+          "position": [
+            0.0,
+            16.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -4844718089901878335,
+          "name": "",
+          "position": [
+            -270.0,
+            248.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -3710006403847333102,
+          "name": "",
+          "position": [
+            -50.0,
+            -597.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -3060714627981169157,
+          "name": "",
+          "position": [
+            -147.0,
+            -12.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -3000032343611933971,
+          "name": "",
+          "position": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -2905341401601827114,
+          "name": "",
+          "position": [
+            123.5,
+            -20.624000549316406,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -1889123106674202456,
+          "name": "",
+          "position": [
+            18.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -1852803289156488188,
+          "name": "",
+          "position": [
+            166.6999969482422,
+            -290.3999938964844,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -1810524576605584995,
+          "name": "",
+          "position": [
+            0.0,
+            -50.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -1763030744100513612,
+          "name": "",
+          "position": [
+            -270.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -359059576583673747,
+          "name": "",
+          "position": [
+            -50.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": 44614073409891575,
+          "name": "",
+          "position": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": 157382101703858535,
+          "name": "",
+          "position": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": 308675355964824701,
+          "name": "",
+          "position": [
+            -14.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": 860588634610468067,
+          "name": "",
+          "position": [
+            1.0003879070281982,
+            90.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": 984394452323092511,
+          "name": "",
+          "position": [
+            -270.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": 1467553758254997374,
+          "name": "",
+          "position": [
+            1.0003879070281982,
+            31.820068359375,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": 1634259015432937301,
+          "name": "",
+          "position": [
+            -214.0,
+            26.0,
+            0.0
+          ],
+          "scale": [
+            0.8500000238418579,
+            0.8500000238418579,
+            1.0
+          ]
+        },
+        {
+          "pathId": 1822033321520781826,
+          "name": "",
+          "position": [
+            -250.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": 2376241326755500649,
+          "name": "",
+          "position": [
+            -155.0,
+            2.2887999875820242e-05,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.5,
+            1.0
+          ]
+        },
+        {
+          "pathId": 2757314682123323365,
+          "name": "",
+          "position": [
+            122.5,
+            -71.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": 4173063050269590234,
+          "name": "",
+          "position": [
+            123.5,
+            29.75200080871582,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": 4742352378891852219,
+          "name": "",
+          "position": [
+            171.0,
+            137.3935546875,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": 4756361728179094895,
+          "name": "",
+          "position": [
+            0.0,
+            7.5,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": 5771244010522866554,
+          "name": "",
+          "position": [
+            0.20000000298023224,
+            73.0999984741211,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": 6006373209227738082,
+          "name": "",
+          "position": [
+            -9.2208251953125,
+            -30.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": 6036137848648211383,
+          "name": "",
+          "position": [
+            -186.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": 6210978436708256475,
+          "name": "",
+          "position": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": 6324167988953682384,
+          "name": "",
+          "position": [
+            1.0000183582305908,
+            -19.929931640625,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": 6940652507066415204,
+          "name": "",
+          "position": [
+            -3.5999999046325684,
+            17.100000381469727,
+            0.0
+          ],
+          "scale": [
+            0.699999988079071,
+            0.699999988079071,
+            0.699999988079071
+          ]
+        },
+        {
+          "pathId": 7160114099897601058,
+          "name": "",
+          "position": [
+            0.20038485527038574,
+            73.0999755859375,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": 7264083736736659222,
+          "name": "",
+          "position": [
+            86.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": 7783734250093068733,
+          "name": "",
+          "position": [
+            -118.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": 8707162833347984221,
+          "name": "",
+          "position": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": 8713678343730002994,
+          "name": "",
+          "position": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": 8751216966568133255,
+          "name": "",
+          "position": [
+            -50.0,
+            -259.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        }
+      ],
+      "monoCount": 67,
+      "sceneScore": 20
+    },
+    {
+      "bundleId": 6916,
+      "logicalName": "gameres_main_file_prefabs_ui_uihero_lwhero_formationbuffcell_4ae9d876cc2e702358b2af7970f564eb.bundle",
+      "aliasName": "8b8163b6b09881aa0fa23a6951b8a801c05e3a209b214df8dc8a4f077e739355.bundle",
+      "declaredBytes": 8731,
+      "assetPaths": [
+        "Assets/Main/Prefabs/UI/UIHero/LWHero/FormationBuffCell.prefab"
+      ],
+      "matchedAssetPaths": [
+        "Assets/Main/Prefabs/UI/UIHero/LWHero/FormationBuffCell.prefab"
+      ],
+      "source": "apk-fragment",
+      "objectTypeCounts": {
+        "CanvasRenderer": 7,
+        "MonoBehaviour": 15,
+        "RectTransform": 7,
+        "MonoScript": 7,
+        "GameObject": 7,
+        "AssetBundle": 1
+      },
+      "names": [
+        "FormationBuffCell",
+        "Image",
+        "infoIcon",
+        "iconBG",
+        "infoText",
+        "additionText",
+        "BG"
+      ],
+      "cameras": [],
+      "rendererCount": 0,
+      "renderers": [],
+      "transforms": [
+        {
+          "pathId": -8154013974311186241,
+          "name": "",
+          "position": [
+            -14.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -6107168236565951604,
+          "name": "",
+          "position": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -4989237686792512111,
+          "name": "",
+          "position": [
+            50.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": 2405526309791809012,
+          "name": "",
+          "position": [
+            50.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": 2777602117974862377,
+          "name": "",
+          "position": [
+            -250.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            0.8500000238418579,
+            0.8500000238418579,
+            1.0
+          ]
+        },
+        {
+          "pathId": 4008576947296851276,
+          "name": "",
+          "position": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": 4128108601528755257,
+          "name": "",
+          "position": [
+            -164.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        }
+      ],
+      "monoCount": 15,
+      "sceneScore": 10
+    },
+    {
+      "bundleId": 11724,
+      "logicalName": "gameres_main_dir_prefabs_uicommonsubpartnew_b4b95f149b8e14e968aff1d33f8c1505.bundle",
+      "aliasName": "44581b4e4c86e30c00f88b196594123350fd5117ec2aa52737704df2c15d27fe.bundle",
+      "declaredBytes": 18894,
+      "assetPaths": [
+        "Assets/Main/Prefabs/UICommonSubPartNew/Text_0.prefab",
+        "Assets/Main/Prefabs/UICommonSubPartNew/Text_1.prefab",
+        "Assets/Main/Prefabs/UICommonSubPartNew/Text_16.prefab",
+        "Assets/Main/Prefabs/UICommonSubPartNew/Text_18.prefab",
+        "Assets/Main/Prefabs/UICommonSubPartNew/Text_18_2.prefab",
+        "Assets/Main/Prefabs/UICommonSubPartNew/Text_2.prefab",
+        "Assets/Main/Prefabs/UICommonSubPartNew/Text_20.prefab",
+        "Assets/Main/Prefabs/UICommonSubPartNew/Text_A22.prefab",
+        "Assets/Main/Prefabs/UICommonSubPartNew/Text_A28.prefab",
+        "Assets/Main/Prefabs/UICommonSubPartNew/Text_A28p.prefab",
+        "Assets/Main/Prefabs/UICommonSubPartNew/Text_Zui1.prefab",
+        "Assets/Main/Prefabs/UICommonSubPartNew/Text_bold18.prefab",
+        "Assets/Main/Prefabs/UICommonSubPartNew/Text_build_28.prefab",
+        "Assets/Main/Prefabs/UICommonSubPartNew/Text_gray20.prefab",
+        "Assets/Main/Prefabs/UICommonSubPartNew/Text_gray24.prefab",
+        "Assets/Main/Prefabs/UICommonSubPartNew/Text_green.prefab",
+        "Assets/Main/Prefabs/UICommonSubPartNew/Text_lv.prefab",
+        "Assets/Main/Prefabs/UICommonSubPartNew/Text_lv18.prefab",
+        "Assets/Main/Prefabs/UICommonSubPartNew/Text_lv_bold20.prefab",
+        "Assets/Main/Prefabs/UICommonSubPartNew/Text_num.prefab",
+        "Assets/Main/Prefabs/UICommonSubPartNew/Text_num28.prefab",
+        "Assets/Main/Prefabs/UICommonSubPartNew/Text_num30.prefab",
+        "Assets/Main/Prefabs/UICommonSubPartNew/Text_num32.prefab",
+        "Assets/Main/Prefabs/UICommonSubPartNew/Text_quality.prefab",
+        "Assets/Main/Prefabs/UICommonSubPartNew/Text_red.prefab",
+        "Assets/Main/Prefabs/UICommonSubPartNew/Text_redx18.prefab",
+        "Assets/Main/Prefabs/UICommonSubPartNew/Text_special30.prefab",
+        "Assets/Main/Prefabs/UICommonSubPartNew/Text_title_36.prefab",
+        "Assets/Main/Prefabs/UICommonSubPartNew/Text_ui.prefab",
+        "Assets/Main/Prefabs/UICommonSubPartNew/Text_ui18.prefab",
+        "Assets/Main/Prefabs/UICommonSubPartNew/Text_ui24.prefab",
+        "Assets/Main/Prefabs/UICommonSubPartNew/Text_uinb20.prefab",
+        "Assets/Main/Prefabs/UICommonSubPartNew/Text_uinb24.prefab",
+        "Assets/Main/Prefabs/UICommonSubPartNew/Text_uinb28.prefab",
+        "Assets/Main/Prefabs/UICommonSubPartNew/Text_uitybai20.prefab",
+        "Assets/Main/Prefabs/UICommonSubPartNew/Text_uitybai24.prefab",
+        "Assets/Main/Prefabs/UICommonSubPartNew/Text_uitybaix18.prefab",
+        "Assets/Main/Prefabs/UICommonSubPartNew/Text_uitybaix20.prefab",
+        "Assets/Main/Prefabs/UICommonSubPartNew/Text_uitybjc24.prefab",
+        "Assets/Main/Prefabs/UICommonSubPartNew/Text_uitybjc28.prefab",
+        "Assets/Main/Prefabs/UICommonSubPartNew/Text_uityhei16.prefab",
+        "Assets/Main/Prefabs/UICommonSubPartNew/Text_uityhei18.prefab",
+        "Assets/Main/Prefabs/UICommonSubPartNew/Text_uityhei20.prefab",
+        "Assets/Main/Prefabs/UICommonSubPartNew/Text_uityhei24.prefab",
+        "Assets/Main/Prefabs/UICommonSubPartNew/Text_uityheix16.prefab",
+        "Assets/Main/Prefabs/UICommonSubPartNew/Text_uityheix18.prefab",
+        "Assets/Main/Prefabs/UICommonSubPartNew/Text_uityheix20.prefab",
+        "Assets/Main/Prefabs/UICommonSubPartNew/Text_uityheix24.prefab",
+        "Assets/Main/Prefabs/UICommonSubPartNew/Text_uityjc18.prefab",
+        "Assets/Main/Prefabs/UICommonSubPartNew/Text_uityjc20.prefab",
+        "Assets/Main/Prefabs/UICommonSubPartNew/Text_uityjc24.prefab",
+        "Assets/Main/Prefabs/UICommonSubPartNew/Text_uityjc28.prefab",
+        "Assets/Main/Prefabs/UICommonSubPartNew/Text_uityjc30.prefab",
+        "Assets/Main/Prefabs/UICommonSubPartNew/btnTxt_gray_big_new.prefab",
+        "Assets/Main/Prefabs/UICommonSubPartNew/btnTxt_green_big_new.prefab",
+        "Assets/Main/Prefabs/UICommonSubPartNew/btnTxt_green_mid_new.prefab",
+        "Assets/Main/Prefabs/UICommonSubPartNew/btnTxt_green_mid_new_with_pic.prefab",
+        "Assets/Main/Prefabs/UICommonSubPartNew/btnTxt_green_small_new.prefab",
+        "Assets/Main/Prefabs/UICommonSubPartNew/btnTxt_red_big_new.prefab",
+        "Assets/Main/Prefabs/UICommonSubPartNew/btnTxt_yellow_big_new.prefab",
+        "Assets/Main/Prefabs/UICommonSubPartNew/btnTxt_yellow_mid_new.prefab",
+        "Assets/Main/Prefabs/UICommonSubPartNew/btnTxt_yellow_small_new.prefab",
+        "Assets/Main/Prefabs/UICommonSubPartNew/content_main_tips_new.prefab",
+        "Assets/Main/Prefabs/UICommonSubPartNew/slider_txt_long_new.prefab",
+        "Assets/Main/Prefabs/UICommonSubPartNew/slider_txt_short_new.prefab",
+        "Assets/Main/Prefabs/UICommonSubPartNew/title_main.prefab",
+        "Assets/Main/Prefabs/UICommonSubPartNew/title_main34.prefab",
+        "Assets/Main/Prefabs/UICommonSubPartNew/title_tips.prefab",
+        "Assets/Main/Prefabs/UICommonSubPartNew/title_tipsx20.prefab"
+      ],
+      "matchedAssetPaths": [
+        "Assets/Main/Prefabs/UICommonSubPartNew/Text_build_28.prefab"
+      ],
+      "source": "apk-fragment",
+      "objectTypeCounts": {
+        "GameObject": 77,
+        "MonoBehaviour": 162,
+        "RectTransform": 77,
+        "CanvasRenderer": 77,
+        "MonoScript": 7,
+        "AssetBundle": 1
+      },
+      "names": [
+        "Text_lv",
+        "Text_uityjc18",
+        "Text_Zui1",
+        "Text_1",
+        "Text_uitybjc24",
+        "btnTxt_green_mid_new_with_pic",
+        "Text_red",
+        "Text_gray20",
+        "title_tips",
+        "Text_uityjc28",
+        "title_tipsx20",
+        "btnTxt_green_mid_new",
+        "Text_uityheix16",
+        "Text_uitybai24",
+        "Text_uityhei18",
+        "Text_uitybaix18",
+        "Text_green",
+        "Text_ui",
+        "Text_bold18",
+        "btnTxt_yellow_big_new",
+        "Text_A28",
+        "Text_num30",
+        "Text_uityhei16",
+        "txt2",
+        "Text_gray24",
+        "Text_num",
+        "Text_2",
+        "btnTxt_green_small_new",
+        "Text_18",
+        "Text_uityjc30",
+        "Text_lv_bold20",
+        "Txt1",
+        "Text_0",
+        "btnTxt_gray_big_new",
+        "slider_txt_long_new",
+        "Text_uitybai20",
+        "icon",
+        "Text_quality",
+        "title_main34",
+        "Text_title_36",
+        "Text_uityheix24",
+        "Text_uityjc24",
+        "Text_ui18",
+        "Text_18_2",
+        "Text_uinb28",
+        "Text_uityheix20",
+        "Text_redx18",
+        "Text_16",
+        "content_main_tips_new",
+        "Text_uityjc20",
+        "Text_uitybjc28",
+        "btnTxt_yellow_small_new",
+        "Text_num28",
+        "Text_num32",
+        "Text_ui24",
+        "Text_20",
+        "Text_A22",
+        "slider_txt_short_new",
+        "Text_build_28",
+        "Text_uinb20",
+        "Text_uityheix18",
+        "Text_special30",
+        "btnTxt_green_big_new",
+        "Text_A28p",
+        "Text_uitybaix20",
+        "title_main",
+        "Text_lv18",
+        "Text_uityhei20",
+        "btnTxt_yellow_mid_new",
+        "Text_uinb24",
+        "Text_uityhei24",
+        "btnTxt_red_big_new"
+      ],
+      "cameras": [],
+      "rendererCount": 0,
+      "renderers": [],
+      "transforms": [
+        {
+          "pathId": -8812161736698218482,
+          "name": "",
+          "position": [
+            0.0,
+            29.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -8451772556142697700,
+          "name": "",
+          "position": [
+            0.0,
+            16.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -8343761562005823545,
+          "name": "",
+          "position": [
+            -352.5,
+            48.5,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -8317959041440325726,
+          "name": "",
+          "position": [
+            -143.0,
+            291.5,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -8068134352667361663,
+          "name": "",
+          "position": [
+            -352.5,
+            -40.70000076293945,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -7490272549697164723,
+          "name": "",
+          "position": [
+            -293.5,
+            -3.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -7393633285473284555,
+          "name": "",
+          "position": [
+            -293.5,
+            -3.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -7035654435563562048,
+          "name": "",
+          "position": [
+            -4.599999904632568,
+            33.099998474121094,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -6794777754566494957,
+          "name": "",
+          "position": [
+            0.0,
+            350.5,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -6596950728288464117,
+          "name": "",
+          "position": [
+            -293.5,
+            -3.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -6172744898070012049,
+          "name": "",
+          "position": [
+            -293.5,
+            -3.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -5073576829644884588,
+          "name": "",
+          "position": [
+            -293.5,
+            -3.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -4954341427444877013,
+          "name": "",
+          "position": [
+            -293.5,
+            -3.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -4507585046211129348,
+          "name": "",
+          "position": [
+            0.0,
+            350.5,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -4362260073346049690,
+          "name": "",
+          "position": [
+            -352.5,
+            48.599998474121094,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -4220295372693876933,
+          "name": "",
+          "position": [
+            146.0,
+            -300.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -4102721057177517561,
+          "name": "",
+          "position": [
+            -352.5,
+            48.5,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -4088816420709466363,
+          "name": "",
+          "position": [
+            -293.5,
+            -3.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -3964239090355667257,
+          "name": "",
+          "position": [
+            -293.5,
+            -3.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -3147037004327059595,
+          "name": "",
+          "position": [
+            0.0,
+            8.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -3000014639867266601,
+          "name": "",
+          "position": [
+            -293.5,
+            -3.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -2209218016796819630,
+          "name": "",
+          "position": [
+            -293.5,
+            -3.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -2051054119135572985,
+          "name": "",
+          "position": [
+            0.0,
+            14.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -1962062517016265671,
+          "name": "",
+          "position": [
+            -293.5,
+            -3.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -1936713277962669745,
+          "name": "",
+          "position": [
+            -293.5,
+            -3.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -1714252787512977830,
+          "name": "",
+          "position": [
+            20.0,
+            0.499908447265625,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -1069758457633991258,
+          "name": "",
+          "position": [
+            -293.5,
+            -3.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -979953671305764219,
+          "name": "",
+          "position": [
+            -293.5,
+            -2.990000009536743,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -722358590815947207,
+          "name": "",
+          "position": [
+            -293.5,
+            -3.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -680821370847042705,
+          "name": "",
+          "position": [
+            -352.5,
+            48.5,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -639309334427520796,
+          "name": "",
+          "position": [
+            -293.5,
+            -3.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -338293632184341982,
+          "name": "",
+          "position": [
+            20.0,
+            0.499908447265625,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -271925560903607585,
+          "name": "",
+          "position": [
+            -293.5,
+            -3.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -63632803102353507,
+          "name": "",
+          "position": [
+            16.199996948242188,
+            -0.9000015258789062,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": -19206327769706339,
+          "name": "",
+          "position": [
+            -293.5,
+            -3.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": 96461978171650499,
+          "name": "",
+          "position": [
+            -293.5,
+            -3.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": 566383733106649681,
+          "name": "",
+          "position": [
+            -293.5,
+            -2.990000009536743,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": 614635453105350970,
+          "name": "",
+          "position": [
+            0.0,
+            14.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": 678972482414138652,
+          "name": "",
+          "position": [
+            -293.5,
+            -3.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": 889311684089472701,
+          "name": "",
+          "position": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": 1094251685126855417,
+          "name": "",
+          "position": [
+            -23.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": 1568149336357778573,
+          "name": "",
+          "position": [
+            -293.5,
+            -3.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": 1589411245768204851,
+          "name": "",
+          "position": [
+            -293.5,
+            -3.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": 1814591691585764162,
+          "name": "",
+          "position": [
+            0.0,
+            14.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": 2837627262470200425,
+          "name": "",
+          "position": [
+            -293.5,
+            -3.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": 2881370030128413147,
+          "name": "",
+          "position": [
+            -293.5,
+            -3.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": 2919145913065916751,
+          "name": "",
+          "position": [
+            -23.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": 3156897148019375910,
+          "name": "",
+          "position": [
+            0.0,
+            14.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": 3538456686674102478,
+          "name": "",
+          "position": [
+            16.199996948242188,
+            -0.9000015258789062,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": 4338135435156026411,
+          "name": "",
+          "position": [
+            20.0,
+            0.499908447265625,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": 4598594289296726539,
+          "name": "",
+          "position": [
+            -352.5,
+            48.5,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": 4686145142389559442,
+          "name": "",
+          "position": [
+            0.0,
+            3.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": 4713495157907417140,
+          "name": "",
+          "position": [
+            -293.5,
+            -3.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": 4765788253579205223,
+          "name": "",
+          "position": [
+            -293.5,
+            -3.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": 4875256703770051425,
+          "name": "",
+          "position": [
+            -287.44000244140625,
+            132.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": 4967029946126301851,
+          "name": "",
+          "position": [
+            -293.5,
+            -3.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": 5096910257441519391,
+          "name": "",
+          "position": [
+            -352.5,
+            48.5,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": 5123625403378156516,
+          "name": "",
+          "position": [
+            -287.44000244140625,
+            132.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": 5307895394419672027,
+          "name": "",
+          "position": [
+            146.0,
+            -300.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": 5399251167067490172,
+          "name": "",
+          "position": [
+            0.0,
+            -6.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": 5563525857530787720,
+          "name": "",
+          "position": [
+            -293.5,
+            -3.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": 5796908092704988393,
+          "name": "",
+          "position": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": 5840994219401307669,
+          "name": "",
+          "position": [
+            -143.0,
+            114.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": 5865500241848236952,
+          "name": "",
+          "position": [
+            -293.5,
+            -3.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": 6736794326478576312,
+          "name": "",
+          "position": [
+            -293.5,
+            -3.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": 6849028297417707376,
+          "name": "",
+          "position": [
+            -355.0,
+            54.70000076293945,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": 6855223173988339754,
+          "name": "",
+          "position": [
+            -426.5,
+            -43.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": 7134370947977481522,
+          "name": "",
+          "position": [
+            0.0,
+            -0.5,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": 7140413136619465850,
+          "name": "",
+          "position": [
+            0.0,
+            44.5,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": 7262505159279713470,
+          "name": "",
+          "position": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": 8019964280440561577,
+          "name": "",
+          "position": [
+            -467.0,
+            95.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": 8210621429297897527,
+          "name": "",
+          "position": [
+            -293.5,
+            -3.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": 8212084343595381229,
+          "name": "",
+          "position": [
+            -293.5,
+            -3.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": 8280665718794592322,
+          "name": "",
+          "position": [
+            -293.5,
+            -3.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": 8415768871939759667,
+          "name": "",
+          "position": [
+            -293.5,
+            -3.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": 9143028628042558822,
+          "name": "",
+          "position": [
+            -4.599999904632568,
+            33.099998474121094,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "pathId": 9186014039267999796,
+          "name": "",
+          "position": [
+            -293.5,
+            -3.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        }
+      ],
+      "monoCount": 80,
+      "sceneScore": 10
+    }
+  ],
+  "guardrails": {
+    "directUiDependenciesOnly": true,
+    "previewUntouched": true,
+    "mainUntouched": true
+  }
+}
