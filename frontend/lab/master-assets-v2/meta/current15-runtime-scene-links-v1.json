@@ -1,0 +1,442 @@
+{
+  "format": "WFGG_LASTWAR_CURRENT15_RUNTIME_SCENE_LINKS_V1",
+  "networkUsed": false,
+  "heroCount": 15,
+  "parseOkCount": 15,
+  "rootExactCount": 15,
+  "sceneLinkedCount": 6,
+  "transformCount": 479,
+  "meshLinkCount": 42,
+  "unresolvedMeshLinkCount": 23,
+  "unresolvedTextureLinkCount": 41,
+  "heroes": [
+    {
+      "heroId": 50006,
+      "name": "Murphy",
+      "queueModelPath": "Assets/_Art_LastWar/Models/Cars/A_Hero_Audie/A_Hero_Audie_01/prefab/A_Hero_Audie_01.prefab",
+      "expectedRoot": "A_Hero_Audie_01",
+      "parseOk": true,
+      "rootExact": true,
+      "sceneLinked": true,
+      "errors": [],
+      "transformCount": 39,
+      "meshFilterCount": 0,
+      "rendererCount": 0,
+      "skinnedRendererCount": 3,
+      "meshLinkCount": 3,
+      "unresolvedMeshLinks": 0,
+      "materialCount": 3,
+      "unresolvedTextureLinks": 2,
+      "ambiguousExportMeshNames": [],
+      "ambiguousExportTextureNames": [
+        "A_Hero_Audie_01_bullet_S"
+      ],
+      "sceneJson": "50006/scene.json"
+    },
+    {
+      "heroId": 50007,
+      "name": "Williams",
+      "queueModelPath": "Assets/_Art_LastWar/Models/Cars/A_Hero_Rick_01/prefab/A_Hero_Rick_01.prefab",
+      "expectedRoot": "A_Hero_Rick_01",
+      "parseOk": true,
+      "rootExact": true,
+      "sceneLinked": false,
+      "errors": [
+        "unresolved mesh links: A_Hero_Rick_01,A_Hero_Rick_lvdai_01",
+        "ambiguous exported mesh names: A_Hero_Rick_01,A_Hero_Rick_01_High,A_Hero_Rick_01_bullet,A_Hero_Rick_lvdai_01,A_Hero_Rick_lvdai_01_High"
+      ],
+      "transformCount": 3,
+      "meshFilterCount": 2,
+      "rendererCount": 2,
+      "skinnedRendererCount": 0,
+      "meshLinkCount": 2,
+      "unresolvedMeshLinks": 2,
+      "materialCount": 0,
+      "unresolvedTextureLinks": 0,
+      "ambiguousExportMeshNames": [
+        "A_Hero_Rick_01",
+        "A_Hero_Rick_01_High",
+        "A_Hero_Rick_01_bullet",
+        "A_Hero_Rick_lvdai_01",
+        "A_Hero_Rick_lvdai_01_High"
+      ],
+      "ambiguousExportTextureNames": [
+        "A_Hero_Rick_01_bullet_D",
+        "A_Hero_Rick_01_bullet_N",
+        "A_Hero_Rick_01_bullet_S"
+      ],
+      "sceneJson": "50007/scene.json"
+    },
+    {
+      "heroId": 50008,
+      "name": "Marshall",
+      "queueModelPath": "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/prefab/A_Hero_Nimitz_01.prefab",
+      "expectedRoot": "A_Hero_Nimitz_01",
+      "parseOk": true,
+      "rootExact": true,
+      "sceneLinked": false,
+      "errors": [
+        "unresolved mesh links: A_Hero_Nimitz_01,A_Hero_Nimitz_chedeng_01,A_Hero_Nimitz_lvdai_01",
+        "ambiguous exported mesh names: A_Hero_Nimitz_01,A_Hero_Nimitz_01_High,A_Hero_Nimitz_chedeng_01,A_Hero_Nimitz_chedeng_01_High,A_Hero_Nimitz_lvdai_01,A_Hero_Nimitz_lvdai_01_High"
+      ],
+      "transformCount": 4,
+      "meshFilterCount": 3,
+      "rendererCount": 3,
+      "skinnedRendererCount": 0,
+      "meshLinkCount": 3,
+      "unresolvedMeshLinks": 3,
+      "materialCount": 0,
+      "unresolvedTextureLinks": 0,
+      "ambiguousExportMeshNames": [
+        "A_Hero_Nimitz_01",
+        "A_Hero_Nimitz_01_High",
+        "A_Hero_Nimitz_chedeng_01",
+        "A_Hero_Nimitz_chedeng_01_High",
+        "A_Hero_Nimitz_lvdai_01",
+        "A_Hero_Nimitz_lvdai_01_High"
+      ],
+      "ambiguousExportTextureNames": [],
+      "sceneJson": "50008/scene.json"
+    },
+    {
+      "heroId": 50009,
+      "name": "Kimberly",
+      "queueModelPath": "Assets/_Art_LastWar/Models/Cars/A_Hero_Katyusha_02/A_Hero_Katyusha_02/prefab/A_Hero_Katyusha_02_city.prefab",
+      "expectedRoot": "A_Hero_Katyusha_02_city",
+      "parseOk": true,
+      "rootExact": true,
+      "sceneLinked": true,
+      "errors": [],
+      "transformCount": 52,
+      "meshFilterCount": 0,
+      "rendererCount": 0,
+      "skinnedRendererCount": 2,
+      "meshLinkCount": 2,
+      "unresolvedMeshLinks": 0,
+      "materialCount": 2,
+      "unresolvedTextureLinks": 4,
+      "ambiguousExportMeshNames": [],
+      "ambiguousExportTextureNames": [
+        "A_Hero_Katyusha_02_D",
+        "A_Hero_Katyusha_02_S"
+      ],
+      "sceneJson": "50009/scene.json"
+    },
+    {
+      "heroId": 50010,
+      "name": "Stetmann",
+      "queueModelPath": "Assets/_Art_LastWar/Models/Cars/A_Hero_Stetman_01/prefab/A_Hero_Stetman_01.prefab",
+      "expectedRoot": "A_Hero_Stetman_01",
+      "parseOk": true,
+      "rootExact": true,
+      "sceneLinked": false,
+      "errors": [
+        "unresolved mesh links: A_Hero_Stetman_01_01,A_Hero_Stetman_01_02,A_Hero_Stetman_01_chedeng,A_Hero_Stetman_01_chedeng01",
+        "ambiguous exported mesh names: A_Hero_Stetman_01_01,A_Hero_Stetman_01_02,A_Hero_Stetman_01_High,A_Hero_Stetman_01_chedeng,A_Hero_Stetman_01_chedeng01,A_Hero_Stetman_01_chedeng_High,A_Hero_Stetman_01_lvdai_High,A_Hero_Stetman_chedeng_01_High"
+      ],
+      "transformCount": 5,
+      "meshFilterCount": 4,
+      "rendererCount": 4,
+      "skinnedRendererCount": 0,
+      "meshLinkCount": 4,
+      "unresolvedMeshLinks": 4,
+      "materialCount": 0,
+      "unresolvedTextureLinks": 0,
+      "ambiguousExportMeshNames": [
+        "A_Hero_Stetman_01_01",
+        "A_Hero_Stetman_01_02",
+        "A_Hero_Stetman_01_High",
+        "A_Hero_Stetman_01_chedeng",
+        "A_Hero_Stetman_01_chedeng01",
+        "A_Hero_Stetman_01_chedeng_High",
+        "A_Hero_Stetman_01_lvdai_High",
+        "A_Hero_Stetman_chedeng_01_High"
+      ],
+      "ambiguousExportTextureNames": [],
+      "sceneJson": "50010/scene.json"
+    },
+    {
+      "heroId": 50013,
+      "name": "McGregor",
+      "queueModelPath": "Assets/_Art_LastWar/Models/Cars/A_Hero_Ewan_01/prefab/A_Hero_Ewan_01.prefab",
+      "expectedRoot": "A_Hero_Ewan_01",
+      "parseOk": true,
+      "rootExact": true,
+      "sceneLinked": true,
+      "errors": [],
+      "transformCount": 51,
+      "meshFilterCount": 0,
+      "rendererCount": 0,
+      "skinnedRendererCount": 4,
+      "meshLinkCount": 4,
+      "unresolvedMeshLinks": 0,
+      "materialCount": 4,
+      "unresolvedTextureLinks": 3,
+      "ambiguousExportMeshNames": [],
+      "ambiguousExportTextureNames": [],
+      "sceneJson": "50013/scene.json"
+    },
+    {
+      "heroId": 50014,
+      "name": "Fiona",
+      "queueModelPath": "Assets/_Art_LastWar/Models/Cars/A_Hero_Katyusha_01_v001/prefab/A_Hero_Katyusha_01.prefab",
+      "expectedRoot": "A_Hero_Katyusha_01",
+      "parseOk": true,
+      "rootExact": true,
+      "sceneLinked": false,
+      "errors": [
+        "unresolved mesh links: A_Hero_Katyusha_01,A_Hero_Katyusha_01_daodan,A_Hero_Katyusha_chedeng_01,A_Hero_Katyusha_chedeng_02,A_Hero_Katyusha_chedeng_03",
+        "ambiguous exported mesh names: A_Hero_Katyusha_01,A_Hero_Katyusha_01_daodan,A_Hero_Katyusha_chedeng_01,A_Hero_Katyusha_chedeng_02,A_Hero_Katyusha_chedeng_03"
+      ],
+      "transformCount": 46,
+      "meshFilterCount": 0,
+      "rendererCount": 0,
+      "skinnedRendererCount": 5,
+      "meshLinkCount": 5,
+      "unresolvedMeshLinks": 5,
+      "materialCount": 4,
+      "unresolvedTextureLinks": 4,
+      "ambiguousExportMeshNames": [
+        "A_Hero_Katyusha_01",
+        "A_Hero_Katyusha_01_daodan",
+        "A_Hero_Katyusha_chedeng_01",
+        "A_Hero_Katyusha_chedeng_02",
+        "A_Hero_Katyusha_chedeng_03"
+      ],
+      "ambiguousExportTextureNames": [
+        "A_Hero_Katyusha_01_D",
+        "A_Hero_Katyusha_01_N",
+        "A_Hero_Katyusha_01_S"
+      ],
+      "sceneJson": "50014/scene.json"
+    },
+    {
+      "heroId": 50015,
+      "name": "Swift",
+      "queueModelPath": "Assets/_Art_LastWar/Models/Cars/A_Hero_Einstein/A_Hero_Einstein_01/prefab/A_Hero_Einstein_01.prefab",
+      "expectedRoot": "A_Hero_Einstein_01",
+      "parseOk": true,
+      "rootExact": true,
+      "sceneLinked": true,
+      "errors": [],
+      "transformCount": 30,
+      "meshFilterCount": 0,
+      "rendererCount": 0,
+      "skinnedRendererCount": 2,
+      "meshLinkCount": 2,
+      "unresolvedMeshLinks": 0,
+      "materialCount": 2,
+      "unresolvedTextureLinks": 3,
+      "ambiguousExportMeshNames": [],
+      "ambiguousExportTextureNames": [
+        "A_Hero_Einstein_01_D",
+        "A_Hero_Einstein_01_S"
+      ],
+      "sceneJson": "50015/scene.json"
+    },
+    {
+      "heroId": 50016,
+      "name": "Tesla",
+      "queueModelPath": "Assets/_Art_LastWar/Models/Cars/A_Hero_Tesla/A_Hero_Tesla_01/prefab/A_Hero_Tesla_01.prefab",
+      "expectedRoot": "A_Hero_Tesla_01",
+      "parseOk": true,
+      "rootExact": true,
+      "sceneLinked": false,
+      "errors": [
+        "unresolved mesh links: A_Hero_Tesla_01,A_Hero_Tesla_01_Coil_01,A_Hero_Tesla_01_light",
+        "ambiguous exported mesh names: A_Hero_Tesla_01,A_Hero_Tesla_01_Coil_01,A_Hero_Tesla_01_light"
+      ],
+      "transformCount": 42,
+      "meshFilterCount": 0,
+      "rendererCount": 0,
+      "skinnedRendererCount": 4,
+      "meshLinkCount": 4,
+      "unresolvedMeshLinks": 3,
+      "materialCount": 3,
+      "unresolvedTextureLinks": 6,
+      "ambiguousExportMeshNames": [
+        "A_Hero_Tesla_01",
+        "A_Hero_Tesla_01_Coil_01",
+        "A_Hero_Tesla_01_light"
+      ],
+      "ambiguousExportTextureNames": [
+        "A_Hero_Tesla_01_D",
+        "A_Hero_Tesla_01_E",
+        "A_Hero_Tesla_01_N",
+        "A_Hero_Tesla_01_S"
+      ],
+      "sceneJson": "50016/scene.json"
+    },
+    {
+      "heroId": 50017,
+      "name": "DVA",
+      "queueModelPath": "Assets/_Art_LastWar/Models/Cars/A_Hero_Dva/A_Hero_Dva_01/prefab/A_Hero_Dva_01.prefab",
+      "expectedRoot": "A_Hero_Dva_01",
+      "parseOk": true,
+      "rootExact": true,
+      "sceneLinked": true,
+      "errors": [],
+      "transformCount": 28,
+      "meshFilterCount": 0,
+      "rendererCount": 0,
+      "skinnedRendererCount": 4,
+      "meshLinkCount": 4,
+      "unresolvedMeshLinks": 0,
+      "materialCount": 2,
+      "unresolvedTextureLinks": 1,
+      "ambiguousExportMeshNames": [],
+      "ambiguousExportTextureNames": [],
+      "sceneJson": "50017/scene.json"
+    },
+    {
+      "heroId": 50018,
+      "name": "Schuyler",
+      "queueModelPath": "Assets/_Art_LastWar/Models/Cars/A_Hero_Sally_01/prefab/A_Hero_Sally_01.prefab",
+      "expectedRoot": "A_Hero_Sally_01",
+      "parseOk": true,
+      "rootExact": true,
+      "sceneLinked": false,
+      "errors": [
+        "unresolved mesh links: A_Hero_Sally_01,A_Hero_Sally_chedeng_01",
+        "ambiguous exported mesh names: A_Hero_Sally_01,A_Hero_Sally_chedeng_01"
+      ],
+      "transformCount": 28,
+      "meshFilterCount": 0,
+      "rendererCount": 0,
+      "skinnedRendererCount": 2,
+      "meshLinkCount": 2,
+      "unresolvedMeshLinks": 2,
+      "materialCount": 2,
+      "unresolvedTextureLinks": 4,
+      "ambiguousExportMeshNames": [
+        "A_Hero_Sally_01",
+        "A_Hero_Sally_chedeng_01"
+      ],
+      "ambiguousExportTextureNames": [
+        "A_Hero_Sally_01_D",
+        "A_Hero_Sally_01_N",
+        "A_Hero_Sally_01_S"
+      ],
+      "sceneJson": "50018/scene.json"
+    },
+    {
+      "heroId": 50019,
+      "name": "Carlie",
+      "queueModelPath": "Assets/_Art_LastWar/Models/Cars/A_Hero_Tom/A_Hero_Tom_01/prefab/A_Hero_Tom_01.prefab",
+      "expectedRoot": "A_Hero_Tom_01",
+      "parseOk": true,
+      "rootExact": true,
+      "sceneLinked": false,
+      "errors": [
+        "unresolved mesh links: A_Hero_Airplane_01",
+        "ambiguous exported mesh names: A_Hero_Airplane_01"
+      ],
+      "transformCount": 36,
+      "meshFilterCount": 0,
+      "rendererCount": 0,
+      "skinnedRendererCount": 1,
+      "meshLinkCount": 1,
+      "unresolvedMeshLinks": 1,
+      "materialCount": 1,
+      "unresolvedTextureLinks": 4,
+      "ambiguousExportMeshNames": [
+        "A_Hero_Airplane_01"
+      ],
+      "ambiguousExportTextureNames": [
+        "A_Hero_Tom_01_D",
+        "A_Hero_Tom_01_N",
+        "A_Hero_Tom_01_S"
+      ],
+      "sceneJson": "50019/scene.json"
+    },
+    {
+      "heroId": 50020,
+      "name": "Morrison",
+      "queueModelPath": "Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/prefab/A_Hero_Morrison_01.prefab",
+      "expectedRoot": "A_Hero_Morrison_01",
+      "parseOk": true,
+      "rootExact": true,
+      "sceneLinked": false,
+      "errors": [
+        "unresolved mesh links: A_Hero_Morrison01,A_Hero_Morrison01_light",
+        "ambiguous exported mesh names: A_Hero_Morrison01,A_Hero_Morrison01_light"
+      ],
+      "transformCount": 22,
+      "meshFilterCount": 0,
+      "rendererCount": 0,
+      "skinnedRendererCount": 2,
+      "meshLinkCount": 2,
+      "unresolvedMeshLinks": 2,
+      "materialCount": 2,
+      "unresolvedTextureLinks": 4,
+      "ambiguousExportMeshNames": [
+        "A_Hero_Morrison01",
+        "A_Hero_Morrison01_light"
+      ],
+      "ambiguousExportTextureNames": [
+        "A_Hero_Morrison01_D",
+        "A_Hero_Morrison01_N",
+        "A_Hero_Morrison01_S"
+      ],
+      "sceneJson": "50020/scene.json"
+    },
+    {
+      "heroId": 50021,
+      "name": "Lucius",
+      "queueModelPath": "Assets/_Art_LastWar/Models/Cars/A_Hero_Lucius01/prefab/A_Hero_Lucius01.prefab",
+      "expectedRoot": "A_Hero_Lucius01",
+      "parseOk": true,
+      "rootExact": true,
+      "sceneLinked": false,
+      "errors": [
+        "unresolved mesh links: A_Hero_Lucius01",
+        "ambiguous exported mesh names: A_Hero_Lucius01"
+      ],
+      "transformCount": 26,
+      "meshFilterCount": 0,
+      "rendererCount": 0,
+      "skinnedRendererCount": 1,
+      "meshLinkCount": 1,
+      "unresolvedMeshLinks": 1,
+      "materialCount": 1,
+      "unresolvedTextureLinks": 4,
+      "ambiguousExportMeshNames": [
+        "A_Hero_Lucius01"
+      ],
+      "ambiguousExportTextureNames": [
+        "A_Hero_Lucius01_D",
+        "A_Hero_Lucius01_N",
+        "A_Hero_Lucius01_S"
+      ],
+      "sceneJson": "50021/scene.json"
+    },
+    {
+      "heroId": 50022,
+      "name": "Adam",
+      "queueModelPath": "Assets/_Art_LastWar/Models/Cars/A_Hero_Adam_01/prefab/A_Hero_Adam_01.prefab",
+      "expectedRoot": "A_Hero_Adam_01",
+      "parseOk": true,
+      "rootExact": true,
+      "sceneLinked": true,
+      "errors": [],
+      "transformCount": 67,
+      "meshFilterCount": 0,
+      "rendererCount": 0,
+      "skinnedRendererCount": 3,
+      "meshLinkCount": 3,
+      "unresolvedMeshLinks": 0,
+      "materialCount": 3,
+      "unresolvedTextureLinks": 2,
+      "ambiguousExportMeshNames": [],
+      "ambiguousExportTextureNames": [],
+      "sceneJson": "50022/scene.json"
+    }
+  ],
+  "guardrails": {
+    "noFuzzyMatching": true,
+    "noGeneratedGeometry": true,
+    "noGeneratedMotion": true,
+    "noAnimationSubstitution": true,
+    "noLastWarNetwork": true
+  }
+}
