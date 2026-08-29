@@ -27,8 +27,6 @@
     if (member.dataset.pixelHydrated === '1') return;
     member.dataset.pixelHydrated = '1';
 
-    // Remove the temporary troop silhouette. Pixel-master mode only accepts an
-    // authentic rendered vehicle/frame extracted from the Unity model pipeline.
     member.querySelector('.lw-formation-type')?.remove();
 
     const heroId = heroIdFromMember(member);
@@ -49,12 +47,8 @@
     if (card.dataset.pixelHydrated === '1') return;
     card.dataset.pixelHydrated = '1';
 
-    // The old top-left icon was the troop family, which is not what the native
-    // Last War card shows. Remove it until the authoritative role map is bound.
     card.querySelector(':scope > .lw-unit-type')?.remove();
 
-    // The unit-family icon next to Lv.150 is valid, but switch it to the exact
-    // recovered small sprite rather than a crop/synthetic icon.
     const teamKey = teamKeyFromCard(card);
     const levelIcon = card.querySelector('.lw-level-line img');
     if (levelIcon) {
@@ -78,9 +72,11 @@
     if (controls[2] && controls[2].dataset.pixelHydrated !== '1') {
       controls[2].dataset.pixelHydrated = '1';
       controls[2].classList.add('plus');
+      controls[2].style.setProperty('display', 'grid', 'important');
       const plus = document.createElement('span');
       plus.className = 'lw-native-plus';
       plus.textContent = '+';
+      plus.style.cssText = 'display:grid!important;place-items:center;width:100%;height:100%;font-size:2.2rem;font-weight:900;color:#fff;text-shadow:0 2px 2px #000;background:radial-gradient(circle,#71818b 0 58%,#2e4757 60% 68%,#d9eefb 70% 73%,transparent 74%);';
       controls[2].replaceChildren(plus);
     }
 
