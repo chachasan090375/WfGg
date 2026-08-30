@@ -1,0 +1,2692 @@
+{
+  "format": "WFGG_LASTWAR_FORMATION_LUAUIFORMLOGIC_SERIALIZED_EVIDENCE_V1",
+  "source": {
+    "formationPtrV4": "frontend/lab/master-assets-v2/meta/formation-ptr-exact-v4.json"
+  },
+  "counts": {
+    "v4ExactLuaUIFormLogicRecordHits": 0,
+    "v4ScriptRefEdgeRows": 577,
+    "existingFilteredMetadataFilesScanned": 46,
+    "existingMetadataLuaUIFormLogicHits": 90,
+    "serializedLookingMetadataHits": 20
+  },
+  "v4ExactRecords": [],
+  "v4ScriptRefEdges": [
+    {
+      "path": "$.edges[16]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#6333053403691843337",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#8390977652835490180",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": 8390977652835490180,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[19]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-3755011431292375246",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#1449921518487060124",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": 1449921518487060124,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[167]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#935766179200945348",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-8471220842657547617",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -8471220842657547617,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[172]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-3957975286359756321",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-8471220842657547617",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -8471220842657547617,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[176]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-6033878462748357686",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-7030229213176759517",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -7030229213176759517,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[180]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-1763049640713698856",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#2464113599372402720",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": 2464113599372402720,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[183]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-2261692378871045943",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-7030229213176759517",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -7030229213176759517,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[186]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-8216835772677867173",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-6643220153193528427",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -6643220153193528427,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[420]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-3737350969793985046",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-7030229213176759517",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -7030229213176759517,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[462]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-6738000084438444885",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-7030229213176759517",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -7030229213176759517,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[707]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-7859799023225051748",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-787143586316466668",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -787143586316466668,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[710]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#6228215937143325657",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-134930754983342810",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -134930754983342810,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[713]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#4995486955188743010",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-7030229213176759517",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -7030229213176759517,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[716]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-1814898643180224725",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-5392852106782294089",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -5392852106782294089,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[718]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#5914361599199478294",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#348253180598357110",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": 348253180598357110,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[783]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#5441440565003937299",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-787143586316466668",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -787143586316466668,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[786]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-8742633860131235031",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-134930754983342810",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -134930754983342810,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[789]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-8803535358538868439",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-7030229213176759517",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -7030229213176759517,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[792]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#4423393578600589330",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-5392852106782294089",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -5392852106782294089,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[794]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#9174010782801530076",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#348253180598357110",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": 348253180598357110,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[863]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#7193434885277001099",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-787143586316466668",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -787143586316466668,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[866]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#5375729346039327867",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-134930754983342810",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -134930754983342810,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[869]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#4436743872470668915",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-7030229213176759517",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -7030229213176759517,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[872]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-4783120984362928793",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-5392852106782294089",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -5392852106782294089,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[874]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#5511809829179975049",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#348253180598357110",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": 348253180598357110,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[943]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-6976924987582023423",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-787143586316466668",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -787143586316466668,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[946]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-781208347746000471",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-134930754983342810",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -134930754983342810,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[949]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#1880511482472023076",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-7030229213176759517",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -7030229213176759517,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[952]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-3041625292752076384",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-5392852106782294089",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -5392852106782294089,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[954]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#899294926519419872",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#348253180598357110",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": 348253180598357110,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1103]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#596342853967071441",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-7030229213176759517",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -7030229213176759517,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1106]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#6590319183418661447",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-8826248144273319766",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -8826248144273319766,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1109]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#8073489830004583977",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#4452942400327435936",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": 4452942400327435936,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1112]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-1002104021733284734",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-134930754983342810",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -134930754983342810,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1118]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#7428416595217398034",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-4395754087769394028",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -4395754087769394028,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1140]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#5365422141505242019",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-5459917681978091589",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -5459917681978091589,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1144]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-3993185797842268769",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#4887803201962511793",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": 4887803201962511793,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1147]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#4273833617474368052",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#2464113599372402720",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": 2464113599372402720,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1150]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#2002679098119642854",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-134930754983342810",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -134930754983342810,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1155]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#2267729893601391270",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#7914300768251963145",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": 7914300768251963145,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1157]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#2628694250747089071",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-4395754087769394028",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -4395754087769394028,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1202]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#4000636765323568621",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-7030229213176759517",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -7030229213176759517,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1206]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#2439755635607822077",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#2464113599372402720",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": 2464113599372402720,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1209]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#4232103937223041805",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-6466724424463935614",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -6466724424463935614,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1324]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#7505192559722319700",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-134930754983342810",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -134930754983342810,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1326]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-2935914093274609819",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#2464113599372402720",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": 2464113599372402720,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1339]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#5030625120845537862",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-7030229213176759517",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -7030229213176759517,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1342]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-4611977054641648849",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-4395754087769394028",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -4395754087769394028,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1411]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-1092700198604578020",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#348253180598357110",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": 348253180598357110,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1413]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-5803697099046804693",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-3286603942153067556",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -3286603942153067556,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1444]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-4308813226486302439",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#9006062995516675145",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": 9006062995516675145,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1448]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-8870153526921092276",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-4395754087769394028",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -4395754087769394028,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1450]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-3725982349977123158",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-5392852106782294089",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -5392852106782294089,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1464]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#7326544163859915887",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#348253180598357110",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": 348253180598357110,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1466]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#1397169863549855099",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-3286603942153067556",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -3286603942153067556,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1469]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-6269526992330232030",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-7030229213176759517",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -7030229213176759517,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1471]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#5360430416401025072",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#2464113599372402720",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": 2464113599372402720,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1475]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#3796753507468291093",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-7030229213176759517",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -7030229213176759517,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1478]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-8750243804497027851",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#348253180598357110",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": 348253180598357110,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1480]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#3469619475273878939",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-5392852106782294089",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -5392852106782294089,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1520]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-2844537427117760631",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-7030229213176759517",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -7030229213176759517,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1523]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#90726178168931398",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#425168875757824589",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": 425168875757824589,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1526]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-3486757263155486613",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-7030229213176759517",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -7030229213176759517,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1529]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#7216357532902320197",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-4395754087769394028",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -4395754087769394028,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1531]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-5807649468852269359",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-5392852106782294089",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -5392852106782294089,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1551]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-8257390471671847915",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-7030229213176759517",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -7030229213176759517,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1554]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-1798383266746432533",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#425168875757824589",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": 425168875757824589,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1556]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#2703697234116105078",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#425168875757824589",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": 425168875757824589,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1566]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-8358072406205443278",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#425168875757824589",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": 425168875757824589,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1568]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-3217409525915007329",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-787143586316466668",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -787143586316466668,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1571]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-2336925511153158592",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-134930754983342810",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -134930754983342810,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1585]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-5401925214103097505",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#425168875757824589",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": 425168875757824589,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1587]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#9138122790105688515",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-787143586316466668",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -787143586316466668,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1590]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#7691081781138262257",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-134930754983342810",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -134930754983342810,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1604]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-4788446896606902032",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#425168875757824589",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": 425168875757824589,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1606]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#3394230895220851325",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-787143586316466668",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -787143586316466668,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1609]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-3097932172671561202",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-134930754983342810",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -134930754983342810,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1623]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-8443731764923325199",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#425168875757824589",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": 425168875757824589,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1625]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#6440746283810417290",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-787143586316466668",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -787143586316466668,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1628]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-769689259790119249",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-134930754983342810",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -134930754983342810,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1642]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-5721012827457409759",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-7030229213176759517",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -7030229213176759517,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1644]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#3495030703584797399",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#425168875757824589",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": 425168875757824589,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1647]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-6807278050604145120",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-7030229213176759517",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -7030229213176759517,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1650]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#678702989557164484",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#425168875757824589",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": 425168875757824589,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1652]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#4279546922981786568",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#425168875757824589",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": 425168875757824589,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1663]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#3631411195814972585",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#425168875757824589",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": 425168875757824589,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1665]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-4729740560876585145",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-787143586316466668",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -787143586316466668,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1668]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-5920207050507668076",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-134930754983342810",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -134930754983342810,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1686]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-8381742336356834439",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#425168875757824589",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": 425168875757824589,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1688]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#6114198647649949319",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-787143586316466668",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -787143586316466668,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1691]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#2084307344654595230",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-134930754983342810",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -134930754983342810,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1709]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-3743191988660485052",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#425168875757824589",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": 425168875757824589,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1711]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-1608701068246087390",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-787143586316466668",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -787143586316466668,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1714]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#3588103197573633627",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-134930754983342810",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -134930754983342810,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1732]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#4559956195201956083",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#425168875757824589",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": 425168875757824589,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1734]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-8387464129076315833",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-787143586316466668",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -787143586316466668,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1737]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#2106398902410826315",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-134930754983342810",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -134930754983342810,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1755]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-1348762901727535913",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-7030229213176759517",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -7030229213176759517,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1757]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#2728937861103097892",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#425168875757824589",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": 425168875757824589,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1760]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#946308970335398646",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-7030229213176759517",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -7030229213176759517,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1763]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#8428395408540515723",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#425168875757824589",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": 425168875757824589,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1765]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-3612200406693919673",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#425168875757824589",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": 425168875757824589,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1776]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-8930212803450448426",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#425168875757824589",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": 425168875757824589,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1778]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-7292630942470550870",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-787143586316466668",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -787143586316466668,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1781]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-917566336051260877",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-134930754983342810",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -134930754983342810,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1799]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-5568518012070253079",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#425168875757824589",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": 425168875757824589,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1801]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#460620116450218641",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-787143586316466668",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -787143586316466668,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1804]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-5416302995365240083",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-134930754983342810",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -134930754983342810,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1822]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-605105526543386837",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#425168875757824589",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": 425168875757824589,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1824]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#2134226699110753242",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-787143586316466668",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -787143586316466668,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1827]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#274143043930528620",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-134930754983342810",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -134930754983342810,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1845]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#6961304872058858872",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#425168875757824589",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": 425168875757824589,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1847]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#6118009547058598561",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-787143586316466668",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -787143586316466668,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1850]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#7674203943790825750",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-134930754983342810",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -134930754983342810,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1868]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#6560799638287173481",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-7030229213176759517",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -7030229213176759517,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1870]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-2459966791618614982",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#425168875757824589",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": 425168875757824589,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1873]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-3988349770190184366",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-7030229213176759517",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -7030229213176759517,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1876]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#8131254318755552576",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#425168875757824589",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": 425168875757824589,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1879]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#5218271812470773243",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#425168875757824589",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": 425168875757824589,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    },
+    {
+      "path": "$.edges[1881]",
+      "relation": "script_ref",
+      "record": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#4196631927574708903",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#4887803201962511793",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": 4887803201962511793,
+        "proof": "serialized_pptr",
+        "confidence": "serialized_exact",
+        "renderEligible": false,
+        "external": null
+      }
+    }
+  ],
+  "existingMetadataHits": [
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-source-container-crosswalk-v1.json",
+      "offset": 400,
+      "snippet": "eTextAssetMethods\": 1, \"luaNameOrStringHits\": 14, \"existingMetadataHits\": 5, \"serializedSourceMetadataHits\": 3, \"xluaContainerMethods\": 3, \"xluaNamedContainerLiterals\": 0 }, \"targetMethods\": [ { \"rid\": 13830, \"symbol\": \"LuaUIFormLogic.LuaInit\", \"owner\": \"LuaUIFormLogic\", \"methodRowKeys\": [ \"d\", \"in\", \"name\", \"out\", \"rid\", \"score\", \"status\", \"tags\", \"typeRid\" ], \"methodRow\": { \"rid\": 13830, \"typeRid\": 1244, \"name\": \"LuaInit\", \"status\": \"unknown\", \"d\": 3, \"in\": 0, \"out\": 5, \"tags\": ["
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-source-container-crosswalk-v1.json",
+      "offset": 441,
+      "snippet": "ngHits\": 14, \"existingMetadataHits\": 5, \"serializedSourceMetadataHits\": 3, \"xluaContainerMethods\": 3, \"xluaNamedContainerLiterals\": 0 }, \"targetMethods\": [ { \"rid\": 13830, \"symbol\": \"LuaUIFormLogic.LuaInit\", \"owner\": \"LuaUIFormLogic\", \"methodRowKeys\": [ \"d\", \"in\", \"name\", \"out\", \"rid\", \"score\", \"status\", \"tags\", \"typeRid\" ], \"methodRow\": { \"rid\": 13830, \"typeRid\": 1244, \"name\": \"LuaInit\", \"status\": \"unknown\", \"d\": 3, \"in\": 0, \"out\": 5, \"tags\": [ \"string-evidence\" ], \""
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-source-container-crosswalk-v1.json",
+      "offset": 14300,
+      "snippet": "uaDLL.Lua.lua_tostring\", \"XLua.LuaDLL.Lua.xluaL_loadbuffer\" ], \"directCallers\": [ { \"rid\": 15442, \"symbol\": \"XLua.LuaEnv..ctor\" } ], \"directCallees\": [] } ], \"sameTypeContext\": { \"LuaUIFormLogic\": { \"typeRid\": 1244, \"typeRow\": { \"rid\": 1244, \"namespace\": \"\", \"name\": \"LuaUIFormLogic\", \"status\": \"unknown\", \"methodStart\": 13829, \"methodEnd\": 13841, \"knownMethods\": 0, \"interest\": 120 }, \"methods\": [ { \"rid\": 13829, \"symbol\": \"LuaUIFormLogic.DoLuaFunction\", \"name\": \"DoLuaFunction\","
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-source-container-crosswalk-v1.json",
+      "offset": 14424,
+      "snippet": "id\": 15442, \"symbol\": \"XLua.LuaEnv..ctor\" } ], \"directCallees\": [] } ], \"sameTypeContext\": { \"LuaUIFormLogic\": { \"typeRid\": 1244, \"typeRow\": { \"rid\": 1244, \"namespace\": \"\", \"name\": \"LuaUIFormLogic\", \"status\": \"unknown\", \"methodStart\": 13829, \"methodEnd\": 13841, \"knownMethods\": 0, \"interest\": 120 }, \"methods\": [ { \"rid\": 13829, \"symbol\": \"LuaUIFormLogic.DoLuaFunction\", \"name\": \"DoLuaFunction\", \"strings\": [], \"externalCalls\": [], \"callers\": [], \"callees\": [ 15478"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-source-container-crosswalk-v1.json",
+      "offset": 14662,
+      "snippet": "\"\", \"name\": \"LuaUIFormLogic\", \"status\": \"unknown\", \"methodStart\": 13829, \"methodEnd\": 13841, \"knownMethods\": 0, \"interest\": 120 }, \"methods\": [ { \"rid\": 13829, \"symbol\": \"LuaUIFormLogic.DoLuaFunction\", \"name\": \"DoLuaFunction\", \"strings\": [], \"externalCalls\": [], \"callers\": [], \"callees\": [ 15478 ], \"rowKeys\": [ \"d\", \"in\", \"name\", \"out\", \"rid\", \"score\", \"status\", \"tags\", \"typeRid\" ] }, {"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-source-container-crosswalk-v1.json",
+      "offset": 15142,
+      "snippet": ": [ \"d\", \"in\", \"name\", \"out\", \"rid\", \"score\", \"status\", \"tags\", \"typeRid\" ] }, { \"rid\": 13830, \"symbol\": \"LuaUIFormLogic.LuaInit\", \"name\": \"LuaInit\", \"strings\": [], \"externalCalls\": [ \"OneObjDelegate.Invoke\", \"UnityEngine.Component.get_gameObject\", \"UnityEngine.Object.get_name\", \"UnityEngine.TextAsset.get_text\" ], \"callers\": [], \"callees\": [ 15436, 15444, 15449, 15455,"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-source-container-crosswalk-v1.json",
+      "offset": 15874,
+      "snippet": ": [ \"d\", \"in\", \"name\", \"out\", \"rid\", \"score\", \"status\", \"tags\", \"typeRid\" ] }, { \"rid\": 13831, \"symbol\": \"LuaUIFormLogic.LuaOpen\", \"name\": \"LuaOpen\", \"strings\": [], \"externalCalls\": [ \"OneObjDelegate.Invoke\" ], \"callers\": [], \"callees\": [], \"rowKeys\": [ \"d\", \"in\", \"name\", \"out\", \"rid\", \"score\", \"status\", \"tags\", \"typeRid\" ] },"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-source-container-crosswalk-v1.json",
+      "offset": 16360,
+      "snippet": ": [ \"d\", \"in\", \"name\", \"out\", \"rid\", \"score\", \"status\", \"tags\", \"typeRid\" ] }, { \"rid\": 13832, \"symbol\": \"LuaUIFormLogic.LuaUpdate\", \"name\": \"LuaUpdate\", \"strings\": [], \"externalCalls\": [ \"TwoFloatDelegate.Invoke\", \"UnityEngine.Time.get_time\" ], \"callers\": [], \"callees\": [ 15453 ], \"rowKeys\": [ \"d\", \"in\", \"name\", \"out\", \"rid\", \"score\", \"s"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-source-container-crosswalk-v1.json",
+      "offset": 16922,
+      "snippet": ": [ \"d\", \"in\", \"name\", \"out\", \"rid\", \"score\", \"status\", \"tags\", \"typeRid\" ] }, { \"rid\": 13833, \"symbol\": \"LuaUIFormLogic.LuaClose\", \"name\": \"LuaClose\", \"strings\": [], \"externalCalls\": [ \"OneObjDelegate.Invoke\" ], \"callers\": [], \"callees\": [], \"rowKeys\": [ \"d\", \"in\", \"name\", \"out\", \"rid\", \"score\", \"status\", \"tags\", \"typeRid\" ] },"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-source-container-crosswalk-v1.json",
+      "offset": 17410,
+      "snippet": ": [ \"d\", \"in\", \"name\", \"out\", \"rid\", \"score\", \"status\", \"tags\", \"typeRid\" ] }, { \"rid\": 13834, \"symbol\": \"LuaUIFormLogic.LuaCover\", \"name\": \"LuaCover\", \"strings\": [], \"externalCalls\": [ \"System.Action.Invoke\" ], \"callers\": [], \"callees\": [], \"rowKeys\": [ \"d\", \"in\", \"name\", \"out\", \"rid\", \"score\", \"status\", \"tags\", \"typeRid\" ] },"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-source-container-crosswalk-v1.json",
+      "offset": 17897,
+      "snippet": ": [ \"d\", \"in\", \"name\", \"out\", \"rid\", \"score\", \"status\", \"tags\", \"typeRid\" ] }, { \"rid\": 13835, \"symbol\": \"LuaUIFormLogic.LuaResume\", \"name\": \"LuaResume\", \"strings\": [], \"externalCalls\": [ \"System.Action.Invoke\" ], \"callers\": [], \"callees\": [], \"rowKeys\": [ \"d\", \"in\", \"name\", \"out\", \"rid\", \"score\", \"status\", \"tags\", \"typeRid\" ] },"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-source-container-crosswalk-v1.json",
+      "offset": 18386,
+      "snippet": ": [ \"d\", \"in\", \"name\", \"out\", \"rid\", \"score\", \"status\", \"tags\", \"typeRid\" ] }, { \"rid\": 13836, \"symbol\": \"LuaUIFormLogic.LuaPause\", \"name\": \"LuaPause\", \"strings\": [], \"externalCalls\": [ \"System.Action.Invoke\" ], \"callers\": [], \"callees\": [], \"rowKeys\": [ \"d\", \"in\", \"name\", \"out\", \"rid\", \"score\", \"status\", \"tags\", \"typeRid\" ] },"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-source-container-crosswalk-v1.json",
+      "offset": 18873,
+      "snippet": ": [ \"d\", \"in\", \"name\", \"out\", \"rid\", \"score\", \"status\", \"tags\", \"typeRid\" ] }, { \"rid\": 13837, \"symbol\": \"LuaUIFormLogic.LuaRefocus\", \"name\": \"LuaRefocus\", \"strings\": [], \"externalCalls\": [ \"OneObjDelegate.Invoke\" ], \"callers\": [], \"callees\": [], \"rowKeys\": [ \"d\", \"in\", \"name\", \"out\", \"rid\", \"score\", \"status\", \"tags\", \"typeRid\" ]"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-source-container-crosswalk-v1.json",
+      "offset": 19365,
+      "snippet": ": [ \"d\", \"in\", \"name\", \"out\", \"rid\", \"score\", \"status\", \"tags\", \"typeRid\" ] }, { \"rid\": 13838, \"symbol\": \"LuaUIFormLogic.LuaReveal\", \"name\": \"LuaReveal\", \"strings\": [], \"externalCalls\": [ \"System.Action.Invoke\" ], \"callers\": [], \"callees\": [], \"rowKeys\": [ \"d\", \"in\", \"name\", \"out\", \"rid\", \"score\", \"status\", \"tags\", \"typeRid\" ] },"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-source-container-crosswalk-v1.json",
+      "offset": 19854,
+      "snippet": ": [ \"d\", \"in\", \"name\", \"out\", \"rid\", \"score\", \"status\", \"tags\", \"typeRid\" ] }, { \"rid\": 13839, \"symbol\": \"LuaUIFormLogic.OnDestroy\", \"name\": \"OnDestroy\", \"strings\": [], \"externalCalls\": [], \"callers\": [], \"callees\": [ 15436 ], \"rowKeys\": [ \"d\", \"in\", \"name\", \"out\", \"rid\", \"score\", \"status\", \"tags\", \"typeRid\" ] }, {"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-source-container-crosswalk-v1.json",
+      "offset": 20326,
+      "snippet": ": [ \"d\", \"in\", \"name\", \"out\", \"rid\", \"score\", \"status\", \"tags\", \"typeRid\" ] }, { \"rid\": 13840, \"symbol\": \"LuaUIFormLogic..ctor\", \"name\": \".ctor\", \"strings\": [], \"externalCalls\": [ \"UnityEngine.MonoBehaviour..ctor\" ], \"callers\": [], \"callees\": [], \"rowKeys\": [ \"d\", \"in\", \"name\", \"out\", \"rid\", \"score\", \"status\", \"tags\", \"typeRid\" ]"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-source-container-crosswalk-v1.json",
+      "offset": 20818,
+      "snippet": ": [ \"d\", \"in\", \"name\", \"out\", \"rid\", \"score\", \"status\", \"tags\", \"typeRid\" ] }, { \"rid\": 13841, \"symbol\": \"LuaUIFormLogic..cctor\", \"name\": \".cctor\", \"strings\": [], \"externalCalls\": [], \"callers\": [], \"callees\": [ 15442 ], \"rowKeys\": [ \"d\", \"in\", \"name\", \"out\", \"rid\", \"score\", \"status\", \"tags\", \"typeRid\" ] } ] }, \"PBCo"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-source-container-crosswalk-v1.json",
+      "offset": 127016,
+      "snippet": "\"callees\": [], \"rowKeys\": [ \"d\", \"in\", \"name\", \"out\", \"rid\", \"score\", \"status\", \"tags\", \"typeRid\" ] } ] } }, \"luaUIFormLogicTextAssetMethods\": [ { \"rid\": 13830, \"symbol\": \"LuaUIFormLogic.LuaInit\", \"externalHits\": [ \"UnityEngine.TextAsset.get_text\" ], \"strings\": [] } ], \"luaUIFormLogicNameOrStringHits\": [ { \"rid\": 5164, \"symbol\": \"InitMessage.LuaInitData\", \"hits\": [ \"luainit\" ], \"strings\": [] }, { \"rid\": 13829, \"symbol\": \"LuaUIFo"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-source-container-crosswalk-v1.json",
+      "offset": 127094,
+      "snippet": "\"name\", \"out\", \"rid\", \"score\", \"status\", \"tags\", \"typeRid\" ] } ] } }, \"luaUIFormLogicTextAssetMethods\": [ { \"rid\": 13830, \"symbol\": \"LuaUIFormLogic.LuaInit\", \"externalHits\": [ \"UnityEngine.TextAsset.get_text\" ], \"strings\": [] } ], \"luaUIFormLogicNameOrStringHits\": [ { \"rid\": 5164, \"symbol\": \"InitMessage.LuaInitData\", \"hits\": [ \"luainit\" ], \"strings\": [] }, { \"rid\": 13829, \"symbol\": \"LuaUIFormLogic.DoLuaFunction\", \"hits\": [ \"luauiformlogic\" ],"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-source-container-crosswalk-v1.json",
+      "offset": 127227,
+      "snippet": "Rid\" ] } ] } }, \"luaUIFormLogicTextAssetMethods\": [ { \"rid\": 13830, \"symbol\": \"LuaUIFormLogic.LuaInit\", \"externalHits\": [ \"UnityEngine.TextAsset.get_text\" ], \"strings\": [] } ], \"luaUIFormLogicNameOrStringHits\": [ { \"rid\": 5164, \"symbol\": \"InitMessage.LuaInitData\", \"hits\": [ \"luainit\" ], \"strings\": [] }, { \"rid\": 13829, \"symbol\": \"LuaUIFormLogic.DoLuaFunction\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13830, \"symbol\": \"LuaUIFormLogic.LuaInit\", \"hits\": [ \"luauiformlogic\","
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-source-container-crosswalk-v1.json",
+      "offset": 127443,
+      "snippet": "], \"strings\": [] } ], \"luaUIFormLogicNameOrStringHits\": [ { \"rid\": 5164, \"symbol\": \"InitMessage.LuaInitData\", \"hits\": [ \"luainit\" ], \"strings\": [] }, { \"rid\": 13829, \"symbol\": \"LuaUIFormLogic.DoLuaFunction\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13830, \"symbol\": \"LuaUIFormLogic.LuaInit\", \"hits\": [ \"luauiformlogic\", \"luainit\" ], \"strings\": [] }, { \"rid\": 13831, \"symbol\": \"LuaUIFormLogic.LuaOpen\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\""
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-source-container-crosswalk-v1.json",
+      "offset": 127499,
+      "snippet": "icNameOrStringHits\": [ { \"rid\": 5164, \"symbol\": \"InitMessage.LuaInitData\", \"hits\": [ \"luainit\" ], \"strings\": [] }, { \"rid\": 13829, \"symbol\": \"LuaUIFormLogic.DoLuaFunction\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13830, \"symbol\": \"LuaUIFormLogic.LuaInit\", \"hits\": [ \"luauiformlogic\", \"luainit\" ], \"strings\": [] }, { \"rid\": 13831, \"symbol\": \"LuaUIFormLogic.LuaOpen\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13832, \"symbol\": \"LuaUIFormLogic.LuaUpdate\","
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-source-container-crosswalk-v1.json",
+      "offset": 127594,
+      "snippet": "\"hits\": [ \"luainit\" ], \"strings\": [] }, { \"rid\": 13829, \"symbol\": \"LuaUIFormLogic.DoLuaFunction\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13830, \"symbol\": \"LuaUIFormLogic.LuaInit\", \"hits\": [ \"luauiformlogic\", \"luainit\" ], \"strings\": [] }, { \"rid\": 13831, \"symbol\": \"LuaUIFormLogic.LuaOpen\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13832, \"symbol\": \"LuaUIFormLogic.LuaUpdate\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-source-container-crosswalk-v1.json",
+      "offset": 127644,
+      "snippet": "ngs\": [] }, { \"rid\": 13829, \"symbol\": \"LuaUIFormLogic.DoLuaFunction\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13830, \"symbol\": \"LuaUIFormLogic.LuaInit\", \"hits\": [ \"luauiformlogic\", \"luainit\" ], \"strings\": [] }, { \"rid\": 13831, \"symbol\": \"LuaUIFormLogic.LuaOpen\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13832, \"symbol\": \"LuaUIFormLogic.LuaUpdate\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13833, \"symbol\": \"LuaUIFormLogic.LuaClose\","
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-source-container-crosswalk-v1.json",
+      "offset": 127758,
+      "snippet": "\"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13830, \"symbol\": \"LuaUIFormLogic.LuaInit\", \"hits\": [ \"luauiformlogic\", \"luainit\" ], \"strings\": [] }, { \"rid\": 13831, \"symbol\": \"LuaUIFormLogic.LuaOpen\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13832, \"symbol\": \"LuaUIFormLogic.LuaUpdate\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13833, \"symbol\": \"LuaUIFormLogic.LuaClose\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13834, \"symbol"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-source-container-crosswalk-v1.json",
+      "offset": 127808,
+      "snippet": "}, { \"rid\": 13830, \"symbol\": \"LuaUIFormLogic.LuaInit\", \"hits\": [ \"luauiformlogic\", \"luainit\" ], \"strings\": [] }, { \"rid\": 13831, \"symbol\": \"LuaUIFormLogic.LuaOpen\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13832, \"symbol\": \"LuaUIFormLogic.LuaUpdate\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13833, \"symbol\": \"LuaUIFormLogic.LuaClose\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13834, \"symbol\": \"LuaUIFormLogic.LuaCover\", \"hits\": ["
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-source-container-crosswalk-v1.json",
+      "offset": 127903,
+      "snippet": "\"luauiformlogic\", \"luainit\" ], \"strings\": [] }, { \"rid\": 13831, \"symbol\": \"LuaUIFormLogic.LuaOpen\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13832, \"symbol\": \"LuaUIFormLogic.LuaUpdate\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13833, \"symbol\": \"LuaUIFormLogic.LuaClose\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13834, \"symbol\": \"LuaUIFormLogic.LuaCover\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13835, \"symbo"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-source-container-crosswalk-v1.json",
+      "offset": 127955,
+      "snippet": "strings\": [] }, { \"rid\": 13831, \"symbol\": \"LuaUIFormLogic.LuaOpen\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13832, \"symbol\": \"LuaUIFormLogic.LuaUpdate\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13833, \"symbol\": \"LuaUIFormLogic.LuaClose\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13834, \"symbol\": \"LuaUIFormLogic.LuaCover\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13835, \"symbol\": \"LuaUIFormLogic.LuaResume\", \"hits\": ["
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-source-container-crosswalk-v1.json",
+      "offset": 128050,
+      "snippet": "hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13832, \"symbol\": \"LuaUIFormLogic.LuaUpdate\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13833, \"symbol\": \"LuaUIFormLogic.LuaClose\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13834, \"symbol\": \"LuaUIFormLogic.LuaCover\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13835, \"symbol\": \"LuaUIFormLogic.LuaResume\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13836, \"symbo"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-source-container-crosswalk-v1.json",
+      "offset": 128101,
+      "snippet": "trings\": [] }, { \"rid\": 13832, \"symbol\": \"LuaUIFormLogic.LuaUpdate\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13833, \"symbol\": \"LuaUIFormLogic.LuaClose\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13834, \"symbol\": \"LuaUIFormLogic.LuaCover\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13835, \"symbol\": \"LuaUIFormLogic.LuaResume\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13836, \"symbol\": \"LuaUIFormLogic.LuaPause\", \"hits\": ["
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-source-container-crosswalk-v1.json",
+      "offset": 128196,
+      "snippet": "\"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13833, \"symbol\": \"LuaUIFormLogic.LuaClose\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13834, \"symbol\": \"LuaUIFormLogic.LuaCover\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13835, \"symbol\": \"LuaUIFormLogic.LuaResume\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13836, \"symbol\": \"LuaUIFormLogic.LuaPause\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13837, \"symbo"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-source-container-crosswalk-v1.json",
+      "offset": 128247,
+      "snippet": "strings\": [] }, { \"rid\": 13833, \"symbol\": \"LuaUIFormLogic.LuaClose\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13834, \"symbol\": \"LuaUIFormLogic.LuaCover\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13835, \"symbol\": \"LuaUIFormLogic.LuaResume\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13836, \"symbol\": \"LuaUIFormLogic.LuaPause\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13837, \"symbol\": \"LuaUIFormLogic.LuaRefocus\", \"hits\": ["
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-source-container-crosswalk-v1.json",
+      "offset": 128342,
+      "snippet": "\"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13834, \"symbol\": \"LuaUIFormLogic.LuaCover\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13835, \"symbol\": \"LuaUIFormLogic.LuaResume\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13836, \"symbol\": \"LuaUIFormLogic.LuaPause\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13837, \"symbol\": \"LuaUIFormLogic.LuaRefocus\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13838, \"sym"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-source-container-crosswalk-v1.json",
+      "offset": 128394,
+      "snippet": "trings\": [] }, { \"rid\": 13834, \"symbol\": \"LuaUIFormLogic.LuaCover\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13835, \"symbol\": \"LuaUIFormLogic.LuaResume\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13836, \"symbol\": \"LuaUIFormLogic.LuaPause\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13837, \"symbol\": \"LuaUIFormLogic.LuaRefocus\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13838, \"symbol\": \"LuaUIFormLogic.LuaReveal\", \"hits\": ["
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-source-container-crosswalk-v1.json",
+      "offset": 128489,
+      "snippet": "hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13835, \"symbol\": \"LuaUIFormLogic.LuaResume\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13836, \"symbol\": \"LuaUIFormLogic.LuaPause\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13837, \"symbol\": \"LuaUIFormLogic.LuaRefocus\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13838, \"symbol\": \"LuaUIFormLogic.LuaReveal\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13839, \"sym"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-source-container-crosswalk-v1.json",
+      "offset": 128540,
+      "snippet": "trings\": [] }, { \"rid\": 13835, \"symbol\": \"LuaUIFormLogic.LuaResume\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13836, \"symbol\": \"LuaUIFormLogic.LuaPause\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13837, \"symbol\": \"LuaUIFormLogic.LuaRefocus\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13838, \"symbol\": \"LuaUIFormLogic.LuaReveal\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13839, \"symbol\": \"LuaUIFormLogic.OnDestroy\", \"hits\": ["
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-source-container-crosswalk-v1.json",
+      "offset": 128635,
+      "snippet": "\"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13836, \"symbol\": \"LuaUIFormLogic.LuaPause\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13837, \"symbol\": \"LuaUIFormLogic.LuaRefocus\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13838, \"symbol\": \"LuaUIFormLogic.LuaReveal\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13839, \"symbol\": \"LuaUIFormLogic.OnDestroy\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13840, \"sy"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-source-container-crosswalk-v1.json",
+      "offset": 128688,
+      "snippet": "rings\": [] }, { \"rid\": 13836, \"symbol\": \"LuaUIFormLogic.LuaPause\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13837, \"symbol\": \"LuaUIFormLogic.LuaRefocus\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13838, \"symbol\": \"LuaUIFormLogic.LuaReveal\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13839, \"symbol\": \"LuaUIFormLogic.OnDestroy\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13840, \"symbol\": \"LuaUIFormLogic..ctor\", \"hits\": ["
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-source-container-crosswalk-v1.json",
+      "offset": 128783,
+      "snippet": "its\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13837, \"symbol\": \"LuaUIFormLogic.LuaRefocus\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13838, \"symbol\": \"LuaUIFormLogic.LuaReveal\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13839, \"symbol\": \"LuaUIFormLogic.OnDestroy\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13840, \"symbol\": \"LuaUIFormLogic..ctor\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13841, \"symbol\""
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-source-container-crosswalk-v1.json",
+      "offset": 128835,
+      "snippet": "ings\": [] }, { \"rid\": 13837, \"symbol\": \"LuaUIFormLogic.LuaRefocus\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13838, \"symbol\": \"LuaUIFormLogic.LuaReveal\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13839, \"symbol\": \"LuaUIFormLogic.OnDestroy\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13840, \"symbol\": \"LuaUIFormLogic..ctor\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13841, \"symbol\": \"LuaUIFormLogic..cctor\", \"hits\": [ \""
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-ui-bridge-detail-v1.json",
+      "offset": 99828,
+      "snippet": "\"rid\": 50177, \"symbol\": \"<EvalRoutine>d__4.MoveNext\" } ], \"directCallees\": [] } ] }, { \"target\": { \"rid\": 13830, \"stableId\": \"M:13830\", \"symbol\": \"LuaUIFormLogic.LuaInit\", \"owner\": \"LuaUIFormLogic\", \"status\": \"unknown\", \"score\": 120, \"tags\": [ \"string-evidence\" ], \"strings\": [], \"externalCalls\": [ \"OneObjDelegate.Invoke\", \"UnityEngine.Component.get_gameObject\", \"UnityEngine.Object.get_name\", \"UnityEngine.TextAsset.get_text\" ], \"directCallers\": [],"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-ui-bridge-detail-v1.json",
+      "offset": 99871,
+      "snippet": "\"symbol\": \"<EvalRoutine>d__4.MoveNext\" } ], \"directCallees\": [] } ] }, { \"target\": { \"rid\": 13830, \"stableId\": \"M:13830\", \"symbol\": \"LuaUIFormLogic.LuaInit\", \"owner\": \"LuaUIFormLogic\", \"status\": \"unknown\", \"score\": 120, \"tags\": [ \"string-evidence\" ], \"strings\": [], \"externalCalls\": [ \"OneObjDelegate.Invoke\", \"UnityEngine.Component.get_gameObject\", \"UnityEngine.Object.get_name\", \"UnityEngine.TextAsset.get_text\" ], \"directCallers\": [], \"directCallees\": [ {"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-ui-bridge-detail-v1.json",
+      "offset": 100873,
+      "snippet": "\"symbol\": \"XLua.LuaEnv.NewTable\" }, { \"rid\": 15505, \"symbol\": \"XLua.LuaTable.SetMetaTable\" } ] }, \"typeRecord\": { \"rid\": 1244, \"namespace\": \"\", \"name\": \"LuaUIFormLogic\", \"status\": \"unknown\", \"methodStart\": 13829, \"methodEnd\": 13841, \"knownMethods\": 0, \"interest\": 120 }, \"sameTypeMethods\": [ { \"rid\": 13829, \"symbol\": \"LuaUIFormLogic.DoLuaFunction\", \"strings\": [], \"externalCalls\": [] }, { \"rid\": 13830, \"symbol\": \"LuaUIFormLogic.LuaInit\", \""
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-ui-bridge-detail-v1.json",
+      "offset": 101119,
+      "snippet": "\"name\": \"LuaUIFormLogic\", \"status\": \"unknown\", \"methodStart\": 13829, \"methodEnd\": 13841, \"knownMethods\": 0, \"interest\": 120 }, \"sameTypeMethods\": [ { \"rid\": 13829, \"symbol\": \"LuaUIFormLogic.DoLuaFunction\", \"strings\": [], \"externalCalls\": [] }, { \"rid\": 13830, \"symbol\": \"LuaUIFormLogic.LuaInit\", \"strings\": [], \"externalCalls\": [ \"OneObjDelegate.Invoke\", \"UnityEngine.Component.get_gameObject\", \"UnityEngine.Object.get_name\", \"UnityEngine.TextAsset.get_text\" ] },"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-ui-bridge-detail-v1.json",
+      "offset": 101271,
+      "snippet": "\"interest\": 120 }, \"sameTypeMethods\": [ { \"rid\": 13829, \"symbol\": \"LuaUIFormLogic.DoLuaFunction\", \"strings\": [], \"externalCalls\": [] }, { \"rid\": 13830, \"symbol\": \"LuaUIFormLogic.LuaInit\", \"strings\": [], \"externalCalls\": [ \"OneObjDelegate.Invoke\", \"UnityEngine.Component.get_gameObject\", \"UnityEngine.Object.get_name\", \"UnityEngine.TextAsset.get_text\" ] }, { \"rid\": 13831, \"symbol\": \"LuaUIFormLogic.LuaOpen\", \"strings\": [], \"externalCalls\": [ \"OneObjDe"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-ui-bridge-detail-v1.json",
+      "offset": 101605,
+      "snippet": "\": [ \"OneObjDelegate.Invoke\", \"UnityEngine.Component.get_gameObject\", \"UnityEngine.Object.get_name\", \"UnityEngine.TextAsset.get_text\" ] }, { \"rid\": 13831, \"symbol\": \"LuaUIFormLogic.LuaOpen\", \"strings\": [], \"externalCalls\": [ \"OneObjDelegate.Invoke\" ] }, { \"rid\": 13832, \"symbol\": \"LuaUIFormLogic.LuaUpdate\", \"strings\": [], \"externalCalls\": [ \"TwoFloatDelegate.Invoke\", \"UnityEngine.Time.get_time\" ] }, { \"rid\": 13833, \"symbol\": \"Lua"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-ui-bridge-detail-v1.json",
+      "offset": 101798,
+      "snippet": "}, { \"rid\": 13831, \"symbol\": \"LuaUIFormLogic.LuaOpen\", \"strings\": [], \"externalCalls\": [ \"OneObjDelegate.Invoke\" ] }, { \"rid\": 13832, \"symbol\": \"LuaUIFormLogic.LuaUpdate\", \"strings\": [], \"externalCalls\": [ \"TwoFloatDelegate.Invoke\", \"UnityEngine.Time.get_time\" ] }, { \"rid\": 13833, \"symbol\": \"LuaUIFormLogic.LuaClose\", \"strings\": [], \"externalCalls\": [ \"OneObjDelegate.Invoke\" ] }, { \"rid\": 13834, \"symbol\": \"Lu"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-ui-bridge-detail-v1.json",
+      "offset": 102036,
+      "snippet": "\"symbol\": \"LuaUIFormLogic.LuaUpdate\", \"strings\": [], \"externalCalls\": [ \"TwoFloatDelegate.Invoke\", \"UnityEngine.Time.get_time\" ] }, { \"rid\": 13833, \"symbol\": \"LuaUIFormLogic.LuaClose\", \"strings\": [], \"externalCalls\": [ \"OneObjDelegate.Invoke\" ] }, { \"rid\": 13834, \"symbol\": \"LuaUIFormLogic.LuaCover\", \"strings\": [], \"externalCalls\": [ \"System.Action.Invoke\" ] }, { \"rid\": 13835, \"symbol\": \"LuaUIFormLogic.LuaResume\", \"strings\":"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-ui-bridge-detail-v1.json",
+      "offset": 102230,
+      "snippet": "}, { \"rid\": 13833, \"symbol\": \"LuaUIFormLogic.LuaClose\", \"strings\": [], \"externalCalls\": [ \"OneObjDelegate.Invoke\" ] }, { \"rid\": 13834, \"symbol\": \"LuaUIFormLogic.LuaCover\", \"strings\": [], \"externalCalls\": [ \"System.Action.Invoke\" ] }, { \"rid\": 13835, \"symbol\": \"LuaUIFormLogic.LuaResume\", \"strings\": [], \"externalCalls\": [ \"System.Action.Invoke\" ] }, { \"rid\": 13836, \"symbol\": \"LuaUIFormLogic.LuaPause\", \"strings\":"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-ui-bridge-detail-v1.json",
+      "offset": 102423,
+      "snippet": "}, { \"rid\": 13834, \"symbol\": \"LuaUIFormLogic.LuaCover\", \"strings\": [], \"externalCalls\": [ \"System.Action.Invoke\" ] }, { \"rid\": 13835, \"symbol\": \"LuaUIFormLogic.LuaResume\", \"strings\": [], \"externalCalls\": [ \"System.Action.Invoke\" ] }, { \"rid\": 13836, \"symbol\": \"LuaUIFormLogic.LuaPause\", \"strings\": [], \"externalCalls\": [ \"System.Action.Invoke\" ] }, { \"rid\": 13837, \"symbol\": \"LuaUIFormLogic.LuaRefocus\", \"strings\""
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-ui-bridge-detail-v1.json",
+      "offset": 102617,
+      "snippet": "}, { \"rid\": 13835, \"symbol\": \"LuaUIFormLogic.LuaResume\", \"strings\": [], \"externalCalls\": [ \"System.Action.Invoke\" ] }, { \"rid\": 13836, \"symbol\": \"LuaUIFormLogic.LuaPause\", \"strings\": [], \"externalCalls\": [ \"System.Action.Invoke\" ] }, { \"rid\": 13837, \"symbol\": \"LuaUIFormLogic.LuaRefocus\", \"strings\": [], \"externalCalls\": [ \"OneObjDelegate.Invoke\" ] }, { \"rid\": 13838, \"symbol\": \"LuaUIFormLogic.LuaReveal\", \"strings"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-ui-bridge-detail-v1.json",
+      "offset": 102810,
+      "snippet": "}, { \"rid\": 13836, \"symbol\": \"LuaUIFormLogic.LuaPause\", \"strings\": [], \"externalCalls\": [ \"System.Action.Invoke\" ] }, { \"rid\": 13837, \"symbol\": \"LuaUIFormLogic.LuaRefocus\", \"strings\": [], \"externalCalls\": [ \"OneObjDelegate.Invoke\" ] }, { \"rid\": 13838, \"symbol\": \"LuaUIFormLogic.LuaReveal\", \"strings\": [], \"externalCalls\": [ \"System.Action.Invoke\" ] }, { \"rid\": 13839, \"symbol\": \"LuaUIFormLogic.OnDestroy\", \"string"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-ui-bridge-detail-v1.json",
+      "offset": 103006,
+      "snippet": "}, { \"rid\": 13837, \"symbol\": \"LuaUIFormLogic.LuaRefocus\", \"strings\": [], \"externalCalls\": [ \"OneObjDelegate.Invoke\" ] }, { \"rid\": 13838, \"symbol\": \"LuaUIFormLogic.LuaReveal\", \"strings\": [], \"externalCalls\": [ \"System.Action.Invoke\" ] }, { \"rid\": 13839, \"symbol\": \"LuaUIFormLogic.OnDestroy\", \"strings\": [], \"externalCalls\": [] }, { \"rid\": 13840, \"symbol\": \"LuaUIFormLogic..ctor\", \"strings\": [], \"externalCalls\": [ \"Un"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-ui-bridge-detail-v1.json",
+      "offset": 103200,
+      "snippet": "}, { \"rid\": 13838, \"symbol\": \"LuaUIFormLogic.LuaReveal\", \"strings\": [], \"externalCalls\": [ \"System.Action.Invoke\" ] }, { \"rid\": 13839, \"symbol\": \"LuaUIFormLogic.OnDestroy\", \"strings\": [], \"externalCalls\": [] }, { \"rid\": 13840, \"symbol\": \"LuaUIFormLogic..ctor\", \"strings\": [], \"externalCalls\": [ \"UnityEngine.MonoBehaviour..ctor\" ] }, { \"rid\": 13841, \"symbol\": \"LuaUIFormLogic..cctor\", \"strings\": [], \"externalCalls\": []"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-ui-bridge-detail-v1.json",
+      "offset": 103348,
+      "snippet": "\"System.Action.Invoke\" ] }, { \"rid\": 13839, \"symbol\": \"LuaUIFormLogic.OnDestroy\", \"strings\": [], \"externalCalls\": [] }, { \"rid\": 13840, \"symbol\": \"LuaUIFormLogic..ctor\", \"strings\": [], \"externalCalls\": [ \"UnityEngine.MonoBehaviour..ctor\" ] }, { \"rid\": 13841, \"symbol\": \"LuaUIFormLogic..cctor\", \"strings\": [], \"externalCalls\": [] } ], \"interestingDirectedCallersWithin4\": [], \"interestingDirectedCalleesWithin4\": [ { \"distance\": 1,"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-ui-bridge-detail-v1.json",
+      "offset": 103549,
+      "snippet": "}, { \"rid\": 13840, \"symbol\": \"LuaUIFormLogic..ctor\", \"strings\": [], \"externalCalls\": [ \"UnityEngine.MonoBehaviour..ctor\" ] }, { \"rid\": 13841, \"symbol\": \"LuaUIFormLogic..cctor\", \"strings\": [], \"externalCalls\": [] } ], \"interestingDirectedCallersWithin4\": [], \"interestingDirectedCalleesWithin4\": [ { \"distance\": 1, \"rid\": 15436, \"stableId\": \"M:15436\", \"symbol\": \"XLua.LuaBase.Dispose\", \"owner\": \"XLua.LuaBase\", \"status\": \"unknown\", \"score\": 142, \"tags\":"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-ui-bridge-detail-v1.json",
+      "offset": 104639,
+      "snippet": "\"rid\": 10585, \"symbol\": \"WorldMapZoneManager.GetOasisViewScale\" }, { \"rid\": 12455, \"symbol\": \"WorldScene.Init\" }, { \"rid\": 13830, \"symbol\": \"LuaUIFormLogic.LuaInit\" }, { \"rid\": 13839, \"symbol\": \"LuaUIFormLogic.OnDestroy\" }, { \"rid\": 14211, \"symbol\": \"UILoadingComponent.InitLuaState\" }, { \"rid\": 15266, \"symbol\": \"UIToolBox.UnityMcpRuntimeLua.NormalizeAndDisposeLuaTable\" }, { \"rid"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-ui-bridge-detail-v1.json",
+      "offset": 104745,
+      "snippet": "{ \"rid\": 12455, \"symbol\": \"WorldScene.Init\" }, { \"rid\": 13830, \"symbol\": \"LuaUIFormLogic.LuaInit\" }, { \"rid\": 13839, \"symbol\": \"LuaUIFormLogic.OnDestroy\" }, { \"rid\": 14211, \"symbol\": \"UILoadingComponent.InitLuaState\" }, { \"rid\": 15266, \"symbol\": \"UIToolBox.UnityMcpRuntimeLua.NormalizeAndDisposeLuaTable\" }, { \"rid\": 15272, \"symbol\": \"UIToolBox.UnityMcpRuntimeLua.NormalizeAndDisposeLuaBase\" },"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-ui-bridge-detail-v1.json",
+      "offset": 107797,
+      "snippet": "\"rid\": 5178, \"symbol\": \"LoginExtMessage.CSSetData\" }, { \"rid\": 5241, \"symbol\": \"PushLuaEnvMessage.Exe\" }, { \"rid\": 13830, \"symbol\": \"LuaUIFormLogic.LuaInit\" }, { \"rid\": 14818, \"symbol\": \"XLuaManager.GetStackInfo\" }, { \"rid\": 14825, \"symbol\": \"XLuaManager.SafeDoString\" }, { \"rid\": 15261, \"symbol\": \"UIToolBox.UnityMcpRuntimeLua.CreateEvalEnvironment\" }, { \"rid\": 15263,"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-ui-bridge-detail-v1.json",
+      "offset": 109857,
+      "snippet": "\"rid\": 6060, \"symbol\": \"CityInputManager.OnFingerDown\" }, { \"rid\": 10391, \"symbol\": \"WorldInputManager.Init\" }, { \"rid\": 13830, \"symbol\": \"LuaUIFormLogic.LuaInit\" }, { \"rid\": 14211, \"symbol\": \"UILoadingComponent.InitLuaState\" }, { \"rid\": 32600, \"symbol\": \"PVEBattleLogic.Bullet.BulletViewFacade.CheckLoaded\" }, { \"rid\": 32616, \"symbol\": \"PVEBattleLogic.Bullet.BulletViewFacade.UpdateStraight\" },"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-ui-bridge-detail-v1.json",
+      "offset": 111605,
+      "snippet": "\"rid\": 5241, \"symbol\": \"PushLuaEnvMessage.Exe\" }, { \"rid\": 13818, \"symbol\": \"KeyCodeListener.OnGUI\" }, { \"rid\": 13830, \"symbol\": \"LuaUIFormLogic.LuaInit\" }, { \"rid\": 14211, \"symbol\": \"UILoadingComponent.InitLuaState\" }, { \"rid\": 14728, \"symbol\": \"LuaUpdater.Restart\" }, { \"rid\": 14822, \"symbol\": \"XLuaManager.StartGame\" }, { \"rid\": 14854, \"symbol\": \"XLuaMa"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-ui-bridge-detail-v1.json",
+      "offset": 112634,
+      "snippet": "tags\": [], \"strings\": [], \"externalCalls\": [ \"XLua.LuaDLL.Lua.lua_pop\", \"XLua.LuaDLL.Lua.lua_setmetatable\" ], \"directCallers\": [ { \"rid\": 13830, \"symbol\": \"LuaUIFormLogic.LuaInit\" }, { \"rid\": 14211, \"symbol\": \"UILoadingComponent.InitLuaState\" } ], \"directCallees\": [ { \"rid\": 15440, \"symbol\": \"XLua.LuaBase.push\" }, { \"rid\": 15441, \"symbol\": \"XLua.LuaEnv.get_L\" } ] }, {"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-ui-bridge-detail-v1.json",
+      "offset": 572462,
+      "snippet": ".ctor\", \"tag4:rid2401..ctor\", \"tag4:rid2402.get_Count\", \"tag4:rid2402.get_Item\", \"tag4:rid2403.Invoke\" ], \"directCallers\": [ { \"rid\": 13841, \"symbol\": \"LuaUIFormLogic..cctor\" }, { \"rid\": 14819, \"symbol\": \"XLuaManager.InitLuaEnv\" } ], \"directCallees\": [ { \"rid\": 15449, \"symbol\": \"XLua.LuaEnv.DoString\" }, { \"rid\": 15450, \"symbol\": \"XLua.LuaEnv.AddSearcher\" }, { \"rid\": 154"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-ui-bridge-detail-v1.json",
+      "offset": 611498,
+      "snippet": "\"rid\": 10585, \"symbol\": \"WorldMapZoneManager.GetOasisViewScale\" }, { \"rid\": 12455, \"symbol\": \"WorldScene.Init\" }, { \"rid\": 13830, \"symbol\": \"LuaUIFormLogic.LuaInit\" }, { \"rid\": 13839, \"symbol\": \"LuaUIFormLogic.OnDestroy\" }, { \"rid\": 14211, \"symbol\": \"UILoadingComponent.InitLuaState\" }, { \"rid\": 15266, \"symbol\": \"UIToolBox.UnityMcpRuntimeLua.NormalizeAndDisposeLuaTable\" }, { \"rid"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-ui-bridge-detail-v1.json",
+      "offset": 611604,
+      "snippet": "{ \"rid\": 12455, \"symbol\": \"WorldScene.Init\" }, { \"rid\": 13830, \"symbol\": \"LuaUIFormLogic.LuaInit\" }, { \"rid\": 13839, \"symbol\": \"LuaUIFormLogic.OnDestroy\" }, { \"rid\": 14211, \"symbol\": \"UILoadingComponent.InitLuaState\" }, { \"rid\": 15266, \"symbol\": \"UIToolBox.UnityMcpRuntimeLua.NormalizeAndDisposeLuaTable\" }, { \"rid\": 15272, \"symbol\": \"UIToolBox.UnityMcpRuntimeLua.NormalizeAndDisposeLuaBase\" },"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-ui-bridge-detail-v1.json",
+      "offset": 616874,
+      "snippet": "\"rid\": 5178, \"symbol\": \"LoginExtMessage.CSSetData\" }, { \"rid\": 5241, \"symbol\": \"PushLuaEnvMessage.Exe\" }, { \"rid\": 13830, \"symbol\": \"LuaUIFormLogic.LuaInit\" }, { \"rid\": 14818, \"symbol\": \"XLuaManager.GetStackInfo\" }, { \"rid\": 14825, \"symbol\": \"XLuaManager.SafeDoString\" }, { \"rid\": 15261, \"symbol\": \"UIToolBox.UnityMcpRuntimeLua.CreateEvalEnvironment\" }, { \"rid\": 15263,"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-ui-bridge-detail-v1.json",
+      "offset": 2797652,
+      "snippet": "\"System.Threading.Monitor.Exit\", \"XLua.ObjectPool.Check\", \"tag4:rid2397.Dequeue\", \"tag4:rid2397.get_Count\" ], \"directCallers\": [ { \"rid\": 13832, \"symbol\": \"LuaUIFormLogic.LuaUpdate\" }, { \"rid\": 14821, \"symbol\": \"XLuaManager.Update\" }, { \"rid\": 15454, \"symbol\": \"XLua.LuaEnv.GC\" }, { \"rid\": 15457, \"symbol\": \"XLua.LuaEnv.Dispose\" } ], \"directCallees\": [ { \"rid\": 15441,"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-ui-bridge-detail-v1.json",
+      "offset": 2799198,
+      "snippet": "\"rid\": 5241, \"symbol\": \"PushLuaEnvMessage.Exe\" }, { \"rid\": 13818, \"symbol\": \"KeyCodeListener.OnGUI\" }, { \"rid\": 13830, \"symbol\": \"LuaUIFormLogic.LuaInit\" }, { \"rid\": 14211, \"symbol\": \"UILoadingComponent.InitLuaState\" }, { \"rid\": 14728, \"symbol\": \"LuaUpdater.Restart\" }, { \"rid\": 14822, \"symbol\": \"XLuaManager.StartGame\" }, { \"rid\": 14854, \"symbol\": \"XLuaMa"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-ui-bridge-detail-v1.json",
+      "offset": 6736144,
+      "snippet": ".ctor\", \"tag4:rid2401..ctor\", \"tag4:rid2402.get_Count\", \"tag4:rid2402.get_Item\", \"tag4:rid2403.Invoke\" ], \"directCallers\": [ { \"rid\": 13841, \"symbol\": \"LuaUIFormLogic..cctor\" }, { \"rid\": 14819, \"symbol\": \"XLuaManager.InitLuaEnv\" } ], \"directCallees\": [ { \"rid\": 15449, \"symbol\": \"XLua.LuaEnv.DoString\" }, { \"rid\": 15450, \"symbol\": \"XLua.LuaEnv.AddSearcher\" }, { \"rid\": 154"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-ui-bridge-detail-v1.json",
+      "offset": 6750354,
+      "snippet": "\"rid\": 10585, \"symbol\": \"WorldMapZoneManager.GetOasisViewScale\" }, { \"rid\": 12455, \"symbol\": \"WorldScene.Init\" }, { \"rid\": 13830, \"symbol\": \"LuaUIFormLogic.LuaInit\" }, { \"rid\": 13839, \"symbol\": \"LuaUIFormLogic.OnDestroy\" }, { \"rid\": 14211, \"symbol\": \"UILoadingComponent.InitLuaState\" }, { \"rid\": 15266, \"symbol\": \"UIToolBox.UnityMcpRuntimeLua.NormalizeAndDisposeLuaTable\" }, { \"rid"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-ui-bridge-detail-v1.json",
+      "offset": 6750460,
+      "snippet": "{ \"rid\": 12455, \"symbol\": \"WorldScene.Init\" }, { \"rid\": 13830, \"symbol\": \"LuaUIFormLogic.LuaInit\" }, { \"rid\": 13839, \"symbol\": \"LuaUIFormLogic.OnDestroy\" }, { \"rid\": 14211, \"symbol\": \"UILoadingComponent.InitLuaState\" }, { \"rid\": 15266, \"symbol\": \"UIToolBox.UnityMcpRuntimeLua.NormalizeAndDisposeLuaTable\" }, { \"rid\": 15272, \"symbol\": \"UIToolBox.UnityMcpRuntimeLua.NormalizeAndDisposeLuaBase\" },"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-ui-bridge-detail-v1.json",
+      "offset": 6755730,
+      "snippet": "\"rid\": 5178, \"symbol\": \"LoginExtMessage.CSSetData\" }, { \"rid\": 5241, \"symbol\": \"PushLuaEnvMessage.Exe\" }, { \"rid\": 13830, \"symbol\": \"LuaUIFormLogic.LuaInit\" }, { \"rid\": 14818, \"symbol\": \"XLuaManager.GetStackInfo\" }, { \"rid\": 14825, \"symbol\": \"XLuaManager.SafeDoString\" }, { \"rid\": 15261, \"symbol\": \"UIToolBox.UnityMcpRuntimeLua.CreateEvalEnvironment\" }, { \"rid\": 15263,"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-ui-bridge-detail-v1.json",
+      "offset": 8978888,
+      "snippet": "\"System.Threading.Monitor.Exit\", \"XLua.ObjectPool.Check\", \"tag4:rid2397.Dequeue\", \"tag4:rid2397.get_Count\" ], \"directCallers\": [ { \"rid\": 13832, \"symbol\": \"LuaUIFormLogic.LuaUpdate\" }, { \"rid\": 14821, \"symbol\": \"XLuaManager.Update\" }, { \"rid\": 15454, \"symbol\": \"XLua.LuaEnv.GC\" }, { \"rid\": 15457, \"symbol\": \"XLua.LuaEnv.Dispose\" } ], \"directCallees\": [ { \"rid\": 15441,"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-ui-bridge-detail-v1.json",
+      "offset": 13692050,
+      "snippet": ".ctor\", \"tag4:rid2401..ctor\", \"tag4:rid2402.get_Count\", \"tag4:rid2402.get_Item\", \"tag4:rid2403.Invoke\" ], \"directCallers\": [ { \"rid\": 13841, \"symbol\": \"LuaUIFormLogic..cctor\" }, { \"rid\": 14819, \"symbol\": \"XLuaManager.InitLuaEnv\" } ], \"directCallees\": [ { \"rid\": 15449, \"symbol\": \"XLua.LuaEnv.DoString\" }, { \"rid\": 15450, \"symbol\": \"XLua.LuaEnv.AddSearcher\" }, { \"rid\": 154"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-ui-bridge-detail-v1.json",
+      "offset": 13695641,
+      "snippet": ">b__9_1\" }, { \"rid\": 52072, \"symbol\": \"<>c.<.ctor>b__9_2\" } ] }, { \"distance\": 2, \"rid\": 13841, \"stableId\": \"M:13841\", \"symbol\": \"LuaUIFormLogic..cctor\", \"owner\": \"LuaUIFormLogic\", \"status\": \"unknown\", \"score\": 2, \"tags\": [], \"strings\": [], \"externalCalls\": [], \"directCallers\": [], \"directCallees\": [ { \"rid\": 15442, \"symbol\": \"XLua.LuaEnv..ctor\" } ] }, { \"distance\": 2, \"rid\": 14819,"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-ui-bridge-detail-v1.json",
+      "offset": 13695685,
+      "snippet": "\"rid\": 52072, \"symbol\": \"<>c.<.ctor>b__9_2\" } ] }, { \"distance\": 2, \"rid\": 13841, \"stableId\": \"M:13841\", \"symbol\": \"LuaUIFormLogic..cctor\", \"owner\": \"LuaUIFormLogic\", \"status\": \"unknown\", \"score\": 2, \"tags\": [], \"strings\": [], \"externalCalls\": [], \"directCallers\": [], \"directCallees\": [ { \"rid\": 15442, \"symbol\": \"XLua.LuaEnv..ctor\" } ] }, { \"distance\": 2, \"rid\": 14819, \"stableId\": \"M:14819\", \""
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-ui-bridge-detail-v1.json",
+      "offset": 13730748,
+      "snippet": ".ctor\", \"tag4:rid2401..ctor\", \"tag4:rid2402.get_Count\", \"tag4:rid2402.get_Item\", \"tag4:rid2403.Invoke\" ], \"directCallers\": [ { \"rid\": 13841, \"symbol\": \"LuaUIFormLogic..cctor\" }, { \"rid\": 14819, \"symbol\": \"XLuaManager.InitLuaEnv\" } ], \"directCallees\": [ { \"rid\": 15449, \"symbol\": \"XLua.LuaEnv.DoString\" }, { \"rid\": 15450, \"symbol\": \"XLua.LuaEnv.AddSearcher\" }, { \"rid\": 154"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-ui-bridge-detail-v1.json",
+      "offset": 13734339,
+      "snippet": ">b__9_1\" }, { \"rid\": 52072, \"symbol\": \"<>c.<.ctor>b__9_2\" } ] }, { \"distance\": 2, \"rid\": 13841, \"stableId\": \"M:13841\", \"symbol\": \"LuaUIFormLogic..cctor\", \"owner\": \"LuaUIFormLogic\", \"status\": \"unknown\", \"score\": 2, \"tags\": [], \"strings\": [], \"externalCalls\": [], \"directCallers\": [], \"directCallees\": [ { \"rid\": 15442, \"symbol\": \"XLua.LuaEnv..ctor\" } ] }, { \"distance\": 2, \"rid\": 14819,"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-ui-bridge-detail-v1.json",
+      "offset": 13734383,
+      "snippet": "\"rid\": 52072, \"symbol\": \"<>c.<.ctor>b__9_2\" } ] }, { \"distance\": 2, \"rid\": 13841, \"stableId\": \"M:13841\", \"symbol\": \"LuaUIFormLogic..cctor\", \"owner\": \"LuaUIFormLogic\", \"status\": \"unknown\", \"score\": 2, \"tags\": [], \"strings\": [], \"externalCalls\": [], \"directCallers\": [], \"directCallees\": [ { \"rid\": 15442, \"symbol\": \"XLua.LuaEnv..ctor\" } ] }, { \"distance\": 2, \"rid\": 14819, \"stableId\": \"M:14819\", \""
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-ui-bridge-detail-v1.json",
+      "offset": 13817129,
+      "snippet": "llers\": [ { \"rid\": 15442, \"symbol\": \"XLua.LuaEnv..ctor\" } ], \"directCallees\": [] } ], \"priorityUpstream\": [ { \"anchor\": { \"rid\": 13830, \"stableId\": \"M:13830\", \"symbol\": \"LuaUIFormLogic.LuaInit\", \"owner\": \"LuaUIFormLogic\", \"status\": \"unknown\", \"score\": 120, \"tags\": [ \"string-evidence\" ], \"strings\": [], \"externalCalls\": [ \"OneObjDelegate.Invoke\", \"UnityEngine.Component.get_gameObject\", \"UnityEngine.Object.get_name\", \"UnityEngine.TextAsset.get_text\" ], \"directCallers\": [],"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-xlua-loader-storage-boundary-v1.json",
+      "offset": 461384,
+      "snippet": "\"UnityEngine.WWW.get_isDone\" ], \"evidenceClass\": \"same_method_exact_external_lua_and_storage_calls\", \"score\": 165 } ], \"directedCommonCallersLuaStorage\": [ { \"rid\": 13830, \"stableId\": \"M:13830\", \"symbol\": \"LuaUIFormLogic.LuaInit\", \"owner\": \"LuaUIFormLogic\", \"luaHits\": [], \"storageHits\": [ \"textasset\" ], \"loaderHits\": [], \"formationHits\": [], \"pathStrings\": [], \"strings\": [], \"externalTargets\": [ \"OneObjDelegate.Invoke\", \"UnityEngine.Component.get_gameObject\", \"UnityEngine.Object.get_name\", \"UnityEngine.TextAsset.get_text\" ], \"ca"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-xlua-loader-storage-boundary-v1.json",
+      "offset": 461425,
+      "snippet": "], \"evidenceClass\": \"same_method_exact_external_lua_and_storage_calls\", \"score\": 165 } ], \"directedCommonCallersLuaStorage\": [ { \"rid\": 13830, \"stableId\": \"M:13830\", \"symbol\": \"LuaUIFormLogic.LuaInit\", \"owner\": \"LuaUIFormLogic\", \"luaHits\": [], \"storageHits\": [ \"textasset\" ], \"loaderHits\": [], \"formationHits\": [], \"pathStrings\": [], \"strings\": [], \"externalTargets\": [ \"OneObjDelegate.Invoke\", \"UnityEngine.Component.get_gameObject\", \"UnityEngine.Object.get_name\", \"UnityEngine.TextAsset.get_text\" ], \"callerRids\": [], \"calleeRids\": ["
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-xlua-loader-storage-boundary-v1.json",
+      "offset": 557210,
+      "snippet": "7, 3222, 3796, 4806, 4896, 5463, 13568 ], \"distanceToLuaBoundaryDirected\": 2, \"distanceToStorageCallerDirected\": 1 }, { \"rid\": 13841, \"stableId\": \"M:13841\", \"symbol\": \"LuaUIFormLogic..cctor\", \"owner\": \"LuaUIFormLogic\", \"luaHits\": [], \"storageHits\": [], \"loaderHits\": [], \"formationHits\": [], \"pathStrings\": [], \"strings\": [], \"externalTargets\": [], \"callerRids\": [], \"calleeRids\": [ 15442 ], \"distanceToLuaBoundaryDirected\": 1, \"distanceToStorageCallerDirected\": 2 }, { \"rid\": 4809, \"stableId\": \""
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-xlua-loader-storage-boundary-v1.json",
+      "offset": 557250,
+      "snippet": "806, 4896, 5463, 13568 ], \"distanceToLuaBoundaryDirected\": 2, \"distanceToStorageCallerDirected\": 1 }, { \"rid\": 13841, \"stableId\": \"M:13841\", \"symbol\": \"LuaUIFormLogic..cctor\", \"owner\": \"LuaUIFormLogic\", \"luaHits\": [], \"storageHits\": [], \"loaderHits\": [], \"formationHits\": [], \"pathStrings\": [], \"strings\": [], \"externalTargets\": [], \"callerRids\": [], \"calleeRids\": [ 15442 ], \"distanceToLuaBoundaryDirected\": 1, \"distanceToStorageCallerDirected\": 2 }, { \"rid\": 4809, \"stableId\": \"M:4809\", \"symbol\": \"PBController.<"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-xlua-loader-storage-boundary-v1.json",
+      "offset": 691089,
+      "snippet": "UpdateDevLocale\" }, { \"rid\": 20499, \"symbol\": \"XLua.CSObjectWrap.LocalizationManagerWrap._m_ReloadDictionaryByUpdateDevLocale\" } ] }, { \"rid\": 13830, \"stableId\": \"M:13830\", \"symbol\": \"LuaUIFormLogic.LuaInit\", \"owner\": \"LuaUIFormLogic\", \"luaHits\": [], \"storageHits\": [ \"textasset\" ], \"loaderHits\": [], \"formationHits\": [], \"pathStrings\": [], \"strings\": [], \"externalTargets\": [ \"OneObjDelegate.Invoke\", \"UnityEngine.Component.get_gameObject\", \"UnityEngine.Object.get_name\", \"UnityEngine.TextAsset.get_text\" ], \"ca"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-xlua-loader-storage-boundary-v1.json",
+      "offset": 691130,
+      "snippet": "\"rid\": 20499, \"symbol\": \"XLua.CSObjectWrap.LocalizationManagerWrap._m_ReloadDictionaryByUpdateDevLocale\" } ] }, { \"rid\": 13830, \"stableId\": \"M:13830\", \"symbol\": \"LuaUIFormLogic.LuaInit\", \"owner\": \"LuaUIFormLogic\", \"luaHits\": [], \"storageHits\": [ \"textasset\" ], \"loaderHits\": [], \"formationHits\": [], \"pathStrings\": [], \"strings\": [], \"externalTargets\": [ \"OneObjDelegate.Invoke\", \"UnityEngine.Component.get_gameObject\", \"UnityEngine.Object.get_name\", \"UnityEngine.TextAsset.get_text\" ], \"callerRids\": [], \"calleeRids\": ["
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-xlua-loader-storage-boundary-v1.json",
+      "offset": 691978,
+      "snippet": "\"exactExternalStorageTargets\": [ \"UnityEngine.TextAsset.get_text\" ], \"evidenceClass\": \"storage_call_near_xlua_in_methoddef_graph\", \"score\": 39, \"pathToXluaUndirected\": [ { \"rid\": 13830, \"symbol\": \"LuaUIFormLogic.LuaInit\" }, { \"rid\": 15436, \"symbol\": \"XLua.LuaBase.Dispose\" } ] }, { \"rid\": 4761, \"stableId\": \"M:4761\", \"symbol\": \"NetworkManager.GetCrossServerListWebRequest\", \"owner\": \"NetworkManager\", \"luaHits\": [], \"storageHits\": [ \"unitywebrequest\" ], \"loaderHits\": [], \"formationHits\": [], \"pathStrings"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-xlua-loader-storage-boundary-v1.json",
+      "offset": 1251469,
+      "snippet": "UpdateDevLocale\" }, { \"rid\": 20499, \"symbol\": \"XLua.CSObjectWrap.LocalizationManagerWrap._m_ReloadDictionaryByUpdateDevLocale\" } ] }, { \"rid\": 13830, \"stableId\": \"M:13830\", \"symbol\": \"LuaUIFormLogic.LuaInit\", \"owner\": \"LuaUIFormLogic\", \"luaHits\": [], \"storageHits\": [ \"textasset\" ], \"loaderHits\": [], \"formationHits\": [], \"pathStrings\": [], \"strings\": [], \"externalTargets\": [ \"OneObjDelegate.Invoke\", \"UnityEngine.Component.get_gameObject\", \"UnityEngine.Object.get_name\", \"UnityEngine.TextAsset.get_text\" ], \"ca"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-xlua-loader-storage-boundary-v1.json",
+      "offset": 1251510,
+      "snippet": "\"rid\": 20499, \"symbol\": \"XLua.CSObjectWrap.LocalizationManagerWrap._m_ReloadDictionaryByUpdateDevLocale\" } ] }, { \"rid\": 13830, \"stableId\": \"M:13830\", \"symbol\": \"LuaUIFormLogic.LuaInit\", \"owner\": \"LuaUIFormLogic\", \"luaHits\": [], \"storageHits\": [ \"textasset\" ], \"loaderHits\": [], \"formationHits\": [], \"pathStrings\": [], \"strings\": [], \"externalTargets\": [ \"OneObjDelegate.Invoke\", \"UnityEngine.Component.get_gameObject\", \"UnityEngine.Object.get_name\", \"UnityEngine.TextAsset.get_text\" ], \"callerRids\": [], \"calleeRids\": ["
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-xlua-loader-storage-boundary-v1.json",
+      "offset": 1252358,
+      "snippet": "\"exactExternalStorageTargets\": [ \"UnityEngine.TextAsset.get_text\" ], \"evidenceClass\": \"storage_call_near_xlua_in_methoddef_graph\", \"score\": 39, \"pathToXluaUndirected\": [ { \"rid\": 13830, \"symbol\": \"LuaUIFormLogic.LuaInit\" }, { \"rid\": 15436, \"symbol\": \"XLua.LuaBase.Dispose\" } ] }, { \"rid\": 4761, \"stableId\": \"M:4761\", \"symbol\": \"NetworkManager.GetCrossServerListWebRequest\", \"owner\": \"NetworkManager\", \"luaHits\": [], \"storageHits\": [ \"unitywebrequest\" ], \"loaderHits\": [], \"formationHits\": [], \"pathStrings"
+    }
+  ],
+  "serializedLookingMetadataHits": [
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-source-container-crosswalk-v1.json",
+      "offset": 400,
+      "snippet": "eTextAssetMethods\": 1, \"luaNameOrStringHits\": 14, \"existingMetadataHits\": 5, \"serializedSourceMetadataHits\": 3, \"xluaContainerMethods\": 3, \"xluaNamedContainerLiterals\": 0 }, \"targetMethods\": [ { \"rid\": 13830, \"symbol\": \"LuaUIFormLogic.LuaInit\", \"owner\": \"LuaUIFormLogic\", \"methodRowKeys\": [ \"d\", \"in\", \"name\", \"out\", \"rid\", \"score\", \"status\", \"tags\", \"typeRid\" ], \"methodRow\": { \"rid\": 13830, \"typeRid\": 1244, \"name\": \"LuaInit\", \"status\": \"unknown\", \"d\": 3, \"in\": 0, \"out\": 5, \"tags\": ["
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-source-container-crosswalk-v1.json",
+      "offset": 441,
+      "snippet": "ngHits\": 14, \"existingMetadataHits\": 5, \"serializedSourceMetadataHits\": 3, \"xluaContainerMethods\": 3, \"xluaNamedContainerLiterals\": 0 }, \"targetMethods\": [ { \"rid\": 13830, \"symbol\": \"LuaUIFormLogic.LuaInit\", \"owner\": \"LuaUIFormLogic\", \"methodRowKeys\": [ \"d\", \"in\", \"name\", \"out\", \"rid\", \"score\", \"status\", \"tags\", \"typeRid\" ], \"methodRow\": { \"rid\": 13830, \"typeRid\": 1244, \"name\": \"LuaInit\", \"status\": \"unknown\", \"d\": 3, \"in\": 0, \"out\": 5, \"tags\": [ \"string-evidence\" ], \""
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-source-container-crosswalk-v1.json",
+      "offset": 15142,
+      "snippet": ": [ \"d\", \"in\", \"name\", \"out\", \"rid\", \"score\", \"status\", \"tags\", \"typeRid\" ] }, { \"rid\": 13830, \"symbol\": \"LuaUIFormLogic.LuaInit\", \"name\": \"LuaInit\", \"strings\": [], \"externalCalls\": [ \"OneObjDelegate.Invoke\", \"UnityEngine.Component.get_gameObject\", \"UnityEngine.Object.get_name\", \"UnityEngine.TextAsset.get_text\" ], \"callers\": [], \"callees\": [ 15436, 15444, 15449, 15455,"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-source-container-crosswalk-v1.json",
+      "offset": 127016,
+      "snippet": "\"callees\": [], \"rowKeys\": [ \"d\", \"in\", \"name\", \"out\", \"rid\", \"score\", \"status\", \"tags\", \"typeRid\" ] } ] } }, \"luaUIFormLogicTextAssetMethods\": [ { \"rid\": 13830, \"symbol\": \"LuaUIFormLogic.LuaInit\", \"externalHits\": [ \"UnityEngine.TextAsset.get_text\" ], \"strings\": [] } ], \"luaUIFormLogicNameOrStringHits\": [ { \"rid\": 5164, \"symbol\": \"InitMessage.LuaInitData\", \"hits\": [ \"luainit\" ], \"strings\": [] }, { \"rid\": 13829, \"symbol\": \"LuaUIFo"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-source-container-crosswalk-v1.json",
+      "offset": 127094,
+      "snippet": "\"name\", \"out\", \"rid\", \"score\", \"status\", \"tags\", \"typeRid\" ] } ] } }, \"luaUIFormLogicTextAssetMethods\": [ { \"rid\": 13830, \"symbol\": \"LuaUIFormLogic.LuaInit\", \"externalHits\": [ \"UnityEngine.TextAsset.get_text\" ], \"strings\": [] } ], \"luaUIFormLogicNameOrStringHits\": [ { \"rid\": 5164, \"symbol\": \"InitMessage.LuaInitData\", \"hits\": [ \"luainit\" ], \"strings\": [] }, { \"rid\": 13829, \"symbol\": \"LuaUIFormLogic.DoLuaFunction\", \"hits\": [ \"luauiformlogic\" ],"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-source-container-crosswalk-v1.json",
+      "offset": 127227,
+      "snippet": "Rid\" ] } ] } }, \"luaUIFormLogicTextAssetMethods\": [ { \"rid\": 13830, \"symbol\": \"LuaUIFormLogic.LuaInit\", \"externalHits\": [ \"UnityEngine.TextAsset.get_text\" ], \"strings\": [] } ], \"luaUIFormLogicNameOrStringHits\": [ { \"rid\": 5164, \"symbol\": \"InitMessage.LuaInitData\", \"hits\": [ \"luainit\" ], \"strings\": [] }, { \"rid\": 13829, \"symbol\": \"LuaUIFormLogic.DoLuaFunction\", \"hits\": [ \"luauiformlogic\" ], \"strings\": [] }, { \"rid\": 13830, \"symbol\": \"LuaUIFormLogic.LuaInit\", \"hits\": [ \"luauiformlogic\","
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-ui-bridge-detail-v1.json",
+      "offset": 99828,
+      "snippet": "\"rid\": 50177, \"symbol\": \"<EvalRoutine>d__4.MoveNext\" } ], \"directCallees\": [] } ] }, { \"target\": { \"rid\": 13830, \"stableId\": \"M:13830\", \"symbol\": \"LuaUIFormLogic.LuaInit\", \"owner\": \"LuaUIFormLogic\", \"status\": \"unknown\", \"score\": 120, \"tags\": [ \"string-evidence\" ], \"strings\": [], \"externalCalls\": [ \"OneObjDelegate.Invoke\", \"UnityEngine.Component.get_gameObject\", \"UnityEngine.Object.get_name\", \"UnityEngine.TextAsset.get_text\" ], \"directCallers\": [],"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-ui-bridge-detail-v1.json",
+      "offset": 99871,
+      "snippet": "\"symbol\": \"<EvalRoutine>d__4.MoveNext\" } ], \"directCallees\": [] } ] }, { \"target\": { \"rid\": 13830, \"stableId\": \"M:13830\", \"symbol\": \"LuaUIFormLogic.LuaInit\", \"owner\": \"LuaUIFormLogic\", \"status\": \"unknown\", \"score\": 120, \"tags\": [ \"string-evidence\" ], \"strings\": [], \"externalCalls\": [ \"OneObjDelegate.Invoke\", \"UnityEngine.Component.get_gameObject\", \"UnityEngine.Object.get_name\", \"UnityEngine.TextAsset.get_text\" ], \"directCallers\": [], \"directCallees\": [ {"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-ui-bridge-detail-v1.json",
+      "offset": 101119,
+      "snippet": "\"name\": \"LuaUIFormLogic\", \"status\": \"unknown\", \"methodStart\": 13829, \"methodEnd\": 13841, \"knownMethods\": 0, \"interest\": 120 }, \"sameTypeMethods\": [ { \"rid\": 13829, \"symbol\": \"LuaUIFormLogic.DoLuaFunction\", \"strings\": [], \"externalCalls\": [] }, { \"rid\": 13830, \"symbol\": \"LuaUIFormLogic.LuaInit\", \"strings\": [], \"externalCalls\": [ \"OneObjDelegate.Invoke\", \"UnityEngine.Component.get_gameObject\", \"UnityEngine.Object.get_name\", \"UnityEngine.TextAsset.get_text\" ] },"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-ui-bridge-detail-v1.json",
+      "offset": 101271,
+      "snippet": "\"interest\": 120 }, \"sameTypeMethods\": [ { \"rid\": 13829, \"symbol\": \"LuaUIFormLogic.DoLuaFunction\", \"strings\": [], \"externalCalls\": [] }, { \"rid\": 13830, \"symbol\": \"LuaUIFormLogic.LuaInit\", \"strings\": [], \"externalCalls\": [ \"OneObjDelegate.Invoke\", \"UnityEngine.Component.get_gameObject\", \"UnityEngine.Object.get_name\", \"UnityEngine.TextAsset.get_text\" ] }, { \"rid\": 13831, \"symbol\": \"LuaUIFormLogic.LuaOpen\", \"strings\": [], \"externalCalls\": [ \"OneObjDe"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-ui-bridge-detail-v1.json",
+      "offset": 101605,
+      "snippet": "\": [ \"OneObjDelegate.Invoke\", \"UnityEngine.Component.get_gameObject\", \"UnityEngine.Object.get_name\", \"UnityEngine.TextAsset.get_text\" ] }, { \"rid\": 13831, \"symbol\": \"LuaUIFormLogic.LuaOpen\", \"strings\": [], \"externalCalls\": [ \"OneObjDelegate.Invoke\" ] }, { \"rid\": 13832, \"symbol\": \"LuaUIFormLogic.LuaUpdate\", \"strings\": [], \"externalCalls\": [ \"TwoFloatDelegate.Invoke\", \"UnityEngine.Time.get_time\" ] }, { \"rid\": 13833, \"symbol\": \"Lua"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-lua-ui-bridge-detail-v1.json",
+      "offset": 13817129,
+      "snippet": "llers\": [ { \"rid\": 15442, \"symbol\": \"XLua.LuaEnv..ctor\" } ], \"directCallees\": [] } ], \"priorityUpstream\": [ { \"anchor\": { \"rid\": 13830, \"stableId\": \"M:13830\", \"symbol\": \"LuaUIFormLogic.LuaInit\", \"owner\": \"LuaUIFormLogic\", \"status\": \"unknown\", \"score\": 120, \"tags\": [ \"string-evidence\" ], \"strings\": [], \"externalCalls\": [ \"OneObjDelegate.Invoke\", \"UnityEngine.Component.get_gameObject\", \"UnityEngine.Object.get_name\", \"UnityEngine.TextAsset.get_text\" ], \"directCallers\": [],"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-xlua-loader-storage-boundary-v1.json",
+      "offset": 461384,
+      "snippet": "\"UnityEngine.WWW.get_isDone\" ], \"evidenceClass\": \"same_method_exact_external_lua_and_storage_calls\", \"score\": 165 } ], \"directedCommonCallersLuaStorage\": [ { \"rid\": 13830, \"stableId\": \"M:13830\", \"symbol\": \"LuaUIFormLogic.LuaInit\", \"owner\": \"LuaUIFormLogic\", \"luaHits\": [], \"storageHits\": [ \"textasset\" ], \"loaderHits\": [], \"formationHits\": [], \"pathStrings\": [], \"strings\": [], \"externalTargets\": [ \"OneObjDelegate.Invoke\", \"UnityEngine.Component.get_gameObject\", \"UnityEngine.Object.get_name\", \"UnityEngine.TextAsset.get_text\" ], \"ca"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-xlua-loader-storage-boundary-v1.json",
+      "offset": 461425,
+      "snippet": "], \"evidenceClass\": \"same_method_exact_external_lua_and_storage_calls\", \"score\": 165 } ], \"directedCommonCallersLuaStorage\": [ { \"rid\": 13830, \"stableId\": \"M:13830\", \"symbol\": \"LuaUIFormLogic.LuaInit\", \"owner\": \"LuaUIFormLogic\", \"luaHits\": [], \"storageHits\": [ \"textasset\" ], \"loaderHits\": [], \"formationHits\": [], \"pathStrings\": [], \"strings\": [], \"externalTargets\": [ \"OneObjDelegate.Invoke\", \"UnityEngine.Component.get_gameObject\", \"UnityEngine.Object.get_name\", \"UnityEngine.TextAsset.get_text\" ], \"callerRids\": [], \"calleeRids\": ["
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-xlua-loader-storage-boundary-v1.json",
+      "offset": 691089,
+      "snippet": "UpdateDevLocale\" }, { \"rid\": 20499, \"symbol\": \"XLua.CSObjectWrap.LocalizationManagerWrap._m_ReloadDictionaryByUpdateDevLocale\" } ] }, { \"rid\": 13830, \"stableId\": \"M:13830\", \"symbol\": \"LuaUIFormLogic.LuaInit\", \"owner\": \"LuaUIFormLogic\", \"luaHits\": [], \"storageHits\": [ \"textasset\" ], \"loaderHits\": [], \"formationHits\": [], \"pathStrings\": [], \"strings\": [], \"externalTargets\": [ \"OneObjDelegate.Invoke\", \"UnityEngine.Component.get_gameObject\", \"UnityEngine.Object.get_name\", \"UnityEngine.TextAsset.get_text\" ], \"ca"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-xlua-loader-storage-boundary-v1.json",
+      "offset": 691130,
+      "snippet": "\"rid\": 20499, \"symbol\": \"XLua.CSObjectWrap.LocalizationManagerWrap._m_ReloadDictionaryByUpdateDevLocale\" } ] }, { \"rid\": 13830, \"stableId\": \"M:13830\", \"symbol\": \"LuaUIFormLogic.LuaInit\", \"owner\": \"LuaUIFormLogic\", \"luaHits\": [], \"storageHits\": [ \"textasset\" ], \"loaderHits\": [], \"formationHits\": [], \"pathStrings\": [], \"strings\": [], \"externalTargets\": [ \"OneObjDelegate.Invoke\", \"UnityEngine.Component.get_gameObject\", \"UnityEngine.Object.get_name\", \"UnityEngine.TextAsset.get_text\" ], \"callerRids\": [], \"calleeRids\": ["
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-xlua-loader-storage-boundary-v1.json",
+      "offset": 691978,
+      "snippet": "\"exactExternalStorageTargets\": [ \"UnityEngine.TextAsset.get_text\" ], \"evidenceClass\": \"storage_call_near_xlua_in_methoddef_graph\", \"score\": 39, \"pathToXluaUndirected\": [ { \"rid\": 13830, \"symbol\": \"LuaUIFormLogic.LuaInit\" }, { \"rid\": 15436, \"symbol\": \"XLua.LuaBase.Dispose\" } ] }, { \"rid\": 4761, \"stableId\": \"M:4761\", \"symbol\": \"NetworkManager.GetCrossServerListWebRequest\", \"owner\": \"NetworkManager\", \"luaHits\": [], \"storageHits\": [ \"unitywebrequest\" ], \"loaderHits\": [], \"formationHits\": [], \"pathStrings"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-xlua-loader-storage-boundary-v1.json",
+      "offset": 1251469,
+      "snippet": "UpdateDevLocale\" }, { \"rid\": 20499, \"symbol\": \"XLua.CSObjectWrap.LocalizationManagerWrap._m_ReloadDictionaryByUpdateDevLocale\" } ] }, { \"rid\": 13830, \"stableId\": \"M:13830\", \"symbol\": \"LuaUIFormLogic.LuaInit\", \"owner\": \"LuaUIFormLogic\", \"luaHits\": [], \"storageHits\": [ \"textasset\" ], \"loaderHits\": [], \"formationHits\": [], \"pathStrings\": [], \"strings\": [], \"externalTargets\": [ \"OneObjDelegate.Invoke\", \"UnityEngine.Component.get_gameObject\", \"UnityEngine.Object.get_name\", \"UnityEngine.TextAsset.get_text\" ], \"ca"
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-xlua-loader-storage-boundary-v1.json",
+      "offset": 1251510,
+      "snippet": "\"rid\": 20499, \"symbol\": \"XLua.CSObjectWrap.LocalizationManagerWrap._m_ReloadDictionaryByUpdateDevLocale\" } ] }, { \"rid\": 13830, \"stableId\": \"M:13830\", \"symbol\": \"LuaUIFormLogic.LuaInit\", \"owner\": \"LuaUIFormLogic\", \"luaHits\": [], \"storageHits\": [ \"textasset\" ], \"loaderHits\": [], \"formationHits\": [], \"pathStrings\": [], \"strings\": [], \"externalTargets\": [ \"OneObjDelegate.Invoke\", \"UnityEngine.Component.get_gameObject\", \"UnityEngine.Object.get_name\", \"UnityEngine.TextAsset.get_text\" ], \"callerRids\": [], \"calleeRids\": ["
+    },
+    {
+      "file": "frontend/lab/master-assets-v2/meta/formation-xlua-loader-storage-boundary-v1.json",
+      "offset": 1252358,
+      "snippet": "\"exactExternalStorageTargets\": [ \"UnityEngine.TextAsset.get_text\" ], \"evidenceClass\": \"storage_call_near_xlua_in_methoddef_graph\", \"score\": 39, \"pathToXluaUndirected\": [ { \"rid\": 13830, \"symbol\": \"LuaUIFormLogic.LuaInit\" }, { \"rid\": 15436, \"symbol\": \"XLua.LuaBase.Dispose\" } ] }, { \"rid\": 4761, \"stableId\": \"M:4761\", \"symbol\": \"NetworkManager.GetCrossServerListWebRequest\", \"owner\": \"NetworkManager\", \"luaHits\": [], \"storageHits\": [ \"unitywebrequest\" ], \"loaderHits\": [], \"formationHits\": [], \"pathStrings"
+    }
+  ],
+  "scannedFiles": [
+    {
+      "path": "frontend/lab/master-assets-v2/meta/current15-authoritative-export-scene-index-v1.json",
+      "bytes": 9944
+    },
+    {
+      "path": "frontend/lab/master-assets-v2/meta/current15-rig-idle-structure-v1.json",
+      "bytes": 826855
+    },
+    {
+      "path": "frontend/lab/master-assets-v2/meta/current15-runtime-scene-links-v1.json",
+      "bytes": 14482
+    },
+    {
+      "path": "frontend/lab/master-assets-v2/meta/current15-runtime-scene-links-v2.json",
+      "bytes": 6326
+    },
+    {
+      "path": "frontend/lab/master-assets-v2/meta/current15-runtime-scene-links-v3.json",
+      "bytes": 8352
+    },
+    {
+      "path": "frontend/lab/master-assets-v2/meta/current15-runtime-scene-links-v4.json",
+      "bytes": 12582
+    },
+    {
+      "path": "frontend/lab/master-assets-v2/meta/formation-authoritative-bundle-map-31.json",
+      "bytes": 162767
+    },
+    {
+      "path": "frontend/lab/master-assets-v2/meta/formation-background-pipeline-v1.json",
+      "bytes": 124454
+    },
+    {
+      "path": "frontend/lab/master-assets-v2/meta/formation-camera-rawimage-connectivity-v1.json",
+      "bytes": 33216
+    },
+    {
+      "path": "frontend/lab/master-assets-v2/meta/formation-direct-prefab-audit-v1.json",
+      "bytes": 72731
+    },
+    {
+      "path": "frontend/lab/master-assets-v2/meta/formation-global-scene-catalog-v1.json",
+      "bytes": 1407881
+    },
+    {
+      "path": "frontend/lab/master-assets-v2/meta/formation-il2cpp-payload-locator-v1.json",
+      "bytes": 14532
+    },
+    {
+      "path": "frontend/lab/master-assets-v2/meta/formation-layer0-baked-v1.json",
+      "bytes": 1259
+    },
+    {
+      "path": "frontend/lab/master-assets-v2/meta/formation-layer0-contract-v1.json",
+      "bytes": 1886
+    },
+    {
+      "path": "frontend/lab/master-assets-v2/meta/formation-layer0-external-resolution-v1.json",
+      "bytes": 21156
+    },
+    {
+      "path": "frontend/lab/master-assets-v2/meta/formation-layer0-native-links-v1.json",
+      "bytes": 49809
+    },
+    {
+      "path": "frontend/lab/master-assets-v2/meta/formation-layer0-renderpack-v1.json",
+      "bytes": 93753
+    },
+    {
+      "path": "frontend/lab/master-assets-v2/meta/formation-layer0-world-pack-v1.json",
+      "bytes": 378875
+    },
+    {
+      "path": "frontend/lab/master-assets-v2/meta/formation-layer1-placement-v1.json",
+      "bytes": 951
+    },
+    {
+      "path": "frontend/lab/master-assets-v2/meta/formation-layer2-anchor-pass-v1.json",
+      "bytes": 1134
+    },
+    {
+      "path": "frontend/lab/master-assets-v2/meta/formation-lua-source-container-crosswalk-v1.json",
+      "bytes": 324523
+    },
+    {
+      "path": "frontend/lab/master-assets-v2/meta/formation-lua-ui-bridge-detail-v1.json",
+      "bytes": 13824143
+    },
+    {
+      "path": "frontend/lab/master-assets-v2/meta/formation-native-recipe-v1.json",
+      "bytes": 1339479
+    },
+    {
+      "path": "frontend/lab/master-assets-v2/meta/formation-prefab-all-fragments-final3.json",
+      "bytes": 5760
+    },
+    {
+      "path": "frontend/lab/master-assets-v2/meta/formation-prefab-exact-resolution-31.json",
+      "bytes": 48552
+    },
+    {
+      "path": "frontend/lab/master-assets-v2/meta/formation-ptr-exact-v2.json",
+      "bytes": 6723388
+    },
+    {
+      "path": "frontend/lab/master-assets-v2/meta/formation-ptr-exact-v4-summary-v1.json",
+      "bytes": 6294
+    },
+    {
+      "path": "frontend/lab/master-assets-v2/meta/formation-renderable-scene-selection-31.json",
+      "bytes": 357831
+    },
+    {
+      "path": "frontend/lab/master-assets-v2/meta/formation-reverse-deps-v1.json",
+      "bytes": 343076
+    },
+    {
+      "path": "frontend/lab/master-assets-v2/meta/formation-runtime-atlas-binding-v1.json",
+      "bytes": 138310
+    },
+    {
+      "path": "frontend/lab/master-assets-v2/meta/formation-runtime-binding-v1.json",
+      "bytes": 1622
+    },
+    {
+      "path": "frontend/lab/master-assets-v2/meta/formation-runtime-crosswalk-v1.json",
+      "bytes": 11393
+    },
+    {
+      "path": "frontend/lab/master-assets-v2/meta/formation-screen-target-spec-v2.json",
+      "bytes": 1852
+    },
+    {
+      "path": "frontend/lab/master-assets-v2/meta/formation-unit-bundle-set-31.json",
+      "bytes": 304462
+    },
+    {
+      "path": "frontend/lab/master-assets-v2/meta/formation-xlua-index-crosswalk-v1.json",
+      "bytes": 576362
+    },
+    {
+      "path": "frontend/lab/master-assets-v2/meta/formation-xlua-loader-storage-boundary-v1.json",
+      "bytes": 2032741
+    },
+    {
+      "path": "frontend/lab/master-assets-v2/meta/hero-vehicle-final-four-graph.json",
+      "bytes": 133397
+    },
+    {
+      "path": "frontend/lab/master-assets-v2/meta/heroshow-prefab-locator-v1.json",
+      "bytes": 348
+    },
+    {
+      "path": "frontend/lab/master-assets-v2/meta/heroshow-scene-loader-audit-v1.json",
+      "bytes": 1289750
+    },
+    {
+      "path": "frontend/lab/master-assets-v2/meta/heroshow-structure-fingerprint-v1.json",
+      "bytes": 42783
+    },
+    {
+      "path": "frontend/lab/master-assets-v2/meta/vehicle-scene-selection.json",
+      "bytes": 407783
+    },
+    {
+      "path": "frontend/lab/master-assets-v2/index/README_LASTWAR_GRAPHICS_HISTORY.md",
+      "bytes": 2588
+    },
+    {
+      "path": "frontend/lab/master-assets-v2/index/README_LASTWAR_GRAPHICS_INDEX.md",
+      "bytes": 880
+    },
+    {
+      "path": "frontend/lab/master-assets-v2/index/lastwar-graphics-asset-path-index-v1.tsv",
+      "bytes": 43192839
+    },
+    {
+      "path": "frontend/lab/master-assets-v2/index/lastwar-graphics-history-evidence-v1.json",
+      "bytes": 11840
+    },
+    {
+      "path": "frontend/lab/master-assets-v2/index/lastwar-graphics-history-v002-0012-v1.json",
+      "bytes": 11784
+    }
+  ],
+  "conclusion": {
+    "exactNamePresentInClosedFormationV4": false,
+    "existingSerializedLookingEvidencePresent": true,
+    "nextStrategy": "inspect_named_existing_serialized_metadata_records_before_any_apk_access",
+    "rule": "Only an exact serialized record/ref can bind LuaUIFormLogic to a Formation object. Metadata text/name proximity remains non-binding."
+  },
+  "guardrails": {
+    "existingEvidenceOnly": true,
+    "apkAccess": false,
+    "dllRescan": false,
+    "bundleExtraction": false,
+    "bundleScan": false,
+    "candidatePromotion": false,
+    "mainUntouched": true,
+    "previewUntouched": true
+  }
+}
