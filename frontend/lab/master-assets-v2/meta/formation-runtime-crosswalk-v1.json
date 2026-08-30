@@ -1,0 +1,329 @@
+{
+  "format": "WFGG_LASTWAR_FORMATION_RUNTIME_CROSSWALK_V1",
+  "sources": {
+    "ptrGraph": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/master-assets-v2/meta/formation-ptr-exact-v4.json",
+    "ptrSummary": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/master-assets-v2/meta/formation-ptr-exact-v4-summary-v1.json",
+    "backgroundPipeline": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/master-assets-v2/meta/formation-background-pipeline-v1.json",
+    "legacyRuntimeBindingAudit": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/master-assets-v2/meta/formation-runtime-binding-v1.json"
+  },
+  "ptrClosure": {
+    "closed": true,
+    "objects": 3209,
+    "edges": 8386,
+    "renderExactEdges": 5298,
+    "renderUnresolvedEdges": 0,
+    "unresolvedRefs": 0,
+    "parseErrors": 0
+  },
+  "serializedRawImages": {
+    "FormationBg": {
+      "componentPathID": 935766179200945348,
+      "gameObjectPathID": 2726074644948953871,
+      "material": {
+        "fileID": 0,
+        "pathID": 0
+      },
+      "texture": {
+        "fileID": 0,
+        "pathID": 0
+      },
+      "materialNull": true,
+      "textureNull": true
+    },
+    "FormationRT": {
+      "componentPathID": -3957975286359756321,
+      "gameObjectPathID": 3519289692077381591,
+      "material": {
+        "fileID": 16,
+        "pathID": 2136757981436054356
+      },
+      "texture": {
+        "fileID": 0,
+        "pathID": 0
+      },
+      "textureNull": true,
+      "materialExactResolutionCount": 1,
+      "materialExactResolutions": [
+        {
+          "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-3957975286359756321",
+          "to": "CAB-9a46429c8bac0e1cd467ec61b2a0f8a3#2136757981436054356",
+          "relation": "material_ref",
+          "fieldPath": "$.m_Material",
+          "fileID": 16,
+          "pathID": 2136757981436054356,
+          "confidence": "serialized_exact",
+          "external": {
+            "fileID": 16,
+            "path": "archive:/CAB-9a46429c8bac0e1cd467ec61b2a0f8a3/CAB-9a46429c8bac0e1cd467ec61b2a0f8a3",
+            "guid": "b'\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00'",
+            "type": 0
+          }
+        }
+      ],
+      "allMaterialPPtrMatches": [
+        {
+          "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-3957975286359756321",
+          "to": "CAB-9a46429c8bac0e1cd467ec61b2a0f8a3#2136757981436054356",
+          "relation": "material_ref",
+          "fieldPath": "$.m_Material",
+          "fileID": 16,
+          "pathID": 2136757981436054356,
+          "confidence": "serialized_exact",
+          "external": {
+            "fileID": 16,
+            "path": "archive:/CAB-9a46429c8bac0e1cd467ec61b2a0f8a3/CAB-9a46429c8bac0e1cd467ec61b2a0f8a3",
+            "guid": "b'\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00'",
+            "type": 0
+          }
+        }
+      ]
+    }
+  },
+  "graphAnchors": {
+    "objectHitCount": 0,
+    "edgeHitCount": 17,
+    "objects": [],
+    "edges": [
+      {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-3755011431292375246",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#2726074644948953871",
+        "relation": "serialized_ref",
+        "fieldPath": "$._autoMirrorCullObjects[2]",
+        "fileID": 0,
+        "pathID": 2726074644948953871,
+        "confidence": "serialized_exact"
+      },
+      {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-3755011431292375246",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#3519289692077381591",
+        "relation": "serialized_ref",
+        "fieldPath": "$._autoMirrorCullObjects[3]",
+        "fileID": 0,
+        "pathID": 3519289692077381591,
+        "confidence": "serialized_exact"
+      },
+      {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#2726074644948953871",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#3074809845846659530",
+        "relation": "component_ref",
+        "fieldPath": "$.m_Component[0].component",
+        "fileID": 0,
+        "pathID": 3074809845846659530,
+        "confidence": "serialized_exact"
+      },
+      {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#2726074644948953871",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#6847809801933144268",
+        "relation": "component_ref",
+        "fieldPath": "$.m_Component[1].component",
+        "fileID": 0,
+        "pathID": 6847809801933144268,
+        "confidence": "serialized_exact"
+      },
+      {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#2726074644948953871",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#935766179200945348",
+        "relation": "component_ref",
+        "fieldPath": "$.m_Component[2].component",
+        "fileID": 0,
+        "pathID": 935766179200945348,
+        "confidence": "serialized_exact"
+      },
+      {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#3519289692077381591",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#4337810137591353805",
+        "relation": "component_ref",
+        "fieldPath": "$.m_Component[0].component",
+        "fileID": 0,
+        "pathID": 4337810137591353805,
+        "confidence": "serialized_exact"
+      },
+      {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#3519289692077381591",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#1120588958669457649",
+        "relation": "component_ref",
+        "fieldPath": "$.m_Component[1].component",
+        "fileID": 0,
+        "pathID": 1120588958669457649,
+        "confidence": "serialized_exact"
+      },
+      {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#3519289692077381591",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-3957975286359756321",
+        "relation": "component_ref",
+        "fieldPath": "$.m_Component[2].component",
+        "fileID": 0,
+        "pathID": -3957975286359756321,
+        "confidence": "serialized_exact"
+      },
+      {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#3074809845846659530",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#2726074644948953871",
+        "relation": "gameobject_ref",
+        "fieldPath": "$.m_GameObject",
+        "fileID": 0,
+        "pathID": 2726074644948953871,
+        "confidence": "serialized_exact"
+      },
+      {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#6847809801933144268",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#2726074644948953871",
+        "relation": "gameobject_ref",
+        "fieldPath": "$.m_GameObject",
+        "fileID": 0,
+        "pathID": 2726074644948953871,
+        "confidence": "serialized_exact"
+      },
+      {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#935766179200945348",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#2726074644948953871",
+        "relation": "gameobject_ref",
+        "fieldPath": "$.m_GameObject",
+        "fileID": 0,
+        "pathID": 2726074644948953871,
+        "confidence": "serialized_exact"
+      },
+      {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#935766179200945348",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-8471220842657547617",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -8471220842657547617,
+        "confidence": "serialized_exact"
+      },
+      {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#4337810137591353805",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#3519289692077381591",
+        "relation": "gameobject_ref",
+        "fieldPath": "$.m_GameObject",
+        "fileID": 0,
+        "pathID": 3519289692077381591,
+        "confidence": "serialized_exact"
+      },
+      {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#1120588958669457649",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#3519289692077381591",
+        "relation": "gameobject_ref",
+        "fieldPath": "$.m_GameObject",
+        "fileID": 0,
+        "pathID": 3519289692077381591,
+        "confidence": "serialized_exact"
+      },
+      {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-3957975286359756321",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#3519289692077381591",
+        "relation": "gameobject_ref",
+        "fieldPath": "$.m_GameObject",
+        "fileID": 0,
+        "pathID": 3519289692077381591,
+        "confidence": "serialized_exact"
+      },
+      {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-3957975286359756321",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-8471220842657547617",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -8471220842657547617,
+        "confidence": "serialized_exact"
+      },
+      {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-3957975286359756321",
+        "to": "CAB-9a46429c8bac0e1cd467ec61b2a0f8a3#2136757981436054356",
+        "relation": "material_ref",
+        "fieldPath": "$.m_Material",
+        "fileID": 16,
+        "pathID": 2136757981436054356,
+        "confidence": "serialized_exact",
+        "external": {
+          "fileID": 16,
+          "path": "archive:/CAB-9a46429c8bac0e1cd467ec61b2a0f8a3/CAB-9a46429c8bac0e1cd467ec61b2a0f8a3",
+          "guid": "b'\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00'",
+          "type": 0
+        }
+      }
+    ],
+    "truncated": false
+  },
+  "termHits": {
+    "FormationBg": {
+      "objectHitCount": 0,
+      "edgeHitCount": 0,
+      "objects": [],
+      "edges": [],
+      "truncated": false
+    },
+    "FormationRT": {
+      "objectHitCount": 0,
+      "edgeHitCount": 0,
+      "objects": [],
+      "edges": [],
+      "truncated": false
+    },
+    "RenderTexture": {
+      "objectHitCount": 0,
+      "edgeHitCount": 0,
+      "objects": [],
+      "edges": [],
+      "truncated": false
+    },
+    "FormationCamera": {
+      "objectHitCount": 0,
+      "edgeHitCount": 0,
+      "objects": [],
+      "edges": [],
+      "truncated": false
+    },
+    "HeroShowCamera": {
+      "objectHitCount": 0,
+      "edgeHitCount": 0,
+      "objects": [],
+      "edges": [],
+      "truncated": false
+    },
+    "ShowCamera": {
+      "objectHitCount": 0,
+      "edgeHitCount": 0,
+      "objects": [],
+      "edges": [],
+      "truncated": false
+    },
+    "HeroShowBlend": {
+      "objectHitCount": 0,
+      "edgeHitCount": 0,
+      "objects": [],
+      "edges": [],
+      "truncated": false
+    },
+    "FormationContent": {
+      "objectHitCount": 0,
+      "edgeHitCount": 0,
+      "objects": [],
+      "edges": [],
+      "truncated": false
+    }
+  },
+  "legacyRuntimeBindingAudit": {
+    "hitCount": 0,
+    "candidateCount": 0,
+    "scannedEntryCount": 3
+  },
+  "conclusion": {
+    "assetPPtrGraphClosed": true,
+    "serializedFormationBgMaterialAndTextureBothNull": true,
+    "serializedFormationRTTextureNull": true,
+    "serializedTextureBindingAbsentOnBothRawImages": true,
+    "runtimeAssignmentSearchRequired": true,
+    "reason": "The exact serialized asset graph is closed, while both FormationBg and FormationRT RawImage texture PPtrs are null in the prefab. The next evidence target is therefore the runtime/later-stage assignment path rather than another unresolved asset PPtr."
+  },
+  "guardrails": {
+    "existingJsonOnly": true,
+    "apkAccess": false,
+    "newExtraction": false,
+    "bundleScan": false,
+    "candidatePromotion": false,
+    "mainUntouched": true,
+    "previewUntouched": true
+  }
+}
