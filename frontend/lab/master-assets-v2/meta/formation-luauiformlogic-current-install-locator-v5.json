@@ -1,0 +1,85 @@
+{
+  "format": "WFGG_LASTWAR_FORMATION_LUAUIFORMLOGIC_CURRENT_INSTALL_LOCATOR_V5",
+  "previousV4BundleId": 0,
+  "selectedBundleId": 6934,
+  "selectedAssetPaths": [
+    "Assets/Main/Prefabs/UI/UIHero/LWHero/UIHeroPVPFormationPanelHeroCell.prefab"
+  ],
+  "closure": {
+    "count": 46,
+    "baselineOverlap": 45,
+    "deltaCount": 1,
+    "deltaBundleIds": [
+      6934
+    ]
+  },
+  "counts": {
+    "objects": 2601,
+    "roots": 0,
+    "reachable": 0,
+    "graphEdges": 463804,
+    "unresolvedPPtrs": 2646,
+    "exactScripts": 0,
+    "matchingBehaviours": 0,
+    "familyLinkedBehaviours": 0,
+    "exactTextAssetRefs": 0,
+    "familyLinkedTextAssetRefs": 0
+  },
+  "prefabRoots": [
+    {
+      "assetPath": "Assets/Main/Prefabs/UI/UIHero/LWHero/UIHeroPVPFormationPanelHeroCell.prefab",
+      "candidateCount": 0,
+      "resolved": false,
+      "candidates": []
+    }
+  ],
+  "deltaBundles": [
+    {
+      "bundleId": 6934,
+      "source": "current-apk-exact-offset",
+      "bytes": 10700,
+      "sha256": "cf215309f9df79d139e22137d446cb92375cb04b6897581b996e1c87ca1d33fe",
+      "logicalName": "gameres_main_file_prefabs_ui_uihero_lwhero_uiheropvpformationpanelherocell_cc58764301ba9bf217ce789727c0b548.bundle",
+      "aliasName": "c1ee0cab402314b67e27d6c874e7aa72cda2d560f5c5dfcea10445a57d9f12cf.bundle",
+      "location": {
+        "offset": 518980543,
+        "end": 518991243,
+        "spanBytes": 10700,
+        "physical": {
+          "apk": "/data/app/~~a_LFGwveyIoZeWhf-mR3yw==/com.fun.lastwar.gp-990XEbeiHGsmDX-JvOD69Q==/split_install_time_pack.apk",
+          "entry": "assets/AssetBundles/BundleFragment0.bytes",
+          "base": "BundleFragment0.bytes",
+          "stem": "BundleFragment0",
+          "size": 534225532
+        },
+        "group": 0,
+        "fragment": "BundleFragment0.bytes",
+        "tableApk": "/data/app/~~a_LFGwveyIoZeWhf-mR3yw==/com.fun.lastwar.gp-990XEbeiHGsmDX-JvOD69Q==/split_install_time_pack.apk"
+      }
+    }
+  ],
+  "carveErrors": [],
+  "exactLuaUIFormLogicMonoScripts": [],
+  "matchingMonoBehaviours": [],
+  "familyLinkedMonoBehaviours": [],
+  "exactTextAssetRefs": [],
+  "familyLinkedTextAssetRefs": [],
+  "nextPrefabFamilyDelta": {
+    "bundleId": 6929,
+    "deltaCount": 9,
+    "assetPaths": [
+      "Assets/Main/Prefabs/UI/UIHero/LWHero/UIHeroFakePVPFormationPanel.prefab"
+    ]
+  },
+  "nextStrategy": "audit_next_smallest_exact_formation_prefab_family_delta",
+  "guardrails": {
+    "catalogFamilyMembershipIsScopeOnly": true,
+    "deltaSizeIsResourceHeuristicOnly": true,
+    "exactPPtrRequiredForEvidence": true,
+    "apkReadOnly": true,
+    "globalBundleScan": false,
+    "candidatePromotion": false,
+    "mainUntouched": true,
+    "previewUntouched": true
+  }
+}
