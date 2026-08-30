@@ -1,0 +1,2766 @@
+{
+  "format": "WFGG_LASTWAR_FORMATION_PREBLURRED_TEXTURE_VISUAL_EXTRACT_V1",
+  "sources": {
+    "ptrGraph": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/master-assets-v2/meta/formation-ptr-exact-v4.json",
+    "ptrSummary": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/master-assets-v2/meta/formation-ptr-exact-v4-summary-v1.json",
+    "candidateIndex": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/master-assets-v2/meta/formation-preblurred-texture-candidates-v1.json"
+  },
+  "scope": {
+    "closureBundleCount": 195,
+    "currentCachedBundlesInspected": 195,
+    "texture2DObjectsSeen": 1962,
+    "rankedRows": 152,
+    "selectedForExport": 24,
+    "exported": 0
+  },
+  "rankedCandidates": [
+    {
+      "bundleId": 26592,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-26592.bundle",
+      "pathID": 2712700157066910326,
+      "name": "O_env_ground",
+      "width": 512,
+      "height": 512,
+      "score": 246,
+      "reasons": [
+        "seed",
+        "background-like-name",
+        "large-2d",
+        "quarter-megapixel",
+        "screen-plausible-aspect"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 26592,
+          "path": "Assets/_Art_LastWar/Map/LastWar_City/O_env_ground.tga",
+          "score": 54
+        },
+        {
+          "bundleId": 26592,
+          "path": "Assets/_Art_LastWar/Map/LastWar_City/O_env_ground.tga",
+          "score": 54
+        }
+      ],
+      "exportError": "ValueError:Unsupported system: Android"
+    },
+    {
+      "bundleId": 26592,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-26592.bundle",
+      "pathID": 8255816235777298467,
+      "name": "O_env_ground_snowsj",
+      "width": 512,
+      "height": 512,
+      "score": 246,
+      "reasons": [
+        "seed",
+        "background-like-name",
+        "large-2d",
+        "quarter-megapixel",
+        "screen-plausible-aspect"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 26592,
+          "path": "Assets/_Art_LastWar/Map/LastWar_City/O_env_ground_snowsj.tga",
+          "score": 54
+        },
+        {
+          "bundleId": 26592,
+          "path": "Assets/_Art_LastWar/Map/LastWar_City/O_env_ground_snowsj.tga",
+          "score": 54
+        }
+      ],
+      "exportError": "ValueError:Unsupported system: Android"
+    },
+    {
+      "bundleId": 26600,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-26600.bundle",
+      "pathID": 7328656676947753644,
+      "name": "O_ground_zhucheng_02n_drzc",
+      "width": 512,
+      "height": 512,
+      "score": 246,
+      "reasons": [
+        "seed",
+        "background-like-name",
+        "large-2d",
+        "quarter-megapixel",
+        "screen-plausible-aspect"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 26600,
+          "path": "Assets/_Art_LastWar/Map/LastWar_World/texture/O_ground_zhucheng_02n_drzc.jpg",
+          "score": 54
+        },
+        {
+          "bundleId": 26600,
+          "path": "Assets/_Art_LastWar/Map/LastWar_World/texture/O_ground_zhucheng_02n_drzc.jpg",
+          "score": 54
+        }
+      ],
+      "exportError": "ValueError:Unsupported system: Android"
+    },
+    {
+      "bundleId": 26596,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-26596.bundle",
+      "pathID": 8760009935243148338,
+      "name": "O_terrain_desert_01",
+      "width": 512,
+      "height": 512,
+      "score": 246,
+      "reasons": [
+        "seed",
+        "background-like-name",
+        "large-2d",
+        "quarter-megapixel",
+        "screen-plausible-aspect"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 26596,
+          "path": "Assets/_Art_LastWar/Map/LastWar_World/shamo/O_terrain_desert_01.tga",
+          "score": 54
+        },
+        {
+          "bundleId": 26596,
+          "path": "Assets/_Art_LastWar/Map/LastWar_World/shamo/O_terrain_desert_01.tga",
+          "score": 54
+        }
+      ],
+      "exportError": "ValueError:Unsupported system: Android"
+    },
+    {
+      "bundleId": 26600,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-26600.bundle",
+      "pathID": 2886232983442666552,
+      "name": "O_terrain_grass01_D",
+      "width": 512,
+      "height": 512,
+      "score": 246,
+      "reasons": [
+        "seed",
+        "background-like-name",
+        "large-2d",
+        "quarter-megapixel",
+        "screen-plausible-aspect"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 26600,
+          "path": "Assets/_Art_LastWar/Map/LastWar_World/texture/O_terrain_grass01_D.tga",
+          "score": 54
+        },
+        {
+          "bundleId": 26600,
+          "path": "Assets/_Art_LastWar/Map/LastWar_World/texture/O_terrain_grass01_D.tga",
+          "score": 54
+        }
+      ],
+      "exportError": "ValueError:Unsupported system: Android"
+    },
+    {
+      "bundleId": 26600,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-26600.bundle",
+      "pathID": -8530919973026192267,
+      "name": "O_terrain_grass04_D",
+      "width": 512,
+      "height": 512,
+      "score": 246,
+      "reasons": [
+        "seed",
+        "background-like-name",
+        "large-2d",
+        "quarter-megapixel",
+        "screen-plausible-aspect"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 26600,
+          "path": "Assets/_Art_LastWar/Map/LastWar_World/texture/O_terrain_grass04_D.tga",
+          "score": 54
+        },
+        {
+          "bundleId": 26600,
+          "path": "Assets/_Art_LastWar/Map/LastWar_World/texture/O_terrain_grass04_D.tga",
+          "score": 54
+        }
+      ],
+      "exportError": "ValueError:Unsupported system: Android"
+    },
+    {
+      "bundleId": 26592,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-26592.bundle",
+      "pathID": -4362767395140459070,
+      "name": "O_terrain_new01_D",
+      "width": 512,
+      "height": 512,
+      "score": 246,
+      "reasons": [
+        "seed",
+        "background-like-name",
+        "large-2d",
+        "quarter-megapixel",
+        "screen-plausible-aspect"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 26592,
+          "path": "Assets/_Art_LastWar/Map/LastWar_City/O_terrain_new01_D.tga",
+          "score": 54
+        },
+        {
+          "bundleId": 26592,
+          "path": "Assets/_Art_LastWar/Map/LastWar_City/O_terrain_new01_D.tga",
+          "score": 54
+        }
+      ],
+      "exportError": "ValueError:Unsupported system: Android"
+    },
+    {
+      "bundleId": 26592,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-26592.bundle",
+      "pathID": 6527014853484295755,
+      "name": "O_terrain_new03_D",
+      "width": 512,
+      "height": 512,
+      "score": 246,
+      "reasons": [
+        "seed",
+        "background-like-name",
+        "large-2d",
+        "quarter-megapixel",
+        "screen-plausible-aspect"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 26592,
+          "path": "Assets/_Art_LastWar/Map/LastWar_City/O_terrain_new03_D.PNG",
+          "score": 54
+        },
+        {
+          "bundleId": 26592,
+          "path": "Assets/_Art_LastWar/Map/LastWar_City/O_terrain_new03_D.PNG",
+          "score": 54
+        }
+      ],
+      "exportError": "ValueError:Unsupported system: Android"
+    },
+    {
+      "bundleId": 26600,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-26600.bundle",
+      "pathID": 5854022814988580228,
+      "name": "O_terrain_snow_D_drzc",
+      "width": 512,
+      "height": 512,
+      "score": 246,
+      "reasons": [
+        "seed",
+        "background-like-name",
+        "large-2d",
+        "quarter-megapixel",
+        "screen-plausible-aspect"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 26600,
+          "path": "Assets/_Art_LastWar/Map/LastWar_World/texture/O_terrain_snow_D_drzc.tga",
+          "score": 54
+        },
+        {
+          "bundleId": 26600,
+          "path": "Assets/_Art_LastWar/Map/LastWar_World/texture/O_terrain_snow_D_drzc.tga",
+          "score": 54
+        }
+      ],
+      "exportError": "ValueError:Unsupported system: Android"
+    },
+    {
+      "bundleId": 26597,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-26597.bundle",
+      "pathID": 3012728826931657319,
+      "name": "MixWorldMap_basecolor",
+      "width": 256,
+      "height": 256,
+      "score": 182,
+      "reasons": [
+        "seed",
+        "background-like-name"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 26597,
+          "path": "Assets/_Art_LastWar/Map/LastWar_World/texture/BigMap/MixWorldMap_basecolor.png",
+          "score": 54
+        },
+        {
+          "bundleId": 26597,
+          "path": "Assets/_Art_LastWar/Map/LastWar_World/texture/BigMap/MixWorldMap_basecolor.png",
+          "score": 54
+        }
+      ],
+      "exportError": "ValueError:Unsupported system: Android"
+    },
+    {
+      "bundleId": 26597,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-26597.bundle",
+      "pathID": 5044707400244241366,
+      "name": "MixWorldMap_basecolor1",
+      "width": 256,
+      "height": 256,
+      "score": 182,
+      "reasons": [
+        "seed",
+        "background-like-name"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 26597,
+          "path": "Assets/_Art_LastWar/Map/LastWar_World/texture/BigMap/MixWorldMap_basecolor1.png",
+          "score": 54
+        },
+        {
+          "bundleId": 26597,
+          "path": "Assets/_Art_LastWar/Map/LastWar_World/texture/BigMap/MixWorldMap_basecolor1.png",
+          "score": 54
+        }
+      ],
+      "exportError": "ValueError:Unsupported system: Android"
+    },
+    {
+      "bundleId": 26597,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-26597.bundle",
+      "pathID": -5305582748714046943,
+      "name": "MixWorldMap_basecolor_2",
+      "width": 256,
+      "height": 256,
+      "score": 182,
+      "reasons": [
+        "seed",
+        "background-like-name"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 26597,
+          "path": "Assets/_Art_LastWar/Map/LastWar_World/texture/BigMap/MixWorldMap_basecolor_2.png",
+          "score": 54
+        },
+        {
+          "bundleId": 26597,
+          "path": "Assets/_Art_LastWar/Map/LastWar_World/texture/BigMap/MixWorldMap_basecolor_2.png",
+          "score": 54
+        }
+      ],
+      "exportError": "ValueError:Unsupported system: Android"
+    },
+    {
+      "bundleId": 26597,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-26597.bundle",
+      "pathID": -1175788661811277786,
+      "name": "S1CityContaminate_basecolor",
+      "width": 256,
+      "height": 256,
+      "score": 182,
+      "reasons": [
+        "seed",
+        "background-like-name"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 26597,
+          "path": "Assets/_Art_LastWar/Map/LastWar_World/texture/BigMap/S1CityContaminate_basecolor.png",
+          "score": 54
+        },
+        {
+          "bundleId": 26597,
+          "path": "Assets/_Art_LastWar/Map/LastWar_World/texture/BigMap/S1CityContaminate_basecolor.png",
+          "score": 54
+        }
+      ],
+      "exportError": "ValueError:Unsupported system: Android"
+    },
+    {
+      "bundleId": 26599,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-26599.bundle",
+      "pathID": 6742609007150800997,
+      "name": "O_env_ground_snowsj_01",
+      "width": 512,
+      "height": 512,
+      "score": 146,
+      "reasons": [
+        "background-like-name",
+        "large-2d",
+        "quarter-megapixel",
+        "screen-plausible-aspect"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 26599,
+          "path": "Assets/_Art_LastWar/Map/LastWar_World/texture/new_test_01/O_env_ground_snowsj_01.tga",
+          "score": 54
+        },
+        {
+          "bundleId": 26599,
+          "path": "Assets/_Art_LastWar/Map/LastWar_World/texture/new_test_01/O_env_ground_snowsj_01.tga",
+          "score": 54
+        }
+      ],
+      "exportError": "ValueError:Unsupported system: Android"
+    },
+    {
+      "bundleId": 26599,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-26599.bundle",
+      "pathID": -4685509531548416760,
+      "name": "O_env_ground_snowsj_04",
+      "width": 512,
+      "height": 512,
+      "score": 146,
+      "reasons": [
+        "background-like-name",
+        "large-2d",
+        "quarter-megapixel",
+        "screen-plausible-aspect"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 26599,
+          "path": "Assets/_Art_LastWar/Map/LastWar_World/texture/new_test_01/O_env_ground_snowsj_04.tga",
+          "score": 54
+        },
+        {
+          "bundleId": 26599,
+          "path": "Assets/_Art_LastWar/Map/LastWar_World/texture/new_test_01/O_env_ground_snowsj_04.tga",
+          "score": 54
+        }
+      ],
+      "exportError": "ValueError:Unsupported system: Android"
+    },
+    {
+      "bundleId": 26600,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-26600.bundle",
+      "pathID": -6377294827931511628,
+      "name": "O_terrain_DesertStorm_01_D",
+      "width": 512,
+      "height": 512,
+      "score": 146,
+      "reasons": [
+        "background-like-name",
+        "large-2d",
+        "quarter-megapixel",
+        "screen-plausible-aspect"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 26600,
+          "path": "Assets/_Art_LastWar/Map/LastWar_World/texture/O_terrain_DesertStorm_01_D.png",
+          "score": 54
+        },
+        {
+          "bundleId": 26600,
+          "path": "Assets/_Art_LastWar/Map/LastWar_World/texture/O_terrain_DesertStorm_01_D.png",
+          "score": 54
+        }
+      ],
+      "exportError": "ValueError:Unsupported system: Android"
+    },
+    {
+      "bundleId": 26600,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-26600.bundle",
+      "pathID": -3562885246336798543,
+      "name": "O_terrain_DesertStorm_02_D",
+      "width": 512,
+      "height": 512,
+      "score": 146,
+      "reasons": [
+        "background-like-name",
+        "large-2d",
+        "quarter-megapixel",
+        "screen-plausible-aspect"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 26600,
+          "path": "Assets/_Art_LastWar/Map/LastWar_World/texture/O_terrain_DesertStorm_02_D.png",
+          "score": 54
+        },
+        {
+          "bundleId": 26600,
+          "path": "Assets/_Art_LastWar/Map/LastWar_World/texture/O_terrain_DesertStorm_02_D.png",
+          "score": 54
+        }
+      ],
+      "exportError": "ValueError:Unsupported system: Android"
+    },
+    {
+      "bundleId": 26599,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-26599.bundle",
+      "pathID": -6371716512258973553,
+      "name": "O_terrain_desert_01_D_snow_swsj",
+      "width": 512,
+      "height": 512,
+      "score": 146,
+      "reasons": [
+        "background-like-name",
+        "large-2d",
+        "quarter-megapixel",
+        "screen-plausible-aspect"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 26599,
+          "path": "Assets/_Art_LastWar/Map/LastWar_World/texture/new_test_01/O_terrain_desert_01_D_snow_swsj.tga",
+          "score": 54
+        },
+        {
+          "bundleId": 26599,
+          "path": "Assets/_Art_LastWar/Map/LastWar_World/texture/new_test_01/O_terrain_desert_01_D_snow_swsj.tga",
+          "score": 54
+        }
+      ],
+      "exportError": "ValueError:Unsupported system: Android"
+    },
+    {
+      "bundleId": 23662,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-23662.bundle",
+      "pathID": 7069637118452445579,
+      "name": "O_terrain_desert_01_N",
+      "width": 512,
+      "height": 512,
+      "score": 146,
+      "reasons": [
+        "background-like-name",
+        "large-2d",
+        "quarter-megapixel",
+        "screen-plausible-aspect"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 23662,
+          "path": "Assets/_Art/Models/Environment/Map/Terrain/texture/O_terrain_desert_01_N.png",
+          "score": 54
+        },
+        {
+          "bundleId": 23662,
+          "path": "Assets/_Art/Models/Environment/Map/Terrain/texture/O_terrain_desert_01_N.png",
+          "score": 54
+        }
+      ],
+      "exportError": "ValueError:Unsupported system: Android"
+    },
+    {
+      "bundleId": 26596,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-26596.bundle",
+      "pathID": -4011843937155692026,
+      "name": "O_terrain_desert_01_sj",
+      "width": 512,
+      "height": 512,
+      "score": 146,
+      "reasons": [
+        "background-like-name",
+        "large-2d",
+        "quarter-megapixel",
+        "screen-plausible-aspect"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 26596,
+          "path": "Assets/_Art_LastWar/Map/LastWar_World/shamo/O_terrain_desert_01_sj.tga",
+          "score": 54
+        },
+        {
+          "bundleId": 26596,
+          "path": "Assets/_Art_LastWar/Map/LastWar_World/shamo/O_terrain_desert_01_sj.tga",
+          "score": 54
+        }
+      ],
+      "exportError": "ValueError:Unsupported system: Android"
+    },
+    {
+      "bundleId": 26600,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-26600.bundle",
+      "pathID": -8385839086962673090,
+      "name": "O_terrain_desert_02_D",
+      "width": 512,
+      "height": 512,
+      "score": 146,
+      "reasons": [
+        "background-like-name",
+        "large-2d",
+        "quarter-megapixel",
+        "screen-plausible-aspect"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 26600,
+          "path": "Assets/_Art_LastWar/Map/LastWar_World/texture/O_terrain_desert_02_D.tga",
+          "score": 54
+        },
+        {
+          "bundleId": 26600,
+          "path": "Assets/_Art_LastWar/Map/LastWar_World/texture/O_terrain_desert_02_D.tga",
+          "score": 54
+        }
+      ],
+      "exportError": "ValueError:Unsupported system: Android"
+    },
+    {
+      "bundleId": 26599,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-26599.bundle",
+      "pathID": -2737984261125582496,
+      "name": "O_terrain_desert_02_D_sowsj_3",
+      "width": 512,
+      "height": 512,
+      "score": 146,
+      "reasons": [
+        "background-like-name",
+        "large-2d",
+        "quarter-megapixel",
+        "screen-plausible-aspect"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 26599,
+          "path": "Assets/_Art_LastWar/Map/LastWar_World/texture/new_test_01/O_terrain_desert_02_D_sowsj_3.tga",
+          "score": 54
+        },
+        {
+          "bundleId": 26599,
+          "path": "Assets/_Art_LastWar/Map/LastWar_World/texture/new_test_01/O_terrain_desert_02_D_sowsj_3.tga",
+          "score": 54
+        }
+      ],
+      "exportError": "ValueError:Unsupported system: Android"
+    },
+    {
+      "bundleId": 26596,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-26596.bundle",
+      "pathID": -7014798232891692843,
+      "name": "O_terrain_desert_02_sj_far",
+      "width": 512,
+      "height": 512,
+      "score": 146,
+      "reasons": [
+        "background-like-name",
+        "large-2d",
+        "quarter-megapixel",
+        "screen-plausible-aspect"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 26596,
+          "path": "Assets/_Art_LastWar/Map/LastWar_World/shamo/O_terrain_desert_02_sj_far.tga",
+          "score": 54
+        },
+        {
+          "bundleId": 26596,
+          "path": "Assets/_Art_LastWar/Map/LastWar_World/shamo/O_terrain_desert_02_sj_far.tga",
+          "score": 54
+        }
+      ],
+      "exportError": "ValueError:Unsupported system: Android"
+    },
+    {
+      "bundleId": 26598,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-26598.bundle",
+      "pathID": -5181868365457329968,
+      "name": "S1GroundGrass_Color _g",
+      "width": 512,
+      "height": 512,
+      "score": 146,
+      "reasons": [
+        "background-like-name",
+        "large-2d",
+        "quarter-megapixel",
+        "screen-plausible-aspect"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 26598,
+          "path": "Assets/_Art_LastWar/Map/LastWar_World/texture/BigMap/NewS1/S1GroundGrass_Color _g.png",
+          "score": 54
+        },
+        {
+          "bundleId": 26598,
+          "path": "Assets/_Art_LastWar/Map/LastWar_World/texture/BigMap/NewS1/S1GroundGrass_Color _g.png",
+          "score": 54
+        }
+      ],
+      "exportError": "ValueError:Unsupported system: Android"
+    },
+    {
+      "bundleId": 26598,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-26598.bundle",
+      "pathID": -3994208365102929008,
+      "name": "S1GroundGrass_Color _y",
+      "width": 512,
+      "height": 512,
+      "score": 146,
+      "reasons": [
+        "background-like-name",
+        "large-2d",
+        "quarter-megapixel",
+        "screen-plausible-aspect"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 26598,
+          "path": "Assets/_Art_LastWar/Map/LastWar_World/texture/BigMap/NewS1/S1GroundGrass_Color _y.png",
+          "score": 54
+        },
+        {
+          "bundleId": 26598,
+          "path": "Assets/_Art_LastWar/Map/LastWar_World/texture/BigMap/NewS1/S1GroundGrass_Color _y.png",
+          "score": 54
+        }
+      ]
+    },
+    {
+      "bundleId": 10209,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-10209.bundle",
+      "pathID": 3234885204498126858,
+      "name": "cfm_tongyon_quanping_di_1",
+      "width": 10,
+      "height": 1350,
+      "score": 128,
+      "reasons": [
+        "seed",
+        "background-like-name"
+      ],
+      "indexSources": []
+    },
+    {
+      "bundleId": 35975,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-35975.bundle",
+      "pathID": 5467605157641804922,
+      "name": "H1_water7b",
+      "width": 512,
+      "height": 512,
+      "score": 118,
+      "reasons": [
+        "large-2d",
+        "quarter-megapixel",
+        "screen-plausible-aspect"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 35975,
+          "path": "Assets/Main/3rdParty/VolumetricFog/Textures/H1_water7b.jpg",
+          "score": 54
+        },
+        {
+          "bundleId": 35975,
+          "path": "Assets/Main/3rdParty/VolumetricFog/Textures/H1_water7b.jpg",
+          "score": 54
+        }
+      ]
+    },
+    {
+      "bundleId": 23419,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-23419.bundle",
+      "pathID": 4969218926158455221,
+      "name": "Lightnining_2x2",
+      "width": 512,
+      "height": 512,
+      "score": 118,
+      "reasons": [
+        "large-2d",
+        "quarter-megapixel",
+        "screen-plausible-aspect"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 23419,
+          "path": "Assets/_Art/Art/Effects/WorldScene/Texture/Lightnining_2x2.TGA",
+          "score": 54
+        },
+        {
+          "bundleId": 23419,
+          "path": "Assets/_Art/Art/Effects/WorldScene/Texture/Lightnining_2x2.TGA",
+          "score": 54
+        }
+      ]
+    },
+    {
+      "bundleId": 24927,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-24927.bundle",
+      "pathID": -6693520378629557211,
+      "name": "RainTex_S1",
+      "width": 512,
+      "height": 512,
+      "score": 118,
+      "reasons": [
+        "large-2d",
+        "quarter-megapixel",
+        "screen-plausible-aspect"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 24927,
+          "path": "Assets/_Art_LastWar/ArtAssetIncrement/Seasons/S1/LastWar_World_s1/WorldMap/texture/RainTex_S1.tga",
+          "score": 54
+        },
+        {
+          "bundleId": 24927,
+          "path": "Assets/_Art_LastWar/ArtAssetIncrement/Seasons/S1/LastWar_World_s1/WorldMap/texture/RainTex_S1.tga",
+          "score": 54
+        }
+      ]
+    },
+    {
+      "bundleId": 35975,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-35975.bundle",
+      "pathID": 7490093857507402476,
+      "name": "cloudtex_sky_jbl_1",
+      "width": 512,
+      "height": 512,
+      "score": 118,
+      "reasons": [
+        "large-2d",
+        "quarter-megapixel",
+        "screen-plausible-aspect"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 35975,
+          "path": "Assets/Main/3rdParty/VolumetricFog/Textures/cloudtex_sky_jbl_1.tga",
+          "score": 54
+        },
+        {
+          "bundleId": 35975,
+          "path": "Assets/Main/3rdParty/VolumetricFog/Textures/cloudtex_sky_jbl_1.tga",
+          "score": 54
+        }
+      ]
+    },
+    {
+      "bundleId": 26600,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-26600.bundle",
+      "pathID": -6371479750944982467,
+      "name": "SplatControl_City_3",
+      "width": 512,
+      "height": 512,
+      "score": 110,
+      "reasons": [
+        "background-like-name",
+        "small/effect-map-name-penalty",
+        "large-2d",
+        "quarter-megapixel",
+        "screen-plausible-aspect"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 26600,
+          "path": "Assets/_Art_LastWar/Map/LastWar_World/texture/SplatControl_City_3.tga",
+          "score": 54
+        },
+        {
+          "bundleId": 26600,
+          "path": "Assets/_Art_LastWar/Map/LastWar_World/texture/SplatControl_City_3.tga",
+          "score": 54
+        }
+      ]
+    },
+    {
+      "bundleId": 23730,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-23730.bundle",
+      "pathID": -6509320415310670498,
+      "name": "Terrain_splatmap_01",
+      "width": 512,
+      "height": 512,
+      "score": 110,
+      "reasons": [
+        "background-like-name",
+        "small/effect-map-name-penalty",
+        "large-2d",
+        "quarter-megapixel",
+        "screen-plausible-aspect"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 23730,
+          "path": "Assets/_Art/Splatmaps/Terrain_splatmap_01.png",
+          "score": 54
+        },
+        {
+          "bundleId": 23730,
+          "path": "Assets/_Art/Splatmaps/Terrain_splatmap_01.png",
+          "score": 54
+        }
+      ]
+    },
+    {
+      "bundleId": 23730,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-23730.bundle",
+      "pathID": 8957081593271217504,
+      "name": "Terrain_splatmap_05",
+      "width": 512,
+      "height": 512,
+      "score": 110,
+      "reasons": [
+        "background-like-name",
+        "small/effect-map-name-penalty",
+        "large-2d",
+        "quarter-megapixel",
+        "screen-plausible-aspect"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 23730,
+          "path": "Assets/_Art/Splatmaps/Terrain_splatmap_05.tga",
+          "score": 54
+        },
+        {
+          "bundleId": 23730,
+          "path": "Assets/_Art/Splatmaps/Terrain_splatmap_05.tga",
+          "score": 54
+        }
+      ]
+    },
+    {
+      "bundleId": 23730,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-23730.bundle",
+      "pathID": -6761543749971278338,
+      "name": "Terrain_splatmap_06_snowsj",
+      "width": 512,
+      "height": 512,
+      "score": 110,
+      "reasons": [
+        "background-like-name",
+        "small/effect-map-name-penalty",
+        "large-2d",
+        "quarter-megapixel",
+        "screen-plausible-aspect"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 23730,
+          "path": "Assets/_Art/Splatmaps/Terrain_splatmap_06_snowsj.tga",
+          "score": 54
+        },
+        {
+          "bundleId": 23730,
+          "path": "Assets/_Art/Splatmaps/Terrain_splatmap_06_snowsj.tga",
+          "score": 54
+        }
+      ]
+    },
+    {
+      "bundleId": 23730,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-23730.bundle",
+      "pathID": 5609718113573389355,
+      "name": "Terrain_splatmap_sj",
+      "width": 512,
+      "height": 512,
+      "score": 110,
+      "reasons": [
+        "background-like-name",
+        "small/effect-map-name-penalty",
+        "large-2d",
+        "quarter-megapixel",
+        "screen-plausible-aspect"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 23730,
+          "path": "Assets/_Art/Splatmaps/Terrain_splatmap_sj.tga",
+          "score": 54
+        },
+        {
+          "bundleId": 23730,
+          "path": "Assets/_Art/Splatmaps/Terrain_splatmap_sj.tga",
+          "score": 54
+        }
+      ]
+    },
+    {
+      "bundleId": 14169,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-14169.bundle",
+      "pathID": 5091782165520717565,
+      "name": "CtrlMap",
+      "width": 1024,
+      "height": 1024,
+      "score": 104,
+      "reasons": [
+        "background-like-name",
+        "large-2d",
+        "megapixel",
+        "screen-plausible-aspect"
+      ],
+      "indexSources": []
+    },
+    {
+      "bundleId": 35984,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-35984.bundle",
+      "pathID": -6394673848986494649,
+      "name": "checkbox_background_1",
+      "width": 50,
+      "height": 50,
+      "score": 100,
+      "reasons": [
+        "background-like-name"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 35984,
+          "path": "Assets/Main/Scripts/Common/UIExtension/SuperScrollView/Demo/Texture/checkbox_background_1.png",
+          "score": 72
+        },
+        {
+          "bundleId": 35984,
+          "path": "Assets/Main/Scripts/Common/UIExtension/SuperScrollView/Demo/Texture/checkbox_background_1.png",
+          "score": 72
+        }
+      ]
+    },
+    {
+      "bundleId": 14169,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-14169.bundle",
+      "pathID": 1428597221306116786,
+      "name": "Eff_tex_map_inst_levels",
+      "width": 740,
+      "height": 840,
+      "score": 92,
+      "reasons": [
+        "background-like-name",
+        "large-2d",
+        "quarter-megapixel",
+        "screen-plausible-aspect"
+      ],
+      "indexSources": []
+    },
+    {
+      "bundleId": 14169,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-14169.bundle",
+      "pathID": 6658329552418294702,
+      "name": "O_ground_zhucheng_01",
+      "width": 512,
+      "height": 512,
+      "score": 92,
+      "reasons": [
+        "background-like-name",
+        "large-2d",
+        "quarter-megapixel",
+        "screen-plausible-aspect"
+      ],
+      "indexSources": []
+    },
+    {
+      "bundleId": 14169,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-14169.bundle",
+      "pathID": -4856074216300845651,
+      "name": "O_terrain_desert_01_D_sj",
+      "width": 512,
+      "height": 512,
+      "score": 92,
+      "reasons": [
+        "background-like-name",
+        "large-2d",
+        "quarter-megapixel",
+        "screen-plausible-aspect"
+      ],
+      "indexSources": []
+    },
+    {
+      "bundleId": 14169,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-14169.bundle",
+      "pathID": -5632861549911020755,
+      "name": "O_terrain_desert_02_D_nsj",
+      "width": 512,
+      "height": 512,
+      "score": 92,
+      "reasons": [
+        "background-like-name",
+        "large-2d",
+        "quarter-megapixel",
+        "screen-plausible-aspect"
+      ],
+      "indexSources": []
+    },
+    {
+      "bundleId": 14169,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-14169.bundle",
+      "pathID": 6235552701177218880,
+      "name": "O_terrain_desert_02_D_sj",
+      "width": 512,
+      "height": 512,
+      "score": 92,
+      "reasons": [
+        "background-like-name",
+        "large-2d",
+        "quarter-megapixel",
+        "screen-plausible-aspect"
+      ],
+      "indexSources": []
+    },
+    {
+      "bundleId": 14169,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-14169.bundle",
+      "pathID": 6764603796244240607,
+      "name": "S1GroundGrass_Color _qg",
+      "width": 512,
+      "height": 512,
+      "score": 92,
+      "reasons": [
+        "background-like-name",
+        "large-2d",
+        "quarter-megapixel",
+        "screen-plausible-aspect"
+      ],
+      "indexSources": []
+    },
+    {
+      "bundleId": 23419,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-23419.bundle",
+      "pathID": 5273529420851139425,
+      "name": "Mask001",
+      "width": 512,
+      "height": 512,
+      "score": 82,
+      "reasons": [
+        "small/effect-map-name-penalty",
+        "large-2d",
+        "quarter-megapixel",
+        "screen-plausible-aspect"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 23419,
+          "path": "Assets/_Art/Art/Effects/WorldScene/Texture/Mask001.TGA",
+          "score": 54
+        },
+        {
+          "bundleId": 23419,
+          "path": "Assets/_Art/Art/Effects/WorldScene/Texture/Mask001.TGA",
+          "score": 54
+        }
+      ]
+    },
+    {
+      "bundleId": 23419,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-23419.bundle",
+      "pathID": 3350374352032274157,
+      "name": "Mask33",
+      "width": 512,
+      "height": 512,
+      "score": 82,
+      "reasons": [
+        "small/effect-map-name-penalty",
+        "large-2d",
+        "quarter-megapixel",
+        "screen-plausible-aspect"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 23419,
+          "path": "Assets/_Art/Art/Effects/WorldScene/Texture/Mask33.png",
+          "score": 54
+        },
+        {
+          "bundleId": 23419,
+          "path": "Assets/_Art/Art/Effects/WorldScene/Texture/Mask33.png",
+          "score": 54
+        }
+      ]
+    },
+    {
+      "bundleId": 23419,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-23419.bundle",
+      "pathID": -3996817999946133435,
+      "name": "Noise_Hexagon",
+      "width": 512,
+      "height": 512,
+      "score": 82,
+      "reasons": [
+        "small/effect-map-name-penalty",
+        "large-2d",
+        "quarter-megapixel",
+        "screen-plausible-aspect"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 23419,
+          "path": "Assets/_Art/Art/Effects/WorldScene/Texture/Noise_Hexagon.png",
+          "score": 54
+        },
+        {
+          "bundleId": 23419,
+          "path": "Assets/_Art/Art/Effects/WorldScene/Texture/Noise_Hexagon.png",
+          "score": 54
+        }
+      ]
+    },
+    {
+      "bundleId": 23419,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-23419.bundle",
+      "pathID": 7947409680177820857,
+      "name": "Noise_Pixel2",
+      "width": 512,
+      "height": 512,
+      "score": 82,
+      "reasons": [
+        "small/effect-map-name-penalty",
+        "large-2d",
+        "quarter-megapixel",
+        "screen-plausible-aspect"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 23419,
+          "path": "Assets/_Art/Art/Effects/WorldScene/Texture/Noise_Pixel2.TGA",
+          "score": 54
+        },
+        {
+          "bundleId": 23419,
+          "path": "Assets/_Art/Art/Effects/WorldScene/Texture/Noise_Pixel2.TGA",
+          "score": 54
+        }
+      ]
+    },
+    {
+      "bundleId": 23419,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-23419.bundle",
+      "pathID": 5413901475970050108,
+      "name": "Noise_cloudsmed",
+      "width": 512,
+      "height": 512,
+      "score": 82,
+      "reasons": [
+        "small/effect-map-name-penalty",
+        "large-2d",
+        "quarter-megapixel",
+        "screen-plausible-aspect"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 23419,
+          "path": "Assets/_Art/Art/Effects/WorldScene/Texture/Noise_cloudsmed.TGA",
+          "score": 54
+        },
+        {
+          "bundleId": 35975,
+          "path": "Assets/Main/3rdParty/VolumetricFog/Textures/Noise_cloudsmed.TGA",
+          "score": 54
+        },
+        {
+          "bundleId": 23419,
+          "path": "Assets/_Art/Art/Effects/WorldScene/Texture/Noise_cloudsmed.TGA",
+          "score": 54
+        },
+        {
+          "bundleId": 35975,
+          "path": "Assets/Main/3rdParty/VolumetricFog/Textures/Noise_cloudsmed.TGA",
+          "score": 54
+        }
+      ]
+    },
+    {
+      "bundleId": 23419,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-23419.bundle",
+      "pathID": -565151356464670218,
+      "name": "WangGe_Mask01",
+      "width": 512,
+      "height": 512,
+      "score": 82,
+      "reasons": [
+        "small/effect-map-name-penalty",
+        "large-2d",
+        "quarter-megapixel",
+        "screen-plausible-aspect"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 23419,
+          "path": "Assets/_Art/Art/Effects/WorldScene/Texture/WangGe_Mask01.TGA",
+          "score": 54
+        },
+        {
+          "bundleId": 23419,
+          "path": "Assets/_Art/Art/Effects/WorldScene/Texture/WangGe_Mask01.TGA",
+          "score": 54
+        }
+      ]
+    },
+    {
+      "bundleId": 35975,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-35975.bundle",
+      "pathID": 1605087622144755918,
+      "name": "fog_normal",
+      "width": 512,
+      "height": 512,
+      "score": 82,
+      "reasons": [
+        "small/effect-map-name-penalty",
+        "large-2d",
+        "quarter-megapixel",
+        "screen-plausible-aspect"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 35975,
+          "path": "Assets/Main/3rdParty/VolumetricFog/Textures/fog_normal.png",
+          "score": 54
+        },
+        {
+          "bundleId": 35975,
+          "path": "Assets/Main/3rdParty/VolumetricFog/Textures/fog_normal.png",
+          "score": 54
+        }
+      ]
+    },
+    {
+      "bundleId": 26519,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-26519.bundle",
+      "pathID": 3211886407283479135,
+      "name": "tex_Noise_s_055_22",
+      "width": 512,
+      "height": 512,
+      "score": 82,
+      "reasons": [
+        "small/effect-map-name-penalty",
+        "large-2d",
+        "quarter-megapixel",
+        "screen-plausible-aspect"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 26519,
+          "path": "Assets/_Art_LastWar/Effect/Texture/UI/DisplaySeasonScene/tex_Noise_s_055_22.png",
+          "score": 54
+        },
+        {
+          "bundleId": 26519,
+          "path": "Assets/_Art_LastWar/Effect/Texture/UI/DisplaySeasonScene/tex_Noise_s_055_22.png",
+          "score": 54
+        }
+      ]
+    },
+    {
+      "bundleId": 26519,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-26519.bundle",
+      "pathID": 4234781976088577703,
+      "name": "tex_Noise_s_083_35",
+      "width": 512,
+      "height": 512,
+      "score": 82,
+      "reasons": [
+        "small/effect-map-name-penalty",
+        "large-2d",
+        "quarter-megapixel",
+        "screen-plausible-aspect"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 26519,
+          "path": "Assets/_Art_LastWar/Effect/Texture/UI/DisplaySeasonScene/tex_Noise_s_083_35.png",
+          "score": 54
+        },
+        {
+          "bundleId": 26519,
+          "path": "Assets/_Art_LastWar/Effect/Texture/UI/DisplaySeasonScene/tex_Noise_s_083_35.png",
+          "score": 54
+        }
+      ]
+    },
+    {
+      "bundleId": 26597,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-26597.bundle",
+      "pathID": -7621061925384788848,
+      "name": "GrassMap01_basecolor",
+      "width": 256,
+      "height": 256,
+      "score": 82,
+      "reasons": [
+        "background-like-name"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 26597,
+          "path": "Assets/_Art_LastWar/Map/LastWar_World/texture/BigMap/GrassMap01_basecolor.png",
+          "score": 54
+        },
+        {
+          "bundleId": 26597,
+          "path": "Assets/_Art_LastWar/Map/LastWar_World/texture/BigMap/GrassMap01_basecolor.png",
+          "score": 54
+        }
+      ]
+    },
+    {
+      "bundleId": 23662,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-23662.bundle",
+      "pathID": 366320051472438647,
+      "name": "O_terrain_desert_01_011_D",
+      "width": 256,
+      "height": 256,
+      "score": 82,
+      "reasons": [
+        "background-like-name"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 23662,
+          "path": "Assets/_Art/Models/Environment/Map/Terrain/texture/O_terrain_desert_01_011_D.tga",
+          "score": 54
+        },
+        {
+          "bundleId": 23662,
+          "path": "Assets/_Art/Models/Environment/Map/Terrain/texture/O_terrain_desert_01_011_D.tga",
+          "score": 54
+        }
+      ]
+    },
+    {
+      "bundleId": 23662,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-23662.bundle",
+      "pathID": -5518437373861819486,
+      "name": "O_terrain_desert_01_011_low_D",
+      "width": 256,
+      "height": 256,
+      "score": 82,
+      "reasons": [
+        "background-like-name"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 23662,
+          "path": "Assets/_Art/Models/Environment/Map/Terrain/texture/O_terrain_desert_01_011_low_D.tga",
+          "score": 54
+        },
+        {
+          "bundleId": 23662,
+          "path": "Assets/_Art/Models/Environment/Map/Terrain/texture/O_terrain_desert_01_011_low_D.tga",
+          "score": 54
+        }
+      ]
+    },
+    {
+      "bundleId": 23662,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-23662.bundle",
+      "pathID": 6321387525360888376,
+      "name": "O_terrain_desert_01_01_D",
+      "width": 256,
+      "height": 256,
+      "score": 82,
+      "reasons": [
+        "background-like-name"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 23662,
+          "path": "Assets/_Art/Models/Environment/Map/Terrain/texture/O_terrain_desert_01_01_D.tga",
+          "score": 54
+        },
+        {
+          "bundleId": 23662,
+          "path": "Assets/_Art/Models/Environment/Map/Terrain/texture/O_terrain_desert_01_01_D.tga",
+          "score": 54
+        }
+      ]
+    },
+    {
+      "bundleId": 23662,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-23662.bundle",
+      "pathID": 8080929886983359699,
+      "name": "O_terrain_desert_01_02_D",
+      "width": 256,
+      "height": 256,
+      "score": 82,
+      "reasons": [
+        "background-like-name"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 23662,
+          "path": "Assets/_Art/Models/Environment/Map/Terrain/texture/O_terrain_desert_01_02_D.tga",
+          "score": 54
+        },
+        {
+          "bundleId": 23662,
+          "path": "Assets/_Art/Models/Environment/Map/Terrain/texture/O_terrain_desert_01_02_D.tga",
+          "score": 54
+        }
+      ]
+    },
+    {
+      "bundleId": 23662,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-23662.bundle",
+      "pathID": -1534823170340058664,
+      "name": "O_terrain_desert_01_02_low_D",
+      "width": 256,
+      "height": 256,
+      "score": 82,
+      "reasons": [
+        "background-like-name"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 23662,
+          "path": "Assets/_Art/Models/Environment/Map/Terrain/texture/O_terrain_desert_01_02_low_D.tga",
+          "score": 54
+        },
+        {
+          "bundleId": 23662,
+          "path": "Assets/_Art/Models/Environment/Map/Terrain/texture/O_terrain_desert_01_02_low_D.tga",
+          "score": 54
+        }
+      ]
+    },
+    {
+      "bundleId": 26596,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-26596.bundle",
+      "pathID": 5113780170500490810,
+      "name": "O_terrain_desert_01_n_sj",
+      "width": 256,
+      "height": 256,
+      "score": 82,
+      "reasons": [
+        "background-like-name"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 26596,
+          "path": "Assets/_Art_LastWar/Map/LastWar_World/shamo/O_terrain_desert_01_n_sj.tga",
+          "score": 54
+        },
+        {
+          "bundleId": 26596,
+          "path": "Assets/_Art_LastWar/Map/LastWar_World/shamo/O_terrain_desert_01_n_sj.tga",
+          "score": 54
+        }
+      ]
+    },
+    {
+      "bundleId": 26598,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-26598.bundle",
+      "pathID": -3271161321546898400,
+      "name": "S1GroundGrass_Color _blend",
+      "width": 256,
+      "height": 256,
+      "score": 82,
+      "reasons": [
+        "background-like-name"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 26598,
+          "path": "Assets/_Art_LastWar/Map/LastWar_World/texture/BigMap/NewS1/S1GroundGrass_Color _blend.png",
+          "score": 54
+        },
+        {
+          "bundleId": 26598,
+          "path": "Assets/_Art_LastWar/Map/LastWar_World/texture/BigMap/NewS1/S1GroundGrass_Color _blend.png",
+          "score": 54
+        }
+      ]
+    },
+    {
+      "bundleId": 26597,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-26597.bundle",
+      "pathID": 4586778888991601014,
+      "name": "T_Terrain_Grass_03_1",
+      "width": 256,
+      "height": 256,
+      "score": 82,
+      "reasons": [
+        "background-like-name"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 26597,
+          "path": "Assets/_Art_LastWar/Map/LastWar_World/texture/BigMap/T_Terrain_Grass_03_1.png",
+          "score": 54
+        },
+        {
+          "bundleId": 26597,
+          "path": "Assets/_Art_LastWar/Map/LastWar_World/texture/BigMap/T_Terrain_Grass_03_1.png",
+          "score": 54
+        }
+      ]
+    },
+    {
+      "bundleId": 26597,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-26597.bundle",
+      "pathID": 1605879015564831335,
+      "name": "T_Terrain_tu_03",
+      "width": 256,
+      "height": 256,
+      "score": 82,
+      "reasons": [
+        "background-like-name"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 26597,
+          "path": "Assets/_Art_LastWar/Map/LastWar_World/texture/BigMap/T_Terrain_tu_03.png",
+          "score": 54
+        },
+        {
+          "bundleId": 26597,
+          "path": "Assets/_Art_LastWar/Map/LastWar_World/texture/BigMap/T_Terrain_tu_03.png",
+          "score": 54
+        }
+      ]
+    },
+    {
+      "bundleId": 23431,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-23431.bundle",
+      "pathID": -334051560850714966,
+      "name": "UIAlliance_map_mark_03",
+      "width": 128,
+      "height": 128,
+      "score": 82,
+      "reasons": [
+        "background-like-name"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 1314,
+          "path": "Assets/Main/Sprites/UI/UIAllianceMark/UIAlliance_map_mark_03.png",
+          "score": 54
+        },
+        {
+          "bundleId": 1314,
+          "path": "Assets/Main/Sprites/UI/UIAllianceMark/UIAlliance_map_mark_03.png",
+          "score": 54
+        }
+      ]
+    },
+    {
+      "bundleId": 23452,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-23452.bundle",
+      "pathID": -5141595138022530931,
+      "name": "V_ui_worldbattle_",
+      "width": 32,
+      "height": 64,
+      "score": 82,
+      "reasons": [
+        "background-like-name"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 23452,
+          "path": "Assets/_Art/Effect/texture/V_ui_worldbattle_.tga",
+          "score": 54
+        },
+        {
+          "bundleId": 23452,
+          "path": "Assets/_Art/Effect/texture/V_ui_worldbattle_.tga",
+          "score": 54
+        }
+      ]
+    },
+    {
+      "bundleId": 14169,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-14169.bundle",
+      "pathID": -8688343299120838765,
+      "name": "Terrain_splatmap_nsj",
+      "width": 512,
+      "height": 512,
+      "score": 56,
+      "reasons": [
+        "background-like-name",
+        "small/effect-map-name-penalty",
+        "large-2d",
+        "quarter-megapixel",
+        "screen-plausible-aspect"
+      ],
+      "indexSources": []
+    },
+    {
+      "bundleId": 26597,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-26597.bundle",
+      "pathID": -2705270724174779230,
+      "name": "Dust01_1_basecolor",
+      "width": 256,
+      "height": 256,
+      "score": 54,
+      "reasons": [],
+      "indexSources": [
+        {
+          "bundleId": 26597,
+          "path": "Assets/_Art_LastWar/Map/LastWar_World/texture/BigMap/Dust01_1_basecolor.png",
+          "score": 54
+        },
+        {
+          "bundleId": 26597,
+          "path": "Assets/_Art_LastWar/Map/LastWar_World/texture/BigMap/Dust01_1_basecolor.png",
+          "score": 54
+        }
+      ]
+    },
+    {
+      "bundleId": 23494,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-23494.bundle",
+      "pathID": -7069618980551037691,
+      "name": "V_Cloud_Graypack_02",
+      "width": 256,
+      "height": 256,
+      "score": 54,
+      "reasons": [],
+      "indexSources": [
+        {
+          "bundleId": 23494,
+          "path": "Assets/_Art/Effect/texture/WorldOrder/V_Cloud_Graypack_02.TGA",
+          "score": 54
+        },
+        {
+          "bundleId": 23494,
+          "path": "Assets/_Art/Effect/texture/WorldOrder/V_Cloud_Graypack_02.TGA",
+          "score": 54
+        }
+      ]
+    },
+    {
+      "bundleId": 23494,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-23494.bundle",
+      "pathID": -1278237992393699538,
+      "name": "V_Ice_018_tex",
+      "width": 256,
+      "height": 256,
+      "score": 54,
+      "reasons": [],
+      "indexSources": [
+        {
+          "bundleId": 23494,
+          "path": "Assets/_Art/Effect/texture/WorldOrder/V_Ice_018_tex.TGA",
+          "score": 54
+        },
+        {
+          "bundleId": 23494,
+          "path": "Assets/_Art/Effect/texture/WorldOrder/V_Ice_018_tex.TGA",
+          "score": 54
+        }
+      ]
+    },
+    {
+      "bundleId": 23494,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-23494.bundle",
+      "pathID": 3506288937711185757,
+      "name": "V_Pattern_01",
+      "width": 256,
+      "height": 256,
+      "score": 54,
+      "reasons": [],
+      "indexSources": [
+        {
+          "bundleId": 23494,
+          "path": "Assets/_Art/Effect/texture/WorldOrder/V_Pattern_01.TGA",
+          "score": 54
+        },
+        {
+          "bundleId": 23494,
+          "path": "Assets/_Art/Effect/texture/WorldOrder/V_Pattern_01.TGA",
+          "score": 54
+        }
+      ]
+    },
+    {
+      "bundleId": 23494,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-23494.bundle",
+      "pathID": 8576528145373472872,
+      "name": "V_fx_exhaust1",
+      "width": 256,
+      "height": 256,
+      "score": 54,
+      "reasons": [],
+      "indexSources": [
+        {
+          "bundleId": 23494,
+          "path": "Assets/_Art/Effect/texture/WorldOrder/V_fx_exhaust1.TGA",
+          "score": 54
+        },
+        {
+          "bundleId": 23494,
+          "path": "Assets/_Art/Effect/texture/WorldOrder/V_fx_exhaust1.TGA",
+          "score": 54
+        }
+      ]
+    },
+    {
+      "bundleId": 23494,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-23494.bundle",
+      "pathID": -6881246468321455275,
+      "name": "V_jiabian_0000",
+      "width": 256,
+      "height": 256,
+      "score": 54,
+      "reasons": [],
+      "indexSources": [
+        {
+          "bundleId": 23494,
+          "path": "Assets/_Art/Effect/texture/WorldOrder/V_jiabian_0000.tga",
+          "score": 54
+        },
+        {
+          "bundleId": 23494,
+          "path": "Assets/_Art/Effect/texture/WorldOrder/V_jiabian_0000.tga",
+          "score": 54
+        }
+      ]
+    },
+    {
+      "bundleId": 35975,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-35975.bundle",
+      "pathID": 7134020019242738586,
+      "name": "cloudtex",
+      "width": 256,
+      "height": 256,
+      "score": 54,
+      "reasons": [],
+      "indexSources": [
+        {
+          "bundleId": 35975,
+          "path": "Assets/Main/3rdParty/VolumetricFog/Textures/cloudtex.tga",
+          "score": 54
+        },
+        {
+          "bundleId": 35975,
+          "path": "Assets/Main/3rdParty/VolumetricFog/Textures/cloudtex.tga",
+          "score": 54
+        }
+      ]
+    },
+    {
+      "bundleId": 35975,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-35975.bundle",
+      "pathID": -4167869329664676505,
+      "name": "cloudtex_S5",
+      "width": 256,
+      "height": 256,
+      "score": 54,
+      "reasons": [],
+      "indexSources": [
+        {
+          "bundleId": 35975,
+          "path": "Assets/Main/3rdParty/VolumetricFog/Textures/cloudtex_S5.tga",
+          "score": 54
+        },
+        {
+          "bundleId": 35975,
+          "path": "Assets/Main/3rdParty/VolumetricFog/Textures/cloudtex_S5.tga",
+          "score": 54
+        }
+      ]
+    },
+    {
+      "bundleId": 35975,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-35975.bundle",
+      "pathID": -3795727476938153834,
+      "name": "cloudtex_s3",
+      "width": 256,
+      "height": 256,
+      "score": 54,
+      "reasons": [],
+      "indexSources": [
+        {
+          "bundleId": 35975,
+          "path": "Assets/Main/3rdParty/VolumetricFog/Textures/cloudtex_s3.tga",
+          "score": 54
+        },
+        {
+          "bundleId": 35975,
+          "path": "Assets/Main/3rdParty/VolumetricFog/Textures/cloudtex_s3.tga",
+          "score": 54
+        }
+      ]
+    },
+    {
+      "bundleId": 35975,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-35975.bundle",
+      "pathID": -5097311480531858879,
+      "name": "cloudtex_sj",
+      "width": 256,
+      "height": 256,
+      "score": 54,
+      "reasons": [],
+      "indexSources": [
+        {
+          "bundleId": 35975,
+          "path": "Assets/Main/3rdParty/VolumetricFog/Textures/cloudtex_sj.tga",
+          "score": 54
+        },
+        {
+          "bundleId": 35975,
+          "path": "Assets/Main/3rdParty/VolumetricFog/Textures/cloudtex_sj.tga",
+          "score": 54
+        }
+      ]
+    },
+    {
+      "bundleId": 23419,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-23419.bundle",
+      "pathID": 296032285326310510,
+      "name": "guangtiao",
+      "width": 64,
+      "height": 64,
+      "score": 54,
+      "reasons": [],
+      "indexSources": [
+        {
+          "bundleId": 23419,
+          "path": "Assets/_Art/Art/Effects/WorldScene/Texture/guangtiao.TGA",
+          "score": 54
+        },
+        {
+          "bundleId": 23419,
+          "path": "Assets/_Art/Art/Effects/WorldScene/Texture/guangtiao.TGA",
+          "score": 54
+        }
+      ]
+    },
+    {
+      "bundleId": 29106,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-29106.bundle",
+      "pathID": 2926664505625091431,
+      "name": "LXY_pifujiazai_01",
+      "width": 62,
+      "height": 62,
+      "score": 54,
+      "reasons": [],
+      "indexSources": [
+        {
+          "bundleId": 29106,
+          "path": "Assets/_Art_LastWar/Models_New/Environment/Other/CitySkinLoading/LXY_pifujiazai_01.png",
+          "score": 54
+        },
+        {
+          "bundleId": 29106,
+          "path": "Assets/_Art_LastWar/Models_New/Environment/Other/CitySkinLoading/LXY_pifujiazai_01.png",
+          "score": 54
+        }
+      ]
+    },
+    {
+      "bundleId": 26431,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-26431.bundle",
+      "pathID": -5823398316159063583,
+      "name": "Eff_tex_S_noise_WorldMonster_Boss_01",
+      "width": 256,
+      "height": 256,
+      "score": 46,
+      "reasons": [
+        "background-like-name",
+        "small/effect-map-name-penalty"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 26431,
+          "path": "Assets/_Art_LastWar/Effect/Texture/Noise/Eff_tex_S_noise_WorldMonster_Boss_01.png",
+          "score": 54
+        },
+        {
+          "bundleId": 26431,
+          "path": "Assets/_Art_LastWar/Effect/Texture/Noise/Eff_tex_S_noise_WorldMonster_Boss_01.png",
+          "score": 54
+        }
+      ]
+    },
+    {
+      "bundleId": 26431,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-26431.bundle",
+      "pathID": 2307111300326950155,
+      "name": "Eff_tex_S_noise_WorldMonster_Boss_03",
+      "width": 256,
+      "height": 256,
+      "score": 46,
+      "reasons": [
+        "background-like-name",
+        "small/effect-map-name-penalty"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 26431,
+          "path": "Assets/_Art_LastWar/Effect/Texture/Noise/Eff_tex_S_noise_WorldMonster_Boss_03.png",
+          "score": 54
+        },
+        {
+          "bundleId": 26431,
+          "path": "Assets/_Art_LastWar/Effect/Texture/Noise/Eff_tex_S_noise_WorldMonster_Boss_03.png",
+          "score": 54
+        }
+      ]
+    },
+    {
+      "bundleId": 26597,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-26597.bundle",
+      "pathID": -3563332619181407105,
+      "name": "GrassMap01_normal",
+      "width": 256,
+      "height": 256,
+      "score": 46,
+      "reasons": [
+        "background-like-name",
+        "small/effect-map-name-penalty"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 26597,
+          "path": "Assets/_Art_LastWar/Map/LastWar_World/texture/BigMap/GrassMap01_normal.png",
+          "score": 54
+        },
+        {
+          "bundleId": 26597,
+          "path": "Assets/_Art_LastWar/Map/LastWar_World/texture/BigMap/GrassMap01_normal.png",
+          "score": 54
+        }
+      ]
+    },
+    {
+      "bundleId": 9520,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-9520.bundle",
+      "pathID": 7297137374267909403,
+      "name": "SplatControl_City",
+      "width": 256,
+      "height": 256,
+      "score": 46,
+      "reasons": [
+        "background-like-name",
+        "small/effect-map-name-penalty"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 9520,
+          "path": "Assets/Main/Texture/TerrainMars/SplatControl_City.png",
+          "score": 54
+        },
+        {
+          "bundleId": 9520,
+          "path": "Assets/Main/Texture/TerrainMars/SplatControl_City.png",
+          "score": 54
+        }
+      ]
+    },
+    {
+      "bundleId": 9520,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-9520.bundle",
+      "pathID": 2117584391649412645,
+      "name": "SplatControl_World",
+      "width": 256,
+      "height": 256,
+      "score": 46,
+      "reasons": [
+        "background-like-name",
+        "small/effect-map-name-penalty"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 9520,
+          "path": "Assets/Main/Texture/TerrainMars/SplatControl_World.png",
+          "score": 54
+        },
+        {
+          "bundleId": 9520,
+          "path": "Assets/Main/Texture/TerrainMars/SplatControl_World.png",
+          "score": 54
+        }
+      ]
+    },
+    {
+      "bundleId": 26597,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-26597.bundle",
+      "pathID": 5608985405275211649,
+      "name": "T_Terrain_Grass_03_Normal",
+      "width": 256,
+      "height": 256,
+      "score": 46,
+      "reasons": [
+        "background-like-name",
+        "small/effect-map-name-penalty"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 26597,
+          "path": "Assets/_Art_LastWar/Map/LastWar_World/texture/BigMap/T_Terrain_Grass_03_Normal.png",
+          "score": 54
+        },
+        {
+          "bundleId": 26597,
+          "path": "Assets/_Art_LastWar/Map/LastWar_World/texture/BigMap/T_Terrain_Grass_03_Normal.png",
+          "score": 54
+        }
+      ]
+    },
+    {
+      "bundleId": 26597,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-26597.bundle",
+      "pathID": -1359287044773899078,
+      "name": "T_Terrain_tu_03_normal",
+      "width": 256,
+      "height": 256,
+      "score": 46,
+      "reasons": [
+        "background-like-name",
+        "small/effect-map-name-penalty"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 26597,
+          "path": "Assets/_Art_LastWar/Map/LastWar_World/texture/BigMap/T_Terrain_tu_03_normal.png",
+          "score": 54
+        },
+        {
+          "bundleId": 26597,
+          "path": "Assets/_Art_LastWar/Map/LastWar_World/texture/BigMap/T_Terrain_tu_03_normal.png",
+          "score": 54
+        }
+      ]
+    },
+    {
+      "bundleId": 26410,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-26410.bundle",
+      "pathID": -4252620064143834529,
+      "name": "mask_map",
+      "width": 256,
+      "height": 256,
+      "score": 46,
+      "reasons": [
+        "background-like-name",
+        "small/effect-map-name-penalty"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 26410,
+          "path": "Assets/_Art_LastWar/Effect/Texture/Mask/mask_map.png",
+          "score": 54
+        },
+        {
+          "bundleId": 26410,
+          "path": "Assets/_Art_LastWar/Effect/Texture/Mask/mask_map.png",
+          "score": 54
+        }
+      ]
+    },
+    {
+      "bundleId": 26431,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-26431.bundle",
+      "pathID": -3535052938440737181,
+      "name": "Eff_tex_S_noise_WorldMonster_Boss_02",
+      "width": 128,
+      "height": 128,
+      "score": 46,
+      "reasons": [
+        "background-like-name",
+        "small/effect-map-name-penalty"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 26431,
+          "path": "Assets/_Art_LastWar/Effect/Texture/Noise/Eff_tex_S_noise_WorldMonster_Boss_02.png",
+          "score": 54
+        },
+        {
+          "bundleId": 26431,
+          "path": "Assets/_Art_LastWar/Effect/Texture/Noise/Eff_tex_S_noise_WorldMonster_Boss_02.png",
+          "score": 54
+        }
+      ]
+    },
+    {
+      "bundleId": 26364,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-26364.bundle",
+      "pathID": 8517533824098885572,
+      "name": "Eff_tex_s_decal_WorldMonster_Boss_01",
+      "width": 128,
+      "height": 128,
+      "score": 46,
+      "reasons": [
+        "background-like-name",
+        "small/effect-map-name-penalty"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 26364,
+          "path": "Assets/_Art_LastWar/Effect/Texture/Decal/Eff_tex_s_decal_WorldMonster_Boss_01.png",
+          "score": 54
+        },
+        {
+          "bundleId": 26364,
+          "path": "Assets/_Art_LastWar/Effect/Texture/Decal/Eff_tex_s_decal_WorldMonster_Boss_01.png",
+          "score": 54
+        }
+      ]
+    },
+    {
+      "bundleId": 23479,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-23479.bundle",
+      "pathID": 4998251580606760169,
+      "name": "ui_acticity_house_glow",
+      "width": 128,
+      "height": 128,
+      "score": 46,
+      "reasons": [
+        "background-like-name",
+        "small/effect-map-name-penalty"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 23479,
+          "path": "Assets/_Art/Effect/texture/V_ui/V_ui_chuanhuji/ui_acticity_house_glow.png",
+          "score": 54
+        },
+        {
+          "bundleId": 23479,
+          "path": "Assets/_Art/Effect/texture/V_ui/V_ui_chuanhuji/ui_acticity_house_glow.png",
+          "score": 54
+        }
+      ]
+    },
+    {
+      "bundleId": 110,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-110.bundle",
+      "pathID": 854590123805539952,
+      "name": "daoju_building_103302000",
+      "width": 156,
+      "height": 156,
+      "score": 30,
+      "reasons": [],
+      "indexSources": [
+        {
+          "bundleId": 110,
+          "path": "Assets/Main/Sprites/ItemIcons/daoju_building_103302000.png",
+          "score": 30
+        }
+      ]
+    },
+    {
+      "bundleId": 110,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-110.bundle",
+      "pathID": 5933646070929196440,
+      "name": "daoju_building_103502000",
+      "width": 156,
+      "height": 156,
+      "score": 30,
+      "reasons": [],
+      "indexSources": [
+        {
+          "bundleId": 110,
+          "path": "Assets/Main/Sprites/ItemIcons/daoju_building_103502000.png",
+          "score": 30
+        }
+      ]
+    },
+    {
+      "bundleId": 110,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-110.bundle",
+      "pathID": 4788066392414748580,
+      "name": "ljq_manyuejie_zixuanbaoxiang_05",
+      "width": 156,
+      "height": 156,
+      "score": 30,
+      "reasons": [],
+      "indexSources": [
+        {
+          "bundleId": 110,
+          "path": "Assets/Main/Sprites/ItemIcons/ljq_manyuejie_zixuanbaoxiang_05.png",
+          "score": 30
+        }
+      ]
+    },
+    {
+      "bundleId": 110,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-110.bundle",
+      "pathID": 3937897310007082414,
+      "name": "ljq_manyuejie_zixuanbaoxiang_yin_04",
+      "width": 156,
+      "height": 156,
+      "score": 30,
+      "reasons": [],
+      "indexSources": [
+        {
+          "bundleId": 110,
+          "path": "Assets/Main/Sprites/ItemIcons/ljq_manyuejie_zixuanbaoxiang_yin_04.png",
+          "score": 30
+        }
+      ]
+    },
+    {
+      "bundleId": 102,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-102.bundle",
+      "pathID": -7259796839482710912,
+      "name": "ljq_qrj_buff_06",
+      "width": 156,
+      "height": 156,
+      "score": 30,
+      "reasons": [],
+      "indexSources": [
+        {
+          "bundleId": 102,
+          "path": "Assets/Main/Sprites/ItemIcons/ljq_qrj_buff_06.png",
+          "score": 30
+        }
+      ]
+    },
+    {
+      "bundleId": 110,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-110.bundle",
+      "pathID": 3492406818206967851,
+      "name": "lrb_liwudaibi_daojv",
+      "width": 156,
+      "height": 156,
+      "score": 30,
+      "reasons": [],
+      "indexSources": [
+        {
+          "bundleId": 110,
+          "path": "Assets/Main/Sprites/ItemIcons/lrb_liwudaibi_daojv.png",
+          "score": 30
+        }
+      ]
+    },
+    {
+      "bundleId": 110,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-110.bundle",
+      "pathID": 342678229551964833,
+      "name": "lyt_S6_wujisuofang_9",
+      "width": 156,
+      "height": 156,
+      "score": 30,
+      "reasons": [],
+      "indexSources": [
+        {
+          "bundleId": 110,
+          "path": "Assets/Main/Sprites/ItemIcons/lyt_S6_wujisuofang_9.png",
+          "score": 30
+        }
+      ]
+    },
+    {
+      "bundleId": 26251,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-26251.bundle",
+      "pathID": -1243976273452843853,
+      "name": "lrb_dafuweng_gezi_new05",
+      "width": 125,
+      "height": 117,
+      "score": 30,
+      "reasons": [],
+      "indexSources": [
+        {
+          "bundleId": 1135,
+          "path": "Assets/Main/Sprites/UI/UIActMonopoly/Base/lrb_dafuweng_gezi_new05.png",
+          "score": 30
+        }
+      ]
+    },
+    {
+      "bundleId": 26251,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-26251.bundle",
+      "pathID": -8789298992598724079,
+      "name": "lrb_dafuweng_gezi_new07",
+      "width": 125,
+      "height": 117,
+      "score": 30,
+      "reasons": [],
+      "indexSources": [
+        {
+          "bundleId": 1135,
+          "path": "Assets/Main/Sprites/UI/UIActMonopoly/Base/lrb_dafuweng_gezi_new07.png",
+          "score": 30
+        }
+      ]
+    },
+    {
+      "bundleId": 102,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-102.bundle",
+      "pathID": -1186504489457386681,
+      "name": "zxl_zhuangshiwu_zhihuan",
+      "width": 78,
+      "height": 84,
+      "score": 30,
+      "reasons": [],
+      "indexSources": [
+        {
+          "bundleId": 102,
+          "path": "Assets/Main/Sprites/ItemIcons/zxl_zhuangshiwu_zhihuan.png",
+          "score": 30
+        }
+      ]
+    },
+    {
+      "bundleId": 102,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-102.bundle",
+      "pathID": 3978971338263872627,
+      "name": "cfm_huodong_xinshouleichong_tubiao_nengliangjingshi",
+      "width": 60,
+      "height": 72,
+      "score": 30,
+      "reasons": [],
+      "indexSources": [
+        {
+          "bundleId": 102,
+          "path": "Assets/Main/Sprites/ItemIcons/cfm_huodong_xinshouleichong_tubiao_nengliangjingshi.png",
+          "score": 30
+        }
+      ]
+    },
+    {
+      "bundleId": 26251,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-26251.bundle",
+      "pathID": 4079458107295595291,
+      "name": "lrb_gerenxinxi_dianzan",
+      "width": 41,
+      "height": 34,
+      "score": 30,
+      "reasons": [],
+      "indexSources": [
+        {
+          "bundleId": 1057,
+          "path": "Assets/Main/Sprites/UI/LWPlayerInfo/Sprite/New/lrb_gerenxinxi_dianzan.png",
+          "score": 30
+        }
+      ]
+    },
+    {
+      "bundleId": 14169,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-14169.bundle",
+      "pathID": -1533204324004167039,
+      "name": "happyWorldMonster",
+      "width": 440,
+      "height": 330,
+      "score": 28,
+      "reasons": [
+        "background-like-name"
+      ],
+      "indexSources": []
+    },
+    {
+      "bundleId": 14169,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-14169.bundle",
+      "pathID": 6675241085504384871,
+      "name": "O_terrain_desert_02",
+      "width": 256,
+      "height": 256,
+      "score": 28,
+      "reasons": [
+        "background-like-name"
+      ],
+      "indexSources": []
+    },
+    {
+      "bundleId": 14169,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-14169.bundle",
+      "pathID": -5734539702599201733,
+      "name": "S1GroundDust_Color",
+      "width": 256,
+      "height": 256,
+      "score": 28,
+      "reasons": [
+        "background-like-name"
+      ],
+      "indexSources": []
+    },
+    {
+      "bundleId": 14169,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-14169.bundle",
+      "pathID": 2962628003282460425,
+      "name": "S1GroundDust_New_Nomal",
+      "width": 256,
+      "height": 256,
+      "score": 28,
+      "reasons": [
+        "background-like-name"
+      ],
+      "indexSources": []
+    },
+    {
+      "bundleId": 14169,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-14169.bundle",
+      "pathID": -5972954868824932929,
+      "name": "S1GroundGrass_Color",
+      "width": 256,
+      "height": 256,
+      "score": 28,
+      "reasons": [
+        "background-like-name"
+      ],
+      "indexSources": []
+    },
+    {
+      "bundleId": 14169,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-14169.bundle",
+      "pathID": -1039684113962580654,
+      "name": "S1GroundGrass_New_Grass",
+      "width": 256,
+      "height": 256,
+      "score": 28,
+      "reasons": [
+        "background-like-name"
+      ],
+      "indexSources": []
+    },
+    {
+      "bundleId": 14169,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-14169.bundle",
+      "pathID": 9119965547790278152,
+      "name": "Eff_tex_map_grid",
+      "width": 336,
+      "height": 128,
+      "score": 28,
+      "reasons": [
+        "background-like-name"
+      ],
+      "indexSources": []
+    },
+    {
+      "bundleId": 14169,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-14169.bundle",
+      "pathID": 192718381197053273,
+      "name": "Eff_tex_map_troop_circle",
+      "width": 128,
+      "height": 128,
+      "score": 28,
+      "reasons": [
+        "background-like-name"
+      ],
+      "indexSources": []
+    },
+    {
+      "bundleId": 10209,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-10209.bundle",
+      "pathID": -6324825955582578474,
+      "name": "cfm_tongyon_quanping_di",
+      "width": 10,
+      "height": 1440,
+      "score": 28,
+      "reasons": [
+        "background-like-name"
+      ],
+      "indexSources": []
+    },
+    {
+      "bundleId": 9275,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-9275.bundle",
+      "pathID": 4136432761165563247,
+      "name": "zyf_chengchixnxi_bantou_diban",
+      "width": 45,
+      "height": 44,
+      "score": 28,
+      "reasons": [
+        "background-like-name"
+      ],
+      "indexSources": []
+    },
+    {
+      "bundleId": 14169,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-14169.bundle",
+      "pathID": 8037799753634380068,
+      "name": "Eff_tex_map_troop_line_end",
+      "width": 33,
+      "height": 33,
+      "score": 28,
+      "reasons": [
+        "background-like-name"
+      ],
+      "indexSources": []
+    },
+    {
+      "bundleId": 10209,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-10209.bundle",
+      "pathID": -614870473754111817,
+      "name": "cfm_tongyon_quanping_di_2",
+      "width": 10,
+      "height": 90,
+      "score": 28,
+      "reasons": [
+        "background-like-name"
+      ],
+      "indexSources": []
+    },
+    {
+      "bundleId": 9275,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-9275.bundle",
+      "pathID": -8537329574022395766,
+      "name": "zyf_gongcheng_erji_diban",
+      "width": 26,
+      "height": 26,
+      "score": 28,
+      "reasons": [
+        "background-like-name"
+      ],
+      "indexSources": []
+    },
+    {
+      "bundleId": 26597,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-26597.bundle",
+      "pathID": 3044217485611892897,
+      "name": "Dust01_1_normal",
+      "width": 256,
+      "height": 256,
+      "score": 18,
+      "reasons": [
+        "small/effect-map-name-penalty"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 26597,
+          "path": "Assets/_Art_LastWar/Map/LastWar_World/texture/BigMap/Dust01_1_normal.png",
+          "score": 54
+        },
+        {
+          "bundleId": 26597,
+          "path": "Assets/_Art_LastWar/Map/LastWar_World/texture/BigMap/Dust01_1_normal.png",
+          "score": 54
+        }
+      ]
+    },
+    {
+      "bundleId": 23419,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-23419.bundle",
+      "pathID": 5832802174619777124,
+      "name": "LBX_height",
+      "width": 256,
+      "height": 256,
+      "score": 18,
+      "reasons": [
+        "small/effect-map-name-penalty"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 23419,
+          "path": "Assets/_Art/Art/Effects/WorldScene/Texture/LBX_height.TGA",
+          "score": 54
+        },
+        {
+          "bundleId": 23419,
+          "path": "Assets/_Art/Art/Effects/WorldScene/Texture/LBX_height.TGA",
+          "score": 54
+        }
+      ]
+    },
+    {
+      "bundleId": 35975,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-35975.bundle",
+      "pathID": 8772843119495424248,
+      "name": "NoiseTex256",
+      "width": 256,
+      "height": 256,
+      "score": 18,
+      "reasons": [
+        "small/effect-map-name-penalty"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 35975,
+          "path": "Assets/Main/3rdParty/VolumetricFog/Textures/NoiseTex256.png",
+          "score": 54
+        },
+        {
+          "bundleId": 35975,
+          "path": "Assets/Main/3rdParty/VolumetricFog/Textures/NoiseTex256.png",
+          "score": 54
+        }
+      ]
+    },
+    {
+      "bundleId": 23419,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-23419.bundle",
+      "pathID": 4406857561156038464,
+      "name": "Trail25",
+      "width": 256,
+      "height": 256,
+      "score": 18,
+      "reasons": [
+        "small/effect-map-name-penalty"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 23419,
+          "path": "Assets/_Art/Art/Effects/WorldScene/Texture/Trail25.png",
+          "score": 54
+        },
+        {
+          "bundleId": 23419,
+          "path": "Assets/_Art/Art/Effects/WorldScene/Texture/Trail25.png",
+          "score": 54
+        }
+      ]
+    },
+    {
+      "bundleId": 23494,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-23494.bundle",
+      "pathID": -2476798979304248412,
+      "name": "V_CFX2_T_GlowSoft",
+      "width": 256,
+      "height": 256,
+      "score": 18,
+      "reasons": [
+        "small/effect-map-name-penalty"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 23494,
+          "path": "Assets/_Art/Effect/texture/WorldOrder/V_CFX2_T_GlowSoft.png",
+          "score": 54
+        },
+        {
+          "bundleId": 23494,
+          "path": "Assets/_Art/Effect/texture/WorldOrder/V_CFX2_T_GlowSoft.png",
+          "score": 54
+        }
+      ]
+    },
+    {
+      "bundleId": 23494,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-23494.bundle",
+      "pathID": -5648902604441715675,
+      "name": "V_Noise02",
+      "width": 256,
+      "height": 256,
+      "score": 18,
+      "reasons": [
+        "small/effect-map-name-penalty"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 23494,
+          "path": "Assets/_Art/Effect/texture/WorldOrder/V_Noise02.TGA",
+          "score": 54
+        },
+        {
+          "bundleId": 23494,
+          "path": "Assets/_Art/Effect/texture/WorldOrder/V_Noise02.TGA",
+          "score": 54
+        }
+      ]
+    },
+    {
+      "bundleId": 23494,
+      "bundlePath": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/lastwar-formation-ptr-exact-v4/bundles/bundle-23494.bundle",
+      "pathID": -6067605184149148795,
+      "name": "V_NoiseFuzzy",
+      "width": 256,
+      "height": 256,
+      "score": 18,
+      "reasons": [
+        "small/effect-map-name-penalty"
+      ],
+      "indexSources": [
+        {
+          "bundleId": 23494,
+          "path": "Assets/_Art/Effect/texture/WorldOrder/V_NoiseFuzzy.TGA",
+          "score": 54
+        },
+        {
+          "bundleId": 23494,
+          "path": "Assets/_Art/Effect/texture/WorldOrder/V_NoiseFuzzy.TGA",
+          "score": 54
+        }
+      ]
+    }
+  ],
+  "exportedCandidates": [],
+  "bundleErrors": [],
+  "contactSheet": null,
+  "conclusion": {
+    "nextStrategy": "human_compare_exported_exact_textures_to_real_formation_capture",
+    "fixedTextureHypothesisStillOpen": true
+  },
+  "guardrails": {
+    "exactFormationClosureOnly": true,
+    "currentBuildCachedBundlesOnly": true,
+    "apkRead": false,
+    "historicalOffsetsReused": false,
+    "candidatePromotion": false,
+    "mainUntouched": true,
+    "previewUntouched": true
+  }
+}
