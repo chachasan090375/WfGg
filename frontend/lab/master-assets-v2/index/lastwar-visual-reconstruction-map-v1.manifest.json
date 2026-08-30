@@ -1,0 +1,19 @@
+{
+  "format": "WFGG_LASTWAR_VISUAL_RECONSTRUCTION_MAP_PACK_V1",
+  "codec": "gzip",
+  "maxPartBytes": 50331648,
+  "rawFileName": "lastwar-visual-reconstruction-map-v1.json",
+  "uncompressedBytes": 277228416,
+  "uncompressedSha256": "6e6d4ccab3330f10d13591c6c1b348a3be69e93615c00c7e34cb2a4b0c97f3b0",
+  "compressedBytes": 21266928,
+  "compressedSha256": "1d56a74a6388b2109a36f710d3100cf5c88d46ecc14c79e683224a8e98a733a5",
+  "parts": [
+    {
+      "name": "part-000.bin",
+      "bytes": 21266928,
+      "sha256": "1d56a74a6388b2109a36f710d3100cf5c88d46ecc14c79e683224a8e98a733a5"
+    }
+  ],
+  "loadRule": "Concatenate parts in listed order, verify compressed SHA256, gzip-decompress, verify uncompressed SHA256, then parse JSON.",
+  "githubSafe": true
+}
