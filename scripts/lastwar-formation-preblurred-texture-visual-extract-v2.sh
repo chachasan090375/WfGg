@@ -43,9 +43,9 @@ except Exception:
 PY
 )"
 
-if [[ "$VENV_VER" != "1.24.1" ]]; then
-  echo "FORMATION_TEXTURE_V2_INSTALL UnityPy=1.24.1 isolated=$VENV"
-  if ! "$VENV/bin/python" -m pip install --disable-pip-version-check --upgrade 'UnityPy==1.24.1' Pillow >"$PIPLOG" 2>&1; then
+if [[ "$VENV_VER" != "1.24.2" ]]; then
+  echo "FORMATION_TEXTURE_V2_INSTALL UnityPy=1.24.2 isolated=$VENV"
+  if ! "$VENV/bin/python" -m pip install --disable-pip-version-check --upgrade 'UnityPy==1.24.2' Pillow >"$PIPLOG" 2>&1; then
     echo "--- pip tail ---" >&2
     tail -n 40 "$PIPLOG" >&2 || true
     fail "installation UnityPy isolée échouée; log=$PIPLOG"
@@ -57,7 +57,7 @@ import UnityPy
 print(getattr(UnityPy,'__version__','unknown'))
 PY
 )"
-[[ "$VENV_VER" == "1.24.1" ]] || fail "UnityPy isolé inattendu: $VENV_VER"
+[[ "$VENV_VER" == "1.24.2" ]] || fail "UnityPy isolé inattendu: $VENV_VER"
 
 $VENV/bin/python - <<'PYCHK' >/dev/null 2>&1 || fail "UnityPy/Pillow isolés incomplets"
 import UnityPy
