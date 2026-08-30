@@ -1,0 +1,2506 @@
+{
+  "format": "WFGG_LASTWAR_ASSEMBLY_CSHARP_MDL_AUDIT_V1",
+  "found": true,
+  "networkUsed": false,
+  "generatedArtwork": false,
+  "source": {
+    "apk": "/data/app/~~a_LFGwveyIoZeWhf-mR3yw==/com.fun.lastwar.gp-990XEbeiHGsmDX-JvOD69Q==/split_install_time_pack.apk",
+    "entry": "assets/Assemblies/Assembly-CSharp.mdl",
+    "bytes": 15303168,
+    "path": "/data/data/com.termux/files/usr/tmp/wfgg-assembly-csharp-mdl-audit/Assembly-CSharp.mdl"
+  },
+  "sha256": "2e82738c43c74f3a6c03e488ebdd9c3f1740477244d604c0f581b40bd1daa58a",
+  "bytes": 15303168,
+  "headerHex": "5e4983131013131317131313ecec1313ab13130000000000400000000000000000000000000000000000000000000000000000000000000000000000800000000e1fba0e00b409cd21b8014ccd21546869732070726f6772616d2063616e6e6f742062652072756e20696e20444f53206d6f64652e0d0d0a2400000000000000",
+  "headerAscii": "^I......................@...............................................!..L.!This program cannot be run in DOS mode....$.......",
+  "entropy": 5.82493,
+  "entropyBlocks1MiB": [
+    {
+      "offset": 0,
+      "bytes": 1048576,
+      "entropy": 5.93326
+    },
+    {
+      "offset": 1048576,
+      "bytes": 1048576,
+      "entropy": 5.8294
+    },
+    {
+      "offset": 2097152,
+      "bytes": 1048576,
+      "entropy": 5.47923
+    },
+    {
+      "offset": 3145728,
+      "bytes": 1048576,
+      "entropy": 5.73821
+    },
+    {
+      "offset": 4194304,
+      "bytes": 1048576,
+      "entropy": 6.0333
+    },
+    {
+      "offset": 5242880,
+      "bytes": 1048576,
+      "entropy": 5.59846
+    },
+    {
+      "offset": 6291456,
+      "bytes": 1048576,
+      "entropy": 4.88352
+    },
+    {
+      "offset": 7340032,
+      "bytes": 1048576,
+      "entropy": 5.86729
+    },
+    {
+      "offset": 8388608,
+      "bytes": 1048576,
+      "entropy": 4.13102
+    },
+    {
+      "offset": 9437184,
+      "bytes": 1048576,
+      "entropy": 5.4948
+    },
+    {
+      "offset": 10485760,
+      "bytes": 1048576,
+      "entropy": 5.18479
+    },
+    {
+      "offset": 11534336,
+      "bytes": 1048576,
+      "entropy": 5.3456
+    },
+    {
+      "offset": 12582912,
+      "bytes": 1048576,
+      "entropy": 4.94049
+    },
+    {
+      "offset": 13631488,
+      "bytes": 1048576,
+      "entropy": 5.3231
+    },
+    {
+      "offset": 14680064,
+      "bytes": 623104,
+      "entropy": 4.96841
+    }
+  ],
+  "signatureHits": {
+    "MZ": [
+      84071,
+      1217769,
+      2631132,
+      5028791,
+      5258000,
+      5386374,
+      5997400,
+      7549624,
+      10393540,
+      10498564,
+      10713774,
+      10713782,
+      11334949,
+      11337782,
+      11533725,
+      11603524,
+      11604988,
+      11825245,
+      12086237,
+      12384902,
+      12384910,
+      12624348,
+      12653620,
+      12861805,
+      12930844,
+      13534965,
+      13775061,
+      14010702,
+      14010710,
+      14010718,
+      14124684,
+      14339213,
+      14352828,
+      14780741,
+      15038596,
+      15090236,
+      15200070
+    ],
+    "PE": [
+      128,
+      356318,
+      6302017,
+      6302107,
+      6302125,
+      6302143,
+      6302161,
+      10635446,
+      10635454,
+      12294390,
+      12294398,
+      15241478
+    ],
+    "BSJB": [
+      5163404
+    ],
+    "ELF": [],
+    "UnityFS": [],
+    "ZIP": [],
+    "GZIP": [
+      4109101,
+      4109107,
+      4109671,
+      4109680,
+      4110348,
+      4110369,
+      4111041,
+      4111051,
+      4111653,
+      4111662,
+      5715791,
+      5819826,
+      6113618,
+      6300718,
+      6300736,
+      7651682,
+      10880166,
+      10942573,
+      11096765,
+      11320381,
+      11376292,
+      11620652,
+      12609334,
+      12609342,
+      12924725,
+      12931141,
+      12937605,
+      13137285,
+      13699430,
+      13699438,
+      13699446,
+      14009012,
+      14028228,
+      14557581,
+      15024644,
+      15064190
+    ],
+    "ZSTD": [],
+    "LZ4": [],
+    "IL2CPP_META": []
+  },
+  "peCandidates": [],
+  "termHits": [
+    {
+      "term": "HeroShow",
+      "asciiOffsets": [
+        8140267
+      ],
+      "utf16leOffsets": []
+    },
+    {
+      "term": "ArabicMirror",
+      "asciiOffsets": [
+        7906221,
+        7949545,
+        7949579,
+        7949617,
+        8271801,
+        8351115,
+        10353625,
+        10353687
+      ],
+      "utf16leOffsets": [
+        9038528,
+        9038667,
+        9137964,
+        9227340,
+        9228519
+      ]
+    },
+    {
+      "term": "RenderTexture",
+      "asciiOffsets": [
+        7818972,
+        7888440,
+        7888480,
+        8071513,
+        8083601,
+        8083631,
+        8083661,
+        8083680,
+        8103921,
+        8124314,
+        8264607,
+        8274728,
+        8309709,
+        8355931,
+        8373115,
+        8403293,
+        8418613,
+        8418648,
+        8418686,
+        8418714,
+        8450826
+      ],
+      "utf16leOffsets": [
+        9098358,
+        9098480,
+        9098576,
+        9098668,
+        9236044,
+        9468904,
+        9545929,
+        9546049,
+        9546178,
+        9546327,
+        9546459,
+        9564870,
+        9564946,
+        9566468
+      ]
+    },
+    {
+      "term": "WorldCityGrass",
+      "asciiOffsets": [],
+      "utf16leOffsets": [
+        9277738,
+        9277820
+      ]
+    },
+    {
+      "term": "Assembly-CSharp",
+      "asciiOffsets": [
+        8188056,
+        8283664,
+        8401066,
+        10358015
+      ],
+      "utf16leOffsets": [
+        9849050,
+        9849270,
+        15302064,
+        15302184
+      ]
+    },
+    {
+      "term": "UnityEngine",
+      "asciiOffsets": [
+        7748953,
+        7748985,
+        7749215,
+        7749247,
+        7749431,
+        7749462,
+        7788567,
+        7788590,
+        7793213,
+        7793236,
+        7796818,
+        7796841,
+        7811329,
+        7811969,
+        7811990,
+        7815728,
+        7815763,
+        7815798,
+        7815832,
+        7815858,
+        7815884,
+        7815910,
+        7815961,
+        7815997,
+        7816021,
+        7816047,
+        7816085,
+        7816138,
+        7816174,
+        7816260,
+        7816561,
+        7816667,
+        7817058,
+        7817189,
+        7817359,
+        7817457,
+        7817594,
+        7817730,
+        7817770,
+        7817837,
+        7817877,
+        7817938,
+        7817997,
+        7818093,
+        7818179,
+        7818215,
+        7818256,
+        7818299,
+        7818421,
+        7818463,
+        7818492,
+        7818516,
+        7818577,
+        7818613,
+        7818653,
+        7818907,
+        7818961,
+        7819051,
+        7819097,
+        7819119,
+        7828603,
+        7988579,
+        7988612,
+        7991493,
+        7991514,
+        8000451,
+        8000474,
+        8002131,
+        8002166,
+        8002345,
+        8002395,
+        8005346,
+        8005379,
+        8005414,
+        8005456,
+        8015545,
+        8015578,
+        8036215,
+        8036243,
+        8036272,
+        8036293,
+        8036317,
+        8036510,
+        8036540,
+        8036727,
+        8036750,
+        8036777,
+        8036809,
+        8036862,
+        8036894,
+        8036938,
+        8036982,
+        8037024,
+        8037073,
+        8037129,
+        8037153,
+        8037177,
+        8037246,
+        8037286,
+        8037313
+      ],
+      "utf16leOffsets": [
+        9087013,
+        9087111,
+        9087183,
+        9087251,
+        9087345,
+        9087443,
+        9087515,
+        9087583,
+        9087677,
+        9087775,
+        9087847,
+        9087915,
+        9088009,
+        9088103,
+        9088171,
+        9088235,
+        9088325,
+        9088429,
+        9088507,
+        9088581,
+        9088681,
+        9088771,
+        9088835,
+        9088895,
+        9088981,
+        9089077,
+        9089147,
+        9089213,
+        9089305,
+        9089399,
+        9089467,
+        9089531,
+        9091717,
+        9091815,
+        9091887,
+        9091955,
+        9092049,
+        9092169,
+        9092263,
+        9092353,
+        9092469,
+        9092597,
+        9092699,
+        9092797,
+        9092921,
+        9093049,
+        9093151,
+        9093249,
+        9093374,
+        9093514,
+        9093628,
+        9093738,
+        9096246,
+        9096366,
+        9096460,
+        9096550,
+        9096666,
+        9096786,
+        9096880,
+        9096970,
+        9097087,
+        9097254,
+        9097395,
+        9097532,
+        9097695,
+        9097870,
+        9098019,
+        9098164,
+        9098334,
+        9098456,
+        9098552,
+        9098644,
+        9098762,
+        9098856,
+        9098924,
+        9098988,
+        9099078,
+        9099208,
+        9099312,
+        9099412,
+        9099539,
+        9099696,
+        9099827,
+        9099954,
+        9100106,
+        9100238,
+        9100344,
+        9100446,
+        9100575,
+        9100709,
+        9100817,
+        9100921,
+        9101051,
+        9101181,
+        9101285,
+        9101385,
+        9101512,
+        9101663,
+        9101787,
+        9101908
+      ]
+    }
+  ],
+  "interestingStrings": [
+    {
+      "offset": 7748947,
+      "text": "UpdateUnityEngineUIImageOrigin360"
+    },
+    {
+      "offset": 7748981,
+      "text": "PushUnityEngineUIImageOrigin360"
+    },
+    {
+      "offset": 7749209,
+      "text": "UpdateUnityEngineUIImageOrigin180"
+    },
+    {
+      "offset": 7749243,
+      "text": "PushUnityEngineUIImageOrigin180"
+    },
+    {
+      "offset": 7749425,
+      "text": "UpdateUnityEngineUIImageOrigin90"
+    },
+    {
+      "offset": 7749458,
+      "text": "PushUnityEngineUIImageOrigin90"
+    },
+    {
+      "offset": 7752326,
+      "text": "<CameraFollowCityTroopSignal>b__91_0"
+    },
+    {
+      "offset": 7759868,
+      "text": "<TryLoadCameraEffects>b__47_0"
+    },
+    {
+      "offset": 7765744,
+      "text": "<GetOwnerFormationMarch>b__0"
+    },
+    {
+      "offset": 7780097,
+      "text": "RuntimeMemoryInformationWindow`1"
+    },
+    {
+      "offset": 7788561,
+      "text": "UpdateUnityEngineVector2"
+    },
+    {
+      "offset": 7788586,
+      "text": "PushUnityEngineVector2"
+    },
+    {
+      "offset": 7793207,
+      "text": "UpdateUnityEngineVector3"
+    },
+    {
+      "offset": 7793232,
+      "text": "PushUnityEngineVector3"
+    },
+    {
+      "offset": 7796812,
+      "text": "UpdateUnityEngineVector4"
+    },
+    {
+      "offset": 7796837,
+      "text": "PushUnityEngineVector4"
+    },
+    {
+      "offset": 7797650,
+      "text": "<RenderPrefabCameraRoutine>d__25"
+    },
+    {
+      "offset": 7811329,
+      "text": "UnityEngine.U2D"
+    },
+    {
+      "offset": 7811963,
+      "text": "UpdateUnityEngineRay2D"
+    },
+    {
+      "offset": 7811986,
+      "text": "PushUnityEngineRay2D"
+    },
+    {
+      "offset": 7815728,
+      "text": "UnityEngineUIImageOrigin360_TypeID"
+    },
+    {
+      "offset": 7815763,
+      "text": "UnityEngineUIImageOrigin180_TypeID"
+    },
+    {
+      "offset": 7815798,
+      "text": "UnityEngineUIImageOrigin90_TypeID"
+    },
+    {
+      "offset": 7815832,
+      "text": "UnityEngineVector2_TypeID"
+    },
+    {
+      "offset": 7815858,
+      "text": "UnityEngineVector3_TypeID"
+    },
+    {
+      "offset": 7815884,
+      "text": "UnityEngineVector4_TypeID"
+    },
+    {
+      "offset": 7815910,
+      "text": "UnityEngineRay2D_TypeID"
+    },
+    {
+      "offset": 7815961,
+      "text": "UnityEngineUIImageFillMethod_TypeID"
+    },
+    {
+      "offset": 7815997,
+      "text": "UnityEngineSpace_TypeID"
+    },
+    {
+      "offset": 7816021,
+      "text": "UnityEngineKeyCode_TypeID"
+    },
+    {
+      "offset": 7816047,
+      "text": "UnityEngineAnimatorCullingMode_TypeID"
+    },
+    {
+      "offset": 7816085,
+      "text": "UnityEngineRenderingUniversalAntialiasingMode_TypeID"
+    },
+    {
+      "offset": 7816138,
+      "text": "UnityEngineCameraGateFitMode_TypeID"
+    },
+    {
+      "offset": 7816174,
+      "text": "UnityEngineUIContentSizeFitterFitMode_TypeID"
+    },
+    {
+      "offset": 7816260,
+      "text": "UnityEngineRectTransformEdge_TypeID"
+    },
+    {
+      "offset": 7816561,
+      "text": "UnityEngineUIImageType_TypeID"
+    },
+    {
+      "offset": 7816667,
+      "text": "UnityEngineUIInputFieldLineType_TypeID"
+    },
+    {
+      "offset": 7817058,
+      "text": "UnityEngineUIScrollRectMovementType_TypeID"
+    },
+    {
+      "offset": 7817189,
+      "text": "UnityEngineUIInputFieldContentType_TypeID"
+    },
+    {
+      "offset": 7817359,
+      "text": "UnityEngineUIInputFieldInputType_TypeID"
+    },
+    {
+      "offset": 7817457,
+      "text": "UnityEngineTouchPhase_TypeID"
+    },
+    {
+      "offset": 7817486,
+      "text": "BitBenderGamesMobileTouchCameraState_TypeID"
+    },
+    {
+      "offset": 7817594,
+      "text": "UnityEngineEventSystemsPointerEventDataFramePressState_TypeID"
+    },
+    {
+      "offset": 7817730,
+      "text": "UnityEngineCameraStereoscopicEye_TypeID"
+    },
+    {
+      "offset": 7817770,
+      "text": "UnityEngineCameraMonoOrStereoscopicEye_TypeID"
+    },
+    {
+      "offset": 7817837,
+      "text": "UnityEngineUIImageOriginVertical_TypeID"
+    },
+    {
+      "offset": 7817877,
+      "text": "UnityEngineUIImageOriginHorizontal_TypeID"
+    },
+    {
+      "offset": 7817938,
+      "text": "UnityEngineQuaternion_TypeID"
+    },
+    {
+      "offset": 7817997,
+      "text": "UnityEngineUIInputFieldCharacterValidation_TypeID"
+    },
+    {
+      "offset": 7818093,
+      "text": "UnityEngineQueryTriggerInteraction_TypeID"
+    },
+    {
+      "offset": 7818179,
+      "text": "UnityEngineUISliderDirection_TypeID"
+    },
+    {
+      "offset": 7818215,
+      "text": "UnityEngineUISelectableTransition_TypeID"
+    },
+    {
+      "offset": 7818256,
+      "text": "UnityEngineUIToggleToggleTransition_TypeID"
+    },
+    {
+      "offset": 7818299,
+      "text": "UnityEngineEventSystemsPointerEventDataInputButton_TypeID"
+    },
+    {
+      "offset": 7818421,
+      "text": "UnityEngineUIGridLayoutGroupCorner_TypeID"
+    },
+    {
+      "offset": 7818463,
+      "text": "UnityEngineTextAnchor_TypeID"
+    },
+    {
+      "offset": 7818492,
+      "text": "UnityEngineColor_TypeID"
+    },
+    {
+      "offset": 7818516,
+      "text": "UnityEngineBounds_TypeID"
+    },
+    {
+      "offset": 7818577,
+      "text": "UnityEngineRectTransformAxis_TypeID"
+    },
+    {
+      "offset": 7818613,
+      "text": "UnityEngineUIGridLayoutGroupAxis_TypeID"
+    },
+    {
+      "offset": 7818653,
+      "text": "UnityEngineCameraFieldOfViewAxis_TypeID"
+    },
+    {
+      "offset": 7818907,
+      "text": "UnityEngineTimelineClipCaps_TypeID"
+    },
+    {
+      "offset": 7818961,
+      "text": "UnityEngineRenderTextureFormat_TypeID"
+    },
+    {
+      "offset": 7819051,
+      "text": "UnityEngineUIGridLayoutGroupConstraint_TypeID"
+    },
+    {
+      "offset": 7819097,
+      "text": "UnityEngineRay_TypeID"
+    },
+    {
+      "offset": 7819119,
+      "text": "UnityEngineUIScrollRectScrollbarVisibility_TypeID"
+    },
+    {
+      "offset": 7828600,
+      "text": "LS.UnityEngine.UI"
+    },
+    {
+      "offset": 7837452,
+      "text": "CAMERA_ANCHOR_BIAS"
+    },
+    {
+      "offset": 7843264,
+      "text": "_m_SetCameraFOV"
+    },
+    {
+      "offset": 7848058,
+      "text": "cameraY"
+    },
+    {
+      "offset": 7853065,
+      "text": "ownerFormationUuid_"
+    },
+    {
+      "offset": 7853085,
+      "text": "formationUuid_"
+    },
+    {
+      "offset": 7857541,
+      "text": "formation_"
+    },
+    {
+      "offset": 7859022,
+      "text": "formationEffectMap_"
+    },
+    {
+      "offset": 7859620,
+      "text": "formationEquipPower_"
+    },
+    {
+      "offset": 7861333,
+      "text": "formationEffect_"
+    },
+    {
+      "offset": 7884486,
+      "text": "_m_GetAllCameras_xlua_st_"
+    },
+    {
+      "offset": 7884769,
+      "text": "_m_SetCameraMatrices_xlua_st_"
+    },
+    {
+      "offset": 7885669,
+      "text": "_m_GetCameraTouchWorldPos_xlua_st_"
+    },
+    {
+      "offset": 7885842,
+      "text": "_m_GetCameraTouchScreenPos_xlua_st_"
+    },
+    {
+      "offset": 7888419,
+      "text": "_m_SupportsBlendingOnRenderTextureFormat_xlua_st_"
+    },
+    {
+      "offset": 7888469,
+      "text": "_m_SupportsRenderTextureFormat_xlua_st_"
+    },
+    {
+      "offset": 7896391,
+      "text": "formationIndex_"
+    },
+    {
+      "offset": 7897612,
+      "text": "_g_get_targetCameraAlpha"
+    },
+    {
+      "offset": 7897637,
+      "text": "_s_set_targetCameraAlpha"
+    },
+    {
+      "offset": 7898439,
+      "text": "_g_get_UICamera"
+    },
+    {
+      "offset": 7898455,
+      "text": "set_UICamera"
+    },
+    {
+      "offset": 7898468,
+      "text": "_g_get_use45XCamera"
+    },
+    {
+      "offset": 7898488,
+      "text": "_s_set_use45XCamera"
+    },
+    {
+      "offset": 7898508,
+      "text": "_g_get_use45XYCamera"
+    },
+    {
+      "offset": 7898529,
+      "text": "_s_set_use45XYCamera"
+    },
+    {
+      "offset": 7898550,
+      "text": "_g_get_Camera"
+    },
+    {
+      "offset": 7898564,
+      "text": "set_Camera"
+    },
+    {
+      "offset": 7898575,
+      "text": "IsAddGrabCamera"
+    },
+    {
+      "offset": 7898591,
+      "text": "WorldCamera"
+    },
+    {
+      "offset": 7898603,
+      "text": "_g_get_worldCamera"
+    },
+    {
+      "offset": 7898622,
+      "text": "_s_set_worldCamera"
+    },
+    {
+      "offset": 7898641,
+      "text": "_cacheFaceCamera"
+    },
+    {
+      "offset": 7898658,
+      "text": "_m_HideCamera"
+    },
+    {
+      "offset": 7898672,
+      "text": "_g_get_overrideCamera"
+    },
+    {
+      "offset": 7898694,
+      "text": "_s_set_overrideCamera"
+    },
+    {
+      "offset": 7898716,
+      "text": "_m_FreeCamera"
+    },
+    {
+      "offset": 7898730,
+      "text": "get_GameCamera"
+    },
+    {
+      "offset": 7898745,
+      "text": "_m_GetGameCamera"
+    },
+    {
+      "offset": 7898762,
+      "text": "_g_get_restoreCamera"
+    },
+    {
+      "offset": 7898783,
+      "text": "_s_set_restoreCamera"
+    },
+    {
+      "offset": 7898804,
+      "text": "get_MobileTouchCamera"
+    },
+    {
+      "offset": 7898826,
+      "text": "set_MobileTouchCamera"
+    },
+    {
+      "offset": 7898848,
+      "text": "_touchCamera"
+    },
+    {
+      "offset": 7898861,
+      "text": "uiCamera"
+    },
+    {
+      "offset": 7898870,
+      "text": "CheckCamera"
+    },
+    {
+      "offset": 7898882,
+      "text": "_m_LockCamera"
+    },
+    {
+      "offset": 7898896,
+      "text": "CinemachineVirtualCamera"
+    },
+    {
+      "offset": 7898921,
+      "text": "_m_InCamera"
+    },
+    {
+      "offset": 7898933,
+      "text": "GetOrFindMainCamera"
+    },
+    {
+      "offset": 7898953,
+      "text": "TagMainCamera"
+    },
+    {
+      "offset": 7898967,
+      "text": "IsVisibleInMainCamera"
+    },
+    {
+      "offset": 7898989,
+      "text": "_mainCamera"
+    },
+    {
+      "offset": 7899001,
+      "text": "AutoFaceToCamera"
+    },
+    {
+      "offset": 7899018,
+      "text": "_g_get_faceToCamera"
+    },
+    {
+      "offset": 7899038,
+      "text": "_s_set_faceToCamera"
+    },
+    {
+      "offset": 7899058,
+      "text": "ForceAllCanvasesToCamera"
+    },
+    {
+      "offset": 7899083,
+      "text": "CreateVideoCamera"
+    },
+    {
+      "offset": 7899101,
+      "text": "mVideoCamera"
+    },
+    {
+      "offset": 7899114,
+      "text": "SetupCamera"
+    },
+    {
+      "offset": 7899126,
+      "text": "_g_get_targetCamera"
+    },
+    {
+      "offset": 7899146,
+      "text": "_s_set_targetCamera"
+    },
+    {
+      "offset": 7899166,
+      "text": "_m_ResetCamera"
+    },
+    {
+      "offset": 7899181,
+      "text": "InitCamera"
+    },
+    {
+      "offset": 7899192,
+      "text": "_g_get_enterEventCamera"
+    },
+    {
+      "offset": 7899216,
+      "text": "_g_get_pressEventCamera"
+    },
+    {
+      "offset": 7899240,
+      "text": "eventCamera"
+    },
+    {
+      "offset": 7899252,
+      "text": "BiuBiuCamera"
+    },
+    {
+      "offset": 7899265,
+      "text": "isSceneViewCamera"
+    },
+    {
+      "offset": 7899283,
+      "text": "previewCamera"
+    },
+    {
+      "offset": 7899297,
+      "text": "_m_ShowCamera"
+    },
+    {
+      "offset": 7899311,
+      "text": "IsNeedFollowCamera"
+    },
+    {
+      "offset": 7899330,
+      "text": "InitFollowCamera"
+    },
+    {
+      "offset": 7899347,
+      "text": "CityCamera"
+    },
+    {
+      "offset": 7899358,
+      "text": "_g_get___camera"
+    },
+    {
+      "offset": 7899374,
+      "text": "m_camera"
+    },
+    {
+      "offset": 7899530,
+      "text": "UniversalAdditionalCameraData"
+    },
+    {
+      "offset": 7899560,
+      "text": "mCameraData"
+    },
+    {
+      "offset": 7899572,
+      "text": "cameraData"
+    },
+    {
+      "offset": 7903230,
+      "text": "_m_SetDragFormationData"
+    },
+    {
+      "offset": 7903254,
+      "text": "formationData"
+    },
+    {
+      "offset": 7906221,
+      "text": "ArabicMirrorAutoReverseImageListData"
+    },
+    {
+      "offset": 7911270,
+      "text": "_repeated_formation_codec"
+    },
+    {
+      "offset": 7911888,
+      "text": "_map_formationEffectMap_codec"
+    },
+    {
+      "offset": 7914256,
+      "text": "_repeated_formationEffect_codec"
+    },
+    {
+      "offset": 7918987,
+      "text": "FormationCalc"
+    },
+    {
+      "offset": 7929589,
+      "text": "GetCameraLookAtServerId"
+    },
+    {
+      "offset": 7931542,
+      "text": "formationPointId"
+    },
+    {
+      "offset": 7937007,
+      "text": "_m_InitCameraInfoOnSceneLoaded"
+    },
+    {
+      "offset": 7938551,
+      "text": "get_sqrCameraSpeed"
+    },
+    {
+      "offset": 7939412,
+      "text": "_m_IsCameraInFreeLookStateWithSpeed"
+    },
+    {
+      "offset": 7940068,
+      "text": "CameraLerpSpeed"
+    },
+    {
+      "offset": 7941264,
+      "text": "OnCameraLodChanged"
+    },
+    {
+      "offset": 7942976,
+      "text": "OnCameraViewChanged"
+    },
+    {
+      "offset": 7946974,
+      "text": "IsCameraProjectionMatrixFlipped"
+    },
+    {
+      "offset": 7949539,
+      "text": "add_onArabicMirrorItemInstantiated"
+    },
+    {
+      "offset": 7949574,
+      "text": "_e_onArabicMirrorItemInstantiated"
+    },
+    {
+      "offset": 7949608,
+      "text": "remove_onArabicMirrorItemInstantiated"
+    },
+    {
+      "offset": 7957318,
+      "text": "get_FormationUuid"
+    },
+    {
+      "offset": 7957336,
+      "text": "set_FormationUuid"
+    },
+    {
+      "offset": 7957354,
+      "text": "get_OwnerFormationUuid"
+    },
+    {
+      "offset": 7957377,
+      "text": "set_OwnerFormationUuid"
+    },
+    {
+      "offset": 7957400,
+      "text": "_g_get_ownerFormationUuid"
+    },
+    {
+      "offset": 7957426,
+      "text": "_s_set_ownerFormationUuid"
+    },
+    {
+      "offset": 7957452,
+      "text": "_m_GetFormationUuid"
+    },
+    {
+      "offset": 7957472,
+      "text": "formationUuid"
+    },
+    {
+      "offset": 7960668,
+      "text": "<Camera>k__BackingField"
+    },
+    {
+      "offset": 7960692,
+      "text": "<UICamera>k__BackingField"
+    },
+    {
+      "offset": 7960718,
+      "text": "<MobileTouchCamera>k__BackingField"
+    },
+    {
+      "offset": 7963552,
+      "text": "<LodCameraDistanceScale>k__BackingField"
+    },
+    {
+      "offset": 7988573,
+      "text": "UpdateUnityEngineUIImageFillMethod"
+    },
+    {
+      "offset": 7988608,
+      "text": "PushUnityEngineUIImageFillMethod"
+    },
+    {
+      "offset": 7990631,
+      "text": "_m_GetCurrentCameraRegionCoord"
+    },
+    {
+      "offset": 7991487,
+      "text": "UpdateUnityEngineSpace"
+    },
+    {
+      "offset": 7991510,
+      "text": "PushUnityEngineSpace"
+    },
+    {
+      "offset": 7994054,
+      "text": "_maxCameraDistance"
+    },
+    {
+      "offset": 7994453,
+      "text": "RecordCameraDragDistance"
+    },
+    {
+      "offset": 7994478,
+      "text": "AccumulateCameraDragDistance"
+    },
+    {
+      "offset": 7998894,
+      "text": "cameraZoomRangeOverride"
+    },
+    {
+      "offset": 7998942,
+      "text": "cameraRotRangeOverride"
+    },
+    {
+      "offset": 8000445,
+      "text": "UpdateUnityEngineKeyCode"
+    },
+    {
+      "offset": 8000470,
+      "text": "PushUnityEngineKeyCode"
+    },
+    {
+      "offset": 8002125,
+      "text": "UpdateUnityEngineAnimatorCullingMode"
+    },
+    {
+      "offset": 8002162,
+      "text": "PushUnityEngineAnimatorCullingMode"
+    },
+    {
+      "offset": 8002339,
+      "text": "UpdateUnityEngineRenderingUniversalAntialiasingMode"
+    },
+    {
+      "offset": 8002391,
+      "text": "PushUnityEngineRenderingUniversalAntialiasingMode"
+    },
+    {
+      "offset": 8005340,
+      "text": "UpdateUnityEngineCameraGateFitMode"
+    },
+    {
+      "offset": 8005375,
+      "text": "PushUnityEngineCameraGateFitMode"
+    },
+    {
+      "offset": 8005408,
+      "text": "UpdateUnityEngineUIContentSizeFitterFitMode"
+    },
+    {
+      "offset": 8005452,
+      "text": "PushUnityEngineUIContentSizeFitterFitMode"
+    },
+    {
+      "offset": 8011408,
+      "text": "WorldMarchFormationRapidMessage"
+    },
+    {
+      "offset": 8011703,
+      "text": "WorldMarchFormationChangeMessage"
+    },
+    {
+      "offset": 8013047,
+      "text": "WorldMarchFormationMessage"
+    },
+    {
+      "offset": 8015539,
+      "text": "UpdateUnityEngineRectTransformEdge"
+    },
+    {
+      "offset": 8015574,
+      "text": "PushUnityEngineRectTransformEdge"
+    },
+    {
+      "offset": 8016383,
+      "text": "get_CameraWorldRotateXRange"
+    },
+    {
+      "offset": 8016411,
+      "text": "newCameraWorldRotateXRange"
+    },
+    {
+      "offset": 8016438,
+      "text": "cameraWorldRotateXRange"
+    },
+    {
+      "offset": 8016694,
+      "text": "_m_SetCameraLodRange"
+    },
+    {
+      "offset": 8016947,
+      "text": "SetCameraVisibleRange"
+    },
+    {
+      "offset": 8017634,
+      "text": "newCameraWorldZoomRange"
+    },
+    {
+      "offset": 8018054,
+      "text": "_m_SetCameraRotRange"
+    },
+    {
+      "offset": 8018240,
+      "text": "lastCameraViewRange"
+    },
+    {
+      "offset": 8018962,
+      "text": "_m_HandleFormationMarchChange"
+    },
+    {
+      "offset": 8021613,
+      "text": "DataUICameraShake"
+    },
+    {
+      "offset": 8022256,
+      "text": "_g_get_LodCameraDistanceScale"
+    },
+    {
+      "offset": 8022286,
+      "text": "set_LodCameraDistanceScale"
+    },
+    {
+      "offset": 8026525,
+      "text": "_m_SetCameraTouchEnable"
+    },
+    {
+      "offset": 8030188,
+      "text": "CameraStateIdle"
+    },
+    {
+      "offset": 8030398,
+      "text": "UICameraShakeHandle"
+    },
+    {
+      "offset": 8036215,
+      "text": "UnityEngine.Physics2DModule"
+    },
+    {
+      "offset": 8036243,
+      "text": "UnityEngine.AndroidJNIModule"
+    },
+    {
+      "offset": 8036272,
+      "text": "UnityEngine.UIModule"
+    },
+    {
+      "offset": 8036293,
+      "text": "UnityEngine.IMGUIModule"
+    },
+    {
+      "offset": 8036317,
+      "text": "UnityEngine.UnityWebRequestWWWModule"
+    },
+    {
+      "offset": 8036510,
+      "text": "UnityEngine.AssetBundleModule"
+    },
+    {
+      "offset": 8036540,
+      "text": "UnityEngine.UnityWebRequestAssetBundleModule"
+    },
+    {
+      "offset": 8036727,
+      "text": "UnityEngine.CoreModule"
+    },
+    {
+      "offset": 8036750,
+      "text": "UnityEngine.TextCoreModule"
+    },
+    {
+      "offset": 8036777,
+      "text": "UnityEngine.ScreenCaptureModule"
+    },
+    {
+      "offset": 8036809,
+      "text": "UnityEngine.UnityWebRequestTextureModule"
+    },
+    {
+      "offset": 8036862,
+      "text": "UnityEngine.JSONSerializeModule"
+    },
+    {
+      "offset": 8036894,
+      "text": "UnityEngine.TextRenderingModule"
+    },
+    {
+      "offset": 8036938,
+      "text": "UnityEngine.ParticleSystemModule"
+    },
+    {
+      "offset": 8036982,
+      "text": "UnityEngine.TerrainModule"
+    },
+    {
+      "offset": 8037024,
+      "text": "UnityEngine.ImageConversionModule"
+    },
+    {
+      "offset": 8037073,
+      "text": "UnityEngine.AnimationModule"
+    },
+    {
+      "offset": 8037129,
+      "text": "UnityEngine.VideoModule"
+    },
+    {
+      "offset": 8037153,
+      "text": "UnityEngine.AudioModule"
+    },
+    {
+      "offset": 8037177,
+      "text": "UnityEngine.UnityWebRequestAudioModule"
+    },
+    {
+      "offset": 8037246,
+      "text": "UnityEngine.TilemapModule"
+    },
+    {
+      "offset": 8037286,
+      "text": "UnityEngine.DirectorModule"
+    },
+    {
+      "offset": 8037313,
+      "text": "UnityEngine.PhysicsModule"
+    },
+    {
+      "offset": 8037391,
+      "text": "UnityEngine.UnityWebRequestModule"
+    },
+    {
+      "offset": 8037503,
+      "text": "UnityEngine.InputLegacyModule"
+    },
+    {
+      "offset": 8038854,
+      "text": "SceneCameraName"
+    },
+    {
+      "offset": 8038870,
+      "text": "cameraName"
+    },
+    {
+      "offset": 8064830,
+      "text": "UnityEngine"
+    },
+    {
+      "offset": 8065061,
+      "text": "UnityEngine.Timeline"
+    },
+    {
+      "offset": 8065220,
+      "text": "CameraStateSyncWithTimeline"
+    },
+    {
+      "offset": 8065754,
+      "text": "RenderPrefabCameraRoutine"
+    },
+    {
+      "offset": 8068276,
+      "text": "CameraType"
+    },
+    {
+      "offset": 8068287,
+      "text": "_g_get_cameraType"
+    },
+    {
+      "offset": 8068305,
+      "text": "_s_set_cameraType"
+    },
+    {
+      "offset": 8070379,
+      "text": "UpdateUnityEngineUIImageType"
+    },
+    {
+      "offset": 8070408,
+      "text": "PushUnityEngineUIImageType"
+    },
+    {
+      "offset": 8071086,
+      "text": "UpdateUnityEngineUIInputFieldLineType"
+    },
+    {
+      "offset": 8071124,
+      "text": "PushUnityEngineUIInputFieldLineType"
+    },
+    {
+      "offset": 8071506,
+      "text": "BuiltinRenderTextureType"
+    },
+    {
+      "offset": 8075269,
+      "text": "CameraRenderType"
+    },
+    {
+      "offset": 8077460,
+      "text": "UpdateUnityEngineUIScrollRectMovementType"
+    },
+    {
+      "offset": 8077502,
+      "text": "PushUnityEngineUIScrollRectMovementType"
+    },
+    {
+      "offset": 8077874,
+      "text": "UpdateUnityEngineUIInputFieldContentType"
+    },
+    {
+      "offset": 8077915,
+      "text": "PushUnityEngineUIInputFieldContentType"
+    },
+    {
+      "offset": 8078704,
+      "text": "UpdateUnityEngineUIInputFieldInputType"
+    },
+    {
+      "offset": 8078743,
+      "text": "PushUnityEngineUIInputFieldInputType"
+    },
+    {
+      "offset": 8080822,
+      "text": "UnityEngine.TextCore"
+    },
+    {
+      "offset": 8083120,
+      "text": "_g_get_supportsCameraOpaqueTexture"
+    },
+    {
+      "offset": 8083155,
+      "text": "_s_set_supportsCameraOpaqueTexture"
+    },
+    {
+      "offset": 8083237,
+      "text": "_g_get_supportsCameraDepthTexture"
+    },
+    {
+      "offset": 8083271,
+      "text": "_s_set_supportsCameraDepthTexture"
+    },
+    {
+      "offset": 8083587,
+      "text": "supportsARGB32RenderTexture"
+    },
+    {
+      "offset": 8083615,
+      "text": "_g_get_forceIntoRenderTexture"
+    },
+    {
+      "offset": 8083645,
+      "text": "_s_set_forceIntoRenderTexture"
+    },
+    {
+      "offset": 8083675,
+      "text": "SetupRenderTexture"
+    },
+    {
+      "offset": 8083694,
+      "text": "renderTexture"
+    },
+    {
+      "offset": 8084672,
+      "text": "CameraStateBase"
+    },
+    {
+      "offset": 8085664,
+      "text": "UpdateUnityEngineTouchPhase"
+    },
+    {
+      "offset": 8085692,
+      "text": "PushUnityEngineTouchPhase"
+    },
+    {
+      "offset": 8089017,
+      "text": "_m_UninitSubModulesAndCameraUpdate"
+    },
+    {
+      "offset": 8089052,
+      "text": "OnBeforeCameraUpdate"
+    },
+    {
+      "offset": 8089073,
+      "text": "OnAfterCameraUpdate"
+    },
+    {
+      "offset": 8090684,
+      "text": "ParseFormationUpdate"
+    },
+    {
+      "offset": 8091083,
+      "text": "OnCameraAfterUpdate"
+    },
+    {
+      "offset": 8095249,
+      "text": "BitBenderGames.CameraState"
+    },
+    {
+      "offset": 8095276,
+      "text": "UpdateBitBenderGamesMobileTouchCameraState"
+    },
+    {
+      "offset": 8095319,
+      "text": "PushBitBenderGamesMobileTouchCameraState"
+    },
+    {
+      "offset": 8095360,
+      "text": "_g_get_CurrentCameraState"
+    },
+    {
+      "offset": 8095386,
+      "text": "_m_GetCurrentCameraState"
+    },
+    {
+      "offset": 8095411,
+      "text": "_cameraState"
+    },
+    {
+      "offset": 8099100,
+      "text": "_m_IsCameraInMoveToState"
+    },
+    {
+      "offset": 8099989,
+      "text": "UpdateUnityEngineEventSystemsPointerEventDataFramePressState"
+    },
+    {
+      "offset": 8100050,
+      "text": "PushUnityEngineEventSystemsPointerEventDataFramePressState"
+    },
+    {
+      "offset": 8103921,
+      "text": "RenderTextureReadWrite"
+    },
+    {
+      "offset": 8113141,
+      "text": "_m_StopCameraMove"
+    },
+    {
+      "offset": 8113159,
+      "text": "_m_UninitSubModulesAndCameraUpdate_withoutCameraMove"
+    },
+    {
+      "offset": 8113584,
+      "text": "MobileTouchCameraDragMove"
+    },
+    {
+      "offset": 8114750,
+      "text": "_g_get_CameraFocusDomeCurve"
+    },
+    {
+      "offset": 8114778,
+      "text": "cameraFocusDomeCurve"
+    },
+    {
+      "offset": 8114899,
+      "text": "_g_get_CameraFocusEarthCurve"
+    },
+    {
+      "offset": 8114928,
+      "text": "cameraFocusEarthCurve"
+    },
+    {
+      "offset": 8115546,
+      "text": "_g_get_CameraFocusCurve"
+    },
+    {
+      "offset": 8115570,
+      "text": "cameraFocusCurve"
+    },
+    {
+      "offset": 8115797,
+      "text": "_g_get_CameraFocusMoveCityCurve"
+    },
+    {
+      "offset": 8115829,
+      "text": "cameraFocusMoveCityCurve"
+    },
+    {
+      "offset": 8115884,
+      "text": "UpdateUnityEngineCameraStereoscopicEye"
+    },
+    {
+      "offset": 8115923,
+      "text": "PushUnityEngineCameraStereoscopicEye"
+    },
+    {
+      "offset": 8115960,
+      "text": "UpdateUnityEngineCameraMonoOrStereoscopicEye"
+    },
+    {
+      "offset": 8116005,
+      "text": "PushUnityEngineCameraMonoOrStereoscopicEye"
+    },
+    {
+      "offset": 8116344,
+      "text": "EditorCameraOrthographicSize"
+    },
+    {
+      "offset": 8121203,
+      "text": "UnityEngineUIImageOrigin360_EnumRef"
+    },
+    {
+      "offset": 8121239,
+      "text": "UnityEngineUIImageOrigin180_EnumRef"
+    },
+    {
+      "offset": 8121275,
+      "text": "UnityEngineUIImageOrigin90_EnumRef"
+    },
+    {
+      "offset": 8121338,
+      "text": "UnityEngineUIImageFillMethod_EnumRef"
+    },
+    {
+      "offset": 8121375,
+      "text": "UnityEngineSpace_EnumRef"
+    },
+    {
+      "offset": 8121400,
+      "text": "UnityEngineKeyCode_EnumRef"
+    },
+    {
+      "offset": 8121427,
+      "text": "UnityEngineAnimatorCullingMode_EnumRef"
+    },
+    {
+      "offset": 8121466,
+      "text": "UnityEngineRenderingUniversalAntialiasingMode_EnumRef"
+    },
+    {
+      "offset": 8121520,
+      "text": "UnityEngineCameraGateFitMode_EnumRef"
+    },
+    {
+      "offset": 8121557,
+      "text": "UnityEngineUIContentSizeFitterFitMode_EnumRef"
+    },
+    {
+      "offset": 8121645,
+      "text": "UnityEngineRectTransformEdge_EnumRef"
+    },
+    {
+      "offset": 8121956,
+      "text": "UnityEngineUIImageType_EnumRef"
+    },
+    {
+      "offset": 8122065,
+      "text": "UnityEngineUIInputFieldLineType_EnumRef"
+    },
+    {
+      "offset": 8122468,
+      "text": "UnityEngineUIScrollRectMovementType_EnumRef"
+    },
+    {
+      "offset": 8122602,
+      "text": "UnityEngineUIInputFieldContentType_EnumRef"
+    },
+    {
+      "offset": 8122777,
+      "text": "UnityEngineUIInputFieldInputType_EnumRef"
+    },
+    {
+      "offset": 8122878,
+      "text": "UnityEngineTouchPhase_EnumRef"
+    },
+    {
+      "offset": 8122908,
+      "text": "BitBenderGamesMobileTouchCameraState_EnumRef"
+    },
+    {
+      "offset": 8123020,
+      "text": "UnityEngineEventSystemsPointerEventDataFramePressState_EnumRef"
+    },
+    {
+      "offset": 8123159,
+      "text": "UnityEngineCameraStereoscopicEye_EnumRef"
+    },
+    {
+      "offset": 8123200,
+      "text": "UnityEngineCameraMonoOrStereoscopicEye_EnumRef"
+    },
+    {
+      "offset": 8123269,
+      "text": "UnityEngineUIImageOriginVertical_EnumRef"
+    },
+    {
+      "offset": 8123310,
+      "text": "UnityEngineUIImageOriginHorizontal_EnumRef"
+    },
+    {
+      "offset": 8123404,
+      "text": "UnityEngineUIInputFieldCharacterValidation_EnumRef"
+    },
+    {
+      "offset": 8123502,
+      "text": "UnityEngineQueryTriggerInteraction_EnumRef"
+    },
+    {
+      "offset": 8123590,
+      "text": "UnityEngineUISliderDirection_EnumRef"
+    },
+    {
+      "offset": 8123627,
+      "text": "UnityEngineUISelectableTransition_EnumRef"
+    },
+    {
+      "offset": 8123669,
+      "text": "UnityEngineUIToggleToggleTransition_EnumRef"
+    },
+    {
+      "offset": 8123713,
+      "text": "UnityEngineEventSystemsPointerEventDataInputButton_EnumRef"
+    },
+    {
+      "offset": 8123799,
+      "text": "UnityEngineUIGridLayoutGroupCorner_EnumRef"
+    },
+    {
+      "offset": 8123842,
+      "text": "UnityEngineTextAnchor_EnumRef"
+    },
+    {
+      "offset": 8123909,
+      "text": "UnityEngineRectTransformAxis_EnumRef"
+    },
+    {
+      "offset": 8123946,
+      "text": "UnityEngineUIGridLayoutGroupAxis_EnumRef"
+    },
+    {
+      "offset": 8123987,
+      "text": "UnityEngineCameraFieldOfViewAxis_EnumRef"
+    },
+    {
+      "offset": 8124247,
+      "text": "UnityEngineTimelineClipCaps_EnumRef"
+    },
+    {
+      "offset": 8124303,
+      "text": "UnityEngineRenderTextureFormat_EnumRef"
+    },
+    {
+      "offset": 8124373,
+      "text": "UnityEngineUIGridLayoutGroupConstraint_EnumRef"
+    },
+    {
+      "offset": 8124420,
+      "text": "UnityEngineUIScrollRectScrollbarVisibility_EnumRef"
+    },
+    {
+      "offset": 8125973,
+      "text": "MainCameraTag"
+    },
+    {
+      "offset": 8129818,
+      "text": "CaptureCameraPreviewToPng"
+    },
+    {
+      "offset": 8134261,
+      "text": "_g_get_cameraStacking"
+    },
+    {
+      "offset": 8134283,
+      "text": "_s_set_cameraStacking"
+    },
+    {
+      "offset": 8134451,
+      "text": "UnityEngine.Networking"
+    },
+    {
+      "offset": 8134513,
+      "text": "_g_get_camera_scaling"
+    },
+    {
+      "offset": 8134535,
+      "text": "_s_set_camera_scaling"
+    },
+    {
+      "offset": 8134731,
+      "text": "UnityEngine.Profiling"
+    },
+    {
+      "offset": 8135265,
+      "text": "ConfigurePreviewCameraFraming"
+    },
+    {
+      "offset": 8136412,
+      "text": "UnityEngine.Rendering"
+    },
+    {
+      "offset": 8136434,
+      "text": "UnityEngine.Experimental.Rendering"
+    },
+    {
+      "offset": 8136489,
+      "text": "OnBeginCameraRendering"
+    },
+    {
+      "offset": 8139675,
+      "text": "UnityEngine.Scripting"
+    },
+    {
+      "offset": 8140267,
+      "text": "HeroShowSetting"
+    },
+    {
+      "offset": 8144172,
+      "text": "_m_HandleFormationMarch"
+    },
+    {
+      "offset": 8144196,
+      "text": "_m_GetOwnerFormationMarch"
+    },
+    {
+      "offset": 8158738,
+      "text": "_g_get_cameraDepth"
+    },
+    {
+      "offset": 8162257,
+      "text": "CameraCallback"
+    },
+    {
+      "offset": 8166627,
+      "text": "_g_get_cameraStack"
+    },
+    {
+      "offset": 8169640,
+      "text": "CameraStateLock"
+    },
+    {
+      "offset": 8171537,
+      "text": "IsCameraChunk"
+    },
+    {
+      "offset": 8171551,
+      "text": "_currentCameraChunk"
+    },
+    {
+      "offset": 8171707,
+      "text": "CameraStateFreeLook"
+    },
+    {
+      "offset": 8174044,
+      "text": "UpdateUnityEngineUIImageOriginVertical"
+    },
+    {
+      "offset": 8174083,
+      "text": "PushUnityEngineUIImageOriginVertical"
+    },
+    {
+      "offset": 8177391,
+      "text": "CreateFormationUuidSignal"
+    },
+    {
+      "offset": 8178003,
+      "text": "CameraFollowCityTroopSignal"
+    },
+    {
+      "offset": 8179256,
+      "text": "UnityEngine.Rendering.Universal"
+    },
+    {
+      "offset": 8179288,
+      "text": "UnityEngine.Experimental.Rendering.Universal"
+    },
+    {
+      "offset": 8179482,
+      "text": "UpdateUnityEngineUIImageOriginHorizontal"
+    },
+    {
+      "offset": 8179523,
+      "text": "PushUnityEngineUIImageOriginHorizontal"
+    },
+    {
+      "offset": 8182760,
+      "text": "CameraGFXPanel"
+    },
+    {
+      "offset": 8185104,
+      "text": "UnityEngine.LowLevel"
+    },
+    {
+      "offset": 8185125,
+      "text": "UnityEngine.TextCore.LowLevel"
+    },
+    {
+      "offset": 8186696,
+      "text": "CameraUtil"
+    },
+    {
+      "offset": 8188056,
+      "text": "Assembly-CSharp.dll"
+    },
+    {
+      "offset": 8188950,
+      "text": "StopCameraScroll"
+    },
+    {
+      "offset": 8191724,
+      "text": "_m_HandleFormationMarchChangeImpl"
+    },
+    {
+      "offset": 8191818,
+      "text": "_m_HandleFormationMarchImpl"
+    },
+    {
+      "offset": 8194093,
+      "text": "formationParam"
+    },
+    {
+      "offset": 8195685,
+      "text": "FocusCameraOnItem"
+    },
+    {
+      "offset": 8199033,
+      "text": "ShowBaseFireCameraZoom"
+    },
+    {
+      "offset": 8199113,
+      "text": "MobileTouchCameraPinchZoom"
+    },
+    {
+      "offset": 8199916,
+      "text": "cameraAnchorLeftBottom"
+    },
+    {
+      "offset": 8200516,
+      "text": "cameraTransform"
+    },
+    {
+      "offset": 8201018,
+      "text": "FocusCameraOnTransform"
+    },
+    {
+      "offset": 8201744,
+      "text": "_m_GetCameraFollowTransform"
+    },
+    {
+      "offset": 8201772,
+      "text": "cameraFollowTransform"
+    },
+    {
+      "offset": 8201846,
+      "text": "UnityEngine.UI.ICanvasElement.get_transform"
+    },
+    {
+      "offset": 8205161,
+      "text": "get_CameraTran"
+    },
+    {
+      "offset": 8208810,
+      "text": "_saveCameraHeightMin"
+    },
+    {
+      "offset": 8213136,
+      "text": "UpdateUnityEngineQuaternion"
+    },
+    {
+      "offset": 8213164,
+      "text": "PushUnityEngineQuaternion"
+    },
+    {
+      "offset": 8216860,
+      "text": "UpdateUnityEngineUIInputFieldCharacterValidation"
+    },
+    {
+      "offset": 8216909,
+      "text": "PushUnityEngineUIInputFieldCharacterValidation"
+    },
+    {
+      "offset": 8218339,
+      "text": "get_Formation"
+    },
+    {
+      "offset": 8218353,
+      "text": "set_Formation"
+    },
+    {
+      "offset": 8218367,
+      "text": "_g_get_CamZoomFormation"
+    },
+    {
+      "offset": 8218391,
+      "text": "_s_set_CamZoomFormation"
+    },
+    {
+      "offset": 8218415,
+      "text": "camZoomFormation"
+    },
+    {
+      "offset": 8218432,
+      "text": "isFormation"
+    },
+    {
+      "offset": 8218444,
+      "text": "ScoutFormation"
+    },
+    {
+      "offset": 8222108,
+      "text": "camZoomFormationRotation"
+    },
+    {
+      "offset": 8222133,
+      "text": "_g_get_CamZoomFocusFormationRotation"
+    },
+    {
+      "offset": 8222170,
+      "text": "_s_set_CamZoomFocusFormationRotation"
+    },
+    {
+      "offset": 8222207,
+      "text": "camZoomFocusFormationRotation"
+    },
+    {
+      "offset": 8223526,
+      "text": "UnityEngine.Serialization"
+    },
+    {
+      "offset": 8225939,
+      "text": "UpdateUnityEngineQueryTriggerInteraction"
+    },
+    {
+      "offset": 8225980,
+      "text": "PushUnityEngineQueryTriggerInteraction"
+    },
+    {
+      "offset": 8228143,
+      "text": "UpdateUnityEngineUISliderDirection"
+    },
+    {
+      "offset": 8228178,
+      "text": "PushUnityEngineUISliderDirection"
+    },
+    {
+      "offset": 8228228,
+      "text": "_g_get_arabicMirrorDirection"
+    },
+    {
+      "offset": 8228257,
+      "text": "_s_set_arabicMirrorDirection"
+    },
+    {
+      "offset": 8230375,
+      "text": "UpdateUnityEngineUISelectableTransition"
+    },
+    {
+      "offset": 8230415,
+      "text": "PushUnityEngineUISelectableTransition"
+    },
+    {
+      "offset": 8230453,
+      "text": "UpdateUnityEngineUIToggleToggleTransition"
+    },
+    {
+      "offset": 8230495,
+      "text": "PushUnityEngineUIToggleToggleTransition"
+    },
+    {
+      "offset": 8230820,
+      "text": "_g_get_billboardsFaceCameraPosition"
+    },
+    {
+      "offset": 8230856,
+      "text": "_s_set_billboardsFaceCameraPosition"
+    },
+    {
+      "offset": 8230892,
+      "text": "initialCameraPosition"
+    },
+    {
+      "offset": 8230914,
+      "text": "SetCameraPosition"
+    },
+    {
+      "offset": 8230932,
+      "text": "currentCameraPosition"
+    },
+    {
+      "offset": 8230954,
+      "text": "_cameraPosition"
+    },
+    {
+      "offset": 8234681,
+      "text": "UnityEngineGameObjectExtention"
+    },
+    {
+      "offset": 8234712,
+      "text": "UnityEngineObjectExtention"
+    },
+    {
+      "offset": 8234989,
+      "text": "CameraOverrideOption"
+    },
+    {
+      "offset": 8239207,
+      "text": "UpdateUnityEngineEventSystemsPointerEventDataInputButton"
+    },
+    {
+      "offset": 8239264,
+      "text": "PushUnityEngineEventSystemsPointerEventDataInputButton"
+    },
+    {
+      "offset": 8241885,
+      "text": "CameraStateMoveTo"
+    },
+    {
+      "offset": 8242115,
+      "text": "UnityEngine.Video"
+    },
+    {
+      "offset": 8252008,
+      "text": "UnityEngine.Audio"
+    },
+    {
+      "offset": 8256805,
+      "text": "get_FormationEffectMap"
+    },
+    {
+      "offset": 8257660,
+      "text": "UnityEngineUIImageOrigin360Wrap"
+    },
+    {
+      "offset": 8257692,
+      "text": "UnityEngineUIImageOrigin180Wrap"
+    },
+    {
+      "offset": 8257724,
+      "text": "UnityEngineUIImageOrigin90Wrap"
+    },
+    {
+      "offset": 8257855,
+      "text": "UnityEngineColor32Wrap"
+    },
+    {
+      "offset": 8258024,
+      "text": "UnityEngineVector2Wrap"
+    },
+    {
+      "offset": 8258130,
+      "text": "UnityEngineVector3Wrap"
+    },
+    {
+      "offset": 8258172,
+      "text": "UnityEngineVector4Wrap"
+    },
+    {
+      "offset": 8258195,
+      "text": "UnityEngineCollider2DWrap"
+    },
+    {
+      "offset": 8258221,
+      "text": "UnityEngineBoxCollider2DWrap"
+    },
+    {
+      "offset": 8258606,
+      "text": "SystemCollectionsGenericList_1_UnityEngineCamera_Wrap"
+    },
+    {
+      "offset": 8258709,
+      "text": "UnityEngineEventsUnityEvent_1_SystemSingle_Wrap"
+    },
+    {
+      "offset": 8258757,
+      "text": "SystemCollectionsGenericList_1_UnityEngineRenderingUniversalScriptableRendererFeature_Wrap"
+    },
+    {
+      "offset": 8258848,
+      "text": "SystemCollectionsGenericList_1Enumerator_UnityEngineRenderingUniversalScriptableRendererFeature_Wrap"
+    },
+    {
+      "offset": 8259015,
+      "text": "UnityEngineEventsUnityEvent_1_SystemString_Wrap"
+    },
+    {
+      "offset": 8259112,
+      "text": "UnityEngineEventsUnityEvent_1_SystemBoolean_Wrap"
+    },
+    {
+      "offset": 8259227,
+      "text": "DGTweeningCoreTweenerCore_3_UnityEngineVector3UnityEngineVector3DGTweeningPluginsOptionsVectorOptions_Wrap"
+    },
+    {
+      "offset": 8259334,
+      "text": "SystemCollectionsGenericList_1_UnityEngineGameObject_Wrap"
+    },
+    {
+      "offset": 8259392,
+      "text": "SystemCollectionsGenericDictionary_2_SystemStringUnityEngineGameObject_Wrap"
+    },
+    {
+      "offset": 8259468,
+      "text": "WorldCameraWrap"
+    },
+    {
+      "offset": 8259484,
+      "text": "UnityEngineCameraWrap"
+    },
+    {
+      "offset": 8259506,
+      "text": "BitBenderGamesMobileTouchCameraWrap"
+    },
+    {
+      "offset": 8259542,
+      "text": "UnityEngineRenderingUniversalUniversalAdditionalCameraDataWrap"
+    },
+    {
+      "offset": 8259752,
+      "text": "UnityEngineUIDropdownOptionDataWrap"
+    },
+    {
+      "offset": 8259993,
+      "text": "UnityEngineEventSystemsPointerEventDataWrap"
+    },
+    {
+      "offset": 8260055,
+      "text": "UnityEngineUIGraphicWrap"
+    },
+    {
+      "offset": 8260080,
+      "text": "UnityEngineUIMaskableGraphicWrap"
+    },
+    {
+      "offset": 8260240,
+      "text": "UnityEngineUIInputFieldWrap"
+    },
+    {
+      "offset": 8260461,
+      "text": "UnityEngineUIImageFillMethodWrap"
+    },
+    {
+      "offset": 8260523,
+      "text": "UnityEngineTouchScreenKeyboardWrap"
+    },
+    {
+      "offset": 8260571,
+      "text": "UnityEngineSpaceWrap"
+    },
+    {
+      "offset": 8260808,
+      "text": "UnityEngineKeyCodeWrap"
+    },
+    {
+      "offset": 8260831,
+      "text": "UnityEngineAnimatorCullingModeWrap"
+    },
+    {
+      "offset": 8260866,
+      "text": "UnityEngineRenderingUniversalAntialiasingModeWrap"
+    },
+    {
+      "offset": 8260916,
+      "text": "UnityEngineCameraGateFitModeWrap"
+    },
+    {
+      "offset": 8260949,
+      "text": "UnityEngineUIContentSizeFitterFitModeWrap"
+    },
+    {
+      "offset": 8261034,
+      "text": "UnityEngineUIImageWrap"
+    },
+    {
+      "offset": 8261073,
+      "text": "LSUnityEngineUIWorldMapZoneImageWrap"
+    },
+    {
+      "offset": 8261125,
+      "text": "UnityEngineUIRawImageWrap"
+    },
+    {
+      "offset": 8261206,
+      "text": "UnityEngineRectTransformEdgeWrap"
+    },
+    {
+      "offset": 8261534,
+      "text": "UnityEngineUISelectableWrap"
+    },
+    {
+      "offset": 8261562,
+      "text": "UnityEnginePlayablesPlayableWrap"
+    },
+    {
+      "offset": 8261595,
+      "text": "UnityEngineParticleSystemParticleWrap"
+    },
+    {
+      "offset": 8261679,
+      "text": "UnityEngineUIToggleWrap"
+    },
+    {
+      "offset": 8261777,
+      "text": "UnityEngineParticleSystemCustomDataModuleWrap"
+    },
+    {
+      "offset": 8261823,
+      "text": "UnityEngineParticleSystemSizeBySpeedModuleWrap"
+    },
+    {
+      "offset": 8261870,
+      "text": "UnityEngineParticleSystemRotationBySpeedModuleWrap"
+    },
+    {
+      "offset": 8261921,
+      "text": "UnityEngineParticleSystemColorBySpeedModuleWrap"
+    },
+    {
+      "offset": 8261969,
+      "text": "UnityEngineParticleSystemForceOverLifetimeModuleWrap"
+    },
+    {
+      "offset": 8262022,
+      "text": "UnityEngineParticleSystemSizeOverLifetimeModuleWrap"
+    },
+    {
+      "offset": 8262074,
+      "text": "UnityEngineParticleSystemRotationOverLifetimeModuleWrap"
+    },
+    {
+      "offset": 8262130,
+      "text": "UnityEngineParticleSystemColorOverLifetimeModuleWrap"
+    },
+    {
+      "offset": 8262183,
+      "text": "UnityEngineParticleSystemVelocityOverLifetimeModuleWrap"
+    },
+    {
+      "offset": 8262239,
+      "text": "UnityEngineParticleSystemLimitVelocityOverLifetimeModuleWrap"
+    },
+    {
+      "offset": 8262300,
+      "text": "UnityEngineParticleSystemShapeModuleWrap"
+    },
+    {
+      "offset": 8262341,
+      "text": "UnityEngineParticleSystemNoiseModuleWrap"
+    },
+    {
+      "offset": 8262382,
+      "text": "UnityEngineParticleSystemTrailModuleWrap"
+    },
+    {
+      "offset": 8262423,
+      "text": "UnityEngineParticleSystemMainModuleWrap"
+    },
+    {
+      "offset": 8262463,
+      "text": "UnityEngineParticleSystemCollisionModuleWrap"
+    },
+    {
+      "offset": 8262508,
+      "text": "UnityEngineParticleSystemEmissionModuleWrap"
+    },
+    {
+      "offset": 8262552,
+      "text": "UnityEngineParticleSystemTextureSheetAnimationModuleWrap"
+    },
+    {
+      "offset": 8262609,
+      "text": "UnityEngineParticleSystemTriggerModuleWrap"
+    },
+    {
+      "offset": 8262652,
+      "text": "UnityEngineParticleSystemExternalForcesModuleWrap"
+    },
+    {
+      "offset": 8262702,
+      "text": "UnityEngineParticleSystemSubEmittersModuleWrap"
+    },
+    {
+      "offset": 8262749,
+      "text": "UnityEngineParticleSystemLightsModuleWrap"
+    },
+    {
+      "offset": 8262791,
+      "text": "UnityEngineParticleSystemInheritVelocityModuleWrap"
+    }
+  ],
+  "guardrails": {
+    "apkReadOnly": true,
+    "binaryNotCommitted": true,
+    "previewUntouched": true,
+    "mainUntouched": true
+  }
+}
