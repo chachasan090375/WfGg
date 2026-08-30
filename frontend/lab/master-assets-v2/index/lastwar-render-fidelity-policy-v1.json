@@ -1,0 +1,65 @@
+{
+  "format": "WFGG_LASTWAR_RENDER_FIDELITY_POLICY_V1",
+  "target": "PIXEL_FAITHFUL_NO_INVENTION",
+  "principle": "A render recipe may be emitted only when every render-relevant relationship and runtime parameter required by the target frame is directly evidenced. Unknowns stay unknown; they are never filled by approximation, aesthetic judgement, filename proximity, bundle co-membership, or model inference.",
+  "statuses": [
+    "DISCOVERY_ONLY",
+    "PARTIAL_EXACT",
+    "CERTIFIED_PIXEL_FAITHFUL"
+  ],
+  "evidenceClasses": {
+    "serialized_exact": "Direct Unity serialized PPtr/object reference or exact TypeTree field linking the concrete objects.",
+    "runtime_observed": "Runtime state directly observed/traced for the target screen/frame, including values and activation state.",
+    "clr_exact": "Compiled IL/code establishes the behavior or assignment unambiguously; runtime-dependent values still require observation when they affect pixels.",
+    "catalog_exact": "gameres/offset catalog proves storage, identity, extraction coordinates or bundle dependency only; it does NOT prove per-object visual use.",
+    "historical_exact": "Previously captured exact evidence for the same game build/object identity; current-build identity must be revalidated.",
+    "candidate": "Search score, basename match, path family, proximity, heuristic, likely relation or model inference. Forbidden in certified recipes."
+  },
+  "nonCompositionRelations": [
+    "bundle contains asset",
+    "asset stored in bundle",
+    "bundle depends_on bundle",
+    "path-family sibling",
+    "audit mentions asset/bundle",
+    "same bundle",
+    "similar filename",
+    "candidate cluster"
+  ],
+  "requiredClosure": [
+    "exact root screen/prefab/scene identity for the target frame",
+    "complete active GameObject hierarchy relevant to pixels",
+    "Transform/RectTransform values: parent, localPosition/rotation/scale, anchors, pivot, sizeDelta, sibling order",
+    "active/enabled state of renderers, canvases, graphics, cameras, lights and behaviours",
+    "Renderer/Graphic -> Mesh/Sprite -> Material exact serialized references",
+    "Material -> Shader and all pixel-affecting material properties, keywords, render queue, blend/depth/cull state",
+    "Material/Graphic -> Texture/Sprite exact references including atlas, sprite rect, borders, UV/packing/rotation where applicable",
+    "Mesh submeshes, material slot order, skin/bones/blendshapes when relevant",
+    "Animator/controller/clip/state/layer/time/speed/parameters and the exact sampled frame when animation affects pixels",
+    "Camera projection, fieldOfView/orthographicSize, transform, viewport, aspect, near/far, culling mask, clear flags/background, physical camera settings and camera stack",
+    "Lighting and render-pipeline settings that affect the target: lights, SH/global shader parameters, shadows, URP asset/renderer features",
+    "RenderTexture dimensions/format/filter/wrap/MSAA and exact producer/consumer chain",
+    "post-processing/image effects including blur algorithm, passes, sigma/radius/iterations/downsample and ordering",
+    "runtime-created or runtime-reparented objects and their exact target-frame state",
+    "dynamic data driving text, icons, heroes, power values, skins, levels, visibility and localization",
+    "Canvas scaler/reference resolution, actual viewport, safe area, device aspect and any crop/letterbox behavior",
+    "sorting layers/orders, canvas order, depth and stencil/mask hierarchy",
+    "all unresolved external assets/dependencies closed to concrete objects used by the target",
+    "target-frame visual verification against an original reference captured from the same screen/state/build"
+  ],
+  "certificationRules": [
+    "No candidate edge may participate in a certified render chain.",
+    "Catalog-level bundle dependency may be used for extraction discovery but cannot satisfy a composition edge.",
+    "If any pixel-affecting field is unknown, the recipe status is not certified.",
+    "If a runtime value can vary and was not observed for the target frame, the recipe status is not certified.",
+    "No default Unity value may be assumed unless the serialized/runtime evidence explicitly proves that value for the target.",
+    "No visual substitution, hand placement, guessed blur, guessed crop, guessed color, guessed texture, guessed transform or guessed animation timing is permitted.",
+    "A certified recipe must cite the evidence source for every render-relevant edge/value.",
+    "Final certification requires comparison to an original reference; discrepancies must be explained by proven device/compression differences or certification is withheld."
+  ],
+  "verification": {
+    "required": true,
+    "preferred": "pixel-aligned reference comparison on the same viewport/aspect and target state",
+    "rule": "The comparison is validation, not a source for inventing missing implementation details.",
+    "result": "Any unexplained structural mismatch blocks CERTIFIED_PIXEL_FAITHFUL status."
+  }
+}
