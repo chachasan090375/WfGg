@@ -4,14 +4,14 @@
   "maxPartBytes": 50331648,
   "rawFileName": "lastwar-visual-reconstruction-map-v1.json",
   "uncompressedBytes": 277228416,
-  "uncompressedSha256": "6e6d4ccab3330f10d13591c6c1b348a3be69e93615c00c7e34cb2a4b0c97f3b0",
-  "compressedBytes": 21266928,
-  "compressedSha256": "1d56a74a6388b2109a36f710d3100cf5c88d46ecc14c79e683224a8e98a733a5",
+  "uncompressedSha256": "e0371bdb88476072e885d59fa9bb08d95a8d258dd07d850e19f26504c84690a0",
+  "compressedBytes": 21266925,
+  "compressedSha256": "09027ce8b820d1ba61c5297ef38cb09a4e6b16f961c145104e33be098f9c640c",
   "parts": [
     {
       "name": "part-000.bin",
-      "bytes": 21266928,
-      "sha256": "1d56a74a6388b2109a36f710d3100cf5c88d46ecc14c79e683224a8e98a733a5"
+      "bytes": 21266925,
+      "sha256": "09027ce8b820d1ba61c5297ef38cb09a4e6b16f961c145104e33be098f9c640c"
     }
   ],
   "loadRule": "Concatenate parts in listed order, verify compressed SHA256, gzip-decompress, verify uncompressed SHA256, then parse JSON.",
