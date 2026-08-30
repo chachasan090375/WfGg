@@ -1,10 +1,12 @@
 #!/data/data/com.termux/files/usr/bin/env python
 from pathlib import Path
 from collections import deque,defaultdict
-import argparse,json,sys
+import argparse,gzip,hashlib,json,sys
 
 ROOT=Path(__file__).resolve().parents[1]
 MAP=ROOT/'frontend/lab/master-assets-v2/index/lastwar-visual-reconstruction-map-v1.json'
+MANIFEST=ROOT/'frontend/lab/master-assets-v2/index/lastwar-visual-reconstruction-map-v1.manifest.json'
+PARTDIR=ROOT/'frontend/lab/master-assets-v2/index/lastwar-visual-reconstruction-map-v1.parts'
 CERT=ROOT/'frontend/lab/master-assets-v2/index/lastwar-render-certification-v1.json'
 POLICY=ROOT/'frontend/lab/master-assets-v2/index/lastwar-render-fidelity-policy-v1.json'
 
@@ -13,10 +15,37 @@ def load_json(p):
     return json.loads(p.read_text('utf-8'))
 
 def load_map():
+    # Backward/local compatibility: a raw map is accepted if present.
     a=load_json(MAP)
-    if not a:
-        print('MAP_ABSENT run: bash scripts/lastwar-reconstruction-map-refresh.sh');sys.exit(2)
-    return a
+    if a:return a
+    m=load_json(MANIFEST)
+    if not m:
+        print('MAP_ABSENT run: bash scripts/lastwar-reconstruction-map-refresh-safe.sh');sys.exit(2)
+    if m.get('format')!='WFGG_LASTWAR_VISUAL_RECONSTRUCTION_MAP_PACK_V1' or m.get('codec')!='gzip':
+        print('MAP_PACK_FORMAT_UNSUPPORTED');sys.exit(2)
+    chunks=[]; gz_hash=hashlib.sha256(); total=0
+    for part in m.get('parts',[]):
+        p=PARTDIR/part['name']
+        if not p.is_file():
+            print('MAP_PART_ABSENT '+str(p));sys.exit(2)
+        b=p.read_bytes(); total+=len(b)
+        if len(b)!=part.get('bytes'):
+            print('MAP_PART_SIZE_MISMATCH '+part['name']);sys.exit(2)
+        ph=hashlib.sha256(b).hexdigest()
+        if ph!=part.get('sha256'):
+            print('MAP_PART_SHA256_MISMATCH '+part['name']);sys.exit(2)
+        gz_hash.update(b);chunks.append(b)
+    packed=b''.join(chunks)
+    if total!=m.get('compressedBytes') or gz_hash.hexdigest()!=m.get('compressedSha256'):
+        print('MAP_PACK_SHA256_MISMATCH');sys.exit(2)
+    try:raw=gzip.decompress(packed)
+    except Exception as e:
+        print('MAP_GZIP_DECOMPRESS_FAILED '+str(e));sys.exit(2)
+    if len(raw)!=m.get('uncompressedBytes') or hashlib.sha256(raw).hexdigest()!=m.get('uncompressedSha256'):
+        print('MAP_RAW_SHA256_MISMATCH');sys.exit(2)
+    try:return json.loads(raw.decode('utf-8'))
+    except Exception as e:
+        print('MAP_JSON_PARSE_FAILED '+str(e));sys.exit(2)
 
 def choose_start(a,args):
     nodes={n['id']:n for n in a['nodes']}
