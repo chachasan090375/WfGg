@@ -1,0 +1,577 @@
+{
+  "format": "WFGG_LASTWAR_FORMATION_RAWIMAGE_ANCESTOR_CONTROLLER_MAP_V1",
+  "sources": {
+    "ptrGraph": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/master-assets-v2/meta/formation-ptr-exact-v4.json",
+    "backgroundPipeline": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/master-assets-v2/meta/formation-background-pipeline-v1.json",
+    "ptrSummary": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/master-assets-v2/meta/formation-ptr-exact-v4-summary-v1.json",
+    "clrAtlas": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/master-assets-v2/index/lastwar-code-discovery-atlas-v1.json"
+  },
+  "counts": {
+    "ptrNodes": 3209,
+    "ptrEdges": 8386,
+    "ancestorScriptOccurrences": 8,
+    "uniqueScriptNames": 4,
+    "resolvedClrTypes": 2,
+    "ambiguousClrTypes": 0,
+    "unresolvedClrTypes": 2,
+    "controllerMethods": 28,
+    "directRelevantMethods": 1,
+    "directWriteMethods": 0,
+    "directedWritePaths": 0
+  },
+  "anchors": {
+    "FormationBg": {
+      "componentPathID": 935766179200945348,
+      "gameObjectPathID": 2726074644948953871,
+      "gameObjectId": "CAB-2862f52f33917b713ca0663a7220b7cc#2726074644948953871",
+      "rawImageId": "CAB-2862f52f33917b713ca0663a7220b7cc#935766179200945348"
+    },
+    "FormationRT": {
+      "componentPathID": -3957975286359756321,
+      "gameObjectPathID": 3519289692077381591,
+      "gameObjectId": "CAB-2862f52f33917b713ca0663a7220b7cc#3519289692077381591",
+      "rawImageId": "CAB-2862f52f33917b713ca0663a7220b7cc#-3957975286359756321"
+    }
+  },
+  "chains": {
+    "FormationBg": [
+      {
+        "depth": 0,
+        "gameObjectId": "CAB-2862f52f33917b713ca0663a7220b7cc#2726074644948953871",
+        "gameObjectPathID": 2726074644948953871,
+        "gameObjectName": "FormationBg",
+        "components": [
+          {
+            "id": "CAB-2862f52f33917b713ca0663a7220b7cc#3074809845846659530",
+            "pathID": 3074809845846659530,
+            "type": "RectTransform",
+            "name": ""
+          },
+          {
+            "id": "CAB-2862f52f33917b713ca0663a7220b7cc#6847809801933144268",
+            "pathID": 6847809801933144268,
+            "type": "CanvasRenderer",
+            "name": ""
+          },
+          {
+            "id": "CAB-2862f52f33917b713ca0663a7220b7cc#935766179200945348",
+            "pathID": 935766179200945348,
+            "type": "MonoBehaviour",
+            "name": ""
+          }
+        ],
+        "scripts": [
+          {
+            "anchor": "FormationBg",
+            "depth": 0,
+            "gameObjectId": "CAB-2862f52f33917b713ca0663a7220b7cc#2726074644948953871",
+            "gameObjectName": "FormationBg",
+            "componentId": "CAB-2862f52f33917b713ca0663a7220b7cc#935766179200945348",
+            "componentPathID": 935766179200945348,
+            "componentType": "MonoBehaviour",
+            "scriptId": "CAB-2862f52f33917b713ca0663a7220b7cc#-8471220842657547617",
+            "scriptPathID": -8471220842657547617,
+            "scriptType": "MonoScript",
+            "scriptName": "RawImage"
+          }
+        ]
+      },
+      {
+        "depth": 1,
+        "gameObjectId": "CAB-2862f52f33917b713ca0663a7220b7cc#-7674902717186483613",
+        "gameObjectPathID": -7674902717186483613,
+        "gameObjectName": "FormationContent",
+        "components": [
+          {
+            "id": "CAB-2862f52f33917b713ca0663a7220b7cc#4664740362138404874",
+            "pathID": 4664740362138404874,
+            "type": "RectTransform",
+            "name": ""
+          }
+        ],
+        "scripts": []
+      },
+      {
+        "depth": 2,
+        "gameObjectId": "CAB-2862f52f33917b713ca0663a7220b7cc#-5235749847537914931",
+        "gameObjectPathID": -5235749847537914931,
+        "gameObjectName": "MiddleContentContainer",
+        "components": [
+          {
+            "id": "CAB-2862f52f33917b713ca0663a7220b7cc#-5818262406092589916",
+            "pathID": -5818262406092589916,
+            "type": "RectTransform",
+            "name": ""
+          }
+        ],
+        "scripts": []
+      },
+      {
+        "depth": 3,
+        "gameObjectId": "CAB-2862f52f33917b713ca0663a7220b7cc#5632371844933702308",
+        "gameObjectPathID": 5632371844933702308,
+        "gameObjectName": "Root",
+        "components": [
+          {
+            "id": "CAB-2862f52f33917b713ca0663a7220b7cc#6449161687880227851",
+            "pathID": 6449161687880227851,
+            "type": "RectTransform",
+            "name": ""
+          },
+          {
+            "id": "CAB-2862f52f33917b713ca0663a7220b7cc#5441613679782413188",
+            "pathID": 5441613679782413188,
+            "type": "CanvasRenderer",
+            "name": ""
+          },
+          {
+            "id": "CAB-2862f52f33917b713ca0663a7220b7cc#-8216835772677867173",
+            "pathID": -8216835772677867173,
+            "type": "MonoBehaviour",
+            "name": ""
+          }
+        ],
+        "scripts": [
+          {
+            "anchor": "FormationBg",
+            "depth": 3,
+            "gameObjectId": "CAB-2862f52f33917b713ca0663a7220b7cc#5632371844933702308",
+            "gameObjectName": "Root",
+            "componentId": "CAB-2862f52f33917b713ca0663a7220b7cc#-8216835772677867173",
+            "componentPathID": -8216835772677867173,
+            "componentType": "MonoBehaviour",
+            "scriptId": "CAB-2862f52f33917b713ca0663a7220b7cc#-6643220153193528427",
+            "scriptPathID": -6643220153193528427,
+            "scriptType": "MonoScript",
+            "scriptName": "ScreenSafeArea"
+          }
+        ]
+      },
+      {
+        "depth": 4,
+        "gameObjectId": "CAB-2862f52f33917b713ca0663a7220b7cc#8695854979998244933",
+        "gameObjectPathID": 8695854979998244933,
+        "gameObjectName": "UIHeroPVPFormationPanel",
+        "components": [
+          {
+            "id": "CAB-2862f52f33917b713ca0663a7220b7cc#-603196904479896874",
+            "pathID": -603196904479896874,
+            "type": "RectTransform",
+            "name": ""
+          },
+          {
+            "id": "CAB-2862f52f33917b713ca0663a7220b7cc#283466623089221348",
+            "pathID": 283466623089221348,
+            "type": "Canvas",
+            "name": ""
+          },
+          {
+            "id": "CAB-2862f52f33917b713ca0663a7220b7cc#6333053403691843337",
+            "pathID": 6333053403691843337,
+            "type": "MonoBehaviour",
+            "name": ""
+          },
+          {
+            "id": "CAB-2862f52f33917b713ca0663a7220b7cc#7386333701147076931",
+            "pathID": 7386333701147076931,
+            "type": "CanvasGroup",
+            "name": ""
+          },
+          {
+            "id": "CAB-2862f52f33917b713ca0663a7220b7cc#-3755011431292375246",
+            "pathID": -3755011431292375246,
+            "type": "MonoBehaviour",
+            "name": ""
+          }
+        ],
+        "scripts": [
+          {
+            "anchor": "FormationBg",
+            "depth": 4,
+            "gameObjectId": "CAB-2862f52f33917b713ca0663a7220b7cc#8695854979998244933",
+            "gameObjectName": "UIHeroPVPFormationPanel",
+            "componentId": "CAB-2862f52f33917b713ca0663a7220b7cc#6333053403691843337",
+            "componentPathID": 6333053403691843337,
+            "componentType": "MonoBehaviour",
+            "scriptId": "CAB-2862f52f33917b713ca0663a7220b7cc#8390977652835490180",
+            "scriptPathID": 8390977652835490180,
+            "scriptType": "MonoScript",
+            "scriptName": "GraphicRaycaster"
+          },
+          {
+            "anchor": "FormationBg",
+            "depth": 4,
+            "gameObjectId": "CAB-2862f52f33917b713ca0663a7220b7cc#8695854979998244933",
+            "gameObjectName": "UIHeroPVPFormationPanel",
+            "componentId": "CAB-2862f52f33917b713ca0663a7220b7cc#-3755011431292375246",
+            "componentPathID": -3755011431292375246,
+            "componentType": "MonoBehaviour",
+            "scriptId": "CAB-2862f52f33917b713ca0663a7220b7cc#1449921518487060124",
+            "scriptPathID": 1449921518487060124,
+            "scriptType": "MonoScript",
+            "scriptName": "ArabicMirror"
+          }
+        ]
+      }
+    ],
+    "FormationRT": [
+      {
+        "depth": 0,
+        "gameObjectId": "CAB-2862f52f33917b713ca0663a7220b7cc#3519289692077381591",
+        "gameObjectPathID": 3519289692077381591,
+        "gameObjectName": "FormationRT",
+        "components": [
+          {
+            "id": "CAB-2862f52f33917b713ca0663a7220b7cc#4337810137591353805",
+            "pathID": 4337810137591353805,
+            "type": "RectTransform",
+            "name": ""
+          },
+          {
+            "id": "CAB-2862f52f33917b713ca0663a7220b7cc#1120588958669457649",
+            "pathID": 1120588958669457649,
+            "type": "CanvasRenderer",
+            "name": ""
+          },
+          {
+            "id": "CAB-2862f52f33917b713ca0663a7220b7cc#-3957975286359756321",
+            "pathID": -3957975286359756321,
+            "type": "MonoBehaviour",
+            "name": ""
+          }
+        ],
+        "scripts": [
+          {
+            "anchor": "FormationRT",
+            "depth": 0,
+            "gameObjectId": "CAB-2862f52f33917b713ca0663a7220b7cc#3519289692077381591",
+            "gameObjectName": "FormationRT",
+            "componentId": "CAB-2862f52f33917b713ca0663a7220b7cc#-3957975286359756321",
+            "componentPathID": -3957975286359756321,
+            "componentType": "MonoBehaviour",
+            "scriptId": "CAB-2862f52f33917b713ca0663a7220b7cc#-8471220842657547617",
+            "scriptPathID": -8471220842657547617,
+            "scriptType": "MonoScript",
+            "scriptName": "RawImage"
+          }
+        ]
+      },
+      {
+        "depth": 1,
+        "gameObjectId": "CAB-2862f52f33917b713ca0663a7220b7cc#-7674902717186483613",
+        "gameObjectPathID": -7674902717186483613,
+        "gameObjectName": "FormationContent",
+        "components": [
+          {
+            "id": "CAB-2862f52f33917b713ca0663a7220b7cc#4664740362138404874",
+            "pathID": 4664740362138404874,
+            "type": "RectTransform",
+            "name": ""
+          }
+        ],
+        "scripts": []
+      },
+      {
+        "depth": 2,
+        "gameObjectId": "CAB-2862f52f33917b713ca0663a7220b7cc#-5235749847537914931",
+        "gameObjectPathID": -5235749847537914931,
+        "gameObjectName": "MiddleContentContainer",
+        "components": [
+          {
+            "id": "CAB-2862f52f33917b713ca0663a7220b7cc#-5818262406092589916",
+            "pathID": -5818262406092589916,
+            "type": "RectTransform",
+            "name": ""
+          }
+        ],
+        "scripts": []
+      },
+      {
+        "depth": 3,
+        "gameObjectId": "CAB-2862f52f33917b713ca0663a7220b7cc#5632371844933702308",
+        "gameObjectPathID": 5632371844933702308,
+        "gameObjectName": "Root",
+        "components": [
+          {
+            "id": "CAB-2862f52f33917b713ca0663a7220b7cc#6449161687880227851",
+            "pathID": 6449161687880227851,
+            "type": "RectTransform",
+            "name": ""
+          },
+          {
+            "id": "CAB-2862f52f33917b713ca0663a7220b7cc#5441613679782413188",
+            "pathID": 5441613679782413188,
+            "type": "CanvasRenderer",
+            "name": ""
+          },
+          {
+            "id": "CAB-2862f52f33917b713ca0663a7220b7cc#-8216835772677867173",
+            "pathID": -8216835772677867173,
+            "type": "MonoBehaviour",
+            "name": ""
+          }
+        ],
+        "scripts": [
+          {
+            "anchor": "FormationRT",
+            "depth": 3,
+            "gameObjectId": "CAB-2862f52f33917b713ca0663a7220b7cc#5632371844933702308",
+            "gameObjectName": "Root",
+            "componentId": "CAB-2862f52f33917b713ca0663a7220b7cc#-8216835772677867173",
+            "componentPathID": -8216835772677867173,
+            "componentType": "MonoBehaviour",
+            "scriptId": "CAB-2862f52f33917b713ca0663a7220b7cc#-6643220153193528427",
+            "scriptPathID": -6643220153193528427,
+            "scriptType": "MonoScript",
+            "scriptName": "ScreenSafeArea"
+          }
+        ]
+      },
+      {
+        "depth": 4,
+        "gameObjectId": "CAB-2862f52f33917b713ca0663a7220b7cc#8695854979998244933",
+        "gameObjectPathID": 8695854979998244933,
+        "gameObjectName": "UIHeroPVPFormationPanel",
+        "components": [
+          {
+            "id": "CAB-2862f52f33917b713ca0663a7220b7cc#-603196904479896874",
+            "pathID": -603196904479896874,
+            "type": "RectTransform",
+            "name": ""
+          },
+          {
+            "id": "CAB-2862f52f33917b713ca0663a7220b7cc#283466623089221348",
+            "pathID": 283466623089221348,
+            "type": "Canvas",
+            "name": ""
+          },
+          {
+            "id": "CAB-2862f52f33917b713ca0663a7220b7cc#6333053403691843337",
+            "pathID": 6333053403691843337,
+            "type": "MonoBehaviour",
+            "name": ""
+          },
+          {
+            "id": "CAB-2862f52f33917b713ca0663a7220b7cc#7386333701147076931",
+            "pathID": 7386333701147076931,
+            "type": "CanvasGroup",
+            "name": ""
+          },
+          {
+            "id": "CAB-2862f52f33917b713ca0663a7220b7cc#-3755011431292375246",
+            "pathID": -3755011431292375246,
+            "type": "MonoBehaviour",
+            "name": ""
+          }
+        ],
+        "scripts": [
+          {
+            "anchor": "FormationRT",
+            "depth": 4,
+            "gameObjectId": "CAB-2862f52f33917b713ca0663a7220b7cc#8695854979998244933",
+            "gameObjectName": "UIHeroPVPFormationPanel",
+            "componentId": "CAB-2862f52f33917b713ca0663a7220b7cc#6333053403691843337",
+            "componentPathID": 6333053403691843337,
+            "componentType": "MonoBehaviour",
+            "scriptId": "CAB-2862f52f33917b713ca0663a7220b7cc#8390977652835490180",
+            "scriptPathID": 8390977652835490180,
+            "scriptType": "MonoScript",
+            "scriptName": "GraphicRaycaster"
+          },
+          {
+            "anchor": "FormationRT",
+            "depth": 4,
+            "gameObjectId": "CAB-2862f52f33917b713ca0663a7220b7cc#8695854979998244933",
+            "gameObjectName": "UIHeroPVPFormationPanel",
+            "componentId": "CAB-2862f52f33917b713ca0663a7220b7cc#-3755011431292375246",
+            "componentPathID": -3755011431292375246,
+            "componentType": "MonoBehaviour",
+            "scriptId": "CAB-2862f52f33917b713ca0663a7220b7cc#1449921518487060124",
+            "scriptPathID": 1449921518487060124,
+            "scriptType": "MonoScript",
+            "scriptName": "ArabicMirror"
+          }
+        ]
+      }
+    ]
+  },
+  "resolvedClrTypes": [
+    {
+      "scriptName": "ArabicMirror",
+      "occurrences": [
+        {
+          "anchor": "FormationBg",
+          "depth": 4,
+          "gameObjectId": "CAB-2862f52f33917b713ca0663a7220b7cc#8695854979998244933",
+          "gameObjectName": "UIHeroPVPFormationPanel",
+          "componentId": "CAB-2862f52f33917b713ca0663a7220b7cc#-3755011431292375246",
+          "componentPathID": -3755011431292375246,
+          "componentType": "MonoBehaviour",
+          "scriptId": "CAB-2862f52f33917b713ca0663a7220b7cc#1449921518487060124",
+          "scriptPathID": 1449921518487060124,
+          "scriptType": "MonoScript",
+          "scriptName": "ArabicMirror"
+        },
+        {
+          "anchor": "FormationRT",
+          "depth": 4,
+          "gameObjectId": "CAB-2862f52f33917b713ca0663a7220b7cc#8695854979998244933",
+          "gameObjectName": "UIHeroPVPFormationPanel",
+          "componentId": "CAB-2862f52f33917b713ca0663a7220b7cc#-3755011431292375246",
+          "componentPathID": -3755011431292375246,
+          "componentType": "MonoBehaviour",
+          "scriptId": "CAB-2862f52f33917b713ca0663a7220b7cc#1449921518487060124",
+          "scriptPathID": 1449921518487060124,
+          "scriptType": "MonoScript",
+          "scriptName": "ArabicMirror"
+        }
+      ],
+      "atlasCandidates": [
+        {
+          "typeRid": 1199,
+          "fullName": "ArabicMirror"
+        }
+      ],
+      "typeRid": 1199,
+      "fullName": "ArabicMirror",
+      "methodCount": 21
+    },
+    {
+      "scriptName": "ScreenSafeArea",
+      "occurrences": [
+        {
+          "anchor": "FormationBg",
+          "depth": 3,
+          "gameObjectId": "CAB-2862f52f33917b713ca0663a7220b7cc#5632371844933702308",
+          "gameObjectName": "Root",
+          "componentId": "CAB-2862f52f33917b713ca0663a7220b7cc#-8216835772677867173",
+          "componentPathID": -8216835772677867173,
+          "componentType": "MonoBehaviour",
+          "scriptId": "CAB-2862f52f33917b713ca0663a7220b7cc#-6643220153193528427",
+          "scriptPathID": -6643220153193528427,
+          "scriptType": "MonoScript",
+          "scriptName": "ScreenSafeArea"
+        },
+        {
+          "anchor": "FormationRT",
+          "depth": 3,
+          "gameObjectId": "CAB-2862f52f33917b713ca0663a7220b7cc#5632371844933702308",
+          "gameObjectName": "Root",
+          "componentId": "CAB-2862f52f33917b713ca0663a7220b7cc#-8216835772677867173",
+          "componentPathID": -8216835772677867173,
+          "componentType": "MonoBehaviour",
+          "scriptId": "CAB-2862f52f33917b713ca0663a7220b7cc#-6643220153193528427",
+          "scriptPathID": -6643220153193528427,
+          "scriptType": "MonoScript",
+          "scriptName": "ScreenSafeArea"
+        }
+      ],
+      "atlasCandidates": [
+        {
+          "typeRid": 1248,
+          "fullName": "ScreenSafeArea"
+        }
+      ],
+      "typeRid": 1248,
+      "fullName": "ScreenSafeArea",
+      "methodCount": 7
+    }
+  ],
+  "ambiguousClrTypes": [],
+  "unresolvedClrTypes": [
+    {
+      "scriptName": "GraphicRaycaster",
+      "occurrences": [
+        {
+          "anchor": "FormationBg",
+          "depth": 4,
+          "gameObjectId": "CAB-2862f52f33917b713ca0663a7220b7cc#8695854979998244933",
+          "gameObjectName": "UIHeroPVPFormationPanel",
+          "componentId": "CAB-2862f52f33917b713ca0663a7220b7cc#6333053403691843337",
+          "componentPathID": 6333053403691843337,
+          "componentType": "MonoBehaviour",
+          "scriptId": "CAB-2862f52f33917b713ca0663a7220b7cc#8390977652835490180",
+          "scriptPathID": 8390977652835490180,
+          "scriptType": "MonoScript",
+          "scriptName": "GraphicRaycaster"
+        },
+        {
+          "anchor": "FormationRT",
+          "depth": 4,
+          "gameObjectId": "CAB-2862f52f33917b713ca0663a7220b7cc#8695854979998244933",
+          "gameObjectName": "UIHeroPVPFormationPanel",
+          "componentId": "CAB-2862f52f33917b713ca0663a7220b7cc#6333053403691843337",
+          "componentPathID": 6333053403691843337,
+          "componentType": "MonoBehaviour",
+          "scriptId": "CAB-2862f52f33917b713ca0663a7220b7cc#8390977652835490180",
+          "scriptPathID": 8390977652835490180,
+          "scriptType": "MonoScript",
+          "scriptName": "GraphicRaycaster"
+        }
+      ],
+      "atlasCandidates": []
+    },
+    {
+      "scriptName": "RawImage",
+      "occurrences": [
+        {
+          "anchor": "FormationBg",
+          "depth": 0,
+          "gameObjectId": "CAB-2862f52f33917b713ca0663a7220b7cc#2726074644948953871",
+          "gameObjectName": "FormationBg",
+          "componentId": "CAB-2862f52f33917b713ca0663a7220b7cc#935766179200945348",
+          "componentPathID": 935766179200945348,
+          "componentType": "MonoBehaviour",
+          "scriptId": "CAB-2862f52f33917b713ca0663a7220b7cc#-8471220842657547617",
+          "scriptPathID": -8471220842657547617,
+          "scriptType": "MonoScript",
+          "scriptName": "RawImage"
+        },
+        {
+          "anchor": "FormationRT",
+          "depth": 0,
+          "gameObjectId": "CAB-2862f52f33917b713ca0663a7220b7cc#3519289692077381591",
+          "gameObjectName": "FormationRT",
+          "componentId": "CAB-2862f52f33917b713ca0663a7220b7cc#-3957975286359756321",
+          "componentPathID": -3957975286359756321,
+          "componentType": "MonoBehaviour",
+          "scriptId": "CAB-2862f52f33917b713ca0663a7220b7cc#-8471220842657547617",
+          "scriptPathID": -8471220842657547617,
+          "scriptType": "MonoScript",
+          "scriptName": "RawImage"
+        }
+      ],
+      "atlasCandidates": []
+    }
+  ],
+  "directRelevantMethods": [
+    {
+      "rid": 13576,
+      "symbol": "ArabicMirror.ProcessImageOrRawImage",
+      "apis": [
+        {
+          "class": "READ RawImage.get_texture",
+          "target": "UnityEngine.UI.RawImage.get_texture",
+          "classification": "framework"
+        }
+      ],
+      "strings": []
+    }
+  ],
+  "directWriteMethods": [],
+  "directedWritePaths": [],
+  "conclusion": {
+    "nextStrategy": "inspect_exact_ancestor_controller_methods_then_dynamic_binding",
+    "important": "Only exact V4 hierarchy/component/script edges and exact CLR atlas joins are evidence. Ancestor presence does not by itself prove ownership of the runtime texture assignment."
+  },
+  "guardrails": {
+    "existingEvidenceOnly": true,
+    "apkAccess": false,
+    "dllRescan": false,
+    "bundleExtraction": false,
+    "bundleScan": false,
+    "candidatePromotion": false,
+    "mainUntouched": true,
+    "previewUntouched": true
+  }
+}
