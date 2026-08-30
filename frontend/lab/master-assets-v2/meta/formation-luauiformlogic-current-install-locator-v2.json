@@ -1,0 +1,873 @@
+{
+  "format": "WFGG_LASTWAR_FORMATION_LUAUIFORMLOGIC_CURRENT_INSTALL_LOCATOR_V2",
+  "targetAsset": "Assets/Main/Prefabs/UI/UIHero/LWHero/UIHeroPVPFormationPanel.prefab",
+  "targetBundleId": 6933,
+  "counts": {
+    "baselineClosure": 195,
+    "familyBundles": 11,
+    "directDependents": 0,
+    "unionDelta": 0,
+    "groupsAttempted": 0,
+    "newBundlesCarved": 0,
+    "exactScripts": 0,
+    "matchingBehaviours": 0,
+    "exactTextAssetRefs": 0
+  },
+  "familyPaths": [
+    {
+      "bundleId": 5596,
+      "assetPath": "Assets/Main/Prefabs/UI/LWUISeasonTower/UIHeroFakePVPFormationPanel_SeasonTower.prefab"
+    },
+    {
+      "bundleId": 6929,
+      "assetPath": "Assets/Main/Prefabs/UI/UIHero/LWHero/UIHeroFakePVPFormationPanel.prefab"
+    },
+    {
+      "bundleId": 6933,
+      "assetPath": "Assets/Main/Prefabs/UI/UIHero/LWHero/UIHeroPVPFormationPanel.prefab"
+    },
+    {
+      "bundleId": 6934,
+      "assetPath": "Assets/Main/Prefabs/UI/UIHero/LWHero/UIHeroPVPFormationPanelHeroCell.prefab"
+    },
+    {
+      "bundleId": 6972,
+      "assetPath": "Assets/Main/Prefabs/UI/UIHero/LWHero/FormationPreset/UILWPVPFormationPreset.prefab"
+    },
+    {
+      "bundleId": 6973,
+      "assetPath": "Assets/Main/Prefabs/UI/UIHero/LWHero/FormationPreset/UILWPVPFormationPresetDetail.prefab"
+    },
+    {
+      "bundleId": 6974,
+      "assetPath": "Assets/Main/Prefabs/UI/UIHero/LWHero/FormationPreset/UILWPVPFormationPresetRename.prefab"
+    },
+    {
+      "bundleId": 7074,
+      "assetPath": "Assets/Main/Prefabs/UI/UIHero/UILWHeroTryOut/UIHeroFakePVPFormationPanel_HeroTryOut.prefab"
+    },
+    {
+      "bundleId": 9419,
+      "assetPath": "Assets/Main/Sprites/UI/UILWPVPFormationPreset/mjc_DDYS_danse_bg.png"
+    },
+    {
+      "bundleId": 9420,
+      "assetPath": "Assets/Main/Sprites/UI/UILWPVPFormationPreset/mjc_DDYS_gaiming_icon.png"
+    },
+    {
+      "bundleId": 10351,
+      "assetPath": "Assets/Main/TextureEx/UILWPVPFormationPreset/mjc_DDYS_banner.png"
+    }
+  ],
+  "groups": [],
+  "baselineInspection": {
+    "group": "proven-target-closure",
+    "loaded": true,
+    "bundleCount": 195,
+    "objectCount": 12970,
+    "sources": [
+      {
+        "bundleId": 102,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 110,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 667,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 1053,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 1056,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 1057,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 1073,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 1135,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 1176,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 1217,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 1225,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 1235,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 1244,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 1302,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 1308,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 1314,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 1319,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 1323,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 1325,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 1360,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 1365,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 4623,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 4670,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 6916,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 6917,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 6920,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 6933,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 7020,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 7039,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 7213,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 9275,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 9491,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 9493,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 9494,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 9496,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 9497,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 9498,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 9499,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 9500,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 9501,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 9502,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 9503,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 9504,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 9505,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 9506,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 9508,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 9509,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 9511,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 9520,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 10209,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 10347,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 10587,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 11724,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 11725,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 14169,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 14189,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 15389,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 17777,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 17778,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 17779,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 17781,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 17782,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 17783,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 17787,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 17788,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 17789,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 17790,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 17791,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 17792,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 17793,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 17794,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 17795,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 17796,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 17797,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 17800,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 17801,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 17802,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 17803,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 17804,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 23419,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 23431,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 23439,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 23449,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 23452,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 23453,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 23455,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 23456,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 23457,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 23458,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 23459,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 23461,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 23462,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 23464,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 23465,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 23466,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 23468,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 23469,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 23470,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 23472,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 23473,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 23474,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 23476,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 23479,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 23480,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 23481,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 23482,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 23483,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 23484,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 23485,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 23486,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 23487,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 23488,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 23489,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 23491,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 23492,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 23493,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 23494,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 23495,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 23496,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 23497,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 23662,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 23730,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 24927,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 26057,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 26175,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 26251,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 26299,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 26354,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 26357,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 26360,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 26364,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 26365,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 26369,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 26375,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 26385,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 26388,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 26393,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 26404,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 26408,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 26410,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 26414,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 26419,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 26426,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 26429,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 26431,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 26435,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 26441,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 26449,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 26459,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 26460,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 26464,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 26465,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 26466,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 26467,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 26488,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 26493,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 26509,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 26510,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 26511,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 26512,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 26519,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 26522,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 26523,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 26529,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 26530,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 26533,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 26542,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 26549,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 26553,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 26571,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 26573,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 26574,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 26592,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 26596,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 26597,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 26598,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 26599,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 26600,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 27110,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 28735,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 28798,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 28799,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 28834,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 28835,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 28836,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 28837,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 28883,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 28884,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 28901,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 29106,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 35878,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 35879,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 35975,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 35984,
+        "source": "reused-proven-baseline"
+      },
+      {
+        "bundleId": 36030,
+        "source": "reused-proven-baseline"
+      }
+    ],
+    "exactLuaUIFormLogicScripts": [],
+    "matchingBehaviours": [],
+    "exactTextAssetRefs": [],
+    "unresolvedPPtrCount": 0
+  },
+  "incrementalInspections": [],
+  "exactLuaUIFormLogicScripts": [],
+  "matchingBehaviours": [],
+  "exactTextAssetRefs": [],
+  "foundExact": false,
+  "foundGroup": null,
+  "nextStrategy": "targeted_locator_v3_needed_without_candidate_promotion",
+  "carveLog": [],
+  "carveErrors": [],
+  "guardrails": {
+    "baselineReused": true,
+    "globalBundleScan": false,
+    "candidatePromotion": false,
+    "apkReadOnly": true,
+    "incrementalDirectDependentsOnly": true,
+    "mainUntouched": true,
+    "previewUntouched": true
+  }
+}
