@@ -1,0 +1,54 @@
+{
+  "format": "WFGG_LASTWAR_FORMATION_RAWIMAGE_OWNER_CLR_JUNCTION_V1",
+  "sources": {
+    "ptrGraph": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/master-assets-v2/meta/formation-ptr-exact-v4.json",
+    "backgroundPipeline": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/master-assets-v2/meta/formation-background-pipeline-v1.json",
+    "ptrSummary": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/master-assets-v2/meta/formation-ptr-exact-v4-summary-v1.json",
+    "clrAtlas": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/master-assets-v2/index/lastwar-code-discovery-atlas-v1.json"
+  },
+  "anchors": {
+    "FormationBg": {
+      "componentPathID": 935766179200945348,
+      "gameObjectPathID": 2726074644948953871
+    },
+    "FormationRT": {
+      "componentPathID": -3957975286359756321,
+      "gameObjectPathID": 3519289692077381591
+    }
+  },
+  "counts": {
+    "ptrObjects": 0,
+    "ptrEdges": 8386,
+    "ownerComponentRows": 0,
+    "scriptTargets": 0,
+    "resolvedClrTypes": 0,
+    "ambiguousClrTypes": 0,
+    "unresolvedClrTypes": 0,
+    "ownerMethods": 0,
+    "directRelevantMethods": 0,
+    "directedRenderPaths": 0,
+    "ownerBoundaryMethods": 0
+  },
+  "ownerComponents": [],
+  "scriptTargets": [],
+  "resolvedClrTypes": [],
+  "ambiguousClrTypes": [],
+  "unresolvedClrTypes": [],
+  "directRelevantMethods": [],
+  "directedOwnerToRenderApiPaths": [],
+  "ownerBoundaryMethods": [],
+  "conclusion": {
+    "nextStrategy": "trace_runtime_component_lookup_from_exact_formationbg_formationrt_names",
+    "important": "Only exact V4 component/script identity and exact atlas call edges are evidence. Name/type matching is exact; ambiguous type names are not promoted."
+  },
+  "guardrails": {
+    "existingEvidenceOnly": true,
+    "apkAccess": false,
+    "dllRescan": false,
+    "bundleExtraction": false,
+    "bundleScan": false,
+    "candidatePromotion": false,
+    "mainUntouched": true,
+    "previewUntouched": true
+  }
+}
