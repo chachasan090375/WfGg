@@ -1,0 +1,66 @@
+{
+  "format": "WFGG_LASTWAR_CODE_KNOWN_ANCHORS_V1",
+  "purpose": "Seed of already-understood CLR/runtime symbols. The discovery atlas treats everything else in Assembly-CSharp as unclassified until evidence promotes it.",
+  "statuses": ["known", "candidate", "unknown", "resolved", "false-positive"],
+  "knownTypes": [
+    "HeroShowSetting",
+    "BitBenderGames.MobileTouchCamera",
+    "WorldCamera",
+    "BlurOptimized",
+    "CameraGFXPanel"
+  ],
+  "knownMethods": [
+    "HeroShowSetting.Awake",
+    "HeroShowSetting.Setting",
+    "HeroShowSetting.Update",
+    "HeroShowSetting.OnDestroy",
+    "WorldCamera.AutoFocus",
+    "WorldCamera.UpdateFrameBuffer",
+    "BitBenderGames.MobileTouchCamera.get_CamZoomFormation",
+    "BitBenderGames.MobileTouchCamera.set_CamZoomFormation",
+    "BitBenderGames.MobileTouchCamera.get_CamZoomFocusFormationRotation",
+    "BitBenderGames.MobileTouchCamera.set_CamZoomFocusFormationRotation"
+  ],
+  "knownRuntimeStrings": [
+    "Camp_",
+    "GrabCamera",
+    "Formation",
+    "HeroShowBlend",
+    "FormationRT",
+    "FormationBg",
+    "WorldCityGrass"
+  ],
+  "knownFacts": [
+    {
+      "id": "HSS-UPDATE-CAMP-FIND",
+      "status": "known",
+      "fact": "HeroShowSetting.Update builds GameObject name Camp_<level>, calls GameObject.Find, then finds or creates child GrabCamera."
+    },
+    {
+      "id": "HSS-SETTING-LIGHTING",
+      "status": "known",
+      "fact": "HeroShowSetting.Setting configures SH shader globals and URP shadowDistance; it does not itself load the Camp scene."
+    },
+    {
+      "id": "FORMATION-CAMERA-WORLDCAMERA",
+      "status": "known",
+      "fact": "WorldCamera.AutoFocus references CamZoomFormation and CamZoomFocusFormationRotation."
+    }
+  ],
+  "negativeKnowledge": [
+    {
+      "id": "NEG-HEROSHOW-SERIALIZED-8012",
+      "status": "false-positive",
+      "evidence": "heroshow-structure-fingerprint-v1.json",
+      "scope": "8012 AssetBundles inspected",
+      "result": "No strong serialized Camp_<level>/HeroShowSetting field fingerprint. Do not repeat this global bundle scan for the same hypothesis."
+    },
+    {
+      "id": "NEG-HEROSHOW-MATERIAL-DEPS",
+      "status": "false-positive",
+      "evidence": "heroshow-material-dependents-v1.json",
+      "result": "HeroShowBlend is globally shared and has too many dependents to identify Formation by material dependency alone."
+    }
+  ],
+  "rule": "Unknown does not mean irrelevant. Preserve unknown symbols with stable CLR RIDs, graph neighborhood, strings, resource/scene/render tags, and evidence so later discoveries can resolve them without rescanning."
+}
