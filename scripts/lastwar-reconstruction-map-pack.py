@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/env python
 from __future__ import annotations
 from pathlib import Path
-import gzip,hashlib,json,shutil,sys
+import gzip,hashlib,json,sys
 
 ROOT=Path(__file__).resolve().parents[1]
 IDX=ROOT/'frontend/lab/master-assets-v2/index'
@@ -20,11 +20,12 @@ for p in PARTDIR.iterdir():
 
 raw_hash=hashlib.sha256()
 raw_bytes=0
-with RAW.open('rb') as src, gzip.open(TMP,'wb',compresslevel=9,mtime=0) as gz:
-    while True:
-        chunk=src.read(1024*1024)
-        if not chunk: break
-        raw_hash.update(chunk); raw_bytes+=len(chunk); gz.write(chunk)
+with RAW.open('rb') as src, TMP.open('wb') as dst:
+    with gzip.GzipFile(fileobj=dst,mode='wb',compresslevel=9,mtime=0) as gz:
+        while True:
+            chunk=src.read(1024*1024)
+            if not chunk: break
+            raw_hash.update(chunk); raw_bytes+=len(chunk); gz.write(chunk)
 
 gz_hash=hashlib.sha256()
 gz_bytes=0
