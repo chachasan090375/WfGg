@@ -1,0 +1,47 @@
+{
+  "format": "WFGG_LASTWAR_FORMATION_RUNTIME_NAME_IL_XREF_V1",
+  "dll": {
+    "path": "/data/data/com.termux/files/home/storage/downloads/WFGG_LASTWAR_Assembly-CSharp_recovered.dll",
+    "sha256": "ed02eadb7764f7ff82a0d9b8746987ece867b2ccf7b06e9022e06c79259c380f"
+  },
+  "needles": [
+    "FormationBg",
+    "FormationRT"
+  ],
+  "counts": {
+    "typedefs": 5800,
+    "methods": 54246,
+    "userStringExactEntries": 0,
+    "xrefMethods": 0,
+    "directEvidenceMethods": 0,
+    "directedWritePaths": 0
+  },
+  "userStringExactHits": {},
+  "methodXrefs": [],
+  "directEvidence": [],
+  "directedWritePaths": [],
+  "rawByteDiagnostics": {
+    "FormationBg": {
+      "asciiOffsets": [],
+      "utf16leOffsets": []
+    },
+    "FormationRT": {
+      "asciiOffsets": [],
+      "utf16leOffsets": []
+    }
+  },
+  "conclusion": {
+    "nextStrategy": "runtime_names_absent_from_csharp_dll_trace_lua_or_dynamic_lookup",
+    "important": "Only exact #US equality and decoded ldstr XREF are promoted. Raw byte offsets are diagnostics only."
+  },
+  "guardrails": {
+    "recoveredDllOnly": true,
+    "dllShaGuard": true,
+    "apkAccess": false,
+    "bundleScan": false,
+    "atlasRebuild": false,
+    "candidatePromotion": false,
+    "mainUntouched": true,
+    "previewUntouched": true
+  }
+}
