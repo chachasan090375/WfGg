@@ -1,0 +1,376 @@
+{
+  "format": "WFGG_LASTWAR_FORMATION_DYNAMIC_BINDING_BRIDGE_V1",
+  "dllSha256": "ed02eadb7764f7ff82a0d9b8746987ece867b2ccf7b06e9022e06c79259c380f",
+  "atlasExactBoundaryMethods": [
+    {
+      "rid": 13830,
+      "symbol": "LuaUIFormLogic.LuaInit",
+      "strings": [],
+      "externalCalls": [
+        "OneObjDelegate.Invoke",
+        "UnityEngine.Component.get_gameObject",
+        "UnityEngine.Object.get_name",
+        "UnityEngine.TextAsset.get_text"
+      ],
+      "callers": [],
+      "callees": [
+        15436,
+        15444,
+        15449,
+        15455,
+        15505
+      ],
+      "tags": [
+        "string-evidence"
+      ]
+    },
+    {
+      "rid": 4807,
+      "symbol": "PBController.OnLoadAssets",
+      "strings": [],
+      "externalCalls": [
+        "UnityEngine.TextAsset.get_bytes",
+        "VEngine.Asset.get_asset",
+        "XLua.LuaDLL.Lua.Load_luaUtil"
+      ],
+      "callers": [
+        4809
+      ],
+      "callees": [
+        3143,
+        4802,
+        4803,
+        14801,
+        15441
+      ],
+      "tags": []
+    },
+    {
+      "rid": 14828,
+      "symbol": "XLuaManager.CustomLoaderImpl",
+      "strings": [],
+      "externalCalls": [
+        "GameFramework.Log.Error",
+        "ICSharpCode.SharpZipLib.Zip.ZipEntry.get_Size",
+        "ICSharpCode.SharpZipLib.Zip.ZipFile.GetEntry",
+        "ICSharpCode.SharpZipLib.Zip.ZipFile.GetInputStream",
+        "System.IDisposable.Dispose",
+        "System.IO.File.Exists",
+        "System.IO.File.ReadAllBytes",
+        "System.IO.Stream.Read",
+        "System.String.Concat",
+        "System.String.Contains",
+        "System.String.Format",
+        "System.String.Replace",
+        "System.String.Split",
+        "System.Type.GetTypeFromHandle",
+        "UnityEngine.Application.get_dataPath",
+        "UnityEngine.Application.get_isEditor",
+        "UnityEngine.Application.get_persistentDataPath",
+        "UnityEngine.Resources.UnloadAsset",
+        "UnityEngine.TextAsset.get_bytes",
+        "VEngine.Asset.get_asset",
+        "VEngine.Loadable.Release",
+        "VEngine.Loadable.get_isError",
+        "tag4:rid1119.Add",
+        "tag4:rid1119.TryGetValue",
+        "tag4:rid1119.get_Count"
+      ],
+      "callers": [
+        14827
+      ],
+      "callees": [
+        506,
+        512,
+        3050,
+        3131,
+        3143,
+        3153,
+        3415,
+        3421,
+        3428,
+        3433,
+        3711,
+        4209,
+        4222,
+        4223,
+        5465,
+        14812,
+        14814
+      ],
+      "tags": [
+        "asset-loader",
+        "string-evidence"
+      ]
+    },
+    {
+      "rid": 14817,
+      "symbol": "XLuaManager.Initialize",
+      "strings": [],
+      "externalCalls": [
+        "GameFramework.Log.Error",
+        "GameFramework.Log.Info",
+        "GameKit.Base.EncryptUtils.FromChachaToPKZip",
+        "GameKit.Base.EncryptUtils.IsChachaTable",
+        "ICSharpCode.SharpZipLib.Zip.ZipFile..ctor",
+        "System.IDisposable.Dispose",
+        "System.IO.File.OpenRead",
+        "System.IO.File.ReadAllBytes",
+        "System.IO.MemoryStream..ctor",
+        "System.IO.Stream.Read",
+        "System.String.Concat",
+        "System.String.IsNullOrEmpty",
+        "tag4:rid1089.Clear"
+      ],
+      "callers": [
+        448,
+        727,
+        825
+      ],
+      "callees": [
+        515,
+        557,
+        4217,
+        14813,
+        14814,
+        14815,
+        14819,
+        14820
+      ],
+      "tags": [
+        "string-evidence"
+      ]
+    }
+  ],
+  "exactBoundaryMethodIL": [
+    {
+      "rid": 13830,
+      "symbol": "LuaUIFormLogic.LuaInit",
+      "strings": [
+        "__index",
+        "self",
+        "init",
+        "open",
+        "update",
+        "close",
+        "cover",
+        "resume",
+        "pause",
+        "refocus",
+        "reveal"
+      ],
+      "internalCalls": [
+        "XLua.LuaEnv.NewTable",
+        "XLua.LuaEnv.NewTable",
+        "XLua.LuaEnv.get_Global",
+        "XLua.LuaTable.SetMetaTable",
+        "XLua.LuaBase.Dispose",
+        "XLua.LuaEnv.DoString"
+      ],
+      "externalCalls": [
+        "UnityEngine.TextAsset.get_text",
+        "UnityEngine.Component.get_gameObject",
+        "UnityEngine.Object.get_name",
+        "OneObjDelegate.Invoke"
+      ]
+    },
+    {
+      "rid": 4807,
+      "symbol": "PBController.OnLoadAssets",
+      "strings": [],
+      "internalCalls": [
+        "GameEntry.get_Lua",
+        "XLuaManager.get_Env",
+        "XLua.LuaEnv.get_L",
+        "PBController.get_loadSuccessCount",
+        "PBController.set_loadSuccessCount"
+      ],
+      "externalCalls": [
+        "VEngine.Asset.get_asset",
+        "UnityEngine.TextAsset.get_bytes",
+        "XLua.LuaDLL.Lua.Load_luaUtil"
+      ]
+    },
+    {
+      "rid": 14828,
+      "symbol": "XLuaManager.CustomLoaderImpl",
+      "strings": [
+        "LuaDatatable",
+        ".lua",
+        "LuaDatatable",
+        "LuaDatatable.",
+        "can`t load LuaDatatable file in zip file {0}",
+        "DATATABLE_LOAD_FALLBACK",
+        ".",
+        "/",
+        ".lua",
+        "can`t load lua file from lw lua file {0}, {1}",
+        ".",
+        "/",
+        ".bytes"
+      ],
+      "internalCalls": [
+        "ApplicationLaunch.get_Instance",
+        "ApplicationLaunch.get_Loading",
+        "GameEntry.get_Sdk",
+        "SDKManager.get_Version",
+        "ClientConfig.get_MustHaveDataTable",
+        "PostEventLog.Record",
+        "GameEntry.get_Resource",
+        "ResourceManager.get_IsSimulation",
+        "XLuaManager.get_s_useLwLuaFile",
+        "XLuaManager.get_s_useLwLuaFile",
+        "XLuaManager.get_s_lwLuaFile",
+        "LWLuaFile.LoadFile",
+        "LWLuaFile.InWhiteList",
+        "XLuaManager.get_s_lwLuaFile",
+        "XLuaManager.get_s_lwLuaFile",
+        "LWLuaFile.get_version",
+        "GameEntry.get_Lua",
+        "GameEntry.get_Resource",
+        "ResourceManager.HasAsset",
+        "GameEntry.get_Resource",
+        "ResourceManager.LoadAsset",
+        "GameEntry.get_Lua",
+        "GameEntry.get_Lua",
+        "GameEntry.get_Resource",
+        "ResourceManager.RemoveCachedUnusedAssets"
+      ],
+      "externalCalls": [
+        "System.String.Contains",
+        "System.String.Split",
+        "System.String.Split",
+        "UnityEngine.Application.get_persistentDataPath",
+        "System.String.Format",
+        "System.String.Concat",
+        "System.IO.File.Exists",
+        "System.IO.File.ReadAllBytes",
+        "System.String.Contains",
+        "System.String.Replace",
+        "ICSharpCode.SharpZipLib.Zip.ZipFile.GetEntry",
+        "ICSharpCode.SharpZipLib.Zip.ZipFile.GetInputStream",
+        "ICSharpCode.SharpZipLib.Zip.ZipEntry.get_Size",
+        "System.IO.Stream.Read",
+        "System.IDisposable.Dispose",
+        "GameFramework.Log.Error",
+        "UnityEngine.Application.get_isEditor",
+        "System.String.Replace",
+        "System.String.Concat",
+        "UnityEngine.Application.get_dataPath",
+        "System.String.Concat",
+        "System.IO.File.Exists",
+        "System.IO.File.ReadAllBytes",
+        "System.String.Format",
+        "GameFramework.Log.Error",
+        "System.String.Replace",
+        "System.String.Concat",
+        "System.String.Concat",
+        "tag4:rid1119.TryGetValue",
+        "VEngine.Asset.get_asset",
+        "UnityEngine.TextAsset.get_bytes",
+        "System.Type.GetTypeFromHandle",
+        "VEngine.Loadable.get_isError",
+        "VEngine.Asset.get_asset",
+        "UnityEngine.TextAsset.get_bytes",
+        "tag4:rid1119.get_Count",
+        "tag4:rid1119.Add",
+        "VEngine.Asset.get_asset",
+        "UnityEngine.Resources.UnloadAsset",
+        "VEngine.Loadable.Release"
+      ]
+    },
+    {
+      "rid": 14817,
+      "symbol": "XLuaManager.Initialize",
+      "strings": [
+        "xLua Initialize",
+        "xLua open table file [",
+        "].",
+        "XLuaManager::Initialize lwLuaFile is null.",
+        "xLua Initialize begin."
+      ],
+      "internalCalls": [
+        "ApplicationLaunch.StepLog",
+        "XLuaManager.set_s_lwLuaFile",
+        "LWLuaFile.Load",
+        "XLuaManager.set_s_lwLuaFile",
+        "XLuaManager.set_s_lwLuaFile",
+        "XLuaManager.get_s_lwLuaFile",
+        "XLuaManager.set_s_useLwLuaFile",
+        "XLuaManager.get_s_lwLuaFile",
+        "ApplicationLaunch.UpdateTrackingResVersion",
+        "XLuaManager.InitLuaEnv",
+        "XLuaManager.OnInit"
+      ],
+      "externalCalls": [
+        "System.String.Concat",
+        "GameFramework.Log.Info",
+        "System.String.IsNullOrEmpty",
+        "System.IO.File.OpenRead",
+        "System.IO.Stream.Read",
+        "GameKit.Base.EncryptUtils.IsChachaTable",
+        "System.IDisposable.Dispose",
+        "System.IO.File.ReadAllBytes",
+        "GameKit.Base.EncryptUtils.FromChachaToPKZip",
+        "System.IO.MemoryStream..ctor",
+        "ICSharpCode.SharpZipLib.Zip.ZipFile..ctor",
+        "System.IO.File.OpenRead",
+        "ICSharpCode.SharpZipLib.Zip.ZipFile..ctor",
+        "tag4:rid1089.Clear",
+        "GameFramework.Log.Error",
+        "GameFramework.Log.Info"
+      ]
+    }
+  ],
+  "targets": [
+    "Assets/Main/Prefabs/UI/UIHero/LWHero/UIHeroPVPFormationPanel.prefab",
+    "UIHeroPVPFormationPanel",
+    "FormationContent",
+    "MiddleContentContainer"
+  ],
+  "usExactOffsets": {},
+  "exactStringXrefs": [],
+  "loaderStrings": [
+    "__index",
+    "self",
+    "init",
+    "open",
+    "update",
+    "close",
+    "cover",
+    "resume",
+    "pause",
+    "refocus",
+    "reveal",
+    "LuaDatatable",
+    ".lua",
+    "LuaDatatable.",
+    "can`t load LuaDatatable file in zip file {0}",
+    "DATATABLE_LOAD_FALLBACK",
+    ".",
+    "/",
+    "can`t load lua file from lw lua file {0}, {1}",
+    ".bytes",
+    "xLua Initialize",
+    "xLua open table file [",
+    "].",
+    "XLuaManager::Initialize lwLuaFile is null.",
+    "xLua Initialize begin."
+  ],
+  "counts": {
+    "selectedBoundaryMethods": 4,
+    "exactStringXrefMethods": 0,
+    "loaderStrings": 25
+  },
+  "nextStrategy": "use_exact_xlua_loader_strings_to_locate_script_container",
+  "guardrails": {
+    "recoveredDllOnly": true,
+    "apkAccess": false,
+    "bundleScan": false,
+    "bundleExtraction": false,
+    "atlasRebuild": false,
+    "candidatePromotion": false,
+    "mainUntouched": true,
+    "previewUntouched": true
+  }
+}
