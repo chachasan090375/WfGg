@@ -1,1 +1,118 @@
-PLACEHOLDER
+{
+  "format": "WFGG_LASTWAR_GRAPHICS_HISTORY_V002_0012_V1",
+  "purpose": "Historical graphics/reverse-engineering knowledge imported from master V002 and increments 0006-0012. Query this before starting any new global graphics scan.",
+  "coverage": {
+    "baseline": "V002 consolidates V001 + increments/patches 0002-0005",
+    "increments": [6,7,8,9,10,11,12],
+    "latestHistoricalCheckpoint": "0012 / 2026-08-29",
+    "precedence": ["current-installed-game-index","0012","0011","0010","0009","0008","0007","0006","V002"]
+  },
+  "sourceArchives": [
+    {"order":0,"name":"WFGG_V002_DOCUMENTATION_SEULE_2026-08-25.zip","bytes":197362,"sha256":"62aac32499083ed4ca2c5c0a18b416eeefcbf74a2b6326d04d571712f20c58ec"},
+    {"order":1,"name":"WFGG_INCREMENT_0006_2026-08-26_FULL_CONVERSATION.zip","bytes":13731,"sha256":"2cf1555b4c17ef764837c31bd1c6a7f7ba06a67a856b5680e98fb1913397e387"},
+    {"order":2,"name":"WFGG_INCREMENT_0007_2026-08-26_FULL_CONVERSATION.zip","bytes":902218,"sha256":"677a8d6afcba6ae47c67e7e0852104f2c50d4d027379721098fb5c5d91e42ffc"},
+    {"order":3,"name":"WFGG_INCREMENT_0008_2026-08-27_FULL_CONVERSATION.zip","bytes":3166566,"sha256":"dfac727e3eef1d5003e9bb50de3a0357d6f97276028da135f419f99fe20717fe"},
+    {"order":4,"name":"WFGG_INCREMENT_0009_2026-08-27_FULL_CONVERSATION.zip","bytes":21060903,"sha256":"9313e07291b95e2ac04bd1564258bd461bacff4f3787d0dfd385b6ec73742d2e"},
+    {"order":5,"name":"WFGG_INCREMENT_0010_2026-08-28_FULL_CONVERSATION.zip","bytes":2101691,"sha256":"51631e6ae8bae2876264e4d496aa58d0fc5d0522ba81da7092ad6fcc46d8f3d7"},
+    {"order":6,"name":"WFGG_INCREMENT_0011_2026-08-29_FULL_CONVERSATION.zip","bytes":22811717,"sha256":"8f340ee64f61a2f347e5e8adb0b541da8e09107bd5df27c4fcbcd55ce518d9e7"},
+    {"order":7,"name":"WFGG_INCREMENT_0012_2026-08-29_FULL_CONVERSATION.zip","bytes":373533761,"sha256":"d053cb1af106a93029de183821c0997510c2dcb838ca405e6f26800deaa40587"}
+  ],
+  "migrationScan": {
+    "archivesParsed": 8,
+    "historicalAssetPathsDetected": 667,
+    "nonCodeGraphicsOrResourcePaths": 597,
+    "bundleIdsExplicitOrAuthoritative": 67,
+    "phaseLabels": 65,
+    "cabObjectRefs": 120,
+    "evidenceDocuments": 134,
+    "retainedDecisionFailureLines": 208
+  },
+  "historicalAuthority0012": {
+    "branch": "portal-auth-lastwar-lab-v1",
+    "formation": {
+      "squads": [
+        ["Murphy","Williams","Marshall","Kimberly","Stetmann"],
+        ["Carlie","Lucius","Schuyler","DVA","Morrison"],
+        ["McGregor","Adam","Swift","Tesla","Fiona"]
+      ],
+      "drone": {"level":162,"equipmentPower":10902208,"asset":"FX_wurenji_pifu04"},
+      "overlord": {"rank":47,"power":4035388,"asset":"zxl_zhuzai_touxiang_04"},
+      "animation": {"authority":"Phase51C","heroes":"15/15","transformTracks":672,"keys":21479,"clip":"idle","rule":"no artificial movement"},
+      "layer0": {
+        "rule":"Do not reconstruct by arbitrary prop placement. Historical checkpoint uses a stable baked background.",
+        "masterWidth":1316,
+        "masterHeight":1536,
+        "gaussianSigmaPx":11.8,
+        "runtimeBlur":false,
+        "renderpack":{"bundles":51,"texturesResolved":168,"texturesTotal":168,"meshes":61,"materials":79,"usedMaterials":55,"usedTextures":45,"unresolvedMesh":1,"unresolvedMaterial":0,"unresolvedTexture":0},
+        "worldRoots": [
+          {"bundleId":17775,"assetPath":"Assets/Main/Prefabs/World/Scene_World.prefab"},
+          {"bundleId":17782,"assetPath":"Assets/Main/Prefabs/World/Terrain_0.prefab"},
+          {"bundleId":17783,"assetPath":"Assets/Main/Prefabs/World/Terrain_0_High.prefab"},
+          {"bundleId":17788,"assetPath":"Assets/Main/Prefabs/World/Terrain_World.prefab"},
+          {"bundleId":17794,"assetPath":"Assets/Main/Prefabs/World/WorldCityGrass.prefab"}
+        ],
+        "worldFamilies": [
+          {"pathPrefix":"Assets/_Art_LastWar/Models/Environment/Prop/O_Prop_tree/","bundleIds":[17623,17624,17625,17626]},
+          {"pathPrefix":"Assets/_Art_LastWar/Models/Environment/Prop/Rock/","bundleIds":[17705,17706,17707,17708]},
+          {"pathPrefix":"Assets/_Art_LastWar/Models/Environment/Mountain/Rock/","bundleIds":[17362,17363,17364,17365]},
+          {"pathPrefix":"Assets/_Art_LastWar/Models/Environment/Plant/Grass/","bundleIds":[17387,17388,17389,17390]},
+          {"pathPrefix":"Assets/_Art/Models/Environment/Map/Tree/","bundleIds":[23663,23664,23665,23666,23667,23668,23669,23670]},
+          {"pathPrefix":"Assets/_Art/Models/Environment/Map/Rock/","bundleIds":[23657,23658,23659]}
+        ]
+      }
+    },
+    "heroModelPaths": [
+      {"heroId":30002,"name":"Loki","path":"Assets/_Art_LastWar/Models/Cars/A_Hero_blackwidow/prefab/Hero_blackwidow.prefab"},
+      {"heroId":30003,"name":"Kane","path":"Assets/_Art_LastWar/Models/Cars/A_Hero_Basilone/prefab/Hero_Basilone.prefab"},
+      {"heroId":30004,"name":"Ambolt","path":"Assets/_Art_LastWar/Models/Cars/A_Hero_Hager/prefab/Hero_Hager.prefab"},
+      {"heroId":30005,"name":"Gump","path":"Assets/_Art_LastWar/Models/Characters/Soldier/bubing05/prefab/A_Hero_bubing05.prefab"},
+      {"heroId":40007,"name":"Elsa","path":"Assets/_Art_LastWar/Models/Cars/A_Hero_Elsa_01/prefab/A_Hero_Elsa_01.prefab"},
+      {"heroId":40008,"name":"Farhad","path":"Assets/_Art_LastWar/Models/Cars/A_Hero_Farhad_01/prefab/prefab_low/A_Hero_Farhad_01.prefab"},
+      {"heroId":40009,"name":"Richard","path":"Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/prefab/A_Hero_Richard_01.prefab"},
+      {"heroId":40013,"name":"Braz","path":"Assets/_Art_LastWar/Models/Cars/A_Hero_lambo_01/prefab/A_Hero_lambo_01.prefab"},
+      {"heroId":40015,"name":"Cage","path":"Assets/_Art_LastWar/Models/Cars/A_Hero_Cage_02/prefab/A_Hero_Cage_02_city.prefab"},
+      {"heroId":40016,"name":"Maxwell","path":"Assets/_Art_LastWar/Models/Cars/A_Hero_Maxwell_01/prefab/prefab_low/A_Hero_Maxwell_01_city.prefab"},
+      {"heroId":40020,"name":"Monica","path":"Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/prefab/A_Hero_Monica_01.prefab"},
+      {"heroId":50006,"name":"Murphy","path":"Assets/_Art_LastWar/Models/Cars/A_Hero_Audie/A_Hero_Audie_01/prefab/A_Hero_Audie_01.prefab"},
+      {"heroId":50007,"name":"Williams","path":"Assets/_Art_LastWar/Models/Cars/A_Hero_Rick_01/prefab/A_Hero_Rick_01.prefab"},
+      {"heroId":50008,"name":"Marshall","path":"Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/prefab/A_Hero_Nimitz_01.prefab"},
+      {"heroId":50009,"name":"Kimberly","path":"Assets/_Art_LastWar/Models/Cars/A_Hero_Katyusha_02/A_Hero_Katyusha_02/prefab/A_Hero_Katyusha_02_city.prefab"},
+      {"heroId":50010,"name":"Stetmann","path":"Assets/_Art_LastWar/Models/Cars/A_Hero_Stetman_01/prefab/A_Hero_Stetman_01.prefab"},
+      {"heroId":50013,"name":"McGregor","path":"Assets/_Art_LastWar/Models/Cars/A_Hero_Ewan_01/prefab/A_Hero_Ewan_01.prefab"},
+      {"heroId":50014,"name":"Fiona","path":"Assets/_Art_LastWar/Models/Cars/A_Hero_Katyusha_01_v001/prefab/A_Hero_Katyusha_01.prefab"},
+      {"heroId":50015,"name":"Swift","path":"Assets/_Art_LastWar/Models/Cars/A_Hero_Einstein/A_Hero_Einstein_01/prefab/A_Hero_Einstein_01.prefab"},
+      {"heroId":50016,"name":"Tesla","path":"Assets/_Art_LastWar/Models/Cars/A_Hero_Tesla/A_Hero_Tesla_01/prefab/A_Hero_Tesla_01.prefab"},
+      {"heroId":50017,"name":"DVA","path":"Assets/_Art_LastWar/Models/Cars/A_Hero_Dva/A_Hero_Dva_01/prefab/A_Hero_Dva_01.prefab"},
+      {"heroId":50018,"name":"Schuyler","path":"Assets/_Art_LastWar/Models/Cars/A_Hero_Sally_01/prefab/A_Hero_Sally_01.prefab"},
+      {"heroId":50019,"name":"Carlie","path":"Assets/_Art_LastWar/Models/Cars/A_Hero_Tom/A_Hero_Tom_01/prefab/A_Hero_Tom_01.prefab"},
+      {"heroId":50020,"name":"Morrison","path":"Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/prefab/A_Hero_Morrison_01.prefab"},
+      {"heroId":50021,"name":"Lucius","path":"Assets/_Art_LastWar/Models/Cars/A_Hero_Lucius01/prefab/A_Hero_Lucius01.prefab"},
+      {"heroId":50022,"name":"Adam","path":"Assets/_Art_LastWar/Models/Cars/A_Hero_Adam_01/prefab/A_Hero_Adam_01.prefab"},
+      {"heroId":50023,"name":"Mason","path":"Assets/_Art_LastWar/Models/Cars/A_Hero_David_02/prefab/A_Hero_David_02.prefab"},
+      {"heroId":50025,"name":"Violet","path":"Assets/_Art_LastWar/Models/Cars/A_Hero_Doctor_02/prefab/A_Hero_Doctor_02.prefab"},
+      {"heroId":50026,"name":"Scarlett","path":"Assets/Main/Prefabs/PrefabsIncrement/Character/Vehicle/A_Hero_MissHot_03/A_Hero_MissHot_03_city.prefab"},
+      {"heroId":50027,"name":"Sarah","path":"Assets/Main/SeasonRes/S4/Prefabs/Hero/A_Hero_Sara_03/A_Hero_Sara03_city.prefab"},
+      {"heroId":50028,"name":"Venom","path":"Assets/Main/SeasonRes/S5/Hero/A_Hero_Alex_02/A_Hero_Alex_02_city.prefab"}
+    ],
+    "masterAssetPackage": {
+      "rasterSelected":444,"heroTargets":33,"companionTargets":13,"rawBundles":1537,
+      "parts": [
+        {"name":"WFGG_LASTWAR_MASTER_ASSETS_PART01.zip","bytes":43923658,"files":722,"sha256":"0f3f184b6dd11e453a10e508c152ef1b938e49ff6ca03ba1ff24e453d7cc565a"},
+        {"name":"WFGG_LASTWAR_MASTER_ASSETS_PART02.zip","bytes":39252589,"files":858,"sha256":"ad2c7a03b42e139faac6b728698656768283d9c9ba96062c19fe86fecad3e5bb"},
+        {"name":"WFGG_LASTWAR_MASTER_ASSETS_PART03.zip","bytes":31275504,"files":401,"sha256":"09660c0c5d958e730eea1c5e9512f08fcfebc2145e308374135a37fb50a411a3"}
+      ]
+    },
+    "authoritativeBundleIndex": {"phase":44,"gameresBytes":18135604,"gameresSha256":"82d50bed5fcffeb60c5997f94f035a23b5503fce23573b27782df71a4028149a","bundleOffsetTableBytes":889082,"aliasOffsetTableBytes":640994},
+    "keyCommits": ["7f00f3169bb95d507cdc3b2c3673df2dc5c19be1","b2b097d","320e42a","1cfe24c","5fc202f","aaf1514e","87170e1","040ba790","03efc6c","3435c98","877c5b8","31d89630","ad51b79","a0737ed0","6b3fd8db","f40c3aee","90fddb64","237546dc","fc0e8fb","0389f7f","67b62ac2c09af159afc5273371223f3590b6cadf","f7c55e4b68e209f4248a8bd84c9527b95e26b095"]
+  },
+  "phaseRegistry": {
+    "6":"module schema","7":"normalized module data","8":"formation heroUuid resolution","9":"formation refs","10":"unresolved structure","11":"unresolved cross-reference","12":"companion topology","13":"companion model","14":"full PCAP drone discovery","15":"drone chip groups","16":"drone core discovery","17":"weapon/drone correlation","18":"drone power identity","19":"normalized module data V3","20":"label catalog discovery","21":"static catalog forensics","22":"catalog bridge","24":"template source discovery","25":"UnityFS metadata repair","26":"decoded payload index","27":"config loader discovery","28":"table container forensics","29":"graphics kit V1","30":"Unity sprite extraction","30B":"node payload extraction","30D":"engine version discovery","31":"targeted graphics","33":"master UI assets","39":"31 vehicle identities","40":"formation bundle set 31","41":"exact prefab resolution 31","42":"final 3 all fragments","43":"renderable scenes 31","44":"authoritative bundle index","45":"authoritative bundle map 31","46":"cache/index probes","47":"current15 exact stage","48":"current15 Unity hierarchies","49":"current15 web export","50":"current15 rig/idle structure","51":"current15 idle keyframes/direct avatar","51C":"animation authority 15/15","52":"current15 runtime pack","53":"runtime scene/object-key links","54":"authoritative export scene index"},
+  "rules": [
+    "Query current master index and this historical index before any new global graphics scan.",
+    "Exact asset path and authoritative bundle mapping outrank similarity/name guesses.",
+    "Current installed-game offsets must be resolved from current BundleOffsetTable/AliasOffsetTable; historical offsets are evidence, not assumed current.",
+    "Retain failed/rejected approaches so they are not repeated without new evidence.",
+    "Never substitute generated artwork when exact installed-game assets exist."
+  ]
+}
