@@ -15,6 +15,7 @@ OUT="$META/formation-texture-raw-fallback-v1.json"
 EXPORT="$HOME/storage/downloads/WFGG_LASTWAR_FORMATION_TEXTURE_RAW_V1"
 ZIPOUT="$HOME/storage/downloads/WFGG_LASTWAR_FORMATION_TEXTURE_RAW_V1.zip"
 REPORT="$HOME/storage/downloads/WFGG_LASTWAR_FORMATION_TEXTURE_RAW_V1.txt"
+UNITY_VERSION="2019.4.41f1"
 
 fail(){ printf 'ERREUR: %s\n' "$*" >&2; exit 1; }
 cd "$ROOT"
@@ -29,7 +30,7 @@ PYCHK
 mkdir -p "$EXPORT" "$(dirname "$OUT")"
 rm -rf "$EXPORT"/* "$ZIPOUT" 2>/dev/null || true
 
-python - "$V1" "$SUMMARY" "$OUT" "$EXPORT" "$REPORT" <<'PY'
+python - "$V1" "$SUMMARY" "$OUT" "$EXPORT" "$REPORT" "$UNITY_VERSION" <<'PY'
 from __future__ import annotations
 from pathlib import Path
 from collections import defaultdict
@@ -37,7 +38,8 @@ import hashlib,json,re,struct,sys
 import UnityPy
 from PIL import Image
 
-v1p,sump,outp,exportp,reportp=map(Path,sys.argv[1:])
+v1p,sump,outp,exportp,reportp=map(Path,sys.argv[1:6]); unity_version=sys.argv[6]
+UnityPy.config.FALLBACK_UNITY_VERSION=unity_version
 v1=json.loads(v1p.read_text('utf-8')); s=json.loads(sump.read_text('utf-8'))
 closure={int(x) for x in ((s.get('dependencySelection') or {}).get('selectedBundleIds') or [])}
 if len(closure)!=195: raise SystemExit(f'CLOSURE_MISMATCH {len(closure)}')
@@ -139,7 +141,7 @@ for bid, items in sorted(by_bundle.items()):
         rows.append(rec)
 
 # Metadata is included inside the ZIP so decoding can be reproduced off Android.
-meta={'format':'WFGG_LASTWAR_FORMATION_TEXTURE_RAW_V1','unityPyVersion':getattr(UnityPy,'__version__','unknown'),
+meta={'format':'WFGG_LASTWAR_FORMATION_TEXTURE_RAW_V1','unityPyVersion':getattr(UnityPy,'__version__','unknown'),'fallbackUnityVersion':unity_version,
       'scope':{'closureBundles':len(closure),'cachedBundles':len(bundle_paths),'selectedObjects':len(sel),'rawExported':sum(1 for r in rows if r.get('rawFile')),'directPngs':len(pngs)},
       'textures':rows,
       'guardrails':{'exactCurrentFormationClosureOnly':True,'Texture2DImageCalled':False,'Texture2DConverterCalled':False,'historicalOffsetsReused':False,'mainUntouched':True,'previewUntouched':True}}
@@ -147,7 +149,7 @@ meta={'format':'WFGG_LASTWAR_FORMATION_TEXTURE_RAW_V1','unityPyVersion':getattr(
 outp.write_text(json.dumps(meta,ensure_ascii=False,indent=2)+'\n','utf-8')
 
 lines=['WfGg Last War — FORMATION TEXTURE RAW FALLBACK V1','',
- f"unityPy={meta['unityPyVersion']} closureBundles={len(closure)} cachedBundles={len(bundle_paths)} selected={len(sel)} rawExported={meta['scope']['rawExported']} directPngs={len(pngs)}",'',
+ f"unityPy={meta['unityPyVersion']} fallbackUnity={unity_version} closureBundles={len(closure)} cachedBundles={len(bundle_paths)} selected={len(sel)} rawExported={meta['scope']['rawExported']} directPngs={len(pngs)}",'',
  'EXACT RAW TEXTURES']
 for i,r in enumerate(rows,1):
     lines.append(f"  #{i:02d} bundle={r.get('bundleId')} pathID={r.get('pathID')} size={r.get('width')}x{r.get('height')} format={r.get('textureFormat')} rawBytes={r.get('rawBytes')} name={r.get('name')} error={r.get('error') or '-'}")
