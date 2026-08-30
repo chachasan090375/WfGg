@@ -14,7 +14,7 @@ SRC="$ROOT/scripts/lastwar-formation-luauiformlogic-current-install-locator-v5.s
 V3="$ROOT/frontend/lab/master-assets-v2/meta/formation-luauiformlogic-current-install-locator-v3.json"
 V4="$ROOT/frontend/lab/master-assets-v2/meta/formation-luauiformlogic-current-install-locator-v4.json"
 TMP="$ROOT/scripts/.lastwar-formation-luauiformlogic-current-install-locator-v6.generated.sh"
-EXPECTED_V5_BLOB="a9542eee87756fda579601013a4d230b44de293a"
+EXPECTED_V5_BLOB="979ff33c41418d6e9c1843094113924022d77fd1"
 
 fail(){ printf 'ERREUR: %s\n' "$*" >&2; exit 1; }
 cleanup(){ rm -f "$TMP"; }
