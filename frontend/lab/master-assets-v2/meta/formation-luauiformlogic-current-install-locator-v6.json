@@ -1,0 +1,277 @@
+{
+  "format": "WFGG_LASTWAR_FORMATION_LUAUIFORMLOGIC_CURRENT_INSTALL_LOCATOR_V6",
+  "previousV4BundleId": 6934,
+  "selectedBundleId": 6929,
+  "selectedAssetPaths": [
+    "Assets/Main/Prefabs/UI/UIHero/LWHero/UIHeroFakePVPFormationPanel.prefab"
+  ],
+  "closure": {
+    "count": 90,
+    "baselineOverlap": 81,
+    "deltaCount": 9,
+    "deltaBundleIds": [
+      659,
+      708,
+      1052,
+      1178,
+      1345,
+      1354,
+      4087,
+      6929,
+      9094
+    ]
+  },
+  "counts": {
+    "objects": 7099,
+    "roots": 0,
+    "reachable": 0,
+    "graphEdges": 600070,
+    "unresolvedPPtrs": 6883,
+    "exactScripts": 0,
+    "matchingBehaviours": 0,
+    "familyLinkedBehaviours": 0,
+    "exactTextAssetRefs": 0,
+    "familyLinkedTextAssetRefs": 0
+  },
+  "prefabRoots": [
+    {
+      "assetPath": "Assets/Main/Prefabs/UI/UIHero/LWHero/UIHeroFakePVPFormationPanel.prefab",
+      "candidateCount": 0,
+      "resolved": false,
+      "candidates": []
+    }
+  ],
+  "deltaBundles": [
+    {
+      "bundleId": 659,
+      "source": "current-apk-exact-offset",
+      "bytes": 12057,
+      "sha256": "bcfa5fb76cd16767f1035cf487f50fbbfc9423b1a48a3191f908670abff38bd0",
+      "logicalName": "gameres_dynamic_atlas_sprites_heroiconssmall_149_0be5273836a911d4c6be107832b75654.bundle",
+      "aliasName": "dae9b923337f8ff855178f19dea57699181be9bf1e295962629c5740d2ebe8df.bundle",
+      "location": {
+        "offset": 254976891,
+        "end": 254988948,
+        "spanBytes": 12057,
+        "physical": {
+          "apk": "/data/app/~~a_LFGwveyIoZeWhf-mR3yw==/com.fun.lastwar.gp-990XEbeiHGsmDX-JvOD69Q==/split_install_time_pack.apk",
+          "entry": "assets/AssetBundles/BundleFragment0.bytes",
+          "base": "BundleFragment0.bytes",
+          "stem": "BundleFragment0",
+          "size": 534225532
+        },
+        "group": 0,
+        "fragment": "BundleFragment0.bytes",
+        "tableApk": "/data/app/~~a_LFGwveyIoZeWhf-mR3yw==/com.fun.lastwar.gp-990XEbeiHGsmDX-JvOD69Q==/split_install_time_pack.apk"
+      }
+    },
+    {
+      "bundleId": 708,
+      "source": "current-apk-exact-offset",
+      "bytes": 20959,
+      "sha256": "5dbd2b4ccc07ef0acf5a9f56eb854c485b13a5ea983974bf9a88f1c0e9e3e218",
+      "logicalName": "gameres_dynamic_atlas_sprites_heroiconssmall_61_662fc97553604f57758fde02c5cf3f3d.bundle",
+      "aliasName": "e01f99e067b3a767880564c6be7ed18d5096ece987b210e6f380e8aa3cbd9915.bundle",
+      "location": {
+        "offset": 256137870,
+        "end": 256158829,
+        "spanBytes": 20959,
+        "physical": {
+          "apk": "/data/app/~~a_LFGwveyIoZeWhf-mR3yw==/com.fun.lastwar.gp-990XEbeiHGsmDX-JvOD69Q==/split_install_time_pack.apk",
+          "entry": "assets/AssetBundles/BundleFragment0.bytes",
+          "base": "BundleFragment0.bytes",
+          "stem": "BundleFragment0",
+          "size": 534225532
+        },
+        "group": 0,
+        "fragment": "BundleFragment0.bytes",
+        "tableApk": "/data/app/~~a_LFGwveyIoZeWhf-mR3yw==/com.fun.lastwar.gp-990XEbeiHGsmDX-JvOD69Q==/split_install_time_pack.apk"
+      }
+    },
+    {
+      "bundleId": 1052,
+      "source": "current-apk-exact-offset",
+      "bytes": 817681,
+      "sha256": "15cae6c7970f0620b11c2b21512d912ab038ec7410a170780278eccf6012514f",
+      "logicalName": "gameres_main_file_atlas__lwmainui_20a78a7e0f2e1f0b99717af6b9c55a22.bundle",
+      "aliasName": "4bb4f65b37fd7b979b9262bfe32bef6d9a173b733c221dfda21832d476ae2504.bundle",
+      "location": {
+        "offset": 408680970,
+        "end": 409498651,
+        "spanBytes": 817681,
+        "physical": {
+          "apk": "/data/app/~~a_LFGwveyIoZeWhf-mR3yw==/com.fun.lastwar.gp-990XEbeiHGsmDX-JvOD69Q==/split_install_time_pack.apk",
+          "entry": "assets/AssetBundles/BundleFragment0.bytes",
+          "base": "BundleFragment0.bytes",
+          "stem": "BundleFragment0",
+          "size": 534225532
+        },
+        "group": 0,
+        "fragment": "BundleFragment0.bytes",
+        "tableApk": "/data/app/~~a_LFGwveyIoZeWhf-mR3yw==/com.fun.lastwar.gp-990XEbeiHGsmDX-JvOD69Q==/split_install_time_pack.apk"
+      }
+    },
+    {
+      "bundleId": 1178,
+      "source": "current-apk-exact-offset",
+      "bytes": 750726,
+      "sha256": "28398372f5af5a803ae2f260723fd22b5a38c48e6292bbdc88b053067dc7380a",
+      "logicalName": "gameres_main_file_atlas__uidecoration_70b66b96cb3dc6ebebee3611df60bd37.bundle",
+      "aliasName": "af9927a29f0f2f73fdf9ef015377e22a3e3b16c480ae194cd0453388664de1cc.bundle",
+      "location": {
+        "offset": 433830435,
+        "end": 434581161,
+        "spanBytes": 750726,
+        "physical": {
+          "apk": "/data/app/~~a_LFGwveyIoZeWhf-mR3yw==/com.fun.lastwar.gp-990XEbeiHGsmDX-JvOD69Q==/split_install_time_pack.apk",
+          "entry": "assets/AssetBundles/BundleFragment0.bytes",
+          "base": "BundleFragment0.bytes",
+          "stem": "BundleFragment0",
+          "size": 534225532
+        },
+        "group": 0,
+        "fragment": "BundleFragment0.bytes",
+        "tableApk": "/data/app/~~a_LFGwveyIoZeWhf-mR3yw==/com.fun.lastwar.gp-990XEbeiHGsmDX-JvOD69Q==/split_install_time_pack.apk"
+      }
+    },
+    {
+      "bundleId": 1345,
+      "source": "current-apk-exact-offset",
+      "bytes": 326823,
+      "sha256": "d5474f28d67063e4e29d1de09fef8740061b25a5e63fd8847839df120d3d5703",
+      "logicalName": "gameres_main_file_atlas__ui_uiheadicon_ecf00af16c306a2f17e3e62ffc0d585b.bundle",
+      "aliasName": "1932ce51c775792fa2424c06d0c1f554ec0810cc6d49e78090cd55f1ac1dd2a5.bundle",
+      "location": {
+        "offset": 421940661,
+        "end": 422267484,
+        "spanBytes": 326823,
+        "physical": {
+          "apk": "/data/app/~~a_LFGwveyIoZeWhf-mR3yw==/com.fun.lastwar.gp-990XEbeiHGsmDX-JvOD69Q==/split_install_time_pack.apk",
+          "entry": "assets/AssetBundles/BundleFragment0.bytes",
+          "base": "BundleFragment0.bytes",
+          "stem": "BundleFragment0",
+          "size": 534225532
+        },
+        "group": 0,
+        "fragment": "BundleFragment0.bytes",
+        "tableApk": "/data/app/~~a_LFGwveyIoZeWhf-mR3yw==/com.fun.lastwar.gp-990XEbeiHGsmDX-JvOD69Q==/split_install_time_pack.apk"
+      }
+    },
+    {
+      "bundleId": 1354,
+      "source": "current-apk-exact-offset",
+      "bytes": 446943,
+      "sha256": "3efdd41e9e8de641c7341ef6c7377e535b1c60e202f45e132c25aecd6439bceb",
+      "logicalName": "gameres_main_file_atlas__ui_uilwmail_0f5b5ba271186cd632cd3c0dfa389b42.bundle",
+      "aliasName": "d957e081fc72c0733d46b45ce754740643ee56828f4dbcbadd864d648422d045.bundle",
+      "location": {
+        "offset": 424666215,
+        "end": 425113158,
+        "spanBytes": 446943,
+        "physical": {
+          "apk": "/data/app/~~a_LFGwveyIoZeWhf-mR3yw==/com.fun.lastwar.gp-990XEbeiHGsmDX-JvOD69Q==/split_install_time_pack.apk",
+          "entry": "assets/AssetBundles/BundleFragment0.bytes",
+          "base": "BundleFragment0.bytes",
+          "stem": "BundleFragment0",
+          "size": 534225532
+        },
+        "group": 0,
+        "fragment": "BundleFragment0.bytes",
+        "tableApk": "/data/app/~~a_LFGwveyIoZeWhf-mR3yw==/com.fun.lastwar.gp-990XEbeiHGsmDX-JvOD69Q==/split_install_time_pack.apk"
+      }
+    },
+    {
+      "bundleId": 4087,
+      "source": "current-apk-exact-offset",
+      "bytes": 7178,
+      "sha256": "824641fef8e3e254ec5d53be993fa71fc658de52853c200eb646c1e412279138",
+      "logicalName": "gameres_main_file_prefabs_ui_common_uiplayerhead_1e83910076ee48cfb7eb0053a24f306d.bundle",
+      "aliasName": "5df84665b93eba4413dc0d351d4f0b9e92e99e81ec670ce0a21a8cf324ae4eaf.bundle",
+      "location": {
+        "offset": 486844047,
+        "end": 486851225,
+        "spanBytes": 7178,
+        "physical": {
+          "apk": "/data/app/~~a_LFGwveyIoZeWhf-mR3yw==/com.fun.lastwar.gp-990XEbeiHGsmDX-JvOD69Q==/split_install_time_pack.apk",
+          "entry": "assets/AssetBundles/BundleFragment0.bytes",
+          "base": "BundleFragment0.bytes",
+          "stem": "BundleFragment0",
+          "size": 534225532
+        },
+        "group": 0,
+        "fragment": "BundleFragment0.bytes",
+        "tableApk": "/data/app/~~a_LFGwveyIoZeWhf-mR3yw==/com.fun.lastwar.gp-990XEbeiHGsmDX-JvOD69Q==/split_install_time_pack.apk"
+      }
+    },
+    {
+      "bundleId": 6929,
+      "source": "current-apk-exact-offset",
+      "bytes": 121166,
+      "sha256": "65dbb5a774a6c6633e78004baea00747f0e118b5a1885c2a843663c776e356d2",
+      "logicalName": "gameres_main_file_prefabs_ui_uihero_lwhero_uiherofakepvpformationpanel_1cac65f07b954100e7462a2a8064b375.bundle",
+      "aliasName": "eeb3a955e1ecdd973bcec7f62d6d5f7721d24fa6323f9e0d8a62d4384b7e9032.bundle",
+      "location": {
+        "offset": 518517778,
+        "end": 518638944,
+        "spanBytes": 121166,
+        "physical": {
+          "apk": "/data/app/~~a_LFGwveyIoZeWhf-mR3yw==/com.fun.lastwar.gp-990XEbeiHGsmDX-JvOD69Q==/split_install_time_pack.apk",
+          "entry": "assets/AssetBundles/BundleFragment0.bytes",
+          "base": "BundleFragment0.bytes",
+          "stem": "BundleFragment0",
+          "size": 534225532
+        },
+        "group": 0,
+        "fragment": "BundleFragment0.bytes",
+        "tableApk": "/data/app/~~a_LFGwveyIoZeWhf-mR3yw==/com.fun.lastwar.gp-990XEbeiHGsmDX-JvOD69Q==/split_install_time_pack.apk"
+      }
+    },
+    {
+      "bundleId": 9094,
+      "source": "current-apk-exact-offset",
+      "bytes": 9271,
+      "sha256": "bfbdb26062aae84ab138454356abb356d115f4f479bbd329882eb9b72aa61c88",
+      "logicalName": "gameres_main_dir_animation_loadeditorbuild_53c8d264dd0f54a8325413d3e0e480ec.bundle",
+      "aliasName": "c9c31a3d1d19e389d3ecd8df4f862b6db5032b0916b8dcc434e8919fcf0e24f7.bundle",
+      "location": {
+        "offset": 295381614,
+        "end": 295390885,
+        "spanBytes": 9271,
+        "physical": {
+          "apk": "/data/app/~~a_LFGwveyIoZeWhf-mR3yw==/com.fun.lastwar.gp-990XEbeiHGsmDX-JvOD69Q==/split_install_time_pack.apk",
+          "entry": "assets/AssetBundles/BundleFragment0.bytes",
+          "base": "BundleFragment0.bytes",
+          "stem": "BundleFragment0",
+          "size": 534225532
+        },
+        "group": 0,
+        "fragment": "BundleFragment0.bytes",
+        "tableApk": "/data/app/~~a_LFGwveyIoZeWhf-mR3yw==/com.fun.lastwar.gp-990XEbeiHGsmDX-JvOD69Q==/split_install_time_pack.apk"
+      }
+    }
+  ],
+  "carveErrors": [],
+  "exactLuaUIFormLogicMonoScripts": [],
+  "matchingMonoBehaviours": [],
+  "familyLinkedMonoBehaviours": [],
+  "exactTextAssetRefs": [],
+  "familyLinkedTextAssetRefs": [],
+  "nextPrefabFamilyDelta": {
+    "bundleId": 6974,
+    "deltaCount": 11,
+    "assetPaths": [
+      "Assets/Main/Prefabs/UI/UIHero/LWHero/FormationPreset/UILWPVPFormationPresetRename.prefab"
+    ]
+  },
+  "nextStrategy": "audit_next_smallest_exact_formation_prefab_family_delta",
+  "guardrails": {
+    "catalogFamilyMembershipIsScopeOnly": true,
+    "deltaSizeIsResourceHeuristicOnly": true,
+    "exactPPtrRequiredForEvidence": true,
+    "apkReadOnly": true,
+    "globalBundleScan": false,
+    "candidatePromotion": false,
+    "mainUntouched": true,
+    "previewUntouched": true
+  }
+}
