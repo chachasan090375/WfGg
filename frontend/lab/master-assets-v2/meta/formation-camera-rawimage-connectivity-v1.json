@@ -1,0 +1,1181 @@
+{
+  "format": "WFGG_LASTWAR_FORMATION_CAMERA_RAWIMAGE_CONNECTIVITY_V1",
+  "sources": {
+    "atlas": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/master-assets-v2/index/lastwar-code-discovery-atlas-v1.json",
+    "binding": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/master-assets-v2/meta/formation-runtime-atlas-binding-v1.json",
+    "atlasDllSha256": "ed02eadb7764f7ff82a0d9b8746987ece867b2ccf7b06e9022e06c79259c380f"
+  },
+  "counts": {
+    "rawImageSetTextureCallers": 17,
+    "cameraSetTargetTextureCallers": 4,
+    "renderTextureCallers": 84,
+    "graphicsBlitCallers": 8,
+    "videoSetTargetTextureCallers": 18,
+    "pairwiseConnectivityRows": 51,
+    "directedCameraRawPaths": 0,
+    "commonUpstreamRows": 24,
+    "formationCorrelatedCommonUpstreamRows": 0
+  },
+  "cameraSetTargetTextureCallers": [
+    {
+      "rid": 4202,
+      "stableId": "M:4202",
+      "symbol": "TestGPUSkin._StartTest",
+      "formationCorrelation": false,
+      "formationLiteralHits": [],
+      "videoCorrelation": false,
+      "externalTargets": [
+        "System.Action..ctor",
+        "UnityEngine.Camera.set_targetTexture",
+        "UnityEngine.RenderTexture..ctor"
+      ],
+      "callers": [
+        4201
+      ],
+      "callees": [
+        3149,
+        4076,
+        4203
+      ],
+      "alsoRenderTexture": true,
+      "alsoGraphicsBlit": false,
+      "alsoVideoTargetTexture": false
+    },
+    {
+      "rid": 15235,
+      "stableId": "M:15235",
+      "symbol": "UIToolBox.UnityMcpRuntimeCapture.CreateCameraPreviewContext",
+      "formationCorrelation": false,
+      "formationLiteralHits": [],
+      "videoCorrelation": false,
+      "externalTargets": [
+        "System.ArgumentNullException..ctor",
+        "System.Type.GetTypeFromHandle",
+        "UnityEngine.Camera.set_allowHDR",
+        "UnityEngine.Camera.set_allowMSAA",
+        "UnityEngine.Camera.set_backgroundColor",
+        "UnityEngine.Camera.set_clearFlags",
+        "UnityEngine.Camera.set_cullingMask",
+        "UnityEngine.Camera.set_farClipPlane",
+        "UnityEngine.Camera.set_forceIntoRenderTexture",
+        "UnityEngine.Camera.set_nearClipPlane",
+        "UnityEngine.Camera.set_orthographic",
+        "UnityEngine.Camera.set_pixelRect",
+        "UnityEngine.Camera.set_targetTexture",
+        "UnityEngine.Canvas.ForceUpdateCanvases",
+        "UnityEngine.Canvas.set_planeDistance",
+        "UnityEngine.Canvas.set_renderMode",
+        "UnityEngine.Canvas.set_worldCamera",
+        "UnityEngine.GameObject..ctor",
+        "UnityEngine.GameObject.get_transform",
+        "UnityEngine.Object.op_Equality",
+        "UnityEngine.Object.op_Inequality",
+        "UnityEngine.Object.set_hideFlags",
+        "UnityEngine.Rect..ctor",
+        "UnityEngine.RectTransform.set_sizeDelta",
+        "UnityEngine.RenderTexture.GetTemporary",
+        "UnityEngine.Transform.SetParent",
+        "UnityEngine.UI.CanvasScaler.set_referencePixelsPerUnit",
+        "UnityEngine.UI.CanvasScaler.set_referenceResolution",
+        "UnityEngine.UI.CanvasScaler.set_screenMatchMode",
+        "UnityEngine.UI.CanvasScaler.set_uiScaleMode",
+        "UnityEngine.UI.LayoutRebuilder.ForceRebuildLayoutImmediate",
+        "UnityEngine.Vector2..ctor",
+        "tag4:rid1108.get_HasValue",
+        "tag4:rid1108.get_Value"
+      ],
+      "callers": [
+        50156
+      ],
+      "callees": [
+        15236,
+        15237,
+        15239,
+        15242,
+        15244,
+        15245,
+        15246,
+        50135
+      ],
+      "alsoRenderTexture": true,
+      "alsoGraphicsBlit": false,
+      "alsoVideoTargetTexture": false
+    },
+    {
+      "rid": 25396,
+      "stableId": "M:25396",
+      "symbol": "XLua.CSObjectWrap.UnityEngineCameraWrap._s_set_targetTexture",
+      "formationCorrelation": false,
+      "formationLiteralHits": [],
+      "videoCorrelation": false,
+      "externalTargets": [
+        "System.String.Concat",
+        "System.Type.GetTypeFromHandle",
+        "UnityEngine.Camera.set_targetTexture",
+        "XLua.LuaDLL.Lua.luaL_error"
+      ],
+      "callers": [
+        25238
+      ],
+      "callees": [
+        15616,
+        15635,
+        15973,
+        15976
+      ],
+      "alsoRenderTexture": false,
+      "alsoGraphicsBlit": false,
+      "alsoVideoTargetTexture": false
+    },
+    {
+      "rid": 48668,
+      "stableId": "M:48668",
+      "symbol": "<CaptureCoroutine>d__27.MoveNext",
+      "formationCorrelation": false,
+      "formationLiteralHits": [],
+      "videoCorrelation": false,
+      "externalTargets": [
+        "System.BitConverter.GetBytes",
+        "System.IDisposable.Dispose",
+        "System.IO.Compression.DeflateStream..ctor",
+        "System.IO.MemoryStream..ctor",
+        "System.IO.MemoryStream.ToArray",
+        "System.IO.Stream.Write",
+        "System.IO.Stream.WriteByte",
+        "System.String.Format",
+        "UnityEngine.Camera.Render",
+        "UnityEngine.Camera.set_targetTexture",
+        "UnityEngine.Object.op_Equality",
+        "UnityEngine.Object.op_Inequality",
+        "UnityEngine.Rect..ctor",
+        "UnityEngine.RenderTexture.get_active",
+        "UnityEngine.RenderTexture.set_active",
+        "UnityEngine.Texture2D..ctor",
+        "UnityEngine.Texture2D.ReadPixels",
+        "UnityEngine.Time.get_time",
+        "UnityEngine.WaitForEndOfFrame..ctor",
+        "tag4:rid1181.CopyTo",
+        "tag4:rid1682.Enqueue",
+        "tag4:rid1683.Enqueue"
+      ],
+      "callers": [],
+      "callees": [
+        4810,
+        4815,
+        7283,
+        48665
+      ],
+      "alsoRenderTexture": true,
+      "alsoGraphicsBlit": false,
+      "alsoVideoTargetTexture": false
+    }
+  ],
+  "directedConnectivity": [],
+  "closestUndirectedConnectivity": [
+    {
+      "cameraRid": 25396,
+      "rawRid": 29075,
+      "cameraToRaw": null,
+      "rawToCamera": null,
+      "undirected": [
+        25396,
+        15616,
+        29075
+      ],
+      "undirectedDistance": 2,
+      "cameraSymbol": "XLua.CSObjectWrap.UnityEngineCameraWrap._s_set_targetTexture",
+      "rawSymbol": "XLua.CSObjectWrap.UnityEngineUIRawImageWrap._s_set_texture"
+    },
+    {
+      "cameraRid": 4202,
+      "rawRid": 2589,
+      "cameraToRaw": null,
+      "rawToCamera": null,
+      "undirected": [
+        4202,
+        4076,
+        2581,
+        2589
+      ],
+      "undirectedDistance": 3,
+      "cameraSymbol": "TestGPUSkin._StartTest",
+      "rawSymbol": "RawImageSeriesVideoPlayer.<OnVideoPlayerStarted>b__47_0"
+    },
+    {
+      "cameraRid": 4202,
+      "rawRid": 14247,
+      "cameraToRaw": null,
+      "rawToCamera": null,
+      "undirected": [
+        4202,
+        4201,
+        3131,
+        14247
+      ],
+      "undirectedDistance": 3,
+      "cameraSymbol": "TestGPUSkin._StartTest",
+      "rawSymbol": "UISplashLoadingComponent.LoadPlayerPref"
+    },
+    {
+      "cameraRid": 25396,
+      "rawRid": 4114,
+      "cameraToRaw": null,
+      "rawToCamera": null,
+      "undirected": [
+        25396,
+        15973,
+        29070,
+        4114
+      ],
+      "undirectedDistance": 3,
+      "cameraSymbol": "XLua.CSObjectWrap.UnityEngineCameraWrap._s_set_targetTexture",
+      "rawSymbol": "UnityUIExtension.LoadSprite"
+    },
+    {
+      "cameraRid": 25396,
+      "rawRid": 4115,
+      "cameraToRaw": null,
+      "rawToCamera": null,
+      "undirected": [
+        25396,
+        15973,
+        29071,
+        4115
+      ],
+      "undirectedDistance": 3,
+      "cameraSymbol": "XLua.CSObjectWrap.UnityEngineCameraWrap._s_set_targetTexture",
+      "rawSymbol": "UnityUIExtension.LoadSpriteAsync"
+    },
+    {
+      "cameraRid": 25396,
+      "rawRid": 4116,
+      "cameraToRaw": null,
+      "rawToCamera": null,
+      "undirected": [
+        25396,
+        15973,
+        29071,
+        4116
+      ],
+      "undirectedDistance": 3,
+      "cameraSymbol": "XLua.CSObjectWrap.UnityEngineCameraWrap._s_set_targetTexture",
+      "rawSymbol": "UnityUIExtension.LoadSpriteAsync"
+    },
+    {
+      "cameraRid": 25396,
+      "rawRid": 5043,
+      "cameraToRaw": null,
+      "rawToCamera": null,
+      "undirected": [
+        25396,
+        15973,
+        29893,
+        5043
+      ],
+      "undirectedDistance": 3,
+      "cameraSymbol": "XLua.CSObjectWrap.UnityEngineCameraWrap._s_set_targetTexture",
+      "rawSymbol": "WebmVideoPlayerManager.TryCreateRT"
+    },
+    {
+      "cameraRid": 4202,
+      "rawRid": 2599,
+      "cameraToRaw": null,
+      "rawToCamera": null,
+      "undirected": [
+        4202,
+        4076,
+        49543,
+        3125,
+        2599
+      ],
+      "undirectedDistance": 4,
+      "cameraSymbol": "TestGPUSkin._StartTest",
+      "rawSymbol": "RawImageVideoPlayer.OnVideoFrameReady"
+    },
+    {
+      "cameraRid": 4202,
+      "rawRid": 4114,
+      "cameraToRaw": null,
+      "rawToCamera": null,
+      "undirected": [
+        4202,
+        3149,
+        2222,
+        15432,
+        4114
+      ],
+      "undirectedDistance": 4,
+      "cameraSymbol": "TestGPUSkin._StartTest",
+      "rawSymbol": "UnityUIExtension.LoadSprite"
+    },
+    {
+      "cameraRid": 4202,
+      "rawRid": 4115,
+      "cameraToRaw": null,
+      "rawToCamera": null,
+      "undirected": [
+        4202,
+        3149,
+        2222,
+        15432,
+        4115
+      ],
+      "undirectedDistance": 4,
+      "cameraSymbol": "TestGPUSkin._StartTest",
+      "rawSymbol": "UnityUIExtension.LoadSpriteAsync"
+    },
+    {
+      "cameraRid": 4202,
+      "rawRid": 4116,
+      "cameraToRaw": null,
+      "rawToCamera": null,
+      "undirected": [
+        4202,
+        3149,
+        2222,
+        15432,
+        4116
+      ],
+      "undirectedDistance": 4,
+      "cameraSymbol": "TestGPUSkin._StartTest",
+      "rawSymbol": "UnityUIExtension.LoadSpriteAsync"
+    },
+    {
+      "cameraRid": 4202,
+      "rawRid": 14075,
+      "cameraToRaw": null,
+      "rawToCamera": null,
+      "undirected": [
+        4202,
+        4201,
+        3131,
+        14074,
+        14075
+      ],
+      "undirectedDistance": 4,
+      "cameraSymbol": "TestGPUSkin._StartTest",
+      "rawSymbol": "BaseSubLoadingComponent.AfterLoadImage"
+    },
+    {
+      "cameraRid": 4202,
+      "rawRid": 29075,
+      "cameraToRaw": null,
+      "rawToCamera": null,
+      "undirected": [
+        4202,
+        4076,
+        24470,
+        15973,
+        29075
+      ],
+      "undirectedDistance": 4,
+      "cameraSymbol": "TestGPUSkin._StartTest",
+      "rawSymbol": "XLua.CSObjectWrap.UnityEngineUIRawImageWrap._s_set_texture"
+    },
+    {
+      "cameraRid": 25396,
+      "rawRid": 2599,
+      "cameraToRaw": null,
+      "rawToCamera": null,
+      "undirected": [
+        25396,
+        15973,
+        19692,
+        3125,
+        2599
+      ],
+      "undirectedDistance": 4,
+      "cameraSymbol": "XLua.CSObjectWrap.UnityEngineCameraWrap._s_set_targetTexture",
+      "rawSymbol": "RawImageVideoPlayer.OnVideoFrameReady"
+    },
+    {
+      "cameraRid": 25396,
+      "rawRid": 2601,
+      "cameraToRaw": null,
+      "rawToCamera": null,
+      "undirected": [
+        25396,
+        15973,
+        21870,
+        2593,
+        2601
+      ],
+      "undirectedDistance": 4,
+      "cameraSymbol": "XLua.CSObjectWrap.UnityEngineCameraWrap._s_set_targetTexture",
+      "rawSymbol": "RawImageVideoPlayer.ClearRT"
+    },
+    {
+      "cameraRid": 25396,
+      "rawRid": 13380,
+      "cameraToRaw": null,
+      "rawToCamera": null,
+      "undirected": [
+        25396,
+        15973,
+        27663,
+        2756,
+        13380
+      ],
+      "undirectedDistance": 4,
+      "cameraSymbol": "XLua.CSObjectWrap.UnityEngineCameraWrap._s_set_targetTexture",
+      "rawSymbol": "DynamicSkinImage.ApplySkin"
+    },
+    {
+      "cameraRid": 25396,
+      "rawRid": 14247,
+      "cameraToRaw": null,
+      "rawToCamera": null,
+      "undirected": [
+        25396,
+        15616,
+        21963,
+        3415,
+        14247
+      ],
+      "undirectedDistance": 4,
+      "cameraSymbol": "XLua.CSObjectWrap.UnityEngineCameraWrap._s_set_targetTexture",
+      "rawSymbol": "UISplashLoadingComponent.LoadPlayerPref"
+    },
+    {
+      "cameraRid": 25396,
+      "rawRid": 48240,
+      "cameraToRaw": null,
+      "rawToCamera": null,
+      "undirected": [
+        25396,
+        15973,
+        29070,
+        4114,
+        48240
+      ],
+      "undirectedDistance": 4,
+      "cameraSymbol": "XLua.CSObjectWrap.UnityEngineCameraWrap._s_set_targetTexture",
+      "rawSymbol": "<>c__DisplayClass44_0.<LoadSprite>b__0"
+    },
+    {
+      "cameraRid": 25396,
+      "rawRid": 48242,
+      "cameraToRaw": null,
+      "rawToCamera": null,
+      "undirected": [
+        25396,
+        15973,
+        29071,
+        4115,
+        48242
+      ],
+      "undirectedDistance": 4,
+      "cameraSymbol": "XLua.CSObjectWrap.UnityEngineCameraWrap._s_set_targetTexture",
+      "rawSymbol": "<>c__DisplayClass45_0.<LoadSpriteAsync>b__0"
+    },
+    {
+      "cameraRid": 25396,
+      "rawRid": 48244,
+      "cameraToRaw": null,
+      "rawToCamera": null,
+      "undirected": [
+        25396,
+        15973,
+        29071,
+        4116,
+        48244
+      ],
+      "undirectedDistance": 4,
+      "cameraSymbol": "XLua.CSObjectWrap.UnityEngineCameraWrap._s_set_targetTexture",
+      "rawSymbol": "<>c__DisplayClass46_0.<LoadSpriteAsync>b__0"
+    },
+    {
+      "cameraRid": 48668,
+      "rawRid": 2599,
+      "cameraToRaw": null,
+      "rawToCamera": null,
+      "undirected": [
+        48668,
+        4810,
+        531,
+        3125,
+        2599
+      ],
+      "undirectedDistance": 4,
+      "cameraSymbol": "<CaptureCoroutine>d__27.MoveNext",
+      "rawSymbol": "RawImageVideoPlayer.OnVideoFrameReady"
+    },
+    {
+      "cameraRid": 48668,
+      "rawRid": 14247,
+      "cameraToRaw": null,
+      "rawToCamera": null,
+      "undirected": [
+        48668,
+        4810,
+        531,
+        3131,
+        14247
+      ],
+      "undirectedDistance": 4,
+      "cameraSymbol": "<CaptureCoroutine>d__27.MoveNext",
+      "rawSymbol": "UISplashLoadingComponent.LoadPlayerPref"
+    },
+    {
+      "cameraRid": 48668,
+      "rawRid": 29075,
+      "cameraToRaw": null,
+      "rawToCamera": null,
+      "undirected": [
+        48668,
+        4810,
+        21560,
+        15973,
+        29075
+      ],
+      "undirectedDistance": 4,
+      "cameraSymbol": "<CaptureCoroutine>d__27.MoveNext",
+      "rawSymbol": "XLua.CSObjectWrap.UnityEngineUIRawImageWrap._s_set_texture"
+    },
+    {
+      "cameraRid": 4202,
+      "rawRid": 2583,
+      "cameraToRaw": null,
+      "rawToCamera": null,
+      "undirected": [
+        4202,
+        4076,
+        2581,
+        2563,
+        2569,
+        2583
+      ],
+      "undirectedDistance": 5,
+      "cameraSymbol": "TestGPUSkin._StartTest",
+      "rawSymbol": "RawImageSeriesVideoPlayer.ClearRT"
+    },
+    {
+      "cameraRid": 4202,
+      "rawRid": 5043,
+      "cameraToRaw": null,
+      "rawToCamera": null,
+      "undirected": [
+        4202,
+        4076,
+        49543,
+        3125,
+        5041,
+        5043
+      ],
+      "undirectedDistance": 5,
+      "cameraSymbol": "TestGPUSkin._StartTest",
+      "rawSymbol": "WebmVideoPlayerManager.TryCreateRT"
+    },
+    {
+      "cameraRid": 4202,
+      "rawRid": 13380,
+      "cameraToRaw": null,
+      "rawToCamera": null,
+      "undirected": [
+        4202,
+        4201,
+        3131,
+        4094,
+        4093,
+        13380
+      ],
+      "undirectedDistance": 5,
+      "cameraSymbol": "TestGPUSkin._StartTest",
+      "rawSymbol": "DynamicSkinImage.ApplySkin"
+    },
+    {
+      "cameraRid": 4202,
+      "rawRid": 48240,
+      "cameraToRaw": null,
+      "rawToCamera": null,
+      "undirected": [
+        4202,
+        3149,
+        2222,
+        15432,
+        4114,
+        48240
+      ],
+      "undirectedDistance": 5,
+      "cameraSymbol": "TestGPUSkin._StartTest",
+      "rawSymbol": "<>c__DisplayClass44_0.<LoadSprite>b__0"
+    },
+    {
+      "cameraRid": 4202,
+      "rawRid": 48242,
+      "cameraToRaw": null,
+      "rawToCamera": null,
+      "undirected": [
+        4202,
+        3149,
+        2222,
+        15432,
+        4115,
+        48242
+      ],
+      "undirectedDistance": 5,
+      "cameraSymbol": "TestGPUSkin._StartTest",
+      "rawSymbol": "<>c__DisplayClass45_0.<LoadSpriteAsync>b__0"
+    },
+    {
+      "cameraRid": 4202,
+      "rawRid": 48244,
+      "cameraToRaw": null,
+      "rawToCamera": null,
+      "undirected": [
+        4202,
+        3149,
+        2222,
+        15432,
+        4116,
+        48244
+      ],
+      "undirectedDistance": 5,
+      "cameraSymbol": "TestGPUSkin._StartTest",
+      "rawSymbol": "<>c__DisplayClass46_0.<LoadSpriteAsync>b__0"
+    },
+    {
+      "cameraRid": 25396,
+      "rawRid": 2589,
+      "cameraToRaw": null,
+      "rawToCamera": null,
+      "undirected": [
+        25396,
+        15973,
+        19692,
+        3125,
+        2581,
+        2589
+      ],
+      "undirectedDistance": 5,
+      "cameraSymbol": "XLua.CSObjectWrap.UnityEngineCameraWrap._s_set_targetTexture",
+      "rawSymbol": "RawImageSeriesVideoPlayer.<OnVideoPlayerStarted>b__47_0"
+    },
+    {
+      "cameraRid": 25396,
+      "rawRid": 14075,
+      "cameraToRaw": null,
+      "rawToCamera": null,
+      "undirected": [
+        25396,
+        15616,
+        21963,
+        3415,
+        14074,
+        14075
+      ],
+      "undirectedDistance": 5,
+      "cameraSymbol": "XLua.CSObjectWrap.UnityEngineCameraWrap._s_set_targetTexture",
+      "rawSymbol": "BaseSubLoadingComponent.AfterLoadImage"
+    },
+    {
+      "cameraRid": 48668,
+      "rawRid": 2589,
+      "cameraToRaw": null,
+      "rawToCamera": null,
+      "undirected": [
+        48668,
+        4810,
+        531,
+        3125,
+        2581,
+        2589
+      ],
+      "undirectedDistance": 5,
+      "cameraSymbol": "<CaptureCoroutine>d__27.MoveNext",
+      "rawSymbol": "RawImageSeriesVideoPlayer.<OnVideoPlayerStarted>b__47_0"
+    },
+    {
+      "cameraRid": 48668,
+      "rawRid": 4114,
+      "cameraToRaw": null,
+      "rawToCamera": null,
+      "undirected": [
+        48668,
+        4810,
+        21560,
+        15973,
+        29070,
+        4114
+      ],
+      "undirectedDistance": 5,
+      "cameraSymbol": "<CaptureCoroutine>d__27.MoveNext",
+      "rawSymbol": "UnityUIExtension.LoadSprite"
+    },
+    {
+      "cameraRid": 48668,
+      "rawRid": 4115,
+      "cameraToRaw": null,
+      "rawToCamera": null,
+      "undirected": [
+        48668,
+        4810,
+        21560,
+        15973,
+        29071,
+        4115
+      ],
+      "undirectedDistance": 5,
+      "cameraSymbol": "<CaptureCoroutine>d__27.MoveNext",
+      "rawSymbol": "UnityUIExtension.LoadSpriteAsync"
+    },
+    {
+      "cameraRid": 48668,
+      "rawRid": 4116,
+      "cameraToRaw": null,
+      "rawToCamera": null,
+      "undirected": [
+        48668,
+        4810,
+        21560,
+        15973,
+        29071,
+        4116
+      ],
+      "undirectedDistance": 5,
+      "cameraSymbol": "<CaptureCoroutine>d__27.MoveNext",
+      "rawSymbol": "UnityUIExtension.LoadSpriteAsync"
+    },
+    {
+      "cameraRid": 48668,
+      "rawRid": 5043,
+      "cameraToRaw": null,
+      "rawToCamera": null,
+      "undirected": [
+        48668,
+        4810,
+        21560,
+        15973,
+        29893,
+        5043
+      ],
+      "undirectedDistance": 5,
+      "cameraSymbol": "<CaptureCoroutine>d__27.MoveNext",
+      "rawSymbol": "WebmVideoPlayerManager.TryCreateRT"
+    },
+    {
+      "cameraRid": 48668,
+      "rawRid": 14075,
+      "cameraToRaw": null,
+      "rawToCamera": null,
+      "undirected": [
+        48668,
+        4810,
+        531,
+        3131,
+        14074,
+        14075
+      ],
+      "undirectedDistance": 5,
+      "cameraSymbol": "<CaptureCoroutine>d__27.MoveNext",
+      "rawSymbol": "BaseSubLoadingComponent.AfterLoadImage"
+    },
+    {
+      "cameraRid": 4202,
+      "rawRid": 2601,
+      "cameraToRaw": null,
+      "rawToCamera": null,
+      "undirected": [
+        4202,
+        4076,
+        24470,
+        15973,
+        21870,
+        2593,
+        2601
+      ],
+      "undirectedDistance": 6,
+      "cameraSymbol": "TestGPUSkin._StartTest",
+      "rawSymbol": "RawImageVideoPlayer.ClearRT"
+    },
+    {
+      "cameraRid": 4202,
+      "rawRid": 14188,
+      "cameraToRaw": null,
+      "rawToCamera": null,
+      "undirected": [
+        4202,
+        4076,
+        13197,
+        3133,
+        14187,
+        14185,
+        14188
+      ],
+      "undirectedDistance": 6,
+      "cameraSymbol": "TestGPUSkin._StartTest",
+      "rawSymbol": "UILanguageSetImageComponent.ForceRefresh"
+    },
+    {
+      "cameraRid": 25396,
+      "rawRid": 13357,
+      "cameraToRaw": null,
+      "rawToCamera": null,
+      "undirected": [
+        25396,
+        15973,
+        28855,
+        4093,
+        13359,
+        13355,
+        13357
+      ],
+      "undirectedDistance": 6,
+      "cameraSymbol": "XLua.CSObjectWrap.UnityEngineCameraWrap._s_set_targetTexture",
+      "rawSymbol": "DynamicImage.ClearGraphic"
+    }
+  ],
+  "formationCorrelatedCommonUpstream": [],
+  "closestCommonUpstream": [
+    {
+      "ancestorRid": 31821,
+      "ancestorSymbol": "XLua.CSObjectWrap.XLua_Gen_Initer_Register__.Init",
+      "cameraRid": 25396,
+      "cameraSymbol": "XLua.CSObjectWrap.UnityEngineCameraWrap._s_set_targetTexture",
+      "cameraDistance": 3,
+      "rawRid": 29075,
+      "rawSymbol": "XLua.CSObjectWrap.UnityEngineUIRawImageWrap._s_set_texture",
+      "rawDistance": 3,
+      "totalDistance": 6,
+      "formationCorrelation": false,
+      "formationLiteralHits": [],
+      "videoCorrelation": false
+    },
+    {
+      "ancestorRid": 31821,
+      "ancestorSymbol": "XLua.CSObjectWrap.XLua_Gen_Initer_Register__.Init",
+      "cameraRid": 25396,
+      "cameraSymbol": "XLua.CSObjectWrap.UnityEngineCameraWrap._s_set_targetTexture",
+      "cameraDistance": 3,
+      "rawRid": 4114,
+      "rawSymbol": "UnityUIExtension.LoadSprite",
+      "rawDistance": 4,
+      "totalDistance": 7,
+      "formationCorrelation": false,
+      "formationLiteralHits": [],
+      "videoCorrelation": false
+    },
+    {
+      "ancestorRid": 31821,
+      "ancestorSymbol": "XLua.CSObjectWrap.XLua_Gen_Initer_Register__.Init",
+      "cameraRid": 25396,
+      "cameraSymbol": "XLua.CSObjectWrap.UnityEngineCameraWrap._s_set_targetTexture",
+      "cameraDistance": 3,
+      "rawRid": 4115,
+      "rawSymbol": "UnityUIExtension.LoadSpriteAsync",
+      "rawDistance": 4,
+      "totalDistance": 7,
+      "formationCorrelation": false,
+      "formationLiteralHits": [],
+      "videoCorrelation": false
+    },
+    {
+      "ancestorRid": 31821,
+      "ancestorSymbol": "XLua.CSObjectWrap.XLua_Gen_Initer_Register__.Init",
+      "cameraRid": 25396,
+      "cameraSymbol": "XLua.CSObjectWrap.UnityEngineCameraWrap._s_set_targetTexture",
+      "cameraDistance": 3,
+      "rawRid": 4116,
+      "rawSymbol": "UnityUIExtension.LoadSpriteAsync",
+      "rawDistance": 4,
+      "totalDistance": 7,
+      "formationCorrelation": false,
+      "formationLiteralHits": [],
+      "videoCorrelation": false
+    },
+    {
+      "ancestorRid": 31821,
+      "ancestorSymbol": "XLua.CSObjectWrap.XLua_Gen_Initer_Register__.Init",
+      "cameraRid": 25396,
+      "cameraSymbol": "XLua.CSObjectWrap.UnityEngineCameraWrap._s_set_targetTexture",
+      "cameraDistance": 3,
+      "rawRid": 5043,
+      "rawSymbol": "WebmVideoPlayerManager.TryCreateRT",
+      "rawDistance": 4,
+      "totalDistance": 7,
+      "formationCorrelation": false,
+      "formationLiteralHits": [],
+      "videoCorrelation": false
+    },
+    {
+      "ancestorRid": 31822,
+      "ancestorSymbol": "XLua.CSObjectWrap.XLua_Gen_Initer_Register__..cctor",
+      "cameraRid": 25396,
+      "cameraSymbol": "XLua.CSObjectWrap.UnityEngineCameraWrap._s_set_targetTexture",
+      "cameraDistance": 4,
+      "rawRid": 29075,
+      "rawSymbol": "XLua.CSObjectWrap.UnityEngineUIRawImageWrap._s_set_texture",
+      "rawDistance": 4,
+      "totalDistance": 8,
+      "formationCorrelation": false,
+      "formationLiteralHits": [],
+      "videoCorrelation": false
+    },
+    {
+      "ancestorRid": 31821,
+      "ancestorSymbol": "XLua.CSObjectWrap.XLua_Gen_Initer_Register__.Init",
+      "cameraRid": 25396,
+      "cameraSymbol": "XLua.CSObjectWrap.UnityEngineCameraWrap._s_set_targetTexture",
+      "cameraDistance": 3,
+      "rawRid": 2601,
+      "rawSymbol": "RawImageVideoPlayer.ClearRT",
+      "rawDistance": 5,
+      "totalDistance": 8,
+      "formationCorrelation": false,
+      "formationLiteralHits": [],
+      "videoCorrelation": false
+    },
+    {
+      "ancestorRid": 31821,
+      "ancestorSymbol": "XLua.CSObjectWrap.XLua_Gen_Initer_Register__.Init",
+      "cameraRid": 25396,
+      "cameraSymbol": "XLua.CSObjectWrap.UnityEngineCameraWrap._s_set_targetTexture",
+      "cameraDistance": 3,
+      "rawRid": 48240,
+      "rawSymbol": "<>c__DisplayClass44_0.<LoadSprite>b__0",
+      "rawDistance": 5,
+      "totalDistance": 8,
+      "formationCorrelation": false,
+      "formationLiteralHits": [],
+      "videoCorrelation": false
+    },
+    {
+      "ancestorRid": 31821,
+      "ancestorSymbol": "XLua.CSObjectWrap.XLua_Gen_Initer_Register__.Init",
+      "cameraRid": 25396,
+      "cameraSymbol": "XLua.CSObjectWrap.UnityEngineCameraWrap._s_set_targetTexture",
+      "cameraDistance": 3,
+      "rawRid": 48242,
+      "rawSymbol": "<>c__DisplayClass45_0.<LoadSpriteAsync>b__0",
+      "rawDistance": 5,
+      "totalDistance": 8,
+      "formationCorrelation": false,
+      "formationLiteralHits": [],
+      "videoCorrelation": false
+    },
+    {
+      "ancestorRid": 31821,
+      "ancestorSymbol": "XLua.CSObjectWrap.XLua_Gen_Initer_Register__.Init",
+      "cameraRid": 25396,
+      "cameraSymbol": "XLua.CSObjectWrap.UnityEngineCameraWrap._s_set_targetTexture",
+      "cameraDistance": 3,
+      "rawRid": 48244,
+      "rawSymbol": "<>c__DisplayClass46_0.<LoadSpriteAsync>b__0",
+      "rawDistance": 5,
+      "totalDistance": 8,
+      "formationCorrelation": false,
+      "formationLiteralHits": [],
+      "videoCorrelation": false
+    },
+    {
+      "ancestorRid": 31822,
+      "ancestorSymbol": "XLua.CSObjectWrap.XLua_Gen_Initer_Register__..cctor",
+      "cameraRid": 25396,
+      "cameraSymbol": "XLua.CSObjectWrap.UnityEngineCameraWrap._s_set_targetTexture",
+      "cameraDistance": 4,
+      "rawRid": 4114,
+      "rawSymbol": "UnityUIExtension.LoadSprite",
+      "rawDistance": 5,
+      "totalDistance": 9,
+      "formationCorrelation": false,
+      "formationLiteralHits": [],
+      "videoCorrelation": false
+    },
+    {
+      "ancestorRid": 31822,
+      "ancestorSymbol": "XLua.CSObjectWrap.XLua_Gen_Initer_Register__..cctor",
+      "cameraRid": 25396,
+      "cameraSymbol": "XLua.CSObjectWrap.UnityEngineCameraWrap._s_set_targetTexture",
+      "cameraDistance": 4,
+      "rawRid": 4115,
+      "rawSymbol": "UnityUIExtension.LoadSpriteAsync",
+      "rawDistance": 5,
+      "totalDistance": 9,
+      "formationCorrelation": false,
+      "formationLiteralHits": [],
+      "videoCorrelation": false
+    },
+    {
+      "ancestorRid": 31822,
+      "ancestorSymbol": "XLua.CSObjectWrap.XLua_Gen_Initer_Register__..cctor",
+      "cameraRid": 25396,
+      "cameraSymbol": "XLua.CSObjectWrap.UnityEngineCameraWrap._s_set_targetTexture",
+      "cameraDistance": 4,
+      "rawRid": 4116,
+      "rawSymbol": "UnityUIExtension.LoadSpriteAsync",
+      "rawDistance": 5,
+      "totalDistance": 9,
+      "formationCorrelation": false,
+      "formationLiteralHits": [],
+      "videoCorrelation": false
+    },
+    {
+      "ancestorRid": 31822,
+      "ancestorSymbol": "XLua.CSObjectWrap.XLua_Gen_Initer_Register__..cctor",
+      "cameraRid": 25396,
+      "cameraSymbol": "XLua.CSObjectWrap.UnityEngineCameraWrap._s_set_targetTexture",
+      "cameraDistance": 4,
+      "rawRid": 5043,
+      "rawSymbol": "WebmVideoPlayerManager.TryCreateRT",
+      "rawDistance": 5,
+      "totalDistance": 9,
+      "formationCorrelation": false,
+      "formationLiteralHits": [],
+      "videoCorrelation": false
+    },
+    {
+      "ancestorRid": 31821,
+      "ancestorSymbol": "XLua.CSObjectWrap.XLua_Gen_Initer_Register__.Init",
+      "cameraRid": 25396,
+      "cameraSymbol": "XLua.CSObjectWrap.UnityEngineCameraWrap._s_set_targetTexture",
+      "cameraDistance": 3,
+      "rawRid": 2599,
+      "rawSymbol": "RawImageVideoPlayer.OnVideoFrameReady",
+      "rawDistance": 6,
+      "totalDistance": 9,
+      "formationCorrelation": false,
+      "formationLiteralHits": [],
+      "videoCorrelation": false
+    },
+    {
+      "ancestorRid": 31821,
+      "ancestorSymbol": "XLua.CSObjectWrap.XLua_Gen_Initer_Register__.Init",
+      "cameraRid": 25396,
+      "cameraSymbol": "XLua.CSObjectWrap.UnityEngineCameraWrap._s_set_targetTexture",
+      "cameraDistance": 3,
+      "rawRid": 13380,
+      "rawSymbol": "DynamicSkinImage.ApplySkin",
+      "rawDistance": 6,
+      "totalDistance": 9,
+      "formationCorrelation": false,
+      "formationLiteralHits": [],
+      "videoCorrelation": false
+    },
+    {
+      "ancestorRid": 31821,
+      "ancestorSymbol": "XLua.CSObjectWrap.XLua_Gen_Initer_Register__.Init",
+      "cameraRid": 25396,
+      "cameraSymbol": "XLua.CSObjectWrap.UnityEngineCameraWrap._s_set_targetTexture",
+      "cameraDistance": 3,
+      "rawRid": 14247,
+      "rawSymbol": "UISplashLoadingComponent.LoadPlayerPref",
+      "rawDistance": 6,
+      "totalDistance": 9,
+      "formationCorrelation": false,
+      "formationLiteralHits": [],
+      "videoCorrelation": false
+    },
+    {
+      "ancestorRid": 31822,
+      "ancestorSymbol": "XLua.CSObjectWrap.XLua_Gen_Initer_Register__..cctor",
+      "cameraRid": 25396,
+      "cameraSymbol": "XLua.CSObjectWrap.UnityEngineCameraWrap._s_set_targetTexture",
+      "cameraDistance": 4,
+      "rawRid": 2601,
+      "rawSymbol": "RawImageVideoPlayer.ClearRT",
+      "rawDistance": 6,
+      "totalDistance": 10,
+      "formationCorrelation": false,
+      "formationLiteralHits": [],
+      "videoCorrelation": false
+    },
+    {
+      "ancestorRid": 31822,
+      "ancestorSymbol": "XLua.CSObjectWrap.XLua_Gen_Initer_Register__..cctor",
+      "cameraRid": 25396,
+      "cameraSymbol": "XLua.CSObjectWrap.UnityEngineCameraWrap._s_set_targetTexture",
+      "cameraDistance": 4,
+      "rawRid": 48240,
+      "rawSymbol": "<>c__DisplayClass44_0.<LoadSprite>b__0",
+      "rawDistance": 6,
+      "totalDistance": 10,
+      "formationCorrelation": false,
+      "formationLiteralHits": [],
+      "videoCorrelation": false
+    },
+    {
+      "ancestorRid": 31822,
+      "ancestorSymbol": "XLua.CSObjectWrap.XLua_Gen_Initer_Register__..cctor",
+      "cameraRid": 25396,
+      "cameraSymbol": "XLua.CSObjectWrap.UnityEngineCameraWrap._s_set_targetTexture",
+      "cameraDistance": 4,
+      "rawRid": 48242,
+      "rawSymbol": "<>c__DisplayClass45_0.<LoadSpriteAsync>b__0",
+      "rawDistance": 6,
+      "totalDistance": 10,
+      "formationCorrelation": false,
+      "formationLiteralHits": [],
+      "videoCorrelation": false
+    },
+    {
+      "ancestorRid": 31822,
+      "ancestorSymbol": "XLua.CSObjectWrap.XLua_Gen_Initer_Register__..cctor",
+      "cameraRid": 25396,
+      "cameraSymbol": "XLua.CSObjectWrap.UnityEngineCameraWrap._s_set_targetTexture",
+      "cameraDistance": 4,
+      "rawRid": 48244,
+      "rawSymbol": "<>c__DisplayClass46_0.<LoadSpriteAsync>b__0",
+      "rawDistance": 6,
+      "totalDistance": 10,
+      "formationCorrelation": false,
+      "formationLiteralHits": [],
+      "videoCorrelation": false
+    },
+    {
+      "ancestorRid": 31822,
+      "ancestorSymbol": "XLua.CSObjectWrap.XLua_Gen_Initer_Register__..cctor",
+      "cameraRid": 25396,
+      "cameraSymbol": "XLua.CSObjectWrap.UnityEngineCameraWrap._s_set_targetTexture",
+      "cameraDistance": 4,
+      "rawRid": 2599,
+      "rawSymbol": "RawImageVideoPlayer.OnVideoFrameReady",
+      "rawDistance": 7,
+      "totalDistance": 11,
+      "formationCorrelation": false,
+      "formationLiteralHits": [],
+      "videoCorrelation": false
+    },
+    {
+      "ancestorRid": 31822,
+      "ancestorSymbol": "XLua.CSObjectWrap.XLua_Gen_Initer_Register__..cctor",
+      "cameraRid": 25396,
+      "cameraSymbol": "XLua.CSObjectWrap.UnityEngineCameraWrap._s_set_targetTexture",
+      "cameraDistance": 4,
+      "rawRid": 13380,
+      "rawSymbol": "DynamicSkinImage.ApplySkin",
+      "rawDistance": 7,
+      "totalDistance": 11,
+      "formationCorrelation": false,
+      "formationLiteralHits": [],
+      "videoCorrelation": false
+    },
+    {
+      "ancestorRid": 31822,
+      "ancestorSymbol": "XLua.CSObjectWrap.XLua_Gen_Initer_Register__..cctor",
+      "cameraRid": 25396,
+      "cameraSymbol": "XLua.CSObjectWrap.UnityEngineCameraWrap._s_set_targetTexture",
+      "cameraDistance": 4,
+      "rawRid": 14247,
+      "rawSymbol": "UISplashLoadingComponent.LoadPlayerPref",
+      "rawDistance": 7,
+      "totalDistance": 11,
+      "formationCorrelation": false,
+      "formationLiteralHits": [],
+      "videoCorrelation": false
+    }
+  ],
+  "conclusion": {
+    "nextStrategy": "inspect_closest_common_ancestor_then_non_methoddef_boundary",
+    "note": "MethodDef call edges and external MemberRef calls are exact static CLR evidence; execution order and name/string correlations are not runtime proof."
+  },
+  "guardrails": {
+    "persistentCodeAtlasOnly": true,
+    "apkAccess": false,
+    "dllScan": false,
+    "newExtraction": false,
+    "bundleScan": false,
+    "candidatePromotion": false,
+    "mainUntouched": true,
+    "previewUntouched": true
+  }
+}
