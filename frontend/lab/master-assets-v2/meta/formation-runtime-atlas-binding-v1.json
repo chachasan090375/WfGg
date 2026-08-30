@@ -1,0 +1,4993 @@
+{
+  "format": "WFGG_LASTWAR_FORMATION_RUNTIME_ATLAS_BINDING_V1",
+  "sources": {
+    "codeAtlas": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/master-assets-v2/index/lastwar-code-discovery-atlas-v1.json",
+    "codeAtlasDllSha256": "ed02eadb7764f7ff82a0d9b8746987ece867b2ccf7b06e9022e06c79259c380f",
+    "runtimeCrosswalk": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/master-assets-v2/meta/formation-runtime-crosswalk-v1.json"
+  },
+  "precondition": {
+    "ptrClosed": true,
+    "runtimeAssignmentSearchRequired": true,
+    "serializedTextureBindingAbsentOnBothRawImages": true
+  },
+  "atlasCounts": {
+    "types": 5800,
+    "methods": 54246,
+    "internalEdges": 172344,
+    "frontier": 46885,
+    "externalTargets": 15615,
+    "knownMethods": 215,
+    "unknownMethods": 54031
+  },
+  "externalTargetsByCategory": {
+    "rawImageSetTexture": [
+      "UnityEngine.UI.RawImage.set_texture"
+    ],
+    "rawImageGetTexture": [
+      "UnityEngine.UI.RawImage.get_texture"
+    ],
+    "rawImageSetMaterial": [],
+    "cameraSetTargetTexture": [
+      "UnityEngine.Camera.set_targetTexture"
+    ],
+    "cameraGetTargetTexture": [
+      "UnityEngine.Camera.get_targetTexture"
+    ],
+    "renderTexture": [
+      "UnityEngine.RenderTexture..ctor",
+      "UnityEngine.RenderTexture.ConvertToEquirect",
+      "UnityEngine.RenderTexture.Create",
+      "UnityEngine.RenderTexture.DiscardContents",
+      "UnityEngine.RenderTexture.GenerateMips",
+      "UnityEngine.RenderTexture.GetNativeDepthBufferPtr",
+      "UnityEngine.RenderTexture.GetTemporary",
+      "UnityEngine.RenderTexture.IsCreated",
+      "UnityEngine.RenderTexture.MarkRestoreExpected",
+      "UnityEngine.RenderTexture.Release",
+      "UnityEngine.RenderTexture.ReleaseTemporary",
+      "UnityEngine.RenderTexture.ResolveAntiAliasedSurface",
+      "UnityEngine.RenderTexture.SetGlobalShaderProperty",
+      "UnityEngine.RenderTexture.SupportsStencil",
+      "UnityEngine.RenderTexture.get_active",
+      "UnityEngine.RenderTexture.get_antiAliasing",
+      "UnityEngine.RenderTexture.get_autoGenerateMips",
+      "UnityEngine.RenderTexture.get_bindTextureMS",
+      "UnityEngine.RenderTexture.get_colorBuffer",
+      "UnityEngine.RenderTexture.get_depth",
+      "UnityEngine.RenderTexture.get_depthBuffer",
+      "UnityEngine.RenderTexture.get_descriptor",
+      "UnityEngine.RenderTexture.get_enableRandomWrite",
+      "UnityEngine.RenderTexture.get_format",
+      "UnityEngine.RenderTexture.get_graphicsFormat",
+      "UnityEngine.RenderTexture.get_isPowerOfTwo",
+      "UnityEngine.RenderTexture.get_memorylessMode",
+      "UnityEngine.RenderTexture.get_sRGB",
+      "UnityEngine.RenderTexture.get_stencilFormat",
+      "UnityEngine.RenderTexture.get_useDynamicScale",
+      "UnityEngine.RenderTexture.get_useMipMap",
+      "UnityEngine.RenderTexture.get_volumeDepth",
+      "UnityEngine.RenderTexture.get_vrUsage",
+      "UnityEngine.RenderTexture.set_active",
+      "UnityEngine.RenderTexture.set_antiAliasing",
+      "UnityEngine.RenderTexture.set_autoGenerateMips",
+      "UnityEngine.RenderTexture.set_bindTextureMS",
+      "UnityEngine.RenderTexture.set_depth",
+      "UnityEngine.RenderTexture.set_descriptor",
+      "UnityEngine.RenderTexture.set_enableRandomWrite",
+      "UnityEngine.RenderTexture.set_format",
+      "UnityEngine.RenderTexture.set_graphicsFormat",
+      "UnityEngine.RenderTexture.set_isPowerOfTwo",
+      "UnityEngine.RenderTexture.set_memorylessMode",
+      "UnityEngine.RenderTexture.set_stencilFormat",
+      "UnityEngine.RenderTexture.set_useDynamicScale",
+      "UnityEngine.RenderTexture.set_useMipMap",
+      "UnityEngine.RenderTexture.set_volumeDepth",
+      "UnityEngine.RenderTexture.set_vrUsage"
+    ],
+    "graphicsBlit": [
+      "UnityEngine.Graphics.Blit",
+      "UnityEngine.Graphics.BlitMultiTap"
+    ],
+    "materialSetTexture": [
+      "UnityEngine.Material.SetTexture",
+      "UnityEngine.Material.SetTextureOffset",
+      "UnityEngine.Material.SetTextureScale"
+    ],
+    "shaderPropertyToID": [
+      "UnityEngine.Shader.PropertyToID"
+    ]
+  },
+  "callerCountsByCategory": {
+    "rawImageSetTexture": 17,
+    "rawImageGetTexture": 5,
+    "rawImageSetMaterial": 0,
+    "cameraSetTargetTexture": 4,
+    "cameraGetTargetTexture": 1,
+    "renderTexture": 84,
+    "graphicsBlit": 8,
+    "materialSetTexture": 20,
+    "shaderPropertyToID": 42
+  },
+  "rawImageSetTexture": {
+    "callerCount": 17,
+    "wrapperCallerCount": 1,
+    "nonWrapperCallerCount": 16,
+    "allCallersAreXLuaOrWrap": false,
+    "callers": [
+      {
+        "rid": 2583,
+        "stableId": "M:2583",
+        "symbol": "RawImageSeriesVideoPlayer.ClearRT",
+        "status": "unknown",
+        "score": 172,
+        "tags": [
+          "render-camera"
+        ],
+        "wrapper": false,
+        "apiCategories": [
+          "rawImageSetTexture",
+          "renderTexture"
+        ],
+        "matchedExternalTargets": [
+          "UnityEngine.Color.get_black",
+          "UnityEngine.GL.Clear",
+          "UnityEngine.Object.op_Inequality",
+          "UnityEngine.RenderTexture.ReleaseTemporary",
+          "UnityEngine.RenderTexture.get_active",
+          "UnityEngine.RenderTexture.set_active",
+          "UnityEngine.UI.RawImage.set_texture",
+          "UnityEngine.Video.VideoPlayer.set_targetTexture"
+        ],
+        "formationLiteralHits": [],
+        "formationOwnerCorrelation": false,
+        "directInternalCallers": [
+          2567,
+          2569,
+          2574,
+          2575
+        ],
+        "directInternalCallees": []
+      },
+      {
+        "rid": 2589,
+        "stableId": "M:2589",
+        "symbol": "RawImageSeriesVideoPlayer.<OnVideoPlayerStarted>b__47_0",
+        "status": "unknown",
+        "score": 243,
+        "tags": [
+          "render-camera"
+        ],
+        "wrapper": false,
+        "apiCategories": [
+          "rawImageSetTexture"
+        ],
+        "matchedExternalTargets": [
+          "UnityEngine.Object.op_Inequality",
+          "UnityEngine.UI.RawImage.set_texture"
+        ],
+        "formationLiteralHits": [],
+        "formationOwnerCorrelation": false,
+        "directInternalCallers": [
+          2581
+        ],
+        "directInternalCallees": []
+      },
+      {
+        "rid": 2599,
+        "stableId": "M:2599",
+        "symbol": "RawImageVideoPlayer.OnVideoFrameReady",
+        "status": "unknown",
+        "score": 350,
+        "tags": [
+          "render-camera"
+        ],
+        "wrapper": false,
+        "apiCategories": [
+          "rawImageSetTexture"
+        ],
+        "matchedExternalTargets": [
+          "UnityEngine.Object.op_Inequality",
+          "UnityEngine.UI.RawImage.set_texture",
+          "UnityEngine.Video.VideoPlayer.set_sendFrameReadyEvents"
+        ],
+        "formationLiteralHits": [],
+        "formationOwnerCorrelation": false,
+        "directInternalCallers": [
+          2592,
+          2597
+        ],
+        "directInternalCallees": [
+          3125,
+          40702
+        ]
+      },
+      {
+        "rid": 2601,
+        "stableId": "M:2601",
+        "symbol": "RawImageVideoPlayer.ClearRT",
+        "status": "unknown",
+        "score": 169,
+        "tags": [
+          "render-camera"
+        ],
+        "wrapper": false,
+        "apiCategories": [
+          "rawImageSetTexture",
+          "renderTexture"
+        ],
+        "matchedExternalTargets": [
+          "UnityEngine.Color.get_black",
+          "UnityEngine.GL.Clear",
+          "UnityEngine.Object.op_Inequality",
+          "UnityEngine.RenderTexture.ReleaseTemporary",
+          "UnityEngine.RenderTexture.get_active",
+          "UnityEngine.RenderTexture.set_active",
+          "UnityEngine.UI.RawImage.set_texture",
+          "UnityEngine.Video.VideoPlayer.set_sendFrameReadyEvents",
+          "UnityEngine.Video.VideoPlayer.set_targetTexture"
+        ],
+        "formationLiteralHits": [],
+        "formationOwnerCorrelation": false,
+        "directInternalCallers": [
+          2593,
+          2594,
+          2595
+        ],
+        "directInternalCallees": []
+      },
+      {
+        "rid": 4114,
+        "stableId": "M:4114",
+        "symbol": "UnityUIExtension.LoadSprite",
+        "status": "unknown",
+        "score": 267,
+        "tags": [
+          "render-camera"
+        ],
+        "wrapper": false,
+        "apiCategories": [
+          "rawImageSetTexture"
+        ],
+        "matchedExternalTargets": [
+          "UnityEngine.UI.Graphic.get_color",
+          "UnityEngine.UI.Graphic.set_color",
+          "UnityEngine.UI.RawImage.set_texture",
+          "tag4:rid1078..ctor"
+        ],
+        "formationLiteralHits": [],
+        "formationOwnerCorrelation": false,
+        "directInternalCallers": [
+          13359,
+          13364,
+          13380,
+          15432,
+          29070
+        ],
+        "directInternalCallees": [
+          4089,
+          4111,
+          4117,
+          4118,
+          48239,
+          48240
+        ]
+      },
+      {
+        "rid": 4115,
+        "stableId": "M:4115",
+        "symbol": "UnityUIExtension.LoadSpriteAsync",
+        "status": "unknown",
+        "score": 184,
+        "tags": [
+          "render-camera"
+        ],
+        "wrapper": false,
+        "apiCategories": [
+          "rawImageSetTexture"
+        ],
+        "matchedExternalTargets": [
+          "UnityEngine.UI.Graphic.get_color",
+          "UnityEngine.UI.Graphic.set_color",
+          "UnityEngine.UI.RawImage.set_texture",
+          "tag4:rid1078..ctor"
+        ],
+        "formationLiteralHits": [],
+        "formationOwnerCorrelation": false,
+        "directInternalCallers": [
+          13359,
+          13380,
+          15432,
+          29071
+        ],
+        "directInternalCallees": [
+          4089,
+          4090,
+          4111,
+          4118,
+          48241,
+          48242
+        ]
+      },
+      {
+        "rid": 4116,
+        "stableId": "M:4116",
+        "symbol": "UnityUIExtension.LoadSpriteAsync",
+        "status": "unknown",
+        "score": 181,
+        "tags": [
+          "render-camera"
+        ],
+        "wrapper": false,
+        "apiCategories": [
+          "rawImageSetTexture"
+        ],
+        "matchedExternalTargets": [
+          "UnityEngine.UI.Graphic.get_color",
+          "UnityEngine.UI.Graphic.set_color",
+          "UnityEngine.UI.RawImage.set_texture",
+          "tag4:rid1078..ctor"
+        ],
+        "formationLiteralHits": [],
+        "formationOwnerCorrelation": false,
+        "directInternalCallers": [
+          13359,
+          15432,
+          29071
+        ],
+        "directInternalCallees": [
+          4089,
+          4090,
+          4111,
+          4118,
+          48243,
+          48244
+        ]
+      },
+      {
+        "rid": 5043,
+        "stableId": "M:5043",
+        "symbol": "WebmVideoPlayerManager.TryCreateRT",
+        "status": "unknown",
+        "score": 279,
+        "tags": [
+          "render-camera",
+          "string-evidence"
+        ],
+        "wrapper": false,
+        "apiCategories": [
+          "rawImageSetTexture",
+          "renderTexture"
+        ],
+        "matchedExternalTargets": [
+          "UnityEngine.Object.op_Equality",
+          "UnityEngine.Object.op_Inequality",
+          "UnityEngine.Object.set_name",
+          "UnityEngine.RenderTexture.GetTemporary",
+          "UnityEngine.RenderTexture.ReleaseTemporary",
+          "UnityEngine.Texture.get_height",
+          "UnityEngine.Texture.get_width",
+          "UnityEngine.UI.RawImage.set_texture",
+          "UnityEngine.Vector2Int.get_x",
+          "UnityEngine.Vector2Int.get_y",
+          "UnityEngine.Video.VideoPlayer.set_targetTexture"
+        ],
+        "formationLiteralHits": [],
+        "formationOwnerCorrelation": false,
+        "directInternalCallers": [
+          5041,
+          5046,
+          29893
+        ],
+        "directInternalCallees": []
+      },
+      {
+        "rid": 13357,
+        "stableId": "M:13357",
+        "symbol": "DynamicImage.ClearGraphic",
+        "status": "unknown",
+        "score": 163,
+        "tags": [
+          "render-camera"
+        ],
+        "wrapper": false,
+        "apiCategories": [
+          "rawImageSetTexture"
+        ],
+        "matchedExternalTargets": [
+          "UnityEngine.Object.op_Inequality",
+          "UnityEngine.UI.Image.set_sprite",
+          "UnityEngine.UI.RawImage.set_texture"
+        ],
+        "formationLiteralHits": [],
+        "formationOwnerCorrelation": false,
+        "directInternalCallers": [
+          13355
+        ],
+        "directInternalCallees": []
+      },
+      {
+        "rid": 13380,
+        "stableId": "M:13380",
+        "symbol": "DynamicSkinImage.ApplySkin",
+        "status": "unknown",
+        "score": 180,
+        "tags": [
+          "render-camera"
+        ],
+        "wrapper": false,
+        "apiCategories": [
+          "rawImageSetTexture"
+        ],
+        "matchedExternalTargets": [
+          "StringUtilsExt.IsNullOrEmpty",
+          "UnityEngine.Object.op_Inequality",
+          "UnityEngine.Rect.Equals",
+          "UnityEngine.Rect.get_height",
+          "UnityEngine.Rect.get_width",
+          "UnityEngine.Rect.get_x",
+          "UnityEngine.Rect.get_y",
+          "UnityEngine.Rect.get_zero",
+          "UnityEngine.UI.Graphic.set_color",
+          "UnityEngine.UI.Image.set_sprite",
+          "UnityEngine.UI.RawImage.set_texture"
+        ],
+        "formationLiteralHits": [],
+        "formationOwnerCorrelation": false,
+        "directInternalCallers": [
+          13378,
+          13379
+        ],
+        "directInternalCallees": [
+          2756,
+          2768,
+          4093,
+          4095,
+          4114,
+          4115,
+          13376
+        ]
+      },
+      {
+        "rid": 14075,
+        "stableId": "M:14075",
+        "symbol": "BaseSubLoadingComponent.AfterLoadImage",
+        "status": "unknown",
+        "score": 243,
+        "tags": [
+          "render-camera"
+        ],
+        "wrapper": false,
+        "apiCategories": [
+          "rawImageSetTexture"
+        ],
+        "matchedExternalTargets": [
+          "UnityEngine.Object.op_Inequality",
+          "UnityEngine.UI.Graphic.SetNativeSize",
+          "UnityEngine.UI.Image.set_sprite",
+          "UnityEngine.UI.RawImage.set_texture"
+        ],
+        "formationLiteralHits": [],
+        "formationOwnerCorrelation": false,
+        "directInternalCallers": [
+          14074
+        ],
+        "directInternalCallees": []
+      },
+      {
+        "rid": 14188,
+        "stableId": "M:14188",
+        "symbol": "UILanguageSetImageComponent.ForceRefresh",
+        "status": "unknown",
+        "score": 196,
+        "tags": [
+          "render-camera",
+          "ui"
+        ],
+        "wrapper": false,
+        "apiCategories": [
+          "rawImageSetTexture"
+        ],
+        "matchedExternalTargets": [
+          "UnityEngine.Object.op_Inequality",
+          "UnityEngine.UI.Image.set_sprite",
+          "UnityEngine.UI.RawImage.set_texture",
+          "tag4:rid2287.get_Count",
+          "tag4:rid2287.get_Item"
+        ],
+        "formationLiteralHits": [],
+        "formationOwnerCorrelation": false,
+        "directInternalCallers": [
+          14185,
+          14186
+        ],
+        "directInternalCallees": []
+      },
+      {
+        "rid": 14247,
+        "stableId": "M:14247",
+        "symbol": "UISplashLoadingComponent.LoadPlayerPref",
+        "status": "unknown",
+        "score": 569,
+        "tags": [
+          "render-camera",
+          "resource-path-string",
+          "string-evidence",
+          "ui"
+        ],
+        "wrapper": false,
+        "apiCategories": [
+          "rawImageSetTexture"
+        ],
+        "matchedExternalTargets": [
+          "GameFramework.Log.Info",
+          "StringUtilsExt.IsNullOrEmpty",
+          "System.Globalization.CultureInfo.get_InvariantCulture",
+          "System.Single.Parse",
+          "System.String.Concat",
+          "System.String.IsNullOrEmpty",
+          "System.String.Split",
+          "System.String.StartsWith",
+          "System.Type.GetTypeFromHandle",
+          "UnityEngine.Behaviour.set_enabled",
+          "UnityEngine.Canvas.set_overrideSorting",
+          "UnityEngine.Canvas.set_sortingOrder",
+          "UnityEngine.Component.get_gameObject",
+          "UnityEngine.GameObject.SetActive",
+          "UnityEngine.RectTransform.set_anchoredPosition",
+          "UnityEngine.RectTransform.set_sizeDelta",
+          "UnityEngine.Time.get_frameCount",
+          "UnityEngine.Transform.set_localScale",
+          "UnityEngine.UI.Graphic.get_rectTransform",
+          "UnityEngine.UI.RawImage.set_texture",
+          "UnityEngine.Vector2..ctor",
+          "UnityEngine.Vector3..ctor",
+          "VEngine.Asset.get_asset"
+        ],
+        "formationLiteralHits": [],
+        "formationOwnerCorrelation": false,
+        "directInternalCallers": [
+          14246
+        ],
+        "directInternalCallees": [
+          515,
+          3131,
+          3141,
+          3415,
+          3446,
+          4912,
+          14250,
+          14251
+        ]
+      },
+      {
+        "rid": 29075,
+        "stableId": "M:29075",
+        "symbol": "XLua.CSObjectWrap.UnityEngineUIRawImageWrap._s_set_texture",
+        "status": "unknown",
+        "score": 281,
+        "tags": [
+          "render-camera",
+          "string-evidence"
+        ],
+        "wrapper": true,
+        "apiCategories": [
+          "rawImageSetTexture"
+        ],
+        "matchedExternalTargets": [
+          "System.String.Concat",
+          "System.Type.GetTypeFromHandle",
+          "UnityEngine.UI.RawImage.set_texture",
+          "XLua.LuaDLL.Lua.luaL_error"
+        ],
+        "formationLiteralHits": [],
+        "formationOwnerCorrelation": false,
+        "directInternalCallers": [
+          29067
+        ],
+        "directInternalCallees": [
+          15616,
+          15635,
+          15973,
+          15976
+        ]
+      },
+      {
+        "rid": 48240,
+        "stableId": "M:48240",
+        "symbol": "<>c__DisplayClass44_0.<LoadSprite>b__0",
+        "status": "unknown",
+        "score": 163,
+        "tags": [
+          "render-camera"
+        ],
+        "wrapper": false,
+        "apiCategories": [
+          "rawImageSetTexture"
+        ],
+        "matchedExternalTargets": [
+          "UnityEngine.UI.RawImage.set_texture",
+          "VEngine.Asset.get_asset"
+        ],
+        "formationLiteralHits": [],
+        "formationOwnerCorrelation": false,
+        "directInternalCallers": [
+          4114
+        ],
+        "directInternalCallees": []
+      },
+      {
+        "rid": 48242,
+        "stableId": "M:48242",
+        "symbol": "<>c__DisplayClass45_0.<LoadSpriteAsync>b__0",
+        "status": "unknown",
+        "score": 163,
+        "tags": [
+          "render-camera"
+        ],
+        "wrapper": false,
+        "apiCategories": [
+          "rawImageSetTexture"
+        ],
+        "matchedExternalTargets": [
+          "UnityEngine.UI.Graphic.get_color",
+          "UnityEngine.UI.Graphic.set_color",
+          "UnityEngine.UI.RawImage.set_texture",
+          "VEngine.Asset.get_asset"
+        ],
+        "formationLiteralHits": [],
+        "formationOwnerCorrelation": false,
+        "directInternalCallers": [
+          4115
+        ],
+        "directInternalCallees": []
+      },
+      {
+        "rid": 48244,
+        "stableId": "M:48244",
+        "symbol": "<>c__DisplayClass46_0.<LoadSpriteAsync>b__0",
+        "status": "unknown",
+        "score": 163,
+        "tags": [
+          "render-camera"
+        ],
+        "wrapper": false,
+        "apiCategories": [
+          "rawImageSetTexture"
+        ],
+        "matchedExternalTargets": [
+          "UnityEngine.UI.Graphic.get_color",
+          "UnityEngine.UI.Graphic.set_color",
+          "UnityEngine.UI.RawImage.set_texture",
+          "VEngine.Asset.get_asset",
+          "tag4:rid2233.Invoke"
+        ],
+        "formationLiteralHits": [],
+        "formationOwnerCorrelation": false,
+        "directInternalCallers": [
+          4116
+        ],
+        "directInternalCallees": []
+      }
+    ]
+  },
+  "exactSameMethodApiBridges": [
+    {
+      "rid": 2583,
+      "stableId": "M:2583",
+      "symbol": "RawImageSeriesVideoPlayer.ClearRT",
+      "status": "unknown",
+      "score": 172,
+      "tags": [
+        "render-camera"
+      ],
+      "wrapper": false,
+      "apiCategories": [
+        "rawImageSetTexture",
+        "renderTexture"
+      ],
+      "matchedExternalTargets": [
+        "UnityEngine.Color.get_black",
+        "UnityEngine.GL.Clear",
+        "UnityEngine.Object.op_Inequality",
+        "UnityEngine.RenderTexture.ReleaseTemporary",
+        "UnityEngine.RenderTexture.get_active",
+        "UnityEngine.RenderTexture.set_active",
+        "UnityEngine.UI.RawImage.set_texture",
+        "UnityEngine.Video.VideoPlayer.set_targetTexture"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": false,
+      "directInternalCallers": [
+        2567,
+        2569,
+        2574,
+        2575
+      ],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 2601,
+      "stableId": "M:2601",
+      "symbol": "RawImageVideoPlayer.ClearRT",
+      "status": "unknown",
+      "score": 169,
+      "tags": [
+        "render-camera"
+      ],
+      "wrapper": false,
+      "apiCategories": [
+        "rawImageSetTexture",
+        "renderTexture"
+      ],
+      "matchedExternalTargets": [
+        "UnityEngine.Color.get_black",
+        "UnityEngine.GL.Clear",
+        "UnityEngine.Object.op_Inequality",
+        "UnityEngine.RenderTexture.ReleaseTemporary",
+        "UnityEngine.RenderTexture.get_active",
+        "UnityEngine.RenderTexture.set_active",
+        "UnityEngine.UI.RawImage.set_texture",
+        "UnityEngine.Video.VideoPlayer.set_sendFrameReadyEvents",
+        "UnityEngine.Video.VideoPlayer.set_targetTexture"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": false,
+      "directInternalCallers": [
+        2593,
+        2594,
+        2595
+      ],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 5043,
+      "stableId": "M:5043",
+      "symbol": "WebmVideoPlayerManager.TryCreateRT",
+      "status": "unknown",
+      "score": 279,
+      "tags": [
+        "render-camera",
+        "string-evidence"
+      ],
+      "wrapper": false,
+      "apiCategories": [
+        "rawImageSetTexture",
+        "renderTexture"
+      ],
+      "matchedExternalTargets": [
+        "UnityEngine.Object.op_Equality",
+        "UnityEngine.Object.op_Inequality",
+        "UnityEngine.Object.set_name",
+        "UnityEngine.RenderTexture.GetTemporary",
+        "UnityEngine.RenderTexture.ReleaseTemporary",
+        "UnityEngine.Texture.get_height",
+        "UnityEngine.Texture.get_width",
+        "UnityEngine.UI.RawImage.set_texture",
+        "UnityEngine.Vector2Int.get_x",
+        "UnityEngine.Vector2Int.get_y",
+        "UnityEngine.Video.VideoPlayer.set_targetTexture"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": false,
+      "directInternalCallers": [
+        5041,
+        5046,
+        29893
+      ],
+      "directInternalCallees": []
+    }
+  ],
+  "rawSetterWithExactFormationLiteral": [],
+  "rawSetterWithFormationOwnerCorrelation": [],
+  "exactUpstreamCallEvidence": [],
+  "formationNamedEvidence": [
+    {
+      "rid": 49373,
+      "stableId": "M:49373",
+      "symbol": "<>c__DisplayClass203_0.<GetOwnerFormationMarch>b__0",
+      "status": "unknown",
+      "score": 3,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        10913
+      ],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 49902,
+      "stableId": "M:49902",
+      "symbol": "ArmyFormationDataManager..ctor",
+      "status": "unknown",
+      "score": 3,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        15431
+      ],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 49904,
+      "stableId": "M:49904",
+      "symbol": "ArmyFormationDataManager.BeginInvoke",
+      "status": "unknown",
+      "score": 0,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 49905,
+      "stableId": "M:49905",
+      "symbol": "ArmyFormationDataManager.EndInvoke",
+      "status": "unknown",
+      "score": 0,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 49903,
+      "stableId": "M:49903",
+      "symbol": "ArmyFormationDataManager.Invoke",
+      "status": "unknown",
+      "score": 3,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        14844
+      ],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 40919,
+      "stableId": "M:40919",
+      "symbol": "BitBenderGames.MobileTouchCamera.get_CamZoomFocusFormationRotation",
+      "status": "known",
+      "score": 1012,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        4172,
+        5987,
+        9868,
+        16614
+      ],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 40917,
+      "stableId": "M:40917",
+      "symbol": "BitBenderGames.MobileTouchCamera.get_CamZoomFormation",
+      "status": "known",
+      "score": 1012,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        4172,
+        5987,
+        9868,
+        16613
+      ],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 40920,
+      "stableId": "M:40920",
+      "symbol": "BitBenderGames.MobileTouchCamera.set_CamZoomFocusFormationRotation",
+      "status": "known",
+      "score": 1006,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        4174,
+        16639
+      ],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 40918,
+      "stableId": "M:40918",
+      "symbol": "BitBenderGames.MobileTouchCamera.set_CamZoomFormation",
+      "status": "known",
+      "score": 1006,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        4174,
+        16638
+      ],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 6483,
+      "stableId": "M:6483",
+      "symbol": "CityScene.GetFormationUuid",
+      "status": "unknown",
+      "score": 7,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        17510
+      ],
+      "directInternalCallees": [
+        6118,
+        9115
+      ]
+    },
+    {
+      "rid": 6358,
+      "stableId": "M:6358",
+      "symbol": "CityScene.GetOwnerFormationMarch",
+      "status": "unknown",
+      "score": 3,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        17404
+      ],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 6367,
+      "stableId": "M:6367",
+      "symbol": "CityScene.HandleFormationMarch",
+      "status": "unknown",
+      "score": 3,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        17413
+      ],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 6368,
+      "stableId": "M:6368",
+      "symbol": "CityScene.HandleFormationMarchChange",
+      "status": "unknown",
+      "score": 3,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        17414
+      ],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 6396,
+      "stableId": "M:6396",
+      "symbol": "CityScene.SetDragFormationData",
+      "status": "unknown",
+      "score": 3,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        17434
+      ],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 53372,
+      "stableId": "M:53372",
+      "symbol": "EnvironmentInformationWindow..ctor",
+      "status": "unknown",
+      "score": 35,
+      "tags": [
+        "ui"
+      ],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        41237
+      ],
+      "directInternalCallees": [
+        53445
+      ]
+    },
+    {
+      "rid": 53370,
+      "stableId": "M:53370",
+      "symbol": "EnvironmentInformationWindow.Initialize",
+      "status": "unknown",
+      "score": 30,
+      "tags": [
+        "ui"
+      ],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 53371,
+      "stableId": "M:53371",
+      "symbol": "EnvironmentInformationWindow.OnDrawScrollableWindow",
+      "status": "unknown",
+      "score": 62,
+      "tags": [
+        "string-evidence",
+        "ui"
+      ],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "System.Boolean.ToString",
+        "System.Int32.ToString",
+        "System.Object.ToString",
+        "UnityEngine.Application.get_backgroundLoadingPriority",
+        "UnityEngine.Application.get_buildGUID",
+        "UnityEngine.Application.get_cloudProjectId",
+        "UnityEngine.Application.get_companyName",
+        "UnityEngine.Application.get_identifier",
+        "UnityEngine.Application.get_installMode",
+        "UnityEngine.Application.get_installerName",
+        "UnityEngine.Application.get_internetReachability",
+        "UnityEngine.Application.get_isBatchMode",
+        "UnityEngine.Application.get_isConsolePlatform",
+        "UnityEngine.Application.get_isEditor",
+        "UnityEngine.Application.get_isFocused",
+        "UnityEngine.Application.get_isMobilePlatform",
+        "UnityEngine.Application.get_isPlaying",
+        "UnityEngine.Application.get_platform",
+        "UnityEngine.Application.get_productName",
+        "UnityEngine.Application.get_runInBackground",
+        "UnityEngine.Application.get_sandboxType",
+        "UnityEngine.Application.get_systemLanguage",
+        "UnityEngine.Application.get_targetFrameRate",
+        "UnityEngine.Application.get_unityVersion",
+        "UnityEngine.Application.get_version",
+        "UnityEngine.Debug.get_isDebugBuild",
+        "UnityEngine.GUILayout.BeginVertical",
+        "UnityEngine.GUILayout.EndVertical",
+        "UnityEngine.GUILayout.Label",
+        "UnityEngine.GUIStyle.op_Implicit",
+        "UnityEngine.Rendering.SplashScreen.get_isFinished"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [],
+      "directInternalCallees": [
+        53443
+      ]
+    },
+    {
+      "rid": 2470,
+      "stableId": "M:2470",
+      "symbol": "FormationCalc..ctor",
+      "status": "unknown",
+      "score": 0,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "System.Object..ctor"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 53381,
+      "stableId": "M:53381",
+      "symbol": "GraphicsInformationWindow..ctor",
+      "status": "unknown",
+      "score": 35,
+      "tags": [
+        "ui"
+      ],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        41237
+      ],
+      "directInternalCallees": [
+        53445
+      ]
+    },
+    {
+      "rid": 53380,
+      "stableId": "M:53380",
+      "symbol": "GraphicsInformationWindow.GetShaderLevelString",
+      "status": "unknown",
+      "score": 63,
+      "tags": [
+        "string-evidence",
+        "ui"
+      ],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "System.Int32.ToString",
+        "System.String.Format"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        53379
+      ],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 53379,
+      "stableId": "M:53379",
+      "symbol": "GraphicsInformationWindow.OnDrawScrollableWindow",
+      "status": "unknown",
+      "score": 224,
+      "tags": [
+        "render-camera",
+        "string-evidence",
+        "ui"
+      ],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "System.Boolean.ToString",
+        "System.Int32.ToString",
+        "System.Object.ToString",
+        "System.String.Format",
+        "UnityEngine.GUILayout.BeginVertical",
+        "UnityEngine.GUILayout.EndVertical",
+        "UnityEngine.GUILayout.Label",
+        "UnityEngine.GUIStyle.op_Implicit",
+        "UnityEngine.Graphics.get_activeColorGamut",
+        "UnityEngine.Graphics.get_activeTier",
+        "UnityEngine.Graphics.get_preserveFramebufferAlpha",
+        "UnityEngine.Shader.get_globalMaximumLOD",
+        "UnityEngine.Shader.get_globalRenderPipeline",
+        "UnityEngine.SystemInfo.get_copyTextureSupport",
+        "UnityEngine.SystemInfo.get_graphicsDeviceID",
+        "UnityEngine.SystemInfo.get_graphicsDeviceName",
+        "UnityEngine.SystemInfo.get_graphicsDeviceType",
+        "UnityEngine.SystemInfo.get_graphicsDeviceVendor",
+        "UnityEngine.SystemInfo.get_graphicsDeviceVendorID",
+        "UnityEngine.SystemInfo.get_graphicsDeviceVersion",
+        "UnityEngine.SystemInfo.get_graphicsMemorySize",
+        "UnityEngine.SystemInfo.get_graphicsMultiThreaded",
+        "UnityEngine.SystemInfo.get_graphicsShaderLevel",
+        "UnityEngine.SystemInfo.get_graphicsUVStartsAtTop",
+        "UnityEngine.SystemInfo.get_hasDynamicUniformArrayIndexingInFragmentShaders",
+        "UnityEngine.SystemInfo.get_hasHiddenSurfaceRemovalOnGPU",
+        "UnityEngine.SystemInfo.get_hasMipMaxLevel",
+        "UnityEngine.SystemInfo.get_maxComputeBufferInputsCompute",
+        "UnityEngine.SystemInfo.get_maxComputeBufferInputsDomain",
+        "UnityEngine.SystemInfo.get_maxComputeBufferInputsFragment",
+        "UnityEngine.SystemInfo.get_maxComputeBufferInputsGeometry",
+        "UnityEngine.SystemInfo.get_maxComputeBufferInputsHull",
+        "UnityEngine.SystemInfo.get_maxComputeBufferInputsVertex",
+        "UnityEngine.SystemInfo.get_maxComputeWorkGroupSize",
+        "UnityEngine.SystemInfo.get_maxComputeWorkGroupSizeX",
+        "UnityEngine.SystemInfo.get_maxComputeWorkGroupSizeY",
+        "UnityEngine.SystemInfo.get_maxComputeWorkGroupSizeZ",
+        "UnityEngine.SystemInfo.get_maxCubemapSize",
+        "UnityEngine.SystemInfo.get_maxTextureSize",
+        "UnityEngine.SystemInfo.get_minConstantBufferOffsetAlignment",
+        "UnityEngine.SystemInfo.get_npotSupport",
+        "UnityEngine.SystemInfo.get_renderingThreadingMode",
+        "UnityEngine.SystemInfo.get_supportedRandomWriteTargetCount",
+        "UnityEngine.SystemInfo.get_supportedRenderTargetCount",
+        "UnityEngine.SystemInfo.get_supports2DArrayTextures",
+        "UnityEngine.SystemInfo.get_supports32bitsIndexBuffer",
+        "UnityEngine.SystemInfo.get_supports3DRenderTextures",
+        "UnityEngine.SystemInfo.get_supports3DTextures",
+        "UnityEngine.SystemInfo.get_supportsAsyncCompute",
+        "UnityEngine.SystemInfo.get_supportsAsyncGPUReadback",
+        "UnityEngine.SystemInfo.get_supportsComputeShaders",
+        "UnityEngine.SystemInfo.get_supportsCubemapArrayTextures",
+        "UnityEngine.SystemInfo.get_supportsGeometryShaders",
+        "UnityEngine.SystemInfo.get_supportsGraphicsFence",
+        "UnityEngine.SystemInfo.get_supportsHardwareQuadTopology",
+        "UnityEngine.SystemInfo.get_supportsInstancing",
+        "UnityEngine.SystemInfo.get_supportsMipStreaming",
+        "UnityEngine.SystemInfo.get_supportsMotionVectors",
+        "UnityEngine.SystemInfo.get_supportsMultisampleAutoResolve",
+        "UnityEngine.SystemInfo.get_supportsMultisampledTextures",
+        "UnityEngine.SystemInfo.get_supportsRawShadowDepthSampling",
+        "UnityEngine.SystemInfo.get_supportsRayTracing",
+        "UnityEngine.SystemInfo.get_supportsSeparatedRenderTargetsBlend",
+        "UnityEngine.SystemInfo.get_supportsSetConstantBuffer",
+        "UnityEngine.SystemInfo.get_supportsShadows",
+        "UnityEngine.SystemInfo.get_supportsSparseTextures",
+        "UnityEngine.SystemInfo.get_supportsTessellationShaders",
+        "UnityEngine.SystemInfo.get_supportsTextureWrapMirrorOnce",
+        "UnityEngine.SystemInfo.get_usesLoadStoreActions",
+        "UnityEngine.SystemInfo.get_usesReversedZBuffer"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [],
+      "directInternalCallees": [
+        53380,
+        53443
+      ]
+    },
+    {
+      "rid": 422,
+      "stableId": "M:422",
+      "symbol": "HeroShowSetting..ctor",
+      "status": "known",
+      "score": 1030,
+      "tags": [
+        "string-evidence"
+      ],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "UnityEngine.MonoBehaviour..ctor"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 417,
+      "stableId": "M:417",
+      "symbol": "HeroShowSetting.Awake",
+      "status": "known",
+      "score": 1002,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [],
+      "directInternalCallees": [
+        419
+      ]
+    },
+    {
+      "rid": 420,
+      "stableId": "M:420",
+      "symbol": "HeroShowSetting.OnDestroy",
+      "status": "known",
+      "score": 1160,
+      "tags": [
+        "render-camera"
+      ],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "UnityEngine.QualitySettings.get_renderPipeline",
+        "UnityEngine.Rendering.Universal.UniversalRenderPipelineAsset.set_shadowDistance"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 419,
+      "stableId": "M:419",
+      "symbol": "HeroShowSetting.Setting",
+      "status": "known",
+      "score": 1163,
+      "tags": [
+        "render-camera"
+      ],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "UnityEngine.QualitySettings.get_renderPipeline",
+        "UnityEngine.Rendering.Universal.UniversalRenderPipelineAsset.get_shadowDistance",
+        "UnityEngine.Rendering.Universal.UniversalRenderPipelineAsset.set_shadowDistance",
+        "UnityEngine.Shader.SetGlobalVector",
+        "UnityEngine.Vector4..ctor"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        417
+      ],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 418,
+      "stableId": "M:418",
+      "symbol": "HeroShowSetting.Start",
+      "status": "known",
+      "score": 1000,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 421,
+      "stableId": "M:421",
+      "symbol": "HeroShowSetting.Update",
+      "status": "known",
+      "score": 1190,
+      "tags": [
+        "render-camera",
+        "string-evidence"
+      ],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "System.Int32.ToString",
+        "System.String.Concat",
+        "UnityEngine.Camera.get_fieldOfView",
+        "UnityEngine.Camera.get_gateFit",
+        "UnityEngine.Camera.set_cullingMask",
+        "UnityEngine.Camera.set_farClipPlane",
+        "UnityEngine.Camera.set_fieldOfView",
+        "UnityEngine.Camera.set_focalLength",
+        "UnityEngine.Camera.set_gateFit",
+        "UnityEngine.Camera.set_nearClipPlane",
+        "UnityEngine.Camera.set_sensorSize",
+        "UnityEngine.Camera.set_usePhysicalProperties",
+        "UnityEngine.Component.get_gameObject",
+        "UnityEngine.Component.get_transform",
+        "UnityEngine.Debug.LogError",
+        "UnityEngine.GameObject..ctor",
+        "UnityEngine.GameObject.Find",
+        "UnityEngine.GameObject.get_transform",
+        "UnityEngine.Object.op_Equality",
+        "UnityEngine.Object.op_Inequality",
+        "UnityEngine.Quaternion.get_identity",
+        "UnityEngine.Rendering.Universal.UniversalAdditionalCameraData.get_cameraStack",
+        "UnityEngine.Rendering.Universal.UniversalAdditionalCameraData.set_renderType",
+        "UnityEngine.Transform.Find",
+        "UnityEngine.Transform.SetParent",
+        "UnityEngine.Transform.set_localPosition",
+        "UnityEngine.Transform.set_localRotation",
+        "UnityEngine.Transform.set_localScale",
+        "UnityEngine.Vector2..ctor",
+        "UnityEngine.Vector3.get_one",
+        "UnityEngine.Vector3.get_zero",
+        "tag4:rid1075.Add"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 53385,
+      "stableId": "M:53385",
+      "symbol": "InputAccelerationInformationWindow..ctor",
+      "status": "unknown",
+      "score": 35,
+      "tags": [
+        "ui"
+      ],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        41237
+      ],
+      "directInternalCallees": [
+        53445
+      ]
+    },
+    {
+      "rid": 53383,
+      "stableId": "M:53383",
+      "symbol": "InputAccelerationInformationWindow.GetAccelerationEventString",
+      "status": "unknown",
+      "score": 33,
+      "tags": [
+        "ui"
+      ],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "System.Object.ToString",
+        "System.Single.ToString",
+        "System.String.Format",
+        "UnityEngine.AccelerationEvent.get_acceleration",
+        "UnityEngine.AccelerationEvent.get_deltaTime"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        53384
+      ],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 53384,
+      "stableId": "M:53384",
+      "symbol": "InputAccelerationInformationWindow.GetAccelerationEventsString",
+      "status": "unknown",
+      "score": 35,
+      "tags": [
+        "ui"
+      ],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "System.String.Join"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        53382
+      ],
+      "directInternalCallees": [
+        53383
+      ]
+    },
+    {
+      "rid": 53382,
+      "stableId": "M:53382",
+      "symbol": "InputAccelerationInformationWindow.OnDrawScrollableWindow",
+      "status": "unknown",
+      "score": 64,
+      "tags": [
+        "string-evidence",
+        "ui"
+      ],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "System.Int32.ToString",
+        "System.Object.ToString",
+        "UnityEngine.GUILayout.BeginVertical",
+        "UnityEngine.GUILayout.EndVertical",
+        "UnityEngine.GUILayout.Label",
+        "UnityEngine.GUIStyle.op_Implicit",
+        "UnityEngine.Input.get_acceleration",
+        "UnityEngine.Input.get_accelerationEventCount",
+        "UnityEngine.Input.get_accelerationEvents"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [],
+      "directInternalCallees": [
+        53384,
+        53443
+      ]
+    },
+    {
+      "rid": 53387,
+      "stableId": "M:53387",
+      "symbol": "InputCompassInformationWindow..ctor",
+      "status": "unknown",
+      "score": 35,
+      "tags": [
+        "ui"
+      ],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        41237
+      ],
+      "directInternalCallees": [
+        53445
+      ]
+    },
+    {
+      "rid": 53386,
+      "stableId": "M:53386",
+      "symbol": "InputCompassInformationWindow.OnDrawScrollableWindow",
+      "status": "unknown",
+      "score": 62,
+      "tags": [
+        "string-evidence",
+        "ui"
+      ],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "System.Boolean.ToString",
+        "System.Double.ToString",
+        "System.Object.ToString",
+        "System.Single.ToString",
+        "UnityEngine.Compass.get_enabled",
+        "UnityEngine.Compass.get_headingAccuracy",
+        "UnityEngine.Compass.get_magneticHeading",
+        "UnityEngine.Compass.get_rawVector",
+        "UnityEngine.Compass.get_timestamp",
+        "UnityEngine.Compass.get_trueHeading",
+        "UnityEngine.Compass.set_enabled",
+        "UnityEngine.GUILayout.BeginHorizontal",
+        "UnityEngine.GUILayout.BeginVertical",
+        "UnityEngine.GUILayout.Button",
+        "UnityEngine.GUILayout.EndHorizontal",
+        "UnityEngine.GUILayout.EndVertical",
+        "UnityEngine.GUILayout.Height",
+        "UnityEngine.GUILayout.Label",
+        "UnityEngine.GUIStyle.op_Implicit",
+        "UnityEngine.Input.get_compass"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [],
+      "directInternalCallees": [
+        53443
+      ]
+    },
+    {
+      "rid": 53389,
+      "stableId": "M:53389",
+      "symbol": "InputGyroscopeInformationWindow..ctor",
+      "status": "unknown",
+      "score": 35,
+      "tags": [
+        "ui"
+      ],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        41237
+      ],
+      "directInternalCallees": [
+        53445
+      ]
+    },
+    {
+      "rid": 53388,
+      "stableId": "M:53388",
+      "symbol": "InputGyroscopeInformationWindow.OnDrawScrollableWindow",
+      "status": "unknown",
+      "score": 62,
+      "tags": [
+        "string-evidence",
+        "ui"
+      ],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "System.Boolean.ToString",
+        "System.Object.ToString",
+        "System.Single.ToString",
+        "UnityEngine.GUILayout.BeginHorizontal",
+        "UnityEngine.GUILayout.BeginVertical",
+        "UnityEngine.GUILayout.Button",
+        "UnityEngine.GUILayout.EndHorizontal",
+        "UnityEngine.GUILayout.EndVertical",
+        "UnityEngine.GUILayout.Height",
+        "UnityEngine.GUILayout.Label",
+        "UnityEngine.GUIStyle.op_Implicit",
+        "UnityEngine.Gyroscope.get_attitude",
+        "UnityEngine.Gyroscope.get_enabled",
+        "UnityEngine.Gyroscope.get_gravity",
+        "UnityEngine.Gyroscope.get_rotationRate",
+        "UnityEngine.Gyroscope.get_rotationRateUnbiased",
+        "UnityEngine.Gyroscope.get_updateInterval",
+        "UnityEngine.Gyroscope.get_userAcceleration",
+        "UnityEngine.Gyroscope.set_enabled",
+        "UnityEngine.Input.get_gyro",
+        "UnityEngine.Quaternion.get_eulerAngles"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [],
+      "directInternalCallees": [
+        53443
+      ]
+    },
+    {
+      "rid": 53391,
+      "stableId": "M:53391",
+      "symbol": "InputSummaryInformationWindow..ctor",
+      "status": "unknown",
+      "score": 35,
+      "tags": [
+        "ui"
+      ],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        41237
+      ],
+      "directInternalCallees": [
+        53445
+      ]
+    },
+    {
+      "rid": 53390,
+      "stableId": "M:53390",
+      "symbol": "InputSummaryInformationWindow.OnDrawScrollableWindow",
+      "status": "unknown",
+      "score": 62,
+      "tags": [
+        "string-evidence",
+        "ui"
+      ],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "System.Boolean.ToString",
+        "System.Object.ToString",
+        "UnityEngine.GUILayout.BeginVertical",
+        "UnityEngine.GUILayout.EndVertical",
+        "UnityEngine.GUILayout.Label",
+        "UnityEngine.GUIStyle.op_Implicit",
+        "UnityEngine.Input.get_anyKey",
+        "UnityEngine.Input.get_anyKeyDown",
+        "UnityEngine.Input.get_backButtonLeavesApp",
+        "UnityEngine.Input.get_compensateSensors",
+        "UnityEngine.Input.get_compositionCursorPos",
+        "UnityEngine.Input.get_compositionString",
+        "UnityEngine.Input.get_deviceOrientation",
+        "UnityEngine.Input.get_imeCompositionMode",
+        "UnityEngine.Input.get_imeIsSelected",
+        "UnityEngine.Input.get_inputString",
+        "UnityEngine.Input.get_mousePosition",
+        "UnityEngine.Input.get_mousePresent",
+        "UnityEngine.Input.get_mouseScrollDelta"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [],
+      "directInternalCallees": [
+        53443
+      ]
+    },
+    {
+      "rid": 53395,
+      "stableId": "M:53395",
+      "symbol": "InputTouchInformationWindow..ctor",
+      "status": "unknown",
+      "score": 35,
+      "tags": [
+        "ui"
+      ],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        41237
+      ],
+      "directInternalCallees": [
+        53445
+      ]
+    },
+    {
+      "rid": 53393,
+      "stableId": "M:53393",
+      "symbol": "InputTouchInformationWindow.GetTouchString",
+      "status": "unknown",
+      "score": 33,
+      "tags": [
+        "ui"
+      ],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "System.Object.ToString",
+        "System.Single.ToString",
+        "System.String.Format",
+        "UnityEngine.Touch.get_deltaPosition",
+        "UnityEngine.Touch.get_phase",
+        "UnityEngine.Touch.get_position",
+        "UnityEngine.Touch.get_pressure",
+        "UnityEngine.Touch.get_rawPosition"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        53394
+      ],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 53394,
+      "stableId": "M:53394",
+      "symbol": "InputTouchInformationWindow.GetTouchesString",
+      "status": "unknown",
+      "score": 35,
+      "tags": [
+        "ui"
+      ],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "System.String.Join"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        53392
+      ],
+      "directInternalCallees": [
+        53393
+      ]
+    },
+    {
+      "rid": 53392,
+      "stableId": "M:53392",
+      "symbol": "InputTouchInformationWindow.OnDrawScrollableWindow",
+      "status": "unknown",
+      "score": 64,
+      "tags": [
+        "string-evidence",
+        "ui"
+      ],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "System.Boolean.ToString",
+        "System.Int32.ToString",
+        "UnityEngine.GUILayout.BeginVertical",
+        "UnityEngine.GUILayout.EndVertical",
+        "UnityEngine.GUILayout.Label",
+        "UnityEngine.GUIStyle.op_Implicit",
+        "UnityEngine.Input.get_multiTouchEnabled",
+        "UnityEngine.Input.get_simulateMouseWithTouches",
+        "UnityEngine.Input.get_stylusTouchSupported",
+        "UnityEngine.Input.get_touchCount",
+        "UnityEngine.Input.get_touchPressureSupported",
+        "UnityEngine.Input.get_touchSupported",
+        "UnityEngine.Input.get_touches"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [],
+      "directInternalCallees": [
+        53394,
+        53443
+      ]
+    },
+    {
+      "rid": 9114,
+      "stableId": "M:9114",
+      "symbol": "ModelManager.CreateFormationUuidSignal",
+      "status": "unknown",
+      "score": 86,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        9110,
+        9111
+      ],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 9115,
+      "stableId": "M:9115",
+      "symbol": "ModelManager.GetFormationUuid",
+      "status": "unknown",
+      "score": 6,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        6483,
+        20979
+      ],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 53411,
+      "stableId": "M:53411",
+      "symbol": "NetworkInformationWindow..ctor",
+      "status": "unknown",
+      "score": 35,
+      "tags": [
+        "ui"
+      ],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        41237
+      ],
+      "directInternalCallees": [
+        53445
+      ]
+    },
+    {
+      "rid": 53410,
+      "stableId": "M:53410",
+      "symbol": "NetworkInformationWindow.DrawNetworkChannel",
+      "status": "unknown",
+      "score": 30,
+      "tags": [
+        "ui"
+      ],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 53408,
+      "stableId": "M:53408",
+      "symbol": "NetworkInformationWindow.Initialize",
+      "status": "unknown",
+      "score": 30,
+      "tags": [
+        "ui"
+      ],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 53409,
+      "stableId": "M:53409",
+      "symbol": "NetworkInformationWindow.OnDrawScrollableWindow",
+      "status": "unknown",
+      "score": 30,
+      "tags": [
+        "ui"
+      ],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 53415,
+      "stableId": "M:53415",
+      "symbol": "PathInformationWindow..ctor",
+      "status": "unknown",
+      "score": 35,
+      "tags": [
+        "ui"
+      ],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        41237
+      ],
+      "directInternalCallees": [
+        53445
+      ]
+    },
+    {
+      "rid": 53414,
+      "stableId": "M:53414",
+      "symbol": "PathInformationWindow.OnDrawScrollableWindow",
+      "status": "unknown",
+      "score": 62,
+      "tags": [
+        "string-evidence",
+        "ui"
+      ],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "System.Environment.get_CurrentDirectory",
+        "UnityEngine.Application.get_consoleLogPath",
+        "UnityEngine.Application.get_dataPath",
+        "UnityEngine.Application.get_persistentDataPath",
+        "UnityEngine.Application.get_streamingAssetsPath",
+        "UnityEngine.Application.get_temporaryCachePath",
+        "UnityEngine.GUILayout.BeginVertical",
+        "UnityEngine.GUILayout.EndVertical",
+        "UnityEngine.GUILayout.Label",
+        "UnityEngine.GUIStyle.op_Implicit"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [],
+      "directInternalCallees": [
+        53443
+      ]
+    },
+    {
+      "rid": 53417,
+      "stableId": "M:53417",
+      "symbol": "ProfilerInformationWindow..ctor",
+      "status": "unknown",
+      "score": 35,
+      "tags": [
+        "ui"
+      ],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        41237
+      ],
+      "directInternalCallees": [
+        53445
+      ]
+    },
+    {
+      "rid": 53416,
+      "stableId": "M:53416",
+      "symbol": "ProfilerInformationWindow.OnDrawScrollableWindow",
+      "status": "unknown",
+      "score": 224,
+      "tags": [
+        "render-camera",
+        "string-evidence",
+        "ui"
+      ],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "System.Boolean.ToString",
+        "System.Int32.ToString",
+        "System.String.Format",
+        "UnityEngine.GUILayout.BeginVertical",
+        "UnityEngine.GUILayout.EndVertical",
+        "UnityEngine.GUILayout.Label",
+        "UnityEngine.GUIStyle.op_Implicit",
+        "UnityEngine.Profiling.Profiler.GetAllocatedMemoryForGraphicsDriver",
+        "UnityEngine.Profiling.Profiler.GetMonoHeapSizeLong",
+        "UnityEngine.Profiling.Profiler.GetMonoUsedSizeLong",
+        "UnityEngine.Profiling.Profiler.GetTempAllocatorSize",
+        "UnityEngine.Profiling.Profiler.GetTotalAllocatedMemoryLong",
+        "UnityEngine.Profiling.Profiler.GetTotalReservedMemoryLong",
+        "UnityEngine.Profiling.Profiler.GetTotalUnusedReservedMemoryLong",
+        "UnityEngine.Profiling.Profiler.get_areaCount",
+        "UnityEngine.Profiling.Profiler.get_enableAllocationCallstacks",
+        "UnityEngine.Profiling.Profiler.get_enableBinaryLog",
+        "UnityEngine.Profiling.Profiler.get_enabled",
+        "UnityEngine.Profiling.Profiler.get_logFile",
+        "UnityEngine.Profiling.Profiler.get_maxUsedMemory",
+        "UnityEngine.Profiling.Profiler.get_supported",
+        "UnityEngine.Profiling.Profiler.get_usedHeapSizeLong"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [],
+      "directInternalCallees": [
+        53443,
+        53444
+      ]
+    },
+    {
+      "rid": 34622,
+      "stableId": "M:34622",
+      "symbol": "Protobuf.ArmyCombatUnit.get_FormationIndex",
+      "status": "unknown",
+      "score": 15,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        34627,
+        34628,
+        34630,
+        34631,
+        34632
+      ],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 34623,
+      "stableId": "M:34623",
+      "symbol": "Protobuf.ArmyCombatUnit.set_FormationIndex",
+      "status": "unknown",
+      "score": 6,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        34632,
+        34633
+      ],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 33852,
+      "stableId": "M:33852",
+      "symbol": "Protobuf.ArmyDBUnitInfo.get_FormationIndex",
+      "status": "unknown",
+      "score": 15,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        33886,
+        33887,
+        33889,
+        33890,
+        33891
+      ],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 33864,
+      "stableId": "M:33864",
+      "symbol": "Protobuf.ArmyDBUnitInfo.get_FormationUuid",
+      "status": "unknown",
+      "score": 15,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        33886,
+        33887,
+        33889,
+        33890,
+        33891
+      ],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 33853,
+      "stableId": "M:33853",
+      "symbol": "Protobuf.ArmyDBUnitInfo.set_FormationIndex",
+      "status": "unknown",
+      "score": 6,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        33891,
+        33892
+      ],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 33865,
+      "stableId": "M:33865",
+      "symbol": "Protobuf.ArmyDBUnitInfo.set_FormationUuid",
+      "status": "unknown",
+      "score": 6,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        33891,
+        33892
+      ],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 33751,
+      "stableId": "M:33751",
+      "symbol": "Protobuf.ArmyProgress.get_FormationEquipPower",
+      "status": "unknown",
+      "score": 15,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        33774,
+        33775,
+        33777,
+        33778,
+        33779
+      ],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 33752,
+      "stableId": "M:33752",
+      "symbol": "Protobuf.ArmyProgress.set_FormationEquipPower",
+      "status": "unknown",
+      "score": 6,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        33779,
+        33780
+      ],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 33552,
+      "stableId": "M:33552",
+      "symbol": "Protobuf.ArmyUnitEffectInfoProto.get_FormationEffect",
+      "status": "unknown",
+      "score": 0,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 33556,
+      "stableId": "M:33556",
+      "symbol": "Protobuf.ArmyUnitEffectInfoProto.get_FormationEffectMap",
+      "status": "unknown",
+      "score": 6,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        33566,
+        33567
+      ],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 36629,
+      "stableId": "M:36629",
+      "symbol": "Protobuf.ScoutFormation..cctor",
+      "status": "unknown",
+      "score": 6,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "tag4:rid3162..ctor",
+        "tag4:rid3163..ctor"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [],
+      "directInternalCallees": [
+        36630,
+        36731,
+        52734
+      ]
+    },
+    {
+      "rid": 36604,
+      "stableId": "M:36604",
+      "symbol": "Protobuf.ScoutFormation..ctor",
+      "status": "unknown",
+      "score": 12,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "System.Object..ctor",
+        "tag4:rid3151..ctor",
+        "tag4:rid3161..ctor"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        36598,
+        36599,
+        36605,
+        52734
+      ],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 36605,
+      "stableId": "M:36605",
+      "symbol": "Protobuf.ScoutFormation..ctor",
+      "status": "unknown",
+      "score": 15,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "Google.Protobuf.UnknownFieldSet.Clone",
+        "tag4:rid3151.Clone",
+        "tag4:rid3161.Clone"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        36606
+      ],
+      "directInternalCallees": [
+        36604,
+        36607,
+        36608,
+        36611,
+        36612,
+        36695
+      ]
+    },
+    {
+      "rid": 36626,
+      "stableId": "M:36626",
+      "symbol": "Protobuf.ScoutFormation.CalculateSize",
+      "status": "unknown",
+      "score": 12,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "Google.Protobuf.CodedOutputStream.ComputeInt32Size",
+        "Google.Protobuf.CodedOutputStream.ComputeInt64Size",
+        "Google.Protobuf.CodedOutputStream.ComputeMessageSize",
+        "Google.Protobuf.UnknownFieldSet.CalculateSize",
+        "tag4:rid1108.get_HasValue",
+        "tag4:rid3123.CalculateSizeWithTag",
+        "tag4:rid3151.CalculateSize",
+        "tag4:rid3161.CalculateSize"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [],
+      "directInternalCallees": [
+        36607,
+        36611,
+        36613,
+        36615,
+        36617,
+        36619
+      ]
+    },
+    {
+      "rid": 36606,
+      "stableId": "M:36606",
+      "symbol": "Protobuf.ScoutFormation.Clone",
+      "status": "unknown",
+      "score": 5,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        36586
+      ],
+      "directInternalCallees": [
+        36605
+      ]
+    },
+    {
+      "rid": 36621,
+      "stableId": "M:36621",
+      "symbol": "Protobuf.ScoutFormation.Equals",
+      "status": "unknown",
+      "score": 2,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [],
+      "directInternalCallees": [
+        36622
+      ]
+    },
+    {
+      "rid": 36622,
+      "stableId": "M:36622",
+      "symbol": "Protobuf.ScoutFormation.Equals",
+      "status": "unknown",
+      "score": 15,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "System.Object.Equals",
+        "tag4:rid1108.GetValueOrDefault",
+        "tag4:rid1108.get_HasValue",
+        "tag4:rid3151.Equals",
+        "tag4:rid3161.Equals"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        36621
+      ],
+      "directInternalCallees": [
+        36607,
+        36611,
+        36613,
+        36615,
+        36617,
+        36619
+      ]
+    },
+    {
+      "rid": 36623,
+      "stableId": "M:36623",
+      "symbol": "Protobuf.ScoutFormation.GetHashCode",
+      "status": "unknown",
+      "score": 12,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "System.Int32.GetHashCode",
+        "System.Int64.GetHashCode",
+        "System.Object.GetHashCode",
+        "tag4:rid1108.get_HasValue"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [],
+      "directInternalCallees": [
+        36607,
+        36611,
+        36613,
+        36615,
+        36617,
+        36619
+      ]
+    },
+    {
+      "rid": 36627,
+      "stableId": "M:36627",
+      "symbol": "Protobuf.ScoutFormation.MergeFrom",
+      "status": "unknown",
+      "score": 31,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "Google.Protobuf.UnknownFieldSet.MergeFrom",
+        "tag4:rid1108.GetValueOrDefault",
+        "tag4:rid1108.get_HasValue",
+        "tag4:rid3151.Add",
+        "tag4:rid3161.Add"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        36598
+      ],
+      "directInternalCallees": [
+        36607,
+        36608,
+        36611,
+        36612,
+        36613,
+        36614,
+        36615,
+        36616,
+        36617,
+        36618,
+        36619,
+        36620,
+        36693,
+        36705
+      ]
+    },
+    {
+      "rid": 36628,
+      "stableId": "M:36628",
+      "symbol": "Protobuf.ScoutFormation.MergeFrom",
+      "status": "unknown",
+      "score": 16,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "Google.Protobuf.CodedInputStream.ReadInt32",
+        "Google.Protobuf.CodedInputStream.ReadInt64",
+        "Google.Protobuf.CodedInputStream.ReadMessage",
+        "Google.Protobuf.CodedInputStream.ReadTag",
+        "Google.Protobuf.UnknownFieldSet.MergeFieldFrom",
+        "tag4:rid1108.GetValueOrDefault",
+        "tag4:rid1108.get_HasValue",
+        "tag4:rid3123.Read",
+        "tag4:rid3151.AddEntriesFrom",
+        "tag4:rid3161.AddEntriesFrom"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [],
+      "directInternalCallees": [
+        36608,
+        36612,
+        36614,
+        36616,
+        36618,
+        36619,
+        36620,
+        36693
+      ]
+    },
+    {
+      "rid": 36624,
+      "stableId": "M:36624",
+      "symbol": "Protobuf.ScoutFormation.ToString",
+      "status": "unknown",
+      "score": 0,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "Google.Protobuf.JsonFormatter.ToDiagnosticString"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 36625,
+      "stableId": "M:36625",
+      "symbol": "Protobuf.ScoutFormation.WriteTo",
+      "status": "unknown",
+      "score": 12,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "Google.Protobuf.CodedOutputStream.WriteInt32",
+        "Google.Protobuf.CodedOutputStream.WriteInt64",
+        "Google.Protobuf.CodedOutputStream.WriteMessage",
+        "Google.Protobuf.CodedOutputStream.WriteRawTag",
+        "Google.Protobuf.UnknownFieldSet.WriteTo",
+        "tag4:rid1108.get_HasValue",
+        "tag4:rid3123.WriteTagAndValue",
+        "tag4:rid3151.WriteTo",
+        "tag4:rid3161.WriteTo"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [],
+      "directInternalCallees": [
+        36607,
+        36611,
+        36613,
+        36615,
+        36617,
+        36619
+      ]
+    },
+    {
+      "rid": 36602,
+      "stableId": "M:36602",
+      "symbol": "Protobuf.ScoutFormation.get_Descriptor",
+      "status": "unknown",
+      "score": 5,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "Google.Protobuf.Reflection.FileDescriptor.get_MessageTypes",
+        "tag4:rid2799.get_Item"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        36603
+      ],
+      "directInternalCallees": [
+        36201
+      ]
+    },
+    {
+      "rid": 36609,
+      "stableId": "M:36609",
+      "symbol": "Protobuf.ScoutFormation.get_Hero",
+      "status": "unknown",
+      "score": 0,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 36613,
+      "stableId": "M:36613",
+      "symbol": "Protobuf.ScoutFormation.get_Index",
+      "status": "unknown",
+      "score": 15,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        36622,
+        36623,
+        36625,
+        36626,
+        36627
+      ],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 36601,
+      "stableId": "M:36601",
+      "symbol": "Protobuf.ScoutFormation.get_Parser",
+      "status": "unknown",
+      "score": 6,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        36202,
+        36544
+      ],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 36617,
+      "stableId": "M:36617",
+      "symbol": "Protobuf.ScoutFormation.get_Power",
+      "status": "unknown",
+      "score": 15,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        36622,
+        36623,
+        36625,
+        36626,
+        36627
+      ],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 36610,
+      "stableId": "M:36610",
+      "symbol": "Protobuf.ScoutFormation.get_Soldier",
+      "status": "unknown",
+      "score": 0,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 36619,
+      "stableId": "M:36619",
+      "symbol": "Protobuf.ScoutFormation.get_SoldierEleven",
+      "status": "unknown",
+      "score": 18,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        36622,
+        36623,
+        36625,
+        36626,
+        36627,
+        36628
+      ],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 36607,
+      "stableId": "M:36607",
+      "symbol": "Protobuf.ScoutFormation.get_SoldierTotal",
+      "status": "unknown",
+      "score": 18,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        36605,
+        36622,
+        36623,
+        36625,
+        36626,
+        36627
+      ],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 36611,
+      "stableId": "M:36611",
+      "symbol": "Protobuf.ScoutFormation.get_SpecialUnitType",
+      "status": "unknown",
+      "score": 18,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        36605,
+        36622,
+        36623,
+        36625,
+        36626,
+        36627
+      ],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 36615,
+      "stableId": "M:36615",
+      "symbol": "Protobuf.ScoutFormation.get_UseChipGroup",
+      "status": "unknown",
+      "score": 15,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        36622,
+        36623,
+        36625,
+        36626,
+        36627
+      ],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 36603,
+      "stableId": "M:36603",
+      "symbol": "Protobuf.ScoutFormation.pb::Google.Protobuf.IMessage.get_Descriptor",
+      "status": "unknown",
+      "score": 2,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [],
+      "directInternalCallees": [
+        36602
+      ]
+    },
+    {
+      "rid": 36614,
+      "stableId": "M:36614",
+      "symbol": "Protobuf.ScoutFormation.set_Index",
+      "status": "unknown",
+      "score": 6,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        36627,
+        36628
+      ],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 36618,
+      "stableId": "M:36618",
+      "symbol": "Protobuf.ScoutFormation.set_Power",
+      "status": "unknown",
+      "score": 6,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        36627,
+        36628
+      ],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 36620,
+      "stableId": "M:36620",
+      "symbol": "Protobuf.ScoutFormation.set_SoldierEleven",
+      "status": "unknown",
+      "score": 6,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        36627,
+        36628
+      ],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 36608,
+      "stableId": "M:36608",
+      "symbol": "Protobuf.ScoutFormation.set_SoldierTotal",
+      "status": "unknown",
+      "score": 9,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        36605,
+        36627,
+        36628
+      ],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 36612,
+      "stableId": "M:36612",
+      "symbol": "Protobuf.ScoutFormation.set_SpecialUnitType",
+      "status": "unknown",
+      "score": 9,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        36605,
+        36627,
+        36628
+      ],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 36616,
+      "stableId": "M:36616",
+      "symbol": "Protobuf.ScoutFormation.set_UseChipGroup",
+      "status": "unknown",
+      "score": 6,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        36627,
+        36628
+      ],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 36570,
+      "stableId": "M:36570",
+      "symbol": "Protobuf.ScoutHelpArmy.get_Formation",
+      "status": "unknown",
+      "score": 0,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 36588,
+      "stableId": "M:36588",
+      "symbol": "Protobuf.ScoutHelpArmyUnit.get_Formation",
+      "status": "unknown",
+      "score": 18,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        36593,
+        36594,
+        36596,
+        36597,
+        36598,
+        36599
+      ],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 36589,
+      "stableId": "M:36589",
+      "symbol": "Protobuf.ScoutHelpArmyUnit.set_Formation",
+      "status": "unknown",
+      "score": 6,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        36598,
+        36599
+      ],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 36527,
+      "stableId": "M:36527",
+      "symbol": "Protobuf.ScoutTargetArmyUnit.get_Formation",
+      "status": "unknown",
+      "score": 0,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 34470,
+      "stableId": "M:34470",
+      "symbol": "Protobuf.WorldMarch.get_OwnerFormationUuid",
+      "status": "unknown",
+      "score": 98,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        10732,
+        34602,
+        34603,
+        34605,
+        34606,
+        34607
+      ],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 34471,
+      "stableId": "M:34471",
+      "symbol": "Protobuf.WorldMarch.set_OwnerFormationUuid",
+      "status": "unknown",
+      "score": 6,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        34607,
+        34608
+      ],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 53419,
+      "stableId": "M:53419",
+      "symbol": "QualityInformationWindow..ctor",
+      "status": "unknown",
+      "score": 35,
+      "tags": [
+        "ui"
+      ],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        41237
+      ],
+      "directInternalCallees": [
+        53445
+      ]
+    },
+    {
+      "rid": 53418,
+      "stableId": "M:53418",
+      "symbol": "QualityInformationWindow.OnDrawScrollableWindow",
+      "status": "unknown",
+      "score": 222,
+      "tags": [
+        "render-camera",
+        "string-evidence",
+        "ui"
+      ],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "System.Boolean.ToString",
+        "System.Int32.ToString",
+        "System.Object.ToString",
+        "System.Single.ToString",
+        "System.String.Format",
+        "UnityEngine.GUILayout.BeginVertical",
+        "UnityEngine.GUILayout.EndVertical",
+        "UnityEngine.GUILayout.Label",
+        "UnityEngine.GUILayout.SelectionGrid",
+        "UnityEngine.GUILayout.Toggle",
+        "UnityEngine.GUIStyle.op_Implicit",
+        "UnityEngine.QualitySettings.GetQualityLevel",
+        "UnityEngine.QualitySettings.SetQualityLevel",
+        "UnityEngine.QualitySettings.get_activeColorSpace",
+        "UnityEngine.QualitySettings.get_anisotropicFiltering",
+        "UnityEngine.QualitySettings.get_antiAliasing",
+        "UnityEngine.QualitySettings.get_asyncUploadBufferSize",
+        "UnityEngine.QualitySettings.get_asyncUploadPersistentBuffer",
+        "UnityEngine.QualitySettings.get_asyncUploadTimeSlice",
+        "UnityEngine.QualitySettings.get_billboardsFaceCameraPosition",
+        "UnityEngine.QualitySettings.get_desiredColorSpace",
+        "UnityEngine.QualitySettings.get_lodBias",
+        "UnityEngine.QualitySettings.get_masterTextureLimit",
+        "UnityEngine.QualitySettings.get_maxQueuedFrames",
+        "UnityEngine.QualitySettings.get_maximumLODLevel",
+        "UnityEngine.QualitySettings.get_names",
+        "UnityEngine.QualitySettings.get_particleRaycastBudget",
+        "UnityEngine.QualitySettings.get_pixelLightCount",
+        "UnityEngine.QualitySettings.get_realtimeReflectionProbes",
+        "UnityEngine.QualitySettings.get_resolutionScalingFixedDPIFactor",
+        "UnityEngine.QualitySettings.get_shadowCascade2Split",
+        "UnityEngine.QualitySettings.get_shadowCascade4Split",
+        "UnityEngine.QualitySettings.get_shadowCascades",
+        "UnityEngine.QualitySettings.get_shadowDistance",
+        "UnityEngine.QualitySettings.get_shadowNearPlaneOffset",
+        "UnityEngine.QualitySettings.get_shadowProjection",
+        "UnityEngine.QualitySettings.get_shadowResolution",
+        "UnityEngine.QualitySettings.get_shadowmaskMode",
+        "UnityEngine.QualitySettings.get_shadows",
+        "UnityEngine.QualitySettings.get_skinWeights",
+        "UnityEngine.QualitySettings.get_softParticles",
+        "UnityEngine.QualitySettings.get_softVegetation",
+        "UnityEngine.QualitySettings.get_streamingMipmapsActive",
+        "UnityEngine.QualitySettings.get_streamingMipmapsAddAllCameras",
+        "UnityEngine.QualitySettings.get_streamingMipmapsMaxFileIORequests",
+        "UnityEngine.QualitySettings.get_streamingMipmapsMaxLevelReduction",
+        "UnityEngine.QualitySettings.get_streamingMipmapsMemoryBudget",
+        "UnityEngine.QualitySettings.get_streamingMipmapsRenderersPerFrame",
+        "UnityEngine.QualitySettings.get_vSyncCount"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [],
+      "directInternalCallees": [
+        53443
+      ]
+    },
+    {
+      "rid": 53423,
+      "stableId": "M:53423",
+      "symbol": "RuntimeMemoryInformationWindow`1..ctor",
+      "status": "unknown",
+      "score": 32,
+      "tags": [
+        "ui"
+      ],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "tag4:rid4427.SampleComparer",
+        "tag4:rid4428..ctor",
+        "tag4:rid4430..ctor"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [],
+      "directInternalCallees": [
+        53445
+      ]
+    },
+    {
+      "rid": 53420,
+      "stableId": "M:53420",
+      "symbol": "RuntimeMemoryInformationWindow`1.OnDrawScrollableWindow",
+      "status": "unknown",
+      "score": 62,
+      "tags": [
+        "string-evidence",
+        "ui"
+      ],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "System.DateTime.ToLocalTime",
+        "System.DateTime.ToString",
+        "System.DateTime.op_LessThanOrEqual",
+        "System.Int32.ToString",
+        "System.Reflection.MemberInfo.get_Name",
+        "System.String.Format",
+        "System.Type.GetTypeFromHandle",
+        "UnityEngine.GUILayout.BeginHorizontal",
+        "UnityEngine.GUILayout.BeginVertical",
+        "UnityEngine.GUILayout.Button",
+        "UnityEngine.GUILayout.EndHorizontal",
+        "UnityEngine.GUILayout.EndVertical",
+        "UnityEngine.GUILayout.Height",
+        "UnityEngine.GUILayout.Label",
+        "UnityEngine.GUILayout.Width",
+        "UnityEngine.GUIStyle.op_Implicit",
+        "tag4:rid4427.TakeSample",
+        "tag4:rid4428.get_Count",
+        "tag4:rid4428.get_Item",
+        "tag4:rid4429.get_Highlight",
+        "tag4:rid4429.get_Name",
+        "tag4:rid4429.get_Size",
+        "tag4:rid4429.get_Type"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [],
+      "directInternalCallees": [
+        53444
+      ]
+    },
+    {
+      "rid": 53422,
+      "stableId": "M:53422",
+      "symbol": "RuntimeMemoryInformationWindow`1.SampleComparer",
+      "status": "unknown",
+      "score": 30,
+      "tags": [
+        "ui"
+      ],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "System.Int64.CompareTo",
+        "System.String.CompareTo",
+        "tag4:rid4429.get_Name",
+        "tag4:rid4429.get_Size",
+        "tag4:rid4429.get_Type"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 53421,
+      "stableId": "M:53421",
+      "symbol": "RuntimeMemoryInformationWindow`1.TakeSample",
+      "status": "unknown",
+      "score": 30,
+      "tags": [
+        "ui"
+      ],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "System.DateTime.get_UtcNow",
+        "System.Object.GetType",
+        "System.Reflection.MemberInfo.get_Name",
+        "System.String.op_Equality",
+        "UnityEngine.Object.get_name",
+        "UnityEngine.Profiling.Profiler.GetRuntimeMemorySizeLong",
+        "tag4:rid4428.Add",
+        "tag4:rid4428.Clear",
+        "tag4:rid4428.Sort",
+        "tag4:rid4428.get_Count",
+        "tag4:rid4428.get_Item",
+        "tag4:rid4429..ctor",
+        "tag4:rid4429.get_Name",
+        "tag4:rid4429.get_Size",
+        "tag4:rid4429.get_Type",
+        "tag4:rid4429.set_Highlight"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 53429,
+      "stableId": "M:53429",
+      "symbol": "SceneInformationWindow..ctor",
+      "status": "unknown",
+      "score": 35,
+      "tags": [
+        "ui"
+      ],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        41237
+      ],
+      "directInternalCallees": [
+        53445
+      ]
+    },
+    {
+      "rid": 53428,
+      "stableId": "M:53428",
+      "symbol": "SceneInformationWindow.OnDrawScrollableWindow",
+      "status": "unknown",
+      "score": 362,
+      "tags": [
+        "scene-loader",
+        "string-evidence",
+        "ui"
+      ],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "System.Boolean.ToString",
+        "System.Int32.ToString",
+        "UnityEngine.GUILayout.BeginVertical",
+        "UnityEngine.GUILayout.EndVertical",
+        "UnityEngine.GUILayout.Label",
+        "UnityEngine.GUIStyle.op_Implicit",
+        "UnityEngine.SceneManagement.Scene.IsValid",
+        "UnityEngine.SceneManagement.Scene.get_buildIndex",
+        "UnityEngine.SceneManagement.Scene.get_handle",
+        "UnityEngine.SceneManagement.Scene.get_isDirty",
+        "UnityEngine.SceneManagement.Scene.get_isLoaded",
+        "UnityEngine.SceneManagement.Scene.get_isSubScene",
+        "UnityEngine.SceneManagement.Scene.get_name",
+        "UnityEngine.SceneManagement.Scene.get_path",
+        "UnityEngine.SceneManagement.Scene.get_rootCount",
+        "UnityEngine.SceneManagement.SceneManager.GetActiveScene",
+        "UnityEngine.SceneManagement.SceneManager.get_sceneCount",
+        "UnityEngine.SceneManagement.SceneManager.get_sceneCountInBuildSettings"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [],
+      "directInternalCallees": [
+        53443
+      ]
+    },
+    {
+      "rid": 7652,
+      "stableId": "M:7652",
+      "symbol": "SceneInterface.GetFormationUuid",
+      "status": "unknown",
+      "score": 83,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        6750
+      ],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 7532,
+      "stableId": "M:7532",
+      "symbol": "SceneInterface.GetOwnerFormationMarch",
+      "status": "unknown",
+      "score": 0,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 7540,
+      "stableId": "M:7540",
+      "symbol": "SceneInterface.HandleFormationMarch",
+      "status": "unknown",
+      "score": 0,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 7541,
+      "stableId": "M:7541",
+      "symbol": "SceneInterface.HandleFormationMarchChange",
+      "status": "unknown",
+      "score": 0,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 7579,
+      "stableId": "M:7579",
+      "symbol": "SceneInterface.SetDragFormationData",
+      "status": "unknown",
+      "score": 0,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 53435,
+      "stableId": "M:53435",
+      "symbol": "ScreenInformationWindow..ctor",
+      "status": "unknown",
+      "score": 35,
+      "tags": [
+        "ui"
+      ],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        41237
+      ],
+      "directInternalCallees": [
+        53445
+      ]
+    },
+    {
+      "rid": 53433,
+      "stableId": "M:53433",
+      "symbol": "ScreenInformationWindow.GetCutoutsString",
+      "status": "unknown",
+      "score": 33,
+      "tags": [
+        "ui"
+      ],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "System.Object.ToString",
+        "System.String.Join"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        53430
+      ],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 53432,
+      "stableId": "M:53432",
+      "symbol": "ScreenInformationWindow.GetResolutionString",
+      "status": "unknown",
+      "score": 36,
+      "tags": [
+        "ui"
+      ],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "System.Int32.ToString",
+        "System.String.Format",
+        "UnityEngine.Resolution.get_height",
+        "UnityEngine.Resolution.get_refreshRate",
+        "UnityEngine.Resolution.get_width"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        53430,
+        53434
+      ],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 53434,
+      "stableId": "M:53434",
+      "symbol": "ScreenInformationWindow.GetResolutionsString",
+      "status": "unknown",
+      "score": 35,
+      "tags": [
+        "ui"
+      ],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "System.String.Join"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        53430
+      ],
+      "directInternalCallees": [
+        53432
+      ]
+    },
+    {
+      "rid": 53431,
+      "stableId": "M:53431",
+      "symbol": "ScreenInformationWindow.GetSleepTimeoutDescription",
+      "status": "unknown",
+      "score": 63,
+      "tags": [
+        "string-evidence",
+        "ui"
+      ],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "System.Int32.ToString"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        53430
+      ],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 53430,
+      "stableId": "M:53430",
+      "symbol": "ScreenInformationWindow.OnDrawScrollableWindow",
+      "status": "unknown",
+      "score": 70,
+      "tags": [
+        "string-evidence",
+        "ui"
+      ],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "System.Boolean.ToString",
+        "System.Double.ToString",
+        "System.Int32.ToString",
+        "System.Object.ToString",
+        "System.Single.ToString",
+        "System.String.Format",
+        "UnityEngine.Cursor.get_lockState",
+        "UnityEngine.Cursor.get_visible",
+        "UnityEngine.GUILayout.BeginVertical",
+        "UnityEngine.GUILayout.EndVertical",
+        "UnityEngine.GUILayout.Label",
+        "UnityEngine.GUIStyle.op_Implicit",
+        "UnityEngine.Screen.get_autorotateToLandscapeLeft",
+        "UnityEngine.Screen.get_autorotateToLandscapeRight",
+        "UnityEngine.Screen.get_autorotateToPortrait",
+        "UnityEngine.Screen.get_autorotateToPortraitUpsideDown",
+        "UnityEngine.Screen.get_brightness",
+        "UnityEngine.Screen.get_currentResolution",
+        "UnityEngine.Screen.get_cutouts",
+        "UnityEngine.Screen.get_dpi",
+        "UnityEngine.Screen.get_fullScreen",
+        "UnityEngine.Screen.get_fullScreenMode",
+        "UnityEngine.Screen.get_height",
+        "UnityEngine.Screen.get_orientation",
+        "UnityEngine.Screen.get_resolutions",
+        "UnityEngine.Screen.get_safeArea",
+        "UnityEngine.Screen.get_sleepTimeout",
+        "UnityEngine.Screen.get_width"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [],
+      "directInternalCallees": [
+        53431,
+        53432,
+        53433,
+        53434,
+        53443
+      ]
+    },
+    {
+      "rid": 53452,
+      "stableId": "M:53452",
+      "symbol": "SystemInformationWindow..ctor",
+      "status": "unknown",
+      "score": 35,
+      "tags": [
+        "ui"
+      ],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        41237
+      ],
+      "directInternalCallees": [
+        53445
+      ]
+    },
+    {
+      "rid": 53451,
+      "stableId": "M:53451",
+      "symbol": "SystemInformationWindow.GetBatteryLevelString",
+      "status": "unknown",
+      "score": 63,
+      "tags": [
+        "string-evidence",
+        "ui"
+      ],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "System.Single.ToString"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        53450
+      ],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 53450,
+      "stableId": "M:53450",
+      "symbol": "SystemInformationWindow.OnDrawScrollableWindow",
+      "status": "unknown",
+      "score": 64,
+      "tags": [
+        "string-evidence",
+        "ui"
+      ],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "System.Boolean.ToString",
+        "System.Int32.ToString",
+        "System.Object.ToString",
+        "System.String.Format",
+        "UnityEngine.Application.get_genuine",
+        "UnityEngine.Application.get_genuineCheckAvailable",
+        "UnityEngine.GUILayout.BeginVertical",
+        "UnityEngine.GUILayout.EndVertical",
+        "UnityEngine.GUILayout.Label",
+        "UnityEngine.GUIStyle.op_Implicit",
+        "UnityEngine.SystemInfo.get_batteryLevel",
+        "UnityEngine.SystemInfo.get_batteryStatus",
+        "UnityEngine.SystemInfo.get_deviceModel",
+        "UnityEngine.SystemInfo.get_deviceName",
+        "UnityEngine.SystemInfo.get_deviceType",
+        "UnityEngine.SystemInfo.get_deviceUniqueIdentifier",
+        "UnityEngine.SystemInfo.get_operatingSystem",
+        "UnityEngine.SystemInfo.get_operatingSystemFamily",
+        "UnityEngine.SystemInfo.get_processorCount",
+        "UnityEngine.SystemInfo.get_processorFrequency",
+        "UnityEngine.SystemInfo.get_processorType",
+        "UnityEngine.SystemInfo.get_supportsAccelerometer",
+        "UnityEngine.SystemInfo.get_supportsAudio",
+        "UnityEngine.SystemInfo.get_supportsGyroscope",
+        "UnityEngine.SystemInfo.get_supportsVibration",
+        "UnityEngine.SystemInfo.get_systemMemorySize"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [],
+      "directInternalCallees": [
+        53443,
+        53451
+      ]
+    },
+    {
+      "rid": 53455,
+      "stableId": "M:53455",
+      "symbol": "TimeInformationWindow..ctor",
+      "status": "unknown",
+      "score": 35,
+      "tags": [
+        "ui"
+      ],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        41237
+      ],
+      "directInternalCallees": [
+        53445
+      ]
+    },
+    {
+      "rid": 53454,
+      "stableId": "M:53454",
+      "symbol": "TimeInformationWindow.GetTimeScaleDescription",
+      "status": "unknown",
+      "score": 63,
+      "tags": [
+        "string-evidence",
+        "ui"
+      ],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        53453
+      ],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 53453,
+      "stableId": "M:53453",
+      "symbol": "TimeInformationWindow.OnDrawScrollableWindow",
+      "status": "unknown",
+      "score": 64,
+      "tags": [
+        "string-evidence",
+        "ui"
+      ],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "System.Boolean.ToString",
+        "System.Int32.ToString",
+        "System.Single.ToString",
+        "System.String.Format",
+        "UnityEngine.GUILayout.BeginVertical",
+        "UnityEngine.GUILayout.EndVertical",
+        "UnityEngine.GUILayout.Label",
+        "UnityEngine.GUIStyle.op_Implicit",
+        "UnityEngine.Time.get_captureDeltaTime",
+        "UnityEngine.Time.get_captureFramerate",
+        "UnityEngine.Time.get_deltaTime",
+        "UnityEngine.Time.get_fixedDeltaTime",
+        "UnityEngine.Time.get_fixedTime",
+        "UnityEngine.Time.get_fixedUnscaledDeltaTime",
+        "UnityEngine.Time.get_fixedUnscaledTime",
+        "UnityEngine.Time.get_frameCount",
+        "UnityEngine.Time.get_inFixedTimeStep",
+        "UnityEngine.Time.get_maximumDeltaTime",
+        "UnityEngine.Time.get_maximumParticleDeltaTime",
+        "UnityEngine.Time.get_realtimeSinceStartup",
+        "UnityEngine.Time.get_renderedFrameCount",
+        "UnityEngine.Time.get_smoothDeltaTime",
+        "UnityEngine.Time.get_time",
+        "UnityEngine.Time.get_timeScale",
+        "UnityEngine.Time.get_timeSinceLevelLoad",
+        "UnityEngine.Time.get_unscaledDeltaTime",
+        "UnityEngine.Time.get_unscaledTime"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [],
+      "directInternalCallees": [
+        53443,
+        53454
+      ]
+    },
+    {
+      "rid": 53457,
+      "stableId": "M:53457",
+      "symbol": "WebPlayerInformationWindow..ctor",
+      "status": "unknown",
+      "score": 35,
+      "tags": [
+        "ui"
+      ],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        41237
+      ],
+      "directInternalCallees": [
+        53445
+      ]
+    },
+    {
+      "rid": 53456,
+      "stableId": "M:53456",
+      "symbol": "WebPlayerInformationWindow.OnDrawScrollableWindow",
+      "status": "unknown",
+      "score": 62,
+      "tags": [
+        "string-evidence",
+        "ui"
+      ],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "UnityEngine.Application.get_absoluteURL",
+        "UnityEngine.GUILayout.BeginVertical",
+        "UnityEngine.GUILayout.EndVertical",
+        "UnityEngine.GUILayout.Label",
+        "UnityEngine.GUIStyle.op_Implicit"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [],
+      "directInternalCallees": [
+        53443
+      ]
+    },
+    {
+      "rid": 10410,
+      "stableId": "M:10410",
+      "symbol": "WorldInputManager.SetDragFormationData",
+      "status": "unknown",
+      "score": 3,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        12739
+      ],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 10913,
+      "stableId": "M:10913",
+      "symbol": "WorldMarchDataManager.GetOwnerFormationMarch",
+      "status": "unknown",
+      "score": 95,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "tag4:rid1337.Find",
+        "tag4:rid2037..ctor"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        10914,
+        12700,
+        30245
+      ],
+      "directInternalCallees": [
+        10907,
+        49372,
+        49373
+      ]
+    },
+    {
+      "rid": 10881,
+      "stableId": "M:10881",
+      "symbol": "WorldMarchDataManager.HandleFormationMarch",
+      "status": "unknown",
+      "score": 97,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "tag4:rid2019.Push",
+        "tag4:rid2033..ctor"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        5412,
+        5417,
+        5422,
+        12706,
+        30218
+      ],
+      "directInternalCallees": [
+        10865
+      ]
+    },
+    {
+      "rid": 10883,
+      "stableId": "M:10883",
+      "symbol": "WorldMarchDataManager.HandleFormationMarchChange",
+      "status": "unknown",
+      "score": 94,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "tag4:rid2019.Push",
+        "tag4:rid2033..ctor"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        5428,
+        5433,
+        12707,
+        30220
+      ],
+      "directInternalCallees": [
+        10865
+      ]
+    },
+    {
+      "rid": 10884,
+      "stableId": "M:10884",
+      "symbol": "WorldMarchDataManager.HandleFormationMarchChangeImpl",
+      "status": "unknown",
+      "score": 88,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        10867,
+        30221
+      ],
+      "directInternalCallees": [
+        10885
+      ]
+    },
+    {
+      "rid": 10882,
+      "stableId": "M:10882",
+      "symbol": "WorldMarchDataManager.HandleFormationMarchImpl",
+      "status": "unknown",
+      "score": 224,
+      "tags": [
+        "string-evidence"
+      ],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "GameFramework.Log.Info"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        10867,
+        30219
+      ],
+      "directInternalCallees": [
+        2872,
+        3145,
+        4451,
+        10885
+      ]
+    },
+    {
+      "rid": 10885,
+      "stableId": "M:10885",
+      "symbol": "WorldMarchDataManager.ParseFormationUpdate",
+      "status": "unknown",
+      "score": 228,
+      "tags": [
+        "string-evidence"
+      ],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "Sfs2X.Entities.Data.ISFSObject.ContainsKey",
+        "Sfs2X.Entities.Data.ISFSObject.GetLong",
+        "Sfs2X.Entities.Data.ISFSObject.GetSFSObject",
+        "tag4:rid1310.Add",
+        "tag4:rid1310.Contains"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        10882,
+        10884
+      ],
+      "directInternalCallees": [
+        3143,
+        10829,
+        10874,
+        10877,
+        14741,
+        14801
+      ]
+    },
+    {
+      "rid": 5430,
+      "stableId": "M:5430",
+      "symbol": "WorldMarchFormationChangeMessage..ctor",
+      "status": "unknown",
+      "score": 2,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [],
+      "directInternalCallees": [
+        5059
+      ]
+    },
+    {
+      "rid": 5428,
+      "stableId": "M:5428",
+      "symbol": "WorldMarchFormationChangeMessage.CSHandleResponse",
+      "status": "unknown",
+      "score": 34,
+      "tags": [
+        "string-evidence"
+      ],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "Sfs2X.Entities.Data.ISFSObject.ContainsKey"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [],
+      "directInternalCallees": [
+        7705,
+        10883
+      ]
+    },
+    {
+      "rid": 5427,
+      "stableId": "M:5427",
+      "symbol": "WorldMarchFormationChangeMessage.CSSetData",
+      "status": "unknown",
+      "score": 40,
+      "tags": [
+        "string-evidence"
+      ],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "Sfs2X.Entities.Data.ISFSObject.PutBool",
+        "Sfs2X.Entities.Data.ISFSObject.PutInt",
+        "Sfs2X.Entities.Data.ISFSObject.PutLong",
+        "Sfs2X.Entities.Data.ISFSObject.PutUtfString",
+        "Sfs2X.Entities.Data.SFSObject..ctor",
+        "Sfs2X.Requests.ExtensionRequest..ctor",
+        "StringUtilsExt.IsNullOrEmpty"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [],
+      "directInternalCallees": [
+        3135,
+        4719,
+        5061,
+        41617,
+        41619
+      ]
+    },
+    {
+      "rid": 5426,
+      "stableId": "M:5426",
+      "symbol": "WorldMarchFormationChangeMessage.GetMsgId",
+      "status": "unknown",
+      "score": 30,
+      "tags": [
+        "string-evidence"
+      ],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 5425,
+      "stableId": "M:5425",
+      "symbol": "WorldMarchFormationChangeMessage.get_Instance",
+      "status": "unknown",
+      "score": 83,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        10917
+      ],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 5429,
+      "stableId": "M:5429",
+      "symbol": "WorldMarchFormationChangeMessage.showErrorCode",
+      "status": "unknown",
+      "score": 0,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 5414,
+      "stableId": "M:5414",
+      "symbol": "WorldMarchFormationMessage..ctor",
+      "status": "unknown",
+      "score": 2,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [],
+      "directInternalCallees": [
+        5059
+      ]
+    },
+    {
+      "rid": 5412,
+      "stableId": "M:5412",
+      "symbol": "WorldMarchFormationMessage.CSHandleResponse",
+      "status": "unknown",
+      "score": 220,
+      "tags": [
+        "string-evidence"
+      ],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "Sfs2X.Entities.Data.ISFSObject.ContainsKey"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [],
+      "directInternalCallees": [
+        3143,
+        7705,
+        10881,
+        14741,
+        14801
+      ]
+    },
+    {
+      "rid": 5411,
+      "stableId": "M:5411",
+      "symbol": "WorldMarchFormationMessage.CSSetData",
+      "status": "unknown",
+      "score": 40,
+      "tags": [
+        "string-evidence"
+      ],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "Sfs2X.Entities.Data.ISFSObject.PutBool",
+        "Sfs2X.Entities.Data.ISFSObject.PutInt",
+        "Sfs2X.Entities.Data.ISFSObject.PutLong",
+        "Sfs2X.Entities.Data.ISFSObject.PutSFSObject",
+        "Sfs2X.Entities.Data.ISFSObject.PutUtfString",
+        "Sfs2X.Entities.Data.SFSObject..ctor",
+        "Sfs2X.Requests.ExtensionRequest..ctor",
+        "StringUtilsExt.IsNullOrEmpty"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [],
+      "directInternalCallees": [
+        3135,
+        4719,
+        5061,
+        41617,
+        41619
+      ]
+    },
+    {
+      "rid": 5410,
+      "stableId": "M:5410",
+      "symbol": "WorldMarchFormationMessage.GetMsgId",
+      "status": "unknown",
+      "score": 30,
+      "tags": [
+        "string-evidence"
+      ],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 5409,
+      "stableId": "M:5409",
+      "symbol": "WorldMarchFormationMessage.get_Instance",
+      "status": "unknown",
+      "score": 83,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        10916
+      ],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 5413,
+      "stableId": "M:5413",
+      "symbol": "WorldMarchFormationMessage.showErrorCode",
+      "status": "unknown",
+      "score": 0,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 5435,
+      "stableId": "M:5435",
+      "symbol": "WorldMarchFormationRapidMessage..ctor",
+      "status": "unknown",
+      "score": 2,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [],
+      "directInternalCallees": [
+        5059
+      ]
+    },
+    {
+      "rid": 5433,
+      "stableId": "M:5433",
+      "symbol": "WorldMarchFormationRapidMessage.CSHandleResponse",
+      "status": "unknown",
+      "score": 34,
+      "tags": [
+        "string-evidence"
+      ],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "Sfs2X.Entities.Data.ISFSObject.ContainsKey"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [],
+      "directInternalCallees": [
+        7705,
+        10883
+      ]
+    },
+    {
+      "rid": 5431,
+      "stableId": "M:5431",
+      "symbol": "WorldMarchFormationRapidMessage.GetMsgId",
+      "status": "unknown",
+      "score": 30,
+      "tags": [
+        "string-evidence"
+      ],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 5432,
+      "stableId": "M:5432",
+      "symbol": "WorldMarchFormationRapidMessage.get_Instance",
+      "status": "unknown",
+      "score": 0,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 5434,
+      "stableId": "M:5434",
+      "symbol": "WorldMarchFormationRapidMessage.showErrorCode",
+      "status": "unknown",
+      "score": 0,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 12850,
+      "stableId": "M:12850",
+      "symbol": "WorldScene.GetFormationUuid",
+      "status": "unknown",
+      "score": 3,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        31247
+      ],
+      "directInternalCallees": []
+    },
+    {
+      "rid": 12700,
+      "stableId": "M:12700",
+      "symbol": "WorldScene.GetOwnerFormationMarch",
+      "status": "unknown",
+      "score": 87,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        31117
+      ],
+      "directInternalCallees": [
+        10913,
+        12424
+      ]
+    },
+    {
+      "rid": 12706,
+      "stableId": "M:12706",
+      "symbol": "WorldScene.HandleFormationMarch",
+      "status": "unknown",
+      "score": 87,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        31123
+      ],
+      "directInternalCallees": [
+        10881,
+        12424
+      ]
+    },
+    {
+      "rid": 12707,
+      "stableId": "M:12707",
+      "symbol": "WorldScene.HandleFormationMarchChange",
+      "status": "unknown",
+      "score": 87,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        31124
+      ],
+      "directInternalCallees": [
+        10883,
+        12424
+      ]
+    },
+    {
+      "rid": 12739,
+      "stableId": "M:12739",
+      "symbol": "WorldScene.SetDragFormationData",
+      "status": "unknown",
+      "score": 7,
+      "tags": [],
+      "wrapper": false,
+      "apiCategories": [],
+      "matchedExternalTargets": [],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        31148
+      ],
+      "directInternalCallees": [
+        10410,
+        12398
+      ]
+    },
+    {
+      "rid": 16614,
+      "stableId": "M:16614",
+      "symbol": "XLua.CSObjectWrap.BitBenderGamesMobileTouchCameraWrap._g_get_CamZoomFocusFormationRotation",
+      "status": "unknown",
+      "score": 391,
+      "tags": [
+        "string-evidence"
+      ],
+      "wrapper": true,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "System.String.Concat",
+        "XLua.LuaDLL.Lua.luaL_error",
+        "XLua.LuaDLL.Lua.lua_pushnumber"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        16542
+      ],
+      "directInternalCallees": [
+        15635,
+        15973,
+        15976,
+        40919
+      ]
+    },
+    {
+      "rid": 16613,
+      "stableId": "M:16613",
+      "symbol": "XLua.CSObjectWrap.BitBenderGamesMobileTouchCameraWrap._g_get_CamZoomFormation",
+      "status": "unknown",
+      "score": 391,
+      "tags": [
+        "string-evidence"
+      ],
+      "wrapper": true,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "System.String.Concat",
+        "XLua.LuaDLL.Lua.luaL_error",
+        "XLua.LuaDLL.Lua.lua_pushnumber"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        16542
+      ],
+      "directInternalCallees": [
+        15635,
+        15973,
+        15976,
+        40917
+      ]
+    },
+    {
+      "rid": 16639,
+      "stableId": "M:16639",
+      "symbol": "XLua.CSObjectWrap.BitBenderGamesMobileTouchCameraWrap._s_set_CamZoomFocusFormationRotation",
+      "status": "unknown",
+      "score": 391,
+      "tags": [
+        "string-evidence"
+      ],
+      "wrapper": true,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "System.String.Concat",
+        "XLua.LuaDLL.Lua.luaL_error",
+        "XLua.LuaDLL.Lua.lua_tonumber"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        16542
+      ],
+      "directInternalCallees": [
+        15635,
+        15973,
+        15976,
+        40920
+      ]
+    },
+    {
+      "rid": 16638,
+      "stableId": "M:16638",
+      "symbol": "XLua.CSObjectWrap.BitBenderGamesMobileTouchCameraWrap._s_set_CamZoomFormation",
+      "status": "unknown",
+      "score": 391,
+      "tags": [
+        "string-evidence"
+      ],
+      "wrapper": true,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "System.String.Concat",
+        "XLua.LuaDLL.Lua.luaL_error",
+        "XLua.LuaDLL.Lua.lua_tonumber"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        16542
+      ],
+      "directInternalCallees": [
+        15635,
+        15973,
+        15976,
+        40918
+      ]
+    },
+    {
+      "rid": 17510,
+      "stableId": "M:17510",
+      "symbol": "XLua.CSObjectWrap.CitySceneWrap._m_GetFormationUuid",
+      "status": "unknown",
+      "score": 121,
+      "tags": [
+        "string-evidence"
+      ],
+      "wrapper": true,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "System.String.Concat",
+        "XLua.LuaDLL.Lua.luaL_error",
+        "XLua.LuaDLL.Lua.lua_pushint64"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        17212
+      ],
+      "directInternalCallees": [
+        6483,
+        15635,
+        15973,
+        15976
+      ]
+    },
+    {
+      "rid": 17404,
+      "stableId": "M:17404",
+      "symbol": "XLua.CSObjectWrap.CitySceneWrap._m_GetOwnerFormationMarch",
+      "status": "unknown",
+      "score": 123,
+      "tags": [
+        "string-evidence"
+      ],
+      "wrapper": true,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "System.String.Concat",
+        "XLua.LuaDLL.Lua.luaL_error",
+        "XLua.LuaDLL.Lua.lua_gettop",
+        "XLua.LuaDLL.Lua.lua_isint64",
+        "XLua.LuaDLL.Lua.lua_isnil",
+        "XLua.LuaDLL.Lua.lua_toint64",
+        "XLua.LuaDLL.Lua.lua_tostring",
+        "XLua.LuaDLL.Lua.lua_type"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        17212
+      ],
+      "directInternalCallees": [
+        6358,
+        15630,
+        15635,
+        15973,
+        15976
+      ]
+    },
+    {
+      "rid": 17413,
+      "stableId": "M:17413",
+      "symbol": "XLua.CSObjectWrap.CitySceneWrap._m_HandleFormationMarch",
+      "status": "unknown",
+      "score": 123,
+      "tags": [
+        "string-evidence"
+      ],
+      "wrapper": true,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "System.String.Concat",
+        "System.Type.GetTypeFromHandle",
+        "XLua.LuaDLL.Lua.luaL_error"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        17212
+      ],
+      "directInternalCallees": [
+        6367,
+        15616,
+        15635,
+        15973,
+        15976
+      ]
+    },
+    {
+      "rid": 17414,
+      "stableId": "M:17414",
+      "symbol": "XLua.CSObjectWrap.CitySceneWrap._m_HandleFormationMarchChange",
+      "status": "unknown",
+      "score": 123,
+      "tags": [
+        "string-evidence"
+      ],
+      "wrapper": true,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "System.String.Concat",
+        "System.Type.GetTypeFromHandle",
+        "XLua.LuaDLL.Lua.luaL_error"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        17212
+      ],
+      "directInternalCallees": [
+        6368,
+        15616,
+        15635,
+        15973,
+        15976
+      ]
+    },
+    {
+      "rid": 17434,
+      "stableId": "M:17434",
+      "symbol": "XLua.CSObjectWrap.CitySceneWrap._m_SetDragFormationData",
+      "status": "unknown",
+      "score": 121,
+      "tags": [
+        "string-evidence"
+      ],
+      "wrapper": true,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "System.String.Concat",
+        "XLua.LuaDLL.Lua.luaL_error",
+        "XLua.LuaDLL.Lua.lua_toint64",
+        "XLua.LuaDLL.Lua.xlua_tointeger"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        17212
+      ],
+      "directInternalCallees": [
+        6396,
+        15635,
+        15973,
+        15976
+      ]
+    },
+    {
+      "rid": 20979,
+      "stableId": "M:20979",
+      "symbol": "XLua.CSObjectWrap.ModelManagerWrap._m_GetFormationUuid",
+      "status": "unknown",
+      "score": 121,
+      "tags": [
+        "string-evidence"
+      ],
+      "wrapper": true,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "System.String.Concat",
+        "XLua.LuaDLL.Lua.luaL_error",
+        "XLua.LuaDLL.Lua.lua_pushint64"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        20973
+      ],
+      "directInternalCallees": [
+        9115,
+        15635,
+        15973,
+        15976
+      ]
+    },
+    {
+      "rid": 30245,
+      "stableId": "M:30245",
+      "symbol": "XLua.CSObjectWrap.WorldMarchDataManagerWrap._m_GetOwnerFormationMarch",
+      "status": "unknown",
+      "score": 123,
+      "tags": [
+        "string-evidence"
+      ],
+      "wrapper": true,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "System.String.Concat",
+        "XLua.LuaDLL.Lua.luaL_error",
+        "XLua.LuaDLL.Lua.lua_gettop",
+        "XLua.LuaDLL.Lua.lua_isint64",
+        "XLua.LuaDLL.Lua.lua_isnil",
+        "XLua.LuaDLL.Lua.lua_toint64",
+        "XLua.LuaDLL.Lua.lua_tostring",
+        "XLua.LuaDLL.Lua.lua_type"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        30199
+      ],
+      "directInternalCallees": [
+        10913,
+        15630,
+        15635,
+        15973,
+        15976
+      ]
+    },
+    {
+      "rid": 30218,
+      "stableId": "M:30218",
+      "symbol": "XLua.CSObjectWrap.WorldMarchDataManagerWrap._m_HandleFormationMarch",
+      "status": "unknown",
+      "score": 123,
+      "tags": [
+        "string-evidence"
+      ],
+      "wrapper": true,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "System.String.Concat",
+        "System.Type.GetTypeFromHandle",
+        "XLua.LuaDLL.Lua.luaL_error"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        30199
+      ],
+      "directInternalCallees": [
+        10881,
+        15616,
+        15635,
+        15973,
+        15976
+      ]
+    },
+    {
+      "rid": 30220,
+      "stableId": "M:30220",
+      "symbol": "XLua.CSObjectWrap.WorldMarchDataManagerWrap._m_HandleFormationMarchChange",
+      "status": "unknown",
+      "score": 123,
+      "tags": [
+        "string-evidence"
+      ],
+      "wrapper": true,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "System.String.Concat",
+        "System.Type.GetTypeFromHandle",
+        "XLua.LuaDLL.Lua.luaL_error"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        30199
+      ],
+      "directInternalCallees": [
+        10883,
+        15616,
+        15635,
+        15973,
+        15976
+      ]
+    },
+    {
+      "rid": 30221,
+      "stableId": "M:30221",
+      "symbol": "XLua.CSObjectWrap.WorldMarchDataManagerWrap._m_HandleFormationMarchChangeImpl",
+      "status": "unknown",
+      "score": 123,
+      "tags": [
+        "string-evidence"
+      ],
+      "wrapper": true,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "System.String.Concat",
+        "System.Type.GetTypeFromHandle",
+        "XLua.LuaDLL.Lua.luaL_error"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        30199
+      ],
+      "directInternalCallees": [
+        10884,
+        15616,
+        15635,
+        15973,
+        15976
+      ]
+    },
+    {
+      "rid": 30219,
+      "stableId": "M:30219",
+      "symbol": "XLua.CSObjectWrap.WorldMarchDataManagerWrap._m_HandleFormationMarchImpl",
+      "status": "unknown",
+      "score": 123,
+      "tags": [
+        "string-evidence"
+      ],
+      "wrapper": true,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "System.String.Concat",
+        "System.Type.GetTypeFromHandle",
+        "XLua.LuaDLL.Lua.luaL_error"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        30199
+      ],
+      "directInternalCallees": [
+        10882,
+        15616,
+        15635,
+        15973,
+        15976
+      ]
+    },
+    {
+      "rid": 30433,
+      "stableId": "M:30433",
+      "symbol": "XLua.CSObjectWrap.WorldMarchWrap._g_get_ownerFormationUuid",
+      "status": "unknown",
+      "score": 119,
+      "tags": [
+        "string-evidence"
+      ],
+      "wrapper": true,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "System.String.Concat",
+        "XLua.LuaDLL.Lua.luaL_error",
+        "XLua.LuaDLL.Lua.lua_pushint64"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        30311
+      ],
+      "directInternalCallees": [
+        15635,
+        15973,
+        15976
+      ]
+    },
+    {
+      "rid": 30562,
+      "stableId": "M:30562",
+      "symbol": "XLua.CSObjectWrap.WorldMarchWrap._s_set_ownerFormationUuid",
+      "status": "unknown",
+      "score": 119,
+      "tags": [
+        "string-evidence"
+      ],
+      "wrapper": true,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "System.String.Concat",
+        "XLua.LuaDLL.Lua.luaL_error",
+        "XLua.LuaDLL.Lua.lua_toint64"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        30311
+      ],
+      "directInternalCallees": [
+        15635,
+        15973,
+        15976
+      ]
+    },
+    {
+      "rid": 31247,
+      "stableId": "M:31247",
+      "symbol": "XLua.CSObjectWrap.WorldSceneWrap._m_GetFormationUuid",
+      "status": "unknown",
+      "score": 121,
+      "tags": [
+        "string-evidence"
+      ],
+      "wrapper": true,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "System.String.Concat",
+        "XLua.LuaDLL.Lua.luaL_error",
+        "XLua.LuaDLL.Lua.lua_pushint64"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        30908
+      ],
+      "directInternalCallees": [
+        12850,
+        15635,
+        15973,
+        15976
+      ]
+    },
+    {
+      "rid": 31117,
+      "stableId": "M:31117",
+      "symbol": "XLua.CSObjectWrap.WorldSceneWrap._m_GetOwnerFormationMarch",
+      "status": "unknown",
+      "score": 123,
+      "tags": [
+        "string-evidence"
+      ],
+      "wrapper": true,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "System.String.Concat",
+        "XLua.LuaDLL.Lua.luaL_error",
+        "XLua.LuaDLL.Lua.lua_gettop",
+        "XLua.LuaDLL.Lua.lua_isint64",
+        "XLua.LuaDLL.Lua.lua_isnil",
+        "XLua.LuaDLL.Lua.lua_toint64",
+        "XLua.LuaDLL.Lua.lua_tostring",
+        "XLua.LuaDLL.Lua.lua_type"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        30908
+      ],
+      "directInternalCallees": [
+        12700,
+        15630,
+        15635,
+        15973,
+        15976
+      ]
+    },
+    {
+      "rid": 31123,
+      "stableId": "M:31123",
+      "symbol": "XLua.CSObjectWrap.WorldSceneWrap._m_HandleFormationMarch",
+      "status": "unknown",
+      "score": 123,
+      "tags": [
+        "string-evidence"
+      ],
+      "wrapper": true,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "System.String.Concat",
+        "System.Type.GetTypeFromHandle",
+        "XLua.LuaDLL.Lua.luaL_error"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        30908
+      ],
+      "directInternalCallees": [
+        12706,
+        15616,
+        15635,
+        15973,
+        15976
+      ]
+    },
+    {
+      "rid": 31124,
+      "stableId": "M:31124",
+      "symbol": "XLua.CSObjectWrap.WorldSceneWrap._m_HandleFormationMarchChange",
+      "status": "unknown",
+      "score": 123,
+      "tags": [
+        "string-evidence"
+      ],
+      "wrapper": true,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "System.String.Concat",
+        "System.Type.GetTypeFromHandle",
+        "XLua.LuaDLL.Lua.luaL_error"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        30908
+      ],
+      "directInternalCallees": [
+        12707,
+        15616,
+        15635,
+        15973,
+        15976
+      ]
+    },
+    {
+      "rid": 31148,
+      "stableId": "M:31148",
+      "symbol": "XLua.CSObjectWrap.WorldSceneWrap._m_SetDragFormationData",
+      "status": "unknown",
+      "score": 121,
+      "tags": [
+        "string-evidence"
+      ],
+      "wrapper": true,
+      "apiCategories": [],
+      "matchedExternalTargets": [
+        "System.String.Concat",
+        "XLua.LuaDLL.Lua.luaL_error",
+        "XLua.LuaDLL.Lua.lua_toint64",
+        "XLua.LuaDLL.Lua.xlua_tointeger"
+      ],
+      "formationLiteralHits": [],
+      "formationOwnerCorrelation": true,
+      "directInternalCallers": [
+        30908
+      ],
+      "directInternalCallees": [
+        12739,
+        15635,
+        15973,
+        15976
+      ]
+    }
+  ],
+  "conclusion": {
+    "exactSameMethodBridgeCount": 3,
+    "rawSetterExactFormationLiteralCount": 0,
+    "exactUpstreamCorrelatedCount": 0,
+    "luaBoundaryLikely": false,
+    "nextStrategy": "inspect_exact_same_method_api_bridges",
+    "note": "Only exact CLR MemberRef and MethodDef-call evidence is treated as exact. Name/string correlations remain correlations and are never promoted to runtime proof."
+  },
+  "guardrails": {
+    "persistentCodeAtlasOnly": true,
+    "apkAccess": false,
+    "dllRescan": false,
+    "newExtraction": false,
+    "bundleScan": false,
+    "candidatePromotion": false,
+    "mainUntouched": true,
+    "previewUntouched": true
+  }
+}
