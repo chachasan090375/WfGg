@@ -1,0 +1,5670 @@
+{
+  "format": "WFGG_LASTWAR_HEROSHOW_CLR_IL_AUDIT_V1",
+  "source": "/data/data/com.termux/files/home/storage/downloads/WFGG_LASTWAR_Assembly-CSharp_recovered.dll",
+  "tables": {
+    "TypeDef": 5800,
+    "Field": 25815,
+    "MethodDef": 54246,
+    "MemberRef": 18621
+  },
+  "heroShowSetting": {
+    "rid": 34,
+    "name": "HeroShowSetting",
+    "fields": [
+      {
+        "rid": 222,
+        "name": "level",
+        "sigBlob": 12659
+      },
+      {
+        "rid": 223,
+        "name": "shadowDistance",
+        "sigBlob": 10147
+      },
+      {
+        "rid": 224,
+        "name": "IsAddGrabCamera",
+        "sigBlob": 10402
+      },
+      {
+        "rid": 225,
+        "name": "unitySHParamNames",
+        "sigBlob": 29201
+      }
+    ],
+    "methods": [
+      {
+        "rid": 417,
+        "rva": 64072,
+        "name": "Awake",
+        "events": [
+          {
+            "pc": 1,
+            "op": "call",
+            "token": 100663715,
+            "target": "Method HeroShowSetting.Setting"
+          }
+        ]
+      },
+      {
+        "rid": 418,
+        "rva": 64080,
+        "name": "Start",
+        "events": []
+      },
+      {
+        "rid": 419,
+        "rva": 64084,
+        "name": "Setting",
+        "events": [
+          {
+            "pc": 22,
+            "op": "call",
+            "token": 167772310,
+            "target": "MemberRef UnityEngine.Vector4..ctor"
+          },
+          {
+            "pc": 49,
+            "op": "call",
+            "token": 167772310,
+            "target": "MemberRef UnityEngine.Vector4..ctor"
+          },
+          {
+            "pc": 76,
+            "op": "call",
+            "token": 167772310,
+            "target": "MemberRef UnityEngine.Vector4..ctor"
+          },
+          {
+            "pc": 103,
+            "op": "call",
+            "token": 167772310,
+            "target": "MemberRef UnityEngine.Vector4..ctor"
+          },
+          {
+            "pc": 130,
+            "op": "call",
+            "token": 167772310,
+            "target": "MemberRef UnityEngine.Vector4..ctor"
+          },
+          {
+            "pc": 157,
+            "op": "call",
+            "token": 167772310,
+            "target": "MemberRef UnityEngine.Vector4..ctor"
+          },
+          {
+            "pc": 184,
+            "op": "call",
+            "token": 167772310,
+            "target": "MemberRef UnityEngine.Vector4..ctor"
+          },
+          {
+            "pc": 190,
+            "op": "ldfld",
+            "token": 67109089,
+            "target": "Field HeroShowSetting.unitySHParamNames"
+          },
+          {
+            "pc": 198,
+            "op": "call",
+            "token": 167772592,
+            "target": "MemberRef UnityEngine.Shader.SetGlobalVector"
+          },
+          {
+            "pc": 204,
+            "op": "ldfld",
+            "token": 67109089,
+            "target": "Field HeroShowSetting.unitySHParamNames"
+          },
+          {
+            "pc": 212,
+            "op": "call",
+            "token": 167772592,
+            "target": "MemberRef UnityEngine.Shader.SetGlobalVector"
+          },
+          {
+            "pc": 218,
+            "op": "ldfld",
+            "token": 67109089,
+            "target": "Field HeroShowSetting.unitySHParamNames"
+          },
+          {
+            "pc": 226,
+            "op": "call",
+            "token": 167772592,
+            "target": "MemberRef UnityEngine.Shader.SetGlobalVector"
+          },
+          {
+            "pc": 232,
+            "op": "ldfld",
+            "token": 67109089,
+            "target": "Field HeroShowSetting.unitySHParamNames"
+          },
+          {
+            "pc": 241,
+            "op": "call",
+            "token": 167772592,
+            "target": "MemberRef UnityEngine.Shader.SetGlobalVector"
+          },
+          {
+            "pc": 247,
+            "op": "ldfld",
+            "token": 67109089,
+            "target": "Field HeroShowSetting.unitySHParamNames"
+          },
+          {
+            "pc": 256,
+            "op": "call",
+            "token": 167772592,
+            "target": "MemberRef UnityEngine.Shader.SetGlobalVector"
+          },
+          {
+            "pc": 262,
+            "op": "ldfld",
+            "token": 67109089,
+            "target": "Field HeroShowSetting.unitySHParamNames"
+          },
+          {
+            "pc": 270,
+            "op": "call",
+            "token": 167772592,
+            "target": "MemberRef UnityEngine.Shader.SetGlobalVector"
+          },
+          {
+            "pc": 276,
+            "op": "ldfld",
+            "token": 67109089,
+            "target": "Field HeroShowSetting.unitySHParamNames"
+          },
+          {
+            "pc": 285,
+            "op": "call",
+            "token": 167772592,
+            "target": "MemberRef UnityEngine.Shader.SetGlobalVector"
+          },
+          {
+            "pc": 290,
+            "op": "call",
+            "token": 167772593,
+            "target": "MemberRef UnityEngine.QualitySettings.get_renderPipeline"
+          },
+          {
+            "pc": 295,
+            "op": "isinst",
+            "token": 16777269,
+            "target": "TypeRef UnityEngine.Rendering.Universal.UniversalRenderPipelineAsset"
+          },
+          {
+            "pc": 305,
+            "op": "callvirt",
+            "token": 167772594,
+            "target": "MemberRef UnityEngine.Rendering.Universal.UniversalRenderPipelineAsset.get_shadowDistance"
+          },
+          {
+            "pc": 310,
+            "op": "stfld",
+            "token": 67109087,
+            "target": "Field HeroShowSetting.shadowDistance"
+          },
+          {
+            "pc": 322,
+            "op": "callvirt",
+            "token": 167772595,
+            "target": "MemberRef UnityEngine.Rendering.Universal.UniversalRenderPipelineAsset.set_shadowDistance"
+          }
+        ]
+      },
+      {
+        "rid": 420,
+        "rva": 64424,
+        "name": "OnDestroy",
+        "events": [
+          {
+            "pc": 0,
+            "op": "call",
+            "token": 167772593,
+            "target": "MemberRef UnityEngine.QualitySettings.get_renderPipeline"
+          },
+          {
+            "pc": 5,
+            "op": "isinst",
+            "token": 16777269,
+            "target": "TypeRef UnityEngine.Rendering.Universal.UniversalRenderPipelineAsset"
+          },
+          {
+            "pc": 11,
+            "op": "ldfld",
+            "token": 67109087,
+            "target": "Field HeroShowSetting.shadowDistance"
+          },
+          {
+            "pc": 16,
+            "op": "callvirt",
+            "token": 167772595,
+            "target": "MemberRef UnityEngine.Rendering.Universal.UniversalRenderPipelineAsset.set_shadowDistance"
+          }
+        ]
+      },
+      {
+        "rid": 421,
+        "rva": 64448,
+        "name": "Update",
+        "events": [
+          {
+            "pc": 1,
+            "op": "ldfld",
+            "token": 67109088,
+            "target": "Field HeroShowSetting.IsAddGrabCamera"
+          },
+          {
+            "pc": 17,
+            "op": "ldstr",
+            "token": 1879054070,
+            "string": "Camp_"
+          },
+          {
+            "pc": 24,
+            "op": "call",
+            "token": 167772596,
+            "target": "MemberRef System.Int32.ToString"
+          },
+          {
+            "pc": 29,
+            "op": "call",
+            "token": 167772535,
+            "target": "MemberRef System.String.Concat"
+          },
+          {
+            "pc": 34,
+            "op": "call",
+            "token": 167772597,
+            "target": "MemberRef UnityEngine.GameObject.Find"
+          },
+          {
+            "pc": 42,
+            "op": "call",
+            "token": 167772408,
+            "target": "MemberRef UnityEngine.Object.op_Inequality"
+          },
+          {
+            "pc": 59,
+            "op": "call",
+            "token": 167772408,
+            "target": "MemberRef UnityEngine.Object.op_Inequality"
+          },
+          {
+            "pc": 70,
+            "op": "callvirt",
+            "token": 721420308,
+            "target": "token 0x2b000014"
+          },
+          {
+            "pc": 77,
+            "op": "callvirt",
+            "token": 167772404,
+            "target": "MemberRef UnityEngine.Component.get_gameObject"
+          },
+          {
+            "pc": 82,
+            "op": "callvirt",
+            "token": 721420309,
+            "target": "token 0x2b000015"
+          },
+          {
+            "pc": 94,
+            "op": "callvirt",
+            "token": 167772599,
+            "target": "MemberRef UnityEngine.Camera.set_cullingMask"
+          },
+          {
+            "pc": 101,
+            "op": "call",
+            "token": 167772408,
+            "target": "MemberRef UnityEngine.Object.op_Inequality"
+          },
+          {
+            "pc": 112,
+            "op": "callvirt",
+            "token": 167772352,
+            "target": "MemberRef UnityEngine.Component.get_transform"
+          },
+          {
+            "pc": 117,
+            "op": "ldstr",
+            "token": 1879054082,
+            "string": "GrabCamera"
+          },
+          {
+            "pc": 122,
+            "op": "callvirt",
+            "token": 167772600,
+            "target": "MemberRef UnityEngine.Transform.Find"
+          },
+          {
+            "pc": 128,
+            "op": "call",
+            "token": 167772350,
+            "target": "MemberRef UnityEngine.Object.op_Equality"
+          },
+          {
+            "pc": 138,
+            "op": "ldstr",
+            "token": 1879054082,
+            "string": "GrabCamera"
+          },
+          {
+            "pc": 143,
+            "op": "newobj",
+            "token": 167772601,
+            "target": "MemberRef UnityEngine.GameObject..ctor"
+          },
+          {
+            "pc": 149,
+            "op": "callvirt",
+            "token": 721420310,
+            "target": "token 0x2b000016"
+          },
+          {
+            "pc": 157,
+            "op": "callvirt",
+            "token": 721420311,
+            "target": "token 0x2b000017"
+          },
+          {
+            "pc": 165,
+            "op": "callvirt",
+            "token": 167772453,
+            "target": "MemberRef UnityEngine.GameObject.get_transform"
+          },
+          {
+            "pc": 171,
+            "op": "callvirt",
+            "token": 167772352,
+            "target": "MemberRef UnityEngine.Component.get_transform"
+          },
+          {
+            "pc": 176,
+            "op": "callvirt",
+            "token": 167772602,
+            "target": "MemberRef UnityEngine.Transform.SetParent"
+          },
+          {
+            "pc": 182,
+            "op": "callvirt",
+            "token": 167772453,
+            "target": "MemberRef UnityEngine.GameObject.get_transform"
+          },
+          {
+            "pc": 187,
+            "op": "call",
+            "token": 167772435,
+            "target": "MemberRef UnityEngine.Vector3.get_zero"
+          },
+          {
+            "pc": 192,
+            "op": "callvirt",
+            "token": 167772483,
+            "target": "MemberRef UnityEngine.Transform.set_localPosition"
+          },
+          {
+            "pc": 198,
+            "op": "callvirt",
+            "token": 167772453,
+            "target": "MemberRef UnityEngine.GameObject.get_transform"
+          },
+          {
+            "pc": 203,
+            "op": "call",
+            "token": 167772319,
+            "target": "MemberRef UnityEngine.Quaternion.get_identity"
+          },
+          {
+            "pc": 208,
+            "op": "callvirt",
+            "token": 167772520,
+            "target": "MemberRef UnityEngine.Transform.set_localRotation"
+          },
+          {
+            "pc": 213,
+            "op": "callvirt",
+            "token": 167772453,
+            "target": "MemberRef UnityEngine.GameObject.get_transform"
+          },
+          {
+            "pc": 218,
+            "op": "call",
+            "token": 167772320,
+            "target": "MemberRef UnityEngine.Vector3.get_one"
+          },
+          {
+            "pc": 223,
+            "op": "callvirt",
+            "token": 167772485,
+            "target": "MemberRef UnityEngine.Transform.set_localScale"
+          },
+          {
+            "pc": 231,
+            "op": "callvirt",
+            "token": 167772603,
+            "target": "MemberRef UnityEngine.Rendering.Universal.UniversalAdditionalCameraData.set_renderType"
+          },
+          {
+            "pc": 239,
+            "op": "callvirt",
+            "token": 167772356,
+            "target": "MemberRef UnityEngine.Camera.get_fieldOfView"
+          },
+          {
+            "pc": 244,
+            "op": "callvirt",
+            "token": 167772604,
+            "target": "MemberRef UnityEngine.Camera.set_fieldOfView"
+          },
+          {
+            "pc": 256,
+            "op": "callvirt",
+            "token": 167772599,
+            "target": "MemberRef UnityEngine.Camera.set_cullingMask"
+          },
+          {
+            "pc": 264,
+            "op": "callvirt",
+            "token": 167772605,
+            "target": "MemberRef UnityEngine.Camera.set_usePhysicalProperties"
+          },
+          {
+            "pc": 276,
+            "op": "callvirt",
+            "token": 167772606,
+            "target": "MemberRef UnityEngine.Camera.set_focalLength"
+          },
+          {
+            "pc": 293,
+            "op": "newobj",
+            "token": 167772430,
+            "target": "MemberRef UnityEngine.Vector2..ctor"
+          },
+          {
+            "pc": 298,
+            "op": "callvirt",
+            "token": 167772607,
+            "target": "MemberRef UnityEngine.Camera.set_sensorSize"
+          },
+          {
+            "pc": 310,
+            "op": "callvirt",
+            "token": 167772608,
+            "target": "MemberRef UnityEngine.Camera.set_nearClipPlane"
+          },
+          {
+            "pc": 322,
+            "op": "callvirt",
+            "token": 167772609,
+            "target": "MemberRef UnityEngine.Camera.set_farClipPlane"
+          },
+          {
+            "pc": 330,
+            "op": "callvirt",
+            "token": 167772610,
+            "target": "MemberRef UnityEngine.Camera.get_gateFit"
+          },
+          {
+            "pc": 335,
+            "op": "callvirt",
+            "token": 167772611,
+            "target": "MemberRef UnityEngine.Camera.set_gateFit"
+          },
+          {
+            "pc": 341,
+            "op": "callvirt",
+            "token": 167772612,
+            "target": "MemberRef UnityEngine.Rendering.Universal.UniversalAdditionalCameraData.get_cameraStack"
+          },
+          {
+            "pc": 348,
+            "op": "callvirt",
+            "token": 167772613,
+            "target": "MemberRef tag4:rid1075.Add"
+          },
+          {
+            "pc": 355,
+            "op": "ldstr",
+            "token": 1879054104,
+            "string": "没有挂载场景"
+          },
+          {
+            "pc": 360,
+            "op": "call",
+            "token": 167772400,
+            "target": "MemberRef UnityEngine.Debug.LogError"
+          },
+          {
+            "pc": 367,
+            "op": "stfld",
+            "token": 67109088,
+            "target": "Field HeroShowSetting.IsAddGrabCamera"
+          }
+        ]
+      },
+      {
+        "rid": 422,
+        "rva": 64836,
+        "name": ".ctor",
+        "events": [
+          {
+            "pc": 2,
+            "op": "newarr",
+            "token": 16778406,
+            "target": "TypeRef System.String"
+          },
+          {
+            "pc": 9,
+            "op": "ldstr",
+            "token": 1879053904,
+            "string": "_Boyan_SHAr"
+          },
+          {
+            "pc": 17,
+            "op": "ldstr",
+            "token": 1879053928,
+            "string": "_Boyan_SHAg"
+          },
+          {
+            "pc": 25,
+            "op": "ldstr",
+            "token": 1879053952,
+            "string": "_Boyan_SHAb"
+          },
+          {
+            "pc": 33,
+            "op": "ldstr",
+            "token": 1879053976,
+            "string": "_Boyan_SHBr"
+          },
+          {
+            "pc": 41,
+            "op": "ldstr",
+            "token": 1879054000,
+            "string": "_Boyan_SHBg"
+          },
+          {
+            "pc": 49,
+            "op": "ldstr",
+            "token": 1879054024,
+            "string": "_Boyan_SHBb"
+          },
+          {
+            "pc": 57,
+            "op": "ldstr",
+            "token": 1879054048,
+            "string": "_Boyan_SHC"
+          },
+          {
+            "pc": 63,
+            "op": "stfld",
+            "token": 67109089,
+            "target": "Field HeroShowSetting.unitySHParamNames"
+          },
+          {
+            "pc": 69,
+            "op": "call",
+            "token": 167772325,
+            "target": "MemberRef UnityEngine.MonoBehaviour..ctor"
+          }
+        ]
+      }
+    ]
+  },
+  "mobileTouchCamera": {
+    "rid": 2576,
+    "name": "BitBenderGames.MobileTouchCamera",
+    "fields": [
+      {
+        "rid": 15782,
+        "name": "_stateList",
+        "sigBlob": 325932
+      },
+      {
+        "rid": 15783,
+        "name": "_currentState",
+        "sigBlob": 325942
+      },
+      {
+        "rid": 15784,
+        "name": "_cameraState",
+        "sigBlob": 325949
+      },
+      {
+        "rid": 15785,
+        "name": "touchInput",
+        "sigBlob": 311533
+      },
+      {
+        "rid": 15786,
+        "name": "camera",
+        "sigBlob": 10001
+      },
+      {
+        "rid": 15787,
+        "name": "cameraData",
+        "sigBlob": 310346
+      },
+      {
+        "rid": 15788,
+        "name": "refPlaneXZ",
+        "sigBlob": 325954
+      },
+      {
+        "rid": 15789,
+        "name": "showHorizonError",
+        "sigBlob": 10402
+      },
+      {
+        "rid": 15790,
+        "name": "maxHorizonFallbackDistance",
+        "sigBlob": 10147
+      },
+      {
+        "rid": 15791,
+        "name": "<LodLevel>k__BackingField",
+        "sigBlob": 12659
+      },
+      {
+        "rid": 15792,
+        "name": "_use45XYCamera",
+        "sigBlob": 10402
+      },
+      {
+        "rid": 15793,
+        "name": "_use45XCamera",
+        "sigBlob": 10402
+      },
+      {
+        "rid": 15794,
+        "name": "_hideCameraRefCount",
+        "sigBlob": 12659
+      },
+      {
+        "rid": 15795,
+        "name": "dampFactorTimeMultiplier",
+        "sigBlob": 10147
+      },
+      {
+        "rid": 15796,
+        "name": "autoScrollVelocityMax",
+        "sigBlob": 10147
+      },
+      {
+        "rid": 15797,
+        "name": "autoScrollDamp",
+        "sigBlob": 10147
+      },
+      {
+        "rid": 15798,
+        "name": "autoScrollDamps",
+        "sigBlob": 106790
+      },
+      {
+        "rid": 15799,
+        "name": "autoScrollDampCurve",
+        "sigBlob": 101384
+      },
+      {
+        "rid": 15800,
+        "name": "camFollowFactor",
+        "sigBlob": 10147
+      },
+      {
+        "rid": 15801,
+        "name": "camZoomInit",
+        "sigBlob": 10147
+      },
+      {
+        "rid": 15802,
+        "name": "camZoomCityInit",
+        "sigBlob": 10147
+      },
+      {
+        "rid": 15803,
+        "name": "camZoomWorldInit",
+        "sigBlob": 10147
+      },
+      {
+        "rid": 15804,
+        "name": "camZoomMin",
+        "sigBlob": 10147
+      },
+      {
+        "rid": 15805,
+        "name": "camZoomMinCity",
+        "sigBlob": 10147
+      },
+      {
+        "rid": 15806,
+        "name": "camZoomMinWorld",
+        "sigBlob": 10147
+      },
+      {
+        "rid": 15807,
+        "name": "camZoomMax",
+        "sigBlob": 10147
+      },
+      {
+        "rid": 15808,
+        "name": "camZoomMaxCity",
+        "sigBlob": 10147
+      },
+      {
+        "rid": 15809,
+        "name": "camZoomMaxWorld",
+        "sigBlob": 10147
+      },
+      {
+        "rid": 15810,
+        "name": "camZoomFarmPlant",
+        "sigBlob": 10147
+      },
+      {
+        "rid": 15811,
+        "name": "camZoomFarmPlantRotation",
+        "sigBlob": 10147
+      },
+      {
+        "rid": 15812,
+        "name": "camZoomBuild",
+        "sigBlob": 10147
+      },
+      {
+        "rid": 15813,
+        "name": "camZoomFocusRotation",
+        "sigBlob": 10147
+      },
+      {
+        "rid": 15814,
+        "name": "camZoomEarthOrder",
+        "sigBlob": 10147
+      },
+      {
+        "rid": 15815,
+        "name": "camZoomDome",
+        "sigBlob": 10147
+      },
+      {
+        "rid": 15816,
+        "name": "camZoomMoveCity",
+        "sigBlob": 10147
+      },
+      {
+        "rid": 15817,
+        "name": "camZoomFormation",
+        "sigBlob": 10147
+      },
+      {
+        "rid": 15818,
+        "name": "camZoomFocusEarthOrderRotation",
+        "sigBlob": 10147
+      },
+      {
+        "rid": 15819,
+        "name": "camZoomFocusMoveCityRotation",
+        "sigBlob": 10147
+      },
+      {
+        "rid": 15820,
+        "name": "camZoomFocusFormationRotation",
+        "sigBlob": 10147
+      },
+      {
+        "rid": 15821,
+        "name": "camZoomInitCityRotation",
+        "sigBlob": 10147
+      },
+      {
+        "rid": 15822,
+        "name": "camZoomInitWorldRotation",
+        "sigBlob": 10147
+      },
+      {
+        "rid": 15823,
+        "name": "camOverzoomMargin",
+        "sigBlob": 10147
+      },
+      {
+        "rid": 15824,
+        "name": "zoomParams",
+        "sigBlob": 310021
+      },
+      {
+        "rid": 15825,
+        "name": "cameraFocusCurve",
+        "sigBlob": 101384
+      },
+      {
+        "rid": 15826,
+        "name": "cameraFocusEarthCurve",
+        "sigBlob": 101384
+      },
+      {
+        "rid": 15827,
+        "name": "cameraFocusDomeCurve",
+        "sigBlob": 101384
+      },
+      {
+        "rid": 15828,
+        "name": "cameraFocusMoveCityCurve",
+        "sigBlob": 101384
+      },
+      {
+        "rid": 15829,
+        "name": "isCamZoomChangeBlock",
+        "sigBlob": 10402
+      },
+      {
+        "rid": 15830,
+        "name": "OnForceChangePositionEvent",
+        "sigBlob": 325959
+      },
+      {
+        "rid": 15831,
+        "name": "cameraWorldRotateXRange",
+        "sigBlob": 76939
+      },
+      {
+        "rid": 15832,
+        "name": "newCameraWorldRotateXRange",
+        "sigBlob": 76939
+      },
+      {
+        "rid": 15833,
+        "name": "cameraRotRangeOverride",
+        "sigBlob": 10402
+      },
+      {
+        "rid": 15834,
+        "name": "newCameraWorldZoomRange",
+        "sigBlob": 76939
+      },
+      {
+        "rid": 15835,
+        "name": "cameraZoomRangeOverride",
+        "sigBlob": 10402
+      },
+      {
+        "rid": 15836,
+        "name": "canMoveing",
+        "sigBlob": 10402
+      },
+      {
+        "rid": 15837,
+        "name": "beforeUpdate",
+        "sigBlob": 122972
+      },
+      {
+        "rid": 15838,
+        "name": "afterUpdate",
+        "sigBlob": 122972
+      }
+    ],
+    "methods": [
+      {
+        "rid": 40915,
+        "rva": 4464718,
+        "name": "get_CamZoomFocusRotation",
+        "events": [
+          {
+            "pc": 1,
+            "op": "ldfld",
+            "token": 67124677,
+            "target": "Field BitBenderGames.MobileTouchCamera.camZoomFocusRotation"
+          }
+        ]
+      },
+      {
+        "rid": 40916,
+        "rva": 4464726,
+        "name": "set_CamZoomFocusRotation",
+        "events": [
+          {
+            "pc": 2,
+            "op": "stfld",
+            "token": 67124677,
+            "target": "Field BitBenderGames.MobileTouchCamera.camZoomFocusRotation"
+          }
+        ]
+      },
+      {
+        "rid": 40917,
+        "rva": 4464735,
+        "name": "get_CamZoomFormation",
+        "events": [
+          {
+            "pc": 1,
+            "op": "ldfld",
+            "token": 67124681,
+            "target": "Field BitBenderGames.MobileTouchCamera.camZoomFormation"
+          }
+        ]
+      },
+      {
+        "rid": 40918,
+        "rva": 4464743,
+        "name": "set_CamZoomFormation",
+        "events": [
+          {
+            "pc": 2,
+            "op": "stfld",
+            "token": 67124681,
+            "target": "Field BitBenderGames.MobileTouchCamera.camZoomFormation"
+          }
+        ]
+      },
+      {
+        "rid": 40919,
+        "rva": 4464752,
+        "name": "get_CamZoomFocusFormationRotation",
+        "events": [
+          {
+            "pc": 1,
+            "op": "ldfld",
+            "token": 67124684,
+            "target": "Field BitBenderGames.MobileTouchCamera.camZoomFocusFormationRotation"
+          }
+        ]
+      },
+      {
+        "rid": 40920,
+        "rva": 4464760,
+        "name": "set_CamZoomFocusFormationRotation",
+        "events": [
+          {
+            "pc": 2,
+            "op": "stfld",
+            "token": 67124684,
+            "target": "Field BitBenderGames.MobileTouchCamera.camZoomFocusFormationRotation"
+          }
+        ]
+      },
+      {
+        "rid": 40924,
+        "rva": 4464793,
+        "name": "get_CamZoomFocusEarthOrderRotation",
+        "events": [
+          {
+            "pc": 1,
+            "op": "ldfld",
+            "token": 67124682,
+            "target": "Field BitBenderGames.MobileTouchCamera.camZoomFocusEarthOrderRotation"
+          }
+        ]
+      },
+      {
+        "rid": 40925,
+        "rva": 4464801,
+        "name": "get_CamZoomFocusMoveCityRotation",
+        "events": [
+          {
+            "pc": 1,
+            "op": "ldfld",
+            "token": 67124683,
+            "target": "Field BitBenderGames.MobileTouchCamera.camZoomFocusMoveCityRotation"
+          }
+        ]
+      },
+      {
+        "rid": 40927,
+        "rva": 4464832,
+        "name": "get_CameraFocusCurve",
+        "events": [
+          {
+            "pc": 1,
+            "op": "ldfld",
+            "token": 67124689,
+            "target": "Field BitBenderGames.MobileTouchCamera.cameraFocusCurve"
+          }
+        ]
+      },
+      {
+        "rid": 40928,
+        "rva": 4464840,
+        "name": "get_CameraFocusEarthCurve",
+        "events": [
+          {
+            "pc": 1,
+            "op": "ldfld",
+            "token": 67124690,
+            "target": "Field BitBenderGames.MobileTouchCamera.cameraFocusEarthCurve"
+          }
+        ]
+      },
+      {
+        "rid": 40929,
+        "rva": 4464848,
+        "name": "get_CameraFocusDomeCurve",
+        "events": [
+          {
+            "pc": 1,
+            "op": "ldfld",
+            "token": 67124691,
+            "target": "Field BitBenderGames.MobileTouchCamera.cameraFocusDomeCurve"
+          }
+        ]
+      },
+      {
+        "rid": 40930,
+        "rva": 4464856,
+        "name": "get_CameraFocusMoveCityCurve",
+        "events": [
+          {
+            "pc": 1,
+            "op": "ldfld",
+            "token": 67124692,
+            "target": "Field BitBenderGames.MobileTouchCamera.cameraFocusMoveCityCurve"
+          }
+        ]
+      },
+      {
+        "rid": 40931,
+        "rva": 4464864,
+        "name": "GetZoomParams",
+        "events": [
+          {
+            "pc": 1,
+            "op": "ldfld",
+            "token": 67124688,
+            "target": "Field BitBenderGames.MobileTouchCamera.zoomParams"
+          },
+          {
+            "pc": 6,
+            "op": "newobj",
+            "token": 167787785,
+            "target": "MemberRef tag4:rid1476..ctor"
+          }
+        ]
+      },
+      {
+        "rid": 40932,
+        "rva": 4464877,
+        "name": "SetZoomParams",
+        "events": [
+          {
+            "pc": 2,
+            "op": "stfld",
+            "token": 67124688,
+            "target": "Field BitBenderGames.MobileTouchCamera.zoomParams"
+          }
+        ]
+      },
+      {
+        "rid": 40933,
+        "rva": 4464888,
+        "name": "SetZoomParams",
+        "events": [
+          {
+            "pc": 6,
+            "op": "ldfld",
+            "token": 67124688,
+            "target": "Field BitBenderGames.MobileTouchCamera.zoomParams"
+          },
+          {
+            "pc": 11,
+            "op": "callvirt",
+            "token": 167775314,
+            "target": "MemberRef tag4:rid1476.get_Count"
+          },
+          {
+            "pc": 19,
+            "op": "ldfld",
+            "token": 67124688,
+            "target": "Field BitBenderGames.MobileTouchCamera.zoomParams"
+          },
+          {
+            "pc": 25,
+            "op": "callvirt",
+            "token": 167775313,
+            "target": "MemberRef tag4:rid1476.get_Item"
+          },
+          {
+            "pc": 31,
+            "op": "stfld",
+            "token": 67133517,
+            "target": "Field ZoomParam.posY"
+          },
+          {
+            "pc": 37,
+            "op": "ldfld",
+            "token": 67124688,
+            "target": "Field BitBenderGames.MobileTouchCamera.zoomParams"
+          },
+          {
+            "pc": 43,
+            "op": "callvirt",
+            "token": 167775313,
+            "target": "MemberRef tag4:rid1476.get_Item"
+          },
+          {
+            "pc": 49,
+            "op": "stfld",
+            "token": 67133518,
+            "target": "Field ZoomParam.offsetZ"
+          },
+          {
+            "pc": 55,
+            "op": "ldfld",
+            "token": 67124688,
+            "target": "Field BitBenderGames.MobileTouchCamera.zoomParams"
+          },
+          {
+            "pc": 61,
+            "op": "callvirt",
+            "token": 167775313,
+            "target": "MemberRef tag4:rid1476.get_Item"
+          },
+          {
+            "pc": 68,
+            "op": "stfld",
+            "token": 67133519,
+            "target": "Field ZoomParam.sensitivity"
+          },
+          {
+            "pc": 75,
+            "op": "call",
+            "token": 167772352,
+            "target": "MemberRef UnityEngine.Component.get_transform"
+          },
+          {
+            "pc": 80,
+            "op": "callvirt",
+            "token": 167772353,
+            "target": "MemberRef UnityEngine.Transform.get_position"
+          },
+          {
+            "pc": 85,
+            "op": "ldfld",
+            "token": 167772395,
+            "target": "MemberRef UnityEngine.Vector3.y"
+          },
+          {
+            "pc": 90,
+            "op": "call",
+            "token": 100704187,
+            "target": "Method BitBenderGames.MobileTouchCamera.set_CamZoom"
+          }
+        ]
+      },
+      {
+        "rid": 40936,
+        "rva": 4465016,
+        "name": "Awake",
+        "events": [
+          {
+            "pc": 2,
+            "op": "call",
+            "token": 721420483,
+            "target": "token 0x2b0000c3"
+          },
+          {
+            "pc": 7,
+            "op": "stfld",
+            "token": 67124650,
+            "target": "Field BitBenderGames.MobileTouchCamera.camera"
+          },
+          {
+            "pc": 14,
+            "op": "call",
+            "token": 721420446,
+            "target": "token 0x2b00009e"
+          },
+          {
+            "pc": 19,
+            "op": "stfld",
+            "token": 67124651,
+            "target": "Field BitBenderGames.MobileTouchCamera.cameraData"
+          },
+          {
+            "pc": 26,
+            "op": "call",
+            "token": 100704175,
+            "target": "Method BitBenderGames.MobileTouchCamera.get_CamZoomInit"
+          },
+          {
+            "pc": 31,
+            "op": "call",
+            "token": 100704187,
+            "target": "Method BitBenderGames.MobileTouchCamera.set_CamZoom"
+          },
+          {
+            "pc": 38,
+            "op": "call",
+            "token": 167772640,
+            "target": "MemberRef UnityEngine.Vector2.get_zero"
+          },
+          {
+            "pc": 43,
+            "op": "call",
+            "token": 100704191,
+            "target": "Method BitBenderGames.MobileTouchCamera.SetRotRangeOverride"
+          },
+          {
+            "pc": 49,
+            "op": "newobj",
+            "token": 100704334,
+            "target": "Method BitBenderGames.TouchInputController..ctor"
+          },
+          {
+            "pc": 54,
+            "op": "stfld",
+            "token": 67124649,
+            "target": "Field BitBenderGames.MobileTouchCamera.touchInput"
+          },
+          {
+            "pc": 60,
+            "op": "newobj",
+            "token": 167787786,
+            "target": "MemberRef tag4:rid3467..ctor"
+          },
+          {
+            "pc": 65,
+            "op": "stfld",
+            "token": 67124646,
+            "target": "Field BitBenderGames.MobileTouchCamera._stateList"
+          },
+          {
+            "pc": 71,
+            "op": "ldfld",
+            "token": 67124646,
+            "target": "Field BitBenderGames.MobileTouchCamera._stateList"
+          },
+          {
+            "pc": 77,
+            "op": "newobj",
+            "token": 100704491,
+            "target": "Method BitBenderGames.CameraState.CameraStateIdle..ctor"
+          },
+          {
+            "pc": 82,
+            "op": "callvirt",
+            "token": 167787787,
+            "target": "MemberRef tag4:rid3467.Add"
+          },
+          {
+            "pc": 88,
+            "op": "ldfld",
+            "token": 67124646,
+            "target": "Field BitBenderGames.MobileTouchCamera._stateList"
+          },
+          {
+            "pc": 94,
+            "op": "newobj",
+            "token": 100704479,
+            "target": "Method BitBenderGames.CameraState.CameraStateFreeLook..ctor"
+          },
+          {
+            "pc": 99,
+            "op": "callvirt",
+            "token": 167787787,
+            "target": "MemberRef tag4:rid3467.Add"
+          },
+          {
+            "pc": 105,
+            "op": "ldfld",
+            "token": 67124646,
+            "target": "Field BitBenderGames.MobileTouchCamera._stateList"
+          },
+          {
+            "pc": 111,
+            "op": "newobj",
+            "token": 100704501,
+            "target": "Method BitBenderGames.CameraState.CameraStateMoveTo..ctor"
+          },
+          {
+            "pc": 116,
+            "op": "callvirt",
+            "token": 167787787,
+            "target": "MemberRef tag4:rid3467.Add"
+          },
+          {
+            "pc": 122,
+            "op": "ldfld",
+            "token": 67124646,
+            "target": "Field BitBenderGames.MobileTouchCamera._stateList"
+          },
+          {
+            "pc": 128,
+            "op": "newobj",
+            "token": 100704464,
+            "target": "Method BitBenderGames.CameraState.CameraStateFocus..ctor"
+          },
+          {
+            "pc": 133,
+            "op": "callvirt",
+            "token": 167787787,
+            "target": "MemberRef tag4:rid3467.Add"
+          },
+          {
+            "pc": 139,
+            "op": "ldfld",
+            "token": 67124646,
+            "target": "Field BitBenderGames.MobileTouchCamera._stateList"
+          },
+          {
+            "pc": 145,
+            "op": "newobj",
+            "token": 100704506,
+            "target": "Method BitBenderGames.CameraState.CameraStateQuitFocus..ctor"
+          },
+          {
+            "pc": 150,
+            "op": "callvirt",
+            "token": 167787787,
+            "target": "MemberRef tag4:rid3467.Add"
+          },
+          {
+            "pc": 156,
+            "op": "ldfld",
+            "token": 67124646,
+            "target": "Field BitBenderGames.MobileTouchCamera._stateList"
+          },
+          {
+            "pc": 162,
+            "op": "newobj",
+            "token": 100704473,
+            "target": "Method BitBenderGames.CameraState.CameraStateFollow..ctor"
+          },
+          {
+            "pc": 167,
+            "op": "callvirt",
+            "token": 167787787,
+            "target": "MemberRef tag4:rid3467.Add"
+          },
+          {
+            "pc": 173,
+            "op": "ldfld",
+            "token": 67124646,
+            "target": "Field BitBenderGames.MobileTouchCamera._stateList"
+          },
+          {
+            "pc": 179,
+            "op": "newobj",
+            "token": 100704511,
+            "target": "Method BitBenderGames.CameraState.CameraStateSyncWithTimeline..ctor"
+          },
+          {
+            "pc": 184,
+            "op": "callvirt",
+            "token": 167787787,
+            "target": "MemberRef tag4:rid3467.Add"
+          },
+          {
+            "pc": 190,
+            "op": "ldfld",
+            "token": 67124646,
+            "target": "Field BitBenderGames.MobileTouchCamera._stateList"
+          },
+          {
+            "pc": 196,
+            "op": "newobj",
+            "token": 100704497,
+            "target": "Method BitBenderGames.CameraState.CameraStateLock..ctor"
+          },
+          {
+            "pc": 201,
+            "op": "callvirt",
+            "token": 167787787,
+            "target": "MemberRef tag4:rid3467.Add"
+          },
+          {
+            "pc": 208,
+            "op": "stfld",
+            "token": 67124647,
+            "target": "Field BitBenderGames.MobileTouchCamera._currentState"
+          },
+          {
+            "pc": 216,
+            "op": "ldfld",
+            "token": 67124647,
+            "target": "Field BitBenderGames.MobileTouchCamera._currentState"
+          },
+          {
+            "pc": 221,
+            "op": "call",
+            "token": 100704247,
+            "target": "Method BitBenderGames.MobileTouchCamera.GetState"
+          },
+          {
+            "pc": 226,
+            "op": "stfld",
+            "token": 67124648,
+            "target": "Field BitBenderGames.MobileTouchCamera._cameraState"
+          },
+          {
+            "pc": 232,
+            "op": "ldfld",
+            "token": 67124648,
+            "target": "Field BitBenderGames.MobileTouchCamera._cameraState"
+          },
+          {
+            "pc": 237,
+            "op": "call",
+            "token": 721420312,
+            "target": "token 0x2b000018"
+          },
+          {
+            "pc": 242,
+            "op": "callvirt",
+            "token": 100704461,
+            "target": "Method BitBenderGames.CameraState.CameraStateBase.OnEnter"
+          }
+        ]
+      },
+      {
+        "rid": 40947,
+        "rva": 4466008,
+        "name": "AutoFocus",
+        "events": [
+          {
+            "pc": 1,
+            "op": "call",
+            "token": 100704254,
+            "target": "Method BitBenderGames.MobileTouchCamera.GetCameraTargetPos"
+          },
+          {
+            "pc": 9,
+            "op": "call",
+            "token": 167772503,
+            "target": "MemberRef UnityEngine.Vector3.op_Equality"
+          },
+          {
+            "pc": 18,
+            "op": "call",
+            "token": 100704186,
+            "target": "Method BitBenderGames.MobileTouchCamera.get_CamZoom"
+          },
+          {
+            "pc": 23,
+            "op": "call",
+            "token": 167773560,
+            "target": "MemberRef UnityEngine.Mathf.Approximately"
+          },
+          {
+            "pc": 36,
+            "op": "callvirt",
+            "token": 167772683,
+            "target": "MemberRef System.Action.Invoke"
+          },
+          {
+            "pc": 45,
+            "op": "call",
+            "token": 721420312,
+            "target": "token 0x2b000018"
+          },
+          {
+            "pc": 50,
+            "op": "call",
+            "token": 100704248,
+            "target": "Method BitBenderGames.MobileTouchCamera.SetState"
+          },
+          {
+            "pc": 57,
+            "op": "call",
+            "token": 100704267,
+            "target": "Method BitBenderGames.MobileTouchCamera.AdjustTarget"
+          },
+          {
+            "pc": 66,
+            "op": "call",
+            "token": 100704247,
+            "target": "Method BitBenderGames.MobileTouchCamera.GetState"
+          },
+          {
+            "pc": 71,
+            "op": "isinst",
+            "token": 33557030,
+            "target": "TypeDef BitBenderGames.CameraState.CameraStateFocus"
+          },
+          {
+            "pc": 78,
+            "op": "stfld",
+            "token": 67124865,
+            "target": "Field BitBenderGames.CameraState.CameraStateFocus._target"
+          },
+          {
+            "pc": 96,
+            "op": "call",
+            "token": 100704186,
+            "target": "Method BitBenderGames.MobileTouchCamera.get_CamZoom"
+          },
+          {
+            "pc": 101,
+            "op": "stfld",
+            "token": 67124867,
+            "target": "Field BitBenderGames.CameraState.CameraStateFocus._zoom"
+          },
+          {
+            "pc": 108,
+            "op": "stfld",
+            "token": 67124866,
+            "target": "Field BitBenderGames.CameraState.CameraStateFocus._time"
+          },
+          {
+            "pc": 116,
+            "op": "stfld",
+            "token": 67124869,
+            "target": "Field BitBenderGames.CameraState.CameraStateFocus._lerpCurve"
+          },
+          {
+            "pc": 124,
+            "op": "stfld",
+            "token": 67124868,
+            "target": "Field BitBenderGames.CameraState.CameraStateFocus._rotation"
+          },
+          {
+            "pc": 132,
+            "op": "stfld",
+            "token": 67124872,
+            "target": "Field BitBenderGames.CameraState.CameraStateFocus._onComplete"
+          },
+          {
+            "pc": 140,
+            "op": "stfld",
+            "token": 67124870,
+            "target": "Field BitBenderGames.CameraState.CameraStateFocus._focusToCenter"
+          },
+          {
+            "pc": 147,
+            "op": "stfld",
+            "token": 67124871,
+            "target": "Field BitBenderGames.CameraState.CameraStateFocus._lockView"
+          },
+          {
+            "pc": 155,
+            "op": "call",
+            "token": 721420312,
+            "target": "token 0x2b000018"
+          },
+          {
+            "pc": 160,
+            "op": "call",
+            "token": 100704248,
+            "target": "Method BitBenderGames.MobileTouchCamera.SetState"
+          }
+        ]
+      },
+      {
+        "rid": 40948,
+        "rva": 4466188,
+        "name": "QuitFocus",
+        "events": [
+          {
+            "pc": 1,
+            "op": "ldfld",
+            "token": 67124647,
+            "target": "Field BitBenderGames.MobileTouchCamera._currentState"
+          },
+          {
+            "pc": 12,
+            "op": "call",
+            "token": 100704247,
+            "target": "Method BitBenderGames.MobileTouchCamera.GetState"
+          },
+          {
+            "pc": 17,
+            "op": "isinst",
+            "token": 33557030,
+            "target": "TypeDef BitBenderGames.CameraState.CameraStateFocus"
+          },
+          {
+            "pc": 25,
+            "op": "call",
+            "token": 100704247,
+            "target": "Method BitBenderGames.MobileTouchCamera.GetState"
+          },
+          {
+            "pc": 30,
+            "op": "isinst",
+            "token": 33557036,
+            "target": "TypeDef BitBenderGames.CameraState.CameraStateQuitFocus"
+          },
+          {
+            "pc": 37,
+            "op": "ldfld",
+            "token": 67124871,
+            "target": "Field BitBenderGames.CameraState.CameraStateFocus._lockView"
+          },
+          {
+            "pc": 45,
+            "op": "ldfld",
+            "token": 67124870,
+            "target": "Field BitBenderGames.CameraState.CameraStateFocus._focusToCenter"
+          },
+          {
+            "pc": 54,
+            "op": "ldfld",
+            "token": 67124865,
+            "target": "Field BitBenderGames.CameraState.CameraStateFocus._target"
+          },
+          {
+            "pc": 59,
+            "op": "stfld",
+            "token": 67124900,
+            "target": "Field BitBenderGames.CameraState.CameraStateQuitFocus._target"
+          },
+          {
+            "pc": 68,
+            "op": "call",
+            "token": 100704254,
+            "target": "Method BitBenderGames.MobileTouchCamera.GetCameraTargetPos"
+          },
+          {
+            "pc": 73,
+            "op": "stfld",
+            "token": 67124900,
+            "target": "Field BitBenderGames.CameraState.CameraStateQuitFocus._target"
+          },
+          {
+            "pc": 80,
+            "op": "ldfld",
+            "token": 67124870,
+            "target": "Field BitBenderGames.CameraState.CameraStateFocus._focusToCenter"
+          },
+          {
+            "pc": 85,
+            "op": "stfld",
+            "token": 67124902,
+            "target": "Field BitBenderGames.CameraState.CameraStateQuitFocus._focusToCenter"
+          },
+          {
+            "pc": 92,
+            "op": "stfld",
+            "token": 67124901,
+            "target": "Field BitBenderGames.CameraState.CameraStateQuitFocus._time"
+          },
+          {
+            "pc": 100,
+            "op": "call",
+            "token": 721420312,
+            "target": "token 0x2b000018"
+          },
+          {
+            "pc": 105,
+            "op": "call",
+            "token": 100704248,
+            "target": "Method BitBenderGames.MobileTouchCamera.SetState"
+          }
+        ]
+      }
+    ]
+  },
+  "referenceCount": 146,
+  "references": [
+    {
+      "owner": "<CaptureCoroutine>d__27",
+      "method": "MoveNext",
+      "rid": 48668,
+      "rva": 4982276,
+      "events": [
+        {
+          "pc": 142,
+          "op": "call",
+          "token": 167773536,
+          "target": "MemberRef UnityEngine.RenderTexture.get_active"
+        },
+        {
+          "pc": 153,
+          "op": "call",
+          "token": 167773537,
+          "target": "MemberRef UnityEngine.RenderTexture.set_active"
+        },
+        {
+          "pc": 251,
+          "op": "call",
+          "token": 167773537,
+          "target": "MemberRef UnityEngine.RenderTexture.set_active"
+        }
+      ]
+    },
+    {
+      "owner": "<RenderPrefabCameraRoutine>d__25",
+      "method": "MoveNext",
+      "rid": 50156,
+      "rva": 5086884,
+      "events": [
+        {
+          "pc": 378,
+          "op": "ldfld",
+          "token": 67132780,
+          "target": "Field CameraPreviewContext.renderTexture"
+        },
+        {
+          "pc": 427,
+          "op": "ldfld",
+          "token": 67132780,
+          "target": "Field CameraPreviewContext.renderTexture"
+        }
+      ]
+    },
+    {
+      "owner": "AreaHighlightingPass",
+      "method": "Execute",
+      "rid": 84,
+      "rva": 13072,
+      "events": [
+        {
+          "pc": 986,
+          "op": "call",
+          "token": 167772378,
+          "target": "MemberRef UnityEngine.RenderTextureDescriptor.set_depthBufferBits"
+        }
+      ]
+    },
+    {
+      "owner": "BitBenderGames.MobileTouchCamera",
+      "method": "get_CamZoomFocusFormationRotation",
+      "rid": 40919,
+      "rva": 4464752,
+      "events": [
+        {
+          "pc": 1,
+          "op": "ldfld",
+          "token": 67124684,
+          "target": "Field BitBenderGames.MobileTouchCamera.camZoomFocusFormationRotation"
+        }
+      ]
+    },
+    {
+      "owner": "BitBenderGames.MobileTouchCamera",
+      "method": "get_CamZoomFormation",
+      "rid": 40917,
+      "rva": 4464735,
+      "events": [
+        {
+          "pc": 1,
+          "op": "ldfld",
+          "token": 67124681,
+          "target": "Field BitBenderGames.MobileTouchCamera.camZoomFormation"
+        }
+      ]
+    },
+    {
+      "owner": "BitBenderGames.MobileTouchCamera",
+      "method": "set_CamZoomFocusFormationRotation",
+      "rid": 40920,
+      "rva": 4464760,
+      "events": [
+        {
+          "pc": 2,
+          "op": "stfld",
+          "token": 67124684,
+          "target": "Field BitBenderGames.MobileTouchCamera.camZoomFocusFormationRotation"
+        }
+      ]
+    },
+    {
+      "owner": "BitBenderGames.MobileTouchCamera",
+      "method": "set_CamZoomFormation",
+      "rid": 40918,
+      "rva": 4464743,
+      "events": [
+        {
+          "pc": 2,
+          "op": "stfld",
+          "token": 67124681,
+          "target": "Field BitBenderGames.MobileTouchCamera.camZoomFormation"
+        }
+      ]
+    },
+    {
+      "owner": "BlurOptimized",
+      "method": "OnRenderImage",
+      "rid": 2322,
+      "rva": 243004,
+      "events": [
+        {
+          "pc": 105,
+          "op": "callvirt",
+          "token": 167774083,
+          "target": "MemberRef UnityEngine.RenderTexture.get_format"
+        },
+        {
+          "pc": 110,
+          "op": "call",
+          "token": 167773534,
+          "target": "MemberRef UnityEngine.RenderTexture.GetTemporary"
+        },
+        {
+          "pc": 231,
+          "op": "callvirt",
+          "token": 167774083,
+          "target": "MemberRef UnityEngine.RenderTexture.get_format"
+        },
+        {
+          "pc": 236,
+          "op": "call",
+          "token": 167773534,
+          "target": "MemberRef UnityEngine.RenderTexture.GetTemporary"
+        },
+        {
+          "pc": 272,
+          "op": "call",
+          "token": 167773539,
+          "target": "MemberRef UnityEngine.RenderTexture.ReleaseTemporary"
+        },
+        {
+          "pc": 285,
+          "op": "callvirt",
+          "token": 167774083,
+          "target": "MemberRef UnityEngine.RenderTexture.get_format"
+        },
+        {
+          "pc": 290,
+          "op": "call",
+          "token": 167773534,
+          "target": "MemberRef UnityEngine.RenderTexture.GetTemporary"
+        },
+        {
+          "pc": 326,
+          "op": "call",
+          "token": 167773539,
+          "target": "MemberRef UnityEngine.RenderTexture.ReleaseTemporary"
+        },
+        {
+          "pc": 364,
+          "op": "call",
+          "token": 167773539,
+          "target": "MemberRef UnityEngine.RenderTexture.ReleaseTemporary"
+        }
+      ]
+    },
+    {
+      "owner": "CameraGFXPanel",
+      "method": "DrawZoomParams",
+      "rid": 4174,
+      "rva": 602364,
+      "events": [
+        {
+          "pc": 325,
+          "op": "ldfld",
+          "token": 67111068,
+          "target": "Field CameraGFXPanel.camZoomFormation"
+        },
+        {
+          "pc": 335,
+          "op": "stfld",
+          "token": 67111068,
+          "target": "Field CameraGFXPanel.camZoomFormation"
+        },
+        {
+          "pc": 348,
+          "op": "ldfld",
+          "token": 67111069,
+          "target": "Field CameraGFXPanel.camZoomFormationRotation"
+        },
+        {
+          "pc": 358,
+          "op": "stfld",
+          "token": 67111069,
+          "target": "Field CameraGFXPanel.camZoomFormationRotation"
+        },
+        {
+          "pc": 721,
+          "op": "ldfld",
+          "token": 67111068,
+          "target": "Field CameraGFXPanel.camZoomFormation"
+        },
+        {
+          "pc": 731,
+          "op": "callvirt",
+          "token": 100704214,
+          "target": "Method BitBenderGames.MobileTouchCamera.set_CamZoomFormation"
+        },
+        {
+          "pc": 738,
+          "op": "ldfld",
+          "token": 67111069,
+          "target": "Field CameraGFXPanel.camZoomFormationRotation"
+        },
+        {
+          "pc": 748,
+          "op": "callvirt",
+          "token": 100704216,
+          "target": "Method BitBenderGames.MobileTouchCamera.set_CamZoomFocusFormationRotation"
+        }
+      ]
+    },
+    {
+      "owner": "CameraGFXPanel",
+      "method": "Init",
+      "rid": 4172,
+      "rva": 601888,
+      "events": [
+        {
+          "pc": 194,
+          "op": "callvirt",
+          "token": 100704213,
+          "target": "Method BitBenderGames.MobileTouchCamera.get_CamZoomFormation"
+        },
+        {
+          "pc": 207,
+          "op": "stfld",
+          "token": 67111068,
+          "target": "Field CameraGFXPanel.camZoomFormation"
+        },
+        {
+          "pc": 214,
+          "op": "callvirt",
+          "token": 100704215,
+          "target": "Method BitBenderGames.MobileTouchCamera.get_CamZoomFocusFormationRotation"
+        },
+        {
+          "pc": 227,
+          "op": "stfld",
+          "token": 67111069,
+          "target": "Field CameraGFXPanel.camZoomFormationRotation"
+        }
+      ]
+    },
+    {
+      "owner": "CityCamera",
+      "method": "AutoFocus",
+      "rid": 5987,
+      "rva": 756516,
+      "events": [
+        {
+          "pc": 397,
+          "op": "callvirt",
+          "token": 100704213,
+          "target": "Method BitBenderGames.MobileTouchCamera.get_CamZoomFormation"
+        },
+        {
+          "pc": 409,
+          "op": "callvirt",
+          "token": 100704215,
+          "target": "Method BitBenderGames.MobileTouchCamera.get_CamZoomFocusFormationRotation"
+        }
+      ]
+    },
+    {
+      "owner": "DepthRenderPass",
+      "method": "Configure",
+      "rid": 54072,
+      "rva": 5162636,
+      "events": [
+        {
+          "pc": 57,
+          "op": "call",
+          "token": 167787666,
+          "target": "MemberRef UnityEngine.RenderTextureDescriptor.set_colorFormat"
+        },
+        {
+          "pc": 66,
+          "op": "call",
+          "token": 167772378,
+          "target": "MemberRef UnityEngine.RenderTextureDescriptor.set_depthBufferBits"
+        },
+        {
+          "pc": 74,
+          "op": "call",
+          "token": 167787668,
+          "target": "MemberRef UnityEngine.RenderTextureDescriptor.set_msaaSamples"
+        }
+      ]
+    },
+    {
+      "owner": "DynamicAtlasManager",
+      "method": "DoSelfCheck",
+      "rid": 1523,
+      "rva": 180620,
+      "events": [
+        {
+          "pc": 85,
+          "op": "call",
+          "token": 167773534,
+          "target": "MemberRef UnityEngine.RenderTexture.GetTemporary"
+        },
+        {
+          "pc": 112,
+          "op": "call",
+          "token": 167773536,
+          "target": "MemberRef UnityEngine.RenderTexture.get_active"
+        },
+        {
+          "pc": 118,
+          "op": "call",
+          "token": 167773537,
+          "target": "MemberRef UnityEngine.RenderTexture.set_active"
+        },
+        {
+          "pc": 161,
+          "op": "call",
+          "token": 167773539,
+          "target": "MemberRef UnityEngine.RenderTexture.ReleaseTemporary"
+        },
+        {
+          "pc": 166,
+          "op": "call",
+          "token": 167773537,
+          "target": "MemberRef UnityEngine.RenderTexture.set_active"
+        }
+      ]
+    },
+    {
+      "owner": "DynamicAtlasManager",
+      "method": "PrepareSelfCheck",
+      "rid": 1522,
+      "rva": 180232,
+      "events": [
+        {
+          "pc": 224,
+          "op": "call",
+          "token": 167773534,
+          "target": "MemberRef UnityEngine.RenderTexture.GetTemporary"
+        },
+        {
+          "pc": 255,
+          "op": "call",
+          "token": 167773536,
+          "target": "MemberRef UnityEngine.RenderTexture.get_active"
+        },
+        {
+          "pc": 262,
+          "op": "call",
+          "token": 167773537,
+          "target": "MemberRef UnityEngine.RenderTexture.set_active"
+        },
+        {
+          "pc": 313,
+          "op": "call",
+          "token": 167773539,
+          "target": "MemberRef UnityEngine.RenderTexture.ReleaseTemporary"
+        },
+        {
+          "pc": 318,
+          "op": "call",
+          "token": 167773537,
+          "target": "MemberRef UnityEngine.RenderTexture.set_active"
+        }
+      ]
+    },
+    {
+      "owner": "FibMatrix.RenderingHotUpdatable.CustomRenderObjectsPassHotUpdatable",
+      "method": "Configure",
+      "rid": 40637,
+      "rva": 4441644,
+      "events": [
+        {
+          "pc": 27,
+          "op": "call",
+          "token": 167776399,
+          "target": "MemberRef UnityEngine.RenderTextureDescriptor.get_width"
+        },
+        {
+          "pc": 54,
+          "op": "call",
+          "token": 167776400,
+          "target": "MemberRef UnityEngine.RenderTextureDescriptor.get_height"
+        },
+        {
+          "pc": 153,
+          "op": "call",
+          "token": 167787666,
+          "target": "MemberRef UnityEngine.RenderTextureDescriptor.set_colorFormat"
+        },
+        {
+          "pc": 171,
+          "op": "call",
+          "token": 167772378,
+          "target": "MemberRef UnityEngine.RenderTextureDescriptor.set_depthBufferBits"
+        },
+        {
+          "pc": 194,
+          "op": "call",
+          "token": 167787667,
+          "target": "MemberRef UnityEngine.RenderTextureDescriptor.get_msaaSamples"
+        },
+        {
+          "pc": 202,
+          "op": "call",
+          "token": 167787668,
+          "target": "MemberRef UnityEngine.RenderTextureDescriptor.set_msaaSamples"
+        },
+        {
+          "pc": 233,
+          "op": "call",
+          "token": 167776399,
+          "target": "MemberRef UnityEngine.RenderTextureDescriptor.get_width"
+        },
+        {
+          "pc": 261,
+          "op": "call",
+          "token": 167787670,
+          "target": "MemberRef UnityEngine.RenderTextureDescriptor.set_width"
+        },
+        {
+          "pc": 292,
+          "op": "call",
+          "token": 167776400,
+          "target": "MemberRef UnityEngine.RenderTextureDescriptor.get_height"
+        },
+        {
+          "pc": 320,
+          "op": "call",
+          "token": 167787671,
+          "target": "MemberRef UnityEngine.RenderTextureDescriptor.set_height"
+        }
+      ]
+    },
+    {
+      "owner": "GraphicsInformationWindow",
+      "method": "OnDrawScrollableWindow",
+      "rid": 53379,
+      "rva": 5117096,
+      "events": [
+        {
+          "pc": 1137,
+          "op": "call",
+          "token": 167785077,
+          "target": "MemberRef UnityEngine.SystemInfo.get_supports3DRenderTextures"
+        }
+      ]
+    },
+    {
+      "owner": "IniterAdderFrameworkUtilsUnityExTouchInfo",
+      "method": "Init",
+      "rid": 52140,
+      "rva": 5093812,
+      "events": [
+        {
+          "pc": 1220,
+          "op": "fe.ldftn",
+          "token": 100679056,
+          "target": "Method XLua.ObjectTranslator.PushUnityEngineRenderTextureFormat"
+        },
+        {
+          "pc": 1244,
+          "op": "fe.ldftn",
+          "token": 100679058,
+          "target": "Method XLua.ObjectTranslator.UpdateUnityEngineRenderTextureFormat"
+        }
+      ]
+    },
+    {
+      "owner": "PVEScShotManager",
+      "method": "Init",
+      "rid": 7279,
+      "rva": 835928,
+      "events": [
+        {
+          "pc": 30,
+          "op": "call",
+          "token": 100670577,
+          "target": "Method PVEScShotManager.SetupRenderTexture"
+        }
+      ]
+    },
+    {
+      "owner": "PVEScShotManager",
+      "method": "OnDestroy",
+      "rid": 7280,
+      "rva": 836208,
+      "events": [
+        {
+          "pc": 58,
+          "op": "callvirt",
+          "token": 167776483,
+          "target": "MemberRef UnityEngine.RenderTexture.Release"
+        }
+      ]
+    },
+    {
+      "owner": "PVEScShotManager",
+      "method": "SetupRenderTexture",
+      "rid": 7281,
+      "rva": 836328,
+      "events": [
+        {
+          "pc": 20,
+          "op": "callvirt",
+          "token": 167776483,
+          "target": "MemberRef UnityEngine.RenderTexture.Release"
+        },
+        {
+          "pc": 56,
+          "op": "newobj",
+          "token": 167776484,
+          "target": "MemberRef UnityEngine.RenderTexture..ctor"
+        },
+        {
+          "pc": 73,
+          "op": "callvirt",
+          "token": 167776485,
+          "target": "MemberRef UnityEngine.RenderTexture.set_antiAliasing"
+        },
+        {
+          "pc": 85,
+          "op": "callvirt",
+          "token": 167776486,
+          "target": "MemberRef UnityEngine.RenderTexture.set_useMipMap"
+        },
+        {
+          "pc": 96,
+          "op": "callvirt",
+          "token": 167776487,
+          "target": "MemberRef UnityEngine.RenderTexture.Create"
+        }
+      ]
+    },
+    {
+      "owner": "QuadVideoPlayerCreator",
+      "method": "ClearRT",
+      "rid": 2556,
+      "rva": 259444,
+      "events": [
+        {
+          "pc": 14,
+          "op": "call",
+          "token": 167773536,
+          "target": "MemberRef UnityEngine.RenderTexture.get_active"
+        },
+        {
+          "pc": 26,
+          "op": "call",
+          "token": 167773537,
+          "target": "MemberRef UnityEngine.RenderTexture.set_active"
+        },
+        {
+          "pc": 46,
+          "op": "call",
+          "token": 167773537,
+          "target": "MemberRef UnityEngine.RenderTexture.set_active"
+        },
+        {
+          "pc": 58,
+          "op": "call",
+          "token": 167773539,
+          "target": "MemberRef UnityEngine.RenderTexture.ReleaseTemporary"
+        }
+      ]
+    },
+    {
+      "owner": "QuadVideoPlayerCreator",
+      "method": "TryCreateRT",
+      "rid": 2555,
+      "rva": 259080,
+      "events": [
+        {
+          "pc": 56,
+          "op": "call",
+          "token": 167773534,
+          "target": "MemberRef UnityEngine.RenderTexture.GetTemporary"
+        },
+        {
+          "pc": 138,
+          "op": "call",
+          "token": 167773539,
+          "target": "MemberRef UnityEngine.RenderTexture.ReleaseTemporary"
+        },
+        {
+          "pc": 168,
+          "op": "call",
+          "token": 167773534,
+          "target": "MemberRef UnityEngine.RenderTexture.GetTemporary"
+        }
+      ]
+    },
+    {
+      "owner": "RawImageSeriesVideoPlayer",
+      "method": "ClearRT",
+      "rid": 2583,
+      "rva": 263060,
+      "events": [
+        {
+          "pc": 14,
+          "op": "call",
+          "token": 167773536,
+          "target": "MemberRef UnityEngine.RenderTexture.get_active"
+        },
+        {
+          "pc": 26,
+          "op": "call",
+          "token": 167773537,
+          "target": "MemberRef UnityEngine.RenderTexture.set_active"
+        },
+        {
+          "pc": 46,
+          "op": "call",
+          "token": 167773537,
+          "target": "MemberRef UnityEngine.RenderTexture.set_active"
+        },
+        {
+          "pc": 58,
+          "op": "call",
+          "token": 167773539,
+          "target": "MemberRef UnityEngine.RenderTexture.ReleaseTemporary"
+        }
+      ]
+    },
+    {
+      "owner": "RawImageSeriesVideoPlayer",
+      "method": "TryCreateRT",
+      "rid": 2582,
+      "rva": 262744,
+      "events": [
+        {
+          "pc": 56,
+          "op": "call",
+          "token": 167773534,
+          "target": "MemberRef UnityEngine.RenderTexture.GetTemporary"
+        },
+        {
+          "pc": 178,
+          "op": "call",
+          "token": 167773539,
+          "target": "MemberRef UnityEngine.RenderTexture.ReleaseTemporary"
+        },
+        {
+          "pc": 208,
+          "op": "call",
+          "token": 167773534,
+          "target": "MemberRef UnityEngine.RenderTexture.GetTemporary"
+        }
+      ]
+    },
+    {
+      "owner": "RawImageVideoPlayer",
+      "method": "ClearRT",
+      "rid": 2601,
+      "rva": 265568,
+      "events": [
+        {
+          "pc": 14,
+          "op": "call",
+          "token": 167773536,
+          "target": "MemberRef UnityEngine.RenderTexture.get_active"
+        },
+        {
+          "pc": 26,
+          "op": "call",
+          "token": 167773537,
+          "target": "MemberRef UnityEngine.RenderTexture.set_active"
+        },
+        {
+          "pc": 46,
+          "op": "call",
+          "token": 167773537,
+          "target": "MemberRef UnityEngine.RenderTexture.set_active"
+        },
+        {
+          "pc": 58,
+          "op": "call",
+          "token": 167773539,
+          "target": "MemberRef UnityEngine.RenderTexture.ReleaseTemporary"
+        }
+      ]
+    },
+    {
+      "owner": "RawImageVideoPlayer",
+      "method": "TryCreateRT",
+      "rid": 2600,
+      "rva": 265252,
+      "events": [
+        {
+          "pc": 56,
+          "op": "call",
+          "token": 167773534,
+          "target": "MemberRef UnityEngine.RenderTexture.GetTemporary"
+        },
+        {
+          "pc": 178,
+          "op": "call",
+          "token": 167773539,
+          "target": "MemberRef UnityEngine.RenderTexture.ReleaseTemporary"
+        },
+        {
+          "pc": 208,
+          "op": "call",
+          "token": 167773534,
+          "target": "MemberRef UnityEngine.RenderTexture.GetTemporary"
+        }
+      ]
+    },
+    {
+      "owner": "RuntimeInfoManager",
+      "method": "GetDeviceLevel",
+      "rid": 3552,
+      "rva": 538036,
+      "events": [
+        {
+          "pc": 37,
+          "op": "call",
+          "token": 167774957,
+          "target": "MemberRef UnityEngine.SystemInfo.SupportsRenderTextureFormat"
+        }
+      ]
+    },
+    {
+      "owner": "SDKManager",
+      "method": "SaveRTToAlbum",
+      "rid": 3826,
+      "rva": 567564,
+      "events": [
+        {
+          "pc": 59,
+          "op": "call",
+          "token": 167773537,
+          "target": "MemberRef UnityEngine.RenderTexture.set_active"
+        },
+        {
+          "pc": 108,
+          "op": "call",
+          "token": 167773537,
+          "target": "MemberRef UnityEngine.RenderTexture.set_active"
+        }
+      ]
+    },
+    {
+      "owner": "TerrainQuadLayerRenderPass",
+      "method": "Execute",
+      "rid": 48697,
+      "rva": 4984620,
+      "events": [
+        {
+          "pc": 125,
+          "op": "call",
+          "token": 167773534,
+          "target": "MemberRef UnityEngine.RenderTexture.GetTemporary"
+        }
+      ]
+    },
+    {
+      "owner": "TerrainQuadLayerRenderPass",
+      "method": "Release",
+      "rid": 48696,
+      "rva": 4984604,
+      "events": [
+        {
+          "pc": 6,
+          "op": "call",
+          "token": 167773539,
+          "target": "MemberRef UnityEngine.RenderTexture.ReleaseTemporary"
+        }
+      ]
+    },
+    {
+      "owner": "TerrainQuadLayerRenderer",
+      "method": "AddRenderPasses",
+      "rid": 7880,
+      "rva": 859332,
+      "events": [
+        {
+          "pc": 42,
+          "op": "call",
+          "token": 167776399,
+          "target": "MemberRef UnityEngine.RenderTextureDescriptor.get_width"
+        },
+        {
+          "pc": 50,
+          "op": "call",
+          "token": 167776400,
+          "target": "MemberRef UnityEngine.RenderTextureDescriptor.get_height"
+        }
+      ]
+    },
+    {
+      "owner": "TestGPUSkin",
+      "method": "Test",
+      "rid": 4203,
+      "rva": 608628,
+      "events": [
+        {
+          "pc": 6,
+          "op": "call",
+          "token": 167773537,
+          "target": "MemberRef UnityEngine.RenderTexture.set_active"
+        },
+        {
+          "pc": 88,
+          "op": "call",
+          "token": 167773537,
+          "target": "MemberRef UnityEngine.RenderTexture.set_active"
+        }
+      ]
+    },
+    {
+      "owner": "TestGPUSkin",
+      "method": "_StartTest",
+      "rid": 4202,
+      "rva": 608516,
+      "events": [
+        {
+          "pc": 41,
+          "op": "newobj",
+          "token": 167775369,
+          "target": "MemberRef UnityEngine.RenderTexture..ctor"
+        }
+      ]
+    },
+    {
+      "owner": "UIToolBox.UnityMcpRuntimeCapture",
+      "method": "CaptureCameraPreviewToPng",
+      "rid": 15240,
+      "rva": 1610132,
+      "events": [
+        {
+          "pc": 29,
+          "op": "ldstr",
+          "token": 1879577779,
+          "string": "renderTexture"
+        },
+        {
+          "pc": 66,
+          "op": "call",
+          "token": 167773536,
+          "target": "MemberRef UnityEngine.RenderTexture.get_active"
+        },
+        {
+          "pc": 79,
+          "op": "call",
+          "token": 167773537,
+          "target": "MemberRef UnityEngine.RenderTexture.set_active"
+        },
+        {
+          "pc": 134,
+          "op": "call",
+          "token": 167773537,
+          "target": "MemberRef UnityEngine.RenderTexture.set_active"
+        }
+      ]
+    },
+    {
+      "owner": "UIToolBox.UnityMcpRuntimeCapture",
+      "method": "CleanupCameraPreviewContext",
+      "rid": 15238,
+      "rva": 1609680,
+      "events": [
+        {
+          "pc": 46,
+          "op": "ldfld",
+          "token": 67132780,
+          "target": "Field CameraPreviewContext.renderTexture"
+        },
+        {
+          "pc": 60,
+          "op": "ldfld",
+          "token": 67132780,
+          "target": "Field CameraPreviewContext.renderTexture"
+        },
+        {
+          "pc": 65,
+          "op": "call",
+          "token": 167773539,
+          "target": "MemberRef UnityEngine.RenderTexture.ReleaseTemporary"
+        }
+      ]
+    },
+    {
+      "owner": "UIToolBox.UnityMcpRuntimeCapture",
+      "method": "CreateCameraPreviewContext",
+      "rid": 15235,
+      "rva": 1608644,
+      "events": [
+        {
+          "pc": 214,
+          "op": "callvirt",
+          "token": 167779543,
+          "target": "MemberRef UnityEngine.Camera.set_forceIntoRenderTexture"
+        },
+        {
+          "pc": 257,
+          "op": "call",
+          "token": 167779545,
+          "target": "MemberRef UnityEngine.RenderTexture.GetTemporary"
+        },
+        {
+          "pc": 262,
+          "op": "stfld",
+          "token": 67132780,
+          "target": "Field CameraPreviewContext.renderTexture"
+        },
+        {
+          "pc": 274,
+          "op": "ldfld",
+          "token": 67132780,
+          "target": "Field CameraPreviewContext.renderTexture"
+        }
+      ]
+    },
+    {
+      "owner": "UIToolBox.UnityMcpRuntimeCapture",
+      "method": "ResizeToPng",
+      "rid": 15252,
+      "rva": 1611836,
+      "events": [
+        {
+          "pc": 6,
+          "op": "call",
+          "token": 167779545,
+          "target": "MemberRef UnityEngine.RenderTexture.GetTemporary"
+        },
+        {
+          "pc": 12,
+          "op": "call",
+          "token": 167773536,
+          "target": "MemberRef UnityEngine.RenderTexture.get_active"
+        },
+        {
+          "pc": 26,
+          "op": "call",
+          "token": 167773537,
+          "target": "MemberRef UnityEngine.RenderTexture.set_active"
+        },
+        {
+          "pc": 91,
+          "op": "call",
+          "token": 167773537,
+          "target": "MemberRef UnityEngine.RenderTexture.set_active"
+        },
+        {
+          "pc": 97,
+          "op": "call",
+          "token": 167773539,
+          "target": "MemberRef UnityEngine.RenderTexture.ReleaseTemporary"
+        }
+      ]
+    },
+    {
+      "owner": "UnityGameFramework.SDK.DeviceInfo",
+      "method": ".ctor",
+      "rid": 40655,
+      "rva": 4443344,
+      "events": [
+        {
+          "pc": 370,
+          "op": "call",
+          "token": 167774957,
+          "target": "MemberRef UnityEngine.SystemInfo.SupportsRenderTextureFormat"
+        },
+        {
+          "pc": 375,
+          "op": "stfld",
+          "token": 67124452,
+          "target": "Field UnityGameFramework.SDK.DeviceInfo.supportsARGB32RenderTexture"
+        }
+      ]
+    },
+    {
+      "owner": "UploadImageManager",
+      "method": "SaveRenderTextureToFolder",
+      "rid": 5036,
+      "rva": 682232,
+      "events": [
+        {
+          "pc": 65,
+          "op": "call",
+          "token": 167773537,
+          "target": "MemberRef UnityEngine.RenderTexture.set_active"
+        },
+        {
+          "pc": 118,
+          "op": "call",
+          "token": 167773537,
+          "target": "MemberRef UnityEngine.RenderTexture.set_active"
+        }
+      ]
+    },
+    {
+      "owner": "UploadImageManager",
+      "method": "ScaleTexture_WinAndEditor",
+      "rid": 5023,
+      "rva": 680472,
+      "events": [
+        {
+          "pc": 2,
+          "op": "call",
+          "token": 167775744,
+          "target": "MemberRef UnityEngine.RenderTexture.GetTemporary"
+        },
+        {
+          "pc": 9,
+          "op": "call",
+          "token": 167773537,
+          "target": "MemberRef UnityEngine.RenderTexture.set_active"
+        },
+        {
+          "pc": 64,
+          "op": "call",
+          "token": 167773537,
+          "target": "MemberRef UnityEngine.RenderTexture.set_active"
+        },
+        {
+          "pc": 70,
+          "op": "call",
+          "token": 167773539,
+          "target": "MemberRef UnityEngine.RenderTexture.ReleaseTemporary"
+        }
+      ]
+    },
+    {
+      "owner": "UploadImageManager",
+      "method": "StartUploadPhoto_SeasonAlliance",
+      "rid": 5031,
+      "rva": 681708,
+      "events": [
+        {
+          "pc": 55,
+          "op": "call",
+          "token": 167773537,
+          "target": "MemberRef UnityEngine.RenderTexture.set_active"
+        }
+      ]
+    },
+    {
+      "owner": "VolumetricFogAndMist2.VolumetricFog",
+      "method": "CreateFoWBlurRTs",
+      "rid": 46629,
+      "rva": 4898064,
+      "events": [
+        {
+          "pc": 20,
+          "op": "callvirt",
+          "token": 167776483,
+          "target": "MemberRef UnityEngine.RenderTexture.Release"
+        },
+        {
+          "pc": 45,
+          "op": "callvirt",
+          "token": 167776483,
+          "target": "MemberRef UnityEngine.RenderTexture.Release"
+        },
+        {
+          "pc": 76,
+          "op": "call",
+          "token": 167789623,
+          "target": "MemberRef UnityEngine.RenderTextureDescriptor..ctor"
+        },
+        {
+          "pc": 83,
+          "op": "newobj",
+          "token": 167784567,
+          "target": "MemberRef UnityEngine.RenderTexture..ctor"
+        },
+        {
+          "pc": 95,
+          "op": "newobj",
+          "token": 167784567,
+          "target": "MemberRef UnityEngine.RenderTexture..ctor"
+        }
+      ]
+    },
+    {
+      "owner": "VolumetricFogAndMist2.VolumetricFog",
+      "method": "FogOfWarDestroy",
+      "rid": 46623,
+      "rva": 4897056,
+      "events": [
+        {
+          "pc": 39,
+          "op": "callvirt",
+          "token": 167776483,
+          "target": "MemberRef UnityEngine.RenderTexture.Release"
+        },
+        {
+          "pc": 64,
+          "op": "callvirt",
+          "token": 167776483,
+          "target": "MemberRef UnityEngine.RenderTexture.Release"
+        }
+      ]
+    },
+    {
+      "owner": "VolumetricFogAndMist2.VolumetricFog",
+      "method": "SetFowBlurTexture",
+      "rid": 46628,
+      "rva": 4897812,
+      "events": [
+        {
+          "pc": 151,
+          "op": "callvirt",
+          "token": 167784575,
+          "target": "MemberRef UnityEngine.RenderTexture.DiscardContents"
+        },
+        {
+          "pc": 186,
+          "op": "callvirt",
+          "token": 167784575,
+          "target": "MemberRef UnityEngine.RenderTexture.DiscardContents"
+        }
+      ]
+    },
+    {
+      "owner": "WebmVideoPlayerManager",
+      "method": "ClearRT",
+      "rid": 5044,
+      "rva": 683432,
+      "events": [
+        {
+          "pc": 14,
+          "op": "call",
+          "token": 167773536,
+          "target": "MemberRef UnityEngine.RenderTexture.get_active"
+        },
+        {
+          "pc": 26,
+          "op": "call",
+          "token": 167773537,
+          "target": "MemberRef UnityEngine.RenderTexture.set_active"
+        },
+        {
+          "pc": 46,
+          "op": "call",
+          "token": 167773537,
+          "target": "MemberRef UnityEngine.RenderTexture.set_active"
+        },
+        {
+          "pc": 58,
+          "op": "call",
+          "token": 167773539,
+          "target": "MemberRef UnityEngine.RenderTexture.ReleaseTemporary"
+        }
+      ]
+    },
+    {
+      "owner": "WebmVideoPlayerManager",
+      "method": "TryCreateRT",
+      "rid": 5043,
+      "rva": 683176,
+      "events": [
+        {
+          "pc": 56,
+          "op": "call",
+          "token": 167773534,
+          "target": "MemberRef UnityEngine.RenderTexture.GetTemporary"
+        },
+        {
+          "pc": 138,
+          "op": "call",
+          "token": 167773539,
+          "target": "MemberRef UnityEngine.RenderTexture.ReleaseTemporary"
+        },
+        {
+          "pc": 168,
+          "op": "call",
+          "token": 167773534,
+          "target": "MemberRef UnityEngine.RenderTexture.GetTemporary"
+        }
+      ]
+    },
+    {
+      "owner": "WorldCamera",
+      "method": "AutoFocus",
+      "rid": 9868,
+      "rva": 1068504,
+      "events": [
+        {
+          "pc": 397,
+          "op": "callvirt",
+          "token": 100704213,
+          "target": "Method BitBenderGames.MobileTouchCamera.get_CamZoomFormation"
+        },
+        {
+          "pc": 409,
+          "op": "callvirt",
+          "token": 100704215,
+          "target": "Method BitBenderGames.MobileTouchCamera.get_CamZoomFocusFormationRotation"
+        }
+      ]
+    },
+    {
+      "owner": "WorldCamera",
+      "method": "ClearFrameBuffer",
+      "rid": 9907,
+      "rva": 1072094,
+      "events": [
+        {
+          "pc": 20,
+          "op": "callvirt",
+          "token": 167776483,
+          "target": "MemberRef UnityEngine.RenderTexture.Release"
+        }
+      ]
+    },
+    {
+      "owner": "WorldCamera",
+      "method": "UpdateFrameBuffer",
+      "rid": 9908,
+      "rva": 1072140,
+      "events": [
+        {
+          "pc": 13,
+          "op": "call",
+          "token": 167773534,
+          "target": "MemberRef UnityEngine.RenderTexture.GetTemporary"
+        },
+        {
+          "pc": 59,
+          "op": "callvirt",
+          "token": 167776486,
+          "target": "MemberRef UnityEngine.RenderTexture.set_useMipMap"
+        },
+        {
+          "pc": 70,
+          "op": "callvirt",
+          "token": 167776487,
+          "target": "MemberRef UnityEngine.RenderTexture.Create"
+        }
+      ]
+    },
+    {
+      "owner": "WorldFogRendererPass",
+      "method": "Execute",
+      "rid": 48647,
+      "rva": 4980040,
+      "events": [
+        {
+          "pc": 108,
+          "op": "call",
+          "token": 167774957,
+          "target": "MemberRef UnityEngine.SystemInfo.SupportsRenderTextureFormat"
+        },
+        {
+          "pc": 140,
+          "op": "call",
+          "token": 167773534,
+          "target": "MemberRef UnityEngine.RenderTexture.GetTemporary"
+        },
+        {
+          "pc": 168,
+          "op": "call",
+          "token": 167773534,
+          "target": "MemberRef UnityEngine.RenderTexture.GetTemporary"
+        }
+      ]
+    },
+    {
+      "owner": "WorldFogRendererPass",
+      "method": "Release",
+      "rid": 48646,
+      "rva": 4980024,
+      "events": [
+        {
+          "pc": 6,
+          "op": "call",
+          "token": 167773539,
+          "target": "MemberRef UnityEngine.RenderTexture.ReleaseTemporary"
+        }
+      ]
+    },
+    {
+      "owner": "WorldFogRendererRenderer",
+      "method": "AddRenderPasses",
+      "rid": 7188,
+      "rva": 828868,
+      "events": [
+        {
+          "pc": 34,
+          "op": "call",
+          "token": 167776399,
+          "target": "MemberRef UnityEngine.RenderTextureDescriptor.get_width"
+        },
+        {
+          "pc": 42,
+          "op": "call",
+          "token": 167776400,
+          "target": "MemberRef UnityEngine.RenderTextureDescriptor.get_height"
+        }
+      ]
+    },
+    {
+      "owner": "WorldZoneRTRenderer",
+      "method": "AddRenderPasses",
+      "rid": 8492,
+      "rva": 921580,
+      "events": [
+        {
+          "pc": 34,
+          "op": "call",
+          "token": 167776399,
+          "target": "MemberRef UnityEngine.RenderTextureDescriptor.get_width"
+        },
+        {
+          "pc": 42,
+          "op": "call",
+          "token": 167776400,
+          "target": "MemberRef UnityEngine.RenderTextureDescriptor.get_height"
+        }
+      ]
+    },
+    {
+      "owner": "WorldZoneRTRendererPass",
+      "method": "Release",
+      "rid": 48820,
+      "rva": 4996422,
+      "events": [
+        {
+          "pc": 20,
+          "op": "call",
+          "token": 167773539,
+          "target": "MemberRef UnityEngine.RenderTexture.ReleaseTemporary"
+        }
+      ]
+    },
+    {
+      "owner": "WorldZoneRTRendererPass",
+      "method": "Setup",
+      "rid": 48816,
+      "rva": 4994500,
+      "events": [
+        {
+          "pc": 135,
+          "op": "call",
+          "token": 167789892,
+          "target": "MemberRef UnityEngine.RenderTextureDescriptor..ctor"
+        },
+        {
+          "pc": 143,
+          "op": "call",
+          "token": 167787666,
+          "target": "MemberRef UnityEngine.RenderTextureDescriptor.set_colorFormat"
+        },
+        {
+          "pc": 151,
+          "op": "call",
+          "token": 167772378,
+          "target": "MemberRef UnityEngine.RenderTextureDescriptor.set_depthBufferBits"
+        },
+        {
+          "pc": 159,
+          "op": "call",
+          "token": 167787668,
+          "target": "MemberRef UnityEngine.RenderTextureDescriptor.set_msaaSamples"
+        },
+        {
+          "pc": 167,
+          "op": "call",
+          "token": 167789893,
+          "target": "MemberRef UnityEngine.RenderTextureDescriptor.set_sRGB"
+        },
+        {
+          "pc": 175,
+          "op": "call",
+          "token": 167789894,
+          "target": "MemberRef UnityEngine.RenderTextureDescriptor.set_useMipMap"
+        },
+        {
+          "pc": 183,
+          "op": "call",
+          "token": 167789895,
+          "target": "MemberRef UnityEngine.RenderTextureDescriptor.set_autoGenerateMips"
+        },
+        {
+          "pc": 190,
+          "op": "call",
+          "token": 167784586,
+          "target": "MemberRef UnityEngine.RenderTexture.GetTemporary"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.BitBenderGamesMobileTouchCameraWrap",
+      "method": "__Register",
+      "rid": 16542,
+      "rva": 1789940,
+      "events": [
+        {
+          "pc": 1791,
+          "op": "ldstr",
+          "token": 1879659119,
+          "string": "CamZoomFormation"
+        },
+        {
+          "pc": 1797,
+          "op": "fe.ldftn",
+          "token": 100679909,
+          "target": "Method XLua.CSObjectWrap.BitBenderGamesMobileTouchCameraWrap._g_get_CamZoomFormation"
+        },
+        {
+          "pc": 1816,
+          "op": "ldstr",
+          "token": 1879659153,
+          "string": "CamZoomFocusFormationRotation"
+        },
+        {
+          "pc": 1822,
+          "op": "fe.ldftn",
+          "token": 100679910,
+          "target": "Method XLua.CSObjectWrap.BitBenderGamesMobileTouchCameraWrap._g_get_CamZoomFocusFormationRotation"
+        },
+        {
+          "pc": 2403,
+          "op": "ldstr",
+          "token": 1879659119,
+          "string": "CamZoomFormation"
+        },
+        {
+          "pc": 2409,
+          "op": "fe.ldftn",
+          "token": 100679934,
+          "target": "Method XLua.CSObjectWrap.BitBenderGamesMobileTouchCameraWrap._s_set_CamZoomFormation"
+        },
+        {
+          "pc": 2427,
+          "op": "ldstr",
+          "token": 1879659153,
+          "string": "CamZoomFocusFormationRotation"
+        },
+        {
+          "pc": 2433,
+          "op": "fe.ldftn",
+          "token": 100679935,
+          "target": "Method XLua.CSObjectWrap.BitBenderGamesMobileTouchCameraWrap._s_set_CamZoomFocusFormationRotation"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.BitBenderGamesMobileTouchCameraWrap",
+      "method": "_g_get_CamZoomFocusFormationRotation",
+      "rid": 16614,
+      "rva": 1800188,
+      "events": [
+        {
+          "pc": 26,
+          "op": "callvirt",
+          "token": 100704215,
+          "target": "Method BitBenderGames.MobileTouchCamera.get_CamZoomFocusFormationRotation"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.BitBenderGamesMobileTouchCameraWrap",
+      "method": "_g_get_CamZoomFormation",
+      "rid": 16613,
+      "rva": 1800096,
+      "events": [
+        {
+          "pc": 26,
+          "op": "callvirt",
+          "token": 100704213,
+          "target": "Method BitBenderGames.MobileTouchCamera.get_CamZoomFormation"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.BitBenderGamesMobileTouchCameraWrap",
+      "method": "_s_set_CamZoomFocusFormationRotation",
+      "rid": 16639,
+      "rva": 1802488,
+      "events": [
+        {
+          "pc": 31,
+          "op": "callvirt",
+          "token": 100704216,
+          "target": "Method BitBenderGames.MobileTouchCamera.set_CamZoomFocusFormationRotation"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.BitBenderGamesMobileTouchCameraWrap",
+      "method": "_s_set_CamZoomFormation",
+      "rid": 16638,
+      "rva": 1802396,
+      "events": [
+        {
+          "pc": 31,
+          "op": "callvirt",
+          "token": 100704214,
+          "target": "Method BitBenderGames.MobileTouchCamera.set_CamZoomFormation"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.FibMatrixRenderingCustomRenderObjectsFeatureRenderTargetSettingsWrap",
+      "method": "_g_get_format",
+      "rid": 19298,
+      "rva": 2155388,
+      "events": [
+        {
+          "pc": 32,
+          "op": "callvirt",
+          "token": 100679056,
+          "target": "Method XLua.ObjectTranslator.PushUnityEngineRenderTextureFormat"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.FibMatrixRenderingHotUpdatableCustomRenderObjectsFeatureHotUpdatableRenderTargetSettingsWrap",
+      "method": "_g_get_format",
+      "rid": 19230,
+      "rva": 2147780,
+      "events": [
+        {
+          "pc": 32,
+          "op": "callvirt",
+          "token": 100679056,
+          "target": "Method XLua.ObjectTranslator.PushUnityEngineRenderTextureFormat"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.SDKManagerWrap",
+      "method": "_m_SaveRTToAlbum_xlua_st_",
+      "rid": 22192,
+      "rva": 2519940,
+      "events": [
+        {
+          "pc": 13,
+          "op": "ldtoken",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 28,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineCameraWrap",
+      "method": "__Register",
+      "rid": 25238,
+      "rva": 2928520,
+      "events": [
+        {
+          "pc": 1516,
+          "op": "ldstr",
+          "token": 1879979857,
+          "string": "forceIntoRenderTexture"
+        },
+        {
+          "pc": 1522,
+          "op": "fe.ldftn",
+          "token": 100688602,
+          "target": "Method XLua.CSObjectWrap.UnityEngineCameraWrap._g_get_forceIntoRenderTexture"
+        },
+        {
+          "pc": 2908,
+          "op": "ldstr",
+          "token": 1879979857,
+          "string": "forceIntoRenderTexture"
+        },
+        {
+          "pc": 2914,
+          "op": "fe.ldftn",
+          "token": 100688665,
+          "target": "Method XLua.CSObjectWrap.UnityEngineCameraWrap._s_set_forceIntoRenderTexture"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineCameraWrap",
+      "method": "_g_get_forceIntoRenderTexture",
+      "rid": 25306,
+      "rva": 2943228,
+      "events": [
+        {
+          "pc": 26,
+          "op": "callvirt",
+          "token": 167782459,
+          "target": "MemberRef UnityEngine.Camera.get_forceIntoRenderTexture"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineCameraWrap",
+      "method": "_m_RenderToCubemap",
+      "rid": 25275,
+      "rva": 2937540,
+      "events": [
+        {
+          "pc": 113,
+          "op": "ldtoken",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 128,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 274,
+          "op": "ldtoken",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 289,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 370,
+          "op": "ldtoken",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 385,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineCameraWrap",
+      "method": "_s_set_forceIntoRenderTexture",
+      "rid": 25369,
+      "rva": 2949052,
+      "events": [
+        {
+          "pc": 30,
+          "op": "callvirt",
+          "token": 167779543,
+          "target": "MemberRef UnityEngine.Camera.set_forceIntoRenderTexture"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineCameraWrap",
+      "method": "_s_set_targetTexture",
+      "rid": 25396,
+      "rva": 2951604,
+      "events": [
+        {
+          "pc": 28,
+          "op": "ldtoken",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 43,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineGraphicsWrap",
+      "method": "_m_BlitMultiTap_xlua_st_",
+      "rid": 25872,
+      "rva": 3046676,
+      "events": [
+        {
+          "pc": 108,
+          "op": "ldtoken",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 123,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 285,
+          "op": "ldtoken",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 300,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineGraphicsWrap",
+      "method": "_m_Blit_xlua_st_",
+      "rid": 25871,
+      "rva": 3045284,
+      "events": [
+        {
+          "pc": 69,
+          "op": "ldtoken",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 84,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 366,
+          "op": "ldtoken",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 381,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 612,
+          "op": "ldtoken",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 627,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 751,
+          "op": "ldtoken",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 766,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 917,
+          "op": "ldtoken",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 932,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 1072,
+          "op": "ldtoken",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 1087,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 1234,
+          "op": "ldtoken",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 1249,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineGraphicsWrap",
+      "method": "_m_SetRandomWriteTarget_xlua_st_",
+      "rid": 25855,
+      "rva": 3015092,
+      "events": [
+        {
+          "pc": 53,
+          "op": "ldtoken",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 68,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineGraphicsWrap",
+      "method": "_m_SetRenderTarget_xlua_st_",
+      "rid": 25854,
+      "rva": 3014196,
+      "events": [
+        {
+          "pc": 73,
+          "op": "ldtoken",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 88,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 132,
+          "op": "ldtoken",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 147,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 343,
+          "op": "ldtoken",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 358,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 526,
+          "op": "ldtoken",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 541,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineMaterialPropertyBlockWrap",
+      "method": "_m_SetTexture",
+      "rid": 26017,
+      "rva": 3064552,
+      "events": [
+        {
+          "pc": 238,
+          "op": "ldtoken",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 253,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 345,
+          "op": "ldtoken",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 360,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineMaterialWrap",
+      "method": "_m_SetTexture",
+      "rid": 26058,
+      "rva": 3075592,
+      "events": [
+        {
+          "pc": 238,
+          "op": "ldtoken",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 253,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 345,
+          "op": "ldtoken",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 360,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineRenderTextureFormatWrap",
+      "method": "__CastFrom",
+      "rid": 18812,
+      "rva": 2092852,
+      "events": [
+        {
+          "pc": 33,
+          "op": "callvirt",
+          "token": 100679056,
+          "target": "Method XLua.ObjectTranslator.PushUnityEngineRenderTextureFormat"
+        },
+        {
+          "pc": 46,
+          "op": "ldtoken",
+          "token": 16777674,
+          "target": "TypeRef UnityEngine.RenderTextureFormat"
+        },
+        {
+          "pc": 83,
+          "op": "ldtoken",
+          "token": 16777674,
+          "target": "TypeRef UnityEngine.RenderTextureFormat"
+        },
+        {
+          "pc": 120,
+          "op": "ldstr",
+          "token": 1879746948,
+          "string": "invalid lua type for UnityEngine.RenderTextureFormat! Expect number or string, got + "
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineRenderTextureFormatWrap",
+      "method": "__Register",
+      "rid": 18811,
+      "rva": 2092704,
+      "events": [
+        {
+          "pc": 12,
+          "op": "ldtoken",
+          "token": 16777674,
+          "target": "TypeRef UnityEngine.RenderTextureFormat"
+        },
+        {
+          "pc": 34,
+          "op": "ldtoken",
+          "token": 16777674,
+          "target": "TypeRef UnityEngine.RenderTextureFormat"
+        },
+        {
+          "pc": 56,
+          "op": "ldtoken",
+          "token": 16777674,
+          "target": "TypeRef UnityEngine.RenderTextureFormat"
+        },
+        {
+          "pc": 78,
+          "op": "ldtoken",
+          "token": 16777674,
+          "target": "TypeRef UnityEngine.RenderTextureFormat"
+        },
+        {
+          "pc": 102,
+          "op": "fe.ldftn",
+          "token": 100682108,
+          "target": "Method XLua.CSObjectWrap.UnityEngineRenderTextureFormatWrap.__CastFrom"
+        },
+        {
+          "pc": 118,
+          "op": "ldtoken",
+          "token": 16777674,
+          "target": "TypeRef UnityEngine.RenderTextureFormat"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineRenderTextureWrap",
+      "method": "__CreateInstance",
+      "rid": 27730,
+      "rva": 3323624,
+      "events": [
+        {
+          "pc": 42,
+          "op": "newobj",
+          "token": 167784567,
+          "target": "MemberRef UnityEngine.RenderTexture..ctor"
+        },
+        {
+          "pc": 85,
+          "op": "ldtoken",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 100,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 105,
+          "op": "newobj",
+          "token": 167784568,
+          "target": "MemberRef UnityEngine.RenderTexture..ctor"
+        },
+        {
+          "pc": 218,
+          "op": "newobj",
+          "token": 167784569,
+          "target": "MemberRef UnityEngine.RenderTexture..ctor"
+        },
+        {
+          "pc": 331,
+          "op": "newobj",
+          "token": 167784570,
+          "target": "MemberRef UnityEngine.RenderTexture..ctor"
+        },
+        {
+          "pc": 465,
+          "op": "newobj",
+          "token": 167784571,
+          "target": "MemberRef UnityEngine.RenderTexture..ctor"
+        },
+        {
+          "pc": 600,
+          "op": "newobj",
+          "token": 167784572,
+          "target": "MemberRef UnityEngine.RenderTexture..ctor"
+        },
+        {
+          "pc": 713,
+          "op": "newobj",
+          "token": 167776484,
+          "target": "MemberRef UnityEngine.RenderTexture..ctor"
+        },
+        {
+          "pc": 804,
+          "op": "newobj",
+          "token": 167784573,
+          "target": "MemberRef UnityEngine.RenderTexture..ctor"
+        },
+        {
+          "pc": 938,
+          "op": "newobj",
+          "token": 167775369,
+          "target": "MemberRef UnityEngine.RenderTexture..ctor"
+        },
+        {
+          "pc": 984,
+          "op": "ldstr",
+          "token": 1880056834,
+          "string": "invalid arguments to UnityEngine.RenderTexture constructor!"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineRenderTextureWrap",
+      "method": "__Register",
+      "rid": 27729,
+      "rva": 3322200,
+      "events": [
+        {
+          "pc": 12,
+          "op": "ldtoken",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 47,
+          "op": "fe.ldftn",
+          "token": 100691027,
+          "target": "Method XLua.CSObjectWrap.UnityEngineRenderTextureWrap._m_GetNativeDepthBufferPtr"
+        },
+        {
+          "pc": 72,
+          "op": "fe.ldftn",
+          "token": 100691028,
+          "target": "Method XLua.CSObjectWrap.UnityEngineRenderTextureWrap._m_DiscardContents"
+        },
+        {
+          "pc": 97,
+          "op": "fe.ldftn",
+          "token": 100691029,
+          "target": "Method XLua.CSObjectWrap.UnityEngineRenderTextureWrap._m_MarkRestoreExpected"
+        },
+        {
+          "pc": 122,
+          "op": "fe.ldftn",
+          "token": 100691030,
+          "target": "Method XLua.CSObjectWrap.UnityEngineRenderTextureWrap._m_ResolveAntiAliasedSurface"
+        },
+        {
+          "pc": 147,
+          "op": "fe.ldftn",
+          "token": 100691031,
+          "target": "Method XLua.CSObjectWrap.UnityEngineRenderTextureWrap._m_SetGlobalShaderProperty"
+        },
+        {
+          "pc": 172,
+          "op": "fe.ldftn",
+          "token": 100691032,
+          "target": "Method XLua.CSObjectWrap.UnityEngineRenderTextureWrap._m_Create"
+        },
+        {
+          "pc": 197,
+          "op": "fe.ldftn",
+          "token": 100691033,
+          "target": "Method XLua.CSObjectWrap.UnityEngineRenderTextureWrap._m_Release"
+        },
+        {
+          "pc": 222,
+          "op": "fe.ldftn",
+          "token": 100691034,
+          "target": "Method XLua.CSObjectWrap.UnityEngineRenderTextureWrap._m_IsCreated"
+        },
+        {
+          "pc": 247,
+          "op": "fe.ldftn",
+          "token": 100691035,
+          "target": "Method XLua.CSObjectWrap.UnityEngineRenderTextureWrap._m_GenerateMips"
+        },
+        {
+          "pc": 272,
+          "op": "fe.ldftn",
+          "token": 100691036,
+          "target": "Method XLua.CSObjectWrap.UnityEngineRenderTextureWrap._m_ConvertToEquirect"
+        },
+        {
+          "pc": 297,
+          "op": "fe.ldftn",
+          "token": 100691040,
+          "target": "Method XLua.CSObjectWrap.UnityEngineRenderTextureWrap._g_get_width"
+        },
+        {
+          "pc": 322,
+          "op": "fe.ldftn",
+          "token": 100691041,
+          "target": "Method XLua.CSObjectWrap.UnityEngineRenderTextureWrap._g_get_height"
+        },
+        {
+          "pc": 347,
+          "op": "fe.ldftn",
+          "token": 100691042,
+          "target": "Method XLua.CSObjectWrap.UnityEngineRenderTextureWrap._g_get_dimension"
+        },
+        {
+          "pc": 372,
+          "op": "fe.ldftn",
+          "token": 100691043,
+          "target": "Method XLua.CSObjectWrap.UnityEngineRenderTextureWrap._g_get_graphicsFormat"
+        },
+        {
+          "pc": 397,
+          "op": "fe.ldftn",
+          "token": 100691044,
+          "target": "Method XLua.CSObjectWrap.UnityEngineRenderTextureWrap._g_get_useMipMap"
+        },
+        {
+          "pc": 422,
+          "op": "fe.ldftn",
+          "token": 100691045,
+          "target": "Method XLua.CSObjectWrap.UnityEngineRenderTextureWrap._g_get_sRGB"
+        },
+        {
+          "pc": 447,
+          "op": "fe.ldftn",
+          "token": 100691046,
+          "target": "Method XLua.CSObjectWrap.UnityEngineRenderTextureWrap._g_get_vrUsage"
+        },
+        {
+          "pc": 472,
+          "op": "fe.ldftn",
+          "token": 100691047,
+          "target": "Method XLua.CSObjectWrap.UnityEngineRenderTextureWrap._g_get_memorylessMode"
+        },
+        {
+          "pc": 497,
+          "op": "fe.ldftn",
+          "token": 100691048,
+          "target": "Method XLua.CSObjectWrap.UnityEngineRenderTextureWrap._g_get_format"
+        },
+        {
+          "pc": 522,
+          "op": "fe.ldftn",
+          "token": 100691049,
+          "target": "Method XLua.CSObjectWrap.UnityEngineRenderTextureWrap._g_get_stencilFormat"
+        },
+        {
+          "pc": 547,
+          "op": "fe.ldftn",
+          "token": 100691050,
+          "target": "Method XLua.CSObjectWrap.UnityEngineRenderTextureWrap._g_get_autoGenerateMips"
+        },
+        {
+          "pc": 572,
+          "op": "fe.ldftn",
+          "token": 100691051,
+          "target": "Method XLua.CSObjectWrap.UnityEngineRenderTextureWrap._g_get_volumeDepth"
+        },
+        {
+          "pc": 597,
+          "op": "fe.ldftn",
+          "token": 100691052,
+          "target": "Method XLua.CSObjectWrap.UnityEngineRenderTextureWrap._g_get_antiAliasing"
+        },
+        {
+          "pc": 622,
+          "op": "fe.ldftn",
+          "token": 100691053,
+          "target": "Method XLua.CSObjectWrap.UnityEngineRenderTextureWrap._g_get_bindTextureMS"
+        },
+        {
+          "pc": 647,
+          "op": "fe.ldftn",
+          "token": 100691054,
+          "target": "Method XLua.CSObjectWrap.UnityEngineRenderTextureWrap._g_get_enableRandomWrite"
+        },
+        {
+          "pc": 672,
+          "op": "fe.ldftn",
+          "token": 100691055,
+          "target": "Method XLua.CSObjectWrap.UnityEngineRenderTextureWrap._g_get_useDynamicScale"
+        },
+        {
+          "pc": 697,
+          "op": "fe.ldftn",
+          "token": 100691056,
+          "target": "Method XLua.CSObjectWrap.UnityEngineRenderTextureWrap._g_get_isPowerOfTwo"
+        },
+        {
+          "pc": 722,
+          "op": "fe.ldftn",
+          "token": 100691058,
+          "target": "Method XLua.CSObjectWrap.UnityEngineRenderTextureWrap._g_get_colorBuffer"
+        },
+        {
+          "pc": 747,
+          "op": "fe.ldftn",
+          "token": 100691059,
+          "target": "Method XLua.CSObjectWrap.UnityEngineRenderTextureWrap._g_get_depthBuffer"
+        },
+        {
+          "pc": 772,
+          "op": "fe.ldftn",
+          "token": 100691060,
+          "target": "Method XLua.CSObjectWrap.UnityEngineRenderTextureWrap._g_get_depth"
+        },
+        {
+          "pc": 797,
+          "op": "fe.ldftn",
+          "token": 100691061,
+          "target": "Method XLua.CSObjectWrap.UnityEngineRenderTextureWrap._g_get_descriptor"
+        },
+        {
+          "pc": 821,
+          "op": "fe.ldftn",
+          "token": 100691062,
+          "target": "Method XLua.CSObjectWrap.UnityEngineRenderTextureWrap._s_set_width"
+        },
+        {
+          "pc": 845,
+          "op": "fe.ldftn",
+          "token": 100691063,
+          "target": "Method XLua.CSObjectWrap.UnityEngineRenderTextureWrap._s_set_height"
+        },
+        {
+          "pc": 869,
+          "op": "fe.ldftn",
+          "token": 100691064,
+          "target": "Method XLua.CSObjectWrap.UnityEngineRenderTextureWrap._s_set_dimension"
+        },
+        {
+          "pc": 893,
+          "op": "fe.ldftn",
+          "token": 100691065,
+          "target": "Method XLua.CSObjectWrap.UnityEngineRenderTextureWrap._s_set_graphicsFormat"
+        },
+        {
+          "pc": 917,
+          "op": "fe.ldftn",
+          "token": 100691066,
+          "target": "Method XLua.CSObjectWrap.UnityEngineRenderTextureWrap._s_set_useMipMap"
+        },
+        {
+          "pc": 941,
+          "op": "fe.ldftn",
+          "token": 100691067,
+          "target": "Method XLua.CSObjectWrap.UnityEngineRenderTextureWrap._s_set_vrUsage"
+        },
+        {
+          "pc": 965,
+          "op": "fe.ldftn",
+          "token": 100691068,
+          "target": "Method XLua.CSObjectWrap.UnityEngineRenderTextureWrap._s_set_memorylessMode"
+        },
+        {
+          "pc": 989,
+          "op": "fe.ldftn",
+          "token": 100691069,
+          "target": "Method XLua.CSObjectWrap.UnityEngineRenderTextureWrap._s_set_format"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineRenderTextureWrap",
+      "method": "_g_get_active",
+      "rid": 27761,
+      "rva": 3329808,
+      "events": [
+        {
+          "pc": 12,
+          "op": "call",
+          "token": 167773536,
+          "target": "MemberRef UnityEngine.RenderTexture.get_active"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineRenderTextureWrap",
+      "method": "_g_get_antiAliasing",
+      "rid": 27756,
+      "rva": 3329348,
+      "events": [
+        {
+          "pc": 18,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 26,
+          "op": "callvirt",
+          "token": 167784605,
+          "target": "MemberRef UnityEngine.RenderTexture.get_antiAliasing"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineRenderTextureWrap",
+      "method": "_g_get_autoGenerateMips",
+      "rid": 27754,
+      "rva": 3329164,
+      "events": [
+        {
+          "pc": 18,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 26,
+          "op": "callvirt",
+          "token": 167784603,
+          "target": "MemberRef UnityEngine.RenderTexture.get_autoGenerateMips"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineRenderTextureWrap",
+      "method": "_g_get_bindTextureMS",
+      "rid": 27757,
+      "rva": 3329440,
+      "events": [
+        {
+          "pc": 18,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 26,
+          "op": "callvirt",
+          "token": 167784606,
+          "target": "MemberRef UnityEngine.RenderTexture.get_bindTextureMS"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineRenderTextureWrap",
+      "method": "_g_get_colorBuffer",
+      "rid": 27762,
+      "rva": 3329888,
+      "events": [
+        {
+          "pc": 19,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 27,
+          "op": "callvirt",
+          "token": 167784610,
+          "target": "MemberRef UnityEngine.RenderTexture.get_colorBuffer"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineRenderTextureWrap",
+      "method": "_g_get_depth",
+      "rid": 27764,
+      "rva": 3330088,
+      "events": [
+        {
+          "pc": 18,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 26,
+          "op": "callvirt",
+          "token": 167784612,
+          "target": "MemberRef UnityEngine.RenderTexture.get_depth"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineRenderTextureWrap",
+      "method": "_g_get_depthBuffer",
+      "rid": 27763,
+      "rva": 3329988,
+      "events": [
+        {
+          "pc": 19,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 27,
+          "op": "callvirt",
+          "token": 167784611,
+          "target": "MemberRef UnityEngine.RenderTexture.get_depthBuffer"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineRenderTextureWrap",
+      "method": "_g_get_descriptor",
+      "rid": 27765,
+      "rva": 3330180,
+      "events": [
+        {
+          "pc": 19,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 27,
+          "op": "callvirt",
+          "token": 167784613,
+          "target": "MemberRef UnityEngine.RenderTexture.get_descriptor"
+        },
+        {
+          "pc": 32,
+          "op": "box",
+          "token": 16777259,
+          "target": "TypeRef UnityEngine.RenderTextureDescriptor"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineRenderTextureWrap",
+      "method": "_g_get_dimension",
+      "rid": 27746,
+      "rva": 3328388,
+      "events": [
+        {
+          "pc": 19,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineRenderTextureWrap",
+      "method": "_g_get_enableRandomWrite",
+      "rid": 27758,
+      "rva": 3329532,
+      "events": [
+        {
+          "pc": 18,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 26,
+          "op": "callvirt",
+          "token": 167784607,
+          "target": "MemberRef UnityEngine.RenderTexture.get_enableRandomWrite"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineRenderTextureWrap",
+      "method": "_g_get_format",
+      "rid": 27752,
+      "rva": 3328972,
+      "events": [
+        {
+          "pc": 19,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 27,
+          "op": "callvirt",
+          "token": 167774083,
+          "target": "MemberRef UnityEngine.RenderTexture.get_format"
+        },
+        {
+          "pc": 32,
+          "op": "callvirt",
+          "token": 100679056,
+          "target": "Method XLua.ObjectTranslator.PushUnityEngineRenderTextureFormat"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineRenderTextureWrap",
+      "method": "_g_get_graphicsFormat",
+      "rid": 27747,
+      "rva": 3328488,
+      "events": [
+        {
+          "pc": 19,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 27,
+          "op": "callvirt",
+          "token": 167784597,
+          "target": "MemberRef UnityEngine.RenderTexture.get_graphicsFormat"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineRenderTextureWrap",
+      "method": "_g_get_height",
+      "rid": 27745,
+      "rva": 3328296,
+      "events": [
+        {
+          "pc": 18,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineRenderTextureWrap",
+      "method": "_g_get_isPowerOfTwo",
+      "rid": 27760,
+      "rva": 3329716,
+      "events": [
+        {
+          "pc": 18,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 26,
+          "op": "callvirt",
+          "token": 167784609,
+          "target": "MemberRef UnityEngine.RenderTexture.get_isPowerOfTwo"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineRenderTextureWrap",
+      "method": "_g_get_memorylessMode",
+      "rid": 27751,
+      "rva": 3328872,
+      "events": [
+        {
+          "pc": 19,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 27,
+          "op": "callvirt",
+          "token": 167784601,
+          "target": "MemberRef UnityEngine.RenderTexture.get_memorylessMode"
+        },
+        {
+          "pc": 32,
+          "op": "box",
+          "token": 16778191,
+          "target": "TypeRef UnityEngine.RenderTextureMemoryless"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineRenderTextureWrap",
+      "method": "_g_get_sRGB",
+      "rid": 27749,
+      "rva": 3328680,
+      "events": [
+        {
+          "pc": 18,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 26,
+          "op": "callvirt",
+          "token": 167784599,
+          "target": "MemberRef UnityEngine.RenderTexture.get_sRGB"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineRenderTextureWrap",
+      "method": "_g_get_stencilFormat",
+      "rid": 27753,
+      "rva": 3329064,
+      "events": [
+        {
+          "pc": 19,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 27,
+          "op": "callvirt",
+          "token": 167784602,
+          "target": "MemberRef UnityEngine.RenderTexture.get_stencilFormat"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineRenderTextureWrap",
+      "method": "_g_get_useDynamicScale",
+      "rid": 27759,
+      "rva": 3329624,
+      "events": [
+        {
+          "pc": 18,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 26,
+          "op": "callvirt",
+          "token": 167784608,
+          "target": "MemberRef UnityEngine.RenderTexture.get_useDynamicScale"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineRenderTextureWrap",
+      "method": "_g_get_useMipMap",
+      "rid": 27748,
+      "rva": 3328588,
+      "events": [
+        {
+          "pc": 18,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 26,
+          "op": "callvirt",
+          "token": 167784598,
+          "target": "MemberRef UnityEngine.RenderTexture.get_useMipMap"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineRenderTextureWrap",
+      "method": "_g_get_volumeDepth",
+      "rid": 27755,
+      "rva": 3329256,
+      "events": [
+        {
+          "pc": 18,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 26,
+          "op": "callvirt",
+          "token": 167784604,
+          "target": "MemberRef UnityEngine.RenderTexture.get_volumeDepth"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineRenderTextureWrap",
+      "method": "_g_get_vrUsage",
+      "rid": 27750,
+      "rva": 3328772,
+      "events": [
+        {
+          "pc": 19,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 27,
+          "op": "callvirt",
+          "token": 167784600,
+          "target": "MemberRef UnityEngine.RenderTexture.get_vrUsage"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineRenderTextureWrap",
+      "method": "_g_get_width",
+      "rid": 27744,
+      "rva": 3328204,
+      "events": [
+        {
+          "pc": 18,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineRenderTextureWrap",
+      "method": "_m_ConvertToEquirect",
+      "rid": 27740,
+      "rva": 3325620,
+      "events": [
+        {
+          "pc": 20,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 60,
+          "op": "ldtoken",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 75,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 95,
+          "op": "callvirt",
+          "token": 167784583,
+          "target": "MemberRef UnityEngine.RenderTexture.ConvertToEquirect"
+        },
+        {
+          "pc": 122,
+          "op": "ldtoken",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 137,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 148,
+          "op": "callvirt",
+          "token": 167784583,
+          "target": "MemberRef UnityEngine.RenderTexture.ConvertToEquirect"
+        },
+        {
+          "pc": 185,
+          "op": "ldstr",
+          "token": 1880057231,
+          "string": "invalid arguments to UnityEngine.RenderTexture.ConvertToEquirect!"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineRenderTextureWrap",
+      "method": "_m_Create",
+      "rid": 27736,
+      "rva": 3325268,
+      "events": [
+        {
+          "pc": 18,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 23,
+          "op": "callvirt",
+          "token": 167776487,
+          "target": "MemberRef UnityEngine.RenderTexture.Create"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineRenderTextureWrap",
+      "method": "_m_DiscardContents",
+      "rid": 27732,
+      "rva": 3324756,
+      "events": [
+        {
+          "pc": 18,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 36,
+          "op": "callvirt",
+          "token": 167784575,
+          "target": "MemberRef UnityEngine.RenderTexture.DiscardContents"
+        },
+        {
+          "pc": 90,
+          "op": "callvirt",
+          "token": 167784576,
+          "target": "MemberRef UnityEngine.RenderTexture.DiscardContents"
+        },
+        {
+          "pc": 125,
+          "op": "ldstr",
+          "token": 1880056954,
+          "string": "invalid arguments to UnityEngine.RenderTexture.DiscardContents!"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineRenderTextureWrap",
+      "method": "_m_GenerateMips",
+      "rid": 27739,
+      "rva": 3325536,
+      "events": [
+        {
+          "pc": 18,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 23,
+          "op": "callvirt",
+          "token": 167784582,
+          "target": "MemberRef UnityEngine.RenderTexture.GenerateMips"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineRenderTextureWrap",
+      "method": "_m_GetNativeDepthBufferPtr",
+      "rid": 27731,
+      "rva": 3324664,
+      "events": [
+        {
+          "pc": 18,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 23,
+          "op": "callvirt",
+          "token": 167784574,
+          "target": "MemberRef UnityEngine.RenderTexture.GetNativeDepthBufferPtr"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineRenderTextureWrap",
+      "method": "_m_GetTemporary_xlua_st_",
+      "rid": 27743,
+      "rva": 3326048,
+      "events": [
+        {
+          "pc": 59,
+          "op": "call",
+          "token": 167775744,
+          "target": "MemberRef UnityEngine.RenderTexture.GetTemporary"
+        },
+        {
+          "pc": 144,
+          "op": "call",
+          "token": 167784585,
+          "target": "MemberRef UnityEngine.RenderTexture.GetTemporary"
+        },
+        {
+          "pc": 194,
+          "op": "call",
+          "token": 167784586,
+          "target": "MemberRef UnityEngine.RenderTexture.GetTemporary"
+        },
+        {
+          "pc": 303,
+          "op": "call",
+          "token": 167784587,
+          "target": "MemberRef UnityEngine.RenderTexture.GetTemporary"
+        },
+        {
+          "pc": 412,
+          "op": "call",
+          "token": 167773534,
+          "target": "MemberRef UnityEngine.RenderTexture.GetTemporary"
+        },
+        {
+          "pc": 542,
+          "op": "call",
+          "token": 167784588,
+          "target": "MemberRef UnityEngine.RenderTexture.GetTemporary"
+        },
+        {
+          "pc": 673,
+          "op": "call",
+          "token": 167784589,
+          "target": "MemberRef UnityEngine.RenderTexture.GetTemporary"
+        },
+        {
+          "pc": 834,
+          "op": "call",
+          "token": 167784590,
+          "target": "MemberRef UnityEngine.RenderTexture.GetTemporary"
+        },
+        {
+          "pc": 995,
+          "op": "call",
+          "token": 167779545,
+          "target": "MemberRef UnityEngine.RenderTexture.GetTemporary"
+        },
+        {
+          "pc": 1184,
+          "op": "call",
+          "token": 167784591,
+          "target": "MemberRef UnityEngine.RenderTexture.GetTemporary"
+        },
+        {
+          "pc": 1373,
+          "op": "call",
+          "token": 167784592,
+          "target": "MemberRef UnityEngine.RenderTexture.GetTemporary"
+        },
+        {
+          "pc": 1589,
+          "op": "call",
+          "token": 167784593,
+          "target": "MemberRef UnityEngine.RenderTexture.GetTemporary"
+        },
+        {
+          "pc": 1806,
+          "op": "call",
+          "token": 167784594,
+          "target": "MemberRef UnityEngine.RenderTexture.GetTemporary"
+        },
+        {
+          "pc": 2053,
+          "op": "call",
+          "token": 167784595,
+          "target": "MemberRef UnityEngine.RenderTexture.GetTemporary"
+        },
+        {
+          "pc": 2101,
+          "op": "ldstr",
+          "token": 1880057364,
+          "string": "invalid arguments to UnityEngine.RenderTexture.GetTemporary!"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineRenderTextureWrap",
+      "method": "_m_IsCreated",
+      "rid": 27738,
+      "rva": 3325444,
+      "events": [
+        {
+          "pc": 18,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 23,
+          "op": "callvirt",
+          "token": 167784581,
+          "target": "MemberRef UnityEngine.RenderTexture.IsCreated"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineRenderTextureWrap",
+      "method": "_m_MarkRestoreExpected",
+      "rid": 27733,
+      "rva": 3324924,
+      "events": [
+        {
+          "pc": 18,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 23,
+          "op": "callvirt",
+          "token": 167784577,
+          "target": "MemberRef UnityEngine.RenderTexture.MarkRestoreExpected"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineRenderTextureWrap",
+      "method": "_m_Release",
+      "rid": 27737,
+      "rva": 3325360,
+      "events": [
+        {
+          "pc": 18,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 23,
+          "op": "callvirt",
+          "token": 167776483,
+          "target": "MemberRef UnityEngine.RenderTexture.Release"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineRenderTextureWrap",
+      "method": "_m_ReleaseTemporary_xlua_st_",
+      "rid": 27742,
+      "rva": 3325952,
+      "events": [
+        {
+          "pc": 13,
+          "op": "ldtoken",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 28,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 33,
+          "op": "call",
+          "token": 167773539,
+          "target": "MemberRef UnityEngine.RenderTexture.ReleaseTemporary"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineRenderTextureWrap",
+      "method": "_m_ResolveAntiAliasedSurface",
+      "rid": 27734,
+      "rva": 3325008,
+      "events": [
+        {
+          "pc": 20,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 38,
+          "op": "callvirt",
+          "token": 167784578,
+          "target": "MemberRef UnityEngine.RenderTexture.ResolveAntiAliasedSurface"
+        },
+        {
+          "pc": 64,
+          "op": "ldtoken",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 79,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 89,
+          "op": "callvirt",
+          "token": 167784579,
+          "target": "MemberRef UnityEngine.RenderTexture.ResolveAntiAliasedSurface"
+        },
+        {
+          "pc": 124,
+          "op": "ldstr",
+          "token": 1880057082,
+          "string": "invalid arguments to UnityEngine.RenderTexture.ResolveAntiAliasedSurface!"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineRenderTextureWrap",
+      "method": "_m_SetGlobalShaderProperty",
+      "rid": 27735,
+      "rva": 3325176,
+      "events": [
+        {
+          "pc": 18,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 32,
+          "op": "callvirt",
+          "token": 167784580,
+          "target": "MemberRef UnityEngine.RenderTexture.SetGlobalShaderProperty"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineRenderTextureWrap",
+      "method": "_m_SupportsStencil_xlua_st_",
+      "rid": 27741,
+      "rva": 3325848,
+      "events": [
+        {
+          "pc": 13,
+          "op": "ldtoken",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 28,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 33,
+          "op": "call",
+          "token": 167784584,
+          "target": "MemberRef UnityEngine.RenderTexture.SupportsStencil"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineRenderTextureWrap",
+      "method": "_s_set_active",
+      "rid": 27782,
+      "rva": 3331776,
+      "events": [
+        {
+          "pc": 13,
+          "op": "ldtoken",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 28,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 33,
+          "op": "call",
+          "token": 167773537,
+          "target": "MemberRef UnityEngine.RenderTexture.set_active"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineRenderTextureWrap",
+      "method": "_s_set_antiAliasing",
+      "rid": 27777,
+      "rva": 3331316,
+      "events": [
+        {
+          "pc": 18,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 30,
+          "op": "callvirt",
+          "token": 167776485,
+          "target": "MemberRef UnityEngine.RenderTexture.set_antiAliasing"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineRenderTextureWrap",
+      "method": "_s_set_autoGenerateMips",
+      "rid": 27775,
+      "rva": 3331132,
+      "events": [
+        {
+          "pc": 18,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 30,
+          "op": "callvirt",
+          "token": 167784622,
+          "target": "MemberRef UnityEngine.RenderTexture.set_autoGenerateMips"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineRenderTextureWrap",
+      "method": "_s_set_bindTextureMS",
+      "rid": 27778,
+      "rva": 3331408,
+      "events": [
+        {
+          "pc": 18,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 30,
+          "op": "callvirt",
+          "token": 167784624,
+          "target": "MemberRef UnityEngine.RenderTexture.set_bindTextureMS"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineRenderTextureWrap",
+      "method": "_s_set_depth",
+      "rid": 27783,
+      "rva": 3331872,
+      "events": [
+        {
+          "pc": 18,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 30,
+          "op": "callvirt",
+          "token": 167784628,
+          "target": "MemberRef UnityEngine.RenderTexture.set_depth"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineRenderTextureWrap",
+      "method": "_s_set_descriptor",
+      "rid": 27784,
+      "rva": 3331964,
+      "events": [
+        {
+          "pc": 19,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 36,
+          "op": "callvirt",
+          "token": 167784629,
+          "target": "MemberRef UnityEngine.RenderTexture.set_descriptor"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineRenderTextureWrap",
+      "method": "_s_set_dimension",
+      "rid": 27768,
+      "rva": 3330464,
+      "events": [
+        {
+          "pc": 19,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineRenderTextureWrap",
+      "method": "_s_set_enableRandomWrite",
+      "rid": 27779,
+      "rva": 3331500,
+      "events": [
+        {
+          "pc": 18,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 30,
+          "op": "callvirt",
+          "token": 167784625,
+          "target": "MemberRef UnityEngine.RenderTexture.set_enableRandomWrite"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineRenderTextureWrap",
+      "method": "_s_set_format",
+      "rid": 27773,
+      "rva": 3330940,
+      "events": [
+        {
+          "pc": 19,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 36,
+          "op": "callvirt",
+          "token": 167784620,
+          "target": "MemberRef UnityEngine.RenderTexture.set_format"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineRenderTextureWrap",
+      "method": "_s_set_graphicsFormat",
+      "rid": 27769,
+      "rva": 3330560,
+      "events": [
+        {
+          "pc": 19,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 36,
+          "op": "callvirt",
+          "token": 167784617,
+          "target": "MemberRef UnityEngine.RenderTexture.set_graphicsFormat"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineRenderTextureWrap",
+      "method": "_s_set_height",
+      "rid": 27767,
+      "rva": 3330372,
+      "events": [
+        {
+          "pc": 18,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineRenderTextureWrap",
+      "method": "_s_set_isPowerOfTwo",
+      "rid": 27781,
+      "rva": 3331684,
+      "events": [
+        {
+          "pc": 18,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 30,
+          "op": "callvirt",
+          "token": 167784627,
+          "target": "MemberRef UnityEngine.RenderTexture.set_isPowerOfTwo"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineRenderTextureWrap",
+      "method": "_s_set_memorylessMode",
+      "rid": 27772,
+      "rva": 3330844,
+      "events": [
+        {
+          "pc": 19,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 36,
+          "op": "callvirt",
+          "token": 167784619,
+          "target": "MemberRef UnityEngine.RenderTexture.set_memorylessMode"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineRenderTextureWrap",
+      "method": "_s_set_stencilFormat",
+      "rid": 27774,
+      "rva": 3331036,
+      "events": [
+        {
+          "pc": 19,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 36,
+          "op": "callvirt",
+          "token": 167784621,
+          "target": "MemberRef UnityEngine.RenderTexture.set_stencilFormat"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineRenderTextureWrap",
+      "method": "_s_set_useDynamicScale",
+      "rid": 27780,
+      "rva": 3331592,
+      "events": [
+        {
+          "pc": 18,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 30,
+          "op": "callvirt",
+          "token": 167784626,
+          "target": "MemberRef UnityEngine.RenderTexture.set_useDynamicScale"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineRenderTextureWrap",
+      "method": "_s_set_useMipMap",
+      "rid": 27770,
+      "rva": 3330656,
+      "events": [
+        {
+          "pc": 18,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 30,
+          "op": "callvirt",
+          "token": 167776486,
+          "target": "MemberRef UnityEngine.RenderTexture.set_useMipMap"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineRenderTextureWrap",
+      "method": "_s_set_volumeDepth",
+      "rid": 27776,
+      "rva": 3331224,
+      "events": [
+        {
+          "pc": 18,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 30,
+          "op": "callvirt",
+          "token": 167784623,
+          "target": "MemberRef UnityEngine.RenderTexture.set_volumeDepth"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineRenderTextureWrap",
+      "method": "_s_set_vrUsage",
+      "rid": 27771,
+      "rva": 3330748,
+      "events": [
+        {
+          "pc": 19,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 36,
+          "op": "callvirt",
+          "token": 167784618,
+          "target": "MemberRef UnityEngine.RenderTexture.set_vrUsage"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineRenderTextureWrap",
+      "method": "_s_set_width",
+      "rid": 27766,
+      "rva": 3330280,
+      "events": [
+        {
+          "pc": 18,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineShaderWrap",
+      "method": "_m_SetGlobalTexture_xlua_st_",
+      "rid": 28200,
+      "rva": 3384420,
+      "events": [
+        {
+          "pc": 210,
+          "op": "ldtoken",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 225,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 311,
+          "op": "ldtoken",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 326,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineSystemInfoWrap",
+      "method": "__Register",
+      "rid": 28331,
+      "rva": 3402828,
+      "events": [
+        {
+          "pc": 75,
+          "op": "ldstr",
+          "token": 1880075825,
+          "string": "SupportsRenderTextureFormat"
+        },
+        {
+          "pc": 81,
+          "op": "fe.ldftn",
+          "token": 100691629,
+          "target": "Method XLua.CSObjectWrap.UnityEngineSystemInfoWrap._m_SupportsRenderTextureFormat_xlua_st_"
+        },
+        {
+          "pc": 100,
+          "op": "ldstr",
+          "token": 1880075881,
+          "string": "SupportsBlendingOnRenderTextureFormat"
+        },
+        {
+          "pc": 106,
+          "op": "fe.ldftn",
+          "token": 100691630,
+          "target": "Method XLua.CSObjectWrap.UnityEngineSystemInfoWrap._m_SupportsBlendingOnRenderTextureFormat_xlua_st_"
+        },
+        {
+          "pc": 1119,
+          "op": "ldstr",
+          "token": 1880077419,
+          "string": "supports3DRenderTextures"
+        },
+        {
+          "pc": 1125,
+          "op": "fe.ldftn",
+          "token": 100691670,
+          "target": "Method XLua.CSObjectWrap.UnityEngineSystemInfoWrap._g_get_supports3DRenderTextures"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineSystemInfoWrap",
+      "method": "_g_get_supports3DRenderTextures",
+      "rid": 28374,
+      "rva": 3408144,
+      "events": [
+        {
+          "pc": 1,
+          "op": "call",
+          "token": 167785077,
+          "target": "MemberRef UnityEngine.SystemInfo.get_supports3DRenderTextures"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineSystemInfoWrap",
+      "method": "_m_SupportsBlendingOnRenderTextureFormat_xlua_st_",
+      "rid": 28334,
+      "rva": 3405160,
+      "events": [
+        {
+          "pc": 21,
+          "op": "call",
+          "token": 167785055,
+          "target": "MemberRef UnityEngine.SystemInfo.SupportsBlendingOnRenderTextureFormat"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineSystemInfoWrap",
+      "method": "_m_SupportsRenderTextureFormat_xlua_st_",
+      "rid": 28333,
+      "rva": 3405068,
+      "events": [
+        {
+          "pc": 21,
+          "op": "call",
+          "token": 167774957,
+          "target": "MemberRef UnityEngine.SystemInfo.SupportsRenderTextureFormat"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.UnityEngineVideoVideoPlayerWrap",
+      "method": "_s_set_targetTexture",
+      "rid": 29622,
+      "rva": 3569728,
+      "events": [
+        {
+          "pc": 28,
+          "op": "ldtoken",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 43,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.WebmVideoPlayerManagerWrap",
+      "method": "_s_set_mRT",
+      "rid": 29906,
+      "rva": 3600488,
+      "events": [
+        {
+          "pc": 28,
+          "op": "ldtoken",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 43,
+          "op": "castclass",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.CSObjectWrap.XLua_Gen_Initer_Register__",
+      "method": "wrapInit2",
+      "rid": 31809,
+      "rva": 3850608,
+      "events": [
+        {
+          "pc": 701,
+          "op": "ldtoken",
+          "token": 16777429,
+          "target": "TypeRef UnityEngine.RenderTexture"
+        },
+        {
+          "pc": 712,
+          "op": "fe.ldftn",
+          "token": 100691025,
+          "target": "Method XLua.CSObjectWrap.UnityEngineRenderTextureWrap.__Register"
+        },
+        {
+          "pc": 729,
+          "op": "ldtoken",
+          "token": 16777674,
+          "target": "TypeRef UnityEngine.RenderTextureFormat"
+        },
+        {
+          "pc": 740,
+          "op": "fe.ldftn",
+          "token": 100682107,
+          "target": "Method XLua.CSObjectWrap.UnityEngineRenderTextureFormatWrap.__Register"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.ObjectTranslator",
+      "method": ".ctor",
+      "rid": 15592,
+      "rva": 1659260,
+      "events": [
+        {
+          "pc": 554,
+          "op": "stfld",
+          "token": 67119164,
+          "target": "Field XLua.ObjectTranslator.UnityEngineRenderTextureFormat_TypeID"
+        },
+        {
+          "pc": 561,
+          "op": "stfld",
+          "token": 67119165,
+          "target": "Field XLua.ObjectTranslator.UnityEngineRenderTextureFormat_EnumRef"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.ObjectTranslator",
+      "method": "Get",
+      "rid": 15761,
+      "rva": 1681312,
+      "events": [
+        {
+          "pc": 18,
+          "op": "ldfld",
+          "token": 67119164,
+          "target": "Field XLua.ObjectTranslator.UnityEngineRenderTextureFormat_TypeID"
+        },
+        {
+          "pc": 25,
+          "op": "ldstr",
+          "token": 1879609385,
+          "string": "invalid userdata for UnityEngine.RenderTextureFormat"
+        },
+        {
+          "pc": 53,
+          "op": "ldstr",
+          "token": 1879609491,
+          "string": "unpack fail for UnityEngine.RenderTextureFormat"
+        },
+        {
+          "pc": 75,
+          "op": "ldtoken",
+          "token": 16777674,
+          "target": "TypeRef UnityEngine.RenderTextureFormat"
+        },
+        {
+          "pc": 98,
+          "op": "unbox.any",
+          "token": 16777674,
+          "target": "TypeRef UnityEngine.RenderTextureFormat"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.ObjectTranslator",
+      "method": "PushUnityEngineRenderTextureFormat",
+      "rid": 15760,
+      "rva": 1681124,
+      "events": [
+        {
+          "pc": 1,
+          "op": "ldfld",
+          "token": 67119164,
+          "target": "Field XLua.ObjectTranslator.UnityEngineRenderTextureFormat_TypeID"
+        },
+        {
+          "pc": 12,
+          "op": "ldtoken",
+          "token": 16777674,
+          "target": "TypeRef UnityEngine.RenderTextureFormat"
+        },
+        {
+          "pc": 30,
+          "op": "stfld",
+          "token": 67119164,
+          "target": "Field XLua.ObjectTranslator.UnityEngineRenderTextureFormat_TypeID"
+        },
+        {
+          "pc": 36,
+          "op": "ldfld",
+          "token": 67119165,
+          "target": "Field XLua.ObjectTranslator.UnityEngineRenderTextureFormat_EnumRef"
+        },
+        {
+          "pc": 45,
+          "op": "ldtoken",
+          "token": 16777674,
+          "target": "TypeRef UnityEngine.RenderTextureFormat"
+        },
+        {
+          "pc": 72,
+          "op": "stfld",
+          "token": 67119165,
+          "target": "Field XLua.ObjectTranslator.UnityEngineRenderTextureFormat_EnumRef"
+        },
+        {
+          "pc": 80,
+          "op": "ldfld",
+          "token": 67119165,
+          "target": "Field XLua.ObjectTranslator.UnityEngineRenderTextureFormat_EnumRef"
+        },
+        {
+          "pc": 97,
+          "op": "ldfld",
+          "token": 67119164,
+          "target": "Field XLua.ObjectTranslator.UnityEngineRenderTextureFormat_TypeID"
+        },
+        {
+          "pc": 116,
+          "op": "ldstr",
+          "token": 1879609267,
+          "string": "pack fail fail for UnityEngine.RenderTextureFormat ,value="
+        },
+        {
+          "pc": 122,
+          "op": "box",
+          "token": 16777674,
+          "target": "TypeRef UnityEngine.RenderTextureFormat"
+        },
+        {
+          "pc": 140,
+          "op": "ldfld",
+          "token": 67119165,
+          "target": "Field XLua.ObjectTranslator.UnityEngineRenderTextureFormat_EnumRef"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.ObjectTranslator",
+      "method": "UpdateUnityEngineRenderTextureFormat",
+      "rid": 15762,
+      "rva": 1681432,
+      "events": [
+        {
+          "pc": 18,
+          "op": "ldfld",
+          "token": 67119164,
+          "target": "Field XLua.ObjectTranslator.UnityEngineRenderTextureFormat_TypeID"
+        },
+        {
+          "pc": 25,
+          "op": "ldstr",
+          "token": 1879609385,
+          "string": "invalid userdata for UnityEngine.RenderTextureFormat"
+        },
+        {
+          "pc": 52,
+          "op": "ldstr",
+          "token": 1879609587,
+          "string": "pack fail for UnityEngine.RenderTextureFormat ,value="
+        },
+        {
+          "pc": 58,
+          "op": "box",
+          "token": 16777674,
+          "target": "TypeRef UnityEngine.RenderTextureFormat"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.StaticLuaCallbacks",
+      "method": "__tryArrayGet",
+      "rid": 16018,
+      "rva": 1718556,
+      "events": [
+        {
+          "pc": 1221,
+          "op": "callvirt",
+          "token": 100679056,
+          "target": "Method XLua.ObjectTranslator.PushUnityEngineRenderTextureFormat"
+        }
+      ]
+    },
+    {
+      "owner": "XLua.StaticLuaCallbacks",
+      "method": "__tryArraySet",
+      "rid": 16019,
+      "rva": 1722560,
+      "events": [
+        {
+          "pc": 1360,
+          "op": "ldelema",
+          "token": 16777674,
+          "target": "TypeRef UnityEngine.RenderTextureFormat"
+        }
+      ]
+    }
+  ],
+  "guardrails": {
+    "gameReadOnly": true,
+    "previewUntouched": true,
+    "mainUntouched": true
+  }
+}
