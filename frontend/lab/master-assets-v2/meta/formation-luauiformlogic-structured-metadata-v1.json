@@ -1,0 +1,35 @@
+{
+  "format": "WFGG_LASTWAR_FORMATION_LUAUIFORMLOGIC_STRUCTURED_METADATA_V1",
+  "term": "LuaUIFormLogic",
+  "counts": {
+    "independentMetadataFilesWithTerm": 0,
+    "exactStructuredRecords": 0,
+    "structuredOrNameContexts": 0,
+    "v4TermRecords": 0,
+    "v4ScriptRefEdgesObserved": 577,
+    "parseErrors": 0
+  },
+  "excludedEchoPrefixes": [
+    "formation-xlua-",
+    "formation-lua-",
+    "formation-luauiformlogic-"
+  ],
+  "independentFiles": [],
+  "exactStructuredRecords": [],
+  "otherContexts": [],
+  "v4TermRecords": [],
+  "parseErrors": [],
+  "conclusion": {
+    "nextStrategy": "targeted_current_install_luauiformlogic_locator_required",
+    "rule": "Only a same-record LuaUIFormLogic hit plus structured serialized identity fields is exact. Text/name echoes are not promoted."
+  },
+  "guardrails": {
+    "existingMetadataOnly": true,
+    "apkAccess": false,
+    "dllRescan": false,
+    "bundleExtraction": false,
+    "bundleScan": false,
+    "mainUntouched": true,
+    "previewUntouched": true
+  }
+}
