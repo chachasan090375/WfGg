@@ -12,8 +12,8 @@ bash scripts/lastwar-graphics-master-index-refresh.sh
 echo '2/4 CLR known/unknown discovery atlas'
 bash scripts/lastwar-code-discovery-atlas-refresh.sh
 
-echo '3/4 Visual reconstruction graph'
-bash scripts/lastwar-reconstruction-map-refresh.sh
+echo '3/4 Visual reconstruction graph (GitHub-safe packed storage)'
+bash scripts/lastwar-reconstruction-map-refresh-safe.sh
 
 echo '4/4 Pixel-faithful certification QA'
 python scripts/lastwar-render-certification-check.py
