@@ -1,0 +1,51 @@
+{
+  "format": "WFGG_LASTWAR_RENDER_CERTIFICATION_V1",
+  "policy": "lastwar-render-fidelity-policy-v1.json",
+  "certificates": [
+    {
+      "root": "asset:Assets/Main/Prefabs/UI/UIHero/LWHero/UIHeroPVPFormationPanel.prefab",
+      "label": "UIHeroPVPFormationPanel",
+      "status": "DISCOVERY_ONLY",
+      "target": "Formation screen / original Last War visual",
+      "proven": [
+        {
+          "fact": "Exact catalog identity of UIHeroPVPFormationPanel.prefab",
+          "bundleId": 6933,
+          "evidenceClass": "catalog_exact",
+          "source": "gameres / graphics master index"
+        },
+        {
+          "fact": "HeroShowSetting.Update constructs Camp_<level>, calls GameObject.Find, then finds or creates GrabCamera",
+          "evidenceClass": "clr_exact",
+          "source": "heroshow-clr-il-audit-v1.json"
+        },
+        {
+          "fact": "HeroShowSetting.Setting configures SH shader globals and URP shadowDistance",
+          "evidenceClass": "clr_exact",
+          "source": "heroshow-clr-il-audit-v1.json"
+        },
+        {
+          "fact": "HeroShowBlend material family is catalogued in bundle 14169",
+          "bundleId": 14169,
+          "evidenceClass": "catalog_exact",
+          "source": "gameres / graphics master index"
+        }
+      ],
+      "explicitlyNotProven": [
+        "UIHeroPVPFormationPanel.prefab -> HeroShowBlend direct serialized use",
+        "identity/source of the Camp_<level> scene/object used by the target Formation frame",
+        "exact FormationBg/FormationRT producer-consumer object chain",
+        "complete GameObject/RectTransform/Renderer/Graphic hierarchy and active states for the target frame",
+        "exact mesh/material/texture/sprite PPtr closure for all visible pixels",
+        "exact camera and camera-stack state for the target frame",
+        "exact blur/post-process implementation and target-frame parameters",
+        "exact target-frame animation states/times",
+        "exact runtime-created/reparented objects and dynamic data state",
+        "complete viewport/canvas/safe-area/sorting/masking state",
+        "pixel-aligned validation against an original reference with no unexplained structural mismatch"
+      ],
+      "recipeAllowed": false,
+      "rule": "Do not emit a final render recipe until status is CERTIFIED_PIXEL_FAITHFUL. Discovery graph and candidate relations may guide investigation only."
+    }
+  ]
+}
