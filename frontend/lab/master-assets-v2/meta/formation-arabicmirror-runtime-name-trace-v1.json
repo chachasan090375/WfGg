@@ -1,0 +1,1053 @@
+{
+  "format": "WFGG_LASTWAR_FORMATION_ARABICMIRROR_RUNTIME_NAME_TRACE_V1",
+  "sources": {
+    "atlas": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/master-assets-v2/index/lastwar-code-discovery-atlas-v1.json",
+    "junctionV2": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/master-assets-v2/meta/formation-rawimage-owner-clr-junction-v2.json"
+  },
+  "counts": {
+    "atlasTypes": 5800,
+    "atlasMethods": 54246,
+    "arabicMirrorMethods": 21,
+    "arabicMirrorReadApis": 1,
+    "arabicMirrorWriteApis": 0,
+    "arabicMirrorLookupApis": 0,
+    "externalClrCallersIntoArabicMirror": 9,
+    "exactFormationNameLiteralMethods": 0,
+    "containingFormationNameLiteralMethods": 0,
+    "exactCarrierSameMethodLookupOrRender": 0,
+    "directedExactCarrierToWritePaths": 0
+  },
+  "arabicMirror": {
+    "typeRid": 1199,
+    "fullName": "ArabicMirror",
+    "methods": [
+      {
+        "rid": 13570,
+        "symbol": "ArabicMirror.MirrorEntry",
+        "name": "MirrorEntry",
+        "strings": [],
+        "externalCalls": [
+          {
+            "target": "tag4:rid1212..ctor",
+            "classification": "unclassified-external",
+            "tags": []
+          },
+          {
+            "target": "tag4:rid2250..ctor",
+            "classification": "unclassified-external",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.GameObject.get_transform",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.Transform.get_localScale",
+            "classification": "framework",
+            "tags": []
+          }
+        ],
+        "renderTextureApis": [],
+        "lookupApis": [],
+        "callers": [],
+        "callees": []
+      },
+      {
+        "rid": 13571,
+        "symbol": "ArabicMirror.Awake",
+        "name": "Awake",
+        "strings": [],
+        "externalCalls": [
+          {
+            "target": "UnityEngine.Component.get_gameObject",
+            "classification": "framework",
+            "tags": []
+          }
+        ],
+        "renderTextureApis": [],
+        "lookupApis": [],
+        "callers": [],
+        "callees": []
+      },
+      {
+        "rid": 13572,
+        "symbol": "ArabicMirror.RecordAutoOriginalData",
+        "name": "RecordAutoOriginalData",
+        "strings": [],
+        "externalCalls": [
+          {
+            "target": "tag4:rid2250.Add",
+            "classification": "unclassified-external",
+            "tags": []
+          },
+          {
+            "target": "System.IDisposable.Dispose",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.Object.op_Equality",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.Component.get_gameObject",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "System.Collections.IEnumerator.MoveNext",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "System.Collections.IEnumerator.get_Current",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.Transform.get_localScale",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.Transform.GetEnumerator",
+            "classification": "framework",
+            "tags": []
+          }
+        ],
+        "renderTextureApis": [],
+        "lookupApis": [],
+        "callers": [],
+        "callees": []
+      },
+      {
+        "rid": 13573,
+        "symbol": "ArabicMirror.PreProcessInRecord",
+        "name": "PreProcessInRecord",
+        "strings": [],
+        "externalCalls": [
+          {
+            "target": "tag4:rid1212.Add",
+            "classification": "unclassified-external",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.Object.op_Inequality",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.Component.get_gameObject",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.Object.op_Implicit",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.UI.Slider.get_fillRect",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.UI.Slider.get_handleRect",
+            "classification": "framework",
+            "tags": []
+          }
+        ],
+        "renderTextureApis": [],
+        "lookupApis": [],
+        "callers": [],
+        "callees": []
+      },
+      {
+        "rid": 13574,
+        "symbol": "ArabicMirror.Mirror",
+        "name": "Mirror",
+        "strings": [],
+        "externalCalls": [
+          {
+            "target": "tag4:rid1212..ctor",
+            "classification": "unclassified-external",
+            "tags": []
+          },
+          {
+            "target": "tag4:rid2250.get_Item",
+            "classification": "unclassified-external",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.Object.op_Inequality",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "System.IDisposable.Dispose",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.Object.op_Equality",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.Vector3..ctor",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.Transform.get_position",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.Transform.set_position",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.Transform.set_localPosition",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.Vector2..ctor",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.Vector3.op_Subtraction",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "System.Collections.IEnumerator.MoveNext",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.Transform.set_localRotation",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.Quaternion.Euler",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.Screen.get_height",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.Screen.get_width",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.Mathf.Min",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.Transform.get_parent",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.Transform.get_localPosition",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.RectTransform.get_rect",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.Rect.get_width",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.RectTransform.set_anchorMax",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.RectTransform.set_anchorMin",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.Rect.get_height",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "System.Collections.IEnumerator.get_Current",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.Transform.get_localScale",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.Quaternion.get_eulerAngles",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.Transform.GetEnumerator",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.Transform.get_lossyScale",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.RectTransform.get_pivot",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.Camera.ScreenToWorldPoint",
+            "classification": "framework",
+            "tags": [
+              "render-camera"
+            ]
+          },
+          {
+            "target": "UnityEngine.RectTransform.get_anchorMax",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.RectTransform.get_anchorMin",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.UI.LayoutElement.get_ignoreLayout",
+            "classification": "framework",
+            "tags": []
+          }
+        ],
+        "renderTextureApis": [],
+        "lookupApis": [],
+        "callers": [],
+        "callees": []
+      },
+      {
+        "rid": 13575,
+        "symbol": "ArabicMirror.ChangePivot",
+        "name": "ChangePivot",
+        "strings": [],
+        "externalCalls": [
+          {
+            "target": "UnityEngine.Vector2..ctor",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.Mathf.Abs",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.RectTransform.set_anchoredPosition",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.RectTransform.get_anchoredPosition",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.RectTransform.get_rect",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.Rect.get_width",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.Vector2.op_Addition",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.Vector2.op_Subtraction",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.RectTransform.set_pivot",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.Transform.get_localScale",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.Vector2.op_Multiply",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.RectTransform.set_offsetMax",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.RectTransform.set_offsetMin",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.RectTransform.get_pivot",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.RectTransform.get_anchorMax",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.RectTransform.get_anchorMin",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.RectTransform.get_offsetMax",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.RectTransform.get_offsetMin",
+            "classification": "framework",
+            "tags": []
+          }
+        ],
+        "renderTextureApis": [],
+        "lookupApis": [],
+        "callers": [],
+        "callees": []
+      },
+      {
+        "rid": 13576,
+        "symbol": "ArabicMirror.ProcessImageOrRawImage",
+        "name": "ProcessImageOrRawImage",
+        "strings": [],
+        "externalCalls": [
+          {
+            "target": "UnityEngine.Object.op_Inequality",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "System.String.IsNullOrEmpty",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.Component.get_gameObject",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.Object.get_name",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.UI.Image.get_sprite",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.UI.RawImage.get_texture",
+            "classification": "framework",
+            "tags": [
+              "render-camera"
+            ]
+          }
+        ],
+        "renderTextureApis": [
+          {
+            "target": "UnityEngine.UI.RawImage.get_texture",
+            "classification": "framework",
+            "tags": [
+              "render-camera"
+            ],
+            "api": "RawImage.get_texture",
+            "mode": "read"
+          }
+        ],
+        "lookupApis": [],
+        "callers": [],
+        "callees": []
+      },
+      {
+        "rid": 13577,
+        "symbol": "ArabicMirror.ProcessTMPInputFieldEx",
+        "name": "ProcessTMPInputFieldEx",
+        "strings": [],
+        "externalCalls": [
+          {
+            "target": "UnityEngine.Object.op_Inequality",
+            "classification": "framework",
+            "tags": []
+          }
+        ],
+        "renderTextureApis": [],
+        "lookupApis": [],
+        "callers": [],
+        "callees": []
+      },
+      {
+        "rid": 13578,
+        "symbol": "ArabicMirror.ProcessSlider",
+        "name": "ProcessSlider",
+        "strings": [],
+        "externalCalls": [
+          {
+            "target": "UnityEngine.Object.op_Equality",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.UI.Slider.get_direction",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.UI.Slider.set_direction",
+            "classification": "framework",
+            "tags": []
+          }
+        ],
+        "renderTextureApis": [],
+        "lookupApis": [],
+        "callers": [],
+        "callees": []
+      },
+      {
+        "rid": 13579,
+        "symbol": "ArabicMirror.ProcessTextAlign",
+        "name": "ProcessTextAlign",
+        "strings": [],
+        "externalCalls": [
+          {
+            "target": "UnityEngine.Object.op_Equality",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.Vector4..ctor",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.UI.Text.set_alignment",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "TMPro.TMP_Text.set_alignment",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "TMPro.TMP_Text.get_alignment",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.UI.Text.get_alignment",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "TMPro.TMP_Text.get_margin",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "TMPro.TMP_Text.set_margin",
+            "classification": "framework",
+            "tags": []
+          }
+        ],
+        "renderTextureApis": [],
+        "lookupApis": [],
+        "callers": [],
+        "callees": []
+      },
+      {
+        "rid": 13580,
+        "symbol": "ArabicMirror.ProcessLayout",
+        "name": "ProcessLayout",
+        "strings": [],
+        "externalCalls": [
+          {
+            "target": "SuperScrollView.LoopListView2.InitArabicItemPrefabData",
+            "classification": "unclassified-external",
+            "tags": []
+          },
+          {
+            "target": "SuperScrollView.LoopListView2.get_ArrangeType",
+            "classification": "unclassified-external",
+            "tags": []
+          },
+          {
+            "target": "SuperScrollView.LoopListView2.set_ArrangeType",
+            "classification": "unclassified-external",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.Object.op_Equality",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.Behaviour.get_enabled",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.RectOffset.get_left",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.RectOffset.get_right",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.UI.LayoutGroup.get_padding",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.UI.LayoutGroup.set_childAlignment",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.RectOffset.set_left",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.RectOffset.set_right",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.UI.GridLayoutGroup.get_startCorner",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.UI.GridLayoutGroup.set_startCorner",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.UI.LayoutGroup.get_childAlignment",
+            "classification": "framework",
+            "tags": []
+          }
+        ],
+        "renderTextureApis": [],
+        "lookupApis": [],
+        "callers": [],
+        "callees": []
+      },
+      {
+        "rid": 13581,
+        "symbol": "ArabicMirror.IsProcessChildPos",
+        "name": "IsProcessChildPos",
+        "strings": [],
+        "externalCalls": [
+          {
+            "target": "UnityEngine.Object.op_Equality",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.Component.get_gameObject",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.Behaviour.get_enabled",
+            "classification": "framework",
+            "tags": []
+          }
+        ],
+        "renderTextureApis": [],
+        "lookupApis": [],
+        "callers": [],
+        "callees": []
+      },
+      {
+        "rid": 13582,
+        "symbol": "ArabicMirror.IsProcessSelf",
+        "name": "IsProcessSelf",
+        "strings": [],
+        "externalCalls": [
+          {
+            "target": "tag4:rid1212.Contains",
+            "classification": "unclassified-external",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.Object.op_Equality",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.Component.get_gameObject",
+            "classification": "framework",
+            "tags": []
+          }
+        ],
+        "renderTextureApis": [],
+        "lookupApis": [],
+        "callers": [],
+        "callees": []
+      },
+      {
+        "rid": 13583,
+        "symbol": "ArabicMirror.ProcessEffect",
+        "name": "ProcessEffect",
+        "strings": [],
+        "externalCalls": [
+          {
+            "target": "UnityEngine.Object.op_Inequality",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.Object.op_Equality",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.Component.get_gameObject",
+            "classification": "framework",
+            "tags": []
+          }
+        ],
+        "renderTextureApis": [],
+        "lookupApis": [],
+        "callers": [],
+        "callees": []
+      },
+      {
+        "rid": 13584,
+        "symbol": "ArabicMirror.EnsureDataListSize",
+        "name": "EnsureDataListSize",
+        "strings": [],
+        "externalCalls": [
+          {
+            "target": "tag4:rid2251.get_Count",
+            "classification": "unclassified-external",
+            "tags": []
+          },
+          {
+            "target": "tag4:rid2251.Add",
+            "classification": "unclassified-external",
+            "tags": []
+          }
+        ],
+        "renderTextureApis": [],
+        "lookupApis": [],
+        "callers": [],
+        "callees": []
+      },
+      {
+        "rid": 13585,
+        "symbol": "ArabicMirror.WriteData",
+        "name": "WriteData",
+        "strings": [],
+        "externalCalls": [
+          {
+            "target": "tag4:rid2251.get_Item",
+            "classification": "unclassified-external",
+            "tags": []
+          },
+          {
+            "target": "tag4:rid2251.set_Item",
+            "classification": "unclassified-external",
+            "tags": []
+          }
+        ],
+        "renderTextureApis": [],
+        "lookupApis": [],
+        "callers": [],
+        "callees": []
+      },
+      {
+        "rid": 13586,
+        "symbol": "ArabicMirror.RecordOriginalData",
+        "name": "RecordOriginalData",
+        "strings": [],
+        "externalCalls": [
+          {
+            "target": "tag4:rid2251.get_Item",
+            "classification": "unclassified-external",
+            "tags": []
+          },
+          {
+            "target": "tag4:rid2251.set_Item",
+            "classification": "unclassified-external",
+            "tags": []
+          }
+        ],
+        "renderTextureApis": [],
+        "lookupApis": [],
+        "callers": [],
+        "callees": []
+      },
+      {
+        "rid": 13587,
+        "symbol": "ArabicMirror.SwitchData",
+        "name": "SwitchData",
+        "strings": [],
+        "externalCalls": [
+          {
+            "target": "tag4:rid2251.get_Item",
+            "classification": "unclassified-external",
+            "tags": []
+          },
+          {
+            "target": "tag4:rid2251.get_Count",
+            "classification": "unclassified-external",
+            "tags": []
+          }
+        ],
+        "renderTextureApis": [],
+        "lookupApis": [],
+        "callers": [],
+        "callees": []
+      },
+      {
+        "rid": 13588,
+        "symbol": "ArabicMirror.ClearData",
+        "name": "ClearData",
+        "strings": [],
+        "externalCalls": [
+          {
+            "target": "tag4:rid1212.get_Count",
+            "classification": "unclassified-external",
+            "tags": []
+          },
+          {
+            "target": "tag4:rid2251.set_Item",
+            "classification": "unclassified-external",
+            "tags": []
+          },
+          {
+            "target": "tag4:rid1212.set_Item",
+            "classification": "unclassified-external",
+            "tags": []
+          }
+        ],
+        "renderTextureApis": [],
+        "lookupApis": [],
+        "callers": [],
+        "callees": []
+      },
+      {
+        "rid": 13589,
+        "symbol": "ArabicMirror.ApplyDataToGameObject",
+        "name": "ApplyDataToGameObject",
+        "strings": [],
+        "externalCalls": [
+          {
+            "target": "UnityEngine.Object.op_Inequality",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.GameObject.get_transform",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.Transform.set_localScale",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.Transform.set_localRotation",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.RectTransform.set_anchoredPosition",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.RectTransform.set_anchorMax",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.RectTransform.set_anchorMin",
+            "classification": "framework",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.RectTransform.set_pivot",
+            "classification": "framework",
+            "tags": []
+          }
+        ],
+        "renderTextureApis": [],
+        "lookupApis": [],
+        "callers": [],
+        "callees": []
+      },
+      {
+        "rid": 13590,
+        "symbol": "ArabicMirror..ctor",
+        "name": ".ctor",
+        "strings": [],
+        "externalCalls": [
+          {
+            "target": "tag4:rid1212..ctor",
+            "classification": "unclassified-external",
+            "tags": []
+          },
+          {
+            "target": "tag4:rid2251..ctor",
+            "classification": "unclassified-external",
+            "tags": []
+          },
+          {
+            "target": "UnityEngine.MonoBehaviour..ctor",
+            "classification": "framework",
+            "tags": []
+          }
+        ],
+        "renderTextureApis": [],
+        "lookupApis": [],
+        "callers": [],
+        "callees": []
+      }
+    ],
+    "readApis": [
+      {
+        "rid": 13576,
+        "symbol": "ArabicMirror.ProcessImageOrRawImage",
+        "target": "UnityEngine.UI.RawImage.get_texture",
+        "classification": "framework",
+        "tags": [
+          "render-camera"
+        ],
+        "api": "RawImage.get_texture",
+        "mode": "read"
+      }
+    ],
+    "writeApis": [],
+    "lookupApis": [],
+    "externalClrCallers": [
+      {
+        "callerRid": 1589,
+        "callerSymbol": "InfinityScrollViewBase.Init",
+        "targetRid": 13570,
+        "targetSymbol": "ArabicMirror.MirrorEntry"
+      },
+      {
+        "callerRid": 2087,
+        "callerSymbol": "ScrollView.GetItemObject",
+        "targetRid": 13570,
+        "targetSymbol": "ArabicMirror.MirrorEntry"
+      },
+      {
+        "callerRid": 16234,
+        "callerSymbol": "XLua.CSObjectWrap.ArabicMirrorWrap._m_MirrorEntry_xlua_st_",
+        "targetRid": 13570,
+        "targetSymbol": "ArabicMirror.MirrorEntry"
+      },
+      {
+        "callerRid": 16235,
+        "callerSymbol": "XLua.CSObjectWrap.ArabicMirrorWrap._m_Awake",
+        "targetRid": 13571,
+        "targetSymbol": "ArabicMirror.Awake"
+      },
+      {
+        "callerRid": 16236,
+        "callerSymbol": "XLua.CSObjectWrap.ArabicMirrorWrap._m_WriteData",
+        "targetRid": 13585,
+        "targetSymbol": "ArabicMirror.WriteData"
+      },
+      {
+        "callerRid": 16237,
+        "callerSymbol": "XLua.CSObjectWrap.ArabicMirrorWrap._m_RecordOriginalData",
+        "targetRid": 13586,
+        "targetSymbol": "ArabicMirror.RecordOriginalData"
+      },
+      {
+        "callerRid": 16238,
+        "callerSymbol": "XLua.CSObjectWrap.ArabicMirrorWrap._m_SwitchData",
+        "targetRid": 13587,
+        "targetSymbol": "ArabicMirror.SwitchData"
+      },
+      {
+        "callerRid": 16239,
+        "callerSymbol": "XLua.CSObjectWrap.ArabicMirrorWrap._m_ClearData",
+        "targetRid": 13588,
+        "targetSymbol": "ArabicMirror.ClearData"
+      },
+      {
+        "callerRid": 16233,
+        "callerSymbol": "XLua.CSObjectWrap.ArabicMirrorWrap.__CreateInstance",
+        "targetRid": 13590,
+        "targetSymbol": "ArabicMirror..ctor"
+      }
+    ]
+  },
+  "exactFormationNameLiteralMethods": [],
+  "containingFormationNameLiteralMethods": [],
+  "exactCarrierSameMethodEvidence": [],
+  "directedExactCarrierToTextureWritePaths": [],
+  "exactCarrierUpstreamCallers": [],
+  "conclusion": {
+    "arabicMirrorHasTextureProducerEvidence": false,
+    "getterOnlyDoesNotProveAssignment": true,
+    "nextStrategy": "targeted_il_string_xref_for_formationbg_formationrt_required"
+  },
+  "guardrails": {
+    "existingAtlasOnly": true,
+    "apkAccess": false,
+    "dllRescan": false,
+    "bundleExtraction": false,
+    "bundleScan": false,
+    "candidatePromotion": false,
+    "mainUntouched": true,
+    "previewUntouched": true
+  }
+}
