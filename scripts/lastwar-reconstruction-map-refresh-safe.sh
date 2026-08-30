@@ -3,11 +3,14 @@ set -Eeuo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BRANCH="portal-auth-lastwar-lab-v1"
 ORIG="$ROOT/scripts/lastwar-reconstruction-map-refresh.sh"
-TMP="${TMPDIR:-$HOME/.cache}/wfgg-lastwar-reconstruction-map-refresh-safe.sh"
+# IMPORTANT: the patched runtime must stay under repo/scripts so the original
+# script's BASH_SOURCE-based ROOT calculation still resolves to the repository.
+TMP="$ROOT/scripts/.lastwar-reconstruction-map-refresh-safe-runtime.sh"
 RAW_REL="frontend/lab/master-assets-v2/index/lastwar-visual-reconstruction-map-v1.json"
 MANIFEST="$ROOT/frontend/lab/master-assets-v2/index/lastwar-visual-reconstruction-map-v1.manifest.json"
 PARTDIR="$ROOT/frontend/lab/master-assets-v2/index/lastwar-visual-reconstruction-map-v1.parts"
 
+trap 'rm -f "$TMP"' EXIT
 cd "$ROOT"
 [[ "$(git branch --show-current)" == "$BRANCH" ]] || { echo 'ERREUR: branche LAB incorrecte' >&2; exit 1; }
 
