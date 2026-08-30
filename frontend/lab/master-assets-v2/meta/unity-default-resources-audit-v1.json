@@ -1,0 +1,87 @@
+{
+  "format": "WFGG_LASTWAR_UNITY_DEFAULT_RESOURCES_AUDIT_V1",
+  "targetExternalPath": "Library/unity default resources",
+  "targetBasename": "unity default resources",
+  "targetPathID": 10101,
+  "unityVersionFallback": "2019.4.41f1",
+  "apkCount": 5,
+  "apks": [
+    {
+      "apk": "/data/app/~~a_LFGwveyIoZeWhf-mR3yw==/com.fun.lastwar.gp-990XEbeiHGsmDX-JvOD69Q==/base.apk",
+      "exists": true,
+      "sizeBytes": 50971496,
+      "exactEntries": [
+        {
+          "apk": "/data/app/~~a_LFGwveyIoZeWhf-mR3yw==/com.fun.lastwar.gp-990XEbeiHGsmDX-JvOD69Q==/base.apk",
+          "entry": "assets/bin/Data/unity default resources",
+          "sizeBytes": 3705060
+        }
+      ],
+      "nearEntries": [
+        {
+          "apk": "/data/app/~~a_LFGwveyIoZeWhf-mR3yw==/com.fun.lastwar.gp-990XEbeiHGsmDX-JvOD69Q==/base.apk",
+          "entry": "assets/bin/Data/Resources/unity_builtin_extra",
+          "sizeBytes": 533208
+        }
+      ]
+    },
+    {
+      "apk": "/data/app/~~a_LFGwveyIoZeWhf-mR3yw==/com.fun.lastwar.gp-990XEbeiHGsmDX-JvOD69Q==/split_config.arm64_v8a.apk",
+      "exists": true,
+      "sizeBytes": 25438291,
+      "exactEntries": [],
+      "nearEntries": []
+    },
+    {
+      "apk": "/data/app/~~a_LFGwveyIoZeWhf-mR3yw==/com.fun.lastwar.gp-990XEbeiHGsmDX-JvOD69Q==/split_gpdeku.apk",
+      "exists": true,
+      "sizeBytes": 115152,
+      "exactEntries": [],
+      "nearEntries": []
+    },
+    {
+      "apk": "/data/app/~~a_LFGwveyIoZeWhf-mR3yw==/com.fun.lastwar.gp-990XEbeiHGsmDX-JvOD69Q==/split_gpdeku.config.arm64_v8a.apk",
+      "exists": true,
+      "sizeBytes": 172453,
+      "exactEntries": [],
+      "nearEntries": []
+    },
+    {
+      "apk": "/data/app/~~a_LFGwveyIoZeWhf-mR3yw==/com.fun.lastwar.gp-990XEbeiHGsmDX-JvOD69Q==/split_install_time_pack.apk",
+      "exists": true,
+      "sizeBytes": 753186534,
+      "exactEntries": [],
+      "nearEntries": []
+    }
+  ],
+  "exactEntryCount": 1,
+  "nearEntryCount": 1,
+  "selectionRule": "Only APK entries whose basename normalizes exactly to \"unity default resources\" are eligible. Near matches are diagnostic only.",
+  "exactLoads": [
+    {
+      "apk": "/data/app/~~a_LFGwveyIoZeWhf-mR3yw==/com.fun.lastwar.gp-990XEbeiHGsmDX-JvOD69Q==/base.apk",
+      "entry": "assets/bin/Data/unity default resources",
+      "dst": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/local_assets/unity-default-resources-audit-v1/exact-00-unity-default-resources.bin",
+      "bytes": 3705060,
+      "sha256": "227db2cf4c99b97fae46720400cca96c0c58917e96fab76c9413c2d89dd70bb9",
+      "objectCount": 78,
+      "pathIdHitCount": 1,
+      "pathIdHits": [
+        {
+          "pathID": 10101,
+          "type": "Shader",
+          "name": "",
+          "typetreeReadable": true,
+          "m_Name": ""
+        }
+      ]
+    }
+  ],
+  "guardrails": {
+    "installedGameReadOnly": true,
+    "candidateSubstitution": false,
+    "globalBundleScan": false
+  },
+  "resolvedExactly": true,
+  "ambiguousExactResolution": false
+}
