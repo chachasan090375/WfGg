@@ -1,0 +1,513 @@
+{
+  "format": "WFGG_LASTWAR_FORMATION_RAWIMAGE_OWNER_CLR_JUNCTION_V2",
+  "sources": {
+    "ptrGraph": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/master-assets-v2/meta/formation-ptr-exact-v4.json",
+    "backgroundPipeline": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/master-assets-v2/meta/formation-background-pipeline-v1.json",
+    "ptrSummary": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/master-assets-v2/meta/formation-ptr-exact-v4-summary-v1.json",
+    "clrAtlas": "/data/data/com.termux/files/home/wfgg-lastwar-preview/frontend/lab/master-assets-v2/index/lastwar-code-discovery-atlas-v1.json"
+  },
+  "anchors": {
+    "FormationBg": {
+      "componentPathID": 935766179200945348,
+      "gameObjectPathID": 2726074644948953871
+    },
+    "FormationRT": {
+      "componentPathID": -3957975286359756321,
+      "gameObjectPathID": 3519289692077381591
+    }
+  },
+  "counts": {
+    "ptrObjects": 3209,
+    "ptrEdges": 8386,
+    "ownerComponentRows": 8,
+    "scriptTargets": 4,
+    "resolvedClrTypes": 2,
+    "ambiguousClrTypes": 0,
+    "unresolvedClrTypes": 2,
+    "ownerMethods": 21,
+    "directRelevantMethods": 1,
+    "directedRenderPaths": 3,
+    "ownerBoundaryMethods": 0
+  },
+  "ownerComponents": [
+    {
+      "anchor": "FormationBg",
+      "componentPathID": 3074809845846659530,
+      "componentType": "RectTransform",
+      "componentName": "",
+      "provenance": "colocated_on_exact_rawimage_gameobject",
+      "edge": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#2726074644948953871",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#3074809845846659530",
+        "relation": "component_ref",
+        "fieldPath": "$.m_Component[0].component",
+        "fileID": 0,
+        "pathID": 3074809845846659530
+      }
+    },
+    {
+      "anchor": "FormationBg",
+      "componentPathID": 6847809801933144268,
+      "componentType": "CanvasRenderer",
+      "componentName": "",
+      "provenance": "colocated_on_exact_rawimage_gameobject",
+      "edge": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#2726074644948953871",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#6847809801933144268",
+        "relation": "component_ref",
+        "fieldPath": "$.m_Component[1].component",
+        "fileID": 0,
+        "pathID": 6847809801933144268
+      }
+    },
+    {
+      "anchor": "FormationBg",
+      "componentPathID": 935766179200945348,
+      "componentType": "MonoBehaviour",
+      "componentName": "",
+      "provenance": "colocated_on_exact_rawimage_gameobject",
+      "edge": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#2726074644948953871",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#935766179200945348",
+        "relation": "component_ref",
+        "fieldPath": "$.m_Component[2].component",
+        "fileID": 0,
+        "pathID": 935766179200945348
+      }
+    },
+    {
+      "anchor": "FormationBg",
+      "componentPathID": -3755011431292375246,
+      "componentType": "MonoBehaviour",
+      "componentName": "",
+      "provenance": "exact_serialized_referrer_of_rawimage_or_go",
+      "edge": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-3755011431292375246",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#2726074644948953871",
+        "relation": "serialized_ref",
+        "fieldPath": "$._autoMirrorCullObjects[2]",
+        "fileID": 0,
+        "pathID": 2726074644948953871
+      }
+    },
+    {
+      "anchor": "FormationRT",
+      "componentPathID": 4337810137591353805,
+      "componentType": "RectTransform",
+      "componentName": "",
+      "provenance": "colocated_on_exact_rawimage_gameobject",
+      "edge": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#3519289692077381591",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#4337810137591353805",
+        "relation": "component_ref",
+        "fieldPath": "$.m_Component[0].component",
+        "fileID": 0,
+        "pathID": 4337810137591353805
+      }
+    },
+    {
+      "anchor": "FormationRT",
+      "componentPathID": 1120588958669457649,
+      "componentType": "CanvasRenderer",
+      "componentName": "",
+      "provenance": "colocated_on_exact_rawimage_gameobject",
+      "edge": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#3519289692077381591",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#1120588958669457649",
+        "relation": "component_ref",
+        "fieldPath": "$.m_Component[1].component",
+        "fileID": 0,
+        "pathID": 1120588958669457649
+      }
+    },
+    {
+      "anchor": "FormationRT",
+      "componentPathID": -3957975286359756321,
+      "componentType": "MonoBehaviour",
+      "componentName": "",
+      "provenance": "colocated_on_exact_rawimage_gameobject",
+      "edge": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#3519289692077381591",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-3957975286359756321",
+        "relation": "component_ref",
+        "fieldPath": "$.m_Component[2].component",
+        "fileID": 0,
+        "pathID": -3957975286359756321
+      }
+    },
+    {
+      "anchor": "FormationRT",
+      "componentPathID": -3755011431292375246,
+      "componentType": "MonoBehaviour",
+      "componentName": "",
+      "provenance": "exact_serialized_referrer_of_rawimage_or_go",
+      "edge": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-3755011431292375246",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#3519289692077381591",
+        "relation": "serialized_ref",
+        "fieldPath": "$._autoMirrorCullObjects[3]",
+        "fileID": 0,
+        "pathID": 3519289692077381591
+      }
+    }
+  ],
+  "scriptTargets": [
+    {
+      "anchor": "FormationBg",
+      "componentPathID": 935766179200945348,
+      "componentType": "MonoBehaviour",
+      "componentName": "",
+      "provenance": "colocated_on_exact_rawimage_gameobject",
+      "scriptPathID": -8471220842657547617,
+      "scriptObjectType": "MonoScript",
+      "scriptObjectName": "RawImage",
+      "scriptIdentity": {
+        "classNames": [
+          "RawImage"
+        ],
+        "names": [
+          "RawImage"
+        ],
+        "namespaces": [],
+        "assemblies": []
+      },
+      "scriptRef": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#935766179200945348",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-8471220842657547617",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -8471220842657547617
+      }
+    },
+    {
+      "anchor": "FormationBg",
+      "componentPathID": -3755011431292375246,
+      "componentType": "MonoBehaviour",
+      "componentName": "",
+      "provenance": "exact_serialized_referrer_of_rawimage_or_go",
+      "scriptPathID": 1449921518487060124,
+      "scriptObjectType": "MonoScript",
+      "scriptObjectName": "ArabicMirror",
+      "scriptIdentity": {
+        "classNames": [
+          "ArabicMirror"
+        ],
+        "names": [
+          "ArabicMirror"
+        ],
+        "namespaces": [],
+        "assemblies": []
+      },
+      "scriptRef": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-3755011431292375246",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#1449921518487060124",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": 1449921518487060124
+      }
+    },
+    {
+      "anchor": "FormationRT",
+      "componentPathID": -3957975286359756321,
+      "componentType": "MonoBehaviour",
+      "componentName": "",
+      "provenance": "colocated_on_exact_rawimage_gameobject",
+      "scriptPathID": -8471220842657547617,
+      "scriptObjectType": "MonoScript",
+      "scriptObjectName": "RawImage",
+      "scriptIdentity": {
+        "classNames": [
+          "RawImage"
+        ],
+        "names": [
+          "RawImage"
+        ],
+        "namespaces": [],
+        "assemblies": []
+      },
+      "scriptRef": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-3957975286359756321",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-8471220842657547617",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -8471220842657547617
+      }
+    },
+    {
+      "anchor": "FormationRT",
+      "componentPathID": -3755011431292375246,
+      "componentType": "MonoBehaviour",
+      "componentName": "",
+      "provenance": "exact_serialized_referrer_of_rawimage_or_go",
+      "scriptPathID": 1449921518487060124,
+      "scriptObjectType": "MonoScript",
+      "scriptObjectName": "ArabicMirror",
+      "scriptIdentity": {
+        "classNames": [
+          "ArabicMirror"
+        ],
+        "names": [
+          "ArabicMirror"
+        ],
+        "namespaces": [],
+        "assemblies": []
+      },
+      "scriptRef": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-3755011431292375246",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#1449921518487060124",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": 1449921518487060124
+      }
+    }
+  ],
+  "resolvedClrTypes": [
+    {
+      "anchor": "FormationBg",
+      "componentPathID": -3755011431292375246,
+      "componentType": "MonoBehaviour",
+      "componentName": "",
+      "provenance": "exact_serialized_referrer_of_rawimage_or_go",
+      "scriptPathID": 1449921518487060124,
+      "scriptObjectType": "MonoScript",
+      "scriptObjectName": "ArabicMirror",
+      "scriptIdentity": {
+        "classNames": [
+          "ArabicMirror"
+        ],
+        "names": [
+          "ArabicMirror"
+        ],
+        "namespaces": [],
+        "assemblies": []
+      },
+      "scriptRef": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-3755011431292375246",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#1449921518487060124",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": 1449921518487060124
+      },
+      "atlasCandidates": [
+        {
+          "typeRid": 1199,
+          "fullName": "ArabicMirror",
+          "status": "unknown",
+          "interest": 183
+        }
+      ],
+      "atlasTypeRid": 1199,
+      "atlasFullName": "ArabicMirror",
+      "methodCount": 21
+    },
+    {
+      "anchor": "FormationRT",
+      "componentPathID": -3755011431292375246,
+      "componentType": "MonoBehaviour",
+      "componentName": "",
+      "provenance": "exact_serialized_referrer_of_rawimage_or_go",
+      "scriptPathID": 1449921518487060124,
+      "scriptObjectType": "MonoScript",
+      "scriptObjectName": "ArabicMirror",
+      "scriptIdentity": {
+        "classNames": [
+          "ArabicMirror"
+        ],
+        "names": [
+          "ArabicMirror"
+        ],
+        "namespaces": [],
+        "assemblies": []
+      },
+      "scriptRef": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-3755011431292375246",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#1449921518487060124",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": 1449921518487060124
+      },
+      "atlasCandidates": [
+        {
+          "typeRid": 1199,
+          "fullName": "ArabicMirror",
+          "status": "unknown",
+          "interest": 183
+        }
+      ],
+      "atlasTypeRid": 1199,
+      "atlasFullName": "ArabicMirror",
+      "methodCount": 21
+    }
+  ],
+  "ambiguousClrTypes": [],
+  "unresolvedClrTypes": [
+    {
+      "anchor": "FormationBg",
+      "componentPathID": 935766179200945348,
+      "componentType": "MonoBehaviour",
+      "componentName": "",
+      "provenance": "colocated_on_exact_rawimage_gameobject",
+      "scriptPathID": -8471220842657547617,
+      "scriptObjectType": "MonoScript",
+      "scriptObjectName": "RawImage",
+      "scriptIdentity": {
+        "classNames": [
+          "RawImage"
+        ],
+        "names": [
+          "RawImage"
+        ],
+        "namespaces": [],
+        "assemblies": []
+      },
+      "scriptRef": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#935766179200945348",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-8471220842657547617",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -8471220842657547617
+      },
+      "atlasCandidates": []
+    },
+    {
+      "anchor": "FormationRT",
+      "componentPathID": -3957975286359756321,
+      "componentType": "MonoBehaviour",
+      "componentName": "",
+      "provenance": "colocated_on_exact_rawimage_gameobject",
+      "scriptPathID": -8471220842657547617,
+      "scriptObjectType": "MonoScript",
+      "scriptObjectName": "RawImage",
+      "scriptIdentity": {
+        "classNames": [
+          "RawImage"
+        ],
+        "names": [
+          "RawImage"
+        ],
+        "namespaces": [],
+        "assemblies": []
+      },
+      "scriptRef": {
+        "from": "CAB-2862f52f33917b713ca0663a7220b7cc#-3957975286359756321",
+        "to": "CAB-2862f52f33917b713ca0663a7220b7cc#-8471220842657547617",
+        "relation": "script_ref",
+        "fieldPath": "$.m_Script",
+        "fileID": 0,
+        "pathID": -8471220842657547617
+      },
+      "atlasCandidates": []
+    }
+  ],
+  "directRelevantMethods": [
+    {
+      "rid": 13576,
+      "symbol": "ArabicMirror.ProcessImageOrRawImage",
+      "renderApis": [
+        {
+          "class": "RawImage.texture",
+          "target": "UnityEngine.UI.RawImage.get_texture",
+          "classification": "framework"
+        }
+      ],
+      "boundaries": [],
+      "strings": []
+    }
+  ],
+  "directedOwnerToRenderApiPaths": [
+    {
+      "depth": 1,
+      "fromRid": 13574,
+      "fromSymbol": "ArabicMirror.Mirror",
+      "toRid": 13576,
+      "toSymbol": "ArabicMirror.ProcessImageOrRawImage",
+      "pathRids": [
+        13574,
+        13576
+      ],
+      "pathSymbols": [
+        "ArabicMirror.Mirror",
+        "ArabicMirror.ProcessImageOrRawImage"
+      ],
+      "renderApis": [
+        {
+          "class": "RawImage.texture",
+          "target": "UnityEngine.UI.RawImage.get_texture",
+          "classification": "framework"
+        }
+      ]
+    },
+    {
+      "depth": 2,
+      "fromRid": 13570,
+      "fromSymbol": "ArabicMirror.MirrorEntry",
+      "toRid": 13576,
+      "toSymbol": "ArabicMirror.ProcessImageOrRawImage",
+      "pathRids": [
+        13570,
+        13574,
+        13576
+      ],
+      "pathSymbols": [
+        "ArabicMirror.MirrorEntry",
+        "ArabicMirror.Mirror",
+        "ArabicMirror.ProcessImageOrRawImage"
+      ],
+      "renderApis": [
+        {
+          "class": "RawImage.texture",
+          "target": "UnityEngine.UI.RawImage.get_texture",
+          "classification": "framework"
+        }
+      ]
+    },
+    {
+      "depth": 3,
+      "fromRid": 13571,
+      "fromSymbol": "ArabicMirror.Awake",
+      "toRid": 13576,
+      "toSymbol": "ArabicMirror.ProcessImageOrRawImage",
+      "pathRids": [
+        13571,
+        13570,
+        13574,
+        13576
+      ],
+      "pathSymbols": [
+        "ArabicMirror.Awake",
+        "ArabicMirror.MirrorEntry",
+        "ArabicMirror.Mirror",
+        "ArabicMirror.ProcessImageOrRawImage"
+      ],
+      "renderApis": [
+        {
+          "class": "RawImage.texture",
+          "target": "UnityEngine.UI.RawImage.get_texture",
+          "classification": "framework"
+        }
+      ]
+    }
+  ],
+  "ownerBoundaryMethods": [],
+  "conclusion": {
+    "nextStrategy": "inspect_exact_owner_methods_with_direct_render_api_calls",
+    "important": "Only exact V4 component/script identity and exact atlas call edges are evidence. Name/type matching is exact; ambiguous type names are not promoted."
+  },
+  "guardrails": {
+    "existingEvidenceOnly": true,
+    "apkAccess": false,
+    "dllRescan": false,
+    "bundleExtraction": false,
+    "bundleScan": false,
+    "candidatePromotion": false,
+    "mainUntouched": true,
+    "previewUntouched": true
+  }
+}
