@@ -1,0 +1,88 @@
+name: Last War V24 corpus vocabulary
+
+on:
+  push:
+    branches:
+      - portal-auth-lastwar-lab-v1
+    paths-ignore:
+      - 'frontend/lab/asset-name-audit-v24/**'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: portal-auth-lastwar-lab-v1
+          fetch-depth: 0
+      - name: Derive vocabulary from every path
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import csv,json,re,collections
+          src=Path('frontend/lab/master-assets-v2/index/lastwar-graphics-asset-path-index-v1.tsv')
+          out=Path('frontend/lab/asset-name-audit-v24/terms')
+          out.mkdir(parents=True,exist_ok=True)
+          for p in out.glob('chunk-*.json'): p.unlink()
+
+          terms={}
+          def add(term,kind,asset,bundle):
+              term=term.strip()
+              if not term: return
+              # Only purely mechanical noise is omitted: isolated digits and long hashes.
+              if term.isdigit(): return
+              if re.fullmatch(r'(?i)[0-9a-f]{16,}',term): return
+              k=term.lower()
+              x=terms.get(k)
+              if x is None:
+                  x=terms[k]={'term':term,'count':0,'kinds':collections.Counter(),'examples':[],'bundles':[]}
+              x['count']+=1; x['kinds'][kind]+=1
+              if asset not in x['examples'] and len(x['examples'])<8: x['examples'].append(asset)
+              if bundle and bundle not in x['bundles'] and len(x['bundles'])<5: x['bundles'].append(bundle)
+
+          with src.open('r',encoding='utf-8',errors='replace',newline='') as f:
+              r=csv.DictReader(f,delimiter='\t')
+              rows=0
+              for row in r:
+                  rows+=1
+                  ap=row['assetPath']; bundle=row.get('logicalName','')
+                  p=Path(ap)
+                  # Every directory component participates in the corpus vocabulary.
+                  for seg in p.parent.parts:
+                      add(seg,'directory-segment',ap,bundle)
+                  stem=p.stem
+                  add(stem,'full-stem',ap,bundle)
+                  # Terms are derived from separators actually present in the title.
+                  parts=[x for x in re.split(r'[_\-\.\s]+',stem) if x]
+                  for x in parts: add(x,'title-part',ap,bundle)
+                  # Preserve adjacent compounds so context is not destroyed.
+                  for n in (2,3):
+                      for i in range(len(parts)-n+1): add('_'.join(parts[i:i+n]),f'title-{n}gram',ap,bundle)
+
+          arr=[]
+          for x in terms.values():
+              x['kinds']=dict(x['kinds']); arr.append(x)
+          arr.sort(key=lambda x:x['term'].lower())
+          chunk_size=450
+          manifest={'sourceRows':rows,'uniqueTerms':len(arr),'chunkSize':chunk_size,'chunks':[]}
+          for i in range(0,len(arr),chunk_size):
+              part=arr[i:i+chunk_size]; name=f'chunk-{i//chunk_size+1:04d}.json'
+              (out/name).write_text(json.dumps(part,ensure_ascii=False,indent=2),encoding='utf-8')
+              manifest['chunks'].append({'file':name,'records':len(part),'first':part[0]['term'],'last':part[-1]['term']})
+          (out/'manifest.json').write_text(json.dumps(manifest,ensure_ascii=False,indent=2),encoding='utf-8')
+          PY
+      - name: Commit corpus vocabulary
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'wfgg-lab-bot'
+          git config user.email 'wfgg-lab-bot@users.noreply.github.com'
+          git add frontend/lab/asset-name-audit-v24/terms/
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'lab: add V24 full corpus vocabulary'
+          git push origin HEAD:portal-auth-lastwar-lab-v1
