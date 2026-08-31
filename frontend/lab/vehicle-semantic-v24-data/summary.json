@@ -1,0 +1,384 @@
+{
+  "format": "WFGG_LASTWAR_VEHICLE_SEMANTIC_V24",
+  "method": "full-corpus-first; direct Cars + corpus-observed semantic anchors + statistical Cars neighbours",
+  "sourceRows": 107247,
+  "carsSourceRows": 2601,
+  "learnedTermCount": 657,
+  "candidateCount": 11409,
+  "bySource": {
+    "corpus-semantic": 6660,
+    "cars-neighbour": 2148,
+    "cars-direct": 2601
+  },
+  "byKind": {
+    "texture-ui": 3028,
+    "other": 231,
+    "model-prefab": 4561,
+    "effect-material": 3589
+  },
+  "topFamilies": [
+    {
+      "family": "Material",
+      "count": 959
+    },
+    {
+      "family": "prefab",
+      "count": 587
+    },
+    {
+      "family": "material",
+      "count": 499
+    },
+    {
+      "family": "texture",
+      "count": 451
+    },
+    {
+      "family": "Materials",
+      "count": 352
+    },
+    {
+      "family": "A_Hero_Tesla",
+      "count": 268
+    },
+    {
+      "family": "A_Hero_Katyusha_02",
+      "count": 258
+    },
+    {
+      "family": "animation",
+      "count": 250
+    },
+    {
+      "family": "A_Hero_Audie",
+      "count": 206
+    },
+    {
+      "family": "A_Hero_Tom",
+      "count": 187
+    },
+    {
+      "family": "A_Hero_Dva",
+      "count": 177
+    },
+    {
+      "family": "mesh",
+      "count": 163
+    },
+    {
+      "family": "A_Hero_Einstein",
+      "count": 149
+    },
+    {
+      "family": "Prefab",
+      "count": 125
+    },
+    {
+      "family": "Common",
+      "count": 123
+    },
+    {
+      "family": "Wurenji",
+      "count": 120
+    },
+    {
+      "family": "JiJiaLang",
+      "count": 118
+    },
+    {
+      "family": "A_Hero_Katyusha_01_zhuanwu",
+      "count": 115
+    },
+    {
+      "family": "LWUITacticalWeaponChip",
+      "count": 109
+    },
+    {
+      "family": "maodengsanlun",
+      "count": 96
+    },
+    {
+      "family": "UILWRailwayTrain",
+      "count": 84
+    },
+    {
+      "family": "heidongjiqiren",
+      "count": 82
+    },
+    {
+      "family": "FengHuangHongZhaJi",
+      "count": 80
+    },
+    {
+      "family": "tankeshizi",
+      "count": 76
+    },
+    {
+      "family": "A_Hero_Monica_01",
+      "count": 75
+    },
+    {
+      "family": "jixiesheshou",
+      "count": 75
+    },
+    {
+      "family": "ItemIcons",
+      "count": 73
+    },
+    {
+      "family": "jixiewushi",
+      "count": 72
+    },
+    {
+      "family": "Texture",
+      "count": 68
+    },
+    {
+      "family": "Train",
+      "count": 67
+    },
+    {
+      "family": "jijiaxiong",
+      "count": 66
+    },
+    {
+      "family": "A_Hero_Rick_01",
+      "count": 65
+    },
+    {
+      "family": "A_hero_Monica_WZSJ",
+      "count": 65
+    },
+    {
+      "family": "haidaochuan01",
+      "count": 65
+    },
+    {
+      "family": "JiXieShiZi",
+      "count": 64
+    },
+    {
+      "family": "hongsetanke",
+      "count": 63
+    },
+    {
+      "family": "jixiema",
+      "count": 62
+    },
+    {
+      "family": "LWUITacticalWeapon",
+      "count": 59
+    },
+    {
+      "family": "A_Hero_Revenger_01",
+      "count": 57
+    },
+    {
+      "family": "LWUIStageSkyBattleChapter",
+      "count": 56
+    },
+    {
+      "family": "A_Hero_Stetman_01",
+      "count": 53
+    },
+    {
+      "family": "A_Hero_Morrison_zhuanwu",
+      "count": 53
+    },
+    {
+      "family": "A_Hero_Nimitz_01",
+      "count": 52
+    },
+    {
+      "family": "common01",
+      "count": 52
+    },
+    {
+      "family": "A_Hero_Kilian_01",
+      "count": 51
+    },
+    {
+      "family": "HeroIconsBig",
+      "count": 51
+    },
+    {
+      "family": "LWUITacticalWeaponEquip",
+      "count": 51
+    },
+    {
+      "family": "A_Hero_Stetman_zhuanwu",
+      "count": 51
+    },
+    {
+      "family": "Mesh",
+      "count": 50
+    },
+    {
+      "family": "Katyusha_shouchong",
+      "count": 50
+    },
+    {
+      "family": "A_Hero_lambo_01",
+      "count": 49
+    },
+    {
+      "family": "Common_3000",
+      "count": 48
+    },
+    {
+      "family": "A_Hero_Richard_01",
+      "count": 47
+    },
+    {
+      "family": "A_Hero_Ewan_zhuanwu",
+      "count": 47
+    },
+    {
+      "family": "wurenji",
+      "count": 47
+    },
+    {
+      "family": "A_Hero_MissHot_01",
+      "count": 45
+    },
+    {
+      "family": "Effect",
+      "count": 45
+    },
+    {
+      "family": "UILWRailway",
+      "count": 45
+    },
+    {
+      "family": "HeroIconsSmall",
+      "count": 44
+    },
+    {
+      "family": "HighSpeedRailway",
+      "count": 44
+    },
+    {
+      "family": "A_Hero_Doctor_01",
+      "count": 42
+    },
+    {
+      "family": "A_Hero_Elsa_01",
+      "count": 42
+    },
+    {
+      "family": "A_Hero_Ewan_01",
+      "count": 42
+    },
+    {
+      "family": "A_Hero_Adam_zhuanwu",
+      "count": 42
+    },
+    {
+      "family": "A_Hero_Nimitz_zhuanwu",
+      "count": 42
+    },
+    {
+      "family": "A_Hero_David_01",
+      "count": 41
+    },
+    {
+      "family": "Monster",
+      "count": 40
+    },
+    {
+      "family": "A_Hero_Adam_01",
+      "count": 38
+    },
+    {
+      "family": "A_Hero_Katyusha_01_v001",
+      "count": 38
+    },
+    {
+      "family": "A_Hero_Sally_01",
+      "count": 38
+    },
+    {
+      "family": "2025christmas",
+      "count": 38
+    },
+    {
+      "family": "xingjitanke",
+      "count": 38
+    },
+    {
+      "family": "LastWar_Scene_Hero_Exhibit_Preview",
+      "count": 38
+    },
+    {
+      "family": "Rick",
+      "count": 38
+    },
+    {
+      "family": "A_Hero_Alex_01",
+      "count": 37
+    },
+    {
+      "family": "A_Hero_Doctor_02",
+      "count": 37
+    },
+    {
+      "family": "A_Hero_Farhad_01",
+      "count": 37
+    },
+    {
+      "family": "A_Hero_Lucius_zhuanwu",
+      "count": 36
+    },
+    {
+      "family": "Tesla_3006",
+      "count": 36
+    },
+    {
+      "family": "2025halloween",
+      "count": 35
+    }
+  ],
+  "observedAnchors": [
+    "tanke",
+    "baihutanke",
+    "xingjitanke",
+    "tankeshizi",
+    "jingjichang_tanke",
+    "motuo",
+    "wsjmotuo",
+    "monica_motuo",
+    "wurenji",
+    "drone",
+    "airplane",
+    "feiji",
+    "zhandouji",
+    "hongzhaji",
+    "yunduanhongzhaji",
+    "huoche",
+    "train",
+    "tongmenghuoche",
+    "eyupaoche",
+    "paoche",
+    "bianfuche",
+    "sangshi_che",
+    "piaoyikuche",
+    "haochebeichuang",
+    "jijia",
+    "jixie",
+    "jixieshizi",
+    "jijiaxiong",
+    "jijialang",
+    "jixiema",
+    "jixiewushi",
+    "robot",
+    "jiqiren",
+    "jiqirenzhandouji",
+    "maoqisanlun",
+    "sanlun",
+    "wajueji",
+    "yunshuji",
+    "lvdai",
+    "haidaochuan"
+  ],
+  "note": "The anchor list was derived after corpus vocabulary generation; it is not a pre-imposed vehicle keyword dictionary."
+}
