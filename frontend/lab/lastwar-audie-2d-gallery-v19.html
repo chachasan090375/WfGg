@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WFGG · Audie 2D V19</title>
+<style>
+:root{color-scheme:dark;--bg:#09080d;--card:#15131c;--line:#332d40;--fg:#f6f3fb;--muted:#aaa4b5;--accent:#a67cff;--good:#74d9a2;--warn:#e7bd70}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif}.wrap{max-width:1100px;margin:auto;padding:20px}.top{display:flex;justify-content:space-between;gap:14px}.top a{color:#cebaff}.eyebrow{color:#aaa2ba;letter-spacing:.08em;text-transform:uppercase;font-size:13px}h1{font-size:clamp(34px,8vw,58px);line-height:1.02;margin:10px 0}.sub{font-size:18px;color:var(--muted);line-height:1.45}.note{margin:18px 0;padding:16px;border:1px solid #65b8ef;border-radius:20px;background:#101824;line-height:1.45}.metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:18px 0}.metric{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:16px}.metric span{display:block;color:var(--muted);font-size:15px}.metric b{display:block;font-size:34px;margin-top:4px}.tabs{display:flex;gap:10px;overflow:auto;padding-bottom:8px}.tabs button,.controls input{border:1px solid var(--line);background:#17141f;color:var(--fg);border-radius:15px;padding:12px 15px;font-size:16px}.tabs button.active{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}.controls{margin:10px 0 18px}.controls input{width:100%}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden}.thumb{aspect-ratio:1/1;background:#030305;display:flex;align-items:center;justify-content:center;position:relative}.thumb img{width:100%;height:100%;object-fit:contain}.missing{padding:16px;color:var(--muted);text-align:center}.meta{padding:12px}.name{font-weight:800;overflow-wrap:anywhere}.small{font-size:12px;color:var(--muted);margin-top:5px;overflow-wrap:anywhere}.tag{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:3px 8px;margin:7px 5px 0 0;font-size:11px}.tag.direct{border-color:var(--good)}.tag.raw{border-color:var(--warn)}.empty{grid-column:1/-1;padding:22px;background:var(--card);border:1px solid var(--line);border-radius:18px;color:var(--muted)}
+@media(min-width:760px){.metrics{grid-template-columns:repeat(4,1fr)}.grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+</style>
+</head>
+<body><main class="wrap">
+<div class="top"><div><div class="eyebrow">WFGG · LAST WAR · LAB · 2D</div><h1>Murphy / Audie — galerie 2D V19</h1><div class="sub">Cherche d’abord les Texture2D / Sprite dont le nom ou le chemin contient <b>Audie</b>, puis les images compagnes provenant des mêmes bundles.</div></div><a href="./index.html">← LAB</a></div>
+<div class="note"><b>Hypothèse testée :</b> le véhicule simplifié visible dans Formation peut être un rendu 2D spécifique à Murphy, conservant le nom interne <code>Audie</code>. Les maps D/N/S restent visibles, mais sont classées derrière les images qui ressemblent davantage à un rendu final.</div>
+<div class="metrics"><div class="metric"><span>Audie directes</span><b id="mDirect">0</b></div><div class="metric"><span>Audie affichables</span><b id="mShown">0</b></div><div class="metric"><span>Compagnes bundle</span><b id="mComp">0</b></div><div class="metric"><span>Audie non décodées</span><b id="mRaw">0</b></div></div>
+<div class="tabs"><button data-mode="direct" class="active">Audie dans le nom</button><button data-mode="companions">Même bundle</button><button data-mode="raw">Non décodées</button><button data-mode="all">Tout le corpus 2D</button></div>
+<div class="controls"><input id="q" placeholder="Filtrer : hero, formation, tank, icon, preview, high, D…"></div>
+<section id="grid" class="grid"><div class="empty">Chargement…</div></section>
+</main>
+<script>
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const grid=document.getElementById('grid'), q=document.getElementById('q');let mode='direct',items=[];
+const is2d=x=>/^(Texture2D|Sprite|SpriteAtlas|RenderTexture)$/i.test(String(x.type||x.className||''));
+const txt=x=>[x.name,x.path,x.source,x.src,x.url,x.bundle,x.bundleName,x.bundleId,x.serializedFile].filter(Boolean).join(' ');
+const audie=x=>/audie/i.test(txt(x));
+const bundleKey=x=>String(x.bundle||x.bundleName||x.bundleId||'').toLowerCase();
+const sourceDir=x=>String(x.source||x.path||x.src||x.url||'').replace(/\\/g,'/').split('/').slice(0,-1).join('/').toLowerCase();
+const imageUrl=x=>x.url||x.src||'';
+const exported=x=>Boolean(imageUrl(x)) || x.exported===true;
+const surface=x=>/(?:^|[_\-.])(high[_\-.]?)?[dns](?:$|[_\-.])|normal|spec|rough|metal|bullet/i.test(String(x.name||''));
+function score(x){let s=0,t=txt(x).toLowerCase();if(audie(x))s+=100;if(exported(x))s+=30;if(/sprite|preview|icon|portrait|head|formation|team|vehicle|car|tank/.test(t))s+=22;if(surface(x))s-=25;let w=+x.width||0,h=+x.height||0;if(w&&h&&Math.max(w,h)>=256)s+=5;return s}
+function walk(v,out){if(Array.isArray(v)){for(const x of v)walk(x,out);return}if(!v||typeof v!=='object')return;if(is2d(v) && (v.name||v.pathID||v.src||v.url))out.push(v);for(const [k,x] of Object.entries(v)){if(k==='parts'||k==='transforms')continue;if(Array.isArray(x)|| (x&&typeof x==='object'))walk(x,out)}}
+function norm(x,origin){return {origin,...x,type:x.type||x.className||'Texture2D',name:x.name||'(sans nom)',width:x.width||x.m_Width||'',height:x.height||x.m_Height||'',bundle:x.bundle||x.bundleName||x.bundleId||'',url:x.url||x.src||'',source:x.source||x.path||x.bundlePath||'',exported:exported(x)}}
+function dedup(a){const m=new Map();for(const x of a){let k=[x.name,x.type,x.bundle,x.serializedFile,x.pathID,x.url,x.source].join('|');if(!m.has(k))m.set(k,x)}return [...m.values()]}
+function classify(){const direct=items.filter(audie);const bset=new Set(direct.map(bundleKey).filter(Boolean));const dset=new Set(direct.map(sourceDir).filter(Boolean));const comp=items.filter(x=>!audie(x)&&((bundleKey(x)&&bset.has(bundleKey(x)))||(sourceDir(x)&&dset.has(sourceDir(x)))));const raw=direct.filter(x=>!exported(x));return {direct,comp,raw}}
+function render(){const c=classify();document.getElementById('mDirect').textContent=c.direct.length;document.getElementById('mShown').textContent=c.direct.filter(exported).length;document.getElementById('mComp').textContent=c.comp.length;document.getElementById('mRaw').textContent=c.raw.length;let a=mode==='direct'?c.direct:mode==='companions'?c.comp:mode==='raw'?c.raw:items;let s=q.value.trim().toLowerCase();if(s)a=a.filter(x=>txt(x).toLowerCase().includes(s));a=[...a].sort((x,y)=>score(y)-score(x)||String(x.name).localeCompare(String(y.name)));grid.innerHTML=a.map(x=>`<article class="card"><div class="thumb">${imageUrl(x)?`<img loading="lazy" src="${esc(imageUrl(x))}" alt="${esc(x.name)}" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'missing',textContent:'Image référencée mais non chargeable'}))">`:`<div class="missing">Métadonnée trouvée<br><b>image non décodée</b></div>`}</div><div class="meta"><div class="name">${esc(x.name)}</div><div class="small">${esc(x.type)} · ${esc(x.width||'?')}×${esc(x.height||'?')} · ${esc(x.bundle||'bundle ?')}</div><div class="small">${esc(x.serializedFile||x.source||'')}</div>${audie(x)?'<span class="tag direct">Audie direct</span>':''}${!exported(x)?'<span class="tag raw">à décoder</span>':''}${surface(x)?'<span class="tag">map matériau</span>':'<span class="tag">rendu possible</span>'}</div></article>`).join('')||'<div class="empty">Aucun élément pour ce filtre.</div>'}
+Promise.allSettled([
+ fetch('./master-assets-v2/formation-vehicle-texture-viewer-data/manifest.json?ts='+Date.now()).then(r=>r.ok?r.json():Promise.reject(r.status)),
+ fetch('./audie-assembly-2d-v14-data/manifest.json?ts='+Date.now()).then(r=>r.ok?r.json():Promise.reject(r.status))
+]).then(rs=>{let all=[];if(rs[0].status==='fulfilled'){let d=rs[0].value;for(const x of (d.items||d||[]))all.push(norm(x,'vehicle-viewer'))}if(rs[1].status==='fulfilled'){let tmp=[];walk(rs[1].value,tmp);for(const x of tmp)all.push(norm(x,'v14'))}items=dedup(all);render()}).catch(e=>grid.innerHTML='<div class="empty">Impossible de charger les manifests : '+esc(e)+'</div>');
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tabs button').forEach(x=>x.classList.remove('active'));b.classList.add('active');mode=b.dataset.mode;render()});q.addEventListener('input',render);
+</script></body></html>
