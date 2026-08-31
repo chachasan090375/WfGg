@@ -20,11 +20,12 @@ APK_ENTRY="assets/lwScripts/LWScripts.data"
 printf 'APK_RESOLVE_BY_ENTRY %s\n' "$APK_ENTRY"
 while IFS= read -r line; do
   p="${line#package:}"
+  p="${p%$'\r'}"
   [[ -n "$p" ]] || continue
   printf 'APK_CANDIDATE %s\n' "$p"
-  # Do not gate on shell -r for /data/app. Android may expose the APK to unzip
-  # even when the shell access test reports false. Let unzip be the authority.
-  if unzip -Z1 "$p" 2>/dev/null | grep -Fxq "$APK_ENTRY"; then
+  # Android pm may leave CR in shell lines; normalize both path and ZIP listing.
+  # Let unzip itself decide whether a /data/app split is readable.
+  if unzip -Z1 "$p" 2>/dev/null | tr -d '\r' | grep -Fxq "$APK_ENTRY"; then
     APK="$p"
     printf 'APK_RESOLVED %s\n' "$APK"
     break
