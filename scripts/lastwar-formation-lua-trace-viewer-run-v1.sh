@@ -12,8 +12,8 @@ printf 'FORMATION_LUA_TRACE_VIEWER_V3_START\n'
 if [[ -x scripts/lastwar-lwlua-container-il-trace-v1.sh || -f scripts/lastwar-lwlua-container-il-trace-v1.sh ]]; then
   bash scripts/lastwar-lwlua-container-il-trace-v1.sh || printf 'WARN il-trace failed; viewer will reuse existing metadata\n' >&2
 fi
-if [[ -x scripts/lastwar-lua-runtime-materialize-v1.sh || -f scripts/lastwar-lua-runtime-materialize-v1.sh ]]; then
-  bash scripts/lastwar-lua-runtime-materialize-v1.sh || printf 'WARN runtime materialization failed; viewer will reuse existing sources\n' >&2
+if [[ -x scripts/lastwar-lua-runtime-materialize-v2.sh || -f scripts/lastwar-lua-runtime-materialize-v2.sh ]]; then
+  bash scripts/lastwar-lua-runtime-materialize-v2.sh || printf 'WARN runtime materialization failed; viewer will reuse existing sources\n' >&2
 fi
 if [[ -x scripts/lastwar-lua-runtime-diagnostic-v1.sh || -f scripts/lastwar-lua-runtime-diagnostic-v1.sh ]]; then
   bash scripts/lastwar-lua-runtime-diagnostic-v1.sh || printf 'WARN runtime diagnostic failed\n' >&2
