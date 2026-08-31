@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>WfGg LAB — Formation Bridge Bundle Viewer</title>
+<style>
+:root{color-scheme:dark;--bg:#0a0910;--panel:#15131b;--panel2:#1b1823;--line:#302b3a;--text:#f2edf7;--muted:#aaa1b5;--accent:#9d7cff}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif}main{max-width:1100px;margin:auto;padding:14px 14px 88px}.top{display:flex;gap:12px;justify-content:space-between;align-items:flex-start}.top h1{margin:0 0 5px;font-size:22px}.muted{color:var(--muted)}.back{color:#cdbfff;text-decoration:none}.nav{position:sticky;bottom:0;z-index:20;margin:14px -14px -88px;padding:10px 14px calc(10px + env(safe-area-inset-bottom));background:rgba(10,9,16,.94);backdrop-filter:blur(12px);border-top:1px solid var(--line);display:grid;grid-template-columns:auto 1fr auto;gap:8px}.nav button,.nav select,.tabs button{background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:11px 12px}.nav select{min-width:0}.summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:14px 0}.stat{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px}.stat span{display:block;color:var(--muted);font-size:12px}.stat strong{display:block;margin-top:2px;overflow-wrap:anywhere}.tabs{display:flex;gap:7px;overflow:auto;margin:10px 0}.tabs button.active{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}.view{display:none}.view.active{display:block}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}.card img{display:block;width:100%;height:auto;background:#050507}.meta{padding:9px}.meta strong,.meta span{display:block;overflow-wrap:anywhere}.meta span{font-size:12px;color:var(--muted);margin-top:2px}.empty{padding:18px;border:1px dashed var(--line);border-radius:12px;color:var(--muted)}table{width:100%;border-collapse:collapse;background:var(--panel);font-size:12px}th,td{text-align:left;padding:7px;border-bottom:1px solid var(--line);vertical-align:top;overflow-wrap:anywhere}th{position:sticky;top:0;background:#181520}.tablewrap{max-height:66vh;overflow:auto;border:1px solid var(--line);border-radius:12px}.search{width:100%;margin:0 0 8px;background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:10px}.chips{display:flex;gap:6px;flex-wrap:wrap}.chip{padding:6px 8px;background:var(--panel);border:1px solid var(--line);border-radius:999px;font-size:12px}.target{border-color:#6d5a92}.note{background:#111019;border:1px solid var(--line);padding:10px;border-radius:10px;color:var(--muted);font-size:13px}.dialog{max-width:96vw;max-height:94vh;background:#0b0a10;color:var(--text);border:1px solid var(--line);border-radius:12px;padding:8px}.dialog img{max-width:90vw;max-height:82vh;display:block}.dialog button{margin-top:7px;width:100%;padding:10px;background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:9px}@media(min-width:760px){.summary{grid-template-columns:repeat(4,minmax(0,1fr))}.grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+</style>
+</head>
+<body>
+<main>
+  <div class="top"><div><div class="muted">WFGG · LAST WAR · LAB · ASSETS RÉELS UNIQUEMENT</div><h1>Formation Bridge — Bundle Viewer</h1><div id="subtitle" class="muted">Chargement…</div></div><a class="back" href="/lab/">← LAB</a></div>
+  <div id="summary" class="summary"></div>
+  <div class="note">Ce viewer n’invente aucun décor. Il affiche uniquement les objets et textures réellement extraits des bundles isolés de la piste Formation/Murphy.</div>
+  <div class="tabs"><button class="active" data-tab="textures">Textures</button><button data-tab="meshes">Meshes</button><button data-tab="materials">Matériaux</button><button data-tab="animations">Animations</button><button data-tab="objects">Objets</button><button data-tab="links">Index</button></div>
+  <section id="textures" class="view active"><div id="textureGrid" class="grid"></div></section>
+  <section id="meshes" class="view"><div id="meshList" class="chips"></div></section>
+  <section id="materials" class="view"><div id="materialList" class="chips"></div></section>
+  <section id="animations" class="view"><div id="animationList" class="chips"></div></section>
+  <section id="objects" class="view"><input id="search" class="search" type="search" placeholder="Filtrer type, nom ou pathID"><div class="tablewrap"><table><thead><tr><th>Type</th><th>Nom</th><th>pathID</th><th>PPtr</th><th>Serialized file</th></tr></thead><tbody id="objectBody"></tbody></table></div></section>
+  <section id="links" class="view"><div id="linkInfo"></div></section>
+  <div class="nav"><button id="prev">←</button><select id="bundleSelect"></select><button id="next">→</button></div>
+</main>
+<dialog id="dlg" class="dialog"><img id="dlgImg" alt="Texture réelle extraite"><button id="dlgClose">Fermer</button></dialog>
+<script>
+let data=null,index=0,current=null;
+const $=id=>document.getElementById(id),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function stat(label,value){return `<div class="stat"><span>${esc(label)}</span><strong>${esc(value)}</strong></div>`}
+function chips(el,list){el.innerHTML=list.length?list.map(x=>`<span class="chip">${esc(x.type)} · ${esc(x.name||'—')} · p${esc(x.pathID)}</span>`).join(''):'<div class="empty">Aucun objet de ce type dans ce bundle.</div>'}
+function renderObjects(q=''){q=q.trim().toLowerCase();const rows=(current.objects||[]).filter(o=>!q||`${o.type} ${o.name} ${o.pathID} ${o.serializedFile}`.toLowerCase().includes(q));$('objectBody').innerHTML=rows.slice(0,4000).map(o=>`<tr><td>${esc(o.type)}</td><td>${esc(o.name||'—')}</td><td>${esc(o.pathID)}</td><td>${esc(o.ptrCount??'—')}</td><td>${esc(o.serializedFile)}</td></tr>`).join('')}
+function render(){current=data.bundles[index];const id=current.bundleId;$('bundleSelect').value=String(id);$('subtitle').textContent=`Bundle ${id} · ${current.role} · ${current.logicalName||current.sourceFile}`;
+ const tc=current.typeCounts||{};$('summary').innerHTML=[stat('Bundle',id),stat('Rôle',current.role),stat('Objets',current.objectCount),stat('Textures',current.textureCount),stat('Mesh',tc.Mesh||0),stat('Material',tc.Material||0),stat('GameObject',tc.GameObject||0),stat('Source',current.sourceKind)].join('');
+ const tg=$('textureGrid');tg.replaceChildren();if(!(current.textures||[]).length)tg.innerHTML='<div class="empty">Aucune Texture2D décodée dans ce bundle.</div>';for(const t of current.textures||[]){const c=document.createElement('article');c.className='card';c.innerHTML=`<img loading="lazy" src="${esc(t.src)}" alt="${esc(t.name)}"><div class="meta"><strong>${esc(t.name||'—')}</strong><span>${esc(t.width)}×${esc(t.height)} · ${esc(t.format)}</span><span>pathID ${esc(t.pathID)}</span></div>`;c.querySelector('img').onclick=()=>{$('dlgImg').src=t.src;$('dlg').showModal()};tg.append(c)}
+ chips($('meshList'),current.meshObjects||[]);chips($('materialList'),current.materialObjects||[]);chips($('animationList'),current.animationObjects||[]);$('search').value='';renderObjects();
+ const dep=(current.dependencyBundleIds||[]).join(', ')||'—',rev=(current.dependentBundleIds||[]).join(', ')||'—',paths=(current.assetPaths||[]).map(x=>`<div class="chip">${esc(x)}</div>`).join('')||'<div class="empty">Aucun assetPath indexé.</div>';$('linkInfo').innerHTML=`<div class="summary">${stat('Forward dependencies',dep)}${stat('Reverse dependents',rev)}${stat('Logical',current.logicalName||'—')}${stat('Alias',current.aliasName||'—')}</div><div class="chips">${paths}</div>`;
+}
+function go(n){index=(n+data.bundles.length)%data.bundles.length;render();}
+$('prev').onclick=()=>go(index-1);$('next').onclick=()=>go(index+1);$('bundleSelect').onchange=e=>{const i=data.bundles.findIndex(b=>String(b.bundleId)===e.target.value);if(i>=0)go(i)};$('search').oninput=e=>renderObjects(e.target.value);$('dlgClose').onclick=()=>$('dlg').close();
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tabs button').forEach(x=>x.classList.toggle('active',x===b));document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id===b.dataset.tab))});
+(async()=>{try{const r=await fetch('/lab/formation-bridge-bundle-viewer-data/manifest.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)throw new Error('HTTP '+r.status);data=await r.json();for(const b of data.bundles){const o=document.createElement('option');o.value=b.bundleId;o.textContent=`${b.bundleId} — ${b.role}`;$('bundleSelect').append(o)}render()}catch(e){$('subtitle').textContent='Données absentes : lance le script de construction ('+e.message+')'}})();
+</script>
+</body>
+</html>
