@@ -1,0 +1,70 @@
+name: Last War V24 asset-name profile
+
+on:
+  push:
+    branches:
+      - portal-auth-lastwar-lab-v1
+    paths-ignore:
+      - 'frontend/lab/asset-name-audit-v24/**'
+
+permissions:
+  contents: write
+
+jobs:
+  profile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: portal-auth-lastwar-lab-v1
+          fetch-depth: 0
+      - name: Profile global graphics path index
+        shell: bash
+        run: |
+          set -euo pipefail
+          SRC='frontend/lab/master-assets-v2/index/lastwar-graphics-asset-path-index-v1.tsv'
+          OUT='frontend/lab/asset-name-audit-v24'
+          mkdir -p "$OUT"
+          python - <<'PY'
+          from pathlib import Path
+          import csv, json, collections, os
+          src=Path('frontend/lab/master-assets-v2/index/lastwar-graphics-asset-path-index-v1.tsv')
+          out=Path('frontend/lab/asset-name-audit-v24')
+          out.mkdir(parents=True, exist_ok=True)
+          size=src.stat().st_size
+          with src.open('r', encoding='utf-8', errors='replace', newline='') as f:
+              first=[f.readline().rstrip('\n\r') for _ in range(30)]
+          with src.open('r', encoding='utf-8', errors='replace', newline='') as f:
+              header=f.readline().rstrip('\n\r').split('\t')
+              rows=0
+              widths=collections.Counter()
+              nonempty=[0]*len(header)
+              pathish=[0]*len(header)
+              samples=[[] for _ in header]
+              for line in f:
+                  rows+=1
+                  cols=line.rstrip('\n\r').split('\t')
+                  widths[len(cols)]+=1
+                  for i,v in enumerate(cols[:len(header)]):
+                      if v:
+                          nonempty[i]+=1
+                          if '/' in v or '\\' in v: pathish[i]+=1
+                          if len(samples[i])<8: samples[i].append(v[:600])
+          profile={
+              'bytes':size,'rows_excluding_header':rows,'header':header,
+              'row_widths':dict(widths),
+              'columns':[{'index':i,'name':name,'nonempty':nonempty[i],'pathish':pathish[i],'samples':samples[i]} for i,name in enumerate(header)]
+          }
+          (out/'source-profile.json').write_text(json.dumps(profile,ensure_ascii=False,indent=2),encoding='utf-8')
+          (out/'source-first-30-lines.txt').write_text('\n'.join(first)+'\n',encoding='utf-8')
+          PY
+      - name: Commit profile
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'wfgg-lab-bot'
+          git config user.email 'wfgg-lab-bot@users.noreply.github.com'
+          git add frontend/lab/asset-name-audit-v24/
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'lab: add V24 asset index profile'
+          git push origin HEAD:portal-auth-lastwar-lab-v1
