@@ -1,5 +1,6 @@
 name: Last War V24 corpus vocabulary
 
+# V24 semantic review: vocabulary is derived from the corpus itself, never from a vehicle lexicon.
 on:
   push:
     branches:
@@ -52,15 +53,12 @@ jobs:
                   rows+=1
                   ap=row['assetPath']; bundle=row.get('logicalName','')
                   p=Path(ap)
-                  # Every directory component participates in the corpus vocabulary.
                   for seg in p.parent.parts:
                       add(seg,'directory-segment',ap,bundle)
                   stem=p.stem
                   add(stem,'full-stem',ap,bundle)
-                  # Terms are derived from separators actually present in the title.
                   parts=[x for x in re.split(r'[_\-\.\s]+',stem) if x]
                   for x in parts: add(x,'title-part',ap,bundle)
-                  # Preserve adjacent compounds so context is not destroyed.
                   for n in (2,3):
                       for i in range(len(parts)-n+1): add('_'.join(parts[i:i+n]),f'title-{n}gram',ap,bundle)
 
