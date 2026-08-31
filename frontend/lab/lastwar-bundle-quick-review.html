@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="theme-color" content="#0b0910">
+  <title>WfGg — Revue rapide des bundles</title>
+  <link rel="stylesheet" href="/lab/lastwar-bundle-quick-review.css">
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">WfGg · LAST WAR · LAB</p>
+        <h1>Revue rapide des bundles Formation</h1>
+        <p class="muted">Un bundle à la fois. Tes yeux décident. Les textures affichées sont uniquement des assets réels décodés depuis le bundle.</p>
+      </div>
+      <a class="back" href="/lab/">← LAB</a>
+    </header>
+
+    <section id="loading" class="panel">Chargement du manifeste…</section>
+
+    <section id="app" class="hidden">
+      <div class="toolbar panel">
+        <div><strong id="progress">0 / 0</strong><span id="reviewed">0 examinés</span></div>
+        <label>Ordre
+          <select id="orderSelect">
+            <option value="geometry">Géométrie d'abord</option>
+            <option value="id">Bundle ID</option>
+          </select>
+        </label>
+        <button id="resultsBtn" type="button">Résultats</button>
+      </div>
+
+      <article id="bundleCard" class="panel bundle-card" tabindex="0">
+        <div class="bundle-head">
+          <div>
+            <p class="eyebrow">BUNDLE <span id="bundleId">—</span></p>
+            <h2 id="bundleName">—</h2>
+          </div>
+          <span id="voteBadge" class="vote-badge">Non classé</span>
+        </div>
+
+        <div id="counts" class="counts"></div>
+
+        <div id="textureGrid" class="texture-grid"></div>
+        <div id="noPreview" class="empty hidden">Aucune Texture2D décodable retenue dans ce bundle.</div>
+
+        <div class="nav-row">
+          <button id="prevBtn" type="button">← Précédent</button>
+          <button id="nextBtn" type="button">Suivant →</button>
+        </div>
+
+        <div class="vote-row">
+          <button id="noBtn" class="vote no" type="button">✕ Non</button>
+          <button id="maybeBtn" class="vote maybe" type="button">? Incertain</button>
+          <button id="yesBtn" class="vote yes" type="button">✓ Oui</button>
+        </div>
+      </article>
+    </section>
+
+    <section id="results" class="panel hidden">
+      <div class="results-head">
+        <div><h2>Bundles retenus</h2><p class="muted">Oui et Incertain uniquement.</p></div>
+        <button id="backToReview" type="button">← Revenir à la revue</button>
+      </div>
+      <div class="results-actions">
+        <button id="copyYes" type="button">Copier les Oui</button>
+        <button id="copyMaybe" type="button">Copier les Incertains</button>
+        <button id="copyBoth" type="button">Copier Oui + Incertains</button>
+      </div>
+      <textarea id="copyFallback" class="copy-fallback hidden" readonly></textarea>
+      <div id="yesList" class="result-list"></div>
+      <div id="maybeList" class="result-list"></div>
+    </section>
+  </main>
+
+  <dialog id="imageDialog">
+    <div class="dialog-head"><strong id="dialogTitle">Texture</strong><button id="dialogClose" type="button">Fermer</button></div>
+    <img id="dialogImage" alt="Texture du bundle">
+  </dialog>
+
+  <script src="/lab/lastwar-bundle-quick-review.js"></script>
+</body>
+</html>
