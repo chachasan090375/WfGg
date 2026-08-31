@@ -5,11 +5,11 @@ BRANCH="portal-auth-lastwar-lab-v1"
 PORT=8788
 URL="http://127.0.0.1:${PORT}/lab/lastwar-formation-lua-trace-viewer.html?v=5"
 DIAG="http://127.0.0.1:${PORT}/lab/lastwar-lua-runtime-diagnostic.html?v=3"
-STRUCT="http://127.0.0.1:${PORT}/lab/lastwar-lwscripts-structure.html?v=1"
+STRUCT="http://127.0.0.1:${PORT}/lab/lastwar-lwscripts-structure.html?v=2"
 fail(){ printf 'ERREUR: %s\n' "$*" >&2; exit 1; }
 cd "$ROOT"
 [[ "$(git branch --show-current)" == "$BRANCH" ]] || fail "branche LAB incorrecte"
-printf 'FORMATION_LUA_TRACE_VIEWER_V5_START\n'
+printf 'FORMATION_LUA_TRACE_VIEWER_V6_START\n'
 if [[ -x scripts/lastwar-apk-path-cache-v1.sh || -f scripts/lastwar-apk-path-cache-v1.sh ]]; then
   bash scripts/lastwar-apk-path-cache-v1.sh || printf 'WARN apk-path cache unresolved; later fallback will retry\n' >&2
 fi
@@ -30,13 +30,13 @@ printf 'Viewer: %s\n' "$URL"
 printf 'Diagnostic: %s\n' "$DIAG"
 printf 'Structure: %s\n' "$STRUCT"
 if command -v curl >/dev/null 2>&1 && curl -fsS --max-time 1 "http://127.0.0.1:${PORT}/lab/" >/dev/null 2>&1; then
-  printf 'FORMATION_LUA_TRACE_VIEWER_V5_SERVER_REUSE port=%s\n' "$PORT"
+  printf 'FORMATION_LUA_TRACE_VIEWER_V6_SERVER_REUSE port=%s\n' "$PORT"
   printf 'OPEN=%s\n' "$URL"
   printf 'DIAG=%s\n' "$DIAG"
   printf 'STRUCT=%s\n' "$STRUCT"
   exit 0
 fi
-printf 'FORMATION_LUA_TRACE_VIEWER_V5_SERVER_START port=%s\n' "$PORT"
+printf 'FORMATION_LUA_TRACE_VIEWER_V6_SERVER_START port=%s\n' "$PORT"
 cd "$ROOT/frontend"
 printf 'OPEN=%s\n' "$URL"
 printf 'DIAG=%s\n' "$DIAG"
