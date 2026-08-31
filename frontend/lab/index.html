@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="robots" content="noindex,nofollow">
   <meta name="theme-color" content="#100d16">
   <title>WfGg — Module laboratoire</title>
@@ -14,113 +14,25 @@
       <p class="eyebrow">BRANCHE DE TEST UNIQUEMENT</p>
       <h1>Module laboratoire</h1>
       <p class="muted">Ce module est séparé du portail. Il vérifie qu’une session WfGg existante peut être réutilisée automatiquement, sans seconde connexion.</p>
-      <div class="actions">
-        <a class="button secondary" href="/">← Retour au portail</a>
-        <button id="refreshButton" class="button primary" type="button">Actualiser</button>
-      </div>
+      <div class="actions"><a class="button secondary" href="/">← Retour au portail</a><button id="refreshButton" class="button primary" type="button">Actualiser</button></div>
     </header>
-
-    <section class="card">
-      <h2>Connexion au socle WfGg</h2>
-      <div id="status" class="status pending">Vérification de la session…</div>
-    </section>
-
-    <section id="identityCard" class="card hidden">
-      <h2>Contexte reçu automatiquement</h2>
-      <div class="grid">
-        <div class="field"><span>Utilisateur</span><strong id="userName">—</strong></div>
-        <div class="field"><span>ID utilisateur</span><strong id="userId">—</strong></div>
-        <div class="field"><span>Alliance</span><strong id="allianceName">—</strong></div>
-        <div class="field"><span>Serveur</span><strong id="server">—</strong></div>
-        <div class="field"><span>Rang</span><strong id="rank">—</strong></div>
-        <div class="field"><span>Fonction officier</span><strong id="officer">—</strong></div>
-        <div class="field"><span>Rôle système</span><strong id="systemRole">—</strong></div>
-        <div class="field"><span>Langue</span><strong id="language">—</strong></div>
-      </div>
-    </section>
-
-    <section id="permissionCard" class="card hidden">
-      <h2>Permissions disponibles pour ce module</h2>
-      <div id="permissions" class="chips"></div>
-    </section>
-
-    <section id="rosterCard" class="card hidden">
-      <h2>Accès complémentaire sur demande</h2>
-      <p class="muted">Le module ne charge pas le roster automatiquement. Ce bouton vérifie seulement qu’il peut demander le contexte Train si sa fonction métier en a besoin.</p>
-      <button id="rosterButton" class="button secondary" type="button">Tester l’accès au roster</button>
-      <div id="rosterResult" class="status neutral hidden"></div>
-    </section>
-
-    <section class="card">
-      <h2>Étape suivante : Last War</h2>
-      <p class="muted">Le socle est maintenant préparé pour associer plus tard une identité Last War vérifiée au même compte WfGg, sans changer les modules.</p>
-      <a class="button primary" href="/lab/lastwar.html">Ouvrir le laboratoire Last War →</a>
-    </section>
-
-    <section class="card">
-      <h2>Inspection des textures Formation</h2>
-      <p class="muted">Revue des textures réelles extraites du jeu, avec classement humain Oui / Non / Incertain.</p>
-      <a class="button primary" href="/lab/lastwar-formation-texture-viewer.html">Ouvrir le Texture Viewer →</a>
-    </section>
-
-    <section class="card">
-      <h2>Images véhicules de Formation</h2>
-      <p class="muted">Viewer dédié aux rendus 2D, Texture2D, sprites et atlases pouvant correspondre aux véhicules visibles dans l’écran de formation. Recherche par nom, type, dimensions et bundle.</p>
-      <a class="button primary" href="/lab/lastwar-formation-vehicle-texture-viewer.html">Ouvrir le Vehicle Texture Viewer →</a>
-    </section>
-
-    <section class="card">
-      <h2>Audie — famille complète</h2>
-      <p class="muted">Inventaire transversal de toute la nomenclature Audie : textures, meshes, materials, prefabs, animations et objets compagnons présents dans les mêmes bundles, y compris les références connues de l’index mais absentes du cache local.</p>
-      <a class="button primary" href="/lab/lastwar-audie-family-viewer.html">Ouvrir Audie Family →</a>
-    </section>
-
-    <section class="card">
-      <h2>Audie — liaisons profondes V2</h2>
-      <p class="muted">Suit les pointeurs sérialisés Unity à partir des objets Audie pour distinguer les vraies Texture2D des autres suffixes et retrouver Material → Texture → Mesh / Renderer / GameObject sans inventer de liaison.</p>
-      <a class="button primary" href="/lab/lastwar-audie-family-deep-viewer.html?v=2">Ouvrir Audie Deep Links →</a>
-    </section>
-
-    <section class="card">
-      <h2>Audie — Material Map V3</h2>
-      <p class="muted">Cartographie les vrais sets base / High / bullet par bundle et résolution, puis suit les slots Material → Texture et les Renderer → GameObject → Mesh pour identifier les chaînes réellement reconstructibles.</p>
-      <a class="button primary" href="/lab/lastwar-audie-material-map-viewer.html?v=3">Ouvrir Audie Material Map →</a>
-    </section>
-
-    <section class="card">
-      <h2>Audie — Cross Bundle V4</h2>
-      <p class="muted">Recherche inversée dans tout le corpus local : repère les bundles qui dépendent des fichiers sérialisés des Texture2D Audie, puis remonte les PPtr exacts Texture → Material → Renderer → GameObject → Mesh.</p>
-      <a class="button primary" href="/lab/lastwar-audie-crossbundle-viewer.html?v=4">Ouvrir Audie Cross Bundle →</a>
-    </section>
-
-    <section class="card">
-      <h2>Audie — nomenclature package V5</h2>
-      <p class="muted">Exploite la racine réelle art_lastwar_models_cars_a_hero_audie_01 pour retrouver les branches sœurs material / texture / animation / prefab / mesh dans l’index et les bundles locaux, puis signale uniquement les paquets contenant réellement de la géométrie Unity.</p>
-      <a class="button primary" href="/lab/lastwar-audie-package-family-viewer.html?v=5">Ouvrir Audie Package Family →</a>
-    </section>
-
-    <section class="card">
-      <h2>Audie — modèles / LOD V11</h2>
-      <p class="muted">Compare toutes les géométries uniques de la famille Audie par vertices/faces et nomenclature afin de retrouver le modèle simplifié réellement utilisé sur le plateau, sans confondre le mesh détaillé avec le modèle runtime de Formation.</p>
-      <a class="button primary" href="/lab/lastwar-audie-model-variants-viewer.html?v=11">Ouvrir Audie Model Variants →</a>
-    </section>
-
-    <section class="card">
-      <h2>Audie — reconstruction UV</h2>
-      <p class="muted">Banc d’essai ciblé : applique les textures réelles A_Hero_Audie_01 des bundles 26633/26634 sur les meshes réels du bundle 26631, avec test Flip Y, normal map, wireframe et assemblage des meshes.</p>
-      <a class="button primary" href="/lab/lastwar-audie-reconstruction-viewer.html">Ouvrir Audie Reconstruction →</a>
-    </section>
-
-    <section class="card">
-      <h2>Reconstruction d’un bundle Last War</h2>
-      <p class="muted">Explore les matériaux, textures, meshes OBJ et objets sérialisés d’un bundle réel. La reconstruction 3D utilise uniquement les liens GameObject / Transform / Renderer / Mesh effectivement résolus.</p>
-      <a class="button primary" href="/lab/lastwar-bundle-reconstruction-viewer.html?bundle=14169">Ouvrir le Bundle Viewer 14169 →</a>
-    </section>
-
-    <section class="card note">
-      <h2>Principe validé</h2>
-      <p>Le portail conserve la session. Le module récupère uniquement le contexte nécessaire via l’API. Aucun code d’authentification, secret ou jeton de session n’est affiché.</p>
-    </section>
+    <section class="card"><h2>Connexion au socle WfGg</h2><div id="status" class="status pending">Vérification de la session…</div></section>
+    <section id="identityCard" class="card hidden"><h2>Contexte reçu automatiquement</h2><div class="grid"><div class="field"><span>Utilisateur</span><strong id="userName">—</strong></div><div class="field"><span>ID utilisateur</span><strong id="userId">—</strong></div><div class="field"><span>Alliance</span><strong id="allianceName">—</strong></div><div class="field"><span>Serveur</span><strong id="server">—</strong></div><div class="field"><span>Rang</span><strong id="rank">—</strong></div><div class="field"><span>Fonction officier</span><strong id="officer">—</strong></div><div class="field"><span>Rôle système</span><strong id="systemRole">—</strong></div><div class="field"><span>Langue</span><strong id="language">—</strong></div></div></section>
+    <section id="permissionCard" class="card hidden"><h2>Permissions disponibles pour ce module</h2><div id="permissions" class="chips"></div></section>
+    <section id="rosterCard" class="card hidden"><h2>Accès complémentaire sur demande</h2><p class="muted">Le module ne charge pas le roster automatiquement. Ce bouton vérifie seulement qu’il peut demander le contexte Train si sa fonction métier en a besoin.</p><button id="rosterButton" class="button secondary" type="button">Tester l’accès au roster</button><div id="rosterResult" class="status neutral hidden"></div></section>
+    <section class="card"><h2>Étape suivante : Last War</h2><p class="muted">Le socle est maintenant préparé pour associer plus tard une identité Last War vérifiée au même compte WfGg, sans changer les modules.</p><a class="button primary" href="/lab/lastwar.html">Ouvrir le laboratoire Last War →</a></section>
+    <section class="card"><h2>Inspection des textures Formation</h2><p class="muted">Revue des textures réelles extraites du jeu, avec classement humain Oui / Non / Incertain.</p><a class="button primary" href="/lab/lastwar-formation-texture-viewer.html">Ouvrir le Texture Viewer →</a></section>
+    <section class="card"><h2>Images véhicules de Formation</h2><p class="muted">Viewer dédié aux rendus 2D, Texture2D, sprites et atlases pouvant correspondre aux véhicules visibles dans l’écran de formation.</p><a class="button primary" href="/lab/lastwar-formation-vehicle-texture-viewer.html">Ouvrir le Vehicle Texture Viewer →</a></section>
+    <section class="card"><h2>Audie — famille complète</h2><p class="muted">Inventaire transversal de toute la nomenclature Audie : textures, meshes, materials, prefabs, animations et objets compagnons.</p><a class="button primary" href="/lab/lastwar-audie-family-viewer.html">Ouvrir Audie Family →</a></section>
+    <section class="card"><h2>Audie — liaisons profondes V2</h2><p class="muted">Suit les pointeurs sérialisés Unity à partir des objets Audie.</p><a class="button primary" href="/lab/lastwar-audie-family-deep-viewer.html?v=2">Ouvrir Audie Deep Links →</a></section>
+    <section class="card"><h2>Audie — Material Map V3</h2><p class="muted">Cartographie les vrais sets base / High / bullet et les slots Material → Texture.</p><a class="button primary" href="/lab/lastwar-audie-material-map-viewer.html?v=3">Ouvrir Audie Material Map →</a></section>
+    <section class="card"><h2>Audie — Cross Bundle V4</h2><p class="muted">Recherche inversée dans tout le corpus local pour remonter Texture → Material → Renderer → Mesh.</p><a class="button primary" href="/lab/lastwar-audie-crossbundle-viewer.html?v=4">Ouvrir Audie Cross Bundle →</a></section>
+    <section class="card"><h2>Audie — nomenclature package V5</h2><p class="muted">Exploite la racine réelle art_lastwar_models_cars_a_hero_audie_01 pour retrouver les branches sœurs.</p><a class="button primary" href="/lab/lastwar-audie-package-family-viewer.html?v=5">Ouvrir Audie Package Family →</a></section>
+    <section class="card"><h2>Audie — modèles / LOD V11</h2><p class="muted">Compare toutes les géométries uniques de la famille Audie afin de retrouver le modèle du plateau.</p><a class="button primary" href="/lab/lastwar-audie-model-variants-viewer.html?v=11">Ouvrir Audie Model Variants →</a></section>
+    <section class="card"><h2>Audie — usage plateau V12</h2><p class="muted">Départage les deux variantes principales à partir des vrais pointeurs MeshFilter/SkinnedMeshRenderer et du contexte Formation/PVP/UIHero, sans décider seulement par la complexité du mesh.</p><a class="button primary" href="/lab/lastwar-audie-board-usage-viewer.html?v=12">Ouvrir Audie Board Usage →</a></section>
+    <section class="card"><h2>Audie — reconstruction UV</h2><p class="muted">Banc d’essai ciblé des textures réelles A_Hero_Audie_01 sur les meshes retrouvés.</p><a class="button primary" href="/lab/lastwar-audie-reconstruction-viewer.html">Ouvrir Audie Reconstruction →</a></section>
+    <section class="card"><h2>Reconstruction d’un bundle Last War</h2><p class="muted">Explore les matériaux, textures, meshes OBJ et objets sérialisés d’un bundle réel.</p><a class="button primary" href="/lab/lastwar-bundle-reconstruction-viewer.html?bundle=14169">Ouvrir le Bundle Viewer 14169 →</a></section>
+    <section class="card note"><h2>Principe validé</h2><p>Le portail conserve la session. Le module récupère uniquement le contexte nécessaire via l’API.</p></section>
   </main>
   <script src="/lab/lab.js"></script>
 </body>
