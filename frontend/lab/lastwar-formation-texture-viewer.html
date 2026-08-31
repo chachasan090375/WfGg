@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="robots" content="noindex,nofollow">
   <meta name="theme-color" content="#0a0a0d">
-  <title>WfGg LAB — Formation Texture Viewer</title>
+  <title>WfGg LAB — Revue des textures Formation</title>
   <link rel="stylesheet" href="/lab/lastwar-formation-texture-viewer.css">
 </head>
 <body>
@@ -13,38 +13,31 @@
     <header class="viewer-header">
       <div>
         <p class="eyebrow">WfGg · LAST WAR · LAB</p>
-        <h1>Formation Texture Viewer</h1>
-        <p class="subtitle">Inspection locale des PNG extraits — aucun fichier n’est envoyé.</p>
+        <h1>Revue des images fixes Formation</h1>
+        <p class="subtitle">Lot préparé automatiquement depuis les assets graphiques de la fermeture Formation.</p>
       </div>
       <a class="back-link" href="/lab/">← LAB</a>
     </header>
 
-    <section id="loaderPanel" class="loader-panel">
-      <h2>Charger les textures à examiner</h2>
-      <p>Sélectionne tous les PNG du dossier d’extraction. Ils seront triés par nom et affichés un par un.</p>
-      <div class="load-actions">
-        <label class="button primary">
-          Choisir des PNG
-          <input id="filePicker" type="file" accept="image/png,image/*" multiple hidden>
-        </label>
-        <label class="button secondary">
-          Choisir un dossier
-          <input id="folderPicker" type="file" accept="image/png,image/*" webkitdirectory directory multiple hidden>
-        </label>
-      </div>
-      <p class="hint">Sur Android, « Choisir des PNG » est généralement le plus fiable. Sélection multiple possible.</p>
+    <section id="loadingPanel" class="loader-panel">
+      <h2>Chargement du lot préparé</h2>
+      <p id="loadingText">Lecture du manifeste des textures…</p>
+    </section>
+
+    <section id="emptyPanel" class="loader-panel hidden">
+      <h2>Aucun lot préparé</h2>
+      <p>Le viewer est prêt, mais aucun manifeste d’images fixes n’est encore présent. Lance le script de préparation LAB puis recharge cette page.</p>
     </section>
 
     <section id="viewerPanel" class="viewer-panel hidden" aria-live="polite">
       <div class="toolbar">
         <div class="counter-group">
           <strong id="counter">0 / 0</strong>
-          <span id="markedCounter" class="marked-counter">0 candidat</span>
+          <span id="voteCounter" class="marked-counter">0 examinée</span>
         </div>
         <div class="toolbar-actions">
-          <button id="fitButton" class="icon-button" type="button" title="Ajuster / taille réelle">Ajuster</button>
-          <button id="markButton" class="icon-button mark-button" type="button" aria-pressed="false">☆ Candidat</button>
-          <button id="reloadButton" class="icon-button" type="button">Changer</button>
+          <button id="fitButton" class="icon-button" type="button">Ajuster</button>
+          <button id="resetVotesButton" class="icon-button" type="button">Réinitialiser</button>
         </div>
       </div>
 
@@ -60,24 +53,35 @@
         <div class="meta-main">
           <strong id="fileName">—</strong>
           <span id="dimensions">—</span>
+          <span id="identity">—</span>
         </div>
-        <span id="fileSize">—</span>
+        <span id="format">—</span>
+      </div>
+
+      <div class="vote-panel" aria-label="Décision sur cette image">
+        <button id="noButton" class="vote-button no" type="button">✕ Non</button>
+        <button id="yesButton" class="vote-button yes" type="button">✓ Oui</button>
       </div>
 
       <div class="mobile-nav">
         <button id="prevBottom" class="button secondary" type="button">← Précédente</button>
-        <button id="nextBottom" class="button primary" type="button">Suivante →</button>
+        <button id="nextBottom" class="button secondary" type="button">Suivante →</button>
       </div>
 
       <div id="thumbStrip" class="thumb-strip" aria-label="Miniatures"></div>
+    </section>
 
-      <div class="selection-panel">
+    <section id="resultsPanel" class="results-panel hidden">
+      <div class="results-head">
         <div>
-          <strong>Images marquées</strong>
-          <p id="selectionText">Aucune candidate marquée.</p>
+          <p class="eyebrow">REVUE TERMINÉE</p>
+          <h2>Images retenues : Oui</h2>
+          <p id="resultsSummary" class="subtitle"></p>
         </div>
-        <button id="copySelectionButton" class="button secondary" type="button" disabled>Copier les noms</button>
+        <button id="resumeButton" class="button secondary" type="button">Revoir les images</button>
       </div>
+      <div id="yesGrid" class="yes-grid"></div>
+      <button id="copyYesButton" class="button primary" type="button">Copier la liste des Oui</button>
     </section>
   </main>
 
