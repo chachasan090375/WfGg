@@ -14,12 +14,6 @@ adb_serial(){ adb devices 2>/dev/null | awk 'NR>1 && $2=="device"{print $1;exit}
 lastwar_pid(){ timeout 3 adb -s "$1" shell pidof "$PKG" 2>/dev/null | tr -d '\r' | awk '{print $1}'; }
 now(){ date +%Y%m%d_%H%M%S; }
 
-bg_local(){
-  local name="$1"; shift
-  ( "$@" ) >"$SESSION/$name.log" 2>&1 &
-  echo $! >"$SESSION/$name.pid"
-}
-
 snap(){
   local phase="$1"
   {
@@ -54,7 +48,6 @@ start_pollers(){
       sleep 1
     done
   ) >"$SESSION/poller-runtime.log" 2>&1 & echo $! >"$SESSION/poller-runtime.pid"
-
   (
     while :; do
       echo "@@T $(date +%s.%3N)"
@@ -67,9 +60,8 @@ start_pollers(){
 start_atrace(){
   set +e
   timeout 5 adb -s "$SERIAL" shell "atrace --async_start -b 8192 sched freq idle am wm gfx view binder_driver" >"$SESSION/atrace-start.log" 2>&1
-  local rc=$?
+  echo $? >"$SESSION/atrace-start.rc"
   set -e
-  echo "$rc" >"$SESSION/atrace-start.rc"
 }
 
 start_perfetto(){
@@ -108,15 +100,21 @@ prepare_remote_strace(){
   fi
 }
 
+mark(){
+  local what="$1" epoch
+  epoch="$(date +%s.%3N)"
+  echo "$what=$epoch" >>"$STATE"
+  echo "@@$what $epoch" >>"$SESSION/markers.log"
+  timeout 2 adb -s "$SERIAL" shell "log -t WFGG_OMNITRACE '$what $ID $epoch'" >/dev/null 2>&1 || true
+}
+
 start_cmd(){
   need_branch
   command -v adb >/dev/null 2>&1 || { say 'ADB=ABSENT'; exit 2; }
   SERIAL="$(adb_serial)"; [[ -n "$SERIAL" ]] || { say 'ADB_DEVICE=ABSENT'; exit 3; }
   PID="$(lastwar_pid "$SERIAL")"; [[ -n "$PID" ]] || { say 'LASTWAR_PID=ABSENT'; exit 4; }
   LABEL="${1:-formation change}"
-  ID="$(now)"
-  SESSION="$BASE/sessions/$ID"
-  REMOTE_SESSION="$REMOTE_BASE/$ID"
+  ID="$(now)"; SESSION="$BASE/sessions/$ID"; REMOTE_SESSION="$REMOTE_BASE/$ID"
   mkdir -p "$SESSION" "$BASE/sessions"
   timeout 4 adb -s "$SERIAL" shell "rm -rf '$REMOTE_SESSION'; mkdir -p '$REMOTE_SESSION'" >/dev/null 2>&1 || true
   cat >"$STATE" <<EOF
@@ -126,39 +124,35 @@ REMOTE_SESSION='$REMOTE_SESSION'
 SERIAL='$SERIAL'
 PID='$PID'
 LABEL='${LABEL//\'/}'
-START_EPOCH='$(date +%s)'
+START_EPOCH='$(date +%s.%3N)'
 EOF
   say "FORMATION_OMNITRACE_V1_PREP session=$ID device=$SERIAL pid=$PID"
-  say 'METHODS=logcat,events,proc,network,dumpsys,atrace,perfetto,simpleperf,strace-if-runnable'
+  say 'PACK=logcat+events+proc+network+dumpsys+atrace+perfetto+simpleperf+strace'
   snap before & echo $! >"$SESSION/snapshot-before.pid"
+  # Prepare the deepest collector before opening the action window.
+  prepare_remote_strace
   start_logcats
   start_pollers
   start_atrace
   start_perfetto
   start_simpleperf
-  prepare_remote_strace
+  sleep 1
+  mark ACTION_WINDOW_START
   say 'FORMATION_OMNITRACE_V1_READY'
   say "ACTION=$LABEL"
-  say 'Fais UNE SEULE modification dans Last War, valide, puis reviens dans Termux.'
+  say 'Fais UNE SEULE modification dans Last War, valide, puis reviens immédiatement dans Termux.'
   say 'STOP=bash scripts/lastwar-formation-omnitrace-v1.sh stop'
 }
 
 stop_pidfile(){
-  local pf="$1"
-  [[ -f "$pf" ]] || return 0
-  local p; p="$(cat "$pf" 2>/dev/null || true)"
-  [[ "$p" =~ ^[0-9]+$ ]] || return 0
-  kill "$p" 2>/dev/null || true
-  sleep .15
-  kill -9 "$p" 2>/dev/null || true
+  local pf="$1"; [[ -f "$pf" ]] || return 0
+  local p; p="$(cat "$pf" 2>/dev/null || true)"; [[ "$p" =~ ^[0-9]+$ ]] || return 0
+  kill "$p" 2>/dev/null || true; sleep .08; kill -9 "$p" 2>/dev/null || true
 }
-
 stop_remote(){
-  local pf="$1"
-  [[ -f "$pf" ]] || return 0
-  local p; p="$(tr -dc '0-9\n' <"$pf" | head -n1)"
-  [[ "$p" =~ ^[0-9]+$ ]] || return 0
-  timeout 3 adb -s "$SERIAL" shell "kill -INT '$p' 2>/dev/null || kill '$p' 2>/dev/null || true" >/dev/null 2>&1 || true
+  local pf="$1"; [[ -f "$pf" ]] || return 0
+  local p; p="$(tr -dc '0-9\n' <"$pf" | head -n1)"; [[ "$p" =~ ^[0-9]+$ ]] || return 0
+  timeout 2 adb -s "$SERIAL" shell "kill -INT '$p' 2>/dev/null || kill '$p' 2>/dev/null || true" >/dev/null 2>&1 || true
 }
 
 stop_cmd(){
@@ -166,7 +160,8 @@ stop_cmd(){
   # shellcheck disable=SC1090
   source "$STATE"
   say "FORMATION_OMNITRACE_V1_STOP session=$ID"
-  snap after || true
+  mark ACTION_WINDOW_STOP
+  # Freeze the action window immediately, before any long diagnostic.
   for pf in "$SESSION"/*.pid; do stop_pidfile "$pf"; done
   stop_remote "$SESSION/strace.pid.remote"
   stop_remote "$SESSION/perfetto.pid.remote"
@@ -175,27 +170,17 @@ stop_cmd(){
   timeout 8 adb -s "$SERIAL" shell "atrace --async_stop" >"$SESSION/atrace-stop.log" 2>&1
   echo $? >"$SESSION/atrace-stop.rc"
   set -e
-  for name in strace.log strace.err perfetto.trace perfetto.err simpleperf.data simpleperf.err; do
-    timeout 8 adb -s "$SERIAL" pull "$REMOTE_SESSION/$name" "$SESSION/$name" >/dev/null 2>&1 || true
-  done
-  {
-    echo "STOP_EPOCH=$(date +%s)"
-    echo "STOP_ISO=$(date -Iseconds)"
-  } >>"$STATE"
+  snap after || true
+  for name in strace.log strace.err perfetto.trace perfetto.err simpleperf.data simpleperf.err; do timeout 8 adb -s "$SERIAL" pull "$REMOTE_SESSION/$name" "$SESSION/$name" >/dev/null 2>&1 || true; done
+  echo "STOP_EPOCH='$(date +%s.%3N)'" >>"$STATE"
   python3 "$ROOT/scripts/lastwar-formation-omnitrace-analyze-v1.py" "$SESSION" "$BASE/latest.json"
   rm -f "$STATE"
-  if ! curl -fsS --max-time 1 http://127.0.0.1:8788/ >/dev/null 2>&1; then
-    nohup python3 -m http.server 8788 --directory "$ROOT/frontend" >"$BASE/http.log" 2>&1 &
-    sleep 1
-  fi
+  if ! curl -fsS --max-time 1 http://127.0.0.1:8788/ >/dev/null 2>&1; then nohup python3 -m http.server 8788 --directory "$ROOT/frontend" >"$BASE/http.log" 2>&1 & sleep 1; fi
   say "FORMATION_OMNITRACE_V1_ANALYZED session=$ID"
   say 'VIEWER=http://127.0.0.1:8788/lab/lastwar-formation-omnitrace.html?v=1'
 }
 
-status_cmd(){
-  if [[ -f "$STATE" ]]; then cat "$STATE"; else echo 'OMNITRACE=IDLE'; fi
-}
-
+status_cmd(){ if [[ -f "$STATE" ]]; then cat "$STATE"; else echo 'OMNITRACE=IDLE'; fi; }
 case "${1:-}" in
   start) shift; start_cmd "$*" ;;
   stop) stop_cmd ;;
