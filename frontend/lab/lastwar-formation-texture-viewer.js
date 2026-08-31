@@ -1,239 +1,75 @@
 (() => {
   const $ = (id) => document.getElementById(id);
-  const loadingPanel = $('loadingPanel');
-  const emptyPanel = $('emptyPanel');
-  const viewerPanel = $('viewerPanel');
-  const resultsPanel = $('resultsPanel');
-  const mainImage = $('mainImage');
-  const stage = $('stage');
-  const imageViewport = $('imageViewport');
-  const counter = $('counter');
-  const voteCounter = $('voteCounter');
-  const fileName = $('fileName');
-  const dimensions = $('dimensions');
-  const identity = $('identity');
-  const format = $('format');
-  const thumbStrip = $('thumbStrip');
-  const fitButton = $('fitButton');
-  const yesButton = $('yesButton');
-  const noButton = $('noButton');
-  const yesGrid = $('yesGrid');
-  const resultsSummary = $('resultsSummary');
-  const STORAGE_KEY = 'wfgg-lastwar-formation-fixed-texture-review-v1';
+  const loadingPanel=$('loadingPanel'), emptyPanel=$('emptyPanel'), gridPanel=$('gridPanel'), viewerPanel=$('viewerPanel'), resultsPanel=$('resultsPanel');
+  const mainImage=$('mainImage'), stage=$('stage'), imageViewport=$('imageViewport');
+  const counter=$('counter'), voteCounter=$('voteCounter'), fileName=$('fileName'), dimensions=$('dimensions'), identity=$('identity'), scopeMeta=$('scopeMeta'), format=$('format'), analyticMeta=$('analyticMeta');
+  const thumbStrip=$('thumbStrip'), yesButton=$('yesButton'), noButton=$('noButton'), unsureButton=$('unsureButton');
+  const reviewGrid=$('reviewGrid'), gridFilter=$('gridFilter'), gridPageInfo=$('gridPageInfo');
+  const yesGrid=$('yesGrid'), unsureGrid=$('unsureGrid'), resultsSummary=$('resultsSummary'), unsureSummary=$('unsureSummary');
+  const blurControl=$('blurControl'), blurRange=$('blurRange'), blurValue=$('blurValue');
+  const STORAGE_KEY='wfgg-lastwar-formation-visual-human-search-v2';
+  let manifest=null,items=[],index=0,gridPage=0,gridPageSize=12,viewMode='fit',touchStartX=null,touchStartY=null;
 
-  let items = [];
-  let index = 0;
-  let fitMode = true;
-  let touchStartX = null;
-  let touchStartY = null;
+  const key=(item)=>`${item.id || `${item.bundleId}:${item.pathID}`}:${item.sha256 || item.src}`;
+  function loadVotes(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}')||{}}catch{return {}}}
+  function saveVotes(){const out={};for(const x of items)if(['yes','no','unsure'].includes(x.vote))out[key(x)]=x.vote;localStorage.setItem(STORAGE_KEY,JSON.stringify(out));}
+  function reviewedCount(){return items.filter(x=>x.vote).length;}
+  function firstUnvoted(){return items.findIndex(x=>!x.vote);}
 
-  function itemKey(item) {
-    return `${item.bundleId}:${item.pathID}:${item.sha256 || item.src}`;
+  async function loadManifest(){
+    try{
+      const response=await fetch(`/lab/formation-texture-review-v2/manifest.json?t=${Date.now()}`,{cache:'no-store'});
+      if(!response.ok)throw new Error(`HTTP ${response.status}`);
+      manifest=await response.json();const list=Array.isArray(manifest.items)?manifest.items:[];if(!list.length)throw new Error('manifest empty');
+      gridPageSize=Number(manifest.review?.gridPageSize)||12;const votes=loadVotes();
+      items=list.map(x=>({...x,vote:votes[key(x)]||null,thumb:null}));
+      loadingPanel.classList.add('hidden');gridPanel.classList.remove('hidden');
+      const c=manifest.counts||{};$('scopeSummary').textContent=`${items.length} images · ${c.closureShown||0} fermeture Formation · ${c.externalShown||0} hors fermeture via index courant`;
+      buildThumbs();renderGrid();
+      if(items.every(x=>x.vote))showResults();
+    }catch(e){$('loadingText').textContent=`Lot V2 indisponible : ${e.message}`;loadingPanel.classList.add('hidden');emptyPanel.classList.remove('hidden');}
   }
 
-  function loadVotes() {
-    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}') || {}; }
-    catch { return {}; }
+  function filteredIndexes(){const f=gridFilter.value;return items.map((x,i)=>({x,i})).filter(({x})=>f==='all'||(f==='unreviewed'?!x.vote:x.vote===f)).map(v=>v.i);}
+  function voteGlyph(v){return v==='yes'?'✓ Oui':v==='no'?'✕ Non':v==='unsure'?'? Incertain':'À examiner';}
+  function renderGrid(){
+    const ids=filteredIndexes(),pages=Math.max(1,Math.ceil(ids.length/gridPageSize));gridPage=Math.max(0,Math.min(gridPage,pages-1));
+    const slice=ids.slice(gridPage*gridPageSize,(gridPage+1)*gridPageSize);gridPageInfo.textContent=`Page ${gridPage+1}/${pages} · ${ids.length} image${ids.length>1?'s':''}`;
+    $('gridPrev').disabled=gridPage<=0;$('gridNext').disabled=gridPage>=pages-1;
+    const frag=document.createDocumentFragment();
+    for(const i of slice){const x=items[i],card=document.createElement('article');card.className=`review-tile ${x.vote?`vote-${x.vote}`:''}`;
+      const open=document.createElement('button');open.className='tile-image';open.type='button';open.title='Ouvrir en détail';const img=document.createElement('img');img.src=x.src;img.alt=x.name||`Texture ${i+1}`;img.loading='lazy';open.append(img);open.addEventListener('click',()=>openDetail(i));
+      const meta=document.createElement('div');meta.className='tile-meta';const strong=document.createElement('strong');strong.textContent=x.name||x.file||'Sans nom';const small=document.createElement('span');small.textContent=`${x.width}×${x.height} · ${x.scope==='formation-closure'?'fermeture':'hors fermeture'} · sprites ${x.spriteRefs||0}`;meta.append(strong,small);
+      const votes=document.createElement('div');votes.className='tile-votes';for(const [v,label] of [['no','✕'],['unsure','?'],['yes','✓']]){const b=document.createElement('button');b.type='button';b.className=`tile-vote ${v} ${x.vote===v?'active':''}`;b.textContent=label;b.title=voteGlyph(v);b.addEventListener('click',()=>{setVote(i,v,false);});votes.append(b);}card.append(open,meta,votes);frag.append(card);
+    }reviewGrid.replaceChildren(frag);updateProgress();
   }
 
-  function saveVotes() {
-    const votes = {};
-    for (const item of items) {
-      if (item.vote === 'yes' || item.vote === 'no') votes[itemKey(item)] = item.vote;
-    }
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(votes));
+  function buildThumbs(){const frag=document.createDocumentFragment();items.forEach((x,i)=>{const b=document.createElement('button');b.className='thumb';b.type='button';b.title=x.name||x.file||`Texture ${i+1}`;const img=document.createElement('img');img.src=x.src;img.alt='';img.loading='lazy';b.append(img);b.addEventListener('click',()=>openDetail(i));x.thumb=b;frag.append(b);});thumbStrip.replaceChildren(frag);}
+
+  function openDetail(i){index=((i%items.length)+items.length)%items.length;gridPanel.classList.add('hidden');resultsPanel.classList.add('hidden');viewerPanel.classList.remove('hidden');renderDetail();}
+  function renderDetail(){
+    const x=items[index];mainImage.src=x.src;mainImage.alt=x.name||`Texture ${index+1}`;counter.textContent=`${index+1} / ${items.length}`;fileName.textContent=x.name||x.file||'Sans nom';dimensions.textContent=`${x.width} × ${x.height} px`;identity.textContent=`bundle ${x.bundleId} · pathID ${x.pathID}`;scopeMeta.textContent=x.scope==='formation-closure'?`Fermeture Formation · Sprite refs ${x.spriteRefs||0} · Atlas refs ${x.spriteAtlasRefs||0}`:`Hors fermeture · index graphique courant · Sprite refs ${x.spriteRefs||0}`;format.textContent=x.textureFormat||'—';analyticMeta.textContent=`Ordre ${x.orderScore??'—'} · similarité réf. ${x.referenceSimilarity??'—'} (tri seulement)`;
+    yesButton.classList.toggle('active',x.vote==='yes');noButton.classList.toggle('active',x.vote==='no');unsureButton.classList.toggle('active',x.vote==='unsure');
+    items.forEach((e,i)=>{if(!e.thumb)return;e.thumb.classList.toggle('active',i===index);e.thumb.classList.toggle('vote-yes',e.vote==='yes');e.thumb.classList.toggle('vote-no',e.vote==='no');e.thumb.classList.toggle('vote-unsure',e.vote==='unsure');});if(x.thumb)x.thumb.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});imageViewport.scrollTo({left:0,top:0});updateProgress();applyMode();
   }
+  function updateProgress(){const r=reviewedCount();voteCounter.textContent=`${r} examinée${r>1?'s':''} / ${items.length}`;}
+  function nextUnvoted(after){for(let s=1;s<=items.length;s++){const i=(after+s)%items.length;if(!items[i].vote)return i;}return -1;}
+  function setVote(i,value,advance){items[i].vote=value;saveVotes();updateProgress();renderGrid();if(i===index&&!viewerPanel.classList.contains('hidden')){if(advance){const n=nextUnvoted(i);if(n<0)showResults();else openDetail(n);}else renderDetail();}}
 
-  async function loadManifest() {
-    try {
-      const response = await fetch('/lab/formation-texture-review/manifest.json', { cache: 'no-store' });
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const manifest = await response.json();
-      const list = Array.isArray(manifest.items) ? manifest.items : [];
-      if (!list.length) throw new Error('manifest empty');
-      const votes = loadVotes();
-      items = list.map((item) => ({ ...item, vote: votes[itemKey(item)] || null, thumb: null }));
-      loadingPanel.classList.add('hidden');
-      viewerPanel.classList.remove('hidden');
-      buildThumbs();
-      const firstUnvoted = items.findIndex((item) => !item.vote);
-      index = firstUnvoted >= 0 ? firstUnvoted : 0;
-      render();
-      if (items.every((item) => item.vote)) showResults();
-    } catch (error) {
-      $('loadingText').textContent = `Lot indisponible : ${error.message}`;
-      loadingPanel.classList.add('hidden');
-      emptyPanel.classList.remove('hidden');
-    }
-  }
+  function applyMode(){stage.className=`stage mode-${viewMode}`;document.querySelectorAll('.mode-button').forEach(b=>b.classList.toggle('active',b.dataset.mode===viewMode));blurControl.classList.toggle('hidden',viewMode!=='blur');mainImage.style.filter=viewMode==='blur'?`blur(${Number(blurRange.value)||0}px)`:'none';blurValue.textContent=`${blurRange.value} px`;imageViewport.scrollTo({left:0,top:0});}
+  function setMode(mode){viewMode=mode;applyMode();}
 
-  function buildThumbs() {
-    const frag = document.createDocumentFragment();
-    items.forEach((item, i) => {
-      const button = document.createElement('button');
-      button.className = 'thumb';
-      button.type = 'button';
-      button.dataset.index = String(i);
-      button.title = item.name || item.file || `Texture ${i + 1}`;
-      const img = document.createElement('img');
-      img.src = item.src;
-      img.alt = '';
-      img.loading = 'lazy';
-      button.appendChild(img);
-      button.addEventListener('click', () => goTo(i));
-      item.thumb = button;
-      frag.appendChild(button);
-    });
-    thumbStrip.replaceChildren(frag);
-  }
+  function cardFor(x){const card=document.createElement('article');card.className='yes-card';const img=document.createElement('img');img.src=x.src;img.alt=x.name||'Texture';const d=document.createElement('div');const st=document.createElement('strong');st.textContent=x.name||x.file||'Sans nom';const sp=document.createElement('span');sp.textContent=`${x.width}×${x.height} · b${x.bundleId} · p${x.pathID} · ${x.scope==='formation-closure'?'fermeture':'hors fermeture'}`;d.append(st,sp);card.append(img,d);return card;}
+  function showResults(){saveVotes();const yes=items.filter(x=>x.vote==='yes'),unsure=items.filter(x=>x.vote==='unsure');gridPanel.classList.add('hidden');viewerPanel.classList.add('hidden');resultsPanel.classList.remove('hidden');resultsSummary.textContent=`${yes.length} Oui sur ${items.length}. ${unsure.length} Incertaine${unsure.length>1?'s':''} conservée${unsure.length>1?'s':''} à part.`;const yf=document.createDocumentFragment();yes.forEach(x=>yf.append(cardFor(x)));yesGrid.replaceChildren(yf);const uf=document.createDocumentFragment();unsure.forEach(x=>uf.append(cardFor(x)));unsureGrid.replaceChildren(uf);unsureSummary.textContent=`Incertaines conservées (${unsure.length})`;$('copyYesButton').disabled=yes.length===0;}
+  async function copyYes(){const yes=items.filter(x=>x.vote==='yes');if(!yes.length)return;const text=yes.map(x=>`${x.name||x.file} — ${x.width}x${x.height} — scope=${x.scope} bundle=${x.bundleId} pathID=${x.pathID} format=${x.textureFormat||'-'}`).join('\n');try{await navigator.clipboard.writeText(text);const b=$('copyYesButton'),old=b.textContent;b.textContent='Copié ✓';setTimeout(()=>b.textContent=old,1200);}catch{window.prompt('Copie cette sélection :',text);}}
+  function resetVotes(){if(!window.confirm('Effacer tous les Oui / Non / Incertain et recommencer ?'))return;localStorage.removeItem(STORAGE_KEY);items.forEach(x=>x.vote=null);gridPage=0;resultsPanel.classList.add('hidden');viewerPanel.classList.add('hidden');gridPanel.classList.remove('hidden');renderGrid();}
 
-  function render() {
-    if (!items.length) return;
-    const item = items[index];
-    mainImage.src = item.src;
-    mainImage.alt = item.name || `Texture ${index + 1}`;
-    counter.textContent = `${index + 1} / ${items.length}`;
-    fileName.textContent = item.name || item.file || 'Sans nom';
-    dimensions.textContent = `${item.width} × ${item.height} px`;
-    identity.textContent = `bundle ${item.bundleId} · pathID ${item.pathID}`;
-    format.textContent = item.textureFormat || '—';
-
-    yesButton.classList.toggle('active', item.vote === 'yes');
-    noButton.classList.toggle('active', item.vote === 'no');
-
-    items.forEach((entry, i) => {
-      if (!entry.thumb) return;
-      entry.thumb.classList.toggle('active', i === index);
-      entry.thumb.classList.toggle('vote-yes', entry.vote === 'yes');
-      entry.thumb.classList.toggle('vote-no', entry.vote === 'no');
-    });
-    if (item.thumb) item.thumb.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-    imageViewport.scrollTo({ left: 0, top: 0 });
-    updateProgress();
-  }
-
-  function updateProgress() {
-    const reviewed = items.filter((item) => item.vote).length;
-    voteCounter.textContent = `${reviewed} examinée${reviewed > 1 ? 's' : ''} / ${items.length}`;
-  }
-
-  function goTo(nextIndex) {
-    if (!items.length) return;
-    index = (nextIndex + items.length) % items.length;
-    resultsPanel.classList.add('hidden');
-    viewerPanel.classList.remove('hidden');
-    render();
-  }
-
-  function nextUnvoted(afterIndex) {
-    for (let step = 1; step <= items.length; step += 1) {
-      const i = (afterIndex + step) % items.length;
-      if (!items[i].vote) return i;
-    }
-    return -1;
-  }
-
-  function vote(value) {
-    if (!items.length) return;
-    items[index].vote = value;
-    saveVotes();
-    updateProgress();
-    const nextIndex = nextUnvoted(index);
-    if (nextIndex === -1) showResults();
-    else goTo(nextIndex);
-  }
-
-  function showResults() {
-    saveVotes();
-    const yes = items.filter((item) => item.vote === 'yes');
-    viewerPanel.classList.add('hidden');
-    resultsPanel.classList.remove('hidden');
-    resultsSummary.textContent = `${yes.length} image${yes.length > 1 ? 's' : ''} retenue${yes.length > 1 ? 's' : ''} sur ${items.length}.`;
-    const frag = document.createDocumentFragment();
-    yes.forEach((item) => {
-      const card = document.createElement('article');
-      card.className = 'yes-card';
-      const img = document.createElement('img');
-      img.src = item.src;
-      img.alt = item.name || 'Texture retenue';
-      const meta = document.createElement('div');
-      meta.innerHTML = `<strong></strong><span>${item.width}×${item.height} · b${item.bundleId} · p${item.pathID}</span>`;
-      meta.querySelector('strong').textContent = item.name || item.file || 'Sans nom';
-      card.append(img, meta);
-      frag.appendChild(card);
-    });
-    yesGrid.replaceChildren(frag);
-    $('copyYesButton').disabled = yes.length === 0;
-  }
-
-  async function copyYes() {
-    const yes = items.filter((item) => item.vote === 'yes');
-    if (!yes.length) return;
-    const text = yes.map((item) => `${item.name || item.file} — ${item.width}x${item.height} — bundle=${item.bundleId} pathID=${item.pathID} format=${item.textureFormat || '-'}`).join('\n');
-    try {
-      await navigator.clipboard.writeText(text);
-      const old = $('copyYesButton').textContent;
-      $('copyYesButton').textContent = 'Copié ✓';
-      setTimeout(() => { $('copyYesButton').textContent = old; }, 1200);
-    } catch {
-      window.prompt('Copie cette sélection :', text);
-    }
-  }
-
-  function toggleFit() {
-    fitMode = !fitMode;
-    stage.classList.toggle('fit-mode', fitMode);
-    stage.classList.toggle('native-mode', !fitMode);
-    fitButton.textContent = fitMode ? 'Ajuster' : 'Taille réelle';
-    imageViewport.scrollTo({ left: 0, top: 0 });
-  }
-
-  function resetVotes() {
-    if (!window.confirm('Effacer tous les Oui/Non et recommencer la revue ?')) return;
-    localStorage.removeItem(STORAGE_KEY);
-    for (const item of items) item.vote = null;
-    index = 0;
-    resultsPanel.classList.add('hidden');
-    viewerPanel.classList.remove('hidden');
-    render();
-  }
-
-  $('prevButton').addEventListener('click', () => goTo(index - 1));
-  $('nextButton').addEventListener('click', () => goTo(index + 1));
-  $('prevBottom').addEventListener('click', () => goTo(index - 1));
-  $('nextBottom').addEventListener('click', () => goTo(index + 1));
-  yesButton.addEventListener('click', () => vote('yes'));
-  noButton.addEventListener('click', () => vote('no'));
-  fitButton.addEventListener('click', toggleFit);
-  $('resetVotesButton').addEventListener('click', resetVotes);
-  $('resumeButton').addEventListener('click', () => goTo(0));
-  $('copyYesButton').addEventListener('click', copyYes);
-
-  document.addEventListener('keydown', (event) => {
-    if (viewerPanel.classList.contains('hidden')) return;
-    if (event.key === 'ArrowLeft') goTo(index - 1);
-    else if (event.key === 'ArrowRight') goTo(index + 1);
-    else if (event.key.toLowerCase() === 'o' || event.key.toLowerCase() === 'y') vote('yes');
-    else if (event.key.toLowerCase() === 'n') vote('no');
-    else if (event.key.toLowerCase() === 'f') toggleFit();
-  });
-
-  imageViewport.addEventListener('touchstart', (event) => {
-    const touch = event.changedTouches[0];
-    touchStartX = touch.clientX;
-    touchStartY = touch.clientY;
-  }, { passive: true });
-
-  imageViewport.addEventListener('touchend', (event) => {
-    if (touchStartX === null || touchStartY === null) return;
-    const touch = event.changedTouches[0];
-    const dx = touch.clientX - touchStartX;
-    const dy = touch.clientY - touchStartY;
-    touchStartX = null;
-    touchStartY = null;
-    if (Math.abs(dx) < 55 || Math.abs(dx) < Math.abs(dy) * 1.3) return;
-    goTo(index + (dx < 0 ? 1 : -1));
-  }, { passive: true });
-
+  $('openDetailButton').addEventListener('click',()=>{const i=firstUnvoted();openDetail(i>=0?i:0);});$('backGridButton').addEventListener('click',()=>{viewerPanel.classList.add('hidden');gridPanel.classList.remove('hidden');renderGrid();});
+  gridFilter.addEventListener('change',()=>{gridPage=0;renderGrid();});$('gridPrev').addEventListener('click',()=>{gridPage--;renderGrid();});$('gridNext').addEventListener('click',()=>{gridPage++;renderGrid();});
+  $('prevButton').addEventListener('click',()=>openDetail(index-1));$('nextButton').addEventListener('click',()=>openDetail(index+1));$('prevBottom').addEventListener('click',()=>openDetail(index-1));$('nextBottom').addEventListener('click',()=>openDetail(index+1));
+  yesButton.addEventListener('click',()=>setVote(index,'yes',true));noButton.addEventListener('click',()=>setVote(index,'no',true));unsureButton.addEventListener('click',()=>setVote(index,'unsure',true));
+  document.querySelectorAll('.mode-button').forEach(b=>b.addEventListener('click',()=>setMode(b.dataset.mode)));blurRange.addEventListener('input',applyMode);$('resetVotesButton').addEventListener('click',resetVotes);$('resumeButton').addEventListener('click',()=>{resultsPanel.classList.add('hidden');gridPanel.classList.remove('hidden');renderGrid();});$('copyYesButton').addEventListener('click',copyYes);
+  document.addEventListener('keydown',(e)=>{if(viewerPanel.classList.contains('hidden'))return;if(e.key==='ArrowLeft')openDetail(index-1);else if(e.key==='ArrowRight')openDetail(index+1);else if(['o','y'].includes(e.key.toLowerCase()))setVote(index,'yes',true);else if(e.key.toLowerCase()==='n')setVote(index,'no',true);else if(['i','?'].includes(e.key.toLowerCase()))setVote(index,'unsure',true);});
+  imageViewport.addEventListener('touchstart',e=>{const t=e.changedTouches[0];touchStartX=t.clientX;touchStartY=t.clientY;},{passive:true});imageViewport.addEventListener('touchend',e=>{if(touchStartX===null)return;const t=e.changedTouches[0],dx=t.clientX-touchStartX,dy=t.clientY-touchStartY;touchStartX=touchStartY=null;if(Math.abs(dx)>=55&&Math.abs(dx)>=Math.abs(dy)*1.3)openDetail(index+(dx<0?1:-1));},{passive:true});
   loadManifest();
 })();
