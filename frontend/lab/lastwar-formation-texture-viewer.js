@@ -60,15 +60,35 @@
   function setMode(mode){viewMode=mode;applyMode();}
 
   function cardFor(x){const card=document.createElement('article');card.className='yes-card';const img=document.createElement('img');img.src=x.src;img.alt=x.name||'Texture';const d=document.createElement('div');const st=document.createElement('strong');st.textContent=x.name||x.file||'Sans nom';const sp=document.createElement('span');sp.textContent=`${x.width}×${x.height} · b${x.bundleId} · p${x.pathID} · ${x.scope==='formation-closure'?'fermeture':'hors fermeture'}`;d.append(st,sp);card.append(img,d);return card;}
-  function showResults(){saveVotes();const yes=items.filter(x=>x.vote==='yes'),unsure=items.filter(x=>x.vote==='unsure');gridPanel.classList.add('hidden');viewerPanel.classList.add('hidden');resultsPanel.classList.remove('hidden');resultsSummary.textContent=`${yes.length} Oui sur ${items.length}. ${unsure.length} Incertaine${unsure.length>1?'s':''} conservée${unsure.length>1?'s':''} à part.`;const yf=document.createDocumentFragment();yes.forEach(x=>yf.append(cardFor(x)));yesGrid.replaceChildren(yf);const uf=document.createDocumentFragment();unsure.forEach(x=>uf.append(cardFor(x)));unsureGrid.replaceChildren(uf);unsureSummary.textContent=`Incertaines conservées (${unsure.length})`;$('copyYesButton').disabled=yes.length===0;}
-  async function copyYes(){const yes=items.filter(x=>x.vote==='yes');if(!yes.length)return;const text=yes.map(x=>`${x.name||x.file} — ${x.width}x${x.height} — scope=${x.scope} bundle=${x.bundleId} pathID=${x.pathID} format=${x.textureFormat||'-'}`).join('\n');try{await navigator.clipboard.writeText(text);const b=$('copyYesButton'),old=b.textContent;b.textContent='Copié ✓';setTimeout(()=>b.textContent=old,1200);}catch{window.prompt('Copie cette sélection :',text);}}
+  function selectionLine(x){return `${x.name||x.file} — ${x.width}x${x.height} — scope=${x.scope} bundle=${x.bundleId} pathID=${x.pathID} format=${x.textureFormat||'-'} decision=${x.vote}`;}
+  async function copySelection(list,buttonId,label){
+    if(!list.length)return;
+    const text=list.map(selectionLine).join('\n');
+    const b=$(buttonId),old=b.textContent;
+    try{await navigator.clipboard.writeText(text);b.textContent='Copié ✓';setTimeout(()=>b.textContent=old,1200);}
+    catch{window.prompt(label,text);}
+  }
+  function showResults(){
+    saveVotes();const yes=items.filter(x=>x.vote==='yes'),unsure=items.filter(x=>x.vote==='unsure');
+    gridPanel.classList.add('hidden');viewerPanel.classList.add('hidden');resultsPanel.classList.remove('hidden');
+    resultsSummary.textContent=`${yes.length} Oui sur ${items.length}. ${unsure.length} Incertaine${unsure.length>1?'s':''} conservée${unsure.length>1?'s':''}.`;
+    const yf=document.createDocumentFragment();yes.forEach(x=>yf.append(cardFor(x)));yesGrid.replaceChildren(yf);
+    const uf=document.createDocumentFragment();unsure.forEach(x=>uf.append(cardFor(x)));unsureGrid.replaceChildren(uf);
+    unsureSummary.textContent=`Incertaines conservées (${unsure.length})`;
+    $('copyYesButton').disabled=yes.length===0;
+    $('copyUnsureButton').disabled=unsure.length===0;
+    $('copyKeptButton').disabled=(yes.length+unsure.length)===0;
+  }
   function resetVotes(){if(!window.confirm('Effacer tous les Oui / Non / Incertain et recommencer ?'))return;localStorage.removeItem(STORAGE_KEY);items.forEach(x=>x.vote=null);gridPage=0;resultsPanel.classList.add('hidden');viewerPanel.classList.add('hidden');gridPanel.classList.remove('hidden');renderGrid();}
 
   $('openDetailButton').addEventListener('click',()=>{const i=firstUnvoted();openDetail(i>=0?i:0);});$('backGridButton').addEventListener('click',()=>{viewerPanel.classList.add('hidden');gridPanel.classList.remove('hidden');renderGrid();});
   gridFilter.addEventListener('change',()=>{gridPage=0;renderGrid();});$('gridPrev').addEventListener('click',()=>{gridPage--;renderGrid();});$('gridNext').addEventListener('click',()=>{gridPage++;renderGrid();});
   $('prevButton').addEventListener('click',()=>openDetail(index-1));$('nextButton').addEventListener('click',()=>openDetail(index+1));$('prevBottom').addEventListener('click',()=>openDetail(index-1));$('nextBottom').addEventListener('click',()=>openDetail(index+1));
   yesButton.addEventListener('click',()=>setVote(index,'yes',true));noButton.addEventListener('click',()=>setVote(index,'no',true));unsureButton.addEventListener('click',()=>setVote(index,'unsure',true));
-  document.querySelectorAll('.mode-button').forEach(b=>b.addEventListener('click',()=>setMode(b.dataset.mode)));blurRange.addEventListener('input',applyMode);$('resetVotesButton').addEventListener('click',resetVotes);$('resumeButton').addEventListener('click',()=>{resultsPanel.classList.add('hidden');gridPanel.classList.remove('hidden');renderGrid();});$('copyYesButton').addEventListener('click',copyYes);
+  document.querySelectorAll('.mode-button').forEach(b=>b.addEventListener('click',()=>setMode(b.dataset.mode)));blurRange.addEventListener('input',applyMode);$('resetVotesButton').addEventListener('click',resetVotes);$('resumeButton').addEventListener('click',()=>{resultsPanel.classList.add('hidden');gridPanel.classList.remove('hidden');renderGrid();});
+  $('copyYesButton').addEventListener('click',()=>copySelection(items.filter(x=>x.vote==='yes'),'copyYesButton','Copie cette sélection Oui :'));
+  $('copyUnsureButton').addEventListener('click',()=>copySelection(items.filter(x=>x.vote==='unsure'),'copyUnsureButton','Copie cette sélection Incertaine :'));
+  $('copyKeptButton').addEventListener('click',()=>copySelection(items.filter(x=>x.vote==='yes'||x.vote==='unsure'),'copyKeptButton','Copie les images conservées :'));
   document.addEventListener('keydown',(e)=>{if(viewerPanel.classList.contains('hidden'))return;if(e.key==='ArrowLeft')openDetail(index-1);else if(e.key==='ArrowRight')openDetail(index+1);else if(['o','y'].includes(e.key.toLowerCase()))setVote(index,'yes',true);else if(e.key.toLowerCase()==='n')setVote(index,'no',true);else if(['i','?'].includes(e.key.toLowerCase()))setVote(index,'unsure',true);});
   imageViewport.addEventListener('touchstart',e=>{const t=e.changedTouches[0];touchStartX=t.clientX;touchStartY=t.clientY;},{passive:true});imageViewport.addEventListener('touchend',e=>{if(touchStartX===null)return;const t=e.changedTouches[0],dx=t.clientX-touchStartX,dy=t.clientY-touchStartY;touchStartX=touchStartY=null;if(Math.abs(dx)>=55&&Math.abs(dx)>=Math.abs(dy)*1.3)openDetail(index+(dx<0?1:-1));},{passive:true});
   loadManifest();
