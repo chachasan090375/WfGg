@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="theme-color" content="#0b0910">
+  <title>WfGg LAB — Bundle Reconstruction Viewer</title>
+  <link rel="stylesheet" href="/lab/lastwar-bundle-reconstruction-viewer.css?v=1">
+  <script type="importmap">
+  {"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"}}
+  </script>
+</head>
+<body>
+<main class="bundle-shell" id="bundleViewer">
+  <header class="topbar">
+    <div>
+      <p class="eyebrow">WFGG · LAST WAR · LAB · DONNÉES RÉELLES DU BUNDLE</p>
+      <h1>Bundle Reconstruction Viewer</h1>
+      <p class="subtitle" id="bundleSubtitle">Chargement du manifeste local…</p>
+    </div>
+    <a class="back" href="/lab/">← LAB</a>
+  </header>
+
+  <section id="summary" class="summary"></section>
+  <div id="notice" class="notice">Aucune géométrie de jeu n’est inventée. Le viewer affiche les textures décodées, meshes OBJ et liens sérialisés réellement présents/résolus.</div>
+
+  <nav class="tabs" aria-label="Sections du bundle">
+    <button class="tab active" type="button" data-tab="reconstruction">Reconstruction</button>
+    <button class="tab" type="button" data-tab="materials">Matériaux</button>
+    <button class="tab" type="button" data-tab="textures">Textures</button>
+    <button class="tab" type="button" data-tab="meshes">Meshes</button>
+    <button class="tab" type="button" data-tab="objects">Objets</button>
+  </nav>
+
+  <section class="view active" data-view="reconstruction">
+    <div class="viewer-layout">
+      <article class="panel three-panel">
+        <div class="three-head">
+          <h2>Reconstruction sérialisée</h2>
+          <div class="actions">
+            <button id="resetCamera" class="btn" type="button">Recentrer</button>
+            <button id="toggleWire" class="btn" type="button">Wireframe</button>
+          </div>
+        </div>
+        <div id="threeMount" class="three-mount"><div class="empty-3d">Initialisation du viewer 3D…</div></div>
+      </article>
+      <aside class="panel side-panel">
+        <h3>Objets reconstructibles</h3>
+        <div id="sceneList" class="list"></div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="view" data-view="materials">
+    <div class="panel">
+      <div class="section-head"><h2>Matériaux</h2><input id="materialSearch" class="search" type="search" placeholder="Filtrer les matériaux"></div>
+      <div id="materialsGrid" class="grid"></div>
+    </div>
+  </section>
+
+  <section class="view" data-view="textures">
+    <div class="panel">
+      <div class="section-head"><h2>Textures décodées</h2><input id="textureSearch" class="search" type="search" placeholder="Filtrer les textures"></div>
+      <div id="texturesGrid" class="grid"></div>
+    </div>
+  </section>
+
+  <section class="view" data-view="meshes">
+    <div class="viewer-layout">
+      <article class="panel three-panel">
+        <div class="three-head"><h2>Mesh réel</h2><div class="actions"><button id="meshResetCamera" class="btn" type="button">Recentrer</button><button id="meshToggleWire" class="btn" type="button">Wireframe</button></div></div>
+        <div id="meshMount" class="three-mount"><div class="empty-3d">Choisis un mesh dans la liste.</div></div>
+      </article>
+      <aside class="panel side-panel">
+        <h3>Meshes exportés</h3>
+        <input id="meshSearch" class="search" type="search" placeholder="Filtrer" style="width:100%;margin-bottom:8px">
+        <div id="meshList" class="list"></div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="view" data-view="objects">
+    <div class="panel">
+      <div class="section-head"><h2>Inventaire des objets sérialisés</h2><input id="objectSearch" class="search" type="search" placeholder="Type, nom ou pathID"></div>
+      <div class="objects-wrap"><table class="objects-table"><thead><tr><th>Type</th><th>Nom</th><th>pathID</th><th>PPtr</th><th>Serialized file</th></tr></thead><tbody id="objectsBody"></tbody></table></div>
+    </div>
+  </section>
+
+  <dialog id="textureDialog" class="dialog">
+    <div class="dialog-head"><strong id="dialogTitle">Texture</strong><button id="dialogClose" class="btn" type="button">Fermer</button></div>
+    <img id="dialogImage" alt="Texture Last War extraite du bundle">
+  </dialog>
+</main>
+<script type="module" src="/lab/lastwar-bundle-reconstruction-viewer.js?v=1"></script>
+</body>
+</html>
