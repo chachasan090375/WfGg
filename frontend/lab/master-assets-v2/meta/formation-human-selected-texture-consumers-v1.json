@@ -1,0 +1,122 @@
+{
+  "format": "WFGG_LASTWAR_FORMATION_HUMAN_SELECTED_TEXTURE_CONSUMERS_V1",
+  "graph": {
+    "nodes": 3209,
+    "edges": 8386,
+    "parsedEdges": 8386
+  },
+  "selectedTextures": [
+    {
+      "selection": {
+        "name": "O_terrain_new03_D",
+        "scope": "formation-closure",
+        "bundleId": 26592,
+        "pathIDExact": "6527014853484295755",
+        "width": 512,
+        "height": 512,
+        "format": "ASTC_RGB_8x8"
+      },
+      "resolution": "AMBIGUOUS_OR_MISSING",
+      "candidateNodes": []
+    },
+    {
+      "selection": {
+        "name": "S1GroundGrass_Color _g",
+        "scope": "formation-closure",
+        "bundleId": 26598,
+        "pathIDExact": "-5181868365457329968",
+        "width": 512,
+        "height": 512,
+        "format": "ASTC_RGB_6x6"
+      },
+      "resolution": "AMBIGUOUS_OR_MISSING",
+      "candidateNodes": []
+    },
+    {
+      "selection": {
+        "name": "O_terrain_grass04_D",
+        "scope": "formation-closure",
+        "bundleId": 26600,
+        "pathIDExact": "-8530919973026192267",
+        "width": 512,
+        "height": 512,
+        "format": "ASTC_RGB_6x6"
+      },
+      "resolution": "AMBIGUOUS_OR_MISSING",
+      "candidateNodes": []
+    },
+    {
+      "selection": {
+        "name": "S1GroundGrass_Color _qg",
+        "scope": "formation-closure",
+        "bundleId": 14169,
+        "pathIDExact": "6764603796244240607",
+        "width": 512,
+        "height": 512,
+        "format": "ASTC_RGB_6x6"
+      },
+      "resolution": "AMBIGUOUS_OR_MISSING",
+      "candidateNodes": []
+    },
+    {
+      "selection": {
+        "name": "S1GroundGrass_Color _y",
+        "scope": "formation-closure",
+        "bundleId": 26598,
+        "pathIDExact": "-3994208365102929008",
+        "width": 512,
+        "height": 512,
+        "format": "ASTC_RGB_6x6"
+      },
+      "resolution": "AMBIGUOUS_OR_MISSING",
+      "candidateNodes": []
+    },
+    {
+      "selection": {
+        "name": "O_ground_zhucheng_01",
+        "scope": "formation-closure",
+        "bundleId": 14169,
+        "pathIDExact": "6658329552418294702",
+        "width": 512,
+        "height": 512,
+        "format": "ASTC_RGB_6x6"
+      },
+      "resolution": "AMBIGUOUS_OR_MISSING",
+      "candidateNodes": []
+    },
+    {
+      "selection": {
+        "name": "O_terrain_grass01_D",
+        "scope": "formation-closure",
+        "bundleId": 26600,
+        "pathIDExact": "2886232983442666552",
+        "width": 512,
+        "height": 512,
+        "format": "ASTC_RGB_6x6"
+      },
+      "resolution": "AMBIGUOUS_OR_MISSING",
+      "candidateNodes": []
+    },
+    {
+      "selection": {
+        "name": "O_terrain_new01_D",
+        "scope": "formation-closure",
+        "bundleId": 26592,
+        "pathIDExact": "-4362767395140459070",
+        "width": 512,
+        "height": 512,
+        "format": "ASTC_RGB_8x8"
+      },
+      "resolution": "AMBIGUOUS_OR_MISSING",
+      "candidateNodes": []
+    }
+  ],
+  "bundleUsageAcrossEight": [],
+  "bundleMapErrors": [],
+  "guardrails": {
+    "labBranchOnly": true,
+    "mainUntouched": true,
+    "noGeneratedVisuals": true,
+    "candidatePromotion": false
+  }
+}
