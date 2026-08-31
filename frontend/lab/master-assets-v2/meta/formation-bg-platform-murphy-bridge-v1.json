@@ -1,0 +1,2321 @@
+{
+  "format": "WFGG_LASTWAR_FORMATION_BG_PLATFORM_MURPHY_BRIDGE_V1",
+  "backgroundPlatform": {
+    "bundleId": 10347,
+    "logicalName": "gameres_main_dir_textureex_uilwmonthcard_75ff512f041b95967dd1abc433a725d2.bundle",
+    "assetPaths": [
+      "Assets/Main/TextureEx/UILWMonthCard/bg265.png",
+      "Assets/Main/TextureEx/UILWMonthCard/cfm_youhua_shangcheng_chaojiyueka_beijing_4_tu.png",
+      "Assets/Main/TextureEx/UILWMonthCard/cfm_youhua_shangcheng_chaojiyueka_beijing_6_xia2.png",
+      "Assets/Main/TextureEx/UILWMonthCard/cfm_youhua_shangcheng_chaojiyueka_beijing_7.png",
+      "Assets/Main/TextureEx/UILWMonthCard/lrb_yueka_bg.png",
+      "Assets/Main/TextureEx/UILWMonthCard/yueka_linshiziyuan.png"
+    ],
+    "targets": [
+      {
+        "name": "bg265",
+        "bundleId": 10347,
+        "serializedFile": "CAB-3ac573b6179353e997f14668c7e8a8d3",
+        "pathIDExact": "-7423839590894119823",
+        "width": 375,
+        "height": 512,
+        "format": "ASTC_RGB_6x6",
+        "humanClassification": "blurred-background",
+        "humanValidated": true
+      },
+      {
+        "name": "yueka_linshiziyuan",
+        "bundleId": 10347,
+        "serializedFile": "CAB-3ac573b6179353e997f14668c7e8a8d3",
+        "pathIDExact": "8086043291971503959",
+        "width": 512,
+        "height": 425,
+        "format": "ASTC_RGB_6x6",
+        "humanClassification": "formation-platform-board",
+        "humanValidated": true
+      }
+    ],
+    "forwardDependencyBundleIds": [],
+    "reverseDependentBundleIds": [
+      4660,
+      4661,
+      6933
+    ],
+    "exactPPtrHits": [
+      {
+        "target": "bg265",
+        "sourceBundleId": 6933,
+        "sourceSerializedFile": "CAB-2862f52f33917b713ca0663a7220b7cc",
+        "sourceType": "AssetBundle",
+        "sourceName": "gameres_main_file_prefabs_ui_uihero_lwhero_uiheropvpformationpanel.bundle",
+        "sourcePathID": "1",
+        "fieldPath": "$.m_PreloadTable[1943]",
+        "fileID": 18,
+        "metadataOnly": true
+      },
+      {
+        "target": "bg265",
+        "sourceBundleId": 6933,
+        "sourceSerializedFile": "CAB-2862f52f33917b713ca0663a7220b7cc",
+        "sourceType": "MonoBehaviour",
+        "sourceName": "",
+        "sourcePathID": "5197284809923598296",
+        "fieldPath": "$.m_Texture",
+        "fileID": 18,
+        "metadataOnly": false
+      }
+    ],
+    "realConsumerHits": [
+      {
+        "target": "bg265",
+        "sourceBundleId": 6933,
+        "sourceSerializedFile": "CAB-2862f52f33917b713ca0663a7220b7cc",
+        "sourceType": "MonoBehaviour",
+        "sourceName": "",
+        "sourcePathID": "5197284809923598296",
+        "fieldPath": "$.m_Texture",
+        "fileID": 18,
+        "metadataOnly": false
+      }
+    ],
+    "metadataOnlyHits": [
+      {
+        "target": "bg265",
+        "sourceBundleId": 6933,
+        "sourceSerializedFile": "CAB-2862f52f33917b713ca0663a7220b7cc",
+        "sourceType": "AssetBundle",
+        "sourceName": "gameres_main_file_prefabs_ui_uihero_lwhero_uiheropvpformationpanel.bundle",
+        "sourcePathID": "1",
+        "fieldPath": "$.m_PreloadTable[1943]",
+        "fileID": 18,
+        "metadataOnly": true
+      }
+    ],
+    "scan": {
+      "reverseDependents": 3,
+      "resolvedBundles": 1,
+      "ptrsScanned": 9411,
+      "readFailures": 0,
+      "resolution": [
+        {
+          "bundleId": 4660,
+          "resolution": "current-source-unavailable"
+        },
+        {
+          "bundleId": 4661,
+          "resolution": "current-source-unavailable"
+        },
+        {
+          "bundleId": 6933,
+          "resolution": "cached-formation-closure"
+        }
+      ],
+      "readFailuresDetail": []
+    }
+  },
+  "murphy": {
+    "heroId": 50006,
+    "name": "Murphy",
+    "queueModelPath": "Assets/_Art_LastWar/Models/Cars/A_Hero_Audie/A_Hero_Audie_01/prefab/A_Hero_Audie_01.prefab",
+    "formationKind": "vehicle",
+    "queueBundleId": 17859,
+    "bundleIds": [
+      17859,
+      26626,
+      26628,
+      26629,
+      26631,
+      26633,
+      26634
+    ],
+    "exactBundles": [
+      {
+        "heroId": 50006,
+        "heroName": "Murphy",
+        "role": "queue",
+        "kind": "queue",
+        "bundleId": 17859,
+        "logicalName": "gameres_art_file_inspecialdir_a_hero_audie_a_hero_audie_01_prefab_a_hero_audie_01_5c8188c5700b1035eadf0370aca7690c.bundle",
+        "aliasName": "fa6c569220b9ccae319931faf99ef218bcda032c95edb0a787032048924031b4.bundle",
+        "declaredBytes": 9401,
+        "fragmentOffset": 110496743,
+        "fragmentBytes": 9401,
+        "source": "installedFragment",
+        "staged": true,
+        "sizeOk": true,
+        "sha256": "61ed2baa4079ffd7fd99dc6df9f193dd9f064d00f3f62d6e42934d6fc74855a2",
+        "actualBytes": 9401,
+        "localRel": "frontend/lab/local_assets/lastwar-current15-exact-v1/50006/gameres_art_file_inspecialdir_a_hero_audie_a_hero_audie_01_prefab_a_hero_audie_01_5c8188c5700b1035eadf0370aca7690c.bundle"
+      },
+      {
+        "heroId": 50006,
+        "heroName": "Murphy",
+        "role": "sameModelDependency",
+        "kind": "animation",
+        "bundleId": 26626,
+        "logicalName": "gameres_auto_assets__art_lastwar_models_cars_a_hero_audie_a_hero_audie_01_animation_77b9a1fa07874f93b6cd33547a070c23.bundle",
+        "aliasName": "16de24d1ab930173eb89ea14963cbce03451411bf5825341d84ded700d380478.bundle",
+        "declaredBytes": 400828,
+        "fragmentOffset": 188120065,
+        "fragmentBytes": 400828,
+        "source": "installedFragment",
+        "staged": true,
+        "sizeOk": true,
+        "sha256": "df1c17aae8dc5469160b3f0652ce18225f081034f5c6b9068c4ff344aa8e8c9d",
+        "actualBytes": 400828,
+        "localRel": "frontend/lab/local_assets/lastwar-current15-exact-v1/50006/gameres_auto_assets__art_lastwar_models_cars_a_hero_audie_a_hero_audie_01_animation_77b9a1fa07874f93b6cd33547a070c23.bundle"
+      },
+      {
+        "heroId": 50006,
+        "heroName": "Murphy",
+        "role": "sameModelDependency",
+        "kind": "material",
+        "bundleId": 26628,
+        "logicalName": "gameres_auto_assets__art_lastwar_models_cars_a_hero_audie_a_hero_audie_01_material_4cae4a596426f3319ccf6de8d16fbcae.bundle",
+        "aliasName": "37c677b518cc4114f7c8f7e266dd990a7f70f344d333fe53fc05a1b23fe157b4.bundle",
+        "declaredBytes": 3390,
+        "fragmentOffset": 188530019,
+        "fragmentBytes": 3390,
+        "source": "installedFragment",
+        "staged": true,
+        "sizeOk": true,
+        "sha256": "40dc4566baa19a9c84e09dd7c4e886d61b1522dfd73862e051525ebb022e3b6d",
+        "actualBytes": 3390,
+        "localRel": "frontend/lab/local_assets/lastwar-current15-exact-v1/50006/gameres_auto_assets__art_lastwar_models_cars_a_hero_audie_a_hero_audie_01_material_4cae4a596426f3319ccf6de8d16fbcae.bundle"
+      },
+      {
+        "heroId": 50006,
+        "heroName": "Murphy",
+        "role": "sameModelDependency",
+        "kind": "material",
+        "bundleId": 26629,
+        "logicalName": "gameres_auto_assets__art_lastwar_models_cars_a_hero_audie_a_hero_audie_01_material_common_2fb352d6c4c214c20213f657d7dede45.bundle",
+        "aliasName": "5c610ebd44a374dfadf3cbb562f041dd6493239bbae3ce6f29385a9b3d653ec2.bundle",
+        "declaredBytes": 3294,
+        "fragmentOffset": 188533409,
+        "fragmentBytes": 3294,
+        "source": "installedFragment",
+        "staged": true,
+        "sizeOk": true,
+        "sha256": "c2b454be4472e4a1d6962a704b8219421007f5784216c6be00bfd94e59ba5c9d",
+        "actualBytes": 3294,
+        "localRel": "frontend/lab/local_assets/lastwar-current15-exact-v1/50006/gameres_auto_assets__art_lastwar_models_cars_a_hero_audie_a_hero_audie_01_material_common_2fb352d6c4c214c20213f657d7dede45.bundle"
+      },
+      {
+        "heroId": 50006,
+        "heroName": "Murphy",
+        "role": "sameModelDependency",
+        "kind": "mesh",
+        "bundleId": 26631,
+        "logicalName": "gameres_auto_assets__art_lastwar_models_cars_a_hero_audie_a_hero_audie_01_mesh_7a2cde98dd429678549c3706f22c2981.bundle",
+        "aliasName": "0e3065ba38a932117cff5726c2520f599f0d2849b28f27fd012815e48636e98a.bundle",
+        "declaredBytes": 172336,
+        "fragmentOffset": 188540945,
+        "fragmentBytes": 172336,
+        "source": "installedFragment",
+        "staged": true,
+        "sizeOk": true,
+        "sha256": "408d336bb0842f39f1b200bbe8741e0c932101f9897501c1959e32b66e8f05b1",
+        "actualBytes": 172336,
+        "localRel": "frontend/lab/local_assets/lastwar-current15-exact-v1/50006/gameres_auto_assets__art_lastwar_models_cars_a_hero_audie_a_hero_audie_01_mesh_7a2cde98dd429678549c3706f22c2981.bundle"
+      },
+      {
+        "heroId": 50006,
+        "heroName": "Murphy",
+        "role": "sameModelDependency",
+        "kind": "texture",
+        "bundleId": 26633,
+        "logicalName": "gameres_auto_assets__art_lastwar_models_cars_a_hero_audie_a_hero_audie_01_texture_a575242d5bdfb1171b427643e503c8aa.bundle",
+        "aliasName": "fa3f0ca20dbe5790d7a628cd16cd5427be3d379cacbb7d9ef22cbb039434c7ea.bundle",
+        "declaredBytes": 188315,
+        "fragmentOffset": 189337557,
+        "fragmentBytes": 188315,
+        "source": "installedFragment",
+        "staged": true,
+        "sizeOk": true,
+        "sha256": "d00a661dbbfff016d84c1e355f0cdf95b106f8cd5b6848bfe6b291ad9cdad387",
+        "actualBytes": 188315,
+        "localRel": "frontend/lab/local_assets/lastwar-current15-exact-v1/50006/gameres_auto_assets__art_lastwar_models_cars_a_hero_audie_a_hero_audie_01_texture_a575242d5bdfb1171b427643e503c8aa.bundle"
+      },
+      {
+        "heroId": 50006,
+        "heroName": "Murphy",
+        "role": "sameModelDependency",
+        "kind": "texture",
+        "bundleId": 26634,
+        "logicalName": "gameres_auto_assets__art_lastwar_models_cars_a_hero_audie_a_hero_audie_01_texture_pbr_c788c083e3e0f5f3446de3790adb40ca.bundle",
+        "aliasName": "7b5d28ded0a5530b17acee87eb88ed60b12a37342cd76138a1860e3f4d9a0510.bundle",
+        "declaredBytes": 276955,
+        "fragmentOffset": 189525872,
+        "fragmentBytes": 276955,
+        "source": "installedFragment",
+        "staged": true,
+        "sizeOk": true,
+        "sha256": "4c36ad6354c07759badcd138122f698c5f4b8baef2e267e74518afd2ca6357b3",
+        "actualBytes": 276955,
+        "localRel": "frontend/lab/local_assets/lastwar-current15-exact-v1/50006/gameres_auto_assets__art_lastwar_models_cars_a_hero_audie_a_hero_audie_01_texture_pbr_c788c083e3e0f5f3446de3790adb40ca.bundle"
+      }
+    ],
+    "familyInventory": [
+      {
+        "bundleId": 17859,
+        "kind": "queue",
+        "role": "queue",
+        "logicalName": "gameres_art_file_inspecialdir_a_hero_audie_a_hero_audie_01_prefab_a_hero_audie_01_5c8188c5700b1035eadf0370aca7690c.bundle",
+        "objectCount": 90,
+        "typeCounts": {
+          "GameObject": 39,
+          "MonoBehaviour": 2,
+          "Transform": 39,
+          "MonoScript": 2,
+          "TrailRenderer": 2,
+          "Animator": 1,
+          "SphereCollider": 1,
+          "SkinnedMeshRenderer": 3,
+          "AssetBundle": 1
+        }
+      },
+      {
+        "bundleId": 26626,
+        "kind": "animation",
+        "role": "sameModelDependency",
+        "logicalName": "gameres_auto_assets__art_lastwar_models_cars_a_hero_audie_a_hero_audie_01_animation_77b9a1fa07874f93b6cd33547a070c23.bundle",
+        "objectCount": 667,
+        "typeCounts": {
+          "Transform": 328,
+          "GameObject": 328,
+          "AnimationClip": 9,
+          "Camera": 1,
+          "AssetBundle": 1
+        }
+      },
+      {
+        "bundleId": 26628,
+        "kind": "material",
+        "role": "sameModelDependency",
+        "logicalName": "gameres_auto_assets__art_lastwar_models_cars_a_hero_audie_a_hero_audie_01_material_4cae4a596426f3319ccf6de8d16fbcae.bundle",
+        "objectCount": 4,
+        "typeCounts": {
+          "Material": 3,
+          "AssetBundle": 1
+        }
+      },
+      {
+        "bundleId": 26629,
+        "kind": "material",
+        "role": "sameModelDependency",
+        "logicalName": "gameres_auto_assets__art_lastwar_models_cars_a_hero_audie_a_hero_audie_01_material_common_2fb352d6c4c214c20213f657d7dede45.bundle",
+        "objectCount": 2,
+        "typeCounts": {
+          "AssetBundle": 1,
+          "Material": 1
+        }
+      },
+      {
+        "bundleId": 26631,
+        "kind": "mesh",
+        "role": "sameModelDependency",
+        "logicalName": "gameres_auto_assets__art_lastwar_models_cars_a_hero_audie_a_hero_audie_01_mesh_7a2cde98dd429678549c3706f22c2981.bundle",
+        "objectCount": 73,
+        "typeCounts": {
+          "GameObject": 33,
+          "Transform": 33,
+          "Mesh": 3,
+          "SkinnedMeshRenderer": 3,
+          "AssetBundle": 1
+        }
+      },
+      {
+        "bundleId": 26633,
+        "kind": "texture",
+        "role": "sameModelDependency",
+        "logicalName": "gameres_auto_assets__art_lastwar_models_cars_a_hero_audie_a_hero_audie_01_texture_a575242d5bdfb1171b427643e503c8aa.bundle",
+        "objectCount": 8,
+        "typeCounts": {
+          "Texture2D": 7,
+          "AssetBundle": 1
+        }
+      },
+      {
+        "bundleId": 26634,
+        "kind": "texture",
+        "role": "sameModelDependency",
+        "logicalName": "gameres_auto_assets__art_lastwar_models_cars_a_hero_audie_a_hero_audie_01_texture_pbr_c788c083e3e0f5f3446de3790adb40ca.bundle",
+        "objectCount": 10,
+        "typeCounts": {
+          "Texture2D": 9,
+          "AssetBundle": 1
+        }
+      }
+    ],
+    "queueRootExactCount": 2,
+    "queueRenderEdges": [
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "Animator",
+        "sourceName": "",
+        "sourcePathID": "-7420327225240702399",
+        "fieldPath": "$.m_GameObject",
+        "targetBundleId": 17859,
+        "targetType": "GameObject",
+        "targetName": "A_Hero_Audie_01_low_skin",
+        "targetPathID": "-8712411107196220459"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "-4920018027950834905",
+        "fieldPath": "$.m_GameObject",
+        "targetBundleId": 17859,
+        "targetType": "GameObject",
+        "targetName": "A_Hero_Audie_lvdai_01",
+        "targetPathID": "2627754666030129348"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "-4920018027950834905",
+        "fieldPath": "$.m_Materials[0]",
+        "targetBundleId": 26628,
+        "targetType": "Material",
+        "targetName": "A_Hero_Audie_lvdai_01",
+        "targetPathID": "-8224529830770573291"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "-4920018027950834905",
+        "fieldPath": "$.m_Mesh",
+        "targetBundleId": 26631,
+        "targetType": "Mesh",
+        "targetName": "A_Hero_Audie_lvdai_01",
+        "targetPathID": "-5315830260081625073"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "-4920018027950834905",
+        "fieldPath": "$.m_Bones[0]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "-4265679281106719985"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "-4920018027950834905",
+        "fieldPath": "$.m_Bones[1]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "7908242030995446450"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "-4920018027950834905",
+        "fieldPath": "$.m_Bones[2]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "4608775482637779627"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "-4920018027950834905",
+        "fieldPath": "$.m_Bones[3]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "4048846363334322564"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "-4920018027950834905",
+        "fieldPath": "$.m_Bones[4]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "6078018361078977239"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "-4920018027950834905",
+        "fieldPath": "$.m_Bones[5]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "7017672795823007129"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "-4920018027950834905",
+        "fieldPath": "$.m_Bones[6]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "2294024293189667264"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "-4920018027950834905",
+        "fieldPath": "$.m_Bones[7]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "-4401526844699438499"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "-4920018027950834905",
+        "fieldPath": "$.m_Bones[8]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "4454904624121324737"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "-4920018027950834905",
+        "fieldPath": "$.m_Bones[9]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "-8131338785326242181"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "-4920018027950834905",
+        "fieldPath": "$.m_Bones[10]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "4467269799874542542"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "-4920018027950834905",
+        "fieldPath": "$.m_Bones[11]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "-5278244312080347564"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "-4920018027950834905",
+        "fieldPath": "$.m_Bones[12]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "7875301911810084626"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "-4920018027950834905",
+        "fieldPath": "$.m_Bones[13]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "-6874418376398623879"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "-4920018027950834905",
+        "fieldPath": "$.m_Bones[14]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "4060606338847500532"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "-4920018027950834905",
+        "fieldPath": "$.m_Bones[15]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "3563607227209275390"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "-4920018027950834905",
+        "fieldPath": "$.m_Bones[16]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "-3480716148181961679"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "-4920018027950834905",
+        "fieldPath": "$.m_Bones[17]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "3430659530346899789"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "-4920018027950834905",
+        "fieldPath": "$.m_Bones[18]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "-3928934674475001332"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "-4920018027950834905",
+        "fieldPath": "$.m_Bones[19]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "8514618149588782836"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "-4920018027950834905",
+        "fieldPath": "$.m_Bones[20]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "5692013072367855485"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "-4920018027950834905",
+        "fieldPath": "$.m_Bones[21]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "3960069270667861262"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "-4920018027950834905",
+        "fieldPath": "$.m_Bones[22]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "7383651767651603534"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "-4920018027950834905",
+        "fieldPath": "$.m_Bones[23]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "543406354479951125"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "-4920018027950834905",
+        "fieldPath": "$.m_RootBone",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "543406354479951125"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "4035181853260886207",
+        "fieldPath": "$.m_GameObject",
+        "targetBundleId": 17859,
+        "targetType": "GameObject",
+        "targetName": "A_Hero_Audie_01",
+        "targetPathID": "977668719798569242"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "4035181853260886207",
+        "fieldPath": "$.m_Materials[0]",
+        "targetBundleId": 26628,
+        "targetType": "Material",
+        "targetName": "A_Hero_Audie_01",
+        "targetPathID": "7376492456110564547"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "4035181853260886207",
+        "fieldPath": "$.m_Mesh",
+        "targetBundleId": 26631,
+        "targetType": "Mesh",
+        "targetName": "A_Hero_Audie_01",
+        "targetPathID": "3522900004256281973"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "4035181853260886207",
+        "fieldPath": "$.m_Bones[0]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "-4265679281106719985"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "4035181853260886207",
+        "fieldPath": "$.m_Bones[1]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "7908242030995446450"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "4035181853260886207",
+        "fieldPath": "$.m_Bones[2]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "4608775482637779627"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "4035181853260886207",
+        "fieldPath": "$.m_Bones[3]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "4048846363334322564"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "4035181853260886207",
+        "fieldPath": "$.m_Bones[4]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "6078018361078977239"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "4035181853260886207",
+        "fieldPath": "$.m_Bones[5]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "7017672795823007129"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "4035181853260886207",
+        "fieldPath": "$.m_Bones[6]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "2294024293189667264"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "4035181853260886207",
+        "fieldPath": "$.m_Bones[7]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "-4401526844699438499"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "4035181853260886207",
+        "fieldPath": "$.m_Bones[8]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "4454904624121324737"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "4035181853260886207",
+        "fieldPath": "$.m_Bones[9]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "-8131338785326242181"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "4035181853260886207",
+        "fieldPath": "$.m_Bones[10]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "4467269799874542542"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "4035181853260886207",
+        "fieldPath": "$.m_Bones[11]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "-5278244312080347564"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "4035181853260886207",
+        "fieldPath": "$.m_Bones[12]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "7875301911810084626"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "4035181853260886207",
+        "fieldPath": "$.m_Bones[13]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "-6874418376398623879"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "4035181853260886207",
+        "fieldPath": "$.m_Bones[14]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "4060606338847500532"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "4035181853260886207",
+        "fieldPath": "$.m_Bones[15]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "3563607227209275390"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "4035181853260886207",
+        "fieldPath": "$.m_Bones[16]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "-3480716148181961679"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "4035181853260886207",
+        "fieldPath": "$.m_Bones[17]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "3430659530346899789"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "4035181853260886207",
+        "fieldPath": "$.m_Bones[18]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "-3928934674475001332"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "4035181853260886207",
+        "fieldPath": "$.m_Bones[19]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "8514618149588782836"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "4035181853260886207",
+        "fieldPath": "$.m_Bones[20]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "5692013072367855485"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "4035181853260886207",
+        "fieldPath": "$.m_Bones[21]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "3960069270667861262"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "4035181853260886207",
+        "fieldPath": "$.m_Bones[22]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "7383651767651603534"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "4035181853260886207",
+        "fieldPath": "$.m_Bones[23]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "543406354479951125"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "4035181853260886207",
+        "fieldPath": "$.m_RootBone",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "543406354479951125"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "8913923875855786762",
+        "fieldPath": "$.m_GameObject",
+        "targetBundleId": 17859,
+        "targetType": "GameObject",
+        "targetName": "A_Hero_Audie_chedeng_01",
+        "targetPathID": "6277539646205011058"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "8913923875855786762",
+        "fieldPath": "$.m_Materials[0]",
+        "targetBundleId": 26629,
+        "targetType": "Material",
+        "targetName": "A_Hero_Audie_chedeng_01",
+        "targetPathID": "3110542994349756723"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "8913923875855786762",
+        "fieldPath": "$.m_Mesh",
+        "targetBundleId": 26631,
+        "targetType": "Mesh",
+        "targetName": "A_Hero_Audie_chedeng_01",
+        "targetPathID": "-627585646739529615"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "8913923875855786762",
+        "fieldPath": "$.m_Bones[0]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "-4265679281106719985"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "8913923875855786762",
+        "fieldPath": "$.m_Bones[1]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "7908242030995446450"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "8913923875855786762",
+        "fieldPath": "$.m_Bones[2]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "4608775482637779627"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "8913923875855786762",
+        "fieldPath": "$.m_Bones[3]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "4048846363334322564"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "8913923875855786762",
+        "fieldPath": "$.m_Bones[4]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "6078018361078977239"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "8913923875855786762",
+        "fieldPath": "$.m_Bones[5]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "7017672795823007129"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "8913923875855786762",
+        "fieldPath": "$.m_Bones[6]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "2294024293189667264"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "8913923875855786762",
+        "fieldPath": "$.m_Bones[7]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "-4401526844699438499"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "8913923875855786762",
+        "fieldPath": "$.m_Bones[8]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "4454904624121324737"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "8913923875855786762",
+        "fieldPath": "$.m_Bones[9]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "-8131338785326242181"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "8913923875855786762",
+        "fieldPath": "$.m_Bones[10]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "4467269799874542542"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "8913923875855786762",
+        "fieldPath": "$.m_Bones[11]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "-5278244312080347564"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "8913923875855786762",
+        "fieldPath": "$.m_Bones[12]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "7875301911810084626"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "8913923875855786762",
+        "fieldPath": "$.m_Bones[13]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "-6874418376398623879"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "8913923875855786762",
+        "fieldPath": "$.m_Bones[14]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "4060606338847500532"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "8913923875855786762",
+        "fieldPath": "$.m_Bones[15]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "3563607227209275390"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "8913923875855786762",
+        "fieldPath": "$.m_Bones[16]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "-3480716148181961679"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "8913923875855786762",
+        "fieldPath": "$.m_Bones[17]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "3430659530346899789"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "8913923875855786762",
+        "fieldPath": "$.m_Bones[18]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "-3928934674475001332"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "8913923875855786762",
+        "fieldPath": "$.m_Bones[19]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "8514618149588782836"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "8913923875855786762",
+        "fieldPath": "$.m_Bones[20]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "5692013072367855485"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "8913923875855786762",
+        "fieldPath": "$.m_Bones[21]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "3960069270667861262"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "8913923875855786762",
+        "fieldPath": "$.m_Bones[22]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "7383651767651603534"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "8913923875855786762",
+        "fieldPath": "$.m_Bones[23]",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "543406354479951125"
+      },
+      {
+        "sourceBundleId": 17859,
+        "sourceType": "SkinnedMeshRenderer",
+        "sourceName": "",
+        "sourcePathID": "8913923875855786762",
+        "fieldPath": "$.m_RootBone",
+        "targetBundleId": 17859,
+        "targetType": "Transform",
+        "targetName": "",
+        "targetPathID": "543406354479951125"
+      }
+    ],
+    "materialTextureEdges": [
+      {
+        "materialBundleId": 26628,
+        "materialName": "A_Hero_Audie_lvdai_01",
+        "materialPathID": "-8224529830770573291",
+        "fieldPath": "$.m_SavedProperties.m_TexEnvs[1][1].m_Texture",
+        "textureBundleId": 26633,
+        "textureName": "A_Hero_Audie_lvdai_01_D",
+        "texturePathID": "2088030929412890286"
+      },
+      {
+        "materialBundleId": 26628,
+        "materialName": "A_Hero_Audie_lvdai_01",
+        "materialPathID": "-8224529830770573291",
+        "fieldPath": "$.m_SavedProperties.m_TexEnvs[4][1].m_Texture",
+        "textureBundleId": 26633,
+        "textureName": "A_Hero_Audie_lvdai_01_S",
+        "texturePathID": "6320787015808179769"
+      },
+      {
+        "materialBundleId": 26628,
+        "materialName": "A_Hero_Audie_lvdai_01",
+        "materialPathID": "-8224529830770573291",
+        "fieldPath": "$.m_SavedProperties.m_TexEnvs[5][1].m_Texture",
+        "textureBundleId": 26633,
+        "textureName": "A_Hero_Audie_lvdai_01_N",
+        "texturePathID": "4633245420292639128"
+      },
+      {
+        "materialBundleId": 26628,
+        "materialName": "A_Hero_Audie_01",
+        "materialPathID": "7376492456110564547",
+        "fieldPath": "$.m_SavedProperties.m_TexEnvs[1][1].m_Texture",
+        "textureBundleId": 26633,
+        "textureName": "A_Hero_Audie_01_D",
+        "texturePathID": "-323967366843187089"
+      },
+      {
+        "materialBundleId": 26628,
+        "materialName": "A_Hero_Audie_01",
+        "materialPathID": "7376492456110564547",
+        "fieldPath": "$.m_SavedProperties.m_TexEnvs[4][1].m_Texture",
+        "textureBundleId": 26633,
+        "textureName": "A_Hero_Audie_01_S",
+        "texturePathID": "-4978073370951099561"
+      },
+      {
+        "materialBundleId": 26628,
+        "materialName": "A_Hero_Audie_01",
+        "materialPathID": "7376492456110564547",
+        "fieldPath": "$.m_SavedProperties.m_TexEnvs[5][1].m_Texture",
+        "textureBundleId": 26634,
+        "textureName": "A_Hero_Audie_01_High_N",
+        "texturePathID": "418912741453651315"
+      }
+    ],
+    "authoritativeScene": {
+      "heroId": 50006,
+      "name": "Murphy",
+      "parseOk": true,
+      "exportIdentityOk": true,
+      "rootExact": true,
+      "sceneLinked": true,
+      "errors": [],
+      "rootDescendantCount": 39,
+      "transformCount": 39,
+      "meshLinkCount": 3,
+      "unresolvedMeshLinks": 0,
+      "materialCount": 3,
+      "unresolvedMaterialLinks": 0,
+      "unresolvedTextureLinks": 2,
+      "externalTargetFiles": [
+        "cab-dfbad28a7956eed1bda53a3f4431edd7"
+      ],
+      "sceneJson": "50006/scene.json"
+    },
+    "runtimePack": {
+      "heroId": 50006,
+      "name": "Murphy",
+      "queueModelPath": "Assets/_Art_LastWar/Models/Cars/A_Hero_Audie/A_Hero_Audie_01/prefab/A_Hero_Audie_01.prefab",
+      "rendererMode": "rigidHierarchy",
+      "idleFullyResolved": true,
+      "ready": true,
+      "errors": [],
+      "runtimeJson": "50006/runtime.json"
+    },
+    "renderReadFailures": []
+  },
+  "bridgeCandidates": {
+    "definition": "current-index reverse-dependent overlap only; candidate relation, not runtime proof",
+    "bgReverseDependentCount": 3,
+    "queueReverseDependentCount": 7,
+    "commonWithMurphyQueue": [],
+    "commonWithAnyMurphyBundle": []
+  },
+  "codeLuaEvidence": {
+    "atlasTerms": [
+      {
+        "term": "A_Hero_Audie_01",
+        "methodSymbolHits": [],
+        "typeSymbolHits": [],
+        "frontierStringOrSymbolHits": []
+      },
+      {
+        "term": "queueModelPath",
+        "methodSymbolHits": [],
+        "typeSymbolHits": [],
+        "frontierStringOrSymbolHits": []
+      },
+      {
+        "term": "FightHero",
+        "methodSymbolHits": [],
+        "typeSymbolHits": [],
+        "frontierStringOrSymbolHits": []
+      },
+      {
+        "term": "HeroShowSetting",
+        "methodSymbolHits": [
+          {
+            "rid": 417,
+            "symbol": "HeroShowSetting.Awake",
+            "status": "known",
+            "tags": []
+          },
+          {
+            "rid": 418,
+            "symbol": "HeroShowSetting.Start",
+            "status": "known",
+            "tags": []
+          },
+          {
+            "rid": 419,
+            "symbol": "HeroShowSetting.Setting",
+            "status": "known",
+            "tags": [
+              "render-camera"
+            ]
+          },
+          {
+            "rid": 420,
+            "symbol": "HeroShowSetting.OnDestroy",
+            "status": "known",
+            "tags": [
+              "render-camera"
+            ]
+          },
+          {
+            "rid": 421,
+            "symbol": "HeroShowSetting.Update",
+            "status": "known",
+            "tags": [
+              "render-camera",
+              "string-evidence"
+            ]
+          },
+          {
+            "rid": 422,
+            "symbol": "HeroShowSetting..ctor",
+            "status": "known",
+            "tags": [
+              "string-evidence"
+            ]
+          }
+        ],
+        "typeSymbolHits": [
+          {
+            "rid": 34,
+            "symbol": "HeroShowSetting",
+            "status": "known"
+          }
+        ],
+        "frontierStringOrSymbolHits": []
+      },
+      {
+        "term": "ShowCamera",
+        "methodSymbolHits": [
+          {
+            "rid": 16545,
+            "symbol": "XLua.CSObjectWrap.BitBenderGamesMobileTouchCameraWrap._m_ShowCamera",
+            "status": "unknown",
+            "tags": [
+              "string-evidence"
+            ]
+          },
+          {
+            "rid": 40878,
+            "symbol": "BitBenderGames.MobileTouchCamera.ShowCamera",
+            "status": "known",
+            "tags": []
+          }
+        ],
+        "typeSymbolHits": [],
+        "frontierStringOrSymbolHits": [
+          {
+            "rid": 16545,
+            "symbol": "XLua.CSObjectWrap.BitBenderGamesMobileTouchCameraWrap._m_ShowCamera",
+            "strings": [
+              "c# exception:"
+            ],
+            "tags": [
+              "string-evidence"
+            ]
+          },
+          {
+            "rid": 16542,
+            "symbol": "XLua.CSObjectWrap.BitBenderGamesMobileTouchCameraWrap.__Register",
+            "strings": [
+              "HideCamera",
+              "ShowCamera",
+              "SetRotRangeOverride",
+              "SetZoomRangeOverride",
+              "CalcZoom",
+              "SetIsCamZoomChangeBlock",
+              "GetIsCamZoomChangeBlock",
+              "GetZoomParams",
+              "SetZoomParams",
+              "Awake",
+              "ResetCamera",
+              "OnDestroy"
+            ],
+            "tags": [
+              "string-evidence"
+            ]
+          }
+        ]
+      },
+      {
+        "term": "CamZoomFormation",
+        "methodSymbolHits": [
+          {
+            "rid": 16613,
+            "symbol": "XLua.CSObjectWrap.BitBenderGamesMobileTouchCameraWrap._g_get_CamZoomFormation",
+            "status": "unknown",
+            "tags": [
+              "string-evidence"
+            ]
+          },
+          {
+            "rid": 16638,
+            "symbol": "XLua.CSObjectWrap.BitBenderGamesMobileTouchCameraWrap._s_set_CamZoomFormation",
+            "status": "unknown",
+            "tags": [
+              "string-evidence"
+            ]
+          },
+          {
+            "rid": 40917,
+            "symbol": "BitBenderGames.MobileTouchCamera.get_CamZoomFormation",
+            "status": "known",
+            "tags": []
+          },
+          {
+            "rid": 40918,
+            "symbol": "BitBenderGames.MobileTouchCamera.set_CamZoomFormation",
+            "status": "known",
+            "tags": []
+          }
+        ],
+        "typeSymbolHits": [],
+        "frontierStringOrSymbolHits": [
+          {
+            "rid": 16613,
+            "symbol": "XLua.CSObjectWrap.BitBenderGamesMobileTouchCameraWrap._g_get_CamZoomFormation",
+            "strings": [
+              "c# exception:"
+            ],
+            "tags": [
+              "string-evidence"
+            ]
+          },
+          {
+            "rid": 16638,
+            "symbol": "XLua.CSObjectWrap.BitBenderGamesMobileTouchCameraWrap._s_set_CamZoomFormation",
+            "strings": [
+              "c# exception:"
+            ],
+            "tags": [
+              "string-evidence"
+            ]
+          }
+        ]
+      },
+      {
+        "term": "Formation",
+        "methodSymbolHits": [
+          {
+            "rid": 2470,
+            "symbol": "FormationCalc..ctor",
+            "status": "unknown",
+            "tags": []
+          },
+          {
+            "rid": 5409,
+            "symbol": "WorldMarchFormationMessage.get_Instance",
+            "status": "unknown",
+            "tags": []
+          },
+          {
+            "rid": 5410,
+            "symbol": "WorldMarchFormationMessage.GetMsgId",
+            "status": "unknown",
+            "tags": [
+              "string-evidence"
+            ]
+          },
+          {
+            "rid": 5411,
+            "symbol": "WorldMarchFormationMessage.CSSetData",
+            "status": "unknown",
+            "tags": [
+              "string-evidence"
+            ]
+          },
+          {
+            "rid": 5412,
+            "symbol": "WorldMarchFormationMessage.CSHandleResponse",
+            "status": "unknown",
+            "tags": [
+              "string-evidence"
+            ]
+          },
+          {
+            "rid": 5413,
+            "symbol": "WorldMarchFormationMessage.showErrorCode",
+            "status": "unknown",
+            "tags": []
+          },
+          {
+            "rid": 5414,
+            "symbol": "WorldMarchFormationMessage..ctor",
+            "status": "unknown",
+            "tags": []
+          },
+          {
+            "rid": 5425,
+            "symbol": "WorldMarchFormationChangeMessage.get_Instance",
+            "status": "unknown",
+            "tags": []
+          },
+          {
+            "rid": 5426,
+            "symbol": "WorldMarchFormationChangeMessage.GetMsgId",
+            "status": "unknown",
+            "tags": [
+              "string-evidence"
+            ]
+          },
+          {
+            "rid": 5427,
+            "symbol": "WorldMarchFormationChangeMessage.CSSetData",
+            "status": "unknown",
+            "tags": [
+              "string-evidence"
+            ]
+          },
+          {
+            "rid": 5428,
+            "symbol": "WorldMarchFormationChangeMessage.CSHandleResponse",
+            "status": "unknown",
+            "tags": [
+              "string-evidence"
+            ]
+          },
+          {
+            "rid": 5429,
+            "symbol": "WorldMarchFormationChangeMessage.showErrorCode",
+            "status": "unknown",
+            "tags": []
+          },
+          {
+            "rid": 5430,
+            "symbol": "WorldMarchFormationChangeMessage..ctor",
+            "status": "unknown",
+            "tags": []
+          },
+          {
+            "rid": 5431,
+            "symbol": "WorldMarchFormationRapidMessage.GetMsgId",
+            "status": "unknown",
+            "tags": [
+              "string-evidence"
+            ]
+          },
+          {
+            "rid": 5432,
+            "symbol": "WorldMarchFormationRapidMessage.get_Instance",
+            "status": "unknown",
+            "tags": []
+          },
+          {
+            "rid": 5433,
+            "symbol": "WorldMarchFormationRapidMessage.CSHandleResponse",
+            "status": "unknown",
+            "tags": [
+              "string-evidence"
+            ]
+          },
+          {
+            "rid": 5434,
+            "symbol": "WorldMarchFormationRapidMessage.showErrorCode",
+            "status": "unknown",
+            "tags": []
+          },
+          {
+            "rid": 5435,
+            "symbol": "WorldMarchFormationRapidMessage..ctor",
+            "status": "unknown",
+            "tags": []
+          },
+          {
+            "rid": 6358,
+            "symbol": "CityScene.GetOwnerFormationMarch",
+            "status": "unknown",
+            "tags": []
+          },
+          {
+            "rid": 6367,
+            "symbol": "CityScene.HandleFormationMarch",
+            "status": "unknown",
+            "tags": []
+          },
+          {
+            "rid": 6368,
+            "symbol": "CityScene.HandleFormationMarchChange",
+            "status": "unknown",
+            "tags": []
+          },
+          {
+            "rid": 6396,
+            "symbol": "CityScene.SetDragFormationData",
+            "status": "unknown",
+            "tags": []
+          },
+          {
+            "rid": 6483,
+            "symbol": "CityScene.GetFormationUuid",
+            "status": "unknown",
+            "tags": []
+          },
+          {
+            "rid": 7532,
+            "symbol": "SceneInterface.GetOwnerFormationMarch",
+            "status": "unknown",
+            "tags": []
+          },
+          {
+            "rid": 7540,
+            "symbol": "SceneInterface.HandleFormationMarch",
+            "status": "unknown",
+            "tags": []
+          },
+          {
+            "rid": 7541,
+            "symbol": "SceneInterface.HandleFormationMarchChange",
+            "status": "unknown",
+            "tags": []
+          },
+          {
+            "rid": 7579,
+            "symbol": "SceneInterface.SetDragFormationData",
+            "status": "unknown",
+            "tags": []
+          },
+          {
+            "rid": 7652,
+            "symbol": "SceneInterface.GetFormationUuid",
+            "status": "unknown",
+            "tags": []
+          },
+          {
+            "rid": 9114,
+            "symbol": "ModelManager.CreateFormationUuidSignal",
+            "status": "unknown",
+            "tags": []
+          },
+          {
+            "rid": 9115,
+            "symbol": "ModelManager.GetFormationUuid",
+            "status": "unknown",
+            "tags": []
+          }
+        ],
+        "typeSymbolHits": [
+          {
+            "rid": 237,
+            "symbol": "FormationCalc",
+            "status": "unknown"
+          },
+          {
+            "rid": 521,
+            "symbol": "WorldMarchFormationMessage",
+            "status": "unknown"
+          },
+          {
+            "rid": 524,
+            "symbol": "WorldMarchFormationChangeMessage",
+            "status": "unknown"
+          },
+          {
+            "rid": 525,
+            "symbol": "WorldMarchFormationRapidMessage",
+            "status": "unknown"
+          },
+          {
+            "rid": 2381,
+            "symbol": "Protobuf.ScoutFormation",
+            "status": "unknown"
+          },
+          {
+            "rid": 4544,
+            "symbol": "ArmyFormationDataManager",
+            "status": "unknown"
+          },
+          {
+            "rid": 5490,
+            "symbol": "EnvironmentInformationWindow",
+            "status": "unknown"
+          },
+          {
+            "rid": 5492,
+            "symbol": "GraphicsInformationWindow",
+            "status": "unknown"
+          },
+          {
+            "rid": 5493,
+            "symbol": "InputAccelerationInformationWindow",
+            "status": "unknown"
+          },
+          {
+            "rid": 5494,
+            "symbol": "InputCompassInformationWindow",
+            "status": "unknown"
+          },
+          {
+            "rid": 5495,
+            "symbol": "InputGyroscopeInformationWindow",
+            "status": "unknown"
+          },
+          {
+            "rid": 5496,
+            "symbol": "InputSummaryInformationWindow",
+            "status": "unknown"
+          },
+          {
+            "rid": 5497,
+            "symbol": "InputTouchInformationWindow",
+            "status": "unknown"
+          },
+          {
+            "rid": 5499,
+            "symbol": "NetworkInformationWindow",
+            "status": "unknown"
+          },
+          {
+            "rid": 5501,
+            "symbol": "PathInformationWindow",
+            "status": "unknown"
+          },
+          {
+            "rid": 5502,
+            "symbol": "ProfilerInformationWindow",
+            "status": "unknown"
+          },
+          {
+            "rid": 5503,
+            "symbol": "QualityInformationWindow",
+            "status": "unknown"
+          },
+          {
+            "rid": 5504,
+            "symbol": "RuntimeMemoryInformationWindow`1",
+            "status": "unknown"
+          },
+          {
+            "rid": 5506,
+            "symbol": "SceneInformationWindow",
+            "status": "unknown"
+          },
+          {
+            "rid": 5507,
+            "symbol": "ScreenInformationWindow",
+            "status": "unknown"
+          }
+        ],
+        "frontierStringOrSymbolHits": [
+          {
+            "rid": 12007,
+            "symbol": "WorldBuildObjectNew.PlayAOSAnim",
+            "strings": [
+              "ModelGo/Normal/AresMissile/skin",
+              "ModelGo/Normal/AresMissile/skin/To_unity/Root/Eff_daditu_zhanshenfeidan_01",
+              "ModelGo/Normal/AresMissile/skin/To_unity/Root/huojian/Eff_daditu_zhanshenfeidan_02",
+              "ModelGo/Normal/AresMissile/skin/To_unity/Root/Eff_daditu_zhanshenfeidan_03",
+              "ModelGo/Normal/AresMissile/skin/To_unity/Root/Eff_daditu_zhanshenfeidan_04",
+              "ModelGo/Normal/AresMissile/A_Build@aisila01_skin",
+              "attack01",
+              "ModelGo/Normal/AresMissile/A_Build@aisila01_skin/To_unity/DeformationSystem/Root/Root_M/Spine1_M/Chest_M/Neck0_M/Head_M/Eff_S4_Mars_Loop_Head_M",
+              "ModelGo/Normal/AresMissile/A_Build@aisila01_skin/To_unity/DeformationSystem/Root/Eff_S4_Mars_Fly_Root",
+              "ModelGo/Normal/GoddessMummy/skin/To_unity/DeformationSystem/Root/ditai/wuqi/wuqi1",
+              "ModelGo/Normal/GoddessMummy/skin",
+              "To_unity/DeformationSystem/Root/Eff_ljw_S3_A_bulid_zhaohuanshenxiang_attack_ioop"
+            ],
+            "tags": [
+              "resource-path-string",
+              "string-evidence"
+            ]
+          },
+          {
+            "rid": 16614,
+            "symbol": "XLua.CSObjectWrap.BitBenderGamesMobileTouchCameraWrap._g_get_CamZoomFocusFormationRotation",
+            "strings": [
+              "c# exception:"
+            ],
+            "tags": [
+              "string-evidence"
+            ]
+          },
+          {
+            "rid": 16613,
+            "symbol": "XLua.CSObjectWrap.BitBenderGamesMobileTouchCameraWrap._g_get_CamZoomFormation",
+            "strings": [
+              "c# exception:"
+            ],
+            "tags": [
+              "string-evidence"
+            ]
+          },
+          {
+            "rid": 16639,
+            "symbol": "XLua.CSObjectWrap.BitBenderGamesMobileTouchCameraWrap._s_set_CamZoomFocusFormationRotation",
+            "strings": [
+              "c# exception:"
+            ],
+            "tags": [
+              "string-evidence"
+            ]
+          },
+          {
+            "rid": 16638,
+            "symbol": "XLua.CSObjectWrap.BitBenderGamesMobileTouchCameraWrap._s_set_CamZoomFormation",
+            "strings": [
+              "c# exception:"
+            ],
+            "tags": [
+              "string-evidence"
+            ]
+          },
+          {
+            "rid": 53428,
+            "symbol": "SceneInformationWindow.OnDrawScrollableWindow",
+            "strings": [
+              "<b>Scene Information</b>",
+              "Scene Count",
+              "Scene Count In Build Settings",
+              "Active Scene Handle",
+              "Active Scene Name",
+              "Active Scene Path",
+              "Active Scene Build Index",
+              "Active Scene Is Dirty",
+              "Active Scene Is Loaded",
+              "Active Scene Is Valid",
+              "Active Scene Root Count",
+              "Active Scene Is Sub Scene"
+            ],
+            "tags": [
+              "scene-loader",
+              "string-evidence",
+              "ui"
+            ]
+          },
+          {
+            "rid": 8519,
+            "symbol": "SoldierTroopUnlit.<PlayAttackEffect>b__9_0",
+            "strings": [
+              "Assets/_Art/Effect/prefab/Arms/Jiqiangbing/VFX_jiqiangbing_attack_one.prefab",
+              "A_soldier_jqb01_01/A_soldie@jqb_skin/DeformationSystem/root"
+            ],
+            "tags": [
+              "resource-path-string",
+              "string-evidence"
+            ]
+          },
+          {
+            "rid": 10731,
+            "symbol": "WorldMarch.UpdateFromSFS",
+            "strings": [
+              "holdUuid",
+              "teamUuid",
+              "ownerUid",
+              "ownerName",
+              "ownerServer",
+              "ownerCurServerId",
+              "ownerFormationUuid",
+              "targetPos",
+              "power",
+              "startPos",
+              "mainPointId",
+              "target"
+            ],
+            "tags": [
+              "string-evidence"
+            ]
+          },
+          {
+            "rid": 10885,
+            "symbol": "WorldMarchDataManager.ParseFormationUpdate",
+            "strings": [
+              "resource",
+              "resource",
+              "LuaEntry.Resource:UpdateResource"
+            ],
+            "tags": [
+              "string-evidence"
+            ]
+          },
+          {
+            "rid": 11066,
+            "symbol": "WorldTroopManager.OnDragStop",
+            "strings": [
+              "MarchUtil.OnChangeSingleMarch",
+              "MarchUtil.OnChangeSingleFormation"
+            ],
+            "tags": [
+              "string-evidence"
+            ]
+          },
+          {
+            "rid": 53379,
+            "symbol": "GraphicsInformationWindow.OnDrawScrollableWindow",
+            "strings": [
+              "<b>Graphics Information</b>",
+              "Device ID",
+              "Device Name",
+              "Device Vendor ID",
+              "Device Vendor",
+              "Device Type",
+              "Device Version",
+              "Memory Size",
+              "Multi Threaded",
+              "Rendering Threading Mode",
+              "Shader Level",
+              "Global Maximum LOD"
+            ],
+            "tags": [
+              "render-camera",
+              "string-evidence",
+              "ui"
+            ]
+          },
+          {
+            "rid": 53416,
+            "symbol": "ProfilerInformationWindow.OnDrawScrollableWindow",
+            "strings": [
+              "<b>Profiler Information</b>",
+              "Supported",
+              "Enabled",
+              "Enable Binary Log",
+              "False",
+              "Enable Allocation Callstacks",
+              "Area Count",
+              "Max Used Memory",
+              "Total Allocated Memory",
+              "Total Reserved Memory",
+              "Total Unused Reserved Memory",
+              "Allocated Memory For Graphics Driver"
+            ],
+            "tags": [
+              "render-camera",
+              "string-evidence",
+              "ui"
+            ]
+          },
+          {
+            "rid": 10882,
+            "symbol": "WorldMarchDataManager.HandleFormationMarchImpl",
+            "strings": [
+              "HandleFormationMarch.receiveMsg"
+            ],
+            "tags": [
+              "string-evidence"
+            ]
+          },
+          {
+            "rid": 53418,
+            "symbol": "QualityInformationWindow.OnDrawScrollableWindow",
+            "strings": [
+              "<b>Quality Level</b>",
+              "Current Quality Level",
+              "Apply expensive changes on quality level change.",
+              "toggle",
+              "<b>Rendering Information</b>",
+              "Active Color Space",
+              "Desired Color Space",
+              "Max Queued Frames",
+              "Pixel Light Count",
+              "Master Texture Limit",
+              "Anisotropic Filtering",
+              "Anti Aliasing"
+            ],
+            "tags": [
+              "render-camera",
+              "string-evidence",
+              "ui"
+            ]
+          },
+          {
+            "rid": 5412,
+            "symbol": "WorldMarchFormationMessage.CSHandleResponse",
+            "strings": [
+              "errorCode",
+              "CSharpCallLuaInterface.MarchErrorLog"
+            ],
+            "tags": [
+              "string-evidence"
+            ]
+          },
+          {
+            "rid": 20973,
+            "symbol": "XLua.CSObjectWrap.ModelManagerWrap.__Register",
+            "strings": [
+              "UnInit",
+              "OnUpdate",
+              "InitLoadModel",
+              "GetFormationUuid",
+              "LoadOneObject",
+              "RemoveOneObject",
+              "RemoveOneObjectByPointType",
+              "GetObjectByPointId",
+              "ClearReInitObject",
+              "ReInitObject",
+              "ClearReInitObjectByFilter",
+              "IsCanShowBuild"
+            ],
+            "tags": [
+              "string-evidence"
+            ]
+          },
+          {
+            "rid": 890,
+            "symbol": "PrivacyBrazil.HandleNoAge",
+            "strings": [
+              "No age information found, checking if user is new or existing",
+              "No final confirm time , treating as new user",
+              "yes final confirm time, treating as old user",
+              "old user but not non US regions or ip",
+              "non_us_regions"
+            ],
+            "tags": [
+              "string-evidence"
+            ]
+          },
+          {
+            "rid": 1032,
+            "symbol": "PrivacyFuncUtil.HandleNoAge",
+            "strings": [
+              "No age information found, checking if user is new or existing",
+              "No final confirm time , treating as new user",
+              "yes final confirm time, treating as old user",
+              "old user but not non US regions or ip",
+              "non_us_regions"
+            ],
+            "tags": [
+              "string-evidence"
+            ]
+          },
+          {
+            "rid": 17404,
+            "symbol": "XLua.CSObjectWrap.CitySceneWrap._m_GetOwnerFormationMarch",
+            "strings": [
+              "c# exception:",
+              "invalid arguments to CityScene.GetOwnerFormationMarch!"
+            ],
+            "tags": [
+              "string-evidence"
+            ]
+          },
+          {
+            "rid": 17413,
+            "symbol": "XLua.CSObjectWrap.CitySceneWrap._m_HandleFormationMarch",
+            "strings": [
+              "c# exception:"
+            ],
+            "tags": [
+              "string-evidence"
+            ]
+          }
+        ]
+      },
+      {
+        "term": "HeroQueue",
+        "methodSymbolHits": [],
+        "typeSymbolHits": [],
+        "frontierStringOrSymbolHits": []
+      }
+    ],
+    "literalEvidenceInExistingAudits": [
+      {
+        "file": "frontend/lab/master-assets-v2/meta/formation-dynamic-binding-bridge-v1.json",
+        "literalCounts": {
+          "Formation": 4
+        }
+      },
+      {
+        "file": "frontend/lab/master-assets-v2/meta/formation-lua-source-container-crosswalk-v1.json",
+        "literalCounts": {
+          "Formation": 24
+        }
+      },
+      {
+        "file": "frontend/lab/master-assets-v2/meta/formation-lua-ui-bridge-detail-v1.json",
+        "literalCounts": {
+          "ShowCamera": 6,
+          "CamZoomFormation": 12,
+          "Formation": 165
+        }
+      },
+      {
+        "file": "frontend/lab/master-assets-v2/meta/formation-xlua-index-crosswalk-v1.json",
+        "literalCounts": {
+          "Formation": 27
+        }
+      },
+      {
+        "file": "frontend/lab/master-assets-v2/meta/formation-xlua-loader-storage-boundary-v1.json",
+        "literalCounts": {
+          "CamZoomFormation": 2,
+          "Formation": 1875
+        }
+      },
+      {
+        "file": "frontend/lab/master-assets-v2/meta/heroshow-clr-il-audit-v1.json",
+        "literalCounts": {
+          "HeroShowSetting": 15,
+          "CamZoomFormation": 29,
+          "Formation": 51
+        }
+      },
+      {
+        "file": "frontend/lab/master-assets-v2/meta/heroshow-scene-loader-audit-v1.json",
+        "literalCounts": {
+          "HeroShowSetting": 11,
+          "ShowCamera": 2,
+          "CamZoomFormation": 12,
+          "Formation": 1081
+        }
+      }
+    ],
+    "knownXLuaBoundaryMethods": [
+      {
+        "rid": 13830,
+        "symbol": "LuaUIFormLogic.LuaInit",
+        "externalCalls": [
+          "OneObjDelegate.Invoke",
+          "UnityEngine.Component.get_gameObject",
+          "UnityEngine.Object.get_name",
+          "UnityEngine.TextAsset.get_text"
+        ]
+      },
+      {
+        "rid": 4807,
+        "symbol": "PBController.OnLoadAssets",
+        "externalCalls": [
+          "UnityEngine.TextAsset.get_bytes",
+          "VEngine.Asset.get_asset",
+          "XLua.LuaDLL.Lua.Load_luaUtil"
+        ]
+      },
+      {
+        "rid": 14828,
+        "symbol": "XLuaManager.CustomLoaderImpl",
+        "externalCalls": [
+          "GameFramework.Log.Error",
+          "ICSharpCode.SharpZipLib.Zip.ZipEntry.get_Size",
+          "ICSharpCode.SharpZipLib.Zip.ZipFile.GetEntry",
+          "ICSharpCode.SharpZipLib.Zip.ZipFile.GetInputStream",
+          "System.IDisposable.Dispose",
+          "System.IO.File.Exists",
+          "System.IO.File.ReadAllBytes",
+          "System.IO.Stream.Read",
+          "System.String.Concat",
+          "System.String.Contains",
+          "System.String.Format",
+          "System.String.Replace",
+          "System.String.Split",
+          "System.Type.GetTypeFromHandle",
+          "UnityEngine.Application.get_dataPath",
+          "UnityEngine.Application.get_isEditor",
+          "UnityEngine.Application.get_persistentDataPath",
+          "UnityEngine.Resources.UnloadAsset",
+          "UnityEngine.TextAsset.get_bytes",
+          "VEngine.Asset.get_asset",
+          "VEngine.Loadable.Release",
+          "VEngine.Loadable.get_isError",
+          "tag4:rid1119.Add",
+          "tag4:rid1119.TryGetValue",
+          "tag4:rid1119.get_Count"
+        ]
+      },
+      {
+        "rid": 14817,
+        "symbol": "XLuaManager.Initialize",
+        "externalCalls": [
+          "GameFramework.Log.Error",
+          "GameFramework.Log.Info",
+          "GameKit.Base.EncryptUtils.FromChachaToPKZip",
+          "GameKit.Base.EncryptUtils.IsChachaTable",
+          "ICSharpCode.SharpZipLib.Zip.ZipFile..ctor",
+          "System.IDisposable.Dispose",
+          "System.IO.File.OpenRead",
+          "System.IO.File.ReadAllBytes",
+          "System.IO.MemoryStream..ctor",
+          "System.IO.Stream.Read",
+          "System.String.Concat",
+          "System.String.IsNullOrEmpty",
+          "tag4:rid1089.Clear"
+        ]
+      }
+    ],
+    "specificVehicleSelectionInstantiationProven": false,
+    "statement": "Exact vehicle assets/render components are known; the specific selected-hero -> vehicle prefab instantiation function is not yet proven in Lua/CLR."
+  },
+  "guardrails": {
+    "humanVisualClassificationIsRuntimeProof": false,
+    "currentGraphicsIndexOnlyForDependencyBridge": true,
+    "historicalOffsetsReused": false,
+    "murphyUsesAlreadyVerifiedStagedBundles": true,
+    "generatedVisuals": false,
+    "candidatePromotion": false,
+    "labBranchOnly": true,
+    "authoritativeSceneSource": "current15-authoritative-export-scene-index-v1.json",
+    "ignoredKnownRegressionForAuthority": "current15-runtime-scene-links-v4.json"
+  }
+}
