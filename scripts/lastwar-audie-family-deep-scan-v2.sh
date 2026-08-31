@@ -22,7 +22,7 @@ from collections import Counter,defaultdict,deque
 import json,re,sys
 import UnityPy
 
-v1p,outp,idxp,uv=map(Path,sys.argv[1:4])+[None] if False else (Path(sys.argv[1]),Path(sys.argv[2]),Path(sys.argv[3]),sys.argv[4])
+v1p=Path(sys.argv[1]); outp=Path(sys.argv[2]); idxp=Path(sys.argv[3]); uv=sys.argv[4]
 UnityPy.config.FALLBACK_UNITY_VERSION=uv
 v1=json.loads(v1p.read_text('utf-8'))
 idx=json.loads(idxp.read_text('utf-8')) if idxp.exists() else {'bundles':[]}
@@ -47,6 +47,12 @@ def pid(o): return int(getattr(o,'path_id',0) or 0)
 def pname(o):
     try:return str(o.peek_name() or '')
     except:return ''
+def afkey(o):
+    af=getattr(o,'assets_file',None)
+    for a in ('name','path'):
+        x=getattr(af,a,None)
+        if x:return str(x)
+    return f'assetsfile@{id(af)}'
 def get_externals(o):
     af=getattr(o,'assets_file',None)
     ex=[]
@@ -87,11 +93,17 @@ def external_candidates(path):
     for k in keys:z.update(name_to_bids.get(k,set()))
     return sorted(z)
 
+def path_aliases(s):
+    if not s:return set()
+    s=str(s).replace('\\','/')
+    b=Path(s).name.lower(); out={b}
+    if '.' in b: out.add(b.rsplit('.',1)[0])
+    return {x for x in out if x}
+
 hit_paths=[]
 for b in v1.get('hitBundles',[]):
     p=b.get('path')
     if p and Path(p).is_file(): hit_paths.append(Path(p))
-# de-duplicate the same physical bundle discovered via several cache roots
 seen_real=set(); paths=[]
 for p in hit_paths:
     try:key=str(p.resolve())
@@ -99,7 +111,7 @@ for p in hit_paths:
     if key not in seen_real: seen_real.add(key); paths.append(p)
 
 all_assets=[]; all_edges=[]; all_material_slots=[]; bundles=[]; errors=[]; exact_textures=[]
-AUDIE_TYPES=Counter(); exact_suffix=Counter(); exact_names=Counter()
+AUDIE_TYPES=Counter(); exact_suffix=Counter()
 interesting_types={'Material','GameObject','MeshRenderer','SkinnedMeshRenderer','MeshFilter','Transform','RectTransform','Animator','Animation','MonoBehaviour','Mesh','Texture2D','Shader','Avatar','AnimationClip'}
 
 for pos,p in enumerate(paths,1):
@@ -108,15 +120,19 @@ for pos,p in enumerate(paths,1):
     except Exception as e:
         errors.append({'path':str(p),'error':f'{type(e).__name__}:{e}'}); continue
     m=re.search(r'bundle-(\d+)\.bundle$',p.name); bid=int(m.group(1)) if m else None
-    bypid={pid(o):o for o in objs}
-    meta={q:{'type':typ(o),'name':pname(o)} for q,o in bypid.items()}
-    seeds=set()
-    audie_named=[]
+
+    # pathID is scoped to the serialized file. Never resolve on pathID alone across the whole bundle.
+    byfile=defaultdict(dict); meta=defaultdict(dict); alias_to_file={}
     for o in objs:
-        n=pname(o); t=typ(o)
+        sf=afkey(o); q=pid(o); byfile[sf][q]=o; meta[sf][q]={'type':typ(o),'name':pname(o)}
+        for a in path_aliases(sf): alias_to_file.setdefault(a,sf)
+
+    seeds=set(); audie_named=[]
+    for o in objs:
+        n=pname(o); t=typ(o); sf=afkey(o); q=pid(o)
         if n and 'audie' in n.lower():
-            seeds.add(pid(o)); audie_named.append(pid(o)); AUDIE_TYPES[t]+=1; exact_names[n]+=1
-            rec={'bundleId':bid,'bundlePath':str(p),'pathID':str(pid(o)),'type':t,'name':n}
+            key=(sf,q); seeds.add(key); audie_named.append(key); AUDIE_TYPES[t]+=1
+            rec={'bundleId':bid,'bundlePath':str(p),'serializedFile':sf,'pathID':str(q),'type':t,'name':n}
             all_assets.append(rec)
             if t=='Texture2D' and re.search(r'A_Hero_Audie_01',n,re.I):
                 try:
@@ -125,60 +141,72 @@ for pos,p in enumerate(paths,1):
                 exact_textures.append(rec2)
                 mm=re.search(r'A_Hero_Audie_01(?:_High)?_([A-Za-z0-9]+)$',n,re.I)
                 if mm: exact_suffix[mm.group(1).upper()]+=1
-    # Parse graph lazily: seeds, then locally referenced targets up to depth 4.
-    parsed={}; q=deque((s,0) for s in seeds); queued=set(seeds)
-    local_edges=[]
+
+    # Parse graph lazily from Audie seeds and local/internal-bundle PPtrs, depth <= 4.
+    parsed={}; q=deque((s,0) for s in seeds); queued=set(seeds); local_edges=[]
     while q:
-        sp,depth=q.popleft(); so=bypid.get(sp)
+        (sf,sp),depth=q.popleft(); so=byfile.get(sf,{}).get(sp)
         if so is None or typ(so) not in interesting_types: continue
-        if sp not in parsed:
-            tree,err=read_tree(so); parsed[sp]=(tree,err)
-        tree,err=parsed[sp]
+        key=(sf,sp)
+        if key not in parsed: parsed[key]=read_tree(so)
+        tree,err=parsed[key]
         if tree is None: continue
         exts=get_externals(so)
         for field,fid,tp in ptrs(tree):
             extpath=exts[fid-1] if fid>0 and fid-1<len(exts) else ''
-            target=meta.get(tp) if fid==0 else None
-            edge={'bundleId':bid,'sourcePathID':str(sp),'sourceType':typ(so),'sourceName':pname(so),'field':field,'fileID':fid,'targetPathID':str(tp),'externalPath':extpath,'externalBundleCandidates':external_candidates(extpath)}
-            if target: edge.update({'targetType':target['type'],'targetName':target['name'],'localResolved':True})
-            else: edge['localResolved']=False
+            target_sf=sf if fid==0 else None
+            if fid>0 and extpath:
+                for a in path_aliases(extpath):
+                    if a in alias_to_file:
+                        target_sf=alias_to_file[a]; break
+            target=meta.get(target_sf,{}).get(tp) if target_sf else None
+            edge={'bundleId':bid,'sourceSerializedFile':sf,'sourcePathID':str(sp),'sourceType':typ(so),'sourceName':pname(so),'field':field,'fileID':fid,'targetPathID':str(tp),'externalPath':extpath,'externalBundleCandidates':external_candidates(extpath)}
+            if target:
+                edge.update({'targetSerializedFile':target_sf,'targetType':target['type'],'targetName':target['name'],'localResolved':True,'resolution':'same-serialized-file' if fid==0 else 'same-bundle-external-file'})
+            else: edge.update({'localResolved':False,'resolution':'external-or-unavailable'})
             local_edges.append(edge); all_edges.append(edge)
-            if fid==0 and tp in bypid and depth<4 and tp not in queued:
-                queued.add(tp); q.append((tp,depth+1))
-    # Materials that are named Audie OR reached from an Audie seed.
-    reached={int(e['targetPathID']) for e in local_edges if e.get('localResolved')}
-    mats={x for x in seeds|reached if x in bypid and typ(bypid[x])=='Material'}
-    for mp in sorted(mats):
-        mo=bypid[mp]; tree,err=parsed.get(mp,(None,None))
+            tkey=(target_sf,tp) if target_sf else None
+            if target and depth<4 and tkey not in queued:
+                queued.add(tkey); q.append((tkey,depth+1))
+
+    reached={(e.get('targetSerializedFile'),int(e['targetPathID'])) for e in local_edges if e.get('localResolved') and e.get('targetSerializedFile')}
+    mats={x for x in seeds|reached if x[0] in byfile and x[1] in byfile[x[0]] and typ(byfile[x[0]][x[1]])=='Material'}
+    for sf,mp in sorted(mats,key=lambda x:(x[0],x[1])):
+        mo=byfile[sf][mp]; tree,err=parsed.get((sf,mp),(None,None))
         if tree is None: tree,err=read_tree(mo)
         if tree is None: continue
-        exts=get_externals(mo)
-        slots=[]
+        exts=get_externals(mo); slots=[]
         for field,fid,tp in ptrs(tree):
-            # Material texture pointers normally live under m_SavedProperties.m_TexEnvs.
             if 'TexEnv' not in field and 'm_Texture' not in field and 'm_TexEnvs' not in field: continue
             extpath=exts[fid-1] if fid>0 and fid-1<len(exts) else ''
-            tar=meta.get(tp) if fid==0 else None
+            target_sf=sf if fid==0 else None
+            if fid>0 and extpath:
+                for a in path_aliases(extpath):
+                    if a in alias_to_file: target_sf=alias_to_file[a]; break
+            tar=meta.get(target_sf,{}).get(tp) if target_sf else None
             slot={'field':field,'fileID':fid,'pathID':str(tp),'externalPath':extpath,'externalBundleCandidates':external_candidates(extpath)}
-            if tar: slot.update({'targetType':tar['type'],'targetName':tar['name'],'localResolved':True})
+            if tar: slot.update({'targetSerializedFile':target_sf,'targetType':tar['type'],'targetName':tar['name'],'localResolved':True})
             else: slot['localResolved']=False
             slots.append(slot)
-        all_material_slots.append({'bundleId':bid,'materialPathID':str(mp),'materialName':pname(mo),'slots':slots})
-    bundles.append({'bundleId':bid,'path':str(p),'objectCount':len(objs),'audieNamedCount':len(audie_named),'seedCount':len(seeds),'parsedReachable':len(parsed),'edgeCount':len(local_edges),'materialCount':len(mats)})
+        all_material_slots.append({'bundleId':bid,'serializedFile':sf,'materialPathID':str(mp),'materialName':pname(mo),'slots':slots})
 
-# Exact-name families, split by Unity type, prevent object suffixes like CAMERA/BULLET from being confused with texture-map suffixes.
+    bundles.append({'bundleId':bid,'path':str(p),'objectCount':len(objs),'serializedFiles':len(byfile),'audieNamedCount':len(audie_named),'seedCount':len(seeds),'parsedReachable':len(parsed),'edgeCount':len(local_edges),'materialCount':len(mats)})
+
 by_type=defaultdict(list)
 for a in all_assets: by_type[a['type']].append(a)
-for t in by_type: by_type[t].sort(key=lambda x:(x.get('name','').lower(),x.get('bundleId') or -1,int(x.get('pathID') or 0)))
+for t in by_type: by_type[t].sort(key=lambda x:(x.get('name','').lower(),x.get('bundleId') or -1,x.get('serializedFile',''),int(x.get('pathID') or 0)))
 
-# Strong chains: edges whose source or resolved target is Audie-named, plus texture-slot material edges.
 strong=[]
+seen_strong=set()
+def add_strong(e):
+    k=(e.get('bundleId'),e.get('sourceSerializedFile') or e.get('serializedFile'),e.get('sourcePathID') or e.get('materialPathID'),e.get('field'),e.get('fileID'),e.get('targetPathID') or e.get('pathID'))
+    if k not in seen_strong: seen_strong.add(k); strong.append(e)
 for e in all_edges:
-    if 'audie' in (e.get('sourceName') or '').lower() or 'audie' in (e.get('targetName') or '').lower(): strong.append(e)
+    if 'audie' in (e.get('sourceName') or '').lower() or 'audie' in (e.get('targetName') or '').lower(): add_strong(e)
 for m in all_material_slots:
     if 'audie' in (m.get('materialName') or '').lower():
         for s in m['slots']:
-            strong.append({'bundleId':m['bundleId'],'sourcePathID':m['materialPathID'],'sourceType':'Material','sourceName':m['materialName'],'field':s['field'],'fileID':s['fileID'],'targetPathID':s['pathID'],'externalPath':s['externalPath'],'externalBundleCandidates':s['externalBundleCandidates'],'targetType':s.get('targetType'),'targetName':s.get('targetName'),'localResolved':s.get('localResolved',False),'relation':'MATERIAL_TEXTURE_SLOT'})
+            add_strong({'bundleId':m['bundleId'],'sourceSerializedFile':m['serializedFile'],'sourcePathID':m['materialPathID'],'sourceType':'Material','sourceName':m['materialName'],'field':s['field'],'fileID':s['fileID'],'targetPathID':s['pathID'],'externalPath':s['externalPath'],'externalBundleCandidates':s['externalBundleCandidates'],'targetSerializedFile':s.get('targetSerializedFile'),'targetType':s.get('targetType'),'targetName':s.get('targetName'),'localResolved':s.get('localResolved',False),'relation':'MATERIAL_TEXTURE_SLOT'})
 
 res={
  'format':'WFGG_LASTWAR_AUDIE_FAMILY_DEEP_SCAN_V2',
@@ -198,7 +226,8 @@ res={
  'rules':[
    'Only bundles already proven by V1 to contain an Audie-named Unity object are deep-parsed.',
    'Suffix statistics shown as texture suffixes use Texture2D objects matching A_Hero_Audie_01 only; CAMERA/BULLET/etc are not automatically treated as image layers.',
-   'Local fileID=0 pointers are resolved by exact pathID in the same serialized file. External fileID pointers remain explicit and receive only labelled index-based bundle candidates.',
+   'pathID resolution is scoped to the exact serialized file; fileID=0 never resolves against a different serialized file.',
+   'External fileID pointers are resolved inside the same bundle only when their external path exactly matches another loaded serialized file; otherwise they remain explicit and receive only labelled index-based bundle candidates.',
    'No mesh/material/texture relationship is invented: graph edges come from Unity typetree PPtr fields.'
  ]
 }
