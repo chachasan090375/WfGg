@@ -1,0 +1,530 @@
+{
+  "format": "WFGG_LASTWAR_FORMATION_SELECTED_MATERIAL_RENDER_CHAIN_V1",
+  "method": "single current 195-bundle PPtr index + reverse material consumer tracing; AssetBundle metadata separated from semantic render/hierarchy consumers",
+  "materials": [
+    {
+      "name": "Terrain_Ground",
+      "bundleId": 14169,
+      "pathID": 5462275938698525167,
+      "serializedFile": "CAB-9a46429c8bac0e1cd467ec61b2a0f8a3",
+      "fileKey": "cab-9a46429c8bac0e1cd467ec61b2a0f8a3"
+    },
+    {
+      "name": "O_terrain_grass02_3TextureNS1",
+      "bundleId": 14169,
+      "pathID": -58427823418694077,
+      "serializedFile": "CAB-9a46429c8bac0e1cd467ec61b2a0f8a3",
+      "fileKey": "cab-9a46429c8bac0e1cd467ec61b2a0f8a3"
+    },
+    {
+      "name": "O_terrain_road_01",
+      "bundleId": 14169,
+      "pathID": 1806725993657708232,
+      "serializedFile": "CAB-9a46429c8bac0e1cd467ec61b2a0f8a3",
+      "fileKey": "cab-9a46429c8bac0e1cd467ec61b2a0f8a3"
+    },
+    {
+      "name": "O_terrain_road_02_nsj",
+      "bundleId": 14169,
+      "pathID": -1460172297484211456,
+      "serializedFile": "CAB-9a46429c8bac0e1cd467ec61b2a0f8a3",
+      "fileKey": "cab-9a46429c8bac0e1cd467ec61b2a0f8a3"
+    },
+    {
+      "name": "O_terrain_shamo_back",
+      "bundleId": 14169,
+      "pathID": 142524935483900056,
+      "serializedFile": "CAB-9a46429c8bac0e1cd467ec61b2a0f8a3",
+      "fileKey": "cab-9a46429c8bac0e1cd467ec61b2a0f8a3"
+    }
+  ],
+  "results": [
+    {
+      "material": {
+        "name": "Terrain_Ground",
+        "bundleId": 14169,
+        "pathID": 5462275938698525167,
+        "serializedFile": "CAB-9a46429c8bac0e1cd467ec61b2a0f8a3",
+        "fileKey": "cab-9a46429c8bac0e1cd467ec61b2a0f8a3"
+      },
+      "directReferrers": [
+        {
+          "sourceFile": "cab-9a46429c8bac0e1cd467ec61b2a0f8a3",
+          "sourcePathID": "1",
+          "sourceBundle": 14169,
+          "sourceType": "AssetBundle",
+          "sourceName": "gameres_main_dir_material.bundle",
+          "field": "$.m_PreloadTable[187]",
+          "fileID": 0
+        },
+        {
+          "sourceFile": "cab-9a46429c8bac0e1cd467ec61b2a0f8a3",
+          "sourcePathID": "1",
+          "sourceBundle": 14169,
+          "sourceType": "AssetBundle",
+          "sourceName": "gameres_main_dir_material.bundle",
+          "field": "$.m_Container[80][1].asset",
+          "fileID": 0
+        }
+      ],
+      "semanticConsumers": [],
+      "rendererGameObjects": [],
+      "metadataReferences": [
+        {
+          "depth": 1,
+          "node": {
+            "class": "metadata",
+            "type": "AssetBundle",
+            "name": "gameres_main_dir_material.bundle",
+            "bundle": 14169,
+            "file": "cab-9a46429c8bac0e1cd467ec61b2a0f8a3",
+            "pathID": "1",
+            "field": "$.m_PreloadTable[187]"
+          },
+          "path": [
+            {
+              "class": "metadata",
+              "type": "AssetBundle",
+              "name": "gameres_main_dir_material.bundle",
+              "bundle": 14169,
+              "file": "cab-9a46429c8bac0e1cd467ec61b2a0f8a3",
+              "pathID": "1",
+              "field": "$.m_PreloadTable[187]"
+            },
+            {
+              "type": "Material",
+              "name": "Terrain_Ground",
+              "bundle": 14169,
+              "file": "cab-9a46429c8bac0e1cd467ec61b2a0f8a3",
+              "pathID": "5462275938698525167"
+            }
+          ]
+        },
+        {
+          "depth": 1,
+          "node": {
+            "class": "metadata",
+            "type": "AssetBundle",
+            "name": "gameres_main_dir_material.bundle",
+            "bundle": 14169,
+            "file": "cab-9a46429c8bac0e1cd467ec61b2a0f8a3",
+            "pathID": "1",
+            "field": "$.m_Container[80][1].asset"
+          },
+          "path": [
+            {
+              "class": "metadata",
+              "type": "AssetBundle",
+              "name": "gameres_main_dir_material.bundle",
+              "bundle": 14169,
+              "file": "cab-9a46429c8bac0e1cd467ec61b2a0f8a3",
+              "pathID": "1",
+              "field": "$.m_Container[80][1].asset"
+            },
+            {
+              "type": "Material",
+              "name": "Terrain_Ground",
+              "bundle": 14169,
+              "file": "cab-9a46429c8bac0e1cd467ec61b2a0f8a3",
+              "pathID": "5462275938698525167"
+            }
+          ]
+        }
+      ],
+      "chains": []
+    },
+    {
+      "material": {
+        "name": "O_terrain_grass02_3TextureNS1",
+        "bundleId": 14169,
+        "pathID": -58427823418694077,
+        "serializedFile": "CAB-9a46429c8bac0e1cd467ec61b2a0f8a3",
+        "fileKey": "cab-9a46429c8bac0e1cd467ec61b2a0f8a3"
+      },
+      "directReferrers": [
+        {
+          "sourceFile": "cab-9a46429c8bac0e1cd467ec61b2a0f8a3",
+          "sourcePathID": "1",
+          "sourceBundle": 14169,
+          "sourceType": "AssetBundle",
+          "sourceName": "gameres_main_dir_material.bundle",
+          "field": "$.m_PreloadTable[100]",
+          "fileID": 0
+        },
+        {
+          "sourceFile": "cab-9a46429c8bac0e1cd467ec61b2a0f8a3",
+          "sourcePathID": "1",
+          "sourceBundle": 14169,
+          "sourceType": "AssetBundle",
+          "sourceName": "gameres_main_dir_material.bundle",
+          "field": "$.m_Container[46][1].asset",
+          "fileID": 0
+        }
+      ],
+      "semanticConsumers": [],
+      "rendererGameObjects": [],
+      "metadataReferences": [
+        {
+          "depth": 1,
+          "node": {
+            "class": "metadata",
+            "type": "AssetBundle",
+            "name": "gameres_main_dir_material.bundle",
+            "bundle": 14169,
+            "file": "cab-9a46429c8bac0e1cd467ec61b2a0f8a3",
+            "pathID": "1",
+            "field": "$.m_PreloadTable[100]"
+          },
+          "path": [
+            {
+              "class": "metadata",
+              "type": "AssetBundle",
+              "name": "gameres_main_dir_material.bundle",
+              "bundle": 14169,
+              "file": "cab-9a46429c8bac0e1cd467ec61b2a0f8a3",
+              "pathID": "1",
+              "field": "$.m_PreloadTable[100]"
+            },
+            {
+              "type": "Material",
+              "name": "O_terrain_grass02_3TextureNS1",
+              "bundle": 14169,
+              "file": "cab-9a46429c8bac0e1cd467ec61b2a0f8a3",
+              "pathID": "-58427823418694077"
+            }
+          ]
+        },
+        {
+          "depth": 1,
+          "node": {
+            "class": "metadata",
+            "type": "AssetBundle",
+            "name": "gameres_main_dir_material.bundle",
+            "bundle": 14169,
+            "file": "cab-9a46429c8bac0e1cd467ec61b2a0f8a3",
+            "pathID": "1",
+            "field": "$.m_Container[46][1].asset"
+          },
+          "path": [
+            {
+              "class": "metadata",
+              "type": "AssetBundle",
+              "name": "gameres_main_dir_material.bundle",
+              "bundle": 14169,
+              "file": "cab-9a46429c8bac0e1cd467ec61b2a0f8a3",
+              "pathID": "1",
+              "field": "$.m_Container[46][1].asset"
+            },
+            {
+              "type": "Material",
+              "name": "O_terrain_grass02_3TextureNS1",
+              "bundle": 14169,
+              "file": "cab-9a46429c8bac0e1cd467ec61b2a0f8a3",
+              "pathID": "-58427823418694077"
+            }
+          ]
+        }
+      ],
+      "chains": []
+    },
+    {
+      "material": {
+        "name": "O_terrain_road_01",
+        "bundleId": 14169,
+        "pathID": 1806725993657708232,
+        "serializedFile": "CAB-9a46429c8bac0e1cd467ec61b2a0f8a3",
+        "fileKey": "cab-9a46429c8bac0e1cd467ec61b2a0f8a3"
+      },
+      "directReferrers": [
+        {
+          "sourceFile": "cab-9a46429c8bac0e1cd467ec61b2a0f8a3",
+          "sourcePathID": "1",
+          "sourceBundle": 14169,
+          "sourceType": "AssetBundle",
+          "sourceName": "gameres_main_dir_material.bundle",
+          "field": "$.m_PreloadTable[81]",
+          "fileID": 0
+        },
+        {
+          "sourceFile": "cab-9a46429c8bac0e1cd467ec61b2a0f8a3",
+          "sourcePathID": "1",
+          "sourceBundle": 14169,
+          "sourceType": "AssetBundle",
+          "sourceName": "gameres_main_dir_material.bundle",
+          "field": "$.m_Container[48][1].asset",
+          "fileID": 0
+        }
+      ],
+      "semanticConsumers": [],
+      "rendererGameObjects": [],
+      "metadataReferences": [
+        {
+          "depth": 1,
+          "node": {
+            "class": "metadata",
+            "type": "AssetBundle",
+            "name": "gameres_main_dir_material.bundle",
+            "bundle": 14169,
+            "file": "cab-9a46429c8bac0e1cd467ec61b2a0f8a3",
+            "pathID": "1",
+            "field": "$.m_PreloadTable[81]"
+          },
+          "path": [
+            {
+              "class": "metadata",
+              "type": "AssetBundle",
+              "name": "gameres_main_dir_material.bundle",
+              "bundle": 14169,
+              "file": "cab-9a46429c8bac0e1cd467ec61b2a0f8a3",
+              "pathID": "1",
+              "field": "$.m_PreloadTable[81]"
+            },
+            {
+              "type": "Material",
+              "name": "O_terrain_road_01",
+              "bundle": 14169,
+              "file": "cab-9a46429c8bac0e1cd467ec61b2a0f8a3",
+              "pathID": "1806725993657708232"
+            }
+          ]
+        },
+        {
+          "depth": 1,
+          "node": {
+            "class": "metadata",
+            "type": "AssetBundle",
+            "name": "gameres_main_dir_material.bundle",
+            "bundle": 14169,
+            "file": "cab-9a46429c8bac0e1cd467ec61b2a0f8a3",
+            "pathID": "1",
+            "field": "$.m_Container[48][1].asset"
+          },
+          "path": [
+            {
+              "class": "metadata",
+              "type": "AssetBundle",
+              "name": "gameres_main_dir_material.bundle",
+              "bundle": 14169,
+              "file": "cab-9a46429c8bac0e1cd467ec61b2a0f8a3",
+              "pathID": "1",
+              "field": "$.m_Container[48][1].asset"
+            },
+            {
+              "type": "Material",
+              "name": "O_terrain_road_01",
+              "bundle": 14169,
+              "file": "cab-9a46429c8bac0e1cd467ec61b2a0f8a3",
+              "pathID": "1806725993657708232"
+            }
+          ]
+        }
+      ],
+      "chains": []
+    },
+    {
+      "material": {
+        "name": "O_terrain_road_02_nsj",
+        "bundleId": 14169,
+        "pathID": -1460172297484211456,
+        "serializedFile": "CAB-9a46429c8bac0e1cd467ec61b2a0f8a3",
+        "fileKey": "cab-9a46429c8bac0e1cd467ec61b2a0f8a3"
+      },
+      "directReferrers": [
+        {
+          "sourceFile": "cab-9a46429c8bac0e1cd467ec61b2a0f8a3",
+          "sourcePathID": "1",
+          "sourceBundle": 14169,
+          "sourceType": "AssetBundle",
+          "sourceName": "gameres_main_dir_material.bundle",
+          "field": "$.m_PreloadTable[6]",
+          "fileID": 0
+        },
+        {
+          "sourceFile": "cab-9a46429c8bac0e1cd467ec61b2a0f8a3",
+          "sourcePathID": "1",
+          "sourceBundle": 14169,
+          "sourceType": "AssetBundle",
+          "sourceName": "gameres_main_dir_material.bundle",
+          "field": "$.m_Container[49][1].asset",
+          "fileID": 0
+        }
+      ],
+      "semanticConsumers": [],
+      "rendererGameObjects": [],
+      "metadataReferences": [
+        {
+          "depth": 1,
+          "node": {
+            "class": "metadata",
+            "type": "AssetBundle",
+            "name": "gameres_main_dir_material.bundle",
+            "bundle": 14169,
+            "file": "cab-9a46429c8bac0e1cd467ec61b2a0f8a3",
+            "pathID": "1",
+            "field": "$.m_PreloadTable[6]"
+          },
+          "path": [
+            {
+              "class": "metadata",
+              "type": "AssetBundle",
+              "name": "gameres_main_dir_material.bundle",
+              "bundle": 14169,
+              "file": "cab-9a46429c8bac0e1cd467ec61b2a0f8a3",
+              "pathID": "1",
+              "field": "$.m_PreloadTable[6]"
+            },
+            {
+              "type": "Material",
+              "name": "O_terrain_road_02_nsj",
+              "bundle": 14169,
+              "file": "cab-9a46429c8bac0e1cd467ec61b2a0f8a3",
+              "pathID": "-1460172297484211456"
+            }
+          ]
+        },
+        {
+          "depth": 1,
+          "node": {
+            "class": "metadata",
+            "type": "AssetBundle",
+            "name": "gameres_main_dir_material.bundle",
+            "bundle": 14169,
+            "file": "cab-9a46429c8bac0e1cd467ec61b2a0f8a3",
+            "pathID": "1",
+            "field": "$.m_Container[49][1].asset"
+          },
+          "path": [
+            {
+              "class": "metadata",
+              "type": "AssetBundle",
+              "name": "gameres_main_dir_material.bundle",
+              "bundle": 14169,
+              "file": "cab-9a46429c8bac0e1cd467ec61b2a0f8a3",
+              "pathID": "1",
+              "field": "$.m_Container[49][1].asset"
+            },
+            {
+              "type": "Material",
+              "name": "O_terrain_road_02_nsj",
+              "bundle": 14169,
+              "file": "cab-9a46429c8bac0e1cd467ec61b2a0f8a3",
+              "pathID": "-1460172297484211456"
+            }
+          ]
+        }
+      ],
+      "chains": []
+    },
+    {
+      "material": {
+        "name": "O_terrain_shamo_back",
+        "bundleId": 14169,
+        "pathID": 142524935483900056,
+        "serializedFile": "CAB-9a46429c8bac0e1cd467ec61b2a0f8a3",
+        "fileKey": "cab-9a46429c8bac0e1cd467ec61b2a0f8a3"
+      },
+      "directReferrers": [
+        {
+          "sourceFile": "cab-9a46429c8bac0e1cd467ec61b2a0f8a3",
+          "sourcePathID": "1",
+          "sourceBundle": 14169,
+          "sourceType": "AssetBundle",
+          "sourceName": "gameres_main_dir_material.bundle",
+          "field": "$.m_PreloadTable[14]",
+          "fileID": 0
+        },
+        {
+          "sourceFile": "cab-9a46429c8bac0e1cd467ec61b2a0f8a3",
+          "sourcePathID": "1",
+          "sourceBundle": 14169,
+          "sourceType": "AssetBundle",
+          "sourceName": "gameres_main_dir_material.bundle",
+          "field": "$.m_Container[53][1].asset",
+          "fileID": 0
+        }
+      ],
+      "semanticConsumers": [],
+      "rendererGameObjects": [],
+      "metadataReferences": [
+        {
+          "depth": 1,
+          "node": {
+            "class": "metadata",
+            "type": "AssetBundle",
+            "name": "gameres_main_dir_material.bundle",
+            "bundle": 14169,
+            "file": "cab-9a46429c8bac0e1cd467ec61b2a0f8a3",
+            "pathID": "1",
+            "field": "$.m_PreloadTable[14]"
+          },
+          "path": [
+            {
+              "class": "metadata",
+              "type": "AssetBundle",
+              "name": "gameres_main_dir_material.bundle",
+              "bundle": 14169,
+              "file": "cab-9a46429c8bac0e1cd467ec61b2a0f8a3",
+              "pathID": "1",
+              "field": "$.m_PreloadTable[14]"
+            },
+            {
+              "type": "Material",
+              "name": "O_terrain_shamo_back",
+              "bundle": 14169,
+              "file": "cab-9a46429c8bac0e1cd467ec61b2a0f8a3",
+              "pathID": "142524935483900056"
+            }
+          ]
+        },
+        {
+          "depth": 1,
+          "node": {
+            "class": "metadata",
+            "type": "AssetBundle",
+            "name": "gameres_main_dir_material.bundle",
+            "bundle": 14169,
+            "file": "cab-9a46429c8bac0e1cd467ec61b2a0f8a3",
+            "pathID": "1",
+            "field": "$.m_Container[53][1].asset"
+          },
+          "path": [
+            {
+              "class": "metadata",
+              "type": "AssetBundle",
+              "name": "gameres_main_dir_material.bundle",
+              "bundle": 14169,
+              "file": "cab-9a46429c8bac0e1cd467ec61b2a0f8a3",
+              "pathID": "1",
+              "field": "$.m_Container[53][1].asset"
+            },
+            {
+              "type": "Material",
+              "name": "O_terrain_shamo_back",
+              "bundle": 14169,
+              "file": "cab-9a46429c8bac0e1cd467ec61b2a0f8a3",
+              "pathID": "142524935483900056"
+            }
+          ]
+        }
+      ],
+      "chains": []
+    }
+  ],
+  "renderBundleAggregate": [],
+  "counts": {
+    "closureBundles": 195,
+    "materials": 5,
+    "objectsIndexed": 12970,
+    "ptrsScanned": 565095,
+    "readFailures": 0,
+    "renderConsumerBundles": 0
+  },
+  "readFailures": [],
+  "guardrails": {
+    "labBranchOnly": true,
+    "mainUntouched": true,
+    "historicalOffsetsReused": false,
+    "runtimeUseProof": false,
+    "generatedVisuals": false
+  }
+}
