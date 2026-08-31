@@ -1,0 +1,2135 @@
+{
+  "format": "WFGG_LASTWAR_FORMATION_HUMAN_SELECTED_TEXTURE_DIRECT_BUNDLE_CONSUMERS_V2",
+  "method": "direct scan of all serialized objects in the exact 195 current cached closure bundles; PPtr fileID+pathID resolved to exact selected Texture2D serialized-file identities",
+  "targets": [
+    {
+      "name": "O_terrain_new03_D",
+      "scope": "formation-closure",
+      "bundleId": 26592,
+      "pathIDExact": "6527014853484295755",
+      "width": 512,
+      "height": 512,
+      "format": "ASTC_RGB_8x8",
+      "serializedFile": "CAB-73aa161fc6342310a8d2a7e358a3a92a",
+      "serializedFileAliases": [
+        "CAB-73aa161fc6342310a8d2a7e358a3a92a"
+      ]
+    },
+    {
+      "name": "S1GroundGrass_Color _g",
+      "scope": "formation-closure",
+      "bundleId": 26598,
+      "pathIDExact": "-5181868365457329968",
+      "width": 512,
+      "height": 512,
+      "format": "ASTC_RGB_6x6",
+      "serializedFile": "CAB-795c4a8f0cc728caa61a6b4340fe966c",
+      "serializedFileAliases": [
+        "CAB-795c4a8f0cc728caa61a6b4340fe966c"
+      ]
+    },
+    {
+      "name": "O_terrain_grass04_D",
+      "scope": "formation-closure",
+      "bundleId": 26600,
+      "pathIDExact": "-8530919973026192267",
+      "width": 512,
+      "height": 512,
+      "format": "ASTC_RGB_6x6",
+      "serializedFile": "CAB-1e242af08562fb3b9d428750f0060d9b",
+      "serializedFileAliases": [
+        "CAB-1e242af08562fb3b9d428750f0060d9b"
+      ]
+    },
+    {
+      "name": "S1GroundGrass_Color _qg",
+      "scope": "formation-closure",
+      "bundleId": 14169,
+      "pathIDExact": "6764603796244240607",
+      "width": 512,
+      "height": 512,
+      "format": "ASTC_RGB_6x6",
+      "serializedFile": "CAB-9a46429c8bac0e1cd467ec61b2a0f8a3",
+      "serializedFileAliases": [
+        "CAB-9a46429c8bac0e1cd467ec61b2a0f8a3"
+      ]
+    },
+    {
+      "name": "S1GroundGrass_Color _y",
+      "scope": "formation-closure",
+      "bundleId": 26598,
+      "pathIDExact": "-3994208365102929008",
+      "width": 512,
+      "height": 512,
+      "format": "ASTC_RGB_6x6",
+      "serializedFile": "CAB-795c4a8f0cc728caa61a6b4340fe966c",
+      "serializedFileAliases": [
+        "CAB-795c4a8f0cc728caa61a6b4340fe966c"
+      ]
+    },
+    {
+      "name": "O_ground_zhucheng_01",
+      "scope": "formation-closure",
+      "bundleId": 14169,
+      "pathIDExact": "6658329552418294702",
+      "width": 512,
+      "height": 512,
+      "format": "ASTC_RGB_6x6",
+      "serializedFile": "CAB-9a46429c8bac0e1cd467ec61b2a0f8a3",
+      "serializedFileAliases": [
+        "CAB-9a46429c8bac0e1cd467ec61b2a0f8a3"
+      ]
+    },
+    {
+      "name": "O_terrain_grass01_D",
+      "scope": "formation-closure",
+      "bundleId": 26600,
+      "pathIDExact": "2886232983442666552",
+      "width": 512,
+      "height": 512,
+      "format": "ASTC_RGB_6x6",
+      "serializedFile": "CAB-1e242af08562fb3b9d428750f0060d9b",
+      "serializedFileAliases": [
+        "CAB-1e242af08562fb3b9d428750f0060d9b"
+      ]
+    },
+    {
+      "name": "O_terrain_new01_D",
+      "scope": "formation-closure",
+      "bundleId": 26592,
+      "pathIDExact": "-4362767395140459070",
+      "width": 512,
+      "height": 512,
+      "format": "ASTC_RGB_8x8",
+      "serializedFile": "CAB-73aa161fc6342310a8d2a7e358a3a92a",
+      "serializedFileAliases": [
+        "CAB-73aa161fc6342310a8d2a7e358a3a92a"
+      ]
+    }
+  ],
+  "textureResults": [
+    {
+      "target": {
+        "name": "O_terrain_new03_D",
+        "scope": "formation-closure",
+        "bundleId": 26592,
+        "pathIDExact": "6527014853484295755",
+        "width": 512,
+        "height": 512,
+        "format": "ASTC_RGB_8x8",
+        "serializedFile": "CAB-73aa161fc6342310a8d2a7e358a3a92a",
+        "serializedFileAliases": [
+          "CAB-73aa161fc6342310a8d2a7e358a3a92a"
+        ]
+      },
+      "directReferenceCount": 4,
+      "consumerBundleIds": [
+        14169,
+        26592
+      ],
+      "consumerObjects": [
+        {
+          "targetName": "O_terrain_new03_D",
+          "targetStorageBundle": 26592,
+          "targetPathID": "6527014853484295755",
+          "targetSerializedFile": "CAB-73aa161fc6342310a8d2a7e358a3a92a",
+          "sourceBundleId": 14169,
+          "sourceSerializedFile": "CAB-9a46429c8bac0e1cd467ec61b2a0f8a3",
+          "sourceObjectPathID": "1",
+          "sourceObjectType": "AssetBundle",
+          "sourceObjectName": "gameres_main_dir_material.bundle",
+          "fieldPath": "$.m_PreloadTable[186]",
+          "fileID": 17,
+          "resolvedExternalName": "archive:/CAB-73aa161fc6342310a8d2a7e358a3a92a/CAB-73aa161fc6342310a8d2a7e358a3a92a"
+        },
+        {
+          "targetName": "O_terrain_new03_D",
+          "targetStorageBundle": 26592,
+          "targetPathID": "6527014853484295755",
+          "targetSerializedFile": "CAB-73aa161fc6342310a8d2a7e358a3a92a",
+          "sourceBundleId": 14169,
+          "sourceSerializedFile": "CAB-9a46429c8bac0e1cd467ec61b2a0f8a3",
+          "sourceObjectPathID": "5462275938698525167",
+          "sourceObjectType": "Material",
+          "sourceObjectName": "Terrain_Ground",
+          "fieldPath": "$.m_SavedProperties.m_TexEnvs[1][1].m_Texture",
+          "fileID": 17,
+          "resolvedExternalName": "archive:/CAB-73aa161fc6342310a8d2a7e358a3a92a/CAB-73aa161fc6342310a8d2a7e358a3a92a"
+        },
+        {
+          "targetName": "O_terrain_new03_D",
+          "targetStorageBundle": 26592,
+          "targetPathID": "6527014853484295755",
+          "targetSerializedFile": "CAB-73aa161fc6342310a8d2a7e358a3a92a",
+          "sourceBundleId": 26592,
+          "sourceSerializedFile": "CAB-73aa161fc6342310a8d2a7e358a3a92a",
+          "sourceObjectPathID": "1",
+          "sourceObjectType": "AssetBundle",
+          "sourceObjectName": "gameres_auto_assets__art_lastwar_map_lastwar_city.bundle",
+          "fieldPath": "$.m_PreloadTable[0]",
+          "fileID": 0,
+          "resolvedExternalName": "CAB-73aa161fc6342310a8d2a7e358a3a92a"
+        },
+        {
+          "targetName": "O_terrain_new03_D",
+          "targetStorageBundle": 26592,
+          "targetPathID": "6527014853484295755",
+          "targetSerializedFile": "CAB-73aa161fc6342310a8d2a7e358a3a92a",
+          "sourceBundleId": 26592,
+          "sourceSerializedFile": "CAB-73aa161fc6342310a8d2a7e358a3a92a",
+          "sourceObjectPathID": "1",
+          "sourceObjectType": "AssetBundle",
+          "sourceObjectName": "gameres_auto_assets__art_lastwar_map_lastwar_city.bundle",
+          "fieldPath": "$.m_Container[3][1].asset",
+          "fileID": 0,
+          "resolvedExternalName": "CAB-73aa161fc6342310a8d2a7e358a3a92a"
+        }
+      ]
+    },
+    {
+      "target": {
+        "name": "S1GroundGrass_Color _g",
+        "scope": "formation-closure",
+        "bundleId": 26598,
+        "pathIDExact": "-5181868365457329968",
+        "width": 512,
+        "height": 512,
+        "format": "ASTC_RGB_6x6",
+        "serializedFile": "CAB-795c4a8f0cc728caa61a6b4340fe966c",
+        "serializedFileAliases": [
+          "CAB-795c4a8f0cc728caa61a6b4340fe966c"
+        ]
+      },
+      "directReferenceCount": 4,
+      "consumerBundleIds": [
+        14169,
+        26598
+      ],
+      "consumerObjects": [
+        {
+          "targetName": "S1GroundGrass_Color _g",
+          "targetStorageBundle": 26598,
+          "targetPathID": "-5181868365457329968",
+          "targetSerializedFile": "CAB-795c4a8f0cc728caa61a6b4340fe966c",
+          "sourceBundleId": 14169,
+          "sourceSerializedFile": "CAB-9a46429c8bac0e1cd467ec61b2a0f8a3",
+          "sourceObjectPathID": "-58427823418694077",
+          "sourceObjectType": "Material",
+          "sourceObjectName": "O_terrain_grass02_3TextureNS1",
+          "fieldPath": "$.m_SavedProperties.m_TexEnvs[2][1].m_Texture",
+          "fileID": 10,
+          "resolvedExternalName": "archive:/CAB-795c4a8f0cc728caa61a6b4340fe966c/CAB-795c4a8f0cc728caa61a6b4340fe966c"
+        },
+        {
+          "targetName": "S1GroundGrass_Color _g",
+          "targetStorageBundle": 26598,
+          "targetPathID": "-5181868365457329968",
+          "targetSerializedFile": "CAB-795c4a8f0cc728caa61a6b4340fe966c",
+          "sourceBundleId": 14169,
+          "sourceSerializedFile": "CAB-9a46429c8bac0e1cd467ec61b2a0f8a3",
+          "sourceObjectPathID": "1",
+          "sourceObjectType": "AssetBundle",
+          "sourceObjectName": "gameres_main_dir_material.bundle",
+          "fieldPath": "$.m_PreloadTable[97]",
+          "fileID": 10,
+          "resolvedExternalName": "archive:/CAB-795c4a8f0cc728caa61a6b4340fe966c/CAB-795c4a8f0cc728caa61a6b4340fe966c"
+        },
+        {
+          "targetName": "S1GroundGrass_Color _g",
+          "targetStorageBundle": 26598,
+          "targetPathID": "-5181868365457329968",
+          "targetSerializedFile": "CAB-795c4a8f0cc728caa61a6b4340fe966c",
+          "sourceBundleId": 26598,
+          "sourceSerializedFile": "CAB-795c4a8f0cc728caa61a6b4340fe966c",
+          "sourceObjectPathID": "1",
+          "sourceObjectType": "AssetBundle",
+          "sourceObjectName": "gameres_auto_assets__art_lastwar_map_lastwar_world_texture_bigmap_news1.bundle",
+          "fieldPath": "$.m_PreloadTable[1]",
+          "fileID": 0,
+          "resolvedExternalName": "CAB-795c4a8f0cc728caa61a6b4340fe966c"
+        },
+        {
+          "targetName": "S1GroundGrass_Color _g",
+          "targetStorageBundle": 26598,
+          "targetPathID": "-5181868365457329968",
+          "targetSerializedFile": "CAB-795c4a8f0cc728caa61a6b4340fe966c",
+          "sourceBundleId": 26598,
+          "sourceSerializedFile": "CAB-795c4a8f0cc728caa61a6b4340fe966c",
+          "sourceObjectPathID": "1",
+          "sourceObjectType": "AssetBundle",
+          "sourceObjectName": "gameres_auto_assets__art_lastwar_map_lastwar_world_texture_bigmap_news1.bundle",
+          "fieldPath": "$.m_Container[1][1].asset",
+          "fileID": 0,
+          "resolvedExternalName": "CAB-795c4a8f0cc728caa61a6b4340fe966c"
+        }
+      ]
+    },
+    {
+      "target": {
+        "name": "O_terrain_grass04_D",
+        "scope": "formation-closure",
+        "bundleId": 26600,
+        "pathIDExact": "-8530919973026192267",
+        "width": 512,
+        "height": 512,
+        "format": "ASTC_RGB_6x6",
+        "serializedFile": "CAB-1e242af08562fb3b9d428750f0060d9b",
+        "serializedFileAliases": [
+          "CAB-1e242af08562fb3b9d428750f0060d9b"
+        ]
+      },
+      "directReferenceCount": 6,
+      "consumerBundleIds": [
+        14169,
+        26600
+      ],
+      "consumerObjects": [
+        {
+          "targetName": "O_terrain_grass04_D",
+          "targetStorageBundle": 26600,
+          "targetPathID": "-8530919973026192267",
+          "targetSerializedFile": "CAB-1e242af08562fb3b9d428750f0060d9b",
+          "sourceBundleId": 14169,
+          "sourceSerializedFile": "CAB-9a46429c8bac0e1cd467ec61b2a0f8a3",
+          "sourceObjectPathID": "-1460172297484211456",
+          "sourceObjectType": "Material",
+          "sourceObjectName": "O_terrain_road_02_nsj",
+          "fieldPath": "$.m_SavedProperties.m_TexEnvs[1][1].m_Texture",
+          "fileID": 9,
+          "resolvedExternalName": "archive:/CAB-1e242af08562fb3b9d428750f0060d9b/CAB-1e242af08562fb3b9d428750f0060d9b"
+        },
+        {
+          "targetName": "O_terrain_grass04_D",
+          "targetStorageBundle": 26600,
+          "targetPathID": "-8530919973026192267",
+          "targetSerializedFile": "CAB-1e242af08562fb3b9d428750f0060d9b",
+          "sourceBundleId": 14169,
+          "sourceSerializedFile": "CAB-9a46429c8bac0e1cd467ec61b2a0f8a3",
+          "sourceObjectPathID": "1",
+          "sourceObjectType": "AssetBundle",
+          "sourceObjectName": "gameres_main_dir_material.bundle",
+          "fieldPath": "$.m_PreloadTable[3]",
+          "fileID": 9,
+          "resolvedExternalName": "archive:/CAB-1e242af08562fb3b9d428750f0060d9b/CAB-1e242af08562fb3b9d428750f0060d9b"
+        },
+        {
+          "targetName": "O_terrain_grass04_D",
+          "targetStorageBundle": 26600,
+          "targetPathID": "-8530919973026192267",
+          "targetSerializedFile": "CAB-1e242af08562fb3b9d428750f0060d9b",
+          "sourceBundleId": 14169,
+          "sourceSerializedFile": "CAB-9a46429c8bac0e1cd467ec61b2a0f8a3",
+          "sourceObjectPathID": "1",
+          "sourceObjectType": "AssetBundle",
+          "sourceObjectName": "gameres_main_dir_material.bundle",
+          "fieldPath": "$.m_PreloadTable[77]",
+          "fileID": 9,
+          "resolvedExternalName": "archive:/CAB-1e242af08562fb3b9d428750f0060d9b/CAB-1e242af08562fb3b9d428750f0060d9b"
+        },
+        {
+          "targetName": "O_terrain_grass04_D",
+          "targetStorageBundle": 26600,
+          "targetPathID": "-8530919973026192267",
+          "targetSerializedFile": "CAB-1e242af08562fb3b9d428750f0060d9b",
+          "sourceBundleId": 14169,
+          "sourceSerializedFile": "CAB-9a46429c8bac0e1cd467ec61b2a0f8a3",
+          "sourceObjectPathID": "1806725993657708232",
+          "sourceObjectType": "Material",
+          "sourceObjectName": "O_terrain_road_01",
+          "fieldPath": "$.m_SavedProperties.m_TexEnvs[1][1].m_Texture",
+          "fileID": 9,
+          "resolvedExternalName": "archive:/CAB-1e242af08562fb3b9d428750f0060d9b/CAB-1e242af08562fb3b9d428750f0060d9b"
+        },
+        {
+          "targetName": "O_terrain_grass04_D",
+          "targetStorageBundle": 26600,
+          "targetPathID": "-8530919973026192267",
+          "targetSerializedFile": "CAB-1e242af08562fb3b9d428750f0060d9b",
+          "sourceBundleId": 26600,
+          "sourceSerializedFile": "CAB-1e242af08562fb3b9d428750f0060d9b",
+          "sourceObjectPathID": "1",
+          "sourceObjectType": "AssetBundle",
+          "sourceObjectName": "gameres_auto_assets__art_lastwar_map_lastwar_world_texture.bundle",
+          "fieldPath": "$.m_PreloadTable[0]",
+          "fileID": 0,
+          "resolvedExternalName": "CAB-1e242af08562fb3b9d428750f0060d9b"
+        },
+        {
+          "targetName": "O_terrain_grass04_D",
+          "targetStorageBundle": 26600,
+          "targetPathID": "-8530919973026192267",
+          "targetSerializedFile": "CAB-1e242af08562fb3b9d428750f0060d9b",
+          "sourceBundleId": 26600,
+          "sourceSerializedFile": "CAB-1e242af08562fb3b9d428750f0060d9b",
+          "sourceObjectPathID": "1",
+          "sourceObjectType": "AssetBundle",
+          "sourceObjectName": "gameres_auto_assets__art_lastwar_map_lastwar_world_texture.bundle",
+          "fieldPath": "$.m_Container[5][1].asset",
+          "fileID": 0,
+          "resolvedExternalName": "CAB-1e242af08562fb3b9d428750f0060d9b"
+        }
+      ]
+    },
+    {
+      "target": {
+        "name": "S1GroundGrass_Color _qg",
+        "scope": "formation-closure",
+        "bundleId": 14169,
+        "pathIDExact": "6764603796244240607",
+        "width": 512,
+        "height": 512,
+        "format": "ASTC_RGB_6x6",
+        "serializedFile": "CAB-9a46429c8bac0e1cd467ec61b2a0f8a3",
+        "serializedFileAliases": [
+          "CAB-9a46429c8bac0e1cd467ec61b2a0f8a3"
+        ]
+      },
+      "directReferenceCount": 2,
+      "consumerBundleIds": [
+        14169
+      ],
+      "consumerObjects": [
+        {
+          "targetName": "S1GroundGrass_Color _qg",
+          "targetStorageBundle": 14169,
+          "targetPathID": "6764603796244240607",
+          "targetSerializedFile": "CAB-9a46429c8bac0e1cd467ec61b2a0f8a3",
+          "sourceBundleId": 14169,
+          "sourceSerializedFile": "CAB-9a46429c8bac0e1cd467ec61b2a0f8a3",
+          "sourceObjectPathID": "-58427823418694077",
+          "sourceObjectType": "Material",
+          "sourceObjectName": "O_terrain_grass02_3TextureNS1",
+          "fieldPath": "$.m_SavedProperties.m_TexEnvs[3][1].m_Texture",
+          "fileID": 0,
+          "resolvedExternalName": "CAB-9a46429c8bac0e1cd467ec61b2a0f8a3"
+        },
+        {
+          "targetName": "S1GroundGrass_Color _qg",
+          "targetStorageBundle": 14169,
+          "targetPathID": "6764603796244240607",
+          "targetSerializedFile": "CAB-9a46429c8bac0e1cd467ec61b2a0f8a3",
+          "sourceBundleId": 14169,
+          "sourceSerializedFile": "CAB-9a46429c8bac0e1cd467ec61b2a0f8a3",
+          "sourceObjectPathID": "1",
+          "sourceObjectType": "AssetBundle",
+          "sourceObjectName": "gameres_main_dir_material.bundle",
+          "fieldPath": "$.m_PreloadTable[102]",
+          "fileID": 0,
+          "resolvedExternalName": "CAB-9a46429c8bac0e1cd467ec61b2a0f8a3"
+        }
+      ]
+    },
+    {
+      "target": {
+        "name": "S1GroundGrass_Color _y",
+        "scope": "formation-closure",
+        "bundleId": 26598,
+        "pathIDExact": "-3994208365102929008",
+        "width": 512,
+        "height": 512,
+        "format": "ASTC_RGB_6x6",
+        "serializedFile": "CAB-795c4a8f0cc728caa61a6b4340fe966c",
+        "serializedFileAliases": [
+          "CAB-795c4a8f0cc728caa61a6b4340fe966c"
+        ]
+      },
+      "directReferenceCount": 4,
+      "consumerBundleIds": [
+        14169,
+        26598
+      ],
+      "consumerObjects": [
+        {
+          "targetName": "S1GroundGrass_Color _y",
+          "targetStorageBundle": 26598,
+          "targetPathID": "-3994208365102929008",
+          "targetSerializedFile": "CAB-795c4a8f0cc728caa61a6b4340fe966c",
+          "sourceBundleId": 14169,
+          "sourceSerializedFile": "CAB-9a46429c8bac0e1cd467ec61b2a0f8a3",
+          "sourceObjectPathID": "-58427823418694077",
+          "sourceObjectType": "Material",
+          "sourceObjectName": "O_terrain_grass02_3TextureNS1",
+          "fieldPath": "$.m_SavedProperties.m_TexEnvs[4][1].m_Texture",
+          "fileID": 10,
+          "resolvedExternalName": "archive:/CAB-795c4a8f0cc728caa61a6b4340fe966c/CAB-795c4a8f0cc728caa61a6b4340fe966c"
+        },
+        {
+          "targetName": "S1GroundGrass_Color _y",
+          "targetStorageBundle": 26598,
+          "targetPathID": "-3994208365102929008",
+          "targetSerializedFile": "CAB-795c4a8f0cc728caa61a6b4340fe966c",
+          "sourceBundleId": 14169,
+          "sourceSerializedFile": "CAB-9a46429c8bac0e1cd467ec61b2a0f8a3",
+          "sourceObjectPathID": "1",
+          "sourceObjectType": "AssetBundle",
+          "sourceObjectName": "gameres_main_dir_material.bundle",
+          "fieldPath": "$.m_PreloadTable[98]",
+          "fileID": 10,
+          "resolvedExternalName": "archive:/CAB-795c4a8f0cc728caa61a6b4340fe966c/CAB-795c4a8f0cc728caa61a6b4340fe966c"
+        },
+        {
+          "targetName": "S1GroundGrass_Color _y",
+          "targetStorageBundle": 26598,
+          "targetPathID": "-3994208365102929008",
+          "targetSerializedFile": "CAB-795c4a8f0cc728caa61a6b4340fe966c",
+          "sourceBundleId": 26598,
+          "sourceSerializedFile": "CAB-795c4a8f0cc728caa61a6b4340fe966c",
+          "sourceObjectPathID": "1",
+          "sourceObjectType": "AssetBundle",
+          "sourceObjectName": "gameres_auto_assets__art_lastwar_map_lastwar_world_texture_bigmap_news1.bundle",
+          "fieldPath": "$.m_PreloadTable[2]",
+          "fileID": 0,
+          "resolvedExternalName": "CAB-795c4a8f0cc728caa61a6b4340fe966c"
+        },
+        {
+          "targetName": "S1GroundGrass_Color _y",
+          "targetStorageBundle": 26598,
+          "targetPathID": "-3994208365102929008",
+          "targetSerializedFile": "CAB-795c4a8f0cc728caa61a6b4340fe966c",
+          "sourceBundleId": 26598,
+          "sourceSerializedFile": "CAB-795c4a8f0cc728caa61a6b4340fe966c",
+          "sourceObjectPathID": "1",
+          "sourceObjectType": "AssetBundle",
+          "sourceObjectName": "gameres_auto_assets__art_lastwar_map_lastwar_world_texture_bigmap_news1.bundle",
+          "fieldPath": "$.m_Container[2][1].asset",
+          "fileID": 0,
+          "resolvedExternalName": "CAB-795c4a8f0cc728caa61a6b4340fe966c"
+        }
+      ]
+    },
+    {
+      "target": {
+        "name": "O_ground_zhucheng_01",
+        "scope": "formation-closure",
+        "bundleId": 14169,
+        "pathIDExact": "6658329552418294702",
+        "width": 512,
+        "height": 512,
+        "format": "ASTC_RGB_6x6",
+        "serializedFile": "CAB-9a46429c8bac0e1cd467ec61b2a0f8a3",
+        "serializedFileAliases": [
+          "CAB-9a46429c8bac0e1cd467ec61b2a0f8a3"
+        ]
+      },
+      "directReferenceCount": 2,
+      "consumerBundleIds": [
+        14169
+      ],
+      "consumerObjects": [
+        {
+          "targetName": "O_ground_zhucheng_01",
+          "targetStorageBundle": 14169,
+          "targetPathID": "6658329552418294702",
+          "targetSerializedFile": "CAB-9a46429c8bac0e1cd467ec61b2a0f8a3",
+          "sourceBundleId": 14169,
+          "sourceSerializedFile": "CAB-9a46429c8bac0e1cd467ec61b2a0f8a3",
+          "sourceObjectPathID": "1",
+          "sourceObjectType": "AssetBundle",
+          "sourceObjectName": "gameres_main_dir_material.bundle",
+          "fieldPath": "$.m_PreloadTable[15]",
+          "fileID": 0,
+          "resolvedExternalName": "CAB-9a46429c8bac0e1cd467ec61b2a0f8a3"
+        },
+        {
+          "targetName": "O_ground_zhucheng_01",
+          "targetStorageBundle": 14169,
+          "targetPathID": "6658329552418294702",
+          "targetSerializedFile": "CAB-9a46429c8bac0e1cd467ec61b2a0f8a3",
+          "sourceBundleId": 14169,
+          "sourceSerializedFile": "CAB-9a46429c8bac0e1cd467ec61b2a0f8a3",
+          "sourceObjectPathID": "142524935483900056",
+          "sourceObjectType": "Material",
+          "sourceObjectName": "O_terrain_shamo_back",
+          "fieldPath": "$.m_SavedProperties.m_TexEnvs[4][1].m_Texture",
+          "fileID": 0,
+          "resolvedExternalName": "CAB-9a46429c8bac0e1cd467ec61b2a0f8a3"
+        }
+      ]
+    },
+    {
+      "target": {
+        "name": "O_terrain_grass01_D",
+        "scope": "formation-closure",
+        "bundleId": 26600,
+        "pathIDExact": "2886232983442666552",
+        "width": 512,
+        "height": 512,
+        "format": "ASTC_RGB_6x6",
+        "serializedFile": "CAB-1e242af08562fb3b9d428750f0060d9b",
+        "serializedFileAliases": [
+          "CAB-1e242af08562fb3b9d428750f0060d9b"
+        ]
+      },
+      "directReferenceCount": 2,
+      "consumerBundleIds": [
+        26600
+      ],
+      "consumerObjects": [
+        {
+          "targetName": "O_terrain_grass01_D",
+          "targetStorageBundle": 26600,
+          "targetPathID": "2886232983442666552",
+          "targetSerializedFile": "CAB-1e242af08562fb3b9d428750f0060d9b",
+          "sourceBundleId": 26600,
+          "sourceSerializedFile": "CAB-1e242af08562fb3b9d428750f0060d9b",
+          "sourceObjectPathID": "1",
+          "sourceObjectType": "AssetBundle",
+          "sourceObjectName": "gameres_auto_assets__art_lastwar_map_lastwar_world_texture.bundle",
+          "fieldPath": "$.m_PreloadTable[3]",
+          "fileID": 0,
+          "resolvedExternalName": "CAB-1e242af08562fb3b9d428750f0060d9b"
+        },
+        {
+          "targetName": "O_terrain_grass01_D",
+          "targetStorageBundle": 26600,
+          "targetPathID": "2886232983442666552",
+          "targetSerializedFile": "CAB-1e242af08562fb3b9d428750f0060d9b",
+          "sourceBundleId": 26600,
+          "sourceSerializedFile": "CAB-1e242af08562fb3b9d428750f0060d9b",
+          "sourceObjectPathID": "1",
+          "sourceObjectType": "AssetBundle",
+          "sourceObjectName": "gameres_auto_assets__art_lastwar_map_lastwar_world_texture.bundle",
+          "fieldPath": "$.m_Container[4][1].asset",
+          "fileID": 0,
+          "resolvedExternalName": "CAB-1e242af08562fb3b9d428750f0060d9b"
+        }
+      ]
+    },
+    {
+      "target": {
+        "name": "O_terrain_new01_D",
+        "scope": "formation-closure",
+        "bundleId": 26592,
+        "pathIDExact": "-4362767395140459070",
+        "width": 512,
+        "height": 512,
+        "format": "ASTC_RGB_8x8",
+        "serializedFile": "CAB-73aa161fc6342310a8d2a7e358a3a92a",
+        "serializedFileAliases": [
+          "CAB-73aa161fc6342310a8d2a7e358a3a92a"
+        ]
+      },
+      "directReferenceCount": 2,
+      "consumerBundleIds": [
+        26592
+      ],
+      "consumerObjects": [
+        {
+          "targetName": "O_terrain_new01_D",
+          "targetStorageBundle": 26592,
+          "targetPathID": "-4362767395140459070",
+          "targetSerializedFile": "CAB-73aa161fc6342310a8d2a7e358a3a92a",
+          "sourceBundleId": 26592,
+          "sourceSerializedFile": "CAB-73aa161fc6342310a8d2a7e358a3a92a",
+          "sourceObjectPathID": "1",
+          "sourceObjectType": "AssetBundle",
+          "sourceObjectName": "gameres_auto_assets__art_lastwar_map_lastwar_city.bundle",
+          "fieldPath": "$.m_PreloadTable[3]",
+          "fileID": 0,
+          "resolvedExternalName": "CAB-73aa161fc6342310a8d2a7e358a3a92a"
+        },
+        {
+          "targetName": "O_terrain_new01_D",
+          "targetStorageBundle": 26592,
+          "targetPathID": "-4362767395140459070",
+          "targetSerializedFile": "CAB-73aa161fc6342310a8d2a7e358a3a92a",
+          "sourceBundleId": 26592,
+          "sourceSerializedFile": "CAB-73aa161fc6342310a8d2a7e358a3a92a",
+          "sourceObjectPathID": "1",
+          "sourceObjectType": "AssetBundle",
+          "sourceObjectName": "gameres_auto_assets__art_lastwar_map_lastwar_city.bundle",
+          "fieldPath": "$.m_Container[2][1].asset",
+          "fileID": 0,
+          "resolvedExternalName": "CAB-73aa161fc6342310a8d2a7e358a3a92a"
+        }
+      ]
+    }
+  ],
+  "bundleAggregate": [
+    {
+      "bundleId": 14169,
+      "hitCount": 14,
+      "textures": [
+        "O_ground_zhucheng_01",
+        "O_terrain_grass04_D",
+        "O_terrain_new03_D",
+        "S1GroundGrass_Color _g",
+        "S1GroundGrass_Color _qg",
+        "S1GroundGrass_Color _y"
+      ],
+      "consumerTypes": [
+        "AssetBundle",
+        "Material"
+      ],
+      "consumerObjects": [
+        {
+          "type": "AssetBundle",
+          "name": "gameres_main_dir_material.bundle",
+          "pathID": "1"
+        },
+        {
+          "type": "Material",
+          "name": "O_terrain_grass02_3TextureNS1",
+          "pathID": "-58427823418694077"
+        },
+        {
+          "type": "Material",
+          "name": "O_terrain_road_01",
+          "pathID": "1806725993657708232"
+        },
+        {
+          "type": "Material",
+          "name": "O_terrain_road_02_nsj",
+          "pathID": "-1460172297484211456"
+        },
+        {
+          "type": "Material",
+          "name": "O_terrain_shamo_back",
+          "pathID": "142524935483900056"
+        },
+        {
+          "type": "Material",
+          "name": "Terrain_Ground",
+          "pathID": "5462275938698525167"
+        }
+      ]
+    },
+    {
+      "bundleId": 26592,
+      "hitCount": 4,
+      "textures": [
+        "O_terrain_new01_D",
+        "O_terrain_new03_D"
+      ],
+      "consumerTypes": [
+        "AssetBundle"
+      ],
+      "consumerObjects": [
+        {
+          "type": "AssetBundle",
+          "name": "gameres_auto_assets__art_lastwar_map_lastwar_city.bundle",
+          "pathID": "1"
+        }
+      ]
+    },
+    {
+      "bundleId": 26598,
+      "hitCount": 4,
+      "textures": [
+        "S1GroundGrass_Color _g",
+        "S1GroundGrass_Color _y"
+      ],
+      "consumerTypes": [
+        "AssetBundle"
+      ],
+      "consumerObjects": [
+        {
+          "type": "AssetBundle",
+          "name": "gameres_auto_assets__art_lastwar_map_lastwar_world_texture_bigmap_news1.bundle",
+          "pathID": "1"
+        }
+      ]
+    },
+    {
+      "bundleId": 26600,
+      "hitCount": 4,
+      "textures": [
+        "O_terrain_grass01_D",
+        "O_terrain_grass04_D"
+      ],
+      "consumerTypes": [
+        "AssetBundle"
+      ],
+      "consumerObjects": [
+        {
+          "type": "AssetBundle",
+          "name": "gameres_auto_assets__art_lastwar_map_lastwar_world_texture.bundle",
+          "pathID": "1"
+        }
+      ]
+    }
+  ],
+  "counts": {
+    "closureBundles": 195,
+    "targets": 8,
+    "directHits": 26,
+    "consumerBundles": 4,
+    "ptrsScanned": 565095,
+    "readFailures": 0
+  },
+  "bundleStats": [
+    {
+      "bundleId": 102,
+      "objects": 17,
+      "typetrees": 17,
+      "ptrs": 57,
+      "hits": 0
+    },
+    {
+      "bundleId": 110,
+      "objects": 31,
+      "typetrees": 31,
+      "ptrs": 106,
+      "hits": 0
+    },
+    {
+      "bundleId": 667,
+      "objects": 5,
+      "typetrees": 5,
+      "ptrs": 15,
+      "hits": 0
+    },
+    {
+      "bundleId": 1053,
+      "objects": 49,
+      "typetrees": 49,
+      "ptrs": 2580,
+      "hits": 0
+    },
+    {
+      "bundleId": 1056,
+      "objects": 65,
+      "typetrees": 65,
+      "ptrs": 4468,
+      "hits": 0
+    },
+    {
+      "bundleId": 1057,
+      "objects": 91,
+      "typetrees": 91,
+      "ptrs": 8628,
+      "hits": 0
+    },
+    {
+      "bundleId": 1073,
+      "objects": 21,
+      "typetrees": 21,
+      "ptrs": 508,
+      "hits": 0
+    },
+    {
+      "bundleId": 1135,
+      "objects": 20,
+      "typetrees": 20,
+      "ptrs": 463,
+      "hits": 0
+    },
+    {
+      "bundleId": 1176,
+      "objects": 11,
+      "typetrees": 11,
+      "ptrs": 148,
+      "hits": 0
+    },
+    {
+      "bundleId": 1217,
+      "objects": 669,
+      "typetrees": 669,
+      "ptrs": 449545,
+      "hits": 0
+    },
+    {
+      "bundleId": 1225,
+      "objects": 29,
+      "typetrees": 29,
+      "ptrs": 940,
+      "hits": 0
+    },
+    {
+      "bundleId": 1235,
+      "objects": 32,
+      "typetrees": 32,
+      "ptrs": 1135,
+      "hits": 0
+    },
+    {
+      "bundleId": 1244,
+      "objects": 32,
+      "typetrees": 32,
+      "ptrs": 1135,
+      "hits": 0
+    },
+    {
+      "bundleId": 1302,
+      "objects": 10,
+      "typetrees": 10,
+      "ptrs": 123,
+      "hits": 0
+    },
+    {
+      "bundleId": 1308,
+      "objects": 59,
+      "typetrees": 59,
+      "ptrs": 3700,
+      "hits": 0
+    },
+    {
+      "bundleId": 1314,
+      "objects": 85,
+      "typetrees": 85,
+      "ptrs": 7548,
+      "hits": 0
+    },
+    {
+      "bundleId": 1319,
+      "objects": 110,
+      "typetrees": 110,
+      "ptrs": 12523,
+      "hits": 0
+    },
+    {
+      "bundleId": 1323,
+      "objects": 31,
+      "typetrees": 31,
+      "ptrs": 1068,
+      "hits": 0
+    },
+    {
+      "bundleId": 1325,
+      "objects": 96,
+      "typetrees": 96,
+      "ptrs": 9583,
+      "hits": 0
+    },
+    {
+      "bundleId": 1360,
+      "objects": 13,
+      "typetrees": 13,
+      "ptrs": 204,
+      "hits": 0
+    },
+    {
+      "bundleId": 1365,
+      "objects": 12,
+      "typetrees": 12,
+      "ptrs": 175,
+      "hits": 0
+    },
+    {
+      "bundleId": 4623,
+      "objects": 31,
+      "typetrees": 31,
+      "ptrs": 116,
+      "hits": 0
+    },
+    {
+      "bundleId": 4670,
+      "objects": 376,
+      "typetrees": 376,
+      "ptrs": 1759,
+      "hits": 0
+    },
+    {
+      "bundleId": 6916,
+      "objects": 44,
+      "typetrees": 44,
+      "ptrs": 174,
+      "hits": 0
+    },
+    {
+      "bundleId": 6917,
+      "objects": 208,
+      "typetrees": 208,
+      "ptrs": 797,
+      "hits": 0
+    },
+    {
+      "bundleId": 6920,
+      "objects": 79,
+      "typetrees": 79,
+      "ptrs": 309,
+      "hits": 0
+    },
+    {
+      "bundleId": 6933,
+      "objects": 1914,
+      "typetrees": 1914,
+      "ptrs": 9411,
+      "hits": 0
+    },
+    {
+      "bundleId": 7020,
+      "objects": 26,
+      "typetrees": 26,
+      "ptrs": 89,
+      "hits": 0
+    },
+    {
+      "bundleId": 7039,
+      "objects": 79,
+      "typetrees": 79,
+      "ptrs": 315,
+      "hits": 0
+    },
+    {
+      "bundleId": 7213,
+      "objects": 29,
+      "typetrees": 29,
+      "ptrs": 111,
+      "hits": 0
+    },
+    {
+      "bundleId": 9275,
+      "objects": 57,
+      "typetrees": 57,
+      "ptrs": 197,
+      "hits": 0
+    },
+    {
+      "bundleId": 9491,
+      "objects": 17,
+      "typetrees": 17,
+      "ptrs": 312,
+      "hits": 0
+    },
+    {
+      "bundleId": 9493,
+      "objects": 183,
+      "typetrees": 183,
+      "ptrs": 1093,
+      "hits": 0
+    },
+    {
+      "bundleId": 9494,
+      "objects": 48,
+      "typetrees": 48,
+      "ptrs": 288,
+      "hits": 0
+    },
+    {
+      "bundleId": 9496,
+      "objects": 307,
+      "typetrees": 307,
+      "ptrs": 1852,
+      "hits": 0
+    },
+    {
+      "bundleId": 9497,
+      "objects": 5,
+      "typetrees": 5,
+      "ptrs": 42,
+      "hits": 0
+    },
+    {
+      "bundleId": 9498,
+      "objects": 5,
+      "typetrees": 5,
+      "ptrs": 42,
+      "hits": 0
+    },
+    {
+      "bundleId": 9499,
+      "objects": 5,
+      "typetrees": 5,
+      "ptrs": 42,
+      "hits": 0
+    },
+    {
+      "bundleId": 9500,
+      "objects": 8,
+      "typetrees": 8,
+      "ptrs": 83,
+      "hits": 0
+    },
+    {
+      "bundleId": 9501,
+      "objects": 5,
+      "typetrees": 5,
+      "ptrs": 42,
+      "hits": 0
+    },
+    {
+      "bundleId": 9502,
+      "objects": 11,
+      "typetrees": 11,
+      "ptrs": 130,
+      "hits": 0
+    },
+    {
+      "bundleId": 9503,
+      "objects": 5,
+      "typetrees": 5,
+      "ptrs": 42,
+      "hits": 0
+    },
+    {
+      "bundleId": 9504,
+      "objects": 14,
+      "typetrees": 14,
+      "ptrs": 165,
+      "hits": 0
+    },
+    {
+      "bundleId": 9505,
+      "objects": 5,
+      "typetrees": 5,
+      "ptrs": 42,
+      "hits": 0
+    },
+    {
+      "bundleId": 9506,
+      "objects": 5,
+      "typetrees": 5,
+      "ptrs": 42,
+      "hits": 0
+    },
+    {
+      "bundleId": 9508,
+      "objects": 11,
+      "typetrees": 11,
+      "ptrs": 124,
+      "hits": 0
+    },
+    {
+      "bundleId": 9509,
+      "objects": 5,
+      "typetrees": 5,
+      "ptrs": 42,
+      "hits": 0
+    },
+    {
+      "bundleId": 9511,
+      "objects": 27,
+      "typetrees": 27,
+      "ptrs": 152,
+      "hits": 0
+    },
+    {
+      "bundleId": 9520,
+      "objects": 3,
+      "typetrees": 3,
+      "ptrs": 5,
+      "hits": 0
+    },
+    {
+      "bundleId": 10209,
+      "objects": 8,
+      "typetrees": 8,
+      "ptrs": 24,
+      "hits": 0
+    },
+    {
+      "bundleId": 10347,
+      "objects": 7,
+      "typetrees": 7,
+      "ptrs": 13,
+      "hits": 0
+    },
+    {
+      "bundleId": 10587,
+      "objects": 2,
+      "typetrees": 2,
+      "ptrs": 3,
+      "hits": 0
+    },
+    {
+      "bundleId": 11724,
+      "objects": 401,
+      "typetrees": 401,
+      "ptrs": 1688,
+      "hits": 0
+    },
+    {
+      "bundleId": 11725,
+      "objects": 337,
+      "typetrees": 337,
+      "ptrs": 1556,
+      "hits": 0
+    },
+    {
+      "bundleId": 14169,
+      "objects": 137,
+      "typetrees": 137,
+      "ptrs": 699,
+      "hits": 14
+    },
+    {
+      "bundleId": 14189,
+      "objects": 2,
+      "typetrees": 2,
+      "ptrs": 6,
+      "hits": 0
+    },
+    {
+      "bundleId": 15389,
+      "objects": 938,
+      "typetrees": 938,
+      "ptrs": 8488,
+      "hits": 0
+    },
+    {
+      "bundleId": 17777,
+      "objects": 4,
+      "typetrees": 4,
+      "ptrs": 12,
+      "hits": 0
+    },
+    {
+      "bundleId": 17778,
+      "objects": 4,
+      "typetrees": 4,
+      "ptrs": 12,
+      "hits": 0
+    },
+    {
+      "bundleId": 17779,
+      "objects": 4,
+      "typetrees": 4,
+      "ptrs": 12,
+      "hits": 0
+    },
+    {
+      "bundleId": 17781,
+      "objects": 4,
+      "typetrees": 4,
+      "ptrs": 14,
+      "hits": 0
+    },
+    {
+      "bundleId": 17782,
+      "objects": 4,
+      "typetrees": 4,
+      "ptrs": 14,
+      "hits": 0
+    },
+    {
+      "bundleId": 17783,
+      "objects": 4,
+      "typetrees": 4,
+      "ptrs": 12,
+      "hits": 0
+    },
+    {
+      "bundleId": 17787,
+      "objects": 4,
+      "typetrees": 4,
+      "ptrs": 14,
+      "hits": 0
+    },
+    {
+      "bundleId": 17788,
+      "objects": 4,
+      "typetrees": 4,
+      "ptrs": 15,
+      "hits": 0
+    },
+    {
+      "bundleId": 17789,
+      "objects": 4,
+      "typetrees": 4,
+      "ptrs": 12,
+      "hits": 0
+    },
+    {
+      "bundleId": 17790,
+      "objects": 4,
+      "typetrees": 4,
+      "ptrs": 12,
+      "hits": 0
+    },
+    {
+      "bundleId": 17791,
+      "objects": 4,
+      "typetrees": 4,
+      "ptrs": 12,
+      "hits": 0
+    },
+    {
+      "bundleId": 17792,
+      "objects": 4,
+      "typetrees": 4,
+      "ptrs": 12,
+      "hits": 0
+    },
+    {
+      "bundleId": 17793,
+      "objects": 4,
+      "typetrees": 4,
+      "ptrs": 12,
+      "hits": 0
+    },
+    {
+      "bundleId": 17794,
+      "objects": 4,
+      "typetrees": 4,
+      "ptrs": 12,
+      "hits": 0
+    },
+    {
+      "bundleId": 17795,
+      "objects": 4,
+      "typetrees": 4,
+      "ptrs": 12,
+      "hits": 0
+    },
+    {
+      "bundleId": 17796,
+      "objects": 4,
+      "typetrees": 4,
+      "ptrs": 14,
+      "hits": 0
+    },
+    {
+      "bundleId": 17797,
+      "objects": 4,
+      "typetrees": 4,
+      "ptrs": 12,
+      "hits": 0
+    },
+    {
+      "bundleId": 17800,
+      "objects": 4,
+      "typetrees": 4,
+      "ptrs": 12,
+      "hits": 0
+    },
+    {
+      "bundleId": 17801,
+      "objects": 4,
+      "typetrees": 4,
+      "ptrs": 12,
+      "hits": 0
+    },
+    {
+      "bundleId": 17802,
+      "objects": 4,
+      "typetrees": 4,
+      "ptrs": 12,
+      "hits": 0
+    },
+    {
+      "bundleId": 17803,
+      "objects": 4,
+      "typetrees": 4,
+      "ptrs": 12,
+      "hits": 0
+    },
+    {
+      "bundleId": 17804,
+      "objects": 4,
+      "typetrees": 4,
+      "ptrs": 12,
+      "hits": 0
+    },
+    {
+      "bundleId": 23419,
+      "objects": 12,
+      "typetrees": 12,
+      "ptrs": 23,
+      "hits": 0
+    },
+    {
+      "bundleId": 23431,
+      "objects": 561,
+      "typetrees": 561,
+      "ptrs": 4197,
+      "hits": 0
+    },
+    {
+      "bundleId": 23439,
+      "objects": 827,
+      "typetrees": 827,
+      "ptrs": 3500,
+      "hits": 0
+    },
+    {
+      "bundleId": 23449,
+      "objects": 9,
+      "typetrees": 9,
+      "ptrs": 20,
+      "hits": 0
+    },
+    {
+      "bundleId": 23452,
+      "objects": 58,
+      "typetrees": 58,
+      "ptrs": 118,
+      "hits": 0
+    },
+    {
+      "bundleId": 23453,
+      "objects": 6,
+      "typetrees": 6,
+      "ptrs": 11,
+      "hits": 0
+    },
+    {
+      "bundleId": 23455,
+      "objects": 4,
+      "typetrees": 4,
+      "ptrs": 7,
+      "hits": 0
+    },
+    {
+      "bundleId": 23456,
+      "objects": 8,
+      "typetrees": 8,
+      "ptrs": 15,
+      "hits": 0
+    },
+    {
+      "bundleId": 23457,
+      "objects": 3,
+      "typetrees": 3,
+      "ptrs": 5,
+      "hits": 0
+    },
+    {
+      "bundleId": 23458,
+      "objects": 11,
+      "typetrees": 11,
+      "ptrs": 21,
+      "hits": 0
+    },
+    {
+      "bundleId": 23459,
+      "objects": 66,
+      "typetrees": 66,
+      "ptrs": 134,
+      "hits": 0
+    },
+    {
+      "bundleId": 23461,
+      "objects": 12,
+      "typetrees": 12,
+      "ptrs": 23,
+      "hits": 0
+    },
+    {
+      "bundleId": 23462,
+      "objects": 3,
+      "typetrees": 3,
+      "ptrs": 5,
+      "hits": 0
+    },
+    {
+      "bundleId": 23464,
+      "objects": 12,
+      "typetrees": 12,
+      "ptrs": 23,
+      "hits": 0
+    },
+    {
+      "bundleId": 23465,
+      "objects": 16,
+      "typetrees": 16,
+      "ptrs": 31,
+      "hits": 0
+    },
+    {
+      "bundleId": 23466,
+      "objects": 65,
+      "typetrees": 65,
+      "ptrs": 129,
+      "hits": 0
+    },
+    {
+      "bundleId": 23468,
+      "objects": 25,
+      "typetrees": 25,
+      "ptrs": 49,
+      "hits": 0
+    },
+    {
+      "bundleId": 23469,
+      "objects": 2,
+      "typetrees": 2,
+      "ptrs": 3,
+      "hits": 0
+    },
+    {
+      "bundleId": 23470,
+      "objects": 15,
+      "typetrees": 15,
+      "ptrs": 29,
+      "hits": 0
+    },
+    {
+      "bundleId": 23472,
+      "objects": 9,
+      "typetrees": 9,
+      "ptrs": 17,
+      "hits": 0
+    },
+    {
+      "bundleId": 23473,
+      "objects": 5,
+      "typetrees": 5,
+      "ptrs": 9,
+      "hits": 0
+    },
+    {
+      "bundleId": 23474,
+      "objects": 20,
+      "typetrees": 20,
+      "ptrs": 39,
+      "hits": 0
+    },
+    {
+      "bundleId": 23476,
+      "objects": 13,
+      "typetrees": 13,
+      "ptrs": 25,
+      "hits": 0
+    },
+    {
+      "bundleId": 23479,
+      "objects": 2,
+      "typetrees": 2,
+      "ptrs": 3,
+      "hits": 0
+    },
+    {
+      "bundleId": 23480,
+      "objects": 4,
+      "typetrees": 4,
+      "ptrs": 7,
+      "hits": 0
+    },
+    {
+      "bundleId": 23481,
+      "objects": 9,
+      "typetrees": 9,
+      "ptrs": 20,
+      "hits": 0
+    },
+    {
+      "bundleId": 23482,
+      "objects": 7,
+      "typetrees": 7,
+      "ptrs": 13,
+      "hits": 0
+    },
+    {
+      "bundleId": 23483,
+      "objects": 4,
+      "typetrees": 4,
+      "ptrs": 7,
+      "hits": 0
+    },
+    {
+      "bundleId": 23484,
+      "objects": 4,
+      "typetrees": 4,
+      "ptrs": 7,
+      "hits": 0
+    },
+    {
+      "bundleId": 23485,
+      "objects": 5,
+      "typetrees": 5,
+      "ptrs": 9,
+      "hits": 0
+    },
+    {
+      "bundleId": 23486,
+      "objects": 7,
+      "typetrees": 7,
+      "ptrs": 22,
+      "hits": 0
+    },
+    {
+      "bundleId": 23487,
+      "objects": 4,
+      "typetrees": 4,
+      "ptrs": 7,
+      "hits": 0
+    },
+    {
+      "bundleId": 23488,
+      "objects": 7,
+      "typetrees": 7,
+      "ptrs": 13,
+      "hits": 0
+    },
+    {
+      "bundleId": 23489,
+      "objects": 3,
+      "typetrees": 3,
+      "ptrs": 5,
+      "hits": 0
+    },
+    {
+      "bundleId": 23491,
+      "objects": 6,
+      "typetrees": 6,
+      "ptrs": 11,
+      "hits": 0
+    },
+    {
+      "bundleId": 23492,
+      "objects": 2,
+      "typetrees": 2,
+      "ptrs": 3,
+      "hits": 0
+    },
+    {
+      "bundleId": 23493,
+      "objects": 3,
+      "typetrees": 3,
+      "ptrs": 5,
+      "hits": 0
+    },
+    {
+      "bundleId": 23494,
+      "objects": 16,
+      "typetrees": 16,
+      "ptrs": 31,
+      "hits": 0
+    },
+    {
+      "bundleId": 23495,
+      "objects": 5,
+      "typetrees": 5,
+      "ptrs": 9,
+      "hits": 0
+    },
+    {
+      "bundleId": 23496,
+      "objects": 6,
+      "typetrees": 6,
+      "ptrs": 11,
+      "hits": 0
+    },
+    {
+      "bundleId": 23497,
+      "objects": 2,
+      "typetrees": 2,
+      "ptrs": 3,
+      "hits": 0
+    },
+    {
+      "bundleId": 23662,
+      "objects": 7,
+      "typetrees": 7,
+      "ptrs": 13,
+      "hits": 0
+    },
+    {
+      "bundleId": 23730,
+      "objects": 5,
+      "typetrees": 5,
+      "ptrs": 9,
+      "hits": 0
+    },
+    {
+      "bundleId": 24927,
+      "objects": 2,
+      "typetrees": 2,
+      "ptrs": 3,
+      "hits": 0
+    },
+    {
+      "bundleId": 26057,
+      "objects": 974,
+      "typetrees": 974,
+      "ptrs": 9533,
+      "hits": 0
+    },
+    {
+      "bundleId": 26175,
+      "objects": 2,
+      "typetrees": 2,
+      "ptrs": 7,
+      "hits": 0
+    },
+    {
+      "bundleId": 26251,
+      "objects": 276,
+      "typetrees": 276,
+      "ptrs": 2245,
+      "hits": 0
+    },
+    {
+      "bundleId": 26299,
+      "objects": 1430,
+      "typetrees": 1430,
+      "ptrs": 5929,
+      "hits": 0
+    },
+    {
+      "bundleId": 26354,
+      "objects": 13,
+      "typetrees": 13,
+      "ptrs": 25,
+      "hits": 0
+    },
+    {
+      "bundleId": 26357,
+      "objects": 19,
+      "typetrees": 19,
+      "ptrs": 37,
+      "hits": 0
+    },
+    {
+      "bundleId": 26360,
+      "objects": 20,
+      "typetrees": 20,
+      "ptrs": 39,
+      "hits": 0
+    },
+    {
+      "bundleId": 26364,
+      "objects": 24,
+      "typetrees": 24,
+      "ptrs": 47,
+      "hits": 0
+    },
+    {
+      "bundleId": 26365,
+      "objects": 12,
+      "typetrees": 12,
+      "ptrs": 23,
+      "hits": 0
+    },
+    {
+      "bundleId": 26369,
+      "objects": 39,
+      "typetrees": 39,
+      "ptrs": 80,
+      "hits": 0
+    },
+    {
+      "bundleId": 26375,
+      "objects": 122,
+      "typetrees": 122,
+      "ptrs": 274,
+      "hits": 0
+    },
+    {
+      "bundleId": 26385,
+      "objects": 9,
+      "typetrees": 9,
+      "ptrs": 20,
+      "hits": 0
+    },
+    {
+      "bundleId": 26388,
+      "objects": 23,
+      "typetrees": 23,
+      "ptrs": 45,
+      "hits": 0
+    },
+    {
+      "bundleId": 26393,
+      "objects": 44,
+      "typetrees": 44,
+      "ptrs": 87,
+      "hits": 0
+    },
+    {
+      "bundleId": 26404,
+      "objects": 48,
+      "typetrees": 48,
+      "ptrs": 95,
+      "hits": 0
+    },
+    {
+      "bundleId": 26408,
+      "objects": 67,
+      "typetrees": 67,
+      "ptrs": 136,
+      "hits": 0
+    },
+    {
+      "bundleId": 26410,
+      "objects": 164,
+      "typetrees": 164,
+      "ptrs": 356,
+      "hits": 0
+    },
+    {
+      "bundleId": 26414,
+      "objects": 28,
+      "typetrees": 28,
+      "ptrs": 58,
+      "hits": 0
+    },
+    {
+      "bundleId": 26419,
+      "objects": 17,
+      "typetrees": 17,
+      "ptrs": 33,
+      "hits": 0
+    },
+    {
+      "bundleId": 26426,
+      "objects": 3,
+      "typetrees": 3,
+      "ptrs": 5,
+      "hits": 0
+    },
+    {
+      "bundleId": 26429,
+      "objects": 17,
+      "typetrees": 17,
+      "ptrs": 33,
+      "hits": 0
+    },
+    {
+      "bundleId": 26431,
+      "objects": 97,
+      "typetrees": 97,
+      "ptrs": 193,
+      "hits": 0
+    },
+    {
+      "bundleId": 26435,
+      "objects": 15,
+      "typetrees": 15,
+      "ptrs": 29,
+      "hits": 0
+    },
+    {
+      "bundleId": 26441,
+      "objects": 53,
+      "typetrees": 53,
+      "ptrs": 105,
+      "hits": 0
+    },
+    {
+      "bundleId": 26449,
+      "objects": 61,
+      "typetrees": 61,
+      "ptrs": 121,
+      "hits": 0
+    },
+    {
+      "bundleId": 26459,
+      "objects": 6,
+      "typetrees": 6,
+      "ptrs": 11,
+      "hits": 0
+    },
+    {
+      "bundleId": 26460,
+      "objects": 2,
+      "typetrees": 2,
+      "ptrs": 3,
+      "hits": 0
+    },
+    {
+      "bundleId": 26464,
+      "objects": 3,
+      "typetrees": 3,
+      "ptrs": 5,
+      "hits": 0
+    },
+    {
+      "bundleId": 26465,
+      "objects": 2,
+      "typetrees": 2,
+      "ptrs": 3,
+      "hits": 0
+    },
+    {
+      "bundleId": 26466,
+      "objects": 2,
+      "typetrees": 2,
+      "ptrs": 3,
+      "hits": 0
+    },
+    {
+      "bundleId": 26467,
+      "objects": 15,
+      "typetrees": 15,
+      "ptrs": 29,
+      "hits": 0
+    },
+    {
+      "bundleId": 26488,
+      "objects": 79,
+      "typetrees": 79,
+      "ptrs": 157,
+      "hits": 0
+    },
+    {
+      "bundleId": 26493,
+      "objects": 54,
+      "typetrees": 54,
+      "ptrs": 107,
+      "hits": 0
+    },
+    {
+      "bundleId": 26509,
+      "objects": 38,
+      "typetrees": 38,
+      "ptrs": 129,
+      "hits": 0
+    },
+    {
+      "bundleId": 26510,
+      "objects": 120,
+      "typetrees": 120,
+      "ptrs": 341,
+      "hits": 0
+    },
+    {
+      "bundleId": 26511,
+      "objects": 11,
+      "typetrees": 11,
+      "ptrs": 36,
+      "hits": 0
+    },
+    {
+      "bundleId": 26512,
+      "objects": 23,
+      "typetrees": 23,
+      "ptrs": 78,
+      "hits": 0
+    },
+    {
+      "bundleId": 26519,
+      "objects": 4,
+      "typetrees": 4,
+      "ptrs": 7,
+      "hits": 0
+    },
+    {
+      "bundleId": 26522,
+      "objects": 3,
+      "typetrees": 3,
+      "ptrs": 8,
+      "hits": 0
+    },
+    {
+      "bundleId": 26523,
+      "objects": 7,
+      "typetrees": 7,
+      "ptrs": 13,
+      "hits": 0
+    },
+    {
+      "bundleId": 26529,
+      "objects": 3,
+      "typetrees": 3,
+      "ptrs": 8,
+      "hits": 0
+    },
+    {
+      "bundleId": 26530,
+      "objects": 2,
+      "typetrees": 2,
+      "ptrs": 3,
+      "hits": 0
+    },
+    {
+      "bundleId": 26533,
+      "objects": 51,
+      "typetrees": 51,
+      "ptrs": 155,
+      "hits": 0
+    },
+    {
+      "bundleId": 26542,
+      "objects": 3,
+      "typetrees": 3,
+      "ptrs": 5,
+      "hits": 0
+    },
+    {
+      "bundleId": 26549,
+      "objects": 17,
+      "typetrees": 17,
+      "ptrs": 33,
+      "hits": 0
+    },
+    {
+      "bundleId": 26553,
+      "objects": 21,
+      "typetrees": 21,
+      "ptrs": 41,
+      "hits": 0
+    },
+    {
+      "bundleId": 26571,
+      "objects": 2,
+      "typetrees": 2,
+      "ptrs": 3,
+      "hits": 0
+    },
+    {
+      "bundleId": 26573,
+      "objects": 20,
+      "typetrees": 20,
+      "ptrs": 39,
+      "hits": 0
+    },
+    {
+      "bundleId": 26574,
+      "objects": 2,
+      "typetrees": 2,
+      "ptrs": 3,
+      "hits": 0
+    },
+    {
+      "bundleId": 26592,
+      "objects": 5,
+      "typetrees": 5,
+      "ptrs": 9,
+      "hits": 4
+    },
+    {
+      "bundleId": 26596,
+      "objects": 5,
+      "typetrees": 5,
+      "ptrs": 9,
+      "hits": 0
+    },
+    {
+      "bundleId": 26597,
+      "objects": 15,
+      "typetrees": 15,
+      "ptrs": 29,
+      "hits": 0
+    },
+    {
+      "bundleId": 26598,
+      "objects": 4,
+      "typetrees": 4,
+      "ptrs": 7,
+      "hits": 4
+    },
+    {
+      "bundleId": 26599,
+      "objects": 5,
+      "typetrees": 5,
+      "ptrs": 9,
+      "hits": 0
+    },
+    {
+      "bundleId": 26600,
+      "objects": 9,
+      "typetrees": 9,
+      "ptrs": 17,
+      "hits": 4
+    },
+    {
+      "bundleId": 27110,
+      "objects": 3,
+      "typetrees": 3,
+      "ptrs": 5,
+      "hits": 0
+    },
+    {
+      "bundleId": 28735,
+      "objects": 2,
+      "typetrees": 2,
+      "ptrs": 3,
+      "hits": 0
+    },
+    {
+      "bundleId": 28798,
+      "objects": 4,
+      "typetrees": 4,
+      "ptrs": 76,
+      "hits": 0
+    },
+    {
+      "bundleId": 28799,
+      "objects": 4,
+      "typetrees": 4,
+      "ptrs": 50,
+      "hits": 0
+    },
+    {
+      "bundleId": 28834,
+      "objects": 2,
+      "typetrees": 2,
+      "ptrs": 25,
+      "hits": 0
+    },
+    {
+      "bundleId": 28835,
+      "objects": 2,
+      "typetrees": 2,
+      "ptrs": 25,
+      "hits": 0
+    },
+    {
+      "bundleId": 28836,
+      "objects": 2,
+      "typetrees": 2,
+      "ptrs": 25,
+      "hits": 0
+    },
+    {
+      "bundleId": 28837,
+      "objects": 2,
+      "typetrees": 2,
+      "ptrs": 25,
+      "hits": 0
+    },
+    {
+      "bundleId": 28883,
+      "objects": 2,
+      "typetrees": 2,
+      "ptrs": 3,
+      "hits": 0
+    },
+    {
+      "bundleId": 28884,
+      "objects": 2,
+      "typetrees": 2,
+      "ptrs": 3,
+      "hits": 0
+    },
+    {
+      "bundleId": 28901,
+      "objects": 3,
+      "typetrees": 3,
+      "ptrs": 5,
+      "hits": 0
+    },
+    {
+      "bundleId": 29106,
+      "objects": 5,
+      "typetrees": 5,
+      "ptrs": 15,
+      "hits": 0
+    },
+    {
+      "bundleId": 35878,
+      "objects": 3,
+      "typetrees": 3,
+      "ptrs": 5,
+      "hits": 0
+    },
+    {
+      "bundleId": 35879,
+      "objects": 2,
+      "typetrees": 2,
+      "ptrs": 3,
+      "hits": 0
+    },
+    {
+      "bundleId": 35975,
+      "objects": 10,
+      "typetrees": 10,
+      "ptrs": 19,
+      "hits": 0
+    },
+    {
+      "bundleId": 35984,
+      "objects": 15,
+      "typetrees": 15,
+      "ptrs": 50,
+      "hits": 0
+    },
+    {
+      "bundleId": 36030,
+      "objects": 5,
+      "typetrees": 5,
+      "ptrs": 37,
+      "hits": 0
+    }
+  ],
+  "readFailures": [],
+  "guardrails": {
+    "labBranchOnly": true,
+    "mainUntouched": true,
+    "historicalOffsetsReused": false,
+    "runtimeUseProof": false,
+    "generatedVisuals": false
+  }
+}
