@@ -5,86 +5,82 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="robots" content="noindex,nofollow">
   <meta name="theme-color" content="#0a0a0d">
-  <title>WfGg LAB — Revue des textures Formation</title>
-  <link rel="stylesheet" href="/lab/lastwar-formation-texture-viewer.css">
+  <title>WfGg LAB — Recherche visuelle Formation V2</title>
+  <link rel="stylesheet" href="/lab/lastwar-formation-texture-viewer.css?v=2">
 </head>
 <body>
-  <main class="viewer-shell">
-    <header class="viewer-header">
-      <div>
-        <p class="eyebrow">WfGg · LAST WAR · LAB</p>
-        <h1>Revue des images fixes Formation</h1>
-        <p class="subtitle">Lot préparé automatiquement depuis les assets graphiques de la fermeture Formation.</p>
-      </div>
-      <a class="back-link" href="/lab/">← LAB</a>
-    </header>
+<main class="viewer-shell">
+  <header class="viewer-header">
+    <div>
+      <p class="eyebrow">WfGg · LAST WAR · LAB</p>
+      <h1>Recherche visuelle Formation V2</h1>
+      <p class="subtitle">Textures réelles du jeu uniquement. L’analytique ordonne le lot ; tes yeux décident.</p>
+    </div>
+    <a class="back-link" href="/lab/">← LAB</a>
+  </header>
 
-    <section id="loadingPanel" class="loader-panel">
-      <h2>Chargement du lot préparé</h2>
-      <p id="loadingText">Lecture du manifeste des textures…</p>
-    </section>
+  <section id="loadingPanel" class="loader-panel"><h2>Chargement</h2><p id="loadingText">Lecture du manifeste V2…</p></section>
+  <section id="emptyPanel" class="loader-panel hidden"><h2>Aucun lot V2</h2><p>Lance le script de préparation V2 puis recharge cette page.</p></section>
 
-    <section id="emptyPanel" class="loader-panel hidden">
-      <h2>Aucun lot préparé</h2>
-      <p>Le viewer est prêt, mais aucun manifeste d’images fixes n’est encore présent. Lance le script de préparation LAB puis recharge cette page.</p>
-    </section>
+  <section id="gridPanel" class="grid-panel hidden">
+    <div class="grid-head">
+      <div><h2>Vue d’ensemble</h2><p id="scopeSummary" class="subtitle"></p></div>
+      <button id="openDetailButton" class="button primary" type="button">Reprendre la revue →</button>
+    </div>
+    <div class="grid-controls">
+      <select id="gridFilter" aria-label="Filtrer les décisions">
+        <option value="all">Toutes</option><option value="unreviewed">À examiner</option><option value="yes">Oui</option><option value="unsure">Incertain</option><option value="no">Non</option>
+      </select>
+      <span id="gridPageInfo">—</span>
+      <button id="gridPrev" class="icon-button" type="button">←</button><button id="gridNext" class="icon-button" type="button">→</button>
+    </div>
+    <div id="reviewGrid" class="review-grid"></div>
+  </section>
 
-    <section id="viewerPanel" class="viewer-panel hidden" aria-live="polite">
-      <div class="toolbar">
-        <div class="counter-group">
-          <strong id="counter">0 / 0</strong>
-          <span id="voteCounter" class="marked-counter">0 examinée</span>
-        </div>
-        <div class="toolbar-actions">
-          <button id="fitButton" class="icon-button" type="button">Ajuster</button>
-          <button id="resetVotesButton" class="icon-button" type="button">Réinitialiser</button>
-        </div>
-      </div>
+  <section id="viewerPanel" class="viewer-panel hidden" aria-live="polite">
+    <div class="toolbar">
+      <div class="counter-group"><strong id="counter">0 / 0</strong><span id="voteCounter" class="marked-counter">0 examinée</span></div>
+      <div class="toolbar-actions"><button id="backGridButton" class="icon-button" type="button">▦ Grille</button><button id="resetVotesButton" class="icon-button" type="button">Réinitialiser</button></div>
+    </div>
 
-      <div id="stage" class="stage fit-mode">
-        <button id="prevButton" class="nav-button nav-prev" type="button" aria-label="Image précédente">‹</button>
-        <div id="imageViewport" class="image-viewport">
-          <img id="mainImage" alt="Texture Last War sélectionnée">
-        </div>
-        <button id="nextButton" class="nav-button nav-next" type="button" aria-label="Image suivante">›</button>
-      </div>
+    <div class="mode-bar" aria-label="Modes de comparaison">
+      <button class="mode-button active" data-mode="fit" type="button">Ajusté</button>
+      <button class="mode-button" data-mode="native" type="button">Brut</button>
+      <button class="mode-button" data-mode="cover" type="button">Recadré</button>
+      <button class="mode-button" data-mode="blur" type="button">Flou comparaison</button>
+      <label id="blurControl" class="blur-control hidden">Flou <input id="blurRange" type="range" min="0" max="24" step="1" value="0"><span id="blurValue">0 px</span></label>
+    </div>
 
-      <div class="metadata">
-        <div class="meta-main">
-          <strong id="fileName">—</strong>
-          <span id="dimensions">—</span>
-          <span id="identity">—</span>
-        </div>
-        <span id="format">—</span>
-      </div>
+    <div id="stage" class="stage mode-fit">
+      <button id="prevButton" class="nav-button nav-prev" type="button" aria-label="Image précédente">‹</button>
+      <div id="imageViewport" class="image-viewport"><img id="mainImage" alt="Texture Last War sélectionnée"></div>
+      <button id="nextButton" class="nav-button nav-next" type="button" aria-label="Image suivante">›</button>
+    </div>
 
-      <div class="vote-panel" aria-label="Décision sur cette image">
-        <button id="noButton" class="vote-button no" type="button">✕ Non</button>
-        <button id="yesButton" class="vote-button yes" type="button">✓ Oui</button>
-      </div>
+    <div class="metadata">
+      <div class="meta-main"><strong id="fileName">—</strong><span id="dimensions">—</span><span id="identity">—</span><span id="scopeMeta">—</span></div>
+      <div class="meta-side"><span id="format">—</span><span id="analyticMeta">—</span></div>
+    </div>
 
-      <div class="mobile-nav">
-        <button id="prevBottom" class="button secondary" type="button">← Précédente</button>
-        <button id="nextBottom" class="button secondary" type="button">Suivante →</button>
-      </div>
+    <div class="vote-panel" aria-label="Décision sur cette image">
+      <button id="noButton" class="vote-button no" type="button">✕ Non</button>
+      <button id="unsureButton" class="vote-button unsure" type="button">? Incertain</button>
+      <button id="yesButton" class="vote-button yes" type="button">✓ Oui</button>
+    </div>
+    <div class="mobile-nav"><button id="prevBottom" class="button secondary" type="button">← Précédente</button><button id="nextBottom" class="button secondary" type="button">Suivante →</button></div>
+    <div id="thumbStrip" class="thumb-strip" aria-label="Miniatures"></div>
+  </section>
 
-      <div id="thumbStrip" class="thumb-strip" aria-label="Miniatures"></div>
-    </section>
-
-    <section id="resultsPanel" class="results-panel hidden">
-      <div class="results-head">
-        <div>
-          <p class="eyebrow">REVUE TERMINÉE</p>
-          <h2>Images retenues : Oui</h2>
-          <p id="resultsSummary" class="subtitle"></p>
-        </div>
-        <button id="resumeButton" class="button secondary" type="button">Revoir les images</button>
-      </div>
-      <div id="yesGrid" class="yes-grid"></div>
-      <button id="copyYesButton" class="button primary" type="button">Copier la liste des Oui</button>
-    </section>
-  </main>
-
-  <script src="/lab/lastwar-formation-texture-viewer.js"></script>
+  <section id="resultsPanel" class="results-panel hidden">
+    <div class="results-head">
+      <div><p class="eyebrow">REVUE TERMINÉE</p><h2>Images retenues : Oui</h2><p id="resultsSummary" class="subtitle"></p></div>
+      <button id="resumeButton" class="button secondary" type="button">Revoir les images</button>
+    </div>
+    <div id="yesGrid" class="yes-grid"></div>
+    <button id="copyYesButton" class="button primary" type="button">Copier la liste des Oui</button>
+    <details id="unsureDetails" class="unsure-details"><summary id="unsureSummary">Incertaines conservées</summary><div id="unsureGrid" class="yes-grid"></div></details>
+  </section>
+</main>
+<script src="/lab/lastwar-formation-texture-viewer.js?v=2"></script>
 </body>
 </html>
