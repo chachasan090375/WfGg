@@ -20,14 +20,17 @@ APK_ENTRY="assets/lwScripts/LWScripts.data"
 printf 'APK_RESOLVE_BY_ENTRY %s\n' "$APK_ENTRY"
 while IFS= read -r line; do
   p="${line#package:}"
-  [[ -n "$p" && -r "$p" ]] || continue
-  if unzip -Z1 "$p" "$APK_ENTRY" 2>/dev/null | grep -Fxq "$APK_ENTRY"; then
+  [[ -n "$p" ]] || continue
+  printf 'APK_CANDIDATE %s\n' "$p"
+  # Do not gate on shell -r for /data/app. Android may expose the APK to unzip
+  # even when the shell access test reports false. Let unzip be the authority.
+  if unzip -Z1 "$p" 2>/dev/null | grep -Fxq "$APK_ENTRY"; then
     APK="$p"
     printf 'APK_RESOLVED %s\n' "$APK"
     break
   fi
 done < <(pm path com.fun.lastwar.gp 2>/dev/null || true)
-[[ -n "$APK" && -r "$APK" ]] || fail "APK contenant $APK_ENTRY introuvable"
+[[ -n "$APK" ]] || fail "APK contenant $APK_ENTRY introuvable"
 '''
 s,n=old.subn(new,s,count=1)
 if n!=1: raise SystemExit('APK_RESOLVER_PATCH_FAILED')
