@@ -1,0 +1,5105 @@
+[
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Maxwell_01/animator",
+    "pattern": "A_Hero_Maxwell_{N}_timeline",
+    "ext": ".playable",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Maxwell_01/animator/A_Hero_Maxwell_01_timeline.playable"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_maxwell_01_animator_0245ee4faae587e6bbed1c979cacd95a.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Maxwell_01/animator",
+    "pattern": "maxwell{N}_preview",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Maxwell_01/animator/maxwell01_preview.controller"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_maxwell_01_animator_0245ee4faae587e6bbed1c979cacd95a.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Maxwell_01/material",
+    "pattern": "A_Hero_Maxwell_{N}_PBR",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Maxwell_01/material/A_Hero_Maxwell_01_PBR.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_maxwell_01_material_9c208162353bf5e5a2572722cecc7890.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Maxwell_01/material",
+    "pattern": "A_Hero_Maxwell_{N}_PBR_zhanshi",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Maxwell_01/material/A_Hero_Maxwell_01_PBR_zhanshi.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_maxwell_01_material_9c208162353bf5e5a2572722cecc7890.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Maxwell_01/material",
+    "pattern": "skybox_maxwell",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Maxwell_01/material/skybox_maxwell.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_maxwell_01_material_9c208162353bf5e5a2572722cecc7890.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Maxwell_01/material/material_low",
+    "pattern": "A_Hero_Maxwell_{N}",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Maxwell_01/material/material_low/A_Hero_Maxwell_01.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_maxwell_01_material_material_low_bb5e363fc9f4bfa0a8aced3f3925e49c.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Maxwell_01/material/material_low",
+    "pattern": "A_Hero_Maxwell_{N}_new",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Maxwell_01/material/material_low/A_Hero_Maxwell_01_new.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_maxwell_01_material_material_low_bb5e363fc9f4bfa0a8aced3f3925e49c.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Maxwell_01/mesh",
+    "pattern": "A_Hero@Maxwell_{N}_skin_high",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Maxwell_01/mesh/A_Hero@Maxwell_01_skin_high.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_maxwell_01_mesh_f0ef7399c916c577af82997dabec6586.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Maxwell_01/mesh/mesh_low",
+    "pattern": "A_Hero@Maxwell_{N}_skin",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Maxwell_01/mesh/mesh_low/A_Hero@Maxwell_01_skin.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_maxwell_01_mesh_mesh_low_2e95712abb195a22d3b5bc61692954c7.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Maxwell_01/mesh/mesh_low",
+    "pattern": "A_Hero@Maxwell_{N}_skin{N}",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Maxwell_01/mesh/mesh_low/A_Hero@Maxwell_01_skin3.FBX"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_maxwell_01_mesh_mesh_low_2e95712abb195a22d3b5bc61692954c7.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Maxwell_01/prefab",
+    "pattern": "A_Hero_Maxwell_{N}_Camera",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Maxwell_01/prefab/A_Hero_Maxwell_01_Camera.prefab"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_maxwell_01_prefab_7e146af58e4ff8d439a822f6a8f9c9d6.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Maxwell_01/prefab",
+    "pattern": "A_Hero_Maxwell_{N}_PBR",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Maxwell_01/prefab/A_Hero_Maxwell_01_PBR.prefab"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_maxwell_01_prefab_7e146af58e4ff8d439a822f6a8f9c9d6.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Maxwell_01/prefab",
+    "pattern": "A_Hero_Maxwell_{N}_PBR_zhanshi",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Maxwell_01/prefab/A_Hero_Maxwell_01_PBR_zhanshi.prefab"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_maxwell_01_prefab_7e146af58e4ff8d439a822f6a8f9c9d6.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Maxwell_01/prefab",
+    "pattern": "A_Hero_Maxwell_{N}_timeline",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Maxwell_01/prefab/A_Hero_Maxwell_01_timeline.prefab"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_maxwell_01_prefab_7e146af58e4ff8d439a822f6a8f9c9d6.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Maxwell_01/prefab/prefab_low",
+    "pattern": "A_Hero_Maxwell_{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Maxwell_01/prefab/prefab_low/A_Hero_Maxwell_01.prefab"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_maxwell_01_prefab_prefab_low_5700a52b3303d5180c3eabede34acf77.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Maxwell_01/prefab/prefab_low",
+    "pattern": "A_Hero_Maxwell_{N}_battle",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Maxwell_01/prefab/prefab_low/A_Hero_Maxwell_01_battle.prefab"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_maxwell_01_prefab_prefab_low_5700a52b3303d5180c3eabede34acf77.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Maxwell_01/prefab/prefab_low",
+    "pattern": "A_Hero_Maxwell_{N}_city",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Maxwell_01/prefab/prefab_low/A_Hero_Maxwell_01_city.prefab"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_maxwell_01_prefab_prefab_low_5700a52b3303d5180c3eabede34acf77.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Maxwell_01/prefab/prefab_low",
+    "pattern": "A_Hero_Maxwell_{N}_world",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Maxwell_01/prefab/prefab_low/A_Hero_Maxwell_01_world.prefab"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_maxwell_01_prefab_prefab_low_5700a52b3303d5180c3eabede34acf77.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Maxwell_01/texture",
+    "pattern": "A_Hero_Maxwell_{N}_D",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Maxwell_01/texture/A_Hero_Maxwell_01_D.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_maxwell_01_texture_8b083e4126f956237eb053afd9a896ab.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Maxwell_01/texture",
+    "pattern": "A_Hero_Maxwell_{N}_N",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Maxwell_01/texture/A_Hero_Maxwell_01_N.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_maxwell_01_texture_8b083e4126f956237eb053afd9a896ab.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Maxwell_01/texture",
+    "pattern": "A_Hero_Maxwell_{N}_S",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Maxwell_01/texture/A_Hero_Maxwell_01_S.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_maxwell_01_texture_8b083e4126f956237eb053afd9a896ab.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Maxwell_01/texture/PBR",
+    "pattern": "A_Hero_Maxwell_{N}_D",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Maxwell_01/texture/PBR/A_Hero_Maxwell_01_D.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_maxwell_01_texture_pbr_119420fd221b391b3405315fa861227a.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Maxwell_01/texture/PBR",
+    "pattern": "A_Hero_Maxwell_{N}_N",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Maxwell_01/texture/PBR/A_Hero_Maxwell_01_N.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_maxwell_01_texture_pbr_119420fd221b391b3405315fa861227a.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Maxwell_01/texture/PBR",
+    "pattern": "A_Hero_Maxwell_{N}_S",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Maxwell_01/texture/PBR/A_Hero_Maxwell_01_S.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_maxwell_01_texture_pbr_119420fd221b391b3405315fa861227a.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/animation",
+    "pattern": "A_Hero@MissHot_{N}_attack",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/animation/A_Hero@MissHot_01_attack.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_misshot_01_animation_e7e0bafb62d171f957f7293a42d61d26.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/animation",
+    "pattern": "A_Hero@MissHot_{N}_attack_move",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/animation/A_Hero@MissHot_01_attack_move.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_misshot_01_animation_e7e0bafb62d171f957f7293a42d61d26.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/animation",
+    "pattern": "A_Hero@MissHot_{N}_attack_skll",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/animation/A_Hero@MissHot_01_attack_skll.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_misshot_01_animation_e7e0bafb62d171f957f7293a42d61d26.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/animation",
+    "pattern": "A_Hero@MissHot_{N}_dead",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/animation/A_Hero@MissHot_01_dead.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_misshot_01_animation_e7e0bafb62d171f957f7293a42d61d26.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/animation",
+    "pattern": "A_Hero@MissHot_{N}_hit",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/animation/A_Hero@MissHot_01_hit.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_misshot_01_animation_e7e0bafb62d171f957f7293a42d61d26.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/animation",
+    "pattern": "A_Hero@MissHot_{N}_idle",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/animation/A_Hero@MissHot_01_idle.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_misshot_01_animation_e7e0bafb62d171f957f7293a42d61d26.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/animation",
+    "pattern": "A_Hero@MissHot_{N}_walk",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/animation/A_Hero@MissHot_01_walk.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_misshot_01_animation_e7e0bafb62d171f957f7293a42d61d26.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/animation",
+    "pattern": "A_Hero@MissHot_{N}_{N}_camera",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/animation/A_Hero@MissHot_01_01_camera.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_misshot_01_animation_e7e0bafb62d171f957f7293a42d61d26.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/animation",
+    "pattern": "A_Hero@MissHot_{N}_{N}_show",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/animation/A_Hero@MissHot_01_01_show.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_misshot_01_animation_e7e0bafb62d171f957f7293a42d61d26.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/animation",
+    "pattern": "A_Hero@MissHot_{N}_{N}_show_idle",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/animation/A_Hero@MissHot_01_01_show_idle.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_misshot_01_animation_e7e0bafb62d171f957f7293a42d61d26.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/animator",
+    "pattern": "A_Hero_MissHot_{N}_Timeline",
+    "ext": ".playable",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/animator/A_Hero_MissHot_01_Timeline.playable"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_misshot_01_animator_6accb3a560ed5c5d20ed8083b6d71fca.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/animator",
+    "pattern": "misshot{N}_preview",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/animator/misshot01_preview.controller"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_misshot_01_animator_6accb3a560ed5c5d20ed8083b6d71fca.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/material",
+    "pattern": "A_Hero_MissHot_lvdai_{N}_PBR",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/material/A_Hero_MissHot_lvdai_01_PBR.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_misshot_01_material_95562d1667382b120913a909e8b0b683.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/material",
+    "pattern": "A_Hero_MissHot_lvdai_{N}_PBR_zhanshi",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/material/A_Hero_MissHot_lvdai_01_PBR_zhanshi.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_misshot_01_material_95562d1667382b120913a909e8b0b683.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/material",
+    "pattern": "A_Hero_MissHot_{N}_PBR",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/material/A_Hero_MissHot_01_PBR.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_misshot_01_material_95562d1667382b120913a909e8b0b683.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/material",
+    "pattern": "A_Hero_MissHot_{N}_PBR_zhanshi",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/material/A_Hero_MissHot_01_PBR_zhanshi.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_misshot_01_material_95562d1667382b120913a909e8b0b683.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/material",
+    "pattern": "shadow_show_misshot",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/material/shadow_show_misshot.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_misshot_01_material_95562d1667382b120913a909e8b0b683.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/material",
+    "pattern": "skybox_misshot",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/material/skybox_misshot.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_misshot_01_material_95562d1667382b120913a909e8b0b683.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/material/material_low",
+    "pattern": "A_Hero_MissHot_lvdai_{N}",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/material/material_low/A_Hero_MissHot_lvdai_01.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_misshot_01_material_material_low_a9ca0aadcfc948639c742c134006fb86.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/material/material_low",
+    "pattern": "A_Hero_MissHot_lvdai_{N}_new",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/material/material_low/A_Hero_MissHot_lvdai_01_new.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_misshot_01_material_material_low_a9ca0aadcfc948639c742c134006fb86.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/material/material_low",
+    "pattern": "A_Hero_MissHot_{N}",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/material/material_low/A_Hero_MissHot_01.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_misshot_01_material_material_low_a9ca0aadcfc948639c742c134006fb86.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/material/material_low",
+    "pattern": "A_Hero_MissHot_{N}_new",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/material/material_low/A_Hero_MissHot_01_new.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_misshot_01_material_material_low_a9ca0aadcfc948639c742c134006fb86.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/mesh",
+    "pattern": "A_Hero@MissHot_{N}_{N}_shin",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/mesh/A_Hero@MissHot_01_01_shin.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_misshot_01_mesh_b3b5f1445fbaf7e81774657f344487d1.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/mesh/mesh_low",
+    "pattern": "A_Hero@MissHot_{N}_low_skin",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/mesh/mesh_low/A_Hero@MissHot_01_low_skin.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_misshot_01_mesh_mesh_low_b7ae94fcfd441a83d49f0e4dfbd8d16d.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/prefab",
+    "pattern": "A_Hero_MissHot_{N}_PBR",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/prefab/A_Hero_MissHot_01_PBR.prefab"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_misshot_01_prefab_60eb8e7e21bea79d5c8e759f878b9171.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/prefab",
+    "pattern": "A_Hero_MissHot_{N}_PBR_zhanshi",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/prefab/A_Hero_MissHot_01_PBR_zhanshi.prefab"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_misshot_01_prefab_60eb8e7e21bea79d5c8e759f878b9171.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/prefab",
+    "pattern": "Hero_MissHot_{N}_camera",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/prefab/Hero_MissHot_01_camera.prefab"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_misshot_01_prefab_60eb8e7e21bea79d5c8e759f878b9171.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/prefab",
+    "pattern": "Hero_MissHot_{N}_Timeline",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/prefab/Hero_MissHot_01_Timeline.prefab"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_misshot_01_prefab_60eb8e7e21bea79d5c8e759f878b9171.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/prefab/prefab_low",
+    "pattern": "A_Hero_MissHot_{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/prefab/prefab_low/A_Hero_MissHot_01.prefab"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_misshot_01_prefab_prefab_low_f4a6b3adf58967b38768b6f3bc1b952a.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/prefab/prefab_low",
+    "pattern": "A_Hero_MissHot_{N}_battle",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/prefab/prefab_low/A_Hero_MissHot_01_battle.prefab"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_misshot_01_prefab_prefab_low_f4a6b3adf58967b38768b6f3bc1b952a.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/prefab/prefab_low",
+    "pattern": "A_Hero_MissHot_{N}_city_hero",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/prefab/prefab_low/A_Hero_MissHot_01_city_hero.prefab"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_misshot_01_prefab_prefab_low_f4a6b3adf58967b38768b6f3bc1b952a.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/prefab/prefab_low",
+    "pattern": "A_Hero_MissHot_{N}_pve_battle",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/prefab/prefab_low/A_Hero_MissHot_01_pve_battle.prefab"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_misshot_01_prefab_prefab_low_f4a6b3adf58967b38768b6f3bc1b952a.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/prefab/prefab_low",
+    "pattern": "A_Hero_MissHot_{N}_world_hero",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/prefab/prefab_low/A_Hero_MissHot_01_world_hero.prefab"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_misshot_01_prefab_prefab_low_f4a6b3adf58967b38768b6f3bc1b952a.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/texture",
+    "pattern": "A_Hero_MissHot_lvdai_{N}_D",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/texture/A_Hero_MissHot_lvdai_01_D.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_misshot_01_texture_2407ae947b6f476cbaf43e19b094acd5.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/texture",
+    "pattern": "A_Hero_MissHot_lvdai_{N}_N",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/texture/A_Hero_MissHot_lvdai_01_N.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_misshot_01_texture_2407ae947b6f476cbaf43e19b094acd5.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/texture",
+    "pattern": "A_Hero_MissHot_lvdai_{N}_S",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/texture/A_Hero_MissHot_lvdai_01_S.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_misshot_01_texture_2407ae947b6f476cbaf43e19b094acd5.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/texture",
+    "pattern": "A_Hero_MissHot_{N}_D",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/texture/A_Hero_MissHot_01_D.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_misshot_01_texture_2407ae947b6f476cbaf43e19b094acd5.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/texture",
+    "pattern": "A_Hero_MissHot_{N}_N",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/texture/A_Hero_MissHot_01_N.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_misshot_01_texture_2407ae947b6f476cbaf43e19b094acd5.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/texture",
+    "pattern": "A_Hero_MissHot_{N}_S",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/texture/A_Hero_MissHot_01_S.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_misshot_01_texture_2407ae947b6f476cbaf43e19b094acd5.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/texture/PBR",
+    "pattern": "A_Hero_MissHot_lvdai_{N}_High_D",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/texture/PBR/A_Hero_MissHot_lvdai_01_High_D.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_misshot_01_texture_pbr_4692b6acc1c2ff561a6c6b30e8036f22.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/texture/PBR",
+    "pattern": "A_Hero_MissHot_lvdai_{N}_High_N",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/texture/PBR/A_Hero_MissHot_lvdai_01_High_N.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_misshot_01_texture_pbr_4692b6acc1c2ff561a6c6b30e8036f22.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/texture/PBR",
+    "pattern": "A_Hero_MissHot_lvdai_{N}_High_S",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/texture/PBR/A_Hero_MissHot_lvdai_01_High_S.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_misshot_01_texture_pbr_4692b6acc1c2ff561a6c6b30e8036f22.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/texture/PBR",
+    "pattern": "A_Hero_MissHot_{N}_High_D",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/texture/PBR/A_Hero_MissHot_01_High_D.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_misshot_01_texture_pbr_4692b6acc1c2ff561a6c6b30e8036f22.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/texture/PBR",
+    "pattern": "A_Hero_MissHot_{N}_High_N",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/texture/PBR/A_Hero_MissHot_01_High_N.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_misshot_01_texture_pbr_4692b6acc1c2ff561a6c6b30e8036f22.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/texture/PBR",
+    "pattern": "A_Hero_MissHot_{N}_High_S",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_MissHot_01/texture/PBR/A_Hero_MissHot_01_High_S.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_misshot_01_texture_pbr_4692b6acc1c2ff561a6c6b30e8036f22.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/animation",
+    "pattern": "A_Hero@Monica_{N}_attack_idle",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/animation/A_Hero@Monica_01_attack_idle.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_animation_f65d78954781f572fa4df02ce6214b9a.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/animation",
+    "pattern": "A_Hero@Monica_{N}_attack_move_idle",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/animation/A_Hero@Monica_01_attack_move_idle.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_animation_f65d78954781f572fa4df02ce6214b9a.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/animation",
+    "pattern": "A_Hero@Monica_{N}_attack_skll_idle",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/animation/A_Hero@Monica_01_attack_skll_idle.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_animation_f65d78954781f572fa4df02ce6214b9a.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/animation",
+    "pattern": "A_Hero@Monica_{N}_camera{N}_idle",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/animation/A_Hero@Monica_01_camera01_idle.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_animation_f65d78954781f572fa4df02ce6214b9a.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/animation",
+    "pattern": "A_Hero@Monica_{N}_dead",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/animation/A_Hero@Monica_01_dead.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_animation_f65d78954781f572fa4df02ce6214b9a.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/animation",
+    "pattern": "A_Hero@Monica_{N}_hit",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/animation/A_Hero@Monica_01_hit.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_animation_f65d78954781f572fa4df02ce6214b9a.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/animation",
+    "pattern": "A_Hero@Monica_{N}_idle",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/animation/A_Hero@Monica_01_idle.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_animation_f65d78954781f572fa4df02ce6214b9a.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/animation",
+    "pattern": "A_Hero@Monica_{N}_move_left_idle",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/animation/A_Hero@Monica_01_move_left_idle.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_animation_f65d78954781f572fa4df02ce6214b9a.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/animation",
+    "pattern": "A_Hero@Monica_{N}_move_right_idle",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/animation/A_Hero@Monica_01_move_right_idle.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_animation_f65d78954781f572fa4df02ce6214b9a.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/animation",
+    "pattern": "A_Hero@Monica_{N}_show",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/animation/A_Hero@Monica_01_show.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_animation_f65d78954781f572fa4df02ce6214b9a.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/animation",
+    "pattern": "A_Hero@Monica_{N}_show_idle",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/animation/A_Hero@Monica_01_show_idle.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_animation_f65d78954781f572fa4df02ce6214b9a.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/animation",
+    "pattern": "A_Hero@Monica_{N}_walk_idle",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/animation/A_Hero@Monica_01_walk_idle.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_animation_f65d78954781f572fa4df02ce6214b9a.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/animator",
+    "pattern": "A_Hero_Monica_{N}_gaise_Timeline",
+    "ext": ".playable",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/animator/A_Hero_Monica_01_gaise_Timeline.playable"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_animator_4b903dadacaad35969e271c285942007.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/animator",
+    "pattern": "A_Hero_Monica_{N}_Timeline",
+    "ext": ".playable",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/animator/A_Hero_Monica_01_Timeline.playable"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_animator_4b903dadacaad35969e271c285942007.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/animator",
+    "pattern": "monica{N}_preview",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/animator/monica01_preview.controller"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_animator_4b903dadacaad35969e271c285942007.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/material",
+    "pattern": "A_Hero_Monica_chedeng_{N}",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/material/A_Hero_Monica_chedeng_01.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_material_3f6f15e26f84505c8ca865aa65ea910b.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/material",
+    "pattern": "A_Hero_Monica_motuo_PBR",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/material/A_Hero_Monica_motuo_PBR.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_material_3f6f15e26f84505c8ca865aa65ea910b.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/material",
+    "pattern": "A_Hero_Monica_motuo_PBR_gaise",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/material/A_Hero_Monica_motuo_PBR_gaise.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_material_3f6f15e26f84505c8ca865aa65ea910b.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/material",
+    "pattern": "A_Hero_Monica_motuo_PBR_gaise_zhanshi",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/material/A_Hero_Monica_motuo_PBR_gaise_zhanshi.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_material_3f6f15e26f84505c8ca865aa65ea910b.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/material",
+    "pattern": "A_Hero_Monica_motuo_PBR_zhanshi",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/material/A_Hero_Monica_motuo_PBR_zhanshi.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_material_3f6f15e26f84505c8ca865aa65ea910b.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/material",
+    "pattern": "A_Hero_Monica_motuo_{N}",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/material/A_Hero_Monica_motuo_01.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_material_3f6f15e26f84505c8ca865aa65ea910b.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/material",
+    "pattern": "A_Hero_Monica_motuo_{N}_gaise",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/material/A_Hero_Monica_motuo_01_gaise.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_material_3f6f15e26f84505c8ca865aa65ea910b.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/material",
+    "pattern": "A_Hero_Monica_motuo_{N}_gaise_new",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/material/A_Hero_Monica_motuo_01_gaise_new.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_material_3f6f15e26f84505c8ca865aa65ea910b.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/material",
+    "pattern": "A_Hero_Monica_motuo_{N}_new",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/material/A_Hero_Monica_motuo_01_new.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_material_3f6f15e26f84505c8ca865aa65ea910b.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/material",
+    "pattern": "A_Hero_Monica_{N}",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/material/A_Hero_Monica_01.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_material_3f6f15e26f84505c8ca865aa65ea910b.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/material",
+    "pattern": "A_Hero_Monica_{N}_gaise",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/material/A_Hero_Monica_01_gaise.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_material_3f6f15e26f84505c8ca865aa65ea910b.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/material",
+    "pattern": "A_Hero_Monica_{N}_gaise_new",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/material/A_Hero_Monica_01_gaise_new.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_material_3f6f15e26f84505c8ca865aa65ea910b.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/material",
+    "pattern": "A_Hero_Monica_{N}_new",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/material/A_Hero_Monica_01_new.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_material_3f6f15e26f84505c8ca865aa65ea910b.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/material",
+    "pattern": "A_Hero_Monica_{N}_PBR",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/material/A_Hero_Monica_01_PBR.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_material_3f6f15e26f84505c8ca865aa65ea910b.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/material",
+    "pattern": "A_Hero_Monica_{N}_PBR_gaise",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/material/A_Hero_Monica_01_PBR_gaise.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_material_3f6f15e26f84505c8ca865aa65ea910b.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/material",
+    "pattern": "A_Hero_Monica_{N}_PBR_gaise_zhanshi",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/material/A_Hero_Monica_01_PBR_gaise_zhanshi.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_material_3f6f15e26f84505c8ca865aa65ea910b.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/material",
+    "pattern": "A_Hero_Monica_{N}_PBR_zhanshi",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/material/A_Hero_Monica_01_PBR_zhanshi.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_material_3f6f15e26f84505c8ca865aa65ea910b.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/material",
+    "pattern": "skybox_monica",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/material/skybox_monica.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_material_3f6f15e26f84505c8ca865aa65ea910b.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/mesh",
+    "pattern": "A_Hero@Monica_Japan_{N}_skin",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/mesh/A_Hero@Monica_Japan_01_skin.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_mesh_830c19512edb0b95deab526e941f06df.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/mesh",
+    "pattern": "A_Hero@Monica_Japan_{N}_skin_hight",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/mesh/A_Hero@Monica_Japan_01_skin_hight.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_mesh_830c19512edb0b95deab526e941f06df.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/mesh",
+    "pattern": "A_Hero@Monica_{N}_skin",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/mesh/A_Hero@Monica_01_skin.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_mesh_830c19512edb0b95deab526e941f06df.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/mesh",
+    "pattern": "A_Hero@Monica_{N}_skin_hight",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/mesh/A_Hero@Monica_01_skin_hight.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_mesh_830c19512edb0b95deab526e941f06df.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/prefab",
+    "pattern": "A_Hero_Monica_mutong",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/prefab/A_Hero_Monica_mutong.prefab"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_prefab_8f0604cc888babf0bb2bc5fe482bdfc1.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/prefab",
+    "pattern": "A_Hero_Monica_mutong_gpu",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/prefab/A_Hero_Monica_mutong_gpu.prefab"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_prefab_8f0604cc888babf0bb2bc5fe482bdfc1.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/prefab",
+    "pattern": "A_Hero_Monica_{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/prefab/A_Hero_Monica_01.prefab"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_prefab_8f0604cc888babf0bb2bc5fe482bdfc1.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/prefab",
+    "pattern": "A_Hero_Monica_{N}_city",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/prefab/A_Hero_Monica_01_city.prefab"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_prefab_8f0604cc888babf0bb2bc5fe482bdfc1.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/prefab",
+    "pattern": "A_Hero_Monica_{N}_gaise",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/prefab/A_Hero_Monica_01_gaise.prefab"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_prefab_8f0604cc888babf0bb2bc5fe482bdfc1.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/prefab",
+    "pattern": "A_Hero_Monica_{N}_gaise_mutong",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/prefab/A_Hero_Monica_01_gaise_mutong.prefab"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_prefab_8f0604cc888babf0bb2bc5fe482bdfc1.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/prefab",
+    "pattern": "A_Hero_Monica_{N}_gaise_mutong_gpu",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/prefab/A_Hero_Monica_01_gaise_mutong_gpu.prefab"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_prefab_8f0604cc888babf0bb2bc5fe482bdfc1.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/prefab",
+    "pattern": "A_Hero_Monica_{N}_gaise_team",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/prefab/A_Hero_Monica_01_gaise_team.prefab"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_prefab_8f0604cc888babf0bb2bc5fe482bdfc1.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/prefab",
+    "pattern": "A_Hero_Monica_{N}_PBR",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/prefab/A_Hero_Monica_01_PBR.prefab"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_prefab_8f0604cc888babf0bb2bc5fe482bdfc1.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/prefab",
+    "pattern": "A_Hero_Monica_{N}_PBR_gaise",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/prefab/A_Hero_Monica_01_PBR_gaise.prefab"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_prefab_8f0604cc888babf0bb2bc5fe482bdfc1.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/prefab",
+    "pattern": "A_Hero_Monica_{N}_PBR_zhanshi",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/prefab/A_Hero_Monica_01_PBR_zhanshi.prefab"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_prefab_8f0604cc888babf0bb2bc5fe482bdfc1.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/prefab",
+    "pattern": "A_Hero_Monica_{N}_PBR_zhanshi_gaise",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/prefab/A_Hero_Monica_01_PBR_zhanshi_gaise.prefab"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_prefab_8f0604cc888babf0bb2bc5fe482bdfc1.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/prefab",
+    "pattern": "A_Hero_Monica_{N}_pve",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/prefab/A_Hero_Monica_01_pve.prefab"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_prefab_8f0604cc888babf0bb2bc5fe482bdfc1.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/prefab",
+    "pattern": "A_Hero_Monica_{N}_world",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/prefab/A_Hero_Monica_01_world.prefab"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_prefab_8f0604cc888babf0bb2bc5fe482bdfc1.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/prefab",
+    "pattern": "Hero_Monica_{N}_camera",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/prefab/Hero_Monica_01_camera.prefab"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_prefab_8f0604cc888babf0bb2bc5fe482bdfc1.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/texture",
+    "pattern": "A_Hero_Monica_motorcycle_D",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/texture/A_Hero_Monica_motorcycle_D.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_texture_7671c2c0b5179afaef59bd9f5097fdb2.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/texture",
+    "pattern": "A_Hero_Monica_motorcycle_D_gaise",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/texture/A_Hero_Monica_motorcycle_D_gaise.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_texture_7671c2c0b5179afaef59bd9f5097fdb2.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/texture",
+    "pattern": "A_Hero_Monica_motorcycle_g_N",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/texture/A_Hero_Monica_motorcycle_g_N.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_texture_7671c2c0b5179afaef59bd9f5097fdb2.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/texture",
+    "pattern": "A_Hero_Monica_motorcycle_N",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/texture/A_Hero_Monica_motorcycle_N.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_texture_7671c2c0b5179afaef59bd9f5097fdb2.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/texture",
+    "pattern": "A_Hero_Monica_motorcycle_S",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/texture/A_Hero_Monica_motorcycle_S.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_texture_7671c2c0b5179afaef59bd9f5097fdb2.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/texture",
+    "pattern": "A_Hero_Monica_motorcycle_S_gai",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/texture/A_Hero_Monica_motorcycle_S_gai.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_texture_7671c2c0b5179afaef59bd9f5097fdb2.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/texture",
+    "pattern": "A_Hero_Monica_{N}_D",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/texture/A_Hero_Monica_01_D.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_texture_7671c2c0b5179afaef59bd9f5097fdb2.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/texture",
+    "pattern": "A_Hero_Monica_{N}_D_gai",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/texture/A_Hero_Monica_01_D_gai.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_texture_7671c2c0b5179afaef59bd9f5097fdb2.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/texture/PBR",
+    "pattern": "A_Hero_Monica _D",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/texture/PBR/A_Hero_Monica _D.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_texture_pbr_068c67d04af4be5e5b89092c62c03252.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/texture/PBR",
+    "pattern": "A_Hero_Monica _D_gaise",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/texture/PBR/A_Hero_Monica _D_gaise.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_texture_pbr_068c67d04af4be5e5b89092c62c03252.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/texture/PBR",
+    "pattern": "A_Hero_Monica _E",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/texture/PBR/A_Hero_Monica _E.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_texture_pbr_068c67d04af4be5e5b89092c62c03252.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/texture/PBR",
+    "pattern": "A_Hero_Monica _N",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/texture/PBR/A_Hero_Monica _N.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_texture_pbr_068c67d04af4be5e5b89092c62c03252.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/texture/PBR",
+    "pattern": "A_Hero_Monica _S",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/texture/PBR/A_Hero_Monica _S.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_texture_pbr_068c67d04af4be5e5b89092c62c03252.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/texture/PBR",
+    "pattern": "A_Hero_Monica _S_gaise",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/texture/PBR/A_Hero_Monica _S_gaise.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_texture_pbr_068c67d04af4be5e5b89092c62c03252.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/texture/PBR",
+    "pattern": "A_Hero_Monica_motorcycle_D",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/texture/PBR/A_Hero_Monica_motorcycle_D.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_texture_pbr_068c67d04af4be5e5b89092c62c03252.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/texture/PBR",
+    "pattern": "A_Hero_Monica_motorcycle_japan_D",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/texture/PBR/A_Hero_Monica_motorcycle_japan_D.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_texture_pbr_068c67d04af4be5e5b89092c62c03252.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/texture/PBR",
+    "pattern": "A_Hero_Monica_motorcycle_japan_N",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/texture/PBR/A_Hero_Monica_motorcycle_japan_N.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_texture_pbr_068c67d04af4be5e5b89092c62c03252.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/texture/PBR",
+    "pattern": "A_Hero_Monica_motorcycle_japan_S",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/texture/PBR/A_Hero_Monica_motorcycle_japan_S.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_texture_pbr_068c67d04af4be5e5b89092c62c03252.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/texture/PBR",
+    "pattern": "A_Hero_Monica_motorcycle_N",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/texture/PBR/A_Hero_Monica_motorcycle_N.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_texture_pbr_068c67d04af4be5e5b89092c62c03252.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/texture/PBR",
+    "pattern": "A_Hero_Monica_motorcycle_S",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Monica_01/texture/PBR/A_Hero_Monica_motorcycle_S.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_monica_01_texture_pbr_068c67d04af4be5e5b89092c62c03252.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/animation",
+    "pattern": "A_Hero@Morrison_{N}_attack",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/animation/A_Hero@Morrison_01_attack.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_morrison_01_animation_2c0d4f32b5bcc834732e60338b64a087.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/animation",
+    "pattern": "A_Hero@Morrison_{N}_attack_move",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/animation/A_Hero@Morrison_01_attack_move.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_morrison_01_animation_2c0d4f32b5bcc834732e60338b64a087.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/animation",
+    "pattern": "A_Hero@Morrison_{N}_attack_skll",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/animation/A_Hero@Morrison_01_attack_skll.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_morrison_01_animation_2c0d4f32b5bcc834732e60338b64a087.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/animation",
+    "pattern": "A_Hero@Morrison_{N}_camera",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/animation/A_Hero@Morrison_01_camera.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_morrison_01_animation_2c0d4f32b5bcc834732e60338b64a087.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/animation",
+    "pattern": "A_Hero@Morrison_{N}_dead",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/animation/A_Hero@Morrison_01_dead.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_morrison_01_animation_2c0d4f32b5bcc834732e60338b64a087.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/animation",
+    "pattern": "A_Hero@Morrison_{N}_hit",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/animation/A_Hero@Morrison_01_hit.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_morrison_01_animation_2c0d4f32b5bcc834732e60338b64a087.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/animation",
+    "pattern": "A_Hero@Morrison_{N}_idle",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/animation/A_Hero@Morrison_01_idle.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_morrison_01_animation_2c0d4f32b5bcc834732e60338b64a087.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/animation",
+    "pattern": "A_Hero@Morrison_{N}_show",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/animation/A_Hero@Morrison_01_show.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_morrison_01_animation_2c0d4f32b5bcc834732e60338b64a087.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/animation",
+    "pattern": "A_Hero@Morrison_{N}_show_idle",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/animation/A_Hero@Morrison_01_show_idle.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_morrison_01_animation_2c0d4f32b5bcc834732e60338b64a087.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/animation",
+    "pattern": "A_Hero@Morrison_{N}_walk",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/animation/A_Hero@Morrison_01_walk.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_morrison_01_animation_2c0d4f32b5bcc834732e60338b64a087.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/animator",
+    "pattern": "A_Hero_Morrison_{N}_Timeline",
+    "ext": ".playable",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/animator/A_Hero_Morrison_01_Timeline.playable"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_morrison_01_animator_9e3080a201fcef435aad4b723778c586.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/animator",
+    "pattern": "morrison{N}_preview",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/animator/morrison01_preview.controller"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_morrison_01_animator_9e3080a201fcef435aad4b723778c586.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/material",
+    "pattern": "A_Hero_Morrison{N}",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/material/A_Hero_Morrison01.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_morrison_01_material_736a8d8224f111b5f607f2acc57ebb63.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/material",
+    "pattern": "A_Hero_Morrison{N}_light",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/material/A_Hero_Morrison01_light.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_morrison_01_material_736a8d8224f111b5f607f2acc57ebb63.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/material",
+    "pattern": "A_Hero_Morrison{N}_new",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/material/A_Hero_Morrison01_new.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_morrison_01_material_736a8d8224f111b5f607f2acc57ebb63.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/material",
+    "pattern": "A_Hero_Morrison{N}_PBR",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/material/A_Hero_Morrison01_PBR.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_morrison_01_material_736a8d8224f111b5f607f2acc57ebb63.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/material",
+    "pattern": "A_Hero_Morrison{N}_PBR_zhanshi",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/material/A_Hero_Morrison01_PBR_zhanshi.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_morrison_01_material_736a8d8224f111b5f607f2acc57ebb63.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/material",
+    "pattern": "skybox_morrison{N}",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/material/skybox_morrison01.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_morrison_01_material_736a8d8224f111b5f607f2acc57ebb63.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/mesh",
+    "pattern": "A_Hero@Morrison_{N}_skin",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/mesh/A_Hero@Morrison_01_skin.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_morrison_01_mesh_91b1217f540300221e42aee55b08f5ad.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/mesh",
+    "pattern": "A_Hero@Morrison_{N}_skin_high",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/mesh/A_Hero@Morrison_01_skin_high.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_morrison_01_mesh_91b1217f540300221e42aee55b08f5ad.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/prefab",
+    "pattern": "A_Hero_Morrison_{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/prefab/A_Hero_Morrison_01.prefab"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_morrison_01_prefab_fd64fe37a3eb595999fff7f2c99bbf88.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/prefab",
+    "pattern": "A_Hero_Morrison_{N}_city",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/prefab/A_Hero_Morrison_01_city.prefab"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_morrison_01_prefab_fd64fe37a3eb595999fff7f2c99bbf88.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/prefab",
+    "pattern": "A_Hero_Morrison_{N}_PBR",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/prefab/A_Hero_Morrison_01_PBR.prefab"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_morrison_01_prefab_fd64fe37a3eb595999fff7f2c99bbf88.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/prefab",
+    "pattern": "A_Hero_Morrison_{N}_PBR_zhanshi",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/prefab/A_Hero_Morrison_01_PBR_zhanshi.prefab"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_morrison_01_prefab_fd64fe37a3eb595999fff7f2c99bbf88.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/prefab",
+    "pattern": "A_Hero_Morrison_{N}_pve_battle",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/prefab/A_Hero_Morrison_01_pve_battle.prefab"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_morrison_01_prefab_fd64fe37a3eb595999fff7f2c99bbf88.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/prefab",
+    "pattern": "A_Hero_Morrison_{N}_world",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/prefab/A_Hero_Morrison_01_world.prefab"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_morrison_01_prefab_fd64fe37a3eb595999fff7f2c99bbf88.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/prefab",
+    "pattern": "Hero_Morrison_{N}_camera",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/prefab/Hero_Morrison_01_camera.prefab"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_morrison_01_prefab_fd64fe37a3eb595999fff7f2c99bbf88.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/prefab",
+    "pattern": "Hero_Morrison_{N}_Timeline",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/prefab/Hero_Morrison_01_Timeline.prefab"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_morrison_01_prefab_fd64fe37a3eb595999fff7f2c99bbf88.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/texture",
+    "pattern": "A_Hero_Morrison{N}_D",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/texture/A_Hero_Morrison01_D.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_morrison_01_texture_ae06676c343e83ddaaba732173310d1c.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/texture",
+    "pattern": "A_Hero_Morrison{N}_N",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/texture/A_Hero_Morrison01_N.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_morrison_01_texture_ae06676c343e83ddaaba732173310d1c.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/texture",
+    "pattern": "A_Hero_Morrison{N}_S",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/texture/A_Hero_Morrison01_S.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_morrison_01_texture_ae06676c343e83ddaaba732173310d1c.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/texture/PBR",
+    "pattern": "A_Hero_Morrison{N}_D",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/texture/PBR/A_Hero_Morrison01_D.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_morrison_01_texture_pbr_e2bfd7021a0246aa271255005ce90e1c.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/texture/PBR",
+    "pattern": "A_Hero_Morrison{N}_N",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/texture/PBR/A_Hero_Morrison01_N.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_morrison_01_texture_pbr_e2bfd7021a0246aa271255005ce90e1c.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/texture/PBR",
+    "pattern": "A_Hero_Morrison{N}_S",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Morrison_01/texture/PBR/A_Hero_Morrison01_S.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_morrison_01_texture_pbr_e2bfd7021a0246aa271255005ce90e1c.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/animation",
+    "pattern": "A_Hero@Nimitz_{N}_ walk",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/animation/A_Hero@Nimitz_01_ walk.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_nimitz_01_animation_fbf9820a7b08d7b97b427195da3a9288.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/animation",
+    "pattern": "A_Hero@Nimitz_{N}_attack",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/animation/A_Hero@Nimitz_01_attack.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_nimitz_01_animation_fbf9820a7b08d7b97b427195da3a9288.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/animation",
+    "pattern": "A_Hero@Nimitz_{N}_attack _move",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/animation/A_Hero@Nimitz_01_attack _move.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_nimitz_01_animation_fbf9820a7b08d7b97b427195da3a9288.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/animation",
+    "pattern": "A_Hero@Nimitz_{N}_attack_skll",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/animation/A_Hero@Nimitz_01_attack_skll.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_nimitz_01_animation_fbf9820a7b08d7b97b427195da3a9288.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/animation",
+    "pattern": "A_Hero@Nimitz_{N}_camera",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/animation/A_Hero@Nimitz_01_camera.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_nimitz_01_animation_fbf9820a7b08d7b97b427195da3a9288.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/animation",
+    "pattern": "A_Hero@Nimitz_{N}_dead",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/animation/A_Hero@Nimitz_01_dead.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_nimitz_01_animation_fbf9820a7b08d7b97b427195da3a9288.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/animation",
+    "pattern": "A_Hero@Nimitz_{N}_hit",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/animation/A_Hero@Nimitz_01_hit.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_nimitz_01_animation_fbf9820a7b08d7b97b427195da3a9288.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/animation",
+    "pattern": "A_Hero@Nimitz_{N}_idle",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/animation/A_Hero@Nimitz_01_idle.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_nimitz_01_animation_fbf9820a7b08d7b97b427195da3a9288.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/animation",
+    "pattern": "A_Hero@Nimitz_{N}_show",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/animation/A_Hero@Nimitz_01_show.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_nimitz_01_animation_fbf9820a7b08d7b97b427195da3a9288.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/animation",
+    "pattern": "A_Hero@Nimitz_{N}_show_idle",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/animation/A_Hero@Nimitz_01_show_idle.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_nimitz_01_animation_fbf9820a7b08d7b97b427195da3a9288.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/animator",
+    "pattern": "A_Hero_Nimitz_{N}_Timeline",
+    "ext": ".playable",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/animator/A_Hero_Nimitz_01_Timeline.playable"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_nimitz_01_animator_fa6bc2bc2956615d2b084b5e01b800c7.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/animator",
+    "pattern": "nimitz{N}_preview",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/animator/nimitz01_preview.controller"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_nimitz_01_animator_fa6bc2bc2956615d2b084b5e01b800c7.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/material",
+    "pattern": "A_Hero_Nimitz_chedeng_{N}",
+    "ext": ".mat",
+    "count": 2,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/material/A_Hero_Nimitz_chedeng_01.mat",
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/material/A_Hero_Nimitz_chedeng_02.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_nimitz_01_material_02ff8b65c3f803dd6866e956512e1399.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/material",
+    "pattern": "A_Hero_Nimitz_lvdai_{N}",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/material/A_Hero_Nimitz_lvdai_01.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_nimitz_01_material_02ff8b65c3f803dd6866e956512e1399.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/material",
+    "pattern": "A_Hero_Nimitz_lvdai_{N}_new",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/material/A_Hero_Nimitz_lvdai_01_new.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_nimitz_01_material_02ff8b65c3f803dd6866e956512e1399.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/material",
+    "pattern": "A_Hero_Nimitz_lvdai_{N}_PBR",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/material/A_Hero_Nimitz_lvdai_01_PBR.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_nimitz_01_material_02ff8b65c3f803dd6866e956512e1399.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/material",
+    "pattern": "A_Hero_Nimitz_lvdai_{N}_PBR_zhanshi",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/material/A_Hero_Nimitz_lvdai_01_PBR_zhanshi.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_nimitz_01_material_02ff8b65c3f803dd6866e956512e1399.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/material",
+    "pattern": "A_Hero_Nimitz_{N}",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/material/A_Hero_Nimitz_01.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_nimitz_01_material_02ff8b65c3f803dd6866e956512e1399.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/material",
+    "pattern": "A_Hero_Nimitz_{N}_new",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/material/A_Hero_Nimitz_01_new.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_nimitz_01_material_02ff8b65c3f803dd6866e956512e1399.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/material",
+    "pattern": "A_Hero_Nimitz_{N}_PBR",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/material/A_Hero_Nimitz_01_PBR.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_nimitz_01_material_02ff8b65c3f803dd6866e956512e1399.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/material",
+    "pattern": "A_Hero_Nimitz_{N}_PBR_zhanshi",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/material/A_Hero_Nimitz_01_PBR_zhanshi.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_nimitz_01_material_02ff8b65c3f803dd6866e956512e1399.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/material",
+    "pattern": "A_Hero_Nimitz_{N}_shadow",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/material/A_Hero_Nimitz_01_shadow.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_nimitz_01_material_02ff8b65c3f803dd6866e956512e1399.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/material",
+    "pattern": "shadow_show_nimitz",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/material/shadow_show_nimitz.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_nimitz_01_material_02ff8b65c3f803dd6866e956512e1399.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/material",
+    "pattern": "skybox_Nimitz",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/material/skybox_Nimitz.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_nimitz_01_material_02ff8b65c3f803dd6866e956512e1399.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/mesh",
+    "pattern": "A_Hero@Nimitz_{N}_low_skin",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/mesh/A_Hero@Nimitz_01_low_skin.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_nimitz_01_mesh_024864184c44152a6120fe7789a07201.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/mesh",
+    "pattern": "A_Hero@Nimitz_{N}_skin",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/mesh/A_Hero@Nimitz_01_skin.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_nimitz_01_mesh_024864184c44152a6120fe7789a07201.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/mesh",
+    "pattern": "A_Hero_Nimitz_{N}",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/mesh/A_Hero_Nimitz_01.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_nimitz_01_mesh_024864184c44152a6120fe7789a07201.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/mesh",
+    "pattern": "A_Hero_Nimitz_{N}_High",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/mesh/A_Hero_Nimitz_01_High.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_nimitz_01_mesh_024864184c44152a6120fe7789a07201.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/mesh",
+    "pattern": "A_Hero_Nimitz_{N}_shadow",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/mesh/A_Hero_Nimitz_01_shadow.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_nimitz_01_mesh_024864184c44152a6120fe7789a07201.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/prefab",
+    "pattern": "A_Hero_Nimitz_{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/prefab/A_Hero_Nimitz_01.prefab"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_nimitz_01_prefab_a24073a85bf0aacfa4eebcd545419615.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/prefab",
+    "pattern": "A_Hero_Nimitz_{N}_battle",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/prefab/A_Hero_Nimitz_01_battle.prefab"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_nimitz_01_prefab_a24073a85bf0aacfa4eebcd545419615.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/prefab",
+    "pattern": "A_Hero_Nimitz_{N}_city_hero",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/prefab/A_Hero_Nimitz_01_city_hero.prefab"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_nimitz_01_prefab_a24073a85bf0aacfa4eebcd545419615.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/prefab",
+    "pattern": "A_Hero_Nimitz_{N}_PBR",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/prefab/A_Hero_Nimitz_01_PBR.prefab"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_nimitz_01_prefab_a24073a85bf0aacfa4eebcd545419615.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/prefab",
+    "pattern": "A_Hero_Nimitz_{N}_PBR_zhanshi",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/prefab/A_Hero_Nimitz_01_PBR_zhanshi.prefab"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_nimitz_01_prefab_a24073a85bf0aacfa4eebcd545419615.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/prefab",
+    "pattern": "A_Hero_Nimitz_{N}_pve_battle",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/prefab/A_Hero_Nimitz_01_pve_battle.prefab"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_nimitz_01_prefab_a24073a85bf0aacfa4eebcd545419615.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/prefab",
+    "pattern": "A_Hero_Nimitz_{N}_world",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/prefab/A_Hero_Nimitz_01_world.prefab"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_nimitz_01_prefab_a24073a85bf0aacfa4eebcd545419615.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/prefab",
+    "pattern": "Hero_Nimitz_{N}_camera",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/prefab/Hero_Nimitz_01_camera.prefab"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_nimitz_01_prefab_a24073a85bf0aacfa4eebcd545419615.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/prefab",
+    "pattern": "Hero_Nimitz_{N}_Timeline",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/prefab/Hero_Nimitz_01_Timeline.prefab"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_nimitz_01_prefab_a24073a85bf0aacfa4eebcd545419615.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/texture",
+    "pattern": "A_Hero_Nimitz_lvdai_{N}_D",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/texture/A_Hero_Nimitz_lvdai_01_D.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_nimitz_01_texture_d6d9781c3e234b2241f6ae5055c9a085.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/texture",
+    "pattern": "A_Hero_Nimitz_lvdai_{N}_N",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/texture/A_Hero_Nimitz_lvdai_01_N.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_nimitz_01_texture_d6d9781c3e234b2241f6ae5055c9a085.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/texture",
+    "pattern": "A_Hero_Nimitz_lvdai_{N}_S",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/texture/A_Hero_Nimitz_lvdai_01_S.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_nimitz_01_texture_d6d9781c3e234b2241f6ae5055c9a085.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/texture",
+    "pattern": "A_Hero_Nimitz_{N}_D",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/texture/A_Hero_Nimitz_01_D.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_nimitz_01_texture_d6d9781c3e234b2241f6ae5055c9a085.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/texture",
+    "pattern": "A_Hero_Nimitz_{N}_M",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/texture/A_Hero_Nimitz_01_M.png"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_nimitz_01_texture_d6d9781c3e234b2241f6ae5055c9a085.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/texture",
+    "pattern": "A_Hero_Nimitz_{N}_N",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/texture/A_Hero_Nimitz_01_N.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_nimitz_01_texture_d6d9781c3e234b2241f6ae5055c9a085.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/texture",
+    "pattern": "A_Hero_Nimitz_{N}_S",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/texture/A_Hero_Nimitz_01_S.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_nimitz_01_texture_d6d9781c3e234b2241f6ae5055c9a085.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/texture/PBR",
+    "pattern": "A_Hero_Nimitz_lvdai_{N}_High_D",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/texture/PBR/A_Hero_Nimitz_lvdai_01_High_D.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_nimitz_01_texture_pbr_7ca92e17f0cc055d2fdf1cb530669596.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/texture/PBR",
+    "pattern": "A_Hero_Nimitz_lvdai_{N}_High_N",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/texture/PBR/A_Hero_Nimitz_lvdai_01_High_N.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_nimitz_01_texture_pbr_7ca92e17f0cc055d2fdf1cb530669596.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/texture/PBR",
+    "pattern": "A_Hero_Nimitz_lvdai_{N}_High_S",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/texture/PBR/A_Hero_Nimitz_lvdai_01_High_S.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_nimitz_01_texture_pbr_7ca92e17f0cc055d2fdf1cb530669596.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/texture/PBR",
+    "pattern": "A_Hero_Nimitz_{N}_High_D",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/texture/PBR/A_Hero_Nimitz_01_High_D.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_nimitz_01_texture_pbr_7ca92e17f0cc055d2fdf1cb530669596.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/texture/PBR",
+    "pattern": "A_Hero_Nimitz_{N}_High_N",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/texture/PBR/A_Hero_Nimitz_01_High_N.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_nimitz_01_texture_pbr_7ca92e17f0cc055d2fdf1cb530669596.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/texture/PBR",
+    "pattern": "A_Hero_Nimitz_{N}_High_S",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Nimitz_01/texture/PBR/A_Hero_Nimitz_01_High_S.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_nimitz_01_texture_pbr_7ca92e17f0cc055d2fdf1cb530669596.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/animation",
+    "pattern": "A_Hero@Revenger{N}_attack",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/animation/A_Hero@Revenger01_attack.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_revenger_01_animation_e1292ce08bcaa0dc4be4ecdfe43aa55b.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/animation",
+    "pattern": "A_Hero@Revenger{N}_attack_move",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/animation/A_Hero@Revenger01_attack_move.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_revenger_01_animation_e1292ce08bcaa0dc4be4ecdfe43aa55b.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/animation",
+    "pattern": "A_Hero@Revenger{N}_attack_skll",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/animation/A_Hero@Revenger01_attack_skll.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_revenger_01_animation_e1292ce08bcaa0dc4be4ecdfe43aa55b.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/animation",
+    "pattern": "A_Hero@Revenger{N}_camera",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/animation/A_Hero@Revenger01_camera.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_revenger_01_animation_e1292ce08bcaa0dc4be4ecdfe43aa55b.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/animation",
+    "pattern": "A_Hero@Revenger{N}_dead",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/animation/A_Hero@Revenger01_dead.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_revenger_01_animation_e1292ce08bcaa0dc4be4ecdfe43aa55b.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/animation",
+    "pattern": "A_Hero@Revenger{N}_hit",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/animation/A_Hero@Revenger01_hit.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_revenger_01_animation_e1292ce08bcaa0dc4be4ecdfe43aa55b.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/animation",
+    "pattern": "A_Hero@Revenger{N}_idle",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/animation/A_Hero@Revenger01_idle.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_revenger_01_animation_e1292ce08bcaa0dc4be4ecdfe43aa55b.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/animation",
+    "pattern": "A_Hero@Revenger{N}_show",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/animation/A_Hero@Revenger01_show.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_revenger_01_animation_e1292ce08bcaa0dc4be4ecdfe43aa55b.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/animation",
+    "pattern": "A_Hero@Revenger{N}_show_idle",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/animation/A_Hero@Revenger01_show_idle.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_revenger_01_animation_e1292ce08bcaa0dc4be4ecdfe43aa55b.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/animation",
+    "pattern": "A_Hero@Revenger{N}_walk",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/animation/A_Hero@Revenger01_walk.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_revenger_01_animation_e1292ce08bcaa0dc4be4ecdfe43aa55b.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/animator",
+    "pattern": "Hero_Revenger{N}_Timeline",
+    "ext": ".playable",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/animator/Hero_Revenger01_Timeline.playable"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_revenger_01_animator_34a4c31824b6dc0756719a595ee7d05a.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/animator",
+    "pattern": "Revenger{N}_preview",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/animator/Revenger01_preview.controller"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_revenger_01_animator_34a4c31824b6dc0756719a595ee7d05a.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/material",
+    "pattern": "A_Hero_Revenger_chedeng_{N}",
+    "ext": ".mat",
+    "count": 2,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/material/A_Hero_Revenger_chedeng_01.mat",
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/material/A_Hero_Revenger_chedeng_02.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_revenger_01_material_7bc983e19cf80e8ad7b608560a5636fa.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/material",
+    "pattern": "A_Hero_Revenger_{N}",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/material/A_Hero_Revenger_01.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_revenger_01_material_7bc983e19cf80e8ad7b608560a5636fa.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/material",
+    "pattern": "A_Hero_Revenger_{N}_batte_hero",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/material/A_Hero_Revenger_01_batte_hero.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_revenger_01_material_7bc983e19cf80e8ad7b608560a5636fa.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/material",
+    "pattern": "A_Hero_Revenger_{N}_bullet",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/material/A_Hero_Revenger_01_bullet.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_revenger_01_material_7bc983e19cf80e8ad7b608560a5636fa.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/material",
+    "pattern": "A_Hero_Revenger_{N}_bullet_PBR",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/material/A_Hero_Revenger_01_bullet_PBR.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_revenger_01_material_7bc983e19cf80e8ad7b608560a5636fa.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/material",
+    "pattern": "A_Hero_Revenger_{N}_bullet_PBR_zhanshi",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/material/A_Hero_Revenger_01_bullet_PBR_zhanshi.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_revenger_01_material_7bc983e19cf80e8ad7b608560a5636fa.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/material",
+    "pattern": "A_Hero_Revenger_{N}_new",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/material/A_Hero_Revenger_01_new.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_revenger_01_material_7bc983e19cf80e8ad7b608560a5636fa.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/material",
+    "pattern": "A_Hero_Revenger_{N}_PBR",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/material/A_Hero_Revenger_01_PBR.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_revenger_01_material_7bc983e19cf80e8ad7b608560a5636fa.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/material",
+    "pattern": "A_Hero_Revenger_{N}_PBR_zhanshi",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/material/A_Hero_Revenger_01_PBR_zhanshi.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_revenger_01_material_7bc983e19cf80e8ad7b608560a5636fa.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/material",
+    "pattern": "A_Hero_Revenger_{N}_shadow",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/material/A_Hero_Revenger_01_shadow.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_revenger_01_material_7bc983e19cf80e8ad7b608560a5636fa.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/material",
+    "pattern": "shadow_show_revenger",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/material/shadow_show_revenger.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_revenger_01_material_7bc983e19cf80e8ad7b608560a5636fa.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/material",
+    "pattern": "skybox",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/material/skybox.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_revenger_01_material_7bc983e19cf80e8ad7b608560a5636fa.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/mesh",
+    "pattern": "A_Hero@Revenger{N}_skin",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/mesh/A_Hero@Revenger01_skin.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_revenger_01_mesh_d5dc7613c4f5c81ff6a8e974d5a08be5.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/mesh",
+    "pattern": "A_Hero_Revenger_{N}",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/mesh/A_Hero_Revenger_01.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_revenger_01_mesh_d5dc7613c4f5c81ff6a8e974d5a08be5.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/mesh",
+    "pattern": "A_Hero_Revenger_{N}_bullet",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/mesh/A_Hero_Revenger_01_bullet.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_revenger_01_mesh_d5dc7613c4f5c81ff6a8e974d5a08be5.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/mesh",
+    "pattern": "A_Hero_Revenger_{N}_shadow",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/mesh/A_Hero_Revenger_01_shadow.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_revenger_01_mesh_d5dc7613c4f5c81ff6a8e974d5a08be5.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/prefab",
+    "pattern": "A_Hero_Revenger_{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/prefab/A_Hero_Revenger_01.prefab"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_revenger_01_prefab_8d36015754bf5f5df31a8287e15a6f0e.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/prefab",
+    "pattern": "A_Hero_Revenger_{N}_battle",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/prefab/A_Hero_Revenger_01_battle.prefab"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_revenger_01_prefab_8d36015754bf5f5df31a8287e15a6f0e.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/prefab",
+    "pattern": "A_Hero_Revenger_{N}_battle_hero",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/prefab/A_Hero_Revenger_01_battle_hero.prefab"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_revenger_01_prefab_8d36015754bf5f5df31a8287e15a6f0e.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/prefab",
+    "pattern": "A_Hero_Revenger_{N}_bullet",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/prefab/A_Hero_Revenger_01_bullet.prefab"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_revenger_01_prefab_8d36015754bf5f5df31a8287e15a6f0e.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/prefab",
+    "pattern": "A_Hero_Revenger_{N}_bullet_PBR",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/prefab/A_Hero_Revenger_01_bullet_PBR.prefab"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_revenger_01_prefab_8d36015754bf5f5df31a8287e15a6f0e.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/prefab",
+    "pattern": "A_Hero_Revenger_{N}_city_hero",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/prefab/A_Hero_Revenger_01_city_hero.prefab"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_revenger_01_prefab_8d36015754bf5f5df31a8287e15a6f0e.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/prefab",
+    "pattern": "A_Hero_Revenger_{N}_PBR",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/prefab/A_Hero_Revenger_01_PBR.prefab"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_revenger_01_prefab_8d36015754bf5f5df31a8287e15a6f0e.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/prefab",
+    "pattern": "A_Hero_Revenger_{N}_PBR_zhanshi",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/prefab/A_Hero_Revenger_01_PBR_zhanshi.prefab"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_revenger_01_prefab_8d36015754bf5f5df31a8287e15a6f0e.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/prefab",
+    "pattern": "A_Hero_Revenger_{N}_pve_battle",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/prefab/A_Hero_Revenger_01_pve_battle.prefab"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_revenger_01_prefab_8d36015754bf5f5df31a8287e15a6f0e.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/prefab",
+    "pattern": "A_Hero_Revenger_{N}_world",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/prefab/A_Hero_Revenger_01_world.prefab"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_revenger_01_prefab_8d36015754bf5f5df31a8287e15a6f0e.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/prefab",
+    "pattern": "Hero_Revenger{N}_camera",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/prefab/Hero_Revenger01_camera.prefab"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_revenger_01_prefab_8d36015754bf5f5df31a8287e15a6f0e.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/prefab",
+    "pattern": "Hero_Revenger{N}_Timeline",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/prefab/Hero_Revenger01_Timeline.prefab"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_revenger_01_prefab_8d36015754bf5f5df31a8287e15a6f0e.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/texture",
+    "pattern": "A_Hero_Revenger_{N}_bullet_D",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/texture/A_Hero_Revenger_01_bullet_D.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_revenger_01_texture_fe3ff3889d1f52416f59678e52cc501d.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/texture",
+    "pattern": "A_Hero_Revenger_{N}_bullet_N",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/texture/A_Hero_Revenger_01_bullet_N.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_revenger_01_texture_fe3ff3889d1f52416f59678e52cc501d.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/texture",
+    "pattern": "A_Hero_Revenger_{N}_bullet_S",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/texture/A_Hero_Revenger_01_bullet_S.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_revenger_01_texture_fe3ff3889d1f52416f59678e52cc501d.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/texture",
+    "pattern": "A_Hero_Revenger_{N}_D",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/texture/A_Hero_Revenger_01_D.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_revenger_01_texture_fe3ff3889d1f52416f59678e52cc501d.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/texture",
+    "pattern": "A_Hero_Revenger_{N}_M",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/texture/A_Hero_Revenger_01_M.png"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_revenger_01_texture_fe3ff3889d1f52416f59678e52cc501d.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/texture",
+    "pattern": "A_Hero_Revenger_{N}_N",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/texture/A_Hero_Revenger_01_N.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_revenger_01_texture_fe3ff3889d1f52416f59678e52cc501d.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/texture",
+    "pattern": "A_Hero_Revenger_{N}_S",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/texture/A_Hero_Revenger_01_S.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_revenger_01_texture_fe3ff3889d1f52416f59678e52cc501d.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/texture",
+    "pattern": "aircraft_workshop_{N}_{N}k",
+    "ext": ".exr",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/texture/aircraft_workshop_01_2k.exr"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_revenger_01_texture_fe3ff3889d1f52416f59678e52cc501d.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/texture",
+    "pattern": "Tomoco Studio",
+    "ext": ".exr",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/texture/Tomoco Studio.exr"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_revenger_01_texture_fe3ff3889d1f52416f59678e52cc501d.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/texture/PBR",
+    "pattern": "A_Hero_Revenger_{N}_bullet_D",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/texture/PBR/A_Hero_Revenger_01_bullet_D.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_revenger_01_texture_pbr_6c4357c456d2be3f321195101ea02a03.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/texture/PBR",
+    "pattern": "A_Hero_Revenger_{N}_bullet_N",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/texture/PBR/A_Hero_Revenger_01_bullet_N.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_revenger_01_texture_pbr_6c4357c456d2be3f321195101ea02a03.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/texture/PBR",
+    "pattern": "A_Hero_Revenger_{N}_bullet_S",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/texture/PBR/A_Hero_Revenger_01_bullet_S.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_revenger_01_texture_pbr_6c4357c456d2be3f321195101ea02a03.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/texture/PBR",
+    "pattern": "A_Hero_Revenger_{N}_D",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/texture/PBR/A_Hero_Revenger_01_D.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_revenger_01_texture_pbr_6c4357c456d2be3f321195101ea02a03.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/texture/PBR",
+    "pattern": "A_Hero_Revenger_{N}_N",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/texture/PBR/A_Hero_Revenger_01_N.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_revenger_01_texture_pbr_6c4357c456d2be3f321195101ea02a03.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/texture/PBR",
+    "pattern": "A_Hero_Revenger_{N}_S",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Revenger_01/texture/PBR/A_Hero_Revenger_01_S.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_revenger_01_texture_pbr_6c4357c456d2be3f321195101ea02a03.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/animation",
+    "pattern": "A_Hero@Richard_{N}_attack",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/animation/A_Hero@Richard_01_attack.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_richard_01_animation_7ce654ce37b3c891a67f406fda6e6404.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/animation",
+    "pattern": "A_Hero@Richard_{N}_attack_move",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/animation/A_Hero@Richard_01_attack_move.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_richard_01_animation_7ce654ce37b3c891a67f406fda6e6404.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/animation",
+    "pattern": "A_Hero@Richard_{N}_attack_skll",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/animation/A_Hero@Richard_01_attack_skll.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_richard_01_animation_7ce654ce37b3c891a67f406fda6e6404.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/animation",
+    "pattern": "A_Hero@Richard_{N}_camera",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/animation/A_Hero@Richard_01_camera.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_richard_01_animation_7ce654ce37b3c891a67f406fda6e6404.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/animation",
+    "pattern": "A_Hero@Richard_{N}_dead",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/animation/A_Hero@Richard_01_dead.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_richard_01_animation_7ce654ce37b3c891a67f406fda6e6404.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/animation",
+    "pattern": "A_Hero@Richard_{N}_hit",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/animation/A_Hero@Richard_01_hit.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_richard_01_animation_7ce654ce37b3c891a67f406fda6e6404.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/animation",
+    "pattern": "A_Hero@Richard_{N}_idle",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/animation/A_Hero@Richard_01_idle.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_richard_01_animation_7ce654ce37b3c891a67f406fda6e6404.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/animation",
+    "pattern": "A_Hero@Richard_{N}_show",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/animation/A_Hero@Richard_01_show.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_richard_01_animation_7ce654ce37b3c891a67f406fda6e6404.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/animation",
+    "pattern": "A_Hero@Richard_{N}_show_idle",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/animation/A_Hero@Richard_01_show_idle.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_richard_01_animation_7ce654ce37b3c891a67f406fda6e6404.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/animation",
+    "pattern": "A_Hero@Richard_{N}_walk",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/animation/A_Hero@Richard_01_walk.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_richard_01_animation_7ce654ce37b3c891a67f406fda6e6404.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/animator",
+    "pattern": "Hero_Richard_{N}_Timeline",
+    "ext": ".playable",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/animator/Hero_Richard_01_Timeline.playable"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_richard_01_animator_e2bb810cf540bf27e65d7ff671cbdda8.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/animator",
+    "pattern": "richard{N}_preview",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/animator/richard01_preview.controller"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_richard_01_animator_e2bb810cf540bf27e65d7ff671cbdda8.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/material",
+    "pattern": "A_Hero_Richard_chedeng_{N}",
+    "ext": ".mat",
+    "count": 2,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/material/A_Hero_Richard_chedeng_01.mat",
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/material/A_Hero_Richard_chedeng_02.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_richard_01_material_799fc42b7ccc7718c3fdb9a0a9f4ff54.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/material",
+    "pattern": "A_Hero_Richard_jingdeng_{N}",
+    "ext": ".mat",
+    "count": 2,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/material/A_Hero_Richard_jingdeng_01.mat",
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/material/A_Hero_Richard_jingdeng_02.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_richard_01_material_799fc42b7ccc7718c3fdb9a0a9f4ff54.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/material",
+    "pattern": "A_Hero_Richard_jingdeng_{N}_new",
+    "ext": ".mat",
+    "count": 2,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/material/A_Hero_Richard_jingdeng_01_new.mat",
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/material/A_Hero_Richard_jingdeng_02_new.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_richard_01_material_799fc42b7ccc7718c3fdb9a0a9f4ff54.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/material",
+    "pattern": "A_Hero_Richard_{N}",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/material/A_Hero_Richard_01.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_richard_01_material_799fc42b7ccc7718c3fdb9a0a9f4ff54.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/material",
+    "pattern": "A_Hero_Richard_{N}_daodan",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/material/A_Hero_Richard_01_daodan.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_richard_01_material_799fc42b7ccc7718c3fdb9a0a9f4ff54.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/material",
+    "pattern": "A_Hero_Richard_{N}_daodan_new",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/material/A_Hero_Richard_01_daodan_new.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_richard_01_material_799fc42b7ccc7718c3fdb9a0a9f4ff54.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/material",
+    "pattern": "A_Hero_Richard_{N}_daodan_PBR",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/material/A_Hero_Richard_01_daodan_PBR.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_richard_01_material_799fc42b7ccc7718c3fdb9a0a9f4ff54.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/material",
+    "pattern": "A_Hero_Richard_{N}_new",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/material/A_Hero_Richard_01_new.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_richard_01_material_799fc42b7ccc7718c3fdb9a0a9f4ff54.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/material",
+    "pattern": "A_Hero_Richard_{N}_PBR",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/material/A_Hero_Richard_01_PBR.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_richard_01_material_799fc42b7ccc7718c3fdb9a0a9f4ff54.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/material",
+    "pattern": "A_Hero_Richard_{N}_PBR_zhanshi",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/material/A_Hero_Richard_01_PBR_zhanshi.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_richard_01_material_799fc42b7ccc7718c3fdb9a0a9f4ff54.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/material",
+    "pattern": "skybox_richard",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/material/skybox_richard.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_richard_01_material_799fc42b7ccc7718c3fdb9a0a9f4ff54.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/mesh",
+    "pattern": "A_Hero@Richard_{N}_skin",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/mesh/A_Hero@Richard_01_skin.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_richard_01_mesh_ed7a9cdde4f05397ce4d48794b7d91fb.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/mesh",
+    "pattern": "A_Hero_Richard_{N}",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/mesh/A_Hero_Richard_01.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_richard_01_mesh_ed7a9cdde4f05397ce4d48794b7d91fb.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/prefab",
+    "pattern": "A_Hero_Richard_{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/prefab/A_Hero_Richard_01.prefab"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_richard_01_prefab_67cc252779bbb7c04916c3de80c83e99.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/prefab",
+    "pattern": "A_Hero_Richard_{N}_city_hero",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/prefab/A_Hero_Richard_01_city_hero.prefab"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_richard_01_prefab_67cc252779bbb7c04916c3de80c83e99.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/prefab",
+    "pattern": "A_Hero_Richard_{N}_PBR",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/prefab/A_Hero_Richard_01_PBR.prefab"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_richard_01_prefab_67cc252779bbb7c04916c3de80c83e99.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/prefab",
+    "pattern": "A_Hero_Richard_{N}_PBR_zhanshi",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/prefab/A_Hero_Richard_01_PBR_zhanshi.prefab"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_richard_01_prefab_67cc252779bbb7c04916c3de80c83e99.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/prefab",
+    "pattern": "A_Hero_Richard_{N}_pve_battle",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/prefab/A_Hero_Richard_01_pve_battle.prefab"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_richard_01_prefab_67cc252779bbb7c04916c3de80c83e99.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/prefab",
+    "pattern": "A_Hero_Richard_{N}_world",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/prefab/A_Hero_Richard_01_world.prefab"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_richard_01_prefab_67cc252779bbb7c04916c3de80c83e99.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/prefab",
+    "pattern": "Hero_Richard_{N}_camera",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/prefab/Hero_Richard_01_camera.prefab"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_richard_01_prefab_67cc252779bbb7c04916c3de80c83e99.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/prefab",
+    "pattern": "Hero_Richard_{N}_Timeline",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/prefab/Hero_Richard_01_Timeline.prefab"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_richard_01_prefab_67cc252779bbb7c04916c3de80c83e99.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/texture",
+    "pattern": "A_Hero_Richard_{N}_D",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/texture/A_Hero_Richard_01_D.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_richard_01_texture_f905669128f910f3aaa134eebb5c976e.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/texture",
+    "pattern": "A_Hero_Richard_{N}_daodan_N",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/texture/A_Hero_Richard_01_daodan_N.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_richard_01_texture_f905669128f910f3aaa134eebb5c976e.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/texture",
+    "pattern": "A_Hero_Richard_{N}_daodan_S",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/texture/A_Hero_Richard_01_daodan_S.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_richard_01_texture_f905669128f910f3aaa134eebb5c976e.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/texture",
+    "pattern": "A_Hero_Richard_{N}_N",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/texture/A_Hero_Richard_01_N.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_richard_01_texture_f905669128f910f3aaa134eebb5c976e.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/texture",
+    "pattern": "A_Hero_Richard_{N}_S",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/texture/A_Hero_Richard_01_S.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_richard_01_texture_f905669128f910f3aaa134eebb5c976e.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/texture/PBR",
+    "pattern": "A_Hero_Richard_{N}_D",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/texture/PBR/A_Hero_Richard_01_D.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_richard_01_texture_pbr_46f1df2e9332c38729c60c7aaef7a372.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/texture/PBR",
+    "pattern": "A_Hero_Richard_{N}_daodan_D",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/texture/PBR/A_Hero_Richard_01_daodan_D.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_richard_01_texture_pbr_46f1df2e9332c38729c60c7aaef7a372.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/texture/PBR",
+    "pattern": "A_Hero_Richard_{N}_daodan_N",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/texture/PBR/A_Hero_Richard_01_daodan_N.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_richard_01_texture_pbr_46f1df2e9332c38729c60c7aaef7a372.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/texture/PBR",
+    "pattern": "A_Hero_Richard_{N}_daodan_S",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/texture/PBR/A_Hero_Richard_01_daodan_S.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_richard_01_texture_pbr_46f1df2e9332c38729c60c7aaef7a372.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/texture/PBR",
+    "pattern": "A_Hero_Richard_{N}_N",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/texture/PBR/A_Hero_Richard_01_N.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_richard_01_texture_pbr_46f1df2e9332c38729c60c7aaef7a372.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/texture/PBR",
+    "pattern": "A_Hero_Richard_{N}_S",
+    "ext": ".tga",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Richard_01/texture/PBR/A_Hero_Richard_01_S.tga"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_richard_01_texture_pbr_46f1df2e9332c38729c60c7aaef7a372.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Rick_01/animation",
+    "pattern": "A_Hero@Rick_{N}_attack",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Rick_01/animation/A_Hero@Rick_01_attack.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_rick_01_animation_cce0c63e999b5d2fc6d90f2985173b8b.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Rick_01/animation",
+    "pattern": "A_Hero@Rick_{N}_attack_move",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Rick_01/animation/A_Hero@Rick_01_attack_move.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_rick_01_animation_cce0c63e999b5d2fc6d90f2985173b8b.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Rick_01/animation",
+    "pattern": "A_Hero@Rick_{N}_attack_skll",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Rick_01/animation/A_Hero@Rick_01_attack_skll.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_rick_01_animation_cce0c63e999b5d2fc6d90f2985173b8b.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Rick_01/animation",
+    "pattern": "A_Hero@Rick_{N}_camera",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Rick_01/animation/A_Hero@Rick_01_camera.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_rick_01_animation_cce0c63e999b5d2fc6d90f2985173b8b.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Rick_01/animation",
+    "pattern": "A_Hero@Rick_{N}_dead",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Rick_01/animation/A_Hero@Rick_01_dead.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_rick_01_animation_cce0c63e999b5d2fc6d90f2985173b8b.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Rick_01/animation",
+    "pattern": "A_Hero@Rick_{N}_hit",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Rick_01/animation/A_Hero@Rick_01_hit.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_rick_01_animation_cce0c63e999b5d2fc6d90f2985173b8b.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Rick_01/animation",
+    "pattern": "A_Hero@Rick_{N}_idle",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Rick_01/animation/A_Hero@Rick_01_idle.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_rick_01_animation_cce0c63e999b5d2fc6d90f2985173b8b.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Rick_01/animation",
+    "pattern": "A_Hero@Rick_{N}_show",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Rick_01/animation/A_Hero@Rick_01_show.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_rick_01_animation_cce0c63e999b5d2fc6d90f2985173b8b.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Rick_01/animation",
+    "pattern": "A_Hero@Rick_{N}_show_idle",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Rick_01/animation/A_Hero@Rick_01_show_idle.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_rick_01_animation_cce0c63e999b5d2fc6d90f2985173b8b.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Rick_01/animation",
+    "pattern": "A_Hero@Rick_{N}_walk",
+    "ext": ".fbx",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Rick_01/animation/A_Hero@Rick_01_walk.fbx"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_rick_01_animation_cce0c63e999b5d2fc6d90f2985173b8b.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json|formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Rick_01/animator",
+    "pattern": "A_Hero_Rick_{N}_Timeline",
+    "ext": ".playable",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Rick_01/animator/A_Hero_Rick_01_Timeline.playable"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_rick_01_animator_946c91ad5c16717c024ef4666f6be2b7.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Rick_01/animator",
+    "pattern": "A_Hero_Rick_{N}_Timeline {N}",
+    "ext": ".playable",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Rick_01/animator/A_Hero_Rick_01_Timeline 1.playable"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_rick_01_animator_946c91ad5c16717c024ef4666f6be2b7.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Rick_01/animator",
+    "pattern": "rick{N}_preview",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Rick_01/animator/rick01_preview.controller"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_rick_01_animator_946c91ad5c16717c024ef4666f6be2b7.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Rick_01/material",
+    "pattern": "A_Hero_Rick_lvdai_{N}",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Rick_01/material/A_Hero_Rick_lvdai_01.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_rick_01_material_b84d789719e32fd06b067053b66a089c.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Rick_01/material",
+    "pattern": "A_Hero_Rick_lvdai_{N}_new",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Rick_01/material/A_Hero_Rick_lvdai_01_new.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_rick_01_material_b84d789719e32fd06b067053b66a089c.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Rick_01/material",
+    "pattern": "A_Hero_Rick_{N}",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Rick_01/material/A_Hero_Rick_01.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_rick_01_material_b84d789719e32fd06b067053b66a089c.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Rick_01/material",
+    "pattern": "A_Hero_Rick_{N}_bullet",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Rick_01/material/A_Hero_Rick_01_bullet.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_rick_01_material_b84d789719e32fd06b067053b66a089c.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Rick_01/material",
+    "pattern": "A_Hero_Rick_{N}_bullet_PBR",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Rick_01/material/A_Hero_Rick_01_bullet_PBR.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_rick_01_material_b84d789719e32fd06b067053b66a089c.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Rick_01/material",
+    "pattern": "A_Hero_Rick_{N}_bullet_PBR_zhanshi",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Rick_01/material/A_Hero_Rick_01_bullet_PBR_zhanshi.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_rick_01_material_b84d789719e32fd06b067053b66a089c.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Rick_01/material",
+    "pattern": "A_Hero_Rick_{N}_lvdai_PBR",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Rick_01/material/A_Hero_Rick_01_lvdai_PBR.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_rick_01_material_b84d789719e32fd06b067053b66a089c.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Rick_01/material",
+    "pattern": "A_Hero_Rick_{N}_lvdai_PBR_zhanshi",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Rick_01/material/A_Hero_Rick_01_lvdai_PBR_zhanshi.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_rick_01_material_b84d789719e32fd06b067053b66a089c.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Rick_01/material",
+    "pattern": "A_Hero_Rick_{N}_new",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Rick_01/material/A_Hero_Rick_01_new.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_rick_01_material_b84d789719e32fd06b067053b66a089c.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Rick_01/material",
+    "pattern": "A_Hero_Rick_{N}_PBR",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Rick_01/material/A_Hero_Rick_01_PBR.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_rick_01_material_b84d789719e32fd06b067053b66a089c.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Rick_01/material",
+    "pattern": "A_Hero_Rick_{N}_PBR_zhanshi",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Rick_01/material/A_Hero_Rick_01_PBR_zhanshi.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_rick_01_material_b84d789719e32fd06b067053b66a089c.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json"
+    ]
+  },
+  {
+    "parent": "Assets/_Art_LastWar/Models/Cars/A_Hero_Rick_01/material",
+    "pattern": "A_Hero_Rick_{N}_shadow",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/_Art_LastWar/Models/Cars/A_Hero_Rick_01/material/A_Hero_Rick_01_shadow.mat"
+    ],
+    "logicalNames": [
+      "gameres_art_dir_cars_a_hero_rick_01_material_b84d789719e32fd06b067053b66a089c.bundle"
+    ],
+    "evidenceFiles": [
+      "current15-exact-bundle-stage.json|formation-authoritative-bundle-map-31.json"
+    ]
+  }
+]

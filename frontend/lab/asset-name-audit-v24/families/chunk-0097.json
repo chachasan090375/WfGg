@@ -1,0 +1,5030 @@
+[
+  {
+    "parent": "Assets/Main/Prefabs/LWCountBattle/Units",
+    "pattern": "O_env_xiaoche_{N}_cm",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCountBattle/Units/O_env_xiaoche_02_cm.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcountbattle_units_ff77aa557f680396c2560d6f3ab42f29.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCountBattle/Units",
+    "pattern": "SoilderUnit",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCountBattle/Units/SoilderUnit.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcountbattle_units_ff77aa557f680396c2560d6f3ab42f29.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCountBattle/Units",
+    "pattern": "SoilderUnit_new",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCountBattle/Units/SoilderUnit_new.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcountbattle_units_ff77aa557f680396c2560d6f3ab42f29.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCountBattle/Units",
+    "pattern": "SoilderUnit_rl",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCountBattle/Units/SoilderUnit_rl.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcountbattle_units_ff77aa557f680396c2560d6f3ab42f29.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCountBattle/Units",
+    "pattern": "ZombieUnit",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCountBattle/Units/ZombieUnit.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcountbattle_units_ff77aa557f680396c2560d6f3ab42f29.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWGateDefence",
+    "pattern": "BigZombie{N}",
+    "ext": ".prefab",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Prefabs/LWGateDefence/BigZombie1.prefab",
+      "Assets/Main/Prefabs/LWGateDefence/BigZombie2.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwgatedefence_73570af961d04cad030d8f4633ddfa56.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWGateDefence",
+    "pattern": "Bullet",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWGateDefence/Bullet.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwgatedefence_73570af961d04cad030d8f4633ddfa56.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWGateDefence",
+    "pattern": "Explosion{N}",
+    "ext": ".prefab",
+    "count": 4,
+    "examples": [
+      "Assets/Main/Prefabs/LWGateDefence/Explosion1.prefab",
+      "Assets/Main/Prefabs/LWGateDefence/Explosion2.prefab",
+      "Assets/Main/Prefabs/LWGateDefence/Explosion3.prefab",
+      "Assets/Main/Prefabs/LWGateDefence/Explosion4.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwgatedefence_73570af961d04cad030d8f4633ddfa56.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWGateDefence",
+    "pattern": "GoodsFood",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWGateDefence/GoodsFood.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwgatedefence_73570af961d04cad030d8f4633ddfa56.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWGateDefence",
+    "pattern": "GoodsGold",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWGateDefence/GoodsGold.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwgatedefence_73570af961d04cad030d8f4633ddfa56.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWGateDefence",
+    "pattern": "GoodsIron",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWGateDefence/GoodsIron.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwgatedefence_73570af961d04cad030d8f4633ddfa56.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWGateDefence",
+    "pattern": "Huoche_manzai",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWGateDefence/Huoche_manzai.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwgatedefence_73570af961d04cad030d8f4633ddfa56.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWGateDefence",
+    "pattern": "Huochejinbi",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWGateDefence/Huochejinbi.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwgatedefence_73570af961d04cad030d8f4633ddfa56.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWGateDefence",
+    "pattern": "TruckGoodsGroup",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWGateDefence/TruckGoodsGroup.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwgatedefence_73570af961d04cad030d8f4633ddfa56.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWGateDefence",
+    "pattern": "Zombie{N}",
+    "ext": ".prefab",
+    "count": 3,
+    "examples": [
+      "Assets/Main/Prefabs/LWGateDefence/Zombie1.prefab",
+      "Assets/Main/Prefabs/LWGateDefence/Zombie2.prefab",
+      "Assets/Main/Prefabs/LWGateDefence/Zombie3.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwgatedefence_73570af961d04cad030d8f4633ddfa56.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWGateDefence",
+    "pattern": "Zombie{N}_ragdoll",
+    "ext": ".prefab",
+    "count": 3,
+    "examples": [
+      "Assets/Main/Prefabs/LWGateDefence/Zombie1_ragdoll.prefab",
+      "Assets/Main/Prefabs/LWGateDefence/Zombie2_ragdoll.prefab",
+      "Assets/Main/Prefabs/LWGateDefence/Zombie3_ragdoll.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwgatedefence_73570af961d04cad030d8f4633ddfa56.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWGuide/NPC",
+    "pattern": "Soldier",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWGuide/NPC/Soldier.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwguide_npc_c6febfb74cc7a64c3755c50480ba01c5.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWGuide/TimeLinePerfabs",
+    "pattern": "JapanMonica_wuzhuanshengji_{N}_timeline",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWGuide/TimeLinePerfabs/JapanMonica_wuzhuanshengji_01_timeline.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwguide_timelineperfabs_613bcb819bcce4a73b1506b378b83fd1.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWGuide/TimeLinePerfabs",
+    "pattern": "kaichangdonghua_qiao",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWGuide/TimeLinePerfabs/kaichangdonghua_qiao.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwguide_timelineperfabs_613bcb819bcce4a73b1506b378b83fd1.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWGuide/TimeLinePerfabs",
+    "pattern": "kaichangdonghua_tiaosan_qiao_new",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWGuide/TimeLinePerfabs/kaichangdonghua_tiaosan_qiao_new.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwguide_timelineperfabs_613bcb819bcce4a73b1506b378b83fd1.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWGuide/TimeLinePerfabs",
+    "pattern": "monica_wuzhuanshengji_{N}_timeline",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWGuide/TimeLinePerfabs/monica_wuzhuanshengji_01_timeline.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwguide_timelineperfabs_613bcb819bcce4a73b1506b378b83fd1.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWGuide/TimeLinePerfabs",
+    "pattern": "transportcar_Timeline",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWGuide/TimeLinePerfabs/transportcar_Timeline.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwguide_timelineperfabs_613bcb819bcce4a73b1506b378b83fd1.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWGuide/TimeLinePerfabs",
+    "pattern": "zhishengjifanhui_Timeline",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWGuide/TimeLinePerfabs/zhishengjifanhui_Timeline.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwguide_timelineperfabs_613bcb819bcce4a73b1506b378b83fd1.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWGuide/TimeLinePrefabsOld",
+    "pattern": "shibingkongtou_Timeline",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWGuide/TimeLinePrefabsOld/shibingkongtou_Timeline.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwguide_timelineprefabsold_2_e422267eff1b34ab4863553430957d35.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWHummerScene",
+    "pattern": "A_Monster_dazhuang",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWHummerScene/A_Monster_dazhuang.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwhummerscene_3e6f24571e69f86c07c5ac32ea3635a1.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWHummerScene",
+    "pattern": "A_Monster_gou",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWHummerScene/A_Monster_gou.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwhummerscene_3e6f24571e69f86c07c5ac32ea3635a1.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWHummerScene",
+    "pattern": "A_Monster_luzhang",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWHummerScene/A_Monster_luzhang.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwhummerscene_3e6f24571e69f86c07c5ac32ea3635a1.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWHummerScene",
+    "pattern": "A_Monster_tietou",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWHummerScene/A_Monster_tietou.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwhummerscene_3e6f24571e69f86c07c5ac32ea3635a1.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWHummerScene",
+    "pattern": "A_Monster_tufu",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWHummerScene/A_Monster_tufu.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwhummerscene_3e6f24571e69f86c07c5ac32ea3635a1.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWHummerScene",
+    "pattern": "HummerSceneAir",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWHummerScene/HummerSceneAir.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwhummerscene_3e6f24571e69f86c07c5ac32ea3635a1.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWHummerScene",
+    "pattern": "HummerSceneAirTrigger",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWHummerScene/HummerSceneAirTrigger.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwhummerscene_3e6f24571e69f86c07c5ac32ea3635a1.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWHummerScene",
+    "pattern": "HummerSceneCamera",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWHummerScene/HummerSceneCamera.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwhummerscene_3e6f24571e69f86c07c5ac32ea3635a1.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWHummerScene",
+    "pattern": "HummerSceneJuma",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWHummerScene/HummerSceneJuma.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwhummerscene_3e6f24571e69f86c07c5ac32ea3635a1.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWHummerScene",
+    "pattern": "HummerSceneJumpZombie{N}",
+    "ext": ".prefab",
+    "count": 4,
+    "examples": [
+      "Assets/Main/Prefabs/LWHummerScene/HummerSceneJumpZombie1.prefab",
+      "Assets/Main/Prefabs/LWHummerScene/HummerSceneJumpZombie2.prefab",
+      "Assets/Main/Prefabs/LWHummerScene/HummerSceneJumpZombie3.prefab",
+      "Assets/Main/Prefabs/LWHummerScene/HummerSceneJumpZombie4.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwhummerscene_3e6f24571e69f86c07c5ac32ea3635a1.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWHummerScene",
+    "pattern": "HummerScenePlayer",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWHummerScene/HummerScenePlayer.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwhummerscene_3e6f24571e69f86c07c5ac32ea3635a1.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWHummerScene",
+    "pattern": "HummerSceneYoutong",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWHummerScene/HummerSceneYoutong.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwhummerscene_3e6f24571e69f86c07c5ac32ea3635a1.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWNewbie_opt",
+    "pattern": "One_bubing Variant",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWNewbie_opt/One_bubing Variant.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwnewbie_opt_1_ff4b95b3d4e1e6ba39b420e522c3db71.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWNewbie_opt/Environment/Prop/NewBiesGlassBottle",
+    "pattern": "BottleIncludeHero",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWNewbie_opt/Environment/Prop/NewBiesGlassBottle/BottleIncludeHero.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwnewbie_opt_environment_prop_newbiesglassbottle_2_577c94f62680bf45c07003c8e5fb0c8f.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWNewbie_opt/Environment/Prop/NewBiesGlassBottle",
+    "pattern": "BottleIncludeHero_B",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWNewbie_opt/Environment/Prop/NewBiesGlassBottle/BottleIncludeHero_B.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwnewbie_opt_environment_prop_newbiesglassbottle_1_17075778f211d369caa54d45a5ea8003.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWNewbie_opt/Environment/Prop/NewBiesGlassBottle",
+    "pattern": "BottleIncludeHero_{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWNewbie_opt/Environment/Prop/NewBiesGlassBottle/BottleIncludeHero_1.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwnewbie_opt_environment_prop_newbiesglassbottle_5_496f22c9deea97b3453cd7e96970e131.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWNewbie_opt/Environment/Prop/NewBiesGlassBottle",
+    "pattern": "BottleIncludeHero_{N}_B",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWNewbie_opt/Environment/Prop/NewBiesGlassBottle/BottleIncludeHero_1_B.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwnewbie_opt_environment_prop_newbiesglassbottle_2_577c94f62680bf45c07003c8e5fb0c8f.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWNewbie_opt/Environment/Prop/NewBiesGlassBottle",
+    "pattern": "BottleIncludeItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWNewbie_opt/Environment/Prop/NewBiesGlassBottle/BottleIncludeItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwnewbie_opt_environment_prop_newbiesglassbottle_3_88b022deb520c167159c44300bb991c3.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWNewbie_opt/Environment/Prop/NewBiesGlassBottle",
+    "pattern": "BottleIncludeItem_Fat",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWNewbie_opt/Environment/Prop/NewBiesGlassBottle/BottleIncludeItem_Fat.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwnewbie_opt_environment_prop_newbiesglassbottle_6_c30b3e281d83dc072cc0c575c252b12f.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWOffSeason1/Monsters",
+    "pattern": "offSeason{N}_queenChallenge_daodan",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWOffSeason1/Monsters/offSeason1_queenChallenge_daodan.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwoffseason1_monsters_5_e2228a5ac16c1da961d6368b8a954049.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWOffSeason1/Monsters",
+    "pattern": "offSeason{N}_queenChallenge_feiji",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWOffSeason1/Monsters/offSeason1_queenChallenge_feiji.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwoffseason1_monsters_7_e65df444114eab1c62874128e6089a56.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWOffSeason1/Monsters",
+    "pattern": "offSeason{N}_queenChallenge_tank",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWOffSeason1/Monsters/offSeason1_queenChallenge_tank.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwoffseason1_monsters_2_f88e6325d6cea616b460cb3a6897f5f5.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWOffSeason1/Monsters",
+    "pattern": "offSeason{N}_stronghold_daodan",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWOffSeason1/Monsters/offSeason1_stronghold_daodan.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwoffseason1_monsters_5_e2228a5ac16c1da961d6368b8a954049.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWOffSeason1/Monsters",
+    "pattern": "offSeason{N}_stronghold_feiji",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWOffSeason1/Monsters/offSeason1_stronghold_feiji.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwoffseason1_monsters_6_22a6959f907a16dbae1c93d0e8a5df58.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWOffSeason1/Monsters",
+    "pattern": "offSeason{N}_stronghold_tank",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWOffSeason1/Monsters/offSeason1_stronghold_tank.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwoffseason1_monsters_6_22a6959f907a16dbae1c93d0e8a5df58.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWOffSeason1/Spine",
+    "pattern": "Xueponvwang",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWOffSeason1/Spine/Xueponvwang.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwoffseason1_spine_3_1660d1bd95352c676fa12c74252c21b7.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWOffSeason1/TroopLine",
+    "pattern": "TroopLineQueen",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWOffSeason1/TroopLine/TroopLineQueen.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwoffseason1_troopline_7_1b23a31361772c0f1833baa8cfd1fe5e.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWOpeningStage",
+    "pattern": "A_build_arrow",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWOpeningStage/A_build_arrow.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwopeningstage_a_build_arrow_27c59cd708e59392caf121398ed4998a.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWOpeningStage",
+    "pattern": "A_Hero_JapanMonica_{N}_openingstage",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWOpeningStage/A_Hero_JapanMonica_01_openingstage.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwopeningstage_a_hero_japanmonica_01_openingstage_1c84e6d3c6b8b91da9de3cbd12305e2a.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWOpeningStage",
+    "pattern": "A_Hero_Monica_{N}_openingstage",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWOpeningStage/A_Hero_Monica_01_openingstage.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwopeningstage_a_hero_monica_01_openingstage_a67cf822bc26e375acc0a8c84845c826.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWOpeningStage",
+    "pattern": "A_Monster_Dog{N}_new",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWOpeningStage/A_Monster_Dog01_new.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwopeningstage_a_monster_dog01_new_1a58915792128b710839fe16e2a3feba.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWOpeningStage",
+    "pattern": "ClosedNode",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWOpeningStage/ClosedNode.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwopeningstage_closednode_f0ee09b177821f6144b0e08a1f9bf4c3.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWOpeningStage",
+    "pattern": "dagouruchang_timeline",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWOpeningStage/dagouruchang_timeline.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwopeningstage_dagouruchang_timeline_770e65d281688283783821e321e46c37.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWOpeningStage",
+    "pattern": "dagouruchang_timeline_{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWOpeningStage/dagouruchang_timeline_01.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwopeningstage_dagouruchang_timeline_01_3b3e87fc345a06512288f95b15fc17fd.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWOpeningStage",
+    "pattern": "dagoutaopao_timeline",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWOpeningStage/dagoutaopao_timeline.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwopeningstage_dagoutaopao_timeline_a2aa9e91b439bbf57a73d4df07840b66.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWOpeningStage",
+    "pattern": "DeadZombie",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWOpeningStage/DeadZombie.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwopeningstage_deadzombie_c024f2a217600925adee44d14699b8f6.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWOpeningStage",
+    "pattern": "Eff_Surprise",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWOpeningStage/Eff_Surprise.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwopeningstage_eff_surprise_37eadeb29e1425f060ccf540a310e65d.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWOpeningStage",
+    "pattern": "Eff_xinshou_xingxing",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWOpeningStage/Eff_xinshou_xingxing.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwopeningstage_eff_xinshou_xingxing_d2a2c6f8b525ef5ee32961eb2750cc0f.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWOpeningStage",
+    "pattern": "Eff_xinshou_xingxingda_tuowei",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWOpeningStage/Eff_xinshou_xingxingda_tuowei.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwopeningstage_eff_xinshou_xingxingda_tuowei_db50577c66f3ba64bdea0eb95f6b283b.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWOpeningStage",
+    "pattern": "Enemy_{N}",
+    "ext": ".prefab",
+    "count": 9,
+    "examples": [
+      "Assets/Main/Prefabs/LWOpeningStage/Enemy_10.prefab",
+      "Assets/Main/Prefabs/LWOpeningStage/Enemy_2.prefab",
+      "Assets/Main/Prefabs/LWOpeningStage/Enemy_3.prefab",
+      "Assets/Main/Prefabs/LWOpeningStage/Enemy_4.prefab",
+      "Assets/Main/Prefabs/LWOpeningStage/Enemy_5.prefab",
+      "Assets/Main/Prefabs/LWOpeningStage/Enemy_6.prefab",
+      "Assets/Main/Prefabs/LWOpeningStage/Enemy_7.prefab",
+      "Assets/Main/Prefabs/LWOpeningStage/Enemy_8.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwopeningstage_enemy_10_b22a9fd9bec1465a4e8a018d88ae74e0.bundle",
+      "gameres_main_file_prefabs_lwopeningstage_enemy_2_f4b7ccc9281d49cfa6e5fab316237d03.bundle",
+      "gameres_main_file_prefabs_lwopeningstage_enemy_3_fb626e7917ba85d989ce3a126a2afcc3.bundle",
+      "gameres_main_file_prefabs_lwopeningstage_enemy_4_f998b5c3640f2e9406afcf5c2dceccc8.bundle",
+      "gameres_main_file_prefabs_lwopeningstage_enemy_5_9977e9b75607a0dd691be1445d30f6ac.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWOpeningStage",
+    "pattern": "Enemy_{N}_{N}",
+    "ext": ".prefab",
+    "count": 6,
+    "examples": [
+      "Assets/Main/Prefabs/LWOpeningStage/Enemy_2_1.prefab",
+      "Assets/Main/Prefabs/LWOpeningStage/Enemy_3_1.prefab",
+      "Assets/Main/Prefabs/LWOpeningStage/Enemy_4_1.prefab",
+      "Assets/Main/Prefabs/LWOpeningStage/Enemy_5_1.prefab",
+      "Assets/Main/Prefabs/LWOpeningStage/Enemy_6_1.prefab",
+      "Assets/Main/Prefabs/LWOpeningStage/Enemy_7_1.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwopeningstage_enemy_2_1_7e2a25e2cae9cea363a8299e323cac1c.bundle",
+      "gameres_main_file_prefabs_lwopeningstage_enemy_3_1_d1a8d62070b10cc83be5fc32f6ed464c.bundle",
+      "gameres_main_file_prefabs_lwopeningstage_enemy_4_1_ae0033bdb8792489abed1a59446185fc.bundle",
+      "gameres_main_file_prefabs_lwopeningstage_enemy_5_1_56679ad6029436d7d75a06f027df5982.bundle",
+      "gameres_main_file_prefabs_lwopeningstage_enemy_6_1_6d061f1487693be5bc766f3032552dfb.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWOpeningStage",
+    "pattern": "Enemy_{N}_{N}_B",
+    "ext": ".prefab",
+    "count": 6,
+    "examples": [
+      "Assets/Main/Prefabs/LWOpeningStage/Enemy_2_1_B.prefab",
+      "Assets/Main/Prefabs/LWOpeningStage/Enemy_3_1_B.prefab",
+      "Assets/Main/Prefabs/LWOpeningStage/Enemy_4_1_B.prefab",
+      "Assets/Main/Prefabs/LWOpeningStage/Enemy_5_1_B.prefab",
+      "Assets/Main/Prefabs/LWOpeningStage/Enemy_6_1_B.prefab",
+      "Assets/Main/Prefabs/LWOpeningStage/Enemy_7_1_B.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwopeningstage_enemy_2_1_b_a9a7fad112a38ce6cbc9007c7f259d91.bundle",
+      "gameres_main_file_prefabs_lwopeningstage_enemy_3_1_b_0f1038f2e2fe6bc0db6a72e804cfa5da.bundle",
+      "gameres_main_file_prefabs_lwopeningstage_enemy_4_1_b_cad80973ed8f5f6f5c87d78d84a11f6b.bundle",
+      "gameres_main_file_prefabs_lwopeningstage_enemy_5_1_b_750d0901a824b96beaf07ea43834b836.bundle",
+      "gameres_main_file_prefabs_lwopeningstage_enemy_6_1_b_85bbe6bf57862460d855672a47b3825e.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWOpeningStage",
+    "pattern": "FakeSoilder",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWOpeningStage/FakeSoilder.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwopeningstage_fakesoilder_0043e21edafd7271fb20bc9b91e4c385.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWOpeningStage",
+    "pattern": "finger_click",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWOpeningStage/finger_click.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwopeningstage_finger_click_f124850b7b0a18af56e425d078df31ea.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWOpeningStage",
+    "pattern": "HeroCell_{N}",
+    "ext": ".prefab",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Prefabs/LWOpeningStage/HeroCell_1.prefab",
+      "Assets/Main/Prefabs/LWOpeningStage/HeroCell_3.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwopeningstage_herocell_1_05ff0e05a57e4ee2edc03a466a0ec1ce.bundle",
+      "gameres_main_file_prefabs_lwopeningstage_herocell_3_7a148383b00a3249c6920942d3d7baa3.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWOpeningStage",
+    "pattern": "HeroCell_{N}_new",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWOpeningStage/HeroCell_1_new.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwopeningstage_herocell_1_new_25535c0eee983a95c16331ed31805604.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWOpeningStage",
+    "pattern": "hongzha_timeline",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWOpeningStage/hongzha_timeline.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwopeningstage_hongzha_timeline_14b7368c3af8b4bf39a92e4f16bc56ba.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWOpeningStage",
+    "pattern": "hongzha_Zombies",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWOpeningStage/hongzha_Zombies.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwopeningstage_hongzha_zombies_ec408f7680c2920d479be90470046a8e.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWOpeningStage",
+    "pattern": "jingli_timeline",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWOpeningStage/jingli_timeline.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwopeningstage_jingli_timeline_854828043ca87ebe377bb16b9e08f1ce.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWOpeningStage",
+    "pattern": "opening_city_road",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWOpeningStage/opening_city_road.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwopeningstage_opening_city_road_5802c53095803de5f874378c9ec7df54.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWOpeningStage",
+    "pattern": "opening_stage_road",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWOpeningStage/opening_stage_road.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwopeningstage_opening_stage_road_3ab2b9f5cd4bb682ffdce4462abc4e08.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWOpeningStage",
+    "pattern": "opening_stage_road_B",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWOpeningStage/opening_stage_road_B.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwopeningstage_opening_stage_road_b_e56c8dae1baaaf99764dfce33b3f40e0.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWOpeningStage",
+    "pattern": "sgq_timeline",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWOpeningStage/sgq_timeline.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwopeningstage_sgq_timeline_ab12f843a927a296b0a1d3b27fb30a76.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWOpeningStage",
+    "pattern": "SoloHero",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWOpeningStage/SoloHero.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwopeningstage_solohero_4b421c73b1c336c0d56a2f34df5628a0.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWOpeningStage",
+    "pattern": "sq_timeline_end",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWOpeningStage/sq_timeline_end.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwopeningstage_sq_timeline_end_abcb47ab3acd9a0589db44b84f2d2915.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWOpeningStage",
+    "pattern": "sq_timeline_end_B",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWOpeningStage/sq_timeline_end_B.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwopeningstage_sq_timeline_end_b_371e7fbb10eb14a1d76ce26bc1d54b04.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWOpeningStage",
+    "pattern": "StageBubble",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWOpeningStage/StageBubble.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwopeningstage_stagebubble_c0c1d5dccec42b87c62c59f7b5dffd09.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWOpeningStage",
+    "pattern": "StageBubbleNew",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWOpeningStage/StageBubbleNew.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwopeningstage_stagebubblenew_346af2643231e1049165869abc46b7ff.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWOpeningStage",
+    "pattern": "StageLine",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWOpeningStage/StageLine.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwopeningstage_stageline_237a6fafbb9b3ea4cc711a6163b8ff12.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWOpeningStage",
+    "pattern": "StageNode",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWOpeningStage/StageNode.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwopeningstage_stagenode_fcfa39ff77bfd75985cfa8bcb9a6a05f.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWOpeningStage",
+    "pattern": "VFX_xinshou_yimin_jinbiglow",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWOpeningStage/VFX_xinshou_yimin_jinbiglow.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwopeningstage_vfx_xinshou_yimin_jinbiglow_90ba3af23e3557b2f3d1cc4fa6279023.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWOpeningStage",
+    "pattern": "xiufuchengqiang_Timeline",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWOpeningStage/xiufuchengqiang_Timeline.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwopeningstage_xiufuchengqiang_timeline_002c26d8598a823ae7ac0c654769e451.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWOpeningStage",
+    "pattern": "ZakuA",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWOpeningStage/ZakuA.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwopeningstage_zakua_e63201ed24f95f34e42321433ddf27c5.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWOpeningStage",
+    "pattern": "ZakuB",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWOpeningStage/ZakuB.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwopeningstage_zakub_71fac09e428b8b355980eda8d97011ca.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWOpeningStage",
+    "pattern": "ZakuC",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWOpeningStage/ZakuC.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwopeningstage_zakuc_057858b6c41c1bfc93571c6d47df790b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWOpeningStage",
+    "pattern": "zhenchajiraochang_Timeline",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWOpeningStage/zhenchajiraochang_Timeline.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwopeningstage_zhenchajiraochang_timeline_6b0260cbb948f3206936f249eb564486.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWOpeningStage",
+    "pattern": "zhishengjifanhui_Timeline",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWOpeningStage/zhishengjifanhui_Timeline.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwopeningstage_zhishengjifanhui_timeline_4b46f997d26ebf6af14bb7ed67a066de.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWOpeningStage",
+    "pattern": "ZombieGroup",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWOpeningStage/ZombieGroup.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwopeningstage_zombiegroup_8c0aeeb2d9b827524edc358dec596de3.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWOpeningStage_newbies",
+    "pattern": "A_build_jinkuang_dsj_newbies",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWOpeningStage_newbies/A_build_jinkuang_dsj_newbies.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwopeningstage_newbies_23c913b40105c8f3b632ce1ffa339d7c.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWOpeningStage_newbies",
+    "pattern": "A_build_shibingyindiV{N}_newbies",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWOpeningStage_newbies/A_build_shibingyindiV2_newbies.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwopeningstage_newbies_23c913b40105c8f3b632ce1ffa339d7c.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWOpeningStage_newbies",
+    "pattern": "A_Hero_bubing{N}_newbies",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWOpeningStage_newbies/A_Hero_bubing02_newbies.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwopeningstage_newbies_23c913b40105c8f3b632ce1ffa339d7c.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWOpeningStage_newbies",
+    "pattern": "fight_boss_newbies",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWOpeningStage_newbies/fight_boss_newbies.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwopeningstage_newbies_23c913b40105c8f3b632ce1ffa339d7c.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWOpeningStage_newbies",
+    "pattern": "fight_zombies_newbies",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWOpeningStage_newbies/fight_zombies_newbies.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwopeningstage_newbies_23c913b40105c8f3b632ce1ffa339d7c.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWOpeningStage_newbies",
+    "pattern": "raochang_Timeline",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWOpeningStage_newbies/raochang_Timeline.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwopeningstage_newbies_23c913b40105c8f3b632ce1ffa339d7c.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWOpeningStage_newbies",
+    "pattern": "save_soldiers_newbies",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWOpeningStage_newbies/save_soldiers_newbies.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwopeningstage_newbies_23c913b40105c8f3b632ce1ffa339d7c.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWplane",
+    "pattern": "LastWar_Scene_FightScn_{N} Variant",
+    "ext": ".prefab",
+    "count": 3,
+    "examples": [
+      "Assets/Main/Prefabs/LWplane/LastWar_Scene_FightScn_1 Variant.prefab",
+      "Assets/Main/Prefabs/LWplane/LastWar_Scene_FightScn_2 Variant.prefab",
+      "Assets/Main/Prefabs/LWplane/LastWar_Scene_FightScn_3 Variant.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwplane_0_a13900c1c51f2f19c68f7d1de6aef6fe.bundle",
+      "gameres_main_dir_prefabs_lwplane_1_274183b2a3f598e14f10aecd32131900.bundle",
+      "gameres_main_dir_prefabs_lwplane_7_620b58f61529b3f240a689e3152f852e.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWplane",
+    "pattern": "LastWar_Scene_FightScn_{N}_{N} Variant",
+    "ext": ".prefab",
+    "count": 3,
+    "examples": [
+      "Assets/Main/Prefabs/LWplane/LastWar_Scene_FightScn_1_2 Variant.prefab",
+      "Assets/Main/Prefabs/LWplane/LastWar_Scene_FightScn_3_2 Variant.prefab",
+      "Assets/Main/Prefabs/LWplane/LastWar_Scene_FightScn_2_2 Variant.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwplane_1_274183b2a3f598e14f10aecd32131900.bundle",
+      "gameres_main_dir_prefabs_lwplane_7_620b58f61529b3f240a689e3152f852e.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWplane",
+    "pattern": "O_build_cangqiong_shu_{N}_swsj Variant",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWplane/O_build_cangqiong_shu_4_swsj Variant.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwplane_1_274183b2a3f598e14f10aecd32131900.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWplane",
+    "pattern": "O_build_cangqiong_shu_{N}_swsj_new {N} Variant",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWplane/O_build_cangqiong_shu_4_swsj_new 1 Variant.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwplane_0_a13900c1c51f2f19c68f7d1de6aef6fe.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWplane",
+    "pattern": "O_build_cangqiong_shu_{N}_swsj_new_{N} Variant",
+    "ext": ".prefab",
+    "count": 3,
+    "examples": [
+      "Assets/Main/Prefabs/LWplane/O_build_cangqiong_shu_4_swsj_new_3 Variant.prefab",
+      "Assets/Main/Prefabs/LWplane/O_build_cangqiong_shu_4_swsj_new_5 Variant.prefab",
+      "Assets/Main/Prefabs/LWplane/O_build_cangqiong_shu_4_swsj_new_8 Variant.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwplane_0_a13900c1c51f2f19c68f7d1de6aef6fe.bundle",
+      "gameres_main_dir_prefabs_lwplane_6_5dc0c431d88d993af641f9e29a41264b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWplane",
+    "pattern": "O_build_cangqiong_zhuangshi_{N}_s{N} Variant",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWplane/O_build_cangqiong_zhuangshi_04_s3 Variant.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwplane_7_620b58f61529b3f240a689e3152f852e.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWplane",
+    "pattern": "O_env_bs_fi{N} Variant",
+    "ext": ".prefab",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Prefabs/LWplane/O_env_bs_fi01 Variant.prefab",
+      "Assets/Main/Prefabs/LWplane/O_env_bs_fi03 Variant.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwplane_3_246c755d8173774a935564415f411135.bundle",
+      "gameres_main_dir_prefabs_lwplane_4_9dc8a62f35fea1f761be167d3cf9b0f5.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWplane",
+    "pattern": "O_env_bs_fj{N} Variant",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWplane/O_env_bs_fj02 Variant.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwplane_9_7c17ec586a1edee044a0ac48b1d4e5c5.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWplane",
+    "pattern": "O_env_shan_S{N}_{N}_{N} Variant",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWplane/O_env_shan_S2_2_6 Variant.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwplane_1_274183b2a3f598e14f10aecd32131900.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWplane",
+    "pattern": "O_env_shatan_fj{N} Variant",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWplane/O_env_shatan_fj3 Variant.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwplane_3_246c755d8173774a935564415f411135.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWplane/tex",
+    "pattern": "shan_fi_{N}",
+    "ext": ".tga",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Prefabs/LWplane/tex/shan_fi_03.tga",
+      "Assets/Main/Prefabs/LWplane/tex/shan_fi_04.tga"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwplane_tex_6_81559ef9d1ac6266e341e7cda8284410.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWplane/tex",
+    "pattern": "shan_fj_{N}",
+    "ext": ".tga",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Prefabs/LWplane/tex/shan_fj_01.tga",
+      "Assets/Main/Prefabs/LWplane/tex/shan_fj_02.tga"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwplane_tex_5_5c84a73fa2b79b165101e13614ded7db.bundle",
+      "gameres_main_dir_prefabs_lwplane_tex_4_a119e247e6c9f4a872e5bd998c82b091.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWRailway",
+    "pattern": "BodyBubble",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWRailway/BodyBubble.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwrailway_4252bb5941a5e8d54dc3fa07a35e8290.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWRailway",
+    "pattern": "CoachBubble",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWRailway/CoachBubble.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwrailway_4252bb5941a5e8d54dc3fa07a35e8290.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWRailway",
+    "pattern": "HeadBubble",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWRailway/HeadBubble.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwrailway_4252bb5941a5e8d54dc3fa07a35e8290.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWRailway",
+    "pattern": "LocomotiveBubble",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWRailway/LocomotiveBubble.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwrailway_4252bb5941a5e8d54dc3fa07a35e8290.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWRailway",
+    "pattern": "ParkScene",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWRailway/ParkScene.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwrailway_4252bb5941a5e8d54dc3fa07a35e8290.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWRailway",
+    "pattern": "PlaneCoach",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWRailway/PlaneCoach.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwrailway_4252bb5941a5e8d54dc3fa07a35e8290.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWRailway",
+    "pattern": "PlaneCoach_UR",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWRailway/PlaneCoach_UR.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwrailway_4252bb5941a5e8d54dc3fa07a35e8290.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWRailway",
+    "pattern": "PlaneLocomotive",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWRailway/PlaneLocomotive.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwrailway_4252bb5941a5e8d54dc3fa07a35e8290.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWRailway",
+    "pattern": "PlaneLocomotive_UR",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWRailway/PlaneLocomotive_UR.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwrailway_4252bb5941a5e8d54dc3fa07a35e8290.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWRailway",
+    "pattern": "PlaneSpecial",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWRailway/PlaneSpecial.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwrailway_4252bb5941a5e8d54dc3fa07a35e8290.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWRailway",
+    "pattern": "PlaneSpecial_UR",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWRailway/PlaneSpecial_UR.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwrailway_4252bb5941a5e8d54dc3fa07a35e8290.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWRailway",
+    "pattern": "PlaneTail",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWRailway/PlaneTail.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwrailway_4252bb5941a5e8d54dc3fa07a35e8290.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWRailway",
+    "pattern": "PlaneTail_UR",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWRailway/PlaneTail_UR.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwrailway_4252bb5941a5e8d54dc3fa07a35e8290.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWRailway",
+    "pattern": "TrainAirDropEffect",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWRailway/TrainAirDropEffect.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwrailway_4252bb5941a5e8d54dc3fa07a35e8290.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWRailway",
+    "pattern": "TrainAirDropEffect_UR",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWRailway/TrainAirDropEffect_UR.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwrailway_4252bb5941a5e8d54dc3fa07a35e8290.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWRailway",
+    "pattern": "TrainScene",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWRailway/TrainScene.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwrailway_4252bb5941a5e8d54dc3fa07a35e8290.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWRailway/Scene",
+    "pattern": "A_build_lvdi{N}_train",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWRailway/Scene/A_build_lvdi04_train.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwrailway_scene_9_1c6e3afff5aee409e92e1fa4eaee7721.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWRailway/Scene",
+    "pattern": "LastWar_Scene_dust_train_sj{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWRailway/Scene/LastWar_Scene_dust_train_sj1.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwrailway_scene_3_387554ea07264d0bdcab79a6d28e0743.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWRailway/Scene",
+    "pattern": "LastWar_Scene_dust_train_s{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWRailway/Scene/LastWar_Scene_dust_train_s3.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwrailway_scene_0_f8a13dfa5e05daacfca9ca91ce2edb2a.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWRailway/Scene",
+    "pattern": "LastWar_Scene_dust_train_{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWRailway/Scene/LastWar_Scene_dust_train_2.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwrailway_scene_2_b9e45faec526cd81f2a9160f26b59d11.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/MainCity",
+    "pattern": "CityBuildLabel",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/MainCity/CityBuildLabel.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_maincity_f0494e6121f868c82610bbdfa93fda8d.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/MainCity",
+    "pattern": "CityLabel",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/MainCity/CityLabel.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_maincity_f0494e6121f868c82610bbdfa93fda8d.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/MainCity",
+    "pattern": "Eff_ui_zhushou_build_fire",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/MainCity/Eff_ui_zhushou_build_fire.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_maincity_f0494e6121f868c82610bbdfa93fda8d.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/MainCity",
+    "pattern": "Farmer",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/MainCity/Farmer.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_maincity_f0494e6121f868c82610bbdfa93fda8d.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/MainCity",
+    "pattern": "Icon",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/MainCity/Icon.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_maincity_f0494e6121f868c82610bbdfa93fda8d.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/MainCity",
+    "pattern": "MainCitySprite",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/MainCity/MainCitySprite.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_maincity_f0494e6121f868c82610bbdfa93fda8d.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/MainCity",
+    "pattern": "road_flag",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/MainCity/road_flag.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_maincity_f0494e6121f868c82610bbdfa93fda8d.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/MainCity",
+    "pattern": "SeasonLabel",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/MainCity/SeasonLabel.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_maincity_f0494e6121f868c82610bbdfa93fda8d.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/MainCity",
+    "pattern": "TipRoot",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/MainCity/TipRoot.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_maincity_f0494e6121f868c82610bbdfa93fda8d.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/MainCity",
+    "pattern": "WorldAssistanceHero",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/MainCity/WorldAssistanceHero.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_maincity_f0494e6121f868c82610bbdfa93fda8d.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/MainCity",
+    "pattern": "WorldAssistanceHeroAllianceBuilding",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/MainCity/WorldAssistanceHeroAllianceBuilding.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_maincity_f0494e6121f868c82610bbdfa93fda8d.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/MainCity",
+    "pattern": "WorldAssistanceHeroAllianceTrade",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/MainCity/WorldAssistanceHeroAllianceTrade.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_maincity_f0494e6121f868c82610bbdfa93fda8d.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/MainCity",
+    "pattern": "WorldAssistanceHeroPlayer",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/MainCity/WorldAssistanceHeroPlayer.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_maincity_f0494e6121f868c82610bbdfa93fda8d.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/MainCity",
+    "pattern": "WorldAssistanceLabel",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/MainCity/WorldAssistanceLabel.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_maincity_f0494e6121f868c82610bbdfa93fda8d.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/MainCity",
+    "pattern": "WorldAssistanceLabelAllianceBuilding",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/MainCity/WorldAssistanceLabelAllianceBuilding.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_maincity_f0494e6121f868c82610bbdfa93fda8d.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/MainCity",
+    "pattern": "WorldAssistanceLabelPlayer",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/MainCity/WorldAssistanceLabelPlayer.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_maincity_f0494e6121f868c82610bbdfa93fda8d.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/March",
+    "pattern": "A_Monster_Zombie_sangshiche_{N}",
+    "ext": ".prefab",
+    "count": 3,
+    "examples": [
+      "Assets/Main/Prefabs/March/A_Monster_Zombie_sangshiche_01.prefab",
+      "Assets/Main/Prefabs/March/A_Monster_Zombie_sangshiche_02.prefab",
+      "Assets/Main/Prefabs/March/A_Monster_Zombie_sangshiche_03.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_march_a_monster_zombie_sangshiche_01_f2ee56d8c766e26a709055f26e9dc34b.bundle",
+      "gameres_main_file_prefabs_march_a_monster_zombie_sangshiche_02_9e8773e65e25e47a815beee1de0ec828.bundle",
+      "gameres_main_file_prefabs_march_a_monster_zombie_sangshiche_03_72f27065da1bf598649555a2c9720e7f.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/March",
+    "pattern": "A_Monster_Zombie_sangshiche_{N}_head",
+    "ext": ".prefab",
+    "count": 3,
+    "examples": [
+      "Assets/Main/Prefabs/March/A_Monster_Zombie_sangshiche_01_head.prefab",
+      "Assets/Main/Prefabs/March/A_Monster_Zombie_sangshiche_02_head.prefab",
+      "Assets/Main/Prefabs/March/A_Monster_Zombie_sangshiche_03_head.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_march_a_monster_zombie_sangshiche_01_head_005f3aafe499c6e3b43bf95f0a1f870a.bundle",
+      "gameres_main_file_prefabs_march_a_monster_zombie_sangshiche_02_head_020b1eb7f024367c3890a4a7a1840eb7.bundle",
+      "gameres_main_file_prefabs_march_a_monster_zombie_sangshiche_03_head_5957d06153784346f983e722fe01bbfd.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/March",
+    "pattern": "ActBossBloodTip",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/March/ActBossBloodTip.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_march_actbossbloodtip_d565fc2b85ded230f49e8c2058cde573.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/March",
+    "pattern": "BuildingRewardBubble",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/March/BuildingRewardBubble.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_march_buildingrewardbubble_6c6d79b230c1445b19ac2523c1a6239b.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/March",
+    "pattern": "CityTroop",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/March/CityTroop.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_march_citytroop_b8f41794fb49029fde505c8f79a28096.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/March",
+    "pattern": "CollectGarbageUI",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/March/CollectGarbageUI.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_march_collectgarbageui_da9036851af34693b6bfbecbf4baf8ae.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/March",
+    "pattern": "DarkKnightTroopLine",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/March/DarkKnightTroopLine.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_march_darkknighttroopline_9003946cf832d106f7b72557a2053701.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/March",
+    "pattern": "HelpDetectEndEffectBubble",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/March/HelpDetectEndEffectBubble.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_march_helpdetectendeffectbubble_32233972fe2f1f1670339bcc464bd5ce.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/March",
+    "pattern": "HelpToTreatVirusBubble",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/March/HelpToTreatVirusBubble.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_march_helptotreatvirusbubble_a3967712c05607857755dd3afa91e5f4.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/March",
+    "pattern": "TroopAttackBuildUI",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/March/TroopAttackBuildUI.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_march_troopattackbuildui_dbb5a889813708c778b085e126e8a0c7.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/March",
+    "pattern": "TroopDestinationSignal",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/March/TroopDestinationSignal.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_march_troopdestinationsignal_fb8bb7853b1cfb1f8ae15f2613377271.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/March",
+    "pattern": "TroopLine",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/March/TroopLine.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_march_troopline_ba32e151048926d0a194008b3dd622c0.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/March",
+    "pattern": "TroopLineDrag",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/March/TroopLineDrag.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_march_trooplinedrag_797660946cb6cc1b6916a8074b9f9132.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/March",
+    "pattern": "TroopLineWinter",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/March/TroopLineWinter.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_march_trooplinewinter_70c9ab48a76f8f77cbbf7cf9de147588.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/March",
+    "pattern": "TroopLineWithTimer",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/March/TroopLineWithTimer.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_march_trooplinewithtimer_ace20923fdc6a61738fb563783a0600c.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/March",
+    "pattern": "TroopMeteorite",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/March/TroopMeteorite.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_march_troopmeteorite_dc1862d082b44097b82d0178472578a4.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/March",
+    "pattern": "TroopSelectCircle",
+    "ext": ".obj",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/March/TroopSelectCircle.obj"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_march_troopselectcircle_245051d6b424d200e2d16c92bb193f95.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/March",
+    "pattern": "TroopTransUI",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/March/TroopTransUI.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_march_trooptransui_095e66652a1a930167018099a1f1d7f9.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/March",
+    "pattern": "VirusPoisonedBubble",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/March/VirusPoisonedBubble.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_march_viruspoisonedbubble_50c368996a360dd88837348fd18415a0.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/March",
+    "pattern": "WorkerLine",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/March/WorkerLine.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_march_workerline_917738053b19469a1a072a06b9c825d6.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/March",
+    "pattern": "WorldBuildHeadUI",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/March/WorldBuildHeadUI.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_march_worldbuildheadui_7d4438207fb376c4802ba7f223e389b2.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/March",
+    "pattern": "WorldDesertAssistanceUser",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/March/WorldDesertAssistanceUser.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_march_worlddesertassistanceuser_bf1210d82614c53bf9f72ac58e28ca3d.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/March",
+    "pattern": "WorldDesertBloodPro",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/March/WorldDesertBloodPro.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_march_worlddesertbloodpro_b1497b476873805598c81053da613eb1.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/March",
+    "pattern": "WorldDesertHeadUI",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/March/WorldDesertHeadUI.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_march_worlddesertheadui_fe2ad388bb8d4c6fe0b0c66d6d9b9d25.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/March",
+    "pattern": "WorldDetectInfo",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/March/WorldDetectInfo.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_march_worlddetectinfo_cc8711f320ead50634ee3da1963f3005.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/March",
+    "pattern": "WorldFakePlayerDetectInfo",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/March/WorldFakePlayerDetectInfo.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_march_worldfakeplayerdetectinfo_93d9d780754616ca403c93fde4904b56.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/March",
+    "pattern": "WorldFireWorkInfo",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/March/WorldFireWorkInfo.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_march_worldfireworkinfo_ebcd9096930b81c783630041f2f0eda2.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/March",
+    "pattern": "WorldHelperDetectInfo",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/March/WorldHelperDetectInfo.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_march_worldhelperdetectinfo_da2b383b0dbafee5de8a14d285bf2f15.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/March",
+    "pattern": "WorldHighFiveBubble",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/March/WorldHighFiveBubble.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_march_worldhighfivebubble_3470b65969dd48361f5f36eedb608c3e.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/March",
+    "pattern": "WorldHighFiveTip",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/March/WorldHighFiveTip.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_march_worldhighfivetip_ab2863a78c4ee054a621efe419d9d781.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/March",
+    "pattern": "WorldMultiKill",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/March/WorldMultiKill.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_march_worldmultikill_d52adb835b7cdfec6f73dc559bb62103.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/March",
+    "pattern": "WorldMultiKillFirework",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/March/WorldMultiKillFirework.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_march_worldmultikillfirework_378dc25b34e498605b602d84d0844029.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/March",
+    "pattern": "WorldMultiKillPin",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/March/WorldMultiKillPin.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_march_worldmultikillpin_d7e0b9f6da7eeaf98079efb2f26e14bb.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/March",
+    "pattern": "WorldMultiKillRailgun",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/March/WorldMultiKillRailgun.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_march_worldmultikillrailgun_dba10c3ecd36c34b125293b6b2903f8e.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/March",
+    "pattern": "WorldPlotBubble",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/March/WorldPlotBubble.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_march_worldplotbubble_9ee5eb735dcc3533786fb3e21ee246e2.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/March",
+    "pattern": "WorldRallyTroop",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/March/WorldRallyTroop.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_march_worldrallytroop_6884c3ef8db45e91d43e1d739d9e05e2.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/March",
+    "pattern": "WorldS{N}AllyDrillDonate",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/March/WorldS0AllyDrillDonate.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_march_worlds0allydrilldonate_67d6e6b2acffd183761d9b229a6c34e9.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/March",
+    "pattern": "WorldTreasureDetectRewardIcon",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/March/WorldTreasureDetectRewardIcon.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_march_worldtreasuredetectrewardicon_961003cd28b4d6ebb205cae21e5e7ab0.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/March",
+    "pattern": "WorldTroop",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/March/WorldTroop.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_march_worldtroop_80802f57299fc7f1244bd1d14ad69a12.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/March",
+    "pattern": "WorldTroopAlliance",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/March/WorldTroopAlliance.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_march_worldtroopalliance_91be9691efa7d89f7af64a5427691e63.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/March",
+    "pattern": "WorldTroopAssemblyName",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/March/WorldTroopAssemblyName.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_march_worldtroopassemblyname_8b72b3cab9c39b0ffc43911266498bff.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/March",
+    "pattern": "WorldTroopDetectRescue",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/March/WorldTroopDetectRescue.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_march_worldtroopdetectrescue_0c4d222ad55f9aa5c05481412505910c.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/March",
+    "pattern": "WorldTroopDetectRescue_Newbies",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/March/WorldTroopDetectRescue_Newbies.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_march_worldtroopdetectrescue_newbies_023ffabb7ed7db5794d7945918172b51.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/March",
+    "pattern": "WorldTroopGlow",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/March/WorldTroopGlow.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_march_worldtroopglow_89fb74a3e549c511f1a3b0d2ec8d9022.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/March",
+    "pattern": "WorldTroopGlowSmall",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/March/WorldTroopGlowSmall.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_march_worldtroopglowsmall_8f00a39e5d3f1ddb4a777d3ccf5e1ebe.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/March",
+    "pattern": "WorldTroopHeadUI",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/March/WorldTroopHeadUI.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_march_worldtroopheadui_de6415ab91d9fc12d414f032744e7ea5.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/March",
+    "pattern": "WorldTroopHelper",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/March/WorldTroopHelper.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_march_worldtroophelper_b84aeab542fa2b9af4eba8fc38bc8b8d.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/March",
+    "pattern": "WorldTroopHeroIcons",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/March/WorldTroopHeroIcons.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_march_worldtroopheroicons_6a2592bc5652806048f5582742f4c3ed.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/March",
+    "pattern": "WorldTroopJianZaoBen",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/March/WorldTroopJianZaoBen.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_march_worldtroopjianzaoben_615cff93e310e58e3de63c27a2c59771.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/March",
+    "pattern": "WorldTroopJunkman",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/March/WorldTroopJunkman.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_march_worldtroopjunkman_3763d53de2d68220c0340a0b5c3f53ec.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/March",
+    "pattern": "WorldTroopMobilizationDonate",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/March/WorldTroopMobilizationDonate.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_march_worldtroopmobilizationdonate_a4da52f6338db9fcf15ffcba37be6526.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/March",
+    "pattern": "WorldTroopMonsterPro",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/March/WorldTroopMonsterPro.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_march_worldtroopmonsterpro_e02c0757687ec6506d4a96c6da27f16e.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/March",
+    "pattern": "WorldTroopName",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/March/WorldTroopName.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_march_worldtroopname_a226c822247d225208e1fed853e1efcb.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/March",
+    "pattern": "WorldTroopOther",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/March/WorldTroopOther.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_march_worldtroopother_b3e24a2799bebbe2b61699f10c8c8d37.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/March",
+    "pattern": "WorldTroopOtherYbc",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/March/WorldTroopOtherYbc.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_march_worldtroopotherybc_3a8a0240fcdd002418155c68fa177c70.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/March",
+    "pattern": "WorldTroopPlane",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/March/WorldTroopPlane.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_march_worldtroopplane_9fdc7b89322a7ec84bf36747442b0b7f.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/March",
+    "pattern": "WorldTroopScout",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/March/WorldTroopScout.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_march_worldtroopscout_9942affede30558c05c14af99fbefc04.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/March",
+    "pattern": "WorldTroopSoldier",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/March/WorldTroopSoldier.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_march_worldtroopsoldier_a988e46a63be45e6e70c95bea813eebd.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/March",
+    "pattern": "WorldTroopTank",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/March/WorldTroopTank.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_march_worldtrooptank_72c7dbc165c442bd7e535927e77eace3.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/March",
+    "pattern": "WorldTroopTrain",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/March/WorldTroopTrain.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_march_worldtrooptrain_6c41deaea8e7994535f592ac85f05afc.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/March",
+    "pattern": "WorldTroopTruck",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/March/WorldTroopTruck.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_march_worldtrooptruck_9998deba4382fd40fc66b5a5bc5b3351.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/March",
+    "pattern": "WorldTroopVirus",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/March/WorldTroopVirus.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_march_worldtroopvirus_2cedfda9e1d15034cefb74779ef95fee.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/March",
+    "pattern": "WorldTroopZombieBusTrain",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/March/WorldTroopZombieBusTrain.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_march_worldtroopzombiebustrain_b231d88d105349d95df4337793080b6d.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/March",
+    "pattern": "WorldTruckName",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/March/WorldTruckName.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_march_worldtruckname_02d16ac3ceb378c8340174938aa42448.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/March",
+    "pattern": "WorldVirtualTroop",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/March/WorldVirtualTroop.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_march_worldvirtualtroop_9c2e10627c188180c0c77aaf0bee8a6a.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/MeteoriteResource",
+    "pattern": "CityMeteorite",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/MeteoriteResource/CityMeteorite.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_meteoriteresource_d049fc0fa2c8c47eee2d327126ae690e.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/MeteoriteResource",
+    "pattern": "MeteoriteResource_world",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/MeteoriteResource/MeteoriteResource_world.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_meteoriteresource_d049fc0fa2c8c47eee2d327126ae690e.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/MeteoriteResource",
+    "pattern": "MeteoriteResource_world_{N}",
+    "ext": ".prefab",
+    "count": 3,
+    "examples": [
+      "Assets/Main/Prefabs/MeteoriteResource/MeteoriteResource_world_100.prefab",
+      "Assets/Main/Prefabs/MeteoriteResource/MeteoriteResource_world_101.prefab",
+      "Assets/Main/Prefabs/MeteoriteResource/MeteoriteResource_world_102.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_meteoriteresource_d049fc0fa2c8c47eee2d327126ae690e.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/MeteoriteResource",
+    "pattern": "MeteoriteResourceLastKillNotice",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/MeteoriteResource/MeteoriteResourceLastKillNotice.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_meteoriteresource_d049fc0fa2c8c47eee2d327126ae690e.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly",
+    "pattern": "Cube",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Cube.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_monopoly_d23be7a5dc912a56423ab13c30559d5a.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly",
+    "pattern": "Sphere",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Sphere.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_monopoly_d23be7a5dc912a56423ab13c30559d5a.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Effect",
+    "pattern": "battleEffect",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Effect/battleEffect.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_monopoly_effect_443df583c20c906f37a7c9930a67c09d.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Effect",
+    "pattern": "battleEffectNew",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Effect/battleEffectNew.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_monopoly_effect_443df583c20c906f37a7c9930a67c09d.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Effect",
+    "pattern": "Eff_dafuw_dige_jiesuo",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Effect/Eff_dafuw_dige_jiesuo.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_monopoly_effect_443df583c20c906f37a7c9930a67c09d.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Effect",
+    "pattern": "Eff_dafuw_jiaozhan_di_green",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Effect/Eff_dafuw_jiaozhan_di_green.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_monopoly_effect_443df583c20c906f37a7c9930a67c09d.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Effect",
+    "pattern": "Eff_dafuw_jiaozhan_di_red",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Effect/Eff_dafuw_jiaozhan_di_red.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_monopoly_effect_443df583c20c906f37a7c9930a67c09d.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Effect",
+    "pattern": "Eff_dafuw_shou",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Effect/Eff_dafuw_shou.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_monopoly_effect_443df583c20c906f37a7c9930a67c09d.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Effect",
+    "pattern": "LandLockBubble_mono",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Effect/LandLockBubble_mono.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_monopoly_effect_443df583c20c906f37a7c9930a67c09d.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Effect",
+    "pattern": "LandLockBubble_mono_Event",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Effect/LandLockBubble_mono_Event.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_monopoly_effect_443df583c20c906f37a7c9930a67c09d.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Effect",
+    "pattern": "LandLockBubble_mono_S{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Effect/LandLockBubble_mono_S1.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_monopoly_effect_443df583c20c906f37a7c9930a67c09d.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "A_build_Coupon_mono",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/A_build_Coupon_mono.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_a_build_coupon_mono_7368438f42928c59d2efe5e2370d5472.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "A_build_Coupon_mono_{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/A_build_Coupon_mono_1.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_a_build_coupon_mono_1_c45f7d22eaddcdac1a9dda56625ee763.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "A_build_Diamond_mono",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/A_build_Diamond_mono.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_a_build_diamond_mono_e6aa8fd604a3902644ff1f15ce0f4b35.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "A_build_Gold_{N}_mono",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/A_build_Gold_01_mono.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_a_build_gold_01_mono_cc31e4d8a7ce87244f9113a948f98150.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "A_build_Resources_jinbi_mono",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/A_build_Resources_jinbi_mono.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_a_build_resources_jinbi_mono_c71eb5462d36e17d2373b01966fa169b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "A_build_Resources_shiwu_mono",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/A_build_Resources_shiwu_mono.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_a_build_resources_shiwu_mono_17ac79b2a21b832e2d5d6279cc508794.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "A_build_Resources_tiekuang_mono",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/A_build_Resources_tiekuang_mono.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_a_build_resources_tiekuang_mono_825d6d8ba28576a8d6181061114861b8.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "A_build_Resources_{N}_mono",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/A_build_Resources_01_mono.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_a_build_resources_01_mono_08f61dc4f202742a7f2eaf95b34ea95b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "A_build_Treasure_jin_mono",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/A_build_Treasure_jin_mono.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_a_build_treasure_jin_mono_51e063f90a9346a275243fe28ad43e6e.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "A_build_Treasure_lan_mono",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/A_build_Treasure_lan_mono.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_a_build_treasure_lan_mono_4a69f831d30fb011a8ada4c3ccdd3af9.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "A_build_Treasure_zi_mono",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/A_build_Treasure_zi_mono.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_a_build_treasure_zi_mono_4e57a3decbfaf4bad2e998e45786aede.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "A_Hero_David_{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/A_Hero_David_01.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_a_hero_david_01_ade7f76f3360bb614e1420f391319cfc.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "A_Hero_Doctor_{N}_city_hero_mono",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/A_Hero_Doctor_01_city_hero_mono.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_a_hero_doctor_01_city_hero_mono_2b8ca9df18110e7b3e61b954494f65f4.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "A_Hero_nvniuzai_mono",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/A_Hero_nvniuzai_mono.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_a_hero_nvniuzai_mono_bfd5acf3ac7e8e8cbe155d8dbddb2f09.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "A_Monster@Zombie{N}_Dabache_mono",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/A_Monster@Zombie01_Dabache_mono.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_a_monster@zombie01_dabache_mono_06087807515057e605cf861484c9c25f.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "A_Monster_bangqiu{N}_mono",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/A_Monster_bangqiu01_mono.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_a_monster_bangqiu01_mono_48289a5a05b1879b0e54fda732fcf832.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "A_Monster_Bigbelly{N}_mono",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/A_Monster_Bigbelly01_mono.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_a_monster_bigbelly01_mono_45954d0f77c951832f41fd1e6daf9fd7.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "A_Monster_Bigbelly{N}_mono_B",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/A_Monster_Bigbelly01_mono_B.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_a_monster_bigbelly01_mono_b_8cc0cb03eb64ebcf3d45cc846bed709a.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "A_Monster_Boss_sangshi{N}_mono_show",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/A_Monster_Boss_sangshi01_mono_show.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_a_monster_boss_sangshi01_mono_show_cf52145a7a5d7f946e1b4bb8ed5d47fa.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "A_Monster_dog_BOSS_mono",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/A_Monster_dog_BOSS_mono.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_a_monster_dog_boss_mono_8b7aafa2462b8326d3242da195540cd3.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "A_Monster_Dog{N}_huang_da",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/A_Monster_Dog01_huang_da.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_a_monster_dog01_huang_da_1fe04969db00cb46c989c02e6abb04f4.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "A_Monster_Dog{N}_huang_xiao",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/A_Monster_Dog01_huang_xiao.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_a_monster_dog01_huang_xiao_f679dd89af3e16bc0d4ae4b1b19d919e.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "A_Monster_Dog{N}_huang_xiao_{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/A_Monster_Dog01_huang_xiao_1.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_a_monster_dog01_huang_xiao_1_75ef88ca51d16a6aa973a2b7305b8006.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "A_Monster_dog{N}_mono",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/A_Monster_dog01_mono.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_a_monster_dog01_mono_20370f5b03b71068b501b51605b7d843.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "A_Monster_motuoboss",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/A_Monster_motuoboss.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_a_monster_motuoboss_ec4f83f7eb8fd0010efdfe0641624dfb.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "A_Monster_motuoboss_tl",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/A_Monster_motuoboss_tl.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_a_monster_motuoboss_tl_f72bdd82141836fd5b52644797ffb80e.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "A_Monster_quanjishou{N}_mono",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/A_Monster_quanjishou01_mono.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_a_monster_quanjishou01_mono_5467ece10aabd3bcaeacdbb91837b587.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "A_Monster_quanjishou{N}_tl",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/A_Monster_quanjishou01_tl.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_a_monster_quanjishou01_tl_f4eb32a5601476defe821666fe3241a6.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "A_Monster_s{N}_ganlanqiu_timeline",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/A_Monster_s0_ganlanqiu_timeline.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_a_monster_s0_ganlanqiu_timeline_c0281683f74f004f19bfbd5ee3d2ba64.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "A_Monster_Zombie_boss{N}_mono",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/A_Monster_Zombie_boss01_mono.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_a_monster_zombie_boss01_mono_0e0644a71048b8bb0e8e049d97066d12.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "A_Monster_Zombie_girl{N}_mono",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/A_Monster_Zombie_girl01_mono.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_a_monster_zombie_girl01_mono_3e596f4ec028e545b8b6a19520d66f85.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "A_Monster_Zombie_girl{N}_mono_BOSS",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/A_Monster_Zombie_girl01_mono_BOSS.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_a_monster_zombie_girl01_mono_boss_cc5d44fac8f1eb00c1ca1c364923f93f.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "A_Monster_Zombie{N}_Cartons_mono",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/A_Monster_Zombie01_Cartons_mono.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_a_monster_zombie01_cartons_mono_279e1ec437c69a8e7cd760da35f6ea70.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "A_Monster_Zombie{N}_Cartons_mono_BOSS",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/A_Monster_Zombie01_Cartons_mono_BOSS.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_a_monster_zombie01_cartons_mono_boss_184fc07aedc1b16269730a5b7d93414d.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "A_Monster_Zombie{N}_girl_mono_stage",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/A_Monster_Zombie01_girl_mono_stage.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_a_monster_zombie01_girl_mono_stage_058aa833caf708aaa8236153b9ab7b85.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "A_Monster_Zombie{N}_Hat_mono",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/A_Monster_Zombie01_Hat_mono.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_a_monster_zombie01_hat_mono_98db0c8e4cb2ad634128625b1ed9e5c3.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "A_Monster_Zombie{N}_Hat_mono_B",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/A_Monster_Zombie01_Hat_mono_B.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_a_monster_zombie01_hat_mono_b_a905392bba833b5306da30954e9959c9.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "A_Monster_Zombie{N}_Hat_mono_BOSS",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/A_Monster_Zombie01_Hat_mono_BOSS.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_a_monster_zombie01_hat_mono_boss_2bac5a6d608c9d217551c233b0f96876.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "A_Monster_Zombie{N}_Hat_mono_BOSS_B",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/A_Monster_Zombie01_Hat_mono_BOSS_B.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_a_monster_zombie01_hat_mono_boss_b_ab9fa962e07e068e14d34ddfb548c26f.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "A_Monster_Zombie{N}_luzhang_mono",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/A_Monster_Zombie01_luzhang_mono.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_a_monster_zombie01_luzhang_mono_213d6a8299280b9a49e997113c4e27ce.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "A_Monster_Zombie{N}_luzhang_mono_BOSS",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/A_Monster_Zombie01_luzhang_mono_BOSS.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_a_monster_zombie01_luzhang_mono_boss_4d1626bc5a83b56bc6fb7436530b6ec9.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "A_Monster_Zombie{N}_luzhang_mono_stage",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/A_Monster_Zombie01_luzhang_mono_stage.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_a_monster_zombie01_luzhang_mono_stage_fede723cd6c1093033e0d32d9fa7c684.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "A_Monster_Zombie{N}_mono",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/A_Monster_Zombie01_mono.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_a_monster_zombie01_mono_6a3067da72fc2973723103741ea60824.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "A_Monster_Zombie{N}_mono_B",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/A_Monster_Zombie01_mono_B.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_a_monster_zombie01_mono_b_477c226fb0f2b3cb39aec49dd53265f8.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "A_Monster_Zombie{N}_mono_BOSS",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/A_Monster_Zombie01_mono_BOSS.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_a_monster_zombie01_mono_boss_ea836ebc7af7579dd61a87edd4fa0eff.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "A_Monster_Zombie{N}_mono_stage",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/A_Monster_Zombie01_mono_stage.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_a_monster_zombie01_mono_stage_ca3a7f4ceb8602d8557fb360ff8925bc.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "A_Monster_Zombie{N}_tietong_mono",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/A_Monster_Zombie01_tietong_mono.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_a_monster_zombie01_tietong_mono_a5f817d3a574e98a20d189ab03498840.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "A_Monster_Zombie{N}_tietong_mono_BOSS",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/A_Monster_Zombie01_tietong_mono_BOSS.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_a_monster_zombie01_tietong_mono_boss_a4976b22d0b00a3f84c0b7cce05a95d0.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "A_Monster_Zombie{N}_tietong_mono_stage",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/A_Monster_Zombie01_tietong_mono_stage.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_a_monster_zombie01_tietong_mono_stage_4ee44b5f65fdd6194a40a74903abc541.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "A_worker_ben_low_mono",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/A_worker_ben_low_mono.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_a_worker_ben_low_mono_0ce681f68c9076e290c636e49f9fdd58.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "arena_mono",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/arena_mono.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_arena_mono_fd107e1ddc63e0029d66791bb2e606be.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "BaoXiang_mono",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/BaoXiang_mono.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_baoxiang_mono_7fa877647e58da25df1961bd8ad89bf5.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "BaoXiang_mono_{N}",
+    "ext": ".prefab",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/BaoXiang_mono_1.prefab",
+      "Assets/Main/Prefabs/Monopoly/Obstacle/BaoXiang_mono_2.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_baoxiang_mono_1_b79198942a844fa3d55ba021d48d0bbd.bundle",
+      "gameres_main_file_prefabs_monopoly_obstacle_baoxiang_mono_2_9716a5c352a2eb70e348ecf3a2541eca.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "BottleIncludeBubingCity",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/BottleIncludeBubingCity.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_bottleincludebubingcity_90c1eb53578ef66b7f7d90b7ff8b21b7.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "BottleIncludeBubingCity_{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/BottleIncludeBubingCity_90.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_bottleincludebubingcity_90_6fcddaf8597e0a6d46f43a8670cf87f3.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "BottleIncludeJapanMonicaCity",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/BottleIncludeJapanMonicaCity.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_bottleincludejapanmonicacity_2c1875e10e5e4c60511ac2f50642c39f.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "BottleIncludeMonikaCity",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/BottleIncludeMonikaCity.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_bottleincludemonikacity_2971abbb0d2f23484d26903f7838488b.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "building_{N}_feixu_mono",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/building_10126000_feixu_mono.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_building_10126000_feixu_mono_7524c425c5e7112bc120892870bad8e5.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "Hero_Basilone_mono",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/Hero_Basilone_mono.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_hero_basilone_mono_404534c575dfd0a0926691f2f02df929.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "Hero_blackwidow_battle_mono",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/Hero_blackwidow_battle_mono.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_hero_blackwidow_battle_mono_a551d1920caaaa103618931b6e308421.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "Hero_Hager_mono",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/Hero_Hager_mono.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_hero_hager_mono_02b5dca35f806657205a7337170dbc09.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "JapanMonica_daodan{N}",
+    "ext": ".prefab",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/JapanMonica_daodan1.prefab",
+      "Assets/Main/Prefabs/Monopoly/Obstacle/JapanMonica_daodan2.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_japanmonica_daodan1_e4839fab4aa50a3d1067838ba815ec38.bundle",
+      "gameres_main_file_prefabs_monopoly_obstacle_japanmonica_daodan2_1847758c8246ecc2a9ecfdcaa81c8ace.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "JapanMonica_jiqiang",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/JapanMonica_jiqiang.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_japanmonica_jiqiang_7f438f5c66aebc92dd191702c9590a73.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "JapanMonica_motorcycle",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/JapanMonica_motorcycle.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_japanmonica_motorcycle_566af1a3e023252e1ed4d3622adeba50.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "Monica_daodan{N}",
+    "ext": ".prefab",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/Monica_daodan1.prefab",
+      "Assets/Main/Prefabs/Monopoly/Obstacle/Monica_daodan2.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_monica_daodan1_7470a5fff96a7ece5fa185fe8561f7bf.bundle",
+      "gameres_main_file_prefabs_monopoly_obstacle_monica_daodan2_d021df90d1e5e7dfb3da9f7be1cdb97f.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "Monica_jiqiang",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/Monica_jiqiang.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_monica_jiqiang_bc8ff00b965b8dc2af974510048e661d.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "monica_mono",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/monica_mono.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_monica_mono_df76f53d4d4e4fb80de55401d13d451c.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "Monica_motorcycle",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/Monica_motorcycle.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_monica_motorcycle_c6c6db4ffd3a5126d24fc784bb0721f4.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "Monica_shuangqiang",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/Monica_shuangqiang.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_monica_shuangqiang_40b9062358e81ac2e0778a28770e9728.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "SecretMisson_mono",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/SecretMisson_mono.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_secretmisson_mono_5b87d3aa926c16daf5551001e9fd76e0.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "SecretMisson_mono_zombie",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/SecretMisson_mono_zombie.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_secretmisson_mono_zombie_32bbcf7e4aba4e4dbb462c2882236ce1.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "SecretMisson_mono_zombie_B",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/SecretMisson_mono_zombie_B.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_secretmisson_mono_zombie_b_959787c5fd6eba67b2a7b91e0a6e0dbc.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "Soldiers_mono",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/Soldiers_mono.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_soldiers_mono_465864116c80323c270ba4b1f77e7229.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "Transportcat_mono",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/Transportcat_mono.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_transportcat_mono_de3d30cc6d49cd6d30acf45d8a0ae607.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "truck_mono",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/truck_mono.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_truck_mono_08764297ec8d29f49c14f5a8ea77a95d.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "wurenji_mono_{N}",
+    "ext": ".prefab",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/wurenji_mono_1.prefab",
+      "Assets/Main/Prefabs/Monopoly/Obstacle/wurenji_mono_2.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_wurenji_mono_1_1f16136abb63115293617a7206d42a9f.bundle",
+      "gameres_main_file_prefabs_monopoly_obstacle_wurenji_mono_2_990ed51d1acbf559bcda494dbf988322.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "wurenji_mono_{N}_B",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/wurenji_mono_2_B.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_wurenji_mono_2_b_4752cea861c79a1cc13ddfc8742838fe.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Obstacle",
+    "pattern": "wurenjipojiang_sangshi",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Obstacle/wurenjipojiang_sangshi.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_obstacle_wurenjipojiang_sangshi_bc722090169581f78118d6223f8200da.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Piece",
+    "pattern": "A_Hero_bubing{N}",
+    "ext": ".prefab",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Piece/A_Hero_bubing02.prefab",
+      "Assets/Main/Prefabs/Monopoly/Piece/A_Hero_bubing05.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_monopoly_piece_4329a103667d8195c3ac1b3ddd382b92.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Piece",
+    "pattern": "A_Hero_bubing{N}_B",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Piece/A_Hero_bubing02_B.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_monopoly_piece_4329a103667d8195c3ac1b3ddd382b92.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Tiles",
+    "pattern": "A_build_monopoly_building_bar",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Tiles/A_build_monopoly_building_bar.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_tiles_a_build_monopoly_building_bar_a4cf473515c798494429572640e0a1db.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Tiles",
+    "pattern": "A_build_monopoly_building_bus",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Tiles/A_build_monopoly_building_bus.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_tiles_a_build_monopoly_building_bus_95f0e4553e64a2e143a89c22fe25e509.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Tiles",
+    "pattern": "A_build_monopoly_building_bus_{N}",
+    "ext": ".prefab",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Tiles/A_build_monopoly_building_bus_1.prefab",
+      "Assets/Main/Prefabs/Monopoly/Tiles/A_build_monopoly_building_bus_2.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_tiles_a_build_monopoly_building_bus_1_bf68155127dc87ea3ed42eb70c9fcaec.bundle",
+      "gameres_main_file_prefabs_monopoly_tiles_a_build_monopoly_building_bus_2_14a839d8b631fe66c493c626b4d319a7.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Tiles",
+    "pattern": "A_build_monopoly_building_hero",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Tiles/A_build_monopoly_building_hero.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_tiles_a_build_monopoly_building_hero_9fce608deed8a230ca9cd95e675ecd60.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Tiles",
+    "pattern": "A_build_monopoly_building_hero_{N}",
+    "ext": ".prefab",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Tiles/A_build_monopoly_building_hero_1.prefab",
+      "Assets/Main/Prefabs/Monopoly/Tiles/A_build_monopoly_building_hero_2.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_tiles_a_build_monopoly_building_hero_1_892a0e0b9921bc101467a86d5bf6284c.bundle",
+      "gameres_main_file_prefabs_monopoly_tiles_a_build_monopoly_building_hero_2_8c8c9bd0d7c203ec58b2e9812c026b47.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Tiles",
+    "pattern": "A_build_monopoly_building_kongtou",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Tiles/A_build_monopoly_building_kongtou.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_tiles_a_build_monopoly_building_kongtou_1d7962fc98c3f9e955132e30bc081e6c.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Tiles",
+    "pattern": "A_build_monopoly_building_kongtou_{N}",
+    "ext": ".prefab",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Tiles/A_build_monopoly_building_kongtou_1.prefab",
+      "Assets/Main/Prefabs/Monopoly/Tiles/A_build_monopoly_building_kongtou_3.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_tiles_a_build_monopoly_building_kongtou_1_ddaaa14ed85f05cdd841e1629ebc6a2c.bundle",
+      "gameres_main_file_prefabs_monopoly_tiles_a_build_monopoly_building_kongtou_3_99bc9940e3a431ca8ba0c39928131cc5.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Tiles",
+    "pattern": "A_build_monopoly_building_plane",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Tiles/A_build_monopoly_building_plane.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_tiles_a_build_monopoly_building_plane_5859c1155ffe5a251e2b740a98a61843.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Tiles",
+    "pattern": "A_build_monopoly_house_{N}",
+    "ext": ".prefab",
+    "count": 39,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Tiles/A_build_monopoly_house_01.prefab",
+      "Assets/Main/Prefabs/Monopoly/Tiles/A_build_monopoly_house_02.prefab",
+      "Assets/Main/Prefabs/Monopoly/Tiles/A_build_monopoly_house_03.prefab",
+      "Assets/Main/Prefabs/Monopoly/Tiles/A_build_monopoly_house_04.prefab",
+      "Assets/Main/Prefabs/Monopoly/Tiles/A_build_monopoly_house_05.prefab",
+      "Assets/Main/Prefabs/Monopoly/Tiles/A_build_monopoly_house_06.prefab",
+      "Assets/Main/Prefabs/Monopoly/Tiles/A_build_monopoly_house_07.prefab",
+      "Assets/Main/Prefabs/Monopoly/Tiles/A_build_monopoly_house_08.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_tiles_a_build_monopoly_house_01_5c7c430fea5ff6997d8f79f29cd065b1.bundle",
+      "gameres_main_file_prefabs_monopoly_tiles_a_build_monopoly_house_02_403fca4c1037590c2474bb5383e86484.bundle",
+      "gameres_main_file_prefabs_monopoly_tiles_a_build_monopoly_house_03_6c5eb6f32b5f2a51e886775b5d4265b9.bundle",
+      "gameres_main_file_prefabs_monopoly_tiles_a_build_monopoly_house_04_f33976280721fc34e52ad27801922cb5.bundle",
+      "gameres_main_file_prefabs_monopoly_tiles_a_build_monopoly_house_05_56be62818887f6dfcbfe8916bc4d2858.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Tiles",
+    "pattern": "A_build_newbie_house_{N}",
+    "ext": ".prefab",
+    "count": 15,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Tiles/A_build_newbie_house_01.prefab",
+      "Assets/Main/Prefabs/Monopoly/Tiles/A_build_newbie_house_02.prefab",
+      "Assets/Main/Prefabs/Monopoly/Tiles/A_build_newbie_house_03.prefab",
+      "Assets/Main/Prefabs/Monopoly/Tiles/A_build_newbie_house_04.prefab",
+      "Assets/Main/Prefabs/Monopoly/Tiles/A_build_newbie_house_05.prefab",
+      "Assets/Main/Prefabs/Monopoly/Tiles/A_build_newbie_house_06.prefab",
+      "Assets/Main/Prefabs/Monopoly/Tiles/A_build_newbie_house_07.prefab",
+      "Assets/Main/Prefabs/Monopoly/Tiles/A_build_newbie_house_08.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_tiles_a_build_newbie_house_01_19739b68a5c66d525715736d5be18d67.bundle",
+      "gameres_main_file_prefabs_monopoly_tiles_a_build_newbie_house_02_d11a88c9ee9be0d40f638be6650b413d.bundle",
+      "gameres_main_file_prefabs_monopoly_tiles_a_build_newbie_house_03_1a33e82beab4b675a526e09d0d45293d.bundle",
+      "gameres_main_file_prefabs_monopoly_tiles_a_build_newbie_house_04_1609152f201d4abcbb1ec0d4cf450f7f.bundle",
+      "gameres_main_file_prefabs_monopoly_tiles_a_build_newbie_house_05_922df2ba959dd619e1c9bdb25044eb0e.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Tiles",
+    "pattern": "A_build_tile_{N}_{N}",
+    "ext": ".prefab",
+    "count": 6,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Tiles/A_build_tile_01_1.prefab",
+      "Assets/Main/Prefabs/Monopoly/Tiles/A_build_tile_01_2.prefab",
+      "Assets/Main/Prefabs/Monopoly/Tiles/A_build_tile_01_3.prefab",
+      "Assets/Main/Prefabs/Monopoly/Tiles/A_build_tile_01_4.prefab",
+      "Assets/Main/Prefabs/Monopoly/Tiles/A_build_tile_02_1.prefab",
+      "Assets/Main/Prefabs/Monopoly/Tiles/A_build_tile_02_2.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_tiles_a_build_tile_01_1_a143d0cd193643cab1f8c060b22032b6.bundle",
+      "gameres_main_file_prefabs_monopoly_tiles_a_build_tile_01_2_d4643c14fd9506d98040d5cdf4466a8c.bundle",
+      "gameres_main_file_prefabs_monopoly_tiles_a_build_tile_01_3_52e05dbe3235ef88a49fad319d08b4a2.bundle",
+      "gameres_main_file_prefabs_monopoly_tiles_a_build_tile_01_4_087c19ebd673dec26882c7f9992556bc.bundle",
+      "gameres_main_file_prefabs_monopoly_tiles_a_build_tile_02_1_06bc827bbf574292ce094d5c157d2305.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Tiles",
+    "pattern": "A_build_tile_{N}_{N}_pbr",
+    "ext": ".prefab",
+    "count": 6,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Tiles/A_build_tile_01_1_pbr.prefab",
+      "Assets/Main/Prefabs/Monopoly/Tiles/A_build_tile_01_2_pbr.prefab",
+      "Assets/Main/Prefabs/Monopoly/Tiles/A_build_tile_01_3_pbr.prefab",
+      "Assets/Main/Prefabs/Monopoly/Tiles/A_build_tile_01_4_pbr.prefab",
+      "Assets/Main/Prefabs/Monopoly/Tiles/A_build_tile_02_1_pbr.prefab",
+      "Assets/Main/Prefabs/Monopoly/Tiles/A_build_tile_02_2_pbr.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_tiles_a_build_tile_01_1_pbr_abd3e127e13337d2ad6f2a4407798e2f.bundle",
+      "gameres_main_file_prefabs_monopoly_tiles_a_build_tile_01_2_pbr_2e304880c34ca23c3491e2fd8079f412.bundle",
+      "gameres_main_file_prefabs_monopoly_tiles_a_build_tile_01_3_pbr_9fae4e43d686bc37ee8bf0fdcde681d0.bundle",
+      "gameres_main_file_prefabs_monopoly_tiles_a_build_tile_01_4_pbr_e5171d7e5fe4dc1001972d43923bc07f.bundle",
+      "gameres_main_file_prefabs_monopoly_tiles_a_build_tile_02_1_pbr_6a135bd31547ef63c3f7d91cd933eb5b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Tiles",
+    "pattern": "army_t{N}_{N}c_newbie",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Tiles/army_t6_06c_newbie.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_tiles_army_t6_06c_newbie_218fa05aa1dbd9beabfd52be31eaae3d.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Tiles/CivilizationSpark",
+    "pattern": "A_Build_jinmendaqiao_{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Tiles/CivilizationSpark/A_Build_jinmendaqiao_01.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_tiles_civilizationspark_a_build_jinmendaqiao_01_3277994f1e3ddb037a8ee5c1b777ee45.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Tiles/CivilizationSpark",
+    "pattern": "A_Build_jjinianbei_{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Tiles/CivilizationSpark/A_Build_jjinianbei_01.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_tiles_civilizationspark_a_build_jjinianbei_01_c35307a5daa8d848a09ea5681d460340.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Tiles/CivilizationSpark",
+    "pattern": "A_Build_quanjishouleitai_{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Tiles/CivilizationSpark/A_Build_quanjishouleitai_01.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_tiles_civilizationspark_a_build_quanjishouleitai_01_0e69ed626c7bd02afa68da06a3b3260a.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Tiles/CivilizationSpark",
+    "pattern": "A_Monster@dog{N}_pose",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Tiles/CivilizationSpark/A_Monster@dog01_pose.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_tiles_civilizationspark_a_monster@dog01_pose_0bedad31fbf9e721c3c424e7ace25b5d.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Tiles/CivilizationSpark",
+    "pattern": "Jiuguan_new_po",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Tiles/CivilizationSpark/Jiuguan_new_po.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_tiles_civilizationspark_jiuguan_new_po_ba802c7658f53a066eff7048728dd51e.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Tiles/CivilizationSpark",
+    "pattern": "s{N}_{N}_wurenji_timeline{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Tiles/CivilizationSpark/s0_11_wurenji_timeline02.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_tiles_civilizationspark_s0_11_wurenji_timeline02_94eea5fc1a8261bddc4f007845ff64b7.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Tiles/CivilizationSpark",
+    "pattern": "xindafuweng_chaojiwan",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Tiles/CivilizationSpark/xindafuweng_chaojiwan.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_tiles_civilizationspark_xindafuweng_chaojiwan_35e3e47cb8c8251b35b316c7e0c3ff17.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Tiles/CivilizationSpark",
+    "pattern": "xindafuweng_diguodasha",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Tiles/CivilizationSpark/xindafuweng_diguodasha.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_tiles_civilizationspark_xindafuweng_diguodasha_ce0b5699096e81de9f4906a942a58cc9.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Tiles/CivilizationSpark",
+    "pattern": "xindafuweng_haolaiwu",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Tiles/CivilizationSpark/xindafuweng_haolaiwu.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_tiles_civilizationspark_xindafuweng_haolaiwu_57a01a7a667bd0072caf316a84c1ab44.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Tiles/CivilizationSpark",
+    "pattern": "xindafuweng_huaerjiejianzhu",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Tiles/CivilizationSpark/xindafuweng_huaerjiejianzhu.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_tiles_civilizationspark_xindafuweng_huaerjiejianzhu_058cc800e6a78daf926147e00bfed03f.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Tiles/CivilizationSpark",
+    "pattern": "xindafuweng_jiayouzhan",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Tiles/CivilizationSpark/xindafuweng_jiayouzhan.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_tiles_civilizationspark_xindafuweng_jiayouzhan_909e2c752963ca5903e052062272b873.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monopoly/Tiles/CivilizationSpark",
+    "pattern": "xindafuweng_xiaobingnvshen",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monopoly/Tiles/CivilizationSpark/xindafuweng_xiaobingnvshen.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monopoly_tiles_civilizationspark_xindafuweng_xiaobingnvshen_7e19673c672cabc89695792012476c1c.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monsters",
+    "pattern": "A_Mongster_Boss_aisila",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monsters/A_Mongster_Boss_aisila.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monsters_a_mongster_boss_aisila_28eb393fb71f2c56eeb6526de2057d24.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monsters",
+    "pattern": "A_Monster_Boss_sangshi{N}_shengdan",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monsters/A_Monster_Boss_sangshi01_shengdan.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monsters_a_monster_boss_sangshi01_shengdan_09b916a091874af796b977e4661ed9cb.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monsters",
+    "pattern": "A_Monster_Group_season_dark_daodan",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monsters/A_Monster_Group_season_dark_daodan.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monsters_a_monster_group_season_dark_daodan_7e1fe107d4c5d1677c96e1188c37dbd6.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monsters",
+    "pattern": "A_Monster_Group_season_dark_feiji",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monsters/A_Monster_Group_season_dark_feiji.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monsters_a_monster_group_season_dark_feiji_805bc20b4b10f9daf2db2bfaca2d715d.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monsters",
+    "pattern": "A_Monster_Group_season_dark_tank",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monsters/A_Monster_Group_season_dark_tank.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monsters_a_monster_group_season_dark_tank_06a93c8dde998d94300b9fdfc2064041.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monsters",
+    "pattern": "A_Monster_Group_season_s{N}_dark_daodan_beijixiong",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monsters/A_Monster_Group_season_s2_dark_daodan_beijixiong.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monsters_a_monster_group_season_s2_dark_daodan_beijixiong_a7f18352a35dbd1b7c9dae9b1b21bb8b.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monsters",
+    "pattern": "A_Monster_Group_season_s{N}_dark_feiji_xingxing",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monsters/A_Monster_Group_season_s2_dark_feiji_xingxing.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monsters_a_monster_group_season_s2_dark_feiji_xingxing_8800f8cd3592a360a74b37b19f321347.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monsters",
+    "pattern": "A_Monster_Group_season_s{N}_dark_tank_mengma",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monsters/A_Monster_Group_season_s2_dark_tank_mengma.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monsters_a_monster_group_season_s2_dark_tank_mengma_c8e901e73e6535df58b2220f2613cc94.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monsters",
+    "pattern": "A_Monster_jiluofu_feiting",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monsters/A_Monster_jiluofu_feiting.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monsters_a_monster_jiluofu_feiting_aa2bb2f8a1e1f147a99151da7d9e5890.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monsters",
+    "pattern": "A_Monster_jiluofu_feiting_blue",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monsters/A_Monster_jiluofu_feiting_blue.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monsters_a_monster_jiluofu_feiting_blue_c6862d9ea3ab1af81dd7f2ea8824a981.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monsters",
+    "pattern": "A_Monster_jiluofu_feiting_blue_ui",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monsters/A_Monster_jiluofu_feiting_blue_ui.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monsters_a_monster_jiluofu_feiting_blue_ui_0d429589cb77e99cc8ed9d56f3614ce6.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monsters",
+    "pattern": "A_Monster_jiluofu_feiting_model",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monsters/A_Monster_jiluofu_feiting_model.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monsters_a_monster_jiluofu_feiting_model_00a040fe22ab329712d82fdbd3f62fc6.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monsters",
+    "pattern": "MonsterActBoss",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monsters/MonsterActBoss.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monsters_monsteractboss_b18cbb3808a3c04807023ee892d45421.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monsters",
+    "pattern": "MonsterActBoss_daodan_s{N}",
+    "ext": ".prefab",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Prefabs/Monsters/MonsterActBoss_daodan_s1.prefab",
+      "Assets/Main/Prefabs/Monsters/MonsterActBoss_daodan_s2.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monsters_monsteractboss_daodan_s1_98085ef3ed29239fb022cf2c22602926.bundle",
+      "gameres_main_file_prefabs_monsters_monsteractboss_daodan_s2_65c6ba16a131891cc54da955487955e4.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monsters",
+    "pattern": "MonsterActBoss_feiji_s{N}",
+    "ext": ".prefab",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Prefabs/Monsters/MonsterActBoss_feiji_s1.prefab",
+      "Assets/Main/Prefabs/Monsters/MonsterActBoss_feiji_s2.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monsters_monsteractboss_feiji_s1_e7166befb062707aaf13e085d963a0c7.bundle",
+      "gameres_main_file_prefabs_monsters_monsteractboss_feiji_s2_44dc2b158a235fe2c60d7ad8bc15887e.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monsters",
+    "pattern": "MonsterActBoss_shengdan",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/Monsters/MonsterActBoss_shengdan.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monsters_monsteractboss_shengdan_df31d7a208b281fa8228dd58f0d86f7d.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monsters",
+    "pattern": "MonsterActBoss_tank_s{N}",
+    "ext": ".prefab",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Prefabs/Monsters/MonsterActBoss_tank_s1.prefab",
+      "Assets/Main/Prefabs/Monsters/MonsterActBoss_tank_s2.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monsters_monsteractboss_tank_s1_c049ead59ad472b943669e7ccae07add.bundle",
+      "gameres_main_file_prefabs_monsters_monsteractboss_tank_s2_714eb35b4a90a6a1cd2bd88a144ef9e4.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/Monsters",
+    "pattern": "MonsterActBoss_{N}",
+    "ext": ".prefab",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Prefabs/Monsters/MonsterActBoss_1.prefab",
+      "Assets/Main/Prefabs/Monsters/MonsterActBoss_2.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_monsters_monsteractboss_1_22a0895d66eeb3b79313f9fd7dbe20fb.bundle",
+      "gameres_main_file_prefabs_monsters_monsteractboss_2_e92f59f3f68401b22930c831bc13161c.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  }
+]

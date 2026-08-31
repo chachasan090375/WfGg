@@ -1,0 +1,5010 @@
+[
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_juma_{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_juma_01.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_juma_01_f3ce5d7e308c3d305c9e79fc808c2578.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_juma_{N}_monster",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_juma_01_monster.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_juma_01_monster_b33eabfe558600eaff4a193a31c780fe.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_landmine_{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_landmine_01.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_landmine_01_823a2e631b97fe2f85c755ad5e6c3974.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_lpitfall_{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_lpitfall_01.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_lpitfall_01_a60a334ee6b3301a632cdca0d91cbd61.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_mutong_nengliang",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_mutong_nengliang.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_mutong_nengliang_d8eda931036126a53f920f0f5c169e1a.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_mutong_nengliang_gpu",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_mutong_nengliang_gpu.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_mutong_nengliang_gpu_e89d0f609432edcf92b93781ee466d75.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_platform_ak_{N}",
+    "ext": ".prefab",
+    "count": 3,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_ak_101.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_ak_102.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_ak_103.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_ak_101_546e5f06f0289f078d3ac49d5d698386.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_ak_102_802ba0370ec13d1d4ebb497dd3e676c7.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_ak_103_63ed7857c65dae8079fc91eff824314d.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_platform_ak_{N}_new",
+    "ext": ".prefab",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_ak_101_new.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_ak_102_new.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_ak_101_new_7b58c978692b006d9602a10245e10571.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_ak_102_new_16a89383149de38777e387e35353a081.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_platform_ak_{N}_new_gpu",
+    "ext": ".prefab",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_ak_101_new_gpu.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_ak_102_new_gpu.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_ak_101_new_gpu_208f0971ad950de83db81ffdff5264d0.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_ak_102_new_gpu_c45052279491f5fe78ab4a4c5e6e7dc4.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_platform_ak_{N}_new_{N}",
+    "ext": ".prefab",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_ak_101_new_1.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_ak_102_new_1.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_ak_101_new_1_46c2702f201f8106c074f9141b2dfebe.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_ak_102_new_1_a54d1ecc3c12a7d0b808ec68961346dc.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_platform_ak_{N}_new_{N}_gpu",
+    "ext": ".prefab",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_ak_101_new_1_gpu.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_ak_102_new_1_gpu.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_ak_101_new_1_gpu_3c26481cbbe4b903218b7439fe505ceb.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_ak_102_new_1_gpu_e61d0ad37c0504c37440f217094423a9.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_platform_anbote_{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_anbote_101.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_anbote_101_5dd2f616b1e713ce1aedde733e3005a0.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_platform_anbote_{N}_gpu",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_anbote_101_gpu.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_anbote_101_gpu_1b2a77d0c1209fbac3c65b87ab74638e.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_platform_baoxiang",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_baoxiang.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_baoxiang_74991ffda63caae6e44d2194ee64e4ed.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_platform_beizengmen_new",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_beizengmen_new.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_beizengmen_new_b364d0eafbb7bcc9a3f5ea0234bd602a.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_platform_beizengmen_new_gpu",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_beizengmen_new_gpu.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_beizengmen_new_gpu_c0130e99551c60a9592416f1e87f4d1c.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_platform_car_{N}",
+    "ext": ".prefab",
+    "count": 3,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_car_101.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_car_102.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_car_103.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_car_101_ef7de3a20f2b1523a52477f92f49c3c5.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_car_102_cedd44d51cb2ec9e630b435f7325debc.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_car_103_041c4bff3da87d1d7ba72989ee7ef50d.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_platform_DVA_{N}_new",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_DVA_101_new.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_dva_101_new_3bfafddefc440a0380d76c10e78d8a5b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_platform_huojiantong_{N}",
+    "ext": ".prefab",
+    "count": 3,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_huojiantong_101.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_huojiantong_102.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_huojiantong_103.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_huojiantong_101_ea7d873fc9d0ae325945ada2bcdaeab6.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_huojiantong_102_acc78cbbc1b8d18793762a84245d1045.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_huojiantong_103_ac9cda35c7d4c574c23c55f0368eb93b.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_platform_jiatelin_{N}",
+    "ext": ".prefab",
+    "count": 3,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_jiatelin_101.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_jiatelin_102.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_jiatelin_103.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_jiatelin_101_8ebda3e2baa66645907995ff459e3422.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_jiatelin_102_58d3083fe78c7b49cf348bf50eab361d.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_jiatelin_103_52b1789967b70968031efe5113ea868b.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_platform_jiatelin_{N}_new",
+    "ext": ".prefab",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_jiatelin_101_new.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_jiatelin_102_new.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_jiatelin_101_new_6630d8e9c2693aa4562e8bf45b0a5735.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_jiatelin_102_new_beb99027a997ae5598488fcffd50b68c.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_platform_jiatelin_{N}_new_gpu",
+    "ext": ".prefab",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_jiatelin_101_new_gpu.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_jiatelin_102_new_gpu.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_jiatelin_101_new_gpu_8e1d9e685cd1855d9014def34dfcc418.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_jiatelin_102_new_gpu_338547db506eb85f986db588d0610cc3.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_platform_jiatelin_{N}_new_{N}",
+    "ext": ".prefab",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_jiatelin_101_new_1.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_jiatelin_102_new_1.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_jiatelin_101_new_1_149d1a28853eac6b96b6e4f024d4be0d.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_jiatelin_102_new_1_61d33c556fb5a180035da98556286c4f.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_platform_jiatelin_{N}_new_{N}_gpu",
+    "ext": ".prefab",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_jiatelin_101_new_1_gpu.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_jiatelin_102_new_1_gpu.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_jiatelin_101_new_1_gpu_10aba35e75e8b11778404af238d69b97.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_jiatelin_102_new_1_gpu_3802a84dc4c3bc0506c241b6f4d55069.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_platform_jipuche",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_jipuche.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_jipuche_3966e10c3847089b026c436136cf9b68.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_platform_jipuche_gpu",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_jipuche_gpu.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_jipuche_gpu_0d23ab1c809421283d01febd31d7fa6c.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_platform_jipuche_{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_jipuche_1.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_jipuche_1_98e7f9b720f4601e84369ad60729ecdc.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_platform_jipuche_{N}_gpu",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_jipuche_1_gpu.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_jipuche_1_gpu_df001a7aa4739eba52d93c455be3439e.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_platform_jujiqiang_{N}",
+    "ext": ".prefab",
+    "count": 3,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_jujiqiang_101.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_jujiqiang_102.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_jujiqiang_103.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_jujiqiang_101_df49606a1709f5a73c99c31904eeb950.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_jujiqiang_102_80210c69355d6ff1298b1b8b1db12777.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_jujiqiang_103_5073ae8520d47eb1aa512eda8d4c63c7.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_platform_kaluzol_{N}",
+    "ext": ".prefab",
+    "count": 3,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_kaluzol_101.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_kaluzol_102.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_kaluzol_103.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_kaluzol_101_0df0f3c7a9e31472e6f1db752060cdd8.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_kaluzol_102_6e156878506aac8f3fe3297719edb1bc.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_kaluzol_103_9190126dff0544bcd9786751353bd328.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_platform_kaluzol_{N}_gpu",
+    "ext": ".prefab",
+    "count": 3,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_kaluzol_101_gpu.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_kaluzol_102_gpu.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_kaluzol_103_gpu.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_kaluzol_101_gpu_d031d346b57c204e46df530cb91695d7.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_kaluzol_102_gpu_36bc6223e59572ecef713a44dd64ef33.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_kaluzol_103_gpu_df78ff56c07f55b9fd2e724b81f3a31b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_platform_kaluzol_{N}_{N}",
+    "ext": ".prefab",
+    "count": 3,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_kaluzol_101_1.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_kaluzol_102_1.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_kaluzol_103_1.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_kaluzol_101_1_20cb26a1f42aa7e74ccadb7d94a70017.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_kaluzol_102_1_a051e3c37e1197750504ac74ade2c408.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_kaluzol_103_1_71abf71b313b4a8e867f6120170436af.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_platform_luoji_{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_luoji_101.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_luoji_101_26be55464de38bab9c7059516ae931fe.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_platform_luoji_{N}_gpu",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_luoji_101_gpu.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_luoji_101_gpu_8d64d74ac25e4ac8930ee8c7a764f628.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_platform_man_{N}",
+    "ext": ".prefab",
+    "count": 4,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_man_101.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_man_102.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_man_103.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_man_104.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_man_101_a434495910bd5b432cf6d0a3613439b9.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_man_102_5ad5957cfdf13530f615defba8b9f8c4.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_man_103_299fd97bf359070e2ec7b768d4bd8924.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_man_104_7d5e9ce2e42b7bf16e89c8dcde0659d8.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_platform_man_{N}_gpu",
+    "ext": ".prefab",
+    "count": 3,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_man_101_gpu.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_man_102_gpu.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_man_103_gpu.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_man_101_gpu_29e58912d97f046630e808d9c3d707d1.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_man_102_gpu_ec5a2dc0f00f40d0eb07c36cb3664255.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_man_103_gpu_214b9083827f032f8ee597cd7691ff7b.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_platform_man_{N}_new",
+    "ext": ".prefab",
+    "count": 3,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_man_101_new.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_man_102_new.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_man_103_new.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_man_101_new_e3304c0f144b76c36f1d005cdd9ce902.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_man_102_new_6846fd0fdbcbe1298f94f8eb61e5d969.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_man_103_new_f1c5f42f885c59a3ad93059669804626.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_platform_man_{N}_{N}",
+    "ext": ".prefab",
+    "count": 3,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_man_101_1.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_man_102_1.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_man_103_1.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_man_101_1_d7369e9d23cdc5d27a81105d42a88575.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_man_102_1_8235ac51d403ba191d10bfe51da64bcf.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_man_103_1_340eb461a8e92c469a48c3dd3ba03fa4.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_platform_man_{N}_{N}_gpu",
+    "ext": ".prefab",
+    "count": 3,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_man_101_1_gpu.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_man_102_1_gpu.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_man_103_1_gpu.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_man_101_1_gpu_3190640d9c6fc2b114ee44feb37e4fee.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_man_102_1_gpu_d8ebcc409399800f012a6ec968d209f5.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_man_103_1_gpu_12dc456d50ce580a004d73bf555ee7a4.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_platform_nvzhubo_{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_nvzhubo_01.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_nvzhubo_01_d3f425784370742de4d9caba49e24a52.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_platform_penhuobing",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_penhuobing.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_penhuobing_f31a9e14be465e66cd4813dcf700e931.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_platform_penhuobing_gpu",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_penhuobing_gpu.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_penhuobing_gpu_9c802cdd1aca7da99222bd85f013e173.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_platform_penhuobing_{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_penhuobing_1.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_penhuobing_1_58e9f2fa06633f9e4b68d7611bc16d7b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_platform_penhuobing_{N}_gpu",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_penhuobing_1_gpu.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_penhuobing_1_gpu_066ac039756ac775b38d25f895bd91c7.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_platform_penhuoqianghua",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_penhuoqianghua.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_penhuoqianghua_1c7135b5a781b2a207868eb500c78165.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_platform_penhuoqianghua_gpu",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_penhuoqianghua_gpu.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_penhuoqianghua_gpu_4ace9ad5456bd55170824d98904e656c.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_platform_penhuoqianghua_{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_penhuoqianghua_1.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_penhuoqianghua_1_9654145e9d42f099c63e6ee7b626ccb1.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_platform_penhuoqianghua_{N}_gpu",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_penhuoqianghua_1_gpu.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_penhuoqianghua_1_gpu_80fa2fe20bb03c1fda49d27cdc017745.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_platform_qezage_{N}",
+    "ext": ".prefab",
+    "count": 3,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_qezage_101.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_qezage_102.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_qezage_103.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_qezage_101_0ed968dc2e6f9423dfb02e527804ff34.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_qezage_102_99e0d4d8b11954d35f0f98872ed81f6a.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_qezage_103_c361249bf8e60a2d51f30ac8747ffcb6.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_platform_qezage_{N}_{N}",
+    "ext": ".prefab",
+    "count": 6,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_qezage_101_1.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_qezage_101_2.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_qezage_102_1.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_qezage_102_2.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_qezage_103_1.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_qezage_103_2.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_qezage_101_1_98d304bc974d550fc557682817e40088.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_qezage_101_2_4c9e07db442015ad0e1258c9ad84caaf.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_qezage_102_1_495754dd589dd230a4569a5eba5d4f96.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_qezage_102_2_6e66b1e7a60f4b0ff4fbfb3bc3dd658b.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_qezage_103_1_f2f1835586f6c5e54f19fe6cc21847c9.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_platform_qezage_{N}_{N}_gpu",
+    "ext": ".prefab",
+    "count": 3,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_qezage_101_1_gpu.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_qezage_102_1_gpu.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_qezage_103_1_gpu.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_qezage_101_1_gpu_b5ab10ef21b1e46f32c5e0cf13a5b510.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_qezage_102_1_gpu_4837b21e9cea817d039c855d78ea8019.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_qezage_103_1_gpu_6032b77cc2ea432eeca96709d11d94f1.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_platform_SecretMisson",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_SecretMisson.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_secretmisson_e58baa985d39c3b1749e185f9eed4f73.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_platform_shouqiang_{N}",
+    "ext": ".prefab",
+    "count": 3,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_shouqiang_101.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_shouqiang_102.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_shouqiang_103.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_shouqiang_101_5316eda7d4acd9e8c1b8ff7bc9f469b4.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_shouqiang_102_a4f66dfbe079bb84a8d0399f88dfa5d6.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_shouqiang_103_4c4a19086f8ad6bf500fda527ef1fe0e.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_platform_Summons",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_Summons.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_summons_bc68f3b29d84d526606e89719a232c1e.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_platform_tankebing",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_tankebing.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_tankebing_7f84a8bea6802e2f7ffd8dfa85831bf3.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_platform_tankebing_gpu",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_tankebing_gpu.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_tankebing_gpu_7092c646a759744db84bbc8e2c28e406.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_platform_tankebing_JP",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_tankebing_JP.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_tankebing_jp_557f06d58059d662e844628adc68a701.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_platform_tankebing_JP_gpu",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_tankebing_JP_gpu.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_tankebing_jp_gpu_c0bfb8381fd34ab21f99bb511dfae7a2.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_platform_tankebing_JP_{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_tankebing_JP_1.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_tankebing_jp_1_fabe656531ae8bc8910ccdb98c4fe464.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_platform_tankebing_JP_{N}_gpu",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_tankebing_JP_1_gpu.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_tankebing_jp_1_gpu_2b3d9b4f01038983949a448b492a01fd.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_platform_tankebing_{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_tankebing_1.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_tankebing_1_2c9ef6fcabcc6f13c07565eb58d08d64.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_platform_tankebing_{N}_gpu",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_tankebing_1_gpu.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_tankebing_1_gpu_5f8a9f38fedbd014e4f87e0c5da825b5.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_platform_tankeqianghua",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_tankeqianghua.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_tankeqianghua_e54794b60047d23fca9a144dfe84a64f.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_platform_tankeqianghua_gpu",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_tankeqianghua_gpu.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_tankeqianghua_gpu_f9550e2461adab1b1673d6f780596dbb.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_platform_tankeqianghua_{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_tankeqianghua_1.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_tankeqianghua_1_04cc4050d90ff8dd40327992cd1f4772.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_platform_tankeqianghua_{N}_gpu",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_tankeqianghua_1_gpu.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_tankeqianghua_1_gpu_4b6f3d93a26b1e5563876955851ed3da.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_platform_Tesla_{N}_new",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_Tesla_101_new.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_tesla_101_new_901fb0dd90245be1671efd73a77bc56b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_platform_TIANMU_{N}",
+    "ext": ".prefab",
+    "count": 3,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_TIANMU_101.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_TIANMU_102.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_TIANMU_103.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_tianmu_101_478c92483aef404bda01d823fbf26717.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_tianmu_102_bef3b21ac5a19f590f67318324fbcd4f.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_tianmu_103_eae1ab0d3c8a3d1c8843ad9e9cd1ce6c.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_platform_TIANMU_{N}_gpu",
+    "ext": ".prefab",
+    "count": 3,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_TIANMU_101_gpu.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_TIANMU_102_gpu.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_TIANMU_103_gpu.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_tianmu_101_gpu_14ce289b3ee1077ed6def77fa5f14a26.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_tianmu_102_gpu_051ae8d1139e61dfd61d324247c0831c.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_tianmu_103_gpu_ce89bade8a2cc6dbc9b29472ebde277a.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_platform_TIANMU_{N}_new",
+    "ext": ".prefab",
+    "count": 3,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_TIANMU_101_new.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_TIANMU_102_new.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_TIANMU_103_new.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_tianmu_101_new_5c34a7cccdd1c54749628d7a41c3c3ec.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_tianmu_102_new_26216e2450902c243a6d40ee737aeaae.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_tianmu_103_new_c86e9ec9bddec0f584cb3c2d85dcaddc.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_platform_xingcunzhe_{N}",
+    "ext": ".prefab",
+    "count": 4,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_xingcunzhe_01.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_xingcunzhe_02.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_xingcunzhe_03.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_xingcunzhe_04.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_xingcunzhe_01_ddff213379faf0ec6c2fd35bba5de77a.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_xingcunzhe_02_150c2aaa08942c58a1c990b37a2d70d8.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_xingcunzhe_03_9e9877414342229973e7e05d5247a359.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_xingcunzhe_04_5f16ac6a0674139e922eff878423587d.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_platform_yingxiong",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_yingxiong.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_yingxiong_1bb839b79ab5fd0b47ab687f8a33643f.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_platform_youying_{N}",
+    "ext": ".prefab",
+    "count": 3,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_youying_101.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_youying_102.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_platform_youying_103.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_youying_101_f27c0c3c478167320a2e379cc8ba0235.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_youying_102_66e8f22ce651ad3a44617f92e95be4ac.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_platform_youying_103_5958277d78424400b950e38b4ec18e13.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "O_Object_xinjuma_{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/O_Object_xinjuma_01.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_o_object_xinjuma_01_1ca46ef15225e9be1b0b0622f3a5f108.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "Tiekuang",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/Tiekuang.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_tiekuang_955fc286bbf115c0578a287293da933f.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "ZhaDanXianJing",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/ZhaDanXianJing.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_zhadanxianjing_7e7672c0c92447c37224054747c1f963.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "{N}luntai_ak",
+    "ext": ".prefab",
+    "count": 3,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/2luntai_ak.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/3luntai_ak.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/4luntai_ak.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_2luntai_ak_7104f289e8d857db80a5539c9ebbbd69.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_3luntai_ak_bcc005e06c2ef63fa5c4a5e52a7e4a27.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_4luntai_ak_aa965ba7afed2b7cb2af5615ba48a962.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "{N}luntai_jiatelin",
+    "ext": ".prefab",
+    "count": 3,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/2luntai_jiatelin.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/3luntai_jiatelin.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/4luntai_jiatelin.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_2luntai_jiatelin_ed32a7576eccaf5c25f7cab9d8fd18f7.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_3luntai_jiatelin_3dcce010b1b4d78ed8da05c04bd5f09b.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_4luntai_jiatelin_92b19c4c067b0a93d9f98bb4b3e49a50.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "{N}luntai_jipuche",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/3luntai_jipuche.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_3luntai_jipuche_c0409682301e56df331bee98ed2337b4.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "{N}luntai_penhuobing",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/3luntai_penhuobing.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_3luntai_penhuobing_cc5364d5188d07d39092f26522cf352e.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "{N}luntai_penhuoqianghua",
+    "ext": ".prefab",
+    "count": 3,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/2luntai_penhuoqianghua.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/3luntai_penhuoqianghua.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/4luntai_penhuoqianghua.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_2luntai_penhuoqianghua_611a0cde8aed4ef4566df8dd9d83a5eb.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_3luntai_penhuoqianghua_383873a7aa7fb62bf9a4483d931f09cd.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_4luntai_penhuoqianghua_4f3452cb75dcd4f5fab6c907817d48de.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "{N}luntai_tanke",
+    "ext": ".prefab",
+    "count": 3,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/2luntai_tanke.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/3luntai_tanke.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/4luntai_tanke.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_2luntai_tanke_bd2da6e04bdaaf6ccda96af64f0107dd.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_3luntai_tanke_c59491267f7015612dc3a5c8d6643840.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_4luntai_tanke_a872b7be771b714a664b97b5f3190cfd.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "{N}luntai_tankeqianghua",
+    "ext": ".prefab",
+    "count": 3,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/2luntai_tankeqianghua.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/3luntai_tankeqianghua.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/4luntai_tankeqianghua.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_2luntai_tankeqianghua_4d39a9913915f3d1cfe8abb060a92079.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_3luntai_tankeqianghua_cb3b96e877d9f517500f6c1d0c1371c5.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_4luntai_tankeqianghua_4641f9165c9de74054cad7d7c0ab2c8b.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster",
+    "pattern": "{N}luntai_{N}_xiaobing",
+    "ext": ".prefab",
+    "count": 6,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/2luntai_1_xiaobing.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/2luntai_2_xiaobing.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/3luntai_1_xiaobing.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/3luntai_2_xiaobing.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/4luntai_1_xiaobing.prefab",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/4luntai_2_xiaobing.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_2luntai_1_xiaobing_ce34ca7c17ac6c9f1cbb615ab9a0f91f.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_2luntai_2_xiaobing_2bae2613f378a04b136b1a5b7fe273b2.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_3luntai_1_xiaobing_2086ab60db81a9c21d854f87901a27a2.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_3luntai_2_xiaobing_1c722c4f88d1c4eddc00090c0d06464f.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_4luntai_1_xiaobing_b11019f7829354be404c0da660931301.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster/Traps",
+    "pattern": "TrapFan",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/Traps/TrapFan.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_traps_trapfan_bd21841856f567ee35eeb0c01273ee90.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster/Traps",
+    "pattern": "TrapFan_harf_left",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/Traps/TrapFan_harf_left.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_traps_trapfan_harf_left_977909c4356a59ff0afeaf52ea50c6d2.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster/Traps",
+    "pattern": "TrapFan_harf_right",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/Traps/TrapFan_harf_right.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_traps_trapfan_harf_right_8b2df9b2da45eee799a3023913a80ad6.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster/Traps",
+    "pattern": "TrapSaw",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/Traps/TrapSaw.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_traps_trapsaw_5b926c594fe63d79e2315bcf7a12dbdb.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster/Traps",
+    "pattern": "TrapSaw{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/Traps/TrapSaw03.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_traps_trapsaw03_3b865d26060753f8b9b0db51faee822d.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster/Traps",
+    "pattern": "TrapSpike{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/Traps/TrapSpike02.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_traps_trapspike02_8c4174f71363152a005c8f3ebde23300.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster/Traps/Animations",
+    "pattern": "O_env_beizengmen_luzhang_{N}",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/Traps/Animations/O_env_beizengmen_luzhang_03.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_traps_animations_o_env_beizengmen_luzhang_03_d451ff559852c8fcc040cee080b8b3b1.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster/Traps/Animations",
+    "pattern": "TrapSaw{N}",
+    "ext": ".anim",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/Traps/Animations/TrapSaw1.anim",
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/Traps/Animations/TrapSaw3.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_traps_animations_trapsaw1_0b64148e1267098e58dd2fe6a7cb1c2e.bundle",
+      "gameres_main_file_prefabs_lwbattle_idlemonster_traps_animations_trapsaw3_968621b4f93a83a3e4da03f03f4568d3.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/IdleMonster/Traps/Animations",
+    "pattern": "TrapSpike",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/IdleMonster/Traps/Animations/TrapSpike.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_lwbattle_idlemonster_traps_animations_trapspike_db633801a164f9f0222279ac9c91ff06.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Plane",
+    "pattern": "test_plane_beizengmen",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Plane/test_plane_beizengmen.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_plane_6_d087861c6685ccd32c2d8d57fb8904e6.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Plane",
+    "pattern": "test_plane_hero_{N}",
+    "ext": ".prefab",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Plane/test_plane_hero_1.prefab",
+      "Assets/Main/Prefabs/LWBattle/Plane/test_plane_hero_2.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_plane_4_5524642e411ab784f405a9ba51294e54.bundle",
+      "gameres_main_dir_prefabs_lwbattle_plane_8_6b2532659bf9917c3d406e26883f910a.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Plane",
+    "pattern": "test_plane_monster_{N}",
+    "ext": ".prefab",
+    "count": 4,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Plane/test_plane_monster_3.prefab",
+      "Assets/Main/Prefabs/LWBattle/Plane/test_plane_monster_4.prefab",
+      "Assets/Main/Prefabs/LWBattle/Plane/test_plane_monster_1.prefab",
+      "Assets/Main/Prefabs/LWBattle/Plane/test_plane_monster_2.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_plane_6_d087861c6685ccd32c2d8d57fb8904e6.bundle",
+      "gameres_main_dir_prefabs_lwbattle_plane_4_5524642e411ab784f405a9ba51294e54.bundle",
+      "gameres_main_dir_prefabs_lwbattle_plane_9_ee1cbaffee6daa87049d78e158a6200f.bundle",
+      "gameres_main_dir_prefabs_lwbattle_plane_3_51df81cf11597ff814ef724b73a830c2.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Plane",
+    "pattern": "test_plane_mutong",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Plane/test_plane_mutong.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_plane_6_d087861c6685ccd32c2d8d57fb8904e6.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Plane",
+    "pattern": "test_plane_qianghua",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Plane/test_plane_qianghua.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_plane_3_51df81cf11597ff814ef724b73a830c2.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Plane/Boss",
+    "pattern": "A_Mongster_FeijiGuai{N}",
+    "ext": ".prefab",
+    "count": 5,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Plane/Boss/A_Mongster_FeijiGuai01.prefab",
+      "Assets/Main/Prefabs/LWBattle/Plane/Boss/A_Mongster_FeijiGuai02.prefab",
+      "Assets/Main/Prefabs/LWBattle/Plane/Boss/A_Mongster_FeijiGuai03.prefab",
+      "Assets/Main/Prefabs/LWBattle/Plane/Boss/A_Mongster_FeijiGuai04.prefab",
+      "Assets/Main/Prefabs/LWBattle/Plane/Boss/A_Mongster_FeijiGuai05.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_plane_boss_6_e5cf2a85affddf782b335433e6e9b158.bundle",
+      "gameres_main_dir_prefabs_lwbattle_plane_boss_7_161c1fd96e15b73ca00e81a6b4e42336.bundle",
+      "gameres_main_dir_prefabs_lwbattle_plane_boss_0_a23ff5ac3b01f77d8d0e71ba79158d39.bundle",
+      "gameres_main_dir_prefabs_lwbattle_plane_boss_3_27706d3183a754d5dbbf66d5a5ebf46d.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Plane/Boss",
+    "pattern": "jingying_{N}",
+    "ext": ".prefab",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Plane/Boss/jingying_01.prefab",
+      "Assets/Main/Prefabs/LWBattle/Plane/Boss/jingying_02.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_plane_boss_0_a23ff5ac3b01f77d8d0e71ba79158d39.bundle",
+      "gameres_main_dir_prefabs_lwbattle_plane_boss_4_8cb39a7ae414e5e5cc7b072f1be8fa48.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Plane/Boss",
+    "pattern": "test_plane_reqiqiu",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Plane/Boss/test_plane_reqiqiu.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_plane_boss_6_e5cf2a85affddf782b335433e6e9b158.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Plane/Boss/Boss02",
+    "pattern": "Boss_jishen",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Plane/Boss/Boss02/Boss_jishen.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_plane_boss_boss02_6_1b871bc1f5785a71ae9ad1ab3ab74be0.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Plane/Boss/Boss02",
+    "pattern": "Boss_jiyi_{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Plane/Boss/Boss02/Boss_jiyi_02.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_plane_boss_boss02_5_b02e345fb4cb5e42475bf4e804916e46.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Plane/Boss/Boss02",
+    "pattern": "Boss_jiyi_{N}L",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Plane/Boss/Boss02/Boss_jiyi_01L.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_plane_boss_boss02_5_b02e345fb4cb5e42475bf4e804916e46.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Plane/Boss/Boss02",
+    "pattern": "Boss_jiyi_{N}R",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Plane/Boss/Boss02/Boss_jiyi_01R.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_plane_boss_boss02_3_46297c23274ca5003748a5a7d11e3f00.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Plane/Boss/Boss02",
+    "pattern": "Boss_pao_hou_{N}_L",
+    "ext": ".prefab",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Plane/Boss/Boss02/Boss_pao_hou_01_L.prefab",
+      "Assets/Main/Prefabs/LWBattle/Plane/Boss/Boss02/Boss_pao_hou_02_L.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_plane_boss_boss02_5_b02e345fb4cb5e42475bf4e804916e46.bundle",
+      "gameres_main_dir_prefabs_lwbattle_plane_boss_boss02_1_80e2486a8e753ea53fdcc3df8e3c47e8.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Plane/Boss/Boss02",
+    "pattern": "Boss_pao_hou_{N}_R",
+    "ext": ".prefab",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Plane/Boss/Boss02/Boss_pao_hou_01_R.prefab",
+      "Assets/Main/Prefabs/LWBattle/Plane/Boss/Boss02/Boss_pao_hou_02_R.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_plane_boss_boss02_4_f6637474c2ed39e49e1cb12f91508b3b.bundle",
+      "gameres_main_dir_prefabs_lwbattle_plane_boss_boss02_2_5174042881b5b2e53620015bc9d615f9.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Plane/Boss/Boss02",
+    "pattern": "Boss_pao_qian_{N}_L",
+    "ext": ".prefab",
+    "count": 3,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Plane/Boss/Boss02/Boss_pao_qian_03_L.prefab",
+      "Assets/Main/Prefabs/LWBattle/Plane/Boss/Boss02/Boss_pao_qian_01_L.prefab",
+      "Assets/Main/Prefabs/LWBattle/Plane/Boss/Boss02/Boss_pao_qian_02_L.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_plane_boss_boss02_6_1b871bc1f5785a71ae9ad1ab3ab74be0.bundle",
+      "gameres_main_dir_prefabs_lwbattle_plane_boss_boss02_7_e02ca64abf3a9e079294a31099a2e911.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Plane/Boss/Boss02",
+    "pattern": "Boss_pao_qian_{N}_R",
+    "ext": ".prefab",
+    "count": 3,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Plane/Boss/Boss02/Boss_pao_qian_03_R.prefab",
+      "Assets/Main/Prefabs/LWBattle/Plane/Boss/Boss02/Boss_pao_qian_02_R.prefab",
+      "Assets/Main/Prefabs/LWBattle/Plane/Boss/Boss02/Boss_pao_qian_01_R.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_plane_boss_boss02_6_1b871bc1f5785a71ae9ad1ab3ab74be0.bundle",
+      "gameres_main_dir_prefabs_lwbattle_plane_boss_boss02_2_5174042881b5b2e53620015bc9d615f9.bundle",
+      "gameres_main_dir_prefabs_lwbattle_plane_boss_boss02_9_fd413aa7f0c15c1726439327288380b6.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Plane/Boss/Boss02",
+    "pattern": "Boss_pao_{N}",
+    "ext": ".prefab",
+    "count": 4,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Plane/Boss/Boss02/Boss_pao_08.prefab",
+      "Assets/Main/Prefabs/LWBattle/Plane/Boss/Boss02/Boss_pao_03.prefab",
+      "Assets/Main/Prefabs/LWBattle/Plane/Boss/Boss02/Boss_pao_04.prefab",
+      "Assets/Main/Prefabs/LWBattle/Plane/Boss/Boss02/Boss_pao_07.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_plane_boss_boss02_6_1b871bc1f5785a71ae9ad1ab3ab74be0.bundle",
+      "gameres_main_dir_prefabs_lwbattle_plane_boss_boss02_5_b02e345fb4cb5e42475bf4e804916e46.bundle",
+      "gameres_main_dir_prefabs_lwbattle_plane_boss_boss02_1_80e2486a8e753ea53fdcc3df8e3c47e8.bundle",
+      "gameres_main_dir_prefabs_lwbattle_plane_boss_boss02_2_5174042881b5b2e53620015bc9d615f9.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Plane/Boss/Boss02",
+    "pattern": "Boss_pao_{N}L",
+    "ext": ".prefab",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Plane/Boss/Boss02/Boss_pao_05L.prefab",
+      "Assets/Main/Prefabs/LWBattle/Plane/Boss/Boss02/Boss_pao_06L.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_plane_boss_boss02_4_f6637474c2ed39e49e1cb12f91508b3b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Plane/Boss/Boss02",
+    "pattern": "Boss_pao_{N}R",
+    "ext": ".prefab",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Plane/Boss/Boss02/Boss_pao_05R.prefab",
+      "Assets/Main/Prefabs/LWBattle/Plane/Boss/Boss02/Boss_pao_06R.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_plane_boss_boss02_3_46297c23274ca5003748a5a7d11e3f00.bundle",
+      "gameres_main_dir_prefabs_lwbattle_plane_boss_boss02_1_80e2486a8e753ea53fdcc3df8e3c47e8.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Plane/Effect/Env",
+    "pattern": "Eff_plane_Cloud_Start",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Plane/Effect/Env/Eff_plane_Cloud_Start.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_plane_effect_env_0_4bc1f347453353ebe066a4f8ffbcc827.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Plane/Effect/Env",
+    "pattern": "Eff_plane_Cloud_{N}",
+    "ext": ".prefab",
+    "count": 4,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Plane/Effect/Env/Eff_plane_Cloud_01.prefab",
+      "Assets/Main/Prefabs/LWBattle/Plane/Effect/Env/Eff_plane_Cloud_02.prefab",
+      "Assets/Main/Prefabs/LWBattle/Plane/Effect/Env/Eff_plane_Cloud_03.prefab",
+      "Assets/Main/Prefabs/LWBattle/Plane/Effect/Env/Eff_plane_Cloud_04.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_plane_effect_env_1_d80826aefb82a349de669d5a475fd9cc.bundle",
+      "gameres_main_dir_prefabs_lwbattle_plane_effect_env_7_54438fe65be038e5df23d8611d15fea8.bundle",
+      "gameres_main_dir_prefabs_lwbattle_plane_effect_env_0_4bc1f347453353ebe066a4f8ffbcc827.bundle",
+      "gameres_main_dir_prefabs_lwbattle_plane_effect_env_3_a16f54ef44f17314bf58da17b04a74e3.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Plane/Effect/Env",
+    "pattern": "Eff_plane_yun",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Plane/Effect/Env/Eff_plane_yun.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_plane_effect_env_0_4bc1f347453353ebe066a4f8ffbcc827.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill",
+    "pattern": "Eff_ljw_plane_boss_dead",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill/Eff_ljw_plane_boss_dead.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_plane_effect_skill_6_93fb71edf820db32664bfca849de4905.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill",
+    "pattern": "Eff_ljw_plane_boss_dead{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill/Eff_ljw_plane_boss_dead2.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_plane_effect_skill_2_75d186cad717c16c421b66dd668c0a2b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill",
+    "pattern": "Eff_ljw_plane_boss_pohuai",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill/Eff_ljw_plane_boss_pohuai.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_plane_effect_skill_1_c15f0529c32f09ec7b417b7fcb928ef4.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill",
+    "pattern": "Eff_ljw_plane_fire",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill/Eff_ljw_plane_fire.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_plane_effect_skill_5_d4be378279416fafcffbc6a801df3ccd.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill",
+    "pattern": "Eff_ljw_plane_fire_blue",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill/Eff_ljw_plane_fire_blue.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_plane_effect_skill_6_93fb71edf820db32664bfca849de4905.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill",
+    "pattern": "Eff_ljw_plane_fire_hit",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill/Eff_ljw_plane_fire_hit.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_plane_effect_skill_7_b95a5914686e6456c936298bc54460f5.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill",
+    "pattern": "Eff_ljw_plane_fire_hit_blue",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill/Eff_ljw_plane_fire_hit_blue.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_plane_effect_skill_0_d581cf7d985bcce812aaf3645af0aef2.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill",
+    "pattern": "Eff_ljw_plane_jiguang",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill/Eff_ljw_plane_jiguang.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_plane_effect_skill_7_b95a5914686e6456c936298bc54460f5.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill",
+    "pattern": "Eff_ljw_plane_jiguang_hit",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill/Eff_ljw_plane_jiguang_hit.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_plane_effect_skill_6_93fb71edf820db32664bfca849de4905.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill",
+    "pattern": "Eff_ljw_plane_jiguang_hit_{N}",
+    "ext": ".prefab",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill/Eff_ljw_plane_jiguang_hit_2.prefab",
+      "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill/Eff_ljw_plane_jiguang_hit_3.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_plane_effect_skill_6_93fb71edf820db32664bfca849de4905.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill",
+    "pattern": "Eff_ljw_plane_jiguang_{N}",
+    "ext": ".prefab",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill/Eff_ljw_plane_jiguang_2.prefab",
+      "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill/Eff_ljw_plane_jiguang_3.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_plane_effect_skill_3_91e44bd73b78afb3a13ec38fe0748b63.bundle",
+      "gameres_main_dir_prefabs_lwbattle_plane_effect_skill_8_05054334d6691fdebda1fabe4439a5c3.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill",
+    "pattern": "Eff_ljw_plane_monster_boom",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill/Eff_ljw_plane_monster_boom.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_plane_effect_skill_0_d581cf7d985bcce812aaf3645af0aef2.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill",
+    "pattern": "Eff_ljw_plane_player_bullet_kaihuo",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill/Eff_ljw_plane_player_bullet_kaihuo.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_plane_effect_skill_9_fb3a80aa1c07821070f03cb595e42c54.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill",
+    "pattern": "Eff_ljw_plane_player_bullet_{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill/Eff_ljw_plane_player_bullet_01.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_plane_effect_skill_0_d581cf7d985bcce812aaf3645af0aef2.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill",
+    "pattern": "Eff_ljw_plane_player_bullet_{N}_hit",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill/Eff_ljw_plane_player_bullet_01_hit.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_plane_effect_skill_7_b95a5914686e6456c936298bc54460f5.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill",
+    "pattern": "Eff_ljw_plane_player_daodan_{N}",
+    "ext": ".prefab",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill/Eff_ljw_plane_player_daodan_01.prefab",
+      "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill/Eff_ljw_plane_player_daodan_02.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_plane_effect_skill_6_93fb71edf820db32664bfca849de4905.bundle",
+      "gameres_main_dir_prefabs_lwbattle_plane_effect_skill_3_91e44bd73b78afb3a13ec38fe0748b63.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill",
+    "pattern": "Eff_ljw_plane_player_daodan_{N}_blue",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill/Eff_ljw_plane_player_daodan_02_blue.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_plane_effect_skill_6_93fb71edf820db32664bfca849de4905.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill",
+    "pattern": "Eff_ljw_plane_player_daodan_{N}_hit",
+    "ext": ".prefab",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill/Eff_ljw_plane_player_daodan_01_hit.prefab",
+      "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill/Eff_ljw_plane_player_daodan_02_hit.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_plane_effect_skill_3_91e44bd73b78afb3a13ec38fe0748b63.bundle",
+      "gameres_main_dir_prefabs_lwbattle_plane_effect_skill_4_a0ac96fc7116086c722160b3a82a2452.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill",
+    "pattern": "Eff_ljw_plane_player_dead",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill/Eff_ljw_plane_player_dead.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_plane_effect_skill_6_93fb71edf820db32664bfca849de4905.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill",
+    "pattern": "Eff_ljw_plane_player_dead_small",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill/Eff_ljw_plane_player_dead_small.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_plane_effect_skill_7_b95a5914686e6456c936298bc54460f5.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill",
+    "pattern": "Eff_Mat_Plane_Levelup",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill/Eff_Mat_Plane_Levelup.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_plane_effect_skill_0_d581cf7d985bcce812aaf3645af0aef2.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill",
+    "pattern": "Eff_plane_boss_daZiDan",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill/Eff_plane_boss_daZiDan.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_plane_effect_skill_2_75d186cad717c16c421b66dd668c0a2b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill",
+    "pattern": "Eff_plane_boss_jiguang_red",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill/Eff_plane_boss_jiguang_red.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_plane_effect_skill_9_fb3a80aa1c07821070f03cb595e42c54.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill",
+    "pattern": "Eff_plane_boss_jiguang_yellow",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill/Eff_plane_boss_jiguang_yellow.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_plane_effect_skill_2_75d186cad717c16c421b66dd668c0a2b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill",
+    "pattern": "Eff_plane_boss_jisuzhadan_da",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill/Eff_plane_boss_jisuzhadan_da.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_plane_effect_skill_3_91e44bd73b78afb3a13ec38fe0748b63.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill",
+    "pattern": "Eff_plane_boss_jisuzhadan_da_hit",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill/Eff_plane_boss_jisuzhadan_da_hit.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_plane_effect_skill_3_91e44bd73b78afb3a13ec38fe0748b63.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill",
+    "pattern": "Eff_plane_boss_jisuzhadan_xiao",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill/Eff_plane_boss_jisuzhadan_xiao.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_plane_effect_skill_2_75d186cad717c16c421b66dd668c0a2b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill",
+    "pattern": "Eff_plane_boss_jisuzhadan_xiao_hit",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill/Eff_plane_boss_jisuzhadan_xiao_hit.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_plane_effect_skill_7_b95a5914686e6456c936298bc54460f5.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill",
+    "pattern": "Eff_plane_boss_tongYongZiDan_hit",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill/Eff_plane_boss_tongYongZiDan_hit.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_plane_effect_skill_0_d581cf7d985bcce812aaf3645af0aef2.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill",
+    "pattern": "Eff_plane_boss_xiaoZiDan",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill/Eff_plane_boss_xiaoZiDan.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_plane_effect_skill_5_d4be378279416fafcffbc6a801df3ccd.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill",
+    "pattern": "Eff_plane_boss_xiaoZiDan_new",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill/Eff_plane_boss_xiaoZiDan_new.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_plane_effect_skill_9_fb3a80aa1c07821070f03cb595e42c54.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill",
+    "pattern": "Eff_plane_boss_zhongZiDan",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill/Eff_plane_boss_zhongZiDan.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_plane_effect_skill_5_d4be378279416fafcffbc6a801df3ccd.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill",
+    "pattern": "Eff_Plane_Explosion",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill/Eff_Plane_Explosion.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_plane_effect_skill_1_c15f0529c32f09ec7b417b7fcb928ef4.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill",
+    "pattern": "Eff_Plane_Levelup_Big",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Plane/Effect/skill/Eff_Plane_Levelup_Big.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_plane_effect_skill_1_c15f0529c32f09ec7b417b7fcb928ef4.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Plane/Formation",
+    "pattern": "SkyBattleTeamFormation{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Plane/Formation/SkyBattleTeamFormation1.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_plane_formation_7_a3dea10b9f66ebb4cb0c9a73bbda2860.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-global-scene-catalog-v1.json|heroshow-scene-loader-audit-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Plane/Player",
+    "pattern": "SkyBattlePlayer{N}",
+    "ext": ".prefab",
+    "count": 3,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Plane/Player/SkyBattlePlayer1.prefab",
+      "Assets/Main/Prefabs/LWBattle/Plane/Player/SkyBattlePlayer2.prefab",
+      "Assets/Main/Prefabs/LWBattle/Plane/Player/SkyBattlePlayer3.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_plane_player_5_b6c80859fb0d01f89178edbe9a34db03.bundle",
+      "gameres_main_dir_prefabs_lwbattle_plane_player_7_a99ef15f5aa6b11c23190d33a9bd97f8.bundle",
+      "gameres_main_dir_prefabs_lwbattle_plane_player_1_e28ab841cb763887525e3f6675278803.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Plane/Player",
+    "pattern": "SkyBattlewingman",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Plane/Player/SkyBattlewingman.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_plane_player_6_42e660606ea848f77b2d535ad2e64ee2.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Plane/Skin",
+    "pattern": "SkyBattlePlaneScene",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Plane/Skin/SkyBattlePlaneScene.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_plane_skin_6_f121ff7ea5e719fd87e7dbcd1fce759a.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Plane/Skin",
+    "pattern": "SkyBattlePlane{N}ForRt",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Plane/Skin/SkyBattlePlane1ForRt.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_plane_skin_7_62dc481faef04e72458f8296e8ef6178.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Plane/Skin",
+    "pattern": "SkyBattlePlayer{N}ForRt",
+    "ext": ".prefab",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Plane/Skin/SkyBattlePlayer2ForRt.prefab",
+      "Assets/Main/Prefabs/LWBattle/Plane/Skin/SkyBattlePlayer3ForRt.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_plane_skin_7_62dc481faef04e72458f8296e8ef6178.bundle",
+      "gameres_main_dir_prefabs_lwbattle_plane_skin_9_fe796bda772f20c90a52100d93b66f2b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Pro/duanqiao",
+    "pattern": "A_build_bridge_boss_{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Pro/duanqiao/A_build_bridge_boss_1.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_pro_duanqiao_0ca2781753d67f343b1b53604c8f6e43.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Pro/duanqiao",
+    "pattern": "jizhuangxiangzu",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Pro/duanqiao/jizhuangxiangzu.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_pro_duanqiao_0ca2781753d67f343b1b53604c8f6e43.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Pro/duanqiao",
+    "pattern": "kache",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Pro/duanqiao/kache.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_pro_duanqiao_0ca2781753d67f343b1b53604c8f6e43.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Pro/duanqiao",
+    "pattern": "O_env_daba_{N}_{N}",
+    "ext": ".prefab",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Pro/duanqiao/O_env_daba_02_1.prefab",
+      "Assets/Main/Prefabs/LWBattle/Pro/duanqiao/O_env_daba_02_2.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_pro_duanqiao_0ca2781753d67f343b1b53604c8f6e43.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Pro/duanqiao",
+    "pattern": "potanke",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Pro/duanqiao/potanke.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_pro_duanqiao_0ca2781753d67f343b1b53604c8f6e43.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Pro/duanqiao",
+    "pattern": "xiaohongche",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Pro/duanqiao/xiaohongche.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_pro_duanqiao_0ca2781753d67f343b1b53604c8f6e43.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Pro/duanqiao",
+    "pattern": "xiaolvche",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Pro/duanqiao/xiaolvche.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_pro_duanqiao_0ca2781753d67f343b1b53604c8f6e43.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Pro/duanqiao",
+    "pattern": "youtongzu",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Pro/duanqiao/youtongzu.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_pro_duanqiao_0ca2781753d67f343b1b53604c8f6e43.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Surfing/Buff",
+    "pattern": "A_Hero_surfing_ally",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Surfing/Buff/A_Hero_surfing_ally.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_surfing_buff_7_0d979be31ea3bc105ef805e27099818d.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Surfing/Buff",
+    "pattern": "Eff_s{N}_running_goldX{N}",
+    "ext": ".prefab",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Surfing/Buff/Eff_s4_running_goldX2.prefab",
+      "Assets/Main/Prefabs/LWBattle/Surfing/Buff/Eff_s4_running_goldX4.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_surfing_buff_3_1f881912e115bb542f1b54af7e1edc85.bundle",
+      "gameres_main_dir_prefabs_lwbattle_surfing_buff_1_874ff2679e604ebc87b1ffe475ff604e.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Surfing/Buff",
+    "pattern": "O_env_ditiepaoku_juanzhou",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Surfing/Buff/O_env_ditiepaoku_juanzhou.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_surfing_buff_0_f6986a39407cf749a327ad50908d0e7c.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Surfing/Buff",
+    "pattern": "O_Object_airplane",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Surfing/Buff/O_Object_airplane.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_surfing_buff_7_0d979be31ea3bc105ef805e27099818d.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Surfing/Buff",
+    "pattern": "O_Object_box",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Surfing/Buff/O_Object_box.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_surfing_buff_8_b2cc59124b1139cb80d7061796d86021.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Surfing/Buff",
+    "pattern": "O_Object_double_score_crystal",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Surfing/Buff/O_Object_double_score_crystal.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_surfing_buff_1_874ff2679e604ebc87b1ffe475ff604e.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Surfing/Buff",
+    "pattern": "O_Object_double_score_crystal_{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Surfing/Buff/O_Object_double_score_crystal_2.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_surfing_buff_1_874ff2679e604ebc87b1ffe475ff604e.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Surfing/Buff",
+    "pattern": "O_Object_double_score_gold",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Surfing/Buff/O_Object_double_score_gold.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_surfing_buff_3_1f881912e115bb542f1b54af7e1edc85.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Surfing/Buff",
+    "pattern": "O_Object_double_score_gold_{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Surfing/Buff/O_Object_double_score_gold_2.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_surfing_buff_5_f9bec054c904a0aa4eaeeb7a52b05b4d.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Surfing/Buff",
+    "pattern": "O_Object_hudun",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Surfing/Buff/O_Object_hudun.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_surfing_buff_6_8dc9443b47e9e6e9e92ac66b184916fb.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Surfing/Buff",
+    "pattern": "O_Object_score_crystal",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Surfing/Buff/O_Object_score_crystal.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_surfing_buff_1_874ff2679e604ebc87b1ffe475ff604e.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Surfing/Buff",
+    "pattern": "O_Object_score_gold",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Surfing/Buff/O_Object_score_gold.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_surfing_buff_9_35bd15ac312f79f2a86be0bb8e6ef445.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Surfing/Buff",
+    "pattern": "O_Object_xitieshi",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Surfing/Buff/O_Object_xitieshi.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_surfing_buff_5_f9bec054c904a0aa4eaeeb7a52b05b4d.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Surfing/Build",
+    "pattern": "A_build_shuiniluzhang_pk_{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Surfing/Build/A_build_shuiniluzhang_pk_1.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_surfing_build_6_0b295e9b008b2907a7792ee4d9294f10.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Surfing/Build",
+    "pattern": "fangzi{N}_lod",
+    "ext": ".prefab",
+    "count": 6,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Surfing/Build/fangzi11_lod.prefab",
+      "Assets/Main/Prefabs/LWBattle/Surfing/Build/fangzi07_lod.prefab",
+      "Assets/Main/Prefabs/LWBattle/Surfing/Build/fangzi09_lod.prefab",
+      "Assets/Main/Prefabs/LWBattle/Surfing/Build/fangzi05_lod.prefab",
+      "Assets/Main/Prefabs/LWBattle/Surfing/Build/fangzi10_lod.prefab",
+      "Assets/Main/Prefabs/LWBattle/Surfing/Build/fangzi06_lod.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_surfing_build_6_0b295e9b008b2907a7792ee4d9294f10.bundle",
+      "gameres_main_dir_prefabs_lwbattle_surfing_build_3_f10e79941d7c55c9f369b9f859e913cd.bundle",
+      "gameres_main_dir_prefabs_lwbattle_surfing_build_0_4870cc3411ba6649cdfc11f84a6b3aa5.bundle",
+      "gameres_main_dir_prefabs_lwbattle_surfing_build_4_f71554549274306b493a0455eddc4932.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Surfing/Build",
+    "pattern": "O_build_cangqiong_shitou_{N}_lod",
+    "ext": ".prefab",
+    "count": 3,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Surfing/Build/O_build_cangqiong_shitou_03_lod.prefab",
+      "Assets/Main/Prefabs/LWBattle/Surfing/Build/O_build_cangqiong_shitou_02_lod.prefab",
+      "Assets/Main/Prefabs/LWBattle/Surfing/Build/O_build_cangqiong_shitou_01_lod.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_surfing_build_1_2e70e4620e6a3d2ded06c57c48092c31.bundle",
+      "gameres_main_dir_prefabs_lwbattle_surfing_build_0_4870cc3411ba6649cdfc11f84a6b3aa5.bundle",
+      "gameres_main_dir_prefabs_lwbattle_surfing_build_8_b40436861442e768bd0a79829306e1e6.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Surfing/Build",
+    "pattern": "O_env_massif_dongkushu_pk",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Surfing/Build/O_env_massif_dongkushu_pk.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_surfing_build_5_cd8202ea87add29767b91ecaba5f700b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Surfing/Build",
+    "pattern": "O_env_massif_dongkushu_v{N}_pk",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Surfing/Build/O_env_massif_dongkushu_v2_pk.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_surfing_build_0_4870cc3411ba6649cdfc11f84a6b3aa5.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Surfing/Build",
+    "pattern": "O_env_massif_dongkushu_v{N}_{N}_pk",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Surfing/Build/O_env_massif_dongkushu_v2_08_pk.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_surfing_build_4_f71554549274306b493a0455eddc4932.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Surfing/Build",
+    "pattern": "O_env_tiezhalan",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Surfing/Build/O_env_tiezhalan.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_surfing_build_4_f71554549274306b493a0455eddc4932.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Surfing/Build",
+    "pattern": "O_Plant_grass_huang_{N}_pk",
+    "ext": ".prefab",
+    "count": 4,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Surfing/Build/O_Plant_grass_huang_01_pk.prefab",
+      "Assets/Main/Prefabs/LWBattle/Surfing/Build/O_Plant_grass_huang_02_pk.prefab",
+      "Assets/Main/Prefabs/LWBattle/Surfing/Build/O_Plant_grass_huang_03_pk.prefab",
+      "Assets/Main/Prefabs/LWBattle/Surfing/Build/O_Plant_grass_huang_04_pk.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_surfing_build_3_f10e79941d7c55c9f369b9f859e913cd.bundle",
+      "gameres_main_dir_prefabs_lwbattle_surfing_build_1_2e70e4620e6a3d2ded06c57c48092c31.bundle",
+      "gameres_main_dir_prefabs_lwbattle_surfing_build_7_2932c5644da4d753b7bb8b92f7ee22ce.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Surfing/Build",
+    "pattern": "O_Prop_rock_{N}_pk",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Surfing/Build/O_Prop_rock_01_pk.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_surfing_build_7_2932c5644da4d753b7bb8b92f7ee22ce.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Surfing/Build",
+    "pattern": "O_Prop_tree_{N}_A_pk",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Surfing/Build/O_Prop_tree_01_A_pk.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_surfing_build_3_f10e79941d7c55c9f369b9f859e913cd.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Surfing/Build",
+    "pattern": "O_Prop_tree_{N}_pk",
+    "ext": ".prefab",
+    "count": 3,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Surfing/Build/O_Prop_tree_03_pk.prefab",
+      "Assets/Main/Prefabs/LWBattle/Surfing/Build/O_Prop_tree_01_pk.prefab",
+      "Assets/Main/Prefabs/LWBattle/Surfing/Build/O_Prop_tree_02_pk.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_surfing_build_7_2932c5644da4d753b7bb8b92f7ee22ce.bundle",
+      "gameres_main_dir_prefabs_lwbattle_surfing_build_0_4870cc3411ba6649cdfc11f84a6b3aa5.bundle",
+      "gameres_main_dir_prefabs_lwbattle_surfing_build_5_cd8202ea87add29767b91ecaba5f700b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Surfing/Effect",
+    "pattern": "Eff_Common_S{N}_paoku_{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Surfing/Effect/Eff_Common_S4_paoku_01.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_surfing_effect_2_4e5a8a0920e11366f847e119f68c81b2.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Surfing/Effect",
+    "pattern": "Eff_ljw_s{N}_running_gold_glow",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Surfing/Effect/Eff_ljw_s4_running_gold_glow.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_surfing_effect_0_c04a081598bc32758ce91864d81cc25d.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Surfing/Effect",
+    "pattern": "Eff_ljw_s{N}_running_truck_light",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Surfing/Effect/Eff_ljw_s4_running_truck_light.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_surfing_effect_6_d46820df7351e8f03aeb2d90377d017c.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Surfing/Effect",
+    "pattern": "Eff_s_s{N}_running_bianshen",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Surfing/Effect/Eff_s_s4_running_bianshen.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_surfing_effect_5_3ef72d5b3727ba456346cdb766ac8e73.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Surfing/Effect",
+    "pattern": "Eff_s_s{N}_running_chidaoju",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Surfing/Effect/Eff_s_s4_running_chidaoju.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_surfing_effect_1_d04cd0a70d28092309ebc6b278b3ce6a.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Surfing/Effect",
+    "pattern": "Eff_s_s{N}_running_chijinbi",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Surfing/Effect/Eff_s_s4_running_chijinbi.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_surfing_effect_0_c04a081598bc32758ce91864d81cc25d.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Surfing/Effect",
+    "pattern": "Eff_s_s{N}_running_fuhuo",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Surfing/Effect/Eff_s_s4_running_fuhuo.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_surfing_effect_1_d04cd0a70d28092309ebc6b278b3ce6a.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Surfing/Effect",
+    "pattern": "Eff_s_s{N}_running_huachan_smoke",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Surfing/Effect/Eff_s_s4_running_huachan_smoke.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_surfing_effect_7_82be0649159665ca44ffc73a7c527bc4.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Surfing/Effect",
+    "pattern": "Eff_s_s{N}_running_hudunposui",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Surfing/Effect/Eff_s_s4_running_hudunposui.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_surfing_effect_2_4e5a8a0920e11366f847e119f68c81b2.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Surfing/Effect",
+    "pattern": "Eff_s_s{N}_running_jiasu",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Surfing/Effect/Eff_s_s4_running_jiasu.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_surfing_effect_3_00db1b88c59936e7c899ab2886883a2c.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Surfing/Effect",
+    "pattern": "Eff_s_s{N}_running_jinbi_xiaoshi",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Surfing/Effect/Eff_s_s4_running_jinbi_xiaoshi.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_surfing_effect_0_c04a081598bc32758ce91864d81cc25d.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Surfing/Effect",
+    "pattern": "Eff_s_s{N}_running_shine",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Surfing/Effect/Eff_s_s4_running_shine.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_surfing_effect_0_c04a081598bc32758ce91864d81cc25d.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Surfing/Effect",
+    "pattern": "Eff_s{N}_running_goldX{N}_lizi",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Surfing/Effect/Eff_s4_running_goldX4_lizi.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_surfing_effect_1_d04cd0a70d28092309ebc6b278b3ce6a.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Surfing/Effect",
+    "pattern": "Eff_ui_S{N}OffSeason_XSYD_guangquan_jihuo",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Surfing/Effect/Eff_ui_S4OffSeason_XSYD_guangquan_jihuo.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_surfing_effect_5_3ef72d5b3727ba456346cdb766ac8e73.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Surfing/Effect",
+    "pattern": "Eff_ui_S{N}OffSeason_XSYD_guangquan_jihuo_zd",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Surfing/Effect/Eff_ui_S4OffSeason_XSYD_guangquan_jihuo_zd.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_surfing_effect_0_c04a081598bc32758ce91864d81cc25d.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Surfing/Effect",
+    "pattern": "Eff_ui_S{N}OffSeason_XSYD_guangquan_qidian",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Surfing/Effect/Eff_ui_S4OffSeason_XSYD_guangquan_qidian.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_surfing_effect_7_82be0649159665ca44ffc73a7c527bc4.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Surfing/Effect",
+    "pattern": "Eff_ui_S{N}OffSeason_XSYD_guangquan_zhongdian",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Surfing/Effect/Eff_ui_S4OffSeason_XSYD_guangquan_zhongdian.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_surfing_effect_5_3ef72d5b3727ba456346cdb766ac8e73.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Surfing/Effect",
+    "pattern": "O_Object_airplane_effect",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Surfing/Effect/O_Object_airplane_effect.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_surfing_effect_7_82be0649159665ca44ffc73a7c527bc4.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Surfing/Hero",
+    "pattern": "A_Hero_surfing_ninja",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Surfing/Hero/A_Hero_surfing_ninja.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_surfing_hero_8_89f96e2346defbef55f036062f8bf428.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Surfing/Hero",
+    "pattern": "A_Hero_surfing_paoku{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Surfing/Hero/A_Hero_surfing_paoku01.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_surfing_hero_6_80bedb4bbee14b57b97af4c7ba08824d.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Surfing/Hero",
+    "pattern": "Monster_surfing_paoku_dazhuang",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Surfing/Hero/Monster_surfing_paoku_dazhuang.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_surfing_hero_4_a207b74694720c28172989d4b9500909.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Surfing/Hero",
+    "pattern": "Monster_surfing_paoku_dog",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Surfing/Hero/Monster_surfing_paoku_dog.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_surfing_hero_0_5e93edbf9e281fe695fe6535434f6648.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Surfing/Hero",
+    "pattern": "TriggerRoot",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Surfing/Hero/TriggerRoot.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_surfing_hero_2_4921b55c39f01fbb754032d91bd1369a.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Surfing/Monster",
+    "pattern": "A_Monster_surfing_dianju{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Surfing/Monster/A_Monster_surfing_dianju01.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_surfing_monster_3_04a4bb561a53e13745fc863eadeff383.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Surfing/Monster",
+    "pattern": "A_Monster_surfing_lpitfall_{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Surfing/Monster/A_Monster_surfing_lpitfall_01.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_surfing_monster_7_8ca3cb4a595255feac36d16d8920cc29.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Surfing/Monster",
+    "pattern": "A_Monster_surfing_mutong",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Surfing/Monster/A_Monster_surfing_mutong.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_surfing_monster_3_04a4bb561a53e13745fc863eadeff383.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Surfing/Monster",
+    "pattern": "A_Monster_surfing_TrapSaw{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Surfing/Monster/A_Monster_surfing_TrapSaw03.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_surfing_monster_0_e735bccac6dd21697ed6f8331c4ce1dc.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Surfing/Monster",
+    "pattern": "A_Monster_surfing_zombieDabache_blue",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Surfing/Monster/A_Monster_surfing_zombieDabache_blue.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_surfing_monster_0_e735bccac6dd21697ed6f8331c4ce1dc.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Surfing/Monster",
+    "pattern": "A_Monster_surfing_zombieDabache_gold",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Surfing/Monster/A_Monster_surfing_zombieDabache_gold.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_surfing_monster_7_8ca3cb4a595255feac36d16d8920cc29.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Surfing/Monster",
+    "pattern": "A_Monster_surfing_zombieDabache_purple",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Surfing/Monster/A_Monster_surfing_zombieDabache_purple.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_surfing_monster_2_aa730d50bdd493efefd1e0e548055e07.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Surfing/Monster",
+    "pattern": "O_env_ditiepaoku_chexiang",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Surfing/Monster/O_env_ditiepaoku_chexiang.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_surfing_monster_7_8ca3cb4a595255feac36d16d8920cc29.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Surfing/Monster",
+    "pattern": "O_env_ditiepaoku_chexiang_{N}",
+    "ext": ".prefab",
+    "count": 4,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Surfing/Monster/O_env_ditiepaoku_chexiang_4.prefab",
+      "Assets/Main/Prefabs/LWBattle/Surfing/Monster/O_env_ditiepaoku_chexiang_3.prefab",
+      "Assets/Main/Prefabs/LWBattle/Surfing/Monster/O_env_ditiepaoku_chexiang_2.prefab",
+      "Assets/Main/Prefabs/LWBattle/Surfing/Monster/O_env_ditiepaoku_chexiang_5.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_surfing_monster_3_04a4bb561a53e13745fc863eadeff383.bundle",
+      "gameres_main_dir_prefabs_lwbattle_surfing_monster_7_8ca3cb4a595255feac36d16d8920cc29.bundle",
+      "gameres_main_dir_prefabs_lwbattle_surfing_monster_5_ad9f8776e39220446940c0098bc015ec.bundle",
+      "gameres_main_dir_prefabs_lwbattle_surfing_monster_8_bacf72cb850abfa840bc1a336f994cf8.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Surfing/Monster",
+    "pattern": "O_env_ditiepaoku_chexiangxiepo",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Surfing/Monster/O_env_ditiepaoku_chexiangxiepo.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_surfing_monster_6_c144d8836bd4dd9e00c2d4ae8ef78b50.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Surfing/Monster",
+    "pattern": "O_env_ditiepaoku_chexiangxiepo_{N}",
+    "ext": ".prefab",
+    "count": 4,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Surfing/Monster/O_env_ditiepaoku_chexiangxiepo_2.prefab",
+      "Assets/Main/Prefabs/LWBattle/Surfing/Monster/O_env_ditiepaoku_chexiangxiepo_5.prefab",
+      "Assets/Main/Prefabs/LWBattle/Surfing/Monster/O_env_ditiepaoku_chexiangxiepo_3.prefab",
+      "Assets/Main/Prefabs/LWBattle/Surfing/Monster/O_env_ditiepaoku_chexiangxiepo_4.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_surfing_monster_2_aa730d50bdd493efefd1e0e548055e07.bundle",
+      "gameres_main_dir_prefabs_lwbattle_surfing_monster_1_73e8fcdfefe262b43717eb21c3738ad7.bundle",
+      "gameres_main_dir_prefabs_lwbattle_surfing_monster_6_c144d8836bd4dd9e00c2d4ae8ef78b50.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Surfing/Monster",
+    "pattern": "O_env_ditiepaoku_gaojiaqiao{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Surfing/Monster/O_env_ditiepaoku_gaojiaqiao01.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_surfing_monster_6_c144d8836bd4dd9e00c2d4ae8ef78b50.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Surfing/Monster",
+    "pattern": "O_env_ditiepaoku_qiaodong",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Surfing/Monster/O_env_ditiepaoku_qiaodong.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_surfing_monster_2_aa730d50bdd493efefd1e0e548055e07.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Surfing/Monster",
+    "pattern": "O_env_ditiepaoku_qiaodong_{N}",
+    "ext": ".prefab",
+    "count": 3,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Surfing/Monster/O_env_ditiepaoku_qiaodong_1.prefab",
+      "Assets/Main/Prefabs/LWBattle/Surfing/Monster/O_env_ditiepaoku_qiaodong_3.prefab",
+      "Assets/Main/Prefabs/LWBattle/Surfing/Monster/O_env_ditiepaoku_qiaodong_2.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_surfing_monster_3_04a4bb561a53e13745fc863eadeff383.bundle",
+      "gameres_main_dir_prefabs_lwbattle_surfing_monster_1_73e8fcdfefe262b43717eb21c3738ad7.bundle",
+      "gameres_main_dir_prefabs_lwbattle_surfing_monster_6_c144d8836bd4dd9e00c2d4ae8ef78b50.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Surfing/Monster",
+    "pattern": "O_Object_high_truck",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Surfing/Monster/O_Object_high_truck.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_surfing_monster_3_04a4bb561a53e13745fc863eadeff383.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Surfing/Monster",
+    "pattern": "O_Object_high_truck_gold",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Surfing/Monster/O_Object_high_truck_gold.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_surfing_monster_0_e735bccac6dd21697ed6f8331c4ce1dc.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Surfing/Monster",
+    "pattern": "O_Object_high_truck_gold_move_{N}",
+    "ext": ".prefab",
+    "count": 3,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Surfing/Monster/O_Object_high_truck_gold_move_2.prefab",
+      "Assets/Main/Prefabs/LWBattle/Surfing/Monster/O_Object_high_truck_gold_move_3.prefab",
+      "Assets/Main/Prefabs/LWBattle/Surfing/Monster/O_Object_high_truck_gold_move_1.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_surfing_monster_0_e735bccac6dd21697ed6f8331c4ce1dc.bundle",
+      "gameres_main_dir_prefabs_lwbattle_surfing_monster_2_aa730d50bdd493efefd1e0e548055e07.bundle",
+      "gameres_main_dir_prefabs_lwbattle_surfing_monster_1_73e8fcdfefe262b43717eb21c3738ad7.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Surfing/Monster",
+    "pattern": "O_Object_high_truck_move_{N}",
+    "ext": ".prefab",
+    "count": 3,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Surfing/Monster/O_Object_high_truck_move_3.prefab",
+      "Assets/Main/Prefabs/LWBattle/Surfing/Monster/O_Object_high_truck_move_1.prefab",
+      "Assets/Main/Prefabs/LWBattle/Surfing/Monster/O_Object_high_truck_move_2.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_surfing_monster_0_e735bccac6dd21697ed6f8331c4ce1dc.bundle",
+      "gameres_main_dir_prefabs_lwbattle_surfing_monster_2_aa730d50bdd493efefd1e0e548055e07.bundle",
+      "gameres_main_dir_prefabs_lwbattle_surfing_monster_6_c144d8836bd4dd9e00c2d4ae8ef78b50.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Surfing/Monster",
+    "pattern": "O_Object_high_truck_slope",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Surfing/Monster/O_Object_high_truck_slope.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_surfing_monster_9_0c94537d5cac53efc62af4e003e7bf5e.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Surfing/Monster",
+    "pattern": "O_Object_high_zhalan{N}",
+    "ext": ".prefab",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Surfing/Monster/O_Object_high_zhalan2.prefab",
+      "Assets/Main/Prefabs/LWBattle/Surfing/Monster/O_Object_high_zhalan1.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_surfing_monster_1_73e8fcdfefe262b43717eb21c3738ad7.bundle",
+      "gameres_main_dir_prefabs_lwbattle_surfing_monster_4_3e8f50e8298d212f2b516892c8405803.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Surfing/RenderData",
+    "pattern": "renderSettingData",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Surfing/RenderData/renderSettingData.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_surfing_renderdata_4_eedf243762cdf9dc62b75f156776b7b8.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Unused",
+    "pattern": "A_Monster@Zombie{N}_Dabache",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Unused/A_Monster@Zombie01_Dabache.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_unused_0_55d9ac6736bed28e320e3b194029ff63.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Zombie",
+    "pattern": "A_Monster@Zombie{N}_Dabache_gpu",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Zombie/A_Monster@Zombie01_Dabache_gpu.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_zombie_6f4fed4fdb9d56159777be5c828a7590.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Zombie",
+    "pattern": "A_Monster_boss_diaolingzhe{N}_beizengmen",
+    "ext": ".prefab",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Zombie/A_Monster_boss_diaolingzhe02_beizengmen.prefab",
+      "Assets/Main/Prefabs/LWBattle/Zombie/A_Monster_boss_diaolingzhe03_beizengmen.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_zombie_6f4fed4fdb9d56159777be5c828a7590.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Zombie",
+    "pattern": "A_Monster_dog{N}_gpu",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Zombie/A_Monster_dog01_gpu.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_zombie_6f4fed4fdb9d56159777be5c828a7590.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Zombie",
+    "pattern": "A_Monster_dog{N}_LOD",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Zombie/A_Monster_dog01_LOD.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_zombie_6f4fed4fdb9d56159777be5c828a7590.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Zombie",
+    "pattern": "A_Monster_Zombie_girl{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Zombie/A_Monster_Zombie_girl01.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_zombie_6f4fed4fdb9d56159777be5c828a7590.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Zombie",
+    "pattern": "A_Monster_Zombie_girl{N}_gpu",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Zombie/A_Monster_Zombie_girl01_gpu.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_zombie_6f4fed4fdb9d56159777be5c828a7590.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Zombie",
+    "pattern": "A_Monster_Zombie_zhixiang_lod",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Zombie/A_Monster_Zombie_zhixiang_lod.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_zombie_6f4fed4fdb9d56159777be5c828a7590.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Zombie",
+    "pattern": "A_Monster_Zombie_zhixiang_lod_gpu",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Zombie/A_Monster_Zombie_zhixiang_lod_gpu.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_zombie_6f4fed4fdb9d56159777be5c828a7590.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Zombie",
+    "pattern": "A_Monster_Zombie_zhixiang_lod_SJ",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Zombie/A_Monster_Zombie_zhixiang_lod_SJ.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_zombie_6f4fed4fdb9d56159777be5c828a7590.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Zombie",
+    "pattern": "A_Monster_Zombie{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Zombie/A_Monster_Zombie29.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_zombie_6f4fed4fdb9d56159777be5c828a7590.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Zombie",
+    "pattern": "A_Monster_Zombie{N}_Cartons_{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Zombie/A_Monster_Zombie01_Cartons_1.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_zombie_6f4fed4fdb9d56159777be5c828a7590.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Zombie",
+    "pattern": "A_Monster_Zombie{N}_Cartons_{N}_gpu",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Zombie/A_Monster_Zombie01_Cartons_1_gpu.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_zombie_6f4fed4fdb9d56159777be5c828a7590.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Zombie",
+    "pattern": "A_Monster_Zombie{N}_Hat",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Zombie/A_Monster_Zombie01_Hat.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_zombie_6f4fed4fdb9d56159777be5c828a7590.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBattle/Zombie",
+    "pattern": "A_Monster_Zombie{N}_Hat_gpu",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBattle/Zombie/A_Monster_Zombie01_Hat_gpu.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbattle_zombie_6f4fed4fdb9d56159777be5c828a7590.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWBuildQueue",
+    "pattern": "gongrenlianxiang_timeline{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWBuildQueue/gongrenlianxiang_timeline01.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwbuildqueue_bb04a44314b0d259a4da4ab583235156.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCityEvent",
+    "pattern": "A_ArmyNpc{N}",
+    "ext": ".prefab",
+    "count": 3,
+    "examples": [
+      "Assets/Main/Prefabs/LWCityEvent/A_ArmyNpc1.prefab",
+      "Assets/Main/Prefabs/LWCityEvent/A_ArmyNpc2.prefab",
+      "Assets/Main/Prefabs/LWCityEvent/A_ArmyNpc3.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcityevent_3618826619e64f66ad815702d63668ad.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCityEvent",
+    "pattern": "Eff_wurenjipojiang_Smoke{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCityEvent/Eff_wurenjipojiang_Smoke02.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcityevent_3618826619e64f66ad815702d63668ad.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCityEvent",
+    "pattern": "wurenjipojiang_sangshi",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCityEvent/wurenjipojiang_sangshi.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcityevent_3618826619e64f66ad815702d63668ad.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCityEvent/ActorHero",
+    "pattern": "SoliderActor{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCityEvent/ActorHero/SoliderActor1.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcityevent_actorhero_99d6c4c27c049311af9e2676c51ec922.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCityEvent/TimeLine",
+    "pattern": "sangshiweicheng_timeline",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCityEvent/TimeLine/sangshiweicheng_timeline.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcityevent_timeline_708b9af986066d75fe3934dbc45213f4.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCityEvent/TimeLine",
+    "pattern": "wurenjipojiang_timeline",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCityEvent/TimeLine/wurenjipojiang_timeline.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcityevent_timeline_708b9af986066d75fe3934dbc45213f4.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCivilizationSpark",
+    "pattern": "A_build_posunweilan_v{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCivilizationSpark/A_build_posunweilan_v2.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcivilizationspark_3_0ba72703c9b959b279c3daadaae5f8f3.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCivilizationSpark",
+    "pattern": "A_Monster_Dog{N}_{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCivilizationSpark/A_Monster_Dog01_01.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcivilizationspark_6_02d682a758dcb4e498bccb6559566514.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCivilizationSpark",
+    "pattern": "A_Monster_motuoboss_battle",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCivilizationSpark/A_Monster_motuoboss_battle.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcivilizationspark_7_e9f53c4060cba26810a1a8f4e4f2024a.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCivilizationSpark",
+    "pattern": "DebugGrid",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCivilizationSpark/DebugGrid.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcivilizationspark_2_b4922e5d754e8e19ce59e504e630b25f.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCivilizationSpark",
+    "pattern": "opening_city_road_v{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCivilizationSpark/opening_city_road_v2.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcivilizationspark_7_e9f53c4060cba26810a1a8f4e4f2024a.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCivilizationSpark",
+    "pattern": "opening_stage_road_v{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCivilizationSpark/opening_stage_road_v2.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcivilizationspark_3_0ba72703c9b959b279c3daadaae5f8f3.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCivilizationSpark/City_v2/Wall",
+    "pattern": "K{N}Wall{N}",
+    "ext": ".prefab",
+    "count": 23,
+    "examples": [
+      "Assets/Main/Prefabs/LWCivilizationSpark/City_v2/Wall/K1Wall1.prefab",
+      "Assets/Main/Prefabs/LWCivilizationSpark/City_v2/Wall/K1Wall2.prefab",
+      "Assets/Main/Prefabs/LWCivilizationSpark/City_v2/Wall/K3Wall1.prefab",
+      "Assets/Main/Prefabs/LWCivilizationSpark/City_v2/Wall/K4Wall1.prefab",
+      "Assets/Main/Prefabs/LWCivilizationSpark/City_v2/Wall/K6Wall1.prefab",
+      "Assets/Main/Prefabs/LWCivilizationSpark/City_v2/Wall/K9Wall1.prefab",
+      "Assets/Main/Prefabs/LWCivilizationSpark/City_v2/Wall/K1Wall3.prefab",
+      "Assets/Main/Prefabs/LWCivilizationSpark/City_v2/Wall/K4Wall2.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcivilizationspark_city_v2_wall_8_f1c7a0d3ed47dd41b98cf93c2a4a4066.bundle",
+      "gameres_main_dir_prefabs_lwcivilizationspark_city_v2_wall_2_67d7772118793f7e27fc9b12eb6da7a8.bundle",
+      "gameres_main_dir_prefabs_lwcivilizationspark_city_v2_wall_1_546803a4475d2694bc1da79b9348516c.bundle",
+      "gameres_main_dir_prefabs_lwcivilizationspark_city_v2_wall_7_b843973aadc8ae80ddb6954c9eef12e4.bundle",
+      "gameres_main_dir_prefabs_lwcivilizationspark_city_v2_wall_0_96a4b29b9776dcf15a6870e534206dda.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCivilizationSpark/City_v2/Zone",
+    "pattern": "CityZone",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCivilizationSpark/City_v2/Zone/CityZone.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcivilizationspark_city_v2_zone_6_3830e5c5ec4775818b712036a6ac0b9b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCivilizationSpark/Monopoly",
+    "pattern": "A_Hero_bubing{N}_v{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCivilizationSpark/Monopoly/A_Hero_bubing05_v2.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcivilizationspark_monopoly_3_99889a389c126b48ed3418e0b608a990.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCivilizationSpark/Monopoly",
+    "pattern": "battleEffectRed",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCivilizationSpark/Monopoly/battleEffectRed.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcivilizationspark_monopoly_3_99889a389c126b48ed3418e0b608a990.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCivilizationSpark/Monopoly",
+    "pattern": "bubing{N}_AK_new_B",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCivilizationSpark/Monopoly/bubing11_AK_new_B.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcivilizationspark_monopoly_0_71a055bbb2b059404fc1495294ab438b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCivilizationSpark/Prefab",
+    "pattern": "Eff_ljw_s{N}_{N}_build_smoke",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCivilizationSpark/Prefab/Eff_ljw_s0_03_build_smoke.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcivilizationspark_prefab_5_6efb67ec78a97af109e707d1e40751d2.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCivilizationSpark/Prefab",
+    "pattern": "Eff_S{N}_zyns_build_smoke",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCivilizationSpark/Prefab/Eff_S0_zyns_build_smoke.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcivilizationspark_prefab_5_6efb67ec78a97af109e707d1e40751d2.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCivilizationSpark/Prefab",
+    "pattern": "Eff_S{N}_zyns_sweep_lv{N}",
+    "ext": ".prefab",
+    "count": 5,
+    "examples": [
+      "Assets/Main/Prefabs/LWCivilizationSpark/Prefab/Eff_S0_zyns_sweep_lv2.prefab",
+      "Assets/Main/Prefabs/LWCivilizationSpark/Prefab/Eff_S0_zyns_sweep_lv3.prefab",
+      "Assets/Main/Prefabs/LWCivilizationSpark/Prefab/Eff_S0_zyns_sweep_lv4.prefab",
+      "Assets/Main/Prefabs/LWCivilizationSpark/Prefab/Eff_S0_zyns_sweep_lv5.prefab",
+      "Assets/Main/Prefabs/LWCivilizationSpark/Prefab/Eff_S0_zyns_sweep_lv6.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcivilizationspark_prefab_6_ba1d6866facdc8a4eb8999990a3ec395.bundle",
+      "gameres_main_dir_prefabs_lwcivilizationspark_prefab_0_7671de371bf683a08f94e21f414e3ba5.bundle",
+      "gameres_main_dir_prefabs_lwcivilizationspark_prefab_4_b5d177479401c94bec064642d32ef386.bundle",
+      "gameres_main_dir_prefabs_lwcivilizationspark_prefab_1_1280f135ec49344276e13db338d1dbb0.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCivilizationSpark/Prefab",
+    "pattern": "Eff_s{N}_{N}_build_icon_end",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCivilizationSpark/Prefab/Eff_s0_03_build_icon_end.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcivilizationspark_prefab_3_c4289b87018da1b53dc616106ba7e4c7.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCivilizationSpark/Prefab",
+    "pattern": "Eff_s{N}_{N}_build_icon_fly_jinmendaqiao",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCivilizationSpark/Prefab/Eff_s0_03_build_icon_fly_jinmendaqiao.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcivilizationspark_prefab_3_c4289b87018da1b53dc616106ba7e4c7.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCivilizationSpark/Prefab",
+    "pattern": "Eff_s{N}_{N}_dasangshi_suipian_diguodasha",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCivilizationSpark/Prefab/Eff_s0_03_dasangshi_suipian_diguodasha.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcivilizationspark_prefab_1_1280f135ec49344276e13db338d1dbb0.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCivilizationSpark/Prefab",
+    "pattern": "Eff_s{N}_{N}_dasangshi_suipian_haolaiwu",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCivilizationSpark/Prefab/Eff_s0_03_dasangshi_suipian_haolaiwu.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcivilizationspark_prefab_0_7671de371bf683a08f94e21f414e3ba5.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCivilizationSpark/Prefab",
+    "pattern": "Eff_s{N}_{N}_dasangshi_suipian_huaerjie",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCivilizationSpark/Prefab/Eff_s0_03_dasangshi_suipian_huaerjie.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcivilizationspark_prefab_3_c4289b87018da1b53dc616106ba7e4c7.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCivilizationSpark/Prefab",
+    "pattern": "Eff_s{N}_{N}_dasangshi_suipian_jinianbei",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCivilizationSpark/Prefab/Eff_s0_03_dasangshi_suipian_jinianbei.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcivilizationspark_prefab_0_7671de371bf683a08f94e21f414e3ba5.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCivilizationSpark/Prefab",
+    "pattern": "Eff_s{N}_{N}_dasangshi_suipian_jinmendaqiao",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCivilizationSpark/Prefab/Eff_s0_03_dasangshi_suipian_jinmendaqiao.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcivilizationspark_prefab_1_1280f135ec49344276e13db338d1dbb0.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCivilizationSpark/Timeline/s0_01_dagouchuxian",
+    "pattern": "s{N}_{N}_caidan_daqiao_timeline",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCivilizationSpark/Timeline/s0_01_dagouchuxian/s0_03_caidan_daqiao_timeline.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcivilizationspark_timeline_s0_01_dagouchuxian_7_91838ffc5c4c07c506a35e439a6ebcaf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCivilizationSpark/Timeline/s0_01_dagouchuxian",
+    "pattern": "s{N}_{N}_caidan_daqiao_timeline{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCivilizationSpark/Timeline/s0_01_dagouchuxian/s0_03_caidan_daqiao_timeline01.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcivilizationspark_timeline_s0_01_dagouchuxian_2_f08dfe70220d4d2a49d77b40941a9070.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCivilizationSpark/Timeline/s0_01_dagouchuxian",
+    "pattern": "s{N}_{N}_caidan_dasha_timeline{N}",
+    "ext": ".prefab",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Prefabs/LWCivilizationSpark/Timeline/s0_01_dagouchuxian/s0_09_caidan_dasha_timeline01.prefab",
+      "Assets/Main/Prefabs/LWCivilizationSpark/Timeline/s0_01_dagouchuxian/s0_05_caidan_dasha_timeline01.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcivilizationspark_timeline_s0_01_dagouchuxian_9_a9b87a1552c80f3ed84913ede2da95c0.bundle",
+      "gameres_main_dir_prefabs_lwcivilizationspark_timeline_s0_01_dagouchuxian_3_e6c5519d4c5b41be58a897528cd9f0a8.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCivilizationSpark/Timeline/s0_01_dagouchuxian",
+    "pattern": "s{N}_{N}_dagoubianshen_timeline{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCivilizationSpark/Timeline/s0_01_dagouchuxian/s0_04_dagoubianshen_timeline01.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcivilizationspark_timeline_s0_01_dagouchuxian_1_95e0abdcbbef187ed63c63ccd1f575ad.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCivilizationSpark/Timeline/s0_01_dagouchuxian",
+    "pattern": "s{N}_{N}_dagouchuxian_timeline{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCivilizationSpark/Timeline/s0_01_dagouchuxian/s0_01_dagouchuxian_timeline01.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcivilizationspark_timeline_s0_01_dagouchuxian_9_a9b87a1552c80f3ed84913ede2da95c0.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCivilizationSpark/Timeline/s0_01_dagouchuxian",
+    "pattern": "s{N}_{N}_dagoudaiji_timeline{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCivilizationSpark/Timeline/s0_01_dagouchuxian/s0_04_dagoudaiji_timeline01.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcivilizationspark_timeline_s0_01_dagouchuxian_0_1f7aa0bba9bb37bfbe2c29d9cf87308e.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCivilizationSpark/Timeline/s0_01_dagouchuxian",
+    "pattern": "s{N}_{N}_dagoutaopao_timeline{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCivilizationSpark/Timeline/s0_01_dagouchuxian/s0_01_dagoutaopao_timeline01.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcivilizationspark_timeline_s0_01_dagouchuxian_1_95e0abdcbbef187ed63c63ccd1f575ad.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCivilizationSpark/Timeline/s0_01_dagouchuxian",
+    "pattern": "s{N}_{N}_daqiao_caidan_timeline{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCivilizationSpark/Timeline/s0_01_dagouchuxian/s0_02_daqiao_caidan_timeline01.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcivilizationspark_timeline_s0_01_dagouchuxian_8_4d5a6da501e79cd5609f50f859f129c4.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCivilizationSpark/Timeline/s0_01_dagouchuxian",
+    "pattern": "s{N}_{N}_dasangshi_suipian",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCivilizationSpark/Timeline/s0_01_dagouchuxian/s0_03_dasangshi_suipian.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcivilizationspark_timeline_s0_01_dagouchuxian_6_144ec9580d21cd41ae6aeb62bc2f6457.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCivilizationSpark/Timeline/s0_01_dagouchuxian",
+    "pattern": "s{N}_{N}_dasangshi_timeline{N}",
+    "ext": ".prefab",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Prefabs/LWCivilizationSpark/Timeline/s0_01_dagouchuxian/s0_03_dasangshi_timeline02.prefab",
+      "Assets/Main/Prefabs/LWCivilizationSpark/Timeline/s0_01_dagouchuxian/s0_03_dasangshi_timeline01.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcivilizationspark_timeline_s0_01_dagouchuxian_1_95e0abdcbbef187ed63c63ccd1f575ad.bundle",
+      "gameres_main_dir_prefabs_lwcivilizationspark_timeline_s0_01_dagouchuxian_7_91838ffc5c4c07c506a35e439a6ebcaf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCivilizationSpark/Timeline/s0_01_dagouchuxian",
+    "pattern": "s{N}_{N}_fenglaotoucaidan_timeline{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCivilizationSpark/Timeline/s0_01_dagouchuxian/s0_01_fenglaotoucaidan_timeline01.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcivilizationspark_timeline_s0_01_dagouchuxian_2_f08dfe70220d4d2a49d77b40941a9070.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCivilizationSpark/Timeline/s0_01_dagouchuxian",
+    "pattern": "s{N}_{N}_ganlanqiuboss_timeline{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCivilizationSpark/Timeline/s0_01_dagouchuxian/s0_08_ganlanqiuboss_timeline01.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcivilizationspark_timeline_s0_01_dagouchuxian_2_f08dfe70220d4d2a49d77b40941a9070.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCivilizationSpark/Timeline/s0_01_dagouchuxian",
+    "pattern": "s{N}_{N}_jicheboss_liuda_timeline{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCivilizationSpark/Timeline/s0_01_dagouchuxian/s0_05_jicheboss_liuda_timeline01.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcivilizationspark_timeline_s0_01_dagouchuxian_0_1f7aa0bba9bb37bfbe2c29d9cf87308e.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCivilizationSpark/Timeline/s0_01_dagouchuxian",
+    "pattern": "s{N}_{N}_jicheboss_timeline{N}",
+    "ext": ".prefab",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Prefabs/LWCivilizationSpark/Timeline/s0_01_dagouchuxian/s0_06_jicheboss_timeline01.prefab",
+      "Assets/Main/Prefabs/LWCivilizationSpark/Timeline/s0_01_dagouchuxian/s0_06_jicheboss_timeline02.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcivilizationspark_timeline_s0_01_dagouchuxian_8_4d5a6da501e79cd5609f50f859f129c4.bundle",
+      "gameres_main_dir_prefabs_lwcivilizationspark_timeline_s0_01_dagouchuxian_0_1f7aa0bba9bb37bfbe2c29d9cf87308e.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCivilizationSpark/Timeline/s0_01_dagouchuxian",
+    "pattern": "s{N}_{N}_monika_timeline{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCivilizationSpark/Timeline/s0_01_dagouchuxian/s0_01_monika_timeline01.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcivilizationspark_timeline_s0_01_dagouchuxian_6_144ec9580d21cd41ae6aeb62bc2f6457.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCivilizationSpark/Timeline/s0_01_dagouchuxian",
+    "pattern": "s{N}_{N}_quanjishou_boss_timeline{N}",
+    "ext": ".prefab",
+    "count": 4,
+    "examples": [
+      "Assets/Main/Prefabs/LWCivilizationSpark/Timeline/s0_01_dagouchuxian/s0_10_quanjishou_boss_timeline01.prefab",
+      "Assets/Main/Prefabs/LWCivilizationSpark/Timeline/s0_01_dagouchuxian/s0_10_quanjishou_boss_timeline02.prefab",
+      "Assets/Main/Prefabs/LWCivilizationSpark/Timeline/s0_01_dagouchuxian/s0_10_quanjishou_boss_timeline03.prefab",
+      "Assets/Main/Prefabs/LWCivilizationSpark/Timeline/s0_01_dagouchuxian/s0_10_quanjishou_boss_timeline04.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcivilizationspark_timeline_s0_01_dagouchuxian_6_144ec9580d21cd41ae6aeb62bc2f6457.bundle",
+      "gameres_main_dir_prefabs_lwcivilizationspark_timeline_s0_01_dagouchuxian_3_e6c5519d4c5b41be58a897528cd9f0a8.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCivilizationSpark/Timeline/s0_01_dagouchuxian",
+    "pattern": "s{N}_{N}_salashikong_timeline{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCivilizationSpark/Timeline/s0_01_dagouchuxian/s0_07_salashikong_timeline01.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcivilizationspark_timeline_s0_01_dagouchuxian_0_1f7aa0bba9bb37bfbe2c29d9cf87308e.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCivilizationSpark/Timeline/s0_01_dagouchuxian",
+    "pattern": "s{N}_{N}_salashikong_timeline{N}_all",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCivilizationSpark/Timeline/s0_01_dagouchuxian/s0_07_salashikong_timeline01_all.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcivilizationspark_timeline_s0_01_dagouchuxian_3_e6c5519d4c5b41be58a897528cd9f0a8.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCivilizationSpark/Timeline/s0_01_dagouchuxian",
+    "pattern": "s{N}_{N}_shengqi_timeline{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCivilizationSpark/Timeline/s0_01_dagouchuxian/s0_01_shengqi_timeline01.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcivilizationspark_timeline_s0_01_dagouchuxian_6_144ec9580d21cd41ae6aeb62bc2f6457.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCivilizationSpark/Timeline/s0_01_dagouchuxian",
+    "pattern": "s{N}_{N}_wurenji_timeline{N}",
+    "ext": ".prefab",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Prefabs/LWCivilizationSpark/Timeline/s0_01_dagouchuxian/s0_11_wurenji_timeline02.prefab",
+      "Assets/Main/Prefabs/LWCivilizationSpark/Timeline/s0_01_dagouchuxian/s0_11_wurenji_timeline01.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcivilizationspark_timeline_s0_01_dagouchuxian_1_95e0abdcbbef187ed63c63ccd1f575ad.bundle",
+      "gameres_main_dir_prefabs_lwcivilizationspark_timeline_s0_01_dagouchuxian_8_4d5a6da501e79cd5609f50f859f129c4.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCivilizationSpark/xindafuweng",
+    "pattern": "A_Build_duanqiao",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCivilizationSpark/xindafuweng/A_Build_duanqiao.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcivilizationspark_xindafuweng_1_981bef5baa63c71ad482bd9056edfee7.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCivilizationSpark/xindafuweng",
+    "pattern": "A_Build_posunchengmen_{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCivilizationSpark/xindafuweng/A_Build_posunchengmen_01.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcivilizationspark_xindafuweng_6_fa0081da5c4731f8d50eab4a181e970f.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCivilizationSpark/xindafuweng",
+    "pattern": "A_Build_posunlangan_{N}",
+    "ext": ".prefab",
+    "count": 4,
+    "examples": [
+      "Assets/Main/Prefabs/LWCivilizationSpark/xindafuweng/A_Build_posunlangan_01.prefab",
+      "Assets/Main/Prefabs/LWCivilizationSpark/xindafuweng/A_Build_posunlangan_02.prefab",
+      "Assets/Main/Prefabs/LWCivilizationSpark/xindafuweng/A_Build_posunlangan_03.prefab",
+      "Assets/Main/Prefabs/LWCivilizationSpark/xindafuweng/A_Build_posunlangan_04.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcivilizationspark_xindafuweng_9_f2bd498cff7e32374e6704e730a29c49.bundle",
+      "gameres_main_dir_prefabs_lwcivilizationspark_xindafuweng_5_46d187c27d0106e9db2735d413f765df.bundle",
+      "gameres_main_dir_prefabs_lwcivilizationspark_xindafuweng_3_89b89e842f5c25b1659b494cfd71127b.bundle",
+      "gameres_main_dir_prefabs_lwcivilizationspark_xindafuweng_2_24856b4e4c0e5c9448a6e52aba496de1.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCivilizationSpark/xindafuweng",
+    "pattern": "Jiuguan_new",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCivilizationSpark/xindafuweng/Jiuguan_new.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcivilizationspark_xindafuweng_9_f2bd498cff7e32374e6704e730a29c49.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCivilizationSpark/xindafuweng",
+    "pattern": "Jiuguan_new_po",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCivilizationSpark/xindafuweng/Jiuguan_new_po.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcivilizationspark_xindafuweng_2_24856b4e4c0e5c9448a6e52aba496de1.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWComic",
+    "pattern": "comic_S{N}_P{N}",
+    "ext": ".prefab",
+    "count": 7,
+    "examples": [
+      "Assets/Main/Prefabs/LWComic/comic_S1_P1.prefab",
+      "Assets/Main/Prefabs/LWComic/comic_S1_P2.prefab",
+      "Assets/Main/Prefabs/LWComic/comic_S1_P3.prefab",
+      "Assets/Main/Prefabs/LWComic/comic_S2_P1.prefab",
+      "Assets/Main/Prefabs/LWComic/comic_S2_P2.prefab",
+      "Assets/Main/Prefabs/LWComic/comic_S2_P3.prefab",
+      "Assets/Main/Prefabs/LWComic/comic_S2_P4.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcomic_5be11f43fb516e87da124db89245c9cb.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCountBattle/Bullets",
+    "pattern": "Eff_mat_line_{N}",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCountBattle/Bullets/Eff_mat_line_12.mat"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcountbattle_bullets_94e603b2321d0d08005f7789bc0f5b42.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCountBattle/Bullets",
+    "pattern": "FlamethrowerBullet",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCountBattle/Bullets/FlamethrowerBullet.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcountbattle_bullets_94e603b2321d0d08005f7789bc0f5b42.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCountBattle/Bullets",
+    "pattern": "RifleBullet",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCountBattle/Bullets/RifleBullet.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcountbattle_bullets_94e603b2321d0d08005f7789bc0f5b42.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCountBattle/Bullets",
+    "pattern": "ShotgunBullet",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCountBattle/Bullets/ShotgunBullet.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcountbattle_bullets_94e603b2321d0d08005f7789bc0f5b42.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCountBattle/DeadVfx",
+    "pattern": "blood_dark{N}_cm",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCountBattle/DeadVfx/blood_dark03_cm.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcountbattle_deadvfx_44673af4f3401fedaa0205a7434895e8.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCountBattle/DeadVfx",
+    "pattern": "Eff_Aiyinsitan_attack_hit_cm",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCountBattle/DeadVfx/Eff_Aiyinsitan_attack_hit_cm.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcountbattle_deadvfx_44673af4f3401fedaa0205a7434895e8.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCountBattle/DeadVfx",
+    "pattern": "Eff_qiyoutong_cm",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCountBattle/DeadVfx/Eff_qiyoutong_cm.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcountbattle_deadvfx_44673af4f3401fedaa0205a7434895e8.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCountBattle/DeadVfx",
+    "pattern": "Eff_xinshou_shiti_boom_cm",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCountBattle/DeadVfx/Eff_xinshou_shiti_boom_cm.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcountbattle_deadvfx_44673af4f3401fedaa0205a7434895e8.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCountBattle/DeadVfx",
+    "pattern": "Eff_xinshou_xuezi_cm",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCountBattle/DeadVfx/Eff_xinshou_xuezi_cm.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcountbattle_deadvfx_44673af4f3401fedaa0205a7434895e8.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCountBattle/Doors",
+    "pattern": "DoorBlue",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCountBattle/Doors/DoorBlue.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcountbattle_doors_7aed573de67a2761b98e896ca1d426a7.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCountBattle/Doors",
+    "pattern": "DoorRed",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCountBattle/Doors/DoorRed.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcountbattle_doors_7aed573de67a2761b98e896ca1d426a7.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCountBattle/Doors",
+    "pattern": "VfxPassDoor",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCountBattle/Doors/VfxPassDoor.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcountbattle_doors_7aed573de67a2761b98e896ca1d426a7.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCountBattle/HitVfx",
+    "pattern": "Eff_Metal_hit_cm",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCountBattle/HitVfx/Eff_Metal_hit_cm.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcountbattle_hitvfx_da4dd85871bc854885114790c0c4c655.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCountBattle/HitVfx",
+    "pattern": "Eff_monster_hit",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCountBattle/HitVfx/Eff_monster_hit.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcountbattle_hitvfx_da4dd85871bc854885114790c0c4c655.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCountBattle/HitVfx",
+    "pattern": "Eff_monster_hit_cm",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCountBattle/HitVfx/Eff_monster_hit_cm.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcountbattle_hitvfx_da4dd85871bc854885114790c0c4c655.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCountBattle/HitVfx",
+    "pattern": "Eff_Rocket_hit",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCountBattle/HitVfx/Eff_Rocket_hit.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcountbattle_hitvfx_da4dd85871bc854885114790c0c4c655.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCountBattle/HitVfx",
+    "pattern": "Eff_stone_hit_cm",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCountBattle/HitVfx/Eff_stone_hit_cm.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcountbattle_hitvfx_da4dd85871bc854885114790c0c4c655.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCountBattle/Huds",
+    "pattern": "Eff_mat_glow_xsgk_{N}_blue",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCountBattle/Huds/Eff_mat_glow_xsgk_401_blue.mat"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcountbattle_huds_adf21137946edb415c3700c6b3c31c71.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCountBattle/Huds",
+    "pattern": "Eff_mat_glow_xsgk_{N}_red",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCountBattle/Huds/Eff_mat_glow_xsgk_401_red.mat"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcountbattle_huds_adf21137946edb415c3700c6b3c31c71.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCountBattle/Huds",
+    "pattern": "GroupBubbleBlue",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCountBattle/Huds/GroupBubbleBlue.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcountbattle_huds_adf21137946edb415c3700c6b3c31c71.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCountBattle/Huds",
+    "pattern": "GroupBubbleRed",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCountBattle/Huds/GroupBubbleRed.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcountbattle_huds_adf21137946edb415c3700c6b3c31c71.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCountBattle/Huds",
+    "pattern": "GroupCircleBlue",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCountBattle/Huds/GroupCircleBlue.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcountbattle_huds_adf21137946edb415c3700c6b3c31c71.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCountBattle/Huds",
+    "pattern": "GroupCircleRed",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCountBattle/Huds/GroupCircleRed.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcountbattle_huds_adf21137946edb415c3700c6b3c31c71.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCountBattle/Traps",
+    "pattern": "Brown",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCountBattle/Traps/Brown.mat"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcountbattle_traps_392d6487762f1dd5e99a9104624ff0b5.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCountBattle/Traps",
+    "pattern": "Red",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCountBattle/Traps/Red.mat"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcountbattle_traps_392d6487762f1dd5e99a9104624ff0b5.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCountBattle/Traps",
+    "pattern": "TRAP_dogBOSS_mono",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCountBattle/Traps/TRAP_dogBOSS_mono.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcountbattle_traps_392d6487762f1dd5e99a9104624ff0b5.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCountBattle/Traps",
+    "pattern": "TrapBOSS{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCountBattle/Traps/TrapBOSS01.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcountbattle_traps_392d6487762f1dd5e99a9104624ff0b5.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCountBattle/Traps",
+    "pattern": "TrapDog{N}",
+    "ext": ".prefab",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Prefabs/LWCountBattle/Traps/TrapDog01.prefab",
+      "Assets/Main/Prefabs/LWCountBattle/Traps/TrapDog02.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcountbattle_traps_392d6487762f1dd5e99a9104624ff0b5.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCountBattle/Traps",
+    "pattern": "TrapFan",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCountBattle/Traps/TrapFan.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcountbattle_traps_392d6487762f1dd5e99a9104624ff0b5.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCountBattle/Traps",
+    "pattern": "TrapFan_harf_left",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCountBattle/Traps/TrapFan_harf_left.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcountbattle_traps_392d6487762f1dd5e99a9104624ff0b5.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCountBattle/Traps",
+    "pattern": "TrapFan_harf_right",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCountBattle/Traps/TrapFan_harf_right.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcountbattle_traps_392d6487762f1dd5e99a9104624ff0b5.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCountBattle/Traps",
+    "pattern": "TrapFence",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCountBattle/Traps/TrapFence.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcountbattle_traps_392d6487762f1dd5e99a9104624ff0b5.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCountBattle/Traps",
+    "pattern": "TrapFence{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCountBattle/Traps/TrapFence02.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcountbattle_traps_392d6487762f1dd5e99a9104624ff0b5.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCountBattle/Traps",
+    "pattern": "TrapGirl",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCountBattle/Traps/TrapGirl.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcountbattle_traps_392d6487762f1dd5e99a9104624ff0b5.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCountBattle/Traps",
+    "pattern": "TrapSaw",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCountBattle/Traps/TrapSaw.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcountbattle_traps_392d6487762f1dd5e99a9104624ff0b5.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCountBattle/Traps",
+    "pattern": "TrapSaw{N}",
+    "ext": ".prefab",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Prefabs/LWCountBattle/Traps/TrapSaw02.prefab",
+      "Assets/Main/Prefabs/LWCountBattle/Traps/TrapSaw03.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcountbattle_traps_392d6487762f1dd5e99a9104624ff0b5.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCountBattle/Traps",
+    "pattern": "TrapSpike",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCountBattle/Traps/TrapSpike.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcountbattle_traps_392d6487762f1dd5e99a9104624ff0b5.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCountBattle/Traps",
+    "pattern": "TrapSpike{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCountBattle/Traps/TrapSpike02.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcountbattle_traps_392d6487762f1dd5e99a9104624ff0b5.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCountBattle/Traps",
+    "pattern": "TrapWall{N}",
+    "ext": ".prefab",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Prefabs/LWCountBattle/Traps/TrapWall1.prefab",
+      "Assets/Main/Prefabs/LWCountBattle/Traps/TrapWall2.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcountbattle_traps_392d6487762f1dd5e99a9104624ff0b5.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCountBattle/Traps",
+    "pattern": "TrapZombie",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCountBattle/Traps/TrapZombie.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcountbattle_traps_392d6487762f1dd5e99a9104624ff0b5.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCountBattle/Traps",
+    "pattern": "TrapZombie{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCountBattle/Traps/TrapZombie02.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcountbattle_traps_392d6487762f1dd5e99a9104624ff0b5.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCountBattle/Units",
+    "pattern": "A_Monster_dog{N}_cm",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCountBattle/Units/A_Monster_dog01_cm.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcountbattle_units_ff77aa557f680396c2560d6f3ab42f29.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCountBattle/Units",
+    "pattern": "A_Monster_Zombie_boss{N}_cm",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCountBattle/Units/A_Monster_Zombie_boss01_cm.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcountbattle_units_ff77aa557f680396c2560d6f3ab42f29.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCountBattle/Units",
+    "pattern": "A_Monster_Zombie_girl{N}_cm",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCountBattle/Units/A_Monster_Zombie_girl01_cm.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcountbattle_units_ff77aa557f680396c2560d6f3ab42f29.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCountBattle/Units",
+    "pattern": "A_Monster_Zombie{N}_Hat_cm",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCountBattle/Units/A_Monster_Zombie01_Hat_cm.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcountbattle_units_ff77aa557f680396c2560d6f3ab42f29.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCountBattle/Units",
+    "pattern": "BunkerUnit",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCountBattle/Units/BunkerUnit.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcountbattle_units_ff77aa557f680396c2560d6f3ab42f29.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCountBattle/Units",
+    "pattern": "FlameUnit",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCountBattle/Units/FlameUnit.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcountbattle_units_ff77aa557f680396c2560d6f3ab42f29.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCountBattle/Units",
+    "pattern": "GiantUnit",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCountBattle/Units/GiantUnit.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcountbattle_units_ff77aa557f680396c2560d6f3ab42f29.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCountBattle/Units",
+    "pattern": "JeepUnit",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/LWCountBattle/Units/JeepUnit.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcountbattle_units_ff77aa557f680396c2560d6f3ab42f29.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/LWCountBattle/Units",
+    "pattern": "O_env_daba_{N}_cm",
+    "ext": ".prefab",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Prefabs/LWCountBattle/Units/O_env_daba_01_cm.prefab",
+      "Assets/Main/Prefabs/LWCountBattle/Units/O_env_daba_02_cm.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_prefabs_lwcountbattle_units_ff77aa557f680396c2560d6f3ab42f29.bundle"
+    ],
+    "evidenceFiles": []
+  }
+]

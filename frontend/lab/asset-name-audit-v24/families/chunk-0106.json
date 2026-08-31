@@ -1,0 +1,4636 @@
+[
+  {
+    "parent": "Assets/Main/Prefabs/UI/ChatNew/GroupChat",
+    "pattern": "PostMemberItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/ChatNew/GroupChat/PostMemberItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_chatnew_groupchat_postmemberitem_a279b8d6b168f59ae0645f3b836733c6.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/ChatNew/GroupChat",
+    "pattern": "SelectMemberItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/ChatNew/GroupChat/SelectMemberItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_chatnew_groupchat_selectmemberitem_831be3e1b9397f81179d7f8db52ff6f0.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/ChatNew/GroupChat",
+    "pattern": "UIChatGroupChatJoin",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/ChatNew/GroupChat/UIChatGroupChatJoin.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_chatnew_groupchat_uichatgroupchatjoin_cec6a8c823456f9e85f5ffcd47b4daf8.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/ChatNew/GroupChat",
+    "pattern": "UIChatGroupSelectMember",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/ChatNew/GroupChat/UIChatGroupSelectMember.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_chatnew_groupchat_uichatgroupselectmember_aa1d33f6bb5e02b1e67e94b1225a6c93.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/ChatNew/GroupChat",
+    "pattern": "UIGroupChatSetting",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/ChatNew/GroupChat/UIGroupChatSetting.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_chatnew_groupchat_uigroupchatsetting_b03393d97ee1b64a66d32b486703b6af.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/ChatNew/PinItem",
+    "pattern": "LWUIChatViewTip",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/ChatNew/PinItem/LWUIChatViewTip.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_chatnew_pinitem_lwuichatviewtip_d1376cf9b286af5081d2e174ce999d87.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/ChatNew/PlayerStatus",
+    "pattern": "LWStatusItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/ChatNew/PlayerStatus/LWStatusItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_chatnew_playerstatus_lwstatusitem_cb19c45fdd2126f03b099c0f2716e872.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/ChatNew/PlayerStatus",
+    "pattern": "LWStatusSettingsView",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/ChatNew/PlayerStatus/LWStatusSettingsView.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_chatnew_playerstatus_lwstatussettingsview_14b2570600cbbc9d70917881eaa33e44.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/ChatNew/SearchPerson",
+    "pattern": "UIChatSearchPersonItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/ChatNew/SearchPerson/UIChatSearchPersonItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_chatnew_searchperson_uichatsearchpersonitem_955607e83c15a958e417ec261a4b6ec7.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/ChatVoice",
+    "pattern": "MainUI_BFVoiceRoom",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/ChatVoice/MainUI_BFVoiceRoom.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_chatvoice_mainui_bfvoiceroom_6a014cf65d6321f67f88b3aae9950c8b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/ChatVoice",
+    "pattern": "UIVoicePrivacyBox",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/ChatVoice/UIVoicePrivacyBox.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_chatvoice_uivoiceprivacybox_c34e8df5bee95a871b48c45213eadedd.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/ChatVoice",
+    "pattern": "UIVoiceRoom",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/ChatVoice/UIVoiceRoom.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_chatvoice_uivoiceroom_e097dd744cfb181ebc7727091a24c7fa.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/CitySkinSkill",
+    "pattern": "UICitySkinSkillTip",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/CitySkinSkill/UICitySkinSkillTip.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_cityskinskill_uicityskinskilltip_f10f961a76c976118b8399dd4ad3d54f.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/CityVisitor",
+    "pattern": "UICityVisitor",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/CityVisitor/UICityVisitor.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_cityvisitor_uicityvisitor_af402c792ecedcf71b50dfa3666037ab.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/CityVisitor",
+    "pattern": "UICityVisitorNotify",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/CityVisitor/UICityVisitorNotify.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_cityvisitor_uicityvisitornotify_779f105b2ef29aabd2366b761bd2f4a6.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/CityVisitor",
+    "pattern": "UICityVistorSystemGift",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/CityVisitor/UICityVistorSystemGift.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_cityvisitor_uicityvistorsystemgift_614e245e6f65030a25d40106fad35406.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/CityVisitor",
+    "pattern": "visitorDes",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/CityVisitor/visitorDes.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_cityvisitor_visitordes_152f7a52de603ffc8046e4b234119fde.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Comics",
+    "pattern": "UIComicsMain",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Comics/UIComicsMain.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_comics_uicomicsmain_89fcf3ff18573b70c2eb9b57e30fc024.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Comics",
+    "pattern": "UIComicsSpineTextItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Comics/UIComicsSpineTextItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_comics_uicomicsspinetextitem_72fa6192cc30783cc0e89372631ebc60.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Comics",
+    "pattern": "UIComicsTextItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Comics/UIComicsTextItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_comics_uicomicstextitem_509ea9ed5d2435840cd0041a0bb843e3.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "AdaptReddot",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/AdaptReddot.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_adaptreddot_8f2ece2a87701f41bea59f3873126365.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "CommonGroupCost",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/CommonGroupCost.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_commongroupcost_0dd2fcbf03e2c20c352c34dfd98fb21c.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "CommonGroupCostItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/CommonGroupCostItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_commongroupcostitem_ac8caccb1903520e2d7a356fd7a9be49.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "CommonMask_{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/CommonMask_01.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_commonmask_01_3d88bd8f5ef0a58e93b1b2f6b143caa5.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "CommonRedPoint",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/CommonRedPoint.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_commonredpoint_fadaa8a829a22a2b9fdf1283ee96b24d.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "CommonShowBubbleTip",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/CommonShowBubbleTip.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_commonshowbubbletip_4968cf9929e2c143e3d24e4c97e20c73.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "FlyText{N}D",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/FlyText3D.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_flytext3d_5feb1414c6c3fbfc8db36da26e516057.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "LWPropUsePanel",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/LWPropUsePanel.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_lwpropusepanel_bc6b5fe5baafca94e77a4a4c8474962d.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "LWResDoFlyUI",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/LWResDoFlyUI.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_lwresdoflyui_b5aa6658a5d4850deec086435ca41963.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "LWUICommonResBar",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/LWUICommonResBar.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_lwuicommonresbar_84522fdd4703950fe186ac9a9185a1f5.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "LWUICommonRewardListBubble",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/LWUICommonRewardListBubble.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_lwuicommonrewardlistbubble_b620d40c6521ccde0552b9d06dd25397.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "MoreBtn",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/MoreBtn.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_morebtn_d00d214d85b892e0c5cc2d46bf682a42.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "NewDot",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/NewDot.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_newdot_7ca638998d4feb4d0f89386d51a08ae4.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "PingItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/PingItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_pingitem_c4bceec5ea7930892ad2ad72e1145126.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "PlayerHeadContainer",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/PlayerHeadContainer.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_playerheadcontainer_27e31dd098483459338eecccb1b05fbe.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "PropertyItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/PropertyItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_propertyitem_406ed12bbdf48e8e026650cb62302937.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "RedDot",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/RedDot.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_reddot_11f4c249d3dccff5f4c88f57f2dfb5c7.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "RedDotWithoutNum",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/RedDotWithoutNum.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_reddotwithoutnum_ff39d6e581cd5e8692291f7abeea73ab.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UIArrowTipBase",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UIArrowTipBase.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uiarrowtipbase_68bc8264175014f60013eb510fb1e4f2.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UIBoxItemTips",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UIBoxItemTips.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uiboxitemtips_9c7351c7472b61691a0e7d98b212f76d.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UIBoxItemTipsCell",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UIBoxItemTipsCell.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uiboxitemtipscell_e35c6b85f7ab234b9fcf19c8e074c35d.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UICallbackInfo",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UICallbackInfo.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uicallbackinfo_7940ae59ba0ec37061fae5a284fb5293.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UICareerLabel",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UICareerLabel.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uicareerlabel_6f796321c674411ca3c1861ffe8e478e.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UICommonActivityGiftPackageShop",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UICommonActivityGiftPackageShop.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uicommonactivitygiftpackageshop_006cf110a5f71fe4398b7379d1ef9976.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UICommonBlackMask",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UICommonBlackMask.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uicommonblackmask_2918ac73dc459f5b27c470e12f739702.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UICommonBuyItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UICommonBuyItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uicommonbuyitem_05d55d86b223a069cc9924f89667be8f.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UICommonDesTip",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UICommonDesTip.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uicommondestip_52f91c7672b187b24de468833f40616e.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UICommonFullScreenTitle",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UICommonFullScreenTitle.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uicommonfullscreentitle_6a82af4952dc1b1b8c30cccffd3b0b39.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UICommonGridInfinityScrollView",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UICommonGridInfinityScrollView.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uicommongridinfinityscrollview_b50a40a9ffaaac5cd75d7b00cf52b9fe.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UICommonHorseLampTMP",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UICommonHorseLampTMP.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uicommonhorselamptmp_6b4afe72b49d84326d001cb2a2b163de.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UICommonIntroTip",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UICommonIntroTip.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uicommonintrotip_eca577b4199e636b325e55895ef5739d.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UICommonLoopListViewHorizontal",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UICommonLoopListViewHorizontal.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uicommonlooplistviewhorizontal_28609a719b3daf120f3cf9e9cd9f68ba.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UICommonLoopListViewVertical",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UICommonLoopListViewVertical.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uicommonlooplistviewvertical_01415b9b84fe6c245b3adbbdcc524399.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UICommonMessageBar",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UICommonMessageBar.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uicommonmessagebar_cfc10289af0e15e7ac419a914ffb86d3.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UICommonMessageBarOld",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UICommonMessageBarOld.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uicommonmessagebarold_2cef6843e5ff77d2cb7af0c45b804cc7.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UICommonMessageSpecialBar",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UICommonMessageSpecialBar.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uicommonmessagespecialbar_313829bb01441f22d198a9903899d685.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UICommonMessageTip",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UICommonMessageTip.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uicommonmessagetip_a4f23ff447d717f0550150986d8d3bd1.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UICommonMessageWithImageBar",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UICommonMessageWithImageBar.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uicommonmessagewithimagebar_bd688c02b25d87a99e1d51c331eea102.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UICommonMiniPopUpTitle",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UICommonMiniPopUpTitle.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uicommonminipopuptitle_4293d151765d25bc8ba2622b5a13a171.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UICommonNeedResourceCell",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UICommonNeedResourceCell.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uicommonneedresourcecell_4d01e25ce3e547581646f12ce869b6fc.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UICommonOptionControl",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UICommonOptionControl.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uicommonoptioncontrol_7b74c8d8ee0f5bcfddf428969ae1a3b5.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UICommonPanel",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UICommonPanel.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uicommonpanel_1d0e9ec6f7a6b44a6f02fa833ade56cc.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UICommonPanelNewPopUp",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UICommonPanelNewPopUp.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uicommonpanelnewpopup_9f7b6d37e27978862f86e9142313cbe3.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UICommonPopUpTitle",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UICommonPopUpTitle.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uicommonpopuptitle_191da60513961e76d6f4ac0b4ae4cc22.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UICommonPropertyCanFoldItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UICommonPropertyCanFoldItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uicommonpropertycanfolditem_0c486814b8f03d4fa75acda2c554ccdf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UICommonResItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UICommonResItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uicommonresitem_f88b45c98b6ba26d43f0ec8a07a96d5c.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UICommonResItemAllyDuel",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UICommonResItemAllyDuel.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uicommonresitemallyduel_d1edd7d0673f446f2866b861e393fb3e.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UICommonResItemFirstPayExp",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UICommonResItemFirstPayExp.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uicommonresitemfirstpayexp_f47e33d07904565d73cd795f6dffa2a1.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UICommonResItemGetReward",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UICommonResItemGetReward.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uicommonresitemgetreward_95a039b907719961f44158c602c1df28.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UICommonResItemMouth",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UICommonResItemMouth.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uicommonresitemmouth_eff60ac68603cba3d2d4d097e58aecd4.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UICommonRewardPopUp",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UICommonRewardPopUp.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uicommonrewardpopup_c18e27d887116945163f19e57ef075c5.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UICommonRewardTip",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UICommonRewardTip.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uicommonrewardtip_429095f6a2a9bfadeb567600e6ff9d02.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UICommonScrollPic",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UICommonScrollPic.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uicommonscrollpic_d7a553cd9ce65c718913e5b0afe31e03.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UICommonScrollViewHorizontal",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UICommonScrollViewHorizontal.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uicommonscrollviewhorizontal_964772d99dd444f7d96d050e476b0ea5.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UICommonScrollViewVertical",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UICommonScrollViewVertical.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uicommonscrollviewvertical_69d53ae413d2decbdd669868a5ecf6fc.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UICommonSimpleShareConfirm",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UICommonSimpleShareConfirm.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uicommonsimpleshareconfirm_ab464e2d2ca54caad616ab107ceb0d40.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UICommonSingleMsgBar",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UICommonSingleMsgBar.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uicommonsinglemsgbar_1f3eedeb5ea4544835f793555a51c5a0.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UICommonSoldierVertical",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UICommonSoldierVertical.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uicommonsoldiervertical_b010e02e456711d2e0a650d97ebbe72b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UICommonSpecRemind",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UICommonSpecRemind.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uicommonspecremind_5b5d3a74963638a490aea3c12ee35a7d.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UICommonTab",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UICommonTab.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uicommontab_6d0b7fc388000b8ec0960e798dfcefac.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UICommonTimeTips",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UICommonTimeTips.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uicommontimetips_984124871f6f1336380f67c92e6afbaf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UICommonTips",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UICommonTips.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uicommontips_6d1f199e388651408ed7ca612354b0fe.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UICommonTipsAuto",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UICommonTipsAuto.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uicommontipsauto_8cf2eeca0d981b1fbedb738a615f0720.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UICommonToggleItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UICommonToggleItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uicommontoggleitem_fa12d415e20ff56a456e18654e1b7896.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UICommonToggleList",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UICommonToggleList.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uicommontogglelist_aaad788454b8eb2e8a9b1faf11083081.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UIDecorationDazzleTips",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UIDecorationDazzleTips.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uidecorationdazzletips_1baea0530b227b581763f07590079423.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UIEffectNumAdd",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UIEffectNumAdd.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uieffectnumadd_d8fba9ed23bef633aa51c236f2af7725.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UIExitGameTip",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UIExitGameTip.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uiexitgametip_b181a8958193e837a870636600743b76.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UIGiftRewardCell",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UIGiftRewardCell.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uigiftrewardcell_0642208ff2b3a5bf7092303d55193f09.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UIGiftScoreTips",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UIGiftScoreTips.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uigiftscoretips_a97261fbbe7782d94b2da869492b3e14.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UIItemTips",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UIItemTips.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uiitemtips_52abd0a0be91ed87fbeca8217df19cbe.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UIJoystick",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UIJoystick.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uijoystick_bc373c2e1df7ea99ed0b575f846a5221.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UILWUniversalItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UILWUniversalItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uilwuniversalitem_058b5a9d624332b64055869a05e4f97f.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UINoticeEquipTips",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UINoticeEquipTips.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uinoticeequiptips_33861f4873361ffc61d36a77afc32c50.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UINoticeHeroTips",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UINoticeHeroTips.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uinoticeherotips_290cc81586ceeeb7bb833daa48db2641.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UINoticeTips",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UINoticeTips.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uinoticetips_c9891dd7fbf88847f6f849d282bd82c3.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UIPanelBtn",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UIPanelBtn.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uipanelbtn_3a78550f2aa9de8aea86ca67d14806aa.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UIPassengerHead",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UIPassengerHead.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uipassengerhead_51178a27cd5a309ae952607337a91ecd.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UIPermanentTips",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UIPermanentTips.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uipermanenttips_f3491123bf2fb79ac84acd3e2307b49f.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UIPlayerHead",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UIPlayerHead.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uiplayerhead_1e83910076ee48cfb7eb0053a24f306d.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UIPlayerHeadNoAnim",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UIPlayerHeadNoAnim.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uiplayerheadnoanim_68a0e0360efc9bcf9f0cd2666da3acd2.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UIPlayerNameLayout",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UIPlayerNameLayout.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uiplayernamelayout_a398d0405618368dd8dcebe1971033cf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UIPowerChangeTip",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UIPowerChangeTip.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uipowerchangetip_20cb1758e4307a77a0d7f942a4d14ec0.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UIRewardPreviewItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UIRewardPreviewItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uirewardpreviewitem_a659b9118b111cc13e85cfdaace60d1c.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UIRewardPreviewTip",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UIRewardPreviewTip.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uirewardpreviewtip_3416afa80b24db89028cc347b894872a.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UIServerMaintenanceTip",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UIServerMaintenanceTip.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uiservermaintenancetip_d10703b5d4def12e0ac1d8cb2d10ee2e.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UIShopItemCell",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UIShopItemCell.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uishopitemcell_e3549d2275ed76b29948d9f20bf3c47a.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UISliderBtnInputField",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UISliderBtnInputField.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uisliderbtninputfield_074e2f6be886bb6884585cf6297070f8.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UISliderGroup",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UISliderGroup.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uislidergroup_1d165be7693cc4e94845960b706b7a13.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UISmallTips",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UISmallTips.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uismalltips_bb2578aeaf9c0d4abb644bf0e9f8edb2.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UIStickerTipsView",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UIStickerTipsView.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uistickertipsview_4884e4f5d5935630c3c74f6cd961520a.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UIStorageShopGo",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UIStorageShopGo.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uistorageshopgo_13706e5aaea6cced8508b486350d5b0c.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UIUnLockNewFunc",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UIUnLockNewFunc.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uiunlocknewfunc_3c2ff6d7776f3ba8a7ba8b1f6da6392f.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UIUpgradeSuccess",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UIUpgradeSuccess.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uiupgradesuccess_5d76c7dba9c222aa967aa5d9dae5a1aa.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UIWeeklyCardItemTips",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UIWeeklyCardItemTips.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uiweeklycarditemtips_bb43583558d058b2275eca163e01764a.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UIWorldMonsterDelText",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UIWorldMonsterDelText.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uiworldmonsterdeltext_b210fa795324bc7efb76d7b06c61cd5e.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UIWorldPlayerHead",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UIWorldPlayerHead.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_uiworldplayerhead_b974ddd391a31a3c31c7efddae2771bb.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "UserPrompt",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/UserPrompt.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_userprompt_1bcbafac3da66a1dbd607baf2b86fe31.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common",
+    "pattern": "VipLevelBadge",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/VipLevelBadge.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_viplevelbadge_04f84869076152f003154af375fd5f2d.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common/New",
+    "pattern": "Editor",
+    "ext": ".unity",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/New/Editor.unity"
+    ],
+    "logicalNames": [
+      "gameres_main_file_scenes_editor_9fd538b73c64ebdc1d8a72aaf66c5c2e.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-scene-loader-audit-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common/New/Button",
+    "pattern": "CommonActivityButton",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/New/Button/CommonActivityButton.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_new_button_commonactivitybutton_7ac342b2183ea36e87c33746bf45f344.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common/New/Button",
+    "pattern": "CommonButton",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/New/Button/CommonButton.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_new_button_commonbutton_a8e34e43319995b1539df32f4ad29ce0.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common/New/Button",
+    "pattern": "CommonButtonScale{N}.{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/New/Button/CommonButtonScale0.8.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_new_button_commonbuttonscale0_8_b7857bab6bfc03014410ffc875e5e01e.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common/New/Button",
+    "pattern": "CommonCostButton",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/New/Button/CommonCostButton.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_new_button_commoncostbutton_2b49b3d66096fbbdc94c590a1efdd5be.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common/New/Button",
+    "pattern": "CommonDoubleCostButton",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/New/Button/CommonDoubleCostButton.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_new_button_commondoublecostbutton_2337f358369eba26c5256feea046cbb3.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common/New/Button",
+    "pattern": "TransparentButton",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/New/Button/TransparentButton.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_new_button_transparentbutton_4a5fa5205b0383f80f79397cce590db0.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common/New/FullPanel",
+    "pattern": "CommonBottomGroup",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/New/FullPanel/CommonBottomGroup.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_new_fullpanel_commonbottomgroup_4aebfdcb328945ce08de43b4878acb7c.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common/New/FullPanel",
+    "pattern": "CommonFullBGContent_Banner",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/New/FullPanel/CommonFullBGContent_Banner.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_new_fullpanel_commonfullbgcontent_banner_0f18bf48f81683ddcd7abbec0bb85bad.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common/New/FullPanel",
+    "pattern": "CommonFullBGContent_Normal",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/New/FullPanel/CommonFullBGContent_Normal.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_new_fullpanel_commonfullbgcontent_normal_9d0273572907fde7e3d66c01c31417a3.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common/New/FullPanel",
+    "pattern": "CommonFullTopGroup",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/New/FullPanel/CommonFullTopGroup.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_new_fullpanel_commonfulltopgroup_747d0de6e4b84101a3a79d3815b6f66a.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common/New/FullPanel",
+    "pattern": "FullScreenVideoView",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/New/FullPanel/FullScreenVideoView.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_new_fullpanel_fullscreenvideoview_312991678328fe2f44f0cfc29fb49951.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common/New/FullPanel",
+    "pattern": "UIButtonList",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/New/FullPanel/UIButtonList.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_new_fullpanel_uibuttonlist_9f2534b9c563ac3cab303f1ddcf16f74.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common/New/FullPanel",
+    "pattern": "UICommonActivityTitleGroup",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/New/FullPanel/UICommonActivityTitleGroup.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_new_fullpanel_uicommonactivitytitlegroup_67af6e926e04acf97aff77b84bf3f539.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common/New/FullPanel",
+    "pattern": "UICommonFullPanel",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/New/FullPanel/UICommonFullPanel.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_new_fullpanel_uicommonfullpanel_72811d939a8ce722a600378ed198cadf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common/New/FullPanel",
+    "pattern": "UICommonFullPanel_NoToggle",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/New/FullPanel/UICommonFullPanel_NoToggle.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_new_fullpanel_uicommonfullpanel_notoggle_800fdfcb1356f29bdd5d33c517564e89.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common/New/Image",
+    "pattern": "CommonImage",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/New/Image/CommonImage.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_new_image_commonimage_1e994d679effbb1b49c828b356cb9183.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common/New/Image",
+    "pattern": "CommonSelectFrame",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/New/Image/CommonSelectFrame.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_new_image_commonselectframe_f18962c93b578c894b1a1e3902007e31.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common/New/Other",
+    "pattern": "EmptyGroup",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/New/Other/EmptyGroup.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_new_other_emptygroup_54966aefbf91a22b8edf94d641962509.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common/New/Other",
+    "pattern": "EmptyText",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/New/Other/EmptyText.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_new_other_emptytext_b7b954606d1c4b5708e439c402eed70f.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common/New/PopPanel",
+    "pattern": "CommonPopUpTop",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/New/PopPanel/CommonPopUpTop.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_new_poppanel_commonpopuptop_150028ec4ee01f13573be5e9d1b0c09e.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common/New/PopPanel",
+    "pattern": "UICommonPopUpPanel",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/New/PopPanel/UICommonPopUpPanel.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_new_poppanel_uicommonpopuppanel_e81e74af6662f13e7cf5095458931451.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common/New/PopPanel",
+    "pattern": "UICommonPopUpPanel_NoToggle",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/New/PopPanel/UICommonPopUpPanel_NoToggle.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_new_poppanel_uicommonpopuppanel_notoggle_2c51f83f7edfb21a44a7a9a413b7cdf3.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common/New/Text",
+    "pattern": "CommonBodyText",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/New/Text/CommonBodyText.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_new_text_commonbodytext_2cecfaf56d8e4e5b18c5cadac6d3fb47.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common/New/Text",
+    "pattern": "CommonTitleText",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/New/Text/CommonTitleText.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_new_text_commontitletext_f11519edb9acc6835177f0424d7f507e.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common/New/Toggle",
+    "pattern": "CommonSingleToggle",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/New/Toggle/CommonSingleToggle.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_new_toggle_commonsingletoggle_d855bbc9134bc9f04ab49805ee7e9d34.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common/New/Toggle",
+    "pattern": "CommonToggle",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/New/Toggle/CommonToggle.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_new_toggle_commontoggle_e444498178564b8f328b7aecfd8ffa6e.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common/New/Toggle",
+    "pattern": "CommonToggleAnimation",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/New/Toggle/CommonToggleAnimation.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_new_toggle_commontoggleanimation_b5e11e23e508aa011a15f3140163a074.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common/New/Toggle",
+    "pattern": "CommonToggle{N}",
+    "ext": ".prefab",
+    "count": 3,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/New/Toggle/CommonToggle2.prefab",
+      "Assets/Main/Prefabs/UI/Common/New/Toggle/CommonToggle3.prefab",
+      "Assets/Main/Prefabs/UI/Common/New/Toggle/CommonToggle4.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_new_toggle_commontoggle2_8859a9995febd5b84dd8d0f7390b0dce.bundle",
+      "gameres_main_file_prefabs_ui_common_new_toggle_commontoggle3_ab3c0a55fa717e45019d1c8cb2b2a712.bundle",
+      "gameres_main_file_prefabs_ui_common_new_toggle_commontoggle4_7c8500dd760c096ca290871f7ba87e88.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common/New/Toggle",
+    "pattern": "CommonToggle{N}Animation",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/New/Toggle/CommonToggle3Animation.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_new_toggle_commontoggle3animation_bd1aa2735a86288d07a0f500ebf472ce.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common/New/Toggle",
+    "pattern": "IsDisable",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/New/Toggle/IsDisable.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_new_toggle_isdisable_fc88d1fd17848d6e17a101ceafc297db.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common/New/Toggle",
+    "pattern": "IsEnable",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/New/Toggle/IsEnable.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_new_toggle_isenable_d56e2f65fa761ac586a7f27eae7964be.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common/New/Toggle",
+    "pattern": "ToDisable",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/New/Toggle/ToDisable.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_new_toggle_todisable_e13c5c4c4963df229547099572b07260.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/Common/New/Toggle",
+    "pattern": "ToEnable",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/Common/New/Toggle/ToEnable.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_common_new_toggle_toenable_27074abd8970a5fc5de9d68b6e1ff413.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/CommonBoxReward",
+    "pattern": "UICommonBoxRewardShow",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/CommonBoxReward/UICommonBoxRewardShow.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_commonboxreward_uicommonboxrewardshow_23d721f5329cf9eadfbdb695eb931a9b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/CommonBoxShowRewardTip",
+    "pattern": "CommonBoxShowRewardTip",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/CommonBoxShowRewardTip/CommonBoxShowRewardTip.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_commonboxshowrewardtip_commonboxshowrewardtip_3aff0d2f18a89cb3d887622fe7b0e3f5.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/CommonCombatResultNew",
+    "pattern": "CommonResultGetStrongerList",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/CommonCombatResultNew/CommonResultGetStrongerList.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_commoncombatresultnew_commonresultgetstrongerlist_9a76d7e1b9b36fdba96f4a4416257461.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/CommonCombatResultNew",
+    "pattern": "CommonResultGetStrongerSpecialList",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/CommonCombatResultNew/CommonResultGetStrongerSpecialList.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_commoncombatresultnew_commonresultgetstrongerspeciallist_c93cfae3e49be2f9c7fd8669393ec30d.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/CommonCombatResultNew",
+    "pattern": "CommonResultGoToList",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/CommonCombatResultNew/CommonResultGoToList.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_commoncombatresultnew_commonresultgotolist_f584fc1800db53ddf5b7d02e0b45d5ab.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/CommonCombatResultNew",
+    "pattern": "CommonResultHeroEntryList",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/CommonCombatResultNew/CommonResultHeroEntryList.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_commoncombatresultnew_commonresultheroentrylist_e5500a3edb8ac9c3075f57589d3fd77f.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/CommonCombatResultNew",
+    "pattern": "CommonResultInfoList",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/CommonCombatResultNew/CommonResultInfoList.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_commoncombatresultnew_commonresultinfolist_b2edd0d65aeb193498552e93f7c73e3a.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/CommonCombatResultNew",
+    "pattern": "CommonResultRankTip",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/CommonCombatResultNew/CommonResultRankTip.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_commoncombatresultnew_commonresultranktip_ceee7aad9a21f79129c8ca83fa80facf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/CommonCombatResultNew",
+    "pattern": "CommonResultTab",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/CommonCombatResultNew/CommonResultTab.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_commoncombatresultnew_commonresulttab_cca411d4c855d14cf0d9b49746c5721b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/CommonCombatResultNew",
+    "pattern": "CommonResultTabItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/CommonCombatResultNew/CommonResultTabItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_commoncombatresultnew_commonresulttabitem_48dd8285477a0a0eaefa6c10b711c89e.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/CommonCombatResultNew",
+    "pattern": "CommonResultTitleDefeat",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/CommonCombatResultNew/CommonResultTitleDefeat.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_commoncombatresultnew_commonresulttitledefeat_5091c20942f9d11f7a130fa496114b70.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/CommonCombatResultNew",
+    "pattern": "CommonResultTitleVictory",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/CommonCombatResultNew/CommonResultTitleVictory.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_commoncombatresultnew_commonresulttitlevictory_d0cb4a9b675557e9143cf625e6fc1afe.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/CommonCombatResultNew",
+    "pattern": "CommonResultWeaponEntryList",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/CommonCombatResultNew/CommonResultWeaponEntryList.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_commoncombatresultnew_commonresultweaponentrylist_2a31d1b23bd6b97f8b5b3de7ae9e3182.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/CommonCombatResultNew",
+    "pattern": "UIBattleResultCountBattle_Defeat",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/CommonCombatResultNew/UIBattleResultCountBattle_Defeat.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_commoncombatresultnew_uibattleresultcountbattle_defeat_e33a27d09f09c486adb5cb594442781d.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/CommonCombatResultNew",
+    "pattern": "UIBattleResultCountBattle_Victory",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/CommonCombatResultNew/UIBattleResultCountBattle_Victory.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_commoncombatresultnew_uibattleresultcountbattle_victory_b5b802720dadb636da830980754eaf8d.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/CommonCombatResultNew",
+    "pattern": "UIBattleResultFrontBreak_Defeat",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/CommonCombatResultNew/UIBattleResultFrontBreak_Defeat.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_commoncombatresultnew_uibattleresultfrontbreak_defeat_2716902567097c7ed9bae3dd9ac14309.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/CommonCombatResultNew",
+    "pattern": "UIBattleResultFrontBreak_Victory",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/CommonCombatResultNew/UIBattleResultFrontBreak_Victory.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_commoncombatresultnew_uibattleresultfrontbreak_victory_20955bf09494b7578ab0efbc3ecc1785.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/CommonCombatResultNew",
+    "pattern": "UIBattleResultFrontBreakSunday_Defeat",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/CommonCombatResultNew/UIBattleResultFrontBreakSunday_Defeat.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_commoncombatresultnew_uibattleresultfrontbreaksunday_defeat_c1c8375894ad8acc70f8707bc40a227b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/CommonCombatResultNew",
+    "pattern": "UIBattleResultFrontBreakSunday_Victory",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/CommonCombatResultNew/UIBattleResultFrontBreakSunday_Victory.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_commoncombatresultnew_uibattleresultfrontbreaksunday_victory_c3456cafc9272d7014e1f48525d2ef3a.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/CommonCombatResultNew",
+    "pattern": "UIBattleResultJeepAdventure_Defeat",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/CommonCombatResultNew/UIBattleResultJeepAdventure_Defeat.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_commoncombatresultnew_uibattleresultjeepadventure_defeat_2a2d3ec8f42ddfd72c95790af7683578.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/CommonCombatResultNew",
+    "pattern": "UIBattleResultJeepAdventure_Victory",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/CommonCombatResultNew/UIBattleResultJeepAdventure_Victory.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_commoncombatresultnew_uibattleresultjeepadventure_victory_df1a7c3c378cb1024f2b5760401bc668.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/CommonCombatResultNew",
+    "pattern": "UIBattleResultMysteryTreasure_Defeat",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/CommonCombatResultNew/UIBattleResultMysteryTreasure_Defeat.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_commoncombatresultnew_uibattleresultmysterytreasure_defeat_ab8a93d3a4a54afb803ca0b583adc4de.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/CommonCombatResultNew",
+    "pattern": "UIBattleResultNewbie_Defeat",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/CommonCombatResultNew/UIBattleResultNewbie_Defeat.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_commoncombatresultnew_uibattleresultnewbie_defeat_d9c15c32c71cdb5a6eee950b1350617c.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/CommonCombatResultNew",
+    "pattern": "UIBattleResultNewbie_Victory",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/CommonCombatResultNew/UIBattleResultNewbie_Victory.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_commoncombatresultnew_uibattleresultnewbie_victory_cd2976d1f7b94f6442719d0297fbadf6.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/CommonCombatResultNew",
+    "pattern": "UIBattleResultParkour_Defeat",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/CommonCombatResultNew/UIBattleResultParkour_Defeat.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_commoncombatresultnew_uibattleresultparkour_defeat_abbf603d98701e1a7a99266b8032f39f.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/CommonCombatResultNew",
+    "pattern": "UIBattleResultParkour_Victory",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/CommonCombatResultNew/UIBattleResultParkour_Victory.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_commoncombatresultnew_uibattleresultparkour_victory_c5feb5b568f0f5fc35d3c091fd78dce4.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/CommonCombatResultNew",
+    "pattern": "UIBattleResultParkourBonus_Victory",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/CommonCombatResultNew/UIBattleResultParkourBonus_Victory.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_commoncombatresultnew_uibattleresultparkourbonus_victory_3b7007eadb709dfcdc424debdfac31db.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/CommonCombatResultNew",
+    "pattern": "UIBattleResultRadarZombieBusTrain_Victory",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/CommonCombatResultNew/UIBattleResultRadarZombieBusTrain_Victory.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_commoncombatresultnew_uibattleresultradarzombiebustrain_victory_cde893e7d4ac85a201f6f04d5f6f8902.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/CommonCombatResultNew",
+    "pattern": "UIBattleResultStatistic_Defeat",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/CommonCombatResultNew/UIBattleResultStatistic_Defeat.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_commoncombatresultnew_uibattleresultstatistic_defeat_775816f5d359eb5070956a605b69473b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/CommonCombatResultNew",
+    "pattern": "UIBattleResultStatistic_Victory",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/CommonCombatResultNew/UIBattleResultStatistic_Victory.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_commoncombatresultnew_uibattleresultstatistic_victory_32c1919eb65e7376160d125a87bb744d.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/DecorationChoiceBox",
+    "pattern": "UIDecorationChoiceBox",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/DecorationChoiceBox/UIDecorationChoiceBox.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_decorationchoicebox_uidecorationchoicebox_98b2a6170af27935b18468249bfdcf49.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/DecorationChoiceBox",
+    "pattern": "UIDecorationChoiceBoxCell",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/DecorationChoiceBox/UIDecorationChoiceBoxCell.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_decorationchoicebox_uidecorationchoiceboxcell_88104d1ae5992fb10b7c9c1d52f6ae22.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/DecorationChoiceBox",
+    "pattern": "UIDecorationUseChange",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/DecorationChoiceBox/UIDecorationUseChange.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_decorationchoicebox_uidecorationusechange_77b80990e929f54666416d2fd9a6b363.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/DigTreasure",
+    "pattern": "DiggingMap",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/DigTreasure/DiggingMap.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_digtreasure_diggingmap_c3b5542bb9a640629f62dcfde78d37eb.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/DigTreasure",
+    "pattern": "DiggingMapBlock",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/DigTreasure/DiggingMapBlock.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_digtreasure_diggingmapblock_16aa78643ae9956ac4cf7f500de1456e.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/DigTreasure",
+    "pattern": "DiggingMapBrick",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/DigTreasure/DiggingMapBrick.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_digtreasure_diggingmapbrick_ef2612db09b17969c433fe027b88efdd.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/DigTreasure",
+    "pattern": "DiggingTreasure",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/DigTreasure/DiggingTreasure.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_digtreasure_diggingtreasure_0a4ed0782781cbdbc6b75dd350180ef9.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/DigTreasure",
+    "pattern": "DigTreasureBlockInfo",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/DigTreasure/DigTreasureBlockInfo.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_digtreasure_digtreasureblockinfo_137b6b6974b0abf1aee88606d82e2e2e.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/DigTreasure",
+    "pattern": "UIDigTreasure",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/DigTreasure/UIDigTreasure.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_digtreasure_uidigtreasure_9953ced43aa8a7ea4a309d011c464cd1.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/DigTreasure",
+    "pattern": "UIDigTreasurePreview",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/DigTreasure/UIDigTreasurePreview.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_digtreasure_uidigtreasurepreview_5dd69baae1e321cdbf7f94ddbacaa391.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/DigTreasure",
+    "pattern": "UIDigTreasureRewardItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/DigTreasure/UIDigTreasureRewardItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_digtreasure_uidigtreasurerewarditem_53a6f4aba3802f6f76c0281557e31420.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/DigTreasure/effect",
+    "pattern": "Eff_ui_block_broken",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/DigTreasure/effect/Eff_ui_block_broken.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_digtreasure_effect_eff_ui_block_broken_150cae4cb27c6a44642c70d6325aebcb.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/DigTreasure/effect",
+    "pattern": "Eff_ui_dig_treasure_rewards",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/DigTreasure/effect/Eff_ui_dig_treasure_rewards.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_digtreasure_effect_eff_ui_dig_treasure_rewards_e43a8f97ff7a1bbab6b5d038147c66e6.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/DigTreasure/effect",
+    "pattern": "Eff_ui_reward_treasure",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/DigTreasure/effect/Eff_ui_reward_treasure.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_digtreasure_effect_eff_ui_reward_treasure_56b076aeaf6a818605fd6eea72925c9b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/DigTreasure/effect",
+    "pattern": "Eff_UIDigTreasure_guang",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/DigTreasure/effect/Eff_UIDigTreasure_guang.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_digtreasure_effect_eff_uidigtreasure_guang_566fbc0b17b92338f07ec06c835c180f.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/DigTreasure/effect",
+    "pattern": "Eff_UIDigTreasure_jindutiao",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/DigTreasure/effect/Eff_UIDigTreasure_jindutiao.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_digtreasure_effect_eff_uidigtreasure_jindutiao_1f399d3600d208f327a0bb40119d418b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/DigTreasureCommon",
+    "pattern": "DigMap",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/DigTreasureCommon/DigMap.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_digtreasurecommon_digmap_1fe487e4545ed4695ef3a6bc7037f2e8.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/DigTreasureCommon/Building",
+    "pattern": "UIBuildingDigTreasure",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/DigTreasureCommon/Building/UIBuildingDigTreasure.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_digtreasurecommon_building_uibuildingdigtreasure_584fb5862940fea99afdd02352ecfa98.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/DigTreasureCommon/Detect",
+    "pattern": "UIDetectDigTreasure",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/DigTreasureCommon/Detect/UIDetectDigTreasure.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_digtreasurecommon_detect_uidetectdigtreasure_db8af9c29a13f25fc2d0ccedbbde949f.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/DigTreasureCommon/Monopoly",
+    "pattern": "UIMonopolyDigTreasure",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/DigTreasureCommon/Monopoly/UIMonopolyDigTreasure.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_digtreasurecommon_monopoly_uimonopolydigtreasure_8c2188e78350e50568102f4db93a6964.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/DispatchTask",
+    "pattern": "Eff_ui_yingmi_shaoguang_nomal",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/DispatchTask/Eff_ui_yingmi_shaoguang_nomal.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_dispatchtask_eff_ui_yingmi_shaoguang_nomal_f22983b30069a318f8eb82c26e6a486e.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/DispatchTask",
+    "pattern": "UIDispatchTaskHeroShow",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/DispatchTask/UIDispatchTaskHeroShow.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_dispatchtask_uidispatchtaskheroshow_7578b9eb7f550b02c9a4083d2627934a.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-global-scene-catalog-v1.json|heroshow-scene-loader-audit-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/DispatchTask",
+    "pattern": "UIDispatchTaskMain",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/DispatchTask/UIDispatchTaskMain.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_dispatchtask_uidispatchtaskmain_68b5fd2a221d357c01ce09b6955ca765.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/DispatchTask",
+    "pattern": "UIDispatchTaskMainGroupCell",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/DispatchTask/UIDispatchTaskMainGroupCell.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_dispatchtask_uidispatchtaskmaingroupcell_5dc63911a3a3e1a0d0677678ed05eb5b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/DispatchTask",
+    "pattern": "UIDispatchTaskMainTab",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/DispatchTask/UIDispatchTaskMainTab.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_dispatchtask_uidispatchtaskmaintab_3df4675cb33637221e09dc52f094664b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/DispatchTask",
+    "pattern": "UIDispatchTaskRecord",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/DispatchTask/UIDispatchTaskRecord.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_dispatchtask_uidispatchtaskrecord_8b5fbdec0caff4dba08b2f2fac935ad1.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/DispatchTask",
+    "pattern": "UIDispatchTaskRecordItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/DispatchTask/UIDispatchTaskRecordItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_dispatchtask_uidispatchtaskrecorditem_8f40ecb4f580be85b0e413507ab211b7.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/DispatchTask",
+    "pattern": "UIDispatchTaskRecordItemNew",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/DispatchTask/UIDispatchTaskRecordItemNew.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_dispatchtask_uidispatchtaskrecorditemnew_fffc3324559b963e4e41064dbaede90c.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/DispatchTask",
+    "pattern": "UIDispatchTaskRecordNew",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/DispatchTask/UIDispatchTaskRecordNew.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_dispatchtask_uidispatchtaskrecordnew_eb9761b50d1528216b7e844059ff3ac6.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/DispatchTask",
+    "pattern": "UIDispatchTaskRecover",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/DispatchTask/UIDispatchTaskRecover.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_dispatchtask_uidispatchtaskrecover_8c8cd668503f664350c75e1bf33364b8.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/DispatchTask",
+    "pattern": "UIDispatchTaskRecoverDetailItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/DispatchTask/UIDispatchTaskRecoverDetailItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_dispatchtask_uidispatchtaskrecoverdetailitem_967c8cfdb95b05a8123e7fe8592c2aea.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/DispatchTask",
+    "pattern": "UIDispatchTaskRecoverItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/DispatchTask/UIDispatchTaskRecoverItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_dispatchtask_uidispatchtaskrecoveritem_e579041333202136d549a667d6fdd86b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/DispatchTask",
+    "pattern": "UIDispatchTaskRefreshConfirm",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/DispatchTask/UIDispatchTaskRefreshConfirm.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_dispatchtask_uidispatchtaskrefreshconfirm_df17cb0322392a11e34ad0bd67324fb5.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/DispatchTask",
+    "pattern": "UIDispatchTaskReportTitle",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/DispatchTask/UIDispatchTaskReportTitle.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_dispatchtask_uidispatchtaskreporttitle_d9d4a8d6e0b1574b1130e54c73b1573a.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/DispatchTask",
+    "pattern": "UIDispatchTaskReward",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/DispatchTask/UIDispatchTaskReward.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_dispatchtask_uidispatchtaskreward_1adf9300b73dfbf83fd7f9eb10d4bfa3.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/DispatchTask",
+    "pattern": "UIDispatchTaskRewardGroup",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/DispatchTask/UIDispatchTaskRewardGroup.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_dispatchtask_uidispatchtaskrewardgroup_ab357c6f64964d4c47516cfcf0b0c590.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/DispatchTask",
+    "pattern": "UIDispatchTaskSuperItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/DispatchTask/UIDispatchTaskSuperItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_dispatchtask_uidispatchtasksuperitem_85d688069ee47c971ac4c36b0f6f6c5e.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/DispatchTask",
+    "pattern": "UIDispatchTaskSuperPopup",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/DispatchTask/UIDispatchTaskSuperPopup.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_dispatchtask_uidispatchtasksuperpopup_8e37a46f530feb80e8df2014115aa2af.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/DispatchTreasure",
+    "pattern": "UIDispatchTreasureExchangeLogCell",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/DispatchTreasure/UIDispatchTreasureExchangeLogCell.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_dispatchtreasure_uidispatchtreasureexchangelogcell_f04ffbe1c7f88f6dfc55c650aef9e3a9.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/DispatchTreasure",
+    "pattern": "UIDispatchTreasureExchangeLvToggle",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/DispatchTreasure/UIDispatchTreasureExchangeLvToggle.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_dispatchtreasure_uidispatchtreasureexchangelvtoggle_3ddcabf297b214a6720586b1cc7acd36.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/DispatchTreasure",
+    "pattern": "UIDispatchTreasureExchangeToggle",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/DispatchTreasure/UIDispatchTreasureExchangeToggle.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_dispatchtreasure_uidispatchtreasureexchangetoggle_bfd72118f0cfa309d7018a13f828cff1.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/DispatchTreasure",
+    "pattern": "UIDispatchTreasureGetBoxReward",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/DispatchTreasure/UIDispatchTreasureGetBoxReward.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_dispatchtreasure_uidispatchtreasuregetboxreward_f271ea1a3247cb78c29b7d6ea15d6e48.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/DispatchTreasure",
+    "pattern": "UIDispatchTreasureGetBoxRewardCell",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/DispatchTreasure/UIDispatchTreasureGetBoxRewardCell.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_dispatchtreasure_uidispatchtreasuregetboxrewardcell_a3d640a268856e04cbc508221b480219.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/DispatchTreasure",
+    "pattern": "UIDispatchTreasureReward",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/DispatchTreasure/UIDispatchTreasureReward.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_dispatchtreasure_uidispatchtreasurereward_d8198feace67716478d8ddb52c0c4bad.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/DispatchTreasure",
+    "pattern": "UIDispathTreasureExchangeLog",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/DispatchTreasure/UIDispathTreasureExchangeLog.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_dispatchtreasure_uidispathtreasureexchangelog_d6b9a45f95069e6f10927d5e55260290.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/DoomVanguard",
+    "pattern": "DoomVanguardBtn",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/DoomVanguard/DoomVanguardBtn.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_doomvanguard_doomvanguardbtn_4faea2f509201b148ef0aa6b139f48fd.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/DoomVanguard/BattlePass",
+    "pattern": "UIBattlePassForDoomVanguard",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/DoomVanguard/BattlePass/UIBattlePassForDoomVanguard.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_doomvanguard_battlepass_uibattlepassfordoomvanguard_6b535940f2db2f26a3835210f15bef77.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/DoomVanguard/BattlePass",
+    "pattern": "UIBattlePassForDoomVanguardItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/DoomVanguard/BattlePass/UIBattlePassForDoomVanguardItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_doomvanguard_battlepass_uibattlepassfordoomvanguarditem_7de52f2646214f06ed9ba163475760a7.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/DoomVanguard/DoomCommander",
+    "pattern": "UIActDoomCommander",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/DoomVanguard/DoomCommander/UIActDoomCommander.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_doomvanguard_doomcommander_uiactdoomcommander_8939c3000be0fd80cbdde2e0fa56b4d6.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/DoomVanguard/DoomCommander",
+    "pattern": "UIActDoomCommanderCell",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/DoomVanguard/DoomCommander/UIActDoomCommanderCell.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_doomvanguard_doomcommander_uiactdoomcommandercell_dd416ab4ef07680ef69d7142f7af3c43.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/DoomVanguard/SevenDay",
+    "pattern": "ActSevenDayDoomVanguarDayItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/DoomVanguard/SevenDay/ActSevenDayDoomVanguarDayItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_doomvanguard_sevenday_actsevendaydoomvanguardayitem_e904ab65d931f2b7f463680112649422.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/DoomVanguard/SevenDay",
+    "pattern": "ActSevenDayDoomVanguardRewardItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/DoomVanguard/SevenDay/ActSevenDayDoomVanguardRewardItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_doomvanguard_sevenday_actsevendaydoomvanguardrewarditem_29e01aa42eb3bbbd723c46545a106581.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/DoomVanguard/SevenDay",
+    "pattern": "ActSevenDayDoomVanguardRewardView",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/DoomVanguard/SevenDay/ActSevenDayDoomVanguardRewardView.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_doomvanguard_sevenday_actsevendaydoomvanguardrewardview_0e1bd5b8fe0241b6ec2d43b76c565837.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/DoomVanguard/SevenDay",
+    "pattern": "ActSevenDayDoomVanguarSliderItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/DoomVanguard/SevenDay/ActSevenDayDoomVanguarSliderItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_doomvanguard_sevenday_actsevendaydoomvanguarslideritem_a3f22ca3b9e2ec844e97801623b49058.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/DoomVanguard/SevenDay",
+    "pattern": "UIActSevenDayDoomVanguard",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/DoomVanguard/SevenDay/UIActSevenDayDoomVanguard.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_doomvanguard_sevenday_uiactsevendaydoomvanguard_fb06c908cfedf35a4874bcd330dcb29e.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/DoomVanguard/SevenDay",
+    "pattern": "UIActSevenDayDoomVanguardItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/DoomVanguard/SevenDay/UIActSevenDayDoomVanguardItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_doomvanguard_sevenday_uiactsevendaydoomvanguarditem_2f7b6193ec4afd67d88a78e7fc8483cc.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/ExplorerTreasure",
+    "pattern": "Eff_ui_xiangzi_bgidle",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/ExplorerTreasure/Eff_ui_xiangzi_bgidle.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_explorertreasure_eff_ui_xiangzi_bgidle_a641905812373893b720c85c2062b64d.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/ExplorerTreasure",
+    "pattern": "Eff_ui_xiangzi_bgidle{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/ExplorerTreasure/Eff_ui_xiangzi_bgidle01.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_explorertreasure_eff_ui_xiangzi_bgidle01_f32d80eb5801c229a3231dbb05ab7977.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/ExplorerTreasure",
+    "pattern": "Eff_ui_xiangzi_bgopen",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/ExplorerTreasure/Eff_ui_xiangzi_bgopen.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_explorertreasure_eff_ui_xiangzi_bgopen_4cc7a05f637d9b7f9470c47b1a59c552.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/ExplorerTreasure",
+    "pattern": "Eff_ui_xiangzi_open",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/ExplorerTreasure/Eff_ui_xiangzi_open.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_explorertreasure_eff_ui_xiangzi_open_2721d84d150cc17e344cda23ff819fbb.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/ExplorerTreasure",
+    "pattern": "Eff_ui_xiangzi_update_noraml",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/ExplorerTreasure/Eff_ui_xiangzi_update_noraml.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_explorertreasure_eff_ui_xiangzi_update_noraml_b055c1b23fa1a6cd6f2bfcc19995167a.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/ExplorerTreasure",
+    "pattern": "Eff_ui_xiangzi_update_noramlquan",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/ExplorerTreasure/Eff_ui_xiangzi_update_noramlquan.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_explorertreasure_eff_ui_xiangzi_update_noramlquan_6a443747446313d966b159e71e48481b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/ExplorerTreasure",
+    "pattern": "Eff_ui_xiangzi_update_quick",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/ExplorerTreasure/Eff_ui_xiangzi_update_quick.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_explorertreasure_eff_ui_xiangzi_update_quick_06a4c98e65a3326daec35f9c2e699892.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/ExplorerTreasure",
+    "pattern": "Eff_ui_xiangzi_update_special",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/ExplorerTreasure/Eff_ui_xiangzi_update_special.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_explorertreasure_eff_ui_xiangzi_update_special_46bf4488d77a2c4e799e286f7f0a0c9c.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/ExplorerTreasure",
+    "pattern": "UIExplorerTreasure",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/ExplorerTreasure/UIExplorerTreasure.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_explorertreasure_uiexplorertreasure_8560cdba141040321a1ce9537d3b9e32.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/ExplorerTreasure",
+    "pattern": "UIExplorerTreasureBgGlow",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/ExplorerTreasure/UIExplorerTreasureBgGlow.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_explorertreasure_uiexplorertreasurebgglow_3bc463dd0702a7a09de59d18e394c76e.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/ExplorerTreasure",
+    "pattern": "UIExplorerTreasureIntroduce",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/ExplorerTreasure/UIExplorerTreasureIntroduce.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_explorertreasure_uiexplorertreasureintroduce_49707e7e91fa290cccbd81cac380702d.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/ExplorerTreasure",
+    "pattern": "UIExplorerTreasureReward",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/ExplorerTreasure/UIExplorerTreasureReward.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_explorertreasure_uiexplorertreasurereward_d427cefb20c4538ddecadb937016606e.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/FlowerTrain",
+    "pattern": "FlowerTrain_CheerReward_WorldPoint",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/FlowerTrain/FlowerTrain_CheerReward_WorldPoint.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_flowertrain_flowertrain_cheerreward_worldpoint_54ab3619128d923e1253e0b0b18c8b54.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/FlowerTrain",
+    "pattern": "FlowerTrain_WorldPoint",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/FlowerTrain/FlowerTrain_WorldPoint.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_flowertrain_flowertrain_worldpoint_7cb159602e9e32fb7591f3d73ab66095.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/FlowerTrain",
+    "pattern": "UIFlowerTrainArrived",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/FlowerTrain/UIFlowerTrainArrived.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_flowertrain_uiflowertrainarrived_7fa78b1645ac03a786f704391b907a3b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/FlowerTrain",
+    "pattern": "UIFlowerTrainArrivedCheeringItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/FlowerTrain/UIFlowerTrainArrivedCheeringItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_flowertrain_uiflowertrainarrivedcheeringitem_e6dc7627a23dbc4635bef54f2fce09cf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/FlowerTrain",
+    "pattern": "UIFlowerTrainCommonGroupShow",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/FlowerTrain/UIFlowerTrainCommonGroupShow.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_flowertrain_uiflowertraincommongroupshow_6e0bff93b00b75904f80912f8bf65e76.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/FlowerTrain",
+    "pattern": "UIFlowerTrainLikeAndCheerItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/FlowerTrain/UIFlowerTrainLikeAndCheerItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_flowertrain_uiflowertrainlikeandcheeritem_511cedbf0bd826c099a7feee9928fdaa.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/FlowerTrain",
+    "pattern": "UIFlowerTrainLikeAndCheerList",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/FlowerTrain/UIFlowerTrainLikeAndCheerList.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_flowertrain_uiflowertrainlikeandcheerlist_6473078efef3ba8c182283ef04f8e8f4.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/FlowerTrain",
+    "pattern": "UIFlowerTrainLikeAndCheerTopItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/FlowerTrain/UIFlowerTrainLikeAndCheerTopItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_flowertrain_uiflowertrainlikeandcheertopitem_9703a3a368dbcb082e2de56c90e81ba4.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/FlowerTrain",
+    "pattern": "UIFlowerTrainProbability",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/FlowerTrain/UIFlowerTrainProbability.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_flowertrain_uiflowertrainprobability_8de40ffe97ea0377bd0e233e7d5ada19.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/FlowerTrain",
+    "pattern": "UIFlowerTrainProbabilityItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/FlowerTrain/UIFlowerTrainProbabilityItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_flowertrain_uiflowertrainprobabilityitem_e21f997e4fae41d5647e658611b45bb6.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/FlowerTrain",
+    "pattern": "UIFlowerTrainProbabilityItem_NoTitle",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/FlowerTrain/UIFlowerTrainProbabilityItem_NoTitle.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_flowertrain_uiflowertrainprobabilityitem_notitle_275170a223b722c0c2627be40ad3a6cc.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/FlowerTrain",
+    "pattern": "UIFlowerTrainProbabilityRateItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/FlowerTrain/UIFlowerTrainProbabilityRateItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_flowertrain_uiflowertrainprobabilityrateitem_12a1b69e2562a3fd37904b7b42142419.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/FlowerTrain",
+    "pattern": "UIFlowerTrainProbabilityRewardItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/FlowerTrain/UIFlowerTrainProbabilityRewardItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_flowertrain_uiflowertrainprobabilityrewarditem_8263c4b7f7717739485c3c46a42155fc.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/FlowerTrain",
+    "pattern": "UIFlowerTrainRankList",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/FlowerTrain/UIFlowerTrainRankList.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_flowertrain_uiflowertrainranklist_8acb28118df662096f75a25367be21a5.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/FlowerTrain",
+    "pattern": "UIFlowerTrainRankListRankItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/FlowerTrain/UIFlowerTrainRankListRankItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_flowertrain_uiflowertrainranklistrankitem_1b35f4bbeb8f21751c9f259128ba51fc.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/FlowerTrain",
+    "pattern": "UIFlowerTrainRankListRankPlayer",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/FlowerTrain/UIFlowerTrainRankListRankPlayer.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_flowertrain_uiflowertrainranklistrankplayer_beff7b39ad9e020db19f530b0a1a4333.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/FlowerTrain",
+    "pattern": "UIFlowerTrainReward",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/FlowerTrain/UIFlowerTrainReward.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_flowertrain_uiflowertrainreward_c780d19b18f7fb67e7985bc73dafdb16.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/FlowerTrain",
+    "pattern": "UIFlowerTrainRules",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/FlowerTrain/UIFlowerTrainRules.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_flowertrain_uiflowertrainrules_fe6e876a314d76b713aad66d61cfaab2.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/FlowerTrain",
+    "pattern": "UIFlowerTrainRulesEventItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/FlowerTrain/UIFlowerTrainRulesEventItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_flowertrain_uiflowertrainruleseventitem_9fe1fcac29cddde7e86a7551045738e2.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/FlowerTrain",
+    "pattern": "UIFlowerTrainRulesGoodsItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/FlowerTrain/UIFlowerTrainRulesGoodsItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_flowertrain_uiflowertrainrulesgoodsitem_c7580c12a4984590c5585e88addfca8b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/FlowerTrain",
+    "pattern": "UIFlowerTrainRulesManualItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/FlowerTrain/UIFlowerTrainRulesManualItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_flowertrain_uiflowertrainrulesmanualitem_84b1db9d9d1bf40d07e61a94f50fe884.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/FlowerTrain",
+    "pattern": "UIFlowerTrainShareRank",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/FlowerTrain/UIFlowerTrainShareRank.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_flowertrain_uiflowertrainsharerank_ef27ece84e4c4a3c196155f0c3c1e9a5.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/FlowerTrain",
+    "pattern": "UIFlowerTrainShowList",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/FlowerTrain/UIFlowerTrainShowList.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_flowertrain_uiflowertrainshowlist_4f931891573b406d59579b9e6201d5b9.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/FlowerTrain",
+    "pattern": "UIFlowerTrainThumbsUpGloryView",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/FlowerTrain/UIFlowerTrainThumbsUpGloryView.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_flowertrain_uiflowertrainthumbsupgloryview_82c76b9e293dfd93615a2bade4eb98d9.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/FlowerTrain",
+    "pattern": "UIPlaceFlowerTrain",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/FlowerTrain/UIPlaceFlowerTrain.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_flowertrain_uiplaceflowertrain_f9eade9975ac4ad63b5ebe200dd27308.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/FlowerTrain",
+    "pattern": "UIUseFlowerTrain",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/FlowerTrain/UIUseFlowerTrain.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_flowertrain_uiuseflowertrain_b8b9a66a4179eb8d498e90472ed66616.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/FlowerTrain/Effect",
+    "pattern": "Eff_ui_Halloween_huachepaihang_flame{N}",
+    "ext": ".prefab",
+    "count": 5,
+    "examples": [
+      "Assets/Main/Prefabs/UI/FlowerTrain/Effect/Eff_ui_Halloween_huachepaihang_flame1.prefab",
+      "Assets/Main/Prefabs/UI/FlowerTrain/Effect/Eff_ui_Halloween_huachepaihang_flame2.prefab",
+      "Assets/Main/Prefabs/UI/FlowerTrain/Effect/Eff_ui_Halloween_huachepaihang_flame3.prefab",
+      "Assets/Main/Prefabs/UI/FlowerTrain/Effect/Eff_ui_Halloween_huachepaihang_flame4.prefab",
+      "Assets/Main/Prefabs/UI/FlowerTrain/Effect/Eff_ui_Halloween_huachepaihang_flame5.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_flowertrain_effect_eff_ui_halloween_huachepaihang_flame1_c5598bf70a42972c5f482607a3417c70.bundle",
+      "gameres_main_file_prefabs_ui_flowertrain_effect_eff_ui_halloween_huachepaihang_flame2_05d6af57a4712cd108891ddf6d18d499.bundle",
+      "gameres_main_file_prefabs_ui_flowertrain_effect_eff_ui_halloween_huachepaihang_flame3_d252ddf379fe0464e7a58a8ca400f26a.bundle",
+      "gameres_main_file_prefabs_ui_flowertrain_effect_eff_ui_halloween_huachepaihang_flame4_8e72b2df02fedc70865736d115e78fee.bundle",
+      "gameres_main_file_prefabs_ui_flowertrain_effect_eff_ui_halloween_huachepaihang_flame5_de8eb82b98be83f397ad2effc79a19af.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/FlowerTrain/Effect",
+    "pattern": "Eff_ui_Halloween_huachepaihang_slider",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/FlowerTrain/Effect/Eff_ui_Halloween_huachepaihang_slider.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_flowertrain_effect_eff_ui_halloween_huachepaihang_slider_a0b2023b1da9459cad6944df741ce20c.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/FlowerTrain/Effect",
+    "pattern": "Eff_ui_Halloween_huachepaihang_slider_full",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/FlowerTrain/Effect/Eff_ui_Halloween_huachepaihang_slider_full.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_flowertrain_effect_eff_ui_halloween_huachepaihang_slider_full_96427e029b7fd104f9242574135a2feb.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/FlowerTrain/Spine",
+    "pattern": "UIUseFlowerTrain_SpineHuacheLv{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/FlowerTrain/Spine/UIUseFlowerTrain_SpineHuacheLv1.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_flowertrain_spine_uiuseflowertrain_spinehuachelv1_2ac845be68a51829d5851b55ecbc3488.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/FlowerTrain_Festival/Christmas",
+    "pattern": "ExpOrLikeIconBGImg",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/FlowerTrain_Festival/Christmas/ExpOrLikeIconBGImg.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_flowertrain_festival_christmas_exporlikeiconbgimg_9e2f95698007e7e04913f0dbc03db20d.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/FlowerTrain_Festival/Christmas",
+    "pattern": "LikeCheerHistoryBG",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/FlowerTrain_Festival/Christmas/LikeCheerHistoryBG.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_flowertrain_festival_christmas_likecheerhistorybg_c061c340d5931a8127ed531e87fcb557.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/FlowerTrain_Festival/Christmas",
+    "pattern": "Spine_ui_Christmas{N}_huache_in",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/FlowerTrain_Festival/Christmas/Spine_ui_Christmas2025_huache_in.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_flowertrain_festival_christmas_spine_ui_christmas2025_huache_in_9117efd9a6d730a4690d9677d4afe507.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/FlowerTrain_Festival/Christmas",
+    "pattern": "UIFlowerTrainProbabilityItemBG",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/FlowerTrain_Festival/Christmas/UIFlowerTrainProbabilityItemBG.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_flowertrain_festival_christmas_uiflowertrainprobabilityitembg_db234f446956dbc0711a3d9b93367738.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/FlowerTrain_Festival/Christmas",
+    "pattern": "UIFlowerTrainShareRankBG",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/FlowerTrain_Festival/Christmas/UIFlowerTrainShareRankBG.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_flowertrain_festival_christmas_uiflowertrainsharerankbg_204685efb6c9154496bb476bfb3a66ef.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/FlowerTrain_Festival/Christmas/Effect",
+    "pattern": "BottomDeco",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/FlowerTrain_Festival/Christmas/Effect/BottomDeco.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_flowertrain_festival_christmas_effect_bottomdeco_28e6f4ab6a334b8f5d8d68e91d26b303.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/FlowerTrain_Festival/Christmas/Effect",
+    "pattern": "TopDeco",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/FlowerTrain_Festival/Christmas/Effect/TopDeco.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_flowertrain_festival_christmas_effect_topdeco_f67841ee08c72bd7172a64ab70bd8bb1.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/FlowerTrain_Festival/Christmas/Effect",
+    "pattern": "UIUseFlowerTrainFrontEff_Christmas",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/FlowerTrain_Festival/Christmas/Effect/UIUseFlowerTrainFrontEff_Christmas.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_flowertrain_festival_christmas_effect_uiuseflowertrainfronteff_christmas_ffc89999d5d45bb477b77ffa72d5b2c8.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/FlowerTrain_Festival/Halloween",
+    "pattern": "ExpOrLikeIconBGImg",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/FlowerTrain_Festival/Halloween/ExpOrLikeIconBGImg.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_flowertrain_festival_halloween_exporlikeiconbgimg_25c7abe9c704bc234fe17a9879a954fc.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/FlowerTrain_Festival/Halloween",
+    "pattern": "LikeCheerHistoryBG",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/FlowerTrain_Festival/Halloween/LikeCheerHistoryBG.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_flowertrain_festival_halloween_likecheerhistorybg_998e78b1042348a8ac85962d94e3017d.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/FlowerTrain_Festival/Halloween",
+    "pattern": "UIFlowerTrainProbabilityItemBG",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/FlowerTrain_Festival/Halloween/UIFlowerTrainProbabilityItemBG.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_flowertrain_festival_halloween_uiflowertrainprobabilityitembg_3b555ba3e4b71faef7b0474b591f8d1e.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/FlowerTrain_Festival/Halloween",
+    "pattern": "UIFlowerTrainShareRankBG",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/FlowerTrain_Festival/Halloween/UIFlowerTrainShareRankBG.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_flowertrain_festival_halloween_uiflowertrainsharerankbg_06eebac7082e6ae73df430ea15663dde.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/FlowerTrain_Festival/Halloween/Effect",
+    "pattern": "UIUseFlowerTrainFrontEff_Halloween",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/FlowerTrain_Festival/Halloween/Effect/UIUseFlowerTrainFrontEff_Halloween.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_flowertrain_festival_halloween_effect_uiuseflowertrainfronteff_halloween_e1775ccf529faaf3d8820cdebf608fc4.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/FunctionOnAnim",
+    "pattern": "UIFunctionOnAnim",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/FunctionOnAnim/UIFunctionOnAnim.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_functiononanim_uifunctiononanim_f6a4c5fd64bc50ae4d9a3c0fb8a22251.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Animation",
+    "pattern": "NitrogenRoot",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Animation/NitrogenRoot.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_animation_nitrogenroot_7ae4da77e4faee2eaec98b2cd4608ce4.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Animation",
+    "pattern": "TopRoot",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Animation/TopRoot.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_animation_toproot_73091678bfadb967439df6ce9672a643.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Animation",
+    "pattern": "UIGhostParkourBattleResult",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Animation/UIGhostParkourBattleResult.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_animation_uighostparkourbattleresult_7a73d40bc5900f4ffcba5632316c49fa.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Animation",
+    "pattern": "UIGhostParkourChallengeResult",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Animation/UIGhostParkourChallengeResult.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_animation_uighostparkourchallengeresult_e76aa1ce64495efde3e40db3d322b35b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Animation",
+    "pattern": "UIGhostParkourPlaybackEnd",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Animation/UIGhostParkourPlaybackEnd.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_animation_uighostparkourplaybackend_fc778f67745c6768dc968b23f334212b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Animation",
+    "pattern": "UIGhostParkourRankPageView",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Animation/UIGhostParkourRankPageView.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_animation_uighostparkourrankpageview_57abb727abeac469f68da8f6588a22fe.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Animation",
+    "pattern": "V_ui_GhostParkour_cell",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Animation/V_ui_GhostParkour_cell.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_animation_v_ui_ghostparkour_cell_e14f0a0a6d6bb30ebdfee635f7623a23.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Animation",
+    "pattern": "V_ui_GhostParkour_countdown",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Animation/V_ui_GhostParkour_countdown.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_animation_v_ui_ghostparkour_countdown_873ccc8d7dd7cc7e3af585fc4343aaa4.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Animation",
+    "pattern": "V_ui_GhostParkour_default",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Animation/V_ui_GhostParkour_default.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_animation_v_ui_ghostparkour_default_30e584ca0c2c7a6624bb1025cdf60543.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Animation",
+    "pattern": "V_ui_GhostParkour_in_out",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Animation/V_ui_GhostParkour_in_out.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_animation_v_ui_ghostparkour_in_out_f0ffb5ab7ab7cd2aabea08e8f9546853.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Animation",
+    "pattern": "V_ui_GhostParkour_nengliang",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Animation/V_ui_GhostParkour_nengliang.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_animation_v_ui_ghostparkour_nengliang_eee382748e37476fc94c8b571dca7e86.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Animation",
+    "pattern": "V_ui_GhostParkour_nengliang_idle",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Animation/V_ui_GhostParkour_nengliang_idle.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_animation_v_ui_ghostparkour_nengliang_idle_45699f1e94980a091b600bb04f611a2a.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Animation",
+    "pattern": "V_ui_GhostParkour_nengliang_restore",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Animation/V_ui_GhostParkour_nengliang_restore.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_animation_v_ui_ghostparkour_nengliang_restore_87d74c7f272a547c2d2f98d4adddca1d.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Animation",
+    "pattern": "V_ui_S{N}OffSeason_XSYD_doubleclick",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Animation/V_ui_S4OffSeason_XSYD_doubleclick.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_animation_v_ui_s4offseason_xsyd_doubleclick_3d7494602dd7a4a98061f327725e0646.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Animation",
+    "pattern": "V_ui_S{N}OffSeason_XSYD_doubleclick_flip",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Animation/V_ui_S4OffSeason_XSYD_doubleclick_flip.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_animation_v_ui_s4offseason_xsyd_doubleclick_flip_a27858bf7c7b5ee01b96aba7af99a474.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Animation",
+    "pattern": "V_ui_UIGhostParkourActMain_bg_idle",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Animation/V_ui_UIGhostParkourActMain_bg_idle.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_animation_v_ui_uighostparkouractmain_bg_idle_b4a09cf0040f1df9e1427a63adf5417b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Animation",
+    "pattern": "V_ui_UIGhostParkourBattleMain_SpeedTxt_shake",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Animation/V_ui_UIGhostParkourBattleMain_SpeedTxt_shake.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_animation_v_ui_uighostparkourbattlemain_speedtxt_shake_b1e1ab52aa5f57369b6b65f2932819a7.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Animation",
+    "pattern": "V_ui_UIGhostParkourBattleResult_banner_in{N}",
+    "ext": ".anim",
+    "count": 3,
+    "examples": [
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Animation/V_ui_UIGhostParkourBattleResult_banner_in1.anim",
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Animation/V_ui_UIGhostParkourBattleResult_banner_in2.anim",
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Animation/V_ui_UIGhostParkourBattleResult_banner_in3.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_animation_v_ui_uighostparkourbattleresult_banner_in1_d218adc75dad62deb1f36951373d3b9f.bundle",
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_animation_v_ui_uighostparkourbattleresult_banner_in2_187c69254c66ba6279c29501c9e6912f.bundle",
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_animation_v_ui_uighostparkourbattleresult_banner_in3_3c6159f97eff759e28fa8592d4086fd3.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Animation",
+    "pattern": "V_ui_UIGhostParkourBattleResult_in",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Animation/V_ui_UIGhostParkourBattleResult_in.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_animation_v_ui_uighostparkourbattleresult_in_9757d6f6630b9ef66c650564f91ef170.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Animation",
+    "pattern": "V_ui_UIGhostParkourBattleResult_Rank",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Animation/V_ui_UIGhostParkourBattleResult_Rank.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_animation_v_ui_uighostparkourbattleresult_rank_b9c86b14abffd4ba8d318ece885cb302.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Animation",
+    "pattern": "V_ui_UIGhostParkourBattleResult_RankUp",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Animation/V_ui_UIGhostParkourBattleResult_RankUp.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_animation_v_ui_uighostparkourbattleresult_rankup_1e0968e1ca49ed14948176ef50ee968e.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Animation",
+    "pattern": "V_ui_UIGhostParkourBattleResult_Tag_in",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Animation/V_ui_UIGhostParkourBattleResult_Tag_in.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_animation_v_ui_uighostparkourbattleresult_tag_in_7c0a00fb7f561efd60f38404e2f44e67.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Animation",
+    "pattern": "V_ui_UIGhostParkourChallengeResult_btn",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Animation/V_ui_UIGhostParkourChallengeResult_btn.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_animation_v_ui_uighostparkourchallengeresult_btn_1363f0147973c90bd9eaf3f5a06e2dd8.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Animation",
+    "pattern": "V_ui_UIGhostParkourChallengeResult_Emoji",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Animation/V_ui_UIGhostParkourChallengeResult_Emoji.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_animation_v_ui_uighostparkourchallengeresult_emoji_bbb99c4597abdab8da00702f8e2e2c47.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Animation",
+    "pattern": "V_ui_UIGhostParkourChallengeResult_in",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Animation/V_ui_UIGhostParkourChallengeResult_in.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_animation_v_ui_uighostparkourchallengeresult_in_f7975e995261fdf60adb0d5ad4c4f576.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Animation",
+    "pattern": "V_ui_UIGhostParkourPlaybackEnd_in",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Animation/V_ui_UIGhostParkourPlaybackEnd_in.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_animation_v_ui_uighostparkourplaybackend_in_b1b10308a4c21b6f1a7bfe5ac71d0665.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Animation",
+    "pattern": "V_ui_UIGhostParkourRankPageView_in",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Animation/V_ui_UIGhostParkourRankPageView_in.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_animation_v_ui_uighostparkourrankpageview_in_0be303f789b1e20a623c69b109d5f531.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Animation",
+    "pattern": "V_ui_UIGhostParkourRankPageView_left",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Animation/V_ui_UIGhostParkourRankPageView_left.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_animation_v_ui_uighostparkourrankpageview_left_f643a547e21a0bc5544d99df3264a4fa.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Animation",
+    "pattern": "V_ui_UIGhostParkourRankPageView_loop",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Animation/V_ui_UIGhostParkourRankPageView_loop.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_animation_v_ui_uighostparkourrankpageview_loop_5a93a3c4adef959b4b1abcac1f92625f.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Animation",
+    "pattern": "V_ui_UIGhostParkourRankPageView_right",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Animation/V_ui_UIGhostParkourRankPageView_right.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_animation_v_ui_uighostparkourrankpageview_right_2cdaaff1bc8bd46c2aa881e14243a11e.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Animation",
+    "pattern": "V_ui_UISurfingBattleActMain_rewards",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Animation/V_ui_UISurfingBattleActMain_rewards.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_animation_v_ui_uisurfingbattleactmain_rewards_7919da5daeb4878bd8dca56e046e06c2.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Material",
+    "pattern": "Eff_mat_GhostParkour_baodian_{N}",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Material/Eff_mat_GhostParkour_baodian_001.mat"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_material_eff_mat_ghostparkour_baodian_001_7a0e91fb966dfc68173df8fb915ffc1d.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Material",
+    "pattern": "Eff_mat_GhostParkour_glow_{N}",
+    "ext": ".mat",
+    "count": 5,
+    "examples": [
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Material/Eff_mat_GhostParkour_glow_001.mat",
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Material/Eff_mat_GhostParkour_glow_002.mat",
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Material/Eff_mat_GhostParkour_glow_003.mat",
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Material/Eff_mat_GhostParkour_glow_004.mat",
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Material/Eff_mat_GhostParkour_glow_005.mat"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_material_eff_mat_ghostparkour_glow_001_e226c99208a84c312c4055aba06eb9fd.bundle",
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_material_eff_mat_ghostparkour_glow_002_d37abd0919f1305f0e593418f5debe92.bundle",
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_material_eff_mat_ghostparkour_glow_003_320ae556965f7eba0b1f0ef0fc39a61d.bundle",
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_material_eff_mat_ghostparkour_glow_004_80b11256a7524069a692fde6348cbbcf.bundle",
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_material_eff_mat_ghostparkour_glow_005_06d88f008e2cf2b2b0b429f7131aa03b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Material",
+    "pattern": "Eff_mat_GhostParkour_guangxian_{N}",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Material/Eff_mat_GhostParkour_guangxian_001.mat"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_material_eff_mat_ghostparkour_guangxian_001_6dcec14e752cea95b9be45c216baec55.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Material",
+    "pattern": "Eff_mat_GhostParkour_hand_{N}",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Material/Eff_mat_GhostParkour_hand_001.mat"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_material_eff_mat_ghostparkour_hand_001_64bffa87de11ef764f8c4ff502b0df0b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Material",
+    "pattern": "Eff_mat_GhostParkour_jiantou_{N}",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Material/Eff_mat_GhostParkour_jiantou_001.mat"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_material_eff_mat_ghostparkour_jiantou_001_b4183c537d514afce39df1b6488128ea.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Material",
+    "pattern": "Eff_mat_GhostParkour_kuang_{N}",
+    "ext": ".mat",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Material/Eff_mat_GhostParkour_kuang_001.mat",
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Material/Eff_mat_GhostParkour_kuang_002.mat"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_material_eff_mat_ghostparkour_kuang_001_4720eea3a3224dd89d5664503ca60adb.bundle",
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_material_eff_mat_ghostparkour_kuang_002_12d324a82bef2ea70b7accfa6e35e8dc.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Material",
+    "pattern": "Eff_mat_GhostParkour_line_{N}",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Material/Eff_mat_GhostParkour_line_001.mat"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_material_eff_mat_ghostparkour_line_001_076ddfedace68d1282ff97b02850585e.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Material",
+    "pattern": "Eff_mat_GhostParkour_liuguang_{N}",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Material/Eff_mat_GhostParkour_liuguang_001.mat"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_material_eff_mat_ghostparkour_liuguang_001_291d6549c74b5c42bfeb0c13c3c3b4c9.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Material",
+    "pattern": "Eff_mat_GhostParkour_nengliang_{N}",
+    "ext": ".mat",
+    "count": 3,
+    "examples": [
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Material/Eff_mat_GhostParkour_nengliang_001.mat",
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Material/Eff_mat_GhostParkour_nengliang_002.mat",
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Material/Eff_mat_GhostParkour_nengliang_003.mat"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_material_eff_mat_ghostparkour_nengliang_001_9516a2a746ff9483ebce701d763c5530.bundle",
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_material_eff_mat_ghostparkour_nengliang_002_101338f58157517e232d7eb4fcfea56e.bundle",
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_material_eff_mat_ghostparkour_nengliang_003_387f682260d63e52daf7cb38df6b02ee.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Material",
+    "pattern": "Eff_mat_GhostParkour_qilang_{N}",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Material/Eff_mat_GhostParkour_qilang_001.mat"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_material_eff_mat_ghostparkour_qilang_001_f8407a8f73c9fe9e358715cb90fd77a4.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Material",
+    "pattern": "Eff_mat_GhostParkour_Rank_{N}",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Material/Eff_mat_GhostParkour_Rank_001.mat"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_material_eff_mat_ghostparkour_rank_001_27caa364430c4b6afdeef49ddd03f4b3.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Material",
+    "pattern": "Eff_mat_GhostParkour_shandian_{N}",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Material/Eff_mat_GhostParkour_shandian_001.mat"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_material_eff_mat_ghostparkour_shandian_001_ea7601638670f3e0bbebc16e45b076d3.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Material",
+    "pattern": "Eff_mat_GhostParkour_TierBg_{N}",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Material/Eff_mat_GhostParkour_TierBg_001.mat"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_material_eff_mat_ghostparkour_tierbg_001_5d5ed371dc1772bb42e6174b6bee6bae.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Material",
+    "pattern": "Eff_mat_GhostParkour_Topbg_{N}",
+    "ext": ".mat",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Material/Eff_mat_GhostParkour_Topbg_001.mat",
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Material/Eff_mat_GhostParkour_Topbg_002.mat"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_material_eff_mat_ghostparkour_topbg_001_72cc6e18276061f29493d39e8075b819.bundle",
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_material_eff_mat_ghostparkour_topbg_002_64e4b39706064501636c1cc547705cc0.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Material",
+    "pattern": "Eff_mat_GhostParkour_{N}",
+    "ext": ".mat",
+    "count": 6,
+    "examples": [
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Material/Eff_mat_GhostParkour_001.mat",
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Material/Eff_mat_GhostParkour_002.mat",
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Material/Eff_mat_GhostParkour_003.mat",
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Material/Eff_mat_GhostParkour_004.mat",
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Material/Eff_mat_GhostParkour_005.mat",
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Material/Eff_mat_GhostParkour_006.mat"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_material_eff_mat_ghostparkour_001_ece1af3251ef4d851f33a2859dd3fcea.bundle",
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_material_eff_mat_ghostparkour_002_0229e47c584409fe5082aefb12b7a15f.bundle",
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_material_eff_mat_ghostparkour_003_987f12815b98716671ab79305de8d604.bundle",
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_material_eff_mat_ghostparkour_004_0c5b2d8c086ffc0709ebe23c4855b8b3.bundle",
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_material_eff_mat_ghostparkour_005_4fb8f5558e341558b302ca4e15064046.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Material",
+    "pattern": "Eff_mat_paoku_glow_{N}",
+    "ext": ".mat",
+    "count": 3,
+    "examples": [
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Material/Eff_mat_paoku_glow_06.mat",
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Material/Eff_mat_paoku_glow_07.mat",
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Material/Eff_mat_paoku_glow_08.mat"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_material_eff_mat_paoku_glow_06_fcc44153d1d8d0d7ccefae864c37cac7.bundle",
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_material_eff_mat_paoku_glow_07_908cba216a0238e765ccb33c06f368fc.bundle",
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_material_eff_mat_paoku_glow_08_03b0becd6c99f2f45ac2e2a9c02a177f.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Material",
+    "pattern": "Eff_mat_paoku_ring_{N}",
+    "ext": ".mat",
+    "count": 4,
+    "examples": [
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Material/Eff_mat_paoku_ring_02.mat",
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Material/Eff_mat_paoku_ring_03.mat",
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Material/Eff_mat_paoku_ring_04.mat",
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Material/Eff_mat_paoku_ring_05.mat"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_material_eff_mat_paoku_ring_02_bc36ececa8628757e179246bfa6e13a6.bundle",
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_material_eff_mat_paoku_ring_03_e94878ae717e10119a6c92a391a6a616.bundle",
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_material_eff_mat_paoku_ring_04_419f84b9e638fb840f3f1663fe419184.bundle",
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_material_eff_mat_paoku_ring_05_f852e288d52adb0ce02c9153431d0506.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Material",
+    "pattern": "Eff_mat_paoku_unlock_{N}",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Material/Eff_mat_paoku_unlock_07.mat"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_material_eff_mat_paoku_unlock_07_782293c7efd76a9a076e3370ab4ff713.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Material",
+    "pattern": "Eff_mat_paoku_wind_{N}",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Material/Eff_mat_paoku_wind_03.mat"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_material_eff_mat_paoku_wind_03_1455a856235cedc17380bb7fb131f988.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Material",
+    "pattern": "Eff_mat_ui_TacticalCard_wenli_{N}",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Material/Eff_mat_ui_TacticalCard_wenli_02.mat"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_material_eff_mat_ui_tacticalcard_wenli_02_3f54a30e1008ae2f108d8f5838977695.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Material",
+    "pattern": "Eff_UI_mat_noise_{N}",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Material/Eff_UI_mat_noise_09.mat"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_material_eff_ui_mat_noise_09_fdf68bb0d9efcf4b98fdcff475f23216.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Material/rank_logo",
+    "pattern": "Eff_mat_paoku_rank{N}_{N}",
+    "ext": ".mat",
+    "count": 10,
+    "examples": [
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Material/rank_logo/Eff_mat_paoku_rank1_001.mat",
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Material/rank_logo/Eff_mat_paoku_rank1_002.mat",
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Material/rank_logo/Eff_mat_paoku_rank2_001.mat",
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Material/rank_logo/Eff_mat_paoku_rank2_002.mat",
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Material/rank_logo/Eff_mat_paoku_rank4_001.mat",
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Material/rank_logo/Eff_mat_paoku_rank4_002.mat",
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Material/rank_logo/Eff_mat_paoku_rank4_003.mat",
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Material/rank_logo/Eff_mat_paoku_rank5_001.mat"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_material_rank_logo_eff_mat_paoku_rank1_001_dba438c345cf8a0999be09c2f18225fc.bundle",
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_material_rank_logo_eff_mat_paoku_rank1_002_9a5d8d53ddf9b69c48d7c4bc4127d6be.bundle",
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_material_rank_logo_eff_mat_paoku_rank2_001_304174d66526510f6e35e8ace53f8a67.bundle",
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_material_rank_logo_eff_mat_paoku_rank2_002_de4e6d49ef4693398700f520eb15385c.bundle",
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_material_rank_logo_eff_mat_paoku_rank4_001_40a31e33d484c15b1abca371e63d4e88.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Prefab",
+    "pattern": "Eff_ui_paoku_rank_enviroment",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Prefab/Eff_ui_paoku_rank_enviroment.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_prefab_eff_ui_paoku_rank_enviroment_d85e514a1be8004b0fbd426364f35b77.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Prefab",
+    "pattern": "Eff_ui_paoku_rank_icon{N}",
+    "ext": ".prefab",
+    "count": 5,
+    "examples": [
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Prefab/Eff_ui_paoku_rank_icon1.prefab",
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Prefab/Eff_ui_paoku_rank_icon2.prefab",
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Prefab/Eff_ui_paoku_rank_icon3.prefab",
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Prefab/Eff_ui_paoku_rank_icon4.prefab",
+      "Assets/Main/Prefabs/UI/GhostParkourBattle/Effect/Prefab/Eff_ui_paoku_rank_icon5.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_prefab_eff_ui_paoku_rank_icon1_4b553a758bc4942ba41401bcc89dfc88.bundle",
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_prefab_eff_ui_paoku_rank_icon2_c06a8fad0e7029f66e25f46ce826f99c.bundle",
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_prefab_eff_ui_paoku_rank_icon3_8a62a4854609efcbec7fff287f6f6bb2.bundle",
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_prefab_eff_ui_paoku_rank_icon4_aa378b45ce3cd768adbda720ed022b2d.bundle",
+      "gameres_main_file_prefabs_ui_ghostparkourbattle_effect_prefab_eff_ui_paoku_rank_icon5_e98d940db8cd157f4f2884830cd1e101.bundle"
+    ],
+    "evidenceFiles": []
+  }
+]

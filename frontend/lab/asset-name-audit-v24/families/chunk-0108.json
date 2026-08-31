@@ -1,0 +1,4602 @@
+[
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWGift/UILWHeroMonthCard",
+    "pattern": "HeroMonthCardItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWGift/UILWHeroMonthCard/HeroMonthCardItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwgift_uilwheromonthcard_heromonthcarditem_79306fabb044497b226bf2605e05f4fa.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWGift/UILWHeroMonthCard",
+    "pattern": "HeroMonthCardMain",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWGift/UILWHeroMonthCard/HeroMonthCardMain.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwgift_uilwheromonthcard_heromonthcardmain_07dfc95a6d76e8f4b40112814588f98b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWGift/UILWHeroMonthCard",
+    "pattern": "HeroMonthCardMainPop",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWGift/UILWHeroMonthCard/HeroMonthCardMainPop.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwgift_uilwheromonthcard_heromonthcardmainpop_06690f3d645a5e20a5dede5c17bdead5.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWGift/UILWMonthCard",
+    "pattern": "UILWMonthCard",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWGift/UILWMonthCard/UILWMonthCard.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwgift_uilwmonthcard_uilwmonthcard_9c4be4c18550c1673bdec5f2e2b6aff4.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWGift/UILWMonthCard",
+    "pattern": "UILWMonthCardContent",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWGift/UILWMonthCard/UILWMonthCardContent.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwgift_uilwmonthcard_uilwmonthcardcontent_9993a2de8fe4b82fdf70d822f47b474b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWGift/UILWMonthCard",
+    "pattern": "UILWMonthCardContentOld",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWGift/UILWMonthCard/UILWMonthCardContentOld.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwgift_uilwmonthcard_uilwmonthcardcontentold_9aefaea66a7494d9563c58ee53db5022.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWGift/WeekCard",
+    "pattern": "UIWeekCardPop",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWGift/WeekCard/UIWeekCardPop.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwgift_weekcard_uiweekcardpop_9a504bbdc447ea6d5b8f78a7d6f1fedf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWGift/WeekCard",
+    "pattern": "UIWeekCardShowNew",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWGift/WeekCard/UIWeekCardShowNew.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwgift_weekcard_uiweekcardshownew_8b1d9ae97127cfdcdf750c01df6f2cd3.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWGift/WeekCard",
+    "pattern": "WeekCardItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWGift/WeekCard/WeekCardItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwgift_weekcard_weekcarditem_822b71fdba02295a5764d1d452687f90.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWGift/WeekCard",
+    "pattern": "WeekCardItemNewFlag",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWGift/WeekCard/WeekCardItemNewFlag.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwgift_weekcard_weekcarditemnewflag_668d47c4ec59ad606c9ef42d0dfb2ab5.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWGift/WeekCard",
+    "pattern": "WeekCardMain",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWGift/WeekCard/WeekCardMain.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwgift_weekcard_weekcardmain_a64a7159e337c030f1fa4c25a6088ec6.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWGift/WeeklyPackage",
+    "pattern": "WeeklyPackage",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWGift/WeeklyPackage/WeeklyPackage.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwgift_weeklypackage_weeklypackage_7625e47f8e954be850fb50a5126e034a.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWGotoUpgradeBase",
+    "pattern": "LWGotoUpgradeBase",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWGotoUpgradeBase/LWGotoUpgradeBase.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwgotoupgradebase_lwgotoupgradebase_357834415fe615b8007b12a88b417452.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWGuideMask",
+    "pattern": "UIGuideMask",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWGuideMask/UIGuideMask.mat"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwguidemask_uiguidemask_20224f191b31e8d4fdf5da39547a2428.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWGuideMask",
+    "pattern": "UIGuideMask",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWGuideMask/UIGuideMask.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwguidemask_uiguidemask_20224f191b31e8d4fdf5da39547a2428.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWGuideMask",
+    "pattern": "UIRoundCornerRect",
+    "ext": ".shader",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWGuideMask/UIRoundCornerRect.shader"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_shaders2019_2941e4115689ab25d1ec34ebbce37f12.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-background-pipeline-v1.json|formation-layer0-world-pack-v1.json|formation-native-recipe-v1.json|formation-reverse-deps-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWKOFCampaign",
+    "pattern": "LWKOFCampaign",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWKOFCampaign/LWKOFCampaign.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwkofcampaign_lwkofcampaign_484338ca91fa8c0a30f31435f055bbe7.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWKOFCampaign",
+    "pattern": "LWKOFCampaign_{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWKOFCampaign/LWKOFCampaign_02.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwkofcampaign_lwkofcampaign_02_bcec368f4874c10aeee61a1c4e1e8015.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWKOFCampaign",
+    "pattern": "LWKOFCampaignHeroCell",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWKOFCampaign/LWKOFCampaignHeroCell.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwkofcampaign_lwkofcampaignherocell_f78723d95e7385258ab8d0d02eef64ec.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWKOFCampaign",
+    "pattern": "LWKOFDefenseTeamOrder",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWKOFCampaign/LWKOFDefenseTeamOrder.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwkofcampaign_lwkofdefenseteamorder_93d7ec41cae81ba3c05455f5c15d4f7e.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "AllianceItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/AllianceItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_allianceitem_fd09323865d912f8f82e6fa23f49d694.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "ArmyItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/ArmyItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_armyitem_6765864d87f569f37a0aa6c386edc530.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "ArmyItemNew",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/ArmyItemNew.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_armyitemnew_85915c95f6d25fc0a76456fbe15d5886.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "ArmyPage",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/ArmyPage.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_armypage_86770bd1f5527b2a12e4ad5d9c200bdc.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "ChampionDuelScoreRoot",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/ChampionDuelScoreRoot.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_championduelscoreroot_b59799bf6f22b7ec7c82e187d842551c.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "DamagePage",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/DamagePage.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_damagepage_999ec6047c96ea6f5ff50b7f3d0a2fb0.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "DecoItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/DecoItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_decoitem_76641b4b357a731ded1bfe454eb7f293.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "EquipItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/EquipItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_equipitem_fb767f8e1cdab39a71c11fe491b675a9.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "HeroPage",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/HeroPage.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_heropage_b2006305aab45588ddbdbc061ede70d4.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "HeroPageHeroCampEffectInfo",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/HeroPageHeroCampEffectInfo.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_heropageherocampeffectinfo_58b2e0db54feaed9330eda6a1368b90b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "HeroPageHeroLineupInfo",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/HeroPageHeroLineupInfo.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_heropageherolineupinfo_9ad15de6924b969dd2ccf9bfcd80a979.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "HeroPageRelationContainer",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/HeroPageRelationContainer.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_heropagerelationcontainer_ddd48755a9b4c71c816a1b8f3220643e.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "HonorItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/HonorItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_honoritem_3317b900b62d9b44d028396db9fce08f.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "KangXingRoot",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/KangXingRoot.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_kangxingroot_7d5b49f1791abf4b11b1355e10cac788.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "KangXingVirusRoot",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/KangXingVirusRoot.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_kangxingvirusroot_567728453b5fcbf51b0b985cd90f722a.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "KillItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/KillItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_killitem_0d5c462cf815647fbbd1a20abbb6a50d.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "LWDegradesTip",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/LWDegradesTip.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_lwdegradestip_e40a357621b852268c1d2d6a3562e16f.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "MailDetailAllianceCityOccupyReward",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailDetailAllianceCityOccupyReward.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_maildetailalliancecityoccupyreward_86b2a620f9b4570bea06e3f6be75a5b9.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "MailDetailAllianceCityRank",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailDetailAllianceCityRank.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_maildetailalliancecityrank_d30a5ecf587769c30d5bf5fecdf2deee.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "MailDetailAllianceMark",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailDetailAllianceMark.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_maildetailalliancemark_cb6cde81b74ce43a55a66e532147613e.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "MailDetailAllianceStarCommend",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailDetailAllianceStarCommend.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_maildetailalliancestarcommend_e84cfb5b9cb0aeea58b70d414ca5a278.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "MailDetailAllOut",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailDetailAllOut.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_maildetailallout_98f4ffe97f2613f340a1d8116fd57cd1.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "MailDetailAllyDrill",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailDetailAllyDrill.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_maildetailallydrill_17e5877d26add496b85645dc53c1175c.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "MailDetailAttackRuinBuilding",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailDetailAttackRuinBuilding.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_maildetailattackruinbuilding_1bd4d5164953aa3dc772a310e83d1398.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "MailDetailBankReport",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailDetailBankReport.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_maildetailbankreport_f7665777e145c031df6548c0d123b349.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "MailDetailBreakIce",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailDetailBreakIce.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_maildetailbreakice_5befbe88463a862d5251968c6fbe29f5.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "MailDetailCommon",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailDetailCommon.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_maildetailcommon_6b033a32f0ceba91af1a86c6093a8a39.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "MailDetailDesertBattleItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailDetailDesertBattleItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_maildetaildesertbattleitem_5711ded0ec81eefdde258442b75fc4a1.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "MailDetailDesertBattleMatchResult",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailDetailDesertBattleMatchResult.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_maildetaildesertbattlematchresult_de6a24895a5569fa26a664b88c5a301e.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "MailDetailDesertBattleParticipants",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailDetailDesertBattleParticipants.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_maildetaildesertbattleparticipants_a566bae9b7747cf6c94c69ccef9a5f98.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "MailDetailDesertBattlePeopleItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailDetailDesertBattlePeopleItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_maildetaildesertbattlepeopleitem_7e9997998818e228e7dcd3324cb42017.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "MailDetailDesertBattleResult",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailDetailDesertBattleResult.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_maildetaildesertbattleresult_e0575065fce1ef87e870a2fe6457b7f7.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "MailDetailDesertBattleSignUp",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailDetailDesertBattleSignUp.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_maildetaildesertbattlesignup_7e9762dd186582213cb67388d54ecc98.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "MailDetailDesertRankItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailDetailDesertRankItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_maildetaildesertrankitem_315a6c6ef4e7b46d27221d33d9783bbc.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "MailDetailDisguise",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailDetailDisguise.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_maildetaildisguise_63cc2db8b9145db4cc3b54a4d8f783c0.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "MailDetailInActivityMember",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailDetailInActivityMember.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_maildetailinactivitymember_42433a3bb41b5bad3941fef41696b84f.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "MailDetailLandmine",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailDetailLandmine.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_maildetaillandmine_a48eb4dd4c0fb752ad0a9d2dcac9360c.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "MailDetailMeteoriteMoveNoticeBig",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailDetailMeteoriteMoveNoticeBig.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_maildetailmeteoritemovenoticebig_5f17494010633ffdf6549f5b86b70ae9.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "MailDetailMeteoriteMoveNoticeSmall",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailDetailMeteoriteMoveNoticeSmall.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_maildetailmeteoritemovenoticesmall_55d63e63423f1fadd79c795b67386f36.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "MailDetailMeteoriteRank",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailDetailMeteoriteRank.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_maildetailmeteoriterank_b69814242fa6e4a6cb4d37c665708a8b.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "MailDetailMigrationMarket",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailDetailMigrationMarket.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_maildetailmigrationmarket_0b4c692c2655859c266ed401d95fb640.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "MailDetailMuster",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailDetailMuster.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_maildetailmuster_08690777a4192aa450b9d085447dea5e.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "MailDetailPersonalArmsDailyRank",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailDetailPersonalArmsDailyRank.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_maildetailpersonalarmsdailyrank_23192a3133b99a40efe3548c75f42961.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "MailDetailRefundComplete",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailDetailRefundComplete.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_maildetailrefundcomplete_a2aa6dcd900216c1a2915dea5a14e4bc.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "MailDetailRevivalActivity",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailDetailRevivalActivity.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_maildetailrevivalactivity_d9cff9acc6d3c8a34ca5f13be4ec1d63.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "MailDetailRevivalActivityItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailDetailRevivalActivityItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_maildetailrevivalactivityitem_c3d112e4c2b40a8aa6c111256decc721.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "MailDetailScout",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailDetailScout.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_maildetailscout_43de1879130b816ea1039b6904d3d2bc.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "MailDetailScoutResourceItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailDetailScoutResourceItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_maildetailscoutresourceitem_a7433c95ed58a31a869908d57b06bbd2.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "MailDetailSurfingBattle",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailDetailSurfingBattle.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_maildetailsurfingbattle_212fa4b4a8f6e91b82f8896c7e36be23.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "MailDetailS{N}AllianceBoss",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailDetailS0AllianceBoss.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_maildetails0allianceboss_8af0f2020555cff7b1fb3ff1c2eb1d69.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "MailDetailTrain",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailDetailTrain.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_maildetailtrain_383c8bbef0af53b5d4bb09e6eef1bff7.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "MailDetailTrainReward",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailDetailTrainReward.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_maildetailtrainreward_4da95d0ae991427e2d99573b934157bc.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "MailDetailTruck",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailDetailTruck.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_maildetailtruck_6682d4c247fa41759ee80c635d825f2e.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "MailDetailWar",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailDetailWar.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_maildetailwar_6a7577a269848822c116ea0807df0b30.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "MailDetailZombieRush",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailDetailZombieRush.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_maildetailzombierush_56cb47be0830d0b56aa94ed3d38b71d4.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "MailEffectTipItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailEffectTipItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_maileffecttipitem_776b9db94e04f31f383ef8dbc35c28e8.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "MailHeroItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailHeroItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_mailheroitem_f7124e7f9552792febe99a60ac1a4f22.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "MailHeroWeaponCell",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailHeroWeaponCell.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_mailheroweaponcell_00d1e258b8efb131ff955e62a9836338.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "MailHeroWeaponCell_New",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailHeroWeaponCell_New.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_mailheroweaponcell_new_b57f7503a07e68f75500a1391ce22449.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "MailInActiveMemberItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailInActiveMemberItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_mailinactivememberitem_b714c7b484267fc5c04e69fb779896d2.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "MailRankItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailRankItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_mailrankitem_9e23484167d8afb84732970bc5a8d0da.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "MailResItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailResItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_mailresitem_214007ae2caf5d45c327b2daab2efbf9.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "OtherBarItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/OtherBarItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_otherbaritem_972e1359498ede766f5ffd5093276358.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "OtherItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/OtherItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_otheritem_6b4aae8b53bb403297294e0549280b50.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "Passenger",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/Passenger.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_passenger_6fadb16f74df510573b08f9db27c6625.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "PropertyPage",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/PropertyPage.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_propertypage_8a843d9ae131f758b1962affab4b4504.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "SciBarItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/SciBarItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_scibaritem_0b075b8f106481169abd8d0f68379c4b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "SkillItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/SkillItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_skillitem_dc80232a1ba4ea4cd4e7f9837589ebef.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "SoldierPage",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/SoldierPage.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_soldierpage_ccd129c388ac8b546d71847a4c1387b3.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "TacticalDamageCell",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/TacticalDamageCell.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_tacticaldamagecell_c1dd94fb62522d4909bc49fbfa478ac3.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "UILWMailAllianceLeaderChange",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/UILWMailAllianceLeaderChange.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_uilwmailallianceleaderchange_5fab15a388dab4e6dffd333ac6435a98.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "UILWMailChannelItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/UILWMailChannelItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_uilwmailchannelitem_1b1c428514572f8ccec5e40c813c5ed2.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "UILWMailEffectTip",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/UILWMailEffectTip.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_uilwmaileffecttip_71a8a22c401e087bb0ee30de4c1c438a.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "UILWMailListItemCharge",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/UILWMailListItemCharge.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_uilwmaillistitemcharge_336247ece3109cfc3b1f141819e4980f.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "UILWMailListItemCommon",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/UILWMailListItemCommon.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_uilwmaillistitemcommon_6c1443db7cade1e5f9560292c27f0d33.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "UILWMailListItemFrozen",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/UILWMailListItemFrozen.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_uilwmaillistitemfrozen_d97bcd32cbcacade2555e9a7f0027843.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "UILWMailListItemGather",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/UILWMailListItemGather.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_uilwmaillistitemgather_9d8838e35dee42bce3139ddb1eb11e35.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "UILWMailListItemSandWormKnockOff",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/UILWMailListItemSandWormKnockOff.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_uilwmaillistitemsandwormknockoff_668c012746ac41294003605a04ba40dd.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "UILWMailListItemWar",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/UILWMailListItemWar.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_uilwmaillistitemwar_41661604de7a51cb0f7651b7ba3488a1.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "UILWMailMain",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/UILWMailMain.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_uilwmailmain_740f3cf63e95a878835698f3ce02e63f.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail",
+    "pattern": "UILWMailSeasonRewardView",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/UILWMailSeasonRewardView.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_uilwmailseasonrewardview_c5280c4037ecfebd1d639ea1777463ed.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail/AIHelper",
+    "pattern": "BattleHelperPage",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/AIHelper/BattleHelperPage.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_aihelper_battlehelperpage_800471f662c6c4444c5c6c558a88c2da.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail/AIHelper",
+    "pattern": "HelperItemType{N}",
+    "ext": ".prefab",
+    "count": 4,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/AIHelper/HelperItemType1.prefab",
+      "Assets/Main/Prefabs/UI/LWMail/AIHelper/HelperItemType2.prefab",
+      "Assets/Main/Prefabs/UI/LWMail/AIHelper/HelperItemType3.prefab",
+      "Assets/Main/Prefabs/UI/LWMail/AIHelper/HelperItemType4.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_aihelper_helperitemtype1_a79df8ca98cb1f2c07dfd7ca63abafb8.bundle",
+      "gameres_main_file_prefabs_ui_lwmail_aihelper_helperitemtype2_edd499592c4584c93272d334a66d504e.bundle",
+      "gameres_main_file_prefabs_ui_lwmail_aihelper_helperitemtype3_a498046c74ea54663fafeace4e6d21fa.bundle",
+      "gameres_main_file_prefabs_ui_lwmail_aihelper_helperitemtype4_0ff822722158d018757e64177d0e8ff5.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail/AIHelper",
+    "pattern": "HeroOverview",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/AIHelper/HeroOverview.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_aihelper_herooverview_8fba9970a7554817bcb1547f0507c9b9.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail/AIHelper",
+    "pattern": "MailPageHeroInfoItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/AIHelper/MailPageHeroInfoItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_aihelper_mailpageheroinfoitem_2f84a0a1d2389a1979f91eaaf15de7a5.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail/DsbDuel",
+    "pattern": "MailDetailDsbDuelAllianceCondition",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/DsbDuel/MailDetailDsbDuelAllianceCondition.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_dsbduel_maildetaildsbduelalliancecondition_5b1c340124059c50ba51e85a431837c7.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail/DsbDuel",
+    "pattern": "MailDetailDsbDuelResult",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/DsbDuel/MailDetailDsbDuelResult.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_dsbduel_maildetaildsbduelresult_f5b1b1b244a2b73e28ffa76c0e3f673b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail/DsbDuel",
+    "pattern": "UIBFDsbDuelActMailAllianceItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/DsbDuel/UIBFDsbDuelActMailAllianceItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_dsbduel_uibfdsbduelactmailallianceitem_29552b5b13d369e94b51055d4d431814.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail/DsbDuel",
+    "pattern": "UIBFDsbDuelActMailMvpItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/DsbDuel/UIBFDsbDuelActMailMvpItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_dsbduel_uibfdsbduelactmailmvpitem_a5dccb542862e03207e2279a6b452839.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail/DsbDuel",
+    "pattern": "UIBFDsbDuelActMailRankItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/DsbDuel/UIBFDsbDuelActMailRankItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_dsbduel_uibfdsbduelactmailrankitem_a472ba096fe1a4d1635faaac26cbf4c4.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail/Landlord",
+    "pattern": "MailBuffItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/Landlord/MailBuffItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_landlord_mailbuffitem_43d2ba30fec490520ff97defb87b9433.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail/Landlord",
+    "pattern": "MailCityItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/Landlord/MailCityItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_landlord_mailcityitem_a97afe9a51d6b992e35aa1441027cc22.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail/Landlord",
+    "pattern": "MailDetailLandlordResult",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/Landlord/MailDetailLandlordResult.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_landlord_maildetaillandlordresult_2c4b909507031f52af4edbde4c22f1dd.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail/MailBattle",
+    "pattern": "BarItemAsync",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailBattle/BarItemAsync.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_mailbattle_baritemasync_5337781d1309e1bab12f6145a1c34cfe.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail/MailBattle",
+    "pattern": "BattleReportEffectDropdown",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailBattle/BattleReportEffectDropdown.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_mailbattle_battlereporteffectdropdown_be4534cbaf4233b89c4042dd877e41af.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail/MailBattle",
+    "pattern": "DecoBarItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailBattle/DecoBarItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_mailbattle_decobaritem_b73aa271ab5218d2efc253788ccb26fe.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail/MailBattle",
+    "pattern": "PowerSliderContent",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailBattle/PowerSliderContent.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_mailbattle_powerslidercontent_31c85acae9582d748878f60307512cc5.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail/MailBattle",
+    "pattern": "SoldierLostTip",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailBattle/SoldierLostTip.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_mailbattle_soldierlosttip_67f566818e0ee5a009bd3b7648931aef.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail/MailBattle",
+    "pattern": "WeaponAttriLine",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailBattle/WeaponAttriLine.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_mailbattle_weaponattriline_0cc5e84a6d26e1756605ad4865908b66.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail/MailBattle/dominator",
+    "pattern": "dominatorIcon",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailBattle/dominator/dominatorIcon.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_mailbattle_dominator_dominatoricon_d757442ceb2b54ff2df94fd4c64712f6.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail/MailBattle/dominator",
+    "pattern": "dominatorSkillItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailBattle/dominator/dominatorSkillItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_mailbattle_dominator_dominatorskillitem_ca8774d393dce896b135daf5417154ee.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail/MailBattle/dominator",
+    "pattern": "DominatorView",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailBattle/dominator/DominatorView.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_mailbattle_dominator_dominatorview_71fef46efe8722445588190fa1e74470.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail/MailBattle/dominator",
+    "pattern": "StarTemplate",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailBattle/dominator/StarTemplate.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_mailbattle_dominator_startemplate_66cc63791cf08127154868973b2486b0.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail/MailBattle/dominator",
+    "pattern": "trainingGrading",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailBattle/dominator/trainingGrading.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_mailbattle_dominator_traininggrading_8f51a59df9e82c0f07dd85fff175eba0.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail/MailBattle/dominator",
+    "pattern": "trainingGroupLine",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailBattle/dominator/trainingGroupLine.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_mailbattle_dominator_traininggroupline_752d45e7c6b3667ed2c9b3db324e71be.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail/MailBattle/Skin",
+    "pattern": "LWMailBattleSkinItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailBattle/Skin/LWMailBattleSkinItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_mailbattle_skin_lwmailbattleskinitem_91606e49aaca090f50b5aaaad958e256.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail/MailBattle/Skin",
+    "pattern": "LWMailBattleSkinView",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailBattle/Skin/LWMailBattleSkinView.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_mailbattle_skin_lwmailbattleskinview_e9cd3ff94bfbe7c7d23cb07e70827c95.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail/MailBattle/TacticalCard",
+    "pattern": "TacticalCardView",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailBattle/TacticalCard/TacticalCardView.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_mailbattle_tacticalcard_tacticalcardview_72c31cb41c53f387c37c19e998ae46cb.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail/MailDetailResourceConversion",
+    "pattern": "MailDetailResConversion",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailDetailResourceConversion/MailDetailResConversion.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_maildetailresourceconversion_maildetailresconversion_5e7b8b668e1d6faea37ab41d2d4594c9.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail/MailScout",
+    "pattern": "DecoItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailScout/DecoItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_mailscout_decoitem_cf99543aa3d2f7a4a0dcad5ff0b7ca2f.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail/MailScout",
+    "pattern": "FormationGroupItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailScout/FormationGroupItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_mailscout_formationgroupitem_02d2cb5be3e48c171afa5bf09025f70e.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-global-scene-catalog-v1.json|heroshow-scene-loader-audit-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail/MailScout",
+    "pattern": "MailScoutDevelopPage",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailScout/MailScoutDevelopPage.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_mailscout_mailscoutdeveloppage_7647768af92be98d19ce7cc31ae67c02.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail/MailScout",
+    "pattern": "MailScoutFormationDetail",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailScout/MailScoutFormationDetail.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_mailscout_mailscoutformationdetail_da80b7b60d259e5e3da6904aeffe97db.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-global-scene-catalog-v1.json|heroshow-scene-loader-audit-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail/MailScout",
+    "pattern": "MailScoutHeroPage",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailScout/MailScoutHeroPage.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_mailscout_mailscoutheropage_bcfb2e19f8c3d9eee4d6f3a2acbda6e8.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail/MailScout",
+    "pattern": "MailScoutHonorItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailScout/MailScoutHonorItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_mailscout_mailscouthonoritem_f8494101ea4f6f1e24c2ac67bf549f09.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail/MailScout",
+    "pattern": "MailScoutPageToggle",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailScout/MailScoutPageToggle.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_mailscout_mailscoutpagetoggle_15d5c5f895ca5511c0109d2351c519f6.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail/MailScout",
+    "pattern": "MailScoutScienceItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailScout/MailScoutScienceItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_mailscout_mailscoutscienceitem_70345f2d220b9ac7da34afffd12827a6.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail/MailScout",
+    "pattern": "MailScoutSoldierDetail_Item",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailScout/MailScoutSoldierDetail_Item.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_mailscout_mailscoutsoldierdetail_item_96b4e43e41f4b2a6a794e7828e9aca71.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail/MailScout",
+    "pattern": "MailScoutSoldierPage",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailScout/MailScoutSoldierPage.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_mailscout_mailscoutsoldierpage_19aabe14a7657c31f3679f0b358ce919.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail/MailScout",
+    "pattern": "ScoutFormationDetailLine{N}",
+    "ext": ".prefab",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailScout/ScoutFormationDetailLine1.prefab",
+      "Assets/Main/Prefabs/UI/LWMail/MailScout/ScoutFormationDetailLine2.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_mailscout_scoutformationdetailline1_84547d3933984fc21418ada0d73c42f1.bundle",
+      "gameres_main_file_prefabs_ui_lwmail_mailscout_scoutformationdetailline2_997d47c60df3ba379b97d53aab44a51c.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-global-scene-catalog-v1.json|heroshow-scene-loader-audit-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail/MailScout",
+    "pattern": "SoldierInoCell",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/MailScout/SoldierInoCell.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_mailscout_soldierinocell_74c7fe9efc41be489e94cc91d83cae02.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail/Soldier",
+    "pattern": "UILostSoldierTip",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/Soldier/UILostSoldierTip.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_soldier_uilostsoldiertip_58eaa6446c9e9ff4b50abf5ac8fed35d.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMail/Soldier",
+    "pattern": "UILWSoldierDeadRule",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMail/Soldier/UILWSoldierDeadRule.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmail_soldier_uilwsoldierdeadrule_b46299abd0bdd6cd77c1185cd17ed1b2.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainSaveGirlWarningSkeleton",
+    "pattern": "SaveGirlWarningSkeleton_Jp",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainSaveGirlWarningSkeleton/SaveGirlWarningSkeleton_Jp.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainsavegirlwarningskeleton_savegirlwarningskeleton_jp_91f972748943d95885c3db3729c1fbb3.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainSaveGirlWarningSkeleton",
+    "pattern": "SaveGirlWarningSkeleton_Normal",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainSaveGirlWarningSkeleton/SaveGirlWarningSkeleton_Normal.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainsavegirlwarningskeleton_savegirlwarningskeleton_normal_98c68f6127c462bb9bd4e2f647808634.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "ActivityCenterBtn",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/ActivityCenterBtn.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_activitycenterbtn_f35982cc8ffaffc2ef5f25367476216a.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "ActivityTips",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/ActivityTips.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_activitytips_db872221913b2ba67fc56215bfad342c.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "ActLandlordBackBtn",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/ActLandlordBackBtn.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_actlandlordbackbtn_39578c2912871af9fa5a9c24a64e4a24.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "ActMeteoriteBtn",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/ActMeteoriteBtn.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_actmeteoritebtn_7b8628a6829b8973b069284e92db079c.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "ActMigrationBtn",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/ActMigrationBtn.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_actmigrationbtn_c64c5eccc6247cb8df4478d385f39022.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "AlChallengeBossBubble",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/AlChallengeBossBubble.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_alchallengebossbubble_78aef1ab5041893b1af271a55efc3f01.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "AllianceBtnFireEff",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/AllianceBtnFireEff.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_alliancebtnfireeff_23df92e5de2f8c8eca825811153c90f6.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "AllyDuel",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/AllyDuel.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_allyduel_c7095fbf23fe8a3db3ff0a0e691aa083.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "AllyDuelLeagueHistoryItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/AllyDuelLeagueHistoryItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_allyduelleaguehistoryitem_d58e57584dd2d43126cce8c0a7d45e34.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "AllyDuelNewTips",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/AllyDuelNewTips.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_allyduelnewtips_5692ecc1ec282376fa5967bfd3dac800.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "AllyDuelTips",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/AllyDuelTips.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_allydueltips_0969e3f4a171afa79d15f6004d63f6a2.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "AttackCityActivity",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/AttackCityActivity.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_attackcityactivity_40ddf14a06c6017ea3b230842947f6a9.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "BuffIcon",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/BuffIcon.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_bufficon_c549a92a5276ace6922392840c76f91f.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "BuffListRoot",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/BuffListRoot.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_bufflistroot_e48e172280507dc39d4fcfc334ee13bc.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "BuildQueue",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/BuildQueue.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_buildqueue_2b303838e40445f944fe45448c7e2b44.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "BuildQueueBubble",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/BuildQueueBubble.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_buildqueuebubble_ed92592ea6ec28d5dde6546ec10b53a7.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "ChatBg",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/ChatBg.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_chatbg_17bed72c9e42c8a4cf99a46fd38b7c2d.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "CityEvent",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/CityEvent.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_cityevent_aecad0534f21b90e60b844de5a5bcd07.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "CommonTIps",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/CommonTIps.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_commontips_b7738bf95c15f4800ac81ae4002d2749.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "CureBtn",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/CureBtn.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_curebtn_342bc670174c51e4bac895d9957ea47f.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "DominatorUnlockBtn",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/DominatorUnlockBtn.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_dominatorunlockbtn_2d27acbd04cf3723d954911b5d63114f.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "Eff_radar_fxglow",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/Eff_radar_fxglow.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_eff_radar_fxglow_cd723d631225c015cb0c8c4b7b73a04c.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "EnterDragonBattle",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/EnterDragonBattle.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_enterdragonbattle_4375d98037084c80b4e64c58bdbd1e05.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "FireworkBackBtn",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/FireworkBackBtn.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_fireworkbackbtn_e42be65e8b73457b3b13efc501fc0993.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "goldStore",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/goldStore.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_goldstore_9d27b7bc67ecf42ef915165b182bc169.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "InvasionBtn",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/InvasionBtn.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_invasionbtn_cce1c8fd5e0500e5e70561941f596640.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "LWMainActStrText",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/LWMainActStrText.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_lwmainactstrtext_a255e2bcffaea13a75a43b1d9f55a412.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "LWMainActTimeText",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/LWMainActTimeText.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_lwmainacttimetext_d545297804f0bffc2ba602298ddd69b8.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "LWMainCureBtnText",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/LWMainCureBtnText.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_lwmaincurebtntext_d1978e9c2b7f875ca7ca08a8f8d6c6c7.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "LWMainDesertUI",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/LWMainDesertUI.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_lwmaindesertui_226555f7aeb686eb6a109e2921097260.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "LWMainResText",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/LWMainResText.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_lwmainrestext_fc176f2e20f355b9ca460b04e2632154.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "LWMainUI",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/LWMainUI.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_lwmainui_f5560ee01433d081bf4fe255aa4b6932.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "LWMainUIActivityAlarmClockObj",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/LWMainUIActivityAlarmClockObj.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_lwmainuiactivityalarmclockobj_d1155067c834b7a1eeefe304fde57245.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "LWMainUIAlarmObj",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/LWMainUIAlarmObj.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_lwmainuialarmobj_c5f78d812b3bbc01cd483faae65e39eb.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "LWMainUIAllianceObj",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/LWMainUIAllianceObj.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_lwmainuiallianceobj_152ecd21027ab996b1848e600cb2c222.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "LWMainUIBagObj",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/LWMainUIBagObj.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_lwmainuibagobj_2d17c8e7ede72a78d021bbb1ffd4a4cf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "LWMainUICenterLayer",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/LWMainUICenterLayer.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_lwmainuicenterlayer_a8ffdc54e937a91cc65a6fc375267bc3.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "LWMainUIChat",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/LWMainUIChat.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_lwmainuichat_a7c72ad864218456e3ac4dd211771861.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "LWMainUIChat_Obsolete",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/LWMainUIChat_Obsolete.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_lwmainuichat_obsolete_3de5d358fee034056533393c002546fe.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "LWMainUIHeroObj",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/LWMainUIHeroObj.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_lwmainuiheroobj_365ed949f93ce337c0469685da620d09.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "LWMainUIMailObj",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/LWMainUIMailObj.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_lwmainuimailobj_562f0fa02f73d7325fcda682844666f4.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "LWMainUIPopupNotificationItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/LWMainUIPopupNotificationItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_lwmainuipopupnotificationitem_56d3d41945270aa99e690bbd50e761d2.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "LWMainUIPower",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/LWMainUIPower.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_lwmainuipower_cdbaafaa8314052edf28d0a7152b2d4f.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "LWMainUIQuestObj",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/LWMainUIQuestObj.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_lwmainuiquestobj_83c061441ec7bd501c9f5f5b9ae0e0cc.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "LWMainUIRallyTipObj",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/LWMainUIRallyTipObj.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_lwmainuirallytipobj_f34eb3a564d94dbb0b7003a093494b38.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "LWMainUIVN",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/LWMainUIVN.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_lwmainuivn_d3f958062d5f6d90d61f888338bd3923.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "LWMainUIWorldBanner",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/LWMainUIWorldBanner.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_lwmainuiworldbanner_3789dc496647f56064000c526c919738.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "LWMainUIWorldBtn",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/LWMainUIWorldBtn.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_lwmainuiworldbtn_b7ac4eabc28a653bf02afee223c5ec1d.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "LWMainWinterStormUI",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/LWMainWinterStormUI.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_lwmainwinterstormui_78be1f83659f20f03b87606786c3f647.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "LWMiniMapMeteoriteNewsObj",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/LWMiniMapMeteoriteNewsObj.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_lwminimapmeteoritenewsobj_fe9fbbda052decbd8a2bc5549e651c9b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "LWMiniMapMeteoriteNoticeObj",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/LWMiniMapMeteoriteNoticeObj.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_lwminimapmeteoritenoticeobj_0fa48b0b2b62044df54e6dc097467406.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "LWUIMoveCityTip",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/LWUIMoveCityTip.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_lwuimovecitytip_59997dd8f6c4e9f728f928d75a075d60.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "LWUINewBeeMigrate",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/LWUINewBeeMigrate.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_lwuinewbeemigrate_e02d9ff909128618b8d4a30716205a04.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "LWUINewBeeMigrateLoading",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/LWUINewBeeMigrateLoading.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_lwuinewbeemigrateloading_dc891e028d63f4ddcee1c103038c692e.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "LWUINewBeeMigrateLoadingItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/LWUINewBeeMigrateLoadingItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_lwuinewbeemigrateloadingitem_e5207d0ca71ece0aa820e13f469b05ee.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "LWUINewBeeMigrateMailBg",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/LWUINewBeeMigrateMailBg.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_lwuinewbeemigratemailbg_d7cac3eb892bd8891feccbe5b80708bf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "MiniMapGreenMenu",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/MiniMapGreenMenu.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_minimapgreenmenu_3c1cc82ceecb9d934d4424b2aa8617b4.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "playerObj",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/playerObj.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_playerobj_6092dd17c8adaad9d8830bce4e285539.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "ResourceBar",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/ResourceBar.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_resourcebar_160ba837553b0b324b4dc6f870bdf542.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "returnQuestionnaireBtn",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/returnQuestionnaireBtn.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_returnquestionnairebtn_ad9dd2021a02950171b8b391a051d20a.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "SaveGirlWarning",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/SaveGirlWarning.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_savegirlwarning_610afe80dea5cbdf1235093a26446df5.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "searchObj",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/searchObj.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_searchobj_9f9a95234402747ec03a41b910085586.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "seasonBuildObj",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/seasonBuildObj.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_seasonbuildobj_79a44dde64047c2801839c79498680fa.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "ShareButton",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/ShareButton.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_sharebutton_9bccba72b1283ec72d8469770177dc99.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "SiegeSuccessTips",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/SiegeSuccessTips.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_siegesuccesstips_d113ec8af03a6f52945e9179bbde2da1.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "tempObj",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/tempObj.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_tempobj_d19cd4f3eaca52972106746a74a26827.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "ThemeActivityBtn",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/ThemeActivityBtn.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_themeactivitybtn_f336c2c89a328ff95f18827d654d3060.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "tipBg",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/tipBg.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_tipbg_aa3cf17d2d256a4a7d7a89b9968c93fa.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "troopNode",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/troopNode.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_troopnode_67d9249e6f9a7032949e04fb5021e99e.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "UIBubbleTipS{N}AllianceBoss",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/UIBubbleTipS0AllianceBoss.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_uibubbletips0allianceboss_f73768636709b7bbda6a5ea3bfa520f5.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "UIMainBtnCrystalBoss",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/UIMainBtnCrystalBoss.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_uimainbtncrystalboss_eafe319a8871e31c87bceec1b79576f3.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "UIMainBtnLockHart",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/UIMainBtnLockHart.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_uimainbtnlockhart_9a0870db09e0221c385326b2c9868d90.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "UIMainBtnWorldBossHitBaseTip",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/UIMainBtnWorldBossHitBaseTip.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_uimainbtnworldbosshitbasetip_b4585dfbc42955891976423427652f71.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "UIMainHeroTrialMissileEnergy",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/UIMainHeroTrialMissileEnergy.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_uimainherotrialmissileenergy_03cea367c8ef8a50fc78734ea7666608.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "UIMainMapPoint",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/UIMainMapPoint.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_uimainmappoint_cd7a7e376ea5c592394b12bffbeee810.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "UIMainMapPointToSelect",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/UIMainMapPointToSelect.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_uimainmappointtoselect_fe08938ad4af61162622564308b92777.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "vn{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/vn18.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_vn18_c2fc34897eba8917ccbe650f4c08f903.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "weatherObj",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/weatherObj.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_weatherobj_a3baada2e55a1c9f6330eac481235427.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "WorldCenterBackBtn",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/WorldCenterBackBtn.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_worldcenterbackbtn_0d50a4b4afaba6e6b65ff0ebc3e6fa47.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI",
+    "pattern": "ZoneMobilizationBtn",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/ZoneMobilizationBtn.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_zonemobilizationbtn_069ebfe15d66933c8111e7ef1b78186d.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI/Alarm",
+    "pattern": "AlarmCall",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/Alarm/AlarmCall.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_alarm_alarmcall_72ec1dfd8738fa258799e5a11883fd7c.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI/Alarm",
+    "pattern": "SelectBtn",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/Alarm/SelectBtn.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_alarm_selectbtn_9c39262b7c0eee4f8ca93b1104266902.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI/Alarm",
+    "pattern": "toggle",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/Alarm/toggle.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_alarm_toggle_4f2da104ee3e8a09e9543785a86e45a7.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI/Alarm",
+    "pattern": "UIAlarmHeroCellSmall",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/Alarm/UIAlarmHeroCellSmall.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_alarm_uialarmherocellsmall_afec348fa9576e9f9a38a9c6f61825a8.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI/Alarm",
+    "pattern": "UILWAlarm",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/Alarm/UILWAlarm.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_alarm_uilwalarm_44624ba01ee9088d7727c0398be4cc18.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI/BattleField",
+    "pattern": "cityBackBtn",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/BattleField/cityBackBtn.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_battlefield_citybackbtn_30ac7a58f07f45a01af53cd7e58bb071.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI/BattleField",
+    "pattern": "defence",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/BattleField/defence.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_battlefield_defence_fb8a1ea7ea89f7e4b7cf6868d36a0d9a.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI/BattleField",
+    "pattern": "heart",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/BattleField/heart.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_battlefield_heart_846ef54f550dc68a03fb09ce2e612c9d.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI/BattleField",
+    "pattern": "LeftObj",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/BattleField/LeftObj.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_battlefield_leftobj_34de8e4f55ae71b765743d9a6f5f02d5.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI/BattleField",
+    "pattern": "team",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/BattleField/team.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_battlefield_team_878a50dab79d1ade0724e5c9ffa90207.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI/BattleField",
+    "pattern": "transport",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/BattleField/transport.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_battlefield_transport_0a3ed47cd0b9fbcbccf046fb4a2195ae.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI/Birthday",
+    "pattern": "BirthdayBagItemTipBtn",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/Birthday/BirthdayBagItemTipBtn.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_birthday_birthdaybagitemtipbtn_2b207cd0fb5def1d423fa476e43ad79a.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI/Birthday",
+    "pattern": "BirthdaySetTipBtn",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/Birthday/BirthdaySetTipBtn.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_birthday_birthdaysettipbtn_10f32deb41f7c7dc8d3a4be513ae660c.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI/Birthday",
+    "pattern": "Eff_ui_BirthdayLetter_caidai",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/Birthday/Eff_ui_BirthdayLetter_caidai.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_birthday_eff_ui_birthdayletter_caidai_4f80692baaa4120bea1f0401eff05819.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI/Birthday",
+    "pattern": "Eff_ui_BirthdayWishes_cake",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/Birthday/Eff_ui_BirthdayWishes_cake.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_birthday_eff_ui_birthdaywishes_cake_6f97962235ce1daedc00d5e12bf5c8a3.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI/Birthday",
+    "pattern": "Eff_ui_lightsweep",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/Birthday/Eff_ui_lightsweep.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_birthday_eff_ui_lightsweep_6578a8e922cc93de7d1d53f5795a38b3.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI/Components",
+    "pattern": "WorldMiniMapComp",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/Components/WorldMiniMapComp.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_components_worldminimapcomp_47915cef4c76acc0afd59e633dc2e12e.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI/LandlordBattle",
+    "pattern": "BattleDetailBtn",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/LandlordBattle/BattleDetailBtn.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_landlordbattle_battledetailbtn_b435fbb2c2c1ecf7ee7bfcb0c7c367c5.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI/LandlordBattle",
+    "pattern": "LWLandlordBattleMainSkill",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/LandlordBattle/LWLandlordBattleMainSkill.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_landlordbattle_lwlandlordbattlemainskill_4382c90663505f6f7302243e20f0fc9a.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI/LandlordBattle",
+    "pattern": "LWLandlordBattleMainSkillEffect",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/LandlordBattle/LWLandlordBattleMainSkillEffect.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_landlordbattle_lwlandlordbattlemainskilleffect_8fef0ce3f94e596e22bff5385b5a9cba.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI/LandlordBattle",
+    "pattern": "LWLandlordMainBattleDestroyNotice",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/LandlordBattle/LWLandlordMainBattleDestroyNotice.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_landlordbattle_lwlandlordmainbattledestroynotice_27785ec16daecf6b23f0c45ef4d5f257.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI/LandlordBattle",
+    "pattern": "LWLandlordMainBattleMarkItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/LandlordBattle/LWLandlordMainBattleMarkItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_landlordbattle_lwlandlordmainbattlemarkitem_4b54fa85058948ba860025affe4f4556.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI/LandlordBattle",
+    "pattern": "LWLandlordMainBattlePercentNotice",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/LandlordBattle/LWLandlordMainBattlePercentNotice.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_landlordbattle_lwlandlordmainbattlepercentnotice_e255aef679a666ae678c9f2f28e33a67.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI/LandlordBattle",
+    "pattern": "LWLandlordMainBattleRightBanner",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/LandlordBattle/LWLandlordMainBattleRightBanner.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_landlordbattle_lwlandlordmainbattlerightbanner_8e14829cae762e7e4d31f6a5c7af1ef7.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI/LandlordBattle",
+    "pattern": "LWLandlordMainBattleScoreBar",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/LandlordBattle/LWLandlordMainBattleScoreBar.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_landlordbattle_lwlandlordmainbattlescorebar_8b121d6b77e6bfdcbbedd158c03f195f.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI/LandlordBattle",
+    "pattern": "LWLandlordMainBattleUI",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/LandlordBattle/LWLandlordMainBattleUI.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_landlordbattle_lwlandlordmainbattleui_6ccde4475b619bcd0021df29980a2cec.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI/LWMainUIPopupPackageItem",
+    "pattern": "package{N}",
+    "ext": ".prefab",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/LWMainUIPopupPackageItem/package1.prefab",
+      "Assets/Main/Prefabs/UI/LWMainUI/LWMainUIPopupPackageItem/package2.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_lwmainuipopuppackageitem_package1_404676f936bf4187240883f868a4f7ab.bundle",
+      "gameres_main_file_prefabs_ui_lwmainui_lwmainuipopuppackageitem_package2_8710c4ad0bc4c66f8afbf482909af9e3.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWMainUI/World",
+    "pattern": "WorldBattleGuideBtn",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWMainUI/World/WorldBattleGuideBtn.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwmainui_world_worldbattleguidebtn_d19ef28c494a7dac8a405d7f78b34d0b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWNewbieEventPop",
+    "pattern": "LWNewbieEventPop",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWNewbieEventPop/LWNewbieEventPop.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwnewbieeventpop_lwnewbieeventpop_6ce62908f3bdfdce0790052d6135f16f.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWNewsCenter",
+    "pattern": "Eff_xinwenzhongxin_gongji",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWNewsCenter/Eff_xinwenzhongxin_gongji.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwnewscenter_eff_xinwenzhongxin_gongji_c824ba85ae5db6d3954f5cdb6e4ef1cd.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWNewsCenter",
+    "pattern": "LWNewDetailLayout",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWNewsCenter/LWNewDetailLayout.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwnewscenter_lwnewdetaillayout_d1f1d6b4774f5ebc689a6b23fa684662.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWNewsCenter",
+    "pattern": "LWNewsAllianceBattle",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWNewsCenter/LWNewsAllianceBattle.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwnewscenter_lwnewsalliancebattle_d1f470efdfa13d2bbdbed6397d545d4f.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWNewsCenter",
+    "pattern": "LWNewsAppointOffical",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWNewsCenter/LWNewsAppointOffical.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwnewscenter_lwnewsappointoffical_297bf11f080371c6f6722dd83082154f.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWNewsCenter",
+    "pattern": "LWNewsArenaChampion",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWNewsCenter/LWNewsArenaChampion.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwnewscenter_lwnewsarenachampion_58f3ff796027e404f185d810eb3f2274.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWNewsCenter",
+    "pattern": "LWNewsCenter",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWNewsCenter/LWNewsCenter.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwnewscenter_lwnewscenter_80fb91cd55ca0679d252923cd60bc663.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWNewsCenter",
+    "pattern": "LWNewsCenter_v{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWNewsCenter/LWNewsCenter_v2.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwnewscenter_lwnewscenter_v2_d6e38714c0f89385c07dc15f09322777.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWNewsCenter",
+    "pattern": "LWNewsDetails",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWNewsCenter/LWNewsDetails.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwnewscenter_lwnewsdetails_a0f412467a968459d3548ca316d0f17d.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWNewsCenter",
+    "pattern": "LWNewsOccupyCity",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWNewsCenter/LWNewsOccupyCity.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwnewscenter_lwnewsoccupycity_970eb8d00b8fb58b9d78cd7ebb37ff18.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWNewsCenter",
+    "pattern": "LWNewsPersonalBattle",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWNewsCenter/LWNewsPersonalBattle.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwnewscenter_lwnewspersonalbattle_21dbf7bbe61ee4de1d585fe67a8610fc.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWNewsCenter",
+    "pattern": "LWNewsTrainRob",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWNewsCenter/LWNewsTrainRob.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwnewscenter_lwnewstrainrob_9c38ad40d0f92ab53611b15913e79ac3.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWNewsCenter",
+    "pattern": "UINewsShareView",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWNewsCenter/UINewsShareView.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwnewscenter_uinewsshareview_93af7e5bca847bb08538cf5a2d72bd4a.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWOffSeason1/AllianceCityTip",
+    "pattern": "AllianceCityTipResetFirstHead",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWOffSeason1/AllianceCityTip/AllianceCityTipResetFirstHead.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwoffseason1_alliancecitytip_alliancecitytipresetfirsthead_964407917f0db2565b9652dba3432ee4.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWOffSeason1/AllianceCityTip",
+    "pattern": "AllianceCityTipResetHpRoot",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWOffSeason1/AllianceCityTip/AllianceCityTipResetHpRoot.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwoffseason1_alliancecitytip_alliancecitytipresethproot_2dabd640fec2e4ea2b436017bf5415f8.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWOffSeason1/LWMail",
+    "pattern": "MailDetailCityBattleS{N}RestStart",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWOffSeason1/LWMail/MailDetailCityBattleS1RestStart.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwoffseason1_lwmail_maildetailcitybattles1reststart_73078f5dc20468b9af356f8a87324660.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWOffSeason1/QueenOfBlood",
+    "pattern": "LWMainQueenOfBloodBtn",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWOffSeason1/QueenOfBlood/LWMainQueenOfBloodBtn.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwoffseason1_queenofblood_lwmainqueenofbloodbtn_26a00c8a23968449ca65d9cac7f60733.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWOffSeason1/QueenOfBlood",
+    "pattern": "OffSeason{N}QueenOfBloodItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWOffSeason1/QueenOfBlood/OffSeason1QueenOfBloodItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwoffseason1_queenofblood_offseason1queenofblooditem_eac3f7f8b05ab03010329b307a937d50.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWOffSeason1/QueenOfBlood",
+    "pattern": "OffSeason{N}QueenOfBloodMain",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWOffSeason1/QueenOfBlood/OffSeason1QueenOfBloodMain.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwoffseason1_queenofblood_offseason1queenofbloodmain_500cc3022e58aad7d9fd1c5d96baa509.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWOffSeason1/QueenOfBlood",
+    "pattern": "QueenOfBloodTip",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWOffSeason1/QueenOfBlood/QueenOfBloodTip.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwoffseason1_queenofblood_queenofbloodtip_6ce16a7a19658c886a4366c211e8935c.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWOffSeason1/QueenOfBlood",
+    "pattern": "UIQueenOfBloodAllianceListItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWOffSeason1/QueenOfBlood/UIQueenOfBloodAllianceListItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwoffseason1_queenofblood_uiqueenofbloodalliancelistitem_dbb0c275f36fdbe76ab397f389254957.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWOffSeason1/QueenOfBlood",
+    "pattern": "UIQueenOfBloodAllianceListPop",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWOffSeason1/QueenOfBlood/UIQueenOfBloodAllianceListPop.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwoffseason1_queenofblood_uiqueenofbloodalliancelistpop_e2f9654fc40455accf8bffb840ff6c5b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWOffSeason1/QueenOfBlood",
+    "pattern": "UIQueenOfBloodMonsterTip",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWOffSeason1/QueenOfBlood/UIQueenOfBloodMonsterTip.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwoffseason1_queenofblood_uiqueenofbloodmonstertip_50891cbd0e04f961086c7a93f857839a.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWOffSeason1/QueenOfBlood",
+    "pattern": "UIQueenOfBloodMonsterTipTab",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWOffSeason1/QueenOfBlood/UIQueenOfBloodMonsterTipTab.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwoffseason1_queenofblood_uiqueenofbloodmonstertiptab_a7dc906f50b68c1ead4b87251c2ed5da.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWOffSeason1/QueenOfBlood",
+    "pattern": "UIQueenOfBloodRankList",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWOffSeason1/QueenOfBlood/UIQueenOfBloodRankList.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwoffseason1_queenofblood_uiqueenofbloodranklist_13c692222812353d4b309d73817d70c4.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWOffSeason1/QueenOfBlood",
+    "pattern": "UIQueenOfBloodRankListItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWOffSeason1/QueenOfBlood/UIQueenOfBloodRankListItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwoffseason1_queenofblood_uiqueenofbloodranklistitem_32289e92e16f40e8acd1d233720918c0.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWOffSeason1/QueenOfBlood",
+    "pattern": "UIQueenOfBloodRankPop",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWOffSeason1/QueenOfBlood/UIQueenOfBloodRankPop.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwoffseason1_queenofblood_uiqueenofbloodrankpop_fe27fc3cc784859c31b2351c2cef9bc0.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWOffSeason1/QueenOfBlood",
+    "pattern": "UIQueenOfBloodRankPopItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWOffSeason1/QueenOfBlood/UIQueenOfBloodRankPopItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwoffseason1_queenofblood_uiqueenofbloodrankpopitem_a8571b2e1f37c4b3bc7e0823d79102af.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWOffSeason1/QueenOfBlood",
+    "pattern": "UIQueenOfBloodRewardPop",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWOffSeason1/QueenOfBlood/UIQueenOfBloodRewardPop.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwoffseason1_queenofblood_uiqueenofbloodrewardpop_dde590c887c50f3cc140e40b639885c9.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWOffSeason1/Recapture",
+    "pattern": "OffSeason{N}RecaptureBuffItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWOffSeason1/Recapture/OffSeason1RecaptureBuffItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwoffseason1_recapture_offseason1recapturebuffitem_e86867d903c8400536680d4532977ef4.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWOffSeason1/Recapture",
+    "pattern": "OffSeason{N}RecaptureBuffTip",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWOffSeason1/Recapture/OffSeason1RecaptureBuffTip.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwoffseason1_recapture_offseason1recapturebufftip_d5e5fe401b21679a405850dbfa650c98.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWOffSeason1/Recapture",
+    "pattern": "OffSeason{N}RecaptureCityItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWOffSeason1/Recapture/OffSeason1RecaptureCityItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwoffseason1_recapture_offseason1recapturecityitem_454862aedd6b83fb0f8732dcb6e7e672.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWOffSeason1/Recapture",
+    "pattern": "OffSeason{N}RecaptureCityListItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWOffSeason1/Recapture/OffSeason1RecaptureCityListItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwoffseason1_recapture_offseason1recapturecitylistitem_ca0ac339dda3980eb773d57884ca7119.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWOffSeason1/Recapture",
+    "pattern": "OffSeason{N}RecaptureFeatureItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWOffSeason1/Recapture/OffSeason1RecaptureFeatureItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwoffseason1_recapture_offseason1recapturefeatureitem_10df207dbc3a326b4825c8bf377b8ad7.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWOffSeason1/Recapture",
+    "pattern": "OffSeason{N}RecaptureMain",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWOffSeason1/Recapture/OffSeason1RecaptureMain.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwoffseason1_recapture_offseason1recapturemain_f0a87e3d62dcee3bb1a1901c488ffa0b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWOffSeason1/Recapture",
+    "pattern": "OffSeason{N}RecaptureReward",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWOffSeason1/Recapture/OffSeason1RecaptureReward.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwoffseason1_recapture_offseason1recapturereward_69fd398de7572fa136bfedb56ae0b452.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWOffSeason1/Recapture",
+    "pattern": "S{N}RestCityDefendMonsterTip",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWOffSeason1/Recapture/S1RestCityDefendMonsterTip.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwoffseason1_recapture_s1restcitydefendmonstertip_41cb34610256c054ec6a9efdbf248ac7.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWOffSeason1/Task",
+    "pattern": "UIOffSeason{N}Task",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWOffSeason1/Task/UIOffSeason1Task.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwoffseason1_task_uioffseason1task_946ccc874b32037b9cab9ffcc4b132ff.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWOffSeason1/World/UIWorldPointComponent",
+    "pattern": "UIWorldPointS{N}RestBloodyQueenMonsterObj",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWOffSeason1/World/UIWorldPointComponent/UIWorldPointS1RestBloodyQueenMonsterObj.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwoffseason1_world_uiworldpointcomponent_uiworldpoints1restbloodyqueenmonsterobj_708b156c19d1eadc7b06f3450b7f4620.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWOffSeason1/World/UIWorldPointComponent",
+    "pattern": "UIWorldPointS{N}RestCityDefendMonsterObj",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWOffSeason1/World/UIWorldPointComponent/UIWorldPointS1RestCityDefendMonsterObj.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwoffseason1_world_uiworldpointcomponent_uiworldpoints1restcitydefendmonsterobj_a32a7cbf9529dac05aa5811d992bcc21.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWPlayerInfo",
+    "pattern": "BuildingPopIconTextMessageTip",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWPlayerInfo/BuildingPopIconTextMessageTip.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwplayerinfo_buildingpopicontextmessagetip_635d4b07f751702608b532ba922972a8.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWPlayerInfo",
+    "pattern": "BuildingPopTextMessageTip",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWPlayerInfo/BuildingPopTextMessageTip.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwplayerinfo_buildingpoptextmessagetip_6173cd2176effa5bcb365383fdb48c6f.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWPlayerInfo",
+    "pattern": "DispatchStealMessageTip",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWPlayerInfo/DispatchStealMessageTip.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwplayerinfo_dispatchstealmessagetip_745ef15b1ff67a9e11866f29dc95f4b9.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWPlayerInfo",
+    "pattern": "PlayerDetailMain",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWPlayerInfo/PlayerDetailMain.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwplayerinfo_playerdetailmain_4e11266075a14143dbb661d82346e1f7.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWPlayerInfo",
+    "pattern": "PlayerDetailMain_new",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWPlayerInfo/PlayerDetailMain_new.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwplayerinfo_playerdetailmain_new_a85128dcd7928a3f9091bdfe6cecb6d7.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWPlayerInfo",
+    "pattern": "PlayerDetailMainGift",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWPlayerInfo/PlayerDetailMainGift.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwplayerinfo_playerdetailmaingift_19d6ab4043ba2fb8dbc72da0cd83ef34.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWPlayerInfo",
+    "pattern": "PlayerDetailMainGiftLoop",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWPlayerInfo/PlayerDetailMainGiftLoop.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwplayerinfo_playerdetailmaingiftloop_ff3b74860b00c01930f6a663fc39124e.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWPlayerInfo",
+    "pattern": "PlayerEditItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWPlayerInfo/PlayerEditItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwplayerinfo_playeredititem_dffb15185421bb1073879a2aebba0dac.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWPlayerInfo",
+    "pattern": "PlayerEditMain",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWPlayerInfo/PlayerEditMain.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwplayerinfo_playereditmain_d616d13abda36f7e95b2758172c3ab57.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWPlayerInfo",
+    "pattern": "PlayerPicLoopList",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWPlayerInfo/PlayerPicLoopList.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwplayerinfo_playerpiclooplist_b6c4588df21ee123e6869d13069acc6d.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWPlayerInfo",
+    "pattern": "PlayerThumbsUpGlory",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWPlayerInfo/PlayerThumbsUpGlory.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwplayerinfo_playerthumbsupglory_96d7bf6bc79fb6254b4ad9236f691a2c.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWPlayerInfo",
+    "pattern": "PlayerThumbsUpGloryHeadItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWPlayerInfo/PlayerThumbsUpGloryHeadItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwplayerinfo_playerthumbsupgloryheaditem_185bc46630c20ae1871fac3e33941ffe.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWPlayerInfo",
+    "pattern": "PlayerThumbsUpGloryHeartInfo",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWPlayerInfo/PlayerThumbsUpGloryHeartInfo.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwplayerinfo_playerthumbsupgloryheartinfo_c1660da290d9c9eeb4bb951507add838.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWPlayerInfo",
+    "pattern": "PlayerThumbsUpGloryNew",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWPlayerInfo/PlayerThumbsUpGloryNew.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwplayerinfo_playerthumbsupglorynew_c421a7c6f851508cf505bc78af657cb8.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWPlayerInfo",
+    "pattern": "PlayerThumbsUpHistory",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWPlayerInfo/PlayerThumbsUpHistory.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwplayerinfo_playerthumbsuphistory_8b6429127260ec958ae689139a64b493.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWPlayerInfo",
+    "pattern": "PlayerThumbsUpHistoryItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWPlayerInfo/PlayerThumbsUpHistoryItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwplayerinfo_playerthumbsuphistoryitem_ed40a8f174baad3eaa767507aa0e55bd.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWPlayerInfo",
+    "pattern": "PlayerThumbsUpHistoryTab",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWPlayerInfo/PlayerThumbsUpHistoryTab.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwplayerinfo_playerthumbsuphistorytab_a7ce8d7f0dcc435ef0ff134c57135e60.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWPlayerInfo",
+    "pattern": "ThumbsUpMessageTip",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWPlayerInfo/ThumbsUpMessageTip.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwplayerinfo_thumbsupmessagetip_a1b6945b4fc82a07c016f82c103348fc.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWPlayerInfo",
+    "pattern": "TrainThumbsUpMessageTip",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWPlayerInfo/TrainThumbsUpMessageTip.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwplayerinfo_trainthumbsupmessagetip_c4ff021660beaa9e01d9d3c910418b2f.bundle"
+    ],
+    "evidenceFiles": [
+      "heroshow-material-dependents-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWPlayerInfo",
+    "pattern": "UILWGoldBrickDetail",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWPlayerInfo/UILWGoldBrickDetail.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwplayerinfo_uilwgoldbrickdetail_ac7c2dcc338dd52b4e5c236f6daa4fa2.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWPlayerInfo",
+    "pattern": "UILWGoldDetail",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWPlayerInfo/UILWGoldDetail.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwplayerinfo_uilwgolddetail_d7657410fb77d6cc62212a002a3656aa.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWPlayerInfo",
+    "pattern": "UILWPostCircleFriend",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWPlayerInfo/UILWPostCircleFriend.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwplayerinfo_uilwpostcirclefriend_a635153b8e9159f0bc2a20165a7f6390.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWPlayerInfo/Birthday",
+    "pattern": "BirthdayDataSetPanel",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWPlayerInfo/Birthday/BirthdayDataSetPanel.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwplayerinfo_birthday_birthdaydatasetpanel_98f7a5f2e6dbb82945234ed886292d5f.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWPlayerInfo/Birthday",
+    "pattern": "BirthdayDataSetPanelOld",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWPlayerInfo/Birthday/BirthdayDataSetPanelOld.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwplayerinfo_birthday_birthdaydatasetpanelold_a3f08183b6f576844270c553ac129794.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWPlayerInfo/Birthday",
+    "pattern": "birthdayDataShowContent",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWPlayerInfo/Birthday/birthdayDataShowContent.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwplayerinfo_birthday_birthdaydatashowcontent_9d25adb5905ad2b7a8687b789f1114b6.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWPlayerInfo/Birthday",
+    "pattern": "BirthdayThumbsUpGlory",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWPlayerInfo/Birthday/BirthdayThumbsUpGlory.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwplayerinfo_birthday_birthdaythumbsupglory_c278378da9077f69874b00c5761c5c2d.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWPlayerInfo/Birthday/BgSzn",
+    "pattern": "BirthdayNumContent",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWPlayerInfo/Birthday/BgSzn/BirthdayNumContent.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwplayerinfo_birthday_bgszn_birthdaynumcontent_b1b26c1323da687220af29df6785f509.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWPlayerInfo/Birthday/BgSzn",
+    "pattern": "BirthdayYearNumContent",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWPlayerInfo/Birthday/BgSzn/BirthdayYearNumContent.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwplayerinfo_birthday_bgszn_birthdayyearnumcontent_768c886e437f7fae1962c8c3ab34cc69.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWPlayerInfo/Birthday/BgSzn",
+    "pattern": "FallBg",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWPlayerInfo/Birthday/BgSzn/FallBg.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwplayerinfo_birthday_bgszn_fallbg_7195118d75bdb70b1634b5b2f7f23f04.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWPlayerInfo/Birthday/BgSzn",
+    "pattern": "NormalBg",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWPlayerInfo/Birthday/BgSzn/NormalBg.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwplayerinfo_birthday_bgszn_normalbg_b74e94de1b548cf77663521ac34373af.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWPlayerInfo/Birthday/BgSzn",
+    "pattern": "SpringBg",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWPlayerInfo/Birthday/BgSzn/SpringBg.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwplayerinfo_birthday_bgszn_springbg_687165015d1aea9660dac1a6182069ce.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWPlayerInfo/Birthday/BgSzn",
+    "pattern": "SummerBg",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWPlayerInfo/Birthday/BgSzn/SummerBg.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwplayerinfo_birthday_bgszn_summerbg_da8e49f5cd196e6f819fef6c367cc266.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWPlayerInfo/Birthday/BgSzn",
+    "pattern": "WinterBg",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWPlayerInfo/Birthday/BgSzn/WinterBg.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwplayerinfo_birthday_bgszn_winterbg_5b2226c5c20909cf0005fcdb026379ba.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWPlayerInfo/FriendsCirclePost",
+    "pattern": "FriendCircleFrame",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWPlayerInfo/FriendsCirclePost/FriendCircleFrame.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwplayerinfo_friendscirclepost_friendcircleframe_d7587c55b714a46c627678d42131391f.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWPlayerInfo/FriendsCirclePost",
+    "pattern": "FriendsCirleBody",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWPlayerInfo/FriendsCirclePost/FriendsCirleBody.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwplayerinfo_friendscirclepost_friendscirlebody_e8179d4fd38570653503cfa85bb971ac.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWPlayerInfo/FriendsCirclePost",
+    "pattern": "FriendsCirleComment",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWPlayerInfo/FriendsCirclePost/FriendsCirleComment.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwplayerinfo_friendscirclepost_friendscirlecomment_a807b75a71fa1517cfeb1f331d5a362a.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWPlayerInfo/FriendsCirclePost",
+    "pattern": "FriendsCirlePhoto",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWPlayerInfo/FriendsCirclePost/FriendsCirlePhoto.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwplayerinfo_friendscirclepost_friendscirlephoto_82401440a5cb3c0d622c3c639f8c44e7.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWPlayerInfo/GiftSystem",
+    "pattern": "GiftCheerEffectItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWPlayerInfo/GiftSystem/GiftCheerEffectItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwplayerinfo_giftsystem_giftcheereffectitem_55738dc11545c27b1f1c819773463d8a.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWPlayerInfo/GiftSystem",
+    "pattern": "GiftIconShowContent",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWPlayerInfo/GiftSystem/GiftIconShowContent.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwplayerinfo_giftsystem_gifticonshowcontent_e02e4ed1b5aa8e8aeaa908dc591ea972.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWPlayerInfo/GiftSystem",
+    "pattern": "LWGiftSendBtn",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWPlayerInfo/GiftSystem/LWGiftSendBtn.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwplayerinfo_giftsystem_lwgiftsendbtn_5ca02c8fcb8793fda159c9c37a1e1289.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWPlayerInfo/GiftSystem",
+    "pattern": "LWUIGiftAnimPanel",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWPlayerInfo/GiftSystem/LWUIGiftAnimPanel.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwplayerinfo_giftsystem_lwuigiftanimpanel_0f81419d4148561e0824b4517df5d3fc.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWPlayerInfo/GiftSystem",
+    "pattern": "LWUIGiftDetail_v{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWPlayerInfo/GiftSystem/LWUIGiftDetail_v2.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwplayerinfo_giftsystem_lwuigiftdetail_v2_ebe47bf0b5458b8aa3bb6742b1d430eb.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWPlayerInfo/GiftSystem",
+    "pattern": "LWUIGiftGroupDetail",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWPlayerInfo/GiftSystem/LWUIGiftGroupDetail.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwplayerinfo_giftsystem_lwuigiftgroupdetail_1f35254c17b41f043966232ada44273f.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWPlayerInfo/GiftSystem",
+    "pattern": "LWUIGiftHistory",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWPlayerInfo/GiftSystem/LWUIGiftHistory.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwplayerinfo_giftsystem_lwuigifthistory_1047de8981a9097c179e4c7adc76a0fd.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWPlayerInfo/GiftSystem",
+    "pattern": "LWUIGiftHistoryContent",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWPlayerInfo/GiftSystem/LWUIGiftHistoryContent.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwplayerinfo_giftsystem_lwuigifthistorycontent_c868bc84aea923a8ea4be95ca0e60eb7.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWPlayerInfo/GiftSystem",
+    "pattern": "LWUIGiftHistoryItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWPlayerInfo/GiftSystem/LWUIGiftHistoryItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwplayerinfo_giftsystem_lwuigifthistoryitem_338b394a2913c154d60363cd3bb5b355.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWPlayerInfo/GiftSystem",
+    "pattern": "LWUIGiftItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWPlayerInfo/GiftSystem/LWUIGiftItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwplayerinfo_giftsystem_lwuigiftitem_756b713ba5b77ce856032508df582ac5.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWPlayerInfo/GiftSystem",
+    "pattern": "LWUIGiftLevelInfo",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWPlayerInfo/GiftSystem/LWUIGiftLevelInfo.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwplayerinfo_giftsystem_lwuigiftlevelinfo_2fac674a117de53172995ee269a0b57e.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWPlayerInfo/GiftSystem",
+    "pattern": "LWUIGiftOperation_v{N}",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWPlayerInfo/GiftSystem/LWUIGiftOperation_v2.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwplayerinfo_giftsystem_lwuigiftoperation_v2_eeccffcb4156f90aa45175fc9f59238d.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWPlayerInfo/GiftSystem",
+    "pattern": "LWUIGiftPrivacyMsgItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWPlayerInfo/GiftSystem/LWUIGiftPrivacyMsgItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwplayerinfo_giftsystem_lwuigiftprivacymsgitem_b9697807e53fbd2af57cbb811f17c78d.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWPlayerInfo/GiftSystem",
+    "pattern": "LWUIGiftPrivilege",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWPlayerInfo/GiftSystem/LWUIGiftPrivilege.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwplayerinfo_giftsystem_lwuigiftprivilege_ac25e2d350e7d5f2caa003b030529ed1.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWPlayerInfo/GiftSystem",
+    "pattern": "LWUIGiftPrivilegeItemContent",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWPlayerInfo/GiftSystem/LWUIGiftPrivilegeItemContent.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwplayerinfo_giftsystem_lwuigiftprivilegeitemcontent_60ab740de4364956e24591ff22ff4915.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWPlayerInfo/GiftSystem",
+    "pattern": "LWUIGiftPrivilegeItemLevel",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWPlayerInfo/GiftSystem/LWUIGiftPrivilegeItemLevel.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwplayerinfo_giftsystem_lwuigiftprivilegeitemlevel_c2236a52373b2a84ad8daf090383e137.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWPlayerInfo/GiftSystem",
+    "pattern": "LWUIGiftPrivilegeItemTitle",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWPlayerInfo/GiftSystem/LWUIGiftPrivilegeItemTitle.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwplayerinfo_giftsystem_lwuigiftprivilegeitemtitle_6535e62d19c390a771224acf39d99d85.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWPlayerInfo/GiftSystem",
+    "pattern": "LWUIGiftSetMsgShowItem",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWPlayerInfo/GiftSystem/LWUIGiftSetMsgShowItem.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwplayerinfo_giftsystem_lwuigiftsetmsgshowitem_0391d08e1843131fe6d311a275d5ec78.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWPlayerInfo/GiftSystem",
+    "pattern": "LWUIGiftSetMsgShowPanel",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWPlayerInfo/GiftSystem/LWUIGiftSetMsgShowPanel.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwplayerinfo_giftsystem_lwuigiftsetmsgshowpanel_422d88ad6492092b94a8fa4deb27585b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Prefabs/UI/LWPlayerInfo/GiftSystem",
+    "pattern": "LWUIGiftShop",
+    "ext": ".prefab",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Prefabs/UI/LWPlayerInfo/GiftSystem/LWUIGiftShop.prefab"
+    ],
+    "logicalNames": [
+      "gameres_main_file_prefabs_ui_lwplayerinfo_giftsystem_lwuigiftshop_a6b0d30278eba59818605e6d08a55833.bundle"
+    ],
+    "evidenceFiles": []
+  }
+]

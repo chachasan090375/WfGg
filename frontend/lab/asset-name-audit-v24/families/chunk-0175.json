@@ -1,0 +1,4850 @@
+[
+  {
+    "parent": "Assets/Main/Sprites/UI/UITask",
+    "pattern": "UI_building_{N}_{N}",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITask/UI_building_10119000_1.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uitask_2db8f76affdaa372558593d0e488e9b8.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITask",
+    "pattern": "UITask_Enemy_{N}",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITask/UITask_Enemy_1.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uitask_2db8f76affdaa372558593d0e488e9b8.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITask",
+    "pattern": "UITask_icon_Blue",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITask/UITask_icon_Blue.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uitask_2db8f76affdaa372558593d0e488e9b8.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITask",
+    "pattern": "UITask_icon_{N}",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITask/UITask_icon_11.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uitask_2db8f76affdaa372558593d0e488e9b8.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITask",
+    "pattern": "UITask_zombielord",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITask/UITask_zombielord.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uitask_2db8f76affdaa372558593d0e488e9b8.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITemperature",
+    "pattern": "fx_common_{N}xp",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITemperature/fx_common_6xp.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_temperature_510aaa47498b317695f152a80d485676.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITemperature",
+    "pattern": "fx_s{N}_wendu_pop_diban",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITemperature/fx_s2_wendu_pop_diban.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_temperature_510aaa47498b317695f152a80d485676.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITemperature",
+    "pattern": "fx_s{N}_wendu_pop_diban{N}",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITemperature/fx_s2_wendu_pop_diban2.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_temperature_510aaa47498b317695f152a80d485676.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITemperature",
+    "pattern": "fx_s{N}_wendu_pop_wendutiao",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITemperature/fx_s2_wendu_pop_wendutiao.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_temperature_510aaa47498b317695f152a80d485676.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITemperature",
+    "pattern": "fx_s{N}_wendu_pop_xiangqing",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITemperature/fx_s2_wendu_pop_xiangqing.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_temperature_510aaa47498b317695f152a80d485676.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITemperature",
+    "pattern": "fx_s{N}_wendu_pop_zuobiao",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITemperature/fx_s2_wendu_pop_zuobiao.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_temperature_510aaa47498b317695f152a80d485676.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITemperature",
+    "pattern": "fx_s{N}_wendu_pop_zuobiao{N}",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITemperature/fx_s2_wendu_pop_zuobiao2.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_temperature_510aaa47498b317695f152a80d485676.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITemperature",
+    "pattern": "FX_S{N}saiji_btn_jiantou",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITemperature/FX_S2saiji_btn_jiantou.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_temperature_510aaa47498b317695f152a80d485676.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITemperature",
+    "pattern": "FX_S{N}saiji_huanjingrukou{N}",
+    "ext": ".png",
+    "count": 6,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITemperature/FX_S2saiji_huanjingrukou01.png",
+      "Assets/Main/Sprites/UI/UITemperature/FX_S2saiji_huanjingrukou02.png",
+      "Assets/Main/Sprites/UI/UITemperature/FX_S2saiji_huanjingrukou03.png",
+      "Assets/Main/Sprites/UI/UITemperature/FX_S2saiji_huanjingrukou04.png",
+      "Assets/Main/Sprites/UI/UITemperature/FX_S2saiji_huanjingrukou05.png",
+      "Assets/Main/Sprites/UI/UITemperature/FX_S2saiji_huanjingrukou06.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_temperature_510aaa47498b317695f152a80d485676.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITemperature",
+    "pattern": "FX_S{N}saiji_icon_biaoqingBG",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITemperature/FX_S2saiji_icon_biaoqingBG.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_temperature_510aaa47498b317695f152a80d485676.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITemperature",
+    "pattern": "FX_S{N}saiji_icon_biaoqing{N}",
+    "ext": ".png",
+    "count": 5,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITemperature/FX_S2saiji_icon_biaoqing01.png",
+      "Assets/Main/Sprites/UI/UITemperature/FX_S2saiji_icon_biaoqing02.png",
+      "Assets/Main/Sprites/UI/UITemperature/FX_S2saiji_icon_biaoqing03.png",
+      "Assets/Main/Sprites/UI/UITemperature/FX_S2saiji_icon_biaoqing04.png",
+      "Assets/Main/Sprites/UI/UITemperature/FX_S2saiji_icon_biaoqing05.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_temperature_510aaa47498b317695f152a80d485676.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITemperature",
+    "pattern": "FX_S{N}saiji_icon_bing",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITemperature/FX_S2saiji_icon_bing.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_temperature_510aaa47498b317695f152a80d485676.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITemperature",
+    "pattern": "FX_S{N}saiji_icon_re",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITemperature/FX_S2saiji_icon_re.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_temperature_510aaa47498b317695f152a80d485676.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITemperature",
+    "pattern": "FX_S{N}saiji_wendu_mie",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITemperature/FX_S2saiji_wendu_mie.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_temperature_510aaa47498b317695f152a80d485676.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITemperature",
+    "pattern": "FX_S{N}saiji_wendu_ronghua",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITemperature/FX_S2saiji_wendu_ronghua.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_temperature_510aaa47498b317695f152a80d485676.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITemperature",
+    "pattern": "mjc_baoxuelaixi_biaoqing_bg",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITemperature/mjc_baoxuelaixi_biaoqing_bg.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_temperature_510aaa47498b317695f152a80d485676.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITemperature",
+    "pattern": "mjc_s{N}_wendu_pop_dangqian",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITemperature/mjc_s2_wendu_pop_dangqian.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_temperature_510aaa47498b317695f152a80d485676.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITemperature",
+    "pattern": "mjc_s{N}_wendu_pop_jianbian",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITemperature/mjc_s2_wendu_pop_jianbian.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_temperature_510aaa47498b317695f152a80d485676.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITemperature",
+    "pattern": "mjc_s{N}_wendu_pop_line",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITemperature/mjc_s2_wendu_pop_line.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_temperature_510aaa47498b317695f152a80d485676.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITemperature",
+    "pattern": "mjc_s{N}_wendu_pop_wenduji {N}",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITemperature/mjc_s2_wendu_pop_wenduji 1.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_temperature_510aaa47498b317695f152a80d485676.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITemperature",
+    "pattern": "mjc_s{N}_wendu_pop_wenduji_zhishi",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITemperature/mjc_s2_wendu_pop_wenduji_zhishi.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_temperature_510aaa47498b317695f152a80d485676.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITemperature",
+    "pattern": "mjc_s{N}_wendu_pop_wenduji{N}",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITemperature/mjc_s2_wendu_pop_wenduji2.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_temperature_510aaa47498b317695f152a80d485676.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITemperature",
+    "pattern": "mjc_s{N}_wendu_popbg_{N}",
+    "ext": ".png",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITemperature/mjc_s2_wendu_popbg_3.png",
+      "Assets/Main/Sprites/UI/UITemperature/mjc_s2_wendu_popbg_4.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_temperature_510aaa47498b317695f152a80d485676.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITemperature",
+    "pattern": "mjc_s{N}_wendu_popicon_bg{N}",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITemperature/mjc_s2_wendu_popicon_bg2.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_temperature_510aaa47498b317695f152a80d485676.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITemperature",
+    "pattern": "mjc_s{N}_wendu_popicon_bg{N}_{N}",
+    "ext": ".png",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITemperature/mjc_s2_wendu_popicon_bg1_1.png",
+      "Assets/Main/Sprites/UI/UITemperature/mjc_s2_wendu_popicon_bg1_2.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_temperature_510aaa47498b317695f152a80d485676.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITemperature",
+    "pattern": "mjc_s{N}_wendu_popicon_jidi",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITemperature/mjc_s2_wendu_popicon_jidi.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_temperature_510aaa47498b317695f152a80d485676.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITemperature",
+    "pattern": "mjc_s{N}_wendu_popicon_shijie",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITemperature/mjc_s2_wendu_popicon_shijie.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_temperature_510aaa47498b317695f152a80d485676.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITemperature",
+    "pattern": "mjc_s{N}_wendu_poplist{N}_{N}",
+    "ext": ".png",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITemperature/mjc_s2_wendu_poplist1_1.png",
+      "Assets/Main/Sprites/UI/UITemperature/mjc_s2_wendu_poplist1_2.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_temperature_510aaa47498b317695f152a80d485676.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITemperature",
+    "pattern": "mjc_s{N}_wendu_poptext_bg{N}_{N}",
+    "ext": ".png",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITemperature/mjc_s2_wendu_poptext_bg1_1.png",
+      "Assets/Main/Sprites/UI/UITemperature/mjc_s2_wendu_poptext_bg1_2.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_temperature_510aaa47498b317695f152a80d485676.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIThanksLetter/Birthday",
+    "pattern": "zyf_{N}shengri_heka_biaoqing",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIThanksLetter/Birthday/zyf_2025shengri_heka_biaoqing.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uithanksletter_birthday_717bf6c8918f33bae94bee6ce582f4d9.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIThanksLetter/Birthday",
+    "pattern": "zyf_{N}shengri_heka_caidai{N}",
+    "ext": ".png",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIThanksLetter/Birthday/zyf_2025shengri_heka_caidai1.png",
+      "Assets/Main/Sprites/UI/UIThanksLetter/Birthday/zyf_2025shengri_heka_caidai2.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uithanksletter_birthday_717bf6c8918f33bae94bee6ce582f4d9.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIThanksLetter/Birthday",
+    "pattern": "zyf_{N}shengri_heka_dangao",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIThanksLetter/Birthday/zyf_2025shengri_heka_dangao.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uithanksletter_birthday_717bf6c8918f33bae94bee6ce582f4d9.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIThanksLetter/Birthday",
+    "pattern": "zyf_{N}shengri_heka_huizhang",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIThanksLetter/Birthday/zyf_2025shengri_heka_huizhang.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uithanksletter_birthday_717bf6c8918f33bae94bee6ce582f4d9.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIThanksLetter/Birthday",
+    "pattern": "zyf_{N}shengri_heka_qiqiu{N}",
+    "ext": ".png",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIThanksLetter/Birthday/zyf_2025shengri_heka_qiqiu1.png",
+      "Assets/Main/Sprites/UI/UIThanksLetter/Birthday/zyf_2025shengri_heka_qiqiu2.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uithanksletter_birthday_717bf6c8918f33bae94bee6ce582f4d9.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIThanksLetter/Birthday",
+    "pattern": "zyf_{N}shengri_heka_shengrimao",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIThanksLetter/Birthday/zyf_2025shengri_heka_shengrimao.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uithanksletter_birthday_717bf6c8918f33bae94bee6ce582f4d9.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIThanksLetter/Birthday",
+    "pattern": "zyf_{N}shengri_heka_zhuangshi{N}",
+    "ext": ".png",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIThanksLetter/Birthday/zyf_2025shengri_heka_zhuangshi1.png",
+      "Assets/Main/Sprites/UI/UIThanksLetter/Birthday/zyf_2025shengri_heka_zhuangshi2.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uithanksletter_birthday_717bf6c8918f33bae94bee6ce582f4d9.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIThanksLetter/Birthday",
+    "pattern": "zyf_{N}shengri_heka_{N}",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIThanksLetter/Birthday/zyf_2025shengri_heka_2025.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uithanksletter_birthday_717bf6c8918f33bae94bee6ce582f4d9.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIThanksLetter/Birthday/Szn",
+    "pattern": "ljq_shengri_bg_chun",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIThanksLetter/Birthday/Szn/ljq_shengri_bg_chun.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uithanksletter_birthday_717bf6c8918f33bae94bee6ce582f4d9.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIThanksLetter/Birthday/Szn",
+    "pattern": "ljq_shengri_bg_dong",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIThanksLetter/Birthday/Szn/ljq_shengri_bg_dong.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uithanksletter_birthday_717bf6c8918f33bae94bee6ce582f4d9.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIThanksLetter/Birthday/Szn",
+    "pattern": "ljq_shengri_bg_qiu",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIThanksLetter/Birthday/Szn/ljq_shengri_bg_qiu.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uithanksletter_birthday_717bf6c8918f33bae94bee6ce582f4d9.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIThanksLetter/Birthday/Szn",
+    "pattern": "ljq_shengri_bg_xia",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIThanksLetter/Birthday/Szn/ljq_shengri_bg_xia.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uithanksletter_birthday_717bf6c8918f33bae94bee6ce582f4d9.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIThanksLetter/Birthday/Szn",
+    "pattern": "ljq_shengri_bg_{N}",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIThanksLetter/Birthday/Szn/ljq_shengri_bg_02.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uithanksletter_birthday_717bf6c8918f33bae94bee6ce582f4d9.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIThanksLetter/Birthday/Szn",
+    "pattern": "ljq_shengri_chun_fengmian_{N}",
+    "ext": ".png",
+    "count": 4,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIThanksLetter/Birthday/Szn/ljq_shengri_chun_fengmian_02.png",
+      "Assets/Main/Sprites/UI/UIThanksLetter/Birthday/Szn/ljq_shengri_chun_fengmian_03.png",
+      "Assets/Main/Sprites/UI/UIThanksLetter/Birthday/Szn/ljq_shengri_chun_fengmian_04.png",
+      "Assets/Main/Sprites/UI/UIThanksLetter/Birthday/Szn/ljq_shengri_chun_fengmian_05.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uithanksletter_birthday_717bf6c8918f33bae94bee6ce582f4d9.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIThanksLetter/Birthday/Szn",
+    "pattern": "ljq_shengri_dong_fengmian_{N}",
+    "ext": ".png",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIThanksLetter/Birthday/Szn/ljq_shengri_dong_fengmian_02.png",
+      "Assets/Main/Sprites/UI/UIThanksLetter/Birthday/Szn/ljq_shengri_dong_fengmian_03.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uithanksletter_birthday_717bf6c8918f33bae94bee6ce582f4d9.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIThanksLetter/Birthday/Szn",
+    "pattern": "ljq_shengri_dong_ka_{N}",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIThanksLetter/Birthday/Szn/ljq_shengri_dong_ka_03.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uithanksletter_birthday_717bf6c8918f33bae94bee6ce582f4d9.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIThanksLetter/Birthday/Szn",
+    "pattern": "ljq_shengri_fengexian",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIThanksLetter/Birthday/Szn/ljq_shengri_fengexian.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uithanksletter_birthday_717bf6c8918f33bae94bee6ce582f4d9.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIThanksLetter/Birthday/Szn",
+    "pattern": "ljq_shengri_qiu_fengmian_{N}",
+    "ext": ".png",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIThanksLetter/Birthday/Szn/ljq_shengri_qiu_fengmian_02.png",
+      "Assets/Main/Sprites/UI/UIThanksLetter/Birthday/Szn/ljq_shengri_qiu_fengmian_03.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uithanksletter_birthday_717bf6c8918f33bae94bee6ce582f4d9.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIThanksLetter/Birthday/Szn",
+    "pattern": "ljq_shengri_xia_fengmian_{N}",
+    "ext": ".png",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIThanksLetter/Birthday/Szn/ljq_shengri_xia_fengmian_02.png",
+      "Assets/Main/Sprites/UI/UIThanksLetter/Birthday/Szn/ljq_shengri_xia_fengmian_03.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uithanksletter_birthday_717bf6c8918f33bae94bee6ce582f4d9.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIThanksLetter/Birthday/Szn",
+    "pattern": "wxy_{N}heka_chunri_fudie",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIThanksLetter/Birthday/Szn/wxy_26heka_chunri_fudie.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uithanksletter_birthday_717bf6c8918f33bae94bee6ce582f4d9.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIThanksLetter/Birthday/Szn",
+    "pattern": "wxy_{N}heka_chunri_xiaocao{N}",
+    "ext": ".png",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIThanksLetter/Birthday/Szn/wxy_26heka_chunri_xiaocao01.png",
+      "Assets/Main/Sprites/UI/UIThanksLetter/Birthday/Szn/wxy_26heka_chunri_xiaocao02.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uithanksletter_birthday_717bf6c8918f33bae94bee6ce582f4d9.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIThanksLetter/Birthday/Szn",
+    "pattern": "zyf_shengri_xia_beike",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIThanksLetter/Birthday/Szn/zyf_shengri_xia_beike.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uithanksletter_birthday_717bf6c8918f33bae94bee6ce582f4d9.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIThanksLetter/Birthday/Szn",
+    "pattern": "zyf_shengri_xia_fengmian_{N}",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIThanksLetter/Birthday/Szn/zyf_shengri_xia_fengmian_02.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uithanksletter_birthday_717bf6c8918f33bae94bee6ce582f4d9.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIThanksLetter/Birthday/Szn",
+    "pattern": "zyf_{N}heka_fengye",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIThanksLetter/Birthday/Szn/zyf_26heka_fengye.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uithanksletter_birthday_717bf6c8918f33bae94bee6ce582f4d9.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIThanksLetter/Birthday/Szn",
+    "pattern": "zyf_{N}heka_qiu_nanguayezi",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIThanksLetter/Birthday/Szn/zyf_26heka_qiu_nanguayezi.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uithanksletter_birthday_717bf6c8918f33bae94bee6ce582f4d9.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIThanksLetter/Birthday/Szn",
+    "pattern": "zyf_{N}heka_qiu_xaingzi",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIThanksLetter/Birthday/Szn/zyf_26heka_qiu_xaingzi.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uithanksletter_birthday_717bf6c8918f33bae94bee6ce582f4d9.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIThanksLetter/Birthday/Szn",
+    "pattern": "zyf_{N}heka_yezi",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIThanksLetter/Birthday/Szn/zyf_26heka_yezi.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uithanksletter_birthday_717bf6c8918f33bae94bee6ce582f4d9.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIThanksLetter/BirthdayNoAtlas",
+    "pattern": "ljq_shengri_bg_{N}",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIThanksLetter/BirthdayNoAtlas/ljq_shengri_bg_00.png"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_sprites_ui_uithanksletter_birthdaynoatlas_2_b7ffaa4b8c4d8a20120669e5ad283075.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIThanksLetter/BirthdayNoAtlas",
+    "pattern": "ljq_shengri_qiqiu",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIThanksLetter/BirthdayNoAtlas/ljq_shengri_qiqiu.png"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_sprites_ui_uithanksletter_birthdaynoatlas_6_69309e7a0dd675a244d5ec85fe6771de.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIThanksLetter2024",
+    "pattern": "lyt_{N}xinnian_baoxiang",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIThanksLetter2024/lyt_2025xinnian_baoxiang.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__thanksletter2024_658ddf971d3feddfaf2ec1ae1f45f53f.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIThanksLetter2024",
+    "pattern": "lyt_{N}xinnian_monika_weibo",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIThanksLetter2024/lyt_2025xinnian_monika_weibo.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__thanksletter2024_658ddf971d3feddfaf2ec1ae1f45f53f.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIThanksLetter2024",
+    "pattern": "lyt_{N}xinnian_monika_weijin",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIThanksLetter2024/lyt_2025xinnian_monika_weijin.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__thanksletter2024_658ddf971d3feddfaf2ec1ae1f45f53f.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIThanksLetter2024",
+    "pattern": "lyt_{N}xinnian_monika{N}",
+    "ext": ".png",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIThanksLetter2024/lyt_2025xinnian_monika01.png",
+      "Assets/Main/Sprites/UI/UIThanksLetter2024/lyt_2025xinnian_monika02.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__thanksletter2024_658ddf971d3feddfaf2ec1ae1f45f53f.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIThanksLetter2024",
+    "pattern": "lyt_{N}xinnian_xingfeng_touying",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIThanksLetter2024/lyt_2025xinnian_xingfeng_touying.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__thanksletter2024_658ddf971d3feddfaf2ec1ae1f45f53f.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIThanksLetter2024",
+    "pattern": "lyt_{N}xinnian_xingfeng_youchuo",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIThanksLetter2024/lyt_2025xinnian_xingfeng_youchuo.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__thanksletter2024_658ddf971d3feddfaf2ec1ae1f45f53f.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIThanksLetter2024",
+    "pattern": "lyt_{N}xinnian_xingfengtubiao",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIThanksLetter2024/lyt_2025xinnian_xingfengtubiao.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__thanksletter2024_658ddf971d3feddfaf2ec1ae1f45f53f.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIThanksLetter2024",
+    "pattern": "lyt_{N}xinnian_xingzhi_zedietouying",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIThanksLetter2024/lyt_2025xinnian_xingzhi_zedietouying.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__thanksletter2024_658ddf971d3feddfaf2ec1ae1f45f53f.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIThanksLetter2024",
+    "pattern": "lyt_{N}xinnian_xingzhi_zhuangshi{N}",
+    "ext": ".png",
+    "count": 8,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIThanksLetter2024/lyt_2025xinnian_xingzhi_zhuangshi01.png",
+      "Assets/Main/Sprites/UI/UIThanksLetter2024/lyt_2025xinnian_xingzhi_zhuangshi02.png",
+      "Assets/Main/Sprites/UI/UIThanksLetter2024/lyt_2025xinnian_xingzhi_zhuangshi03.png",
+      "Assets/Main/Sprites/UI/UIThanksLetter2024/lyt_2025xinnian_xingzhi_zhuangshi04.png",
+      "Assets/Main/Sprites/UI/UIThanksLetter2024/lyt_2025xinnian_xingzhi_zhuangshi05.png",
+      "Assets/Main/Sprites/UI/UIThanksLetter2024/lyt_2025xinnian_xingzhi_zhuangshi06.png",
+      "Assets/Main/Sprites/UI/UIThanksLetter2024/lyt_2025xinnian_xingzhi_zhuangshi07.png",
+      "Assets/Main/Sprites/UI/UIThanksLetter2024/lyt_2025xinnian_xingzhi_zhuangshi08.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__thanksletter2024_658ddf971d3feddfaf2ec1ae1f45f53f.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIThanksLetter2024",
+    "pattern": "lyt_{N}xinnian_xingzhi{N}",
+    "ext": ".png",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIThanksLetter2024/lyt_2025xinnian_xingzhi01.png",
+      "Assets/Main/Sprites/UI/UIThanksLetter2024/lyt_2025xinnian_xingzhi02.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__thanksletter2024_658ddf971d3feddfaf2ec1ae1f45f53f.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIThanksLetter2025",
+    "pattern": "ljq_icon_baoxiang_{N}xiang",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIThanksLetter2025/ljq_icon_baoxiang_2026xiang.png"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_sprites_ui_uithanksletter2025_3_f38ce5907c8f6ed0a852ece10288edf6.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIThanksLetter2025",
+    "pattern": "ljq_icon_{N}xinnian",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIThanksLetter2025/ljq_icon_2026xinnian.png"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_sprites_ui_uithanksletter2025_3_f38ce5907c8f6ed0a852ece10288edf6.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIThanksLetter2025",
+    "pattern": "ljq_icon_{N}yanhua",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIThanksLetter2025/ljq_icon_2026yanhua.png"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_sprites_ui_uithanksletter2025_5_34956448ea7a657bf9fe8dfb9a3308eb.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIThanksLetter2025",
+    "pattern": "ljq_{N}xinnian_baoxiang",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIThanksLetter2025/ljq_2026xinnian_baoxiang.png"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_sprites_ui_uithanksletter2025_2_877cff92a860f2cfecd90225bd225c8e.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIThanksLetter2025",
+    "pattern": "ljq_{N}xinnian_xinfeng{N}",
+    "ext": ".png",
+    "count": 7,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIThanksLetter2025/ljq_2026xinnian_xinfeng02.png",
+      "Assets/Main/Sprites/UI/UIThanksLetter2025/ljq_2026xinnian_xinfeng07.png",
+      "Assets/Main/Sprites/UI/UIThanksLetter2025/ljq_2026xinnian_xinfeng04.png",
+      "Assets/Main/Sprites/UI/UIThanksLetter2025/ljq_2026xinnian_xinfeng05.png",
+      "Assets/Main/Sprites/UI/UIThanksLetter2025/ljq_2026xinnian_xinfeng06.png",
+      "Assets/Main/Sprites/UI/UIThanksLetter2025/ljq_2026xinnian_xinfeng08.png",
+      "Assets/Main/Sprites/UI/UIThanksLetter2025/ljq_2026xinnian_xinfeng09.png"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_sprites_ui_uithanksletter2025_2_877cff92a860f2cfecd90225bd225c8e.bundle",
+      "gameres_main_dir_sprites_ui_uithanksletter2025_4_d87c9dc2f9b8d36d96df1d39d07e22e5.bundle",
+      "gameres_main_dir_sprites_ui_uithanksletter2025_7_ca5b110f0d7e0f38825fe80bbf919a34.bundle",
+      "gameres_main_dir_sprites_ui_uithanksletter2025_8_7d11090d89aca9ec2df097aa7deb1372.bundle",
+      "gameres_main_dir_sprites_ui_uithanksletter2025_0_0a9acdaacc862e198e1e5a56ad47c61a.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIThanksLetter2025",
+    "pattern": "ljq_{N}xinnian_{N}",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIThanksLetter2025/ljq_2026xinnian_2026.png"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_sprites_ui_uithanksletter2025_6_fdcfc798352e57feb969b1969b336bbf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITitleTag",
+    "pattern": "appellation_icon_allianceduel{N}",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITitleTag/appellation_icon_allianceduel01.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uititletag_7cef61ea17a70cf4acab2e2e1d24e797.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITitleTag",
+    "pattern": "appellation_icon_arena",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITitleTag/appellation_icon_arena.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uititletag_7cef61ea17a70cf4acab2e2e1d24e797.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITitleTag",
+    "pattern": "appellation_icon_arena{N}",
+    "ext": ".png",
+    "count": 3,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITitleTag/appellation_icon_arena01.png",
+      "Assets/Main/Sprites/UI/UITitleTag/appellation_icon_arena02.png",
+      "Assets/Main/Sprites/UI/UITitleTag/appellation_icon_arena03.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uititletag_7cef61ea17a70cf4acab2e2e1d24e797.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITitleTag",
+    "pattern": "appellation_icon_arena{N}_chat",
+    "ext": ".png",
+    "count": 3,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITitleTag/appellation_icon_arena01_chat.png",
+      "Assets/Main/Sprites/UI/UITitleTag/appellation_icon_arena02_chat.png",
+      "Assets/Main/Sprites/UI/UITitleTag/appellation_icon_arena03_chat.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uititletag_7cef61ea17a70cf4acab2e2e1d24e797.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITitleTag",
+    "pattern": "appellation_icon_crown",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITitleTag/appellation_icon_crown.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uititletag_7cef61ea17a70cf4acab2e2e1d24e797.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITitleTag",
+    "pattern": "appellation_icon_crown_chat",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITitleTag/appellation_icon_crown_chat.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uititletag_7cef61ea17a70cf4acab2e2e1d24e797.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITitleTag",
+    "pattern": "appellation_icon_crown{N}",
+    "ext": ".png",
+    "count": 8,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITitleTag/appellation_icon_crown1.png",
+      "Assets/Main/Sprites/UI/UITitleTag/appellation_icon_crown2.png",
+      "Assets/Main/Sprites/UI/UITitleTag/appellation_icon_crown3.png",
+      "Assets/Main/Sprites/UI/UITitleTag/appellation_icon_crown4.png",
+      "Assets/Main/Sprites/UI/UITitleTag/appellation_icon_crown5.png",
+      "Assets/Main/Sprites/UI/UITitleTag/appellation_icon_crown6.png",
+      "Assets/Main/Sprites/UI/UITitleTag/appellation_icon_crown7.png",
+      "Assets/Main/Sprites/UI/UITitleTag/appellation_icon_crown8.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uititletag_7cef61ea17a70cf4acab2e2e1d24e797.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITitleTag",
+    "pattern": "appellation_icon_crown{N}_chat",
+    "ext": ".png",
+    "count": 8,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITitleTag/appellation_icon_crown1_chat.png",
+      "Assets/Main/Sprites/UI/UITitleTag/appellation_icon_crown2_chat.png",
+      "Assets/Main/Sprites/UI/UITitleTag/appellation_icon_crown3_chat.png",
+      "Assets/Main/Sprites/UI/UITitleTag/appellation_icon_crown4_chat.png",
+      "Assets/Main/Sprites/UI/UITitleTag/appellation_icon_crown5_chat.png",
+      "Assets/Main/Sprites/UI/UITitleTag/appellation_icon_crown6_chat.png",
+      "Assets/Main/Sprites/UI/UITitleTag/appellation_icon_crown7_chat.png",
+      "Assets/Main/Sprites/UI/UITitleTag/appellation_icon_crown8_chat.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uititletag_7cef61ea17a70cf4acab2e2e1d24e797.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITitleTag",
+    "pattern": "appellation_icon_duel{N}",
+    "ext": ".png",
+    "count": 3,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITitleTag/appellation_icon_duel01.png",
+      "Assets/Main/Sprites/UI/UITitleTag/appellation_icon_duel02.png",
+      "Assets/Main/Sprites/UI/UITitleTag/appellation_icon_duel03.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uititletag_7cef61ea17a70cf4acab2e2e1d24e797.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITitleTag",
+    "pattern": "appellation_icon_duel{N}_chat",
+    "ext": ".png",
+    "count": 3,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITitleTag/appellation_icon_duel01_chat.png",
+      "Assets/Main/Sprites/UI/UITitleTag/appellation_icon_duel02_chat.png",
+      "Assets/Main/Sprites/UI/UITitleTag/appellation_icon_duel03_chat.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uititletag_7cef61ea17a70cf4acab2e2e1d24e797.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITitleTag",
+    "pattern": "cfm_mingpai_{N}",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITitleTag/cfm_mingpai_2.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uititletag_7cef61ea17a70cf4acab2e2e1d24e797.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITitleTag",
+    "pattern": "ljq_mingpai_s{N}gz_{N}",
+    "ext": ".png",
+    "count": 11,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITitleTag/ljq_mingpai_s5gz_01.png",
+      "Assets/Main/Sprites/UI/UITitleTag/ljq_mingpai_s5gz_02.png",
+      "Assets/Main/Sprites/UI/UITitleTag/ljq_mingpai_s5gz_03.png",
+      "Assets/Main/Sprites/UI/UITitleTag/ljq_mingpai_s5gz_04.png",
+      "Assets/Main/Sprites/UI/UITitleTag/ljq_mingpai_s5gz_05.png",
+      "Assets/Main/Sprites/UI/UITitleTag/ljq_mingpai_s5gz_06.png",
+      "Assets/Main/Sprites/UI/UITitleTag/ljq_mingpai_s5gz_07.png",
+      "Assets/Main/Sprites/UI/UITitleTag/ljq_mingpai_s5gz_08.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uititletag_7cef61ea17a70cf4acab2e2e1d24e797.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITitleTag",
+    "pattern": "ljq_mingpai_s{N}gz_{N}_chat",
+    "ext": ".png",
+    "count": 11,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITitleTag/ljq_mingpai_s5gz_01_chat.png",
+      "Assets/Main/Sprites/UI/UITitleTag/ljq_mingpai_s5gz_02_chat.png",
+      "Assets/Main/Sprites/UI/UITitleTag/ljq_mingpai_s5gz_03_chat.png",
+      "Assets/Main/Sprites/UI/UITitleTag/ljq_mingpai_s5gz_04_chat.png",
+      "Assets/Main/Sprites/UI/UITitleTag/ljq_mingpai_s5gz_05_chat.png",
+      "Assets/Main/Sprites/UI/UITitleTag/ljq_mingpai_s5gz_06_chat.png",
+      "Assets/Main/Sprites/UI/UITitleTag/ljq_mingpai_s5gz_07_chat.png",
+      "Assets/Main/Sprites/UI/UITitleTag/ljq_mingpai_s5gz_08_chat.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uititletag_7cef61ea17a70cf4acab2e2e1d24e797.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITitleTag",
+    "pattern": "ljq_saiji{N}_mingpai",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITitleTag/ljq_saiji3_mingpai.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uititletag_7cef61ea17a70cf4acab2e2e1d24e797.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITitleTag",
+    "pattern": "LXY_s{N}_mingpai_{N}",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITitleTag/LXY_s5_mingpai_1.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uititletag_7cef61ea17a70cf4acab2e2e1d24e797.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITitleTag",
+    "pattern": "lxy_s{N}_mingpai{N}",
+    "ext": ".png",
+    "count": 4,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITitleTag/lxy_s4_mingpai01.png",
+      "Assets/Main/Sprites/UI/UITitleTag/lxy_s4_mingpai02.png",
+      "Assets/Main/Sprites/UI/UITitleTag/lxy_s4_mingpai03.png",
+      "Assets/Main/Sprites/UI/UITitleTag/lxy_s4_mingpai04.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uititletag_7cef61ea17a70cf4acab2e2e1d24e797.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITitleTag",
+    "pattern": "lyt_S{N}junjie_mp{N}",
+    "ext": ".png",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITitleTag/lyt_S6junjie_mp09.png",
+      "Assets/Main/Sprites/UI/UITitleTag/lyt_S6junjie_mp10.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uititletag_7cef61ea17a70cf4acab2e2e1d24e797.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITitleTag",
+    "pattern": "lyt_s{N}mingpai",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITitleTag/lyt_s6mingpai.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uititletag_7cef61ea17a70cf4acab2e2e1d24e797.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITitleTag",
+    "pattern": "lyt_{N}fhj_mingpai",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITitleTag/lyt_26fhj_mingpai.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uititletag_7cef61ea17a70cf4acab2e2e1d24e797.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITitleTag",
+    "pattern": "lyt_{N}qingrenjie_mingpai",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITitleTag/lyt_26qingrenjie_mingpai.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uititletag_7cef61ea17a70cf4acab2e2e1d24e797.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITitleTag",
+    "pattern": "lyt_{N}shengdanjie_mingpai",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITitleTag/lyt_2025shengdanjie_mingpai.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uititletag_7cef61ea17a70cf4acab2e2e1d24e797.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITitleTag",
+    "pattern": "name_bg",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITitleTag/name_bg.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uititletag_7cef61ea17a70cf4acab2e2e1d24e797.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITitleTag",
+    "pattern": "NamePlate_fes_easter{N}",
+    "ext": ".png",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITitleTag/NamePlate_fes_easter2024.png",
+      "Assets/Main/Sprites/UI/UITitleTag/NamePlate_fes_easter2025.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uititletag_7cef61ea17a70cf4acab2e2e1d24e797.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITitleTag",
+    "pattern": "NamePlate_fes_food{N}",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITitleTag/NamePlate_fes_food2024.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uititletag_7cef61ea17a70cf4acab2e2e1d24e797.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITitleTag",
+    "pattern": "NamePlate_fes_halloween{N}",
+    "ext": ".png",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITitleTag/NamePlate_fes_halloween2023.png",
+      "Assets/Main/Sprites/UI/UITitleTag/NamePlate_fes_halloween2024.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uititletag_7cef61ea17a70cf4acab2e2e1d24e797.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITitleTag",
+    "pattern": "NamePlate_fes_manyue{N}",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITitleTag/NamePlate_fes_manyue2024.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uititletag_7cef61ea17a70cf4acab2e2e1d24e797.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITitleTag",
+    "pattern": "NamePlate_fes_music{N}",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITitleTag/NamePlate_fes_music2024.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uititletag_7cef61ea17a70cf4acab2e2e1d24e797.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITitleTag",
+    "pattern": "NamePlate_fes_newyear{N}",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITitleTag/NamePlate_fes_newyear2024.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uititletag_7cef61ea17a70cf4acab2e2e1d24e797.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITitleTag",
+    "pattern": "NamePlate_fes_shengdan{N}",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITitleTag/NamePlate_fes_shengdan2024.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uititletag_7cef61ea17a70cf4acab2e2e1d24e797.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITitleTag",
+    "pattern": "NamePlate_fes_thanksgiving{N}",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITitleTag/NamePlate_fes_thanksgiving2023.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uititletag_7cef61ea17a70cf4acab2e2e1d24e797.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITitleTag",
+    "pattern": "NamePlate_fes_valentinesday{N}",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITitleTag/NamePlate_fes_valentinesday2024.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uititletag_7cef61ea17a70cf4acab2e2e1d24e797.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITitleTag",
+    "pattern": "NamePlate_fes_valentine{N}",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITitleTag/NamePlate_fes_valentine2025.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uititletag_7cef61ea17a70cf4acab2e2e1d24e797.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITitleTag",
+    "pattern": "NamePlate_fes_wansheng{N}",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITitleTag/NamePlate_fes_wansheng2025.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uititletag_7cef61ea17a70cf4acab2e2e1d24e797.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITitleTag",
+    "pattern": "NamePlate_fes_xinnian{N}",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITitleTag/NamePlate_fes_xinnian2025.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uititletag_7cef61ea17a70cf4acab2e2e1d24e797.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITitleTag",
+    "pattern": "NamePlate_fes_yundonghui{N}",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITitleTag/NamePlate_fes_yundonghui2024.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uititletag_7cef61ea17a70cf4acab2e2e1d24e797.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITitleTag",
+    "pattern": "NamePlate_fes_{N}S{N}",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITitleTag/NamePlate_fes_2024S1.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uititletag_7cef61ea17a70cf4acab2e2e1d24e797.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITitleTag",
+    "pattern": "NamePlate_new_S{N}",
+    "ext": ".png",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITitleTag/NamePlate_new_S1.png",
+      "Assets/Main/Sprites/UI/UITitleTag/NamePlate_new_S2.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uititletag_7cef61ea17a70cf4acab2e2e1d24e797.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITitleTag",
+    "pattern": "sj_mingpai_baijin",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITitleTag/sj_mingpai_baijin.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uititletag_7cef61ea17a70cf4acab2e2e1d24e797.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITitleTag",
+    "pattern": "sj_mingpai_huangjin",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITitleTag/sj_mingpai_huangjin.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uititletag_7cef61ea17a70cf4acab2e2e1d24e797.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITitleTag",
+    "pattern": "sj_mingpai_zuanshi",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITitleTag/sj_mingpai_zuanshi.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uititletag_7cef61ea17a70cf4acab2e2e1d24e797.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITitleTag",
+    "pattern": "zyf_{N}yinyuejie_mingpai",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITitleTag/zyf_2025yinyuejie_mingpai.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uititletag_7cef61ea17a70cf4acab2e2e1d24e797.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITreasureHuntActivity",
+    "pattern": "cfm_huodong_wabao_ka_{N}",
+    "ext": ".png",
+    "count": 8,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITreasureHuntActivity/cfm_huodong_wabao_ka_1.png",
+      "Assets/Main/Sprites/UI/UITreasureHuntActivity/cfm_huodong_wabao_ka_2.png",
+      "Assets/Main/Sprites/UI/UITreasureHuntActivity/cfm_huodong_wabao_ka_3.png",
+      "Assets/Main/Sprites/UI/UITreasureHuntActivity/cfm_huodong_wabao_ka_4.png",
+      "Assets/Main/Sprites/UI/UITreasureHuntActivity/cfm_huodong_wabao_ka_5.png",
+      "Assets/Main/Sprites/UI/UITreasureHuntActivity/cfm_huodong_wabao_ka_6.png",
+      "Assets/Main/Sprites/UI/UITreasureHuntActivity/cfm_huodong_wabao_ka_7.png",
+      "Assets/Main/Sprites/UI/UITreasureHuntActivity/cfm_huodong_wabao_ka_8.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uitreasurehuntactivity_8f7df0cee8bf1204b93d928c8a34366a.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITreasureHuntActivity",
+    "pattern": "LRB_pailian_tuijian",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITreasureHuntActivity/LRB_pailian_tuijian.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uitreasurehuntactivity_8f7df0cee8bf1204b93d928c8a34366a.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITreasureHuntActivity",
+    "pattern": "Mjc_bachang_jianglirukou_bg",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITreasureHuntActivity/Mjc_bachang_jianglirukou_bg.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uitreasurehuntactivity_8f7df0cee8bf1204b93d928c8a34366a.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITreasureHuntActivity",
+    "pattern": "Mjc_bachang_jianglirukou_{N}",
+    "ext": ".png",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITreasureHuntActivity/Mjc_bachang_jianglirukou_01.png",
+      "Assets/Main/Sprites/UI/UITreasureHuntActivity/Mjc_bachang_jianglirukou_02.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uitreasurehuntactivity_8f7df0cee8bf1204b93d928c8a34366a.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITreasureHuntActivity",
+    "pattern": "od_bachangjianglitips_empty",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITreasureHuntActivity/od_bachangjianglitips_empty.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uitreasurehuntactivity_8f7df0cee8bf1204b93d928c8a34366a.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITreasureHuntActivity_BG",
+    "pattern": "zyf_bachangyouhua_banner",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITreasureHuntActivity_BG/zyf_bachangyouhua_banner.png"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_sprites_ui_uitreasurehuntactivity_bg_1_cf662d4802556a185667fbce893b421f.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITreasurePuzzle",
+    "pattern": "hero_icon__turntable_small",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITreasurePuzzle/hero_icon__turntable_small.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uitreasurepuzzle_2cc3dc87882acf330040572f3e46ee3b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITreasurePuzzle",
+    "pattern": "icon_puzzle",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITreasurePuzzle/icon_puzzle.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uitreasurepuzzle_2cc3dc87882acf330040572f3e46ee3b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITreasurePuzzle",
+    "pattern": "UI_titleyellow",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITreasurePuzzle/UI_titleyellow.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uitreasurepuzzle_2cc3dc87882acf330040572f3e46ee3b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITreasurePuzzle",
+    "pattern": "UIpuzzle_bg_dialog",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITreasurePuzzle/UIpuzzle_bg_dialog.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uitreasurepuzzle_2cc3dc87882acf330040572f3e46ee3b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITreasurePuzzle",
+    "pattern": "UIpuzzle_bg_orangesmall",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITreasurePuzzle/UIpuzzle_bg_orangesmall.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uitreasurepuzzle_2cc3dc87882acf330040572f3e46ee3b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITreasurePuzzle",
+    "pattern": "UIpuzzle_content_bg",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITreasurePuzzle/UIpuzzle_content_bg.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uitreasurepuzzle_2cc3dc87882acf330040572f3e46ee3b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITreasurePuzzle",
+    "pattern": "UIpuzzle_green",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITreasurePuzzle/UIpuzzle_green.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uitreasurepuzzle_2cc3dc87882acf330040572f3e46ee3b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITreasurePuzzle",
+    "pattern": "UIpuzzle_img_box",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITreasurePuzzle/UIpuzzle_img_box.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uitreasurepuzzle_2cc3dc87882acf330040572f3e46ee3b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITreasurePuzzle",
+    "pattern": "UIpuzzle_orange",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITreasurePuzzle/UIpuzzle_orange.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uitreasurepuzzle_2cc3dc87882acf330040572f3e46ee3b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITreasurePuzzle",
+    "pattern": "UIpuzzle_probg{N}",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITreasurePuzzle/UIpuzzle_probg1.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uitreasurepuzzle_2cc3dc87882acf330040572f3e46ee3b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITreasurePuzzle",
+    "pattern": "UIpuzzle_schedule_bg",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITreasurePuzzle/UIpuzzle_schedule_bg.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uitreasurepuzzle_2cc3dc87882acf330040572f3e46ee3b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITreasurePuzzle",
+    "pattern": "UIpuzzle_schedule_bg{N}",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITreasurePuzzle/UIpuzzle_schedule_bg2.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uitreasurepuzzle_2cc3dc87882acf330040572f3e46ee3b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITreasurePuzzle",
+    "pattern": "UIpuzzle_schedule_big_bg",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITreasurePuzzle/UIpuzzle_schedule_big_bg.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uitreasurepuzzle_2cc3dc87882acf330040572f3e46ee3b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITreasurePuzzle",
+    "pattern": "UIpuzzle_shadow",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITreasurePuzzle/UIpuzzle_shadow.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uitreasurepuzzle_2cc3dc87882acf330040572f3e46ee3b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITreasurePuzzle",
+    "pattern": "UIpuzzle_timebg",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITreasurePuzzle/UIpuzzle_timebg.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uitreasurepuzzle_2cc3dc87882acf330040572f3e46ee3b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITreasurePuzzle",
+    "pattern": "UIpuzzle_yellow",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITreasurePuzzle/UIpuzzle_yellow.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uitreasurepuzzle_2cc3dc87882acf330040572f3e46ee3b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITreasurePuzzle",
+    "pattern": "UIpuzzle_{N}",
+    "ext": ".png",
+    "count": 9,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITreasurePuzzle/UIpuzzle_01.png",
+      "Assets/Main/Sprites/UI/UITreasurePuzzle/UIpuzzle_02.png",
+      "Assets/Main/Sprites/UI/UITreasurePuzzle/UIpuzzle_03.png",
+      "Assets/Main/Sprites/UI/UITreasurePuzzle/UIpuzzle_04.png",
+      "Assets/Main/Sprites/UI/UITreasurePuzzle/UIpuzzle_05.png",
+      "Assets/Main/Sprites/UI/UITreasurePuzzle/UIpuzzle_06.png",
+      "Assets/Main/Sprites/UI/UITreasurePuzzle/UIpuzzle_07.png",
+      "Assets/Main/Sprites/UI/UITreasurePuzzle/UIpuzzle_08.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uitreasurepuzzle_2cc3dc87882acf330040572f3e46ee3b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITruckRewardInsurance",
+    "pattern": "wxy_huocheyueka_base",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITruckRewardInsurance/wxy_huocheyueka_base.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uitruckrewardinsurance_45b3591738fbe25392b4b6a371ff30cd.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITruckRewardInsurance",
+    "pattern": "wxy_huocheyueka_qipao{N}",
+    "ext": ".png",
+    "count": 3,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITruckRewardInsurance/wxy_huocheyueka_qipao01.png",
+      "Assets/Main/Sprites/UI/UITruckRewardInsurance/wxy_huocheyueka_qipao02.png",
+      "Assets/Main/Sprites/UI/UITruckRewardInsurance/wxy_huocheyueka_qipao03.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uitruckrewardinsurance_45b3591738fbe25392b4b6a371ff30cd.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITruckRewardInsurance",
+    "pattern": "wxy_huocheyueka_rukou{N}",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITruckRewardInsurance/wxy_huocheyueka_rukou01.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uitruckrewardinsurance_45b3591738fbe25392b4b6a371ff30cd.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITruckRewardInsurance",
+    "pattern": "wxy_huocheyueka_yeqian{N}",
+    "ext": ".png",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITruckRewardInsurance/wxy_huocheyueka_yeqian01.png",
+      "Assets/Main/Sprites/UI/UITruckRewardInsurance/wxy_huocheyueka_yeqian02.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uitruckrewardinsurance_45b3591738fbe25392b4b6a371ff30cd.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UITruckRewardInsurance",
+    "pattern": "wxy_tongyong_shangyehua_kong",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UITruckRewardInsurance/wxy_tongyong_shangyehua_kong.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uitruckrewardinsurance_45b3591738fbe25392b4b6a371ff30cd.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIUnpackResource",
+    "pattern": "ljq_s{N}_ziyuanbaoxiazai_baoshi",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIUnpackResource/ljq_s3_ziyuanbaoxiazai_baoshi.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uiunpackresource_ce6267bd6f0dcc7cf0e510e31d492d92.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIUnpackResource",
+    "pattern": "ljq_s{N}_ziyuanbaoxiazai_bg",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIUnpackResource/ljq_s3_ziyuanbaoxiazai_bg.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uiunpackresource_ce6267bd6f0dcc7cf0e510e31d492d92.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIUnpackResource",
+    "pattern": "ljq_s{N}_ziyuanbaoxiazai_bg_{N}",
+    "ext": ".png",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIUnpackResource/ljq_s3_ziyuanbaoxiazai_bg_03.png",
+      "Assets/Main/Sprites/UI/UIUnpackResource/ljq_s3_ziyuanbaoxiazai_bg_04.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uiunpackresource_ce6267bd6f0dcc7cf0e510e31d492d92.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIUnpackResource",
+    "pattern": "ljq_s{N}_ziyuanbaoxiazai_xiazai",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIUnpackResource/ljq_s3_ziyuanbaoxiazai_xiazai.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uiunpackresource_ce6267bd6f0dcc7cf0e510e31d492d92.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIUnpackResource",
+    "pattern": "ljq_s{N}_ziyuanbaoxiazai_xiazai_jindutiao",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIUnpackResource/ljq_s3_ziyuanbaoxiazai_xiazai_jindutiao.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uiunpackresource_ce6267bd6f0dcc7cf0e510e31d492d92.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIUnpackResource",
+    "pattern": "ljq_s{N}_ziyuanbaoxiazai_xiazai_{N}",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIUnpackResource/ljq_s3_ziyuanbaoxiazai_xiazai_02.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uiunpackresource_ce6267bd6f0dcc7cf0e510e31d492d92.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIUpgradeTreasureBox/2025christmas",
+    "pattern": "lrb_shengdanjie_yanhui_baoxiang_wenhao",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIUpgradeTreasureBox/2025christmas/lrb_shengdanjie_yanhui_baoxiang_wenhao.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uiupgradetreasurebox_2025christmas_6fd80b9383b2e8cebaf8dbdb23d259bd.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIUpgradeTreasureBox_2025halloween",
+    "pattern": "wxy_wansheng_yanhui_baoxiang_chenggong",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIUpgradeTreasureBox_2025halloween/wxy_wansheng_yanhui_baoxiang_chenggong.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uiupgradetreasurebox_2025halloween_e2e4e29845e2b77ab30593c63673ec31.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIUpgradeTreasureBox_2025halloween",
+    "pattern": "wxy_wansheng_yanhui_baoxiang_shibai",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIUpgradeTreasureBox_2025halloween/wxy_wansheng_yanhui_baoxiang_shibai.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uiupgradetreasurebox_2025halloween_e2e4e29845e2b77ab30593c63673ec31.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIUpgradeTreasureBox_2025halloween",
+    "pattern": "wxy_wansheng_yanhui_baoxiang_wenhao",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIUpgradeTreasureBox_2025halloween/wxy_wansheng_yanhui_baoxiang_wenhao.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uiupgradetreasurebox_2025halloween_e2e4e29845e2b77ab30593c63673ec31.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIUpgradeTreasureBox_2025halloween",
+    "pattern": "zxl_s{N}_wenhao",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIUpgradeTreasureBox_2025halloween/zxl_s3_wenhao.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uiupgradetreasurebox_2025halloween_e2e4e29845e2b77ab30593c63673ec31.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIVip",
+    "pattern": "UIVip_bg_vip{N}",
+    "ext": ".png",
+    "count": 3,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIVip/UIVip_bg_vip3.png",
+      "Assets/Main/Sprites/UI/UIVip/UIVip_bg_vip4.png",
+      "Assets/Main/Sprites/UI/UIVip/UIVip_bg_vip5.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uivip_faad1af43a342cfb9dd2e7e686d14f03.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIVip",
+    "pattern": "UIVip_img_box{N}_{N}",
+    "ext": ".png",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIVip/UIVip_img_box3_1.png",
+      "Assets/Main/Sprites/UI/UIVip/UIVip_img_box3_2.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uivip_faad1af43a342cfb9dd2e7e686d14f03.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIVip",
+    "pattern": "UIvip_img_effects",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIVip/UIvip_img_effects.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uivip_faad1af43a342cfb9dd2e7e686d14f03.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIVip",
+    "pattern": "UIVip_img_new",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIVip/UIVip_img_new.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uivip_faad1af43a342cfb9dd2e7e686d14f03.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIVipExtend18",
+    "pattern": "fx-WRJ_texiao{N}",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIVipExtend18/fx-WRJ_texiao03.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uivipextend18_b411acbe5690c79f28aabddf443f1dae.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIVipExtend18",
+    "pattern": "ljq_vip{N}_di_{N}",
+    "ext": ".png",
+    "count": 5,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIVipExtend18/ljq_vip18_di_01.png",
+      "Assets/Main/Sprites/UI/UIVipExtend18/ljq_vip18_di_04.png",
+      "Assets/Main/Sprites/UI/UIVipExtend18/ljq_vip18_di_05.png",
+      "Assets/Main/Sprites/UI/UIVipExtend18/ljq_vip18_di_06.png",
+      "Assets/Main/Sprites/UI/UIVipExtend18/ljq_vip18_di_08.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uivipextend18_b411acbe5690c79f28aabddf443f1dae.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIVipExtend18",
+    "pattern": "ljq_vip{N}_di_{N}_guang",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIVipExtend18/ljq_vip18_di_02_guang.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uivipextend18_b411acbe5690c79f28aabddf443f1dae.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIVipExtend18",
+    "pattern": "ljq_vip{N}_icon_{N}",
+    "ext": ".png",
+    "count": 3,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIVipExtend18/ljq_vip18_icon_01.png",
+      "Assets/Main/Sprites/UI/UIVipExtend18/ljq_vip18_icon_02.png",
+      "Assets/Main/Sprites/UI/UIVipExtend18/ljq_vip18_icon_03.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uivipextend18_b411acbe5690c79f28aabddf443f1dae.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIVipExtend18",
+    "pattern": "ljq_vip{N}_jiantou",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIVipExtend18/ljq_vip18_jiantou.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uivipextend18_b411acbe5690c79f28aabddf443f1dae.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIVipExtend18",
+    "pattern": "ljq_vip{N}_jiantou_{N}",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIVipExtend18/ljq_vip18_jiantou_02.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uivipextend18_b411acbe5690c79f28aabddf443f1dae.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIVipExtend18",
+    "pattern": "ljq_vip{N}_kongdi_{N}",
+    "ext": ".png",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIVipExtend18/ljq_vip18_kongdi_01.png",
+      "Assets/Main/Sprites/UI/UIVipExtend18/ljq_vip18_kongdi_02.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uivipextend18_b411acbe5690c79f28aabddf443f1dae.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIVipExtend18",
+    "pattern": "ljq_vip{N}_libao",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIVipExtend18/ljq_vip18_libao.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uivipextend18_b411acbe5690c79f28aabddf443f1dae.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIVipExtend18",
+    "pattern": "ljq_vip{N}_qipao{N}",
+    "ext": ".png",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIVipExtend18/ljq_vip18_qipao01.png",
+      "Assets/Main/Sprites/UI/UIVipExtend18/ljq_vip18_qipao02.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uivipextend18_b411acbe5690c79f28aabddf443f1dae.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIVipExtend18",
+    "pattern": "ljq_vip{N}_shalou_{N}",
+    "ext": ".png",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIVipExtend18/ljq_vip18_shalou_01.png",
+      "Assets/Main/Sprites/UI/UIVipExtend18/ljq_vip18_shalou_02.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uivipextend18_b411acbe5690c79f28aabddf443f1dae.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIVipExtend18",
+    "pattern": "ljq_vip{N}_tiaofu_{N}",
+    "ext": ".png",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIVipExtend18/ljq_vip18_tiaofu_01.png",
+      "Assets/Main/Sprites/UI/UIVipExtend18/ljq_vip18_tiaofu_02.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uivipextend18_b411acbe5690c79f28aabddf443f1dae.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIVipExtend18",
+    "pattern": "ljq_vip{N}_vip_{N}",
+    "ext": ".png",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIVipExtend18/ljq_vip18_vip_01.png",
+      "Assets/Main/Sprites/UI/UIVipExtend18/ljq_vip18_vip_02.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uivipextend18_b411acbe5690c79f28aabddf443f1dae.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIVipExtend18",
+    "pattern": "lrb_vip{N}_caogao_{N}",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIVipExtend18/lrb_vip18_caogao_06.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uivipextend18_b411acbe5690c79f28aabddf443f1dae.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIVipExtend18",
+    "pattern": "lrb_vip{N}_jieduanbg",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIVipExtend18/lrb_vip18_jieduanbg.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uivipextend18_b411acbe5690c79f28aabddf443f1dae.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIVipExtend18",
+    "pattern": "lrb_vip{N}_jilu",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIVipExtend18/lrb_vip18_jilu.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uivipextend18_b411acbe5690c79f28aabddf443f1dae.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIVipExtend18",
+    "pattern": "lrb_vip{N}_jilu_bg",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIVipExtend18/lrb_vip18_jilu_bg.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uivipextend18_b411acbe5690c79f28aabddf443f1dae.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIVipExtend18",
+    "pattern": "lrb_vip{N}_kefu",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIVipExtend18/lrb_vip18_kefu.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uivipextend18_b411acbe5690c79f28aabddf443f1dae.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIVipExtend18",
+    "pattern": "lrb_vip{N}_timeline_bg{N}",
+    "ext": ".png",
+    "count": 3,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIVipExtend18/lrb_vip18_timeline_bg03.png",
+      "Assets/Main/Sprites/UI/UIVipExtend18/lrb_vip18_timeline_bg04.png",
+      "Assets/Main/Sprites/UI/UIVipExtend18/lrb_vip18_timeline_bg05.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uivipextend18_b411acbe5690c79f28aabddf443f1dae.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIVipExtend18",
+    "pattern": "lrb_vip{N}_timeline_hui{N}",
+    "ext": ".png",
+    "count": 5,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIVipExtend18/lrb_vip18_timeline_hui01.png",
+      "Assets/Main/Sprites/UI/UIVipExtend18/lrb_vip18_timeline_hui02.png",
+      "Assets/Main/Sprites/UI/UIVipExtend18/lrb_vip18_timeline_hui03.png",
+      "Assets/Main/Sprites/UI/UIVipExtend18/lrb_vip18_timeline_hui04.png",
+      "Assets/Main/Sprites/UI/UIVipExtend18/lrb_vip18_timeline_hui05.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uivipextend18_b411acbe5690c79f28aabddf443f1dae.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIVipExtend18",
+    "pattern": "lrb_vip{N}_timeline_{N}",
+    "ext": ".png",
+    "count": 5,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIVipExtend18/lrb_vip18_timeline_01.png",
+      "Assets/Main/Sprites/UI/UIVipExtend18/lrb_vip18_timeline_02.png",
+      "Assets/Main/Sprites/UI/UIVipExtend18/lrb_vip18_timeline_03.png",
+      "Assets/Main/Sprites/UI/UIVipExtend18/lrb_vip18_timeline_04.png",
+      "Assets/Main/Sprites/UI/UIVipExtend18/lrb_vip18_timeline_05.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uivipextend18_b411acbe5690c79f28aabddf443f1dae.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIVipExtend18",
+    "pattern": "wxy_vip{N}_heijin_hengfudi",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIVipExtend18/wxy_vip18_heijin_hengfudi.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uivipextend18_b411acbe5690c79f28aabddf443f1dae.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIVipExtend18",
+    "pattern": "wxy_vip{N}_heijin_jieduan_jiantou",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIVipExtend18/wxy_vip18_heijin_jieduan_jiantou.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uivipextend18_b411acbe5690c79f28aabddf443f1dae.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIVipExtend18",
+    "pattern": "wxy_vip{N}_heijin_jieduan_jindudi",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIVipExtend18/wxy_vip18_heijin_jieduan_jindudi.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uivipextend18_b411acbe5690c79f28aabddf443f1dae.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIVipExtend18",
+    "pattern": "wxy_vip{N}_heijin_jieduan_jindudi{N}",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIVipExtend18/wxy_vip18_heijin_jieduan_jindudi01.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uivipextend18_b411acbe5690c79f28aabddf443f1dae.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIVipExtend18",
+    "pattern": "wxy_vip{N}_heijin_pifuliebiao_shejizhong",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIVipExtend18/wxy_vip18_heijin_pifuliebiao_shejizhong.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uivipextend18_b411acbe5690c79f28aabddf443f1dae.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIVipExtend18",
+    "pattern": "wxy_vip{N}_heijin_pifuliebiaodi",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIVipExtend18/wxy_vip18_heijin_pifuliebiaodi.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uivipextend18_b411acbe5690c79f28aabddf443f1dae.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIVipExtend18",
+    "pattern": "wxy_vip{N}_heijin_shejizhanshi_you",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIVipExtend18/wxy_vip18_heijin_shejizhanshi_you.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uivipextend18_b411acbe5690c79f28aabddf443f1dae.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIVipExtend18",
+    "pattern": "wxy_vip{N}_heijin_vip{N}",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIVipExtend18/wxy_vip18_heijin_vip18.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uivipextend18_b411acbe5690c79f28aabddf443f1dae.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIVipExtend18",
+    "pattern": "wxy_vip{N}_yeqian_jiantou",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIVipExtend18/wxy_vip18_yeqian_jiantou.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uivipextend18_b411acbe5690c79f28aabddf443f1dae.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIVipExtend18",
+    "pattern": "wxy_v{N}_kakao",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIVipExtend18/wxy_v18_kakao.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uivipextend18_b411acbe5690c79f28aabddf443f1dae.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIVipExtend18",
+    "pattern": "wxy_v{N}_line",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIVipExtend18/wxy_v18_line.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uivipextend18_b411acbe5690c79f28aabddf443f1dae.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIVipExtend18",
+    "pattern": "wxy_v{N}_whatsapp",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIVipExtend18/wxy_v18_whatsapp.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uivipextend18_b411acbe5690c79f28aabddf443f1dae.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIVipExtend18",
+    "pattern": "zxl_vip{N}_xiangqing_dui",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIVipExtend18/zxl_vip18_xiangqing_dui.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uivipextend18_b411acbe5690c79f28aabddf443f1dae.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIVipExtend18",
+    "pattern": "zxl_vip{N}_xiangqing_x",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIVipExtend18/zxl_vip18_xiangqing_x.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uivipextend18_b411acbe5690c79f28aabddf443f1dae.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWeekCard",
+    "pattern": "cfm_youhua_shangcheng_zhouka_baoxiang_{N}",
+    "ext": ".png",
+    "count": 5,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWeekCard/cfm_youhua_shangcheng_zhouka_baoxiang_1.png",
+      "Assets/Main/Sprites/UI/UIWeekCard/cfm_youhua_shangcheng_zhouka_baoxiang_2.png",
+      "Assets/Main/Sprites/UI/UIWeekCard/cfm_youhua_shangcheng_zhouka_baoxiang_3.png",
+      "Assets/Main/Sprites/UI/UIWeekCard/cfm_youhua_shangcheng_zhouka_baoxiang_4.png",
+      "Assets/Main/Sprites/UI/UIWeekCard/cfm_youhua_shangcheng_zhouka_baoxiang_5.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_weekcard_9da6f42d903d520e041fa0fe3cfb7d6e.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWeekCard",
+    "pattern": "cfm_youhua_shangcheng_zhouka_ka_{N}",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWeekCard/cfm_youhua_shangcheng_zhouka_ka_1.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_weekcard_9da6f42d903d520e041fa0fe3cfb7d6e.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWeekCard",
+    "pattern": "cfm_zhekou_yuanxing",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWeekCard/cfm_zhekou_yuanxing.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_weekcard_9da6f42d903d520e041fa0fe3cfb7d6e.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWeekCard",
+    "pattern": "lyt_youhua_shangcheng_zhouka_baoxiang_{N}",
+    "ext": ".png",
+    "count": 3,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWeekCard/lyt_youhua_shangcheng_zhouka_baoxiang_6.png",
+      "Assets/Main/Sprites/UI/UIWeekCard/lyt_youhua_shangcheng_zhouka_baoxiang_7.png",
+      "Assets/Main/Sprites/UI/UIWeekCard/lyt_youhua_shangcheng_zhouka_baoxiang_8.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_weekcard_9da6f42d903d520e041fa0fe3cfb7d6e.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWeeklyPack",
+    "pattern": "cfm_huodong_meizhouchegnzhanglibao_baoxiang_{N}",
+    "ext": ".png",
+    "count": 4,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWeeklyPack/cfm_huodong_meizhouchegnzhanglibao_baoxiang_1.png",
+      "Assets/Main/Sprites/UI/UIWeeklyPack/cfm_huodong_meizhouchegnzhanglibao_baoxiang_2.png",
+      "Assets/Main/Sprites/UI/UIWeeklyPack/cfm_huodong_meizhouchegnzhanglibao_baoxiang_3.png",
+      "Assets/Main/Sprites/UI/UIWeeklyPack/cfm_huodong_meizhouchegnzhanglibao_baoxiang_4.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uiweeklypack_a2980b632b51733fb3b0dac946432e2f.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWeeklyPack",
+    "pattern": "cfm_youhua_chaozhitehui_meizhoutehui_beijing_{N}",
+    "ext": ".png",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWeeklyPack/cfm_youhua_chaozhitehui_meizhoutehui_beijing_3.png",
+      "Assets/Main/Sprites/UI/UIWeeklyPack/cfm_youhua_chaozhitehui_meizhoutehui_beijing_4.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uiweeklypack_a2980b632b51733fb3b0dac946432e2f.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWeeklyPack",
+    "pattern": "cfm_youhua_chaozhitehui_meizhoutehui_beijing_{N}_{N}",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWeeklyPack/cfm_youhua_chaozhitehui_meizhoutehui_beijing_4_1.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uiweeklypack_a2980b632b51733fb3b0dac946432e2f.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWeeklyPack",
+    "pattern": "cfm_youhua_chaozhitehui_meizhoutehui_tubiao_{N}",
+    "ext": ".png",
+    "count": 6,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWeeklyPack/cfm_youhua_chaozhitehui_meizhoutehui_tubiao_1.png",
+      "Assets/Main/Sprites/UI/UIWeeklyPack/cfm_youhua_chaozhitehui_meizhoutehui_tubiao_2.png",
+      "Assets/Main/Sprites/UI/UIWeeklyPack/cfm_youhua_chaozhitehui_meizhoutehui_tubiao_3.png",
+      "Assets/Main/Sprites/UI/UIWeeklyPack/cfm_youhua_chaozhitehui_meizhoutehui_tubiao_4.png",
+      "Assets/Main/Sprites/UI/UIWeeklyPack/cfm_youhua_chaozhitehui_meizhoutehui_tubiao_5.png",
+      "Assets/Main/Sprites/UI/UIWeeklyPack/cfm_youhua_chaozhitehui_meizhoutehui_tubiao_6.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uiweeklypack_a2980b632b51733fb3b0dac946432e2f.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWeeklyPack",
+    "pattern": "fx_youhua_chaozhitehui_meizhoutehui_tubiao_{N}",
+    "ext": ".png",
+    "count": 12,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWeeklyPack/fx_youhua_chaozhitehui_meizhoutehui_tubiao_01.png",
+      "Assets/Main/Sprites/UI/UIWeeklyPack/fx_youhua_chaozhitehui_meizhoutehui_tubiao_02.png",
+      "Assets/Main/Sprites/UI/UIWeeklyPack/fx_youhua_chaozhitehui_meizhoutehui_tubiao_03.png",
+      "Assets/Main/Sprites/UI/UIWeeklyPack/fx_youhua_chaozhitehui_meizhoutehui_tubiao_05.png",
+      "Assets/Main/Sprites/UI/UIWeeklyPack/fx_youhua_chaozhitehui_meizhoutehui_tubiao_06.png",
+      "Assets/Main/Sprites/UI/UIWeeklyPack/fx_youhua_chaozhitehui_meizhoutehui_tubiao_07.png",
+      "Assets/Main/Sprites/UI/UIWeeklyPack/fx_youhua_chaozhitehui_meizhoutehui_tubiao_08.png",
+      "Assets/Main/Sprites/UI/UIWeeklyPack/fx_youhua_chaozhitehui_meizhoutehui_tubiao_09.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uiweeklypack_a2980b632b51733fb3b0dac946432e2f.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWeeklyPack",
+    "pattern": "lrb_youhua_chaozhitehui_meizhoutehui_tubiao_{N}",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWeeklyPack/lrb_youhua_chaozhitehui_meizhoutehui_tubiao_7.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uiweeklypack_a2980b632b51733fb3b0dac946432e2f.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWeeklyPack",
+    "pattern": "lyt_youhua_chaozhitehui_meizhoutehui_tubiao_{N}",
+    "ext": ".png",
+    "count": 5,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWeeklyPack/lyt_youhua_chaozhitehui_meizhoutehui_tubiao_15.png",
+      "Assets/Main/Sprites/UI/UIWeeklyPack/lyt_youhua_chaozhitehui_meizhoutehui_tubiao_16.png",
+      "Assets/Main/Sprites/UI/UIWeeklyPack/lyt_youhua_chaozhitehui_meizhoutehui_tubiao_17.png",
+      "Assets/Main/Sprites/UI/UIWeeklyPack/lyt_youhua_chaozhitehui_meizhoutehui_tubiao_18.png",
+      "Assets/Main/Sprites/UI/UIWeeklyPack/lyt_youhua_chaozhitehui_meizhoutehui_tubiao_19.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uiweeklypack_a2980b632b51733fb3b0dac946432e2f.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWeeklyPack",
+    "pattern": "wxy_tehui_yingxiongjuexing_libao",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWeeklyPack/wxy_tehui_yingxiongjuexing_libao.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uiweeklypack_a2980b632b51733fb3b0dac946432e2f.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWeeklyPack",
+    "pattern": "zxl_youhua_chaozhitehui_meizhoutehui_tubiao_{N}",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWeeklyPack/zxl_youhua_chaozhitehui_meizhoutehui_tubiao_14.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uiweeklypack_a2980b632b51733fb3b0dac946432e2f.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWeeklyPack",
+    "pattern": "zyf_chaozhitehui_meizhoutehui_tubiao_zhuanwulibao",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWeeklyPack/zyf_chaozhitehui_meizhoutehui_tubiao_zhuanwulibao.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uiweeklypack_a2980b632b51733fb3b0dac946432e2f.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWeeklyPack",
+    "pattern": "zyf_qingrenjie_huojianlibao_{N}",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWeeklyPack/zyf_qingrenjie_huojianlibao_1.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uiweeklypack_a2980b632b51733fb3b0dac946432e2f.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorker",
+    "pattern": "cfm_anpaigongren_tubiao_dingwei",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorker/cfm_anpaigongren_tubiao_dingwei.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uiworker_31f0388c08739f0ab84d8b07fec96924.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorker",
+    "pattern": "cfm_jianzhuxiangqing_dichen",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorker/cfm_jianzhuxiangqing_dichen.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uiworker_31f0388c08739f0ab84d8b07fec96924.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorker",
+    "pattern": "cfm_tongyong_erji_dichen_{N}",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorker/cfm_tongyong_erji_dichen_1.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uiworker_31f0388c08739f0ab84d8b07fec96924.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorker",
+    "pattern": "cfm_tongyong_gongren_touxiangkuang_{N}",
+    "ext": ".png",
+    "count": 6,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorker/cfm_tongyong_gongren_touxiangkuang_1.png",
+      "Assets/Main/Sprites/UI/UIWorker/cfm_tongyong_gongren_touxiangkuang_2.png",
+      "Assets/Main/Sprites/UI/UIWorker/cfm_tongyong_gongren_touxiangkuang_3.png",
+      "Assets/Main/Sprites/UI/UIWorker/cfm_tongyong_gongren_touxiangkuang_4.png",
+      "Assets/Main/Sprites/UI/UIWorker/cfm_tongyong_gongren_touxiangkuang_5.png",
+      "Assets/Main/Sprites/UI/UIWorker/cfm_tongyong_gongren_touxiangkuang_6.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uiworker_31f0388c08739f0ab84d8b07fec96924.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorker",
+    "pattern": "cfm_tongyong_jiahao",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorker/cfm_tongyong_jiahao.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uiworker_31f0388c08739f0ab84d8b07fec96924.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorker",
+    "pattern": "cfm_tongyong_tubiao_suo",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorker/cfm_tongyong_tubiao_suo.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uiworker_31f0388c08739f0ab84d8b07fec96924.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorker",
+    "pattern": "FX_XCZ_gongzuo_icon",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorker/FX_XCZ_gongzuo_icon.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uiworker_31f0388c08739f0ab84d8b07fec96924.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorker",
+    "pattern": "FX_xingcunzhe_gongzuo",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorker/FX_xingcunzhe_gongzuo.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uiworker_31f0388c08739f0ab84d8b07fec96924.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorker",
+    "pattern": "Mjc_tongyong_bt_xiao_shang",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorker/Mjc_tongyong_bt_xiao_shang.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uiworker_31f0388c08739f0ab84d8b07fec96924.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorker",
+    "pattern": "Mjc_tongyong_bt_xiao_xia",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorker/Mjc_tongyong_bt_xiao_xia.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uiworker_31f0388c08739f0ab84d8b07fec96924.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorker",
+    "pattern": "Mjc_tongyong_erji_dichen_yuanjiao_{N}",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorker/Mjc_tongyong_erji_dichen_yuanjiao_0.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uiworker_31f0388c08739f0ab84d8b07fec96924.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorker",
+    "pattern": "Mjc_xcz_anniu_shaixuan",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorker/Mjc_xcz_anniu_shaixuan.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uiworker_31f0388c08739f0ab84d8b07fec96924.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorker",
+    "pattern": "Mjc_xcz_bt_tihuan",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorker/Mjc_xcz_bt_tihuan.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uiworker_31f0388c08739f0ab84d8b07fec96924.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorker",
+    "pattern": "Mjc_xcz_icon_weizhi",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorker/Mjc_xcz_icon_weizhi.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uiworker_31f0388c08739f0ab84d8b07fec96924.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorker",
+    "pattern": "Mjc_xcz_iconbg_cheng",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorker/Mjc_xcz_iconbg_cheng.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uiworker_31f0388c08739f0ab84d8b07fec96924.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorker",
+    "pattern": "Mjc_xcz_iconbg_hui",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorker/Mjc_xcz_iconbg_hui.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uiworker_31f0388c08739f0ab84d8b07fec96924.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorker",
+    "pattern": "Mjc_xcz_iconbg_lan",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorker/Mjc_xcz_iconbg_lan.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uiworker_31f0388c08739f0ab84d8b07fec96924.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorker",
+    "pattern": "Mjc_xcz_iconbg_lv",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorker/Mjc_xcz_iconbg_lv.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uiworker_31f0388c08739f0ab84d8b07fec96924.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorker",
+    "pattern": "Mjc_xcz_iconbg_zi",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorker/Mjc_xcz_iconbg_zi.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uiworker_31f0388c08739f0ab84d8b07fec96924.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorker",
+    "pattern": "Mjc_xcz_list_bg{N}",
+    "ext": ".png",
+    "count": 3,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorker/Mjc_xcz_list_bg1.png",
+      "Assets/Main/Sprites/UI/UIWorker/Mjc_xcz_list_bg2.png",
+      "Assets/Main/Sprites/UI/UIWorker/Mjc_xcz_list_bg3.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uiworker_31f0388c08739f0ab84d8b07fec96924.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorker",
+    "pattern": "Mjc_xcz_new_bg",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorker/Mjc_xcz_new_bg.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uiworker_31f0388c08739f0ab84d8b07fec96924.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorker",
+    "pattern": "Mjc_xcz_new_mask",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorker/Mjc_xcz_new_mask.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uiworker_31f0388c08739f0ab84d8b07fec96924.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorker",
+    "pattern": "Mjc_xcz_text_bg_{N}",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorker/Mjc_xcz_text_bg_1.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uiworker_31f0388c08739f0ab84d8b07fec96924.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorker",
+    "pattern": "Mjc_xcz_xingji_bg",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorker/Mjc_xcz_xingji_bg.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uiworker_31f0388c08739f0ab84d8b07fec96924.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorker",
+    "pattern": "Mjc_xcz_zhandouli_icon",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorker/Mjc_xcz_zhandouli_icon.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uiworker_31f0388c08739f0ab84d8b07fec96924.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorker",
+    "pattern": "Mjc_xcz_zhuangtai_icon{N}",
+    "ext": ".png",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorker/Mjc_xcz_zhuangtai_icon1.png",
+      "Assets/Main/Sprites/UI/UIWorker/Mjc_xcz_zhuangtai_icon2.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uiworker_31f0388c08739f0ab84d8b07fec96924.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorker",
+    "pattern": "zyf_xingcunzheyouhua_qipao_weiba",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorker/zyf_xingcunzheyouhua_qipao_weiba.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uiworker_31f0388c08739f0ab84d8b07fec96924.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldBattle",
+    "pattern": "pve_icon_zhanli",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldBattle/pve_icon_zhanli.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uiworldbattle_8290ea49a95a6566382afc077dda6a66.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldBattle",
+    "pattern": "UIguide_img_lightline",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldBattle/UIguide_img_lightline.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uiworldbattle_8290ea49a95a6566382afc077dda6a66.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldBattle",
+    "pattern": "UIWorldBattle_bg_head",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldBattle/UIWorldBattle_bg_head.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uiworldbattle_8290ea49a95a6566382afc077dda6a66.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldBattle",
+    "pattern": "UIWorldBattle_bg_name",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldBattle/UIWorldBattle_bg_name.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uiworldbattle_8290ea49a95a6566382afc077dda6a66.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldBattle",
+    "pattern": "UIWorldBattle_icon",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldBattle/UIWorldBattle_icon.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uiworldbattle_8290ea49a95a6566382afc077dda6a66.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldBattle",
+    "pattern": "UIWorldBattle_img_green_arrow",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldBattle/UIWorldBattle_img_green_arrow.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uiworldbattle_8290ea49a95a6566382afc077dda6a66.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldBattle",
+    "pattern": "UIWorldBattle_img_levelbg",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldBattle/UIWorldBattle_img_levelbg.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uiworldbattle_8290ea49a95a6566382afc077dda6a66.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldBattle",
+    "pattern": "UIWorldBattle_img_red_arrow",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldBattle/UIWorldBattle_img_red_arrow.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uiworldbattle_8290ea49a95a6566382afc077dda6a66.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldBattle",
+    "pattern": "UIWorldBattle_pro_monster_green",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldBattle/UIWorldBattle_pro_monster_green.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uiworldbattle_8290ea49a95a6566382afc077dda6a66.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldBattle",
+    "pattern": "UIWorldBattle_pro_monster_red",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldBattle/UIWorldBattle_pro_monster_red.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uiworldbattle_8290ea49a95a6566382afc077dda6a66.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldBattle",
+    "pattern": "UIWorldBattle_pro_monster_yellow",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldBattle/UIWorldBattle_pro_monster_yellow.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uiworldbattle_8290ea49a95a6566382afc077dda6a66.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldBattle",
+    "pattern": "UIWorldBattle_pro_player_energy",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldBattle/UIWorldBattle_pro_player_energy.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uiworldbattle_8290ea49a95a6566382afc077dda6a66.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldBattle",
+    "pattern": "UIWorldBattle_pro_player_green",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldBattle/UIWorldBattle_pro_player_green.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uiworldbattle_8290ea49a95a6566382afc077dda6a66.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldBattle",
+    "pattern": "UIWorldBattle_pro_player_red",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldBattle/UIWorldBattle_pro_player_red.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uiworldbattle_8290ea49a95a6566382afc077dda6a66.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldBattle",
+    "pattern": "UIWorldBattle_pro_player_yellow",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldBattle/UIWorldBattle_pro_player_yellow.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uiworldbattle_8290ea49a95a6566382afc077dda6a66.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldBattle",
+    "pattern": "UIWorldBattle_probg_monster",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldBattle/UIWorldBattle_probg_monster.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uiworldbattle_8290ea49a95a6566382afc077dda6a66.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldBattle",
+    "pattern": "UIWorldBattle_probg_player",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldBattle/UIWorldBattle_probg_player.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uiworldbattle_8290ea49a95a6566382afc077dda6a66.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldBattle",
+    "pattern": "WorldBattleNews_bg_cell{N}",
+    "ext": ".png",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldBattle/WorldBattleNews_bg_cell1.png",
+      "Assets/Main/Sprites/UI/UIWorldBattle/WorldBattleNews_bg_cell2.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uiworldbattle_8290ea49a95a6566382afc077dda6a66.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldBattle",
+    "pattern": "WorldBattleNews_icon_battle",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldBattle/WorldBattleNews_icon_battle.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uiworldbattle_8290ea49a95a6566382afc077dda6a66.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldTip",
+    "pattern": "zyf_daditu_liantu_banner_zhezhao",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldTip/zyf_daditu_liantu_banner_zhezhao.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uilwworldtip_19e2175be9e33c1262dd0eeb90dd23a1.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldTip",
+    "pattern": "zyf_daditu_liantu_icon",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldTip/zyf_daditu_liantu_icon.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uilwworldtip_19e2175be9e33c1262dd0eeb90dd23a1.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldTrend",
+    "pattern": "AllianceTask_AutoRally",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldTrend/AllianceTask_AutoRally.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uiworldtrend_686a6bbd4c276aea3fd1fdfe2e678202.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldTrend",
+    "pattern": "AllianceTask_City",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldTrend/AllianceTask_City.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uiworldtrend_686a6bbd4c276aea3fd1fdfe2e678202.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldTrend",
+    "pattern": "AllianceTask_Donation",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldTrend/AllianceTask_Donation.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uiworldtrend_686a6bbd4c276aea3fd1fdfe2e678202.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldTrend",
+    "pattern": "AllianceTask_Gifts",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldTrend/AllianceTask_Gifts.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uiworldtrend_686a6bbd4c276aea3fd1fdfe2e678202.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldTrend",
+    "pattern": "AllianceTask_Help",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldTrend/AllianceTask_Help.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uiworldtrend_686a6bbd4c276aea3fd1fdfe2e678202.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldTrend",
+    "pattern": "AllianceTask_Members",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldTrend/AllianceTask_Members.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uiworldtrend_686a6bbd4c276aea3fd1fdfe2e678202.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldTrend",
+    "pattern": "AllianceTask_Power",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldTrend/AllianceTask_Power.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uiworldtrend_686a6bbd4c276aea3fd1fdfe2e678202.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldTrend",
+    "pattern": "AllianceTask_Radar",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldTrend/AllianceTask_Radar.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uiworldtrend_686a6bbd4c276aea3fd1fdfe2e678202.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldTrend",
+    "pattern": "AllianceTask_Rally",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldTrend/AllianceTask_Rally.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uiworldtrend_686a6bbd4c276aea3fd1fdfe2e678202.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldTrend",
+    "pattern": "AllianceTask_Recruit",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldTrend/AllianceTask_Recruit.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uiworldtrend_686a6bbd4c276aea3fd1fdfe2e678202.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldTrend",
+    "pattern": "AllianceTask_Research",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldTrend/AllianceTask_Research.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uiworldtrend_686a6bbd4c276aea3fd1fdfe2e678202.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldTrend",
+    "pattern": "milepost_bg_board{N}",
+    "ext": ".png",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldTrend/milepost_bg_board1.png",
+      "Assets/Main/Sprites/UI/UIWorldTrend/milepost_bg_board2.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uiworldtrend_686a6bbd4c276aea3fd1fdfe2e678202.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldTrend",
+    "pattern": "milepost_btn_go",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldTrend/milepost_btn_go.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uiworldtrend_686a6bbd4c276aea3fd1fdfe2e678202.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldTrend",
+    "pattern": "pic{N}_{N}_free",
+    "ext": ".png",
+    "count": 6,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldTrend/pic477000_2_free.png",
+      "Assets/Main/Sprites/UI/UIWorldTrend/pic730000_2_free.png",
+      "Assets/Main/Sprites/UI/UIWorldTrend/pic741000_2_free.png",
+      "Assets/Main/Sprites/UI/UIWorldTrend/pic743000_2_free.png",
+      "Assets/Main/Sprites/UI/UIWorldTrend/pic744000_2_free.png",
+      "Assets/Main/Sprites/UI/UIWorldTrend/pic745000_2_free.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uiworldtrend_686a6bbd4c276aea3fd1fdfe2e678202.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldTrend",
+    "pattern": "UIWorldTrend_bg_board",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldTrend/UIWorldTrend_bg_board.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uiworldtrend_686a6bbd4c276aea3fd1fdfe2e678202.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldTrend",
+    "pattern": "UIWorldTrend_bg_board{N}",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldTrend/UIWorldTrend_bg_board1.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uiworldtrend_686a6bbd4c276aea3fd1fdfe2e678202.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldTrend",
+    "pattern": "UIWorldTrend_bg_mengban",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldTrend/UIWorldTrend_bg_mengban.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uiworldtrend_686a6bbd4c276aea3fd1fdfe2e678202.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldTrend",
+    "pattern": "UIWorldTrend_icon_board",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldTrend/UIWorldTrend_icon_board.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uiworldtrend_686a6bbd4c276aea3fd1fdfe2e678202.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldTrend",
+    "pattern": "UIWorldTrend_icon_board{N}",
+    "ext": ".png",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldTrend/UIWorldTrend_icon_board1.png",
+      "Assets/Main/Sprites/UI/UIWorldTrend/UIWorldTrend_icon_board2.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uiworldtrend_686a6bbd4c276aea3fd1fdfe2e678202.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldTrend",
+    "pattern": "UIWorldTrend_icon_receive",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldTrend/UIWorldTrend_icon_receive.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uiworldtrend_686a6bbd4c276aea3fd1fdfe2e678202.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldTrend",
+    "pattern": "UIWorldTrend_icon_scene{N}",
+    "ext": ".png",
+    "count": 7,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldTrend/UIWorldTrend_icon_scene1.png",
+      "Assets/Main/Sprites/UI/UIWorldTrend/UIWorldTrend_icon_scene2.png",
+      "Assets/Main/Sprites/UI/UIWorldTrend/UIWorldTrend_icon_scene3.png",
+      "Assets/Main/Sprites/UI/UIWorldTrend/UIWorldTrend_icon_scene4.png",
+      "Assets/Main/Sprites/UI/UIWorldTrend/UIWorldTrend_icon_scene5.png",
+      "Assets/Main/Sprites/UI/UIWorldTrend/UIWorldTrend_icon_scene6.png",
+      "Assets/Main/Sprites/UI/UIWorldTrend/UIWorldTrend_icon_scene7.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uiworldtrend_686a6bbd4c276aea3fd1fdfe2e678202.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldTrend",
+    "pattern": "UIWorldTrend_icon_title",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldTrend/UIWorldTrend_icon_title.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uiworldtrend_686a6bbd4c276aea3fd1fdfe2e678202.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldTrend",
+    "pattern": "world_icon_board_h",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldTrend/world_icon_board_h.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uiworldtrend_686a6bbd4c276aea3fd1fdfe2e678202.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldTrend",
+    "pattern": "world_img_title{N}",
+    "ext": ".png",
+    "count": 4,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldTrend/world_img_title1.png",
+      "Assets/Main/Sprites/UI/UIWorldTrend/world_img_title2.png",
+      "Assets/Main/Sprites/UI/UIWorldTrend/world_img_title3.png",
+      "Assets/Main/Sprites/UI/UIWorldTrend/world_img_title4.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uiworldtrend_686a6bbd4c276aea3fd1fdfe2e678202.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldTrend",
+    "pattern": "world_img_{N}title{N}",
+    "ext": ".png",
+    "count": 8,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldTrend/world_img_2title1.png",
+      "Assets/Main/Sprites/UI/UIWorldTrend/world_img_2title2.png",
+      "Assets/Main/Sprites/UI/UIWorldTrend/world_img_2title3.png",
+      "Assets/Main/Sprites/UI/UIWorldTrend/world_img_2title4.png",
+      "Assets/Main/Sprites/UI/UIWorldTrend/world_img_3title1.png",
+      "Assets/Main/Sprites/UI/UIWorldTrend/world_img_3title2.png",
+      "Assets/Main/Sprites/UI/UIWorldTrend/world_img_3title3.png",
+      "Assets/Main/Sprites/UI/UIWorldTrend/world_img_3title4.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uiworldtrend_686a6bbd4c276aea3fd1fdfe2e678202.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldTrend",
+    "pattern": "zyf_saijilianmenglichengbei_banner{N}",
+    "ext": ".png",
+    "count": 6,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldTrend/zyf_saijilianmenglichengbei_banner1.png",
+      "Assets/Main/Sprites/UI/UIWorldTrend/zyf_saijilianmenglichengbei_banner2.png",
+      "Assets/Main/Sprites/UI/UIWorldTrend/zyf_saijilianmenglichengbei_banner3.png",
+      "Assets/Main/Sprites/UI/UIWorldTrend/zyf_saijilianmenglichengbei_banner4.png",
+      "Assets/Main/Sprites/UI/UIWorldTrend/zyf_saijilianmenglichengbei_banner5.png",
+      "Assets/Main/Sprites/UI/UIWorldTrend/zyf_saijilianmenglichengbei_banner6.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_uiworldtrend_686a6bbd4c276aea3fd1fdfe2e678202.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldTroop",
+    "pattern": "career_icon{N}",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldTroop/career_icon10402.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_worldtroop_63a7db0089eb3d0ae63ee5175ea18055.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldTroop",
+    "pattern": "Common_img_iconbg",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldTroop/Common_img_iconbg.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_worldtroop_63a7db0089eb3d0ae63ee5175ea18055.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldTroop",
+    "pattern": "con_being",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldTroop/con_being.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_worldtroop_63a7db0089eb3d0ae63ee5175ea18055.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldTroop",
+    "pattern": "diandian",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldTroop/diandian.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_worldtroop_63a7db0089eb3d0ae63ee5175ea18055.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldTroop",
+    "pattern": "Head_bg",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldTroop/Head_bg.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_worldtroop_63a7db0089eb3d0ae63ee5175ea18055.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldTroop",
+    "pattern": "juli_bg",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldTroop/juli_bg.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_worldtroop_63a7db0089eb3d0ae63ee5175ea18055.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldTroop",
+    "pattern": "lyp_buduizhuangtai_diaoxue",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldTroop/lyp_buduizhuangtai_diaoxue.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_worldtroop_63a7db0089eb3d0ae63ee5175ea18055.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldTroop",
+    "pattern": "lyp_buduizhuangtai_xingjun_xianlu",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldTroop/lyp_buduizhuangtai_xingjun_xianlu.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_worldtroop_63a7db0089eb3d0ae63ee5175ea18055.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldTroop",
+    "pattern": "lyp_buduizhuangtai_xingjun_zhongdian_{N}",
+    "ext": ".png",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldTroop/lyp_buduizhuangtai_xingjun_zhongdian_1.png",
+      "Assets/Main/Sprites/UI/UIWorldTroop/lyp_buduizhuangtai_xingjun_zhongdian_2.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_worldtroop_63a7db0089eb3d0ae63ee5175ea18055.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldTroop",
+    "pattern": "lyp_buduizhuangtai_xingjun_{N}",
+    "ext": ".png",
+    "count": 3,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldTroop/lyp_buduizhuangtai_xingjun_01.png",
+      "Assets/Main/Sprites/UI/UIWorldTroop/lyp_buduizhuangtai_xingjun_02.png",
+      "Assets/Main/Sprites/UI/UIWorldTroop/lyp_buduizhuangtai_xingjun_03.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_worldtroop_63a7db0089eb3d0ae63ee5175ea18055.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldTroop",
+    "pattern": "lyp_buduizhuangtai_xingmingdi",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldTroop/lyp_buduizhuangtai_xingmingdi.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_worldtroop_63a7db0089eb3d0ae63ee5175ea18055.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldTroop",
+    "pattern": "lyp_buduizhuangtai_xuanzhong",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldTroop/lyp_buduizhuangtai_xuanzhong.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_worldtroop_63a7db0089eb3d0ae63ee5175ea18055.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldTroop",
+    "pattern": "miaozhun{N}",
+    "ext": ".png",
+    "count": 6,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldTroop/miaozhun01.png",
+      "Assets/Main/Sprites/UI/UIWorldTroop/miaozhun02.png",
+      "Assets/Main/Sprites/UI/UIWorldTroop/miaozhun03.png",
+      "Assets/Main/Sprites/UI/UIWorldTroop/miaozhun04.png",
+      "Assets/Main/Sprites/UI/UIWorldTroop/miaozhun05.png",
+      "Assets/Main/Sprites/UI/UIWorldTroop/miaozhun06.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_worldtroop_63a7db0089eb3d0ae63ee5175ea18055.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldTroop",
+    "pattern": "Placeholder",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldTroop/Placeholder.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_worldtroop_63a7db0089eb3d0ae63ee5175ea18055.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldTroop",
+    "pattern": "time",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldTroop/time.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_worldtroop_63a7db0089eb3d0ae63ee5175ea18055.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldTroop",
+    "pattern": "V_quangreen",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldTroop/V_quangreen.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_worldtroop_63a7db0089eb3d0ae63ee5175ea18055.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldTroop",
+    "pattern": "world_march_bg",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldTroop/world_march_bg.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_worldtroop_63a7db0089eb3d0ae63ee5175ea18055.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldTroop",
+    "pattern": "xingju",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldTroop/xingju.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_worldtroop_63a7db0089eb3d0ae63ee5175ea18055.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldTroop",
+    "pattern": "xingjun",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldTroop/xingjun.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_worldtroop_63a7db0089eb3d0ae63ee5175ea18055.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldTroop",
+    "pattern": "xingjun_manxue{N}",
+    "ext": ".png",
+    "count": 3,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldTroop/xingjun_manxue1.png",
+      "Assets/Main/Sprites/UI/UIWorldTroop/xingjun_manxue2.png",
+      "Assets/Main/Sprites/UI/UIWorldTroop/xingjun_manxue3.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_worldtroop_63a7db0089eb3d0ae63ee5175ea18055.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldTroop",
+    "pattern": "xingjun{N}",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldTroop/xingjun1.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_worldtroop_63a7db0089eb3d0ae63ee5175ea18055.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldTroop",
+    "pattern": "xingju{N}",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldTroop/xingju1.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_worldtroop_63a7db0089eb3d0ae63ee5175ea18055.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIWorldTroop",
+    "pattern": "zhuangtai{N}",
+    "ext": ".png",
+    "count": 4,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIWorldTroop/zhuangtai1.png",
+      "Assets/Main/Sprites/UI/UIWorldTroop/zhuangtai2.png",
+      "Assets/Main/Sprites/UI/UIWorldTroop/zhuangtai3.png",
+      "Assets/Main/Sprites/UI/UIWorldTroop/zhuangtai4.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__ui_worldtroop_63a7db0089eb3d0ae63ee5175ea18055.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIZombieBattleMain",
+    "pattern": "cfm_guanqia_tubiao_gongren",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIZombieBattleMain/cfm_guanqia_tubiao_gongren.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uizombiebattlemain_3e52474696d885353a3553f27e00e652.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-reverse-deps-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIZombieBattleMain",
+    "pattern": "cfm_guanqia_tubiao_yingxiong",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIZombieBattleMain/cfm_guanqia_tubiao_yingxiong.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uizombiebattlemain_3e52474696d885353a3553f27e00e652.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-reverse-deps-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIZombieBattleMain",
+    "pattern": "FX_guanqia_jinyong_icon",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIZombieBattleMain/FX_guanqia_jinyong_icon.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uizombiebattlemain_3e52474696d885353a3553f27e00e652.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-reverse-deps-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIZombieBattleMain",
+    "pattern": "FX_guanqia_xuetiao_cheng",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIZombieBattleMain/FX_guanqia_xuetiao_cheng.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uizombiebattlemain_3e52474696d885353a3553f27e00e652.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-reverse-deps-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIZombieBattleMain",
+    "pattern": "FX_guanqia_xuetiao_hui",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIZombieBattleMain/FX_guanqia_xuetiao_hui.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uizombiebattlemain_3e52474696d885353a3553f27e00e652.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-reverse-deps-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIZombieBattleMain",
+    "pattern": "FX_guanqia_xuetiao_lv",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIZombieBattleMain/FX_guanqia_xuetiao_lv.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uizombiebattlemain_3e52474696d885353a3553f27e00e652.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-reverse-deps-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIZombieBattleMain",
+    "pattern": "guanqia_cfm_Boss_xuetiao_{N}",
+    "ext": ".png",
+    "count": 3,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIZombieBattleMain/guanqia_cfm_Boss_xuetiao_1.png",
+      "Assets/Main/Sprites/UI/UIZombieBattleMain/guanqia_cfm_Boss_xuetiao_2.png",
+      "Assets/Main/Sprites/UI/UIZombieBattleMain/guanqia_cfm_Boss_xuetiao_3.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uizombiebattlemain_3e52474696d885353a3553f27e00e652.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-reverse-deps-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIZombieBattleMain",
+    "pattern": "guanqia_cfm_jindu_{N}",
+    "ext": ".png",
+    "count": 3,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIZombieBattleMain/guanqia_cfm_jindu_1.png",
+      "Assets/Main/Sprites/UI/UIZombieBattleMain/guanqia_cfm_jindu_2.png",
+      "Assets/Main/Sprites/UI/UIZombieBattleMain/guanqia_cfm_jindu_3.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uizombiebattlemain_3e52474696d885353a3553f27e00e652.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-reverse-deps-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIZombieBattleMain",
+    "pattern": "guanqia_cfm_miaozhun",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIZombieBattleMain/guanqia_cfm_miaozhun.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uizombiebattlemain_3e52474696d885353a3553f27e00e652.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-reverse-deps-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIZombieBattleMain",
+    "pattern": "guanqia_cfm_tubiao_baoji_{N}",
+    "ext": ".png",
+    "count": 4,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIZombieBattleMain/guanqia_cfm_tubiao_baoji_1.png",
+      "Assets/Main/Sprites/UI/UIZombieBattleMain/guanqia_cfm_tubiao_baoji_2.png",
+      "Assets/Main/Sprites/UI/UIZombieBattleMain/guanqia_cfm_tubiao_baoji_3.png",
+      "Assets/Main/Sprites/UI/UIZombieBattleMain/guanqia_cfm_tubiao_baoji_4.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uizombiebattlemain_3e52474696d885353a3553f27e00e652.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-reverse-deps-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIZombieBattleMain",
+    "pattern": "guanqia_cfm_tubiao_baoxiang",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIZombieBattleMain/guanqia_cfm_tubiao_baoxiang.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uizombiebattlemain_3e52474696d885353a3553f27e00e652.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-reverse-deps-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIZombieBattleMain",
+    "pattern": "guanqia_cfm_tubiao_jindutiao_{N}",
+    "ext": ".png",
+    "count": 3,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIZombieBattleMain/guanqia_cfm_tubiao_jindutiao_1.png",
+      "Assets/Main/Sprites/UI/UIZombieBattleMain/guanqia_cfm_tubiao_jindutiao_2.png",
+      "Assets/Main/Sprites/UI/UIZombieBattleMain/guanqia_cfm_tubiao_jindutiao_3.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uizombiebattlemain_3e52474696d885353a3553f27e00e652.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-reverse-deps-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIZombieBattleMain",
+    "pattern": "guanqia_cfm_tubiao_{N}",
+    "ext": ".png",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIZombieBattleMain/guanqia_cfm_tubiao_2.png",
+      "Assets/Main/Sprites/UI/UIZombieBattleMain/guanqia_cfm_tubiao_5.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uizombiebattlemain_3e52474696d885353a3553f27e00e652.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-reverse-deps-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIZombieBattleMain",
+    "pattern": "guanqia_cfm_xiaoditu",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIZombieBattleMain/guanqia_cfm_xiaoditu.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uizombiebattlemain_3e52474696d885353a3553f27e00e652.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-reverse-deps-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIZombieBattleMain",
+    "pattern": "guanqia_cfm_zhizhen_{N}",
+    "ext": ".png",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIZombieBattleMain/guanqia_cfm_zhizhen_1.png",
+      "Assets/Main/Sprites/UI/UIZombieBattleMain/guanqia_cfm_zhizhen_2.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uizombiebattlemain_3e52474696d885353a3553f27e00e652.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-reverse-deps-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIZombieBattleMain",
+    "pattern": "icon_mainUImap",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIZombieBattleMain/icon_mainUImap.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uizombiebattlemain_3e52474696d885353a3553f27e00e652.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-reverse-deps-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIZombieBattleMain",
+    "pattern": "icon_troops",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIZombieBattleMain/icon_troops.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uizombiebattlemain_3e52474696d885353a3553f27e00e652.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-reverse-deps-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIZombieBattleMain",
+    "pattern": "lyp_beizengmen_jindushan",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIZombieBattleMain/lyp_beizengmen_jindushan.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uizombiebattlemain_3e52474696d885353a3553f27e00e652.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-reverse-deps-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIZombieBattleMain",
+    "pattern": "lyp_beizengmen_tongguantishi_jiantou",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIZombieBattleMain/lyp_beizengmen_tongguantishi_jiantou.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uizombiebattlemain_3e52474696d885353a3553f27e00e652.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-reverse-deps-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIZombieBattleMain",
+    "pattern": "lyp_beizengmen_yaogan_{N}",
+    "ext": ".png",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIZombieBattleMain/lyp_beizengmen_yaogan_1.png",
+      "Assets/Main/Sprites/UI/UIZombieBattleMain/lyp_beizengmen_yaogan_2.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uizombiebattlemain_3e52474696d885353a3553f27e00e652.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-reverse-deps-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIZombieBattleMain",
+    "pattern": "lyp_guanka_fanhui",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIZombieBattleMain/lyp_guanka_fanhui.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uizombiebattlemain_3e52474696d885353a3553f27e00e652.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-reverse-deps-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIZombieBattleMain",
+    "pattern": "lyp_guanka_jinnengguang",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIZombieBattleMain/lyp_guanka_jinnengguang.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uizombiebattlemain_3e52474696d885353a3553f27e00e652.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-reverse-deps-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIZombieBattleMain",
+    "pattern": "lyp_guanka_linshianniu",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIZombieBattleMain/lyp_guanka_linshianniu.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uizombiebattlemain_3e52474696d885353a3553f27e00e652.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-reverse-deps-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIZombieBattleMain",
+    "pattern": "lyp_guanka_xuanzhong",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIZombieBattleMain/lyp_guanka_xuanzhong.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uizombiebattlemain_3e52474696d885353a3553f27e00e652.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-reverse-deps-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIZombieBattleMain",
+    "pattern": "lyt_guanqia_tubiao_pingzi",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIZombieBattleMain/lyt_guanqia_tubiao_pingzi.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uizombiebattlemain_3e52474696d885353a3553f27e00e652.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-reverse-deps-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIZombieBattleMain",
+    "pattern": "lyt_xinshou_xuetiao",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIZombieBattleMain/lyt_xinshou_xuetiao.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uizombiebattlemain_3e52474696d885353a3553f27e00e652.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-reverse-deps-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIZombieBattleMain",
+    "pattern": "lyt_xinshou_xuetiao_bg",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIZombieBattleMain/lyt_xinshou_xuetiao_bg.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uizombiebattlemain_3e52474696d885353a3553f27e00e652.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-reverse-deps-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIZombieBattleMain",
+    "pattern": "lyt_xinshou_xuetiaohuang",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIZombieBattleMain/lyt_xinshou_xuetiaohuang.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uizombiebattlemain_3e52474696d885353a3553f27e00e652.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-reverse-deps-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIZombieBattleMain",
+    "pattern": "szj_zhandou_zhedang",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIZombieBattleMain/szj_zhandou_zhedang.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uizombiebattlemain_3e52474696d885353a3553f27e00e652.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-reverse-deps-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIZombieBattleMain",
+    "pattern": "wxy_denglu_id_icon",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIZombieBattleMain/wxy_denglu_id_icon.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uizombiebattlemain_3e52474696d885353a3553f27e00e652.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-reverse-deps-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIZombieBattleMain",
+    "pattern": "zxl_boss_touxiang",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIZombieBattleMain/zxl_boss_touxiang.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uizombiebattlemain_3e52474696d885353a3553f27e00e652.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-reverse-deps-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIZombieBattleMain",
+    "pattern": "zyf_guanqia_bantou_di",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIZombieBattleMain/zyf_guanqia_bantou_di.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uizombiebattlemain_3e52474696d885353a3553f27e00e652.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-reverse-deps-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIZombieBattleMain",
+    "pattern": "zyf_guanqia_bantou_di{N}",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIZombieBattleMain/zyf_guanqia_bantou_di2.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uizombiebattlemain_3e52474696d885353a3553f27e00e652.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-reverse-deps-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIZombieBattleMain",
+    "pattern": "zyf_guanqia_boss_icon",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIZombieBattleMain/zyf_guanqia_boss_icon.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uizombiebattlemain_3e52474696d885353a3553f27e00e652.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-reverse-deps-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIZombieBattleMain",
+    "pattern": "zyf_guanqia_boss{N}_icon",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIZombieBattleMain/zyf_guanqia_boss2_icon.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uizombiebattlemain_3e52474696d885353a3553f27e00e652.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-reverse-deps-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIZombieBattleMain",
+    "pattern": "zyf_guanqia_chengse_di",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIZombieBattleMain/zyf_guanqia_chengse_di.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uizombiebattlemain_3e52474696d885353a3553f27e00e652.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-reverse-deps-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIZombieBattleMain",
+    "pattern": "zyf_guanqia_gaizhang_icon",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIZombieBattleMain/zyf_guanqia_gaizhang_icon.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uizombiebattlemain_3e52474696d885353a3553f27e00e652.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-reverse-deps-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIZombieBattleMain",
+    "pattern": "zyf_guanqia_guai_icon",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIZombieBattleMain/zyf_guanqia_guai_icon.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uizombiebattlemain_3e52474696d885353a3553f27e00e652.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-reverse-deps-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIZombieBattleMain",
+    "pattern": "zyf_guanqia_hongse_di",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIZombieBattleMain/zyf_guanqia_hongse_di.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uizombiebattlemain_3e52474696d885353a3553f27e00e652.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-reverse-deps-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIZombieBattleMain",
+    "pattern": "zyf_guanqia_lanse_di",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIZombieBattleMain/zyf_guanqia_lanse_di.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uizombiebattlemain_3e52474696d885353a3553f27e00e652.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-reverse-deps-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Sprites/UI/UIZombieBattleMain",
+    "pattern": "zyf_guanqia_lihe_icon",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Sprites/UI/UIZombieBattleMain/zyf_guanqia_lihe_icon.png"
+    ],
+    "logicalNames": [
+      "gameres_main_file_atlas__uizombiebattlemain_3e52474696d885353a3553f27e00e652.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-reverse-deps-v1.json"
+    ]
+  }
+]

@@ -1,0 +1,4633 @@
+[
+  {
+    "parent": "Assets/Main/Animation/Building/FoodFactory",
+    "pattern": "idle_effect",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Building/FoodFactory/idle_effect.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_building_foodfactory_6715f026e8d3b43518b13ae9398ffd82.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Building/FoodFactory",
+    "pattern": "working_effect",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Building/FoodFactory/working_effect.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_building_foodfactory_6715f026e8d3b43518b13ae9398ffd82.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Building/MuChang",
+    "pattern": "HuoXingMuChang",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Building/MuChang/HuoXingMuChang.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_building_muchang_64f619e637f8f517dcf862cdeaf412e0.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Building/NongTian",
+    "pattern": "NongTian",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Building/NongTian/NongTian.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_building_nongtian_c096aeaba75edc9f34bc7603718a5cbe.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Building/PrologueBuild",
+    "pattern": "FinalNpcIdle",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Building/PrologueBuild/FinalNpcIdle.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_building_prologuebuild_1fd0c241b034c81a8c6df979514ff807.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Building/PrologueBuild",
+    "pattern": "FinalNpcWalk",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Building/PrologueBuild/FinalNpcWalk.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_building_prologuebuild_1fd0c241b034c81a8c6df979514ff807.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Building/PrologueBuild",
+    "pattern": "Get",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Building/PrologueBuild/Get.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_building_prologuebuild_1fd0c241b034c81a8c6df979514ff807.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Building/PrologueBuild",
+    "pattern": "Normal",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Building/PrologueBuild/Normal.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_building_prologuebuild_1fd0c241b034c81a8c6df979514ff807.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Building/PrologueBuild",
+    "pattern": "Plant",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Building/PrologueBuild/Plant.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_building_prologuebuild_1fd0c241b034c81a8c6df979514ff807.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Building/PrologueBuild",
+    "pattern": "Ruins",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Building/PrologueBuild/Ruins.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_building_prologuebuild_1fd0c241b034c81a8c6df979514ff807.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Building/UIBuildList",
+    "pattern": "CellChange",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Building/UIBuildList/CellChange.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_building_uibuildlist_e44b0684e6600d6b226d2743d0db1f99.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Building/UIBuildList",
+    "pattern": "CellChange",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Building/UIBuildList/CellChange.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_building_uibuildlist_e44b0684e6600d6b226d2743d0db1f99.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Building/UIBuildList",
+    "pattern": "CellChangeDefault",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Building/UIBuildList/CellChangeDefault.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_building_uibuildlist_e44b0684e6600d6b226d2743d0db1f99.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Building/UIBuildList",
+    "pattern": "CellChangeForFactory",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Building/UIBuildList/CellChangeForFactory.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_building_uibuildlist_e44b0684e6600d6b226d2743d0db1f99.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Building/UIBuildList",
+    "pattern": "CellChangeNew_Build",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Building/UIBuildList/CellChangeNew_Build.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_building_uibuildlist_e44b0684e6600d6b226d2743d0db1f99.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Building/UIBuildList",
+    "pattern": "CellChangeNew_Decorate",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Building/UIBuildList/CellChangeNew_Decorate.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_building_uibuildlist_e44b0684e6600d6b226d2743d0db1f99.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Building/UIBuildList",
+    "pattern": "CellChangeNormal",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Building/UIBuildList/CellChangeNormal.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_building_uibuildlist_e44b0684e6600d6b226d2743d0db1f99.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Building/UIBuildList",
+    "pattern": "CellChangeShake",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Building/UIBuildList/CellChangeShake.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_building_uibuildlist_e44b0684e6600d6b226d2743d0db1f99.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Building/UIBuildList",
+    "pattern": "ControlCellTime",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Building/UIBuildList/ControlCellTime.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_building_uibuildlist_e44b0684e6600d6b226d2743d0db1f99.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Building/UIBuildList",
+    "pattern": "UIBuildList_LW",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Building/UIBuildList/UIBuildList_LW.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_building_uibuildlist_e44b0684e6600d6b226d2743d0db1f99.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Building/UIBuildList",
+    "pattern": "UIBuildList_LW_movein",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Building/UIBuildList/UIBuildList_LW_movein.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_building_uibuildlist_e44b0684e6600d6b226d2743d0db1f99.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Building/UIBuildList",
+    "pattern": "UIBuildList_LW_moveout",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Building/UIBuildList/UIBuildList_LW_moveout.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_building_uibuildlist_e44b0684e6600d6b226d2743d0db1f99.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Building/UIBuildList",
+    "pattern": "UIBuildListCellBtn",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Building/UIBuildList/UIBuildListCellBtn.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_building_uibuildlist_e44b0684e6600d6b226d2743d0db1f99.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Building/UIPlaceBuild",
+    "pattern": "UIPlaceBuild",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Building/UIPlaceBuild/UIPlaceBuild.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_building_uiplacebuild_d7a4a123aa68085f1d1429bdeaf76e20.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Building/UIPlaceBuild",
+    "pattern": "UIPlaceBuild_movein",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Building/UIPlaceBuild/UIPlaceBuild_movein.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_building_uiplacebuild_d7a4a123aa68085f1d1429bdeaf76e20.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Building/UIPlaceBuild",
+    "pattern": "UIPlaceBuild_moveout",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Building/UIPlaceBuild/UIPlaceBuild_moveout.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_building_uiplacebuild_d7a4a123aa68085f1d1429bdeaf76e20.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Building/ZeroUpgradeTimeline",
+    "pattern": "GuideMarkerEnd",
+    "ext": ".signal",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Building/ZeroUpgradeTimeline/GuideMarkerEnd.signal"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_building_zeroupgradetimeline_d40aa71bdd1f7f89e7d6e06f705102c2.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Building/ZeroUpgradeTimeline",
+    "pattern": "GuideMarker{N}",
+    "ext": ".signal",
+    "count": 4,
+    "examples": [
+      "Assets/Main/Animation/Building/ZeroUpgradeTimeline/GuideMarker2.signal",
+      "Assets/Main/Animation/Building/ZeroUpgradeTimeline/GuideMarker3.signal",
+      "Assets/Main/Animation/Building/ZeroUpgradeTimeline/GuideMarker4.signal",
+      "Assets/Main/Animation/Building/ZeroUpgradeTimeline/GuideMarker5.signal"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_building_zeroupgradetimeline_d40aa71bdd1f7f89e7d6e06f705102c2.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/CityZone",
+    "pattern": "Anim_Wall_build",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/CityZone/Anim_Wall_build.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_cityzone_e8be5cc03051098429d5357cde74b421.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/DiggingGame",
+    "pattern": "DiggingGameMain_S{N}",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/DiggingGame/DiggingGameMain_S4.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_digginggame_8_c9c2e32c12b754148bbdac82008eca7d.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/DiggingGame",
+    "pattern": "OffSeasonDiggingLevelAlliance",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/DiggingGame/OffSeasonDiggingLevelAlliance.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_digginggame_9_9534ab38c31512070e15eccd875352f9.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/DiggingGame",
+    "pattern": "V_ui_DiggingGameMain_in_S{N}",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/DiggingGame/V_ui_DiggingGameMain_in_S4.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_digginggame_9_9534ab38c31512070e15eccd875352f9.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/DiggingGame",
+    "pattern": "V_ui_DiggingGameMain_out",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/DiggingGame/V_ui_DiggingGameMain_out.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_digginggame_9_9534ab38c31512070e15eccd875352f9.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/DiggingGame",
+    "pattern": "V_ui_DiggingGameMain_switch",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/DiggingGame/V_ui_DiggingGameMain_switch.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_digginggame_2_1c1933b4b7c6dd5ff9a8862568c947b9.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/DiggingGame",
+    "pattern": "V_ui_OffSeasonDiggingLevelAlliance_chat_in",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/DiggingGame/V_ui_OffSeasonDiggingLevelAlliance_chat_in.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_digginggame_4_6d7064a260c801099d5960cc12511cdc.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/DiggingGame",
+    "pattern": "V_ui_OffSeasonDiggingLevelAlliance_in",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/DiggingGame/V_ui_OffSeasonDiggingLevelAlliance_in.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_digginggame_8_c9c2e32c12b754148bbdac82008eca7d.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/DiggingGame",
+    "pattern": "V_ui_OffSeasonDiggingLevelAlliance_out",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/DiggingGame/V_ui_OffSeasonDiggingLevelAlliance_out.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_digginggame_6_b3fcbf10cd7cdc1ff7829ea28386412c.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/FirstJoinAlliance",
+    "pattern": "bubble",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/FirstJoinAlliance/bubble.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_firstjoinalliance_5_fbb602a6d2f3432a34018b54e87ade11.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/FirstJoinAlliance",
+    "pattern": "HighFiveBtn",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/FirstJoinAlliance/HighFiveBtn.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_firstjoinalliance_0_07e1b7e995bb6c908f571c71bac4845c.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/FirstJoinAlliance",
+    "pattern": "Num",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/FirstJoinAlliance/Num.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_firstjoinalliance_0_07e1b7e995bb6c908f571c71bac4845c.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/FirstJoinAlliance",
+    "pattern": "V_ui_WorldHighFiveBubble_HighFives",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/FirstJoinAlliance/V_ui_WorldHighFiveBubble_HighFives.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_firstjoinalliance_5_fbb602a6d2f3432a34018b54e87ade11.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/FirstJoinAlliance",
+    "pattern": "V_ui_WorldHighFiveBubble_HighFivesAgain",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/FirstJoinAlliance/V_ui_WorldHighFiveBubble_HighFivesAgain.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_firstjoinalliance_6_0a3d82e447612abc53317c35fde85efb.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/FirstJoinAlliance",
+    "pattern": "V_ui_WorldHighFiveBubble_HighFives{N}",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/FirstJoinAlliance/V_ui_WorldHighFiveBubble_HighFives01.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_firstjoinalliance_8_c3f5f3a1909b5126678cd62dfb22b372.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/FirstJoinAlliance",
+    "pattern": "V_ui_WorldHighFiveBubble_idle",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/FirstJoinAlliance/V_ui_WorldHighFiveBubble_idle.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_firstjoinalliance_6_0a3d82e447612abc53317c35fde85efb.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/FirstJoinAlliance",
+    "pattern": "V_ui_WorldHighFiveBubble_idle{N}",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/FirstJoinAlliance/V_ui_WorldHighFiveBubble_idle01.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_firstjoinalliance_2_f5803b14dba179e81a9a6a8c49f8c44f.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/FirstJoinAlliance",
+    "pattern": "V_ui_WorldHighFiveBubble_in",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/FirstJoinAlliance/V_ui_WorldHighFiveBubble_in.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_firstjoinalliance_0_07e1b7e995bb6c908f571c71bac4845c.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/FirstJoinAlliance",
+    "pattern": "V_ui_WorldHighFiveBubble_in{N}",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/FirstJoinAlliance/V_ui_WorldHighFiveBubble_in01.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_firstjoinalliance_1_c4b61184d750aafc6e2956978b22f9d8.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/FirstJoinAlliance",
+    "pattern": "V_ui_WorldHighFiveBubble_Num_in",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/FirstJoinAlliance/V_ui_WorldHighFiveBubble_Num_in.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_firstjoinalliance_6_0a3d82e447612abc53317c35fde85efb.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/FirstJoinAlliance",
+    "pattern": "V_ui_WorldHighFiveBubble_Num_up",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/FirstJoinAlliance/V_ui_WorldHighFiveBubble_Num_up.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_firstjoinalliance_0_07e1b7e995bb6c908f571c71bac4845c.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/FirstJoinAlliance",
+    "pattern": "V_ui_WorldHighFiveBubble_out",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/FirstJoinAlliance/V_ui_WorldHighFiveBubble_out.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_firstjoinalliance_0_07e1b7e995bb6c908f571c71bac4845c.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/FirstJoinAlliance",
+    "pattern": "V_ui_WorldHighFiveBubble_shake",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/FirstJoinAlliance/V_ui_WorldHighFiveBubble_shake.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_firstjoinalliance_2_f5803b14dba179e81a9a6a8c49f8c44f.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/FirstJoinAlliance",
+    "pattern": "V_ui_WorldHighFiveBubble_shake{N}",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/FirstJoinAlliance/V_ui_WorldHighFiveBubble_shake01.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_firstjoinalliance_7_343a2b82e22a6f4013980df410d54e0b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Fog",
+    "pattern": "CanLockToUnlock",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Fog/CanLockToUnlock.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_fog_2ab5271a7e78c014eab4d9cd348bcec8.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Fog",
+    "pattern": "CanUnlockIdle",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Fog/CanUnlockIdle.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_fog_2ab5271a7e78c014eab4d9cd348bcec8.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Fog",
+    "pattern": "FogCanUnlockCell",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Fog/FogCanUnlockCell.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_fog_2ab5271a7e78c014eab4d9cd348bcec8.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Fog",
+    "pattern": "LockIdle",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Fog/LockIdle.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_fog_2ab5271a7e78c014eab4d9cd348bcec8.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Fog",
+    "pattern": "LockToCanUnlock",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Fog/LockToCanUnlock.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_fog_2ab5271a7e78c014eab4d9cd348bcec8.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/GhostreconGrid",
+    "pattern": "GhostreconBubbleCtrl",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/GhostreconGrid/GhostreconBubbleCtrl.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_ghostrecongrid_21b96e029abfe7590a4a003ea2271067.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/GhostreconGrid",
+    "pattern": "GhostreconNormalBubble",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/GhostreconGrid/GhostreconNormalBubble.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_ghostrecongrid_21b96e029abfe7590a4a003ea2271067.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/GhostreconGrid",
+    "pattern": "GhostreconRuningBubble",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/GhostreconGrid/GhostreconRuningBubble.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_ghostrecongrid_21b96e029abfe7590a4a003ea2271067.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/GhostreconGrid",
+    "pattern": "GhostreconSpawnBubble",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/GhostreconGrid/GhostreconSpawnBubble.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_ghostrecongrid_21b96e029abfe7590a4a003ea2271067.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Gorge",
+    "pattern": "Gorge",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Gorge/Gorge.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_gorge_aa6ae7d582cd83b3ae4001f1d5e751a9.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Gorge",
+    "pattern": "Gorge",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Gorge/Gorge.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_gorge_aa6ae7d582cd83b3ae4001f1d5e751a9.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Grid",
+    "pattern": "RoadGrid",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Grid/RoadGrid.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_grid_1e247492685bf1dcbe1db8ef29117ecc.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Grid",
+    "pattern": "RoadGridEnter",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Grid/RoadGridEnter.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_grid_1e247492685bf1dcbe1db8ef29117ecc.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Guide",
+    "pattern": "UIGuideArrowFinger",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Guide/UIGuideArrowFinger.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_guide_d0e8ad32d867fdb0b6c9d97d9c0b8f67.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Guide",
+    "pattern": "UIGuideArrowFinger",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Guide/UIGuideArrowFinger.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_guide_d0e8ad32d867fdb0b6c9d97d9c0b8f67.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Guide",
+    "pattern": "UIGuideGrow",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Guide/UIGuideGrow.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_guide_d0e8ad32d867fdb0b6c9d97d9c0b8f67.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Guide",
+    "pattern": "UIGuideTalk",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Guide/UIGuideTalk.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_guide_d0e8ad32d867fdb0b6c9d97d9c0b8f67.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Guide",
+    "pattern": "UIGuideTalkModelHideLeft",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Guide/UIGuideTalkModelHideLeft.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_guide_d0e8ad32d867fdb0b6c9d97d9c0b8f67.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Guide",
+    "pattern": "UIGuideTalkModelHideRight",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Guide/UIGuideTalkModelHideRight.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_guide_d0e8ad32d867fdb0b6c9d97d9c0b8f67.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Guide",
+    "pattern": "UIGuideTalkModelLeft",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Guide/UIGuideTalkModelLeft.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_guide_d0e8ad32d867fdb0b6c9d97d9c0b8f67.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Guide",
+    "pattern": "UIGuideTalkModelRight",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Guide/UIGuideTalkModelRight.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_guide_d0e8ad32d867fdb0b6c9d97d9c0b8f67.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Guide",
+    "pattern": "UIGuideTip",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Guide/UIGuideTip.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_guide_d0e8ad32d867fdb0b6c9d97d9c0b8f67.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Guide",
+    "pattern": "UIGuideTipHide{N}",
+    "ext": ".anim",
+    "count": 4,
+    "examples": [
+      "Assets/Main/Animation/Guide/UIGuideTipHide1.anim",
+      "Assets/Main/Animation/Guide/UIGuideTipHide2.anim",
+      "Assets/Main/Animation/Guide/UIGuideTipHide3.anim",
+      "Assets/Main/Animation/Guide/UIGuideTipHide4.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_guide_d0e8ad32d867fdb0b6c9d97d9c0b8f67.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Guide",
+    "pattern": "UIGuideTipShow{N}",
+    "ext": ".anim",
+    "count": 4,
+    "examples": [
+      "Assets/Main/Animation/Guide/UIGuideTipShow1.anim",
+      "Assets/Main/Animation/Guide/UIGuideTipShow2.anim",
+      "Assets/Main/Animation/Guide/UIGuideTipShow3.anim",
+      "Assets/Main/Animation/Guide/UIGuideTipShow4.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_guide_d0e8ad32d867fdb0b6c9d97d9c0b8f67.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Guide",
+    "pattern": "UIRecommendDefault",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Guide/UIRecommendDefault.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_guide_d0e8ad32d867fdb0b6c9d97d9c0b8f67.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Guide",
+    "pattern": "UIRecommendLight",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Guide/UIRecommendLight.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_guide_d0e8ad32d867fdb0b6c9d97d9c0b8f67.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Guide",
+    "pattern": "UIRecommendLightDefault",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Guide/UIRecommendLightDefault.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_guide_d0e8ad32d867fdb0b6c9d97d9c0b8f67.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Guide",
+    "pattern": "UIRecommendLightShow",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Guide/UIRecommendLightShow.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_guide_d0e8ad32d867fdb0b6c9d97d9c0b8f67.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Guide",
+    "pattern": "UIRecommendShow",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Guide/UIRecommendShow.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_guide_d0e8ad32d867fdb0b6c9d97d9c0b8f67.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Guide",
+    "pattern": "UIRecommendShow",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Guide/UIRecommendShow.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_guide_d0e8ad32d867fdb0b6c9d97d9c0b8f67.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Guide",
+    "pattern": "UIShowBlackCell",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Guide/UIShowBlackCell.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_guide_d0e8ad32d867fdb0b6c9d97d9c0b8f67.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Guide",
+    "pattern": "UIShowBlackCellDefault",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Guide/UIShowBlackCellDefault.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_guide_d0e8ad32d867fdb0b6c9d97d9c0b8f67.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Guide",
+    "pattern": "UIShowBlackCellShow",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Guide/UIShowBlackCellShow.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_guide_d0e8ad32d867fdb0b6c9d97d9c0b8f67.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Line",
+    "pattern": "Line",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Line/Line.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_line_ca575b4ea8524006e7abd9bb65833ad3.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Line",
+    "pattern": "LineHide",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Line/LineHide.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_line_ca575b4ea8524006e7abd9bb65833ad3.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Line",
+    "pattern": "LineHideQuick",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Line/LineHideQuick.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_line_ca575b4ea8524006e7abd9bb65833ad3.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Line",
+    "pattern": "LineShow",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Line/LineShow.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_line_ca575b4ea8524006e7abd9bb65833ad3.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/LoadEditorBuild",
+    "pattern": "LoadEditorBuild",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/LoadEditorBuild/LoadEditorBuild.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_loadeditorbuild_53c8d264dd0f54a8325413d3e0e480ec.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/LoadEditorBuild",
+    "pattern": "rotation",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/LoadEditorBuild/rotation.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_loadeditorbuild_53c8d264dd0f54a8325413d3e0e480ec.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/MainUI",
+    "pattern": "fivestar",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/MainUI/fivestar.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_mainui_6731f2a81dfbcbc3df459a87fe590321.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/MainUI",
+    "pattern": "fivestar",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/MainUI/fivestar.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_mainui_6731f2a81dfbcbc3df459a87fe590321.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/MainUI",
+    "pattern": "JingDengEmeny",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/MainUI/JingDengEmeny.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_mainui_6731f2a81dfbcbc3df459a87fe590321.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/MainUI",
+    "pattern": "JingDengEmeny",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/MainUI/JingDengEmeny.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_mainui_6731f2a81dfbcbc3df459a87fe590321.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/MainUI",
+    "pattern": "map",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/MainUI/map.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_mainui_6731f2a81dfbcbc3df459a87fe590321.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/MainUI",
+    "pattern": "PowerUp",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/MainUI/PowerUp.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_mainui_6731f2a81dfbcbc3df459a87fe590321.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/MainUI",
+    "pattern": "PowerUp",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/MainUI/PowerUp.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_mainui_6731f2a81dfbcbc3df459a87fe590321.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/MainUI",
+    "pattern": "raider",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/MainUI/raider.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_mainui_6731f2a81dfbcbc3df459a87fe590321.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/MainUI",
+    "pattern": "redpot",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/MainUI/redpot.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_mainui_6731f2a81dfbcbc3df459a87fe590321.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/MainUI",
+    "pattern": "redpot",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/MainUI/redpot.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_mainui_6731f2a81dfbcbc3df459a87fe590321.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/MainUI",
+    "pattern": "ResLockAnim",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/MainUI/ResLockAnim.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_mainui_6731f2a81dfbcbc3df459a87fe590321.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/MainUI",
+    "pattern": "ResLockAnim",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/MainUI/ResLockAnim.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_mainui_6731f2a81dfbcbc3df459a87fe590321.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/MainUI",
+    "pattern": "resourceIcon",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/MainUI/resourceIcon.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_mainui_6731f2a81dfbcbc3df459a87fe590321.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/MainUI",
+    "pattern": "resourceMax",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/MainUI/resourceMax.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_mainui_6731f2a81dfbcbc3df459a87fe590321.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/MainUI",
+    "pattern": "Task",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/MainUI/Task.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_mainui_6731f2a81dfbcbc3df459a87fe590321.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/MainUI",
+    "pattern": "Task",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/MainUI/Task.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_mainui_6731f2a81dfbcbc3df459a87fe590321.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/MainUI",
+    "pattern": "taskfinish",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/MainUI/taskfinish.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_mainui_6731f2a81dfbcbc3df459a87fe590321.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/MainUI",
+    "pattern": "taskfinish",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/MainUI/taskfinish.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_mainui_6731f2a81dfbcbc3df459a87fe590321.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/MainUI",
+    "pattern": "Taskguang",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/MainUI/Taskguang.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_mainui_6731f2a81dfbcbc3df459a87fe590321.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/MainUI",
+    "pattern": "Taskguang",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/MainUI/Taskguang.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_mainui_6731f2a81dfbcbc3df459a87fe590321.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/MainUI",
+    "pattern": "TaskguangNew",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/MainUI/TaskguangNew.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_mainui_6731f2a81dfbcbc3df459a87fe590321.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/MainUI",
+    "pattern": "UIMain_resource_shake",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/MainUI/UIMain_resource_shake.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_mainui_6731f2a81dfbcbc3df459a87fe590321.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/MainUI",
+    "pattern": "UIMainBallNew",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/MainUI/UIMainBallNew.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_mainui_6731f2a81dfbcbc3df459a87fe590321.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/MainUI",
+    "pattern": "UIMainBallNew_BallHideArm{N}",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/MainUI/UIMainBallNew_BallHideArm1.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_mainui_6731f2a81dfbcbc3df459a87fe590321.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/MainUI",
+    "pattern": "UIMainBallNew_BallHide{N}",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/MainUI/UIMainBallNew_BallHide1.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_mainui_6731f2a81dfbcbc3df459a87fe590321.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/MainUI",
+    "pattern": "UIMainBallNew_BallNewDefault",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/MainUI/UIMainBallNew_BallNewDefault.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_mainui_6731f2a81dfbcbc3df459a87fe590321.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/MainUI",
+    "pattern": "UIMainBallNew_BallNewShow",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/MainUI/UIMainBallNew_BallNewShow.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_mainui_6731f2a81dfbcbc3df459a87fe590321.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/MainUI",
+    "pattern": "UIMainBallNew_BallShowArm{N}",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/MainUI/UIMainBallNew_BallShowArm1.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_mainui_6731f2a81dfbcbc3df459a87fe590321.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/MainUI",
+    "pattern": "UIMainBallNew_fangda",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/MainUI/UIMainBallNew_fangda.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_mainui_6731f2a81dfbcbc3df459a87fe590321.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/MainUI",
+    "pattern": "UIMainBallNew_Normal",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/MainUI/UIMainBallNew_Normal.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_mainui_6731f2a81dfbcbc3df459a87fe590321.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/MainUI",
+    "pattern": "UIMainBallNew_Pressed",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/MainUI/UIMainBallNew_Pressed.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_mainui_6731f2a81dfbcbc3df459a87fe590321.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/MainUI",
+    "pattern": "UIMainBallNpc",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/MainUI/UIMainBallNpc.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_mainui_6731f2a81dfbcbc3df459a87fe590321.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/MainUI",
+    "pattern": "UIMainChapterNew",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/MainUI/UIMainChapterNew.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_mainui_6731f2a81dfbcbc3df459a87fe590321.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/MainUI",
+    "pattern": "UIMainChapterNew_BoxJup",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/MainUI/UIMainChapterNew_BoxJup.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_mainui_6731f2a81dfbcbc3df459a87fe590321.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/MainUI",
+    "pattern": "UIMainChapterNew_BoxShow",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/MainUI/UIMainChapterNew_BoxShow.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_mainui_6731f2a81dfbcbc3df459a87fe590321.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/MainUI",
+    "pattern": "UIMainChapterNew_fangda",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/MainUI/UIMainChapterNew_fangda.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_mainui_6731f2a81dfbcbc3df459a87fe590321.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/MainUI",
+    "pattern": "UIMainChapterNew_Normal",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/MainUI/UIMainChapterNew_Normal.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_mainui_6731f2a81dfbcbc3df459a87fe590321.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/MainUI",
+    "pattern": "UIMainChapterNew_Pressed",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/MainUI/UIMainChapterNew_Pressed.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_mainui_6731f2a81dfbcbc3df459a87fe590321.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/MainUI",
+    "pattern": "UIMainChapterNew_QuestNewDefault",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/MainUI/UIMainChapterNew_QuestNewDefault.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_mainui_6731f2a81dfbcbc3df459a87fe590321.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/MainUI",
+    "pattern": "UIMainChapterNew_QuestNewhide",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/MainUI/UIMainChapterNew_QuestNewhide.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_mainui_6731f2a81dfbcbc3df459a87fe590321.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/MainUI",
+    "pattern": "UIMainChapterNew_QuestNewShow",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/MainUI/UIMainChapterNew_QuestNewShow.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_mainui_6731f2a81dfbcbc3df459a87fe590321.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/MainUI",
+    "pattern": "UIMainChapterNew_TaskHideArm{N}",
+    "ext": ".anim",
+    "count": 2,
+    "examples": [
+      "Assets/Main/Animation/MainUI/UIMainChapterNew_TaskHideArm1.anim",
+      "Assets/Main/Animation/MainUI/UIMainChapterNew_TaskHideArm2.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_mainui_6731f2a81dfbcbc3df459a87fe590321.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/MainUI",
+    "pattern": "UIMainChapterNew_TaskShowArm{N}",
+    "ext": ".anim",
+    "count": 3,
+    "examples": [
+      "Assets/Main/Animation/MainUI/UIMainChapterNew_TaskShowArm1.anim",
+      "Assets/Main/Animation/MainUI/UIMainChapterNew_TaskShowArm2.anim",
+      "Assets/Main/Animation/MainUI/UIMainChapterNew_TaskShowArm3.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_mainui_6731f2a81dfbcbc3df459a87fe590321.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/MainUI",
+    "pattern": "Warn",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/MainUI/Warn.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_mainui_6731f2a81dfbcbc3df459a87fe590321.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/MeteoriteHit",
+    "pattern": "MeteoriteHitPath",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/MeteoriteHit/MeteoriteHitPath.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_meteoritehit_7d80696fe9bd0cf0fb2176a8588b64f1.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/MeteoriteHit",
+    "pattern": "MeteoriteHitPath{N}",
+    "ext": ".anim",
+    "count": 3,
+    "examples": [
+      "Assets/Main/Animation/MeteoriteHit/MeteoriteHitPath1.anim",
+      "Assets/Main/Animation/MeteoriteHit/MeteoriteHitPath2.anim",
+      "Assets/Main/Animation/MeteoriteHit/MeteoriteHitPath3.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_meteoritehit_7d80696fe9bd0cf0fb2176a8588b64f1.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/MineCave",
+    "pattern": "MineCave",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/MineCave/MineCave.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_minecave_1c9ff9782d831650e1e325c9f1ae7e88.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/MineCave",
+    "pattern": "mineCave_toUnlock",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/MineCave/mineCave_toUnlock.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_minecave_1c9ff9782d831650e1e325c9f1ae7e88.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/MineCave",
+    "pattern": "mineCave_toUnlock_jiesuo",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/MineCave/mineCave_toUnlock_jiesuo.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_minecave_1c9ff9782d831650e1e325c9f1ae7e88.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/NewAccountStart",
+    "pattern": "NewAccountStart",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/NewAccountStart/NewAccountStart.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_newaccountstart_1846c84e927c427e6a58fffd3469705f.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/NewAccountStart",
+    "pattern": "NewAccountStart",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/NewAccountStart/NewAccountStart.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_newaccountstart_1846c84e927c427e6a58fffd3469705f.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "CommonPopup_movein",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/CommonPopup_movein.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "CommonPopup_movein_{N}_HideBack",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/CommonPopup_movein_4_HideBack.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "CommonPopup_moveout",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/CommonPopup_moveout.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "CommonPopup_moveout_{N}_HideBack",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/CommonPopup_moveout_4_HideBack.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "Eff_dwf_chengjiu",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/Eff_dwf_chengjiu.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "Eff_dwf_chengjiu_dakai",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/Eff_dwf_chengjiu_dakai.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "Eff_dwf_chengjiu_guanbi",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/Eff_dwf_chengjiu_guanbi.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "Eff_dwf_chengjiu_jiangli_dakai",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/Eff_dwf_chengjiu_jiangli_dakai.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "Eff_dwf_chengjiu_jiangli_dakai",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/Eff_dwf_chengjiu_jiangli_dakai.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "Eff_dwf_shangdian",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/Eff_dwf_shangdian.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "Eff_dwf_shangdian_dakai",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/Eff_dwf_shangdian_dakai.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "Eff_dwf_shangdian_guanbi",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/Eff_dwf_shangdian_guanbi.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "Eff_dwf_shangdian_jiangli_dakai",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/Eff_dwf_shangdian_jiangli_dakai.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "Eff_dwf_shangdian_jiangli_dakai",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/Eff_dwf_shangdian_jiangli_dakai.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "Eff_dwf_shangdian_rukou",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/Eff_dwf_shangdian_rukou.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "Eff_dwf_shangdian_rukou",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/Eff_dwf_shangdian_rukou.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "Eff_ui_lianhuanduobao",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/Eff_ui_lianhuanduobao.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "Eff_ui_lianhuanduobao_chuxian",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/Eff_ui_lianhuanduobao_chuxian.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "Eff_ui_lianhuanduobao_tuichu",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/Eff_ui_lianhuanduobao_tuichu.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "Eff_ui_shangcheng_jiaohu_jinru",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/Eff_ui_shangcheng_jiaohu_jinru.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "Eff_ui_shangcheng_jiaohu_loop",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/Eff_ui_shangcheng_jiaohu_loop.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "Eff_ui_shangcheng_jiaohu_tuichu",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/Eff_ui_shangcheng_jiaohu_tuichu.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "Eff_UIActMonopolyTipClose",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/Eff_UIActMonopolyTipClose.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "Eff_UIActMonopolyTipShow",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/Eff_UIActMonopolyTipShow.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "Eff_UIHalloweenActMonopolyTipClose",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/Eff_UIHalloweenActMonopolyTipClose.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "Eff_UIHalloweenActMonopolyTipShow",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/Eff_UIHalloweenActMonopolyTipShow.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "PanelAnimCtrl",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/PanelAnimCtrl.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "ResourceLackClose",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/ResourceLackClose.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "StackPopup_movein",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/StackPopup_movein.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "StackPopup_moveout",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/StackPopup_moveout.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "trailbtn",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/trailbtn.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "UIActMonopolyTip",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/UIActMonopolyTip.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "UIBaubleTileUI_movein",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/UIBaubleTileUI_movein.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "UIBaubleTileUI_moveout",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/UIBaubleTileUI_moveout.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "UIBuildList_movein",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/UIBuildList_movein.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "UIBuildList_moveout",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/UIBuildList_moveout.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "UIDispatchTaskMain",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/UIDispatchTaskMain.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "UIFactory_movein",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/UIFactory_movein.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "UIFactory_moveout",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/UIFactory_moveout.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "UIFarm_movein",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/UIFarm_movein.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "UIFarm_moveout",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/UIFarm_moveout.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "UIFarmGather_movein",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/UIFarmGather_movein.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "UIFarmGather_moveout",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/UIFarmGather_moveout.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "UIGarbageRewardShow_movein",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/UIGarbageRewardShow_movein.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "UIGarbageRewardShow_moveout",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/UIGarbageRewardShow_moveout.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "UIGuideLoadBlackMask_movein",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/UIGuideLoadBlackMask_movein.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "UIGuideLoadBlackMask_moveout",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/UIGuideLoadBlackMask_moveout.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "UIHalloweenActMonopolyTip",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/UIHalloweenActMonopolyTip.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "UILWDominatorTrainMainUpgrade",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/UILWDominatorTrainMainUpgrade.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "UILWHowToPlay_moveout",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/UILWHowToPlay_moveout.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "UIPasture_movein",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/UIPasture_movein.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "UIPasture_moveout",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/UIPasture_moveout.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "UIPopupPackage",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/UIPopupPackage.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "UIPVEShop_movein",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/UIPVEShop_movein.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "UIPVEShop_moveout",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/UIPVEShop_moveout.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "UIResidentOrder_movein",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/UIResidentOrder_movein.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "UIResidentOrder_moveout",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/UIResidentOrder_moveout.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "UIRocketFailedLanding_movein",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/UIRocketFailedLanding_movein.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "UIRocketFailedLanding_moveout",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/UIRocketFailedLanding_moveout.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "UIWorldBossDamageTip",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/UIWorldBossDamageTip.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "UIWorldTileUI_movein",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/UIWorldTileUI_movein.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "UIWorldTileUI_moveout",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/UIWorldTileUI_moveout.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "V_ui_UILWDominatorTrainMainUpgrade_in",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/V_ui_UILWDominatorTrainMainUpgrade_in.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "V_ui_UILWDominatorTrainMainUpgrade_mark",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/V_ui_UILWDominatorTrainMainUpgrade_mark.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "V_ui_UILWDominatorTrainMainUpgrade_out",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/V_ui_UILWDominatorTrainMainUpgrade_out.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "V_ui_UILWDominatorTrainMainUpgrade_upgrade",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/V_ui_UILWDominatorTrainMainUpgrade_upgrade.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "V_ui_UILWDominatorTrainMainUpgrade_upgrade_lvup",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/V_ui_UILWDominatorTrainMainUpgrade_upgrade_lvup.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "V_ui_UILWDominatorTrainMainUpgrade_upgrade_lvup_reset",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/V_ui_UILWDominatorTrainMainUpgrade_upgrade_lvup_reset.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "V_ui_UIWorldBossDamageTip_in_blue",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/V_ui_UIWorldBossDamageTip_in_blue.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "V_ui_UIWorldBossDamageTip_in_gold",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/V_ui_UIWorldBossDamageTip_in_gold.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "V_uipopuppackage_chuxian",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/V_uipopuppackage_chuxian.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopPanel",
+    "pattern": "WorkerQueuePanelIdel",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopPanel/WorkerQueuePanelIdel.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_poppanel_a921d247912d61a0b3a30eed96522ebf.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopupPackage",
+    "pattern": "PopupPackageOnShow",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopupPackage/PopupPackageOnShow.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_popuppackage_25298cb1fb5e66a9451a9a99f1553a69.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopupPackage",
+    "pattern": "PopupPackageRewardOnShow",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopupPackage/PopupPackageRewardOnShow.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_popuppackage_25298cb1fb5e66a9451a9a99f1553a69.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopupPackage",
+    "pattern": "UIGiftPackageCell",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopupPackage/UIGiftPackageCell.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_popuppackage_25298cb1fb5e66a9451a9a99f1553a69.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopupPackage",
+    "pattern": "V_uiPopupPackage_onShow",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopupPackage/V_uiPopupPackage_onShow.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_popuppackage_25298cb1fb5e66a9451a9a99f1553a69.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/PopupPackage",
+    "pattern": "V_uiPopupPackageReward",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/PopupPackage/V_uiPopupPackageReward.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_popuppackage_25298cb1fb5e66a9451a9a99f1553a69.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Pve",
+    "pattern": "AttackBoxWave",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Pve/AttackBoxWave.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_pve_4ad1e550c99e9de307046e5805418a88.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Pve",
+    "pattern": "FlyText_UI",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Pve/FlyText_UI.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_pve_4ad1e550c99e9de307046e5805418a88.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Pve",
+    "pattern": "FlyTextUI",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Pve/FlyTextUI.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_pve_4ad1e550c99e9de307046e5805418a88.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Pve",
+    "pattern": "guideMask",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Pve/guideMask.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_pve_4ad1e550c99e9de307046e5805418a88.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Pve",
+    "pattern": "UIPveBattleGuide",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Pve/UIPveBattleGuide.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_pve_4ad1e550c99e9de307046e5805418a88.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Pve",
+    "pattern": "UIPveBattleGuideLeft",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Pve/UIPveBattleGuideLeft.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_pve_4ad1e550c99e9de307046e5805418a88.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Pve",
+    "pattern": "UIPveBattleGuideRight",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Pve/UIPveBattleGuideRight.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_pve_4ad1e550c99e9de307046e5805418a88.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Pve",
+    "pattern": "XS_save_bob_Timeline",
+    "ext": ".playable",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Pve/XS_save_bob_Timeline.playable"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_pve_4ad1e550c99e9de307046e5805418a88.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Pve/PveBuild",
+    "pattern": "state{N}",
+    "ext": ".anim",
+    "count": 9,
+    "examples": [
+      "Assets/Main/Animation/Pve/PveBuild/state1.anim",
+      "Assets/Main/Animation/Pve/PveBuild/state2.anim",
+      "Assets/Main/Animation/Pve/PveBuild/state3.anim",
+      "Assets/Main/Animation/Pve/PveBuild/state4.anim",
+      "Assets/Main/Animation/Pve/PveBuild/state5.anim",
+      "Assets/Main/Animation/Pve/PveBuild/state6.anim",
+      "Assets/Main/Animation/Pve/PveBuild/state7.anim",
+      "Assets/Main/Animation/Pve/PveBuild/state8.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_pve_pvebuild_de0f20d24ee4ef20fc58d67dfd0b4fd3.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Season",
+    "pattern": "FactionDeclareWar",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Season/FactionDeclareWar.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_season_c94304ba1d2b1cf6cfe5c394248d0505.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-global-scene-catalog-v1.json|heroshow-scene-loader-audit-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Animation/Season",
+    "pattern": "FactionSelectionAnim",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Season/FactionSelectionAnim.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_season_c94304ba1d2b1cf6cfe5c394248d0505.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-global-scene-catalog-v1.json|heroshow-scene-loader-audit-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Animation/Season",
+    "pattern": "FormationArmyTips",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Season/FormationArmyTips.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_season_c94304ba1d2b1cf6cfe5c394248d0505.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-global-scene-catalog-v1.json|heroshow-scene-loader-audit-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Animation/Season",
+    "pattern": "NodeRotation",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Season/NodeRotation.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_season_c94304ba1d2b1cf6cfe5c394248d0505.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-global-scene-catalog-v1.json|heroshow-scene-loader-audit-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Animation/Season",
+    "pattern": "PvpBattleDamageTip",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Season/PvpBattleDamageTip.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_season_c94304ba1d2b1cf6cfe5c394248d0505.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-global-scene-catalog-v1.json|heroshow-scene-loader-audit-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Animation/Season",
+    "pattern": "SeasonPhotoMsgOperation",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Season/SeasonPhotoMsgOperation.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_season_c94304ba1d2b1cf6cfe5c394248d0505.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-global-scene-catalog-v1.json|heroshow-scene-loader-audit-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Animation/Season",
+    "pattern": "SeasonStoveViewer",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Season/SeasonStoveViewer.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_season_c94304ba1d2b1cf6cfe5c394248d0505.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-global-scene-catalog-v1.json|heroshow-scene-loader-audit-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Animation/Season",
+    "pattern": "ShakePopUp",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Season/ShakePopUp.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_season_c94304ba1d2b1cf6cfe5c394248d0505.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-global-scene-catalog-v1.json|heroshow-scene-loader-audit-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Animation/Season",
+    "pattern": "ShakePopUpStop",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Season/ShakePopUpStop.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_season_c94304ba1d2b1cf6cfe5c394248d0505.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-global-scene-catalog-v1.json|heroshow-scene-loader-audit-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Animation/Season",
+    "pattern": "ThumbsUpBroadcast",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Season/ThumbsUpBroadcast.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_season_c94304ba1d2b1cf6cfe5c394248d0505.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-global-scene-catalog-v1.json|heroshow-scene-loader-audit-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Animation/Season",
+    "pattern": "ThumbsUpMessageTip",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Season/ThumbsUpMessageTip.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_season_c94304ba1d2b1cf6cfe5c394248d0505.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-global-scene-catalog-v1.json|heroshow-scene-loader-audit-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Animation/Season",
+    "pattern": "V_ui_PvpBattleDamageTip_in",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Season/V_ui_PvpBattleDamageTip_in.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_season_c94304ba1d2b1cf6cfe5c394248d0505.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-global-scene-catalog-v1.json|heroshow-scene-loader-audit-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Animation/Season",
+    "pattern": "V_ui_S{N}_tips_default_hide",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Season/V_ui_S3_tips_default_hide.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_season_c94304ba1d2b1cf6cfe5c394248d0505.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-global-scene-catalog-v1.json|heroshow-scene-loader-audit-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Animation/Season",
+    "pattern": "V_ui_S{N}_tips_default_show",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Season/V_ui_S3_tips_default_show.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_season_c94304ba1d2b1cf6cfe5c394248d0505.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-global-scene-catalog-v1.json|heroshow-scene-loader-audit-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Animation/Season",
+    "pattern": "V_ui_S{N}_tips_in",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Season/V_ui_S3_tips_in.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_season_c94304ba1d2b1cf6cfe5c394248d0505.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-global-scene-catalog-v1.json|heroshow-scene-loader-audit-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Animation/Season",
+    "pattern": "V_ui_S{N}_tips_out",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Season/V_ui_S3_tips_out.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_season_c94304ba1d2b1cf6cfe5c394248d0505.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-global-scene-catalog-v1.json|heroshow-scene-loader-audit-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Animation/Season",
+    "pattern": "ZhanShenFeiDanAnim",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Season/ZhanShenFeiDanAnim.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_season_c94304ba1d2b1cf6cfe5c394248d0505.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-global-scene-catalog-v1.json|heroshow-scene-loader-audit-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Animation/Season/S1",
+    "pattern": "SeasonPreview_change_s{N}",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Season/S1/SeasonPreview_change_s1.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_season_s1_0_44a601e2b25a25a01f25015fb5a3dc75.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Season/S1",
+    "pattern": "SeasonPreview_idle_s{N}",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Season/S1/SeasonPreview_idle_s1.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_season_s1_6_fa3bcaa58f9821c8dd23e0a2d9aa539e.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Season/S1",
+    "pattern": "SeasonPreview_open_s{N}",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Season/S1/SeasonPreview_open_s1.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_season_s1_5_ff80b9a97260d55ef57e028893de2edc.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Season/S1",
+    "pattern": "SeasonPreview_s{N}",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Season/S1/SeasonPreview_s1.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_season_s1_5_ff80b9a97260d55ef57e028893de2edc.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Season/S2",
+    "pattern": "SeasonPreview_change_s{N}",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Season/S2/SeasonPreview_change_s2.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_season_s2_0_ecf02810b809ab46be07c1b877b02a61.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Season/S2",
+    "pattern": "SeasonPreview_idle_s{N}",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Season/S2/SeasonPreview_idle_s2.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_season_s2_8_0912f1f20792239fd930631dc396f50c.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Season/S2",
+    "pattern": "SeasonPreview_open_s{N}",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Season/S2/SeasonPreview_open_s2.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_season_s2_4_16115b0eb3a61f81a0515d0e666a543c.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Season/S2",
+    "pattern": "SeasonPreview_s{N}",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Season/S2/SeasonPreview_s2.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_season_s2_6_8a20c047a5bf763dcb1c2dfa71d31881.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Spine/Ben",
+    "pattern": "ben",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Spine/Ben/ben.png"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_spine_ben_0b1a659e6af10ee30219f2dd1198ac18.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Spine/Ben",
+    "pattern": "ben.atlas",
+    "ext": ".txt",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Spine/Ben/ben.atlas.txt"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_spine_ben_0b1a659e6af10ee30219f2dd1198ac18.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Spine/Ben",
+    "pattern": "ben_Atlas",
+    "ext": ".asset",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Spine/Ben/ben_Atlas.asset"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_spine_ben_0b1a659e6af10ee30219f2dd1198ac18.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Spine/Ben",
+    "pattern": "ben_Material",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Spine/Ben/ben_Material.mat"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_spine_ben_0b1a659e6af10ee30219f2dd1198ac18.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Spine/Ben",
+    "pattern": "Spine_Ben",
+    "ext": ".json",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Spine/Ben/Spine_Ben.json"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_spine_ben_0b1a659e6af10ee30219f2dd1198ac18.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Spine/Ben",
+    "pattern": "Spine_Ben_SkeletonData",
+    "ext": ".asset",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Spine/Ben/Spine_Ben_SkeletonData.asset"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_spine_ben_0b1a659e6af10ee30219f2dd1198ac18.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Spine/Bob",
+    "pattern": "bob",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Spine/Bob/bob.png"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_spine_bob_2e2aa9c16d29a7fd1d43107b8d76af36.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Spine/Bob",
+    "pattern": "bob.atlas",
+    "ext": ".txt",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Spine/Bob/bob.atlas.txt"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_spine_bob_2e2aa9c16d29a7fd1d43107b8d76af36.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Spine/Bob",
+    "pattern": "bob_Atlas",
+    "ext": ".asset",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Spine/Bob/bob_Atlas.asset"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_spine_bob_2e2aa9c16d29a7fd1d43107b8d76af36.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Spine/Bob",
+    "pattern": "bob_Material",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Spine/Bob/bob_Material.mat"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_spine_bob_2e2aa9c16d29a7fd1d43107b8d76af36.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Spine/Bob",
+    "pattern": "Spine_Bob",
+    "ext": ".json",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Spine/Bob/Spine_Bob.json"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_spine_bob_2e2aa9c16d29a7fd1d43107b8d76af36.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Spine/Bob",
+    "pattern": "Spine_Bob_SkeletonData",
+    "ext": ".asset",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Spine/Bob/Spine_Bob_SkeletonData.asset"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_spine_bob_2e2aa9c16d29a7fd1d43107b8d76af36.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Spine/hudier",
+    "pattern": "hudier",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Spine/hudier/hudier.png"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_spine_hudier_46d33662f75d2a2a8210ac3f2ca7a2fe.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Spine/hudier",
+    "pattern": "hudier.atlas",
+    "ext": ".txt",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Spine/hudier/hudier.atlas.txt"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_spine_hudier_46d33662f75d2a2a8210ac3f2ca7a2fe.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Spine/hudier",
+    "pattern": "hudier_Atlas",
+    "ext": ".asset",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Spine/hudier/hudier_Atlas.asset"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_spine_hudier_46d33662f75d2a2a8210ac3f2ca7a2fe.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Spine/hudier",
+    "pattern": "hudier_Material",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Spine/hudier/hudier_Material.mat"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_spine_hudier_46d33662f75d2a2a8210ac3f2ca7a2fe.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Spine/hudier",
+    "pattern": "Spine_hudier",
+    "ext": ".json",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Spine/hudier/Spine_hudier.json"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_spine_hudier_46d33662f75d2a2a8210ac3f2ca7a2fe.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Spine/hudier",
+    "pattern": "Spine_hudier_SkeletonData",
+    "ext": ".asset",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Spine/hudier/Spine_hudier_SkeletonData.asset"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_spine_hudier_46d33662f75d2a2a8210ac3f2ca7a2fe.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Spine/Mogen",
+    "pattern": "Mogen",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Spine/Mogen/Mogen.png"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_spine_mogen_4dc861fd5c1720cfda0cee064a00afbe.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Spine/Mogen",
+    "pattern": "Mogen.atlas",
+    "ext": ".txt",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Spine/Mogen/Mogen.atlas.txt"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_spine_mogen_4dc861fd5c1720cfda0cee064a00afbe.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Spine/Mogen",
+    "pattern": "Mogen_Atlas",
+    "ext": ".asset",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Spine/Mogen/Mogen_Atlas.asset"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_spine_mogen_4dc861fd5c1720cfda0cee064a00afbe.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Spine/Mogen",
+    "pattern": "Mogen_Material",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Spine/Mogen/Mogen_Material.mat"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_spine_mogen_4dc861fd5c1720cfda0cee064a00afbe.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Spine/Mogen",
+    "pattern": "Spine_Mogen",
+    "ext": ".json",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Spine/Mogen/Spine_Mogen.json"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_spine_mogen_4dc861fd5c1720cfda0cee064a00afbe.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Spine/Mogen",
+    "pattern": "Spine_Mogen_SkeletonData",
+    "ext": ".asset",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Spine/Mogen/Spine_Mogen_SkeletonData.asset"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_spine_mogen_4dc861fd5c1720cfda0cee064a00afbe.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Spine/Tangdou",
+    "pattern": "Spine_Tangdou",
+    "ext": ".json",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Spine/Tangdou/Spine_Tangdou.json"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_spine_tangdou_50a4b70fda7f4385d2ed72c530a729b4.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Spine/Tangdou",
+    "pattern": "Spine_Tangdou_SkeletonData",
+    "ext": ".asset",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Spine/Tangdou/Spine_Tangdou_SkeletonData.asset"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_spine_tangdou_50a4b70fda7f4385d2ed72c530a729b4.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Spine/Tangdou",
+    "pattern": "Tangdou",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Spine/Tangdou/Tangdou.png"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_spine_tangdou_50a4b70fda7f4385d2ed72c530a729b4.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Spine/Tangdou",
+    "pattern": "Tangdou.atlas",
+    "ext": ".txt",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Spine/Tangdou/Tangdou.atlas.txt"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_spine_tangdou_50a4b70fda7f4385d2ed72c530a729b4.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Spine/Tangdou",
+    "pattern": "Tangdou_Atlas",
+    "ext": ".asset",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Spine/Tangdou/Tangdou_Atlas.asset"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_spine_tangdou_50a4b70fda7f4385d2ed72c530a729b4.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Spine/Tangdou",
+    "pattern": "Tangdou_Material",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Spine/Tangdou/Tangdou_Material.mat"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_spine_tangdou_50a4b70fda7f4385d2ed72c530a729b4.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Spine/UIGuideTip",
+    "pattern": "Nvmishu",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Spine/UIGuideTip/Nvmishu.png"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_spine_uiguidetip_c5f6c23129377f414b95efda1a6c1c2b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Spine/UIGuideTip",
+    "pattern": "Nvmishu.atlas",
+    "ext": ".txt",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Spine/UIGuideTip/Nvmishu.atlas.txt"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_spine_uiguidetip_c5f6c23129377f414b95efda1a6c1c2b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Spine/UIGuideTip",
+    "pattern": "Nvmishu_Atlas",
+    "ext": ".asset",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Spine/UIGuideTip/Nvmishu_Atlas.asset"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_spine_uiguidetip_c5f6c23129377f414b95efda1a6c1c2b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Spine/UIGuideTip",
+    "pattern": "Nvmishu_Material",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Spine/UIGuideTip/Nvmishu_Material.mat"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_spine_uiguidetip_c5f6c23129377f414b95efda1a6c1c2b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Spine/UIGuideTip",
+    "pattern": "Spine_Jianzhang",
+    "ext": ".json",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Spine/UIGuideTip/Spine_Jianzhang.json"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_spine_uiguidetip_c5f6c23129377f414b95efda1a6c1c2b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Spine/UIGuideTip",
+    "pattern": "Spine_Jianzhang",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Spine/UIGuideTip/Spine_Jianzhang.png"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_spine_uiguidetip_c5f6c23129377f414b95efda1a6c1c2b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Spine/UIGuideTip",
+    "pattern": "Spine_Jianzhang.atlas",
+    "ext": ".txt",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Spine/UIGuideTip/Spine_Jianzhang.atlas.txt"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_spine_uiguidetip_c5f6c23129377f414b95efda1a6c1c2b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Spine/UIGuideTip",
+    "pattern": "Spine_Jianzhang_Atlas",
+    "ext": ".asset",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Spine/UIGuideTip/Spine_Jianzhang_Atlas.asset"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_spine_uiguidetip_c5f6c23129377f414b95efda1a6c1c2b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Spine/UIGuideTip",
+    "pattern": "Spine_Jianzhang_Material",
+    "ext": ".mat",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Spine/UIGuideTip/Spine_Jianzhang_Material.mat"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_spine_uiguidetip_c5f6c23129377f414b95efda1a6c1c2b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Spine/UIGuideTip",
+    "pattern": "Spine_Jianzhang_SkeletonData",
+    "ext": ".asset",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Spine/UIGuideTip/Spine_Jianzhang_SkeletonData.asset"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_spine_uiguidetip_c5f6c23129377f414b95efda1a6c1c2b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Spine/UIGuideTip",
+    "pattern": "Spine_Nvmishu",
+    "ext": ".json",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Spine/UIGuideTip/Spine_Nvmishu.json"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_spine_uiguidetip_c5f6c23129377f414b95efda1a6c1c2b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/Spine/UIGuideTip",
+    "pattern": "Spine_Nvmishu_SkeletonData",
+    "ext": ".asset",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/Spine/UIGuideTip/Spine_Nvmishu_SkeletonData.asset"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_spine_uiguidetip_c5f6c23129377f414b95efda1a6c1c2b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/T11IdleGame/Scene",
+    "pattern": "T{N}IdleGameBossBattleBossIdle",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/T11IdleGame/Scene/T11IdleGameBossBattleBossIdle.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_t11idlegame_scene_1_c6730e8750441e0c2bf94efc52c2587f.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Animation/T11IdleGame/Scene",
+    "pattern": "T{N}IdleGameBossBattleBossLose",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/T11IdleGame/Scene/T11IdleGameBossBattleBossLose.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_t11idlegame_scene_7_70684e247028191f32ff3e7a4b71dbad.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/T11IdleGame/Scene",
+    "pattern": "T{N}IdleGameBossBattleBossWin",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/T11IdleGame/Scene/T11IdleGameBossBattleBossWin.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_t11idlegame_scene_0_863e03e67a1e4a1c9a24a862148b32b3.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/T11IdleGame/Scene",
+    "pattern": "T{N}IdleGameBossBattleSquadIdle",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/T11IdleGame/Scene/T11IdleGameBossBattleSquadIdle.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_t11idlegame_scene_3_7e8bf2fc549bb076786c5832507ac7fd.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Animation/T11IdleGame/Scene",
+    "pattern": "T{N}IdleGameBossBattleSquadLose",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/T11IdleGame/Scene/T11IdleGameBossBattleSquadLose.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_t11idlegame_scene_1_c6730e8750441e0c2bf94efc52c2587f.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Animation/T11IdleGame/Scene",
+    "pattern": "T{N}IdleGameBossBattleSquadOpen",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/T11IdleGame/Scene/T11IdleGameBossBattleSquadOpen.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_t11idlegame_scene_9_916af3fb7d082ee69e3a016ba6addb7a.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Animation/T11IdleGame/Scene",
+    "pattern": "T{N}IdleGameBossBattleSquadWin",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/T11IdleGame/Scene/T11IdleGameBossBattleSquadWin.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_t11idlegame_scene_8_af0d54fc4adcaeba8e582b8b54eb73be.bundle"
+    ],
+    "evidenceFiles": [
+      "formation-global-scene-catalog-v1.json"
+    ]
+  },
+  {
+    "parent": "Assets/Main/Animation/UIActivityDownloadMain",
+    "pattern": "bg",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/UIActivityDownloadMain/bg.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_uiactivitydownloadmain_7_46e4bb77f084437e402e977098c8ae6d.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/UIActivityDownloadMain",
+    "pattern": "cover",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/UIActivityDownloadMain/cover.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_uiactivitydownloadmain_0_aae7aaa3ee5e61febc1446a4e964256c.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/UIActivityDownloadMain",
+    "pattern": "icon",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/UIActivityDownloadMain/icon.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_uiactivitydownloadmain_3_de05ea9f8dfac0ed4352938ceaf8f48e.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/UIActivityDownloadMain",
+    "pattern": "V_ui_ActivityDownloadMain_CompleteBtn",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/UIActivityDownloadMain/V_ui_ActivityDownloadMain_CompleteBtn.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_uiactivitydownloadmain_3_de05ea9f8dfac0ed4352938ceaf8f48e.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/UIActivityDownloadMain",
+    "pattern": "V_ui_ActivityDownloadMain_DownloadBtn",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/UIActivityDownloadMain/V_ui_ActivityDownloadMain_DownloadBtn.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_uiactivitydownloadmain_6_f8ad8ffd803181751a28b64506db67fb.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/UIActivityDownloadMain",
+    "pattern": "V_ui_ActivityDownloadMain_Slider",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/UIActivityDownloadMain/V_ui_ActivityDownloadMain_Slider.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_uiactivitydownloadmain_6_f8ad8ffd803181751a28b64506db67fb.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/UIAlliance",
+    "pattern": "box",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/UIAlliance/box.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_uialliance_a813d3d3648780f6e8d3cbb54d055f11.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/UIAlliance",
+    "pattern": "CanReceive",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/UIAlliance/CanReceive.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_uialliance_a813d3d3648780f6e8d3cbb54d055f11.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/UIAlliance",
+    "pattern": "NoComplete",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/UIAlliance/NoComplete.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_uialliance_a813d3d3648780f6e8d3cbb54d055f11.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/UIAllianceCareer",
+    "pattern": "select",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/UIAllianceCareer/select.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_uialliancecareer_4e4bbeda02caddea496619b4f03d3df6.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/UIAllianceCareer",
+    "pattern": "select_anim_hero",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/UIAllianceCareer/select_anim_hero.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_uialliancecareer_4e4bbeda02caddea496619b4f03d3df6.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/UIAllianceCareer",
+    "pattern": "select_anim_idle_hero",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/UIAllianceCareer/select_anim_idle_hero.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_uialliancecareer_4e4bbeda02caddea496619b4f03d3df6.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/UIAllianceCareer",
+    "pattern": "select_anim_idle_soldier",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/UIAllianceCareer/select_anim_idle_soldier.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_uialliancecareer_4e4bbeda02caddea496619b4f03d3df6.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/UIAllianceCareer",
+    "pattern": "select_anim_soldier",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/UIAllianceCareer/select_anim_soldier.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_uialliancecareer_4e4bbeda02caddea496619b4f03d3df6.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/UIArrow",
+    "pattern": "UIArrow",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/UIArrow/UIArrow.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_uiarrow_582579ea9ae26b1e224f0c58d86e7746.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/UIArrow",
+    "pattern": "UIArrow",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/UIArrow/UIArrow.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_uiarrow_582579ea9ae26b1e224f0c58d86e7746.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/UIArrow",
+    "pattern": "UIArrow_move_LR",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/UIArrow/UIArrow_move_LR.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_uiarrow_582579ea9ae26b1e224f0c58d86e7746.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/UIArrow",
+    "pattern": "UIArrow_move_LR",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/UIArrow/UIArrow_move_LR.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_uiarrow_582579ea9ae26b1e224f0c58d86e7746.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/UIArrow",
+    "pattern": "UIArrowLite",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/UIArrow/UIArrowLite.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_uiarrow_582579ea9ae26b1e224f0c58d86e7746.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/UIArrow",
+    "pattern": "WorldArrow",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/UIArrow/WorldArrow.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_uiarrow_582579ea9ae26b1e224f0c58d86e7746.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/UIArrow",
+    "pattern": "WorldFingerArrow",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/UIArrow/WorldFingerArrow.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_uiarrow_582579ea9ae26b1e224f0c58d86e7746.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/UIBox",
+    "pattern": "BoxOpen{N}",
+    "ext": ".anim",
+    "count": 5,
+    "examples": [
+      "Assets/Main/Animation/UIBox/BoxOpen1.anim",
+      "Assets/Main/Animation/UIBox/BoxOpen2.anim",
+      "Assets/Main/Animation/UIBox/BoxOpen3.anim",
+      "Assets/Main/Animation/UIBox/BoxOpen4.anim",
+      "Assets/Main/Animation/UIBox/BoxOpen5.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_uibox_5a31d2aa8665c1f060c9200876c1612e.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/UIBox",
+    "pattern": "CanReceive{N}",
+    "ext": ".anim",
+    "count": 5,
+    "examples": [
+      "Assets/Main/Animation/UIBox/CanReceive1.anim",
+      "Assets/Main/Animation/UIBox/CanReceive2.anim",
+      "Assets/Main/Animation/UIBox/CanReceive3.anim",
+      "Assets/Main/Animation/UIBox/CanReceive4.anim",
+      "Assets/Main/Animation/UIBox/CanReceive5.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_uibox_5a31d2aa8665c1f060c9200876c1612e.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/UIBox",
+    "pattern": "NoComplete{N}",
+    "ext": ".anim",
+    "count": 5,
+    "examples": [
+      "Assets/Main/Animation/UIBox/NoComplete1.anim",
+      "Assets/Main/Animation/UIBox/NoComplete2.anim",
+      "Assets/Main/Animation/UIBox/NoComplete3.anim",
+      "Assets/Main/Animation/UIBox/NoComplete4.anim",
+      "Assets/Main/Animation/UIBox/NoComplete5.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_uibox_5a31d2aa8665c1f060c9200876c1612e.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/UIBox",
+    "pattern": "Received{N}",
+    "ext": ".anim",
+    "count": 5,
+    "examples": [
+      "Assets/Main/Animation/UIBox/Received1.anim",
+      "Assets/Main/Animation/UIBox/Received2.anim",
+      "Assets/Main/Animation/UIBox/Received3.anim",
+      "Assets/Main/Animation/UIBox/Received4.anim",
+      "Assets/Main/Animation/UIBox/Received5.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_uibox_5a31d2aa8665c1f060c9200876c1612e.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/UIBox",
+    "pattern": "UIBox",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/UIBox/UIBox.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_uibox_5a31d2aa8665c1f060c9200876c1612e.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/UIChapterSwitch",
+    "pattern": "chapterSwitch",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/UIChapterSwitch/chapterSwitch.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_uichapterswitch_9c82858711d26964925a65bdb17b5937.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/UIChapterSwitch",
+    "pattern": "chapterSwitch",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/UIChapterSwitch/chapterSwitch.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_uichapterswitch_9c82858711d26964925a65bdb17b5937.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/UICommonSingleMsgBar",
+    "pattern": "CommonSingleMsgBar",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/UICommonSingleMsgBar/CommonSingleMsgBar.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_uicommonsinglemsgbar_4437a9cd700be679ccb6744b4c35ebcd.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/UICommonSingleMsgBar",
+    "pattern": "ShowSingleMsg",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/UICommonSingleMsgBar/ShowSingleMsg.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_uicommonsinglemsgbar_4437a9cd700be679ccb6744b4c35ebcd.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/UIFarm",
+    "pattern": "Cattle_shake",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/UIFarm/Cattle_shake.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_uifarm_f56df6e8d3ece7d756c519d3582f021b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/UIFarm",
+    "pattern": "factory_drop_item",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/UIFarm/factory_drop_item.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_uifarm_f56df6e8d3ece7d756c519d3582f021b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/UIFarm",
+    "pattern": "factoryDropLeft",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/UIFarm/factoryDropLeft.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_uifarm_f56df6e8d3ece7d756c519d3582f021b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/UIFarm",
+    "pattern": "factoryDropRight",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/UIFarm/factoryDropRight.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_uifarm_f56df6e8d3ece7d756c519d3582f021b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/UIFarm",
+    "pattern": "farm_consume_resource_rise",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/UIFarm/farm_consume_resource_rise.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_uifarm_f56df6e8d3ece7d756c519d3582f021b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/UIFarm",
+    "pattern": "farm_darg_shake",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/UIFarm/farm_darg_shake.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_uifarm_f56df6e8d3ece7d756c519d3582f021b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/UIFarm",
+    "pattern": "farm_drag_ani_ctrl",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/UIFarm/farm_drag_ani_ctrl.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_uifarm_f56df6e8d3ece7d756c519d3582f021b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/UIFarm",
+    "pattern": "farm_item_dec_play",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/UIFarm/farm_item_dec_play.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_uifarm_f56df6e8d3ece7d756c519d3582f021b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/UIFarm",
+    "pattern": "farm_item_drop",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/UIFarm/farm_item_drop.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_uifarm_f56df6e8d3ece7d756c519d3582f021b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/UIFarm",
+    "pattern": "farm_item_drop_default",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/UIFarm/farm_item_drop_default.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_uifarm_f56df6e8d3ece7d756c519d3582f021b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/UIFarm",
+    "pattern": "farm_item_drop_play",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/UIFarm/farm_item_drop_play.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_uifarm_f56df6e8d3ece7d756c519d3582f021b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/UIFarm",
+    "pattern": "farm_tip_shake",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/UIFarm/farm_tip_shake.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_uifarm_f56df6e8d3ece7d756c519d3582f021b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/UIFarm",
+    "pattern": "farmUIMenu",
+    "ext": ".controller",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/UIFarm/farmUIMenu.controller"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_uifarm_f56df6e8d3ece7d756c519d3582f021b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/UIFarm",
+    "pattern": "MenuClose",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/UIFarm/MenuClose.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_uifarm_f56df6e8d3ece7d756c519d3582f021b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/UIFarm",
+    "pattern": "MenuOpen",
+    "ext": ".anim",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/UIFarm/MenuOpen.anim"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_uifarm_f56df6e8d3ece7d756c519d3582f021b.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/UIFarm/gatherItem",
+    "pattern": "gather_item",
+    "ext": ".json",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/UIFarm/gatherItem/gather_item.json"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_uifarm_gatheritem_4fd330a5e143514d1cbbf80e6f5a1df0.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/UIFarm/gatherItem",
+    "pattern": "gather_item",
+    "ext": ".png",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/UIFarm/gatherItem/gather_item.png"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_uifarm_gatheritem_4fd330a5e143514d1cbbf80e6f5a1df0.bundle"
+    ],
+    "evidenceFiles": []
+  },
+  {
+    "parent": "Assets/Main/Animation/UIFarm/gatherItem",
+    "pattern": "gather_item.atlas",
+    "ext": ".txt",
+    "count": 1,
+    "examples": [
+      "Assets/Main/Animation/UIFarm/gatherItem/gather_item.atlas.txt"
+    ],
+    "logicalNames": [
+      "gameres_main_dir_animation_uifarm_gatheritem_4fd330a5e143514d1cbbf80e6f5a1df0.bundle"
+    ],
+    "evidenceFiles": []
+  }
+]
