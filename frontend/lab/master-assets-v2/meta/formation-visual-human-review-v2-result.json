@@ -1,0 +1,104 @@
+{
+  "format": "WFGG_LASTWAR_FORMATION_VISUAL_HUMAN_REVIEW_V2_RESULT",
+  "sourceManifest": "frontend/lab/formation-texture-review-v2/manifest.json",
+  "reviewStatus": "complete-human-review",
+  "humanDecisionAuthority": true,
+  "summary": {
+    "reviewedItems": 60,
+    "positiveYes": 8,
+    "positiveInterpretation": "These are the only reviewed textures the human reviewer considered potentially useful for the Formation background/decor.",
+    "previousState": "The 8 retained items were initially marked unsure, then explicitly promoted by the reviewer to yes.",
+    "doesNotProveRuntimeUse": true,
+    "doesNotProveFixedBackgroundImage": true
+  },
+  "retainedYes": [
+    {
+      "name": "O_terrain_new03_D",
+      "scope": "formation-closure",
+      "bundleId": 26592,
+      "pathIDExact": "6527014853484295755",
+      "width": 512,
+      "height": 512,
+      "format": "ASTC_RGB_8x8"
+    },
+    {
+      "name": "S1GroundGrass_Color _g",
+      "scope": "formation-closure",
+      "bundleId": 26598,
+      "pathIDExact": "-5181868365457329968",
+      "width": 512,
+      "height": 512,
+      "format": "ASTC_RGB_6x6"
+    },
+    {
+      "name": "O_terrain_grass04_D",
+      "scope": "formation-closure",
+      "bundleId": 26600,
+      "pathIDExact": "-8530919973026192267",
+      "width": 512,
+      "height": 512,
+      "format": "ASTC_RGB_6x6"
+    },
+    {
+      "name": "S1GroundGrass_Color _qg",
+      "scope": "formation-closure",
+      "bundleId": 14169,
+      "pathIDExact": "6764603796244240607",
+      "width": 512,
+      "height": 512,
+      "format": "ASTC_RGB_6x6"
+    },
+    {
+      "name": "S1GroundGrass_Color _y",
+      "scope": "formation-closure",
+      "bundleId": 26598,
+      "pathIDExact": "-3994208365102929008",
+      "width": 512,
+      "height": 512,
+      "format": "ASTC_RGB_6x6"
+    },
+    {
+      "name": "O_ground_zhucheng_01",
+      "scope": "formation-closure",
+      "bundleId": 14169,
+      "pathIDExact": "6658329552418294702",
+      "width": 512,
+      "height": 512,
+      "format": "ASTC_RGB_6x6"
+    },
+    {
+      "name": "O_terrain_grass01_D",
+      "scope": "formation-closure",
+      "bundleId": 26600,
+      "pathIDExact": "2886232983442666552",
+      "width": 512,
+      "height": 512,
+      "format": "ASTC_RGB_6x6"
+    },
+    {
+      "name": "O_terrain_new01_D",
+      "scope": "formation-closure",
+      "bundleId": 26592,
+      "pathIDExact": "-4362767395140459070",
+      "width": 512,
+      "height": 512,
+      "format": "ASTC_RGB_8x8"
+    }
+  ],
+  "interpretation": {
+    "visualClass": "terrain/ground material textures rather than a complete precomposed Formation background",
+    "usefulFor": "possible constituent textures of the rendered Formation world/background",
+    "fixedFullBackgroundHypothesis": "not supported by this 60-image review lot",
+    "recommendedNextStep": "crosswalk these 8 exact Texture2D objects to materials, meshes, terrain/world assets and scene links already present in the Formation closure; keep runtime/Lua path separate"
+  },
+  "precisionNote": {
+    "browserCopiedPathIDs": "Some IDs copied from the browser were rounded because JavaScript Number cannot exactly represent arbitrary signed 64-bit Unity pathIDs.",
+    "authority": "pathIDExact values above were resolved from the repository manifest string/JSON source, not from rounded browser display values."
+  },
+  "guardrails": {
+    "labBranchOnly": true,
+    "mainUntouched": true,
+    "humanVisualSelectionIsNotRuntimeProof": true,
+    "noGeneratedVisuals": true
+  }
+}
