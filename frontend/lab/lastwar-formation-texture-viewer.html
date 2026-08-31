@@ -73,14 +73,19 @@
 
   <section id="resultsPanel" class="results-panel hidden">
     <div class="results-head">
-      <div><p class="eyebrow">REVUE TERMINÉE</p><h2>Images retenues : Oui</h2><p id="resultsSummary" class="subtitle"></p></div>
+      <div><p class="eyebrow">REVUE TERMINÉE</p><h2>Résultats de la revue</h2><p id="resultsSummary" class="subtitle"></p></div>
       <button id="resumeButton" class="button secondary" type="button">Revoir les images</button>
     </div>
     <div id="yesGrid" class="yes-grid"></div>
     <button id="copyYesButton" class="button primary" type="button">Copier la liste des Oui</button>
-    <details id="unsureDetails" class="unsure-details"><summary id="unsureSummary">Incertaines conservées</summary><div id="unsureGrid" class="yes-grid"></div></details>
+    <details id="unsureDetails" class="unsure-details" open>
+      <summary id="unsureSummary">Incertaines conservées</summary>
+      <div id="unsureGrid" class="yes-grid"></div>
+      <button id="copyUnsureButton" class="button primary" type="button">Copier la liste des Incertaines</button>
+    </details>
+    <button id="copyKeptButton" class="button secondary" type="button">Copier Oui + Incertaines</button>
   </section>
 </main>
-<script src="/lab/lastwar-formation-texture-viewer.js?v=2"></script>
+<script src="/lab/lastwar-formation-texture-viewer.js?v=2.2"></script>
 </body>
 </html>
