@@ -1,0 +1,30 @@
+{
+  "format": "WFGG_LASTWAR_FORMATION_FIXED_TEXTURE_REVIEW_HUMAN_V1",
+  "sourceManifest": "frontend/lab/formation-texture-review/manifest.json",
+  "sourceManifestBlobSha": "881018e73922e94093338182e6beaa2216977b42",
+  "reviewScope": {
+    "geometryCandidates": 27,
+    "exportedAndVisuallyReviewed": 25,
+    "decodeFailuresNotVisuallyReviewed": 2,
+    "reviewCoverageOfExportedLot": "25/25"
+  },
+  "humanObservation": {
+    "reviewerDecisionForAll25": "NO",
+    "matchesTargetFormationBackground": false,
+    "qualitativeClassification": "sprite-atlas / icon-pack textures",
+    "description": "The 25 displayed images contain multiple UI icons/elements per texture, often many or dozens. None visually corresponds to the fixed/blurred Formation background being sought.",
+    "confidence": "human visual review"
+  },
+  "implications": {
+    "excludeReviewed25FromFutureBackgroundCandidateLots": true,
+    "doNotTreatLargeDimensionsAloneAsBackgroundEvidence": true,
+    "recommendedNextFilter": "prefer standalone Texture2D assets and strongly penalize/exclude packed sprite-atlas textures, including textures referenced by many Sprite objects or atlas-style sactx assets",
+    "remainingUnreviewedFromThisGeometryPass": 2,
+    "doesNotDisproveFixedBackgroundHypothesisGlobally": true
+  },
+  "guardrails": {
+    "candidateReviewIsNotRuntimeProof": true,
+    "mainUntouched": true,
+    "labBranchOnly": true
+  }
+}
