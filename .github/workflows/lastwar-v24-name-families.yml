@@ -1,0 +1,100 @@
+name: Last War V24 structural name families
+
+on:
+  push:
+    branches:
+      - portal-auth-lastwar-lab-v1
+    paths-ignore:
+      - 'frontend/lab/asset-name-audit-v24/**'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: portal-auth-lastwar-lab-v1
+          fetch-depth: 0
+      - name: Build lossless structural families
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import csv,json,re,collections,hashlib
+
+          src=Path('frontend/lab/master-assets-v2/index/lastwar-graphics-asset-path-index-v1.tsv')
+          out=Path('frontend/lab/asset-name-audit-v24')
+          chunks=out/'families'
+          chunks.mkdir(parents=True,exist_ok=True)
+          for p in chunks.glob('chunk-*.json'):
+              p.unlink()
+
+          def structural(stem):
+              # Normalisation exclusivement mécanique : aucune notion sémantique.
+              s=re.sub(r'(?i)(?<![0-9a-f])[0-9a-f]{12,}(?![0-9a-f])','{HEX}',stem)
+              s=re.sub(r'\d+','{N}',s)
+              return s
+
+          families={}
+          dirs=collections.defaultdict(lambda:{'rows':0,'names':set(),'samples':[],'bundles':set()})
+          with src.open('r',encoding='utf-8',errors='replace',newline='') as f:
+              r=csv.DictReader(f,delimiter='\t')
+              for row in r:
+                  ap=row['assetPath']
+                  p=Path(ap)
+                  parent=p.parent.as_posix()
+                  basename=p.name
+                  stem=p.stem
+                  ext=p.suffix.lower()
+                  pat=structural(stem)
+                  key=(parent,pat,ext)
+                  x=families.get(key)
+                  if x is None:
+                      x=families[key]={
+                        'parent':parent,'pattern':pat,'ext':ext,'count':0,
+                        'examples':[],'logicalNames':[],'evidenceFiles':[]
+                      }
+                  x['count']+=1
+                  if ap not in x['examples'] and len(x['examples'])<8: x['examples'].append(ap)
+                  ln=row.get('logicalName','')
+                  if ln and ln not in x['logicalNames'] and len(x['logicalNames'])<5: x['logicalNames'].append(ln)
+                  ef=row.get('evidenceFiles','')
+                  if ef and ef not in x['evidenceFiles'] and len(x['evidenceFiles'])<5: x['evidenceFiles'].append(ef)
+
+                  d=dirs[parent]; d['rows']+=1; d['names'].add(basename)
+                  if len(d['samples'])<24: d['samples'].append(basename)
+                  if ln and len(d['bundles'])<10: d['bundles'].add(ln)
+
+          fam=sorted(families.values(),key=lambda x:(x['parent'].lower(),x['pattern'].lower(),x['ext']))
+          dir_rows=[]
+          for parent,d in sorted(dirs.items(),key=lambda kv:kv[0].lower()):
+              dir_rows.append({
+                'parent':parent,'rows':d['rows'],'uniqueNames':len(d['names']),
+                'samples':d['samples'],'logicalNames':sorted(d['bundles'])
+              })
+
+          # Chunks petits et lisibles par le connecteur.
+          chunk_size=350
+          manifest={'sourceRows':sum(x['count'] for x in fam),'familyCount':len(fam),'directoryCount':len(dir_rows),'chunkSize':chunk_size,'chunks':[]}
+          for i in range(0,len(fam),chunk_size):
+              part=fam[i:i+chunk_size]
+              name=f'chunk-{i//chunk_size+1:04d}.json'
+              (chunks/name).write_text(json.dumps(part,ensure_ascii=False,indent=2),encoding='utf-8')
+              manifest['chunks'].append({'file':f'families/{name}','firstParent':part[0]['parent'],'lastParent':part[-1]['parent'],'records':len(part)})
+          (out/'families-manifest.json').write_text(json.dumps(manifest,ensure_ascii=False,indent=2),encoding='utf-8')
+          (out/'directories.json').write_text(json.dumps(dir_rows,ensure_ascii=False,indent=2),encoding='utf-8')
+          PY
+      - name: Commit structural review corpus
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'wfgg-lab-bot'
+          git config user.email 'wfgg-lab-bot@users.noreply.github.com'
+          git add frontend/lab/asset-name-audit-v24/
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'lab: add V24 structural name-family corpus'
+          git push origin HEAD:portal-auth-lastwar-lab-v1
