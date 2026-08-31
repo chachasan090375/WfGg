@@ -1,0 +1,530 @@
+{
+  "format": "WFGG_LASTWAR_FORMATION_FIXED_TEXTURE_REVIEW_MANIFEST_V1",
+  "generatedFrom": "exact current Formation closure",
+  "selection": {
+    "rule": "geometry-first fixed-image review heuristic",
+    "minWidth": 480,
+    "minHeight": 480,
+    "minArea": 393216,
+    "aspectRatioRange": [
+      0.45,
+      2.4
+    ],
+    "technicalNameTokensArePenaltyOnly": true,
+    "maxExport": 48,
+    "important": "Review candidate only. Visual similarity does not prove runtime use."
+  },
+  "counts": {
+    "closureBundles": 195,
+    "cachedBundles": 195,
+    "texture2DSeen": 1962,
+    "geometryCandidates": 27,
+    "exported": 25,
+    "decodeFailures": 2
+  },
+  "items": [
+    {
+      "id": "b1217:p-982245226057819213",
+      "file": "001_b1217_p-982245226057819213_sactx-2048x2048-ASTC_6x6-UILWCommon-fff31c62.png",
+      "src": "/lab/formation-texture-review/assets/001_b1217_p-982245226057819213_sactx-2048x2048-ASTC_6x6-UILWCommon-fff31c62.png",
+      "bundleId": 1217,
+      "pathID": -982245226057819213,
+      "name": "sactx-2048x2048-ASTC 6x6-UILWCommon-fff31c62",
+      "width": 2048,
+      "height": 2048,
+      "textureFormat": "ASTC_RGB_6x6",
+      "sourceImageBytes": 1871424,
+      "pngBytes": 1973988,
+      "sha256": "44e5e33db5781d0ae1ccdb1a19663e2abe422f522d76d4100eb635490b9eab2c",
+      "rank": 1,
+      "score": 206,
+      "reasons": [
+        "large-geometry",
+        "screen-region-ratio"
+      ]
+    },
+    {
+      "id": "b1217:p9113106181129476232",
+      "file": "002_b1217_p9113106181129476232_sactx-2048x1024-ASTC_6x6-UILWCommon-fff31c62.png",
+      "src": "/lab/formation-texture-review/assets/002_b1217_p9113106181129476232_sactx-2048x1024-ASTC_6x6-UILWCommon-fff31c62.png",
+      "bundleId": 1217,
+      "pathID": 9113106181129476232,
+      "name": "sactx-2048x1024-ASTC 6x6-UILWCommon-fff31c62",
+      "width": 2048,
+      "height": 1024,
+      "textureFormat": "ASTC_RGB_6x6",
+      "sourceImageBytes": 935712,
+      "pngBytes": 821778,
+      "sha256": "2e18367ead99c700a6ee4234dcbf75c672d9bfb7226bee855bc574e536f23b4c",
+      "rank": 2,
+      "score": 192,
+      "reasons": [
+        "large-geometry",
+        "broad-screen-ratio"
+      ]
+    },
+    {
+      "id": "b1056:p2319241692224342143",
+      "file": "003_b1056_p2319241692224342143_sactx-1024x1024-ASTC_6x6-LWPVPArena-a3c8c8a6.png",
+      "src": "/lab/formation-texture-review/assets/003_b1056_p2319241692224342143_sactx-1024x1024-ASTC_6x6-LWPVPArena-a3c8c8a6.png",
+      "bundleId": 1056,
+      "pathID": 2319241692224342143,
+      "name": "sactx-1024x1024-ASTC 6x6-LWPVPArena-a3c8c8a6",
+      "width": 1024,
+      "height": 1024,
+      "textureFormat": "ASTC_RGB_6x6",
+      "sourceImageBytes": 467856,
+      "pngBytes": 514268,
+      "sha256": "fac6017010c7de39927bdc9112e2eed7d5dbc6b0ac7501299939278ee0302d14",
+      "rank": 3,
+      "score": 160,
+      "reasons": [
+        "large-geometry",
+        "screen-region-ratio"
+      ]
+    },
+    {
+      "id": "b1057:p-6789259509316424020",
+      "file": "004_b1057_p-6789259509316424020_sactx-1024x1024-ASTC_5x5-LWPlayerInfo-740544e3.png",
+      "src": "/lab/formation-texture-review/assets/004_b1057_p-6789259509316424020_sactx-1024x1024-ASTC_5x5-LWPlayerInfo-740544e3.png",
+      "bundleId": 1057,
+      "pathID": -6789259509316424020,
+      "name": "sactx-1024x1024-ASTC 5x5-LWPlayerInfo-740544e3",
+      "width": 1024,
+      "height": 1024,
+      "textureFormat": "ASTC_RGB_5x5",
+      "sourceImageBytes": 672400,
+      "pngBytes": 439907,
+      "sha256": "792bd4885678b6cf42aaf56471e5b542639a7f6bed4369cd813ee45998b73b3c",
+      "rank": 4,
+      "score": 160,
+      "reasons": [
+        "large-geometry",
+        "screen-region-ratio"
+      ]
+    },
+    {
+      "id": "b1244:p-515083985287728717",
+      "file": "005_b1244_p-515083985287728717_sactx-1024x1024-ASTC_6x6-UILWTrailTower-fb836519.png",
+      "src": "/lab/formation-texture-review/assets/005_b1244_p-515083985287728717_sactx-1024x1024-ASTC_6x6-UILWTrailTower-fb836519.png",
+      "bundleId": 1244,
+      "pathID": -515083985287728717,
+      "name": "sactx-1024x1024-ASTC 6x6-UILWTrailTower-fb836519",
+      "width": 1024,
+      "height": 1024,
+      "textureFormat": "ASTC_RGB_6x6",
+      "sourceImageBytes": 467856,
+      "pngBytes": 195522,
+      "sha256": "93ba26c171081a554ff794a79cd1aa02d279d00570bbc02e67590ae31f36f122",
+      "rank": 5,
+      "score": 160,
+      "reasons": [
+        "large-geometry",
+        "screen-region-ratio"
+      ]
+    },
+    {
+      "id": "b1302:p-3446630730330609696",
+      "file": "006_b1302_p-3446630730330609696_sactx-1024x1024-ASTC_6x6-UIUnpackResource-b66e9ffb.png",
+      "src": "/lab/formation-texture-review/assets/006_b1302_p-3446630730330609696_sactx-1024x1024-ASTC_6x6-UIUnpackResource-b66e9ffb.png",
+      "bundleId": 1302,
+      "pathID": -3446630730330609696,
+      "name": "sactx-1024x1024-ASTC 6x6-UIUnpackResource-b66e9ffb",
+      "width": 1024,
+      "height": 1024,
+      "textureFormat": "ASTC_RGB_6x6",
+      "sourceImageBytes": 467856,
+      "pngBytes": 276407,
+      "sha256": "06ed4559880de055dec2e3a6737bbb6f69e10c7b8afc97a0975773ffd52f8799",
+      "rank": 6,
+      "score": 160,
+      "reasons": [
+        "large-geometry",
+        "screen-region-ratio"
+      ]
+    },
+    {
+      "id": "b1314:p-5958171236696425766",
+      "file": "007_b1314_p-5958171236696425766_sactx-1024x1024-ETC2-UI_AllianceMark-32188d86.png",
+      "src": "/lab/formation-texture-review/assets/007_b1314_p-5958171236696425766_sactx-1024x1024-ETC2-UI_AllianceMark-32188d86.png",
+      "bundleId": 1314,
+      "pathID": -5958171236696425766,
+      "name": "sactx-1024x1024-ETC2-UI_AllianceMark-32188d86",
+      "width": 1024,
+      "height": 1024,
+      "textureFormat": "ETC2_RGBA8",
+      "sourceImageBytes": 1048576,
+      "pngBytes": 432778,
+      "sha256": "2534f6a3f2b38fa5f8f4173bbaef6c53aaa1bfdbcdbcb1aea74f6da29f2f861b",
+      "rank": 7,
+      "score": 160,
+      "reasons": [
+        "large-geometry",
+        "screen-region-ratio"
+      ]
+    },
+    {
+      "id": "b1319:p-5793069426973952672",
+      "file": "008_b1319_p-5793069426973952672_sactx-1024x1024-ASTC_4x4-UI_HeroCommon-abef31a7.png",
+      "src": "/lab/formation-texture-review/assets/008_b1319_p-5793069426973952672_sactx-1024x1024-ASTC_4x4-UI_HeroCommon-abef31a7.png",
+      "bundleId": 1319,
+      "pathID": -5793069426973952672,
+      "name": "sactx-1024x1024-ASTC 4x4-UI_HeroCommon-abef31a7",
+      "width": 1024,
+      "height": 1024,
+      "textureFormat": "ASTC_RGB_4x4",
+      "sourceImageBytes": 1048576,
+      "pngBytes": 507671,
+      "sha256": "62fb09371da2575394d27ef69c6e1a8cae1439b17acbf974c1d18ed81f0a6e7e",
+      "rank": 8,
+      "score": 160,
+      "reasons": [
+        "large-geometry",
+        "screen-region-ratio"
+      ]
+    },
+    {
+      "id": "b1323:p1720220578099356768",
+      "file": "009_b1323_p1720220578099356768_sactx-1024x1024-ETC2-UI_Rank-fa87abd1.png",
+      "src": "/lab/formation-texture-review/assets/009_b1323_p1720220578099356768_sactx-1024x1024-ETC2-UI_Rank-fa87abd1.png",
+      "bundleId": 1323,
+      "pathID": 1720220578099356768,
+      "name": "sactx-1024x1024-ETC2-UI_Rank-fa87abd1",
+      "width": 1024,
+      "height": 1024,
+      "textureFormat": "ETC2_RGBA8",
+      "sourceImageBytes": 1048576,
+      "pngBytes": 435590,
+      "sha256": "b8a0c909a803dd89858308bc344ffa7ed76aae588d050130c046e4f0a29bb289",
+      "rank": 9,
+      "score": 160,
+      "reasons": [
+        "large-geometry",
+        "screen-region-ratio"
+      ]
+    },
+    {
+      "id": "b1325:p-4430615763360568277",
+      "file": "010_b1325_p-4430615763360568277_sactx-1024x1024-ASTC_5x5-UI_UIActivity-275a6ca5.png",
+      "src": "/lab/formation-texture-review/assets/010_b1325_p-4430615763360568277_sactx-1024x1024-ASTC_5x5-UI_UIActivity-275a6ca5.png",
+      "bundleId": 1325,
+      "pathID": -4430615763360568277,
+      "name": "sactx-1024x1024-ASTC 5x5-UI_UIActivity-275a6ca5",
+      "width": 1024,
+      "height": 1024,
+      "textureFormat": "ASTC_RGB_5x5",
+      "sourceImageBytes": 672400,
+      "pngBytes": 412630,
+      "sha256": "461adc493825d94b4cf5883a841312d6769ba5484c5aeaeeb3b8bdc4a884ceec",
+      "rank": 10,
+      "score": 160,
+      "reasons": [
+        "large-geometry",
+        "screen-region-ratio"
+      ]
+    },
+    {
+      "id": "b1365:p-7246585951743609307",
+      "file": "011_b1365_p-7246585951743609307_sactx-1024x1024-ETC2-UI_UIPveHeroAppear-b1128bd6.png",
+      "src": "/lab/formation-texture-review/assets/011_b1365_p-7246585951743609307_sactx-1024x1024-ETC2-UI_UIPveHeroAppear-b1128bd6.png",
+      "bundleId": 1365,
+      "pathID": -7246585951743609307,
+      "name": "sactx-1024x1024-ETC2-UI_UIPveHeroAppear-b1128bd6",
+      "width": 1024,
+      "height": 1024,
+      "textureFormat": "ETC2_RGBA8",
+      "sourceImageBytes": 1048576,
+      "pngBytes": 311829,
+      "sha256": "46c3019f6d45f8e44dbf55016a083f135c926d1cf0d6a3ad9477ef6ec04c0efd",
+      "rank": 11,
+      "score": 160,
+      "reasons": [
+        "large-geometry",
+        "screen-region-ratio"
+      ]
+    },
+    {
+      "id": "b26360:p2155555367097669871",
+      "file": "012_b26360_p2155555367097669871_Eff_tex_smoke_common_10.png",
+      "src": "/lab/formation-texture-review/assets/012_b26360_p2155555367097669871_Eff_tex_smoke_common_10.png",
+      "bundleId": 26360,
+      "pathID": 2155555367097669871,
+      "name": "Eff_tex_smoke_common_10",
+      "width": 1024,
+      "height": 1024,
+      "textureFormat": "ASTC_RGB_6x6",
+      "sourceImageBytes": 467856,
+      "pngBytes": 316020,
+      "sha256": "042690ee94ec65906295ba3717c8ae718ef3cef0a9f0cf76686e56c4cd7a178c",
+      "rank": 12,
+      "score": 160,
+      "reasons": [
+        "large-geometry",
+        "screen-region-ratio"
+      ]
+    },
+    {
+      "id": "b26365:p3926353485957027839",
+      "file": "013_b26365_p3926353485957027839_J_bao_164.png",
+      "src": "/lab/formation-texture-review/assets/013_b26365_p3926353485957027839_J_bao_164.png",
+      "bundleId": 26365,
+      "pathID": 3926353485957027839,
+      "name": "J_bao_164",
+      "width": 1024,
+      "height": 1024,
+      "textureFormat": "ASTC_RGB_6x6",
+      "sourceImageBytes": 467856,
+      "pngBytes": 406386,
+      "sha256": "027883fe28be632531f3c82178b0dd72da51b8c6968a51ff9319a5c8b3dcb85f",
+      "rank": 13,
+      "score": 160,
+      "reasons": [
+        "large-geometry",
+        "screen-region-ratio"
+      ]
+    },
+    {
+      "id": "b26488:p-151821155683026552",
+      "file": "014_b26488_p-151821155683026552_Eff_tex_Y_smoke_zhadan_02.png",
+      "src": "/lab/formation-texture-review/assets/014_b26488_p-151821155683026552_Eff_tex_Y_smoke_zhadan_02.png",
+      "bundleId": 26488,
+      "pathID": -151821155683026552,
+      "name": "Eff_tex_Y_smoke_zhadan_02",
+      "width": 1024,
+      "height": 1024,
+      "textureFormat": "ASTC_RGB_6x6",
+      "sourceImageBytes": 467856,
+      "pngBytes": 781473,
+      "sha256": "a7bc2e1e9f5f06b63d96a97925e664555f96e3350e067b49f53fd46275ac0f7d",
+      "rank": 14,
+      "score": 160,
+      "reasons": [
+        "large-geometry",
+        "screen-region-ratio"
+      ]
+    },
+    {
+      "id": "b26488:p-5276899869082669865",
+      "file": "015_b26488_p-5276899869082669865_Eff_tex_Y_smoke_Katyusha_07.png",
+      "src": "/lab/formation-texture-review/assets/015_b26488_p-5276899869082669865_Eff_tex_Y_smoke_Katyusha_07.png",
+      "bundleId": 26488,
+      "pathID": -5276899869082669865,
+      "name": "Eff_tex_Y_smoke_Katyusha_07",
+      "width": 911,
+      "height": 1024,
+      "textureFormat": "ASTC_RGB_6x6",
+      "sourceImageBytes": 415872,
+      "pngBytes": 78346,
+      "sha256": "fb1483282cac57ea0ced7efc5b588b0fe08dc8f1712e051172a6d611662fadc9",
+      "rank": 15,
+      "score": 152,
+      "reasons": [
+        "large-geometry",
+        "screen-region-ratio"
+      ]
+    },
+    {
+      "id": "b14169:p1428597221306116786",
+      "file": "016_b14169_p1428597221306116786_Eff_tex_map_inst_levels.png",
+      "src": "/lab/formation-texture-review/assets/016_b14169_p1428597221306116786_Eff_tex_map_inst_levels.png",
+      "bundleId": 14169,
+      "pathID": 1428597221306116786,
+      "name": "Eff_tex_map_inst_levels",
+      "width": 740,
+      "height": 840,
+      "textureFormat": "ASTC_RGB_8x8",
+      "sourceImageBytes": 156240,
+      "pngBytes": 423723,
+      "sha256": "ed6ff4a473271384eb21409f64e3a3c49a0f50a63bc76654fb2cd9889d682364",
+      "rank": 16,
+      "score": 145,
+      "reasons": [
+        "large-geometry",
+        "screen-region-ratio",
+        "visual-name-hint"
+      ]
+    },
+    {
+      "id": "b1053:p90754538174351402",
+      "file": "017_b1053_p90754538174351402_sactx-512x1024-ASTC_4x4-LWMainUINew-4bb6a40a.png",
+      "src": "/lab/formation-texture-review/assets/017_b1053_p90754538174351402_sactx-512x1024-ASTC_4x4-LWMainUINew-4bb6a40a.png",
+      "bundleId": 1053,
+      "pathID": 90754538174351402,
+      "name": "sactx-512x1024-ASTC 4x4-LWMainUINew-4bb6a40a",
+      "width": 512,
+      "height": 1024,
+      "textureFormat": "ASTC_RGB_4x4",
+      "sourceImageBytes": 524288,
+      "pngBytes": 314161,
+      "sha256": "2607bd4baaf3988141cb29288a8f94c5f8b0b472490c24661579fd5aa3df57c7",
+      "rank": 17,
+      "score": 103,
+      "reasons": [
+        "large-geometry",
+        "broad-screen-ratio"
+      ]
+    },
+    {
+      "id": "b1176:p6344020284883012095",
+      "file": "018_b1176_p6344020284883012095_sactx-512x1024-ETC2-UIDailyPack-689e11de.png",
+      "src": "/lab/formation-texture-review/assets/018_b1176_p6344020284883012095_sactx-512x1024-ETC2-UIDailyPack-689e11de.png",
+      "bundleId": 1176,
+      "pathID": 6344020284883012095,
+      "name": "sactx-512x1024-ETC2-UIDailyPack-689e11de",
+      "width": 512,
+      "height": 1024,
+      "textureFormat": "ETC2_RGBA8",
+      "sourceImageBytes": 524288,
+      "pngBytes": 201123,
+      "sha256": "8f3d343959e9cb282bfaf541a352aa46f792127283fb59106a271927e1fa11a0",
+      "rank": 18,
+      "score": 103,
+      "reasons": [
+        "large-geometry",
+        "broad-screen-ratio"
+      ]
+    },
+    {
+      "id": "b1225:p7788716954828226076",
+      "file": "019_b1225_p7788716954828226076_sactx-1024x512-ETC2-UILWHeroSquad-93368788.png",
+      "src": "/lab/formation-texture-review/assets/019_b1225_p7788716954828226076_sactx-1024x512-ETC2-UILWHeroSquad-93368788.png",
+      "bundleId": 1225,
+      "pathID": 7788716954828226076,
+      "name": "sactx-1024x512-ETC2-UILWHeroSquad-93368788",
+      "width": 1024,
+      "height": 512,
+      "textureFormat": "ETC2_RGBA8",
+      "sourceImageBytes": 524288,
+      "pngBytes": 59055,
+      "sha256": "51627e6f9d081bab9e824c02e83607d4e13d42a7f6daf16e7887e8bbafa45a95",
+      "rank": 19,
+      "score": 103,
+      "reasons": [
+        "large-geometry",
+        "broad-screen-ratio"
+      ]
+    },
+    {
+      "id": "b1308:p-1966955151908873935",
+      "file": "020_b1308_p-1966955151908873935_sactx-1024x512-ASTC_6x6-UIZombieBattleMain-a885557e.png",
+      "src": "/lab/formation-texture-review/assets/020_b1308_p-1966955151908873935_sactx-1024x512-ASTC_6x6-UIZombieBattleMain-a885557e.png",
+      "bundleId": 1308,
+      "pathID": -1966955151908873935,
+      "name": "sactx-1024x512-ASTC 6x6-UIZombieBattleMain-a885557e",
+      "width": 1024,
+      "height": 512,
+      "textureFormat": "ASTC_RGB_6x6",
+      "sourceImageBytes": 235296,
+      "pngBytes": 282011,
+      "sha256": "c90efb4014f372d857b7f6d34d450984042b78d7c86fce098a76e9c43a4713db",
+      "rank": 20,
+      "score": 103,
+      "reasons": [
+        "large-geometry",
+        "broad-screen-ratio"
+      ]
+    },
+    {
+      "id": "b1360:p8065825573328928931",
+      "file": "021_b1360_p8065825573328928931_sactx-1024x512-ETC2-UI_UIMonthCard-b884f182.png",
+      "src": "/lab/formation-texture-review/assets/021_b1360_p8065825573328928931_sactx-1024x512-ETC2-UI_UIMonthCard-b884f182.png",
+      "bundleId": 1360,
+      "pathID": 8065825573328928931,
+      "name": "sactx-1024x512-ETC2-UI_UIMonthCard-b884f182",
+      "width": 1024,
+      "height": 512,
+      "textureFormat": "ETC2_RGBA8",
+      "sourceImageBytes": 524288,
+      "pngBytes": 68398,
+      "sha256": "e5851d74bd0ba6c71f1258f794598031a356e1b1e48db6382df9437e71a76f48",
+      "rank": 21,
+      "score": 103,
+      "reasons": [
+        "large-geometry",
+        "broad-screen-ratio"
+      ]
+    },
+    {
+      "id": "b26441:p6982333658338995166",
+      "file": "022_b26441_p6982333658338995166_Eff_tex_Y_path_Jinminxi_02.png",
+      "src": "/lab/formation-texture-review/assets/022_b26441_p6982333658338995166_Eff_tex_Y_path_Jinminxi_02.png",
+      "bundleId": 26441,
+      "pathID": 6982333658338995166,
+      "name": "Eff_tex_Y_path_Jinminxi_02",
+      "width": 1024,
+      "height": 512,
+      "textureFormat": "ASTC_RGB_6x6",
+      "sourceImageBytes": 235296,
+      "pngBytes": 128139,
+      "sha256": "3bb6a5908be791f227e510eb6464661b940c585cb22df4afd8c954388ded69c1",
+      "rank": 22,
+      "score": 103,
+      "reasons": [
+        "large-geometry",
+        "broad-screen-ratio"
+      ]
+    },
+    {
+      "id": "b26488:p-1711361450827574608",
+      "file": "023_b26488_p-1711361450827574608_Eff_tex_Y_smoke_daodan_02.png",
+      "src": "/lab/formation-texture-review/assets/023_b26488_p-1711361450827574608_Eff_tex_Y_smoke_daodan_02.png",
+      "bundleId": 26488,
+      "pathID": -1711361450827574608,
+      "name": "Eff_tex_Y_smoke_daodan_02",
+      "width": 1024,
+      "height": 512,
+      "textureFormat": "ASTC_RGB_6x6",
+      "sourceImageBytes": 235296,
+      "pngBytes": 118526,
+      "sha256": "48b0acaf058bc85c0c0cdfa2848b82590dfe0b98f36b4dce76903c373b358f3d",
+      "rank": 23,
+      "score": 103,
+      "reasons": [
+        "large-geometry",
+        "broad-screen-ratio"
+      ]
+    },
+    {
+      "id": "b26493:p-5818275042097152145",
+      "file": "024_b26493_p-5818275042097152145_Eff_tex_trail_410.png",
+      "src": "/lab/formation-texture-review/assets/024_b26493_p-5818275042097152145_Eff_tex_trail_410.png",
+      "bundleId": 26493,
+      "pathID": -5818275042097152145,
+      "name": "Eff_tex_trail_410",
+      "width": 1024,
+      "height": 512,
+      "textureFormat": "ASTC_RGB_8x8",
+      "sourceImageBytes": 131072,
+      "pngBytes": 195384,
+      "sha256": "b5694cdec89a28c7931611dea475d748fbc3ce5c39678db28c2b17eb6ddefcf6",
+      "rank": 24,
+      "score": 103,
+      "reasons": [
+        "large-geometry",
+        "broad-screen-ratio"
+      ]
+    },
+    {
+      "id": "b14169:p5091782165520717565",
+      "file": "025_b14169_p5091782165520717565_CtrlMap.png",
+      "src": "/lab/formation-texture-review/assets/025_b14169_p5091782165520717565_CtrlMap.png",
+      "bundleId": 14169,
+      "pathID": 5091782165520717565,
+      "name": "CtrlMap",
+      "width": 1024,
+      "height": 1024,
+      "textureFormat": "ASTC_RGB_6x6",
+      "sourceImageBytes": 467856,
+      "pngBytes": 69828,
+      "sha256": "c3b87d780d970c9bb18daf496c480d13e9a952918e84118f2b72cea389564aff",
+      "rank": 25,
+      "score": 93,
+      "reasons": [
+        "large-geometry",
+        "screen-region-ratio",
+        "visual-name-hint",
+        "technical-map-penalty"
+      ]
+    }
+  ]
+}
