@@ -1,0 +1,930 @@
+{
+  "format": "WFGG_LASTWAR_FORMATION_DYNAMIC_BINDING_BRIDGE_V1",
+  "dllSha256": "ed02eadb7764f7ff82a0d9b8746987ece867b2ccf7b06e9022e06c79259c380f",
+  "atlasExactBoundaryMethods": [
+    {
+      "rid": 4224,
+      "symbol": "LWLuaFile.GetSizeAndCrc",
+      "strings": [],
+      "externalCalls": [
+        "System.IDisposable.Dispose",
+        "System.IO.File.OpenRead",
+        "System.IO.Stream.get_Length",
+        "VEngine.Utility.ComputeCRC32"
+      ],
+      "callers": [
+        4219
+      ],
+      "callees": [],
+      "tags": []
+    },
+    {
+      "rid": 4222,
+      "symbol": "LWLuaFile.InWhiteList",
+      "strings": [],
+      "externalCalls": [
+        "System.String.Equals"
+      ],
+      "callers": [
+        14828
+      ],
+      "callees": [],
+      "tags": []
+    },
+    {
+      "rid": 4217,
+      "symbol": "LWLuaFile.Load",
+      "strings": [],
+      "externalCalls": [
+        "GameFramework.Log.Error",
+        "System.String.Format"
+      ],
+      "callers": [
+        4235,
+        14817
+      ],
+      "callees": [
+        4218,
+        4219
+      ],
+      "tags": [
+        "string-evidence"
+      ]
+    },
+    {
+      "rid": 4223,
+      "symbol": "LWLuaFile.LoadFile",
+      "strings": [],
+      "externalCalls": [
+        "GameKit.Base.EncryptUtils.SuperDecrypt",
+        "System.IO.BinaryReader.ReadBytes",
+        "System.IO.Stream.Seek",
+        "System.String.Concat",
+        "System.String.Replace",
+        "tag4:rid1481.TryGetValue"
+      ],
+      "callers": [
+        14828,
+        14847
+      ],
+      "callees": [
+        4211
+      ],
+      "tags": [
+        "string-evidence"
+      ]
+    },
+    {
+      "rid": 4219,
+      "symbol": "LWLuaFile._Load",
+      "strings": [],
+      "externalCalls": [
+        "GameFramework.Log.Error",
+        "GameFramework.Log.Info",
+        "System.IO.BinaryReader..ctor",
+        "System.IO.BinaryReader.ReadBytes",
+        "System.IO.BinaryReader.ReadInt32",
+        "System.IO.BinaryReader.ReadString",
+        "System.IO.File.Exists",
+        "System.IO.File.OpenRead",
+        "System.IO.File.WriteAllText",
+        "System.IO.Stream.Seek",
+        "System.IO.Stream.get_Position",
+        "System.Int32.ToString",
+        "System.String.Concat",
+        "System.String.Format",
+        "tag4:rid1481.Add",
+        "tag4:rid1481.Clear"
+      ],
+      "callers": [
+        4217
+      ],
+      "callees": [
+        4209,
+        4210,
+        4211,
+        4212,
+        4213,
+        4214,
+        4215,
+        4216,
+        4221,
+        4224,
+        4239,
+        48254
+      ],
+      "tags": [
+        "string-evidence"
+      ]
+    },
+    {
+      "rid": 4257,
+      "symbol": "LWLuaFileUpdate.ApplyUpdate",
+      "strings": [],
+      "externalCalls": [
+        "GameFramework.Log.Error",
+        "GameFramework.Log.Info",
+        "System.IO.File.Delete",
+        "System.IO.File.Exists",
+        "System.String.Concat",
+        "System.String.Format",
+        "System.String.IsNullOrEmpty"
+      ],
+      "callers": [
+        727,
+        4256
+      ],
+      "callees": [
+        4258,
+        4259,
+        4260,
+        4266
+      ],
+      "tags": [
+        "string-evidence"
+      ]
+    },
+    {
+      "rid": 4258,
+      "symbol": "LWLuaFileUpdate.ApplyUpdate",
+      "strings": [],
+      "externalCalls": [
+        "GameFramework.Log.Error",
+        "GameFramework.Log.Info",
+        "GameKit.Base.EncryptUtils.FromChachaToBZip",
+        "GameKit.Base.EncryptUtils.FromChachaToBsDiffPatch",
+        "GameKit.Base.EncryptUtils.IsChachaPackage",
+        "GameKit.Base.EncryptUtils.IsChachaPatch",
+        "ICSharpCode.SharpZipLib.BZip2.BZip2.Decompress",
+        "System.IDisposable.Dispose",
+        "System.IO.File.Delete",
+        "System.IO.File.Exists",
+        "System.IO.File.Open",
+        "System.IO.File.OpenRead",
+        "System.IO.File.ReadAllBytes",
+        "System.IO.File.WriteAllBytes",
+        "System.IO.FileStream..ctor",
+        "System.IO.MemoryStream..ctor",
+        "System.IO.MemoryStream.ToArray",
+        "System.IO.MemoryStream.WriteTo",
+        "System.IO.Stream.Dispose",
+        "System.IO.Stream.Read",
+        "System.String.Format",
+        "tag4:rid1093..ctor"
+      ],
+      "callers": [
+        4257
+      ],
+      "callees": [
+        4269,
+        4270,
+        4272,
+        40612,
+        48268,
+        48269,
+        48270,
+        48271,
+        48274,
+        48275
+      ],
+      "tags": [
+        "string-evidence"
+      ]
+    },
+    {
+      "rid": 4248,
+      "symbol": "LWLuaFileUpdate.InitFileOnAppStart",
+      "strings": [],
+      "externalCalls": [
+        "GameFramework.Log.Error",
+        "GameFramework.Log.Info",
+        "GameFramework.Log.Warning",
+        "GameKit.Base.EncryptUtils.FromChachaToBZip",
+        "GameKit.Base.EncryptUtils.IsChachaPackage",
+        "ICSharpCode.SharpZipLib.BZip2.BZip2.Decompress",
+        "System.IO.Directory.CreateDirectory",
+        "System.IO.Directory.Exists",
+        "System.IO.File.Delete",
+        "System.IO.File.Exists",
+        "System.IO.File.Open",
+        "System.IO.File.ReadAllBytes",
+        "System.IO.MemoryStream..ctor",
+        "System.IO.MemoryStream.ToArray",
+        "System.IO.MemoryStream.WriteTo",
+        "System.IO.Stream.Dispose",
+        "System.String.Concat",
+        "System.String.Format",
+        "System.String.Split",
+        "System.UInt32.Parse",
+        "System.UInt64.Parse",
+        "UnityEngine.Networking.DownloadHandler.get_data",
+        "UnityEngine.Networking.DownloadHandler.get_text"
+      ],
+      "callers": [
+        448
+      ],
+      "callees": [
+        2653,
+        3032,
+        3033,
+        3153,
+        3711,
+        4240,
+        4241,
+        4243,
+        4244,
+        4246,
+        4247,
+        4256,
+        4265,
+        4266,
+        4268,
+        4269
+      ],
+      "tags": [
+        "string-evidence"
+      ]
+    },
+    {
+      "rid": 4245,
+      "symbol": "LWLuaFileUpdate.SaveUpdateFile",
+      "strings": [],
+      "externalCalls": [
+        "GameFramework.Log.Info",
+        "System.IO.File.Delete",
+        "System.IO.File.Exists",
+        "System.IO.File.WriteAllText",
+        "System.String.Concat",
+        "System.String.Format"
+      ],
+      "callers": [
+        727
+      ],
+      "callees": [],
+      "tags": [
+        "string-evidence"
+      ]
+    },
+    {
+      "rid": 4236,
+      "symbol": "LWLuaFileUpdateParallel.mt_LwScriptSwap",
+      "strings": [],
+      "externalCalls": [
+        "GameFramework.Log.Info",
+        "System.String.Format"
+      ],
+      "callers": [
+        504
+      ],
+      "callees": [
+        3143,
+        14816
+      ],
+      "tags": [
+        "string-evidence"
+      ]
+    },
+    {
+      "rid": 4235,
+      "symbol": "LWLuaFileUpdateParallel.th_LwScriptLoad",
+      "strings": [],
+      "externalCalls": [
+        "GameFramework.Log.Error",
+        "GameFramework.Log.Info",
+        "System.String.Format"
+      ],
+      "callers": [
+        504
+      ],
+      "callees": [
+        489,
+        503,
+        4217,
+        48259
+      ],
+      "tags": [
+        "string-evidence"
+      ]
+    }
+  ],
+  "exactBoundaryMethodIL": [
+    {
+      "rid": 4224,
+      "symbol": "LWLuaFile.GetSizeAndCrc",
+      "strings": [],
+      "internalCalls": [],
+      "externalCalls": [
+        "System.IO.File.OpenRead",
+        "System.IO.Stream.get_Length",
+        "VEngine.Utility.ComputeCRC32",
+        "System.IDisposable.Dispose"
+      ]
+    },
+    {
+      "rid": 4222,
+      "symbol": "LWLuaFile.InWhiteList",
+      "strings": [
+        "xlua.util"
+      ],
+      "internalCalls": [],
+      "externalCalls": [
+        "System.String.Equals"
+      ]
+    },
+    {
+      "rid": 4217,
+      "symbol": "LWLuaFile.Load",
+      "strings": [
+        "[LWLuaFile] load error: {0}"
+      ],
+      "internalCalls": [
+        "LWLuaFile..ctor",
+        "LWLuaFile._Load"
+      ],
+      "externalCalls": [
+        "System.String.Format",
+        "GameFramework.Log.Error"
+      ]
+    },
+    {
+      "rid": 4223,
+      "symbol": "LWLuaFile.LoadFile",
+      "strings": [
+        ".",
+        "/",
+        ".luac"
+      ],
+      "internalCalls": [
+        "LWLuaFile.get_fileVersion"
+      ],
+      "externalCalls": [
+        "System.String.Replace",
+        "System.String.Concat",
+        "tag4:rid1481.TryGetValue",
+        "System.IO.Stream.Seek",
+        "System.IO.BinaryReader.ReadBytes",
+        "GameKit.Base.EncryptUtils.SuperDecrypt"
+      ]
+    },
+    {
+      "rid": 4219,
+      "symbol": "LWLuaFile._Load",
+      "strings": [
+        "/LWScripts.data",
+        "[LWLuaFile] begin load, initSucceed: {0}.",
+        "[LWLuaFile] ",
+        " is not exist.",
+        "[LWLuaFile] load file: ",
+        "[LWLuaFile] memoryFile is not exist.",
+        "[LWLuaFile] load stream.",
+        "/version.txt",
+        "[LWLuaFile] file version: {0}.",
+        "[LWLuaFile] file format version: {0}.",
+        "[LWLuaFile] load error: {0}",
+        "[LWLuaFile] load error: {0}, {1}, {2}, {3}, {4}",
+        "[LWLuaFile] finish load, succeed: {0}."
+      ],
+      "internalCalls": [
+        "LWLuaFile.Close",
+        "LWLuaFile.GetSizeAndCrc",
+        "LWLuaFile.set_size",
+        "LWLuaFile.set_crc",
+        "LWLuaFile.set_fileVersion",
+        "LWLuaFile.set_version",
+        "LWLuaFile.get_version",
+        "LWLuaFile.get_version",
+        "LWLuaFile.get_version",
+        "LWLuaFile.get_fileVersion",
+        "FileEntry..ctor",
+        "LWLuaFile.get_size",
+        "LWLuaFile.get_crc",
+        "LWLuaFile.Close",
+        "LWLuaFileUpdate.SetClearFlag"
+      ],
+      "externalCalls": [
+        "tag4:rid1481.Clear",
+        "System.String.Concat",
+        "System.String.Format",
+        "GameFramework.Log.Info",
+        "System.IO.File.Exists",
+        "System.String.Concat",
+        "GameFramework.Log.Error",
+        "System.IO.File.OpenRead",
+        "System.String.Concat",
+        "GameFramework.Log.Info",
+        "GameFramework.Log.Error",
+        "System.IO.Stream.Seek",
+        "GameFramework.Log.Info",
+        "System.IO.BinaryReader..ctor",
+        "System.IO.BinaryReader.ReadBytes",
+        "System.IO.BinaryReader.ReadInt32",
+        "System.IO.BinaryReader.ReadInt32",
+        "System.String.Concat",
+        "System.Int32.ToString",
+        "System.IO.File.WriteAllText",
+        "System.String.Format",
+        "GameFramework.Log.Info",
+        "System.String.Format",
+        "GameFramework.Log.Info",
+        "System.IO.BinaryReader.ReadInt32",
+        "System.IO.BinaryReader.ReadString",
+        "System.IO.BinaryReader.ReadInt32",
+        "System.IO.Stream.get_Position",
+        "tag4:rid1481.Add",
+        "System.IO.Stream.Seek",
+        "System.String.Format",
+        "GameFramework.Log.Error",
+        "System.String.Format",
+        "GameFramework.Log.Error",
+        "System.String.Format",
+        "GameFramework.Log.Info"
+      ]
+    },
+    {
+      "rid": 4257,
+      "symbol": "LWLuaFileUpdate.ApplyUpdate",
+      "strings": [
+        "[LWLuaFileUpdate] ApplyUpdate updateFlag: {0}, downloadFilePath: {1}, hasDownloadFile: {2}.",
+        "/LWScripts.data",
+        "/LWScripts.data.tmp",
+        "/LWScripts.txt",
+        "[LWLuaFileUpdate] update succeed with ",
+        ".",
+        "[LWLuaFileUpdate] update failed with ",
+        "."
+      ],
+      "internalCalls": [
+        "LWLuaFileUpdate.ApplyUpdate",
+        "LWLuaFileUpdate.CheckUpdateResult",
+        "LWLuaFileUtil.WriteSizeAndCrc",
+        "LWLuaFileUpdate.SwapFilePath"
+      ],
+      "externalCalls": [
+        "System.IO.File.Exists",
+        "System.String.Format",
+        "GameFramework.Log.Info",
+        "System.String.IsNullOrEmpty",
+        "System.IO.File.Exists",
+        "System.String.Concat",
+        "System.String.Concat",
+        "System.String.Concat",
+        "System.String.Concat",
+        "GameFramework.Log.Info",
+        "System.IO.File.Delete",
+        "System.IO.File.Delete",
+        "System.String.Concat",
+        "GameFramework.Log.Error"
+      ]
+    },
+    {
+      "rid": 4258,
+      "symbol": "LWLuaFileUpdate.ApplyUpdate",
+      "strings": [
+        "[LWLuaFileUpdate] LWLuaFile delete tmp file {0} [{1}/{2}].",
+        "[LWLuaFileUpdate] LWLuaFile delete tmp file Exception '{0}'.",
+        "[LWLuaFileUpdate] ApplyUpdate replace script file with {0} [{1}/{2}].",
+        "[LWLuaFileUpdate] LWLuaFile ApplyUpdate Replace Exception '{0}'.",
+        "[LWLuaFileUpdate] ApplyUpdate patch script file with {0} [{1}/{2}]",
+        "[LWLuaFileUpdate] LWLuaFile ApplyUpdate Patch Exception '{0}'."
+      ],
+      "internalCalls": [
+        "LWLuaFileUtil.EncodeLWLuaFileData",
+        "LWLuaFileUtil.IsEncodedLWLuaFile",
+        "<>c__DisplayClass33_0..ctor",
+        "LWLuaFileUtil.DecodeLWLuaFileData",
+        "<>c__DisplayClass33_0.<ApplyUpdate>b__0",
+        "BsDiff.BinaryPatch.Apply",
+        "LWLuaFileUtil.EncodeLWLuaFileData",
+        "LWLuaFileUtil.DecodeLWLuaFileData",
+        "<>c.<ApplyUpdate>b__33_1",
+        "BsDiff.BinaryPatch.Apply",
+        "<>c__DisplayClass33_1..ctor",
+        "<>c__DisplayClass33_1.<ApplyUpdate>b__2",
+        "BsDiff.BinaryPatch.Apply",
+        "LWLuaFileUtil.EncodeLWLuaFileData",
+        "<>c.<ApplyUpdate>b__33_3",
+        "BsDiff.BinaryPatch.Apply"
+      ],
+      "externalCalls": [
+        "System.IO.File.Exists",
+        "System.String.Format",
+        "GameFramework.Log.Info",
+        "System.IO.File.Delete",
+        "GameFramework.Log.Error",
+        "System.String.Format",
+        "GameFramework.Log.Info",
+        "System.IO.File.ReadAllBytes",
+        "GameKit.Base.EncryptUtils.IsChachaPackage",
+        "GameKit.Base.EncryptUtils.FromChachaToBZip",
+        "System.IO.MemoryStream..ctor",
+        "System.IO.MemoryStream..ctor",
+        "ICSharpCode.SharpZipLib.BZip2.BZip2.Decompress",
+        "System.IO.Stream.Dispose",
+        "System.IO.MemoryStream.ToArray",
+        "System.IO.Stream.Dispose",
+        "System.IO.MemoryStream..ctor",
+        "System.IO.File.Open",
+        "System.IO.MemoryStream.WriteTo",
+        "System.IO.Stream.Dispose",
+        "System.IO.Stream.Dispose",
+        "System.IO.MemoryStream..ctor",
+        "System.IO.File.Open",
+        "ICSharpCode.SharpZipLib.BZip2.BZip2.Decompress",
+        "GameFramework.Log.Error",
+        "System.String.Format",
+        "GameFramework.Log.Info",
+        "System.IO.File.OpenRead",
+        "System.IO.Stream.Read",
+        "GameKit.Base.EncryptUtils.IsChachaPatch",
+        "System.IDisposable.Dispose",
+        "System.IO.File.OpenRead",
+        "System.IO.Stream.Read",
+        "System.IO.MemoryStream..ctor",
+        "System.IO.Stream.Dispose",
+        "System.IDisposable.Dispose",
+        "System.IO.File.ReadAllBytes",
+        "GameKit.Base.EncryptUtils.FromChachaToBsDiffPatch",
+        "System.IO.File.ReadAllBytes",
+        "System.IO.MemoryStream..ctor",
+        "System.IO.MemoryStream..ctor",
+        "tag4:rid1093..ctor",
+        "System.IO.Stream.Dispose",
+        "System.IO.MemoryStream.ToArray",
+        "System.IO.Stream.Dispose",
+        "System.IO.MemoryStream..ctor",
+        "System.IO.MemoryStream.ToArray",
+        "System.IO.Stream.Dispose",
+        "System.IO.File.WriteAllBytes",
+        "System.IO.FileStream..ctor",
+        "System.IO.File.ReadAllBytes",
+        "System.IO.MemoryStream..ctor",
+        "tag4:rid1093..ctor",
+        "System.IO.Stream.Dispose",
+        "System.IDisposable.Dispose",
+        "System.IO.FileStream..ctor",
+        "System.IO.File.ReadAllBytes",
+        "GameKit.Base.EncryptUtils.FromChachaToBsDiffPatch",
+        "System.IO.MemoryStream..ctor",
+        "tag4:rid1093..ctor",
+        "System.IO.MemoryStream.ToArray",
+        "System.IO.Stream.Dispose",
+        "System.IO.MemoryStream..ctor",
+        "System.IO.MemoryStream.ToArray",
+        "System.IO.Stream.Dispose",
+        "System.IO.File.WriteAllBytes",
+        "System.IDisposable.Dispose",
+        "System.IO.FileStream..ctor",
+        "System.IO.FileStream..ctor",
+        "tag4:rid1093..ctor",
+        "System.IDisposable.Dispose",
+        "System.IDisposable.Dispose",
+        "GameFramework.Log.Error"
+      ]
+    },
+    {
+      "rid": 4248,
+      "symbol": "LWLuaFileUpdate.InitFileOnAppStart",
+      "strings": [
+        "/LWScripts.data",
+        "/LWScripts.txt",
+        "/LWScripts.bz2",
+        "/LWScripts.bz2",
+        "[LWLuaFileUpdate] clear flag is set, delete scriptFile.",
+        "[LWLuaFileUpdate] clear flag is set, but scriptFile is not exist.",
+        "[LWLuaFileUpdate] version file size or crc mismatch, delete scriptFile.",
+        "[LWLuaFileUpdate] version file size: {0}, crc: {1}.",
+        "[LWLuaFileUpdate] version file not exist, delete scriptFile.",
+        "[LWLuaFileUpdate] scriptFile file is not exist.",
+        "/LWScripts.txt",
+        "1.0.303",
+        "[LWLuaFileUpdateV2] version file size: {0}, crc: {1}.",
+        "[LWLuaFileUpdateV2] read version file failed.",
+        "[LWLuaFileUpdateV2] version file read has error, {0}",
+        "[LWLuaFileUpdateV2] copy uncompressed script file to ",
+        ".",
+        "/LWScripts.data",
+        "[LWLuaFileUpdateV2] script file check size {0} != {1}.",
+        "[LWLuaFileUpdateV2] script file check crc {0} != {1}.",
+        "[LWLuaFileUpdateV2] copy script file to ",
+        ", initSucceed.",
+        "[LWLuaFileUpdateV2] copy script file to memory stream",
+        "[LWLuaFileUpdateV2] copy script file to memory stream",
+        "1.0.191",
+        "[LWLuaFileUpdate] copy compressed script file to ",
+        ".",
+        "[LWLuaFileUpdate] skip uncompressed script file.",
+        "[LWLuaFileUpdate] copy builtin LWFile has error, isn`t exist.",
+        "[LWLuaFileUpdate] version file size: {0}, crc: {1}.",
+        "[LWLuaFileUpdate] read version file failed.",
+        "[LWLuaFileUpdate] version file read has error, {0}",
+        "[LWLuaFileUpdate] delete decompress script file, [{0}/{1}].",
+        "[LWLuaFileUpdate] copy uncompressed script file to {0}, [{1}/{2}].",
+        "/LWScripts.data",
+        "[LWLuaFileUpdate] decompress script file to {0}, [{1}/{2}].",
+        "[LWLuaFileUpdate] unzip script file check size {0} != {1}, [{2}/{3}].",
+        "[LWLuaFileUpdate] unzip script file check crc {0} != {1}, [{2}/{3}].",
+        "[LWLuaFileUpdate] decompress script file to ",
+        ", initSucceed.",
+        "[LWLuaFileUpdate] {0}",
+        "[LWLuaFileUpdate] decompress script file to memory stream",
+        "[LWLuaFileUpdate] script file exist, initSucceed.",
+        "[LWLuaFileUpdate] InitFileOnAppStart {0}"
+      ],
+      "internalCalls": [
+        "LWLuaFileUpdate.HasClearFlag",
+        "LWLuaFileUpdate.RemoveClearFlag",
+        "LWLuaFileUpdate.HasUpdateFile",
+        "LWLuaFileUpdate.ApplyUpdateOnStartup",
+        "LWLuaFileUpdate.ClearUpdateFile",
+        "LWLuaFileUpdate.HasUpdateKey",
+        "LWLuaFileUpdate.ApplyUpdateOnStartup",
+        "LWLuaFileUpdate.ClearUpdateKey",
+        "LWLuaFileUtil.ReadSizeAndCrc",
+        "LWLuaFileUtil.GetSizeAndCrc",
+        "GameEntry.get_Sdk",
+        "SDKManager.get_Version",
+        "StringUtils.VersionCompare",
+        "BuiltinFileReader.ReadyFileFromBuiltIn",
+        "BuiltinFileReader.CopyFileFromBuiltIn",
+        "LWLuaFileUtil.GetSizeAndCrc",
+        "LWLuaFileUtil.WriteSizeAndCrc",
+        "BuiltinFileReader.ReadyFileFromBuiltIn",
+        "GameEntry.get_Sdk",
+        "SDKManager.get_Version",
+        "StringUtils.VersionCompare",
+        "BuiltinFileReader.CopyFileFromBuiltIn",
+        "BuiltinFileReader.ReadyFileFromBuiltIn",
+        "BuiltinFileReader.CopyFileFromBuiltIn",
+        "LWLuaFileUtil.EncodeLWLuaFileData",
+        "LWLuaFileUtil.GetSizeAndCrc",
+        "LWLuaFileUtil.WriteSizeAndCrc",
+        "LWLuaFileUtil.EncodeLWLuaFileData"
+      ],
+      "externalCalls": [
+        "System.IO.Directory.Exists",
+        "System.IO.Directory.CreateDirectory",
+        "System.IO.Stream.Dispose",
+        "System.String.Concat",
+        "System.String.Concat",
+        "System.String.Concat",
+        "System.String.Concat",
+        "System.IO.File.Exists",
+        "GameFramework.Log.Info",
+        "System.IO.File.Delete",
+        "GameFramework.Log.Warning",
+        "System.IO.File.Exists",
+        "System.IO.File.Exists",
+        "GameFramework.Log.Info",
+        "System.IO.File.Delete",
+        "System.String.Format",
+        "GameFramework.Log.Info",
+        "GameFramework.Log.Info",
+        "System.IO.File.Delete",
+        "GameFramework.Log.Info",
+        "System.IO.File.Exists",
+        "System.IO.File.Exists",
+        "System.IO.File.Delete",
+        "System.String.Concat",
+        "UnityEngine.Networking.DownloadHandler.get_text",
+        "System.String.Split",
+        "System.UInt64.Parse",
+        "System.UInt32.Parse",
+        "System.String.Format",
+        "GameFramework.Log.Info",
+        "GameFramework.Log.Error",
+        "System.String.Format",
+        "GameFramework.Log.Error",
+        "System.String.Concat",
+        "GameFramework.Log.Info",
+        "System.String.Concat",
+        "System.IO.File.Exists",
+        "System.String.Format",
+        "GameFramework.Log.Error",
+        "System.String.Format",
+        "GameFramework.Log.Error",
+        "System.String.Concat",
+        "GameFramework.Log.Info",
+        "GameFramework.Log.Info",
+        "UnityEngine.Networking.DownloadHandler.get_data",
+        "System.IO.MemoryStream..ctor",
+        "GameFramework.Log.Error",
+        "System.String.Concat",
+        "GameFramework.Log.Info",
+        "GameFramework.Log.Info",
+        "System.IO.File.Exists",
+        "GameFramework.Log.Error",
+        "UnityEngine.Networking.DownloadHandler.get_text",
+        "System.String.Split",
+        "System.UInt64.Parse",
+        "System.UInt32.Parse",
+        "System.String.Format",
+        "GameFramework.Log.Info",
+        "GameFramework.Log.Error",
+        "System.String.Format",
+        "GameFramework.Log.Error",
+        "System.IO.File.Exists",
+        "System.String.Format",
+        "GameFramework.Log.Info",
+        "System.IO.File.Delete",
+        "System.String.Format",
+        "GameFramework.Log.Info",
+        "System.String.Concat",
+        "System.String.Format",
+        "GameFramework.Log.Info",
+        "System.IO.File.ReadAllBytes",
+        "GameKit.Base.EncryptUtils.IsChachaPackage",
+        "GameKit.Base.EncryptUtils.FromChachaToBZip",
+        "System.IO.MemoryStream..ctor",
+        "System.IO.MemoryStream..ctor",
+        "ICSharpCode.SharpZipLib.BZip2.BZip2.Decompress",
+        "System.IO.Stream.Dispose",
+        "System.IO.MemoryStream.ToArray",
+        "System.IO.Stream.Dispose",
+        "System.IO.MemoryStream..ctor",
+        "System.IO.File.Open",
+        "System.IO.MemoryStream.WriteTo",
+        "System.IO.Stream.Dispose",
+        "System.IO.Stream.Dispose",
+        "System.IO.MemoryStream..ctor",
+        "System.IO.File.Open",
+        "ICSharpCode.SharpZipLib.BZip2.BZip2.Decompress",
+        "System.IO.File.Exists",
+        "System.String.Format",
+        "GameFramework.Log.Error",
+        "System.String.Format",
+        "GameFramework.Log.Error",
+        "System.String.Concat",
+        "GameFramework.Log.Info",
+        "System.String.Format",
+        "GameFramework.Log.Error",
+        "GameFramework.Log.Info",
+        "System.IO.File.ReadAllBytes",
+        "GameKit.Base.EncryptUtils.IsChachaPackage",
+        "GameKit.Base.EncryptUtils.FromChachaToBZip",
+        "System.IO.MemoryStream..ctor",
+        "System.IO.MemoryStream..ctor",
+        "ICSharpCode.SharpZipLib.BZip2.BZip2.Decompress",
+        "System.IO.MemoryStream.ToArray",
+        "System.IO.MemoryStream..ctor",
+        "System.IO.Stream.Dispose",
+        "System.IO.Stream.Dispose",
+        "System.IO.File.Delete",
+        "System.IO.File.Delete",
+        "GameFramework.Log.Info",
+        "System.String.Format",
+        "GameFramework.Log.Error"
+      ]
+    },
+    {
+      "rid": 4245,
+      "symbol": "LWLuaFileUpdate.SaveUpdateFile",
+      "strings": [
+        "{0}|{1}|{2}|{3}",
+        "[LWLuaFileUpdate] SaveUpdateFile value: ",
+        ", ",
+        "[LWLuaFileUpdate] SaveUpdateFile updateFlag is none."
+      ],
+      "internalCalls": [],
+      "externalCalls": [
+        "System.String.Format",
+        "System.IO.File.WriteAllText",
+        "System.String.Concat",
+        "GameFramework.Log.Info",
+        "System.IO.File.Exists",
+        "System.IO.File.Delete",
+        "GameFramework.Log.Info"
+      ]
+    },
+    {
+      "rid": 4236,
+      "symbol": "LWLuaFileUpdateParallel.mt_LwScriptSwap",
+      "strings": [
+        "[ParallelInit] [{0}] mt_LwScriptSwap"
+      ],
+      "internalCalls": [
+        "GameEntry.get_Lua",
+        "XLuaManager.SetSwapLuaFile"
+      ],
+      "externalCalls": [
+        "System.String.Format",
+        "GameFramework.Log.Info"
+      ]
+    },
+    {
+      "rid": 4235,
+      "symbol": "LWLuaFileUpdateParallel.th_LwScriptLoad",
+      "strings": [
+        "[ParallelInit] [{0}] th_LwScriptLoad",
+        "[ParallelInit] [LWLuaFileUpdate] InitFileOnAppStart {0}"
+      ],
+      "internalCalls": [
+        "LWLuaFile.Load",
+        "LwScriptSwapPayload..ctor",
+        "LaunchTask..ctor",
+        "ApplicationLaunch.EnqueueTask",
+        "LaunchTask..ctor",
+        "ApplicationLaunch.EnqueueTask"
+      ],
+      "externalCalls": [
+        "System.String.Format",
+        "GameFramework.Log.Info",
+        "System.String.Format",
+        "GameFramework.Log.Error"
+      ]
+    }
+  ],
+  "targets": [
+    "Assets/Main/Prefabs/UI/UIHero/LWHero/UIHeroPVPFormationPanel.prefab",
+    "UIHeroPVPFormationPanel",
+    "FormationContent",
+    "MiddleContentContainer"
+  ],
+  "usExactOffsets": {},
+  "exactStringXrefs": [],
+  "loaderStrings": [
+    "xlua.util",
+    "[LWLuaFile] load error: {0}",
+    ".",
+    "/",
+    ".luac",
+    "/LWScripts.data",
+    "[LWLuaFile] begin load, initSucceed: {0}.",
+    "[LWLuaFile] ",
+    " is not exist.",
+    "[LWLuaFile] load file: ",
+    "[LWLuaFile] memoryFile is not exist.",
+    "[LWLuaFile] load stream.",
+    "/version.txt",
+    "[LWLuaFile] file version: {0}.",
+    "[LWLuaFile] file format version: {0}.",
+    "[LWLuaFile] load error: {0}, {1}, {2}, {3}, {4}",
+    "[LWLuaFile] finish load, succeed: {0}.",
+    "[LWLuaFileUpdate] ApplyUpdate updateFlag: {0}, downloadFilePath: {1}, hasDownloadFile: {2}.",
+    "/LWScripts.data.tmp",
+    "/LWScripts.txt",
+    "[LWLuaFileUpdate] update succeed with ",
+    "[LWLuaFileUpdate] update failed with ",
+    "[LWLuaFileUpdate] LWLuaFile delete tmp file {0} [{1}/{2}].",
+    "[LWLuaFileUpdate] LWLuaFile delete tmp file Exception '{0}'.",
+    "[LWLuaFileUpdate] ApplyUpdate replace script file with {0} [{1}/{2}].",
+    "[LWLuaFileUpdate] LWLuaFile ApplyUpdate Replace Exception '{0}'.",
+    "[LWLuaFileUpdate] ApplyUpdate patch script file with {0} [{1}/{2}]",
+    "[LWLuaFileUpdate] LWLuaFile ApplyUpdate Patch Exception '{0}'.",
+    "/LWScripts.bz2",
+    "[LWLuaFileUpdate] clear flag is set, delete scriptFile.",
+    "[LWLuaFileUpdate] clear flag is set, but scriptFile is not exist.",
+    "[LWLuaFileUpdate] version file size or crc mismatch, delete scriptFile.",
+    "[LWLuaFileUpdate] version file size: {0}, crc: {1}.",
+    "[LWLuaFileUpdate] version file not exist, delete scriptFile.",
+    "[LWLuaFileUpdate] scriptFile file is not exist.",
+    "1.0.303",
+    "[LWLuaFileUpdateV2] version file size: {0}, crc: {1}.",
+    "[LWLuaFileUpdateV2] read version file failed.",
+    "[LWLuaFileUpdateV2] version file read has error, {0}",
+    "[LWLuaFileUpdateV2] copy uncompressed script file to ",
+    "[LWLuaFileUpdateV2] script file check size {0} != {1}.",
+    "[LWLuaFileUpdateV2] script file check crc {0} != {1}.",
+    "[LWLuaFileUpdateV2] copy script file to ",
+    ", initSucceed.",
+    "[LWLuaFileUpdateV2] copy script file to memory stream",
+    "1.0.191",
+    "[LWLuaFileUpdate] copy compressed script file to ",
+    "[LWLuaFileUpdate] skip uncompressed script file.",
+    "[LWLuaFileUpdate] copy builtin LWFile has error, isn`t exist.",
+    "[LWLuaFileUpdate] read version file failed.",
+    "[LWLuaFileUpdate] version file read has error, {0}",
+    "[LWLuaFileUpdate] delete decompress script file, [{0}/{1}].",
+    "[LWLuaFileUpdate] copy uncompressed script file to {0}, [{1}/{2}].",
+    "[LWLuaFileUpdate] decompress script file to {0}, [{1}/{2}].",
+    "[LWLuaFileUpdate] unzip script file check size {0} != {1}, [{2}/{3}].",
+    "[LWLuaFileUpdate] unzip script file check crc {0} != {1}, [{2}/{3}].",
+    "[LWLuaFileUpdate] decompress script file to ",
+    "[LWLuaFileUpdate] {0}",
+    "[LWLuaFileUpdate] decompress script file to memory stream",
+    "[LWLuaFileUpdate] script file exist, initSucceed.",
+    "[LWLuaFileUpdate] InitFileOnAppStart {0}",
+    "{0}|{1}|{2}|{3}",
+    "[LWLuaFileUpdate] SaveUpdateFile value: ",
+    ", ",
+    "[LWLuaFileUpdate] SaveUpdateFile updateFlag is none.",
+    "[ParallelInit] [{0}] mt_LwScriptSwap",
+    "[ParallelInit] [{0}] th_LwScriptLoad",
+    "[ParallelInit] [LWLuaFileUpdate] InitFileOnAppStart {0}"
+  ],
+  "counts": {
+    "selectedBoundaryMethods": 11,
+    "exactStringXrefMethods": 0,
+    "loaderStrings": 68
+  },
+  "nextStrategy": "use_exact_xlua_loader_strings_to_locate_script_container",
+  "guardrails": {
+    "recoveredDllOnly": true,
+    "apkAccess": false,
+    "bundleScan": false,
+    "bundleExtraction": false,
+    "atlasRebuild": false,
+    "candidatePromotion": false,
+    "mainUntouched": true,
+    "previewUntouched": true
+  }
+}
