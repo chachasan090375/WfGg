@@ -63,7 +63,6 @@ start_atrace(){
   echo $? >"$SESSION/atrace-start.rc"
   set -e
 }
-
 start_perfetto(){
   local rfile="$REMOTE_SESSION/perfetto.trace"
   set +e
@@ -71,7 +70,6 @@ start_perfetto(){
   echo $? >"$SESSION/perfetto-start.rc"
   set -e
 }
-
 start_simpleperf(){
   local rfile="$REMOTE_SESSION/simpleperf.data"
   set +e
@@ -101,10 +99,15 @@ prepare_remote_strace(){
 }
 
 mark(){
-  local what="$1" epoch
+  local what="$1" epoch f
   epoch="$(date +%s.%3N)"
   echo "$what=$epoch" >>"$STATE"
   echo "@@$what $epoch" >>"$SESSION/markers.log"
+  # Inject the same delimiter directly into local streaming logs so the
+  # analyzer can cut preparation/return noise out of the action window.
+  for f in logcat-pid.log logcat-all.log logcat-events.log poller-runtime.log poller-activity.log; do
+    [[ -f "$SESSION/$f" ]] && printf '@@%s %s\n' "$what" "$epoch" >>"$SESSION/$f" || true
+  done
   timeout 2 adb -s "$SERIAL" shell "log -t WFGG_OMNITRACE '$what $ID $epoch'" >/dev/null 2>&1 || true
 }
 
@@ -129,7 +132,6 @@ EOF
   say "FORMATION_OMNITRACE_V1_PREP session=$ID device=$SERIAL pid=$PID"
   say 'PACK=logcat+events+proc+network+dumpsys+atrace+perfetto+simpleperf+strace'
   snap before & echo $! >"$SESSION/snapshot-before.pid"
-  # Prepare the deepest collector before opening the action window.
   prepare_remote_strace
   start_logcats
   start_pollers
@@ -161,7 +163,6 @@ stop_cmd(){
   source "$STATE"
   say "FORMATION_OMNITRACE_V1_STOP session=$ID"
   mark ACTION_WINDOW_STOP
-  # Freeze the action window immediately, before any long diagnostic.
   for pf in "$SESSION"/*.pid; do stop_pidfile "$pf"; done
   stop_remote "$SESSION/strace.pid.remote"
   stop_remote "$SESSION/perfetto.pid.remote"
@@ -179,7 +180,6 @@ stop_cmd(){
   say "FORMATION_OMNITRACE_V1_ANALYZED session=$ID"
   say 'VIEWER=http://127.0.0.1:8788/lab/lastwar-formation-omnitrace.html?v=1'
 }
-
 status_cmd(){ if [[ -f "$STATE" ]]; then cat "$STATE"; else echo 'OMNITRACE=IDLE'; fi; }
 case "${1:-}" in
   start) shift; start_cmd "$*" ;;
