@@ -1,0 +1,249 @@
+{
+  "bytes": 43192839,
+  "rows_excluding_header": 107247,
+  "header": [
+    "assetPath",
+    "bundleId",
+    "logicalName",
+    "aliasName",
+    "declaredBytes",
+    "dependencies",
+    "group",
+    "tableFragment",
+    "fragmentEntry",
+    "offset",
+    "spanBytes",
+    "identity",
+    "confidence",
+    "evidenceFiles"
+  ],
+  "row_widths": {
+    "14": 107247
+  },
+  "columns": [
+    {
+      "index": 0,
+      "name": "assetPath",
+      "nonempty": 107247,
+      "pathish": 107247,
+      "samples": [
+        "Assets/Main/Sprites/ItemIcons/7tianle_jifen_icon.png",
+        "Assets/Main/Sprites/ItemIcons/FX_icon_ganenjie_touxiangkuang.png",
+        "Assets/Main/Sprites/ItemIcons/item006.png",
+        "Assets/Main/Sprites/ItemIcons/item_icon_653045.png",
+        "Assets/Main/Sprites/ItemIcons/item_icon_710071.png",
+        "Assets/Main/Sprites/ItemIcons/ljq_qipaotubiao_s3_zhufuzhiquan.png",
+        "Assets/Main/Sprites/ItemIcons/lrb_danbainongchang_qipaoicon.png",
+        "Assets/Main/Sprites/ItemIcons/lrb_icon_zixuansuipian04.png"
+      ]
+    },
+    {
+      "index": 1,
+      "name": "bundleId",
+      "nonempty": 107247,
+      "pathish": 0,
+      "samples": [
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "index": 2,
+      "name": "logicalName",
+      "nonempty": 107247,
+      "pathish": 0,
+      "samples": [
+        "gameres_dynamic_atlas_sprites_itemicons_39_42e108b826a84451df9bb93172e62d1d.bundle",
+        "gameres_dynamic_atlas_sprites_itemicons_39_42e108b826a84451df9bb93172e62d1d.bundle",
+        "gameres_dynamic_atlas_sprites_itemicons_39_42e108b826a84451df9bb93172e62d1d.bundle",
+        "gameres_dynamic_atlas_sprites_itemicons_39_42e108b826a84451df9bb93172e62d1d.bundle",
+        "gameres_dynamic_atlas_sprites_itemicons_39_42e108b826a84451df9bb93172e62d1d.bundle",
+        "gameres_dynamic_atlas_sprites_itemicons_39_42e108b826a84451df9bb93172e62d1d.bundle",
+        "gameres_dynamic_atlas_sprites_itemicons_39_42e108b826a84451df9bb93172e62d1d.bundle",
+        "gameres_dynamic_atlas_sprites_itemicons_39_42e108b826a84451df9bb93172e62d1d.bundle"
+      ]
+    },
+    {
+      "index": 3,
+      "name": "aliasName",
+      "nonempty": 107247,
+      "pathish": 0,
+      "samples": [
+        "0c9de48b02a25bb8fe4ba8ed8664c91b863e6e2dfe9a74613bd926151e7741f8.bundle",
+        "0c9de48b02a25bb8fe4ba8ed8664c91b863e6e2dfe9a74613bd926151e7741f8.bundle",
+        "0c9de48b02a25bb8fe4ba8ed8664c91b863e6e2dfe9a74613bd926151e7741f8.bundle",
+        "0c9de48b02a25bb8fe4ba8ed8664c91b863e6e2dfe9a74613bd926151e7741f8.bundle",
+        "0c9de48b02a25bb8fe4ba8ed8664c91b863e6e2dfe9a74613bd926151e7741f8.bundle",
+        "0c9de48b02a25bb8fe4ba8ed8664c91b863e6e2dfe9a74613bd926151e7741f8.bundle",
+        "0c9de48b02a25bb8fe4ba8ed8664c91b863e6e2dfe9a74613bd926151e7741f8.bundle",
+        "0c9de48b02a25bb8fe4ba8ed8664c91b863e6e2dfe9a74613bd926151e7741f8.bundle"
+      ]
+    },
+    {
+      "index": 4,
+      "name": "declaredBytes",
+      "nonempty": 107247,
+      "pathish": 0,
+      "samples": [
+        "71761",
+        "71761",
+        "71761",
+        "71761",
+        "71761",
+        "71761",
+        "71761",
+        "71761"
+      ]
+    },
+    {
+      "index": 5,
+      "name": "dependencies",
+      "nonempty": 60092,
+      "pathish": 0,
+      "samples": [
+        "988",
+        "1171",
+        "1171",
+        "1171",
+        "1171",
+        "1171",
+        "1045",
+        "35974|4670"
+      ]
+    },
+    {
+      "index": 6,
+      "name": "group",
+      "nonempty": 36105,
+      "pathish": 0,
+      "samples": [
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "index": 7,
+      "name": "tableFragment",
+      "nonempty": 36105,
+      "pathish": 0,
+      "samples": [
+        "BundleFragment0.bytes",
+        "BundleFragment0.bytes",
+        "BundleFragment0.bytes",
+        "BundleFragment0.bytes",
+        "BundleFragment0.bytes",
+        "BundleFragment0.bytes",
+        "BundleFragment0.bytes",
+        "BundleFragment0.bytes"
+      ]
+    },
+    {
+      "index": 8,
+      "name": "fragmentEntry",
+      "nonempty": 36105,
+      "pathish": 36105,
+      "samples": [
+        "assets/AssetBundles/BundleFragment0.bytes",
+        "assets/AssetBundles/BundleFragment0.bytes",
+        "assets/AssetBundles/BundleFragment0.bytes",
+        "assets/AssetBundles/BundleFragment0.bytes",
+        "assets/AssetBundles/BundleFragment0.bytes",
+        "assets/AssetBundles/BundleFragment0.bytes",
+        "assets/AssetBundles/BundleFragment0.bytes",
+        "assets/AssetBundles/BundleFragment0.bytes"
+      ]
+    },
+    {
+      "index": 9,
+      "name": "offset",
+      "nonempty": 36105,
+      "pathish": 0,
+      "samples": [
+        "262866633",
+        "262866633",
+        "262866633",
+        "262866633",
+        "262866633",
+        "262866633",
+        "262866633",
+        "262866633"
+      ]
+    },
+    {
+      "index": 10,
+      "name": "spanBytes",
+      "nonempty": 36105,
+      "pathish": 0,
+      "samples": [
+        "71761",
+        "71761",
+        "71761",
+        "71761",
+        "71761",
+        "71761",
+        "71761",
+        "71761"
+      ]
+    },
+    {
+      "index": 11,
+      "name": "identity",
+      "nonempty": 36105,
+      "pathish": 0,
+      "samples": [
+        "alias",
+        "alias",
+        "alias",
+        "alias",
+        "alias",
+        "alias",
+        "alias",
+        "alias"
+      ]
+    },
+    {
+      "index": 12,
+      "name": "confidence",
+      "nonempty": 36105,
+      "pathish": 0,
+      "samples": [
+        "100",
+        "100",
+        "100",
+        "100",
+        "100",
+        "100",
+        "100",
+        "100"
+      ]
+    },
+    {
+      "index": 13,
+      "name": "evidenceFiles",
+      "nonempty": 12702,
+      "pathish": 0,
+      "samples": [
+        "formation-reverse-deps-v1.json",
+        "formation-reverse-deps-v1.json",
+        "formation-global-scene-catalog-v1.json|heroshow-scene-loader-audit-v1.json",
+        "formation-global-scene-catalog-v1.json",
+        "formation-global-scene-catalog-v1.json",
+        "formation-global-scene-catalog-v1.json",
+        "formation-global-scene-catalog-v1.json",
+        "formation-global-scene-catalog-v1.json"
+      ]
+    }
+  ]
+}
