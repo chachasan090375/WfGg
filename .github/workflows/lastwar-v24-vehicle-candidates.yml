@@ -1,0 +1,158 @@
+name: Last War V24 corpus-derived vehicle candidates
+
+on:
+  push:
+    branches:
+      - portal-auth-lastwar-lab-v1
+    paths-ignore:
+      - 'frontend/lab/vehicle-semantic-v24-data/**'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: portal-auth-lastwar-lab-v1
+          fetch-depth: 0
+      - name: Build candidates from full corpus
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import csv,json,re,math,collections
+
+          src=Path('frontend/lab/master-assets-v2/index/lastwar-graphics-asset-path-index-v1.tsv')
+          out=Path('frontend/lab/vehicle-semantic-v24-data')
+          out.mkdir(parents=True,exist_ok=True)
+
+          # Ces ancres ne précèdent PAS la lecture du corpus : elles ont été relevées dans
+          # le vocabulaire V24 généré depuis les 107247 chemins. Elles servent à remonter
+          # des occurrences complètes après cette lecture, y compris hors Models/Cars.
+          observed_anchors=[
+            'tanke','baihutanke','xingjitanke','tankeshizi','jingjichang_tanke',
+            'motuo','wsjmotuo','monica_motuo',
+            'wurenji','drone','airplane','feiji','zhandouji','hongzhaji','yunduanhongzhaji',
+            'huoche','train','tongmenghuoche',
+            'eyupaoche','paoche','bianfuche','sangshi_che','piaoyikuche','haochebeichuang',
+            'jijia','jixie','jixieshizi','jijiaxiong','jijialang','jixiema','jixiewushi',
+            'robot','jiqiren','jiqirenzhandouji',
+            'maoqisanlun','sanlun','wajueji','yunshuji','lvdai','haidaochuan'
+          ]
+
+          def atoms(path):
+              p=Path(path)
+              vals=[]
+              vals.extend([x.lower() for x in p.parts if x])
+              stem=p.stem.lower()
+              vals.append(stem)
+              vals.extend(x for x in re.split(r'[_\-\.\s@]+',stem) if x)
+              return set(vals)
+
+          rows=[]; global_df=collections.Counter(); cars_df=collections.Counter(); cars_docs=0
+          with src.open('r',encoding='utf-8',errors='replace',newline='') as f:
+              for row in csv.DictReader(f,delimiter='\t'):
+                  rows.append(row)
+                  ts=atoms(row['assetPath'])
+                  for t in ts: global_df[t]+=1
+                  if '/models/cars/' in row['assetPath'].lower():
+                      cars_docs+=1
+                      for t in ts: cars_df[t]+=1
+          total=len(rows)
+
+          learned={}
+          for t,pc in cars_df.items():
+              gc=global_df[t]
+              if len(t)<3 or t.isdigit() or pc<2 or gc<2: continue
+              precision=pc/gc
+              enrichment=(pc/cars_docs)/(gc/total) if cars_docs and gc else 0
+              # Aucun sens lexical ici : seulement une association statistique avec le
+              # répertoire Cars découvert dans l'inventaire réel.
+              if precision>=0.22 and enrichment>=4:
+                  learned[t]={'carsDocs':pc,'globalDocs':gc,'precision':round(precision,4),'enrichment':round(enrichment,2)}
+
+          texture_ext={'.png','.tga','.jpg','.jpeg','.webp','.psd','.exr'}
+          model_ext={'.prefab','.fbx','.obj','.mesh','.asset','.anim','.controller','.overridecontroller'}
+          effect_ext={'.mat','.playable','.shader','.compute','.vfx'}
+
+          cand=[]; by_reason=collections.Counter(); by_kind=collections.Counter(); by_ext=collections.Counter()
+          for row in rows:
+              ap=row['assetPath']; low=ap.lower(); p=Path(ap); stem=p.stem.lower(); ts=atoms(ap)
+              direct='/models/cars/' in low
+              hits=[a for a in observed_anchors if a in low]
+              learned_hits=[]
+              if not direct:
+                  for t in ts:
+                      info=learned.get(t)
+                      if info and info['precision']>=0.35 and info['globalDocs']<=800:
+                          learned_hits.append(t)
+                  learned_hits=sorted(learned_hits,key=lambda t:(-learned[t]['precision'],-learned[t]['enrichment'],t))[:8]
+              if not direct and not hits and not learned_hits: continue
+
+              ext=p.suffix.lower()
+              if ext in texture_ext: kind='texture-ui'
+              elif ext in model_ext: kind='model-prefab'
+              elif ext in effect_ext: kind='effect-material'
+              else: kind='other'
+
+              if direct:
+                  confidence=100; reason='Répertoire 3D Cars du jeu'
+                  source='cars-direct'
+              elif hits:
+                  confidence=88 if kind in ('model-prefab','texture-ui') else 80
+                  reason='Terme véhicule découvert dans le corpus : '+', '.join(hits[:5])
+                  source='corpus-semantic'
+              else:
+                  best=max((learned[t]['precision'] for t in learned_hits),default=0)
+                  confidence=min(79,55+round(best*24))
+                  reason='Nomenclature fortement associée aux assets Cars : '+', '.join(learned_hits[:5])
+                  source='cars-neighbour'
+
+              # Contexte de famille : portion située après Models/Cars quand elle existe.
+              family=''
+              parts=p.parts
+              try:
+                  i=[x.lower() for x in parts].index('cars')
+                  if i+1<len(parts): family=parts[i+1]
+              except ValueError: pass
+              if not family:
+                  family=p.parent.name
+
+              item={
+                'assetPath':ap,'fileName':p.name,'family':family,'ext':ext or '(sans ext)',
+                'kind':kind,'source':source,'confidence':confidence,'reason':reason,
+                'anchorHits':hits[:10],'learnedHits':learned_hits,
+                'logicalName':row.get('logicalName',''),'bundleId':row.get('bundleId',''),
+                'declaredBytes':row.get('declaredBytes',''),'evidenceFiles':row.get('evidenceFiles','')
+              }
+              cand.append(item); by_reason[source]+=1; by_kind[kind]+=1; by_ext[ext or '(sans ext)']+=1
+
+          cand.sort(key=lambda x:(-x['confidence'],x['family'].lower(),x['assetPath'].lower()))
+          families=collections.Counter(x['family'] for x in cand)
+          summary={
+            'format':'WFGG_LASTWAR_VEHICLE_SEMANTIC_V24',
+            'method':'full-corpus-first; direct Cars + corpus-observed semantic anchors + statistical Cars neighbours',
+            'sourceRows':total,'carsSourceRows':cars_docs,'learnedTermCount':len(learned),
+            'candidateCount':len(cand),'bySource':dict(by_reason),'byKind':dict(by_kind),
+            'topFamilies':[{'family':k,'count':v} for k,v in families.most_common(80)],
+            'observedAnchors':observed_anchors,
+            'note':'The anchor list was derived after corpus vocabulary generation; it is not a pre-imposed vehicle keyword dictionary.'
+          }
+          (out/'summary.json').write_text(json.dumps(summary,ensure_ascii=False,indent=2),encoding='utf-8')
+          (out/'learned-cars-terms.json').write_text(json.dumps(learned,ensure_ascii=False,indent=2,sort_keys=True),encoding='utf-8')
+          (out/'candidates.json').write_text(json.dumps(cand,ensure_ascii=False,separators=(',',':')),encoding='utf-8')
+          PY
+      - name: Commit V24 candidate data
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'wfgg-lab-bot'
+          git config user.email 'wfgg-lab-bot@users.noreply.github.com'
+          git add frontend/lab/vehicle-semantic-v24-data/
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'lab: publish V24 corpus-derived vehicle candidates'
+          git push origin HEAD:portal-auth-lastwar-lab-v1
