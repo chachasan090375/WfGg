@@ -5,7 +5,8 @@ from __future__ import annotations
 
 Keeps exact-only rendering, but separates two budgets:
 - 3D preview: deliberately small to stay interactive on Android;
-- 2D Sprite resolution: deeper exact dependency closure to recover backing textures.
+- 2D Sprite resolution: normal exact dependency closure first, then an adaptive deeper retry
+  only when a Sprite backing Texture2D is still unresolved.
 
 The LAB is an active development surface, so HTML/JS responses are explicitly no-store to
 avoid Chrome keeping an older result-strip or renderer implementation after git pull.
@@ -45,18 +46,62 @@ def mobile_dependency_rows(a,max_bundles=8,max_depth=2):
 exact.dependency_rows=mobile_dependency_rows
 core.build_model=exact.build_model_exact
 
-# -------- 2D: deeper exact closure, independent of the 3D cap --------
-# Sprite PPtrs can point several dependency hops away. We still accept exact dependency
-# edges only; candidate/name-similarity edges remain excluded.
+# -------- 2D: adaptive exact closure, independent of the 3D cap --------
+# Most Sprite PPtrs resolve with <=28 exact dependency bundles. Some game scenes/UI prefabs
+# reference a backing Texture2D farther away. Do not make every image pay that cost: retry only
+# an unresolved Sprite with a larger exact-only BFS closure, preserving dependency ordinal order.
 MOBILE_CLOSURE=CACHE/'closure-v33-mobile'
 MOBILE_CLOSURE.mkdir(parents=True,exist_ok=True)
+SHALLOW_RASTER_BUNDLES=28
+SHALLOW_RASTER_DEPTH=3
+DEEP_RASTER_BUNDLES=72
+DEEP_RASTER_DEPTH=4
+_DEEP_RASTER_IDS=set()
 
 
-def materialize_raster_closure(a,max_deps=28):
-    sid=a['stable_id'];base=MOBILE_CLOSURE/sid
+def raster_dependency_rows(a,max_bundles,max_depth):
+    """Exact dependency BFS for raster PPtrs, preserving the TSV dependency order.
+
+    The generic 3D helper deliberately re-ranks dependencies by likely geometry type. That is
+    useful for a tiny 3D preview budget, but can evict a required Texture2D dependency. Raster
+    resolution instead keeps the exact ordinal/BFS order and only filters out bundles that are
+    not physically available on the phone.
+    """
+    try:start=int(a.get('bundle_id'))
+    except Exception:return []
+    con=core.dbcon();out=[];seen={start};frontier=[start]
+    try:
+        for depth in range(max_depth):
+            nxt=[]
+            for src in frontier:
+                deps=list(con.execute(
+                    'SELECT target_bundle_id FROM bundle_dependencies_v33 WHERE source_bundle_id=? ORDER BY ordinal',
+                    (src,)
+                ))
+                for rec in deps:
+                    bid=int(rec[0])
+                    if bid in seen:continue
+                    seen.add(bid);nxt.append(bid)
+                    row=exact.physical_row_for_bundle(con,bid)
+                    if row:
+                        row['_dependency_depth']=depth+1;row['_dependency_from']=src;out.append(row)
+                        if len(out)>=max_bundles:return out
+            if not nxt:break
+            frontier=nxt
+        return out[:max_bundles]
+    finally:
+        con.close()
+
+
+def materialize_raster_closure(a,max_deps=None):
+    sid=a['stable_id'];deep=sid in _DEEP_RASTER_IDS
+    dep_budget=DEEP_RASTER_BUNDLES if deep else SHALLOW_RASTER_BUNDLES
+    depth_budget=DEEP_RASTER_DEPTH if deep else SHALLOW_RASTER_DEPTH
+    if max_deps is not None:dep_budget=max(dep_budget,int(max_deps))
+    base=MOBILE_CLOSURE/sid
     if base.exists():shutil.rmtree(base,ignore_errors=True)
     base.mkdir(parents=True,exist_ok=True)
-    rows=[a]+ORIGINAL_DEPENDENCY_ROWS(a,max_bundles=max_deps,max_depth=3)
+    rows=[a]+raster_dependency_rows(a,dep_budget,depth_budget)
     seen=set();paths=[];sources=[]
     for row in rows:
         try:bid=int(row.get('bundle_id'))
@@ -71,12 +116,32 @@ def materialize_raster_closure(a,max_deps=28):
         except Exception as exc:
             sources.append({'bundleId':bid,'ok':False,'error':'copy:'+str(exc)[:220]});continue
         paths.append(dst)
-        sources.append({'bundleId':bid,'ok':True,'source':source,'dependencyDepth':row.get('_dependency_depth',0)})
+        sources.append({'bundleId':bid,'ok':True,'source':source,'dependencyDepth':row.get('_dependency_depth',0),'closureMode':'deep' if deep else 'shallow'})
     return paths,sources
 
+
 u._materialize_closure=materialize_raster_closure
-# render_asset_unified resolves _materialize_closure dynamically from module globals.
-core.v31.render_asset=u.render_asset_unified
+BASE_UNIFIED_RENDER=u.render_asset_unified
+
+
+def render_asset_mobile_adaptive(a):
+    """Fast exact closure first; one deeper exact-only retry for unresolved Sprite textures."""
+    sid=a['stable_id']
+    try:
+        return BASE_UNIFIED_RENDER(a)
+    except RuntimeError as exc:
+        msg=str(exc)
+        if 'RUNTIME_EXACT_RASTER_UNRESOLVED' not in msg or sid in _DEEP_RASTER_IDS:
+            raise
+        print('V33_2D_DEEP_RETRY',sid,f'bundles<={DEEP_RASTER_BUNDLES}',f'depth<={DEEP_RASTER_DEPTH}',flush=True)
+        _DEEP_RASTER_IDS.add(sid)
+        try:
+            return BASE_UNIFIED_RENDER(a)
+        finally:
+            _DEEP_RASTER_IDS.discard(sid)
+
+
+core.v31.render_asset=render_asset_mobile_adaptive
 
 
 class MobileLabHandler(core.Handler):
@@ -93,7 +158,8 @@ if __name__=='__main__':
     url=f'http://127.0.0.1:{core.PORT}/lab/lastwar-global-graphics-viewer-v33.html'
     print('=== WFGG LAST WAR GLOBAL GRAPHICS V33 — MOBILE EXACT ===',flush=True)
     print('V33_3D_MOBILE bundles=8 meshes=10 textures=12 cache=models-v33-mobile-3306',flush=True)
-    print('V33_2D_EXACT_CLOSURE dependencies<=28 depth<=3 candidates=EXCLUDED',flush=True)
+    print(f'V33_2D_EXACT_CLOSURE shallow<={SHALLOW_RASTER_BUNDLES}/depth<={SHALLOW_RASTER_DEPTH} deep-retry<={DEEP_RASTER_BUNDLES}/depth<={DEEP_RASTER_DEPTH} candidates=EXCLUDED',flush=True)
+    print('V33_2D_DEP_ORDER exact-ordinal-BFS=ON generic-3D-ranking=OFF',flush=True)
     print('V33_LAB_CACHE no-store=ON',flush=True)
     print('V33_EXACT_DEP_EDGES',edges,flush=True)
     print(url,flush=True)
