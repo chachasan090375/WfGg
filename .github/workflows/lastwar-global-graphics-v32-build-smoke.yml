@@ -3,6 +3,9 @@ on:
   push:
     branches: [lab-global-graphics-catalog-v32]
   workflow_dispatch:
+concurrency:
+  group: lastwar-global-graphics-v32-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   full-v32:
     runs-on: ubuntu-latest
@@ -56,7 +59,7 @@ jobs:
           assert con.execute("select count(*) from event_asset_links_v32 where relation='candidate'").fetchone()[0]==0
           s=json.loads(summary.read_text())
           assert s['seedNodes']>0,s
-          assert s['eventAssetLinks']>=links,s
+          assert s['eventAssetLinks']==links,(s,links)
           print('V32_SMOKE_OK assets=',n,'graphic=',classes,'registry=',reg,'links=',links,'linkedAssets=',linked)
           print('V32_GRAPH_SUMMARY',json.dumps(s,ensure_ascii=False))
           con.close()
@@ -64,7 +67,7 @@ jobs:
       - name: Validate dynamic viewer injection
         run: |
           python - <<'PY'
-          import importlib.util,sys
+          import importlib.util
           from pathlib import Path
           p=Path('scripts/lastwar-global-graphics-server-v32.py').resolve()
           spec=importlib.util.spec_from_file_location('v32',p)
