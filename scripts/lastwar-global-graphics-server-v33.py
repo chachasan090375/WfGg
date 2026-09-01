@@ -4,7 +4,6 @@ from __future__ import annotations
 from http.server import ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import urlparse, parse_qs, quote
-from collections import defaultdict
 import gc, importlib.util, json, mimetypes, os, re, shutil, sqlite3, subprocess, sys
 
 ROOT = Path(sys.argv[1]).resolve() if len(sys.argv)>1 else Path(__file__).resolve().parents[1]
@@ -22,8 +21,8 @@ DB=v32.DB
 
 MODEL_DIMENSIONS={'3D','Composant 3D','Mixte 2D/3D'}
 MODEL_ROLES={'geometry','geometry-candidate','prefab','material','texture','shader','animation','component'}
-MAX_ASSEMBLY_ASSETS=180
-MAX_MODEL_BUNDLES=10
+MAX_ASSEMBLY_ASSETS=240
+MAX_MODEL_BUNDLES=12
 MAX_RENDERERS=16
 MAX_MESHES=24
 MAX_TEXTURES=64
@@ -150,14 +149,11 @@ def score_name(name,terms):
 
 def assembly_assets(a):
     con=dbcon();folder=str(a.get('asset_folder') or '')
+    order="CASE model_role WHEN 'geometry' THEN 0 WHEN 'geometry-candidate' THEN 1 WHEN 'prefab' THEN 2 WHEN 'material' THEN 3 WHEN 'texture' THEN 4 WHEN 'shader' THEN 5 WHEN 'animation' THEN 6 ELSE 7 END"
     if folder:
-        rows=con.execute('''SELECT * FROM assets WHERE asset_folder=?
-          ORDER BY CASE model_role WHEN 'geometry' THEN 0 WHEN 'geometry-candidate' THEN 1 WHEN 'prefab' THEN 2 WHEN 'material' THEN 3 WHEN 'texture' THEN 4 WHEN 'shader' THEN 5 WHEN 'animation' THEN 6 ELSE 7 END,
-          confidence DESC,row_no LIMIT ?''',(folder,MAX_ASSEMBLY_ASSETS)).fetchall()
+        rows=con.execute(f'SELECT * FROM assets WHERE asset_folder=? ORDER BY {order},confidence DESC,row_no LIMIT ?',(folder,MAX_ASSEMBLY_ASSETS)).fetchall()
     else:
-        rows=con.execute('''SELECT * FROM assets WHERE bundle_id=?
-          ORDER BY CASE model_role WHEN 'geometry' THEN 0 WHEN 'geometry-candidate' THEN 1 WHEN 'prefab' THEN 2 WHEN 'material' THEN 3 WHEN 'texture' THEN 4 ELSE 7 END,
-          confidence DESC,row_no LIMIT ?''',(a.get('bundle_id'),MAX_ASSEMBLY_ASSETS)).fetchall()
+        rows=con.execute(f'SELECT * FROM assets WHERE bundle_id=? ORDER BY {order},confidence DESC,row_no LIMIT ?',(a.get('bundle_id'),MAX_ASSEMBLY_ASSETS)).fetchall()
     con.close();items=[rowdict(r) for r in rows]
     if not any(x['stable_id']==a['stable_id'] for x in items):items.insert(0,a)
     relevant=[x for x in items if x.get('model_role') in MODEL_ROLES or x.get('dimension_class') in MODEL_DIMENSIONS or x['stable_id']==a['stable_id']]
@@ -184,65 +180,72 @@ def object_name(obj):
     except Exception:return ''
 
 
+def export_bundle_objects(UnityPy,bundle,outdir,bi,terms,exported,errors):
+    env=None
+    try:
+        env=UnityPy.load(str(bundle))
+        renderers=[];meshes=[];textures=[]
+        for obj in env.objects:
+            typ=getattr(obj.type,'name',str(obj.type))
+            if typ not in {'Renderer','MeshRenderer','SkinnedMeshRenderer','Mesh','Texture2D','Sprite'}:continue
+            name=object_name(obj);score=score_name(name,terms);rec=(score,name,typ,obj)
+            if typ in {'Renderer','MeshRenderer','SkinnedMeshRenderer'}:renderers.append(rec)
+            elif typ=='Mesh':meshes.append(rec)
+            else:textures.append(rec)
+        renderers.sort(key=lambda x:(x[0],len(x[1])),reverse=True);meshes.sort(key=lambda x:(x[0],len(x[1])),reverse=True);textures.sort(key=lambda x:(x[0],len(x[1])),reverse=True)
+
+        for oi,(score,name,typ,obj) in enumerate(renderers[:MAX_RENDERERS]):
+            try:
+                data=obj.read();dest=outdir/f'renderer-b{bi}-{oi}-{safe_name(name or typ)}';dest.mkdir(parents=True,exist_ok=True)
+                data.export(str(dest));exported.append({'type':typ,'name':name,'score':score,'sourceBundle':bundle.name,'mode':'renderer-export'})
+            except Exception as e:errors.append(f'{typ}:{name}: {e}')
+
+        for oi,(score,name,typ,obj) in enumerate(meshes[:MAX_MESHES]):
+            try:
+                data=obj.read();txt=data.export();fp=outdir/f'mesh-b{bi}-{oi}-{safe_name(name or "mesh")}.obj';fp.write_text(txt,encoding='utf-8',newline='')
+                exported.append({'type':'Mesh','name':name,'score':score,'sourceBundle':bundle.name,'mode':'mesh-export'})
+            except Exception as e:errors.append(f'Mesh:{name}: {e}')
+
+        texdir=outdir/'textures';texdir.mkdir(exist_ok=True)
+        for oi,(score,name,typ,obj) in enumerate(textures[:MAX_TEXTURES]):
+            try:
+                data=obj.read();image=getattr(data,'image',None)
+                if image is None:continue
+                fp=texdir/f'b{bi}-{oi}-{safe_name(name or typ)}.png';image.save(fp)
+            except Exception:continue
+        return True
+    except Exception as e:
+        errors.append('load '+bundle.name+': '+str(e));return False
+    finally:
+        try:del env
+        except Exception:pass
+        gc.collect()
+
+
 def build_model(a):
     sid=a['stable_id'];outdir=MODEL_CACHE/sid;manifest_path=outdir/'manifest.json'
     if manifest_path.is_file():
         try:
             m=json.loads(manifest_path.read_text('utf-8'))
-            if m.get('schemaVersion')==33 and m.get('objects'):
-                return m
+            if m.get('schemaVersion')==33 and m.get('objects'):return m
         except Exception:pass
     if outdir.exists():shutil.rmtree(outdir,ignore_errors=True)
     outdir.mkdir(parents=True,exist_ok=True)
     components=assembly_assets(a);bundle_assets=choose_bundles(a,components)
-    materialized=[]
-    for x in bundle_assets:
-        try:
-            p,source=v31.materialize_bundle(x);materialized.append((x,p,source))
-        except Exception as e:
-            materialized.append((x,None,'error:'+str(e)))
-    paths=[p for _,p,_ in materialized if p is not None]
-    if not paths:raise RuntimeError('Aucun bundle du modèle n’est matérialisable sur le téléphone')
     try:import UnityPy
     except Exception as e:raise RuntimeError('UnityPy indisponible : '+str(e))
 
-    terms=target_terms(a);exported=[];errors=[];envs=[]
-    try:
-        for bi,bundle in enumerate(paths):
-            try:env=UnityPy.load(str(bundle));envs.append(env)
-            except Exception as e:errors.append('load '+bundle.name+': '+str(e));continue
-            renderers=[];meshes=[];textures=[]
-            for obj in env.objects:
-                typ=getattr(obj.type,'name',str(obj.type));name=object_name(obj);score=score_name(name,terms)
-                rec=(score,name,typ,obj)
-                if typ in {'Renderer','MeshRenderer','SkinnedMeshRenderer'}:renderers.append(rec)
-                elif typ=='Mesh':meshes.append(rec)
-                elif typ in {'Texture2D','Sprite'}:textures.append(rec)
-            renderers.sort(key=lambda x:(x[0],len(x[1])),reverse=True);meshes.sort(key=lambda x:(x[0],len(x[1])),reverse=True);textures.sort(key=lambda x:(x[0],len(x[1])),reverse=True)
-
-            for oi,(score,name,typ,obj) in enumerate(renderers[:MAX_RENDERERS]):
-                try:
-                    data=obj.read();dest=outdir/f'renderer-b{bi}-{oi}-{safe_name(name or typ)}';dest.mkdir(parents=True,exist_ok=True)
-                    data.export(str(dest));exported.append({'type':typ,'name':name,'score':score,'sourceBundle':bundle.name,'mode':'renderer-export'})
-                except Exception as e:errors.append(f'{typ}:{name}: {e}')
-
-            # Mesh.export() gives exact Wavefront geometry and is the robust fallback.
-            for oi,(score,name,typ,obj) in enumerate(meshes[:MAX_MESHES]):
-                try:
-                    data=obj.read();txt=data.export();fp=outdir/f'mesh-b{bi}-{oi}-{safe_name(name or "mesh")}.obj';fp.write_text(txt,encoding='utf-8',newline='')
-                    exported.append({'type':'Mesh','name':name,'score':score,'sourceBundle':bundle.name,'mode':'mesh-export'})
-                except Exception as e:errors.append(f'Mesh:{name}: {e}')
-
-            texdir=outdir/'textures';texdir.mkdir(exist_ok=True)
-            for oi,(score,name,typ,obj) in enumerate(textures[:MAX_TEXTURES]):
-                # Keep textures from the same logical model folder available to renderer/material exports.
-                try:
-                    data=obj.read();image=getattr(data,'image',None)
-                    if image is None:continue
-                    fp=texdir/f'b{bi}-{oi}-{safe_name(name or typ)}.png';image.save(fp)
-                except Exception:continue
-    finally:
-        envs.clear();gc.collect()
+    terms=target_terms(a);exported=[];errors=[];bundle_ids=[];bundle_sources=[];loaded=0
+    # Materialize -> decode -> export immediately. The V31 mobile bundle cache intentionally
+    # keeps only a tiny LRU, so V33 never assumes 12 materialized bundle files coexist.
+    for bi,x in enumerate(bundle_assets):
+        bundle_ids.append(x.get('bundle_id'))
+        try:p,source=v31.materialize_bundle(x)
+        except Exception as e:
+            bundle_sources.append('error:'+str(e));continue
+        bundle_sources.append(source)
+        if export_bundle_objects(UnityPy,p,outdir,bi,terms,exported,errors):loaded+=1
+    if not loaded:raise RuntimeError('Aucun bundle du modèle n’est matérialisable/décodable sur le téléphone')
 
     files=[]
     for fp in sorted(outdir.rglob('*')):
@@ -251,15 +254,12 @@ def build_model(a):
         if ext not in {'.obj','.mtl','.png','.jpg','.jpeg','.webp'}:continue
         files.append({'path':rel,'kind':ext.lstrip('.'),'bytes':fp.stat().st_size,'url':'/api/v33/model-file?id='+quote(sid)+'&file='+quote(rel,safe='/')})
     objects=[f for f in files if f['kind']=='obj']
-    if not objects:
-        raise RuntimeError('Aucune géométrie OBJ décodable dans les bundles assemblés')
+    if not objects:raise RuntimeError('Aucune géométrie OBJ décodable dans les bundles assemblés')
     m={
         'schemaVersion':33,'stableId':sid,'dimensionClass':a.get('dimension_class'),'assetFolder':a.get('asset_folder') or '',
         'assemblyAssetCount':len(components),'assemblyAssets':[{'id':x['stable_id'],'role':x.get('model_role'),'tech':x.get('tech_kind'),'path':x.get('asset_path')} for x in components],
-        'bundleIds':[x.get('bundle_id') for x,_,_ in materialized],
-        'bundleSources':[source for _,_,source in materialized],
-        'exportedObjects':exported,'objects':objects,'files':files,'errors':errors[:80],
-        'policy':'selected asset + compatible assets from the same logical subfolder; up to 10 unique bundles; real Unity Mesh/Renderer exports only'
+        'bundleIds':bundle_ids,'bundleSources':bundle_sources,'exportedObjects':exported,'objects':objects,'files':files,'errors':errors[:80],
+        'policy':'selected asset + compatible assets from the same logical subfolder; bundles are streamed through the mobile cache; real Unity Renderer/Mesh/Texture exports only'
     }
     manifest_path.write_text(json.dumps(m,ensure_ascii=False,indent=2),'utf-8')
     return m
@@ -310,8 +310,7 @@ class Handler(v32.Handler):
                     a=get_asset(sid)
                     if not a:continue
                     if a.get('dimension_class') in MODEL_DIMENSIONS:
-                        out.append({'id':sid,'ok':True,'mode':'3d-deferred'})
-                        continue
+                        out.append({'id':sid,'ok':True,'mode':'3d-deferred'});continue
                     try:_,meta=v31.render_asset(a);out.append({'id':sid,'ok':True,'mode':'2d','meta':meta})
                     except Exception as e:out.append({'id':sid,'ok':False,'message':str(e)})
                 return self.send_json({'items':out})
