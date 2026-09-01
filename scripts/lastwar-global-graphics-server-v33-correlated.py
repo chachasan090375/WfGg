@@ -167,6 +167,21 @@ def _query_parts(qs):
     return q,conditions,params
 
 
+def query_token(qs):
+    """Stable identity of the logical search, independent of transport pagination.
+
+    offset/limit change from page to page and therefore MUST NOT participate in the token.
+    The client uses this token to reject late pages from an older/different search.
+    """
+    ignored={'offset','limit'}
+    parts=[]
+    for key in sorted(k for k in qs if k not in ignored):
+        values=qs.get(key) or ['']
+        parts.append(key+'='+'\x1f'.join(str(v) for v in values))
+    signature='&'.join(parts)
+    return hashlib.sha1(signature.encode('utf-8')).hexdigest()[:12]
+
+
 def search_page(qs):
     q,conditions,params=_query_parts(qs)
     limit=max(1,min(120,int(q1(qs,'limit','60') or 60)));offset=max(0,int(q1(qs,'offset','0') or 0))
@@ -192,9 +207,13 @@ def search_page(qs):
     for r in rows:
         d=core.rowdict(r);d['event_links']=core.event_links(con,d['stable_id']);out.append(d)
     con.close()
-    signature='&'.join(f'{k}={q1(qs,k)}' for k in sorted(qs))
-    token=hashlib.sha1(signature.encode('utf-8')).hexdigest()[:12]
+    token=query_token(qs)
     return {'items':out,'total':total,'offset':offset,'limit':limit,'hasMore':offset+len(out)<total,'queryToken':token}
+
+
+# Regression guard: page transport controls must never change logical-query identity.
+assert query_token({'family':['vehicles'],'offset':['0'],'limit':['120']}) == query_token({'family':['vehicles'],'offset':['120'],'limit':['120']})
+assert query_token({'family':['vehicles'],'offset':['0']}) != query_token({'family':['ui'],'offset':['0']})
 
 
 class CorrelatedHandler(mobile.MobileLabHandler):
@@ -214,7 +233,7 @@ class CorrelatedHandler(mobile.MobileLabHandler):
 
 if __name__=='__main__':
     print('=== WFGG LAST WAR GLOBAL GRAPHICS V33 — SEARCH / RENDER CORRELATED ===',flush=True)
-    print('V33_SEARCH paging=ON pageSize<=120 local-renderable=SERVER-SIDE query-token=ON',flush=True)
+    print('V33_SEARCH paging=ON pageSize<=120 local-renderable=SERVER-SIDE query-token=STABLE-ACROSS-PAGES',flush=True)
     print('V33_RENDER_CORRELATION arbitrary-bundle-object=REJECTED strong-match=REQUIRED',flush=True)
     print('V33_3D_CORRELATION unrelated-meshes=REJECTED',flush=True)
     print(f'http://127.0.0.1:{core.PORT}/lab/lastwar-global-graphics-viewer-v33.html',flush=True)
