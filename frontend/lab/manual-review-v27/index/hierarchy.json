@@ -1,0 +1,165 @@
+{
+  "version": 28,
+  "status": "manual-review-complete",
+  "source": {
+    "review": "V27 manual semantic review",
+    "input": "frontend/lab/manual-review-v27/inbox",
+    "inputCount": 5629,
+    "reviewedCount": 5629,
+    "chunks": 23,
+    "globalAssetPathIndexCount": 107247,
+    "method": "Manual semantic reading of every V25 candidate name and path. No predefined vehicle keyword list used for the final review."
+  },
+  "target": {
+    "heroPublic": "Murphy",
+    "heroInternal": "Audie",
+    "alias": "Murphy = Audie",
+    "goal": "Find the simplified vehicle representation used on the Formation board",
+    "workingHypothesis": "The Formation representation may be a separate prefab/view variant or a 2D/pre-rendered asset rather than the detailed A_Hero_Audie mesh family."
+  },
+  "summary": {
+    "directCandidates": 4,
+    "visual2DCandidates": 2,
+    "contextAnchors": 2,
+    "totalIndexedTargetItems": 8
+  },
+  "hierarchy": {
+    "Murphy-Audie": {
+      "FormationVehicle": {
+        "DirectCandidates": [3217, 3218, 3219, 3220],
+        "Visual2D": [5428, 5462],
+        "ContextAnchors": [5115, 5610]
+      },
+      "KnownAssetFamilies": [
+        {
+          "family": "PVE hero exhibit preview",
+          "pathPattern": "Assets/Main/Prefabs/PVELevel/LastWar_Scene_Hero_Exhibit_Preview/",
+          "relevance": "Contains Murphy zhuanwu Timeline prefabs and the Audie Timeline anchor."
+        },
+        {
+          "family": "Hero unique weapon",
+          "pathPattern": "Assets/Main/Prefabs/HeroUniqueWeapon/A_Hero_<Hero>_zhuanwu/",
+          "relevance": "Other heroes show base/battle/city/world variants here; search Murphy/Audie analogues."
+        },
+        {
+          "family": "Conditional unique weapon loading",
+          "pathPattern": "Assets/Main/CoditionLoadRes/UniqueWeapon/A_Hero_<Hero>_zhuanwu/",
+          "relevance": "Other heroes expose runtime-specific unique-weapon representations here."
+        },
+        {
+          "family": "Character vehicle prefabs",
+          "pathPattern": "Assets/Main/Prefabs/PrefabsIncrement/Character/Vehicle/A_Hero_<Hero>_zhuanwu/",
+          "relevance": "Known hero vehicle runtime prefabs."
+        },
+        {
+          "family": "Art vehicle models",
+          "pathPattern": "Assets/_Art_LastWar/Models_New/Cars/A_Hero_<Hero>_zhuanwu/",
+          "relevance": "Source family for many hero-specific vehicle models."
+        },
+        {
+          "family": "Legacy Audie art vehicle",
+          "pathPattern": "Assets/_Art_LastWar/Models/Cars/A_Hero_Audie/",
+          "relevance": "Detailed Murphy/Audie 3D family already inspected; visually too complex for Formation board."
+        },
+        {
+          "family": "Hero battle projectile",
+          "pathPattern": "Assets/Main/Prefabs/LWBattle/Bullet/HeroUpgrade/",
+          "relevance": "Contains Murphy projectile anchor; useful for reverse dependency traversal toward the firing renderer."
+        },
+        {
+          "family": "Murphy promotional/unique-weapon 2D",
+          "pathPattern": "Assets/Main/TextureEx/",
+          "relevance": "Contains explicit Murphy + zhuanwu PNGs retained for visual inspection."
+        }
+      ],
+      "KnownVariants": [
+        "base",
+        "battle",
+        "city",
+        "world",
+        "Timeline",
+        "TimelineRoot",
+        "01",
+        "02",
+        "03",
+        "04"
+      ],
+      "ComponentVocabularyObservedInGame": [
+        {
+          "token": "lvdai",
+          "meaning": "tracks / caterpillar assembly",
+          "note": "Observed repeatedly in vehicle assets including Audie."
+        },
+        {
+          "token": "chedeng",
+          "meaning": "vehicle light",
+          "note": "Observed in Audie and generic vehicle assets."
+        },
+        {
+          "token": "zhuanwu",
+          "meaning": "hero unique weapon / exclusive equipment family",
+          "note": "Central naming branch for hero-specific vehicle/equipment variants."
+        },
+        {
+          "token": "daodan",
+          "meaning": "missile / projectile",
+          "note": "Murphy battle projectile anchor found in chunk 23."
+        },
+        {
+          "token": "zaiju",
+          "meaning": "vehicle / mount / carrier in UI naming",
+          "note": "Observed in unique-weapon package art; useful semantic navigation token, not used as an automatic filter."
+        }
+      ]
+    }
+  },
+  "reviewProgress": [
+    {"chunk": "001", "firstId": 1, "lastId": 250, "count": 250, "reviewed": true, "direct": [], "visual2D": [], "anchors": []},
+    {"chunk": "002", "firstId": 251, "lastId": 500, "count": 250, "reviewed": true, "direct": [], "visual2D": [], "anchors": []},
+    {"chunk": "003", "firstId": 501, "lastId": 750, "count": 250, "reviewed": true, "direct": [], "visual2D": [], "anchors": []},
+    {"chunk": "004", "firstId": 751, "lastId": 1000, "count": 250, "reviewed": true, "direct": [], "visual2D": [], "anchors": []},
+    {"chunk": "005", "firstId": 1001, "lastId": 1250, "count": 250, "reviewed": true, "direct": [], "visual2D": [], "anchors": []},
+    {"chunk": "006", "firstId": 1251, "lastId": 1500, "count": 250, "reviewed": true, "direct": [], "visual2D": [], "anchors": []},
+    {"chunk": "007", "firstId": 1501, "lastId": 1750, "count": 250, "reviewed": true, "direct": [], "visual2D": [], "anchors": []},
+    {"chunk": "008", "firstId": 1751, "lastId": 2000, "count": 250, "reviewed": true, "direct": [], "visual2D": [], "anchors": []},
+    {"chunk": "009", "firstId": 2001, "lastId": 2250, "count": 250, "reviewed": true, "direct": [], "visual2D": [], "anchors": []},
+    {"chunk": "010", "firstId": 2251, "lastId": 2500, "count": 250, "reviewed": true, "direct": [], "visual2D": [], "anchors": []},
+    {"chunk": "011", "firstId": 2501, "lastId": 2750, "count": 250, "reviewed": true, "direct": [], "visual2D": [], "anchors": []},
+    {"chunk": "012", "firstId": 2751, "lastId": 3000, "count": 250, "reviewed": true, "direct": [], "visual2D": [], "anchors": []},
+    {"chunk": "013", "firstId": 3001, "lastId": 3250, "count": 250, "reviewed": true, "direct": [3217,3218,3219,3220], "visual2D": [], "anchors": []},
+    {"chunk": "014", "firstId": 3251, "lastId": 3500, "count": 250, "reviewed": true, "direct": [], "visual2D": [], "anchors": []},
+    {"chunk": "015", "firstId": 3501, "lastId": 3750, "count": 250, "reviewed": true, "direct": [], "visual2D": [], "anchors": []},
+    {"chunk": "016", "firstId": 3751, "lastId": 4000, "count": 250, "reviewed": true, "direct": [], "visual2D": [], "anchors": []},
+    {"chunk": "017", "firstId": 4001, "lastId": 4250, "count": 250, "reviewed": true, "direct": [], "visual2D": [], "anchors": []},
+    {"chunk": "018", "firstId": 4251, "lastId": 4500, "count": 250, "reviewed": true, "direct": [], "visual2D": [], "anchors": []},
+    {"chunk": "019", "firstId": 4501, "lastId": 4750, "count": 250, "reviewed": true, "direct": [], "visual2D": [], "anchors": []},
+    {"chunk": "020", "firstId": 4751, "lastId": 5000, "count": 250, "reviewed": true, "direct": [], "visual2D": [], "anchors": []},
+    {"chunk": "021", "firstId": 5001, "lastId": 5250, "count": 250, "reviewed": true, "direct": [], "visual2D": [], "anchors": [5115]},
+    {"chunk": "022", "firstId": 5251, "lastId": 5500, "count": 250, "reviewed": true, "direct": [], "visual2D": [5428,5462], "anchors": []},
+    {"chunk": "023", "firstId": 5501, "lastId": 5629, "count": 129, "reviewed": true, "direct": [], "visual2D": [], "anchors": [5610]}
+  ],
+  "rejectionPolicy": [
+    "other hero explicitly named",
+    "generic vehicle with no Murphy/Audie context",
+    "non-vehicle asset",
+    "UI/effect unrelated to Murphy/Audie",
+    "VIP18/event vehicle unrelated to Murphy/Audie"
+  ],
+  "previousLabStages": [
+    {"version": 17, "page": "lastwar-murphy-audie-family-v17.html", "purpose": "Murphy/Audie family inventory"},
+    {"version": 18, "page": "lastwar-murphy-audie-mesh-inspector-v18.html", "purpose": "Audie mesh visual inspection"},
+    {"version": 19, "page": "lastwar-audie-2d-gallery-v19.html", "purpose": "Audie 2D gallery"},
+    {"version": 20, "page": "lastwar-audie-2d-raw-v20.html", "purpose": "Raw streamed 2D investigation"},
+    {"version": 21, "page": "lastwar-audie-astc-v21.html", "purpose": "ASTC payload investigation"},
+    {"version": 22, "page": "lastwar-audie-stream-v22.html", "purpose": "UnityFS StreamData resolver"},
+    {"version": 23, "page": "lastwar-audie-companion-2d-v23.html", "purpose": "Companion Texture2D bundles"},
+    {"version": 25, "page": "lastwar-name-derived-vehicles-v25.html", "purpose": "107247-name inventory and 5629-candidate extraction"}
+  ],
+  "nextActions": [
+    "Inspect retained Murphy zhuanwu Timeline prefabs 3217-3220 and resolve their unique dependencies.",
+    "Search the 107247-path master index for Murphy/Audie analogues of known base/battle/city/world unique-weapon hierarchy.",
+    "Visually inspect 2D candidates 5428 and 5462 and same-bundle companion art.",
+    "Traverse dependencies of Hero_Audie_Timeline.prefab (5115) to identify renderer-facing assets.",
+    "Reverse-traverse Murphy projectile anchor 5610 to identify the renderer/prefab that emits it."
+  ]
+}
