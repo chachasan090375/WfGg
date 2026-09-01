@@ -1,0 +1,82 @@
+name: Last War Global Graphics V32 full smoke
+on:
+  push:
+    branches: [lab-global-graphics-catalog-v32]
+  workflow_dispatch:
+jobs:
+  full-v32:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile V31/V32 Python
+        run: |
+          python -m py_compile \
+            scripts/lastwar-global-graphics-catalog-v31.py \
+            scripts/lastwar-global-graphics-scope-enrich-v31.py \
+            scripts/lastwar-global-graphics-scope-correct-v31.py \
+            scripts/lastwar-global-graphics-hierarchy-v31.py \
+            scripts/lastwar-global-graphics-enrich-v32.py \
+            scripts/lastwar-event-graph-crosswalk-v32.py \
+            scripts/lastwar-global-graphics-server-v32.py
+      - name: Build base catalog
+        run: |
+          python scripts/lastwar-global-graphics-catalog-v31.py "$GITHUB_WORKSPACE"
+          python scripts/lastwar-global-graphics-scope-enrich-v31.py "$GITHUB_WORKSPACE"
+          python scripts/lastwar-global-graphics-scope-correct-v31.py "$GITHUB_WORKSPACE"
+          python scripts/lastwar-global-graphics-hierarchy-v31.py "$GITHUB_WORKSPACE"
+      - name: Add graphic nature and direct event links
+        run: python scripts/lastwar-global-graphics-enrich-v32.py "$GITHUB_WORKSPACE"
+      - name: Resolve exact event graph crosswalk
+        run: python scripts/lastwar-event-graph-crosswalk-v32.py "$GITHUB_WORKSPACE"
+      - name: Assert V32 contract
+        run: |
+          python - <<'PY'
+          import json, sqlite3
+          from pathlib import Path
+          db=Path.home()/'.cache/wfgg-lastwar-v31/graphics-catalog-v31.sqlite3'
+          summary=Path.home()/'.cache/wfgg-lastwar-v31/event-graph-crosswalk-v32-summary.json'
+          assert db.is_file() and summary.is_file()
+          con=sqlite3.connect(db)
+          n=con.execute('select count(*) from assets').fetchone()[0]
+          classes=dict(con.execute('select graphic_class,count(*) from assets group by graphic_class'))
+          reg=con.execute('select count(*) from event_registry_v32').fetchone()[0]
+          links=con.execute('select count(*) from event_asset_links_v32').fetchone()[0]
+          linked=con.execute('select count(distinct stable_id) from event_asset_links_v32').fetchone()[0]
+          assert n>100000,n
+          assert classes.get('Graphique',0)>0,classes
+          assert classes.get('Non graphique',0)>0,classes
+          assert classes.get('Composant graphique',0)>0,classes
+          assert reg>=100,reg
+          assert links>0,links
+          assert linked>0,linked
+          assert con.execute("select count(*) from event_asset_links_v32 where relation='candidate'").fetchone()[0]==0
+          s=json.loads(summary.read_text())
+          assert s['seedNodes']>0,s
+          assert s['eventAssetLinks']>=links,s
+          print('V32_SMOKE_OK assets=',n,'graphic=',classes,'registry=',reg,'links=',links,'linkedAssets=',linked)
+          print('V32_GRAPH_SUMMARY',json.dumps(s,ensure_ascii=False))
+          con.close()
+          PY
+      - name: Validate dynamic viewer injection
+        run: |
+          python - <<'PY'
+          import importlib.util,sys
+          from pathlib import Path
+          p=Path('scripts/lastwar-global-graphics-server-v32.py').resolve()
+          spec=importlib.util.spec_from_file_location('v32',p)
+          m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
+          h=m.viewer_v32().decode('utf-8')
+          assert 'id="graphic_class"' in h
+          assert 'id="event_id"' in h
+          assert 'Graphique ?' in h
+          assert "/api/v32" in h
+          print('V32_VIEWER_INJECTION_OK',len(h))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lastwar-v32-crosswalk-summary
+          path: ~/.cache/wfgg-lastwar-v31/event-graph-crosswalk-v32-summary.json
