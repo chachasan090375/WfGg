@@ -124,6 +124,8 @@ jobs:
           grep -q 'MeshHandler' scripts/lastwar-global-graphics-android-codec-v33.py
           grep -q 'decode_astc' scripts/lastwar-global-graphics-android-codec-v33.py
           grep -q 'V33_3D_MOBILE' scripts/lastwar-global-graphics-server-v33-mobile.py
-          grep -q 'RUNTIME_ASSET_OBJECT_MISMATCH' scripts/lastwar-global-graphics-server-v33-correlated.py
+          grep -q 'RUNTIME_TARGET_OBJECT_NOT_FOUND' scripts/lastwar-global-graphics-server-v33-correlated.py
+          grep -q 'manual-pathid' scripts/lastwar-global-graphics-server-v33-correlated.py
+          grep -q 'whole-closure-scan=ON' scripts/lastwar-global-graphics-server-v33-correlated.py
           grep -q 'local-renderable' scripts/lastwar-global-graphics-server-v33-correlated.py
           grep -q 'server-v33-correlated.py' scripts/lastwar-global-graphics-v33.sh
