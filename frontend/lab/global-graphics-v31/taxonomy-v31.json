@@ -1,14 +1,20 @@
 {
   "schemaVersion": 31,
   "description": "Taxonomie multi-axes du catalogue graphique Last War. Aucun asset n'est forcé dans une seule arborescence : famille, forme, contexte, portée éditoriale et technique restent des facettes indépendantes.",
+  "eventRegistry": {
+    "index": "data/lastwar/event-registry-v1.json",
+    "directRelation": "belongs-to",
+    "dependencyRelation": "used-by",
+    "policy": "L'appartenance directe à un événement et l'utilisation par un événement restent deux relations distinctes."
+  },
   "scopeKinds": [
     {"id":"generic","label":"Jeu générique","description":"Ressource explicitement commune/permanente au jeu."},
     {"id":"feature","label":"Fonction permanente","description":"Ressource liée à un module permanent (héros, formation, alliance, boutique, carte, etc.)."},
     {"id":"event","label":"Événement","description":"Ressource rattachée à un événement identifié."},
     {"id":"recurring-event","label":"Événement récurrent","description":"Événement revenant périodiquement ; la cadence exacte n'est renseignée que si elle est prouvée."},
-    {"id":"season","label":"Saison","description":"Ressource explicitement liée à une saison."},
+    {"id":"season","label":"Saison","description":"Ressource explicitement liée à une saison ou à un événement de saison."},
     {"id":"interseason","label":"Inter-Saison","description":"Ressource explicitement liée à une phase inter-saison / pré-saison identifiable."},
-    {"id":"limited","label":"Temps limité","description":"Contenu limité dans le temps sans événement/saison suffisamment identifié."},
+    {"id":"limited","label":"Temps limité / exceptionnel","description":"Contenu limité dans le temps, fête ou événement exceptionnel."},
     {"id":"collaboration","label":"Collaboration","description":"Contenu de collaboration/crossover identifié."},
     {"id":"regional","label":"Régional / langue","description":"Variante graphique propre à une région ou langue."},
     {"id":"unknown","label":"Non déterminé","description":"Aucune preuve suffisante pour décider ; ne jamais convertir automatiquement en générique."}
@@ -27,19 +33,12 @@
     "genericTokens": ["common","shared","global","generic","default"],
     "regionalTokens": ["_jp","_kr","_cn","_tw","_en","_fr","_it","_es"]
   },
-  "knownScopes": [
-    {
-      "id":"bounty-hunter",
-      "kind":"recurring-event",
-      "name":"Chasseur de prime",
-      "aliases":["chasseur de prime","bounty hunter","bounty-hunter","bounty_hunter","bountyhunter"],
-      "recurrence":"periodic-unspecified",
-      "note":"Le caractère récurrent est connu ; ne pas déduire une cadence mensuelle exacte sans preuve supplémentaire dans les données du jeu."
-    }
-  ],
   "searchAliases": {
     "chasseur de prime": ["bounty hunter","bounty-hunter","bounty_hunter","bountyhunter"],
     "bounty hunter": ["chasseur de prime","bounty-hunter","bounty_hunter","bountyhunter"],
+    "train d'alliance": ["alliance train","alliance_train","alliancetrain"],
+    "éveil de tesla": ["tesla awakening","teslaawakening"],
+    "duel des sanctuaires": ["sanctuary conquest","sanctuaryconquest"],
     "avion": ["aircraft","plane","airplane"],
     "char": ["tank"],
     "drone": ["uav"],
@@ -53,6 +52,8 @@
     "confidencePerFacet": true,
     "candidateEdgesAreNotExact": true,
     "manualOverridesWin": true,
-    "scopeCanBeInferredFromPathBundleObjectAndDependencies": true
+    "scopeCanBeInferredFromPathBundleObjectAndDependencies": true,
+    "eventRegistryDirectMatchesCreateBelongsToOnly": true,
+    "usedByRequiresExactDependencyOrManualEvidence": true
   }
 }
