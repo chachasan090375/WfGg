@@ -24,7 +24,9 @@ jobs:
             scripts/lastwar-event-graph-crosswalk-v32.py \
             scripts/lastwar-global-graphics-server-v32.py \
             scripts/lastwar-global-graphics-enrich-v33.py \
-            scripts/lastwar-global-graphics-server-v33.py
+            scripts/lastwar-global-graphics-dimension-correct-v33.py \
+            scripts/lastwar-global-graphics-server-v33.py \
+            scripts/lastwar-global-graphics-server-v33-resolved.py
       - name: Check viewer JavaScript
         run: |
           node --check frontend/lab/global-graphics-v33/model-viewer-v33.js
@@ -47,6 +49,7 @@ jobs:
           python scripts/lastwar-global-graphics-hierarchy-v31.py "$GITHUB_WORKSPACE"
           python scripts/lastwar-global-graphics-enrich-v32.py "$GITHUB_WORKSPACE"
           python scripts/lastwar-global-graphics-enrich-v33.py "$GITHUB_WORKSPACE"
+          python scripts/lastwar-global-graphics-dimension-correct-v33.py "$GITHUB_WORKSPACE"
       - name: Assert V33 contract
         run: |
           python - <<'PY'
@@ -66,7 +69,11 @@ jobs:
           assert roles.get('texture',0)>0,roles
           assert con.execute("select count(*) from assets where asset_folder<>''").fetchone()[0]>50000
           assert con.execute("select count(*) from facets where axis='dimension_class'").fetchone()[0]>=4
-          print('V33_SMOKE_OK assets=',n,'dimensions=',dims,'roles=',roles)
+          bad2d=con.execute("select count(*) from assets where lower(asset_path) like '%.prefab' and dimension_class='2D'").fetchone()[0]
+          badgraphic=con.execute("select count(*) from assets where lower(asset_path) like '%.prefab' and graphic_class='Graphique'").fetchone()[0]
+          assert bad2d==0,bad2d
+          assert badgraphic==0,badgraphic
+          print('V33_SMOKE_OK assets=',n,'dimensions=',dims,'roles=',roles,'prefab2d=',bad2d,'prefabGraphic=',badgraphic)
           con.close()
           PY
       - name: Validate viewer contract
@@ -75,5 +82,6 @@ jobs:
           grep -q 'id="graphic_class"' frontend/lab/lastwar-global-graphics-viewer-v33.html
           grep -q 'model-viewer-v33.js' frontend/lab/lastwar-global-graphics-viewer-v33.html
           grep -q '/api/v33/model' scripts/lastwar-global-graphics-server-v33.py
+          grep -q 'physical-resolver' scripts/lastwar-global-graphics-server-v33-resolved.py
           grep -q 'Renderer' scripts/lastwar-global-graphics-server-v33.py
           grep -q 'Mesh' scripts/lastwar-global-graphics-server-v33.py
