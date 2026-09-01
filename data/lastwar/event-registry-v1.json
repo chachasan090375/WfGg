@@ -3,35 +3,17 @@
   "registryVersion": "2026-09-01.v1",
   "asOf": "2026-09-01",
   "title": "Last War: Survival — canonical event registry for WfGg",
-  "purpose": [
-    "graphics asset classification",
-    "future notification generator",
-    "event aliases and cadence",
-    "season/inter-season history"
-  ],
+  "purpose": ["graphics asset classification", "future notification generator", "event aliases and cadence", "season/inter-season history"],
   "coverage": {
     "from": "server launch / pre-season",
     "through": "Season 6 plus limited events observed through 2026-09-01",
     "season7": "excluded from automatic classification until reliable public/official event details exist"
   },
   "countingPolicy": {
-    "registryEntries": 177,
-    "note": "Entries include top-level events, child/sub-events, campaigns and season-specific variants; not a claim of 177 distinct official top-level event brands.",
-    "byKind": {
-      "season": 93,
-      "recurring-event": 47,
-      "limited": 27,
-      "interseason": 7,
-      "event": 3
-    },
-    "seasonLinkedEntries": {
-      "1": 14,
-      "2": 14,
-      "3": 18,
-      "4": 20,
-      "5": 25,
-      "6": 27
-    }
+    "registryEntries": 189,
+    "note": "Entries include top-level events, child/sub-events, campaigns and season-specific variants; not a claim of 189 distinct official top-level event brands.",
+    "byKind": {"season": 98, "recurring-event": 49, "limited": 32, "interseason": 7, "event": 3},
+    "seasonLinkedEntries": {"1": 14, "2": 14, "3": 18, "4": 20, "5": 25, "6": 32}
   },
   "semantics": {
     "ownershipVsUsage": "belongs-to and used-by are separate relations; direct registry matching creates belongs-to only.",
@@ -48,22 +30,23 @@
     {"id": 6, "name": "Shadow Rainforest", "aliases": ["Lost Rainforest"], "status": "historical/current-cycle"}
   ],
   "files": [
-    {"path": "events-global-v1.json", "entries": 50},
+    {"path": "events-global-v1.json", "entries": 52},
     {"path": "events-interseason-v1.json", "entries": 7},
-    {"path": "events-limited-v1.json", "entries": 27},
+    {"path": "events-limited-v1.json", "entries": 32},
     {"path": "events-season-cross-v1.json", "entries": 5},
     {"path": "events-season1-v1.json", "entries": 9},
     {"path": "events-season2-v1.json", "entries": 9},
     {"path": "events-season3-v1.json", "entries": 13},
     {"path": "events-season4-v1.json", "entries": 15},
     {"path": "events-season5-v1.json", "entries": 20},
-    {"path": "events-season6-v1.json", "entries": 22}
+    {"path": "events-season6-v1.json", "entries": 27}
   ],
   "sources": {
     "game8-events": {"title": "Game8 Last War events index", "url": "https://game8.jp/lastwar-survival/595245", "scope": "daily/alliance/recurring/limited/campaign"},
     "lastwar-timeline": {"title": "LastWarSurvival.com timeline", "url": "https://lastwarsurvival.com/guides/timeline", "scope": "server progression and seasons 1-6"},
     "r5tools-events": {"title": "R5TOOLS Last War event/season research", "url": "https://r5tools.io/events/bounty-hunter.html", "scope": "cadence, recurring and off-season events"},
     "cpt-hedge-hotdeals": {"title": "Cpt Hedge Hot Deals & Events", "url": "https://cpt-hedge.com/guides/hot-deals-events", "scope": "rotating campaigns/hot deals"},
+    "lastwar-handbook-newyear": {"title": "Last War Handbook New Year Event 2026", "url": "https://lastwarhandbook.com/guides/new-year-event-2026-guide", "scope": "New Year 2026 parent and subevents"},
     "lwt-home": {"title": "Last War Tutorial guide index", "url": "https://www.lastwartutorial.com/", "scope": "historical guides and cross-season events"},
     "lwt-s1": {"title": "Last War Tutorial Season 1", "url": "https://www.lastwartutorial.com/season-1-the-crimson-plague/", "scope": "season 1"},
     "lwt-s2": {"title": "Last War Tutorial Season 2", "url": "https://www.lastwartutorial.com/season-2-polar-storm/", "scope": "season 2"},
