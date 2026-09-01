@@ -21,7 +21,7 @@ jobs:
         run: python -m json.tool frontend/lab/global-graphics-v31/taxonomy-v31.json >/dev/null
       - name: Validate viewer contract
         run: |
-          grep -q "const API='/api/v31'" frontend/lab/lastwar-global-graphics-viewer-v31.html
-          grep -q "API+'/search'" frontend/lab/lastwar-global-graphics-viewer-v31.html
-          grep -q 'Capture documentée' frontend/lab/lastwar-global-graphics-viewer-v31.html
-          grep -q 'scope_kind' frontend/lab/lastwar-global-graphics-viewer-v31.html
+          grep -Fq "const API='/api/v31'" frontend/lab/lastwar-global-graphics-viewer-v31.html
+          grep -Fq "API+'/search?'" frontend/lab/lastwar-global-graphics-viewer-v31.html
+          grep -Fq 'Capture documentée' frontend/lab/lastwar-global-graphics-viewer-v31.html
+          grep -Fq 'scope_kind' frontend/lab/lastwar-global-graphics-viewer-v31.html
