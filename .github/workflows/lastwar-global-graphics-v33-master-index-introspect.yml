@@ -15,34 +15,19 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Inspect master index physical schema
+      - name: Inspect master physical bundle record
         run: |
           python - <<'PY'
           import json
           from pathlib import Path
           p=Path('frontend/lab/master-assets-v2/index/lastwar-graphics-master-index-v1.json')
           data=json.loads(p.read_text('utf-8'))
-          print('INDEX_BYTES',p.stat().st_size)
-          print('TOP_KEYS',sorted(data.keys()))
-          def describe(label,x,depth=0):
-              print('\nSECTION',label,'TYPE',type(x).__name__,'LEN',len(x) if hasattr(x,'__len__') else None)
-              if isinstance(x,dict):
-                  print('KEYS',list(x.keys())[:40])
-                  for i,(k,v) in enumerate(x.items()):
-                      print('ITEM',i,'KEY',repr(k),'TYPE',type(v).__name__,'VALUE',repr(v)[:1500])
-                      if i>=5:break
-              elif isinstance(x,list):
-                  for i,v in enumerate(x[:6]):print('ITEM',i,'TYPE',type(v).__name__,'VALUE',repr(v)[:1500])
-          for key in ['counts','source','lookup','reconstructionRecipe','bundles','evidenceFiles','guardrails']:
-              describe(key,data.get(key))
-          lookup=data.get('lookup') or {}
-          if isinstance(lookup,dict):
-              for k,v in lookup.items():describe('lookup.'+k,v)
-          bundles=data.get('bundles') or []
-          if isinstance(bundles,list):
-              for i,b in enumerate(bundles[:3]):describe(f'bundles[{i}]',b)
-          elif isinstance(bundles,dict):
-              for i,(k,b) in enumerate(bundles.items()):
-                  describe(f'bundles[{k}]',b)
-                  if i>=2:break
+          print('COUNTS',data['counts'])
+          for bid in [0,1,2,100,1000,15291]:
+              b=data['bundles'][bid]
+              print('\nBUNDLE',bid)
+              print('logicalName',repr(b.get('logicalName')))
+              print('aliasName',repr(b.get('aliasName')))
+              print('preferredExtraction',json.dumps(b.get('preferredExtraction'),ensure_ascii=False,separators=(',',':')))
+              print('locations',json.dumps(b.get('locations'),ensure_ascii=False,separators=(',',':'))[:12000])
           PY
