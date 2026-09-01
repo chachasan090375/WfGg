@@ -145,11 +145,23 @@ def main():
         elif ext in MODEL_EXTS:
             gclass='Composant graphique';dclass='3D';role='geometry';ev='model-extension:'+ext
         elif ext in PREFAB_EXTS:
-            gclass='Composant graphique';dclass='Composant 3D' if is3d else 'Mixte 2D/3D';role='prefab';ev='prefab-extension'
+            gclass='Composant graphique'
+            if uiish and not explicit3d:
+                dclass='Composant 2D';role='ui-prefab';ev='ui-prefab-extension'
+            else:
+                dclass='Composant 3D' if is3d else 'Mixte 2D/3D';role='prefab';ev='prefab-extension'
         elif ext in MATERIAL_EXTS:
-            gclass='Composant graphique';dclass='Composant 3D' if is3d else 'Mixte 2D/3D';role='shader' if ext=='.shader' else 'material';ev='material-extension:'+ext
+            gclass='Composant graphique'
+            if uiish and not explicit3d:
+                dclass='Composant 2D';role='ui-shader' if ext=='.shader' else 'ui-material';ev='ui-material-extension:'+ext
+            else:
+                dclass='Composant 3D' if is3d else 'Mixte 2D/3D';role='shader' if ext=='.shader' else 'material';ev='material-extension:'+ext
         elif ext in ANIM_EXTS:
-            gclass='Composant graphique';dclass='Composant 3D' if is3d else 'Mixte 2D/3D';role='animation';ev='animation-extension:'+ext
+            gclass='Composant graphique'
+            if uiish and not explicit3d:
+                dclass='Composant 2D';role='ui-animation';ev='ui-animation-extension:'+ext
+            else:
+                dclass='Composant 3D' if is3d else 'Mixte 2D/3D';role='animation';ev='animation-extension:'+ext
 
         if ev and (gclass!=r['graphic_class'] or dclass!=r['dimension_class'] or role!=r['model_role']):
             evidence=[ev]
@@ -164,9 +176,10 @@ def main():
     rebuild_facets(con);con.commit()
     after_vehicles=con.execute("SELECT count(*) FROM assets WHERE family='vehicles'").fetchone()[0]
     true_vehicle_2d=con.execute("SELECT count(*) FROM assets WHERE family='vehicles' AND dimension_class='2D'").fetchone()[0]
+    ui_prefab_3d=con.execute("SELECT count(*) FROM assets WHERE lower(asset_path) like '%/prefabs/ui/%' AND dimension_class IN ('3D','Composant 3D')").fetchone()[0]
     con.close()
     print('V33_SEMANTIC_CORRECT_READY',f'vehiclesBefore={before_vehicles}',f'vehiclesAfter={after_vehicles}',
-          f'vehicle2D={true_vehicle_2d}',f'familyChanged={changed_family}',flush=True)
+          f'vehicle2D={true_vehicle_2d}',f'familyChanged={changed_family}',f'uiPrefab3D={ui_prefab_3d}',flush=True)
     print('V33_DIMENSION_CORRECT_READY',f'changed={changed_dim}',json.dumps(counts,ensure_ascii=False),flush=True)
 
 if __name__=='__main__':main()
