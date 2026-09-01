@@ -21,5 +21,7 @@ printf '\n=== V32 : CROSSWALK EVENEMENTS VIA GRAPHE EXACT ===\n'
 python scripts/lastwar-event-graph-crosswalk-v32.py "$ROOT"
 printf '\n=== V33 : DISTINCTION 2D / 3D / COMPOSANTS ===\n'
 python scripts/lastwar-global-graphics-enrich-v33.py "$ROOT"
-printf '\n=== VIEWER V33 : 2D + MODELES 3D ===\n'
-exec python scripts/lastwar-global-graphics-server-v33.py "$ROOT"
+printf '\n=== V33 : CORRECTION PREFABS / MODELES / FICHIERS ===\n'
+python scripts/lastwar-global-graphics-dimension-correct-v33.py "$ROOT"
+printf '\n=== VIEWER V33 : 2D + MODELES 3D + RESOLUTION PHYSIQUE ===\n'
+exec python scripts/lastwar-global-graphics-server-v33-resolved.py "$ROOT"
