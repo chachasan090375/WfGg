@@ -23,5 +23,7 @@ printf '\n=== V33 : DISTINCTION 2D / 3D / COMPOSANTS ===\n'
 python scripts/lastwar-global-graphics-enrich-v33.py "$ROOT"
 printf '\n=== V33 : CORRECTION PREFABS / MODELES / FICHIERS ===\n'
 python scripts/lastwar-global-graphics-dimension-correct-v33.py "$ROOT"
-printf '\n=== VIEWER V33 : 2D + MODELES 3D + RESOLUTION PHYSIQUE ===\n'
+printf '\n=== V33 : DISPONIBILITE DU RENDU LOCAL ===\n'
+python scripts/lastwar-global-graphics-render-availability-v33.py "$ROOT"
+printf '\n=== VIEWER V33 : RENDU LOCAL + 2D + MODELES 3D ===\n'
 exec python scripts/lastwar-global-graphics-server-v33-resolved.py "$ROOT"
