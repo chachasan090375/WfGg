@@ -32,10 +32,12 @@ jobs:
             scripts/lastwar-global-graphics-server-v33-resolved.py \
             scripts/lastwar-global-graphics-server-v33-exact.py \
             scripts/lastwar-global-graphics-server-v33-unified.py \
-            scripts/lastwar-global-graphics-server-v33-mobile.py
+            scripts/lastwar-global-graphics-server-v33-mobile.py \
+            scripts/lastwar-global-graphics-server-v33-correlated.py
       - name: Check viewer JavaScript
         run: |
           node --check frontend/lab/global-graphics-v33/model-viewer-v33.js
+          node --check frontend/lab/global-graphics-v33/search-correlation-v33.js
           python - <<'PY'
           import re
           from pathlib import Path
@@ -109,6 +111,8 @@ jobs:
           grep -q 'id="graphic_class"' frontend/lab/lastwar-global-graphics-viewer-v33.html
           grep -q 'model-viewer-v33.js' frontend/lab/lastwar-global-graphics-viewer-v33.html
           grep -q 'WFGGResultStripSync' frontend/lab/global-graphics-v33/model-viewer-v33.js
+          grep -q 'WFGGSearchCorrelation' frontend/lab/global-graphics-v33/search-correlation-v33.js
+          grep -q 'PAGE_SIZE=60' frontend/lab/global-graphics-v33/search-correlation-v33.js
           grep -q 'MAX_OBJECTS=MOBILE?12:24' frontend/lab/global-graphics-v33/model-viewer-v33.js
           grep -q '/api/v33/model' scripts/lastwar-global-graphics-server-v33.py
           grep -q 'availability-map' scripts/lastwar-global-graphics-server-v33-resolved.py
@@ -118,4 +122,6 @@ jobs:
           grep -q 'MeshHandler' scripts/lastwar-global-graphics-android-codec-v33.py
           grep -q 'decode_astc' scripts/lastwar-global-graphics-android-codec-v33.py
           grep -q 'V33_3D_MOBILE' scripts/lastwar-global-graphics-server-v33-mobile.py
-          grep -q 'server-v33-mobile.py' scripts/lastwar-global-graphics-v33.sh
+          grep -q 'RUNTIME_ASSET_OBJECT_MISMATCH' scripts/lastwar-global-graphics-server-v33-correlated.py
+          grep -q 'local-renderable' scripts/lastwar-global-graphics-server-v33-correlated.py
+          grep -q 'server-v33-correlated.py' scripts/lastwar-global-graphics-v33.sh
