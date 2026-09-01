@@ -64,8 +64,6 @@ def rebuild_pack():
 
 
 def iter_array_objects(key,chunk_size=1<<20):
-    # Streaming JSON array decoder. It never materializes the 277 MB graph and lets
-    # CPython's C JSON decoder parse complete objects instead of walking char-by-char.
     decoder=json.JSONDecoder();marker='"'+key+'"';buf='';started=False
     with gzip.open(PACK,'rt',encoding='utf-8',errors='replace') as fh:
         while not started:
@@ -150,24 +148,21 @@ def main():
         seed_nodes+=1
     print('V32_GRAPH_SEEDS',f'nodes={node_count}',f'seedNodes={seed_nodes}',f'eventNodeLinks={len(links)}',flush=True)
 
-    # Two exact edge passes are intentionally bounded: first reaches containers and
-    # direct dependencies, second reaches assets contained by those dependency bundles.
-    allowed_same={'contains','stored_in','groups'}
+    # Ownership is NEVER inherited through graph traversal. A curated token on the
+    # node itself establishes belongs-to. Exact graph neighbours are only used-by.
+    # This prevents a generic icon sharing an event bundle from becoming event-owned.
+    allowed_context={'contains','stored_in','groups','depends_on'}
     for passno in range(1,3):
         changed=0;by_node=index_links_by_node(dict(links))
         for e in iter_array_objects('edges'):
             s,t,rel,candidate=edge_parts(e)
-            if candidate or not s or not t:continue
-            if rel in allowed_same:
-                for ev,r0 in by_node.get(s,()):
-                    key=(ev,t);old=links.get(key);merged=merge_relation(old,r0)
-                    if merged!=old:links[key]=merged;changed+=1
-                for ev,r0 in by_node.get(t,()):
-                    key=(ev,s);old=links.get(key);merged=merge_relation(old,r0)
-                    if merged!=old:links[key]=merged;changed+=1
-            elif rel=='depends_on':
-                for ev,_ in by_node.get(s,()):
-                    key=(ev,t);old=links.get(key);merged=merge_relation(old,'used-by')
+            if candidate or not s or not t or rel not in allowed_context:continue
+            for ev,_ in by_node.get(s,()):
+                key=(ev,t);old=links.get(key);merged=merge_relation(old,'used-by')
+                if merged!=old:links[key]=merged;changed+=1
+            if rel in {'contains','stored_in','groups'}:
+                for ev,_ in by_node.get(t,()):
+                    key=(ev,s);old=links.get(key);merged=merge_relation(old,'used-by')
                     if merged!=old:links[key]=merged;changed+=1
         print('V32_GRAPH_PROPAGATE',f'pass={passno}',f'changed={changed}',f'links={len(links)}',flush=True)
         if not changed:break
@@ -212,7 +207,7 @@ def main():
     for value,count in con.execute('SELECT relation,count(*) FROM event_asset_links_v32 GROUP BY relation'):
         con.execute('INSERT INTO facets(axis,value,count) VALUES(?,?,?)',('event_relation',value,count))
     con.commit();final_links=con.execute('SELECT count(*) FROM event_asset_links_v32').fetchone()[0];final_assets=con.execute('SELECT count(distinct stable_id) FROM event_asset_links_v32').fetchone()[0];con.close()
-    summary={'schemaVersion':32,'generatedAt':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'graphUncompressedBytes':m.get('uncompressedBytes'),'registryEvents':len(events),'seedNodes':seed_nodes,'graphRelatedNodes':len(relevant_nodes),'resolvedNodeMetadata':len(node_meta),'mappedWrites':writes,'eventAssetLinks':final_links,'eventLinkedAssets':final_assets,'relationCounts':dict(relation_counts),'topEvents':event_counts.most_common(40),'seconds':round(time.time()-start,2),'policy':'candidate edges never propagate; belongs-to outranks used-by; dependency propagation bounded to 2 exact passes'}
+    summary={'schemaVersion':32,'generatedAt':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'graphUncompressedBytes':m.get('uncompressedBytes'),'registryEvents':len(events),'seedNodes':seed_nodes,'graphRelatedNodes':len(relevant_nodes),'resolvedNodeMetadata':len(node_meta),'mappedWrites':writes,'eventAssetLinks':final_links,'eventLinkedAssets':final_assets,'relationCounts':dict(relation_counts),'topEvents':event_counts.most_common(40),'seconds':round(time.time()-start,2),'policy':'belongs-to only from direct curated token; exact graph traversal yields used-by only; candidate edges never propagate; bounded to 2 passes'}
     SUMMARY.write_text(json.dumps(summary,ensure_ascii=False,indent=2),'utf-8');print('V32_EVENT_GRAPH_READY',json.dumps(summary,ensure_ascii=False),flush=True)
 
 if __name__=='__main__':main()
