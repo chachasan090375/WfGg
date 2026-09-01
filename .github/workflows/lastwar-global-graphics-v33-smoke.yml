@@ -1,0 +1,67 @@
+name: Last War Global Graphics V33 smoke
+
+on:
+  push:
+    branches: [lab-global-graphics-catalog-v33]
+  workflow_dispatch:
+
+jobs:
+  v33:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile Python
+        run: |
+          python -m py_compile \
+            scripts/lastwar-global-graphics-catalog-v31.py \
+            scripts/lastwar-global-graphics-scope-enrich-v31.py \
+            scripts/lastwar-global-graphics-scope-correct-v31.py \
+            scripts/lastwar-global-graphics-hierarchy-v31.py \
+            scripts/lastwar-global-graphics-enrich-v32.py \
+            scripts/lastwar-event-graph-crosswalk-v32.py \
+            scripts/lastwar-global-graphics-server-v32.py \
+            scripts/lastwar-global-graphics-enrich-v33.py \
+            scripts/lastwar-global-graphics-server-v33.py
+      - name: Check 3D viewer JavaScript
+        run: node --check frontend/lab/global-graphics-v33/model-viewer-v33.js
+      - name: Build catalog and dimensionality
+        run: |
+          python scripts/lastwar-global-graphics-catalog-v31.py "$GITHUB_WORKSPACE"
+          python scripts/lastwar-global-graphics-scope-enrich-v31.py "$GITHUB_WORKSPACE"
+          python scripts/lastwar-global-graphics-scope-correct-v31.py "$GITHUB_WORKSPACE"
+          python scripts/lastwar-global-graphics-hierarchy-v31.py "$GITHUB_WORKSPACE"
+          python scripts/lastwar-global-graphics-enrich-v32.py "$GITHUB_WORKSPACE"
+          python scripts/lastwar-global-graphics-enrich-v33.py "$GITHUB_WORKSPACE"
+      - name: Assert V33 contract
+        run: |
+          python - <<'PY'
+          import sqlite3
+          from pathlib import Path
+          db=Path.home()/'.cache/wfgg-lastwar-v31/graphics-catalog-v31.sqlite3'
+          con=sqlite3.connect(db)
+          n=con.execute('select count(*) from assets').fetchone()[0]
+          dims=dict(con.execute('select dimension_class,count(*) from assets group by dimension_class'))
+          roles=dict(con.execute('select model_role,count(*) from assets group by model_role'))
+          assert n==107247,n
+          assert sum(dims.values())==n,dims
+          assert dims.get('2D',0)>1000,dims
+          assert dims.get('3D',0)>0,dims
+          assert dims.get('Composant 3D',0)>0,dims
+          assert roles.get('geometry',0)>0,roles
+          assert roles.get('texture',0)>0,roles
+          assert con.execute("select count(*) from assets where asset_folder<>''").fetchone()[0]>50000
+          assert con.execute("select count(*) from facets where axis='dimension_class'").fetchone()[0]>=4
+          print('V33_SMOKE_OK assets=',n,'dimensions=',dims,'roles=',roles)
+          con.close()
+          PY
+      - name: Validate viewer contract
+        run: |
+          grep -q 'id="dimension_class"' frontend/lab/lastwar-global-graphics-viewer-v33.html
+          grep -q 'id="graphic_class"' frontend/lab/lastwar-global-graphics-viewer-v33.html
+          grep -q 'model-viewer-v33.js' frontend/lab/lastwar-global-graphics-viewer-v33.html
+          grep -q '/api/v33/model' scripts/lastwar-global-graphics-server-v33.py
+          grep -q 'Renderer' scripts/lastwar-global-graphics-server-v33.py
+          grep -q 'Mesh' scripts/lastwar-global-graphics-server-v33.py
