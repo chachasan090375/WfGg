@@ -44,81 +44,55 @@ def load_registry():
 def sha256_file(p):
     h=hashlib.sha256()
     with p.open('rb') as f:
-        while True:
-            b=f.read(1024*1024)
-            if not b: break
-            h.update(b)
+        for b in iter(lambda:f.read(1024*1024),b''):h.update(b)
     return h.hexdigest()
 
 
 def rebuild_pack():
-    m=json.loads(MANIFEST.read_text('utf-8'))
-    expected=m.get('compressedSha256','')
+    m=json.loads(MANIFEST.read_text('utf-8'));expected=m.get('compressedSha256','')
     if PACK.is_file() and sha256_file(PACK)==expected:return m
-    tmp=PACK.with_suffix('.tmp.gz'); h=hashlib.sha256()
+    tmp=PACK.with_suffix('.tmp.gz');h=hashlib.sha256()
     with tmp.open('wb') as out:
         for part in m['parts']:
-            p=PARTS/part['name']; hp=hashlib.sha256()
+            p=PARTS/part['name'];hp=hashlib.sha256()
             with p.open('rb') as f:
-                while True:
-                    b=f.read(1024*1024)
-                    if not b:break
+                for b in iter(lambda:f.read(1024*1024),b''):
                     hp.update(b);h.update(b);out.write(b)
             if hp.hexdigest()!=part['sha256']:raise RuntimeError(f'Hash part invalide: {p}')
     if h.hexdigest()!=expected:raise RuntimeError('Hash gzip assemblé invalide')
     tmp.replace(PACK);return m
 
 
-class CharReader:
-    def __init__(self,fh,chunk=1<<16):self.fh=fh;self.chunk=chunk;self.buf='';self.i=0;self.eof=False
-    def get(self):
-        if self.i>=len(self.buf):
-            self.buf=self.fh.read(self.chunk);self.i=0
-            if not self.buf:self.eof=True;return ''
-        c=self.buf[self.i];self.i+=1;return c
-
-
-def seek_marker(r,marker):
-    q=''
-    while not r.eof:
-        c=r.get()
-        if not c:return False
-        q=(q+c)[-len(marker):]
-        if q==marker:return True
-    return False
-
-
-def iter_array_objects(key):
+def iter_array_objects(key,chunk_size=1<<20):
+    # Streaming JSON array decoder. It never materializes the 277 MB graph and lets
+    # CPython's C JSON decoder parse complete objects instead of walking char-by-char.
+    decoder=json.JSONDecoder();marker='"'+key+'"';buf='';started=False
     with gzip.open(PACK,'rt',encoding='utf-8',errors='replace') as fh:
-        r=CharReader(fh);marker='"'+key+'"'
-        if not seek_marker(r,marker):return
+        while not started:
+            chunk=fh.read(chunk_size)
+            if not chunk:return
+            buf+=chunk;pos=buf.find(marker)
+            if pos<0:
+                buf=buf[-max(len(marker)+32,128):];continue
+            bracket=buf.find('[',pos+len(marker))
+            while bracket<0:
+                chunk=fh.read(chunk_size)
+                if not chunk:return
+                buf+=chunk;bracket=buf.find('[',pos+len(marker))
+            buf=buf[bracket+1:];started=True
         while True:
-            c=r.get()
-            if not c:return
-            if c=='[':break
-        while True:
-            c=r.get()
-            while c and (c.isspace() or c==','):c=r.get()
-            if not c or c==']':return
-            if c not in '{[':
-                while c and c not in ',]':c=r.get()
-                if c==']':return
-                continue
-            buf=[c];depth=1;instr=False;esc=False
-            while depth:
-                c=r.get()
-                if not c:return
-                buf.append(c)
-                if instr:
-                    if esc:esc=False
-                    elif c=='\\':esc=True
-                    elif c=='"':instr=False
-                else:
-                    if c=='"':instr=True
-                    elif c in '{[':depth+=1
-                    elif c in '}]':depth-=1
-            try:yield json.loads(''.join(buf))
-            except Exception:continue
+            i=0
+            while i<len(buf) and (buf[i].isspace() or buf[i]==','):i+=1
+            if i<len(buf) and buf[i]==']':return
+            if i:buf=buf[i:]
+            try:
+                obj,end=decoder.raw_decode(buf)
+                if isinstance(obj,dict):yield obj
+                buf=buf[end:]
+            except json.JSONDecodeError:
+                chunk=fh.read(chunk_size)
+                if not chunk:return
+                buf+=chunk
 
 
 def nid(obj):
@@ -161,17 +135,13 @@ def index_links_by_node(links):
 
 
 def main():
-    start=time.time();m=rebuild_pack();events,tokmap=load_registry()
-    tokens=sorted(tokmap,key=len,reverse=True)
+    start=time.time();m=rebuild_pack();events,tokmap=load_registry();tokens=sorted(tokmap,key=len,reverse=True)
     rx=re.compile('|'.join(re.escape(t) for t in tokens)) if tokens else None
-    links={} # (event,node)-> relation
-    seed_evidence={}
-    node_count=seed_nodes=0
+    links={};seed_evidence={};node_count=seed_nodes=0
     for node in iter_array_objects('nodes'):
         node_count+=1;nodeid=nid(node)
         if not nodeid or not rx:continue
-        text=dense(json.dumps(node,ensure_ascii=False,separators=(',',':')))
-        found={match.group(0) for match in rx.finditer(text)}
+        text=dense(json.dumps(node,ensure_ascii=False,separators=(',',':')));found={match.group(0) for match in rx.finditer(text)}
         if not found:continue
         evs=set()
         for tok in found:evs.update(tokmap[tok])
@@ -180,10 +150,10 @@ def main():
         seed_nodes+=1
     print('V32_GRAPH_SEEDS',f'nodes={node_count}',f'seedNodes={seed_nodes}',f'eventNodeLinks={len(links)}',flush=True)
 
-    # Three bounded passes: ownership/container closure, one exact dependency hop,
-    # then contents of those dependency bundles. Candidate edges never propagate.
+    # Two exact edge passes are intentionally bounded: first reaches containers and
+    # direct dependencies, second reaches assets contained by those dependency bundles.
     allowed_same={'contains','stored_in','groups'}
-    for passno in range(1,4):
+    for passno in range(1,3):
         changed=0;by_node=index_links_by_node(dict(links))
         for e in iter_array_objects('edges'):
             s,t,rel,candidate=edge_parts(e)
@@ -208,8 +178,7 @@ def main():
         if nodeid in relevant_nodes:node_meta[nodeid]=node
     print('V32_GRAPH_NODE_META',f'relevant={len(relevant_nodes)}',f'resolved={len(node_meta)}',flush=True)
 
-    con=sqlite3.connect(DB);con.row_factory=sqlite3.Row
-    exact=defaultdict(set);base=defaultdict(set)
+    con=sqlite3.connect(DB);con.row_factory=sqlite3.Row;exact=defaultdict(set);base=defaultdict(set)
     for r in con.execute('SELECT stable_id,asset_path,logical_name,alias_name FROM assets'):
         sid=r['stable_id']
         for k in ('asset_path','logical_name','alias_name'):
@@ -217,7 +186,6 @@ def main():
             if not raw:continue
             exact[raw].add(sid);bn=raw.rsplit('/',1)[-1]
             if len(bn)>=8:base[bn].add(sid)
-
     writes=0;relation_counts=Counter();event_counts=Counter()
     for (ev,nodeid),relation in links.items():
         node=node_meta.get(nodeid)
@@ -230,32 +198,21 @@ def main():
             bn=raw.rsplit('/',1)[-1]
             if len(bn)>=8 and len(base.get(bn,()))==1:sids.update(base[bn]);evidence_strings.append('basename:'+bn)
         for sid in sids:
-            existing=con.execute('SELECT relation,confidence FROM event_asset_links_v32 WHERE event_id=? AND stable_id=? ORDER BY CASE relation WHEN "belongs-to" THEN 2 WHEN "used-by" THEN 1 ELSE 0 END DESC, confidence DESC LIMIT 1',(ev,sid)).fetchone()
-            target=relation
-            if existing and existing['relation']=='belongs-to':target='belongs-to'
+            existing=con.execute('SELECT relation,confidence FROM event_asset_links_v32 WHERE event_id=? AND stable_id=? ORDER BY CASE relation WHEN "belongs-to" THEN 2 WHEN "used-by" THEN 1 ELSE 0 END DESC,confidence DESC LIMIT 1',(ev,sid)).fetchone()
+            target='belongs-to' if existing and existing['relation']=='belongs-to' else relation
+            if target=='used-by' and existing and existing['relation']=='belongs-to':continue
             conf=0.995 if target=='belongs-to' else 0.88
             evd={'source':'exact-reconstruction-graph','graphNode':nodeid,'relation':target,'strings':evidence_strings[:8],'seedTokens':seed_evidence.get((ev,nodeid),[])}
-            # One strongest relation per event/asset. Belongs-to always outranks used-by.
             if target=='belongs-to':con.execute('DELETE FROM event_asset_links_v32 WHERE event_id=? AND stable_id=? AND relation<>"belongs-to"',(ev,sid))
-            elif existing and existing['relation']=='belongs-to':continue
             con.execute('INSERT OR REPLACE INTO event_asset_links_v32(event_id,stable_id,relation,confidence,evidence_json) VALUES(?,?,?,?,?)',(ev,sid,target,conf,json.dumps(evd,ensure_ascii=False,separators=(',',':'))))
             writes+=1;relation_counts[target]+=1;event_counts[ev]+=1
-
     con.execute("DELETE FROM facets WHERE axis IN ('event_id','event_relation')")
     for value,count in con.execute('SELECT event_id,count(distinct stable_id) FROM event_asset_links_v32 GROUP BY event_id'):
         con.execute('INSERT INTO facets(axis,value,count) VALUES(?,?,?)',('event_id',value,count))
     for value,count in con.execute('SELECT relation,count(*) FROM event_asset_links_v32 GROUP BY relation'):
         con.execute('INSERT INTO facets(axis,value,count) VALUES(?,?,?)',('event_relation',value,count))
     con.commit();final_links=con.execute('SELECT count(*) FROM event_asset_links_v32').fetchone()[0];final_assets=con.execute('SELECT count(distinct stable_id) FROM event_asset_links_v32').fetchone()[0];con.close()
-    summary={
-      'schemaVersion':32,'generatedAt':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),
-      'graphUncompressedBytes':m.get('uncompressedBytes'),'registryEvents':len(events),'seedNodes':seed_nodes,
-      'graphRelatedNodes':len(relevant_nodes),'resolvedNodeMetadata':len(node_meta),'mappedWrites':writes,
-      'eventAssetLinks':final_links,'eventLinkedAssets':final_assets,'relationCounts':dict(relation_counts),
-      'topEvents':event_counts.most_common(40),'seconds':round(time.time()-start,2),
-      'policy':'candidate edges never propagate; belongs-to outranks used-by; dependency propagation bounded to 3 passes'
-    }
-    SUMMARY.write_text(json.dumps(summary,ensure_ascii=False,indent=2),'utf-8')
-    print('V32_EVENT_GRAPH_READY',json.dumps(summary,ensure_ascii=False),flush=True)
+    summary={'schemaVersion':32,'generatedAt':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'graphUncompressedBytes':m.get('uncompressedBytes'),'registryEvents':len(events),'seedNodes':seed_nodes,'graphRelatedNodes':len(relevant_nodes),'resolvedNodeMetadata':len(node_meta),'mappedWrites':writes,'eventAssetLinks':final_links,'eventLinkedAssets':final_assets,'relationCounts':dict(relation_counts),'topEvents':event_counts.most_common(40),'seconds':round(time.time()-start,2),'policy':'candidate edges never propagate; belongs-to outranks used-by; dependency propagation bounded to 2 exact passes'}
+    SUMMARY.write_text(json.dumps(summary,ensure_ascii=False,indent=2),'utf-8');print('V32_EVENT_GRAPH_READY',json.dumps(summary,ensure_ascii=False),flush=True)
 
 if __name__=='__main__':main()
