@@ -89,3 +89,48 @@ async function mount(host,manifest){
 
 window.WFGGModelViewer={mount};
 })();
+
+/* Mobile result-strip synchronisation: keep the selected bundle/asset centered
+   whenever select(), Previous or Next rebuilds the result cards. */
+(()=>{
+'use strict';
+function syncActiveCard(behavior='smooth'){
+  const strip=document.getElementById('results');
+  if(!strip)return;
+  const desktop=window.matchMedia('(min-width:980px)').matches;
+  if(desktop){
+    strip.style.paddingLeft='7px';strip.style.paddingRight='7px';
+    const active=strip.querySelector('.card.active');
+    active?.scrollIntoView?.({block:'nearest',inline:'nearest',behavior:behavior==='smooth'?'smooth':'auto'});
+    return;
+  }
+  const cards=[...strip.querySelectorAll('.card')];
+  cards.forEach(card=>{card.style.scrollSnapAlign='center';card.style.scrollSnapStop='always';});
+  const active=strip.querySelector('.card.active');
+  if(!active)return;
+  active.style.borderWidth='2px';
+  active.style.boxShadow='0 0 0 1px #a78bfa inset,0 0 18px #a78bfa33';
+  const side=Math.max(7,Math.round((strip.clientWidth-active.getBoundingClientRect().width)/2));
+  strip.style.paddingLeft=side+'px';strip.style.paddingRight=side+'px';
+  strip.style.scrollSnapType='x mandatory';
+  requestAnimationFrame(()=>{
+    const target=active.offsetLeft-(strip.clientWidth-active.offsetWidth)/2;
+    strip.scrollTo({left:Math.max(0,target),behavior});
+  });
+}
+function installStripSync(){
+  const strip=document.getElementById('results');if(!strip)return;
+  let queued=false;
+  const schedule=(behavior='smooth')=>{
+    if(queued)return;queued=true;
+    requestAnimationFrame(()=>{queued=false;syncActiveCard(behavior);});
+  };
+  const observer=new MutationObserver(()=>schedule('smooth'));
+  observer.observe(strip,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
+  strip.addEventListener('click',e=>{if(e.target.closest('.card'))setTimeout(()=>syncActiveCard('smooth'),0)});
+  window.addEventListener('resize',()=>syncActiveCard('auto'),{passive:true});
+  schedule('auto');
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installStripSync,{once:true});
+else installStripSync();
+})();
