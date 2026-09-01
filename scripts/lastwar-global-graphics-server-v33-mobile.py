@@ -6,6 +6,9 @@ from __future__ import annotations
 Keeps exact-only rendering, but separates two budgets:
 - 3D preview: deliberately small to stay interactive on Android;
 - 2D Sprite resolution: deeper exact dependency closure to recover backing textures.
+
+The LAB is an active development surface, so HTML/JS responses are explicitly no-store to
+avoid Chrome keeping an older result-strip or renderer implementation after git pull.
 """
 
 from http.server import ThreadingHTTPServer
@@ -26,24 +29,24 @@ core=u.core
 exact=u.exact
 
 # -------- 3D: mobile preview budget --------
-# build_model_exact reads these globals at request time.  Keep only enough exact bundles
-# to create an interactive preview; the catalogue retains the complete dependency graph.
+# Keep the first preview responsive. The complete exact dependency graph remains in SQLite;
+# this cap only limits how much geometry is assembled for one on-screen preview.
 ORIGINAL_DEPENDENCY_ROWS=exact.dependency_rows
-exact.MAX_DEP_BUNDLES=10
-exact.MAX_MESHES=12
-exact.MAX_TEXTURES=18
-exact.MODEL_CACHE=CACHE/'models-v33-mobile-3304'
+exact.MAX_DEP_BUNDLES=8
+exact.MAX_MESHES=10
+exact.MAX_TEXTURES=12
+exact.MODEL_CACHE=CACHE/'models-v33-mobile-3306'
 exact.MODEL_CACHE.mkdir(parents=True,exist_ok=True)
 
 
-def mobile_dependency_rows(a,max_bundles=10,max_depth=2):
-    return ORIGINAL_DEPENDENCY_ROWS(a,max_bundles=min(int(max_bundles or 10),10),max_depth=min(int(max_depth or 2),2))
+def mobile_dependency_rows(a,max_bundles=8,max_depth=2):
+    return ORIGINAL_DEPENDENCY_ROWS(a,max_bundles=min(int(max_bundles or 8),8),max_depth=min(int(max_depth or 2),2))
 
 exact.dependency_rows=mobile_dependency_rows
 core.build_model=exact.build_model_exact
 
 # -------- 2D: deeper exact closure, independent of the 3D cap --------
-# Sprite PPtrs can point several dependency hops away.  We still accept exact dependency
+# Sprite PPtrs can point several dependency hops away. We still accept exact dependency
 # edges only; candidate/name-similarity edges remain excluded.
 MOBILE_CLOSURE=CACHE/'closure-v33-mobile'
 MOBILE_CLOSURE.mkdir(parents=True,exist_ok=True)
@@ -75,12 +78,23 @@ u._materialize_closure=materialize_raster_closure
 # render_asset_unified resolves _materialize_closure dynamically from module globals.
 core.v31.render_asset=u.render_asset_unified
 
+
+class MobileLabHandler(core.Handler):
+    """Never let the phone keep stale LAB HTML/JS while V33 is being iterated."""
+    def end_headers(self):
+        self.send_header('Cache-Control','no-store, no-cache, must-revalidate, max-age=0')
+        self.send_header('Pragma','no-cache')
+        self.send_header('Expires','0')
+        super().end_headers()
+
+
 if __name__=='__main__':
     con=core.dbcon();edges=con.execute('SELECT count(*) FROM bundle_dependencies_v33').fetchone()[0];con.close()
     url=f'http://127.0.0.1:{core.PORT}/lab/lastwar-global-graphics-viewer-v33.html'
     print('=== WFGG LAST WAR GLOBAL GRAPHICS V33 — MOBILE EXACT ===',flush=True)
-    print('V33_3D_MOBILE bundles=10 meshes=12 textures=18 cache=models-v33-mobile-3304',flush=True)
+    print('V33_3D_MOBILE bundles=8 meshes=10 textures=12 cache=models-v33-mobile-3306',flush=True)
     print('V33_2D_EXACT_CLOSURE dependencies<=28 depth<=3 candidates=EXCLUDED',flush=True)
+    print('V33_LAB_CACHE no-store=ON',flush=True)
     print('V33_EXACT_DEP_EDGES',edges,flush=True)
     print(url,flush=True)
-    ThreadingHTTPServer(('127.0.0.1',core.PORT),core.Handler).serve_forever()
+    ThreadingHTTPServer(('127.0.0.1',core.PORT),MobileLabHandler).serve_forever()
