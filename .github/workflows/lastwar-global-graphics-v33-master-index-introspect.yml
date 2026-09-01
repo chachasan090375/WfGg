@@ -1,0 +1,51 @@
+name: Last War V33 master index introspection
+
+on:
+  push:
+    branches: [lab-global-graphics-catalog-v33]
+    paths:
+      - '.github/workflows/lastwar-global-graphics-v33-master-index-introspect.yml'
+  workflow_dispatch:
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Inspect master index physical schema
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('frontend/lab/master-assets-v2/index/lastwar-graphics-master-index-v1.json')
+          print('INDEX',p,'bytes',p.stat().st_size)
+          data=json.loads(p.read_text('utf-8'))
+          print('TOP_KEYS',sorted(data.keys()))
+          for key in ['fragmentPhysicalIndex','bundleFragments','bundleNames','assetNames']:
+              x=data.get(key)
+              print('\nSECTION',key,'TYPE',type(x).__name__,'LEN',len(x) if hasattr(x,'__len__') else None)
+              if isinstance(x,dict):
+                  for i,(k,v) in enumerate(x.items()):
+                      print('ITEM',i,'KEY',repr(k),'VALUE_TYPE',type(v).__name__,'VALUE',repr(v)[:2000])
+                      if i>=7: break
+              elif isinstance(x,list):
+                  for i,v in enumerate(x[:8]):
+                      print('ITEM',i,'TYPE',type(v).__name__,'VALUE',repr(v)[:2000])
+          # Show all nested keys from a few physical records without dumping data.
+          x=data.get('fragmentPhysicalIndex')
+          samples=[]
+          if isinstance(x,dict): samples=list(x.items())[:20]
+          elif isinstance(x,list): samples=list(enumerate(x[:20]))
+          def keys(o,pfx=''):
+              out=[]
+              if isinstance(o,dict):
+                  for k,v in o.items():
+                      q=f'{pfx}.{k}' if pfx else str(k);out.append(q);out.extend(keys(v,q))
+              elif isinstance(o,list) and o:
+                  out.extend(keys(o[0],pfx+'[]'))
+              return out
+          print('\nPHYSICAL_NESTED_KEYS',sorted(set(q for _,v in samples for q in keys(v))))
+          PY
