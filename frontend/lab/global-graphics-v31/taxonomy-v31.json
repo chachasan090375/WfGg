@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 31,
+  "description": "Taxonomie multi-axes du catalogue graphique Last War. Aucun asset n'est forcé dans une seule arborescence : famille, forme, contexte, portée éditoriale et technique restent des facettes indépendantes.",
+  "scopeKinds": [
+    {"id":"generic","label":"Jeu générique","description":"Ressource explicitement commune/permanente au jeu."},
+    {"id":"feature","label":"Fonction permanente","description":"Ressource liée à un module permanent (héros, formation, alliance, boutique, carte, etc.)."},
+    {"id":"event","label":"Événement","description":"Ressource rattachée à un événement identifié."},
+    {"id":"recurring-event","label":"Événement récurrent","description":"Événement revenant périodiquement ; la périodicité n'est renseignée que si elle est prouvée."},
+    {"id":"season","label":"Saison","description":"Ressource explicitement liée à une saison."},
+    {"id":"interseason","label":"Inter-Saison","description":"Ressource explicitement liée à une phase inter-saison / pré-saison identifiable."},
+    {"id":"limited","label":"Temps limité","description":"Contenu limité dans le temps sans événement/saison suffisamment identifié."},
+    {"id":"collaboration","label":"Collaboration","description":"Contenu de collaboration/crossover identifié."},
+    {"id":"regional","label":"Régional / langue","description":"Variante graphique propre à une région ou langue."},
+    {"id":"unknown","label":"Non déterminé","description":"Aucune preuve suffisante pour décider ; ne jamais convertir automatiquement en générique."}
+  ],
+  "families": [
+    "characters","vehicles","buildings","weapons-equipment","units","objects-resources","world-environment","events","ui","effects","unknown"
+  ],
+  "visualRoles": [
+    "icon","portrait","illustration","background","frame","button","badge","texture","sprite-atlas","model-surface","effect","loading","unknown"
+  ],
+  "contexts": [
+    "hero","formation","combat","base","world-map","alliance","shop","inventory","season","event","mission","reward","tutorial","unknown"
+  ],
+  "technicalKinds": [
+    "sprite","texture2d","atlas","material","prefab","mesh","animation","animator","render-target","shader","unknown"
+  ],
+  "scopeDiscovery": {
+    "eventAnchors": ["event","events","activity","activities"],
+    "seasonAnchors": ["season","seasons"],
+    "interseasonTokens": ["interseason","inter-season","inter_season","preseason","pre-season","pre_season"],
+    "limitedTokens": ["limited","timelimit","time_limit","limitedtime","limited_time"],
+    "collaborationTokens": ["collab","collaboration","crossover"],
+    "genericTokens": ["common","shared","global","generic","default"],
+    "regionalTokens": ["_jp","_kr","_cn","_tw","_en","_fr","_it","_es"]
+  },
+  "searchAliases": {
+    "chasseur de prime": ["bounty hunter","bounty-hunter","bounty_hunter"],
+    "bounty hunter": ["chasseur de prime","bounty-hunter","bounty_hunter"],
+    "avion": ["aircraft","plane","airplane"],
+    "char": ["tank"],
+    "drone": ["uav"],
+    "héros": ["hero"],
+    "inter saison": ["interseason","inter-season","preseason"]
+  },
+  "classificationPolicy": {
+    "multiMembership": true,
+    "unknownIsNotGeneric": true,
+    "preserveEvidence": true,
+    "confidencePerFacet": true,
+    "candidateEdgesAreNotExact": true,
+    "manualOverridesWin": true
+  }
+}
