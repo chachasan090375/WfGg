@@ -5,7 +5,7 @@ const MAX_TRIANGLES=MOBILE?28000:50000;
 const MAX_OBJECTS=MOBILE?12:24;
 const FETCH_BATCH=MOBILE?3:5;
 
-function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c]));}
 
 function parseOBJ(text,label){
   const verts=[];const tris=[];let material='';
@@ -96,8 +96,9 @@ async function mount(host,manifest){
 window.WFGGModelViewer={mount};
 })();
 
-/* Result-strip synchronisation.  renderList() recreates the cards on every selection;
-   observe that rebuild and center the active card from the strip's real scroll position. */
+/* Result-strip synchronisation.
+   IMPORTANT: appending another search page must not recenter the strip on the old active card.
+   Centering happens only after an explicit selection/click/Previous/Next call. */
 (()=>{
 'use strict';
 function centerActiveCard(behavior='smooth'){
@@ -113,12 +114,9 @@ function centerActiveCard(behavior='smooth'){
 window.WFGGResultStripSync=centerActiveCard;
 function install(){
   const strip=document.getElementById('results');if(!strip)return;
-  let timer=0;
-  const sync=(behavior='smooth')=>{clearTimeout(timer);timer=setTimeout(()=>requestAnimationFrame(()=>centerActiveCard(behavior)),20);};
-  new MutationObserver(()=>sync('smooth')).observe(strip,{childList:true,subtree:true});
-  strip.addEventListener('click',e=>{if(e.target.closest('.card'))sync('smooth')});
-  window.addEventListener('resize',()=>sync('auto'),{passive:true});
-  sync('auto');
+  strip.addEventListener('click',e=>{if(e.target.closest('.card'))requestAnimationFrame(()=>centerActiveCard('smooth'));});
+  window.addEventListener('resize',()=>requestAnimationFrame(()=>centerActiveCard('auto')),{passive:true});
+  requestAnimationFrame(()=>centerActiveCard('auto'));
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
 })();
