@@ -21,11 +21,11 @@ printf '\n=== V32 : CROSSWALK EVENEMENTS VIA GRAPHE EXACT ===\n'
 python scripts/lastwar-event-graph-crosswalk-v32.py "$ROOT"
 printf '\n=== V33 : DISTINCTION 2D / 3D / COMPOSANTS ===\n'
 python scripts/lastwar-global-graphics-enrich-v33.py "$ROOT"
-printf '\n=== V33 : CORRECTION PREFABS / MODELES / FICHIERS ===\n'
+printf '\n=== V33 : CORRECTION SEMANTIQUE + PREFABS / MODELES / FICHIERS ===\n'
 python scripts/lastwar-global-graphics-dimension-correct-v33.py "$ROOT"
 printf '\n=== V33 : DISPONIBILITE DU RENDU LOCAL ===\n'
 python scripts/lastwar-global-graphics-render-availability-v33.py "$ROOT"
 printf '\n=== V33 : DEPENDANCES DE BUNDLES EXACTES ===\n'
 python scripts/lastwar-global-graphics-dependencies-v33.py "$ROOT"
-printf '\n=== VIEWER V33 : DEPENDANCES EXACTES + CODEC ANDROID 2D/3D ===\n'
-exec python scripts/lastwar-global-graphics-server-v33-exact.py "$ROOT"
+printf '\n=== VIEWER V33 : MOBILE EXACT 2D / 3D ===\n'
+exec python scripts/lastwar-global-graphics-server-v33-mobile.py "$ROOT"
