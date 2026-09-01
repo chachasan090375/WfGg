@@ -63,7 +63,7 @@ jobs:
       - name: Assert V33 contract
         run: |
           python - <<'PY'
-          import re, sqlite3
+          import sqlite3
           from pathlib import Path
           db=Path.home()/'.cache/wfgg-lastwar-v31/graphics-catalog-v31.sqlite3'
           con=sqlite3.connect(db)
@@ -112,7 +112,9 @@ jobs:
           grep -q 'model-viewer-v33.js' frontend/lab/lastwar-global-graphics-viewer-v33.html
           grep -q 'WFGGResultStripSync' frontend/lab/global-graphics-v33/model-viewer-v33.js
           grep -q 'WFGGSearchCorrelation' frontend/lab/global-graphics-v33/search-correlation-v33.js
-          grep -q 'PAGE_SIZE=60' frontend/lab/global-graphics-v33/search-correlation-v33.js
+          grep -q 'PAGE_SIZE=120' frontend/lab/global-graphics-v33/search-correlation-v33.js
+          grep -q "mode:'continuous-lazy-stream'" frontend/lab/global-graphics-v33/search-correlation-v33.js
+          grep -q 'SCROLL_PREFETCH_VIEWPORTS' frontend/lab/global-graphics-v33/search-correlation-v33.js
           grep -q 'MAX_OBJECTS=MOBILE?12:24' frontend/lab/global-graphics-v33/model-viewer-v33.js
           grep -q '/api/v33/model' scripts/lastwar-global-graphics-server-v33.py
           grep -q 'availability-map' scripts/lastwar-global-graphics-server-v33-resolved.py
