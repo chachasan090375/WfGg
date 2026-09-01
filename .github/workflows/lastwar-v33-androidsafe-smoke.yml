@@ -7,6 +7,9 @@ on:
       - 'scripts/lastwar-android-safe-render-v33.py'
       - 'scripts/lastwar-global-graphics-server-v33-androidsafe.py'
       - 'scripts/lastwar-global-graphics-server-v33-androidsafe-fix.py'
+      - 'scripts/lastwar-global-graphics-server-v33-exact.py'
+      - 'scripts/lastwar-global-graphics-android-codec-v33.py'
+      - 'scripts/lastwar-global-graphics-server-v33-unified.py'
       - '.github/workflows/lastwar-v33-androidsafe-smoke.yml'
   workflow_dispatch:
 
@@ -23,12 +26,18 @@ jobs:
           python -m py_compile scripts/lastwar-android-safe-render-v33.py
           python -m py_compile scripts/lastwar-global-graphics-server-v33-androidsafe.py
           python -m py_compile scripts/lastwar-global-graphics-server-v33-androidsafe-fix.py
+          python -m py_compile scripts/lastwar-global-graphics-server-v33-exact.py
+          python -m py_compile scripts/lastwar-global-graphics-android-codec-v33.py
+          python -m py_compile scripts/lastwar-global-graphics-server-v33-unified.py
       - name: Guardrail contract
         run: |
           grep -q 'texture2ddecoder-direct' scripts/lastwar-android-safe-render-v33.py
           grep -q 'MeshHandler' scripts/lastwar-android-safe-render-v33.py
           grep -q 'generatedGeometry.*False' scripts/lastwar-global-graphics-server-v33-androidsafe.py
-          grep -q '50: "ASTC_RGB_6x6"' scripts/lastwar-global-graphics-server-v33-androidsafe-fix.py
-          grep -q 'numeric-normalization=ON' scripts/lastwar-global-graphics-server-v33-androidsafe-fix.py
-          ! grep -q 'data.export(' scripts/lastwar-android-safe-render-v33.py
-          ! grep -q 'data.export(' scripts/lastwar-global-graphics-server-v33-androidsafe.py
+          grep -q '49:"ASTC_RGB_5x5"' scripts/lastwar-global-graphics-server-v33-unified.py
+          grep -q '50:"ASTC_RGB_6x6"' scripts/lastwar-global-graphics-server-v33-unified.py
+          grep -q '51:"ASTC_RGB_8x8"' scripts/lastwar-global-graphics-server-v33-unified.py
+          grep -q 'UnityPy.load(\*' scripts/lastwar-global-graphics-server-v33-unified.py
+          grep -q 'exact-dependencies multi-file-environment=ON' scripts/lastwar-global-graphics-server-v33-unified.py
+          ! grep -q 'generated substitute' scripts/lastwar-global-graphics-server-v33-unified.py
+          ! grep -q 'data.export(' scripts/lastwar-global-graphics-server-v33-unified.py
