@@ -25,5 +25,7 @@ printf '\n=== V33 : CORRECTION PREFABS / MODELES / FICHIERS ===\n'
 python scripts/lastwar-global-graphics-dimension-correct-v33.py "$ROOT"
 printf '\n=== V33 : DISPONIBILITE DU RENDU LOCAL ===\n'
 python scripts/lastwar-global-graphics-render-availability-v33.py "$ROOT"
-printf '\n=== VIEWER V33 : RENDU LOCAL + 2D + MODELES 3D ===\n'
-exec python scripts/lastwar-global-graphics-server-v33-resolved.py "$ROOT"
+printf '\n=== V33 : DEPENDANCES DE BUNDLES EXACTES ===\n'
+python scripts/lastwar-global-graphics-dependencies-v33.py "$ROOT"
+printf '\n=== VIEWER V33 : DEPENDANCES EXACTES + CODEC ANDROID 2D/3D ===\n'
+exec python scripts/lastwar-global-graphics-server-v33-exact.py "$ROOT"
