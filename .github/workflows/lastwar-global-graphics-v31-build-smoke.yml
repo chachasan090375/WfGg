@@ -14,12 +14,14 @@ jobs:
           python-version: '3.12'
       - name: Compile and validate config
         run: |
-          python -m py_compile scripts/lastwar-global-graphics-catalog-v31.py scripts/lastwar-global-graphics-scope-enrich-v31.py scripts/lastwar-global-graphics-hierarchy-v31.py scripts/lastwar-global-graphics-server-v31.py
+          python -m py_compile scripts/lastwar-global-graphics-catalog-v31.py scripts/lastwar-global-graphics-scope-enrich-v31.py scripts/lastwar-global-graphics-scope-correct-v31.py scripts/lastwar-global-graphics-hierarchy-v31.py scripts/lastwar-global-graphics-server-v31.py
           python -m json.tool frontend/lab/global-graphics-v31/taxonomy-v31.json >/dev/null
       - name: Build complete streaming catalog
         run: python scripts/lastwar-global-graphics-catalog-v31.py "$GITHUB_WORKSPACE"
       - name: Enrich editorial scopes
         run: python scripts/lastwar-global-graphics-scope-enrich-v31.py "$GITHUB_WORKSPACE"
+      - name: Correct scope false positives
+        run: python scripts/lastwar-global-graphics-scope-correct-v31.py "$GITHUB_WORKSPACE"
       - name: Build exact path hierarchy
         run: python scripts/lastwar-global-graphics-hierarchy-v31.py "$GITHUB_WORKSPACE"
       - name: Assert catalog contract
@@ -33,13 +35,15 @@ jobs:
           n=con.execute('select count(*) from assets').fetchone()[0]
           pn=con.execute('select count(*) from path_nodes').fetchone()[0]
           linked=con.execute('select count(*) from assets where path_node_id is not null').fetchone()[0]
+          regional=con.execute("select count(*) from assets where scope_kind='regional'").fetchone()[0]
           assert n>1000, n
           assert pn>100, pn
           assert linked==n,(linked,n)
+          assert regional<n//2,('regional false-positive regression',regional,n)
           cols={r[1] for r in con.execute('pragma table_info(assets)')}
           required={'stable_id','family','visual_role','context','scope_kind','scope_id','bundle_id','asset_path','evidence_json','path_node_id'}
           assert required<=cols, required-cols
-          print('V31_BUILD_SMOKE_OK assets=',n,'pathNodes=',pn,'dbBytes=',db.stat().st_size)
+          print('V31_BUILD_SMOKE_OK assets=',n,'pathNodes=',pn,'regional=',regional,'dbBytes=',db.stat().st_size)
           print('scopeKinds=',con.execute('select scope_kind,count(*) from assets group by scope_kind order by count(*) desc').fetchall())
           con.close()
           PY
