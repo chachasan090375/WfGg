@@ -25,6 +25,7 @@ jobs:
             scripts/lastwar-global-graphics-server-v32.py \
             scripts/lastwar-global-graphics-enrich-v33.py \
             scripts/lastwar-global-graphics-dimension-correct-v33.py \
+            scripts/lastwar-global-graphics-render-availability-v33.py \
             scripts/lastwar-global-graphics-server-v33.py \
             scripts/lastwar-global-graphics-server-v33-resolved.py
       - name: Check viewer JavaScript
@@ -41,7 +42,7 @@ jobs:
           print('V33_INLINE_SCRIPTS',len(inline))
           PY
           node --check /tmp/v33-inline.js
-      - name: Build catalog and dimensionality
+      - name: Build catalog dimensionality and render availability
         run: |
           python scripts/lastwar-global-graphics-catalog-v31.py "$GITHUB_WORKSPACE"
           python scripts/lastwar-global-graphics-scope-enrich-v31.py "$GITHUB_WORKSPACE"
@@ -50,6 +51,7 @@ jobs:
           python scripts/lastwar-global-graphics-enrich-v32.py "$GITHUB_WORKSPACE"
           python scripts/lastwar-global-graphics-enrich-v33.py "$GITHUB_WORKSPACE"
           python scripts/lastwar-global-graphics-dimension-correct-v33.py "$GITHUB_WORKSPACE"
+          python scripts/lastwar-global-graphics-render-availability-v33.py "$GITHUB_WORKSPACE"
       - name: Assert V33 contract
         run: |
           python - <<'PY'
@@ -60,28 +62,37 @@ jobs:
           n=con.execute('select count(*) from assets').fetchone()[0]
           dims=dict(con.execute('select dimension_class,count(*) from assets group by dimension_class'))
           roles=dict(con.execute('select model_role,count(*) from assets group by model_role'))
+          avail=dict(con.execute('select render_availability,count(*) from assets group by render_availability'))
           assert n==107247,n
           assert sum(dims.values())==n,dims
+          assert sum(avail.values())==n,avail
           assert dims.get('2D',0)>1000,dims
           assert dims.get('3D',0)>0,dims
           assert dims.get('Composant 3D',0)>0,dims
           assert roles.get('geometry',0)>0,roles
           assert roles.get('texture',0)>0,roles
+          assert avail.get('local-exact',0)>0,avail
+          assert avail.get('global-index-only',0)>0,avail
+          assert con.execute("select count(*) from assets where render_availability in ('local-exact','local-resolved') and render_source_stable_id is not null").fetchone()[0]>0
           assert con.execute("select count(*) from assets where asset_folder<>''").fetchone()[0]>50000
           assert con.execute("select count(*) from facets where axis='dimension_class'").fetchone()[0]>=4
+          assert con.execute("select count(*) from facets where axis='render_availability'").fetchone()[0]>=2
           bad2d=con.execute("select count(*) from assets where lower(asset_path) like '%.prefab' and dimension_class='2D'").fetchone()[0]
           badgraphic=con.execute("select count(*) from assets where lower(asset_path) like '%.prefab' and graphic_class='Graphique'").fetchone()[0]
           assert bad2d==0,bad2d
           assert badgraphic==0,badgraphic
-          print('V33_SMOKE_OK assets=',n,'dimensions=',dims,'roles=',roles,'prefab2d=',bad2d,'prefabGraphic=',badgraphic)
+          print('V33_SMOKE_OK assets=',n,'dimensions=',dims,'roles=',roles,'availability=',avail,'prefab2d=',bad2d,'prefabGraphic=',badgraphic)
           con.close()
           PY
       - name: Validate viewer contract
         run: |
+          grep -q 'id="render_availability"' frontend/lab/lastwar-global-graphics-viewer-v33.html
+          grep -q 'local-renderable' frontend/lab/lastwar-global-graphics-viewer-v33.html
           grep -q 'id="dimension_class"' frontend/lab/lastwar-global-graphics-viewer-v33.html
           grep -q 'id="graphic_class"' frontend/lab/lastwar-global-graphics-viewer-v33.html
           grep -q 'model-viewer-v33.js' frontend/lab/lastwar-global-graphics-viewer-v33.html
           grep -q '/api/v33/model' scripts/lastwar-global-graphics-server-v33.py
-          grep -q 'physical-resolver' scripts/lastwar-global-graphics-server-v33-resolved.py
+          grep -q 'availability-map' scripts/lastwar-global-graphics-server-v33-resolved.py
+          grep -q 'global-index-only' scripts/lastwar-global-graphics-server-v33-resolved.py
           grep -q 'Renderer' scripts/lastwar-global-graphics-server-v33.py
           grep -q 'Mesh' scripts/lastwar-global-graphics-server-v33.py
