@@ -1,0 +1,30 @@
+name: Last War V33 Android-safe renderer smoke
+
+on:
+  push:
+    branches: [lab-global-graphics-catalog-v33]
+    paths:
+      - 'scripts/lastwar-android-safe-render-v33.py'
+      - 'scripts/lastwar-global-graphics-server-v33-androidsafe.py'
+      - '.github/workflows/lastwar-v33-androidsafe-smoke.yml'
+  workflow_dispatch:
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Compile Python
+        run: |
+          python -m py_compile scripts/lastwar-android-safe-render-v33.py
+          python -m py_compile scripts/lastwar-global-graphics-server-v33-androidsafe.py
+      - name: Guardrail contract
+        run: |
+          grep -q 'texture2ddecoder-direct' scripts/lastwar-android-safe-render-v33.py
+          grep -q 'MeshHandler' scripts/lastwar-android-safe-render-v33.py
+          grep -q 'generatedGeometry.*False' scripts/lastwar-global-graphics-server-v33-androidsafe.py
+          ! grep -q 'data.export(' scripts/lastwar-android-safe-render-v33.py
+          ! grep -q 'data.export(' scripts/lastwar-global-graphics-server-v33-androidsafe.py
