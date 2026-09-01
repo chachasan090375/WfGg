@@ -25,8 +25,20 @@ jobs:
             scripts/lastwar-global-graphics-server-v32.py \
             scripts/lastwar-global-graphics-enrich-v33.py \
             scripts/lastwar-global-graphics-server-v33.py
-      - name: Check 3D viewer JavaScript
-        run: node --check frontend/lab/global-graphics-v33/model-viewer-v33.js
+      - name: Check viewer JavaScript
+        run: |
+          node --check frontend/lab/global-graphics-v33/model-viewer-v33.js
+          python - <<'PY'
+          import re
+          from pathlib import Path
+          h=Path('frontend/lab/lastwar-global-graphics-viewer-v33.html').read_text('utf-8')
+          inline=[]
+          for attrs,body in re.findall(r'<script([^>]*)>(.*?)</script>',h,re.S|re.I):
+              if 'src=' not in attrs.lower() and body.strip():inline.append(body)
+          Path('/tmp/v33-inline.js').write_text('\n'.join(inline),'utf-8')
+          print('V33_INLINE_SCRIPTS',len(inline))
+          PY
+          node --check /tmp/v33-inline.js
       - name: Build catalog and dimensionality
         run: |
           python scripts/lastwar-global-graphics-catalog-v31.py "$GITHUB_WORKSPACE"
