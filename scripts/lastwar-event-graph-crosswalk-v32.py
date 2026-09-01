@@ -64,20 +64,18 @@ def rebuild_pack():
 
 
 def iter_array_objects(key,chunk_size=1<<20):
-    decoder=json.JSONDecoder();marker='"'+key+'"';buf='';started=False
+    # Match only a JSON key whose VALUE is an array. This is critical because
+    # counts.edges is a scalar that appears before the top-level edges array.
+    decoder=json.JSONDecoder();pattern=re.compile(r'"'+re.escape(key)+r'"\s*:\s*\[');buf='';started=False
+    keep=max(256,len(key)+64)
     with gzip.open(PACK,'rt',encoding='utf-8',errors='replace') as fh:
         while not started:
             chunk=fh.read(chunk_size)
             if not chunk:return
-            buf+=chunk;pos=buf.find(marker)
-            if pos<0:
-                buf=buf[-max(len(marker)+32,128):];continue
-            bracket=buf.find('[',pos+len(marker))
-            while bracket<0:
-                chunk=fh.read(chunk_size)
-                if not chunk:return
-                buf+=chunk;bracket=buf.find('[',pos+len(marker))
-            buf=buf[bracket+1:];started=True
+            buf+=chunk;m=pattern.search(buf)
+            if not m:
+                buf=buf[-keep:];continue
+            buf=buf[m.end():];started=True
         while True:
             i=0
             while i<len(buf) and (buf[i].isspace() or buf[i]==','):i+=1
@@ -100,13 +98,11 @@ def nid(obj):
 
 
 def edge_parts(e):
-    s=t=rel=''
-    for k in ('source','from','src','sourceId','source_id'):
-        if k in e:s=str(e[k]);break
-    for k in ('target','to','dst','targetId','target_id'):
-        if k in e:t=str(e[k]);break
-    for k in ('relation','type','kind','label'):
-        if k in e:rel=str(e[k]);break
+    # Canonical reconstruction-map V1 edge schema is:
+    # {"from": nodeId, "to": nodeId, "rel": relation, "source": evidenceSource, "confidence": ...}
+    s=str(e.get('from') or e.get('src') or e.get('sourceId') or e.get('source_id') or '')
+    t=str(e.get('to') or e.get('dst') or e.get('targetId') or e.get('target_id') or '')
+    rel=str(e.get('rel') or e.get('relation') or e.get('type') or e.get('kind') or e.get('label') or '')
     conf=str(e.get('confidence','')).lower()
     candidate=bool(e.get('candidate',False)) or rel in {'candidate','candidate_contains'} or conf=='candidate'
     return s,t,rel,candidate
@@ -150,13 +146,13 @@ def main():
 
     # Ownership is NEVER inherited through graph traversal. A curated token on the
     # node itself establishes belongs-to. Exact graph neighbours are only used-by.
-    # This prevents a generic icon sharing an event bundle from becoming event-owned.
     allowed_context={'contains','stored_in','groups','depends_on'}
     for passno in range(1,3):
-        changed=0;by_node=index_links_by_node(dict(links))
+        changed=0;by_node=index_links_by_node(dict(links));edge_count=0;exact_context_edges=0
         for e in iter_array_objects('edges'):
-            s,t,rel,candidate=edge_parts(e)
+            edge_count+=1;s,t,rel,candidate=edge_parts(e)
             if candidate or not s or not t or rel not in allowed_context:continue
+            exact_context_edges+=1
             for ev,_ in by_node.get(s,()):
                 key=(ev,t);old=links.get(key);merged=merge_relation(old,'used-by')
                 if merged!=old:links[key]=merged;changed+=1
@@ -164,7 +160,7 @@ def main():
                 for ev,_ in by_node.get(t,()):
                     key=(ev,s);old=links.get(key);merged=merge_relation(old,'used-by')
                     if merged!=old:links[key]=merged;changed+=1
-        print('V32_GRAPH_PROPAGATE',f'pass={passno}',f'changed={changed}',f'links={len(links)}',flush=True)
+        print('V32_GRAPH_PROPAGATE',f'pass={passno}',f'edges={edge_count}',f'exactContextEdges={exact_context_edges}',f'changed={changed}',f'links={len(links)}',flush=True)
         if not changed:break
 
     relevant_nodes={node for _,node in links};node_meta={}
