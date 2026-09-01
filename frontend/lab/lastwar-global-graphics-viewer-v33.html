@@ -2,28 +2,42 @@
 <html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>WfGg LAB — Catalogue 2D / 3D V33</title>
 <style>
-:root{color-scheme:dark;--bg:#090b10;--p:#141923;--p2:#1a2130;--line:#30394b;--fg:#f5f7fb;--muted:#aeb7c6;--violet:#a78bfa;--bad:#ff8a91;--good:#89e6b4;--warn:#ffd38a}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif}.wrap{max-width:1550px;margin:auto;padding:12px}.top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.top h1{font-size:clamp(23px,5vw,40px);margin:0}.top p{color:var(--muted);margin:5px 0}.top a{color:#cabaff}.bar,.filters,.meta,.stage,.results{background:var(--p);border:1px solid var(--line);border-radius:14px}.bar{margin:10px 0;padding:9px;display:flex;gap:7px;flex-wrap:wrap}.pill{background:var(--p2);border:1px solid var(--line);border-radius:999px;padding:5px 9px;color:var(--muted)}.pill b{color:var(--fg)}.filters{padding:10px;margin-bottom:10px;display:grid;grid-template-columns:1fr 1fr;gap:8px}.filters label{font-size:11px;color:var(--muted);display:grid;gap:3px}.filters .wide{grid-column:1/-1}input,select,button{font:inherit;color:var(--fg);background:#111722;border:1px solid var(--line);border-radius:9px;padding:9px}button{font-weight:700;cursor:pointer}.primary{border-color:var(--violet)}.clear{color:var(--muted)}.layout{display:grid;gap:10px}.results{padding:7px;display:flex;gap:6px;overflow:auto}.card{min-width:210px;max-width:280px;text-align:left;background:var(--p2);padding:8px;border:1px solid var(--line);border-radius:10px}.card.active{border-color:var(--violet);box-shadow:0 0 0 1px var(--violet) inset}.card b,.card span{display:block;overflow-wrap:anywhere}.card span{font-size:11px;color:var(--muted);margin-top:3px}.main{min-width:0}.stage{height:min(64vh,720px);min-height:370px;background:#050608;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}.stage img{width:100%;height:100%;object-fit:contain}.empty{max-width:720px;text-align:center;color:var(--muted);padding:30px}.badge{position:absolute;top:9px;left:9px;background:#111722dd;border:1px solid var(--line);border-radius:8px;padding:5px 8px;font-size:11px}.nav{position:absolute;bottom:9px;left:9px;right:9px;display:flex;justify-content:space-between;pointer-events:none}.nav button{pointer-events:auto}.meta{padding:11px;margin-top:10px}.name{font-size:19px;font-weight:850;overflow-wrap:anywhere}.path{font:11px ui-monospace,SFMono-Regular,Menlo,monospace;background:#0b0e14;border-radius:8px;padding:8px;margin:7px 0;overflow-wrap:anywhere;white-space:normal}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.kv{background:#10151f;border:1px solid #242c3c;border-radius:8px;padding:7px;min-width:0}.kv small{display:block;color:var(--muted);font-size:10px}.kv b{font-size:12px;overflow-wrap:anywhere}.hint{font-size:11px;color:var(--muted)}.error{color:var(--bad)}.good{color:var(--good)}.warn{color:var(--warn)}.v33modelwrap{width:100%;height:100%;position:relative}.v33modelcanvas{display:block;width:100%;height:100%;touch-action:none}.v33modelhud{position:absolute;top:10px;left:10px;right:10px;pointer-events:none;background:#111722dd;border:1px solid var(--line);border-radius:9px;padding:7px 9px;font-size:11px;color:var(--muted)}.v33modelhud b{color:var(--fg)}.v33texturetray{position:absolute;left:10px;right:10px;bottom:58px;display:flex;gap:4px;align-items:center;overflow:auto;background:#0b0e14dd;border:1px solid var(--line);border-radius:9px;padding:5px;max-height:78px}.v33texturetray img{width:54px;height:54px;object-fit:contain;background:#000;border-radius:5px}.v33texturetitle{font-size:10px;color:var(--muted);min-width:130px;padding:4px}.dim3{color:#cbb8ff}.dim2{color:#aee4ff}.tools{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}.avail{display:inline-block!important;width:max-content;border:1px solid var(--line);border-radius:999px;padding:2px 6px!important;font-size:9px!important;text-transform:uppercase;letter-spacing:.03em}.avail.local{color:var(--good)}.avail.index{color:var(--warn)}
-@media(min-width:980px){.filters{grid-template-columns:2fr repeat(6,1fr)}.filters .wide{grid-column:auto}.layout{grid-template-columns:320px 1fr}.results{display:block;max-height:84vh;overflow:auto}.card{width:100%;max-width:none;min-width:0;margin-bottom:6px}.stage{height:70vh}.grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+:root{color-scheme:dark;--bg:#090b10;--p:#141923;--p2:#1a2130;--line:#30394b;--fg:#f5f7fb;--muted:#aeb7c6;--violet:#a78bfa;--bad:#ff8a91;--good:#89e6b4;--warn:#ffd38a}*{box-sizing:border-box}html,body{width:100%;max-width:100%;overflow-x:hidden}body{margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif}.wrap{width:100%;max-width:1550px;margin:auto;padding:12px;padding-left:max(12px,env(safe-area-inset-left));padding-right:max(12px,env(safe-area-inset-right))}.top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;min-width:0}.top>div{min-width:0}.top h1{font-size:clamp(22px,6vw,40px);line-height:1.05;margin:0;overflow-wrap:anywhere}.top p{color:var(--muted);margin:6px 0;font-size:clamp(12px,3.5vw,15px);overflow-wrap:anywhere}.top a{color:#cabaff;white-space:nowrap}.bar,.quicksearch,.meta,.stage,.results{background:var(--p);border:1px solid var(--line);border-radius:14px}.bar{margin:10px 0;padding:9px;display:flex;gap:7px;flex-wrap:wrap}.pill{background:var(--p2);border:1px solid var(--line);border-radius:999px;padding:5px 9px;color:var(--muted);font-size:13px}.pill b{color:var(--fg)}input,select,button{font:inherit;color:var(--fg);background:#111722;border:1px solid var(--line);border-radius:9px;padding:10px;min-width:0;max-width:100%}input,select{width:100%}button{font-weight:700;cursor:pointer}.primary{border-color:var(--violet)}.clear{color:var(--muted)}.quicksearch{padding:10px;margin-bottom:10px;min-width:0}.queryrow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;min-width:0}.queryrow input{min-width:0}.quickactions{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}.quickactions button{flex:1 1 130px}.filter-summary{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px;min-height:0}.filterchip{display:inline-flex;max-width:100%;align-items:center;background:#101722;border:1px solid #293346;border-radius:999px;padding:3px 7px;font-size:10px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.layout{display:grid;gap:10px;min-width:0}.results{width:100%;max-width:100%;padding:7px;display:flex;gap:6px;overflow-x:auto;overflow-y:hidden;overscroll-behavior-inline:contain;scrollbar-width:thin}.card{flex:0 0 min(78vw,260px);width:min(78vw,260px);min-width:0;max-width:260px;text-align:left;background:var(--p2);padding:8px;border:1px solid var(--line);border-radius:10px;overflow:hidden}.card.active{border-color:var(--violet);box-shadow:0 0 0 1px var(--violet) inset}.card b,.card span{display:block;overflow-wrap:anywhere}.card span{font-size:11px;color:var(--muted);margin-top:3px}.main{width:100%;min-width:0;max-width:100%}.stage{width:100%;height:min(58dvh,720px);min-height:340px;background:#050608;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}.stage img{display:block;width:100%;height:100%;object-fit:contain}.empty{width:100%;max-width:720px;text-align:center;color:var(--muted);padding:24px 18px;overflow-wrap:anywhere}.badge{position:absolute;top:9px;left:9px;max-width:calc(100% - 18px);background:#111722dd;border:1px solid var(--line);border-radius:8px;padding:5px 8px;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.nav{position:absolute;bottom:9px;left:9px;right:9px;display:flex;justify-content:space-between;gap:8px;pointer-events:none}.nav button{pointer-events:auto;max-width:48%}.meta{width:100%;padding:11px;margin-top:10px;overflow:hidden}.name{font-size:19px;font-weight:850;overflow-wrap:anywhere}.path{font:11px ui-monospace,SFMono-Regular,Menlo,monospace;background:#0b0e14;border-radius:8px;padding:8px;margin:7px 0;overflow-wrap:anywhere;white-space:normal}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.kv{background:#10151f;border:1px solid #242c3c;border-radius:8px;padding:7px;min-width:0;overflow:hidden}.kv small{display:block;color:var(--muted);font-size:10px}.kv b{display:block;font-size:12px;overflow-wrap:anywhere}.hint{font-size:11px;color:var(--muted)}.error{color:var(--bad)}.good{color:var(--good)}.warn{color:var(--warn)}.v33modelwrap{width:100%;height:100%;position:relative}.v33modelcanvas{display:block;width:100%;height:100%;touch-action:none}.v33modelhud{position:absolute;top:10px;left:10px;right:10px;pointer-events:none;background:#111722dd;border:1px solid var(--line);border-radius:9px;padding:7px 9px;font-size:11px;color:var(--muted)}.v33modelhud b{color:var(--fg)}.v33texturetray{position:absolute;left:10px;right:10px;bottom:58px;display:flex;gap:4px;align-items:center;overflow:auto;background:#0b0e14dd;border:1px solid var(--line);border-radius:9px;padding:5px;max-height:78px}.v33texturetray img{width:54px;height:54px;object-fit:contain;background:#000;border-radius:5px}.v33texturetitle{font-size:10px;color:var(--muted);min-width:130px;padding:4px}.dim3{color:#cbb8ff}.dim2{color:#aee4ff}.tools{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}.avail{display:inline-block!important;width:max-content;max-width:100%;border:1px solid var(--line);border-radius:999px;padding:2px 6px!important;font-size:9px!important;text-transform:uppercase;letter-spacing:.03em}.avail.local{color:var(--good)}.avail.index{color:var(--warn)}
+.errorbox{width:100%;max-width:680px;padding:20px 16px;text-align:center}.errorbox h3{margin:0 0 8px;font-size:18px}.errorbox p{margin:6px 0;color:var(--muted);overflow-wrap:anywhere}.error-actions{display:flex;justify-content:center;gap:7px;flex-wrap:wrap;margin-top:10px}.techdetails{display:none;text-align:left;white-space:pre-wrap;overflow-wrap:anywhere;max-height:28dvh;overflow:auto;background:#0b0e14;border:1px solid #273146;border-radius:9px;padding:9px;margin-top:10px;font:10px ui-monospace,SFMono-Regular,Menlo,monospace;color:#f2a0a6}.techdetails.open{display:block}
+dialog{width:min(760px,calc(100vw - 20px));max-width:calc(100vw - 20px);max-height:min(88dvh,850px);padding:0;color:var(--fg);background:var(--p);border:1px solid var(--line);border-radius:16px;box-shadow:0 18px 80px #000b;overflow:hidden}dialog::backdrop{background:#000a;backdrop-filter:blur(2px)}.modal-shell{display:flex;flex-direction:column;max-height:min(88dvh,850px)}.modal-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;background:#171d28;border-bottom:1px solid var(--line)}.modal-head h2{font-size:18px;margin:0}.modal-head button{padding:7px 10px}.modal-body{padding:12px;display:grid;grid-template-columns:1fr;gap:9px;overflow:auto;min-height:0}.modal-body label{font-size:11px;color:var(--muted);display:grid;gap:4px;min-width:0}.modal-foot{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--line);background:#171d28}.modal-foot button{flex:1}.modal-note{grid-column:1/-1;color:var(--muted);font-size:11px;line-height:1.35}
+@media(min-width:620px){.modal-body{grid-template-columns:repeat(2,minmax(0,1fr))}.quickactions button{flex:0 0 auto}.queryrow{grid-template-columns:minmax(0,1fr) auto}}
+@media(min-width:980px){.layout{grid-template-columns:320px minmax(0,1fr)}.results{display:block;max-height:84vh;overflow:auto}.card{width:100%;max-width:none;min-width:0;margin-bottom:6px}.stage{height:70vh}.grid{grid-template-columns:repeat(4,minmax(0,1fr))}.quicksearch{display:grid;grid-template-columns:minmax(320px,1fr) auto;gap:8px;align-items:start}.queryrow{grid-template-columns:minmax(0,1fr) auto}.quickactions{margin-top:0}.filter-summary{grid-column:1/-1;margin-top:0}}
+@media(max-width:420px){.wrap{padding-top:9px}.top h1{font-size:22px}.bar{gap:5px}.pill{font-size:11px;padding:4px 7px}.queryrow{grid-template-columns:minmax(0,1fr)}.queryrow .primary{width:100%}.quickactions{display:grid;grid-template-columns:1fr 1fr}.quickactions button{width:100%;padding:9px 7px}.grid{grid-template-columns:1fr 1fr}.stage{min-height:320px;height:56dvh}.nav button{font-size:13px;padding:9px 8px}}
 </style></head><body><main class="wrap">
 <div class="top"><div><h1>Catalogue global — 2D / 3D V33</h1><p>Graphiques, modèles, composants, événements et reconstruction à la demande depuis les bundles réellement présents sur le téléphone.</p></div><a href="./index.html">← LAB</a></div>
 <div class="bar"><span class="pill"><b id="assetCount">…</b> assets</span><span class="pill">résultats <b id="resultCount">0</b></span><span class="pill" id="localCount">local …</span><span class="pill" id="status">initialisation…</span></div>
-<section class="filters">
-<label class="wide">Recherche<input id="q" placeholder="Murphy, tank, icône, modèle, événement…" autocomplete="off"></label>
-<label>Disponibilité rendu<select id="render_availability"><option value="local-renderable">Rendu local disponible</option><option value="all">Tous les assets</option></select></label>
-<label>Graphique ?<select id="graphic_class"><option value="all">Tous</option></select></label>
-<label>Dimension<select id="dimension_class"><option value="all">2D + 3D + tous</option></select></label>
-<label>Rôle 3D<select id="model_role"><option value="all">Tous</option></select></label>
-<label>Famille<select id="family"><option value="all">Toutes</option></select></label>
-<label>Forme<select id="visual_role"><option value="all">Toutes</option></select></label>
-<label>Contexte<select id="context"><option value="all">Tous</option></select></label>
-<label>Périmètre<select id="scope_kind"><option value="all">Tous</option></select></label>
-<label>Événement<select id="event_id"><option value="all">Tous</option></select></label>
-<label>Lien événement<select id="event_relation"><option value="all">Tous</option></select></label>
-<label>Technique<select id="tech_kind"><option value="all">Toutes</option></select></label>
-<label>Confiance<select id="min_confidence"><option value="">Toutes</option><option value="0.90">≥ 90 %</option><option value="0.75">≥ 75 %</option><option value="0.50">≥ 50 %</option></select></label>
-<button id="search" class="primary">Rechercher</button><button id="clear" class="clear">Effacer</button>
+<section class="quicksearch">
+  <div class="queryrow"><input id="q" aria-label="Recherche" placeholder="Murphy, tank, icône, modèle, événement…" autocomplete="off"><button id="search" class="primary">Rechercher</button></div>
+  <div class="quickactions"><button id="openAdvanced">⚙ Filtres avancés <span id="activeFilterCount"></span></button><button id="clear" class="clear">Effacer</button></div>
+  <div id="filterSummary" class="filter-summary"></div>
 </section>
-<div class="layout"><aside id="results" class="results"></aside><section class="main"><div id="stage" class="stage"><div class="empty">Choisis un asset.</div></div><div id="meta" class="meta"><div class="hint">Par défaut le LAB ne montre que les assets dont un bundle physique local est prouvé. Passe sur « Tous les assets » pour explorer l’index global.</div></div></section></div>
+<dialog id="advancedDialog">
+  <div class="modal-shell">
+    <div class="modal-head"><h2>Filtres avancés</h2><button id="closeAdvanced" aria-label="Fermer">✕</button></div>
+    <div class="modal-body">
+      <label>Disponibilité rendu<select id="render_availability"><option value="local-renderable">Rendu local disponible</option><option value="all">Tous les assets</option></select></label>
+      <label>Graphique ?<select id="graphic_class"><option value="all">Tous</option></select></label>
+      <label>Dimension<select id="dimension_class"><option value="all">2D + 3D + tous</option></select></label>
+      <label>Rôle 3D<select id="model_role"><option value="all">Tous</option></select></label>
+      <label>Famille<select id="family"><option value="all">Toutes</option></select></label>
+      <label>Forme<select id="visual_role"><option value="all">Toutes</option></select></label>
+      <label>Contexte<select id="context"><option value="all">Tous</option></select></label>
+      <label>Périmètre<select id="scope_kind"><option value="all">Tous</option></select></label>
+      <label>Événement<select id="event_id"><option value="all">Tous</option></select></label>
+      <label>Lien événement<select id="event_relation"><option value="all">Tous</option></select></label>
+      <label>Technique<select id="tech_kind"><option value="all">Toutes</option></select></label>
+      <label>Confiance<select id="min_confidence"><option value="">Toutes</option><option value="0.90">≥ 90 %</option><option value="0.75">≥ 75 %</option><option value="0.50">≥ 50 %</option></select></label>
+      <div class="modal-note">Les filtres sont combinés. « Rendu local disponible » reste le choix par défaut afin d’éviter de proposer en premier des assets dont le bundle n’est pas présent sur le téléphone.</div>
+    </div>
+    <div class="modal-foot"><button id="resetAdvanced" class="clear">Réinitialiser</button><button id="applyAdvanced" class="primary">Appliquer</button></div>
+  </div>
+</dialog>
+<div class="layout"><aside id="results" class="results"></aside><section class="main"><div id="stage" class="stage"><div class="empty">Choisis un asset.</div></div><div id="meta" class="meta"><div class="hint">Par défaut le LAB ne montre que les assets dont un bundle physique local est prouvé. Passe sur « Tous les assets » dans les filtres avancés pour explorer l’index global.</div></div></section></div>
 </main>
 <script src="./global-graphics-v33/model-viewer-v33.js"></script>
 <script>
@@ -46,6 +60,26 @@ function opt(sel,arr){
   });
 }
 
+function activeFilters(){
+  const out=[];
+  axes.forEach(id=>{
+    const el=$('#'+id);if(!el)return;
+    const v=el.value;
+    const isDefault=id==='render_availability'?v==='local-renderable':v==='all';
+    if(!isDefault&&v){out.push({id,label:el.options[el.selectedIndex]?.textContent||v})}
+  });
+  const mc=$('#min_confidence').value;if(mc)out.push({id:'min_confidence',label:'Confiance '+($('#min_confidence').options[$('#min_confidence').selectedIndex]?.textContent||mc)});
+  return out;
+}
+
+function updateFilterSummary(){
+  const list=activeFilters();
+  $('#activeFilterCount').textContent=list.length?'('+list.length+')':'';
+  const h=$('#filterSummary');
+  if(!list.length){h.innerHTML='<span class="filterchip">Rendu local disponible · aucun autre filtre</span>';return}
+  h.innerHTML=list.slice(0,5).map(x=>`<span class="filterchip">${esc(x.label)}</span>`).join('')+(list.length>5?`<span class="filterchip">+${list.length-5}</span>`:'');
+}
+
 async function init(){
   try{
     const [s,f]=await Promise.all([fetch(API+'/status').then(r=>r.json()),fetch(API+'/facets').then(r=>r.json())]);
@@ -55,6 +89,7 @@ async function init(){
     const local=av.filter(x=>x.value==='local-exact'||x.value==='local-resolved').reduce((n,x)=>n+(x.count||0),0);
     $('#localCount').textContent='local '+local.toLocaleString('fr-FR');
     $('#status').textContent='V33 prêt';
+    updateFilterSummary();
     await runSearch();
   }catch(e){
     $('#status').textContent='API V33 indisponible';$('#status').classList.add('error');
@@ -70,6 +105,7 @@ function params(){
 }
 
 async function runSearch(){
+  updateFilterSummary();
   idx=-1;currentAsset=null;currentModel?.destroy?.();currentModel=null;
   try{
     const r=await fetch(API+'/search?'+params());const d=await r.json();
@@ -100,6 +136,21 @@ function renderList(){
 function nav(){return '<div class="nav"><button id="prev">← Précédent</button><button id="next">Suivant →</button></div>'}
 function bindNav(){const p=$('#prev'),n=$('#next');if(p)p.onclick=()=>idx>0&&select(idx-1);if(n)n.onclick=()=>idx<items.length-1&&select(idx+1)}
 
+function explainError(raw,kind='2D'){
+  const text=String(raw||'Erreur inconnue');
+  if(text.includes('RUNTIME_EXACT_RASTER_UNRESOLVED'))return {title:'Rendu local encore incomplet',summary:'Le Sprite est présent, mais sa Texture2D exacte n’est pas encore résolue dans la fermeture de dépendances.',details:text};
+  if(text.includes('backing Texture2D unresolved'))return {title:'Texture liée non résolue',summary:'Le Sprite existe mais sa texture source se trouve dans une dépendance que UnityPy ne relie pas encore correctement.',details:text};
+  if(text.includes('unsupported texture format')||text.includes('Format Texture2D non pris en charge'))return {title:'Format texture non décodé',summary:'Le bundle et la Texture2D sont trouvés, mais ce format mobile doit encore être ajouté au codec Android.',details:text};
+  if(kind==='3D')return {title:'Assemblage 3D indisponible',summary:'Les données sont indexées, mais la géométrie complète n’a pas pu être reconstruite pour cet asset.',details:text};
+  return {title:'Rendu local impossible',summary:'Le bundle est localement référencé, mais le décodage de cet asset n’aboutit pas encore.',details:text};
+}
+
+function errorMarkup(raw,kind='2D',extra=''){
+  const e=explainError(raw,kind);
+  return `<div class="errorbox"><h3>${esc(e.title)}</h3><p class="error">${esc(e.summary)}</p>${extra?`<p class="hint">${esc(extra)}</p>`:''}<div class="error-actions"><button id="toggleError">Détails techniques</button></div><pre id="errorDetails" class="techdetails">${esc(e.details)}</pre></div>`;
+}
+function bindErrorDetails(){const b=$('#toggleError'),d=$('#errorDetails');if(b&&d)b.onclick=()=>{d.classList.toggle('open');b.textContent=d.classList.contains('open')?'Masquer les détails':'Détails techniques'}}
+
 async function select(i){
   if(i<0||i>=items.length)return;
   idx=i;currentAsset=items[i];currentRenderMeta=null;currentModel?.destroy?.();currentModel=null;renderList();
@@ -114,13 +165,13 @@ async function select(i){
 
   const wants3d=['3D','Composant 3D','Mixte 2D/3D'].includes(a.dimension_class)||['geometry','geometry-candidate','prefab','material'].includes(a.model_role);
   if(wants3d){
-    stage.innerHTML='<div class="empty">Assemblage du sous-dossier 3D…<br><span class="hint">Meshes + renderers + matériaux + textures réellement disponibles.</span></div>'+nav();bindNav();
+    stage.innerHTML='<div class="empty">Assemblage 3D…<br><span class="hint">Meshes, matériaux et textures réellement disponibles.</span></div>'+nav();bindNav();
     try{
       const r=await fetch(API+'/model?id='+encodeURIComponent(a.stable_id)),d=await r.json();
       if(!r.ok)throw new Error(d.message||d.error||'assemblage 3D impossible');
       stage.innerHTML='';currentModel=await WFGGModelViewer.mount(stage,d.model);stage.insertAdjacentHTML('beforeend',nav());bindNav();renderMeta(a,d.model);return;
     }catch(e){
-      stage.innerHTML=`<div class="empty"><b>Assemblage 3D indisponible.</b><br><span class="error">${esc(e.message)}</span><br><span class="hint">Tentative d’un rendu raster réel de secours…</span></div>`;
+      stage.innerHTML=errorMarkup(e.message,'3D','Tentative automatique d’un rendu raster réel de secours…');bindErrorDetails();
     }
   }
 
@@ -132,7 +183,7 @@ async function select(i){
     stage.innerHTML=`<img id="assetImg" src="${currentUrl}" alt="${esc(a.alias_name||a.stable_id)}"><span class="badge">RENDU 2D RÉEL · b${esc(a.bundle_id)}</span>${nav()}`;
     bindNav();renderMeta(a);
   }catch(e){
-    stage.innerHTML=`<div class="empty"><b>Rendu local impossible.</b><br><span class="error">${esc(e.message)}</span><br><span class="hint">Le bundle est localement référencé : cette erreur concerne maintenant le décodage/reconstruction, pas l’index global.</span></div>${nav()}`;bindNav();
+    stage.innerHTML=errorMarkup(e.message,'2D','Cette erreur concerne le décodage/reconstruction, pas l’index global.')+nav();bindErrorDetails();bindNav();
   }
 }
 
@@ -161,11 +212,22 @@ async function captureCurrent(a){
   },'image/png');
 }
 
+function resetFilters(run=true){
+  $('#q').value='';
+  axes.forEach(id=>{const e=$('#'+id);if(!e)return;e.value=id==='render_availability'?'local-renderable':'all'});
+  $('#min_confidence').value='';updateFilterSummary();if(run)runSearch();
+}
+
+const dlg=$('#advancedDialog');
+$('#openAdvanced').onclick=()=>{if(dlg.showModal)dlg.showModal();else dlg.setAttribute('open','')};
+$('#closeAdvanced').onclick=()=>dlg.close?.();
+$('#applyAdvanced').onclick=()=>{dlg.close?.();runSearch()};
+$('#resetAdvanced').onclick=()=>resetFilters(false);
+dlg.addEventListener('click',e=>{if(e.target===dlg)dlg.close?.()});
 $('#search').onclick=runSearch;
 $('#q').addEventListener('keydown',e=>e.key==='Enter'&&runSearch());
-$('#clear').onclick=()=>{
-  ['q',...axes,'min_confidence'].forEach(id=>{const e=$('#'+id);if(!e)return;if(id==='q'||id==='min_confidence')e.value='';else if(id==='render_availability')e.value='local-renderable';else e.value='all'});
-  runSearch();
-};
+$('#clear').onclick=()=>resetFilters(true);
+axes.forEach(id=>$('#'+id)?.addEventListener('change',updateFilterSummary));
+$('#min_confidence').addEventListener('change',updateFilterSummary);
 init();
 </script></body></html>
