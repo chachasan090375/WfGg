@@ -1,0 +1,26 @@
+name: Last War Global Graphics V31 smoke
+on:
+  push:
+    branches: [lab-global-graphics-catalog-v31]
+  workflow_dispatch:
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile Python
+        run: |
+          python -m py_compile \
+            scripts/lastwar-global-graphics-catalog-v31.py \
+            scripts/lastwar-global-graphics-scope-enrich-v31.py \
+            scripts/lastwar-global-graphics-server-v31.py
+      - name: Validate taxonomy JSON
+        run: python -m json.tool frontend/lab/global-graphics-v31/taxonomy-v31.json >/dev/null
+      - name: Validate viewer contract
+        run: |
+          grep -q '/api/v31/search' frontend/lab/lastwar-global-graphics-viewer-v31.html
+          grep -q 'Capture documentée' frontend/lab/lastwar-global-graphics-viewer-v31.html
+          grep -q 'scope_kind' frontend/lab/lastwar-global-graphics-viewer-v31.html
