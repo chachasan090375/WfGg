@@ -43,9 +43,10 @@ def fts_expr(q): return v31.fts_expr(q)
 def rowdict(row):
     if not row:return None
     d=dict(row)
-    for src,dst in [('evidence_json','evidence'),('graphic_evidence_json','graphic_evidence')]:
-        try:d[dst]=json.loads(d.pop(src) or '[]' if src=='graphic_evidence_json' else '{}')
-        except Exception:d[dst]=[] if src=='graphic_evidence_json' else {}
+    for src,dst,default in [('evidence_json','evidence','{}'),('graphic_evidence_json','graphic_evidence','[]')]:
+        raw=d.pop(src,None)
+        try:d[dst]=json.loads(raw or default)
+        except Exception:d[dst]=json.loads(default)
     d.pop('search_text',None)
     return d
 
