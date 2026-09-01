@@ -12,5 +12,8 @@ import UnityPy, texture2ddecoder
 from PIL import Image
 PYCHK
 printf '\n=== MURPHY / AUDIE VISUAL BUILD V29 ===\n'
+printf '\n--- Reconstruction des bundles depuis les BundleFragments APK ---\n'
+python scripts/lastwar-murphy-visual-fragment-rescue-v29.py "$ROOT"
+printf '\n--- Extraction des rendus pour le viewer ---\n'
 python scripts/lastwar-murphy-visual-review-build-v29.py "$ROOT"
-printf '\nRecharge le même viewer :\nhttp://127.0.0.1:8788/lab/lastwar-murphy-visual-review-v29.html?v=29\n'
+printf '\nRecharge le même viewer :\nhttp://127.0.0.1:8788/lab/lastwar-murphy-visual-review-v29.html?v=29b\n'
