@@ -23,7 +23,7 @@ def structural_vehicle_seed(parent: str) -> bool:
     """Structural anchor only: no hand-authored vehicle vocabulary list.
 
     The authoritative game catalog already proves that hero vehicles live under
-    Models/Cars and Models/New/Cars.  We use only that hierarchy as the seed.
+    Models/Cars and Models/New/Cars. We use only that hierarchy as the seed.
     """
     parts = [p.lower() for p in parent.replace("\\", "/").split("/") if p]
     for i, p in enumerate(parts):
@@ -92,6 +92,7 @@ def main() -> None:
         else:
             nonseed_idxs.append(i)
 
+    seed_idx_set = set(seed_idxs)
     total = len(rows)
     nseed = max(1, len(seed_idxs))
     nnon = max(1, len(nonseed_idxs))
@@ -135,7 +136,7 @@ def main() -> None:
 
     for i, r in enumerate(rows):
         ts = toks_by_idx[i]
-        is_seed = i in set(seed_idxs)
+        is_seed = i in seed_idx_set
         shared_bundle = any(ln in seed_logicals for ln in (r.get("logicalNames") or []))
         hits = [learned[t] for t in ts if t in learned_tokens]
         hits.sort(key=lambda x: (-x["enrichment"], -x["seedDf"], x["token"]))
@@ -205,7 +206,6 @@ def main() -> None:
     out = OUT_DIR / "manifest.json"
     out.write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
 
-    # Compact human-readable shortlist for quick Termux inspection.
     txt = []
     txt.append("WfGg Last War LAB — semantic vehicle-name audit V25")
     txt.append(f"families={len(rows)} seed={len(seed_idxs)} learned={len(learned_list)} candidates={len(candidates)} outsideCars={len(outside)}")
