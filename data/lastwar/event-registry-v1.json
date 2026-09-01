@@ -1,1 +1,82 @@
-PLACEHOLDER
+{
+  "schemaVersion": 1,
+  "registryVersion": "2026-09-01.v1",
+  "asOf": "2026-09-01",
+  "title": "Last War: Survival — canonical event registry for WfGg",
+  "purpose": [
+    "graphics asset classification",
+    "future notification generator",
+    "event aliases and cadence",
+    "season/inter-season history"
+  ],
+  "coverage": {
+    "from": "server launch / pre-season",
+    "through": "Season 6 plus limited events observed through 2026-09-01",
+    "season7": "excluded from automatic classification until reliable public/official event details exist"
+  },
+  "countingPolicy": {
+    "registryEntries": 177,
+    "note": "Entries include top-level events, child/sub-events, campaigns and season-specific variants; not a claim of 177 distinct official top-level event brands.",
+    "byKind": {
+      "season": 93,
+      "recurring-event": 47,
+      "limited": 27,
+      "interseason": 7,
+      "event": 3
+    },
+    "seasonLinkedEntries": {
+      "1": 14,
+      "2": 14,
+      "3": 18,
+      "4": 20,
+      "5": 25,
+      "6": 27
+    }
+  },
+  "semantics": {
+    "ownershipVsUsage": "belongs-to and used-by are separate relations; direct registry matching creates belongs-to only.",
+    "unknownPolicy": "absence of an event match is never evidence that an asset is generic.",
+    "matchingPolicy": "automatic matching uses curated assetTokens; short generic words are intentionally avoided.",
+    "confidence": ["high", "medium"]
+  },
+  "seasons": [
+    {"id": 1, "name": "The Crimson Plague", "aliases": ["Crimson Plague"], "status": "historical"},
+    {"id": 2, "name": "Polar Storm", "aliases": [], "status": "historical"},
+    {"id": 3, "name": "Golden Kingdom", "aliases": [], "status": "historical"},
+    {"id": 4, "name": "Evernight Isle", "aliases": [], "status": "historical"},
+    {"id": 5, "name": "Wild West", "aliases": ["Golden Wasteland", "Land of Liberty"], "status": "historical"},
+    {"id": 6, "name": "Shadow Rainforest", "aliases": ["Lost Rainforest"], "status": "historical/current-cycle"}
+  ],
+  "files": [
+    {"path": "events-global-v1.json", "entries": 50},
+    {"path": "events-interseason-v1.json", "entries": 7},
+    {"path": "events-limited-v1.json", "entries": 27},
+    {"path": "events-season-cross-v1.json", "entries": 5},
+    {"path": "events-season1-v1.json", "entries": 9},
+    {"path": "events-season2-v1.json", "entries": 9},
+    {"path": "events-season3-v1.json", "entries": 13},
+    {"path": "events-season4-v1.json", "entries": 15},
+    {"path": "events-season5-v1.json", "entries": 20},
+    {"path": "events-season6-v1.json", "entries": 22}
+  ],
+  "sources": {
+    "game8-events": {"title": "Game8 Last War events index", "url": "https://game8.jp/lastwar-survival/595245", "scope": "daily/alliance/recurring/limited/campaign"},
+    "lastwar-timeline": {"title": "LastWarSurvival.com timeline", "url": "https://lastwarsurvival.com/guides/timeline", "scope": "server progression and seasons 1-6"},
+    "r5tools-events": {"title": "R5TOOLS Last War event/season research", "url": "https://r5tools.io/events/bounty-hunter.html", "scope": "cadence, recurring and off-season events"},
+    "cpt-hedge-hotdeals": {"title": "Cpt Hedge Hot Deals & Events", "url": "https://cpt-hedge.com/guides/hot-deals-events", "scope": "rotating campaigns/hot deals"},
+    "lwt-home": {"title": "Last War Tutorial guide index", "url": "https://www.lastwartutorial.com/", "scope": "historical guides and cross-season events"},
+    "lwt-s1": {"title": "Last War Tutorial Season 1", "url": "https://www.lastwartutorial.com/season-1-the-crimson-plague/", "scope": "season 1"},
+    "lwt-s2": {"title": "Last War Tutorial Season 2", "url": "https://www.lastwartutorial.com/season-2-polar-storm/", "scope": "season 2"},
+    "lwt-s3": {"title": "Last War Tutorial Season 3", "url": "https://www.lastwartutorial.com/season-3-the-ultimate-strategy-guide-for-season-3-growth-captures-and-war/", "scope": "season 3"},
+    "lwt-s4": {"title": "Last War Tutorial Season 4", "url": "https://www.lastwartutorial.com/season-4-evernight-isle/", "scope": "season 4"},
+    "lwt-s5": {"title": "Last War Tutorial Season 5", "url": "https://www.lastwartutorial.com/season-5-wild-west-the-golden-wasteland-of-the-land-of-liberty/", "scope": "season 5"},
+    "lwt-s6-w1": {"title": "Last War Tutorial Season 6 Week 1", "url": "https://www.lastwartutorial.com/season-6-week-1/", "scope": "season 6"},
+    "lwt-s6-w2": {"title": "Last War Tutorial Season 6 Week 2", "url": "https://www.lastwartutorial.com/season-6-week-2/", "scope": "season 6"},
+    "official-social-crystal": {"title": "Last War official social announcement — Crystal Event", "url": "https://x.com/lastwarsurvival", "scope": "Crystal Event, Aug 2026"},
+    "buffhub-crystal": {"title": "BuffHub Crystal Event guide", "url": "https://buffhub.com/fr/blog/last-war-survival/last-war-survival-crystal-event-guide.html", "scope": "Crystal Event 2026"},
+    "wfgg-s6": {"title": "WfGg Season 6 guide corpus", "scope": "internal WfGg naming/reference"}
+  },
+  "unconfirmedFuture": [
+    {"id": "season-7", "name": "Season 7", "classificationEnabled": false, "status": "unconfirmed-details", "notes": "Do not auto-classify from speculation."}
+  ]
+}
