@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from pathlib import Path
 from collections import Counter, defaultdict
-import gzip, hashlib, json, os, re, sqlite3, sys, time, unicodedata
+import gzip, hashlib, json, re, sqlite3, sys, time, unicodedata
 
 ROOT=Path(sys.argv[1]).resolve() if len(sys.argv)>1 else Path(__file__).resolve().parents[1]
 INDEX=ROOT/'frontend/lab/master-assets-v2/index'
@@ -41,12 +41,20 @@ def load_registry():
     return events,token_to_events
 
 
+def sha256_file(p):
+    h=hashlib.sha256()
+    with p.open('rb') as f:
+        while True:
+            b=f.read(1024*1024)
+            if not b: break
+            h.update(b)
+    return h.hexdigest()
+
+
 def rebuild_pack():
     m=json.loads(MANIFEST.read_text('utf-8'))
     expected=m.get('compressedSha256','')
-    if PACK.is_file():
-        h=hashlib.sha256(PACK.read_bytes()).hexdigest()
-        if h==expected:return m
+    if PACK.is_file() and sha256_file(PACK)==expected:return m
     tmp=PACK.with_suffix('.tmp.gz'); h=hashlib.sha256()
     with tmp.open('wb') as out:
         for part in m['parts']:
@@ -93,7 +101,6 @@ def iter_array_objects(key):
             while c and (c.isspace() or c==','):c=r.get()
             if not c or c==']':return
             if c not in '{[':
-                # Skip scalar values defensively.
                 while c and c not in ',]':c=r.get()
                 if c==']':return
                 continue
@@ -110,8 +117,8 @@ def iter_array_objects(key):
                     if c=='"':instr=True
                     elif c in '{[':depth+=1
                     elif c in '}]':depth-=1
-            try: yield json.loads(''.join(buf))
-            except Exception: continue
+            try:yield json.loads(''.join(buf))
+            except Exception:continue
 
 
 def nid(obj):
@@ -147,6 +154,12 @@ def strings_in(obj):
         elif isinstance(x,list):stack.extend(x)
 
 
+def index_links_by_node(links):
+    out=defaultdict(list)
+    for (ev,node),relation in links.items():out[node].append((ev,relation))
+    return out
+
+
 def main():
     start=time.time();m=rebuild_pack();events,tokmap=load_registry()
     tokens=sorted(tokmap,key=len,reverse=True)
@@ -155,12 +168,12 @@ def main():
     seed_evidence={}
     node_count=seed_nodes=0
     for node in iter_array_objects('nodes'):
-        node_count+=1; nodeid=nid(node)
+        node_count+=1;nodeid=nid(node)
         if not nodeid or not rx:continue
         text=dense(json.dumps(node,ensure_ascii=False,separators=(',',':')))
-        found={m.group(0) for m in rx.finditer(text)}
+        found={match.group(0) for match in rx.finditer(text)}
         if not found:continue
-        evs=set();
+        evs=set()
         for tok in found:evs.update(tokmap[tok])
         for ev in evs:
             links[(ev,nodeid)]='belongs-to';seed_evidence[(ev,nodeid)]=sorted(t for t in found if ev in tokmap[t])[:8]
@@ -171,49 +184,41 @@ def main():
     # then contents of those dependency bundles. Candidate edges never propagate.
     allowed_same={'contains','stored_in','groups'}
     for passno in range(1,4):
-        changed=0
-        snapshot=dict(links)
+        changed=0;by_node=index_links_by_node(dict(links))
         for e in iter_array_objects('edges'):
             s,t,rel,candidate=edge_parts(e)
             if candidate or not s or not t:continue
             if rel in allowed_same:
-                for (ev,node),r0 in list(snapshot.items()):
-                    if node==s:
-                        key=(ev,t);new=r0;old=links.get(key)
-                        merged=merge_relation(old,new)
-                        if merged!=old:links[key]=merged;changed+=1
-                    elif node==t:
-                        key=(ev,s);new=r0;old=links.get(key)
-                        merged=merge_relation(old,new)
-                        if merged!=old:links[key]=merged;changed+=1
+                for ev,r0 in by_node.get(s,()):
+                    key=(ev,t);old=links.get(key);merged=merge_relation(old,r0)
+                    if merged!=old:links[key]=merged;changed+=1
+                for ev,r0 in by_node.get(t,()):
+                    key=(ev,s);old=links.get(key);merged=merge_relation(old,r0)
+                    if merged!=old:links[key]=merged;changed+=1
             elif rel=='depends_on':
-                for (ev,node),r0 in list(snapshot.items()):
-                    if node==s:
-                        key=(ev,t);new='used-by';old=links.get(key)
-                        merged=merge_relation(old,new)
-                        if merged!=old:links[key]=merged;changed+=1
+                for ev,_ in by_node.get(s,()):
+                    key=(ev,t);old=links.get(key);merged=merge_relation(old,'used-by')
+                    if merged!=old:links[key]=merged;changed+=1
         print('V32_GRAPH_PROPAGATE',f'pass={passno}',f'changed={changed}',f'links={len(links)}',flush=True)
         if not changed:break
 
-    relevant_nodes={node for _,node in links}
-    node_meta={}
+    relevant_nodes={node for _,node in links};node_meta={}
     for node in iter_array_objects('nodes'):
         nodeid=nid(node)
         if nodeid in relevant_nodes:node_meta[nodeid]=node
     print('V32_GRAPH_NODE_META',f'relevant={len(relevant_nodes)}',f'resolved={len(node_meta)}',flush=True)
 
     con=sqlite3.connect(DB);con.row_factory=sqlite3.Row
-    # Exact textual reverse index from the canonical 107k catalog.
     exact=defaultdict(set);base=defaultdict(set)
     for r in con.execute('SELECT stable_id,asset_path,logical_name,alias_name FROM assets'):
         sid=r['stable_id']
         for k in ('asset_path','logical_name','alias_name'):
             raw=clean_raw(r[k])
             if not raw:continue
-            exact[raw].add(sid)
-            bn=raw.rsplit('/',1)[-1]
+            exact[raw].add(sid);bn=raw.rsplit('/',1)[-1]
             if len(bn)>=8:base[bn].add(sid)
-    inserted=updated=0;relation_counts=Counter();event_counts=Counter()
+
+    writes=0;relation_counts=Counter();event_counts=Counter()
     for (ev,nodeid),relation in links.items():
         node=node_meta.get(nodeid)
         if not node:continue
@@ -225,29 +230,27 @@ def main():
             bn=raw.rsplit('/',1)[-1]
             if len(bn)>=8 and len(base.get(bn,()))==1:sids.update(base[bn]);evidence_strings.append('basename:'+bn)
         for sid in sids:
-            existing=con.execute('SELECT relation,confidence FROM event_asset_links_v32 WHERE event_id=? AND stable_id=? ORDER BY confidence DESC LIMIT 1',(ev,sid)).fetchone()
+            existing=con.execute('SELECT relation,confidence FROM event_asset_links_v32 WHERE event_id=? AND stable_id=? ORDER BY CASE relation WHEN "belongs-to" THEN 2 WHEN "used-by" THEN 1 ELSE 0 END DESC, confidence DESC LIMIT 1',(ev,sid)).fetchone()
             target=relation
             if existing and existing['relation']=='belongs-to':target='belongs-to'
             conf=0.995 if target=='belongs-to' else 0.88
             evd={'source':'exact-reconstruction-graph','graphNode':nodeid,'relation':target,'strings':evidence_strings[:8],'seedTokens':seed_evidence.get((ev,nodeid),[])}
-            before=con.total_changes
+            # One strongest relation per event/asset. Belongs-to always outranks used-by.
+            if target=='belongs-to':con.execute('DELETE FROM event_asset_links_v32 WHERE event_id=? AND stable_id=? AND relation<>"belongs-to"',(ev,sid))
+            elif existing and existing['relation']=='belongs-to':continue
             con.execute('INSERT OR REPLACE INTO event_asset_links_v32(event_id,stable_id,relation,confidence,evidence_json) VALUES(?,?,?,?,?)',(ev,sid,target,conf,json.dumps(evd,ensure_ascii=False,separators=(',',':'))))
-            if con.total_changes>before:inserted+=1
-            relation_counts[target]+=1;event_counts[ev]+=1
+            writes+=1;relation_counts[target]+=1;event_counts[ev]+=1
 
     con.execute("DELETE FROM facets WHERE axis IN ('event_id','event_relation')")
     for value,count in con.execute('SELECT event_id,count(distinct stable_id) FROM event_asset_links_v32 GROUP BY event_id'):
         con.execute('INSERT INTO facets(axis,value,count) VALUES(?,?,?)',('event_id',value,count))
     for value,count in con.execute('SELECT relation,count(*) FROM event_asset_links_v32 GROUP BY relation'):
         con.execute('INSERT INTO facets(axis,value,count) VALUES(?,?,?)',('event_relation',value,count))
-    con.commit()
-    final_links=con.execute('SELECT count(*) FROM event_asset_links_v32').fetchone()[0]
-    final_assets=con.execute('SELECT count(distinct stable_id) FROM event_asset_links_v32').fetchone()[0]
-    con.close()
+    con.commit();final_links=con.execute('SELECT count(*) FROM event_asset_links_v32').fetchone()[0];final_assets=con.execute('SELECT count(distinct stable_id) FROM event_asset_links_v32').fetchone()[0];con.close()
     summary={
       'schemaVersion':32,'generatedAt':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),
       'graphUncompressedBytes':m.get('uncompressedBytes'),'registryEvents':len(events),'seedNodes':seed_nodes,
-      'graphRelatedNodes':len(relevant_nodes),'resolvedNodeMetadata':len(node_meta),'mappedWrites':inserted,
+      'graphRelatedNodes':len(relevant_nodes),'resolvedNodeMetadata':len(node_meta),'mappedWrites':writes,
       'eventAssetLinks':final_links,'eventLinkedAssets':final_assets,'relationCounts':dict(relation_counts),
       'topEvents':event_counts.most_common(40),'seconds':round(time.time()-start,2),
       'policy':'candidate edges never propagate; belongs-to outranks used-by; dependency propagation bounded to 3 passes'
