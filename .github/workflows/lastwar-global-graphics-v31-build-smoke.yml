@@ -16,9 +16,29 @@ jobs:
         run: |
           python -m py_compile scripts/lastwar-global-graphics-catalog-v31.py scripts/lastwar-global-graphics-scope-enrich-v31.py scripts/lastwar-global-graphics-scope-correct-v31.py scripts/lastwar-global-graphics-hierarchy-v31.py scripts/lastwar-global-graphics-server-v31.py
           python -m json.tool frontend/lab/global-graphics-v31/taxonomy-v31.json >/dev/null
+          python -m json.tool data/lastwar/event-registry-v1.json >/dev/null
+          for f in data/lastwar/events-*-v1.json; do python -m json.tool "$f" >/dev/null; done
+      - name: Validate event registry manifest
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path('.')
+          idx=json.loads((root/'data/lastwar/event-registry-v1.json').read_text())
+          ids=[]
+          total=0
+          for item in idx['files']:
+              doc=json.loads((root/'data/lastwar'/item['path']).read_text())
+              assert len(doc['events'])==item['entries'],(item['path'],len(doc['events']),item['entries'])
+              total+=len(doc['events'])
+              ids.extend(e['id'] for e in doc['events'])
+          assert total==idx['countingPolicy']['registryEntries']==189,total
+          assert len(ids)==len(set(ids)), 'duplicate event ids'
+          print('EVENT_REGISTRY_MANIFEST_OK events=',total)
+          PY
       - name: Build complete streaming catalog
         run: python scripts/lastwar-global-graphics-catalog-v31.py "$GITHUB_WORKSPACE"
-      - name: Enrich editorial scopes
+      - name: Enrich canonical event scopes
         run: python scripts/lastwar-global-graphics-scope-enrich-v31.py "$GITHUB_WORKSPACE"
       - name: Correct scope false positives
         run: python scripts/lastwar-global-graphics-scope-correct-v31.py "$GITHUB_WORKSPACE"
@@ -36,14 +56,20 @@ jobs:
           pn=con.execute('select count(*) from path_nodes').fetchone()[0]
           linked=con.execute('select count(*) from assets where path_node_id is not null').fetchone()[0]
           regional=con.execute("select count(*) from assets where scope_kind='regional'").fetchone()[0]
+          registry_count=con.execute('select count(*) from event_registry').fetchone()[0]
+          event_links=con.execute("select count(*) from asset_event_links where relation='belongs-to'").fetchone()[0]
+          matched_events=con.execute("select count(distinct event_id) from asset_event_links where relation='belongs-to'").fetchone()[0]
           assert n>1000, n
           assert pn>100, pn
           assert linked==n,(linked,n)
           assert regional<n//2,('regional false-positive regression',regional,n)
+          assert registry_count==189,registry_count
+          assert event_links>0,event_links
+          assert matched_events>0,matched_events
           cols={r[1] for r in con.execute('pragma table_info(assets)')}
           required={'stable_id','family','visual_role','context','scope_kind','scope_id','bundle_id','asset_path','evidence_json','path_node_id'}
           assert required<=cols, required-cols
-          print('V31_BUILD_SMOKE_OK assets=',n,'pathNodes=',pn,'regional=',regional,'dbBytes=',db.stat().st_size)
+          print('V31_BUILD_SMOKE_OK assets=',n,'pathNodes=',pn,'registry=',registry_count,'eventLinks=',event_links,'matchedEvents=',matched_events,'regional=',regional,'dbBytes=',db.stat().st_size)
           print('scopeKinds=',con.execute('select scope_kind,count(*) from assets group by scope_kind order by count(*) desc').fetchall())
           con.close()
           PY
