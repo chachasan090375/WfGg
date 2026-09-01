@@ -12,6 +12,8 @@ printf '\n=== WFGG GLOBAL GRAPHICS CATALOG V31 ===\n'
 python scripts/lastwar-global-graphics-catalog-v31.py "$ROOT"
 printf '\n=== ENRICHISSEMENT EVENEMENTS / SAISONS / INTER-SAISON ===\n'
 python scripts/lastwar-global-graphics-scope-enrich-v31.py "$ROOT"
+printf '\n=== CORRECTION DES PORTÉES / FAUX POSITIFS REGIONAUX ===\n'
+python scripts/lastwar-global-graphics-scope-correct-v31.py "$ROOT"
 printf '\n=== HIERARCHIE DOSSIERS / SOUS-DOSSIERS / FICHIERS ===\n'
 python scripts/lastwar-global-graphics-hierarchy-v31.py "$ROOT"
 printf '\n=== VIEWER A LA DEMANDE ===\n'
