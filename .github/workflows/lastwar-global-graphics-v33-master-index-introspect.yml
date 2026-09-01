@@ -21,31 +21,28 @@ jobs:
           import json
           from pathlib import Path
           p=Path('frontend/lab/master-assets-v2/index/lastwar-graphics-master-index-v1.json')
-          print('INDEX',p,'bytes',p.stat().st_size)
           data=json.loads(p.read_text('utf-8'))
+          print('INDEX_BYTES',p.stat().st_size)
           print('TOP_KEYS',sorted(data.keys()))
-          for key in ['fragmentPhysicalIndex','bundleFragments','bundleNames','assetNames']:
-              x=data.get(key)
-              print('\nSECTION',key,'TYPE',type(x).__name__,'LEN',len(x) if hasattr(x,'__len__') else None)
+          def describe(label,x,depth=0):
+              print('\nSECTION',label,'TYPE',type(x).__name__,'LEN',len(x) if hasattr(x,'__len__') else None)
               if isinstance(x,dict):
+                  print('KEYS',list(x.keys())[:40])
                   for i,(k,v) in enumerate(x.items()):
-                      print('ITEM',i,'KEY',repr(k),'VALUE_TYPE',type(v).__name__,'VALUE',repr(v)[:2000])
-                      if i>=7: break
+                      print('ITEM',i,'KEY',repr(k),'TYPE',type(v).__name__,'VALUE',repr(v)[:1500])
+                      if i>=5:break
               elif isinstance(x,list):
-                  for i,v in enumerate(x[:8]):
-                      print('ITEM',i,'TYPE',type(v).__name__,'VALUE',repr(v)[:2000])
-          # Show all nested keys from a few physical records without dumping data.
-          x=data.get('fragmentPhysicalIndex')
-          samples=[]
-          if isinstance(x,dict): samples=list(x.items())[:20]
-          elif isinstance(x,list): samples=list(enumerate(x[:20]))
-          def keys(o,pfx=''):
-              out=[]
-              if isinstance(o,dict):
-                  for k,v in o.items():
-                      q=f'{pfx}.{k}' if pfx else str(k);out.append(q);out.extend(keys(v,q))
-              elif isinstance(o,list) and o:
-                  out.extend(keys(o[0],pfx+'[]'))
-              return out
-          print('\nPHYSICAL_NESTED_KEYS',sorted(set(q for _,v in samples for q in keys(v))))
+                  for i,v in enumerate(x[:6]):print('ITEM',i,'TYPE',type(v).__name__,'VALUE',repr(v)[:1500])
+          for key in ['counts','source','lookup','reconstructionRecipe','bundles','evidenceFiles','guardrails']:
+              describe(key,data.get(key))
+          lookup=data.get('lookup') or {}
+          if isinstance(lookup,dict):
+              for k,v in lookup.items():describe('lookup.'+k,v)
+          bundles=data.get('bundles') or []
+          if isinstance(bundles,list):
+              for i,b in enumerate(bundles[:3]):describe(f'bundles[{i}]',b)
+          elif isinstance(bundles,dict):
+              for i,(k,b) in enumerate(bundles.items()):
+                  describe(f'bundles[{k}]',b)
+                  if i>=2:break
           PY
