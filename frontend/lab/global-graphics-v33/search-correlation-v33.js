@@ -85,16 +85,24 @@ bindNav=function(){
   };
 };
 
-// Prevent an old asynchronous render/model response from replacing the stage after a new
-// search has already selected a different item. We keep the existing rendering function but
-// discard its late UI result by restoring the current asset if necessary.
+// Prevent an old asynchronous render/model response from becoming the visible result after
+// a new query has already replaced the result set. If an old request finishes late, immediately
+// restore the current selection from the current generation.
 const baseSelect=select;
 select=async function(i){
   if(i<0||i>=items.length)return;
   const gen=generation;const sid=items[i]?.stable_id;
   await baseSelect(i);
-  if(gen!==generation)return;
-  if(currentAsset?.stable_id!==sid)return;
+  if(gen!==generation){
+    const current=idx;
+    if(current>=0&&current<items.length)setTimeout(()=>select(current),0);
+    return;
+  }
+  if(currentAsset?.stable_id!==sid){
+    const current=idx;
+    if(current>=0&&current<items.length)setTimeout(()=>select(current),0);
+    return;
+  }
   try{window.WFGGResultStripSync?.('smooth')}catch{}
 };
 
