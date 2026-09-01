@@ -30,7 +30,9 @@ jobs:
             scripts/lastwar-global-graphics-android-codec-v33.py \
             scripts/lastwar-global-graphics-server-v33.py \
             scripts/lastwar-global-graphics-server-v33-resolved.py \
-            scripts/lastwar-global-graphics-server-v33-exact.py
+            scripts/lastwar-global-graphics-server-v33-exact.py \
+            scripts/lastwar-global-graphics-server-v33-unified.py \
+            scripts/lastwar-global-graphics-server-v33-mobile.py
       - name: Check viewer JavaScript
         run: |
           node --check frontend/lab/global-graphics-v33/model-viewer-v33.js
@@ -59,7 +61,7 @@ jobs:
       - name: Assert V33 contract
         run: |
           python - <<'PY'
-          import sqlite3
+          import re, sqlite3
           from pathlib import Path
           db=Path.home()/'.cache/wfgg-lastwar-v31/graphics-catalog-v31.sqlite3'
           con=sqlite3.connect(db)
@@ -87,11 +89,16 @@ jobs:
           assert con.execute("select count(*) from assets where asset_folder<>''").fetchone()[0]>50000
           assert con.execute("select count(*) from facets where axis='dimension_class'").fetchone()[0]>=4
           assert con.execute("select count(*) from facets where axis='render_availability'").fetchone()[0]>=2
+          assert con.execute("select count(*) from facets where axis='family' and value='vehicles'").fetchone()[0]==1
           bad2d=con.execute("select count(*) from assets where lower(asset_path) like '%.prefab' and dimension_class='2D'").fetchone()[0]
           badgraphic=con.execute("select count(*) from assets where lower(asset_path) like '%.prefab' and graphic_class='Graphique'").fetchone()[0]
+          false_vehicle_card=con.execute("select count(*) from assets where family='vehicles' and lower(coalesce(asset_path,'')) like '%card%' and lower(coalesce(asset_path,'')) not like '%tank%' and lower(coalesce(asset_path,'')) not like '%vehicle%' and lower(coalesce(asset_path,'')) not like '%car/%' and lower(coalesce(asset_path,'')) not like '%car_%'").fetchone()[0]
           assert bad2d==0,bad2d
           assert badgraphic==0,badgraphic
-          print('V33_SMOKE_OK assets=',n,'dimensions=',dims,'roles=',roles,'availability=',avail,'depEdges=',dep_edges,'tank0Deps=',len(tank0_deps),'prefab2d=',bad2d,'prefabGraphic=',badgraphic)
+          assert false_vehicle_card<20,false_vehicle_card
+          vehicle2d=con.execute("select count(*) from assets where family='vehicles' and dimension_class='2D'").fetchone()[0]
+          assert vehicle2d>0,vehicle2d
+          print('V33_SMOKE_OK assets=',n,'dimensions=',dims,'roles=',roles,'availability=',avail,'depEdges=',dep_edges,'tank0Deps=',len(tank0_deps),'vehicle2D=',vehicle2d,'falseVehicleCard=',false_vehicle_card)
           con.close()
           PY
       - name: Validate viewer and renderer contract
@@ -101,6 +108,8 @@ jobs:
           grep -q 'id="dimension_class"' frontend/lab/lastwar-global-graphics-viewer-v33.html
           grep -q 'id="graphic_class"' frontend/lab/lastwar-global-graphics-viewer-v33.html
           grep -q 'model-viewer-v33.js' frontend/lab/lastwar-global-graphics-viewer-v33.html
+          grep -q 'WFGGResultStripSync' frontend/lab/global-graphics-v33/model-viewer-v33.js
+          grep -q 'MAX_OBJECTS=MOBILE?12:24' frontend/lab/global-graphics-v33/model-viewer-v33.js
           grep -q '/api/v33/model' scripts/lastwar-global-graphics-server-v33.py
           grep -q 'availability-map' scripts/lastwar-global-graphics-server-v33-resolved.py
           grep -q 'global-index-only' scripts/lastwar-global-graphics-server-v33-resolved.py
@@ -108,4 +117,5 @@ jobs:
           grep -q 'android-direct' scripts/lastwar-global-graphics-server-v33-exact.py
           grep -q 'MeshHandler' scripts/lastwar-global-graphics-android-codec-v33.py
           grep -q 'decode_astc' scripts/lastwar-global-graphics-android-codec-v33.py
-          grep -q 'lastwar-global-graphics-server-v33-exact.py' scripts/lastwar-global-graphics-v33.sh
+          grep -q 'V33_3D_MOBILE' scripts/lastwar-global-graphics-server-v33-mobile.py
+          grep -q 'server-v33-mobile.py' scripts/lastwar-global-graphics-v33.sh
