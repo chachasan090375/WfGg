@@ -1,0 +1,39 @@
+name: Last War Global Graphics V31 full build smoke
+on:
+  push:
+    branches: [lab-global-graphics-catalog-v31]
+  workflow_dispatch:
+jobs:
+  build-catalog:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile and validate config
+        run: |
+          python -m py_compile scripts/lastwar-global-graphics-catalog-v31.py scripts/lastwar-global-graphics-scope-enrich-v31.py scripts/lastwar-global-graphics-server-v31.py
+          python -m json.tool frontend/lab/global-graphics-v31/taxonomy-v31.json >/dev/null
+      - name: Build complete streaming catalog
+        run: python scripts/lastwar-global-graphics-catalog-v31.py "$GITHUB_WORKSPACE"
+      - name: Enrich editorial scopes
+        run: python scripts/lastwar-global-graphics-scope-enrich-v31.py "$GITHUB_WORKSPACE"
+      - name: Assert catalog contract
+        run: |
+          python - <<'PY'
+          import sqlite3
+          from pathlib import Path
+          db=Path.home()/'.cache/wfgg-lastwar-v31/graphics-catalog-v31.sqlite3'
+          assert db.is_file() and db.stat().st_size>0, db
+          con=sqlite3.connect(db)
+          n=con.execute('select count(*) from assets').fetchone()[0]
+          assert n>1000, n
+          cols={r[1] for r in con.execute('pragma table_info(assets)')}
+          required={'stable_id','family','visual_role','context','scope_kind','scope_id','bundle_id','asset_path','evidence_json'}
+          assert required<=cols, required-cols
+          print('V31_BUILD_SMOKE_OK assets=',n,'dbBytes=',db.stat().st_size)
+          print('scopeKinds=',con.execute('select scope_kind,count(*) from assets group by scope_kind order by count(*) desc').fetchall())
+          con.close()
+          PY
