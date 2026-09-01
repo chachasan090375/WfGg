@@ -27,5 +27,5 @@ printf '\n=== V33 : DISPONIBILITE DU RENDU LOCAL ===\n'
 python scripts/lastwar-global-graphics-render-availability-v33.py "$ROOT"
 printf '\n=== V33 : DEPENDANCES DE BUNDLES EXACTES ===\n'
 python scripts/lastwar-global-graphics-dependencies-v33.py "$ROOT"
-printf '\n=== VIEWER V33 : MOBILE EXACT 2D / 3D ===\n'
-exec python scripts/lastwar-global-graphics-server-v33-mobile.py "$ROOT"
+printf '\n=== VIEWER V33 : RECHERCHE / RENDU CORRELES ===\n'
+exec python scripts/lastwar-global-graphics-server-v33-correlated.py "$ROOT"
