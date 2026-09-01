@@ -113,11 +113,13 @@ def get_asset(sid):
 def facets_v32():
     con=dbcon(); rows=con.execute('SELECT axis,value,count FROM facets ORDER BY axis,count DESC').fetchall()
     names={r['event_id']:r['event_name'] for r in con.execute('SELECT event_id,event_name FROM event_registry_v32')}
+    graphic_labels={'Graphique':'Oui — graphique','Composant graphique':'Composant graphique','Non graphique':'Non — non graphique','Indéterminé':'Indéterminé'}
     out={}
     for r in rows:
         item={'value':r['value'],'count':r['count']}
         if r['axis']=='event_id':item['label']=names.get(r['value'],r['value'])
         elif r['axis']=='event_relation':item['label']={'belongs-to':'Appartient à','used-by':'Utilisé par','candidate':'Candidat'}.get(r['value'],r['value'])
+        elif r['axis']=='graphic_class':item['label']=graphic_labels.get(r['value'],r['value'])
         else:item['label']=r['value']
         out.setdefault(r['axis'],[]).append(item)
     con.close(); return out
@@ -128,14 +130,18 @@ def viewer_v32():
     h=h.replace('Catalogue graphique global — V31','Catalogue graphique global — V32')
     h=h.replace('GLOBAL GRAPHICS V31','GLOBAL GRAPHICS V32')
     h=h.replace("const API='/api/v31'","const API='/api/v32'")
+    h=h.replace('API V31 indisponible','API V32 indisponible')
     extra='''<label>Graphique ?<select id="graphic_class"><option value="all">Tous</option></select></label>\n<label>Événement<select id="event_id"><option value="all">Tous</option></select></label>\n<label>Lien événement<select id="event_relation"><option value="all">Tous</option></select></label>\n'''
     if 'id="graphic_class"' not in h:
         h=h.replace('<label>Confiance<select id="min_confidence">',extra+'<label>Confiance<select id="min_confidence">')
     h=re.sub(r"const axes=\[[^;]+\];", "const axes=['family','visual_role','context','scope_kind','scope_id','tech_kind','graphic_class','event_id','event_relation'];", h, count=1)
     h=h.replace("['q','family','visual_role','context','scope_kind','scope_id','tech_kind','min_confidence']","['q','family','visual_role','context','scope_kind','scope_id','tech_kind','graphic_class','event_id','event_relation','min_confidence']")
     h=h.replace('o.textContent=`${x.value} (${x.count})`','o.textContent=`${x.label||x.value} (${x.count})`')
-    h=h.replace("${kv('Technique',a.tech_kind)}", "${kv('Technique',a.tech_kind)}${kv('Graphique ?',a.graphic_class)}")
+    h=h.replace("${kv('Technique',a.tech_kind)}", "${kv('Technique',a.tech_kind)}${kv('Graphique ?',a.graphic_class+(a.graphic_conf?' · '+Math.round(a.graphic_conf*100)+' %':''))}")
     h=h.replace("${kv('Périmètre',a.scope_name||a.scope_kind)}", "${kv('Périmètre',a.scope_name||a.scope_kind)}${kv('Événement',(a.event_links||[]).map(x=>x.event_name+' ['+x.relation+']').join(' · '))}")
+    capture_old="['Technique',a.tech_kind+(currentRenderMeta?.objectName?' · '+currentRenderMeta.objectName:'')]"
+    capture_new="['Technique',a.tech_kind+(currentRenderMeta?.objectName?' · '+currentRenderMeta.objectName:'')],['Graphique ?',a.graphic_class+(a.graphic_conf?' · '+Math.round(a.graphic_conf*100)+' %':'')],['Événement',(a.event_links||[]).map(x=>x.event_name+' ['+x.relation+']').join(' · ')||'—']"
+    h=h.replace(capture_old,capture_new)
     return h.encode('utf-8')
 
 
