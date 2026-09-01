@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from pathlib import Path
 from collections import Counter
-import json, re, sqlite3, sys
+import json, sqlite3, sys
 
 ROOT = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else Path(__file__).resolve().parents[1]
 DB = Path.home() / '.cache/wfgg-lastwar-v31/graphics-catalog-v31.sqlite3'
@@ -50,6 +50,12 @@ def has_any(text: str, toks) -> list[str]:
     return [t for t in toks if t in text]
 
 
+def evidence(prefix: str, values, extra: list[str] | None = None) -> list[str]:
+    out=[prefix+x for x in list(values)[:4]]
+    if extra:out.extend(extra)
+    return out
+
+
 def classify(row: sqlite3.Row):
     tech=(row['tech_kind'] or '').lower()
     role=(row['visual_role'] or '').lower()
@@ -67,21 +73,21 @@ def classify(row: sqlite3.Row):
     if role in ROLE_2D:
         return '2D',0.96,['visual-role:'+role], '2d-image'
     if h2 and not h3 and tech not in GEOMETRY_3D_TECH:
-        return '2D',0.90,['2d-path:'+x for x in h2[:4]], '2d-image'
+        return '2D',0.90,evidence('2d-path:',h2), '2d-image'
 
     if tech in GEOMETRY_3D_TECH:
         return '3D',0.995,['technical-kind:'+tech], 'geometry'
     if h3 and tech not in DIRECT_2D_TECH:
         if tech in PREFAB_TECH:
-            return 'Composant 3D',0.95,['3d-path:'+x for x in h3[:4],'technical-kind:prefab'], 'prefab'
+            return 'Composant 3D',0.95,evidence('3d-path:',h3,['technical-kind:prefab']), 'prefab'
         if tech in THREE_D_COMPONENT_TECH:
             role3='material' if tech=='material' else 'shader'
-            return 'Composant 3D',0.96,['3d-path:'+x for x in h3[:4],'technical-kind:'+tech], role3
+            return 'Composant 3D',0.96,evidence('3d-path:',h3,['technical-kind:'+tech]), role3
         if tech in ANIM_TECH:
-            return 'Composant 3D',0.93,['3d-path:'+x for x in h3[:4],'technical-kind:'+tech], 'animation'
-        if tech in {'unknown',''} and (family in FAMILY_3D or len(h3)>=1):
-            return '3D',0.84,['3d-path:'+x for x in h3[:4]], 'geometry-candidate'
-        return 'Composant 3D',0.88,['3d-path:'+x for x in h3[:4]], 'component'
+            return 'Composant 3D',0.93,evidence('3d-path:',h3,['technical-kind:'+tech]), 'animation'
+        if tech in {'unknown',''} and (family in FAMILY_3D or h3):
+            return '3D',0.84,evidence('3d-path:',h3), 'geometry-candidate'
+        return 'Composant 3D',0.88,evidence('3d-path:',h3), 'component'
 
     if tech in THREE_D_COMPONENT_TECH:
         role3='material' if tech=='material' else 'shader'
@@ -91,10 +97,10 @@ def classify(row: sqlite3.Row):
     if tech in ANIM_TECH:
         return 'Mixte 2D/3D',0.62,['technical-kind:'+tech,'context-not-resolved'],'animation'
     if hc:
-        return 'Mixte 2D/3D',0.60,['component-path:'+x for x in hc[:4]],'component'
+        return 'Mixte 2D/3D',0.60,evidence('component-path:',hc),'component'
 
     if hn:
-        return 'Non visuel',0.92,['non-visual-path:'+x for x in hn[:4]],'none'
+        return 'Non visuel',0.92,evidence('non-visual-path:',hn),'none'
     if (row['graphic_class'] or '')=='Non graphique':
         return 'Non visuel',0.86,['graphic-class:Non graphique'],'none'
 
@@ -127,10 +133,10 @@ def main():
     counts=Counter();roles=Counter();total=0
     rows=con.execute('SELECT stable_id,asset_path,logical_name,alias_name,visual_role,family,tech_kind,graphic_class FROM assets')
     for row in rows:
-        dclass,conf,evidence,mrole=classify(row)
+        dclass,conf,ev,mrole=classify(row)
         folder=parent_folder(str(row['asset_path'] or row['logical_name'] or ''))
         con.execute('UPDATE assets SET dimension_class=?,dimension_conf=?,dimension_evidence_json=?,model_role=?,asset_folder=? WHERE stable_id=?',
-                    (dclass,conf,json.dumps(evidence,ensure_ascii=False,separators=(',',':')),mrole,folder,row['stable_id']))
+                    (dclass,conf,json.dumps(ev,ensure_ascii=False,separators=(',',':')),mrole,folder,row['stable_id']))
         counts[dclass]+=1;roles[mrole]+=1;total+=1
         if total%20000==0:print('V33_DIMENSION_PROGRESS',total,flush=True)
     rebuild_facets(con);con.commit();con.close()
