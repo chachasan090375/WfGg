@@ -5,7 +5,7 @@
     {"id":"generic","label":"Jeu générique","description":"Ressource explicitement commune/permanente au jeu."},
     {"id":"feature","label":"Fonction permanente","description":"Ressource liée à un module permanent (héros, formation, alliance, boutique, carte, etc.)."},
     {"id":"event","label":"Événement","description":"Ressource rattachée à un événement identifié."},
-    {"id":"recurring-event","label":"Événement récurrent","description":"Événement revenant périodiquement ; la périodicité n'est renseignée que si elle est prouvée."},
+    {"id":"recurring-event","label":"Événement récurrent","description":"Événement revenant périodiquement ; la cadence exacte n'est renseignée que si elle est prouvée."},
     {"id":"season","label":"Saison","description":"Ressource explicitement liée à une saison."},
     {"id":"interseason","label":"Inter-Saison","description":"Ressource explicitement liée à une phase inter-saison / pré-saison identifiable."},
     {"id":"limited","label":"Temps limité","description":"Contenu limité dans le temps sans événement/saison suffisamment identifié."},
@@ -13,30 +13,33 @@
     {"id":"regional","label":"Régional / langue","description":"Variante graphique propre à une région ou langue."},
     {"id":"unknown","label":"Non déterminé","description":"Aucune preuve suffisante pour décider ; ne jamais convertir automatiquement en générique."}
   ],
-  "families": [
-    "characters","vehicles","buildings","weapons-equipment","units","objects-resources","world-environment","events","ui","effects","unknown"
-  ],
-  "visualRoles": [
-    "icon","portrait","illustration","background","frame","button","badge","texture","sprite-atlas","model-surface","effect","loading","unknown"
-  ],
-  "contexts": [
-    "hero","formation","combat","base","world-map","alliance","shop","inventory","season","event","mission","reward","tutorial","unknown"
-  ],
-  "technicalKinds": [
-    "sprite","texture2d","atlas","material","prefab","mesh","animation","animator","render-target","shader","unknown"
-  ],
+  "families": ["characters","vehicles","buildings","weapons-equipment","units","objects-resources","world-environment","events","ui","effects","unknown"],
+  "visualRoles": ["icon","portrait","illustration","background","frame","button","badge","texture","sprite-atlas","model-surface","effect","loading","unknown"],
+  "contexts": ["hero","formation","combat","base","world-map","alliance","shop","inventory","season","event","mission","reward","tutorial","unknown"],
+  "technicalKinds": ["sprite","texture2d","atlas","material","prefab","mesh","animation","animator","render-target","shader","unknown"],
   "scopeDiscovery": {
     "eventAnchors": ["event","events","activity","activities"],
     "seasonAnchors": ["season","seasons"],
     "interseasonTokens": ["interseason","inter-season","inter_season","preseason","pre-season","pre_season"],
+    "recurringTokens": ["recurring","repeat","weekly","monthly"],
     "limitedTokens": ["limited","timelimit","time_limit","limitedtime","limited_time"],
     "collaborationTokens": ["collab","collaboration","crossover"],
     "genericTokens": ["common","shared","global","generic","default"],
     "regionalTokens": ["_jp","_kr","_cn","_tw","_en","_fr","_it","_es"]
   },
+  "knownScopes": [
+    {
+      "id":"bounty-hunter",
+      "kind":"recurring-event",
+      "name":"Chasseur de prime",
+      "aliases":["chasseur de prime","bounty hunter","bounty-hunter","bounty_hunter","bountyhunter"],
+      "recurrence":"periodic-unspecified",
+      "note":"Le caractère récurrent est connu ; ne pas déduire une cadence mensuelle exacte sans preuve supplémentaire dans les données du jeu."
+    }
+  ],
   "searchAliases": {
-    "chasseur de prime": ["bounty hunter","bounty-hunter","bounty_hunter"],
-    "bounty hunter": ["chasseur de prime","bounty-hunter","bounty_hunter"],
+    "chasseur de prime": ["bounty hunter","bounty-hunter","bounty_hunter","bountyhunter"],
+    "bounty hunter": ["chasseur de prime","bounty-hunter","bounty_hunter","bountyhunter"],
     "avion": ["aircraft","plane","airplane"],
     "char": ["tank"],
     "drone": ["uav"],
@@ -49,6 +52,7 @@
     "preserveEvidence": true,
     "confidencePerFacet": true,
     "candidateEdgesAreNotExact": true,
-    "manualOverridesWin": true
+    "manualOverridesWin": true,
+    "scopeCanBeInferredFromPathBundleObjectAndDependencies": true
   }
 }
