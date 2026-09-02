@@ -1,0 +1,54 @@
+{
+  "schema": "wfgg-lastwar-hero-registry-v1",
+  "generated_at": "2026-09-02",
+  "purpose": [
+    "hero filtering in global graphics LAB",
+    "link western names, internal game aliases and hero IDs",
+    "future cross-module asset lookup"
+  ],
+  "rules": {
+    "direct": "western name, hero ID, or a non-ambiguous internal alias is present in indexed asset metadata",
+    "related-folder": "asset shares an exact logical folder with a direct hero asset",
+    "related-bundle": "asset shares the exact owning bundle with a direct hero asset and remains in a hero/vehicle/equipment context",
+    "no_ambiguous_alias_promotion": "ambiguous generic aliases are not used alone to assign a hero"
+  },
+  "heroes": [
+    {"hero_id":30002,"confidence":"high","western_name":"Loki","aliases":["Loki","30002"],"internal_aliases":["blackwidow","black_widow"],"auto_link_aliases":["loki","blackwidow","black_widow"]},
+    {"hero_id":30003,"confidence":"high","western_name":"Kane","aliases":["Kane","30003"],"internal_aliases":["basilone"],"auto_link_aliases":["kane","basilone"]},
+    {"hero_id":30004,"confidence":"high","western_name":"Ambolt","aliases":["Ambolt","30004"],"internal_aliases":["hager"],"auto_link_aliases":["ambolt","hager"]},
+    {"hero_id":30005,"confidence":"low","western_name":"Gump","aliases":["Gump","30005"],"internal_aliases":[],"auto_link_aliases":["gump"]},
+    {"hero_id":40007,"confidence":"high","western_name":"Elsa","aliases":["Elsa","40007"],"internal_aliases":["elsa"],"auto_link_aliases":["elsa"]},
+    {"hero_id":40008,"confidence":"high","western_name":"Farhad","aliases":["Farhad","40008"],"internal_aliases":["farhad"],"auto_link_aliases":["farhad"]},
+    {"hero_id":40009,"confidence":"high","western_name":"Richard","aliases":["Richard","40009"],"internal_aliases":["richard"],"auto_link_aliases":["richard"]},
+    {"hero_id":40013,"confidence":"medium","western_name":"Braz","aliases":["Braz","40013"],"internal_aliases":["lambo"],"auto_link_aliases":["braz","lambo"]},
+    {"hero_id":40015,"confidence":"high","western_name":"Cage","aliases":["Cage","40015"],"internal_aliases":["cage"],"auto_link_aliases":["cage"]},
+    {"hero_id":40016,"confidence":"high","western_name":"Maxwell","aliases":["Maxwell","40016"],"internal_aliases":["maxwell"],"auto_link_aliases":["maxwell"]},
+    {"hero_id":40020,"confidence":"high","western_name":"Monica","aliases":["Monica","40020"],"internal_aliases":["monica","japanmonica"],"auto_link_aliases":["monica","japanmonica"]},
+    {"hero_id":50006,"confidence":"medium","western_name":"Murphy","aliases":["Murphy","50006"],"internal_aliases":["audie"],"auto_link_aliases":["murphy","audie"]},
+    {"hero_id":50007,"confidence":"high","western_name":"Williams","aliases":["Williams","50007"],"internal_aliases":["rick"],"auto_link_aliases":["williams","rick"]},
+    {"hero_id":50008,"confidence":"medium","western_name":"Marshall","aliases":["Marshall","50008"],"internal_aliases":["nimitz","marshall"],"auto_link_aliases":["marshall","nimitz"]},
+    {"hero_id":50009,"confidence":"medium","western_name":"Kimberly","aliases":["Kimberly","50009"],"internal_aliases":["kimberly","katyusha_02"],"auto_link_aliases":["kimberly","katyusha_02"]},
+    {"hero_id":50010,"confidence":"medium","western_name":"Stetmann","aliases":["Stetmann","50010"],"internal_aliases":["stetman","stetmann"],"auto_link_aliases":["stetmann","stetman"]},
+    {"hero_id":50013,"confidence":"low","western_name":"McGregor","aliases":["McGregor","50013"],"internal_aliases":["ewan","mcgregor"],"auto_link_aliases":["mcgregor","ewan"]},
+    {"hero_id":50014,"confidence":"low","western_name":"Fiona","aliases":["Fiona","50014"],"internal_aliases":["fiona","katyusha_01"],"auto_link_aliases":["fiona","katyusha_01"]},
+    {"hero_id":50015,"confidence":"medium","western_name":"Swift","aliases":["Swift","50015"],"internal_aliases":["swift","tom","einstein"],"auto_link_aliases":["swift","tom","einstein"]},
+    {"hero_id":50016,"confidence":"medium","western_name":"Tesla","aliases":["Tesla","50016"],"internal_aliases":["tesla","tesila"],"auto_link_aliases":["tesla","tesila"]},
+    {"hero_id":50017,"confidence":"medium","western_name":"DVA","aliases":["DVA","50017"],"internal_aliases":["dva","d_va"],"auto_link_aliases":["dva","d_va"]},
+    {"hero_id":50018,"confidence":"low","western_name":"Schuyler","aliases":["Schuyler","50018"],"internal_aliases":["schuyler","sally","sally_ride"],"auto_link_aliases":["schuyler","sally","sally_ride"]},
+    {"hero_id":50019,"confidence":"low","western_name":"Carlie","aliases":["Carlie","50019"],"internal_aliases":["carlie","carly"],"auto_link_aliases":["carlie","carly"]},
+    {"hero_id":50020,"confidence":"medium","western_name":"Morrison","aliases":["Morrison","50020"],"internal_aliases":["morrison","morrison01"],"auto_link_aliases":["morrison","morrison01"]},
+    {"hero_id":50021,"confidence":"medium","western_name":"Lucius","aliases":["Lucius","50021"],"internal_aliases":["lucius","lucius01"],"auto_link_aliases":["lucius","lucius01"]},
+    {"hero_id":50022,"confidence":"medium","western_name":"Adam","aliases":["Adam","50022"],"internal_aliases":["adam","adam01"],"auto_link_aliases":["adam","adam01"]},
+    {"hero_id":50023,"confidence":"low","western_name":"Mason","aliases":["Mason","50023"],"internal_aliases":["mason"],"auto_link_aliases":["mason"]},
+    {"hero_id":50025,"confidence":"low","western_name":"Violet","aliases":["Violet","50025"],"internal_aliases":["violet"],"auto_link_aliases":["violet"]},
+    {"hero_id":50026,"confidence":"high","western_name":"Scarlett","aliases":["Scarlett","50026"],"internal_aliases":["scarlett","misshot","miss_hot"],"auto_link_aliases":["scarlett","misshot","miss_hot"]},
+    {"hero_id":50027,"confidence":"medium","western_name":"Sarah","aliases":["Sarah","50027"],"internal_aliases":["sarah","sara","sara03"],"auto_link_aliases":["sarah","sara","sara03"]},
+    {"hero_id":50028,"confidence":"high","western_name":"Venom","aliases":["Venom","50028"],"internal_aliases":["venom","alex"],"auto_link_aliases":["venom","alex"]}
+  ],
+  "evidence_sources": [
+    "WFGG_LASTWAR_PHASE39_ALL31_VEHICLE_IDENTITIES",
+    "WFGG_LASTWAR_PHASE53D_CURRENT15_EXACT_OBJECTKEY_SCENE_LINKS",
+    "WFGG_LASTWAR_PHASE33_MASTER_UI_ASSETS_REDACTED",
+    "WFGG_LASTWAR_PHASE22_CATALOG_BRIDGE_REDACTED"
+  ]
+}
