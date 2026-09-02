@@ -10,7 +10,8 @@ Goals:
 - Android-safe Texture2D decoding;
 - exact Sprite backing-texture resolution by loading selected bundle + exact local dependencies together;
 - exact MeshHandler 3D pipeline inherited from the V33 exact server;
-- no generated substitute artwork and no name-similarity replacement.
+- no generated substitute artwork and no name-similarity replacement;
+- never fall through from a requested Sprite to an unrelated decodable object in the closure.
 """
 
 from http.server import ThreadingHTTPServer
@@ -127,12 +128,7 @@ def _is_atlas_asset(a):
 
 
 def _materialize_closure(a, max_deps=18):
-    """Copy selected bundle + exact local dependency bundles before UnityPy opens them.
-
-    The normal mobile bundle cache is deliberately tiny.  Copying each proven slice to a
-    per-request closure directory prevents the LRU from deleting earlier dependencies and
-    lets one UnityPy Environment resolve external PPtrs by the serialized CAB names.
-    """
+    """Copy selected bundle + exact local dependency bundles before UnityPy opens them."""
     sid = a["stable_id"]
     base = CLOSURE_CACHE / sid
     if base.exists():
@@ -180,6 +176,21 @@ def _object_name(obj):
         return ""
 
 
+def _strong_candidates(rows):
+    """Keep only objects that are plausibly the requested catalogue row.
+
+    score_name gives 100 for an exact name and 75 for a strong substring match.  Once a strong
+    target exists in the closure, decoding must never fall through to unrelated score-0 objects.
+    """
+    if not rows:
+        return []
+    top = rows[0][0]
+    if top < 60:
+        return []
+    threshold = max(60, top - 25)
+    return [r for r in rows if r[0] >= threshold]
+
+
 def render_asset_unified(a):
     sid = a["stable_id"]
     cached = core.v31.RENDER_CACHE / (sid + "-unified.png")
@@ -217,8 +228,12 @@ def render_asset_unified(a):
         sprites.sort(key=lambda x:(x[0],len(x[1])), reverse=True)
         textures.sort(key=lambda x:(x[0],len(x[1])), reverse=True)
 
-        # First choice: exact Sprite PPtr now that exact dependency bundles coexist.
-        for score, name, obj in sprites[:80]:
+        strong_sprites = _strong_candidates(sprites)
+        strong_textures = _strong_candidates(textures)
+
+        # Only requested/correlated Sprite candidates are allowed.  A failed exact Sprite must not
+        # silently fall through to an unrelated decodable Sprite elsewhere in the dependency closure.
+        for score, name, obj in strong_sprites[:80]:
             try:
                 sprite = obj.read()
                 tex, pointer = _sprite_texture(sprite)
@@ -229,15 +244,32 @@ def render_asset_unified(a):
                 cached.parent.mkdir(parents=True, exist_ok=True)
                 img.save(cached, "PNG")
                 return cached, {
-                    "mode":"exact-closure-sprite","stableId":sid,"objectName":name,"objectType":"Sprite",
+                    "mode":"exact-closure-sprite-correlated","stableId":sid,"objectName":name,"objectType":"Sprite",
                     "matchScore":score,"textureFormat":fmt,"spritePointer":pointer,
                     "closureBundles":len(paths),"closureSources":closure_sources[:12],"objects":object_counts,
                 }
             except Exception as exc:
                 errors.append("Sprite:"+name+":"+type(exc).__name__+":"+str(exc))
 
-        # Texture2D is an exact render for Texture/Atlas assets.  For a .spriteatlas this
-        # correctly shows the real atlas image rather than inventing a crop.
+        # Safe fallback for a Sprite row: if the closure contains a Texture2D with the same/strongly
+        # matching asset name, that texture is a real representation of this requested asset and is
+        # preferable to an unrelated Sprite.  This also covers many .png icon rows whose Sprite PPtr
+        # is broken on Android while the matching Texture2D itself is fully decodable.
+        for score, name, obj in strong_textures[:80]:
+            try:
+                tex = obj.read()
+                img, fmt = codec.decode_texture2d(tex)
+                cached.parent.mkdir(parents=True, exist_ok=True)
+                img.save(cached, "PNG")
+                return cached, {
+                    "mode":"exact-closure-texture-name-match","stableId":sid,"objectName":name,"objectType":"Texture2D",
+                    "matchScore":score,"textureFormat":fmt,"closureBundles":len(paths),
+                    "closureSources":closure_sources[:12],"objects":object_counts,
+                }
+            except Exception as exc:
+                errors.append("Texture2D:"+name+":"+type(exc).__name__+":"+str(exc))
+
+        # Atlas/Texture rows may still legitimately expose a real atlas texture with a weak name.
         if _is_atlas_asset(a) or str(a.get("tech_kind") or "").lower() in {"texture2d","texture","atlas"}:
             for score, name, obj in textures[:80]:
                 try:
@@ -246,15 +278,14 @@ def render_asset_unified(a):
                     cached.parent.mkdir(parents=True, exist_ok=True)
                     img.save(cached, "PNG")
                     return cached, {
-                        "mode":"exact-closure-texture","stableId":sid,"objectName":name,"objectType":"Texture2D",
+                        "mode":"exact-closure-texture-atlas","stableId":sid,"objectName":name,"objectType":"Texture2D",
                         "matchScore":score,"textureFormat":fmt,"closureBundles":len(paths),
                         "closureSources":closure_sources[:12],"objects":object_counts,
                     }
                 except Exception as exc:
                     errors.append("Texture2D:"+name+":"+type(exc).__name__+":"+str(exc))
 
-        # For a Sprite asset, do NOT substitute an arbitrary dependency texture.
-        summary = " | ".join(errors[:8]) or "aucun Sprite/Texture2D correspondant"
+        summary = " | ".join(errors[:8]) or "aucun Sprite/Texture2D fortement corrélé au nom demandé"
         raise RuntimeError(
             "RUNTIME_EXACT_RASTER_UNRESOLVED: fermeture="+str(len(paths))+" bundles; "+summary
         )
@@ -277,7 +308,7 @@ if __name__ == "__main__":
     url = f"http://127.0.0.1:{core.PORT}/lab/lastwar-global-graphics-viewer-v33.html"
     print("=== WFGG LAST WAR GLOBAL GRAPHICS V33 — UNIFIED EXACT ANDROID ===", flush=True)
     print("V33_TEXTURE_FORMAT 49=ASTC_RGB_5x5 50=ASTC_RGB_6x6 51=ASTC_RGB_8x8", flush=True)
-    print("V33_SPRITE_RESOLVER selected+exact-dependencies multi-file-environment=ON", flush=True)
+    print("V33_SPRITE_RESOLVER strong-target-only texture-name-fallback=ON unrelated-fallthrough=OFF", flush=True)
     print("V33_EXACT_DEP_EDGES", dep_edges, flush=True)
     print(url, flush=True)
     ThreadingHTTPServer(("127.0.0.1", core.PORT), core.Handler).serve_forever()
