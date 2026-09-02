@@ -4,11 +4,16 @@
 /* Search/result correlation layer for V33 mobile LAB.
    The result strip is an UNBOUNDED LAZY STREAM over the current search, not a fixed 60/100-card sample.
    Pages are transport chunks only: they are appended automatically while the user scrolls or navigates.
-   Old searches/renders are invalidated so only the current query can drive the visible selection. */
+   Old searches/renders are invalidated so only the current query can drive the visible selection.
+
+   Viewer policy: runtime decode/reconstruction failures are diagnostic data, not browsing results.
+   They remain visible in the browser console for LAB debugging, but the viewer automatically skips
+   them and continues to the next renderable asset in the same logical search. */
 
 const PAGE_SIZE=120;                  // server maximum; transport size, NOT a result cap
 const NAV_PREFETCH_REMAINING=18;      // prefetch before Previous/Next reaches the loaded edge
 const SCROLL_PREFETCH_VIEWPORTS=2.0;  // append when less than 2 strip widths remain
+const AUTO_SKIP_RUNTIME_FAILURES=true;
 let generation=0;
 let activeController=null;
 let loadedOffset=0;
@@ -17,6 +22,9 @@ let hasMore=false;
 let loadingMore=false;
 let queryToken='';
 let scrollTimer=0;
+let skippedRuntime=new Set();
+let skippedRuntimeCount=0;
+let autoSkipBusy=false;
 
 function currentParams(offset=0){
   const p=params();
@@ -108,12 +116,73 @@ function installContinuousStrip(){
   strip.addEventListener('pointerup',()=>setTimeout(maybePrefetchFromScroll,80),{passive:true});
 }
 
+function runtimeFailureOnStage(){
+  const stage=document.querySelector('#stage');
+  if(!stage)return null;
+  const box=stage.querySelector('.errorbox');
+  if(!box)return null;
+  const details=box.querySelector('#errorDetails')?.textContent?.trim()||'';
+  const title=box.querySelector('h3')?.textContent?.trim()||'Rendu indisponible';
+  return {title,details};
+}
+
+function nextCandidateIndex(from){
+  for(let i=Math.max(0,from);i<items.length;i++){
+    const sid=items[i]?.stable_id;
+    if(sid&&!skippedRuntime.has(sid))return i;
+  }
+  return -1;
+}
+
+async function autoSkipRuntimeFailure(failedIndex,failedSid,gen){
+  if(!AUTO_SKIP_RUNTIME_FAILURES||autoSkipBusy||gen!==generation)return false;
+  const failure=runtimeFailureOnStage();
+  if(!failure)return false;
+
+  skippedRuntime.add(failedSid);
+  skippedRuntimeCount++;
+  console.warn('V33_RUNTIME_SKIPPED',failedSid,failure.title,failure.details);
+
+  const stage=document.querySelector('#stage');
+  if(stage)stage.innerHTML='<div class="empty">Recherche du prochain rendu disponible…</div>';
+
+  autoSkipBusy=true;
+  try{
+    let wanted=nextCandidateIndex(failedIndex+1);
+    while(wanted<0&&hasMore&&gen===generation){
+      const added=await loadMore('runtime-failure-skip');
+      if(!added)break;
+      wanted=nextCandidateIndex(failedIndex+1);
+    }
+    if(gen!==generation)return true;
+    if(wanted>=0){
+      setTimeout(()=>select(wanted),0);
+      return true;
+    }
+
+    // Nothing usable after this point. Try an earlier already-loaded result without looping.
+    for(let i=Math.min(failedIndex-1,items.length-1);i>=0;i--){
+      const sid=items[i]?.stable_id;
+      if(sid&&!skippedRuntime.has(sid)){
+        setTimeout(()=>select(i),0);
+        return true;
+      }
+    }
+
+    if(stage)stage.innerHTML='<div class="empty">Aucun autre rendu décodable dans cette sélection.</div>';
+    return true;
+  }finally{
+    autoSkipBusy=false;
+  }
+}
+
 runSearch=async function(){
   updateFilterSummary();
   const gen=++generation;
   idx=-1;currentAsset=null;currentModel?.destroy?.();currentModel=null;
   if(currentUrl){try{URL.revokeObjectURL(currentUrl)}catch{}currentUrl=null;}
   items=[];loadedOffset=0;totalMatches=0;hasMore=false;queryToken='';
+  skippedRuntime=new Set();skippedRuntimeCount=0;autoSkipBusy=false;
   document.querySelector('#stage').innerHTML='<div class="empty">Recherche…</div>';
   try{
     const d=await fetchPage(0,gen);if(!d)return;
@@ -133,19 +202,33 @@ runSearch=async function(){
 
 bindNav=function(){
   const p=document.querySelector('#prev'),n=document.querySelector('#next');
-  if(p)p.onclick=()=>{if(idx>0)select(idx-1);};
+  if(p)p.onclick=()=>{
+    let wanted=idx-1;
+    while(wanted>=0&&skippedRuntime.has(items[wanted]?.stable_id))wanted--;
+    if(wanted>=0)select(wanted);
+  };
   if(n)n.onclick=async()=>{
-    const wanted=idx+1;
+    let wanted=idx+1;
+    while(wanted<items.length&&skippedRuntime.has(items[wanted]?.stable_id))wanted++;
     if(wanted<items.length){select(wanted);maybePrefetchFromSelection();return;}
-    if(hasMore&&await loadMore('next-edge')&&wanted<items.length){select(wanted);maybePrefetchFromSelection();}
+    if(hasMore&&await loadMore('next-edge')){
+      wanted=idx+1;
+      while(wanted<items.length&&skippedRuntime.has(items[wanted]?.stable_id))wanted++;
+      if(wanted<items.length){select(wanted);maybePrefetchFromSelection();}
+    }
   };
 };
 
 // Prevent an old asynchronous render/model response from becoming visible after a new search.
+// Also make runtime decode/reconstruction failures transparent to normal browsing.
 const baseSelect=select;
 select=async function(i){
   if(i<0||i>=items.length)return;
   const gen=generation;const sid=items[i]?.stable_id;
+  if(skippedRuntime.has(sid)){
+    const wanted=nextCandidateIndex(i+1);
+    if(wanted>=0){setTimeout(()=>select(wanted),0);return;}
+  }
   await baseSelect(i);
   if(gen!==generation){
     const current=idx;if(current>=0&&current<items.length)setTimeout(()=>select(current),0);return;
@@ -153,6 +236,7 @@ select=async function(i){
   if(currentAsset?.stable_id!==sid){
     const current=idx;if(current>=0&&current<items.length)setTimeout(()=>select(current),0);return;
   }
+  if(await autoSkipRuntimeFailure(i,sid,gen))return;
   try{window.WFGGResultStripSync?.('smooth')}catch{}
   maybePrefetchFromSelection();
 };
@@ -165,7 +249,7 @@ const clear=document.querySelector('#clear');if(clear)clear.onclick=()=>resetFil
 
 installContinuousStrip();
 window.WFGGSearchCorrelation={
-  state:()=>({generation,loaded:items.length,total:totalMatches,hasMore,queryToken,pageSize:PAGE_SIZE,mode:'continuous-lazy-stream'}),
+  state:()=>({generation,loaded:items.length,total:totalMatches,hasMore,queryToken,pageSize:PAGE_SIZE,mode:'continuous-lazy-stream',autoSkipRuntimeFailures:AUTO_SKIP_RUNTIME_FAILURES,skippedRuntime:skippedRuntimeCount}),
   loadMore,
   maybePrefetchFromScroll
 };
