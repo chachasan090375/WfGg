@@ -49,6 +49,18 @@ BASE_MATERIALIZE = v31.materialize_bundle
 _apk_entries = None
 
 
+def _as_dict(row):
+    """Normalize sqlite3.Row/dict objects before using mapping helpers such as .get()."""
+    if row is None:
+        return None
+    if isinstance(row, dict):
+        return row
+    try:
+        return dict(row)
+    except Exception:
+        return row
+
+
 def _norm_entry(s: str) -> str:
     return str(s or '').replace('\\', '/').strip('/').casefold()
 
@@ -81,6 +93,7 @@ def apk_entry_index():
 
 def source_candidates(row):
     """Return actual source files/ZIP entries compatible with one indexed locator."""
+    row = _as_dict(row)
     seen = set()
     out = []
     table = str(row.get('table_fragment') or '')
@@ -139,6 +152,7 @@ def _physical_rows_for(a):
     rows = []
     seen = set()
     def add(d, why):
+        d = _as_dict(d)
         if not d:
             return
         key = (d.get('bundle_id'), d.get('offset_bytes'), d.get('span_bytes'), d.get('table_fragment'), d.get('fragment_entry'))
@@ -146,16 +160,18 @@ def _physical_rows_for(a):
             return
         seen.add(key); rows.append((dict(d), why))
     add(a, 'selected-row')
+    a = _as_dict(a)
     sid = str(a.get('render_source_stable_id') or '').strip()
     if sid:
         con = core.dbcon()
         r = con.execute('SELECT * FROM assets WHERE stable_id=?', (sid,)).fetchone()
         con.close()
-        add(dict(r) if r else None, 'render-source')
+        add(r, 'render-source')
     return rows
 
 
 def _mark_runtime_unavailable(a, reason):
+    a = _as_dict(a)
     sid = str(a.get('stable_id') or '')
     if not sid:
         return
@@ -171,6 +187,7 @@ def _mark_runtime_unavailable(a, reason):
 
 
 def enhanced_materialize(a):
+    a = _as_dict(a)
     # Keep every previously working path first.
     try:
         return BASE_MATERIALIZE(a)
@@ -188,7 +205,7 @@ def enhanced_materialize(a):
         if bid < 0 or off < 0 or span <= 0:
             continue
         for kind, source, entry in source_candidates(row):
-            label = why + ':' + kind + ':' + (Path(source).name if kind == 'apk' else Path(source).name) + ((':' + entry) if kind == 'apk' else '')
+            label = why + ':' + kind + ':' + Path(source).name + ((':' + entry) if kind == 'apk' else '')
             try:
                 raw, err = _read_slice(kind, source, entry, off, span)
             except Exception as exc:
@@ -220,6 +237,7 @@ def enhanced_materialize(a):
 
 
 def _source_exists_for(row, local_keys, apk_exact, apk_base):
+    row = _as_dict(row)
     entry = _norm_entry(row.get('fragment_entry') or '')
     table_base = _base(row.get('table_fragment') or '')
     entry_base = _base(entry)
@@ -251,10 +269,12 @@ def runtime_availability_audit():
             chunk = ids[pos:pos+800]
             ph = ','.join('?' for _ in chunk)
             for sr in con.execute('SELECT * FROM assets WHERE stable_id IN (' + ph + ')', chunk):
-                source_map[sr['stable_id']] = sr
+                # sqlite3.Row intentionally has no .get(); normalize immediately.
+                source_map[sr['stable_id']] = dict(sr)
     updates = []
     keep = demote = 0
-    for r in rows:
+    for raw in rows:
+        r = dict(raw)
         rep = r
         if r['render_availability'] == 'local-resolved' and r['render_source_stable_id']:
             rep = source_map.get(r['render_source_stable_id']) or r
