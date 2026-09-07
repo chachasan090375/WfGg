@@ -8,6 +8,7 @@
    - shares model-manifest promises with foreground navigation so a prewarm is never duplicated;
    - treats an exact prefab graph with no Mesh pointer as a legitimate non-autonomous VFX/component,
      not as a viewer failure;
+   - takes over an already-started legacy first selection without exposing its temporary error panel;
    - leaves final technical failures available only when every legitimate preview path has failed. */
 
 let previewSeq=0;
@@ -198,13 +199,40 @@ async function acceleratedSelect(i){
   bindErrorDetails();bindNav();markViewed(a);
 }
 
-// Install after search-correlation-v33.js: runSearch/renderList/bindNav will resolve this new function dynamically.
+function suppressLegacyBootFlash(stage){
+  if(!stage)return false;
+  const box=stage.querySelector('.errorbox');if(!box)return false;
+  const text=box.textContent||'';
+  if(!/Assemblage 3D indisponible|RUNTIME_3D_OBJECT_MISMATCH/.test(text))return false;
+  loading(stage,'Finalisation du modèle 3D…','Le moteur V34 poursuit la reconstruction exacte. Le diagnostic intermédiaire reste dans la console, pas à l’écran.');
+  return true;
+}
+
+// Install after search-correlation-v33.js: runSearch/renderList/bindNav resolve this function dynamically.
 select=acceleratedSelect;
+
+// The base HTML starts init() before the injected enhancement bundle has necessarily finished loading.
+// If its very first selection is already in flight, take it over immediately. A short-lived observer
+// suppresses only the legacy *intermediate* 3D mismatch panel; successful image/canvas output ends it.
+const bootStage=document.querySelector('#stage');
+const bootIndex=idx;
+let bootGuard=null;
+if(bootStage&&bootIndex>=0&&currentAsset){
+  suppressLegacyBootFlash(bootStage);
+  bootGuard=new MutationObserver(()=>{
+    if(bootStage.querySelector('canvas,#assetImg')){bootGuard?.disconnect();bootGuard=null;return;}
+    suppressLegacyBootFlash(bootStage);
+  });
+  bootGuard.observe(bootStage,{childList:true,subtree:true});
+  setTimeout(()=>{bootGuard?.disconnect();bootGuard=null;},25000);
+  setTimeout(()=>{if(idx===bootIndex)acceleratedSelect(bootIndex);},0);
+}
+
 window.WFGGPreviewAccelerator={
-  version:'34.4',
+  version:'34.5',
   modelCandidate,
   warmModel,
   state:()=>({previewSeq,manifestCache:modelManifestCache.size,warmJobs:warmJobs.size,viewerCache:window.WFGGModelViewer?.cacheStats?.()||null})
 };
-console.info('V34_PREVIEW_ACCEL installed neutral-fallback=ON exact-no-mesh=NONAUTONOMOUS model-prewarm='+MAX_WARM_AHEAD);
+console.info('V34_PREVIEW_ACCEL installed boot-takeover=ON interim-3d-error-flash=OFF exact-no-mesh=NONAUTONOMOUS model-prewarm='+MAX_WARM_AHEAD);
 })();
