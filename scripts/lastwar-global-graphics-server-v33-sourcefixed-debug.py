@@ -14,6 +14,7 @@ BASE = ROOT / 'scripts/lastwar-global-graphics-server-v33-sourcefixed.py'
 JS = ROOT / 'frontend/lab/global-graphics-v33/search-correlation-v33.js'
 ACCEL = ROOT / 'frontend/lab/global-graphics-v33/preview-accelerator-v34.js'
 MODEL_JS = ROOT / 'frontend/lab/global-graphics-v33/model-viewer-v33.js'
+EXPLORER_JS = ROOT / 'frontend/lab/global-graphics-v33/explorer-v33.js'
 PTR3D = ROOT / 'scripts/lastwar-global-graphics-ptrmodel-fast-v34.py'
 # New cache generation: never reuse 3401 manifests/OBJ files produced while model-file paths were
 # still being repaired. This removes stale 404s without asking the user to delete anything.
@@ -118,6 +119,12 @@ class DebugHandler(m.c.CorrelatedHandler):
             _send_js(self, MODEL_JS)
             return
 
+        # Explorer is loaded last and owns selection semantics (instant strip centering + animation
+        # components). It also must never remain stale after a LAB patch.
+        if u.path == '/lab/global-graphics-v33/explorer-v33.js':
+            _send_js(self, EXPLORER_JS)
+            return
+
         if u.path == '/lab/global-graphics-v33/search-correlation-v33.js':
             raw = JS.read_text('utf-8').replace(
                 'const AUTO_SKIP_RUNTIME_FAILURES=true;',
@@ -165,6 +172,7 @@ if __name__ == '__main__':
     print('V34_PTR3D staged-fast-exact=ON transforms-baked=ON cache=models-v33-ptr-3402', flush=True)
     print('V34_MODEL_FILE multi-cache-exact-recovery=ON', flush=True)
     print('V34_MODEL_VIEWER no-store=ON early-error-shield=ON', flush=True)
+    print('V34_EXPLORER_JS no-store=ON selection-semantics=ON', flush=True)
     print('V34_PREVIEW_ACCEL neutral-fallback=ON neighbor-prewarm=ON', flush=True)
     print('V33_SOURCE_AUDIT', repr(m.AUDIT), flush=True)
     print(f'http://127.0.0.1:{m.core.PORT}/lab/lastwar-global-graphics-viewer-v33.html', flush=True)
