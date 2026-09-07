@@ -163,10 +163,26 @@ function installSelectionSemantics(){
 async function refreshStatus(){
   try{
     const r=await fetch('/api/v33/explorer-status',{cache:'no-store'});if(!r.ok)return;
-    const d=await r.json();window.WFGGExplorerV33={version:'36.0',status:d,ready:true,accelerator:!!window.WFGGPreviewAccelerator,textureViewer:window.WFGGModelViewer?.cacheStats?.()?.uvTextureViewer||null,fastSimilarity:!!window.WFGGFastSimilarityV35,visualSimilarity:!!window.WFGGVisualSimilarityV36};
-  }catch(e){window.WFGGExplorerV33={version:'36.0',ready:false,error:String(e)};}
+    const d=await r.json();window.WFGGExplorerV33={version:'36.1',status:d,ready:true,accelerator:!!window.WFGGPreviewAccelerator,textureViewer:window.WFGGModelViewer?.cacheStats?.()?.uvTextureViewer||null,fastSimilarity:!!window.WFGGFastSimilarityV35,visualSimilarity:!!window.WFGGVisualSimilarityV36,strictVisualGuard:!!window.WFGGStrictVisualV361};
+  }catch(e){window.WFGGExplorerV33={version:'36.1',ready:false,error:String(e)};}
 }
 
 installTransientErrorGuard();ensureAccelerator();installSelectionSemantics();ensureV35Tools();ensureV35TextureExperience();ensureV35FastSimilarity();
 setTimeout(installSelectionSemantics,60);setTimeout(installSelectionSemantics,250);setTimeout(ensureV35Tools,400);setTimeout(ensureV35TextureExperience,500);setTimeout(ensureV35FastSimilarity,700);setTimeout(ensureV36VisualSimilarity,950);refreshStatus();
+})();
+
+(()=>{
+'use strict';
+function ensureV361StrictVisual(){
+  if(window.WFGGStrictVisualV361)return;
+  if(!window.WFGGVisualSimilarityV36){setTimeout(ensureV361StrictVisual,120);return;}
+  if(document.querySelector('script[data-wfgg-v361-strict-visual]'))return;
+  const s=document.createElement('script');
+  s.src='/lab/global-graphics-v33/similarity-visual-v361.js?v=361';
+  s.dataset.wfggV361StrictVisual='1';
+  s.onload=()=>console.info('V36_1_STRICT_VISUAL loader=OK default=VISUAL technical-sheets=EXCLUDED semantic-kind=STRICT');
+  s.onerror=()=>console.warn('V36_1_STRICT_VISUAL loader=MISS');
+  document.head.appendChild(s);
+}
+ensureV361StrictVisual();setTimeout(ensureV361StrictVisual,1200);setTimeout(ensureV361StrictVisual,1800);
 })();
