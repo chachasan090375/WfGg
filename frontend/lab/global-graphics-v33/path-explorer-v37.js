@@ -1,9 +1,11 @@
 (()=>{
 'use strict';
 
-/* WfGg V37 — real folder/subfolder explorer.
-   Uses the existing V33 /api/v33/path/children tree and path_prefix search support.
-   The tree is independent from free-text search and combines with normal filters once applied.
+/* WfGg V37.1 — real folder/subfolder explorer.
+   A folder exploration is deliberately independent from the previous free-text query.
+   "Afficher les aperçus" clears unrelated filters and keeps only local/previewable assets.
+   "Afficher tout" clears unrelated filters and shows every indexed asset under the selected path,
+   recursively including subfolders and technical texture sheets.
 */
 
 const API37='/api/v33';
@@ -16,6 +18,7 @@ let wrappersInstalled=false;
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const norm=s=>String(s||'').replace(/\\/g,'/').replace(/^\/+|\/+$/g,'');
 const byId=id=>document.getElementById(id);
+const RESET_IDS=['graphic_class','dimension_class','model_role','family','visual_role','context','scope_kind','event_id','event_relation','tech_kind'];
 
 function injectStyle(){
   if(byId('wfggPathExplorerStyle'))return;
@@ -49,9 +52,9 @@ function ensureDialog(){
         <div id="pathFolders" class="path-folders"></div>
         <div class="path-actions">
           <button id="pathShowVisible" class="primary">Afficher les aperçus du dossier</button>
-          <button id="pathShowAll">Afficher tout le dossier</button>
+          <button id="pathShowAll">Afficher TOUT le dossier</button>
         </div>
-        <div class="modal-note">Un dossier sélectionné inclut ses sous-dossiers. « Afficher les aperçus » conserve le rendu local et les statuts affichables/probables. « Afficher tout » désactive ces deux restrictions pour explorer l’intégralité du chemin.</div>
+        <div class="modal-note">Le dossier choisi inclut récursivement ses sous-dossiers. L’ouverture d’un dossier efface la recherche texte précédente et les filtres de catégorie. « Aperçus » conserve uniquement les assets locaux affichables/probables. « TOUT » montre l’intégralité du chemin indexé, textures et composants techniques compris.</div>
       </div>
       <div class="modal-foot"><button id="pathClear" class="clear">Effacer le dossier actif</button><button id="pathCloseBottom">Fermer</button></div>
     </div>`;
@@ -88,8 +91,12 @@ function breadcrumbs(path){
 function renderFolders(data,searchMode=false){
   const box=byId('pathFolders'),status=byId('pathFolderStatus');if(!box)return;box.innerHTML='';
   const folders=data?.folders||[];
-  status.textContent=searchMode?`${folders.length} dossier(s) trouvé(s)`:`${folders.length} sous-dossier(s)`;
-  if(!folders.length){box.innerHTML='<div class="path-empty">Aucun sous-dossier à ce niveau.</div>';return;}
+  if(!searchMode&&data?.current){
+    const count=Number(data.current.total_assets||0);
+    byId('pathCurrent').textContent=(browsePath||'Racine')+(count?` · ${count.toLocaleString('fr-FR')} assets indexés`: '');
+  }
+  status.textContent=searchMode?`${folders.length} dossier(s) trouvé(s)`:`${folders.length} sous-dossier(s) · le bouton TOUT explore également tous leurs contenus`;
+  if(!folders.length){box.innerHTML='<div class="path-empty">Aucun sous-dossier à ce niveau. Tu peux quand même afficher tous les assets contenus dans ce dossier.</div>';return;}
   for(const f of folders){
     const b=document.createElement('button');b.className='path-folder';
     b.innerHTML=`<span><strong>📁 ${esc(f.name||f.full_path||'dossier')}</strong><small>${esc(f.full_path||'')}</small></span><span class="path-count">${Number(f.total_assets||0).toLocaleString('fr-FR')} assets</span>`;
@@ -114,13 +121,29 @@ function openExplorer(path=''){
   ensureDialog();const d=byId('pathExplorerDialog');browsePath=norm(path||activePath);byId('pathFolderQuery').value='';d.showModal();loadPath(browsePath);
 }
 
+function setTexturePolicy(showAll){
+  const sel=byId('texture_sheet_visibility');
+  try{localStorage.setItem('wfgg-hide-model-texture-sheets-v35',showAll?'show':'hide');}catch{}
+  if(sel){sel.value=showAll?'show':'hide';sel.dispatchEvent(new Event('change',{bubbles:true}));}
+}
+function prepareFolderMode(previewOnly){
+  // Folder exploration must not inherit a previous Murphy/text search or category filter.
+  const q=byId('q');if(q)q.value='';
+  for(const id of RESET_IDS){const el=byId(id);if(el)el.value='all';}
+  const mc=byId('min_confidence');if(mc)mc.value='';
+  const ra=byId('render_availability');if(ra)ra.value=previewOnly?'local-renderable':'all';
+  const ps=byId('preview_status');if(ps)ps.value=previewOnly?'previewable':'all';
+  setTexturePolicy(!previewOnly);
+  try{window.WFGGVisualSimilarityV36?.setMode?.('visual');}catch{}
+}
 function applyPath(previewOnly){
-  activePath=norm(browsePath);refreshButton();
-  if(previewOnly){const ra=byId('render_availability');if(ra)ra.value='local-renderable';const ps=byId('preview_status');if(ps)ps.value='previewable';}
-  else{const ra=byId('render_availability');if(ra)ra.value='all';const ps=byId('preview_status');if(ps)ps.value='all';}
+  const chosen=norm(browsePath);if(!chosen)return;
+  prepareFolderMode(previewOnly);
+  activePath=chosen;browsePath=chosen;refreshButton();
   try{updateFilterSummary?.();}catch{}
   byId('pathExplorerDialog')?.close();
   if(typeof runSearch==='function')runSearch();
+  console.info('V37_1_PATH_APPLY',previewOnly?'PREVIEW':'ALL','path='+activePath,'text-query=CLEARED filters=RESET recursive=ON textures='+(previewOnly?'HIDDEN':'INCLUDED'));
 }
 function clearActivePath(run=true){activePath='';browsePath='';refreshButton();try{updateFilterSummary?.();}catch{}if(byId('pathExplorerDialog')?.open)loadPath('');if(run&&typeof runSearch==='function')runSearch();}
 
@@ -133,7 +156,7 @@ function installQueryIntegration(){
   if(typeof resetFilters==='function'){
     const baseReset=resetFilters;resetFilters=function(run=true){activePath='';browsePath='';refreshButton();return baseReset(run);};
   }
-  console.info('V37_PATH_EXPLORER query-integration=ON recursive-path-prefix=ON');return true;
+  console.info('V37_1_PATH_EXPLORER query-integration=ON recursive-path-prefix=ON independent-folder-mode=ON');return true;
 }
 
 function installMetaFolderButton(){
@@ -147,7 +170,7 @@ function boot(){
   injectStyle();ensureDialog();ensureOpenButton();
   const q=installQueryIntegration(),m=installMetaFolderButton();
   if(!q||!m)setTimeout(boot,150);
-  else{installed=true;window.WFGGPathExplorerV37={version:'37.0',open:openExplorer,clear:clearActivePath,state:()=>({activePath,browsePath})};console.info('V37_PATH_EXPLORER ready tree=ON breadcrumbs=ON folder-search=ON');}
+  else{installed=true;window.WFGGPathExplorerV37={version:'37.1',open:openExplorer,clear:clearActivePath,state:()=>({activePath,browsePath})};console.info('V37_1_PATH_EXPLORER ready tree=ON breadcrumbs=ON folder-search=ON exhaustive-folder-mode=ON');}
 }
 boot();
 })();
