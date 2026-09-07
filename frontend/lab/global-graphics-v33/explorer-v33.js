@@ -163,8 +163,8 @@ function installSelectionSemantics(){
 async function refreshStatus(){
   try{
     const r=await fetch('/api/v33/explorer-status',{cache:'no-store'});if(!r.ok)return;
-    const d=await r.json();window.WFGGExplorerV33={version:'36.1',status:d,ready:true,accelerator:!!window.WFGGPreviewAccelerator,textureViewer:window.WFGGModelViewer?.cacheStats?.()?.uvTextureViewer||null,fastSimilarity:!!window.WFGGFastSimilarityV35,visualSimilarity:!!window.WFGGVisualSimilarityV36,strictVisualGuard:!!window.WFGGStrictVisualV361};
-  }catch(e){window.WFGGExplorerV33={version:'36.1',ready:false,error:String(e)};}
+    const d=await r.json();window.WFGGExplorerV33={version:'37.0',status:d,ready:true,accelerator:!!window.WFGGPreviewAccelerator,textureViewer:window.WFGGModelViewer?.cacheStats?.()?.uvTextureViewer||null,fastSimilarity:!!window.WFGGFastSimilarityV35,visualSimilarity:!!window.WFGGVisualSimilarityV36,strictVisualGuard:!!window.WFGGStrictVisualV361,pathExplorer:!!window.WFGGPathExplorerV37};
+  }catch(e){window.WFGGExplorerV33={version:'37.0',ready:false,error:String(e)};}
 }
 
 installTransientErrorGuard();ensureAccelerator();installSelectionSemantics();ensureV35Tools();ensureV35TextureExperience();ensureV35FastSimilarity();
@@ -185,4 +185,20 @@ function ensureV361StrictVisual(){
   document.head.appendChild(s);
 }
 ensureV361StrictVisual();setTimeout(ensureV361StrictVisual,1200);setTimeout(ensureV361StrictVisual,1800);
+})();
+
+(()=>{
+'use strict';
+function ensureV37PathExplorer(){
+  if(window.WFGGPathExplorerV37)return;
+  if(!window.WFGGStrictVisualV361){setTimeout(ensureV37PathExplorer,150);return;}
+  if(document.querySelector('script[data-wfgg-v37-path-explorer]'))return;
+  const s=document.createElement('script');
+  s.src='/lab/global-graphics-v33/path-explorer-v37.js?v=370';
+  s.dataset.wfggV37PathExplorer='1';
+  s.onload=()=>console.info('V37_PATH_EXPLORER loader=OK folders=ON breadcrumbs=ON path-filter=ON');
+  s.onerror=()=>console.warn('V37_PATH_EXPLORER loader=MISS');
+  document.head.appendChild(s);
+}
+ensureV37PathExplorer();setTimeout(ensureV37PathExplorer,2200);setTimeout(ensureV37PathExplorer,3200);
 })();
