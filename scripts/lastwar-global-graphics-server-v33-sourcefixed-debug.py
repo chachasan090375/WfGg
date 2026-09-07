@@ -13,6 +13,7 @@ ROOT = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else Path(__file__).reso
 BASE = ROOT / 'scripts/lastwar-global-graphics-server-v33-sourcefixed.py'
 JS = ROOT / 'frontend/lab/global-graphics-v33/search-correlation-v33.js'
 ACCEL = ROOT / 'frontend/lab/global-graphics-v33/preview-accelerator-v34.js'
+MODEL_JS = ROOT / 'frontend/lab/global-graphics-v33/model-viewer-v33.js'
 PTR3D = ROOT / 'scripts/lastwar-global-graphics-ptrmodel-fast-v34.py'
 # New cache generation: never reuse 3401 manifests/OBJ files produced while model-file paths were
 # still being repaired. This removes stale 404s without asking the user to delete anything.
@@ -28,6 +29,7 @@ spec.loader.exec_module(m)
 # final fallback. The shared model cache is also the primary directory served by /api/v33/model-file.
 ptrspec = importlib.util.spec_from_file_location('wfgg_v34_ptrmodel_fast', PTR3D)
 ptr3d = importlib.util.module_from_spec(ptrspec)
+spec.loader.exec_module(m) if False else None
 ptrspec.loader.exec_module(ptr3d)
 ptr3d.install(m.c.core, m.c, PTR3D_CACHE, m.c.mobile.ORIGINAL_DEPENDENCY_ROWS)
 print('V34_PTR3D_INSTALLED staged-fast-exact=ON transforms-baked=ON cache=models-v33-ptr-3402', flush=True)
@@ -94,9 +96,28 @@ def _find_model_file(sid, rel):
     return None, None
 
 
+def _send_js(handler, path):
+    raw = path.read_bytes()
+    handler.send_response(200)
+    handler.send_header('Content-Type', 'application/javascript; charset=utf-8')
+    handler.send_header('Content-Length', str(len(raw)))
+    handler.send_header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+    handler.send_header('Pragma', 'no-cache')
+    handler.send_header('Expires', '0')
+    handler.end_headers()
+    handler.wfile.write(raw)
+
+
 class DebugHandler(m.c.CorrelatedHandler):
     def do_GET(self):
         u = urlparse(self.path)
+
+        # model-viewer is parsed before the legacy inline init() call. It now contains the earliest
+        # transient-error shield, so it must never be allowed to remain stale in Chrome's cache.
+        if u.path == '/lab/global-graphics-v33/model-viewer-v33.js':
+            _send_js(self, MODEL_JS)
+            return
+
         if u.path == '/lab/global-graphics-v33/search-correlation-v33.js':
             raw = JS.read_text('utf-8').replace(
                 'const AUTO_SKIP_RUNTIME_FAILURES=true;',
@@ -109,6 +130,8 @@ class DebugHandler(m.c.CorrelatedHandler):
             self.send_header('Content-Type', 'application/javascript; charset=utf-8')
             self.send_header('Content-Length', str(len(data)))
             self.send_header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+            self.send_header('Pragma', 'no-cache')
+            self.send_header('Expires', '0')
             self.end_headers()
             self.wfile.write(data)
             return
@@ -141,6 +164,7 @@ if __name__ == '__main__':
     print('V33_AUTO_SKIP runtime-failures=OFF (diagnostic mode)', flush=True)
     print('V34_PTR3D staged-fast-exact=ON transforms-baked=ON cache=models-v33-ptr-3402', flush=True)
     print('V34_MODEL_FILE multi-cache-exact-recovery=ON', flush=True)
+    print('V34_MODEL_VIEWER no-store=ON early-error-shield=ON', flush=True)
     print('V34_PREVIEW_ACCEL neutral-fallback=ON neighbor-prewarm=ON', flush=True)
     print('V33_SOURCE_AUDIT', repr(m.AUDIT), flush=True)
     print(f'http://127.0.0.1:{m.core.PORT}/lab/lastwar-global-graphics-viewer-v33.html', flush=True)
