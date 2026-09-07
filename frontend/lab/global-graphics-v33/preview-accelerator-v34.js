@@ -1,11 +1,11 @@
 (()=>{
 'use strict';
 
-/* V34.6 mobile preview accelerator.
+/* V34.8 mobile preview accelerator.
    The legacy inline viewer can begin init() before injected enhancements finish loading. This file
    therefore guards the whole boot/navigation window, not only the instant at which it is loaded:
    transitional legacy 3D/2D errors are neutralized while the V34 exact model/raster path is still
-   working. Final V34 errors remain visible. */
+   working. Final V34 errors remain visible and are explicitly marked for the early shield. */
 
 let previewSeq=0;
 let rasterController=null;
@@ -18,6 +18,10 @@ const MAX_WARM_AHEAD=2;
 function roleOf(a){return String(a?.model_role||'').toLowerCase();}
 function dimOf(a){return String(a?.dimension_class||'');}
 function techOf(a){return String(a?.tech_kind||'').toLowerCase();}
+function pathOf(a){return String(a?.asset_path||a?.logical_name||a?.alias_name||'').replace(/\\/g,'/').toLowerCase();}
+function looksPrefabAsset(a){const p=pathOf(a);return p.endsWith('.prefab')||p.includes('/prefab/');}
+function looksEffectAsset(a){const p=pathOf(a);const tail=p.rsplit?null:null;return p.includes('/effect/')||p.includes('/effects/')||p.includes('/vfx/')||/(^|\/)(eff_|fx_|vfx_)/.test(p)||/particle|particlesystem|visualeffect/.test(p);}
+function targetNotFound(msg){return /RUNTIME_TARGET_OBJECT_NOT_FOUND/.test(String(msg||''));}
 function passive3DComponent(a){
   const r=roleOf(a);
   return dimOf(a)==='Composant 3D' && ['material','shader','animation','component','texture'].includes(r);
@@ -28,6 +32,10 @@ function modelCandidate(a){
   if(['geometry','geometry-candidate','prefab'].includes(r))return true;
   if(d==='3D'&&!['material','shader','animation','component','texture'].includes(r))return true;
   if(d==='Mixte 2D/3D'&&r!=='material'&&r!=='shader')return true;
+  // Many catalogue rows have dimension=Composant 3D but no model_role even though the exact
+  // source path is a prefab. Treat those as real model candidates instead of sending them only
+  // through the raster decoder (which is what produced the old TARGET_OBJECT_NOT_FOUND panel).
+  if(d==='Composant 3D'&&looksPrefabAsset(a)&&!['material','shader','animation','texture'].includes(r))return true;
   return false;
 }
 function rasterCandidate(a){
@@ -92,10 +100,13 @@ function markViewed(a){
 function componentNeutral(stage,a,modelError,rasterError){
   const label=roleOf(a)||'composant';
   const exactNoMesh=nonAutonomousModelError(modelError);
-  const headline=exactNoMesh?'Composant 3D sans Mesh autonome':'Composant 3D non autonome';
+  const missingTarget=looksEffectAsset(a)&&(targetNotFound(modelError)||targetNotFound(rasterError));
+  const headline=exactNoMesh?'Composant 3D sans Mesh autonome':missingTarget?'Effet 3D non autonome':'Composant 3D non autonome';
   const detail=exactNoMesh
     ?'Le graphe Unity exact de ce prefab a été trouvé, mais il ne référence aucun Mesh autonome. Il s’agit typiquement d’un effet, de particules ou d’un composant utilisé dans une scène.'
-    :`${label} : cet élément participe à un assemblage, mais ne contient pas forcément une géométrie ou une image affichable seul.`;
+    :missingTarget
+      ?'Ce prefab d’effet participe à une scène ou à un assemblage et ne possède pas de cible raster ou Mesh autonome identifiable à afficher seul.'
+      :`${label} : cet élément participe à un assemblage, mais ne contient pas forcément une géométrie ou une image affichable seul.`;
   stage.innerHTML=`<div class="empty"><b>${esc(headline)}</b><br><span class="hint">${esc(detail)}</span></div>${nav()}`;
   bindNav();console.debug('V34_COMPONENT_NO_STANDALONE_PREVIEW',a.stable_id,{modelError,rasterError});
 }
@@ -182,7 +193,9 @@ async function acceleratedSelect(i){
     }
   }
 
-  if(passive3DComponent(a)||nonAutonomousModelError(modelError)){
+  // A proven no-Mesh graph or an Effect/Prefab with no standalone target is a semantic component
+  // state, not a broken viewer. Keep its technical details in console/Termux instead of red UI.
+  if(passive3DComponent(a)||nonAutonomousModelError(modelError)||(looksEffectAsset(a)&&(targetNotFound(modelError)||targetNotFound(rasterError)))){
     componentNeutral(stage,a,modelError,rasterError);markViewed(a);scheduleWarm(i);return;
   }
 
@@ -190,14 +203,14 @@ async function acceleratedSelect(i){
   const details=[modelError&&('3D: '+modelError),rasterError&&('2D: '+rasterError)].filter(Boolean).join('\n\n')||'Aucun chemin de prévisualisation exploitable.';
   const kind=modelCandidate(a)?'3D':'2D';
   stage.innerHTML=legacyErrorMarkup(details,kind,'Toutes les voies de prévisualisation exactes ont été essayées. Cette erreur est maintenant définitive pour cet asset dans l’installation locale actuelle.')+nav();
+  const finalBox=stage.querySelector('.errorbox');if(finalBox)finalBox.dataset.v34Final='1';
   bindErrorDetails();bindNav();markViewed(a);
 }
 
 select=acceleratedSelect;
 
-/* Always-on guard for the first 30 seconds. The previous implementation only installed it when
-   idx>=0 at script-load time; if the script loaded a few milliseconds earlier, the legacy request
-   could later paint its red panel unguarded. */
+/* Always-on guard for the first 30 seconds. The early model-viewer guard is already active before
+   base init(); this second guard covers later legacy async responses that were already in flight. */
 const stageGuard=document.querySelector('#stage');
 let guardObserver=null;
 if(stageGuard){
@@ -217,8 +230,8 @@ function tryBootTakeover(){
 [0,40,120,300,700,1400].forEach(ms=>setTimeout(tryBootTakeover,ms));
 
 window.WFGGPreviewAccelerator={
-  version:'34.6',modelCandidate,warmModel,
+  version:'34.8',modelCandidate,warmModel,
   state:()=>({previewSeq,manifestCache:modelManifestCache.size,warmJobs:warmJobs.size,finalErrorVisible,viewerCache:window.WFGGModelViewer?.cacheStats?.()||null})
 };
-console.info('V34_PREVIEW_ACCEL installed persistent-boot-guard=ON legacy-errorMarkup=NEUTRAL singleflight-server=EXPECTED model-prewarm='+MAX_WARM_AHEAD);
+console.info('V34_PREVIEW_ACCEL installed early-shield=EXPECTED component-prefab-model=ON effect-target-miss=NONAUTONOMOUS model-prewarm='+MAX_WARM_AHEAD);
 })();
