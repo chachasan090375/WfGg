@@ -6,6 +6,8 @@
    - does not ask the 3D assembler to build autonomous models for pure material/shader/animation rows;
    - prewarms the next useful 3D results only after the current preview is visible;
    - shares model-manifest promises with foreground navigation so a prewarm is never duplicated;
+   - treats an exact prefab graph with no Mesh pointer as a legitimate non-autonomous VFX/component,
+     not as a viewer failure;
    - leaves final technical failures available only when every legitimate preview path has failed. */
 
 let previewSeq=0;
@@ -22,6 +24,11 @@ function techOf(a){return String(a?.tech_kind||'').toLowerCase();}
 function passive3DComponent(a){
   const r=roleOf(a);
   return dimOf(a)==='Composant 3D' && ['material','shader','animation','component','texture'].includes(r);
+}
+
+function nonAutonomousModelError(msg){
+  const text=String(msg||'');
+  return /RUNTIME_3D_NO_STANDALONE_MESH|PTR3D_NO_MESH_POINTER/.test(text);
 }
 
 function modelCandidate(a){
@@ -105,7 +112,12 @@ function markViewed(a){
 
 function componentNeutral(stage,a,modelError,rasterError){
   const label=roleOf(a)||'composant';
-  stage.innerHTML=`<div class="empty"><b>Composant 3D non autonome</b><br><span class="hint">${esc(label)} : cet élément participe à un assemblage, mais ne contient pas forcément une géométrie ou une image affichable seul.</span></div>${nav()}`;
+  const exactNoMesh=nonAutonomousModelError(modelError);
+  const headline=exactNoMesh?'Composant 3D sans Mesh autonome':'Composant 3D non autonome';
+  const detail=exactNoMesh
+    ?'Le graphe Unity exact de ce prefab a été trouvé, mais il ne référence aucun Mesh autonome. Il s’agit typiquement d’un effet, de particules ou d’un composant utilisé dans une scène.'
+    :`${label} : cet élément participe à un assemblage, mais ne contient pas forcément une géométrie ou une image affichable seul.`;
+  stage.innerHTML=`<div class="empty"><b>${esc(headline)}</b><br><span class="hint">${esc(detail)}</span></div>${nav()}`;
   bindNav();
   console.debug('V34_COMPONENT_NO_STANDALONE_PREVIEW',a.stable_id,{modelError,rasterError});
 }
@@ -143,7 +155,9 @@ async function acceleratedSelect(i){
       console.debug('V34_PREVIEW_3D_FALLBACK',a.stable_id,modelError);
       if(my!==previewSeq)return;
       // Important UX rule: this is not a visible error yet because a real raster fallback remains possible.
-      loading(stage,'Aperçu 3D non disponible — recherche du rendu 2D…','Aucune erreur rouge n’est affichée tant que les solutions de secours exactes ne sont pas terminées.');
+      const noMesh=nonAutonomousModelError(modelError);
+      loading(stage,noMesh?'Composant sans Mesh autonome — recherche du rendu 2D…':'Aperçu 3D non disponible — recherche du rendu 2D…',
+        noMesh?'Le prefab est valide mais ne contient pas de géométrie Mesh isolée.':'Aucune erreur rouge n’est affichée tant que les solutions de secours exactes ne sont pas terminées.');
     }
   }else if(passive3DComponent(a)){
     loading(stage,'Recherche d’un aperçu du composant…','Matériaux, shaders et animations ne sont pas toujours affichables seuls.');
@@ -172,7 +186,9 @@ async function acceleratedSelect(i){
     }
   }
 
-  if(passive3DComponent(a)){
+  // A proven exact no-Mesh prefab is not an error. It is a valid VFX/component with no standalone
+  // preview. Present that semantic state even when it is technically classified as model_role=prefab.
+  if(passive3DComponent(a)||nonAutonomousModelError(modelError)){
     componentNeutral(stage,a,modelError,rasterError);markViewed(a);scheduleWarm(i);return;
   }
 
@@ -185,10 +201,10 @@ async function acceleratedSelect(i){
 // Install after search-correlation-v33.js: runSearch/renderList/bindNav will resolve this new function dynamically.
 select=acceleratedSelect;
 window.WFGGPreviewAccelerator={
-  version:'34.2',
+  version:'34.4',
   modelCandidate,
   warmModel,
   state:()=>({previewSeq,manifestCache:modelManifestCache.size,warmJobs:warmJobs.size,viewerCache:window.WFGGModelViewer?.cacheStats?.()||null})
 };
-console.info('V34_PREVIEW_ACCEL installed neutral-fallback=ON model-prewarm='+MAX_WARM_AHEAD);
+console.info('V34_PREVIEW_ACCEL installed neutral-fallback=ON exact-no-mesh=NONAUTONOMOUS model-prewarm='+MAX_WARM_AHEAD);
 })();
