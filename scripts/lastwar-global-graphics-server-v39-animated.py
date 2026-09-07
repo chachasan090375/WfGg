@@ -41,9 +41,7 @@ ptr_fast = base.ptr3d
 ptr = ptr_fast.p
 dependency_rows = v33.mobile.ORIGINAL_DEPENDENCY_ROWS
 
-# V39.4 exact-ID guard. The V31 FTS and the generic `keywords` LIKE path are deliberately bypassed
-# for an exact WfGg identifier. This guarantees one stable_id row at most and prevents any linked,
-# correlated or token-sharing asset from replacing the requested asset.
+# V39.4 exact-ID guard kept for compatibility with the normal search path.
 _BASE_QUERY_PARTS = v33.explorer_query_parts
 
 def _v394_query_parts(qs):
@@ -55,7 +53,6 @@ def _v394_query_parts(qs):
         else:
             conditions.append('upper(a.stable_id)=?')
             params.append(exact_sid)
-        # stable_id is already an equality constraint; never also run the free-text parser.
         q = ''
     return q, conditions, params
 
@@ -88,6 +85,30 @@ def _asset(sid):
         return core.rowdict(row) if row else None
     finally:
         con.close()
+
+
+def _exact_search_payload(sid):
+    sid = str(sid or '').strip().upper()
+    if not re.fullmatch(r'LWGA-[A-Z0-9]+', sid):
+        return None
+    con = core.dbcon()
+    try:
+        row = con.execute('SELECT * FROM assets WHERE upper(stable_id)=?', (sid,)).fetchone()
+        rows = [row] if row else []
+        items = v33.enrich_rows(con, rows)
+    finally:
+        con.close()
+    return {
+        'items': items,
+        'total': len(items),
+        'offset': 0,
+        'limit': 1,
+        'hasMore': False,
+        'queryToken': 'stable-id:' + sid,
+        'similarTo': None,
+        'exactStableId': sid,
+        'exactStableIdFound': bool(items),
+    }
 
 
 def _relation_tokens(a):
@@ -209,6 +230,15 @@ class AnimatedHandler(v33.ExplorerHandler):
             if u.path == '/lab/global-graphics-v33/animation-resolver-v392.js':
                 return _send_js(self, V392_RESOLVER_JS)
 
+            if u.path == '/api/v33/search':
+                sid = str((qs.get('stable_id') or [''])[0]).strip().upper()
+                if sid:
+                    payload = _exact_search_payload(sid)
+                    if payload is None:
+                        return self.send_json({'error': 'invalid-stable-id', 'id': sid}, 400)
+                    print('V39_5_EXACT_ID_LOOKUP', sid, 'found='+str(payload['exactStableIdFound']), flush=True)
+                    return self.send_json(payload)
+
             if u.path == '/api/v39/animation-targets':
                 sid = str((qs.get('id') or [''])[0])
                 if not re.fullmatch(r'LWGA-[A-Z0-9]+', sid):
@@ -252,7 +282,7 @@ class AnimatedHandler(v33.ExplorerHandler):
 
             if u.path == '/api/v39/status':
                 return self.send_json({
-                    'version': '39.4',
+                    'version': '39.5',
                     'animationDiagnostics': True,
                     'exactBundlePtrEvidence': True,
                     'syntheticAnimation': False,
@@ -260,6 +290,7 @@ class AnimatedHandler(v33.ExplorerHandler):
                     'exactMeshTransformBindings': True,
                     'iconToPrefabResolver': True,
                     'exactStableIdLookup': True,
+                    'exactStableIdFilterBypass': True,
                     'referenceAsset': 'LWGA-C37A0F67197299',
                 })
 
@@ -297,11 +328,11 @@ class AnimatedHandler(v33.ExplorerHandler):
 
 
 if __name__ == '__main__':
-    print('=== WFGG LAST WAR GLOBAL GRAPHICS V39.4 — ANIMATED PREFAB + EXACT ID ===', flush=True)
+    print('=== WFGG LAST WAR GLOBAL GRAPHICS V39.5 — ANIMATED PREFAB + EXACT ID ===', flush=True)
     print('V39_ANIMATION exact-bundle-ptr=ON transform-curves=INSPECT synthetic-motion=OFF', flush=True)
     print('V39_PLAYBACK simple-transform-curves=RECONSTRUCTABLE exact-mesh-bindings=ON', flush=True)
     print('V39_2_ICON_RESOLVER shared-runtime-id=ON ui-icon-to-prefab=ON animation-validation=EXACT_SCAN', flush=True)
-    print('V39_4_EXACT_ID stable-id-equality=ON preview-bypass=CLIENT', flush=True)
+    print('V39_5_EXACT_ID server-primary-key=ON all-search-filters-bypassed=ON', flush=True)
     print('V39_PARTICLES detection=ON playback=NOT_YET', flush=True)
     print('V39_SCRIPTS animation-hints=CONSERVATIVE execution=OFF', flush=True)
     print('V39_REFERENCE_ASSET LWGA-C37A0F67197299', flush=True)
