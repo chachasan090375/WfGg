@@ -26,7 +26,10 @@ def _attempt(a,core,correlated,dependency_rows,model_cache,bundles,depth,meshes,
     p.MAX_DEP_BUNDLES=int(bundles);p.MAX_DEPTH=int(depth);p.MAX_MESHES=int(meshes)
     try:
         m=p.build_ptr_model(a,core,correlated.exact,dependency_rows,model_cache)
-        m=dict(m);m['assemblySpeed']=label;m['dependencyBudget']={'bundles':bundles,'depth':depth,'meshes':meshes}
+        m=dict(m)
+        m['assemblySpeed']=label
+        m['dependencyBudget']={'bundles':bundles,'depth':depth,'meshes':meshes}
+        m['assemblyAssetCount']=m.get('assemblyAssetCount') or m.get('graphNodes') or len(m.get('objects') or [])
         return m
     finally:
         p.MAX_DEP_BUNDLES, p.MAX_DEPTH, p.MAX_MESHES = old_bundles,old_depth,old_meshes
