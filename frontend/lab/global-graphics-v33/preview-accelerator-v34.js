@@ -1,18 +1,15 @@
 (()=>{
 'use strict';
 
-/* V34 mobile preview accelerator.
-   - never flashes a red error while another exact fallback is still running;
-   - does not ask the 3D assembler to build autonomous models for pure material/shader/animation rows;
-   - prewarms the next useful 3D results only after the current preview is visible;
-   - shares model-manifest promises with foreground navigation so a prewarm is never duplicated;
-   - treats an exact prefab graph with no Mesh pointer as a legitimate non-autonomous VFX/component,
-     not as a viewer failure;
-   - takes over an already-started legacy first selection without exposing its temporary error panel;
-   - leaves final technical failures available only when every legitimate preview path has failed. */
+/* V34.6 mobile preview accelerator.
+   The legacy inline viewer can begin init() before injected enhancements finish loading. This file
+   therefore guards the whole boot/navigation window, not only the instant at which it is loaded:
+   transitional legacy 3D/2D errors are neutralized while the V34 exact model/raster path is still
+   working. Final V34 errors remain visible. */
 
 let previewSeq=0;
 let rasterController=null;
+let finalErrorVisible=false;
 const modelManifestCache=new Map();
 const warmJobs=new Map();
 const MAX_MANIFEST_CACHE=14;
@@ -21,17 +18,11 @@ const MAX_WARM_AHEAD=2;
 function roleOf(a){return String(a?.model_role||'').toLowerCase();}
 function dimOf(a){return String(a?.dimension_class||'');}
 function techOf(a){return String(a?.tech_kind||'').toLowerCase();}
-
 function passive3DComponent(a){
   const r=roleOf(a);
   return dimOf(a)==='Composant 3D' && ['material','shader','animation','component','texture'].includes(r);
 }
-
-function nonAutonomousModelError(msg){
-  const text=String(msg||'');
-  return /RUNTIME_3D_NO_STANDALONE_MESH|PTR3D_NO_MESH_POINTER/.test(text);
-}
-
+function nonAutonomousModelError(msg){return /RUNTIME_3D_NO_STANDALONE_MESH|PTR3D_NO_MESH_POINTER/.test(String(msg||''));}
 function modelCandidate(a){
   const r=roleOf(a),d=dimOf(a);
   if(['geometry','geometry-candidate','prefab'].includes(r))return true;
@@ -39,19 +30,14 @@ function modelCandidate(a){
   if(d==='Mixte 2D/3D'&&r!=='material'&&r!=='shader')return true;
   return false;
 }
-
 function rasterCandidate(a){
   const t=techOf(a),r=roleOf(a),d=dimOf(a);
   if(d==='2D'||d==='Mixte 2D/3D')return true;
   if(/sprite|texture|atlas|image|png|jpg|jpeg/.test(t))return true;
   if(['texture','material'].includes(r))return true;
-  // Exact raster fallback remains useful for VFX prefabs whose visible representation is texture-driven.
   return modelCandidate(a)||String(a?.graphic_class||'').includes('graphique');
 }
-
-function trimMap(map,max){
-  while(map.size>max){const k=map.keys().next().value;map.delete(k);}
-}
+function trimMap(map,max){while(map.size>max){const k=map.keys().next().value;map.delete(k);}}
 
 function modelManifest(a){
   const sid=a.stable_id;
@@ -78,9 +64,7 @@ async function warmModel(a){
       const manifest=await modelManifest(a);
       await window.WFGGModelViewer?.prefetch?.(manifest);
       console.debug('V34_PREWARM_OK',sid,Math.round(performance.now()-started)+'ms');
-    }catch(e){
-      console.debug('V34_PREWARM_MISS',sid,e?.message||e);
-    }
+    }catch(e){console.debug('V34_PREWARM_MISS',sid,e?.message||e);}
   })();
   warmJobs.set(sid,job);
   try{await job;}finally{setTimeout(()=>warmJobs.delete(sid),30000);}
@@ -94,11 +78,7 @@ function scheduleWarm(from){
     for(let j=from+1;j<items.length&&targets.length<MAX_WARM_AHEAD;j++){
       const a=items[j];if(modelCandidate(a)&&a.render_availability!=='global-index-only')targets.push(a);
     }
-    // Sequential on purpose: foreground interaction always keeps CPU/I/O priority.
-    for(const a of targets){
-      if(seq!==previewSeq)return;
-      await warmModel(a);
-    }
+    for(const a of targets){if(seq!==previewSeq)return;await warmModel(a);}
   },180);
 }
 
@@ -106,11 +86,9 @@ function loading(stage,title,detail=''){
   stage.innerHTML=`<div class="empty"><b>${esc(title)}</b>${detail?`<br><span class="hint">${esc(detail)}</span>`:''}</div>${nav()}`;
   bindNav();
 }
-
 function markViewed(a){
   try{fetch(API+'/view',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:a.stable_id}),keepalive:true}).catch(()=>{});}catch{}
 }
-
 function componentNeutral(stage,a,modelError,rasterError){
   const label=roleOf(a)||'composant';
   const exactNoMesh=nonAutonomousModelError(modelError);
@@ -119,16 +97,43 @@ function componentNeutral(stage,a,modelError,rasterError){
     ?'Le graphe Unity exact de ce prefab a été trouvé, mais il ne référence aucun Mesh autonome. Il s’agit typiquement d’un effet, de particules ou d’un composant utilisé dans une scène.'
     :`${label} : cet élément participe à un assemblage, mais ne contient pas forcément une géométrie ou une image affichable seul.`;
   stage.innerHTML=`<div class="empty"><b>${esc(headline)}</b><br><span class="hint">${esc(detail)}</span></div>${nav()}`;
-  bindNav();
-  console.debug('V34_COMPONENT_NO_STANDALONE_PREVIEW',a.stable_id,{modelError,rasterError});
+  bindNav();console.debug('V34_COMPONENT_NO_STANDALONE_PREVIEW',a.stable_id,{modelError,rasterError});
+}
+
+/* The old inline select() can still be awaiting /model or /render when this enhancement loads.
+   Its two catch blocks call errorMarkup(). Intercept only those transitional calls. The final V34
+   path below sets finalErrorVisible=true before using errorMarkup, so genuine final diagnostics
+   remain visible. */
+const legacyErrorMarkup=errorMarkup;
+function transitionalLegacyError(raw,kind,extra){
+  if(finalErrorVisible)return false;
+  if(!currentAsset||!modelCandidate(currentAsset))return false;
+  const x=String(extra||''),r=String(raw||'');
+  const legacyPhase=/Tentative automatique d.un rendu raster réel de secours|Cette erreur concerne le décodage\/reconstruction/.test(x);
+  const known=/RUNTIME_3D_OBJECT_MISMATCH|RUNTIME_TARGET_OBJECT_NOT_FOUND|model-file-not-found|404/.test(r);
+  return legacyPhase&&(kind==='3D'||known);
+}
+errorMarkup=function(raw,kind='2D',extra=''){
+  if(transitionalLegacyError(raw,kind,extra)){
+    return `<div class="empty"><b>Finalisation de l’aperçu…</b><br><span class="hint">Le moteur V34 poursuit la reconstruction exacte. Le diagnostic intermédiaire reste dans la console.</span></div>`;
+  }
+  return legacyErrorMarkup(raw,kind,extra);
+};
+
+function suppressLegacyStage(stage){
+  if(!stage||finalErrorVisible)return false;
+  const box=stage.querySelector('.errorbox');if(!box)return false;
+  const text=box.textContent||'';
+  if(!currentAsset||!modelCandidate(currentAsset))return false;
+  if(!/RUNTIME_3D_OBJECT_MISMATCH|RUNTIME_TARGET_OBJECT_NOT_FOUND|Assemblage 3D indisponible|Rendu local impossible/.test(text))return false;
+  loading(stage,'Finalisation de l’aperçu…','La reconstruction exacte est toujours en cours ; aucune erreur intermédiaire n’est affichée.');
+  return true;
 }
 
 async function acceleratedSelect(i){
   if(i<0||i>=items.length)return;
-  const my=++previewSeq;
-  try{rasterController?.abort();}catch{}
-  rasterController=null;
-
+  const my=++previewSeq;finalErrorVisible=false;
+  try{rasterController?.abort();}catch{}rasterController=null;
   idx=i;currentAsset=items[i];currentRenderMeta=null;currentModel?.destroy?.();currentModel=null;renderList();
   const a=currentAsset,stage=document.querySelector('#stage');
   if(currentUrl){try{URL.revokeObjectURL(currentUrl)}catch{}currentUrl=null;}
@@ -139,8 +144,7 @@ async function acceleratedSelect(i){
     bindNav();markViewed(a);return;
   }
 
-  let modelError='';let rasterError='';const started=performance.now();
-
+  let modelError='',rasterError='';const started=performance.now();
   if(modelCandidate(a)){
     loading(stage,'Préparation du modèle 3D…','Passe rapide exacte, puis approfondissement uniquement si nécessaire.');
     try{
@@ -152,19 +156,14 @@ async function acceleratedSelect(i){
       console.debug('V34_PREVIEW_3D_OK',a.stable_id,Math.round(performance.now()-started)+'ms',manifest.assemblySpeed||manifest.correlation||'');
       scheduleWarm(i);return;
     }catch(e){
-      modelError=String(e?.message||e||'assemblage 3D impossible');
-      console.debug('V34_PREVIEW_3D_FALLBACK',a.stable_id,modelError);
+      modelError=String(e?.message||e||'assemblage 3D impossible');console.debug('V34_PREVIEW_3D_FALLBACK',a.stable_id,modelError);
       if(my!==previewSeq)return;
-      // Important UX rule: this is not a visible error yet because a real raster fallback remains possible.
       const noMesh=nonAutonomousModelError(modelError);
       loading(stage,noMesh?'Composant sans Mesh autonome — recherche du rendu 2D…':'Aperçu 3D non disponible — recherche du rendu 2D…',
-        noMesh?'Le prefab est valide mais ne contient pas de géométrie Mesh isolée.':'Aucune erreur rouge n’est affichée tant que les solutions de secours exactes ne sont pas terminées.');
+        noMesh?'Le prefab est valide mais ne contient pas de géométrie Mesh isolée.':'Le moteur essaie encore le rendu exact de secours.');
     }
-  }else if(passive3DComponent(a)){
-    loading(stage,'Recherche d’un aperçu du composant…','Matériaux, shaders et animations ne sont pas toujours affichables seuls.');
-  }else{
-    loading(stage,'Décodage du rendu…','Lecture de l’asset exact dans les bundles locaux.');
-  }
+  }else if(passive3DComponent(a))loading(stage,'Recherche d’un aperçu du composant…','Matériaux, shaders et animations ne sont pas toujours affichables seuls.');
+  else loading(stage,'Décodage du rendu…','Lecture de l’asset exact dans les bundles locaux.');
 
   if(rasterCandidate(a)){
     rasterController=new AbortController();
@@ -176,63 +175,50 @@ async function acceleratedSelect(i){
       currentUrl=URL.createObjectURL(blob);
       const fallback=modelError?' · SECOURS APRÈS 3D':'';
       stage.innerHTML=`<img id="assetImg" src="${currentUrl}" alt="${esc(a.alias_name||a.stable_id)}"><span class="badge">RENDU 2D RÉEL${fallback} · b${esc(a.bundle_id)}</span>${nav()}`;
-      bindNav();renderMeta(a);markViewed(a);
-      console.debug('V34_PREVIEW_RASTER_OK',a.stable_id,Math.round(performance.now()-started)+'ms');
-      scheduleWarm(i);return;
+      bindNav();renderMeta(a);markViewed(a);console.debug('V34_PREVIEW_RASTER_OK',a.stable_id,Math.round(performance.now()-started)+'ms');scheduleWarm(i);return;
     }catch(e){
       if(e?.name==='AbortError')return;
-      rasterError=String(e?.message||e||'rendu impossible');
-      console.debug('V34_PREVIEW_RASTER_FAIL',a.stable_id,rasterError);
-      if(my!==previewSeq)return;
+      rasterError=String(e?.message||e||'rendu impossible');console.debug('V34_PREVIEW_RASTER_FAIL',a.stable_id,rasterError);if(my!==previewSeq)return;
     }
   }
 
-  // A proven exact no-Mesh prefab is not an error. It is a valid VFX/component with no standalone
-  // preview. Present that semantic state even when it is technically classified as model_role=prefab.
   if(passive3DComponent(a)||nonAutonomousModelError(modelError)){
     componentNeutral(stage,a,modelError,rasterError);markViewed(a);scheduleWarm(i);return;
   }
 
+  finalErrorVisible=true;
   const details=[modelError&&('3D: '+modelError),rasterError&&('2D: '+rasterError)].filter(Boolean).join('\n\n')||'Aucun chemin de prévisualisation exploitable.';
   const kind=modelCandidate(a)?'3D':'2D';
-  stage.innerHTML=errorMarkup(details,kind,'Toutes les voies de prévisualisation exactes ont été essayées. Cette erreur est maintenant définitive pour cet asset dans l’installation locale actuelle.')+nav();
+  stage.innerHTML=legacyErrorMarkup(details,kind,'Toutes les voies de prévisualisation exactes ont été essayées. Cette erreur est maintenant définitive pour cet asset dans l’installation locale actuelle.')+nav();
   bindErrorDetails();bindNav();markViewed(a);
 }
 
-function suppressLegacyBootFlash(stage){
-  if(!stage)return false;
-  const box=stage.querySelector('.errorbox');if(!box)return false;
-  const text=box.textContent||'';
-  if(!/Assemblage 3D indisponible|RUNTIME_3D_OBJECT_MISMATCH/.test(text))return false;
-  loading(stage,'Finalisation du modèle 3D…','Le moteur V34 poursuit la reconstruction exacte. Le diagnostic intermédiaire reste dans la console, pas à l’écran.');
-  return true;
-}
-
-// Install after search-correlation-v33.js: runSearch/renderList/bindNav resolve this function dynamically.
 select=acceleratedSelect;
 
-// The base HTML starts init() before the injected enhancement bundle has necessarily finished loading.
-// If its very first selection is already in flight, take it over immediately. A short-lived observer
-// suppresses only the legacy *intermediate* 3D mismatch panel; successful image/canvas output ends it.
-const bootStage=document.querySelector('#stage');
-const bootIndex=idx;
-let bootGuard=null;
-if(bootStage&&bootIndex>=0&&currentAsset){
-  suppressLegacyBootFlash(bootStage);
-  bootGuard=new MutationObserver(()=>{
-    if(bootStage.querySelector('canvas,#assetImg')){bootGuard?.disconnect();bootGuard=null;return;}
-    suppressLegacyBootFlash(bootStage);
+/* Always-on guard for the first 30 seconds. The previous implementation only installed it when
+   idx>=0 at script-load time; if the script loaded a few milliseconds earlier, the legacy request
+   could later paint its red panel unguarded. */
+const stageGuard=document.querySelector('#stage');
+let guardObserver=null;
+if(stageGuard){
+  guardObserver=new MutationObserver(()=>{
+    if(stageGuard.querySelector('canvas,#assetImg'))return;
+    suppressLegacyStage(stageGuard);
   });
-  bootGuard.observe(bootStage,{childList:true,subtree:true});
-  setTimeout(()=>{bootGuard?.disconnect();bootGuard=null;},25000);
-  setTimeout(()=>{if(idx===bootIndex)acceleratedSelect(bootIndex);},0);
+  guardObserver.observe(stageGuard,{childList:true,subtree:true});
+  setTimeout(()=>{guardObserver?.disconnect();guardObserver=null;},30000);
 }
 
+let bootTakeoverDone=false;
+function tryBootTakeover(){
+  if(bootTakeoverDone)return;
+  if(idx>=0&&currentAsset){bootTakeoverDone=true;acceleratedSelect(idx);}
+}
+[0,40,120,300,700,1400].forEach(ms=>setTimeout(tryBootTakeover,ms));
+
 window.WFGGPreviewAccelerator={
-  version:'34.5',
-  modelCandidate,
-  warmModel,
-  state:()=>({previewSeq,manifestCache:modelManifestCache.size,warmJobs:warmJobs.size,viewerCache:window.WFGGModelViewer?.cacheStats?.()||null})
+  version:'34.6',modelCandidate,warmModel,
+  state:()=>({previewSeq,manifestCache:modelManifestCache.size,warmJobs:warmJobs.size,finalErrorVisible,viewerCache:window.WFGGModelViewer?.cacheStats?.()||null})
 };
-console.info('V34_PREVIEW_ACCEL installed boot-takeover=ON interim-3d-error-flash=OFF exact-no-mesh=NONAUTONOMOUS model-prewarm='+MAX_WARM_AHEAD);
+console.info('V34_PREVIEW_ACCEL installed persistent-boot-guard=ON legacy-errorMarkup=NEUTRAL singleflight-server=EXPECTED model-prewarm='+MAX_WARM_AHEAD);
 })();
