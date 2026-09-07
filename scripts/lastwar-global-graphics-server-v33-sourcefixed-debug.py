@@ -16,8 +16,6 @@ ACCEL = ROOT / 'frontend/lab/global-graphics-v33/preview-accelerator-v34.js'
 MODEL_JS = ROOT / 'frontend/lab/global-graphics-v33/model-viewer-v33.js'
 EXPLORER_JS = ROOT / 'frontend/lab/global-graphics-v33/explorer-v33.js'
 PTR3D = ROOT / 'scripts/lastwar-global-graphics-ptrmodel-fast-v34.py'
-# New cache generation: never reuse 3401 manifests/OBJ files produced while model-file paths were
-# still being repaired. This removes stale 404s without asking the user to delete anything.
 PTR3D_CACHE = Path.home() / '.cache/wfgg-lastwar-v31/models-v33-ptr-3402'
 CACHE_ROOT = Path.home() / '.cache/wfgg-lastwar-v31'
 
@@ -25,9 +23,6 @@ spec = importlib.util.spec_from_file_location('wfgg_v33_sourcefixed_debug', BASE
 m = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(m)
 
-# V34 3D repair/performance layer. First use a small exact dependency closure, then retry with
-# the deeper exact PPtr graph only when required. The previous strict model path remains the
-# final fallback. The shared model cache is also the primary directory served by /api/v33/model-file.
 ptrspec = importlib.util.spec_from_file_location('wfgg_v34_ptrmodel_fast', PTR3D)
 ptr3d = importlib.util.module_from_spec(ptrspec)
 spec.loader.exec_module(m) if False else None
@@ -37,13 +32,6 @@ print('V34_PTR3D_INSTALLED staged-fast-exact=ON transforms-baked=ON cache=models
 
 
 def _model_cache_roots():
-    """Every cache generation that a legitimate exact/fallback assembler may have used.
-
-    The manifest URL contract contains only stable_id + relative OBJ path. During the V33/V34
-    transition some fallback functions kept their own module-level MODEL_CACHE. Searching these
-    known local caches is exact (same stable_id and exact relative path), so it never substitutes
-    geometry from another asset while eliminating false model-file 404s.
-    """
     roots = [PTR3D_CACHE]
     for obj in (
         getattr(m.c, 'core', None),
@@ -113,23 +101,18 @@ class DebugHandler(m.c.CorrelatedHandler):
     def do_GET(self):
         u = urlparse(self.path)
 
-        # model-viewer is parsed before the legacy inline init() call. It now contains the earliest
-        # transient-error shield, so it must never be allowed to remain stale in Chrome's cache.
         if u.path == '/lab/global-graphics-v33/model-viewer-v33.js':
             _send_js(self, MODEL_JS)
             return
 
-        # Explorer is loaded last and owns selection semantics (instant strip centering + animation
-        # components). It also must never remain stale after a LAB patch.
         if u.path == '/lab/global-graphics-v33/explorer-v33.js':
             _send_js(self, EXPLORER_JS)
             return
 
         if u.path == '/lab/global-graphics-v33/search-correlation-v33.js':
-            raw = JS.read_text('utf-8').replace(
-                'const AUTO_SKIP_RUNTIME_FAILURES=true;',
-                'const AUTO_SKIP_RUNTIME_FAILURES=false;'
-            )
+            # Do NOT rewrite AUTO_SKIP_RUNTIME_FAILURES to false. Normal browsing now skips known
+            # terminal runtime failures; the complete diagnostics remain in console/Termux.
+            raw = JS.read_text('utf-8')
             if ACCEL.is_file():
                 raw += '\n\n' + ACCEL.read_text('utf-8')
             data = raw.encode('utf-8')
@@ -167,12 +150,12 @@ class DebugHandler(m.c.CorrelatedHandler):
 
 
 if __name__ == '__main__':
-    print('=== WFGG V33 — SOURCE FIX + ERRORS VISIBLE + FAST PTR3D V34 ===', flush=True)
-    print('V33_AUTO_SKIP runtime-failures=OFF (diagnostic mode)', flush=True)
+    print('=== WFGG V33 — SOURCE FIX + FAST PTR3D V34 ===', flush=True)
+    print('V33_AUTO_SKIP runtime-failures=ON diagnostics=console+termux', flush=True)
     print('V34_PTR3D staged-fast-exact=ON transforms-baked=ON cache=models-v33-ptr-3402', flush=True)
     print('V34_MODEL_FILE multi-cache-exact-recovery=ON', flush=True)
     print('V34_MODEL_VIEWER no-store=ON early-error-shield=ON', flush=True)
-    print('V34_EXPLORER_JS no-store=ON selection-semantics=ON', flush=True)
+    print('V34_EXPLORER_JS no-store=ON selection-semantics=ON terminal-runtime=AUTOSKIP', flush=True)
     print('V34_PREVIEW_ACCEL neutral-fallback=ON neighbor-prewarm=ON', flush=True)
     print('V33_SOURCE_AUDIT', repr(m.AUDIT), flush=True)
     print(f'http://127.0.0.1:{m.core.PORT}/lab/lastwar-global-graphics-viewer-v33.html', flush=True)
