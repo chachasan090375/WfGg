@@ -174,3 +174,77 @@ function boot(){
 }
 boot();
 })();
+
+(()=>{
+'use strict';
+/* WfGg V37.2 — multi-keyword search on the existing main search bar.
+   - one term keeps the historical exact/hero behavior;
+   - 2+ terms are combined with AND through the V33 `keywords` backend filter;
+   - spaces, commas and semicolons are separators;
+   - quoted phrases remain one term;
+   - when exactly one term resolves to a known hero, that hero is applied through hero_id/direct
+     and the remaining terms stay as AND keywords (e.g. Murphy vehicle -> hero #50006 AND vehicle).
+*/
+
+let multiInstalled=false;
+let multiTerms=[];
+let multiHero=null;
+
+function parseMultiTerms(raw){
+  raw=String(raw||'').trim();if(!raw)return [];
+  const out=[];const re=/"([^"]+)"|'([^']+)'|([^\s,;]+)/g;let m;
+  while((m=re.exec(raw))&&out.length<12){const v=String(m[1]||m[2]||m[3]||'').trim();if(v)out.push(v);}
+  return out;
+}
+function serializeTerms(terms){return (terms||[]).map(v=>/\s/.test(v)?'"'+String(v).replace(/"/g,'')+'"':String(v)).join(' ');}
+function resolveHeroAmong(terms){
+  const resolver=window.WFGGSearchCorrelation?.resolveHeroQuery;if(typeof resolver!=='function')return {hero:null,index:-1};
+  let found=null,index=-1;
+  for(let i=0;i<terms.length;i++){
+    const h=resolver(terms[i]);if(!h)continue;
+    if(found&&String(found.hero_id)!==String(h.hero_id))return {hero:null,index:-1};
+    found=h;index=i;
+  }
+  return {hero:found,index};
+}
+function updateKeywordHint(){
+  const q=document.querySelector('#q');if(!q)return;
+  q.placeholder='Murphy vehicle skin · plusieurs mots = ET · "phrase exacte"';
+  let hint=document.querySelector('#multiKeywordHintV372');
+  const terms=parseMultiTerms(q.value);
+  if(terms.length<=1){hint?.remove();return;}
+  if(!hint){hint=document.createElement('span');hint.id='multiKeywordHintV372';hint.className='filterchip';const host=document.querySelector('#filterSummary');if(host)host.prepend(hint);}
+  if(hint)hint.textContent='Mots-clés ET : '+terms.join(' · ');
+}
+function installMultiKeyword(){
+  if(multiInstalled||typeof params!=='function')return false;multiInstalled=true;
+  const baseParams=params;
+  params=function(){
+    const p=baseParams();const raw=document.querySelector('#q')?.value?.trim()||'';const terms=parseMultiTerms(raw);
+    multiTerms=terms;multiHero=null;
+    if(terms.length<=1){p.delete('keywords');return p;}
+    p.delete('q');
+    const resolved=resolveHeroAmong(terms);let rest=terms;
+    if(resolved.hero){
+      multiHero=resolved.hero;rest=terms.filter((_,i)=>i!==resolved.index);
+      p.set('hero_id',String(resolved.hero.hero_id));p.set('hero_relation','direct');
+    }
+    if(rest.length)p.set('keywords',serializeTerms(rest));else p.delete('keywords');
+    return p;
+  };
+  const q=document.querySelector('#q');
+  if(q){q.addEventListener('input',updateKeywordHint,{passive:true});updateKeywordHint();}
+  if(typeof activeFilters==='function'){
+    const baseActiveFilters=activeFilters;
+    activeFilters=function(){
+      const out=baseActiveFilters();const terms=parseMultiTerms(document.querySelector('#q')?.value||'');
+      if(terms.length>1)out.unshift({id:'multi_keywords',label:'Mots-clés ET '+terms.join(' · ')});return out;
+    };
+  }
+  console.info('V37_2_MULTI_KEYWORD ready separators=SPACE,COMMA,SEMICOLON quoted-phrases=ON mode=AND hero-token=EXACT');
+  window.WFGGMultiKeywordV372={version:'37.2',parse:parseMultiTerms,state:()=>({terms:[...multiTerms],hero:multiHero})};
+  return true;
+}
+function bootMulti(){if(!installMultiKeyword())setTimeout(bootMulti,150);}
+bootMulti();
+})();
