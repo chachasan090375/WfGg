@@ -6,13 +6,16 @@
    Pages are transport chunks only: they are appended automatically while the user scrolls or navigates.
    Old searches/renders are invalidated so only the current query can drive the visible selection.
 
-   Viewer policy: runtime decode/reconstruction failures are diagnostic data, not browsing results.
-   They remain visible in the browser console for LAB debugging, but the viewer automatically skips
-   them and continues to the next renderable asset in the same logical search. */
+   Hero search policy:
+   - western name, internal alias and numeric hero ID are one logical search key;
+   - Murphy / Audie / 50006 therefore resolve to the exact same hero-linked asset set;
+   - the original free-text query is removed only for an exact hero-key lookup so internal filenames
+     do not have to repeat the western name.
+*/
 
-const PAGE_SIZE=120;                  // server maximum; transport size, NOT a result cap
-const NAV_PREFETCH_REMAINING=18;      // prefetch before Previous/Next reaches the loaded edge
-const SCROLL_PREFETCH_VIEWPORTS=2.0;  // append when less than 2 strip widths remain
+const PAGE_SIZE=120;
+const NAV_PREFETCH_REMAINING=18;
+const SCROLL_PREFETCH_VIEWPORTS=2.0;
 const AUTO_SKIP_RUNTIME_FAILURES=true;
 let generation=0;
 let activeController=null;
@@ -25,9 +28,61 @@ let scrollTimer=0;
 let skippedRuntime=new Set();
 let skippedRuntimeCount=0;
 let autoSkipBusy=false;
+let activeHeroQueryId='';
+let activeHeroQueryLabel='';
+const heroAliasMap=new Map();
+let heroRegistryPromise=null;
+
+function heroKey(s){return String(s??'').trim().toLowerCase().replace(/[\s_-]+/g,'');}
+function registerHeroKey(key,hero){
+  key=heroKey(key);if(!key)return;
+  const old=heroAliasMap.get(key);
+  if(!old)heroAliasMap.set(key,hero);
+  else if(String(old.hero_id)!==String(hero.hero_id))heroAliasMap.set(key,null);
+}
+async function ensureHeroAliases(){
+  if(heroRegistryPromise)return heroRegistryPromise;
+  heroRegistryPromise=(async()=>{
+    try{
+      const r=await fetch(API+'/heroes',{cache:'no-store'});if(!r.ok)return;
+      const d=await r.json();
+      for(const h of (d.heroes||[])){
+        const vals=[h.western_name,h.hero_id,...(h.aliases||[]),...(h.internal_aliases||[]),...(h.auto_link_aliases||[])];
+        vals.forEach(v=>registerHeroKey(v,h));
+      }
+      console.info('V34_HERO_ALIAS_SEARCH ready keys='+heroAliasMap.size);
+    }catch(e){console.debug('V34_HERO_ALIAS_SEARCH unavailable',e);}
+  })();
+  return heroRegistryPromise;
+}
+function resolveHeroQuery(raw){
+  const h=heroAliasMap.get(heroKey(raw));
+  return h||null;
+}
+
+const baseRenderList=renderList;
+renderList=function(){
+  baseRenderList();
+  const cards=[...document.querySelectorAll('#results .card')];
+  cards.forEach((card,i)=>{
+    const a=items[i];if(!a)return;
+    const links=a.hero_links||[];if(!links.length)return;
+    const seen=new Set();const labels=[];
+    for(const h of links){
+      const key=String(h.hero_id||'')+'|'+String(h.western_name||'');if(seen.has(key))continue;seen.add(key);
+      labels.push(`${h.western_name||'Héros'} · #${h.hero_id}`);if(labels.length>=2)break;
+    }
+    if(labels.length){const s=document.createElement('span');s.className='hero-link-label';s.textContent='Héros : '+labels.join(' · ');card.appendChild(s);}
+  });
+};
 
 function currentParams(offset=0){
   const p=params();
+  if(activeHeroQueryId){
+    p.delete('q');
+    p.set('hero_id',String(activeHeroQueryId));
+    p.set('hero_relation','all');
+  }
   p.set('limit',String(PAGE_SIZE));
   p.set('offset',String(offset));
   return p;
@@ -41,14 +96,12 @@ function showCount(){
   el.title=hasMore
     ?`${items.length} résultats chargés sur ${totalMatches}. Le reste se charge automatiquement.`
     :`${totalMatches||items.length||0} résultats dans la sélection.`;
+  if(activeHeroQueryId)el.title+=` Recherche héros: ${activeHeroQueryLabel} (#${activeHeroQueryId}).`;
 }
 
 async function fetchPage(offset,gen){
   const controller=new AbortController();
-  if(offset===0){
-    try{activeController?.abort();}catch{}
-    activeController=controller;
-  }
+  if(offset===0){try{activeController?.abort();}catch{}activeController=controller;}
   const r=await fetch(API+'/search?'+currentParams(offset),{signal:controller.signal,cache:'no-store'});
   const d=await r.json();
   if(gen!==generation)return null;
@@ -62,9 +115,7 @@ function preserveStripPosition(fn){
   const activeSid=currentAsset?.stable_id||items[idx]?.stable_id||'';
   fn();
   requestAnimationFrame(()=>{
-    const s=document.querySelector('#results');
-    if(!s)return;
-    // Appending pages must never jump back to the active card. Selection itself handles centering.
+    const s=document.querySelector('#results');if(!s)return;
     s.scrollLeft=left;
     if(activeSid){
       const cards=[...s.querySelectorAll('.card')];
@@ -80,104 +131,68 @@ async function loadMore(reason='stream'){
   try{
     const d=await fetchPage(start,gen);if(!d)return false;
     if(queryToken&&d.queryToken&&queryToken!==d.queryToken)return false;
-    const existing=new Set(items.map(x=>x.stable_id));
-    let added=0;
-    for(const x of (d.items||[])){
-      if(!existing.has(x.stable_id)){items.push(x);existing.add(x.stable_id);added++;}
-    }
+    const existing=new Set(items.map(x=>x.stable_id));let added=0;
+    for(const x of (d.items||[]))if(!existing.has(x.stable_id)){items.push(x);existing.add(x.stable_id);added++;}
     loadedOffset=Number(d.offset??start)+(d.items||[]).length;
     totalMatches=Number(d.total??totalMatches);
-    hasMore=!!d.hasMore && loadedOffset<totalMatches;
+    hasMore=!!d.hasMore&&loadedOffset<totalMatches;
     if(added){preserveStripPosition(()=>renderList());showCount();}
     console.debug('V33_RESULT_STREAM',reason,'loaded',items.length,'total',totalMatches,'hasMore',hasMore);
     return added>0;
   }finally{loadingMore=false;}
 }
 
-function maybePrefetchFromSelection(){
-  if(hasMore && items.length-Math.max(0,idx)-1<=NAV_PREFETCH_REMAINING)loadMore('navigation-prefetch');
-}
-
+function maybePrefetchFromSelection(){if(hasMore&&items.length-Math.max(0,idx)-1<=NAV_PREFETCH_REMAINING)loadMore('navigation-prefetch');}
 function maybePrefetchFromScroll(){
-  const strip=document.querySelector('#results');
-  if(!strip||!hasMore||loadingMore)return;
+  const strip=document.querySelector('#results');if(!strip||!hasMore||loadingMore)return;
   const remaining=strip.scrollWidth-strip.scrollLeft-strip.clientWidth;
   if(remaining<=strip.clientWidth*SCROLL_PREFETCH_VIEWPORTS)loadMore('horizontal-scroll');
 }
-
 function installContinuousStrip(){
   const strip=document.querySelector('#results');if(!strip||strip.dataset.v33Continuous==='1')return;
   strip.dataset.v33Continuous='1';
-  strip.addEventListener('scroll',()=>{
-    clearTimeout(scrollTimer);
-    scrollTimer=setTimeout(maybePrefetchFromScroll,70);
-  },{passive:true});
-  // Wheel/trackpad and touch momentum can stop between scroll events; recheck after pointer release.
+  strip.addEventListener('scroll',()=>{clearTimeout(scrollTimer);scrollTimer=setTimeout(maybePrefetchFromScroll,70);},{passive:true});
   strip.addEventListener('pointerup',()=>setTimeout(maybePrefetchFromScroll,80),{passive:true});
 }
 
 function runtimeFailureOnStage(){
-  const stage=document.querySelector('#stage');
-  if(!stage)return null;
-  const box=stage.querySelector('.errorbox');
-  if(!box)return null;
+  const stage=document.querySelector('#stage');if(!stage)return null;
+  const box=stage.querySelector('.errorbox');if(!box)return null;
   const details=box.querySelector('#errorDetails')?.textContent?.trim()||'';
   const title=box.querySelector('h3')?.textContent?.trim()||'Rendu indisponible';
   return {title,details};
 }
-
 function nextCandidateIndex(from){
-  for(let i=Math.max(0,from);i<items.length;i++){
-    const sid=items[i]?.stable_id;
-    if(sid&&!skippedRuntime.has(sid))return i;
-  }
+  for(let i=Math.max(0,from);i<items.length;i++){const sid=items[i]?.stable_id;if(sid&&!skippedRuntime.has(sid))return i;}
   return -1;
 }
-
 async function autoSkipRuntimeFailure(failedIndex,failedSid,gen){
   if(!AUTO_SKIP_RUNTIME_FAILURES||autoSkipBusy||gen!==generation)return false;
-  const failure=runtimeFailureOnStage();
-  if(!failure)return false;
-
-  skippedRuntime.add(failedSid);
-  skippedRuntimeCount++;
+  const failure=runtimeFailureOnStage();if(!failure)return false;
+  skippedRuntime.add(failedSid);skippedRuntimeCount++;
   console.warn('V33_RUNTIME_SKIPPED',failedSid,failure.title,failure.details);
-
-  const stage=document.querySelector('#stage');
-  if(stage)stage.innerHTML='<div class="empty">Recherche du prochain rendu disponible…</div>';
-
+  const stage=document.querySelector('#stage');if(stage)stage.innerHTML='<div class="empty">Recherche du prochain rendu disponible…</div>';
   autoSkipBusy=true;
   try{
     let wanted=nextCandidateIndex(failedIndex+1);
-    while(wanted<0&&hasMore&&gen===generation){
-      const added=await loadMore('runtime-failure-skip');
-      if(!added)break;
-      wanted=nextCandidateIndex(failedIndex+1);
-    }
+    while(wanted<0&&hasMore&&gen===generation){const added=await loadMore('runtime-failure-skip');if(!added)break;wanted=nextCandidateIndex(failedIndex+1);}
     if(gen!==generation)return true;
-    if(wanted>=0){
-      setTimeout(()=>select(wanted),0);
-      return true;
-    }
-
-    // Nothing usable after this point. Try an earlier already-loaded result without looping.
-    for(let i=Math.min(failedIndex-1,items.length-1);i>=0;i--){
-      const sid=items[i]?.stable_id;
-      if(sid&&!skippedRuntime.has(sid)){
-        setTimeout(()=>select(i),0);
-        return true;
-      }
-    }
-
+    if(wanted>=0){setTimeout(()=>select(wanted),0);return true;}
+    for(let i=Math.min(failedIndex-1,items.length-1);i>=0;i--){const sid=items[i]?.stable_id;if(sid&&!skippedRuntime.has(sid)){setTimeout(()=>select(i),0);return true;}}
     if(stage)stage.innerHTML='<div class="empty">Aucun autre rendu décodable dans cette sélection.</div>';
     return true;
-  }finally{
-    autoSkipBusy=false;
-  }
+  }finally{autoSkipBusy=false;}
 }
 
 runSearch=async function(){
   updateFilterSummary();
+  await ensureHeroAliases();
+  const rawQuery=document.querySelector('#q')?.value?.trim()||'';
+  const hero=resolveHeroQuery(rawQuery);
+  activeHeroQueryId=hero?String(hero.hero_id):'';
+  activeHeroQueryLabel=hero?String(hero.western_name||rawQuery):'';
+  if(hero)console.info('V34_HERO_QUERY_EXPANDED',rawQuery,'=>',activeHeroQueryLabel,'#'+activeHeroQueryId);
+
   const gen=++generation;
   idx=-1;currentAsset=null;currentModel?.destroy?.();currentModel=null;
   if(currentUrl){try{URL.revokeObjectURL(currentUrl)}catch{}currentUrl=null;}
@@ -189,7 +204,7 @@ runSearch=async function(){
     items=d.items||[];
     loadedOffset=Number(d.offset||0)+items.length;
     totalMatches=Number(d.total??items.length);
-    hasMore=!!d.hasMore && loadedOffset<totalMatches;
+    hasMore=!!d.hasMore&&loadedOffset<totalMatches;
     queryToken=d.queryToken||'';
     renderList();showCount();installContinuousStrip();
     if(items.length){select(0);maybePrefetchFromSelection();}
@@ -202,55 +217,35 @@ runSearch=async function(){
 
 bindNav=function(){
   const p=document.querySelector('#prev'),n=document.querySelector('#next');
-  if(p)p.onclick=()=>{
-    let wanted=idx-1;
-    while(wanted>=0&&skippedRuntime.has(items[wanted]?.stable_id))wanted--;
-    if(wanted>=0)select(wanted);
-  };
+  if(p)p.onclick=()=>{let wanted=idx-1;while(wanted>=0&&skippedRuntime.has(items[wanted]?.stable_id))wanted--;if(wanted>=0)select(wanted);};
   if(n)n.onclick=async()=>{
-    let wanted=idx+1;
-    while(wanted<items.length&&skippedRuntime.has(items[wanted]?.stable_id))wanted++;
+    let wanted=idx+1;while(wanted<items.length&&skippedRuntime.has(items[wanted]?.stable_id))wanted++;
     if(wanted<items.length){select(wanted);maybePrefetchFromSelection();return;}
-    if(hasMore&&await loadMore('next-edge')){
-      wanted=idx+1;
-      while(wanted<items.length&&skippedRuntime.has(items[wanted]?.stable_id))wanted++;
-      if(wanted<items.length){select(wanted);maybePrefetchFromSelection();}
-    }
+    if(hasMore&&await loadMore('next-edge')){wanted=idx+1;while(wanted<items.length&&skippedRuntime.has(items[wanted]?.stable_id))wanted++;if(wanted<items.length){select(wanted);maybePrefetchFromSelection();}}
   };
 };
 
-// Prevent an old asynchronous render/model response from becoming visible after a new search.
-// Also make runtime decode/reconstruction failures transparent to normal browsing.
 const baseSelect=select;
 select=async function(i){
   if(i<0||i>=items.length)return;
   const gen=generation;const sid=items[i]?.stable_id;
-  if(skippedRuntime.has(sid)){
-    const wanted=nextCandidateIndex(i+1);
-    if(wanted>=0){setTimeout(()=>select(wanted),0);return;}
-  }
+  if(skippedRuntime.has(sid)){const wanted=nextCandidateIndex(i+1);if(wanted>=0){setTimeout(()=>select(wanted),0);return;}}
   await baseSelect(i);
-  if(gen!==generation){
-    const current=idx;if(current>=0&&current<items.length)setTimeout(()=>select(current),0);return;
-  }
-  if(currentAsset?.stable_id!==sid){
-    const current=idx;if(current>=0&&current<items.length)setTimeout(()=>select(current),0);return;
-  }
+  if(gen!==generation){const current=idx;if(current>=0&&current<items.length)setTimeout(()=>select(current),0);return;}
+  if(currentAsset?.stable_id!==sid){const current=idx;if(current>=0&&current<items.length)setTimeout(()=>select(current),0);return;}
   if(await autoSkipRuntimeFailure(i,sid,gen))return;
   try{window.WFGGResultStripSync?.('smooth')}catch{}
   maybePrefetchFromSelection();
 };
 
 const searchBtn=document.querySelector('#search');if(searchBtn)searchBtn.onclick=()=>runSearch();
-const q=document.querySelector('#q');if(q){
-  q.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();e.stopImmediatePropagation();runSearch();}},{capture:true});
-}
-const clear=document.querySelector('#clear');if(clear)clear.onclick=()=>resetFilters(true);
+const q=document.querySelector('#q');if(q)q.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();e.stopImmediatePropagation();runSearch();}},{capture:true});
+const clear=document.querySelector('#clear');if(clear)clear.onclick=()=>{activeHeroQueryId='';activeHeroQueryLabel='';resetFilters(true);};
 
+ensureHeroAliases();
 installContinuousStrip();
 window.WFGGSearchCorrelation={
-  state:()=>({generation,loaded:items.length,total:totalMatches,hasMore,queryToken,pageSize:PAGE_SIZE,mode:'continuous-lazy-stream',autoSkipRuntimeFailures:AUTO_SKIP_RUNTIME_FAILURES,skippedRuntime:skippedRuntimeCount}),
-  loadMore,
-  maybePrefetchFromScroll
+  state:()=>({generation,loaded:items.length,total:totalMatches,hasMore,queryToken,pageSize:PAGE_SIZE,mode:'continuous-lazy-stream',autoSkipRuntimeFailures:AUTO_SKIP_RUNTIME_FAILURES,skippedRuntime:skippedRuntimeCount,heroQueryId:activeHeroQueryId,heroQueryLabel:activeHeroQueryLabel,heroAliasKeys:heroAliasMap.size}),
+  loadMore,maybePrefetchFromScroll,resolveHeroQuery
 };
 })();
