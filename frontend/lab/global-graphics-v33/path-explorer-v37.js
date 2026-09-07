@@ -1,250 +1,59 @@
 (()=>{
 'use strict';
-
-/* WfGg V37.1 — real folder/subfolder explorer.
-   A folder exploration is deliberately independent from the previous free-text query.
-   "Afficher les aperçus" clears unrelated filters and keeps only local/previewable assets.
-   "Afficher tout" clears unrelated filters and shows every indexed asset under the selected path,
-   recursively including subfolders and technical texture sheets.
-*/
-
-const API37='/api/v33';
-let activePath='';
-let browsePath='';
-let treeBusy=false;
-let installed=false;
-let wrappersInstalled=false;
-
-const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const norm=s=>String(s||'').replace(/\\/g,'/').replace(/^\/+|\/+$/g,'');
+/* WfGg V37.3 — folder tree + multi-keyword search + V38 loader. */
+const API='/api/v33';
+let activePath='',browsePath='',treeBusy=false,pathWrapped=false;
 const byId=id=>document.getElementById(id);
+const norm=s=>String(s||'').replace(/\\/g,'/').replace(/^\/+|\/+$/g,'');
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const RESET_IDS=['graphic_class','dimension_class','model_role','family','visual_role','context','scope_kind','event_id','event_relation','tech_kind'];
 
-function injectStyle(){
-  if(byId('wfggPathExplorerStyle'))return;
-  const st=document.createElement('style');st.id='wfggPathExplorerStyle';st.textContent=`
-  #pathExplorerDialog .path-search{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:7px}
-  #pathExplorerDialog .path-breadcrumbs{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
-  #pathExplorerDialog .path-breadcrumbs button{padding:6px 8px;font-size:11px}
-  #pathExplorerDialog .path-current{background:#101722;border:1px solid #293346;border-radius:10px;padding:9px;font:11px ui-monospace,SFMono-Regular,Menlo,monospace;overflow-wrap:anywhere;color:var(--muted)}
-  #pathExplorerDialog .path-folders{display:grid;gap:6px;max-height:48dvh;overflow:auto;padding-right:2px}
-  #pathExplorerDialog .path-folder{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;text-align:left;padding:10px}
-  #pathExplorerDialog .path-folder strong{display:block;overflow-wrap:anywhere}
-  #pathExplorerDialog .path-folder small{display:block;color:var(--muted);font-size:10px;overflow-wrap:anywhere;margin-top:2px}
-  #pathExplorerDialog .path-count{color:var(--muted);font-size:11px;white-space:nowrap}
-  #pathExplorerDialog .path-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px}
-  #pathExplorerDialog .path-empty{text-align:center;color:var(--muted);padding:18px 8px}
-  #openPathExplorer.path-active{border-color:var(--violet);color:#ddd5ff}
-  @media(max-width:420px){#pathExplorerDialog .path-search{grid-template-columns:1fr}#pathExplorerDialog .path-actions{grid-template-columns:1fr}}
-  `;document.head.appendChild(st);
-}
-
-function ensureDialog(){
-  let d=byId('pathExplorerDialog');if(d)return d;
-  d=document.createElement('dialog');d.id='pathExplorerDialog';d.innerHTML=`
-    <div class="modal-shell">
-      <div class="modal-head"><h2>📁 Arborescence des assets</h2><button id="closePathExplorer" aria-label="Fermer">✕</button></div>
-      <div class="modal-body" style="display:grid;grid-template-columns:1fr">
-        <div class="path-search"><input id="pathFolderQuery" placeholder="Rechercher un dossier…" autocomplete="off"><button id="pathFolderSearch">Rechercher</button></div>
-        <div id="pathBreadcrumbs" class="path-breadcrumbs"></div>
-        <div id="pathCurrent" class="path-current">Racine</div>
-        <div id="pathFolderStatus" class="hint">Chargement…</div>
-        <div id="pathFolders" class="path-folders"></div>
-        <div class="path-actions">
-          <button id="pathShowVisible" class="primary">Afficher les aperçus du dossier</button>
-          <button id="pathShowAll">Afficher TOUT le dossier</button>
-        </div>
-        <div class="modal-note">Le dossier choisi inclut récursivement ses sous-dossiers. L’ouverture d’un dossier efface la recherche texte précédente et les filtres de catégorie. « Aperçus » conserve uniquement les assets locaux affichables/probables. « TOUT » montre l’intégralité du chemin indexé, textures et composants techniques compris.</div>
-      </div>
-      <div class="modal-foot"><button id="pathClear" class="clear">Effacer le dossier actif</button><button id="pathCloseBottom">Fermer</button></div>
-    </div>`;
-  document.body.appendChild(d);
-  byId('closePathExplorer').onclick=()=>d.close();
-  byId('pathCloseBottom').onclick=()=>d.close();
-  byId('pathFolderSearch').onclick=()=>searchFolders();
-  byId('pathFolderQuery').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();searchFolders();}});
-  byId('pathShowVisible').onclick=()=>applyPath(true);
-  byId('pathShowAll').onclick=()=>applyPath(false);
-  byId('pathClear').onclick=()=>clearActivePath(true);
-  return d;
-}
-
-function ensureOpenButton(){
-  const qa=document.querySelector('.quickactions');if(!qa||byId('openPathExplorer'))return;
-  const b=document.createElement('button');b.id='openPathExplorer';b.textContent='📁 Arborescence';b.onclick=()=>openExplorer(activePath||'');
-  qa.insertBefore(b,qa.firstChild);
-  refreshButton();
-}
-function refreshButton(){
-  const b=byId('openPathExplorer');if(!b)return;
-  b.classList.toggle('path-active',!!activePath);
-  b.textContent=activePath?'📁 '+(activePath.split('/').pop()||'Dossier'):'📁 Arborescence';
-  b.title=activePath||'Explorer les dossiers et sous-dossiers';
-}
-
-function breadcrumbs(path){
-  const box=byId('pathBreadcrumbs');if(!box)return;box.innerHTML='';
-  const root=document.createElement('button');root.textContent='Racine';root.onclick=()=>loadPath('');box.appendChild(root);
-  const parts=norm(path).split('/').filter(Boolean);let acc='';
-  parts.forEach(p=>{const sep=document.createElement('span');sep.textContent='›';sep.className='hint';box.appendChild(sep);acc=acc?acc+'/'+p:p;const target=acc;const b=document.createElement('button');b.textContent=p;b.onclick=()=>loadPath(target);box.appendChild(b);});
-}
-function renderFolders(data,searchMode=false){
-  const box=byId('pathFolders'),status=byId('pathFolderStatus');if(!box)return;box.innerHTML='';
-  const folders=data?.folders||[];
-  if(!searchMode&&data?.current){
-    const count=Number(data.current.total_assets||0);
-    byId('pathCurrent').textContent=(browsePath||'Racine')+(count?` · ${count.toLocaleString('fr-FR')} assets indexés`: '');
-  }
-  status.textContent=searchMode?`${folders.length} dossier(s) trouvé(s)`:`${folders.length} sous-dossier(s) · le bouton TOUT explore également tous leurs contenus`;
-  if(!folders.length){box.innerHTML='<div class="path-empty">Aucun sous-dossier à ce niveau. Tu peux quand même afficher tous les assets contenus dans ce dossier.</div>';return;}
-  for(const f of folders){
-    const b=document.createElement('button');b.className='path-folder';
-    b.innerHTML=`<span><strong>📁 ${esc(f.name||f.full_path||'dossier')}</strong><small>${esc(f.full_path||'')}</small></span><span class="path-count">${Number(f.total_assets||0).toLocaleString('fr-FR')} assets</span>`;
-    b.onclick=()=>loadPath(f.full_path||'');box.appendChild(b);
-  }
-}
-
-async function loadPath(path){
-  if(treeBusy)return;treeBusy=true;browsePath=norm(path);breadcrumbs(browsePath);byId('pathCurrent').textContent=browsePath||'Racine';byId('pathFolderStatus').textContent='Chargement…';
-  try{
-    const p=new URLSearchParams();if(browsePath)p.set('parent',browsePath);
-    const r=await fetch(API37+'/path/children?'+p,{cache:'no-store'}),d=await r.json();if(!r.ok)throw new Error(d.message||d.error||'arborescence indisponible');renderFolders(d,false);
-  }catch(e){byId('pathFolderStatus').textContent='Erreur : '+String(e?.message||e);byId('pathFolders').innerHTML='';}
-  finally{treeBusy=false;}
-}
-async function searchFolders(){
-  const q=String(byId('pathFolderQuery')?.value||'').trim();if(!q){loadPath(browsePath);return;}
-  if(treeBusy)return;treeBusy=true;byId('pathFolderStatus').textContent='Recherche…';
-  try{const r=await fetch(API37+'/path/children?q='+encodeURIComponent(q),{cache:'no-store'}),d=await r.json();if(!r.ok)throw new Error(d.message||d.error||'recherche dossier impossible');renderFolders(d,true);}catch(e){byId('pathFolderStatus').textContent='Erreur : '+String(e?.message||e);}finally{treeBusy=false;}
-}
-function openExplorer(path=''){
-  ensureDialog();const d=byId('pathExplorerDialog');browsePath=norm(path||activePath);byId('pathFolderQuery').value='';d.showModal();loadPath(browsePath);
-}
-
-function setTexturePolicy(showAll){
-  const sel=byId('texture_sheet_visibility');
-  try{localStorage.setItem('wfgg-hide-model-texture-sheets-v35',showAll?'show':'hide');}catch{}
-  if(sel){sel.value=showAll?'show':'hide';sel.dispatchEvent(new Event('change',{bubbles:true}));}
-}
-function prepareFolderMode(previewOnly){
-  // Folder exploration must not inherit a previous Murphy/text search or category filter.
-  const q=byId('q');if(q)q.value='';
-  for(const id of RESET_IDS){const el=byId(id);if(el)el.value='all';}
-  const mc=byId('min_confidence');if(mc)mc.value='';
-  const ra=byId('render_availability');if(ra)ra.value=previewOnly?'local-renderable':'all';
-  const ps=byId('preview_status');if(ps)ps.value=previewOnly?'previewable':'all';
-  setTexturePolicy(!previewOnly);
-  try{window.WFGGVisualSimilarityV36?.setMode?.('visual');}catch{}
-}
-function applyPath(previewOnly){
-  const chosen=norm(browsePath);if(!chosen)return;
-  prepareFolderMode(previewOnly);
-  activePath=chosen;browsePath=chosen;refreshButton();
-  try{updateFilterSummary?.();}catch{}
-  byId('pathExplorerDialog')?.close();
-  if(typeof runSearch==='function')runSearch();
-  console.info('V37_1_PATH_APPLY',previewOnly?'PREVIEW':'ALL','path='+activePath,'text-query=CLEARED filters=RESET recursive=ON textures='+(previewOnly?'HIDDEN':'INCLUDED'));
-}
-function clearActivePath(run=true){activePath='';browsePath='';refreshButton();try{updateFilterSummary?.();}catch{}if(byId('pathExplorerDialog')?.open)loadPath('');if(run&&typeof runSearch==='function')runSearch();}
-
-function installQueryIntegration(){
-  if(wrappersInstalled||typeof params!=='function')return false;wrappersInstalled=true;
-  const baseParams=params;params=function(){const p=baseParams();if(activePath)p.set('path_prefix',activePath);return p;};
-  if(typeof activeFilters==='function'){
-    const baseActiveFilters=activeFilters;activeFilters=function(){const out=baseActiveFilters();if(activePath)out.unshift({id:'path_prefix',label:'Dossier '+activePath});return out;};
-  }
-  if(typeof resetFilters==='function'){
-    const baseReset=resetFilters;resetFilters=function(run=true){activePath='';browsePath='';refreshButton();return baseReset(run);};
-  }
-  console.info('V37_1_PATH_EXPLORER query-integration=ON recursive-path-prefix=ON independent-folder-mode=ON');return true;
-}
-
-function installMetaFolderButton(){
-  if(typeof renderMeta!=='function'||renderMeta.__wfggPathV37)return false;
-  const base=renderMeta;
-  const wrapped=function(a,m=null){base(a,m);const tools=document.querySelector('#meta .tools');if(!tools||!a)return;let b=tools.querySelector('#openAssetFolderV37');if(!b){b=document.createElement('button');b.id='openAssetFolderV37';b.textContent='📂 Ouvrir son dossier';tools.appendChild(b);}const folder=norm(a.asset_folder||String(a.asset_path||'').replace(/\\/g,'/').split('/').slice(0,-1).join('/'));b.disabled=!folder;b.onclick=()=>openExplorer(folder);};
-  wrapped.__wfggPathV37=true;renderMeta=wrapped;return true;
-}
-
-function boot(){
-  injectStyle();ensureDialog();ensureOpenButton();
-  const q=installQueryIntegration(),m=installMetaFolderButton();
-  if(!q||!m)setTimeout(boot,150);
-  else{installed=true;window.WFGGPathExplorerV37={version:'37.1',open:openExplorer,clear:clearActivePath,state:()=>({activePath,browsePath})};console.info('V37_1_PATH_EXPLORER ready tree=ON breadcrumbs=ON folder-search=ON exhaustive-folder-mode=ON');}
-}
-boot();
+function style(){if(byId('wfggPathExplorerStyle'))return;const s=document.createElement('style');s.id='wfggPathExplorerStyle';s.textContent=`
+#pathExplorerDialog .path-search{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:7px}
+#pathExplorerDialog .path-breadcrumbs{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
+#pathExplorerDialog .path-breadcrumbs button{padding:6px 8px;font-size:11px}
+#pathExplorerDialog .path-current{background:#101722;border:1px solid #293346;border-radius:10px;padding:9px;font:11px ui-monospace,SFMono-Regular,Menlo,monospace;overflow-wrap:anywhere;color:var(--muted)}
+#pathExplorerDialog .path-folders{display:grid;gap:6px;max-height:48dvh;overflow:auto;padding-right:2px}
+#pathExplorerDialog .path-folder{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;text-align:left;padding:10px}
+#pathExplorerDialog .path-folder strong{display:block;overflow-wrap:anywhere}#pathExplorerDialog .path-folder small{display:block;color:var(--muted);font-size:10px;overflow-wrap:anywhere;margin-top:2px}
+#pathExplorerDialog .path-count{color:var(--muted);font-size:11px;white-space:nowrap}#pathExplorerDialog .path-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+#pathExplorerDialog .path-empty{text-align:center;color:var(--muted);padding:18px 8px}#openPathExplorer.path-active{border-color:var(--violet);color:#ddd5ff}
+@media(max-width:420px){#pathExplorerDialog .path-search,#pathExplorerDialog .path-actions{grid-template-columns:1fr}}
+`;document.head.appendChild(s);}
+function dialog(){let d=byId('pathExplorerDialog');if(d)return d;d=document.createElement('dialog');d.id='pathExplorerDialog';d.innerHTML=`<div class="modal-shell"><div class="modal-head"><h2>📁 Arborescence des assets</h2><button id="closePathExplorer" aria-label="Fermer">✕</button></div><div class="modal-body" style="display:grid;grid-template-columns:1fr"><div class="path-search"><input id="pathFolderQuery" placeholder="Rechercher un dossier…" autocomplete="off"><button id="pathFolderSearch">Rechercher</button></div><div id="pathBreadcrumbs" class="path-breadcrumbs"></div><div id="pathCurrent" class="path-current">Racine</div><div id="pathFolderStatus" class="hint">Chargement…</div><div id="pathFolders" class="path-folders"></div><div class="path-actions"><button id="pathShowVisible" class="primary">Afficher les aperçus du dossier</button><button id="pathShowAll">Afficher TOUT le dossier</button></div><div class="modal-note">Le dossier choisi inclut récursivement ses sous-dossiers. L’ouverture efface la recherche texte et les filtres de catégorie. « Aperçus » garde les assets locaux affichables/probables ; « TOUT » montre l’intégralité du chemin, textures et composants techniques compris.</div></div><div class="modal-foot"><button id="pathClear" class="clear">Effacer le dossier actif</button><button id="pathCloseBottom">Fermer</button></div></div>`;document.body.appendChild(d);
+byId('closePathExplorer').onclick=()=>d.close();byId('pathCloseBottom').onclick=()=>d.close();byId('pathFolderSearch').onclick=searchFolders;byId('pathFolderQuery').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();searchFolders();}});byId('pathShowVisible').onclick=()=>applyPath(true);byId('pathShowAll').onclick=()=>applyPath(false);byId('pathClear').onclick=()=>clearPath(true);return d;}
+function openButton(){const q=document.querySelector('.quickactions');if(!q||byId('openPathExplorer'))return;const b=document.createElement('button');b.id='openPathExplorer';b.onclick=()=>openExplorer(activePath);q.insertBefore(b,q.firstChild);refreshButton();}
+function refreshButton(){const b=byId('openPathExplorer');if(!b)return;b.classList.toggle('path-active',!!activePath);b.textContent=activePath?'📁 '+(activePath.split('/').pop()||'Dossier'):'📁 Arborescence';b.title=activePath||'Explorer les dossiers et sous-dossiers';}
+function crumbs(path){const box=byId('pathBreadcrumbs');if(!box)return;box.innerHTML='';const root=document.createElement('button');root.textContent='Racine';root.onclick=()=>loadPath('');box.appendChild(root);let acc='';for(const part of norm(path).split('/').filter(Boolean)){const sep=document.createElement('span');sep.className='hint';sep.textContent='›';box.appendChild(sep);acc=acc?acc+'/'+part:part;const target=acc,b=document.createElement('button');b.textContent=part;b.onclick=()=>loadPath(target);box.appendChild(b);}}
+function renderFolders(d,search=false){const box=byId('pathFolders'),st=byId('pathFolderStatus');if(!box)return;box.innerHTML='';const folders=d?.folders||[];if(!search&&d?.current){const n=Number(d.current.total_assets||0);byId('pathCurrent').textContent=(browsePath||'Racine')+(n?` · ${n.toLocaleString('fr-FR')} assets indexés`:'');}st.textContent=search?`${folders.length} dossier(s) trouvé(s)`:`${folders.length} sous-dossier(s) · TOUT explore aussi leurs contenus`;if(!folders.length){box.innerHTML='<div class="path-empty">Aucun sous-dossier ici. Tu peux quand même afficher les assets contenus dans ce dossier.</div>';return;}for(const f of folders){const b=document.createElement('button');b.className='path-folder';b.innerHTML=`<span><strong>📁 ${esc(f.name||'dossier')}</strong><small>${esc(f.full_path||'')}</small></span><span class="path-count">${Number(f.total_assets||0).toLocaleString('fr-FR')} assets</span>`;b.onclick=()=>loadPath(f.full_path||'');box.appendChild(b);}}
+async function loadPath(path){if(treeBusy)return;treeBusy=true;browsePath=norm(path);crumbs(browsePath);byId('pathCurrent').textContent=browsePath||'Racine';byId('pathFolderStatus').textContent='Chargement…';try{const p=new URLSearchParams();if(browsePath)p.set('parent',browsePath);const r=await fetch(API+'/path/children?'+p,{cache:'no-store'}),d=await r.json();if(!r.ok)throw new Error(d.message||d.error||'arborescence indisponible');renderFolders(d);}catch(e){byId('pathFolderStatus').textContent='Erreur : '+String(e?.message||e);byId('pathFolders').innerHTML='';}finally{treeBusy=false;}}
+async function searchFolders(){const q=String(byId('pathFolderQuery')?.value||'').trim();if(!q){loadPath(browsePath);return;}if(treeBusy)return;treeBusy=true;byId('pathFolderStatus').textContent='Recherche…';try{const r=await fetch(API+'/path/children?q='+encodeURIComponent(q),{cache:'no-store'}),d=await r.json();if(!r.ok)throw new Error(d.message||d.error||'recherche dossier impossible');renderFolders(d,true);}catch(e){byId('pathFolderStatus').textContent='Erreur : '+String(e?.message||e);}finally{treeBusy=false;}}
+function openExplorer(path=''){dialog();browsePath=norm(path||activePath);byId('pathFolderQuery').value='';byId('pathExplorerDialog').showModal();loadPath(browsePath);}
+function texturePolicy(show){try{localStorage.setItem('wfgg-hide-model-texture-sheets-v35',show?'show':'hide');}catch{}const s=byId('texture_sheet_visibility');if(s){s.value=show?'show':'hide';s.dispatchEvent(new Event('change',{bubbles:true}));}}
+function prepareFolder(previewOnly){const q=byId('q');if(q)q.value='';for(const id of RESET_IDS){const e=byId(id);if(e)e.value='all';}const mc=byId('min_confidence');if(mc)mc.value='';const ra=byId('render_availability');if(ra)ra.value=previewOnly?'local-renderable':'all';const ps=byId('preview_status');if(ps)ps.value=previewOnly?'previewable':'all';texturePolicy(!previewOnly);try{window.WFGGVisualSimilarityV36?.setMode?.('visual');}catch{}}
+function applyPath(previewOnly){const chosen=norm(browsePath);if(!chosen)return;prepareFolder(previewOnly);activePath=browsePath=chosen;refreshButton();try{updateFilterSummary?.();}catch{}byId('pathExplorerDialog')?.close();runSearch?.();console.info('V37_3_PATH_APPLY',previewOnly?'PREVIEW':'ALL','path='+activePath);}
+function clearPath(run=true){activePath=browsePath='';refreshButton();try{updateFilterSummary?.();}catch{}if(byId('pathExplorerDialog')?.open)loadPath('');if(run)runSearch?.();}
+function installPathWrappers(){if(pathWrapped||typeof params!=='function')return false;pathWrapped=true;const bp=params;params=function(){const p=bp();if(activePath)p.set('path_prefix',activePath);return p;};if(typeof activeFilters==='function'){const bf=activeFilters;activeFilters=function(){const o=bf();if(activePath)o.unshift({id:'path_prefix',label:'Dossier '+activePath});return o;};}if(typeof resetFilters==='function'){const br=resetFilters;resetFilters=function(run=true){activePath=browsePath='';refreshButton();return br(run);};}return true;}
+function installMetaFolder(){if(typeof renderMeta!=='function'||renderMeta.__wfggPathV37)return false;const base=renderMeta;renderMeta=function(a,m=null){base(a,m);const tools=document.querySelector('#meta .tools');if(!tools||!a)return;let b=tools.querySelector('#openAssetFolderV37');if(!b){b=document.createElement('button');b.id='openAssetFolderV37';b.textContent='📂 Ouvrir son dossier';tools.appendChild(b);}const folder=norm(a.asset_folder||String(a.asset_path||'').replace(/\\/g,'/').split('/').slice(0,-1).join('/'));b.disabled=!folder;b.onclick=()=>openExplorer(folder);};renderMeta.__wfggPathV37=true;return true;}
+function bootPath(){style();dialog();openButton();const a=installPathWrappers(),b=installMetaFolder();if(!(a&&b)){setTimeout(bootPath,150);return;}window.WFGGPathExplorerV37={version:'37.3',open:openExplorer,clear:clearPath,state:()=>({activePath,browsePath})};console.info('V37_3_PATH_EXPLORER ready recursive=ON exhaustive=ON');}
+bootPath();
 })();
 
 (()=>{
 'use strict';
-/* WfGg V37.2 — multi-keyword search on the existing main search bar.
-   - one term keeps the historical exact/hero behavior;
-   - 2+ terms are combined with AND through the V33 `keywords` backend filter;
-   - spaces, commas and semicolons are separators;
-   - quoted phrases remain one term;
-   - when exactly one term resolves to a known hero, that hero is applied through hero_id/direct
-     and the remaining terms stay as AND keywords (e.g. Murphy vehicle -> hero #50006 AND vehicle).
-*/
+/* V37.2-compatible multi-keyword AND layer. */
+let installed=false,termsState=[],heroState=null;
+function parse(raw){const out=[];const re=/"([^"]+)"|'([^']+)'|([^\s,;]+)/g;let m;while((m=re.exec(String(raw||'').trim()))&&out.length<12){const v=String(m[1]||m[2]||m[3]||'').trim();if(v)out.push(v);}return out;}
+function serialize(ts){return ts.map(v=>/\s/.test(v)?'"'+v.replace(/"/g,'')+'"':v).join(' ');}
+function resolve(ts){const fn=window.WFGGSearchCorrelation?.resolveHeroQuery;if(typeof fn!=='function')return {hero:null,index:-1};let hero=null,index=-1;for(let i=0;i<ts.length;i++){const h=fn(ts[i]);if(!h)continue;if(hero&&String(hero.hero_id)!==String(h.hero_id))return {hero:null,index:-1};hero=h;index=i;}return {hero,index};}
+function hint(){const q=byIdSafe('q');if(!q)return;q.placeholder='Murphy vehicle skin · plusieurs mots = ET · "phrase exacte"';const ts=parse(q.value);let h=document.querySelector('#multiKeywordHintV372');if(ts.length<=1){h?.remove();return;}if(!h){h=document.createElement('span');h.id='multiKeywordHintV372';h.className='filterchip';document.querySelector('#filterSummary')?.prepend(h);}h.textContent='Mots-clés ET : '+ts.join(' · ');}
+function byIdSafe(id){return document.getElementById(id);}
+function install(){if(installed||typeof params!=='function')return false;installed=true;const bp=params;params=function(){const p=bp(),raw=byIdSafe('q')?.value?.trim()||'',ts=parse(raw);termsState=ts;heroState=null;if(ts.length<=1){p.delete('keywords');return p;}p.delete('q');const r=resolve(ts);let rest=ts;if(r.hero){heroState=r.hero;rest=ts.filter((_,i)=>i!==r.index);p.set('hero_id',String(r.hero.hero_id));p.set('hero_relation','direct');}if(rest.length)p.set('keywords',serialize(rest));else p.delete('keywords');return p;};const q=byIdSafe('q');if(q){q.addEventListener('input',hint,{passive:true});hint();}if(typeof activeFilters==='function'){const bf=activeFilters;activeFilters=function(){const o=bf(),ts=parse(byIdSafe('q')?.value||'');if(ts.length>1)o.unshift({id:'multi_keywords',label:'Mots-clés ET '+ts.join(' · ')});return o;};}window.WFGGMultiKeywordV372={version:'37.2',parse,state:()=>({terms:[...termsState],hero:heroState})};console.info('V37_2_MULTI_KEYWORD ready mode=AND hero-token=EXACT');return true;}
+function boot(){if(!install())setTimeout(boot,150);}boot();
+})();
 
-let multiInstalled=false;
-let multiTerms=[];
-let multiHero=null;
-
-function parseMultiTerms(raw){
-  raw=String(raw||'').trim();if(!raw)return [];
-  const out=[];const re=/"([^"]+)"|'([^']+)'|([^\s,;]+)/g;let m;
-  while((m=re.exec(raw))&&out.length<12){const v=String(m[1]||m[2]||m[3]||'').trim();if(v)out.push(v);}
-  return out;
-}
-function serializeTerms(terms){return (terms||[]).map(v=>/\s/.test(v)?'"'+String(v).replace(/"/g,'')+'"':String(v)).join(' ');}
-function resolveHeroAmong(terms){
-  const resolver=window.WFGGSearchCorrelation?.resolveHeroQuery;if(typeof resolver!=='function')return {hero:null,index:-1};
-  let found=null,index=-1;
-  for(let i=0;i<terms.length;i++){
-    const h=resolver(terms[i]);if(!h)continue;
-    if(found&&String(found.hero_id)!==String(h.hero_id))return {hero:null,index:-1};
-    found=h;index=i;
-  }
-  return {hero:found,index};
-}
-function updateKeywordHint(){
-  const q=document.querySelector('#q');if(!q)return;
-  q.placeholder='Murphy vehicle skin · plusieurs mots = ET · "phrase exacte"';
-  let hint=document.querySelector('#multiKeywordHintV372');
-  const terms=parseMultiTerms(q.value);
-  if(terms.length<=1){hint?.remove();return;}
-  if(!hint){hint=document.createElement('span');hint.id='multiKeywordHintV372';hint.className='filterchip';const host=document.querySelector('#filterSummary');if(host)host.prepend(hint);}
-  if(hint)hint.textContent='Mots-clés ET : '+terms.join(' · ');
-}
-function installMultiKeyword(){
-  if(multiInstalled||typeof params!=='function')return false;multiInstalled=true;
-  const baseParams=params;
-  params=function(){
-    const p=baseParams();const raw=document.querySelector('#q')?.value?.trim()||'';const terms=parseMultiTerms(raw);
-    multiTerms=terms;multiHero=null;
-    if(terms.length<=1){p.delete('keywords');return p;}
-    p.delete('q');
-    const resolved=resolveHeroAmong(terms);let rest=terms;
-    if(resolved.hero){
-      multiHero=resolved.hero;rest=terms.filter((_,i)=>i!==resolved.index);
-      p.set('hero_id',String(resolved.hero.hero_id));p.set('hero_relation','direct');
-    }
-    if(rest.length)p.set('keywords',serializeTerms(rest));else p.delete('keywords');
-    return p;
-  };
-  const q=document.querySelector('#q');
-  if(q){q.addEventListener('input',updateKeywordHint,{passive:true});updateKeywordHint();}
-  if(typeof activeFilters==='function'){
-    const baseActiveFilters=activeFilters;
-    activeFilters=function(){
-      const out=baseActiveFilters();const terms=parseMultiTerms(document.querySelector('#q')?.value||'');
-      if(terms.length>1)out.unshift({id:'multi_keywords',label:'Mots-clés ET '+terms.join(' · ')});return out;
-    };
-  }
-  console.info('V37_2_MULTI_KEYWORD ready separators=SPACE,COMMA,SEMICOLON quoted-phrases=ON mode=AND hero-token=EXACT');
-  window.WFGGMultiKeywordV372={version:'37.2',parse:parseMultiTerms,state:()=>({terms:[...multiTerms],hero:multiHero})};
-  return true;
-}
-function bootMulti(){if(!installMultiKeyword())setTimeout(bootMulti,150);}
-bootMulti();
+(()=>{
+'use strict';
+function loadV38(){if(window.WFGGVisualAgentV38||document.querySelector('script[data-wfgg-v38-agent]'))return;const s=document.createElement('script');s.src='/lab/global-graphics-v33/visual-agent-v38.js?v=380';s.dataset.wfggV38Agent='1';s.onload=()=>console.info('V38_VISUAL_AGENT loader=OK');s.onerror=()=>console.warn('V38_VISUAL_AGENT loader=MISS');document.head.appendChild(s);}
+setTimeout(loadV38,600);setTimeout(loadV38,1800);
 })();
