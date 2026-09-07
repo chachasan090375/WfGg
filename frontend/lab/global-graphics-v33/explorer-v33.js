@@ -9,7 +9,8 @@
    - preserve real final diagnostics in console/Termux for development;
    - load V35 automatic visibility audit + similar-image exploration;
    - load V35 texture-sheet filtering and 3D texture UX;
-   - load V35.3 progressive/non-blocking similarity UX.
+   - load V35.3 progressive/non-blocking similarity UX;
+   - load V36 strict visual similarity after V35.3 so textures are excluded by default.
 */
 
 function installTransientErrorGuard(){
@@ -63,13 +64,25 @@ function ensureV35TextureExperience(){
 }
 
 function ensureV35FastSimilarity(){
-  if(window.WFGGFastSimilarityV35)return;
+  if(window.WFGGFastSimilarityV35){ensureV36VisualSimilarity();return;}
   if(document.querySelector('script[data-wfgg-v35-fast-similarity]'))return;
   const s=document.createElement('script');
   s.src='/lab/global-graphics-v33/similarity-fast-v35.js?v=353';
   s.dataset.wfggV35FastSimilarity='1';
-  s.onload=()=>console.info('V35_FAST_SIMILARITY loader=OK');
+  s.onload=()=>{console.info('V35_FAST_SIMILARITY loader=OK');ensureV36VisualSimilarity();};
   s.onerror=()=>console.warn('V35_FAST_SIMILARITY loader=MISS');
+  document.head.appendChild(s);
+}
+
+function ensureV36VisualSimilarity(){
+  if(window.WFGGVisualSimilarityV36)return;
+  if(!window.WFGGFastSimilarityV35){setTimeout(ensureV36VisualSimilarity,120);return;}
+  if(document.querySelector('script[data-wfgg-v36-visual-similarity]'))return;
+  const s=document.createElement('script');
+  s.src='/lab/global-graphics-v33/similarity-visual-v36.js?v=360';
+  s.dataset.wfggV36VisualSimilarity='1';
+  s.onload=()=>console.info('V36_VISUAL_SIMILARITY loader=OK strict-visual=ON textures-default=EXCLUDED');
+  s.onerror=()=>console.warn('V36_VISUAL_SIMILARITY loader=MISS');
   document.head.appendChild(s);
 }
 
@@ -150,10 +163,10 @@ function installSelectionSemantics(){
 async function refreshStatus(){
   try{
     const r=await fetch('/api/v33/explorer-status',{cache:'no-store'});if(!r.ok)return;
-    const d=await r.json();window.WFGGExplorerV33={version:'35.3',status:d,ready:true,accelerator:!!window.WFGGPreviewAccelerator,textureViewer:window.WFGGModelViewer?.cacheStats?.()?.uvTextureViewer||null,fastSimilarity:!!window.WFGGFastSimilarityV35};
-  }catch(e){window.WFGGExplorerV33={version:'35.3',ready:false,error:String(e)};}
+    const d=await r.json();window.WFGGExplorerV33={version:'36.0',status:d,ready:true,accelerator:!!window.WFGGPreviewAccelerator,textureViewer:window.WFGGModelViewer?.cacheStats?.()?.uvTextureViewer||null,fastSimilarity:!!window.WFGGFastSimilarityV35,visualSimilarity:!!window.WFGGVisualSimilarityV36};
+  }catch(e){window.WFGGExplorerV33={version:'36.0',ready:false,error:String(e)};}
 }
 
 installTransientErrorGuard();ensureAccelerator();installSelectionSemantics();ensureV35Tools();ensureV35TextureExperience();ensureV35FastSimilarity();
-setTimeout(installSelectionSemantics,60);setTimeout(installSelectionSemantics,250);setTimeout(ensureV35Tools,400);setTimeout(ensureV35TextureExperience,500);setTimeout(ensureV35FastSimilarity,700);refreshStatus();
+setTimeout(installSelectionSemantics,60);setTimeout(installSelectionSemantics,250);setTimeout(ensureV35Tools,400);setTimeout(ensureV35TextureExperience,500);setTimeout(ensureV35FastSimilarity,700);setTimeout(ensureV36VisualSimilarity,950);refreshStatus();
 })();
