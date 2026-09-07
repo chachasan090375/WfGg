@@ -6,7 +6,8 @@
    - keep the selected card centered immediately;
    - classify animation FBX files as non-autonomous components;
    - silently skip terminal runtime failures instead of showing technical panels;
-   - preserve real final diagnostics in console/Termux for development.
+   - preserve real final diagnostics in console/Termux for development;
+   - load V35 automatic visibility audit + similar-image exploration.
 */
 
 function installTransientErrorGuard(){
@@ -34,6 +35,17 @@ function ensureAccelerator(){
   s.dataset.wfggPreviewAccelerator='1';
   s.onload=()=>{console.info('V34_PREVIEW_ACCEL direct-loader=OK');installSelectionSemantics();};
   s.onerror=()=>console.debug('V34_PREVIEW_ACCEL direct-loader=MISS; injected copy may already be active');
+  document.head.appendChild(s);
+}
+
+function ensureV35Tools(){
+  if(window.WFGGVisibilitySimilarityV35)return;
+  if(document.querySelector('script[data-wfgg-v35-tools]'))return;
+  const s=document.createElement('script');
+  s.src='/lab/global-graphics-v33/visibility-similarity-v35.js?v=351';
+  s.dataset.wfggV35Tools='1';
+  s.onload=()=>console.info('V35_VISIBILITY_SIMILARITY loader=OK');
+  s.onerror=()=>console.warn('V35_VISIBILITY_SIMILARITY loader=MISS');
   document.head.appendChild(s);
 }
 
@@ -103,8 +115,6 @@ function installSelectionSemantics(){
     try{await task;}
     finally{requestAnimationFrame(()=>centerSelected('smooth'));}
 
-    // The accelerator is the last rendering layer, so any terminal error box that remains here is
-    // genuinely unusable. Remove it before the browser gets another navigation frame and continue.
     if(currentAsset?.stable_id===a.stable_id){
       const stage=document.querySelector('#stage'),reason=terminalFailure(stage);
       if(reason){await skipTerminalFailure(i,a,stage,reason);return;}
@@ -116,10 +126,10 @@ function installSelectionSemantics(){
 async function refreshStatus(){
   try{
     const r=await fetch('/api/v33/explorer-status',{cache:'no-store'});if(!r.ok)return;
-    const d=await r.json();window.WFGGExplorerV33={version:'33.4',status:d,ready:true,accelerator:!!window.WFGGPreviewAccelerator};
-  }catch(e){window.WFGGExplorerV33={version:'33.4',ready:false,error:String(e)};}
+    const d=await r.json();window.WFGGExplorerV33={version:'33.5',status:d,ready:true,accelerator:!!window.WFGGPreviewAccelerator};
+  }catch(e){window.WFGGExplorerV33={version:'33.5',ready:false,error:String(e)};}
 }
 
-installTransientErrorGuard();ensureAccelerator();installSelectionSemantics();
-setTimeout(installSelectionSemantics,60);setTimeout(installSelectionSemantics,250);refreshStatus();
+installTransientErrorGuard();ensureAccelerator();installSelectionSemantics();ensureV35Tools();
+setTimeout(installSelectionSemantics,60);setTimeout(installSelectionSemantics,250);setTimeout(ensureV35Tools,400);refreshStatus();
 })();
