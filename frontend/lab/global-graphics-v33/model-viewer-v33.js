@@ -2,10 +2,12 @@
 'use strict';
 const MOBILE=matchMedia('(max-width:979px)').matches;
 const MAX_TRIANGLES=MOBILE?28000:50000;
-const MAX_OBJECTS=MOBILE?12:24;
-const FETCH_BATCH=MOBILE?3:5;
+const MAX_OBJECTS=MOBILE?10:24;
+const FETCH_BATCH=MOBILE?10:8;
+const OBJECT_CACHE=new Map();
+const OBJECT_CACHE_LIMIT=MOBILE?30:72;
 
-function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c]));}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 
 function parseOBJ(text,label){
   const verts=[];const tris=[];let material='';
@@ -23,6 +25,37 @@ function parseOBJ(text,label){
   return {verts,tris,label};
 }
 
+function touchCache(key,value){
+  if(OBJECT_CACHE.has(key))OBJECT_CACHE.delete(key);
+  OBJECT_CACHE.set(key,value);
+  while(OBJECT_CACHE.size>OBJECT_CACHE_LIMIT){const oldest=OBJECT_CACHE.keys().next().value;OBJECT_CACHE.delete(oldest);}
+}
+
+async function fetchModelObject(obj){
+  const key=String(obj.url||obj.path||'');
+  if(OBJECT_CACHE.has(key)){
+    const cached=OBJECT_CACHE.get(key);touchCache(key,cached);return cached;
+  }
+  const promise=(async()=>{
+    const r=await fetch(obj.url,{cache:'force-cache'});if(!r.ok)throw new Error('HTTP '+r.status);
+    return parseOBJ(await r.text(),obj.path);
+  })();
+  touchCache(key,promise);
+  try{
+    const model=await promise;touchCache(key,Promise.resolve(model));return model;
+  }catch(e){
+    if(OBJECT_CACHE.get(key)===promise)OBJECT_CACHE.delete(key);
+    throw e;
+  }
+}
+
+async function prefetch(manifest){
+  const all=(manifest?.objects||[]).slice(0,MAX_OBJECTS);
+  if(!all.length)return {requested:0,ready:0,failed:0};
+  const results=await Promise.allSettled(all.map(fetchModelObject));
+  return {requested:all.length,ready:results.filter(x=>x.status==='fulfilled').length,failed:results.filter(x=>x.status==='rejected').length};
+}
+
 function rot(v,yaw,pitch){
   const cy=Math.cos(yaw),sy=Math.sin(yaw),cp=Math.cos(pitch),sp=Math.sin(pitch);
   const x1=v[0]*cy+v[2]*sy,z1=-v[0]*sy+v[2]*cy;
@@ -33,11 +66,6 @@ function normal(a,b,c){
   const nx=uy*vz-uz*vy,ny=uz*vx-ux*vz,nz=ux*vy-uy*vx,l=Math.hypot(nx,ny,nz)||1;return [nx/l,ny/l,nz/l];
 }
 function hashHue(s){let h=0;for(const c of String(s||''))h=(h*33+c.charCodeAt(0))>>>0;return h%360;}
-
-async function fetchModelObject(obj){
-  const r=await fetch(obj.url,{cache:'force-cache'});if(!r.ok)throw new Error('HTTP '+r.status);
-  return parseOBJ(await r.text(),obj.path);
-}
 
 async function mount(host,manifest){
   host.innerHTML='<div class="v33modelwrap"><canvas class="v33modelcanvas"></canvas><div class="v33modelhud">Préparation de l’aperçu 3D réel…</div></div>';
@@ -87,13 +115,13 @@ async function mount(host,manifest){
   canvas.addEventListener('touchmove',e=>{if(e.touches.length===2&&pinch){const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);zoom=Math.max(.35,Math.min(3.5,zoom*d/pinch));pinch=d;schedule();}},{passive:true});
 
   const limited=allObjects.length>objects.length?` · aperçu ${objects.length}/${allObjects.length} OBJ`:'';
-  hud.innerHTML=`<b>APERÇU 3D RÉEL</b> · glisser pour tourner · pincer pour zoomer<br><span>${(manifest.bundleIds||[]).length} bundle(s) · ${models.length} OBJ chargés${limited}${sampled?' · triangles décimés':''}</span>`;
+  hud.innerHTML=`<b>APERÇU 3D RÉEL</b> · glisser pour tourner · pincer pour zoomer<br><span>${(manifest.bundleIds||[]).length} bundle(s) · ${models.length} OBJ chargés${limited}${sampled?' · triangles décimés':''}${manifest.assemblySpeed?' · '+esc(manifest.assemblySpeed):''}</span>`;
   const tex=(manifest.files||[]).filter(x=>['png','jpg','jpeg','webp'].includes(x.kind)).slice(0,MOBILE?10:24);
   if(tex.length){const tray=document.createElement('div');tray.className='v33texturetray';tray.innerHTML='<span class="v33texturetitle">Textures disponibles</span>'+tex.map(x=>`<img loading="lazy" src="${esc(x.url)}" title="${esc(x.path)}">`).join('');host.appendChild(tray);}
   const ro=new ResizeObserver(resize);ro.observe(wrap);resize();
   return {canvas,manifest,destroy(){ro.disconnect();if(raf)cancelAnimationFrame(raf);},failures};
 }
-window.WFGGModelViewer={mount};
+window.WFGGModelViewer={mount,prefetch,cacheStats:()=>({objects:OBJECT_CACHE.size,limit:OBJECT_CACHE_LIMIT,maxPreviewObjects:MAX_OBJECTS,batch:FETCH_BATCH})};
 })();
 
 /* Result-strip synchronisation.
