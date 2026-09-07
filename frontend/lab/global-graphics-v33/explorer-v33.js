@@ -8,7 +8,8 @@
    - silently skip terminal runtime failures instead of showing technical panels;
    - preserve real final diagnostics in console/Termux for development;
    - load V35 automatic visibility audit + similar-image exploration;
-   - load V35 texture-sheet filtering and 3D texture UX.
+   - load V35 texture-sheet filtering and 3D texture UX;
+   - load V35.3 progressive/non-blocking similarity UX.
 */
 
 function installTransientErrorGuard(){
@@ -45,7 +46,7 @@ function ensureV35Tools(){
   const s=document.createElement('script');
   s.src='/lab/global-graphics-v33/visibility-similarity-v35.js?v=351';
   s.dataset.wfggV35Tools='1';
-  s.onload=()=>console.info('V35_VISIBILITY_SIMILARITY loader=OK');
+  s.onload=()=>{console.info('V35_VISIBILITY_SIMILARITY loader=OK');ensureV35FastSimilarity();};
   s.onerror=()=>console.warn('V35_VISIBILITY_SIMILARITY loader=MISS');
   document.head.appendChild(s);
 }
@@ -58,6 +59,17 @@ function ensureV35TextureExperience(){
   s.dataset.wfggV35TextureExperience='1';
   s.onload=()=>console.info('V35_TEXTURE_EXPERIENCE loader=OK');
   s.onerror=()=>console.warn('V35_TEXTURE_EXPERIENCE loader=MISS');
+  document.head.appendChild(s);
+}
+
+function ensureV35FastSimilarity(){
+  if(window.WFGGFastSimilarityV35)return;
+  if(document.querySelector('script[data-wfgg-v35-fast-similarity]'))return;
+  const s=document.createElement('script');
+  s.src='/lab/global-graphics-v33/similarity-fast-v35.js?v=353';
+  s.dataset.wfggV35FastSimilarity='1';
+  s.onload=()=>console.info('V35_FAST_SIMILARITY loader=OK');
+  s.onerror=()=>console.warn('V35_FAST_SIMILARITY loader=MISS');
   document.head.appendChild(s);
 }
 
@@ -138,10 +150,10 @@ function installSelectionSemantics(){
 async function refreshStatus(){
   try{
     const r=await fetch('/api/v33/explorer-status',{cache:'no-store'});if(!r.ok)return;
-    const d=await r.json();window.WFGGExplorerV33={version:'35.2',status:d,ready:true,accelerator:!!window.WFGGPreviewAccelerator,textureViewer:window.WFGGModelViewer?.cacheStats?.()?.uvTextureViewer||null};
-  }catch(e){window.WFGGExplorerV33={version:'35.2',ready:false,error:String(e)};}
+    const d=await r.json();window.WFGGExplorerV33={version:'35.3',status:d,ready:true,accelerator:!!window.WFGGPreviewAccelerator,textureViewer:window.WFGGModelViewer?.cacheStats?.()?.uvTextureViewer||null,fastSimilarity:!!window.WFGGFastSimilarityV35};
+  }catch(e){window.WFGGExplorerV33={version:'35.3',ready:false,error:String(e)};}
 }
 
-installTransientErrorGuard();ensureAccelerator();installSelectionSemantics();ensureV35Tools();ensureV35TextureExperience();
-setTimeout(installSelectionSemantics,60);setTimeout(installSelectionSemantics,250);setTimeout(ensureV35Tools,400);setTimeout(ensureV35TextureExperience,500);refreshStatus();
+installTransientErrorGuard();ensureAccelerator();installSelectionSemantics();ensureV35Tools();ensureV35TextureExperience();ensureV35FastSimilarity();
+setTimeout(installSelectionSemantics,60);setTimeout(installSelectionSemantics,250);setTimeout(ensureV35Tools,400);setTimeout(ensureV35TextureExperience,500);setTimeout(ensureV35FastSimilarity,700);refreshStatus();
 })();
