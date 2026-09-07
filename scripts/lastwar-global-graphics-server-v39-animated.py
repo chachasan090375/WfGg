@@ -17,6 +17,7 @@ BASE = ROOT / 'scripts/lastwar-global-graphics-server-v33-explorer.py'
 SCANNER = ROOT / 'scripts/lastwar-global-graphics-animation-v39.py'
 BINDINGS = ROOT / 'scripts/lastwar-global-graphics-animation-bindings-v39.py'
 V39_JS = ROOT / 'frontend/lab/global-graphics-v33/animation-viewer-v39.js'
+V391_RUNTIME_JS = ROOT / 'frontend/lab/global-graphics-v33/animation-runtime-v39.js'
 VIEWER = ROOT / 'frontend/lab/lastwar-global-graphics-viewer-v33.html'
 CACHE_ROOT = Path.home() / '.cache/wfgg-lastwar-v31'
 
@@ -74,6 +75,8 @@ class AnimatedHandler(v33.ExplorerHandler):
         try:
             if u.path == '/lab/global-graphics-v33/animation-viewer-v39.js':
                 return _send_js(self, V39_JS)
+            if u.path == '/lab/global-graphics-v33/animation-runtime-v39.js':
+                return _send_js(self, V391_RUNTIME_JS)
 
             if u.path == '/api/v39/animation':
                 sid = str((qs.get('id') or [''])[0])
@@ -108,7 +111,7 @@ class AnimatedHandler(v33.ExplorerHandler):
 
             if u.path == '/api/v39/status':
                 return self.send_json({
-                    'version': '39.0',
+                    'version': '39.1',
                     'animationDiagnostics': True,
                     'exactBundlePtrEvidence': True,
                     'syntheticAnimation': False,
@@ -122,12 +125,15 @@ class AnimatedHandler(v33.ExplorerHandler):
                 corr = '<script src="./global-graphics-v33/search-correlation-v33.js"></script>'
                 exp = '<script src="./global-graphics-v33/explorer-v33.js"></script>'
                 v39 = '<script src="./global-graphics-v33/animation-viewer-v39.js?v=3901"></script>'
+                v391 = '<script src="./global-graphics-v33/animation-runtime-v39.js?v=3911"></script>'
                 if 'search-correlation-v33.js' not in raw:
                     raw = raw.replace('</body>', corr + '</body>')
                 if 'explorer-v33.js' not in raw:
                     raw = raw.replace('</body>', exp + '</body>')
                 if 'animation-viewer-v39.js' not in raw:
                     raw = raw.replace('</body>', v39 + '</body>')
+                if 'animation-runtime-v39.js' not in raw:
+                    raw = raw.replace('</body>', v391 + '</body>')
                 data = raw.encode('utf-8')
                 self.send_response(200)
                 self.send_header('Content-Type', 'text/html; charset=utf-8')
