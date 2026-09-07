@@ -15,7 +15,9 @@ JS = ROOT / 'frontend/lab/global-graphics-v33/search-correlation-v33.js'
 ACCEL = ROOT / 'frontend/lab/global-graphics-v33/preview-accelerator-v34.js'
 MODEL_JS = ROOT / 'frontend/lab/global-graphics-v33/model-viewer-v33.js'
 EXPLORER_JS = ROOT / 'frontend/lab/global-graphics-v33/explorer-v33.js'
+TEXTURE_UI_JS = ROOT / 'frontend/lab/global-graphics-v33/texture-experience-v35.js'
 PTR3D = ROOT / 'scripts/lastwar-global-graphics-ptrmodel-fast-v34.py'
+TEXTURE3D = ROOT / 'scripts/lastwar-global-graphics-material-texture-v35.py'
 PTR3D_CACHE = Path.home() / '.cache/wfgg-lastwar-v31/models-v33-ptr-3402'
 CACHE_ROOT = Path.home() / '.cache/wfgg-lastwar-v31'
 
@@ -29,6 +31,12 @@ spec.loader.exec_module(m) if False else None
 ptrspec.loader.exec_module(ptr3d)
 ptr3d.install(m.c.core, m.c, PTR3D_CACHE, m.c.mobile.ORIGINAL_DEPENDENCY_ROWS)
 print('V34_PTR3D_INSTALLED staged-fast-exact=ON transforms-baked=ON cache=models-v33-ptr-3402', flush=True)
+
+texspec = importlib.util.spec_from_file_location('wfgg_v35_material_texture', TEXTURE3D)
+tex3d = importlib.util.module_from_spec(texspec)
+texspec.loader.exec_module(tex3d)
+tex3d.install(m.c.core, PTR3D_CACHE, m.c.mobile.ORIGINAL_DEPENDENCY_ROWS)
+print('V35_TEXTURE3D_INSTALLED material-ptr=ON texture2d-export=ON uv-material-slots=ON', flush=True)
 
 
 def _model_cache_roots():
@@ -109,6 +117,10 @@ class DebugHandler(m.c.CorrelatedHandler):
             _send_js(self, EXPLORER_JS)
             return
 
+        if u.path == '/lab/global-graphics-v33/texture-experience-v35.js':
+            _send_js(self, TEXTURE_UI_JS)
+            return
+
         if u.path == '/lab/global-graphics-v33/search-correlation-v33.js':
             # Do NOT rewrite AUTO_SKIP_RUNTIME_FAILURES to false. Normal browsing now skips known
             # terminal runtime failures; the complete diagnostics remain in console/Termux.
@@ -150,11 +162,13 @@ class DebugHandler(m.c.CorrelatedHandler):
 
 
 if __name__ == '__main__':
-    print('=== WFGG V33 — SOURCE FIX + FAST PTR3D V34 ===', flush=True)
+    print('=== WFGG V33 — SOURCE FIX + FAST PTR3D V34 + TEXTURE V35 ===', flush=True)
     print('V33_AUTO_SKIP runtime-failures=ON diagnostics=console+termux', flush=True)
     print('V34_PTR3D staged-fast-exact=ON transforms-baked=ON cache=models-v33-ptr-3402', flush=True)
+    print('V35_TEXTURE3D exact-material-ptr=ON texture2d-export=ON object-material-slots=ON', flush=True)
     print('V34_MODEL_FILE multi-cache-exact-recovery=ON', flush=True)
-    print('V34_MODEL_VIEWER no-store=ON early-error-shield=ON', flush=True)
+    print('V35_MODEL_VIEWER no-store=ON webgl-uv-textures=ON exact+candidate-texture-picker=ON', flush=True)
+    print('V35_TEXTURE_FILTER model-pbr-sheets-hidden-by-default=ON user-toggle=ON', flush=True)
     print('V34_EXPLORER_JS no-store=ON selection-semantics=ON terminal-runtime=AUTOSKIP', flush=True)
     print('V34_PREVIEW_ACCEL neutral-fallback=ON neighbor-prewarm=ON', flush=True)
     print('V33_SOURCE_AUDIT', repr(m.AUDIT), flush=True)
