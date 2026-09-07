@@ -15,6 +15,7 @@ import importlib.util, re, sys
 ROOT = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else Path(__file__).resolve().parents[1]
 BASE = ROOT / 'scripts/lastwar-global-graphics-server-v33-explorer.py'
 SCANNER = ROOT / 'scripts/lastwar-global-graphics-animation-v39.py'
+BINDINGS = ROOT / 'scripts/lastwar-global-graphics-animation-bindings-v39.py'
 V39_JS = ROOT / 'frontend/lab/global-graphics-v33/animation-viewer-v39.js'
 VIEWER = ROOT / 'frontend/lab/lastwar-global-graphics-viewer-v33.html'
 CACHE_ROOT = Path.home() / '.cache/wfgg-lastwar-v31'
@@ -26,6 +27,10 @@ spec.loader.exec_module(v33)
 aspec = importlib.util.spec_from_file_location('wfgg_animation_v39', SCANNER)
 anim = importlib.util.module_from_spec(aspec)
 aspec.loader.exec_module(anim)
+
+bspec = importlib.util.spec_from_file_location('wfgg_animation_bindings_v39', BINDINGS)
+bindings = importlib.util.module_from_spec(bspec)
+bspec.loader.exec_module(bindings)
 
 base = v33.base
 core = v33.core
@@ -89,13 +94,26 @@ class AnimatedHandler(v33.ExplorerHandler):
                 )
                 return self.send_json(payload)
 
+            if u.path == '/api/v39/animation-bindings':
+                sid = str((qs.get('id') or [''])[0])
+                if not re.fullmatch(r'LWGA-[A-Z0-9]+', sid):
+                    return self.send_json({'error': 'invalid-id'}, 400)
+                a = _asset(sid)
+                if not a:
+                    return self.send_json({'error': 'asset-not-found', 'id': sid}, 404)
+                with ptr_fast.ASSEMBLY_LOCK:
+                    payload = bindings.build_bindings(a, core, ptr, dependency_rows, CACHE_ROOT)
+                print('V39_ANIMATION_BINDINGS', sid, 'nodes='+str(payload.get('nodeCount', 0)), 'meshes='+str(payload.get('meshBindingCount', 0)), 'cache='+('HIT' if payload.get('cacheHit') else 'MISS'), flush=True)
+                return self.send_json(payload)
+
             if u.path == '/api/v39/status':
                 return self.send_json({
                     'version': '39.0',
                     'animationDiagnostics': True,
                     'exactBundlePtrEvidence': True,
                     'syntheticAnimation': False,
-                    'playbackRuntime': 'diagnostic-only-phase-1',
+                    'playbackRuntime': 'reconstructed-simple-transform-curves',
+                    'exactMeshTransformBindings': True,
                     'referenceAsset': 'LWGA-C37A0F67197299',
                 })
 
@@ -129,6 +147,7 @@ class AnimatedHandler(v33.ExplorerHandler):
 if __name__ == '__main__':
     print('=== WFGG LAST WAR GLOBAL GRAPHICS V39 — ANIMATED PREFAB DIAGNOSTICS ===', flush=True)
     print('V39_ANIMATION exact-bundle-ptr=ON transform-curves=INSPECT synthetic-motion=OFF', flush=True)
+    print('V39_PLAYBACK simple-transform-curves=RECONSTRUCTABLE exact-mesh-bindings=ON', flush=True)
     print('V39_PARTICLES detection=ON playback=NOT_YET', flush=True)
     print('V39_SCRIPTS animation-hints=CONSERVATIVE execution=OFF', flush=True)
     print('V39_REFERENCE_ASSET LWGA-C37A0F67197299', flush=True)
