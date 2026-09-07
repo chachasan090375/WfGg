@@ -4,8 +4,8 @@ from __future__ import annotations
 """WfGg Last War graphics LAB V39: exact animated-prefab diagnostics.
 
 This is a non-destructive wrapper around the current V33/V34/V35/V38 explorer. It adds exact
-Unity animation diagnostics plus V39.2 relation resolution when the selected catalogue entry is
-only a 2D UI/build icon while the runtime animation lives on a separate prefab.
+Unity animation diagnostics plus relation resolution when the selected catalogue entry is only a
+2D UI/build icon while the runtime animation lives on a separate prefab.
 """
 
 from http.server import ThreadingHTTPServer
@@ -41,6 +41,26 @@ ptr_fast = base.ptr3d
 ptr = ptr_fast.p
 dependency_rows = v33.mobile.ORIGINAL_DEPENDENCY_ROWS
 
+# V39.4 exact-ID guard. The V31 FTS and the generic `keywords` LIKE path are deliberately bypassed
+# for an exact WfGg identifier. This guarantees one stable_id row at most and prevents any linked,
+# correlated or token-sharing asset from replacing the requested asset.
+_BASE_QUERY_PARTS = v33.explorer_query_parts
+
+def _v394_query_parts(qs):
+    q, conditions, params = _BASE_QUERY_PARTS(qs)
+    exact_sid = str((qs.get('stable_id') or [''])[0]).strip().upper()
+    if exact_sid:
+        if not re.fullmatch(r'LWGA-[A-Z0-9]+', exact_sid):
+            conditions.append('1=0')
+        else:
+            conditions.append('upper(a.stable_id)=?')
+            params.append(exact_sid)
+        # stable_id is already an equality constraint; never also run the free-text parser.
+        q = ''
+    return q, conditions, params
+
+v33.explorer_query_parts = _v394_query_parts
+
 
 def _send_js(handler, path):
     raw = path.read_bytes()
@@ -74,13 +94,10 @@ def _relation_tokens(a):
     text = ' '.join(str(a.get(k) or '') for k in (
         'asset_path', 'logical_name', 'alias_name', 'subject', 'family', 'subfamily', 'context', 'search_text'
     ))
-    # Runtime/building identifiers are usually long numeric IDs. They are much safer than generic
-    # words such as "building" or "ui", which would create thousands of false relations.
     nums = []
     for tok in re.findall(r'(?<!\d)(\d{5,12})(?!\d)', text):
         if tok not in nums:
             nums.append(tok)
-    # Keep a few long alphanumeric identity stems only as a secondary signal.
     words = []
     for tok in re.findall(r'[A-Za-z][A-Za-z0-9_-]{6,40}', text):
         low = tok.lower().strip('_-')
@@ -140,8 +157,6 @@ def _animation_targets(sid):
     rows = []
     seen = set()
     try:
-        # Prefer numeric identities. search_text is the catalogue's denormalized searchable corpus
-        # and already includes path/name metadata, so this remains independent of any one column.
         for tok in nums:
             try:
                 part = con.execute('SELECT * FROM assets WHERE stable_id<>? AND lower(search_text) LIKE ? LIMIT 260', (sid, '%'+tok.lower()+'%')).fetchall()
@@ -151,7 +166,6 @@ def _animation_targets(sid):
                 d = core.rowdict(r)
                 if d['stable_id'] not in seen:
                     seen.add(d['stable_id']); rows.append(d)
-        # If no numeric relation exists in the corpus, cautiously try the strongest long stem.
         if not rows and words:
             for tok in words[:2]:
                 try:
@@ -238,13 +252,14 @@ class AnimatedHandler(v33.ExplorerHandler):
 
             if u.path == '/api/v39/status':
                 return self.send_json({
-                    'version': '39.2',
+                    'version': '39.4',
                     'animationDiagnostics': True,
                     'exactBundlePtrEvidence': True,
                     'syntheticAnimation': False,
                     'playbackRuntime': 'reconstructed-simple-transform-curves',
                     'exactMeshTransformBindings': True,
                     'iconToPrefabResolver': True,
+                    'exactStableIdLookup': True,
                     'referenceAsset': 'LWGA-C37A0F67197299',
                 })
 
@@ -254,7 +269,7 @@ class AnimatedHandler(v33.ExplorerHandler):
                 exp = '<script src="./global-graphics-v33/explorer-v33.js"></script>'
                 v39 = '<script src="./global-graphics-v33/animation-viewer-v39.js?v=3901"></script>'
                 v391 = '<script src="./global-graphics-v33/animation-runtime-v39.js?v=3911"></script>'
-                v392 = '<script src="./global-graphics-v33/animation-resolver-v392.js?v=3921"></script>'
+                v392 = '<script src="./global-graphics-v33/animation-resolver-v392.js?v=3941"></script>'
                 if 'search-correlation-v33.js' not in raw:
                     raw = raw.replace('</body>', corr + '</body>')
                 if 'explorer-v33.js' not in raw:
@@ -282,10 +297,11 @@ class AnimatedHandler(v33.ExplorerHandler):
 
 
 if __name__ == '__main__':
-    print('=== WFGG LAST WAR GLOBAL GRAPHICS V39.2 — ANIMATED PREFAB + ICON RESOLVER ===', flush=True)
+    print('=== WFGG LAST WAR GLOBAL GRAPHICS V39.4 — ANIMATED PREFAB + EXACT ID ===', flush=True)
     print('V39_ANIMATION exact-bundle-ptr=ON transform-curves=INSPECT synthetic-motion=OFF', flush=True)
     print('V39_PLAYBACK simple-transform-curves=RECONSTRUCTABLE exact-mesh-bindings=ON', flush=True)
     print('V39_2_ICON_RESOLVER shared-runtime-id=ON ui-icon-to-prefab=ON animation-validation=EXACT_SCAN', flush=True)
+    print('V39_4_EXACT_ID stable-id-equality=ON preview-bypass=CLIENT', flush=True)
     print('V39_PARTICLES detection=ON playback=NOT_YET', flush=True)
     print('V39_SCRIPTS animation-hints=CONSERVATIVE execution=OFF', flush=True)
     print('V39_REFERENCE_ASSET LWGA-C37A0F67197299', flush=True)
