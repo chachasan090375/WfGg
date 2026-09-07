@@ -124,6 +124,38 @@ async function mount(host,manifest){
 window.WFGGModelViewer={mount,prefetch,cacheStats:()=>({objects:OBJECT_CACHE.size,limit:OBJECT_CACHE_LIMIT,maxPreviewObjects:MAX_OBJECTS,batch:FETCH_BATCH})};
 })();
 
+/* Earliest possible legacy-error shield.
+   This file is loaded before the base inline init() call, so it is the only reliable place to
+   prevent the historical selector from flashing a technical error while V34 is still taking over.
+   V34 final error boxes are explicitly marked data-v34-final=1 and are never suppressed. */
+(()=>{
+'use strict';
+const INTERIM=/RUNTIME_3D_OBJECT_MISMATCH|RUNTIME_TARGET_OBJECT_NOT_FOUND/;
+function shield(){
+  const stage=document.getElementById('stage');if(!stage)return false;
+  const box=stage.querySelector('.errorbox');if(!box||box.dataset.v34Final==='1')return false;
+  const text=box.textContent||'';if(!INTERIM.test(text))return false;
+  if(box.dataset.wfggShielded==='1')return true;
+  const original=box.outerHTML;
+  const neutral=document.createElement('div');neutral.className='empty';neutral.dataset.wfggInterim='1';
+  neutral.innerHTML='<b>Finalisation de l\'aperçu…</b><br><span class="hint">Reconstruction exacte en cours. Le diagnostic intermédiaire reste disponible dans Termux.</span>';
+  box.replaceWith(neutral);
+  console.debug('V34_EARLY_ERROR_SHIELD',text.slice(0,180));
+  setTimeout(()=>{
+    if(window.WFGGPreviewAccelerator)return;
+    const n=stage.querySelector('[data-wfgg-interim="1"]');if(n)n.outerHTML=original;
+  },12000);
+  return true;
+}
+function install(){
+  const stage=document.getElementById('stage');if(!stage)return;
+  const obs=new MutationObserver(shield);obs.observe(stage,{childList:true,subtree:true});shield();
+  window.WFGGEarlyPreviewShield={version:'34.7',shield,state:()=>({active:true,accelerator:!!window.WFGGPreviewAccelerator})};
+  console.info('V34_EARLY_PREVIEW_SHIELD installed before-base-init=ON');
+}
+if(document.readyState==='loading')install();else install();
+})();
+
 /* Result-strip synchronisation.
    IMPORTANT: appending another search page must not recenter the strip on the old active card.
    Centering happens only after an explicit selection/click/Previous/Next call. */
