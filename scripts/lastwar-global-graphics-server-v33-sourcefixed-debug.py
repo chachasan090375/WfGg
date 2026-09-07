@@ -25,6 +25,7 @@ ptrspec = importlib.util.spec_from_file_location('wfgg_v34_ptrmodel', PTR3D)
 ptr3d = importlib.util.module_from_spec(ptrspec)
 ptrspec.loader.exec_module(ptr3d)
 ptr3d.install(m.c.core, m.c, PTR3D_CACHE, m.c.mobile.ORIGINAL_DEPENDENCY_ROWS)
+print('V34_PTR3D_INSTALLED exact-unity-ptr-graph=ON transforms-baked=ON cache=models-v33-ptr-3401', flush=True)
 
 
 class DebugHandler(m.c.CorrelatedHandler):
