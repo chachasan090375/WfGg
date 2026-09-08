@@ -8,18 +8,15 @@ if [ "$(git branch --show-current)" != "$BRANCH" ]; then
   echo "Commande: git switch $BRANCH" >&2
   exit 2
 fi
-printf '\n=== WFGG V40.5 : AGENT + TRACE RUNTIME EXACTE ===\n'
-printf 'Graphe Unity exact: ON\n'
-printf 'Assembly-CSharp.mdl lecture seule: ON\n'
-printf 'Appels MethodDef recursifs profondeur 7: ON\n'
-printf 'Chemin runtime: prefab serialise -> LWGA -> bundle -> BundleFragment/APK -> offset/span: ON\n'
-printf 'Appels LoadAsset / LoadPrefab / ResourceManager / Instantiate: TRACE ON\n'
-printf 'Litteraux de chemins C#: candidats tant que non joints a une relation serialisee: ON\n'
-printf 'Diagnostic Material -> Texture2D exact et erreurs cache: ON\n'
-printf 'Mouvement continu: chaine CLR prouvee ON; cible/axe/vitesse restent proof-gated\n'
-printf 'Rendu V40.4.1 geometrie/UV recovery: ON\n'
-printf 'Cache agent separe de audit/index visuel: ON\n'
+printf '\n=== WFGG V40.6 : FERMETURE RUNTIME EXACTE ===\n'
+printf 'Trace V40.5 Unity/catalogue/CLR: ON\n'
+printf 'Cibles par defaut: racine + WORK + IDLE exacts locaux\n'
+printf 'Fermeture bundle staged: 48/3 -> 96/5 -> 160/7\n'
+printf 'Arret des que Material -> Texture2D exact est resolu: ON\n'
+printf 'Re-enrichissement Unity PPtr + export PNG: ON\n'
+printf 'Rendu V40.4.1 reutilise les manifests rafraichis: ON\n'
+printf 'Audit/index visuel: INCHANGES\n'
 printf 'Geometrie synthetique: OFF\n'
 printf 'Texture synthetique: OFF\n'
 printf 'Mouvement synthetique: OFF\n'
-exec python scripts/lastwar-global-graphics-server-v405-agent-runtime.py "$ROOT"
+exec python scripts/lastwar-global-graphics-server-v406-agent-runtime.py "$ROOT"
