@@ -8,6 +8,7 @@ if [ "$(git branch --show-current)" != "$BRANCH" ]; then
   echo "Commande: git switch $BRANCH" >&2
   exit 2
 fi
-printf '\n=== WFGG V39 : PREFABS ANIMES / DIAGNOSTIC UNITY EXACT ===\n'
+printf '\n=== WFGG V39.7 : PREFABS ANIMES / RECUPERATION SOURCE EXACTE ===\n'
 printf 'Mouvement synthetique: OFF\n'
-exec python scripts/lastwar-global-graphics-server-v39-animated.py "$ROOT"
+printf 'Recuperation source: APK/BundleFragment refresh + bundle exact uniquement\n'
+exec python scripts/lastwar-global-graphics-server-v397-recovery.py "$ROOT"
