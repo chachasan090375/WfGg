@@ -4,10 +4,9 @@ from __future__ import annotations
 """V39.7 physical bundle recovery wrapper.
 
 When the icon resolver reaches the correct 3D prefab but its catalogue row is INDEX ONLY, this
-wrapper performs a conservative, read-only source refresh plus an exact standalone-bundle search
-in the WfGg local asset/cache/download roots. A recovered file is accepted only when it is a
-Unity bundle and its byte size exactly matches the catalogue span. The original source files are
-never modified; a verified copy is placed in the existing V31 bundle cache.
+wrapper performs a conservative source refresh. The underlying sourcefixed materializer now also
+supports shifted UnityFS offsets inside the SAME BundleFragment and validates the exact indexed
+asset before accepting a relocated bundle. Original sources are never modified.
 """
 
 from http.server import ThreadingHTTPServer
@@ -111,7 +110,7 @@ def _search_exact_names(names, span):
 
 def _refresh_source_indexes():
     # Existing sourcefixed indexes are intentionally cached for speed. A recovery request means
-    # "look again now", so invalidate only these in-memory discovery indexes, never catalogue/audit data.
+    # "look again now", so invalidate only discovery indexes, never catalogue/audit data.
     try: v31._fragment_index = None
     except Exception: pass
     try: v31._apk_index = None
@@ -145,31 +144,34 @@ def recover_source(sid):
         'stableId': sid,
         'assetPath': a.get('asset_path'),
         'bundleId': bid,
+        'offsetBytes': a.get('offset_bytes'),
         'spanBytes': span,
         'fragmentEntry': a.get('fragment_entry'),
         'tableFragment': a.get('table_fragment'),
         'logicalBundleNames': _bundle_names(a),
         'beforeAvailability': a.get('render_availability'),
+        'beforeReason': a.get('render_source_reason'),
         'recovered': False,
         'method': None,
         'source': None,
     }
 
-    # 1. Refresh the normal authoritative fragment/APK discovery and retry the existing exact
-    # materializer. This covers newly installed splits/downloaded fragments without broad guessing.
+    # 1. Refresh authoritative fragment/APK discovery and retry the enhanced materializer.
+    # V39.7 sourcefixed can relocate a stale offset inside the same BundleFragment, but it must
+    # prove the exact indexed asset path/object inside the candidate UnityFS before accepting it.
     _refresh_source_indexes()
     normal_error = None
     try:
         p, source = v31.materialize_bundle(a)
         if p and Path(p).is_file():
-            result.update({'recovered': True, 'method': 'existing-materializer-refresh', 'source': str(source), 'cachePath': str(p)})
-            _mark_local(sid, 'v39.7-source-refresh:' + str(source))
+            method = 'shifted-offset-exact-validated' if 'shifted-offset' in str(source) else 'existing-materializer-refresh'
+            result.update({'recovered': True, 'method': method, 'source': str(source), 'cachePath': str(p)})
+            _mark_local(sid, 'v39.7-source-recovery:' + str(source))
     except Exception as exc:
         normal_error = str(exc)
     result['normalMaterializerError'] = normal_error
 
-    # 2. If the fragment path still cannot be materialized, look for the exact standalone logical
-    # .bundle file produced by previous WfGg extraction runs. Accept only exact size + Unity header.
+    # 2. Legacy fallback for exact standalone .bundle copies from previous WfGg extraction runs.
     if not result['recovered']:
         matches, stats = _search_exact_names(result['logicalBundleNames'], span)
         result['standaloneSearch'] = stats
@@ -193,7 +195,33 @@ def recover_source(sid):
 
     after = _asset(sid)
     result['afterAvailability'] = after.get('render_availability') if after else None
+    result['afterReason'] = after.get('render_source_reason') if after else None
     return result, 200
+
+
+def _auto_recover_if_runtime_demoted(sid):
+    sid = str(sid or '').strip().upper()
+    if not re.fullmatch(r'LWGA-[A-Z0-9]+', sid):
+        return None
+    a = _asset(sid)
+    if not a:
+        return None
+    availability = str(a.get('render_availability') or '')
+    reason = str(a.get('render_source_reason') or '')
+    if availability != 'global-index-only':
+        return None
+    if not ('source-not-materializable' in reason or 'runtime-fragment-source-absent' in reason or reason.startswith('runtime:')):
+        return None
+    payload, _ = recover_source(sid)
+    print(
+        'V39_7_AUTO_SOURCE_RECOVERY', sid,
+        'recovered=' + str(payload.get('recovered')),
+        'method=' + str(payload.get('method')),
+        'before=' + str(payload.get('beforeAvailability')),
+        'after=' + str(payload.get('afterAvailability')),
+        flush=True,
+    )
+    return payload
 
 
 class RecoveryHandler(v39.AnimatedHandler):
@@ -207,19 +235,35 @@ class RecoveryHandler(v39.AnimatedHandler):
             except Exception as exc:
                 print('V39_7_SOURCE_RECOVERY_ERROR', type(exc).__name__, str(exc)[:700], flush=True)
                 return self.send_json({'error':'v39-source-recovery-failed','message':str(exc)},500)
+
+        # Automatic recovery before the parent handler returns an INDEX SEULEMENT asset or starts
+        # animation analysis. This is what makes "Ouvrir le prefab 3D" retry the now-proven source.
+        try:
+            sid = ''
+            if u.path == '/api/v33/search':
+                sid = str((qs.get('stable_id') or [''])[0]).strip().upper()
+            elif u.path in {'/api/v39/animation', '/api/v39/animation-bindings'}:
+                sid = str((qs.get('id') or [''])[0]).strip().upper()
+            if sid:
+                _auto_recover_if_runtime_demoted(sid)
+        except Exception as exc:
+            print('V39_7_AUTO_SOURCE_RECOVERY_ERROR', type(exc).__name__, str(exc)[:700], flush=True)
+
         if u.path == '/api/v39/status':
             return self.send_json({
                 'version':'39.7','animationDiagnostics':True,'exactStableIdLookup':True,
                 'iconToPrefabResolver':True,'physicalSourceRecovery':True,
-                'recoveryPolicy':'existing exact fragment/APK refresh, then exact standalone .bundle name + exact size + Unity header only',
-                'syntheticAnimation':False,'referenceAsset':'LWGA-C37A0F67197299'
+                'shiftedOffsetRecovery':True,'sameFragmentOnly':True,'exactAssetValidationRequired':True,
+                'recoveryPolicy':'same BundleFragment; stale UnityFS offset scan ±8 MiB; exact Unity asset path/object validation required; standalone exact bundle fallback',
+                'syntheticAnimation':False,'referenceAsset':'LWGA-C37A0F67197299',
+                'referencePrefab':'LWGA-0D0CA2A747F7DF'
             })
         return super().do_GET()
 
 
 if __name__ == '__main__':
-    print('=== WFGG LAST WAR GLOBAL GRAPHICS V39.7 — ANIMATED PREFAB + SOURCE RECOVERY ===', flush=True)
-    print('V39_7_SOURCE_RECOVERY fragment-apk-refresh=ON exact-standalone-bundle=ON approximate-substitution=OFF', flush=True)
-    print('V39_7_REFERENCE_PREFAB building_10123000.prefab', flush=True)
+    print('=== WFGG LAST WAR GLOBAL GRAPHICS V39.7 — SHIFTED SOURCE RECOVERY ===', flush=True)
+    print('V39_7_SOURCE_RECOVERY fragment-apk-refresh=ON shifted-offset=ON exact-asset-validation=REQUIRED approximate-substitution=OFF', flush=True)
+    print('V39_7_REFERENCE_PREFAB LWGA-0D0CA2A747F7DF building_10123000.prefab', flush=True)
     print(f'http://127.0.0.1:{core.PORT}/lab/lastwar-global-graphics-viewer-v33.html', flush=True)
     ThreadingHTTPServer(('127.0.0.1', core.PORT), RecoveryHandler).serve_forever()
