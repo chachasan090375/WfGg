@@ -1,0 +1,43 @@
+name: Train roster integration UI recette
+
+on:
+  push:
+    branches: [feature-train-roster-integration-ui-v1]
+    paths:
+      - '.github/workflows/train-roster-integration-ui-recette.yml'
+      - '.github/scripts/train_roster_integration_ui_v1.py'
+      - '.github/qa/train-roster-integration-ui-recette.mjs'
+      - 'frontend/train-native/app.v15.js'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  recette:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature-train-roster-integration-ui-v1
+      - name: Apply UI patch
+        run: python .github/scripts/train_roster_integration_ui_v1.py
+      - name: Syntax check
+        run: node --check frontend/train-native/app.v15.js
+      - name: UI contract recette
+        run: node .github/qa/train-roster-integration-ui-recette.mjs
+      - name: Commit tested UI
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add frontend/train-native/app.v15.js
+          if git diff --cached --quiet; then
+            echo 'No UI implementation changes to commit.'
+            exit 0
+          fi
+          git commit -m 'feat(train): show fixed cycles and integration quotas'
+          git push origin HEAD:feature-train-roster-integration-ui-v1
