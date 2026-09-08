@@ -1,22 +1,24 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
-"""Exact Unity animation diagnostics for the WfGg Last War graphics LAB (V39).
+"""Exact Unity animation diagnostics for the WfGg Last War graphics LAB (V39.9).
 
 The scanner is deliberately conservative. It reports animation evidence found in the exact
 AssetBundle/PPtr closure of the selected catalogue asset and extracts only transform curves that
-UnityPy exposes losslessly. It never invents motion. Modern/compressed Mecanim data, scripts and
-shader-driven movement are reported as evidence but remain diagnostic-only until decoded.
+UnityPy exposes losslessly. It never invents motion. V39.9 also exposes bounded serialized fields
+for Animator/Animation and MonoBehaviour components so runtime scripts such as SimpleAnimation and
+SoftReferencePrefab can be traced to the real child prefab/clip instead of being name-guessed.
 """
 
 from pathlib import Path
 import gc, json, math, re, time
 
-SCHEMA = 3901
+SCHEMA = 3991
 MAX_NODES = 480
 MAX_COMPONENTS = 1800
 MAX_CLIPS = 160
 MAX_CURVE_KEYS = 24000
+MAX_SERIALIZED_FIELDS = 80
 ANIMATION_SCRIPT_TOKENS = (
     'anim', 'rotate', 'rotation', 'rotator', 'spin', 'spinner', 'orbit', 'turn',
     'move', 'moving', 'motion', 'loop', 'float', 'bob', 'swing', 'revolve', 'roll'
@@ -32,6 +34,7 @@ OTHER_CURVE_FIELDS = (
     ('float', 'm_FloatCurves'),
     ('pptr', 'm_PPtrCurves'),
 )
+META_TREE_FIELDS = {'m_GameObject', 'm_Script', 'm_Enabled', 'm_EditorHideFlags', 'm_ObjectHideFlags'}
 
 
 def _type_name(reader):
@@ -80,7 +83,7 @@ def _json_number(v):
 
 
 def _json_value(v, depth=0):
-    if depth > 4:
+    if depth > 5:
         return None
     if v is None or isinstance(v, (str, bool, int)):
         return v
@@ -88,13 +91,13 @@ def _json_value(v, depth=0):
         return v if math.isfinite(v) else None
     if isinstance(v, dict):
         out = {}
-        for k, x in list(v.items())[:32]:
+        for k, x in list(v.items())[:48]:
             y = _json_value(x, depth + 1)
             if y is not None:
                 out[str(k)] = y
         return out
     if isinstance(v, (list, tuple)):
-        return [_json_value(x, depth + 1) for x in list(v)[:32]]
+        return [_json_value(x, depth + 1) for x in list(v)[:48]]
     coords = []
     for key in ('x', 'y', 'z', 'w'):
         if hasattr(v, key):
@@ -173,6 +176,42 @@ def _tree_get(d, key, default=None):
     return default
 
 
+def _serialized_fields(reader):
+    tree, mode = _read_tree(reader)
+    if not tree:
+        return {}, mode
+    out = {}
+    for k, v in tree.items():
+        if k in META_TREE_FIELDS:
+            continue
+        if len(out) >= MAX_SERIALIZED_FIELDS:
+            out['_truncated'] = True
+            break
+        j = _json_value(v)
+        if j is not None:
+            out[str(k)] = j
+    return out, mode
+
+
+def _string_hints(value, prefix='', out=None, depth=0):
+    if out is None:
+        out = []
+    if depth > 5 or len(out) >= 80:
+        return out
+    if isinstance(value, str):
+        s = value.strip()
+        if s and len(s) >= 4:
+            out.append({'field': prefix, 'value': s[:500]})
+    elif isinstance(value, dict):
+        for k, v in list(value.items())[:48]:
+            p = f'{prefix}.{k}' if prefix else str(k)
+            _string_hints(v, p, out, depth + 1)
+    elif isinstance(value, list):
+        for i, v in enumerate(value[:48]):
+            _string_hints(v, f'{prefix}[{i}]', out, depth + 1)
+    return out
+
+
 def _curve_keys(curve):
     if not isinstance(curve, dict):
         return []
@@ -209,7 +248,6 @@ def _clip_summary(reader):
     curve_counts = {}
     key_budget = MAX_CURVE_KEYS
     max_time = 0.0
-
     for kind, field in TRANSFORM_CURVE_FIELDS:
         curves = _tree_get(tree, field, []) or []
         if not isinstance(curves, list):
@@ -229,11 +267,9 @@ def _clip_summary(reader):
             key_budget -= len(raw_keys)
             if keys:
                 tracks.append({'kind': kind, 'path': path, 'keys': keys})
-
     for kind, field in OTHER_CURVE_FIELDS:
         curves = _tree_get(tree, field, []) or []
         curve_counts[kind] = len(curves) if isinstance(curves, list) else 0
-
     muscle = _tree_get(tree, 'm_MuscleClip') or {}
     stop = None
     if isinstance(muscle, dict):
@@ -243,32 +279,19 @@ def _clip_summary(reader):
     duration = max([x for x in (max_time, stop) if isinstance(x, (int, float))], default=0.0)
     simple_key_count = sum(len(t['keys']) for t in tracks)
     compressed = bool(curve_counts.get('compressedRotation')) or (not tracks and bool(muscle))
-    return {
-        'name': name,
-        'pathId': _path_id(reader),
-        'assetsFile': _file_name(reader),
-        'treeMode': tree_mode,
-        'sampleRate': sample,
-        'legacy': legacy,
-        'wrapMode': _json_value(wrap),
-        'duration': duration or None,
-        'curveCounts': curve_counts,
-        'simpleTransformKeyCount': simple_key_count,
-        'simpleTransformTracks': tracks,
-        'compressedOrMecanim': compressed,
-        'exactSimpleCurvesDecoded': bool(tracks),
-    }
+    return {'name': name, 'pathId': _path_id(reader), 'assetsFile': _file_name(reader), 'treeMode': tree_mode,
+            'sampleRate': sample, 'legacy': legacy, 'wrapMode': _json_value(wrap), 'duration': duration or None,
+            'curveCounts': curve_counts, 'simpleTransformKeyCount': simple_key_count,
+            'simpleTransformTracks': tracks, 'compressedOrMecanim': compressed, 'exactSimpleCurvesDecoded': bool(tracks)}
 
 
 def _linked_clip_readers(component_reader, ptr):
-    """Resolve only direct serialized PPtr links; do not name-guess clips."""
     out = []
     seen = set()
     try:
         data = component_reader.read()
     except Exception:
         return out
-
     def add(v, evidence):
         r = _reader_from(v, ptr)
         if r is None:
@@ -298,7 +321,6 @@ def _linked_clip_readers(component_reader, ptr):
                         if k2 not in seen:
                             seen.add(k2)
                             out.append((rr, evidence + f'->{typ}.{fld}[{i}]'))
-
     for fld in ('m_Animation', 'm_Animations', 'm_AnimationClips', 'm_Clips', 'm_AnimationClip', 'm_Clip', 'm_Motion', 'm_Controller'):
         vals = getattr(data, fld, None)
         if vals is None:
@@ -328,23 +350,16 @@ def _script_info(reader, ptr):
             script_name = _name(script_reader)
     hay = ' '.join((class_name, script_name, namespace)).lower()
     hint = any(tok in hay for tok in ANIMATION_SCRIPT_TOKENS)
-    return {
-        'pathId': _path_id(reader), 'className': class_name, 'scriptName': script_name,
-        'namespace': namespace, 'assembly': assembly, 'animationHint': hint,
-    }
+    fields, tree_mode = _serialized_fields(reader)
+    return {'pathId': _path_id(reader), 'className': class_name, 'scriptName': script_name,
+            'namespace': namespace, 'assembly': assembly, 'animationHint': hint,
+            'treeMode': tree_mode, 'serializedFields': fields, 'stringHints': _string_hints(fields)}
 
 
 def _hierarchy(root_go, ptr):
     root_name = _name(root_go) or 'Root'
     queue = [(root_go, '', None)]
-    visited = set()
-    nodes = []
-    components = []
-    linked_clips = []
-    particles = []
-    scripts = []
-    animators = []
-
+    visited = set(); nodes = []; components = []; linked_clips = []; particles = []; scripts = []; animators = []
     while queue and len(nodes) < MAX_NODES and len(components) < MAX_COMPONENTS:
         go_reader, rel_path, parent_path = queue.pop(0)
         key = (_file_name(go_reader), _path_id(go_reader))
@@ -357,33 +372,27 @@ def _hierarchy(root_go, ptr):
             continue
         name = _name(go_reader) or (rel_path.rsplit('/', 1)[-1] if rel_path else root_name)
         tr_reader, tr = ptr._go_transform(go_reader)
-        local = {
-            'position': _vec3(getattr(tr, 'm_LocalPosition', None), (0.0, 0.0, 0.0)),
-            'rotation': _quat(getattr(tr, 'm_LocalRotation', None)),
-            'scale': _vec3(getattr(tr, 'm_LocalScale', None), (1.0, 1.0, 1.0)),
-        }
+        local = {'position': _vec3(getattr(tr, 'm_LocalPosition', None), (0.0,0.0,0.0)),
+                 'rotation': _quat(getattr(tr, 'm_LocalRotation', None)),
+                 'scale': _vec3(getattr(tr, 'm_LocalScale', None), (1.0,1.0,1.0))}
         comp_types = []
         for comp_reader in ptr._component_ptrs(go):
-            typ = _type_name(comp_reader)
-            comp_types.append(typ)
+            typ = _type_name(comp_reader); comp_types.append(typ)
             rec = {'type': typ, 'pathId': _path_id(comp_reader), 'assetsFile': _file_name(comp_reader), 'nodePath': rel_path, 'gameObject': name}
             components.append(rec)
             if typ in {'Animation', 'Animator'}:
+                afields, amode = _serialized_fields(comp_reader)
+                rec['treeMode'] = amode; rec['serializedFields'] = afields; rec['stringHints'] = _string_hints(afields)
                 animators.append(rec)
                 for clip_reader, evidence in _linked_clip_readers(comp_reader, ptr):
                     linked_clips.append((clip_reader, evidence, rel_path))
             elif typ == 'ParticleSystem':
                 particles.append(rec)
             elif typ == 'MonoBehaviour':
-                si = _script_info(comp_reader, ptr)
-                si.update({'nodePath': rel_path, 'gameObject': name})
-                scripts.append(si)
-        nodes.append({
-            'path': rel_path, 'parentPath': parent_path, 'name': name,
-            'gameObjectPathId': _path_id(go_reader),
-            'transformPathId': _path_id(tr_reader) if tr_reader is not None else None,
-            'localTransform': local, 'components': comp_types,
-        })
+                si = _script_info(comp_reader, ptr); si.update({'nodePath': rel_path, 'gameObject': name}); scripts.append(si)
+        nodes.append({'path': rel_path, 'parentPath': parent_path, 'name': name,
+                      'gameObjectPathId': _path_id(go_reader), 'transformPathId': _path_id(tr_reader) if tr_reader is not None else None,
+                      'localTransform': local, 'components': comp_types})
         if tr is None:
             continue
         for ptr_child in getattr(tr, 'm_Children', None) or []:
@@ -400,28 +409,14 @@ def _hierarchy(root_go, ptr):
             child_name = _name(child_go) or ('child-' + str(len(queue)))
             child_path = child_name if not rel_path else rel_path + '/' + child_name
             queue.append((child_go, child_path, rel_path))
-
-    return {
-        'rootName': root_name,
-        'nodes': nodes,
-        'components': components,
-        'animators': animators,
-        'linkedClips': linked_clips,
-        'particles': particles,
-        'scripts': scripts,
-        'truncated': bool(queue),
-    }
+    return {'rootName': root_name, 'nodes': nodes, 'components': components, 'animators': animators,
+            'linkedClips': linked_clips, 'particles': particles, 'scripts': scripts, 'truncated': bool(queue)}
 
 
 def _cache_signature(a, sources):
-    payload = {
-        'schema': SCHEMA,
-        'stableId': a.get('stable_id'),
-        'bundleId': a.get('bundle_id'),
-        'fragmentEntry': a.get('fragment_entry'),
-        'tableFragment': a.get('table_fragment'),
-        'sources': [(x.get('bundleId'), x.get('source'), x.get('ok')) for x in sources],
-    }
+    payload = {'schema': SCHEMA, 'stableId': a.get('stable_id'), 'bundleId': a.get('bundle_id'),
+               'fragmentEntry': a.get('fragment_entry'), 'tableFragment': a.get('table_fragment'),
+               'sources': [(x.get('bundleId'), x.get('source'), x.get('ok')) for x in sources]}
     return json.dumps(payload, sort_keys=True, ensure_ascii=False)
 
 
@@ -429,162 +424,91 @@ def scan_animation(a, core, ptr, dependency_rows, cache_root):
     sid = str(a.get('stable_id') or '')
     if not re.fullmatch(r'LWGA-[A-Z0-9]+', sid):
         raise ValueError('invalid stable id')
-    cache_root = Path(cache_root)
-    outdir = cache_root / 'animations-v39' / sid
-    cache_file = outdir / 'animation.json'
-    work_cache = cache_root / 'animations-v39-work'
+    cache_root = Path(cache_root); outdir = cache_root / 'animations-v39' / sid; cache_file = outdir / 'animation.json'; work_cache = cache_root / 'animations-v39-work'
     outdir.mkdir(parents=True, exist_ok=True)
-
     paths, sources = ptr._materialize(core, dependency_rows, a, work_cache)
     if not paths:
         raise RuntimeError('V39_ANIMATION_NO_LOCAL_CLOSURE')
-
     signature = _cache_signature(a, sources)
     if cache_file.is_file():
         try:
             old = json.loads(cache_file.read_text('utf-8'))
             if old.get('schemaVersion') == SCHEMA and old.get('cacheSignature') == signature:
-                old['cacheHit'] = True
-                return old
+                old['cacheHit'] = True; return old
         except Exception:
             pass
-
     try:
         import UnityPy
     except Exception as exc:
         raise RuntimeError('V39_ANIMATION_UNITYPY_MISSING: ' + str(exc)) from exc
-
-    env = None
-    started = time.time()
+    env = None; started = time.time()
     try:
         env = UnityPy.load(*[str(p) for p in paths])
         anchor, anchor_mode = ptr._container_reader(env, a, core)
-        if anchor is None:
-            raise RuntimeError('V39_ANIMATION_ROOT_NOT_FOUND: ' + str(anchor_mode))
+        if anchor is None: raise RuntimeError('V39_ANIMATION_ROOT_NOT_FOUND: ' + str(anchor_mode))
         root = ptr._root_gameobject(anchor)
-        if root is None:
-            raise RuntimeError('V39_ANIMATION_ROOT_NOT_GAMEOBJECT: ' + _type_name(anchor))
+        if root is None: raise RuntimeError('V39_ANIMATION_ROOT_NOT_GAMEOBJECT: ' + _type_name(anchor))
         h = _hierarchy(root, ptr)
-
         linked = {}
         for reader, evidence, node_path in h['linkedClips']:
-            key = (_file_name(reader), _path_id(reader))
-            rec = linked.get(key)
+            key = (_file_name(reader), _path_id(reader)); rec = linked.get(key)
             if rec is None:
-                rec = _clip_summary(reader)
-                rec['linkage'] = 'exact-component-ptr'
-                rec['evidence'] = []
-                rec['componentNodePaths'] = []
-                linked[key] = rec
-            if evidence not in rec['evidence']:
-                rec['evidence'].append(evidence)
-            if node_path not in rec['componentNodePaths']:
-                rec['componentNodePaths'].append(node_path)
-
-        closure_clips = []
-        linked_keys = set(linked)
+                rec = _clip_summary(reader); rec['linkage'] = 'exact-component-ptr'; rec['evidence'] = []; rec['componentNodePaths'] = []; linked[key] = rec
+            if evidence not in rec['evidence']: rec['evidence'].append(evidence)
+            if node_path not in rec['componentNodePaths']: rec['componentNodePaths'].append(node_path)
+        closure_clips = []; linked_keys = set(linked)
         for obj in getattr(env, 'objects', []) or []:
-            if len(closure_clips) >= MAX_CLIPS:
-                break
-            if _type_name(obj) != 'AnimationClip':
-                continue
+            if len(closure_clips) >= MAX_CLIPS: break
+            if _type_name(obj) != 'AnimationClip': continue
             key = (_file_name(obj), _path_id(obj))
-            if key in linked_keys:
-                continue
-            rec = _clip_summary(obj)
-            rec['linkage'] = 'closure-candidate'
-            rec['evidence'] = ['AnimationClip object present in exact materialized dependency closure; not directly linked to anchored prefab']
-            closure_clips.append(rec)
-
+            if key in linked_keys: continue
+            rec = _clip_summary(obj); rec['linkage'] = 'closure-candidate'; rec['evidence'] = ['AnimationClip object present in exact materialized dependency closure; not directly linked to anchored prefab']; closure_clips.append(rec)
         clips = list(linked.values()) + closure_clips
         exact_tracks = [t for c in linked.values() for t in c.get('simpleTransformTracks') or []]
         exact_key_count = sum(len(t.get('keys') or []) for t in exact_tracks)
         hinted_scripts = [s for s in h['scripts'] if s.get('animationHint')]
-        animator_count = len(h['animators'])
-        particle_count = len(h['particles'])
-
+        animator_count = len(h['animators']); particle_count = len(h['particles'])
         if exact_tracks:
-            status = 'ANIMÉ — TRANSFORM'
-            status_code = 'animated-transform'
-        elif linked or animator_count:
-            status = 'ANIMÉ — CLIP'
-            status_code = 'animated-clip'
-        elif particle_count:
-            status = 'ANIMÉ — PARTICULES'
-            status_code = 'animated-particles'
+            status, status_code = 'ANIMÉ — TRANSFORM', 'animated-transform'
+        elif linked:
+            status, status_code = 'ANIMÉ — CLIP', 'animated-clip'
         elif hinted_scripts:
-            status = 'ANIMÉ — SCRIPT'
-            status_code = 'animated-script'
+            status, status_code = 'ANIMÉ — SCRIPT', 'animated-script'
+        elif animator_count:
+            status, status_code = 'ANIMATION RUNTIME — CONTRÔLEUR SANS CLIP RÉSOLU', 'animated-controller-unresolved'
+        elif particle_count:
+            status, status_code = 'ANIMÉ — PARTICULES', 'animated-particles'
         else:
-            status = 'STATIQUE / ANIMATION NON DÉTECTÉE'
-            status_code = 'static-or-undetected'
-
+            status, status_code = 'STATIQUE / ANIMATION NON DÉTECTÉE', 'static-or-undetected'
         unresolved_reasons = []
-        if animator_count and not linked:
-            unresolved_reasons.append('Animator/Animation component found but no AnimationClip PPtr was resolved directly from the anchored prefab.')
-        if any(c.get('compressedOrMecanim') and not c.get('exactSimpleCurvesDecoded') for c in linked.values()):
-            unresolved_reasons.append('One or more linked clips use compressed/Mecanim data not decoded into simple transform curves yet.')
+        if animator_count and not linked: unresolved_reasons.append('Animator/Animation component found but no AnimationClip PPtr was resolved directly from the anchored prefab.')
+        if any(c.get('compressedOrMecanim') and not c.get('exactSimpleCurvesDecoded') for c in linked.values()): unresolved_reasons.append('One or more linked clips use compressed/Mecanim data not decoded into simple transform curves yet.')
         if hinted_scripts:
-            unresolved_reasons.append('Animation-like MonoBehaviour detected; runtime script motion is not executed by the viewer.')
-        if particle_count:
-            unresolved_reasons.append('ParticleSystem detected; particle runtime playback is not implemented in V39 phase 1.')
-
+            names = ', '.join(sorted({s.get('className') or s.get('scriptName') or 'MonoBehaviour' for s in hinted_scripts}))
+            unresolved_reasons.append('Runtime animation script detected (' + names + '); its serialized fields are exposed for exact target/parameter tracing, but script code is not executed by the viewer.')
+        if particle_count: unresolved_reasons.append('ParticleSystem detected; particle runtime playback is not implemented in V39 phase 1.')
         tracks_decodable = bool(exact_tracks)
-        payload = {
-            'schemaVersion': SCHEMA,
-            'stableId': sid,
-            'scannedAt': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
-            'scanSeconds': round(time.time() - started, 3),
-            'cacheSignature': signature,
-            'cacheHit': False,
-            'rootAnchor': anchor_mode,
-            'rootGameObject': h['rootName'],
-            'bundleSources': sources,
-            'classification': {
-                'status': status, 'code': status_code,
-                'detectionExact': bool(animator_count or particle_count or hinted_scripts or linked),
-                'hasAnimatorOrAnimation': bool(animator_count),
-                'hasDirectLinkedClip': bool(linked),
-                'hasParticles': bool(particle_count),
-                'hasAnimationHintScript': bool(hinted_scripts),
-            },
-            'playback': {
-                'supported': False,
-                'mode': 'diagnostic-only',
-                'label': 'ANIMATION DÉTECTÉE — LECTURE NON ENCORE BRANCHÉE' if status_code != 'static-or-undetected' else 'AUCUNE ANIMATION DÉTECTÉE',
-                'tracksDecodable': tracks_decodable,
-                'exactTransformTrackCount': len(exact_tracks),
-                'exactTransformKeyCount': exact_key_count,
-                'reason': 'Exact transform curves are exposed, but the current OBJ renderer still uses world-baked vertices.' if tracks_decodable else 'No lossless simple transform track is currently available for runtime playback.',
-                'unresolvedReasons': unresolved_reasons,
-            },
-            'hierarchy': {
-                'nodeCount': len(h['nodes']),
-                'componentCount': len(h['components']),
-                'truncated': h['truncated'],
-                'nodes': h['nodes'],
-            },
-            'components': {
-                'animatorOrAnimationCount': animator_count,
-                'particleSystemCount': particle_count,
-                'monoBehaviourCount': len(h['scripts']),
-                'animationHintScriptCount': len(hinted_scripts),
-                'animators': h['animators'],
-                'particles': h['particles'],
-                'scripts': h['scripts'],
-            },
-            'clips': {
-                'directLinkedCount': len(linked),
-                'closureCandidateCount': len(closure_clips),
-                'items': clips,
-            },
-            'policy': 'Exact bundle/PPtr evidence only. Closure-only AnimationClips are candidates, never asserted as prefab-linked. No synthetic animation is generated.',
-        }
-        cache_file.write_text(json.dumps(payload, ensure_ascii=False, indent=2), 'utf-8')
-        return payload
+        payload = {'schemaVersion': SCHEMA, 'stableId': sid, 'scannedAt': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
+                   'scanSeconds': round(time.time()-started,3), 'cacheSignature': signature, 'cacheHit': False,
+                   'rootAnchor': anchor_mode, 'rootGameObject': h['rootName'], 'bundleSources': sources,
+                   'classification': {'status': status, 'code': status_code,
+                                      'detectionExact': bool(animator_count or particle_count or hinted_scripts or linked),
+                                      'hasAnimatorOrAnimation': bool(animator_count), 'hasDirectLinkedClip': bool(linked),
+                                      'hasParticles': bool(particle_count), 'hasAnimationHintScript': bool(hinted_scripts)},
+                   'playback': {'supported': False, 'mode': 'diagnostic-only',
+                                'label': 'ANIMATION DÉTECTÉE — LECTURE NON ENCORE BRANCHÉE' if status_code != 'static-or-undetected' else 'AUCUNE ANIMATION DÉTECTÉE',
+                                'tracksDecodable': tracks_decodable, 'exactTransformTrackCount': len(exact_tracks),
+                                'exactTransformKeyCount': exact_key_count,
+                                'reason': 'Exact transform curves are exposed, but the current OBJ renderer still uses world-baked vertices.' if tracks_decodable else 'No lossless simple transform track is currently available for runtime playback.',
+                                'unresolvedReasons': unresolved_reasons},
+                   'hierarchy': {'nodeCount': len(h['nodes']), 'componentCount': len(h['components']), 'truncated': h['truncated'], 'nodes': h['nodes']},
+                   'components': {'animatorOrAnimationCount': animator_count, 'particleSystemCount': particle_count,
+                                  'monoBehaviourCount': len(h['scripts']), 'animationHintScriptCount': len(hinted_scripts),
+                                  'animators': h['animators'], 'particles': h['particles'], 'scripts': h['scripts']},
+                   'clips': {'directLinkedCount': len(linked), 'closureCandidateCount': len(closure_clips), 'items': clips},
+                   'policy': 'Exact bundle/PPtr evidence only. Closure-only AnimationClips are candidates, never asserted as prefab-linked. MonoBehaviour fields are serialized evidence only; no runtime script is executed and no synthetic animation is generated.'}
+        cache_file.write_text(json.dumps(payload, ensure_ascii=False, indent=2), 'utf-8'); return payload
     finally:
-        try:
-            del env
-        except Exception:
-            pass
+        try: del env
+        except Exception: pass
         gc.collect()
