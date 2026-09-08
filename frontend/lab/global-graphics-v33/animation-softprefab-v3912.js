@@ -1,11 +1,11 @@
 (()=>{
 'use strict';
-/* WfGg V39.12 — linked badge layout + exact SoftReferencePrefab trace UI.
+/* WfGg V39.12.1 — linked badge layout + exact SoftReferencePrefab trace UI.
    The add-on never fabricates a child prefab. It displays only backend candidates resolved from
    serialized/name/path evidence and lets the existing exact-ID opener handle a chosen child.
 */
 
-const VERSION='39.12';
+const VERSION='39.12.1';
 let lastModalSid='';
 let modalRequest=0;
 
@@ -15,16 +15,16 @@ function byId(id){return document.getElementById(id);}
 function injectStyle(){
   if(byId('wfgg-v3912-style'))return;
   const s=document.createElement('style');s.id='wfgg-v3912-style';s.textContent=`
-/* Keep the animation-link badge on the SAME top row as the normal render badge. */
-#wfggV39Badge{position:absolute!important;z-index:26!important;display:block!important;margin:0!important;pointer-events:auto!important;}
-#wfggV39Badge button{display:block!important;width:auto!important;min-width:0!important;max-width:100%!important;height:auto!important;margin:0!important;padding:5px 8px!important;border-radius:8px!important;font:700 11px/1.2 system-ui,sans-serif!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;box-shadow:none!important;backdrop-filter:none!important;}
+/* Animation badge: same top row as the native render badge, never over the artwork below. */
+#stage #wfggV39Badge.wfgg-v392-linked{position:absolute!important;z-index:40!important;display:block!important;margin:0!important;padding:0!important;pointer-events:auto!important;overflow:hidden!important;transform:none!important;}
+#stage #wfggV39Badge.wfgg-v392-linked button{display:block!important;width:100%!important;min-width:0!important;max-width:100%!important;height:auto!important;min-height:0!important;margin:0!important;padding:5px 8px!important;border-radius:8px!important;font:700 11px/1.2 system-ui,sans-serif!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;box-shadow:none!important;backdrop-filter:none!important;}
 #wfggV3912Soft .v3912intro{font-size:11px;color:#aaa;margin:7px 0 9px;line-height:1.35}
 #wfggV3912Soft .v3912item{border:1px solid #343440;background:#1d1d26;border-radius:10px;padding:9px;margin:7px 0;font-size:11px;overflow:hidden}
 #wfggV3912Soft .v3912row{display:flex;align-items:flex-start;gap:7px;flex-wrap:wrap;margin-top:6px}
 #wfggV3912Soft .v3912pill{display:inline-block;border:1px solid #4a4a58;border-radius:999px;padding:3px 7px;background:#262631;font-size:10px}
 #wfggV3912Soft code{font-size:10px;color:#bddbff;word-break:break-all}
 #wfggV3912Soft button{border:1px solid #7865aa;background:#2a2340;color:#fff;border-radius:8px;padding:6px 8px;font-weight:700;font-size:11px;cursor:pointer}
-#wfggV3912Soft .ok{color:#9be8c0}#wfggV3912Soft .warn{color:#ffd38a}
+#wfggV3912Soft .ok{color:#9be8c0}.wfggV3912Soft .warn{color:#ffd38a}
 `;
   document.head.appendChild(s);
 }
@@ -39,24 +39,38 @@ function normalRenderBadge(st){
   return st.querySelector('.badge:not(#wfggV39Badge)');
 }
 
+function important(el,name,value){try{el.style.setProperty(name,String(value),'important');}catch{}}
 function placeAnimationBadge(){
   const st=stage(), box=byId('wfggV39Badge');
   if(!st||!box)return false;
   const rb=normalRenderBadge(st);
-  const gap=8, edge=9;
-  let left=edge, top=edge;
+  const gap=7, edge=9;
+  let left=edge, top=edge, available=Math.max(72,st.clientWidth-edge*2);
   if(rb){
-    left=Math.max(edge,Math.round(rb.offsetLeft+rb.offsetWidth+gap));
-    top=Math.max(edge,Math.round(rb.offsetTop));
+    const rLeft=Number(rb.offsetLeft)||edge;
+    const rTop=Number(rb.offsetTop)||edge;
+    const rWidth=Number(rb.offsetWidth)||0;
+    left=Math.max(edge,Math.round(rLeft+rWidth+gap));
+    top=Math.max(edge,Math.round(rTop));
+    available=Math.max(54,Math.floor(st.clientWidth-left-edge));
   }
-  const available=Math.max(42,Math.floor(st.clientWidth-left-edge));
-  box.style.left=left+'px';box.style.top=top+'px';box.style.right='auto';
-  box.style.maxWidth=available+'px';box.style.width='max-content';
+  /* The V39.11 resolver has fallback top/left rules marked !important. Inline !important is
+     deliberate here so the runtime placement always wins on narrow mobile viewports. */
+  important(box,'left',left+'px');
+  important(box,'top',top+'px');
+  important(box,'right','auto');
+  important(box,'bottom','auto');
+  important(box,'width',available+'px');
+  important(box,'max-width',available+'px');
+  important(box,'height','auto');
+  important(box,'margin','0');
+  important(box,'transform','none');
   const b=box.querySelector('button');
   if(b){
-    b.style.maxWidth=available+'px';b.style.width='auto';
+    important(b,'width','100%');important(b,'max-width','100%');important(b,'min-width','0');
     b.title=b.textContent.trim()+' — toucher pour le diagnostic / prefab lié';
   }
+  box.dataset.wfggPlacement='same-row';
   return true;
 }
 
@@ -65,8 +79,6 @@ function watchBadge(){
   const st=stage();
   if(st&&!st.dataset.wfggV3912Observed){
     st.dataset.wfggV3912Observed='1';
-    /* Child replacement removes/recreates both badges. Do not observe style attributes here:
-       placeAnimationBadge itself writes style values and an attribute observer would self-trigger. */
     new MutationObserver(()=>requestAnimationFrame(placeAnimationBadge)).observe(st,{childList:true,subtree:true});
   }
   placeAnimationBadge();
@@ -130,10 +142,10 @@ async function hydrateModal(){
       btn.onclick=()=>{const ref=items[Number(btn.dataset.v3912Open)];if(ref?.best)openExactCandidate(ref.best);};
     });
     window.WFGGSoftPrefabV3912.last=payload;
-    console.info('V39_12_SOFTPREFAB_UI',sid,'resolved='+payload.resolvedCount,'local='+payload.localResolvedCount,'ready='+payload.assemblyReady);
+    console.info('V39_12_1_SOFTPREFAB_UI',sid,'resolved='+payload.resolvedCount,'local='+payload.localResolvedCount,'ready='+payload.assemblyReady);
   }catch(e){
     if(body)body.innerHTML='<div class="v3912intro">Résolution des sous-prefabs indisponible : '+esc(String(e?.message||e))+'</div>';
-    console.warn('V39_12_SOFTPREFAB_UI_FAIL',sid,e);
+    console.warn('V39_12_1_SOFTPREFAB_UI_FAIL',sid,e);
   }
 }
 
@@ -144,9 +156,9 @@ function install(){
     watchBadge();
     if(byId('wfggV39Modal'))setTimeout(hydrateModal,0);
   }).observe(document.body,{childList:true,subtree:true});
-  setInterval(()=>{watchBadge();if(byId('wfggV39Modal'))hydrateModal();},500);
+  setInterval(()=>{watchBadge();if(byId('wfggV39Modal'))hydrateModal();},350);
   window.WFGGSoftPrefabV3912={version:VERSION,ready:true,last:null,refresh:hydrateModal,positionBadge:placeAnimationBadge};
-  console.info('V39_12_SOFTPREFAB_UI installed badge=same-render-row viewport-clamp=ON exact-softrefs=ON');
+  console.info('V39_12_1_SOFTPREFAB_UI installed badge=same-render-row FORCED viewport-clamp=ON exact-softrefs=ON');
 }
 
 install();
