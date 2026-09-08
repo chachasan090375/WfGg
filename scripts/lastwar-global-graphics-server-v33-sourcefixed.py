@@ -12,11 +12,14 @@ At startup this server:
 - demotes rows whose physical representative has no source on this phone;
 - keeps the global catalogue intact, but makes the 'local-renderable' filter truthful.
 
-At render time it also adds a conservative recovery path:
+At render time it also adds conservative recovery paths:
 - exact fragmentEntry first;
 - case-insensitive full entry match;
 - BundleFragment basename match across installed split APKs;
-- exact offset/span and UnityFS header are still mandatory.
+- exact indexed offset/span when still valid;
+- V39.7: shifted-offset recovery inside the SAME BundleFragment when a game update moved bundles.
+  A shifted UnityFS candidate is accepted only after UnityPy validates the exact indexed asset path
+  (or the exact root/object name as a secondary proof). No nearest-bundle substitution is allowed.
 
 No approximate asset substitution is introduced.
 """
@@ -27,7 +30,9 @@ import importlib.util
 import os
 import shutil
 import sqlite3
+import struct
 import sys
+import threading
 import zipfile
 
 ROOT = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else Path(__file__).resolve().parents[1]
@@ -47,6 +52,11 @@ v31 = core.v31
 BASE_MATERIALIZE = v31.materialize_bundle
 
 _apk_entries = None
+_relocated_offsets = {}
+_relocate_lock = threading.Lock()
+RELOCATE_WINDOW = 8 * 1024 * 1024
+RELOCATE_MAX_CANDIDATES = 32
+RELOCATE_MAX_BUNDLE = 96 * 1024 * 1024
 
 
 def _as_dict(row):
@@ -148,6 +158,178 @@ def _read_slice(kind, source, entry, off, span):
             return (raw, '') if len(raw) == span else (None, 'short-read:' + str(len(raw)))
 
 
+def _unityfs_declared_size(head: bytes):
+    """Return UnityFS file size from the big-endian bundle header, or None."""
+    sig = b'UnityFS\x00'
+    if not head.startswith(sig):
+        return None
+    pos = len(sig)
+    if len(head) < pos + 4:
+        return None
+    pos += 4  # format version
+    for _ in range(2):  # unity version + revision, NUL terminated
+        end = head.find(b'\x00', pos)
+        if end < 0:
+            return None
+        pos = end + 1
+    if len(head) < pos + 8:
+        return None
+    try:
+        size = int(struct.unpack('>Q', head[pos:pos+8])[0])
+    except Exception:
+        return None
+    if size <= 0 or size > RELOCATE_MAX_BUNDLE:
+        return None
+    return size
+
+
+def _target_identity(row):
+    row = _as_dict(row) or {}
+    path = str(row.get('asset_path') or row.get('logical_name') or '').replace('\\', '/').strip('/')
+    norm = path.casefold()
+    tail = path.rsplit('/', 1)[-1]
+    stem = tail.rsplit('.', 1)[0].casefold() if tail else ''
+    return norm, stem
+
+
+def _bundle_contains_exact_target(raw: bytes, row, bid, hit):
+    """Validate a relocated candidate against the indexed asset, never by proximity alone."""
+    expected_path, expected_stem = _target_identity(row)
+    if not expected_path and not expected_stem:
+        return False, 'no-target-identity'
+    try:
+        import UnityPy
+    except Exception as exc:
+        return False, 'unitypy-missing:' + str(exc)[:120]
+
+    probe = v31.BUNDLE_CACHE / ('.relocate-probe-' + str(bid) + '-' + str(hit) + '.bundle')
+    env = None
+    try:
+        probe.write_bytes(raw)
+        env = UnityPy.load(str(probe))
+        container = getattr(env, 'container', None) or {}
+        for key in container.keys():
+            if _norm_entry(key) == expected_path:
+                return True, 'exact-container-path'
+
+        # Secondary exact proof for bundles without a usable container table.
+        if expected_stem:
+            for obj in getattr(env, 'objects', []) or []:
+                try:
+                    name = str(obj.peek_name() or '').strip().casefold()
+                except Exception:
+                    name = ''
+                if name == expected_stem:
+                    return True, 'exact-object-name'
+        return False, 'target-not-in-bundle'
+    except Exception as exc:
+        return False, 'decode:' + str(exc)[:160]
+    finally:
+        try:
+            del env
+        except Exception:
+            pass
+        try:
+            probe.unlink(missing_ok=True)
+        except Exception:
+            pass
+
+
+def _recover_relocated_bundle(kind, source, entry, old_off, old_span, row, bid):
+    """Find a moved UnityFS bundle in the same fragment and validate its exact asset identity."""
+    expected_path, _ = _target_identity(row)
+    cache_key = (kind, str(source), str(entry or ''), int(old_off), int(old_span), expected_path)
+
+    def open_stream():
+        if kind == 'file':
+            fh = Path(source).open('rb')
+            return None, fh, Path(source).stat().st_size
+        z = zipfile.ZipFile(source, 'r')
+        info = z.getinfo(entry)
+        fh = z.open(entry, 'r')
+        return z, fh, int(info.file_size)
+
+    with _relocate_lock:
+        cached = _relocated_offsets.get(cache_key)
+        if cached:
+            hit, size, proof = cached
+            z = fh = None
+            try:
+                z, fh, total = open_stream()
+                if hit + size <= total:
+                    fh.seek(hit); raw = fh.read(size)
+                    if len(raw) == size and raw.startswith(b'UnityFS'):
+                        return raw, hit, size, proof + ':cache'
+            finally:
+                try: fh.close()
+                except Exception: pass
+                try:
+                    if z is not None: z.close()
+                except Exception: pass
+
+        z = fh = None
+        try:
+            z, fh, total = open_stream()
+            start = max(0, int(old_off) - RELOCATE_WINDOW)
+            end = min(total, int(old_off) + RELOCATE_WINDOW)
+            if end <= start:
+                return None
+            fh.seek(start)
+            buf = fh.read(end - start)
+            sig = b'UnityFS\x00'
+            candidates = []
+            pos = 0
+            while True:
+                i = buf.find(sig, pos)
+                if i < 0:
+                    break
+                hit = start + i
+                declared = _unityfs_declared_size(buf[i:i+512])
+                if declared and hit + declared <= total:
+                    candidates.append((hit, declared))
+                pos = i + 1
+
+            # Exact old span first, then nearest offset. Proximity never validates by itself.
+            candidates.sort(key=lambda x: (0 if x[1] == int(old_span) else 1, abs(x[0] - int(old_off))))
+            for hit, declared in candidates[:RELOCATE_MAX_CANDIDATES]:
+                fh.seek(hit)
+                raw = fh.read(declared)
+                if len(raw) != declared or not raw.startswith(sig):
+                    continue
+                ok, proof = _bundle_contains_exact_target(raw, row, bid, hit)
+                if not ok:
+                    continue
+                _relocated_offsets[cache_key] = (hit, declared, proof)
+                print(
+                    'V39_7_SHIFTED_BUNDLE_VALIDATED',
+                    str(row.get('stable_id') or ''),
+                    'bundle=' + str(bid),
+                    'oldOffset=' + str(old_off),
+                    'newOffset=' + str(hit),
+                    'delta=' + str(hit - int(old_off)),
+                    'oldSpan=' + str(old_span),
+                    'newSpan=' + str(declared),
+                    'proof=' + proof,
+                    flush=True,
+                )
+                return raw, hit, declared, proof
+            print(
+                'V39_7_SHIFTED_BUNDLE_NOT_VALIDATED',
+                str(row.get('stable_id') or ''),
+                'oldOffset=' + str(old_off),
+                'candidates=' + str(len(candidates)),
+                'checked=' + str(min(len(candidates), RELOCATE_MAX_CANDIDATES)),
+                flush=True,
+            )
+            return None
+        finally:
+            try: fh.close()
+            except Exception: pass
+            try:
+                if z is not None: z.close()
+            except Exception: pass
+
+
 def _physical_rows_for(a):
     rows = []
     seen = set()
@@ -209,9 +391,27 @@ def enhanced_materialize(a):
             try:
                 raw, err = _read_slice(kind, source, entry, off, span)
             except Exception as exc:
-                attempts.append(label + ':io:' + str(exc)[:160]); continue
+                raw, err = None, 'io:' + str(exc)[:160]
             if raw is None:
-                attempts.append(label + ':' + err); continue
+                attempts.append(label + ':' + err)
+                # V39.7: the fragment exists but this game's update may have shifted the embedded bundle.
+                try:
+                    relocated = _recover_relocated_bundle(kind, source, entry, off, span, row, bid)
+                except Exception as exc:
+                    relocated = None
+                    attempts.append(label + ':relocate-error:' + str(exc)[:180])
+                if relocated:
+                    raw, new_off, new_span, proof = relocated
+                    out = v31.BUNDLE_CACHE / ('bundle-' + str(bid) + '.bundle')
+                    out.write_bytes(raw)
+                    try:
+                        v31.BUNDLE_LRU[bid] = str(out)
+                        v31.BUNDLE_LRU.move_to_end(bid)
+                        v31.trim_lru(v31.BUNDLE_LRU, v31.MAX_BUNDLES, True)
+                    except Exception:
+                        pass
+                    return out, 'runtime-shifted-offset:' + label + ':offset=' + str(new_off) + ':span=' + str(new_span) + ':proof=' + proof
+                continue
             out = v31.BUNDLE_CACHE / ('bundle-' + str(bid) + '.bundle')
             out.write_bytes(raw)
             try:
@@ -234,6 +434,30 @@ def enhanced_materialize(a):
     )
     _mark_runtime_unavailable(a, 'source-not-materializable')
     raise RuntimeError('RUNTIME_SOURCE_NOT_MATERIALIZABLE: ' + info)
+
+
+def try_restore_runtime_asset(a):
+    """On-demand restore for rows previously demoted after stale offsets."""
+    a = _as_dict(a)
+    if not a:
+        return False, ''
+    try:
+        _, source = enhanced_materialize(a)
+    except Exception as exc:
+        return False, str(exc)
+    sid = str(a.get('stable_id') or '')
+    if sid:
+        try:
+            con = core.dbcon()
+            con.execute(
+                "UPDATE assets SET render_availability='local-exact', render_source_reason=? WHERE stable_id=?",
+                ('runtime-restored:' + str(source)[:350], sid),
+            )
+            con.commit(); con.close()
+        except Exception:
+            pass
+    print('V39_7_RUNTIME_ASSET_RESTORED', sid, source, flush=True)
+    return True, source
 
 
 def _source_exists_for(row, local_keys, apk_exact, apk_base):
@@ -291,7 +515,7 @@ def runtime_availability_audit():
         con.commit()
     con.close()
     print('V33_RUNTIME_AVAIL_AUDIT', 'checked=' + str(len(rows)), 'kept=' + str(keep), 'demoted=' + str(demote), 'localFragments=' + str(len(local_keys)), 'apkEntries=' + str(len(apk_exact)), flush=True)
-    return {'checked': len(rows), 'kept': keep, 'demoted': demote}
+    return {'checked': len(rows), 'kept': keep, 'demote': demote}
 
 
 v31.materialize_bundle = enhanced_materialize
@@ -301,6 +525,7 @@ AUDIT = runtime_availability_audit()
 if __name__ == '__main__':
     print('=== WFGG LAST WAR GLOBAL GRAPHICS V33 — RUNTIME SOURCE VERIFIED ===', flush=True)
     print('V33_RUNTIME_SOURCE exact-entry + casefold-entry + fragment-basename recovery=ON', flush=True)
+    print('V39_7_SHIFTED_OFFSET same-fragment-scan=ON exact-asset-validation=REQUIRED synthetic-substitution=OFF', flush=True)
     print('V33_RUNTIME_AVAIL local-renderable=SOURCE-PRESENCE-VERIFIED audit=' + repr(AUDIT), flush=True)
     print(f'http://127.0.0.1:{core.PORT}/lab/lastwar-global-graphics-viewer-v33.html', flush=True)
     ThreadingHTTPServer(('127.0.0.1', core.PORT), c.CorrelatedHandler).serve_forever()
