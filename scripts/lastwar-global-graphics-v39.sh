@@ -8,11 +8,11 @@ if [ "$(git branch --show-current)" != "$BRANCH" ]; then
   echo "Commande: git switch $BRANCH" >&2
   exit 2
 fi
-printf '\n=== WFGG V39.12 : PREFABS ANIMES / SOFT-REFERENCES ===\n'
+printf '\n=== WFGG V39.13 : BADGE ROW + PREFABS ANIMES ===\n'
 printf 'Mouvement synthetique: OFF\n'
 printf 'Recuperation source V39.7: ON\n'
 printf 'Hotfix diagnostic navigateur: ON\n'
-printf 'Badge animation: MEME LIGNE QUE RENDU + CLAMP MOBILE\n'
-printf 'SoftReferencePrefab: RESOLUTION EXACTE + MATERIALISATION\n'
+printf 'Badge animation: MEME LIGNE QUE RENDU + ESPACE RESERVE 54PX + AUCUN RECOUVREMENT IMAGE\n'
+printf 'SoftReferencePrefab V39.12: RESOLUTION EXACTE + MATERIALISATION\n'
 printf 'Assemblage fusionne: GARDE jusqu a validation exacte de tous les slots\n'
-exec python scripts/lastwar-global-graphics-server-v3912-softprefab.py "$ROOT"
+exec python scripts/lastwar-global-graphics-server-v3913-layout.py "$ROOT"
