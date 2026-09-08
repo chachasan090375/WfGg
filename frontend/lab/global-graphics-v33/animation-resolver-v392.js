@@ -1,8 +1,8 @@
 (()=>{
 'use strict';
-/* V39.10: 2D icon -> related 3D prefab resolver + exact target opening + physical source recovery.
-   The resolver now owns/recreates its badge on 2D assets so a stage rerender cannot silently remove
-   the animation-link indicator. No animation data or source resolution policy is changed.
+/* V39.11: 2D icon -> related 3D prefab resolver + exact target opening + physical source recovery.
+   The resolver owns/recreates its badge on 2D assets and pins it as a compact preview chip under
+   the existing RENDU 2D REEL badge. No animation data or source resolution policy is changed.
 */
 
 let activeSid='',token=0,resolution=null,modal=null;
@@ -15,12 +15,13 @@ function cur(){try{return typeof currentAsset!=='undefined'?currentAsset:null}ca
 function is2DIcon(a){const p=String(a?.asset_path||a?.logical_name||a?.alias_name||'').toLowerCase();return String(a?.dimension_class||'').toUpperCase()==='2D'||/\/sprites?\/|\/icons?\/|ui[_/]|buildicon/.test(p);}
 function badgeEl(){return document.querySelector('#wfggV39Badge button');}
 function ensureBadgeEl(){
-  let b=badgeEl();if(b)return b;
-  const st=document.getElementById('stage');if(!st)return null;
+  let b=badgeEl();
+  const st=document.getElementById('stage');if(!st)return b||null;
   try{if(getComputedStyle(st).position==='static')st.style.position='relative';}catch{}
   let box=document.getElementById('wfggV39Badge');
   if(!box){box=document.createElement('div');box.id='wfggV39Badge';st.appendChild(box);}
-  b=document.createElement('button');b.type='button';box.appendChild(b);
+  box.classList.add('wfgg-v392-linked');
+  if(!b){b=document.createElement('button');b.type='button';box.appendChild(b);}
   return b;
 }
 function setBadge(text,state='loading',click=null){
@@ -32,9 +33,15 @@ function restoreBadge(){
   if(!badgeState.text)return false;
   const b=badgeEl();
   if(!b||b.textContent.trim()!==badgeState.text||b.dataset.state!==badgeState.state){return setBadge(badgeState.text,badgeState.state,badgeState.click);}
+  ensureBadgeEl();
   return true;
 }
 function ensureStyle(){if(document.getElementById('wfgg-v392-style'))return;const s=document.createElement('style');s.id='wfgg-v392-style';s.textContent=`
+#stage #wfggV39Badge.wfgg-v392-linked{position:absolute!important;left:16px!important;top:58px!important;right:auto!important;bottom:auto!important;width:auto!important;height:auto!important;max-width:calc(100% - 32px)!important;margin:0!important;padding:0!important;display:block!important;transform:none!important;z-index:35!important;pointer-events:auto!important}
+#stage #wfggV39Badge.wfgg-v392-linked button{box-sizing:border-box!important;display:inline-flex!important;align-items:center!important;justify-content:flex-start!important;width:auto!important;min-width:0!important;max-width:min(360px,calc(100vw - 72px))!important;height:auto!important;min-height:36px!important;margin:0!important;padding:8px 12px!important;border:1px solid #46546d!important;border-radius:11px!important;background:rgba(17,22,34,.94)!important;color:#edf1f8!important;box-shadow:none!important;backdrop-filter:blur(6px)!important;font:600 12px/1.15 system-ui,sans-serif!important;letter-spacing:0!important;text-align:left!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;cursor:pointer!important}
+#stage #wfggV39Badge.wfgg-v392-linked button[data-state="animated-script"]{border-color:#8f79c9!important;color:#f1eaff!important}
+#stage #wfggV39Badge.wfgg-v392-linked button[data-state="animated-clip"],#stage #wfggV39Badge.wfgg-v392-linked button[data-state="animated-transform"]{border-color:#6689b8!important;color:#e7f2ff!important}
+#stage #wfggV39Badge.wfgg-v392-linked button[data-state="error"]{border-color:#b85d69!important;color:#ffd9de!important}
 #wfggV392Modal{position:fixed;z-index:10060;inset:0;background:#000b;display:flex;align-items:center;justify-content:center;padding:16px;font-family:system-ui;color:#eee}
 #wfggV392Modal .box{width:min(720px,96vw);max-height:88vh;overflow:auto;background:#181820;border:1px solid #3a3a48;border-radius:16px;padding:16px;box-shadow:0 24px 70px #000a}
 #wfggV392Modal h3{margin:0 0 5px;font-size:16px}#wfggV392Modal .muted{font-size:12px;color:#aaa}#wfggV392Modal .cand{margin-top:12px;padding:11px;border:1px solid #383845;border-radius:11px;background:#21212a}#wfggV392Modal code{font-size:10px;color:#bddbff;word-break:break-all}#wfggV392Modal .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}#wfggV392Modal button{border:1px solid #545465;background:#292936;color:#eee;border-radius:9px;padding:8px 11px;font-weight:700}#wfggV392Modal .primary{border-color:#9b7de8;background:#2d2441}.v392pill{display:inline-block;border:1px solid #555466;border-radius:999px;padding:3px 7px;margin:5px 4px 0 0;font-size:10px}
@@ -51,7 +58,7 @@ function installExactIdSearch(){
     if(!EXACT_ID.test(raw))return p;
     p.delete('q');p.delete('keywords');p.delete('hero_id');p.delete('hero_relation');
     p.set('stable_id',raw.toUpperCase());p.set('sort','default');
-    console.debug('V39_10_EXACT_ID_SEARCH',raw.toUpperCase(),'via=stable-id-equality');
+    console.debug('V39_11_EXACT_ID_SEARCH',raw.toUpperCase(),'via=stable-id-equality');
     return p;
   };
   if(typeof preparePageItems==='function'){
@@ -73,7 +80,7 @@ function installExactIdSearch(){
       return out;
     };
   }
-  console.info('V39_10_EXACT_ID_SEARCH installed stable-id-equality=ON preview-bypass=ON direct-open=ON source-recovery=ON badge-persistence=ON');
+  console.info('V39_11_EXACT_ID_SEARCH installed stable-id-equality=ON preview-bypass=ON direct-open=ON source-recovery=ON badge-persistence=ON compact-badge=ON');
   return true;
 }
 
@@ -95,7 +102,7 @@ async function recoverExactSource(sid,exact){
     const r=await fetch('/api/v39/recover-source?id='+encodeURIComponent(sid),{cache:'no-store'});
     const recovery=await r.json().catch(()=>({}));
     if(!r.ok)throw new Error(recovery.message||recovery.error||('HTTP '+r.status));
-    console.info('V39_10_PREFAB_SOURCE_PROBE',sid,recovery);
+    console.info('V39_11_PREFAB_SOURCE_PROBE',sid,recovery);
     if(recovery.recovered){
       setBadge('Bundle exact récupéré · ouverture 3D…','animated-clip');
       return {exact:await fetchExact(sid),recovery};
@@ -103,7 +110,7 @@ async function recoverExactSource(sid,exact){
     setBadge('Prefab exact trouvé · bundle physique absent','static-or-undetected');
     return {exact,recovery};
   }catch(e){
-    console.warn('V39_10_PREFAB_SOURCE_PROBE_FAIL',sid,e);
+    console.warn('V39_11_PREFAB_SOURCE_PROBE_FAIL',sid,e);
     setBadge('Prefab exact trouvé · recherche bundle échouée','error');
     return {exact,recovery:{error:String(e?.message||e)}};
   }
@@ -111,7 +118,7 @@ async function recoverExactSource(sid,exact){
 
 async function openCandidateDirect(c){
   const sid=String(c?.stable_id||'').trim().toUpperCase();
-  if(!EXACT_ID.test(sid)){console.warn('V39_10_DIRECT_OPEN_INVALID_ID',sid);return;}
+  if(!EXACT_ID.test(sid)){console.warn('V39_11_DIRECT_OPEN_INVALID_ID',sid);return;}
   closeModal();
   const q=document.getElementById('q');if(q)q.value=sid;
   try{updateFilterSummary();}catch{}
@@ -131,9 +138,9 @@ async function openCandidateDirect(c){
     const rc=document.getElementById('resultCount');if(rc)rc.textContent='1';
     await select(0);
     try{window.WFGGResultStripSync?.('auto');}catch{}
-    console.info('V39_10_DIRECT_PREFAB_OPEN',sid,'availability='+String(exact.render_availability||''),'dimension='+String(exact.dimension_class||''),'role='+String(exact.model_role||''),'recovered='+String(!!probe.recovery?.recovered));
+    console.info('V39_11_DIRECT_PREFAB_OPEN',sid,'availability='+String(exact.render_availability||''),'dimension='+String(exact.dimension_class||''),'role='+String(exact.model_role||''),'recovered='+String(!!probe.recovery?.recovered));
   }catch(e){
-    console.warn('V39_10_DIRECT_PREFAB_OPEN_FAIL',sid,e);
+    console.warn('V39_11_DIRECT_PREFAB_OPEN_FAIL',sid,e);
     const results=document.getElementById('results');if(results)results.innerHTML='<div class="empty error">Prefab lié introuvable : '+esc(sid)+'</div>';
     if(stage)stage.innerHTML='<div class="empty"><b>Le candidat lié existe dans le resolver mais son ouverture exacte a échoué.</b><br><span class="hint">'+esc(String(e?.message||e))+'</span></div>';
   }
@@ -142,7 +149,7 @@ async function openCandidateDirect(c){
 function openModal(){
   if(!resolution)return;ensureStyle();closeModal();const r=resolution,c=r.candidate||{},d=r.diagnostic||{};
   modal=document.createElement('div');modal.id='wfggV392Modal';
-  modal.innerHTML=`<div class="box"><h3>Prefab 3D lié à l’icône</h3><div class="muted">L’asset affiché est une image UI 2D. V39.10 a recherché les assets 3D partageant les identifiants de catalogue. Si le prefab exact est seulement indexé, l’ouverture tente aussi de retrouver son bundle physique sans aucune substitution approximative.</div><div class="cand"><b>${esc(c.stable_id||'—')}</b><br><code>${esc(c.asset_path||c.logical_name||c.alias_name||'')}</code><div><span class="v392pill">score liaison ${esc(c.resolver_score??'—')}</span><span class="v392pill">${esc(d?.classification?.status||r.status||'à confirmer')}</span></div><div class="muted" style="margin-top:7px">${esc((c.resolver_reasons||[]).join(' · '))}</div></div><div class="row"><button class="primary" id="v392open">Ouvrir / rechercher le bundle exact</button><button id="v392close">Fermer</button></div></div>`;
+  modal.innerHTML=`<div class="box"><h3>Prefab 3D lié à l’icône</h3><div class="muted">L’asset affiché est une image UI 2D. V39.11 a recherché les assets 3D partageant les identifiants de catalogue. Si le prefab exact est seulement indexé, l’ouverture tente aussi de retrouver son bundle physique sans aucune substitution approximative.</div><div class="cand"><b>${esc(c.stable_id||'—')}</b><br><code>${esc(c.asset_path||c.logical_name||c.alias_name||'')}</code><div><span class="v392pill">score liaison ${esc(c.resolver_score??'—')}</span><span class="v392pill">${esc(d?.classification?.status||r.status||'à confirmer')}</span></div><div class="muted" style="margin-top:7px">${esc((c.resolver_reasons||[]).join(' · '))}</div></div><div class="row"><button class="primary" id="v392open">Ouvrir / rechercher le bundle exact</button><button id="v392close">Fermer</button></div></div>`;
   document.body.appendChild(modal);
   document.getElementById('v392close').onclick=closeModal;
   document.getElementById('v392open').onclick=()=>openCandidateDirect(c);
@@ -150,8 +157,8 @@ function openModal(){
 }
 
 async function scanCandidate(c,myToken){try{const r=await fetch('/api/v39/animation?id='+encodeURIComponent(c.stable_id),{cache:'no-store'});const d=await r.json().catch(()=>({}));if(myToken!==token)return null;if(!r.ok)return {candidate:c,error:d.message||d.error||('HTTP '+r.status)};return {candidate:c,diagnostic:d};}catch(e){return {candidate:c,error:String(e)}}}
-async function resolve(a){const sid=String(a?.stable_id||'');if(!sid||sid===activeSid)return;activeSid=sid;resolution=null;const myToken=++token;setBadge('Icône 2D · recherche du prefab 3D…','loading');let targets;try{const r=await fetch('/api/v39/animation-targets?id='+encodeURIComponent(sid),{cache:'no-store'});targets=await r.json();if(!r.ok)throw new Error(targets.message||targets.error||'targets');}catch(e){if(myToken===token)setBadge('Icône 2D · liaison prefab indisponible','error');return;}if(myToken!==token)return;const candidates=(targets.candidates||[]).slice(0,MAX_SCAN);if(!candidates.length){setBadge('Icône 2D · aucun prefab 3D relié','static-or-undetected');return;}let best=null;for(let i=0;i<candidates.length;i++){setBadge(`Prefab 3D ${i+1}/${candidates.length} · vérification animation…`,'loading');const x=await scanCandidate(candidates[i],myToken);if(myToken!==token)return;if(!x)continue;if(!best&&!x.error)best=x;const code=x.diagnostic?.classification?.code||'';if(code&&code!=='static-or-undetected'){best=x;break;}}if(myToken!==token)return;if(!best){resolution={candidate:candidates[0],status:'prefab trouvé · source à vérifier'};setBadge('Prefab 3D lié trouvé · ouvrir','animated-clip',openModal);return;}resolution=best;const st=best.diagnostic?.classification?.status||'Prefab 3D lié';const animated=(best.diagnostic?.classification?.code||'')!=='static-or-undetected';setBadge((animated?'🔗 ':'')+st+' · prefab lié',animated?(best.diagnostic?.classification?.code||'animated-clip'):'static-or-undetected',openModal);console.info('V39_10_ICON_PREFAB_RESOLVED',sid,'->',best.candidate?.stable_id,st);}
-function tick(){const a=cur(),sid=String(a?.stable_id||'');if(!sid){activeSid='';badgeState={text:'',state:'loading',click:null};return;}if(!is2DIcon(a)){if(activeSid&&sid!==activeSid){activeSid='';resolution=null;badgeState={text:'',state:'loading',click:null};}return;}if(sid!==activeSid){resolve(a);return;}restoreBadge();}
+async function resolve(a){const sid=String(a?.stable_id||'');if(!sid||sid===activeSid)return;activeSid=sid;resolution=null;const myToken=++token;setBadge('Icône 2D · recherche du prefab 3D…','loading');let targets;try{const r=await fetch('/api/v39/animation-targets?id='+encodeURIComponent(sid),{cache:'no-store'});targets=await r.json();if(!r.ok)throw new Error(targets.message||targets.error||'targets');}catch(e){if(myToken===token)setBadge('Icône 2D · liaison prefab indisponible','error');return;}if(myToken!==token)return;const candidates=(targets.candidates||[]).slice(0,MAX_SCAN);if(!candidates.length){setBadge('Icône 2D · aucun prefab 3D relié','static-or-undetected');return;}let best=null;for(let i=0;i<candidates.length;i++){setBadge(`Prefab 3D ${i+1}/${candidates.length} · vérification animation…`,'loading');const x=await scanCandidate(candidates[i],myToken);if(myToken!==token)return;if(!x)continue;if(!best&&!x.error)best=x;const code=x.diagnostic?.classification?.code||'';if(code&&code!=='static-or-undetected'){best=x;break;}}if(myToken!==token)return;if(!best){resolution={candidate:candidates[0],status:'prefab trouvé · source à vérifier'};setBadge('Prefab 3D lié trouvé · ouvrir','animated-clip',openModal);return;}resolution=best;const st=best.diagnostic?.classification?.status||'Prefab 3D lié';const animated=(best.diagnostic?.classification?.code||'')!=='static-or-undetected';setBadge((animated?'🔗 ':'')+st+' · prefab lié',animated?(best.diagnostic?.classification?.code||'animated-clip'):'static-or-undetected',openModal);console.info('V39_11_ICON_PREFAB_RESOLVED',sid,'->',best.candidate?.stable_id,st);}
+function tick(){const a=cur(),sid=String(a?.stable_id||'');if(!sid){activeSid='';badgeState={text:'',state:'loading',click:null};return;}if(!is2DIcon(a)){document.getElementById('wfggV39Badge')?.classList.remove('wfgg-v392-linked');if(activeSid&&sid!==activeSid){activeSid='';resolution=null;badgeState={text:'',state:'loading',click:null};}return;}if(sid!==activeSid){resolve(a);return;}restoreBadge();}
 function boot(){ensureStyle();if(!installExactIdSearch())setTimeout(boot,120);setInterval(tick,350);setTimeout(tick,120);}
-boot();window.WFGGAnimationResolverV392={version:'39.10',state:()=>resolution,refresh:()=>{activeSid='';tick();},open:openModal,openDirect:openCandidateDirect};
+boot();window.WFGGAnimationResolverV392={version:'39.11',state:()=>resolution,refresh:()=>{activeSid='';tick();},open:openModal,openDirect:openCandidateDirect};
 })();
