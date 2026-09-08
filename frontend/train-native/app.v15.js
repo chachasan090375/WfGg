@@ -28,7 +28,7 @@
             rotationRanks: {
                 officer: ['R5', 'R4'],
                 r3driver: ['R3'],
-                vip: ['R3', 'R2', 'R1']
+                vip: ['R3']
             }
         },
         unavailable: {},
@@ -763,7 +763,7 @@
         if (!Array.isArray(state.settings.rotationRanks.r3driver) || !state.settings.rotationRanks.r3driver.length)
             state.settings.rotationRanks.r3driver = ['R3'];
         if (!Array.isArray(state.settings.rotationRanks.vip) || !state.settings.rotationRanks.vip.length)
-            state.settings.rotationRanks.vip = ['R3', 'R2', 'R1'];
+            state.settings.rotationRanks.vip = ['R3'];
     }
     function ranksForRotation(key) {
         ensureRotationRankSettings();
@@ -779,6 +779,65 @@
         if (key === 'driver-r3')
             return rolePoolLabel('r3driver');
         return rolePoolLabel('officer');
+    }
+    /* WFGG_ROSTER_INTEGRATION_UI_V1
+       Le backend est l'autorité pour les quotas d'intégration. Le frontend
+       affiche les compteurs calculés côté serveur sans recalculer les cycles. */
+    function integrationText(fr,en,it,es){
+        const lang=currentLanguage();
+        return lang==='en'?en:lang==='it'?it:lang==='es'?es:fr;
+    }
+    function integrationPoolLabel(poolKey){
+        if(poolKey==='officer')return integrationText('Conducteur A','Driver A','Conducente A','Conductor A');
+        if(poolKey==='r3driver')return integrationText('Conducteur B','Driver B','Conducente B','Conductor B');
+        return 'VIP R3';
+    }
+    function integrationReasonLabel(reason){
+        const map={
+          new_member:integrationText('Nouveau membre','New member','Nuovo membro','Nuevo miembro'),
+          promotion:integrationText('Promotion','Promotion','Promozione','Promoción'),
+          demotion:integrationText('Rétrogradation','Demotion','Retrocessione','Descenso'),
+          reactivation:integrationText('Réactivation','Reactivation','Riattivazione','Reactivación')
+        };
+        return map[reason]||integrationText('Intégration','Integration','Integrazione','Integración');
+    }
+    function integrationTierLabel(tier){
+        const n=Number(tier)||0;
+        if(n===1)return integrationText('1er tiers','1st third','1° terzo','1.er tercio');
+        if(n===2)return integrationText('2e tiers','2nd third','2° terzo','2.º tercio');
+        if(n===3)return integrationText('dernier tiers','last third','ultimo terzo','último tercio');
+        return '';
+    }
+    function rotationIntegrationStatuses(){
+        return Array.isArray(state.rotationIntegrationStatus)?state.rotationIntegrationStatus:[];
+    }
+    function activeIntegrationStatusesFor(id){
+        return rotationIntegrationStatuses().filter(x=>String(x.memberId)===String(id)&&!x.integrationCompleted);
+    }
+    function integrationCounterLabel(x){
+        const done=Math.max(0,Number(x.completedCount)||0);
+        const remainingRaw=Number(x.remainingCount);
+        const remaining=Number.isFinite(remainingRaw)?Math.max(0,remainingRaw):Math.max(0,(Number(x.targetCount)||0)-done);
+        const target=done+remaining;
+        return `${integrationPoolLabel(x.poolKey)} ${done}/${target}`;
+    }
+    function memberIntegrationHtml(id,{compact=false}={}){
+        const rows=activeIntegrationStatusesFor(id);
+        if(!rows.length)return '';
+        const first=rows[0],head=[integrationReasonLabel(first.reason),first.previousRank&&first.newRank?`${first.previousRank}→${first.newRank}`:'',integrationTierLabel(first.tier)].filter(Boolean).join(' · ');
+        const counters=rows.map(integrationCounterLabel).join(' · ');
+        const effective=first.effectiveFrom?`${integrationText('Effet','Effective','Effetto','Efecto')} ${fmtShort(parseISO(first.effectiveFrom))}`:'';
+        return `<div class="warning roster-integration-status ${compact?'compact':''}"><b>🧭 ${esc(head)}</b><br><span>${esc(counters)}</span>${effective?`<br><small>${esc(effective)}</small>`:''}</div>`;
+    }
+    function allIntegrationStatusHtml(){
+        const rows=rotationIntegrationStatuses().filter(x=>!x.integrationCompleted);
+        if(!rows.length)return `<div class="success">✅ ${integrationText('Aucune intégration en cours','No integration in progress','Nessuna integrazione in corso','No hay ninguna integración en curso')}</div>`;
+        const ids=[...new Set(rows.map(x=>String(x.memberId)))];
+        return `<div class="option-list">${ids.map(id=>{
+          const p=byId[id],sub=rows.filter(x=>String(x.memberId)===id),first=sub[0];
+          const head=[integrationReasonLabel(first.reason),first.previousRank&&first.newRank?`${first.previousRank}→${first.newRank}`:'',integrationTierLabel(first.tier)].filter(Boolean).join(' · ');
+          return `<div class="option"><span>🧭</span><span><b>${esc(p?.pseudo||id)}</b><small>${esc(head)}<br>${esc(sub.map(integrationCounterLabel).join(' · '))}</small></span></div>`;
+        }).join('')}</div>`;
     }
     function rankCheckHtml(key, label) {
         const selected = new Set(ranksForRotation(key));
@@ -976,6 +1035,7 @@
     <button type="button" class="stat-card stat-button" onclick="W.showUnavailable()"><small>🚫 Indisponibilités</small><strong>${(state.unavailable[m.id] || []).length}</strong><em>Voir / corriger</em></button>
     <button type="button" class="stat-card stat-button" onclick="W.showRotationStatus()"><small>🔁 Rotation</small><strong>${isOut(m.id) ? 'PAUSE' : 'ACTIVE'}</strong><em>Gérer mon statut</em></button>
   </div>
+  ${memberIntegrationHtml(m.id)}
   `;
     }
     function renderPlanning() {
@@ -1402,6 +1462,7 @@
             pools.push(rolePoolLabel('vip'));
         openModal(`<h2>🔁 Rotation</h2><p>Statut : <strong>${isOut(m.id) ? 'Hors rotation' : 'Actif'}</strong>.</p>
     <div class="warning">${pools.length ? `Tu participes actuellement à : ${pools.join(' · ')}.` : 'Ton rang n’est actuellement sélectionné dans aucune rotation automatique.'}</div>
+    ${memberIntegrationHtml(m.id,{compact:true})}
     ${canSelfManage() ? `<button class="btn ${isOut(m.id) ? 'success' : 'outline'} full" onclick="W.toggleRotation();W.showRotationStatus()">${isOut(m.id) ? '✅ Reprendre la rotation' : '⏸ Me retirer de la rotation'}</button>` : ''}`);
     }
     async function toggleRotation() {
@@ -1662,17 +1723,10 @@
         toast('Message copié');
     } }
     async function saveRotationRanks() {
-        if (!isAdmin())
-            return;
-        const rotationRanks = {};
-        for (const key of ['officer', 'r3driver', 'vip']) {
-            rotationRanks[key] = [...document.querySelectorAll(`input[data-rotation-key="${key}"]:checked`)].map(x => x.value);
-            if (!rotationRanks[key].length)
-                return toast('Sélectionne au moins un rang dans chaque rotation');
-        }
-        const ok = await mutate('/api/admin/rotation-ranks', { method: 'PUT', body: JSON.stringify({ rotationRanks }) }, 'Rotations mises à jour');
-        if (ok)
-            openAdminSection('rotations');
+        if (!isAdmin()) return;
+        const rotationRanks={officer:['R5','R4'],r3driver:['R3'],vip:['R3']};
+        const ok=await mutate('/api/admin/rotation-ranks',{method:'PUT',body:JSON.stringify({rotationRanks})},'Rotations vérifiées');
+        if(ok)openAdminSection('rotations');
     }
     function adminBackButton() {
         return `<button class="admin-back" onclick="W.renderAdminHome()">← Administration</button>`;
@@ -1793,13 +1847,21 @@
       <div class="section-title"><h2>🔁 Rotations</h2><p>Configuration avancée</p></div>
 
       <div class="admin-panel">
-        <h3>🎚️ Rangs autorisés</h3>
-        <p class="admin-lead">Choisis librement les rangs qui participent automatiquement à chacun des trois pools. Tu peux par exemple mettre le VIP sur R3 uniquement, ou sur R3+R2+R1.</p>
-        ${rankCheckHtml('officer', 'Conducteur A — un jour sur deux')}
-        ${rankCheckHtml('r3driver', 'Conducteur B — l’autre jour')}
-        ${rankCheckHtml('vip', 'VIP — tous les jours')}
-        <div class="warning">Un même rang peut être présent dans plusieurs pools. Un joueur ne pourra toutefois jamais être Conducteur et VIP le même jour.</div>
-        <button class="btn gold full" onclick="W.saveRotationRanks()">💾 Enregistrer les rangs autorisés</button>
+        <h3>🔒 Cycles automatiques</h3>
+        <p class="admin-lead">Les trois cycles sont autoritatifs et indépendants. Les rangs ne sont pas modifiables depuis l’interface.</p>
+        <div class="mini-grid">
+          <div class="stat-card"><small>🚂 Conducteur A</small><strong>R4 / R5</strong><em>1 passage par cycle</em></div>
+          <div class="stat-card"><small>🚆 Conducteur B</small><strong>R3</strong><em>1 passage par cycle</em></div>
+          <div class="stat-card"><small>⭐ VIP</small><strong>R3</strong><em>2 passages par cycle</em></div>
+          <div class="stat-card"><small>🎁 R2 / R1</small><strong>Hors cycle</strong><em>VIP uniquement sur nomination exceptionnelle</em></div>
+        </div>
+        <div class="warning">Une nomination VIP exceptionnelle R2/R1 apparaît bien au planning mais ne consomme jamais le compteur VIP R3.</div>
+      </div>
+
+      <div class="admin-panel">
+        <h3>🧭 Intégrations en cours</h3>
+        <p class="admin-lead">Arrivées, promotions, rétrogradations et réactivations : le quota affiché est celui du cycle réellement rejoint.</p>
+        ${allIntegrationStatusHtml()}
       </div>
 
       <div class="admin-panel">
