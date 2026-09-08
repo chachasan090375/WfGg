@@ -1,10 +1,10 @@
 (()=>{
 'use strict';
-/* WfGg V39 — exact animated-prefab diagnostics.
+/* WfGg V39.9 — exact animated-prefab diagnostics.
    This UI never fabricates movement. It reports only evidence returned by /api/v39/animation.
 */
 
-const VERSION='39.0';
+const VERSION='39.9';
 let installed=false;
 let lastSid='';
 let lastData=null;
@@ -15,6 +15,7 @@ function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&l
 function fmt(n,d=2){const x=Number(n);return Number.isFinite(x)?x.toFixed(d):'—';}
 function plural(n,s,p=s+'s'){return `${n} ${Number(n)===1?s:p}`;}
 function byId(id){return document.getElementById(id);}
+function pretty(v){try{return JSON.stringify(v,null,2)}catch{return String(v??'')}}
 
 function injectStyle(){
   if(byId('wfgg-v39-style'))return;
@@ -25,6 +26,7 @@ function injectStyle(){
 #wfggV39Badge button[data-state="animated-clip"]{border-color:#8bc8ff;color:#d8efff}
 #wfggV39Badge button[data-state="animated-particles"]{border-color:#e5b9ff;color:#f1ddff}
 #wfggV39Badge button[data-state="animated-script"]{border-color:#ffd07d;color:#ffe8b8}
+#wfggV39Badge button[data-state="animated-controller-unresolved"]{border-color:#ffcb7d;color:#ffe8b8}
 #wfggV39Badge button[data-state="error"]{border-color:#ff8e8e;color:#ffd0d0}
 #wfggV39Badge .spin{width:9px;height:9px;border:2px solid #777;border-top-color:#eee;border-radius:50%;display:inline-block;animation:wfgg39spin .8s linear infinite;margin-right:5px;vertical-align:-1px}@keyframes wfgg39spin{to{transform:rotate(360deg)}}
 #wfggV39Modal{position:fixed;z-index:10040;inset:0;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;padding:16px;font-family:system-ui,sans-serif;color:#eee}
@@ -43,7 +45,8 @@ function injectStyle(){
 #wfggV39Modal .v39warning{border-left:3px solid #d8a851;background:#272319;padding:9px 11px;border-radius:8px;margin:8px 0;color:#ead8b5;font-size:12px}
 #wfggV39Modal .v39ok{border-left:3px solid #69cdbf;background:#182624;padding:9px 11px;border-radius:8px;margin:8px 0;color:#c8f6ef;font-size:12px}
 #wfggV39Modal .v39controls{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}#wfggV39Modal .v39controls button{border:1px solid #40404c;border-radius:8px;background:#282833;color:#aaa;padding:7px 10px}#wfggV39Modal .v39controls button:not(:disabled){color:#fff;cursor:pointer;border-color:#6b6b7a}
-#wfggV39Modal code{font-size:10px;color:#b8d9ff}.v39tree{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:10px;white-space:pre-wrap;word-break:break-word;background:#121218;padding:9px;border-radius:8px;max-height:280px;overflow:auto}
+#wfggV39Modal code{font-size:10px;color:#b8d9ff}.v39tree,.v39data{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:10px;white-space:pre-wrap;word-break:break-word;background:#121218;padding:9px;border-radius:8px;max-height:300px;overflow:auto;color:#c8d6ee}
+#wfggV39Modal .v39mini{margin-top:5px;border:0;padding:0}#wfggV39Modal .v39mini summary{font-size:10px;color:#b8d9ff;font-weight:600}
 `;
   document.head.appendChild(s);
 }
@@ -70,12 +73,12 @@ function clipRows(d){
     return `<tr><td><b>${esc(c.name||'(sans nom)')}</b><br><code>PathID ${esc(c.pathId)}</code></td><td>${esc(c.linkage||'')}<br><span class="v39muted">${esc((c.evidence||[]).join(' · '))}</span></td><td>${c.duration==null?'—':fmt(c.duration,3)+' s'}</td><td>${esc(curves)}<br><span class="v39muted">${plural(c.simpleTransformKeyCount||0,'clé')}</span></td><td>${c.sampleRate==null?'—':fmt(c.sampleRate,1)+' Hz'}</td></tr>`;
   }).join('')}</tbody></table>`;
 }
-
+function miniData(x){const f=x?.serializedFields||{};const h=x?.stringHints||[];if(!Object.keys(f).length&&!h.length)return '';return `<details class="v39mini"><summary>Données sérialisées</summary><div class="v39data">${esc(pretty(f))}</div>${h.length?`<div class="v39muted">Chaînes utiles : ${h.slice(0,24).map(v=>`<code>${esc(v.field)}=${esc(v.value)}</code>`).join(' · ')}</div>`:''}</details>`;}
 function scriptRows(d){
   const xs=d?.components?.scripts||[];if(!xs.length)return '<div class="v39muted">Aucun MonoBehaviour sur le prefab ancré.</div>';
-  return `<table><thead><tr><th>GameObject</th><th>Script</th><th>Signal animation</th></tr></thead><tbody>${xs.slice(0,120).map(x=>`<tr><td>${esc(x.nodePath||x.gameObject||'(root)')}</td><td><b>${esc(x.className||x.scriptName||'(non résolu)')}</b><br><span class="v39muted">${esc(x.namespace||'')} ${esc(x.assembly||'')}</span></td><td>${x.animationHint?'<span class="v39pill">animation probable</span>':'—'}</td></tr>`).join('')}</tbody></table>`;
+  return `<table><thead><tr><th>GameObject</th><th>Script</th><th>Signal</th></tr></thead><tbody>${xs.slice(0,120).map(x=>`<tr><td>${esc(x.nodePath||x.gameObject||'(root)')}</td><td><b>${esc(x.className||x.scriptName||'(non résolu)')}</b><br><span class="v39muted">${esc(x.namespace||'')} ${esc(x.assembly||'')}</span>${miniData(x)}</td><td>${x.animationHint?'<span class="v39pill">animation probable</span>':'—'}</td></tr>`).join('')}</tbody></table>`;
 }
-
+function animatorRows(d){const xs=d?.components?.animators||[];if(!xs.length)return '<div class="v39muted">Aucun composant Animator/Animation.</div>';return `<table><thead><tr><th>GameObject</th><th>Type</th><th>Données</th></tr></thead><tbody>${xs.map(x=>`<tr><td>${esc(x.nodePath||x.gameObject||'(root)')}</td><td>${esc(x.type||'')}</td><td>${miniData(x)||'—'}</td></tr>`).join('')}</tbody></table>`;}
 function treeText(d){
   const nodes=d?.hierarchy?.nodes||[];
   return nodes.slice(0,480).map(n=>{
@@ -89,7 +92,7 @@ function modalHtml(d){
   const unresolved=play.unresolvedReasons||[];
   const exactCurves=!!play.tracksDecodable;
   return `<div class="v39box" role="dialog" aria-modal="true" aria-label="Diagnostic animation V39">
-    <div class="v39head"><div class="v39grow"><h2>Animation / prefab — V39</h2><div class="v39muted">${esc(d?.stableId||lastSid)} · racine ${esc(d?.rootGameObject||'—')}</div></div><button class="v39close" id="wfggV39Close">Fermer</button></div>
+    <div class="v39head"><div class="v39grow"><h2>Animation / prefab — V39.9</h2><div class="v39muted">${esc(d?.stableId||lastSid)} · racine ${esc(d?.rootGameObject||'—')}</div></div><button class="v39close" id="wfggV39Close">Fermer</button></div>
     <div class="v39body">
       <div class="v39hero"><strong>${esc(statusLabel(d))}</strong><div class="v39muted">${esc(play.label||'')}</div>${exactCurves?'<div class="v39ok">Des courbes Transform exactes sont décodées. Elles ne sont pas encore appliquées aux OBJ dont les coordonnées monde sont figées.</div>':''}${unresolved.map(x=>`<div class="v39warning">${esc(x)}</div>`).join('')}</div>
       <div class="v39grid">
@@ -101,9 +104,10 @@ function modalHtml(d){
         <div class="v39stat"><b>${comp.animationHintScriptCount||0}</b><span>scripts à signal animation</span></div>
       </div>
       <div><b>Lecture</b><div class="v39muted">La lecture reste verrouillée tant que le moteur ne peut pas appliquer les pistes à la hiérarchie sans approximation.</div><div class="v39controls"><button disabled>▶ Lecture</button><button disabled>⏸ Pause</button><button disabled>↻ Boucle</button><button disabled>0,5×</button><button disabled>1×</button><button disabled>2×</button></div></div>
+      <details><summary>Animator / Animation (${comp.animatorOrAnimationCount||0})</summary>${animatorRows(d)}</details>
       <details open><summary>AnimationClips (${(clips.items||[]).length})</summary>${clipRows(d)}</details>
       <details><summary>ParticleSystem (${comp.particleSystemCount||0})</summary>${(comp.particles||[]).length?`<table><tbody>${comp.particles.map(x=>`<tr><td>${esc(x.nodePath||'(root)')}</td><td><code>PathID ${esc(x.pathId)}</code></td></tr>`).join('')}</tbody></table>`:'<div class="v39muted">Aucun.</div>'}</details>
-      <details><summary>MonoBehaviours (${comp.monoBehaviourCount||0})</summary>${scriptRows(d)}</details>
+      <details open><summary>MonoBehaviours (${comp.monoBehaviourCount||0})</summary>${scriptRows(d)}</details>
       <details><summary>Hiérarchie exacte (${h.nodeCount||0} nœuds)</summary><div class="v39tree">${esc(treeText(d))}</div></details>
       <details><summary>Provenance / garde-fous</summary><div class="v39muted">Ancrage : <code>${esc(d?.rootAnchor||'—')}</code><br>Cache : ${d?.cacheHit?'hit':'miss'} · scan ${fmt(d?.scanSeconds,3)} s<br>${esc(d?.policy||'')}</div></details>
     </div></div>`;
@@ -124,7 +128,6 @@ async function loadFor(a){
     if(token!==requestToken||String(currentAsset?.stable_id||'')!==sid)return;
     if(!r.ok)throw new Error(d.message||d.error||('HTTP '+r.status));
     lastData=d;badge(statusLabel(d),d?.classification?.code||'static-or-undetected',false);
-    window.WFGGAnimationV39.last=d;
     console.info('V39_ANIMATION_DIAGNOSTIC',sid,d.classification,d.playback);
   }catch(e){
     if(token!==requestToken||String(currentAsset?.stable_id||'')!==sid)return;
@@ -144,7 +147,7 @@ function install(){
   };
   if(currentAsset?.stable_id)setTimeout(()=>loadFor(currentAsset),80);
   window.WFGGAnimationV39={version:VERSION,ready:true,get last(){return lastData;},refresh:()=>currentAsset&&loadFor(currentAsset),open:openModal};
-  console.info('V39_ANIMATION_VIEWER installed exact-diagnostics=ON synthetic-motion=OFF');return true;
+  console.info('V39_9_ANIMATION_VIEWER installed serialized-runtime-fields=ON synthetic-motion=OFF');return true;
 }
 
 injectStyle();
