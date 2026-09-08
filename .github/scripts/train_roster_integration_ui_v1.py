@@ -24,7 +24,7 @@ if marker not in s:
     raise SystemExit('roleKeyLabel marker missing')
 helpers=marker+r'''    /* WFGG_ROSTER_INTEGRATION_UI_V1
        Le backend est l'autorité pour les quotas d'intégration. Le frontend
-       affiche completed/target sans recalculer les cycles localement. */
+       affiche les compteurs calculés côté serveur sans recalculer les cycles. */
     function integrationText(fr,en,it,es){
         const lang=currentLanguage();
         return lang==='en'?en:lang==='it'?it:lang==='es'?es:fr;
@@ -57,7 +57,10 @@ helpers=marker+r'''    /* WFGG_ROSTER_INTEGRATION_UI_V1
         return rotationIntegrationStatuses().filter(x=>String(x.memberId)===String(id)&&!x.integrationCompleted);
     }
     function integrationCounterLabel(x){
-        const done=Math.max(0,Number(x.completedCount)||0),target=Math.max(0,Number(x.targetCount)||0);
+        const done=Math.max(0,Number(x.completedCount)||0);
+        const remainingRaw=Number(x.remainingCount);
+        const remaining=Number.isFinite(remainingRaw)?Math.max(0,remainingRaw):Math.max(0,(Number(x.targetCount)||0)-done);
+        const target=done+remaining;
         return `${integrationPoolLabel(x.poolKey)} ${done}/${target}`;
     }
     function memberIntegrationHtml(id,{compact=false}={}){
