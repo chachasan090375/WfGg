@@ -1,0 +1,84 @@
+name: Apply Train same-origin fix v1
+
+on:
+  push:
+    branches: [fix-portal-train-same-origin-v1]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix-portal-train-same-origin-v1
+
+      - name: Patch Portal Train bridge
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('frontend/_worker.js')
+          s=p.read_text(encoding='utf-8')
+
+          replacements=[
+            (
+              "const WFGG_TRAIN_API_DIRECT='https://wfgg-train.chachasan090375.workers.dev';",
+              "const WFGG_TRAIN_API_ORIGIN=location.origin;"
+            ),
+            (
+              "WFGG_TRAIN_API_DIRECT+target.pathname+target.search;",
+              "WFGG_TRAIN_API_ORIGIN+target.pathname+target.search;"
+            ),
+            (
+              "'https://wfgg-train.chachasan090375.workers.dev/api/snapshot',",
+              "'/api/snapshot',"
+            ),
+            (
+              '/* WFGG_PORTAL_TRAIN_DIRECT_API_V1',
+              '/* WFGG_PORTAL_TRAIN_SAME_ORIGIN_API_V2'
+            ),
+            (
+              'En session Portail, le navigateur contacte directement le Worker Train.\n       Cela évite le sous-appel Pages Worker -> Worker, bloqué par Cloudflare.',
+              'En session Portail, le navigateur reste sur wfgg.pages.dev pour les appels Train.\n       Le Worker du Portail route ensuite /api vers Train avec le token Portail.'
+            )
+          ]
+
+          changed=False
+          for old,new in replacements:
+            c=s.count(old)
+            if c==1:
+              s=s.replace(old,new)
+              changed=True
+            elif c==0 and new in s:
+              pass
+            else:
+              raise SystemExit(f'Unexpected replacement count {c}: {old[:90]!r}')
+
+          p.write_text(s,encoding='utf-8')
+          print('changed=',changed)
+          PY
+
+          node --check frontend/_worker.js
+          grep -q "const WFGG_TRAIN_API_ORIGIN=location.origin;" frontend/_worker.js
+          grep -q "WFGG_PORTAL_TRAIN_SAME_ORIGIN_API_V2" frontend/_worker.js
+          grep -q "'/api/snapshot'," frontend/_worker.js
+
+      - name: Commit patch if needed
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- frontend/_worker.js; then
+            echo 'Patch already applied.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add frontend/_worker.js
+          git commit -m 'fix(portal): route Train API same-origin'
+          git push origin HEAD:fix-portal-train-same-origin-v1
