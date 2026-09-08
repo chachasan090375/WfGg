@@ -1,0 +1,72 @@
+name: Train runtime production recette
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'frontend/_worker.js'
+      - 'frontend/train-native/app.v15.js'
+      - 'frontend/train-native/app.v15.js.sha256'
+      - '.github/workflows/train-runtime-production-recette.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'frontend/_worker.js'
+      - 'frontend/train-native/app.v15.js'
+      - 'frontend/train-native/app.v15.js.sha256'
+      - '.github/workflows/train-runtime-production-recette.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  source-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate runtime bridge source
+        run: |
+          set -eu
+          node --check frontend/_worker.js
+          node --check frontend/train-native/app.v15.js
+          grep -Fq 'WFGG_TRAIN_ROSTER_INTEGRATION_UI_RUNTIME_V1' frontend/_worker.js
+          grep -Fq 'X-WfGg-Train-Roster-Integration-Bridge' frontend/_worker.js
+          grep -Fq 'WFGG_ROSTER_INTEGRATION_UI_V1' frontend/train-native/app.v15.js
+          grep -Fq 'rotationIntegrationStatus' frontend/train-native/app.v15.js
+          grep -Fq 'remainingCount' frontend/train-native/app.v15.js
+          grep -Fq "vip: ['R3']" frontend/train-native/app.v15.js
+          grep -Fq '🎁 R2 / R1' frontend/train-native/app.v15.js
+          grep -Fq '🧭 Intégrations en cours' frontend/train-native/app.v15.js
+          sha256sum -c frontend/train-native/app.v15.js.sha256
+
+  live-production:
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait for the integrated Train runtime in production
+        shell: bash
+        run: |
+          set -eu
+          ROOT='https://wfgg.pages.dev'
+          UA='Mozilla/5.0 (Linux; Android 16) AppleWebKit/537.36 Chrome/139 Mobile Safari/537.36'
+          ok=0
+          for i in $(seq 1 60); do
+            curl -fsSL -A "$UA" -H 'Cache-Control: no-cache' -D /tmp/app.headers \
+              "$ROOT/train/app.js?wfgg_runtime_integration_probe=$i" -o /tmp/app.js || true
+            if grep -Eiq '^x-wfgg-train-roster-integration-bridge:[[:space:]]*v1' /tmp/app.headers \
+              && grep -Fq 'WFGG_ROSTER_INTEGRATION_UI_V1' /tmp/app.js \
+              && grep -Fq 'rotationIntegrationStatus' /tmp/app.js \
+              && grep -Fq 'remainingCount' /tmp/app.js \
+              && grep -Fq "vip: ['R3']" /tmp/app.js \
+              && grep -Fq '🎁 R2 / R1' /tmp/app.js \
+              && grep -Fq '🧭 Intégrations en cours' /tmp/app.js; then
+              echo "WFGG_TRAIN_RUNTIME_ROSTER_INTEGRATION_PROD=OK attempt=$i"
+              ok=1
+              break
+            fi
+            echo "attempt=$i waiting_for_train_runtime_roster_integration"
+            sleep 5
+          done
+          test "$ok" = 1
+          node --check /tmp/app.js
