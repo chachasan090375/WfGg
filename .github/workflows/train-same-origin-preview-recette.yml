@@ -1,0 +1,50 @@
+name: Train same-origin preview recette
+
+on:
+  push:
+    branches: [fix-portal-train-same-origin-v1]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  preview-recette:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Wait for Pages preview and verify bridge
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE='https://fix-portal-train-same-origin.wfgg.pages.dev'
+          for i in $(seq 1 40); do
+            if curl -fsS "$BASE/train/?wfgg_diag=same-origin-v1" > /tmp/train.html 2>/dev/null; then
+              if grep -q 'WFGG_PORTAL_TRAIN_SAME_ORIGIN_API_V2' /tmp/train.html \
+                && grep -q 'const WFGG_TRAIN_API_ORIGIN=location.origin;' /tmp/train.html \
+                && grep -q "'/api/snapshot'" /tmp/train.html; then
+                echo 'Preview bridge is current.'
+                break
+              fi
+            fi
+            if [ "$i" = 40 ]; then
+              echo 'Preview bridge did not converge.' >&2
+              exit 1
+            fi
+            sleep 3
+          done
+
+      - name: Verify preview same-origin API proxy
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE='https://fix-portal-train-same-origin.wfgg.pages.dev'
+          curl -sS -D /tmp/headers.raw -o /tmp/body \
+            "$BASE/api/health" \
+            -H "Referer: $BASE/train/"
+          tr -d '\r' < /tmp/headers.raw > /tmp/headers
+          cat /tmp/headers
+          cat /tmp/body
+          grep -qi '^HTTP/.* 200' /tmp/headers
+          grep -qi '^x-wfgg-route: train-api' /tmp/headers
+          grep -q '"service":"WfGg Train"' /tmp/body

@@ -266,11 +266,11 @@ function languageBridgeScript(routeName) {
     }
 
     const WFGG_NATIVE_FETCH=window.fetch.bind(window);
-    const WFGG_TRAIN_API_DIRECT='https://wfgg-train.chachasan090375.workers.dev';
+    const WFGG_TRAIN_API_ORIGIN=location.origin;
 
-    /* WFGG_PORTAL_TRAIN_DIRECT_API_V1
-       En session Portail, le navigateur contacte directement le Worker Train.
-       Cela évite le sous-appel Pages Worker -> Worker, bloqué par Cloudflare.
+    /* WFGG_PORTAL_TRAIN_SAME_ORIGIN_API_V2
+       En session Portail, le navigateur reste sur wfgg.pages.dev pour les appels Train.
+       Le Worker du Portail route ensuite /api vers Train avec le token Portail.
        Le token Portail reste transmis uniquement par en-tête et jamais dans l'URL.
     */
     window.fetch=async function(input,init){
@@ -302,7 +302,7 @@ function languageBridgeScript(routeName) {
             }
 
             const directUrl=
-              WFGG_TRAIN_API_DIRECT+target.pathname+target.search;
+              WFGG_TRAIN_API_ORIGIN+target.pathname+target.search;
 
             if(input instanceof Request){
               const bridged=new Request(input,{...options,headers});
@@ -663,7 +663,7 @@ function languageBridgeScript(routeName) {
 
       try{
         const response=await fetch(
-          'https://wfgg-train.chachasan090375.workers.dev/api/snapshot',
+          '/api/snapshot',
           {
             method:'GET',
             headers:{
