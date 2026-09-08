@@ -24,7 +24,7 @@ function injectStyle(){
 #wfggV3912Soft .v3912pill{display:inline-block;border:1px solid #4a4a58;border-radius:999px;padding:3px 7px;background:#262631;font-size:10px}
 #wfggV3912Soft code{font-size:10px;color:#bddbff;word-break:break-all}
 #wfggV3912Soft button{border:1px solid #7865aa;background:#2a2340;color:#fff;border-radius:8px;padding:6px 8px;font-weight:700;font-size:11px;cursor:pointer}
-#wfggV3912Soft .ok{color:#9be8c0}.wfggV3912Soft .warn{color:#ffd38a}
+#wfggV3912Soft .ok{color:#9be8c0}#wfggV3912Soft .warn{color:#ffd38a}
 `;
   document.head.appendChild(s);
 }
@@ -65,7 +65,9 @@ function watchBadge(){
   const st=stage();
   if(st&&!st.dataset.wfggV3912Observed){
     st.dataset.wfggV3912Observed='1';
-    new MutationObserver(()=>requestAnimationFrame(placeAnimationBadge)).observe(st,{childList:true,subtree:true,attributes:true,attributeFilter:['class','style']});
+    /* Child replacement removes/recreates both badges. Do not observe style attributes here:
+       placeAnimationBadge itself writes style values and an attribute observer would self-trigger. */
+    new MutationObserver(()=>requestAnimationFrame(placeAnimationBadge)).observe(st,{childList:true,subtree:true});
   }
   placeAnimationBadge();
 }
