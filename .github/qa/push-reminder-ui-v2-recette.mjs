@@ -1,0 +1,12 @@
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+const app=fs.readFileSync('frontend/train-native/app.v15.js','utf8');
+assert.match(app,/WFGG_PUSH_REMINDER_TEST_UI_V2/);
+assert.match(app,/function iosPushGuidanceHtml/);
+assert.match(app,/Ajouter à l’écran d’accueil/);
+assert.match(app,/testPushReminder\('day_before'\)/);
+assert.match(app,/testPushReminder\('day_of'\)/);
+assert.match(app,/JSON\.stringify\(\{kind\}\)/);
+assert.match(app,/ne consomment les vrais rappels programmés/);
+assert.match(app,/testPushReminder, changeWeek/);
+console.log('Push reminder UI v2: PASS');
