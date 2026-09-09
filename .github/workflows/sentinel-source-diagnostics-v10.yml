@@ -5,7 +5,7 @@ on:
     branches:
       - sentinel-source-diagnostics-v10
     paths:
-      - 'scripts/patch-sentinel-source-diagnostics-v10.mjs'
+      - 'scripts/patch-sentinel-source-diagnostics-v10.py'
       - 'scripts/generate-sentinel-source-map-v10.mjs'
       - '.github/workflows/sentinel-source-diagnostics-v10.yml'
       - '.github/workflows/deploy-cloudflare-pages-v1.yml'
@@ -24,7 +24,7 @@ jobs:
           fetch-depth: 0
 
       - name: Apply Sentinel V10 patch
-        run: node scripts/patch-sentinel-source-diagnostics-v10.mjs
+        run: python3 scripts/patch-sentinel-source-diagnostics-v10.py
 
       - name: Generate build source index
         env:
