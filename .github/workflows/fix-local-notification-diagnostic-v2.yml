@@ -1,0 +1,47 @@
+name: Fix local notification diagnostic v2
+
+on:
+  push:
+    branches: [fix-local-notification-diagnostic-v2]
+    paths:
+      - '.github/scripts/fix_local_notification_diagnostic_v2.py'
+      - '.github/workflows/fix-local-notification-diagnostic-v2.yml'
+      - 'frontend/train-native/app.v15.js'
+      - 'frontend/train-native/app.v15.js.sha256'
+      - 'frontend/train-native/wfgg-push-sw.js'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch-and-test:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix-local-notification-diagnostic-v2
+      - name: Apply patch
+        run: python .github/scripts/fix_local_notification_diagnostic_v2.py
+      - name: Validate JavaScript and checksum
+        run: |
+          node --check frontend/train-native/app.v15.js
+          node --check frontend/train-native/wfgg-push-sw.js
+          grep -q 'WFGG_PUSH_LOCAL_DISPLAY_DIAGNOSTIC_V2' frontend/train-native/app.v15.js
+          grep -q 'WFGG_PUSH_SW_LOCAL_DIAGNOSTIC_V2' frontend/train-native/wfgg-push-sw.js
+          sha256sum -c frontend/train-native/app.v15.js.sha256
+      - name: Commit tested patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add frontend/train-native/app.v15.js frontend/train-native/app.v15.js.sha256 frontend/train-native/wfgg-push-sw.js
+          if git diff --cached --quiet; then
+            echo 'No frontend changes.'
+            exit 0
+          fi
+          git commit -m 'fix(push): diagnose local notification display on Android'
+          git push origin HEAD:fix-local-notification-diagnostic-v2
