@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'frontend/**'
+      - 'scripts/generate-sentinel-source-map-v10.mjs'
       - '.github/workflows/deploy-cloudflare-pages-v1.yml'
   workflow_dispatch:
 
@@ -21,6 +22,12 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+
+      - name: Generate Sentinel source map
+        run: |
+          node scripts/generate-sentinel-source-map-v10.mjs
+          grep -q 'sentinel-portal-source-map-v10' frontend/sentinel-source-map-v10.json
+          grep -q "$GITHUB_SHA" frontend/sentinel-source-map-v10.json
 
       - name: Check Cloudflare API token
         env:
@@ -111,7 +118,7 @@ jobs:
           accountId: ${{ steps.cloudflare.outputs.account_id }}
           command: pages deploy frontend --project-name=wfgg --branch=main --commit-dirty=true
 
-      - name: Verify production clean boot asset
+      - name: Verify production clean boot and Sentinel source assets
         shell: bash
         run: |
           set -eu
@@ -120,13 +127,16 @@ jobs:
           for i in $(seq 1 30); do
             curl -fsSL "$ROOT/?deploy_probe=$GITHUB_SHA-$i" -o /tmp/root.html || true
             curl -fsSL "$ROOT/portal-train-cleanboot-v1.js?deploy_probe=$GITHUB_SHA-$i" -o /tmp/cleanboot.js || true
+            curl -fsSL "$ROOT/sentinel-source-map-v10.json?deploy_probe=$GITHUB_SHA-$i" -o /tmp/sentinel-source.json || true
             if grep -Fq 'portal-train-cleanboot-v1.js?v=001' /tmp/root.html \
-              && grep -Fq 'WFGG_PORTAL_TRAIN_CLEANBOOT_V1' /tmp/cleanboot.js; then
+              && grep -Fq 'WFGG_PORTAL_TRAIN_CLEANBOOT_V1' /tmp/cleanboot.js \
+              && grep -Fq 'sentinel-portal-source-map-v10' /tmp/sentinel-source.json \
+              && grep -Fq "$GITHUB_SHA" /tmp/sentinel-source.json; then
               echo "WFGG_PAGES_DEPLOY=OK attempt=$i"
               ok=1
               break
             fi
-            echo "attempt=$i waiting_for_cleanboot_asset"
+            echo "attempt=$i waiting_for_cleanboot_and_sentinel_source_assets"
             sleep 5
           done
           test "$ok" = 1
