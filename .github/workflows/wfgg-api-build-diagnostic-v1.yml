@@ -1,0 +1,43 @@
+name: wfgg-api build diagnostic v1
+
+on:
+  push:
+    branches: [wfgg-api-build-diagnostic-v1]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Inspect worker project
+        run: |
+          pwd
+          find worker -maxdepth 2 -type f -print | sort
+          cat worker/package.json
+          cat worker/wrangler.jsonc
+      - name: Install worker dependencies
+        working-directory: worker
+        run: npm install
+      - name: Syntax and module checks
+        working-directory: worker
+        run: |
+          npm run check
+          node --check src/core.js
+          node --check src/index.js
+      - name: Wrangler version
+        working-directory: worker
+        run: npx wrangler --version
+      - name: Cloudflare Worker bundle dry-run
+        working-directory: worker
+        run: npx wrangler deploy --dry-run --outdir /tmp/wfgg-api-build
+      - name: Show bundle output
+        run: |
+          find /tmp/wfgg-api-build -maxdepth 2 -type f -print -exec wc -c {} \;
