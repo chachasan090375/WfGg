@@ -39,3 +39,22 @@ self.addEventListener('notificationclick', event => {
     if (clients.openWindow) await clients.openWindow(target);
   })());
 });
+
+
+/* WFGG_PUSH_SW_LOCAL_DIAGNOSTIC_V2 */
+self.addEventListener('message', event => {
+  if (event.data?.type !== 'WFGG_LOCAL_NOTIFICATION_TEST') return;
+  const tag = event.data?.tag || `wfgg-local-test-${Date.now()}`;
+  const promise = self.registration.showNotification('WfGg Train · test local', {
+    body: 'Si tu vois ce message, l’affichage des notifications fonctionne sur ce téléphone.',
+    icon: '/train/assets/icon-192.png',
+    tag,
+    data: { url: event.data?.url || '/train/' }
+  }).then(async () => {
+    const shown = await self.registration.getNotifications({tag});
+    event.ports?.[0]?.postMessage({ok:true,count:shown.length});
+  }).catch(error => {
+    event.ports?.[0]?.postMessage({ok:false,error:String(error?.message||error)});
+  });
+  event.waitUntil(promise);
+});
