@@ -1,0 +1,49 @@
+name: Notification WfGg reset v13.3
+
+on:
+  push:
+    branches: [notification-wfgg-reset-v13-3]
+    paths:
+      - 'scripts/patch-notification-wfgg-reset-v13-3.py'
+      - '.github/workflows/notification-wfgg-reset-v13-3.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: notification-wfgg-reset-v13-3
+          fetch-depth: 0
+      - name: Apply targeted patch
+        run: python3 scripts/patch-notification-wfgg-reset-v13-3.py
+      - name: Validate JavaScript syntax
+        run: |
+          node --check frontend/train-native/app.v15.js
+          node --check frontend/train-native/sentinel-train-v1.js
+      - name: Validate v13.3 contract
+        run: |
+          grep -q 'WFGG_NOTIFICATION_WFGG_RESET_V13_3' frontend/train-native/app.v15.js
+          grep -q 'wfggNotifResetWfgg' frontend/train-native/app.v15.js
+          grep -q 'promptWfggNotificationReset' frontend/train-native/app.v15.js
+          grep -q 'resetWfggNotifications' frontend/train-native/app.v15.js
+          grep -q 'reactivateWfggNotifications' frontend/train-native/app.v15.js
+          grep -q 'WFGG_SENTINEL_LOCAL_NOTIFICATION_VISUAL_V13_3' frontend/train-native/sentinel-train-v1.js
+          grep -q "sentinel-train-v13.3" frontend/train-native/sentinel-train-v1.js
+          grep -q 'train-local-notification-visual-outcome' frontend/train-native/sentinel-train-v1.js
+          grep -q 'notification-wfgg-reset-prompt' frontend/train-native/app.v15.js
+          cd frontend/train-native && sha256sum -c app.v15.js.sha256
+      - name: Remove temporary patch tooling
+        run: |
+          rm -f scripts/patch-notification-wfgg-reset-v13-3.py
+          rm -f .github/workflows/notification-wfgg-reset-v13-3.yml
+      - name: Commit runtime only
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'fix(notifications): reset WfGg channel and track real display'
+          git push origin HEAD:notification-wfgg-reset-v13-3
