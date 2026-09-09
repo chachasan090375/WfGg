@@ -1,0 +1,57 @@
+name: Train polish + Sentinel v5
+
+on:
+  push:
+    branches:
+      - train-polish-sentinel-v5
+    paths:
+      - 'scripts/patch-train-polish-sentinel-v5.mjs'
+      - '.github/workflows/train-polish-sentinel-v5.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch-and-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: train-polish-sentinel-v5
+          fetch-depth: 0
+      - name: Apply V5 patch
+        run: node scripts/patch-train-polish-sentinel-v5.mjs
+      - name: Validate JavaScript syntax
+        run: |
+          node --check frontend/_worker.js
+          node --check frontend/train-native/sentinel-train-v1.js
+          node --check frontend/train-native/app.v15.js
+      - name: Validate V5 contract
+        run: |
+          grep -q 'WFGG_TRAIN_PORTAL_HOME_AND_PROFILE_POLISH_V5' frontend/_worker.js
+          grep -q "event.target.closest('#brandHome')" frontend/_worker.js
+          grep -q "location.assign('/?lang='+homeLang)" frontend/_worker.js
+          grep -q 'width:78px!important;height:78px!important' frontend/_worker.js
+          grep -q 'WFGG_SENTINEL_PORTAL_PROXY_V5' frontend/_worker.js
+          grep -q "url.pathname === '/portal-api/me'" frontend/_worker.js
+          grep -q "url.pathname === '/portal-api/sentinel/run'" frontend/_worker.js
+          grep -q "script.src='/train/sentinel-train-v1.js?v=005'" frontend/_worker.js
+          grep -q "const PORTAL_API = '/portal-api';" frontend/train-native/sentinel-train-v1.js
+          grep -q 'WFGG_SENTINEL_NAME_ANCHOR_V5' frontend/train-native/sentinel-train-v1.js
+          grep -q "querySelector('#appView:not(.hidden) .hero-card .profile-name h2')" frontend/train-native/sentinel-train-v1.js
+          grep -q 'WFGG_SENTINEL_OWNER_RETRY_V5' frontend/train-native/sentinel-train-v1.js
+          grep -q 'WFGG_SENTINEL_REPORT_V2' frontend/train-native/sentinel-train-v1.js
+          grep -q 'WFGG_PORTAL_DIRECT_TRAIN_BOOTSTRAP_V2' frontend/train-native/app.v15.js
+          sha256sum -c frontend/train-native/app.v15.js.sha256
+      - name: Commit generated changes
+        run: |
+          if git diff --quiet -- frontend/_worker.js frontend/train-native/sentinel-train-v1.js; then
+            echo 'No generated changes to commit.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add frontend/_worker.js frontend/train-native/sentinel-train-v1.js
+          git commit -m 'fix(train): portal home, larger avatar and robust Sentinel v5'
+          git push origin HEAD:train-polish-sentinel-v5

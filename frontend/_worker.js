@@ -582,6 +582,25 @@ function languageBridgeScript(routeName) {
     */
     console.info('WFGG_TRAIN_PASSIVE_SPLASH_SENTINEL_V4=ACTIVE');
 
+    /* WFGG_TRAIN_PORTAL_HOME_AND_PROFILE_POLISH_V5
+       - le logo #brandHome retourne toujours au Portail global ;
+       - la photo de profil de la carte Moi est légèrement agrandie ;
+       - aucune de ces règles ne participe au bootstrap/authentification. */
+    if(!document.getElementById('wfggTrainPolishV5')){
+      const polish=document.createElement('style');
+      polish.id='wfggTrainPolishV5';
+      polish.textContent='#appView .hero-card .profile-head{gap:16px!important;align-items:center!important}#appView .hero-card .profile-head>.avatar.sm{width:78px!important;height:78px!important;min-width:78px!important;object-fit:cover!important;border-radius:19px!important;border:2px solid rgba(226,196,112,.72)!important;box-shadow:0 8px 22px rgba(0,0,0,.28),0 0 0 3px rgba(255,255,255,.035)!important}@media(max-width:420px){#appView .hero-card .profile-head>.avatar.sm{width:72px!important;height:72px!important;min-width:72px!important;border-radius:17px!important}}';
+      document.head.appendChild(polish);
+    }
+    document.addEventListener('click',function(event){
+      const target=event.target&&event.target.closest?event.target.closest('#brandHome'):null;
+      if(!target)return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      const homeLang=norm(localStorage.getItem(PORTAL_LANG))||'fr';
+      location.assign('/?lang='+homeLang);
+    },true);
+
     const T={
       fr:{loading:'Ouverture de Train…',failed:'Impossible d’ouvrir Train avec la session Portail.',back:'Retour au portail WfGg'},
       it:{loading:'Apertura di Train…',failed:'Impossibile aprire Train con la sessione del Portale.',back:'Torna al portale WfGg'},
@@ -652,7 +671,7 @@ function languageBridgeScript(routeName) {
       if(document.getElementById('wfggTrainSentinelLoaderV4'))return;
       const script=document.createElement('script');
       script.id='wfggTrainSentinelLoaderV4';
-      script.src='/train/sentinel-train-v1.js?v=004';
+      script.src='/train/sentinel-train-v1.js?v=005';
       script.async=true;
       script.dataset.wfggAfterBoot='1';
       script.onerror=()=>console.warn('WFGG_SENTINEL_AFTER_BOOT_V4=LOAD_ERROR');
@@ -1363,6 +1382,21 @@ export default {
         ) {
           return guestRedirect(request);
         }
+      }
+
+      /* WFGG_SENTINEL_PORTAL_PROXY_V5
+         Routes Portail strictement dédiées à Sentinel. Elles gardent l'authentification
+         Bearer du Portail et évitent que le routage /api du contexte Train les envoie
+         par erreur au Worker Train. Les contrôles OWNER restent côté wfgg-api. */
+      if (url.pathname === '/portal-api/me') {
+        return await proxyRoute(request, UPSTREAMS.portalApi, '/api/me', {
+          routeName: 'portal-sentinel-api'
+        });
+      }
+      if (url.pathname === '/portal-api/sentinel/run') {
+        return await proxyRoute(request, UPSTREAMS.portalApi, '/api/sentinel/run', {
+          routeName: 'portal-sentinel-api'
+        });
       }
 
       /* WFGG_TRAIN_API_PROXY

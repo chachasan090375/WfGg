@@ -1,8 +1,8 @@
 (() => {
   'use strict';
 
-  const VERSION = 'sentinel-train-v1';
-  const PORTAL_API = 'https://wfgg-api.chachasan090375.workers.dev';
+  const VERSION = 'sentinel-train-v5';
+  const PORTAL_API = '/portal-api';
   const PORTAL_TOKEN_KEY = 'wfgg_portal_session';
   const TRAIN_STATE_KEY = 'wfgg_train_v13';
   const ROSTER_KEY = 'wfgg_train_roster_cache';
@@ -71,7 +71,7 @@
     style.textContent = `
       /* WFGG_SENTINEL_TRAIN_ROUND_LAUNCHER_V1 */
       #${BUTTON_ID}{
-        width:36px;height:36px;min-width:36px;border-radius:999px;padding:0;margin-left:8px;
+        width:38px;height:38px;min-width:38px;border-radius:999px;padding:0;margin-left:2px;
         display:inline-grid;place-items:center;vertical-align:middle;cursor:pointer;position:relative;
         border:1px solid rgba(220,196,255,.34);color:#fff;
         background:radial-gradient(circle at 32% 24%,rgba(255,255,255,.18),transparent 34%),linear-gradient(145deg,#5b4678,#241d34 62%,#171521);
@@ -90,7 +90,7 @@
       #${BUTTON_ID}[data-state="warning"]::after{background:#e7b44f}
       #${BUTTON_ID}[data-state="error"]{border-color:rgba(239,98,98,.66);box-shadow:0 7px 22px rgba(90,20,30,.25),0 0 18px rgba(239,98,98,.13),inset 0 1px 0 rgba(255,255,255,.12)}
       #${BUTTON_ID}[data-state="error"]::after{background:#ef6262}
-      .wfgg-sentinel-name-anchor{display:inline-flex!important;align-items:center!important;gap:0!important;max-width:100%}
+      .wfgg-sentinel-name-anchor{display:inline-flex!important;align-items:center!important;gap:8px!important;max-width:100%;white-space:nowrap}
 
       #${OVERLAY_ID}{position:fixed;inset:0;z-index:2147483300;display:flex;align-items:center;justify-content:center;padding:12px;background:rgba(4,6,12,.73);backdrop-filter:blur(10px)}
       #${OVERLAY_ID}.hidden{display:none!important}
@@ -116,16 +116,17 @@
       #${OVERLAY_ID} .wfgg-sentinel-kv{display:grid;grid-template-columns:82px 1fr;gap:4px 8px;margin-top:9px;font-size:.76rem;line-height:1.42}#${OVERLAY_ID} .wfgg-sentinel-kv b{color:#a1a9b8}#${OVERLAY_ID} .wfgg-sentinel-kv span{word-break:break-word}
       #${OVERLAY_ID} .wfgg-sentinel-cause{margin-top:8px;padding:7px 9px;border-radius:9px;background:rgba(255,255,255,.045);font-size:.75rem;line-height:1.42}
       #${OVERLAY_ID} .wfgg-sentinel-foot{margin:13px 1px 2px;color:#858f9f;font-size:.72rem}
-      @media(max-width:520px){#${BUTTON_ID}{width:34px;height:34px;min-width:34px;margin-left:7px}#${OVERLAY_ID}{padding:9px}#${OVERLAY_ID} .wfgg-sentinel-dialog{width:calc(100vw - 18px);max-height:calc(100dvh - 18px);border-radius:20px;padding:15px 13px}#${OVERLAY_ID} .wfgg-sentinel-summary{grid-template-columns:repeat(2,minmax(0,1fr))}#${OVERLAY_ID} .wfgg-sentinel-copy{flex:1}#${OVERLAY_ID} .wfgg-sentinel-kv{grid-template-columns:72px 1fr}}
+      @media(max-width:520px){#${BUTTON_ID}{width:36px;height:36px;min-width:36px;margin-left:1px}#${OVERLAY_ID}{padding:9px}#${OVERLAY_ID} .wfgg-sentinel-dialog{width:calc(100vw - 18px);max-height:calc(100dvh - 18px);border-radius:20px;padding:15px 13px}#${OVERLAY_ID} .wfgg-sentinel-summary{grid-template-columns:repeat(2,minmax(0,1fr))}#${OVERLAY_ID} .wfgg-sentinel-copy{flex:1}#${OVERLAY_ID} .wfgg-sentinel-kv{grid-template-columns:72px 1fr}}
     `;
     document.head.appendChild(style);
   }
 
   async function portalFetch(path) {
-    const response = await fetch(PORTAL_API + path, {
+    const suffix = String(path || '').replace(/^\/api(?=\/|$)/, '');
+    const response = await fetch(PORTAL_API + suffix, {
       method: 'GET',
       headers: { 'Authorization': `Bearer ${token()}`, 'Accept': 'application/json' },
-      mode: 'cors', credentials: 'omit', cache: 'no-store'
+      credentials: 'omit', cache: 'no-store'
     });
     let data = null;
     try { data = await response.json(); } catch (_) {}
@@ -145,26 +146,14 @@
   }
 
   function findNameAnchor() {
-    const player = currentPlayer();
-    const pseudo = pseudoOf(player);
-    if (!pseudo) return null;
-    const root = document.getElementById('appView') || document.body;
-    const matches = [];
-    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
-    let node;
-    while ((node = walker.nextNode())) {
-      if (String(node.nodeValue || '').trim() !== pseudo) continue;
-      const el = node.parentElement;
-      if (!el) continue;
-      const rect = el.getBoundingClientRect();
-      const style = getComputedStyle(el);
-      if (rect.width < 1 || rect.height < 1 || style.display === 'none' || style.visibility === 'hidden') continue;
-      matches.push({ el, rect });
-    }
-    matches.sort((a,b) => (a.rect.top - b.rect.top) || (a.rect.left - b.rect.left) || ((a.rect.width*a.rect.height)-(b.rect.width*b.rect.height)));
-    const found = matches.find((entry) => entry.rect.top < Math.min(innerHeight * .42, 340)) || matches[0];
-    if (!found) return null;
-    return found.el.closest('h1,h2,h3,.user-name,.profile-name,.member-name') || found.el;
+    /* WFGG_SENTINEL_NAME_ANCHOR_V5
+       La carte Moi est la cible autoritative visuelle. On ne dépend plus de la
+       forme du roster local pour retrouver le pseudo avant d'afficher le bouton. */
+    const anchor = document.querySelector('#appView:not(.hidden) .hero-card .profile-name h2');
+    if (!anchor) return null;
+    const rect = anchor.getBoundingClientRect();
+    if (rect.width < 1 || rect.height < 1) return null;
+    return anchor;
   }
 
   function syncButtonState() {
@@ -373,9 +362,22 @@
 
   async function init() {
     installStyle();
-    if (!(await confirmOwner())) return;
+    /* WFGG_SENTINEL_OWNER_RETRY_V5
+       Le script est chargé juste après le boot ; la session Portail peut encore
+       être en train de se stabiliser. On retente sans jamais afficher le bouton
+       tant que OWNER n'a pas été validé par le serveur. */
+    let ownerTry = 0;
+    while (ownerTry < 8 && !(await confirmOwner())) {
+      ownerTry += 1;
+      await new Promise((resolve) => setTimeout(resolve, 300));
+    }
+    if (!ownerConfirmed) {
+      console.warn('WFGG_SENTINEL_OWNER_V5=NOT_CONFIRMED');
+      return;
+    }
+    console.info('WFGG_SENTINEL_OWNER_V5=CONFIRMED');
     let tries = 0;
-    const timer = setInterval(() => { tries += 1; if (injectButton() || tries > 100) clearInterval(timer); }, 120);
+    const timer = setInterval(() => { tries += 1; if (injectButton() || tries > 120) clearInterval(timer); }, 120);
     const observer = new MutationObserver(() => { if (ownerConfirmed) injectButton(); });
     observer.observe(document.documentElement,{childList:true,subtree:true});
   }
