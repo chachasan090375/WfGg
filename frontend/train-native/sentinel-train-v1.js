@@ -350,12 +350,17 @@
       simFailed.length?simFailed.map(x=>`${x.id}: ${x.detail||'échec'}`).join(' · '):'Profil, navigation Alertes, indisponibilités, rotation et réglages notifications simulés.',
       simFailed.length?'Un bouton existe mais son comportement réel ou sa cible DOM ne correspond plus au contrat.':''
     ));
-    const graphicTotal=uiProbe?.graphics?.length||0,graphicFailed=uiProbe?.graphicFailed||[];
+    const graphicTotal=uiProbe?.graphics?.length||0,graphicFailed=uiProbe?.graphicFailed||[],graphicInfo=uiProbe?.graphicInfo||[];
+    const graphicOk=Math.max(0,graphicTotal-graphicFailed.length-graphicInfo.length);
+    const graphicLevel=graphicFailed.length?'error':(graphicInfo.length?'info':'ok');
+    const graphicDetail=[];
+    if(graphicFailed.length)graphicDetail.push(graphicFailed.map(x=>`${x.id}: visible=${x.visible} viewport=${x.inViewport} exposé=${x.exposed} pointer=${x.pointer} cible=${x.target} ${x.width||0}x${x.height||0}`).join(' · '));
+    if(graphicInfo.length)graphicDetail.push('Conditionnel : '+graphicInfo.map(x=>`${x.id} masqué après ${x.waitedMs||0} ms`).join(' · '));
     items.push(localCheck(
-      'train-ui-graphic-audit',uiProbe&&graphicTotal>0&&!graphicFailed.length?'ok':'error','Analyse graphique des contrôles',
-      'Contrôles critiques visibles, dans le viewport, cliquables et non recouverts',uiProbe?`${graphicTotal-graphicFailed.length}/${graphicTotal} éléments conformes`:'probe absent',
-      graphicFailed.length?graphicFailed.map(x=>`${x.id}: visible=${x.visible} viewport=${x.inViewport} exposé=${x.exposed} pointer=${x.pointer} ${x.width||0}x${x.height||0}`).join(' · '):'Géométrie contrôlée avec getBoundingClientRect + elementsFromPoint en ignorant uniquement la surcouche Sentinel.',
-      graphicFailed.length?'Un contrôle peut être hors écran, masqué, recouvert ou non cliquable sur cet appareil.':''
+      'train-ui-graphic-audit',graphicLevel,'Analyse graphique des contrôles',
+      'Contrôles critiques centrés puis visibles, cliquables, non recouverts et cible tactile suffisante',uiProbe?`${graphicOk}/${graphicTotal} conformes${graphicInfo.length?` · ${graphicInfo.length} conditionnel(s)`:''}`:'probe absent',
+      graphicDetail.length?graphicDetail.join(' · '):'Chaque contrôle est centré par scrollIntoView avant mesure; les états Push asynchrones sont attendus jusqu’à 3 s.',
+      graphicFailed.length?'Un contrôle reste réellement inaccessible après centrage et attente; ce n’est plus un simple élément sous la ligne de flottaison.':''
     ));
     const settingsPlan=uiProbe?.notificationSettings;
     const settingsOk=!settingsPlan?.android||(simFailed.every(x=>x.id!=='notification-settings-action')&&String(settingsPlan?.appNotifications||'').includes('browser_fallback_url'));
