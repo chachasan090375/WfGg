@@ -20,7 +20,18 @@ jobs:
         with:
           node-version: 22
       - name: Apply central roster patch
-        run: python3 scripts/patch-portal-roster-authority-v1.py
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('scripts/patch-portal-roster-authority-v1.py')
+          s=p.read_text()
+          old="""    if text.count(old) != 1:\n        raise SystemExit(f'anchor not unique: {label} count={text.count(old)}')\n    return text.replace(old, new, 1)"""
+          new="""    count = text.count(old)\n    if count != 1:\n        if label == 'roster created_at select' and count > 0:\n            return text.replace(old, new, 1)\n        raise SystemExit(f'anchor not unique: {label} count={count}')\n    return text.replace(old, new, 1)"""
+          if old not in s:
+              raise SystemExit('replace_once helper anchor missing')
+          p.write_text(s.replace(old,new,1))
+          PY
+          python3 scripts/patch-portal-roster-authority-v1.py
       - name: Syntax and contract
         run: |
           node --check frontend/portal-v070.js
