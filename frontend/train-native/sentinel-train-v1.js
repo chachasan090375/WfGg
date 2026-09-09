@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = 'sentinel-train-v5';
+  const VERSION = 'sentinel-train-v7';
   const PORTAL_API = '/portal-api';
   const PORTAL_TOKEN_KEY = 'wfgg_portal_session';
   const TRAIN_STATE_KEY = 'wfgg_train_v13';
@@ -9,7 +9,9 @@
   const BUTTON_ID = 'wfggTrainSentinelButton';
   const OVERLAY_ID = 'wfggTrainSentinelOverlay';
   const STYLE_ID = 'wfggTrainSentinelStyle';
-  let ownerConfirmed = false;
+  let accessConfirmed = false;
+  let accessRole = '';
+  let launchLocked = false;
   let lastReport = null;
   let lastAnchor = null;
 
@@ -18,25 +20,25 @@
       title: 'Sentinel · Train', subtitle: 'Recette et diagnostic du module Train', readonly: 'MODE OBSERVATEUR · Aucune correction automatique',
       run: 'Lancer la recette', rerun: 'Relancer', running: 'Analyse en cours…', copy: 'Copier le rapport', copied: 'Rapport copié', copyFail: 'Copie impossible',
       close: 'Fermer', expected: 'Attendu', observed: 'Observé', details: 'Détail', cause: 'Cause probable', last: 'Dernière analyse',
-      ownerOnly: 'Accès OWNER uniquement.', noReport: 'Aucun rapport disponible.', noFix: 'Sentinel détecte et explique. Il ne modifie rien automatiquement.'
+      ownerOnly: 'Accès OWNER ou SUPERVISEUR uniquement.', noReport: 'Aucun rapport disponible.', noFix: 'Sentinel détecte et explique. Il ne modifie rien automatiquement.'
     },
     en: {
       title: 'Sentinel · Train', subtitle: 'Train module QA and diagnostics', readonly: 'OBSERVER MODE · No automatic fixes',
       run: 'Run checks', rerun: 'Run again', running: 'Running checks…', copy: 'Copy report', copied: 'Report copied', copyFail: 'Copy failed',
       close: 'Close', expected: 'Expected', observed: 'Observed', details: 'Details', cause: 'Likely cause', last: 'Last run',
-      ownerOnly: 'OWNER access only.', noReport: 'No report available.', noFix: 'Sentinel detects and explains. It does not change anything automatically.'
+      ownerOnly: 'OWNER or SUPERVISOR access only.', noReport: 'No report available.', noFix: 'Sentinel detects and explains. It does not change anything automatically.'
     },
     it: {
       title: 'Sentinel · Train', subtitle: 'Collaudo e diagnostica del modulo Train', readonly: 'MODALITÀ OSSERVATORE · Nessuna correzione automatica',
       run: 'Avvia collaudo', rerun: 'Ripeti', running: 'Analisi in corso…', copy: 'Copia rapporto', copied: 'Rapporto copiato', copyFail: 'Copia non riuscita',
       close: 'Chiudi', expected: 'Atteso', observed: 'Osservato', details: 'Dettaglio', cause: 'Causa probabile', last: 'Ultima analisi',
-      ownerOnly: 'Accesso solo OWNER.', noReport: 'Nessun rapporto disponibile.', noFix: 'Sentinel rileva e spiega. Non modifica nulla automaticamente.'
+      ownerOnly: 'Accesso solo OWNER o SUPERVISOR.', noReport: 'Nessun rapporto disponibile.', noFix: 'Sentinel rileva e spiega. Non modifica nulla automaticamente.'
     },
     es: {
       title: 'Sentinel · Train', subtitle: 'Pruebas y diagnóstico del módulo Train', readonly: 'MODO OBSERVADOR · Sin correcciones automáticas',
       run: 'Ejecutar pruebas', rerun: 'Repetir', running: 'Analizando…', copy: 'Copiar informe', copied: 'Informe copiado', copyFail: 'No se pudo copiar',
       close: 'Cerrar', expected: 'Esperado', observed: 'Observado', details: 'Detalle', cause: 'Causa probable', last: 'Último análisis',
-      ownerOnly: 'Acceso solo OWNER.', noReport: 'No hay informe disponible.', noFix: 'Sentinel detecta y explica. No modifica nada automáticamente.'
+      ownerOnly: 'Acceso solo OWNER o SUPERVISOR.', noReport: 'No hay informe disponible.', noFix: 'Sentinel detecta y explica. No modifica nada automáticamente.'
     }
   };
 
@@ -133,14 +135,16 @@
     return { response, data };
   }
 
-  async function confirmOwner() {
+  async function confirmAccess() {
     if (!token()) return false;
     try {
       const { response, data } = await portalFetch('/api/me');
-      ownerConfirmed = response.ok && data?.system?.role === 'OWNER';
-      return ownerConfirmed;
+      accessRole = String(data?.system?.role || '');
+      accessConfirmed = response.ok && ['OWNER', 'SUPERVISOR'].includes(accessRole);
+      return accessConfirmed;
     } catch (_) {
-      ownerConfirmed = false;
+      accessRole = '';
+      accessConfirmed = false;
       return false;
     }
   }
@@ -163,8 +167,31 @@
     if (state) button.dataset.state = state; else delete button.dataset.state;
   }
 
+  async function launchFromEvent(event) {
+    event?.preventDefault?.();
+    event?.stopPropagation?.();
+    event?.stopImmediatePropagation?.();
+    if (launchLocked) return;
+    launchLocked = true;
+    try {
+      await openPopup();
+    } finally {
+      setTimeout(() => { launchLocked = false; }, 350);
+    }
+  }
+
+  function installLaunchCapture() {
+    if (window.__WFGG_SENTINEL_LAUNCH_CAPTURE_V7__) return;
+    window.__WFGG_SENTINEL_LAUNCH_CAPTURE_V7__ = true;
+    const handler = (event) => {
+      if (event?.target?.closest?.('#' + BUTTON_ID)) launchFromEvent(event);
+    };
+    document.addEventListener('pointerup', handler, true);
+    document.addEventListener('click', handler, true);
+  }
+
   function injectButton() {
-    if (!ownerConfirmed) return false;
+    if (!accessConfirmed) return false;
     const anchor = findNameAnchor();
     if (!anchor) return false;
     let button = document.getElementById(BUTTON_ID);
@@ -176,7 +203,7 @@
       button.innerHTML = '<span class="wfgg-sentinel-flask" aria-hidden="true">🧪</span>';
       button.title = t('title');
       button.setAttribute('aria-label', t('title'));
-      button.addEventListener('click', (event) => { event.preventDefault(); event.stopPropagation(); openPopup(); });
+      button.addEventListener('click', launchFromEvent, true);
     }
     if (lastAnchor !== anchor || button.parentElement !== anchor) {
       anchor.classList.add('wfgg-sentinel-name-anchor');
@@ -224,7 +251,7 @@
   }
 
   async function openPopup() {
-    if (!ownerConfirmed && !(await confirmOwner())) return;
+    if (!accessConfirmed && !(await confirmAccess())) return;
     const root = popup();
     translatePopup();
     root.classList.remove('hidden');
@@ -282,7 +309,7 @@
     try {
       const [serverResult, local] = await Promise.all([portalFetch('/api/sentinel/run'), localChecks()]);
       const { response, data } = serverResult;
-      if (response.status === 403) { ownerConfirmed = false; throw new Error(t('ownerOnly')); }
+      if (response.status === 403) { accessConfirmed = false; accessRole = ''; throw new Error(t('ownerOnly')); }
       if (!response.ok && !Array.isArray(data?.checks)) throw new Error(`${data?.error || 'Sentinel server error'} · HTTP ${response.status}`);
       const checks = [...(Array.isArray(data?.checks) ? data.checks : []), ...local];
       const counts = { ok:0, info:0, warning:0, error:0 };
@@ -362,23 +389,23 @@
 
   async function init() {
     installStyle();
-    /* WFGG_SENTINEL_OWNER_RETRY_V5
-       Le script est chargé juste après le boot ; la session Portail peut encore
-       être en train de se stabiliser. On retente sans jamais afficher le bouton
-       tant que OWNER n'a pas été validé par le serveur. */
-    let ownerTry = 0;
-    while (ownerTry < 8 && !(await confirmOwner())) {
-      ownerTry += 1;
+    installLaunchCapture();
+    /* WFGG_SENTINEL_ACCESS_RETRY_V7
+       OWNER et SUPERVISOR sont validés côté serveur. Le lanceur reste absent
+       pour tous les autres profils, quel que soit leur rang d'alliance. */
+    let accessTry = 0;
+    while (accessTry < 10 && !(await confirmAccess())) {
+      accessTry += 1;
       await new Promise((resolve) => setTimeout(resolve, 300));
     }
-    if (!ownerConfirmed) {
-      console.warn('WFGG_SENTINEL_OWNER_V5=NOT_CONFIRMED');
+    if (!accessConfirmed) {
+      console.warn('WFGG_SENTINEL_ACCESS_V7=NOT_CONFIRMED');
       return;
     }
-    console.info('WFGG_SENTINEL_OWNER_V5=CONFIRMED');
+    console.info('WFGG_SENTINEL_ACCESS_V7=CONFIRMED role=' + accessRole);
     let tries = 0;
-    const timer = setInterval(() => { tries += 1; if (injectButton() || tries > 120) clearInterval(timer); }, 120);
-    const observer = new MutationObserver(() => { if (ownerConfirmed) injectButton(); });
+    const timer = setInterval(() => { tries += 1; if (injectButton() || tries > 140) clearInterval(timer); }, 120);
+    const observer = new MutationObserver(() => { if (accessConfirmed) injectButton(); });
     observer.observe(document.documentElement,{childList:true,subtree:true});
   }
 

@@ -671,7 +671,7 @@ function languageBridgeScript(routeName) {
       if(document.getElementById('wfggTrainSentinelLoaderV4'))return;
       const script=document.createElement('script');
       script.id='wfggTrainSentinelLoaderV4';
-      script.src='/train/sentinel-train-v1.js?v=005';
+      script.src='/train/sentinel-train-v1.js?v=007';
       script.async=true;
       script.dataset.wfggAfterBoot='1';
       script.onerror=()=>console.warn('WFGG_SENTINEL_AFTER_BOOT_V4=LOAD_ERROR');
@@ -1331,10 +1331,9 @@ async function routeTrain(request, env) {
   return proxyRoute(request, route, suffix, { routeName: 'train' });
 }
 
-/* WFGG_SENTINEL_EDGE_RUNNER_V6
-   Sentinel reste strictement OWNER et lecture seule, mais sa recette est exécutée
-   par le Worker Pages déjà déployé. Cela évite de dépendre d'un second déploiement
-   wfgg-api tout en conservant la validation OWNER côté serveur. */
+/* WFGG_SENTINEL_EDGE_ACCESS_V7
+   Sentinel reste strictement en lecture seule. Son accès est réservé aux rôles
+   système OWNER et SUPERVISOR, indépendamment du rang d'alliance R1..R5. */
 function sentinelEdgeJson(data,status=200){
   return new Response(JSON.stringify(data),{
     status,
@@ -1380,14 +1379,15 @@ async function runSentinelAtPortalEdge(request){
   if(!meCall.response.ok){
     return sentinelEdgeJson({ok:false,error:meCall.data?.error||('HTTP_'+meCall.response.status)},meCall.response.status);
   }
-  if(meCall.data?.system?.role!=='OWNER'){
-    return sentinelEdgeJson({ok:false,error:'SENTINEL_OWNER_ONLY'},403);
+  const sentinelRole=String(meCall.data?.system?.role||'');
+  if(!['OWNER','SUPERVISOR'].includes(sentinelRole)){
+    return sentinelEdgeJson({ok:false,error:'SENTINEL_ACCESS_FORBIDDEN'},403);
   }
 
   const checks=[];
   checks.push(sentinelEdgeCheck(
-    'owner-access','Sécurité','ok','Accès Sentinel','Rôle système OWNER','OWNER validé côté serveur',
-    'Le bouton et la recette restent inaccessibles aux autres rangs.',''
+    'sentinel-access','Sécurité','ok','Accès Sentinel','Rôle système OWNER ou SUPERVISOR',sentinelRole+' validé côté serveur',
+    'Le rang d’alliance reste indépendant de ce droit système.',''
   ));
   checks.push(sentinelEdgeCheck(
     'portal-api','Portail','ok','API Portail','/api/me HTTP 200','HTTP 200','Session Portail valide.',''
@@ -1464,7 +1464,7 @@ async function runSentinelAtPortalEdge(request){
   const status=counts.error?'error':counts.warning?'warning':counts.info?'info':'ok';
   return sentinelEdgeJson({
     ok:!counts.error,
-    version:'sentinel-edge-v6',
+    version:'sentinel-edge-v7',
     mode:'observer',
     readonly:true,
     finishedAt:new Date().toISOString(),
