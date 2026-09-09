@@ -1196,6 +1196,70 @@
         }catch(e){toast(e.message||String(e));}
     }
     async function testLocalPushNotification(){return testPushReminder('generic');}
+    /* WFGG_NOTIFICATION_PERMISSION_SETTINGS_V1
+       Android ne permet pas au Web d'ouvrir un canal de site arbitraire, mais
+       un clic utilisateur peut ouvrir directement les réglages Notifications
+       de Chrome. Au retour, le test local est relancé pour confirmer le résultat. */
+    function notificationSettingsText(fr,en,it,es){return pushText(fr,en,it,es);}
+    function notificationSettingsFallback(){
+        openModal(`<h2>🔔 ${notificationSettingsText('Autoriser les notifications','Allow notifications','Consenti notifiche','Permitir notificaciones')}</h2><div class="warning">${notificationSettingsText('Ouvre les notifications de Chrome puis vérifie que les notifications sont autorisées. Si une liste de sites est proposée, autorise wfgg.pages.dev.','Open Chrome notifications and make sure notifications are allowed. If a site list is shown, allow wfgg.pages.dev.','Apri le notifiche di Chrome e verifica che siano consentite. Se viene mostrato un elenco di siti, consenti wfgg.pages.dev.','Abre las notificaciones de Chrome y comprueba que estén permitidas. Si aparece una lista de sitios, permite wfgg.pages.dev.')}</div><p>${notificationSettingsText('Chemin manuel : Paramètres Android → Applications → Chrome → Notifications.','Manual path: Android Settings → Apps → Chrome → Notifications.','Percorso manuale: Impostazioni Android → App → Chrome → Notifiche.','Ruta manual: Ajustes Android → Aplicaciones → Chrome → Notificaciones.')}</p><div class="actions"><button id="wfggNotifRetry" class="btn gold">🔄 ${notificationSettingsText('Revérifier','Check again','Ricontrolla','Volver a comprobar')}</button><button id="wfggNotifClose" class="btn outline">${notificationSettingsText('Fermer','Close','Chiudi','Cerrar')}</button></div>`);
+        queueMicrotask(()=>{
+            document.getElementById('wfggNotifRetry')?.addEventListener('click',()=>{closeModal();testLocalNotification();});
+            document.getElementById('wfggNotifClose')?.addEventListener('click',closeModal);
+        });
+    }
+    async function openNotificationSystemSettings(){
+        if(!('Notification' in window))return;
+        if(Notification.permission==='default'){
+            try{
+                const permission=await Notification.requestPermission();
+                if(permission==='granted'){
+                    closeModal();
+                    toast(notificationSettingsText('Notifications autorisées. Nouveau test en cours…','Notifications allowed. Testing again…','Notifiche consentite. Nuovo test in corso…','Notificaciones permitidas. Nueva prueba en curso…'));
+                    await refreshPushUi();
+                    return testLocalNotification();
+                }
+            }catch(_){}
+        }
+        const android=/Android/i.test(navigator.userAgent||'');
+        if(android){
+            const ua=navigator.userAgent||'';
+            const packageName=/SamsungBrowser/i.test(ua)?'com.sec.android.app.sbrowser':'com.android.chrome';
+            sessionStorage.setItem('wfgg_notification_settings_return','1');
+            try{
+                location.href=`intent:#Intent;action=android.settings.APP_NOTIFICATION_SETTINGS;S.android.provider.extra.APP_PACKAGE=${packageName};end`;
+                return;
+            }catch(_){}
+        }
+        notificationSettingsFallback();
+    }
+    function promptNotificationPermissionFix(){
+        const state=String(Notification.permission||'unknown');
+        openModal(`<h2>🔔 ${notificationSettingsText('Notifications bloquées','Notifications blocked','Notifiche bloccate','Notificaciones bloqueadas')}</h2><div class="warning">${notificationSettingsText(`Les notifications ne peuvent pas être affichées sur ce téléphone (${state}). Voulez-vous modifier les réglages maintenant ?`,`Notifications cannot be displayed on this phone (${state}). Do you want to change the settings now?`,`Le notifiche non possono essere visualizzate su questo telefono (${state}). Vuoi modificare ora le impostazioni?`,`Las notificaciones no pueden mostrarse en este teléfono (${state}). ¿Quieres cambiar los ajustes ahora?`)}</div><div class="actions"><button id="wfggNotifModify" class="btn gold">⚙️ ${notificationSettingsText('Modifier maintenant','Change now','Modifica ora','Cambiar ahora')}</button><button id="wfggNotifLater" class="btn outline">${notificationSettingsText('Pas maintenant','Not now','Non ora','Ahora no')}</button></div>`);
+        queueMicrotask(()=>{
+            document.getElementById('wfggNotifModify')?.addEventListener('click',openNotificationSystemSettings);
+            document.getElementById('wfggNotifLater')?.addEventListener('click',closeModal);
+        });
+    }
+    function promptAndroidNotificationDisplayFix(){
+        openModal(`<h2>🔔 ${notificationSettingsText('Diagnostic notifications','Notification diagnostics','Diagnostica notifiche','Diagnóstico de notificaciones')}</h2><div class="warning">${notificationSettingsText('Chrome a bien créé la notification, mais Android ne l’affiche pas. Le blocage est dans les réglages de notifications du téléphone/Chrome.','Chrome created the notification, but Android is not displaying it. The block is in the phone/Chrome notification settings.','Chrome ha creato la notifica, ma Android non la visualizza. Il blocco è nelle impostazioni notifiche del telefono/Chrome.','Chrome creó la notificación, pero Android no la muestra. El bloqueo está en los ajustes de notificaciones del teléfono/Chrome.')}</div><p>${notificationSettingsText('Voulez-vous ouvrir directement les réglages de notifications de Chrome ?','Do you want to open Chrome notification settings now?','Vuoi aprire direttamente le impostazioni notifiche di Chrome?','¿Quieres abrir directamente los ajustes de notificaciones de Chrome?')}</p><div class="actions"><button id="wfggNotifModify" class="btn gold">⚙️ ${notificationSettingsText('Modifier','Change','Modifica','Cambiar')}</button><button id="wfggNotifLater" class="btn outline">${notificationSettingsText('Pas maintenant','Not now','Non ora','Ahora no')}</button></div>`);
+        queueMicrotask(()=>{
+            document.getElementById('wfggNotifModify')?.addEventListener('click',openNotificationSystemSettings);
+            document.getElementById('wfggNotifLater')?.addEventListener('click',closeModal);
+        });
+    }
+    document.addEventListener('visibilitychange',()=>{
+        if(document.visibilityState!=='visible'||sessionStorage.getItem('wfgg_notification_settings_return')!=='1')return;
+        sessionStorage.removeItem('wfgg_notification_settings_return');
+        setTimeout(async()=>{
+            try{await refreshPushUi();}catch(_){}
+            if(Notification.permission==='granted'){
+                toast(notificationSettingsText('Réglages repris. Nouveau test d’affichage…','Settings resumed. Testing display again…','Impostazioni riprese. Nuovo test di visualizzazione…','Ajustes retomados. Nueva prueba de visualización…'));
+                testLocalNotification();
+            }else promptNotificationPermissionFix();
+        },500);
+    });
+
     /* WFGG_PUSH_LOCAL_DISPLAY_DIAGNOSTIC_V1
        Teste uniquement l'affichage Android/iOS via le Service Worker, sans réseau Push.
        Si ce test local apparaît mais pas le test serveur, le problème est le transport Push.
@@ -1203,7 +1267,7 @@
     /* WFGG_PUSH_LOCAL_DISPLAY_DIAGNOSTIC_V2 */
     async function testLocalNotification(){
         if(!('Notification' in window))return toast(pushText('Notifications non prises en charge','Notifications not supported','Notifiche non supportate','Notificaciones no compatibles'));
-        if(Notification.permission!=='granted')return toast(pushText(`Notifications non autorisées (${Notification.permission})`,`Notifications not allowed (${Notification.permission})`,`Notifiche non autorizzate (${Notification.permission})`,`Notificaciones no autorizadas (${Notification.permission})`));
+        if(Notification.permission!=='granted')return promptNotificationPermissionFix();
         try{
             const reg=await ensurePushRegistration();
             await navigator.serviceWorker.ready;
@@ -1230,7 +1294,7 @@
             if(visible.length){
                 const android=/Android/i.test(navigator.userAgent||'');
                 if(android){
-                    openModal(`<h2>🔔 Diagnostic notifications</h2><div class="warning">${pushText('Chrome a bien créé la notification, mais Android ne l’affiche pas. Le blocage est donc dans les réglages de notifications du téléphone/Chrome.','Chrome created the notification, but Android is not displaying it. The block is therefore in the phone/Chrome notification settings.','Chrome ha creato la notifica, ma Android non la visualizza. Il blocco è quindi nelle impostazioni notifiche del telefono/Chrome.','Chrome creó la notificación, pero Android no la muestra. El bloqueo está en los ajustes de notificaciones del teléfono/Chrome.')}</div><p>${pushText('À vérifier : Paramètres Android → Applications → Chrome → Notifications, puis dans Chrome → Paramètres → Paramètres des sites → Notifications → wfgg.pages.dev.','Check: Android Settings → Apps → Chrome → Notifications, then Chrome → Settings → Site settings → Notifications → wfgg.pages.dev.','Controlla: Impostazioni Android → App → Chrome → Notifiche, poi Chrome → Impostazioni → Impostazioni sito → Notifiche → wfgg.pages.dev.','Comprueba: Ajustes Android → Aplicaciones → Chrome → Notificaciones, luego Chrome → Ajustes → Configuración de sitios → Notificaciones → wfgg.pages.dev.')}</p><button class="btn gold full" onclick="W.closeModal()">OK</button>`);
+                    promptAndroidNotificationDisplayFix();
                 }else{
                     toast(pushText('La notification a été créée par le navigateur mais n’est pas visible à l’écran','The browser created the notification but it is not visible on screen','La notifica è stata creata dal browser ma non è visibile','El navegador creó la notificación pero no es visible en pantalla'));
                 }
