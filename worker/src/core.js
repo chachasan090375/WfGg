@@ -34,6 +34,8 @@ export default {
         response = await authenticate(request, env);
       } else if (url.pathname === '/api/me' && request.method === 'GET') {
         response = await me(request, env);
+      } else if (url.pathname === '/api/alliance/roster' && request.method === 'GET') {
+        response = await trainContext(request, env);
       } else if (url.pathname === '/api/train/context' && request.method === 'GET') {
         response = await trainContext(request, env);
       } else if (url.pathname === '/api/logout' && request.method === 'POST') {
@@ -62,6 +64,8 @@ export default {
         response = await transferLeadership(request, env);
       } else if (/^\/api\/admin\/members\/[^/]+$/.test(url.pathname) && request.method === 'PATCH') {
         response = await updateMember(request, env, decodeURIComponent(url.pathname.split('/').pop()));
+      } else if (/^\/api\/admin\/members\/[^/]+$/.test(url.pathname) && request.method === 'DELETE') {
+        response = await removeMember(request, env, decodeURIComponent(url.pathname.split('/').pop()));
       } else if (/^\/api\/admin\/members\/[^/]+\/code$/.test(url.pathname) && request.method === 'POST') {
         response = await resetMemberCode(request, env, decodeURIComponent(url.pathname.split('/')[4]));
       } else if (url.pathname.startsWith('/avatars/') && request.method === 'GET') {
@@ -499,6 +503,7 @@ async function trainContext(request, env) {
   const rows = await env.DB.prepare(`
     SELECT
       u.id,
+      u.created_at,
       u.player_name,
       u.display_name,
       u.language,
@@ -526,7 +531,9 @@ async function trainContext(request, env) {
 
   return json({
     ok: true,
-    source: 'wfgg-portal',
+    source: 'wfgg-portal-roster-v1',
+    authority: 'portal',
+    roster_authoritative: true,
     me: {
       id: current.user.id,
       pseudo: current.user.display_name || current.user.player_name,
@@ -540,6 +547,7 @@ async function trainContext(request, env) {
     alliance: current.alliance,
     roster: (rows.results || []).map((row) => ({
       id: row.id,
+      created_at: row.created_at || null,
       pseudo: row.display_name || row.player_name,
       player_name: row.player_name,
       display_name: row.display_name,
@@ -920,6 +928,41 @@ async function updateMember(request, env, userId) {
   }
 
   return json({ ok: true });
+}
+
+
+async function removeMember(request, env, userId) {
+  const ctx = await sessionContext(request, env);
+  requireAllianceAdmin(ctx);
+
+  const target = await getTargetMembership(env, ctx.alliance_id, userId);
+  if (!target) fail('MEMBER_NOT_FOUND', 404);
+  if (userId === ctx.id) fail('CANNOT_REMOVE_SELF', 409);
+  if (target.rank === 'R5') fail('TRANSFER_R5_BEFORE_REMOVE', 409);
+  if (target.system_role === SYSTEM_OWNER) fail('OWNER_CANNOT_BE_REMOVED', 409);
+  if (target.rank === 'R4') requireR5OrOwner(ctx);
+
+  const ts = now();
+  await env.DB.batch([
+    env.DB.prepare('UPDATE users SET active=0,updated_at=? WHERE id=?').bind(ts, userId),
+    env.DB.prepare('DELETE FROM sessions WHERE user_id=?').bind(userId),
+    env.DB.prepare('DELETE FROM system_roles WHERE user_id=?').bind(userId),
+    env.DB.prepare('DELETE FROM memberships WHERE user_id=? AND alliance_id=?').bind(userId, ctx.alliance_id)
+  ]);
+
+  await audit(env, ctx.id, 'MEMBER_DEPARTURE', 'user', userId, {
+    previous_rank: target.rank,
+    previous_officer_title: target.officer_title || null,
+    access_revoked: true,
+    membership_removed: true
+  });
+
+  return json({
+    ok: true,
+    removed: true,
+    access_revoked: true,
+    history_preserved: true
+  });
 }
 
 async function transferLeadership(request, env) {

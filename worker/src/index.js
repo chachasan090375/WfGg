@@ -2,6 +2,7 @@ import core from './core.js';
 
 const SENTINEL_VERSION = 'sentinel-owner-v1';
 const JSON_HEADERS = { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' };
+const TRAIN_API = 'https://wfgg-train.chachasan090375.workers.dev';
 
 export default {
   async fetch(request, env, executionContext) {
@@ -9,7 +10,14 @@ export default {
     if (url.pathname === '/api/sentinel/run' && request.method === 'GET') {
       return sentinelRun(request, env, executionContext);
     }
-    return core.fetch(request, env, executionContext);
+    const response = await core.fetch(request, env, executionContext);
+    if (response.ok && shouldSyncTrainRoster(url.pathname, request.method)) {
+      const task = notifyTrainRosterSync(request).catch((error) => {
+        console.warn('WFGG_PORTAL_ROSTER_SYNC_NOTIFY', String(error?.message || error));
+      });
+      if (executionContext?.waitUntil) executionContext.waitUntil(task);
+    }
+    return response;
   }
 };
 
@@ -38,6 +46,33 @@ async function coreJson(request, env, pathname) {
 function bearerToken(request) {
   const auth = request.headers.get('Authorization') || '';
   return auth.startsWith('Bearer ') ? auth.slice(7).trim() : '';
+}
+
+
+function shouldSyncTrainRoster(pathname, method) {
+  if (pathname === '/api/admin/members' && (method === 'GET' || method === 'POST')) return true;
+  if (/^\/api\/admin\/members\/[^/]+$/.test(pathname) && (method === 'PATCH' || method === 'DELETE')) return true;
+  if (pathname === '/api/admin/leadership/transfer' && method === 'POST') return true;
+  return false;
+}
+
+async function notifyTrainRosterSync(request) {
+  const token = bearerToken(request);
+  if (!token) return null;
+  const response = await fetch(`${TRAIN_API}/api/portal-roster/sync`, {
+    method: 'POST',
+    headers: {
+      'X-WfGg-Portal-Token': token,
+      'Cache-Control': 'no-store'
+    },
+    redirect: 'manual'
+  });
+  if (!response.ok) {
+    let detail = '';
+    try { detail = await response.text(); } catch (_) {}
+    throw new Error(`TRAIN_ROSTER_SYNC_${response.status}${detail ? ':' + detail.slice(0, 180) : ''}`);
+  }
+  return response;
 }
 
 function severityRank(level) {
