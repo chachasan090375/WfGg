@@ -2236,18 +2236,43 @@
                 document.querySelector('.login-note').innerHTML = '⚠️ Application à initialiser · ouvre <b>/setup.html</b>';
         }
         catch (e) { }
-        /* WFGG_PORTAL_DIRECT_TRAIN_V1
-           Sous /train/, l'identité a déjà été synchronisée
-           via le bridge du Portail. On ouvre donc Train directement.
+        /* WFGG_PORTAL_DIRECT_TRAIN_BOOTSTRAP_V2
+           Sous /train/, ne jamais décider à partir du seul cache local Train.
+           Le Portail possède la session autoritative : on hydrate d'abord le
+           snapshot same-origin, puis seulement on ouvre l'application.
+           En cas d'échec, on reste sur /train/ avec un diagnostic au lieu de
+           renvoyer silencieusement l'utilisateur vers l'accueil du Portail.
         */
         if (location.pathname === '/train' ||
             location.pathname.startsWith('/train/')) {
 
-          if (state.currentUserId && user()) {
+          let ready = !!(state.currentUserId && user());
+          let bootstrapError = '';
+
+          if (!ready) {
+            try {
+              const refreshed = await syncSnapshot({ render: false, quiet: true });
+              ready = !!(refreshed && state.currentUserId && user());
+              if (!ready) bootstrapError = 'snapshot_without_identity';
+            } catch (e) {
+              bootstrapError = String(e && e.message || e || 'snapshot_failed');
+            }
+          }
+
+          if (ready) {
+            console.info('WFGG_PORTAL_TRAIN_BOOTSTRAP_V2=READY');
             bootApp();
           } else {
-            console.warn('WFGG_PORTAL_TRAIN_IDENTITY_MISSING');
-            location.replace('/');
+            console.error('WFGG_PORTAL_TRAIN_BOOTSTRAP_V2=FAILED', bootstrapError || 'identity_missing');
+            const note = document.querySelector('.login-note');
+            if (note) {
+              note.innerHTML = '⚠️ Impossible de synchroniser ta session Train pour le moment. ' +
+                '<button type="button" class="btn outline" onclick="location.reload()">Réessayer</button>';
+            }
+            const login = document.getElementById('loginView');
+            if (login) login.classList.remove('hidden');
+            const app = document.getElementById('appView');
+            if (app) app.classList.add('hidden');
           }
 
         } else {
