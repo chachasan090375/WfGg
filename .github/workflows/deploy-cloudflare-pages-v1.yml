@@ -40,50 +40,57 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          curl -fsS \
-            -H "Authorization: Bearer $CF_API_TOKEN" \
-            -H 'Content-Type: application/json' \
-            'https://api.cloudflare.com/client/v4/accounts?per_page=50' \
-            -o /tmp/cf-accounts.json
+          python3 - <<'PY'
+          import json, os, sys, urllib.error, urllib.request
 
-          python3 - <<'PY' >/tmp/cf-account-ids.txt
-          import json
-          d=json.load(open('/tmp/cf-accounts.json'))
-          if not d.get('success'):
-              raise SystemExit('Cloudflare accounts lookup failed')
-          for row in d.get('result') or []:
-              if row.get('id'):
-                  print(row['id'])
+          token = os.environ['CF_API_TOKEN']
+          headers = {'Authorization': f'Bearer {token}', 'Content-Type': 'application/json'}
+
+          def get(url):
+              req = urllib.request.Request(url, headers=headers)
+              try:
+                  with urllib.request.urlopen(req, timeout=20) as r:
+                      return r.status, r.read().decode('utf-8', 'replace')
+              except urllib.error.HTTPError as e:
+                  return e.code, e.read().decode('utf-8', 'replace')
+
+          status, body = get('https://api.cloudflare.com/client/v4/accounts?per_page=50')
+          if status != 200:
+              print(f'CF_ACCOUNTS_HTTP={status}')
+              sys.exit(3)
+          data = json.loads(body)
+          accounts = data.get('result') or []
+          print(f'CF_ACCOUNT_COUNT={len(accounts)}')
+
+          found = None
+          for account in accounts:
+              account_id = account.get('id')
+              account_name = account.get('name') or 'unnamed'
+              print(f'CF_ACCOUNT={account_name}')
+              if not account_id:
+                  continue
+              p_status, p_body = get(f'https://api.cloudflare.com/client/v4/accounts/{account_id}/pages/projects?per_page=100')
+              print(f'CF_PAGES_LIST_HTTP={p_status}')
+              if p_status != 200:
+                  continue
+              try:
+                  projects = (json.loads(p_body).get('result') or [])
+              except Exception:
+                  projects = []
+              names = [str(p.get('name')) for p in projects if p.get('name')]
+              print('CF_PAGE_PROJECTS=' + (','.join(names) if names else '(none)'))
+              if 'wfgg' in names:
+                  found = account_id
+                  break
+
+          if not found:
+              print('CLOUDFLARE_PROJECT_WFGG=NOT_FOUND')
+              sys.exit(4)
+
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as f:
+              f.write(f'account_id={found}\n')
+          print('CLOUDFLARE_PROJECT_WFGG=FOUND')
           PY
-
-          found=''
-          while IFS= read -r account_id; do
-            [ -n "$account_id" ] || continue
-            code=$(curl -sS -o /tmp/cf-project.json -w '%{http_code}' \
-              -H "Authorization: Bearer $CF_API_TOKEN" \
-              -H 'Content-Type: application/json' \
-              "https://api.cloudflare.com/client/v4/accounts/$account_id/pages/projects/wfgg")
-            if [ "$code" = '200' ] && python3 - <<'PY'
-          import json,sys
-          try:
-              d=json.load(open('/tmp/cf-project.json'))
-          except Exception:
-              sys.exit(1)
-          sys.exit(0 if d.get('success') and (d.get('result') or {}).get('name') == 'wfgg' else 1)
-          PY
-            then
-              found="$account_id"
-              break
-            fi
-          done </tmp/cf-account-ids.txt
-
-          if [ -z "$found" ]; then
-            echo 'CLOUDFLARE_PROJECT_WFGG=NOT_FOUND'
-            exit 4
-          fi
-
-          echo "account_id=$found" >> "$GITHUB_OUTPUT"
-          echo 'CLOUDFLARE_PROJECT_WFGG=FOUND'
 
       - name: Deploy frontend to wfgg Pages
         uses: cloudflare/wrangler-action@v4
