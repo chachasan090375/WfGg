@@ -35,7 +35,7 @@ jobs:
           grep -q 'WFGG_TRAIN_SERVER_SCHEDULE_V1' frontend/_worker.js
           grep -q 'WFGG_TRAIN_MUTATE_REFRESH_GUARD_V1' frontend/_worker.js
           grep -q 'WFGG_TRAIN_EXCHANGE_ORPHAN_FALLBACK_V1' frontend/_worker.js
-          grep -q 'wfgg_bridge=v14' frontend/_worker.js
+          grep -q 'wfgg_bridge=v15' frontend/_worker.js
           grep -q "profileSubpage:'main'" frontend/portal-v070.js
           grep -q 'profileTrainRotationHost' frontend/portal-v070.js
           grep -q 'openSessionHistory' frontend/portal-v070.js
@@ -91,7 +91,7 @@ jobs:
             curl -fsSL -A "$UA" "$ROOT/portal-invitations-lastwar-safe-v1.js?v=004-generic-r4r5-thanks&production_recette=$i" -o /tmp/invitations-lastwar.js || true
             curl -fsSL -A "$UA" "$ROOT/portal-invitations-v1.css?v=001&production_recette=$i" -o /tmp/invitations.css || true
             curl -fsSL -A "$UA" "$ROOT/train/?production_recette=$i" -o /tmp/train.html || true
-            curl -fsSL -A "$UA" "$ROOT/train/app.js?wfgg_bridge=v14&production_recette=$i" -o /tmp/app.js || true
+            curl -fsSL -A "$UA" "$ROOT/train/app.js?wfgg_bridge=v15&production_recette=$i" -o /tmp/app.js || true
             cancel_refs=$(grep -o 'cancelMarketExchange' /tmp/app.js 2>/dev/null | wc -l | tr -d ' ' || true)
             if grep -Fq 'portal-v070.js?v=080-profile-v16' /tmp/root.html \
               && grep -Fq 'portal-responsive-v1.css?v=001' /tmp/root.html \
@@ -116,7 +116,7 @@ jobs:
               && grep -Fq 'openSessionHistory' /tmp/portal.js \
               && ! grep -Fq 'renderHomeTrainRotationCard' /tmp/portal.js \
               && ! grep -Fq 'loadHomeTrainRotation' /tmp/portal.js \
-              && grep -Fq 'wfgg_bridge=v14' /tmp/train.html \
+              && grep -Fq 'wfgg_bridge=v15' /tmp/train.html \
               && grep -Fq 'https://wfgg-train.chachasan090375.workers.dev' /tmp/train.html \
               && grep -Fq 'state.__serverSchedule' /tmp/app.js \
               && grep -Fq 'Modification enregistrée mais synchronisation impossible' /tmp/app.js \
@@ -169,7 +169,7 @@ jobs:
         shell: bash
         run: |
           set -eu
-          curl -fsSi 'https://wfgg-train.chachasan090375.workers.dev/api/health?production_recette=v14' -o /tmp/backend-health.txt
+          curl -fsSi 'https://wfgg-train.chachasan090375.workers.dev/api/health?production_recette=v15' -o /tmp/backend-health.txt
           grep -iq '^x-wfgg-r3-cycle-model: v1' /tmp/backend-health.txt
           grep -iq '^x-wfgg-rotation-sequence-guard: v2' /tmp/backend-health.txt
       - name: Install Playwright
