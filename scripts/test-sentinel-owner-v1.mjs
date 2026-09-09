@@ -2,6 +2,7 @@ import fs from 'node:fs';
 
 const worker = fs.readFileSync('worker/src/index.js', 'utf8');
 const ui = fs.readFileSync('frontend/sentinel-owner-v1.js', 'utf8');
+const launcher = fs.readFileSync('frontend/sentinel-launcher-v2.js', 'utf8');
 const html = fs.readFileSync('frontend/index.html', 'utf8');
 
 const required = [
@@ -18,7 +19,14 @@ const required = [
   [ui.includes("fetch('/api/sentinel/run'"), 'UI calls Sentinel endpoint'],
   [ui.includes('navigator.serviceWorker.getRegistrations'), 'device Service Worker diagnostics exist'],
   [ui.includes('pushManager.getSubscription'), 'device Push subscription diagnostics exist'],
-  [html.includes('sentinel-owner-v1.js?v=001'), 'Portal loads Sentinel UI']
+  [launcher.includes("const LEGACY_MENU_ID = 'wfggSentinelMenu'"), 'launcher depends on OWNER-only Sentinel control'],
+  [launcher.includes("const LAUNCHER_ID = 'wfggSentinelLauncher'"), 'dedicated launcher exists beside owner name'],
+  [launcher.includes("name?.closest('h2')"), 'launcher anchors beside displayed owner name'],
+  [launcher.includes("ownerButton.click()"), 'launcher opens existing protected Sentinel panel'],
+  [launcher.includes('max-height:min(86dvh,860px)'), 'Sentinel is presented as a popup rather than a full page'],
+  [launcher.includes(`#${LEGACY_MENU_ID}{display:none!important}`), 'old profile-menu Sentinel entry is hidden'],
+  [html.includes('sentinel-owner-v1.js?v=002'), 'Portal loads Sentinel owner UI with cache bust'],
+  [html.includes('sentinel-launcher-v2.js?v=002'), 'Portal loads Sentinel launcher popup v2']
 ];
 
 for (const [ok, label] of required) {
@@ -29,4 +37,4 @@ for (const [ok, label] of required) {
   console.log(`SENTINEL_CONTRACT_OK: ${label}`);
 }
 
-console.log('WFGG_SENTINEL_OWNER_V1=OK');
+console.log('WFGG_SENTINEL_OWNER_V2=OK');
