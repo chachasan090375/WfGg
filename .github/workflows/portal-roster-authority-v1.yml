@@ -47,7 +47,7 @@ jobs:
       - name: Worker package check
         working-directory: worker
         run: |
-          npm ci
+          npm install
           npm run check
       - name: Remove one-time machinery
         run: |
