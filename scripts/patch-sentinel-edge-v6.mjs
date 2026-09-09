@@ -102,8 +102,8 @@ async function runSentinelAtPortalEdge(request){
     const rosterHasMe=!!(meId&&roster.some(row=>String(row?.id||'')===meId));
 
     checks.push(sentinelEdgeCheck(
-      'train-snapshot','Train',snapCall.response.ok?'ok':'error','Snapshot Train','HTTP 200',`HTTP ${snapCall.response.status}`,
-      snapCall.response.ok?`${roster.length} joueur(s) · ${schedule.length} affectation(s)`:(snap?.error||''),
+      'train-snapshot','Train',snapCall.response.ok?'ok':'error','Snapshot Train','HTTP 200','HTTP '+snapCall.response.status,
+      snapCall.response.ok?(roster.length+' joueur(s) · '+schedule.length+' affectation(s)'):(snap?.error||''),
       snapCall.response.ok?'':'La session Portail n’est pas acceptée par le Worker Train.'
     ));
     checks.push(sentinelEdgeCheck(
@@ -111,7 +111,7 @@ async function runSentinelAtPortalEdge(request){
       rosterHasMe?'':'Le snapshot et l’identité Portail ne sont pas cohérents.'
     ));
     checks.push(sentinelEdgeCheck(
-      'train-schedule','Planning',schedule.length?'ok':'warning','Planning autoritatif disponible','schedule non vide',`${schedule.length} affectation(s)`,'',
+      'train-schedule','Planning',schedule.length?'ok':'warning','Planning autoritatif disponible','schedule non vide',schedule.length+' affectation(s)','',
       schedule.length?'':'Le serveur n’a retourné aucune affectation dans la fenêtre courante.'
     ));
 
@@ -126,10 +126,10 @@ async function runSentinelAtPortalEdge(request){
       if(d&&v&&d===v)conflicts.push(date);
       if(d){
         const p=byId.get(d);
-        if(!p)orphan.push(`${date}:driver:${d}`);
-        else if(!['R3','R4','R5'].includes(String(p.rank||'')))invalidDrivers.push(`${date}:${p.pseudo||d}:${p.rank||'?'}`);
+        if(!p)orphan.push(date+':driver:'+d);
+        else if(!['R3','R4','R5'].includes(String(p.rank||'')))invalidDrivers.push(date+':'+(p.pseudo||d)+':'+(p.rank||'?'));
       }
-      if(v&&!byId.has(v))orphan.push(`${date}:vip:${v}`);
+      if(v&&!byId.has(v))orphan.push(date+':vip:'+v);
     }
     checks.push(sentinelEdgeCheck(
       'no-double-role','Règles métier',conflicts.length?'error':'ok','Pas de double rôle Conducteur/VIP','0 conflit',conflicts.length?conflicts.slice(0,8).join(', '):'0 conflit','',
