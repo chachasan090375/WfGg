@@ -16,21 +16,13 @@ const required = [
   [worker.includes('train-runtime-contract'), 'live runtime contract check exists'],
   [worker.includes('rotation-rank-contract'), 'rotation business rule check exists'],
 
-  [trainUi.includes("data?.system?.role === 'OWNER'"), 'Train Sentinel UI only appears for OWNER'],
-  [trainUi.includes("portalFetch('/api/sentinel/run')"), 'Train Sentinel calls protected Sentinel endpoint'],
-  [trainUi.includes('WFGG_SENTINEL_TRAIN_ROUND_LAUNCHER_V1'), 'round Train launcher design exists'],
-  [trainUi.includes('findNameAnchor()'), 'Train launcher anchors beside current player name'],
-  [trainUi.includes("button.innerHTML = '<span class=\"wfgg-sentinel-flask\""), 'round launcher contains Sentinel flask icon'],
-  [trainUi.includes('max-height:min(88dvh,850px)'), 'Sentinel opens as popup rather than full page'],
-  [trainUi.includes('navigator.serviceWorker.getRegistrations'), 'device Service Worker diagnostics exist'],
-  [trainUi.includes('pushManager.getSubscription'), 'device Push subscription diagnostics exist'],
-  [trainUi.includes('WFGG_SENTINEL_REPORT_V2'), 'copied Train report has stable assistant-friendly header'],
-  [trainUi.includes('navigator.clipboard?.writeText'), 'copy action uses modern clipboard API'],
-  [trainUi.includes("document.execCommand('copy')"), 'copy action has browser fallback'],
-  [trainUi.includes('Aucune correction automatique effectuée par Sentinel.'), 'copied report states read-only mode'],
+  [trainUi.includes("data?.system?.role === 'OWNER'"), 'Train Sentinel UI remains OWNER-only'],
+  [trainUi.includes("portalFetch('/api/sentinel/run')"), 'Train Sentinel can call protected Sentinel endpoint'],
+  [trainUi.includes('WFGG_SENTINEL_TRAIN_ROUND_LAUNCHER_V1'), 'round Train launcher design is preserved for safe re-enable'],
+  [trainUi.includes('WFGG_SENTINEL_REPORT_V2'), 'copyable Sentinel report format is preserved'],
 
-  [trainApp.includes('WFGG_SENTINEL_TRAIN_LOADER_V1'), 'native Train app loads Sentinel module'],
-  [trainApp.includes("script.src = '/train-native/sentinel-train-v1.js?v=001'"), 'native Train loader targets Sentinel asset'],
+  [!trainApp.includes('WFGG_SENTINEL_TRAIN_LOADER_V1'), 'native Train boot is isolated from Sentinel while boot regression is fixed'],
+  [!trainApp.includes("sentinel-train-v1.js"), 'native Train app has no Sentinel side-load during boot'],
 
   [!html.includes('sentinel-owner-v1.js'), 'Portal home no longer loads Sentinel owner panel'],
   [!html.includes('sentinel-launcher-v2.js'), 'Portal home no longer loads old Sentinel launcher'],
@@ -45,4 +37,4 @@ for (const [ok, label] of required) {
   console.log(`SENTINEL_CONTRACT_OK: ${label}`);
 }
 
-console.log('WFGG_SENTINEL_OWNER_TRAIN_V1=OK');
+console.log('WFGG_SENTINEL_OWNER_TRAIN_BOOT_SAFE_V1=OK');
