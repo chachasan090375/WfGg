@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = 'sentinel-train-v14.0';
+  const VERSION = 'sentinel-train-v14.1';
   const PORTAL_API = '/portal-api';
   const PORTAL_TOKEN_KEY = 'wfgg_portal_session';
   const TRAIN_STATE_KEY = 'wfgg_train_v13';
@@ -434,7 +434,7 @@
       rootLevel='error';
       rootObserved=`Permission=granted · SW=actif · notification créée=oui · affichage système=NON · abonnement Push=${rcSub?.endpoint?'présent':'absent'}`;
       rootDetail='Sentinel a la preuve que Chrome/Service Worker a créé la notification et que le navigateur la retrouve. Le défaut se produit donc APRÈS showNotification(), dans la couche qui présente la notification à l’écran.';
-      rootCause=/Android/i.test(navigator.userAgent||'')?'Couche de présentation Android/Chrome : notifications de Chrome ou catégorie/site wfgg.pages.dev bloquée, silencieuse ou supprimée par le système. Backend, VAPID et algorithme Train exclus pour ce défaut d’affichage local.':'Couche de présentation des notifications du système/navigateur.';
+      rootCause=/Android/i.test(navigator.userAgent||'')?'Couche de présentation Android/Chrome : la catégorie Android de Chrome « Sites » (ou les notifications Chrome) est bloquée, silencieuse ou supprimée par le système. Backend, VAPID et algorithme Train exclus pour ce défaut d’affichage local.':'Couche de présentation des notifications du système/navigateur.';
       rootConfidence='très élevée';
     }else if(localVisualStatus==='visible-confirmed'){
       if(!rcSub?.endpoint){
@@ -600,8 +600,8 @@
       target:'app.v15.js :: notificationSettingsIntentPlan / résultat réel',proposedChange:'Conserver un Intent best-effort conforme à APP_NOTIFICATION_SETTINGS, enregistrer son issue réelle et présenter immédiatement le guide manuel si Chrome le refuse.',simulation:{readonly:true,externalIntentNotLaunched:true,outcomeTracked:true},evidence:['Le dernier geste utilisateur est distingué entre ouverture externe, tentative et browser_fallback_url.'],risks:['Une page web ne peut pas forcer une activité système Android non BROWSABLE.'],manualValidation:['Appuyer sur Modifier puis relancer Sentinel après retour ou fallback.']
     }));
     if(bad.has('train-local-notification-visual-outcome'))out.push(localRepairCandidateV12({
-      id:'repair-local-notification-reset-v13-3',title:'Recréer uniquement le canal WfGg sur cet appareil',score:98,verdict:'recommended-manual',
-      target:'app.v15.js :: promptWfggNotificationReset / resetWfggNotifications',proposedChange:'Supprimer uniquement l’abonnement Push WfGg et le Service Worker Train, réinitialiser l’autorisation du site dans Chrome, puis recréer l’abonnement et relancer le test local.',simulation:{readonly:true,wfggOnly:true,otherChromeSitesUntouched:true},evidence:['La notification est créée par le Service Worker mais l’utilisateur confirme qu’Android ne l’affiche pas.'],risks:['La page Web ne peut pas révoquer elle-même la permission Android/Chrome; une action utilisateur sur Réinitialiser les autorisations reste nécessaire.'],manualValidation:['Réinitialiser uniquement WfGg.','Réactiver.','Confirmer Oui si le test local devient visible.']
+      id:'repair-local-notification-android-settings-v14-1',title:'Ouvrir les notifications Android de Chrome puis retester automatiquement',score:99,verdict:'recommended-manual',
+      target:'app.v15.js :: notificationSettingsIntentPlan / visibilitychange',proposedChange:'Ouvrir directement APP_NOTIFICATION_SETTINGS pour Chrome depuis le geste utilisateur. Si Android masque encore la notification, l’utilisateur active la catégorie « Sites »; au retour, WfGg relance automatiquement le test local. Ne réinitialiser abonnement Push/Service Worker qu’en dépannage avancé.',simulation:{readonly:true,externalIntentNotLaunched:true,automaticRecheck:true,wfggResetNotPrimary:true},evidence:['showNotification() réussit et getNotifications() retrouve la notification; l’échec est donc après Chrome, dans la présentation Android.'],risks:['Android interdit au Web de modifier silencieusement un canal/catégorie système; le dernier changement doit être fait par l’utilisateur.'],manualValidation:['Appuyer sur Modifier/Ouvrir les réglages Chrome.','Activer la catégorie Sites si elle est bloquée.','Revenir dans WfGg : le test local se relance automatiquement.']
     }));
     if(bad.has('train-calendar-runtime'))out.push(localRepairCandidateV12({
       id:'repair-calendar-runtime-v12',title:'Rétablir le runtime d’export calendrier',score:78,verdict:'alternative',
