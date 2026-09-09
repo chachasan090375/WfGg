@@ -1,4 +1,5 @@
 {
+  // Canonical wfgg-api Worker config. A root-level compatibility config mirrors these bindings for Cloudflare Builds.
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "wfgg-api",
   "main": "src/index.js",
