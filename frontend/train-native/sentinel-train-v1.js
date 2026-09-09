@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = 'sentinel-train-v10';
+  const VERSION = 'sentinel-train-v11';
   const PORTAL_API = '/portal-api';
   const PORTAL_TOKEN_KEY = 'wfgg_portal_session';
   const TRAIN_STATE_KEY = 'wfgg_train_v13';
@@ -307,6 +307,34 @@
         items.push(localCheck('train-push-subscription', sub?.endpoint ? 'ok' : 'error', 'Abonnement Push appareil', 'endpoint présent', sub?.endpoint ? `${String(sub.endpoint).slice(0,72)}…` : 'absent', '', sub?.endpoint ? '' : 'Aucun abonnement Push utilisable sur cet appareil.'));
       }
     }
+    /* train-ui-functional-contract-v11
+       Inventaire des actions réellement exposées par app.v15. Sentinel ne les
+       déclenche pas : il vérifie que le câblage client de chaque famille existe. */
+    const uiFunctions = [
+      'addCalendar','addAllCalendar','toggleAlerts','testLocalPushNotification','testPushReminder',
+      'changeWeek','openExchange','publishMarketExchange','cancelMarketExchange','pickMyDateForMarket','executeMarketSwap',
+      'markUnavailable','showUnavailableChoice','openUnavailableDayPicker','saveUnavailableDayFromPicker','openUnavailablePeriod','saveUnavailablePeriod','saveUnavailableDay','removeUnavailableRange','removeUnavailable','showUnavailable',
+      'toggleRotation','showRotationStatus','openProfileInfo','openSelfProfileEdit','saveSelfProfile','openChangePin','changeMyPin','changeLanguage','setPortalLanguage',
+      'saveAdminSettings','saveDay','clearDayOverride','adminToggleRotation','filterMembers','searchMembers','openMemberForm','saveMemberForm','deleteMember','renderRotationOrder','moveRotation','saveRotationRanks','resetMemberPin','downloadGeneratedCodesCsv','clearGeneratedCodes',
+      'generateMessage','nextMessage','copyGeneratedMessage','openAdminSection','renderAdminHome','togglePresenceList','refreshAdminPresence',
+      'openGameHelp','openGameLink','addGameLinkDraft','removeGameLinkDraft','saveGameLinks',
+      'openAdminAnalytics','renderAnalyticsMenu','openAnalyticsSub','renderTrainHistory','setAnalyticsRotationDays','setAnalyticsRotationPool','setAnalyticsRotationSort','setAnalyticsActivitySort','setAnalyticsSettingsFilter','setAnalyticsFilter','setAnalyticsHistorySort','setAnalyticsSearch'
+    ];
+    const missingUi = uiFunctions.filter((name) => typeof window.W?.[name] !== 'function');
+    items.push(localCheck(
+      'train-ui-functional-contract', missingUi.length ? 'error' : 'ok',
+      'Contrat des fonctionnalités de l’interface',
+      `${uiFunctions.length} actions Train exposées`,
+      missingUi.length ? `${missingUi.length} manquante(s): ${missingUi.slice(0,12).join(', ')}` : `${uiFunctions.length}/${uiFunctions.length} présentes`,
+      'Couvre calendrier, alertes, échanges, indisponibilités, statut, profil/PIN/langue, administration, présence, messages, liens et statistiques.',
+      missingUi.length ? 'Une fonction visible dans l’interface n’est plus exposée par app.v15.' : ''
+    ));
+    const calendarRuntime = typeof Blob === 'function' && typeof URL?.createObjectURL === 'function' && typeof window.W?.addCalendar === 'function' && typeof window.W?.addAllCalendar === 'function';
+    items.push(localCheck(
+      'train-calendar-runtime',calendarRuntime?'ok':'error','Export calendrier téléphone',
+      'Blob + URL.createObjectURL + fonctions ICS disponibles',calendarRuntime?'disponible':'incomplet','Test de capacité uniquement; aucun fichier calendrier n’est téléchargé par Sentinel.',
+      calendarRuntime?'':'Le navigateur ou le code client ne peut pas produire les fichiers calendrier.'
+    ));
     return items;
   }
 
@@ -378,9 +406,9 @@
   }
 
   function reportText() {
-    if (!lastReport) return `WFGG_SENTINEL_REPORT_V3\n${t('noReport')}`;
+    if (!lastReport) return `WFGG_SENTINEL_REPORT_V4\n${t('noReport')}`;
     const lines = [
-      'WFGG_SENTINEL_REPORT_V3',
+      'WFGG_SENTINEL_REPORT_V4',
       'WfGg · Sentinel · Train',
       `Copié le: ${new Date().toISOString()}`,
       `Analyse: ${lastReport.finishedAt || '—'}`,
