@@ -226,6 +226,8 @@ function languageBridgeScript(routeName) {
     const WFGG_SW_RESET_KEY='wfgg_train_sw_reset_v1';
     if('serviceWorker' in navigator){
       const hadTrainController=!!navigator.serviceWorker.controller;
+      /* WFGG_WEB_PUSH_SW_RESET_GUARD_V2 */
+      let removedLegacyTrainWorker=false;
 
       Promise.all([
         navigator.serviceWorker.getRegistrations()
@@ -240,7 +242,7 @@ function languageBridgeScript(routeName) {
                   return scopePath.startsWith('/train/') && scriptPath!=='/train/wfgg-push-sw.js';
                 }catch(_){return false;}
               })
-              .map(registration=>registration.unregister())
+              .map(async registration=>{const removed=await registration.unregister();if(removed)removedLegacyTrainWorker=true;return removed;})
           )),
         ('caches' in window)
           ? caches.keys().then(keys=>Promise.all(
@@ -251,6 +253,7 @@ function languageBridgeScript(routeName) {
           : Promise.resolve([])
       ]).finally(()=>{
         if(
+          removedLegacyTrainWorker &&
           hadTrainController &&
           sessionStorage.getItem(WFGG_SW_RESET_KEY)!=='1'
         ){
