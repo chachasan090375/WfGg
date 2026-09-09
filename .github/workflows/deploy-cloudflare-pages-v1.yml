@@ -54,9 +54,22 @@ jobs:
               except urllib.error.HTTPError as e:
                   return e.code, e.read().decode('utf-8', 'replace')
 
+          def safe_errors(body):
+              try:
+                  data = json.loads(body)
+              except Exception:
+                  return '(non-json response)'
+              out=[]
+              for err in data.get('errors') or []:
+                  code=err.get('code')
+                  message=str(err.get('message') or '')[:240]
+                  out.append(f'{code}:{message}')
+              return ' | '.join(out) if out else '(none)'
+
           status, body = get('https://api.cloudflare.com/client/v4/accounts?per_page=50')
           if status != 200:
               print(f'CF_ACCOUNTS_HTTP={status}')
+              print('CF_ACCOUNTS_ERRORS=' + safe_errors(body))
               sys.exit(3)
           data = json.loads(body)
           accounts = data.get('result') or []
@@ -69,17 +82,16 @@ jobs:
               print(f'CF_ACCOUNT={account_name}')
               if not account_id:
                   continue
-              p_status, p_body = get(f'https://api.cloudflare.com/client/v4/accounts/{account_id}/pages/projects?per_page=100')
-              print(f'CF_PAGES_LIST_HTTP={p_status}')
+              p_status, p_body = get(f'https://api.cloudflare.com/client/v4/accounts/{account_id}/pages/projects/wfgg')
+              print(f'CF_PAGES_PROJECT_HTTP={p_status}')
               if p_status != 200:
+                  print('CF_PAGES_PROJECT_ERRORS=' + safe_errors(p_body))
                   continue
               try:
-                  projects = (json.loads(p_body).get('result') or [])
+                  project = json.loads(p_body)
               except Exception:
-                  projects = []
-              names = [str(p.get('name')) for p in projects if p.get('name')]
-              print('CF_PAGE_PROJECTS=' + (','.join(names) if names else '(none)'))
-              if 'wfgg' in names:
+                  project = {}
+              if project.get('success') and (project.get('result') or {}).get('name') == 'wfgg':
                   found = account_id
                   break
 
