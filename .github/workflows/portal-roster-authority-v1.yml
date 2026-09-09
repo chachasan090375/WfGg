@@ -49,28 +49,34 @@ jobs:
         run: |
           npm install
           npm run check
-      - name: Remove one-time machinery
+      - name: Remove one-time machinery and install artifacts
         run: |
           rm -f scripts/patch-portal-roster-authority-v1.py
           rm -f .github/workflows/portal-roster-authority-v1.yml
-      - name: Verify runtime-only diff
+          rm -rf worker/node_modules worker/package-lock.json
+      - name: Verify final diff
         run: |
           git status --short
           python3 - <<'PY'
           import subprocess
-          allowed={'frontend/portal-v070.js','worker/src/core.js','worker/src/index.js'}
-          changed=set(subprocess.check_output(['git','status','--porcelain'],text=True).splitlines())
+          allowed={
+            'frontend/portal-v070.js','worker/src/core.js','worker/src/index.js',
+            'scripts/patch-portal-roster-authority-v1.py',
+            '.github/workflows/portal-roster-authority-v1.yml'
+          }
+          changed=subprocess.check_output(['git','status','--porcelain'],text=True).splitlines()
           paths={line[3:] for line in changed if len(line)>=4}
           extra=paths-allowed
           if extra:
               raise SystemExit(f'unexpected changed files: {sorted(extra)}')
-          if not paths:
-              raise SystemExit('no runtime changes produced')
+          required={'frontend/portal-v070.js','worker/src/core.js','worker/src/index.js'}
+          if not required.issubset(paths):
+              raise SystemExit(f'missing runtime changes: {sorted(required-paths)}')
           PY
-      - name: Commit runtime only
+      - name: Commit runtime and self-clean
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add frontend/portal-v070.js worker/src/core.js worker/src/index.js
+          git add -A frontend/portal-v070.js worker/src/core.js worker/src/index.js scripts/patch-portal-roster-authority-v1.py .github/workflows/portal-roster-authority-v1.yml
           git commit -m "Portal: make alliance roster authoritative for modules"
           git push origin HEAD:portal-roster-authority-v1
