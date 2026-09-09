@@ -1,0 +1,47 @@
+name: Push reminder UI v2
+
+on:
+  push:
+    branches: [feature-push-reminder-tests-v2]
+    paths:
+      - '.github/scripts/push_reminder_ui_v2_patch.py'
+      - '.github/qa/push-reminder-ui-v2-recette.mjs'
+      - '.github/workflows/push-reminder-ui-v2.yml'
+      - 'frontend/train-native/app.v15.js'
+      - 'frontend/train-native/app.v15.js.sha256'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  recette:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature-push-reminder-tests-v2
+      - name: Apply UI patch
+        run: python .github/scripts/push_reminder_ui_v2_patch.py
+      - name: Validate source and checksum
+        run: |
+          node --check frontend/train-native/app.v15.js
+          node .github/qa/push-reminder-ui-v2-recette.mjs
+          sha256sum -c frontend/train-native/app.v15.js.sha256
+          grep -q 'WFGG_WEB_PUSH_CLIENT_V1' frontend/train-native/app.v15.js
+          grep -q 'WFGG_ROSTER_INTEGRATION_UI_V1' frontend/train-native/app.v15.js
+      - name: Commit tested UI patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add frontend/train-native/app.v15.js frontend/train-native/app.v15.js.sha256
+          if git diff --cached --quiet; then
+            echo 'No UI changes to commit.'
+            exit 0
+          fi
+          git commit -m 'feat(push): add iOS help and immediate reminder tests'
+          git push origin HEAD:feature-push-reminder-tests-v2
