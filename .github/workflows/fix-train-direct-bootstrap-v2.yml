@@ -1,0 +1,46 @@
+name: Fix Train direct bootstrap v2
+
+on:
+  push:
+    branches:
+      - fix-train-bootstrap-before-redirect-v2
+    paths:
+      - 'scripts/patch-train-direct-bootstrap-v2.mjs'
+      - '.github/workflows/fix-train-direct-bootstrap-v2.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch-and-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix-train-bootstrap-before-redirect-v2
+          fetch-depth: 0
+      - name: Patch Train bootstrap and checksum
+        run: node scripts/patch-train-direct-bootstrap-v2.mjs
+      - name: Validate Train JavaScript
+        run: |
+          node --check frontend/train-native/app.v15.js
+          sha256sum -c frontend/train-native/app.v15.js.sha256
+      - name: Validate direct bootstrap contract
+        run: |
+          grep -q 'WFGG_PORTAL_DIRECT_TRAIN_BOOTSTRAP_V2' frontend/train-native/app.v15.js
+          grep -q 'await syncSnapshot({ render: false, quiet: true })' frontend/train-native/app.v15.js
+          grep -q 'WFGG_PORTAL_TRAIN_BOOTSTRAP_V2=READY' frontend/train-native/app.v15.js
+          grep -q 'WFGG_PORTAL_TRAIN_BOOTSTRAP_V2=FAILED' frontend/train-native/app.v15.js
+          ! grep -A6 -B6 'WFGG_PORTAL_TRAIN_IDENTITY_MISSING' frontend/train-native/app.v15.js | grep -q "location.replace('/')"
+      - name: Commit generated Train app changes
+        run: |
+          if git diff --quiet -- frontend/train-native/app.v15.js frontend/train-native/app.v15.js.sha256; then
+            echo 'No generated changes to commit.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add frontend/train-native/app.v15.js frontend/train-native/app.v15.js.sha256
+          git commit -m 'fix(train): hydrate snapshot before direct boot'
+          git push origin HEAD:fix-train-bootstrap-before-redirect-v2
