@@ -1,0 +1,45 @@
+name: Fix push device diagnostics v1
+
+on:
+  push:
+    branches: [fix-push-stats-runtime-v1]
+    paths:
+      - '.github/scripts/fix_push_device_diagnostics_v1.py'
+      - '.github/workflows/fix-push-device-diagnostics-v1.yml'
+      - 'frontend/train-native/app.v15.js'
+      - 'frontend/train-native/app.v15.js.sha256'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch-and-test:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix-push-stats-runtime-v1
+      - name: Apply diagnostics patch
+        run: python .github/scripts/fix_push_device_diagnostics_v1.py
+      - name: Validate JavaScript and checksum
+        run: |
+          node --check frontend/train-native/app.v15.js
+          grep -q 'WFGG_PUSH_LOCAL_DISPLAY_DIAGNOSTIC_V1' frontend/train-native/app.v15.js
+          grep -q 'testLocalNotification' frontend/train-native/app.v15.js
+          sha256sum -c frontend/train-native/app.v15.js.sha256
+      - name: Commit tested frontend patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add frontend/train-native/app.v15.js frontend/train-native/app.v15.js.sha256
+          if git diff --cached --quiet; then
+            echo 'No frontend changes.'
+            exit 0
+          fi
+          git commit -m 'fix(push): distinguish transport from local notification display'
+          git push origin HEAD:fix-push-stats-runtime-v1
