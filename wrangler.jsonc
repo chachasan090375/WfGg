@@ -1,0 +1,24 @@
+{
+  // Compatibility entry for Cloudflare Workers Builds when it runs from the repository root.
+  // The canonical wfgg-api project remains under worker/.
+  "name": "wfgg-api",
+  "main": "worker/src/index.js",
+  "compatibility_date": "2026-08-20",
+  "keep_vars": true,
+  "vars": {
+    "PORTAL_ORIGINS": "https://wfgg.pages.dev"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "wfgg-db",
+      "database_id": "fda272af-36f9-4f4b-8e44-857271f9d016"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "AVATARS",
+      "bucket_name": "wfgg-avatars"
+    }
+  ]
+}
