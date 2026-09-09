@@ -2402,22 +2402,54 @@
        Recette appareil en lecture seule : clics réels uniquement sur les contrôles
        non destructifs, inspection géométrique avec elementsFromPoint, restauration
        de l'écran/modal initial et aucun appel de mutation métier. */
-    function sentinelUiGeometry(el,id){
-        if(!el)return {id,ok:false,reason:'missing'};
-        const rect=el.getBoundingClientRect();
-        const style=getComputedStyle(el);
-        const visible=rect.width>0&&rect.height>0&&style.display!=='none'&&style.visibility!=='hidden'&&Number(style.opacity||1)>0.05;
-        const inViewport=rect.right>0&&rect.bottom>0&&rect.left<innerWidth&&rect.top<innerHeight;
-        const x=Math.max(0,Math.min(innerWidth-1,rect.left+rect.width/2));
-        const y=Math.max(0,Math.min(innerHeight-1,rect.top+rect.height/2));
-        const stack=(document.elementsFromPoint?document.elementsFromPoint(x,y):[]).filter(node=>!node.closest?.('#wfggTrainSentinelOverlay'));
-        const top=stack[0]||null;
-        const exposed=!top||top===el||el.contains(top);
-        const pointer=style.pointerEvents!=='none';
-        const target=rect.width>=32&&rect.height>=32;
-        return {id,ok:visible&&inViewport&&exposed&&pointer,visible,inViewport,exposed,pointer,target,width:Math.round(rect.width),height:Math.round(rect.height),top:top?.id||top?.className||top?.tagName||''};
-    }
+    /* WFGG_SENTINEL_UI_GRAPHIC_V13_1
+       Sur mobile, un contrôle hors du viewport n'est pas défectueux : Sentinel le
+       centre d'abord, attend les états asynchrones, puis mesure l'intersection réelle.
+       Aucun point hors écran n'est rabattu artificiellement sur le bord du viewport. */
     async function sentinelUiTick(){await Promise.resolve();await new Promise(r=>requestAnimationFrame(()=>r()));}
+    async function sentinelUiGeometry(el,id,options={}){
+        const waitMs=Math.max(0,Number(options.waitMs||0));
+        const conditional=Boolean(options.conditional);
+        const started=performance.now();
+        const missing=()=>({id,ok:conditional,severity:conditional?'info':'error',reason:'missing',visible:false,inViewport:false,exposed:false,pointer:false,target:false,width:0,height:0,waitedMs:Math.round(performance.now()-started)});
+        if(!el)return missing();
+        const sample=()=>{
+            const rect=el.getBoundingClientRect();
+            const style=getComputedStyle(el);
+            const visible=rect.width>0&&rect.height>0&&style.display!=='none'&&style.visibility!=='hidden'&&Number(style.opacity||1)>0.05;
+            const left=Math.max(0,rect.left),right=Math.min(innerWidth,rect.right),topY=Math.max(0,rect.top),bottom=Math.min(innerHeight,rect.bottom);
+            const inViewport=visible&&right>left&&bottom>topY;
+            let exposed=false,top=null;
+            if(inViewport&&document.elementsFromPoint){
+                const x=(left+right)/2,y=(topY+bottom)/2;
+                const stack=document.elementsFromPoint(x,y).filter(node=>!node.closest?.('#wfggTrainSentinelOverlay'));
+                top=stack[0]||null;
+                exposed=!top||top===el||el.contains(top);
+            }else if(inViewport){exposed=true;}
+            const pointer=style.pointerEvents!=='none';
+            const target=rect.width>=32&&rect.height>=32;
+            return {id,visible,inViewport,exposed,pointer,target,width:Math.round(rect.width),height:Math.round(rect.height),top:top?.id||top?.className||top?.tagName||''};
+        };
+        let g=sample();
+        while(!g.visible&&performance.now()-started<waitMs){
+            await new Promise(r=>setTimeout(r,120));
+            await sentinelUiTick();
+            g=sample();
+        }
+        if(g.visible){
+            const bodyOverflow=document.body.style.overflow;
+            try{
+                document.body.style.overflow='';
+                try{el.scrollIntoView({block:'center',inline:'nearest',behavior:'instant'});}catch(_){el.scrollIntoView({block:'center',inline:'nearest'});}
+                await sentinelUiTick();
+                await new Promise(r=>setTimeout(r,40));
+            }finally{document.body.style.overflow=bodyOverflow;}
+            g=sample();
+        }
+        const hardOk=g.visible&&g.inViewport&&g.exposed&&g.pointer&&g.target;
+        const severity=hardOk?'ok':(!g.visible&&conditional?'info':'error');
+        return {...g,ok:hardOk||severity==='info',severity,conditional,waitedMs:Math.round(performance.now()-started)};
+    }
     async function sentinelUiProbe(){
         const simulations=[],graphics=[];
         const activeId=document.querySelector('.screen.active')?.id||'homeScreen';
@@ -2430,26 +2462,26 @@
         try{
             showScreen('homeScreen');await sentinelUiTick();
             const profileBtn=document.querySelector('#homeScreen .profile-edit-btn');
-            graphics.push(sentinelUiGeometry(profileBtn,'profile-edit-button'));
+            graphics.push(await sentinelUiGeometry(profileBtn,'profile-edit-button'));
             profileBtn?.click();await sentinelUiTick();
             pushSim('profile-edit-click',!modal?.classList.contains('hidden')&&!!document.getElementById('selfPseudoField'),'clic → modale profil');
-            graphics.push(sentinelUiGeometry(document.querySelector('#modal .btn.gold'),'profile-save-button'));
+            graphics.push(await sentinelUiGeometry(document.querySelector('#modal .btn.gold'),'profile-save-button'));
             closeModal();
 
             showScreen('homeScreen');await sentinelUiTick();
             const alertsBtn=document.querySelector('#homeScreen [onclick*="W.goAlerts"]');
-            graphics.push(sentinelUiGeometry(alertsBtn,'alerts-home-button'));
+            graphics.push(await sentinelUiGeometry(alertsBtn,'alerts-home-button'));
             alertsBtn?.click();await sentinelUiTick();
             pushSim('alerts-navigation-click',document.getElementById('alertsScreen')?.classList.contains('active'),'clic → écran Alertes');
             const serverPushBtn=document.getElementById('pushTestButton');
             const localPushBtn=[...document.querySelectorAll('#alertsScreen button')].find(x=>(x.getAttribute('onclick')||'').includes('testLocalNotification'))||null;
-            graphics.push(sentinelUiGeometry(serverPushBtn,'server-push-test-button'));
-            graphics.push(sentinelUiGeometry(localPushBtn,'local-notification-test-button'));
+            graphics.push(await sentinelUiGeometry(serverPushBtn,'server-push-test-button',{waitMs:3000,conditional:true}));
+            graphics.push(await sentinelUiGeometry(localPushBtn,'local-notification-test-button',{waitMs:3000,conditional:true}));
 
             promptAndroidNotificationDisplayFix();await sentinelUiTick();
             const modify=document.getElementById('wfggNotifModify');
             const plan=notificationSettingsIntentPlan();
-            graphics.push(sentinelUiGeometry(modify,'notification-settings-modify'));
+            graphics.push(await sentinelUiGeometry(modify,'notification-settings-modify'));
             const href=modify?.getAttribute('href')||'';
             const settingsOk=!plan.android||(modify?.tagName==='A'&&href.startsWith('intent:')&&href.includes('android.settings.APP_NOTIFICATION_SETTINGS')&&href.includes(encodeURIComponent(plan.fallbackUrl)));
             pushSim('notification-settings-action',settingsOk,plan.android?`${modify?.tagName||'absent'} · intent=${href.startsWith('intent:')} · fallback=${href.includes('browser_fallback_url')}`:'non Android');
@@ -2457,18 +2489,18 @@
 
             showScreen('homeScreen');await sentinelUiTick();
             const unavailableBtn=document.querySelector('#homeScreen [onclick*="W.showUnavailable()"]');
-            graphics.push(sentinelUiGeometry(unavailableBtn,'unavailability-home-button'));
+            graphics.push(await sentinelUiGeometry(unavailableBtn,'unavailability-home-button'));
             unavailableBtn?.click();await sentinelUiTick();
             pushSim('unavailability-click',!modal?.classList.contains('hidden')&&!!document.querySelector('#modal .unavailability-add'),'clic → gestion indisponibilités');
             const addUnavailability=document.querySelector('#modal .unavailability-add');
-            graphics.push(sentinelUiGeometry(addUnavailability,'unavailability-add-button'));
+            graphics.push(await sentinelUiGeometry(addUnavailability,'unavailability-add-button'));
             addUnavailability?.click();await sentinelUiTick();
             pushSim('unavailability-choice-click',document.querySelectorAll('#modal .unavailable-choice-card').length===2,'clic → choix jour/période');
             closeModal();
 
             showScreen('homeScreen');await sentinelUiTick();
             const rotationBtn=document.querySelector('#homeScreen [onclick*="W.showRotationStatus()"]');
-            graphics.push(sentinelUiGeometry(rotationBtn,'rotation-home-button'));
+            graphics.push(await sentinelUiGeometry(rotationBtn,'rotation-home-button'));
             rotationBtn?.click();await sentinelUiTick();
             pushSim('rotation-status-click',!modal?.classList.contains('hidden')&&!!modalBody?.textContent?.trim(),'clic → modale rotation');
             closeModal();
@@ -2483,8 +2515,9 @@
             try{scrollTo({top:oldScrollY,behavior:'instant'});}catch(_){scrollTo(0,oldScrollY);}
         }
         const simFailed=simulations.filter(x=>!x.ok);
-        const graphicFailed=graphics.filter(x=>!x.ok);
-        return {readonly:true,simulations,graphics,simFailed,graphicFailed,notificationSettings:notificationSettingsIntentPlan()};
+        const graphicFailed=graphics.filter(x=>x.severity==='error'||!x.ok);
+        const graphicInfo=graphics.filter(x=>x.severity==='info');
+        return {readonly:true,simulations,graphics,simFailed,graphicFailed,graphicInfo,notificationSettings:notificationSettingsIntentPlan()};
     }
     window.W = {
         addCalendar, addAllCalendar, toggleAlerts, testLocalNotification, testLocalPushNotification, testPushReminder, sentinelUiProbe, notificationSettingsIntentPlan, changeWeek, openExchange, publishMarketExchange, cancelMarketExchange, pickMyDateForMarket, executeMarketSwap, markUnavailable, showUnavailableChoice, openUnavailableDayPicker, saveUnavailableDayFromPicker, openUnavailablePeriod, syncUnavailablePeriodMin, saveUnavailablePeriod, saveUnavailableDay, removeUnavailableRange, removeUnavailable, showUnavailable, toggleRotation, showRotationStatus, openProfileInfo, goAlerts, closeAndOpenExchange, closeModal, saveAdminSettings, saveDay, clearDayOverride, adminToggleRotation, filterMembers, searchMembers, openMemberForm, saveMemberForm, deleteMember, renderRotationOrder, moveRotation, generateMessage, nextMessage, copyGeneratedMessage, openAdminSection, renderAdminHome, openSelfProfileEdit, saveSelfProfile, saveRotationRanks, copyText, resetMemberPin, downloadGeneratedCodesCsv, clearGeneratedCodes, changeLanguage, setPortalLanguage, showPortal, showTrainEntry, showPortalHelp, openPortalResource, togglePresenceList, refreshAdminPresence, openGuidePortal, openGameHelp, openGameLink, addGameLinkDraft, removeGameLinkDraft, saveGameLinks, openAdminAnalytics, renderAnalyticsMenu, openAnalyticsSub, renderTrainHistory, setAnalyticsRotationDays, setAnalyticsRotationPool, setAnalyticsRotationSort, setAnalyticsActivitySort, setAnalyticsSettingsFilter, setAnalyticsFilter, setAnalyticsHistorySort, setAnalyticsSearch, openChangePin, changeMyPin
