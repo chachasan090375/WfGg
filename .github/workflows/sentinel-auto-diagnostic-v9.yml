@@ -1,0 +1,54 @@
+name: Sentinel auto diagnostic v9
+
+on:
+  push:
+    branches:
+      - sentinel-auto-diagnostic-v9
+    paths:
+      - 'scripts/patch-sentinel-auto-diagnostic-v9.mjs'
+      - '.github/workflows/sentinel-auto-diagnostic-v9.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch-and-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: sentinel-auto-diagnostic-v9
+          fetch-depth: 0
+      - name: Apply autonomous diagnostic patch
+        run: node scripts/patch-sentinel-auto-diagnostic-v9.mjs
+      - name: Validate syntax and observer contract
+        run: |
+          node --check frontend/_worker.js
+          node --check frontend/train-native/sentinel-train-v1.js
+          grep -q 'WFGG_SENTINEL_AUTO_DIAGNOSTIC_V9' frontend/_worker.js
+          grep -q 'sentinelRunDeepDiagnostics' frontend/_worker.js
+          grep -q 'sentinelClassifyCloudflareFailure' frontend/_worker.js
+          grep -q "'/api/train/context'" frontend/_worker.js
+          grep -q "version:'sentinel-edge-v9'" frontend/_worker.js
+          grep -q 'autoDiagnostic:true' frontend/_worker.js
+          grep -q 'readonly:true' frontend/_worker.js
+          grep -q 'sentinel-root-cause' frontend/_worker.js
+          grep -q 'sentinel-deep-snapshot-envelope' frontend/_worker.js
+          ! grep -A180 'WFGG_SENTINEL_AUTO_DIAGNOSTIC_V9' frontend/_worker.js | grep -E "method:'(POST|PUT|DELETE)'"
+      - name: Validate existing Sentinel access contract
+        run: |
+          grep -q "sentinelEffectiveRole(meCall.data)" frontend/_worker.js
+          grep -q "\['OWNER','SUPERVISOR'\].includes(sentinelRole)" frontend/_worker.js
+          grep -q "return await sentinelPortalMeAtEdge(request)" frontend/_worker.js
+      - name: Commit generated edge change
+        run: |
+          if git diff --quiet -- frontend/_worker.js; then
+            echo 'No generated changes to commit.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add frontend/_worker.js
+          git commit -m 'feat(sentinel): autonomous read-only root-cause diagnostics v9'
+          git push origin HEAD:sentinel-auto-diagnostic-v9
