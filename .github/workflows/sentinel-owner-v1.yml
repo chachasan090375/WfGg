@@ -11,6 +11,7 @@ on:
       - 'worker/package.json'
       - 'worker/wrangler.jsonc'
       - 'frontend/sentinel-owner-v1.js'
+      - 'frontend/sentinel-launcher-v2.js'
       - 'frontend/index.html'
       - 'scripts/test-sentinel-owner-v1.mjs'
       - '.github/workflows/sentinel-owner-v1.yml'
@@ -21,6 +22,7 @@ on:
       - 'worker/package.json'
       - 'worker/wrangler.jsonc'
       - 'frontend/sentinel-owner-v1.js'
+      - 'frontend/sentinel-launcher-v2.js'
       - 'frontend/index.html'
       - 'scripts/test-sentinel-owner-v1.mjs'
       - '.github/workflows/sentinel-owner-v1.yml'
@@ -38,6 +40,7 @@ jobs:
           node --check worker/src/index.js
           node --check worker/src/core.js
           node --check frontend/sentinel-owner-v1.js
+          node --check frontend/sentinel-launcher-v2.js
       - name: Validate Sentinel owner/read-only contract
         run: node scripts/test-sentinel-owner-v1.mjs
       - name: Install Worker tooling
