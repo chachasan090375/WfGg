@@ -22,27 +22,74 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Check Cloudflare credentials
+      - name: Check Cloudflare API token
         env:
           CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
           set -eu
           if [ -z "$CF_API_TOKEN" ]; then
             echo 'MISSING_SECRET=CLOUDFLARE_API_TOKEN'
             exit 2
           fi
-          if [ -z "$CF_ACCOUNT_ID" ]; then
-            echo 'MISSING_SECRET=CLOUDFLARE_ACCOUNT_ID'
-            exit 3
+          echo 'CLOUDFLARE_API_TOKEN=OK'
+
+      - name: Resolve Cloudflare account for wfgg Pages
+        id: cloudflare
+        env:
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsS \
+            -H "Authorization: Bearer $CF_API_TOKEN" \
+            -H 'Content-Type: application/json' \
+            'https://api.cloudflare.com/client/v4/accounts?per_page=50' \
+            -o /tmp/cf-accounts.json
+
+          python3 - <<'PY' >/tmp/cf-account-ids.txt
+          import json
+          d=json.load(open('/tmp/cf-accounts.json'))
+          if not d.get('success'):
+              raise SystemExit('Cloudflare accounts lookup failed')
+          for row in d.get('result') or []:
+              if row.get('id'):
+                  print(row['id'])
+          PY
+
+          found=''
+          while IFS= read -r account_id; do
+            [ -n "$account_id" ] || continue
+            code=$(curl -sS -o /tmp/cf-project.json -w '%{http_code}' \
+              -H "Authorization: Bearer $CF_API_TOKEN" \
+              -H 'Content-Type: application/json' \
+              "https://api.cloudflare.com/client/v4/accounts/$account_id/pages/projects/wfgg")
+            if [ "$code" = '200' ] && python3 - <<'PY'
+          import json,sys
+          try:
+              d=json.load(open('/tmp/cf-project.json'))
+          except Exception:
+              sys.exit(1)
+          sys.exit(0 if d.get('success') and (d.get('result') or {}).get('name') == 'wfgg' else 1)
+          PY
+            then
+              found="$account_id"
+              break
+            fi
+          done </tmp/cf-account-ids.txt
+
+          if [ -z "$found" ]; then
+            echo 'CLOUDFLARE_PROJECT_WFGG=NOT_FOUND'
+            exit 4
           fi
-          echo 'CLOUDFLARE_CREDENTIALS=OK'
+
+          echo "account_id=$found" >> "$GITHUB_OUTPUT"
+          echo 'CLOUDFLARE_PROJECT_WFGG=FOUND'
 
       - name: Deploy frontend to wfgg Pages
-        uses: cloudflare/wrangler-action@v3
+        uses: cloudflare/wrangler-action@v4
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          accountId: ${{ steps.cloudflare.outputs.account_id }}
           command: pages deploy frontend --project-name=wfgg --branch=main --commit-dirty=true
 
       - name: Verify production clean boot asset
