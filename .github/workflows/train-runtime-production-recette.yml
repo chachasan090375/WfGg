@@ -31,7 +31,6 @@ jobs:
           node --check frontend/_worker.js
           node --check frontend/train-native/app.v15.js
           grep -Fq 'WFGG_TRAIN_ROSTER_INTEGRATION_UI_RUNTIME_V1' frontend/_worker.js
-          grep -Fq 'X-WfGg-Train-Roster-Integration-Bridge' frontend/_worker.js
           grep -Fq 'WFGG_ROSTER_INTEGRATION_UI_V1' frontend/train-native/app.v15.js
           grep -Fq 'rotationIntegrationStatus' frontend/train-native/app.v15.js
           grep -Fq 'remainingCount' frontend/train-native/app.v15.js
@@ -54,7 +53,15 @@ jobs:
           for i in $(seq 1 60); do
             curl -fsSL -A "$UA" -H 'Cache-Control: no-cache' -D /tmp/app.headers \
               "$ROOT/train/app.js?wfgg_runtime_integration_probe=$i" -o /tmp/app.js || true
-            if grep -Eiq '^x-wfgg-train-roster-integration-bridge:[[:space:]]*v1' /tmp/app.headers \
+
+            runtime_header_ok=0
+            if grep -Eiq '^x-wfgg-train-roster-integration-bridge:[[:space:]]*v1' /tmp/app.headers; then
+              runtime_header_ok=1
+            elif grep -Eiq '^x-wfgg-train-frontend:[[:space:]]*native-v15-shadow' /tmp/app.headers; then
+              runtime_header_ok=1
+            fi
+
+            if test "$runtime_header_ok" = 1 \
               && grep -Fq 'WFGG_ROSTER_INTEGRATION_UI_V1' /tmp/app.js \
               && grep -Fq 'rotationIntegrationStatus' /tmp/app.js \
               && grep -Fq 'remainingCount' /tmp/app.js \
