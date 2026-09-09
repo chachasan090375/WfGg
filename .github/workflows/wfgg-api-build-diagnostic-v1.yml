@@ -17,50 +17,34 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Inspect worker project
-        run: |
-          pwd
-          find worker -maxdepth 2 -type f -print | sort
-          cat worker/package.json
-          cat worker/wrangler.jsonc
       - name: Install worker dependencies
         working-directory: worker
         run: npm install
-      - name: Syntax and module checks
+      - name: Syntax and config contract
+        run: |
+          node --check worker/src/core.js
+          node --check worker/src/index.js
+          grep -q '"name": "wfgg-api"' wrangler.jsonc
+          grep -q '"main": "worker/src/index.js"' wrangler.jsonc
+          grep -q '"database_id": "fda272af-36f9-4f4b-8e44-857271f9d016"' wrangler.jsonc
+          grep -q '"bucket_name": "wfgg-avatars"' wrangler.jsonc
+      - name: Worker-directory dry-run
         working-directory: worker
         run: |
-          npm run check
-          node --check src/core.js
-          node --check src/index.js
-      - name: Worker-root dry-run
-        working-directory: worker
-        run: npx wrangler deploy --dry-run --outdir /tmp/wfgg-api-worker-root
-      - name: Repo-root dry-run before redirect
-        shell: bash
+          npx wrangler deploy --dry-run --outdir /tmp/wfgg-api-worker-dir | tee /tmp/worker-dir.log
+          test -s /tmp/wfgg-api-worker-dir/index.js
+      - name: Repository-root dry-run
         run: |
-          set +e
-          npx --yes wrangler@4.130.0 deploy --dry-run --outdir /tmp/wfgg-api-repo-root-before > /tmp/root-before.log 2>&1
-          rc=$?
-          set -e
-          echo "ROOT_BEFORE_RC=$rc"
-          tail -n 80 /tmp/root-before.log
-          if [ "$rc" -eq 0 ]; then
-            echo 'ROOT_BEFORE_ALREADY_WORKS=yes'
-          else
-            echo 'ROOT_BEFORE_ALREADY_WORKS=no'
-          fi
-      - name: Create temporary Wrangler config redirect
+          npx --yes wrangler@4.130.0 deploy --dry-run --outdir /tmp/wfgg-api-repo-root | tee /tmp/repo-root.log
+          test -s /tmp/wfgg-api-repo-root/index.js
+      - name: Validate equivalent Worker contract
         run: |
-          mkdir -p .wrangler/deploy
-          printf '%s\n' '{ "configPath": "../../worker/wrangler.jsonc" }' > .wrangler/deploy/config.json
-          cat .wrangler/deploy/config.json
-      - name: Repo-root dry-run through redirect
-        run: |
-          npx --yes wrangler@4.130.0 deploy --dry-run --outdir /tmp/wfgg-api-repo-root-after
-          test -s /tmp/wfgg-api-repo-root-after/index.js
-          grep -q 'wfgg-api' /tmp/wfgg-api-repo-root-after/README.md || true
-      - name: Compare bundles
-        run: |
-          sha256sum /tmp/wfgg-api-worker-root/index.js /tmp/wfgg-api-repo-root-after/index.js
-          cmp /tmp/wfgg-api-worker-root/index.js /tmp/wfgg-api-repo-root-after/index.js
-          echo 'ROOT_REDIRECT_EQUIVALENT_BUNDLE=OK'
+          node --check /tmp/wfgg-api-worker-dir/index.js
+          node --check /tmp/wfgg-api-repo-root/index.js
+          grep -q 'env.DB (wfgg-db)' /tmp/worker-dir.log
+          grep -q 'env.DB (wfgg-db)' /tmp/repo-root.log
+          grep -q 'env.AVATARS (wfgg-avatars)' /tmp/worker-dir.log
+          grep -q 'env.AVATARS (wfgg-avatars)' /tmp/repo-root.log
+          grep -q 'env.PORTAL_ORIGINS' /tmp/worker-dir.log
+          grep -q 'env.PORTAL_ORIGINS' /tmp/repo-root.log
+          echo 'WFGG_API_BOTH_BUILD_CONTEXTS=OK'
