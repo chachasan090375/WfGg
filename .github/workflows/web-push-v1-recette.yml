@@ -5,6 +5,7 @@ on:
     branches: [feature-web-push-v1]
     paths:
       - '.github/scripts/web_push_v1_portal_patch.py'
+      - '.github/scripts/web_push_v1_portal_fix.py'
       - '.github/qa/web-push-v1-recette.mjs'
       - '.github/workflows/web-push-v1-recette.yml'
       - 'frontend/_worker.js'
@@ -26,7 +27,9 @@ jobs:
         with:
           ref: feature-web-push-v1
       - name: Apply Portal Web Push patch
-        run: python .github/scripts/web_push_v1_portal_patch.py
+        run: |
+          python .github/scripts/web_push_v1_portal_patch.py
+          python .github/scripts/web_push_v1_portal_fix.py
       - name: Syntax and focused contract
         run: |
           node --check frontend/_worker.js
