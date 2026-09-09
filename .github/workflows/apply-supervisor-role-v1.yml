@@ -1,11 +1,8 @@
 name: Apply supervisor role v1
 
+# Production currently uses the authenticated Pages-edge SUPERVISOR fallback.
+# Run this migration manually once CLOUDFLARE_API_TOKEN has D1 Edit access.
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'worker/migrations/0003_supervisor_sentinel_access.sql'
-      - '.github/workflows/apply-supervisor-role-v1.yml'
   workflow_dispatch:
 
 permissions:
