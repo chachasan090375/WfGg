@@ -1,0 +1,32 @@
+name: QA Train force gate live v3
+
+on:
+  push:
+    branches:
+      - qa-train-force-gate-live-v3
+    paths:
+      - '.github/workflows/qa-train-force-gate-live-v3.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-live:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify live Train entry contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          stamp="$(date +%s)"
+          curl -fsSL -A 'Mozilla/5.0 (Linux; Android 16) AppleWebKit/537.36 Chrome/139 Mobile Safari/537.36' \
+            "https://wfgg.pages.dev/train/?qa_force_gate=v3-$stamp" -o /tmp/train.html
+          grep -Fq 'WFGG_TRAIN_FORCE_GATE_DISABLED_V3' /tmp/train.html
+          grep -Fq 'WFGG_TRAIN_FORCE_GATE_DISABLED_V3=ACTIVE' /tmp/train.html
+          curl -fsSL -A 'Mozilla/5.0 (Linux; Android 16) AppleWebKit/537.36 Chrome/139 Mobile Safari/537.36' \
+            "https://wfgg.pages.dev/train/app.js?wfgg_bridge=v14&qa_force_gate=v3-$stamp" -o /tmp/app.js
+          grep -Fq 'WFGG_PORTAL_DIRECT_TRAIN_BOOTSTRAP_V2' /tmp/app.js
+          grep -Fq 'WFGG_PORTAL_TRAIN_BOOTSTRAP_V2=FAILED' /tmp/app.js
+          node --check /tmp/app.js
+          echo 'WFGG_TRAIN_ENTRY_LIVE_V3=OK'
