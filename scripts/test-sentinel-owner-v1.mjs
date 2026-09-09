@@ -24,7 +24,7 @@ const required = [
   [launcher.includes("name?.closest('h2')"), 'launcher anchors beside displayed owner name'],
   [launcher.includes("ownerButton.click()"), 'launcher opens existing protected Sentinel panel'],
   [launcher.includes('max-height:min(86dvh,860px)'), 'Sentinel is presented as a popup rather than a full page'],
-  [launcher.includes(`#${LEGACY_MENU_ID}{display:none!important}`), 'old profile-menu Sentinel entry is hidden'],
+  [launcher.includes('#${LEGACY_MENU_ID}{display:none!important}'), 'old profile-menu Sentinel entry is hidden'],
   [html.includes('sentinel-owner-v1.js?v=002'), 'Portal loads Sentinel owner UI with cache bust'],
   [html.includes('sentinel-launcher-v2.js?v=002'), 'Portal loads Sentinel launcher popup v2']
 ];
