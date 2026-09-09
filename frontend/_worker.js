@@ -572,6 +572,16 @@ function languageBridgeScript(routeName) {
 
   function forceTrainPortalEntry(){
     if(ROUTE!=='train')return;
+
+    /* WFGG_TRAIN_FORCE_GATE_DISABLED_V3
+       L'ancien gate imposait un second bootstrap, un probe et une navigation
+       globale par-dessus app.v15. Le bootstrap autoritatif est maintenant
+       WFGG_PORTAL_DIRECT_TRAIN_BOOTSTRAP_V2 dans app.v15.js. En mode intégré,
+       ce gate ne doit donc plus masquer Train ni pouvoir renvoyer vers '/'.
+    */
+    console.info('WFGG_TRAIN_FORCE_GATE_DISABLED_V3=ACTIVE');
+    return;
+
     if(!localStorage.getItem(PORTAL_TOKEN))return;
 
     const T={
