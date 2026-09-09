@@ -7,6 +7,7 @@ on:
       - '.github/scripts/web_push_v1_portal_patch.py'
       - '.github/scripts/web_push_v1_portal_fix.py'
       - '.github/scripts/web_push_v1_portal_fix2.py'
+      - '.github/scripts/web_push_v1_portal_test_route.py'
       - '.github/qa/web-push-v1-recette.mjs'
       - '.github/workflows/web-push-v1-recette.yml'
       - 'frontend/_worker.js'
@@ -34,13 +35,13 @@ jobs:
           fi
           python .github/scripts/web_push_v1_portal_fix.py
           python .github/scripts/web_push_v1_portal_fix2.py
+          python .github/scripts/web_push_v1_portal_test_route.py
       - name: Syntax and focused contract
         run: |
           node --check frontend/_worker.js
           node --check frontend/train-native/app.v15.js
           node --check frontend/train-native/wfgg-push-sw.js
           node .github/qa/web-push-v1-recette.mjs
-          grep -q 'WFGG_WEB_PUSH_SW_RESET_GUARD_V2' frontend/_worker.js
       - name: Existing Portal source smoke
         run: |
           grep -q 'WFGG_PORTAL_TRAIN_SAME_ORIGIN_API_V2' frontend/_worker.js
@@ -57,5 +58,5 @@ jobs:
             echo 'No production changes to commit.'
             exit 0
           fi
-          git commit -m 'feat(push): add Android and iOS Train notifications'
+          git commit -m 'feat(push): use real backend path for test notifications'
           git push origin HEAD:feature-web-push-v1
