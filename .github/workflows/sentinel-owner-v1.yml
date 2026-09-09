@@ -1,0 +1,48 @@
+name: Sentinel owner v1
+
+on:
+  push:
+    branches:
+      - main
+      - sentinel-owner-v1
+    paths:
+      - 'worker/src/index.js'
+      - 'worker/src/core.js'
+      - 'worker/package.json'
+      - 'worker/wrangler.jsonc'
+      - 'frontend/sentinel-owner-v1.js'
+      - 'frontend/index.html'
+      - 'scripts/test-sentinel-owner-v1.mjs'
+      - '.github/workflows/sentinel-owner-v1.yml'
+  pull_request:
+    paths:
+      - 'worker/src/index.js'
+      - 'worker/src/core.js'
+      - 'worker/package.json'
+      - 'worker/wrangler.jsonc'
+      - 'frontend/sentinel-owner-v1.js'
+      - 'frontend/index.html'
+      - 'scripts/test-sentinel-owner-v1.mjs'
+      - '.github/workflows/sentinel-owner-v1.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate JavaScript syntax
+        run: |
+          node --check worker/src/index.js
+          node --check worker/src/core.js
+          node --check frontend/sentinel-owner-v1.js
+      - name: Validate Sentinel owner/read-only contract
+        run: node scripts/test-sentinel-owner-v1.mjs
+      - name: Install Worker tooling
+        working-directory: worker
+        run: npm install --no-audit --no-fund
+      - name: Validate Cloudflare Worker bundle
+        working-directory: worker
+        run: npx wrangler deploy --dry-run --outdir /tmp/wfgg-sentinel-bundle
