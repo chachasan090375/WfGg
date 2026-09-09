@@ -671,7 +671,7 @@ function languageBridgeScript(routeName) {
       if(document.getElementById('wfggTrainSentinelLoaderV4'))return;
       const script=document.createElement('script');
       script.id='wfggTrainSentinelLoaderV4';
-      script.src='/train/sentinel-train-v1.js?v=010';
+      script.src='/train/sentinel-train-v1.js?v=011';
       script.async=true;
       script.dataset.wfggAfterBoot='1';
       script.onerror=()=>console.warn('WFGG_SENTINEL_AFTER_BOOT_V4=LOAD_ERROR');
@@ -1695,6 +1695,60 @@ async function runSentinelAtPortalEdge(request){
       invalidDrivers.length?'Une affectation Conducteur est hors des pools autorisés.':''
     ));
   }
+
+  /* WFGG_SENTINEL_FUNCTIONAL_COVERAGE_V11
+     Les contrôles ci-dessous sont tous GET/observer-only. Ils étendent Sentinel
+     aux fonctions Train et au pipeline Push sans publier, accepter, supprimer,
+     modifier ni envoyer quoi que ce soit. */
+  let featureAuditCall=null;
+  try{
+    featureAuditCall=await sentinelEdgeFetchJson(
+      request,
+      UPSTREAMS.trainApi.origin,
+      '/api/sentinel/feature-audit',
+      {'Authorization':null,'X-WfGg-Portal-Token':token,'X-WfGg-Sentinel-Diagnostic':'v11','Accept':'application/json'}
+    );
+  }catch(error){
+    checks.push(sentinelEdgeCheck(
+      'sentinel-feature-audit-link','Sentinel · couverture','error',
+      'Audit fonctionnel Train','GET V11 disponible','Erreur réseau',String(error?.message||error),
+      'Sentinel ne peut pas vérifier les familles fonctionnelles du Train.'
+    ));
+  }
+  if(featureAuditCall){
+    if(featureAuditCall.response.ok&&featureAuditCall.data?.readonly===true&&Array.isArray(featureAuditCall.data?.checks)){
+      checks.push(...featureAuditCall.data.checks);
+    }else{
+      checks.push(sentinelEdgeCheck(
+        'sentinel-feature-audit-link','Sentinel · couverture','error',
+        'Audit fonctionnel Train','HTTP 200 · readonly=true',
+        'HTTP '+featureAuditCall.response.status,
+        sentinelSanitizeSnippet(featureAuditCall.raw||featureAuditCall.data?.error||''),
+        'La couche V11 de couverture fonctionnelle n’est pas exploitable.'
+      ));
+    }
+  }
+
+  let selfTestCall=null;
+  try{
+    selfTestCall=await sentinelEdgeFetchJson(
+      request,
+      UPSTREAMS.trainApi.origin,
+      '/api/sentinel/self-test',
+      {'Authorization':null,'X-WfGg-Portal-Token':token,'X-WfGg-Sentinel-Diagnostic':'v11','Accept':'application/json'}
+    );
+  }catch(_){}
+  const selfOk=!!selfTestCall?.response?.ok&&selfTestCall?.data?.readonly===true&&selfTestCall?.data?.synthetic===true&&selfTestCall?.data?.expectedFailureCaptured===true&&selfTestCall?.data?.stage==='generateSchedule'&&!!selfTestCall?.data?.source;
+  const selfCheck=sentinelEdgeCheck(
+    'sentinel-self-test-v11','Sentinel · auto-recette',selfOk?'ok':'error',
+    'Panne synthétique contrôlée','Erreur artificielle capturée et localisée sans écriture',
+    selfOk?('capturée · '+String(selfTestCall.data.stage)):(selfTestCall?'HTTP '+selfTestCall.response.status:'sans réponse'),
+    selfOk?'Sentinel a exécuté generateSchedule sur un clone puis a capturé l’exception artificielle.':'La chaîne de diagnostic source n’a pas validé son propre test.',
+    selfOk?'':'Sentinel ne peut pas garantir actuellement la remontée fichier/fonction/ligne.'
+  );
+  if(selfTestCall?.data?.source)selfCheck.source=selfTestCall.data.source;
+  if(selfTestCall?.data?.stack)selfCheck.stack=sentinelSanitizeSnippet(selfTestCall.data.stack);
+  checks.push(selfCheck);
 
   const diagnosis=await sentinelRunDeepDiagnostics(request,token,meCall,snapCall,checks);
 
