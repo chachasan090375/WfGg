@@ -37,7 +37,7 @@ jobs:
           grep -Fq "vip: ['R3']" frontend/train-native/app.v15.js
           grep -Fq '🎁 R2 / R1' frontend/train-native/app.v15.js
           grep -Fq '🧭 Intégrations en cours' frontend/train-native/app.v15.js
-          sha256sum -c frontend/train-native/app.v15.js.sha256
+          (cd frontend/train-native && sha256sum -c app.v15.js.sha256)
 
   live-production:
     if: github.event_name != 'pull_request'
