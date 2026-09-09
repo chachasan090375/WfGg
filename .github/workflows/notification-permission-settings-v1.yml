@@ -1,0 +1,48 @@
+name: Notification permission settings v1
+
+on:
+  push:
+    branches: [notification-permission-settings-v1]
+    paths:
+      - 'scripts/patch-notification-permission-settings-v1.mjs'
+      - '.github/workflows/notification-permission-settings-v1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch-and-clean:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: notification-permission-settings-v1
+          fetch-depth: 0
+
+      - name: Apply notification settings UX patch
+        run: node scripts/patch-notification-permission-settings-v1.mjs
+
+      - name: Refresh checksum and validate
+        run: |
+          sha256sum frontend/train-native/app.v15.js > frontend/train-native/app.v15.js.sha256
+          node --check frontend/train-native/app.v15.js
+          grep -q 'WFGG_NOTIFICATION_PERMISSION_SETTINGS_V1' frontend/train-native/app.v15.js
+          grep -q 'promptAndroidNotificationDisplayFix' frontend/train-native/app.v15.js
+          grep -q 'android.settings.APP_NOTIFICATION_SETTINGS' frontend/train-native/app.v15.js
+          grep -q "if(Notification.permission!=='granted')return promptNotificationPermissionFix();" frontend/train-native/app.v15.js
+          sha256sum -c frontend/train-native/app.v15.js.sha256
+
+      - name: Remove one-time patch machinery
+        run: |
+          rm scripts/patch-notification-permission-settings-v1.mjs
+          rm .github/workflows/notification-permission-settings-v1.yml
+
+      - name: Commit only runtime changes
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'feat(train): guide Android notification permission repair'
+          git push origin HEAD:notification-permission-settings-v1
