@@ -1,13 +1,117 @@
-name: Portal API deploy helper (disabled)
+name: Deploy WfGg Portal API
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'worker/**'
+      - '.github/workflows/deploy-portal-api-temp.yml'
   workflow_dispatch:
 
 permissions:
   contents: read
 
+concurrency:
+  group: wfgg-portal-api-production
+  cancel-in-progress: true
+
 jobs:
-  noop:
+  deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
-      - run: echo 'Disabled - GitHub repository has no Cloudflare deployment secrets.'
+      - uses: actions/checkout@v4
+
+      - name: Check Cloudflare API token
+        env:
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          set -eu
+          test -n "$CF_API_TOKEN"
+          echo 'CLOUDFLARE_API_TOKEN=OK'
+
+      - name: Resolve Cloudflare account
+        id: cloudflare
+        env:
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, os, sys, urllib.error, urllib.request
+          token=os.environ['CF_API_TOKEN']
+          req=urllib.request.Request(
+              'https://api.cloudflare.com/client/v4/accounts?per_page=50',
+              headers={'Authorization':f'Bearer {token}','Content-Type':'application/json'})
+          try:
+              with urllib.request.urlopen(req,timeout=20) as r:
+                  data=json.loads(r.read().decode())
+          except urllib.error.HTTPError as e:
+              print(f'CF_ACCOUNTS_HTTP={e.code}')
+              sys.exit(2)
+          accounts=data.get('result') or []
+          if not accounts:
+              print('CF_ACCOUNT=NOT_FOUND')
+              sys.exit(3)
+          # Same account already used by the wfgg Pages deployment. Prefer the
+          # account that owns the wfgg Pages project when several are visible.
+          headers={'Authorization':f'Bearer {token}','Content-Type':'application/json'}
+          found=None
+          for account in accounts:
+              aid=account.get('id')
+              if not aid: continue
+              preq=urllib.request.Request(
+                  f'https://api.cloudflare.com/client/v4/accounts/{aid}/pages/projects/wfgg',
+                  headers=headers)
+              try:
+                  with urllib.request.urlopen(preq,timeout=20) as r:
+                      pdata=json.loads(r.read().decode())
+                  if pdata.get('success') and (pdata.get('result') or {}).get('name')=='wfgg':
+                      found=aid
+                      break
+              except Exception:
+                  pass
+          if not found:
+              found=accounts[0].get('id')
+          if not found:
+              sys.exit(4)
+          with open(os.environ['GITHUB_OUTPUT'],'a',encoding='utf-8') as f:
+              f.write(f'account_id={found}\n')
+          print('CLOUDFLARE_ACCOUNT=FOUND')
+          PY
+
+      - name: Validate Worker sources
+        working-directory: worker
+        run: |
+          npm install --no-audit --no-fund
+          node --check src/index.js
+          node --check src/core.js
+          grep -q "url.pathname === '/api/sentinel/run'" src/index.js
+          grep -q 'SENTINEL_OWNER_ONLY' src/index.js
+
+      - name: Deploy wfgg-api Worker
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ steps.cloudflare.outputs.account_id }}
+          workingDirectory: worker
+          command: deploy
+
+      - name: Verify Sentinel route is live
+        shell: bash
+        run: |
+          set -euo pipefail
+          URL='https://wfgg-api.chachasan090375.workers.dev/api/sentinel/run'
+          ok=0
+          for i in $(seq 1 30); do
+            code=$(curl -sS -o /tmp/sentinel.json -w '%{http_code}' "$URL?deploy_probe=$GITHUB_SHA-$i" || true)
+            body=$(cat /tmp/sentinel.json 2>/dev/null || true)
+            echo "attempt=$i http=$code body=$body"
+            if [ "$code" = '401' ] && echo "$body" | grep -q 'UNAUTHORIZED'; then
+              ok=1
+              break
+            fi
+            sleep 4
+          done
+          test "$ok" = 1
+          echo 'WFGG_PORTAL_API_SENTINEL_DEPLOY=OK'
