@@ -16,17 +16,16 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Verify live Portal/Train V5 contract
+      - name: Verify live Portal/Train V5 + Sentinel V6 contract
         shell: bash
         run: |
           set -euo pipefail
           ROOT='https://wfgg.pages.dev'
           STAMP="${GITHUB_SHA}-$(date +%s)"
-          check(){ echo "CHECK=$1"; shift; "$@"; echo "PASS=$1"; }
 
           echo 'CHECK=train-html-fetch'
           curl -fsSL -A 'Mozilla/5.0 (Linux; Android 16) AppleWebKit/537.36 Chrome/139 Mobile Safari/537.36' \
-            "$ROOT/train/?qa_v5=$STAMP" -o /tmp/train.html
+            "$ROOT/train/?qa_v6=$STAMP" -o /tmp/train.html
           echo "TRAIN_BYTES=$(wc -c </tmp/train.html)"
           for marker in \
             'WFGG_TRAIN_PORTAL_HOME_AND_PROFILE_POLISH_V5' \
@@ -38,33 +37,29 @@ jobs:
           done
 
           echo 'CHECK=sentinel-fetch'
-          curl -fsSL "$ROOT/train/sentinel-train-v1.js?qa_v5=$STAMP" -o /tmp/sentinel.js
-          echo "SENTINEL_BYTES=$(wc -c </tmp/sentinel.js)"
+          curl -fsSL "$ROOT/train/sentinel-train-v1.js?qa_v6=$STAMP" -o /tmp/sentinel.js
           for marker in \
             "const PORTAL_API = '/portal-api';" \
             'WFGG_SENTINEL_NAME_ANCHOR_V5' \
             "querySelector('#appView:not(.hidden) .hero-card .profile-name h2')" \
             'WFGG_SENTINEL_OWNER_RETRY_V5' \
             'WFGG_SENTINEL_REPORT_V2'; do
-            echo "CHECK=sentinel:$marker"
             grep -Fq "$marker" /tmp/sentinel.js || { echo "FAIL=sentinel:$marker"; exit 22; }
           done
           node --check /tmp/sentinel.js
 
           echo 'CHECK=portal-api-me'
-          code=$(curl -sS -o /tmp/me.json -D /tmp/me.h -w '%{http_code}' "$ROOT/portal-api/me?qa_v5=$STAMP")
+          code=$(curl -sS -o /tmp/me.json -D /tmp/me.h -w '%{http_code}' "$ROOT/portal-api/me?qa_v6=$STAMP")
           echo "ME_HTTP=$code"
-          tr -d '\r' </tmp/me.h | grep -Ei '^(x-wfgg-route|content-type|HTTP/)' || true
-          cat /tmp/me.json || true
-          test "$code" = '401' || { echo 'FAIL=portal-api-me-status'; exit 23; }
-          tr -d '\r' </tmp/me.h | grep -iq '^x-wfgg-route: portal-sentinel-api' || { echo 'FAIL=portal-api-me-route'; exit 24; }
+          test "$code" = '401' || { cat /tmp/me.json; exit 23; }
+          tr -d '\r' </tmp/me.h | grep -iq '^x-wfgg-route: portal-sentinel-api' || exit 24
 
-          echo 'CHECK=portal-api-sentinel'
-          code=$(curl -sS -o /tmp/sr.json -D /tmp/sr.h -w '%{http_code}' "$ROOT/portal-api/sentinel/run?qa_v5=$STAMP")
+          echo 'CHECK=portal-api-sentinel-edge'
+          code=$(curl -sS -o /tmp/sr.json -D /tmp/sr.h -w '%{http_code}' "$ROOT/portal-api/sentinel/run?qa_v6=$STAMP")
           echo "SENTINEL_HTTP=$code"
-          tr -d '\r' </tmp/sr.h | grep -Ei '^(x-wfgg-route|content-type|HTTP/)' || true
           cat /tmp/sr.json || true
-          test "$code" = '401' || { echo 'FAIL=portal-api-sentinel-status'; exit 25; }
-          tr -d '\r' </tmp/sr.h | grep -iq '^x-wfgg-route: portal-sentinel-api' || { echo 'FAIL=portal-api-sentinel-route'; exit 26; }
+          test "$code" = '401' || exit 25
+          grep -q 'UNAUTHORIZED' /tmp/sr.json || exit 26
+          tr -d '\r' </tmp/sr.h | grep -iq '^x-wfgg-route: portal-sentinel-edge' || exit 27
 
-          echo 'WFGG_TRAIN_POLISH_SENTINEL_LIVE_V5=OK'
+          echo 'WFGG_TRAIN_POLISH_SENTINEL_LIVE_V6=OK'
