@@ -55,7 +55,7 @@ const replacement=`        /* WFGG_PORTAL_DIRECT_TRAIN_BOOTSTRAP_V2
 
 const out=src.replace(pattern,replacement);
 if(out===src) throw new Error('Patch produced no change');
-if((out.match(/WFGG_PORTAL_DIRECT_TRAIN_BOOTSTRAP_V2/g)||[]).length!==2){
+if((out.match(/WFGG_PORTAL_DIRECT_TRAIN_BOOTSTRAP_V2/g)||[]).length!==1){
   throw new Error('Unexpected V2 marker count');
 }
 if(out.includes("console.warn('WFGG_PORTAL_TRAIN_IDENTITY_MISSING');\n            location.replace('/');")){
