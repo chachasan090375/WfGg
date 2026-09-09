@@ -1081,6 +1081,20 @@
        ajoutée à l’écran d’accueil. La permission n’est demandée qu’après le
        geste explicite de l’utilisateur. */
     let pushDeviceState={checking:false,local:false,total:0,permission:'default'};
+    /* WFGG_LOCAL_NOTIFICATION_OUTCOME_V13_3
+       Preuve appareil explicitement confirmée par l'utilisateur : le Web peut
+       prouver qu'une notification a été créée, mais pas qu'Android l'a rendue visible. */
+    const LOCAL_NOTIFICATION_OUTCOME_KEY='wfgg_local_notification_outcome_v13_3';
+    function localNotificationOutcomeRead(){
+        try{return JSON.parse(localStorage.getItem(LOCAL_NOTIFICATION_OUTCOME_KEY)||'null')||null;}catch(_){return null;}
+    }
+    function localNotificationOutcomeWrite(status,detail=''){
+        try{
+            const value={status:String(status||''),detail:String(detail||''),at:new Date().toISOString()};
+            localStorage.setItem(LOCAL_NOTIFICATION_OUTCOME_KEY,JSON.stringify(value));
+            return value;
+        }catch(_){return null;}
+    }
     function pushText(fr,en,it,es){
         const lang=currentLanguage();
         return lang==='en'?en:lang==='it'?it:lang==='es'?es:fr;
@@ -1284,9 +1298,10 @@
     }
     function promptAndroidNotificationDisplayFix(){
         const modify=notificationSettingsModifyMarkup(notificationSettingsText('Modifier','Change','Modifica','Cambiar'));
-        openModal(`<h2>🔔 ${notificationSettingsText('Diagnostic notifications','Notification diagnostics','Diagnostica notifiche','Diagnóstico de notificaciones')}</h2><div class="warning">${notificationSettingsText('Chrome a bien créé la notification, mais Android ne l’affiche pas. Le blocage est dans les réglages de notifications du téléphone/Chrome.','Chrome created the notification, but Android is not displaying it. The block is in the phone/Chrome notification settings.','Chrome ha creato la notifica, ma Android non la visualizza. Il blocco è nelle impostazioni notifiche del telefono/Chrome.','Chrome creó la notificación, pero Android no la muestra. El bloqueo está en los ajustes de notificaciones del teléfono/Chrome.')}</div><p>${notificationSettingsText('Voulez-vous ouvrir directement les réglages de notifications de Chrome ?','Do you want to open Chrome notification settings now?','Vuoi aprire direttamente le impostazioni notifiche di Chrome?','¿Quieres abrir directamente los ajustes de notificaciones de Chrome?')}</p><div class="actions">${modify}<button id="wfggNotifLater" class="btn outline">${notificationSettingsText('Pas maintenant','Not now','Non ora','Ahora no')}</button></div>`);
+        openModal(`<h2>🔔 ${notificationSettingsText('Diagnostic notifications','Notification diagnostics','Diagnostica notifiche','Diagnóstico de notificaciones')}</h2><div class="warning">${notificationSettingsText('Chrome a bien créé la notification, mais tu confirmes qu’Android ne l’a pas affichée.','Chrome created the notification, but you confirmed Android did not display it.','Chrome ha creato la notifica, ma hai confermato che Android non l’ha visualizzata.','Chrome creó la notificación, pero confirmaste que Android no la mostró.')}</div><p>${notificationSettingsText('Tu peux tenter les réglages Chrome, ou réinitialiser uniquement le canal WfGg sans toucher aux autres sites.','You can try Chrome settings, or reset only the WfGg channel without touching other sites.','Puoi provare le impostazioni di Chrome o reimpostare solo il canale WfGg senza toccare gli altri siti.','Puedes probar los ajustes de Chrome o restablecer solo el canal WfGg sin tocar otros sitios.')}</p><div class="actions">${modify}<button id="wfggNotifResetOnly" class="btn outline">♻️ ${notificationSettingsText('Réinitialiser WfGg','Reset WfGg','Reimposta WfGg','Restablecer WfGg')}</button><button id="wfggNotifLater" class="btn outline">${notificationSettingsText('Pas maintenant','Not now','Non ora','Ahora no')}</button></div>`);
         queueMicrotask(()=>{
             wireNotificationSettingsModify();
+            document.getElementById('wfggNotifResetOnly')?.addEventListener('click',promptWfggNotificationReset);
             document.getElementById('wfggNotifLater')?.addEventListener('click',closeModal);
         });
     }
@@ -1307,6 +1322,72 @@
             }else promptNotificationPermissionFix();
         },500);
     });
+
+    /* WFGG_NOTIFICATION_WFGG_RESET_V13_3
+       Réinitialisation strictement limitée à WfGg sur cet appareil : abonnement
+       Push serveur/local + Service Worker Train. Une page Web ne peut pas révoquer
+       elle-même la permission Android/Chrome ; cette étape reste volontairement
+       explicite dans le parcours utilisateur. */
+    function promptLocalNotificationVisibilityCheck(){
+        openModal(`<h2>🔔 ${pushText('As-tu vu la notification ?','Did you see the notification?','Hai visto la notifica?','¿Has visto la notificación?')}</h2><p>${pushText('WfGg a bien demandé au navigateur de créer la notification. Dis-nous maintenant si elle est réellement apparue sur le téléphone.','WfGg successfully asked the browser to create the notification. Tell us whether it actually appeared on the phone.','WfGg ha chiesto correttamente al browser di creare la notifica. Indica se è realmente apparsa sul telefono.','WfGg pidió correctamente al navegador crear la notificación. Indica si realmente apareció en el teléfono.')}</p><div class="actions"><button id="wfggLocalVisibleYes" class="btn success">✅ ${pushText('Oui, je l’ai vue','Yes, I saw it','Sì, l’ho vista','Sí, la vi')}</button><button id="wfggLocalVisibleNo" class="btn danger">❌ ${pushText('Non, rien n’est apparu','No, nothing appeared','No, non è apparso nulla','No, no apareció nada')}</button></div>`);
+        queueMicrotask(()=>{
+            document.getElementById('wfggLocalVisibleYes')?.addEventListener('click',()=>{
+                localNotificationOutcomeWrite('visible-confirmed','user-confirmed-visible');
+                closeModal();
+                toast(pushText('Affichage local confirmé ✅','Local display confirmed ✅','Visualizzazione locale confermata ✅','Visualización local confirmada ✅'));
+            });
+            document.getElementById('wfggLocalVisibleNo')?.addEventListener('click',()=>{
+                localNotificationOutcomeWrite('created-not-visible','user-confirmed-not-visible');
+                promptAndroidNotificationDisplayFix();
+            });
+        });
+    }
+    function promptWfggNotificationReset(){
+        openModal(`<h2>♻️ ${pushText('Réinitialiser uniquement les notifications WfGg','Reset only WfGg notifications','Reimposta solo le notifiche WfGg','Restablecer solo las notificaciones WfGg')}</h2><div class="warning">${pushText('Cette opération supprime uniquement l’abonnement Push de WfGg sur ce téléphone et le Service Worker Train. Elle ne modifie aucune autre notification de Chrome ni aucun autre site.','This only removes the WfGg Push subscription on this phone and the Train Service Worker. It does not change any other Chrome notification or site.','Questa operazione rimuove solo l’abbonamento Push WfGg su questo telefono e il Service Worker Train. Non modifica altre notifiche o siti di Chrome.','Esta operación solo elimina la suscripción Push de WfGg en este teléfono y el Service Worker de Train. No modifica ninguna otra notificación ni sitio de Chrome.')}</div><p>${pushText('Après le nettoyage, Chrome devra recréer la permission et la catégorie Android de wfgg.pages.dev.','After cleanup, Chrome must recreate the permission and Android category for wfgg.pages.dev.','Dopo la pulizia, Chrome dovrà ricreare l’autorizzazione e la categoria Android di wfgg.pages.dev.','Después de la limpieza, Chrome deberá recrear el permiso y la categoría Android de wfgg.pages.dev.')}</p><div class="actions"><button id="wfggNotifDoReset" class="btn danger">♻️ ${pushText('Réinitialiser WfGg','Reset WfGg','Reimposta WfGg','Restablecer WfGg')}</button><button id="wfggNotifResetCancel" class="btn outline">${pushText('Annuler','Cancel','Annulla','Cancelar')}</button></div>`);
+        queueMicrotask(()=>{
+            document.getElementById('wfggNotifDoReset')?.addEventListener('click',resetWfggNotifications);
+            document.getElementById('wfggNotifResetCancel')?.addEventListener('click',closeModal);
+        });
+    }
+    async function resetWfggNotifications(){
+        try{
+            const sub=await localPushSubscription();
+            if(sub){
+                try{await api('/api/push/subscription',{method:'DELETE',body:JSON.stringify({endpoint:sub.endpoint})});}catch(_){}
+                try{await sub.unsubscribe();}catch(_){}
+            }
+            const reg=await navigator.serviceWorker.getRegistration('/train/');
+            if(reg){try{await reg.unregister();}catch(_){}}
+            localNotificationOutcomeWrite('reset-pending','subscription-unsubscribed;train-sw-unregistered');
+            notificationSettingsOutcomeWrite('reset-pending','wfgg-only-reset');
+            await syncSnapshot({render:false,quiet:true}).catch(()=>false);
+            closeModal();
+            openModal(`<h2>♻️ ${pushText('Nettoyage WfGg terminé','WfGg cleanup complete','Pulizia WfGg completata','Limpieza de WfGg completada')}</h2><div class="warning">${pushText('WfGg a supprimé son abonnement Push et son Service Worker sur ce téléphone. Pour forcer Chrome à recréer la catégorie Android, ouvre les Autorisations de wfgg.pages.dev et touche « Réinitialiser les autorisations », puis reviens ici.','WfGg removed its Push subscription and Service Worker on this phone. To force Chrome to recreate the Android category, open permissions for wfgg.pages.dev and tap “Reset permissions”, then come back here.','WfGg ha rimosso l’abbonamento Push e il Service Worker su questo telefono. Per forzare Chrome a ricreare la categoria Android, apri le autorizzazioni di wfgg.pages.dev e tocca “Reimposta autorizzazioni”, poi torna qui.','WfGg eliminó su suscripción Push y Service Worker en este teléfono. Para forzar a Chrome a recrear la categoría Android, abre los permisos de wfgg.pages.dev y pulsa “Restablecer permisos”, luego vuelve aquí.')}</div><p>${pushText('Ensuite appuie sur Réactiver. WfGg redemandera la permission, recréera l’abonnement et lancera immédiatement un test local.','Then tap Reactivate. WfGg will request permission again, recreate the subscription and immediately run a local test.','Poi tocca Riattiva. WfGg richiederà di nuovo l’autorizzazione, ricreerà l’abbonamento e avvierà subito un test locale.','Luego pulsa Reactivar. WfGg volverá a pedir permiso, recreará la suscripción y lanzará inmediatamente una prueba local.')}</p><div class="actions"><button id="wfggNotifRearm" class="btn gold">🔔 ${pushText('Réactiver','Reactivate','Riattiva','Reactivar')}</button><button id="wfggNotifResetClose" class="btn outline">${pushText('Fermer','Close','Chiudi','Cerrar')}</button></div>`);
+            queueMicrotask(()=>{
+                document.getElementById('wfggNotifRearm')?.addEventListener('click',()=>reactivateWfggNotifications(false));
+                document.getElementById('wfggNotifResetClose')?.addEventListener('click',closeModal);
+            });
+            return true;
+        }catch(e){toast(e.message||String(e));return false;}
+    }
+    async function reactivateWfggNotifications(force=false){
+        if(!pushFeatureSupported())return false;
+        if(Notification.permission==='granted'&&!force){
+            openModal(`<h2>🔔 ${pushText('Chrome indique encore « Autorisé »','Chrome still says “Allowed”','Chrome indica ancora “Consentito”','Chrome todavía indica “Permitido”')}</h2><div class="warning">${pushText('Pour recréer réellement la catégorie Android WfGg, utilise d’abord « Réinitialiser les autorisations » dans la fiche wfgg.pages.dev. Si tu viens de le faire et que Chrome affiche encore Autorisé, tu peux tenter la recréation quand même.','To truly recreate the WfGg Android category, first use “Reset permissions” on the wfgg.pages.dev site card. If you just did that and Chrome still says Allowed, you can try recreating anyway.','Per ricreare davvero la categoria Android WfGg, usa prima “Reimposta autorizzazioni” nella scheda wfgg.pages.dev. Se lo hai appena fatto e Chrome mostra ancora Consentito, puoi comunque tentare la ricreazione.','Para recrear realmente la categoría Android de WfGg, usa primero “Restablecer permisos” en la ficha de wfgg.pages.dev. Si acabas de hacerlo y Chrome sigue indicando Permitido, puedes intentar recrearla igualmente.')}</div><div class="actions"><button id="wfggNotifRecheckReset" class="btn gold">🔄 ${pushText('Revérifier','Check again','Ricontrolla','Volver a comprobar')}</button><button id="wfggNotifForceRearm" class="btn outline">${pushText('Réactiver quand même','Reactivate anyway','Riattiva comunque','Reactivar igualmente')}</button></div>`);
+            queueMicrotask(()=>{
+                document.getElementById('wfggNotifRecheckReset')?.addEventListener('click',()=>reactivateWfggNotifications(false));
+                document.getElementById('wfggNotifForceRearm')?.addEventListener('click',()=>reactivateWfggNotifications(true));
+            });
+            return false;
+        }
+        closeModal();
+        const ok=await enablePushNotifications();
+        if(ok){
+            localNotificationOutcomeWrite('rearmed','push-subscription-recreated');
+            setTimeout(()=>testLocalNotification(),800);
+        }
+        return ok;
+    }
 
     /* WFGG_PUSH_LOCAL_DISPLAY_DIAGNOSTIC_V1
        Teste uniquement l'affichage Android/iOS via le Service Worker, sans réseau Push.
@@ -1340,13 +1421,10 @@
             await new Promise(r=>setTimeout(r,350));
             const visible=await reg.getNotifications({tag});
             if(visible.length){
-                const android=/Android/i.test(navigator.userAgent||'');
-                if(android){
-                    promptAndroidNotificationDisplayFix();
-                }else{
-                    toast(pushText('La notification a été créée par le navigateur mais n’est pas visible à l’écran','The browser created the notification but it is not visible on screen','La notifica è stata creata dal browser ma non è visibile','El navegador creó la notificación pero no es visible en pantalla'));
-                }
+                localNotificationOutcomeWrite('created','service-worker-showNotification');
+                setTimeout(()=>promptLocalNotificationVisibilityCheck(),900);
             }else{
+                localNotificationOutcomeWrite('not-created','getNotifications=0');
                 toast(pushText('Le navigateur n’a pas conservé la notification locale : Service Worker/permission à contrôler','The browser did not keep the local notification: check Service Worker/permission','Il browser non ha mantenuto la notifica locale: controllare Service Worker/autorizzazione','El navegador no conservó la notificación local: revisa Service Worker/permisos'));
             }
         }catch(e){toast(e.message||String(e));}
@@ -1371,7 +1449,7 @@
         if (!el || !m) return;
         el.innerHTML = `<div class="section-title"><h2>🔔 Alertes & calendrier</h2></div>
   ${iosPushGuidanceHtml()}
-  <div class="alert-card"><div class="toggle-row"><div><h3>${pushText('Notifications téléphone','Phone notifications','Notifiche telefono','Notificaciones del teléfono')}</h3><p>${pushText(`J-1 à ${state.settings.trainTime}, puis 30 minutes avant le départ.`,`1 day before at ${state.settings.trainTime}, then 30 minutes before departure.`,`1 giorno prima alle ${state.settings.trainTime}, poi 30 minuti prima della partenza.`,`1 día antes a las ${state.settings.trainTime}, y 30 minutos antes de la salida.`)}</p></div><button id="pushToggle" class="toggle" disabled onclick="W.toggleAlerts()"><i></i></button></div><div id="pushDeviceDetail" class="warning">${pushText('Vérification de cet appareil…','Checking this device…','Verifica del dispositivo…','Comprobando este dispositivo…')}</div><div id="pushTestButtons" class="hidden"><button id="pushTestButton" class="btn outline full" onclick="W.testPushReminder('generic')">🔔 ${pushText('Tester l’envoi Push serveur','Test server Push','Prova Push server','Probar Push del servidor')}</button><button class="btn outline full" style="margin-top:8px" onclick="W.testLocalNotification()">📱 ${pushText('Tester l’affichage local sur ce téléphone','Test local display on this phone','Prova visualizzazione locale sul telefono','Probar visualización local en este teléfono')}</button><div class="actions" style="margin-top:8px"><button class="btn outline" onclick="W.testPushReminder('day_before')">🧪 ${pushText('Tester le rappel J-1','Test the day-before reminder','Prova il promemoria J-1','Probar el recordatorio J-1')}</button><button class="btn outline" onclick="W.testPushReminder('day_of')">🧪 ${pushText('Tester le rappel 30 min','Test the 30-min reminder','Prova il promemoria 30 min','Probar el recordatorio 30 min')}</button></div><p class="language-note">${pushText('Ces deux tests utilisent ton prochain passage réel mais n’annulent ni ne consomment les vrais rappels programmés.','These two tests use your real next assignment but do not cancel or consume the scheduled reminders.','Questi due test usano il tuo prossimo turno reale ma non annullano né consumano i promemoria programmati.','Estas dos pruebas usan tu próximo turno real pero no cancelan ni consumen los recordatorios programados.')}</p></div></div>
+  <div class="alert-card"><div class="toggle-row"><div><h3>${pushText('Notifications téléphone','Phone notifications','Notifiche telefono','Notificaciones del teléfono')}</h3><p>${pushText(`J-1 à ${state.settings.trainTime}, puis 30 minutes avant le départ.`,`1 day before at ${state.settings.trainTime}, then 30 minutes before departure.`,`1 giorno prima alle ${state.settings.trainTime}, poi 30 minuti prima della partenza.`,`1 día antes a las ${state.settings.trainTime}, y 30 minutos antes de la salida.`)}</p></div><button id="pushToggle" class="toggle" disabled onclick="W.toggleAlerts()"><i></i></button></div><div id="pushDeviceDetail" class="warning">${pushText('Vérification de cet appareil…','Checking this device…','Verifica del dispositivo…','Comprobando este dispositivo…')}</div><div id="pushTestButtons" class="hidden"><button id="pushTestButton" class="btn outline full" onclick="W.testPushReminder('generic')">🔔 ${pushText('Tester l’envoi Push serveur','Test server Push','Prova Push server','Probar Push del servidor')}</button><button class="btn outline full" style="margin-top:8px" onclick="W.testLocalNotification()">📱 ${pushText('Tester l’affichage local sur ce téléphone','Test local display on this phone','Prova visualizzazione locale sul telefono','Probar visualización local en este teléfono')}</button><div class="actions" style="margin-top:8px"><button class="btn outline" onclick="W.testPushReminder('day_before')">🧪 ${pushText('Tester le rappel J-1','Test the day-before reminder','Prova il promemoria J-1','Probar el recordatorio J-1')}</button><button class="btn outline" onclick="W.testPushReminder('day_of')">🧪 ${pushText('Tester le rappel 30 min','Test the 30-min reminder','Prova il promemoria 30 min','Probar el recordatorio 30 min')}</button></div><button id="wfggNotifResetWfgg" class="btn outline full" style="margin-top:8px" onclick="W.promptWfggNotificationReset()">♻️ ${pushText('Réinitialiser uniquement les notifications WfGg','Reset only WfGg notifications','Reimposta solo le notifiche WfGg','Restablecer solo las notificaciones WfGg')}</button><p class="language-note">${pushText('Les tests J-1 et 30 min sont immédiats et synthétiques : ils n’utilisent pas le calendrier et ne consomment aucun vrai rappel.','The day-before and 30-min tests are immediate and synthetic: they do not use the calendar and consume no real reminder.','I test J-1 e 30 min sono immediati e sintetici: non usano il calendario e non consumano alcun vero promemoria.','Las pruebas J-1 y 30 min son inmediatas y sintéticas: no usan el calendario ni consumen ningún recordatorio real.')}</p></div></div>
   <div class="alert-card"><h3>📅 ${pushText('Calendrier (optionnel)','Calendar (optional)','Calendario (opzionale)','Calendario (opcional)')}</h3><p>${pushText('Tu peux aussi ajouter tes prochains passages au calendrier du téléphone.','You can also add your upcoming turns to the phone calendar.','Puoi anche aggiungere i prossimi turni al calendario del telefono.','También puedes añadir tus próximos turnos al calendario del teléfono.')}</p><button class="btn gold full" onclick="W.addAllCalendar()">Ajouter mes passages au calendrier</button></div>
   <div class="alert-card"><h3>🕗 Heure du train</h3><p>Heure actuelle : <strong>${state.settings.trainTime}</strong>. Elle est modifiable par les R4/R5.</p></div>`;
         queueMicrotask(()=>refreshPushUi());
@@ -2503,6 +2581,11 @@
             const localPushBtn=[...document.querySelectorAll('#alertsScreen button')].find(x=>(x.getAttribute('onclick')||'').includes('testLocalNotification'))||null;
             graphics.push(await sentinelUiGeometry(serverPushBtn,'server-push-test-button',{waitMs:3000,conditional:true}));
             graphics.push(await sentinelUiGeometry(localPushBtn,'local-notification-test-button',{waitMs:3000,conditional:true}));
+            const resetWfggBtn=document.getElementById('wfggNotifResetWfgg');
+            graphics.push(await sentinelUiGeometry(resetWfggBtn,'notification-wfgg-reset-button',{waitMs:3000,conditional:true}));
+            resetWfggBtn?.click();await sentinelUiTick();
+            pushSim('notification-wfgg-reset-prompt',!modal?.classList.contains('hidden')&&!!document.getElementById('wfggNotifDoReset'),'clic → confirmation réinitialisation WfGg, sans exécution');
+            closeModal();
 
             promptAndroidNotificationDisplayFix();await sentinelUiTick();
             const modify=document.getElementById('wfggNotifModify');
@@ -2546,7 +2629,7 @@
         return {readonly:true,simulations,graphics,simFailed,graphicFailed,graphicInfo,notificationSettings:notificationSettingsIntentPlan()};
     }
     window.W = {
-        addCalendar, addAllCalendar, toggleAlerts, testLocalNotification, testLocalPushNotification, testPushReminder, sentinelUiProbe, notificationSettingsIntentPlan, changeWeek, openExchange, publishMarketExchange, cancelMarketExchange, pickMyDateForMarket, executeMarketSwap, markUnavailable, showUnavailableChoice, openUnavailableDayPicker, saveUnavailableDayFromPicker, openUnavailablePeriod, syncUnavailablePeriodMin, saveUnavailablePeriod, saveUnavailableDay, removeUnavailableRange, removeUnavailable, showUnavailable, toggleRotation, showRotationStatus, openProfileInfo, goAlerts, closeAndOpenExchange, closeModal, saveAdminSettings, saveDay, clearDayOverride, adminToggleRotation, filterMembers, searchMembers, openMemberForm, saveMemberForm, deleteMember, renderRotationOrder, moveRotation, generateMessage, nextMessage, copyGeneratedMessage, openAdminSection, renderAdminHome, openSelfProfileEdit, saveSelfProfile, saveRotationRanks, copyText, resetMemberPin, downloadGeneratedCodesCsv, clearGeneratedCodes, changeLanguage, setPortalLanguage, showPortal, showTrainEntry, showPortalHelp, openPortalResource, togglePresenceList, refreshAdminPresence, openGuidePortal, openGameHelp, openGameLink, addGameLinkDraft, removeGameLinkDraft, saveGameLinks, openAdminAnalytics, renderAnalyticsMenu, openAnalyticsSub, renderTrainHistory, setAnalyticsRotationDays, setAnalyticsRotationPool, setAnalyticsRotationSort, setAnalyticsActivitySort, setAnalyticsSettingsFilter, setAnalyticsFilter, setAnalyticsHistorySort, setAnalyticsSearch, openChangePin, changeMyPin
+        addCalendar, addAllCalendar, toggleAlerts, testLocalNotification, testLocalPushNotification, testPushReminder, promptWfggNotificationReset, resetWfggNotifications, reactivateWfggNotifications, sentinelUiProbe, notificationSettingsIntentPlan, changeWeek, openExchange, publishMarketExchange, cancelMarketExchange, pickMyDateForMarket, executeMarketSwap, markUnavailable, showUnavailableChoice, openUnavailableDayPicker, saveUnavailableDayFromPicker, openUnavailablePeriod, syncUnavailablePeriodMin, saveUnavailablePeriod, saveUnavailableDay, removeUnavailableRange, removeUnavailable, showUnavailable, toggleRotation, showRotationStatus, openProfileInfo, goAlerts, closeAndOpenExchange, closeModal, saveAdminSettings, saveDay, clearDayOverride, adminToggleRotation, filterMembers, searchMembers, openMemberForm, saveMemberForm, deleteMember, renderRotationOrder, moveRotation, generateMessage, nextMessage, copyGeneratedMessage, openAdminSection, renderAdminHome, openSelfProfileEdit, saveSelfProfile, saveRotationRanks, copyText, resetMemberPin, downloadGeneratedCodesCsv, clearGeneratedCodes, changeLanguage, setPortalLanguage, showPortal, showTrainEntry, showPortalHelp, openPortalResource, togglePresenceList, refreshAdminPresence, openGuidePortal, openGameHelp, openGameLink, addGameLinkDraft, removeGameLinkDraft, saveGameLinks, openAdminAnalytics, renderAnalyticsMenu, openAnalyticsSub, renderTrainHistory, setAnalyticsRotationDays, setAnalyticsRotationPool, setAnalyticsRotationSort, setAnalyticsActivitySort, setAnalyticsSettingsFilter, setAnalyticsFilter, setAnalyticsHistorySort, setAnalyticsSearch, openChangePin, changeMyPin
     };
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init, { once: true });

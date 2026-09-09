@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = 'sentinel-train-v13.2';
+  const VERSION = 'sentinel-train-v13.3';
   const PORTAL_API = '/portal-api';
   const PORTAL_TOKEN_KEY = 'wfgg_portal_session';
   const TRAIN_STATE_KEY = 'wfgg_train_v13';
@@ -312,7 +312,7 @@
        Premier niveau : inventaire des actions exposées. Le second niveau V13
        exécute ensuite une recette comportementale et géométrique en lecture seule. */
     const uiFunctions = [
-      'addCalendar','addAllCalendar','toggleAlerts','testLocalNotification','testLocalPushNotification','testPushReminder','sentinelUiProbe','notificationSettingsIntentPlan',
+      'addCalendar','addAllCalendar','toggleAlerts','testLocalNotification','testLocalPushNotification','testPushReminder','promptWfggNotificationReset','resetWfggNotifications','reactivateWfggNotifications','sentinelUiProbe','notificationSettingsIntentPlan',
       'changeWeek','openExchange','publishMarketExchange','cancelMarketExchange','pickMyDateForMarket','executeMarketSwap',
       'markUnavailable','showUnavailableChoice','openUnavailableDayPicker','saveUnavailableDayFromPicker','openUnavailablePeriod','saveUnavailablePeriod','saveUnavailableDay','removeUnavailableRange','removeUnavailable','showUnavailable',
       'toggleRotation','showRotationStatus','openProfileInfo','openSelfProfileEdit','saveSelfProfile','openChangePin','changeMyPin','changeLanguage','setPortalLanguage',
@@ -339,6 +339,39 @@
       'W.testLocalNotification disponible',localNotificationHandler?'câblé':'absent',
       'Ce contrôle distingue le test local Service Worker du test Push serveur.',
       localNotificationHandler?'':'Le bouton de test local appelle une fonction non exposée.'
+    ));
+    /* WFGG_SENTINEL_LOCAL_NOTIFICATION_VISUAL_V13_3
+       Le navigateur sait uniquement prouver showNotification/getNotifications.
+       La visibilité réelle Android est donc qualifiée par confirmation utilisateur. */
+    const localVisual=readJson('wfgg_local_notification_outcome_v13_3',null);
+    const localVisualStatus=String(localVisual?.status||'');
+    let localVisualLevel='info',localVisualObserved='aucun test visuel confirmé',localVisualDetail='Lance le test local puis confirme si la notification est réellement apparue.';
+    let localVisualCause='';
+    if(localVisualStatus==='visible-confirmed'){
+      localVisualLevel='ok';localVisualObserved='Chrome: notification créée ✅ · affichage Android confirmé ✅';
+      localVisualDetail='La visibilité réelle a été confirmée manuellement après un showNotification du Service Worker.';
+    }else if(localVisualStatus==='created-not-visible'){
+      localVisualLevel='warning';localVisualObserved='Chrome: autorisé ✅ · Service Worker: notification créée ✅ · Android: non visible ❌';
+      localVisualDetail='Le navigateur conserve la notification, mais l’utilisateur confirme qu’aucun affichage n’apparaît sur le téléphone.';
+      localVisualCause='Canal/catégorie Android Chrome du site possiblement bloqué malgré Notification.permission=granted.';
+    }else if(localVisualStatus==='not-created'){
+      localVisualLevel='error';localVisualObserved='Service Worker: notification locale non conservée';
+      localVisualDetail='getNotifications({tag}) ne retrouve pas le test local.';
+      localVisualCause='Service Worker ou permission navigateur à contrôler.';
+    }else if(localVisualStatus==='reset-pending'){
+      localVisualLevel='info';localVisualObserved='Réinitialisation WfGg en attente de réactivation';
+      localVisualDetail='Abonnement Push et Service Worker Train ont été nettoyés; la permission/catégorie du site doit être recréée.';
+    }else if(localVisualStatus==='rearmed'){
+      localVisualLevel='info';localVisualObserved='Canal WfGg recréé · nouveau test visuel attendu';
+      localVisualDetail='L’abonnement a été recréé; confirme le prochain test local.';
+    }else if(localVisualStatus==='created'){
+      localVisualLevel='info';localVisualObserved='Notification créée · confirmation visuelle en attente';
+      localVisualDetail='WfGg attend la réponse Oui/Non du test d’affichage.';
+    }
+    items.push(localCheck(
+      'train-local-notification-visual-outcome',localVisualLevel,'Affichage réel de la notification locale',
+      'Service Worker crée la notification ET l’utilisateur confirme sa visibilité',localVisualObserved,
+      localVisualDetail,localVisualCause
     ));
     /* WFGG_SENTINEL_UI_SIMULATION_V13 */
     let uiProbe=null;
@@ -374,7 +407,7 @@
       if(!settingsStructuralOk){
         settingsLevel='error';settingsObserved='câblage incomplet';settingsCause='Le lien Android ou son fallback est absent.';
       }else if(settingsOutcomeStatus==='fallback'){
-        settingsLevel='warning';settingsObserved=`${settingsPlan.packageName} · dernier essai: Intent refusé → guide manuel`;
+        settingsLevel='info';settingsObserved=`${settingsPlan.packageName} · dernier essai: Intent refusé → guide manuel`;
         settingsDetail='Le browser_fallback_url a réellement été utilisé sur cet appareil; le raccourci système n’a donc pas ouvert les réglages.';
         settingsCause='Chrome/Android refuse cette activité système depuis le contexte web. Le guide manuel reste fonctionnel.';
       }else if(settingsOutcomeStatus==='external-opened'||settingsOutcomeStatus==='returned'){
@@ -452,6 +485,10 @@
     if(bad.has('train-notification-settings-action'))out.push(localRepairCandidateV12({
       id:'repair-notification-settings-action-v13',title:'Adapter le parcours aux restrictions Android/Chrome',score:96,verdict:'recommended',
       target:'app.v15.js :: notificationSettingsIntentPlan / résultat réel',proposedChange:'Conserver un Intent best-effort conforme à APP_NOTIFICATION_SETTINGS, enregistrer son issue réelle et présenter immédiatement le guide manuel si Chrome le refuse.',simulation:{readonly:true,externalIntentNotLaunched:true,outcomeTracked:true},evidence:['Le dernier geste utilisateur est distingué entre ouverture externe, tentative et browser_fallback_url.'],risks:['Une page web ne peut pas forcer une activité système Android non BROWSABLE.'],manualValidation:['Appuyer sur Modifier puis relancer Sentinel après retour ou fallback.']
+    }));
+    if(bad.has('train-local-notification-visual-outcome'))out.push(localRepairCandidateV12({
+      id:'repair-local-notification-reset-v13-3',title:'Recréer uniquement le canal WfGg sur cet appareil',score:98,verdict:'recommended-manual',
+      target:'app.v15.js :: promptWfggNotificationReset / resetWfggNotifications',proposedChange:'Supprimer uniquement l’abonnement Push WfGg et le Service Worker Train, réinitialiser l’autorisation du site dans Chrome, puis recréer l’abonnement et relancer le test local.',simulation:{readonly:true,wfggOnly:true,otherChromeSitesUntouched:true},evidence:['La notification est créée par le Service Worker mais l’utilisateur confirme qu’Android ne l’affiche pas.'],risks:['La page Web ne peut pas révoquer elle-même la permission Android/Chrome; une action utilisateur sur Réinitialiser les autorisations reste nécessaire.'],manualValidation:['Réinitialiser uniquement WfGg.','Réactiver.','Confirmer Oui si le test local devient visible.']
     }));
     if(bad.has('train-calendar-runtime'))out.push(localRepairCandidateV12({
       id:'repair-calendar-runtime-v12',title:'Rétablir le runtime d’export calendrier',score:78,verdict:'alternative',
