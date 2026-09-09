@@ -1,0 +1,45 @@
+name: Train app checksum v14.1
+
+on:
+  push:
+    branches: [train-app-checksum-v14-1]
+    paths:
+      - '.github/workflows/train-app-checksum-v14-1.yml'
+      - 'frontend/train-native/app.v15.js'
+      - 'frontend/train-native/app.v15.js.sha256'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  refresh-and-test:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: train-app-checksum-v14-1
+      - name: Refresh checksum
+        run: |
+          cd frontend/train-native
+          sha256sum app.v15.js > app.v15.js.sha256
+      - name: Validate Train source contract
+        run: |
+          node --check frontend/train-native/app.v15.js
+          grep -Fq 'WFGG_NOTIFICATION_ANDROID_GUIDED_FIX_V14_1' frontend/train-native/app.v15.js
+          (cd frontend/train-native && sha256sum -c app.v15.js.sha256)
+      - name: Commit refreshed checksum
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add frontend/train-native/app.v15.js.sha256
+          if git diff --cached --quiet; then
+            echo 'Checksum already current.'
+            exit 0
+          fi
+          git commit -m 'chore(train): refresh app v15 checksum'
+          git push origin HEAD:train-app-checksum-v14-1
