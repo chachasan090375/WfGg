@@ -2288,3 +2288,16 @@
         init();
     }
 })();
+
+/* WFGG_SENTINEL_TRAIN_LOADER_V1
+   Sentinel reste un module séparé : app.v15 ne fait que charger le contrôleur OWNER
+   dans l'interface Train. Aucun changement des règles de rotation ici. */
+(() => {
+  if (window.__WFGG_SENTINEL_TRAIN_LOADER_V1__) return;
+  window.__WFGG_SENTINEL_TRAIN_LOADER_V1__ = true;
+  const script = document.createElement('script');
+  script.src = '/train-native/sentinel-train-v1.js?v=001';
+  script.async = true;
+  script.dataset.wfggSentinelTrain = 'v1';
+  document.head.appendChild(script);
+})();
