@@ -1,0 +1,55 @@
+name: Fix Train force gate v3
+
+on:
+  push:
+    branches:
+      - fix-train-force-gate-v3
+    paths:
+      - 'scripts/patch-train-force-gate-v3.mjs'
+      - '.github/workflows/fix-train-force-gate-v3.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch-and-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix-train-force-gate-v3
+          fetch-depth: 0
+      - name: Patch legacy Train force gate
+        run: node scripts/patch-train-force-gate-v3.mjs
+      - name: Validate JavaScript
+        run: |
+          node --check frontend/_worker.js
+          node --check frontend/train-native/app.v15.js
+      - name: Validate integrated Train boot contract
+        run: |
+          grep -q 'WFGG_TRAIN_FORCE_GATE_DISABLED_V3' frontend/_worker.js
+          grep -q 'WFGG_PORTAL_DIRECT_TRAIN_BOOTSTRAP_V2' frontend/train-native/app.v15.js
+          node - <<'NODE'
+          const fs=require('fs');
+          const s=fs.readFileSync('frontend/_worker.js','utf8');
+          const i=s.indexOf('function forceTrainPortalEntry()');
+          const marker=s.indexOf('WFGG_TRAIN_FORCE_GATE_DISABLED_V3',i);
+          const ret=s.indexOf('return;',marker);
+          const old=s.indexOf("if(!localStorage.getItem(PORTAL_TOKEN))return;",i);
+          if(i<0||marker<0||ret<0||old<0||!(i<marker&&marker<ret&&ret<old)){
+            throw new Error('force gate is not disabled before legacy code');
+          }
+          console.log('WFGG_TRAIN_FORCE_GATE_DISABLED_V3=VALID');
+          NODE
+      - name: Commit generated Worker change
+        run: |
+          if git diff --quiet -- frontend/_worker.js; then
+            echo 'No generated change to commit.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add frontend/_worker.js
+          git commit -m 'fix(train): disable legacy portal force gate'
+          git push origin HEAD:fix-train-force-gate-v3
