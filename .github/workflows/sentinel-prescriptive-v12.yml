@@ -1,0 +1,63 @@
+name: Sentinel prescriptive v12
+
+on:
+  push:
+    branches: [sentinel-prescriptive-simulation-v12]
+    paths:
+      - 'frontend/_worker.js'
+      - 'frontend/train-native/sentinel-train-v1.js'
+      - 'frontend/train-native/app.v15.js'
+      - 'frontend/train-native/app.v15.js.sha256'
+      - 'scripts/test-sentinel-owner-v1.mjs'
+      - 'scripts/patch-sentinel-prescriptive-v12.py'
+      - '.github/qa/sentinel-prescriptive-v12-recette.mjs'
+      - '.github/workflows/sentinel-prescriptive-v12.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  v12-portal-recette:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: sentinel-prescriptive-simulation-v12
+          fetch-depth: 0
+
+      - name: Apply V12 portal patch
+        run: python scripts/patch-sentinel-prescriptive-v12.py
+
+      - name: Refresh native Train checksum
+        run: sha256sum frontend/train-native/app.v15.js > frontend/train-native/app.v15.js.sha256
+
+      - name: Validate syntax and observer-only contract
+        run: |
+          node --check frontend/_worker.js
+          node --check frontend/train-native/sentinel-train-v1.js
+          node .github/qa/sentinel-prescriptive-v12-recette.mjs
+          node scripts/test-sentinel-owner-v1.mjs
+          sha256sum -c frontend/train-native/app.v15.js.sha256
+
+      - name: Preserve core Train source contracts
+        run: |
+          grep -q 'WFGG_SENTINEL_FUNCTIONAL_COVERAGE_V11' frontend/_worker.js
+          grep -q 'train-ui-functional-contract-v11' frontend/train-native/sentinel-train-v1.js
+          grep -q 'train-local-notification-handler-v12' frontend/train-native/sentinel-train-v1.js
+          grep -q "script.src='/train/sentinel-train-v1.js?v=013'" frontend/_worker.js
+          grep -q "const VERSION = 'sentinel-train-v12'" frontend/train-native/sentinel-train-v1.js
+          grep -q 'WFGG_SENTINEL_REPORT_V5' frontend/train-native/sentinel-train-v1.js
+
+      - name: Commit generated portal runtime and guards
+        run: |
+          if git diff --quiet -- frontend/_worker.js frontend/train-native/sentinel-train-v1.js frontend/train-native/app.v15.js.sha256; then
+            echo 'V12 portal runtime and guards already committed.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add frontend/_worker.js frontend/train-native/sentinel-train-v1.js frontend/train-native/app.v15.js.sha256
+          git commit -m 'test(sentinel): refresh V12 runtime guards and checksum'
+          git push origin HEAD:sentinel-prescriptive-simulation-v12

@@ -671,7 +671,7 @@ function languageBridgeScript(routeName) {
       if(document.getElementById('wfggTrainSentinelLoaderV4'))return;
       const script=document.createElement('script');
       script.id='wfggTrainSentinelLoaderV4';
-      script.src='/train/sentinel-train-v1.js?v=012';
+      script.src='/train/sentinel-train-v1.js?v=013';
       script.async=true;
       script.dataset.wfggAfterBoot='1';
       script.onerror=()=>console.warn('WFGG_SENTINEL_AFTER_BOOT_V4=LOAD_ERROR');
@@ -1752,6 +1752,46 @@ async function runSentinelAtPortalEdge(request){
 
   const diagnosis=await sentinelRunDeepDiagnostics(request,token,meCall,snapCall,checks);
 
+  /* WFGG_SENTINEL_PRESCRIPTIVE_EDGE_V12
+     Une anomalie déclenche une demande GET vers le simulateur Train V12.
+     Le plan retourné est uniquement descriptif : readonly=true, applied=false. */
+  let repairPlan=null;
+  const repairIssues=[...new Set(checks
+    .filter(item=>item&&(item.level==='error'||item.level==='warning'))
+    .map(item=>String(item.id||'').trim()).filter(Boolean))];
+  if(repairIssues.length){
+    const params=new URLSearchParams();
+    for(const id of repairIssues)params.append('issue',id);
+    const signal=[
+      diagnosis?.rootCause?.observed,diagnosis?.rootCause?.detail,diagnosis?.rootCause?.probableCause,
+      ...checks.filter(item=>item?.level==='error').slice(0,4).map(item=>item.detail||item.observed||item.probableCause||'')
+    ].filter(Boolean).join(' | ').slice(0,220);
+    if(signal)params.set('signal',signal);
+    try{
+      const repairCall=await sentinelEdgeFetchJson(
+        request,UPSTREAMS.trainApi.origin,'/api/sentinel/repair-plan?'+params.toString(),
+        {'Authorization':null,'X-WfGg-Portal-Token':token,'X-WfGg-Sentinel-Diagnostic':'v12','Accept':'application/json'}
+      );
+      if(repairCall.response.ok&&repairCall.data?.readonly===true&&repairCall.data?.applied===false){
+        repairPlan=repairCall.data;
+      }else{
+        repairPlan={ok:false,version:'sentinel-repair-link-v12',readonly:true,applied:false,candidates:[],error:'HTTP_'+repairCall.response.status};
+        checks.push(sentinelEdgeCheck(
+          'sentinel-repair-plan-link','Sentinel · correctifs simulés','warning','Simulation des correctifs',
+          'Plan V12 readonly disponible','HTTP '+repairCall.response.status,
+          sentinelSanitizeSnippet(repairCall.raw||repairCall.data?.error||''),'Le diagnostic reste valide mais la simulation des correctifs est indisponible.'
+        ));
+      }
+    }catch(error){
+      repairPlan={ok:false,version:'sentinel-repair-link-v12',readonly:true,applied:false,candidates:[],error:String(error?.message||error)};
+      checks.push(sentinelEdgeCheck(
+        'sentinel-repair-plan-link','Sentinel · correctifs simulés','warning','Simulation des correctifs',
+        'Plan V12 readonly disponible','Erreur réseau',String(error?.message||error),
+        'Le diagnostic reste valide mais la simulation des correctifs est indisponible.'
+      ));
+    }
+  }
+
   const counts={ok:0,info:0,warning:0,error:0};
   for(const item of checks)counts[item.level]=(counts[item.level]||0)+1;
   const status=counts.error?'error':counts.warning?'warning':counts.info?'info':'ok';
@@ -1764,6 +1804,7 @@ async function runSentinelAtPortalEdge(request){
     finishedAt:new Date().toISOString(),
     summary:{status,counts,total:checks.length},
     diagnosis,
+    repairPlan,
     checks
   });
 }
