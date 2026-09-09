@@ -1,0 +1,51 @@
+name: Notifications Android flow v14.1
+
+on:
+  push:
+    branches: [notifications-android-flow-v14-1]
+    paths:
+      - '.github/scripts/notifications_android_flow_v14_1.py'
+      - '.github/workflows/notifications-android-flow-v14-1.yml'
+      - 'frontend/train-native/app.v15.js'
+      - 'frontend/train-native/sentinel-train-v1.js'
+      - 'frontend/_worker.js'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch-and-test:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: notifications-android-flow-v14-1
+      - name: Apply Android notification flow patch
+        run: python .github/scripts/notifications_android_flow_v14_1.py
+      - name: Validate JavaScript and notification contract
+        run: |
+          node --check frontend/train-native/app.v15.js
+          node --check frontend/train-native/sentinel-train-v1.js
+          node --check frontend/_worker.js
+          grep -q 'WFGG_NOTIFICATION_ANDROID_GUIDED_FIX_V14_1' frontend/train-native/app.v15.js
+          grep -q "auto-recheck','returned-from-android-settings" frontend/train-native/app.v15.js
+          grep -q 'Catégories de notification → Sites' frontend/train-native/app.v15.js
+          grep -q "sentinel-train-v14.1" frontend/train-native/sentinel-train-v1.js
+          grep -q 'repair-local-notification-android-settings-v14-1' frontend/train-native/sentinel-train-v1.js
+          grep -q "sentinel-train-v1.js?v=0141" frontend/_worker.js
+      - name: Commit tested patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add frontend/train-native/app.v15.js frontend/train-native/sentinel-train-v1.js frontend/_worker.js
+          if git diff --cached --quiet; then
+            echo 'No frontend changes.'
+            exit 0
+          fi
+          git commit -m 'feat(notifications): guide Android Chrome recovery v14.1'
+          git push origin HEAD:notifications-android-flow-v14-1
