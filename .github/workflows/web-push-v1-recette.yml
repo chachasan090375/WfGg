@@ -29,7 +29,9 @@ jobs:
           ref: feature-web-push-v1
       - name: Apply Portal Web Push patch
         run: |
-          python .github/scripts/web_push_v1_portal_patch.py
+          if ! grep -q 'WFGG_WEB_PUSH_CLIENT_V1' frontend/train-native/app.v15.js; then
+            python .github/scripts/web_push_v1_portal_patch.py
+          fi
           python .github/scripts/web_push_v1_portal_fix.py
           python .github/scripts/web_push_v1_portal_fix2.py
       - name: Syntax and focused contract
