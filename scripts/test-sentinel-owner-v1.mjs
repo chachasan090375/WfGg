@@ -13,10 +13,13 @@ const required = [
   [worker.includes('modifiesPlanning: false'), 'legacy Sentinel declares planning read-only'],
   [worker.includes('automaticFixes: false'), 'legacy Sentinel declares no automatic fixes'],
 
-  [edge.includes('WFGG_SENTINEL_EDGE_ACCESS_V7'), 'production Pages edge uses Sentinel access v7'],
+  [edge.includes('WFGG_SENTINEL_EDGE_ACCESS_V7'), 'production Pages edge retains Sentinel access guard'],
   [edge.includes("['OWNER','SUPERVISOR'].includes(sentinelRole)"), 'server edge authorizes OWNER and SUPERVISOR only'],
   [edge.includes('SENTINEL_ACCESS_FORBIDDEN'), 'unauthorized Sentinel denial is explicit'],
-  [edge.includes("script.src='/train/sentinel-train-v1.js?v=007'"), 'Train loads cache-busted Sentinel v7'],
+  [edge.includes("script.src='/train/sentinel-train-v1.js?v=011'"), 'Train loads cache-busted Sentinel v11'],
+  [edge.includes('WFGG_SENTINEL_FUNCTIONAL_COVERAGE_V11'), 'production edge includes V11 functional coverage'],
+  [edge.includes("'/api/sentinel/feature-audit'"), 'production edge calls Train feature audit'],
+  [edge.includes("'/api/sentinel/self-test'"), 'production edge calls synthetic self-test'],
   [edge.includes('readonly:true'), 'production Sentinel remains read-only'],
 
   [trainUi.includes("['OWNER', 'SUPERVISOR'].includes(accessRole)"), 'Train launcher follows system access role'],
@@ -24,7 +27,9 @@ const required = [
   [trainUi.includes('WFGG_SENTINEL_LAUNCH_CAPTURE_V7'), 'Android capture launcher is installed'],
   [trainUi.includes('stopImmediatePropagation'), 'launcher isolates click from Train handlers'],
   [trainUi.includes("portalFetch('/api/sentinel/run')"), 'Train Sentinel calls protected edge endpoint'],
-  [trainUi.includes('WFGG_SENTINEL_REPORT_V2'), 'copyable report format is preserved'],
+  [trainUi.includes("const VERSION = 'sentinel-train-v11'"), 'Train Sentinel client is V11'],
+  [trainUi.includes('WFGG_SENTINEL_REPORT_V4'), 'copyable report format V4 is active'],
+  [trainUi.includes('train-ui-functional-contract-v11'), 'client functional contract is active'],
 
   [migration.includes("role IN ('OWNER','SUPERVISOR')"), 'D1 schema supports OWNER and SUPERVISOR'],
   [migration.includes("'flawene','flawen'"), 'Flawene supervisor seed is present'],
@@ -43,4 +48,4 @@ for (const [ok, label] of required) {
   console.log(`SENTINEL_CONTRACT_OK: ${label}`);
 }
 
-console.log('WFGG_SENTINEL_OWNER_SUPERVISOR_V7=OK');
+console.log('WFGG_SENTINEL_OWNER_SUPERVISOR_V11=OK');
