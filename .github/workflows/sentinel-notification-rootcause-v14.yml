@@ -1,0 +1,47 @@
+name: Sentinel notification root-cause v14
+
+on:
+  push:
+    branches: [sentinel-notification-rootcause-v14]
+    paths:
+      - '.github/scripts/sentinel_notification_rootcause_v14.py'
+      - '.github/workflows/sentinel-notification-rootcause-v14.yml'
+      - 'frontend/train-native/sentinel-train-v1.js'
+      - 'frontend/_worker.js'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch-and-test:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: sentinel-notification-rootcause-v14
+      - name: Apply Sentinel root-cause patch
+        run: python .github/scripts/sentinel_notification_rootcause_v14.py
+      - name: Validate JavaScript and diagnostic contract
+        run: |
+          node --check frontend/train-native/sentinel-train-v1.js
+          node --check frontend/_worker.js
+          grep -q "sentinel-train-v14.0" frontend/train-native/sentinel-train-v1.js
+          grep -q 'WFGG_SENTINEL_NOTIFICATION_ROOT_CAUSE_V14' frontend/train-native/sentinel-train-v1.js
+          grep -q 'ANDROID_CHROME_PRESENTATION_BLOCKED' frontend/train-native/sentinel-train-v1.js
+          grep -q "sentinel-train-v1.js?v=014" frontend/_worker.js
+      - name: Commit tested patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add frontend/train-native/sentinel-train-v1.js frontend/_worker.js
+          if git diff --cached --quiet; then
+            echo 'No frontend changes.'
+            exit 0
+          fi
+          git commit -m 'feat(sentinel): classify notification root cause v14'
+          git push origin HEAD:sentinel-notification-rootcause-v14
