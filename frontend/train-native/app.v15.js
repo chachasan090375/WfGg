@@ -1264,7 +1264,7 @@
     }
     function notificationSettingsFallback(){
         notificationSettingsOutcomeWrite('fallback','browser_fallback_url');
-        openModal(`<h2>🔔 ${notificationSettingsText('Autoriser les notifications','Allow notifications','Consenti notifiche','Permitir notificaciones')}</h2><div class="warning">${notificationSettingsText('Ouvre les notifications de Chrome puis vérifie que les notifications sont autorisées. Si une liste de sites est proposée, autorise wfgg.pages.dev.','Open Chrome notifications and make sure notifications are allowed. If a site list is shown, allow wfgg.pages.dev.','Apri le notifiche di Chrome e verifica che siano consentite. Se viene mostrato un elenco di siti, consenti wfgg.pages.dev.','Abre las notificaciones de Chrome y comprueba que estén permitidas. Si aparece una lista de sitios, permite wfgg.pages.dev.')}</div><p>${notificationSettingsText('Chemin manuel : Paramètres Android → Applications → Chrome → Notifications.','Manual path: Android Settings → Apps → Chrome → Notifications.','Percorso manuale: Impostazioni Android → App → Chrome → Notifiche.','Ruta manual: Ajustes Android → Aplicaciones → Chrome → Notificaciones.')}</p><div class="actions"><button id="wfggNotifRetry" class="btn gold">🔄 ${notificationSettingsText('Revérifier','Check again','Ricontrolla','Volver a comprobar')}</button><button id="wfggNotifClose" class="btn outline">${notificationSettingsText('Fermer','Close','Chiudi','Cerrar')}</button></div>`);
+        openModal(`<h2>🔔 ${notificationSettingsText('Autoriser les notifications','Allow notifications','Consenti notifiche','Permitir notificaciones')}</h2><div class="warning">${notificationSettingsText('Ouvre les notifications de Chrome puis vérifie que les notifications sont autorisées. Si une liste de sites est proposée, autorise wfgg.pages.dev.','Open Chrome notifications and make sure notifications are allowed. If a site list is shown, allow wfgg.pages.dev.','Apri le notifiche di Chrome e verifica che siano consentite. Se viene mostrato un elenco di siti, consenti wfgg.pages.dev.','Abre las notificaciones de Chrome y comprueba que estén permitidas. Si aparece una lista de sitios, permite wfgg.pages.dev.')}</div><p>${notificationSettingsText('Chemin : Paramètres Android → Applications → Chrome → Notifications → Catégories de notification → Sites.','Path: Android Settings → Apps → Chrome → Notifications → Notification categories → Sites.','Percorso: Impostazioni Android → App → Chrome → Notifiche → Categorie di notifica → Siti.','Ruta: Ajustes Android → Aplicaciones → Chrome → Notificaciones → Categorías de notificación → Sitios.')}</p><div class="actions"><button id="wfggNotifRetry" class="btn gold">🔄 ${notificationSettingsText('Revérifier','Check again','Ricontrolla','Volver a comprobar')}</button><button id="wfggNotifClose" class="btn outline">${notificationSettingsText('Fermer','Close','Chiudi','Cerrar')}</button></div>`);
         queueMicrotask(()=>{
             document.getElementById('wfggNotifRetry')?.addEventListener('click',()=>{closeModal();testLocalNotification();});
             document.getElementById('wfggNotifClose')?.addEventListener('click',closeModal);
@@ -1296,16 +1296,20 @@
             document.getElementById('wfggNotifLater')?.addEventListener('click',closeModal);
         });
     }
+    /* WFGG_NOTIFICATION_ANDROID_GUIDED_FIX_V14_1
+       When showNotification() succeeds but Android does not display it, do not
+       propose a WfGg reset first. Open Chrome notification settings from the
+       user's gesture, then recheck automatically when WfGg becomes visible again.
+       Android still requires the user to change the system channel/category. */
     function promptAndroidNotificationDisplayFix(){
-        const modify=notificationSettingsModifyMarkup(notificationSettingsText('Modifier','Change','Modifica','Cambiar'));
-        openModal(`<h2>🔔 ${notificationSettingsText('Diagnostic notifications','Notification diagnostics','Diagnostica notifiche','Diagnóstico de notificaciones')}</h2><div class="warning">${notificationSettingsText('Chrome a bien créé la notification, mais tu confirmes qu’Android ne l’a pas affichée.','Chrome created the notification, but you confirmed Android did not display it.','Chrome ha creato la notifica, ma hai confermato che Android non l’ha visualizzata.','Chrome creó la notificación, pero confirmaste que Android no la mostró.')}</div><p>${notificationSettingsText('Tu peux tenter les réglages Chrome, ou réinitialiser uniquement le canal WfGg sans toucher aux autres sites.','You can try Chrome settings, or reset only the WfGg channel without touching other sites.','Puoi provare le impostazioni di Chrome o reimpostare solo il canale WfGg senza toccare gli altri siti.','Puedes probar los ajustes de Chrome o restablecer solo el canal WfGg sin tocar otros sitios.')}</p><div class="actions">${modify}<button id="wfggNotifResetOnly" class="btn outline">♻️ ${notificationSettingsText('Réinitialiser WfGg','Reset WfGg','Reimposta WfGg','Restablecer WfGg')}</button><button id="wfggNotifLater" class="btn outline">${notificationSettingsText('Pas maintenant','Not now','Non ora','Ahora no')}</button></div>`);
+        const modify=notificationSettingsModifyMarkup(notificationSettingsText('Ouvrir les réglages Chrome','Open Chrome settings','Apri impostazioni Chrome','Abrir ajustes de Chrome'));
+        openModal(`<h2>🔔 ${notificationSettingsText('Affichage Android bloqué','Android display blocked','Visualizzazione Android bloccata','Visualización Android bloqueada')}</h2><div class="warning">${notificationSettingsText('Chrome a créé la notification, mais Android ne l’a pas affichée. La chaîne WfGg est correcte jusqu’au système.','Chrome created the notification, but Android did not display it. The WfGg chain is correct up to the system layer.','Chrome ha creato la notifica, ma Android non l’ha visualizzata. La catena WfGg è corretta fino al sistema.','Chrome creó la notificación, pero Android no la mostró. La cadena WfGg es correcta hasta el sistema.')}</div><p>${notificationSettingsText('WfGg va ouvrir directement les notifications de Chrome. Si nécessaire, active Catégories de notification → Sites. En revenant dans WfGg, le test local sera relancé automatiquement.','WfGg will open Chrome notifications directly. If needed, enable Notification categories → Sites. When you return to WfGg, the local test will run automatically.','WfGg aprirà direttamente le notifiche di Chrome. Se necessario, attiva Categorie di notifica → Siti. Tornando in WfGg, il test locale ripartirà automaticamente.','WfGg abrirá directamente las notificaciones de Chrome. Si es necesario, activa Categorías de notificación → Sitios. Al volver a WfGg, la prueba local se repetirá automáticamente.')}</p><div class="actions">${modify}<button id="wfggNotifLater" class="btn outline">${notificationSettingsText('Pas maintenant','Not now','Non ora','Ahora no')}</button></div>`);
         queueMicrotask(()=>{
             wireNotificationSettingsModify();
-            document.getElementById('wfggNotifResetOnly')?.addEventListener('click',promptWfggNotificationReset);
             document.getElementById('wfggNotifLater')?.addEventListener('click',closeModal);
         });
     }
-    document.addEventListener('visibilitychange',()=>{
+    document.addEventListener('visibilitychange' ,()=>{
         if(document.visibilityState==='hidden'&&sessionStorage.getItem('wfgg_notification_settings_return')==='1'){
             notificationSettingsOutcomeWrite('external-opened','document-hidden-after-intent');
             return;
@@ -1317,8 +1321,9 @@
         setTimeout(async()=>{
             try{await refreshPushUi();}catch(_){}
             if(Notification.permission==='granted'){
+                notificationSettingsOutcomeWrite('auto-recheck','returned-from-android-settings');
                 toast(notificationSettingsText('Réglages repris. Nouveau test d’affichage…','Settings resumed. Testing display again…','Impostazioni riprese. Nuovo test di visualizzazione…','Ajustes retomados. Nueva prueba de visualización…'));
-                testLocalNotification();
+                await testLocalNotification();
             }else promptNotificationPermissionFix();
         },500);
     });
