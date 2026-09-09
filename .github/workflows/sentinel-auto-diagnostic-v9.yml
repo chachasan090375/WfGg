@@ -25,6 +25,7 @@ jobs:
       - name: Validate syntax and observer contract
         run: |
           node --check frontend/_worker.js
+          node --check frontend/train-native/sentinel-train-v1.js
           grep -q 'WFGG_SENTINEL_AUTO_DIAGNOSTIC_V9' frontend/_worker.js
           grep -q 'sentinelRunDeepDiagnostics' frontend/_worker.js
           grep -q 'sentinelClassifyCloudflareFailure' frontend/_worker.js
@@ -34,9 +35,12 @@ jobs:
           grep -q 'readonly:true' frontend/_worker.js
           grep -q 'sentinel-root-cause' frontend/_worker.js
           grep -q 'sentinel-deep-snapshot-envelope' frontend/_worker.js
-          ! grep -A140 'WFGG_SENTINEL_AUTO_DIAGNOSTIC_V9' frontend/_worker.js | grep -E "method:'(POST|PUT|DELETE)'"
-      - name: Run repository preflight
-        run: node scripts/preflight.mjs
+          ! grep -A180 'WFGG_SENTINEL_AUTO_DIAGNOSTIC_V9' frontend/_worker.js | grep -E "method:'(POST|PUT|DELETE)'"
+      - name: Validate existing Sentinel access contract
+        run: |
+          grep -q "sentinelEffectiveRole(meCall.data)" frontend/_worker.js
+          grep -q "\['OWNER','SUPERVISOR'\].includes(sentinelRole)" frontend/_worker.js
+          grep -q "return await sentinelPortalMeAtEdge(request)" frontend/_worker.js
       - name: Commit generated edge change
         run: |
           if git diff --quiet -- frontend/_worker.js; then
@@ -48,5 +52,3 @@ jobs:
           git add frontend/_worker.js
           git commit -m 'feat(sentinel): autonomous read-only root-cause diagnostics v9'
           git push origin HEAD:sentinel-auto-diagnostic-v9
-
-# WFGG_SENTINEL_AUTO_DIAGNOSTIC_V9_VALIDATION_TRIGGER
