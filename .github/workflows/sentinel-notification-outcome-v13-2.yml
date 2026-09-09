@@ -1,0 +1,44 @@
+name: Sentinel notification outcome V13.2
+
+on:
+  push:
+    branches: [sentinel-notification-outcome-v13-2]
+    paths:
+      - 'scripts/patch-sentinel-notification-outcome-v13-2.mjs'
+      - '.github/workflows/sentinel-notification-outcome-v13-2.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: sentinel-notification-outcome-v13-2
+      - name: Apply V13.2 patch
+        run: node scripts/patch-sentinel-notification-outcome-v13-2.mjs
+      - name: Validate syntax and contract
+        run: |
+          set -eu
+          node --check frontend/train-native/app.v15.js
+          node --check frontend/train-native/sentinel-train-v1.js
+          grep -Fq 'WFGG_NOTIFICATION_SETTINGS_OUTCOME_V13_2' frontend/train-native/app.v15.js
+          grep -Fq "sentinel-train-v13.2" frontend/train-native/sentinel-train-v1.js
+          grep -Fq "Intent refusé" frontend/train-native/sentinel-train-v1.js
+          grep -Fq "browser_fallback_url" frontend/train-native/app.v15.js
+          (cd frontend/train-native && sha256sum -c app.v15.js.sha256)
+      - name: Commit runtime
+        run: |
+          set -eu
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add frontend/train-native/app.v15.js frontend/train-native/app.v15.js.sha256 frontend/train-native/sentinel-train-v1.js
+          if git diff --cached --quiet; then
+            echo 'No runtime change to commit'
+          else
+            git commit -m 'sentinel(v13.2): track real Android settings outcome'
+            git push origin HEAD:sentinel-notification-outcome-v13-2
+          fi
