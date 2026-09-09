@@ -4,16 +4,15 @@ on:
   push:
     branches:
       - main
-      - sentinel-owner-v1
-      - sentinel-copy-report-v1
+      - sentinel-train-launcher-v1
     paths:
       - 'worker/src/index.js'
       - 'worker/src/core.js'
       - 'worker/package.json'
       - 'worker/wrangler.jsonc'
-      - 'frontend/sentinel-owner-v1.js'
-      - 'frontend/sentinel-launcher-v2.js'
-      - 'frontend/sentinel-copy-report-v1.js'
+      - 'frontend/train-native/app.v15.js'
+      - 'frontend/train-native/app.v15.js.sha256'
+      - 'frontend/train-native/sentinel-train-v1.js'
       - 'frontend/index.html'
       - 'scripts/test-sentinel-owner-v1.mjs'
       - '.github/workflows/sentinel-owner-v1.yml'
@@ -23,9 +22,9 @@ on:
       - 'worker/src/core.js'
       - 'worker/package.json'
       - 'worker/wrangler.jsonc'
-      - 'frontend/sentinel-owner-v1.js'
-      - 'frontend/sentinel-launcher-v2.js'
-      - 'frontend/sentinel-copy-report-v1.js'
+      - 'frontend/train-native/app.v15.js'
+      - 'frontend/train-native/app.v15.js.sha256'
+      - 'frontend/train-native/sentinel-train-v1.js'
       - 'frontend/index.html'
       - 'scripts/test-sentinel-owner-v1.mjs'
       - '.github/workflows/sentinel-owner-v1.yml'
@@ -42,11 +41,12 @@ jobs:
         run: |
           node --check worker/src/index.js
           node --check worker/src/core.js
-          node --check frontend/sentinel-owner-v1.js
-          node --check frontend/sentinel-launcher-v2.js
-          node --check frontend/sentinel-copy-report-v1.js
+          node --check frontend/train-native/app.v15.js
+          node --check frontend/train-native/sentinel-train-v1.js
       - name: Validate Sentinel owner/read-only contract
         run: node scripts/test-sentinel-owner-v1.mjs
+      - name: Validate native Train checksum
+        run: sha256sum -c frontend/train-native/app.v15.js.sha256
       - name: Install Worker tooling
         working-directory: worker
         run: npm install --no-audit --no-fund
