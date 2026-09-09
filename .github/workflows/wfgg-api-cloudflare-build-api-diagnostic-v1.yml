@@ -14,7 +14,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-      - name: Read Cloudflare Workers Builds configuration and latest failure
+      - name: Read failed Cloudflare build directly by UUID
         env:
           CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         run: |
@@ -23,10 +23,8 @@ jobs:
 
           token=os.environ.get('CF_API_TOKEN','')
           if not token:
-              print('CF_DIAG=MISSING_CLOUDFLARE_API_TOKEN')
-              sys.exit(2)
+              print('CF_DIAG=MISSING_CLOUDFLARE_API_TOKEN');sys.exit(2)
           headers={'Authorization':f'Bearer {token}','Content-Type':'application/json'}
-
           def get(url):
               req=urllib.request.Request(url,headers=headers)
               try:
@@ -34,16 +32,13 @@ jobs:
                       return r.status,r.read().decode('utf-8','replace')
               except urllib.error.HTTPError as e:
                   return e.code,e.read().decode('utf-8','replace')
-
           def data(body):
               try:return json.loads(body)
               except Exception:return {}
-
           def errors(body):
               d=data(body)
               return ' | '.join(f"{e.get('code')}:{e.get('message')}" for e in d.get('errors') or []) or '(none)'
 
-          # Resolve account by locating the wfgg Pages project, exactly like production Pages deploy.
           st,body=get('https://api.cloudflare.com/client/v4/accounts?per_page=50')
           print(f'CF_ACCOUNTS_HTTP={st}')
           if st!=200:
@@ -59,79 +54,47 @@ jobs:
               print('CF_ACCOUNT=NOT_FOUND');sys.exit(4)
           print('CF_ACCOUNT=FOUND')
 
-          st,body=get(f'https://api.cloudflare.com/client/v4/accounts/{account_id}/workers/scripts')
-          print(f'CF_WORKERS_SCRIPTS_HTTP={st}')
+          build_uuid='090e73da-a32c-486f-9abd-684fe9ddb785'
+          st,body=get(f'https://api.cloudflare.com/client/v4/accounts/{account_id}/builds/builds/{build_uuid}')
+          print(f'CF_BUILD_GET_HTTP={st}')
           if st!=200:
-              print('CF_WORKERS_SCRIPTS_ERRORS='+errors(body));sys.exit(5)
-          scripts=data(body).get('result') or []
-          worker=next((x for x in scripts if x.get('id')=='wfgg-api'),None)
-          if not worker:
-              print('WFGG_API_WORKER=NOT_FOUND');sys.exit(6)
-          tag=worker.get('tag')
-          print('WFGG_API_WORKER=FOUND')
-          print('WFGG_API_TAG_PRESENT='+('yes' if tag else 'no'))
-          if not tag: sys.exit(7)
-
-          st,body=get(f'https://api.cloudflare.com/client/v4/accounts/{account_id}/builds/workers/{tag}/triggers')
-          print(f'CF_BUILDS_TRIGGERS_HTTP={st}')
-          if st!=200:
-              print('CF_BUILDS_TRIGGERS_ERRORS='+errors(body));sys.exit(8)
-          triggers=data(body).get('result') or []
-          print(f'CF_TRIGGER_COUNT={len(triggers)}')
-          for i,t in enumerate(triggers,1):
-              rc=t.get('repo_connection') or {}
-              print(f'TRIGGER_{i}_NAME={t.get("trigger_name")}')
-              print(f'TRIGGER_{i}_ROOT={t.get("root_directory")}')
-              print(f'TRIGGER_{i}_BUILD={t.get("build_command")}')
-              print(f'TRIGGER_{i}_DEPLOY={t.get("deploy_command")}')
-              print(f'TRIGGER_{i}_BRANCH_INCLUDES={t.get("branch_includes")}')
-              print(f'TRIGGER_{i}_BRANCH_EXCLUDES={t.get("branch_excludes")}')
-              print(f'TRIGGER_{i}_PATH_INCLUDES={t.get("path_includes")}')
-              print(f'TRIGGER_{i}_PATH_EXCLUDES={t.get("path_excludes")}')
-              print(f'TRIGGER_{i}_REPO={rc.get("repo_name")}')
-              print(f'TRIGGER_{i}_BUILD_TOKEN_NAME={t.get("build_token_name")}')
-
-          st,body=get(f'https://api.cloudflare.com/client/v4/accounts/{account_id}/builds/workers/{tag}/builds?per_page=20')
-          print(f'CF_BUILDS_LIST_HTTP={st}')
-          if st!=200:
-              print('CF_BUILDS_LIST_ERRORS='+errors(body));sys.exit(9)
-          builds=data(body).get('result') or []
-          print(f'CF_BUILD_COUNT={len(builds)}')
-          target=None
-          for b in builds:
+              print('CF_BUILD_GET_ERRORS='+errors(body))
+          else:
+              b=data(body).get('result') or {}
               m=b.get('build_trigger_metadata') or {}
-              if m.get('commit_hash')=='d8a430a10cbe0f70b0feede5054ec815bbd53eab':
-                  target=b;break
-          if target is None:
-              target=next((b for b in builds if b.get('build_outcome')=='fail'),None)
-          if target is None:
-              print('CF_FAILED_BUILD=NOT_FOUND');sys.exit(10)
-          meta=target.get('build_trigger_metadata') or {}
-          print(f'CF_FAILED_BUILD_OUTCOME={target.get("build_outcome")}')
-          print(f'CF_FAILED_BUILD_BRANCH={meta.get("branch")}')
-          print(f'CF_FAILED_BUILD_COMMIT={meta.get("commit_hash")}')
-          print(f'CF_FAILED_BUILD_BUILD_COMMAND={meta.get("build_command")}')
-          print(f'CF_FAILED_BUILD_DEPLOY_COMMAND={meta.get("deploy_command")}')
-          print(f'CF_FAILED_BUILD_ROOT={meta.get("root_directory")}')
-          uuid=target.get('build_uuid')
-          if not uuid:
-              print('CF_FAILED_BUILD_UUID=MISSING');sys.exit(11)
+              t=b.get('trigger') or {}
+              print(f'CF_BUILD_OUTCOME={b.get("build_outcome")}')
+              print(f'CF_BUILD_BRANCH={m.get("branch")}')
+              print(f'CF_BUILD_COMMIT={m.get("commit_hash")}')
+              print(f'CF_BUILD_BUILD_COMMAND={m.get("build_command")}')
+              print(f'CF_BUILD_DEPLOY_COMMAND={m.get("deploy_command")}')
+              print(f'CF_BUILD_ROOT={m.get("root_directory")}')
+              print(f'CF_TRIGGER_NAME={t.get("trigger_name")}')
+              print(f'CF_TRIGGER_ROOT={t.get("root_directory")}')
+              print(f'CF_TRIGGER_BUILD={t.get("build_command")}')
+              print(f'CF_TRIGGER_DEPLOY={t.get("deploy_command")}')
+              print(f'CF_TRIGGER_BRANCH_INCLUDES={t.get("branch_includes")}')
+              print(f'CF_TRIGGER_BRANCH_EXCLUDES={t.get("branch_excludes")}')
 
-          st,body=get(f'https://api.cloudflare.com/client/v4/accounts/{account_id}/builds/builds/{uuid}/logs')
+          st,body=get(f'https://api.cloudflare.com/client/v4/accounts/{account_id}/builds/builds/{build_uuid}/logs')
           print(f'CF_BUILD_LOGS_HTTP={st}')
           if st!=200:
-              print('CF_BUILD_LOGS_ERRORS='+errors(body));sys.exit(12)
-          lines=(data(body).get('result') or {}).get('lines') or []
+              print('CF_BUILD_LOGS_ERRORS='+errors(body));sys.exit(5)
+          result=data(body).get('result') or {}
+          lines=result.get('lines') or []
           print(f'CF_BUILD_LOG_LINES={len(lines)}')
           keep=[]
-          rx=re.compile(r'error|fail|exception|enoent|not found|wrangler|root|token|config|npm|directory|worker',re.I)
+          rx=re.compile(r'error|fail|exception|enoent|not found|wrangler|root|token|config|npm|directory|worker|package',re.I)
           for row in lines:
-              msg=' '.join(str(x) for x in row[1:]) if isinstance(row,list) else str(row)
+              if isinstance(row,list):
+                  msg=' '.join(str(x) for x in row[1:])
+              else:
+                  msg=str(row)
               if rx.search(msg):
                   msg=re.sub(r'Bearer\s+\S+','Bearer [REDACTED]',msg,flags=re.I)
                   msg=re.sub(r'(?i)(token\s*[=:]\s*)\S+',r'\1[REDACTED]',msg)
-                  keep.append(msg[:800])
+                  keep.append(msg[:1000])
           print('CF_RELEVANT_LOG_LINES_BEGIN')
-          for line in keep[-120:]: print(line)
+          for line in keep[-160:]: print(line)
           print('CF_RELEVANT_LOG_LINES_END')
           PY
