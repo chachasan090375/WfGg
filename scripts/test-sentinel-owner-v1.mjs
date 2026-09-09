@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 
+// V12 final validation marker: runtime unchanged; this commit replays PR checks after checksum refresh.
 const worker = fs.readFileSync('worker/src/index.js', 'utf8');
 const edge = fs.readFileSync('frontend/_worker.js', 'utf8');
 const trainUi = fs.readFileSync('frontend/train-native/sentinel-train-v1.js', 'utf8');
