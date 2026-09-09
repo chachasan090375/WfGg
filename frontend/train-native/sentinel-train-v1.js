@@ -311,7 +311,7 @@
        Inventaire des actions réellement exposées par app.v15. Sentinel ne les
        déclenche pas : il vérifie que le câblage client de chaque famille existe. */
     const uiFunctions = [
-      'addCalendar','addAllCalendar','toggleAlerts','testLocalPushNotification','testPushReminder',
+      'addCalendar','addAllCalendar','toggleAlerts','testLocalNotification','testLocalPushNotification','testPushReminder',
       'changeWeek','openExchange','publishMarketExchange','cancelMarketExchange','pickMyDateForMarket','executeMarketSwap',
       'markUnavailable','showUnavailableChoice','openUnavailableDayPicker','saveUnavailableDayFromPicker','openUnavailablePeriod','saveUnavailablePeriod','saveUnavailableDay','removeUnavailableRange','removeUnavailable','showUnavailable',
       'toggleRotation','showRotationStatus','openProfileInfo','openSelfProfileEdit','saveSelfProfile','openChangePin','changeMyPin','changeLanguage','setPortalLanguage',
@@ -328,6 +328,16 @@
       missingUi.length ? `${missingUi.length} manquante(s): ${missingUi.slice(0,12).join(', ')}` : `${uiFunctions.length}/${uiFunctions.length} présentes`,
       'Couvre calendrier, alertes, échanges, indisponibilités, statut, profil/PIN/langue, administration, présence, messages, liens et statistiques.',
       missingUi.length ? 'Une fonction visible dans l’interface n’est plus exposée par app.v15.' : ''
+    ));
+    /* train-local-notification-handler-v12
+       Vérifie le branchement exact du bouton d'affichage local : le HTML appelle
+       W.testLocalNotification(), qui doit donc être exporté par app.v15. */
+    const localNotificationHandler = typeof window.W?.testLocalNotification === 'function';
+    items.push(localCheck(
+      'train-local-notification-handler',localNotificationHandler?'ok':'error','Bouton test notification locale',
+      'W.testLocalNotification disponible',localNotificationHandler?'câblé':'absent',
+      'Ce contrôle distingue le test local Service Worker du test Push serveur.',
+      localNotificationHandler?'':'Le bouton de test local appelle une fonction non exposée.'
     ));
     const calendarRuntime = typeof Blob === 'function' && typeof URL?.createObjectURL === 'function' && typeof window.W?.addCalendar === 'function' && typeof window.W?.addAllCalendar === 'function';
     items.push(localCheck(
