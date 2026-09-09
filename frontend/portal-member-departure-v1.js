@@ -7,7 +7,6 @@ let trainRosterIds=null;
 let showFormer=false;
 
 function token(){return localStorage.getItem(PORTAL_TOKEN_KEY)||''}
-function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 
 async function portalApi(path,options={}){
   const headers=new Headers(options.headers||{});
@@ -52,7 +51,6 @@ function ensureFormerToggle(){
   button.textContent='🗃️ Anciens membres';
   button.addEventListener('click',()=>{
     showFormer=!showFormer;
-    button.textContent=showFormer?'🗃️ Masquer anciens membres':'🗃️ Anciens membres';
     decorateFormerMembers();
   });
   tools.appendChild(button);
@@ -70,7 +68,10 @@ function decorateFormerMembers(){
     if(former){
       formerCount+=1;
       const meta=row.querySelector('.member-meta');
-      if(meta)meta.innerHTML=meta.innerHTML.replace(/désactivé|inactif/gi,'ancien membre');
+      if(meta){
+        const next=meta.innerHTML.replace(/désactivé|inactif/gi,'ancien membre');
+        if(next!==meta.innerHTML)meta.innerHTML=next;
+      }
       row.style.display=showFormer?'':'none';
     }else{
       row.style.display='';
@@ -79,7 +80,8 @@ function decorateFormerMembers(){
   const toggle=document.querySelector('[data-wfgg-former-toggle]');
   if(toggle){
     const base=showFormer?'🗃️ Masquer anciens membres':'🗃️ Anciens membres';
-    toggle.textContent=`${base}${formerCount?` (${formerCount})`:''}`;
+    const label=`${base}${formerCount?` (${formerCount})`:''}`;
+    if(toggle.textContent!==label)toggle.textContent=label;
   }
 }
 
