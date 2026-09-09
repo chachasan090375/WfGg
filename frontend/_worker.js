@@ -231,9 +231,13 @@ function languageBridgeScript(routeName) {
         navigator.serviceWorker.getRegistrations()
           .then(registrations=>Promise.all(
             registrations
+              /* WFGG_WEB_PUSH_SW_PRESERVE_V1 */
               .filter(registration=>{
                 try{
-                  return new URL(registration.scope).pathname.startsWith('/train/');
+                  const scopePath=new URL(registration.scope).pathname;
+                  const script=registration.active?.scriptURL||registration.waiting?.scriptURL||registration.installing?.scriptURL||'';
+                  const scriptPath=script?new URL(script).pathname:'';
+                  return scopePath.startsWith('/train/') && scriptPath!=='/train/wfgg-push-sw.js';
                 }catch(_){return false;}
               })
               .map(registration=>registration.unregister())
@@ -1126,6 +1130,10 @@ async function proxyRoute(request, route, upstreamPath, options = {}) {
     .on('head', {
       element(element) {
         let html = languageBridgeScript(options.routeName || route.prefix.slice(1));
+        /* WFGG_TRAIN_PUSH_MANIFEST_HEAD_V1 */
+        if (options.routeName === 'train') {
+          html = '<link rel="manifest" href="/train/manifest.webmanifest"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="theme-color" content="#00182b">' + html;
+        }
         if (options.baseHref) {
           html = `<base href="${options.baseHref}">` + html;
         }
@@ -1172,6 +1180,23 @@ async function routeTrain(request, env) {
   }
 
   const suffix = url.pathname.slice(route.prefix.length) || '/';
+
+  /* WFGG_TRAIN_PUSH_STATIC_V1
+     Le Service Worker Push doit être servi par wfgg.pages.dev sous /train/
+     pour posséder exactement le même origin et le bon scope sur Android/iOS. */
+  if (suffix === '/wfgg-push-sw.js' || suffix === '/manifest.webmanifest') {
+    const assetUrl = new URL(request.url);
+    assetUrl.pathname = '/train-native' + suffix;
+    assetUrl.search = '';
+    const assetResponse = await env.ASSETS.fetch(new Request(assetUrl.toString(), {method:'GET',headers:request.headers}));
+    if (assetResponse.ok) {
+      const headers = new Headers(assetResponse.headers);
+      headers.set('Cache-Control', suffix.endsWith('.js') ? 'no-store' : 'public, max-age=300');
+      if (suffix.endsWith('.js')) headers.set('Content-Type','application/javascript; charset=utf-8');
+      if (suffix.endsWith('.webmanifest')) headers.set('Content-Type','application/manifest+json; charset=utf-8');
+      return new Response(assetResponse.body,{status:assetResponse.status,statusText:assetResponse.statusText,headers});
+    }
+  }
 
   /* WFGG_TRAIN_NATIVE_APP_V15_SHADOW
      Première étape de consolidation : sur la branche native v15, app.js est
