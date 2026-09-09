@@ -1,0 +1,45 @@
+name: QA Train splash + Sentinel live v4
+
+on:
+  push:
+    branches:
+      - qa-train-splash-sentinel-live-v4
+    paths:
+      - '.github/workflows/qa-train-splash-sentinel-live-v4.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Verify live integrated Train assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          ROOT='https://wfgg.pages.dev'
+          stamp="${GITHUB_SHA}-$(date +%s)"
+          curl -fsSL -A 'Mozilla/5.0 (Linux; Android 16) AppleWebKit/537.36 Chrome/139 Mobile Safari/537.36' \
+            "$ROOT/train/?qa_splash=$stamp" -o /tmp/train.html
+          curl -fsSL -D /tmp/sentinel.headers -A 'Mozilla/5.0 (Linux; Android 16) AppleWebKit/537.36 Chrome/139 Mobile Safari/537.36' \
+            "$ROOT/train/sentinel-train-v1.js?v=004&qa_sentinel=$stamp" -o /tmp/sentinel.js
+          curl -fsSL -A 'Mozilla/5.0 (Linux; Android 16) AppleWebKit/537.36 Chrome/139 Mobile Safari/537.36' \
+            "$ROOT/train/app.js?wfgg_bridge=v14&qa_splash=$stamp" -o /tmp/app.js
+
+          grep -Fq 'WFGG_TRAIN_PASSIVE_SPLASH_SENTINEL_V4' /tmp/train.html
+          grep -Fq 'WFGG_TRAIN_PASSIVE_SPLASH_RUNTIME_V4' /tmp/train.html
+          grep -Fq 'WFGG_TRAIN_EARLY_SPLASH_V4' /tmp/train.html
+          grep -Fq "script.src='/train/sentinel-train-v1.js?v=004'" /tmp/train.html
+          grep -Fq 'wfggTrainPortalGate' /tmp/train.html
+          grep -Fq 'wfggTrainRide' /tmp/train.html
+          grep -Fqi 'x-wfgg-train-sentinel: after-boot-v4' /tmp/sentinel.headers
+          grep -Fq 'WFGG_SENTINEL_TRAIN_ROUND_LAUNCHER_V1' /tmp/sentinel.js
+          grep -Fq 'WFGG_SENTINEL_REPORT_V2' /tmp/sentinel.js
+          grep -Fq "data?.system?.role === 'OWNER'" /tmp/sentinel.js
+          grep -Fq 'WFGG_PORTAL_DIRECT_TRAIN_BOOTSTRAP_V2' /tmp/app.js
+          node --check /tmp/sentinel.js
+          node --check /tmp/app.js
+          echo 'WFGG_TRAIN_SPLASH_SENTINEL_LIVE_V4=OK'
