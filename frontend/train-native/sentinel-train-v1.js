@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = 'sentinel-train-v13';
+  const VERSION = 'sentinel-train-v13.2';
   const PORTAL_API = '/portal-api';
   const PORTAL_TOKEN_KEY = 'wfgg_portal_session';
   const TRAIN_STATE_KEY = 'wfgg_train_v13';
@@ -363,12 +363,36 @@
       graphicFailed.length?'Un contrôle reste réellement inaccessible après centrage et attente; ce n’est plus un simple élément sous la ligne de flottaison.':''
     ));
     const settingsPlan=uiProbe?.notificationSettings;
-    const settingsOk=!settingsPlan?.android||(simFailed.every(x=>x.id!=='notification-settings-action')&&String(settingsPlan?.appNotifications||'').includes('browser_fallback_url'));
+    const settingsStructuralOk=!settingsPlan?.android||(simFailed.every(x=>x.id!=='notification-settings-action')&&String(settingsPlan?.appNotifications||'').includes('browser_fallback_url'));
+    const settingsOutcome=settingsPlan?.lastOutcome||null;
+    const settingsOutcomeStatus=String(settingsOutcome?.status||'');
+    let settingsLevel='ok';
+    let settingsObserved='non Android';
+    let settingsDetail='';
+    let settingsCause='';
+    if(settingsPlan?.android){
+      if(!settingsStructuralOk){
+        settingsLevel='error';settingsObserved='câblage incomplet';settingsCause='Le lien Android ou son fallback est absent.';
+      }else if(settingsOutcomeStatus==='fallback'){
+        settingsLevel='warning';settingsObserved=`${settingsPlan.packageName} · dernier essai: Intent refusé → guide manuel`;
+        settingsDetail='Le browser_fallback_url a réellement été utilisé sur cet appareil; le raccourci système n’a donc pas ouvert les réglages.';
+        settingsCause='Chrome/Android refuse cette activité système depuis le contexte web. Le guide manuel reste fonctionnel.';
+      }else if(settingsOutcomeStatus==='external-opened'||settingsOutcomeStatus==='returned'){
+        settingsLevel='ok';settingsObserved=`${settingsPlan.packageName} · ouverture externe observée`;
+        settingsDetail='Le document WfGg est devenu masqué après le geste utilisateur, puis le retour a été observé si l’utilisateur est revenu.';
+      }else if(settingsOutcomeStatus==='attempted'){
+        settingsLevel='info';settingsObserved=`${settingsPlan.packageName} · essai lancé, résultat non encore observé`;
+        settingsDetail='Sentinel attend soit une sortie réelle de la page, soit le fallback WfGg.';
+      }else{
+        settingsLevel='info';settingsObserved=`${settingsPlan.packageName} · câblé mais pas encore testé réellement depuis V13.2`;
+        settingsDetail='Un vrai appui utilisateur sur Modifier est nécessaire pour qualifier Android/Chrome.';
+      }
+    }
     items.push(localCheck(
-      'train-notification-settings-action',settingsOk?'ok':'error','Bouton Modifier les réglages Android',
-      'Lien intent direct depuis le geste utilisateur + retour WfGg si Android refuse',settingsPlan?.android?(settingsOk?`${settingsPlan.packageName} · intent + fallback câblés`:'câblage incomplet'):'non Android',
-      'Sentinel ne déclenche pas volontairement l’Intent système : il valide le lien réellement rendu et son fallback sans quitter WfGg.',
-      settingsOk?'':'Le bouton Modifier peut rester sans effet ou quitter la page sans aide de secours.'
+      'train-notification-settings-action',settingsLevel,'Bouton Modifier les réglages Android',
+      'Geste réel → ouverture externe des réglages, sinon fallback WfGg explicitement détecté',settingsObserved,
+      settingsDetail||'Sur Android, Sentinel sépare désormais le href théorique du résultat réel du dernier clic utilisateur.',
+      settingsCause
     ));
     const calendarRuntime = typeof Blob === 'function' && typeof URL?.createObjectURL === 'function' && typeof window.W?.addCalendar === 'function' && typeof window.W?.addAllCalendar === 'function';
     items.push(localCheck(
@@ -426,8 +450,8 @@
       target:'frontend/train-native/styles.css / DOM Train',proposedChange:'Corriger visibilité, viewport, pointer-events, z-index ou dimensions uniquement pour les éléments signalés.',simulation:{readonly:true,geometry:'getBoundingClientRect + elementsFromPoint'},evidence:['Le contrôle n’est pas réellement atteignable sur cet appareil.'],risks:['Tester mobile et desktop avant de modifier un z-index global.'],manualValidation:['Relancer Sentinel sur le même téléphone.']
     }));
     if(bad.has('train-notification-settings-action'))out.push(localRepairCandidateV12({
-      id:'repair-notification-settings-action-v13',title:'Rétablir le lien Android vers les réglages notifications',score:98,verdict:'recommended',
-      target:'app.v15.js :: notificationSettingsIntentPlan',proposedChange:'Rendre un lien intent: directement cliquable avec APP_NOTIFICATION_SETTINGS et browser_fallback_url same-origin.',simulation:{readonly:true,externalIntentNotLaunched:true},evidence:['Sentinel valide le href rendu sans ouvrir les paramètres système.'],risks:['Chrome peut refuser une activité Android non BROWSABLE ; le fallback WfGg doit toujours rester disponible.'],manualValidation:['Appuyer sur Modifier sur Android puis vérifier le retour guidé si Android refuse.']
+      id:'repair-notification-settings-action-v13',title:'Adapter le parcours aux restrictions Android/Chrome',score:96,verdict:'recommended',
+      target:'app.v15.js :: notificationSettingsIntentPlan / résultat réel',proposedChange:'Conserver un Intent best-effort conforme à APP_NOTIFICATION_SETTINGS, enregistrer son issue réelle et présenter immédiatement le guide manuel si Chrome le refuse.',simulation:{readonly:true,externalIntentNotLaunched:true,outcomeTracked:true},evidence:['Le dernier geste utilisateur est distingué entre ouverture externe, tentative et browser_fallback_url.'],risks:['Une page web ne peut pas forcer une activité système Android non BROWSABLE.'],manualValidation:['Appuyer sur Modifier puis relancer Sentinel après retour ou fallback.']
     }));
     if(bad.has('train-calendar-runtime'))out.push(localRepairCandidateV12({
       id:'repair-calendar-runtime-v12',title:'Rétablir le runtime d’export calendrier',score:78,verdict:'alternative',

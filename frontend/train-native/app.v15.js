@@ -1206,14 +1206,30 @@
        d'être accepté par Chrome Android qu'une affectation location.href depuis du JS.
        Un browser_fallback_url same-origin évite désormais le bouton silencieux : si
        Android refuse l'Intent, WfGg revient sur le guide manuel de réglage. */
+    /* WFGG_NOTIFICATION_SETTINGS_OUTCOME_V13_2
+       Le navigateur peut refuser une activité Android non BROWSABLE même si le href
+       intent: est valide. On distingue donc le câblage théorique du résultat réel du
+       dernier geste utilisateur sur cet appareil. Aucun résultat n'est inventé. */
+    const NOTIFICATION_SETTINGS_OUTCOME_KEY='wfgg_notification_settings_outcome_v13_2';
+    function notificationSettingsOutcomeRead(){
+        try{return JSON.parse(localStorage.getItem(NOTIFICATION_SETTINGS_OUTCOME_KEY)||'null')||null;}catch(_){return null;}
+    }
+    function notificationSettingsOutcomeWrite(status,detail=''){
+        try{
+            const value={status:String(status||''),detail:String(detail||''),at:new Date().toISOString()};
+            localStorage.setItem(NOTIFICATION_SETTINGS_OUTCOME_KEY,JSON.stringify(value));
+            return value;
+        }catch(_){return null;}
+    }
     function notificationSettingsIntentPlan(){
         const android=/Android/i.test(navigator.userAgent||'');
         const ua=navigator.userAgent||'';
         const packageName=/SamsungBrowser/i.test(ua)?'com.sec.android.app.sbrowser':'com.android.chrome';
         const fallback=new URL(location.href);
         fallback.searchParams.set('wfgg_notification_settings_fallback','1');
-        const appNotifications=`intent:#Intent;action=android.settings.APP_NOTIFICATION_SETTINGS;package=com.android.settings;S.android.provider.extra.APP_PACKAGE=${packageName};S.browser_fallback_url=${encodeURIComponent(fallback.toString())};end`;
-        return {android,packageName,appNotifications,fallbackUrl:fallback.toString()};
+        // Laisser Android résoudre Settings est plus compatible que forcer package=com.android.settings.
+        const appNotifications=`intent:#Intent;action=android.settings.APP_NOTIFICATION_SETTINGS;S.android.provider.extra.APP_PACKAGE=${packageName};S.browser_fallback_url=${encodeURIComponent(fallback.toString())};end`;
+        return {android,packageName,appNotifications,fallbackUrl:fallback.toString(),lastOutcome:notificationSettingsOutcomeRead()};
     }
     function notificationSettingsModifyMarkup(label){
         const plan=notificationSettingsIntentPlan();
@@ -1224,12 +1240,16 @@
         const el=document.getElementById('wfggNotifModify');
         if(!el)return;
         if(el.tagName==='A'){
-            el.addEventListener('click',()=>sessionStorage.setItem('wfgg_notification_settings_return','1'));
+            el.addEventListener('click',()=>{
+                sessionStorage.setItem('wfgg_notification_settings_return','1');
+                notificationSettingsOutcomeWrite('attempted','intent-click');
+            });
         }else{
             el.addEventListener('click',openNotificationSystemSettings);
         }
     }
     function notificationSettingsFallback(){
+        notificationSettingsOutcomeWrite('fallback','browser_fallback_url');
         openModal(`<h2>🔔 ${notificationSettingsText('Autoriser les notifications','Allow notifications','Consenti notifiche','Permitir notificaciones')}</h2><div class="warning">${notificationSettingsText('Ouvre les notifications de Chrome puis vérifie que les notifications sont autorisées. Si une liste de sites est proposée, autorise wfgg.pages.dev.','Open Chrome notifications and make sure notifications are allowed. If a site list is shown, allow wfgg.pages.dev.','Apri le notifiche di Chrome e verifica che siano consentite. Se viene mostrato un elenco di siti, consenti wfgg.pages.dev.','Abre las notificaciones de Chrome y comprueba que estén permitidas. Si aparece una lista de sitios, permite wfgg.pages.dev.')}</div><p>${notificationSettingsText('Chemin manuel : Paramètres Android → Applications → Chrome → Notifications.','Manual path: Android Settings → Apps → Chrome → Notifications.','Percorso manuale: Impostazioni Android → App → Chrome → Notifiche.','Ruta manual: Ajustes Android → Aplicaciones → Chrome → Notificaciones.')}</p><div class="actions"><button id="wfggNotifRetry" class="btn gold">🔄 ${notificationSettingsText('Revérifier','Check again','Ricontrolla','Volver a comprobar')}</button><button id="wfggNotifClose" class="btn outline">${notificationSettingsText('Fermer','Close','Chiudi','Cerrar')}</button></div>`);
         queueMicrotask(()=>{
             document.getElementById('wfggNotifRetry')?.addEventListener('click',()=>{closeModal();testLocalNotification();});
@@ -1271,8 +1291,14 @@
         });
     }
     document.addEventListener('visibilitychange',()=>{
+        if(document.visibilityState==='hidden'&&sessionStorage.getItem('wfgg_notification_settings_return')==='1'){
+            notificationSettingsOutcomeWrite('external-opened','document-hidden-after-intent');
+            return;
+        }
         if(document.visibilityState!=='visible'||sessionStorage.getItem('wfgg_notification_settings_return')!=='1')return;
         sessionStorage.removeItem('wfgg_notification_settings_return');
+        const lastSettingsOutcome=notificationSettingsOutcomeRead();
+        if(lastSettingsOutcome?.status==='external-opened') notificationSettingsOutcomeWrite('returned','document-visible-after-external');
         setTimeout(async()=>{
             try{await refreshPushUi();}catch(_){}
             if(Notification.permission==='granted'){
