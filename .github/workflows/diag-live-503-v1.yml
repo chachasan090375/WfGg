@@ -1,0 +1,45 @@
+name: Diagnose live 503 v1
+
+on:
+  push:
+    branches: [diag-live-503-v1]
+    paths:
+      - '.github/workflows/diag-live-503-v1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Probe production endpoints
+        shell: bash
+        run: |
+          set -u
+          UA='Mozilla/5.0 (Linux; Android 16) AppleWebKit/537.36 Chrome/139 Mobile Safari/537.36'
+          probe(){
+            label="$1"; url="$2"
+            echo "===== $label ====="
+            rm -f /tmp/h /tmp/b
+            code=$(curl -sS -A "$UA" -H 'Cache-Control: no-cache' -D /tmp/h -o /tmp/b -w '%{http_code}' --max-time 20 "$url" || echo CURL_ERROR)
+            echo "URL=$url"
+            echo "STATUS=$code"
+            echo '--- relevant headers ---'
+            grep -Ei '^(HTTP/|content-type:|location:|server:|cf-ray:|x-wfgg-|cache-control:)' /tmp/h || true
+            echo '--- body first 600 bytes ---'
+            head -c 600 /tmp/b 2>/dev/null || true
+            echo
+            echo
+          }
+          probe PORTAL_ROOT 'https://wfgg.pages.dev/'
+          probe PORTAL_TRAIN 'https://wfgg.pages.dev/train/'
+          probe PORTAL_TRAIN_APP 'https://wfgg.pages.dev/train/app.js?diag_live_503=1'
+          probe PORTAL_API_HEALTH 'https://wfgg.pages.dev/api/health'
+          probe PORTAL_API_TRAIN_CONTEXT_NOAUTH 'https://wfgg.pages.dev/api/train/context'
+          probe PORTAL_API_UPSTREAM_HEALTH 'https://wfgg-api.chachasan090375.workers.dev/api/health'
+          probe TRAIN_API_UPSTREAM_HEALTH 'https://wfgg-train.chachasan090375.workers.dev/api/health'
+          probe TRAIN_PAGE_UPSTREAM 'https://portal-only-auth.wfgg-train-app.pages.dev/'
+          probe TRAIN_PAGE_UPSTREAM_APP 'https://portal-only-auth.wfgg-train-app.pages.dev/app.js?diag_live_503=1'
