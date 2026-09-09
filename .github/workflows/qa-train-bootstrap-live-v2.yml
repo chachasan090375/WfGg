@@ -1,0 +1,39 @@
+name: QA Train bootstrap live v2
+
+on:
+  push:
+    branches:
+      - qa-train-bootstrap-live-v2
+    paths:
+      - '.github/workflows/qa-train-bootstrap-live-v2.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Verify public Train runtime contains bootstrap v2
+        shell: bash
+        run: |
+          set -euo pipefail
+          ROOT='https://wfgg.pages.dev'
+          stamp="${GITHUB_SHA}-$(date +%s)"
+          curl -fsSL -A 'Mozilla/5.0 (Linux; Android 16) AppleWebKit/537.36 Chrome/139 Mobile Safari/537.36' \
+            "$ROOT/train/?qa_bootstrap=$stamp" -o /tmp/train.html
+          curl -fsSL -A 'Mozilla/5.0 (Linux; Android 16) AppleWebKit/537.36 Chrome/139 Mobile Safari/537.36' \
+            "$ROOT/train/app.js?wfgg_bridge=v14&qa_bootstrap=$stamp" -o /tmp/app.js
+          grep -Fq 'wfgg_bridge=v14' /tmp/train.html
+          grep -Fq 'WFGG_PORTAL_DIRECT_TRAIN_BOOTSTRAP_V2' /tmp/app.js
+          grep -Fq "await syncSnapshot({ render: false, quiet: true })" /tmp/app.js
+          grep -Fq 'WFGG_PORTAL_TRAIN_BOOTSTRAP_V2=READY' /tmp/app.js
+          grep -Fq 'WFGG_PORTAL_TRAIN_BOOTSTRAP_V2=FAILED' /tmp/app.js
+          if grep -A8 -B8 -F 'WFGG_PORTAL_TRAIN_IDENTITY_MISSING' /tmp/app.js | grep -Fq "location.replace('/')"; then
+            echo 'LEGACY_AUTO_REDIRECT=FOUND'
+            exit 2
+          fi
+          node --check /tmp/app.js
+          echo 'WFGG_TRAIN_BOOTSTRAP_LIVE_V2=OK'
