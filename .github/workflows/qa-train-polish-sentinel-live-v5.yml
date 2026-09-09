@@ -1,0 +1,49 @@
+name: QA Train polish + Sentinel live v5
+
+on:
+  push:
+    branches:
+      - qa-train-polish-sentinel-live-v5
+    paths:
+      - '.github/workflows/qa-train-polish-sentinel-live-v5.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Verify live Portal/Train V5 contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          ROOT='https://wfgg.pages.dev'
+          STAMP="${GITHUB_SHA}-$(date +%s)"
+
+          curl -fsSL -A 'Mozilla/5.0 (Linux; Android 16) AppleWebKit/537.36 Chrome/139 Mobile Safari/537.36' \
+            "$ROOT/train/?qa_v5=$STAMP" -o /tmp/train.html
+          grep -Fq 'WFGG_TRAIN_PORTAL_HOME_AND_PROFILE_POLISH_V5' /tmp/train.html
+          grep -Fq "location.assign('/?lang='+homeLang)" /tmp/train.html
+          grep -Fq 'width:78px!important;height:78px!important' /tmp/train.html
+          grep -Fq "script.src='/train/sentinel-train-v1.js?v=005'" /tmp/train.html
+
+          curl -fsSL "$ROOT/train/sentinel-train-v1.js?qa_v5=$STAMP" -o /tmp/sentinel.js
+          grep -Fq "const PORTAL_API = '/portal-api';" /tmp/sentinel.js
+          grep -Fq 'WFGG_SENTINEL_NAME_ANCHOR_V5' /tmp/sentinel.js
+          grep -Fq "querySelector('#appView:not(.hidden) .hero-card .profile-name h2')" /tmp/sentinel.js
+          grep -Fq 'WFGG_SENTINEL_OWNER_RETRY_V5' /tmp/sentinel.js
+          grep -Fq 'WFGG_SENTINEL_REPORT_V2' /tmp/sentinel.js
+          node --check /tmp/sentinel.js
+
+          code=$(curl -sS -o /tmp/me.json -D /tmp/me.h -w '%{http_code}' "$ROOT/portal-api/me?qa_v5=$STAMP")
+          test "$code" = '401'
+          grep -iq '^x-wfgg-route: portal-sentinel-api' /tmp/me.h
+
+          code=$(curl -sS -o /tmp/sr.json -D /tmp/sr.h -w '%{http_code}' "$ROOT/portal-api/sentinel/run?qa_v5=$STAMP")
+          test "$code" = '401'
+          grep -iq '^x-wfgg-route: portal-sentinel-api' /tmp/sr.h
+
+          echo 'WFGG_TRAIN_POLISH_SENTINEL_LIVE_V5=OK'
