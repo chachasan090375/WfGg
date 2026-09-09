@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = 'sentinel-train-v12';
+  const VERSION = 'sentinel-train-v13';
   const PORTAL_API = '/portal-api';
   const PORTAL_TOKEN_KEY = 'wfgg_portal_session';
   const TRAIN_STATE_KEY = 'wfgg_train_v13';
@@ -308,11 +308,11 @@
         items.push(localCheck('train-push-subscription', sub?.endpoint ? 'ok' : 'error', 'Abonnement Push appareil', 'endpoint présent', sub?.endpoint ? `${String(sub.endpoint).slice(0,72)}…` : 'absent', '', sub?.endpoint ? '' : 'Aucun abonnement Push utilisable sur cet appareil.'));
       }
     }
-    /* train-ui-functional-contract-v11
-       Inventaire des actions réellement exposées par app.v15. Sentinel ne les
-       déclenche pas : il vérifie que le câblage client de chaque famille existe. */
+    /* train-ui-functional-contract-v13
+       Premier niveau : inventaire des actions exposées. Le second niveau V13
+       exécute ensuite une recette comportementale et géométrique en lecture seule. */
     const uiFunctions = [
-      'addCalendar','addAllCalendar','toggleAlerts','testLocalNotification','testLocalPushNotification','testPushReminder',
+      'addCalendar','addAllCalendar','toggleAlerts','testLocalNotification','testLocalPushNotification','testPushReminder','sentinelUiProbe','notificationSettingsIntentPlan',
       'changeWeek','openExchange','publishMarketExchange','cancelMarketExchange','pickMyDateForMarket','executeMarketSwap',
       'markUnavailable','showUnavailableChoice','openUnavailableDayPicker','saveUnavailableDayFromPicker','openUnavailablePeriod','saveUnavailablePeriod','saveUnavailableDay','removeUnavailableRange','removeUnavailable','showUnavailable',
       'toggleRotation','showRotationStatus','openProfileInfo','openSelfProfileEdit','saveSelfProfile','openChangePin','changeMyPin','changeLanguage','setPortalLanguage',
@@ -339,6 +339,31 @@
       'W.testLocalNotification disponible',localNotificationHandler?'câblé':'absent',
       'Ce contrôle distingue le test local Service Worker du test Push serveur.',
       localNotificationHandler?'':'Le bouton de test local appelle une fonction non exposée.'
+    ));
+    /* WFGG_SENTINEL_UI_SIMULATION_V13 */
+    let uiProbe=null;
+    try{uiProbe=typeof window.W?.sentinelUiProbe==='function'?await window.W.sentinelUiProbe():null;}catch(error){uiProbe={readonly:true,simFailed:[{id:'probe-runtime',detail:String(error?.message||error)}],graphicFailed:[],simulations:[],graphics:[]};}
+    const simTotal=uiProbe?.simulations?.length||0,simFailed=uiProbe?.simFailed||[];
+    items.push(localCheck(
+      'train-ui-behavior-simulation',uiProbe&&uiProbe.readonly&&simTotal>0&&!simFailed.length?'ok':'error','Simulation réelle des boutons',
+      'Clics non destructifs → écran/modale attendu, sans écriture',uiProbe?`${simTotal-simFailed.length}/${simTotal} scénarios conformes · readonly=${Boolean(uiProbe.readonly)}`:'probe absent',
+      simFailed.length?simFailed.map(x=>`${x.id}: ${x.detail||'échec'}`).join(' · '):'Profil, navigation Alertes, indisponibilités, rotation et réglages notifications simulés.',
+      simFailed.length?'Un bouton existe mais son comportement réel ou sa cible DOM ne correspond plus au contrat.':''
+    ));
+    const graphicTotal=uiProbe?.graphics?.length||0,graphicFailed=uiProbe?.graphicFailed||[];
+    items.push(localCheck(
+      'train-ui-graphic-audit',uiProbe&&graphicTotal>0&&!graphicFailed.length?'ok':'error','Analyse graphique des contrôles',
+      'Contrôles critiques visibles, dans le viewport, cliquables et non recouverts',uiProbe?`${graphicTotal-graphicFailed.length}/${graphicTotal} éléments conformes`:'probe absent',
+      graphicFailed.length?graphicFailed.map(x=>`${x.id}: visible=${x.visible} viewport=${x.inViewport} exposé=${x.exposed} pointer=${x.pointer} ${x.width||0}x${x.height||0}`).join(' · '):'Géométrie contrôlée avec getBoundingClientRect + elementsFromPoint en ignorant uniquement la surcouche Sentinel.',
+      graphicFailed.length?'Un contrôle peut être hors écran, masqué, recouvert ou non cliquable sur cet appareil.':''
+    ));
+    const settingsPlan=uiProbe?.notificationSettings;
+    const settingsOk=!settingsPlan?.android||(simFailed.every(x=>x.id!=='notification-settings-action')&&String(settingsPlan?.appNotifications||'').includes('browser_fallback_url'));
+    items.push(localCheck(
+      'train-notification-settings-action',settingsOk?'ok':'error','Bouton Modifier les réglages Android',
+      'Lien intent direct depuis le geste utilisateur + retour WfGg si Android refuse',settingsPlan?.android?(settingsOk?`${settingsPlan.packageName} · intent + fallback câblés`:'câblage incomplet'):'non Android',
+      'Sentinel ne déclenche pas volontairement l’Intent système : il valide le lien réellement rendu et son fallback sans quitter WfGg.',
+      settingsOk?'':'Le bouton Modifier peut rester sans effet ou quitter la page sans aide de secours.'
     ));
     const calendarRuntime = typeof Blob === 'function' && typeof URL?.createObjectURL === 'function' && typeof window.W?.addCalendar === 'function' && typeof window.W?.addAllCalendar === 'function';
     items.push(localCheck(
@@ -386,6 +411,18 @@
       id:'repair-ui-export-contract-v12',title:'Rétablir les actions Train manquantes dans window.W',score:90,verdict:'recommended-manual',
       target:'frontend/train-native/app.v15.js :: window.W',proposedChange:'Réexporter uniquement les fonctions signalées manquantes, sans modifier leur logique métier.',
       simulation:{contractCheck:'typeof window.W[name] === function'},evidence:['Une action visible n’est plus exposée par le runtime.'],risks:['Une fonction réellement supprimée ne doit pas être recréée par simple alias.'],manualValidation:['Comparer la liste des fonctions manquantes avec leurs handlers réels.'],source:portalSource('frontend/train-native/app.v15.js','window.W')
+    }));
+    if(bad.has('train-ui-behavior-simulation'))out.push(localRepairCandidateV12({
+      id:'repair-ui-behavior-v13',title:'Réparer le comportement réel du contrôle défaillant',score:96,verdict:'recommended',
+      target:'frontend/train-native/app.v15.js :: handler + DOM cible',proposedChange:'Corriger le handler ou la cible DOM signalée par la simulation, sans modifier les règles métier.',simulation:{readonly:true,probe:'sentinelUiProbe'},evidence:['Le contrôle existe mais le clic simulé n’aboutit pas au résultat visuel attendu.'],risks:['Ne jamais déclencher une mutation réelle depuis Sentinel.'],manualValidation:['Relancer Sentinel V13 puis refaire le clic manuel concerné.']
+    }));
+    if(bad.has('train-ui-graphic-audit'))out.push(localRepairCandidateV12({
+      id:'repair-ui-graphic-v13',title:'Corriger la géométrie ou la couche qui masque le contrôle',score:94,verdict:'recommended',
+      target:'frontend/train-native/styles.css / DOM Train',proposedChange:'Corriger visibilité, viewport, pointer-events, z-index ou dimensions uniquement pour les éléments signalés.',simulation:{readonly:true,geometry:'getBoundingClientRect + elementsFromPoint'},evidence:['Le contrôle n’est pas réellement atteignable sur cet appareil.'],risks:['Tester mobile et desktop avant de modifier un z-index global.'],manualValidation:['Relancer Sentinel sur le même téléphone.']
+    }));
+    if(bad.has('train-notification-settings-action'))out.push(localRepairCandidateV12({
+      id:'repair-notification-settings-action-v13',title:'Rétablir le lien Android vers les réglages notifications',score:98,verdict:'recommended',
+      target:'app.v15.js :: notificationSettingsIntentPlan',proposedChange:'Rendre un lien intent: directement cliquable avec APP_NOTIFICATION_SETTINGS et browser_fallback_url same-origin.',simulation:{readonly:true,externalIntentNotLaunched:true},evidence:['Sentinel valide le href rendu sans ouvrir les paramètres système.'],risks:['Chrome peut refuser une activité Android non BROWSABLE ; le fallback WfGg doit toujours rester disponible.'],manualValidation:['Appuyer sur Modifier sur Android puis vérifier le retour guidé si Android refuse.']
     }));
     if(bad.has('train-calendar-runtime'))out.push(localRepairCandidateV12({
       id:'repair-calendar-runtime-v12',title:'Rétablir le runtime d’export calendrier',score:78,verdict:'alternative',
@@ -485,9 +522,9 @@
   }
 
   function reportText() {
-    if (!lastReport) return `WFGG_SENTINEL_REPORT_V5\n${t('noReport')}`;
+    if (!lastReport) return `WFGG_SENTINEL_REPORT_V6\n${t('noReport')}`;
     const lines = [
-      'WFGG_SENTINEL_REPORT_V5',
+      'WFGG_SENTINEL_REPORT_V6',
       'WfGg · Sentinel · Train',
       `Copié le: ${new Date().toISOString()}`,
       `Analyse: ${lastReport.finishedAt || '—'}`,

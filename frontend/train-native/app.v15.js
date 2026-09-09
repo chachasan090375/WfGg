@@ -1201,6 +1201,34 @@
        un clic utilisateur peut ouvrir directement les réglages Notifications
        de Chrome. Au retour, le test local est relancé pour confirmer le résultat. */
     function notificationSettingsText(fr,en,it,es){return pushText(fr,en,it,es);}
+    /* WFGG_NOTIFICATION_SETTINGS_INTENT_V13
+       Un lien intent: déclenché directement par le geste utilisateur a plus de chances
+       d'être accepté par Chrome Android qu'une affectation location.href depuis du JS.
+       Un browser_fallback_url same-origin évite désormais le bouton silencieux : si
+       Android refuse l'Intent, WfGg revient sur le guide manuel de réglage. */
+    function notificationSettingsIntentPlan(){
+        const android=/Android/i.test(navigator.userAgent||'');
+        const ua=navigator.userAgent||'';
+        const packageName=/SamsungBrowser/i.test(ua)?'com.sec.android.app.sbrowser':'com.android.chrome';
+        const fallback=new URL(location.href);
+        fallback.searchParams.set('wfgg_notification_settings_fallback','1');
+        const appNotifications=`intent:#Intent;action=android.settings.APP_NOTIFICATION_SETTINGS;package=com.android.settings;S.android.provider.extra.APP_PACKAGE=${packageName};S.browser_fallback_url=${encodeURIComponent(fallback.toString())};end`;
+        return {android,packageName,appNotifications,fallbackUrl:fallback.toString()};
+    }
+    function notificationSettingsModifyMarkup(label){
+        const plan=notificationSettingsIntentPlan();
+        if(plan.android && Notification.permission!=='default') return `<a id="wfggNotifModify" class="btn gold" role="button" href="${esc(plan.appNotifications)}">⚙️ ${label}</a>`;
+        return `<button id="wfggNotifModify" class="btn gold" type="button">⚙️ ${label}</button>`;
+    }
+    function wireNotificationSettingsModify(){
+        const el=document.getElementById('wfggNotifModify');
+        if(!el)return;
+        if(el.tagName==='A'){
+            el.addEventListener('click',()=>sessionStorage.setItem('wfgg_notification_settings_return','1'));
+        }else{
+            el.addEventListener('click',openNotificationSystemSettings);
+        }
+    }
     function notificationSettingsFallback(){
         openModal(`<h2>🔔 ${notificationSettingsText('Autoriser les notifications','Allow notifications','Consenti notifiche','Permitir notificaciones')}</h2><div class="warning">${notificationSettingsText('Ouvre les notifications de Chrome puis vérifie que les notifications sont autorisées. Si une liste de sites est proposée, autorise wfgg.pages.dev.','Open Chrome notifications and make sure notifications are allowed. If a site list is shown, allow wfgg.pages.dev.','Apri le notifiche di Chrome e verifica che siano consentite. Se viene mostrato un elenco di siti, consenti wfgg.pages.dev.','Abre las notificaciones de Chrome y comprueba que estén permitidas. Si aparece una lista de sitios, permite wfgg.pages.dev.')}</div><p>${notificationSettingsText('Chemin manuel : Paramètres Android → Applications → Chrome → Notifications.','Manual path: Android Settings → Apps → Chrome → Notifications.','Percorso manuale: Impostazioni Android → App → Chrome → Notifiche.','Ruta manual: Ajustes Android → Aplicaciones → Chrome → Notificaciones.')}</p><div class="actions"><button id="wfggNotifRetry" class="btn gold">🔄 ${notificationSettingsText('Revérifier','Check again','Ricontrolla','Volver a comprobar')}</button><button id="wfggNotifClose" class="btn outline">${notificationSettingsText('Fermer','Close','Chiudi','Cerrar')}</button></div>`);
         queueMicrotask(()=>{
@@ -1219,32 +1247,26 @@
                     await refreshPushUi();
                     return testLocalNotification();
                 }
+                return promptNotificationPermissionFix();
             }catch(_){}
         }
-        const android=/Android/i.test(navigator.userAgent||'');
-        if(android){
-            const ua=navigator.userAgent||'';
-            const packageName=/SamsungBrowser/i.test(ua)?'com.sec.android.app.sbrowser':'com.android.chrome';
-            sessionStorage.setItem('wfgg_notification_settings_return','1');
-            try{
-                location.href=`intent:#Intent;action=android.settings.APP_NOTIFICATION_SETTINGS;S.android.provider.extra.APP_PACKAGE=${packageName};end`;
-                return;
-            }catch(_){}
-        }
+        if(notificationSettingsIntentPlan().android) return promptNotificationPermissionFix();
         notificationSettingsFallback();
     }
     function promptNotificationPermissionFix(){
         const state=String(Notification.permission||'unknown');
-        openModal(`<h2>🔔 ${notificationSettingsText('Notifications bloquées','Notifications blocked','Notifiche bloccate','Notificaciones bloqueadas')}</h2><div class="warning">${notificationSettingsText(`Les notifications ne peuvent pas être affichées sur ce téléphone (${state}). Voulez-vous modifier les réglages maintenant ?`,`Notifications cannot be displayed on this phone (${state}). Do you want to change the settings now?`,`Le notifiche non possono essere visualizzate su questo telefono (${state}). Vuoi modificare ora le impostazioni?`,`Las notificaciones no pueden mostrarse en este teléfono (${state}). ¿Quieres cambiar los ajustes ahora?`)}</div><div class="actions"><button id="wfggNotifModify" class="btn gold">⚙️ ${notificationSettingsText('Modifier maintenant','Change now','Modifica ora','Cambiar ahora')}</button><button id="wfggNotifLater" class="btn outline">${notificationSettingsText('Pas maintenant','Not now','Non ora','Ahora no')}</button></div>`);
+        const modify=notificationSettingsModifyMarkup(notificationSettingsText('Modifier maintenant','Change now','Modifica ora','Cambiar ahora'));
+        openModal(`<h2>🔔 ${notificationSettingsText('Notifications bloquées','Notifications blocked','Notifiche bloccate','Notificaciones bloqueadas')}</h2><div class="warning">${notificationSettingsText(`Les notifications ne peuvent pas être affichées sur ce téléphone (${state}). Voulez-vous modifier les réglages maintenant ?`,`Notifications cannot be displayed on this phone (${state}). Do you want to change the settings now?`,`Le notifiche non possono essere visualizzate su questo telefono (${state}). Vuoi modificare ora le impostazioni?`,`Las notificaciones no pueden mostrarse en este teléfono (${state}). ¿Quieres cambiar los ajustes ahora?`)}</div><div class="actions">${modify}<button id="wfggNotifLater" class="btn outline">${notificationSettingsText('Pas maintenant','Not now','Non ora','Ahora no')}</button></div>`);
         queueMicrotask(()=>{
-            document.getElementById('wfggNotifModify')?.addEventListener('click',openNotificationSystemSettings);
+            wireNotificationSettingsModify();
             document.getElementById('wfggNotifLater')?.addEventListener('click',closeModal);
         });
     }
     function promptAndroidNotificationDisplayFix(){
-        openModal(`<h2>🔔 ${notificationSettingsText('Diagnostic notifications','Notification diagnostics','Diagnostica notifiche','Diagnóstico de notificaciones')}</h2><div class="warning">${notificationSettingsText('Chrome a bien créé la notification, mais Android ne l’affiche pas. Le blocage est dans les réglages de notifications du téléphone/Chrome.','Chrome created the notification, but Android is not displaying it. The block is in the phone/Chrome notification settings.','Chrome ha creato la notifica, ma Android non la visualizza. Il blocco è nelle impostazioni notifiche del telefono/Chrome.','Chrome creó la notificación, pero Android no la muestra. El bloqueo está en los ajustes de notificaciones del teléfono/Chrome.')}</div><p>${notificationSettingsText('Voulez-vous ouvrir directement les réglages de notifications de Chrome ?','Do you want to open Chrome notification settings now?','Vuoi aprire direttamente le impostazioni notifiche di Chrome?','¿Quieres abrir directamente los ajustes de notificaciones de Chrome?')}</p><div class="actions"><button id="wfggNotifModify" class="btn gold">⚙️ ${notificationSettingsText('Modifier','Change','Modifica','Cambiar')}</button><button id="wfggNotifLater" class="btn outline">${notificationSettingsText('Pas maintenant','Not now','Non ora','Ahora no')}</button></div>`);
+        const modify=notificationSettingsModifyMarkup(notificationSettingsText('Modifier','Change','Modifica','Cambiar'));
+        openModal(`<h2>🔔 ${notificationSettingsText('Diagnostic notifications','Notification diagnostics','Diagnostica notifiche','Diagnóstico de notificaciones')}</h2><div class="warning">${notificationSettingsText('Chrome a bien créé la notification, mais Android ne l’affiche pas. Le blocage est dans les réglages de notifications du téléphone/Chrome.','Chrome created the notification, but Android is not displaying it. The block is in the phone/Chrome notification settings.','Chrome ha creato la notifica, ma Android non la visualizza. Il blocco è nelle impostazioni notifiche del telefono/Chrome.','Chrome creó la notificación, pero Android no la muestra. El bloqueo está en los ajustes de notificaciones del teléfono/Chrome.')}</div><p>${notificationSettingsText('Voulez-vous ouvrir directement les réglages de notifications de Chrome ?','Do you want to open Chrome notification settings now?','Vuoi aprire direttamente le impostazioni notifiche di Chrome?','¿Quieres abrir directamente los ajustes de notificaciones de Chrome?')}</p><div class="actions">${modify}<button id="wfggNotifLater" class="btn outline">${notificationSettingsText('Pas maintenant','Not now','Non ora','Ahora no')}</button></div>`);
         queueMicrotask(()=>{
-            document.getElementById('wfggNotifModify')?.addEventListener('click',openNotificationSystemSettings);
+            wireNotificationSettingsModify();
             document.getElementById('wfggNotifLater')?.addEventListener('click',closeModal);
         });
     }
@@ -2344,6 +2366,13 @@
         }
 
         startPresenceLoop();
+        const fallbackParams=new URLSearchParams(location.search);
+        if(fallbackParams.get('wfgg_notification_settings_fallback')==='1'){
+            fallbackParams.delete('wfgg_notification_settings_fallback');
+            const clean=location.pathname+(fallbackParams.toString()?'?'+fallbackParams.toString():'')+location.hash;
+            history.replaceState(history.state,'',clean);
+            setTimeout(notificationSettingsFallback,250);
+        }
     }
     async function copyText(text) { try {
         await navigator.clipboard.writeText(text);
@@ -2368,8 +2397,97 @@
     function openChangePin() { openModal(`<h2>🔑 Changer mon code</h2><label class="field-label">Code actuel</label><input id="oldPinField" type="password" inputmode="numeric" maxlength="6"><label class="field-label" style="margin-top:10px">Nouveau code (6 chiffres)</label><input id="newPinField" type="password" inputmode="numeric" maxlength="6"><button class="btn gold full" onclick="W.changeMyPin()">Enregistrer</button>`); }
     async function changeMyPin() { const oldPin = document.getElementById('oldPinField').value, newPin = document.getElementById('newPinField').value; const ok = await mutate('/api/me/pin', { method: 'PUT', body: JSON.stringify({ oldPin, newPin }) }, 'Code personnel modifié'); if (ok)
         closeModal(); }
+
+    /* WFGG_SENTINEL_UI_BEHAVIOR_V13
+       Recette appareil en lecture seule : clics réels uniquement sur les contrôles
+       non destructifs, inspection géométrique avec elementsFromPoint, restauration
+       de l'écran/modal initial et aucun appel de mutation métier. */
+    function sentinelUiGeometry(el,id){
+        if(!el)return {id,ok:false,reason:'missing'};
+        const rect=el.getBoundingClientRect();
+        const style=getComputedStyle(el);
+        const visible=rect.width>0&&rect.height>0&&style.display!=='none'&&style.visibility!=='hidden'&&Number(style.opacity||1)>0.05;
+        const inViewport=rect.right>0&&rect.bottom>0&&rect.left<innerWidth&&rect.top<innerHeight;
+        const x=Math.max(0,Math.min(innerWidth-1,rect.left+rect.width/2));
+        const y=Math.max(0,Math.min(innerHeight-1,rect.top+rect.height/2));
+        const stack=(document.elementsFromPoint?document.elementsFromPoint(x,y):[]).filter(node=>!node.closest?.('#wfggTrainSentinelOverlay'));
+        const top=stack[0]||null;
+        const exposed=!top||top===el||el.contains(top);
+        const pointer=style.pointerEvents!=='none';
+        const target=rect.width>=32&&rect.height>=32;
+        return {id,ok:visible&&inViewport&&exposed&&pointer,visible,inViewport,exposed,pointer,target,width:Math.round(rect.width),height:Math.round(rect.height),top:top?.id||top?.className||top?.tagName||''};
+    }
+    async function sentinelUiTick(){await Promise.resolve();await new Promise(r=>requestAnimationFrame(()=>r()));}
+    async function sentinelUiProbe(){
+        const simulations=[],graphics=[];
+        const activeId=document.querySelector('.screen.active')?.id||'homeScreen';
+        const modal=document.getElementById('modal');
+        const modalBody=document.getElementById('modalBody');
+        const modalWasHidden=modal?.classList.contains('hidden')!==false;
+        const modalHtml=modalBody?.innerHTML||'';
+        const oldScrollY=scrollY;
+        const pushSim=(id,ok,detail='')=>simulations.push({id,ok:Boolean(ok),detail});
+        try{
+            showScreen('homeScreen');await sentinelUiTick();
+            const profileBtn=document.querySelector('#homeScreen .profile-edit-btn');
+            graphics.push(sentinelUiGeometry(profileBtn,'profile-edit-button'));
+            profileBtn?.click();await sentinelUiTick();
+            pushSim('profile-edit-click',!modal?.classList.contains('hidden')&&!!document.getElementById('selfPseudoField'),'clic → modale profil');
+            graphics.push(sentinelUiGeometry(document.querySelector('#modal .btn.gold'),'profile-save-button'));
+            closeModal();
+
+            showScreen('homeScreen');await sentinelUiTick();
+            const alertsBtn=document.querySelector('#homeScreen [onclick*="W.goAlerts"]');
+            graphics.push(sentinelUiGeometry(alertsBtn,'alerts-home-button'));
+            alertsBtn?.click();await sentinelUiTick();
+            pushSim('alerts-navigation-click',document.getElementById('alertsScreen')?.classList.contains('active'),'clic → écran Alertes');
+            const serverPushBtn=document.getElementById('pushTestButton');
+            const localPushBtn=[...document.querySelectorAll('#alertsScreen button')].find(x=>(x.getAttribute('onclick')||'').includes('testLocalNotification'))||null;
+            graphics.push(sentinelUiGeometry(serverPushBtn,'server-push-test-button'));
+            graphics.push(sentinelUiGeometry(localPushBtn,'local-notification-test-button'));
+
+            promptAndroidNotificationDisplayFix();await sentinelUiTick();
+            const modify=document.getElementById('wfggNotifModify');
+            const plan=notificationSettingsIntentPlan();
+            graphics.push(sentinelUiGeometry(modify,'notification-settings-modify'));
+            const href=modify?.getAttribute('href')||'';
+            const settingsOk=!plan.android||(modify?.tagName==='A'&&href.startsWith('intent:')&&href.includes('android.settings.APP_NOTIFICATION_SETTINGS')&&href.includes(encodeURIComponent(plan.fallbackUrl)));
+            pushSim('notification-settings-action',settingsOk,plan.android?`${modify?.tagName||'absent'} · intent=${href.startsWith('intent:')} · fallback=${href.includes('browser_fallback_url')}`:'non Android');
+            closeModal();
+
+            showScreen('homeScreen');await sentinelUiTick();
+            const unavailableBtn=document.querySelector('#homeScreen [onclick*="W.showUnavailable()"]');
+            graphics.push(sentinelUiGeometry(unavailableBtn,'unavailability-home-button'));
+            unavailableBtn?.click();await sentinelUiTick();
+            pushSim('unavailability-click',!modal?.classList.contains('hidden')&&!!document.querySelector('#modal .unavailability-add'),'clic → gestion indisponibilités');
+            const addUnavailability=document.querySelector('#modal .unavailability-add');
+            graphics.push(sentinelUiGeometry(addUnavailability,'unavailability-add-button'));
+            addUnavailability?.click();await sentinelUiTick();
+            pushSim('unavailability-choice-click',document.querySelectorAll('#modal .unavailable-choice-card').length===2,'clic → choix jour/période');
+            closeModal();
+
+            showScreen('homeScreen');await sentinelUiTick();
+            const rotationBtn=document.querySelector('#homeScreen [onclick*="W.showRotationStatus()"]');
+            graphics.push(sentinelUiGeometry(rotationBtn,'rotation-home-button'));
+            rotationBtn?.click();await sentinelUiTick();
+            pushSim('rotation-status-click',!modal?.classList.contains('hidden')&&!!modalBody?.textContent?.trim(),'clic → modale rotation');
+            closeModal();
+        }catch(error){
+            pushSim('probe-runtime',false,String(error?.message||error));
+        }finally{
+            try{showScreen(activeId);}catch(_){}
+            if(modal&&modalBody){
+                if(modalWasHidden){modal.classList.add('hidden');}
+                else{modalBody.innerHTML=modalHtml;modal.classList.remove('hidden');}
+            }
+            try{scrollTo({top:oldScrollY,behavior:'instant'});}catch(_){scrollTo(0,oldScrollY);}
+        }
+        const simFailed=simulations.filter(x=>!x.ok);
+        const graphicFailed=graphics.filter(x=>!x.ok);
+        return {readonly:true,simulations,graphics,simFailed,graphicFailed,notificationSettings:notificationSettingsIntentPlan()};
+    }
     window.W = {
-        addCalendar, addAllCalendar, toggleAlerts, testLocalNotification, testLocalPushNotification, testPushReminder, changeWeek, openExchange, publishMarketExchange, cancelMarketExchange, pickMyDateForMarket, executeMarketSwap, markUnavailable, showUnavailableChoice, openUnavailableDayPicker, saveUnavailableDayFromPicker, openUnavailablePeriod, syncUnavailablePeriodMin, saveUnavailablePeriod, saveUnavailableDay, removeUnavailableRange, removeUnavailable, showUnavailable, toggleRotation, showRotationStatus, openProfileInfo, goAlerts, closeAndOpenExchange, closeModal, saveAdminSettings, saveDay, clearDayOverride, adminToggleRotation, filterMembers, searchMembers, openMemberForm, saveMemberForm, deleteMember, renderRotationOrder, moveRotation, generateMessage, nextMessage, copyGeneratedMessage, openAdminSection, renderAdminHome, openSelfProfileEdit, saveSelfProfile, saveRotationRanks, copyText, resetMemberPin, downloadGeneratedCodesCsv, clearGeneratedCodes, changeLanguage, setPortalLanguage, showPortal, showTrainEntry, showPortalHelp, openPortalResource, togglePresenceList, refreshAdminPresence, openGuidePortal, openGameHelp, openGameLink, addGameLinkDraft, removeGameLinkDraft, saveGameLinks, openAdminAnalytics, renderAnalyticsMenu, openAnalyticsSub, renderTrainHistory, setAnalyticsRotationDays, setAnalyticsRotationPool, setAnalyticsRotationSort, setAnalyticsActivitySort, setAnalyticsSettingsFilter, setAnalyticsFilter, setAnalyticsHistorySort, setAnalyticsSearch, openChangePin, changeMyPin
+        addCalendar, addAllCalendar, toggleAlerts, testLocalNotification, testLocalPushNotification, testPushReminder, sentinelUiProbe, notificationSettingsIntentPlan, changeWeek, openExchange, publishMarketExchange, cancelMarketExchange, pickMyDateForMarket, executeMarketSwap, markUnavailable, showUnavailableChoice, openUnavailableDayPicker, saveUnavailableDayFromPicker, openUnavailablePeriod, syncUnavailablePeriodMin, saveUnavailablePeriod, saveUnavailableDay, removeUnavailableRange, removeUnavailable, showUnavailable, toggleRotation, showRotationStatus, openProfileInfo, goAlerts, closeAndOpenExchange, closeModal, saveAdminSettings, saveDay, clearDayOverride, adminToggleRotation, filterMembers, searchMembers, openMemberForm, saveMemberForm, deleteMember, renderRotationOrder, moveRotation, generateMessage, nextMessage, copyGeneratedMessage, openAdminSection, renderAdminHome, openSelfProfileEdit, saveSelfProfile, saveRotationRanks, copyText, resetMemberPin, downloadGeneratedCodesCsv, clearGeneratedCodes, changeLanguage, setPortalLanguage, showPortal, showTrainEntry, showPortalHelp, openPortalResource, togglePresenceList, refreshAdminPresence, openGuidePortal, openGameHelp, openGameLink, addGameLinkDraft, removeGameLinkDraft, saveGameLinks, openAdminAnalytics, renderAnalyticsMenu, openAnalyticsSub, renderTrainHistory, setAnalyticsRotationDays, setAnalyticsRotationPool, setAnalyticsRotationSort, setAnalyticsActivitySort, setAnalyticsSettingsFilter, setAnalyticsFilter, setAnalyticsHistorySort, setAnalyticsSearch, openChangePin, changeMyPin
     };
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init, { once: true });
