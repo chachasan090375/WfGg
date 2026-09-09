@@ -20,7 +20,7 @@ const required = [
   [edge.includes('WFGG_SENTINEL_FUNCTIONAL_COVERAGE_V11'), 'production edge includes V11 functional coverage'],
   [edge.includes("'/api/sentinel/feature-audit'"), 'production edge calls Train feature audit'],
   [edge.includes("'/api/sentinel/self-test'"), 'production edge calls synthetic self-test'],
-  [edge.includes("'/api/sentinel/repair-plan'"), 'production edge calls V12 repair planner'],
+  [edge.includes('/api/sentinel/repair-plan?'), 'production edge calls V12 repair planner'],
   [edge.includes('readonly:true'), 'production Sentinel remains read-only'],
 
   [trainUi.includes("['OWNER', 'SUPERVISOR'].includes(accessRole)"), 'Train launcher follows system access role'],
