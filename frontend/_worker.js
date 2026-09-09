@@ -671,7 +671,7 @@ function languageBridgeScript(routeName) {
       if(document.getElementById('wfggTrainSentinelLoaderV4'))return;
       const script=document.createElement('script');
       script.id='wfggTrainSentinelLoaderV4';
-      script.src='/train/sentinel-train-v1.js?v=007';
+      script.src='/train/sentinel-train-v1.js?v=010';
       script.async=true;
       script.dataset.wfggAfterBoot='1';
       script.onerror=()=>console.warn('WFGG_SENTINEL_AFTER_BOOT_V4=LOAD_ERROR');
@@ -1488,6 +1488,24 @@ async function sentinelRunDeepDiagnostics(request,token,meCall,snapCall,checks){
     contextOk?'':'La résolution d’identité Portail destinée à Train échoue avant même le snapshot.'
   ));
 
+  let trainSourceCall=null;
+  try{
+    trainSourceCall=await sentinelEdgeFetchJson(
+      request,
+      UPSTREAMS.trainApi.origin,
+      '/api/sentinel/source-map',
+      {'Authorization':null,'X-WfGg-Portal-Token':token,'Accept':'application/json'}
+    );
+  }catch(_){}
+  const trainSourceOk=!!trainSourceCall?.response?.ok&&trainSourceCall?.data?.version==='sentinel-source-map-v10';
+  checks.push(sentinelEdgeCheck(
+    'sentinel-source-index','Diagnostic automatique',trainSourceOk?'ok':'warning',
+    'Index des sources Train','source map Sentinel V10 disponible',
+    trainSourceCall?'HTTP '+trainSourceCall.response.status:'indisponible',
+    trainSourceOk?('commit '+String(trainSourceCall.data?.sourceCommit||'').slice(0,12)):'',
+    trainSourceOk?'':'Sentinel peut diagnostiquer la couche, mais pas encore garantir le numéro de ligne exact.'
+  ));
+
   if(snapCall?.response){
     const snippet=sentinelSanitizeSnippet(snapCall.raw||snapCall.data?.error||'');
     checks.push(sentinelEdgeCheck(
@@ -1545,21 +1563,43 @@ async function sentinelRunDeepDiagnostics(request,token,meCall,snapCall,checks){
     };
   }
 
+  const trainSourceMap=trainSourceCall?.data||null;
+  const runtimeDiagnostic=snapCall?.data?.sentinelDiagnostic||null;
+  if(runtimeDiagnostic?.stage){
+    root={
+      component:'wfgg-train',
+      stage:'étape interne '+runtimeDiagnostic.stage,
+      codeArea:'worker.js :: '+runtimeDiagnostic.stage,
+      cause:'Le Worker Train a identifié lui-même la première étape ayant levé l’erreur.',
+      source:runtimeDiagnostic.source||trainSourceMap?.stages?.[runtimeDiagnostic.stage]||null,
+      stack:sentinelSanitizeSnippet(runtimeDiagnostic.stack||'')
+    };
+  }else if(!root.source&&trainSourceMap?.stages){
+    if(root.component==='moteur planning Train')root.source=trainSourceMap.stages.generateSchedule||null;
+    else if(root.component==='données Train')root.source=trainSourceMap.stages.listUsers||null;
+  }
+
   const evidence=[
     'Portail /api/me: HTTP '+String(meCall?.response?.status||'?'),
     'Contexte Train: '+(contextCall?'HTTP '+contextCall.response.status:'sans réponse'),
     'Snapshot Train: '+(snapCall?'HTTP '+snapCall.response.status:'sans réponse')
   ].join(' · ');
-
-  checks.push(sentinelEdgeCheck(
+  const source=root.source||null;
+  const sourceLabel=source
+    ? [source.repository,source.file+(source.line?':'+source.line:''),source.function?'fonction '+source.function:'',source.sourceCommit?'commit '+String(source.sourceCommit).slice(0,12):''].filter(Boolean).join(' · ')
+    : '';
+  const rootCheck=sentinelEdgeCheck(
     'sentinel-root-cause','Diagnostic automatique','info',
     'Cause racine Sentinel','Premier composant fautif isolé sans modification',
     root.component+' · '+root.stage,
-    'Zone code: '+root.codeArea+' · '+evidence,
+    'Zone code: '+root.codeArea+' · '+evidence+(sourceLabel?' · Source exacte: '+sourceLabel:''),
     root.cause
-  ));
+  );
+  if(source)rootCheck.source=source;
+  if(root.stack)rootCheck.stack=root.stack;
+  checks.push(rootCheck);
 
-  return {rootCause:root,evidence,readonly:true,anomalyIds:anomalies.map(item=>item.id)};
+  return {rootCause:root,evidence,source,readonly:true,anomalyIds:anomalies.map(item=>item.id)};
 }
 
 async function runSentinelAtPortalEdge(request){
@@ -1596,7 +1636,7 @@ async function runSentinelAtPortalEdge(request){
       request,
       UPSTREAMS.trainApi.origin,
       '/api/snapshot',
-      {'Authorization':null,'X-WfGg-Portal-Token':token,'Accept':'application/json'}
+      {'Authorization':null,'X-WfGg-Portal-Token':token,'X-WfGg-Sentinel-Diagnostic':'v10','Accept':'application/json'}
     );
   }catch(error){
     checks.push(sentinelEdgeCheck(
@@ -1663,7 +1703,7 @@ async function runSentinelAtPortalEdge(request){
   const status=counts.error?'error':counts.warning?'warning':counts.info?'info':'ok';
   return sentinelEdgeJson({
     ok:!counts.error,
-    version:'sentinel-edge-v9',
+    version:'sentinel-edge-v10',
     mode:'observer',
     readonly:true,
     autoDiagnostic:true,

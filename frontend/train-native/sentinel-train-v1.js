@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = 'sentinel-train-v7';
+  const VERSION = 'sentinel-train-v10';
   const PORTAL_API = '/portal-api';
   const PORTAL_TOKEN_KEY = 'wfgg_portal_session';
   const TRAIN_STATE_KEY = 'wfgg_train_v13';
@@ -133,6 +133,17 @@
     let data = null;
     try { data = await response.json(); } catch (_) {}
     return { response, data };
+  }
+
+  async function loadPortalSourceMap() {
+    try {
+      const response = await fetch('/sentinel-source-map-v10.json?sentinel=' + Date.now(), {
+        method:'GET', cache:'no-store', credentials:'omit'
+      });
+      if (!response.ok) return null;
+      const data = await response.json();
+      return data?.version === 'sentinel-portal-source-map-v10' ? data : null;
+    } catch (_) { return null; }
   }
 
   async function confirmAccess() {
@@ -307,15 +318,35 @@
     run.textContent = t('running');
     list.innerHTML = `<div style="padding:18px;text-align:center;color:#9da6b5">⏳ ${esc(t('running'))}</div>`;
     try {
-      const [serverResult, local] = await Promise.all([portalFetch('/api/sentinel/run'), localChecks()]);
+      const [serverResult, local, portalSourceMap] = await Promise.all([portalFetch('/api/sentinel/run'), localChecks(), loadPortalSourceMap()]);
       const { response, data } = serverResult;
       if (response.status === 403) { accessConfirmed = false; accessRole = ''; throw new Error(t('ownerOnly')); }
       if (!response.ok && !Array.isArray(data?.checks)) throw new Error(`${data?.error || 'Sentinel server error'} · HTTP ${response.status}`);
-      const checks = [...(Array.isArray(data?.checks) ? data.checks : []), ...local];
+      const serverChecks=Array.isArray(data?.checks) ? data.checks : [];
+      const liveSnapshotOk=serverChecks.some(item=>item?.id==='train-snapshot'&&item?.level==='ok');
+      const staleProbe=local.find(item=>item?.id==='train-portal-bridge-probe');
+      if(liveSnapshotOk&&staleProbe&&staleProbe.level==='warning'){
+        const oldObserved=staleProbe.observed;
+        staleProbe.level='ok';
+        staleProbe.title='Probe Portail → Train (historique résolu)';
+        staleProbe.expected='Le snapshot courant doit être valide';
+        staleProbe.observed='Snapshot courant HTTP 200 · ancien probe: '+oldObserved;
+        staleProbe.detail='L’ancien échec est conservé comme trace locale mais il n’est plus une anomalie active.';
+        staleProbe.probableCause='';
+      }
+      if(portalSourceMap){
+        local.push({
+          id:'sentinel-source-build',area:'Sentinel · sources',level:'ok',title:'Index des sources Portail',
+          expected:'Build courant localisable',
+          observed:'commit '+String(portalSourceMap.sourceCommit||'').slice(0,12)+' · '+Object.keys(portalSourceMap.files||{}).length+' fichier(s) indexé(s)',
+          detail:'Sentinel peut rattacher ses diagnostics Portail aux lignes du build déployé.',probableCause:''
+        });
+      }
+      const checks = [...serverChecks, ...local];
       const counts = { ok:0, info:0, warning:0, error:0 };
       checks.forEach((item) => { counts[item.level] = (counts[item.level] || 0) + 1; });
       const status = counts.error ? 'error' : counts.warning ? 'warning' : counts.info ? 'info' : 'ok';
-      lastReport = { ...data, checks, summary:{ status, counts, total:checks.length }, finishedAt:data?.finishedAt || new Date().toISOString(), source:'train' };
+      lastReport = { ...data, checks, portalSourceMap, summary:{ status, counts, total:checks.length }, finishedAt:data?.finishedAt || new Date().toISOString(), source:'train' };
       renderReport(lastReport);
     } catch (error) {
       list.innerHTML = `<article class="wfgg-sentinel-check" data-level="error"><div class="wfgg-sentinel-title"><span>🔴</span><div><strong>Sentinel</strong><span class="wfgg-sentinel-area">Train</span></div></div><div class="wfgg-sentinel-cause">${esc(error?.message || error)}</div></article>`;
@@ -340,16 +371,16 @@
     root.querySelector('#wfggTrainSentinelList').innerHTML = checks.map((item) => `
       <article class="wfgg-sentinel-check" data-level="${esc(item.level || 'info')}">
         <div class="wfgg-sentinel-title"><span>${icon(item.level)}</span><div><strong>${esc(item.title || item.id || 'Contrôle')}</strong><span class="wfgg-sentinel-area">${esc(item.area || 'Sentinel')} · ${esc(item.id || '')}</span></div></div>
-        <div class="wfgg-sentinel-kv"><b>${esc(t('expected'))}</b><span>${esc(item.expected || '—')}</span><b>${esc(t('observed'))}</b><span>${esc(item.observed || '—')}</span>${item.detail ? `<b>${esc(t('details'))}</b><span>${esc(item.detail)}</span>` : ''}</div>
+        <div class="wfgg-sentinel-kv"><b>${esc(t('expected'))}</b><span>${esc(item.expected || '—')}</span><b>${esc(t('observed'))}</b><span>${esc(item.observed || '—')}</span>${item.detail ? `<b>${esc(t('details'))}</b><span>${esc(item.detail)}</span>` : ''}${item.source ? `<b>Source</b><span>${esc([item.source.repository,item.source.file+(item.source.line?':'+item.source.line:''),item.source.function?'fonction '+item.source.function:'',item.source.sourceCommit?'commit '+String(item.source.sourceCommit).slice(0,12):''].filter(Boolean).join(' · '))}</span>` : ''}${item.stack ? `<b>Pile</b><span>${esc(item.stack)}</span>` : ''}</div>
         ${item.probableCause ? `<div class="wfgg-sentinel-cause"><b>${esc(t('cause'))} :</b> ${esc(item.probableCause)}</div>` : ''}
       </article>`).join('');
     syncButtonState();
   }
 
   function reportText() {
-    if (!lastReport) return `WFGG_SENTINEL_REPORT_V2\n${t('noReport')}`;
+    if (!lastReport) return `WFGG_SENTINEL_REPORT_V3\n${t('noReport')}`;
     const lines = [
-      'WFGG_SENTINEL_REPORT_V2',
+      'WFGG_SENTINEL_REPORT_V3',
       'WfGg · Sentinel · Train',
       `Copié le: ${new Date().toISOString()}`,
       `Analyse: ${lastReport.finishedAt || '—'}`,
@@ -357,6 +388,7 @@
       `User-Agent: ${navigator.userAgent}`,
       `Statut global: ${lastReport.summary?.status || '—'}`,
       `Résumé: ok=${lastReport.summary?.counts?.ok || 0}; info=${lastReport.summary?.counts?.info || 0}; warning=${lastReport.summary?.counts?.warning || 0}; error=${lastReport.summary?.counts?.error || 0}`,
+      `Build Portail: ${lastReport.portalSourceMap?.sourceCommit || '—'} · Sentinel ${VERSION}`,
       '',
       `CONTRÔLES (${lastReport.checks?.length || 0})`
     ];
@@ -366,6 +398,8 @@
       lines.push(`Attendu: ${item.expected || '—'}`);
       lines.push(`Observé: ${item.observed || '—'}`);
       if (item.detail) lines.push(`Détail: ${item.detail}`);
+      if (item.source) lines.push('Source: '+[item.source.repository,item.source.file+(item.source.line?':'+item.source.line:''),item.source.function?'fonction '+item.source.function:'',item.source.sourceCommit?'commit '+String(item.source.sourceCommit).slice(0,12):''].filter(Boolean).join(' · '));
+      if (item.stack) lines.push('Pile: '+String(item.stack).replace(/\n/g,' | '));
       if (item.probableCause) lines.push(`Cause probable: ${item.probableCause}`);
     }
     lines.push('', 'MODE: OBSERVATEUR / LECTURE SEULE', 'Aucune correction automatique effectuée par Sentinel.');
