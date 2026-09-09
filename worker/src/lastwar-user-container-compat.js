@@ -1,5 +1,5 @@
 // WFGG_LASTWAR_DO_COMPAT_V1
-// Compatibility export only.
+// Compatibility export only. Build trigger refreshed 2026-09-09.
 // The experimental Last War authentication remains LAB-only and is not re-enabled here.
 // This class intentionally performs no writes so existing Durable Object storage is preserved
 // until the LAB architecture is intentionally resumed or migrated.
