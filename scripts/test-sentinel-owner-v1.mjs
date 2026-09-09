@@ -16,7 +16,7 @@ const required = [
   [edge.includes('WFGG_SENTINEL_EDGE_ACCESS_V7'), 'production Pages edge retains Sentinel access guard'],
   [edge.includes("['OWNER','SUPERVISOR'].includes(sentinelRole)"), 'server edge authorizes OWNER and SUPERVISOR only'],
   [edge.includes('SENTINEL_ACCESS_FORBIDDEN'), 'unauthorized Sentinel denial is explicit'],
-  [edge.includes("script.src='/train/sentinel-train-v1.js?v=011'"), 'Train loads cache-busted Sentinel v11'],
+  [edge.includes("script.src='/train/sentinel-train-v1.js?v=012'"), 'Train loads corrected cache-busted Sentinel v12 asset'],
   [edge.includes('WFGG_SENTINEL_FUNCTIONAL_COVERAGE_V11'), 'production edge includes V11 functional coverage'],
   [edge.includes("'/api/sentinel/feature-audit'"), 'production edge calls Train feature audit'],
   [edge.includes("'/api/sentinel/self-test'"), 'production edge calls synthetic self-test'],
@@ -30,6 +30,10 @@ const required = [
   [trainUi.includes("const VERSION = 'sentinel-train-v11'"), 'Train Sentinel client is V11'],
   [trainUi.includes('WFGG_SENTINEL_REPORT_V4'), 'copyable report format V4 is active'],
   [trainUi.includes('train-ui-functional-contract-v11'), 'client functional contract is active'],
+  [trainUi.includes('train-local-notification-handler-v12'), 'local notification button wiring is monitored'],
+
+  [trainApp.includes('async function testLocalNotification()'), 'local display test implementation exists'],
+  [trainApp.includes('testLocalNotification, testLocalPushNotification, testPushReminder'), 'local and server notification tests are exported'],
 
   [migration.includes("role IN ('OWNER','SUPERVISOR')"), 'D1 schema supports OWNER and SUPERVISOR'],
   [migration.includes("'flawene','flawen'"), 'Flawene supervisor seed is present'],
