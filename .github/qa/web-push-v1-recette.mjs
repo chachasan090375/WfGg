@@ -8,13 +8,16 @@ const manifest=JSON.parse(fs.readFileSync('frontend/train-native/manifest.webman
 
 assert.match(worker,/WFGG_TRAIN_PUSH_STATIC_V1/);
 assert.match(worker,/WFGG_WEB_PUSH_SW_PRESERVE_V1/);
+assert.match(worker,/WFGG_WEB_PUSH_SW_RESET_GUARD_V2/);
 assert.match(worker,/\/train\/wfgg-push-sw\.js/);
 assert.match(worker,/\/train\/manifest\.webmanifest/);
 assert.match(app,/WFGG_WEB_PUSH_CLIENT_V1/);
+assert.match(app,/WFGG_WEB_PUSH_REAL_TEST_V1/);
 assert.match(app,/Notification\.requestPermission/);
 assert.match(app,/pushManager\.subscribe/);
 assert.match(app,/\/api\/push\/subscribe/);
 assert.match(app,/\/api\/push\/subscription/);
+assert.match(app,/\/api\/push\/test/);
 assert.match(app,/WFGG_WEB_PUSH_SW_REGISTER_V1/);
 assert.match(app,/isStandaloneApp\(\)/);
 assert.match(sw,/self\.addEventListener\('push'/);
