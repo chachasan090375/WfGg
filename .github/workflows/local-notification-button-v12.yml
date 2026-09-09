@@ -1,0 +1,49 @@
+name: Local notification button v12
+
+on:
+  push:
+    branches: [fix-local-notification-button-v12]
+    paths:
+      - 'scripts/patch-local-notification-button-v12.py'
+      - '.github/workflows/local-notification-button-v12.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch-and-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix-local-notification-button-v12
+          fetch-depth: 0
+
+      - name: Apply notification wiring fix
+        run: python3 scripts/patch-local-notification-button-v12.py
+
+      - name: Validate notification wiring and Sentinel coverage
+        run: |
+          node --check frontend/train-native/app.v15.js
+          node --check frontend/train-native/sentinel-train-v1.js
+          node --check frontend/_worker.js
+          grep -q 'async function testLocalNotification()' frontend/train-native/app.v15.js
+          grep -q 'testLocalNotification, testLocalPushNotification, testPushReminder' frontend/train-native/app.v15.js
+          grep -q 'onclick="W.testLocalNotification()"' frontend/train-native/app.v15.js
+          grep -q 'train-local-notification-handler-v12' frontend/train-native/sentinel-train-v1.js
+          grep -q "'testLocalNotification','testLocalPushNotification','testPushReminder'" frontend/train-native/sentinel-train-v1.js
+          grep -q "sentinel-train-v1.js?v=012" frontend/_worker.js
+          grep -q 'wfgg_bridge=v15' frontend/_worker.js
+
+      - name: Commit generated fix
+        run: |
+          if git diff --quiet -- frontend/train-native/app.v15.js frontend/train-native/sentinel-train-v1.js frontend/_worker.js; then
+            echo 'No generated changes to commit.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add frontend/train-native/app.v15.js frontend/train-native/sentinel-train-v1.js frontend/_worker.js
+          git commit -m 'fix(push): wire local notification display test'
+          git push origin HEAD:fix-local-notification-button-v12
