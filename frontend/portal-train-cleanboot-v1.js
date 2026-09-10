@@ -1,7 +1,8 @@
 (() => {
   'use strict';
 
-  const VERSION='WFGG_PORTAL_TRAIN_CLEANBOOT_V1';
+  const VERSION='WFGG_PORTAL_TRAIN_CLEANBOOT_V2';
+  const PORTAL_TOKEN_KEY='wfgg_portal_session';
   const LINK_ID='trainModuleLink';
   let opening=false;
 
@@ -64,10 +65,31 @@
     event.stopImmediatePropagation();
 
     const url=cleanBootUrl(link);
+
+    /* WFGG_TRAIN_CLEANBOOT_SESSION_BRIDGE_V2
+       Le cleanboot intercepte le clic en phase capture. Il doit donc synchroniser
+       lui-même la session module avant toute navigation vers /train/. */
+    const portalToken=String(localStorage.getItem(PORTAL_TOKEN_KEY)||'').trim();
+    if(!portalToken){
+      opening=false;
+      location.assign('/?returnTo='+encodeURIComponent(new URL(url).pathname+new URL(url).search));
+      return;
+    }
+
     try{
+      const sessionResponse=await fetch('/api/module-session',{
+        method:'POST',
+        headers:{Authorization:'Bearer '+portalToken},
+        cache:'no-store',
+        credentials:'same-origin'
+      });
+      if(!sessionResponse.ok) throw new Error('module_session_'+sessionResponse.status);
       await Promise.race([cleanupTrainRuntime(),timeout(1200)]);
-    }catch(_){ }
-    location.assign(url);
+      location.assign(url);
+    }catch(_){
+      opening=false;
+      location.assign('/?returnTo='+encodeURIComponent(new URL(url).pathname+new URL(url).search));
+    }
   }
 
   document.addEventListener('click',openTrainCleanly,true);

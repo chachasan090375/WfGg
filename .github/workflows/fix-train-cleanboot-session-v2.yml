@@ -1,0 +1,49 @@
+name: Fix Train cleanboot session v2
+
+on:
+  push:
+    branches: [fix-train-cleanboot-session-v2]
+    paths:
+      - 'scripts/patch-train-cleanboot-session-v2.mjs'
+      - '.github/workflows/fix-train-cleanboot-session-v2.yml'
+      - 'frontend/portal-train-cleanboot-v1.js'
+      - 'frontend/index.html'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch-and-test:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix-train-cleanboot-session-v2
+          fetch-depth: 0
+
+      - name: Apply cleanboot session fix
+        run: node scripts/patch-train-cleanboot-session-v2.mjs
+
+      - name: Validate Train navigation contract
+        run: |
+          node --check frontend/portal-train-cleanboot-v1.js
+          grep -Fq "WFGG_PORTAL_TRAIN_CLEANBOOT_V2" frontend/portal-train-cleanboot-v1.js
+          grep -Fq "WFGG_TRAIN_CLEANBOOT_SESSION_BRIDGE_V2" frontend/portal-train-cleanboot-v1.js
+          grep -Fq "fetch('/api/module-session'" frontend/portal-train-cleanboot-v1.js
+          grep -Fq "Authorization:'Bearer '+portalToken" frontend/portal-train-cleanboot-v1.js
+          grep -Fq "portal-train-cleanboot-v1.js?v=002-session-bridge" frontend/index.html
+
+      - name: Commit tested fix
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add frontend/portal-train-cleanboot-v1.js frontend/index.html
+          if git diff --cached --quiet; then
+            echo 'No generated changes.'
+            exit 0
+          fi
+          git commit -m 'fix(train): synchronize Portal session before cleanboot navigation'
+          git push origin HEAD:fix-train-cleanboot-session-v2
