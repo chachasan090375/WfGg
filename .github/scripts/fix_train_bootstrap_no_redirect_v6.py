@@ -24,11 +24,4 @@ import hashlib
 sha = hashlib.sha256(app.read_bytes()).hexdigest()
 Path('frontend/train-native/app.v15.js.sha256').write_text(f'{sha}  app.v15.js\n', encoding='utf-8')
 
-# Keep the Pages production verification aligned with the current cleanboot V2 asset.
-deploy = Path('.github/workflows/deploy-cloudflare-pages-v1.yml')
-d = deploy.read_text(encoding='utf-8')
-d = d.replace("portal-train-cleanboot-v1.js?v=001", "portal-train-cleanboot-v1.js?v=002-session-bridge")
-d = d.replace("WFGG_PORTAL_TRAIN_CLEANBOOT_V1", "WFGG_PORTAL_TRAIN_CLEANBOOT_V2")
-deploy.write_text(d, encoding='utf-8')
-
 print('WFGG_PORTAL_ONLY_TRAIN_BOOT_V6=PATCHED')
