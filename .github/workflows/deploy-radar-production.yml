@@ -1,0 +1,312 @@
+name: Deploy autonomous WfGg Radar production
+
+on:
+  push:
+    branches: [radar-production-v1]
+    paths:
+      - 'radar-release/**'
+      - '.github/workflows/deploy-radar-production.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: wfgg-radar-production
+  cancel-in-progress: false
+
+env:
+  RADAR_WORKER: wfgg-radar
+  CONNECTOR_WORKER: wfgg-radar-connector
+  RADAR_D1_NAME: wfgg-radar
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify Cloudflare token
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          set -eu
+          test -n "$CLOUDFLARE_API_TOKEN" || { echo 'MISSING_SECRET=CLOUDFLARE_API_TOKEN'; exit 2; }
+          echo 'CLOUDFLARE_API_TOKEN=OK'
+
+      - name: Expand immutable Radar release
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/wfgg-radar
+          cat radar-release/parts/part-00.b64 radar-release/parts/part-01.b64 radar-release/parts/part-02.b64 radar-release/parts/part-03.b64 | base64 -d > /tmp/radar-src.tar.gz
+          echo '69d84c89898c9c2d3f260a4fcf15a2118049b58e82f56908046af3b5612bcb7a  /tmp/radar-src.tar.gz' | sha256sum -c -
+          tar -xzf /tmp/radar-src.tar.gz -C /tmp/wfgg-radar
+
+      - name: Guardian pre-deploy gate
+        working-directory: /tmp/wfgg-radar
+        run: |
+          set -euo pipefail
+          npm test
+          npm run check
+          cd connector-go
+          go test ./...
+          go vet ./...
+          go build ./cmd/radar-connector
+          cd ..
+          grep -q "native-template-readonly-v1" connector-go/internal/protocol/native_template.go
+          grep -q '"_id"' connector-go/native-template/main.go
+          grep -q '"cmdBaseTime"' connector-go/native-template/main.go
+          grep -q '"SecurityCode"' connector-go/native-template/main.go
+          grep -q '"OneCode"' connector-go/native-template/main.go
+          grep -q '"CoreV"' connector-go/native-template/main.go
+          grep -q '"psh"' connector-go/native-template/main.go
+          ! grep -REq 'building\.production\.collect|mail\.reward|al\.science\.donate|visitor\.operate' connector-go src || false
+
+      - name: Resolve Cloudflare account and workers.dev subdomain
+        id: cf
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, os, urllib.request, urllib.error
+          token=os.environ['CLOUDFLARE_API_TOKEN']
+          H={'Authorization':f'Bearer {token}','Content-Type':'application/json'}
+          def get(url):
+            req=urllib.request.Request(url,headers=H)
+            try:
+              with urllib.request.urlopen(req,timeout=30) as r: return r.status,json.loads(r.read().decode())
+            except urllib.error.HTTPError as e:
+              return e.code,json.loads(e.read().decode() or '{}')
+          st,data=get('https://api.cloudflare.com/client/v4/accounts?per_page=50')
+          if st!=200 or not data.get('success'): raise SystemExit('CLOUDFLARE_ACCOUNTS_FAILED')
+          accounts=data.get('result') or []
+          if not accounts: raise SystemExit('CLOUDFLARE_ACCOUNT_NOT_FOUND')
+          chosen=None
+          for a in accounts:
+            aid=a.get('id')
+            st2,p=get(f'https://api.cloudflare.com/client/v4/accounts/{aid}/pages/projects/wfgg')
+            if st2==200 and p.get('success') and (p.get('result') or {}).get('name')=='wfgg':
+              chosen=aid; break
+          if not chosen: chosen=accounts[0].get('id')
+          st3,s=get(f'https://api.cloudflare.com/client/v4/accounts/{chosen}/workers/subdomain')
+          sub=(s.get('result') or {}).get('subdomain') if st3==200 and s.get('success') else None
+          if not sub: raise SystemExit('WORKERS_SUBDOMAIN_NOT_FOUND')
+          out=os.environ['GITHUB_OUTPUT']
+          with open(out,'a') as f:
+            f.write(f'account_id={chosen}\nsubdomain={sub}\n')
+          print('CLOUDFLARE_ACCOUNT=OK')
+          print('WORKERS_SUBDOMAIN=OK')
+          PY
+
+      - name: Install Wrangler
+        run: npm install --global wrangler@4
+
+      - name: Resolve or create autonomous Radar D1
+        id: d1
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ steps.cf.outputs.account_id }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, os, subprocess
+          name=os.environ['RADAR_D1_NAME']
+          def run(*args):
+            return subprocess.run(args,text=True,capture_output=True,check=True).stdout
+          raw=run('wrangler','d1','list','--json')
+          data=json.loads(raw)
+          found=next((x for x in data if x.get('name')==name),None)
+          if not found:
+            print('D1_CREATE=START')
+            subprocess.run(['wrangler','d1','create',name],check=True)
+            data=json.loads(run('wrangler','d1','list','--json'))
+            found=next((x for x in data if x.get('name')==name),None)
+          if not found or not found.get('uuid'): raise SystemExit('RADAR_D1_RESOLVE_FAILED')
+          with open(os.environ['GITHUB_OUTPUT'],'a') as f: f.write('database_id='+found['uuid']+'\n')
+          print('RADAR_D1=OK')
+          PY
+
+      - name: Generate production Worker configuration
+        env:
+          D1_ID: ${{ steps.d1.outputs.database_id }}
+          CONNECTOR_URL: https://wfgg-radar-connector.${{ steps.cf.outputs.subdomain }}.workers.dev
+        working-directory: /tmp/wfgg-radar
+        run: |
+          set -euo pipefail
+          cat > wrangler.toml <<EOF
+          name = "wfgg-radar"
+          main = "src/worker.js"
+          compatibility_date = "2026-09-10"
+          workers_dev = true
+
+          [assets]
+          directory = "./public"
+          binding = "ASSETS"
+          run_worker_first = ["/api/*"]
+
+          [[d1_databases]]
+          binding = "DB"
+          database_name = "wfgg-radar"
+          database_id = "$D1_ID"
+
+          [vars]
+          RADAR_SESSION_TTL = "3600"
+          RADAR_OWNER_PSEUDO = "__OWNER_BOOTSTRAP_PENDING__"
+          RADAR_CONNECTOR_URL = "$CONNECTOR_URL"
+
+          [triggers]
+          crons = ["*/5 * * * *"]
+          EOF
+
+      - name: Apply autonomous Radar database schema
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ steps.cf.outputs.account_id }}
+        working-directory: /tmp/wfgg-radar
+        run: wrangler d1 execute wfgg-radar --remote --file=schema.sql
+
+      - name: Deploy Radar Worker and static UI
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ steps.cf.outputs.account_id }}
+        working-directory: /tmp/wfgg-radar
+        run: wrangler deploy
+
+      - name: Ensure Radar cryptographic secrets exist
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ steps.cf.outputs.account_id }}
+        working-directory: /tmp/wfgg-radar
+        run: |
+          set -euo pipefail
+          names="$(wrangler secret list --name wfgg-radar 2>/dev/null || true)"
+          ensure_secret() {
+            key="$1"
+            echo "$names" | grep -q "\"name\"[[:space:]]*:[[:space:]]*\"$key\"" && { echo "$key=EXISTS"; return; }
+            value="$(python3 - <<'PY'
+          import secrets
+          print(secrets.token_urlsafe(48))
+          PY
+          )"
+            printf '%s' "$value" | wrangler secret put "$key" --name wfgg-radar >/dev/null
+            echo "$key=CREATED"
+          }
+          ensure_secret RADAR_SESSION_KEY
+          ensure_secret RADAR_TOKEN_VAULT_KEY
+          ensure_secret RADAR_CONNECTOR_SHARED_KEY
+
+      - name: Prepare Connector Worker wrapper
+        env:
+          SHARED_KEY_NOTE: server-side-only
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/wfgg-radar-connector/src
+          cp -R /tmp/wfgg-radar/connector-go /tmp/wfgg-radar-connector/connector-go
+          cat > /tmp/wfgg-radar-connector/package.json <<'EOF'
+          {"private":true,"type":"module","dependencies":{"@cloudflare/containers":"latest"}}
+          EOF
+          cat > /tmp/wfgg-radar-connector/src/index.js <<'EOF'
+          import { Container, getContainer } from '@cloudflare/containers';
+          import { env } from 'cloudflare:workers';
+
+          export class RadarConnectorContainer extends Container {
+            defaultPort = 8788;
+            sleepAfter = '15m';
+            enableInternet = true;
+            envVars = {
+              RADAR_CONNECTOR_SHARED_KEY: env.RADAR_CONNECTOR_SHARED_KEY || '',
+              LASTWAR_SESSION_CONTEXT_JSON: env.LASTWAR_SESSION_CONTEXT_JSON || '',
+              LASTWAR_NATIVE_TEMPLATE_BIN: '/radar-native-template',
+              LASTWAR_NATIVE_CAPTURE: env.LASTWAR_NATIVE_CAPTURE || ''
+            };
+          }
+
+          export default {
+            async fetch(request, runtimeEnv) {
+              const instance = getContainer(runtimeEnv.RADAR_CONNECTOR_CONTAINER, 'primary');
+              return instance.fetch(request);
+            }
+          };
+          EOF
+          cat > /tmp/wfgg-radar-connector/wrangler.toml <<'EOF'
+          name = "wfgg-radar-connector"
+          main = "src/index.js"
+          compatibility_date = "2026-09-10"
+          workers_dev = true
+          keep_vars = true
+
+          [[containers]]
+          class_name = "RadarConnectorContainer"
+          image = "./connector-go/Dockerfile"
+          max_instances = 1
+
+          [[durable_objects.bindings]]
+          name = "RADAR_CONNECTOR_CONTAINER"
+          class_name = "RadarConnectorContainer"
+
+          [[migrations]]
+          tag = "v1"
+          new_sqlite_classes = ["RadarConnectorContainer"]
+          EOF
+
+      - name: Deploy autonomous Last War Connector container
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ steps.cf.outputs.account_id }}
+        working-directory: /tmp/wfgg-radar-connector
+        run: |
+          set -euo pipefail
+          npm install --no-audit --no-fund
+          wrangler deploy
+
+      - name: Synchronize shared connector key without exposing it
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ steps.cf.outputs.account_id }}
+        run: |
+          set -euo pipefail
+          connector_names="$(cd /tmp/wfgg-radar-connector && wrangler secret list --name wfgg-radar-connector 2>/dev/null || true)"
+          if ! echo "$connector_names" | grep -q 'RADAR_CONNECTOR_SHARED_KEY'; then
+            common="$(python3 - <<'PY'
+          import secrets
+          print(secrets.token_urlsafe(48))
+          PY
+          )"
+            printf '%s' "$common" | (cd /tmp/wfgg-radar && wrangler secret put RADAR_CONNECTOR_SHARED_KEY --name wfgg-radar >/dev/null)
+            printf '%s' "$common" | (cd /tmp/wfgg-radar-connector && wrangler secret put RADAR_CONNECTOR_SHARED_KEY --name wfgg-radar-connector >/dev/null)
+            unset common
+            echo 'CONNECTOR_SHARED_KEY=BOOTSTRAPPED'
+          else
+            echo 'CONNECTOR_SHARED_KEY=EXISTS'
+          fi
+
+      - name: Verify autonomous production surface
+        env:
+          RADAR_URL: https://wfgg-radar.${{ steps.cf.outputs.subdomain }}.workers.dev
+        run: |
+          set -euo pipefail
+          ok=0
+          for i in $(seq 1 24); do
+            if curl -fsSL "$RADAR_URL/api/health?probe=$GITHUB_SHA-$i" -o /tmp/radar-health.json \
+              && python3 - <<'PY'
+          import json
+          d=json.load(open('/tmp/radar-health.json'))
+          assert d['ok'] is True
+          assert d['app']=='wfgg-radar'
+          assert d['mode']=='standalone'
+          assert d['version']=='0.5.0'
+          assert d['agents']['oracle']=='v0.5'
+          assert d['agents']['sentinel']=='v0.5'
+          assert d['agents']['guardian']=='v0.5'
+          assert d['agents']['orchestrator']=='v0.5'
+          assert d['automation']['enabled'] is True
+          PY
+            then ok=1; break; fi
+            sleep 5
+          done
+          test "$ok" = 1
+          curl -fsSL "$RADAR_URL/" | grep -q 'WfGg Radar'
+          echo "RADAR_PRODUCTION_URL=$RADAR_URL"
+          echo 'RADAR_PRODUCTION=OK'
