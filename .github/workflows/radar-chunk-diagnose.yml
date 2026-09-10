@@ -1,0 +1,49 @@
+name: Diagnose Radar release chunks
+
+on:
+  push:
+    branches: [radar-production-v1]
+    paths:
+      - '.github/workflows/radar-chunk-diagnose.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compare release chunk digests
+        run: |
+          python3 - <<'PY'
+          import hashlib, pathlib
+          expected = {
+            'p00': [
+              '7626d95a2c33321c61e0a2bed07b9db6b88b897088ea864a6dd8bdf40eec364d',
+              '7ff553eeaf3e3ff9906719a7e5f077ab25f86c3c0ee0bb637ef8e9cca94739dd',
+              'fc4784e396a682fe4c3456388e285d2aec3741ebe54ea9e39c2c5bf4ba20d4b6',
+              '3a34363190e7e810ac28255e1c71847e42d88590b221a0d83f76362643ea14b6',
+              'ebda95a0dafea0a08f5a5227e527a21c2b08b1078ccb25ba7ce5876322ef1000',
+              '46a9c87128f095432613c958261408c60fa475f1b5ec23daea1d9b2db8a0e8a4',
+            ],
+            'p03': [
+              'c3c37951231e76aeaa11402b7ff8ff9e445020d68d3c551d6bede92d3d87ad3e',
+              '2be7c15b6a8bef75e00d8255f4dcb2a93e5cb709f99ea69c3172e1153a050716',
+              '3c28660a744a2cda8529d463e5696ed5b3c046429d133446bcf5719fef42d2d4',
+              '86908be2bf57bfd10237728072741e39d87f6cf4d1e3a8ae70787d071b8d5099',
+              '11980056dcaa7f8628f57933af96b7f427f72dd899d9be6a844fe9836de999c3',
+              '83a435831e6dab9acb318e445277326ffccfd137a468fa4b155c87c4669bd021',
+            ],
+          }
+          files = {'p00':'radar-release/parts/part-00.b64','p03':'radar-release/parts/part-03.b64'}
+          for key, path in files.items():
+            data = pathlib.Path(path).read_bytes()
+            assert len(data) == 17436, (path, len(data))
+            for i in range(6):
+              chunk = data[i*2906:(i+1)*2906]
+              digest = hashlib.sha256(chunk).hexdigest()
+              state = 'OK' if digest == expected[key][i] else 'MISMATCH'
+              print(f'{key}-{i}={state} actual={digest} expected={expected[key][i]}')
+          PY
