@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = 'sentinel-train-v14.2';
+  const VERSION = 'sentinel-train-v14.3';
   const PORTAL_API = '/portal-api';
   const PORTAL_TOKEN_KEY = 'wfgg_portal_session';
   const TRAIN_STATE_KEY = 'wfgg_train_v13';
@@ -199,11 +199,39 @@
     }
   }
 
+  /* WFGG_SENTINEL_BOOT_POINTER_CAPTURE_V14_3
+     Le bouton de diagnostic de l'écran de panne doit fonctionner même quand
+     Chrome Android ne délivre pas le click local attendu après le toucher.
+     On passe par la capture globale pointerup/click, comme le lanceur Sentinel
+     normal, puis on ouvre le panneau et on lance la recette existante. */
+  async function launchBootFromEvent(event) {
+    event?.preventDefault?.();
+    event?.stopPropagation?.();
+    event?.stopImmediatePropagation?.();
+    if (launchLocked) return;
+    launchLocked = true;
+    try {
+      await openPopup();
+      const root = document.getElementById(OVERLAY_ID);
+      if (root && !root.classList.contains('hidden')) {
+        await new Promise((resolve) => requestAnimationFrame(resolve));
+        await runSentinel();
+      }
+    } finally {
+      setTimeout(() => { launchLocked = false; }, 350);
+    }
+  }
+
   function installLaunchCapture() {
     if (window.__WFGG_SENTINEL_LAUNCH_CAPTURE_V7__) return;
     window.__WFGG_SENTINEL_LAUNCH_CAPTURE_V7__ = true;
     const handler = (event) => {
-      if (event?.target?.closest?.('#' + BUTTON_ID)) launchFromEvent(event);
+      const target = event?.target;
+      if (target?.closest?.('#' + BOOT_BUTTON_ID)) {
+        launchBootFromEvent(event);
+        return;
+      }
+      if (target?.closest?.('#' + BUTTON_ID)) launchFromEvent(event);
     };
     document.addEventListener('pointerup', handler, true);
     document.addEventListener('click', handler, true);
