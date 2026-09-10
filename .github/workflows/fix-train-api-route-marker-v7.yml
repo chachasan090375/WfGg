@@ -1,0 +1,57 @@
+name: Fix Train API route marker v7
+
+on:
+  push:
+    branches:
+      - train-api-route-marker-v7
+
+permissions:
+  contents: write
+
+jobs:
+  patch-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: train-api-route-marker-v7
+
+      - name: Apply explicit Train API route marker
+        run: python .github/scripts/fix_train_api_route_marker_v7.py
+
+      - name: Validate Worker routing contract
+        run: |
+          set -eu
+          node --check frontend/_worker.js
+          grep -Fq 'WFGG_TRAIN_API_ROUTE_MARKER_V7' frontend/_worker.js
+          grep -Fq "headers.set('X-WfGg-Module','train')" frontend/_worker.js
+          grep -Fq 'hasTrainModuleMarker' frontend/_worker.js
+          grep -Fq '(hasTrainModuleMarker || fromTrainPage || hasPortalTrainToken)' frontend/_worker.js
+          grep -Fq 'WFGG_TRAIN_API_COOKIE_AUTH_V5' frontend/_worker.js
+          grep -Fq 'wfgg_auth=v7' frontend/_worker.js
+          python - <<'PY'
+          from pathlib import Path
+          s=Path('frontend/_worker.js').read_text()
+          assert s.count('WFGG_TRAIN_API_ROUTE_MARKER_V7') == 1
+          bridge=s[s.index('WFGG_TRAIN_API_ROUTE_MARKER_V7')-700:s.index('const norm=v=>')]
+          assert "headers.set('X-WfGg-Module','train')" in bridge
+          assert "if(portalToken)" in bridge
+          assert "credentials:'same-origin'" in bridge
+          route=s[s.index('WFGG_API_CONTEXT_SPLIT_V1'):s.index("if (url.pathname === '/guides'")]
+          assert "hasTrainModuleMarker" in route
+          assert "(hasTrainModuleMarker || fromTrainPage || hasPortalTrainToken)" in route
+          assert "headers.set('X-WfGg-Portal-Token', cookiePortalTrainToken)" in route
+          print('TRAIN_API_ROUTE_MARKER_V7=PASS')
+          PY
+
+      - name: Commit tested Worker fix
+        run: |
+          if git diff --quiet -- frontend/_worker.js; then
+            echo 'No Worker changes to commit'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add frontend/_worker.js
+          git commit -m 'fix(train): route API explicitly from module marker'
+          git push origin HEAD:train-api-route-marker-v7
