@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = 'sentinel-train-v14.1';
+  const VERSION = 'sentinel-train-v14.2';
   const PORTAL_API = '/portal-api';
   const PORTAL_TOKEN_KEY = 'wfgg_portal_session';
   const TRAIN_STATE_KEY = 'wfgg_train_v13';
@@ -9,6 +9,7 @@
   const BUTTON_ID = 'wfggTrainSentinelButton';
   const OVERLAY_ID = 'wfggTrainSentinelOverlay';
   const STYLE_ID = 'wfggTrainSentinelStyle';
+  const BOOT_BUTTON_ID = 'wfggTrainSentinelBootButton';
   let accessConfirmed = false;
   let accessRole = '';
   let launchLocked = false;
@@ -48,6 +49,12 @@
     return TEXT[raw] ? raw : 'fr';
   }
   const t = (key) => TEXT[lang()][key] || TEXT.fr[key] || key;
+  const bootReportText = () => ({
+    fr:'Afficher le rapport Sentinel',
+    en:'Show Sentinel report',
+    it:'Mostra il rapporto Sentinel',
+    es:'Mostrar informe Sentinel'
+  }[lang()] || 'Afficher le rapport Sentinel');
   const token = () => localStorage.getItem(PORTAL_TOKEN_KEY) || '';
   const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
@@ -223,6 +230,41 @@
       lastAnchor = anchor;
     }
     syncButtonState();
+    return true;
+  }
+
+  /* WFGG_SENTINEL_BOOT_REPORT_V14_2
+     Sentinel reste accessible quand le bootstrap Train échoue avant que la
+     carte utilisateur soit rendue. Le bouton ne contourne aucun droit :
+     confirmAccess() a déjà validé OWNER/SUPERVISOR côté Portail. */
+  function injectBootButton() {
+    if (!accessConfirmed) return false;
+    const panel = document.getElementById('wfggTrainBootErrorV6');
+    if (!panel) return false;
+    let button = document.getElementById(BOOT_BUTTON_ID);
+    if (!button) {
+      button = document.createElement('button');
+      button.type = 'button';
+      button.id = BOOT_BUTTON_ID;
+      button.textContent = '🧪 ' + bootReportText();
+      button.style.cssText = 'display:inline-flex;align-items:center;justify-content:center;gap:8px;margin:14px 7px 0;padding:11px 15px;border-radius:12px;border:1px solid rgba(220,196,255,.4);background:#292238;color:#fff;font-weight:800;cursor:pointer';
+      button.addEventListener('click', async (event) => {
+        event?.preventDefault?.();
+        event?.stopPropagation?.();
+        event?.stopImmediatePropagation?.();
+        if (launchLocked) return;
+        launchLocked = true;
+        try {
+          await openPopup();
+          await runSentinel();
+        } finally {
+          setTimeout(() => { launchLocked = false; }, 350);
+        }
+      }, true);
+      panel.appendChild(button);
+    } else {
+      button.textContent = '🧪 ' + bootReportText();
+    }
     return true;
   }
 
@@ -773,9 +815,16 @@
       return;
     }
     console.info('WFGG_SENTINEL_ACCESS_V7=CONFIRMED role=' + accessRole);
+    /* WFGG_SENTINEL_BOOT_LAUNCHER_INIT_V14_2 */
+    const injectLaunchers = () => {
+      const normal = injectButton();
+      const boot = injectBootButton();
+      return normal || boot;
+    };
+    injectLaunchers();
     let tries = 0;
-    const timer = setInterval(() => { tries += 1; if (injectButton() || tries > 140) clearInterval(timer); }, 120);
-    const observer = new MutationObserver(() => { if (accessConfirmed) injectButton(); });
+    const timer = setInterval(() => { tries += 1; if (injectLaunchers() || tries > 140) clearInterval(timer); }, 120);
+    const observer = new MutationObserver(() => { if (accessConfirmed) injectLaunchers(); });
     observer.observe(document.documentElement,{childList:true,subtree:true});
   }
 
