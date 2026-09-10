@@ -764,15 +764,46 @@ function languageBridgeScript(routeName) {
        La Micheline est purement visuelle. Le démarrage reste exclusivement
        piloté par WFGG_PORTAL_DIRECT_TRAIN_BOOTSTRAP_V2 dans app.v15.js.
     */
+    /* WFGG_SENTINEL_VERSION_SELFHEAL_V14_7
+       Une instance Sentinel ancienne ne doit jamais survivre à un build plus récent.
+       Si un loader obsolète est déjà présent dans le document, on reconstruit une
+       seule fois le document Train afin d'éviter les anciens listeners encore actifs. */
+    const EXPECTED_SENTINEL_VERSION='sentinel-train-v14.7';
+    const SENTINEL_RELOAD_KEY='wfgg_sentinel_doc_reload_0147';
     const loadSentinelAfterBoot=()=>{
-      if(document.getElementById('wfggTrainSentinelLoaderV4'))return;
+      const activeVersion=String(window.__WFGG_SENTINEL_VERSION__||'');
+      const existing=document.getElementById('wfggTrainSentinelLoaderV5')||document.getElementById('wfggTrainSentinelLoaderV4');
+      const existingSrc=String(existing?.src||'');
+      const staleActive=!!activeVersion && activeVersion!==EXPECTED_SENTINEL_VERSION;
+      const staleLoader=!!existing && !existingSrc.includes('v=0147');
+
+      if(staleActive||staleLoader){
+        if(sessionStorage.getItem(SENTINEL_RELOAD_KEY)!=='1'){
+          sessionStorage.setItem(SENTINEL_RELOAD_KEY,'1');
+          const fresh=new URL(location.href);
+          fresh.searchParams.set('wfgg_sentinel','0147');
+          location.replace(fresh.toString());
+          return;
+        }
+        existing?.remove();
+      }
+
+      if(activeVersion===EXPECTED_SENTINEL_VERSION)return;
+      const current=document.getElementById('wfggTrainSentinelLoaderV5');
+      if(current && String(current.src||'').includes('v=0147'))return;
+      current?.remove();
+
       const script=document.createElement('script');
-      script.id='wfggTrainSentinelLoaderV4';
-      script.src='/train/sentinel-train-v1.js?v=0146';
+      script.id='wfggTrainSentinelLoaderV5';
+      script.src='/train/sentinel-train-v1.js?v=0147';
       script.async=true;
       script.dataset.wfggAfterBoot='1';
-      script.onerror=()=>console.warn('WFGG_SENTINEL_AFTER_BOOT_V4=LOAD_ERROR');
-      script.onload=()=>console.info('WFGG_SENTINEL_AFTER_BOOT_V4=LOADED');
+      script.dataset.wfggSentinelVersion=EXPECTED_SENTINEL_VERSION;
+      script.onerror=()=>console.warn('WFGG_SENTINEL_AFTER_BOOT_V5=LOAD_ERROR');
+      script.onload=()=>{
+        sessionStorage.removeItem(SENTINEL_RELOAD_KEY);
+        console.info('WFGG_SENTINEL_AFTER_BOOT_V5=LOADED',window.__WFGG_SENTINEL_VERSION__||'unknown');
+      };
       document.head.appendChild(script);
     };
 

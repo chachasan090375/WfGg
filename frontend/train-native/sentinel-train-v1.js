@@ -1,7 +1,8 @@
 (() => {
   'use strict';
 
-  const VERSION = 'sentinel-train-v14.6';
+  const VERSION = 'sentinel-train-v14.7';
+  window.__WFGG_SENTINEL_VERSION__ = VERSION;
   const PORTAL_API = '/portal-api';
   const PORTAL_TOKEN_KEY = 'wfgg_portal_session';
   const TRAIN_STATE_KEY = 'wfgg_train_v13';
