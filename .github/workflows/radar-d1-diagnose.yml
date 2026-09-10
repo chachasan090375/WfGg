@@ -1,0 +1,42 @@
+name: Diagnose Radar D1 access
+
+on:
+  push:
+    branches: [radar-production-v1]
+    paths:
+      - '.github/workflows/radar-d1-diagnose.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe D1 API read access
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: 9f09842ae58aee7111e1c40de8b33c92
+        run: |
+          python3 - <<'PY'
+          import json, os, urllib.error, urllib.request
+          url=f"https://api.cloudflare.com/client/v4/accounts/{os.environ['CLOUDFLARE_ACCOUNT_ID']}/d1/database?per_page=10"
+          req=urllib.request.Request(url,headers={'Authorization':f"Bearer {os.environ['CLOUDFLARE_API_TOKEN']}",'Content-Type':'application/json'})
+          try:
+            with urllib.request.urlopen(req,timeout=30) as r:
+              data=json.loads(r.read().decode())
+              print(f'D1_HTTP={r.status}')
+              print(f'D1_SUCCESS={data.get("success")}')
+              print(f'D1_DATABASE_COUNT={len(data.get("result") or [])}')
+          except urllib.error.HTTPError as e:
+            body=e.read().decode() or '{}'
+            try: data=json.loads(body)
+            except Exception: data={}
+            print(f'D1_HTTP={e.code}')
+            print('D1_SUCCESS=False')
+            for err in data.get('errors') or []:
+              print(f'D1_ERROR_CODE={err.get("code")}')
+              print(f'D1_ERROR_MESSAGE={err.get("message")}')
+            raise SystemExit(1)
+          PY
