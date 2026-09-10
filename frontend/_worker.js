@@ -409,7 +409,7 @@ function languageBridgeScript(routeName) {
                 method,
                 headers:new Headers(bridged.headers),
                 mode:'cors',
-                credentials:'omit',
+                credentials:'same-origin',
                 cache:bridged.cache,
                 redirect:bridged.redirect,
                 referrerPolicy:bridged.referrerPolicy,
@@ -428,7 +428,7 @@ function languageBridgeScript(routeName) {
               ...options,
               headers,
               mode:'cors',
-              credentials:'omit'
+              credentials:'same-origin'
             });
           }
         }
@@ -1989,6 +1989,7 @@ export default {
         const referer = request.headers.get('Referer') || '';
         const hasPortalTrainToken =
           request.headers.has('X-WfGg-Portal-Token');
+        const cookiePortalTrainToken = portalSessionCookie(request);
 
         let fromTrainPage = false;
 
@@ -2008,8 +2009,21 @@ export default {
             ? UPSTREAMS.trainApi
             : UPSTREAMS.portalApi;
 
+        /* WFGG_TRAIN_API_COOKIE_AUTH_V5
+           Une page Train déjà autorisée par le cookie HttpOnly ne dépend plus
+           du timing d'un script navigateur pour transmettre son identité au
+           backend Train. Le Worker recopie le jeton du cookie vers l'en-tête
+           interne X-WfGg-Portal-Token; le backend continue de le revalider
+           auprès du Portail et reste l'autorité d'authentification. */
+        let apiRequest = request;
+        if (apiRoute === UPSTREAMS.trainApi && cookiePortalTrainToken) {
+          const headers = new Headers(request.headers);
+          headers.set('X-WfGg-Portal-Token', cookiePortalTrainToken);
+          apiRequest = new Request(request, { headers });
+        }
+
         return await proxyRoute(
-          request,
+          apiRequest,
           apiRoute,
           url.pathname,
           {
