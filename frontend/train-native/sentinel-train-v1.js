@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = 'sentinel-train-v14.4';
+  const VERSION = 'sentinel-train-v14.5';
   const PORTAL_API = '/portal-api';
   const PORTAL_TOKEN_KEY = 'wfgg_portal_session';
   const TRAIN_STATE_KEY = 'wfgg_train_v13';
@@ -644,6 +644,21 @@
     const out=[];
     const bad=new Map((items||[]).filter(x=>x&&(x.level==='error'||x.level==='warning')).map(x=>[x.id,x]));
     const portalSource=(file,fn)=>({repository:'chachasan090375/WfGg',file,function:fn||null,line:portalSourceMap?.files?.[file]?.functions?.[fn]?.line||null,sourceCommit:portalSourceMap?.sourceCommit||null});
+    /* WFGG_SENTINEL_PORTAL_TRAIN_AUTH_REPAIR_V14_5
+       Les erreurs serveur participent aussi au moteur de correctifs. Un 401
+       sur train-snapshot avec « Session Portail requise » signifie que le
+       module a été autorisé mais que l'identité s'est perdue avant wfgg-train. */
+    const snapshotFailure=bad.get('train-snapshot');
+    if(snapshotFailure && (Number(snapshotFailure.status||0)===401 || /401|Session Portail requise/i.test([snapshotFailure.observed,snapshotFailure.detail,snapshotFailure.probableCause].filter(Boolean).join(' '))))out.push(localRepairCandidateV12({
+      id:'repair-train-portal-session-bridge-v14-5',title:'Réparer le bridge de session Portail → Train',score:100,verdict:'recommended',
+      target:'frontend/_worker.js + wfgg-train/worker.js :: proxy /api/snapshot / requireAuth',
+      proposedChange:'Conserver le Portail comme seule autorité. Après validation du cookie HttpOnly, transmettre explicitement la session au Worker Train par X-WfGg-Portal-Token avec un transport serveur de secours strictement marqué; le backend doit revalider cette session Portail et ne jamais réactiver le login Train historique.',
+      simulation:{readonly:true,portalOnlyPreserved:true,legacyAuthDisabled:true,expectedSnapshotStatus:200,expectedBridge:'cookie-auth-v6'},
+      evidence:['/train/ est déjà autorisé par la session Portail alors que /api/snapshot répond 401 « Session Portail requise ».','La panne est située sur le saut Worker Portail → backend Train, avant le chargement des données Train.'],
+      risks:['Ne jamais accepter Authorization comme authentification Train autonome.','Le fallback doit être limité au bridge serveur explicitement marqué et revalidé auprès du Portail.'],
+      manualValidation:['Accès direct /train/ sans session Portail → refus/redirect.','Session Portail valide → /api/snapshot HTTP 200.','/api/snapshot sans session Portail → HTTP 401/403.'],
+      source:portalSource('frontend/_worker.js',null)
+    }));
     if(bad.has('train-local-notification-handler'))out.push(localRepairCandidateV12({
       id:'repair-local-notification-export-v12',title:'Rétablir le câblage du test notification locale',score:97,verdict:'recommended',
       target:'frontend/train-native/app.v15.js :: window.W',proposedChange:'Exporter testLocalNotification dans window.W sans remplacer le test Push serveur.',
@@ -730,7 +745,7 @@
       }
       const checks = [...serverChecks, ...local];
       const backendCandidates=Array.isArray(data?.repairPlan?.candidates)?data.repairPlan.candidates:[];
-      const localCandidates=localRepairCandidatesV12(local,portalSourceMap);
+      const localCandidates=localRepairCandidatesV12(checks,portalSourceMap);
       const repairCandidates=[...backendCandidates,...localCandidates].sort((a,b)=>Number(b?.score||0)-Number(a?.score||0)||String(a?.id||'').localeCompare(String(b?.id||'')));
       const repairRecommended=repairCandidates.find(x=>x?.verdict==='recommended'||x?.verdict==='recommended-manual')||null;
       const repairPlan={
