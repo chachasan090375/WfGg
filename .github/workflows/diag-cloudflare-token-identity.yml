@@ -1,0 +1,47 @@
+name: Diagnose Cloudflare token identity
+
+on:
+  push:
+    branches: [radar-production-v1]
+    paths:
+      - '.github/workflows/diag-cloudflare-token-identity.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify token identity without exposing secret
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, os, urllib.request, urllib.error
+          token = os.environ['CLOUDFLARE_API_TOKEN']
+          url = 'https://api.cloudflare.com/client/v4/user/tokens/verify'
+          req = urllib.request.Request(url, headers={'Authorization': f'Bearer {token}'})
+          try:
+              with urllib.request.urlopen(req, timeout=30) as r:
+                  data = json.loads(r.read().decode())
+                  result = data.get('result') or {}
+                  print('TOKEN_VERIFY_HTTP=' + str(r.status))
+                  print('TOKEN_VERIFY_SUCCESS=' + str(bool(data.get('success'))))
+                  print('TOKEN_ID=' + str(result.get('id') or 'UNKNOWN'))
+                  print('TOKEN_STATUS=' + str(result.get('status') or 'UNKNOWN'))
+          except urllib.error.HTTPError as e:
+              body = e.read().decode() or '{}'
+              try:
+                  data = json.loads(body)
+              except Exception:
+                  data = {}
+              print('TOKEN_VERIFY_HTTP=' + str(e.code))
+              print('TOKEN_VERIFY_SUCCESS=False')
+              for err in data.get('errors') or []:
+                  print('TOKEN_VERIFY_ERROR_CODE=' + str(err.get('code')))
+                  print('TOKEN_VERIFY_ERROR_MESSAGE=' + str(err.get('message')))
+              raise
+          PY
