@@ -59,7 +59,7 @@ jobs:
           print(f'RADAR_RELEASE_BASE64_CHARS={len(clean)}')
           print(f'RADAR_RELEASE_DECODED_BYTES={len(decoded)}')
           PY
-          echo '69d84c89898c9c2d3f260a4fcf15a2118049b58e82f56908046af3b5612bcb7a  /tmp/radar-src.tar.gz' | sha256sum -c -
+          echo '234df1dec57f6211bc625855bf13350c9f17fbd843fbe92d8cf1ab7cb5c081ef  /tmp/radar-src.tar.gz' | sha256sum -c -
           tar -xzf /tmp/radar-src.tar.gz -C /tmp/wfgg-radar
 
       - name: Guardian pre-deploy gate
