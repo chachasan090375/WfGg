@@ -39,7 +39,26 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p /tmp/wfgg-radar
-          cat radar-release/parts/part-00.b64 radar-release/parts/part-01.b64 radar-release/parts/part-02.b64 radar-release/parts/part-03.b64 | base64 -d > /tmp/radar-src.tar.gz
+          python3 - <<'PY'
+          import base64
+          import pathlib
+          import re
+
+          paths = [
+              pathlib.Path('radar-release/parts/part-00.b64'),
+              pathlib.Path('radar-release/parts/part-01.b64'),
+              pathlib.Path('radar-release/parts/part-02.b64'),
+              pathlib.Path('radar-release/parts/part-03.b64'),
+          ]
+          raw = b''.join(path.read_bytes() for path in paths)
+          clean = re.sub(rb'[^A-Za-z0-9+/=]', b'', raw)
+          clean += b'=' * ((-len(clean)) % 4)
+          decoded = base64.b64decode(clean, validate=True)
+          pathlib.Path('/tmp/radar-src.tar.gz').write_bytes(decoded)
+          print(f'RADAR_RELEASE_FRAGMENT_BYTES={len(raw)}')
+          print(f'RADAR_RELEASE_BASE64_CHARS={len(clean)}')
+          print(f'RADAR_RELEASE_DECODED_BYTES={len(decoded)}')
+          PY
           echo '69d84c89898c9c2d3f260a4fcf15a2118049b58e82f56908046af3b5612bcb7a  /tmp/radar-src.tar.gz' | sha256sum -c -
           tar -xzf /tmp/radar-src.tar.gz -C /tmp/wfgg-radar
 
