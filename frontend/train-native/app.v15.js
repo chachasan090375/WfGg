@@ -2455,6 +2455,18 @@
             lines.push(`Route edge: ${local.route}`);
         if (local.bridge)
             lines.push(`Bridge: ${local.bridge}`);
+        /* WFGG_SENTINEL_BOOT_REPAIR_VISUAL_V14_5
+           Le correctif prescriptif est visible même si le Sentinel serveur ou
+           son overlay ne finit pas de s'ouvrir sur Android. */
+        if (Number(local.status || 0) === 401 && /Session Portail requise/i.test(String(local.error || local.message || ''))) {
+            lines.push('');
+            lines.push('🧭 CORRECTIF SENTINEL RECOMMANDÉ · 100/100');
+            lines.push('Réparer le bridge de session Portail → Train');
+            lines.push('Cause racine: /train/ est autorisé, mais la session disparaît avant /api/snapshot.');
+            lines.push('Proposition: transmettre côté serveur la session Portail validée vers wfgg-train, la revalider côté backend et conserver l’auth Train historique désactivée.');
+            lines.push('Simulation: READONLY · attendu après correction: /api/snapshot HTTP 200 · accès sans Portail toujours refusé.');
+            lines.push('Statut: RECOMMANDÉ · aucun correctif appliqué automatiquement.');
+        }
         host.textContent = lines.join('\n') + '\nSentinel serveur: analyse en cours…';
 
         const portalToken = localStorage.getItem('wfgg_portal_session') || '';
