@@ -1,0 +1,130 @@
+name: Build Radar VPS bundle
+
+on:
+  push:
+    branches: [radar-production-v1]
+    paths:
+      - '.github/workflows/build-radar-vps-bundle.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.27.x'
+
+      - name: Expand immutable Radar release
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/wfgg-radar
+          python3 .github/scripts/reconstruct-radar-release.py
+          echo '234df1dec57f6211bc625855bf13350c9f17fbd843fbe92d8cf1ab7cb5c081ef  /tmp/radar-src.tar.gz' | sha256sum -c -
+          tar -xzf /tmp/radar-src.tar.gz -C /tmp/wfgg-radar
+
+      - name: Build connector
+        working-directory: /tmp/wfgg-radar/connector-go
+        run: |
+          set -euo pipefail
+          go test ./...
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w' -o /tmp/radar-connector ./cmd/radar-connector
+
+      - name: Build pinned native template
+        run: |
+          set -euo pipefail
+          git clone --filter=blob:none https://github.com/ljagiello/lastwar-client.git /tmp/lastwar-client
+          cd /tmp/lastwar-client
+          git checkout ee5f64de160a8051c2f9f98189b75038dd225a0a
+          mkdir -p cmd/wfgg-radar-native-template
+          cp /tmp/wfgg-radar/connector-go/native-template/main.go cmd/wfgg-radar-native-template/main.go
+          gofmt -w cmd/wfgg-radar-native-template/main.go
+          go test ./internal/auth ./internal/pcap ./internal/sfs
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -tags lastwar_native_template -trimpath -ldflags='-s -w' -o /tmp/radar-native-template ./cmd/wfgg-radar-native-template
+
+      - name: Package VPS bundle
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/wfgg-radar-vps
+          install -m 0755 /tmp/radar-connector /tmp/wfgg-radar-vps/radar-connector
+          install -m 0755 /tmp/radar-native-template /tmp/wfgg-radar-vps/radar-native-template
+          cat > /tmp/wfgg-radar-vps/install-vps.sh <<'EOF'
+          #!/usr/bin/env bash
+          set -euo pipefail
+          PREFIX=/opt/wfgg-radar
+          install -d -m 0755 "$PREFIX/bin" "$PREFIX/data"
+          install -m 0755 ./radar-connector "$PREFIX/bin/radar-connector"
+          install -m 0755 ./radar-native-template "$PREFIX/bin/radar-native-template"
+          if [ ! -f "$PREFIX/radar.env" ]; then
+            umask 077
+            KEY="$(python3 - <<'PY'
+          import secrets
+          print(secrets.token_urlsafe(48))
+          PY
+          )"
+            cat > "$PREFIX/radar.env" <<ENV
+          RADAR_CONNECTOR_SHARED_KEY=$KEY
+          RADAR_CONNECTOR_ADDR=127.0.0.1:8788
+          LASTWAR_NATIVE_TEMPLATE_BIN=$PREFIX/bin/radar-native-template
+          LASTWAR_CLIENT_TIMEOUT_SECONDS=45
+          ENV
+            chmod 0600 "$PREFIX/radar.env"
+          fi
+          cat > /etc/systemd/system/wfgg-radar-connector.service <<EOF2
+          [Unit]
+          Description=WfGg Radar Last War Connector
+          After=network-online.target tailscaled.service
+          Wants=network-online.target
+
+          [Service]
+          Type=simple
+          EnvironmentFile=$PREFIX/radar.env
+          ExecStart=$PREFIX/bin/radar-connector
+          Restart=on-failure
+          RestartSec=3
+          NoNewPrivileges=true
+          PrivateTmp=true
+          ProtectSystem=strict
+          ProtectHome=true
+          ReadWritePaths=$PREFIX/data
+
+          [Install]
+          WantedBy=multi-user.target
+          EOF2
+          systemctl daemon-reload
+          systemctl enable --now wfgg-radar-connector
+          echo '=== SERVICE ==='
+          systemctl --no-pager --full status wfgg-radar-connector | sed -n '1,18p'
+          echo
+          echo '=== LISTEN ==='
+          ss -lntp | grep ':8788' || true
+          echo
+          echo '=== SHARED KEY (copy once into GitHub secret RADAR_CONNECTOR_SHARED_KEY) ==='
+          sed -n 's/^RADAR_CONNECTOR_SHARED_KEY=//p' "$PREFIX/radar.env"
+          EOF
+          chmod +x /tmp/wfgg-radar-vps/install-vps.sh
+          (cd /tmp/wfgg-radar-vps && sha256sum radar-connector radar-native-template > SHA256SUMS.txt)
+          cp /tmp/wfgg-radar/connector-go/session-context.example.json /tmp/wfgg-radar-vps/session-context.example.json
+          cat > /tmp/wfgg-radar-vps/README.txt <<'EOF'
+          WfGg Radar VPS bundle
+          - radar-connector: signed HTTPS backend gateway (bind locally on 127.0.0.1:8788)
+          - radar-native-template: pinned read-only Last War native template helper
+          - install-vps.sh: idempotent systemd installer; generates a shared key on first run
+          - session-context.example.json: reference only; never put accessToken inside this persistent file
+          EOF
+          tar -C /tmp -czf /tmp/WFGG_RADAR_VPS_BUNDLE_2026-09-10.tar.gz wfgg-radar-vps
+          sha256sum /tmp/WFGG_RADAR_VPS_BUNDLE_2026-09-10.tar.gz
+
+      - name: Upload bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: WFGG_RADAR_VPS_BUNDLE_2026-09-10
+          path: /tmp/WFGG_RADAR_VPS_BUNDLE_2026-09-10.tar.gz
+          if-no-files-found: error
+          retention-days: 7
