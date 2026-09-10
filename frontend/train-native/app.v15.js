@@ -2498,22 +2498,31 @@
                 document.querySelector('.login-note').innerHTML = '⚠️ Application à initialiser · ouvre <b>/setup.html</b>';
         }
         catch (e) { }
-        /* WFGG_PORTAL_ONLY_TRAIN_BOOT_V4
-           Un cache Train local ne constitue jamais une authentification. Sous
-           /train/, le snapshot Portail doit être revalidé à chaque ouverture. */
+        /* WFGG_PORTAL_ONLY_TRAIN_BOOT_V6
+           Le contrôle d'accès est déjà effectué côté Worker AVANT de servir
+           /train/. Le frontend ne refait donc pas un second snapshot et ne
+           redirige jamais silencieusement vers le Portail sur une panne de
+           synchronisation. Il réutilise le snapshot autoritatif obtenu plus haut. */
         if (location.pathname === '/train' || location.pathname.startsWith('/train/')) {
-          try {
-            const refreshed = await syncSnapshot({ render: false, quiet: true });
-            const ready = !!(refreshed && state.currentUserId && user());
-            if (!ready) throw new Error('snapshot_without_identity');
-            console.info('WFGG_PORTAL_ONLY_TRAIN_BOOT_V4=READY');
+          const ready = !!(ok && state.currentUserId && user());
+          if (ready) {
+            console.info('WFGG_PORTAL_ONLY_TRAIN_BOOT_V6=READY');
             bootApp();
-          } catch (e) {
-            console.error('WFGG_PORTAL_ONLY_TRAIN_BOOT_V4=REJECTED', String(e && e.message || e));
-            state.currentUserId = null;
-            saveState();
-            const returnTo = encodeURIComponent(location.pathname + location.search);
-            location.replace('/?returnTo=' + returnTo);
+          } else {
+            console.error('WFGG_PORTAL_ONLY_TRAIN_BOOT_V6=DATA_UNAVAILABLE');
+            document.getElementById('portalView')?.classList.add('hidden');
+            document.getElementById('loginView')?.classList.add('hidden');
+            document.getElementById('wfggTrainPortalGate')?.remove();
+            document.getElementById('wfggTrainGateStyle')?.remove();
+            let panel=document.getElementById('wfggTrainBootErrorV6');
+            if(!panel){
+              panel=document.createElement('div');
+              panel.id='wfggTrainBootErrorV6';
+              panel.style.cssText='max-width:560px;margin:56px auto;padding:24px;border-radius:18px;background:#171522;color:#fff;font:500 15px/1.5 system-ui,sans-serif;text-align:center';
+              panel.innerHTML='<h2 style="margin-top:0">Train momentanément indisponible</h2><p>Ta session Portail est valide, mais les données Train n’ont pas pu être synchronisées.</p><button id="wfggTrainBootRetryV6" style="padding:11px 16px;border:0;border-radius:12px;font-weight:700">Réessayer</button>';
+              document.body.appendChild(panel);
+              document.getElementById('wfggTrainBootRetryV6')?.addEventListener('click',()=>location.reload());
+            }
           }
         } else {
           showPortal();
