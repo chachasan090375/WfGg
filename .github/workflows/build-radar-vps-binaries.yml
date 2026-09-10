@@ -1,0 +1,60 @@
+name: Build Radar VPS binaries
+
+on:
+  push:
+    branches: [radar-production-v1]
+    paths:
+      - '.github/workflows/build-radar-vps-binaries.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: radar-production-v1
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.23.x'
+
+      - name: Reconstruct immutable Radar V0.5 source
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/wfgg-radar
+          mkdir -p /tmp/wfgg-radar
+          python3 .github/scripts/reconstruct-radar-release.py
+          echo '234df1dec57f6211bc625855bf13350c9f17fbd843fbe92d8cf1ab7cb5c081ef  /tmp/radar-src.tar.gz' | sha256sum -c -
+          tar -xzf /tmp/radar-src.tar.gz -C /tmp/wfgg-radar
+
+      - name: Test and build static Linux amd64 binaries
+        working-directory: /tmp/wfgg-radar/connector-go
+        run: |
+          set -euo pipefail
+          go test ./...
+          mkdir -p "$GITHUB_WORKSPACE/radar-vps/release"
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w' -o "$GITHUB_WORKSPACE/radar-vps/release/radar-connector" ./cmd/radar-connector
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w' -o "$GITHUB_WORKSPACE/radar-vps/release/radar-native-template" ./native-template
+          chmod 0755 "$GITHUB_WORKSPACE/radar-vps/release/radar-connector" "$GITHUB_WORKSPACE/radar-vps/release/radar-native-template"
+          cd "$GITHUB_WORKSPACE/radar-vps/release"
+          sha256sum radar-connector radar-native-template > SHA256SUMS
+          file radar-connector radar-native-template
+          cat SHA256SUMS
+
+      - name: Commit VPS release binaries
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add radar-vps/release/radar-connector radar-vps/release/radar-native-template radar-vps/release/SHA256SUMS
+          if git diff --cached --quiet; then
+            echo 'VPS_BINARIES=UNCHANGED'
+            exit 0
+          fi
+          git commit -m 'build(radar): publish static VPS connector binaries'
+          git push origin HEAD:radar-production-v1
+          echo 'VPS_BINARIES=PUBLISHED'
