@@ -1,0 +1,41 @@
+name: Sentinel repair visual v14.5
+
+on:
+  push:
+    branches:
+      - sentinel-repair-visual-v14-5
+
+permissions:
+  contents: write
+
+jobs:
+  patch-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: sentinel-repair-visual-v14-5
+          fetch-depth: 0
+      - name: Apply repair visual patch
+        run: python3 .github/scripts/sentinel_repair_visual_v14_5.py
+      - name: Validate JS and Sentinel markers
+        run: |
+          node --check frontend/train-native/app.v15.js
+          node --check frontend/train-native/sentinel-train-v1.js
+          node --check frontend/_worker.js
+          grep -Fq "sentinel-train-v14.5" frontend/train-native/sentinel-train-v1.js
+          grep -Fq "repair-train-portal-session-bridge-v14-5" frontend/train-native/sentinel-train-v1.js
+          grep -Fq "CORRECTIF SENTINEL RECOMMANDÉ · 100/100" frontend/train-native/app.v15.js
+          grep -Fq "sentinel-train-v1.js?v=0145" frontend/_worker.js
+          (cd frontend/train-native && sha256sum -c app.v15.js.sha256)
+      - name: Commit tested production patch
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add frontend/train-native/app.v15.js frontend/train-native/app.v15.js.sha256 frontend/train-native/sentinel-train-v1.js frontend/_worker.js
+          if git diff --cached --quiet; then
+            echo 'No production changes to commit'
+          else
+            git commit -m 'feat(sentinel): show recommended repair in diagnostics v14.5'
+            git push origin HEAD:sentinel-repair-visual-v14-5
+          fi
