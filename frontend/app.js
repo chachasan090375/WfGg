@@ -3,6 +3,16 @@
 
   const cfg = window.WFGG_PORTAL_CONFIG || { API_BASE: '', MODULES: {} };
   const STORAGE_TOKEN = 'wfgg_portal_session';
+  const SESSION_COOKIE = 'wfgg_portal_session';
+
+  function writeSessionCookie(token) {
+    if (!token) return;
+    document.cookie = `${SESSION_COOKIE}=${encodeURIComponent(token)}; Path=/; Max-Age=2592000; Secure; SameSite=Strict`;
+  }
+
+  function clearSessionCookie() {
+    document.cookie = `${SESSION_COOKIE}=; Path=/; Max-Age=0; Secure; SameSite=Strict`;
+  }
   const STORAGE_LANG = 'wfgg_portal_language';
   const RANKS = ['R1', 'R2', 'R3', 'R4', 'R5'];
   const state = {
@@ -200,6 +210,7 @@
 
   function clearSession() {
     localStorage.removeItem(STORAGE_TOKEN);
+    clearSessionCookie();
     state.user = null;
     state.membership = null;
     state.alliance = null;
@@ -269,6 +280,7 @@
     if (!localStorage.getItem(STORAGE_TOKEN)) return showAuth();
     try {
       hydrate(await api('/api/me'));
+      writeSessionCookie(localStorage.getItem(STORAGE_TOKEN));
       showPortal();
     } catch (error) {
       if (error.message !== 'UNAUTHORIZED') showAuth();
@@ -283,6 +295,7 @@
     try {
       const data = await api('/api/auth', { method: 'POST', body: JSON.stringify({ code }) });
       localStorage.setItem(STORAGE_TOKEN, data.session_token);
+      writeSessionCookie(data.session_token);
       hydrate(data);
       $('authCode').value = '';
       showPortal();

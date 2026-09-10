@@ -1161,22 +1161,82 @@
             pushDeviceState.checking=false;btn.disabled=false;detail.textContent=e.message||String(e);
         }
     }
+    /* WFGG_PUSH_TRANSACTIONAL_ONBOARDING_V15
+       Aucun abonnement Push serveur n'est créé avant confirmation de l'affichage
+       réel sur cet appareil. Un abandon laisse l'interrupteur gris. */
+    const PUSH_ONBOARDING_PENDING_KEY='wfgg_push_onboarding_pending_v15';
+
+    async function askPushOnboardingVisible(reg){
+        const tag='wfgg-push-onboarding-'+Date.now();
+        await reg.showNotification('WfGg Train',{
+            body:pushText('Notification de confirmation WfGg.','WfGg confirmation notification.','Notifica di conferma WfGg.','Notificación de confirmación WfGg.'),
+            icon:'/assets/wfgg-logo-premium-transparent-v2.png',
+            badge:'/assets/wfgg-logo-mini.svg',
+            tag,
+            data:{url:'/train/'}
+        });
+        await new Promise(r=>setTimeout(r,350));
+        const created=await reg.getNotifications({tag});
+        if(!created.length)return false;
+        return new Promise(resolve=>{
+            openModal(`<h2>🔔 ${pushText('As-tu reçu la notification WfGg ?','Did you receive the WfGg notification?','Hai ricevuto la notifica WfGg?','¿Has recibido la notificación WfGg?')}</h2><p>${pushText('Nous ne créerons l’abonnement Push qu’après ta confirmation.','We will create the Push subscription only after your confirmation.','Creeremo l’abbonamento Push solo dopo la tua conferma.','Solo crearemos la suscripción Push después de tu confirmación.')}</p><div class="actions"><button id="wfggPushOnboardingYes" class="btn success">✅ ${pushText('Oui','Yes','Sì','Sí')}</button><button id="wfggPushOnboardingNo" class="btn danger">❌ ${pushText('Non','No','No','No')}</button></div>`);
+            queueMicrotask(()=>{
+                document.getElementById('wfggPushOnboardingYes')?.addEventListener('click',()=>{created.forEach(n=>n.close());closeModal();resolve(true);});
+                document.getElementById('wfggPushOnboardingNo')?.addEventListener('click',()=>{created.forEach(n=>n.close());closeModal();resolve(false);});
+            });
+        });
+    }
+
+    function cancelPushOnboarding(){
+        sessionStorage.removeItem(PUSH_ONBOARDING_PENDING_KEY);
+        closeModal();
+        refreshPushUi().catch(()=>{});
+    }
+
+    function promptPushOnboardingSettings(){
+        sessionStorage.setItem(PUSH_ONBOARDING_PENDING_KEY,'1');
+        const modify=notificationSettingsModifyMarkup(notificationSettingsText('Modifier les réglages','Change settings','Modifica impostazioni','Cambiar ajustes'));
+        openModal(`<h2>🔔 ${pushText('Autoriser l’affichage des notifications','Allow notification display','Consenti la visualizzazione delle notifiche','Permitir la visualización de notificaciones')}</h2><p>${pushText('La notification de confirmation n’est pas apparue. Tu peux corriger les réglages du téléphone maintenant. Si tu ne le souhaites pas, les notifications resteront désactivées.','The confirmation notification did not appear. You can fix the phone settings now. If you do not want to, notifications will remain disabled.','La notifica di conferma non è apparsa. Puoi correggere ora le impostazioni del telefono. Se non vuoi, le notifiche resteranno disattivate.','La notificación de confirmación no apareció. Puedes corregir ahora los ajustes del teléfono. Si no quieres, las notificaciones seguirán desactivadas.')}</p><div class="actions">${modify}<button id="wfggPushOnboardingCancel" class="btn outline">${pushText('Pas maintenant','Not now','Non ora','Ahora no')}</button></div>`);
+        queueMicrotask(()=>{
+            wireNotificationSettingsModify();
+            document.getElementById('wfggPushOnboardingCancel')?.addEventListener('click',cancelPushOnboarding);
+        });
+    }
+
+    async function finalizePushSubscription(reg){
+        const key=await api('/api/push/public-key',{method:'GET'});
+        let sub=await reg.pushManager.getSubscription();
+        if(!sub)sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:pushKeyBytes(key.publicKey)});
+        await api('/api/push/subscribe',{method:'POST',body:JSON.stringify({subscription:sub.toJSON(),userAgent:navigator.userAgent||'',platform:pushPlatform()})});
+        sessionStorage.removeItem(PUSH_ONBOARDING_PENDING_KEY);
+        await syncSnapshot({render:false,quiet:true});
+        toast(pushText('Notifications activées','Notifications enabled','Notifiche attivate','Notificaciones activadas'));
+        renderHome();renderAlerts();
+        return true;
+    }
+
+    async function continuePushOnboardingAfterSettings(){
+        if(Notification.permission!=='granted'){cancelPushOnboarding();return false;}
+        try{
+            const reg=await ensurePushRegistration();
+            const visible=await askPushOnboardingVisible(reg);
+            if(!visible){promptPushOnboardingSettings();return false;}
+            return await finalizePushSubscription(reg);
+        }catch(e){toast(e.message||String(e));cancelPushOnboarding();return false;}
+    }
+
     async function enablePushNotifications(){
         if(isAppleMobile()&&!isStandaloneApp()){pushInstallHelp();return false;}
         if(!pushFeatureSupported()){toast(pushText('Notifications non prises en charge','Notifications not supported','Notifiche non supportate','Notificaciones no compatibles'));return false;}
-        if(Notification.permission==='denied'){toast(pushText('Autorise les notifications dans les réglages du téléphone','Allow notifications in your phone settings','Consenti le notifiche nelle impostazioni del telefono','Permite las notificaciones en los ajustes del teléfono'));return false;}
+        if(Notification.permission==='denied'){promptPushOnboardingSettings();await refreshPushUi();return false;}
         const permission=Notification.permission==='granted'?'granted':await Notification.requestPermission();
-        if(permission!=='granted'){await refreshPushUi();return false;}
+        if(permission!=='granted'){sessionStorage.removeItem(PUSH_ONBOARDING_PENDING_KEY);await refreshPushUi();return false;}
         try{
             const reg=await ensurePushRegistration();
-            const key=await api('/api/push/public-key',{method:'GET'});
-            let sub=await reg.pushManager.getSubscription();
-            if(!sub)sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:pushKeyBytes(key.publicKey)});
-            await api('/api/push/subscribe',{method:'POST',body:JSON.stringify({subscription:sub.toJSON(),userAgent:navigator.userAgent||'',platform:pushPlatform()})});
-            await syncSnapshot({render:false,quiet:true});
-            toast(pushText('Notifications activées','Notifications enabled','Notifiche attivate','Notificaciones activadas'));
-            renderHome();renderAlerts();return true;
-        }catch(e){toast(e.message||String(e));await refreshPushUi();return false;}
+            const visible=await askPushOnboardingVisible(reg);
+            if(!visible){promptPushOnboardingSettings();await refreshPushUi();return false;}
+            return await finalizePushSubscription(reg);
+        }catch(e){toast(e.message||String(e));cancelPushOnboarding();return false;}
     }
     async function disablePushNotifications(){
         try{
@@ -1321,8 +1381,13 @@
             try{await refreshPushUi();}catch(_){}
             if(Notification.permission==='granted'){
                 notificationSettingsOutcomeWrite('auto-recheck','returned-from-android-settings');
-                toast(notificationSettingsText('Réglages repris. Nouveau test d’affichage…','Settings resumed. Testing display again…','Impostazioni riprese. Nuovo test di visualizzazione…','Ajustes retomados. Nueva prueba de visualización…'));
-                await testLocalNotification();
+                if(sessionStorage.getItem(PUSH_ONBOARDING_PENDING_KEY)==='1'){
+                    toast(notificationSettingsText('Réglages repris. Vérification de l’affichage…','Settings resumed. Checking display…','Impostazioni riprese. Verifica visualizzazione…','Ajustes retomados. Comprobando visualización…'));
+                    await continuePushOnboardingAfterSettings();
+                }else{
+                    toast(notificationSettingsText('Réglages repris. Nouveau test d’affichage…','Settings resumed. Testing display again…','Impostazioni riprese. Nuovo test di visualizzazione…','Ajustes retomados. Nueva prueba de visualización…'));
+                    await testLocalNotification();
+                }
             }else promptNotificationPermissionFix();
         },500);
     });
@@ -2433,45 +2498,23 @@
                 document.querySelector('.login-note').innerHTML = '⚠️ Application à initialiser · ouvre <b>/setup.html</b>';
         }
         catch (e) { }
-        /* WFGG_PORTAL_DIRECT_TRAIN_BOOTSTRAP_V2
-           Sous /train/, ne jamais décider à partir du seul cache local Train.
-           Le Portail possède la session autoritative : on hydrate d'abord le
-           snapshot same-origin, puis seulement on ouvre l'application.
-           En cas d'échec, on reste sur /train/ avec un diagnostic au lieu de
-           renvoyer silencieusement l'utilisateur vers l'accueil du Portail.
-        */
-        if (location.pathname === '/train' ||
-            location.pathname.startsWith('/train/')) {
-
-          let ready = !!(state.currentUserId && user());
-          let bootstrapError = '';
-
-          if (!ready) {
-            try {
-              const refreshed = await syncSnapshot({ render: false, quiet: true });
-              ready = !!(refreshed && state.currentUserId && user());
-              if (!ready) bootstrapError = 'snapshot_without_identity';
-            } catch (e) {
-              bootstrapError = String(e && e.message || e || 'snapshot_failed');
-            }
-          }
-
-          if (ready) {
-            console.info('WFGG_PORTAL_TRAIN_BOOTSTRAP_V2=READY');
+        /* WFGG_PORTAL_ONLY_TRAIN_BOOT_V4
+           Un cache Train local ne constitue jamais une authentification. Sous
+           /train/, le snapshot Portail doit être revalidé à chaque ouverture. */
+        if (location.pathname === '/train' || location.pathname.startsWith('/train/')) {
+          try {
+            const refreshed = await syncSnapshot({ render: false, quiet: true });
+            const ready = !!(refreshed && state.currentUserId && user());
+            if (!ready) throw new Error('snapshot_without_identity');
+            console.info('WFGG_PORTAL_ONLY_TRAIN_BOOT_V4=READY');
             bootApp();
-          } else {
-            console.error('WFGG_PORTAL_TRAIN_BOOTSTRAP_V2=FAILED', bootstrapError || 'identity_missing');
-            const note = document.querySelector('.login-note');
-            if (note) {
-              note.innerHTML = '⚠️ Impossible de synchroniser ta session Train pour le moment. ' +
-                '<button type="button" class="btn outline" onclick="location.reload()">Réessayer</button>';
-            }
-            const login = document.getElementById('loginView');
-            if (login) login.classList.remove('hidden');
-            const app = document.getElementById('appView');
-            if (app) app.classList.add('hidden');
+          } catch (e) {
+            console.error('WFGG_PORTAL_ONLY_TRAIN_BOOT_V4=REJECTED', String(e && e.message || e));
+            state.currentUserId = null;
+            saveState();
+            const returnTo = encodeURIComponent(location.pathname + location.search);
+            location.replace('/?returnTo=' + returnTo);
           }
-
         } else {
           showPortal();
         }

@@ -60,6 +60,52 @@ function guestRedirect(request) {
   return Response.redirect(target.toString(), 302);
 }
 
+
+/* WFGG_PORTAL_ONLY_MODULE_GUARD_V4
+   Les modules sont servis uniquement à une session Portail valide. Le cookie
+   transporte le même jeton déjà stocké côté Portail afin que le Worker puisse
+   valider une navigation directe avant de livrer l'application. */
+function portalSessionCookie(request) {
+  const cookie = request.headers.get('Cookie') || '';
+  const match = cookie.match(/(?:^|;\s*)wfgg_portal_session=([^;]+)/);
+  if (!match) return '';
+  try { return decodeURIComponent(match[1]); } catch { return ''; }
+}
+
+function protectedModulePath(pathname) {
+  return pathname === '/train' || pathname.startsWith('/train/') ||
+    pathname === '/guides' || pathname.startsWith('/guides/') ||
+    pathname === '/simulateur' || pathname.startsWith('/simulateur/');
+}
+
+function moduleRequestNeedsValidation(request, pathname) {
+  if (!protectedModulePath(pathname)) return false;
+  const dest = request.headers.get('Sec-Fetch-Dest') || '';
+  const accept = request.headers.get('Accept') || '';
+  if (dest === 'document' || /text\/html/i.test(accept)) return true;
+  const leaf = pathname.split('/').pop() || '';
+  return !/\.[a-z0-9]{1,8}$/i.test(leaf) || /\.html?$/i.test(leaf);
+}
+
+async function portalSessionValid(request) {
+  const token = portalSessionCookie(request);
+  if (!token) return false;
+  try {
+    const response = await fetch(UPSTREAMS.portalApi.origin + '/api/me', {
+      method: 'GET',
+      headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/json' }
+    });
+    return response.ok;
+  } catch { return false; }
+}
+
+function portalLoginRedirect(request) {
+  const incoming = new URL(request.url);
+  const target = new URL('/', incoming.origin);
+  target.searchParams.set('returnTo', incoming.pathname + incoming.search);
+  return Response.redirect(target.toString(), 302);
+}
+
 function upstreamRequest(request, targetUrl, options = {}) {
   const headers = new Headers(request.headers);
 
@@ -133,7 +179,7 @@ class RootAttributeRewriter {
         const versioned =
           value +
           (value.includes('?') ? '&' : '?') +
-          'wfgg_bridge=v15&wfgg_ui=clean1';
+          'wfgg_bridge=v15&wfgg_ui=clean1&wfgg_auth=v4&wfgg_push=v15';
         element.setAttribute(attr, versioned);
         continue;
       }
@@ -152,7 +198,7 @@ class RootAttributeRewriter {
         ) {
           rewrittenValue +=
             (rewrittenValue.includes('?') ? '&' : '?') +
-            'wfgg_bridge=v15&wfgg_ui=clean1';
+            'wfgg_bridge=v15&wfgg_ui=clean1&wfgg_auth=v4&wfgg_push=v15';
         }
 
         element.setAttribute(attr, rewrittenValue);
@@ -1838,6 +1884,15 @@ async function routeSimulator(request) {
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+
+    if (protectedModulePath(url.pathname)) {
+      const token = portalSessionCookie(request);
+      if (!token) return portalLoginRedirect(request);
+      if (moduleRequestNeedsValidation(request, url.pathname)) {
+        const valid = await portalSessionValid(request);
+        if (!valid) return portalLoginRedirect(request);
+      }
+    }
 
     try {
       /* WFGG_GUEST_SERVER_ENFORCEMENT_V2 */
