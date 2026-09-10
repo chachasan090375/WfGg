@@ -1,0 +1,45 @@
+name: Train alerts UI clean v1
+
+on:
+  push:
+    branches: [train-alerts-ui-clean-v1]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Apply UI cleanup
+        run: python3 .github/scripts/train_alerts_ui_clean_v1.py
+
+      - name: Validate JavaScript
+        run: |
+          node --check frontend/train-native/app.v15.js
+          node --check frontend/_worker.js
+
+      - name: Validate user UI contract
+        run: |
+          grep -Fq 'WFGG_TRAIN_ALERTS_USER_UI_CLEAN_V1' frontend/train-native/app.v15.js
+          grep -Fq "async function testPushReminder" frontend/train-native/app.v15.js
+          grep -Fq "async function testLocalNotification" frontend/train-native/app.v15.js
+          grep -Fq "sentinelUiProbe" frontend/train-native/app.v15.js
+          ! sed -n '/function renderAlerts()/,/function rotationEquityHtml()/p' frontend/train-native/app.v15.js | grep -Eq 'pushTestButtons|pushTestButton|W\.testPushReminder|W\.testLocalNotification|W\.promptWfggNotificationReset|Tester l.envoi Push serveur|Tester l.affichage local'
+          grep -Fq 'wfgg_bridge=v15&wfgg_ui=clean1' frontend/_worker.js
+          sha256sum -c frontend/train-native/app.v15.js.sha256
+
+      - name: Commit tested patch
+        run: |
+          if git diff --quiet; then
+            echo 'No generated changes to commit'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add frontend/train-native/app.v15.js frontend/train-native/app.v15.js.sha256 frontend/_worker.js
+          git commit -m 'feat(train): clean alerts user UI v1'
+          git push
