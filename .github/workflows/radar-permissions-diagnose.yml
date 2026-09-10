@@ -1,0 +1,57 @@
+name: Diagnose Radar Cloudflare permissions
+
+on:
+  push:
+    branches: [radar-production-v1]
+    paths:
+      - '.github/workflows/radar-permissions-diagnose.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: 9f09842ae58aee7111e1c40de8b33c92
+    steps:
+      - name: Probe Workers Scripts API
+        run: |
+          python3 - <<'PY'
+          import json, os, urllib.error, urllib.request
+          url=f"https://api.cloudflare.com/client/v4/accounts/{os.environ['CLOUDFLARE_ACCOUNT_ID']}/workers/scripts"
+          req=urllib.request.Request(url,headers={'Authorization':f"Bearer {os.environ['CLOUDFLARE_API_TOKEN']}"})
+          try:
+            with urllib.request.urlopen(req,timeout=30) as r:
+              data=json.loads(r.read().decode())
+              print(f'WORKERS_HTTP={r.status}')
+              print(f'WORKERS_SUCCESS={data.get("success")}')
+          except urllib.error.HTTPError as e:
+            body=e.read().decode() or '{}'
+            try: data=json.loads(body)
+            except Exception: data={}
+            print(f'WORKERS_HTTP={e.code}')
+            print('WORKERS_SUCCESS=False')
+            for err in data.get('errors') or []:
+              print(f'WORKERS_ERROR_CODE={err.get("code")}')
+              print(f'WORKERS_ERROR_MESSAGE={err.get("message")}')
+          PY
+
+      - name: Install Wrangler
+        run: npm install --global wrangler@4
+
+      - name: Probe Containers access
+        run: |
+          set +e
+          wrangler containers list --json >/tmp/containers.out 2>/tmp/containers.err
+          code=$?
+          echo "CONTAINERS_EXIT=$code"
+          if [ "$code" -eq 0 ]; then
+            echo 'CONTAINERS_ACCESS=OK'
+          else
+            echo 'CONTAINERS_ACCESS=FAILED'
+            cat /tmp/containers.err
+          fi
+          exit 0
