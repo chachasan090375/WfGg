@@ -1,0 +1,84 @@
+name: Sentinel Train boot click v14.3
+
+on:
+  push:
+    branches:
+      - sentinel-boot-click-v14-3
+
+permissions:
+  contents: write
+
+jobs:
+  patch-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: sentinel-boot-click-v14-3
+          fetch-depth: 0
+
+      - name: Patch Sentinel boot launcher
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          sentinel = Path('frontend/train-native/sentinel-train-v1.js')
+          text = sentinel.read_text(encoding='utf-8')
+
+          old_version = "const VERSION = 'sentinel-train-v14.2';"
+          assert old_version in text, 'Sentinel V14.2 version marker missing'
+          text = text.replace(old_version, "const VERSION = 'sentinel-train-v14.3';", 1)
+
+          anchor = """  function installLaunchCapture() {\n    if (window.__WFGG_SENTINEL_LAUNCH_CAPTURE_V7__) return;"""
+          assert anchor in text, 'installLaunchCapture anchor missing'
+          boot_launcher = """  /* WFGG_SENTINEL_BOOT_POINTER_CAPTURE_V14_3\n     Le bouton de diagnostic de l'écran de panne doit fonctionner même quand\n     Chrome Android ne délivre pas le click local attendu après le toucher.\n     On passe par la capture globale pointerup/click, comme le lanceur Sentinel\n     normal, puis on ouvre le panneau et on lance la recette existante. */\n  async function launchBootFromEvent(event) {\n    event?.preventDefault?.();\n    event?.stopPropagation?.();\n    event?.stopImmediatePropagation?.();\n    if (launchLocked) return;\n    launchLocked = true;\n    try {\n      await openPopup();\n      const root = document.getElementById(OVERLAY_ID);\n      if (root && !root.classList.contains('hidden')) {\n        await new Promise((resolve) => requestAnimationFrame(resolve));\n        await runSentinel();\n      }\n    } finally {\n      setTimeout(() => { launchLocked = false; }, 350);\n    }\n  }\n\n"""
+          text = text.replace(anchor, boot_launcher + anchor, 1)
+
+          old_handler = """    const handler = (event) => {\n      if (event?.target?.closest?.('#' + BUTTON_ID)) launchFromEvent(event);\n    };"""
+          assert old_handler in text, 'global launch handler anchor missing'
+          new_handler = """    const handler = (event) => {\n      const target = event?.target;\n      if (target?.closest?.('#' + BOOT_BUTTON_ID)) {\n        launchBootFromEvent(event);\n        return;\n      }\n      if (target?.closest?.('#' + BUTTON_ID)) launchFromEvent(event);\n    };"""
+          text = text.replace(old_handler, new_handler, 1)
+          sentinel.write_text(text, encoding='utf-8')
+
+          worker = Path('frontend/_worker.js')
+          w = worker.read_text(encoding='utf-8')
+          assert "script.src='/train/sentinel-train-v1.js?v=0142';" in w, 'Sentinel cache-bust V14.2 marker missing'
+          w = w.replace("script.src='/train/sentinel-train-v1.js?v=0142';", "script.src='/train/sentinel-train-v1.js?v=0143';", 1)
+          worker.write_text(w, encoding='utf-8')
+          PY
+
+      - name: Validate Sentinel V14.3
+        shell: bash
+        run: |
+          node --check frontend/train-native/sentinel-train-v1.js
+          node --check frontend/_worker.js
+          python3 - <<'PY'
+          from pathlib import Path
+          s = Path('frontend/train-native/sentinel-train-v1.js').read_text(encoding='utf-8')
+          w = Path('frontend/_worker.js').read_text(encoding='utf-8')
+          checks = {
+              'version': "const VERSION = 'sentinel-train-v14.3';" in s,
+              'marker': 'WFGG_SENTINEL_BOOT_POINTER_CAPTURE_V14_3' in s,
+              'boot-target': "target?.closest?.('#' + BOOT_BUTTON_ID)" in s,
+              'boot-launch': 'launchBootFromEvent(event);' in s,
+              'pointerup-capture': "document.addEventListener('pointerup', handler, true);" in s,
+              'click-capture': "document.addEventListener('click', handler, true);" in s,
+              'auto-recipe': 'await runSentinel();' in s,
+              'cache-bust': "script.src='/train/sentinel-train-v1.js?v=0143';" in w,
+          }
+          failed = [k for k, ok in checks.items() if not ok]
+          print(checks)
+          if failed:
+              raise SystemExit('FAILED: ' + ', '.join(failed))
+          PY
+
+      - name: Commit tested fix
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/sentinel-boot-click-v14-3.yml
+          git add frontend/train-native/sentinel-train-v1.js frontend/_worker.js
+          git commit -m "fix(sentinel): make boot report button reliable on Android"
+          git push origin HEAD:sentinel-boot-click-v14-3
