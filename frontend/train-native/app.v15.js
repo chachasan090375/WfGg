@@ -14,6 +14,20 @@
     let syncTimer = null;
     let presenceTimer = null;
     let syncing = false;
+    let lastApiDiagnostic = null;
+    let lastSnapshotDiagnostic = null;
+    function recordApiDiagnostic(path, details = {}) {
+        lastApiDiagnostic = {
+            path: String(path || ''),
+            status: Number(details.status || 0),
+            error: String(details.error || ''),
+            route: String(details.route || ''),
+            bridge: String(details.bridge || ''),
+            ok: Boolean(details.ok),
+            at: new Date().toISOString()
+        };
+        return lastApiDiagnostic;
+    }
     let adminPresence = {count:0,online:[],thresholdSeconds:90};
     let presenceListOpen = false;
     let publicGameLinks = [];
@@ -681,6 +695,7 @@
         }
         catch (e) {
             setSyncStatus('off');
+            recordApiDiagnostic(path, { status: 0, error: String((e && e.message) || e || 'Réseau indisponible') });
             throw new Error('Réseau indisponible');
         }
         let data = {};
@@ -688,18 +703,23 @@
             data = await res.json();
         }
         catch (e) { }
+        const apiRoute = res.headers.get('X-WfGg-Route') || '';
+        const apiBridge = res.headers.get('X-WfGg-Portal-Bridge') || '';
         if (res.status === 401) {
 
             state.currentUserId = null;
             saveState();
             setSyncStatus('off');
             (_a = document.getElementById('appView')) === null || _a === void 0 ? void 0 : _a.classList.add('hidden');
+            recordApiDiagnostic(path, { status: res.status, error: data.error || 'Session expirée', route: apiRoute, bridge: apiBridge });
             throw new Error(data.error || 'Session expirée');
         }
         if (!res.ok) {
             setSyncStatus('off');
+            recordApiDiagnostic(path, { status: res.status, error: data.error || `Erreur ${res.status}`, route: apiRoute, bridge: apiBridge });
             throw new Error(data.error || `Erreur ${res.status}`);
         }
+        recordApiDiagnostic(path, { status: res.status, ok: true, route: apiRoute, bridge: apiBridge });
         setSyncStatus('ok');
         return data;
     }
@@ -722,6 +742,7 @@
         syncing = true;
         try {
             const snap = await api('/api/snapshot', { method: 'GET' });
+            lastSnapshotDiagnostic = null;
             applySnapshot(snap);
             if (render && document.getElementById('appView') && !document.getElementById('appView').classList.contains('hidden')) {
                 const active = (_a = document.querySelector('.screen.active')) === null || _a === void 0 ? void 0 : _a.id;
@@ -733,6 +754,7 @@
             return true;
         }
         catch (e) {
+            lastSnapshotDiagnostic = Object.assign({}, lastApiDiagnostic || {}, { message: String((e && e.message) || e || 'Erreur snapshot'), at: new Date().toISOString() });
             if (!quiet)
                 toast(e.message);
             return false;
@@ -2418,6 +2440,74 @@
         syncTimer = setInterval(() => syncSnapshot({ render: true, quiet: true }), 20000);
         startPresenceLoop();
     }
+    /* WFGG_TRAIN_INLINE_SENTINEL_BOOT_V15
+       Le diagnostic de panne est rendu par app.v15 lui-même, donc il reste
+       visible même si l'overlay ou le lanceur Sentinel séparé ne s'ouvre pas.
+       Les contrôles viennent du Sentinel serveur existant et restent READONLY. */
+    async function renderInlineSentinelBootV15(panel) {
+        const host = panel && panel.querySelector('#wfggTrainInlineSentinelV15');
+        if (!host)
+            return;
+        const lines = ['WFGG_SENTINEL_BOOT_INLINE_V15'];
+        const local = lastSnapshotDiagnostic || lastApiDiagnostic || {};
+        lines.push(`Snapshot navigateur: ${local.status ? 'HTTP ' + local.status : 'sans réponse'} · ${local.error || local.message || 'échec sans détail'}`);
+        if (local.route)
+            lines.push(`Route edge: ${local.route}`);
+        if (local.bridge)
+            lines.push(`Bridge: ${local.bridge}`);
+        host.textContent = lines.join('\n') + '\nSentinel serveur: analyse en cours…';
+
+        const portalToken = localStorage.getItem('wfgg_portal_session') || '';
+        if (!portalToken) {
+            lines.push('Sentinel serveur: jeton Portail navigateur absent');
+            host.textContent = lines.join('\n');
+            return;
+        }
+        try {
+            const response = await fetch('/portal-api/sentinel/run?boot=' + Date.now(), {
+                method: 'GET',
+                headers: { 'Authorization': 'Bearer ' + portalToken, 'Accept': 'application/json' },
+                credentials: 'omit',
+                cache: 'no-store'
+            });
+            let data = null;
+            try {
+                data = await response.json();
+            }
+            catch (_) { }
+            lines.push(`Sentinel serveur: HTTP ${response.status}`);
+            if (data && data.summary) {
+                const c = data.summary.counts || {};
+                lines.push(`Statut Sentinel: ${data.summary.status || '—'} · ok=${c.ok || 0} warning=${c.warning || 0} error=${c.error || 0}`);
+            }
+            const checks = Array.isArray(data && data.checks) ? data.checks : [];
+            const root = checks.find(x => x && x.id === 'sentinel-root-cause');
+            const snap = checks.find(x => x && x.id === 'train-snapshot');
+            const roster = checks.find(x => x && x.id === 'train-access-roster');
+            const selected = [];
+            for (const item of [snap, roster, root, ...checks.filter(x => x && (x.level === 'error' || x.level === 'warning'))]) {
+                if (!item || selected.some(x => x.id === item.id))
+                    continue;
+                selected.push(item);
+                if (selected.length >= 8)
+                    break;
+            }
+            for (const item of selected) {
+                lines.push(`[${String(item.level || 'info').toUpperCase()}] ${item.id || 'controle'} · ${item.observed || '—'}`);
+                if (item.detail)
+                    lines.push(`  Détail: ${item.detail}`);
+                if (item.probableCause)
+                    lines.push(`  Cause: ${item.probableCause}`);
+            }
+            if (!response.ok && data && data.error)
+                lines.push(`Erreur Sentinel: ${data.error}`);
+        }
+        catch (error) {
+            lines.push(`Sentinel serveur: erreur réseau · ${String((error && error.message) || error)}`);
+        }
+        host.textContent = lines.join('\n');
+    }
+
     async function init() {
         startLanguageObserver();
         applyLanguage(document);
@@ -2523,6 +2613,15 @@
               document.body.appendChild(panel);
               document.getElementById('wfggTrainBootRetryV6')?.addEventListener('click',()=>location.reload());
             }
+            let inlineSentinelHost=document.getElementById('wfggTrainInlineSentinelV15');
+            if(!inlineSentinelHost){
+              inlineSentinelHost=document.createElement('pre');
+              inlineSentinelHost.id='wfggTrainInlineSentinelV15';
+              inlineSentinelHost.style.cssText='margin:18px 0 0;padding:14px;border-radius:12px;background:#0d0c14;border:1px solid rgba(220,196,255,.28);color:#eae5f2;text-align:left;white-space:pre-wrap;word-break:break-word;font:600 12px/1.45 ui-monospace,SFMono-Regular,Consolas,monospace';
+              inlineSentinelHost.textContent='Sentinel · diagnostic en cours…';
+              panel.appendChild(inlineSentinelHost);
+            }
+            renderInlineSentinelBootV15(panel);
           }
         } else {
           showPortal();
