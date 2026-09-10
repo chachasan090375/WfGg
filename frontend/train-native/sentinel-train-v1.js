@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = 'sentinel-train-v14.3';
+  const VERSION = 'sentinel-train-v14.4';
   const PORTAL_API = '/portal-api';
   const PORTAL_TOKEN_KEY = 'wfgg_portal_session';
   const TRAIN_STATE_KEY = 'wfgg_train_v13';
@@ -15,6 +15,7 @@
   let launchLocked = false;
   let lastReport = null;
   let lastAnchor = null;
+  let bootAutoLaunchDone = false;
 
   const TEXT = {
     fr: {
@@ -292,6 +293,19 @@
       panel.appendChild(button);
     } else {
       button.textContent = '🧪 ' + bootReportText();
+    }
+
+    /* WFGG_SENTINEL_BOOT_AUTORUN_V14_4
+       Sur l'écran de panne Train, Sentinel ne dépend plus d'un toucher mobile :
+       après validation OWNER/SUPERVISEUR, le panneau s'ouvre une seule fois et
+       la recette existante démarre automatiquement via openPopup(). */
+    if (!bootAutoLaunchDone) {
+      bootAutoLaunchDone = true;
+      setTimeout(() => {
+        openPopup().catch((error) => {
+          console.error('WFGG_SENTINEL_BOOT_AUTORUN_V14_4=ERROR', error);
+        });
+      }, 80);
     }
     return true;
   }
