@@ -768,7 +768,7 @@ function languageBridgeScript(routeName) {
       if(document.getElementById('wfggTrainSentinelLoaderV4'))return;
       const script=document.createElement('script');
       script.id='wfggTrainSentinelLoaderV4';
-      script.src='/train/sentinel-train-v1.js?v=0141';
+      script.src='/train/sentinel-train-v1.js?v=0142';
       script.async=true;
       script.dataset.wfggAfterBoot='1';
       script.onerror=()=>console.warn('WFGG_SENTINEL_AFTER_BOOT_V4=LOAD_ERROR');
@@ -784,6 +784,16 @@ function languageBridgeScript(routeName) {
       passiveAttempts++;
       hideLegacyEntry();
       const app=document.getElementById('appView');
+      const bootError=document.getElementById('wfggTrainBootErrorV6');
+
+      /* WFGG_TRAIN_BOOT_SENTINEL_V14_2
+         Charger le vrai Sentinel aussi lorsque le bootstrap des données Train
+         échoue. Sentinel reste hors du chemin critique et ne modifie rien. */
+      if(bootError){
+        loadSentinelAfterBoot();
+        console.info('WFGG_TRAIN_BOOT_SENTINEL_V14_2=READY');
+        return;
+      }
 
       if(app&&!app.classList.contains('hidden')){
         document.getElementById('wfggTrainPortalGate')?.remove();
