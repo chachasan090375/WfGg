@@ -225,33 +225,59 @@ jobs:
           printf '%s' "$RADAR_CONNECTOR_SHARED_KEY" | wrangler secret put RADAR_CONNECTOR_SHARED_KEY --name wfgg-radar >/dev/null
           echo 'RADAR_CONNECTOR_SHARED_KEY=SYNCHRONIZED'
 
+      - name: Verify Radar Worker secret bindings
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ steps.cf.outputs.account_id }}
+        working-directory: /tmp/wfgg-radar
+        run: |
+          set -euo pipefail
+          names="$(wrangler secret list --name wfgg-radar)"
+          for key in RADAR_SESSION_KEY RADAR_TOKEN_VAULT_KEY RADAR_CONNECTOR_SHARED_KEY; do
+            echo "$names" | grep -q "\"name\"[[:space:]]*:[[:space:]]*\"$key\"" || { echo "$key=MISSING"; exit 1; }
+            echo "$key=PRESENT"
+          done
+
       - name: Verify autonomous production surface
         env:
           RADAR_URL: https://wfgg-radar.${{ steps.cf.outputs.subdomain }}.workers.dev
         run: |
-          set -euo pipefail
+          set -u
           ok=0
           for i in $(seq 1 24); do
-            if curl -fsSL "$RADAR_URL/api/health?probe=$GITHUB_SHA-$i" -o /tmp/radar-health.json \
-              && python3 - <<'PY'
+            echo "RADAR_PROBE=$i"
+            if curl -fsSL "$RADAR_URL/api/health?probe=$GITHUB_SHA-$i" -o /tmp/radar-health.json; then
+              if python3 - <<'PY'
           import json
           d=json.load(open('/tmp/radar-health.json'))
-          assert d['ok'] is True
-          assert d['app']=='wfgg-radar'
-          assert d['mode']=='standalone'
-          assert d['version']=='0.5.0'
-          assert d['gameConnector']=='configured'
-          assert d['agents']['oracle']=='v0.5'
-          assert d['agents']['sentinel']=='v0.5'
-          assert d['agents']['guardian']=='v0.5'
-          assert d['agents']['orchestrator']=='v0.5'
-          assert d['automation']['enabled'] is True
+          print('HEALTH_APP=' + str(d.get('app')))
+          print('HEALTH_VERSION=' + str(d.get('version')))
+          print('HEALTH_CONNECTOR=' + str(d.get('gameConnector')))
+          assert d.get('ok') is True
+          assert d.get('app')=='wfgg-radar'
+          assert d.get('mode')=='standalone'
+          assert d.get('version')=='0.5.0'
+          assert d.get('gameConnector')=='configured'
+          assert d.get('agents',{}).get('oracle')=='v0.5'
+          assert d.get('agents',{}).get('sentinel')=='v0.5'
+          assert d.get('agents',{}).get('guardian')=='v0.5'
+          assert d.get('agents',{}).get('orchestrator')=='v0.5'
+          assert d.get('automation',{}).get('enabled') is True
           PY
-            then ok=1; break; fi
+              then
+                ok=1
+                break
+              fi
+            fi
             sleep 5
           done
-          test "$ok" = 1
-          curl -fsSL "$RADAR_URL/" | grep -q 'WfGg Radar'
+          test "$ok" = 1 || { echo 'RADAR_PRODUCTION_HEALTH_TIMEOUT'; exit 1; }
+          root_ok=0
+          for i in $(seq 1 12); do
+            if curl -fsSL "$RADAR_URL/?probe=$GITHUB_SHA-$i" | grep -q 'WfGg Radar'; then root_ok=1; break; fi
+            sleep 5
+          done
+          test "$root_ok" = 1 || { echo 'RADAR_PRODUCTION_UI_TIMEOUT'; exit 1; }
           echo "RADAR_PRODUCTION_URL=$RADAR_URL"
           echo "RADAR_CONNECTOR_URL=$RADAR_CONNECTOR_URL"
           echo 'RADAR_PRODUCTION=OK'
