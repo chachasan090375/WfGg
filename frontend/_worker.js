@@ -106,6 +106,51 @@ function portalLoginRedirect(request) {
   return Response.redirect(target.toString(), 302);
 }
 
+/* WFGG_PORTAL_MODULE_SESSION_ENDPOINT_V1
+   Le portail actif stocke sa session dans localStorage, invisible au Worker.
+   Cette route same-origin valide d'abord le Bearer auprès de wfgg-api, puis pose
+   un cookie HttpOnly utilisé uniquement pour autoriser les navigations modules. */
+async function issuePortalModuleSession(request) {
+  if (request.method === 'DELETE') {
+    return new Response(null, {
+      status: 204,
+      headers: {
+        'Cache-Control': 'no-store',
+        'Set-Cookie': 'wfgg_portal_session=; Path=/; Max-Age=0; Secure; HttpOnly; SameSite=Strict'
+      }
+    });
+  }
+
+  if (request.method !== 'POST') {
+    return new Response('Method not allowed', { status: 405, headers: { 'Cache-Control': 'no-store' } });
+  }
+
+  const authorization = request.headers.get('Authorization') || '';
+  const match = authorization.match(/^Bearer\s+(.+)$/i);
+  if (!match) return new Response('Portal auth required', { status: 401, headers: { 'Cache-Control': 'no-store' } });
+
+  const token = match[1].trim();
+  if (!token) return new Response('Portal auth required', { status: 401, headers: { 'Cache-Control': 'no-store' } });
+
+  try {
+    const check = await fetch(UPSTREAMS.portalApi.origin + '/api/me', {
+      method: 'GET',
+      headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/json' }
+    });
+    if (!check.ok) return new Response('Portal auth required', { status: 401, headers: { 'Cache-Control': 'no-store' } });
+  } catch {
+    return new Response('Portal session validation unavailable', { status: 503, headers: { 'Cache-Control': 'no-store' } });
+  }
+
+  return new Response(null, {
+    status: 204,
+    headers: {
+      'Cache-Control': 'no-store',
+      'Set-Cookie': 'wfgg_portal_session=' + encodeURIComponent(token) + '; Path=/; Max-Age=2592000; Secure; HttpOnly; SameSite=Strict'
+    }
+  });
+}
+
 function upstreamRequest(request, targetUrl, options = {}) {
   const headers = new Headers(request.headers);
 
@@ -1926,6 +1971,10 @@ export default {
       }
       if (url.pathname === '/portal-api/sentinel/run') {
         return await runSentinelAtPortalEdge(request);
+      }
+
+      if (url.pathname === '/api/module-session') {
+        return await issuePortalModuleSession(request);
       }
 
       /* WFGG_TRAIN_API_PROXY
