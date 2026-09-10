@@ -1,0 +1,55 @@
+name: Fix Train bootstrap no redirect v6
+
+on:
+  push:
+    branches:
+      - fix-train-api-cookie-bridge-v3
+
+permissions:
+  contents: write
+
+jobs:
+  patch-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix-train-api-cookie-bridge-v3
+
+      - name: Apply Train bootstrap v6 patch
+        run: python .github/scripts/fix_train_bootstrap_no_redirect_v6.py
+
+      - name: Validate Train bootstrap and security contract
+        run: |
+          node --check frontend/train-native/app.v15.js
+          node --check frontend/_worker.js
+          grep -Fq 'WFGG_PORTAL_ONLY_TRAIN_BOOT_V6' frontend/train-native/app.v15.js
+          ! grep -Fq "location.replace('/?returnTo=' + returnTo)" frontend/train-native/app.v15.js
+          grep -Fq 'WFGG_PORTAL_ONLY_MODULE_GUARD_V4' frontend/_worker.js
+          grep -Fq 'WFGG_TRAIN_API_COOKIE_AUTH_V5' frontend/_worker.js
+          grep -Fq 'wfgg_auth=v6' frontend/_worker.js
+          grep -Fq 'portal-train-cleanboot-v1.js?v=002-session-bridge' .github/workflows/deploy-cloudflare-pages-v1.yml
+          grep -Fq 'WFGG_PORTAL_TRAIN_CLEANBOOT_V2' .github/workflows/deploy-cloudflare-pages-v1.yml
+          (cd frontend/train-native && sha256sum -c app.v15.js.sha256)
+          python - <<'PY'
+          from pathlib import Path
+          s=Path('frontend/train-native/app.v15.js').read_text()
+          block=s[s.index('WFGG_PORTAL_ONLY_TRAIN_BOOT_V6'):s.index('startPresenceLoop();',s.index('WFGG_PORTAL_ONLY_TRAIN_BOOT_V6'))]
+          assert 'const ready = !!(ok && state.currentUserId && user())' in block
+          assert 'await syncSnapshot' not in block
+          assert "location.replace('/?returnTo='" not in block
+          assert 'bootApp();' in block
+          print('TRAIN_BOOTSTRAP_NO_REDIRECT_V6=PASS')
+          PY
+
+      - name: Commit tested fix
+        run: |
+          if git diff --quiet; then
+            echo 'No changes to commit'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add frontend/train-native/app.v15.js frontend/train-native/app.v15.js.sha256 frontend/_worker.js .github/workflows/deploy-cloudflare-pages-v1.yml
+          git commit -m 'fix(train): reuse authoritative snapshot and stop client redirect'
+          git push origin HEAD:fix-train-api-cookie-bridge-v3
