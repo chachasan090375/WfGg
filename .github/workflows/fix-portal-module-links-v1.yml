@@ -1,0 +1,50 @@
+name: Fix portal module links v1
+
+on:
+  push:
+    branches: [fix-portal-module-links-v1]
+    paths:
+      - 'scripts/fix-portal-module-links-v1.mjs'
+      - '.github/workflows/fix-portal-module-links-v1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch-and-test:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix-portal-module-links-v1
+          fetch-depth: 0
+
+      - name: Apply module link fix
+        run: node scripts/fix-portal-module-links-v1.mjs
+
+      - name: Validate JavaScript and security contract
+        run: |
+          node --check frontend/_worker.js
+          node --check frontend/portal-auth-mobile-guard-v1.js
+          grep -Fq 'WFGG_PORTAL_MODULE_SESSION_ENDPOINT_V1' frontend/_worker.js
+          grep -Fq "url.pathname === '/api/module-session'" frontend/_worker.js
+          grep -Fq 'HttpOnly; SameSite=Strict' frontend/_worker.js
+          grep -Fq 'WFGG_PORTAL_MODULE_LINK_BRIDGE_V1' frontend/portal-auth-mobile-guard-v1.js
+          grep -Fq "fetch('/api/module-session'" frontend/portal-auth-mobile-guard-v1.js
+          grep -Fq "a[data-module][href]" frontend/portal-auth-mobile-guard-v1.js
+          grep -Fq 'WFGG_PORTAL_ONLY_MODULE_GUARD_V4' frontend/_worker.js
+
+      - name: Commit tested fix
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add frontend/_worker.js frontend/portal-auth-mobile-guard-v1.js
+          if git diff --cached --quiet; then
+            echo 'No generated changes.'
+            exit 0
+          fi
+          git commit -m 'fix(portal): restore protected Guides and Train navigation'
+          git push origin HEAD:fix-portal-module-links-v1
