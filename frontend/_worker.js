@@ -224,7 +224,7 @@ class RootAttributeRewriter {
         const versioned =
           value +
           (value.includes('?') ? '&' : '?') +
-          'wfgg_bridge=v15&wfgg_ui=clean1&wfgg_auth=v6&wfgg_push=v15';
+          'wfgg_bridge=v15&wfgg_ui=clean1&wfgg_auth=v7&wfgg_push=v15';
         element.setAttribute(attr, versioned);
         continue;
       }
@@ -243,7 +243,7 @@ class RootAttributeRewriter {
         ) {
           rewrittenValue +=
             (rewrittenValue.includes('?') ? '&' : '?') +
-            'wfgg_bridge=v15&wfgg_ui=clean1&wfgg_auth=v6&wfgg_push=v15';
+            'wfgg_bridge=v15&wfgg_ui=clean1&wfgg_auth=v7&wfgg_push=v15';
         }
 
         element.setAttribute(attr, rewrittenValue);
@@ -388,49 +388,55 @@ function languageBridgeScript(routeName) {
         ){
           const portalToken=localStorage.getItem(PORTAL_TOKEN);
 
+          /* WFGG_TRAIN_API_ROUTE_MARKER_V7
+             Le module Train marque explicitement ses appels same-origin. Le
+             Worker n'a plus besoin de déduire le backend à partir du Referer,
+             qui peut être absent selon le navigateur / la politique referrer.
+             Ce marqueur ne vaut pas authentification : le cookie Portail
+             HttpOnly reste revalidé par le backend Train. */
+          const headers=new Headers(
+            options.headers ||
+            (input instanceof Request ? input.headers : undefined)
+          );
+          headers.set('X-WfGg-Module','train');
           if(portalToken){
-            const headers=new Headers(
-              options.headers ||
-              (input instanceof Request ? input.headers : undefined)
-            );
-
             headers.set('X-WfGg-Portal-Token',portalToken);
-            if(headers.get('Authorization')==='Bearer '+TRAIN_BRIDGE_SENTINEL){
-              headers.delete('Authorization');
-            }
-
-            const directUrl=
-              WFGG_TRAIN_API_ORIGIN+target.pathname+target.search;
-
-            if(input instanceof Request){
-              const bridged=new Request(input,{...options,headers});
-              const method=String(bridged.method||'GET').toUpperCase();
-              const directOptions={
-                method,
-                headers:new Headers(bridged.headers),
-                mode:'cors',
-                credentials:'same-origin',
-                cache:bridged.cache,
-                redirect:bridged.redirect,
-                referrerPolicy:bridged.referrerPolicy,
-                keepalive:bridged.keepalive,
-                signal:bridged.signal
-              };
-
-              if(method!=='GET'&&method!=='HEAD'){
-                directOptions.body=await bridged.clone().arrayBuffer();
-              }
-
-              return WFGG_NATIVE_FETCH(directUrl,directOptions);
-            }
-
-            return WFGG_NATIVE_FETCH(directUrl,{
-              ...options,
-              headers,
-              mode:'cors',
-              credentials:'same-origin'
-            });
           }
+          if(headers.get('Authorization')==='Bearer '+TRAIN_BRIDGE_SENTINEL){
+            headers.delete('Authorization');
+          }
+
+          const directUrl=
+            WFGG_TRAIN_API_ORIGIN+target.pathname+target.search;
+
+          if(input instanceof Request){
+            const bridged=new Request(input,{...options,headers});
+            const method=String(bridged.method||'GET').toUpperCase();
+            const directOptions={
+              method,
+              headers:new Headers(bridged.headers),
+              mode:'cors',
+              credentials:'same-origin',
+              cache:bridged.cache,
+              redirect:bridged.redirect,
+              referrerPolicy:bridged.referrerPolicy,
+              keepalive:bridged.keepalive,
+              signal:bridged.signal
+            };
+
+            if(method!=='GET'&&method!=='HEAD'){
+              directOptions.body=await bridged.clone().arrayBuffer();
+            }
+
+            return WFGG_NATIVE_FETCH(directUrl,directOptions);
+          }
+
+          return WFGG_NATIVE_FETCH(directUrl,{
+            ...options,
+            headers,
+            mode:'cors',
+            credentials:'same-origin'
+          });
         }
       }catch(e){
         console.warn(
@@ -1990,6 +1996,8 @@ export default {
         const hasPortalTrainToken =
           request.headers.has('X-WfGg-Portal-Token');
         const cookiePortalTrainToken = portalSessionCookie(request);
+        const hasTrainModuleMarker =
+          String(request.headers.get('X-WfGg-Module') || '').trim().toLowerCase() === 'train';
 
         let fromTrainPage = false;
 
@@ -2005,7 +2013,7 @@ export default {
         } catch {}
 
         const apiRoute =
-          (fromTrainPage || hasPortalTrainToken)
+          (hasTrainModuleMarker || fromTrainPage || hasPortalTrainToken)
             ? UPSTREAMS.trainApi
             : UPSTREAMS.portalApi;
 
