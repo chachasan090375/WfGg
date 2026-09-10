@@ -1,0 +1,36 @@
+name: Fix portal module links cache v1
+
+on:
+  push:
+    branches: [fix-portal-module-links-cache-v1]
+    paths:
+      - 'scripts/fix-portal-module-links-cache-v1.mjs'
+      - '.github/workflows/fix-portal-module-links-cache-v1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch-and-test:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix-portal-module-links-cache-v1
+      - name: Apply cache bust
+        run: node scripts/fix-portal-module-links-cache-v1.mjs
+      - name: Validate portal asset version
+        run: |
+          grep -Fq 'portal-auth-mobile-guard-v1.js?v=002-module-session' frontend/index.html
+          node --check frontend/portal-auth-mobile-guard-v1.js
+      - name: Commit tested cache bust
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add frontend/index.html
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'fix(portal): cache-bust module session bridge'
+          git push origin HEAD:fix-portal-module-links-cache-v1
