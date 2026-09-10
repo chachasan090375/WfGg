@@ -128,8 +128,8 @@ jobs:
             curl -fsSL "$ROOT/?deploy_probe=$GITHUB_SHA-$i" -o /tmp/root.html || true
             curl -fsSL "$ROOT/portal-train-cleanboot-v1.js?deploy_probe=$GITHUB_SHA-$i" -o /tmp/cleanboot.js || true
             curl -fsSL "$ROOT/sentinel-source-map-v10.json?deploy_probe=$GITHUB_SHA-$i" -o /tmp/sentinel-source.json || true
-            if grep -Fq 'portal-train-cleanboot-v1.js?v=001' /tmp/root.html \
-              && grep -Fq 'WFGG_PORTAL_TRAIN_CLEANBOOT_V1' /tmp/cleanboot.js \
+            if grep -Fq 'portal-train-cleanboot-v1.js?v=002-session-bridge' /tmp/root.html \
+              && grep -Fq 'WFGG_PORTAL_TRAIN_CLEANBOOT_V2' /tmp/cleanboot.js \
               && grep -Fq 'sentinel-portal-source-map-v10' /tmp/sentinel-source.json \
               && grep -Fq "$GITHUB_SHA" /tmp/sentinel-source.json; then
               echo "WFGG_PAGES_DEPLOY=OK attempt=$i"

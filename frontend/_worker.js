@@ -224,7 +224,7 @@ class RootAttributeRewriter {
         const versioned =
           value +
           (value.includes('?') ? '&' : '?') +
-          'wfgg_bridge=v15&wfgg_ui=clean1&wfgg_auth=v4&wfgg_push=v15';
+          'wfgg_bridge=v15&wfgg_ui=clean1&wfgg_auth=v6&wfgg_push=v15';
         element.setAttribute(attr, versioned);
         continue;
       }
@@ -243,7 +243,7 @@ class RootAttributeRewriter {
         ) {
           rewrittenValue +=
             (rewrittenValue.includes('?') ? '&' : '?') +
-            'wfgg_bridge=v15&wfgg_ui=clean1&wfgg_auth=v4&wfgg_push=v15';
+            'wfgg_bridge=v15&wfgg_ui=clean1&wfgg_auth=v6&wfgg_push=v15';
         }
 
         element.setAttribute(attr, rewrittenValue);
