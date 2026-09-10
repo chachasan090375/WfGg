@@ -39,26 +39,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p /tmp/wfgg-radar
-          python3 - <<'PY'
-          import base64
-          import pathlib
-          import re
-
-          paths = [
-              pathlib.Path('radar-release/parts/part-00.b64'),
-              pathlib.Path('radar-release/parts/part-01.b64'),
-              pathlib.Path('radar-release/parts/part-02.b64'),
-              pathlib.Path('radar-release/parts/part-03.b64'),
-          ]
-          raw = b''.join(path.read_bytes() for path in paths)
-          clean = re.sub(rb'[^A-Za-z0-9+/=]', b'', raw)
-          clean += b'=' * ((-len(clean)) % 4)
-          decoded = base64.b64decode(clean, validate=True)
-          pathlib.Path('/tmp/radar-src.tar.gz').write_bytes(decoded)
-          print(f'RADAR_RELEASE_FRAGMENT_BYTES={len(raw)}')
-          print(f'RADAR_RELEASE_BASE64_CHARS={len(clean)}')
-          print(f'RADAR_RELEASE_DECODED_BYTES={len(decoded)}')
-          PY
+          python3 .github/scripts/reconstruct-radar-release.py
           echo '234df1dec57f6211bc625855bf13350c9f17fbd843fbe92d8cf1ab7cb5c081ef  /tmp/radar-src.tar.gz' | sha256sum -c -
           tar -xzf /tmp/radar-src.tar.gz -C /tmp/wfgg-radar
 
