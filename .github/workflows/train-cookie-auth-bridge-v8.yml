@@ -1,0 +1,43 @@
+name: Train cookie auth bridge v8
+
+on:
+  push:
+    branches: [fix-train-cookie-auth-bridge-v8]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch-and-test:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix-train-cookie-auth-bridge-v8
+          fetch-depth: 0
+
+      - name: Apply portal Train auth bridge patch
+        run: python3 .github/scripts/train_cookie_auth_bridge_v8.py
+
+      - name: Validate Worker source
+        run: |
+          set -eu
+          node --check frontend/_worker.js
+          grep -Fq 'WFGG_TRAIN_API_COOKIE_AUTH_DUAL_TRANSPORT_V8' frontend/_worker.js
+          grep -Fq "headers.set('X-WfGg-Portal-Bridge', 'cookie-auth-v6')" frontend/_worker.js
+          grep -Fq "headers.set('Authorization', 'Bearer ' + cookiePortalTrainToken)" frontend/_worker.js
+
+      - name: Commit tested patch
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add frontend/_worker.js
+          if git diff --cached --quiet; then
+            echo 'No generated changes to commit'
+            exit 0
+          fi
+          git commit -m 'fix(auth): dual transport Portal cookie to Train v8'
+          git push origin HEAD:fix-train-cookie-auth-bridge-v8
