@@ -9,7 +9,8 @@ self.addEventListener('push', event => {
   const title = data.title || 'WfGg Train';
   const options = {
     body: data.body || '',
-    icon: '/train/assets/icon-192.png',
+    icon: '/assets/wfgg-logo-premium-transparent-v2.png',
+    badge: '/assets/wfgg-logo-mini.svg',
     tag: data.tag || 'wfgg-train-reminder',
     renotify: true,
     data: { url: data.url || '/train/', ...(data.data || {}) }
@@ -47,7 +48,8 @@ self.addEventListener('message', event => {
   const tag = event.data?.tag || `wfgg-local-test-${Date.now()}`;
   const promise = self.registration.showNotification('WfGg Train · test local', {
     body: 'Si tu vois ce message, l’affichage des notifications fonctionne sur ce téléphone.',
-    icon: '/train/assets/icon-192.png',
+    icon: '/assets/wfgg-logo-premium-transparent-v2.png',
+    badge: '/assets/wfgg-logo-mini.svg',
     tag,
     data: { url: event.data?.url || '/train/' }
   }).then(async () => {

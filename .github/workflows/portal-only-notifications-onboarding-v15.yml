@@ -1,0 +1,76 @@
+name: Portal-only + notification onboarding v15
+
+on:
+  push:
+    branches: [portal-only-notifications-onboarding-v15]
+    paths:
+      - 'scripts/patch-portal-only-notifications-v15.mjs'
+      - '.github/workflows/portal-only-notifications-onboarding-v15.yml'
+      - 'frontend/app.js'
+      - 'frontend/_worker.js'
+      - 'frontend/train-native/app.v15.js'
+      - 'frontend/train-native/app.v15.js.sha256'
+      - 'frontend/train-native/wfgg-push-sw.js'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch-and-test:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: portal-only-notifications-onboarding-v15
+          fetch-depth: 0
+
+      - name: Apply patch
+        run: node scripts/patch-portal-only-notifications-v15.mjs
+
+      - name: Validate JavaScript
+        run: |
+          node --check frontend/app.js
+          node --check frontend/_worker.js
+          node --check frontend/train-native/app.v15.js
+          node --check frontend/train-native/wfgg-push-sw.js
+          (cd frontend/train-native && sha256sum -c app.v15.js.sha256)
+
+      - name: Validate security and notification contracts
+        run: |
+          grep -Fq 'WFGG_PORTAL_ONLY_MODULE_GUARD_V4' frontend/_worker.js
+          grep -Fq "target.searchParams.set('returnTo'" frontend/_worker.js
+          grep -Fq 'WFGG_PORTAL_ONLY_TRAIN_BOOT_V4' frontend/train-native/app.v15.js
+          grep -Fq "location.replace('/?returnTo=' + returnTo)" frontend/train-native/app.v15.js
+          ! sed -n '/WFGG_PORTAL_ONLY_TRAIN_BOOT_V4/,/showPortal();/p' frontend/train-native/app.v15.js | grep -Fq 'let ready = !!(state.currentUserId && user())'
+          grep -Fq 'WFGG_PUSH_TRANSACTIONAL_ONBOARDING_V15' frontend/train-native/app.v15.js
+          grep -Fq 'askPushOnboardingVisible' frontend/train-native/app.v15.js
+          grep -Fq 'finalizePushSubscription' frontend/train-native/app.v15.js
+          python3 - <<'PY'
+          from pathlib import Path
+          s=Path('frontend/train-native/app.v15.js').read_text()
+          start=s.index('async function enablePushNotifications')
+          end=s.index('async function disablePushNotifications', start)
+          block=s[start:end]
+          assert block.index('askPushOnboardingVisible') < block.index('finalizePushSubscription')
+          assert '/api/push/subscribe' not in block.split('finalizePushSubscription')[0]
+          print('TRANSACTIONAL_PUSH_ORDER=PASS')
+          PY
+          grep -Fq "badge: '/assets/wfgg-logo-mini.svg'" frontend/train-native/wfgg-push-sw.js
+          grep -Fq "icon: '/assets/wfgg-logo-premium-transparent-v2.png'" frontend/train-native/wfgg-push-sw.js
+          grep -Fq 'writeSessionCookie(data.session_token)' frontend/app.js
+          grep -Fq 'clearSessionCookie();' frontend/app.js
+
+      - name: Commit tested patch
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add frontend/app.js frontend/_worker.js frontend/train-native/app.v15.js frontend/train-native/app.v15.js.sha256 frontend/train-native/wfgg-push-sw.js
+          if git diff --cached --quiet; then
+            echo 'No generated changes.'
+            exit 0
+          fi
+          git commit -m 'feat(portal): portal-only modules and transactional push onboarding v15'
+          git push origin HEAD:portal-only-notifications-onboarding-v15
