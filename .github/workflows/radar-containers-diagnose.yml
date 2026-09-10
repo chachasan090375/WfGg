@@ -1,0 +1,31 @@
+name: Diagnose Radar Containers access
+
+on:
+  push:
+    branches: [radar-production-v1]
+    paths:
+      - '.github/workflows/radar-containers-diagnose.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: 9f09842ae58aee7111e1c40de8b33c92
+    steps:
+      - run: npm install --global wrangler@4
+      - name: Probe Containers
+        run: |
+          set +e
+          wrangler containers list --json >/tmp/probe.out 2>/tmp/probe.err
+          code=$?
+          echo "CONTAINERS_EXIT=$code"
+          echo '--- STDOUT ---'
+          cat /tmp/probe.out
+          echo '--- STDERR ---'
+          cat /tmp/probe.err
+          exit 0
