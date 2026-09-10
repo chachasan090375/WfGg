@@ -20,7 +20,7 @@ jobs:
 
       - uses: actions/setup-go@v5
         with:
-          go-version: '1.23.x'
+          go-version: '1.27.x'
 
       - name: Reconstruct immutable Radar V0.5 source
         run: |
@@ -31,16 +31,32 @@ jobs:
           echo '234df1dec57f6211bc625855bf13350c9f17fbd843fbe92d8cf1ab7cb5c081ef  /tmp/radar-src.tar.gz' | sha256sum -c -
           tar -xzf /tmp/radar-src.tar.gz -C /tmp/wfgg-radar
 
-      - name: Test and build static Linux amd64 binaries
+      - name: Test and build Radar connector
         working-directory: /tmp/wfgg-radar/connector-go
         run: |
           set -euo pipefail
           go test ./...
           mkdir -p "$GITHUB_WORKSPACE/radar-vps/release"
           CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w' -o "$GITHUB_WORKSPACE/radar-vps/release/radar-connector" ./cmd/radar-connector
-          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w' -o "$GITHUB_WORKSPACE/radar-vps/release/radar-native-template" ./native-template
-          chmod 0755 "$GITHUB_WORKSPACE/radar-vps/release/radar-connector" "$GITHUB_WORKSPACE/radar-vps/release/radar-native-template"
-          cd "$GITHUB_WORKSPACE/radar-vps/release"
+
+      - name: Build pinned native Last War template helper
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/lastwar-client
+          git clone --filter=blob:none https://github.com/ljagiello/lastwar-client.git /tmp/lastwar-client
+          cd /tmp/lastwar-client
+          git checkout ee5f64de160a8051c2f9f98189b75038dd225a0a
+          mkdir -p cmd/wfgg-radar-native-template
+          cp /tmp/wfgg-radar/connector-go/native-template/main.go cmd/wfgg-radar-native-template/main.go
+          gofmt -w cmd/wfgg-radar-native-template/main.go
+          go test ./internal/auth ./internal/pcap ./internal/sfs
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -tags lastwar_native_template -trimpath -ldflags='-s -w' -o "$GITHUB_WORKSPACE/radar-vps/release/radar-native-template" ./cmd/wfgg-radar-native-template
+
+      - name: Verify release binaries
+        run: |
+          set -euo pipefail
+          chmod 0755 radar-vps/release/radar-connector radar-vps/release/radar-native-template
+          cd radar-vps/release
           sha256sum radar-connector radar-native-template > SHA256SUMS
           file radar-connector radar-native-template
           cat SHA256SUMS
