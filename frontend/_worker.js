@@ -2036,7 +2036,14 @@ export default {
         let apiRequest = request;
         if (apiRoute === UPSTREAMS.trainApi && cookiePortalTrainToken) {
           const headers = new Headers(request.headers);
+          /* WFGG_TRAIN_API_COOKIE_AUTH_DUAL_TRANSPORT_V6
+             Le cookie Portail HttpOnly a déjà été validé avant l'accès au module.
+             Pour le saut serveur Portail -> Worker Train, le même jeton est
+             transmis par le header historique ET par Authorization. Le backend
+             n'accepte ce fallback Authorization qu'avec ce marqueur v6. */
           headers.set('X-WfGg-Portal-Token', cookiePortalTrainToken);
+          headers.set('Authorization', 'Bearer ' + cookiePortalTrainToken);
+          headers.set('X-WfGg-Portal-Bridge', 'cookie-auth-v6');
           apiRequest = new Request(request, { headers });
         }
 
