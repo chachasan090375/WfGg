@@ -28,8 +28,6 @@ jobs:
           grep -Fq 'WFGG_PORTAL_ONLY_MODULE_GUARD_V4' frontend/_worker.js
           grep -Fq 'WFGG_TRAIN_API_COOKIE_AUTH_V5' frontend/_worker.js
           grep -Fq 'wfgg_auth=v6' frontend/_worker.js
-          grep -Fq 'portal-train-cleanboot-v1.js?v=002-session-bridge' .github/workflows/deploy-cloudflare-pages-v1.yml
-          grep -Fq 'WFGG_PORTAL_TRAIN_CLEANBOOT_V2' .github/workflows/deploy-cloudflare-pages-v1.yml
           (cd frontend/train-native && sha256sum -c app.v15.js.sha256)
           python - <<'PY'
           from pathlib import Path
@@ -44,12 +42,12 @@ jobs:
 
       - name: Commit tested fix
         run: |
-          if git diff --quiet; then
+          if git diff --quiet -- frontend/train-native/app.v15.js frontend/train-native/app.v15.js.sha256 frontend/_worker.js; then
             echo 'No changes to commit'
             exit 0
           fi
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add frontend/train-native/app.v15.js frontend/train-native/app.v15.js.sha256 frontend/_worker.js .github/workflows/deploy-cloudflare-pages-v1.yml
+          git add frontend/train-native/app.v15.js frontend/train-native/app.v15.js.sha256 frontend/_worker.js
           git commit -m 'fix(train): reuse authoritative snapshot and stop client redirect'
           git push origin HEAD:fix-train-api-cookie-bridge-v3
