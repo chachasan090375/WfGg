@@ -1,0 +1,60 @@
+name: Sentinel Train boot report v14.2
+
+on:
+  push:
+    branches:
+      - sentinel-train-boot-report-v14-2
+
+permissions:
+  contents: write
+
+jobs:
+  patch-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: sentinel-train-boot-report-v14-2
+
+      - name: Apply Sentinel boot report patch
+        run: python .github/scripts/sentinel_train_boot_report_v14_2.py
+
+      - name: Validate Sentinel boot diagnostics contract
+        run: |
+          set -eu
+          node --check frontend/train-native/sentinel-train-v1.js
+          node --check frontend/_worker.js
+          grep -Fq "const VERSION = 'sentinel-train-v14.2';" frontend/train-native/sentinel-train-v1.js
+          grep -Fq 'WFGG_SENTINEL_BOOT_REPORT_V14_2' frontend/train-native/sentinel-train-v1.js
+          grep -Fq 'WFGG_SENTINEL_BOOT_LAUNCHER_INIT_V14_2' frontend/train-native/sentinel-train-v1.js
+          grep -Fq "document.getElementById('wfggTrainBootErrorV6')" frontend/train-native/sentinel-train-v1.js
+          grep -Fq 'Afficher le rapport Sentinel' frontend/train-native/sentinel-train-v1.js
+          grep -Fq 'await runSentinel();' frontend/train-native/sentinel-train-v1.js
+          grep -Fq "script.src='/train/sentinel-train-v1.js?v=0142';" frontend/_worker.js
+          grep -Fq 'WFGG_TRAIN_BOOT_SENTINEL_V14_2' frontend/_worker.js
+          python - <<'PY'
+          from pathlib import Path
+          s=Path('frontend/train-native/sentinel-train-v1.js').read_text()
+          w=Path('frontend/_worker.js').read_text()
+          assert s.count('WFGG_SENTINEL_BOOT_REPORT_V14_2') == 1
+          assert s.count("const VERSION = 'sentinel-train-v14.2';") == 1
+          assert "portalFetch('/api/sentinel/run')" in s
+          assert 'function reportText()' in s
+          assert 'WFGG_SENTINEL_REPORT_V6' in s
+          assert "root.querySelector('#wfggTrainSentinelCopy').addEventListener('click', copyReport)" in s
+          assert "const bootError=document.getElementById('wfggTrainBootErrorV6');" in w
+          assert "loadSentinelAfterBoot();" in w
+          print('SENTINEL_TRAIN_BOOT_REPORT_V14_2=PASS')
+          PY
+
+      - name: Commit tested Sentinel changes
+        run: |
+          if git diff --quiet -- frontend/train-native/sentinel-train-v1.js frontend/_worker.js; then
+            echo 'No Sentinel changes to commit'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add frontend/train-native/sentinel-train-v1.js frontend/_worker.js
+          git commit -m 'fix(sentinel): expose report on Train boot failure'
+          git push origin HEAD:sentinel-train-boot-report-v14-2
