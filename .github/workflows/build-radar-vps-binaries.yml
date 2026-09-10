@@ -48,6 +48,7 @@ jobs:
           git checkout ee5f64de160a8051c2f9f98189b75038dd225a0a
           mkdir -p cmd/wfgg-radar-native-template
           cp /tmp/wfgg-radar/connector-go/native-template/main.go cmd/wfgg-radar-native-template/main.go
+          sed -i '/^[[:space:]]*"fmt"[[:space:]]*$/d' cmd/wfgg-radar-native-template/main.go
           gofmt -w cmd/wfgg-radar-native-template/main.go
           go test ./internal/auth ./internal/pcap ./internal/sfs
           CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -tags lastwar_native_template -trimpath -ldflags='-s -w' -o "$GITHUB_WORKSPACE/radar-vps/release/radar-native-template" ./cmd/wfgg-radar-native-template
