@@ -1,0 +1,44 @@
+name: Sentinel version self-heal v14.7
+
+on:
+  push:
+    branches:
+      - sentinel-version-selfheal-v14-7
+
+permissions:
+  contents: write
+
+jobs:
+  patch-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: sentinel-version-selfheal-v14-7
+          fetch-depth: 0
+      - name: Apply Sentinel self-heal patch
+        run: python3 .github/scripts/sentinel_version_selfheal_v14_7.py
+      - name: Validate self-heal contract
+        run: |
+          node --check frontend/train-native/sentinel-train-v1.js
+          node --check frontend/_worker.js
+          grep -Fq "const VERSION = 'sentinel-train-v14.7';" frontend/train-native/sentinel-train-v1.js
+          grep -Fq 'window.__WFGG_SENTINEL_VERSION__ = VERSION;' frontend/train-native/sentinel-train-v1.js
+          grep -Fq 'WFGG_SENTINEL_VERSION_SELFHEAL_V14_7' frontend/_worker.js
+          grep -Fq "script.src='/train/sentinel-train-v1.js?v=0147';" frontend/_worker.js
+          grep -Fq "fresh.searchParams.set('wfgg_sentinel','0147');" frontend/_worker.js
+          if grep -Fq "script.src='/train/sentinel-train-v1.js?v=0146';" frontend/_worker.js; then
+            echo 'stale Sentinel loader 0146 remains' >&2
+            exit 1
+          fi
+      - name: Commit tested production patch
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add frontend/train-native/sentinel-train-v1.js frontend/_worker.js
+          if git diff --cached --quiet; then
+            echo 'No production changes to commit'
+          else
+            git commit -m 'fix(sentinel): self-heal stale client version v14.7'
+            git push origin HEAD:sentinel-version-selfheal-v14-7
+          fi
