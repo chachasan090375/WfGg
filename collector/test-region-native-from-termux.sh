@@ -2,11 +2,13 @@
 set -Eeuo pipefail
 
 REGION="${1:-0}"
+CYCLE_ID="${2:-}"
 REMOTE="ChaChaVPS"
 PUBLIC_HOST="${RADAR_VPS_PUBLIC_IP:-206.189.12.92}"
 SESSION="${HOME}/.wfgg-lastwar-probe/home/.lastwar_goclient_session.json"
 
 [[ "$REGION" =~ ^[0-8]$ ]] || { echo 'ERROR=REGION_MUST_BE_0_TO_8'; exit 2; }
+[[ -z "$CYCLE_ID" || "$CYCLE_ID" =~ ^[0-9]+$ ]] || { echo 'ERROR=CYCLE_ID_INVALID'; exit 2; }
 [[ -s "$SESSION" ]] || { echo 'ERROR=LOCAL_SESSION_MISSING'; exit 2; }
 for cmd in python3 ssh scp; do command -v "$cmd" >/dev/null 2>&1 || { echo "ERROR=${cmd}_MISSING"; exit 2; }; done
 
@@ -34,6 +36,7 @@ cat > "$HELPER" <<'PY'
 import json,os,subprocess,sys,tempfile,urllib.request
 
 region=sys.argv[1]
+cycle_id=sys.argv[2].strip() if len(sys.argv)>2 else ''
 raw=sys.stdin.read()
 try:
     incoming=json.loads(raw)
@@ -93,7 +96,10 @@ print('NATIVE_PLAYERS='+str(len(players)))
 accepted=0
 changed=0
 for i in range(0,len(players),250):
-    body=json.dumps({'players':players[i:i+250]},ensure_ascii=False,separators=(',',':')).encode()
+    payload={'players':players[i:i+250]}
+    if cycle_id:
+        payload['cycleId']=int(cycle_id)
+    body=json.dumps(payload,ensure_ascii=False,separators=(',',':')).encode()
     req=urllib.request.Request('http://127.0.0.1:8790/ingest',data=body,method='POST',headers={'Content-Type':'application/json'})
     with urllib.request.urlopen(req,timeout=10) as r:
         out=json.load(r)
@@ -116,6 +122,6 @@ with open(sys.argv[1],encoding='utf-8') as f:
 print(json.dumps(d,separators=(',',':')),end='')
 PY
 )"
-printf '%s' "$PAYLOAD" | ssh "${SSH_OPTS[@]}" -T "$REMOTE" python3 "$REMOTE_HELPER" "$REGION"
+printf '%s' "$PAYLOAD" | ssh "${SSH_OPTS[@]}" -T "$REMOTE" python3 "$REMOTE_HELPER" "$REGION" "$CYCLE_ID"
 unset PAYLOAD
 ssh "${SSH_OPTS[@]}" "$REMOTE" rm -f "$REMOTE_HELPER" </dev/null >/dev/null 2>&1 || true
