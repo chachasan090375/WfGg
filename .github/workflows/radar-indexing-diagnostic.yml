@@ -29,11 +29,17 @@ jobs:
         working-directory: /tmp/wfgg-radar
         run: |
           set -euo pipefail
-          echo '=== FILES ==='
-          find src public -type f | sort
-          echo '=== SNAPSHOT / OBSERVATION REFERENCES ==='
-          grep -RniE 'snapshot|observation|observations|capture|search.*player|player.*search|upsert.*player|insert.*observation' src public schema.sql || true
-          echo '=== WORKER ROUTES ==='
-          grep -nE '/api/|snapshot|observation|search' src/worker.js || true
-          echo '=== REPOSITORY EXPORTS ==='
-          grep -nE '^export .*function|observation|snapshot|player' src/db/repository.js || true
+          echo '=== SCHEMA ==='
+          cat schema.sql
+          echo '=== REPOSITORY ==='
+          cat src/db/repository.js
+          echo '=== RADAR SERVICE ==='
+          cat src/radar/service.js
+          echo '=== LASTWAR ADAPTER ==='
+          cat src/game/lastwar-adapter.js
+          echo '=== ORCHESTRATOR ==='
+          cat src/agents/orchestrator.js
+          echo '=== ORACLE AGENT ==='
+          cat src/agents/oracle-agent.js
+          echo '=== WORKER SNAPSHOT/SEARCH SECTION ==='
+          sed -n '120,180p' src/worker.js
