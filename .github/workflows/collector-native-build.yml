@@ -94,6 +94,8 @@ jobs:
             echo COLLECTOR_RELEASE_UNCHANGED=YES
           else
             git commit -m 'build(collector): publish isolated native binary'
+            git fetch origin collector-v1
+            git rebase origin/collector-v1
             git push origin HEAD:collector-v1
             echo COLLECTOR_RELEASE_PUBLISHED=YES
           fi
