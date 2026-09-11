@@ -1,0 +1,39 @@
+name: Radar indexing diagnostic
+
+on:
+  push:
+    branches: [radar-production-v1]
+    paths:
+      - '.github/workflows/radar-indexing-diagnostic.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Reconstruct canonical Radar V0.5
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/wfgg-radar
+          mkdir -p /tmp/wfgg-radar
+          python3 .github/scripts/reconstruct-radar-release.py
+          tar -xzf /tmp/radar-src.tar.gz -C /tmp/wfgg-radar
+
+      - name: Inspect snapshot and observation pipeline
+        working-directory: /tmp/wfgg-radar
+        run: |
+          set -euo pipefail
+          echo '=== FILES ==='
+          find src public -type f | sort
+          echo '=== SNAPSHOT / OBSERVATION REFERENCES ==='
+          grep -RniE 'snapshot|observation|observations|capture|search.*player|player.*search|upsert.*player|insert.*observation' src public schema.sql || true
+          echo '=== WORKER ROUTES ==='
+          grep -nE '/api/|snapshot|observation|search' src/worker.js || true
+          echo '=== REPOSITORY EXPORTS ==='
+          grep -nE '^export .*function|observation|snapshot|player' src/db/repository.js || true
