@@ -5,6 +5,7 @@ on:
     branches: [radar-production-v1]
     paths:
       - 'radar-release/**'
+      - 'radar-ui-live/**'
       - '.github/workflows/deploy-radar-production.yml'
   workflow_dispatch:
 
@@ -46,6 +47,15 @@ jobs:
           python3 .github/scripts/reconstruct-radar-release.py
           echo '234df1dec57f6211bc625855bf13350c9f17fbd843fbe92d8cf1ab7cb5c081ef  /tmp/radar-src.tar.gz' | sha256sum -c -
           tar -xzf /tmp/radar-src.tar.gz -C /tmp/wfgg-radar
+
+      - name: Overlay live animated Radar UI
+        run: |
+          set -euo pipefail
+          test -s radar-ui-live/live-radar.html
+          install -m 0644 radar-ui-live/live-radar.html /tmp/wfgg-radar/public/live-radar.html
+          grep -q 'WfGg Radar Live' /tmp/wfgg-radar/public/live-radar.html
+          grep -q '/api/radar/search' /tmp/wfgg-radar/public/live-radar.html
+          echo 'RADAR_LIVE_UI=STAGED'
 
       - name: Guardian pre-deploy gate
         working-directory: /tmp/wfgg-radar
@@ -278,6 +288,13 @@ jobs:
             sleep 5
           done
           test "$root_ok" = 1 || { echo 'RADAR_PRODUCTION_UI_TIMEOUT'; exit 1; }
+          live_ok=0
+          for i in $(seq 1 12); do
+            if curl -fsSL "$RADAR_URL/live-radar.html?probe=$GITHUB_SHA-$i" | grep -q 'WfGg Radar Live'; then live_ok=1; break; fi
+            sleep 5
+          done
+          test "$live_ok" = 1 || { echo 'RADAR_LIVE_UI_TIMEOUT'; exit 1; }
           echo "RADAR_PRODUCTION_URL=$RADAR_URL"
+          echo "RADAR_LIVE_UI_URL=$RADAR_URL/live-radar.html"
           echo "RADAR_CONNECTOR_URL=$RADAR_CONNECTOR_URL"
           echo 'RADAR_PRODUCTION=OK'
