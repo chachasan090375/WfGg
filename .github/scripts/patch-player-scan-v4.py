@@ -17,7 +17,7 @@ def replace_once(text: str, old: str, new: str, label: str) -> str:
 
 text = MAIN.read_text(encoding='utf-8')
 
-text = replace_once(text, '''\tif scanMode {\n\t\tmapTemplates, profileTemplate = findPlayerScanV3Templates(convs, server)\n\t\tif len(mapTemplates) > 0 {\n\t\t\tscanCommand = v3MapCommand\n\t\t\tif profileTemplate != nil {\n\t\t\t\tscanCommand += "+" + v3ProfileCommand\n\t\t\t}\n\t\t}\n\t}\n''', '''\tif scanMode {\n\t\tmapTemplates, profileTemplate = findPlayerScanV3Templates(convs, server)\n\t\tscanCommand = v3MapCommand + "(synthetic-v4)"\n\t\tif len(mapTemplates) > 0 {\n\t\t\tscanCommand = v3MapCommand + "(captured-v3)"\n\t\t}\n\t\tif profileTemplate != nil {\n\t\t\tscanCommand += "+" + v3ProfileCommand\n\t\t}\n\t}\n''', 'v4 scan discovery')
+text = replace_once(text, '''\tif scanMode {\n\t\tmapTemplates, profileTemplate = findPlayerScanV3Templates(convs, server)\n\t\tif len(mapTemplates) > 0 {\n\t\t\tscanCommand = v3MapCommand\n\t\t\tif profileTemplate != nil {\n\t\t\t\tscanCommand += "+" + v3ProfileCommand\n\t\t\t}\n\t\t}\n\t}\n''', '''\tif scanMode {\n\t\tmapTemplates, profileTemplate = findPlayerScanV3Templates(convs, server)\n\t\tscanCommand = v3MapCommand + "(synthetic-v4.1)"\n\t\tif len(mapTemplates) > 0 {\n\t\t\tscanCommand = v3MapCommand + "(captured-v3)"\n\t\t}\n\t\tif profileTemplate != nil {\n\t\t\tscanCommand += "+" + v3ProfileCommand\n\t\t}\n\t}\n''', 'v4 scan discovery')
 
 text = replace_once(text, '''\tif scanMode && len(mapTemplates) > 0 {\n\t\tbase.ScanTemplateFound = true\n\t}\n\tif scanMode && !base.ScanTemplateFound {\n\t\tbase.LoginResponse = "PLAYER_SCAN_TEMPLATE_NOT_FOUND"\n\t\temit(base)\n\t\tos.Exit(5)\n\t}\n''', '''\tif scanMode {\n\t\t// V4 can synthesize world.get.block from the documented wire format, so\n\t\t// absence of a captured map request is no longer a deployment gate.\n\t\tbase.ScanTemplateFound = true\n\t}\n''', 'v4 template gate')
 
@@ -31,6 +31,10 @@ MAIN.write_text(text, encoding='utf-8')
 
 ptext = PROTO.read_text(encoding='utf-8')
 ptext = ptext.replace('native-template-readonly-v3', 'native-template-readonly-v4')
+ptext = replace_once(ptext,
+    '''\t\tcase "PLAYER_SCAN_READ_FAILED":\n\t\t\treturn nil, errors.New("LASTWAR_PLAYER_SCAN_READ_FAILED")\n''',
+    '''\t\tcase "PLAYER_SCAN_READ_FAILED":\n\t\t\treturn nil, errors.New("LASTWAR_PLAYER_SCAN_READ_FAILED")\n\t\tcase "PLAYER_SCAN_SERVER_ID_INVALID":\n\t\t\treturn nil, errors.New("LASTWAR_PLAYER_SCAN_SERVER_ID_INVALID")\n\t\tcase "PLAYER_SCAN_SYNTHETIC_ENCODE_FAILED":\n\t\t\treturn nil, errors.New("LASTWAR_PLAYER_SCAN_SYNTHETIC_ENCODE_FAILED")\n\t\tcase "PLAYER_SCAN_SYNTHETIC_DEADLINE_FAILED":\n\t\t\treturn nil, errors.New("LASTWAR_PLAYER_SCAN_SYNTHETIC_DEADLINE_FAILED")\n\t\tcase "PLAYER_SCAN_SYNTHETIC_WRITE_TIMEOUT":\n\t\t\treturn nil, errors.New("LASTWAR_PLAYER_SCAN_SYNTHETIC_WRITE_TIMEOUT")\n\t\tcase "PLAYER_SCAN_SYNTHETIC_WRITE_FAILED":\n\t\t\treturn nil, errors.New("LASTWAR_PLAYER_SCAN_SYNTHETIC_WRITE_FAILED")\n\t\tcase "PLAYER_SCAN_SYNTHETIC_READ_FAILED":\n\t\t\treturn nil, errors.New("LASTWAR_PLAYER_SCAN_SYNTHETIC_READ_FAILED")\n''',
+    'v4 connector error mapping')
 PROTO.write_text(ptext, encoding='utf-8')
 
 if not V4_SRC.is_file():
@@ -40,3 +44,4 @@ V4_DST.write_text(V4_SRC.read_text(encoding='utf-8'), encoding='utf-8')
 print('PLAYER_SCAN_V4_PATCH=OK')
 print('PLAYER_SCAN_V4_MODE=native-template-readonly-v4')
 print('PLAYER_SCAN_V4_STRATEGY=synthetic-world.get.block+get.user.info.multi')
+print('PLAYER_SCAN_V4_SWEEP=bounded-v4.1')
