@@ -66,9 +66,7 @@ jobs:
               p.write_text(s)
           print('REMOTE_FETCH_RECEIVER_BINDING=OK')
 
-          # 3) Safe one-time owner bootstrap: when Radar has no OWNER grant yet,
-          #    the first identity successfully certified by the Last War connector
-          #    becomes OWNER. Once an OWNER exists, normal grants are required.
+          # 3) Safe one-time owner bootstrap.
           p = Path('src/db/repository.js')
           s = p.read_text()
           old = """export async function ensureBootstrapOwnerGrant(env, identity) {
@@ -110,12 +108,11 @@ jobs:
               p.write_text(s)
           print('OWNER_FIRST_VALID_BOOTSTRAP=OK')
 
-          # 4) Project every certified live snapshot identity into the searchable
-          #    Radar observation index. Raw evidence remains stored separately in
-          #    game_observation_*; this is only a normalized READONLY projection.
+          # 4) Project a certified live snapshot identity into the searchable
+          #    radar_observations index while preserving raw evidence separately.
           p = Path('src/db/repository.js')
           s = p.read_text()
-          anchor = """export async function saveCredential(env, gameUid, encrypted) {"""
+          anchor = "export async function saveCredential(env, gameUid, encrypted) {"
           projection = """export async function saveRadarIdentityObservation(env, { identity = null, session = null, batchId = null, observedAt = null } = {}) {
             const gameUid = String(identity?.gameUid || '').trim();
             const pseudo = String(identity?.pseudo || '').trim();
@@ -154,20 +151,18 @@ jobs:
                   raise SystemExit('RADAR_IDENTITY_PROJECTION_IMPORT_NOT_FOUND')
               s = s.replace(old_import, new_import, 1)
 
-          old_capture = """          const stored = await saveObservedSnapshot(env, session.gameUid, snapshot);
-          await audit(env, session.gameUid, 'oracle.live-snapshot.capture', session.gameUid, { batchId: stored.batchId, observations: stored.observationCount, source: snapshot.source || null });"""
-          new_capture = """          const stored = await saveObservedSnapshot(env, session.gameUid, snapshot);
-          const indexedIdentity = await saveRadarIdentityObservation(env, {
+          needle = "const stored = await saveObservedSnapshot(env, session.gameUid, snapshot);"
+          replacement = """const stored = await saveObservedSnapshot(env, session.gameUid, snapshot);
+          await saveRadarIdentityObservation(env, {
             identity: snapshot.identity || null,
             session: snapshot.session || null,
             batchId: stored.batchId,
             observedAt: stored.observedAt
-          });
-          await audit(env, session.gameUid, 'oracle.live-snapshot.capture', session.gameUid, { batchId: stored.batchId, observations: stored.observationCount, indexedIdentity: Boolean(indexedIdentity), source: snapshot.source || null });"""
-          if new_capture not in s:
-              if old_capture not in s:
+          });"""
+          if 'await saveRadarIdentityObservation(env' not in s:
+              if needle not in s:
                   raise SystemExit('RADAR_IDENTITY_PROJECTION_CAPTURE_NOT_FOUND')
-              s = s.replace(old_capture, new_capture, 1)
+              s = s.replace(needle, replacement, 1)
           p.write_text(s)
           print('RADAR_CAPTURE_TO_SEARCH_INDEX=OK')
           PY
