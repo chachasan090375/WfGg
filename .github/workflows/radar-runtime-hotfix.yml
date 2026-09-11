@@ -1,0 +1,145 @@
+name: Radar runtime hotfix
+
+on:
+  push:
+    branches: [radar-production-v1]
+    paths:
+      - '.github/workflows/radar-runtime-hotfix.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: wfgg-radar-runtime-hotfix
+  cancel-in-progress: false
+
+env:
+  RADAR_D1_NAME: wfgg-radar
+  RADAR_CONNECTOR_URL: https://chachavps.tail3ab05a.ts.net
+
+jobs:
+  hotfix:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Reconstruct canonical Radar V0.5
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/wfgg-radar
+          mkdir -p /tmp/wfgg-radar
+          python3 .github/scripts/reconstruct-radar-release.py
+          echo '234df1dec57f6211bc625855bf13350c9f17fbd843fbe92d8cf1ab7cb5c081ef  /tmp/radar-src.tar.gz' | sha256sum -c -
+          tar -xzf /tmp/radar-src.tar.gz -C /tmp/wfgg-radar
+
+      - name: Apply async auth fault-containment hotfix
+        working-directory: /tmp/wfgg-radar
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('src/worker.js')
+          s = p.read_text()
+          old = "if (url.pathname === '/api/auth/game-token' && request.method === 'POST') return authenticateGameToken(request, env);"
+          new = "if (url.pathname === '/api/auth/game-token' && request.method === 'POST') return await authenticateGameToken(request, env);"
+          if new not in s:
+              if old not in s:
+                  raise SystemExit('AUTH_HOTFIX_TARGET_NOT_FOUND')
+              s = s.replace(old, new, 1)
+              p.write_text(s)
+          print('AUTH_ASYNC_REJECTION_CONTAINMENT=OK')
+          PY
+          node --check src/worker.js
+          grep -Fq "return await authenticateGameToken(request, env);" src/worker.js
+
+      - name: Run Guardian regression gate
+        working-directory: /tmp/wfgg-radar
+        run: |
+          set -euo pipefail
+          npm test
+          npm run check
+
+      - name: Resolve Cloudflare context
+        id: cf
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: python3 .github/scripts/resolve-cloudflare-context.py
+
+      - name: Install Wrangler
+        run: npm install --global wrangler@4
+
+      - name: Resolve Radar D1
+        id: d1
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ steps.cf.outputs.account_id }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, os, subprocess
+          p = subprocess.run(['wrangler','d1','list','--json'], text=True, capture_output=True)
+          if p.returncode:
+              print(p.stdout); print(p.stderr); raise SystemExit(p.returncode)
+          rows = json.loads(p.stdout)
+          found = next((x for x in rows if x.get('name') == os.environ['RADAR_D1_NAME']), None)
+          if not found or not found.get('uuid'):
+              raise SystemExit('RADAR_D1_NOT_FOUND')
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+              f.write('database_id=' + found['uuid'] + '\n')
+          print('RADAR_D1=OK')
+          PY
+
+      - name: Generate production configuration
+        env:
+          D1_ID: ${{ steps.d1.outputs.database_id }}
+        working-directory: /tmp/wfgg-radar
+        run: |
+          cat > wrangler.toml <<EOF
+          name = "wfgg-radar"
+          main = "src/worker.js"
+          compatibility_date = "2026-09-10"
+          workers_dev = true
+
+          [assets]
+          directory = "./public"
+          binding = "ASSETS"
+          run_worker_first = ["/api/*"]
+
+          [[d1_databases]]
+          binding = "DB"
+          database_name = "wfgg-radar"
+          database_id = "$D1_ID"
+
+          [vars]
+          RADAR_SESSION_TTL = "3600"
+          RADAR_OWNER_PSEUDO = "__OWNER_BOOTSTRAP_PENDING__"
+          RADAR_CONNECTOR_URL = "$RADAR_CONNECTOR_URL"
+
+          [triggers]
+          crons = ["*/5 * * * *"]
+          EOF
+
+      - name: Deploy contained Radar Worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ steps.cf.outputs.account_id }}
+        working-directory: /tmp/wfgg-radar
+        run: wrangler deploy
+
+      - name: Verify runtime surface
+        env:
+          RADAR_URL: https://wfgg-radar.${{ steps.cf.outputs.subdomain }}.workers.dev
+        run: |
+          set -euo pipefail
+          curl -fsSL "$RADAR_URL/api/health?hotfix=$GITHUB_SHA" -o /tmp/health.json
+          python3 - <<'PY'
+          import json
+          d=json.load(open('/tmp/health.json'))
+          assert d.get('ok') is True
+          assert d.get('app') == 'wfgg-radar'
+          assert d.get('version') == '0.5.0'
+          assert d.get('gameConnector') == 'configured'
+          print('RADAR_RUNTIME_HOTFIX=OK')
+          PY
