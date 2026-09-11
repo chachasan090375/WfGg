@@ -134,5 +134,5 @@ scp "${SSH_OPTS[@]}" -q "$PYHELPER" "$REMOTE:$RPY"
 ssh "${SSH_OPTS[@]}" "$REMOTE" "set -eu; python3 '$RPY' '$REMOTE_ENV' '$REMOTE_CAPTURE'; rm -f '$RPY'; systemctl restart wfgg-radar-connector; sleep 2; test \"\$(systemctl is-active wfgg-radar-connector)\" = active; echo SERVICE=active" </dev/null
 
 say "6/6 Contrôle final"
-ssh "${SSH_OPTS[@]}" "$REMOTE" "set -eu; test -s '$REMOTE_CAPTURE'; ! grep -q '^LASTWAR_NATIVE_SCAN_SEED=' '$REMOTE_ENV'; test -x '$REMOTE_BIN/radar-native-template'; test -x '$REMOTE_BIN/radar-connector'; strings '$REMOTE_BIN/radar-native-template' | grep -Fq 'native-template-readonly-v3'; echo PLAYER_SCAN_V3=READY; echo STRATEGY=world.get.block+get.user.info.multi; echo ACCESS_TOKEN_ON_VPS=NO" </dev/null
+ssh "${SSH_OPTS[@]}" "$REMOTE" "set -eu; test -s '$REMOTE_CAPTURE'; ! grep -q '^LASTWAR_NATIVE_SCAN_SEED=' '$REMOTE_ENV'; test -x '$REMOTE_BIN/radar-native-template'; test -x '$REMOTE_BIN/radar-connector'; if command -v strings >/dev/null 2>&1; then strings '$REMOTE_BIN/radar-native-template' | grep -Fq 'native-template-readonly-v3'; else grep -aFq 'native-template-readonly-v3' '$REMOTE_BIN/radar-native-template'; fi; echo PLAYER_SCAN_V3=READY; echo STRATEGY=world.get.block+get.user.info.multi; echo ACCESS_TOKEN_ON_VPS=NO" </dev/null
 say "=== PLAYER SCAN READONLY V3 : OK ==="
