@@ -30,7 +30,7 @@ jobs:
           tr '\n' ' ' < /tmp/funnel-body.txt | head -c 400
           echo
           exit 0
-      - name: Reconstruct patched Radar and inspect scan error path
+      - name: Reconstruct patched Radar and inspect scan matcher
         run: |
           set -euo pipefail
           rm -rf /tmp/wfgg-radar
@@ -40,7 +40,5 @@ jobs:
           base64 -d .radar-release-src/player-scan-v2.patch | gzip -dc > /tmp/player-scan-v2.patch
           cd /tmp/wfgg-radar
           git apply /tmp/player-scan-v2.patch
-          echo '=== NATIVE SCAN TEMPLATE DISCOVERY ==='
-          sed -n '190,430p' connector-go/native-template/main.go
-          echo '=== CONNECTOR SCAN ERROR MAP ==='
-          sed -n '79,175p' connector-go/internal/protocol/native_template.go
+          echo '=== FIND SCAN TEMPLATE ==='
+          awk '/^func findScanTemplate/{p=1} p{print} /^func runPlayerScan/{exit}' connector-go/native-template/main.go
