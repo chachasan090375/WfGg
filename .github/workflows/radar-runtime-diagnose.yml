@@ -28,18 +28,21 @@ jobs:
           set -euo pipefail
           python3 - <<'PY'
           from pathlib import Path
-          p=Path('src/worker.js')
-          lines=p.read_text().splitlines()
-          needles=['authenticateGameToken','crypto.subtle','randomUUID','env.DB','prepare(','.bind(','fetch(']
-          hits=[]
-          for i,line in enumerate(lines,1):
-            if any(n in line for n in needles): hits.append(i)
-          windows=[]
-          for i in hits:
-            a=max(1,i-12); b=min(len(lines),i+22)
-            if windows and a<=windows[-1][1]+1: windows[-1]=(windows[-1][0],max(windows[-1][1],b))
-            else: windows.append((a,b))
-          for a,b in windows:
-            print(f'--- LINES {a}-{b} ---')
-            for n in range(a,b+1): print(f'{n:04d}: {lines[n-1]}')
+          keys=['authenticateGameToken','encryptGameToken','saveCredential','ensureBootstrapOwnerGrant','bindIdentityToGrant','audit(','connectorFromEnv','crypto.subtle','randomUUID','getRandomValues','env.DB','prepare(','.bind(','fetch(']
+          for p in sorted(Path('src').rglob('*.js')):
+            lines=p.read_text().splitlines()
+            hit=set()
+            for i,line in enumerate(lines,1):
+              if any(k in line for k in keys):
+                for n in range(max(1,i-8), min(len(lines),i+18)+1): hit.add(n)
+            if not hit: continue
+            print(f'===== {p} =====')
+            last=0
+            for n in sorted(hit):
+              if last and n>last+1: print('...')
+              print(f'{n:04d}: {lines[n-1]}')
+              last=n
+          print('===== WORKER IMPORTS =====')
+          p=Path('src/worker.js'); lines=p.read_text().splitlines()
+          for n in range(1,min(42,len(lines))+1): print(f'{n:04d}: {lines[n-1]}')
           PY
