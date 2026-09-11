@@ -85,12 +85,15 @@ jobs:
           cd /tmp/lastwar-client
           git fetch --depth 1 origin "$LASTWAR_CLIENT_REF"
           git checkout --detach FETCH_HEAD
+          # Validate the pinned upstream before adding WfGg's command literals.
+          # Upstream's SFS test intentionally audits every literal Put* key in
+          # its own tree, so it must run before our standalone command is copied.
+          go test ./internal/auth ./internal/pcap ./internal/sfs
           mkdir -p cmd/wfgg-radar-native-template
           cp /tmp/wfgg-radar/connector-go/native-template/main.go cmd/wfgg-radar-native-template/main.go
           cp /tmp/wfgg-radar/connector-go/native-template/player_scan_v3.go cmd/wfgg-radar-native-template/player_scan_v3.go
           cp /tmp/wfgg-radar/connector-go/native-template/player_scan_v4.go cmd/wfgg-radar-native-template/player_scan_v4.go
           gofmt -w cmd/wfgg-radar-native-template/main.go cmd/wfgg-radar-native-template/player_scan_v3.go cmd/wfgg-radar-native-template/player_scan_v4.go
-          go test ./internal/auth ./internal/pcap ./internal/sfs
           CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -tags lastwar_native_template -trimpath -ldflags='-s -w' -o /tmp/radar-native-template ./cmd/wfgg-radar-native-template
           test -s /tmp/radar-native-template
           strings /tmp/radar-native-template | grep -Fq 'native-template-readonly-v4'
