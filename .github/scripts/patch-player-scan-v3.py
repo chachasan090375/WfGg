@@ -54,6 +54,17 @@ def copy_helper() -> None:
         '\tdetailRaw, ok := protoBytesV3(m, 10)\n',
         '\tdetailRaw, ok := protoBytesV3(m, 3)\n',
         'player base detail field')
+    # Collector bulk mode reuses --scan-player with query "*". In that mode the
+    # response decoder accepts every player base and raises only the output cap;
+    # normal exact player scans retain their original limit and matching behavior.
+    text = replace_once(text,
+        '\tif depth > 12 || v == nil || len(*out) >= 32 {\n\t\treturn\n\t}\n',
+        '\tlimit := 32\n\tif query == "*" {\n\t\tlimit = 10000\n\t}\n\tif depth > 12 || v == nil || len(*out) >= limit {\n\t\treturn\n\t}\n',
+        'collector bulk limit')
+    text = replace_once(text,
+        '\t\tif p, ok := playerFromMapBlobV3(t, area, serverID, fallbackServer, observedAt); ok && v3PlayerMatches(p, query) {\n',
+        '\t\tif p, ok := playerFromMapBlobV3(t, area, serverID, fallbackServer, observedAt); ok && (query == "*" || v3PlayerMatches(p, query)) {\n',
+        'collector wildcard match')
     # Repair the source snapshot's missing brace around the []byte map-tile case.
     text = replace_once(text,
         '''\t\t\tif !seen[key] {\n\t\t\t\tseen[key] = true\n\t\t\t\t*out = append(*out, p)\n\t\t\t}\n\t}\n}\n\nfunc playerFromMapBlobV3''',
@@ -68,3 +79,4 @@ copy_helper()
 print('PLAYER_SCAN_V3_PATCH=OK')
 print('PLAYER_SCAN_V3_MODE=native-template-readonly-v3')
 print('PLAYER_SCAN_V3_STRATEGY=world.get.block+get.user.info.multi')
+print('PLAYER_SCAN_V3_COLLECTOR_WILDCARD=ENABLED')
