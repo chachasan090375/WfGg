@@ -12,7 +12,7 @@ SESSION="${HOME}/.wfgg-lastwar-probe/home/.lastwar_goclient_session.json"
 
 [[ -s "$SESSION" ]] || { echo 'ERROR=LOCAL_SESSION_MISSING'; exit 2; }
 [[ -n "${QUERY//[[:space:]]/}" ]] || { echo 'ERROR=QUERY_EMPTY'; exit 2; }
-for cmd in python3 ssh; do command -v "$cmd" >/dev/null 2>&1 || { echo "ERROR=${cmd}_MISSING"; exit 2; }; done
+for cmd in python3 ssh scp; do command -v "$cmd" >/dev/null 2>&1 || { echo "ERROR=${cmd}_MISSING"; exit 2; }; done
 
 TOKEN="$(python3 - "$SESSION" <<'PY'
 import json,sys
@@ -33,17 +33,13 @@ else
   echo 'SSH_ROUTE=PUBLIC_IPV4'
 fi
 
-PAYLOAD="$(python3 - "$QUERY" "$TOKEN" <<'PY'
-import json,sys
-print(json.dumps({'query':sys.argv[1],'token':sys.argv[2]},separators=(',',':')),end='')
-PY
-)"
-unset TOKEN
+TMP="$(mktemp -d)"
+trap 'rm -rf "$TMP"' EXIT INT TERM
+HELPER="$TMP/direct-player-scan.py"
+cat > "$HELPER" <<'PY'
+import hashlib,hmac,json,os,secrets,time,urllib.request,urllib.error,sys
 
-printf '%s' "$PAYLOAD" | ssh "${SSH_OPTS[@]}" -T "$REMOTE" 'python3 - <<'"'"'PY'"'"'
-import hashlib,hmac,json,os,secrets,time,urllib.request,urllib.error
-
-raw=os.read(0,1024*1024).decode()
+raw=sys.stdin.read()
 try:
     incoming=json.loads(raw)
 except Exception:
@@ -60,10 +56,12 @@ env={}
 with open("/opt/wfgg-radar/radar.env",encoding="utf-8") as f:
     for line in f:
         line=line.strip()
-        if not line or line.startswith("#") or "=" not in line: continue
+        if not line or line.startswith("#") or "=" not in line:
+            continue
         k,v=line.split("=",1)
         v=v.strip()
-        if len(v)>=2 and v[0]==v[-1] and v[0] in "\"'": v=v[1:-1]
+        if len(v)>=2 and v[0]==v[-1] and v[0] in "\"'":
+            v=v[1:-1]
         env[k.strip()]=v
 secret=env.get("RADAR_CONNECTOR_SHARED_KEY","")
 if len(secret)<32:
@@ -102,12 +100,31 @@ print("DIRECT_SECONDS=%.2f"%(time.monotonic()-start))
 try:
     d=json.loads(out)
     if isinstance(d,dict):
-        if "error" in d: print("DIRECT_ERROR="+str(d.get("error")))
+        if "error" in d:
+            print("DIRECT_ERROR="+str(d.get("error")))
         players=d.get("players")
-        if isinstance(players,list): print("DIRECT_PLAYERS="+str(len(players)))
+        if isinstance(players,list):
+            print("DIRECT_PLAYERS="+str(len(players)))
     else:
         print("DIRECT_JSON=NON_OBJECT")
 except Exception:
     print("DIRECT_BODY_NONJSON=YES")
-PY'
+PY
+
+TAG="$$"
+REMOTE_HELPER="/tmp/wfgg-radar-direct-scan-$TAG.py"
+scp "${SSH_OPTS[@]}" -q "$HELPER" "$REMOTE:$REMOTE_HELPER"
+
+PAYLOAD="$(python3 - "$QUERY" "$TOKEN" <<'PY'
+import json,sys
+print(json.dumps({'query':sys.argv[1],'token':sys.argv[2]},separators=(',',':')),end='')
+PY
+)"
+unset TOKEN
+
+set +e
+printf '%s' "$PAYLOAD" | ssh "${SSH_OPTS[@]}" -T "$REMOTE" "python3 '$REMOTE_HELPER'; rc=\$?; rm -f '$REMOTE_HELPER'; exit \$rc"
+RC=$?
+set -e
 unset PAYLOAD
+exit "$RC"
