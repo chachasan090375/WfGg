@@ -15,6 +15,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Probe public ChaChaVPS funnel
+        run: |
+          set +e
+          code="$(curl -sS -o /tmp/funnel-body.txt -w '%{http_code}' --max-time 20 https://chachavps.tail3ab05a.ts.net/v1/health)"
+          echo "FUNNEL_HTTP=$code"
+          echo -n 'FUNNEL_BODY='
+          tr '\n' ' ' < /tmp/funnel-body.txt | head -c 400
+          echo
+          exit 0
       - name: Reconstruct patched Radar and inspect scan error path
         run: |
           set -euo pipefail
