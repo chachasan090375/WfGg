@@ -1,0 +1,99 @@
+name: Collector V1 native build
+
+on:
+  push:
+    branches: [collector-v1]
+    paths:
+      - '.github/workflows/collector-native-build.yml'
+      - '.github/scripts/reconstruct-radar-release.py'
+      - '.github/scripts/patch-player-scan-v3.py'
+      - '.github/scripts/patch-player-scan-v4.py'
+      - '.github/scripts/patch-collector-v1.py'
+      - '.radar-release-src/v3-source/**'
+      - '.radar-release-src/v4-source/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: wfgg-collector-v1-native
+  cancel-in-progress: false
+
+env:
+  LASTWAR_CLIENT_REF: ee5f64de160a8051c2f9f98189b75038dd225a0a
+
+jobs:
+  build-publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Reconstruct Radar source base
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/wfgg-radar
+          mkdir -p /tmp/wfgg-radar
+          python3 .github/scripts/reconstruct-radar-release.py
+          echo '234df1dec57f6211bc625855bf13350c9f17fbd843fbe92d8cf1ab7cb5c081ef  /tmp/radar-src.tar.gz' | sha256sum -c -
+          tar -xzf /tmp/radar-src.tar.gz -C /tmp/wfgg-radar
+          base64 -d .radar-release-src/player-scan-v2.patch | gzip -dc > /tmp/player-scan-v2.patch
+          cd /tmp/wfgg-radar
+          git apply --check /tmp/player-scan-v2.patch
+          git apply /tmp/player-scan-v2.patch
+
+      - name: Apply player scan v3 and v4
+        run: |
+          set -euo pipefail
+          python3 .github/scripts/patch-player-scan-v3.py
+          python3 .github/scripts/patch-player-scan-v4.py
+          python3 .github/scripts/patch-collector-v1.py
+          grep -Fq 'continue' /tmp/wfgg-radar/connector-go/native-template/player_scan_v4.go
+
+      - name: Go regression checks
+        working-directory: /tmp/wfgg-radar/connector-go
+        run: |
+          set -euo pipefail
+          gofmt -w internal/protocol/native_template.go native-template/main.go native-template/player_scan_v3.go native-template/player_scan_v4.go
+          go test ./...
+          go vet ./...
+
+      - name: Build isolated Collector native binary
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/lastwar-client
+          git clone --filter=blob:none --no-checkout https://github.com/ljagiello/lastwar-client.git /tmp/lastwar-client
+          cd /tmp/lastwar-client
+          git fetch --depth 1 origin "$LASTWAR_CLIENT_REF"
+          git checkout --detach FETCH_HEAD
+          go test ./internal/auth ./internal/pcap ./internal/sfs
+          mkdir -p cmd/wfgg-collector-native
+          cp /tmp/wfgg-radar/connector-go/native-template/main.go cmd/wfgg-collector-native/main.go
+          cp /tmp/wfgg-radar/connector-go/native-template/player_scan_v3.go cmd/wfgg-collector-native/player_scan_v3.go
+          cp /tmp/wfgg-radar/connector-go/native-template/player_scan_v4.go cmd/wfgg-collector-native/player_scan_v4.go
+          gofmt -w cmd/wfgg-collector-native/*.go
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -tags lastwar_native_template -trimpath -ldflags='-s -w' -o /tmp/wfgg-collector-native ./cmd/wfgg-collector-native
+          test -s /tmp/wfgg-collector-native
+          strings /tmp/wfgg-collector-native | grep -Fq 'native-template-readonly-v4'
+          echo COLLECTOR_NATIVE_BUILD=OK
+
+      - name: Publish isolated Collector release
+        run: |
+          set -euo pipefail
+          mkdir -p collector/release
+          cp /tmp/wfgg-collector-native collector/release/radar-native-template
+          chmod 0755 collector/release/radar-native-template
+          (cd collector/release && sha256sum radar-native-template > SHA256SUMS)
+          git config user.name 'WfGg Collector CI'
+          git config user.email 'collector-ci@users.noreply.github.com'
+          git add collector/release/radar-native-template collector/release/SHA256SUMS
+          if git diff --cached --quiet; then
+            echo COLLECTOR_RELEASE_UNCHANGED=YES
+          else
+            git commit -m 'build(collector): publish isolated native binary'
+            git push origin HEAD:collector-v1
+            echo COLLECTOR_RELEASE_PUBLISHED=YES
+          fi
