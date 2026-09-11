@@ -1,0 +1,64 @@
+name: Collector V1 checks
+
+on:
+  push:
+    branches: [collector-v1]
+    paths:
+      - 'collector/**'
+      - '.github/workflows/collector-v1-check.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Syntax checks
+        run: |
+          set -euo pipefail
+          python3 -m py_compile collector/collector_agent.py
+          bash -n collector/install-from-termux.sh
+          bash -n collector/query-from-termux.sh
+          bash -n collector/ingest-json-from-termux.sh
+      - name: Local API smoke test
+        run: |
+          set -euo pipefail
+          ROOT="$(mktemp -d)"
+          export WFGG_COLLECTOR_ROOT="$ROOT"
+          export WFGG_COLLECTOR_HOST=127.0.0.1
+          export WFGG_COLLECTOR_PORT=18790
+          python3 collector/collector_agent.py >"$ROOT/collector.log" 2>&1 &
+          PID=$!
+          trap 'kill "$PID" 2>/dev/null || true; rm -rf "$ROOT"' EXIT
+          python3 - <<'PY'
+          import json,time,urllib.request
+          base='http://127.0.0.1:18790'
+          for _ in range(40):
+              try:
+                  with urllib.request.urlopen(base+'/health',timeout=1) as r:
+                      assert json.load(r)['ok'] is True
+                  break
+              except Exception:
+                  time.sleep(.1)
+          else:
+              raise SystemExit('collector did not start')
+          body=json.dumps({'players':[{
+              'gameUid':'1000001','pseudo':'CollectorTest','serverId':'100',
+              'allianceTag':'WFGG','x':10,'y':20,'hqLevel':30
+          }]}).encode()
+          req=urllib.request.Request(base+'/ingest',data=body,method='POST',headers={'Content-Type':'application/json'})
+          with urllib.request.urlopen(req,timeout=2) as r:
+              out=json.load(r)
+              assert out['ok'] is True and out['accepted']==1
+          with urllib.request.urlopen(base+'/player?q=CollectorTest',timeout=2) as r:
+              out=json.load(r)
+              assert out['player']['game_uid']=='1000001'
+          with urllib.request.urlopen(base+'/stats',timeout=2) as r:
+              out=json.load(r)
+              assert out['players']==1
+          print('COLLECTOR_V1_SMOKE=OK')
+          PY
