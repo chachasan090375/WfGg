@@ -48,6 +48,7 @@ SQLite stores the latest known player record plus an observation row only when t
 - `install-from-termux.sh` installs the isolated VPS service.
 - `query-from-termux.sh` queries the cache through SSH.
 - `ingest-json-from-termux.sh` imports a JSON file through SSH without exposing the collector port.
+- `scan-and-cache-from-termux.sh <pseudo-or-uid>` runs one explicit READONLY Radar lookup and caches the returned player automatically when a result is available.
 
 ## Deliberate V1 boundary
 
