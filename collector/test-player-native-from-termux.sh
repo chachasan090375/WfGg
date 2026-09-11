@@ -94,14 +94,27 @@ if players:
     p=players[0] if isinstance(players[0],dict) else {}
     safe={k:p.get(k) for k in ('pseudo','gameUid','serverId','allianceTag','x','y','hqLevel','power') if k in p}
     print('NATIVE_FIRST_PLAYER='+json.dumps(safe,ensure_ascii=False,separators=(',',':')))
-    body=json.dumps({'players':players},ensure_ascii=False,separators=(',',':')).encode()
+
+    accepted=0
+    changed=0
+    batches=0
+    batch_size=400
     try:
-        req=urllib.request.Request('http://127.0.0.1:8790/ingest',data=body,method='POST',headers={'Content-Type':'application/json'})
-        with urllib.request.urlopen(req,timeout=5) as r:
-            cached=json.load(r)
-        print('COLLECTOR_CACHE_ACCEPTED='+str(cached.get('accepted',0)))
-    except Exception:
+        for i in range(0,len(players),batch_size):
+            chunk=players[i:i+batch_size]
+            body=json.dumps({'players':chunk},ensure_ascii=False,separators=(',',':')).encode()
+            req=urllib.request.Request('http://127.0.0.1:8790/ingest',data=body,method='POST',headers={'Content-Type':'application/json'})
+            with urllib.request.urlopen(req,timeout=20) as r:
+                cached=json.load(r)
+            accepted += int(cached.get('accepted',0))
+            changed += int(cached.get('changed',0))
+            batches += 1
+        print('COLLECTOR_CACHE_ACCEPTED='+str(accepted))
+        print('COLLECTOR_CACHE_CHANGED='+str(changed))
+        print('COLLECTOR_CACHE_BATCHES='+str(batches))
+    except Exception as e:
         print('COLLECTOR_CACHE=UNAVAILABLE')
+        print('COLLECTOR_CACHE_BATCHES_OK='+str(batches))
 PY
 
 TAG="$$"
