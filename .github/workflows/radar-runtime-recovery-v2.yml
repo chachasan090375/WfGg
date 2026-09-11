@@ -1,0 +1,130 @@
+name: Radar runtime recovery v2
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: wfgg-radar-runtime-recovery-v2
+  cancel-in-progress: false
+
+env:
+  RADAR_D1_NAME: wfgg-radar
+  RADAR_CONNECTOR_URL: https://chachavps.tail3ab05a.ts.net
+
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Reconstruct known-good Radar v2
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/wfgg-radar
+          mkdir -p /tmp/wfgg-radar
+          python3 .github/scripts/reconstruct-radar-release.py
+          echo '234df1dec57f6211bc625855bf13350c9f17fbd843fbe92d8cf1ab7cb5c081ef  /tmp/radar-src.tar.gz' | sha256sum -c -
+          tar -xzf /tmp/radar-src.tar.gz -C /tmp/wfgg-radar
+          base64 -d .radar-release-src/player-scan-v2.patch | gzip -dc > /tmp/player-scan-v2.patch
+          cd /tmp/wfgg-radar
+          git apply --check /tmp/player-scan-v2.patch
+          git apply /tmp/player-scan-v2.patch
+          grep -Fq 'native-template-readonly-v2' connector-go/internal/protocol/native_template.go
+          grep -Fq 'saveRadarPlayerObservations' src/worker.js
+          echo RECOVERY_SOURCE_V2=OK
+
+      - name: Guardian recovery gate
+        working-directory: /tmp/wfgg-radar
+        run: |
+          set -euo pipefail
+          node --check src/worker.js
+          node --check src/game/remote-transport.js
+          npm test
+          npm run check
+
+      - name: Resolve Cloudflare context
+        id: cf
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: python3 .github/scripts/resolve-cloudflare-context.py
+
+      - name: Install Wrangler
+        run: npm install --global wrangler@4
+
+      - name: Resolve Radar D1
+        id: d1
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ steps.cf.outputs.account_id }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY2'
+          import json, os, subprocess
+          p = subprocess.run(['wrangler','d1','list','--json'], text=True, capture_output=True)
+          if p.returncode:
+              print(p.stdout); print(p.stderr); raise SystemExit(p.returncode)
+          rows=json.loads(p.stdout)
+          found=next((x for x in rows if x.get('name') == os.environ['RADAR_D1_NAME']), None)
+          if not found or not found.get('uuid'):
+              raise SystemExit('RADAR_D1_NOT_FOUND')
+          with open(os.environ['GITHUB_OUTPUT'],'a') as f:
+              f.write('database_id=' + found['uuid'] + '\n')
+          print('RADAR_D1=OK')
+          PY2
+
+      - name: Generate production configuration
+        env:
+          D1_ID: ${{ steps.d1.outputs.database_id }}
+        working-directory: /tmp/wfgg-radar
+        run: |
+          cat > wrangler.toml <<EOF2
+          name = "wfgg-radar"
+          main = "src/worker.js"
+          compatibility_date = "2026-09-10"
+          workers_dev = true
+
+          [assets]
+          directory = "./public"
+          binding = "ASSETS"
+          run_worker_first = ["/api/*"]
+
+          [[d1_databases]]
+          binding = "DB"
+          database_name = "wfgg-radar"
+          database_id = "$D1_ID"
+
+          [vars]
+          RADAR_SESSION_TTL = "3600"
+          RADAR_OWNER_PSEUDO = "__AUTO_BOOTSTRAP_FIRST_VALID__"
+          RADAR_CONNECTOR_URL = "$RADAR_CONNECTOR_URL"
+
+          [triggers]
+          crons = ["*/5 * * * *"]
+          EOF2
+
+      - name: Deploy known-good Radar v2
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ steps.cf.outputs.account_id }}
+        working-directory: /tmp/wfgg-radar
+        run: wrangler deploy
+
+      - name: Verify recovery surface
+        env:
+          RADAR_URL: https://wfgg-radar.${{ steps.cf.outputs.subdomain }}.workers.dev
+        run: |
+          set -euo pipefail
+          curl -fsSL "$RADAR_URL/api/health?recovery_v2=$GITHUB_RUN_ID" -o /tmp/health.json
+          python3 - <<'PY2'
+          import json
+          d=json.load(open('/tmp/health.json'))
+          assert d.get('ok') is True
+          assert d.get('app') == 'wfgg-radar'
+          assert d.get('version') == '0.5.0'
+          assert d.get('gameConnector') == 'configured'
+          print('RADAR_RECOVERY_V2=OK')
+          PY2
