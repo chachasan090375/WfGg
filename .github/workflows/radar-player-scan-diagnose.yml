@@ -46,3 +46,7 @@ jobs:
           sed -n '100,155p' connector-go/cmd/radar-connector/main.go
           echo '=== REMOTE TRANSPORT ==='
           sed -n '1,110p' src/game/remote-transport.js
+          echo '=== TEMPLATE NOT FOUND SOURCE ==='
+          grep -R -n -B 40 -A 120 'LASTWAR_PLAYER_SCAN_TEMPLATE_NOT_FOUND' connector-go || true
+          echo '=== SCAN SEED SOURCE ==='
+          grep -R -n -B 30 -A 80 'LASTWAR_NATIVE_SCAN_SEED\|scan seed\|ScanSeed' connector-go || true
