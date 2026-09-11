@@ -59,6 +59,18 @@ def copy_helper() -> None:
         '''\t\t\tif !seen[key] {\n\t\t\t\tseen[key] = true\n\t\t\t\t*out = append(*out, p)\n\t\t\t}\n\t}\n}\n\nfunc playerFromMapBlobV3''',
         '''\t\t\tif !seen[key] {\n\t\t\t\tseen[key] = true\n\t\t\t\t*out = append(*out, p)\n\t\t\t}\n\t\t}\n\t}\n}\n\nfunc playerFromMapBlobV3''',
         'map collector brace')
+    # Preserve the original SFS wire type when forcing allServers=true.  The captured
+    # request can carry this flag as an integer rather than SFSBool; replacing its value
+    # with a Go bool while retaining the integer tag makes sfs.EncodeObject panic on a
+    # failed type assertion.  Convert the semantic true value to the captured scalar shape.
+    text = replace_once(text,
+        '''\tif mode == v3CloneProfile && lk == "allservers" {\n\t\treturn sfs.SFSValue{Type: v.Type, Val: true}\n\t}\n''',
+        '''\tif mode == v3CloneProfile && lk == "allservers" {\n\t\treturn sfs.SFSValue{Type: v.Type, Val: v3BoolLike(v.Val, true)}\n\t}\n''',
+        'profile allServers wire type')
+    text = replace_once(text,
+        '''func v3IntField(o *sfs.SFSObject, keys ...string) (int64, bool) {\n''',
+        '''func v3BoolLike(old any, value bool) any {\n\tswitch old.(type) {\n\tcase bool:\n\t\treturn value\n\tcase byte:\n\t\tif value { return byte(1) }; return byte(0)\n\tcase int16:\n\t\tif value { return int16(1) }; return int16(0)\n\tcase int32:\n\t\tif value { return int32(1) }; return int32(0)\n\tcase int64:\n\t\tif value { return int64(1) }; return int64(0)\n\tcase float32:\n\t\tif value { return float32(1) }; return float32(0)\n\tcase float64:\n\t\tif value { return float64(1) }; return float64(0)\n\tcase string:\n\t\tif value { return "true" }; return "false"\n\tdefault:\n\t\treturn old\n\t}\n}\n\nfunc v3IntField(o *sfs.SFSObject, keys ...string) (int64, bool) {\n''',
+        'profile bool-like helper')
     DEST_HELPER.write_text(text, encoding='utf-8')
 
 
