@@ -1,0 +1,66 @@
+name: Radar Sentinel external watchdog
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  push:
+    branches: [radar-production-v1]
+    paths:
+      - '.github/workflows/radar-sentinel-watchdog.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: write
+
+concurrency:
+  group: wfgg-radar-sentinel-watchdog
+  cancel-in-progress: true
+
+env:
+  RADAR_URL: https://wfgg-radar.chachasan090375.workers.dev
+
+jobs:
+  sentinel:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Probe Radar from outside the Worker
+        id: probe
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          for i in 1 2 3; do
+            if curl -fsS --max-time 15 "$RADAR_URL/api/health?sentinel=$GITHUB_RUN_ID-$i" -o /tmp/health.json; then
+              if python3 - <<'PY'
+          import json
+          d=json.load(open('/tmp/health.json'))
+          assert d.get('ok') is True
+          assert d.get('app') == 'wfgg-radar'
+          assert d.get('version') == '0.5.0'
+          assert d.get('gameConnector') == 'configured'
+          print('SENTINEL_EXTERNAL_RADAR=OK')
+          PY
+              then exit 0; fi
+            fi
+            sleep 5
+          done
+          echo 'SENTINEL_EXTERNAL_RADAR=FAILED'
+          exit 1
+
+      - name: Dispatch known-good recovery deployment
+        if: steps.probe.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh workflow run radar-runtime-hotfix.yml --ref radar-production-v1
+          echo 'SENTINEL_RECOVERY=DISPATCHED'
+
+      - name: Report Sentinel status
+        run: |
+          if [ '${{ steps.probe.outcome }}' = 'success' ]; then
+            echo 'SENTINEL_EXTERNAL=HEALTHY'
+          else
+            echo 'SENTINEL_EXTERNAL=RECOVERY_REQUESTED'
+          fi
