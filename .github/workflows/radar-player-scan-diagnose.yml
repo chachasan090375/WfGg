@@ -34,9 +34,9 @@ jobs:
           base64 -d .radar-release-src/player-scan-v2.patch | gzip -dc > /tmp/player-scan-v2.patch
           cd /tmp/wfgg-radar
           git apply /tmp/player-scan-v2.patch
-          echo '=== REMOTE TRANSPORT ==='
-          sed -n '1,110p' src/game/remote-transport.js
+          echo '=== CONNECTOR SERVER SETUP ==='
+          sed -n '1,100p' connector-go/cmd/radar-connector/main.go
           echo '=== CONNECTOR SCAN HANDLER ==='
           sed -n '100,155p' connector-go/cmd/radar-connector/main.go
-          echo '=== NATIVE SCAN ERROR MAPPING ==='
-          sed -n '120,180p' connector-go/internal/protocol/native_template.go
+          echo '=== REMOTE TRANSPORT ==='
+          sed -n '1,110p' src/game/remote-transport.js
