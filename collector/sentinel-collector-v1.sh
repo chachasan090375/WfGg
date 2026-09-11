@@ -9,6 +9,7 @@ BIN_DIR="$ROOT/bin"
 DATA_DIR="$ROOT/data"
 BACKUP_DIR="$DATA_DIR/sentinel-backups"
 STATE_FILE="$DATA_DIR/sentinel-collector-state.env"
+REQUEST_FILE="$DATA_DIR/sentinel-enrichment-request.env"
 LOCK_FILE="/run/wfgg-collector-sentinel.lock"
 SERVICE="${WFGG_COLLECTOR_SERVICE:-wfgg-collector.service}"
 RELEASE_BASE="${WFGG_COLLECTOR_RELEASE_BASE:-https://raw.githubusercontent.com/chachasan090375/WfGg/collector-v1/collector/release}"
@@ -101,6 +102,7 @@ print('OBSERVATIONS='+str(obs))
 print('LAST_SEEN='+last)
 print('SAMPLE_FOUND='+found)
 print('SAMPLE_UID_PRESENT='+('YES' if uid else 'NO'))
+print('SAMPLE_UID='+uid)
 print('SAMPLE_POWER='+power)
 PY
 }
@@ -118,7 +120,25 @@ OBSERVATIONS="$(printf '%s\n' "$PROBE" | awk -F= '$1=="OBSERVATIONS"{print $2}')
 LAST_SEEN="$(printf '%s\n' "$PROBE" | awk -F= '$1=="LAST_SEEN"{sub(/^LAST_SEEN=/,"");print}')"
 SAMPLE_FOUND="$(printf '%s\n' "$PROBE" | awk -F= '$1=="SAMPLE_FOUND"{print $2}')"
 SAMPLE_UID_PRESENT="$(printf '%s\n' "$PROBE" | awk -F= '$1=="SAMPLE_UID_PRESENT"{print $2}')"
+SAMPLE_UID="$(printf '%s\n' "$PROBE" | awk -F= '$1=="SAMPLE_UID"{print $2}')"
 SAMPLE_POWER="$(printf '%s\n' "$PROBE" | awk -F= '$1=="SAMPLE_POWER"{print $2}')"
+
+ENRICHMENT_REQUIRED=NO
+NEXT_ACTION=NONE
+if [[ "$SAMPLE_FOUND" == YES && "$SAMPLE_UID_PRESENT" == YES && "$SAMPLE_POWER" == MISSING ]]; then
+  ENRICHMENT_REQUIRED=YES
+  NEXT_ACTION=ENRICH_PROFILE
+  cat >"$REQUEST_FILE" <<EOF
+SENTINEL_REQUEST_TYPE=ENRICH_PROFILE
+SENTINEL_REQUEST_CREATED=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+SENTINEL_REQUEST_SAMPLE=$SAMPLE_PLAYER
+SENTINEL_REQUEST_UID=$SAMPLE_UID
+EOF
+  chmod 0640 "$REQUEST_FILE"
+  chown root:wfgg-radar "$REQUEST_FILE" 2>/dev/null || true
+else
+  rm -f "$REQUEST_FILE"
+fi
 
 STATUS=HEALTHY
 [[ "$RECOVERED" -eq 1 ]] && STATUS=RECOVERED
@@ -136,8 +156,10 @@ SENTINEL_COLLECTOR_SAMPLE=$SAMPLE_PLAYER
 SENTINEL_COLLECTOR_SAMPLE_FOUND=$SAMPLE_FOUND
 SENTINEL_COLLECTOR_SAMPLE_UID_PRESENT=$SAMPLE_UID_PRESENT
 SENTINEL_COLLECTOR_SAMPLE_POWER=$SAMPLE_POWER
+SENTINEL_COLLECTOR_ENRICHMENT_REQUIRED=$ENRICHMENT_REQUIRED
+SENTINEL_COLLECTOR_NEXT_ACTION=$NEXT_ACTION
 EOF
 chmod 0640 "$STATE_FILE"
 chown root:wfgg-radar "$STATE_FILE" 2>/dev/null || true
 
-log "SENTINEL_COLLECTOR=$STATUS players=${PLAYERS:-0} sample=$SAMPLE_PLAYER found=$SAMPLE_FOUND power=$SAMPLE_POWER"
+log "SENTINEL_COLLECTOR=$STATUS players=${PLAYERS:-0} sample=$SAMPLE_PLAYER found=$SAMPLE_FOUND power=$SAMPLE_POWER enrichment=$ENRICHMENT_REQUIRED next=$NEXT_ACTION"
