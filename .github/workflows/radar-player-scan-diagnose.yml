@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Reconstruct patched Radar and inspect search path
+      - name: Reconstruct patched Radar and inspect scan error path
         run: |
           set -euo pipefail
           rm -rf /tmp/wfgg-radar
@@ -25,11 +25,9 @@ jobs:
           base64 -d .radar-release-src/player-scan-v2.patch | gzip -dc > /tmp/player-scan-v2.patch
           cd /tmp/wfgg-radar
           git apply /tmp/player-scan-v2.patch
-          echo '=== WORKER SEARCH ROUTE ==='
-          sed -n '120,165p' src/worker.js
-          echo '=== UI SEARCH HANDLER ==='
-          sed -n '74,96p' public/app.js
-          echo '=== NATIVE SCAN EXEC ==='
-          sed -n '79,180p' connector-go/internal/protocol/native_template.go
-          echo '=== TEMPLATE SCAN CORE ==='
-          sed -n '500,570p' connector-go/native-template/main.go
+          echo '=== REMOTE TRANSPORT ==='
+          sed -n '1,110p' src/game/remote-transport.js
+          echo '=== CONNECTOR SCAN HANDLER ==='
+          sed -n '100,155p' connector-go/cmd/radar-connector/main.go
+          echo '=== NATIVE SCAN ERROR MAPPING ==='
+          sed -n '120,180p' connector-go/internal/protocol/native_template.go
