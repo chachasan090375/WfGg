@@ -1,55 +1,45 @@
-# WfGg Collector V1
+# WfGg Collector
 
-Collector V1 is an isolated VPS-side cache for player data. It does not modify the production Radar branch or replace the current Radar binaries.
+Collector is the local player-cache and incremental map state service for WfGg Radar.
 
-## Goals
+## Security boundary
 
-- keep one local SQLite cache of player records;
-- preserve a change-only observation history;
-- expose a localhost-only API that Radar can query quickly;
-- accept normalized player records from the existing READONLY scan path;
-- never store or log Last War access tokens in Collector V1.
+Collector runs on the VPS and stores player/map state only. It does not persist Last War credentials. Authenticated Last War access is supplied transiently by the trusted executor path.
 
-## Isolation
+## Local service
 
-Branch: `collector-v1`
+- Root: `/opt/wfgg-collector`
+- API: `127.0.0.1:8790`
+- Database: `/opt/wfgg-collector/data/collector.db`
+- Master snapshots: `/opt/wfgg-collector/data/masters`
 
-Runtime root: `/opt/wfgg-collector`
+## Master + increments
 
-Service: `wfgg-collector.service`
+The first deployment creates a physical Master snapshot of the current Collector database. Later refreshes run as cycles. A cycle records only actual player-state deltas against its baseline.
 
-The API binds only to `127.0.0.1:8790`. Collector V1 is therefore not publicly reachable unless another trusted WfGg component explicitly proxies it.
+Player identity is the Last War `game_uid`. Server, alliance, pseudo, coordinates, HQ and power are mutable properties.
 
-## Data model
+Recognized changes include:
 
-SQLite stores the latest known player record plus an observation row only when the record changes. Initial fields are:
+- `NEW`
+- `SERVER_TRANSFER`
+- `ALLIANCE_CHANGE`
+- `PSEUDO_CHANGE`
+- `RELOCATED`
+- `HQ_CHANGE`
+- `POWER_CHANGE`
+- `UPDATED`
 
-- UID;
-- pseudo;
-- server;
-- alliance ID and tag;
-- x/y coordinates;
-- HQ level;
-- power when available;
-- first seen and last seen timestamps.
+A player missing from a sweep is **not** removed, retired or marked inactive. The last known record is preserved indefinitely. This protects the cache from partial scans and from treating server transfers as deletions.
 
-## API
+## Fresh search contract
 
-- `GET /health`
-- `GET /stats`
-- `GET /player?q=<pseudo-or-uid>`
-- `GET /search?q=<text>&limit=20`
-- `POST /ingest`
+The target UI contract is:
 
-`POST /ingest` accepts either one player object, `{ "players": [...] }`, or a JSON array of player objects.
+`Search click -> incremental refresh -> successful cycle -> local Collector lookup -> result`
 
-## Helpers
+Concurrent search refreshes must share one running cycle rather than launch duplicate scans.
 
-- `install-from-termux.sh` installs the isolated VPS service.
-- `query-from-termux.sh` queries the cache through SSH.
-- `ingest-json-from-termux.sh` imports a JSON file through SSH without exposing the collector port.
-- `scan-and-cache-from-termux.sh <pseudo-or-uid>` runs one explicit READONLY Radar lookup and caches the returned player automatically when a result is available.
+## Sentinel
 
-## Deliberate V1 boundary
-
-V1 is the storage/query layer first. It does not contain a server-wide autonomous player harvester and it does not keep Last War credentials. The next integration step is to feed successful READONLY Radar player results into `/ingest`, so each lookup automatically becomes reusable cached data. This lets us validate the cache/API independently before changing the live Radar scan path.
+Sentinel supervises Collector health, binary integrity and queued enrichment. Sentinel remains credential-blind.
