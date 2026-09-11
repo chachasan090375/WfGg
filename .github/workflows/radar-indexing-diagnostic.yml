@@ -25,15 +25,15 @@ jobs:
           python3 .github/scripts/reconstruct-radar-release.py
           tar -xzf /tmp/radar-src.tar.gz -C /tmp/wfgg-radar
 
-      - name: Inspect player scan path
+      - name: Inspect native player scan implementation
         working-directory: /tmp/wfgg-radar
         run: |
           set -euo pipefail
-          echo '=== REMOTE TRANSPORT ==='
-          cat src/game/remote-transport.js
-          echo '=== CONNECTOR INTERFACE ==='
-          cat src/game/connector.js
-          echo '=== CONNECTOR FILES ==='
-          find . -maxdepth 3 -type f | sort | grep -E 'connector|native|server|go$' || true
-          echo '=== SCAN REFERENCES ==='
-          grep -RniE 'scanPlayer|scan-player|player.scan|player/search|player.*query|radar_observations|INSERT INTO radar_observations' . --exclude='*.lock' || true
+          echo '=== CONNECTOR SERVER ==='
+          sed -n '1,180p' connector-go/cmd/radar-connector/main.go
+          echo '=== NATIVE TEMPLATE ==='
+          cat connector-go/internal/protocol/native_template.go
+          echo '=== EXEC READONLY ==='
+          cat connector-go/internal/protocol/exec_readonly.go
+          echo '=== PROTOCOL TYPES ==='
+          cat connector-go/internal/protocol/protocol.go
