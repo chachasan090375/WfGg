@@ -37,7 +37,7 @@ TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT INT TERM
 HELPER="$TMP/direct-player-scan.py"
 cat > "$HELPER" <<'PY'
-import hashlib,hmac,json,os,secrets,time,urllib.request,urllib.error,sys
+import hashlib,hmac,json,secrets,time,urllib.request,urllib.error,sys
 
 raw=sys.stdin.read()
 try:
@@ -123,8 +123,9 @@ PY
 unset TOKEN
 
 set +e
-printf '%s' "$PAYLOAD" | ssh "${SSH_OPTS[@]}" -T "$REMOTE" "python3 '$REMOTE_HELPER'; rc=\$?; rm -f '$REMOTE_HELPER'; exit \$rc"
+printf '%s' "$PAYLOAD" | ssh "${SSH_OPTS[@]}" -T "$REMOTE" python3 "$REMOTE_HELPER"
 RC=$?
 set -e
 unset PAYLOAD
+ssh "${SSH_OPTS[@]}" "$REMOTE" rm -f "$REMOTE_HELPER" </dev/null >/dev/null 2>&1 || true
 exit "$RC"
