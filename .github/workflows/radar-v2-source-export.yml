@@ -1,0 +1,64 @@
+name: Radar v2 source export
+
+on:
+  push:
+    branches: [radar-production-v1]
+    paths:
+      - '.github/workflows/radar-v2-source-export.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: wfgg-radar-v2-source-export
+  cancel-in-progress: false
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Reconstruct canonical Radar and apply player-scan v2 patch
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/wfgg-radar
+          mkdir -p /tmp/wfgg-radar
+          python3 .github/scripts/reconstruct-radar-release.py
+          echo '234df1dec57f6211bc625855bf13350c9f17fbd843fbe92d8cf1ab7cb5c081ef  /tmp/radar-src.tar.gz' | sha256sum -c -
+          tar -xzf /tmp/radar-src.tar.gz -C /tmp/wfgg-radar
+          base64 -d .radar-release-src/player-scan-v2.patch | gzip -dc > /tmp/player-scan-v2.patch
+          cd /tmp/wfgg-radar
+          git apply --check /tmp/player-scan-v2.patch
+          git apply /tmp/player-scan-v2.patch
+
+      - name: Export only Radar v2 source files needed for v3
+        run: |
+          set -euo pipefail
+          rm -rf .radar-release-src/v2-source
+          mkdir -p .radar-release-src/v2-source/connector-go/internal/protocol
+          mkdir -p .radar-release-src/v2-source/connector-go/native-template
+          mkdir -p .radar-release-src/v2-source/src/game
+          cp /tmp/wfgg-radar/connector-go/internal/protocol/native_template.go .radar-release-src/v2-source/connector-go/internal/protocol/native_template.go
+          cp /tmp/wfgg-radar/connector-go/native-template/main.go .radar-release-src/v2-source/connector-go/native-template/main.go
+          cp /tmp/wfgg-radar/src/worker.js .radar-release-src/v2-source/src/worker.js
+          cp /tmp/wfgg-radar/src/game/remote-transport.js .radar-release-src/v2-source/src/game/remote-transport.js
+          cp /tmp/wfgg-radar/src/game/lastwar-adapter.js .radar-release-src/v2-source/src/game/lastwar-adapter.js
+          cp /tmp/wfgg-radar/src/db/repository.js .radar-release-src/v2-source/src/repository.js
+
+      - name: Commit exported source
+        run: |
+          set -euo pipefail
+          git config user.name 'WfGg Radar CI'
+          git config user.email 'radar-ci@users.noreply.github.com'
+          git add .radar-release-src/v2-source
+          if git diff --cached --quiet; then
+            echo SOURCE_EXPORT_UNCHANGED=YES
+          else
+            git commit -m 'chore(radar): export patched v2 source for map-index v3'
+            git push origin HEAD:radar-production-v1
+          fi
