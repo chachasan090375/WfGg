@@ -35,7 +35,8 @@ def patch_main() -> None:
 def patch_protocol() -> None:
     text = PROTO.read_text(encoding='utf-8')
     text = text.replace('native-template-readonly-v2', 'native-template-readonly-v3')
-    text = text.replace('wfgg/master-v3/phase5-native-template', 'wfgg/master-v3/player-scan-v3-map-index')
+    # Keep the existing snapshot provenance string: regression tests and stored
+    # observations rely on it. V3 changes player scanning, not snapshot provenance.
     text = replace_once(text,
         '\tcmd.Env = append(childEnv(dir), "LASTWAR_NATIVE_SCAN_SEED="+c.ScanSeed)\n',
         '\tcmd.Env = childEnv(dir)\n',
