@@ -48,6 +48,12 @@ def copy_helper() -> None:
     if not HELPER.is_file():
         raise SystemExit(f'helper missing: {HELPER}')
     text = HELPER.read_text(encoding='utf-8')
+    # WorldPointInfo player-base tiles are f2=6 and their nested player detail is f3.
+    # The previous provisional decoder used f10, which belongs to another tile family.
+    text = replace_once(text,
+        '\tdetailRaw, ok := protoBytesV3(m, 10)\n',
+        '\tdetailRaw, ok := protoBytesV3(m, 3)\n',
+        'player base detail field')
     # Repair the source snapshot's missing brace around the []byte map-tile case.
     text = replace_once(text,
         '''\t\t\tif !seen[key] {\n\t\t\t\tseen[key] = true\n\t\t\t\t*out = append(*out, p)\n\t\t\t}\n\t}\n}\n\nfunc playerFromMapBlobV3''',
