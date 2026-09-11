@@ -34,7 +34,7 @@ jobs:
           echo '234df1dec57f6211bc625855bf13350c9f17fbd843fbe92d8cf1ab7cb5c081ef  /tmp/radar-src.tar.gz' | sha256sum -c -
           tar -xzf /tmp/radar-src.tar.gz -C /tmp/wfgg-radar
 
-      - name: Apply runtime auth hotfixes
+      - name: Apply runtime auth and indexing hotfixes
         working-directory: /tmp/wfgg-radar
         run: |
           set -euo pipefail
@@ -109,6 +109,67 @@ jobs:
               s = s.replace(old, new, 1)
               p.write_text(s)
           print('OWNER_FIRST_VALID_BOOTSTRAP=OK')
+
+          # 4) Project every certified live snapshot identity into the searchable
+          #    Radar observation index. Raw evidence remains stored separately in
+          #    game_observation_*; this is only a normalized READONLY projection.
+          p = Path('src/db/repository.js')
+          s = p.read_text()
+          anchor = """export async function saveCredential(env, gameUid, encrypted) {"""
+          projection = """export async function saveRadarIdentityObservation(env, { identity = null, session = null, batchId = null, observedAt = null } = {}) {
+            const gameUid = String(identity?.gameUid || '').trim();
+            const pseudo = String(identity?.pseudo || '').trim();
+            if (!gameUid || !pseudo) return null;
+            const ts = observedAt || nowIso();
+            const serverId = identity?.serverId || session?.serverId || null;
+            const rawRef = batchId ? `game_observation_batch:${batchId}` : null;
+            await requireDb(env).prepare(`
+              INSERT INTO radar_observations(
+                subject_uid, pseudo, server_id, alliance_id, alliance_tag,
+                x, y, hq_level, power, shield_state,
+                observed_at, source_command, raw_ref
+              ) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)
+            `).bind(
+              gameUid, pseudo, serverId ? String(serverId) : null, null, null,
+              null, null, null, null, null,
+              ts, 'oracle.live-snapshot.identity', rawRef
+            ).run();
+            return { subjectUid: gameUid, pseudo, serverId: serverId ? String(serverId) : null, observedAt: ts, rawRef };
+          }
+
+          """
+          if 'export async function saveRadarIdentityObservation' not in s:
+              if anchor not in s:
+                  raise SystemExit('RADAR_IDENTITY_PROJECTION_ANCHOR_NOT_FOUND')
+              s = s.replace(anchor, projection + anchor, 1)
+              p.write_text(s)
+          print('RADAR_IDENTITY_PROJECTION=OK')
+
+          p = Path('src/worker.js')
+          s = p.read_text()
+          old_import = "import { bindIdentityToGrant, ensureBootstrapOwnerGrant, getCredential, listGrants, listUsers, saveCredential, saveObservedSnapshot, upsertGrant, audit } from './db/repository.js';"
+          new_import = "import { bindIdentityToGrant, ensureBootstrapOwnerGrant, getCredential, listGrants, listUsers, saveCredential, saveObservedSnapshot, saveRadarIdentityObservation, upsertGrant, audit } from './db/repository.js';"
+          if new_import not in s:
+              if old_import not in s:
+                  raise SystemExit('RADAR_IDENTITY_PROJECTION_IMPORT_NOT_FOUND')
+              s = s.replace(old_import, new_import, 1)
+
+          old_capture = """          const stored = await saveObservedSnapshot(env, session.gameUid, snapshot);
+          await audit(env, session.gameUid, 'oracle.live-snapshot.capture', session.gameUid, { batchId: stored.batchId, observations: stored.observationCount, source: snapshot.source || null });"""
+          new_capture = """          const stored = await saveObservedSnapshot(env, session.gameUid, snapshot);
+          const indexedIdentity = await saveRadarIdentityObservation(env, {
+            identity: snapshot.identity || null,
+            session: snapshot.session || null,
+            batchId: stored.batchId,
+            observedAt: stored.observedAt
+          });
+          await audit(env, session.gameUid, 'oracle.live-snapshot.capture', session.gameUid, { batchId: stored.batchId, observations: stored.observationCount, indexedIdentity: Boolean(indexedIdentity), source: snapshot.source || null });"""
+          if new_capture not in s:
+              if old_capture not in s:
+                  raise SystemExit('RADAR_IDENTITY_PROJECTION_CAPTURE_NOT_FOUND')
+              s = s.replace(old_capture, new_capture, 1)
+          p.write_text(s)
+          print('RADAR_CAPTURE_TO_SEARCH_INDEX=OK')
           PY
           node --check src/worker.js
           node --check src/game/remote-transport.js
@@ -116,6 +177,8 @@ jobs:
           grep -Fq "return await authenticateGameToken(request, env);" src/worker.js
           grep -Fq "fetchImpl = (...args) => globalThis.fetch(...args)" src/game/remote-transport.js
           grep -Fq "__AUTO_BOOTSTRAP_FIRST_VALID__" src/db/repository.js
+          grep -Fq "saveRadarIdentityObservation" src/worker.js
+          grep -Fq "INSERT INTO radar_observations" src/db/repository.js
 
       - name: Run Guardian regression gate
         working-directory: /tmp/wfgg-radar
