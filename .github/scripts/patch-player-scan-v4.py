@@ -35,6 +35,44 @@ ptext = replace_once(ptext,
     '''\t\tcase "PLAYER_SCAN_READ_FAILED":\n\t\t\treturn nil, errors.New("LASTWAR_PLAYER_SCAN_READ_FAILED")\n''',
     '''\t\tcase "PLAYER_SCAN_READ_FAILED":\n\t\t\treturn nil, errors.New("LASTWAR_PLAYER_SCAN_READ_FAILED")\n\t\tcase "PLAYER_SCAN_SERVER_ID_INVALID":\n\t\t\treturn nil, errors.New("LASTWAR_PLAYER_SCAN_SERVER_ID_INVALID")\n\t\tcase "PLAYER_SCAN_SYNTHETIC_ENCODE_FAILED":\n\t\t\treturn nil, errors.New("LASTWAR_PLAYER_SCAN_SYNTHETIC_ENCODE_FAILED")\n\t\tcase "PLAYER_SCAN_SYNTHETIC_DEADLINE_FAILED":\n\t\t\treturn nil, errors.New("LASTWAR_PLAYER_SCAN_SYNTHETIC_DEADLINE_FAILED")\n\t\tcase "PLAYER_SCAN_SYNTHETIC_WRITE_TIMEOUT":\n\t\t\treturn nil, errors.New("LASTWAR_PLAYER_SCAN_SYNTHETIC_WRITE_TIMEOUT")\n\t\tcase "PLAYER_SCAN_SYNTHETIC_WRITE_FAILED":\n\t\t\treturn nil, errors.New("LASTWAR_PLAYER_SCAN_SYNTHETIC_WRITE_FAILED")\n\t\tcase "PLAYER_SCAN_SYNTHETIC_READ_FAILED":\n\t\t\treturn nil, errors.New("LASTWAR_PLAYER_SCAN_SYNTHETIC_READ_FAILED")\n''',
     'v4 connector error mapping')
+
+# V4.1 diagnostic failures carry peer details after a colon, for example
+# PLAYER_SCAN_SYNTHETIC_READ_FAILED:*net.OpError:EOF:origin=... . The old exact
+# switch therefore collapsed them to LASTWAR_PLAYER_SCAN_FAILED. Inject prefix
+# guards immediately before the switch that owns PLAYER_SCAN_READ_FAILED, without
+# assuming the local result variable name used by the immutable base release.
+case_marker = '\t\tcase "PLAYER_SCAN_READ_FAILED":'
+case_pos = ptext.find(case_marker)
+if case_pos < 0:
+    raise SystemExit('v4 detailed mapping: PLAYER_SCAN_READ_FAILED case missing')
+switch_pos = ptext.rfind('\tswitch ', 0, case_pos)
+if switch_pos < 0:
+    raise SystemExit('v4 detailed mapping: owning switch missing')
+switch_end = ptext.find('\n', switch_pos)
+if switch_end < 0:
+    raise SystemExit('v4 detailed mapping: malformed switch line')
+switch_line = ptext[switch_pos:switch_end]
+stripped = switch_line.strip()
+if not stripped.startswith('switch ') or not stripped.endswith(' {'):
+    raise SystemExit(f'v4 detailed mapping: unexpected switch line: {stripped!r}')
+expr = stripped[len('switch '):-len(' {')].strip()
+if not expr:
+    raise SystemExit('v4 detailed mapping: empty switch expression')
+
+guards = ''
+for prefix in (
+    'PLAYER_SCAN_SYNTHETIC_WRITE_TIMEOUT:',
+    'PLAYER_SCAN_SYNTHETIC_WRITE_FAILED:',
+    'PLAYER_SCAN_SYNTHETIC_READ_FAILED:',
+):
+    guards += (
+        f'\tif len({expr}) >= len("{prefix}") && '
+        f'{expr}[:len("{prefix}")] == "{prefix}" {{\n'
+        f'\t\treturn nil, errors.New("LASTWAR_" + {expr})\n'
+        f'\t}}\n'
+    )
+ptext = ptext[:switch_pos] + guards + ptext[switch_pos:]
+
 PROTO.write_text(ptext, encoding='utf-8')
 
 if not V4_SRC.is_file():
@@ -45,3 +83,4 @@ print('PLAYER_SCAN_V4_PATCH=OK')
 print('PLAYER_SCAN_V4_MODE=native-template-readonly-v4')
 print('PLAYER_SCAN_V4_STRATEGY=synthetic-world.get.block+get.user.info.multi')
 print('PLAYER_SCAN_V4_SWEEP=bounded-v4.1')
+print('PLAYER_SCAN_V4_DIAGNOSTICS=PREFIX_PRESERVED')
