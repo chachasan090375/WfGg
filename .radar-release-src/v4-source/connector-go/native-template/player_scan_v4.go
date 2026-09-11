@@ -8,6 +8,7 @@ import (
 	"lastwar-client/internal/pcap"
 	"lastwar-client/internal/sfs"
 	"net"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -29,6 +30,80 @@ const (
 	v4WriteTimeout         = 350 * time.Millisecond
 	v4InterWriteDelay      = 3 * time.Millisecond
 )
+
+type scanDiagV42 struct {
+	Requests       int
+	Packets        int
+	DecodeErrors   int
+	Objects        int
+	Arrays         int
+	Blobs          int
+	ProtoValid     int
+	Kind6          int
+	PlayersDecoded int
+	QueryMatches   int
+	Origins        int
+	ReadTimeouts   int
+}
+
+func (d *scanDiagV42) emit() {
+	if d == nil {
+		return
+	}
+	// Safe diagnostics only: counters, never token/session/player values.
+	fmt.Fprintf(os.Stderr,
+		"WFGG_SCAN_V42 requests=%d packets=%d decode_errors=%d objects=%d arrays=%d blobs=%d proto=%d kind6=%d decoded_players=%d query_matches=%d origins=%d read_timeouts=%d\n",
+		d.Requests, d.Packets, d.DecodeErrors, d.Objects, d.Arrays, d.Blobs,
+		d.ProtoValid, d.Kind6, d.PlayersDecoded, d.QueryMatches, d.Origins, d.ReadTimeouts,
+	)
+}
+
+func (d *scanDiagV42) observe(v any, query, fallbackServer, observedAt string, depth, area int, serverID string) {
+	if d == nil || depth > 12 || v == nil {
+		return
+	}
+	switch t := v.(type) {
+	case *sfs.SFSObject:
+		d.Objects++
+		if a := int(t.GetInt("maxAreaSize")); a > 0 && a <= 10000 {
+			area = a
+		}
+		if sid := v3ScalarAt(t, "serverId"); sid != "" {
+			serverID = strings.TrimPrefix(sid, "APS")
+		}
+		for _, key := range t.Keys() {
+			item, ok := t.Get(key)
+			if ok {
+				d.observe(item.Val, query, fallbackServer, observedAt, depth+1, area, serverID)
+			}
+		}
+	case *sfs.SFSArray:
+		d.Arrays++
+		for _, item := range t.Items() {
+			d.observe(item.Val, query, fallbackServer, observedAt, depth+1, area, serverID)
+		}
+	case []byte:
+		d.Blobs++
+		m, ok := parseProtoV3(t, 0)
+		if !ok {
+			return
+		}
+		d.ProtoValid++
+		kind, ok := protoUintV3(m, 2)
+		if !ok || kind != 6 {
+			return
+		}
+		d.Kind6++
+		p, ok := playerFromMapBlobV3(t, area, serverID, fallbackServer, observedAt)
+		if !ok {
+			return
+		}
+		d.PlayersDecoded++
+		if v3PlayerMatches(p, query) {
+			d.QueryMatches++
+		}
+	}
+}
 
 func runPlayerScanV4(conn net.Conn, convs []pcap.Conversation, server pcap.Endpoint, mapTemplates []*sfs.SFSObject, profileTemplate *sfs.SFSObject, query, fallbackServer string) ([]playerReport, error) {
 	query = strings.TrimSpace(query)
@@ -84,6 +159,9 @@ func syntheticMapSweepV4(conn net.Conn, query, fallbackServer, observedAt string
 		return nil, errors.New("PLAYER_SCAN_SERVER_ID_INVALID")
 	}
 
+	diag := &scanDiagV42{}
+	defer diag.emit()
+
 	origins := [][2]int{
 		{1000, 1000},
 		{0, 0}, {1000, 0}, {2000, 0},
@@ -101,6 +179,7 @@ func syntheticMapSweepV4(conn net.Conn, query, fallbackServer, observedAt string
 		if !time.Now().Before(sweepDeadline) {
 			break
 		}
+		diag.Origins++
 		ox, oy := origin[0], origin[1]
 		writesThisOrigin := 0
 
@@ -126,6 +205,7 @@ func syntheticMapSweepV4(conn net.Conn, query, fallbackServer, observedAt string
 					}
 					return nil, fmt.Errorf("PLAYER_SCAN_SYNTHETIC_WRITE_FAILED:%T:%v:origin=%d,%d:writes=%d", err, err, ox, oy, writesThisOrigin)
 				}
+				diag.Requests++
 				writesThisOrigin++
 				time.Sleep(v4InterWriteDelay)
 			}
@@ -139,14 +219,21 @@ func syntheticMapSweepV4(conn net.Conn, query, fallbackServer, observedAt string
 			rb, err := sfs.ReadPacket(conn)
 			if err != nil {
 				if isTimeoutV4(err) {
+					diag.ReadTimeouts++
 					break
 				}
 				return nil, fmt.Errorf("PLAYER_SCAN_SYNTHETIC_READ_FAILED:%T:%v:origin=%d,%d:writes=%d:reads=%d", err, err, ox, oy, writesThisOrigin, i)
 			}
+			diag.Packets++
 			obj, err := sfs.DecodeObject(rb)
 			if err != nil {
+				diag.DecodeErrors++
 				continue
 			}
+
+			// V4.2 diagnostics traverse the decoded response in parallel with the
+			// production collector. Only aggregate counters are emitted to stderr.
+			diag.observe(obj, query, fallbackServer, observedAt, 0, 1000, fallbackServer)
 
 			// Decode the payload itself instead of requiring the server to echo
 			// world.get.block as the response command. The V3 collector is strict:
