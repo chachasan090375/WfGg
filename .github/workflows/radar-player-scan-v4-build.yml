@@ -8,6 +8,9 @@ on:
       - '.github/scripts/patch-player-scan-v3.py'
       - '.github/scripts/patch-player-scan-v4.py'
       - '.radar-release-src/v4-source/**'
+      - 'collector/**'
+      - 'radar-vps/install-collector-v1-on-vps.sh'
+      - 'radar-vps/test-collector-v1-from-termux.sh'
   workflow_dispatch:
 
 permissions:
@@ -29,6 +32,14 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Validate collector agent
+        run: |
+          set -euo pipefail
+          python3 -m py_compile collector/wfgg_collector.py
+          bash -n radar-vps/install-collector-v1-on-vps.sh
+          bash -n radar-vps/test-collector-v1-from-termux.sh
+          echo COLLECTOR_AGENT_SYNTAX=OK
+
       - name: Reconstruct Radar V0.5 plus player scan v2 base
         run: |
           set -euo pipefail
@@ -47,8 +58,9 @@ jobs:
         run: |
           set -euo pipefail
           python3 .github/scripts/patch-player-scan-v3.py
-          grep -Fq 'PLAYER_SCAN_V3_COLLECTOR_WILDCARD=ENABLED' <(python3 .github/scripts/patch-player-scan-v3.py 2>/dev/null || true) || true
           grep -Fq 'query == "*"' /tmp/wfgg-radar/connector-go/native-template/player_scan_v3.go
+          grep -Fq 'limit = 10000' /tmp/wfgg-radar/connector-go/native-template/player_scan_v3.go
+          grep -Fq 'protoBytesV3(m, 3)' /tmp/wfgg-radar/connector-go/native-template/player_scan_v3.go
           echo PLAYER_SCAN_V3_COLLECTOR_BASE=OK
 
       - name: Upgrade native scan engine to v4 synthetic map requests
