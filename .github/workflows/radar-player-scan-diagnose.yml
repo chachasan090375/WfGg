@@ -1,0 +1,33 @@
+name: Radar player scan diagnose
+
+on:
+  push:
+    branches: [radar-production-v1]
+    paths:
+      - '.github/workflows/radar-player-scan-diagnose.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reconstruct patched Radar and inspect search path
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/wfgg-radar
+          mkdir -p /tmp/wfgg-radar
+          python3 .github/scripts/reconstruct-radar-release.py
+          tar -xzf /tmp/radar-src.tar.gz -C /tmp/wfgg-radar
+          base64 -d .radar-release-src/player-scan-v2.patch | gzip -dc > /tmp/player-scan-v2.patch
+          cd /tmp/wfgg-radar
+          git apply /tmp/player-scan-v2.patch
+          echo '=== WORKER ROUTES / SEARCH ==='
+          grep -RniE 'radar/search|search.*radar|player.*scan|scan.*player|saveRadarPlayerObservations|LASTWAR_NATIVE_SCAN_SEED' src public connector-go | head -n 240 || true
+          echo '=== UI FETCH CALLS ==='
+          grep -RniE 'fetch\(|/api/' public | head -n 240 || true
+          echo '=== ADAPTER / TRANSPORT ==='
+          grep -RniE 'scanPlayer|searchPlayer|playerScan|ScanPlayer|map.*scan|LASTWAR_MAP_SCAN' src connector-go | head -n 240 || true
