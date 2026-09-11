@@ -46,7 +46,13 @@ def patch_protocol() -> None:
 def copy_helper() -> None:
     if not HELPER.is_file():
         raise SystemExit(f'helper missing: {HELPER}')
-    DEST_HELPER.write_bytes(HELPER.read_bytes())
+    text = HELPER.read_text(encoding='utf-8')
+    # Repair the source snapshot's missing brace around the []byte map-tile case.
+    text = replace_once(text,
+        '''\t\t\tif !seen[key] {\n\t\t\t\tseen[key] = true\n\t\t\t\t*out = append(*out, p)\n\t\t\t}\n\t}\n}\n\nfunc playerFromMapBlobV3''',
+        '''\t\t\tif !seen[key] {\n\t\t\t\tseen[key] = true\n\t\t\t\t*out = append(*out, p)\n\t\t\t}\n\t\t}\n\t}\n}\n\nfunc playerFromMapBlobV3''',
+        'map collector brace')
+    DEST_HELPER.write_text(text, encoding='utf-8')
 
 
 patch_main()
