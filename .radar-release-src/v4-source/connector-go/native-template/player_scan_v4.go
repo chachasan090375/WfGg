@@ -4,6 +4,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"lastwar-client/internal/pcap"
 	"lastwar-client/internal/sfs"
 	"net"
@@ -101,7 +102,9 @@ func syntheticMapSweepV4(conn net.Conn, query, fallbackServer, observedAt string
 
 	seen := map[string]bool{}
 	out := make([]playerReport, 0, 4)
-	requestID := time.Now().UnixMilli()
+	// Captured request replay in V3 deliberately keeps _id in a 30-bit range.
+	// Keep synthetic requests in the same range instead of sending Unix-millis.
+	requestID := time.Now().UnixNano() & 0x3fffffff
 	sweepDeadline := time.Now().Add(v4SweepBudget)
 	defer conn.SetDeadline(time.Time{})
 
@@ -110,6 +113,7 @@ func syntheticMapSweepV4(conn net.Conn, query, fallbackServer, observedAt string
 			break
 		}
 		ox, oy := origin[0], origin[1]
+		writesThisOrigin := 0
 
 		// 320x200 gives at most 16x10 = 160 block ids and covers one
 		// 1000x1000 server square in 20 READONLY requests.
@@ -131,10 +135,11 @@ func syntheticMapSweepV4(conn net.Conn, query, fallbackServer, observedAt string
 				}
 				if _, err := conn.Write(frame); err != nil {
 					if ne, ok := err.(net.Error); ok && ne.Timeout() {
-						return nil, errors.New("PLAYER_SCAN_SYNTHETIC_WRITE_TIMEOUT")
+						return nil, fmt.Errorf("PLAYER_SCAN_SYNTHETIC_WRITE_TIMEOUT:origin=%d,%d:writes=%d", ox, oy, writesThisOrigin)
 					}
-					return nil, errors.New("PLAYER_SCAN_SYNTHETIC_WRITE_FAILED")
+					return nil, fmt.Errorf("PLAYER_SCAN_SYNTHETIC_WRITE_FAILED:%T:%v:origin=%d,%d:writes=%d", err, err, ox, oy, writesThisOrigin)
 				}
+				writesThisOrigin++
 				time.Sleep(v4InterWriteDelay)
 			}
 		}
@@ -151,7 +156,7 @@ func syntheticMapSweepV4(conn net.Conn, query, fallbackServer, observedAt string
 				if ne, ok := err.(net.Error); ok && ne.Timeout() {
 					break
 				}
-				return nil, errors.New("PLAYER_SCAN_SYNTHETIC_READ_FAILED")
+				return nil, fmt.Errorf("PLAYER_SCAN_SYNTHETIC_READ_FAILED:%T:%v:origin=%d,%d:writes=%d:reads=%d", err, err, ox, oy, writesThisOrigin, i)
 			}
 			obj, err := sfs.DecodeObject(rb)
 			if err != nil {
