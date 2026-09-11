@@ -40,8 +40,8 @@ type scanDiagV42 struct {
 	Blobs           int
 	ProtoValid      int
 	Kind6           int
-	Detail10Present int
-	Detail10Missing int
+	Detail3Present  int
+	Detail3Missing  int
 	DetailParseOK   int
 	DetailParseFail int
 	UIDPresent      int
@@ -60,9 +60,9 @@ func (d *scanDiagV42) emit() {
 	}
 	// Safe diagnostics only: aggregate counters, never token/session/player values.
 	fmt.Fprintf(os.Stderr,
-		"WFGG_SCAN_V43 requests=%d packets=%d decode_errors=%d objects=%d arrays=%d blobs=%d proto=%d kind6=%d detail10_present=%d detail10_missing=%d detail_parse_ok=%d detail_parse_fail=%d uid_present=%d uid_missing=%d name14_present=%d name14_missing=%d decoded_players=%d query_matches=%d origins=%d read_timeouts=%d\n",
+		"WFGG_SCAN_V43 requests=%d packets=%d decode_errors=%d objects=%d arrays=%d blobs=%d proto=%d kind6=%d detail3_present=%d detail3_missing=%d detail_parse_ok=%d detail_parse_fail=%d uid_present=%d uid_missing=%d name14_present=%d name14_missing=%d decoded_players=%d query_matches=%d origins=%d read_timeouts=%d\n",
 		d.Requests, d.Packets, d.DecodeErrors, d.Objects, d.Arrays, d.Blobs,
-		d.ProtoValid, d.Kind6, d.Detail10Present, d.Detail10Missing,
+		d.ProtoValid, d.Kind6, d.Detail3Present, d.Detail3Missing,
 		d.DetailParseOK, d.DetailParseFail, d.UIDPresent, d.UIDMissing,
 		d.Name14Present, d.Name14Missing, d.PlayersDecoded, d.QueryMatches,
 		d.Origins, d.ReadTimeouts,
@@ -106,12 +106,12 @@ func (d *scanDiagV42) observe(v any, query, fallbackServer, observedAt string, d
 		}
 		d.Kind6++
 
-		detailRaw, ok := protoBytesV3(m, 10)
+		detailRaw, ok := protoBytesV3(m, 3)
 		if !ok {
-			d.Detail10Missing++
+			d.Detail3Missing++
 			return
 		}
-		d.Detail10Present++
+		d.Detail3Present++
 
 		detail, ok := parseProtoV3(detailRaw, 1)
 		if !ok {
@@ -141,7 +141,7 @@ func (d *scanDiagV42) observe(v any, query, fallbackServer, observedAt string, d
 			return
 		}
 		d.PlayersDecoded++
-		if v3PlayerMatches(p, query) {
+		if query == "*" || v3PlayerMatches(p, query) {
 			d.QueryMatches++
 		}
 	}
@@ -153,6 +153,19 @@ func runPlayerScanV4(conn net.Conn, convs []pcap.Conversation, server pcap.Endpo
 		return nil, errors.New("PLAYER_QUERY_REQUIRED")
 	}
 	observedAt := time.Now().UTC().Format(time.RFC3339Nano)
+
+	// Collector V1 bulk mode deliberately reuses the already-audited
+	// --scan-player entry point with query "*". It always performs a fresh live
+	// synthetic map sweep, returns every distinct player base it sees, and skips
+	// per-player profile enrichment. This keeps the harvest bounded and avoids
+	// turning one collection cycle into thousands of profile RPCs.
+	if query == "*" {
+		players, err := syntheticMapSweepV4(conn, query, fallbackServer, observedAt)
+		if err != nil {
+			return nil, err
+		}
+		return players, nil
+	}
 
 	players := scanCapturedMapV3(convs, server, query, fallbackServer, observedAt)
 	if len(players) == 0 && len(mapTemplates) > 0 {
@@ -212,7 +225,7 @@ func syntheticMapSweepV4(conn net.Conn, query, fallbackServer, observedAt string
 	}
 
 	seen := map[string]bool{}
-	out := make([]playerReport, 0, 4)
+	out := make([]playerReport, 0, 256)
 	requestID := time.Now().UnixNano() & 0x3fffffff
 	sweepDeadline := time.Now().Add(v4SweepBudget)
 	defer conn.SetDeadline(time.Time{})
@@ -273,16 +286,15 @@ func syntheticMapSweepV4(conn net.Conn, query, fallbackServer, observedAt string
 				continue
 			}
 
-			// V4.3 diagnostics traverse the decoded response in parallel with the
+			// Diagnostics traverse the decoded response in parallel with the
 			// production collector. Only aggregate counters are emitted to stderr.
 			diag.observe(obj, query, fallbackServer, observedAt, 0, 1000, fallbackServer)
 
 			// Decode the payload itself instead of requiring the server to echo
-			// world.get.block as the response command. The V3 collector is strict:
-			// only protobuf world-point blobs that decode as player cities and whose
-			// pseudo exactly matches the query are accepted.
+			// world.get.block as the response command. Normal scans remain strict;
+			// Collector V1 uses query "*" to accept every decoded player base.
 			collectMapPlayersV3(obj, query, fallbackServer, observedAt, &out, seen, 0, 1000, fallbackServer)
-			if len(out) > 0 {
+			if len(out) > 0 && query != "*" {
 				return out, nil
 			}
 		}
