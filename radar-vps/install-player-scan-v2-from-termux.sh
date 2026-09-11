@@ -30,11 +30,11 @@ trap 'rm -rf "$TMP"' EXIT INT TERM
 # unreachable, override only HostName with the VPS public IPv4. This avoids
 # asking Android to enable/accept a VPN connection.
 SSH_OPTS=(-o ConnectTimeout=15 -o ServerAliveInterval=10 -o ServerAliveCountMax=3)
-if ssh "${SSH_OPTS[@]}" "$REMOTE" 'true' >/dev/null 2>&1; then
+if ssh "${SSH_OPTS[@]}" "$REMOTE" 'true' </dev/null >/dev/null 2>&1; then
   say "SSH_ROUTE=ChaChaVPS"
 else
   SSH_OPTS+=(-o HostName="$PUBLIC_HOST")
-  if ssh "${SSH_OPTS[@]}" "$REMOTE" 'true' >/dev/null 2>&1; then
+  if ssh "${SSH_OPTS[@]}" "$REMOTE" 'true' </dev/null >/dev/null 2>&1; then
     say "SSH_ROUTE=PUBLIC_IPV4"
   else
     die "ChaChaVPS inaccessible via Tailscale et IPv4 publique"
@@ -101,12 +101,17 @@ scp "${SSH_OPTS[@]}" -q "$TMP/radar-connector" "$REMOTE:$RCON"
 scp "${SSH_OPTS[@]}" -q "$TMP/radar-native-template" "$REMOTE:$RNAT"
 
 say "4/6 Installation atomique sur le VPS"
-ssh "${SSH_OPTS[@]}" "$REMOTE" "set -eu; install -d -o root -g wfgg-radar -m 0750 '$REMOTE_PRIVATE'; install -d -o root -g root -m 0755 '$REMOTE_BIN'; install -o root -g wfgg-radar -m 0640 '$RCAP' '$REMOTE_CAPTURE'; install -o root -g root -m 0755 '$RCON' '$REMOTE_BIN/radar-connector'; install -o root -g root -m 0755 '$RNAT' '$REMOTE_BIN/radar-native-template'; rm -f '$RCAP' '$RCON' '$RNAT'"
+ssh "${SSH_OPTS[@]}" "$REMOTE" "set -eu; install -d -o root -g wfgg-radar -m 0750 '$REMOTE_PRIVATE'; install -d -o root -g root -m 0755 '$REMOTE_BIN'; install -o root -g wfgg-radar -m 0640 '$RCAP' '$REMOTE_CAPTURE'; install -o root -g root -m 0755 '$RCON' '$REMOTE_BIN/radar-connector'; install -o root -g root -m 0755 '$RNAT' '$REMOTE_BIN/radar-native-template'; rm -f '$RCAP' '$RCON' '$RNAT'" </dev/null
 
 say "5/6 Activation du gabarit de recherche READONLY"
 printf '%s' "$SEED" | base64 -w0 > "$TMP/seed.b64"
 SEED_B64="$(cat "$TMP/seed.b64")"
-ssh "${SSH_OPTS[@]}" "$REMOTE" python3 - "$REMOTE_ENV" "$REMOTE_CAPTURE" "$SEED_B64" <<'PY'
+
+# Do not pipe a heredoc through ssh: on some Android/OpenSSH combinations the
+# remote python process can inherit an interactive TTY and drop into >>> mode.
+# Ship a small temporary helper instead, execute it non-interactively, then erase it.
+PYHELPER="$TMP/install-scan-context.py"
+cat > "$PYHELPER" <<'PY'
 import base64, os, pathlib, sys, tempfile
 env_path, capture_path, seed_b64 = sys.argv[1:4]
 seed = base64.b64decode(seed_b64).decode('utf-8')
@@ -140,9 +145,12 @@ finally:
 print('SCAN_CONTEXT=INSTALLED')
 print('ACCESS_TOKEN_STORED_ON_VPS=NO')
 PY
+RPY="/tmp/wfgg-radar-scan-context-$TAG.py"
+scp "${SSH_OPTS[@]}" -q "$PYHELPER" "$REMOTE:$RPY"
+ssh "${SSH_OPTS[@]}" "$REMOTE" "set -eu; python3 '$RPY' '$REMOTE_ENV' '$REMOTE_CAPTURE' '$SEED_B64'; rm -f '$RPY'" </dev/null
 
-ssh "${SSH_OPTS[@]}" "$REMOTE" "set -eu; systemctl restart wfgg-radar-connector; sleep 2; test \"\$(systemctl is-active wfgg-radar-connector)\" = active; echo SERVICE=active; journalctl -u wfgg-radar-connector -n 20 --no-pager | grep -E 'radar connector listening' | tail -n 1"
+ssh "${SSH_OPTS[@]}" "$REMOTE" "set -eu; systemctl restart wfgg-radar-connector; sleep 2; test \"\$(systemctl is-active wfgg-radar-connector)\" = active; echo SERVICE=active; journalctl -u wfgg-radar-connector -n 20 --no-pager | grep -E 'radar connector listening' | tail -n 1" </dev/null
 
 say "6/6 Contrôle final"
-ssh "${SSH_OPTS[@]}" "$REMOTE" "set -eu; test -s '$REMOTE_CAPTURE'; grep -q '^LASTWAR_NATIVE_SCAN_SEED=' '$REMOTE_ENV'; test -x '$REMOTE_BIN/radar-native-template'; test -x '$REMOTE_BIN/radar-connector'; echo PLAYER_SCAN_V2=READY; echo ACCESS_TOKEN_ON_VPS=NO"
+ssh "${SSH_OPTS[@]}" "$REMOTE" "set -eu; test -s '$REMOTE_CAPTURE'; grep -q '^LASTWAR_NATIVE_SCAN_SEED=' '$REMOTE_ENV'; test -x '$REMOTE_BIN/radar-native-template'; test -x '$REMOTE_BIN/radar-connector'; echo PLAYER_SCAN_V2=READY; echo ACCESS_TOKEN_ON_VPS=NO" </dev/null
 say "=== PLAYER SCAN READONLY V2 : OK ==="
