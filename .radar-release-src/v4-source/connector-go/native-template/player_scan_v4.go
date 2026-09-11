@@ -16,13 +16,17 @@ import (
 // It builds the documented READONLY map request directly, while retaining
 // V3's proven response decoder and get.user.info.multi enrichment path.
 const (
-	v4WorldSize   = 3000
-	v4ServerSize  = 1000
-	v4BlockSize   = 20
-	v4WindowWidth = 320
-	v4WindowHeight = 200
-	v4ViewLevel   = 1
-	v4IntArrayTag byte = 12 // SFS2X INT_ARRAY wire tag
+	v4WorldSize       = 3000
+	v4ServerSize      = 1000
+	v4BlockSize       = 20
+	v4WindowWidth     = 320
+	v4WindowHeight    = 200
+	v4ViewLevel       = 1
+	v4IntArrayTag     byte = 12 // SFS2X INT_ARRAY wire tag
+	v4SweepBudget          = 2800 * time.Millisecond
+	v4OriginIdle           = 180 * time.Millisecond
+	v4WriteTimeout         = 350 * time.Millisecond
+	v4InterWriteDelay      = 3 * time.Millisecond
 )
 
 func runPlayerScanV4(conn net.Conn, convs []pcap.Conversation, server pcap.Endpoint, mapTemplates []*sfs.SFSObject, profileTemplate *sfs.SFSObject, query, fallbackServer string) ([]playerReport, error) {
@@ -85,9 +89,9 @@ func syntheticMapSweepV4(conn net.Conn, query, fallbackServer, observedAt string
 	}
 
 	// The world request coordinate space is 3000x3000 and each server occupies a
-	// 1000x1000 square. The home server's square position is not present in the
-	// user's captures, so probe the centre square first, then the eight remaining
-	// squares. Only READONLY world.get.block requests are emitted.
+	// 1000x1000 square. Probe the centre square first, then the eight remaining
+	// squares. The whole sweep is deliberately bounded so the connector's HTTP
+	// request cannot time out while the native process keeps scanning in the VPS.
 	origins := [][2]int{
 		{1000, 1000},
 		{0, 0}, {1000, 0}, {2000, 0},
@@ -98,32 +102,49 @@ func syntheticMapSweepV4(conn net.Conn, query, fallbackServer, observedAt string
 	seen := map[string]bool{}
 	out := make([]playerReport, 0, 4)
 	requestID := time.Now().UnixMilli()
+	sweepDeadline := time.Now().Add(v4SweepBudget)
+	defer conn.SetDeadline(time.Time{})
 
 	for _, origin := range origins {
-		_ = conn.SetDeadline(time.Time{})
+		if !time.Now().Before(sweepDeadline) {
+			break
+		}
 		ox, oy := origin[0], origin[1]
 
-		// 320x200 gives at most 16x10 = 160 block ids, a size observed on the
-		// live protocol, while covering one 1000x1000 server square in 20 reads.
+		// 320x200 gives at most 16x10 = 160 block ids and covers one
+		// 1000x1000 server square in 20 READONLY requests.
 		for y0 := oy; y0 < oy+v4ServerSize; y0 += v4WindowHeight {
 			y1 := minV4(y0+v4WindowHeight-1, oy+v4ServerSize-1)
 			for x0 := ox; x0 < ox+v4ServerSize; x0 += v4WindowWidth {
+				if !time.Now().Before(sweepDeadline) {
+					break
+				}
 				x1 := minV4(x0+v4WindowWidth-1, ox+v4ServerSize-1)
 				requestID++
 				frame, err := buildMapFrameV4(serverID, x0, y0, x1, y1, requestID)
 				if err != nil {
 					return nil, errors.New("PLAYER_SCAN_SYNTHETIC_ENCODE_FAILED")
 				}
+				writeDeadline := minTimeV4(sweepDeadline, time.Now().Add(v4WriteTimeout))
+				if err := conn.SetWriteDeadline(writeDeadline); err != nil {
+					return nil, errors.New("PLAYER_SCAN_SYNTHETIC_DEADLINE_FAILED")
+				}
 				if _, err := conn.Write(frame); err != nil {
+					if ne, ok := err.(net.Error); ok && ne.Timeout() {
+						return nil, errors.New("PLAYER_SCAN_SYNTHETIC_WRITE_TIMEOUT")
+					}
 					return nil, errors.New("PLAYER_SCAN_SYNTHETIC_WRITE_FAILED")
 				}
-				time.Sleep(5 * time.Millisecond)
+				time.Sleep(v4InterWriteDelay)
 			}
 		}
 
-		// Drain the responses for this candidate server square. A timeout means
-		// that square has finished answering, not that the connection is invalid.
-		_ = conn.SetDeadline(time.Now().Add(4 * time.Second))
+		// Responses normally arrive as a burst. Give each candidate square a short
+		// idle window, but never beyond the global sweep budget.
+		readDeadline := minTimeV4(sweepDeadline, time.Now().Add(v4OriginIdle))
+		if err := conn.SetReadDeadline(readDeadline); err != nil {
+			return nil, errors.New("PLAYER_SCAN_SYNTHETIC_DEADLINE_FAILED")
+		}
 		for i := 0; i < 600; i++ {
 			rb, err := sfs.ReadPacket(conn)
 			if err != nil {
@@ -142,12 +163,10 @@ func syntheticMapSweepV4(conn net.Conn, query, fallbackServer, observedAt string
 			}
 			collectMapPlayersV3(obj, query, fallbackServer, observedAt, &out, seen, 0, 1000, fallbackServer)
 			if len(out) > 0 {
-				_ = conn.SetDeadline(time.Time{})
 				return out, nil
 			}
 		}
 	}
-	_ = conn.SetDeadline(time.Time{})
 	return out, nil
 }
 
@@ -198,6 +217,13 @@ func blockIndexesV4(x0, y0, x1, y1 int) []int32 {
 		}
 	}
 	return out
+}
+
+func minTimeV4(a, b time.Time) time.Time {
+	if a.Before(b) {
+		return a
+	}
+	return b
 }
 
 func minV4(a, b int) int {
