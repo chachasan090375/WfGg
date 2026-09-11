@@ -2,6 +2,7 @@
 set -Eeuo pipefail
 
 CYCLE_ID="${1:-2}"
+SEARCH_QUERY="${2:-}"
 REMOTE="ChaChaVPS"
 PUBLIC_HOST="${RADAR_VPS_PUBLIC_IP:-206.189.12.92}"
 SESSION="${HOME}/.wfgg-lastwar-probe/home/.lastwar_goclient_session.json"
@@ -24,8 +25,9 @@ trap 'rm -rf "$TMP"' EXIT INT TERM
 HELPER="$TMP/profile-enrich-direct.py"
 
 cat >"$HELPER" <<'PY'
-import json,os,subprocess,sys,tempfile,urllib.request
+import json,os,subprocess,sys,tempfile,urllib.request,urllib.parse
 cycle_id=int(sys.argv[1])
+search_query=str(sys.argv[2] if len(sys.argv)>2 else '').strip()
 raw=sys.stdin.read()
 incoming=json.loads(raw)
 
@@ -33,15 +35,30 @@ with urllib.request.urlopen(f'http://127.0.0.1:8790/cycle/changes?id={cycle_id}&
     changes=json.load(r).get('changes',[])
 
 uids=[]; seen=set()
-for row in changes:
-    uid=str(row.get('game_uid') or '').strip()
+def add_uid(uid):
+    uid=str(uid or '').strip()
     if uid and uid.isdigit() and uid not in seen:
         seen.add(uid); uids.append(uid)
+
+for row in changes:
+    add_uid(row.get('game_uid'))
+
+# A SEARCH cycle always refreshes the requested player's profile after the map pass,
+# even when its map-visible fields did not change during this cycle.
+if search_query:
+    try:
+        q=urllib.parse.quote(search_query,safe='')
+        with urllib.request.urlopen(f'http://127.0.0.1:8790/player?q={q}',timeout=10) as r:
+            player=json.load(r).get('player') or {}
+        add_uid(player.get('game_uid'))
+    except Exception:
+        pass
 
 print('COLLECTOR_DIRECT_CANDIDATES='+str(len(uids)))
 if not uids:
     print('COLLECTOR_DIRECT_RETURNED=0')
     print('COLLECTOR_DIRECT_CACHE_ACCEPTED=0')
+    print('COLLECTOR_DIRECT_FAILED_BATCHES=0')
     raise SystemExit(0)
 
 native='/opt/wfgg-collector/bin/radar-native-template'
@@ -91,6 +108,6 @@ with open(sys.argv[1],encoding='utf-8') as f: d=json.load(f)
 print(json.dumps(d,separators=(',',':')),end='')
 PY
 )"
-printf '%s' "$PAYLOAD" | ssh "${SSH_OPTS[@]}" -T "$REMOTE" python3 "$REMOTE_HELPER" "$CYCLE_ID"
+printf '%s' "$PAYLOAD" | ssh "${SSH_OPTS[@]}" -T "$REMOTE" python3 "$REMOTE_HELPER" "$CYCLE_ID" "$SEARCH_QUERY"
 unset PAYLOAD
 ssh "${SSH_OPTS[@]}" -T "$REMOTE" rm -f "$REMOTE_HELPER" </dev/null >/dev/null 2>&1 || true
