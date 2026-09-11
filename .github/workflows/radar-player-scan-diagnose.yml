@@ -25,9 +25,11 @@ jobs:
           base64 -d .radar-release-src/player-scan-v2.patch | gzip -dc > /tmp/player-scan-v2.patch
           cd /tmp/wfgg-radar
           git apply /tmp/player-scan-v2.patch
-          echo '=== WORKER ROUTES / SEARCH ==='
-          grep -RniE 'radar/search|search.*radar|player.*scan|scan.*player|saveRadarPlayerObservations|LASTWAR_NATIVE_SCAN_SEED' src public connector-go | head -n 240 || true
-          echo '=== UI FETCH CALLS ==='
-          grep -RniE 'fetch\(|/api/' public | head -n 240 || true
-          echo '=== ADAPTER / TRANSPORT ==='
-          grep -RniE 'scanPlayer|searchPlayer|playerScan|ScanPlayer|map.*scan|LASTWAR_MAP_SCAN' src connector-go | head -n 240 || true
+          echo '=== WORKER SEARCH ROUTE ==='
+          sed -n '120,165p' src/worker.js
+          echo '=== UI SEARCH HANDLER ==='
+          sed -n '74,96p' public/app.js
+          echo '=== NATIVE SCAN EXEC ==='
+          sed -n '79,180p' connector-go/internal/protocol/native_template.go
+          echo '=== TEMPLATE SCAN CORE ==='
+          sed -n '500,570p' connector-go/native-template/main.go
