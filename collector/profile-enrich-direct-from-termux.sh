@@ -25,14 +25,29 @@ trap 'rm -rf "$TMP"' EXIT INT TERM
 HELPER="$TMP/profile-enrich-direct.py"
 
 cat >"$HELPER" <<'PY'
-import json,os,subprocess,sys,tempfile,urllib.request,urllib.parse
+import json,os,sqlite3,subprocess,sys,tempfile,urllib.request,urllib.parse
 cycle_id=int(sys.argv[1])
 search_query=str(sys.argv[2] if len(sys.argv)>2 else '').strip()
 raw=sys.stdin.read()
 incoming=json.loads(raw)
 
-with urllib.request.urlopen(f'http://127.0.0.1:8790/cycle/changes?id={cycle_id}&limit=2000',timeout=10) as r:
-    changes=json.load(r).get('changes',[])
+db_path='/opt/wfgg-collector/data/collector.db'
+conn=sqlite3.connect(db_path,timeout=20)
+conn.row_factory=sqlite3.Row
+try:
+    cy=conn.execute('SELECT started_at FROM cycles WHERE id=?',(cycle_id,)).fetchone()
+    if not cy:
+        raise SystemExit('CYCLE_NOT_FOUND')
+    rows=conn.execute('''
+      SELECT p.game_uid
+      FROM players p
+      LEFT JOIN cycle_baseline b ON b.cycle_id=? AND b.game_uid=p.game_uid
+      WHERE p.last_seen>=?
+        AND (b.game_uid IS NULL OR COALESCE(p.state_hash,'')<>COALESCE(b.state_hash,''))
+      ORDER BY p.game_uid
+    ''',(cycle_id,cy['started_at'])).fetchall()
+finally:
+    conn.close()
 
 uids=[]; seen=set()
 def add_uid(uid):
@@ -40,8 +55,8 @@ def add_uid(uid):
     if uid and uid.isdigit() and uid not in seen:
         seen.add(uid); uids.append(uid)
 
-for row in changes:
-    add_uid(row.get('game_uid'))
+for row in rows:
+    add_uid(row['game_uid'])
 
 # A SEARCH cycle always refreshes the requested player's profile after the map pass,
 # even when its map-visible fields did not change during this cycle.
