@@ -1,0 +1,42 @@
+#!/usr/bin/env python3
+from pathlib import Path
+
+ROOT = Path('/tmp/wfgg-radar')
+MAIN = ROOT / 'connector-go/native-template/main.go'
+PROTO = ROOT / 'connector-go/internal/protocol/native_template.go'
+V4_SRC = Path('.radar-release-src/v4-source/connector-go/native-template/player_scan_v4.go')
+V4_DST = ROOT / 'connector-go/native-template/player_scan_v4.go'
+
+
+def replace_once(text: str, old: str, new: str, label: str) -> str:
+    count = text.count(old)
+    if count != 1:
+        raise SystemExit(f'{label}: expected exactly 1 match, got {count}')
+    return text.replace(old, new, 1)
+
+
+text = MAIN.read_text(encoding='utf-8')
+
+text = replace_once(text, '''\tif scanMode {\n\t\tmapTemplates, profileTemplate = findPlayerScanV3Templates(convs, server)\n\t\tif len(mapTemplates) > 0 {\n\t\t\tscanCommand = v3MapCommand\n\t\t\tif profileTemplate != nil {\n\t\t\t\tscanCommand += "+" + v3ProfileCommand\n\t\t\t}\n\t\t}\n\t}\n''', '''\tif scanMode {\n\t\tmapTemplates, profileTemplate = findPlayerScanV3Templates(convs, server)\n\t\tscanCommand = v3MapCommand + "(synthetic-v4)"\n\t\tif len(mapTemplates) > 0 {\n\t\t\tscanCommand = v3MapCommand + "(captured-v3)"\n\t\t}\n\t\tif profileTemplate != nil {\n\t\t\tscanCommand += "+" + v3ProfileCommand\n\t\t}\n\t}\n''', 'v4 scan discovery')
+
+text = replace_once(text, '''\tif scanMode && len(mapTemplates) > 0 {\n\t\tbase.ScanTemplateFound = true\n\t}\n\tif scanMode && !base.ScanTemplateFound {\n\t\tbase.LoginResponse = "PLAYER_SCAN_TEMPLATE_NOT_FOUND"\n\t\temit(base)\n\t\tos.Exit(5)\n\t}\n''', '''\tif scanMode {\n\t\t// V4 can synthesize world.get.block from the documented wire format, so\n\t\t// absence of a captured map request is no longer a deployment gate.\n\t\tbase.ScanTemplateFound = true\n\t}\n''', 'v4 template gate')
+
+text = replace_once(text,
+    '\tplayers, err := runPlayerScanV3(conn, convs, server, mapTemplates, profileTemplate, query, serverID)\n',
+    '\tplayers, err := runPlayerScanV4(conn, convs, server, mapTemplates, profileTemplate, query, serverID)\n',
+    'v4 scan call')
+
+text = text.replace('native-template-readonly-v3', 'native-template-readonly-v4')
+MAIN.write_text(text, encoding='utf-8')
+
+ptext = PROTO.read_text(encoding='utf-8')
+ptext = ptext.replace('native-template-readonly-v3', 'native-template-readonly-v4')
+PROTO.write_text(ptext, encoding='utf-8')
+
+if not V4_SRC.is_file():
+    raise SystemExit(f'v4 helper missing: {V4_SRC}')
+V4_DST.write_text(V4_SRC.read_text(encoding='utf-8'), encoding='utf-8')
+
+print('PLAYER_SCAN_V4_PATCH=OK')
+print('PLAYER_SCAN_V4_MODE=native-template-readonly-v4')
+print('PLAYER_SCAN_V4_STRATEGY=synthetic-world.get.block+get.user.info.multi')
