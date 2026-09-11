@@ -34,25 +34,42 @@ jobs:
           echo '234df1dec57f6211bc625855bf13350c9f17fbd843fbe92d8cf1ab7cb5c081ef  /tmp/radar-src.tar.gz' | sha256sum -c -
           tar -xzf /tmp/radar-src.tar.gz -C /tmp/wfgg-radar
 
-      - name: Apply async auth fault-containment hotfix
+      - name: Apply runtime auth hotfixes
         working-directory: /tmp/wfgg-radar
         run: |
           set -euo pipefail
           python3 - <<'PY'
           from pathlib import Path
+
+          # 1) Keep async authentication failures inside the Worker try/catch.
           p = Path('src/worker.js')
           s = p.read_text()
           old = "if (url.pathname === '/api/auth/game-token' && request.method === 'POST') return authenticateGameToken(request, env);"
           new = "if (url.pathname === '/api/auth/game-token' && request.method === 'POST') return await authenticateGameToken(request, env);"
           if new not in s:
               if old not in s:
-                  raise SystemExit('AUTH_HOTFIX_TARGET_NOT_FOUND')
+                  raise SystemExit('AUTH_AWAIT_HOTFIX_TARGET_NOT_FOUND')
               s = s.replace(old, new, 1)
               p.write_text(s)
           print('AUTH_ASYNC_REJECTION_CONTAINMENT=OK')
+
+          # 2) Cloudflare Workers native fetch is receiver-sensitive. Do not store
+          #    the raw global fetch function and later invoke it as this.fetchImpl().
+          p = Path('src/game/remote-transport.js')
+          s = p.read_text()
+          old = "constructor({ baseUrl, sharedKey, timeoutMs = 65000, fetchImpl = fetch } = {}) {"
+          new = "constructor({ baseUrl, sharedKey, timeoutMs = 65000, fetchImpl = (...args) => globalThis.fetch(...args) } = {}) {"
+          if new not in s:
+              if old not in s:
+                  raise SystemExit('FETCH_BINDING_HOTFIX_TARGET_NOT_FOUND')
+              s = s.replace(old, new, 1)
+              p.write_text(s)
+          print('REMOTE_FETCH_RECEIVER_BINDING=OK')
           PY
           node --check src/worker.js
+          node --check src/game/remote-transport.js
           grep -Fq "return await authenticateGameToken(request, env);" src/worker.js
+          grep -Fq "fetchImpl = (...args) => globalThis.fetch(...args)" src/game/remote-transport.js
 
       - name: Run Guardian regression gate
         working-directory: /tmp/wfgg-radar
@@ -142,4 +159,32 @@ jobs:
           assert d.get('version') == '0.5.0'
           assert d.get('gameConnector') == 'configured'
           print('RADAR_RUNTIME_HOTFIX=OK')
+          PY
+
+      - name: Guardian auth transport smoke test
+        env:
+          RADAR_URL: https://wfgg-radar.${{ steps.cf.outputs.subdomain }}.workers.dev
+        run: |
+          set -euo pipefail
+          body="$(printf '{\"token\":\"guardian-invalid-token-%s\"}' "$GITHUB_RUN_ID")"
+          code="$(curl -sS --max-time 75 -o /tmp/auth-smoke.txt -w '%{http_code}' \
+            -H 'content-type: application/json' \
+            -H 'accept: application/json' \
+            -H 'user-agent: Mozilla/5.0 (Linux; Android 16) AppleWebKit/537.36 Chrome/140 Mobile Safari/537.36' \
+            --data "$body" \
+            "$RADAR_URL/api/auth/game-token")"
+          echo "AUTH_SMOKE_HTTP=$code"
+          python3 - <<'PY'
+          import json
+          raw=open('/tmp/auth-smoke.txt',encoding='utf-8',errors='replace').read()
+          assert 'Illegal invocation' not in raw, raw[:300]
+          assert 'error code: 1101' not in raw, raw[:300]
+          try:
+              data=json.loads(raw)
+          except Exception:
+              raise SystemExit('AUTH_SMOKE_NON_JSON=' + raw[:300])
+          assert isinstance(data, dict)
+          assert data.get('error') or data.get('ok') is True
+          print('AUTH_TRANSPORT_RECEIVER=OK')
+          print('AUTH_SMOKE_JSON=OK')
           PY
