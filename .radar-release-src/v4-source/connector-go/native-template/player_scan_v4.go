@@ -134,7 +134,7 @@ func syntheticMapSweepV4(conn net.Conn, query, fallbackServer, observedAt string
 					return nil, errors.New("PLAYER_SCAN_SYNTHETIC_DEADLINE_FAILED")
 				}
 				if _, err := conn.Write(frame); err != nil {
-					if ne, ok := err.(net.Error); ok && ne.Timeout() {
+					if isTimeoutV4(err) {
 						return nil, fmt.Errorf("PLAYER_SCAN_SYNTHETIC_WRITE_TIMEOUT:origin=%d,%d:writes=%d", ox, oy, writesThisOrigin)
 					}
 					return nil, fmt.Errorf("PLAYER_SCAN_SYNTHETIC_WRITE_FAILED:%T:%v:origin=%d,%d:writes=%d", err, err, ox, oy, writesThisOrigin)
@@ -153,7 +153,7 @@ func syntheticMapSweepV4(conn net.Conn, query, fallbackServer, observedAt string
 		for i := 0; i < 600; i++ {
 			rb, err := sfs.ReadPacket(conn)
 			if err != nil {
-				if ne, ok := err.(net.Error); ok && ne.Timeout() {
+				if isTimeoutV4(err) {
 					break
 				}
 				return nil, fmt.Errorf("PLAYER_SCAN_SYNTHETIC_READ_FAILED:%T:%v:origin=%d,%d:writes=%d:reads=%d", err, err, ox, oy, writesThisOrigin, i)
@@ -222,6 +222,11 @@ func blockIndexesV4(x0, y0, x1, y1 int) []int32 {
 		}
 	}
 	return out
+}
+
+func isTimeoutV4(err error) bool {
+	var ne net.Error
+	return errors.As(err, &ne) && ne.Timeout()
 }
 
 func minTimeV4(a, b time.Time) time.Time {
