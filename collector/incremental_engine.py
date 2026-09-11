@@ -31,8 +31,32 @@ def hash_state(p):
     return hashlib.sha256(json_state(p).encode()).hexdigest()
 
 
+def classify_change(before,after):
+    if not before:
+        return 'NEW'
+    old_server=str(before.get('server_id') or '')
+    new_server=str(after.get('server_id') or '')
+    if old_server and new_server and old_server != new_server:
+        return 'SERVER_TRANSFER'
+    if (before.get('alliance_id') or '') != (after.get('alliance_id') or '') or \
+       (before.get('alliance_tag') or '') != (after.get('alliance_tag') or ''):
+        return 'ALLIANCE_CHANGE'
+    if (before.get('pseudo') or '') != (after.get('pseudo') or ''):
+        return 'PSEUDO_CHANGE'
+    if before.get('x') != after.get('x') or before.get('y') != after.get('y'):
+        return 'RELOCATED'
+    if before.get('hq_level') != after.get('hq_level'):
+        return 'HQ_CHANGE'
+    if before.get('power') != after.get('power'):
+        return 'POWER_CHANGE'
+    return 'UPDATED'
+
+
 def ensure_schema(c):
     ensure_column(c,'players','state_hash','TEXT')
+    # Legacy columns are retained for compatibility only. Absence from a scan is
+    # deliberately a non-event: known players are never retired just because a
+    # sweep did not see them.
     ensure_column(c,'players','missing_count','INTEGER NOT NULL DEFAULT 0')
     ensure_column(c,'players','status',"TEXT NOT NULL DEFAULT 'ACTIVE'")
     ensure_column(c,'players','last_change_cycle','INTEGER')
@@ -68,6 +92,7 @@ def ensure_schema(c):
     );
     CREATE INDEX IF NOT EXISTS idx_cycle_changes_cycle ON cycle_changes(cycle_id,id);
     ''')
+    c.execute("UPDATE players SET status='ACTIVE',missing_count=0 WHERE status!='ACTIVE' OR missing_count!=0")
     rows=c.execute('SELECT * FROM players WHERE state_hash IS NULL OR state_hash=""').fetchall()
     for r in rows:
         c.execute('UPDATE players SET state_hash=? WHERE game_uid=?',(hash_state(row_state(r)),r['game_uid']))
@@ -84,7 +109,6 @@ def upsert(c,p,cycle_id=None):
     old_hash=(old['state_hash'] if old else None) or (hash_state(old_state) if old else None)
     is_new=old is None
     changed=is_new or old_hash!=new_hash
-    reactivated=bool(old and old['status']!='ACTIVE')
     has_profile=p.get('power') is not None
     last_enriched=p['observed_at'] if has_profile else (old['last_enriched'] if old else None)
     c.execute('''
@@ -99,13 +123,13 @@ def upsert(c,p,cycle_id=None):
         last_enriched=COALESCE(excluded.last_enriched,players.last_enriched)
     ''',(p['game_uid'],effective['pseudo'],effective['server_id'],effective['alliance_id'],effective['alliance_tag'],
       effective['x'],effective['y'],effective['hq_level'],effective['power'],p['observed_at'],p['observed_at'],
-      new_hash,0,'ACTIVE',cycle_id if changed or reactivated else None,last_enriched,p.get('power'),1 if changed or reactivated else 0))
+      new_hash,0,'ACTIVE',cycle_id if changed else None,last_enriched,p.get('power'),1 if changed else 0))
     if cycle_id is not None:
         c.execute('''INSERT INTO cycle_seen(cycle_id,game_uid,state_hash,enriched) VALUES(?,?,?,?)
           ON CONFLICT(cycle_id,game_uid) DO UPDATE SET state_hash=excluded.state_hash,
           enriched=MAX(cycle_seen.enriched,excluded.enriched)''',(cycle_id,p['game_uid'],new_hash,1 if has_profile else 0))
-        if changed or reactivated:
-            kind='NEW' if is_new else ('UPDATED' if changed else 'REACTIVATED')
+        if changed:
+            kind=classify_change(old_state,new_state)
             c.execute('''INSERT INTO cycle_changes(cycle_id,game_uid,change_type,before_json,after_json,changed_at)
               VALUES(?,?,?,?,?,?)''',(cycle_id,p['game_uid'],kind,json_state(old_state) if old_state else None,
               json_state(new_state),p['observed_at']))
@@ -144,7 +168,7 @@ def finish_cycle(c,cycle_id,status='SUCCESS',error=''):
         b=baseline.get(r['game_uid'])
         if b is None:
             new_uids.append(r['game_uid'])
-        elif (r['state_hash'] or hash_state(row_state(r)))!=b['state_hash'] or r['status']!='ACTIVE':
+        elif (r['state_hash'] or hash_state(row_state(r)))!=b['state_hash']:
             changed_uids.append(r['game_uid'])
 
     already={r[0] for r in c.execute('SELECT game_uid FROM cycle_changes WHERE cycle_id=?',(cycle_id,)).fetchall()}
@@ -156,26 +180,17 @@ def finish_cycle(c,cycle_id,status='SUCCESS',error=''):
     for uid in changed_uids:
         if uid in already: continue
         r=c.execute('SELECT * FROM players WHERE game_uid=?',(uid,)).fetchone(); b=baseline[uid]
+        before=json.loads(b['state_json']); after=row_state(r)
         c.execute('''INSERT INTO cycle_changes(cycle_id,game_uid,change_type,before_json,after_json,changed_at)
-          VALUES(?,?,?,?,?,?)''',(cycle_id,uid,'UPDATED',b['state_json'],json_state(row_state(r)),r['last_seen']))
+          VALUES(?,?,?,?,?,?)''',(cycle_id,uid,classify_change(before,after),b['state_json'],json_state(after),r['last_seen']))
         c.execute('UPDATE players SET last_change_cycle=? WHERE game_uid=?',(cycle_id,uid))
 
-    missing_uids=[uid for uid in baseline if uid not in seen_uids]
-    if status=='SUCCESS':
-        for uid in missing_uids:
-            r=c.execute('SELECT * FROM players WHERE game_uid=?',(uid,)).fetchone()
-            if not r: continue
-            n=int(r['missing_count'] or 0)+1; st='INACTIVE' if n>=3 else r['status']
-            if st!=r['status']:
-                js=json_state(row_state(r))
-                c.execute('''INSERT INTO cycle_changes(cycle_id,game_uid,change_type,before_json,after_json,changed_at)
-                  VALUES(?,?,?,?,?,?)''',(cycle_id,uid,'INACTIVE',js,js,now_iso()))
-            c.execute('UPDATE players SET missing_count=?,status=? WHERE game_uid=?',(n,st,uid))
-        if seen_uids:
-            c.executemany("UPDATE players SET missing_count=0,status='ACTIVE' WHERE game_uid=?",((u,) for u in seen_uids))
-
+    # Deliberate rule: NOT SEEN is not a player-state change. We preserve the last
+    # known record indefinitely. This protects us from partial sweeps and matches
+    # Last War behaviour where an abandoned city can remain on the world map.
+    missing=0
     enriched=c.execute('SELECT COUNT(*) FROM players WHERE last_enriched>=?',(cy['started_at'],)).fetchone()[0]
-    seen=len(seen_uids); new=len(new_uids); changed=len(changed_uids); missing=len(missing_uids)
+    seen=len(seen_uids); new=len(new_uids); changed=len(changed_uids)
     c.execute('''UPDATE cycles SET finished_at=?,status=?,players_seen=?,new_players=?,changed_players=?,
       unchanged_players=?,missing_players=?,enriched_players=?,error=? WHERE id=?''',(
       now_iso(),status,seen,new,changed,max(0,seen-new-changed),missing,enriched,(error or '')[:500],cycle_id))
