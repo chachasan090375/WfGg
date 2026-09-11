@@ -1,0 +1,121 @@
+name: Radar player scan v4 build
+
+on:
+  push:
+    branches: [radar-production-v1]
+    paths:
+      - '.github/workflows/radar-player-scan-v4-build.yml'
+      - '.github/scripts/patch-player-scan-v4.py'
+      - '.radar-release-src/v4-source/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: wfgg-radar-player-scan-v4-build
+  cancel-in-progress: false
+
+env:
+  LASTWAR_CLIENT_REF: ee5f64de160a8051c2f9f98189b75038dd225a0a
+
+jobs:
+  build-publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Reconstruct Radar V0.5 plus player scan v2 base
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/wfgg-radar
+          mkdir -p /tmp/wfgg-radar
+          python3 .github/scripts/reconstruct-radar-release.py
+          echo '234df1dec57f6211bc625855bf13350c9f17fbd843fbe92d8cf1ab7cb5c081ef  /tmp/radar-src.tar.gz' | sha256sum -c -
+          tar -xzf /tmp/radar-src.tar.gz -C /tmp/wfgg-radar
+          base64 -d .radar-release-src/player-scan-v2.patch | gzip -dc > /tmp/player-scan-v2.patch
+          cd /tmp/wfgg-radar
+          git apply --check /tmp/player-scan-v2.patch
+          git apply /tmp/player-scan-v2.patch
+          echo PLAYER_SCAN_V2_BASE=OK
+
+      - name: Apply v3 response decoder base
+        run: |
+          set -euo pipefail
+          python3 .github/scripts/patch-player-scan-v3.py
+          echo PLAYER_SCAN_V3_BASE=OK
+
+      - name: Upgrade native scan engine to v4 synthetic map requests
+        run: |
+          set -euo pipefail
+          python3 .github/scripts/patch-player-scan-v4.py
+          grep -Fq 'native-template-readonly-v4' /tmp/wfgg-radar/connector-go/native-template/main.go
+          grep -Fq 'runPlayerScanV4' /tmp/wfgg-radar/connector-go/native-template/main.go
+          grep -Fq 'syntheticMapSweepV4' /tmp/wfgg-radar/connector-go/native-template/player_scan_v4.go
+          grep -Fq 'v4IntArrayTag byte = 12' /tmp/wfgg-radar/connector-go/native-template/player_scan_v4.go
+          ! grep -Fq 'PLAYER_SCAN_TEMPLATE_NOT_FOUND' /tmp/wfgg-radar/connector-go/native-template/main.go
+          echo PLAYER_SCAN_V4_SOURCE=OK
+
+      - name: Guardian regression gate
+        working-directory: /tmp/wfgg-radar
+        run: |
+          set -euo pipefail
+          node --check src/worker.js
+          node --check src/game/remote-transport.js
+          node --check src/game/lastwar-adapter.js
+          node --check src/db/repository.js
+          npm test
+          npm run check
+          cd connector-go
+          gofmt -w internal/protocol/native_template.go native-template/main.go native-template/player_scan_v3.go native-template/player_scan_v4.go
+          go test ./...
+          go vet ./...
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w' -o /tmp/radar-connector ./cmd/radar-connector
+          test -s /tmp/radar-connector
+          echo GUARDIAN_V4=OK
+
+      - name: Build native Last War READONLY v4 template
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/lastwar-client
+          git clone --filter=blob:none --no-checkout https://github.com/ljagiello/lastwar-client.git /tmp/lastwar-client
+          cd /tmp/lastwar-client
+          git fetch --depth 1 origin "$LASTWAR_CLIENT_REF"
+          git checkout --detach FETCH_HEAD
+          mkdir -p cmd/wfgg-radar-native-template
+          cp /tmp/wfgg-radar/connector-go/native-template/main.go cmd/wfgg-radar-native-template/main.go
+          cp /tmp/wfgg-radar/connector-go/native-template/player_scan_v3.go cmd/wfgg-radar-native-template/player_scan_v3.go
+          cp /tmp/wfgg-radar/connector-go/native-template/player_scan_v4.go cmd/wfgg-radar-native-template/player_scan_v4.go
+          gofmt -w cmd/wfgg-radar-native-template/main.go cmd/wfgg-radar-native-template/player_scan_v3.go cmd/wfgg-radar-native-template/player_scan_v4.go
+          go test ./internal/auth ./internal/pcap ./internal/sfs
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -tags lastwar_native_template -trimpath -ldflags='-s -w' -o /tmp/radar-native-template ./cmd/wfgg-radar-native-template
+          test -s /tmp/radar-native-template
+          strings /tmp/radar-native-template | grep -Fq 'native-template-readonly-v4'
+          strings /tmp/radar-native-template | grep -Fq 'synthetic-v4'
+          strings /tmp/radar-native-template | grep -Fq 'world.get.block'
+          strings /tmp/radar-native-template | grep -Fq 'get.user.info.multi'
+          echo NATIVE_TEMPLATE_V4_BUILD=OK
+
+      - name: Publish VPS v4 binaries
+        run: |
+          set -euo pipefail
+          cp /tmp/radar-connector radar-vps/release/radar-connector
+          cp /tmp/radar-native-template radar-vps/release/radar-native-template
+          chmod 0755 radar-vps/release/radar-connector radar-vps/release/radar-native-template
+          (
+            cd radar-vps/release
+            sha256sum radar-connector radar-native-template > SHA256SUMS
+          )
+          git config user.name 'WfGg Radar CI'
+          git config user.email 'radar-ci@users.noreply.github.com'
+          git add radar-vps/release/radar-connector radar-vps/release/radar-native-template radar-vps/release/SHA256SUMS
+          if git diff --cached --quiet; then
+            echo RELEASE_BINARIES_UNCHANGED=YES
+          else
+            git commit -m 'build(radar): publish synthetic READONLY player scan v4 binaries'
+            git push origin HEAD:radar-production-v1
+            echo RELEASE_BINARIES_PUBLISHED=YES
+          fi
