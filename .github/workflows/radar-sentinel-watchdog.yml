@@ -54,8 +54,8 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          gh workflow run radar-runtime-hotfix.yml --ref radar-production-v1
-          echo 'SENTINEL_RECOVERY=DISPATCHED'
+          gh workflow run radar-runtime-recovery-v2.yml --ref radar-production-v1
+          echo 'SENTINEL_RECOVERY_V2=DISPATCHED'
 
       - name: Report Sentinel status
         run: |
