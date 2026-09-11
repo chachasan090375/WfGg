@@ -37,8 +37,6 @@ func runPlayerScanV4(conn net.Conn, convs []pcap.Conversation, server pcap.Endpo
 	}
 	observedAt := time.Now().UTC().Format(time.RFC3339Nano)
 
-	// Prefer evidence already present in the capture. If a future capture contains
-	// real map templates, V3's exact replay remains a valid fast path.
 	players := scanCapturedMapV3(convs, server, query, fallbackServer, observedAt)
 	if len(players) == 0 && len(mapTemplates) > 0 {
 		var err error
@@ -48,9 +46,6 @@ func runPlayerScanV4(conn net.Conn, convs []pcap.Conversation, server pcap.Endpo
 		}
 	}
 
-	// Current phone captures contain no world.get.block request at all. Build the
-	// request from the SFS envelope and documented map geometry instead of asking
-	// the user for another VPN/PCAP capture.
 	if len(players) == 0 {
 		var err error
 		players, err = syntheticMapSweepV4(conn, query, fallbackServer, observedAt)
@@ -89,10 +84,6 @@ func syntheticMapSweepV4(conn net.Conn, query, fallbackServer, observedAt string
 		return nil, errors.New("PLAYER_SCAN_SERVER_ID_INVALID")
 	}
 
-	// The world request coordinate space is 3000x3000 and each server occupies a
-	// 1000x1000 square. Probe the centre square first, then the eight remaining
-	// squares. The whole sweep is deliberately bounded so the connector's HTTP
-	// request cannot time out while the native process keeps scanning in the VPS.
 	origins := [][2]int{
 		{1000, 1000},
 		{0, 0}, {1000, 0}, {2000, 0},
@@ -102,8 +93,6 @@ func syntheticMapSweepV4(conn net.Conn, query, fallbackServer, observedAt string
 
 	seen := map[string]bool{}
 	out := make([]playerReport, 0, 4)
-	// Captured request replay in V3 deliberately keeps _id in a 30-bit range.
-	// Keep synthetic requests in the same range instead of sending Unix-millis.
 	requestID := time.Now().UnixNano() & 0x3fffffff
 	sweepDeadline := time.Now().Add(v4SweepBudget)
 	defer conn.SetDeadline(time.Time{})
@@ -115,8 +104,6 @@ func syntheticMapSweepV4(conn net.Conn, query, fallbackServer, observedAt string
 		ox, oy := origin[0], origin[1]
 		writesThisOrigin := 0
 
-		// 320x200 gives at most 16x10 = 160 block ids and covers one
-		// 1000x1000 server square in 20 READONLY requests.
 		for y0 := oy; y0 < oy+v4ServerSize; y0 += v4WindowHeight {
 			y1 := minV4(y0+v4WindowHeight-1, oy+v4ServerSize-1)
 			for x0 := ox; x0 < ox+v4ServerSize; x0 += v4WindowWidth {
@@ -144,8 +131,6 @@ func syntheticMapSweepV4(conn net.Conn, query, fallbackServer, observedAt string
 			}
 		}
 
-		// Responses normally arrive as a burst. Give each candidate square a short
-		// idle window, but never beyond the global sweep budget.
 		readDeadline := minTimeV4(sweepDeadline, time.Now().Add(v4OriginIdle))
 		if err := conn.SetReadDeadline(readDeadline); err != nil {
 			return nil, errors.New("PLAYER_SCAN_SYNTHETIC_DEADLINE_FAILED")
@@ -162,10 +147,11 @@ func syntheticMapSweepV4(conn net.Conn, query, fallbackServer, observedAt string
 			if err != nil {
 				continue
 			}
-			cmd, ok := extensionCommand(obj)
-			if !ok || cmd != v3MapCommand {
-				continue
-			}
+
+			// Decode the payload itself instead of requiring the server to echo
+			// world.get.block as the response command. The V3 collector is strict:
+			// only protobuf world-point blobs that decode as player cities and whose
+			// pseudo exactly matches the query are accepted.
 			collectMapPlayersV3(obj, query, fallbackServer, observedAt, &out, seen, 0, 1000, fallbackServer)
 			if len(out) > 0 {
 				return out, nil
@@ -184,8 +170,6 @@ func buildMapFrameV4(serverID, x0, y0, x1, y1 int, requestID int64) ([]byte, err
 	params.PutInt("worldId", 0)
 	params.PutInt("type", 0)
 	params.PutInt("viewLvl", v4ViewLevel)
-	// A zero sync token asks for the current contents rather than deltas from a
-	// prior camera pass; there is deliberately no persisted scan state on the VPS.
 	params.PutLong("timeStamp", 0)
 	params.PutInt("blockSize", v4BlockSize)
 	params.PutValue("index", sfs.SFSValue{Type: v4IntArrayTag, Val: blockIndexesV4(x0, y0, x1, y1)})
