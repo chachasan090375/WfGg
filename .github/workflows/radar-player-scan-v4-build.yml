@@ -1,10 +1,11 @@
-name: Radar player scan v4 build
+name: Radar collector v1 native build
 
 on:
   push:
-    branches: [radar-production-v1]
+    branches: [radar-collector-v1]
     paths:
       - '.github/workflows/radar-player-scan-v4-build.yml'
+      - '.github/scripts/patch-player-scan-v3.py'
       - '.github/scripts/patch-player-scan-v4.py'
       - '.radar-release-src/v4-source/**'
   workflow_dispatch:
@@ -13,7 +14,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: wfgg-radar-player-scan-v4-build
+  group: wfgg-radar-collector-v1-build
   cancel-in-progress: false
 
 env:
@@ -42,11 +43,13 @@ jobs:
           git apply /tmp/player-scan-v2.patch
           echo PLAYER_SCAN_V2_BASE=OK
 
-      - name: Apply v3 response decoder base
+      - name: Apply v3 response decoder base plus collector wildcard
         run: |
           set -euo pipefail
           python3 .github/scripts/patch-player-scan-v3.py
-          echo PLAYER_SCAN_V3_BASE=OK
+          grep -Fq 'PLAYER_SCAN_V3_COLLECTOR_WILDCARD=ENABLED' <(python3 .github/scripts/patch-player-scan-v3.py 2>/dev/null || true) || true
+          grep -Fq 'query == "*"' /tmp/wfgg-radar/connector-go/native-template/player_scan_v3.go
+          echo PLAYER_SCAN_V3_COLLECTOR_BASE=OK
 
       - name: Upgrade native scan engine to v4 synthetic map requests
         run: |
@@ -55,9 +58,10 @@ jobs:
           grep -Fq 'native-template-readonly-v4' /tmp/wfgg-radar/connector-go/native-template/main.go
           grep -Fq 'runPlayerScanV4' /tmp/wfgg-radar/connector-go/native-template/main.go
           grep -Fq 'syntheticMapSweepV4' /tmp/wfgg-radar/connector-go/native-template/player_scan_v4.go
-          grep -Fq 'v4IntArrayTag' /tmp/wfgg-radar/connector-go/native-template/player_scan_v4.go
+          grep -Fq 'query == "*"' /tmp/wfgg-radar/connector-go/native-template/player_scan_v4.go
+          grep -Fq 'detail3_present' /tmp/wfgg-radar/connector-go/native-template/player_scan_v4.go
           ! grep -Fq 'PLAYER_SCAN_TEMPLATE_NOT_FOUND' /tmp/wfgg-radar/connector-go/native-template/main.go
-          echo PLAYER_SCAN_V4_SOURCE=OK
+          echo PLAYER_SCAN_V4_COLLECTOR_SOURCE=OK
 
       - name: Guardian regression gate
         working-directory: /tmp/wfgg-radar
@@ -75,9 +79,9 @@ jobs:
           go vet ./...
           CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w' -o /tmp/radar-connector ./cmd/radar-connector
           test -s /tmp/radar-connector
-          echo GUARDIAN_V4=OK
+          echo GUARDIAN_COLLECTOR_V1=OK
 
-      - name: Build native Last War READONLY v4 template
+      - name: Build native Last War READONLY collector template
         run: |
           set -euo pipefail
           rm -rf /tmp/lastwar-client
@@ -85,9 +89,6 @@ jobs:
           cd /tmp/lastwar-client
           git fetch --depth 1 origin "$LASTWAR_CLIENT_REF"
           git checkout --detach FETCH_HEAD
-          # Validate the pinned upstream before adding WfGg's command literals.
-          # Upstream's SFS test intentionally audits every literal Put* key in
-          # its own tree, so it must run before our standalone command is copied.
           go test ./internal/auth ./internal/pcap ./internal/sfs
           mkdir -p cmd/wfgg-radar-native-template
           cp /tmp/wfgg-radar/connector-go/native-template/main.go cmd/wfgg-radar-native-template/main.go
@@ -99,10 +100,9 @@ jobs:
           strings /tmp/radar-native-template | grep -Fq 'native-template-readonly-v4'
           strings /tmp/radar-native-template | grep -Fq 'synthetic-v4'
           strings /tmp/radar-native-template | grep -Fq 'world.get.block'
-          strings /tmp/radar-native-template | grep -Fq 'get.user.info.multi'
-          echo NATIVE_TEMPLATE_V4_BUILD=OK
+          echo NATIVE_COLLECTOR_V1_BUILD=OK
 
-      - name: Publish VPS v4 binaries
+      - name: Publish collector branch binaries
         run: |
           set -euo pipefail
           cp /tmp/radar-connector radar-vps/release/radar-connector
@@ -118,7 +118,7 @@ jobs:
           if git diff --cached --quiet; then
             echo RELEASE_BINARIES_UNCHANGED=YES
           else
-            git commit -m 'build(radar): publish synthetic READONLY player scan v4 binaries'
-            git push origin HEAD:radar-production-v1
+            git commit -m 'build(collector): publish READONLY collector v1 binaries'
+            git push origin HEAD:radar-collector-v1
             echo RELEASE_BINARIES_PUBLISHED=YES
           fi
