@@ -25,21 +25,15 @@ jobs:
           python3 .github/scripts/reconstruct-radar-release.py
           tar -xzf /tmp/radar-src.tar.gz -C /tmp/wfgg-radar
 
-      - name: Inspect snapshot and observation pipeline
+      - name: Inspect player scan path
         working-directory: /tmp/wfgg-radar
         run: |
           set -euo pipefail
-          echo '=== SCHEMA ==='
-          cat schema.sql
-          echo '=== REPOSITORY ==='
-          cat src/db/repository.js
-          echo '=== RADAR SERVICE ==='
-          cat src/radar/service.js
-          echo '=== LASTWAR ADAPTER ==='
-          cat src/game/lastwar-adapter.js
-          echo '=== ORCHESTRATOR ==='
-          cat src/agents/orchestrator.js
-          echo '=== ORACLE AGENT ==='
-          cat src/agents/oracle-agent.js
-          echo '=== WORKER SNAPSHOT/SEARCH SECTION ==='
-          sed -n '120,180p' src/worker.js
+          echo '=== REMOTE TRANSPORT ==='
+          cat src/game/remote-transport.js
+          echo '=== CONNECTOR INTERFACE ==='
+          cat src/game/connector.js
+          echo '=== CONNECTOR FILES ==='
+          find . -maxdepth 3 -type f | sort | grep -E 'connector|native|server|go$' || true
+          echo '=== SCAN REFERENCES ==='
+          grep -RniE 'scanPlayer|scan-player|player.scan|player/search|player.*query|radar_observations|INSERT INTO radar_observations' . --exclude='*.lock' || true
