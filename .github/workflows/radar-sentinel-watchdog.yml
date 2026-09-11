@@ -7,6 +7,8 @@ on:
     branches: [radar-production-v1]
     paths:
       - '.github/workflows/radar-sentinel-watchdog.yml'
+      - 'radar-vps/sentinel-vps-reconcile.sh'
+      - 'radar-vps/release/**'
   workflow_dispatch:
 
 permissions:
@@ -19,14 +21,18 @@ concurrency:
 
 env:
   RADAR_URL: https://wfgg-radar.chachasan090375.workers.dev
+  CONNECTOR_URL: https://chachavps.tail3ab05a.ts.net
+  RELEASE_BASE: https://raw.githubusercontent.com/chachasan090375/WfGg/radar-production-v1/radar-vps/release
 
 jobs:
   sentinel:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 8
     steps:
-      - name: Probe Radar from outside the Worker
-        id: probe
+      - uses: actions/checkout@v4
+
+      - name: Probe Radar core from outside the Worker
+        id: radar
         continue-on-error: true
         run: |
           set -euo pipefail
@@ -39,6 +45,9 @@ jobs:
           assert d.get('app') == 'wfgg-radar'
           assert d.get('version') == '0.5.0'
           assert d.get('gameConnector') == 'configured'
+          agents=d.get('agents') or {}
+          for name in ('oracle','sentinel','guardian','orchestrator'):
+              assert agents.get(name) == 'v0.5'
           print('SENTINEL_EXTERNAL_RADAR=OK')
           PY
               then exit 0; fi
@@ -48,8 +57,53 @@ jobs:
           echo 'SENTINEL_EXTERNAL_RADAR=FAILED'
           exit 1
 
-      - name: Dispatch known-good recovery deployment
-        if: steps.probe.outcome == 'failure'
+      - name: Probe ChaChaVPS connector surface
+        id: connector
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          for i in 1 2 3; do
+            code="$(curl -sS -o /tmp/connector.json -w '%{http_code}' --max-time 15 "$CONNECTOR_URL/v1/health" || true)"
+            if [ "$code" = 200 ]; then
+              echo 'SENTINEL_CONNECTOR=REACHABLE http=200'
+              exit 0
+            fi
+            if [ "$code" = 401 ] && python3 - <<'PY'
+          import json
+          try:
+              d=json.load(open('/tmp/connector.json'))
+          except Exception:
+              raise SystemExit(1)
+          raise SystemExit(0 if d.get('error') == 'CONNECTOR_AUTH_FAILED' else 1)
+          PY
+            then
+              echo 'SENTINEL_CONNECTOR=REACHABLE http=401 auth-gate=ok'
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "SENTINEL_CONNECTOR=FAILED http=${code:-000}"
+          exit 1
+
+      - name: Validate Guardian-published VPS release
+        id: release
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          bash -n radar-vps/sentinel-vps-reconcile.sh
+          tmp="$(mktemp -d)"
+          trap 'rm -rf "$tmp"' EXIT
+          curl -fsSL --max-time 20 "$RELEASE_BASE/SHA256SUMS" -o "$tmp/SHA256SUMS"
+          curl -fsSL --max-time 60 "$RELEASE_BASE/radar-connector" -o "$tmp/radar-connector"
+          curl -fsSL --max-time 60 "$RELEASE_BASE/radar-native-template" -o "$tmp/radar-native-template"
+          (cd "$tmp" && sha256sum -c SHA256SUMS)
+          grep -aFq 'native-template-readonly-v4' "$tmp/radar-native-template"
+          grep -aFq 'world.get.block' "$tmp/radar-native-template"
+          grep -aFq 'get.user.info.multi' "$tmp/radar-native-template"
+          echo 'SENTINEL_GUARDIAN_RELEASE=OK'
+
+      - name: Dispatch known-good Radar recovery deployment
+        if: steps.radar.outcome == 'failure'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -59,8 +113,18 @@ jobs:
 
       - name: Report Sentinel status
         run: |
-          if [ '${{ steps.probe.outcome }}' = 'success' ]; then
+          echo "RADAR=${{ steps.radar.outcome }}"
+          echo "CONNECTOR=${{ steps.connector.outcome }}"
+          echo "GUARDIAN_RELEASE=${{ steps.release.outcome }}"
+          if [ '${{ steps.radar.outcome }}' = 'success' ] && \
+             [ '${{ steps.connector.outcome }}' = 'success' ] && \
+             [ '${{ steps.release.outcome }}' = 'success' ]; then
             echo 'SENTINEL_EXTERNAL=HEALTHY'
-          else
-            echo 'SENTINEL_EXTERNAL=RECOVERY_REQUESTED'
+            exit 0
           fi
+          if [ '${{ steps.radar.outcome }}' = 'failure' ]; then
+            echo 'SENTINEL_EXTERNAL=RECOVERY_REQUESTED'
+          else
+            echo 'SENTINEL_EXTERNAL=VPS_OR_RELEASE_DEGRADED'
+          fi
+          exit 1
