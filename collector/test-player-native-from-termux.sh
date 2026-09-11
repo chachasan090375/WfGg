@@ -31,7 +31,7 @@ TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT INT TERM
 HELPER="$TMP/collector-native-test.py"
 cat > "$HELPER" <<'PY'
-import json,os,subprocess,sys,tempfile,urllib.request
+import json,os,re,subprocess,sys,tempfile,urllib.request
 
 raw=sys.stdin.read()
 try:
@@ -74,6 +74,30 @@ finally:
     except FileNotFoundError: pass
 
 print('NATIVE_RC='+str(cp.returncode))
+# Safe crash diagnostics only: never print panic text/arguments, session data, or tokens.
+if any(line.startswith('panic:') for line in cp.stderr.splitlines()):
+    print('NATIVE_PANIC=YES')
+    funcs=[]
+    for line in cp.stderr.splitlines():
+        s=line.strip()
+        m=re.match(r'^(?:lastwar-client/)?(?:cmd/wfgg-collector-native/)?([A-Za-z0-9_./-]+)\(',s)
+        if m:
+            name=m.group(1).split('/')[-1]
+            if name and name not in funcs:
+                funcs.append(name)
+        if len(funcs)>=8:
+            break
+    print('NATIVE_PANIC_FUNCS='+(','.join(funcs) if funcs else 'UNKNOWN'))
+else:
+    print('NATIVE_PANIC=NO')
+
+codes=[]
+for src in (cp.stderr,cp.stdout):
+    for code in re.findall(r'\b(?:LASTWAR_)?PLAYER_[A-Z0-9_]+\b',src):
+        if code not in codes:
+            codes.append(code)
+print('NATIVE_ERROR_CODES='+(','.join(codes) if codes else 'NONE'))
+
 for line in cp.stderr.splitlines():
     if line.startswith('WFGG_SCAN_V4'):
         print(line)
@@ -94,27 +118,21 @@ if players:
     p=players[0] if isinstance(players[0],dict) else {}
     safe={k:p.get(k) for k in ('pseudo','gameUid','serverId','allianceTag','x','y','hqLevel','power') if k in p}
     print('NATIVE_FIRST_PLAYER='+json.dumps(safe,ensure_ascii=False,separators=(',',':')))
-
-    accepted=0
-    changed=0
-    batches=0
-    batch_size=400
+    batches=0; accepted=0; changed=0
     try:
-        for i in range(0,len(players),batch_size):
-            chunk=players[i:i+batch_size]
-            body=json.dumps({'players':chunk},ensure_ascii=False,separators=(',',':')).encode()
+        for i in range(0,len(players),400):
+            body=json.dumps({'players':players[i:i+400]},ensure_ascii=False,separators=(',',':')).encode()
             req=urllib.request.Request('http://127.0.0.1:8790/ingest',data=body,method='POST',headers={'Content-Type':'application/json'})
-            with urllib.request.urlopen(req,timeout=20) as r:
+            with urllib.request.urlopen(req,timeout=10) as r:
                 cached=json.load(r)
-            accepted += int(cached.get('accepted',0))
-            changed += int(cached.get('changed',0))
-            batches += 1
+            batches+=1
+            accepted+=int(cached.get('accepted',0))
+            changed+=int(cached.get('changed',0))
         print('COLLECTOR_CACHE_ACCEPTED='+str(accepted))
         print('COLLECTOR_CACHE_CHANGED='+str(changed))
         print('COLLECTOR_CACHE_BATCHES='+str(batches))
-    except Exception as e:
+    except Exception:
         print('COLLECTOR_CACHE=UNAVAILABLE')
-        print('COLLECTOR_CACHE_BATCHES_OK='+str(batches))
 PY
 
 TAG="$$"
