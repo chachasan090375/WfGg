@@ -100,11 +100,34 @@ print("DIRECT_SECONDS=%.2f"%(time.monotonic()-start))
 try:
     d=json.loads(out)
     if isinstance(d,dict):
+        print("DIRECT_KEYS="+",".join(sorted(str(k) for k in d.keys())))
+        if "ok" in d:
+            print("DIRECT_OK="+str(d.get("ok")))
         if "error" in d:
             print("DIRECT_ERROR="+str(d.get("error")))
-        players=d.get("players")
-        if isinstance(players,list):
+
+        players=None
+        players_path=""
+        candidates=[
+            ("players", d.get("players")),
+            ("result.players", (d.get("result") or {}).get("players") if isinstance(d.get("result"),dict) else None),
+            ("scan.players", (d.get("scan") or {}).get("players") if isinstance(d.get("scan"),dict) else None),
+            ("data.players", (d.get("data") or {}).get("players") if isinstance(d.get("data"),dict) else None),
+        ]
+        for path_name,value in candidates:
+            if isinstance(value,list):
+                players=value
+                players_path=path_name
+                break
+        if players is None:
+            print("DIRECT_PLAYERS_FIELD=ABSENT")
+        else:
+            print("DIRECT_PLAYERS_PATH="+players_path)
             print("DIRECT_PLAYERS="+str(len(players)))
+            if players:
+                first=players[0] if isinstance(players[0],dict) else {}
+                safe={k:first.get(k) for k in ("pseudo","gameUid","serverId","allianceTag","x","y","hqLevel") if k in first}
+                print("DIRECT_FIRST_PLAYER="+json.dumps(safe,ensure_ascii=False,separators=(",",":")))
     else:
         print("DIRECT_JSON=NON_OBJECT")
 except Exception:
