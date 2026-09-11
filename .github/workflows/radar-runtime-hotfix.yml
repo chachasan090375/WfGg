@@ -65,11 +65,57 @@ jobs:
               s = s.replace(old, new, 1)
               p.write_text(s)
           print('REMOTE_FETCH_RECEIVER_BINDING=OK')
+
+          # 3) Safe one-time owner bootstrap: when Radar has no OWNER grant yet,
+          #    the first identity successfully certified by the Last War connector
+          #    becomes OWNER. Once an OWNER exists, normal grants are required.
+          p = Path('src/db/repository.js')
+          s = p.read_text()
+          old = """export async function ensureBootstrapOwnerGrant(env, identity) {
+            const configured = normalizePseudo(env?.RADAR_OWNER_PSEUDO || '');
+            if (!configured || configured !== normalizePseudo(identity?.pseudo || '')) return null;
+            const bound = await getGrantByBoundUid(env, identity.gameUid);
+            if (bound) return bound;
+            const byPseudo = await getGrantByPseudo(env, identity.pseudo);
+            if (byPseudo) return byPseudo;
+            return upsertGrant(env, { pseudo: identity.pseudo, role: ROLES.OWNER, active: true, actorUid: null });
+          }"""
+          new = """export async function ensureBootstrapOwnerGrant(env, identity) {
+            const rawConfigured = String(env?.RADAR_OWNER_PSEUDO || '');
+            const configured = normalizePseudo(rawConfigured);
+            const identityPseudo = normalizePseudo(identity?.pseudo || '');
+            if (!identityPseudo) return null;
+
+            const bound = await getGrantByBoundUid(env, identity.gameUid);
+            if (bound) return bound;
+            const byPseudo = await getGrantByPseudo(env, identity.pseudo);
+            if (byPseudo) return byPseudo;
+
+            if (rawConfigured === '__AUTO_BOOTSTRAP_FIRST_VALID__') {
+              const existingOwner = await requireDb(env)
+                .prepare('SELECT pseudo_key FROM access_grants WHERE role = ? AND active = 1 LIMIT 1')
+                .bind(ROLES.OWNER)
+                .first();
+              if (existingOwner) return null;
+              return upsertGrant(env, { pseudo: identity.pseudo, role: ROLES.OWNER, active: true, actorUid: null });
+            }
+
+            if (!configured || configured !== identityPseudo) return null;
+            return upsertGrant(env, { pseudo: identity.pseudo, role: ROLES.OWNER, active: true, actorUid: null });
+          }"""
+          if new not in s:
+              if old not in s:
+                  raise SystemExit('OWNER_BOOTSTRAP_HOTFIX_TARGET_NOT_FOUND')
+              s = s.replace(old, new, 1)
+              p.write_text(s)
+          print('OWNER_FIRST_VALID_BOOTSTRAP=OK')
           PY
           node --check src/worker.js
           node --check src/game/remote-transport.js
+          node --check src/db/repository.js
           grep -Fq "return await authenticateGameToken(request, env);" src/worker.js
           grep -Fq "fetchImpl = (...args) => globalThis.fetch(...args)" src/game/remote-transport.js
+          grep -Fq "__AUTO_BOOTSTRAP_FIRST_VALID__" src/db/repository.js
 
       - name: Run Guardian regression gate
         working-directory: /tmp/wfgg-radar
@@ -131,7 +177,7 @@ jobs:
 
           [vars]
           RADAR_SESSION_TTL = "3600"
-          RADAR_OWNER_PSEUDO = "__OWNER_BOOTSTRAP_PENDING__"
+          RADAR_OWNER_PSEUDO = "__AUTO_BOOTSTRAP_FIRST_VALID__"
           RADAR_CONNECTOR_URL = "$RADAR_CONNECTOR_URL"
 
           [triggers]
