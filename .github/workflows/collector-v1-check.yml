@@ -20,10 +20,13 @@ jobs:
       - name: Syntax checks
         run: |
           set -euo pipefail
-          python3 -m py_compile collector/collector_agent.py
+          python3 -m py_compile collector/collector_agent.py collector/incremental_engine.py
           bash -n collector/install-from-termux.sh
           bash -n collector/query-from-termux.sh
           bash -n collector/ingest-json-from-termux.sh
+          bash -n collector/test-region-native-from-termux.sh
+          test ! -f collector/incremental-update-from-termux.sh || bash -n collector/incremental-update-from-termux.sh
+          test ! -f collector/search-fresh-from-termux.sh || bash -n collector/search-fresh-from-termux.sh
       - name: Local API smoke test
         run: |
           set -euo pipefail
