@@ -32,29 +32,40 @@ const (
 )
 
 type scanDiagV42 struct {
-	Requests       int
-	Packets        int
-	DecodeErrors   int
-	Objects        int
-	Arrays         int
-	Blobs          int
-	ProtoValid     int
-	Kind6          int
-	PlayersDecoded int
-	QueryMatches   int
-	Origins        int
-	ReadTimeouts   int
+	Requests        int
+	Packets         int
+	DecodeErrors    int
+	Objects         int
+	Arrays          int
+	Blobs           int
+	ProtoValid      int
+	Kind6           int
+	Detail10Present int
+	Detail10Missing int
+	DetailParseOK   int
+	DetailParseFail int
+	UIDPresent      int
+	UIDMissing      int
+	Name14Present   int
+	Name14Missing   int
+	PlayersDecoded  int
+	QueryMatches    int
+	Origins         int
+	ReadTimeouts    int
 }
 
 func (d *scanDiagV42) emit() {
 	if d == nil {
 		return
 	}
-	// Safe diagnostics only: counters, never token/session/player values.
+	// Safe diagnostics only: aggregate counters, never token/session/player values.
 	fmt.Fprintf(os.Stderr,
-		"WFGG_SCAN_V42 requests=%d packets=%d decode_errors=%d objects=%d arrays=%d blobs=%d proto=%d kind6=%d decoded_players=%d query_matches=%d origins=%d read_timeouts=%d\n",
+		"WFGG_SCAN_V43 requests=%d packets=%d decode_errors=%d objects=%d arrays=%d blobs=%d proto=%d kind6=%d detail10_present=%d detail10_missing=%d detail_parse_ok=%d detail_parse_fail=%d uid_present=%d uid_missing=%d name14_present=%d name14_missing=%d decoded_players=%d query_matches=%d origins=%d read_timeouts=%d\n",
 		d.Requests, d.Packets, d.DecodeErrors, d.Objects, d.Arrays, d.Blobs,
-		d.ProtoValid, d.Kind6, d.PlayersDecoded, d.QueryMatches, d.Origins, d.ReadTimeouts,
+		d.ProtoValid, d.Kind6, d.Detail10Present, d.Detail10Missing,
+		d.DetailParseOK, d.DetailParseFail, d.UIDPresent, d.UIDMissing,
+		d.Name14Present, d.Name14Missing, d.PlayersDecoded, d.QueryMatches,
+		d.Origins, d.ReadTimeouts,
 	)
 }
 
@@ -94,6 +105,37 @@ func (d *scanDiagV42) observe(v any, query, fallbackServer, observedAt string, d
 			return
 		}
 		d.Kind6++
+
+		detailRaw, ok := protoBytesV3(m, 10)
+		if !ok {
+			d.Detail10Missing++
+			return
+		}
+		d.Detail10Present++
+
+		detail, ok := parseProtoV3(detailRaw, 1)
+		if !ok {
+			d.DetailParseFail++
+			return
+		}
+		d.DetailParseOK++
+
+		uid := protoScalarV3(detail, 1)
+		if uid == "" {
+			d.UIDMissing++
+		} else {
+			d.UIDPresent++
+		}
+		name := strings.TrimSpace(protoStringV3(detail, 14))
+		if name == "" {
+			d.Name14Missing++
+		} else {
+			d.Name14Present++
+		}
+		if uid == "" || name == "" {
+			return
+		}
+
 		p, ok := playerFromMapBlobV3(t, area, serverID, fallbackServer, observedAt)
 		if !ok {
 			return
@@ -231,7 +273,7 @@ func syntheticMapSweepV4(conn net.Conn, query, fallbackServer, observedAt string
 				continue
 			}
 
-			// V4.2 diagnostics traverse the decoded response in parallel with the
+			// V4.3 diagnostics traverse the decoded response in parallel with the
 			// production collector. Only aggregate counters are emitted to stderr.
 			diag.observe(obj, query, fallbackServer, observedAt, 0, 1000, fallbackServer)
 
