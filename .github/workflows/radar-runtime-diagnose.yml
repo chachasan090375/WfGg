@@ -1,0 +1,45 @@
+name: Radar runtime diagnose
+
+on:
+  push:
+    branches: [radar-production-v1]
+    paths:
+      - '.github/workflows/radar-runtime-diagnose.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reconstruct canonical Radar V0.5
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/wfgg-radar && mkdir -p /tmp/wfgg-radar
+          python3 .github/scripts/reconstruct-radar-release.py
+          tar -xzf /tmp/radar-src.tar.gz -C /tmp/wfgg-radar
+      - name: Inspect auth runtime paths
+        working-directory: /tmp/wfgg-radar
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('src/worker.js')
+          lines=p.read_text().splitlines()
+          needles=['authenticateGameToken','crypto.subtle','randomUUID','env.DB','prepare(','.bind(','fetch(']
+          hits=[]
+          for i,line in enumerate(lines,1):
+            if any(n in line for n in needles): hits.append(i)
+          windows=[]
+          for i in hits:
+            a=max(1,i-12); b=min(len(lines),i+22)
+            if windows and a<=windows[-1][1]+1: windows[-1]=(windows[-1][0],max(windows[-1][1],b))
+            else: windows.append((a,b))
+          for a,b in windows:
+            print(f'--- LINES {a}-{b} ---')
+            for n in range(a,b+1): print(f'{n:04d}: {lines[n-1]}')
+          PY
