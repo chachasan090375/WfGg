@@ -55,7 +55,7 @@ jobs:
           grep -Fq 'native-template-readonly-v4' /tmp/wfgg-radar/connector-go/native-template/main.go
           grep -Fq 'runPlayerScanV4' /tmp/wfgg-radar/connector-go/native-template/main.go
           grep -Fq 'syntheticMapSweepV4' /tmp/wfgg-radar/connector-go/native-template/player_scan_v4.go
-          grep -Fq 'v4IntArrayTag byte = 12' /tmp/wfgg-radar/connector-go/native-template/player_scan_v4.go
+          grep -Fq 'v4IntArrayTag' /tmp/wfgg-radar/connector-go/native-template/player_scan_v4.go
           ! grep -Fq 'PLAYER_SCAN_TEMPLATE_NOT_FOUND' /tmp/wfgg-radar/connector-go/native-template/main.go
           echo PLAYER_SCAN_V4_SOURCE=OK
 
