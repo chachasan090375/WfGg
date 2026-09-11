@@ -5,6 +5,7 @@ on:
     branches: [radar-production-v1]
     paths:
       - '.github/workflows/radar-player-scan-diagnose.yml'
+      - 'radar-vps/test-player-scan-direct-vps-from-termux.sh'
   workflow_dispatch:
 
 permissions:
@@ -15,6 +16,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Validate Termux diagnostic syntax
+        run: |
+          set -euo pipefail
+          bash -n radar-vps/test-player-scan-direct-vps-from-termux.sh
+          echo TERMUX_DIAGNOSTIC_SYNTAX=OK
       - name: Probe public ChaChaVPS funnel
         run: |
           set +e
