@@ -133,11 +133,12 @@ def cycle_latest():
     return dict(r) if r else None
 
 
-def cycle_changes(cid,limit):
-    limit=max(1,min(2000,int(limit)))
+def cycle_changes(cid,limit,offset=0):
+    limit=max(1,min(10000,int(limit)))
+    offset=max(0,int(offset))
     with DB_LOCK,db() as c:
         rows=c.execute('''SELECT id,cycle_id,game_uid,change_type,before_json,after_json,changed_at
-          FROM cycle_changes WHERE cycle_id=? ORDER BY id LIMIT ?''',(cid,limit)).fetchall()
+          FROM cycle_changes WHERE cycle_id=? ORDER BY id LIMIT ? OFFSET ?''',(cid,limit,offset)).fetchall()
     out=[]
     for r in rows:
         d=dict(r)
@@ -187,7 +188,7 @@ class Handler(BaseHTTPRequestHandler):
         if u.path=='/cycle/changes':
             raw=a.get('id',[''])[0].strip()
             if not raw.isdigit(): return self.send_json(400,{'ok':False,'error':'CYCLE_ID_REQUIRED'})
-            return self.send_json(200,{'ok':True,'changes':cycle_changes(int(raw),a.get('limit',['200'])[0])})
+            return self.send_json(200,{'ok':True,'changes':cycle_changes(int(raw),a.get('limit',['200'])[0],a.get('offset',['0'])[0])})
         if u.path=='/player':
             q=a.get('q',[''])[0].strip()
             if not q: return self.send_json(400,{'ok':False,'error':'QUERY_REQUIRED'})
