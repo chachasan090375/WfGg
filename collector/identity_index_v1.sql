@@ -86,6 +86,84 @@ ON CONFLICT(game_uid,pseudo_key) DO UPDATE SET
   last_seen=CASE WHEN excluded.last_seen>player_aliases.last_seen THEN excluded.last_seen ELSE player_aliases.last_seen END,
   is_current=1;
 
+-- From this point onward every normal Collector ingest automatically maintains
+-- the identity directory. No second ingestion pipeline is required.
+CREATE TRIGGER IF NOT EXISTS trg_identity_players_insert
+AFTER INSERT ON players
+WHEN trim(NEW.game_uid)<>'' AND trim(NEW.pseudo)<>''
+BEGIN
+  INSERT INTO player_identity(
+    game_uid,current_pseudo,pseudo_key,current_server_id,
+    first_seen,last_seen,last_identity_change,source,confidence
+  ) VALUES(
+    NEW.game_uid,NEW.pseudo,lower(trim(NEW.pseudo)),NEW.server_id,
+    NEW.first_seen,NEW.last_seen,NEW.last_seen,'COLLECTOR','OBSERVED'
+  )
+  ON CONFLICT(game_uid) DO UPDATE SET
+    current_pseudo=excluded.current_pseudo,
+    pseudo_key=excluded.pseudo_key,
+    current_server_id=COALESCE(NULLIF(excluded.current_server_id,''),player_identity.current_server_id),
+    last_seen=excluded.last_seen,
+    last_identity_change=CASE
+      WHEN player_identity.current_pseudo<>excluded.current_pseudo THEN excluded.last_seen
+      ELSE player_identity.last_identity_change END;
+
+  UPDATE player_aliases
+     SET is_current=0
+   WHERE game_uid=NEW.game_uid AND pseudo_key<>lower(trim(NEW.pseudo));
+
+  INSERT INTO player_aliases(
+    game_uid,pseudo,pseudo_key,server_id,first_seen,last_seen,is_current
+  ) VALUES(
+    NEW.game_uid,NEW.pseudo,lower(trim(NEW.pseudo)),NEW.server_id,
+    NEW.first_seen,NEW.last_seen,1
+  )
+  ON CONFLICT(game_uid,pseudo_key) DO UPDATE SET
+    pseudo=excluded.pseudo,
+    server_id=COALESCE(NULLIF(excluded.server_id,''),player_aliases.server_id),
+    last_seen=excluded.last_seen,
+    is_current=1;
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_identity_players_update
+AFTER UPDATE OF pseudo,server_id,last_seen ON players
+WHEN trim(NEW.game_uid)<>'' AND trim(NEW.pseudo)<>''
+BEGIN
+  INSERT INTO player_identity(
+    game_uid,current_pseudo,pseudo_key,current_server_id,
+    first_seen,last_seen,last_identity_change,source,confidence
+  ) VALUES(
+    NEW.game_uid,NEW.pseudo,lower(trim(NEW.pseudo)),NEW.server_id,
+    NEW.first_seen,NEW.last_seen,NEW.last_seen,'COLLECTOR','OBSERVED'
+  )
+  ON CONFLICT(game_uid) DO UPDATE SET
+    current_pseudo=excluded.current_pseudo,
+    pseudo_key=excluded.pseudo_key,
+    current_server_id=COALESCE(NULLIF(excluded.current_server_id,''),player_identity.current_server_id),
+    last_seen=excluded.last_seen,
+    last_identity_change=CASE
+      WHEN player_identity.current_pseudo<>excluded.current_pseudo THEN excluded.last_seen
+      ELSE player_identity.last_identity_change END;
+
+  UPDATE player_aliases
+     SET is_current=CASE WHEN pseudo_key=lower(trim(NEW.pseudo)) THEN 1 ELSE 0 END,
+         server_id=CASE WHEN pseudo_key=lower(trim(NEW.pseudo)) AND NEW.server_id<>'' THEN NEW.server_id ELSE server_id END,
+         last_seen=CASE WHEN pseudo_key=lower(trim(NEW.pseudo)) THEN NEW.last_seen ELSE last_seen END
+   WHERE game_uid=NEW.game_uid;
+
+  INSERT INTO player_aliases(
+    game_uid,pseudo,pseudo_key,server_id,first_seen,last_seen,is_current
+  ) VALUES(
+    NEW.game_uid,NEW.pseudo,lower(trim(NEW.pseudo)),NEW.server_id,
+    NEW.first_seen,NEW.last_seen,1
+  )
+  ON CONFLICT(game_uid,pseudo_key) DO UPDATE SET
+    pseudo=excluded.pseudo,
+    server_id=COALESCE(NULLIF(excluded.server_id,''),player_aliases.server_id),
+    last_seen=excluded.last_seen,
+    is_current=1;
+END;
+
 -- Read-only convenience view for the resolver. No uniqueness is assumed on
 -- pseudo_key; callers must handle ambiguity explicitly.
 CREATE VIEW IF NOT EXISTS identity_resolver AS
