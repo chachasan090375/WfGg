@@ -55,6 +55,20 @@ jobs:
           mkdir -p "$GITHUB_WORKSPACE/radar-vps/release"
           CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w' -o "$GITHUB_WORKSPACE/radar-vps/release/radar-connector" ./cmd/radar-connector
 
+      - name: Build pinned Last War email auth client
+        run: |
+          set -euo pipefail
+          UPSTREAM_COMMIT='ee5f64de160a8051c2f9f98189b75038dd225a0a'
+          rm -rf /tmp/lastwar-client
+          git clone --quiet --filter=blob:none https://github.com/ljagiello/lastwar-client.git /tmp/lastwar-client
+          cd /tmp/lastwar-client
+          git fetch --quiet --depth 1 origin "$UPSTREAM_COMMIT"
+          git checkout --quiet --detach "$UPSTREAM_COMMIT"
+          test "$(git rev-parse HEAD)" = "$UPSTREAM_COMMIT"
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w' -o "$GITHUB_WORKSPACE/radar-vps/release/radar-lastwar-auth-client" ./cmd/lastwar-client
+          chmod 0755 "$GITHUB_WORKSPACE/radar-vps/release/radar-lastwar-auth-client"
+          echo "LASTWAR_AUTH_CLIENT_UPSTREAM=$UPSTREAM_COMMIT"
+
       - name: Preserve validated V4 native helper
         run: |
           set -euo pipefail
@@ -67,10 +81,11 @@ jobs:
       - name: Verify release binaries
         run: |
           set -euo pipefail
-          chmod 0755 radar-vps/release/radar-connector radar-vps/release/radar-native-template
+          chmod 0755 radar-vps/release/radar-connector radar-vps/release/radar-native-template radar-vps/release/radar-lastwar-auth-client
           cd radar-vps/release
-          sha256sum radar-connector radar-native-template > SHA256SUMS
-          file radar-connector radar-native-template
+          sha256sum radar-connector radar-native-template radar-lastwar-auth-client > SHA256SUMS
+          file radar-connector radar-native-template radar-lastwar-auth-client
+          test -s radar-lastwar-auth-client
           cat SHA256SUMS
 
       - name: Commit VPS release binaries
@@ -78,11 +93,11 @@ jobs:
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add radar-vps/release/radar-connector radar-vps/release/radar-native-template radar-vps/release/SHA256SUMS
+          git add radar-vps/release/radar-connector radar-vps/release/radar-native-template radar-vps/release/radar-lastwar-auth-client radar-vps/release/SHA256SUMS
           if git diff --cached --quiet; then
             echo 'VPS_BINARIES=UNCHANGED'
             exit 0
           fi
-          git commit -m 'build(radar): publish async Collector connector'
+          git commit -m 'build(radar): publish email-code auth connector bundle'
           git push origin HEAD:radar-production-v1
           echo 'VPS_BINARIES=PUBLISHED'
