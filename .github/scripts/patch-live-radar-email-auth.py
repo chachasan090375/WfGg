@@ -48,7 +48,7 @@ $('authSend').onclick=async()=>{const uid=$('gameUid').value.trim(),email=$('gam
 $('authFinish').onclick=async()=>{const code=$('gameCode').value.trim();if(!emailChallengeId){resetEmailAuth();return}if(!/^\d{6}$/.test(code)){authMessage('Le code doit contenir 6 chiffres.','error');return}const b=$('authFinish');b.disabled=true;authMessage('Validation auprès de Last War…');try{const d=await api('/api/auth/lastwar/finish',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({challengeId:emailChallengeId,code})});emailChallengeId='';$('gameCode').value='';$('gameEmail').value='';login.classList.remove('show');$('session').textContent=`SESSION: ${d.user?.pseudo||'OK'} · ${d.user?.role||''}`;authStage('start');authMessage('Connexion Last War validée.','ok');tone(900,.07,.02)}catch(e){authMessage(e.message||'Code refusé par Last War.','error')}finally{b.disabled=false}};
 $('authRestart').onclick=()=>resetEmailAuth();
 '''
-s2, n = pattern.subn(new_js, s, count=1)
+s2, n = pattern.subn(lambda _m: new_js, s, count=1)
 if n != 1:
     raise SystemExit('RADAR_EMAIL_AUTH_JS_ANCHOR_MISSING')
 s = s2
