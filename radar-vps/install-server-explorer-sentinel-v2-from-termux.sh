@@ -3,7 +3,7 @@ set -Eeuo pipefail
 
 REMOTE="ChaChaVPS"
 PUBLIC_HOST="${RADAR_VPS_PUBLIC_IP:-206.189.12.92}"
-RELEASE_COMMIT="9ce7928d93b1691e558b0f54c44d7925712c1424"
+RELEASE_COMMIT="4ffb189e12dd24f6f25c93224213130282e24a04"
 RAW="https://raw.githubusercontent.com/chachasan090375/WfGg/$RELEASE_COMMIT/radar-vps/server-explorer-sentinel-v2-release"
 RADAR_BIN_DIR="/opt/wfgg-radar/bin"
 RADAR_CONNECTOR="$RADAR_BIN_DIR/radar-connector"
@@ -25,7 +25,7 @@ else
   say 'SERVER_EXPLORER_V2_SSH_ROUTE=PUBLIC_IPV4'
 fi
 
-say '=== WfGg Radar · Server Explorer Sentinel v2 ==='
+say '=== WfGg Radar · Server Explorer Sentinel v2 · control budget 15s ==='
 say '1/4 Téléchargement et vérification de la release'
 TS="$(date +%s)"
 curl -fsSL "$RAW/SHA256SUMS?ts=$TS" -o "$TMP/SHA256SUMS"
@@ -39,6 +39,7 @@ grep -aFq 'SERVER_EXPLORER_NATIVE_SENTINEL' "$TMP/radar-native-template" || die 
 grep -aFq 'native-template-readonly-v4' "$TMP/radar-native-template" || die BROAD_SCAN_V4_MARKER_MISSING
 grep -aFq 'WFGG_SERVER_ID_OVERRIDE' "$TMP/radar-native-template" || die SERVER_OVERRIDE_MARKER_MISSING
 say 'SERVER_EXPLORER_SENTINEL_V2_RELEASE=OK'
+say 'SERVER_EXPLORER_CONTROL_BUDGET=15S'
 
 say '2/4 Sauvegarde atomique des binaires actuels'
 STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
@@ -94,6 +95,7 @@ grep -aFq 'WFGG_SERVER_ID_OVERRIDE' '$RADAR_NATIVE'
 echo SERVER_EXPLORER_PROTOCOL_SENTINEL=READY
 echo SERVER_EXPLORER_NATIVE_SENTINEL=READY
 echo SERVER_EXPLORER_CONTROL_SERVER=992
+echo SERVER_EXPLORER_CONTROL_BUDGET=15S
 echo BROAD_SCAN_V4_FALLBACK=PRESERVED
 echo RADAR_PRODUCTION_CHANGED=NO
 " </dev/null
