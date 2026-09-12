@@ -1,10 +1,11 @@
-name: Radar Federated Collector v6.3.2 build
+name: Radar Federated Collector v6.3.3 build
 
 on:
   push:
     branches: [radar-federated-collector-v63]
     paths:
       - '.github/workflows/radar-federated-collector-v63-build.yml'
+      - '.github/scripts/patch-radar-autocartographer-v633.py'
       - '.github/scripts/patch-radar-federated-native-v63.py'
       - '.github/scripts/patch-radar-federated-connector-v63.py'
       - '.github/scripts/patch-radar-federated-topology-v631.py'
@@ -97,7 +98,7 @@ jobs:
           strings /tmp/radar-native-template | grep -Fq 'world.get.block(batch-v6)'
           strings /tmp/radar-native-template | grep -Fq 'V6_BATCH_DONE'
 
-      - name: Build connector with Federated Collector V6.3.2 target login diagnostics
+      - name: Build connector with V6.3.3 Auto-Cartographer
         run: |
           set -euo pipefail
           rm -rf /tmp/wfgg-radar/connector-go
@@ -114,6 +115,7 @@ jobs:
           python3 .github/scripts/patch-radar-federated-connector-v63.py
           python3 .github/scripts/patch-radar-federated-topology-v631.py
           python3 .github/scripts/patch-radar-federated-login-target-v632-connector.py
+          python3 .github/scripts/patch-radar-autocartographer-v633.py
           cd /tmp/wfgg-radar/connector-go
           gofmt -w ./cmd ./internal
           go test ./...
@@ -122,12 +124,14 @@ jobs:
           grep -aFq 'FEDERATED_COLLECTOR_V63_SENTINEL' /tmp/radar-connector
           grep -aFq 'FEDERATED_COLLECTOR_V631_TOPOLOGY' /tmp/radar-connector
           grep -aFq 'WFGG_LOGIN_SERVER_ID_OVERRIDE' /tmp/radar-connector
+          grep -aFq 'AUTO_CARTOGRAPHER_V633_SENTINEL' /tmp/radar-connector
+          grep -aFq '/v1/cartographer/tick' /tmp/radar-connector
           grep -aFq 'FEDERATED_REGION_SCANNER_UNAVAILABLE' /tmp/radar-connector
           grep -aFq '@federated:' /tmp/radar-connector
           grep -aFq 'SERVER_DISCOVERY_V62_SENTINEL' /tmp/radar-connector
           grep -aFq 'SERVER_EXPLORER_V6_SINGLE_SESSION' /tmp/radar-connector
 
-      - name: Publish isolated Federated Collector V6.3.2 release
+      - name: Publish isolated Federated Collector V6.3.3 release
         run: |
           set -euo pipefail
           mkdir -p radar-vps/federated-collector-v63-release
@@ -139,7 +143,7 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add radar-vps/federated-collector-v63-release
           if git diff --cached --quiet; then exit 0; fi
-          git commit -m 'build(radar): publish Federated Collector v6.3.2 target-login release'
+          git commit -m 'build(radar): publish Federated Collector v6.3.3 Auto-Cartographer release'
           git fetch origin radar-federated-collector-v63
           git rebase origin/radar-federated-collector-v63
           git push origin HEAD:radar-federated-collector-v63
