@@ -5,11 +5,6 @@ REMOTE="ChaChaVPS"
 PUBLIC_HOST="${RADAR_VPS_PUBLIC_IP:-206.189.12.92}"
 REF="collector-identity-index-v1"
 RAW="https://raw.githubusercontent.com/chachasan090375/WfGg/$REF/collector"
-ROOT="/opt/wfgg-collector"
-AGENT="$ROOT/bin/collector_agent.py"
-SCHEMA="$ROOT/bin/identity_index_v1.sql"
-DB="$ROOT/data/collector.db"
-BACKUPS="$ROOT/backups"
 
 say(){ printf '%s\n' "$*"; }
 die(){ printf 'ERROR=%s\n' "$*" >&2; exit 1; }
@@ -40,41 +35,49 @@ scp "${SSH_OPTS[@]}" -q "$TMP/identity_index_v1.sql" "$REMOTE:$RSCHEMA"
 
 say '=== WfGg Collector · Identity Index V1 ==='
 say '1/4 Sauvegarde atomique de la base et du Collector courant'
-ssh "${SSH_OPTS[@]}" -T "$REMOTE" "
+ssh "${SSH_OPTS[@]}" -T "$REMOTE" 'bash -s' <<'REMOTE'
 set -eu
-STAMP=\$(date -u +%Y%m%dT%H%M%SZ)
-install -d -o root -g root -m 0700 '$BACKUPS'
-test -f '$DB'
-python3 - '$DB' '$BACKUPS/collector-before-identity-'\"\$STAMP\"'.db' <<'PY'
+ROOT=/opt/wfgg-collector
+DB="$ROOT/data/collector.db"
+BACKUPS="$ROOT/backups"
+AGENT="$ROOT/bin/collector_agent.py"
+STAMP=$(date -u +%Y%m%dT%H%M%SZ)
+DB_BACKUP="$BACKUPS/collector-before-identity-$STAMP.db"
+AGENT_BACKUP="$BACKUPS/collector_agent-before-identity-$STAMP.py"
+install -d -o root -g root -m 0700 "$BACKUPS"
+test -f "$DB"
+python3 - "$DB" "$DB_BACKUP" <<'PY'
 import sqlite3,sys
 src=sqlite3.connect(sys.argv[1],timeout=30)
 dst=sqlite3.connect(sys.argv[2])
-try: src.backup(dst)
+try:
+    src.backup(dst)
 finally:
     dst.close(); src.close()
 print('IDENTITY_INDEX_DB_BACKUP='+sys.argv[2])
 PY
-if test -f '$AGENT'; then cp -a '$AGENT' '$BACKUPS/collector_agent-before-identity-'\"\$STAMP\"'.py'; fi
-" </dev/null
+if test -f "$AGENT"; then
+  cp -a "$AGENT" "$AGENT_BACKUP"
+  echo "IDENTITY_INDEX_AGENT_BACKUP=$AGENT_BACKUP"
+fi
+REMOTE
 
 say '2/4 Installation du schéma et du résolveur d’identité'
 ssh "${SSH_OPTS[@]}" -T "$REMOTE" "
 set -eu
-install -o root -g root -m 0755 '$RAGENT' '$AGENT'
-install -o root -g root -m 0644 '$RSCHEMA' '$SCHEMA'
+install -o root -g root -m 0755 '$RAGENT' /opt/wfgg-collector/bin/collector_agent.py
+install -o root -g root -m 0644 '$RSCHEMA' /opt/wfgg-collector/bin/identity_index_v1.sql
 rm -f '$RAGENT' '$RSCHEMA'
-python3 -m py_compile '$AGENT'
-grep -q 'identity_resolve' '$AGENT'
-grep -q 'CREATE TABLE IF NOT EXISTS player_identity' '$SCHEMA'
+python3 -m py_compile /opt/wfgg-collector/bin/collector_agent.py
+grep -q 'identity_resolve' /opt/wfgg-collector/bin/collector_agent.py
+grep -q 'CREATE TABLE IF NOT EXISTS player_identity' /opt/wfgg-collector/bin/identity_index_v1.sql
 systemctl restart wfgg-collector.service
 sleep 3
 systemctl is-active --quiet wfgg-collector.service
 " </dev/null
 
 say '3/4 Rétro-indexation de tous les joueurs déjà connus'
-ssh "${SSH_OPTS[@]}" -T "$REMOTE" "
-set -eu
-python3 - <<'PY'
+ssh "${SSH_OPTS[@]}" -T "$REMOTE" 'python3 -' <<'PY'
 import json,urllib.request
 base='http://127.0.0.1:8790'
 with urllib.request.urlopen(base+'/identity/stats',timeout=20) as r:
@@ -91,12 +94,9 @@ print('IDENTITY_INDEX_COLLECTOR_PLAYERS='+str(players))
 print('IDENTITY_INDEX_BACKFILL_DELTA='+str(players-identities))
 assert identities == players, (players,identities)
 PY
-" </dev/null
 
 say '4/4 Contrôle final'
-ssh "${SSH_OPTS[@]}" -T "$REMOTE" "
-set -eu
-python3 - <<'PY'
+ssh "${SSH_OPTS[@]}" -T "$REMOTE" 'python3 -' <<'PY'
 import json,urllib.request
 base='http://127.0.0.1:8790'
 with urllib.request.urlopen(base+'/health',timeout=20) as r:
@@ -110,7 +110,6 @@ print('IDENTITY_INDEX_RESOLVER=/identity/resolve')
 print('IDENTITY_INDEX_ALIASES_API=/identity/aliases')
 print('IDENTITY_INDEX_STATS_API=/identity/stats')
 PY
-" </dev/null
 
 say 'COLLECTOR_IDENTITY_INDEX_V1=OK'
 say 'RADAR_PRODUCTION_CHANGED=NO'
