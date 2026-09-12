@@ -19,16 +19,21 @@ else
 fi
 
 say '=== WfGg Sentinel · Player Oracle route ==='
-LOG="$(ssh "${SSH_OPTS[@]}" -T "$REMOTE" "journalctl -u wfgg-radar-connector.service --since '$WINDOW' --no-pager -o cat 2>/dev/null | grep 'PLAYER_ORACLE_SENTINEL' | tail -n 120" </dev/null || true)"
+LOG="$(ssh "${SSH_OPTS[@]}" -T "$REMOTE" "journalctl -u wfgg-radar-connector.service --since '$WINDOW' --no-pager -o cat 2>/dev/null | grep 'PLAYER_ORACLE_' | tail -n 180" </dev/null || true)"
 [[ -n "$LOG" ]] || die NO_SENTINEL_TRACE_RUN_A_RADAR_SEARCH_FIRST
 
-LAST_JOB="$(printf '%s\n' "$LOG" | sed -n 's/.*jobId=\([^ ]*\).*/\1/p' | tail -n 1)"
+LAST_JOB="$(printf '%s\n' "$LOG" | grep 'PLAYER_ORACLE_SENTINEL' | sed -n 's/.*jobId=\([^ ]*\).*/\1/p' | tail -n 1)"
 [[ -n "$LAST_JOB" ]] || die SENTINEL_JOB_ID_NOT_FOUND
 TRACE="$(printf '%s\n' "$LOG" | grep "jobId=$LAST_JOB")"
+PROTO="$(printf '%s\n' "$LOG" | grep 'PLAYER_ORACLE_PROTOCOL_SENTINEL' | tail -n 12 || true)"
 
 say "PLAYER_ORACLE_SENTINEL_JOB=$LAST_JOB"
-say '--- TRACE ---'
+say '--- ROUTE TRACE ---'
 printf '%s\n' "$TRACE"
+if [[ -n "$PROTO" ]]; then
+  say '--- PROTOCOL TRACE ---'
+  printf '%s\n' "$PROTO"
+fi
 say '--- VERDICT ---'
 
 has(){ printf '%s\n' "$TRACE" | grep -q "$1"; }
@@ -43,12 +48,20 @@ fi
 if has 'stage=UID_RESOLVED'; then
   say 'SENTINEL_UID_RESOLVED=YES'
   if has 'stage=DIRECT_PROFILE_START' && has 'priority=2'; then
-    say 'SENTINEL_P2_DIRECT_PROFILE=OK'
+    say 'SENTINEL_P2_DIRECT_PROFILE_ATTEMPTED=YES'
   else
-    say 'SENTINEL_P2_DIRECT_PROFILE=BAD'
+    say 'SENTINEL_P2_DIRECT_PROFILE_ATTEMPTED=NO'
   fi
 else
   say 'SENTINEL_UID_RESOLVED=NO'
+fi
+
+if has 'stage=DIRECT_PROFILE_SUCCESS'; then
+  say 'SENTINEL_P2_DIRECT_PROFILE_SUCCESS=YES'
+elif has 'stage=DIRECT_PROFILE_FAILED'; then
+  say 'SENTINEL_P2_DIRECT_PROFILE_SUCCESS=NO'
+else
+  say 'SENTINEL_P2_DIRECT_PROFILE_SUCCESS=UNKNOWN'
 fi
 
 if has 'stage=BROAD_SCAN_SELECTED'; then
@@ -85,6 +98,11 @@ elif has 'stage=UID_MISSING' && has 'stage=BROAD_SCAN_SELECTED'; then
   say 'SENTINEL_ROUTE=UID_MISSING->BROAD_SCAN_V4'
 else
   say 'SENTINEL_ROUTE=UNCLASSIFIED'
+fi
+
+if [[ -n "$PROTO" ]]; then
+  CODE="$(printf '%s\n' "$PROTO" | sed -n 's/.*nativeCode=\([^ ]*\).*/\1/p' | tail -n 1)"
+  [[ -n "$CODE" ]] && say "SENTINEL_NATIVE_PROFILE_CODE=$CODE"
 fi
 
 say 'PLAYER_ORACLE_SENTINEL_INSPECTION=OK'
