@@ -250,12 +250,22 @@ func (b *emailAuthBroker) finish(id, code string) (map[string]any, error) {
 		return nil, errors.New("LASTWAR_EMAIL_UID_MISMATCH")
 	}
 	pseudo, _ := readPrivateTrimmed(filepath.Join(ch.home, ".lastwar_goclient_username"))
+	serverID := ""
+	lookupCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	if player, lookupErr := collectorGetPlayer(lookupCtx, gameUID); lookupErr == nil {
+		serverID = stringField(player, "server_id", "serverId")
+		if pseudo == "" {
+			pseudo = stringField(player, "pseudo", "name")
+		}
+	}
+	cancel()
 
 	return map[string]any{
 		"credential": loginKey,
 		"identity": map[string]any{
-			"gameUid": gameUID,
-			"pseudo":  pseudo,
+			"gameUid":  gameUID,
+			"pseudo":   pseudo,
+			"serverId": serverID,
 		},
 	}, nil
 }
