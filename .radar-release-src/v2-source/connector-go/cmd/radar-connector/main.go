@@ -15,9 +15,10 @@ import (
 )
 
 type server struct {
-	secret string
-	replay *authsig.ReplayGuard
-	game   protocol.Client
+	secret    string
+	replay    *authsig.ReplayGuard
+	game      protocol.Client
+	emailAuth *emailAuthBroker
 }
 
 type authRequest struct {
@@ -39,17 +40,19 @@ func main() {
 	}
 
 	game := protocol.NewFromEnv()
-	s := &server{secret: secret, replay: authsig.NewReplayGuard(2 * time.Minute), game: game}
+	s := &server{secret: secret, replay: authsig.NewReplayGuard(2 * time.Minute), game: game, emailAuth: newEmailAuthBroker()}
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /v1/health", s.signed(s.health))
 	mux.HandleFunc("POST /v1/authenticate", s.signed(s.authenticate))
+	mux.HandleFunc("POST /v1/auth/email/start", s.signed(s.emailAuthStart))
+	mux.HandleFunc("POST /v1/auth/email/finish", s.signed(s.emailAuthFinish))
 	mux.HandleFunc("POST /v1/snapshot", s.signed(s.snapshot))
 	mux.HandleFunc("POST /v1/scan/player", s.signed(s.scanPlayer))
 	mux.HandleFunc("POST /v1/collector/search/start", s.signed(s.collectorSearchStart))
 	mux.HandleFunc("GET /v1/collector/search/status", s.signed(s.collectorSearchStatus))
 
 	httpServer := &http.Server{Addr: addr, Handler: securityHeaders(mux), ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 15 * time.Second, WriteTimeout: 75 * time.Second, IdleTimeout: 30 * time.Second}
-	slog.Info("radar connector listening", "addr", addr, "protocol", game.Mode(), "readonly", true)
+	slog.Info("radar connector listening", "addr", addr, "protocol", game.Mode(), "readonly", true, "emailAuth", s.emailAuth.available())
 	if err := httpServer.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
 		panic(err)
 	}
@@ -75,7 +78,7 @@ func (s *server) signed(next func(http.ResponseWriter, *http.Request, []byte)) h
 }
 
 func (s *server) health(w http.ResponseWriter, _ *http.Request, _ []byte) {
-	writeJSON(w, http.StatusOK, map[string]any{"ok": true, "service": "wfgg-radar-connector", "version": "0.5.0-collector-async", "protocol": s.game.Mode(), "readonly": true, "collectorAsync": true})
+	writeJSON(w, http.StatusOK, map[string]any{"ok": true, "service": "wfgg-radar-connector", "version": "0.5.0-collector-async-email-auth-v1", "protocol": s.game.Mode(), "readonly": true, "collectorAsync": true, "emailAuth": s.emailAuth.available()})
 }
 
 func (s *server) authenticate(w http.ResponseWriter, r *http.Request, body []byte) {
