@@ -55,7 +55,7 @@ else:
     s = s.replace(search_marker, block + search_marker, 1)
     print('RADAR_ASYNC_COLLECTOR_PATCH=APPLIED')
 
-auth_marker = "      if (url.pathname === '/api/auth/game-token' && request.method === 'POST') return await authenticateGameToken(request, env);"
+auth_marker = "      if (url.pathname === '/api/me' && request.method === 'GET') {"
 if "'/api/auth/lastwar/start'" in s:
     print('RADAR_EMAIL_AUTH_WORKER_PATCH=ALREADY_PRESENT')
 else:
