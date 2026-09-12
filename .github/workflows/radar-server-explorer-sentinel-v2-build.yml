@@ -7,6 +7,7 @@ on:
       - '.github/workflows/radar-server-explorer-sentinel-v2-build.yml'
       - '.github/scripts/patch-radar-server-explorer-native-sentinel-v2.py'
       - '.github/scripts/patch-radar-server-explorer-protocol-sentinel-v2.py'
+      - '.github/scripts/patch-radar-server-explorer-budget-v2.py'
       - '.github/scripts/patch-radar-server-explorer-native-v1.py'
       - '.github/scripts/patch-radar-server-explorer-connector-v1.py'
       - '.github/scripts/patch-radar-player-oracle-v1.py'
@@ -79,6 +80,7 @@ jobs:
           python3 .github/scripts/patch-radar-target-profile-retry.py
           python3 .github/scripts/patch-radar-player-oracle-v1.py
           python3 .github/scripts/patch-radar-server-explorer-connector-v1.py
+          python3 .github/scripts/patch-radar-server-explorer-budget-v2.py
           python3 .github/scripts/patch-radar-server-explorer-protocol-sentinel-v2.py
           cd /tmp/wfgg-radar/connector-go
           gofmt -w ./cmd ./internal
@@ -86,6 +88,7 @@ jobs:
           go vet ./...
           CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w' -o /tmp/radar-connector ./cmd/radar-connector
           grep -aFq 'SERVER_EXPLORER_PROTOCOL_SENTINEL' /tmp/radar-connector
+          grep -aFq 'SERVER_EXPLORER_CONTROL_BUDGET_V2' /tmp/radar-connector
 
       - name: Publish isolated diagnostic release
         run: |
