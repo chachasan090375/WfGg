@@ -5,24 +5,31 @@ on:
     branches: [radar-production-v1]
     paths:
       - '.github/workflows/build-radar-vps-binaries.yml'
+      - '.radar-release-src/v2-source/connector-go/**'
   workflow_dispatch:
 
 permissions:
   contents: write
 
+concurrency:
+  group: wfgg-radar-vps-binaries
+  cancel-in-progress: false
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
         with:
           ref: radar-production-v1
+          fetch-depth: 0
 
       - uses: actions/setup-go@v5
         with:
           go-version: '1.27.x'
 
-      - name: Reconstruct immutable Radar V0.5 source
+      - name: Reconstruct immutable Radar V0.5 base
         run: |
           set -euo pipefail
           rm -rf /tmp/wfgg-radar
@@ -31,27 +38,31 @@ jobs:
           echo '234df1dec57f6211bc625855bf13350c9f17fbd843fbe92d8cf1ab7cb5c081ef  /tmp/radar-src.tar.gz' | sha256sum -c -
           tar -xzf /tmp/radar-src.tar.gz -C /tmp/wfgg-radar
 
+      - name: Overlay current connector source
+        run: |
+          set -euo pipefail
+          test -f .radar-release-src/v2-source/connector-go/go.mod
+          test -f .radar-release-src/v2-source/connector-go/cmd/radar-connector/main.go
+          rm -rf /tmp/wfgg-radar/connector-go
+          cp -a .radar-release-src/v2-source/connector-go /tmp/wfgg-radar/connector-go
+
       - name: Test and build Radar connector
         working-directory: /tmp/wfgg-radar/connector-go
         run: |
           set -euo pipefail
+          gofmt -w ./cmd ./internal
           go test ./...
           mkdir -p "$GITHUB_WORKSPACE/radar-vps/release"
           CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w' -o "$GITHUB_WORKSPACE/radar-vps/release/radar-connector" ./cmd/radar-connector
 
-      - name: Build pinned native Last War template helper
+      - name: Preserve validated V4 native helper
         run: |
           set -euo pipefail
-          rm -rf /tmp/lastwar-client
-          git clone --filter=blob:none https://github.com/ljagiello/lastwar-client.git /tmp/lastwar-client
-          cd /tmp/lastwar-client
-          git checkout ee5f64de160a8051c2f9f98189b75038dd225a0a
-          mkdir -p cmd/wfgg-radar-native-template
-          cp /tmp/wfgg-radar/connector-go/native-template/main.go cmd/wfgg-radar-native-template/main.go
-          sed -i '/^[[:space:]]*"fmt"[[:space:]]*$/d' cmd/wfgg-radar-native-template/main.go
-          gofmt -w cmd/wfgg-radar-native-template/main.go
-          go test ./internal/auth ./internal/pcap ./internal/sfs
-          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -tags lastwar_native_template -trimpath -ldflags='-s -w' -o "$GITHUB_WORKSPACE/radar-vps/release/radar-native-template" ./cmd/wfgg-radar-native-template
+          test -x radar-vps/release/radar-native-template || chmod 0755 radar-vps/release/radar-native-template
+          grep -aFq 'native-template-readonly-v4' radar-vps/release/radar-native-template
+          grep -aFq 'world.get.block' radar-vps/release/radar-native-template
+          grep -aFq 'get.user.info.multi' radar-vps/release/radar-native-template
+          echo 'RADAR_NATIVE_TEMPLATE=PRESERVED_V4'
 
       - name: Verify release binaries
         run: |
@@ -72,6 +83,6 @@ jobs:
             echo 'VPS_BINARIES=UNCHANGED'
             exit 0
           fi
-          git commit -m 'build(radar): publish static VPS connector binaries'
+          git commit -m 'build(radar): publish async Collector connector'
           git push origin HEAD:radar-production-v1
           echo 'VPS_BINARIES=PUBLISHED'
