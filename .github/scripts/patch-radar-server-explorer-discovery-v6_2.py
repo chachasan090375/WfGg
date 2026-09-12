@@ -93,8 +93,42 @@ func discoveryRangeV62(lo, hi int) []string {
 
 func (s *server) probeDiscoveryWindowV62(ctx context.Context, scanner protocol.ServerBatchScanner, token, jobID, direction string, ids []string, st *serverDiscoveryV62State) (int, error) {
 	started := time.Now()
+	ctxErr := ""
+	if ctx.Err() != nil { ctxErr = ctx.Err().Error() }
+
+	slog.Info(
+		"SERVER_DISCOVERY_V621_SENTINEL",
+		"jobId", jobID,
+		"stage", "WINDOW_START",
+		"direction", direction,
+		"low", ids[0],
+		"high", ids[len(ids)-1],
+		"planned", len(ids),
+		"ctxErr", ctxErr,
+	)
+
 	rows, err := scanner.ProbeServerRegions(ctx, token, ids)
-	if err != nil { return 0, err }
+
+	if err != nil {
+		slog.Error(
+			"SERVER_DISCOVERY_V621_SENTINEL",
+			"jobId", jobID,
+			"stage", "PROBE_ERROR",
+			"direction", direction,
+			"error", err.Error(),
+			"durationMs", time.Since(started).Milliseconds(),
+		)
+		return 0, err
+	}
+
+	slog.Info(
+		"SERVER_DISCOVERY_V621_SENTINEL",
+		"jobId", jobID,
+		"stage", "PROBE_RETURN",
+		"direction", direction,
+		"rows", len(rows),
+		"durationMs", time.Since(started).Milliseconds(),
+	)
 	accessible := 0
 	for _, row := range rows {
 		status := "FAILED"
@@ -135,10 +169,33 @@ func (s *server) handleServerDiscoveryV62(ctx context.Context, token, query, job
 	radarCollectorJobs.update(jobID, func(j *collectorJob) { j.Strategy="SERVER_EXPLORER_V62_RESUMABLE"; j.Phase="SERVER_DISCOVERY_V62"; j.Region=0; j.Regions=serverDiscoveryV62MaxWindowsPerRun })
 	slog.Info("SERVER_DISCOVERY_V62_SENTINEL", "jobId", jobID, "stage", "START", "anchor", st.Anchor, "nextLow", st.NextLow, "nextHigh", st.NextHigh, "lowStopped", st.LowStopped, "highStopped", st.HighStopped, "known", len(st.Results))
 
+	if saveErr := saveServerDiscoveryV62(st); saveErr != nil {
+		slog.Error(
+			"SERVER_DISCOVERY_V621_SENTINEL",
+			"jobId", jobID,
+			"stage", "INITIAL_STATE_SAVE_ERROR",
+			"error", saveErr.Error(),
+		)
+		radarCollectorJobs.update(jobID, func(j *collectorJob) {
+			j.Status = "FAILED"
+			j.Phase = "SERVER_DISCOVERY_V62_FAILED"
+			j.Error = "SERVER_DISCOVERY_INITIAL_STATE_SAVE_FAILED"
+			j.FinishedAt = utcNow()
+		})
+		return
+	}
+
+	slog.Info(
+		"SERVER_DISCOVERY_V621_SENTINEL",
+		"jobId", jobID,
+		"stage", "INITIAL_STATE_SAVED",
+		"path", serverDiscoveryV62Path,
+	)
+
 	windows := 0
 	if len(st.Results) == 0 {
 		ids := discoveryRangeV62(st.Anchor-5, st.Anchor+5)
-		probeCtx, cancel := context.WithTimeout(ctx, 45*time.Second)
+		probeCtx, cancel := context.WithTimeout(context.Background(), 45*time.Second)
 		_, err = s.probeDiscoveryWindowV62(probeCtx, batchScanner, token, jobID, "CENTER", ids, &st)
 		cancel()
 		if err != nil {
@@ -154,7 +211,7 @@ func (s *server) handleServerDiscoveryV62(ctx context.Context, token, query, job
 			lo := hi - (serverDiscoveryV62Window - 1)
 			if hi < 1 { st.LowStopped = true } else {
 				ids := discoveryRangeV62(lo, hi)
-				probeCtx, cancel := context.WithTimeout(ctx, 45*time.Second)
+				probeCtx, cancel := context.WithTimeout(context.Background(), 45*time.Second)
 				count, e := s.probeDiscoveryWindowV62(probeCtx, batchScanner, token, jobID, "LOW", ids, &st)
 				cancel()
 				if e != nil { err = e; break }
@@ -169,7 +226,7 @@ func (s *server) handleServerDiscoveryV62(ctx context.Context, token, query, job
 			hi := lo + (serverDiscoveryV62Window - 1)
 			if lo > 999999 { st.HighStopped = true } else {
 				ids := discoveryRangeV62(lo, hi)
-				probeCtx, cancel := context.WithTimeout(ctx, 45*time.Second)
+				probeCtx, cancel := context.WithTimeout(context.Background(), 45*time.Second)
 				count, e := s.probeDiscoveryWindowV62(probeCtx, batchScanner, token, jobID, "HIGH", ids, &st)
 				cancel()
 				if e != nil { err = e; break }
@@ -219,3 +276,5 @@ print('SERVER_EXPLORER_DISCOVERY_V62_RESUMABLE=YES')
 print('SERVER_EXPLORER_DISCOVERY_V62_WINDOW=11')
 print('SERVER_EXPLORER_DISCOVERY_V62_MAX_WINDOWS_PER_RUN=5')
 print('SERVER_EXPLORER_DISCOVERY_V62_STATE=/opt/wfgg-radar/state/server-discovery-v62.json')
+print('SERVER_EXPLORER_DISCOVERY_V621_SENTINEL=READY')
+print('SERVER_EXPLORER_DISCOVERY_V621_DETACHED_CONTEXT=YES')
