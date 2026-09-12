@@ -1,0 +1,38 @@
+name: Radar Server Explorer V4 source inspect
+
+on:
+  push:
+    branches: [radar-server-explorer-v3]
+    paths:
+      - '.github/workflows/radar-server-explorer-v4-source-inspect.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: radar-server-explorer-v3
+      - name: Reconstruct patched native source and print safe control-flow excerpt
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/wfgg-radar
+          mkdir -p /tmp/wfgg-radar
+          python3 .github/scripts/reconstruct-radar-release.py
+          tar -xzf /tmp/radar-src.tar.gz -C /tmp/wfgg-radar
+          base64 -d .radar-release-src/player-scan-v2.patch | gzip -dc > /tmp/player-scan-v2.patch
+          cd /tmp/wfgg-radar
+          git apply /tmp/player-scan-v2.patch
+          cd "$GITHUB_WORKSPACE"
+          python3 .github/scripts/patch-player-scan-v3.py
+          python3 .github/scripts/patch-player-scan-v4.py
+          python3 .github/scripts/patch-radar-server-explorer-native-v1.py
+          python3 .github/scripts/patch-radar-server-explorer-native-sentinel-v2.py
+          python3 .github/scripts/patch-radar-server-explorer-login-init-v3.py
+          echo '=== LOGIN LOOP EXCERPT ==='
+          grep -n -B 35 -A 180 'loginOK := false' /tmp/wfgg-radar/connector-go/native-template/main.go
