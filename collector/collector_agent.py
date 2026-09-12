@@ -11,6 +11,7 @@ import incremental_engine as inc
 ROOT=os.environ.get('WFGG_COLLECTOR_ROOT','/opt/wfgg-collector')
 DB_PATH=os.environ.get('WFGG_COLLECTOR_DB',f'{ROOT}/data/collector.db')
 MASTER_DIR=os.environ.get('WFGG_COLLECTOR_MASTER_DIR',f'{ROOT}/data/masters')
+IDENTITY_SCHEMA_PATH=os.environ.get('WFGG_IDENTITY_SCHEMA',f'{ROOT}/bin/identity_index_v1.sql')
 HOST=os.environ.get('WFGG_COLLECTOR_HOST','127.0.0.1')
 PORT=int(os.environ.get('WFGG_COLLECTOR_PORT','8790'))
 DB_LOCK=threading.RLock()
@@ -25,7 +26,12 @@ def db():
     c.row_factory=sqlite3.Row
     c.execute('PRAGMA journal_mode=WAL')
     c.execute('PRAGMA busy_timeout=30000')
+    c.execute('PRAGMA foreign_keys=ON')
     return c
+
+
+def identity_schema_ready(c):
+    return c.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='player_identity'").fetchone() is not None
 
 
 def init_db():
@@ -47,6 +53,9 @@ def init_db():
         CREATE INDEX IF NOT EXISTS idx_obs_uid_time ON observations(game_uid,observed_at DESC);
         ''')
         inc.ensure_schema(c)
+        if os.path.isfile(IDENTITY_SCHEMA_PATH):
+            with open(IDENTITY_SCHEMA_PATH,'r',encoding='utf-8') as f:
+                c.executescript(f.read())
 
 
 def normalized_player(p):
@@ -99,6 +108,78 @@ def search_players(q,limit):
         rows=c.execute('''SELECT * FROM players WHERE pseudo LIKE ? COLLATE NOCASE OR game_uid LIKE ?
           ORDER BY last_seen DESC LIMIT ?''',(f'%{q}%',f'%{q}%',limit)).fetchall()
     return [dict(r) for r in rows]
+
+
+def identity_resolve(q,server_hint=''):
+    q=str(q or '').strip(); server_hint=str(server_hint or '').strip()
+    if not q:
+        raise ValueError('QUERY_REQUIRED')
+    key=q.casefold()
+    with DB_LOCK,db() as c:
+        if not identity_schema_ready(c):
+            raise ValueError('IDENTITY_INDEX_NOT_READY')
+        r=c.execute('SELECT * FROM player_identity WHERE game_uid=?',(q,)).fetchone()
+        if r:
+            return {'resolved':True,'ambiguous':False,'route':'EXACT_UID','identity':dict(r),'candidates':[dict(r)]}
+
+        current=c.execute('''SELECT * FROM player_identity WHERE pseudo_key=?
+          ORDER BY last_seen DESC,game_uid''',(key,)).fetchall()
+        rows=[dict(x) for x in current]
+        route='CURRENT_PSEUDO'
+        if not rows:
+            hist=c.execute('''SELECT i.*,a.pseudo AS matched_alias,a.server_id AS alias_server_id,
+              a.first_seen AS alias_first_seen,a.last_seen AS alias_last_seen,a.is_current AS alias_is_current
+              FROM player_aliases a JOIN player_identity i ON i.game_uid=a.game_uid
+              WHERE a.pseudo_key=? ORDER BY a.is_current DESC,a.last_seen DESC,i.last_seen DESC''',(key,)).fetchall()
+            rows=[dict(x) for x in hist]
+            route='HISTORICAL_ALIAS'
+
+    unique=[]; seen=set()
+    for row in rows:
+        uid=str(row.get('game_uid') or '')
+        if uid and uid not in seen:
+            seen.add(uid); unique.append(row)
+    rows=unique
+
+    if server_hint and len(rows)>1:
+        matching=[r for r in rows if str(r.get('current_server_id') or r.get('alias_server_id') or '')==server_hint]
+        if len(matching)==1:
+            return {'resolved':True,'ambiguous':False,'route':route+'_SERVER','identity':matching[0],'candidates':matching}
+        if matching:
+            rows=matching
+
+    if len(rows)==1:
+        return {'resolved':True,'ambiguous':False,'route':route,'identity':rows[0],'candidates':rows}
+    if len(rows)>1:
+        return {'resolved':False,'ambiguous':True,'route':route+'_AMBIGUOUS','identity':None,'candidates':rows}
+    return {'resolved':False,'ambiguous':False,'route':'MISS','identity':None,'candidates':[]}
+
+
+def identity_aliases(uid):
+    uid=str(uid or '').strip()
+    if not uid:
+        raise ValueError('UID_REQUIRED')
+    with DB_LOCK,db() as c:
+        if not identity_schema_ready(c):
+            raise ValueError('IDENTITY_INDEX_NOT_READY')
+        rows=c.execute('''SELECT * FROM player_aliases WHERE game_uid=?
+          ORDER BY is_current DESC,last_seen DESC,pseudo_key''',(uid,)).fetchall()
+    return [dict(r) for r in rows]
+
+
+def identity_stats():
+    with DB_LOCK,db() as c:
+        if not identity_schema_ready(c):
+            return {'ready':False,'identities':0,'aliases':0,'pseudoCollisions':0,'coverageScopes':0,'coverageComplete':0}
+        identities=c.execute('SELECT COUNT(*) FROM player_identity').fetchone()[0]
+        aliases=c.execute('SELECT COUNT(*) FROM player_aliases').fetchone()[0]
+        collisions=c.execute('''SELECT COUNT(*) FROM (
+          SELECT pseudo_key FROM player_identity GROUP BY pseudo_key HAVING COUNT(*)>1)''').fetchone()[0]
+        scopes=c.execute('SELECT COUNT(*) FROM identity_coverage').fetchone()[0]
+        complete=c.execute("SELECT COUNT(*) FROM identity_coverage WHERE status='COMPLETE'").fetchone()[0]
+        last=c.execute('SELECT MAX(last_seen) FROM player_identity').fetchone()[0]
+    return {'ready':True,'identities':identities,'aliases':aliases,'pseudoCollisions':collisions,
+      'coverageScopes':scopes,'coverageComplete':complete,'lastSeen':last}
 
 
 def master_latest():
@@ -158,11 +239,11 @@ def stats():
         m=inc.latest_master(c)
         cy=c.execute('SELECT * FROM cycles ORDER BY id DESC LIMIT 1').fetchone()
     return {'players':players,'activePlayers':active,'observations':observations,'lastSeen':last,
-      'master':m,'lastCycle':dict(cy) if cy else None}
+      'identityIndex':identity_stats(),'master':m,'lastCycle':dict(cy) if cy else None}
 
 
 class Handler(BaseHTTPRequestHandler):
-    server_version='WfGgCollector/2'
+    server_version='WfGgCollector/3-Identity'
     def log_message(self,fmt,*args): return
     def send_json(self,status,obj):
         body=json.dumps(obj,ensure_ascii=False,separators=(',',':')).encode()
@@ -175,29 +256,44 @@ class Handler(BaseHTTPRequestHandler):
         return json.loads(self.rfile.read(n).decode())
     def do_GET(self):
         u=urlparse(self.path); a=parse_qs(u.query)
-        if u.path=='/health': return self.send_json(200,{'ok':True,'service':'wfgg-collector-v2'})
-        if u.path=='/stats': return self.send_json(200,stats())
-        if u.path=='/master/latest':
-            m=master_latest(); return self.send_json(200 if m else 404,{'ok':bool(m),'master':m})
-        if u.path=='/cycle/status':
-            raw=a.get('id',[''])[0].strip()
-            if not raw.isdigit(): return self.send_json(400,{'ok':False,'error':'CYCLE_ID_REQUIRED'})
-            cy=cycle_get(int(raw)); return self.send_json(200 if cy else 404,{'ok':bool(cy),'cycle':cy})
-        if u.path=='/cycle/latest':
-            cy=cycle_latest(); return self.send_json(200 if cy else 404,{'ok':bool(cy),'cycle':cy})
-        if u.path=='/cycle/changes':
-            raw=a.get('id',[''])[0].strip()
-            if not raw.isdigit(): return self.send_json(400,{'ok':False,'error':'CYCLE_ID_REQUIRED'})
-            return self.send_json(200,{'ok':True,'changes':cycle_changes(int(raw),a.get('limit',['200'])[0],a.get('offset',['0'])[0])})
-        if u.path=='/player':
-            q=a.get('q',[''])[0].strip()
-            if not q: return self.send_json(400,{'ok':False,'error':'QUERY_REQUIRED'})
-            p=find_player(q); return self.send_json(200 if p else 404,{'ok':bool(p),'player':p})
-        if u.path=='/search':
-            q=a.get('q',[''])[0].strip()
-            if not q: return self.send_json(400,{'ok':False,'error':'QUERY_REQUIRED'})
-            return self.send_json(200,{'ok':True,'players':search_players(q,a.get('limit',['20'])[0])})
-        self.send_json(404,{'ok':False,'error':'NOT_FOUND'})
+        try:
+            if u.path=='/health':
+                ids=identity_stats()
+                return self.send_json(200,{'ok':True,'service':'wfgg-collector-v3-identity','identityIndex':ids})
+            if u.path=='/stats': return self.send_json(200,stats())
+            if u.path=='/identity/stats': return self.send_json(200,{'ok':True,**identity_stats()})
+            if u.path=='/identity/resolve':
+                q=a.get('q',[''])[0].strip(); server=a.get('server',[''])[0].strip()
+                r=identity_resolve(q,server)
+                status=200 if r['resolved'] or r['ambiguous'] else 404
+                return self.send_json(status,{'ok':r['resolved'],**r})
+            if u.path=='/identity/aliases':
+                uid=a.get('uid',[''])[0].strip()
+                rows=identity_aliases(uid)
+                return self.send_json(200,{'ok':True,'gameUid':uid,'aliases':rows})
+            if u.path=='/master/latest':
+                m=master_latest(); return self.send_json(200 if m else 404,{'ok':bool(m),'master':m})
+            if u.path=='/cycle/status':
+                raw=a.get('id',[''])[0].strip()
+                if not raw.isdigit(): return self.send_json(400,{'ok':False,'error':'CYCLE_ID_REQUIRED'})
+                cy=cycle_get(int(raw)); return self.send_json(200 if cy else 404,{'ok':bool(cy),'cycle':cy})
+            if u.path=='/cycle/latest':
+                cy=cycle_latest(); return self.send_json(200 if cy else 404,{'ok':bool(cy),'cycle':cy})
+            if u.path=='/cycle/changes':
+                raw=a.get('id',[''])[0].strip()
+                if not raw.isdigit(): return self.send_json(400,{'ok':False,'error':'CYCLE_ID_REQUIRED'})
+                return self.send_json(200,{'ok':True,'changes':cycle_changes(int(raw),a.get('limit',['200'])[0],a.get('offset',['0'])[0])})
+            if u.path=='/player':
+                q=a.get('q',[''])[0].strip()
+                if not q: return self.send_json(400,{'ok':False,'error':'QUERY_REQUIRED'})
+                p=find_player(q); return self.send_json(200 if p else 404,{'ok':bool(p),'player':p})
+            if u.path=='/search':
+                q=a.get('q',[''])[0].strip()
+                if not q: return self.send_json(400,{'ok':False,'error':'QUERY_REQUIRED'})
+                return self.send_json(200,{'ok':True,'players':search_players(q,a.get('limit',['20'])[0])})
+            self.send_json(404,{'ok':False,'error':'NOT_FOUND'})
+        except (ValueError,TypeError,json.JSONDecodeError) as e:
+            self.send_json(400,{'ok':False,'error':str(e)})
     def do_POST(self):
         path=urlparse(self.path).path
         try:
