@@ -112,6 +112,7 @@ else:
     print('RADAR_EMAIL_AUTH_WORKER_PATCH=APPLIED')
 
 p.write_text(s)
+print('RADAR_EMAIL_AUTH_PATCHER=V1')
 
 # The deployment workflow invokes this script before it overlays live-radar.html.
 # Patch a temporary copy using the dedicated UI patchers, then copy the result
