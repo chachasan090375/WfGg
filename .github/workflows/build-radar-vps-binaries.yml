@@ -99,5 +99,7 @@ jobs:
             exit 0
           fi
           git commit -m 'build(radar): publish email-code auth connector bundle'
+          git fetch origin radar-production-v1
+          git rebase origin/radar-production-v1
           git push origin HEAD:radar-production-v1
           echo 'VPS_BINARIES=PUBLISHED'
