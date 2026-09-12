@@ -38,11 +38,14 @@ export class RemoteLastWarTransport {
     const bodyText = body === null ? '' : JSON.stringify(body);
     const timestamp = String(Math.floor(Date.now() / 1000));
     const requestNonce = nonce();
-    const signature = await connectorSignature({ method, path, timestamp, nonce: requestNonce, body: bodyText, secret: this.sharedKey });
+    // The connector deliberately signs URL.Path only. Query parameters remain in
+    // the request URL but are not part of the HMAC canonical path.
+    const parsed = new URL(this.baseUrl + path);
+    const signature = await connectorSignature({ method, path: parsed.pathname, timestamp, nonce: requestNonce, body: bodyText, secret: this.sharedKey });
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort('timeout'), this.timeoutMs);
     try {
-      const response = await this.fetchImpl(this.baseUrl + path, {
+      const response = await this.fetchImpl(parsed.toString(), {
         method,
         headers: {
           'content-type': 'application/json',
@@ -69,6 +72,8 @@ export class RemoteLastWarTransport {
   authenticate(token) { return this.request('/v1/authenticate', { body: { token } }); }
   snapshot(token) { return this.request('/v1/snapshot', { body: { token } }); }
   scanPlayer(query, token) { return this.request('/v1/scan/player', { body: { token, query } }); }
+  startCollectorSearch(query, token) { return this.request('/v1/collector/search/start', { body: { token, query } }); }
+  collectorSearchStatus(id) { return this.request(`/v1/collector/search/status?id=${encodeURIComponent(id)}`, { method: 'GET' }); }
   health() { return this.request('/v1/health', { method: 'GET' }); }
   async close() {}
 }
