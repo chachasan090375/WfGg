@@ -97,7 +97,7 @@ jobs:
           go vet ./...
           CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w' -o /tmp/radar-connector ./cmd/radar-connector
           grep -aFq 'SERVER_EXPLORER_PROTOCOL_SENTINEL' /tmp/radar-connector
-          grep -aFq 'SERVER_EXPLORER_PROTOCOL_SUMMARY_V4' /tmp/radar-connector
+          grep -aFq 'postLoginPacket' /tmp/radar-connector
 
       - name: Publish isolated diagnostic release
         run: |
@@ -111,7 +111,7 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add radar-vps/server-explorer-sentinel-v2-release
           if git diff --cached --quiet; then exit 0; fi
-          git commit -m 'build(radar): publish Server Explorer Sentinel v2 release'
+          git commit -m 'build(radar): publish Server Explorer Sentinel v4 release'
           git fetch origin radar-server-explorer-v3
           git rebase origin/radar-server-explorer-v3
           git push origin HEAD:radar-server-explorer-v3
