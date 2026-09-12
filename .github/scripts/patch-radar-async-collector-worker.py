@@ -1,16 +1,19 @@
 #!/usr/bin/env python3
 from pathlib import Path
+import shutil
+import subprocess
+import sys
 
 p = Path('/tmp/wfgg-radar/src/worker.js')
 s = p.read_text()
 marker = "      if (url.pathname === '/api/radar/search' && request.method === 'GET') {"
+
 if "'/api/radar/search/start'" in s:
     print('RADAR_ASYNC_COLLECTOR_PATCH=ALREADY_PRESENT')
-    raise SystemExit(0)
-if marker not in s:
-    raise SystemExit('RADAR_ASYNC_COLLECTOR_PATCH_ANCHOR_MISSING')
-
-block = r'''      if (url.pathname === '/api/radar/search/start' && request.method === 'POST') {
+else:
+    if marker not in s:
+        raise SystemExit('RADAR_ASYNC_COLLECTOR_PATCH_ANCHOR_MISSING')
+    block = r'''      if (url.pathname === '/api/radar/search/start' && request.method === 'POST') {
         const session = await requireSession(request, env);
         assertCapability(session.role, 'radar.search');
         const body = await bodyJson(request);
@@ -49,6 +52,19 @@ block = r'''      if (url.pathname === '/api/radar/search/start' && request.meth
       }
 
 '''
-s = s.replace(marker, block + marker, 1)
-p.write_text(s)
-print('RADAR_ASYNC_COLLECTOR_PATCH=APPLIED')
+    s = s.replace(marker, block + marker, 1)
+    p.write_text(s)
+    print('RADAR_ASYNC_COLLECTOR_PATCH=APPLIED')
+
+# The deployment workflow invokes this script before it overlays live-radar.html.
+# Patch a temporary copy using the dedicated UI patcher, then copy the result
+# back into the checked-out UI file so the next deployment step installs it.
+live_src = Path('radar-ui-live/live-radar.html')
+live_tmp = Path('/tmp/wfgg-radar/public/live-radar.html')
+if not live_src.is_file():
+    raise SystemExit('RADAR_LIVE_SOURCE_MISSING')
+live_tmp.parent.mkdir(parents=True, exist_ok=True)
+shutil.copyfile(live_src, live_tmp)
+subprocess.run([sys.executable, '.github/scripts/patch-live-radar-async.py'], check=True)
+shutil.copyfile(live_tmp, live_src)
+print('RADAR_LIVE_ASYNC_OVERLAY=READY')
