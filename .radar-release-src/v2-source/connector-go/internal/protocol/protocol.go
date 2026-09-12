@@ -62,11 +62,17 @@ type Client interface {
 	Mode() string
 }
 
-// RegionScanner is implemented by the native V4 adapter.  It is intentionally
-// optional so the legacy read-only client remains valid.  Region is 0..8 and
-// maps to the same WFGG_COLLECTOR_ORIGIN_INDEX grid validated by Collector V4.
+// RegionScanner is implemented by the native V4 adapter. It is optional so the
+// legacy read-only client remains valid. Region 0..8 maps to the same 3x3
+// WFGG_COLLECTOR_ORIGIN_INDEX grid already validated by Collector V4.
 type RegionScanner interface {
 	ScanPlayerRegion(ctx context.Context, token, query string, region int) ([]Player, error)
+}
+
+// ProfileScanner exposes the V4 @profile:uid,... fast path without changing the
+// public legacy ScanPlayer contract (whose query length is intentionally small).
+type ProfileScanner interface {
+	ScanProfiles(ctx context.Context, token string, uids []string) ([]Player, error)
 }
 
 type NotConfigured struct{}
