@@ -1,4 +1,4 @@
-name: Radar Server Explorer Sentinel v4 build
+name: Radar Server Explorer Sentinel v5 build
 
 on:
   push:
@@ -10,6 +10,7 @@ on:
       - '.github/scripts/patch-radar-server-explorer-protocol-v4.py'
       - '.github/scripts/patch-radar-server-explorer-login-init-v3.py'
       - '.github/scripts/patch-radar-server-explorer-init-window-v4.py'
+      - '.github/scripts/patch-radar-server-explorer-redirect-v5.py'
       - '.github/scripts/patch-radar-server-explorer-budget-v2.py'
       - '.github/scripts/patch-radar-server-explorer-native-v1.py'
       - '.github/scripts/patch-radar-server-explorer-connector-v1.py'
@@ -59,6 +60,7 @@ jobs:
           python3 .github/scripts/patch-radar-server-explorer-native-sentinel-v2.py
           python3 .github/scripts/patch-radar-server-explorer-login-init-v3.py
           python3 .github/scripts/patch-radar-server-explorer-init-window-v4.py
+          python3 .github/scripts/patch-radar-server-explorer-redirect-v5.py
 
       - name: Build native helper
         run: |
@@ -79,6 +81,8 @@ jobs:
           strings /tmp/radar-native-template | grep -Fq 'LOGIN_INIT_PULL_SENT'
           strings /tmp/radar-native-template | grep -Fq 'INIT_WAIT_PHASE1'
           strings /tmp/radar-native-template | grep -Fq 'POST_LOGIN_PACKET_RX'
+          strings /tmp/radar-native-template | grep -Fq 'LOGIN_SERVERINFO_REDIRECT_PRESENT'
+          strings /tmp/radar-native-template | grep -Fq 'LOGIN_SERVERINFO_REDIRECT_LOGIN_SENT'
 
       - name: Build connector with protocol Sentinel
         run: |
@@ -111,7 +115,7 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add radar-vps/server-explorer-sentinel-v2-release
           if git diff --cached --quiet; then exit 0; fi
-          git commit -m 'build(radar): publish Server Explorer Sentinel v4 release'
+          git commit -m 'build(radar): publish Server Explorer Sentinel v5 release'
           git fetch origin radar-server-explorer-v3
           git rebase origin/radar-server-explorer-v3
           git push origin HEAD:radar-server-explorer-v3
