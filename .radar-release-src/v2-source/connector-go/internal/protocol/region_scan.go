@@ -19,6 +19,32 @@ func (c *NativeTemplateReadonly) ScanPlayerRegion(parent context.Context, token,
 	if region < 0 || region > 8 {
 		return nil, errors.New("COLLECTOR_REGION_INVALID")
 	}
+	return c.scanNativeV4(parent, token, query, &region)
+}
+
+// ScanProfiles uses the already validated V4 direct profile mode.  Batches are
+// capped at 50 UIDs here, matching the Collector V4 executor contract.
+func (c *NativeTemplateReadonly) ScanProfiles(parent context.Context, token string, uids []string) ([]Player, error) {
+	if len(uids) == 0 || len(uids) > 50 {
+		return nil, errors.New("COLLECTOR_PROFILE_BATCH_INVALID")
+	}
+	clean := make([]string, 0, len(uids))
+	seen := map[string]bool{}
+	for _, uid := range uids {
+		uid = strings.TrimSpace(uid)
+		if uid == "" || seen[uid] {
+			continue
+		}
+		seen[uid] = true
+		clean = append(clean, uid)
+	}
+	if len(clean) == 0 {
+		return nil, errors.New("COLLECTOR_PROFILE_BATCH_INVALID")
+	}
+	return c.scanNativeV4(parent, token, "@profile:"+strings.Join(clean, ","), nil)
+}
+
+func (c *NativeTemplateReadonly) scanNativeV4(parent context.Context, token, query string, region *int) ([]Player, error) {
 	if err := c.validate(); err != nil {
 		return nil, err
 	}
@@ -31,7 +57,7 @@ func (c *NativeTemplateReadonly) ScanPlayerRegion(parent context.Context, token,
 		return nil, errors.New("PLAYER_QUERY_REQUIRED")
 	}
 
-	dir, err := os.MkdirTemp("", "wfgg-radar-region-scan-*")
+	dir, err := os.MkdirTemp("", "wfgg-radar-v4-scan-*")
 	if err != nil {
 		return nil, errors.New("LASTWAR_TEMP_DIR_FAILED")
 	}
@@ -59,10 +85,11 @@ func (c *NativeTemplateReadonly) ScanPlayerRegion(parent context.Context, token,
 	defer cancel()
 
 	cmd := exec.CommandContext(ctx, c.Bin, c.CapturePath, sessionPath, "--scan-player", query)
-	cmd.Env = append(childEnv(dir),
-		"LASTWAR_NATIVE_SCAN_SEED="+c.ScanSeed,
-		"WFGG_COLLECTOR_ORIGIN_INDEX="+strconv.Itoa(region),
-	)
+	env := append(childEnv(dir), "LASTWAR_NATIVE_SCAN_SEED="+c.ScanSeed)
+	if region != nil {
+		env = append(env, "WFGG_COLLECTOR_ORIGIN_INDEX="+strconv.Itoa(*region))
+	}
+	cmd.Env = env
 	var stdout, stderr limitedBuffer
 	stdout.N, stderr.N = 4<<20, 64<<10
 	cmd.Stdout, cmd.Stderr = &stdout, &stderr
