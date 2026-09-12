@@ -3,7 +3,7 @@ set -Eeuo pipefail
 
 REMOTE="ChaChaVPS"
 PUBLIC_HOST="${RADAR_VPS_PUBLIC_IP:-206.189.12.92}"
-RELEASE_COMMIT="0371832d7ea2c3e6b67a49d863ac7a68d1cfb3a1"
+RELEASE_COMMIT="be11ee4af4d66b0305932a69d7230a5f51ec61ab"
 RAW="https://raw.githubusercontent.com/chachasan090375/WfGg/$RELEASE_COMMIT/radar-vps/oracle-release"
 RADAR_BIN="/opt/wfgg-radar/bin/radar-connector"
 BACKUP_DIR="/opt/wfgg-radar/backups"
@@ -23,7 +23,7 @@ else
   say 'PLAYER_ORACLE_SSH_ROUTE=PUBLIC_IPV4'
 fi
 
-say '=== WfGg Radar · Player Oracle v1 ==='
+say '=== WfGg Radar · Player Oracle v1 + Sentinel ==='
 say '1/4 Téléchargement et vérification de la release isolée'
 TS="$(date +%s)"
 curl -fsSL "$RAW/SHA256SUMS?ts=$TS" -o "$TMP/SHA256SUMS"
@@ -34,11 +34,13 @@ grep -E '  radar-connector$' "$TMP/SHA256SUMS" > "$TMP/CONNECTOR_SHA256SUMS"
 chmod 0755 "$TMP/radar-connector"
 grep -aFq 'TARGETED_UID_PROFILE' "$TMP/radar-connector" || die PLAYER_ORACLE_RELEASE_NOT_READY
 grep -aFq 'BROAD_SCAN_V4' "$TMP/radar-connector" || die BROAD_SCAN_FALLBACK_MISSING
+grep -aFq 'PLAYER_ORACLE_SENTINEL' "$TMP/radar-connector" || die PLAYER_ORACLE_SENTINEL_MISSING
 say 'PLAYER_ORACLE_RELEASE=OK'
+say 'PLAYER_ORACLE_SENTINEL_RELEASE=OK'
 
 say '2/4 Sauvegarde atomique du connecteur actuellement installé'
 STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
-BACKUP="$BACKUP_DIR/radar-connector-before-player-oracle-$STAMP"
+BACKUP="$BACKUP_DIR/radar-connector-before-player-oracle-sentinel-$STAMP"
 ssh "${SSH_OPTS[@]}" -T "$REMOTE" "
 set -eu
 install -d -o root -g root -m 0700 '$BACKUP_DIR'
@@ -48,8 +50,8 @@ chmod 0700 '$BACKUP'
 echo PLAYER_ORACLE_BACKUP='$BACKUP'
 " </dev/null
 
-say '3/4 Installation du connecteur Oracle avec rollback automatique'
-REMOTE_TMP="/tmp/wfgg-radar-player-oracle-$$"
+say '3/4 Installation du connecteur Oracle/Sentinel avec rollback automatique'
+REMOTE_TMP="/tmp/wfgg-radar-player-oracle-sentinel-$$"
 scp "${SSH_OPTS[@]}" -q "$TMP/radar-connector" "$REMOTE:$REMOTE_TMP"
 ssh "${SSH_OPTS[@]}" -T "$REMOTE" "
 set -eu
@@ -67,6 +69,7 @@ sleep 2
 systemctl is-active --quiet wfgg-radar-connector.service
 grep -aFq 'TARGETED_UID_PROFILE' '$RADAR_BIN'
 grep -aFq 'BROAD_SCAN_V4' '$RADAR_BIN'
+grep -aFq 'PLAYER_ORACLE_SENTINEL' '$RADAR_BIN'
 trap - HUP INT TERM ERR
 echo PLAYER_ORACLE_CONNECTOR_SERVICE=\$(systemctl is-active wfgg-radar-connector.service)
 " </dev/null
@@ -76,9 +79,13 @@ ssh "${SSH_OPTS[@]}" -T "$REMOTE" "
 set -eu
 grep -aFq 'TARGETED_UID_PROFILE' '$RADAR_BIN'
 grep -aFq 'BROAD_SCAN_V4' '$RADAR_BIN'
+grep -aFq 'PLAYER_ORACLE_SENTINEL' '$RADAR_BIN'
 echo PLAYER_ORACLE_TARGETED_UID=READY
 echo PLAYER_ORACLE_BROADSCAN_FALLBACK=READY
+echo PLAYER_ORACLE_SENTINEL=READY
+echo PLAYER_ORACLE_PRIORITY_ORDER=P1_UID_INDEX_P2_DIRECT_PROFILE_P3_BROAD_SCAN_V4
 echo PLAYER_ORACLE_BACKUP='$BACKUP'
 " </dev/null
 
 say 'PLAYER_ORACLE_V1=OK'
+say 'PLAYER_ORACLE_SENTINEL_V1=OK'
