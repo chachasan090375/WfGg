@@ -3,14 +3,24 @@ set -Eeuo pipefail
 
 RAW="https://raw.githubusercontent.com/chachasan090375/WfGg/collector-v1/collector"
 REMOTE="ChaChaVPS"
+PUBLIC_HOST="${RADAR_VPS_PUBLIC_IP:-206.189.12.92}"
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT INT TERM
 
 curl -fsSL "$RAW/install-from-termux.sh" -o "$TMP/install-from-termux.sh"
 bash "$TMP/install-from-termux.sh"
 
-ssh -o ConnectTimeout=15 -o ServerAliveInterval=10 -o ServerAliveCountMax=3 -T "$REMOTE" 'python3 - <<'"'"'PY'"'"'
-import json, urllib.error, urllib.request
+SSH_OPTS=(-o ConnectTimeout=15 -o ServerAliveInterval=10 -o ServerAliveCountMax=3)
+if ssh "${SSH_OPTS[@]}" "$REMOTE" 'true' </dev/null >/dev/null 2>&1; then
+  printf '%s\n' 'ASYNC_SSH_ROUTE=ChaChaVPS'
+else
+  SSH_OPTS+=(-o HostName="$PUBLIC_HOST")
+  ssh "${SSH_OPTS[@]}" "$REMOTE" 'true' </dev/null >/dev/null 2>&1 || { printf '%s\n' 'ERROR=VPS_UNREACHABLE' >&2; exit 1; }
+  printf '%s\n' 'ASYNC_SSH_ROUTE=PUBLIC_IPV4'
+fi
+
+ssh "${SSH_OPTS[@]}" -T "$REMOTE" 'python3 - <<'"'"'PY'"'"'
+import json, urllib.request
 base="http://127.0.0.1:8790"
 
 def get(path):
