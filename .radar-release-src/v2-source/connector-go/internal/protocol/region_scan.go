@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"log/slog"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -22,7 +23,7 @@ func (c *NativeTemplateReadonly) ScanPlayerRegion(parent context.Context, token,
 	return c.scanNativeV4(parent, token, query, &region)
 }
 
-// ScanProfiles uses the already validated V4 direct profile mode.  Batches are
+// ScanProfiles uses the already validated V4 direct profile mode. Batches are
 // capped at 50 UIDs here, matching the Collector V4 executor contract.
 func (c *NativeTemplateReadonly) ScanProfiles(parent context.Context, token string, uids []string) ([]Player, error) {
 	if len(uids) == 0 || len(uids) > 50 {
@@ -44,12 +45,47 @@ func (c *NativeTemplateReadonly) ScanProfiles(parent context.Context, token stri
 	return c.scanNativeV4(parent, token, "@profile:"+strings.Join(clean, ","), nil)
 }
 
+func safeNativeCode(raw string) string {
+	code := strings.TrimSpace(raw)
+	if i := strings.IndexByte(code, ':'); i >= 0 {
+		code = code[:i]
+	}
+	if code == "" {
+		return "EMPTY"
+	}
+	if len(code) > 96 {
+		code = code[:96]
+	}
+	for _, r := range code {
+		if (r >= 'A' && r <= 'Z') || (r >= 'a' && r <= 'z') || (r >= '0' && r <= '9') || r == '_' || r == '-' {
+			continue
+		}
+		return "UNSAFE_CODE_REDACTED"
+	}
+	return code
+}
+
+func profileProtocolSentinel(stage string, rep nativeTemplateReport, runErr error, stdoutBytes, stderrBytes int) {
+	slog.Info("PLAYER_ORACLE_PROTOCOL_SENTINEL",
+		"stage", stage,
+		"nativeCode", safeNativeCode(rep.LoginResponse),
+		"scanCommand", safeNativeCode(rep.ScanCommand),
+		"scanTemplateFound", rep.ScanTemplateFound,
+		"scanPerformed", rep.ScanPerformed,
+		"players", len(rep.Players),
+		"runError", runErr != nil,
+		"stdoutBytes", stdoutBytes,
+		"stderrBytes", stderrBytes,
+	)
+}
+
 func (c *NativeTemplateReadonly) scanNativeV4(parent context.Context, token, query string, region *int) ([]Player, error) {
 	if err := c.validate(); err != nil {
 		return nil, err
 	}
 	token = strings.TrimSpace(token)
 	query = strings.TrimSpace(query)
+	profileMode := strings.HasPrefix(query, "@profile:")
 	if len(token) < 8 {
 		return nil, errors.New("GAME_TOKEN_REQUIRED")
 	}
@@ -95,15 +131,29 @@ func (c *NativeTemplateReadonly) scanNativeV4(parent context.Context, token, que
 	cmd.Stdout, cmd.Stderr = &stdout, &stderr
 	runErr := cmd.Run()
 	if ctx.Err() != nil {
+		if profileMode {
+			slog.Info("PLAYER_ORACLE_PROTOCOL_SENTINEL", "stage", "PROFILE_TIMEOUT")
+		}
 		return nil, errors.New("LASTWAR_PLAYER_SCAN_TIMEOUT")
 	}
 
 	var rep nativeTemplateReport
 	if err := json.Unmarshal(stdout.Bytes(), &rep); err != nil {
+		if profileMode {
+			slog.Info("PLAYER_ORACLE_PROTOCOL_SENTINEL",
+				"stage", "PROFILE_REPORT_INVALID",
+				"runError", runErr != nil,
+				"stdoutBytes", len(stdout.Bytes()),
+				"stderrBytes", len(stderr.Bytes()),
+			)
+		}
 		if runErr != nil {
 			return nil, errors.New("LASTWAR_PLAYER_SCAN_FAILED")
 		}
 		return nil, errors.New("LASTWAR_PLAYER_SCAN_REPORT_INVALID")
+	}
+	if profileMode {
+		profileProtocolSentinel("PROFILE_NATIVE_REPORT", rep, runErr, len(stdout.Bytes()), len(stderr.Bytes()))
 	}
 	if runErr != nil {
 		if rep.LoginResponse == "REJECTED" {
@@ -135,11 +185,20 @@ func (c *NativeTemplateReadonly) scanNativeV4(parent context.Context, token, que
 		case "READ_FAILED":
 			return nil, errors.New("LASTWAR_NATIVE_READ_FAILED")
 		default:
+			if profileMode {
+				return nil, errors.New("LASTWAR_PROFILE_NATIVE_" + safeNativeCode(rep.LoginResponse))
+			}
 			return nil, errors.New("LASTWAR_PLAYER_SCAN_FAILED")
 		}
 	}
 	if rep.LoginResponse != "OK" || !rep.ScanTemplateFound || !rep.ScanPerformed {
+		if profileMode {
+			return nil, errors.New("LASTWAR_PROFILE_NOT_CONFIRMED_" + safeNativeCode(rep.LoginResponse))
+		}
 		return nil, errors.New("LASTWAR_PLAYER_SCAN_NOT_CONFIRMED")
+	}
+	if profileMode {
+		profileProtocolSentinel("PROFILE_SUCCESS", rep, nil, len(stdout.Bytes()), len(stderr.Bytes()))
 	}
 	return rep.Players, nil
 }
