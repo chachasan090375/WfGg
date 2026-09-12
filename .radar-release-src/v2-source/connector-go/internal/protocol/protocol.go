@@ -62,6 +62,13 @@ type Client interface {
 	Mode() string
 }
 
+// RegionScanner is implemented by the native V4 adapter.  It is intentionally
+// optional so the legacy read-only client remains valid.  Region is 0..8 and
+// maps to the same WFGG_COLLECTOR_ORIGIN_INDEX grid validated by Collector V4.
+type RegionScanner interface {
+	ScanPlayerRegion(ctx context.Context, token, query string, region int) ([]Player, error)
+}
+
 type NotConfigured struct{}
 
 func (NotConfigured) Authenticate(context.Context, string) (Identity, error) {
