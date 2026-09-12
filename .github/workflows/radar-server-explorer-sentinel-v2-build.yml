@@ -5,7 +5,8 @@ on:
     branches: [radar-server-explorer-v2]
     paths:
       - '.github/workflows/radar-server-explorer-sentinel-v2-build.yml'
-      - '.github/scripts/patch-radar-server-explorer-sentinel-v2.py'
+      - '.github/scripts/patch-radar-server-explorer-native-sentinel-v2.py'
+      - '.github/scripts/patch-radar-server-explorer-protocol-sentinel-v2.py'
       - '.github/scripts/patch-radar-server-explorer-native-v1.py'
       - '.github/scripts/patch-radar-server-explorer-connector-v1.py'
       - '.github/scripts/patch-radar-player-oracle-v1.py'
@@ -37,7 +38,7 @@ jobs:
         with:
           go-version: '1.27.x'
 
-      - name: Reconstruct source and apply Sentinel diagnostics
+      - name: Reconstruct source and apply native Sentinel diagnostics
         run: |
           set -euo pipefail
           rm -rf /tmp/wfgg-radar
@@ -51,7 +52,7 @@ jobs:
           python3 .github/scripts/patch-player-scan-v3.py
           python3 .github/scripts/patch-player-scan-v4.py
           python3 .github/scripts/patch-radar-server-explorer-native-v1.py
-          python3 .github/scripts/patch-radar-server-explorer-sentinel-v2.py
+          python3 .github/scripts/patch-radar-server-explorer-native-sentinel-v2.py
 
       - name: Build native helper
         run: |
@@ -70,7 +71,7 @@ jobs:
           CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -tags lastwar_native_template -trimpath -ldflags='-s -w' -o /tmp/radar-native-template ./cmd/wfgg-radar-native-template
           strings /tmp/radar-native-template | grep -Fq 'SERVER_EXPLORER_NATIVE_SENTINEL'
 
-      - name: Build connector
+      - name: Build connector with protocol Sentinel
         run: |
           set -euo pipefail
           rm -rf /tmp/wfgg-radar/connector-go
@@ -78,7 +79,7 @@ jobs:
           python3 .github/scripts/patch-radar-target-profile-retry.py
           python3 .github/scripts/patch-radar-player-oracle-v1.py
           python3 .github/scripts/patch-radar-server-explorer-connector-v1.py
-          python3 .github/scripts/patch-radar-server-explorer-sentinel-v2.py
+          python3 .github/scripts/patch-radar-server-explorer-protocol-sentinel-v2.py
           cd /tmp/wfgg-radar/connector-go
           gofmt -w ./cmd ./internal
           go test ./...
