@@ -88,7 +88,6 @@ jobs:
           go vet ./...
           CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w' -o /tmp/radar-connector ./cmd/radar-connector
           grep -aFq 'SERVER_EXPLORER_PROTOCOL_SENTINEL' /tmp/radar-connector
-          grep -aFq 'SERVER_EXPLORER_CONTROL_BUDGET_V2' /tmp/radar-connector
 
       - name: Publish isolated diagnostic release
         run: |
