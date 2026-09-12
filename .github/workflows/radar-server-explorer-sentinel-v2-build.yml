@@ -1,8 +1,8 @@
-name: Radar Server Explorer Sentinel v5 build
+name: Radar Server Explorer Sentinel v6 build
 
 on:
   push:
-    branches: [radar-server-explorer-v3]
+    branches: [radar-server-explorer-v6]
     paths:
       - '.github/workflows/radar-server-explorer-sentinel-v2-build.yml'
       - '.github/scripts/patch-radar-server-explorer-native-sentinel-v2.py'
@@ -11,6 +11,8 @@ on:
       - '.github/scripts/patch-radar-server-explorer-login-init-v3.py'
       - '.github/scripts/patch-radar-server-explorer-init-window-v4.py'
       - '.github/scripts/patch-radar-server-explorer-redirect-v5.py'
+      - '.github/scripts/patch-radar-server-explorer-single-session-v6.py'
+      - '.github/scripts/patch-radar-server-explorer-connector-v6.py'
       - '.github/scripts/patch-radar-server-explorer-budget-v2.py'
       - '.github/scripts/patch-radar-server-explorer-native-v1.py'
       - '.github/scripts/patch-radar-server-explorer-connector-v1.py'
@@ -36,7 +38,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: radar-server-explorer-v3
+          ref: radar-server-explorer-v6
           fetch-depth: 0
 
       - uses: actions/setup-go@v5
@@ -61,6 +63,7 @@ jobs:
           python3 .github/scripts/patch-radar-server-explorer-login-init-v3.py
           python3 .github/scripts/patch-radar-server-explorer-init-window-v4.py
           python3 .github/scripts/patch-radar-server-explorer-redirect-v5.py
+          python3 .github/scripts/patch-radar-server-explorer-single-session-v6.py
 
       - name: Build native helper
         run: |
@@ -83,6 +86,8 @@ jobs:
           strings /tmp/radar-native-template | grep -Fq 'POST_LOGIN_PACKET_RX'
           strings /tmp/radar-native-template | grep -Fq 'LOGIN_SERVERINFO_REDIRECT_PRESENT'
           strings /tmp/radar-native-template | grep -Fq 'LOGIN_SERVERINFO_REDIRECT_LOGIN_SENT'
+          strings /tmp/radar-native-template | grep -Fq 'world.get.block(batch-v6)'
+          strings /tmp/radar-native-template | grep -Fq 'V6_BATCH_DONE'
 
       - name: Build connector with protocol Sentinel
         run: |
@@ -95,6 +100,7 @@ jobs:
           python3 .github/scripts/patch-radar-server-explorer-budget-v2.py
           python3 .github/scripts/patch-radar-server-explorer-protocol-sentinel-v2.py
           python3 .github/scripts/patch-radar-server-explorer-protocol-v4.py
+          python3 .github/scripts/patch-radar-server-explorer-connector-v6.py
           cd /tmp/wfgg-radar/connector-go
           gofmt -w ./cmd ./internal
           go test ./...
@@ -102,6 +108,8 @@ jobs:
           CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w' -o /tmp/radar-connector ./cmd/radar-connector
           grep -aFq 'SERVER_EXPLORER_PROTOCOL_SENTINEL' /tmp/radar-connector
           grep -aFq 'postLoginPacket' /tmp/radar-connector
+          grep -aFq 'SERVER_EXPLORER_V6_SINGLE_SESSION' /tmp/radar-connector
+          grep -aFq 'LASTWAR_SERVER_BATCH_EMPTY' /tmp/radar-connector
 
       - name: Publish isolated diagnostic release
         run: |
@@ -115,7 +123,7 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add radar-vps/server-explorer-sentinel-v2-release
           if git diff --cached --quiet; then exit 0; fi
-          git commit -m 'build(radar): publish Server Explorer Sentinel v5 release'
-          git fetch origin radar-server-explorer-v3
-          git rebase origin/radar-server-explorer-v3
-          git push origin HEAD:radar-server-explorer-v3
+          git commit -m 'build(radar): publish Server Explorer Sentinel v6 release'
+          git fetch origin radar-server-explorer-v6
+          git rebase origin/radar-server-explorer-v6
+          git push origin HEAD:radar-server-explorer-v6
