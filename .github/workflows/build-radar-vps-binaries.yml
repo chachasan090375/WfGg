@@ -5,6 +5,7 @@ on:
     branches: [radar-production-v1]
     paths:
       - '.github/workflows/build-radar-vps-binaries.yml'
+      - '.github/scripts/patch-radar-target-profile-retry.py'
       - '.radar-release-src/v2-source/connector-go/**'
   workflow_dispatch:
 
@@ -45,6 +46,14 @@ jobs:
           test -f .radar-release-src/v2-source/connector-go/cmd/radar-connector/main.go
           rm -rf /tmp/wfgg-radar/connector-go
           cp -a .radar-release-src/v2-source/connector-go /tmp/wfgg-radar/connector-go
+
+      - name: Apply searched-target profile retry
+        run: |
+          set -euo pipefail
+          python3 .github/scripts/patch-radar-target-profile-retry.py
+          grep -q 'PROFILE_TARGET_RETRY_V1' /tmp/wfgg-radar/connector-go/cmd/radar-connector/collector_jobs.go
+          grep -q 'PROFILE_TARGET_NOT_RETURNED' /tmp/wfgg-radar/connector-go/cmd/radar-connector/collector_jobs.go
+          echo 'RADAR_TARGET_PROFILE_RETRY=STAGED'
 
       - name: Test and build Radar connector
         working-directory: /tmp/wfgg-radar/connector-go
@@ -98,7 +107,7 @@ jobs:
             echo 'VPS_BINARIES=UNCHANGED'
             exit 0
           fi
-          git commit -m 'build(radar): publish email-code auth connector bundle'
+          git commit -m 'build(radar): publish profile-retry connector bundle'
           git fetch origin radar-production-v1
           git rebase origin/radar-production-v1
           git push origin HEAD:radar-production-v1
