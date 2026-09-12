@@ -3,8 +3,8 @@ set -Eeuo pipefail
 
 REMOTE="ChaChaVPS"
 PUBLIC_HOST="${RADAR_VPS_PUBLIC_IP:-206.189.12.92}"
-REF="collector-identity-index-v1"
-RAW="https://raw.githubusercontent.com/chachasan090375/WfGg/$REF/collector"
+PAYLOAD_COMMIT="d10e1e21f189af13a26a08c6e1fe70fe5e1f1296"
+RAW="https://raw.githubusercontent.com/chachasan090375/WfGg/$PAYLOAD_COMMIT/collector"
 
 say(){ printf '%s\n' "$*"; }
 die(){ printf 'ERROR=%s\n' "$*" >&2; exit 1; }
@@ -17,6 +17,7 @@ curl -fsSL "$RAW/identity_index_v1.sql" -o "$TMP/identity_index_v1.sql"
 python3 -m py_compile "$TMP/collector_agent.py"
 grep -q 'identity_resolve' "$TMP/collector_agent.py" || die IDENTITY_RESOLVER_MISSING
 grep -q 'CREATE TABLE IF NOT EXISTS player_identity' "$TMP/identity_index_v1.sql" || die IDENTITY_SCHEMA_MISSING
+say 'IDENTITY_INDEX_PAYLOAD_RELEASE=OK'
 
 SSH_OPTS=(-o ConnectTimeout=15 -o ServerAliveInterval=10 -o ServerAliveCountMax=3)
 if ssh "${SSH_OPTS[@]}" "$REMOTE" 'true' </dev/null >/dev/null 2>&1; then
