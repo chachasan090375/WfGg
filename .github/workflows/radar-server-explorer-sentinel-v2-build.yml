@@ -1,0 +1,136 @@
+name: Radar Server Explorer Sentinel v6.2 build
+
+on:
+  push:
+    branches: [radar-server-explorer-v6]
+    paths:
+      - '.github/workflows/radar-server-explorer-sentinel-v2-build.yml'
+      - '.github/scripts/patch-radar-server-explorer-native-sentinel-v2.py'
+      - '.github/scripts/patch-radar-server-explorer-protocol-sentinel-v2.py'
+      - '.github/scripts/patch-radar-server-explorer-protocol-v4.py'
+      - '.github/scripts/patch-radar-server-explorer-login-init-v3.py'
+      - '.github/scripts/patch-radar-server-explorer-init-window-v4.py'
+      - '.github/scripts/patch-radar-server-explorer-redirect-v5.py'
+      - '.github/scripts/patch-radar-server-explorer-single-session-v6.py'
+      - '.github/scripts/patch-radar-server-explorer-connector-v6.py'
+      - '.github/scripts/patch-radar-server-explorer-discovery-v6_1.py'
+      - '.github/scripts/patch-radar-server-explorer-discovery-v6_2.py'
+      - '.github/scripts/patch-radar-server-explorer-budget-v2.py'
+      - '.github/scripts/patch-radar-server-explorer-native-v1.py'
+      - '.github/scripts/patch-radar-server-explorer-connector-v1.py'
+      - '.github/scripts/patch-radar-player-oracle-v1.py'
+      - '.github/scripts/patch-radar-target-profile-retry.py'
+      - '.github/scripts/patch-player-scan-v3.py'
+      - '.github/scripts/patch-player-scan-v4.py'
+      - '.radar-release-src/v2-source/connector-go/**'
+      - '.radar-release-src/v3-source/connector-go/native-template/**'
+      - '.radar-release-src/v4-source/connector-go/native-template/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  LASTWAR_CLIENT_REF: ee5f64de160a8051c2f9f98189b75038dd225a0a
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: radar-server-explorer-v6
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.27.x'
+
+      - name: Reconstruct source and apply native Sentinel diagnostics
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/wfgg-radar
+          mkdir -p /tmp/wfgg-radar
+          python3 .github/scripts/reconstruct-radar-release.py
+          tar -xzf /tmp/radar-src.tar.gz -C /tmp/wfgg-radar
+          base64 -d .radar-release-src/player-scan-v2.patch | gzip -dc > /tmp/player-scan-v2.patch
+          cd /tmp/wfgg-radar
+          git apply /tmp/player-scan-v2.patch
+          cd "$GITHUB_WORKSPACE"
+          python3 .github/scripts/patch-player-scan-v3.py
+          python3 .github/scripts/patch-player-scan-v4.py
+          python3 .github/scripts/patch-radar-server-explorer-native-v1.py
+          python3 .github/scripts/patch-radar-server-explorer-native-sentinel-v2.py
+          python3 .github/scripts/patch-radar-server-explorer-login-init-v3.py
+          python3 .github/scripts/patch-radar-server-explorer-init-window-v4.py
+          python3 .github/scripts/patch-radar-server-explorer-redirect-v5.py
+          python3 .github/scripts/patch-radar-server-explorer-single-session-v6.py
+
+      - name: Build native helper
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/lastwar-client
+          git clone --filter=blob:none --no-checkout https://github.com/ljagiello/lastwar-client.git /tmp/lastwar-client
+          cd /tmp/lastwar-client
+          git fetch --depth 1 origin "$LASTWAR_CLIENT_REF"
+          git checkout --detach FETCH_HEAD
+          go test ./internal/auth ./internal/pcap ./internal/sfs
+          mkdir -p cmd/wfgg-radar-native-template
+          cp /tmp/wfgg-radar/connector-go/native-template/main.go cmd/wfgg-radar-native-template/main.go
+          cp /tmp/wfgg-radar/connector-go/native-template/player_scan_v3.go cmd/wfgg-radar-native-template/player_scan_v3.go
+          cp /tmp/wfgg-radar/connector-go/native-template/player_scan_v4.go cmd/wfgg-radar-native-template/player_scan_v4.go
+          gofmt -w cmd/wfgg-radar-native-template/*.go
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -tags lastwar_native_template -trimpath -ldflags='-s -w' -o /tmp/radar-native-template ./cmd/wfgg-radar-native-template
+          strings /tmp/radar-native-template | grep -Fq 'SERVER_EXPLORER_NATIVE_SENTINEL'
+          strings /tmp/radar-native-template | grep -Fq 'LOGIN_INIT_PULL_SENT'
+          strings /tmp/radar-native-template | grep -Fq 'INIT_WAIT_PHASE1'
+          strings /tmp/radar-native-template | grep -Fq 'POST_LOGIN_PACKET_RX'
+          strings /tmp/radar-native-template | grep -Fq 'LOGIN_SERVERINFO_REDIRECT_PRESENT'
+          strings /tmp/radar-native-template | grep -Fq 'LOGIN_SERVERINFO_REDIRECT_LOGIN_SENT'
+          strings /tmp/radar-native-template | grep -Fq 'world.get.block(batch-v6)'
+          strings /tmp/radar-native-template | grep -Fq 'V6_BATCH_DONE'
+
+      - name: Build connector with protocol Sentinel
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/wfgg-radar/connector-go
+          cp -a .radar-release-src/v2-source/connector-go /tmp/wfgg-radar/connector-go
+          python3 .github/scripts/patch-radar-target-profile-retry.py
+          python3 .github/scripts/patch-radar-player-oracle-v1.py
+          python3 .github/scripts/patch-radar-server-explorer-connector-v1.py
+          python3 .github/scripts/patch-radar-server-explorer-budget-v2.py
+          python3 .github/scripts/patch-radar-server-explorer-protocol-sentinel-v2.py
+          python3 .github/scripts/patch-radar-server-explorer-protocol-v4.py
+          python3 .github/scripts/patch-radar-server-explorer-connector-v6.py
+          python3 .github/scripts/patch-radar-server-explorer-discovery-v6_1.py
+          python3 .github/scripts/patch-radar-server-explorer-discovery-v6_2.py
+          cd /tmp/wfgg-radar/connector-go
+          gofmt -w ./cmd ./internal
+          go test ./...
+          go vet ./...
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w' -o /tmp/radar-connector ./cmd/radar-connector
+          grep -aFq 'SERVER_EXPLORER_PROTOCOL_SENTINEL' /tmp/radar-connector
+          grep -aFq 'postLoginPacket' /tmp/radar-connector
+          grep -aFq 'SERVER_EXPLORER_V6_SINGLE_SESSION' /tmp/radar-connector
+          grep -aFq 'LASTWAR_SERVER_BATCH_EMPTY' /tmp/radar-connector
+          grep -aFq 'SERVER_DISCOVERY_V61_SENTINEL' /tmp/radar-connector
+          grep -aFq 'SERVER_DISCOVERY_V62_SENTINEL' /tmp/radar-connector
+          grep -aFq 'SERVER_EXPLORER_V62_RESUMABLE' /tmp/radar-connector
+
+      - name: Publish isolated diagnostic release
+        run: |
+          set -euo pipefail
+          mkdir -p radar-vps/server-explorer-sentinel-v2-release
+          cp /tmp/radar-connector radar-vps/server-explorer-sentinel-v2-release/radar-connector
+          cp /tmp/radar-native-template radar-vps/server-explorer-sentinel-v2-release/radar-native-template
+          chmod 0755 radar-vps/server-explorer-sentinel-v2-release/radar-connector radar-vps/server-explorer-sentinel-v2-release/radar-native-template
+          (cd radar-vps/server-explorer-sentinel-v2-release && sha256sum radar-connector radar-native-template > SHA256SUMS)
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add radar-vps/server-explorer-sentinel-v2-release
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'build(radar): publish Server Explorer Sentinel v6.2 release'
+          git fetch origin radar-server-explorer-v6
+          git rebase origin/radar-server-explorer-v6
+          git push origin HEAD:radar-server-explorer-v6

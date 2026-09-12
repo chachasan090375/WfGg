@@ -1,0 +1,105 @@
+name: Radar Player Oracle v1 build
+
+on:
+  push:
+    branches: [radar-player-oracle-v1]
+    paths:
+      - '.github/workflows/radar-player-oracle-v1-build.yml'
+      - '.github/scripts/patch-radar-player-oracle-v1.py'
+      - '.github/scripts/patch-radar-target-profile-retry.py'
+      - '.radar-release-src/v2-source/connector-go/**'
+      - 'docs/RADAR_PLAYER_ORACLE_V1.md'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: wfgg-radar-player-oracle-v1
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: radar-player-oracle-v1
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.27.x'
+
+      - name: Reconstruct immutable Radar V0.5 base
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/wfgg-radar
+          mkdir -p /tmp/wfgg-radar
+          python3 .github/scripts/reconstruct-radar-release.py
+          echo '234df1dec57f6211bc625855bf13350c9f17fbd843fbe92d8cf1ab7cb5c081ef  /tmp/radar-src.tar.gz' | sha256sum -c -
+          tar -xzf /tmp/radar-src.tar.gz -C /tmp/wfgg-radar
+
+      - name: Overlay current connector source
+        run: |
+          set -euo pipefail
+          test -f .radar-release-src/v2-source/connector-go/go.mod
+          rm -rf /tmp/wfgg-radar/connector-go
+          cp -a .radar-release-src/v2-source/connector-go /tmp/wfgg-radar/connector-go
+
+      - name: Preserve current profile retry behavior
+        run: |
+          set -euo pipefail
+          python3 .github/scripts/patch-radar-target-profile-retry.py
+          grep -q 'PROFILE_TARGET_RETRY_V1' /tmp/wfgg-radar/connector-go/cmd/radar-connector/collector_jobs.go
+          grep -q 'PROFILE_TARGET_NOT_RETURNED' /tmp/wfgg-radar/connector-go/cmd/radar-connector/collector_jobs.go
+
+      - name: Apply Player Oracle targeted UID-first strategy
+        run: |
+          set -euo pipefail
+          python3 .github/scripts/patch-radar-player-oracle-v1.py
+          grep -q 'PLAYER_ORACLE_TARGETED_UID_V1' /tmp/wfgg-radar/connector-go/cmd/radar-connector/collector_jobs.go
+          grep -q 'TARGETED_UID_PROFILE' /tmp/wfgg-radar/connector-go/cmd/radar-connector/collector_jobs.go
+          grep -q 'BROAD_SCAN_V4' /tmp/wfgg-radar/connector-go/cmd/radar-connector/collector_jobs.go
+          echo 'PLAYER_ORACLE_STRATEGY=TARGETED_UID_THEN_BROAD_SCAN'
+
+      - name: Guardian test and build
+        working-directory: /tmp/wfgg-radar/connector-go
+        run: |
+          set -euo pipefail
+          gofmt -w ./cmd ./internal
+          go test ./...
+          go vet ./...
+          mkdir -p "$GITHUB_WORKSPACE/radar-vps/oracle-release"
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w' -o "$GITHUB_WORKSPACE/radar-vps/oracle-release/radar-connector" ./cmd/radar-connector
+          grep -aFq 'TARGETED_UID_PROFILE' "$GITHUB_WORKSPACE/radar-vps/oracle-release/radar-connector"
+          grep -aFq 'BROAD_SCAN_V4' "$GITHUB_WORKSPACE/radar-vps/oracle-release/radar-connector"
+
+      - name: Preserve frozen validated Broad Scan native helper
+        run: |
+          set -euo pipefail
+          test -s radar-vps/release/radar-native-template
+          cp radar-vps/release/radar-native-template radar-vps/oracle-release/radar-native-template
+          chmod 0755 radar-vps/oracle-release/radar-connector radar-vps/oracle-release/radar-native-template
+          grep -aFq 'native-template-readonly-v4' radar-vps/oracle-release/radar-native-template
+          grep -aFq 'world.get.block' radar-vps/oracle-release/radar-native-template
+          grep -aFq 'get.user.info.multi' radar-vps/oracle-release/radar-native-template
+          (cd radar-vps/oracle-release && sha256sum radar-connector radar-native-template > SHA256SUMS)
+          echo 'PLAYER_ORACLE_BROADSCAN_FALLBACK=PRESERVED_V4'
+
+      - name: Commit isolated Oracle release
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add radar-vps/oracle-release/radar-connector radar-vps/oracle-release/radar-native-template radar-vps/oracle-release/SHA256SUMS
+          if git diff --cached --quiet; then
+            echo 'PLAYER_ORACLE_BINARIES=UNCHANGED'
+            exit 0
+          fi
+          git commit -m 'build(radar): publish isolated Player Oracle v1 connector'
+          git fetch origin radar-player-oracle-v1
+          git rebase origin/radar-player-oracle-v1
+          git push origin HEAD:radar-player-oracle-v1
+          echo 'PLAYER_ORACLE_BINARIES=PUBLISHED'

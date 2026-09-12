@@ -1,0 +1,54 @@
+name: Radar Auto-Cartographer v6.3.3 Worker check
+
+on:
+  push:
+    branches: [radar-federated-collector-v63]
+    paths:
+      - '.github/workflows/radar-autocartographer-v633-worker-check.yml'
+      - '.github/scripts/patch-radar-async-collector-worker.py'
+      - '.github/scripts/patch-radar-autocartographer-worker-v633.py'
+      - '.radar-release-src/v2-source/src/game/remote-transport.js'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  worker-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: radar-federated-collector-v63
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Reconstruct production Worker source
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/wfgg-radar
+          mkdir -p /tmp/wfgg-radar
+          python3 .github/scripts/reconstruct-radar-release.py
+          tar -xzf /tmp/radar-src.tar.gz -C /tmp/wfgg-radar
+          install -m 0644 .radar-release-src/v2-source/src/game/remote-transport.js /tmp/wfgg-radar/src/game/remote-transport.js
+
+      - name: Apply async Collector and Auto-Cartographer patches
+        run: |
+          set -euo pipefail
+          python3 .github/scripts/patch-radar-async-collector-worker.py
+          grep -q 'AUTO_CARTOGRAPHER_WORKER_V633' /tmp/wfgg-radar/src/worker.js
+          grep -q 'runAutoCartographerV633' /tmp/wfgg-radar/src/worker.js
+          grep -q 'cartographerTick' /tmp/wfgg-radar/src/game/remote-transport.js
+          grep -q '/v1/cartographer/tick' /tmp/wfgg-radar/src/game/remote-transport.js
+          echo AUTO_CARTOGRAPHER_V633_WORKER_PATCH=OK
+
+      - name: Guardian Worker checks
+        working-directory: /tmp/wfgg-radar
+        run: |
+          set -euo pipefail
+          npm test
+          npm run check
+          echo AUTO_CARTOGRAPHER_V633_WORKER_CHECK=OK

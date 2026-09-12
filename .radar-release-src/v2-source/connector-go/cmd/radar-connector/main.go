@@ -73,6 +73,10 @@ func (s *server) signed(next func(http.ResponseWriter, *http.Request, []byte)) h
 			writeJSON(w, http.StatusUnauthorized, map[string]any{"error": "CONNECTOR_AUTH_FAILED"})
 			return
 		}
+		// AUTO_CARTOGRAPHER_V633_ARM: any already-verified request carrying a
+		// normal game token refreshes the in-memory watcher token. The token is
+		// never written to disk or logs.
+		maybeArmAutoCartographerV633FromBody(s, body)
 		next(w, r, body)
 	}
 }
