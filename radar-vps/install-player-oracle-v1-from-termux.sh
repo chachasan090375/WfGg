@@ -3,7 +3,8 @@ set -Eeuo pipefail
 
 REMOTE="ChaChaVPS"
 PUBLIC_HOST="${RADAR_VPS_PUBLIC_IP:-206.189.12.92}"
-RAW="https://raw.githubusercontent.com/chachasan090375/WfGg/radar-player-oracle-v1/radar-vps/oracle-release"
+RELEASE_COMMIT="0371832d7ea2c3e6b67a49d863ac7a68d1cfb3a1"
+RAW="https://raw.githubusercontent.com/chachasan090375/WfGg/$RELEASE_COMMIT/radar-vps/oracle-release"
 RADAR_BIN="/opt/wfgg-radar/bin/radar-connector"
 BACKUP_DIR="/opt/wfgg-radar/backups"
 
