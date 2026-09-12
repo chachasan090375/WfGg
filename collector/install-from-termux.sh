@@ -13,6 +13,20 @@ TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT INT TERM
 curl -fsSL "$RAW/collector_agent.py" -o "$TMP/collector_agent.py"
 curl -fsSL "$RAW/incremental_engine.py" -o "$TMP/incremental_engine.py"
+python3 - "$TMP/incremental_engine.py" <<'PY'
+from pathlib import Path
+import sys
+p=Path(sys.argv[1])
+s=p.read_text(encoding='utf-8')
+marker='# WFGG_PROFILE_SPARSE_MERGE_V1'
+if marker not in s:
+    old="""    if effective.get('power') is None and old:\n        effective['power']=old['power']\n"""
+    new="""    # WFGG_PROFILE_SPARSE_MERGE_V1\n    # Direct profile replies do not carry world-map coordinates. Missing X/Y\n    # are sparse fields and must not erase the most recent map observation.\n    if old:\n        if effective.get('x') is None:\n            effective['x']=old['x']\n        if effective.get('y') is None:\n            effective['y']=old['y']\n        if effective.get('power') is None:\n            effective['power']=old['power']\n"""
+    if s.count(old) != 1:
+        raise SystemExit('PROFILE_MERGE_PATCH_ANCHOR_MISSING')
+    p.write_text(s.replace(old,new,1),encoding='utf-8')
+print('COLLECTOR_PROFILE_SPARSE_MERGE=READY')
+PY
 python3 -m py_compile "$TMP/collector_agent.py" "$TMP/incremental_engine.py"
 
 SSH_OPTS=(-o ConnectTimeout=15 -o ServerAliveInterval=10 -o ServerAliveCountMax=3)
@@ -74,6 +88,7 @@ systemctl enable --now wfgg-collector.service >/dev/null
 systemctl restart wfgg-collector.service
 sleep 3
 systemctl is-active --quiet wfgg-collector.service
+grep -q 'WFGG_PROFILE_SPARSE_MERGE_V1' /opt/wfgg-collector/bin/incremental_engine.py
 python3 - <<'PY'
 import json,urllib.error,urllib.request
 base='http://127.0.0.1:8790'
@@ -106,4 +121,5 @@ PY
 say 'COLLECTOR_SERVICE=active'
 say 'COLLECTOR_API=http://127.0.0.1:8790'
 say 'COLLECTOR_MODE=master-plus-increments'
+say 'COLLECTOR_PROFILE_SPARSE_MERGE=ACTIVE'
 say 'RADAR_PRODUCTION_CHANGED=NO'
