@@ -1,4 +1,4 @@
-name: Radar Server Explorer Sentinel v6.1 build
+name: Radar Server Explorer Sentinel v6.2 build
 
 on:
   push:
@@ -14,6 +14,7 @@ on:
       - '.github/scripts/patch-radar-server-explorer-single-session-v6.py'
       - '.github/scripts/patch-radar-server-explorer-connector-v6.py'
       - '.github/scripts/patch-radar-server-explorer-discovery-v6_1.py'
+      - '.github/scripts/patch-radar-server-explorer-discovery-v6_2.py'
       - '.github/scripts/patch-radar-server-explorer-budget-v2.py'
       - '.github/scripts/patch-radar-server-explorer-native-v1.py'
       - '.github/scripts/patch-radar-server-explorer-connector-v1.py'
@@ -103,6 +104,7 @@ jobs:
           python3 .github/scripts/patch-radar-server-explorer-protocol-v4.py
           python3 .github/scripts/patch-radar-server-explorer-connector-v6.py
           python3 .github/scripts/patch-radar-server-explorer-discovery-v6_1.py
+          python3 .github/scripts/patch-radar-server-explorer-discovery-v6_2.py
           cd /tmp/wfgg-radar/connector-go
           gofmt -w ./cmd ./internal
           go test ./...
@@ -113,6 +115,8 @@ jobs:
           grep -aFq 'SERVER_EXPLORER_V6_SINGLE_SESSION' /tmp/radar-connector
           grep -aFq 'LASTWAR_SERVER_BATCH_EMPTY' /tmp/radar-connector
           grep -aFq 'SERVER_DISCOVERY_V61_SENTINEL' /tmp/radar-connector
+          grep -aFq 'SERVER_DISCOVERY_V62_SENTINEL' /tmp/radar-connector
+          grep -aFq 'SERVER_EXPLORER_V62_RESUMABLE' /tmp/radar-connector
 
       - name: Publish isolated diagnostic release
         run: |
@@ -126,7 +130,7 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add radar-vps/server-explorer-sentinel-v2-release
           if git diff --cached --quiet; then exit 0; fi
-          git commit -m 'build(radar): publish Server Explorer Sentinel v6.1 release'
+          git commit -m 'build(radar): publish Server Explorer Sentinel v6.2 release'
           git fetch origin radar-server-explorer-v6
           git rebase origin/radar-server-explorer-v6
           git push origin HEAD:radar-server-explorer-v6
