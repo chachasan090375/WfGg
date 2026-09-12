@@ -3,7 +3,7 @@ set -Eeuo pipefail
 
 REMOTE="ChaChaVPS"
 PUBLIC_HOST="${RADAR_VPS_PUBLIC_IP:-206.189.12.92}"
-RELEASE_COMMIT="be11ee4af4d66b0305932a69d7230a5f51ec61ab"
+RELEASE_COMMIT="1bf0f794c086426509cf3fc2faa9b134ce9fb9a3"
 RAW="https://raw.githubusercontent.com/chachasan090375/WfGg/$RELEASE_COMMIT/radar-vps/oracle-release"
 RADAR_BIN="/opt/wfgg-radar/bin/radar-connector"
 BACKUP_DIR="/opt/wfgg-radar/backups"
@@ -35,8 +35,10 @@ chmod 0755 "$TMP/radar-connector"
 grep -aFq 'TARGETED_UID_PROFILE' "$TMP/radar-connector" || die PLAYER_ORACLE_RELEASE_NOT_READY
 grep -aFq 'BROAD_SCAN_V4' "$TMP/radar-connector" || die BROAD_SCAN_FALLBACK_MISSING
 grep -aFq 'PLAYER_ORACLE_SENTINEL' "$TMP/radar-connector" || die PLAYER_ORACLE_SENTINEL_MISSING
+grep -aFq 'PLAYER_ORACLE_PROTOCOL_SENTINEL' "$TMP/radar-connector" || die PLAYER_ORACLE_PROTOCOL_SENTINEL_MISSING
 say 'PLAYER_ORACLE_RELEASE=OK'
 say 'PLAYER_ORACLE_SENTINEL_RELEASE=OK'
+say 'PLAYER_ORACLE_PROTOCOL_SENTINEL_RELEASE=OK'
 
 say '2/4 Sauvegarde atomique du connecteur actuellement installé'
 STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
@@ -70,6 +72,7 @@ systemctl is-active --quiet wfgg-radar-connector.service
 grep -aFq 'TARGETED_UID_PROFILE' '$RADAR_BIN'
 grep -aFq 'BROAD_SCAN_V4' '$RADAR_BIN'
 grep -aFq 'PLAYER_ORACLE_SENTINEL' '$RADAR_BIN'
+grep -aFq 'PLAYER_ORACLE_PROTOCOL_SENTINEL' '$RADAR_BIN'
 trap - HUP INT TERM ERR
 echo PLAYER_ORACLE_CONNECTOR_SERVICE=\$(systemctl is-active wfgg-radar-connector.service)
 " </dev/null
@@ -80,12 +83,15 @@ set -eu
 grep -aFq 'TARGETED_UID_PROFILE' '$RADAR_BIN'
 grep -aFq 'BROAD_SCAN_V4' '$RADAR_BIN'
 grep -aFq 'PLAYER_ORACLE_SENTINEL' '$RADAR_BIN'
+grep -aFq 'PLAYER_ORACLE_PROTOCOL_SENTINEL' '$RADAR_BIN'
 echo PLAYER_ORACLE_TARGETED_UID=READY
 echo PLAYER_ORACLE_BROADSCAN_FALLBACK=READY
 echo PLAYER_ORACLE_SENTINEL=READY
+echo PLAYER_ORACLE_PROTOCOL_SENTINEL=READY
 echo PLAYER_ORACLE_PRIORITY_ORDER=P1_UID_INDEX_P2_DIRECT_PROFILE_P3_BROAD_SCAN_V4
 echo PLAYER_ORACLE_BACKUP='$BACKUP'
 " </dev/null
 
 say 'PLAYER_ORACLE_V1=OK'
 say 'PLAYER_ORACLE_SENTINEL_V1=OK'
+say 'PLAYER_ORACLE_PROTOCOL_SENTINEL_V1=OK'
