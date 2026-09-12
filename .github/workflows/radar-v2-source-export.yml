@@ -36,15 +36,12 @@ jobs:
           git apply --check /tmp/player-scan-v2.patch
           git apply /tmp/player-scan-v2.patch
 
-      - name: Export only Radar v2 source files needed for v3
+      - name: Export Radar v2 source plus complete connector tree
         run: |
           set -euo pipefail
           rm -rf .radar-release-src/v2-source
-          mkdir -p .radar-release-src/v2-source/connector-go/internal/protocol
-          mkdir -p .radar-release-src/v2-source/connector-go/native-template
           mkdir -p .radar-release-src/v2-source/src/game
-          cp /tmp/wfgg-radar/connector-go/internal/protocol/native_template.go .radar-release-src/v2-source/connector-go/internal/protocol/native_template.go
-          cp /tmp/wfgg-radar/connector-go/native-template/main.go .radar-release-src/v2-source/connector-go/native-template/main.go
+          cp -a /tmp/wfgg-radar/connector-go .radar-release-src/v2-source/connector-go
           cp /tmp/wfgg-radar/src/worker.js .radar-release-src/v2-source/src/worker.js
           cp /tmp/wfgg-radar/src/game/remote-transport.js .radar-release-src/v2-source/src/game/remote-transport.js
           cp /tmp/wfgg-radar/src/game/lastwar-adapter.js .radar-release-src/v2-source/src/game/lastwar-adapter.js
@@ -59,6 +56,6 @@ jobs:
           if git diff --cached --quiet; then
             echo SOURCE_EXPORT_UNCHANGED=YES
           else
-            git commit -m 'chore(radar): export patched v2 source for map-index v3'
+            git commit -m 'chore(radar): export full patched v2 connector source'
             git push origin HEAD:radar-production-v1
           fi
