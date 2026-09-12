@@ -1,0 +1,125 @@
+name: Radar Server Explorer v1 build
+
+on:
+  push:
+    branches: [radar-server-explorer-v1]
+    paths:
+      - '.github/workflows/radar-server-explorer-v1-build.yml'
+      - '.github/scripts/patch-radar-server-explorer-native-v1.py'
+      - '.github/scripts/patch-radar-server-explorer-connector-v1.py'
+      - '.github/scripts/patch-radar-player-oracle-v1.py'
+      - '.github/scripts/patch-radar-target-profile-retry.py'
+      - '.github/scripts/patch-player-scan-v3.py'
+      - '.github/scripts/patch-player-scan-v4.py'
+      - '.radar-release-src/v2-source/connector-go/**'
+      - '.radar-release-src/v3-source/connector-go/native-template/**'
+      - '.radar-release-src/v4-source/connector-go/native-template/**'
+      - 'radar-vps/install-server-explorer-v1-from-termux.sh'
+      - 'radar-vps/inspect-server-explorer-v1-from-termux.sh'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: wfgg-radar-server-explorer-v1
+  cancel-in-progress: false
+
+env:
+  LASTWAR_CLIENT_REF: ee5f64de160a8051c2f9f98189b75038dd225a0a
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: radar-server-explorer-v1
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.27.x'
+
+      - name: Reconstruct native Broad Scan V4 source
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/wfgg-radar
+          mkdir -p /tmp/wfgg-radar
+          python3 .github/scripts/reconstruct-radar-release.py
+          echo '234df1dec57f6211bc625855bf13350c9f17fbd843fbe92d8cf1ab7cb5c081ef  /tmp/radar-src.tar.gz' | sha256sum -c -
+          tar -xzf /tmp/radar-src.tar.gz -C /tmp/wfgg-radar
+          base64 -d .radar-release-src/player-scan-v2.patch | gzip -dc > /tmp/player-scan-v2.patch
+          cd /tmp/wfgg-radar
+          git apply --check /tmp/player-scan-v2.patch
+          git apply /tmp/player-scan-v2.patch
+          cd "$GITHUB_WORKSPACE"
+          python3 .github/scripts/patch-player-scan-v3.py
+          python3 .github/scripts/patch-player-scan-v4.py
+          python3 .github/scripts/patch-radar-server-explorer-native-v1.py
+          grep -Fq 'SERVER_EXPLORER_NATIVE_V1' /tmp/wfgg-radar/connector-go/native-template/player_scan_v4.go
+          grep -Fq 'WFGG_SERVER_ID_OVERRIDE' /tmp/wfgg-radar/connector-go/native-template/player_scan_v4.go
+          echo SERVER_EXPLORER_NATIVE_SOURCE=OK
+
+      - name: Build READONLY native Server Explorer helper
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/lastwar-client
+          git clone --filter=blob:none --no-checkout https://github.com/ljagiello/lastwar-client.git /tmp/lastwar-client
+          cd /tmp/lastwar-client
+          git fetch --depth 1 origin "$LASTWAR_CLIENT_REF"
+          git checkout --detach FETCH_HEAD
+          go test ./internal/auth ./internal/pcap ./internal/sfs
+          mkdir -p cmd/wfgg-radar-native-template
+          cp /tmp/wfgg-radar/connector-go/native-template/main.go cmd/wfgg-radar-native-template/main.go
+          cp /tmp/wfgg-radar/connector-go/native-template/player_scan_v3.go cmd/wfgg-radar-native-template/player_scan_v3.go
+          cp /tmp/wfgg-radar/connector-go/native-template/player_scan_v4.go cmd/wfgg-radar-native-template/player_scan_v4.go
+          gofmt -w cmd/wfgg-radar-native-template/*.go
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -tags lastwar_native_template -trimpath -ldflags='-s -w' -o /tmp/radar-native-template ./cmd/wfgg-radar-native-template
+          test -s /tmp/radar-native-template
+          strings /tmp/radar-native-template | grep -Fq 'native-template-readonly-v4'
+          strings /tmp/radar-native-template | grep -Fq 'WFGG_SERVER_ID_OVERRIDE'
+          strings /tmp/radar-native-template | grep -Fq 'world.get.block'
+          echo SERVER_EXPLORER_NATIVE_BUILD=OK
+
+      - name: Build Oracle connector with Server Explorer route
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/wfgg-radar/connector-go
+          cp -a .radar-release-src/v2-source/connector-go /tmp/wfgg-radar/connector-go
+          python3 .github/scripts/patch-radar-target-profile-retry.py
+          python3 .github/scripts/patch-radar-player-oracle-v1.py
+          python3 .github/scripts/patch-radar-server-explorer-connector-v1.py
+          cd /tmp/wfgg-radar/connector-go
+          gofmt -w ./cmd ./internal
+          go test ./...
+          go vet ./...
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w' -o /tmp/radar-connector ./cmd/radar-connector
+          test -s /tmp/radar-connector
+          grep -aFq 'SERVER_EXPLORER_V1' /tmp/radar-connector
+          grep -aFq 'SERVER_EXPLORER_SENTINEL' /tmp/radar-connector
+          grep -aFq 'IDENTITY_INDEX_V1' /tmp/radar-connector
+          grep -aFq 'TARGETED_UID_PROFILE' /tmp/radar-connector
+          echo SERVER_EXPLORER_CONNECTOR_BUILD=OK
+
+      - name: Publish isolated Server Explorer release
+        run: |
+          set -euo pipefail
+          mkdir -p radar-vps/server-explorer-release
+          cp /tmp/radar-connector radar-vps/server-explorer-release/radar-connector
+          cp /tmp/radar-native-template radar-vps/server-explorer-release/radar-native-template
+          chmod 0755 radar-vps/server-explorer-release/radar-connector radar-vps/server-explorer-release/radar-native-template
+          (cd radar-vps/server-explorer-release && sha256sum radar-connector radar-native-template > SHA256SUMS)
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add radar-vps/server-explorer-release
+          if git diff --cached --quiet; then
+            echo SERVER_EXPLORER_RELEASE=UNCHANGED
+            exit 0
+          fi
+          git commit -m 'build(radar): publish Server Explorer v1 release'
+          git fetch origin radar-server-explorer-v1
+          git rebase origin/radar-server-explorer-v1
+          git push origin HEAD:radar-server-explorer-v1
+          echo SERVER_EXPLORER_RELEASE=PUBLISHED
