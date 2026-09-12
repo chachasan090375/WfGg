@@ -1,12 +1,13 @@
-name: Radar Server Explorer Sentinel v2 build
+name: Radar Server Explorer Sentinel v3 build
 
 on:
   push:
-    branches: [radar-server-explorer-v2]
+    branches: [radar-server-explorer-v3]
     paths:
       - '.github/workflows/radar-server-explorer-sentinel-v2-build.yml'
       - '.github/scripts/patch-radar-server-explorer-native-sentinel-v2.py'
       - '.github/scripts/patch-radar-server-explorer-protocol-sentinel-v2.py'
+      - '.github/scripts/patch-radar-server-explorer-login-init-v3.py'
       - '.github/scripts/patch-radar-server-explorer-budget-v2.py'
       - '.github/scripts/patch-radar-server-explorer-native-v1.py'
       - '.github/scripts/patch-radar-server-explorer-connector-v1.py'
@@ -32,7 +33,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: radar-server-explorer-v2
+          ref: radar-server-explorer-v3
           fetch-depth: 0
 
       - uses: actions/setup-go@v5
@@ -54,6 +55,7 @@ jobs:
           python3 .github/scripts/patch-player-scan-v4.py
           python3 .github/scripts/patch-radar-server-explorer-native-v1.py
           python3 .github/scripts/patch-radar-server-explorer-native-sentinel-v2.py
+          python3 .github/scripts/patch-radar-server-explorer-login-init-v3.py
 
       - name: Build native helper
         run: |
@@ -71,6 +73,7 @@ jobs:
           gofmt -w cmd/wfgg-radar-native-template/*.go
           CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -tags lastwar_native_template -trimpath -ldflags='-s -w' -o /tmp/radar-native-template ./cmd/wfgg-radar-native-template
           strings /tmp/radar-native-template | grep -Fq 'SERVER_EXPLORER_NATIVE_SENTINEL'
+          strings /tmp/radar-native-template | grep -Fq 'LOGIN_INIT_PULL_SENT'
 
       - name: Build connector with protocol Sentinel
         run: |
@@ -102,6 +105,6 @@ jobs:
           git add radar-vps/server-explorer-sentinel-v2-release
           if git diff --cached --quiet; then exit 0; fi
           git commit -m 'build(radar): publish Server Explorer Sentinel v2 release'
-          git fetch origin radar-server-explorer-v2
-          git rebase origin/radar-server-explorer-v2
-          git push origin HEAD:radar-server-explorer-v2
+          git fetch origin radar-server-explorer-v3
+          git rebase origin/radar-server-explorer-v3
+          git push origin HEAD:radar-server-explorer-v3
