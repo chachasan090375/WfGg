@@ -6,6 +6,8 @@ on:
     paths:
       - 'radar-release/**'
       - 'radar-ui-live/**'
+      - '.radar-release-src/v2-source/src/game/remote-transport.js'
+      - '.github/scripts/patch-radar-async-collector-worker.py'
       - '.github/workflows/deploy-radar-production.yml'
   workflow_dispatch:
 
@@ -48,13 +50,23 @@ jobs:
           echo '234df1dec57f6211bc625855bf13350c9f17fbd843fbe92d8cf1ab7cb5c081ef  /tmp/radar-src.tar.gz' | sha256sum -c -
           tar -xzf /tmp/radar-src.tar.gz -C /tmp/wfgg-radar
 
+      - name: Overlay async Collector Worker bridge
+        run: |
+          set -euo pipefail
+          test -s .radar-release-src/v2-source/src/game/remote-transport.js
+          install -m 0644 .radar-release-src/v2-source/src/game/remote-transport.js /tmp/wfgg-radar/src/game/remote-transport.js
+          python3 .github/scripts/patch-radar-async-collector-worker.py
+          grep -q "/api/radar/search/start" /tmp/wfgg-radar/src/worker.js
+          grep -q "/api/radar/search/status" /tmp/wfgg-radar/src/worker.js
+          grep -q "startCollectorSearch" /tmp/wfgg-radar/src/game/remote-transport.js
+          echo 'RADAR_ASYNC_COLLECTOR_WORKER=STAGED'
+
       - name: Overlay live animated Radar UI
         run: |
           set -euo pipefail
           test -s radar-ui-live/live-radar.html
           install -m 0644 radar-ui-live/live-radar.html /tmp/wfgg-radar/public/live-radar.html
           grep -q 'WfGg Radar Live' /tmp/wfgg-radar/public/live-radar.html
-          grep -q '/api/radar/search' /tmp/wfgg-radar/public/live-radar.html
           echo 'RADAR_LIVE_UI=STAGED'
 
       - name: Guardian pre-deploy gate
@@ -114,6 +126,7 @@ jobs:
           assert data.get('readonly') is True
           print('CHACHAVPS_CONNECTOR=OK')
           print('CHACHAVPS_CONNECTOR_PROTOCOL=' + str(data.get('protocol', 'unknown')))
+          print('CHACHAVPS_COLLECTOR_ASYNC=' + str(data.get('collectorAsync', False)))
           PY
 
       - name: Resolve Cloudflare deployment context
