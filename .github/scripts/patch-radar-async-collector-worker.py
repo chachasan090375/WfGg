@@ -114,6 +114,14 @@ else:
 p.write_text(s)
 print('RADAR_EMAIL_AUTH_PATCHER=V1')
 
+# V6.3.3: extend the autonomous scheduled cycle with Auto-Cartographer.
+subprocess.run(
+    [sys.executable, '.github/scripts/patch-radar-autocartographer-worker-v633.py'],
+    check=True
+)
+print('AUTO_CARTOGRAPHER_WORKER_V633_CHAIN=READY')
+
+
 # The deployment workflow invokes this script before it overlays live-radar.html.
 # Patch a temporary copy using the dedicated UI patchers, then copy the result
 # back into the checked-out UI file so the next deployment step installs it.

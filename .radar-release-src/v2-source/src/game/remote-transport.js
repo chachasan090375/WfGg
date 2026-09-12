@@ -76,6 +76,7 @@ export class RemoteLastWarTransport {
   scanPlayer(query, token) { return this.request('/v1/scan/player', { body: { token, query } }); }
   startCollectorSearch(query, token) { return this.request('/v1/collector/search/start', { body: { token, query } }); }
   collectorSearchStatus(id) { return this.request(`/v1/collector/search/status?id=${encodeURIComponent(id)}`, { method: 'GET' }); }
+  cartographerTick(token) { return this.request('/v1/cartographer/tick', { body: { token } }); }
   health() { return this.request('/v1/health', { method: 'GET' }); }
   async close() {}
 }
