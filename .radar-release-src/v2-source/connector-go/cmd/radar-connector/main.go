@@ -45,6 +45,8 @@ func main() {
 	mux.HandleFunc("POST /v1/authenticate", s.signed(s.authenticate))
 	mux.HandleFunc("POST /v1/snapshot", s.signed(s.snapshot))
 	mux.HandleFunc("POST /v1/scan/player", s.signed(s.scanPlayer))
+	mux.HandleFunc("POST /v1/collector/search/start", s.signed(s.collectorSearchStart))
+	mux.HandleFunc("GET /v1/collector/search/status", s.signed(s.collectorSearchStatus))
 
 	httpServer := &http.Server{Addr: addr, Handler: securityHeaders(mux), ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 15 * time.Second, WriteTimeout: 75 * time.Second, IdleTimeout: 30 * time.Second}
 	slog.Info("radar connector listening", "addr", addr, "protocol", game.Mode(), "readonly", true)
@@ -73,7 +75,7 @@ func (s *server) signed(next func(http.ResponseWriter, *http.Request, []byte)) h
 }
 
 func (s *server) health(w http.ResponseWriter, _ *http.Request, _ []byte) {
-	writeJSON(w, http.StatusOK, map[string]any{"ok": true, "service": "wfgg-radar-connector", "version": "0.4.0", "protocol": s.game.Mode(), "readonly": true})
+	writeJSON(w, http.StatusOK, map[string]any{"ok": true, "service": "wfgg-radar-connector", "version": "0.5.0-collector-async", "protocol": s.game.Mode(), "readonly": true, "collectorAsync": true})
 }
 
 func (s *server) authenticate(w http.ResponseWriter, r *http.Request, body []byte) {
