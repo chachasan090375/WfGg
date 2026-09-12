@@ -1,4 +1,4 @@
-name: Radar Federated Collector v6.3.1 build
+name: Radar Federated Collector v6.3.2 build
 
 on:
   push:
@@ -8,6 +8,8 @@ on:
       - '.github/scripts/patch-radar-federated-native-v63.py'
       - '.github/scripts/patch-radar-federated-connector-v63.py'
       - '.github/scripts/patch-radar-federated-topology-v631.py'
+      - '.github/scripts/patch-radar-federated-login-target-v632-native.py'
+      - '.github/scripts/patch-radar-federated-login-target-v632-connector.py'
       - '.github/scripts/patch-radar-server-explorer-native-sentinel-v2.py'
       - '.github/scripts/patch-radar-server-explorer-protocol-sentinel-v2.py'
       - '.github/scripts/patch-radar-server-explorer-protocol-v4.py'
@@ -50,7 +52,7 @@ jobs:
         with:
           go-version: '1.27.x'
 
-      - name: Reconstruct source and apply native Federated Collector V6.3
+      - name: Reconstruct source and apply native Federated Collector V6.3.2
         run: |
           set -euo pipefail
           rm -rf /tmp/wfgg-radar
@@ -70,6 +72,7 @@ jobs:
           python3 .github/scripts/patch-radar-server-explorer-redirect-v5.py
           python3 .github/scripts/patch-radar-server-explorer-single-session-v6.py
           python3 .github/scripts/patch-radar-federated-native-v63.py
+          python3 .github/scripts/patch-radar-federated-login-target-v632-native.py
 
       - name: Build native helper
         run: |
@@ -88,11 +91,13 @@ jobs:
           CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -tags lastwar_native_template -trimpath -ldflags='-s -w' -o /tmp/radar-native-template ./cmd/wfgg-radar-native-template
           strings /tmp/radar-native-template | grep -Fq 'WFGG_FEDERATED_MAP_ONLY'
           strings /tmp/radar-native-template | grep -Fq 'WFGG_FEDERATED_ORIGIN_INDEX'
+          strings /tmp/radar-native-template | grep -Fq 'WFGG_LOGIN_SERVER_ID_OVERRIDE'
+          strings /tmp/radar-native-template | grep -Fq 'FEDERATED_LOGIN_TARGET_OVERRIDE'
           strings /tmp/radar-native-template | grep -Fq 'FEDERATED_COLLECTOR_REGION_INVALID'
           strings /tmp/radar-native-template | grep -Fq 'world.get.block(batch-v6)'
           strings /tmp/radar-native-template | grep -Fq 'V6_BATCH_DONE'
 
-      - name: Build connector with Federated Collector V6.3.1 topology diagnostics
+      - name: Build connector with Federated Collector V6.3.2 target login diagnostics
         run: |
           set -euo pipefail
           rm -rf /tmp/wfgg-radar/connector-go
@@ -108,20 +113,21 @@ jobs:
           python3 .github/scripts/patch-radar-server-explorer-discovery-v6_2.py
           python3 .github/scripts/patch-radar-federated-connector-v63.py
           python3 .github/scripts/patch-radar-federated-topology-v631.py
+          python3 .github/scripts/patch-radar-federated-login-target-v632-connector.py
           cd /tmp/wfgg-radar/connector-go
           gofmt -w ./cmd ./internal
           go test ./...
           go vet ./...
           CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w' -o /tmp/radar-connector ./cmd/radar-connector
           grep -aFq 'FEDERATED_COLLECTOR_V63_SENTINEL' /tmp/radar-connector
-          grep -aFq 'FEDERATED_COLLECTOR_V63_CANARY' /tmp/radar-connector
           grep -aFq 'FEDERATED_COLLECTOR_V631_TOPOLOGY' /tmp/radar-connector
+          grep -aFq 'WFGG_LOGIN_SERVER_ID_OVERRIDE' /tmp/radar-connector
           grep -aFq 'FEDERATED_REGION_SCANNER_UNAVAILABLE' /tmp/radar-connector
           grep -aFq '@federated:' /tmp/radar-connector
           grep -aFq 'SERVER_DISCOVERY_V62_SENTINEL' /tmp/radar-connector
           grep -aFq 'SERVER_EXPLORER_V6_SINGLE_SESSION' /tmp/radar-connector
 
-      - name: Publish isolated Federated Collector V6.3.1 release
+      - name: Publish isolated Federated Collector V6.3.2 release
         run: |
           set -euo pipefail
           mkdir -p radar-vps/federated-collector-v63-release
@@ -133,7 +139,7 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add radar-vps/federated-collector-v63-release
           if git diff --cached --quiet; then exit 0; fi
-          git commit -m 'build(radar): publish Federated Collector v6.3.1 topology release'
+          git commit -m 'build(radar): publish Federated Collector v6.3.2 target-login release'
           git fetch origin radar-federated-collector-v63
           git rebase origin/radar-federated-collector-v63
           git push origin HEAD:radar-federated-collector-v63
