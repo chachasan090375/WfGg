@@ -70,6 +70,8 @@ export class RemoteLastWarTransport {
   }
 
   authenticate(token) { return this.request('/v1/authenticate', { body: { token } }); }
+  startEmailAuth(gameUid, email) { return this.request('/v1/auth/email/start', { body: { gameUid, email } }); }
+  finishEmailAuth(challengeId, code) { return this.request('/v1/auth/email/finish', { body: { challengeId, code } }); }
   snapshot(token) { return this.request('/v1/snapshot', { body: { token } }); }
   scanPlayer(query, token) { return this.request('/v1/scan/player', { body: { token, query } }); }
   startCollectorSearch(query, token) { return this.request('/v1/collector/search/start', { body: { token, query } }); }
