@@ -1,0 +1,99 @@
+name: Radar Auto-Cartographer V6.3.5 passive change build
+
+on:
+  push:
+    branches: [radar-autocartographer-v635-passive-change]
+    paths:
+      - '.github/workflows/radar-autocartographer-v635-passive-change-build.yml'
+      - '.github/scripts/patch-radar-autocartographer-v635-passive-change.py'
+      - '.github/scripts/patch-radar-autocartographer-v634-passive.py'
+      - '.github/scripts/patch-radar-autocartographer-v633.py'
+      - '.github/scripts/patch-radar-federated-connector-v63.py'
+      - '.github/scripts/patch-radar-federated-topology-v631.py'
+      - '.github/scripts/patch-radar-federated-login-target-v632-connector.py'
+      - '.github/scripts/patch-radar-server-explorer-*.py'
+      - '.github/scripts/patch-radar-player-oracle-v1.py'
+      - '.github/scripts/patch-radar-target-profile-retry.py'
+      - '.radar-release-src/v2-source/connector-go/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: radar-autocartographer-v635-passive-change
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.27.x'
+
+      - name: Assemble preserved connector stack
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/wfgg-radar
+          mkdir -p /tmp/wfgg-radar
+          cp -a .radar-release-src/v2-source/connector-go /tmp/wfgg-radar/connector-go
+          python3 .github/scripts/patch-radar-target-profile-retry.py
+          python3 .github/scripts/patch-radar-player-oracle-v1.py
+          python3 .github/scripts/patch-radar-server-explorer-connector-v1.py
+          python3 .github/scripts/patch-radar-server-explorer-budget-v2.py
+          python3 .github/scripts/patch-radar-server-explorer-protocol-sentinel-v2.py
+          python3 .github/scripts/patch-radar-server-explorer-protocol-v4.py
+          python3 .github/scripts/patch-radar-server-explorer-connector-v6.py
+          python3 .github/scripts/patch-radar-server-explorer-discovery-v6_1.py
+          python3 .github/scripts/patch-radar-server-explorer-discovery-v6_2.py
+          python3 .github/scripts/patch-radar-federated-connector-v63.py
+          python3 .github/scripts/patch-radar-federated-topology-v631.py
+          python3 .github/scripts/patch-radar-federated-login-target-v632-connector.py
+          python3 .github/scripts/patch-radar-autocartographer-v633.py
+          python3 .github/scripts/patch-radar-autocartographer-v634-passive.py
+          python3 .github/scripts/patch-radar-autocartographer-v635-passive-change.py
+
+      - name: Safety and build gate
+        working-directory: /tmp/wfgg-radar/connector-go
+        run: |
+          set -euo pipefail
+          ! grep -Fq 'maybeArmAutoCartographerV633FromBody(s, body)' cmd/radar-connector/main.go
+          ! grep -Fq 'POST /v1/cartographer/tick' cmd/radar-connector/main.go
+          grep -Fq 'GET /v1/cartographer/status' cmd/radar-connector/main.go
+          grep -Fq 'passiveV634Observe(jobID, region, players)' cmd/radar-connector/collector_jobs.go
+          grep -Fq 'AUTO_CARTOGRAPHER_V635_PASSIVE_CHANGE' cmd/radar-connector/autocartographer_v634_passive.go
+          grep -Fq 'confirmationsRequired' cmd/radar-connector/autocartographer_v634_passive.go
+          gofmt -w ./cmd ./internal
+          go test ./...
+          go vet ./...
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w' -o /tmp/radar-connector ./cmd/radar-connector
+          grep -aFq 'AUTO_CARTOGRAPHER_V635_PASSIVE_CHANGE' /tmp/radar-connector
+          grep -aFq 'PASSIVE_CHANGE_DETECTOR' /tmp/radar-connector
+          grep -aFq 'EXISTING_COLLECTOR_SCAN' /tmp/radar-connector
+          grep -aFq 'FEDERATED_COLLECTOR_V63_SENTINEL' /tmp/radar-connector
+          grep -aFq 'FEDERATED_COLLECTOR_V631_TOPOLOGY' /tmp/radar-connector
+          grep -aFq 'SERVER_DISCOVERY_V62_SENTINEL' /tmp/radar-connector
+          ! grep -aFq 'POST /v1/cartographer/tick' /tmp/radar-connector
+          echo 'AUTO_CARTOGRAPHER_V635_ACTIVE_PROBES=NO'
+          echo 'AUTO_CARTOGRAPHER_V635_GAME_TOKEN_RETENTION=NO'
+          echo 'AUTO_CARTOGRAPHER_V635_BACKGROUND_GAME_CALLS=NO'
+          echo 'AUTO_CARTOGRAPHER_V635_CONFIRMATIONS=2'
+
+      - name: Publish isolated V6.3.5 connector release
+        run: |
+          set -euo pipefail
+          mkdir -p radar-vps/autocartographer-v635-passive-change-release
+          cp /tmp/radar-connector radar-vps/autocartographer-v635-passive-change-release/radar-connector
+          chmod 0755 radar-vps/autocartographer-v635-passive-change-release/radar-connector
+          (cd radar-vps/autocartographer-v635-passive-change-release && sha256sum radar-connector > SHA256SUMS)
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add radar-vps/autocartographer-v635-passive-change-release
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'build(radar): publish Auto-Cartographer v6.3.5 passive change release'
+          git fetch origin radar-autocartographer-v635-passive-change
+          git rebase origin/radar-autocartographer-v635-passive-change
+          git push origin HEAD:radar-autocartographer-v635-passive-change
