@@ -1,0 +1,142 @@
+name: Radar Auto-Cartographer V6.3.4 passive build
+
+on:
+  push:
+    branches: [radar-autocartographer-v634-passive]
+    paths:
+      - '.github/workflows/radar-autocartographer-v634-passive-build.yml'
+      - '.github/scripts/patch-radar-autocartographer-v634-passive.py'
+      - '.github/scripts/patch-radar-autocartographer-v633.py'
+      - '.github/scripts/patch-radar-federated-native-v63.py'
+      - '.github/scripts/patch-radar-federated-connector-v63.py'
+      - '.github/scripts/patch-radar-federated-topology-v631.py'
+      - '.github/scripts/patch-radar-federated-login-target-v632-native.py'
+      - '.github/scripts/patch-radar-federated-login-target-v632-connector.py'
+      - '.github/scripts/patch-radar-server-explorer-*.py'
+      - '.github/scripts/patch-radar-player-oracle-v1.py'
+      - '.github/scripts/patch-radar-target-profile-retry.py'
+      - '.github/scripts/patch-player-scan-v3.py'
+      - '.github/scripts/patch-player-scan-v4.py'
+      - '.radar-release-src/v2-source/connector-go/**'
+      - '.radar-release-src/v3-source/connector-go/native-template/**'
+      - '.radar-release-src/v4-source/connector-go/native-template/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  LASTWAR_CLIENT_REF: ee5f64de160a8051c2f9f98189b75038dd225a0a
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: radar-autocartographer-v634-passive
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.27.x'
+
+      - name: Reconstruct source and apply native stack
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/wfgg-radar
+          mkdir -p /tmp/wfgg-radar
+          python3 .github/scripts/reconstruct-radar-release.py
+          tar -xzf /tmp/radar-src.tar.gz -C /tmp/wfgg-radar
+          base64 -d .radar-release-src/player-scan-v2.patch | gzip -dc > /tmp/player-scan-v2.patch
+          cd /tmp/wfgg-radar
+          git apply /tmp/player-scan-v2.patch
+          cd "$GITHUB_WORKSPACE"
+          python3 .github/scripts/patch-player-scan-v3.py
+          python3 .github/scripts/patch-player-scan-v4.py
+          python3 .github/scripts/patch-radar-server-explorer-native-v1.py
+          python3 .github/scripts/patch-radar-server-explorer-native-sentinel-v2.py
+          python3 .github/scripts/patch-radar-server-explorer-login-init-v3.py
+          python3 .github/scripts/patch-radar-server-explorer-init-window-v4.py
+          python3 .github/scripts/patch-radar-server-explorer-redirect-v5.py
+          python3 .github/scripts/patch-radar-server-explorer-single-session-v6.py
+          python3 .github/scripts/patch-radar-federated-native-v63.py
+          python3 .github/scripts/patch-radar-federated-login-target-v632-native.py
+
+      - name: Build preserved native helper
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/lastwar-client
+          git clone --filter=blob:none --no-checkout https://github.com/ljagiello/lastwar-client.git /tmp/lastwar-client
+          cd /tmp/lastwar-client
+          git fetch --depth 1 origin "$LASTWAR_CLIENT_REF"
+          git checkout --detach FETCH_HEAD
+          go test ./internal/auth ./internal/pcap ./internal/sfs
+          mkdir -p cmd/wfgg-radar-native-template
+          cp /tmp/wfgg-radar/connector-go/native-template/main.go cmd/wfgg-radar-native-template/main.go
+          cp /tmp/wfgg-radar/connector-go/native-template/player_scan_v3.go cmd/wfgg-radar-native-template/player_scan_v3.go
+          cp /tmp/wfgg-radar/connector-go/native-template/player_scan_v4.go cmd/wfgg-radar-native-template/player_scan_v4.go
+          gofmt -w cmd/wfgg-radar-native-template/*.go
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -tags lastwar_native_template -trimpath -ldflags='-s -w' -o /tmp/radar-native-template ./cmd/wfgg-radar-native-template
+          strings /tmp/radar-native-template | grep -Fq 'WFGG_FEDERATED_MAP_ONLY'
+          strings /tmp/radar-native-template | grep -Fq 'world.get.block(batch-v6)'
+
+      - name: Build connector with V6.3.4 passive safety contract
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/wfgg-radar/connector-go
+          cp -a .radar-release-src/v2-source/connector-go /tmp/wfgg-radar/connector-go
+          python3 .github/scripts/patch-radar-target-profile-retry.py
+          python3 .github/scripts/patch-radar-player-oracle-v1.py
+          python3 .github/scripts/patch-radar-server-explorer-connector-v1.py
+          python3 .github/scripts/patch-radar-server-explorer-budget-v2.py
+          python3 .github/scripts/patch-radar-server-explorer-protocol-sentinel-v2.py
+          python3 .github/scripts/patch-radar-server-explorer-protocol-v4.py
+          python3 .github/scripts/patch-radar-server-explorer-connector-v6.py
+          python3 .github/scripts/patch-radar-server-explorer-discovery-v6_1.py
+          python3 .github/scripts/patch-radar-server-explorer-discovery-v6_2.py
+          python3 .github/scripts/patch-radar-federated-connector-v63.py
+          python3 .github/scripts/patch-radar-federated-topology-v631.py
+          python3 .github/scripts/patch-radar-federated-login-target-v632-connector.py
+          python3 .github/scripts/patch-radar-autocartographer-v633.py
+          python3 .github/scripts/patch-radar-autocartographer-v634-passive.py
+
+          ! grep -Fq 'maybeArmAutoCartographerV633FromBody(s, body)' /tmp/wfgg-radar/connector-go/cmd/radar-connector/main.go
+          ! grep -Fq 'POST /v1/cartographer/tick' /tmp/wfgg-radar/connector-go/cmd/radar-connector/main.go
+          grep -Fq 'GET /v1/cartographer/status' /tmp/wfgg-radar/connector-go/cmd/radar-connector/main.go
+          grep -Fq 'passiveV634Observe(jobID, region, players)' /tmp/wfgg-radar/connector-go/cmd/radar-connector/collector_jobs.go
+
+          cd /tmp/wfgg-radar/connector-go
+          gofmt -w ./cmd ./internal
+          go test ./...
+          go vet ./...
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w' -o /tmp/radar-connector ./cmd/radar-connector
+
+          grep -aFq 'AUTO_CARTOGRAPHER_V634_PASSIVE' /tmp/radar-connector
+          grep -aFq '/v1/cartographer/status' /tmp/radar-connector
+          grep -aFq 'PASSIVE_ONLY' /tmp/radar-connector
+          grep -aFq 'EXISTING_COLLECTOR_SCAN' /tmp/radar-connector
+          grep -aFq 'FEDERATED_COLLECTOR_V63_SENTINEL' /tmp/radar-connector
+          grep -aFq 'FEDERATED_COLLECTOR_V631_TOPOLOGY' /tmp/radar-connector
+          grep -aFq 'SERVER_DISCOVERY_V62_SENTINEL' /tmp/radar-connector
+          echo 'AUTO_CARTOGRAPHER_V634_ACTIVE_PROBES=NO'
+          echo 'AUTO_CARTOGRAPHER_V634_GAME_TOKEN_RETENTION=NO'
+          echo 'AUTO_CARTOGRAPHER_V634_BACKGROUND_GAME_CALLS=NO'
+
+      - name: Publish isolated V6.3.4 passive release
+        run: |
+          set -euo pipefail
+          mkdir -p radar-vps/autocartographer-v634-passive-release
+          cp /tmp/radar-connector radar-vps/autocartographer-v634-passive-release/radar-connector
+          cp /tmp/radar-native-template radar-vps/autocartographer-v634-passive-release/radar-native-template
+          chmod 0755 radar-vps/autocartographer-v634-passive-release/radar-connector radar-vps/autocartographer-v634-passive-release/radar-native-template
+          (cd radar-vps/autocartographer-v634-passive-release && sha256sum radar-connector radar-native-template > SHA256SUMS)
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add radar-vps/autocartographer-v634-passive-release
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'build(radar): publish Auto-Cartographer v6.3.4 passive release'
+          git fetch origin radar-autocartographer-v634-passive
+          git rebase origin/radar-autocartographer-v634-passive
+          git push origin HEAD:radar-autocartographer-v634-passive
