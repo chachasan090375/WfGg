@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# V6.3.6 cluster-aware passive guard; push marker for isolated build.
 from pathlib import Path
 
 p = Path('/tmp/wfgg-radar/connector-go/cmd/radar-connector/autocartographer_v634_passive.go')
