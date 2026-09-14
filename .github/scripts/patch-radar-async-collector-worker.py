@@ -40,11 +40,65 @@ else:
         assertCapability(session.role, 'radar.search');
         const id = String(url.searchParams.get('id') || '').trim();
         if (!/^[a-zA-Z0-9_-]{8,128}$/.test(id)) throw Object.assign(new Error('COLLECTOR_JOB_ID_REQUIRED'), { status: 400 });
-        const transport = new RemoteLastWarTransport({ baseUrl: env.RADAR_CONNECTOR_URL, sharedKey: env.RADAR_CONNECTOR_SHARED_KEY, timeoutMs: 30000 });
+        const transport = new RemoteLastWarTransport({ baseUrl: env.RADAR_CONNECTOR_URL, sharedKey: env.RADAR_CONNECTOR_SHARED_KEY, timeoutMs: 60000 });
         try {
           const status = await transport.collectorSearchStatus(id);
           const job = status?.job || null;
           if (!job) throw Object.assign(new Error('COLLECTOR_JOB_STATUS_INVALID'), { status: 502 });
+
+          // Credential lifetime telemetry contains timestamps/status only, never
+          // the Last War credential itself. A successful Collector cycle proves
+          // the credential was still valid. If a generic native scan failure is
+          // returned, run one validation probe so an expired credential is not
+          // hidden behind MAP_REGION_FAILED/PROFILE_BATCH_FAILED.
+          if (job.status === 'SUCCESS' || job.status === 'FAILED') {
+            let issuedAt = null;
+            let ageSeconds = null;
+            try {
+              const issued = await env.DB.prepare(`
+                SELECT created_at FROM audit_log
+                WHERE actor_uid = ? AND action IN ('auth.lastwar-email.success','auth.game-token.success')
+                ORDER BY created_at DESC LIMIT 1
+              `).bind(String(session.gameUid)).first();
+              issuedAt = issued?.created_at || null;
+              const issuedMs = issuedAt ? Date.parse(issuedAt) : NaN;
+              ageSeconds = Number.isFinite(issuedMs) ? Math.max(0, Math.floor((Date.now() - issuedMs) / 1000)) : null;
+            } catch (_) {}
+
+            if (job.status === 'SUCCESS') {
+              await audit(env, session.gameUid, 'auth.lastwar.credential-valid', session.gameUid, {
+                issuedAt,
+                ageSeconds,
+                jobId: job.id,
+                cycleId: job.cycleId || null,
+                source: 'collector-cycle-success'
+              });
+            } else {
+              const maskedScanErrors = new Set(['MAP_REGION_FAILED', 'PROFILE_BATCH_FAILED', 'COLLECTOR_TARGET_REFRESH_FAILED']);
+              if (maskedScanErrors.has(String(job.error || ''))) {
+                const record = await getCredential(env, session.gameUid);
+                if (record) {
+                  const vaultKey = requireSecret(env.RADAR_TOKEN_VAULT_KEY, 'RADAR_TOKEN_VAULT_KEY');
+                  const token = await decryptGameToken({ ciphertext: record.ciphertext, iv: record.iv, keyVersion: record.key_version }, vaultKey, session.gameUid);
+                  try {
+                    await transport.authenticate(token);
+                  } catch (probeError) {
+                    if (String(probeError?.message || '') === 'LASTWAR_AUTH_REJECTED') {
+                      job.error = 'LASTWAR_AUTH_REJECTED';
+                      await audit(env, session.gameUid, 'auth.lastwar.credential-rejected', session.gameUid, {
+                        issuedAt,
+                        ageSeconds,
+                        jobId: job.id,
+                        cycleId: job.cycleId || null,
+                        originalCollectorError: String(status?.job?.error || ''),
+                        source: 'collector-failure-auth-probe'
+                      });
+                    }
+                  }
+                }
+              }
+            }
+          }
           return json({ ok: true, job });
         } finally {
           await transport.close().catch(() => {});
@@ -113,6 +167,7 @@ else:
 
 p.write_text(s)
 print('RADAR_EMAIL_AUTH_PATCHER=V1')
+print('RADAR_LASTWAR_CREDENTIAL_LIFETIME_TELEMETRY=ENABLED')
 
 # The deployment workflow invokes this script before it overlays live-radar.html.
 # Patch a temporary copy using the dedicated UI patchers, then copy the result
