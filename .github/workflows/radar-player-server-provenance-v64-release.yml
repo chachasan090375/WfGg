@@ -1,0 +1,75 @@
+name: Radar Player Server Provenance v6.4 isolated release
+
+on:
+  push:
+    branches: [radar-collector-server-provenance-v64]
+    paths:
+      - '.github/workflows/radar-player-server-provenance-v64-release.yml'
+      - '.github/scripts/patch-radar-player-server-provenance-v64.py'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: radar-collector-server-provenance-v64
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.27.x'
+
+      - name: Build provenance-aware connector
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/wfgg-radar
+          mkdir -p /tmp/wfgg-radar
+          cp -a .radar-release-src/v2-source/connector-go /tmp/wfgg-radar/connector-go
+          python3 .github/scripts/patch-radar-target-profile-retry.py
+          python3 .github/scripts/patch-radar-player-oracle-v1.py
+          python3 .github/scripts/patch-radar-server-explorer-connector-v1.py
+          python3 .github/scripts/patch-radar-server-explorer-budget-v2.py
+          python3 .github/scripts/patch-radar-server-explorer-protocol-sentinel-v2.py
+          python3 .github/scripts/patch-radar-server-explorer-protocol-v4.py
+          python3 .github/scripts/patch-radar-server-explorer-connector-v6.py
+          python3 .github/scripts/patch-radar-server-explorer-discovery-v6_1.py
+          python3 .github/scripts/patch-radar-server-explorer-discovery-v6_2.py
+          python3 .github/scripts/patch-radar-federated-connector-v63.py
+          python3 .github/scripts/patch-radar-federated-topology-v631.py
+          python3 .github/scripts/patch-radar-federated-login-target-v632-connector.py
+          python3 .github/scripts/patch-radar-autocartographer-v633.py
+          python3 .github/scripts/patch-radar-player-server-provenance-v64.py
+          cd /tmp/wfgg-radar/connector-go
+          gofmt -w ./cmd ./internal
+          go test ./...
+          go vet ./...
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w' -o /tmp/radar-connector-v64 ./cmd/radar-connector
+          grep -aFq 'PLAYER_SERVER_PROVENANCE_V64' /tmp/radar-connector-v64
+          grep -aFq 'WORLD_GET_BLOCK_TARGET' /tmp/radar-connector-v64
+
+      - name: Publish branch-isolated release
+        run: |
+          set -euo pipefail
+          OUT='radar-vps/player-server-provenance-v64-release'
+          mkdir -p "$OUT"
+          cp /tmp/radar-connector-v64 "$OUT/radar-connector"
+          chmod 0755 "$OUT/radar-connector"
+          (cd "$OUT" && sha256sum radar-connector > SHA256SUMS)
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add "$OUT"
+          if git diff --cached --quiet; then
+            echo 'PLAYER_SERVER_PROVENANCE_V64_RELEASE=UNCHANGED'
+            exit 0
+          fi
+          git commit -m 'build(radar): publish isolated player server provenance v6.4 connector'
+          git fetch origin radar-collector-server-provenance-v64
+          git rebase origin/radar-collector-server-provenance-v64
+          git push origin HEAD:radar-collector-server-provenance-v64
+          echo 'PLAYER_SERVER_PROVENANCE_V64_RELEASE=OK'
