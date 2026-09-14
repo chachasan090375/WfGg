@@ -6,6 +6,7 @@ REG="$ROOT/registry/projects"
 AGY_BIN="${CHACHA_ANTIGRAVITY_BIN:-/usr/local/bin/agy-dev}"
 AGY_MODEL="${CHACHA_ANTIGRAVITY_MODEL:-gemini-3.8-flash-medium}"
 SKYWORK_DIR="${CHACHA_SKYWORK_DIR:-$ROOT/agents/skywork/Skywork-Skills}"
+STORAGE_ENV="${CHACHA_STORAGE_ENV:-$ROOT/platform/config/storage.env}"
 
 mkdir -p "$REG"
 
@@ -31,6 +32,13 @@ Agents / skills:
   projectctl skywork-sync
   projectctl skywork-status
 
+NAS storage:
+  projectctl storage-status [name]
+  projectctl storage-init <name>
+  projectctl storage-path <name>
+  projectctl storage-push <name> <local-path> [remote-subdir]
+  projectctl storage-pull <name> <remote-subdir> [local-path]
+
 Platform:
   projectctl doctor
   projectctl engines
@@ -39,6 +47,11 @@ EOF
 
 slug_ok() {
   [[ "$1" =~ ^[A-Za-z0-9._-]+$ ]]
+}
+
+safe_rel() {
+  local p="${1:-}"
+  [[ -n "$p" && "$p" != /* && "$p" != ".." && "$p" != ../* && "$p" != */../* && "$p" != */.. ]]
 }
 
 project_file() {
@@ -84,6 +97,52 @@ project_root() {
   fi
 }
 
+load_storage() {
+  [[ -f "$STORAGE_ENV" ]] || { echo "STORAGE_CONFIG_MISSING=$STORAGE_ENV" >&2; return 8; }
+  unset NAS_TYPE NAS_HOST NAS_USER NAS_KEY NAS_ROOT
+  # shellcheck disable=SC1090
+  source "$STORAGE_ENV"
+  NAS_TYPE="${NAS_TYPE:-ssh}"
+  NAS_HOST="${NAS_HOST:-}"
+  NAS_USER="${NAS_USER:-}"
+  NAS_KEY="${NAS_KEY:-}"
+  NAS_ROOT="${NAS_ROOT:-}"
+  [[ -n "$NAS_HOST" && -n "$NAS_USER" && -n "$NAS_KEY" && -n "$NAS_ROOT" ]] || {
+    echo "STORAGE_CONFIG_INVALID=$STORAGE_ENV" >&2
+    return 8
+  }
+  [[ -s "$NAS_KEY" ]] || { echo "STORAGE_KEY_MISSING=$NAS_KEY" >&2; return 8; }
+}
+
+storage_ssh() {
+  ssh \
+    -i "$NAS_KEY" \
+    -o BatchMode=yes \
+    -o ConnectTimeout=8 \
+    -o StrictHostKeyChecking=accept-new \
+    "$NAS_USER@$NAS_HOST" "$@"
+}
+
+storage_rsync_shell() {
+  printf 'ssh -i %q -o BatchMode=yes -o ConnectTimeout=8 -o StrictHostKeyChecking=accept-new' "$NAS_KEY"
+}
+
+storage_project_root() {
+  local name="$1"
+  printf '%s/projects/%s\n' "${NAS_ROOT%/}" "$name"
+}
+
+maybe_storage_init() {
+  local name="$1"
+  if [[ -f "$STORAGE_ENV" ]]; then
+    if cmd_storage_init "$name" >/dev/null; then
+      echo 'PROJECT_STORAGE=ready'
+    else
+      echo 'PROJECT_STORAGE=unavailable'
+    fi
+  fi
+}
+
 cmd_list() {
   local f any=0
   printf '%-22s %-12s %s\n' NAME TYPE REPOSITORY
@@ -110,6 +169,7 @@ cmd_init() {
   write_project "$name" '' "$type" "$work"
   echo "PROJECT_INITIALIZED=$name"
   echo "PROJECT_PATH=$work"
+  maybe_storage_init "$name"
 }
 
 cmd_register() {
@@ -124,6 +184,7 @@ cmd_register() {
   write_project "$name" "$repo" "$type" "$work"
   echo "PROJECT_REGISTERED=$name"
   echo "PROJECT_PATH=$work"
+  maybe_storage_init "$name"
 }
 
 cmd_set_repo() {
@@ -168,6 +229,15 @@ cmd_status() {
     git -C "$WORKSPACE/repo" status --short --branch || true
   else
     echo 'REPO_CLONED=no'
+  fi
+  if [[ -f "$STORAGE_ENV" ]]; then
+    if load_storage >/dev/null 2>&1; then
+      echo "NAS_STORAGE=$NAS_USER@$NAS_HOST:$(storage_project_root "$NAME")"
+    else
+      echo 'NAS_STORAGE=config-error'
+    fi
+  else
+    echo 'NAS_STORAGE=not-configured'
   fi
 }
 
@@ -290,6 +360,114 @@ cmd_skywork_status() {
   echo "SKYWORK_SKILLS=$(find "$SKYWORK_DIR" -mindepth 1 -maxdepth 2 -name SKILL.md -type f 2>/dev/null | wc -l)"
 }
 
+cmd_storage_status() {
+  local name="${1:-}" base=""
+  load_storage
+  echo 'STORAGE_STATUS=configured'
+  echo "NAS_TYPE=$NAS_TYPE"
+  echo "NAS_HOST=$NAS_HOST"
+  echo "NAS_USER=$NAS_USER"
+  echo "NAS_ROOT=$NAS_ROOT"
+  echo "NAS_KEY=$NAS_KEY"
+  command -v rsync >/dev/null 2>&1 && echo 'VPS_RSYNC=yes' || echo 'VPS_RSYNC=no'
+  if storage_ssh "echo NAS_SSH=OK; test -d '$NAS_ROOT' && echo NAS_ROOT=OK; command -v rsync >/dev/null 2>&1 && echo NAS_RSYNC=yes || echo NAS_RSYNC=no; df -h '$NAS_ROOT'" ; then
+    :
+  else
+    echo 'NAS_SSH=FAILED'
+    return 9
+  fi
+  if [[ -n "$name" ]]; then
+    load_project "$name"
+    base="$(storage_project_root "$NAME")"
+    echo "PROJECT=$NAME"
+    echo "PROJECT_NAS_ROOT=$base"
+    if storage_ssh "test -d '$base'"; then
+      echo 'PROJECT_NAS_STORAGE=ready'
+      storage_ssh "du -sh '$base' 2>/dev/null || true"
+    else
+      echo 'PROJECT_NAS_STORAGE=missing'
+    fi
+  fi
+}
+
+cmd_storage_init() {
+  local name="${1:-}" base
+  [[ -n "$name" ]] || { usage; return 2; }
+  load_project "$name"
+  load_storage
+  base="$(storage_project_root "$NAME")"
+  storage_ssh "mkdir -p '$base/assets' '$base/data' '$base/extracted' '$base/artifacts' '$base/builds' '$base/backups' '$base/archives'"
+  echo "PROJECT_NAS_STORAGE=ready"
+  echo "PROJECT_NAS_ROOT=$base"
+}
+
+cmd_storage_path() {
+  local name="${1:-}" base
+  [[ -n "$name" ]] || { usage; exit 2; }
+  load_project "$name"
+  load_storage
+  base="$(storage_project_root "$NAME")"
+  printf '%s@%s:%s\n' "$NAS_USER" "$NAS_HOST" "$base"
+}
+
+cmd_storage_push() {
+  local name="${1:-}" src_arg="${2:-}" remote_rel="${3:-}" src base remote rshell
+  [[ -n "$name" && -n "$src_arg" ]] || { usage; exit 2; }
+  load_project "$name"
+  load_storage
+  base="$(storage_project_root "$NAME")"
+
+  if [[ "$src_arg" = /* ]]; then
+    src="$src_arg"
+  else
+    src="$(project_root)/$src_arg"
+  fi
+  [[ -e "$src" ]] || { echo "LOCAL_SOURCE_MISSING=$src" >&2; exit 10; }
+
+  if [[ -z "$remote_rel" ]]; then
+    remote_rel="$(basename "$src")"
+  fi
+  safe_rel "$remote_rel" || { echo "REMOTE_SUBDIR_INVALID=$remote_rel" >&2; exit 10; }
+  remote="$base/$remote_rel"
+  rshell="$(storage_rsync_shell)"
+
+  if [[ -d "$src" ]]; then
+    storage_ssh "mkdir -p '$remote'"
+    rsync -az --info=progress2 -e "$rshell" "$src/" "$NAS_USER@$NAS_HOST:$remote/"
+  else
+    storage_ssh "mkdir -p '$(dirname "$remote")'"
+    rsync -az --info=progress2 -e "$rshell" "$src" "$NAS_USER@$NAS_HOST:$remote"
+  fi
+  echo "STORAGE_PUSH=OK"
+  echo "REMOTE=$NAS_USER@$NAS_HOST:$remote"
+}
+
+cmd_storage_pull() {
+  local name="${1:-}" remote_rel="${2:-}" local_arg="${3:-}" dest base remote rshell
+  [[ -n "$name" && -n "$remote_rel" ]] || { usage; exit 2; }
+  safe_rel "$remote_rel" || { echo "REMOTE_SUBDIR_INVALID=$remote_rel" >&2; exit 10; }
+  load_project "$name"
+  load_storage
+  base="$(storage_project_root "$NAME")"
+  remote="$base/$remote_rel"
+
+  if [[ -n "$local_arg" ]]; then
+    if [[ "$local_arg" = /* ]]; then
+      dest="$local_arg"
+    else
+      dest="$(project_root)/$local_arg"
+    fi
+  else
+    dest="$WORKSPACE/data/nas/$remote_rel"
+  fi
+
+  mkdir -p "$dest"
+  rshell="$(storage_rsync_shell)"
+  rsync -az --info=progress2 -e "$rshell" "$NAS_USER@$NAS_HOST:$remote/" "$dest/"
+  echo "STORAGE_PULL=OK"
+  echo "LOCAL=$dest"
+}
+
 cmd_doctor() {
   echo "ROOT=$ROOT"
   [[ -d "$ROOT" ]] && echo 'ROOT_OK=yes' || echo 'ROOT_OK=no'
@@ -315,6 +493,8 @@ cmd_doctor() {
   fi
   [[ -x "$AGY_BIN" ]] && echo "ANTIGRAVITY=$AGY_BIN" || echo 'ANTIGRAVITY=missing'
   [[ -d "$SKYWORK_DIR/.git" ]] && echo "SKYWORK_SKILLS=$SKYWORK_DIR" || echo 'SKYWORK_SKILLS=not-installed'
+  [[ -f "$STORAGE_ENV" ]] && echo "STORAGE_CONFIG=$STORAGE_ENV" || echo 'STORAGE_CONFIG=missing'
+  command -v rsync >/dev/null 2>&1 && echo "RSYNC=$(command -v rsync)" || echo 'RSYNC=missing'
   echo "PROJECTS=$(find "$REG" -maxdepth 1 -name '*.conf' -type f 2>/dev/null | wc -l)"
 }
 
@@ -333,6 +513,11 @@ case "${1:-}" in
   agent) shift; cmd_agent "$@" ;;
   skywork-sync) shift; cmd_skywork_sync "$@" ;;
   skywork-status) shift; cmd_skywork_status "$@" ;;
+  storage-status) shift; cmd_storage_status "$@" ;;
+  storage-init) shift; cmd_storage_init "$@" ;;
+  storage-path) shift; cmd_storage_path "$@" ;;
+  storage-push) shift; cmd_storage_push "$@" ;;
+  storage-pull) shift; cmd_storage_pull "$@" ;;
   doctor) shift; cmd_doctor "$@" ;;
   engines) shift; cmd_engines "$@" ;;
   -h|--help|help|'') usage ;;
