@@ -1,0 +1,141 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="${CHACHA_DEV_ROOT:-/opt/chacha-dev}"
+REG="$ROOT/registry/projects"
+
+mkdir -p "$REG"
+
+usage() {
+  cat <<'EOF'
+ChaCha DEV HUB — projectctl
+
+Usage:
+  projectctl list
+  projectctl register <name> <repo-url-or-owner/repo> [type]
+  projectctl status <name>
+  projectctl path <name>
+  projectctl doctor
+  projectctl engines
+EOF
+}
+
+slug_ok() {
+  [[ "$1" =~ ^[A-Za-z0-9._-]+$ ]]
+}
+
+project_file() {
+  printf '%s/%s.conf\n' "$REG" "$1"
+}
+
+load_project() {
+  local name="$1" f
+  f="$(project_file "$name")"
+  [[ -f "$f" ]] || { echo "PROJECT_NOT_FOUND=$name" >&2; exit 2; }
+  # shellcheck disable=SC1090
+  source "$f"
+}
+
+cmd_list() {
+  local f any=0
+  printf '%-22s %-12s %s\n' NAME TYPE REPOSITORY
+  printf '%-22s %-12s %s\n' '----------------------' '------------' '----------'
+  shopt -s nullglob
+  for f in "$REG"/*.conf; do
+    any=1
+    unset NAME REPO TYPE WORKSPACE
+    # shellcheck disable=SC1090
+    source "$f"
+    printf '%-22s %-12s %s\n' "${NAME:-?}" "${TYPE:-generic}" "${REPO:-?}"
+  done
+  [[ $any -eq 1 ]] || echo '(aucun projet enregistré)'
+}
+
+cmd_register() {
+  local name="${1:-}" repo="${2:-}" type="${3:-generic}" f work
+  [[ -n "$name" && -n "$repo" ]] || { usage; exit 2; }
+  slug_ok "$name" || { echo 'Nom invalide: lettres/chiffres/._- uniquement' >&2; exit 2; }
+  if [[ "$repo" != *"://"* && "$repo" != git@* ]]; then
+    repo="https://github.com/${repo}.git"
+  fi
+  work="$ROOT/projects/$name"
+  mkdir -p "$work"/{workspace,data,artifacts,docs,tests}
+  f="$(project_file "$name")"
+  cat > "$f" <<EOF
+NAME='$name'
+REPO='$repo'
+TYPE='$type'
+WORKSPACE='$work'
+EOF
+  echo "PROJECT_REGISTERED=$name"
+  echo "PROJECT_PATH=$work"
+}
+
+cmd_status() {
+  local name="${1:-}"
+  [[ -n "$name" ]] || { usage; exit 2; }
+  load_project "$name"
+  echo "NAME=$NAME"
+  echo "TYPE=${TYPE:-generic}"
+  echo "REPO=$REPO"
+  echo "WORKSPACE=$WORKSPACE"
+  if [[ -d "$WORKSPACE/repo/.git" ]]; then
+    echo 'REPO_CLONED=yes'
+    git -C "$WORKSPACE/repo" status --short --branch || true
+  else
+    echo 'REPO_CLONED=no'
+  fi
+}
+
+cmd_path() {
+  local name="${1:-}"
+  [[ -n "$name" ]] || { usage; exit 2; }
+  load_project "$name"
+  printf '%s\n' "$WORKSPACE"
+}
+
+cmd_engines() {
+  local e target
+  for e in blender unitypy python node; do
+    if [[ -L "$ROOT/engines/$e/current" ]]; then
+      target="$(readlink -f "$ROOT/engines/$e/current")"
+      echo "$e=$target"
+    elif [[ -e "$ROOT/engines/$e/current" ]]; then
+      echo "$e=$ROOT/engines/$e/current"
+    else
+      echo "$e=not-registered"
+    fi
+  done
+}
+
+cmd_doctor() {
+  echo "ROOT=$ROOT"
+  [[ -d "$ROOT" ]] && echo 'ROOT_OK=yes' || echo 'ROOT_OK=no'
+  command -v git >/dev/null && echo "GIT=$(git --version)" || echo 'GIT=missing'
+  command -v python3 >/dev/null && echo "PYTHON=$(python3 --version 2>&1)" || echo 'PYTHON=missing'
+  command -v node >/dev/null && echo "NODE=$(node --version)" || echo 'NODE=missing'
+  if command -v blender >/dev/null 2>&1; then
+    echo "BLENDER=$(command -v blender)"
+  elif [[ -x /root/.local/bin/blender ]]; then
+    echo 'BLENDER=/root/.local/bin/blender'
+  else
+    echo 'BLENDER=missing'
+  fi
+  if [[ -x /root/wfgg-tools/unitypy-venv/bin/python ]]; then
+    echo 'UNITYPY_VENV=/root/wfgg-tools/unitypy-venv'
+  else
+    echo 'UNITYPY_VENV=missing'
+  fi
+  echo "PROJECTS=$(find "$REG" -maxdepth 1 -name '*.conf' -type f 2>/dev/null | wc -l)"
+}
+
+case "${1:-}" in
+  list) shift; cmd_list "$@" ;;
+  register) shift; cmd_register "$@" ;;
+  status) shift; cmd_status "$@" ;;
+  path) shift; cmd_path "$@" ;;
+  doctor) shift; cmd_doctor "$@" ;;
+  engines) shift; cmd_engines "$@" ;;
+  -h|--help|help|'') usage ;;
+  *) echo "Commande inconnue: $1" >&2; usage; exit 2 ;;
+esac
