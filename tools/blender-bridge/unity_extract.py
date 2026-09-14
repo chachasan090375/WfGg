@@ -33,7 +33,14 @@ def main() -> int:
     ap = argparse.ArgumentParser(description="Extract Unity mesh/texture assets for the WfGg Blender LAB bridge")
     ap.add_argument("bundle", help="Unity bundle/asset file")
     ap.add_argument("outdir", help="Output directory")
+    ap.add_argument(
+        "--unity-version",
+        default=os.environ.get("WFGG_UNITY_VERSION", "2019.4.41f1"),
+        help="Fallback Unity version for bundles that do not embed one (default: 2019.4.41f1)",
+    )
     args = ap.parse_args()
+
+    UnityPy.config.FALLBACK_UNITY_VERSION = args.unity_version
 
     src = Path(args.bundle).expanduser().resolve()
     out = Path(args.outdir).expanduser().resolve()
@@ -50,6 +57,7 @@ def main() -> int:
         "schema": "wfgg.unity.extract.v1",
         "source": {"path": str(src), "size_bytes": src.stat().st_size},
         "unitypy_version": getattr(UnityPy, "__version__", "unknown"),
+        "fallback_unity_version": args.unity_version,
         "object_types": {},
         "meshes": [],
         "textures": [],
@@ -116,6 +124,7 @@ def main() -> int:
     summary_path.write_text(json.dumps(summary, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
     print("WFGG_UNITY_EXTRACT_OK", flush=True)
+    print(f"WFGG_FALLBACK_UNITY={args.unity_version}", flush=True)
     print(f"WFGG_UNITY_OBJECTS={len(objects)}", flush=True)
     print(f"WFGG_UNITY_MESHES={len(summary['meshes'])}", flush=True)
     print(f"WFGG_UNITY_TEXTURES={len(summary['textures'])}", flush=True)
