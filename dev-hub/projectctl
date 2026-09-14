@@ -3,6 +3,9 @@ set -euo pipefail
 
 ROOT="${CHACHA_DEV_ROOT:-/opt/chacha-dev}"
 REG="$ROOT/registry/projects"
+AGY_BIN="${CHACHA_ANTIGRAVITY_BIN:-/usr/local/bin/agy-dev}"
+AGY_MODEL="${CHACHA_ANTIGRAVITY_MODEL:-gemini-3.8-flash-medium}"
+SKYWORK_DIR="${CHACHA_SKYWORK_DIR:-$ROOT/agents/skywork/Skywork-Skills}"
 
 mkdir -p "$REG"
 
@@ -10,11 +13,25 @@ usage() {
   cat <<'EOF'
 ChaCha DEV HUB — projectctl
 
-Usage:
+Projects:
   projectctl list
+  projectctl init <name> [type]
   projectctl register <name> <repo-url-or-owner/repo> [type]
+  projectctl set-repo <name> <repo-url-or-owner/repo>
+  projectctl clone <name>
   projectctl status <name>
   projectctl path <name>
+  projectctl root <name>
+  projectctl shell <name>
+  projectctl run <name> <command> [args...]
+
+Agents / skills:
+  projectctl agents
+  projectctl agent <name> antigravity [agy options...]
+  projectctl skywork-sync
+  projectctl skywork-status
+
+Platform:
   projectctl doctor
   projectctl engines
 EOF
@@ -28,12 +45,43 @@ project_file() {
   printf '%s/%s.conf\n' "$REG" "$1"
 }
 
+normalize_repo() {
+  local repo="${1:-}"
+  if [[ -z "$repo" || "$repo" == '-' || "$repo" == 'none' ]]; then
+    printf '%s\n' ''
+  elif [[ "$repo" == *"://"* || "$repo" == git@* ]]; then
+    printf '%s\n' "$repo"
+  else
+    printf 'https://github.com/%s.git\n' "$repo"
+  fi
+}
+
+write_project() {
+  local name="$1" repo="$2" type="$3" work="$4" f
+  f="$(project_file "$name")"
+  {
+    printf 'NAME=%q\n' "$name"
+    printf 'REPO=%q\n' "$repo"
+    printf 'TYPE=%q\n' "$type"
+    printf 'WORKSPACE=%q\n' "$work"
+  } > "$f"
+}
+
 load_project() {
   local name="$1" f
   f="$(project_file "$name")"
   [[ -f "$f" ]] || { echo "PROJECT_NOT_FOUND=$name" >&2; exit 2; }
+  unset NAME REPO TYPE WORKSPACE
   # shellcheck disable=SC1090
   source "$f"
+}
+
+project_root() {
+  if [[ -d "$WORKSPACE/repo/.git" ]]; then
+    printf '%s\n' "$WORKSPACE/repo"
+  else
+    printf '%s\n' "$WORKSPACE/workspace"
+  fi
 }
 
 cmd_list() {
@@ -46,29 +94,64 @@ cmd_list() {
     unset NAME REPO TYPE WORKSPACE
     # shellcheck disable=SC1090
     source "$f"
-    printf '%-22s %-12s %s\n' "${NAME:-?}" "${TYPE:-generic}" "${REPO:-?}"
+    printf '%-22s %-12s %s\n' "${NAME:-?}" "${TYPE:-generic}" "${REPO:--}"
   done
   [[ $any -eq 1 ]] || echo '(aucun projet enregistré)'
+}
+
+cmd_init() {
+  local name="${1:-}" type="${2:-generic}" f work
+  [[ -n "$name" ]] || { usage; exit 2; }
+  slug_ok "$name" || { echo 'Nom invalide: lettres/chiffres/._- uniquement' >&2; exit 2; }
+  f="$(project_file "$name")"
+  [[ ! -e "$f" ]] || { echo "PROJECT_ALREADY_EXISTS=$name" >&2; exit 3; }
+  work="$ROOT/projects/$name"
+  mkdir -p "$work"/{workspace,data,artifacts,docs,tests}
+  write_project "$name" '' "$type" "$work"
+  echo "PROJECT_INITIALIZED=$name"
+  echo "PROJECT_PATH=$work"
 }
 
 cmd_register() {
   local name="${1:-}" repo="${2:-}" type="${3:-generic}" f work
   [[ -n "$name" && -n "$repo" ]] || { usage; exit 2; }
   slug_ok "$name" || { echo 'Nom invalide: lettres/chiffres/._- uniquement' >&2; exit 2; }
-  if [[ "$repo" != *"://"* && "$repo" != git@* ]]; then
-    repo="https://github.com/${repo}.git"
-  fi
+  f="$(project_file "$name")"
+  [[ ! -e "$f" ]] || { echo "PROJECT_ALREADY_EXISTS=$name" >&2; exit 3; }
+  repo="$(normalize_repo "$repo")"
   work="$ROOT/projects/$name"
   mkdir -p "$work"/{workspace,data,artifacts,docs,tests}
-  f="$(project_file "$name")"
-  cat > "$f" <<EOF
-NAME='$name'
-REPO='$repo'
-TYPE='$type'
-WORKSPACE='$work'
-EOF
+  write_project "$name" "$repo" "$type" "$work"
   echo "PROJECT_REGISTERED=$name"
   echo "PROJECT_PATH=$work"
+}
+
+cmd_set_repo() {
+  local name="${1:-}" repo="${2:-}"
+  [[ -n "$name" && -n "$repo" ]] || { usage; exit 2; }
+  load_project "$name"
+  repo="$(normalize_repo "$repo")"
+  write_project "$NAME" "$repo" "${TYPE:-generic}" "$WORKSPACE"
+  echo "PROJECT_REPO_UPDATED=$NAME"
+  echo "REPO=$repo"
+}
+
+cmd_clone() {
+  local name="${1:-}"
+  [[ -n "$name" ]] || { usage; exit 2; }
+  load_project "$name"
+  [[ -n "${REPO:-}" ]] || { echo "PROJECT_REPO_MISSING=$NAME" >&2; exit 4; }
+  if [[ -d "$WORKSPACE/repo/.git" ]]; then
+    echo "REPO_ALREADY_CLONED=$WORKSPACE/repo"
+    return 0
+  fi
+  if [[ -e "$WORKSPACE/repo" ]] && [[ -n "$(find "$WORKSPACE/repo" -mindepth 1 -maxdepth 1 -print -quit 2>/dev/null)" ]]; then
+    echo "REPO_TARGET_NOT_EMPTY=$WORKSPACE/repo" >&2
+    exit 5
+  fi
+  rm -rf "$WORKSPACE/repo"
+  git clone "$REPO" "$WORKSPACE/repo"
+  echo "REPO_CLONED=$WORKSPACE/repo"
 }
 
 cmd_status() {
@@ -77,8 +160,9 @@ cmd_status() {
   load_project "$name"
   echo "NAME=$NAME"
   echo "TYPE=${TYPE:-generic}"
-  echo "REPO=$REPO"
+  echo "REPO=${REPO:-}"
   echo "WORKSPACE=$WORKSPACE"
+  echo "PROJECT_ROOT=$(project_root)"
   if [[ -d "$WORKSPACE/repo/.git" ]]; then
     echo 'REPO_CLONED=yes'
     git -C "$WORKSPACE/repo" status --short --branch || true
@@ -92,6 +176,32 @@ cmd_path() {
   [[ -n "$name" ]] || { usage; exit 2; }
   load_project "$name"
   printf '%s\n' "$WORKSPACE"
+}
+
+cmd_root() {
+  local name="${1:-}"
+  [[ -n "$name" ]] || { usage; exit 2; }
+  load_project "$name"
+  project_root
+}
+
+cmd_shell() {
+  local name="${1:-}" target
+  [[ -n "$name" ]] || { usage; exit 2; }
+  load_project "$name"
+  target="$(project_root)"
+  cd "$target"
+  exec "${SHELL:-/bin/bash}"
+}
+
+cmd_run() {
+  local name="${1:-}" target
+  shift || true
+  [[ -n "$name" && $# -gt 0 ]] || { usage; exit 2; }
+  load_project "$name"
+  target="$(project_root)"
+  cd "$target"
+  exec "$@"
 }
 
 cmd_engines() {
@@ -108,12 +218,89 @@ cmd_engines() {
   done
 }
 
+cmd_agents() {
+  echo 'NAME          STATUS        LOCATION'
+  echo '------------  ------------  -----------------------------------------------'
+  if [[ -x "$AGY_BIN" ]]; then
+    printf '%-12s  %-12s  %s\n' antigravity ready "$AGY_BIN"
+  else
+    printf '%-12s  %-12s  %s\n' antigravity missing "$AGY_BIN"
+  fi
+  if [[ -d "$SKYWORK_DIR/.git" ]]; then
+    printf '%-12s  %-12s  %s\n' skywork skills-ready "$SKYWORK_DIR"
+  else
+    printf '%-12s  %-12s  %s\n' skywork not-installed "$SKYWORK_DIR"
+  fi
+}
+
+cmd_agent() {
+  local name="${1:-}" agent="${2:-}" target has_model=0 arg
+  [[ -n "$name" && -n "$agent" ]] || { usage; exit 2; }
+  shift 2 || true
+  load_project "$name"
+  target="$(project_root)"
+  case "$agent" in
+    antigravity|agy)
+      [[ -x "$AGY_BIN" ]] || { echo 'ANTIGRAVITY_NOT_READY' >&2; exit 6; }
+      for arg in "$@"; do
+        [[ "$arg" == '--model' || "$arg" == --model=* ]] && has_model=1
+      done
+      cd "$target"
+      if [[ $has_model -eq 1 ]]; then
+        exec "$AGY_BIN" "$@"
+      else
+        exec "$AGY_BIN" --model "$AGY_MODEL" "$@"
+      fi
+      ;;
+    *)
+      echo "AGENT_UNKNOWN=$agent" >&2
+      echo 'AVAILABLE_AGENTS=antigravity' >&2
+      exit 2
+      ;;
+  esac
+}
+
+cmd_skywork_sync() {
+  mkdir -p "$(dirname "$SKYWORK_DIR")"
+  if [[ -d "$SKYWORK_DIR/.git" ]]; then
+    git -C "$SKYWORK_DIR" fetch --prune origin
+    git -C "$SKYWORK_DIR" pull --ff-only
+    echo "SKYWORK_UPDATED=$SKYWORK_DIR"
+  elif [[ -e "$SKYWORK_DIR" ]] && [[ -n "$(find "$SKYWORK_DIR" -mindepth 1 -maxdepth 1 -print -quit 2>/dev/null)" ]]; then
+    echo "SKYWORK_TARGET_NOT_EMPTY=$SKYWORK_DIR" >&2
+    exit 7
+  else
+    rm -rf "$SKYWORK_DIR"
+    git clone https://github.com/SkyworkAI/Skywork-Skills.git "$SKYWORK_DIR"
+    echo "SKYWORK_INSTALLED=$SKYWORK_DIR"
+  fi
+  echo "SKYWORK_COMMIT=$(git -C "$SKYWORK_DIR" rev-parse --short HEAD)"
+  echo "SKYWORK_SKILLS=$(find "$SKYWORK_DIR" -mindepth 1 -maxdepth 2 -name SKILL.md -type f 2>/dev/null | wc -l)"
+}
+
+cmd_skywork_status() {
+  if [[ ! -d "$SKYWORK_DIR/.git" ]]; then
+    echo 'SKYWORK_STATUS=not-installed'
+    echo "SKYWORK_DIR=$SKYWORK_DIR"
+    exit 1
+  fi
+  echo 'SKYWORK_STATUS=ready'
+  echo "SKYWORK_DIR=$SKYWORK_DIR"
+  echo "SKYWORK_COMMIT=$(git -C "$SKYWORK_DIR" rev-parse --short HEAD)"
+  echo "SKYWORK_SKILLS=$(find "$SKYWORK_DIR" -mindepth 1 -maxdepth 2 -name SKILL.md -type f 2>/dev/null | wc -l)"
+}
+
 cmd_doctor() {
   echo "ROOT=$ROOT"
   [[ -d "$ROOT" ]] && echo 'ROOT_OK=yes' || echo 'ROOT_OK=no'
   command -v git >/dev/null && echo "GIT=$(git --version)" || echo 'GIT=missing'
   command -v python3 >/dev/null && echo "PYTHON=$(python3 --version 2>&1)" || echo 'PYTHON=missing'
   command -v node >/dev/null && echo "NODE=$(node --version)" || echo 'NODE=missing'
+  if command -v npm >/dev/null 2>&1; then
+    echo "NPM=$(npm --version 2>/dev/null || echo broken)"
+  else
+    echo 'NPM=missing'
+  fi
   if command -v blender >/dev/null 2>&1; then
     echo "BLENDER=$(command -v blender)"
   elif [[ -x /root/.local/bin/blender ]]; then
@@ -126,14 +313,26 @@ cmd_doctor() {
   else
     echo 'UNITYPY_VENV=missing'
   fi
+  [[ -x "$AGY_BIN" ]] && echo "ANTIGRAVITY=$AGY_BIN" || echo 'ANTIGRAVITY=missing'
+  [[ -d "$SKYWORK_DIR/.git" ]] && echo "SKYWORK_SKILLS=$SKYWORK_DIR" || echo 'SKYWORK_SKILLS=not-installed'
   echo "PROJECTS=$(find "$REG" -maxdepth 1 -name '*.conf' -type f 2>/dev/null | wc -l)"
 }
 
 case "${1:-}" in
   list) shift; cmd_list "$@" ;;
+  init) shift; cmd_init "$@" ;;
   register) shift; cmd_register "$@" ;;
+  set-repo) shift; cmd_set_repo "$@" ;;
+  clone) shift; cmd_clone "$@" ;;
   status) shift; cmd_status "$@" ;;
   path) shift; cmd_path "$@" ;;
+  root) shift; cmd_root "$@" ;;
+  shell) shift; cmd_shell "$@" ;;
+  run) shift; cmd_run "$@" ;;
+  agents) shift; cmd_agents "$@" ;;
+  agent) shift; cmd_agent "$@" ;;
+  skywork-sync) shift; cmd_skywork_sync "$@" ;;
+  skywork-status) shift; cmd_skywork_status "$@" ;;
   doctor) shift; cmd_doctor "$@" ;;
   engines) shift; cmd_engines "$@" ;;
   -h|--help|help|'') usage ;;
