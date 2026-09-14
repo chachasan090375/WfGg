@@ -1,0 +1,13 @@
+#!/bin/sh
+set -eu
+VENV="/root/wfgg-tools/unitypy-venv"
+SCRIPT="/root/wfgg-tools/wfgg-blender-bridge/unity_extract.py"
+if [ ! -x "$VENV/bin/python" ]; then
+  echo "WFGG_UNITY_EXTRACT_ERROR venv_missing:$VENV" >&2
+  exit 20
+fi
+if [ ! -f "$SCRIPT" ]; then
+  echo "WFGG_UNITY_EXTRACT_ERROR script_missing:$SCRIPT" >&2
+  exit 21
+fi
+exec "$VENV/bin/python" "$SCRIPT" "$@"
