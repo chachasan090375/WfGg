@@ -41,6 +41,12 @@ curl -fsSL "$SRC_BASE/projectctl" -o "$ROOT/platform/bin/projectctl"
 chmod 0755 "$ROOT/platform/bin/projectctl"
 ln -sfn "$ROOT/platform/bin/projectctl" /usr/local/bin/projectctl
 
+# Baseline runtimes shared by all projects.
+if ! command -v node >/dev/null 2>&1; then
+  apt-get update -qq
+  DEBIAN_FRONTEND=noninteractive apt-get install -y nodejs npm >/dev/null
+fi
+
 # Register existing shared engines without moving or modifying them.
 if [[ -x /root/.local/bin/blender ]]; then
   ln -sfn /root/.local/bin/blender "$ROOT/engines/blender/current"
@@ -57,7 +63,7 @@ fi
 
 cat > "$ROOT/platform/config/platform.conf" <<EOF
 CHACHA_DEV_ROOT=$ROOT
-PLATFORM_VERSION=0.1.0
+PLATFORM_VERSION=0.1.1
 PLATFORM_MODE=shared-multi-project
 CREATED_UTC=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 EOF
