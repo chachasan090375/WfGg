@@ -1,0 +1,55 @@
+name: Apply Radar federated progress UI v6.4
+
+on:
+  push:
+    branches: [radar-production-v1]
+    paths:
+      - '.github/scripts/patch-live-radar-federated-v64.py'
+      - '.github/workflows/apply-radar-federated-ui-v64.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  bake-ui:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: radar-production-v1
+          fetch-depth: 0
+
+      - name: Bake current Radar overlays plus federated progress
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/wfgg-radar
+          mkdir -p /tmp/wfgg-radar/public
+          cp radar-ui-live/live-radar.html /tmp/wfgg-radar/public/live-radar.html
+          python3 .github/scripts/patch-live-radar-async.py
+          python3 .github/scripts/patch-live-radar-email-auth.py
+          python3 .github/scripts/patch-live-radar-account-controls.py
+          python3 .github/scripts/patch-live-radar-federated-v64.py
+          grep -q 'WFGG_RADAR_FEDERATED_PROGRESS_V64' /tmp/wfgg-radar/public/live-radar.html
+          grep -q 'FEDERATED_MAP' /tmp/wfgg-radar/public/live-radar.html
+          grep -q 'RECONNECTER LAST WAR' /tmp/wfgg-radar/public/live-radar.html
+          grep -q 'WFGG_LASTWAR_IDENTITY_MEMORY_V1' /tmp/wfgg-radar/public/live-radar.html
+          cp /tmp/wfgg-radar/public/live-radar.html radar-ui-live/live-radar.html
+          echo 'RADAR_FEDERATED_UI_V64_BAKE=OK'
+
+      - name: Publish baked UI to production branch
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add radar-ui-live/live-radar.html
+          if git diff --cached --quiet; then
+            echo 'RADAR_FEDERATED_UI_V64=UNCHANGED'
+            exit 0
+          fi
+          git commit -m 'fix(radar): display federated collector progress v6.4'
+          git fetch origin radar-production-v1
+          git rebase origin/radar-production-v1
+          git push origin HEAD:radar-production-v1
+          echo 'RADAR_FEDERATED_UI_V64=PUBLISHED'
