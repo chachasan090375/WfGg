@@ -4,8 +4,28 @@ import re
 
 p = Path('/tmp/wfgg-radar/public/live-radar.html')
 s = p.read_text(encoding='utf-8')
+
+# The async UI patch historically targeted an older <i>-based steps markup while
+# the production page uses <span> and aria-hidden. Make the live Collector state
+# visible regardless of which base markup is reconstructed.
+progress_marker = 'WFGG_RADAR_PROGRESS_TEXT_V2'
+if 'id="progressText"' not in s:
+    step_anchors = [
+        '<div class="steps" aria-hidden="true"><span class="step" id="s1"></span><span class="step" id="s2"></span><span class="step" id="s3"></span><span class="step" id="s4"></span></div>',
+        '<div class="steps"><i id="s1" class="step"></i><i id="s2" class="step"></i><i id="s3" class="step"></i><i id="s4" class="step"></i></div>',
+    ]
+    for step_anchor in step_anchors:
+        if step_anchor in s:
+            progress = f'<div id="progressText" class="progress-text" data-ui="{progress_marker}">RADAR PRÊT</div>'
+            s = s.replace(step_anchor, progress + step_anchor, 1)
+            break
+if 'id="progressText"' not in s:
+    raise SystemExit('RADAR_PROGRESS_TEXT_ANCHOR_MISSING')
+
 marker = 'WFGG_LASTWAR_EMAIL_AUTH_V1'
 if marker in s:
+    p.write_text(s, encoding='utf-8')
+    print('RADAR_PROGRESS_TEXT=VISIBLE')
     print('RADAR_LIVE_EMAIL_AUTH=ALREADY_PRESENT')
     raise SystemExit(0)
 
@@ -66,6 +86,9 @@ if '/api/auth/lastwar/start' not in s or '/api/auth/lastwar/finish' not in s:
     raise SystemExit('RADAR_EMAIL_AUTH_NEW_PATH_MISSING')
 if 'WFGG_LASTWAR_IDENTITY_MEMORY_V1' not in s or 'LASTWAR_IDENTITY_MEMORY_KEY' not in s:
     raise SystemExit('RADAR_EMAIL_AUTH_IDENTITY_MEMORY_MISSING')
+if progress_marker not in s:
+    raise SystemExit('RADAR_PROGRESS_TEXT_MARKER_MISSING')
 p.write_text(s, encoding='utf-8')
+print('RADAR_PROGRESS_TEXT=VISIBLE')
 print('RADAR_LIVE_EMAIL_AUTH=PATCHED')
 print('RADAR_LASTWAR_IDENTITY_MEMORY=ENABLED')
