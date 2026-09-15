@@ -1,0 +1,39 @@
+{
+  "schema": "chacha.dev/provider-health-probes/v1",
+  "principles": {
+    "no_secret_values_in_catalog": true,
+    "functional_probe_preferred_over_version_only": true,
+    "health_has_freshness_limit": true,
+    "project_local_provider_checked_in_project_context": true
+  },
+  "defaults": {
+    "timeout_seconds": 10,
+    "freshness_seconds": 300,
+    "failure_state": "UNAVAILABLE",
+    "timeout_state": "DEGRADED"
+  },
+  "providers": {
+    "github": {"scope": "managed", "probe": "connector-health", "functional_check": "repository-read"},
+    "antigravity": {"scope": "platform", "probe": "runtime-command", "functional_check": "agy-version-and-provider-ready"},
+    "skywork": {"scope": "platform", "probe": "filesystem-git", "functional_check": "skills-repository-readable"},
+    "mdn-mcp": {"scope": "platform", "probe": "mcp", "functional_check": "initialize-and-tools-list"},
+    "context7-mcp": {"scope": "platform", "probe": "mcp", "functional_check": "initialize-and-tools-list"},
+    "vitest": {"scope": "project", "probe": "package-command", "functional_check": "test-runner-discoverable"},
+    "node-test": {"scope": "project", "probe": "runtime-command", "functional_check": "node-test-available"},
+    "playwright": {"scope": "project", "probe": "package-command", "functional_check": "runner-and-browser-ready"},
+    "http-smoke": {"scope": "platform", "probe": "runtime-command", "functional_check": "http-client-ready"},
+    "npm-audit": {"scope": "project", "probe": "package-command", "functional_check": "npm-audit-available"},
+    "lighthouse": {"scope": "project", "probe": "package-command", "functional_check": "lighthouse-runnable"},
+    "wrangler-d1": {"scope": "project", "probe": "package-command", "functional_check": "wrangler-d1-command-ready"},
+    "wrangler": {"scope": "project", "probe": "package-command", "functional_check": "wrangler-command-ready"},
+    "cloudflare-pages": {"scope": "managed", "probe": "provider-api", "functional_check": "deployment-endpoint-reachable"},
+    "github-actions": {"scope": "managed", "probe": "connector-health", "functional_check": "workflow-api-readable"},
+    "nas": {"scope": "platform", "probe": "ssh-storage", "functional_check": "target-readable-and-free-space"},
+    "github-artifacts": {"scope": "managed", "probe": "connector-health", "functional_check": "artifacts-api-readable"},
+    "blender": {"scope": "platform", "probe": "runtime-command", "functional_check": "blender-version"},
+    "unitypy": {"scope": "platform", "probe": "python-import", "functional_check": "unitypy-import"},
+    "chacha-tech-watch": {"scope": "platform", "probe": "runtime-command", "functional_check": "radar-status"},
+    "chacha-dev-architect": {"scope": "platform", "probe": "runtime-command", "functional_check": "architect-status"},
+    "storage-governor": {"scope": "platform", "probe": "runtime-command", "functional_check": "storage-audit"}
+  }
+}
