@@ -27,7 +27,9 @@ jobs:
           python -m py_compile \
             dev-hub/bin/control-plane-store.py \
             dev-hub/bin/project-control.py \
+            dev-hub/bin/project-control-cli.py \
             dev-hub/bin/project-control-api.py \
+            dev-hub/bin/transaction-recovery.py \
             dev-hub/bin/lifecycle-engine.py \
             dev-hub/bin/task-graph-engine.py \
             dev-hub/bin/execution-scheduler.py \
@@ -52,6 +54,129 @@ jobs:
         run: |
           python dev-hub/bin/control-plane-store.py --help >/dev/null
           python dev-hub/bin/project-control.py --help >/dev/null
+          python dev-hub/bin/project-control-cli.py --help >/dev/null
+          python dev-hub/bin/transaction-recovery.py --help >/dev/null
           python dev-hub/bin/lifecycle-engine.py --help >/dev/null
           python dev-hub/bin/verification-broker.py --help >/dev/null
           echo CONTROL_PLANE_CLI_SMOKE=OK
+
+      - name: Transaction recovery protocol smoke
+        shell: bash
+        run: |
+          set -euo pipefail
+          TMP="$(mktemp -d)"
+          export TMP
+
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          root = Path(os.environ['TMP'])
+          policy = json.load(open('dev-hub/config/transaction-recovery.v1.json', encoding='utf-8'))
+          policy['runtime'] = {
+              'transactions_root': str(root / 'transactions'),
+              'state_root': str(root / 'state'),
+              'evidence_root': str(root / 'evidence'),
+              'locks_root': str(root / 'locks'),
+          }
+          (root / 'recovery-policy.json').write_text(json.dumps(policy, indent=2) + '\n', encoding='utf-8')
+          PY
+
+          python dev-hub/bin/control-plane-store.py \
+            --policy dev-hub/config/control-plane-state.v1.json \
+            --root "$TMP/state" init --project wfgg --actor ci-test >/dev/null
+
+          mkdir -p "$TMP/transactions/wfgg/ctx-abort"
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          root = Path(os.environ['TMP'])
+          receipt = {
+              'schema': 'chacha.dev/control-transaction-receipt/v1',
+              'transaction_id': 'ctx-abort',
+              'project': 'wfgg',
+              'operation': 'advance',
+              'status': 'PREPARED',
+              'updated_at': '2026-01-01T00:00:00+00:00',
+              'actor': 'ci-test',
+              'transition': 'IDEA->DESIGN',
+              'pre_version': 1,
+          }
+          path = root / 'transactions/wfgg/ctx-abort/receipt.json'
+          path.write_text(json.dumps(receipt, indent=2) + '\n', encoding='utf-8')
+          PY
+
+          python dev-hub/bin/transaction-recovery.py \
+            --policy "$TMP/recovery-policy.json" --repo-root . --json \
+            inspect --project wfgg --transaction-id ctx-abort > "$TMP/inspect-abort.json"
+
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          root = Path(os.environ['TMP'])
+          report = json.load(open(root / 'inspect-abort.json', encoding='utf-8'))
+          assert report['assessment'] == 'SAFE_TO_ABORT', report
+          PY
+
+          python dev-hub/bin/transaction-recovery.py \
+            --policy "$TMP/recovery-policy.json" --repo-root . --json \
+            recover --project wfgg --transaction-id ctx-abort --actor ci-recovery --apply > "$TMP/recover-abort.json"
+
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          root = Path(os.environ['TMP'])
+          receipt = json.load(open(root / 'transactions/wfgg/ctx-abort/receipt.json', encoding='utf-8'))
+          assert receipt['status'] == 'FAILED', receipt
+          assert receipt['recovery_outcome'] == 'ABORTED_BEFORE_AUTHORITATIVE_COMMIT', receipt
+          PY
+
+          mkdir -p "$TMP/transactions/wfgg/ctx-authoritative"
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          root = Path(os.environ['TMP'])
+          receipt = {
+              'schema': 'chacha.dev/control-transaction-receipt/v1',
+              'transaction_id': 'ctx-authoritative',
+              'project': 'wfgg',
+              'operation': 'advance',
+              'status': 'PREPARED',
+              'updated_at': '2026-01-01T00:00:00+00:00',
+              'actor': 'ci-test',
+              'transition': 'IDEA->DESIGN',
+              'pre_version': 1,
+          }
+          (root / 'transactions/wfgg/ctx-authoritative/receipt.json').write_text(json.dumps(receipt, indent=2) + '\n', encoding='utf-8')
+          payload = {
+              'transaction_id': 'ctx-authoritative',
+              'transition': 'IDEA->DESIGN',
+              'from': 'IDEA',
+              'to': 'DESIGN',
+          }
+          patch = {'lifecycle': {'stage': 'DESIGN'}}
+          (root / 'payload.json').write_text(json.dumps(payload) + '\n', encoding='utf-8')
+          (root / 'patch.json').write_text(json.dumps(patch) + '\n', encoding='utf-8')
+          PY
+
+          python dev-hub/bin/control-plane-store.py \
+            --policy dev-hub/config/control-plane-state.v1.json \
+            --root "$TMP/state" record --project wfgg \
+            --event-type LIFECYCLE_TRANSITION --actor ci-test \
+            --payload "$TMP/payload.json" --patch "$TMP/patch.json" >/dev/null
+
+          python dev-hub/bin/transaction-recovery.py \
+            --policy "$TMP/recovery-policy.json" --repo-root . --json \
+            recover --project wfgg --transaction-id ctx-authoritative --actor ci-recovery --apply > "$TMP/recover-authoritative.json"
+
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          root = Path(os.environ['TMP'])
+          receipt = json.load(open(root / 'transactions/wfgg/ctx-authoritative/receipt.json', encoding='utf-8'))
+          assert receipt['status'] == 'COMMITTED', receipt
+          assert receipt['recovery_outcome'] == 'RECOVERED_FROM_AUTHORITATIVE_EVENT', receipt
+          state = json.load(open(root / 'state/wfgg/state.json', encoding='utf-8'))
+          assert state['state']['lifecycle']['stage'] == 'DESIGN', state
+          PY
+
+          echo TRANSACTION_RECOVERY_SMOKE=OK
