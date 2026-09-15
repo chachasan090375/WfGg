@@ -11,7 +11,8 @@
     "run_controller": "dev-hub/config/run-controller.v1.json",
     "provider_adapters": "dev-hub/config/provider-adapters.v1.json",
     "verification_broker": "dev-hub/config/verification-broker.v1.json",
-    "adapter_contract": "dev-hub/config/adapter-contract.v1.json"
+    "adapter_contract": "dev-hub/config/adapter-contract.v1.json",
+    "control_plane_state": "dev-hub/config/control-plane-state.v1.json"
   },
   "principles": {
     "least_privilege": true,
@@ -27,7 +28,11 @@
     "unregistered_adapter_cannot_execute": true,
     "verification_is_separate_from_execution": true,
     "adapter_enablement_requires_contract_evidence": true,
-    "human_verification_is_never_faked_or_automated": true
+    "human_verification_is_never_faked_or_automated": true,
+    "current_project_state_has_one_control_plane_projection": true,
+    "all_consequential_state_changes_are_audited": true,
+    "audit_history_is_append_only_and_hash_chained": true,
+    "control_plane_state_is_rebuildable_from_audit_history": true
   },
   "permissions": {
     "read": {"approval": "none"},
@@ -70,6 +75,11 @@
     "verification_broker_must_not_be_task_producer": true,
     "human_verification_requires_real_human_actor": true,
     "adapter_status_designed_cannot_execute": true,
-    "adapter_promotion_is_never_automatic": true
+    "adapter_promotion_is_never_automatic": true,
+    "state_mutation_requires_audit_event": true,
+    "audit_event_sequence_must_be_contiguous": true,
+    "audit_event_hash_chain_must_verify": true,
+    "projection_must_match_journal_head": true,
+    "release_and_retirement_boundaries_require_checkpoint": true
   }
 }
