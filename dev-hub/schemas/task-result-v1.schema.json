@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://chacha.dev/schemas/task-result-v1.schema.json",
+  "title": "ChaCha DEV HUB Task Result V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "project", "task_id", "status", "producer", "observed_at", "evidence", "verification"],
+  "properties": {
+    "schema": {"const": "chacha.dev/task-result/v1"},
+    "project": {"type": "string"},
+    "task_id": {"type": "string"},
+    "status": {"enum": ["OK", "PARTIAL", "FAILED", "BLOCKED", "UNVERIFIED"]},
+    "producer": {"type": "string"},
+    "observed_at": {"type": "string"},
+    "summary": {"type": "string"},
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["kind", "source", "digest"],
+        "properties": {
+          "kind": {"enum": ["command", "file", "report", "url", "metric", "human-observation", "deployment-receipt", "other"]},
+          "source": {"type": "string"},
+          "digest": {"type": "string"},
+          "details": {"type": "object", "additionalProperties": true}
+        }
+      }
+    },
+    "verification": {
+      "type": "object",
+      "required": ["status", "method", "verifier"],
+      "properties": {
+        "status": {"enum": ["VERIFIED", "REJECTED", "UNVERIFIED"]},
+        "method": {"enum": ["machine", "independent-agent", "human", "none"]},
+        "verifier": {"type": "string"},
+        "observed_at": {"type": "string"},
+        "notes": {"type": "string"}
+      }
+    },
+    "outputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["type", "id", "status"],
+        "properties": {
+          "type": {"enum": ["artifact", "gate", "approval"]},
+          "id": {"type": "string"},
+          "status": {"enum": ["OK", "PARTIAL", "MISSING", "NOT_APPLICABLE", "UNVERIFIED", "APPROVED", "REJECTED"]},
+          "reason": {"type": "string"}
+        }
+      }
+    }
+  }
+}
