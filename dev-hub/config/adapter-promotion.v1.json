@@ -6,9 +6,10 @@
     "current_status_is_a_precondition": true,
     "evidence_precedes_state_change": true,
     "runtime_contract_precedes_pilot": true,
+    "provisioning_receipt_precedes_pilot": true,
+    "promotion_binds_provisioned_executable": true,
     "repeatable_runtime_and_health_precede_enablement": true,
     "production_capable_enablement_requires_explicit_human_approval": true,
-    "provisioning_and_status_change_are_recorded_together": true,
     "registry_write_is_atomic": true,
     "promotion_receipt_is_required": true,
     "private_secrets_are_never_part_of_promotion_evidence": true,
@@ -20,7 +21,8 @@
     "registry": "chacha.dev/provider-adapters/v1",
     "contract": "chacha.dev/adapter-contract/v1",
     "evidence": "chacha.dev/adapter-promotion-evidence/v1",
-    "report": "chacha.dev/adapter-promotion-report/v1"
+    "report": "chacha.dev/adapter-promotion-report/v1",
+    "provisioning_receipt": "chacha.dev/adapter-provisioning-receipt/v1"
   },
   "evidence": {
     "max_age_seconds": 604800,
