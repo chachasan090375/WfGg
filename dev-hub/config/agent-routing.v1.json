@@ -8,6 +8,8 @@
     "production_change_requires_human_approval": true,
     "destructive_change_requires_human_approval": true,
     "security_critical_change_requires_review": true,
+    "cryptographic_key_lifecycle_requires_human_approval": true,
+    "private_signing_material_is_never_exposed_to_agents": true,
     "fallback_on_provider_failure": true
   },
   "roles": {
@@ -28,7 +30,16 @@
       "default_risk": "high"
     },
     "security-reviewer": {
-      "capabilities": ["security-scan-js", "threat-model", "secrets-review", "dependency-review"],
+      "capabilities": [
+        "security-scan-js",
+        "threat-model",
+        "secrets-review",
+        "dependency-review",
+        "audit-signing-policy",
+        "digital-signature-verification",
+        "key-lifecycle-review",
+        "trust-anchor-review"
+      ],
       "default_risk": "high"
     },
     "test-engineer": {
@@ -36,7 +47,14 @@
       "default_risk": "low"
     },
     "platform-cloud-engineer": {
-      "capabilities": ["cloud-deploy-edge", "ci", "storage-governance", "environment-management"],
+      "capabilities": [
+        "cloud-deploy-edge",
+        "ci",
+        "storage-governance",
+        "environment-management",
+        "approved-signing-backend-operation",
+        "trust-anchor-transport"
+      ],
       "default_risk": "high"
     },
     "sre-observability-engineer": {
@@ -48,7 +66,7 @@
       "default_risk": "low"
     },
     "recovery-engineer": {
-      "capabilities": ["backup-store", "restore-drill", "rpo-rto-validation"],
+      "capabilities": ["backup-store", "restore-drill", "rpo-rto-validation", "signed-checkpoint-recovery-validation"],
       "default_risk": "high"
     },
     "release-engineer": {
@@ -86,6 +104,11 @@
       "review_roles": ["backend-api-architect"]
     },
     {
+      "match": ["signature", "cryptographic", "ed25519", "checkpoint-signing", "key-rotation", "key-revocation", "trust-anchor", "audit-chain"],
+      "primary_role": "security-reviewer",
+      "review_roles": ["platform-cloud-engineer", "recovery-engineer"]
+    },
+    {
       "match": ["test", "e2e", "unit", "integration", "regression"],
       "primary_role": "test-engineer",
       "review_roles": []
@@ -113,7 +136,7 @@
     {
       "match": ["release", "rollback", "promotion", "production"],
       "primary_role": "release-engineer",
-      "review_roles": ["platform-cloud-engineer", "test-engineer"]
+      "review_roles": ["platform-cloud-engineer", "test-engineer", "security-reviewer"]
     },
     {
       "match": ["documentation", "adr", "runbook", "architecture-doc"],
@@ -131,6 +154,13 @@
     "medium": {"workspace_write": true, "repository_write": true, "production_change": false},
     "high": {"workspace_write": true, "repository_write": false, "production_change": false},
     "critical": {"workspace_write": false, "repository_write": false, "production_change": false}
+  },
+  "cryptographic_ownership": {
+    "policy_owner": "security-reviewer",
+    "signing_backend_operator": "platform-cloud-engineer",
+    "restore_validation_owner": "recovery-engineer",
+    "orchestrator": "chacha-dev-architect",
+    "human_approval_required_for": ["key-activation", "key-rotation", "key-revocation", "trust-policy-exception"]
   },
   "evidence_contract": {
     "required_fields": ["task", "role", "providers_used", "sources_used", "changes", "verification", "risks", "rollback"],
