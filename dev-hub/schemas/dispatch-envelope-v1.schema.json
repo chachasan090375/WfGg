@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://chacha.dev/schemas/dispatch-envelope-v1.schema.json",
+  "title": "ChaCha DEV HUB Dispatch Envelope V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "project", "transition", "run_id", "wave", "task", "bindings", "policy_context"],
+  "properties": {
+    "schema": {"const": "chacha.dev/dispatch-envelope/v1"},
+    "project": {"type": "string"},
+    "transition": {"type": "string"},
+    "run_id": {"type": "string"},
+    "wave": {"type": "integer", "minimum": 1},
+    "task": {
+      "type": "object",
+      "required": ["id", "kind", "owner_role", "permission", "outputs", "verification"],
+      "properties": {
+        "id": {"type": "string"},
+        "kind": {"type": "string"},
+        "description": {"type": "string"},
+        "owner_role": {"type": "string"},
+        "permission": {"type": "string"},
+        "outputs": {"type": "array"},
+        "verification": {"type": "object"}
+      }
+    },
+    "bindings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["capability", "provider", "adapter"],
+        "properties": {
+          "capability": {"type": "string"},
+          "provider": {"type": "string"},
+          "adapter": {"type": "string"},
+          "fallback_used": {"type": "boolean"},
+          "health_state": {"type": "string"}
+        }
+      }
+    },
+    "policy_context": {
+      "type": "object",
+      "required": ["resource_class", "requires_storage_preflight", "human_approval_required"],
+      "properties": {
+        "resource_class": {"type": "string"},
+        "requires_storage_preflight": {"type": "boolean"},
+        "human_approval_required": {"type": "boolean"},
+        "approval_id": {"type": ["string", "null"]},
+        "timeout_seconds": {"type": "integer", "minimum": 1}
+      }
+    },
+    "workspace": {"type": ["string", "null"]},
+    "metadata": {"type": "object", "additionalProperties": true}
+  }
+}
