@@ -27,13 +27,19 @@
     "rollback-plan": {"owner_role": "release", "capabilities": ["documentation"], "permission": "plan", "verification": "independent-agent"},
     "release-traceability": {"owner_role": "release", "capabilities": ["source-control", "ci"], "permission": "read", "verification": "machine"},
     "backup-recovery-readiness": {"owner_role": "recovery", "capabilities": ["backup-store", "storage-governance"], "permission": "read", "verification": "machine"},
+    "signed-release-checkpoint": {"owner_role": "security", "capabilities": ["audit-signing", "digital-signature-verification"], "permission": "plan", "verification": "machine"},
+    "trust-anchor-quorum": {"owner_role": "security", "capabilities": ["trust-anchor-write"], "permission": "repository-write", "verification": "independent-agent"},
     "production-deployment-receipt": {"owner_role": "release", "capabilities": ["source-control"], "permission": "production-deploy", "verification": "machine"},
     "post-deploy-smoke": {"owner_role": "testing", "capabilities": ["smoke-test-web"], "permission": "read", "verification": "machine"},
     "production-health": {"owner_role": "sre-observability", "capabilities": ["architecture-audit"], "permission": "read", "verification": "machine"},
     "observability-health": {"owner_role": "sre-observability", "capabilities": ["architecture-audit"], "permission": "read", "verification": "machine"},
+    "post-release-signed-checkpoint": {"owner_role": "security", "capabilities": ["audit-signing", "digital-signature-verification"], "permission": "plan", "verification": "machine"},
+    "post-release-anchor-quorum": {"owner_role": "recovery", "capabilities": ["trust-anchor-write"], "permission": "repository-write", "verification": "independent-agent"},
     "retirement-plan": {"owner_role": "orchestrator", "capabilities": ["documentation"], "permission": "plan", "verification": "human"},
     "archive-proof": {"owner_role": "recovery", "capabilities": ["artifact-store", "backup-store"], "permission": "read", "verification": "machine"},
     "data-disposition": {"owner_role": "data", "capabilities": ["documentation"], "permission": "plan", "verification": "human"},
-    "dependency-retirement-check": {"owner_role": "platform", "capabilities": ["technology-radar"], "permission": "read", "verification": "machine"}
+    "dependency-retirement-check": {"owner_role": "platform", "capabilities": ["technology-radar"], "permission": "read", "verification": "machine"},
+    "signed-retirement-checkpoint": {"owner_role": "security", "capabilities": ["audit-signing", "digital-signature-verification"], "permission": "plan", "verification": "machine"},
+    "retirement-anchor-quorum": {"owner_role": "recovery", "capabilities": ["trust-anchor-write"], "permission": "repository-write", "verification": "independent-agent"}
   }
 }
