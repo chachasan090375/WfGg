@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://chacha.dev/schemas/recovery-drill-report-v1.schema.json",
+  "title": "ChaCha DEV HUB Recovery Drill Report V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "observed_at", "status", "scenarios", "summary"],
+  "properties": {
+    "schema": {"const": "chacha.dev/recovery-drill-report/v1"},
+    "observed_at": {"type": "string"},
+    "status": {"enum": ["PASS", "FAIL"]},
+    "policy": {"type": "string"},
+    "work_root": {"type": "string"},
+    "scenarios": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": ["id", "status", "fault_point"],
+        "properties": {
+          "id": {"type": "string"},
+          "status": {"enum": ["PASS", "FAIL"]},
+          "fault_point": {"type": "string"},
+          "inspection": {"type": "object"},
+          "recovery": {"type": "object"},
+          "checks": {"type": "array", "items": {"type": "string"}},
+          "error": {"type": ["string", "null"]}
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "required": ["total", "passed", "failed"],
+      "properties": {
+        "total": {"type": "integer", "minimum": 0},
+        "passed": {"type": "integer", "minimum": 0},
+        "failed": {"type": "integer", "minimum": 0}
+      },
+      "additionalProperties": true
+    }
+  }
+}
