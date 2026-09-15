@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://chacha.dev/schemas/control-plane-state-v1.schema.json",
+  "title": "ChaCha DEV HUB Control Plane State V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "project", "version", "created_at", "updated_at", "last_event_sequence", "last_event_digest", "state"],
+  "properties": {
+    "schema": {"const": "chacha.dev/control-plane-state/v1"},
+    "project": {"type": "string", "minLength": 1},
+    "version": {"type": "integer", "minimum": 1},
+    "created_at": {"type": "string", "minLength": 1},
+    "updated_at": {"type": "string", "minLength": 1},
+    "last_event_sequence": {"type": "integer", "minimum": 0},
+    "last_event_digest": {"type": ["string", "null"]},
+    "state": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["identity", "lifecycle", "architecture", "capabilities", "providers", "execution", "evidence", "approvals", "risks", "decisions", "recovery", "operations"],
+      "properties": {
+        "identity": {"type": "object", "additionalProperties": true},
+        "lifecycle": {"type": "object", "additionalProperties": true},
+        "architecture": {"type": "object", "additionalProperties": true},
+        "capabilities": {"type": "object", "additionalProperties": true},
+        "providers": {"type": "object", "additionalProperties": true},
+        "execution": {"type": "object", "additionalProperties": true},
+        "evidence": {"type": "object", "additionalProperties": true},
+        "approvals": {"type": "object", "additionalProperties": true},
+        "risks": {"type": "object", "additionalProperties": true},
+        "decisions": {"type": "object", "additionalProperties": true},
+        "recovery": {"type": "object", "additionalProperties": true},
+        "operations": {"type": "object", "additionalProperties": true}
+      }
+    }
+  }
+}
