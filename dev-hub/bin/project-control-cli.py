@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""ChaCha DEV HUB unified Project Control CLI router V1.2.
+"""ChaCha DEV HUB unified Project Control CLI router V1.3.
 
-Routes standard operations to project-control.py and transaction inspection /
-recovery to transaction-recovery.py while preserving the Project Control
-response contract. Recovery is inspect-only unless --apply is explicit.
+Routes standard operations to project-control.py, transaction inspection /
+recovery to transaction-recovery.py, and platform certification to
+platform-readiness.py while preserving the Project Control response contract.
+Recovery is inspect-only unless --apply is explicit. Readiness is read-only.
 """
 from __future__ import annotations
 
@@ -19,6 +20,7 @@ from typing import Any
 POLICY_SCHEMA = "chacha.dev/project-control/v1"
 RESPONSE_SCHEMA = "chacha.dev/project-control-response/v1"
 RECOVERY_OPERATIONS = {"transactions", "recover-transaction"}
+ROUTED_OPERATIONS = RECOVERY_OPERATIONS | {"platform-readiness"}
 
 
 def now_iso() -> str:
@@ -93,7 +95,7 @@ def run_json(tool: Path, argv: list[str], timeout: int = 120) -> tuple[int, dict
     return proc.returncode, payload, proc.stdout, proc.stderr
 
 
-def recovery_parser() -> argparse.ArgumentParser:
+def routed_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="ChaCha DEV HUB unified Project Control")
     parser.add_argument("--policy", type=Path, default=Path("dev-hub/config/project-control.v1.json"))
     parser.add_argument("--repo-root", type=Path, default=Path.cwd())
@@ -109,29 +111,35 @@ def recovery_parser() -> argparse.ArgumentParser:
     recover.add_argument("--actor", default="recovery-engineer")
     recover.add_argument("--apply", action="store_true")
     recover.add_argument("--report", type=Path)
+
+    ready = sub.add_parser("platform-readiness")
+    ready.add_argument("--project", required=True)
+    ready.add_argument("--profile", choices=["contract", "development", "production"], default="development")
+    ready.add_argument("--provider-health", type=Path)
+    ready.add_argument("--storage-preflight", type=Path)
+    ready.add_argument("--adapter-contract-report", type=Path)
+    ready.add_argument("--recovery-drill-report", type=Path)
+    ready.add_argument("--run-recovery-drill", action="store_true")
+    ready.add_argument("--required-provider", action="append", default=[])
+    ready.add_argument("--report", type=Path)
     return parser
 
 
-def recovery_command(argv: list[str]) -> str | None:
+def routed_command(argv: list[str]) -> str | None:
     for token in argv:
-        if token in RECOVERY_OPERATIONS:
+        if token in ROUTED_OPERATIONS:
             return token
     return None
 
 
-def handle_recovery(argv: list[str]) -> int:
-    args = recovery_parser().parse_args(argv)
-    policy_path = args.policy if args.policy.is_absolute() else args.repo_root / args.policy
-    policy = load(policy_path)
-    if policy.get("schema") != POLICY_SCHEMA:
-        raise SystemExit(f"POLICY_SCHEMA_INVALID={policy.get('schema')}")
+def handle_recovery(args: argparse.Namespace, policy: dict[str, Any]) -> int:
     refs = policy.get("repository_paths") or {}
     tools = policy.get("engine_paths") or {}
     recovery_policy = resolve(args.repo_root, str(refs.get("transaction_recovery")))
     recovery_engine = resolve(args.repo_root, str(tools.get("transaction_recovery")))
 
     if args.command == "transactions":
-        rc, payload, stdout, stderr = run_json(
+        _rc, payload, stdout, stderr = run_json(
             recovery_engine,
             ["--policy", str(recovery_policy), "--repo-root", str(args.repo_root), "--json", "list", "--project", args.project],
         )
@@ -162,7 +170,7 @@ def handle_recovery(argv: list[str]) -> int:
         engine_args.append("--apply")
     if args.report:
         engine_args += ["--report", str(args.report)]
-    rc, payload, stdout, stderr = run_json(recovery_engine, engine_args)
+    _rc, payload, stdout, stderr = run_json(recovery_engine, engine_args)
     if payload is None:
         result = response(args.project, args.command, "FAILED", "Transaction recovery engine returned no valid report.",
                           {"stdout": stdout.strip(), "stderr": stderr.strip()}, ["TRANSACTION_RECOVERY_FAILED"])
@@ -197,11 +205,75 @@ def handle_recovery(argv: list[str]) -> int:
     return 0 if result["status"] in {"OK", "READY"} else 2
 
 
+def handle_readiness(args: argparse.Namespace, policy: dict[str, Any]) -> int:
+    refs = policy.get("repository_paths") or {}
+    tools = policy.get("engine_paths") or {}
+    readiness_policy = resolve(args.repo_root, str(refs.get("platform_readiness")))
+    readiness_engine = resolve(args.repo_root, str(tools.get("platform_readiness")))
+    engine_args = [
+        "--repo-root", str(args.repo_root),
+        "--policy", str(readiness_policy),
+        "--profile", args.profile,
+        "--project", args.project,
+        "--json",
+    ]
+    for value, flag in (
+        (args.provider_health, "--provider-health"),
+        (args.storage_preflight, "--storage-preflight"),
+        (args.adapter_contract_report, "--adapter-contract-report"),
+        (args.recovery_drill_report, "--recovery-drill-report"),
+        (args.report, "--output"),
+    ):
+        if value:
+            engine_args += [flag, str(value)]
+    if args.run_recovery_drill:
+        engine_args.append("--run-recovery-drill")
+    for provider in args.required_provider:
+        engine_args += ["--required-provider", provider]
+
+    _rc, payload, stdout, stderr = run_json(readiness_engine, engine_args, timeout=300)
+    if payload is None:
+        result = response(args.project, args.command, "FAILED", "Platform readiness engine returned no valid report.",
+                          {"stdout": stdout.strip(), "stderr": stderr.strip()}, ["PLATFORM_READINESS_FAILED"])
+    else:
+        blockers = list(payload.get("blockers") or [])
+        profile = str(payload.get("profile") or args.profile)
+        ready = payload.get("ready_for_execution") == "YES"
+        contract_ok = profile == "contract" and payload.get("status") == "PASS"
+        status = "READY" if ready else ("OK" if contract_ok else "BLOCKED")
+        if ready:
+            summary = f"DEV HUB is certified ready for {profile} execution."
+        elif contract_ok:
+            summary = "DEV HUB contract certification passed; runtime execution is not authorized by the contract profile."
+        else:
+            summary = f"DEV HUB is not ready for {profile} execution."
+        next_actions = ["resolve readiness blockers and re-run certification"] if blockers else []
+        result = response(
+            args.project,
+            args.command,
+            status,
+            summary,
+            {"platform_readiness": payload},
+            blockers,
+            next_actions,
+            [{"type": "platform-readiness-report", "path": str(args.report)}] if args.report else [],
+        )
+    emit(result, args.json)
+    return 0 if result["status"] in {"OK", "READY"} else 2
+
+
 def main() -> int:
     argv = sys.argv[1:]
-    command = recovery_command(argv)
+    command = routed_command(argv)
     if command:
-        return handle_recovery(argv)
+        args = routed_parser().parse_args(argv)
+        policy_path = args.policy if args.policy.is_absolute() else args.repo_root / args.policy
+        policy = load(policy_path)
+        if policy.get("schema") != POLICY_SCHEMA:
+            raise SystemExit(f"POLICY_SCHEMA_INVALID={policy.get('schema')}")
+        if command in RECOVERY_OPERATIONS:
+            return handle_recovery(args, policy)
+        return handle_readiness(args, policy)
 
     core = Path(__file__).with_name("project-control.py")
     os.execv(sys.executable, [sys.executable, str(core), *argv])
