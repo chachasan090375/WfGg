@@ -1,0 +1,76 @@
+{
+  "schema": "chacha.dev/lifecycle/v1",
+  "principles": {
+    "evidence_over_claims": true,
+    "no_stage_skip": true,
+    "production_change_requires_approval": true,
+    "blocking_gate_must_be_ok_or_not_applicable": true,
+    "non_blocking_partial_requires_risk_acceptance_for_release": true,
+    "state_change_is_auditable": true
+  },
+  "stages": [
+    "IDEA",
+    "DESIGN",
+    "READY",
+    "BUILD",
+    "VERIFY",
+    "PREVIEW",
+    "RELEASE",
+    "OPERATE",
+    "RETIRE"
+  ],
+  "transitions": {
+    "IDEA->DESIGN": {
+      "required_artifacts": ["project-intent"],
+      "required_approvals": [],
+      "gate_policy": "none"
+    },
+    "DESIGN->READY": {
+      "required_artifacts": ["project-plan", "manifest-v3", "manifest-validation", "capability-resolution", "architecture-decisions-resolved"],
+      "required_approvals": [],
+      "gate_policy": "defined"
+    },
+    "READY->BUILD": {
+      "required_artifacts": ["workspace-health", "storage-preflight", "dependency-resolution"],
+      "required_approvals": [],
+      "gate_policy": "defined"
+    },
+    "BUILD->VERIFY": {
+      "required_artifacts": ["change-set", "build-result", "static-check"],
+      "required_approvals": [],
+      "gate_policy": "defined"
+    },
+    "VERIFY->PREVIEW": {
+      "required_artifacts": ["test-result", "security-scan", "ci-result", "preview-candidate"],
+      "required_approvals": [],
+      "gate_policy": "blocking"
+    },
+    "PREVIEW->RELEASE": {
+      "required_artifacts": ["preview-validation", "e2e-result", "smoke-result", "rollback-plan", "release-traceability", "backup-recovery-readiness"],
+      "required_approvals": ["production-release"],
+      "gate_policy": "release"
+    },
+    "RELEASE->OPERATE": {
+      "required_artifacts": ["production-deployment-receipt", "post-deploy-smoke", "production-health", "observability-health"],
+      "required_approvals": [],
+      "gate_policy": "blocking"
+    },
+    "OPERATE->RETIRE": {
+      "required_artifacts": ["retirement-plan", "archive-proof", "data-disposition", "dependency-retirement-check"],
+      "required_approvals": ["retirement"],
+      "gate_policy": "retirement"
+    }
+  },
+  "release_policy": {
+    "allowed_blocking_statuses": ["OK", "NOT_APPLICABLE"],
+    "allowed_non_blocking_statuses": ["OK", "PARTIAL", "NOT_APPLICABLE"],
+    "forbidden_statuses": ["MISSING", "UNVERIFIED"],
+    "risk_acceptance_required_for_non_blocking_partial": true
+  },
+  "emergency": {
+    "hotfix_path": ["OPERATE", "BUILD", "VERIFY", "PREVIEW", "RELEASE", "OPERATE"],
+    "requires_incident_reference": true,
+    "requires_production_approval": true,
+    "post_hoc_evidence_deadline_hours": 24
+  }
+}
