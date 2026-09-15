@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://chacha.dev/schemas/trust-anchor-v1.schema.json",
+  "title": "ChaCha DEV HUB Trust Anchor V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "project",
+    "checkpoint_id",
+    "journal_sequence",
+    "journal_head_digest",
+    "checkpoint_digest",
+    "key_id",
+    "public_key_fingerprint",
+    "signature",
+    "created_at"
+  ],
+  "properties": {
+    "schema": {"const": "chacha.dev/trust-anchor/v1"},
+    "project": {"type": "string", "minLength": 1},
+    "checkpoint_id": {"type": "string", "minLength": 1},
+    "journal_sequence": {"type": "integer", "minimum": 1},
+    "journal_head_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "checkpoint_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "key_id": {"type": "string", "minLength": 1},
+    "public_key_fingerprint": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "signature": {"type": "string", "minLength": 40},
+    "created_at": {"type": "string", "minLength": 1}
+  }
+}
