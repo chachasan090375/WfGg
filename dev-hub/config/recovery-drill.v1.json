@@ -1,0 +1,56 @@
+{
+  "schema": "chacha.dev/recovery-drill/v1",
+  "principles": {
+    "sandbox_only": true,
+    "fault_injection_must_not_touch_production": true,
+    "recovery_is_forward_only": true,
+    "journal_is_authoritative": true,
+    "tamper_must_be_detected": true,
+    "ambiguous_state_must_not_be_auto_repaired": true,
+    "recovered_state_must_reverify_integrity": true,
+    "drill_failure_blocks_claim_of_recovery_readiness": true
+  },
+  "forbidden_runtime_prefixes": [
+    "/opt/chacha-dev/runtime",
+    "/share/CACHEDEV1_DATA/ChaCha-DEV-HUB"
+  ],
+  "repository_paths": {
+    "control_plane_policy": "dev-hub/config/control-plane-state.v1.json",
+    "recovery_policy": "dev-hub/config/transaction-recovery.v1.json",
+    "control_plane_store": "dev-hub/bin/control-plane-store.py",
+    "transaction_recovery": "dev-hub/bin/transaction-recovery.py"
+  },
+  "scenarios": {
+    "prepared-before-authority": {
+      "fault_point": "after-receipt-before-authoritative-event",
+      "expected_assessment": "SAFE_TO_ABORT",
+      "expected_outcome": "ABORTED_BEFORE_AUTHORITATIVE_COMMIT"
+    },
+    "journal-before-projection": {
+      "fault_point": "after-authoritative-event-before-projection-finalize",
+      "expected_assessment": "REPAIRABLE",
+      "expected_outcome": "RECOVERED_FROM_AUTHORITATIVE_EVENT"
+    },
+    "evidence-before-ledger-finalize": {
+      "fault_point": "after-evidence-event-before-live-ledger-finalize",
+      "expected_assessment": "REPAIRABLE",
+      "expected_outcome": "RECOVERED_LEDGER_FINALIZATION"
+    },
+    "tampered-journal": {
+      "fault_point": "audit-history-modified-without-rehash",
+      "expected_assessment": "INVALID",
+      "expected_blocker": "AUDIT_JOURNAL_INVALID"
+    },
+    "divergent-ledger": {
+      "fault_point": "live-ledger-diverges-from-old-and-new-digests",
+      "expected_assessment": "MANUAL_REVIEW",
+      "expected_blocker": "LIVE_LEDGER_DIGEST_IS_NEITHER_EXPECTED_OLD_NOR_NEW"
+    }
+  },
+  "success_criteria": {
+    "all_scenarios_must_pass": true,
+    "recoverable_faults_end_with_valid_journal": true,
+    "tampered_journal_is_never_repaired_automatically": true,
+    "divergent_ledger_is_never_overwritten_automatically": true
+  }
+}
