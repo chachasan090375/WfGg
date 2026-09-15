@@ -14,7 +14,8 @@
     "evidence_references_not_evidence_copies": true,
     "production_decisions_are_auditable": true,
     "lifecycle_stage_changes_are_audited_transactions": true,
-    "project_control_transaction_receipts_are_recovery_evidence": true
+    "project_control_transaction_receipts_are_recovery_evidence": true,
+    "recovery_never_rewrites_audit_history": true
   },
   "storage": {
     "runtime_root": "/opt/chacha-dev/runtime/state",
@@ -84,10 +85,14 @@
   },
   "transactions": {
     "receipt_schema": "chacha.dev/control-transaction-receipt/v1",
+    "recovery_policy": "dev-hub/config/transaction-recovery.v1.json",
+    "recovery_report_schema": "chacha.dev/transaction-recovery-report/v1",
     "project_lock_required": true,
     "journal_authoritative_on_partial_commit": true,
     "pending_transaction_blocks_lifecycle_promotion": true,
-    "evidence_ingest_stages_ledger_before_audit_commit": true
+    "evidence_ingest_stages_ledger_before_audit_commit": true,
+    "projection_rebuild_allowed_only_from_valid_journal": true,
+    "ledger_recovery_requires_expected_digest": true
   },
   "retention": {
     "journal": "project-lifetime",
