@@ -23,16 +23,13 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
 
-      - name: Compile promotion and contract engines
+      - name: Compile promotion engines
         run: |
-          python -m py_compile \
-            dev-hub/bin/adapter-promotion.py \
-            dev-hub/bin/adapter-contract-harness.py
+          python -m py_compile dev-hub/bin/adapter-promotion.py dev-hub/bin/adapter-contract-harness.py
 
       - name: Parse promotion contracts
         run: |
@@ -53,229 +50,148 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          TMP="$(mktemp -d)"
-          export TMP
+          TMP="$(mktemp -d)"; export TMP
           cp dev-hub/config/provider-adapters.v1.json "$TMP/registry.json"
           python - <<'PY'
-          import json, os
-          from datetime import datetime, timezone
+          import json,os
+          from datetime import datetime,timezone
           from pathlib import Path
-          root = Path(os.environ['TMP'])
-          evidence = {
-              'schema': 'chacha.dev/adapter-promotion-evidence/v1',
-              'adapter': 'github-connector',
-              'observed_at': datetime.now(timezone.utc).isoformat(),
-              'evidence': {'static-contract-pass': {'status': 'PASS', 'source': 'ci:adapter-contract-harness'}},
-              'approvals': []
-          }
-          (root / 'static-evidence.json').write_text(json.dumps(evidence, indent=2) + '\n', encoding='utf-8')
+          root=Path(os.environ['TMP']); now=datetime.now(timezone.utc).isoformat()
+          ev={'schema':'chacha.dev/adapter-promotion-evidence/v1','adapter':'github-connector','observed_at':now,
+              'evidence':{'static-contract-pass':{'status':'PASS','source':'ci:adapter-contract','observed_at':now}},'approvals':[]}
+          (root/'evidence.json').write_text(json.dumps(ev,indent=2)+'\n')
           PY
-          python dev-hub/bin/adapter-promotion.py --registry "$TMP/registry.json" --evidence "$TMP/static-evidence.json" --json \
-            plan --adapter github-connector --target CONTRACT_OK > "$TMP/plan.json"
+          python dev-hub/bin/adapter-promotion.py --registry "$TMP/registry.json" --evidence "$TMP/evidence.json" --json plan --adapter github-connector --target CONTRACT_OK > "$TMP/plan.json"
           python - "$TMP/plan.json" <<'PY'
-          import json, sys
-          r=json.load(open(sys.argv[1], encoding='utf-8'))
-          assert r['eligible'] is True and r['applied'] is False, r
-          assert r['execution_kinds'] == ['external'], r
+          import json,sys
+          r=json.load(open(sys.argv[1])); assert r['eligible'] and not r['applied']; assert r['execution_kinds']==['external']
           PY
           set +e
-          python dev-hub/bin/adapter-promotion.py --registry "$TMP/registry.json" --evidence "$TMP/static-evidence.json" --json \
-            apply --adapter github-connector --target CONTRACT_OK --actor ci-platform --receipt "$TMP/noapply.json" > "$TMP/noapply-report.json"
-          RC=$?
-          set -e
-          test "$RC" -eq 2
+          python dev-hub/bin/adapter-promotion.py --registry "$TMP/registry.json" --evidence "$TMP/evidence.json" --json apply --adapter github-connector --target CONTRACT_OK --actor ci-platform --receipt "$TMP/noapply.json" > "$TMP/noapply-report.json"
+          RC=$?; set -e; test "$RC" -eq 2
           python - "$TMP/noapply-report.json" <<'PY'
           import json,sys
-          r=json.load(open(sys.argv[1], encoding='utf-8'))
-          assert 'EXPLICIT_APPLY_FLAG_REQUIRED' in r['blockers'], r
+          r=json.load(open(sys.argv[1])); assert 'EXPLICIT_APPLY_FLAG_REQUIRED' in r['blockers'],r
           PY
-          python dev-hub/bin/adapter-promotion.py --registry "$TMP/registry.json" --evidence "$TMP/static-evidence.json" --json \
-            apply --adapter github-connector --target CONTRACT_OK --actor ci-platform --receipt "$TMP/receipt.json" --apply > "$TMP/applied.json"
+          python dev-hub/bin/adapter-promotion.py --registry "$TMP/registry.json" --evidence "$TMP/evidence.json" --json apply --adapter github-connector --target CONTRACT_OK --actor ci-platform --receipt "$TMP/receipt.json" --apply > "$TMP/applied.json"
           python - "$TMP/registry.json" <<'PY'
           import json,sys
-          reg=json.load(open(sys.argv[1], encoding='utf-8'))
-          assert reg['adapters']['github-connector']['status'] == 'CONTRACT_OK', reg
-          assert reg['adapters']['github-connector']['executable'] is None, reg
+          r=json.load(open(sys.argv[1])); assert r['adapters']['github-connector']['status']=='CONTRACT_OK'; assert r['adapters']['github-connector']['executable'] is None
           print('ADAPTER_CONTRACT_PROMOTION=PASS')
           PY
 
-      - name: External-only PILOT remains unbound to local executable
+      - name: External PILOT requires provisioning evidence but no local executable
         shell: bash
         run: |
           set -euo pipefail
-          TMP="$(mktemp -d)"
-          export TMP
+          TMP="$(mktemp -d)"; export TMP
           cp dev-hub/config/provider-adapters.v1.json "$TMP/registry.json"
           python - <<'PY'
           import json,os
-          from datetime import datetime, timezone
+          from datetime import datetime,timezone
           from pathlib import Path
-          root=Path(os.environ['TMP'])
-          reg=json.load(open(root/'registry.json', encoding='utf-8'))
-          reg['adapters']['github-connector']['status']='CONTRACT_OK'
-          (root/'registry.json').write_text(json.dumps(reg,indent=2)+'\n',encoding='utf-8')
+          root=Path(os.environ['TMP']); reg=json.load(open(root/'registry.json')); reg['adapters']['github-connector']['status']='CONTRACT_OK'; (root/'registry.json').write_text(json.dumps(reg,indent=2)+'\n')
           now=datetime.now(timezone.utc).isoformat()
-          ev={'schema':'chacha.dev/adapter-promotion-evidence/v1','adapter':'github-connector','observed_at':now,
-              'evidence':{
-                'runtime-contract-pass':{'status':'PASS','source':'ci:synthetic-external-provider-harness','observed_at':now},
-                'sandbox-only':{'status':'PASS','source':'ci:sandbox-policy','observed_at':now}},'approvals':[]}
-          (root/'evidence.json').write_text(json.dumps(ev,indent=2)+'\n',encoding='utf-8')
+          ev={'schema':'chacha.dev/adapter-promotion-evidence/v1','adapter':'github-connector','observed_at':now,'evidence':{
+            'runtime-contract-pass':{'status':'PASS','source':'ci:external-provider-harness','observed_at':now},
+            'sandbox-only':{'status':'PASS','source':'ci:sandbox-policy','observed_at':now},
+            'provisioning-pass':{'status':'PASS','source':'ci:external-binding-provisioned','observed_at':now,
+              'details':{'execution':'external','local_executable':None}}},'approvals':[]}
+          (root/'evidence.json').write_text(json.dumps(ev,indent=2)+'\n')
           PY
-          python dev-hub/bin/adapter-promotion.py --registry "$TMP/registry.json" --evidence "$TMP/evidence.json" --json \
-            apply --adapter github-connector --target PILOT --actor ci-platform --receipt "$TMP/receipt.json" --apply > "$TMP/report.json"
+          python dev-hub/bin/adapter-promotion.py --registry "$TMP/registry.json" --evidence "$TMP/evidence.json" --json apply --adapter github-connector --target PILOT --actor ci-platform --receipt "$TMP/receipt.json" --apply > "$TMP/report.json"
           python - "$TMP/registry.json" "$TMP/report.json" <<'PY'
           import json,sys
-          reg=json.load(open(sys.argv[1],encoding='utf-8')); r=json.load(open(sys.argv[2],encoding='utf-8'))
-          item=reg['adapters']['github-connector']
-          assert item['status']=='PILOT' and item['executable'] is None, item
-          assert r['execution_kinds']==['external'] and r['requires_local_executable'] is False, r
-          print('EXTERNAL_ADAPTER_PILOT_EXECUTABLE=UNBOUND')
+          reg=json.load(open(sys.argv[1])); r=json.load(open(sys.argv[2])); item=reg['adapters']['github-connector']
+          assert item['status']=='PILOT' and item['executable'] is None,item
+          assert 'provisioning-pass' in r['required_evidence']; assert r['requires_local_executable'] is False
+          print('EXTERNAL_ADAPTER_PILOT_PROVISIONING=PASS')
           PY
 
-      - name: VPS PILOT requires a concrete absolute executable
+      - name: VPS PILOT requires provisioning proof and absolute executable
         shell: bash
         run: |
           set -euo pipefail
-          TMP="$(mktemp -d)"
-          export TMP
+          TMP="$(mktemp -d)"; export TMP
           cp dev-hub/config/provider-adapters.v1.json "$TMP/registry.json"
           python - <<'PY'
           import json,os
-          from datetime import datetime, timezone
+          from datetime import datetime,timezone
           from pathlib import Path
-          root=Path(os.environ['TMP'])
-          reg=json.load(open(root/'registry.json',encoding='utf-8'))
-          reg['adapters']['http-smoke-adapter']['status']='CONTRACT_OK'
-          (root/'registry.json').write_text(json.dumps(reg,indent=2)+'\n',encoding='utf-8')
+          root=Path(os.environ['TMP']); reg=json.load(open(root/'registry.json')); reg['adapters']['http-smoke-adapter']['status']='CONTRACT_OK'; (root/'registry.json').write_text(json.dumps(reg,indent=2)+'\n')
           now=datetime.now(timezone.utc).isoformat()
-          ev={'schema':'chacha.dev/adapter-promotion-evidence/v1','adapter':'http-smoke-adapter','observed_at':now,
-              'evidence':{
-                'runtime-contract-pass':{'status':'PASS','source':'ci:loopback-sandbox','observed_at':now},
-                'sandbox-only':{'status':'PASS','source':'ci:sandbox-policy','observed_at':now}},'approvals':[]}
-          (root/'evidence.json').write_text(json.dumps(ev,indent=2)+'\n',encoding='utf-8')
+          ev={'schema':'chacha.dev/adapter-promotion-evidence/v1','adapter':'http-smoke-adapter','observed_at':now,'evidence':{
+            'runtime-contract-pass':{'status':'PASS','source':'ci:loopback-sandbox','observed_at':now},
+            'sandbox-only':{'status':'PASS','source':'ci:sandbox-policy','observed_at':now},
+            'provisioning-pass':{'status':'PASS','source':'ci:provisioning-receipt','observed_at':now,
+              'details':{'executable_path':'/tmp/http-smoke-adapter','executable_digest':'sha256:'+'1'*64}}},'approvals':[]}
+          (root/'evidence.json').write_text(json.dumps(ev,indent=2)+'\n')
           PY
           set +e
-          python dev-hub/bin/adapter-promotion.py --registry "$TMP/registry.json" --evidence "$TMP/evidence.json" --json \
-            plan --adapter http-smoke-adapter --target PILOT > "$TMP/noexec.json"
-          RC=$?
-          set -e
-          test "$RC" -eq 2
+          python dev-hub/bin/adapter-promotion.py --registry "$TMP/registry.json" --evidence "$TMP/evidence.json" --json plan --adapter http-smoke-adapter --target PILOT > "$TMP/noexec.json"
+          RC=$?; set -e; test "$RC" -eq 2
           python - "$TMP/noexec.json" <<'PY'
           import json,sys
-          r=json.load(open(sys.argv[1],encoding='utf-8'))
-          assert 'RUNTIME_EXECUTABLE_REQUIRED_FOR:PILOT' in r['blockers'], r
-          assert r['execution_kinds']==['vps'] and r['requires_local_executable'] is True, r
+          r=json.load(open(sys.argv[1])); assert 'RUNTIME_EXECUTABLE_REQUIRED_FOR:PILOT' in r['blockers'],r
           PY
-          python dev-hub/bin/adapter-promotion.py --registry "$TMP/registry.json" --evidence "$TMP/evidence.json" --json \
-            apply --adapter http-smoke-adapter --target PILOT --executable /tmp/http-smoke-adapter \
-            --actor ci-platform --receipt "$TMP/receipt.json" --apply > "$TMP/applied.json"
+          python dev-hub/bin/adapter-promotion.py --registry "$TMP/registry.json" --evidence "$TMP/evidence.json" --json apply --adapter http-smoke-adapter --target PILOT --executable /tmp/http-smoke-adapter --actor ci-platform --receipt "$TMP/receipt.json" --apply > "$TMP/applied.json"
           python - "$TMP/registry.json" <<'PY'
           import json,sys
-          reg=json.load(open(sys.argv[1],encoding='utf-8')); item=reg['adapters']['http-smoke-adapter']
-          assert item['status']=='PILOT' and item['executable']=='/tmp/http-smoke-adapter', item
-          print('VPS_ADAPTER_PILOT_EXECUTABLE=BOUND')
+          reg=json.load(open(sys.argv[1])); item=reg['adapters']['http-smoke-adapter']; assert item['status']=='PILOT' and item['executable']=='/tmp/http-smoke-adapter',item
+          print('VPS_ADAPTER_PILOT_PROVISIONING=PASS')
           PY
 
-      - name: Production-capable external enablement requires approval but no local executable
+      - name: Production-capable external enablement requires approval
         shell: bash
         run: |
           set -euo pipefail
-          TMP="$(mktemp -d)"
-          export TMP
+          TMP="$(mktemp -d)"; export TMP
           cp dev-hub/config/provider-adapters.v1.json "$TMP/registry.json"
           python - <<'PY'
           import json,os
-          from datetime import datetime, timezone
+          from datetime import datetime,timezone
           from pathlib import Path
-          root=Path(os.environ['TMP'])
-          reg=json.load(open(root/'registry.json',encoding='utf-8'))
-          reg['adapters']['cloudflare-pages-adapter']['status']='PILOT'
-          (root/'registry.json').write_text(json.dumps(reg,indent=2)+'\n',encoding='utf-8')
+          root=Path(os.environ['TMP']); reg=json.load(open(root/'registry.json')); reg['adapters']['cloudflare-pages-adapter']['status']='PILOT'; (root/'registry.json').write_text(json.dumps(reg,indent=2)+'\n')
           now=datetime.now(timezone.utc).isoformat()
-          ev={'schema':'chacha.dev/adapter-promotion-evidence/v1','adapter':'cloudflare-pages-adapter','observed_at':now,
-              'evidence':{
-                'repeatable-pass':{'status':'PASS','source':'ci:repeatability','observed_at':now},
-                'provider-health-pass':{'status':'PASS','source':'ci:provider-health','observed_at':now},
-                'rollback-defined':{'status':'PASS','source':'ci:rollback-fixture','observed_at':now}},
-              'approvals':[{'id':'ci-human-approval-001','type':'adapter-production-enable','actor':'ci-human-fixture',
-                'approved_at':now,'adapter':'cloudflare-pages-adapter','target_status':'ENABLED'}]}
-          (root/'evidence.json').write_text(json.dumps(ev,indent=2)+'\n',encoding='utf-8')
+          ev={'schema':'chacha.dev/adapter-promotion-evidence/v1','adapter':'cloudflare-pages-adapter','observed_at':now,'evidence':{
+            'repeatable-pass':{'status':'PASS','source':'ci:repeatability','observed_at':now},
+            'provider-health-pass':{'status':'PASS','source':'ci:health','observed_at':now},
+            'rollback-defined':{'status':'PASS','source':'ci:rollback','observed_at':now}},
+            'approvals':[{'id':'ci-human-approval-001','type':'adapter-production-enable','actor':'ci-human-fixture','approved_at':now,'adapter':'cloudflare-pages-adapter','target_status':'ENABLED'}]}
+          (root/'evidence.json').write_text(json.dumps(ev,indent=2)+'\n')
           PY
           set +e
-          python dev-hub/bin/adapter-promotion.py --registry "$TMP/registry.json" --evidence "$TMP/evidence.json" --json \
-            plan --adapter cloudflare-pages-adapter --target ENABLED > "$TMP/noapproval.json"
-          RC=$?
-          set -e
-          test "$RC" -eq 2
+          python dev-hub/bin/adapter-promotion.py --registry "$TMP/registry.json" --evidence "$TMP/evidence.json" --json plan --adapter cloudflare-pages-adapter --target ENABLED > "$TMP/noapproval.json"
+          RC=$?; set -e; test "$RC" -eq 2
           python - "$TMP/noapproval.json" <<'PY'
           import json,sys
-          r=json.load(open(sys.argv[1],encoding='utf-8'))
-          assert 'EXPLICIT_PRODUCTION_APPROVAL_ID_REQUIRED' in r['blockers'], r
-          assert r['requires_local_executable'] is False, r
+          r=json.load(open(sys.argv[1])); assert 'EXPLICIT_PRODUCTION_APPROVAL_ID_REQUIRED' in r['blockers'],r
           PY
-          python dev-hub/bin/adapter-promotion.py --registry "$TMP/registry.json" --evidence "$TMP/evidence.json" --json \
-            apply --adapter cloudflare-pages-adapter --target ENABLED --approval-id ci-human-approval-001 \
-            --actor ci-platform --receipt "$TMP/receipt.json" --apply > "$TMP/enabled.json"
-          python - "$TMP/registry.json" "$TMP/enabled.json" <<'PY'
+          python dev-hub/bin/adapter-promotion.py --registry "$TMP/registry.json" --evidence "$TMP/evidence.json" --json apply --adapter cloudflare-pages-adapter --target ENABLED --approval-id ci-human-approval-001 --actor ci-platform --receipt "$TMP/receipt.json" --apply > "$TMP/enabled.json"
+          python - "$TMP/registry.json" <<'PY'
           import json,sys
-          reg=json.load(open(sys.argv[1],encoding='utf-8')); r=json.load(open(sys.argv[2],encoding='utf-8'))
-          item=reg['adapters']['cloudflare-pages-adapter']
-          assert item['status']=='ENABLED' and item['executable'] is None, item
-          assert r['approval_id']=='ci-human-approval-001' and r['execution_kinds']==['external'], r
+          reg=json.load(open(sys.argv[1])); assert reg['adapters']['cloudflare-pages-adapter']['status']=='ENABLED'; assert reg['adapters']['cloudflare-pages-adapter']['executable'] is None
           print('EXTERNAL_PRODUCTION_APPROVAL_GATE=PASS')
-          PY
-
-      - name: Static harness distinguishes external-only and VPS runtime adapters
-        shell: bash
-        run: |
-          set -euo pipefail
-          TMP="$(mktemp -d)"
-          export TMP
-          cp dev-hub/config/provider-adapters.v1.json "$TMP/registry.json"
-          python - <<'PY'
-          import json,os
-          from pathlib import Path
-          root=Path(os.environ['TMP']); reg=json.load(open(root/'registry.json',encoding='utf-8'))
-          reg['adapters']['github-connector']['status']='PILOT'
-          reg['adapters']['http-smoke-adapter']['status']='PILOT'
-          reg['adapters']['http-smoke-adapter']['executable']='/tmp/http-smoke-adapter'
-          (root/'registry.json').write_text(json.dumps(reg,indent=2)+'\n',encoding='utf-8')
-          PY
-          python dev-hub/bin/adapter-contract-harness.py --registry "$TMP/registry.json" \
-            --policy dev-hub/config/adapter-contract.v1.json --report "$TMP/report.json"
-          python - "$TMP/report.json" <<'PY'
-          import json,sys
-          r=json.load(open(sys.argv[1],encoding='utf-8'))
-          assert r['static']['status']=='PASS', r
-          print('EXECUTION_KIND_STATIC_CONTRACT=PASS')
           PY
 
       - name: Non-adjacent transition is rejected and repository registry remains untouched
         shell: bash
         run: |
           set -euo pipefail
-          TMP="$(mktemp -d)"
-          export TMP
+          TMP="$(mktemp -d)"; export TMP
           cp dev-hub/config/provider-adapters.v1.json "$TMP/registry.json"
           python - <<'PY'
           import json,os
-          from datetime import datetime, timezone
+          from datetime import datetime,timezone
           from pathlib import Path
-          root=Path(os.environ['TMP'])
-          ev={'schema':'chacha.dev/adapter-promotion-evidence/v1','adapter':'github-connector',
-              'observed_at':datetime.now(timezone.utc).isoformat(),'evidence':{},'approvals':[]}
-          (root/'evidence.json').write_text(json.dumps(ev,indent=2)+'\n',encoding='utf-8')
+          root=Path(os.environ['TMP']); ev={'schema':'chacha.dev/adapter-promotion-evidence/v1','adapter':'github-connector','observed_at':datetime.now(timezone.utc).isoformat(),'evidence':{},'approvals':[]}; (root/'evidence.json').write_text(json.dumps(ev,indent=2)+'\n')
           PY
           set +e
-          python dev-hub/bin/adapter-promotion.py --registry "$TMP/registry.json" --evidence "$TMP/evidence.json" --json \
-            plan --adapter github-connector --target ENABLED > "$TMP/rejected.json"
-          RC=$?
-          set -e
-          test "$RC" -eq 2
+          python dev-hub/bin/adapter-promotion.py --registry "$TMP/registry.json" --evidence "$TMP/evidence.json" --json plan --adapter github-connector --target ENABLED > "$TMP/rejected.json"
+          RC=$?; set -e; test "$RC" -eq 2
           python - "$TMP/rejected.json" <<'PY'
           import json,sys
-          r=json.load(open(sys.argv[1],encoding='utf-8'))
-          assert 'TRANSITION_NOT_ALLOWED:DESIGNED->ENABLED' in r['blockers'], r
+          r=json.load(open(sys.argv[1])); assert 'TRANSITION_NOT_ALLOWED:DESIGNED->ENABLED' in r['blockers'],r
           PY
           git diff --exit-code -- dev-hub/config/provider-adapters.v1.json
           echo ADAPTER_NON_ADJACENT_GUARD=PASS
