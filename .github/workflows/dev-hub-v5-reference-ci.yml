@@ -1,0 +1,146 @@
+name: DEV HUB V5 Reference CI
+
+on:
+  push:
+    branches: [dev-hub-v5.0]
+    paths:
+      - 'dev-hub/**'
+      - '.github/workflows/dev-hub-v5-reference-ci.yml'
+  workflow_dispatch:
+
+jobs:
+  validate-reference-model:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Parse JSON contracts
+        run: |
+          set -euo pipefail
+          for f in \
+            dev-hub/config/lifecycle.v1.json \
+            dev-hub/config/orchestration-policy.v1.json \
+            dev-hub/config/quality-gates.v1.json \
+            dev-hub/config/capability-registry.v1.json \
+            dev-hub/config/evidence-catalog.v1.json \
+            dev-hub/config/golden-paths.v1.json \
+            dev-hub/schemas/project-intent-v1.schema.json \
+            dev-hub/schemas/project-plan-v1.schema.json \
+            dev-hub/schemas/project-manifest-v3.schema.json \
+            dev-hub/schemas/task-graph-v1.schema.json \
+            dev-hub/schemas/task-result-v1.schema.json \
+            dev-hub/schemas/evidence-ledger-v1.schema.json
+          do
+            python -m json.tool "$f" >/dev/null
+          done
+
+      - name: Compile Python reference engines
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            dev-hub/bin/manifest-v3-engine.py \
+            dev-hub/bin/project-planner.py \
+            dev-hub/bin/lifecycle-engine.py \
+            dev-hub/bin/task-graph-engine.py \
+            dev-hub/bin/evidence-collector.py
+
+      - name: Generate every lifecycle task graph
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/chacha-graphs
+          transitions=(
+            'IDEA->DESIGN'
+            'DESIGN->READY'
+            'READY->BUILD'
+            'BUILD->VERIFY'
+            'VERIFY->PREVIEW'
+            'PREVIEW->RELEASE'
+            'RELEASE->OPERATE'
+            'OPERATE->RETIRE'
+          )
+          for transition in "${transitions[@]}"; do
+            safe="${transition//->/-to-}"
+            python dev-hub/bin/task-graph-engine.py \
+              --project wfgg \
+              --transition "$transition" \
+              --lifecycle dev-hub/config/lifecycle.v1.json \
+              --quality dev-hub/config/quality-gates.v1.json \
+              --catalog dev-hub/config/evidence-catalog.v1.json \
+              --orchestration dev-hub/config/orchestration-policy.v1.json \
+              --output "/tmp/chacha-graphs/${safe}.json"
+          done
+
+      - name: Exercise evidence collector trust boundary
+        run: |
+          set -euo pipefail
+          graph='/tmp/chacha-graphs/VERIFY-to-PREVIEW.json'
+          ledger='/tmp/chacha-ledger.json'
+          result='/tmp/chacha-result.json'
+          python dev-hub/bin/evidence-collector.py init --project wfgg --ledger "$ledger"
+          cat > "$result" <<'JSON'
+          {
+            "schema": "chacha.dev/task-result/v1",
+            "project": "wfgg",
+            "task_id": "artifact:test-result",
+            "status": "OK",
+            "producer": "testing-agent",
+            "observed_at": "2026-01-01T00:00:00+00:00",
+            "summary": "Synthetic CI evidence for collector contract validation",
+            "evidence": [
+              {
+                "kind": "report",
+                "source": "ci://synthetic-test-report",
+                "digest": "sha256:synthetic"
+              }
+            ],
+            "verification": {
+              "status": "VERIFIED",
+              "method": "machine",
+              "verifier": "ci-verifier",
+              "observed_at": "2026-01-01T00:00:01+00:00"
+            },
+            "outputs": [
+              {"type": "artifact", "id": "test-result", "status": "OK"}
+            ]
+          }
+          JSON
+          python dev-hub/bin/evidence-collector.py ingest \
+            --graph "$graph" \
+            --result "$result" \
+            --ledger "$ledger"
+          python dev-hub/bin/evidence-collector.py summary --ledger "$ledger"
+
+      - name: Prove self-certification is rejected
+        run: |
+          set -euo pipefail
+          graph='/tmp/chacha-graphs/VERIFY-to-PREVIEW.json'
+          ledger='/tmp/chacha-ledger.json'
+          bad='/tmp/chacha-self-certified.json'
+          cat > "$bad" <<'JSON'
+          {
+            "schema": "chacha.dev/task-result/v1",
+            "project": "wfgg",
+            "task_id": "artifact:security-scan",
+            "status": "OK",
+            "producer": "same-agent",
+            "observed_at": "2026-01-01T00:00:00+00:00",
+            "evidence": [{"kind": "report", "source": "ci://bad", "digest": "sha256:bad"}],
+            "verification": {
+              "status": "VERIFIED",
+              "method": "machine",
+              "verifier": "same-agent",
+              "observed_at": "2026-01-01T00:00:01+00:00"
+            },
+            "outputs": [{"type": "artifact", "id": "security-scan", "status": "OK"}]
+          }
+          JSON
+          if python dev-hub/bin/evidence-collector.py ingest --graph "$graph" --result "$bad" --ledger "$ledger"; then
+            echo 'Self-certification was incorrectly accepted' >&2
+            exit 1
+          else
+            echo 'SELF_CERTIFICATION_REJECTION=OK'
+          fi
