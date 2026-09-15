@@ -14,7 +14,8 @@
     "verified_evidence_can_be_staged_before_audit_commit": true,
     "pending_control_transactions_block_further_promotion": true,
     "transaction_recovery_is_forward_only": true,
-    "audit_events_are_never_rolled_back_by_recovery": true
+    "audit_events_are_never_rolled_back_by_recovery": true,
+    "platform_readiness_is_read_only_certification": true
   },
   "interfaces": {
     "cli": {"enabled": true, "command": "project-control", "adapter": "dev-hub/bin/project-control-cli.py"},
@@ -41,7 +42,8 @@
     "verification_broker": "dev-hub/config/verification-broker.v1.json",
     "control_plane_state": "dev-hub/config/control-plane-state.v1.json",
     "cryptographic_trust": "dev-hub/config/cryptographic-trust.v1.json",
-    "transaction_recovery": "dev-hub/config/transaction-recovery.v1.json"
+    "transaction_recovery": "dev-hub/config/transaction-recovery.v1.json",
+    "platform_readiness": "dev-hub/config/platform-readiness.v1.json"
   },
   "engine_paths": {
     "control_plane_store": "dev-hub/bin/control-plane-store.py",
@@ -52,7 +54,8 @@
     "verification_broker": "dev-hub/bin/verification-broker.py",
     "evidence_collector": "dev-hub/bin/evidence-collector.py",
     "crypto_trust": "dev-hub/bin/crypto-trust.py",
-    "transaction_recovery": "dev-hub/bin/transaction-recovery.py"
+    "transaction_recovery": "dev-hub/bin/transaction-recovery.py",
+    "platform_readiness": "dev-hub/bin/platform-readiness.py"
   },
   "status_model": ["READY", "BLOCKED", "AWAITING_APPROVAL", "DEGRADED", "UNKNOWN", "COMPLETE"],
   "operations": {
@@ -61,6 +64,7 @@
     "verify-state": {"class": "read", "mutating": false},
     "transactions": {"class": "read", "mutating": false},
     "recover-transaction": {"class": "recovery", "mutating": false, "apply_flag_makes_mutating": true},
+    "platform-readiness": {"class": "verification", "mutating": false},
     "plan-transition": {"class": "plan", "mutating": false},
     "schedule": {"class": "plan", "mutating": false},
     "prepare-run": {"class": "plan", "mutating": false},
@@ -110,6 +114,7 @@
     "allow_unsigned_release": false,
     "allow_generic_event_to_mutate_protected_state": false,
     "allow_implicit_transaction_recovery": false,
-    "allow_audit_history_rollback": false
+    "allow_audit_history_rollback": false,
+    "allow_readiness_gate_to_enable_adapters": false
   }
 }
