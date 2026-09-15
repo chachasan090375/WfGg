@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://chacha.dev/schemas/signed-checkpoint-v1.schema.json",
+  "title": "ChaCha DEV HUB Signed Checkpoint V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "project",
+    "checkpoint_id",
+    "created_at",
+    "journal_sequence",
+    "journal_head_digest",
+    "state_projection_digest",
+    "reason",
+    "key_id",
+    "algorithm",
+    "public_key_fingerprint",
+    "signature",
+    "checkpoint_digest"
+  ],
+  "properties": {
+    "schema": {"const": "chacha.dev/signed-checkpoint/v1"},
+    "project": {"type": "string", "minLength": 1},
+    "checkpoint_id": {"type": "string", "minLength": 1},
+    "created_at": {"type": "string", "minLength": 1},
+    "journal_sequence": {"type": "integer", "minimum": 1},
+    "journal_head_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "state_projection_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "reason": {"type": "string", "minLength": 1},
+    "key_id": {"type": "string", "minLength": 1},
+    "algorithm": {"const": "Ed25519"},
+    "public_key_fingerprint": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "signature": {"type": "string", "minLength": 40},
+    "checkpoint_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "anchors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["provider", "status"],
+        "properties": {
+          "provider": {"type": "string"},
+          "status": {"enum": ["PENDING", "ANCHORED", "FAILED", "UNVERIFIED"]},
+          "reference": {"type": ["string", "null"]},
+          "observed_at": {"type": ["string", "null"]},
+          "receipt_digest": {"type": ["string", "null"]}
+        }
+      }
+    },
+    "rotation": {
+      "type": ["object", "null"],
+      "additionalProperties": true
+    }
+  }
+}
