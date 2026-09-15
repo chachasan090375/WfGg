@@ -1,0 +1,51 @@
+{
+  "schema": "chacha.dev/project-intent/v1",
+  "identity": {
+    "name": "Sample Multilingual PWA",
+    "slug": "sample-multilingual-pwa",
+    "description": "Reference intent used to exercise the Project Planner"
+  },
+  "goal": "Build a mobile-first multilingual web application with a managed API and persistent data.",
+  "users": {
+    "audiences": ["members", "administrators"],
+    "expected_active_users": 500,
+    "geographies": ["EU"],
+    "locales": ["fr", "it", "en", "es"],
+    "accessibility_target": "WCAG 2.2 AA"
+  },
+  "channels": ["web", "pwa", "api"],
+  "criticality": "high",
+  "data": {
+    "stores_data": true,
+    "sensitivity": "internal",
+    "relational_required": true,
+    "object_storage_required": true,
+    "retention": "policy-defined",
+    "residency_constraints": ["EU"]
+  },
+  "integrations": [],
+  "non_functional": {
+    "availability_target": "99.9%",
+    "latency_target": "p95 < 500ms",
+    "rpo_hours": null,
+    "rto_hours": null,
+    "offline_required": true,
+    "real_time_required": false
+  },
+  "constraints": {
+    "monthly_budget": 50,
+    "currency": "EUR",
+    "existing_providers": ["github", "cloudflare", "nas", "vps"],
+    "must_use": [],
+    "must_not_use": [],
+    "self_hosting_allowed": true,
+    "production_change_requires_approval": true
+  },
+  "preferences": {
+    "simplicity_over_flexibility": true,
+    "managed_services_preferred": true,
+    "open_source_preferred": true,
+    "vendor_lock_in_tolerance": "medium"
+  },
+  "unknowns": ["authentication model", "final RPO", "final RTO"]
+}
