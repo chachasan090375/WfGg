@@ -1,0 +1,136 @@
+{
+  "schema": "chacha.dev/project-manifest/v2",
+  "name": "example-project",
+  "type": "multi-component",
+  "repository": {
+    "url": "",
+    "default_branch": "main",
+    "source_of_truth": "git"
+  },
+  "workspace": {
+    "local": "/opt/chacha-dev/projects/example/workspace"
+  },
+  "requirements": {
+    "functional": [],
+    "non_functional": [],
+    "constraints": []
+  },
+  "components": [
+    {
+      "name": "frontend",
+      "type": "web-frontend",
+      "path": "frontend",
+      "runtime": {
+        "engine": "browser",
+        "toolchain": ["node", "npm"]
+      },
+      "commands": {
+        "setup": "",
+        "lint": "",
+        "test": "",
+        "build": "",
+        "run": "",
+        "deploy": ""
+      },
+      "interfaces": [],
+      "data": [],
+      "security": {},
+      "observability": {},
+      "health": {},
+      "artifacts": []
+    },
+    {
+      "name": "backend",
+      "type": "api",
+      "path": "backend",
+      "runtime": {
+        "engine": "node",
+        "toolchain": ["node", "npm"]
+      },
+      "commands": {
+        "setup": "",
+        "lint": "",
+        "test": "",
+        "build": "",
+        "run": "",
+        "deploy": ""
+      },
+      "interfaces": [],
+      "data": [],
+      "security": {},
+      "observability": {},
+      "health": {},
+      "artifacts": []
+    }
+  ],
+  "integrations": {
+    "source_control": "github",
+    "mcp": ["mdn", "context7"],
+    "external_apis": [],
+    "webhooks": []
+  },
+  "agents": {
+    "orchestrator": "chacha-dev-architect",
+    "enabled": ["antigravity", "skywork"],
+    "knowledge": ["mdn", "context7"]
+  },
+  "environments": {
+    "development": {},
+    "test": {},
+    "staging": {},
+    "production": {}
+  },
+  "storage": {
+    "source_code": "git",
+    "large_files": "nas",
+    "artifacts": "nas",
+    "backups": "nas"
+  },
+  "data": {
+    "databases": [],
+    "object_storage": [],
+    "cache": [],
+    "queues": [],
+    "retention": {},
+    "backup_restore": {}
+  },
+  "security": {
+    "authn": {},
+    "authz": {},
+    "secrets": {},
+    "threat_model": {},
+    "audit": {}
+  },
+  "quality_gates": {
+    "product": "UNASSESSED",
+    "frontend": "UNASSESSED",
+    "backend": "UNASSESSED",
+    "data": "UNASSESSED",
+    "security": "UNASSESSED",
+    "integrations": "UNASSESSED",
+    "testing": "UNASSESSED",
+    "build": "UNASSESSED",
+    "ci_cd": "UNASSESSED",
+    "observability": "UNASSESSED",
+    "performance": "UNASSESSED",
+    "backup_recovery": "UNASSESSED",
+    "documentation": "UNASSESSED",
+    "operations": "UNASSESSED"
+  },
+  "release": {
+    "versioning": "git",
+    "rollback": "required"
+  },
+  "operations": {
+    "health_checks": [],
+    "logging": {},
+    "metrics": {},
+    "alerts": {},
+    "cost_quota": {}
+  },
+  "governance": {
+    "architecture_agent": "chacha-dev-architect",
+    "technology_radar": "dev-hub/technology-radar.json",
+    "production_change_requires_approval": true
+  }
+}
