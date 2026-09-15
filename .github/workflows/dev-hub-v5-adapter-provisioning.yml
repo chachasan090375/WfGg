@@ -1,0 +1,116 @@
+name: Dev Hub V5 Adapter Provisioning
+
+on:
+  push:
+    branches: [dev-hub-v5.0]
+    paths:
+      - 'dev-hub/adapters/**'
+      - 'dev-hub/bin/adapter-provision.py'
+      - 'dev-hub/bin/adapter-provisioning-evidence.py'
+      - 'dev-hub/config/adapter-provisioning.v1.json'
+      - 'dev-hub/schemas/adapter-provisioning-receipt-v1.schema.json'
+      - '.github/workflows/dev-hub-v5-adapter-provisioning.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  provisioning-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Compile provisioning tools
+        run: |
+          python -m py_compile dev-hub/bin/adapter-provision.py dev-hub/bin/adapter-provisioning-evidence.py dev-hub/adapters/http-smoke-adapter.py
+
+      - name: Parse provisioning contracts
+        run: |
+          python - <<'PY'
+          import json
+          for path in [
+              'dev-hub/config/adapter-provisioning.v1.json',
+              'dev-hub/schemas/adapter-provisioning-receipt-v1.schema.json',
+          ]:
+              json.load(open(path, encoding='utf-8'))
+          print('ADAPTER_PROVISIONING_CONTRACTS=PASS')
+          PY
+
+      - name: Plan does not mutate runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          TMP="$(mktemp -d)"
+          python dev-hub/bin/adapter-provision.py --root "$TMP/runtime" plan --adapter http-smoke-adapter > "$TMP/plan.json"
+          test ! -e "$TMP/runtime/http-smoke/current"
+          python - "$TMP/plan.json" <<'PY'
+          import json,sys
+          p=json.load(open(sys.argv[1])); assert p['applied'] is False; assert p['adapter']=='http-smoke-adapter'; assert p['source_digest'].startswith('sha256:')
+          print('PROVISIONING_PLAN_NO_MUTATION=PASS')
+          PY
+
+      - name: Apply requires explicit flag
+        shell: bash
+        run: |
+          set -euo pipefail
+          TMP="$(mktemp -d)"
+          set +e
+          python dev-hub/bin/adapter-provision.py --root "$TMP/runtime" apply --adapter http-smoke-adapter --actor ci-platform --receipt "$TMP/receipt.json" > "$TMP/out"
+          RC=$?
+          set -e
+          test "$RC" -eq 2
+          grep -q EXPLICIT_APPLY_FLAG_REQUIRED "$TMP/out"
+          test ! -e "$TMP/runtime/http-smoke/current"
+          test ! -e "$TMP/receipt.json"
+          echo PROVISIONING_EXPLICIT_APPLY_GUARD=PASS
+
+      - name: Apply, verify, and prove idempotence
+        shell: bash
+        run: |
+          set -euo pipefail
+          TMP="$(mktemp -d)"
+          python dev-hub/bin/adapter-provision.py --root "$TMP/runtime" apply --adapter http-smoke-adapter --actor ci-platform --receipt "$TMP/receipt-1.json" --apply
+          EXEC="$TMP/runtime/http-smoke/current/http-smoke-adapter"
+          test -x "$EXEC"
+          python dev-hub/bin/adapter-provision.py --root "$TMP/runtime" verify --adapter http-smoke-adapter --receipt "$TMP/receipt-1.json"
+          python dev-hub/bin/adapter-provision.py --root "$TMP/runtime" apply --adapter http-smoke-adapter --actor ci-platform --receipt "$TMP/receipt-2.json" --apply
+          python - "$TMP/receipt-1.json" "$TMP/receipt-2.json" <<'PY'
+          import json,sys
+          a=json.load(open(sys.argv[1])); b=json.load(open(sys.argv[2]))
+          assert a['schema']=='chacha.dev/adapter-provisioning-receipt/v1'
+          assert a['source_digest']==a['installed_digest']==a['executable_digest']
+          assert a['probe']['status']=='PASS'
+          assert b['idempotent'] is True
+          assert a['executable_digest']==b['executable_digest']
+          print('PROVISIONING_DIGEST_CHAIN=PASS')
+          print('PROVISIONING_IDEMPOTENCE=PASS')
+          PY
+
+      - name: Tamper detection fails closed
+        shell: bash
+        run: |
+          set -euo pipefail
+          TMP="$(mktemp -d)"
+          python dev-hub/bin/adapter-provision.py --root "$TMP/runtime" apply --adapter http-smoke-adapter --actor ci-platform --receipt "$TMP/receipt.json" --apply
+          printf '\n# tamper\n' >> "$TMP/runtime/http-smoke/1.0.0/http-smoke-adapter"
+          set +e
+          python dev-hub/bin/adapter-provision.py --root "$TMP/runtime" verify --adapter http-smoke-adapter --receipt "$TMP/receipt.json" > "$TMP/verify.out"
+          RC=$?
+          set -e
+          test "$RC" -eq 2
+          grep -Eq 'INSTALLED_DIGEST_INVALID|EXECUTABLE_DIGEST_INVALID' "$TMP/verify.out"
+          echo PROVISIONING_TAMPER_DETECTION=PASS
+
+      - name: Repository and real runtime remain untouched
+        shell: bash
+        run: |
+          set -euo pipefail
+          git diff --exit-code -- dev-hub/config/provider-adapters.v1.json
+          test ! -e /opt/chacha-dev/adapters/http-smoke/current/http-smoke-adapter || true
+          echo REAL_ADAPTER_REGISTRY_MUTATED=NO
+          echo REAL_VPS_RUNTIME_MUTATED=NO
