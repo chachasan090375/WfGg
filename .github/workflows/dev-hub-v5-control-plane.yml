@@ -31,6 +31,7 @@ jobs:
             dev-hub/bin/project-control-api.py \
             dev-hub/bin/transaction-recovery.py \
             dev-hub/bin/recovery-drill.py \
+            dev-hub/bin/platform-readiness.py \
             dev-hub/bin/lifecycle-engine.py \
             dev-hub/bin/task-graph-engine.py \
             dev-hub/bin/execution-scheduler.py \
@@ -58,6 +59,7 @@ jobs:
           python dev-hub/bin/project-control-cli.py --help >/dev/null
           python dev-hub/bin/transaction-recovery.py --help >/dev/null
           python dev-hub/bin/recovery-drill.py --help >/dev/null
+          python dev-hub/bin/platform-readiness.py --help >/dev/null
           python dev-hub/bin/lifecycle-engine.py --help >/dev/null
           python dev-hub/bin/verification-broker.py --help >/dev/null
           echo CONTROL_PLANE_CLI_SMOKE=OK
@@ -196,4 +198,29 @@ jobs:
           assert report['summary']['failed'] == 0, report
           assert report['summary']['total'] == 5, report
           print('RECOVERY_DRILL_CI=PASS')
+          PY
+
+      - name: Platform readiness contract certification
+        shell: bash
+        run: |
+          set -euo pipefail
+          REPORT="$RUNNER_TEMP/platform-readiness-report.json"
+          python dev-hub/bin/platform-readiness.py \
+            --repo-root . \
+            --profile contract \
+            --project ci-control-plane \
+            --recovery-drill-report "$RUNNER_TEMP/recovery-drill-report.json" \
+            --output "$REPORT" \
+            --json > "$RUNNER_TEMP/platform-readiness-stdout.json"
+          python - "$REPORT" <<'PY'
+          import json, sys
+          report = json.load(open(sys.argv[1], encoding='utf-8'))
+          assert report['status'] == 'PASS', report
+          assert report['ready_for_execution'] == 'NO', report
+          assert report['summary']['blocking_failures'] == 0, report
+          ids = {c['id']: c['status'] for c in report['checks']}
+          assert ids['repository-contracts'] == 'PASS', ids
+          assert ids['adapter-static-contract'] == 'PASS', ids
+          assert ids['recovery-drill'] == 'PASS', ids
+          print('PLATFORM_CONTRACT_CERTIFICATION=PASS')
           PY
