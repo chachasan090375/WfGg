@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""ChaCha DEV HUB Project Control JSON API V1.1.
+"""ChaCha DEV HUB Project Control JSON API V1.2.
 
-Local stdin/stdout adapter over project-control.py. No network listener is
-created. A request is one JSON object and the response is the same structured
-Project Control response emitted by the unified CLI. Human verification cannot
-be asserted through this agent-facing adapter.
+Local stdin/stdout adapter over the unified Project Control CLI router. No
+network listener is created. Human verification cannot be asserted through this
+agent-facing adapter, and recovery cannot mutate unless apply=true is explicit.
 """
 from __future__ import annotations
 
@@ -55,13 +54,22 @@ def main() -> int:
     if not isinstance(args, dict):
         fail("REQUEST_ARGUMENTS_NOT_OBJECT", project, operation)
 
-    script = Path(__file__).with_name("project-control.py")
+    script = Path(__file__).with_name("project-control-cli.py")
     repo_root = Path(str(args.get("repo_root") or Path.cwd()))
     policy = Path(str(args.get("policy") or "dev-hub/config/project-control.v1.json"))
     cmd = [sys.executable, str(script), "--repo-root", str(repo_root), "--policy", str(policy), "--json"]
 
-    if operation in {"status", "explain", "verify-state"}:
+    if operation in {"status", "explain", "verify-state", "transactions"}:
         cmd += [operation, "--project", project]
+    elif operation == "recover-transaction":
+        if not args.get("transaction_id"):
+            fail("REQUEST_TRANSACTION_ID_REQUIRED", project, operation)
+        cmd += [operation, "--project", project, "--transaction-id", str(args["transaction_id"])]
+        cmd += ["--actor", str(args.get("actor") or request.get("actor") or "recovery-engineer")]
+        if args.get("apply") is True:
+            cmd.append("--apply")
+        if args.get("report"):
+            cmd += ["--report", str(args["report"])]
     elif operation == "plan-transition":
         cmd += [operation, "--project", project]
         if args.get("target"):
