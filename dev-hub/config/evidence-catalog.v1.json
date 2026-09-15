@@ -1,0 +1,39 @@
+{
+  "schema": "chacha.dev/evidence-catalog/v1",
+  "defaults": {
+    "permission": "read",
+    "verification": {"mode": "machine-or-human", "self_certification_allowed": false}
+  },
+  "artifacts": {
+    "project-intent": {"owner_role": "product-domain", "capabilities": ["documentation"], "permission": "plan", "verification": "independent-agent"},
+    "project-plan": {"owner_role": "orchestrator", "capabilities": ["architecture-audit"], "permission": "plan", "verification": "machine"},
+    "manifest-v3": {"owner_role": "orchestrator", "capabilities": ["architecture-audit"], "permission": "plan", "verification": "machine"},
+    "manifest-validation": {"owner_role": "platform", "capabilities": ["architecture-audit"], "permission": "read", "verification": "machine"},
+    "capability-resolution": {"owner_role": "orchestrator", "capabilities": ["architecture-audit", "technology-radar"], "permission": "read", "verification": "machine"},
+    "architecture-decisions-resolved": {"owner_role": "orchestrator", "capabilities": ["documentation"], "permission": "plan", "verification": "human"},
+    "workspace-health": {"owner_role": "platform", "capabilities": ["architecture-audit"], "permission": "read", "verification": "machine"},
+    "storage-preflight": {"owner_role": "platform", "capabilities": ["storage-governance"], "permission": "read", "verification": "machine"},
+    "dependency-resolution": {"owner_role": "platform", "capabilities": ["architecture-audit"], "permission": "read", "verification": "machine"},
+    "change-set": {"owner_role": "orchestrator", "capabilities": ["source-control", "code-review"], "permission": "repository-write", "verification": "independent-agent"},
+    "build-result": {"owner_role": "platform", "capabilities": ["code-review"], "permission": "workspace-write", "verification": "machine"},
+    "static-check": {"owner_role": "testing", "capabilities": ["code-review"], "permission": "read", "verification": "machine"},
+    "test-result": {"owner_role": "testing", "capabilities": ["unit-test-js"], "permission": "workspace-write", "verification": "machine"},
+    "security-scan": {"owner_role": "security", "capabilities": ["security-scan-js"], "permission": "read", "verification": "machine"},
+    "ci-result": {"owner_role": "release", "capabilities": ["ci"], "permission": "read", "verification": "machine"},
+    "preview-candidate": {"owner_role": "release", "capabilities": ["artifact-store"], "permission": "repository-write", "verification": "machine"},
+    "preview-validation": {"owner_role": "release", "capabilities": ["smoke-test-web"], "permission": "preview-deploy", "verification": "machine"},
+    "e2e-result": {"owner_role": "testing", "capabilities": ["e2e-test-web"], "permission": "workspace-write", "verification": "machine"},
+    "smoke-result": {"owner_role": "testing", "capabilities": ["smoke-test-web"], "permission": "read", "verification": "machine"},
+    "rollback-plan": {"owner_role": "release", "capabilities": ["documentation"], "permission": "plan", "verification": "independent-agent"},
+    "release-traceability": {"owner_role": "release", "capabilities": ["source-control", "ci"], "permission": "read", "verification": "machine"},
+    "backup-recovery-readiness": {"owner_role": "recovery", "capabilities": ["backup-store", "storage-governance"], "permission": "read", "verification": "machine"},
+    "production-deployment-receipt": {"owner_role": "release", "capabilities": ["source-control"], "permission": "production-deploy", "verification": "machine"},
+    "post-deploy-smoke": {"owner_role": "testing", "capabilities": ["smoke-test-web"], "permission": "read", "verification": "machine"},
+    "production-health": {"owner_role": "sre-observability", "capabilities": ["architecture-audit"], "permission": "read", "verification": "machine"},
+    "observability-health": {"owner_role": "sre-observability", "capabilities": ["architecture-audit"], "permission": "read", "verification": "machine"},
+    "retirement-plan": {"owner_role": "orchestrator", "capabilities": ["documentation"], "permission": "plan", "verification": "human"},
+    "archive-proof": {"owner_role": "recovery", "capabilities": ["artifact-store", "backup-store"], "permission": "read", "verification": "machine"},
+    "data-disposition": {"owner_role": "data", "capabilities": ["documentation"], "permission": "destructive-operation", "verification": "human"},
+    "dependency-retirement-check": {"owner_role": "platform", "capabilities": ["technology-radar"], "permission": "read", "verification": "machine"}
+  }
+}
