@@ -1,0 +1,25 @@
+{
+  "schema": "chacha.dev/project-lifecycle-state/v1",
+  "project": "wfgg",
+  "current_stage": "DESIGN",
+  "created_at": "2026-09-15T00:00:00Z",
+  "updated_at": "2026-09-15T00:00:00Z",
+  "history": [
+    {
+      "from": null,
+      "to": "IDEA",
+      "status": "INITIALIZED",
+      "actor": "lifecycle-engine",
+      "observed_at": "2026-09-15T00:00:00Z",
+      "evidence_digest": null
+    },
+    {
+      "from": "IDEA",
+      "to": "DESIGN",
+      "status": "PROMOTED",
+      "actor": "project-owner",
+      "observed_at": "2026-09-15T00:00:00Z",
+      "evidence_digest": "example-only"
+    }
+  ]
+}
