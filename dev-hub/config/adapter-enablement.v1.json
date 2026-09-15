@@ -1,0 +1,30 @@
+{
+  "schema": "chacha.dev/adapter-enablement/v1",
+  "principles": {
+    "enablement_requires_repeatable_runtime_success": true,
+    "enablement_requires_fresh_provider_health": true,
+    "enablement_requires_machine_readable_rollback": true,
+    "task_result_must_remain_independently_unverified": true,
+    "evidence_generation_never_mutates_adapter_registry": true,
+    "evidence_generation_never_creates_approval": true
+  },
+  "repeatability": {
+    "minimum_successful_runs": 3,
+    "required_task_status": "OK",
+    "required_verification_status": "UNVERIFIED",
+    "distinct_observed_at_required": true
+  },
+  "provider_health": {
+    "schema": "chacha.dev/provider-health-snapshot/v1",
+    "required_state": "HEALTHY",
+    "maximum_age_seconds": 300,
+    "maximum_future_skew_seconds": 60
+  },
+  "rollback": {
+    "registry": "dev-hub/config/adapter-rollbacks.v1.json",
+    "required_target_status": "DISABLED",
+    "minimum_steps": 2,
+    "verification_required": true
+  },
+  "output_schema": "chacha.dev/adapter-promotion-evidence/v1"
+}
