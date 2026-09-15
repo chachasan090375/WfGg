@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://chacha.dev/schemas/platform-readiness-report-v1.schema.json",
+  "title": "ChaCha DEV HUB Platform Readiness Report V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "profile",
+    "project",
+    "observed_at",
+    "status",
+    "ready_for_execution",
+    "checks",
+    "blockers",
+    "warnings",
+    "summary"
+  ],
+  "properties": {
+    "schema": {"const": "chacha.dev/platform-readiness-report/v1"},
+    "profile": {"enum": ["contract", "development", "production"]},
+    "project": {"type": ["string", "null"]},
+    "observed_at": {"type": "string"},
+    "status": {"enum": ["PASS", "FAIL"]},
+    "ready_for_execution": {"enum": ["YES", "NO"]},
+    "checks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": ["id", "status", "blocking", "detail"],
+        "properties": {
+          "id": {"type": "string"},
+          "status": {"enum": ["PASS", "FAIL", "UNKNOWN", "NOT_APPLICABLE"]},
+          "blocking": {"type": "boolean"},
+          "detail": {"type": "string"},
+          "evidence": {"type": "object", "additionalProperties": true}
+        }
+      }
+    },
+    "blockers": {"type": "array", "items": {"type": "string"}},
+    "warnings": {"type": "array", "items": {"type": "string"}},
+    "summary": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["total", "passed", "failed", "unknown", "blocking_failures"],
+      "properties": {
+        "total": {"type": "integer", "minimum": 0},
+        "passed": {"type": "integer", "minimum": 0},
+        "failed": {"type": "integer", "minimum": 0},
+        "unknown": {"type": "integer", "minimum": 0},
+        "blocking_failures": {"type": "integer", "minimum": 0}
+      }
+    },
+    "evidence": {"type": "object", "additionalProperties": true}
+  }
+}
