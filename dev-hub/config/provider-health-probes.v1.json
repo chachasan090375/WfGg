@@ -4,7 +4,8 @@
     "no_secret_values_in_catalog": true,
     "functional_probe_preferred_over_version_only": true,
     "health_has_freshness_limit": true,
-    "project_local_provider_checked_in_project_context": true
+    "project_local_provider_checked_in_project_context": true,
+    "signing_probe_never_reads_private_key_material": true
   },
   "defaults": {
     "timeout_seconds": 10,
@@ -34,6 +35,7 @@
     "unitypy": {"scope": "platform", "probe": "python-import", "functional_check": "unitypy-import"},
     "chacha-tech-watch": {"scope": "platform", "probe": "runtime-command", "functional_check": "radar-status"},
     "chacha-dev-architect": {"scope": "platform", "probe": "runtime-command", "functional_check": "architect-status"},
-    "storage-governor": {"scope": "platform", "probe": "runtime-command", "functional_check": "storage-audit"}
+    "storage-governor": {"scope": "platform", "probe": "runtime-command", "functional_check": "storage-audit"},
+    "openssl-ed25519": {"scope": "platform", "probe": "runtime-command", "functional_check": "openssl-version-and-ed25519-public-key-operations"}
   }
 }
