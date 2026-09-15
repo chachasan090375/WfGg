@@ -9,6 +9,8 @@
     "runtime_readiness_is_not_production_approval": true,
     "recovery_readiness_requires_fault_injection": true,
     "provider_health_must_be_fresh_and_explicit": true,
+    "provider_health_snapshot_is_normalized_platform_evidence": true,
+    "storage_preflight_is_normalized_platform_evidence": true,
     "designed_adapter_is_not_executable": true,
     "storage_pressure_can_block_execution": true,
     "pending_control_transaction_blocks_execution": true,
@@ -60,6 +62,7 @@
     "adapter_contract": "dev-hub/config/adapter-contract.v1.json",
     "capability_registry": "dev-hub/config/capability-registry.v1.json",
     "provider_health_probes": "dev-hub/config/provider-health-probes.v1.json",
+    "platform_evidence": "dev-hub/config/platform-evidence.v1.json",
     "control_plane_state": "dev-hub/config/control-plane-state.v1.json",
     "transaction_recovery": "dev-hub/config/transaction-recovery.v1.json",
     "recovery_drill": "dev-hub/config/recovery-drill.v1.json",
@@ -69,6 +72,7 @@
   },
   "engine_paths": {
     "adapter_contract_harness": "dev-hub/bin/adapter-contract-harness.py",
+    "platform_evidence": "dev-hub/bin/platform-evidence.py",
     "control_plane_store": "dev-hub/bin/control-plane-store.py",
     "transaction_recovery": "dev-hub/bin/transaction-recovery.py",
     "recovery_drill": "dev-hub/bin/recovery-drill.py"
@@ -81,12 +85,18 @@
       "dev-hub/config/cryptographic-trust.v1.json",
       "dev-hub/config/execution-scheduler.v1.json",
       "dev-hub/config/orchestration-policy.v1.json",
+      "dev-hub/config/platform-evidence.v1.json",
+      "dev-hub/config/platform-readiness.v1.json",
       "dev-hub/config/project-control.v1.json",
       "dev-hub/config/provider-adapters.v1.json",
       "dev-hub/config/provider-health-probes.v1.json",
       "dev-hub/config/recovery-drill.v1.json",
       "dev-hub/config/run-controller.v1.json",
-      "dev-hub/config/transaction-recovery.v1.json"
+      "dev-hub/config/transaction-recovery.v1.json",
+      "dev-hub/schemas/platform-readiness-report-v1.schema.json",
+      "dev-hub/schemas/provider-health-snapshot-v1.schema.json",
+      "dev-hub/schemas/provider-probe-result-v1.schema.json",
+      "dev-hub/schemas/storage-preflight-v1.schema.json"
     ],
     "python": [
       "dev-hub/bin/adapter-contract-harness.py",
@@ -95,6 +105,8 @@
       "dev-hub/bin/evidence-collector.py",
       "dev-hub/bin/execution-scheduler.py",
       "dev-hub/bin/lifecycle-engine.py",
+      "dev-hub/bin/platform-evidence.py",
+      "dev-hub/bin/platform-readiness.py",
       "dev-hub/bin/project-control.py",
       "dev-hub/bin/project-control-api.py",
       "dev-hub/bin/project-control-cli.py",
@@ -106,6 +118,7 @@
   },
   "provider_health": {
     "schema": "chacha.dev/provider-health-snapshot/v1",
+    "producer_policy": "chacha.dev/platform-evidence/v1",
     "baseline_required_providers": ["chacha-dev-architect", "storage-governor"],
     "production_required_providers": ["openssl-ed25519", "github", "nas"],
     "healthy_state": "HEALTHY",
@@ -116,7 +129,9 @@
     "production_statuses": ["ENABLED"]
   },
   "storage": {
-    "accepted_statuses": ["OK", "PASS", "READY"],
+    "schema": "chacha.dev/storage-preflight/v1",
+    "producer_policy": "chacha.dev/platform-evidence/v1",
+    "accepted_statuses": ["OK"],
     "required_for_development": true,
     "required_for_production": true
   },
