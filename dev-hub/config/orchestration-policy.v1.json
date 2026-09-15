@@ -14,7 +14,8 @@
     "adapter_contract": "dev-hub/config/adapter-contract.v1.json",
     "control_plane_state": "dev-hub/config/control-plane-state.v1.json",
     "cryptographic_trust": "dev-hub/config/cryptographic-trust.v1.json",
-    "project_control": "dev-hub/config/project-control.v1.json"
+    "project_control": "dev-hub/config/project-control.v1.json",
+    "transaction_recovery": "dev-hub/config/transaction-recovery.v1.json"
   },
   "principles": {
     "least_privilege": true,
@@ -45,7 +46,10 @@
     "control_plane_projection_is_canonical_for_project_status": true,
     "lifecycle_promotion_is_transactional": true,
     "lifecycle_engine_checks_but_does_not_own_persistent_stage": true,
-    "pending_control_transaction_blocks_further_promotion": true
+    "pending_control_transaction_blocks_further_promotion": true,
+    "transaction_recovery_is_forward_only": true,
+    "transaction_recovery_never_rewrites_audit_history": true,
+    "ambiguous_recovery_requires_manual_review": true
   },
   "permissions": {
     "read": {"approval": "none"},
@@ -108,6 +112,11 @@
     "lifecycle_advance_requires_project_control_transaction": true,
     "transaction_rechecks_control_plane_integrity_before_and_after_commit": true,
     "verified_evidence_ingest_is_audit_linked": true,
-    "generic_control_event_cannot_mutate_protected_lifecycle_or_approval_state": true
+    "generic_control_event_cannot_mutate_protected_lifecycle_or_approval_state": true,
+    "pending_transaction_requires_reconciliation_before_new_promotion": true,
+    "transaction_recovery_apply_requires_explicit_flag": true,
+    "authoritative_audit_event_is_never_rolled_back_during_recovery": true,
+    "derived_projection_may_be_rebuilt_from_valid_journal": true,
+    "evidence_ledger_recovery_requires_digest_precondition": true
   }
 }
