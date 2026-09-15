@@ -15,7 +15,8 @@
     "control_plane_state": "dev-hub/config/control-plane-state.v1.json",
     "cryptographic_trust": "dev-hub/config/cryptographic-trust.v1.json",
     "project_control": "dev-hub/config/project-control.v1.json",
-    "transaction_recovery": "dev-hub/config/transaction-recovery.v1.json"
+    "transaction_recovery": "dev-hub/config/transaction-recovery.v1.json",
+    "recovery_drill": "dev-hub/config/recovery-drill.v1.json"
   },
   "principles": {
     "least_privilege": true,
@@ -49,7 +50,9 @@
     "pending_control_transaction_blocks_further_promotion": true,
     "transaction_recovery_is_forward_only": true,
     "transaction_recovery_never_rewrites_audit_history": true,
-    "ambiguous_recovery_requires_manual_review": true
+    "ambiguous_recovery_requires_manual_review": true,
+    "recovery_drills_are_fault_injected_in_sandbox": true,
+    "recovery_readiness_claims_require_drill_evidence": true
   },
   "permissions": {
     "read": {"approval": "none"},
@@ -117,6 +120,9 @@
     "transaction_recovery_apply_requires_explicit_flag": true,
     "authoritative_audit_event_is_never_rolled_back_during_recovery": true,
     "derived_projection_may_be_rebuilt_from_valid_journal": true,
-    "evidence_ledger_recovery_requires_digest_precondition": true
+    "evidence_ledger_recovery_requires_digest_precondition": true,
+    "recovery_drill_must_not_target_production_runtime": true,
+    "recovery_drill_tamper_detection_must_block_auto_recovery": true,
+    "recovery_drill_ambiguous_state_requires_manual_review": true
   }
 }
