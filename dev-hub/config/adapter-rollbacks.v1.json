@@ -1,0 +1,35 @@
+{
+  "schema": "chacha.dev/adapter-rollbacks/v1",
+  "principles": {
+    "rollback_is_explicit": true,
+    "rollback_uses_adapter_promotion_policy": true,
+    "rollback_preserves_audit_evidence": true,
+    "rollback_never_deletes_previous_receipts": true,
+    "fallback_provider_selection_returns_to_scheduler_policy": true
+  },
+  "adapters": {
+    "http-smoke-adapter": {
+      "enabled": true,
+      "from_status": "ENABLED",
+      "target_status": "DISABLED",
+      "owner_role": "platform-cloud-engineer",
+      "triggers": [
+        "repeatable-runtime-failure",
+        "provider-health-unavailable",
+        "policy-or-security-block"
+      ],
+      "executable_strategy": "retain-for-forensics",
+      "steps": [
+        "stop scheduling new tasks to http-smoke-adapter",
+        "apply ENABLED->DISABLED through adapter-promotion with policy-or-security-block evidence",
+        "record the promotion receipt and triggering evidence",
+        "return unresolved smoke-test capability to scheduler failover policy"
+      ],
+      "verification": [
+        "adapter registry status is DISABLED",
+        "scheduler no longer selects http-smoke-adapter",
+        "previous promotion and rollback receipts remain readable"
+      ]
+    }
+  }
+}
