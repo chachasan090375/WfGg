@@ -12,9 +12,9 @@ CONFIG = ROOT / "platform" / "config"
 REGISTRY = ROOT / "registry"
 
 
-def run(cmd):
+def run(cmd, timeout=45):
     try:
-        p = subprocess.run(cmd, text=True, capture_output=True, timeout=45)
+        p = subprocess.run(cmd, text=True, capture_output=True, timeout=timeout)
         return p.returncode, (p.stdout + p.stderr).strip()
     except Exception as e:
         return 99, str(e)
@@ -34,6 +34,7 @@ def cmd_status(_args):
     tools = {
         "projectctl": shutil.which("projectctl"),
         "devhub-health": shutil.which("devhub-health"),
+        "techwatch": shutil.which("techwatch"),
         "antigravity": shutil.which("agy-dev") or shutil.which("agy"),
         "git": shutil.which("git"),
         "node": shutil.which("node"),
@@ -88,6 +89,41 @@ def cmd_watch_plan(_args):
     return 0
 
 
+def techwatch_bin():
+    return shutil.which("techwatch")
+
+
+def cmd_watch_status(_args):
+    tw = techwatch_bin()
+    if not tw:
+        print("TECHWATCH=MISSING", file=sys.stderr)
+        return 2
+    return subprocess.run([tw, "status"]).returncode
+
+
+def cmd_watch_report(_args):
+    tw = techwatch_bin()
+    if not tw:
+        print("TECHWATCH=MISSING", file=sys.stderr)
+        return 2
+    return subprocess.run([tw, "report"]).returncode
+
+
+def cmd_watch_run(args):
+    tw = techwatch_bin()
+    if not tw:
+        print("TECHWATCH=MISSING", file=sys.stderr)
+        return 2
+    cmd = [tw, "run"]
+    if args.market:
+        cmd.append("--market")
+    try:
+        return subprocess.run(cmd, timeout=240).returncode
+    except subprocess.TimeoutExpired:
+        print("TECHWATCH=TIMEOUT", file=sys.stderr)
+        return 124
+
+
 def cmd_audit(args):
     p = REGISTRY / "manifests" / f"{args.name}.json"
     data = load_json(p)
@@ -135,12 +171,26 @@ def cmd_audit(args):
 def parser():
     p = argparse.ArgumentParser(prog="architectctl", description="ChaCha DEV Architect controller")
     sp = p.add_subparsers(dest="sub", required=True)
+
     s = sp.add_parser("status")
     s.set_defaults(func=cmd_status)
+
     r = sp.add_parser("radar")
     r.set_defaults(func=cmd_radar)
+
     w = sp.add_parser("watch-plan")
     w.set_defaults(func=cmd_watch_plan)
+
+    ws = sp.add_parser("watch-status")
+    ws.set_defaults(func=cmd_watch_status)
+
+    wr = sp.add_parser("watch-report")
+    wr.set_defaults(func=cmd_watch_report)
+
+    wx = sp.add_parser("watch-run")
+    wx.add_argument("--market", action="store_true")
+    wx.set_defaults(func=cmd_watch_run)
+
     a = sp.add_parser("audit")
     a.add_argument("name")
     a.set_defaults(func=cmd_audit)
