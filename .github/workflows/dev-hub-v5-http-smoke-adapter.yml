@@ -81,11 +81,18 @@ jobs:
           import json, os
           from pathlib import Path
           root = Path(os.environ['TMP'])
-          registry = json.load(open(root / 'registry-contract-ok.json', encoding='utf-8'))
-          entry = registry['adapters']['http-smoke-adapter']
-          entry['status'] = 'CONTRACT_OK'
-          entry['executable'] = os.environ['ADAPTER']
-          (root / 'registry-contract-ok.json').write_text(json.dumps(registry, indent=2) + '\n', encoding='utf-8')
+
+          designed = json.load(open(root / 'registry-designed.json', encoding='utf-8'))
+          designed_entry = designed['adapters']['http-smoke-adapter']
+          designed_entry['status'] = 'DESIGNED'
+          designed_entry['executable'] = None
+          (root / 'registry-designed.json').write_text(json.dumps(designed, indent=2) + '\n', encoding='utf-8')
+
+          contract_ok = json.load(open(root / 'registry-contract-ok.json', encoding='utf-8'))
+          contract_entry = contract_ok['adapters']['http-smoke-adapter']
+          contract_entry['status'] = 'CONTRACT_OK'
+          contract_entry['executable'] = os.environ['ADAPTER']
+          (root / 'registry-contract-ok.json').write_text(json.dumps(contract_ok, indent=2) + '\n', encoding='utf-8')
           PY
 
           export CHACHA_HTTP_SMOKE_ALLOWED_HOSTS="127.0.0.1,localhost"
