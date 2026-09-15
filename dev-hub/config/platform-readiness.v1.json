@@ -12,6 +12,7 @@
     "provider_health_snapshot_is_normalized_platform_evidence": true,
     "storage_preflight_is_normalized_platform_evidence": true,
     "adapter_promotion_is_evidence_gated": true,
+    "adapter_certification_uses_concrete_runtime_artifacts": true,
     "designed_adapter_is_not_executable": true,
     "storage_pressure_can_block_execution": true,
     "pending_control_transaction_blocks_execution": true,
@@ -74,6 +75,7 @@
   },
   "engine_paths": {
     "adapter_contract_harness": "dev-hub/bin/adapter-contract-harness.py",
+    "adapter_certification": "dev-hub/bin/adapter-certification.py",
     "adapter_promotion": "dev-hub/bin/adapter-promotion.py",
     "platform_evidence": "dev-hub/bin/platform-evidence.py",
     "control_plane_store": "dev-hub/bin/control-plane-store.py",
@@ -97,6 +99,7 @@
       "dev-hub/config/recovery-drill.v1.json",
       "dev-hub/config/run-controller.v1.json",
       "dev-hub/config/transaction-recovery.v1.json",
+      "dev-hub/examples/http-smoke.dispatch.v1.json",
       "dev-hub/schemas/adapter-promotion-evidence-v1.schema.json",
       "dev-hub/schemas/adapter-promotion-report-v1.schema.json",
       "dev-hub/schemas/platform-readiness-report-v1.schema.json",
@@ -105,6 +108,8 @@
       "dev-hub/schemas/storage-preflight-v1.schema.json"
     ],
     "python": [
+      "dev-hub/adapters/http-smoke-adapter.py",
+      "dev-hub/bin/adapter-certification.py",
       "dev-hub/bin/adapter-contract-harness.py",
       "dev-hub/bin/adapter-promotion.py",
       "dev-hub/bin/control-plane-store.py",
