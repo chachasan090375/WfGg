@@ -33,7 +33,7 @@
     "observability-health": {"owner_role": "sre-observability", "capabilities": ["architecture-audit"], "permission": "read", "verification": "machine"},
     "retirement-plan": {"owner_role": "orchestrator", "capabilities": ["documentation"], "permission": "plan", "verification": "human"},
     "archive-proof": {"owner_role": "recovery", "capabilities": ["artifact-store", "backup-store"], "permission": "read", "verification": "machine"},
-    "data-disposition": {"owner_role": "data", "capabilities": ["documentation"], "permission": "destructive-operation", "verification": "human"},
+    "data-disposition": {"owner_role": "data", "capabilities": ["documentation"], "permission": "plan", "verification": "human"},
     "dependency-retirement-check": {"owner_role": "platform", "capabilities": ["technology-radar"], "permission": "read", "verification": "machine"}
   }
 }
