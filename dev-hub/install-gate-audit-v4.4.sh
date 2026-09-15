@@ -14,6 +14,22 @@ fi
 
 curl -fsSL "$BASE/gate-audit.py" -o "$BIN/gate-audit.py"
 curl -fsSL "$BASE/architectctl-v4.4.py" -o "$BIN/architectctl.py"
+
+# Hot-fix malformed list-comprehension slices in the first v4.4 gate-audit source.
+python3 - "$BIN/gate-audit.py" <<'PY'
+from pathlib import Path
+import sys
+p = Path(sys.argv[1])
+s = p.read_text()
+needle = '"]][:'
+replacement = '"])][:'
+count = s.count(needle)
+if count:
+    s = s.replace(needle, replacement)
+    p.write_text(s)
+print(f"GATE_AUDIT_SYNTAX_PATCHES={count}")
+PY
+
 chmod 755 "$BIN/gate-audit.py" "$BIN/architectctl.py"
 ln -sfn "$BIN/gate-audit.py" /usr/local/bin/gate-audit
 ln -sfn "$BIN/architectctl.py" /usr/local/bin/architectctl
