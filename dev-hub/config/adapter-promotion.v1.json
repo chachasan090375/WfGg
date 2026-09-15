@@ -1,0 +1,50 @@
+{
+  "schema": "chacha.dev/adapter-promotion/v1",
+  "principles": {
+    "promotion_never_automatic": true,
+    "explicit_apply_required": true,
+    "current_status_is_a_precondition": true,
+    "evidence_precedes_state_change": true,
+    "runtime_contract_precedes_pilot": true,
+    "repeatable_runtime_and_health_precede_enablement": true,
+    "production_capable_enablement_requires_explicit_human_approval": true,
+    "provisioning_and_status_change_are_recorded_together": true,
+    "registry_write_is_atomic": true,
+    "promotion_receipt_is_required": true,
+    "private_secrets_are_never_part_of_promotion_evidence": true,
+    "adapter_cannot_self_promote": true
+  },
+  "schemas": {
+    "registry": "chacha.dev/provider-adapters/v1",
+    "contract": "chacha.dev/adapter-contract/v1",
+    "evidence": "chacha.dev/adapter-promotion-evidence/v1",
+    "report": "chacha.dev/adapter-promotion-report/v1"
+  },
+  "evidence": {
+    "max_age_seconds": 604800,
+    "maximum_future_skew_seconds": 60,
+    "pass_state": "PASS",
+    "accepted_states": ["PASS", "FAIL", "UNKNOWN"]
+  },
+  "production_capable_permissions": [
+    "production-deploy",
+    "production-data-write",
+    "secret-change",
+    "destructive-operation",
+    "technology-replacement"
+  ],
+  "runtime_statuses_require_executable": ["PILOT", "ENABLED", "DEGRADED"],
+  "approval": {
+    "type": "adapter-production-enable",
+    "required_target": "ENABLED",
+    "must_match_adapter": true,
+    "must_match_target": true,
+    "explicit_approval_id_argument_required": true
+  },
+  "mutation": {
+    "strategy": "temp-file-fsync-rename",
+    "allowed_fields": ["status", "executable"],
+    "receipt_required": true,
+    "default_receipt_root": "/opt/chacha-dev/runtime/adapter-promotions"
+  }
+}
