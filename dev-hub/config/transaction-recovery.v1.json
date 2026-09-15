@@ -1,0 +1,48 @@
+{
+  "schema": "chacha.dev/transaction-recovery/v1",
+  "principles": {
+    "journal_is_authoritative": true,
+    "never_rewrite_or_delete_audit_events": true,
+    "forward_recovery_only_after_authoritative_commit": true,
+    "projection_may_be_rebuilt_from_valid_journal": true,
+    "ledger_finalize_requires_expected_old_or_new_digest": true,
+    "staged_recovery_artifacts_are_never_deleted_automatically": true,
+    "recovery_is_serialized_per_project": true,
+    "inspection_is_read_only": true,
+    "apply_requires_explicit_flag": true,
+    "ambiguous_state_requires_manual_review": true
+  },
+  "runtime": {
+    "transactions_root": "/opt/chacha-dev/runtime/transactions",
+    "state_root": "/opt/chacha-dev/runtime/state",
+    "evidence_root": "/opt/chacha-dev/runtime/evidence",
+    "locks_root": "/opt/chacha-dev/runtime/locks/control"
+  },
+  "repository_paths": {
+    "control_plane_state": "dev-hub/config/control-plane-state.v1.json",
+    "control_plane_store": "dev-hub/bin/control-plane-store.py"
+  },
+  "closed_statuses": ["COMMITTED", "VERIFIED_ONLY", "FAILED"],
+  "recoverable_statuses": ["PREPARED", "CONTROL_EVENT_COMMITTED_LEDGER_PENDING", "COMMIT_UNCERTAIN"],
+  "operations": {
+    "advance": {
+      "authoritative_event_type": "LIFECYCLE_TRANSITION",
+      "repair_projection_from_journal": true,
+      "no_event_outcome": "ABORTED_BEFORE_AUTHORITATIVE_COMMIT"
+    },
+    "verify-result": {
+      "authoritative_event_type": "EVIDENCE_RECORDED",
+      "repair_projection_from_journal": true,
+      "allow_ledger_finalize_from_staged_copy": true,
+      "no_event_outcome": "ABORTED_BEFORE_AUTHORITATIVE_COMMIT"
+    }
+  },
+  "safety": {
+    "allow_audit_event_rollback": false,
+    "allow_journal_truncation": false,
+    "allow_blind_ledger_overwrite": false,
+    "allow_recovery_without_chain_verification": false,
+    "allow_delete_staged_ledger": false,
+    "allow_delete_transaction_receipt": false
+  }
+}
