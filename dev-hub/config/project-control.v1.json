@@ -12,10 +12,12 @@
     "all_mutating_control_actions_are_auditable": true,
     "lifecycle_promotion_is_transactional": true,
     "verified_evidence_can_be_staged_before_audit_commit": true,
-    "pending_control_transactions_block_further_promotion": true
+    "pending_control_transactions_block_further_promotion": true,
+    "transaction_recovery_is_forward_only": true,
+    "audit_events_are_never_rolled_back_by_recovery": true
   },
   "interfaces": {
-    "cli": {"enabled": true, "command": "project-control"},
+    "cli": {"enabled": true, "command": "project-control", "adapter": "dev-hub/bin/project-control-cli.py"},
     "json_api": {"enabled": true, "transport": "stdin-stdout", "network_listener": false, "adapter": "dev-hub/bin/project-control-api.py"}
   },
   "runtime": {
@@ -38,7 +40,8 @@
     "provider_adapters": "dev-hub/config/provider-adapters.v1.json",
     "verification_broker": "dev-hub/config/verification-broker.v1.json",
     "control_plane_state": "dev-hub/config/control-plane-state.v1.json",
-    "cryptographic_trust": "dev-hub/config/cryptographic-trust.v1.json"
+    "cryptographic_trust": "dev-hub/config/cryptographic-trust.v1.json",
+    "transaction_recovery": "dev-hub/config/transaction-recovery.v1.json"
   },
   "engine_paths": {
     "control_plane_store": "dev-hub/bin/control-plane-store.py",
@@ -48,13 +51,16 @@
     "run_controller": "dev-hub/bin/run-controller.py",
     "verification_broker": "dev-hub/bin/verification-broker.py",
     "evidence_collector": "dev-hub/bin/evidence-collector.py",
-    "crypto_trust": "dev-hub/bin/crypto-trust.py"
+    "crypto_trust": "dev-hub/bin/crypto-trust.py",
+    "transaction_recovery": "dev-hub/bin/transaction-recovery.py"
   },
   "status_model": ["READY", "BLOCKED", "AWAITING_APPROVAL", "DEGRADED", "UNKNOWN", "COMPLETE"],
   "operations": {
     "status": {"class": "read", "mutating": false},
     "explain": {"class": "read", "mutating": false},
     "verify-state": {"class": "read", "mutating": false},
+    "transactions": {"class": "read", "mutating": false},
+    "recover-transaction": {"class": "recovery", "mutating": false, "apply_flag_makes_mutating": true},
     "plan-transition": {"class": "plan", "mutating": false},
     "schedule": {"class": "plan", "mutating": false},
     "prepare-run": {"class": "plan", "mutating": false},
@@ -72,6 +78,9 @@
     "evidence_ingest_protocol": "stage-ledger-then-audit-then-atomic-finalize",
     "transaction_receipt_schema": "chacha.dev/control-transaction-receipt/v1",
     "pending_transaction_blocks_promotion": true,
+    "recovery_policy": "dev-hub/config/transaction-recovery.v1.json",
+    "recovery_requires_explicit_apply": true,
+    "recovery_never_rewrites_audit_history": true,
     "protected_event_types": [
       "LIFECYCLE_TRANSITION",
       "APPROVAL_RECORDED",
@@ -99,6 +108,8 @@
     "allow_unverified_evidence_as_success": false,
     "allow_private_key_output": false,
     "allow_unsigned_release": false,
-    "allow_generic_event_to_mutate_protected_state": false
+    "allow_generic_event_to_mutate_protected_state": false,
+    "allow_implicit_transaction_recovery": false,
+    "allow_audit_history_rollback": false
   }
 }
