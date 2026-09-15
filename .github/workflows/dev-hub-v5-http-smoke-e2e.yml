@@ -1,0 +1,243 @@
+name: Dev Hub V5 HTTP Smoke E2E Pilot
+
+on:
+  push:
+    branches: [dev-hub-v5.0]
+    paths:
+      - 'dev-hub/bin/run-controller.py'
+      - 'dev-hub/bin/verification-broker.py'
+      - 'dev-hub/adapters/http-smoke-adapter.py'
+      - 'dev-hub/config/run-controller.v1.json'
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - 'dev-hub/config/verification-broker.v1.json'
+      - 'dev-hub/schemas/task-result-v1.schema.json'
+      - 'dev-hub/schemas/run-record-v1.schema.json'
+      - '.github/workflows/dev-hub-v5-http-smoke-e2e.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  http-smoke-e2e-pilot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Compile execution boundary
+        run: |
+          python -m py_compile \
+            dev-hub/bin/run-controller.py \
+            dev-hub/bin/verification-broker.py \
+            dev-hub/adapters/http-smoke-adapter.py
+
+      - name: Execute real HTTP adapter through Run Controller in isolated loopback sandbox
+        shell: bash
+        run: |
+          set -euo pipefail
+          TMP="$(mktemp -d)"
+          SERVER_PID=""
+          cleanup() {
+            if [ -n "$SERVER_PID" ]; then kill "$SERVER_PID" 2>/dev/null || true; fi
+            rm -rf "$TMP"
+          }
+          trap cleanup EXIT
+          export TMP
+
+          mkdir -p "$TMP/www" "$TMP/bin" "$TMP/runs"
+          printf 'healthy\n' > "$TMP/www/health"
+          python -m http.server 18081 --bind 127.0.0.1 --directory "$TMP/www" >"$TMP/http.log" 2>&1 &
+          SERVER_PID=$!
+          python - <<'PY'
+          import socket, time
+          deadline=time.time()+10
+          while time.time()<deadline:
+              try:
+                  with socket.create_connection(('127.0.0.1',18081),timeout=.5):
+                      print('PILOT_HTTP_READY=YES')
+                      break
+              except OSError:
+                  time.sleep(.1)
+          else:
+              raise SystemExit('PILOT_HTTP_READY=NO')
+          PY
+
+          ADAPTER="$TMP/bin/http-smoke-adapter"
+          printf '#!/bin/sh\nexec python3 "%s/dev-hub/adapters/http-smoke-adapter.py"\n' "$GITHUB_WORKSPACE" > "$ADAPTER"
+          chmod 0755 "$ADAPTER"
+          export ADAPTER
+
+          python - <<'PY'
+          import json, os
+          from datetime import datetime, timezone
+          from pathlib import Path
+          root=Path(os.environ['TMP'])
+          now=datetime.now(timezone.utc).isoformat()
+
+          registry=json.load(open('dev-hub/config/provider-adapters.v1.json',encoding='utf-8'))
+          item=registry['adapters']['http-smoke-adapter']
+          item['status']='ENABLED'
+          item['executable']=os.environ['ADAPTER']
+          (root/'registry.json').write_text(json.dumps(registry,indent=2)+'\n',encoding='utf-8')
+
+          policy=json.load(open('dev-hub/config/run-controller.v1.json',encoding='utf-8'))
+          policy['mode']='execute-enabled'
+          policy['locking']['root']=str(root/'locks')
+          policy['dispatch']['max_attempts']=1
+          policy['dispatch']['default_timeout_seconds']=15
+          policy['dispatch']['max_timeout_seconds']=30
+          (root/'policy.json').write_text(json.dumps(policy,indent=2)+'\n',encoding='utf-8')
+
+          graph={
+            'schema':'chacha.dev/task-graph/v1','project':'http-smoke-e2e-pilot','transition':'VERIFY->PREVIEW','generated_at':now,
+            'tasks':[{
+              'id':'smoke:http-loopback','kind':'gate','description':'Loopback HTTP smoke pilot',
+              'owner_role':'test-engineer','capabilities':['smoke-test-web'],'permission':'read','depends_on':[],
+              'outputs':[{'type':'artifact','id':'http-smoke-result'}],
+              'verification':{'mode':'machine','self_certification_allowed':False,'required_evidence':['http-response']},
+              'blocking':True
+            }]
+          }
+          (root/'graph.json').write_text(json.dumps(graph,indent=2)+'\n',encoding='utf-8')
+
+          plan={
+            'schema':'chacha.dev/execution-plan/v1','project':'http-smoke-e2e-pilot','transition':'VERIFY->PREVIEW','generated_at':now,
+            'waves':[{'index':1,'tasks':[{
+              'task_id':'smoke:http-loopback','permission':'read','resource_class':'light',
+              'provider_bindings':[{
+                'capability':'smoke-test-web','provider':'http-smoke','provider_status':'ADOPT','health_state':'HEALTHY',
+                'state':'READY','fallback_used':False,'reason':'isolated loopback pilot'
+              }],
+              'metadata':{'http_smoke':{
+                'url':'http://127.0.0.1:18081/health?TOKEN=ci-secret-do-not-log',
+                'method':'GET','expected_status':[200],'max_bytes':4096
+              }}
+            }]}],
+            'blocked_tasks':[],
+            'summary':{'task_count':1,'scheduled_count':1,'blocked_count':0,'wave_count':1,'failover_bindings':0}
+          }
+          (root/'plan.json').write_text(json.dumps(plan,indent=2)+'\n',encoding='utf-8')
+
+          ledger={'schema':'chacha.dev/evidence-ledger/v1','project':'http-smoke-e2e-pilot','artifacts':{},'gates':{},'approvals':{},'history':[]}
+          (root/'ledger.json').write_text(json.dumps(ledger,indent=2)+'\n',encoding='utf-8')
+          PY
+
+          export CHACHA_HTTP_SMOKE_ALLOWED_HOSTS="127.0.0.1,localhost"
+          python dev-hub/bin/run-controller.py \
+            --plan "$TMP/plan.json" \
+            --graph "$TMP/graph.json" \
+            --ledger "$TMP/ledger.json" \
+            --policy "$TMP/policy.json" \
+            --adapters "$TMP/registry.json" \
+            --output-dir "$TMP/runs" \
+            --execute | tee "$TMP/controller.out"
+
+          RUN_RECORD="$(find "$TMP/runs" -name run-record.json -print -quit)"
+          test -n "$RUN_RECORD"
+          export RUN_RECORD
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          record=json.load(open(os.environ['RUN_RECORD'],encoding='utf-8'))
+          assert record['mode']=='execute',record
+          assert record['summary']['succeeded']==1 and record['summary']['failed']==0,record
+          task=record['waves'][0]['tasks'][0]
+          assert task['status']=='SUCCEEDED',task
+          result=json.load(open(task['task_result'],encoding='utf-8'))
+          assert result['schema']=='chacha.dev/task-result/v1',result
+          assert result['producer']=='http-smoke-adapter',result
+          assert result['status']=='OK',result
+          assert result['verification']['status']=='UNVERIFIED',result
+          assert result['verification']['method']=='none',result
+          assert result['evidence'][0]['details']['http_status']==200,result
+          run_dir=Path(os.environ['RUN_RECORD']).parent
+          logs=''.join(p.read_text(encoding='utf-8',errors='replace') for p in (run_dir/'logs').glob('*'))
+          assert 'ci-secret-do-not-log' not in logs,logs
+          print('RUN_CONTROLLER_ADAPTER_RESULT_BOUNDARY=PASS')
+          print('RUN_CONTROLLER_PRESERVES_PRODUCER=PASS')
+          print('RUN_CONTROLLER_LOG_SECRET_LEAK=NO')
+          print('REAL_PROVIDER_REGISTRY_MUTATED=NO')
+          print('REAL_RUN_CONTROLLER_POLICY_MUTATED=NO')
+          PY
+
+          TASK_RESULT="$(python - <<'PY'
+          import json,os
+          r=json.load(open(os.environ['RUN_RECORD'],encoding='utf-8'))
+          print(r['waves'][0]['tasks'][0]['task_result'])
+          PY
+          )"
+          set +e
+          python dev-hub/bin/verification-broker.py \
+            --result "$TASK_RESULT" \
+            --graph "$TMP/graph.json" \
+            --policy dev-hub/config/verification-broker.v1.json \
+            --report "$TMP/verification-report.json" \
+            --verifier independent-http-pilot-verifier \
+            --method machine
+          VERIFY_RC=$?
+          set -e
+          test "$VERIFY_RC" -eq 3
+          python - "$TMP/verification-report.json" <<'PY'
+          import json,sys
+          report=json.load(open(sys.argv[1],encoding='utf-8'))
+          assert report['status']=='NEEDS_INDEPENDENT_CHECK',report
+          assert report['verifier']=='independent-http-pilot-verifier',report
+          assert any(c['status']=='NEEDS_CHECK' for c in report['checks']),report
+          print('SELF_CERTIFICATION_PREVENTED=YES')
+          print('INDEPENDENT_VERIFICATION_BOUNDARY=PASS')
+          PY
+
+          git diff --exit-code -- \
+            dev-hub/config/provider-adapters.v1.json \
+            dev-hub/config/run-controller.v1.json
+
+      - name: Controller rejects adapter self-verification even with exit code zero
+        shell: bash
+        run: |
+          set -euo pipefail
+          TMP="$(mktemp -d)"
+          export TMP
+          mkdir -p "$TMP/bin" "$TMP/runs"
+          cat > "$TMP/bin/bad-adapter" <<'SH'
+          #!/usr/bin/env python3
+          import json,sys
+          e=json.load(sys.stdin)
+          print(json.dumps({
+            'schema':'chacha.dev/task-result/v1','project':e['project'],'task_id':e['task']['id'],
+            'status':'OK','producer':'http-smoke-adapter','observed_at':'2026-09-15T00:00:00+00:00',
+            'evidence':[{'kind':'report','source':'bad-self-cert','digest':'sha256:'+'0'*64}],
+            'verification':{'status':'VERIFIED','method':'machine','verifier':'http-smoke-adapter'}
+          }))
+          SH
+          chmod 0755 "$TMP/bin/bad-adapter"
+          export BAD="$TMP/bin/bad-adapter"
+          python - <<'PY'
+          import json,os
+          from datetime import datetime,timezone
+          from pathlib import Path
+          root=Path(os.environ['TMP']); now=datetime.now(timezone.utc).isoformat()
+          reg=json.load(open('dev-hub/config/provider-adapters.v1.json',encoding='utf-8'))
+          reg['adapters']['http-smoke-adapter']['status']='ENABLED'; reg['adapters']['http-smoke-adapter']['executable']=os.environ['BAD']
+          (root/'reg.json').write_text(json.dumps(reg,indent=2)+'\n')
+          pol=json.load(open('dev-hub/config/run-controller.v1.json',encoding='utf-8')); pol['mode']='execute-enabled'; pol['locking']['root']=str(root/'locks'); pol['dispatch']['max_attempts']=1
+          (root/'pol.json').write_text(json.dumps(pol,indent=2)+'\n')
+          graph={'schema':'chacha.dev/task-graph/v1','project':'self-cert-guard','transition':'VERIFY','tasks':[{'id':'guard','kind':'gate','owner_role':'security-reviewer','permission':'read','depends_on':[],'outputs':[],'verification':{'mode':'machine','self_certification_allowed':False}}]}
+          plan={'schema':'chacha.dev/execution-plan/v1','project':'self-cert-guard','transition':'VERIFY','generated_at':now,'waves':[{'index':1,'tasks':[{'task_id':'guard','permission':'read','resource_class':'light','provider_bindings':[{'capability':'smoke-test-web','provider':'http-smoke','provider_status':'ADOPT','health_state':'HEALTHY','state':'READY','fallback_used':False}]}]}],'blocked_tasks':[],'summary':{'task_count':1,'scheduled_count':1,'blocked_count':0,'wave_count':1}}
+          ledger={'schema':'chacha.dev/evidence-ledger/v1','project':'self-cert-guard','artifacts':{},'approvals':{}}
+          for name,value in [('graph.json',graph),('plan.json',plan),('ledger.json',ledger)]: (root/name).write_text(json.dumps(value,indent=2)+'\n')
+          PY
+          python dev-hub/bin/run-controller.py --plan "$TMP/plan.json" --graph "$TMP/graph.json" --ledger "$TMP/ledger.json" --policy "$TMP/pol.json" --adapters "$TMP/reg.json" --output-dir "$TMP/runs" --execute > "$TMP/out"
+          RECORD="$(find "$TMP/runs" -name run-record.json -print -quit)"
+          python - "$RECORD" <<'PY'
+          import json,sys
+          r=json.load(open(sys.argv[1],encoding='utf-8')); t=r['waves'][0]['tasks'][0]
+          assert t['status']=='FAILED',t
+          assert t['failure_class']=='ADAPTER_SELF_VERIFICATION_FORBIDDEN',t
+          assert r['summary']['succeeded']==0 and r['summary']['failed']==1,r
+          print('ADAPTER_SELF_VERIFICATION_REJECTED=YES')
+          PY
