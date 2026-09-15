@@ -1,0 +1,117 @@
+{
+  "schema": "chacha.dev/cryptographic-trust/v1",
+  "owner_role": "security-reviewer",
+  "review_roles": ["platform-cloud-engineer", "recovery-engineer"],
+  "principles": {
+    "hash_chain_is_not_a_signature_chain": true,
+    "digital_signatures_authenticate_checkpoints": true,
+    "private_keys_never_enter_git_or_control_plane_state": true,
+    "private_keys_are_never_logged": true,
+    "key_activation_rotation_and_revocation_require_human_approval": true,
+    "release_and_retirement_checkpoints_must_be_signed": true,
+    "external_anchors_are_independent_of_the_vps": true,
+    "old_key_signs_rotation_handover": true,
+    "new_key_signs_rotation_acceptance": true
+  },
+  "algorithms": {
+    "journal_digest": "SHA-256",
+    "checkpoint_signature": "Ed25519",
+    "public_key_fingerprint": "SHA-256-SPKI-DER",
+    "canonicalization": "RFC8785-compatible-deterministic-json-profile"
+  },
+  "key_management": {
+    "key_role": "audit-signing",
+    "private_key_storage": "external-secret-reference",
+    "private_key_in_repository": false,
+    "private_key_in_state_store": false,
+    "public_key_registry_allowed": true,
+    "key_id_format": "audit-ed25519-YYYYMMDD-NN",
+    "activation_requires_approval": "cryptographic-key-activation",
+    "rotation_requires_approval": "cryptographic-key-rotation",
+    "revocation_requires_approval": "cryptographic-key-revocation",
+    "rotation": {
+      "cross_sign": true,
+      "old_key_signs_new_key_fingerprint": true,
+      "new_key_signs_old_key_fingerprint": true,
+      "record_control_plane_event": true
+    }
+  },
+  "checkpoint_policy": {
+    "mandatory_triggers": [
+      "RELEASE_BOUNDARY",
+      "RETIREMENT_BOUNDARY",
+      "KEY_ACTIVATION",
+      "KEY_ROTATION",
+      "KEY_REVOCATION",
+      "RESTORE_VALIDATION",
+      "MANUAL_SECURITY_CHECKPOINT"
+    ],
+    "routine_event_interval": 100,
+    "sign_fields": [
+      "schema",
+      "project",
+      "checkpoint_id",
+      "created_at",
+      "journal_sequence",
+      "journal_head_digest",
+      "state_projection_digest",
+      "reason",
+      "key_id",
+      "algorithm"
+    ]
+  },
+  "anchoring": {
+    "routine_minimum_independent_anchors": 1,
+    "release_minimum_independent_anchors": 2,
+    "preferred_anchors": ["nas", "github"],
+    "anchor_payload": [
+      "project",
+      "checkpoint_id",
+      "journal_sequence",
+      "journal_head_digest",
+      "checkpoint_digest",
+      "key_id",
+      "public_key_fingerprint",
+      "signature",
+      "created_at"
+    ],
+    "github": {"status": "DESIGNED", "location": "repository-security-anchor"},
+    "nas": {"status": "DESIGNED", "location": "private-independent-anchor"}
+  },
+  "verification": {
+    "verify_hash_chain_before_signature": true,
+    "verify_projection_matches_journal_head": true,
+    "verify_signature": true,
+    "verify_public_key_fingerprint": true,
+    "verify_anchor_quorum_for_release": true,
+    "verification_failure_blocks_release": true
+  },
+  "agent_responsibilities": {
+    "security-reviewer": [
+      "own cryptographic policy",
+      "review key lifecycle",
+      "authorize signing design changes",
+      "verify signature and rotation policy"
+    ],
+    "platform-cloud-engineer": [
+      "operate approved signing backend",
+      "maintain signer adapter and anchor transports",
+      "never decide key activation independently"
+    ],
+    "recovery-engineer": [
+      "validate anchored checkpoints during restore drills",
+      "verify recovery copies preserve signatures and public-key history"
+    ],
+    "chacha-dev-architect": [
+      "orchestrate tasks",
+      "record decisions and evidence",
+      "never possess or expose private signing material"
+    ],
+    "human-owner": [
+      "approve key activation",
+      "approve key rotation",
+      "approve key revocation",
+      "approve exceptional trust-policy changes"
+    ]
+  }
+}
