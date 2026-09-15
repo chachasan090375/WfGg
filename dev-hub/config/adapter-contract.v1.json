@@ -8,7 +8,10 @@
     "adapter_must_not_use_shell": true,
     "adapter_input_output_are_structured": true,
     "secret_values_must_not_appear_in_fixture_or_output": true,
-    "enablement_requires_recorded_evidence": true
+    "enablement_requires_recorded_evidence": true,
+    "execution_kind_controls_local_executable_requirement": true,
+    "external_provider_runtime_requires_provider_specific_harness": true,
+    "external_only_adapter_has_no_local_executable": true
   },
   "status_lifecycle": ["DESIGNED", "CONTRACT_OK", "PILOT", "ENABLED", "DEGRADED", "DISABLED", "RETIRED"],
   "promotion": {
@@ -22,12 +25,14 @@
   "required_static_checks": [
     "provider-references-existing-adapter",
     "adapter-status-known",
+    "adapter-has-provider-binding",
     "supports-is-nonempty",
     "supports-only-known-permissions",
     "execution-kind-known",
     "no-shell-contract",
     "designed-adapter-has-no-executable",
-    "enabled-adapter-has-executable"
+    "vps-runtime-adapter-has-executable",
+    "external-runtime-adapter-has-no-local-executable"
   ],
   "known_permissions": [
     "read", "plan", "workspace-write", "repository-write", "preview-deploy",
@@ -41,6 +46,8 @@
     "allow_runtime_test_statuses": ["CONTRACT_OK", "PILOT", "ENABLED", "DEGRADED"],
     "fixture_schema": "chacha.dev/dispatch-envelope/v1",
     "expected_result_schema": "chacha.dev/task-result/v1",
-    "sandbox_required": true
+    "sandbox_required": true,
+    "generic_local_harness_execution_kinds": ["vps"],
+    "external_harness_is_provider_specific": true
   }
 }

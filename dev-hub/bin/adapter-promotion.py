@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
-"""ChaCha DEV HUB Adapter Provisioning & Promotion V1.
+"""ChaCha DEV HUB Adapter Provisioning & Promotion V1.1.
 
 Evaluates and, only with an explicit apply flag, mutates an adapter status in a
 provider-adapter registry. Promotion is evidence-driven, adjacency-constrained,
-and approval-gated for production-capable enablement. The engine executes no
-provider command and never promotes itself automatically.
+and approval-gated for production-capable enablement. Local executable binding
+is required only for execution kinds configured as local (currently VPS).
+External-only adapters remain executable=null and require provider-specific
+runtime evidence instead of an invented local bridge.
 """
 from __future__ import annotations
 
@@ -98,6 +100,16 @@ def production_capable(entry: dict[str, Any], policy: dict[str, Any]) -> bool:
     return bool(protected & set(entry.get("supports") or []))
 
 
+def adapter_execution_kinds(registry: dict[str, Any], adapter: str) -> set[str]:
+    kinds: set[str] = set()
+    for item in (registry.get("providers") or {}).values():
+        if isinstance(item, dict) and item.get("adapter") == adapter:
+            execution = item.get("execution")
+            if isinstance(execution, str) and execution:
+                kinds.add(execution)
+    return kinds
+
+
 def valid_approval(evidence: dict[str, Any], adapter: str, target: str,
                    approval_id: str | None, policy: dict[str, Any]) -> tuple[bool, str | None]:
     settings = policy.get("approval") or {}
@@ -131,6 +143,10 @@ def evaluate(adapter: str, target: str, registry: dict[str, Any], contract: dict
     if not isinstance(entry, dict):
         entry = {"status": "UNKNOWN", "executable": None, "supports": []}
         blockers.append(f"ADAPTER_NOT_REGISTERED:{adapter}")
+
+    execution_kinds = adapter_execution_kinds(registry, adapter)
+    if not execution_kinds:
+        blockers.append("ADAPTER_PROVIDER_BINDING_MISSING")
 
     current = str(entry.get("status") or "UNKNOWN")
     target = target.upper()
@@ -181,9 +197,21 @@ def evaluate(adapter: str, target: str, registry: dict[str, Any], contract: dict
     after_exec = executable if executable is not None else before_exec
     if executable is not None and not Path(executable).is_absolute():
         blockers.append("EXECUTABLE_MUST_BE_ABSOLUTE")
-    if target in set(policy.get("runtime_statuses_require_executable") or []):
+
+    runtime_statuses = set(policy.get("runtime_statuses_require_executable") or [])
+    required_execution_kinds = set(policy.get("executable_required_execution_kinds") or ["vps"])
+    needs_local_executable = target in runtime_statuses and bool(execution_kinds & required_execution_kinds)
+    external_only = execution_kinds == {"external"}
+    if needs_local_executable:
         if not isinstance(after_exec, str) or not after_exec.startswith("/"):
             blockers.append(f"RUNTIME_EXECUTABLE_REQUIRED_FOR:{target}")
+    if (
+        target in runtime_statuses
+        and external_only
+        and bool(policy.get("external_only_executable_must_be_null", True))
+        and after_exec not in {None, ""}
+    ):
+        blockers.append("EXTERNAL_ONLY_ADAPTER_MUST_NOT_BIND_LOCAL_EXECUTABLE")
 
     prod = production_capable(entry, policy)
     approval_required = bool(prod and target == str((policy.get("approval") or {}).get("required_target") or "ENABLED"))
@@ -202,6 +230,8 @@ def evaluate(adapter: str, target: str, registry: dict[str, Any], contract: dict
         "current_status": current,
         "target_status": target,
         "transition": transition,
+        "execution_kinds": sorted(execution_kinds),
+        "requires_local_executable": needs_local_executable,
         "eligible": not blockers,
         "applied": False,
         "production_capable": prod,
@@ -226,6 +256,8 @@ def emit(report: dict[str, Any], as_json: bool) -> None:
         return
     print(f"ADAPTER={report['adapter']}")
     print(f"TRANSITION={report['transition']}")
+    print(f"EXECUTION_KINDS={','.join(report.get('execution_kinds') or [])}")
+    print(f"REQUIRES_LOCAL_EXECUTABLE={'YES' if report.get('requires_local_executable') else 'NO'}")
     print(f"ELIGIBLE={'YES' if report['eligible'] else 'NO'}")
     print(f"APPLIED={'YES' if report['applied'] else 'NO'}")
     print(f"PRODUCTION_CAPABLE={'YES' if report.get('production_capable') else 'NO'}")

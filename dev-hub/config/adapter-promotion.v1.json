@@ -12,7 +12,9 @@
     "registry_write_is_atomic": true,
     "promotion_receipt_is_required": true,
     "private_secrets_are_never_part_of_promotion_evidence": true,
-    "adapter_cannot_self_promote": true
+    "adapter_cannot_self_promote": true,
+    "execution_kind_controls_local_executable_requirement": true,
+    "external_only_adapters_do_not_invent_local_executables": true
   },
   "schemas": {
     "registry": "chacha.dev/provider-adapters/v1",
@@ -34,6 +36,8 @@
     "technology-replacement"
   ],
   "runtime_statuses_require_executable": ["PILOT", "ENABLED", "DEGRADED"],
+  "executable_required_execution_kinds": ["vps"],
+  "external_only_executable_must_be_null": true,
   "approval": {
     "type": "adapter-production-enable",
     "required_target": "ENABLED",

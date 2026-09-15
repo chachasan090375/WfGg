@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
-"""ChaCha DEV HUB Adapter Contract Test Harness V1.
+"""ChaCha DEV HUB Adapter Contract Test Harness V1.1.
 
 Performs static registry checks and optional sandbox runtime contract tests.
-It never promotes adapter status automatically.
+Local executable requirements are derived from provider execution kind: a VPS
+adapter needs an absolute executable in runtime statuses; an external-only
+adapter must not invent a local executable. The harness never promotes status.
 """
 from __future__ import annotations
 
@@ -18,6 +20,7 @@ POLICY_SCHEMA = "chacha.dev/adapter-contract/v1"
 INPUT_SCHEMA = "chacha.dev/dispatch-envelope/v1"
 OUTPUT_SCHEMA = "chacha.dev/task-result/v1"
 KNOWN_STATUSES = {"DESIGNED", "CONTRACT_OK", "PILOT", "ENABLED", "DEGRADED", "DISABLED", "RETIRED"}
+RUNTIME_STATUSES = {"PILOT", "ENABLED", "DEGRADED"}
 
 
 def now_iso() -> str:
@@ -45,6 +48,16 @@ def check(checks: list[dict[str, str]], cid: str, ok: bool, detail: str) -> None
     checks.append({"id": cid, "status": "PASS" if ok else "FAIL", "detail": detail})
 
 
+def adapter_execution_kinds(registry: dict[str, Any], adapter_id: str) -> set[str]:
+    modes: set[str] = set()
+    for item in (registry.get("providers") or {}).values():
+        if isinstance(item, dict) and item.get("adapter") == adapter_id:
+            execution = item.get("execution")
+            if isinstance(execution, str) and execution:
+                modes.add(execution)
+    return modes
+
+
 def static_checks(registry: dict[str, Any], policy: dict[str, Any]) -> list[dict[str, str]]:
     checks: list[dict[str, str]] = []
     providers = registry.get("providers") or {}
@@ -70,14 +83,29 @@ def static_checks(registry: dict[str, Any], policy: dict[str, Any]) -> list[dict
         status = item.get("status")
         supports = item.get("supports") or []
         executable = item.get("executable")
+        modes = adapter_execution_kinds(registry, aid)
         check(checks, f"adapter:{aid}:status-known", status in KNOWN_STATUSES, f"status={status}")
+        check(checks, f"adapter:{aid}:provider-binding", bool(modes), f"execution={sorted(modes)}")
         check(checks, f"adapter:{aid}:supports-nonempty", isinstance(supports, list) and bool(supports), f"supports={supports}")
         unknown = sorted(set(supports) - known_permissions) if isinstance(supports, list) else ["invalid-supports"]
         check(checks, f"adapter:{aid}:permissions-known", not unknown, f"unknown={unknown}")
         if status == "DESIGNED":
             check(checks, f"adapter:{aid}:designed-no-executable", executable in {None, ""}, f"executable={executable}")
-        if status in {"PILOT", "ENABLED", "DEGRADED"}:
-            check(checks, f"adapter:{aid}:runtime-executable", isinstance(executable, str) and executable.startswith("/"), f"executable={executable}")
+        if status in RUNTIME_STATUSES:
+            if "vps" in modes:
+                check(
+                    checks,
+                    f"adapter:{aid}:runtime-executable",
+                    isinstance(executable, str) and executable.startswith("/"),
+                    f"execution={sorted(modes)} executable={executable}",
+                )
+            elif modes == {"external"}:
+                check(
+                    checks,
+                    f"adapter:{aid}:external-no-local-executable",
+                    executable in {None, ""},
+                    f"execution={sorted(modes)} executable={executable}",
+                )
     return checks
 
 
@@ -102,6 +130,13 @@ def runtime_test(adapter_id: str, registry: dict[str, Any], policy: dict[str, An
     allowed = set(((policy.get("runtime") or {}).get("allow_runtime_test_statuses") or []))
     if status not in allowed:
         return {"adapter": adapter_id, "status": "SKIP", "detail": f"status-not-runtime-testable:{status}"}
+    modes = adapter_execution_kinds(registry, adapter_id)
+    if "vps" not in modes:
+        return {
+            "adapter": adapter_id,
+            "status": "SKIP",
+            "detail": "external-runtime-requires-provider-specific-harness",
+        }
     executable = item.get("executable")
     if not isinstance(executable, str) or not executable.startswith("/"):
         return {"adapter": adapter_id, "status": "FAIL", "detail": "executable-missing"}
@@ -169,6 +204,7 @@ def main() -> None:
         runtime.append(runtime_test(args.adapter, registry, policy, load(args.fixture)))
 
     runtime_failures = [r for r in runtime if r.get("status") == "FAIL"]
+    runtime_passes = [r for r in runtime if r.get("status") == "PASS"]
     report = {
         "schema": "chacha.dev/adapter-contract-report/v1",
         "observed_at": now_iso(),
@@ -181,7 +217,7 @@ def main() -> None:
         "promotion": {
             "automatic": False,
             "eligible_for_contract_ok": not static_failures,
-            "eligible_for_runtime_pilot": not static_failures and bool(runtime) and not runtime_failures and all(r.get("status") == "PASS" for r in runtime),
+            "eligible_for_runtime_pilot": not static_failures and bool(runtime_passes) and not runtime_failures,
         },
     }
     save(args.report, report)
