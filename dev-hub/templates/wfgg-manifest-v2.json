@@ -1,0 +1,228 @@
+{
+  "schema": "chacha.dev/project-manifest/v2",
+  "name": "wfgg",
+  "type": "multi-component-fullstack-web",
+  "repository": {
+    "url": "https://github.com/chachasan090375/WfGg.git",
+    "default_branch": "main",
+    "source_of_truth": "git"
+  },
+  "workspace": {
+    "local": "/opt/chacha-dev/projects/wfgg/workspace",
+    "repo_path": "/opt/chacha-dev/projects/wfgg/repo"
+  },
+  "requirements": {
+    "functional": [],
+    "non_functional": [],
+    "constraints": ["mobile-first administration from Android/Termux", "Cloudflare deployment", "large artifacts prefer NAS"]
+  },
+  "components": [
+    {
+      "name": "frontend",
+      "type": "web-frontend-static-pwa",
+      "path": "frontend",
+      "runtime": {
+        "engine": "browser",
+        "toolchain": ["javascript", "html", "css"]
+      },
+      "commands": {
+        "setup": "",
+        "lint": "",
+        "test": "",
+        "build": "",
+        "run": "",
+        "deploy": "cloudflare-pages"
+      },
+      "interfaces": ["web-ui", "worker-api"],
+      "data": ["D1 via API", "R2 avatars via API"],
+      "security": {
+        "headers_file": "frontend/_headers",
+        "auth_review_required": true
+      },
+      "observability": {},
+      "health": {
+        "smoke_test_required": true
+      },
+      "artifacts": ["static-site"]
+    },
+    {
+      "name": "api",
+      "type": "cloudflare-worker-api",
+      "path": "worker",
+      "runtime": {
+        "engine": "cloudflare-workers",
+        "toolchain": ["node", "npm", "wrangler"]
+      },
+      "commands": {
+        "setup": "npm ci",
+        "lint": "npm run check",
+        "test": "npm run check",
+        "build": "",
+        "run": "npm run dev",
+        "deploy": "npm run deploy"
+      },
+      "interfaces": ["http-api"],
+      "data": ["cloudflare-d1:wfgg-db", "cloudflare-r2:wfgg-avatars"],
+      "security": {
+        "secrets_provider": "cloudflare",
+        "auth_review_required": true
+      },
+      "observability": {
+        "provider": "cloudflare"
+      },
+      "health": {
+        "syntax_check": "npm run check"
+      },
+      "artifacts": ["worker-bundle"]
+    },
+    {
+      "name": "database",
+      "type": "cloudflare-d1",
+      "path": "worker/migrations",
+      "runtime": {
+        "engine": "cloudflare-d1",
+        "toolchain": ["wrangler"]
+      },
+      "commands": {
+        "setup": "",
+        "lint": "",
+        "test": "npm run db:local",
+        "build": "",
+        "run": "",
+        "deploy": "npm run db:remote"
+      },
+      "interfaces": ["binding:DB"],
+      "data": ["wfgg-db"],
+      "security": {},
+      "observability": {},
+      "health": {},
+      "artifacts": ["sql-migrations"]
+    },
+    {
+      "name": "object-storage",
+      "type": "cloudflare-r2",
+      "path": "worker",
+      "runtime": {
+        "engine": "cloudflare-r2",
+        "toolchain": ["wrangler"]
+      },
+      "commands": {
+        "setup": "",
+        "lint": "",
+        "test": "",
+        "build": "",
+        "run": "",
+        "deploy": ""
+      },
+      "interfaces": ["binding:AVATARS"],
+      "data": ["bucket:wfgg-avatars"],
+      "security": {},
+      "observability": {},
+      "health": {},
+      "artifacts": []
+    }
+  ],
+  "integrations": {
+    "source_control": "github",
+    "deployment": ["cloudflare-pages", "cloudflare-workers"],
+    "mcp": ["mdn", "context7"],
+    "external_apis": [],
+    "webhooks": []
+  },
+  "agents": {
+    "orchestrator": "chacha-dev-architect",
+    "enabled": ["antigravity", "skywork"],
+    "knowledge": ["mdn", "context7"]
+  },
+  "environments": {
+    "development": {},
+    "test": {},
+    "staging": {},
+    "production": {
+      "frontend": "cloudflare-pages",
+      "api": "cloudflare-workers"
+    }
+  },
+  "storage": {
+    "source_code": "git",
+    "large_files": "nas",
+    "artifacts": "nas",
+    "backups": "nas",
+    "nas_root": "/share/CACHEDEV1_DATA/ChaCha-DEV-HUB/projects/wfgg"
+  },
+  "data": {
+    "databases": [
+      {
+        "provider": "cloudflare-d1",
+        "name": "wfgg-db",
+        "binding": "DB"
+      }
+    ],
+    "object_storage": [
+      {
+        "provider": "cloudflare-r2",
+        "name": "wfgg-avatars",
+        "binding": "AVATARS"
+      }
+    ],
+    "cache": [],
+    "queues": [],
+    "retention": {},
+    "backup_restore": {
+      "policy": "TO_DEFINE"
+    }
+  },
+  "security": {
+    "authn": {
+      "status": "TO_AUDIT"
+    },
+    "authz": {
+      "status": "TO_AUDIT"
+    },
+    "secrets": {
+      "policy": "no-secrets-in-git"
+    },
+    "threat_model": {
+      "status": "TO_CREATE"
+    },
+    "audit": {
+      "status": "TO_DEFINE"
+    }
+  },
+  "quality_gates": {
+    "product": "UNASSESSED",
+    "frontend": "UNASSESSED",
+    "backend": "UNASSESSED",
+    "data": "UNASSESSED",
+    "security": "UNASSESSED",
+    "integrations": "UNASSESSED",
+    "testing": "UNASSESSED",
+    "build": "UNASSESSED",
+    "ci_cd": "UNASSESSED",
+    "observability": "UNASSESSED",
+    "performance": "UNASSESSED",
+    "backup_recovery": "UNASSESSED",
+    "documentation": "UNASSESSED",
+    "operations": "UNASSESSED"
+  },
+  "release": {
+    "versioning": "git",
+    "rollback": "required",
+    "production_branch": "main"
+  },
+  "operations": {
+    "health_checks": ["projectctl health", "architectctl audit wfgg"],
+    "logging": {
+      "provider": "cloudflare-and-system"
+    },
+    "metrics": {},
+    "alerts": {},
+    "cost_quota": {}
+  },
+  "governance": {
+    "architecture_agent": "chacha-dev-architect",
+    "technology_radar": "/opt/chacha-dev/platform/config/technology-radar.json",
+    "production_change_requires_approval": true,
+    "technology_replacement_requires_evidence": true
+  }
+}
