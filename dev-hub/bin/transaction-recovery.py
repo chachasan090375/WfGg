@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""ChaCha DEV HUB Transaction Recovery & Reconciliation Engine V1.
+"""ChaCha DEV HUB Transaction Recovery & Reconciliation Engine V1.1.
 
-Inspects incomplete Project Control transactions and reconciles derived state
-with the authoritative hash-chained audit journal. Recovery is forward-only:
-audit events are never deleted, rewritten, truncated, or rolled back.
+Reconciles interrupted Project Control transactions against the authoritative,
+hash-chained audit journal. Recovery is forward-only: audit events are never
+deleted, rewritten, truncated, or rolled back. Derived projections may be
+rebuilt and a staged Evidence Ledger may be finalized only under digest guards.
 """
 from __future__ import annotations
 
@@ -26,7 +27,6 @@ POLICY_SCHEMA = "chacha.dev/transaction-recovery/v1"
 RECEIPT_SCHEMA = "chacha.dev/control-transaction-receipt/v1"
 REPORT_SCHEMA = "chacha.dev/transaction-recovery-report/v1"
 EVENT_SCHEMA = "chacha.dev/audit-event/v1"
-STATE_SCHEMA = "chacha.dev/control-plane-state/v1"
 LEDGER_SCHEMA = "chacha.dev/evidence-ledger/v1"
 
 
@@ -48,7 +48,8 @@ def load(path: Path) -> dict[str, Any]:
 
 def atomic_json(path: Path, value: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    fd, tmp = tempfile.mkstemp(prefix=path.name + ".", suffix=".tmp", dir=str(path.parent))
+    fd, tmp_name = tempfile.mkstemp(prefix=path.name + ".", suffix=".tmp", dir=str(path.parent))
+    tmp = Path(tmp_name)
     try:
         with os.fdopen(fd, "w", encoding="utf-8") as fh:
             json.dump(value, fh, indent=2, ensure_ascii=False)
@@ -62,8 +63,8 @@ def atomic_json(path: Path, value: dict[str, Any]) -> None:
         finally:
             os.close(dir_fd)
     finally:
-        if os.path.exists(tmp):
-            os.unlink(tmp)
+        if tmp.exists():
+            tmp.unlink()
 
 
 def canonical(value: Any) -> bytes:
@@ -74,17 +75,9 @@ def digest_obj(value: Any) -> str:
     return "sha256:" + hashlib.sha256(canonical(value)).hexdigest()
 
 
-def file_digest(path: Path) -> str:
-    h = hashlib.sha256()
-    with path.open("rb") as fh:
-        for chunk in iter(lambda: fh.read(1024 * 1024), b""):
-            h.update(chunk)
-    return "sha256:" + h.hexdigest()
-
-
 def resolve_repo(repo_root: Path, configured: str) -> Path:
-    p = Path(configured)
-    return p if p.is_absolute() else repo_root / p
+    path = Path(configured)
+    return path if path.is_absolute() else repo_root / path
 
 
 def runtime_paths(policy: dict[str, Any], project: str) -> dict[str, Path]:
@@ -123,12 +116,12 @@ def read_events(path: Path) -> list[dict[str, Any]]:
             if not line.strip():
                 continue
             try:
-                item = json.loads(line)
+                event = json.loads(line)
             except json.JSONDecodeError as exc:
                 raise SystemExit(f"JOURNAL_JSON_INVALID=line:{lineno}:{exc.msg}")
-            if not isinstance(item, dict):
+            if not isinstance(event, dict):
                 raise SystemExit(f"JOURNAL_EVENT_NOT_OBJECT=line:{lineno}")
-            events.append(item)
+            events.append(event)
     return events
 
 
@@ -146,9 +139,8 @@ def verify_chain(events: list[dict[str, Any]], project: str) -> list[str]:
             errors.append(f"SEQUENCE:expected={expected_sequence}:actual={seq}")
         if event.get("previous_event_digest") != previous:
             errors.append(f"CHAIN:{seq}")
-        declared = event.get("event_digest")
         unsigned = dict(event)
-        unsigned.pop("event_digest", None)
+        declared = unsigned.pop("event_digest", None)
         actual = digest_obj(unsigned)
         if declared != actual:
             errors.append(f"DIGEST:{seq}")
@@ -157,16 +149,40 @@ def verify_chain(events: list[dict[str, Any]], project: str) -> list[str]:
     return sorted(set(errors))
 
 
-def transaction_events(events: list[dict[str, Any]], txid: str, expected_type: str | None) -> list[dict[str, Any]]:
-    matches: list[dict[str, Any]] = []
+def transaction_events(events: list[dict[str, Any]], txid: str, event_type: str | None = None) -> list[dict[str, Any]]:
+    found: list[dict[str, Any]] = []
     for event in events:
         payload = event.get("payload") or {}
         if not isinstance(payload, dict) or payload.get("transaction_id") != txid:
             continue
-        if expected_type and event.get("event_type") != expected_type:
+        if event_type and event.get("event_type") != event_type:
             continue
-        matches.append(event)
-    return matches
+        found.append(event)
+    return found
+
+
+def expected_event_type(receipt: dict[str, Any], policy: dict[str, Any]) -> str | None:
+    operation = str(receipt.get("operation") or "")
+    return (((policy.get("operations") or {}).get(operation) or {}).get("authoritative_event_type"))
+
+
+def enrich_from_event(receipt: dict[str, Any], event: dict[str, Any] | None) -> dict[str, Any]:
+    """Recover preconditions that older failure receipts may have omitted.
+
+    The authoritative EVIDENCE_RECORDED event carries old/new ledger digests and
+    staged-ledger path. Receipt enrichment is in-memory only until recovery is
+    explicitly applied.
+    """
+    out = deepcopy(receipt)
+    if not event or out.get("operation") != "verify-result":
+        return out
+    payload = event.get("payload") or {}
+    if not isinstance(payload, dict):
+        return out
+    for key in ("old_ledger_digest", "new_ledger_digest", "staged_ledger"):
+        if not out.get(key) and payload.get(key):
+            out[key] = payload[key]
+    return out
 
 
 def run_tool(tool: Path, argv: list[str], timeout: int = 60) -> tuple[int, str, str]:
@@ -194,21 +210,22 @@ def store_call(project: str, action: str, policy: dict[str, Any], repo_root: Pat
     return run_tool(store, ["--policy", str(state_policy), "--root", str(state_root), action, "--project", project])
 
 
-def projection_status(project: str, paths: dict[str, Path], policy: dict[str, Any], repo_root: Path) -> dict[str, Any]:
-    rc, out, err = store_call(project, "verify", policy, repo_root, paths["state_root"])
+def projection_info(project: str, paths: dict[str, Path], policy: dict[str, Any], repo_root: Path) -> dict[str, Any]:
+    rc, stdout, stderr = store_call(project, "verify", policy, repo_root, paths["state_root"])
     state: dict[str, Any] | None = None
     if paths["state"].exists():
         try:
             state = load(paths["state"])
         except SystemExit:
             state = None
+    lifecycle = (((state or {}).get("state") or {}).get("lifecycle") or {}) if state else {}
     return {
         "verified": rc == 0,
-        "verify_stdout": out.strip(),
-        "verify_stderr": err.strip(),
+        "verify_stdout": stdout.strip(),
+        "verify_stderr": stderr.strip(),
         "version": state.get("version") if state else None,
         "head_digest": state.get("last_event_digest") if state else None,
-        "stage": (((state or {}).get("state") or {}).get("lifecycle") or {}).get("stage") if state else None,
+        "stage": lifecycle.get("stage") if isinstance(lifecycle, dict) else None,
     }
 
 
@@ -222,53 +239,73 @@ def ledger_info(path: Path) -> dict[str, Any]:
     return {"exists": True, "digest": digest_obj(value), "schema": value.get("schema")}
 
 
-def receipt_path(paths: dict[str, Path], txid: str) -> Path:
-    return paths["transactions"] / txid / "receipt.json"
-
-
-def load_receipt(paths: dict[str, Path], txid: str, project: str) -> tuple[Path, dict[str, Any]]:
-    path = receipt_path(paths, txid)
+def load_receipt(paths: dict[str, Path], project: str, txid: str) -> tuple[Path, dict[str, Any]]:
+    path = paths["transactions"] / txid / "receipt.json"
     receipt = load(path)
     if receipt.get("schema") != RECEIPT_SCHEMA:
         raise SystemExit(f"RECEIPT_SCHEMA_INVALID={receipt.get('schema')}")
-    if receipt.get("transaction_id") != txid:
-        raise SystemExit("RECEIPT_TRANSACTION_ID_MISMATCH")
     if receipt.get("project") != project:
         raise SystemExit("RECEIPT_PROJECT_MISMATCH")
+    if receipt.get("transaction_id") != txid:
+        raise SystemExit("RECEIPT_TRANSACTION_ID_MISMATCH")
     return path, receipt
 
 
-def update_receipt(path: Path, receipt: dict[str, Any], status: str, outcome: str, actor: str,
-                   details: dict[str, Any] | None = None) -> dict[str, Any]:
+def update_receipt(path: Path, receipt: dict[str, Any], status: str, outcome: str,
+                   actor: str, details: dict[str, Any]) -> dict[str, Any]:
     out = deepcopy(receipt)
     out["status"] = status
     out["updated_at"] = now_iso()
     out["recovery_outcome"] = outcome
-    history = list(out.get("recovery_history") or [])
-    history.append({
+    out.setdefault("recovery_history", []).append({
         "observed_at": out["updated_at"],
         "actor": actor,
         "status": status,
         "outcome": outcome,
-        "details": details or {},
+        "details": details,
     })
-    out["recovery_history"] = history
     atomic_json(path, out)
     return out
 
 
-def expected_event_type(receipt: dict[str, Any], policy: dict[str, Any]) -> str | None:
-    op = str(receipt.get("operation") or "")
-    return (((policy.get("operations") or {}).get(op) or {}).get("authoritative_event_type"))
+def report(project: str, txid: str, operation: str, receipt_status: str, assessment: str,
+           apply_requested: bool, event: dict[str, Any] | None = None,
+           journal: dict[str, Any] | None = None, projection: dict[str, Any] | None = None,
+           ledger: dict[str, Any] | None = None, actions: list[str] | None = None,
+           blockers: list[str] | None = None, outcome: str | None = None) -> dict[str, Any]:
+    event_summary = None
+    if event:
+        event_summary = {
+            "sequence": event.get("sequence"),
+            "event_id": event.get("event_id"),
+            "event_type": event.get("event_type"),
+            "event_digest": event.get("event_digest"),
+            "observed_at": event.get("observed_at"),
+        }
+    return {
+        "schema": REPORT_SCHEMA,
+        "project": project,
+        "transaction_id": txid,
+        "operation": operation,
+        "receipt_status": receipt_status,
+        "assessment": assessment,
+        "apply_requested": apply_requested,
+        "authoritative_event": event_summary,
+        "journal": journal or {},
+        "projection": projection or {},
+        "ledger": ledger or {},
+        "actions": actions or [],
+        "blockers": blockers or [],
+        "recovery_outcome": outcome,
+        "observed_at": now_iso(),
+    }
 
 
-def assess(project: str, txid: str, receipt: dict[str, Any], paths: dict[str, Path],
-           policy: dict[str, Any], repo_root: Path, apply_requested: bool) -> dict[str, Any]:
-    blockers: list[str] = []
-    actions: list[str] = []
-    closed = set(policy.get("closed_statuses") or [])
+def inspect_transaction(project: str, txid: str, receipt: dict[str, Any], paths: dict[str, Path],
+                        policy: dict[str, Any], repo_root: Path, apply_requested: bool) -> dict[str, Any]:
     status = str(receipt.get("status") or "UNKNOWN")
     operation = str(receipt.get("operation") or "")
+    closed = set(policy.get("closed_statuses") or [])
 
     try:
         events = read_events(paths["journal"])
@@ -291,179 +328,143 @@ def assess(project: str, txid: str, receipt: dict[str, Any], paths: dict[str, Pa
     all_matches = transaction_events(events, txid, None)
     if len(matches) > 1:
         return report(project, txid, operation, status, "MANUAL_REVIEW", apply_requested,
-                      journal=journal, authoritative_event=None,
-                      blockers=["MULTIPLE_AUTHORITATIVE_EVENTS_FOR_TRANSACTION"])
+                      journal=journal, blockers=["MULTIPLE_AUTHORITATIVE_EVENTS_FOR_TRANSACTION"])
     if expected and not matches and all_matches:
         return report(project, txid, operation, status, "MANUAL_REVIEW", apply_requested,
-                      journal=journal, authoritative_event=None,
-                      blockers=["TRANSACTION_ID_FOUND_WITH_UNEXPECTED_EVENT_TYPE"])
+                      journal=journal, blockers=["TRANSACTION_ID_FOUND_WITH_UNEXPECTED_EVENT_TYPE"])
 
     event = matches[0] if matches else None
-    projection = projection_status(project, paths, policy, repo_root)
+    receipt = enrich_from_event(receipt, event)
+    projection = projection_info(project, paths, policy, repo_root)
     ledger = ledger_info(paths["ledger"])
 
     if status in closed:
         return report(project, txid, operation, status, "TERMINAL", apply_requested,
-                      authoritative_event=event, journal=journal, projection=projection, ledger=ledger,
-                      actions=["none"])
+                      event=event, journal=journal, projection=projection, ledger=ledger,
+                      actions=["none"], outcome=receipt.get("recovery_outcome"))
 
     if operation == "advance":
         transition = str(receipt.get("transition") or "")
         target = transition.split("->", 1)[1] if "->" in transition else None
         if event is None:
-            actions.append("close transaction as FAILED:ABORTED_BEFORE_AUTHORITATIVE_COMMIT")
+            actions = ["close transaction as FAILED:ABORTED_BEFORE_AUTHORITATIVE_COMMIT"]
             if not projection.get("verified"):
                 actions.insert(0, "rebuild projection from valid authoritative journal")
-            return report(project, txid, operation, status,
-                          "REPAIRABLE" if not projection.get("verified") else "SAFE_TO_ABORT",
-                          apply_requested, authoritative_event=None, journal=journal,
-                          projection=projection, ledger=ledger, actions=actions)
+                assessment = "REPAIRABLE"
+            else:
+                assessment = "SAFE_TO_ABORT"
+            return report(project, txid, operation, status, assessment, apply_requested,
+                          journal=journal, projection=projection, ledger=ledger, actions=actions)
         payload = event.get("payload") or {}
-        event_transition = payload.get("transition")
-        if transition and event_transition and transition != event_transition:
+        blockers: list[str] = []
+        if transition and payload.get("transition") and transition != payload.get("transition"):
             blockers.append("ADVANCE_TRANSITION_MISMATCH")
         if target and payload.get("to") and target != payload.get("to"):
             blockers.append("ADVANCE_TARGET_MISMATCH")
         if blockers:
             return report(project, txid, operation, status, "MANUAL_REVIEW", apply_requested,
-                          authoritative_event=event, journal=journal, projection=projection,
-                          ledger=ledger, blockers=blockers)
+                          event=event, journal=journal, projection=projection, ledger=ledger, blockers=blockers)
         if not projection.get("verified"):
-            actions.append("rebuild projection from valid authoritative journal")
-            actions.append("close receipt as COMMITTED:RECOVERED_FROM_AUTHORITATIVE_EVENT")
             return report(project, txid, operation, status, "REPAIRABLE", apply_requested,
-                          authoritative_event=event, journal=journal, projection=projection,
-                          ledger=ledger, actions=actions)
-        actions.append("close receipt as COMMITTED:AUTHORITATIVE_EVENT_CONFIRMED")
+                          event=event, journal=journal, projection=projection, ledger=ledger,
+                          actions=["rebuild projection from valid authoritative journal",
+                                   "close receipt as COMMITTED:RECOVERED_FROM_AUTHORITATIVE_EVENT"])
         return report(project, txid, operation, status, "ALREADY_EFFECTIVE", apply_requested,
-                      authoritative_event=event, journal=journal, projection=projection,
-                      ledger=ledger, actions=actions)
+                      event=event, journal=journal, projection=projection, ledger=ledger,
+                      actions=["close receipt as COMMITTED:AUTHORITATIVE_EVENT_CONFIRMED"])
 
     if operation == "verify-result":
-        old_digest = receipt.get("old_ledger_digest")
-        new_digest = receipt.get("new_ledger_digest")
-        txdir = paths["transactions"] / txid
-        staged_raw = receipt.get("staged_ledger")
-        if not staged_raw and event:
-            staged_raw = ((event.get("payload") or {}).get("staged_ledger"))
-        staged = Path(str(staged_raw)) if staged_raw else txdir / "staged-ledger.json"
+        event_payload = (event.get("payload") or {}) if event else {}
+        old_digest = receipt.get("old_ledger_digest") or event_payload.get("old_ledger_digest")
+        new_digest = receipt.get("new_ledger_digest") or event_payload.get("new_ledger_digest")
+        staged_raw = receipt.get("staged_ledger") or event_payload.get("staged_ledger")
+        staged = Path(str(staged_raw)) if staged_raw else paths["transactions"] / txid / "staged-ledger.json"
         staged_info = ledger_info(staged)
-        ledger["staged_path"] = str(staged)
-        ledger["staged_exists"] = staged_info.get("exists")
-        ledger["staged_digest"] = staged_info.get("digest")
-        ledger["expected_old_digest"] = old_digest
-        ledger["expected_new_digest"] = new_digest
+        ledger.update({
+            "staged_path": str(staged),
+            "staged_exists": staged_info.get("exists"),
+            "staged_digest": staged_info.get("digest"),
+            "expected_old_digest": old_digest,
+            "expected_new_digest": new_digest,
+        })
 
         if event is None:
-            if new_digest and ledger.get("digest") == new_digest:
+            live_digest = ledger.get("digest")
+            if new_digest and live_digest == new_digest:
                 return report(project, txid, operation, status, "MANUAL_REVIEW", apply_requested,
                               journal=journal, projection=projection, ledger=ledger,
                               blockers=["LEDGER_CHANGED_WITHOUT_AUTHORITATIVE_EVIDENCE_EVENT"])
-            if old_digest and ledger.get("digest") not in {old_digest, None}:
+            if old_digest and live_digest not in {old_digest, None}:
                 return report(project, txid, operation, status, "MANUAL_REVIEW", apply_requested,
                               journal=journal, projection=projection, ledger=ledger,
                               blockers=["LIVE_LEDGER_DIVERGED_FROM_TRANSACTION_PRECONDITION"])
+            actions = ["close transaction as FAILED:ABORTED_BEFORE_AUTHORITATIVE_COMMIT"]
+            assessment = "SAFE_TO_ABORT"
             if not projection.get("verified"):
-                actions.append("rebuild projection from valid authoritative journal")
-            actions.append("close transaction as FAILED:ABORTED_BEFORE_AUTHORITATIVE_COMMIT")
-            return report(project, txid, operation, status,
-                          "REPAIRABLE" if not projection.get("verified") else "SAFE_TO_ABORT",
-                          apply_requested, journal=journal, projection=projection,
-                          ledger=ledger, actions=actions)
+                actions.insert(0, "rebuild projection from valid authoritative journal")
+                assessment = "REPAIRABLE"
+            return report(project, txid, operation, status, assessment, apply_requested,
+                          journal=journal, projection=projection, ledger=ledger, actions=actions)
 
-        payload = event.get("payload") or {}
-        event_new = payload.get("new_ledger_digest")
-        if new_digest and event_new and new_digest != event_new:
+        blockers: list[str] = []
+        if not old_digest:
+            blockers.append("EXPECTED_OLD_LEDGER_DIGEST_MISSING")
+        if not new_digest:
+            blockers.append("EXPECTED_NEW_LEDGER_DIGEST_MISSING")
+        if receipt.get("new_ledger_digest") and event_payload.get("new_ledger_digest") and receipt.get("new_ledger_digest") != event_payload.get("new_ledger_digest"):
             blockers.append("EVIDENCE_EVENT_LEDGER_DIGEST_MISMATCH")
-        if new_digest and staged_info.get("digest") and new_digest != staged_info.get("digest"):
+        if new_digest and staged_info.get("digest") and staged_info.get("digest") != new_digest:
             blockers.append("STAGED_LEDGER_DIGEST_MISMATCH")
         if ledger.get("schema") not in {LEDGER_SCHEMA, None}:
             blockers.append("LIVE_LEDGER_SCHEMA_INVALID")
         if blockers:
             return report(project, txid, operation, status, "MANUAL_REVIEW", apply_requested,
-                          authoritative_event=event, journal=journal, projection=projection,
-                          ledger=ledger, blockers=blockers)
+                          event=event, journal=journal, projection=projection, ledger=ledger, blockers=blockers)
 
         live_digest = ledger.get("digest")
-        if new_digest and live_digest == new_digest:
+        if live_digest == new_digest:
             if not projection.get("verified"):
-                actions.append("rebuild projection from valid authoritative journal")
-                actions.append("close receipt as COMMITTED:LEDGER_ALREADY_FINALIZED")
                 return report(project, txid, operation, status, "REPAIRABLE", apply_requested,
-                              authoritative_event=event, journal=journal, projection=projection,
-                              ledger=ledger, actions=actions)
-            actions.append("close receipt as COMMITTED:LEDGER_ALREADY_FINALIZED")
+                              event=event, journal=journal, projection=projection, ledger=ledger,
+                              actions=["rebuild projection from valid authoritative journal",
+                                       "close receipt as COMMITTED:LEDGER_ALREADY_FINALIZED"])
             return report(project, txid, operation, status, "ALREADY_EFFECTIVE", apply_requested,
-                          authoritative_event=event, journal=journal, projection=projection,
-                          ledger=ledger, actions=actions)
+                          event=event, journal=journal, projection=projection, ledger=ledger,
+                          actions=["close receipt as COMMITTED:LEDGER_ALREADY_FINALIZED"])
 
-        if old_digest and live_digest == old_digest:
+        if live_digest == old_digest:
             if not staged_info.get("exists"):
                 return report(project, txid, operation, status, "MANUAL_REVIEW", apply_requested,
-                              authoritative_event=event, journal=journal, projection=projection,
-                              ledger=ledger, blockers=["STAGED_LEDGER_MISSING"])
-            if not new_digest or staged_info.get("digest") != new_digest:
+                              event=event, journal=journal, projection=projection, ledger=ledger,
+                              blockers=["STAGED_LEDGER_MISSING"])
+            if staged_info.get("digest") != new_digest:
                 return report(project, txid, operation, status, "MANUAL_REVIEW", apply_requested,
-                              authoritative_event=event, journal=journal, projection=projection,
-                              ledger=ledger, blockers=["STAGED_LEDGER_NOT_TRUSTWORTHY"])
+                              event=event, journal=journal, projection=projection, ledger=ledger,
+                              blockers=["STAGED_LEDGER_NOT_TRUSTWORTHY"])
+            actions = ["atomically finalize verified staged ledger",
+                       "close receipt as COMMITTED:RECOVERED_LEDGER_FINALIZATION"]
+            assessment = "SAFE_TO_FINALIZE"
             if not projection.get("verified"):
-                actions.append("rebuild projection from valid authoritative journal")
-            actions.append("atomically finalize verified staged ledger")
-            actions.append("close receipt as COMMITTED:RECOVERED_LEDGER_FINALIZATION")
-            return report(project, txid, operation, status, "SAFE_TO_FINALIZE", apply_requested,
-                          authoritative_event=event, journal=journal, projection=projection,
-                          ledger=ledger, actions=actions)
+                actions.insert(0, "rebuild projection from valid authoritative journal")
+                assessment = "REPAIRABLE"
+            return report(project, txid, operation, status, assessment, apply_requested,
+                          event=event, journal=journal, projection=projection, ledger=ledger, actions=actions)
 
         return report(project, txid, operation, status, "MANUAL_REVIEW", apply_requested,
-                      authoritative_event=event, journal=journal, projection=projection,
-                      ledger=ledger, blockers=["LIVE_LEDGER_DIGEST_IS_NEITHER_EXPECTED_OLD_NOR_NEW"])
+                      event=event, journal=journal, projection=projection, ledger=ledger,
+                      blockers=["LIVE_LEDGER_DIGEST_IS_NEITHER_EXPECTED_OLD_NOR_NEW"])
 
     return report(project, txid, operation, status, "MANUAL_REVIEW", apply_requested,
-                  authoritative_event=event, journal=journal, projection=projection,
-                  ledger=ledger, blockers=[f"RECOVERY_OPERATION_UNSUPPORTED:{operation}"])
-
-
-def report(project: str, txid: str, operation: str, receipt_status: str, assessment: str,
-           apply_requested: bool, authoritative_event: dict[str, Any] | None = None,
-           journal: dict[str, Any] | None = None, projection: dict[str, Any] | None = None,
-           ledger: dict[str, Any] | None = None, actions: list[str] | None = None,
-           blockers: list[str] | None = None, recovery_outcome: str | None = None) -> dict[str, Any]:
-    event_summary = None
-    if authoritative_event:
-        event_summary = {
-            "sequence": authoritative_event.get("sequence"),
-            "event_id": authoritative_event.get("event_id"),
-            "event_type": authoritative_event.get("event_type"),
-            "event_digest": authoritative_event.get("event_digest"),
-            "observed_at": authoritative_event.get("observed_at"),
-        }
-    return {
-        "schema": REPORT_SCHEMA,
-        "project": project,
-        "transaction_id": txid,
-        "operation": operation,
-        "receipt_status": receipt_status,
-        "assessment": assessment,
-        "apply_requested": apply_requested,
-        "authoritative_event": event_summary,
-        "journal": journal or {},
-        "projection": projection or {},
-        "ledger": ledger or {},
-        "actions": actions or [],
-        "blockers": blockers or [],
-        "recovery_outcome": recovery_outcome,
-        "observed_at": now_iso(),
-    }
+                  event=event, journal=journal, projection=projection, ledger=ledger,
+                  blockers=[f"RECOVERY_OPERATION_UNSUPPORTED:{operation}"])
 
 
 def rebuild_projection(project: str, paths: dict[str, Path], policy: dict[str, Any], repo_root: Path) -> tuple[bool, str]:
-    rc, out, err = store_call(project, "rebuild", policy, repo_root, paths["state_root"])
+    rc, stdout, stderr = store_call(project, "rebuild", policy, repo_root, paths["state_root"])
     if rc != 0:
-        return False, (err or out).strip()
-    rc2, out2, err2 = store_call(project, "verify", policy, repo_root, paths["state_root"])
-    if rc2 != 0:
-        return False, (err2 or out2).strip()
-    return True, out2.strip()
+        return False, (stderr or stdout).strip()
+    rc2, stdout2, stderr2 = store_call(project, "verify", policy, repo_root, paths["state_root"])
+    return (rc2 == 0, (stderr2 or stdout2).strip())
 
 
 def finalize_ledger(live: Path, staged: Path, expected_digest: str) -> tuple[bool, str]:
@@ -480,7 +481,7 @@ def finalize_ledger(live: Path, staged: Path, expected_digest: str) -> tuple[boo
     tmp = Path(tmp_name)
     try:
         shutil.copy2(staged, tmp)
-        with tmp.open("rb") as fh:
+        with tmp.open("r+b") as fh:
             os.fsync(fh.fileno())
         os.replace(tmp, live)
         dir_fd = os.open(str(live.parent), os.O_RDONLY)
@@ -491,123 +492,97 @@ def finalize_ledger(live: Path, staged: Path, expected_digest: str) -> tuple[boo
     finally:
         if tmp.exists():
             tmp.unlink()
-    final_value = load(live)
-    if digest_obj(final_value) != expected_digest:
+    final = load(live)
+    if digest_obj(final) != expected_digest:
         return False, "FINAL_LEDGER_DIGEST_MISMATCH"
     return True, "LEDGER_FINALIZED"
 
 
-def apply_recovery(project: str, txid: str, receipt_path_value: Path, receipt: dict[str, Any],
-                   initial: dict[str, Any], paths: dict[str, Path], policy: dict[str, Any],
-                   repo_root: Path, actor: str) -> dict[str, Any]:
-    assessment = initial.get("assessment")
-    operation = str(receipt.get("operation") or "")
-    if assessment in {"TERMINAL", "INVALID", "MANUAL_REVIEW"}:
-        return {**initial, "apply_requested": True}
+def apply_recovery(project: str, txid: str, receipt_path: Path, receipt: dict[str, Any],
+                   paths: dict[str, Path], policy: dict[str, Any], repo_root: Path,
+                   actor: str) -> dict[str, Any]:
+    current = inspect_transaction(project, txid, receipt, paths, policy, repo_root, True)
+    if current.get("assessment") in {"TERMINAL", "INVALID", "MANUAL_REVIEW"}:
+        return current
 
-    # Journal validity was already established by assessment; re-read under lock
-    # before applying any repair to prevent stale recovery decisions.
-    events = read_events(paths["journal"])
-    errors = verify_chain(events, project)
-    if errors:
-        return report(project, txid, operation, str(receipt.get("status")), "INVALID", True,
-                      journal={"valid": False, "errors": errors}, blockers=["AUDIT_JOURNAL_INVALID", *errors])
-    expected = expected_event_type(receipt, policy)
-    matches = transaction_events(events, txid, expected)
-    event = matches[0] if len(matches) == 1 else None
-
-    projection = projection_status(project, paths, policy, repo_root)
-    if not projection.get("verified"):
+    if not (current.get("projection") or {}).get("verified"):
         ok, detail = rebuild_projection(project, paths, policy, repo_root)
         if not ok:
-            return report(project, txid, operation, str(receipt.get("status")), "MANUAL_REVIEW", True,
-                          authoritative_event=event,
-                          journal={"valid": True, "event_count": len(events), "errors": []},
-                          projection=projection, ledger=ledger_info(paths["ledger"]),
-                          blockers=["PROJECTION_REBUILD_FAILED:" + detail])
+            current["assessment"] = "MANUAL_REVIEW"
+            current["blockers"] = ["PROJECTION_REBUILD_FAILED:" + detail]
+            return current
+        receipt_path, receipt = load_receipt(paths, project, txid)
+        current = inspect_transaction(project, txid, receipt, paths, policy, repo_root, True)
+        if current.get("assessment") in {"INVALID", "MANUAL_REVIEW"}:
+            return current
 
-    if operation == "advance":
-        if event is None:
-            updated = update_receipt(
-                receipt_path_value, receipt, "FAILED", "ABORTED_BEFORE_AUTHORITATIVE_COMMIT", actor,
-                {"journal_head_digest": events[-1].get("event_digest") if events else None},
-            )
-            final = assess(project, txid, updated, paths, policy, repo_root, True)
-            final["recovery_outcome"] = "ABORTED_BEFORE_AUTHORITATIVE_COMMIT"
-            return final
+    operation = str(receipt.get("operation") or "")
+    assessment = str(current.get("assessment") or "")
+    event = current.get("authoritative_event") or {}
+
+    if assessment == "SAFE_TO_ABORT":
         updated = update_receipt(
-            receipt_path_value, receipt, "COMMITTED", "RECOVERED_FROM_AUTHORITATIVE_EVENT", actor,
+            receipt_path, receipt, "FAILED", "ABORTED_BEFORE_AUTHORITATIVE_COMMIT", actor,
+            {"journal_head_digest": (current.get("journal") or {}).get("head_digest")},
+        )
+        final = inspect_transaction(project, txid, updated, paths, policy, repo_root, True)
+        final["recovery_outcome"] = "ABORTED_BEFORE_AUTHORITATIVE_COMMIT"
+        return final
+
+    if operation == "advance" and assessment == "ALREADY_EFFECTIVE":
+        updated = update_receipt(
+            receipt_path, receipt, "COMMITTED", "RECOVERED_FROM_AUTHORITATIVE_EVENT", actor,
             {"event_sequence": event.get("sequence"), "event_digest": event.get("event_digest")},
         )
-        final = assess(project, txid, updated, paths, policy, repo_root, True)
+        final = inspect_transaction(project, txid, updated, paths, policy, repo_root, True)
         final["recovery_outcome"] = "RECOVERED_FROM_AUTHORITATIVE_EVENT"
         return final
 
-    if operation == "verify-result":
-        if event is None:
-            live = ledger_info(paths["ledger"])
-            old_digest = receipt.get("old_ledger_digest")
-            if old_digest and live.get("digest") not in {old_digest, None}:
-                return report(project, txid, operation, str(receipt.get("status")), "MANUAL_REVIEW", True,
-                              journal={"valid": True, "event_count": len(events), "errors": []},
-                              projection=projection_status(project, paths, policy, repo_root), ledger=live,
-                              blockers=["LIVE_LEDGER_DIVERGED_FROM_TRANSACTION_PRECONDITION"])
-            updated = update_receipt(
-                receipt_path_value, receipt, "FAILED", "ABORTED_BEFORE_AUTHORITATIVE_COMMIT", actor,
-                {"ledger_digest": live.get("digest")},
-            )
-            final = assess(project, txid, updated, paths, policy, repo_root, True)
-            final["recovery_outcome"] = "ABORTED_BEFORE_AUTHORITATIVE_COMMIT"
-            return final
-
-        new_digest = str(receipt.get("new_ledger_digest") or ((event.get("payload") or {}).get("new_ledger_digest") or ""))
-        old_digest = receipt.get("old_ledger_digest")
-        txdir = paths["transactions"] / txid
-        staged_raw = receipt.get("staged_ledger") or ((event.get("payload") or {}).get("staged_ledger"))
-        staged = Path(str(staged_raw)) if staged_raw else txdir / "staged-ledger.json"
+    if operation == "verify-result" and assessment in {"SAFE_TO_FINALIZE", "ALREADY_EFFECTIVE"}:
+        # Re-enrich from the authoritative event because older failure receipts may
+        # have omitted old_ledger_digest or staged_ledger on their final write.
+        events = read_events(paths["journal"])
+        matches = transaction_events(events, txid, expected_event_type(receipt, policy))
+        auth_event = matches[0] if len(matches) == 1 else None
+        enriched = enrich_from_event(receipt, auth_event)
+        event_payload = (auth_event.get("payload") or {}) if auth_event else {}
+        new_digest = enriched.get("new_ledger_digest") or event_payload.get("new_ledger_digest")
+        old_digest = enriched.get("old_ledger_digest") or event_payload.get("old_ledger_digest")
+        staged_raw = enriched.get("staged_ledger") or event_payload.get("staged_ledger")
+        staged = Path(str(staged_raw)) if staged_raw else paths["transactions"] / txid / "staged-ledger.json"
         live = ledger_info(paths["ledger"])
-        if live.get("digest") == new_digest and new_digest:
-            updated = update_receipt(
-                receipt_path_value, receipt, "COMMITTED", "LEDGER_ALREADY_FINALIZED", actor,
-                {"event_sequence": event.get("sequence"), "event_digest": event.get("event_digest"),
-                 "ledger_digest": new_digest},
-            )
-            final = assess(project, txid, updated, paths, policy, repo_root, True)
-            final["recovery_outcome"] = "LEDGER_ALREADY_FINALIZED"
-            return final
-        if not old_digest or live.get("digest") != old_digest:
-            return report(project, txid, operation, str(receipt.get("status")), "MANUAL_REVIEW", True,
-                          authoritative_event=event,
-                          journal={"valid": True, "event_count": len(events), "errors": []},
-                          projection=projection_status(project, paths, policy, repo_root), ledger=live,
-                          blockers=["LIVE_LEDGER_DIGEST_IS_NEITHER_EXPECTED_OLD_NOR_NEW"])
-        if not new_digest:
-            return report(project, txid, operation, str(receipt.get("status")), "MANUAL_REVIEW", True,
-                          authoritative_event=event,
-                          journal={"valid": True, "event_count": len(events), "errors": []},
-                          projection=projection_status(project, paths, policy, repo_root), ledger=live,
-                          blockers=["EXPECTED_NEW_LEDGER_DIGEST_MISSING"])
-        ok, detail = finalize_ledger(paths["ledger"], staged, new_digest)
-        if not ok:
-            return report(project, txid, operation, str(receipt.get("status")), "MANUAL_REVIEW", True,
-                          authoritative_event=event,
-                          journal={"valid": True, "event_count": len(events), "errors": []},
-                          projection=projection_status(project, paths, policy, repo_root), ledger=ledger_info(paths["ledger"]),
-                          blockers=[detail])
+
+        if assessment == "SAFE_TO_FINALIZE":
+            if not old_digest or live.get("digest") != old_digest:
+                current["assessment"] = "MANUAL_REVIEW"
+                current["blockers"] = ["LIVE_LEDGER_PRECONDITION_CHANGED_DURING_RECOVERY"]
+                return current
+            if not new_digest:
+                current["assessment"] = "MANUAL_REVIEW"
+                current["blockers"] = ["EXPECTED_NEW_LEDGER_DIGEST_MISSING"]
+                return current
+            ok, detail = finalize_ledger(paths["ledger"], staged, str(new_digest))
+            if not ok:
+                current["assessment"] = "MANUAL_REVIEW"
+                current["blockers"] = [detail]
+                return current
+            outcome = "RECOVERED_LEDGER_FINALIZATION"
+        else:
+            outcome = "LEDGER_ALREADY_FINALIZED"
+
         updated = update_receipt(
-            receipt_path_value, receipt, "COMMITTED", "RECOVERED_LEDGER_FINALIZATION", actor,
+            receipt_path, enriched, "COMMITTED", outcome, actor,
             {"event_sequence": event.get("sequence"), "event_digest": event.get("event_digest"),
-             "ledger_digest": new_digest, "staged_ledger": str(staged)},
+             "old_ledger_digest": old_digest, "new_ledger_digest": new_digest,
+             "staged_ledger": str(staged)},
         )
-        final = assess(project, txid, updated, paths, policy, repo_root, True)
-        final["recovery_outcome"] = "RECOVERED_LEDGER_FINALIZATION"
+        final = inspect_transaction(project, txid, updated, paths, policy, repo_root, True)
+        final["recovery_outcome"] = outcome
         return final
 
-    return report(project, txid, operation, str(receipt.get("status")), "MANUAL_REVIEW", True,
-                  authoritative_event=event,
-                  journal={"valid": True, "event_count": len(events), "errors": []},
-                  projection=projection_status(project, paths, policy, repo_root), ledger=ledger_info(paths["ledger"]),
-                  blockers=[f"RECOVERY_OPERATION_UNSUPPORTED:{operation}"])
+    current["assessment"] = "MANUAL_REVIEW"
+    current["blockers"] = [f"RECOVERY_STATE_NOT_APPLICABLE:{operation}:{assessment}"]
+    return current
 
 
 def list_transactions(project: str, paths: dict[str, Path], policy: dict[str, Any]) -> dict[str, Any]:
@@ -616,15 +591,15 @@ def list_transactions(project: str, paths: dict[str, Path], policy: dict[str, An
     if paths["transactions"].exists():
         for receipt_file in sorted(paths["transactions"].glob("*/receipt.json")):
             try:
-                value = load(receipt_file)
-                status = str(value.get("status") or "UNKNOWN")
+                receipt = load(receipt_file)
+                status = str(receipt.get("status") or "UNKNOWN")
                 items.append({
-                    "transaction_id": value.get("transaction_id") or receipt_file.parent.name,
-                    "operation": value.get("operation"),
+                    "transaction_id": receipt.get("transaction_id") or receipt_file.parent.name,
+                    "operation": receipt.get("operation"),
                     "status": status,
                     "blocking": status not in closed,
-                    "updated_at": value.get("updated_at"),
-                    "recovery_outcome": value.get("recovery_outcome"),
+                    "updated_at": receipt.get("updated_at"),
+                    "recovery_outcome": receipt.get("recovery_outcome"),
                     "receipt": str(receipt_file),
                 })
             except SystemExit as exc:
@@ -645,8 +620,8 @@ def list_transactions(project: str, paths: dict[str, Path], policy: dict[str, An
         "transactions": items,
         "summary": {
             "count": len(items),
-            "blocking": sum(bool(x.get("blocking")) for x in items),
-            "closed": sum(not bool(x.get("blocking")) for x in items),
+            "blocking": sum(bool(item.get("blocking")) for item in items),
+            "closed": sum(not bool(item.get("blocking")) for item in items),
         },
     }
 
@@ -681,20 +656,20 @@ def main() -> int:
     parser.add_argument("--json", action="store_true")
     sub = parser.add_subparsers(dest="cmd", required=True)
 
-    p_list = sub.add_parser("list")
-    p_list.add_argument("--project", required=True)
+    tx_list = sub.add_parser("list")
+    tx_list.add_argument("--project", required=True)
 
-    p_inspect = sub.add_parser("inspect")
-    p_inspect.add_argument("--project", required=True)
-    p_inspect.add_argument("--transaction-id", required=True)
-    p_inspect.add_argument("--report", type=Path)
+    inspect = sub.add_parser("inspect")
+    inspect.add_argument("--project", required=True)
+    inspect.add_argument("--transaction-id", required=True)
+    inspect.add_argument("--report", type=Path)
 
-    p_recover = sub.add_parser("recover")
-    p_recover.add_argument("--project", required=True)
-    p_recover.add_argument("--transaction-id", required=True)
-    p_recover.add_argument("--actor", default="recovery-engineer")
-    p_recover.add_argument("--apply", action="store_true")
-    p_recover.add_argument("--report", type=Path)
+    recover = sub.add_parser("recover")
+    recover.add_argument("--project", required=True)
+    recover.add_argument("--transaction-id", required=True)
+    recover.add_argument("--actor", default="recovery-engineer")
+    recover.add_argument("--apply", action="store_true")
+    recover.add_argument("--report", type=Path)
 
     args = parser.parse_args()
     policy = load(args.policy)
@@ -707,21 +682,18 @@ def main() -> int:
         render(value, args.json)
         return 0
 
-    receipt_file, receipt = load_receipt(paths, args.transaction_id, args.project)
+    receipt_path, receipt = load_receipt(paths, args.project, args.transaction_id)
     if args.cmd == "inspect":
-        value = assess(args.project, args.transaction_id, receipt, paths, policy, args.repo_root, False)
+        value = inspect_transaction(args.project, args.transaction_id, receipt, paths, policy, args.repo_root, False)
+    elif not args.apply:
+        value = inspect_transaction(args.project, args.transaction_id, receipt, paths, policy, args.repo_root, False)
+        if value.get("assessment") not in {"TERMINAL", "INVALID", "MANUAL_REVIEW"}:
+            value["actions"] = list(value.get("actions") or []) + ["re-run with --apply to perform permitted recovery"]
     else:
-        initial = assess(args.project, args.transaction_id, receipt, paths, policy, args.repo_root, bool(args.apply))
-        if not args.apply:
-            initial["actions"] = list(initial.get("actions") or []) + ["re-run with --apply to perform permitted recovery"]
-            value = initial
-        else:
-            with project_lock(paths["lock"]):
-                # Re-read receipt after lock acquisition to avoid recovering a stale transaction snapshot.
-                receipt_file, receipt = load_receipt(paths, args.transaction_id, args.project)
-                refreshed = assess(args.project, args.transaction_id, receipt, paths, policy, args.repo_root, True)
-                value = apply_recovery(args.project, args.transaction_id, receipt_file, receipt, refreshed,
-                                       paths, policy, args.repo_root, args.actor)
+        with project_lock(paths["lock"]):
+            receipt_path, receipt = load_receipt(paths, args.project, args.transaction_id)
+            value = apply_recovery(args.project, args.transaction_id, receipt_path, receipt,
+                                   paths, policy, args.repo_root, args.actor)
 
     if getattr(args, "report", None):
         atomic_json(args.report, value)
