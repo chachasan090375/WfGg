@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://chacha.dev/schemas/adapter-runtime-activation-v1.schema.json",
+  "title": "ChaCha DEV HUB Adapter Runtime Activation V1",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "schema", "adapter", "mode", "status", "current_status",
+    "target_status", "target_root", "executable_path", "blockers", "observed_at"
+  ],
+  "properties": {
+    "schema": {"const": "chacha.dev/adapter-runtime-activation/v1"},
+    "adapter": {"type": "string", "minLength": 1},
+    "mode": {"enum": ["PLAN", "APPLY"]},
+    "status": {"enum": ["READY", "BLOCKED", "READY_FOR_PROMOTION", "FAILED"]},
+    "actor": {"type": "string"},
+    "current_status": {"type": "string"},
+    "target_status": {"const": "PILOT"},
+    "execution_kinds": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "registry_mutated": {"type": "boolean"},
+    "target_root": {"type": "string", "minLength": 1},
+    "current_link": {"type": "string"},
+    "version_dir": {"type": "string"},
+    "executable_path": {"type": "string", "minLength": 1},
+    "executable_digest": {"type": ["string", "null"], "pattern": "^sha256:[0-9a-f]{64}$"},
+    "observed_executable_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "provisioning_receipt": {"type": "string"},
+    "provisioning_receipt_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "promotion_evidence": {"type": "string"},
+    "promotion_evidence_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "promotion_plan": {"type": "string"},
+    "promotion_plan_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "rollback_performed": {"type": "boolean"},
+    "previous_link": {"type": "object"},
+    "failed_stage": {"type": "string"},
+    "processes": {"type": "array", "items": {"type": "object"}},
+    "blockers": {"type": "array", "items": {"type": "string"}},
+    "observed_at": {"type": "string", "minLength": 1}
+  }
+}
