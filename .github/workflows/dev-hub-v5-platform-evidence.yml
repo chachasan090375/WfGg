@@ -1,0 +1,174 @@
+name: Dev Hub V5 Platform Evidence
+
+on:
+  push:
+    branches: [dev-hub-v5.0]
+    paths:
+      - 'dev-hub/bin/platform-evidence.py'
+      - 'dev-hub/config/platform-evidence.v1.json'
+      - 'dev-hub/config/platform-readiness.v1.json'
+      - 'dev-hub/config/provider-health-probes.v1.json'
+      - 'dev-hub/schemas/provider-probe-result-v1.schema.json'
+      - 'dev-hub/schemas/provider-health-snapshot-v1.schema.json'
+      - 'dev-hub/schemas/storage-preflight-v1.schema.json'
+      - '.github/workflows/dev-hub-v5-platform-evidence.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  evidence-contracts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Compile evidence normalizer
+        run: python -m py_compile dev-hub/bin/platform-evidence.py
+
+      - name: Parse evidence contracts
+        run: |
+          python - <<'PY'
+          import json
+          for path in [
+              'dev-hub/config/platform-evidence.v1.json',
+              'dev-hub/config/platform-readiness.v1.json',
+              'dev-hub/config/provider-health-probes.v1.json',
+              'dev-hub/schemas/provider-probe-result-v1.schema.json',
+              'dev-hub/schemas/provider-health-snapshot-v1.schema.json',
+              'dev-hub/schemas/storage-preflight-v1.schema.json',
+          ]:
+              with open(path, encoding='utf-8') as fh:
+                  json.load(fh)
+          print('PLATFORM_EVIDENCE_JSON=OK')
+          PY
+
+      - name: Provider health freshness normalization
+        shell: bash
+        run: |
+          set -euo pipefail
+          TMP="$(mktemp -d)"
+          export TMP
+          NOW="$(python - <<'PY'
+          from datetime import datetime, timezone
+          print(datetime.now(timezone.utc).isoformat())
+          PY
+          )"
+          cat > "$TMP/architect.json" <<JSON
+          {
+            "schema": "chacha.dev/provider-probe-result/v1",
+            "provider": "chacha-dev-architect",
+            "state": "HEALTHY",
+            "source": "ci-fixture",
+            "checked_at": "$NOW",
+            "latency_ms": 1,
+            "details": {"fixture": true}
+          }
+          JSON
+          cat > "$TMP/storage-governor-stale.json" <<'JSON'
+          {
+            "schema": "chacha.dev/provider-probe-result/v1",
+            "provider": "storage-governor",
+            "state": "HEALTHY",
+            "source": "ci-fixture",
+            "checked_at": "2020-01-01T00:00:00+00:00",
+            "latency_ms": 1,
+            "details": {"fixture": true}
+          }
+          JSON
+
+          python dev-hub/bin/platform-evidence.py --repo-root . health \
+            --project ci-control-plane \
+            --result "$TMP/architect.json" \
+            --result "$TMP/storage-governor-stale.json" \
+            --output "$TMP/providers.json"
+
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          root = Path(os.environ['TMP'])
+          value = json.load(open(root / 'providers.json', encoding='utf-8'))
+          assert value['schema'] == 'chacha.dev/provider-health-snapshot/v1', value
+          assert value['providers']['chacha-dev-architect']['state'] == 'HEALTHY', value
+          assert value['providers']['storage-governor']['state'] == 'UNKNOWN', value
+          assert 'stale' in value['providers']['storage-governor']['reason'], value
+          assert value['providers']['github']['state'] == 'UNKNOWN', value
+          print('PROVIDER_HEALTH_FRESHNESS=PASS')
+          PY
+
+      - name: Storage Governor normalization
+        shell: bash
+        run: |
+          set -euo pipefail
+          TMP="$(mktemp -d)"
+          export TMP
+          cat > "$TMP/storage-ok.txt" <<'EOF'
+          NEED_MB=600
+          RESERVE_MB=1280
+          REQUIRED_FREE_MB=1880
+          CURRENT_FREE_MB=4096
+          CURRENT_USED_PERCENT=55
+          STORAGE_PRESSURE=OK
+          PREFLIGHT=OK
+          EOF
+          cat > "$TMP/storage-blocked.txt" <<'EOF'
+          NEED_MB=600
+          RESERVE_MB=1280
+          REQUIRED_FREE_MB=1880
+          CURRENT_FREE_MB=1215
+          CURRENT_USED_PERCENT=86
+          STORAGE_PRESSURE=WARN
+          PREFLIGHT=BLOCKED
+          EOF
+
+          python dev-hub/bin/platform-evidence.py --repo-root . storage \
+            --project ci-control-plane --input "$TMP/storage-ok.txt" --output "$TMP/storage-ok.json"
+          python dev-hub/bin/platform-evidence.py --repo-root . storage \
+            --project ci-control-plane --input "$TMP/storage-blocked.txt" --output "$TMP/storage-blocked.json"
+
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          root = Path(os.environ['TMP'])
+          ok = json.load(open(root / 'storage-ok.json', encoding='utf-8'))
+          blocked = json.load(open(root / 'storage-blocked.json', encoding='utf-8'))
+          assert ok['schema'] == 'chacha.dev/storage-preflight/v1', ok
+          assert ok['status'] == 'OK', ok
+          assert ok['current_free_mb'] == 4096, ok
+          assert blocked['status'] == 'BLOCKED', blocked
+          assert 'INSUFFICIENT_FREE_SPACE' in blocked['reasons'], blocked
+          assert blocked['current_free_mb'] == 1215, blocked
+          assert blocked['required_free_mb'] == 1880, blocked
+          print('STORAGE_NORMALIZATION=PASS')
+          PY
+
+      - name: Unknown provider is rejected
+        shell: bash
+        run: |
+          set -euo pipefail
+          TMP="$(mktemp -d)"
+          NOW="$(python - <<'PY'
+          from datetime import datetime, timezone
+          print(datetime.now(timezone.utc).isoformat())
+          PY
+          )"
+          cat > "$TMP/unknown.json" <<JSON
+          {
+            "schema": "chacha.dev/provider-probe-result/v1",
+            "provider": "unregistered-provider",
+            "state": "HEALTHY",
+            "source": "ci-fixture",
+            "checked_at": "$NOW"
+          }
+          JSON
+          if python dev-hub/bin/platform-evidence.py --repo-root . health \
+            --result "$TMP/unknown.json" --output "$TMP/providers.json"; then
+            echo 'unknown provider unexpectedly accepted' >&2
+            exit 1
+          fi
+          echo UNKNOWN_PROVIDER_REJECTION=PASS
