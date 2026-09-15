@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://chacha.dev/schemas/execution-plan-v1.schema.json",
+  "title": "ChaCha DEV HUB Execution Plan V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "project", "transition", "generated_at", "waves", "blocked_tasks", "summary"],
+  "properties": {
+    "schema": {"const": "chacha.dev/execution-plan/v1"},
+    "project": {"type": "string"},
+    "transition": {"type": "string"},
+    "generated_at": {"type": "string"},
+    "waves": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["index", "tasks"],
+        "properties": {
+          "index": {"type": "integer", "minimum": 1},
+          "tasks": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["task_id", "permission", "provider_bindings"],
+              "properties": {
+                "task_id": {"type": "string"},
+                "permission": {"type": "string"},
+                "resource_class": {"enum": ["light", "medium", "heavy", "very-heavy"]},
+                "provider_bindings": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["capability", "state"],
+                    "properties": {
+                      "capability": {"type": "string"},
+                      "provider": {"type": ["string", "null"]},
+                      "provider_status": {"type": ["string", "null"]},
+                      "health_state": {"type": ["string", "null"]},
+                      "state": {"enum": ["READY", "DEGRADED", "BLOCKED"]},
+                      "fallback_used": {"type": "boolean"},
+                      "reason": {"type": "string"}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "blocked_tasks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["task_id", "reasons"],
+        "properties": {
+          "task_id": {"type": "string"},
+          "reasons": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "required": ["task_count", "scheduled_count", "blocked_count", "wave_count"],
+      "properties": {
+        "task_count": {"type": "integer", "minimum": 0},
+        "scheduled_count": {"type": "integer", "minimum": 0},
+        "blocked_count": {"type": "integer", "minimum": 0},
+        "wave_count": {"type": "integer", "minimum": 0},
+        "failover_bindings": {"type": "integer", "minimum": 0}
+      }
+    }
+  }
+}
