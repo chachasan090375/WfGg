@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""ChaCha DEV HUB Project Control JSON API V1.
+"""ChaCha DEV HUB Project Control JSON API V1.1.
 
 Local stdin/stdout adapter over project-control.py. No network listener is
 created. A request is one JSON object and the response is the same structured
@@ -77,6 +77,27 @@ def main() -> int:
             cmd += ["--workspace", str(args["workspace"])]
         if operation == "dispatch" and args.get("execute") is True:
             cmd.append("--execute")
+    elif operation == "verify-result":
+        if not args.get("result") or not args.get("graph"):
+            fail("REQUEST_RESULT_AND_GRAPH_REQUIRED", project, operation)
+        cmd += [operation, "--project", project, "--result", str(args["result"]), "--graph", str(args["graph"])]
+        if args.get("method"):
+            cmd += ["--method", str(args["method"])]
+        if args.get("verifier"):
+            cmd += ["--verifier", str(args["verifier"])]
+        if args.get("ingest") is True:
+            cmd.append("--ingest")
+    elif operation == "record-control-event":
+        if not args.get("event_type") or not args.get("actor"):
+            fail("REQUEST_EVENT_TYPE_AND_ACTOR_REQUIRED", project, operation)
+        cmd += [operation, "--project", project, "--event-type", str(args["event_type"]), "--actor", str(args["actor"])]
+        for key, flag in (("payload", "--payload"), ("patch", "--patch"), ("references", "--references")):
+            if args.get(key):
+                cmd += [flag, str(args[key])]
+    elif operation == "advance":
+        cmd += [operation, "--project", project, "--actor", str(args.get("actor") or request.get("actor") or "project-owner")]
+        if args.get("target"):
+            cmd += ["--target", str(args["target"])]
     elif operation == "crypto-verify":
         if not args.get("checkpoint") or not args.get("public_key"):
             fail("REQUEST_CHECKPOINT_AND_PUBLIC_KEY_REQUIRED", project, operation)
