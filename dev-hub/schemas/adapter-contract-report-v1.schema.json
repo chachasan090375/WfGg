@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://chacha.dev/schemas/adapter-contract-report-v1.schema.json",
+  "title": "ChaCha DEV HUB Adapter Contract Report V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "observed_at", "static", "runtime", "promotion"],
+  "properties": {
+    "schema": {"const": "chacha.dev/adapter-contract-report/v1"},
+    "observed_at": {"type": "string"},
+    "static": {
+      "type": "object",
+      "required": ["status", "checks", "failures"],
+      "properties": {
+        "status": {"enum": ["PASS", "FAIL"]},
+        "checks": {"type": "array", "items": {"type": "object"}},
+        "failures": {"type": "integer", "minimum": 0}
+      }
+    },
+    "runtime": {"type": "array", "items": {"type": "object"}},
+    "promotion": {
+      "type": "object",
+      "required": ["automatic", "eligible_for_contract_ok", "eligible_for_runtime_pilot"],
+      "properties": {
+        "automatic": {"const": false},
+        "eligible_for_contract_ok": {"type": "boolean"},
+        "eligible_for_runtime_pilot": {"type": "boolean"}
+      }
+    }
+  }
+}
