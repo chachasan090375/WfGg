@@ -7,7 +7,9 @@
     "lifecycle": "dev-hub/config/lifecycle.v1.json",
     "quality_gates": "dev-hub/config/quality-gates.v1.json",
     "evidence_catalog": "dev-hub/config/evidence-catalog.v1.json",
-    "execution_scheduler": "dev-hub/config/execution-scheduler.v1.json"
+    "execution_scheduler": "dev-hub/config/execution-scheduler.v1.json",
+    "run_controller": "dev-hub/config/run-controller.v1.json",
+    "provider_adapters": "dev-hub/config/provider-adapters.v1.json"
   },
   "principles": {
     "least_privilege": true,
@@ -17,7 +19,10 @@
     "tool_provider_is_replaceable": true,
     "orchestrator_records_decisions": true,
     "scheduler_does_not_execute_implicitly": true,
-    "provider_failover_is_policy_controlled": true
+    "provider_failover_is_policy_controlled": true,
+    "dispatch_is_separate_from_planning": true,
+    "run_controller_cannot_self_verify": true,
+    "unregistered_adapter_cannot_execute": true
   },
   "permissions": {
     "read": {"approval": "none"},
@@ -52,6 +57,10 @@
     "fallback_provider_must_be_recorded": true,
     "unverified_output_cannot_satisfy_lifecycle_evidence": true,
     "unknown_provider_health_blocks_execution": true,
-    "scheduler_plan_requires_explicit_dispatch": true
+    "scheduler_plan_requires_explicit_dispatch": true,
+    "dispatch_requires_registered_adapter": true,
+    "write_dispatch_requires_project_lock": true,
+    "run_controller_output_requires_independent_verification": true,
+    "production_dispatch_rechecks_human_approval": true
   }
 }
