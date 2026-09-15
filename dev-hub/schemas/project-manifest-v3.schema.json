@@ -1,0 +1,281 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://chacha.dev/schemas/project-manifest-v3.schema.json",
+  "title": "ChaCha DEV HUB Project Manifest V3",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "identity",
+    "repository",
+    "ownership",
+    "components",
+    "environments",
+    "capabilities",
+    "quality_gates",
+    "storage",
+    "technology_policy"
+  ],
+  "properties": {
+    "schema": {"const": "chacha.dev/project-manifest/v3"},
+    "identity": {"$ref": "#/$defs/identity"},
+    "repository": {"$ref": "#/$defs/repository"},
+    "ownership": {"$ref": "#/$defs/ownership"},
+    "components": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/component"}
+    },
+    "dependencies": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/dependencyEdge"},
+      "default": []
+    },
+    "environments": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/environment"}
+    },
+    "capabilities": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/capabilityRequirement"}
+    },
+    "quality_gates": {
+      "type": "object",
+      "additionalProperties": {"$ref": "#/$defs/gatePolicy"}
+    },
+    "non_functional_requirements": {"$ref": "#/$defs/nfr"},
+    "security": {"type": "object", "additionalProperties": true},
+    "data": {"type": "object", "additionalProperties": true},
+    "observability": {"type": "object", "additionalProperties": true},
+    "recovery": {"$ref": "#/$defs/recovery"},
+    "delivery": {"$ref": "#/$defs/delivery"},
+    "storage": {"$ref": "#/$defs/storage"},
+    "agents": {"type": "array", "items": {"$ref": "#/$defs/agentBinding"}},
+    "knowledge_sources": {"type": "array", "items": {"$ref": "#/$defs/knowledgeSource"}},
+    "technology_policy": {"$ref": "#/$defs/technologyPolicy"},
+    "operations": {"type": "object", "additionalProperties": true},
+    "metadata": {"type": "object", "additionalProperties": true}
+  },
+  "$defs": {
+    "identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "slug", "lifecycle_stage"],
+      "properties": {
+        "name": {"type": "string", "minLength": 1},
+        "slug": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$"},
+        "description": {"type": "string"},
+        "lifecycle_stage": {
+          "enum": ["IDEA", "DESIGN", "BOOTSTRAP", "DEVELOP", "VERIFY", "PREVIEW", "RELEASE", "OPERATE", "IMPROVE", "RETIRE"]
+        },
+        "criticality": {"enum": ["low", "medium", "high", "critical"], "default": "medium"},
+        "tags": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+      }
+    },
+    "repository": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["url", "default_branch"],
+      "properties": {
+        "url": {"type": "string", "format": "uri"},
+        "default_branch": {"type": "string", "minLength": 1},
+        "working_branch": {"type": "string"},
+        "monorepo": {"type": "boolean", "default": true},
+        "source_of_truth": {"enum": ["git"], "default": "git"}
+      }
+    },
+    "ownership": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["technical_owner"],
+      "properties": {
+        "technical_owner": {"type": "string", "minLength": 1},
+        "product_owner": {"type": "string"},
+        "security_owner": {"type": "string"},
+        "operations_owner": {"type": "string"}
+      }
+    },
+    "component": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "path"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$"},
+        "type": {
+          "enum": [
+            "frontend-web", "frontend-mobile", "backend-api", "worker-edge", "service", "database",
+            "object-storage", "cache", "queue-event-bus", "scheduled-job", "data-pipeline", "ai-agent",
+            "cli", "desktop", "3d-pipeline", "static-assets", "documentation-site", "other"
+          ]
+        },
+        "path": {"type": "string"},
+        "runtime": {"type": "string"},
+        "framework": {"type": "string"},
+        "package_manager": {"type": "string"},
+        "interfaces": {"type": "array", "items": {"type": "string"}, "default": []},
+        "depends_on": {"type": "array", "items": {"type": "string"}, "default": []},
+        "commands": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "setup": {"type": "string"},
+            "check": {"type": "string"},
+            "test": {"type": "string"},
+            "build": {"type": "string"},
+            "run": {"type": "string"},
+            "deploy": {"type": "string"}
+          }
+        },
+        "artifacts": {"type": "array", "items": {"type": "string"}, "default": []},
+        "env_refs": {"type": "array", "items": {"type": "string"}, "default": []},
+        "secret_refs": {"type": "array", "items": {"type": "string"}, "default": []},
+        "observability_hooks": {"type": "array", "items": {"type": "string"}, "default": []},
+        "owner": {"type": "string"}
+      }
+    },
+    "dependencyEdge": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["from", "to", "kind"],
+      "properties": {
+        "from": {"type": "string"},
+        "to": {"type": "string"},
+        "kind": {"enum": ["runtime", "build", "data", "network", "event", "operational"]},
+        "required": {"type": "boolean", "default": true},
+        "description": {"type": "string"}
+      }
+    },
+    "environment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "class"],
+      "properties": {
+        "name": {"type": "string"},
+        "class": {"enum": ["dev", "test", "preview", "staging", "production"]},
+        "provider": {"type": "string"},
+        "promotion_from": {"type": ["string", "null"]},
+        "approval_required": {"type": "boolean", "default": false},
+        "config_refs": {"type": "array", "items": {"type": "string"}},
+        "secret_refs": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "capabilityRequirement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "required"],
+      "properties": {
+        "id": {"type": "string"},
+        "required": {"type": "boolean"},
+        "preferred_provider": {"type": "string"},
+        "fallback_allowed": {"type": "boolean", "default": true},
+        "constraints": {"type": "object", "additionalProperties": true}
+      }
+    },
+    "gatePolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["required"],
+      "properties": {
+        "required": {"type": "boolean"},
+        "blocking": {"type": "boolean", "default": false},
+        "minimum_status": {"enum": ["OK", "PARTIAL", "NOT_APPLICABLE"], "default": "OK"},
+        "evidence_required": {"type": "boolean", "default": true},
+        "not_applicable_reason": {"type": "string"}
+      }
+    },
+    "nfr": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "availability_target": {"type": "string"},
+        "latency_target": {"type": "string"},
+        "performance_budget": {"type": "string"},
+        "accessibility_target": {"type": "string"},
+        "supported_locales": {"type": "array", "items": {"type": "string"}},
+        "supported_clients": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "recovery": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "rpo_hours": {"type": "number", "minimum": 0},
+        "rto_hours": {"type": "number", "minimum": 0},
+        "backup_policy": {"type": "string"},
+        "restore_procedure": {"type": "string"},
+        "production_restore_test_required": {"type": "boolean", "default": false}
+      }
+    },
+    "delivery": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "ci_provider": {"type": "string"},
+        "release_strategy": {"type": "string"},
+        "rollback_strategy": {"type": "string"},
+        "artifact_versioning": {"type": "string"}
+      }
+    },
+    "storage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tiers"],
+      "properties": {
+        "tiers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name", "purpose"],
+            "properties": {
+              "name": {"type": "string"},
+              "purpose": {"type": "array", "items": {"type": "string"}},
+              "provider": {"type": "string"},
+              "path_or_ref": {"type": "string"},
+              "retention": {"type": "string"}
+            }
+          }
+        },
+        "governor_required": {"type": "boolean", "default": true}
+      }
+    },
+    "agentBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["role", "capabilities"],
+      "properties": {
+        "role": {"type": "string"},
+        "provider": {"type": "string"},
+        "capabilities": {"type": "array", "items": {"type": "string"}},
+        "approval_scope": {"enum": ["read-only", "workspace-write", "repository-write", "production-change"]}
+      }
+    },
+    "knowledgeSource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "capability"],
+      "properties": {
+        "id": {"type": "string"},
+        "capability": {"type": "string"},
+        "provider": {"type": "string"},
+        "required_for": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "technologyPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["auto_replace_production", "radar_enabled"],
+      "properties": {
+        "radar_enabled": {"type": "boolean"},
+        "auto_replace_production": {"const": false},
+        "pilot_requires_approval": {"type": "boolean", "default": true},
+        "recommend_requires_comparative_evidence": {"type": "boolean", "default": true},
+        "allowed_stages": {
+          "type": "array",
+          "items": {"enum": ["DISCOVER", "WATCH", "ASSESS", "PILOT", "RECOMMEND", "ADOPT", "DEPRECATE", "RETIRE"]}
+        }
+      }
+    }
+  }
+}
