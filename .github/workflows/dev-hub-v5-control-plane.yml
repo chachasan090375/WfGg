@@ -25,6 +25,10 @@ jobs:
       - name: Compile control-plane Python
         run: |
           python -m py_compile \
+            dev-hub/adapters/http-smoke-adapter.py \
+            dev-hub/bin/adapter-certification.py \
+            dev-hub/bin/adapter-enablement-evidence.py \
+            dev-hub/bin/adapter-promotion.py \
             dev-hub/bin/control-plane-store.py \
             dev-hub/bin/project-control.py \
             dev-hub/bin/project-control-cli.py \
@@ -33,7 +37,6 @@ jobs:
             dev-hub/bin/recovery-drill.py \
             dev-hub/bin/platform-readiness.py \
             dev-hub/bin/platform-evidence.py \
-            dev-hub/bin/adapter-promotion.py \
             dev-hub/bin/lifecycle-engine.py \
             dev-hub/bin/task-graph-engine.py \
             dev-hub/bin/execution-scheduler.py \
@@ -63,6 +66,8 @@ jobs:
           python dev-hub/bin/recovery-drill.py --help >/dev/null
           python dev-hub/bin/platform-readiness.py --help >/dev/null
           python dev-hub/bin/platform-evidence.py --help >/dev/null
+          python dev-hub/bin/adapter-certification.py --help >/dev/null
+          python dev-hub/bin/adapter-enablement-evidence.py --help >/dev/null
           python dev-hub/bin/adapter-promotion.py --help >/dev/null
           python dev-hub/bin/lifecycle-engine.py --help >/dev/null
           python dev-hub/bin/verification-broker.py --help >/dev/null
@@ -203,6 +208,142 @@ jobs:
           assert report['summary']['total'] == 5, report
           print('RECOVERY_DRILL_CI=PASS')
           PY
+
+      - name: Concrete adapter certification through ENABLED evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          TMP="$(mktemp -d)"
+          export TMP
+          SERVER_PID=""
+          cleanup() {
+            if [ -n "$SERVER_PID" ]; then kill "$SERVER_PID" 2>/dev/null || true; fi
+            rm -rf "$TMP"
+          }
+          trap cleanup EXIT
+
+          mkdir -p "$TMP/www"
+          printf 'healthy\n' > "$TMP/www/health"
+          python -m http.server 18080 --bind 127.0.0.1 --directory "$TMP/www" >"$TMP/http.log" 2>&1 &
+          SERVER_PID=$!
+          python - <<'PY'
+          import socket, time
+          deadline = time.time() + 10
+          while time.time() < deadline:
+              try:
+                  with socket.create_connection(('127.0.0.1', 18080), timeout=0.5):
+                      print('ADAPTER_SANDBOX_READY=YES')
+                      break
+              except OSError:
+                  time.sleep(0.1)
+          else:
+              raise SystemExit('ADAPTER_SANDBOX_READY=NO')
+          PY
+
+          ADAPTER="$TMP/http-smoke-adapter"
+          export ADAPTER
+          printf '#!/bin/sh\nexec python3 "%s/dev-hub/adapters/http-smoke-adapter.py"\n' "$GITHUB_WORKSPACE" > "$ADAPTER"
+          chmod 0755 "$ADAPTER"
+          export CHACHA_HTTP_SMOKE_ALLOWED_HOSTS="127.0.0.1,localhost"
+
+          cp dev-hub/config/provider-adapters.v1.json "$TMP/registry-contract-ok.json"
+          cp dev-hub/config/provider-adapters.v1.json "$TMP/registry-pilot.json"
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          root = Path(os.environ['TMP'])
+          executable = os.environ['ADAPTER']
+          for name, status in [('registry-contract-ok.json', 'CONTRACT_OK'), ('registry-pilot.json', 'PILOT')]:
+              path = root / name
+              registry = json.load(open(path, encoding='utf-8'))
+              item = registry['adapters']['http-smoke-adapter']
+              item['status'] = status
+              item['executable'] = executable
+              path.write_text(json.dumps(registry, indent=2) + '\n', encoding='utf-8')
+          PY
+
+          for n in 1 2 3; do
+            "$ADAPTER" < dev-hub/examples/http-smoke.dispatch.v1.json > "$TMP/result-$n.json"
+            sleep 0.02
+          done
+
+          python dev-hub/bin/adapter-contract-harness.py \
+            --registry "$TMP/registry-contract-ok.json" \
+            --policy dev-hub/config/adapter-contract.v1.json \
+            --report "$TMP/contract-report.json" \
+            --adapter http-smoke-adapter \
+            --fixture dev-hub/examples/http-smoke.dispatch.v1.json \
+            --runtime
+
+          python dev-hub/bin/adapter-certification.py \
+            --adapter http-smoke-adapter \
+            --contract-report "$TMP/contract-report.json" \
+            --fixture dev-hub/examples/http-smoke.dispatch.v1.json \
+            --task-result "$TMP/result-1.json" \
+            --output "$TMP/pilot-evidence.json"
+
+          python - <<'PY'
+          import json, os
+          from datetime import datetime, timezone
+          from pathlib import Path
+          root = Path(os.environ['TMP'])
+          results = [json.load(open(root / f'result-{n}.json', encoding='utf-8')) for n in (1,2,3)]
+          assert all(r['status'] == 'OK' for r in results), results
+          latencies = [float(r['evidence'][0]['details']['elapsed_ms']) for r in results]
+          probe = {
+              'schema': 'chacha.dev/provider-probe-result/v1',
+              'provider': 'http-smoke',
+              'state': 'HEALTHY',
+              'source': 'control-plane-ci:http-smoke-repeatability',
+              'checked_at': datetime.now(timezone.utc).isoformat(),
+              'latency_ms': round(sum(latencies) / len(latencies), 3),
+              'reason': 'three-consecutive-loopback-smoke-passes',
+              'details': {'successful_runs': 3, 'sandbox': True, 'network_scope': 'loopback-only'}
+          }
+          (root / 'http-smoke-probe.json').write_text(json.dumps(probe, indent=2) + '\n', encoding='utf-8')
+          PY
+
+          python dev-hub/bin/platform-evidence.py health \
+            --project adapter-certification \
+            --result "$TMP/http-smoke-probe.json" \
+            --output "$TMP/provider-health.json"
+
+          python dev-hub/bin/adapter-enablement-evidence.py \
+            --adapter http-smoke-adapter \
+            --provider http-smoke \
+            --result "$TMP/result-1.json" \
+            --result "$TMP/result-2.json" \
+            --result "$TMP/result-3.json" \
+            --health "$TMP/provider-health.json" \
+            --rollbacks dev-hub/config/adapter-rollbacks.v1.json \
+            --output "$TMP/enablement-evidence.json"
+
+          python dev-hub/bin/adapter-promotion.py \
+            --registry "$TMP/registry-pilot.json" \
+            --evidence "$TMP/enablement-evidence.json" --json \
+            plan --adapter http-smoke-adapter --target ENABLED \
+            --executable "$ADAPTER" > "$TMP/enablement-plan.json"
+
+          python - "$TMP/pilot-evidence.json" "$TMP/enablement-evidence.json" "$TMP/enablement-plan.json" <<'PY'
+          import json, sys
+          pilot = json.load(open(sys.argv[1], encoding='utf-8'))
+          enabled = json.load(open(sys.argv[2], encoding='utf-8'))
+          plan = json.load(open(sys.argv[3], encoding='utf-8'))
+          assert all(x['status'] == 'PASS' for x in pilot['evidence'].values()), pilot
+          assert all(x['status'] == 'PASS' for x in enabled['evidence'].values()), enabled
+          assert plan['transition'] == 'PILOT->ENABLED', plan
+          assert plan['eligible'] is True, plan
+          assert plan['applied'] is False, plan
+          assert plan['production_capable'] is False, plan
+          assert plan['approval_required'] is False, plan
+          print('HTTP_SMOKE_CONCRETE_RUNTIME=PASS')
+          print('HTTP_SMOKE_PILOT_EVIDENCE=PASS')
+          print('HTTP_SMOKE_ENABLEMENT_EVIDENCE=PASS')
+          print('HTTP_SMOKE_ENABLED_ELIGIBLE=YES')
+          print('HTTP_SMOKE_REAL_PROMOTION_APPLIED=NO')
+          PY
+
+          git diff --exit-code -- dev-hub/config/provider-adapters.v1.json
 
       - name: Platform readiness contract certification
         shell: bash
