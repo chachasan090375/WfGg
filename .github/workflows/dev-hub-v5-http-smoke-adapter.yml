@@ -7,11 +7,15 @@ on:
       - 'dev-hub/adapters/http-smoke-adapter.py'
       - 'dev-hub/bin/adapter-certification.py'
       - 'dev-hub/bin/adapter-contract-harness.py'
+      - 'dev-hub/bin/adapter-provision.py'
+      - 'dev-hub/bin/adapter-provisioning-evidence.py'
       - 'dev-hub/bin/adapter-promotion.py'
       - 'dev-hub/config/adapter-contract.v1.json'
+      - 'dev-hub/config/adapter-provisioning.v1.json'
       - 'dev-hub/config/adapter-promotion.v1.json'
       - 'dev-hub/config/provider-adapters.v1.json'
       - 'dev-hub/examples/http-smoke.dispatch.v1.json'
+      - 'dev-hub/schemas/adapter-provisioning-receipt-v1.schema.json'
       - 'dev-hub/schemas/dispatch-envelope-v1.schema.json'
       - 'dev-hub/schemas/task-result-v1.schema.json'
       - '.github/workflows/dev-hub-v5-http-smoke-adapter.yml'
@@ -37,9 +41,11 @@ jobs:
             dev-hub/adapters/http-smoke-adapter.py \
             dev-hub/bin/adapter-certification.py \
             dev-hub/bin/adapter-contract-harness.py \
+            dev-hub/bin/adapter-provision.py \
+            dev-hub/bin/adapter-provisioning-evidence.py \
             dev-hub/bin/adapter-promotion.py
 
-      - name: Certify HTTP smoke adapter in loopback sandbox
+      - name: Provision and certify HTTP smoke adapter in loopback sandbox
         shell: bash
         run: |
           set -euo pipefail
@@ -50,6 +56,7 @@ jobs:
             rm -rf "$TMP"
           }
           trap cleanup EXIT
+          export TMP
 
           mkdir -p "$TMP/www"
           printf 'healthy\n' > "$TMP/www/health"
@@ -70,18 +77,28 @@ jobs:
               raise SystemExit('SANDBOX_HTTP_READY=NO')
           PY
 
-          ADAPTER="$TMP/http-smoke-adapter"
-          printf '#!/bin/sh\nexec python3 "%s/dev-hub/adapters/http-smoke-adapter.py"\n' "$GITHUB_WORKSPACE" > "$ADAPTER"
-          chmod 0755 "$ADAPTER"
+          python dev-hub/bin/adapter-provision.py \
+            --root "$TMP/runtime" \
+            apply --adapter http-smoke-adapter \
+            --actor ci-platform \
+            --receipt "$TMP/provisioning-receipt.json" \
+            --apply
+
+          ADAPTER="$TMP/runtime/http-smoke/current/http-smoke-adapter"
+          test -x "$ADAPTER"
+          export ADAPTER
+
+          python dev-hub/bin/adapter-provision.py \
+            --root "$TMP/runtime" \
+            verify --adapter http-smoke-adapter \
+            --receipt "$TMP/provisioning-receipt.json"
 
           cp dev-hub/config/provider-adapters.v1.json "$TMP/registry-designed.json"
           cp dev-hub/config/provider-adapters.v1.json "$TMP/registry-contract-ok.json"
-          export TMP ADAPTER
           python - <<'PY'
           import json, os
           from pathlib import Path
           root = Path(os.environ['TMP'])
-
           designed = json.load(open(root / 'registry-designed.json', encoding='utf-8'))
           designed_entry = designed['adapters']['http-smoke-adapter']
           designed_entry['status'] = 'DESIGNED'
@@ -127,6 +144,12 @@ jobs:
             --contract-report "$TMP/contract-report.json" \
             --fixture dev-hub/examples/http-smoke.dispatch.v1.json \
             --task-result "$TMP/task-result.json" \
+            --output "$TMP/base-evidence.json"
+
+          python dev-hub/bin/adapter-provisioning-evidence.py \
+            --adapter http-smoke-adapter \
+            --base-evidence "$TMP/base-evidence.json" \
+            --receipt "$TMP/provisioning-receipt.json" \
             --output "$TMP/promotion-evidence.json"
 
           python dev-hub/bin/adapter-promotion.py \
@@ -140,14 +163,18 @@ jobs:
             plan --adapter http-smoke-adapter --target PILOT \
             --executable "$ADAPTER" > "$TMP/pilot-plan.json"
 
-          python - "$TMP/promotion-evidence.json" "$TMP/contract-plan.json" "$TMP/pilot-plan.json" <<'PY'
+          python - "$TMP/promotion-evidence.json" "$TMP/contract-plan.json" "$TMP/pilot-plan.json" "$TMP/provisioning-receipt.json" <<'PY'
           import json, sys
           evidence = json.load(open(sys.argv[1], encoding='utf-8'))
           contract_plan = json.load(open(sys.argv[2], encoding='utf-8'))
           pilot_plan = json.load(open(sys.argv[3], encoding='utf-8'))
+          receipt = json.load(open(sys.argv[4], encoding='utf-8'))
           assert all(item['status'] == 'PASS' for item in evidence['evidence'].values()), evidence
+          assert evidence['evidence']['provisioning-pass']['details']['executable_digest'] == receipt['executable_digest'], evidence
           assert contract_plan['eligible'] is True and contract_plan['applied'] is False, contract_plan
           assert pilot_plan['eligible'] is True and pilot_plan['applied'] is False, pilot_plan
+          assert 'provisioning-pass' in pilot_plan['required_evidence'], pilot_plan
+          print('HTTP_SMOKE_PROVISIONING=PASS')
           print('HTTP_SMOKE_PROMOTION_EVIDENCE=PASS')
           print('HTTP_SMOKE_CONTRACT_OK_ELIGIBLE=YES')
           print('HTTP_SMOKE_PILOT_ELIGIBLE=YES')
