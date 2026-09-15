@@ -1,0 +1,52 @@
+{
+  "schema": "chacha.dev/technology-radar/v1",
+  "policy": {
+    "rings": ["ADOPT", "TRIAL", "ASSESS", "HOLD"],
+    "decisions": ["KEEP", "WATCH", "PILOT", "RECOMMEND", "URGENT"],
+    "replacement_requires_approval": true
+  },
+  "entries": [
+    {
+      "name": "Antigravity CLI",
+      "category": "ai-coding-agent",
+      "ring": "ADOPT",
+      "relationship": "installed",
+      "notes": "Primary coding-agent integration; provider quota/availability must be monitored independently from tool health."
+    },
+    {
+      "name": "Skywork Skills",
+      "category": "agent-skills",
+      "ring": "ADOPT",
+      "relationship": "installed",
+      "notes": "Specialized skills layer."
+    },
+    {
+      "name": "MDN MCP",
+      "category": "developer-documentation",
+      "ring": "ADOPT",
+      "relationship": "installed",
+      "notes": "Authoritative Web platform documentation and compatibility reference."
+    },
+    {
+      "name": "Context7 MCP",
+      "category": "developer-documentation",
+      "ring": "ADOPT",
+      "relationship": "installed",
+      "notes": "Framework/library documentation source."
+    },
+    {
+      "name": "GitHub",
+      "category": "source-control-devops",
+      "ring": "ADOPT",
+      "relationship": "installed",
+      "notes": "Canonical source control and development workflow."
+    },
+    {
+      "name": "NAS storage",
+      "category": "storage-archive",
+      "ring": "ADOPT",
+      "relationship": "installed",
+      "notes": "Preferred location for archives, large artifacts, datasets and backups; VPS remains execution-oriented."
+    }
+  ]
+}
