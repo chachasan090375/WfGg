@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
-"""ChaCha DEV HUB Adapter Provisioning & Promotion V1.1.
+"""ChaCha DEV HUB Adapter Provisioning & Promotion V1.2.
 
 Evaluates and, only with an explicit apply flag, mutates an adapter status in a
 provider-adapter registry. Promotion is evidence-driven, adjacency-constrained,
-and approval-gated for production-capable enablement. Local executable binding
-is required only for execution kinds configured as local (currently VPS).
+and approval-gated for production-capable enablement.
+
+For local/VPS CONTRACT_OK->PILOT transitions, provisioning evidence is bound to
+the exact executable path and SHA-256 recorded by the provisioning receipt.
 External-only adapters remain executable=null and require provider-specific
-runtime evidence instead of an invented local bridge.
+runtime binding evidence instead of an invented local bridge.
 """
 from __future__ import annotations
 
@@ -14,6 +16,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
@@ -24,6 +27,7 @@ CONTRACT_SCHEMA = "chacha.dev/adapter-contract/v1"
 POLICY_SCHEMA = "chacha.dev/adapter-promotion/v1"
 EVIDENCE_SCHEMA = "chacha.dev/adapter-promotion-evidence/v1"
 REPORT_SCHEMA = "chacha.dev/adapter-promotion-report/v1"
+SHA256_RE = re.compile(r"^sha256:[0-9a-f]{64}$")
 
 
 def now_iso() -> str:
@@ -134,6 +138,54 @@ def valid_approval(evidence: dict[str, Any], adapter: str, target: str,
     return False, approval_id
 
 
+def provisioning_binding_blockers(
+    requirements: list[Any], evidence_map: dict[str, Any], execution_kinds: set[str],
+    needs_local_executable: bool, external_only: bool, after_exec: Any,
+) -> tuple[list[str], str | None]:
+    """Bind PILOT authorization to the runtime that was actually provisioned."""
+    if "provisioning-pass" not in requirements:
+        return [], None
+    item = evidence_map.get("provisioning-pass")
+    if not isinstance(item, dict):
+        return [], None  # generic missing-evidence checks already handle this
+    details = item.get("details") if isinstance(item.get("details"), dict) else {}
+    blockers: list[str] = []
+    recorded_digest: str | None = None
+
+    if needs_local_executable:
+        recorded_path = details.get("executable_path")
+        recorded_digest = details.get("executable_digest")
+        if not isinstance(recorded_path, str) or not Path(recorded_path).is_absolute():
+            blockers.append("PROVISIONED_EXECUTABLE_PATH_MISSING")
+        elif not isinstance(after_exec, str) or recorded_path != after_exec:
+            blockers.append("PROVISIONED_EXECUTABLE_PATH_MISMATCH")
+        if not isinstance(recorded_digest, str) or not SHA256_RE.fullmatch(recorded_digest):
+            blockers.append("PROVISIONED_EXECUTABLE_DIGEST_MISSING")
+
+        source_digest = details.get("source_digest")
+        installed_digest = details.get("installed_digest")
+        if source_digest is not None or installed_digest is not None:
+            if not all(
+                isinstance(value, str) and SHA256_RE.fullmatch(value)
+                for value in (source_digest, installed_digest, recorded_digest)
+            ):
+                blockers.append("PROVISIONING_DIGEST_CHAIN_INVALID")
+            elif not (source_digest == installed_digest == recorded_digest):
+                blockers.append("PROVISIONING_DIGEST_CHAIN_MISMATCH")
+
+    if external_only:
+        recorded_local = details.get("local_executable")
+        if recorded_local not in {None, ""}:
+            blockers.append("EXTERNAL_PROVISIONING_MUST_NOT_BIND_LOCAL_EXECUTABLE")
+        recorded_execution = details.get("execution")
+        if recorded_execution not in {None, "external"}:
+            blockers.append("EXTERNAL_PROVISIONING_EXECUTION_KIND_MISMATCH")
+
+    if execution_kinds and not needs_local_executable and not external_only:
+        blockers.append("MIXED_EXECUTION_PROVISIONING_REQUIRES_MANUAL_REVIEW")
+    return blockers, recorded_digest
+
+
 def evaluate(adapter: str, target: str, registry: dict[str, Any], contract: dict[str, Any],
              policy: dict[str, Any], evidence: dict[str, Any], executable: str | None,
              approval_id: str | None) -> dict[str, Any]:
@@ -213,6 +265,11 @@ def evaluate(adapter: str, target: str, registry: dict[str, Any], contract: dict
     ):
         blockers.append("EXTERNAL_ONLY_ADAPTER_MUST_NOT_BIND_LOCAL_EXECUTABLE")
 
+    provisioning_blockers, provisioned_digest = provisioning_binding_blockers(
+        requirements, evidence_map, execution_kinds, needs_local_executable, external_only, after_exec
+    )
+    blockers.extend(provisioning_blockers)
+
     prod = production_capable(entry, policy)
     approval_required = bool(prod and target == str((policy.get("approval") or {}).get("required_target") or "ENABLED"))
     approval_ok = True
@@ -239,9 +296,10 @@ def evaluate(adapter: str, target: str, registry: dict[str, Any], contract: dict
         "approval_id": matched_approval if approval_ok else approval_id,
         "executable_before": before_exec,
         "executable_after": after_exec,
+        "provisioned_executable_digest": provisioned_digest,
         "required_evidence": requirements,
         "observed_evidence": observed,
-        "blockers": blockers,
+        "blockers": sorted(set(blockers)),
         "actor": None,
         "registry_digest_before": canonical_digest(registry),
         "registry_digest_after": None,
@@ -282,14 +340,14 @@ def main() -> int:
     plan.add_argument("--executable")
     plan.add_argument("--approval-id")
 
-    apply = sub.add_parser("apply")
-    apply.add_argument("--adapter", required=True)
-    apply.add_argument("--target", required=True)
-    apply.add_argument("--executable")
-    apply.add_argument("--approval-id")
-    apply.add_argument("--actor", required=True)
-    apply.add_argument("--receipt", required=True, type=Path)
-    apply.add_argument("--apply", action="store_true")
+    apply_cmd = sub.add_parser("apply")
+    apply_cmd.add_argument("--adapter", required=True)
+    apply_cmd.add_argument("--target", required=True)
+    apply_cmd.add_argument("--executable")
+    apply_cmd.add_argument("--approval-id")
+    apply_cmd.add_argument("--actor", required=True)
+    apply_cmd.add_argument("--receipt", required=True, type=Path)
+    apply_cmd.add_argument("--apply", action="store_true")
 
     args = parser.parse_args()
     registry = load(args.registry)
@@ -311,6 +369,7 @@ def main() -> int:
         report["receipt"] = str(args.receipt)
         if not args.apply:
             report["blockers"].append("EXPLICIT_APPLY_FLAG_REQUIRED")
+            report["blockers"] = sorted(set(report["blockers"]))
             report["eligible"] = False
         if report["eligible"]:
             before = dict((registry.get("adapters") or {})[args.adapter])
