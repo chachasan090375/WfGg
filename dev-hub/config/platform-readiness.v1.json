@@ -11,6 +11,7 @@
     "provider_health_must_be_fresh_and_explicit": true,
     "provider_health_snapshot_is_normalized_platform_evidence": true,
     "storage_preflight_is_normalized_platform_evidence": true,
+    "adapter_promotion_is_evidence_gated": true,
     "designed_adapter_is_not_executable": true,
     "storage_pressure_can_block_execution": true,
     "pending_control_transaction_blocks_execution": true,
@@ -60,6 +61,7 @@
   "repository_paths": {
     "provider_adapters": "dev-hub/config/provider-adapters.v1.json",
     "adapter_contract": "dev-hub/config/adapter-contract.v1.json",
+    "adapter_promotion": "dev-hub/config/adapter-promotion.v1.json",
     "capability_registry": "dev-hub/config/capability-registry.v1.json",
     "provider_health_probes": "dev-hub/config/provider-health-probes.v1.json",
     "platform_evidence": "dev-hub/config/platform-evidence.v1.json",
@@ -72,6 +74,7 @@
   },
   "engine_paths": {
     "adapter_contract_harness": "dev-hub/bin/adapter-contract-harness.py",
+    "adapter_promotion": "dev-hub/bin/adapter-promotion.py",
     "platform_evidence": "dev-hub/bin/platform-evidence.py",
     "control_plane_store": "dev-hub/bin/control-plane-store.py",
     "transaction_recovery": "dev-hub/bin/transaction-recovery.py",
@@ -80,6 +83,7 @@
   "repository_contracts": {
     "json": [
       "dev-hub/config/adapter-contract.v1.json",
+      "dev-hub/config/adapter-promotion.v1.json",
       "dev-hub/config/capability-registry.v1.json",
       "dev-hub/config/control-plane-state.v1.json",
       "dev-hub/config/cryptographic-trust.v1.json",
@@ -93,6 +97,8 @@
       "dev-hub/config/recovery-drill.v1.json",
       "dev-hub/config/run-controller.v1.json",
       "dev-hub/config/transaction-recovery.v1.json",
+      "dev-hub/schemas/adapter-promotion-evidence-v1.schema.json",
+      "dev-hub/schemas/adapter-promotion-report-v1.schema.json",
       "dev-hub/schemas/platform-readiness-report-v1.schema.json",
       "dev-hub/schemas/provider-health-snapshot-v1.schema.json",
       "dev-hub/schemas/provider-probe-result-v1.schema.json",
@@ -100,6 +106,7 @@
     ],
     "python": [
       "dev-hub/bin/adapter-contract-harness.py",
+      "dev-hub/bin/adapter-promotion.py",
       "dev-hub/bin/control-plane-store.py",
       "dev-hub/bin/crypto-trust.py",
       "dev-hub/bin/evidence-collector.py",
