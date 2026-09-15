@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""ChaCha DEV HUB Project Control JSON API V1.2.
+"""ChaCha DEV HUB Project Control JSON API V1.3.
 
 Local stdin/stdout adapter over the unified Project Control CLI router. No
 network listener is created. Human verification cannot be asserted through this
-agent-facing adapter, and recovery cannot mutate unless apply=true is explicit.
+agent-facing adapter, recovery cannot mutate unless apply=true is explicit, and
+platform readiness remains read-only.
 """
 from __future__ import annotations
 
@@ -70,6 +71,26 @@ def main() -> int:
             cmd.append("--apply")
         if args.get("report"):
             cmd += ["--report", str(args["report"])]
+    elif operation == "platform-readiness":
+        cmd += [operation, "--project", project]
+        if args.get("profile"):
+            cmd += ["--profile", str(args["profile"])]
+        for key, flag in (
+            ("provider_health", "--provider-health"),
+            ("storage_preflight", "--storage-preflight"),
+            ("adapter_contract_report", "--adapter-contract-report"),
+            ("recovery_drill_report", "--recovery-drill-report"),
+            ("report", "--report"),
+        ):
+            if args.get(key):
+                cmd += [flag, str(args[key])]
+        if args.get("run_recovery_drill") is True:
+            cmd.append("--run-recovery-drill")
+        providers = args.get("required_providers") or []
+        if not isinstance(providers, list):
+            fail("REQUEST_REQUIRED_PROVIDERS_NOT_ARRAY", project, operation)
+        for provider in providers:
+            cmd += ["--required-provider", str(provider)]
     elif operation == "plan-transition":
         cmd += [operation, "--project", project]
         if args.get("target"):
