@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://chacha.dev/schemas/evidence-ledger-v1.schema.json",
+  "title": "ChaCha DEV HUB Evidence Ledger V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "project", "artifacts", "gates", "approvals", "risk_acceptances", "history"],
+  "properties": {
+    "schema": {"const": "chacha.dev/evidence-ledger/v1"},
+    "project": {"type": "string"},
+    "updated_at": {"type": "string"},
+    "artifacts": {"type": "object", "additionalProperties": {"$ref": "#/$defs/evidenceItem"}},
+    "gates": {"type": "object", "additionalProperties": {"$ref": "#/$defs/gateItem"}},
+    "approvals": {"type": "object", "additionalProperties": {"$ref": "#/$defs/approvalItem"}},
+    "risk_acceptances": {"type": "array", "items": {"type": "object", "additionalProperties": true}},
+    "history": {"type": "array", "items": {"type": "object", "additionalProperties": true}}
+  },
+  "$defs": {
+    "evidenceItem": {
+      "type": "object",
+      "required": ["status", "source", "observed_at", "digest", "producer", "verifier", "verification_method"],
+      "properties": {
+        "status": {"enum": ["OK", "PARTIAL", "MISSING", "NOT_APPLICABLE", "UNVERIFIED"]},
+        "source": {"type": "string"},
+        "observed_at": {"type": "string"},
+        "digest": {"type": "string"},
+        "producer": {"type": "string"},
+        "verifier": {"type": "string"},
+        "verification_method": {"type": "string"},
+        "task_id": {"type": "string"},
+        "summary": {"type": "string"}
+      }
+    },
+    "gateItem": {
+      "allOf": [
+        {"$ref": "#/$defs/evidenceItem"},
+        {"type": "object", "properties": {"reason": {"type": "string"}}}
+      ]
+    },
+    "approvalItem": {
+      "type": "object",
+      "required": ["status", "actor", "observed_at", "digest"],
+      "properties": {
+        "status": {"enum": ["APPROVED", "REJECTED"]},
+        "actor": {"type": "string"},
+        "observed_at": {"type": "string"},
+        "digest": {"type": "string"},
+        "task_id": {"type": "string"},
+        "summary": {"type": "string"}
+      }
+    }
+  }
+}
