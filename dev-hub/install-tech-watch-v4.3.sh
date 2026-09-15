@@ -5,11 +5,10 @@ ROOT="${CHACHA_DEV_ROOT:-/opt/chacha-dev}"
 BIN="$ROOT/platform/bin"
 CFG="$ROOT/platform/config"
 RADAR="$ROOT/radar"
-BASE="https://raw.githubusercontent.com/chachasan090375/WfGg/dev-hub-v4.2/dev-hub"
+BASE="https://raw.githubusercontent.com/chachasan090375/WfGg/dev-hub-v4.3/dev-hub"
 
 mkdir -p "$BIN" "$CFG" "$RADAR/history"
 
-# Back up v4.2 config/report before replacement.
 STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
 [ -f "$CFG/tech-watch-targets.json" ] && cp -a "$CFG/tech-watch-targets.json" "$CFG/tech-watch-targets.v4.2.$STAMP.json" || true
 [ -f "$RADAR/latest.json" ] && cp -a "$RADAR/latest.json" "$RADAR/latest.v4.2.$STAMP.json" || true
@@ -22,8 +21,6 @@ ln -sfn "$BIN/tech-watch.py" /usr/local/bin/techwatch
 
 python3 -m py_compile "$BIN/tech-watch.py"
 python3 -m json.tool "$CFG/tech-watch-targets.json" >/dev/null
-
-# Existing v4.2 scheduler already calls /usr/local/bin/techwatch and therefore picks up v4.3.
 
 echo "=== TECH WATCH V4.3 INSTALL ==="
 echo "TECHWATCH_VERSION=4.3"
