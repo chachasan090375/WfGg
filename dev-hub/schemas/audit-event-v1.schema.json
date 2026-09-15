@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://chacha.dev/schemas/audit-event-v1.schema.json",
+  "title": "ChaCha DEV HUB Audit Event V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "project", "sequence", "event_id", "event_type", "actor", "observed_at", "previous_event_digest", "payload", "event_digest"],
+  "properties": {
+    "schema": {"const": "chacha.dev/audit-event/v1"},
+    "project": {"type": "string", "minLength": 1},
+    "sequence": {"type": "integer", "minimum": 1},
+    "event_id": {"type": "string", "minLength": 1},
+    "event_type": {"type": "string", "minLength": 1},
+    "actor": {"type": "string", "minLength": 1},
+    "observed_at": {"type": "string", "minLength": 1},
+    "previous_event_digest": {"type": ["string", "null"]},
+    "payload": {"type": "object", "additionalProperties": true},
+    "references": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["kind", "value"],
+        "properties": {
+          "kind": {"type": "string"},
+          "value": {"type": "string"},
+          "digest": {"type": ["string", "null"]}
+        }
+      }
+    },
+    "event_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}
+  }
+}
