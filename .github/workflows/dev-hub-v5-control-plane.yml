@@ -1,0 +1,57 @@
+name: Dev Hub V5 Control Plane
+
+on:
+  push:
+    branches: [dev-hub-v5.0]
+    paths:
+      - 'dev-hub/**'
+      - '.github/workflows/dev-hub-v5-control-plane.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contracts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Compile control-plane Python
+        run: |
+          python -m py_compile \
+            dev-hub/bin/control-plane-store.py \
+            dev-hub/bin/project-control.py \
+            dev-hub/bin/project-control-api.py \
+            dev-hub/bin/lifecycle-engine.py \
+            dev-hub/bin/task-graph-engine.py \
+            dev-hub/bin/execution-scheduler.py \
+            dev-hub/bin/run-controller.py \
+            dev-hub/bin/verification-broker.py \
+            dev-hub/bin/evidence-collector.py \
+            dev-hub/bin/crypto-trust.py
+
+      - name: Parse DEV HUB JSON contracts
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          files = sorted(Path('dev-hub/config').glob('*.json')) + sorted(Path('dev-hub/schemas').glob('*.json'))
+          for path in files:
+              with path.open(encoding='utf-8') as fh:
+                  json.load(fh)
+          print(f'JSON_CONTRACTS_OK={len(files)}')
+          PY
+
+      - name: CLI parser smoke checks
+        run: |
+          python dev-hub/bin/control-plane-store.py --help >/dev/null
+          python dev-hub/bin/project-control.py --help >/dev/null
+          python dev-hub/bin/lifecycle-engine.py --help >/dev/null
+          python dev-hub/bin/verification-broker.py --help >/dev/null
+          echo CONTROL_PLANE_CLI_SMOKE=OK
