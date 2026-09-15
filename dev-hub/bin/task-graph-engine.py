@@ -103,18 +103,14 @@ def approval_task(approval_id: str, dependencies: list[str]) -> dict[str, Any]:
     }
 
 
-def validate_permissions(tasks: list[dict[str, Any]], target: str, orchestration: dict[str, Any]) -> None:
+def validate_permissions(tasks: list[dict[str, Any]], current: str, orchestration: dict[str, Any]) -> None:
     stages = orchestration.get("stages") or {}
-    stage = stages.get(target) or {}
-    allowed = set(stage.get("allowed_permissions") or [])
-    # A transition may need the permission of the target stage plus read/plan.
-    allowed |= {"read", "plan"}
+    stage = stages.get(current) or {}
+    allowed = set(stage.get("allowed_permissions") or []) | {"read", "plan"}
     for task in tasks:
         permission = task.get("permission")
         if permission not in allowed:
-            # Production-deploy and destructive-operation are intentionally explicit
-            # and can appear only when the target stage policy allows them.
-            raise SystemExit(f"TASK_PERMISSION_NOT_ALLOWED={task.get('id')}:{permission}:target={target}")
+            raise SystemExit(f"TASK_PERMISSION_NOT_ALLOWED={task.get('id')}:{permission}:current={current}")
 
 
 def ensure_acyclic(tasks: list[dict[str, Any]]) -> None:
@@ -142,20 +138,13 @@ def ensure_acyclic(tasks: list[dict[str, Any]]) -> None:
         raise SystemExit(f"TASK_GRAPH_CYCLE={','.join(cyclic)}")
 
 
-def build_graph(
-    project: str,
-    transition: str,
-    lifecycle: dict[str, Any],
-    quality: dict[str, Any],
-    catalog: dict[str, Any],
-    orchestration: dict[str, Any],
-) -> dict[str, Any]:
+def build_graph(project: str, transition: str, lifecycle: dict[str, Any], quality: dict[str, Any], catalog: dict[str, Any], orchestration: dict[str, Any]) -> dict[str, Any]:
     rule = (lifecycle.get("transitions") or {}).get(transition)
     if not isinstance(rule, dict):
         raise SystemExit(f"TRANSITION_NOT_DEFINED={transition}")
     if "->" not in transition:
         raise SystemExit(f"TRANSITION_INVALID={transition}")
-    _current, target = transition.split("->", 1)
+    current, target = transition.split("->", 1)
 
     artifact_ids = list(rule.get("required_artifacts") or [])
     tasks = [artifact_task(a, catalog) for a in artifact_ids]
@@ -177,7 +166,10 @@ def build_graph(
     for approval_id in rule.get("required_approvals") or []:
         tasks.append(approval_task(approval_id, dependencies.copy()))
 
-    validate_permissions(tasks, target, orchestration)
+    # Transition work is performed while the project is still in its current
+    # stage. A successful transition grants the target-stage permissions only
+    # after the Lifecycle Engine promotes the state.
+    validate_permissions(tasks, current, orchestration)
     ensure_acyclic(tasks)
 
     return {
