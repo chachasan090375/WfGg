@@ -1,0 +1,19 @@
+{
+  "schema": "chacha.dev/adapter-promotion-evidence/v1",
+  "adapter": "http-smoke-adapter",
+  "observed_at": "2026-09-15T17:21:10+00:00",
+  "evidence": {
+    "static-contract-pass": {
+      "status": "PASS",
+      "source": "github-actions:35000700637:Dev Hub V5 HTTP Smoke Adapter",
+      "observed_at": "2026-09-15T17:21:10+00:00",
+      "details": {
+        "head_sha": "6b4275aabe9a95f0e02c64f478ef93f180db62ed",
+        "workflow_run": 35000700637,
+        "scope": "adapter-contract-harness and loopback-safe HTTP adapter checks"
+      }
+    }
+  },
+  "approvals": [],
+  "notes": "Evidence for non-production DESIGNED->CONTRACT_OK promotion only. No VPS executable is provisioned and PILOT is not authorized by this record."
+}

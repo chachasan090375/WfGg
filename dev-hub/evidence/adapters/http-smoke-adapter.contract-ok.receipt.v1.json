@@ -1,0 +1,37 @@
+{
+  "schema": "chacha.dev/adapter-promotion-report/v1",
+  "receipt_schema": "chacha.dev/adapter-promotion-receipt/v1",
+  "adapter": "http-smoke-adapter",
+  "current_status": "DESIGNED",
+  "target_status": "CONTRACT_OK",
+  "transition": "DESIGNED->CONTRACT_OK",
+  "execution_kinds": ["vps"],
+  "requires_local_executable": false,
+  "eligible": true,
+  "applied": true,
+  "production_capable": false,
+  "approval_required": false,
+  "approval_id": null,
+  "executable_before": null,
+  "executable_after": null,
+  "required_evidence": ["static-contract-pass"],
+  "observed_evidence": {
+    "static-contract-pass": {
+      "status": "PASS",
+      "source": "github-actions:35000700637:Dev Hub V5 HTTP Smoke Adapter",
+      "observed_at": "2026-09-15T17:21:10+00:00",
+      "fresh": true
+    }
+  },
+  "blockers": [],
+  "actor": "chacha-dev-architect",
+  "registry_digest_before": null,
+  "registry_digest_after": null,
+  "registry_blob_before": "74cb0467250e0e8c7226cf26177126733d92c8fc",
+  "registry_blob_after": "4fb1687214a6236c7b284fb90ca3676008de10d9",
+  "receipt": "dev-hub/evidence/adapters/http-smoke-adapter.contract-ok.receipt.v1.json",
+  "evidence_path": "dev-hub/evidence/adapters/http-smoke-adapter.contract-ok.v1.json",
+  "promotion_method": "git-atomic-commit",
+  "observed_at": "2026-09-15T17:22:00+00:00",
+  "notes": "CONTRACT_OK only; PILOT remains blocked until a real VPS executable is provisioned and runtime evidence is refreshed."
+}
