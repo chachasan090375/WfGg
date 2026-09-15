@@ -1,0 +1,201 @@
+{
+  "schema": "chacha.dev/project-manifest/v3",
+  "identity": {
+    "name": "WfGg",
+    "slug": "wfgg",
+    "description": "WfGg web platform and edge API",
+    "lifecycle_stage": "IMPROVE",
+    "criticality": "high",
+    "tags": ["web", "pwa", "cloudflare", "multilingual"]
+  },
+  "repository": {
+    "url": "https://github.com/chachasan090375/WfGg.git",
+    "default_branch": "main",
+    "working_branch": "dev-hub-v5.0",
+    "monorepo": true,
+    "source_of_truth": "git"
+  },
+  "ownership": {
+    "technical_owner": "project-owner",
+    "product_owner": "project-owner",
+    "operations_owner": "project-owner"
+  },
+  "components": [
+    {
+      "id": "frontend",
+      "type": "frontend-web",
+      "path": "frontend",
+      "runtime": "browser",
+      "framework": "static-pwa",
+      "interfaces": ["https"],
+      "depends_on": ["api"],
+      "commands": {},
+      "artifacts": ["static-site"],
+      "env_refs": [],
+      "secret_refs": [],
+      "observability_hooks": ["client-errors", "web-vitals"],
+      "owner": "frontend-role"
+    },
+    {
+      "id": "api",
+      "type": "worker-edge",
+      "path": "worker",
+      "runtime": "cloudflare-workers",
+      "framework": "wrangler",
+      "package_manager": "npm",
+      "interfaces": ["https-api"],
+      "depends_on": ["database", "object-storage"],
+      "commands": {
+        "setup": "npm ci",
+        "check": "npm run check",
+        "test": "npm test",
+        "run": "npm run dev",
+        "deploy": "npm run deploy"
+      },
+      "artifacts": ["worker-bundle"],
+      "env_refs": ["worker-config"],
+      "secret_refs": ["worker-secrets"],
+      "observability_hooks": ["structured-logs", "request-errors"],
+      "owner": "backend-role"
+    },
+    {
+      "id": "database",
+      "type": "database",
+      "path": "worker/migrations",
+      "runtime": "cloudflare-d1",
+      "framework": "d1",
+      "interfaces": ["sql"],
+      "depends_on": [],
+      "commands": {},
+      "artifacts": ["migrations"],
+      "env_refs": ["d1-binding"],
+      "secret_refs": [],
+      "observability_hooks": ["query-errors"],
+      "owner": "data-role"
+    },
+    {
+      "id": "object-storage",
+      "type": "object-storage",
+      "path": "worker",
+      "runtime": "cloudflare-r2",
+      "framework": "r2",
+      "interfaces": ["object-storage-binding"],
+      "depends_on": [],
+      "commands": {},
+      "artifacts": [],
+      "env_refs": ["r2-binding"],
+      "secret_refs": [],
+      "observability_hooks": ["storage-errors"],
+      "owner": "data-role"
+    }
+  ],
+  "dependencies": [
+    {"from": "frontend", "to": "api", "kind": "network", "required": true},
+    {"from": "api", "to": "database", "kind": "data", "required": true},
+    {"from": "api", "to": "object-storage", "kind": "data", "required": true}
+  ],
+  "environments": [
+    {"name": "development", "class": "dev", "provider": "vps", "approval_required": false},
+    {"name": "preview", "class": "preview", "provider": "cloudflare", "promotion_from": "development", "approval_required": false},
+    {"name": "production", "class": "production", "provider": "cloudflare", "promotion_from": "preview", "approval_required": true}
+  ],
+  "capabilities": [
+    {"id": "source-control", "required": true, "preferred_provider": "github"},
+    {"id": "code-edit", "required": true, "preferred_provider": "antigravity"},
+    {"id": "web-docs", "required": true, "preferred_provider": "mdn-mcp"},
+    {"id": "library-docs", "required": true, "preferred_provider": "context7-mcp"},
+    {"id": "unit-test-js", "required": true, "preferred_provider": "vitest"},
+    {"id": "e2e-test-web", "required": true, "preferred_provider": "playwright"},
+    {"id": "security-scan-js", "required": true, "preferred_provider": "npm-audit"},
+    {"id": "ci", "required": true, "preferred_provider": "github-actions"},
+    {"id": "artifact-store", "required": true, "preferred_provider": "nas"},
+    {"id": "backup-store", "required": true, "preferred_provider": "nas"},
+    {"id": "technology-radar", "required": true, "preferred_provider": "chacha-tech-watch"},
+    {"id": "architecture-audit", "required": true, "preferred_provider": "chacha-dev-architect"}
+  ],
+  "quality_gates": {
+    "product-domain": {"required": true, "blocking": false, "minimum_status": "PARTIAL", "evidence_required": true},
+    "ux-frontend": {"required": true, "blocking": true, "minimum_status": "OK", "evidence_required": true},
+    "api-backend": {"required": true, "blocking": true, "minimum_status": "OK", "evidence_required": true},
+    "data": {"required": true, "blocking": true, "minimum_status": "OK", "evidence_required": true},
+    "integrations": {"required": true, "blocking": false, "minimum_status": "PARTIAL", "evidence_required": true},
+    "identity-security": {"required": true, "blocking": true, "minimum_status": "OK", "evidence_required": true},
+    "testing": {"required": true, "blocking": true, "minimum_status": "OK", "evidence_required": true},
+    "build-dependencies": {"required": true, "blocking": true, "minimum_status": "OK", "evidence_required": true},
+    "ci-cd-release": {"required": true, "blocking": true, "minimum_status": "OK", "evidence_required": true},
+    "environments-infra": {"required": true, "blocking": false, "minimum_status": "PARTIAL", "evidence_required": true},
+    "observability": {"required": true, "blocking": false, "minimum_status": "PARTIAL", "evidence_required": true},
+    "performance": {"required": true, "blocking": false, "minimum_status": "PARTIAL", "evidence_required": true},
+    "reliability-resilience": {"required": true, "blocking": false, "minimum_status": "PARTIAL", "evidence_required": true},
+    "backup-recovery": {"required": true, "blocking": true, "minimum_status": "OK", "evidence_required": true},
+    "documentation": {"required": true, "blocking": false, "minimum_status": "OK", "evidence_required": true},
+    "operations-sre": {"required": true, "blocking": false, "minimum_status": "PARTIAL", "evidence_required": true},
+    "finops-capacity": {"required": true, "blocking": false, "minimum_status": "PARTIAL", "evidence_required": true},
+    "governance-compliance": {"required": true, "blocking": false, "minimum_status": "PARTIAL", "evidence_required": true}
+  },
+  "non_functional_requirements": {
+    "accessibility_target": "WCAG-aware",
+    "supported_locales": ["fr", "it", "en", "es"],
+    "supported_clients": ["modern-mobile-browser", "modern-desktop-browser"]
+  },
+  "security": {
+    "secrets_management": "provider-managed-secrets",
+    "dependency_scanning": true,
+    "security_headers_required": true,
+    "audit_logging_required": true
+  },
+  "data": {
+    "classification": "application-data",
+    "migrations_required": true,
+    "retention_policy": "to-be-formalized"
+  },
+  "observability": {
+    "structured_logs": true,
+    "health_checks": true,
+    "alerts_required": true
+  },
+  "recovery": {
+    "rpo_hours": 24,
+    "rto_hours": 2,
+    "backup_policy": "NAS-backed recovery packages plus cloud-native exports",
+    "restore_procedure": "to-be-validated-on-production-shaped-data",
+    "production_restore_test_required": true
+  },
+  "delivery": {
+    "ci_provider": "github-actions",
+    "release_strategy": "preview-then-production",
+    "rollback_strategy": "versioned rollback",
+    "artifact_versioning": "git-sha"
+  },
+  "storage": {
+    "governor_required": true,
+    "tiers": [
+      {"name": "git", "purpose": ["source", "configuration", "docs", "migrations", "tests"], "provider": "github", "retention": "versioned"},
+      {"name": "execution", "purpose": ["workspace", "temporary-builds", "bounded-caches"], "provider": "vps", "path_or_ref": "/opt/chacha-dev", "retention": "ephemeral"},
+      {"name": "archive", "purpose": ["artifacts", "backups", "datasets", "history"], "provider": "nas", "path_or_ref": "ChaCha-DEV-HUB", "retention": "policy-driven"},
+      {"name": "production-state", "purpose": ["database", "object-storage"], "provider": "cloudflare", "retention": "service-policy"}
+    ]
+  },
+  "agents": [
+    {"role": "orchestrator", "provider": "chacha-dev-architect", "capabilities": ["architecture-audit", "technology-radar"], "approval_scope": "workspace-write"},
+    {"role": "implementation", "provider": "antigravity", "capabilities": ["code-edit", "code-review"], "approval_scope": "workspace-write"},
+    {"role": "documentation", "provider": "skywork", "capabilities": ["documentation"], "approval_scope": "workspace-write"}
+  ],
+  "knowledge_sources": [
+    {"id": "mdn", "capability": "web-docs", "provider": "mdn-mcp", "required_for": ["frontend", "web-platform"]},
+    {"id": "context7", "capability": "library-docs", "provider": "context7-mcp", "required_for": ["libraries", "frameworks"]},
+    {"id": "github", "capability": "source-control", "provider": "github", "required_for": ["history", "issues", "releases"]}
+  ],
+  "technology_policy": {
+    "radar_enabled": true,
+    "auto_replace_production": false,
+    "pilot_requires_approval": true,
+    "recommend_requires_comparative_evidence": true,
+    "allowed_stages": ["DISCOVER", "WATCH", "ASSESS", "PILOT", "RECOMMEND", "ADOPT", "DEPRECATE", "RETIRE"]
+  },
+  "operations": {
+    "incident_runbook_required": true,
+    "rollback_required": true,
+    "quota_monitoring_required": true
+  }
+}
