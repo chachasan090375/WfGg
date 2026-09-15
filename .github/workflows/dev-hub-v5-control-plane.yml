@@ -32,6 +32,8 @@ jobs:
             dev-hub/bin/transaction-recovery.py \
             dev-hub/bin/recovery-drill.py \
             dev-hub/bin/platform-readiness.py \
+            dev-hub/bin/platform-evidence.py \
+            dev-hub/bin/adapter-promotion.py \
             dev-hub/bin/lifecycle-engine.py \
             dev-hub/bin/task-graph-engine.py \
             dev-hub/bin/execution-scheduler.py \
@@ -60,6 +62,8 @@ jobs:
           python dev-hub/bin/transaction-recovery.py --help >/dev/null
           python dev-hub/bin/recovery-drill.py --help >/dev/null
           python dev-hub/bin/platform-readiness.py --help >/dev/null
+          python dev-hub/bin/platform-evidence.py --help >/dev/null
+          python dev-hub/bin/adapter-promotion.py --help >/dev/null
           python dev-hub/bin/lifecycle-engine.py --help >/dev/null
           python dev-hub/bin/verification-broker.py --help >/dev/null
           echo CONTROL_PLANE_CLI_SMOKE=OK
