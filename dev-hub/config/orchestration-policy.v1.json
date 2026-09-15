@@ -12,7 +12,8 @@
     "provider_adapters": "dev-hub/config/provider-adapters.v1.json",
     "verification_broker": "dev-hub/config/verification-broker.v1.json",
     "adapter_contract": "dev-hub/config/adapter-contract.v1.json",
-    "control_plane_state": "dev-hub/config/control-plane-state.v1.json"
+    "control_plane_state": "dev-hub/config/control-plane-state.v1.json",
+    "cryptographic_trust": "dev-hub/config/cryptographic-trust.v1.json"
   },
   "principles": {
     "least_privilege": true,
@@ -32,7 +33,12 @@
     "current_project_state_has_one_control_plane_projection": true,
     "all_consequential_state_changes_are_audited": true,
     "audit_history_is_append_only_and_hash_chained": true,
-    "control_plane_state_is_rebuildable_from_audit_history": true
+    "control_plane_state_is_rebuildable_from_audit_history": true,
+    "security_reviewer_owns_cryptographic_policy": true,
+    "private_signing_material_is_not_accessible_to_orchestrator": true,
+    "release_boundaries_require_valid_digital_signature": true,
+    "key_lifecycle_requires_explicit_human_approval": true,
+    "release_trust_requires_external_anchor_quorum": true
   },
   "permissions": {
     "read": {"approval": "none"},
@@ -44,18 +50,21 @@
     "production-data-write": {"approval": "explicit-human"},
     "secret-change": {"approval": "explicit-human"},
     "destructive-operation": {"approval": "explicit-human"},
-    "technology-replacement": {"approval": "explicit-human"}
+    "technology-replacement": {"approval": "explicit-human"},
+    "signing-key-activation": {"approval": "explicit-human"},
+    "signing-key-rotation": {"approval": "explicit-human"},
+    "signing-key-revocation": {"approval": "explicit-human"}
   },
   "stages": {
     "IDEA": {"lead_roles": ["product-domain", "orchestrator"], "allowed_permissions": ["read", "plan"], "outputs": ["project-intent"]},
     "DESIGN": {"lead_roles": ["orchestrator", "platform", "security", "data", "frontend", "backend-api"], "allowed_permissions": ["read", "plan"], "outputs": ["project-plan", "manifest-v3", "architecture-decisions", "capability-resolution"]},
-    "READY": {"lead_roles": ["orchestrator", "platform"], "allowed_permissions": ["read", "plan", "workspace-write"], "outputs": ["workspace-health", "storage-preflight", "dependency-resolution"]},
+    "READY": {"lead_roles": ["orchestrator", "platform", "security"], "allowed_permissions": ["read", "plan", "workspace-write"], "outputs": ["workspace-health", "storage-preflight", "dependency-resolution", "cryptographic-trust-readiness"]},
     "BUILD": {"lead_roles": ["frontend", "backend-api", "data", "platform", "documentation"], "allowed_permissions": ["read", "plan", "workspace-write", "repository-write"], "outputs": ["change-set", "build-result", "static-check"]},
-    "VERIFY": {"lead_roles": ["testing", "security", "performance", "orchestrator"], "allowed_permissions": ["read", "plan", "workspace-write", "repository-write"], "outputs": ["test-result", "security-scan", "ci-result"]},
-    "PREVIEW": {"lead_roles": ["release", "testing", "sre-observability"], "allowed_permissions": ["read", "plan", "workspace-write", "repository-write", "preview-deploy"], "outputs": ["preview-validation", "e2e-result", "smoke-result", "rollback-plan"]},
-    "RELEASE": {"lead_roles": ["release", "orchestrator", "recovery", "security"], "allowed_permissions": ["read", "plan", "repository-write", "production-deploy"], "outputs": ["production-deployment-receipt"]},
-    "OPERATE": {"lead_roles": ["operations", "sre-observability", "recovery", "technology-radar"], "allowed_permissions": ["read", "plan", "workspace-write", "repository-write"], "outputs": ["production-health", "observability-health", "incident-records", "technology-watch"]},
-    "RETIRE": {"lead_roles": ["orchestrator", "operations", "recovery", "data"], "allowed_permissions": ["read", "plan", "repository-write", "destructive-operation"], "outputs": ["retirement-record", "archive-proof", "data-disposition"]}
+    "VERIFY": {"lead_roles": ["testing", "security", "performance", "orchestrator"], "allowed_permissions": ["read", "plan", "workspace-write", "repository-write"], "outputs": ["test-result", "security-scan", "ci-result", "trust-verification"]},
+    "PREVIEW": {"lead_roles": ["release", "testing", "sre-observability", "security"], "allowed_permissions": ["read", "plan", "workspace-write", "repository-write", "preview-deploy"], "outputs": ["preview-validation", "e2e-result", "smoke-result", "rollback-plan", "signed-release-checkpoint-candidate"]},
+    "RELEASE": {"lead_roles": ["release", "orchestrator", "recovery", "security"], "allowed_permissions": ["read", "plan", "repository-write", "production-deploy"], "outputs": ["production-deployment-receipt", "signed-release-checkpoint", "external-anchor-receipts"]},
+    "OPERATE": {"lead_roles": ["operations", "sre-observability", "recovery", "technology-radar", "security"], "allowed_permissions": ["read", "plan", "workspace-write", "repository-write"], "outputs": ["production-health", "observability-health", "incident-records", "technology-watch", "routine-signed-checkpoints"]},
+    "RETIRE": {"lead_roles": ["orchestrator", "operations", "recovery", "data", "security"], "allowed_permissions": ["read", "plan", "repository-write", "destructive-operation"], "outputs": ["retirement-record", "archive-proof", "data-disposition", "signed-retirement-checkpoint"]}
   },
   "execution_rules": {
     "max_parallel_write_agents_per_project": 1,
@@ -80,6 +89,11 @@
     "audit_event_sequence_must_be_contiguous": true,
     "audit_event_hash_chain_must_verify": true,
     "projection_must_match_journal_head": true,
-    "release_and_retirement_boundaries_require_checkpoint": true
+    "release_and_retirement_boundaries_require_checkpoint": true,
+    "release_and_retirement_checkpoints_require_ed25519_signature": true,
+    "signing_key_private_material_must_not_be_logged_or_stored_in_git": true,
+    "signing_key_activation_rotation_revocation_require_human_approval": true,
+    "release_requires_two_independent_trust_anchors": true,
+    "cryptographic_policy_changes_require_security_review": true
   }
 }
