@@ -1,0 +1,87 @@
+{
+  "schema": "chacha.dev/orchestration-policy/v1",
+  "orchestrator": "chacha-dev-architect",
+  "references": {
+    "agent_routing": "dev-hub/config/agent-routing.v1.json",
+    "capability_registry": "dev-hub/config/capability-registry.v1.json",
+    "lifecycle": "dev-hub/config/lifecycle.v1.json",
+    "quality_gates": "dev-hub/config/quality-gates.v1.json"
+  },
+  "principles": {
+    "least_privilege": true,
+    "specialist_agents_do_not_self_promote": true,
+    "evidence_required_before_success_claim": true,
+    "production_mutation_never_implicit": true,
+    "tool_provider_is_replaceable": true,
+    "orchestrator_records_decisions": true
+  },
+  "permissions": {
+    "read": {"approval": "none"},
+    "plan": {"approval": "none"},
+    "workspace-write": {"approval": "policy"},
+    "repository-write": {"approval": "policy"},
+    "preview-deploy": {"approval": "policy"},
+    "production-deploy": {"approval": "explicit-human"},
+    "production-data-write": {"approval": "explicit-human"},
+    "secret-change": {"approval": "explicit-human"},
+    "destructive-operation": {"approval": "explicit-human"},
+    "technology-replacement": {"approval": "explicit-human"}
+  },
+  "stages": {
+    "IDEA": {
+      "lead_roles": ["product-domain", "orchestrator"],
+      "allowed_permissions": ["read", "plan"],
+      "outputs": ["project-intent"]
+    },
+    "DESIGN": {
+      "lead_roles": ["orchestrator", "platform", "security", "data", "frontend", "backend-api"],
+      "allowed_permissions": ["read", "plan"],
+      "outputs": ["project-plan", "manifest-v3", "architecture-decisions", "capability-resolution"]
+    },
+    "READY": {
+      "lead_roles": ["orchestrator", "platform"],
+      "allowed_permissions": ["read", "plan", "workspace-write"],
+      "outputs": ["workspace-health", "storage-preflight", "dependency-resolution"]
+    },
+    "BUILD": {
+      "lead_roles": ["frontend", "backend-api", "data", "platform", "documentation"],
+      "allowed_permissions": ["read", "plan", "workspace-write", "repository-write"],
+      "outputs": ["change-set", "build-result", "static-check"]
+    },
+    "VERIFY": {
+      "lead_roles": ["testing", "security", "performance", "orchestrator"],
+      "allowed_permissions": ["read", "plan", "workspace-write", "repository-write"],
+      "outputs": ["test-result", "security-scan", "ci-result"]
+    },
+    "PREVIEW": {
+      "lead_roles": ["release", "testing", "sre-observability"],
+      "allowed_permissions": ["read", "plan", "workspace-write", "repository-write", "preview-deploy"],
+      "outputs": ["preview-validation", "e2e-result", "smoke-result", "rollback-plan"]
+    },
+    "RELEASE": {
+      "lead_roles": ["release", "orchestrator", "recovery", "security"],
+      "allowed_permissions": ["read", "plan", "repository-write", "production-deploy"],
+      "outputs": ["production-deployment-receipt"]
+    },
+    "OPERATE": {
+      "lead_roles": ["operations", "sre-observability", "recovery", "technology-radar"],
+      "allowed_permissions": ["read", "plan", "workspace-write", "repository-write"],
+      "outputs": ["production-health", "observability-health", "incident-records", "technology-watch"]
+    },
+    "RETIRE": {
+      "lead_roles": ["orchestrator", "operations", "recovery", "data"],
+      "allowed_permissions": ["read", "plan", "repository-write", "destructive-operation"],
+      "outputs": ["retirement-record", "archive-proof", "data-disposition"]
+    }
+  },
+  "execution_rules": {
+    "max_parallel_write_agents_per_project": 1,
+    "parallel_read_agents_allowed": true,
+    "repository_write_requires_clean_or_declared_workspace": true,
+    "heavy_operation_requires_storage_preflight": true,
+    "provider_health_check_before_execution": true,
+    "failed_specialist_task_returns_to_orchestrator": true,
+    "fallback_provider_must_be_recorded": true,
+    "unverified_output_cannot_satisfy_lifecycle_evidence": true
+  }
+}
