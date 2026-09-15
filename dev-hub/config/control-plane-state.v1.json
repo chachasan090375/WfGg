@@ -12,7 +12,9 @@
     "no_secret_values_in_state": true,
     "private_signing_keys_never_enter_state": true,
     "evidence_references_not_evidence_copies": true,
-    "production_decisions_are_auditable": true
+    "production_decisions_are_auditable": true,
+    "lifecycle_stage_changes_are_audited_transactions": true,
+    "project_control_transaction_receipts_are_recovery_evidence": true
   },
   "storage": {
     "runtime_root": "/opt/chacha-dev/runtime/state",
@@ -21,6 +23,7 @@
     "snapshot_directory": "snapshots",
     "checkpoint_directory": "checkpoints",
     "trust_directory": "trust",
+    "transaction_root": "/opt/chacha-dev/runtime/transactions",
     "journal_format": "json-lines",
     "journal_encoding": "utf-8"
   },
@@ -34,7 +37,8 @@
     "reject_version_regression": true,
     "reject_sequence_gap": true,
     "reject_chain_break": true,
-    "reject_invalid_signed_checkpoint": true
+    "reject_invalid_signed_checkpoint": true,
+    "lifecycle_transition_rechecks_integrity_before_and_after_commit": true
   },
   "state_sections": [
     "identity",
@@ -78,13 +82,21 @@
     "retirement_checkpoint_signature_required": true,
     "key_lifecycle_events_audited": true
   },
+  "transactions": {
+    "receipt_schema": "chacha.dev/control-transaction-receipt/v1",
+    "project_lock_required": true,
+    "journal_authoritative_on_partial_commit": true,
+    "pending_transaction_blocks_lifecycle_promotion": true,
+    "evidence_ingest_stages_ledger_before_audit_commit": true
+  },
   "retention": {
     "journal": "project-lifetime",
     "snapshots": "retain-last-30-and-release-boundaries",
     "checkpoints": "retain-all-manual-and-release-checkpoints",
     "signed_checkpoints": "project-lifetime",
     "public_key_history": "project-lifetime",
-    "anchor_receipts": "project-lifetime"
+    "anchor_receipts": "project-lifetime",
+    "control_transaction_receipts": "project-lifetime"
   },
   "backup": {
     "eligible_for_nas_backup": true,
@@ -94,6 +106,7 @@
     "include_checkpoints": true,
     "include_signed_checkpoints": true,
     "include_public_key_history": true,
+    "include_control_transaction_receipts": true,
     "exclude_private_signing_keys": true
   }
 }
