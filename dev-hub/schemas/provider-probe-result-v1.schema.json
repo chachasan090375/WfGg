@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://chacha.dev/schemas/provider-probe-result-v1.schema.json",
+  "title": "ChaCha DEV HUB Provider Probe Result V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "provider", "state", "source", "checked_at"],
+  "properties": {
+    "schema": {"const": "chacha.dev/provider-probe-result/v1"},
+    "provider": {"type": "string", "minLength": 1},
+    "state": {"enum": ["HEALTHY", "DEGRADED", "UNAVAILABLE", "UNKNOWN"]},
+    "source": {"type": "string", "minLength": 1},
+    "checked_at": {"type": "string", "minLength": 1},
+    "latency_ms": {"type": ["number", "null"], "minimum": 0},
+    "reason": {"type": "string"},
+    "details": {"type": "object", "additionalProperties": true},
+    "evidence_digest": {"type": "string"}
+  }
+}
