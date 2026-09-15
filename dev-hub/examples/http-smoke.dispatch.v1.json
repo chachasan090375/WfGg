@@ -1,0 +1,49 @@
+{
+  "schema": "chacha.dev/dispatch-envelope/v1",
+  "project": "adapter-certification",
+  "transition": "READY->BUILD",
+  "run_id": "http-smoke-sandbox-v1",
+  "wave": 1,
+  "task": {
+    "id": "http-smoke-local-health",
+    "kind": "smoke-test",
+    "description": "Read-only HTTP smoke check against the local certification sandbox.",
+    "owner_role": "testing",
+    "permission": "read",
+    "outputs": ["http-smoke-result"],
+    "verification": {
+      "required": true,
+      "method": "machine",
+      "independent": true
+    }
+  },
+  "bindings": [
+    {
+      "capability": "smoke-test-web",
+      "provider": "http-smoke",
+      "adapter": "http-smoke-adapter",
+      "fallback_used": false,
+      "health_state": "HEALTHY"
+    }
+  ],
+  "policy_context": {
+    "resource_class": "light",
+    "requires_storage_preflight": false,
+    "human_approval_required": false,
+    "approval_id": null,
+    "timeout_seconds": 5
+  },
+  "workspace": null,
+  "metadata": {
+    "http_smoke": {
+      "url": "http://127.0.0.1:18080/health?probe=ci-secret-do-not-log",
+      "method": "GET",
+      "expected_status": [200],
+      "max_bytes": 4096
+    },
+    "certification": {
+      "sandbox": true,
+      "network_scope": "loopback-only"
+    }
+  }
+}
