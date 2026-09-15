@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://chacha.dev/schemas/adapter-promotion-evidence-v1.schema.json",
+  "title": "ChaCha DEV HUB Adapter Promotion Evidence V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "adapter", "observed_at", "evidence"],
+  "properties": {
+    "schema": {"const": "chacha.dev/adapter-promotion-evidence/v1"},
+    "adapter": {"type": "string", "minLength": 1},
+    "observed_at": {"type": "string", "minLength": 1},
+    "evidence": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": ["status", "source"],
+        "properties": {
+          "status": {"enum": ["PASS", "FAIL", "UNKNOWN"]},
+          "source": {"type": "string", "minLength": 1},
+          "observed_at": {"type": "string"},
+          "details": {"type": "object", "additionalProperties": true}
+        }
+      }
+    },
+    "approvals": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "type", "actor", "approved_at", "adapter", "target_status"],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "type": {"type": "string", "minLength": 1},
+          "actor": {"type": "string", "minLength": 1},
+          "approved_at": {"type": "string", "minLength": 1},
+          "adapter": {"type": "string", "minLength": 1},
+          "target_status": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "notes": {"type": "array", "items": {"type": "string"}}
+  }
+}
