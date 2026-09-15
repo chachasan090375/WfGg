@@ -1,0 +1,103 @@
+{
+  "schema": "chacha.dev/quality-gates/v1",
+  "status_model": ["OK", "PARTIAL", "MISSING", "NOT_APPLICABLE", "UNVERIFIED"],
+  "principles": {
+    "evidence_over_declaration": true,
+    "unverified_is_not_ok": true,
+    "not_applicable_requires_reason": true,
+    "blocking_gate_can_stop_release": true,
+    "production_changes_require_approval": true
+  },
+  "gates": {
+    "product-domain": {
+      "owner_role": "product-domain",
+      "default_blocking": false,
+      "evidence": ["problem-definition", "scope", "acceptance-criteria", "domain-rules", "risk-classification"]
+    },
+    "ux-frontend": {
+      "owner_role": "frontend",
+      "default_blocking": true,
+      "evidence": ["responsive-ui", "accessibility", "error-states", "loading-states", "browser-compatibility", "localization"]
+    },
+    "api-backend": {
+      "owner_role": "backend-api",
+      "default_blocking": true,
+      "evidence": ["interface-contract", "validation", "error-contract", "idempotency-where-required", "versioning", "rate-control"]
+    },
+    "data": {
+      "owner_role": "data",
+      "default_blocking": true,
+      "evidence": ["schema", "migrations", "integrity", "retention", "classification", "data-lifecycle"]
+    },
+    "integrations": {
+      "owner_role": "backend-api",
+      "default_blocking": false,
+      "evidence": ["dependency-contracts", "timeouts", "retries", "failure-isolation", "provider-health"]
+    },
+    "identity-security": {
+      "owner_role": "security",
+      "default_blocking": true,
+      "evidence": ["authentication", "authorization", "secret-management", "dependency-scan", "input-validation", "security-headers", "auditability"]
+    },
+    "testing": {
+      "owner_role": "testing",
+      "default_blocking": true,
+      "evidence": ["unit", "integration", "contract", "e2e", "smoke", "security", "regression"]
+    },
+    "build-dependencies": {
+      "owner_role": "platform",
+      "default_blocking": true,
+      "evidence": ["repeatable-build", "locked-dependencies", "dependency-policy", "artifact-generation", "supply-chain-controls"]
+    },
+    "ci-cd-release": {
+      "owner_role": "release",
+      "default_blocking": true,
+      "evidence": ["ci", "quality-gates", "preview", "promotion", "approval", "rollback", "release-traceability"]
+    },
+    "environments-infra": {
+      "owner_role": "platform",
+      "default_blocking": false,
+      "evidence": ["environment-parity", "config-separation", "secret-separation", "capacity", "infrastructure-documentation"]
+    },
+    "observability": {
+      "owner_role": "sre-observability",
+      "default_blocking": false,
+      "evidence": ["structured-logs", "metrics", "health-checks", "alerts", "correlation", "dashboards"]
+    },
+    "performance": {
+      "owner_role": "performance",
+      "default_blocking": false,
+      "evidence": ["budget", "latency", "load-test", "web-vitals-where-applicable", "cache-strategy", "regression-detection"]
+    },
+    "reliability-resilience": {
+      "owner_role": "sre-observability",
+      "default_blocking": false,
+      "evidence": ["failure-modes", "timeouts", "retry-policy", "graceful-degradation", "dependency-outage-behavior", "capacity-headroom"]
+    },
+    "backup-recovery": {
+      "owner_role": "recovery",
+      "default_blocking": true,
+      "evidence": ["rpo", "rto", "backup", "restore-procedure", "restore-test", "integrity-verification"]
+    },
+    "documentation": {
+      "owner_role": "documentation",
+      "default_blocking": false,
+      "evidence": ["architecture", "adr", "api-docs", "runbook", "deployment", "recovery", "onboarding"]
+    },
+    "operations-sre": {
+      "owner_role": "operations",
+      "default_blocking": false,
+      "evidence": ["runbook", "incident-process", "rollback", "maintenance", "quota-monitoring", "ownership"]
+    },
+    "finops-capacity": {
+      "owner_role": "platform",
+      "default_blocking": false,
+      "evidence": ["cost-baseline", "budget-threshold", "resource-headroom", "storage-policy", "quota-policy", "growth-model"]
+    },
+    "governance-compliance": {
+      "owner_role": "orchestrator",
+      "default_blocking": false,
+      "evidence": ["decision-history", "approval-boundaries", "technology-policy", "provider-selection-record", "data-policy", "retirement-plan"]
+    }
+  }
+}
