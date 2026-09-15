@@ -1,0 +1,78 @@
+{
+  "schema": "chacha.dev/project-control/v1",
+  "principles": {
+    "one_unified_control_surface": true,
+    "control_plane_state_is_canonical": true,
+    "api_and_cli_share_same_engine": true,
+    "read_and_plan_are_default": true,
+    "execution_is_never_implicit": true,
+    "production_changes_require_explicit_human_approval": true,
+    "cryptographic_release_requirements_are_visible_in_status": true,
+    "private_signing_material_is_never_returned": true,
+    "all_mutating_control_actions_are_auditable": true
+  },
+  "interfaces": {
+    "cli": {"enabled": true, "command": "project-control"},
+    "json_api": {"enabled": true, "transport": "stdin-stdout", "network_listener": false}
+  },
+  "runtime": {
+    "state_root": "/opt/chacha-dev/runtime/state",
+    "evidence_root": "/opt/chacha-dev/runtime/evidence",
+    "plans_root": "/opt/chacha-dev/runtime/plans",
+    "health_root": "/opt/chacha-dev/runtime/health",
+    "runs_root": "/opt/chacha-dev/runtime/runs"
+  },
+  "repository_paths": {
+    "lifecycle": "dev-hub/config/lifecycle.v1.json",
+    "quality_gates": "dev-hub/config/quality-gates.v1.json",
+    "evidence_catalog": "dev-hub/config/evidence-catalog.v1.json",
+    "orchestration": "dev-hub/config/orchestration-policy.v1.json",
+    "capability_registry": "dev-hub/config/capability-registry.v1.json",
+    "execution_scheduler": "dev-hub/config/execution-scheduler.v1.json",
+    "run_controller": "dev-hub/config/run-controller.v1.json",
+    "provider_adapters": "dev-hub/config/provider-adapters.v1.json",
+    "control_plane_state": "dev-hub/config/control-plane-state.v1.json",
+    "cryptographic_trust": "dev-hub/config/cryptographic-trust.v1.json"
+  },
+  "engine_paths": {
+    "control_plane_store": "dev-hub/bin/control-plane-store.py",
+    "lifecycle_engine": "dev-hub/bin/lifecycle-engine.py",
+    "task_graph_engine": "dev-hub/bin/task-graph-engine.py",
+    "execution_scheduler": "dev-hub/bin/execution-scheduler.py",
+    "run_controller": "dev-hub/bin/run-controller.py",
+    "verification_broker": "dev-hub/bin/verification-broker.py",
+    "evidence_collector": "dev-hub/bin/evidence-collector.py",
+    "crypto_trust": "dev-hub/bin/crypto-trust.py"
+  },
+  "status_model": ["READY", "BLOCKED", "AWAITING_APPROVAL", "DEGRADED", "UNKNOWN", "COMPLETE"],
+  "operations": {
+    "status": {"class": "read", "mutating": false},
+    "explain": {"class": "read", "mutating": false},
+    "verify-state": {"class": "read", "mutating": false},
+    "plan-transition": {"class": "plan", "mutating": false},
+    "schedule": {"class": "plan", "mutating": false},
+    "prepare-run": {"class": "plan", "mutating": false},
+    "dispatch": {"class": "execution", "mutating": true, "explicit_flag_required": true},
+    "verify-result": {"class": "verification", "mutating": false},
+    "crypto-verify": {"class": "verification", "mutating": false},
+    "record-control-event": {"class": "state-write", "mutating": true},
+    "advance": {"class": "state-write", "mutating": true, "transition_recheck_required": true}
+  },
+  "approval_boundaries": {
+    "dispatch_production": "explicit-human",
+    "advance_to_release": "explicit-human",
+    "signing_key_activation": "explicit-human",
+    "signing_key_rotation": "explicit-human",
+    "signing_key_revocation": "explicit-human",
+    "retirement": "explicit-human"
+  },
+  "safety": {
+    "allow_network_listener": false,
+    "allow_shell_interpolation": false,
+    "allow_implicit_dispatch": false,
+    "allow_implicit_state_promotion": false,
+    "allow_unverified_evidence_as_success": false,
+    "allow_private_key_output": false,
+    "allow_unsigned_release": false
+  }
+}
