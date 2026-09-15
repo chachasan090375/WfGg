@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://chacha.dev/schemas/adapter-provisioning-receipt-v1.schema.json",
+  "title": "ChaCha DEV HUB Adapter Provisioning Receipt V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "adapter", "version", "actor", "observed_at", "applied",
+    "source", "source_digest", "installed_path", "installed_digest",
+    "executable_path", "executable_digest", "current_link", "probe"
+  ],
+  "properties": {
+    "schema": {"const": "chacha.dev/adapter-provisioning-receipt/v1"},
+    "adapter": {"type": "string", "minLength": 1},
+    "version": {"type": "string", "minLength": 1},
+    "actor": {"type": "string", "minLength": 1},
+    "observed_at": {"type": "string", "minLength": 1},
+    "applied": {"const": true},
+    "idempotent": {"type": "boolean"},
+    "target_root": {"type": "string", "minLength": 1},
+    "source": {"type": "string", "minLength": 1},
+    "source_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "installed_path": {"type": "string", "minLength": 1},
+    "installed_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "executable_path": {"type": "string", "minLength": 1},
+    "executable_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "mode": {"type": "string"},
+    "current_link": {"type": "string", "minLength": 1},
+    "current_target": {"type": "string", "minLength": 1},
+    "previous_link_target": {"type": ["string", "null"]},
+    "probe": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "exit_code", "result_schema", "result_status", "producer", "verification_status"],
+      "properties": {
+        "status": {"enum": ["PASS", "FAIL"]},
+        "exit_code": {"type": ["integer", "null"]},
+        "result_schema": {"type": ["string", "null"]},
+        "result_status": {"type": ["string", "null"]},
+        "producer": {"type": ["string", "null"]},
+        "verification_status": {"type": ["string", "null"]},
+        "stdout_digest": {"type": ["string", "null"]},
+        "stderr_digest": {"type": ["string", "null"]},
+        "failure": {"type": ["string", "null"]}
+      }
+    }
+  }
+}
