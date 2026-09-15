@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://chacha.dev/schemas/storage-preflight-v1.schema.json",
+  "title": "ChaCha DEV HUB Storage Preflight V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "observed_at", "status", "source", "reasons", "details"],
+  "properties": {
+    "schema": {"const": "chacha.dev/storage-preflight/v1"},
+    "project": {"type": ["string", "null"]},
+    "observed_at": {"type": "string"},
+    "status": {"enum": ["OK", "WARN", "BLOCKED", "UNKNOWN"]},
+    "source": {"type": "string", "minLength": 1},
+    "need_mb": {"type": ["number", "null"], "minimum": 0},
+    "reserve_mb": {"type": ["number", "null"], "minimum": 0},
+    "required_free_mb": {"type": ["number", "null"], "minimum": 0},
+    "current_free_mb": {"type": ["number", "null"], "minimum": 0},
+    "current_used_percent": {"type": ["number", "null"], "minimum": 0, "maximum": 100},
+    "pressure": {"type": ["string", "null"]},
+    "reasons": {"type": "array", "items": {"type": "string"}},
+    "details": {"type": "object", "additionalProperties": true}
+  }
+}
