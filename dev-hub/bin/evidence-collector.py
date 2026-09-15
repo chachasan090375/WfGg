@@ -105,6 +105,8 @@ def validate_result(graph: dict[str, Any], task: dict[str, Any], result: dict[st
         key = (output.get("type"), output.get("id"))
         if key not in declared:
             errors.append(f"UNDECLARED_OUTPUT:{key[0]}:{key[1]}")
+        if output.get("status") == "NOT_APPLICABLE" and not output.get("reason"):
+            errors.append(f"NOT_APPLICABLE_REASON_REQUIRED:{key[0]}:{key[1]}")
     return sorted(set(errors))
 
 
@@ -113,8 +115,6 @@ def normalized_status(result: dict[str, Any], requested: str) -> str:
     if requested in {"APPROVED", "REJECTED"}:
         return requested
     if result.get("status") != "OK" or verification.get("status") != "VERIFIED":
-        if requested == "NOT_APPLICABLE":
-            return "NOT_APPLICABLE"
         return "UNVERIFIED"
     return requested if requested in {"OK", "PARTIAL", "MISSING", "NOT_APPLICABLE"} else "UNVERIFIED"
 
