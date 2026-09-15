@@ -1,0 +1,181 @@
+name: Dev Hub V5 Adapter Runtime Activation
+
+on:
+  push:
+    branches: [dev-hub-v5.0]
+    paths:
+      - 'dev-hub/bin/adapter-runtime-activation.py'
+      - 'dev-hub/bin/adapter-provision.py'
+      - 'dev-hub/bin/adapter-provisioning-evidence.py'
+      - 'dev-hub/bin/adapter-promotion.py'
+      - 'dev-hub/config/adapter-provisioning.v1.json'
+      - 'dev-hub/config/adapter-promotion.v1.json'
+      - 'dev-hub/config/adapter-contract.v1.json'
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - 'dev-hub/schemas/adapter-runtime-activation-v1.schema.json'
+      - 'dev-hub/docs/ADAPTER_RUNTIME_ACTIVATION_V1.md'
+      - '.github/workflows/dev-hub-v5-adapter-runtime-activation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  activation-boundary:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Compile activation chain
+        run: |
+          python -m py_compile \
+            dev-hub/bin/adapter-runtime-activation.py \
+            dev-hub/bin/adapter-provision.py \
+            dev-hub/bin/adapter-provisioning-evidence.py \
+            dev-hub/bin/adapter-promotion.py \
+            dev-hub/adapters/http-smoke-adapter.py
+
+      - name: Parse activation schema
+        run: |
+          python - <<'PY'
+          import json
+          json.load(open('dev-hub/schemas/adapter-runtime-activation-v1.schema.json', encoding='utf-8'))
+          print('ADAPTER_RUNTIME_ACTIVATION_SCHEMA=PASS')
+          PY
+
+      - name: Build base promotion evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          TMP="$(mktemp -d)"
+          echo "$TMP" > /tmp/chacha-activation-tmp
+          export TMP
+          python - <<'PY'
+          import json, os
+          from datetime import datetime, timezone
+          from pathlib import Path
+          root=Path(os.environ['TMP']); now=datetime.now(timezone.utc).isoformat()
+          ev={
+            'schema':'chacha.dev/adapter-promotion-evidence/v1',
+            'adapter':'http-smoke-adapter',
+            'observed_at':now,
+            'evidence':{
+              'runtime-contract-pass':{'status':'PASS','source':'ci:runtime-contract','observed_at':now},
+              'sandbox-only':{'status':'PASS','source':'ci:loopback-sandbox','observed_at':now}
+            },
+            'approvals':[],
+            'notes':['CI fixture for runtime activation orchestration only.']
+          }
+          (root/'base-evidence.json').write_text(json.dumps(ev,indent=2)+'\n', encoding='utf-8')
+          PY
+
+      - name: Plan is read only
+        shell: bash
+        run: |
+          set -euo pipefail
+          TMP="$(cat /tmp/chacha-activation-tmp)"
+          python dev-hub/bin/adapter-runtime-activation.py \
+            --adapter http-smoke-adapter \
+            --base-evidence "$TMP/base-evidence.json" \
+            --root "$TMP/runtime" \
+            plan > "$TMP/plan.json"
+          test ! -e "$TMP/runtime/http-smoke/current"
+          python - "$TMP/plan.json" <<'PY'
+          import json,sys
+          r=json.load(open(sys.argv[1])); assert r['status']=='READY',r; assert r['current_status']=='CONTRACT_OK',r
+          print('ACTIVATION_PLAN_READ_ONLY=PASS')
+          PY
+
+      - name: Apply requires explicit flag
+        shell: bash
+        run: |
+          set -euo pipefail
+          TMP="$(cat /tmp/chacha-activation-tmp)"
+          set +e
+          python dev-hub/bin/adapter-runtime-activation.py \
+            --adapter http-smoke-adapter \
+            --base-evidence "$TMP/base-evidence.json" \
+            --root "$TMP/runtime" \
+            apply --actor ci-platform --work-dir "$TMP/work-noapply" > "$TMP/noapply.json"
+          RC=$?
+          set -e
+          test "$RC" -eq 2
+          python - "$TMP/noapply.json" <<'PY'
+          import json,sys
+          r=json.load(open(sys.argv[1])); assert 'EXPLICIT_APPLY_FLAG_REQUIRED' in r['blockers'],r
+          PY
+          test ! -e "$TMP/runtime/http-smoke/current"
+          echo ACTIVATION_EXPLICIT_APPLY_GUARD=PASS
+
+      - name: Provision, verify, bind evidence, and reach READY_FOR_PROMOTION
+        shell: bash
+        run: |
+          set -euo pipefail
+          TMP="$(cat /tmp/chacha-activation-tmp)"
+          python dev-hub/bin/adapter-runtime-activation.py \
+            --adapter http-smoke-adapter \
+            --base-evidence "$TMP/base-evidence.json" \
+            --root "$TMP/runtime" \
+            apply --actor ci-platform --work-dir "$TMP/work" --apply > "$TMP/activation.json"
+          python - "$TMP/activation.json" "$TMP/work/activation-receipt.json" "$TMP/work/promotion-plan.json" <<'PY'
+          import json,sys
+          stdout=json.load(open(sys.argv[1])); receipt=json.load(open(sys.argv[2])); plan=json.load(open(sys.argv[3]))
+          assert stdout['status']=='READY_FOR_PROMOTION',stdout
+          assert receipt['registry_mutated'] is False,receipt
+          assert receipt['rollback_performed'] is False,receipt
+          assert receipt['executable_digest']==receipt['observed_executable_digest'],receipt
+          assert plan['eligible'] is True,plan
+          print('ACTIVATION_READY_FOR_PROMOTION=PASS')
+          PY
+          git diff --exit-code -- dev-hub/config/provider-adapters.v1.json
+          echo CANONICAL_ADAPTER_REGISTRY_MUTATED=NO
+
+      - name: Invalid base evidence blocks before host mutation
+        shell: bash
+        run: |
+          set -euo pipefail
+          TMP="$(cat /tmp/chacha-activation-tmp)"
+          python - "$TMP/base-evidence.json" "$TMP/bad-evidence.json" <<'PY'
+          import json,sys
+          ev=json.load(open(sys.argv[1])); ev['evidence']['runtime-contract-pass']['status']='FAIL'; open(sys.argv[2],'w').write(json.dumps(ev,indent=2)+'\n')
+          PY
+          rm -rf "$TMP/runtime-bad"
+          set +e
+          python dev-hub/bin/adapter-runtime-activation.py \
+            --adapter http-smoke-adapter \
+            --base-evidence "$TMP/bad-evidence.json" \
+            --root "$TMP/runtime-bad" \
+            apply --actor ci-platform --work-dir "$TMP/work-bad" --apply > "$TMP/bad.json"
+          RC=$?
+          set -e
+          test "$RC" -eq 2
+          test ! -e "$TMP/runtime-bad/http-smoke/current"
+          python - "$TMP/bad.json" <<'PY'
+          import json,sys
+          r=json.load(open(sys.argv[1])); assert any(x.startswith('BASE_EVIDENCE_NOT_PASS:runtime-contract-pass') for x in r['blockers']),r
+          print('ACTIVATION_PREMUTATION_BLOCK=PASS')
+          PY
+
+      - name: Existing activation lock fails closed
+        shell: bash
+        run: |
+          set -euo pipefail
+          TMP="$(cat /tmp/chacha-activation-tmp)"
+          ROOT="$TMP/locked-runtime"
+          mkdir -p "$ROOT/.activation-locks"
+          printf '{"pid":999999,"observed_at":"fixture"}\n' > "$ROOT/.activation-locks/http-smoke-adapter.lock"
+          set +e
+          python dev-hub/bin/adapter-runtime-activation.py \
+            --adapter http-smoke-adapter \
+            --base-evidence "$TMP/base-evidence.json" \
+            --root "$ROOT" \
+            apply --actor ci-platform --work-dir "$TMP/work-locked" --apply > "$TMP/locked.out" 2>&1
+          RC=$?
+          set -e
+          test "$RC" -ne 0
+          grep -q ACTIVATION_LOCK_HELD "$TMP/locked.out"
+          echo ACTIVATION_LOCK_FAIL_CLOSED=PASS
