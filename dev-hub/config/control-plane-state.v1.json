@@ -15,7 +15,8 @@
     "production_decisions_are_auditable": true,
     "lifecycle_stage_changes_are_audited_transactions": true,
     "project_control_transaction_receipts_are_recovery_evidence": true,
-    "recovery_never_rewrites_audit_history": true
+    "recovery_never_rewrites_audit_history": true,
+    "recovery_fault_injection_is_sandbox_only": true
   },
   "storage": {
     "runtime_root": "/opt/chacha-dev/runtime/state",
@@ -87,12 +88,15 @@
     "receipt_schema": "chacha.dev/control-transaction-receipt/v1",
     "recovery_policy": "dev-hub/config/transaction-recovery.v1.json",
     "recovery_report_schema": "chacha.dev/transaction-recovery-report/v1",
+    "recovery_drill_policy": "dev-hub/config/recovery-drill.v1.json",
+    "recovery_drill_report_schema": "chacha.dev/recovery-drill-report/v1",
     "project_lock_required": true,
     "journal_authoritative_on_partial_commit": true,
     "pending_transaction_blocks_lifecycle_promotion": true,
     "evidence_ingest_stages_ledger_before_audit_commit": true,
     "projection_rebuild_allowed_only_from_valid_journal": true,
-    "ledger_recovery_requires_expected_digest": true
+    "ledger_recovery_requires_expected_digest": true,
+    "fault_injection_requires_isolated_sandbox": true
   },
   "retention": {
     "journal": "project-lifetime",
@@ -101,7 +105,8 @@
     "signed_checkpoints": "project-lifetime",
     "public_key_history": "project-lifetime",
     "anchor_receipts": "project-lifetime",
-    "control_transaction_receipts": "project-lifetime"
+    "control_transaction_receipts": "project-lifetime",
+    "recovery_drill_reports": "retain-last-20-and-release-boundaries"
   },
   "backup": {
     "eligible_for_nas_backup": true,
@@ -112,6 +117,7 @@
     "include_signed_checkpoints": true,
     "include_public_key_history": true,
     "include_control_transaction_receipts": true,
+    "include_recovery_drill_reports": true,
     "exclude_private_signing_keys": true
   }
 }
