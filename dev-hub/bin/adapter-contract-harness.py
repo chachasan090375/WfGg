@@ -81,6 +81,18 @@ def static_checks(registry: dict[str, Any], policy: dict[str, Any]) -> list[dict
     return checks
 
 
+def fixture_task_id(fixture: dict[str, Any]) -> str | None:
+    direct = fixture.get("task_id")
+    if isinstance(direct, str) and direct:
+        return direct
+    task = fixture.get("task")
+    if isinstance(task, dict):
+        nested = task.get("id")
+        if isinstance(nested, str) and nested:
+            return nested
+    return None
+
+
 def runtime_test(adapter_id: str, registry: dict[str, Any], policy: dict[str, Any], fixture: dict[str, Any]) -> dict[str, Any]:
     adapters = registry.get("adapters") or {}
     item = adapters.get(adapter_id)
@@ -95,6 +107,9 @@ def runtime_test(adapter_id: str, registry: dict[str, Any], policy: dict[str, An
         return {"adapter": adapter_id, "status": "FAIL", "detail": "executable-missing"}
     if fixture.get("schema") != INPUT_SCHEMA:
         return {"adapter": adapter_id, "status": "FAIL", "detail": "fixture-schema-invalid"}
+    expected_task_id = fixture_task_id(fixture)
+    if not expected_task_id:
+        return {"adapter": adapter_id, "status": "FAIL", "detail": "fixture-task-id-missing"}
     timeout = int(((policy.get("runtime") or {}).get("default_timeout_seconds") or 30))
     limit = int(((policy.get("runtime") or {}).get("max_output_bytes") or 262144))
     try:
@@ -120,8 +135,12 @@ def runtime_test(adapter_id: str, registry: dict[str, Any], policy: dict[str, An
         return {"adapter": adapter_id, "status": "FAIL", "detail": f"invalid-json:{exc}"}
     if not isinstance(result, dict) or result.get("schema") != OUTPUT_SCHEMA:
         return {"adapter": adapter_id, "status": "FAIL", "detail": f"result-schema={getattr(result, 'get', lambda *_: None)('schema')}"}
-    if result.get("project") != fixture.get("project") or result.get("task_id") != fixture.get("task_id"):
-        return {"adapter": adapter_id, "status": "FAIL", "detail": "identity-mismatch"}
+    if result.get("project") != fixture.get("project") or result.get("task_id") != expected_task_id:
+        return {
+            "adapter": adapter_id,
+            "status": "FAIL",
+            "detail": f"identity-mismatch:project={result.get('project')}:{fixture.get('project')}:task={result.get('task_id')}:{expected_task_id}",
+        }
     return {"adapter": adapter_id, "status": "PASS", "detail": "runtime-contract-pass"}
 
 
