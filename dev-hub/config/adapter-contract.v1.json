@@ -11,12 +11,13 @@
     "enablement_requires_recorded_evidence": true,
     "execution_kind_controls_local_executable_requirement": true,
     "external_provider_runtime_requires_provider_specific_harness": true,
-    "external_only_adapter_has_no_local_executable": true
+    "external_only_adapter_has_no_local_executable": true,
+    "pilot_requires_runtime_binding_provisioning_evidence": true
   },
   "status_lifecycle": ["DESIGNED", "CONTRACT_OK", "PILOT", "ENABLED", "DEGRADED", "DISABLED", "RETIRED"],
   "promotion": {
     "DESIGNED->CONTRACT_OK": ["static-contract-pass"],
-    "CONTRACT_OK->PILOT": ["runtime-contract-pass", "sandbox-only"],
+    "CONTRACT_OK->PILOT": ["runtime-contract-pass", "sandbox-only", "provisioning-pass"],
     "PILOT->ENABLED": ["repeatable-pass", "provider-health-pass", "rollback-defined"],
     "ENABLED->DEGRADED": ["health-degradation"],
     "DEGRADED->DISABLED": ["persistent-failure"],
