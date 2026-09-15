@@ -17,6 +17,7 @@
     "project_control": "dev-hub/config/project-control.v1.json",
     "transaction_recovery": "dev-hub/config/transaction-recovery.v1.json",
     "recovery_drill": "dev-hub/config/recovery-drill.v1.json",
+    "platform_evidence": "dev-hub/config/platform-evidence.v1.json",
     "platform_readiness": "dev-hub/config/platform-readiness.v1.json"
   },
   "principles": {
@@ -54,6 +55,8 @@
     "ambiguous_recovery_requires_manual_review": true,
     "recovery_drills_are_fault_injected_in_sandbox": true,
     "recovery_readiness_claims_require_drill_evidence": true,
+    "platform_health_evidence_is_normalized_before_readiness": true,
+    "stale_provider_health_is_unknown": true,
     "platform_readiness_is_evidence_based": true,
     "contract_readiness_does_not_authorize_runtime_execution": true,
     "unknown_platform_readiness_blocks_execution": true
@@ -76,7 +79,7 @@
   "stages": {
     "IDEA": {"lead_roles": ["product-domain", "orchestrator"], "allowed_permissions": ["read", "plan"], "outputs": ["project-intent"]},
     "DESIGN": {"lead_roles": ["orchestrator", "platform", "security", "data", "frontend", "backend-api"], "allowed_permissions": ["read", "plan"], "outputs": ["project-plan", "manifest-v3", "architecture-decisions", "capability-resolution"]},
-    "READY": {"lead_roles": ["orchestrator", "platform", "security"], "allowed_permissions": ["read", "plan", "workspace-write"], "outputs": ["workspace-health", "storage-preflight", "dependency-resolution", "cryptographic-trust-readiness", "platform-readiness"]},
+    "READY": {"lead_roles": ["orchestrator", "platform", "security"], "allowed_permissions": ["read", "plan", "workspace-write"], "outputs": ["workspace-health", "provider-health-snapshot", "storage-preflight", "dependency-resolution", "cryptographic-trust-readiness", "platform-readiness"]},
     "BUILD": {"lead_roles": ["frontend", "backend-api", "data", "platform", "documentation"], "allowed_permissions": ["read", "plan", "workspace-write", "repository-write"], "outputs": ["change-set", "build-result", "static-check"]},
     "VERIFY": {"lead_roles": ["testing", "security", "performance", "orchestrator"], "allowed_permissions": ["read", "plan", "workspace-write", "repository-write"], "outputs": ["test-result", "security-scan", "ci-result", "trust-verification"]},
     "PREVIEW": {"lead_roles": ["release", "testing", "sre-observability", "security"], "allowed_permissions": ["read", "plan", "workspace-write", "repository-write", "preview-deploy"], "outputs": ["preview-validation", "e2e-result", "smoke-result", "rollback-plan", "signed-release-checkpoint-candidate"]},
@@ -90,6 +93,8 @@
     "repository_write_requires_clean_or_declared_workspace": true,
     "heavy_operation_requires_storage_preflight": true,
     "provider_health_check_before_execution": true,
+    "provider_health_snapshot_must_use_platform_evidence_contract": true,
+    "storage_preflight_must_use_normalized_platform_evidence_contract": true,
     "failed_specialist_task_returns_to_orchestrator": true,
     "fallback_provider_must_be_recorded": true,
     "unverified_output_cannot_satisfy_lifecycle_evidence": true,
