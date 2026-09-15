@@ -3,7 +3,8 @@
 
 Local stdin/stdout adapter over project-control.py. No network listener is
 created. A request is one JSON object and the response is the same structured
-Project Control response emitted by the unified CLI.
+Project Control response emitted by the unified CLI. Human verification cannot
+be asserted through this agent-facing adapter.
 """
 from __future__ import annotations
 
@@ -80,6 +81,8 @@ def main() -> int:
     elif operation == "verify-result":
         if not args.get("result") or not args.get("graph"):
             fail("REQUEST_RESULT_AND_GRAPH_REQUIRED", project, operation)
+        if str(args.get("method") or "machine") == "human":
+            fail("HUMAN_VERIFICATION_NOT_ACCEPTED_VIA_JSON_API", project, operation)
         cmd += [operation, "--project", project, "--result", str(args["result"]), "--graph", str(args["graph"])]
         if args.get("method"):
             cmd += ["--method", str(args["method"])]
