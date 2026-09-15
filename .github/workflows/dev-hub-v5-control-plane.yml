@@ -30,6 +30,7 @@ jobs:
             dev-hub/bin/project-control-cli.py \
             dev-hub/bin/project-control-api.py \
             dev-hub/bin/transaction-recovery.py \
+            dev-hub/bin/recovery-drill.py \
             dev-hub/bin/lifecycle-engine.py \
             dev-hub/bin/task-graph-engine.py \
             dev-hub/bin/execution-scheduler.py \
@@ -56,6 +57,7 @@ jobs:
           python dev-hub/bin/project-control.py --help >/dev/null
           python dev-hub/bin/project-control-cli.py --help >/dev/null
           python dev-hub/bin/transaction-recovery.py --help >/dev/null
+          python dev-hub/bin/recovery-drill.py --help >/dev/null
           python dev-hub/bin/lifecycle-engine.py --help >/dev/null
           python dev-hub/bin/verification-broker.py --help >/dev/null
           echo CONTROL_PLANE_CLI_SMOKE=OK
@@ -180,3 +182,18 @@ jobs:
           PY
 
           echo TRANSACTION_RECOVERY_SMOKE=OK
+
+      - name: Recovery drill fault injection
+        shell: bash
+        run: |
+          set -euo pipefail
+          REPORT="$RUNNER_TEMP/recovery-drill-report.json"
+          python dev-hub/bin/recovery-drill.py --repo-root . --output "$REPORT" run --scenario all
+          python - "$REPORT" <<'PY'
+          import json, sys
+          report = json.load(open(sys.argv[1], encoding='utf-8'))
+          assert report['status'] == 'PASS', report
+          assert report['summary']['failed'] == 0, report
+          assert report['summary']['total'] == 5, report
+          print('RECOVERY_DRILL_CI=PASS')
+          PY
