@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://chacha.dev/schemas/adapter-rollbacks-v1.schema.json",
+  "title": "ChaCha DEV HUB Adapter Rollbacks V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "principles", "adapters"],
+  "properties": {
+    "schema": {"const": "chacha.dev/adapter-rollbacks/v1"},
+    "principles": {"type": "object", "additionalProperties": {"type": "boolean"}},
+    "adapters": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["enabled", "from_status", "target_status", "owner_role", "triggers", "executable_strategy", "steps", "verification"],
+        "properties": {
+          "enabled": {"type": "boolean"},
+          "from_status": {"type": "string", "minLength": 1},
+          "target_status": {"type": "string", "minLength": 1},
+          "owner_role": {"type": "string", "minLength": 1},
+          "triggers": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+          "executable_strategy": {"type": "string", "minLength": 1},
+          "steps": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+          "verification": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}}
+        }
+      }
+    }
+  }
+}
