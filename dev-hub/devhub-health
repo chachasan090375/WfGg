@@ -1,0 +1,109 @@
+#!/usr/bin/env bash
+set -u
+
+ROOT="${CHACHA_DEV_ROOT:-/opt/chacha-dev}"
+REG="$ROOT/registry/projects"
+AGY_BIN="${CHACHA_ANTIGRAVITY_BIN:-/usr/local/bin/agy-dev}"
+AGY_CLI="${CHACHA_ANTIGRAVITY_CLI:-/usr/local/bin/agy}"
+SKYWORK_DIR="${CHACHA_SKYWORK_DIR:-$ROOT/agents/skywork/Skywork-Skills}"
+STORAGE_ENV="${CHACHA_STORAGE_ENV:-$ROOT/platform/config/storage.env}"
+MCP_PROBE="${CHACHA_MCP_PROBE:-$ROOT/platform/bin/mcp-probe.py}"
+
+ok=0
+warn=0
+fail=0
+mark() {
+  case "$2" in
+    OK) ok=$((ok+1)) ;;
+    WARN) warn=$((warn+1)) ;;
+    FAIL) fail=$((fail+1)) ;;
+  esac
+  printf '%-24s %s\n' "$1" "$2"
+}
+
+printf '=== CHACHA DEV HUB HEALTH ===\n'
+printf 'ROOT=%s\n' "$ROOT"
+printf 'TIME=%s\n' "$(date -Iseconds 2>/dev/null || date)"
+printf '\n=== SYSTEM ===\n'
+
+if command -v df >/dev/null 2>&1; then
+  df -h / | tail -1
+  use_pct="$(df -P / | awk 'NR==2{gsub(/%/,"",$5); print $5}')"
+  if [[ "${use_pct:-100}" -lt 80 ]]; then mark VPS_DISK OK; elif [[ "${use_pct:-100}" -lt 90 ]]; then mark VPS_DISK WARN; else mark VPS_DISK FAIL; fi
+else
+  mark VPS_DISK FAIL
+fi
+
+if command -v free >/dev/null 2>&1; then
+  free -h
+  avail_kb="$(free -k | awk '/^Mem:/{print $7}')"
+  if [[ "${avail_kb:-0}" -ge 100000 ]]; then mark MEMORY OK; elif [[ "${avail_kb:-0}" -ge 50000 ]]; then mark MEMORY WARN; else mark MEMORY FAIL; fi
+else
+  mark MEMORY WARN
+fi
+
+printf '\n=== TOOLCHAIN ===\n'
+command -v git >/dev/null 2>&1 && { echo "GIT=$(git --version)"; mark GIT OK; } || mark GIT FAIL
+command -v python3 >/dev/null 2>&1 && { echo "PYTHON=$(python3 --version 2>&1)"; mark PYTHON OK; } || mark PYTHON FAIL
+command -v node >/dev/null 2>&1 && { echo "NODE=$(node --version)"; mark NODE OK; } || mark NODE WARN
+command -v npm >/dev/null 2>&1 && { echo "NPM=$(npm --version 2>/dev/null)"; mark NPM OK; } || mark NPM WARN
+command -v blender >/dev/null 2>&1 && { echo "BLENDER=$(command -v blender)"; mark BLENDER OK; } || mark BLENDER WARN
+if [[ -x "$ROOT/engines/unitypy/current/bin/python" ]] && "$ROOT/engines/unitypy/current/bin/python" -c 'import UnityPy' >/dev/null 2>&1; then
+  mark UNITYPY OK
+else
+  mark UNITYPY WARN
+fi
+command -v rsync >/dev/null 2>&1 && mark RSYNC OK || mark RSYNC FAIL
+
+printf '\n=== AGENTS ===\n'
+[[ -x "$AGY_BIN" ]] && mark ANTIGRAVITY OK || mark ANTIGRAVITY WARN
+[[ -d "$SKYWORK_DIR/.git" ]] && { echo "SKYWORK_COMMIT=$(git -C "$SKYWORK_DIR" rev-parse --short HEAD 2>/dev/null || echo unknown)"; mark SKYWORK OK; } || mark SKYWORK WARN
+
+printf '\n=== MCP ===\n'
+if [[ -x "$AGY_CLI" ]]; then
+  "$AGY_CLI" mcp list 2>/dev/null || true
+else
+  echo 'ANTIGRAVITY_MCP_LIST=unavailable'
+fi
+if [[ -f "$MCP_PROBE" ]]; then
+  if python3 "$MCP_PROBE"; then
+    mark MCP_TRANSPORT OK
+  else
+    mark MCP_TRANSPORT FAIL
+  fi
+else
+  mark MCP_PROBE WARN
+fi
+
+printf '\n=== NAS STORAGE ===\n'
+if [[ -f "$STORAGE_ENV" ]]; then
+  # shellcheck disable=SC1090
+  source "$STORAGE_ENV"
+  if [[ -n "${NAS_HOST:-}" && -n "${NAS_USER:-}" && -s "${NAS_KEY:-}" && -n "${NAS_ROOT:-}" ]]; then
+    if ssh -i "$NAS_KEY" -o BatchMode=yes -o ConnectTimeout=8 -o StrictHostKeyChecking=accept-new "$NAS_USER@$NAS_HOST" "test -d '$NAS_ROOT' && echo NAS_ROOT=OK && df -h '$NAS_ROOT'"; then
+      mark NAS_SSH OK
+    else
+      mark NAS_SSH FAIL
+    fi
+  else
+    mark NAS_CONFIG FAIL
+  fi
+else
+  mark NAS_CONFIG WARN
+fi
+
+printf '\n=== PROJECTS ===\n'
+projects="$(find "$REG" -maxdepth 1 -name '*.conf' -type f 2>/dev/null | wc -l | tr -d ' ')"
+echo "PROJECTS=$projects"
+[[ "$projects" -gt 0 ]] && mark PROJECT_REGISTRY OK || mark PROJECT_REGISTRY WARN
+
+printf '\n=== SUMMARY ===\n'
+printf 'HEALTH_OK=%d\n' "$ok"
+printf 'HEALTH_WARN=%d\n' "$warn"
+printf 'HEALTH_FAIL=%d\n' "$fail"
+if [[ "$fail" -eq 0 ]]; then
+  echo 'DEV_HUB_HEALTH=OK'
+  exit 0
+fi
+echo 'DEV_HUB_HEALTH=DEGRADED'
+exit 1
