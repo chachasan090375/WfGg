@@ -8,57 +8,55 @@
     "non_blocking_partial_requires_risk_acceptance_for_release": true,
     "state_change_is_auditable": true
   },
-  "stages": [
-    "IDEA",
-    "DESIGN",
-    "READY",
-    "BUILD",
-    "VERIFY",
-    "PREVIEW",
-    "RELEASE",
-    "OPERATE",
-    "RETIRE"
-  ],
+  "stages": ["IDEA", "DESIGN", "READY", "BUILD", "VERIFY", "PREVIEW", "RELEASE", "OPERATE", "RETIRE"],
   "transitions": {
     "IDEA->DESIGN": {
       "required_artifacts": ["project-intent"],
       "required_approvals": [],
+      "required_gates": [],
       "gate_policy": "none"
     },
     "DESIGN->READY": {
       "required_artifacts": ["project-plan", "manifest-v3", "manifest-validation", "capability-resolution", "architecture-decisions-resolved"],
       "required_approvals": [],
+      "required_gates": [],
       "gate_policy": "defined"
     },
     "READY->BUILD": {
       "required_artifacts": ["workspace-health", "storage-preflight", "dependency-resolution"],
       "required_approvals": [],
+      "required_gates": [],
       "gate_policy": "defined"
     },
     "BUILD->VERIFY": {
       "required_artifacts": ["change-set", "build-result", "static-check"],
       "required_approvals": [],
+      "required_gates": [],
       "gate_policy": "defined"
     },
     "VERIFY->PREVIEW": {
       "required_artifacts": ["test-result", "security-scan", "ci-result", "preview-candidate"],
       "required_approvals": [],
-      "gate_policy": "blocking"
+      "required_gates": ["identity-security", "testing", "build-dependencies", "ci-cd-release"],
+      "gate_policy": "required-gates"
     },
     "PREVIEW->RELEASE": {
       "required_artifacts": ["preview-validation", "e2e-result", "smoke-result", "rollback-plan", "release-traceability", "backup-recovery-readiness"],
       "required_approvals": ["production-release"],
+      "required_gates": [],
       "gate_policy": "release"
     },
     "RELEASE->OPERATE": {
       "required_artifacts": ["production-deployment-receipt", "post-deploy-smoke", "production-health", "observability-health"],
       "required_approvals": [],
-      "gate_policy": "blocking"
+      "required_gates": ["identity-security", "ci-cd-release", "observability", "reliability-resilience"],
+      "gate_policy": "required-gates"
     },
     "OPERATE->RETIRE": {
       "required_artifacts": ["retirement-plan", "archive-proof", "data-disposition", "dependency-retirement-check"],
       "required_approvals": ["retirement"],
-      "gate_policy": "retirement"
+      "required_gates": ["backup-recovery", "documentation", "operations-sre", "governance-compliance"],
+      "gate_policy": "required-gates"
     }
   },
   "release_policy": {
