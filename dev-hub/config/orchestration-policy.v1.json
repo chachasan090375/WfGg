@@ -42,7 +42,10 @@
     "release_trust_requires_external_anchor_quorum": true,
     "project_control_is_the_unified_operator_surface": true,
     "project_control_has_no_network_listener_by_default": true,
-    "control_plane_projection_is_canonical_for_project_status": true
+    "control_plane_projection_is_canonical_for_project_status": true,
+    "lifecycle_promotion_is_transactional": true,
+    "lifecycle_engine_checks_but_does_not_own_persistent_stage": true,
+    "pending_control_transaction_blocks_further_promotion": true
   },
   "permissions": {
     "read": {"approval": "none"},
@@ -101,6 +104,10 @@
     "cryptographic_policy_changes_require_security_review": true,
     "operator_actions_should_enter_through_project_control": true,
     "project_control_dispatch_requires_explicit_execute_flag": true,
-    "project_control_must_not_bypass_underlying_engine_policies": true
+    "project_control_must_not_bypass_underlying_engine_policies": true,
+    "lifecycle_advance_requires_project_control_transaction": true,
+    "transaction_rechecks_control_plane_integrity_before_and_after_commit": true,
+    "verified_evidence_ingest_is_audit_linked": true,
+    "generic_control_event_cannot_mutate_protected_lifecycle_or_approval_state": true
   }
 }
