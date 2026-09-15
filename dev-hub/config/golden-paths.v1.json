@@ -1,0 +1,61 @@
+{
+  "schema": "chacha.dev/golden-path-registry/v1",
+  "paths": [
+    {
+      "id": "GP-01",
+      "name": "Static/PWA + Edge API + Managed Data",
+      "components": ["frontend-web", "worker-edge"],
+      "optional_components": ["database", "object-storage"],
+      "capabilities": ["cloud-deploy-static", "cloud-deploy-edge", "unit-test-js", "ci", "artifact-store", "backup-store"],
+      "fit": {"channels": ["web", "pwa", "api"], "data_store": true, "managed_first": true, "simplicity": "high", "real_time": false}
+    },
+    {
+      "id": "GP-02",
+      "name": "SPA/SSR + API Service + SQL",
+      "components": ["frontend-web", "backend-api", "database"],
+      "optional_components": ["cache", "queue-event-bus", "object-storage"],
+      "capabilities": ["unit-test-js", "ci", "artifact-store", "backup-store"],
+      "fit": {"channels": ["web", "api"], "data_store": true, "managed_first": false, "simplicity": "medium", "real_time": true}
+    },
+    {
+      "id": "GP-03",
+      "name": "Worker / Serverless API",
+      "components": ["worker-edge"],
+      "optional_components": ["database", "object-storage", "queue-event-bus"],
+      "capabilities": ["cloud-deploy-edge", "unit-test-js", "ci", "artifact-store", "backup-store"],
+      "fit": {"channels": ["api", "event-driven", "scheduled"], "data_store": true, "managed_first": true, "simplicity": "high", "real_time": true}
+    },
+    {
+      "id": "GP-04",
+      "name": "Python Service / API",
+      "components": ["service"],
+      "optional_components": ["database", "cache", "queue-event-bus", "object-storage"],
+      "capabilities": ["ci", "artifact-store", "backup-store"],
+      "fit": {"channels": ["api", "scheduled", "event-driven"], "data_store": true, "managed_first": false, "simplicity": "medium", "real_time": true}
+    },
+    {
+      "id": "GP-05",
+      "name": "Data Pipeline / Batch Job",
+      "components": ["data-pipeline"],
+      "optional_components": ["scheduled-job", "database", "object-storage", "queue-event-bus"],
+      "capabilities": ["ci", "artifact-store", "backup-store"],
+      "fit": {"channels": ["scheduled", "event-driven"], "data_store": true, "managed_first": false, "simplicity": "medium", "real_time": false}
+    },
+    {
+      "id": "GP-06",
+      "name": "AI-enabled Service",
+      "components": ["service", "ai-agent"],
+      "optional_components": ["database", "object-storage"],
+      "capabilities": ["ci", "artifact-store", "backup-store"],
+      "fit": {"channels": ["ai-agent", "api", "web"], "data_store": true, "managed_first": false, "simplicity": "medium", "real_time": true}
+    },
+    {
+      "id": "GP-07",
+      "name": "3D / Asset Processing Pipeline",
+      "components": ["3d-pipeline", "static-assets"],
+      "optional_components": ["object-storage", "scheduled-job", "service"],
+      "capabilities": ["3d-pipeline", "artifact-store", "backup-store", "storage-governance"],
+      "fit": {"channels": ["3d-pipeline", "scheduled"], "data_store": true, "managed_first": false, "simplicity": "medium", "real_time": false}
+    }
+  ]
+}
