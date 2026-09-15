@@ -1,0 +1,74 @@
+{
+  "schema": "chacha.dev/control-plane-state-policy/v1",
+  "principles": {
+    "single_project_projection": true,
+    "append_only_audit_journal": true,
+    "hash_chained_events": true,
+    "state_is_rebuildable_from_journal": true,
+    "journal_is_source_of_history": true,
+    "projection_is_source_of_current_state": true,
+    "atomic_projection_updates": true,
+    "no_secret_values_in_state": true,
+    "evidence_references_not_evidence_copies": true,
+    "production_decisions_are_auditable": true
+  },
+  "storage": {
+    "runtime_root": "/opt/chacha-dev/runtime/state",
+    "project_state_filename": "state.json",
+    "journal_filename": "audit.jsonl",
+    "snapshot_directory": "snapshots",
+    "checkpoint_directory": "checkpoints",
+    "journal_format": "json-lines",
+    "journal_encoding": "utf-8"
+  },
+  "consistency": {
+    "projection_version_starts_at": 1,
+    "event_sequence_starts_at": 1,
+    "event_digest": "sha256-canonical-json",
+    "chain_field": "previous_event_digest",
+    "atomic_write_strategy": "temp-file-fsync-rename",
+    "reject_version_regression": true,
+    "reject_sequence_gap": true,
+    "reject_chain_break": true
+  },
+  "state_sections": [
+    "identity",
+    "lifecycle",
+    "architecture",
+    "capabilities",
+    "providers",
+    "execution",
+    "evidence",
+    "approvals",
+    "risks",
+    "decisions",
+    "recovery",
+    "operations"
+  ],
+  "event_types": [
+    "PROJECT_INITIALIZED",
+    "STATE_PATCHED",
+    "LIFECYCLE_TRANSITION",
+    "DECISION_RECORDED",
+    "APPROVAL_RECORDED",
+    "RISK_ACCEPTANCE_RECORDED",
+    "PROVIDER_BINDING_RECORDED",
+    "RUN_RECORDED",
+    "EVIDENCE_RECORDED",
+    "SNAPSHOT_CREATED",
+    "CHECKPOINT_CREATED",
+    "PROJECT_RETIRED"
+  ],
+  "retention": {
+    "journal": "project-lifetime",
+    "snapshots": "retain-last-30-and-release-boundaries",
+    "checkpoints": "retain-all-manual-and-release-checkpoints"
+  },
+  "backup": {
+    "eligible_for_nas_backup": true,
+    "include_state_projection": true,
+    "include_audit_journal": true,
+    "include_snapshots": true,
+    "include_checkpoints": true
+  }
+}
