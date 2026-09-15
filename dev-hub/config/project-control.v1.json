@@ -9,7 +9,10 @@
     "production_changes_require_explicit_human_approval": true,
     "cryptographic_release_requirements_are_visible_in_status": true,
     "private_signing_material_is_never_returned": true,
-    "all_mutating_control_actions_are_auditable": true
+    "all_mutating_control_actions_are_auditable": true,
+    "lifecycle_promotion_is_transactional": true,
+    "verified_evidence_can_be_staged_before_audit_commit": true,
+    "pending_control_transactions_block_further_promotion": true
   },
   "interfaces": {
     "cli": {"enabled": true, "command": "project-control"},
@@ -20,7 +23,9 @@
     "evidence_root": "/opt/chacha-dev/runtime/evidence",
     "plans_root": "/opt/chacha-dev/runtime/plans",
     "health_root": "/opt/chacha-dev/runtime/health",
-    "runs_root": "/opt/chacha-dev/runtime/runs"
+    "runs_root": "/opt/chacha-dev/runtime/runs",
+    "transactions_root": "/opt/chacha-dev/runtime/transactions",
+    "locks_root": "/opt/chacha-dev/runtime/locks/control"
   },
   "repository_paths": {
     "lifecycle": "dev-hub/config/lifecycle.v1.json",
@@ -31,6 +36,7 @@
     "execution_scheduler": "dev-hub/config/execution-scheduler.v1.json",
     "run_controller": "dev-hub/config/run-controller.v1.json",
     "provider_adapters": "dev-hub/config/provider-adapters.v1.json",
+    "verification_broker": "dev-hub/config/verification-broker.v1.json",
     "control_plane_state": "dev-hub/config/control-plane-state.v1.json",
     "cryptographic_trust": "dev-hub/config/cryptographic-trust.v1.json"
   },
@@ -53,12 +59,29 @@
     "schedule": {"class": "plan", "mutating": false},
     "prepare-run": {"class": "plan", "mutating": false},
     "dispatch": {"class": "execution", "mutating": true, "explicit_flag_required": true},
+    "verify-result": {"class": "verification", "mutating": false, "ingest_flag_makes_mutating": true},
+    "record-control-event": {"class": "state-write", "mutating": true},
+    "advance": {"class": "state-write", "mutating": true, "transition_recheck_required": true},
     "crypto-verify": {"class": "verification", "mutating": false}
   },
-  "future_operations": {
-    "verify-result": {"planned": true, "delegates_to": "verification-broker"},
-    "record-control-event": {"planned": true, "delegates_to": "control-plane-store"},
-    "advance": {"planned": true, "delegates_to": "lifecycle-engine+control-plane-store", "transition_recheck_required": true}
+  "transaction_policy": {
+    "project_lock_required": true,
+    "integrity_recheck_before_mutation": true,
+    "integrity_recheck_after_state_commit": true,
+    "journal_is_write_ahead_authority": true,
+    "evidence_ingest_protocol": "stage-ledger-then-audit-then-atomic-finalize",
+    "transaction_receipt_schema": "chacha.dev/control-transaction-receipt/v1",
+    "pending_transaction_blocks_promotion": true,
+    "protected_event_types": [
+      "LIFECYCLE_TRANSITION",
+      "APPROVAL_RECORDED",
+      "RISK_ACCEPTANCE_RECORDED",
+      "SIGNING_KEY_ACTIVATED",
+      "SIGNING_KEY_ROTATED",
+      "SIGNING_KEY_REVOKED",
+      "PROJECT_RETIRED"
+    ],
+    "protected_state_sections": ["lifecycle", "approvals"]
   },
   "approval_boundaries": {
     "dispatch_production": "explicit-human",
@@ -75,6 +98,7 @@
     "allow_implicit_state_promotion": false,
     "allow_unverified_evidence_as_success": false,
     "allow_private_key_output": false,
-    "allow_unsigned_release": false
+    "allow_unsigned_release": false,
+    "allow_generic_event_to_mutate_protected_state": false
   }
 }
