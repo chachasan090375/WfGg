@@ -108,7 +108,7 @@ jobs:
           print('EXTERNAL_ADAPTER_PILOT_PROVISIONING=PASS')
           PY
 
-      - name: VPS PILOT requires provisioning proof and absolute executable
+      - name: VPS PILOT requires provisioning proof and exact executable binding
         shell: bash
         run: |
           set -euo pipefail
@@ -120,11 +120,12 @@ jobs:
           from pathlib import Path
           root=Path(os.environ['TMP']); reg=json.load(open(root/'registry.json')); reg['adapters']['http-smoke-adapter']['status']='CONTRACT_OK'; (root/'registry.json').write_text(json.dumps(reg,indent=2)+'\n')
           now=datetime.now(timezone.utc).isoformat()
+          d='sha256:'+'1'*64
           ev={'schema':'chacha.dev/adapter-promotion-evidence/v1','adapter':'http-smoke-adapter','observed_at':now,'evidence':{
             'runtime-contract-pass':{'status':'PASS','source':'ci:loopback-sandbox','observed_at':now},
             'sandbox-only':{'status':'PASS','source':'ci:sandbox-policy','observed_at':now},
             'provisioning-pass':{'status':'PASS','source':'ci:provisioning-receipt','observed_at':now,
-              'details':{'executable_path':'/tmp/http-smoke-adapter','executable_digest':'sha256:'+'1'*64}}},'approvals':[]}
+              'details':{'executable_path':'/tmp/http-smoke-adapter','source_digest':d,'installed_digest':d,'executable_digest':d}}},'approvals':[]}
           (root/'evidence.json').write_text(json.dumps(ev,indent=2)+'\n')
           PY
           set +e
@@ -134,11 +135,51 @@ jobs:
           import json,sys
           r=json.load(open(sys.argv[1])); assert 'RUNTIME_EXECUTABLE_REQUIRED_FOR:PILOT' in r['blockers'],r
           PY
-          python dev-hub/bin/adapter-promotion.py --registry "$TMP/registry.json" --evidence "$TMP/evidence.json" --json apply --adapter http-smoke-adapter --target PILOT --executable /tmp/http-smoke-adapter --actor ci-platform --receipt "$TMP/receipt.json" --apply > "$TMP/applied.json"
-          python - "$TMP/registry.json" <<'PY'
+
+          set +e
+          python dev-hub/bin/adapter-promotion.py --registry "$TMP/registry.json" --evidence "$TMP/evidence.json" --json plan --adapter http-smoke-adapter --target PILOT --executable /tmp/other-adapter > "$TMP/mismatch.json"
+          RC=$?; set -e; test "$RC" -eq 2
+          python - "$TMP/mismatch.json" <<'PY'
           import json,sys
-          reg=json.load(open(sys.argv[1])); item=reg['adapters']['http-smoke-adapter']; assert item['status']=='PILOT' and item['executable']=='/tmp/http-smoke-adapter',item
+          r=json.load(open(sys.argv[1])); assert 'PROVISIONED_EXECUTABLE_PATH_MISMATCH' in r['blockers'],r
+          print('PROVISIONED_EXECUTABLE_PATH_MISMATCH_GUARD=PASS')
+          PY
+
+          python dev-hub/bin/adapter-promotion.py --registry "$TMP/registry.json" --evidence "$TMP/evidence.json" --json apply --adapter http-smoke-adapter --target PILOT --executable /tmp/http-smoke-adapter --actor ci-platform --receipt "$TMP/receipt.json" --apply > "$TMP/applied.json"
+          python - "$TMP/registry.json" "$TMP/applied.json" <<'PY'
+          import json,sys
+          reg=json.load(open(sys.argv[1])); r=json.load(open(sys.argv[2])); item=reg['adapters']['http-smoke-adapter']
+          assert item['status']=='PILOT' and item['executable']=='/tmp/http-smoke-adapter',item
+          assert r['provisioned_executable_digest']=='sha256:'+'1'*64,r
           print('VPS_ADAPTER_PILOT_PROVISIONING=PASS')
+          PY
+
+      - name: VPS PILOT rejects provisioning digest chain mismatch
+        shell: bash
+        run: |
+          set -euo pipefail
+          TMP="$(mktemp -d)"; export TMP
+          cp dev-hub/config/provider-adapters.v1.json "$TMP/registry.json"
+          python - <<'PY'
+          import json,os
+          from datetime import datetime,timezone
+          from pathlib import Path
+          root=Path(os.environ['TMP']); reg=json.load(open(root/'registry.json')); reg['adapters']['http-smoke-adapter']['status']='CONTRACT_OK'; (root/'registry.json').write_text(json.dumps(reg,indent=2)+'\n')
+          now=datetime.now(timezone.utc).isoformat(); a='sha256:'+'1'*64; b='sha256:'+'2'*64
+          ev={'schema':'chacha.dev/adapter-promotion-evidence/v1','adapter':'http-smoke-adapter','observed_at':now,'evidence':{
+            'runtime-contract-pass':{'status':'PASS','source':'ci:loopback','observed_at':now},
+            'sandbox-only':{'status':'PASS','source':'ci:sandbox','observed_at':now},
+            'provisioning-pass':{'status':'PASS','source':'ci:tampered-receipt','observed_at':now,
+              'details':{'executable_path':'/tmp/http-smoke-adapter','source_digest':a,'installed_digest':a,'executable_digest':b}}},'approvals':[]}
+          (root/'evidence.json').write_text(json.dumps(ev,indent=2)+'\n')
+          PY
+          set +e
+          python dev-hub/bin/adapter-promotion.py --registry "$TMP/registry.json" --evidence "$TMP/evidence.json" --json plan --adapter http-smoke-adapter --target PILOT --executable /tmp/http-smoke-adapter > "$TMP/rejected.json"
+          RC=$?; set -e; test "$RC" -eq 2
+          python - "$TMP/rejected.json" <<'PY'
+          import json,sys
+          r=json.load(open(sys.argv[1])); assert 'PROVISIONING_DIGEST_CHAIN_MISMATCH' in r['blockers'],r
+          print('PROVISIONING_DIGEST_CHAIN_MISMATCH_GUARD=PASS')
           PY
 
       - name: Production-capable external enablement requires approval
