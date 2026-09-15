@@ -1,0 +1,176 @@
+name: Dev Hub V5 HTTP Smoke Adapter
+
+on:
+  push:
+    branches: [dev-hub-v5.0]
+    paths:
+      - 'dev-hub/adapters/http-smoke-adapter.py'
+      - 'dev-hub/bin/adapter-certification.py'
+      - 'dev-hub/bin/adapter-contract-harness.py'
+      - 'dev-hub/bin/adapter-promotion.py'
+      - 'dev-hub/config/adapter-contract.v1.json'
+      - 'dev-hub/config/adapter-promotion.v1.json'
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - 'dev-hub/examples/http-smoke.dispatch.v1.json'
+      - 'dev-hub/schemas/dispatch-envelope-v1.schema.json'
+      - 'dev-hub/schemas/task-result-v1.schema.json'
+      - '.github/workflows/dev-hub-v5-http-smoke-adapter.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  certify-http-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Compile concrete adapter and certification tooling
+        run: |
+          python -m py_compile \
+            dev-hub/adapters/http-smoke-adapter.py \
+            dev-hub/bin/adapter-certification.py \
+            dev-hub/bin/adapter-contract-harness.py \
+            dev-hub/bin/adapter-promotion.py
+
+      - name: Certify HTTP smoke adapter in loopback sandbox
+        shell: bash
+        run: |
+          set -euo pipefail
+          TMP="$(mktemp -d)"
+          SERVER_PID=""
+          cleanup() {
+            if [ -n "$SERVER_PID" ]; then kill "$SERVER_PID" 2>/dev/null || true; fi
+            rm -rf "$TMP"
+          }
+          trap cleanup EXIT
+
+          mkdir -p "$TMP/www"
+          printf 'healthy\n' > "$TMP/www/health"
+          python -m http.server 18080 --bind 127.0.0.1 --directory "$TMP/www" >"$TMP/http.log" 2>&1 &
+          SERVER_PID=$!
+
+          python - <<'PY'
+          import socket, time
+          deadline = time.time() + 10
+          while time.time() < deadline:
+              try:
+                  with socket.create_connection(('127.0.0.1', 18080), timeout=0.5):
+                      print('SANDBOX_HTTP_READY=YES')
+                      break
+              except OSError:
+                  time.sleep(0.1)
+          else:
+              raise SystemExit('SANDBOX_HTTP_READY=NO')
+          PY
+
+          ADAPTER="$TMP/http-smoke-adapter"
+          printf '#!/bin/sh\nexec python3 "%s/dev-hub/adapters/http-smoke-adapter.py"\n' "$GITHUB_WORKSPACE" > "$ADAPTER"
+          chmod 0755 "$ADAPTER"
+
+          cp dev-hub/config/provider-adapters.v1.json "$TMP/registry-designed.json"
+          cp dev-hub/config/provider-adapters.v1.json "$TMP/registry-contract-ok.json"
+          export TMP ADAPTER
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          root = Path(os.environ['TMP'])
+          registry = json.load(open(root / 'registry-contract-ok.json', encoding='utf-8'))
+          entry = registry['adapters']['http-smoke-adapter']
+          entry['status'] = 'CONTRACT_OK'
+          entry['executable'] = os.environ['ADAPTER']
+          (root / 'registry-contract-ok.json').write_text(json.dumps(registry, indent=2) + '\n', encoding='utf-8')
+          PY
+
+          export CHACHA_HTTP_SMOKE_ALLOWED_HOSTS="127.0.0.1,localhost"
+          "$ADAPTER" < dev-hub/examples/http-smoke.dispatch.v1.json > "$TMP/task-result.json"
+
+          python - "$TMP/task-result.json" <<'PY'
+          import json, sys
+          result = json.load(open(sys.argv[1], encoding='utf-8'))
+          assert result['schema'] == 'chacha.dev/task-result/v1', result
+          assert result['status'] == 'OK', result
+          assert result['producer'] == 'http-smoke-adapter', result
+          assert result['verification']['status'] == 'UNVERIFIED', result
+          assert result['verification']['method'] == 'none', result
+          assert result['evidence'][0]['details']['http_status'] == 200, result
+          raw = json.dumps(result)
+          assert 'ci-secret-do-not-log' not in raw, raw
+          print('HTTP_SMOKE_TASK_RESULT=PASS')
+          print('HTTP_SMOKE_SELF_VERIFIED=NO')
+          print('HTTP_SMOKE_QUERY_REDACTION=PASS')
+          PY
+
+          python dev-hub/bin/adapter-contract-harness.py \
+            --registry "$TMP/registry-contract-ok.json" \
+            --policy dev-hub/config/adapter-contract.v1.json \
+            --report "$TMP/contract-report.json" \
+            --adapter http-smoke-adapter \
+            --fixture dev-hub/examples/http-smoke.dispatch.v1.json \
+            --runtime
+
+          python dev-hub/bin/adapter-certification.py \
+            --adapter http-smoke-adapter \
+            --contract-report "$TMP/contract-report.json" \
+            --fixture dev-hub/examples/http-smoke.dispatch.v1.json \
+            --task-result "$TMP/task-result.json" \
+            --output "$TMP/promotion-evidence.json"
+
+          python dev-hub/bin/adapter-promotion.py \
+            --registry "$TMP/registry-designed.json" \
+            --evidence "$TMP/promotion-evidence.json" --json \
+            plan --adapter http-smoke-adapter --target CONTRACT_OK > "$TMP/contract-plan.json"
+
+          python dev-hub/bin/adapter-promotion.py \
+            --registry "$TMP/registry-contract-ok.json" \
+            --evidence "$TMP/promotion-evidence.json" --json \
+            plan --adapter http-smoke-adapter --target PILOT \
+            --executable "$ADAPTER" > "$TMP/pilot-plan.json"
+
+          python - "$TMP/promotion-evidence.json" "$TMP/contract-plan.json" "$TMP/pilot-plan.json" <<'PY'
+          import json, sys
+          evidence = json.load(open(sys.argv[1], encoding='utf-8'))
+          contract_plan = json.load(open(sys.argv[2], encoding='utf-8'))
+          pilot_plan = json.load(open(sys.argv[3], encoding='utf-8'))
+          assert all(item['status'] == 'PASS' for item in evidence['evidence'].values()), evidence
+          assert contract_plan['eligible'] is True and contract_plan['applied'] is False, contract_plan
+          assert pilot_plan['eligible'] is True and pilot_plan['applied'] is False, pilot_plan
+          print('HTTP_SMOKE_PROMOTION_EVIDENCE=PASS')
+          print('HTTP_SMOKE_CONTRACT_OK_ELIGIBLE=YES')
+          print('HTTP_SMOKE_PILOT_ELIGIBLE=YES')
+          print('REAL_REGISTRY_MUTATED=NO')
+          PY
+
+          git diff --exit-code -- dev-hub/config/provider-adapters.v1.json
+
+      - name: Security guard - disallowed host is blocked before network access
+        shell: bash
+        run: |
+          set -euo pipefail
+          TMP="$(mktemp -d)"
+          export TMP
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          root = Path(os.environ['TMP'])
+          fixture = json.load(open('dev-hub/examples/http-smoke.dispatch.v1.json', encoding='utf-8'))
+          fixture['metadata']['http_smoke']['url'] = 'http://example.com/should-never-be-called?token=must-not-log'
+          (root / 'blocked.json').write_text(json.dumps(fixture, indent=2) + '\n', encoding='utf-8')
+          PY
+          export CHACHA_HTTP_SMOKE_ALLOWED_HOSTS="127.0.0.1,localhost"
+          python dev-hub/adapters/http-smoke-adapter.py < "$TMP/blocked.json" > "$TMP/result.json"
+          python - "$TMP/result.json" <<'PY'
+          import json, sys
+          result = json.load(open(sys.argv[1], encoding='utf-8'))
+          assert result['status'] == 'BLOCKED', result
+          assert 'HTTP_HOST_NOT_ALLOWED:example.com' in result['summary'], result
+          raw = json.dumps(result)
+          assert 'must-not-log' not in raw, raw
+          print('HTTP_SMOKE_ALLOWLIST_GUARD=PASS')
+          PY
