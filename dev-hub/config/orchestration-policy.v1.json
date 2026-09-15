@@ -13,7 +13,8 @@
     "verification_broker": "dev-hub/config/verification-broker.v1.json",
     "adapter_contract": "dev-hub/config/adapter-contract.v1.json",
     "control_plane_state": "dev-hub/config/control-plane-state.v1.json",
-    "cryptographic_trust": "dev-hub/config/cryptographic-trust.v1.json"
+    "cryptographic_trust": "dev-hub/config/cryptographic-trust.v1.json",
+    "project_control": "dev-hub/config/project-control.v1.json"
   },
   "principles": {
     "least_privilege": true,
@@ -38,7 +39,10 @@
     "private_signing_material_is_not_accessible_to_orchestrator": true,
     "release_boundaries_require_valid_digital_signature": true,
     "key_lifecycle_requires_explicit_human_approval": true,
-    "release_trust_requires_external_anchor_quorum": true
+    "release_trust_requires_external_anchor_quorum": true,
+    "project_control_is_the_unified_operator_surface": true,
+    "project_control_has_no_network_listener_by_default": true,
+    "control_plane_projection_is_canonical_for_project_status": true
   },
   "permissions": {
     "read": {"approval": "none"},
@@ -94,6 +98,9 @@
     "signing_key_private_material_must_not_be_logged_or_stored_in_git": true,
     "signing_key_activation_rotation_revocation_require_human_approval": true,
     "release_requires_two_independent_trust_anchors": true,
-    "cryptographic_policy_changes_require_security_review": true
+    "cryptographic_policy_changes_require_security_review": true,
+    "operator_actions_should_enter_through_project_control": true,
+    "project_control_dispatch_requires_explicit_execute_flag": true,
+    "project_control_must_not_bypass_underlying_engine_policies": true
   }
 }
