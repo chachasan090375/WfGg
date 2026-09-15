@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://chacha.dev/schemas/project-plan-v1.schema.json",
+  "title": "ChaCha DEV HUB Project Plan V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "project", "golden_path", "components", "capabilities", "quality_gates", "decisions", "readiness"],
+  "properties": {
+    "schema": {"const": "chacha.dev/project-plan/v1"},
+    "project": {"type": "string"},
+    "golden_path": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "confidence"],
+      "properties": {
+        "id": {"type": "string"},
+        "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+        "reasons": {"type": "array", "items": {"type": "string"}},
+        "alternatives": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "components": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "type", "required"],
+        "properties": {
+          "id": {"type": "string"},
+          "type": {"type": "string"},
+          "required": {"type": "boolean"},
+          "reason": {"type": "string"},
+          "depends_on": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "capabilities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "required", "resolution_state"],
+        "properties": {
+          "id": {"type": "string"},
+          "required": {"type": "boolean"},
+          "provider": {"type": ["string", "null"]},
+          "provider_status": {"type": ["string", "null"]},
+          "resolution_state": {"enum": ["READY", "CONDITIONAL", "DEGRADED", "UNAVAILABLE"]},
+          "reason": {"type": "string"}
+        }
+      }
+    },
+    "quality_gates": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["required", "blocking"],
+        "properties": {
+          "required": {"type": "boolean"},
+          "blocking": {"type": "boolean"},
+          "evidence_expected": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "decisions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "status", "question"],
+        "properties": {
+          "id": {"type": "string"},
+          "status": {"enum": ["RESOLVED", "NEEDS_INPUT", "NEEDS_EVIDENCE", "NEEDS_APPROVAL"]},
+          "question": {"type": "string"},
+          "recommendation": {"type": "string"},
+          "options": {"type": "array", "items": {"type": "string"}},
+          "rationale": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "risks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "severity", "description"],
+        "properties": {
+          "id": {"type": "string"},
+          "severity": {"enum": ["low", "medium", "high", "critical"]},
+          "description": {"type": "string"},
+          "mitigation": {"type": "string"}
+        }
+      }
+    },
+    "readiness": {
+      "type": "object",
+      "required": ["architecture_contract_ready", "code_generation_allowed", "production_change_allowed"],
+      "properties": {
+        "architecture_contract_ready": {"type": "boolean"},
+        "code_generation_allowed": {"type": "boolean"},
+        "production_change_allowed": {"const": false},
+        "blocking_reasons": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "draft_manifest": {"type": "object"}
+  }
+}
