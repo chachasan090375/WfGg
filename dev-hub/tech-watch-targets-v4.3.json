@@ -1,0 +1,61 @@
+{
+  "schema": "chacha.dev/tech-watch-targets/v3",
+  "policy": {
+    "automatic_replacement": false,
+    "automatic_recommendation": false,
+    "automatic_pilot": false,
+    "maximum_market_results_per_query": 12,
+    "maximum_market_results_per_category": 5,
+    "candidate_watch_score": 80,
+    "candidate_assess_score": 60,
+    "market_min_stars": 750,
+    "market_max_push_age_days": 365
+  },
+  "installed": [
+    {"name":"Node.js","category":"runtime-js","github":"nodejs/node","confidence":"curated"},
+    {"name":"npm","category":"package-manager-js","github":"npm/cli","confidence":"curated"},
+    {"name":"Python","category":"runtime-python","github":"python/cpython","confidence":"curated"},
+    {"name":"Wrangler","category":"cloudflare-tooling","github":"cloudflare/workers-sdk","confidence":"curated"},
+    {"name":"Context7","category":"developer-documentation","github":"upstash/context7","confidence":"curated"},
+    {"name":"MDN content","category":"web-documentation","github":"mdn/content","confidence":"curated"},
+    {"name":"Skywork Skills","category":"agent-skills","github":"SkyworkAI/Skywork-Skills","confidence":"curated"}
+  ],
+  "candidates": [
+    {"name":"pnpm","category":"package-manager-js","github":"pnpm/pnpm","competes_with":"npm","confidence":"curated"},
+    {"name":"Bun","category":"runtime-js","github":"oven-sh/bun","competes_with":"Node.js/npm","confidence":"curated"},
+    {"name":"Deno","category":"runtime-js","github":"denoland/deno","competes_with":"Node.js","confidence":"curated"},
+    {"name":"Biome","category":"lint-format","github":"biomejs/biome","competes_with":"ESLint/formatters","confidence":"curated"},
+    {"name":"Vitest","category":"testing-js","github":"vitest-dev/vitest","competes_with":"JS test runners","confidence":"curated"},
+    {"name":"Playwright","category":"testing-e2e","github":"microsoft/playwright","competes_with":"browser/E2E test tooling","confidence":"curated"},
+    {"name":"uv","category":"package-manager-python","github":"astral-sh/uv","competes_with":"pip/venv workflows","confidence":"curated"},
+    {"name":"OpenHands","category":"ai-coding-agent","github":"All-Hands-AI/OpenHands","competes_with":"coding agents","confidence":"curated"},
+    {"name":"Continue","category":"ai-coding-agent","github":"continuedev/continue","competes_with":"coding agents","confidence":"curated"},
+    {"name":"Aider","category":"ai-coding-agent","github":"Aider-AI/aider","competes_with":"coding agents","confidence":"curated"}
+  ],
+  "market_queries": [
+    {
+      "category":"ai-coding-agent",
+      "query":"ai coding agent stars:>1000 archived:false fork:false",
+      "include_any":["coding agent","code agent","ai coding","code assistant","developer agent","agentic coding"],
+      "exclude_any":["awesome list","prompt collection","wallpaper","dictatorship"]
+    },
+    {
+      "category":"mcp-developer-tools",
+      "query":"mcp developer tools stars:>500 archived:false fork:false",
+      "include_any":["model context protocol","mcp server","mcp client","mcp developer"],
+      "exclude_any":["awesome list"]
+    },
+    {
+      "category":"javascript-tooling",
+      "query":"javascript build tool runtime stars:>3000 archived:false fork:false",
+      "include_any":["javascript","typescript","bundler","build tool","runtime","package manager","lint","formatter"],
+      "exclude_any":["awesome list"]
+    },
+    {
+      "category":"testing-observability",
+      "query":"testing observability developer tool stars:>2000 archived:false fork:false",
+      "include_any":["test","testing","observability","tracing","monitoring","browser automation","end-to-end"],
+      "exclude_any":["awesome list"]
+    }
+  ]
+}
