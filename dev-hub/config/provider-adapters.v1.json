@@ -12,7 +12,8 @@
     "no_secret_values_in_registry": true,
     "argv_not_shell": true,
     "adapter_must_return_structured_result": true,
-    "connector_and_local_runtime_adapters_share_contract": true
+    "connector_and_local_runtime_adapters_share_contract": true,
+    "signing_adapter_never_returns_private_key_material": true
   },
   "providers": {
     "github": {"adapter": "github-connector", "kind": "connector", "execution": "external"},
@@ -36,7 +37,8 @@
     "unitypy": {"adapter": "python-runtime-adapter", "kind": "local-runtime", "execution": "vps"},
     "chacha-tech-watch": {"adapter": "platform-command-adapter", "kind": "platform", "execution": "vps"},
     "chacha-dev-architect": {"adapter": "platform-command-adapter", "kind": "platform", "execution": "vps"},
-    "storage-governor": {"adapter": "platform-command-adapter", "kind": "platform", "execution": "vps"}
+    "storage-governor": {"adapter": "platform-command-adapter", "kind": "platform", "execution": "vps"},
+    "openssl-ed25519": {"adapter": "crypto-trust-adapter", "kind": "security-runtime", "execution": "vps"}
   },
   "adapters": {
     "github-connector": {"status": "DESIGNED", "executable": null, "supports": ["read", "repository-write"]},
@@ -51,6 +53,7 @@
     "nas-ssh-adapter": {"status": "DESIGNED", "executable": null, "supports": ["read", "workspace-write"]},
     "local-binary-adapter": {"status": "DESIGNED", "executable": null, "supports": ["read", "workspace-write"]},
     "python-runtime-adapter": {"status": "DESIGNED", "executable": null, "supports": ["read", "workspace-write"]},
-    "platform-command-adapter": {"status": "DESIGNED", "executable": null, "supports": ["read", "plan", "workspace-write"]}
+    "platform-command-adapter": {"status": "DESIGNED", "executable": null, "supports": ["read", "plan", "workspace-write"]},
+    "crypto-trust-adapter": {"status": "DESIGNED", "executable": null, "supports": ["read", "plan", "workspace-write"]}
   }
 }
