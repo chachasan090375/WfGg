@@ -1,0 +1,37 @@
+{
+  "schema": "chacha.dev/tech-watch-targets/v2",
+  "policy": {
+    "automatic_replacement": false,
+    "automatic_recommendation": false,
+    "maximum_market_results_per_query": 5,
+    "candidate_pilot_score": 80,
+    "candidate_watch_score": 65
+  },
+  "installed": [
+    {"name":"Node.js","category":"runtime-js","github":"nodejs/node"},
+    {"name":"npm","category":"package-manager-js","github":"npm/cli"},
+    {"name":"Python","category":"runtime-python","github":"python/cpython"},
+    {"name":"Wrangler","category":"cloudflare-tooling","github":"cloudflare/workers-sdk"},
+    {"name":"Context7","category":"developer-documentation","github":"upstash/context7"},
+    {"name":"MDN content","category":"web-documentation","github":"mdn/content"},
+    {"name":"Skywork Skills","category":"agent-skills","github":"SkyworkAI/Skywork-Skills"}
+  ],
+  "candidates": [
+    {"name":"pnpm","category":"package-manager-js","github":"pnpm/pnpm","competes_with":"npm"},
+    {"name":"Bun","category":"runtime-js","github":"oven-sh/bun","competes_with":"Node.js/npm"},
+    {"name":"Deno","category":"runtime-js","github":"denoland/deno","competes_with":"Node.js"},
+    {"name":"Biome","category":"lint-format","github":"biomejs/biome","competes_with":"ESLint/formatters"},
+    {"name":"Vitest","category":"testing-js","github":"vitest-dev/vitest","competes_with":"JS test runners"},
+    {"name":"Playwright","category":"testing-e2e","github":"microsoft/playwright","competes_with":"browser/E2E test tooling"},
+    {"name":"uv","category":"package-manager-python","github":"astral-sh/uv","competes_with":"pip/venv workflows"},
+    {"name":"OpenHands","category":"ai-coding-agent","github":"All-Hands-AI/OpenHands","competes_with":"coding agents"},
+    {"name":"Continue","category":"ai-coding-agent","github":"continuedev/continue","competes_with":"coding agents"},
+    {"name":"Aider","category":"ai-coding-agent","github":"Aider-AI/aider","competes_with":"coding agents"}
+  ],
+  "market_queries": [
+    {"category":"ai-coding-agent","query":"AI coding agent developer stars:>1000"},
+    {"category":"mcp-developer-tools","query":"MCP developer tools server stars:>500"},
+    {"category":"javascript-tooling","query":"JavaScript build tool runtime stars:>3000"},
+    {"category":"testing-observability","query":"developer testing observability tool stars:>2000"}
+  ]
+}
