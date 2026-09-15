@@ -1,0 +1,54 @@
+{
+  "schema": "chacha.dev/verification-broker/v1",
+  "mode": "verify-only",
+  "principles": {
+    "producer_and_verifier_must_differ": true,
+    "execution_success_is_not_verification": true,
+    "evidence_digest_must_match_when_locally_readable": true,
+    "declared_task_output_only": true,
+    "human_verification_is_never_automated": true,
+    "failed_or_partial_execution_cannot_be_upgraded_to_ok": true,
+    "verification_is_a_separate_artifact": true,
+    "original_task_result_is_immutable": true
+  },
+  "verification_modes": {
+    "machine": {
+      "allowed_verifiers": ["verification-broker"],
+      "requires_evidence": true,
+      "requires_digest_check": true
+    },
+    "independent-agent": {
+      "allowed_verifiers": ["independent-agent", "human"],
+      "requires_evidence": true,
+      "requires_digest_check": true
+    },
+    "human": {
+      "allowed_verifiers": ["human"],
+      "requires_evidence": true,
+      "automatic_verification": false
+    },
+    "machine-or-human": {
+      "allowed_verifiers": ["verification-broker", "independent-agent", "human"],
+      "requires_evidence": true,
+      "requires_digest_check": true
+    }
+  },
+  "evidence": {
+    "require_source": true,
+    "require_digest": true,
+    "accepted_digest_algorithms": ["sha256"],
+    "unreadable_external_source": "NEEDS_INDEPENDENT_CHECK",
+    "missing_local_source": "REJECT"
+  },
+  "result_policy": {
+    "ok_requires_execution_status": "OK",
+    "partial_may_remain_partial": true,
+    "failed_remains_failed": true,
+    "blocked_remains_blocked": true,
+    "unverified_never_becomes_ok_without_verification": true
+  },
+  "output": {
+    "schema": "chacha.dev/verification-report/v1",
+    "verified_task_result_suffix": ".verified.json"
+  }
+}
