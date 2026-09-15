@@ -9,7 +9,9 @@
     "evidence_catalog": "dev-hub/config/evidence-catalog.v1.json",
     "execution_scheduler": "dev-hub/config/execution-scheduler.v1.json",
     "run_controller": "dev-hub/config/run-controller.v1.json",
-    "provider_adapters": "dev-hub/config/provider-adapters.v1.json"
+    "provider_adapters": "dev-hub/config/provider-adapters.v1.json",
+    "verification_broker": "dev-hub/config/verification-broker.v1.json",
+    "adapter_contract": "dev-hub/config/adapter-contract.v1.json"
   },
   "principles": {
     "least_privilege": true,
@@ -22,7 +24,10 @@
     "provider_failover_is_policy_controlled": true,
     "dispatch_is_separate_from_planning": true,
     "run_controller_cannot_self_verify": true,
-    "unregistered_adapter_cannot_execute": true
+    "unregistered_adapter_cannot_execute": true,
+    "verification_is_separate_from_execution": true,
+    "adapter_enablement_requires_contract_evidence": true,
+    "human_verification_is_never_faked_or_automated": true
   },
   "permissions": {
     "read": {"approval": "none"},
@@ -61,6 +66,10 @@
     "dispatch_requires_registered_adapter": true,
     "write_dispatch_requires_project_lock": true,
     "run_controller_output_requires_independent_verification": true,
-    "production_dispatch_rechecks_human_approval": true
+    "production_dispatch_rechecks_human_approval": true,
+    "verification_broker_must_not_be_task_producer": true,
+    "human_verification_requires_real_human_actor": true,
+    "adapter_status_designed_cannot_execute": true,
+    "adapter_promotion_is_never_automatic": true
   }
 }
