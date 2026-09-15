@@ -13,7 +13,7 @@
   },
   "interfaces": {
     "cli": {"enabled": true, "command": "project-control"},
-    "json_api": {"enabled": true, "transport": "stdin-stdout", "network_listener": false}
+    "json_api": {"enabled": true, "transport": "stdin-stdout", "network_listener": false, "adapter": "dev-hub/bin/project-control-api.py"}
   },
   "runtime": {
     "state_root": "/opt/chacha-dev/runtime/state",
@@ -53,10 +53,12 @@
     "schedule": {"class": "plan", "mutating": false},
     "prepare-run": {"class": "plan", "mutating": false},
     "dispatch": {"class": "execution", "mutating": true, "explicit_flag_required": true},
-    "verify-result": {"class": "verification", "mutating": false},
-    "crypto-verify": {"class": "verification", "mutating": false},
-    "record-control-event": {"class": "state-write", "mutating": true},
-    "advance": {"class": "state-write", "mutating": true, "transition_recheck_required": true}
+    "crypto-verify": {"class": "verification", "mutating": false}
+  },
+  "future_operations": {
+    "verify-result": {"planned": true, "delegates_to": "verification-broker"},
+    "record-control-event": {"planned": true, "delegates_to": "control-plane-store"},
+    "advance": {"planned": true, "delegates_to": "lifecycle-engine+control-plane-store", "transition_recheck_required": true}
   },
   "approval_boundaries": {
     "dispatch_production": "explicit-human",
