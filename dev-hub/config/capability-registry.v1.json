@@ -151,6 +151,25 @@
       "providers": [
         {"id": "storage-governor", "status": "ADOPT", "health": "platform-health", "cost_class": "local", "scope": "vps+nas", "fallback": []}
       ]
+    },
+    "audit-signing": {
+      "class": "security",
+      "providers": [
+        {"id": "openssl-ed25519", "status": "ASSESS", "health": "runtime-check", "cost_class": "free", "scope": "approved-signing-backend", "fallback": []}
+      ]
+    },
+    "digital-signature-verification": {
+      "class": "verification",
+      "providers": [
+        {"id": "openssl-ed25519", "status": "ASSESS", "health": "runtime-check", "cost_class": "free", "scope": "project", "fallback": []}
+      ]
+    },
+    "trust-anchor-write": {
+      "class": "security",
+      "providers": [
+        {"id": "nas", "status": "ADOPT", "health": "ssh-probe", "cost_class": "owned", "scope": "independent-private-anchor", "fallback": ["github"]},
+        {"id": "github", "status": "ADOPT", "health": "managed", "cost_class": "included", "scope": "independent-repository-anchor", "fallback": []}
+      ]
     }
   }
 }
