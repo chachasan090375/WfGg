@@ -1,0 +1,57 @@
+{
+  "schema": "chacha.dev/platform-evidence/v1",
+  "principles": {
+    "probe_execution_is_separate_from_evidence_normalization": true,
+    "missing_probe_result_is_unknown": true,
+    "stale_probe_result_is_unknown": true,
+    "future_dated_probe_result_is_unknown": true,
+    "unknown_is_never_promoted_to_healthy": true,
+    "latest_valid_probe_result_wins": true,
+    "provider_catalog_is_authoritative": true,
+    "extra_providers_are_rejected_by_default": true,
+    "storage_preflight_is_normalized_before_readiness": true,
+    "no_secret_values_in_platform_evidence": true,
+    "normalizer_never_executes_arbitrary_commands": true
+  },
+  "repository_paths": {
+    "provider_health_probes": "dev-hub/config/provider-health-probes.v1.json"
+  },
+  "health": {
+    "probe_result_schema": "chacha.dev/provider-probe-result/v1",
+    "snapshot_schema": "chacha.dev/provider-health-snapshot/v1",
+    "states": ["HEALTHY", "DEGRADED", "UNAVAILABLE", "UNKNOWN"],
+    "default_freshness_seconds": 300,
+    "maximum_future_skew_seconds": 60,
+    "missing_state": "UNKNOWN",
+    "stale_state": "UNKNOWN",
+    "future_dated_state": "UNKNOWN",
+    "reject_extra_provider": true,
+    "preserve_original_state_in_details": true
+  },
+  "storage": {
+    "schema": "chacha.dev/storage-preflight/v1",
+    "accepted_input_formats": ["json", "key-value"],
+    "status_map": {
+      "OK": "OK",
+      "PASS": "OK",
+      "READY": "OK",
+      "WARN": "WARN",
+      "WARNING": "WARN",
+      "BLOCKED": "BLOCKED",
+      "FAIL": "BLOCKED",
+      "FAILED": "BLOCKED"
+    },
+    "unknown_status": "UNKNOWN",
+    "numeric_fields": {
+      "NEED_MB": "need_mb",
+      "RESERVE_MB": "reserve_mb",
+      "REQUIRED_FREE_MB": "required_free_mb",
+      "CURRENT_FREE_MB": "current_free_mb",
+      "CURRENT_USED_PERCENT": "current_used_percent"
+    },
+    "text_fields": {
+      "STORAGE_PRESSURE": "pressure",
+      "PREFLIGHT": "status"
+    }
+  }
+}
