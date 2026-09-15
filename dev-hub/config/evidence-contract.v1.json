@@ -1,0 +1,41 @@
+{
+  "schema": "chacha.dev/evidence-contract/v1",
+  "artifact_statuses": ["OK", "FAILED", "UNVERIFIED", "NOT_APPLICABLE"],
+  "gate_statuses": ["OK", "PARTIAL", "MISSING", "NOT_APPLICABLE", "UNVERIFIED"],
+  "approval_statuses": ["APPROVED", "REJECTED", "PENDING"],
+  "artifact_required_fields": ["id", "status", "source", "observed_at"],
+  "approval_required_fields": ["id", "status", "actor", "observed_at"],
+  "rules": {
+    "ok_artifact_requires_source": true,
+    "not_applicable_requires_reason": true,
+    "approval_actor_must_not_be_empty": true,
+    "evidence_must_be_timestamped": true,
+    "generated_claim_without_execution_is_unverified": true,
+    "production_approval_cannot_be_inferred": true
+  },
+  "example": {
+    "schema": "chacha.dev/evidence-ledger/v1",
+    "project": "example",
+    "artifacts": {
+      "project-intent": {
+        "status": "OK",
+        "source": "dev-hub/examples/project-intent.sample.v1.json",
+        "observed_at": "2026-09-15T00:00:00Z"
+      }
+    },
+    "gates": {
+      "testing": {
+        "status": "UNVERIFIED",
+        "evidence": []
+      }
+    },
+    "approvals": {
+      "production-release": {
+        "status": "PENDING",
+        "actor": "project-owner",
+        "observed_at": "2026-09-15T00:00:00Z"
+      }
+    },
+    "risk_acceptances": []
+  }
+}
