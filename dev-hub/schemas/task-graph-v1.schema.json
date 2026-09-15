@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://chacha.dev/schemas/task-graph-v1.schema.json",
+  "title": "ChaCha DEV HUB Task Graph V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "project", "transition", "tasks"],
+  "properties": {
+    "schema": {"const": "chacha.dev/task-graph/v1"},
+    "project": {"type": "string", "minLength": 1},
+    "transition": {"type": "string", "minLength": 1},
+    "generated_at": {"type": "string"},
+    "tasks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "kind", "owner_role", "permission", "depends_on", "outputs", "verification"],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "kind": {"enum": ["artifact", "gate", "approval", "health", "deployment-check", "recovery-check", "manual-decision"]},
+          "description": {"type": "string"},
+          "owner_role": {"type": "string"},
+          "capabilities": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+          "permission": {"enum": ["read", "plan", "workspace-write", "repository-write", "preview-deploy", "production-deploy", "production-data-write", "secret-change", "destructive-operation", "technology-replacement"]},
+          "depends_on": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+          "outputs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["type", "id"],
+              "properties": {
+                "type": {"enum": ["artifact", "gate", "approval"]},
+                "id": {"type": "string"}
+              }
+            }
+          },
+          "verification": {
+            "type": "object",
+            "required": ["mode", "self_certification_allowed"],
+            "properties": {
+              "mode": {"enum": ["machine", "independent-agent", "human", "machine-or-human"]},
+              "self_certification_allowed": {"const": false},
+              "required_evidence": {"type": "array", "items": {"type": "string"}}
+            }
+          },
+          "blocking": {"type": "boolean"},
+          "parallel_group": {"type": "string"}
+        }
+      }
+    }
+  }
+}
