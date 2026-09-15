@@ -1,0 +1,66 @@
+{
+  "schema": "chacha.dev/execution-scheduler/v1",
+  "principles": {
+    "respect_task_dependencies": true,
+    "provider_health_required": true,
+    "single_writer_per_project": true,
+    "parallel_read_only_tasks": true,
+    "heavy_tasks_require_storage_preflight": true,
+    "fallback_must_be_recorded": true,
+    "production_actions_require_explicit_human_approval": true,
+    "unknown_health_is_not_healthy": true
+  },
+  "health_states": ["HEALTHY", "DEGRADED", "UNAVAILABLE", "UNKNOWN"],
+  "provider_selection": {
+    "status_preference": ["ADOPT", "PILOT", "WATCH", "ASSESS", "DISCOVER", "DEPRECATE"],
+    "health_preference": ["HEALTHY", "DEGRADED"],
+    "allow_degraded_for_non_production": true,
+    "allow_degraded_for_production": false,
+    "allow_unknown": false,
+    "retired_provider_allowed": false
+  },
+  "concurrency": {
+    "max_parallel_read_tasks": 8,
+    "max_parallel_write_tasks_per_project": 1,
+    "allow_read_tasks_during_write": false,
+    "serialize_permissions": [
+      "workspace-write",
+      "repository-write",
+      "preview-deploy",
+      "production-deploy",
+      "production-data-write",
+      "secret-change",
+      "destructive-operation",
+      "technology-replacement"
+    ]
+  },
+  "retry": {
+    "max_attempts": 2,
+    "backoff_seconds": [5, 20],
+    "retryable_failure_classes": ["timeout", "rate-limit", "transient-network", "provider-5xx"],
+    "non_retryable_failure_classes": ["policy-denied", "invalid-input", "security-block", "approval-missing"]
+  },
+  "failover": {
+    "enabled": true,
+    "automatic_for_permissions": ["read", "plan", "workspace-write"],
+    "approval_required_for_permissions": [
+      "repository-write",
+      "preview-deploy",
+      "production-deploy",
+      "production-data-write",
+      "secret-change",
+      "destructive-operation",
+      "technology-replacement"
+    ],
+    "preserve_capability_contract": true,
+    "record_original_provider": true,
+    "record_fallback_provider": true,
+    "record_reason": true
+  },
+  "resource_classes": {
+    "light": {"storage_preflight": false},
+    "medium": {"storage_preflight": false},
+    "heavy": {"storage_preflight": true},
+    "very-heavy": {"storage_preflight": true}
+  }
+}
