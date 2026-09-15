@@ -11,11 +11,13 @@ mkdir -p "$BIN" "$CFG" "$RADAR/history"
 
 curl -fsSL "$BASE/tech-watch.py" -o "$BIN/tech-watch.py"
 curl -fsSL "$BASE/tech-watch-targets.json" -o "$CFG/tech-watch-targets.json"
-chmod 755 "$BIN/tech-watch.py"
+curl -fsSL "$BASE/architectctl.py" -o "$BIN/architectctl.py"
+chmod 755 "$BIN/tech-watch.py" "$BIN/architectctl.py"
 chmod 644 "$CFG/tech-watch-targets.json"
 ln -sfn "$BIN/tech-watch.py" /usr/local/bin/techwatch
+ln -sfn "$BIN/architectctl.py" /usr/local/bin/architectctl
 
-python3 -m py_compile "$BIN/tech-watch.py"
+python3 -m py_compile "$BIN/tech-watch.py" "$BIN/architectctl.py"
 python3 -m json.tool "$CFG/tech-watch-targets.json" >/dev/null
 
 cat >/usr/local/bin/chacha-tech-watch-run <<'EOF'
@@ -87,8 +89,12 @@ echo "=== INITIAL WATCH ==="
 /usr/local/bin/techwatch run --market
 
 echo
-echo "=== WATCH STATUS ==="
-/usr/local/bin/techwatch status
+echo "=== ARCHITECT WATCH STATUS ==="
+/usr/local/bin/architectctl watch-status
+
+echo
+echo "=== ARCHITECT STATUS ==="
+/usr/local/bin/architectctl status
 
 if [ "$SCHEDULER" = systemd ]; then
   echo
