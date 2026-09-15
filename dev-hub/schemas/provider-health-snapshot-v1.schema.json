@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://chacha.dev/schemas/provider-health-snapshot-v1.schema.json",
+  "title": "ChaCha DEV HUB Provider Health Snapshot V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "observed_at", "providers"],
+  "properties": {
+    "schema": {"const": "chacha.dev/provider-health-snapshot/v1"},
+    "observed_at": {"type": "string"},
+    "providers": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["state", "source"],
+        "properties": {
+          "state": {"enum": ["HEALTHY", "DEGRADED", "UNAVAILABLE", "UNKNOWN"]},
+          "source": {"type": "string", "minLength": 1},
+          "checked_at": {"type": "string"},
+          "latency_ms": {"type": ["number", "null"], "minimum": 0},
+          "reason": {"type": "string"},
+          "details": {"type": "object", "additionalProperties": true}
+        }
+      }
+    }
+  }
+}
