@@ -1,0 +1,41 @@
+{
+  "schema": "chacha.dev/adapter-provisioning/v1",
+  "principles": {
+    "provisioning_precedes_local_pilot": true,
+    "explicit_apply_required": true,
+    "version_directory_is_immutable": true,
+    "source_and_installed_digest_must_match": true,
+    "current_symlink_is_updated_atomically": true,
+    "provisioning_never_changes_adapter_status": true,
+    "provisioning_receipt_is_required": true,
+    "private_secrets_are_never_written_to_receipts": true,
+    "runtime_probe_must_be_non_destructive": true
+  },
+  "target_root": "/opt/chacha-dev/adapters",
+  "receipt_root": "/opt/chacha-dev/runtime/adapter-provisioning",
+  "sandbox_root_override_allowed": true,
+  "probe_timeout_seconds": 10,
+  "adapters": {
+    "http-smoke-adapter": {
+      "source": "dev-hub/adapters/http-smoke-adapter.py",
+      "namespace": "http-smoke",
+      "version": "1.0.0",
+      "executable_name": "http-smoke-adapter",
+      "mode": "0755",
+      "current_link_name": "current",
+      "probe": {
+        "input": {
+          "schema": "chacha.dev/dispatch-envelope/v1",
+          "project": "adapter-provisioning-probe",
+          "task": {"id": "probe", "permission": "read"},
+          "bindings": [],
+          "metadata": {}
+        },
+        "expected_schema": "chacha.dev/task-result/v1",
+        "expected_status": "BLOCKED",
+        "expected_producer": "http-smoke-adapter",
+        "expected_verification_status": "UNVERIFIED"
+      }
+    }
+  }
+}
