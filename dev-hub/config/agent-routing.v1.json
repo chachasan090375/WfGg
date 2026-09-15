@@ -1,0 +1,140 @@
+{
+  "schema": "chacha.dev/agent-routing/v1",
+  "orchestrator": "chacha-dev-architect",
+  "principles": {
+    "route_by_capability_not_vendor": true,
+    "prefer_current_documentation_for_external_apis": true,
+    "require_evidence_after_execution": true,
+    "production_change_requires_human_approval": true,
+    "destructive_change_requires_human_approval": true,
+    "security_critical_change_requires_review": true,
+    "fallback_on_provider_failure": true
+  },
+  "roles": {
+    "product-domain-architect": {
+      "capabilities": ["requirements-analysis", "domain-modeling", "acceptance-criteria"],
+      "default_risk": "low"
+    },
+    "frontend-architect": {
+      "capabilities": ["code-edit", "web-docs", "library-docs", "accessibility-review", "frontend-performance"],
+      "default_risk": "medium"
+    },
+    "backend-api-architect": {
+      "capabilities": ["code-edit", "library-docs", "api-contract-review", "integration-design"],
+      "default_risk": "medium"
+    },
+    "data-architect": {
+      "capabilities": ["database-migrate", "data-model-review", "backup-design"],
+      "default_risk": "high"
+    },
+    "security-reviewer": {
+      "capabilities": ["security-scan-js", "threat-model", "secrets-review", "dependency-review"],
+      "default_risk": "high"
+    },
+    "test-engineer": {
+      "capabilities": ["unit-test-js", "e2e-test-web", "performance-test-web", "test-strategy"],
+      "default_risk": "low"
+    },
+    "platform-cloud-engineer": {
+      "capabilities": ["cloud-deploy-edge", "ci", "storage-governance", "environment-management"],
+      "default_risk": "high"
+    },
+    "sre-observability-engineer": {
+      "capabilities": ["health-checks", "logging", "metrics", "alerts", "incident-readiness"],
+      "default_risk": "medium"
+    },
+    "performance-engineer": {
+      "capabilities": ["performance-test-web", "capacity-analysis", "frontend-performance"],
+      "default_risk": "low"
+    },
+    "recovery-engineer": {
+      "capabilities": ["backup-store", "restore-drill", "rpo-rto-validation"],
+      "default_risk": "high"
+    },
+    "release-engineer": {
+      "capabilities": ["ci", "cloud-deploy-edge", "release-validation", "rollback-validation"],
+      "default_risk": "high"
+    },
+    "documentation-adr-agent": {
+      "capabilities": ["architecture-documentation", "adr-management", "runbook-maintenance"],
+      "default_risk": "low"
+    },
+    "technology-radar-agent": {
+      "capabilities": ["technology-radar", "web-research", "comparative-evaluation"],
+      "default_risk": "low"
+    }
+  },
+  "routing_rules": [
+    {
+      "match": ["frontend", "ui", "pwa", "accessibility", "i18n"],
+      "primary_role": "frontend-architect",
+      "review_roles": ["test-engineer"]
+    },
+    {
+      "match": ["api", "worker", "service", "backend", "webhook"],
+      "primary_role": "backend-api-architect",
+      "review_roles": ["test-engineer", "security-reviewer"]
+    },
+    {
+      "match": ["database", "schema", "migration", "retention", "data"],
+      "primary_role": "data-architect",
+      "review_roles": ["recovery-engineer", "security-reviewer"]
+    },
+    {
+      "match": ["auth", "security", "secret", "permission", "cors", "csp", "dependency-vulnerability"],
+      "primary_role": "security-reviewer",
+      "review_roles": ["backend-api-architect"]
+    },
+    {
+      "match": ["test", "e2e", "unit", "integration", "regression"],
+      "primary_role": "test-engineer",
+      "review_roles": []
+    },
+    {
+      "match": ["deploy", "cloud", "ci", "environment", "infrastructure"],
+      "primary_role": "platform-cloud-engineer",
+      "review_roles": ["release-engineer"]
+    },
+    {
+      "match": ["backup", "restore", "rpo", "rto", "disaster-recovery"],
+      "primary_role": "recovery-engineer",
+      "review_roles": ["data-architect", "platform-cloud-engineer"]
+    },
+    {
+      "match": ["performance", "load", "capacity", "web-vitals"],
+      "primary_role": "performance-engineer",
+      "review_roles": ["sre-observability-engineer"]
+    },
+    {
+      "match": ["logs", "metrics", "alerts", "health", "incident"],
+      "primary_role": "sre-observability-engineer",
+      "review_roles": ["platform-cloud-engineer"]
+    },
+    {
+      "match": ["release", "rollback", "promotion", "production"],
+      "primary_role": "release-engineer",
+      "review_roles": ["platform-cloud-engineer", "test-engineer"]
+    },
+    {
+      "match": ["documentation", "adr", "runbook", "architecture-doc"],
+      "primary_role": "documentation-adr-agent",
+      "review_roles": []
+    },
+    {
+      "match": ["alternative", "new-tool", "technology", "radar", "upgrade-stack"],
+      "primary_role": "technology-radar-agent",
+      "review_roles": ["security-reviewer", "platform-cloud-engineer"]
+    }
+  ],
+  "risk_policy": {
+    "low": {"workspace_write": true, "repository_write": true, "production_change": false},
+    "medium": {"workspace_write": true, "repository_write": true, "production_change": false},
+    "high": {"workspace_write": true, "repository_write": false, "production_change": false},
+    "critical": {"workspace_write": false, "repository_write": false, "production_change": false}
+  },
+  "evidence_contract": {
+    "required_fields": ["task", "role", "providers_used", "sources_used", "changes", "verification", "risks", "rollback"],
+    "verification_must_be_executed": true,
+    "claims_without_execution_must_be_marked_unverified": true
+  }
+}
