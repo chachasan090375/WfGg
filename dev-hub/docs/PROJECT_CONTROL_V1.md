@@ -1,13 +1,13 @@
-# ChaCha DEV HUB — Project Control V1.1
+# ChaCha DEV HUB — Project Control V1.2
 
-Project Control is the single operator-facing control surface for a project. It does not replace the lifecycle, scheduler, run controller, evidence, state, verification, or cryptographic engines; it delegates to them without bypassing their policies.
+Project Control is the single operator-facing control surface for a project. It does not replace the lifecycle, scheduler, run controller, evidence, state, verification, recovery, or cryptographic engines; it delegates to them without bypassing their policies.
 
 ## Interfaces
 
-Two interfaces share the same control engine:
+Two interfaces share the same unified router:
 
-- `dev-hub/bin/project-control.py`: human/operator CLI.
-- `dev-hub/bin/project-control-api.py`: local JSON stdin/stdout adapter for agents and integrations.
+- `dev-hub/bin/project-control-cli.py`: human/operator CLI router. Standard operations delegate to `project-control.py`; recovery operations delegate to `transaction-recovery.py`.
+- `dev-hub/bin/project-control-api.py`: local JSON stdin/stdout adapter for agents and integrations; it invokes the same CLI router.
 
 There is deliberately no network listener. A future HTTP/gRPC surface must be a separate reviewed adapter and must not weaken approval boundaries.
 
@@ -30,7 +30,11 @@ The response always carries concrete blockers. Cryptographic release requirement
 
 ## Implemented operations
 
-Project Control now implements `status`, `explain`, `verify-state`, `plan-transition`, `schedule`, `prepare-run`, `dispatch`, `verify-result`, `record-control-event`, `advance`, and `crypto-verify`.
+Project Control now implements `status`, `explain`, `verify-state`, `transactions`, `recover-transaction`, `plan-transition`, `schedule`, `prepare-run`, `dispatch`, `verify-result`, `record-control-event`, `advance`, and `crypto-verify`.
+
+`transactions` is read-only. It lists control transaction receipts and reports whether any transaction is still blocking lifecycle promotion.
+
+`recover-transaction` is inspect-only unless `--apply` is explicit. Recovery is forward-only: it may rebuild a stale state projection from a valid authoritative journal or finalize a staged Evidence Ledger when the expected digests match, but it never rewrites or rolls back an audit event. Ambiguous states return `MANUAL_REVIEW`. See `TRANSACTION_RECOVERY_V1.md`.
 
 `dispatch` requires explicit `--execute`. Even with that flag, Run Controller policy remains authoritative; while the Run Controller is `dispatch-only`, execution stays blocked.
 
@@ -48,19 +52,25 @@ Mutating multi-step control work is tracked under:
 /opt/chacha-dev/runtime/transactions/<project>/<transaction-id>/receipt.json
 ```
 
-The receipt schema is `chacha.dev/control-transaction-receipt/v1`. Incomplete states such as `PREPARED`, `CONTROL_EVENT_COMMITTED_LEDGER_PENDING`, or `COMMIT_UNCERTAIN` block further lifecycle promotion until recovered. See `TRANSACTIONAL_CONTROL_V1.md`.
+The receipt schema is `chacha.dev/control-transaction-receipt/v1`. Incomplete states such as `PREPARED`, `CONTROL_EVENT_COMMITTED_LEDGER_PENDING`, or `COMMIT_UNCERTAIN` block further lifecycle promotion until reconciled. Recovery closes a safely recovered transaction as `COMMITTED`, or a transaction that never crossed the authoritative commit boundary as `FAILED`, and appends a `recovery_history` entry to the receipt.
 
 ## CLI examples
 
 ```bash
-python3 dev-hub/bin/project-control.py --repo-root . --json status --project wfgg
+python3 dev-hub/bin/project-control-cli.py --repo-root . --json status --project wfgg
 
-python3 dev-hub/bin/project-control.py --repo-root . --json plan-transition --project wfgg
+python3 dev-hub/bin/project-control-cli.py --repo-root . --json transactions --project wfgg
 
-python3 dev-hub/bin/project-control.py --repo-root . --json verify-result \
+python3 dev-hub/bin/project-control-cli.py --repo-root . --json \
+  recover-transaction --project wfgg --transaction-id ctx-123
+
+python3 dev-hub/bin/project-control-cli.py --repo-root . --json \
+  recover-transaction --project wfgg --transaction-id ctx-123 --apply --actor recovery-engineer
+
+python3 dev-hub/bin/project-control-cli.py --repo-root . --json verify-result \
   --project wfgg --result result.json --graph graph.json --ingest
 
-python3 dev-hub/bin/project-control.py --repo-root . --json advance \
+python3 dev-hub/bin/project-control-cli.py --repo-root . --json advance \
   --project wfgg --target PREVIEW --actor project-owner
 ```
 
@@ -72,8 +82,11 @@ Request:
 {
   "schema": "chacha.dev/project-control-request/v1",
   "project": "wfgg",
-  "operation": "status",
-  "arguments": {}
+  "operation": "recover-transaction",
+  "arguments": {
+    "transaction_id": "ctx-123",
+    "apply": false
+  }
 }
 ```
 
@@ -85,37 +98,37 @@ cat request.json | python3 dev-hub/bin/project-control-api.py
 
 Response schema: `chacha.dev/project-control-response/v1`.
 
-The adapter maps structured request fields to structured argv. It never invokes a shell and never accepts arbitrary command strings.
+The adapter maps structured request fields to structured argv. It never invokes a shell and never accepts arbitrary command strings. Agent-facing JSON requests cannot assert human verification, and recovery cannot mutate unless `apply=true` is explicit.
 
 ## Security invariants
 
-Project Control cannot return private signing-key material, cannot silently dispatch work, cannot perform an unsigned release, cannot manufacture human approval, cannot promote with missing required evidence, and cannot mark unverified evidence successful. Cryptographic verification is delegated to `crypto-trust.py`; execution to `run-controller.py`; independent result verification to `verification-broker.py`; evidence admission to `evidence-collector.py`; and canonical state mutation/integrity to `control-plane-store.py`.
+Project Control cannot return private signing-key material, cannot silently dispatch work, cannot perform an unsigned release, cannot manufacture human approval, cannot promote with missing required evidence, cannot mark unverified evidence successful, and cannot rewrite authoritative audit history during recovery. Cryptographic verification is delegated to `crypto-trust.py`; execution to `run-controller.py`; independent result verification to `verification-broker.py`; evidence admission to `evidence-collector.py`; canonical state mutation/integrity to `control-plane-store.py`; and interrupted-transaction reconciliation to `transaction-recovery.py`.
 
 ## Architecture
 
 ```text
 Human / Agent / IDE
         |
-        +-- CLI
+        +-- unified CLI router
         +-- local JSON API
                 |
         PROJECT CONTROL
                 |
       transaction / lock layer
                 |
-   +------------+----------------+
-   |            |                |
-State Store  Lifecycle      Crypto Trust
-   |            |                |
-   +------+-----+-------+--------+
-          |             |
-      Task Graph    Verification
-          |             |
-      Scheduler     Evidence Ledger
-          |
-     Run Controller
+   +------------+---------------------+
+   |            |                     |
+State Store  Lifecycle        Transaction Recovery
+   |            |                     |
+   +------+-----+----------+----------+
+          |                |
+      Task Graph       Verification
+          |                |
+      Scheduler        Evidence Ledger
+          |                |
+     Run Controller   Crypto Trust
           |
        Adapters
 ```
 
-Project Control is an orchestration facade and transaction boundary, not a privileged bypass.
+Project Control is an orchestration facade, transaction boundary, and recovery entry point — not a privileged bypass.
