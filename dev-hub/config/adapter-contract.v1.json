@@ -1,0 +1,46 @@
+{
+  "schema": "chacha.dev/adapter-contract/v1",
+  "principles": {
+    "designed_is_not_enabled": true,
+    "static_contract_before_runtime_test": true,
+    "runtime_test_before_enablement": true,
+    "production_capable_adapter_requires_explicit_approval": true,
+    "adapter_must_not_use_shell": true,
+    "adapter_input_output_are_structured": true,
+    "secret_values_must_not_appear_in_fixture_or_output": true,
+    "enablement_requires_recorded_evidence": true
+  },
+  "status_lifecycle": ["DESIGNED", "CONTRACT_OK", "PILOT", "ENABLED", "DEGRADED", "DISABLED", "RETIRED"],
+  "promotion": {
+    "DESIGNED->CONTRACT_OK": ["static-contract-pass"],
+    "CONTRACT_OK->PILOT": ["runtime-contract-pass", "sandbox-only"],
+    "PILOT->ENABLED": ["repeatable-pass", "provider-health-pass", "rollback-defined"],
+    "ENABLED->DEGRADED": ["health-degradation"],
+    "DEGRADED->DISABLED": ["persistent-failure"],
+    "ENABLED->DISABLED": ["policy-or-security-block"]
+  },
+  "required_static_checks": [
+    "provider-references-existing-adapter",
+    "adapter-status-known",
+    "supports-is-nonempty",
+    "supports-only-known-permissions",
+    "execution-kind-known",
+    "no-shell-contract",
+    "designed-adapter-has-no-executable",
+    "enabled-adapter-has-executable"
+  ],
+  "known_permissions": [
+    "read", "plan", "workspace-write", "repository-write", "preview-deploy",
+    "production-deploy", "production-data-write", "secret-change",
+    "destructive-operation", "technology-replacement"
+  ],
+  "known_execution_kinds": ["vps", "external"],
+  "runtime": {
+    "default_timeout_seconds": 30,
+    "max_output_bytes": 262144,
+    "allow_runtime_test_statuses": ["CONTRACT_OK", "PILOT", "ENABLED", "DEGRADED"],
+    "fixture_schema": "chacha.dev/dispatch-envelope/v1",
+    "expected_result_schema": "chacha.dev/task-result/v1",
+    "sandbox_required": true
+  }
+}
