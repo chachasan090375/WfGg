@@ -27,6 +27,13 @@
         {"id": "github", "status": "ADOPT", "health": "managed", "cost_class": "included", "scope": "repository", "fallback": []}
       ]
     },
+    "documentation": {
+      "class": "knowledge",
+      "providers": [
+        {"id": "skywork", "status": "ADOPT", "health": "runtime-check", "cost_class": "local", "scope": "workspace", "fallback": ["antigravity"]},
+        {"id": "antigravity", "status": "ADOPT", "health": "runtime-check", "cost_class": "quota", "scope": "workspace", "fallback": []}
+      ]
+    },
     "web-docs": {
       "class": "knowledge",
       "providers": [
@@ -58,6 +65,13 @@
         {"id": "playwright", "status": "WATCH", "health": "project-local", "cost_class": "free", "scope": "project", "fallback": []}
       ]
     },
+    "smoke-test-web": {
+      "class": "verification",
+      "providers": [
+        {"id": "http-smoke", "status": "ADOPT", "health": "runtime", "cost_class": "free", "scope": "project", "fallback": ["playwright"]},
+        {"id": "playwright", "status": "WATCH", "health": "project-local", "cost_class": "free", "scope": "project", "fallback": []}
+      ]
+    },
     "security-scan-js": {
       "class": "verification",
       "providers": [
@@ -86,6 +100,12 @@
       "class": "delivery",
       "providers": [
         {"id": "wrangler", "status": "ADOPT", "health": "runtime", "cost_class": "included", "scope": "cloudflare", "fallback": ["github-actions"]}
+      ]
+    },
+    "cloud-deploy-static": {
+      "class": "delivery",
+      "providers": [
+        {"id": "cloudflare-pages", "status": "ADOPT", "health": "managed", "cost_class": "included", "scope": "cloudflare", "fallback": ["github-actions"]}
       ]
     },
     "ci": {
