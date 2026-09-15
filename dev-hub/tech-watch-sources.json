@@ -1,0 +1,43 @@
+{
+  "schema": "chacha.dev/tech-watch-sources/v1",
+  "sources": [
+    {
+      "category": "ai-coding-agents",
+      "sources": ["official-release-notes", "github-releases", "official-documentation"]
+    },
+    {
+      "category": "mcp",
+      "sources": ["official-mcp-documentation", "github-releases", "vendor-documentation"]
+    },
+    {
+      "category": "javascript-node",
+      "sources": ["nodejs-releases", "npm-registry", "github-releases", "mdn", "context7"]
+    },
+    {
+      "category": "python",
+      "sources": ["python-release-notes", "pypi", "github-releases"]
+    },
+    {
+      "category": "cloudflare",
+      "sources": ["cloudflare-changelog", "cloudflare-docs", "github-releases"]
+    },
+    {
+      "category": "github-devops",
+      "sources": ["github-changelog", "github-releases", "github-documentation"]
+    },
+    {
+      "category": "security",
+      "sources": ["vendor-advisories", "github-security-advisories", "runtime-security-releases"]
+    },
+    {
+      "category": "observability-data-storage",
+      "sources": ["official-release-notes", "github-releases", "vendor-documentation"]
+    }
+  ],
+  "cadence": {
+    "critical_security": "daily",
+    "installed_stack": "weekly",
+    "market_scan": "weekly",
+    "architecture_review": "monthly"
+  }
+}
