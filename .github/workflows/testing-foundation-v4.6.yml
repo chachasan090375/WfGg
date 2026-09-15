@@ -1,0 +1,120 @@
+name: WfGg Testing Foundation v4.6
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'worker/**'
+      - 'tests/e2e/**'
+      - '.github/workflows/testing-foundation-v4.6.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  worker-tests:
+    name: Worker unit and integration tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: worker
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+      - name: Install test dependencies
+        run: npm install --no-fund --no-audit
+      - name: Syntax check
+        run: npm run check
+      - name: Vitest unit and runtime integration
+        run: npm run test:ci
+
+  dependency-security:
+    name: Dependency security audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    continue-on-error: true
+    defaults:
+      run:
+        working-directory: worker
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+      - name: Install dependencies
+        run: npm install --no-fund --no-audit
+      - name: npm audit high severity
+        run: npm audit --audit-level=high
+
+  e2e-smoke:
+    name: Playwright E2E smoke
+    if: ${{ vars.WFGG_E2E_BASE_URL != '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: tests/e2e
+    env:
+      WFGG_E2E_BASE_URL: ${{ vars.WFGG_E2E_BASE_URL }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+      - name: Install Playwright test package
+        run: npm install --no-fund --no-audit
+      - name: Install Chromium only
+        run: npx playwright install --with-deps chromium
+      - name: Run browser smoke test
+        run: npm run test:ci
+      - name: Upload Playwright report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v5
+        with:
+          name: playwright-report
+          path: tests/e2e/playwright-report/
+          if-no-files-found: ignore
+          retention-days: 14
+
+  endpoint-smoke:
+    name: Production or preview endpoint smoke
+    if: ${{ vars.WFGG_E2E_BASE_URL != '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      BASE_URL: ${{ vars.WFGG_E2E_BASE_URL }}
+    steps:
+      - name: HTTP smoke
+        shell: bash
+        run: |
+          set -euo pipefail
+          code=$(curl -L -sS -o /tmp/wfgg-home.html -w '%{http_code}' --max-time 20 "$BASE_URL/")
+          echo "HTTP_STATUS=$code"
+          test "$code" -ge 200
+          test "$code" -lt 400
+          test -s /tmp/wfgg-home.html
+
+  performance-budget:
+    name: Lightweight performance budget
+    if: ${{ vars.WFGG_E2E_BASE_URL != '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      BASE_URL: ${{ vars.WFGG_E2E_BASE_URL }}
+    steps:
+      - name: Enforce initial response budget
+        shell: bash
+        run: |
+          set -euo pipefail
+          metrics=$(curl -L -sS -o /dev/null --max-time 20 -w '%{http_code} %{time_starttransfer} %{time_total}' "$BASE_URL/")
+          read -r code ttfb total <<< "$metrics"
+          echo "HTTP_STATUS=$code"
+          echo "TTFB_SECONDS=$ttfb"
+          echo "TOTAL_SECONDS=$total"
+          test "$code" -ge 200
+          test "$code" -lt 400
+          awk -v value="$ttfb" 'BEGIN { exit !(value <= 2.5) }'
+          awk -v value="$total" 'BEGIN { exit !(value <= 5.0) }'
