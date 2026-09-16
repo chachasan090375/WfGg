@@ -1,0 +1,19 @@
+{
+  "schema": "chacha.dev/context7-enablement-readiness-provenance/v1",
+  "workflow_run_id": 35076408369,
+  "artifact_id": 10438253420,
+  "artifact_digest": "sha256:0eb929006c28afab5a6ba1f738a9524134dd1569a7f1081ffbcf9f4fec21fdd7",
+  "head_sha": "073654c164342a47a38d9134d90c1edcef628927",
+  "branch": "dev-hub-v5-context7-enable-readiness",
+  "workflow_conclusion": "success",
+  "files": {
+    "manifest.json": "sha256:5ab8919f50c14356a49e2916456511155cc6a5bf2cd14a720fc082a2319c8fbb",
+    "enablement-readiness.json": "sha256:b7a8b1d9f8951d8273ddf48dbb5a5d758ea3cc647420b8edaee2147527220115",
+    "enablement-promotion-plan.json": "sha256:b4ef85d5fdd70bafbe7fa728a844759f8471da08a61d2756300f9f93f105d9ec",
+    "enablement-evidence.json": "sha256:7cd9e5f16f717a250c022b75ae56b9f44ac7f072c57cb1aa4b1244a874e0a3a3"
+  },
+  "registry_mutated": false,
+  "readiness_status": "READY_FOR_ENABLEMENT",
+  "promotion_eligible": true,
+  "blockers": []
+}
