@@ -8,23 +8,31 @@ on:
     paths:
       - 'dev-hub/config/mcp-provider-catalog.v1.json'
       - 'dev-hub/config/mcp-readonly-contract.v1.json'
+      - 'dev-hub/config/technology-radar-mcp-watch.v1.json'
+      - 'dev-hub/config/agent-routing.v1.json'
       - 'dev-hub/schemas/mcp-provider-catalog-v1.schema.json'
       - 'dev-hub/schemas/mcp-readonly-contract-v1.schema.json'
       - 'dev-hub/bin/mcp-catalog-validate.py'
       - 'dev-hub/bin/mcp-readonly-contract-validate.py'
+      - 'dev-hub/bin/technology-radar-mcp-watch-validate.py'
       - 'dev-hub/docs/MCP_PROVIDER_CATALOG_V1.md'
       - 'dev-hub/docs/MCP_READONLY_CONTRACT_V1.md'
+      - 'dev-hub/docs/TECHNOLOGY_RADAR_MCP_WATCH_V1.md'
       - '.github/workflows/dev-hub-v5-mcp-catalog.yml'
   pull_request:
     paths:
       - 'dev-hub/config/mcp-provider-catalog.v1.json'
       - 'dev-hub/config/mcp-readonly-contract.v1.json'
+      - 'dev-hub/config/technology-radar-mcp-watch.v1.json'
+      - 'dev-hub/config/agent-routing.v1.json'
       - 'dev-hub/schemas/mcp-provider-catalog-v1.schema.json'
       - 'dev-hub/schemas/mcp-readonly-contract-v1.schema.json'
       - 'dev-hub/bin/mcp-catalog-validate.py'
       - 'dev-hub/bin/mcp-readonly-contract-validate.py'
+      - 'dev-hub/bin/technology-radar-mcp-watch-validate.py'
       - 'dev-hub/docs/MCP_PROVIDER_CATALOG_V1.md'
       - 'dev-hub/docs/MCP_READONLY_CONTRACT_V1.md'
+      - 'dev-hub/docs/TECHNOLOGY_RADAR_MCP_WATCH_V1.md'
       - '.github/workflows/dev-hub-v5-mcp-catalog.yml'
 
 permissions:
@@ -42,6 +50,8 @@ jobs:
         run: |
           python -m json.tool dev-hub/config/mcp-provider-catalog.v1.json >/dev/null
           python -m json.tool dev-hub/config/mcp-readonly-contract.v1.json >/dev/null
+          python -m json.tool dev-hub/config/technology-radar-mcp-watch.v1.json >/dev/null
+          python -m json.tool dev-hub/config/agent-routing.v1.json >/dev/null
           python -m json.tool dev-hub/schemas/mcp-provider-catalog-v1.schema.json >/dev/null
           python -m json.tool dev-hub/schemas/mcp-readonly-contract-v1.schema.json >/dev/null
 
@@ -50,6 +60,9 @@ jobs:
 
       - name: Validate read-only contract invariants
         run: python dev-hub/bin/mcp-readonly-contract-validate.py
+
+      - name: Validate Technology Radar MCP coverage
+        run: python dev-hub/bin/technology-radar-mcp-watch-validate.py
 
       - name: Confirm catalog-only phase
         run: |
