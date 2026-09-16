@@ -1,0 +1,156 @@
+name: Dev Hub V5 Chrome DevTools MCP Enablement Sandbox
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - dev-hub-v5-chrome-devtools-mcp-enable-sandbox
+    paths:
+      - 'dev-hub/bin/chrome-devtools-mcp-enable-readiness-ci.py'
+      - 'dev-hub/adapters/chrome-devtools-mcp-adapter.py'
+      - 'dev-hub/bin/adapter-enable-readiness.py'
+      - 'dev-hub/bin/adapter-enablement-evidence.py'
+      - 'dev-hub/bin/adapter-promotion.py'
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - 'dev-hub/config/adapter-enablement.v1.json'
+      - 'dev-hub/config/adapter-rollbacks.v1.json'
+      - 'dev-hub/config/adapter-contract.v1.json'
+      - 'dev-hub/config/adapter-promotion.v1.json'
+      - '.github/workflows/dev-hub-v5-chrome-devtools-mcp-enable-sandbox.yml'
+  pull_request:
+    paths:
+      - 'dev-hub/bin/chrome-devtools-mcp-enable-readiness-ci.py'
+      - 'dev-hub/adapters/chrome-devtools-mcp-adapter.py'
+      - 'dev-hub/bin/adapter-enable-readiness.py'
+      - 'dev-hub/bin/adapter-enablement-evidence.py'
+      - 'dev-hub/bin/adapter-promotion.py'
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - 'dev-hub/config/adapter-enablement.v1.json'
+      - 'dev-hub/config/adapter-rollbacks.v1.json'
+      - 'dev-hub/config/adapter-contract.v1.json'
+      - 'dev-hub/config/adapter-promotion.v1.json'
+      - '.github/workflows/dev-hub-v5-chrome-devtools-mcp-enable-sandbox.yml'
+
+permissions:
+  contents: read
+
+env:
+  PYTHONDONTWRITEBYTECODE: '1'
+  CHROME_DEVTOOLS_MCP_NO_USAGE_STATISTICS: '1'
+  CHROME_DEVTOOLS_MCP_NO_UPDATE_CHECKS: '1'
+  CI: 'true'
+
+jobs:
+  sandbox-promotion:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node LTS
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+
+      - name: Confirm authoritative registry starts at PILOT
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path('dev-hub/config/provider-adapters.v1.json').read_text())
+          a=r['adapters']['chrome-devtools-mcp-adapter']
+          assert a['status']=='PILOT'
+          assert a['status']!='ENABLED'
+          assert a['supports']==['read']
+          assert a['executable'] is None
+          print('CHROME_DEVTOOLS_SANDBOX_SOURCE_STATUS=PILOT')
+          PY
+          sha256sum dev-hub/config/provider-adapters.v1.json > /tmp/authoritative-registry-before.sha256
+
+      - name: Provision pinned provider runtime outside repository
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/chrome-devtools-mcp-sandbox-runtime
+          cd /tmp/chrome-devtools-mcp-sandbox-runtime
+          npm init -y >/dev/null 2>&1
+          npm install --no-save chrome-devtools-mcp@1.9.0 >/dev/null
+          test "$(node -p "require('./node_modules/chrome-devtools-mcp/package.json').version")" = "1.9.0"
+          test -x node_modules/.bin/chrome-devtools-mcp
+
+      - name: Reproduce readiness evidence
+        env:
+          CHACHA_CHROME_DEVTOOLS_MCP_SERVER: /tmp/chrome-devtools-mcp-sandbox-runtime/node_modules/.bin/chrome-devtools-mcp
+          CHACHA_CHROME_DEVTOOLS_MCP_WORKDIR: /tmp/chrome-devtools-mcp-sandbox-runtime
+          CHACHA_CHROME_DEVTOOLS_MCP_PACKAGE_VERSION: '1.9.0'
+          CHACHA_CHROME_DEVTOOLS_BROWSER_VERSION: 'Google Chrome 152.0.7977.82'
+          CHACHA_CHROME_DEVTOOLS_TARGET_CLASS: test
+        run: python dev-hub/bin/chrome-devtools-mcp-enable-readiness-ci.py
+
+      - name: Apply PILOT to ENABLED only on temporary registry copy
+        run: |
+          set -euo pipefail
+          ROOT=/tmp/chrome-devtools-mcp-enable-sandbox
+          mkdir -p "$ROOT"
+          cp dev-hub/config/provider-adapters.v1.json "$ROOT/provider-adapters.sandbox.json"
+          python dev-hub/bin/adapter-promotion.py \
+            --registry "$ROOT/provider-adapters.sandbox.json" \
+            --evidence /tmp/chrome-devtools-mcp-enable-readiness/readiness/enablement-evidence.json \
+            --report "$ROOT/promotion-report.json" \
+            --json \
+            apply \
+            --adapter chrome-devtools-mcp-adapter \
+            --target ENABLED \
+            --actor github-actions:chrome-devtools-mcp-enable-sandbox \
+            --receipt "$ROOT/promotion-receipt.json" \
+            --apply \
+            > "$ROOT/promotion-stdout.json"
+
+      - name: Validate sandbox promotion and authoritative non-mutation
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path('/tmp/chrome-devtools-mcp-enable-sandbox')
+          sandbox=json.loads((root/'provider-adapters.sandbox.json').read_text())
+          report=json.loads((root/'promotion-report.json').read_text())
+          receipt=json.loads((root/'promotion-receipt.json').read_text())
+          authoritative=json.loads(Path('dev-hub/config/provider-adapters.v1.json').read_text())
+          sa=sandbox['adapters']['chrome-devtools-mcp-adapter']
+          aa=authoritative['adapters']['chrome-devtools-mcp-adapter']
+          assert report['eligible'] is True
+          assert report['applied'] is True
+          assert report['current_status']=='PILOT'
+          assert report['target_status']=='ENABLED'
+          assert report['transition']=='PILOT->ENABLED'
+          assert report['production_capable'] is False
+          assert report['approval_required'] is False
+          assert report['requires_local_executable'] is False
+          assert report['blockers']==[]
+          assert sa['status']=='ENABLED'
+          assert sa['supports']==['read']
+          assert sa['executable'] is None
+          assert receipt['receipt_schema']=='chacha.dev/adapter-promotion-receipt/v1'
+          assert receipt['previous_entry']['status']=='PILOT'
+          assert receipt['new_entry']['status']=='ENABLED'
+          assert receipt['new_entry']['supports']==['read']
+          assert receipt['new_entry']['executable'] is None
+          assert aa['status']=='PILOT'
+          assert aa['status']!='ENABLED'
+          assert aa['supports']==['read']
+          assert aa['executable'] is None
+          print('CHROME_DEVTOOLS_ENABLEMENT_SANDBOX=PASS sandbox=ENABLED authoritative=PILOT production=false')
+          PY
+          sha256sum -c /tmp/authoritative-registry-before.sha256
+          test -z "$(git status --porcelain)"
+
+      - name: Upload sandbox promotion evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: chrome-devtools-mcp-enable-sandbox-${{ github.run_id }}
+          path: |
+            /tmp/chrome-devtools-mcp-enable-sandbox
+            /tmp/chrome-devtools-mcp-enable-readiness
+          if-no-files-found: error
+          retention-days: 30
