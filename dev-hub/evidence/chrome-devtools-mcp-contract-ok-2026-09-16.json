@@ -1,0 +1,45 @@
+{
+  "schema": "chacha.dev/mcp-contract-qualification-evidence/v1",
+  "provider": "chrome-devtools-mcp",
+  "adapter": "chrome-devtools-mcp-adapter",
+  "transition": "DESIGNED->CONTRACT_OK",
+  "source": {
+    "repository": "chachasan090375/WfGg",
+    "branch": "dev-hub-v5-chrome-devtools-mcp-design",
+    "qualified_head": "cbfceef9f74e24e8d0e3494693866cbbd298811e",
+    "workflow_run_id": 35109820616,
+    "workflow_conclusion": "success"
+  },
+  "checks": {
+    "static-contract-pass": "PASS",
+    "dedicated-adapter-binding": "PASS",
+    "default-deny-tool-policy": "PASS",
+    "javascript-evaluation-denied": "PASS",
+    "browser-interaction-denied": "PASS",
+    "workspace-write-denied": "PASS",
+    "repository-write-denied": "PASS",
+    "production-mutation-denied": "PASS",
+    "isolated-ephemeral-pilot-plan": "PASS",
+    "existing-browser-attach-denied": "PASS",
+    "network-redaction-policy-defined": "PASS",
+    "verification-separation": "PASS"
+  },
+  "runtime": {
+    "executed": false,
+    "browser_downloaded": false,
+    "vps_modified": false,
+    "production_modified": false
+  },
+  "promotion": {
+    "eligible": true,
+    "target": "CONTRACT_OK",
+    "automatic": false,
+    "blockers": []
+  },
+  "notes": [
+    "CONTRACT_OK is a static qualification only.",
+    "No chrome-devtools-mcp package or Chrome runtime is provisioned by this transition.",
+    "CONTRACT_OK->PILOT requires a fresh protocol probe and isolated ephemeral browser runtime proof.",
+    "The catalogue health probe is aligned with isolated browser launch; attachment to an existing browser/profile remains forbidden."
+  ]
+}
