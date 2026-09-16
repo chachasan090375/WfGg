@@ -48,7 +48,12 @@ jobs:
           PY
 
       - name: Record clean checkout state
-        run: git status --porcelain > /tmp/git-before.txt
+        shell: bash
+        run: |
+          set -euo pipefail
+          find dev-hub -type d -name __pycache__ -prune -exec rm -rf {} +
+          git status --porcelain > /tmp/git-before.txt
+          test ! -s /tmp/git-before.txt
 
       - name: Provision pinned Playwright MCP outside repository
         shell: bash
@@ -116,6 +121,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          find dev-hub -type d -name __pycache__ -prune -exec rm -rf {} +
           git status --porcelain > /tmp/git-after.txt
           diff -u /tmp/git-before.txt /tmp/git-after.txt
           test ! -s /tmp/git-after.txt
