@@ -72,16 +72,16 @@
       "category": "observability",
       "priority": 1,
       "decision": "ASSESS",
-      "runtime_status": "CATALOG_ONLY",
+      "runtime_status": "CONTRACT_OK",
       "integration_mode": "local-mcp",
       "target_capabilities": ["browser-diagnostics", "console-inspection", "network-inspection", "performance-inspection"],
       "risk_class": "MEDIUM",
       "write_scope": ["browser-session"],
       "secret_policy": "REFERENCE_ONLY",
-      "provider_binding": null,
-      "health_probe": "mcp-server-discover-tools-list-and-browser-attach",
+      "provider_binding": "chrome-devtools-mcp",
+      "health_probe": "chrome-devtools-provider-protocol-tools-list-and-isolated-browser-launch",
       "fallback": ["playwright-mcp", "playwright"],
-      "notes": "Diagnostic complement to Playwright; not a deployment provider and not allowed to mutate production state."
+      "notes": "Static contract qualified. Runtime remains closed. PILOT requires a pinned chrome-devtools-mcp version on an ephemeral GitHub Actions runner, isolated headless Chrome, no existing-browser attach, JavaScript evaluation disabled, network header redaction, and preview/test targets only."
     },
     "filesystem-mcp": {
       "display_name": "Filesystem MCP",
