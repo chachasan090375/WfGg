@@ -18,7 +18,7 @@
     "antigravity": {"scope": "platform", "probe": "runtime-command", "functional_check": "agy-version-and-provider-ready"},
     "skywork": {"scope": "platform", "probe": "filesystem-git", "functional_check": "skills-repository-readable"},
     "mdn-mcp": {"scope": "platform", "probe": "mcp", "functional_check": "initialize-and-tools-list"},
-    "context7-mcp": {"scope": "platform", "probe": "mcp", "functional_check": "initialize-and-tools-list"},
+    "context7-mcp": {"scope": "platform", "probe": "mcp", "functional_check": "server-discover-and-tools-list"},
     "vitest": {"scope": "project", "probe": "package-command", "functional_check": "test-runner-discoverable"},
     "node-test": {"scope": "project", "probe": "runtime-command", "functional_check": "node-test-available"},
     "playwright": {"scope": "project", "probe": "package-command", "functional_check": "runner-and-browser-ready"},

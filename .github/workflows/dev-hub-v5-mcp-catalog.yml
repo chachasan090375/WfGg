@@ -1,0 +1,119 @@
+name: Dev Hub V5 MCP Catalog
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - dev-hub-v5-mcp-catalog
+    paths:
+      - 'dev-hub/config/mcp-provider-catalog.v1.json'
+      - 'dev-hub/config/mcp-readonly-contract.v1.json'
+      - 'dev-hub/config/mcp-context7-contract.v1.json'
+      - 'dev-hub/config/technology-radar-mcp-watch.v1.json'
+      - 'dev-hub/config/agent-routing.v1.json'
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - 'dev-hub/config/adapter-contract.v1.json'
+      - 'dev-hub/schemas/mcp-provider-catalog-v1.schema.json'
+      - 'dev-hub/schemas/mcp-readonly-contract-v1.schema.json'
+      - 'dev-hub/bin/mcp-catalog-validate.py'
+      - 'dev-hub/bin/mcp-readonly-contract-validate.py'
+      - 'dev-hub/bin/mcp-context7-contract-validate.py'
+      - 'dev-hub/bin/technology-radar-mcp-watch-validate.py'
+      - 'dev-hub/bin/adapter-contract-harness.py'
+      - 'dev-hub/docs/MCP_PROVIDER_CATALOG_V1.md'
+      - 'dev-hub/docs/MCP_READONLY_CONTRACT_V1.md'
+      - 'dev-hub/docs/TECHNOLOGY_RADAR_MCP_WATCH_V1.md'
+      - '.github/workflows/dev-hub-v5-mcp-catalog.yml'
+  pull_request:
+    paths:
+      - 'dev-hub/config/mcp-provider-catalog.v1.json'
+      - 'dev-hub/config/mcp-readonly-contract.v1.json'
+      - 'dev-hub/config/mcp-context7-contract.v1.json'
+      - 'dev-hub/config/technology-radar-mcp-watch.v1.json'
+      - 'dev-hub/config/agent-routing.v1.json'
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - 'dev-hub/config/adapter-contract.v1.json'
+      - 'dev-hub/schemas/mcp-provider-catalog-v1.schema.json'
+      - 'dev-hub/schemas/mcp-readonly-contract-v1.schema.json'
+      - 'dev-hub/bin/mcp-catalog-validate.py'
+      - 'dev-hub/bin/mcp-readonly-contract-validate.py'
+      - 'dev-hub/bin/mcp-context7-contract-validate.py'
+      - 'dev-hub/bin/technology-radar-mcp-watch-validate.py'
+      - 'dev-hub/bin/adapter-contract-harness.py'
+      - 'dev-hub/docs/MCP_PROVIDER_CATALOG_V1.md'
+      - 'dev-hub/docs/MCP_READONLY_CONTRACT_V1.md'
+      - 'dev-hub/docs/TECHNOLOGY_RADAR_MCP_WATCH_V1.md'
+      - '.github/workflows/dev-hub-v5-mcp-catalog.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate JSON syntax
+        run: |
+          python -m json.tool dev-hub/config/mcp-provider-catalog.v1.json >/dev/null
+          python -m json.tool dev-hub/config/mcp-readonly-contract.v1.json >/dev/null
+          python -m json.tool dev-hub/config/mcp-context7-contract.v1.json >/dev/null
+          python -m json.tool dev-hub/config/technology-radar-mcp-watch.v1.json >/dev/null
+          python -m json.tool dev-hub/config/agent-routing.v1.json >/dev/null
+          python -m json.tool dev-hub/config/provider-adapters.v1.json >/dev/null
+          python -m json.tool dev-hub/config/adapter-contract.v1.json >/dev/null
+          python -m json.tool dev-hub/schemas/mcp-provider-catalog-v1.schema.json >/dev/null
+          python -m json.tool dev-hub/schemas/mcp-readonly-contract-v1.schema.json >/dev/null
+
+      - name: Validate catalog invariants
+        run: python dev-hub/bin/mcp-catalog-validate.py
+
+      - name: Validate read-only contract invariants
+        run: python dev-hub/bin/mcp-readonly-contract-validate.py
+
+      - name: Validate Context7 provider design contract
+        run: python dev-hub/bin/mcp-context7-contract-validate.py
+
+      - name: Validate generic adapter static contract
+        run: |
+          python dev-hub/bin/adapter-contract-harness.py \
+            --registry dev-hub/config/provider-adapters.v1.json \
+            --policy dev-hub/config/adapter-contract.v1.json \
+            --adapter context7-mcp-adapter \
+            --report /tmp/context7-adapter-contract-report.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path('/tmp/context7-adapter-contract-report.json').read_text())
+          if report['static']['status'] != 'PASS':
+              raise SystemExit('Context7 generic adapter static contract did not PASS')
+          if report['promotion']['eligible_for_contract_ok'] is not True:
+              raise SystemExit('Context7 adapter is not eligible for CONTRACT_OK')
+          if report['promotion']['automatic'] is not False:
+              raise SystemExit('Automatic promotion must remain disabled')
+          print('CONTEXT7_STATIC_CONTRACT_PASS: eligible_for_contract_ok=true automatic=false')
+          PY
+
+      - name: Validate Technology Radar MCP coverage
+        run: python dev-hub/bin/technology-radar-mcp-watch-validate.py
+
+      - name: Confirm catalog-only phase
+        if: github.event_name != 'pull_request' || github.event.pull_request.base.ref == 'dev-hub-v5.0'
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path('dev-hub/config/mcp-provider-catalog.v1.json')
+          data = json.loads(p.read_text())
+          advanced = {
+              k: v['runtime_status']
+              for k, v in data['providers'].items()
+              if v['runtime_status'] in {'CONTRACT_OK', 'PILOT', 'ENABLED'}
+          }
+          if advanced:
+              raise SystemExit(f'Catalog-only workflow refuses advanced runtime states: {advanced}')
+          print('MCP_CATALOG_PHASE_OK: no provider promoted by catalog workflow')
+          PY

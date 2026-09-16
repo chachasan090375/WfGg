@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "chacha.dev/mcp-readonly-contract/v1",
+  "title": "ChaCha DEV HUB MCP Read-only Contract v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "protocol", "boundary", "policy", "auth", "health", "evidence", "rollback"],
+  "properties": {
+    "schema": {"const": "chacha.dev/mcp-readonly-contract/v1"},
+    "protocol": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["version", "discovery", "tools_list", "tools_call", "remote_transport", "local_transport"],
+      "properties": {
+        "version": {"const": "2026-07-28"},
+        "discovery": {"const": "server/discover"},
+        "tools_list": {"const": "tools/list"},
+        "tools_call": {"const": "tools/call"},
+        "remote_transport": {"const": "streamable-http"},
+        "local_transport": {"const": "stdio"}
+      }
+    },
+    "boundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["input", "output", "shell", "provider_result_trust"],
+      "properties": {
+        "input": {"const": "chacha.dev/dispatch-envelope/v1"},
+        "output": {"const": "chacha.dev/task-result/v1"},
+        "shell": {"const": false},
+        "provider_result_trust": {"const": "UNVERIFIED"}
+      }
+    },
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "default_tool_policy",
+        "explicit_allowlist_required",
+        "unknown_tools",
+        "mutation_tools",
+        "destructive_tools",
+        "missing_or_ambiguous_annotations",
+        "production_mutation",
+        "max_execution_seconds",
+        "max_result_bytes"
+      ],
+      "properties": {
+        "default_tool_policy": {"const": "DENY"},
+        "explicit_allowlist_required": {"const": true},
+        "unknown_tools": {"const": "DENY"},
+        "mutation_tools": {"const": "DENY"},
+        "destructive_tools": {"const": "DENY"},
+        "missing_or_ambiguous_annotations": {"const": "DENY"},
+        "production_mutation": {"const": "DENY"},
+        "max_execution_seconds": {"type": "integer", "minimum": 1, "maximum": 60},
+        "max_result_bytes": {"type": "integer", "minimum": 1024, "maximum": 4194304}
+      }
+    },
+    "auth": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["secret_values_in_git", "secret_transport", "authorization_headers_in_evidence", "credential_echo"],
+      "properties": {
+        "secret_values_in_git": {"const": false},
+        "secret_transport": {"enum": ["EXTERNAL_OAUTH", "EXTERNAL_SECRET_STORE", "REFERENCE_ONLY", "NONE"]},
+        "authorization_headers_in_evidence": {"const": "REDACT"},
+        "credential_echo": {"const": "DENY"}
+      }
+    },
+    "health": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["discovery_required", "tools_list_required", "freshness_seconds", "timeout_seconds", "failure_state"],
+      "properties": {
+        "discovery_required": {"const": true},
+        "tools_list_required": {"const": true},
+        "freshness_seconds": {"type": "integer", "minimum": 30, "maximum": 900},
+        "timeout_seconds": {"type": "integer", "minimum": 1, "maximum": 30},
+        "failure_state": {"const": "UNAVAILABLE"}
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["producer_cannot_self_verify", "independent_verifier", "redact_secrets", "record_tool_name", "record_provider", "record_protocol_version"],
+      "properties": {
+        "producer_cannot_self_verify": {"const": true},
+        "independent_verifier": {"const": "verification-broker"},
+        "redact_secrets": {"const": true},
+        "record_tool_name": {"const": true},
+        "record_provider": {"const": true},
+        "record_protocol_version": {"const": true}
+      }
+    },
+    "rollback": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["target_state", "must_not_require_provider", "reversible_without_secret_rotation"],
+      "properties": {
+        "target_state": {"const": "DISABLED"},
+        "must_not_require_provider": {"const": true},
+        "reversible_without_secret_rotation": {"const": true}
+      }
+    }
+  }
+}
