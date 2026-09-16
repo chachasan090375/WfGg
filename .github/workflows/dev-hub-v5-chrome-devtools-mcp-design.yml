@@ -1,0 +1,73 @@
+name: Dev Hub V5 Chrome DevTools MCP Design
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - dev-hub-v5-chrome-devtools-mcp-design
+    paths:
+      - 'dev-hub/config/mcp-chrome-devtools-contract.v1.json'
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - 'dev-hub/config/mcp-provider-catalog.v1.json'
+      - 'dev-hub/bin/mcp-chrome-devtools-contract-validate.py'
+      - 'dev-hub/evidence/chrome-devtools-mcp-design-2026-09-16.json'
+      - '.github/workflows/dev-hub-v5-chrome-devtools-mcp-design.yml'
+  pull_request:
+    paths:
+      - 'dev-hub/config/mcp-chrome-devtools-contract.v1.json'
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - 'dev-hub/config/mcp-provider-catalog.v1.json'
+      - 'dev-hub/bin/mcp-chrome-devtools-contract-validate.py'
+      - 'dev-hub/evidence/chrome-devtools-mcp-design-2026-09-16.json'
+      - '.github/workflows/dev-hub-v5-chrome-devtools-mcp-design.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    if: github.event_name != 'pull_request' || github.event.pull_request.base.ref == 'dev-hub-v5-playwright-mcp-enabled'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate syntax
+        run: |
+          python -m json.tool dev-hub/config/mcp-chrome-devtools-contract.v1.json >/dev/null
+          python -m json.tool dev-hub/config/provider-adapters.v1.json >/dev/null
+          python -m json.tool dev-hub/config/mcp-provider-catalog.v1.json >/dev/null
+          python -m json.tool dev-hub/evidence/chrome-devtools-mcp-design-2026-09-16.json >/dev/null
+          python -m py_compile dev-hub/bin/mcp-chrome-devtools-contract-validate.py
+
+      - name: Validate Chrome DevTools MCP design contract
+        run: python dev-hub/bin/mcp-chrome-devtools-contract-validate.py
+
+      - name: Confirm design-only boundary
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          c=json.loads(Path('dev-hub/config/mcp-chrome-devtools-contract.v1.json').read_text())
+          r=json.loads(Path('dev-hub/config/provider-adapters.v1.json').read_text())
+          e=json.loads(Path('dev-hub/evidence/chrome-devtools-mcp-design-2026-09-16.json').read_text())
+          a=r['adapters']['chrome-devtools-mcp-adapter']
+          assert c['runtime_status']=='DESIGNED'
+          assert a['status']=='DESIGNED'
+          assert a['supports']==['read']
+          assert a['executable'] is None
+          assert c['execution']['attach_existing_browser_allowed'] is False
+          assert c['tool_policy']['javascript_evaluation'] is False
+          assert c['tool_policy']['browser_interaction'] is False
+          assert c['tool_policy']['workspace_write'] is False
+          assert c['tool_policy']['repository_write'] is False
+          assert c['tool_policy']['production_mutation'] is False
+          assert c['admission']['runtime_call_allowed_at_design_stage'] is False
+          assert e['runtime_executed'] is False
+          assert e['browser_downloaded'] is False
+          assert e['vps_modified'] is False
+          assert e['production_modified'] is False
+          assert all(v=='PASS' for v in e['checks'].values())
+          print('CHROME_DEVTOOLS_MCP_DESIGN_BOUNDARY=PASS runtime=false browser=false vps=false prod=false')
+          PY
