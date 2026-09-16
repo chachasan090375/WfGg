@@ -1,0 +1,24 @@
+{
+  "schema": "chacha.dev/dispatch-envelope/v1",
+  "project": "playwright-mcp-adapter-contract",
+  "task": {
+    "id": "inspect-fixture",
+    "permission": "read"
+  },
+  "bindings": [
+    {
+      "provider": "playwright-mcp",
+      "adapter": "playwright-mcp-adapter"
+    }
+  ],
+  "metadata": {
+    "playwright_mcp": {
+      "operation": "inspect",
+      "url": "http://127.0.0.1:__PORT__/",
+      "expected_text": "fixture-ready"
+    }
+  },
+  "policy_context": {
+    "timeout_seconds": 30
+  }
+}
