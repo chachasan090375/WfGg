@@ -4,7 +4,18 @@
 
 `anthropic-claude` / `claude-agent-adapter` is statically qualified from `DESIGNED` to `CONTRACT_OK`.
 
-This status means the DEV HUB contract is internally coherent. It does **not** mean the Anthropic runtime has been called, authenticated, provisioned, or admitted to execute project tasks.
+This status means the DEV HUB contract is internally coherent. It does **not** mean an Anthropic runtime has been called, authenticated, provisioned, or admitted to execute project tasks.
+
+## Runtime abstraction
+
+The DEV HUB binds to `anthropic-provider-abstraction` rather than to one Anthropic SDK generation.
+
+- preferred runtime candidate: `claude-managed-agents` after runtime qualification;
+- compatibility backend: `claude-agent-sdk`;
+- Claude Code MCP: secondary optional transport only;
+- Claude GitHub automation: not a primary DEV HUB execution path.
+
+This keeps the dispatch/evidence contract stable if Anthropic changes its runtime surface again.
 
 ## Current permissions
 
@@ -23,9 +34,9 @@ This status means the DEV HUB contract is internally coherent. It does **not** m
 
 ## Authentication boundary
 
-Future runtime qualification may reference `ANTHROPIC_API_KEY`, but the value must remain outside Git and outside evidence. The contract is `REFERENCE_ONLY` and requires redaction of authorization/API-key headers.
+The abstraction accepts future external authentication through either an API-key reference or Workload Identity Federation. Initial sandbox qualification may use an API-key reference; WIF is the preferred future CI/CD direction when the execution environment supports it.
 
-No credential was used for `DESIGNED -> CONTRACT_OK`.
+No credential value may appear in Git or evidence. Authorization material must be redacted. No credential was used for `DESIGNED -> CONTRACT_OK`.
 
 ## Verification boundary
 
@@ -38,10 +49,11 @@ Claude-produced results remain `UNVERIFIED`. `verification-broker` remains the i
 1. runtime-contract-pass;
 2. sandbox-only;
 3. provisioning-pass;
-4. explicit external credential binding without secret leakage;
-5. read-only task execution using only the allowlisted tool surface;
-6. structured `chacha.dev/task-result/v1` output;
-7. provider result stays `UNVERIFIED`;
-8. no registry auto-promotion.
+4. explicit external authentication binding without secret leakage;
+5. recorded runtime surface and active model identity;
+6. read-only task execution using only the allowlisted tool surface;
+7. structured `chacha.dev/task-result/v1` output;
+8. provider result stays `UNVERIFIED`;
+9. no registry auto-promotion.
 
 The PILOT qualification must remain separate from any future contract that admits `Edit`, `Write`, shell execution, test orchestration, repository mutation, or production operations.
