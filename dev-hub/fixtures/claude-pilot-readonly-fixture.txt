@@ -1,0 +1,8 @@
+ChaCha DEV HUB Claude PILOT read-only fixture
+
+marker=CHACHA_CLAUDE_PILOT_READONLY_2026_09_16
+mode=read-only
+expected_tools=read,glob,grep
+forbidden_tools=bash,write,edit,web_fetch,web_search
+
+The runtime probe must locate this file, read it, and report the marker without creating, editing, deleting, renaming, or executing any file.
