@@ -1,0 +1,57 @@
+{
+  "schema": "chacha.dev/playwright-mcp-legacy-compat-probe/v1",
+  "observed_at": "2026-09-16T11:26:00.014407+00:00",
+  "provider": "playwright-mcp",
+  "adapter": "playwright-mcp-adapter",
+  "compatibility_mode": "EXPLICIT_PROVIDER_COMPATIBILITY",
+  "dev_hub_protocol_baseline": "2026-07-28",
+  "upstream_protocol_requested": "2025-11-25",
+  "upstream_protocol_negotiated": "2025-11-25",
+  "package_version": "0.0.81",
+  "browser_version": "154.0.8037.0",
+  "server_info": {
+    "name": "Playwright",
+    "version": "1.64.0-alpha-2026-09-14"
+  },
+  "execution_surface": "github-actions-ephemeral",
+  "credentials_used": false,
+  "production_target": false,
+  "vps_modified": false,
+  "called_tools": [
+    "browser_navigate",
+    "browser_snapshot",
+    "browser_console_messages",
+    "browser_network_requests",
+    "browser_close"
+  ],
+  "checks": {
+    "legacy_initialize": {"pass": true},
+    "tools_list": {"pass": true, "count": 26},
+    "navigate": {"pass": true},
+    "snapshot": {
+      "pass": true,
+      "digest": "sha256:e01d8736ef1d51e37bfab463b2dbc6144ebf4586e80f1d726ab75b322c5ee464"
+    },
+    "console": {"pass": true, "marker": true},
+    "network": {"pass": true, "marker": true},
+    "close": {"pass": true},
+    "deny_boundary": {"pass": true, "called_denied": []},
+    "repository_unchanged": {"pass": true}
+  },
+  "promotion": {
+    "automatic": false,
+    "eligible_for_compat_pilot": true,
+    "blockers": []
+  },
+  "evidence_digest": "sha256:ed4f511c0cf20754252b0f569534b67ee7fa3de7218f2e803c74ed46478606df",
+  "workflow": {
+    "run_id": 35090224070,
+    "conclusion": "success",
+    "artifact_id": 10443399903,
+    "artifact_digest": "sha256:4268d037f7c0173404a72ad46c7271a8d9700501d9511764b88ab314fc451ed5"
+  },
+  "notes": [
+    "This proves provider-specific upstream legacy compatibility only; it does not change the DEV HUB MCP baseline.",
+    "The provider remains CONTRACT_OK until a real dispatch-envelope/task-result adapter passes its contract harness and promotion evidence is complete."
+  ]
+}
