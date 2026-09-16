@@ -11,6 +11,7 @@ on:
       - 'dev-hub/config/mcp-provider-catalog.v1.json'
       - 'dev-hub/bin/mcp-playwright-contract-validate.py'
       - 'dev-hub/docs/MCP_PLAYWRIGHT_CONTRACT_V1.md'
+      - 'dev-hub/evidence/playwright-mcp-design-2026-09-16.json'
       - '.github/workflows/dev-hub-v5-playwright-mcp-design.yml'
   pull_request:
     paths:
@@ -19,6 +20,7 @@ on:
       - 'dev-hub/config/mcp-provider-catalog.v1.json'
       - 'dev-hub/bin/mcp-playwright-contract-validate.py'
       - 'dev-hub/docs/MCP_PLAYWRIGHT_CONTRACT_V1.md'
+      - 'dev-hub/evidence/playwright-mcp-design-2026-09-16.json'
       - '.github/workflows/dev-hub-v5-playwright-mcp-design.yml'
 
 permissions:
@@ -37,6 +39,7 @@ jobs:
           python -m json.tool dev-hub/config/mcp-playwright-contract.v1.json >/dev/null
           python -m json.tool dev-hub/config/provider-adapters.v1.json >/dev/null
           python -m json.tool dev-hub/config/mcp-provider-catalog.v1.json >/dev/null
+          python -m json.tool dev-hub/evidence/playwright-mcp-design-2026-09-16.json >/dev/null
           python -m py_compile dev-hub/bin/mcp-playwright-contract-validate.py
 
       - name: Validate Playwright MCP design contract
@@ -49,6 +52,7 @@ jobs:
           from pathlib import Path
           c=json.loads(Path('dev-hub/config/mcp-playwright-contract.v1.json').read_text())
           r=json.loads(Path('dev-hub/config/provider-adapters.v1.json').read_text())
+          e=json.loads(Path('dev-hub/evidence/playwright-mcp-design-2026-09-16.json').read_text())
           assert c['runtime_status'] == 'DESIGNED'
           assert c['admission']['runtime_call_allowed_at_design_stage'] is False
           assert c['admission']['browser_download_allowed_at_design_stage'] is False
@@ -56,5 +60,10 @@ jobs:
           assert r['adapters']['playwright-mcp-adapter']['status'] == 'DESIGNED'
           assert r['adapters']['playwright-mcp-adapter']['executable'] is None
           assert 'browser_run_code_unsafe' in c['tool_policy']['explicit_deny']
+          assert e['runtime_executed'] is False
+          assert e['browser_downloaded'] is False
+          assert e['vps_modified'] is False
+          assert e['production_modified'] is False
+          assert all(v == 'PASS' for v in e['checks'].values())
           print('PLAYWRIGHT_MCP_DESIGN_BOUNDARY_OK runtime=false browser_download=false vps_install=false unsafe_code=false')
           PY
