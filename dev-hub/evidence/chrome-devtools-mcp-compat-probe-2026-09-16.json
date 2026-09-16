@@ -1,0 +1,57 @@
+{
+  "schema": "chacha.dev/chrome-devtools-mcp-compat-probe/v1",
+  "observed_at": "2026-09-16T14:48:09.195432+00:00",
+  "provider": "chrome-devtools-mcp",
+  "adapter": "chrome-devtools-mcp-adapter",
+  "package": "chrome-devtools-mcp",
+  "package_version": "1.9.0",
+  "compatibility_mode": "EXPLICIT_PROVIDER_COMPATIBILITY",
+  "dev_hub_protocol_baseline": "2026-07-28",
+  "requested_protocol": "2025-11-25",
+  "negotiated_protocol_version": "2025-11-25",
+  "generic_legacy_fallback": false,
+  "workflow_run_id": 35110982585,
+  "workflow_conclusion": "success",
+  "artifact_id": 10452247359,
+  "artifact_digest": "sha256:0fcacb3b6271b6ec57602262e35248628270bdd3a26524d4b08c4e97db8d79e9",
+  "server_info": {
+    "name": "chrome_devtools",
+    "title": "Chrome DevTools MCP server",
+    "version": "1.9.0"
+  },
+  "server_capabilities": {
+    "logging": {},
+    "tools": {"listChanged": true}
+  },
+  "checks": {
+    "initialize": {"pass": true, "error": null},
+    "tools_list": {"pass": true, "error": null},
+    "tool_surface": {
+      "pass": true,
+      "tool_count": 28,
+      "missing_expected_read": [],
+      "denied_tools_exposed_but_not_authorized": [
+        "click", "close_page", "drag", "emulate", "fill", "fill_form", "handle_dialog", "hover",
+        "lighthouse_audit", "navigate_page", "new_page", "performance_analyze_insight",
+        "performance_start_trace", "performance_stop_trace", "press_key", "resize_page", "type_text", "upload_file"
+      ]
+    }
+  },
+  "read_only_tools_qualified_for_next_runtime_stage": [
+    "get_console_message", "get_network_request", "list_console_messages", "list_network_requests",
+    "list_pages", "take_screenshot", "take_snapshot"
+  ],
+  "browser_launched": false,
+  "browser_downloaded": false,
+  "called_tools": [],
+  "vps_modified": false,
+  "production_target": false,
+  "credentials_used": false,
+  "promotion": {
+    "automatic": false,
+    "eligible_for_compat_pilot": true,
+    "blockers": []
+  },
+  "evidence_digest": "sha256:4900b9d6c7d3b7447f08ab5dd158d0a211a12816f8c3a3244c76fe8fe47d1124",
+  "next_action": "BUILD_AND_QUALIFY_READ_ONLY_PROVIDER_ADAPTER_RUNTIME"
+}
