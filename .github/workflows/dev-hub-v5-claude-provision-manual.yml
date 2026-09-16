@@ -47,10 +47,11 @@ jobs:
           print('ANTHROPIC_SDK_VERSION=' + str(anthropic.__version__))
           PY
 
-      - name: Provision read-only Managed Agent and Environment
+      - name: Provision or safely reuse read-only Managed Agent and Environment
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           CHACHA_ANTHROPIC_MODEL_ID: ${{ inputs.model_id }}
+          CHACHA_ANTHROPIC_PROVISION_REQUEST_ID: github-run-${{ github.run_id }}
         run: |
           python dev-hub/bin/claude-managed-agents-provision.py \
             --apply \
@@ -64,21 +65,30 @@ jobs:
           p = Path('/tmp/claude-managed-agents-provisioning.json')
           value = json.loads(p.read_text())
           assert value['schema'] == 'chacha.dev/claude-managed-agents-provisioning/v1'
-          assert value['status'] == 'PROVISIONED'
-          assert value['created'] is True
+          assert value['status'] in {'PROVISIONED', 'PROVISIONED_REUSED'}
           assert value['credential_value_observed'] is False
+          assert value['provision_request_reference_present'] is True
+          assert value['provision_request_id']
           assert value['agent_id']
           assert int(value['agent_version']) >= 1
           assert value['environment_id']
           assert value['blockers'] == []
+          if value['status'] == 'PROVISIONED':
+              assert value['created'] is True
+              assert value['reused'] is False
+          else:
+              assert value['created'] is False
+              assert value['reused'] is True
           summary = Path('/tmp/claude-provisioning-summary.md')
           summary.write_text(
-              '## Claude read-only PILOT resources created\n\n'
+              '## Claude read-only PILOT resources ready\n\n'
+              f"- Provisioning status: `{value['status']}`\n"
+              f"- Request ID: `{value['provision_request_id']}`\n"
               f"- Agent ID: `{value['agent_id']}`\n"
               f"- Agent version: `{value['agent_version']}`\n"
               f"- Environment ID: `{value['environment_id']}`\n"
               f"- Model ID: `{value.get('model_id')}`\n\n"
-              'No credential value is present in this receipt.\n'
+              'No credential value is present in this receipt. Re-running the same GitHub run reuses the same resources.\n'
           )
           PY
           cat /tmp/claude-provisioning-summary.md >> "$GITHUB_STEP_SUMMARY"
