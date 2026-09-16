@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "chacha.dev/mcp-provider-catalog/v1",
+  "title": "ChaCha DEV HUB MCP Provider Catalog v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "policy", "providers"],
+  "properties": {
+    "schema": {"const": "chacha.dev/mcp-provider-catalog/v1"},
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "default_admission",
+        "no_secret_values_in_catalog",
+        "catalog_does_not_enable_runtime",
+        "adapter_pipeline_required",
+        "production_change_requires_approval",
+        "filesystem_root_access_forbidden"
+      ],
+      "properties": {
+        "default_admission": {"enum": ["DENY", "ASSESS"]},
+        "no_secret_values_in_catalog": {"const": true},
+        "catalog_does_not_enable_runtime": {"const": true},
+        "adapter_pipeline_required": {"const": true},
+        "production_change_requires_approval": {"const": true},
+        "filesystem_root_access_forbidden": {"const": true}
+      }
+    },
+    "providers": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "display_name",
+          "category",
+          "priority",
+          "decision",
+          "runtime_status",
+          "integration_mode",
+          "target_capabilities",
+          "risk_class",
+          "secret_policy",
+          "notes"
+        ],
+        "properties": {
+          "display_name": {"type": "string", "minLength": 1},
+          "category": {
+            "enum": [
+              "control",
+              "knowledge",
+              "delivery",
+              "verification",
+              "execution",
+              "observability",
+              "storage",
+              "design",
+              "data"
+            ]
+          },
+          "priority": {"type": "integer", "minimum": 1, "maximum": 3},
+          "decision": {"enum": ["ADOPT", "ASSESS", "WATCH", "DEFER", "REJECT"]},
+          "runtime_status": {"enum": ["CATALOG_ONLY", "DESIGNED", "CONTRACT_OK", "PILOT", "ENABLED", "DISABLED"]},
+          "integration_mode": {"enum": ["remote-mcp", "local-mcp", "managed-connector", "existing-runtime"]},
+          "target_capabilities": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {"type": "string", "minLength": 1}
+          },
+          "risk_class": {"enum": ["LOW", "MEDIUM", "HIGH", "CRITICAL"]},
+          "write_scope": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {"type": "string", "minLength": 1}
+          },
+          "allowed_roots": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {"type": "string", "pattern": "^/"}
+          },
+          "forbidden_roots": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {"type": "string", "pattern": "^/"}
+          },
+          "secret_policy": {
+            "enum": ["NONE", "REFERENCE_ONLY", "EXTERNAL_OAUTH", "EXTERNAL_SECRET_STORE"]
+          },
+          "provider_binding": {"type": ["string", "null"]},
+          "health_probe": {"type": ["string", "null"]},
+          "fallback": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {"type": "string", "minLength": 1}
+          },
+          "notes": {"type": "string"}
+        }
+      }
+    }
+  }
+}
