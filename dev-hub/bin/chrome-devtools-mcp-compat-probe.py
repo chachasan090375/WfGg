@@ -38,7 +38,7 @@ class MCP:
         deadline=time.monotonic()+self.timeout
         while time.monotonic()<deadline:
             if self.p.poll() is not None: raise RuntimeError(f'MCP_SERVER_EXITED:{self.p.returncode}')
-            for *_ in self.sel.select(min(.5,max(.1,deadline-time.monotonic()))):
+            for _key, _mask in self.sel.select(min(.5,max(.1,deadline-time.monotonic()))):
                 line=self.p.stdout.readline()
                 if not line: continue
                 try: m=json.loads(line)
