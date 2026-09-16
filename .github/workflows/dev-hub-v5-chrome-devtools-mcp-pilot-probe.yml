@@ -1,0 +1,91 @@
+name: Dev Hub V5 Chrome DevTools MCP PILOT Protocol Probe
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - dev-hub-v5-chrome-devtools-mcp-pilot-probe
+    paths:
+      - 'dev-hub/bin/chrome-devtools-mcp-pilot-probe.py'
+      - '.github/workflows/dev-hub-v5-chrome-devtools-mcp-pilot-probe.yml'
+  pull_request:
+    paths:
+      - 'dev-hub/bin/chrome-devtools-mcp-pilot-probe.py'
+      - '.github/workflows/dev-hub-v5-chrome-devtools-mcp-pilot-probe.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  protocol-probe:
+    if: github.event_name != 'pull_request' || github.event.pull_request.base.ref == 'dev-hub-v5-chrome-devtools-mcp-contract-ok'
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      CI: 'true'
+      CHROME_DEVTOOLS_MCP_NO_USAGE_STATISTICS: '1'
+      CHROME_DEVTOOLS_MCP_NO_UPDATE_CHECKS: '1'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node LTS
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Validate probe syntax
+        run: python -m py_compile dev-hub/bin/chrome-devtools-mcp-pilot-probe.py
+
+      - name: Provision pinned MCP package outside repository
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/chrome-devtools-mcp-runtime
+          cd /tmp/chrome-devtools-mcp-runtime
+          npm init -y >/dev/null
+          npm install --no-save chrome-devtools-mcp@1.9.0
+          test "$(node -p "require('./node_modules/chrome-devtools-mcp/package.json').version")" = "1.9.0"
+          node -p "require('./node_modules/chrome-devtools-mcp/package.json').version" > /tmp/chrome-devtools-mcp-package-version.txt
+
+      - name: Probe DEV HUB 2026-07-28 protocol before browser launch
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/chrome-devtools-mcp-probe
+          python dev-hub/bin/chrome-devtools-mcp-pilot-probe.py \
+            --server /tmp/chrome-devtools-mcp-runtime/node_modules/.bin/chrome-devtools-mcp \
+            --workdir /tmp/chrome-devtools-mcp-runtime \
+            --package-version 1.9.0 \
+            --output /tmp/chrome-devtools-mcp-probe/evidence.json
+
+      - name: Confirm evidence-only and no browser/runtime mutation beyond package staging
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          e=json.loads(Path('/tmp/chrome-devtools-mcp-probe/evidence.json').read_text())
+          assert e['schema']=='chacha.dev/chrome-devtools-mcp-direct-probe/v1'
+          assert e['package_version']=='1.9.0'
+          assert e['protocol_required']=='2026-07-28'
+          assert e['browser_launched'] is False
+          assert e['browser_downloaded'] is False
+          assert e['vps_modified'] is False
+          assert e['production_target'] is False
+          assert e['credentials_used'] is False
+          assert e['called_tools']==[]
+          assert e['promotion']['automatic'] is False
+          print('CHROME_DEVTOOLS_MCP_PROTOCOL_PROBE_BOUNDARY=PASS browser=false vps=false prod=false tools_called=0')
+          PY
+          test -z "$(git status --porcelain)"
+
+      - name: Upload protocol probe evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: chrome-devtools-mcp-protocol-probe-${{ github.run_id }}
+          path: |
+            /tmp/chrome-devtools-mcp-probe
+            /tmp/chrome-devtools-mcp-package-version.txt
+          if-no-files-found: error
+          retention-days: 30

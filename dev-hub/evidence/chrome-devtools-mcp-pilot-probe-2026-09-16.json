@@ -1,0 +1,43 @@
+{
+  "schema": "chacha.dev/chrome-devtools-mcp-direct-probe/v1",
+  "observed_at": "2026-09-16T14:44:41.801981+00:00",
+  "provider": "chrome-devtools-mcp",
+  "adapter": "chrome-devtools-mcp-adapter",
+  "execution_surface": "github-actions-ephemeral",
+  "package": "chrome-devtools-mcp",
+  "package_version": "1.9.0",
+  "protocol_required": "2026-07-28",
+  "workflow_run_id": 35110606482,
+  "workflow_conclusion": "success",
+  "artifact_id": 10451862785,
+  "artifact_digest": "sha256:eb645a90093d4b8030f8ac37486c9c1ef9c364019f6dd317a3e66f15c4c88c22",
+  "browser_launched": false,
+  "browser_downloaded": false,
+  "credentials_used": false,
+  "production_target": false,
+  "vps_modified": false,
+  "workspace_write_expected": false,
+  "repository_write_expected": false,
+  "called_tools": [],
+  "checks": {
+    "server_discover": {
+      "pass": false,
+      "error": {
+        "code": -32601,
+        "message": "Method not found"
+      },
+      "result_digest": null
+    }
+  },
+  "promotion": {
+    "automatic": false,
+    "eligible_for_pilot": false,
+    "blockers": [
+      "MCP_2026_07_28_SERVER_DISCOVER_UNSUPPORTED"
+    ]
+  },
+  "probe_exception": "SERVER_DISCOVER_BLOCKED",
+  "evidence_digest": "sha256:f1e87248f164416002f0d0efc7fd0c584d8b3e488254c4e2968ad6eff2604806",
+  "next_action": "QUALIFY_EXPLICIT_PROVIDER_COMPATIBILITY_ONLY",
+  "generic_legacy_fallback": false
+}
