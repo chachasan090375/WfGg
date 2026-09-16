@@ -56,16 +56,16 @@
       "category": "verification",
       "priority": 1,
       "decision": "ASSESS",
-      "runtime_status": "CATALOG_ONLY",
+      "runtime_status": "CONTRACT_OK",
       "integration_mode": "local-mcp",
       "target_capabilities": ["browser-automation", "e2e-test-web", "ui-recette"],
       "risk_class": "MEDIUM",
       "write_scope": ["test-artifacts"],
       "secret_policy": "REFERENCE_ONLY",
-      "provider_binding": "playwright",
+      "provider_binding": "playwright-mcp",
       "health_probe": "mcp-server-discover-tools-list-and-browser-launch",
       "fallback": ["playwright"],
-      "notes": "Complements the existing Playwright project runner. Initial MCP admission should be non-production and test-account only."
+      "notes": "Static contract qualified. Runtime remains closed; PILOT requires pinned @playwright/mcp on an ephemeral GitHub Actions runner, isolated Chromium and preview/test origins only."
     },
     "chrome-devtools-mcp": {
       "display_name": "Chrome DevTools MCP",

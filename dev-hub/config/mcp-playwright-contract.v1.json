@@ -3,7 +3,7 @@
   "provider_id": "playwright-mcp",
   "adapter_id": "playwright-mcp-adapter",
   "decision": "ASSESS",
-  "runtime_status": "DESIGNED",
+  "runtime_status": "CONTRACT_OK",
   "purpose": "Isolated browser verification and diagnostics for preview/test targets without repository or production mutation.",
   "upstream": {
     "package": "@playwright/mcp",
@@ -91,11 +91,27 @@
     "page_secrets_in_evidence": false,
     "screenshots_are_test_artifacts_only": true
   },
+  "contract_qualification": {
+    "transition": "DESIGNED->CONTRACT_OK",
+    "qualified_design_head": "f6ad4ef4917fa35187506f89a395dcb24d33ab87",
+    "qualified_design_workflow_run_id": 35081382668,
+    "qualified_design_workflow_conclusion": "success",
+    "static_contract_pass": true,
+    "dedicated_adapter_binding_pass": true,
+    "unsafe_code_tool_denied": true,
+    "isolated_ephemeral_pilot_plan_pass": true,
+    "network_policy_defined": true,
+    "runtime_executed": false,
+    "browser_downloaded": false,
+    "vps_modified": false,
+    "permissions_expanded": false,
+    "automatic_promotion": false
+  },
   "admission": {
     "automatic_promotion": false,
     "runtime_call_allowed_at_design_stage": false,
     "browser_download_allowed_at_design_stage": false,
-    "next_transition": "DESIGNED->CONTRACT_OK",
+    "next_transition": "CONTRACT_OK->PILOT",
     "contract_ok_requires": [
       "static-contract-pass",
       "dedicated-adapter-binding",
