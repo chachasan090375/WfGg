@@ -1,0 +1,51 @@
+name: Dev Hub V5 Provider Selection Engine
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - dev-hub-v5-provider-selection-engine
+    paths:
+      - 'dev-hub/config/provider-selection-policy.v1.json'
+      - 'dev-hub/bin/provider-selection-policy-validate.py'
+      - 'dev-hub/docs/PROVIDER_SELECTION_ENGINE_V1.md'
+      - '.github/workflows/dev-hub-v5-provider-selection-engine.yml'
+  pull_request:
+    paths:
+      - 'dev-hub/config/provider-selection-policy.v1.json'
+      - 'dev-hub/bin/provider-selection-policy-validate.py'
+      - 'dev-hub/docs/PROVIDER_SELECTION_ENGINE_V1.md'
+      - '.github/workflows/dev-hub-v5-provider-selection-engine.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate JSON and Python syntax
+        run: |
+          python -m json.tool dev-hub/config/provider-selection-policy.v1.json >/dev/null
+          python -m py_compile dev-hub/bin/provider-selection-policy-validate.py
+
+      - name: Validate selection policy
+        run: python dev-hub/bin/provider-selection-policy-validate.py
+
+      - name: Confirm plan-only boundary
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = json.loads(Path('dev-hub/config/provider-selection-policy.v1.json').read_text())
+          assert p['mode'] == 'PLAN_ONLY'
+          assert p['output']['dispatch_authorized'] is False
+          assert p['principles']['selection_never_dispatches'] is True
+          assert p['principles']['selection_never_changes_provider_status'] is True
+          assert p['fallback']['scheduler_remains_authoritative_for_retry_and_failover'] is True
+          print('PROVIDER_SELECTION_BOUNDARY_OK: planning=true dispatch=false scheduler_authoritative=true')
+          PY
