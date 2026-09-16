@@ -28,7 +28,7 @@ jobs:
           echo "CDMCP=$(realpath node_modules/.bin/chrome-devtools-mcp)" >> "$GITHUB_ENV"
           echo "CDWORK=/tmp/chacha-cd-mcp" >> "$GITHUB_ENV"
           (google-chrome --version || google-chrome-stable --version || chromium --version || true) | tee /tmp/browser-version.txt
-      - name: Run direct adapter
+      - name: Run direct adapter V3 entry
         shell: bash
         run: |
           set -euo pipefail
@@ -50,7 +50,7 @@ jobs:
           CHACHA_CHROME_DEVTOOLS_BROWSER_VERSION="$BROWSER_VERSION" \
           CHACHA_CHROME_DEVTOOLS_TARGET_CLASS="preview" \
           CHACHA_CHROME_DEVTOOLS_ALLOWED_ORIGIN="$ALLOWED_ORIGIN" \
-          python3 dev-hub/adapters/chrome-devtools-mcp-adapter.py </tmp/request.json | tee /tmp/result.json
+          python3 dev-hub/bin/chrome-devtools-mcp-adapter-runtime-v3-entry.py </tmp/request.json | tee /tmp/result.json
           python3 - <<'PY'
           import json
           x=json.load(open('/tmp/result.json'))
@@ -59,7 +59,9 @@ jobs:
           print('PRODUCER='+str(x.get('producer')))
           if x.get('evidence'):
               print('DETAILS='+json.dumps(x['evidence'][0].get('details',{}),sort_keys=True))
-          assert x.get('status') in {'OK','BLOCKED','FAILED'}
+          assert x.get('status')=='OK', x
+          assert x.get('producer')=='chrome-devtools-mcp-adapter'
+          assert x.get('verification',{}).get('status')=='UNVERIFIED'
           PY
       - name: Upload diagnostic
         uses: actions/upload-artifact@v4
