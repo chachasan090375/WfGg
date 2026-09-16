@@ -1,0 +1,27 @@
+{
+  "schema": "chacha.dev/context7-pilot-promotion-provenance/v1",
+  "provider_id": "context7-mcp",
+  "adapter_id": "context7-mcp-adapter",
+  "transition": "CONTRACT_OK->PILOT",
+  "qualification_run": {
+    "workflow_name": "Dev Hub V5 Context7 PILOT Promotion",
+    "workflow_run_id": 35072331061,
+    "workflow_conclusion": "success",
+    "head_branch": "dev-hub-v5-context7-contract-ok",
+    "head_sha": "62e4538da4da1f0e63c91cd5af78acb5da41b309"
+  },
+  "promotion_artifact": {
+    "artifact_id": 10437180280,
+    "name": "context7-pilot-promotion-35072331061",
+    "digest": "sha256:28938164f03e4f8515b3c73fcb8a53af17e184a8c940ad2be14aff3464bd162b",
+    "expired": false,
+    "created_at": "2026-09-16T08:10:27Z"
+  },
+  "runtime_evidence_source": {
+    "workflow_run_id": 35071943334,
+    "observed_at": "2026-09-16T08:06:11+00:00"
+  },
+  "materialized_branch": "dev-hub-v5-context7-pilot",
+  "production_capable": false,
+  "automatic_enable": false
+}

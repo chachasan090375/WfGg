@@ -24,8 +24,9 @@ def main():
     evidence = load(EVIDENCE)
 
     c7 = catalog.get("providers", {}).get("context7-mcp", {})
-    if c7.get("runtime_status") != "CONTRACT_OK":
-        fail("catalog status")
+    catalog_status = c7.get("runtime_status")
+    if catalog_status not in {"CONTRACT_OK", "PILOT"}:
+        fail(f"catalog status={catalog_status}")
     if c7.get("write_scope") != [] or c7.get("risk_class") != "LOW":
         fail("catalog boundary")
 
@@ -33,8 +34,11 @@ def main():
     adapter = registry.get("adapters", {}).get("context7-mcp-adapter", {})
     if provider.get("adapter") != "context7-mcp-adapter" or provider.get("execution") != "external":
         fail("provider binding")
-    if adapter.get("status") != "CONTRACT_OK":
-        fail("adapter status")
+    adapter_status = adapter.get("status")
+    if adapter_status not in {"CONTRACT_OK", "PILOT"}:
+        fail(f"adapter status={adapter_status}")
+    if adapter_status != catalog_status:
+        fail(f"catalog/adapter mismatch: catalog={catalog_status} adapter={adapter_status}")
     if adapter.get("executable") not in {None, ""}:
         fail("external adapter executable")
     if adapter.get("supports") != ["read"]:
@@ -60,7 +64,7 @@ def main():
     if evidence.get("checks", {}).get("generic_adapter_static_contract") != "PASS":
         fail("static contract evidence")
     if evidence.get("runtime", {}).get("executed") is not False:
-        fail("runtime must not be claimed")
+        fail("historical CONTRACT_OK evidence must not claim runtime")
     if evidence.get("checks", {}).get("automatic_promotion") is not False:
         fail("automatic promotion must be false")
 
@@ -72,7 +76,10 @@ def main():
     if advanced_mcp:
         fail(f"unexpected advanced MCP providers: {advanced_mcp}")
 
-    print("CONTEXT7_CONTRACT_OK_VALID: static qualification recorded; runtime not claimed; next=PILOT")
+    print(
+        "CONTEXT7_CONTRACT_OK_HISTORY_VALID: "
+        f"historical static qualification preserved; current_status={adapter_status}"
+    )
 
 
 if __name__ == "__main__":
