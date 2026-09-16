@@ -1,0 +1,89 @@
+{
+  "schema": "chacha.dev/playwright-mcp-enable-readiness-evidence/v1",
+  "provider": "playwright-mcp",
+  "adapter": "playwright-mcp-adapter",
+  "current_status": "PILOT",
+  "target_status": "ENABLED",
+  "transition": "PILOT->ENABLED",
+  "observed_at": "2026-09-16T10:17:51.447477+00:00",
+  "source": {
+    "surface": "github-actions-ephemeral",
+    "run_id": 35084159711,
+    "run_head": "508d5d4fd8840d7d368378d027b3572e2825903d",
+    "artifact_id": 10441900256,
+    "artifact_name": "playwright-mcp-enable-readiness-35084159711",
+    "artifact_digest": "sha256:d0571bed4acc2746d1d4a916cdfece5daa69fa725000c06c1f3b70cbf00c3198"
+  },
+  "runtime": {
+    "package": "@playwright/mcp",
+    "package_version": "0.0.81",
+    "mcp_client_package": "@modelcontextprotocol/client",
+    "mcp_client_version": "2.0.0",
+    "browser": "chromium",
+    "isolated": true,
+    "headless": true,
+    "target": "local-test-origin-only",
+    "production_target": false,
+    "negotiated_era": "legacy",
+    "negotiated_protocol_version": "2025-11-25",
+    "unsafe_tool_invoked": false
+  },
+  "repeatability": {
+    "status": "PASS",
+    "required_runs": 3,
+    "successful_runs": 3,
+    "task_identity": {
+      "project": "chacha-dev-hub",
+      "task_id": "playwright-mcp-readonly-repeatability"
+    },
+    "results": [
+      {
+        "observed_at": "2026-09-16T10:17:45.875627+00:00",
+        "digest": "sha256:ef2ff81c2b9978d68525b6a195a28f2d3329c4a3a49e6837937815d763960c21",
+        "status": "OK",
+        "verification_status": "UNVERIFIED"
+      },
+      {
+        "observed_at": "2026-09-16T10:17:48.654121+00:00",
+        "digest": "sha256:1dab88a396eb4ee5f17ae748ba8c47c593ed4432d427f966d76daec5cf04657e",
+        "status": "OK",
+        "verification_status": "UNVERIFIED"
+      },
+      {
+        "observed_at": "2026-09-16T10:17:51.314163+00:00",
+        "digest": "sha256:373510b3b87a7ed64e92ecc5c5e17fb007dffdadd6eff302d468b97e505ed28b",
+        "status": "OK",
+        "verification_status": "UNVERIFIED"
+      }
+    ]
+  },
+  "provider_health": {
+    "status": "PASS",
+    "state": "HEALTHY",
+    "checked_at": "2026-09-16T10:17:51.314528+00:00",
+    "age_seconds_at_evaluation": 0.074,
+    "maximum_age_seconds": 300,
+    "blockers": []
+  },
+  "rollback": {
+    "status": "PASS",
+    "target_status": "DISABLED",
+    "steps": 4,
+    "verification_checks": 4
+  },
+  "promotion_plan": {
+    "eligible": true,
+    "applied": false,
+    "registry_mutated": false,
+    "production_capable": false,
+    "approval_required": false,
+    "requires_local_executable": false,
+    "blockers": []
+  },
+  "canonical_registry_status_after_readiness": "PILOT",
+  "notes": [
+    "Readiness evidence generation did not mutate the canonical adapter registry.",
+    "Provider task results intentionally remain UNVERIFIED pending independent Verification Broker processing.",
+    "Legacy MCP protocol compatibility remains an explicit provider-specific exception tracked by Technology Radar."
+  ]
+}
