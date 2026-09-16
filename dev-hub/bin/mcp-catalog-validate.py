@@ -47,6 +47,29 @@ def walk_forbidden_fields(value, path="$"):
             walk_forbidden_fields(child, f"{path}[{index}]")
 
 
+def validate_explicit_compatibility(provider_id: str, provider: dict, protocol: dict) -> None:
+    compat = provider.get("protocol_compatibility")
+    if not isinstance(compat, dict):
+        fail(f"provider {provider_id} uses initialize health probe without explicit protocol_compatibility")
+    if protocol.get("compatibility_policy") != "explicit-provider-adapter-only":
+        fail(f"provider {provider_id} compatibility requires explicit-provider-adapter-only global policy")
+    if compat.get("mode") != "EXPLICIT_PROVIDER_COMPATIBILITY":
+        fail(f"provider {provider_id} compatibility mode must be EXPLICIT_PROVIDER_COMPATIBILITY")
+    if compat.get("provider_specific") is not True:
+        fail(f"provider {provider_id} compatibility must be provider-specific")
+    if compat.get("dev_hub_baseline") != protocol.get("preferred_version"):
+        fail(f"provider {provider_id} compatibility baseline must match DEV HUB preferred protocol")
+    upstream = compat.get("upstream_version")
+    if not isinstance(upstream, str) or not upstream.strip():
+        fail(f"provider {provider_id} compatibility upstream version missing")
+    if compat.get("generic_legacy_fallback") is not False:
+        fail(f"provider {provider_id} cannot enable generic legacy fallback")
+    if not provider.get("provider_binding"):
+        fail(f"provider {provider_id} compatibility requires an explicit provider binding")
+    if provider.get("runtime_status") not in {"PILOT", "ENABLED", "DISABLED"}:
+        fail(f"provider {provider_id} initialize compatibility health probe requires admitted runtime status")
+
+
 def main() -> int:
     try:
         data = json.loads(CATALOG.read_text(encoding="utf-8"))
@@ -104,7 +127,11 @@ def main() -> int:
         if provider.get("integration_mode") in {"remote-mcp", "local-mcp"}:
             probe = provider.get("health_probe")
             if probe and "initialize" in probe.lower():
-                fail(f"provider {provider_id} uses obsolete initialize handshake in health probe")
+                validate_explicit_compatibility(provider_id, provider, protocol)
+            elif provider.get("protocol_compatibility") is not None:
+                compat = provider.get("protocol_compatibility")
+                if not isinstance(compat, dict) or compat.get("generic_legacy_fallback") is not False:
+                    fail(f"provider {provider_id} has invalid protocol_compatibility")
 
         if provider_id == "filesystem-mcp":
             allowed = provider.get("allowed_roots", [])
