@@ -1,0 +1,50 @@
+{
+  "schema": "chacha.dev/chrome-devtools-mcp-pilot-materialization/v1",
+  "provider": "chrome-devtools-mcp",
+  "adapter": "chrome-devtools-mcp-adapter",
+  "transition": "CONTRACT_OK->PILOT",
+  "source_runtime_qualification": "dev-hub/evidence/chrome-devtools-mcp-adapter-runtime-qualification-2026-09-16.json",
+  "source_navigation_qualification": "dev-hub/evidence/chrome-devtools-mcp-controlled-navigation-qualification-2026-09-16.json",
+  "compatibility_mode": "EXPLICIT_PROVIDER_COMPATIBILITY",
+  "dev_hub_protocol_baseline": "2026-07-28",
+  "upstream_protocol": "2025-11-25",
+  "status_change": {
+    "previous": "CONTRACT_OK",
+    "new": "PILOT",
+    "applied": true,
+    "automatic": false
+  },
+  "boundaries": {
+    "supports": ["read"],
+    "local_executable": null,
+    "execution": "external",
+    "production_capable": false,
+    "browser_interaction": false,
+    "javascript_evaluation": false,
+    "caller_direct_tool_selection": false,
+    "adapter_controlled_navigation": true,
+    "provider_result_verification": "UNVERIFIED",
+    "verification_broker_required": true,
+    "generic_legacy_fallback": false,
+    "enabled": false
+  },
+  "runtime_evidence": {
+    "workflow_run_id": 35117348691,
+    "artifact_id": 10455774189,
+    "artifact_digest": "sha256:ae17b67bdd2a68f1b7b00c4807519f1a89aa548b5dec5e86c01b3f402204047f"
+  },
+  "navigation_evidence": {
+    "workflow_run_id": 35120006463,
+    "artifact_id": 10456458970,
+    "artifact_digest": "sha256:df91d62c1f237ec485d4311be786f1e5c6da85f42188af1764286833f5e6f56f",
+    "same_origin_redirect_pass": true,
+    "cross_origin_redirect_blocked": true,
+    "final_origin_revalidated": true
+  },
+  "blockers": [],
+  "notes": [
+    "PILOT is materialized only from previously qualified runtime and controlled-navigation evidence.",
+    "The direct MCP 2026-07-28 route remains blocked by server/discover support; compatibility is provider-specific only.",
+    "PILOT does not authorize production targets, interactive browser tools, JavaScript evaluation, repository writes, workspace writes, or automatic promotion to ENABLED."
+  ]
+}

@@ -3,7 +3,7 @@
   "provider_id": "chrome-devtools-mcp",
   "adapter_id": "chrome-devtools-mcp-adapter",
   "decision": "ASSESS",
-  "runtime_status": "CONTRACT_OK",
+  "runtime_status": "PILOT",
   "purpose": "Isolated Chrome diagnostics for preview/test targets: controlled navigation, page structure, console and network inspection without repository, workspace or production mutation.",
   "upstream": {
     "package": "chrome-devtools-mcp",
@@ -99,6 +99,7 @@
       "list_network_requests",
       "get_network_request"
     ],
+    "pilot_caller_operations": ["inspect_current_page", "inspect_url"],
     "explicit_deny_scope": "caller_direct_control",
     "explicit_deny": [
       "evaluate_script",
@@ -122,9 +123,7 @@
       "performance_stop_trace",
       "performance_analyze_insight"
     ],
-    "adapter_internal_allow": [
-      "navigate_page"
-    ],
+    "adapter_internal_allow": ["navigate_page"],
     "adapter_internal_navigation_operation": "inspect_url",
     "caller_direct_tool_selection": false,
     "caller_direct_page_id_selection": false,
@@ -197,12 +196,7 @@
     "package_version": "1.9.0",
     "browser_version": "Google Chrome 152.0.7977.82",
     "upstream_protocol": "2025-11-25",
-    "called_tools": [
-      "list_pages",
-      "take_snapshot",
-      "list_console_messages",
-      "list_network_requests"
-    ],
+    "called_tools": ["list_pages", "take_snapshot", "list_console_messages", "list_network_requests"],
     "dispatch_to_task_result_pass": true,
     "tool_injection_blocked": true,
     "write_permission_blocked": true,
@@ -223,14 +217,7 @@
     "package_version": "1.9.0",
     "browser_version": "Google Chrome 152.0.7977.82",
     "qualified_operation": "inspect_url",
-    "called_tools": [
-      "list_pages",
-      "navigate_page",
-      "list_pages",
-      "take_snapshot",
-      "list_console_messages",
-      "list_network_requests"
-    ],
+    "called_tools": ["list_pages", "navigate_page", "list_pages", "take_snapshot", "list_console_messages", "list_network_requests"],
     "caller_tool_selection": false,
     "caller_page_id_selection": false,
     "caller_allowlist_selection": false,
@@ -247,12 +234,43 @@
     "automatic_promotion": false,
     "blockers": []
   },
+  "pilot_qualification": {
+    "transition": "CONTRACT_OK->PILOT",
+    "source_runtime_adapter_qualification": "dev-hub/evidence/chrome-devtools-mcp-adapter-runtime-qualification-2026-09-16.json",
+    "source_controlled_navigation_qualification": "dev-hub/evidence/chrome-devtools-mcp-controlled-navigation-qualification-2026-09-16.json",
+    "materialization_receipt": "dev-hub/evidence/chrome-devtools-mcp-pilot-materialization-2026-09-16.json",
+    "runtime_workflow_run_id": 35117348691,
+    "runtime_artifact_id": 10455774189,
+    "runtime_artifact_digest": "sha256:ae17b67bdd2a68f1b7b00c4807519f1a89aa548b5dec5e86c01b3f402204047f",
+    "navigation_workflow_run_id": 35120006463,
+    "navigation_artifact_id": 10456458970,
+    "navigation_artifact_digest": "sha256:df91d62c1f237ec485d4311be786f1e5c6da85f42188af1764286833f5e6f56f",
+    "package_version": "1.9.0",
+    "browser_version": "Google Chrome 152.0.7977.82",
+    "execution": "external",
+    "local_executable": null,
+    "compatibility_mode": "EXPLICIT_PROVIDER_COMPATIBILITY",
+    "negotiated_protocol_version": "2025-11-25",
+    "dev_hub_protocol_baseline": "2026-07-28",
+    "caller_operations": ["inspect_current_page", "inspect_url"],
+    "adapter_controlled_navigation": true,
+    "provider_result_verification": "UNVERIFIED",
+    "verification_broker_required": true,
+    "repository_workspace_write": false,
+    "production_mutation": false,
+    "browser_interaction": false,
+    "javascript_evaluation": false,
+    "permissions_expanded": false,
+    "automatic_promotion": false,
+    "blockers": []
+  },
   "admission": {
     "automatic_promotion": false,
     "runtime_call_allowed_at_design_stage": false,
     "browser_download_allowed_at_design_stage": false,
-    "next_transition": "CONTRACT_OK->PILOT",
+    "next_transition": "PILOT->ENABLED",
     "pilot_promotion_ready": true,
+    "pilot_promotion_materialized": true,
     "remaining_pilot_blockers": [],
     "contract_ok_requires": [
       "static-contract-pass",
@@ -282,6 +300,13 @@
       "console-read-pass": true,
       "network-read-pass": true,
       "no-workspace-write-pass": true
-    }
+    },
+    "enablement_requires": [
+      "repeatable-pass",
+      "fresh-provider-health-pass",
+      "rollback-defined",
+      "sandbox-promotion-pass",
+      "independent-verification-boundary-preserved"
+    ]
   }
 }
