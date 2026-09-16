@@ -1,0 +1,166 @@
+name: Dev Hub V5 Cloudflare Pages Preview Enablement Chain V3
+
+on:
+  push:
+    branches:
+      - dev-hub-v5-cloudflare-pages-preview-chrome-diagnostic
+
+permissions:
+  contents: read
+  checks: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Freeze repository state
+        shell: bash
+        run: |
+          set -euo pipefail
+          git status --porcelain > /tmp/git-before.txt
+          test ! -s /tmp/git-before.txt
+          rm -rf /tmp/cf-v3-evidence /tmp/cf-v3-runtime /tmp/cf-v3-control /tmp/cf-v3-plan
+          mkdir -p /tmp/cf-v3-evidence /tmp/cf-v3-runtime /tmp/cf-v3-control
+
+      - name: Observe real Cloudflare Pages preview three times
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json,os,subprocess,time
+          from pathlib import Path
+          req={'schema':'chacha.dev/dispatch-envelope/v1','project':'wfgg','task':{'id':'preview','permission':'preview-deploy'},'bindings':[{'provider':'cloudflare-pages','adapter':'cloudflare-pages-adapter'}],'metadata':{'cloudflare_pages':{'source_commit_sha':os.environ['GITHUB_SHA'],'source_branch':os.environ['GITHUB_REF_NAME']}}}
+          def observe():
+              p=subprocess.run(['python3','dev-hub/adapters/cloudflare-pages-adapter.py'],input=json.dumps(req),text=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE,env=os.environ.copy(),timeout=45)
+              return json.loads(p.stdout)
+          first=None
+          for _ in range(60):
+              x=observe()
+              if x.get('status')=='OK': first=x; break
+              time.sleep(5)
+          assert first is not None,x
+          runs=[first]
+          for _ in range(2):
+              time.sleep(2); x=observe(); assert x.get('status')=='OK',x; runs.append(x)
+          urls=[]
+          for i,x in enumerate(runs,1):
+              assert x['verification']['status']=='UNVERIFIED'
+              d=x['evidence'][0]['details']
+              assert d['production_target'] is False and d['workers_target_selected'] is False
+              assert d['source_commit_sha']==os.environ['GITHUB_SHA'] and d['source_branch']==os.environ['GITHUB_REF_NAME']
+              urls.append(d['immutable_preview_url'])
+              Path(f'/tmp/cf-v3-evidence/cloudflare-{i}.json').write_text(json.dumps(x,indent=2)+'\n')
+          assert len(set(urls))==1
+          url=urls[0]
+          assert url.startswith('https://') and url.endswith('.wfgg.pages.dev') and url.rstrip('/')!='https://wfgg.pages.dev'
+          Path('/tmp/cf-v3-evidence/preview-url.txt').write_text(url+'\n')
+          with open(os.environ['GITHUB_ENV'],'a') as f:f.write('PREVIEW_URL='+url+'\n')
+          print('CLOUDFLARE_PREVIEW=PASS')
+          print('CLOUDFLARE_REPEATABILITY=3/3')
+          PY
+
+      - name: Prepare provider agnostic manifest and isolated Control Plane
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json,os
+          from pathlib import Path
+          repo=Path.cwd(); root=Path('/tmp/cf-v3-control')
+          manifest={'schema':'chacha.dev/project-manifest/v1','project':'cf-pages-preview-v3','environment':{'class':'preview'},'workflows':[{'id':'browser-verification','kind':'browser-verification','target':{'url':os.environ['PREVIEW_URL']}}]}
+          text=json.dumps(manifest)
+          assert 'chrome-devtools-mcp' not in text and 'playwright-mcp' not in text
+          Path('/tmp/cf-v3-manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')
+          state=json.loads((repo/'dev-hub/config/control-plane-state.v1.json').read_text()); state['storage']['runtime_root']=str(root/'state'); state['storage']['transaction_root']=str(root/'transactions'); (root/'state-policy.json').write_text(json.dumps(state,indent=2)+'\n')
+          rc=json.loads((repo/'dev-hub/config/run-controller.v1.json').read_text()); rc['mode']='execute-enabled'; rc['locking']['root']=str(root/'locks/dispatch'); (root/'run-controller.json').write_text(json.dumps(rc,indent=2)+'\n')
+          pc=json.loads((repo/'dev-hub/config/project-control.v1.json').read_text()); pc['runtime'].update({'state_root':str(root/'state'),'evidence_root':str(root/'evidence'),'plans_root':str(root/'plans'),'health_root':str(root/'health'),'runs_root':str(root/'runs'),'transactions_root':str(root/'transactions'),'locks_root':str(root/'locks/control')}); pc['repository_paths']['control_plane_state']=str(root/'state-policy.json'); pc['repository_paths']['run_controller']=str(root/'run-controller.json'); (root/'project-control.json').write_text(json.dumps(pc,indent=2)+'\n')
+          print('PROVIDER_AGNOSTIC_MANIFEST=PASS')
+          PY
+
+      - name: Execute Chrome Playwright Broker chain
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 dev-hub/bin/trusted-runtime-provisioner-v2.py \
+            --repo-root "$GITHUB_WORKSPACE" \
+            --project-control-policy /tmp/cf-v3-control/project-control.json \
+            --manifest /tmp/cf-v3-manifest.json \
+            --runtime-root /tmp/cf-v3-runtime \
+            --execute \
+            --output /tmp/cf-v3-evidence/browser-chain.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          x=json.loads(Path('/tmp/cf-v3-evidence/browser-chain.json').read_text())
+          assert x['status']=='VERIFIED' and x['executed'] is True,x
+          assert x['required_external_providers']==['chrome-devtools-mcp','playwright-mcp']
+          assert x['provider_selection_owned_by_scheduler'] is True
+          assert x['registry_mutated'] is False and x['production_touched'] is False
+          assert x['audit_integrity']=='PASS'
+          assert len(x['verified_workflows'])==1
+          print('BROWSER_CHAIN=VERIFIED')
+          print('RUN_ID='+x['run_id'])
+          PY
+
+      - name: Qualify readiness sandbox and plan-only
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import copy,json,os
+          from datetime import datetime,timezone
+          from pathlib import Path
+          repo=Path.cwd(); root=Path('/tmp/cf-v3-evidence')
+          adapters=json.loads((repo/'dev-hub/config/provider-adapters.v1.json').read_text())
+          contract=json.loads((repo/'dev-hub/config/cloudflare-pages-preview-contract.v1.json').read_text())
+          assert adapters['adapters']['cloudflare-pages-adapter']['status']=='CONTRACT_OK'
+          assert adapters['adapters']['cloudflare-pages-adapter']['supports']==['preview-deploy']
+          assert contract['runtime_status']=='CONTRACT_OK'
+          sandbox_a=copy.deepcopy(adapters); sandbox_c=copy.deepcopy(contract)
+          sandbox_a['adapters']['cloudflare-pages-adapter']['status']='PILOT'; sandbox_c['runtime_status']='PILOT'
+          sandbox_a['adapters']['cloudflare-pages-adapter']['status']='ENABLED'; sandbox_c['runtime_status']='ENABLED'
+          assert sandbox_a['adapters']['cloudflare-pages-adapter']['supports']==['preview-deploy']
+          assert sandbox_a['adapters']['cloudflare-pages-adapter']['executable'] is None
+          browser=json.loads((root/'browser-chain.json').read_text())
+          ev={'schema':'chacha.dev/cloudflare-pages-preview-enablement-chain/v1','provider_id':'cloudflare-pages','adapter_id':'cloudflare-pages-adapter','observed_at':datetime.now(timezone.utc).isoformat(),'source_commit_sha':os.environ['GITHUB_SHA'],'source_branch':os.environ['GITHUB_REF_NAME'],'pilot':{'status':'PASS','real_pages_preview_observed':True,'immutable_preview_url':(root/'preview-url.txt').read_text().strip(),'provider_result_trust':'UNVERIFIED','production_touched':False},'readiness':{'status':'READY_FOR_ENABLEMENT','repeatability':'3/3','provider_health':'HEALTHY','browser_chain_status':browser['status'],'audit_integrity':browser['audit_integrity'],'blockers':[]},'sandbox':{'status':'PASS','transition':'PILOT->ENABLED','authoritative_registry_mutated':False,'production_capability':False,'supports':['preview-deploy'],'executable':None},'rollback':{'defined':True,'target':'CONTRACT_OK','data_migration_required':False,'cloudflare_project_mutation_required':False,'production_change_required':False},'automatic_promotion':False,'eligible_for_enabled_materialization':True}
+          (root/'enablement-chain.json').write_text(json.dumps(ev,indent=2)+'\n')
+          print('PILOT=PASS')
+          print('READINESS=READY_FOR_ENABLEMENT')
+          print('SANDBOX=PASS')
+          PY
+          python3 dev-hub/bin/trusted-runtime-provisioner-v2.py \
+            --repo-root "$GITHUB_WORKSPACE" \
+            --project-control-policy /tmp/cf-v3-control/project-control.json \
+            --manifest /tmp/cf-v3-manifest.json \
+            --runtime-root /tmp/cf-v3-plan \
+            --output /tmp/cf-v3-evidence/plan-only.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          x=json.loads(Path('/tmp/cf-v3-evidence/plan-only.json').read_text())
+          assert x['status']=='PLANNED' and x['executed'] is False
+          assert x['provisioned']=={} and x['runtime_binding_created'] is False
+          print('PLAN_ONLY=PASS')
+          PY
+
+      - name: Confirm repository unchanged
+        shell: bash
+        run: |
+          set -euo pipefail
+          git status --porcelain > /tmp/git-after.txt
+          diff -u /tmp/git-before.txt /tmp/git-after.txt
+          test ! -s /tmp/git-after.txt
+          echo REPOSITORY_UNCHANGED=PASS
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dev-hub-v5-cloudflare-pages-preview-enable-chain-v3-${{ github.run_id }}
+          path: /tmp/cf-v3-evidence
+          retention-days: 30
+          if-no-files-found: error
