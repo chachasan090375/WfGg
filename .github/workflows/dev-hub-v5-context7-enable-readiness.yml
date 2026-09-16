@@ -1,0 +1,103 @@
+name: Dev Hub V5 Context7 Enablement Readiness
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - dev-hub-v5-context7-enable-readiness
+    paths:
+      - 'dev-hub/bin/context7-enable-readiness-ci.py'
+      - 'dev-hub/bin/context7-mcp-direct-probe.py'
+      - 'dev-hub/bin/adapter-enable-readiness.py'
+      - 'dev-hub/bin/adapter-enablement-evidence.py'
+      - 'dev-hub/bin/adapter-promotion.py'
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - 'dev-hub/config/adapter-enablement.v1.json'
+      - 'dev-hub/config/adapter-rollbacks.v1.json'
+      - 'dev-hub/docs/CONTEXT7_ENABLEMENT_READINESS_V1.md'
+      - '.github/workflows/dev-hub-v5-context7-enable-readiness.yml'
+  pull_request:
+    paths:
+      - 'dev-hub/bin/context7-enable-readiness-ci.py'
+      - 'dev-hub/bin/context7-mcp-direct-probe.py'
+      - 'dev-hub/bin/adapter-enable-readiness.py'
+      - 'dev-hub/bin/adapter-enablement-evidence.py'
+      - 'dev-hub/bin/adapter-promotion.py'
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - 'dev-hub/config/adapter-enablement.v1.json'
+      - 'dev-hub/config/adapter-rollbacks.v1.json'
+      - 'dev-hub/docs/CONTEXT7_ENABLEMENT_READINESS_V1.md'
+      - '.github/workflows/dev-hub-v5-context7-enable-readiness.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  readiness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate static JSON
+        run: |
+          python -m json.tool dev-hub/config/provider-adapters.v1.json >/dev/null
+          python -m json.tool dev-hub/config/adapter-enablement.v1.json >/dev/null
+          python -m json.tool dev-hub/config/adapter-rollbacks.v1.json >/dev/null
+
+      - name: Confirm Context7 remains PILOT before readiness
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          registry = json.loads(Path('dev-hub/config/provider-adapters.v1.json').read_text())
+          status = registry['adapters']['context7-mcp-adapter']['status']
+          if status != 'PILOT':
+              raise SystemExit(f'CONTEXT7_NOT_PILOT={status}')
+          print('CONTEXT7_PRE_ENABLEMENT_STATUS=PILOT')
+          PY
+
+      - name: Run three live MCP probes and enablement readiness
+        run: python dev-hub/bin/context7-enable-readiness-ci.py
+
+      - name: Validate readiness outputs
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path('/tmp/context7-enable-readiness')
+          manifest = json.loads((root / 'manifest.json').read_text())
+          receipt = json.loads((root / 'readiness' / 'enablement-readiness.json').read_text())
+          evidence = json.loads((root / 'readiness' / 'enablement-evidence.json').read_text())
+          plan = json.loads((root / 'readiness' / 'enablement-promotion-plan.json').read_text())
+          results = [json.loads((root / f'task-result-{i}.json').read_text()) for i in (1,2,3)]
+          health = json.loads((root / 'provider-health.json').read_text())
+          assert manifest['status'] == 'READY_FOR_ENABLEMENT'
+          assert manifest['promotion_eligible'] is True
+          assert receipt['status'] == 'READY_FOR_ENABLEMENT'
+          assert receipt['registry_mutated'] is False
+          assert receipt['blockers'] == []
+          assert plan['eligible'] is True
+          assert plan['blockers'] == []
+          assert evidence['evidence']['repeatable-pass']['status'] == 'PASS'
+          assert evidence['evidence']['provider-health-pass']['status'] == 'PASS'
+          assert evidence['evidence']['rollback-defined']['status'] == 'PASS'
+          assert health['providers']['context7-mcp']['state'] == 'HEALTHY'
+          assert len({r['observed_at'] for r in results}) == 3
+          assert len({(r['project'], r['task_id']) for r in results}) == 1
+          assert all(r['status'] == 'OK' for r in results)
+          assert all(r['producer'] == 'context7-mcp-adapter' for r in results)
+          assert all(r['verification']['status'] == 'UNVERIFIED' for r in results)
+          registry = json.loads(Path('dev-hub/config/provider-adapters.v1.json').read_text())
+          assert registry['adapters']['context7-mcp-adapter']['status'] == 'PILOT'
+          print('CONTEXT7_ENABLEMENT_READINESS=PASS registry_status=PILOT mutation=false')
+          PY
+
+      - name: Upload readiness evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: context7-enable-readiness-${{ github.run_id }}
+          path: /tmp/context7-enable-readiness
+          if-no-files-found: error
+          retention-days: 30
