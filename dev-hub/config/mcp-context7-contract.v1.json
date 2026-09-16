@@ -1,0 +1,83 @@
+{
+  "schema": "chacha.dev/mcp-context7-contract/v1",
+  "provider_id": "context7-mcp",
+  "adapter_id": "context7-mcp-adapter",
+  "purpose": "read-only current library and framework documentation",
+  "endpoint": {
+    "remote_url": "https://mcp.context7.com/mcp",
+    "transport": "streamable-http",
+    "protocol_baseline": "2026-07-28",
+    "discovery_required": true,
+    "discovery_method": "server/discover"
+  },
+  "auth": {
+    "supported_modes": ["api-key", "oauth2"],
+    "secret_policy": "REFERENCE_ONLY",
+    "secret_values_in_git": false,
+    "authorization_header_in_evidence": "REDACT",
+    "anonymous_basic_usage_may_exist_but_is_not_assumed_for_qualification": true
+  },
+  "tool_policy": {
+    "default": "DENY",
+    "allow": ["resolve-library-id", "query-docs"],
+    "unknown_tools": "DENY",
+    "mutation_tools": "DENY",
+    "destructive_tools": "DENY",
+    "read_only_annotation_required": true,
+    "max_query_docs_calls_per_question": 3
+  },
+  "tools": {
+    "resolve-library-id": {
+      "permission": "read",
+      "required_inputs": ["libraryName", "query"]
+    },
+    "query-docs": {
+      "permission": "read",
+      "required_inputs": ["libraryId", "query"]
+    }
+  },
+  "runtime_policy": {
+    "shell": false,
+    "production_mutation": false,
+    "timeout_seconds": 30,
+    "max_result_bytes": 2097152,
+    "provider_result_trust": "UNVERIFIED",
+    "verification_broker_required": true
+  },
+  "health": {
+    "freshness_seconds": 300,
+    "required_checks": [
+      "server-discover",
+      "tools-list",
+      "allowed-tools-present",
+      "read-only-annotations-present"
+    ]
+  },
+  "promotion": {
+    "DESIGNED->CONTRACT_OK": [
+      "context7-static-contract-pass",
+      "generic-adapter-static-pass"
+    ],
+    "CONTRACT_OK->PILOT": [
+      "live-server-discover-pass",
+      "live-tools-list-pass",
+      "sandbox-resolve-library-id-pass",
+      "sandbox-query-docs-pass",
+      "provider-health-pass"
+    ],
+    "PILOT->ENABLED": [
+      "repeatable-pass",
+      "fresh-provider-health-pass",
+      "rollback-defined"
+    ]
+  },
+  "rollback": {
+    "target_state": "DISABLED",
+    "fallback_provider": "mdn-mcp",
+    "requires_provider_availability": false
+  },
+  "source_notes": {
+    "toolset_generation": "Context7 MCP v2 generation",
+    "breaking_change_guard": "get-library-docs is not allowed; query-docs is the expected documentation tool"
+  }
+}
