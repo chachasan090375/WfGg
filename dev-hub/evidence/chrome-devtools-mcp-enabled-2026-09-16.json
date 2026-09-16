@@ -1,0 +1,54 @@
+{
+  "schema": "chacha.dev/chrome-devtools-mcp-enabled-materialization/v1",
+  "provider": "chrome-devtools-mcp",
+  "adapter": "chrome-devtools-mcp-adapter",
+  "transition": "PILOT->ENABLED",
+  "status_change": {
+    "previous": "PILOT",
+    "new": "ENABLED",
+    "applied": true,
+    "automatic": false
+  },
+  "sources": {
+    "pilot_materialization_pr": 110,
+    "readiness_pr": 111,
+    "readiness_workflow_run_id": 35122620991,
+    "readiness_artifact_id": 10457443097,
+    "readiness_artifact_digest": "sha256:8f43d7a5b32fb8f789a7c19e25931d783be9d7e46ef9126ddce5cd92db495251",
+    "sandbox_pr": 112,
+    "sandbox_workflow_run_id": 35122821172,
+    "sandbox_artifact_id": 10457613324,
+    "sandbox_artifact_digest": "sha256:aa291af4992a73d5ae674079d886047915f68fc745a3c828b04f944b465aa3f1"
+  },
+  "qualification": {
+    "repeatability_runs": 3,
+    "provider_health": "HEALTHY",
+    "rollback_defined": true,
+    "sandbox_promotion_pass": true,
+    "blockers": []
+  },
+  "boundaries": {
+    "supports": ["read"],
+    "local_executable": null,
+    "execution": "external",
+    "caller_operations": ["inspect_current_page", "inspect_url"],
+    "adapter_controlled_navigation": true,
+    "caller_direct_tool_selection": false,
+    "javascript_evaluation": false,
+    "browser_interaction": false,
+    "workspace_write": false,
+    "repository_write": false,
+    "production_capable": false,
+    "provider_result_verification": "UNVERIFIED",
+    "verification_broker_required": true,
+    "dev_hub_protocol_baseline": "2026-07-28",
+    "upstream_protocol": "2025-11-25",
+    "compatibility_mode": "EXPLICIT_PROVIDER_COMPATIBILITY",
+    "generic_legacy_fallback": false
+  },
+  "vps_modified": false,
+  "production_modified": false,
+  "permissions_expanded": false,
+  "automatic_promotion": false,
+  "blockers": []
+}
