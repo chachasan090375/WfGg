@@ -1,0 +1,45 @@
+{
+  "schema": "chacha.dev/external-runtime-binding-qualification-receipt/v1",
+  "observed_at": "2026-09-16T17:39:57Z",
+  "branch": "dev-hub-v5-external-runtime-binding",
+  "workflow": "Dev Hub V5 External Runtime Binding Qualification",
+  "workflow_run_id": 35129519663,
+  "workflow_job_id": 104906742241,
+  "workflow_conclusion": "success",
+  "artifact": {
+    "id": 10460344115,
+    "name": "dev-hub-v5-external-runtime-binding-35129519663",
+    "digest": "sha256:f20ce80b53ea65b9006c441adc6347aeff83df89fe1bba0de2d0cf2ceb5b7524"
+  },
+  "runtime_run_id": "run-20260916T173931Z-05a5bb06",
+  "provider": "chrome-devtools-mcp",
+  "adapter": "chrome-devtools-mcp-adapter",
+  "upstream_package": "chrome-devtools-mcp@1.9.0",
+  "browser": "Google Chrome 152.0.7977.82",
+  "qualification": {
+    "static_contract": "PASS",
+    "project_control_dispatch": "PASS",
+    "real_external_adapter_execution": "PASS",
+    "provider_result_status": "OK",
+    "provider_result_verification": "UNVERIFIED",
+    "missing_runtime_binding": "BLOCKED",
+    "digest_mismatch": "BLOCKED",
+    "expired_binding": "BLOCKED",
+    "authoritative_registry_executable_remained_null": true,
+    "repository_unchanged": true,
+    "registry_mutated": false,
+    "production_touched": false
+  },
+  "security_boundary": {
+    "binding_source": "trusted-runner",
+    "binding_project_scoped": true,
+    "binding_ephemeral": true,
+    "binding_sha256_revalidated_at_dispatch": true,
+    "binding_file_outside_repository": true,
+    "bound_executable_outside_repository": true,
+    "task_can_select_executable": false,
+    "task_can_select_binding_file": false,
+    "automatic_lifecycle_promotion": false
+  },
+  "blockers": []
+}
