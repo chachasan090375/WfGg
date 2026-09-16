@@ -1,0 +1,84 @@
+{
+  "schema": "chacha.dev/playwright-mcp-adapter-contract-evidence/v1",
+  "observed_at": "2026-09-16T11:31:25.818282+00:00",
+  "provider": "playwright-mcp",
+  "adapter": "playwright-mcp-adapter",
+  "adapter_status": "CONTRACT_OK",
+  "execution_surface": "github-actions-ephemeral",
+  "contract": {
+    "input": "chacha.dev/dispatch-envelope/v1",
+    "output": "chacha.dev/task-result/v1",
+    "permission": "read",
+    "operation": "inspect",
+    "caller_selects_mcp_tool": false,
+    "fixed_tool_sequence": [
+      "browser_navigate",
+      "browser_snapshot",
+      "browser_console_messages",
+      "browser_network_requests",
+      "browser_close"
+    ],
+    "upstream_protocol": "2025-11-25",
+    "dev_hub_mcp_baseline": "2026-07-28",
+    "compatibility_mode": "EXPLICIT_PROVIDER_COMPATIBILITY"
+  },
+  "checks": {
+    "generic_adapter_registry_contract": "PASS",
+    "adapter_python_syntax": "PASS",
+    "tool_injection_blocked_before_runtime": "PASS",
+    "write_permission_blocked_before_runtime": "PASS",
+    "bad_binding_blocked_before_runtime": "PASS",
+    "real_dispatch_envelope_to_task_result": "PASS",
+    "task_result_status_ok": "PASS",
+    "producer_identity": "PASS",
+    "verification_remains_unverified": "PASS",
+    "final_origin_revalidated": "PASS",
+    "query_string_removed_from_evidence_source": "PASS",
+    "origin_escalation_blocked": "PASS",
+    "repository_unchanged": "PASS",
+    "production_target_false": "PASS",
+    "workspace_write_false": "PASS"
+  },
+  "runtime_result": {
+    "schema": "chacha.dev/task-result/v1",
+    "project": "playwright-mcp-adapter-contract",
+    "task_id": "inspect-fixture",
+    "status": "OK",
+    "summary": "PLAYWRIGHT_MCP_INSPECTION_OK",
+    "verification_status": "UNVERIFIED",
+    "evidence_source": "http://127.0.0.1:18765/",
+    "snapshot_digest": "sha256:353190672e8f033d9c7622d5ad7b904a1e560669d3af3af337f50797d381a9a6",
+    "console_digest": "sha256:427e63abfafb8477527b5c50863b024b34fc3b11c45855a75c461711e5069f6f",
+    "network_digest": "sha256:ed4109ec2e42b1dc362a621e5ae6f1b1e8a711c9f9206e15bbf66517700b7160",
+    "called_tools": [
+      "browser_navigate",
+      "browser_snapshot",
+      "browser_console_messages",
+      "browser_network_requests",
+      "browser_close"
+    ],
+    "elapsed_ms": 1281.85,
+    "task_result_file_sha256": "sha256:59bef8be500cc4a542a47576b9d0669fa336ef836783cf1a68ca64ccef8cb50d"
+  },
+  "generic_harness": {
+    "static_status": "PASS",
+    "automatic_promotion": false,
+    "eligible_for_contract_ok": true,
+    "eligible_for_runtime_pilot": false,
+    "runtime": [],
+    "note": "Expected for execution=external; runtime qualification is provider-specific.",
+    "report_file_sha256": "sha256:dab99a289d414e8050a8671f2af82c8969a4caf751bda3d9618b4e3467c7b570"
+  },
+  "workflow": {
+    "run_id": 35090712764,
+    "conclusion": "success",
+    "head_sha": "2dce008281d12f407b5e9ca189a357dbb632e82a",
+    "artifact_id": 10443543496,
+    "artifact_digest": "sha256:2da5fd8b9e0ff62a93a5bbd2734f5263d7ab23620ffe0befa3bc87166034deeb"
+  },
+  "promotion": {
+    "automatic": false,
+    "provider_status_changed": false,
+    "next_gate": "official-CONTRACT_OK-to-PILOT-promotion-evaluation"
+  }
+}
