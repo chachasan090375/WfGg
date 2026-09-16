@@ -25,6 +25,7 @@
     "database-migrate": {"class":"data","providers":[{"id":"wrangler-d1","status":"ADOPT","health":"runtime","cost_class":"included","scope":"cloudflare-d1","fallback":[]}]},
     "cloud-deploy-edge": {"class":"delivery","providers":[{"id":"wrangler","status":"ADOPT","health":"runtime","cost_class":"included","scope":"cloudflare","fallback":["github-actions"]}]},
     "cloud-deploy-static": {"class":"delivery","providers":[{"id":"cloudflare-pages","status":"ADOPT","health":"managed","cost_class":"included","scope":"cloudflare","fallback":["github-actions"]}]},
+    "cloud-preview-static": {"class":"delivery","providers":[{"id":"cloudflare-pages","status":"ADOPT","health":"managed","cost_class":"included","scope":"cloudflare-pages-preview-only","fallback":[]}]},
     "ci": {"class":"delivery","providers":[{"id":"github-actions","status":"ADOPT","health":"managed","cost_class":"included","scope":"repository","fallback":[]}]},
     "artifact-store": {"class":"storage","providers":[{"id":"nas","status":"ADOPT","health":"ssh-probe","cost_class":"owned","scope":"private-storage","fallback":["github-artifacts"]},{"id":"github-artifacts","status":"WATCH","health":"managed","cost_class":"quota","scope":"repository","fallback":[]}]},
     "backup-store": {"class":"storage","providers":[{"id":"nas","status":"ADOPT","health":"ssh-probe","cost_class":"owned","scope":"private-storage","fallback":[]}]},
