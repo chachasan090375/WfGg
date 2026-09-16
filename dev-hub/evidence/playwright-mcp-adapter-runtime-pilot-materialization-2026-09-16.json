@@ -1,0 +1,40 @@
+{
+  "schema": "chacha.dev/playwright-mcp-adapter-pilot-materialization/v1",
+  "provider": "playwright-mcp",
+  "adapter": "playwright-mcp-adapter",
+  "transition": "CONTRACT_OK->PILOT",
+  "source_qualification": "dev-hub/evidence/playwright-mcp-adapter-runtime-pilot-qualification-2026-09-16.json",
+  "qualification_head": "6382cf759a8afaa68c05edb580b4b2ef290c24d0",
+  "qualification_evidence_commit": "f0afd291521d6739547eeff49b1463ae2cf0469d",
+  "compatibility_mode": "EXPLICIT_PROVIDER_COMPATIBILITY",
+  "dev_hub_protocol_baseline": "2026-07-28",
+  "upstream_protocol": "2025-11-25",
+  "status_change": {
+    "previous": "CONTRACT_OK",
+    "new": "PILOT",
+    "applied": true,
+    "automatic": false
+  },
+  "boundaries": {
+    "supports": ["read"],
+    "local_executable": null,
+    "execution": "external",
+    "production_capable": false,
+    "provider_result_verification": "UNVERIFIED",
+    "verification_broker_required": true,
+    "generic_legacy_fallback": false,
+    "enabled": false
+  },
+  "runtime_evidence": {
+    "workflow_run_id": 35091837777,
+    "workflow_conclusion": "success",
+    "artifact_id": 10443819103,
+    "artifact_digest": "sha256:c7889bd802e28f490537d4c6828dca81a8160c947c14a4edb0f8e2e152d707dd"
+  },
+  "blockers": [],
+  "notes": [
+    "PILOT applies only through the explicitly qualified provider-specific compatibility adapter.",
+    "The modern direct MCP 2026-07-28 route remains blocked by server/discover support.",
+    "This materialization does not promote Playwright MCP to ENABLED and does not authorize production targets or browser interaction/write tools."
+  ]
+}

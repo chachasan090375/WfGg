@@ -56,7 +56,7 @@
       "category": "verification",
       "priority": 1,
       "decision": "ASSESS",
-      "runtime_status": "CONTRACT_OK",
+      "runtime_status": "PILOT",
       "integration_mode": "local-mcp",
       "target_capabilities": ["browser-automation", "e2e-test-web", "ui-recette"],
       "risk_class": "MEDIUM",
@@ -65,7 +65,7 @@
       "provider_binding": "playwright-mcp",
       "health_probe": "mcp-server-discover-tools-list-and-browser-launch",
       "fallback": ["playwright"],
-      "notes": "Static contract qualified. Runtime remains closed; PILOT requires pinned @playwright/mcp on an ephemeral GitHub Actions runner, isolated Chromium and preview/test origins only."
+      "notes": "PILOT qualified through the explicit provider-specific compatibility adapter on an ephemeral GitHub Actions runner with @playwright/mcp 0.0.81 and isolated Chromium. DEV HUB baseline remains MCP 2026-07-28 while the qualified upstream compatibility handshake is 2025-11-25. PILOT is read-only, local/test-fixture scoped, production incapable, Verification Broker remains required, and interactive/write tools remain denied."
     },
     "chrome-devtools-mcp": {
       "display_name": "Chrome DevTools MCP",
