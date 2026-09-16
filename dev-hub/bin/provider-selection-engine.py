@@ -34,6 +34,7 @@ COST_FIT = {
 }
 HEALTH_FIT = {"HEALTHY": 1.0, "DEGRADED": 0.65, "UNKNOWN": 0.0, "UNAVAILABLE": 0.0}
 STATUS_FIT = {"ADOPT": 1.0, "PILOT": 0.9, "WATCH": 0.7, "ASSESS": 0.6, "DISCOVER": 0.4, "DEPRECATE": 0.2, "RETIRE": 0.0}
+CONFIDENCE_ORDER = {"NONE": 0, "LOW": 1, "MEDIUM": 2, "HIGH": 3}
 
 
 def now_iso() -> str:
@@ -186,6 +187,7 @@ def rank_capability(
         sfit = STATUS_FIT.get(cap_status, 0.3)
         rfit = 1.0 if permission_supported(permission, adapter_supports) else 0.0
         diversity = 1.0 if previous_provider and previous_provider != pid else (0.0 if previous_provider == pid else 0.5)
+        conf = confidence(verified_runs, policy)
 
         dimensions = {
             "task_capability_fit": sfit,
@@ -211,19 +213,19 @@ def rank_capability(
             "health": hstate,
             "cost_class": cost,
             "verified_runs": verified_runs,
-            "confidence": confidence(verified_runs, policy),
+            "confidence": conf,
             "score": round(score, 3),
             "score_dimensions": {k: round(v, 4) for k, v in dimensions.items()},
             "execution_eligible": executable,
             "execution_blockers": sorted(set(reasons)),
+            "evidence_refs": list(metrics.get("evidence_refs") or []),
         })
 
-    ranked.sort(key=lambda x: (x["score"], x["confidence"], x["provider"]), reverse=True)
+    ranked.sort(key=lambda x: (x["score"], CONFIDENCE_ORDER.get(x["confidence"], 0), x["provider"]), reverse=True)
     executable_ranked = [x for x in ranked if x["execution_eligible"]]
-    selected = executable_ranked[0]["provider"] if executable_ranked else None
     selected_entry = executable_ranked[0] if executable_ranked else None
+    selected = selected_entry["provider"] if selected_entry else None
 
-    reasons = []
     if selected_entry:
         reasons = [
             f"SELECTED_HIGHEST_ELIGIBLE_SCORE:{selected_entry['score']}",
@@ -245,7 +247,7 @@ def rank_capability(
         "selected_provider": selected,
         "confidence": selected_entry["confidence"] if selected_entry else (ranked[0]["confidence"] if ranked else "NONE"),
         "selection_reasons": reasons,
-        "evidence_refs": list((metrics.get("evidence_refs") or []) if selected_entry else []),
+        "evidence_refs": list(selected_entry.get("evidence_refs") or []) if selected_entry else [],
         "dispatch_authorized": False,
     }
 
