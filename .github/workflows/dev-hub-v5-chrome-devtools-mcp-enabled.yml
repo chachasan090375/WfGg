@@ -1,0 +1,72 @@
+name: Dev Hub V5 Chrome DevTools MCP ENABLED
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - dev-hub-v5-chrome-devtools-mcp-enabled
+    paths:
+      - 'dev-hub/config/mcp-chrome-devtools-contract.v1.json'
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - 'dev-hub/config/mcp-provider-catalog.v1.json'
+      - 'dev-hub/evidence/chrome-devtools-mcp-enable-readiness-2026-09-16.json'
+      - 'dev-hub/evidence/chrome-devtools-mcp-enabled-2026-09-16.json'
+      - 'dev-hub/bin/mcp-chrome-devtools-enabled-validate.py'
+      - '.github/workflows/dev-hub-v5-chrome-devtools-mcp-enabled.yml'
+  pull_request:
+    paths:
+      - 'dev-hub/config/mcp-chrome-devtools-contract.v1.json'
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - 'dev-hub/config/mcp-provider-catalog.v1.json'
+      - 'dev-hub/evidence/chrome-devtools-mcp-enable-readiness-2026-09-16.json'
+      - 'dev-hub/evidence/chrome-devtools-mcp-enabled-2026-09-16.json'
+      - 'dev-hub/bin/mcp-chrome-devtools-enabled-validate.py'
+      - '.github/workflows/dev-hub-v5-chrome-devtools-mcp-enabled.yml'
+
+permissions:
+  contents: read
+
+env:
+  PYTHONDONTWRITEBYTECODE: '1'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Validate syntax without workspace writes
+        run: |
+          python -m json.tool dev-hub/config/mcp-chrome-devtools-contract.v1.json >/dev/null
+          python -m json.tool dev-hub/config/provider-adapters.v1.json >/dev/null
+          python -m json.tool dev-hub/config/mcp-provider-catalog.v1.json >/dev/null
+          python -m json.tool dev-hub/evidence/chrome-devtools-mcp-enable-readiness-2026-09-16.json >/dev/null
+          python -m json.tool dev-hub/evidence/chrome-devtools-mcp-enabled-2026-09-16.json >/dev/null
+          python - <<'PY'
+          from pathlib import Path
+          compile(Path('dev-hub/bin/mcp-chrome-devtools-enabled-validate.py').read_text(), 'mcp-chrome-devtools-enabled-validate.py', 'exec')
+          print('CHROME_DEVTOOLS_ENABLED_SYNTAX=PASS')
+          PY
+      - name: Validate ENABLED materialization
+        run: python dev-hub/bin/mcp-chrome-devtools-enabled-validate.py
+      - name: Confirm no permission expansion
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          a=json.loads(Path('dev-hub/config/provider-adapters.v1.json').read_text())['adapters']['chrome-devtools-mcp-adapter']
+          c=json.loads(Path('dev-hub/config/mcp-chrome-devtools-contract.v1.json').read_text())
+          assert a=={'status':'ENABLED','executable':None,'supports':['read']}
+          assert c['tool_policy']['caller_direct_tool_selection'] is False
+          assert c['tool_policy']['browser_interaction'] is False
+          assert c['tool_policy']['repository_write'] is False
+          assert c['tool_policy']['production_mutation'] is False
+          assert c['protocol']['provider_result_trust']=='UNVERIFIED'
+          assert c['protocol']['verification_broker_required'] is True
+          print('CHROME_DEVTOOLS_ENABLED_BOUNDARY=PASS')
+          PY
+      - name: Confirm repository remained unchanged
+        run: |
+          test -z "$(git status --porcelain)"
+          echo 'CHROME_DEVTOOLS_ENABLED_REPOSITORY_UNCHANGED=PASS'
