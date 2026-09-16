@@ -1,0 +1,74 @@
+{
+  "schema": "chacha.dev/playwright-mcp-external-preview-qualification/v1",
+  "observed_at": "2026-09-16T18:35:55Z",
+  "status": "PASS",
+  "branch": "dev-hub-v5-playwright-external-preview",
+  "qualification_head": "1fb1de4c7ebfd16c41b6ecd6fe0b920a502a0dc9",
+  "workflow_run": 35135299433,
+  "job": 104926049463,
+  "business_run_id": "run-20260916T183546Z-51026550",
+  "artifact": {
+    "id": 10462773742,
+    "name": "dev-hub-v5-playwright-external-preview-35135299433",
+    "digest": "sha256:dde813f34079658e07f47c38c4bb8f6d96071a006bac732f574470db4aaea6a7"
+  },
+  "provider": "playwright-mcp",
+  "adapter": "playwright-mcp-adapter",
+  "runtime_status": "ENABLED",
+  "package": "@playwright/mcp",
+  "package_version": "0.0.81",
+  "execution": "external",
+  "local_executable": null,
+  "tool_policy": {
+    "unchanged": true,
+    "allowed": [
+      "browser_navigate",
+      "browser_snapshot",
+      "browser_console_messages",
+      "browser_network_requests",
+      "browser_close"
+    ],
+    "browser_interaction_expanded": false,
+    "arbitrary_javascript": false,
+    "file_upload": false,
+    "workspace_write": false,
+    "repository_write": false
+  },
+  "network_boundary": {
+    "target_classes": ["test", "preview"],
+    "external_https_pass": true,
+    "same_origin_redirect_pass": true,
+    "cross_origin_redirect_blocked": true,
+    "origin_mismatch_blocked_before_browser": true,
+    "final_url_observed": true,
+    "final_origin_revalidated_by_adapter": true,
+    "upstream_allowed_origins_is_security_boundary": false,
+    "allowed_origin_source": "trusted-runtime-provisioner-v2-derived-from-manifest",
+    "caller_can_select_allowed_origin": false,
+    "multi_origin_manifest_supported": false,
+    "production_target_allowed": false
+  },
+  "verification_boundary": {
+    "producer_result_status": "UNVERIFIED",
+    "verification_broker_required": true,
+    "broker_compat_evidence_pass": true,
+    "independent_provider_chain_pass": true,
+    "final_project_status": "VERIFIED"
+  },
+  "trusted_runtime_v2": {
+    "manifest_provider_agnostic": true,
+    "full_chain_pass": true,
+    "provider_selection_owned_by_scheduler": true,
+    "runtime_binding_ephemeral": true,
+    "runtime_binding_revalidated_at_dispatch": true,
+    "plan_only_status": "PLANNED",
+    "plan_only_provider_packages_installed": false,
+    "plan_only_runtime_binding_created": false
+  },
+  "repository_unchanged_during_qualification": true,
+  "provider_registry_mutated": false,
+  "provider_lifecycle_changed": false,
+  "production_touched": false,
+  "automatic_merge": false,
+  "blockers": []
+}
