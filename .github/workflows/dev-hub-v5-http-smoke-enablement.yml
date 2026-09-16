@@ -1,0 +1,214 @@
+name: Dev Hub V5 HTTP Smoke Enablement
+
+on:
+  push:
+    branches: [dev-hub-v5.0]
+    paths:
+      - 'dev-hub/adapters/http-smoke-adapter.py'
+      - 'dev-hub/bin/http-smoke-provider-probe.py'
+      - 'dev-hub/bin/adapter-enable-readiness.py'
+      - 'dev-hub/bin/adapter-enablement-evidence.py'
+      - 'dev-hub/bin/adapter-promotion.py'
+      - 'dev-hub/bin/adapter-provision.py'
+      - 'dev-hub/bin/platform-evidence.py'
+      - 'dev-hub/config/adapter-enablement.v1.json'
+      - 'dev-hub/config/adapter-rollbacks.v1.json'
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - 'dev-hub/config/provider-health-probes.v1.json'
+      - 'dev-hub/config/platform-evidence.v1.json'
+      - 'dev-hub/schemas/adapter-enable-readiness-v1.schema.json'
+      - 'dev-hub/schemas/provider-probe-result-v1.schema.json'
+      - '.github/workflows/dev-hub-v5-http-smoke-enablement.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pilot-enablement:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Compile enablement chain
+        run: |
+          python -m py_compile \
+            dev-hub/adapters/http-smoke-adapter.py \
+            dev-hub/bin/http-smoke-provider-probe.py \
+            dev-hub/bin/adapter-enable-readiness.py \
+            dev-hub/bin/adapter-enablement-evidence.py \
+            dev-hub/bin/adapter-promotion.py \
+            dev-hub/bin/adapter-provision.py \
+            dev-hub/bin/platform-evidence.py
+
+      - name: Parse enablement contracts
+        run: |
+          python - <<'PY'
+          import json
+          for path in [
+              'dev-hub/config/adapter-enablement.v1.json',
+              'dev-hub/config/adapter-rollbacks.v1.json',
+              'dev-hub/config/provider-adapters.v1.json',
+              'dev-hub/config/provider-health-probes.v1.json',
+              'dev-hub/config/platform-evidence.v1.json',
+              'dev-hub/schemas/adapter-enable-readiness-v1.schema.json',
+              'dev-hub/schemas/provider-probe-result-v1.schema.json',
+          ]:
+              json.load(open(path, encoding='utf-8'))
+          print('HTTP_SMOKE_ENABLEMENT_CONTRACTS=PASS')
+          PY
+
+      - name: Three repeatable runs plus independent health reach READY_FOR_ENABLEMENT
+        shell: bash
+        run: |
+          set -euo pipefail
+          TMP="$(mktemp -d)"; export TMP
+          SERVER_PID=""
+          cleanup() {
+            if [ -n "$SERVER_PID" ]; then kill "$SERVER_PID" 2>/dev/null || true; fi
+            rm -rf "$TMP"
+          }
+          trap cleanup EXIT
+
+          mkdir -p "$TMP/www"
+          printf 'healthy\n' > "$TMP/www/health"
+          python -m http.server 18080 --bind 127.0.0.1 --directory "$TMP/www" >"$TMP/http.log" 2>&1 &
+          SERVER_PID=$!
+
+          python - <<'PY'
+          import socket,time
+          deadline=time.time()+10
+          while time.time()<deadline:
+              try:
+                  with socket.create_connection(('127.0.0.1',18080),timeout=.5):
+                      print('ENABLEMENT_HTTP_READY=YES')
+                      break
+              except OSError:
+                  time.sleep(.1)
+          else:
+              raise SystemExit('ENABLEMENT_HTTP_READY=NO')
+          PY
+
+          python dev-hub/bin/adapter-provision.py \
+            --root "$TMP/runtime" \
+            apply --adapter http-smoke-adapter \
+            --actor ci-platform \
+            --receipt "$TMP/provisioning.json" \
+            --apply
+
+          ADAPTER="$TMP/runtime/http-smoke/current/http-smoke-adapter"
+          test -x "$ADAPTER"
+          export ADAPTER
+          export CHACHA_HTTP_SMOKE_ALLOWED_HOSTS="127.0.0.1,localhost"
+
+          cp dev-hub/config/provider-adapters.v1.json "$TMP/registry.json"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          p=Path(os.environ['TMP'])/'registry.json'
+          r=json.load(open(p,encoding='utf-8'))
+          e=r['adapters']['http-smoke-adapter']
+          e['status']='PILOT'
+          e['executable']=os.environ['ADAPTER']
+          p.write_text(json.dumps(r,indent=2)+'\n',encoding='utf-8')
+          PY
+
+          for i in 1 2 3; do
+            "$ADAPTER" < dev-hub/examples/http-smoke.dispatch.v1.json > "$TMP/result-$i.json"
+            python - "$TMP/result-$i.json" <<'PY'
+          import json,sys
+          r=json.load(open(sys.argv[1],encoding='utf-8'))
+          assert r['status']=='OK',r
+          assert r['producer']=='http-smoke-adapter',r
+          assert r['verification']['status']=='UNVERIFIED',r
+          assert r['evidence'],r
+          PY
+            sleep 0.05
+          done
+
+          python dev-hub/bin/http-smoke-provider-probe.py \
+            --url 'http://127.0.0.1:18080/health?probe=independent-secret' \
+            --executable "$ADAPTER" \
+            --output "$TMP/probe.json"
+
+          python dev-hub/bin/platform-evidence.py \
+            health \
+            --project adapter-enablement \
+            --result "$TMP/probe.json" \
+            --output "$TMP/health.json"
+
+          python dev-hub/bin/adapter-enable-readiness.py \
+            --registry "$TMP/registry.json" \
+            --adapter http-smoke-adapter \
+            --provider http-smoke \
+            --result "$TMP/result-1.json" \
+            --result "$TMP/result-2.json" \
+            --result "$TMP/result-3.json" \
+            --health "$TMP/health.json" \
+            --work-dir "$TMP/readiness" \
+            --json > "$TMP/readiness-stdout.json"
+
+          python - "$TMP/readiness-stdout.json" "$TMP/readiness/enablement-evidence.json" "$TMP/readiness/enablement-promotion-plan.json" <<'PY'
+          import json,sys
+          r=json.load(open(sys.argv[1],encoding='utf-8'))
+          e=json.load(open(sys.argv[2],encoding='utf-8'))
+          p=json.load(open(sys.argv[3],encoding='utf-8'))
+          assert r['status']=='READY_FOR_ENABLEMENT',r
+          assert r['registry_mutated'] is False,r
+          assert r['promotion_eligible'] is True,r
+          assert len(r['repeatability_results'])==3,r
+          assert all(x['valid'] for x in r['repeatability_results']),r
+          assert all(e['evidence'][k]['status']=='PASS' for k in ('repeatable-pass','provider-health-pass','rollback-defined')),e
+          assert p['transition']=='PILOT->ENABLED' and p['eligible'] is True,p
+          assert p['approval_required'] is False,p
+          print('HTTP_SMOKE_REPEATABILITY=PASS')
+          print('HTTP_SMOKE_INDEPENDENT_PROVIDER_HEALTH=PASS')
+          print('HTTP_SMOKE_ROLLBACK_DEFINED=PASS')
+          print('HTTP_SMOKE_READY_FOR_ENABLEMENT=YES')
+          print('CANONICAL_REGISTRY_MUTATED=NO')
+          PY
+
+          git diff --exit-code -- dev-hub/config/provider-adapters.v1.json
+
+      - name: Duplicate runtime result is rejected
+        shell: bash
+        run: |
+          set -euo pipefail
+          TMP="$(mktemp -d)"; export TMP
+          cp dev-hub/config/provider-adapters.v1.json "$TMP/registry.json"
+          python - <<'PY'
+          import json,os
+          from datetime import datetime,timezone
+          from pathlib import Path
+          root=Path(os.environ['TMP']); now=datetime.now(timezone.utc).isoformat()
+          r={
+            'schema':'chacha.dev/task-result/v1','project':'x','task_id':'t','status':'OK',
+            'producer':'http-smoke-adapter','observed_at':now,
+            'evidence':[{'kind':'report','source':'fixture','digest':'sha256:'+'1'*64}],
+            'verification':{'status':'UNVERIFIED','method':'none','verifier':'none'}
+          }
+          (root/'same.json').write_text(json.dumps(r)+'\n')
+          health={'schema':'chacha.dev/provider-health-snapshot/v1','observed_at':now,'providers':{'http-smoke':{'state':'HEALTHY','source':'fixture','checked_at':now}}}
+          (root/'health.json').write_text(json.dumps(health)+'\n')
+          reg=json.load(open(root/'registry.json')); reg['adapters']['http-smoke-adapter']['status']='PILOT'; reg['adapters']['http-smoke-adapter']['executable']='/bin/true'; (root/'registry.json').write_text(json.dumps(reg)+'\n')
+          PY
+          set +e
+          python dev-hub/bin/adapter-enable-readiness.py \
+            --registry "$TMP/registry.json" \
+            --adapter http-smoke-adapter --provider http-smoke \
+            --result "$TMP/same.json" --result "$TMP/same.json" --result "$TMP/same.json" \
+            --health "$TMP/health.json" --work-dir "$TMP/out" --json > "$TMP/rejected.json"
+          RC=$?
+          set -e
+          test "$RC" -eq 2
+          python - "$TMP/rejected.json" <<'PY'
+          import json,sys
+          r=json.load(open(sys.argv[1])); joined='\n'.join(r['blockers'])
+          assert 'TASK_RESULT_OBSERVED_AT_DUPLICATE' in joined or 'TASK_RESULT_DIGEST_DUPLICATE' in joined,r
+          assert r['status']=='BLOCKED' and r['promotion_eligible'] is False,r
+          print('HTTP_SMOKE_DUPLICATE_REPEATABILITY_GUARD=PASS')
+          PY
