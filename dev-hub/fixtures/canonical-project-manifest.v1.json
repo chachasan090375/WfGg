@@ -1,0 +1,15 @@
+{
+  "schema": "chacha.dev/project-manifest/v1",
+  "project": "dev-hub-v5-canonical-manifest-qualification",
+  "environment": {"class": "test"},
+  "workflows": [
+    {
+      "id": "browser-readiness",
+      "kind": "browser-verification",
+      "target": {
+        "url": "http://127.0.0.1:8765/",
+        "expected_text": "CHACHA_CANONICAL_MANIFEST_OK"
+      }
+    }
+  ]
+}
