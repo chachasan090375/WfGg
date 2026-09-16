@@ -9,6 +9,7 @@
     "task_cannot_select_package_version": true,
     "task_cannot_select_executable": true,
     "task_cannot_select_binding_file": true,
+    "task_cannot_select_allowed_origin": true,
     "runtime_binding_is_ephemeral": true,
     "runtime_binding_is_sha256_pinned": true,
     "provisioning_never_mutates_provider_registry": true,
@@ -34,11 +35,13 @@
       "contract": "dev-hub/config/mcp-playwright-contract.v1.json",
       "adapter": "playwright-mcp-adapter",
       "package_binary": "playwright-mcp",
-      "launcher_source": "dev-hub/bin/playwright-mcp-adapter-runtime.py",
+      "launcher_source": "dev-hub/bin/playwright-mcp-adapter-runtime-v2-entry.py",
       "browser_install": "playwright-chromium-with-deps",
       "runtime_environment": {
         "server": "PLAYWRIGHT_MCP_SERVER",
-        "workdir": "PLAYWRIGHT_MCP_WORKDIR"
+        "workdir": "PLAYWRIGHT_MCP_WORKDIR",
+        "target_class": "PLAYWRIGHT_MCP_TARGET_CLASS",
+        "allowed_origin": "PLAYWRIGHT_MCP_ALLOWED_ORIGIN"
       }
     }
   }
