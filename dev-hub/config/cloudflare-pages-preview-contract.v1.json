@@ -3,8 +3,8 @@
   "provider_id": "cloudflare-pages",
   "adapter_id": "cloudflare-pages-adapter",
   "decision": "ADOPT",
-  "runtime_status": "DESIGNED",
-  "purpose": "Create non-production Cloudflare Pages previews and emit an immutable preview deployment URL for downstream browser verification.",
+  "runtime_status": "CONTRACT_OK",
+  "purpose": "Observe non-production Cloudflare Pages Git-integration previews and emit an immutable preview deployment URL for downstream verification.",
   "authoritative_sources": [
     "https://developers.cloudflare.com/pages/configuration/preview-deployments/",
     "https://developers.cloudflare.com/pages/configuration/git-integration/",
@@ -12,23 +12,25 @@
   ],
   "delivery_model": {
     "preferred_mode": "git-integration",
-    "qualified_modes": [],
+    "qualified_modes": ["git-integration-observation-contract"],
     "designed_modes": ["git-integration", "wrangler-direct"],
     "git_integration": {
       "existing_project_binding_required": true,
       "non_production_branch_only": true,
       "cloudflare_managed_build": true,
+      "observation_surface": "github-check-runs",
+      "github_check_name": "Cloudflare Pages",
+      "github_app_slug": "cloudflare-workers-and-pages",
       "unique_preview_url_required": true,
       "branch_alias_is_authoritative": false,
-      "reason": "Branch aliases move with later commits; downstream verification must bind to the immutable deployment URL."
+      "workers_checks_ignored": true
     },
     "wrangler_direct": {
       "runtime_enabled": false,
       "command_family": "wrangler pages deploy",
       "preview_branch_required": true,
       "credentials_runner_owned": true,
-      "account_and_project_allowlist_required": true,
-      "note": "Fallback only. It requires a later credential/runtime qualification and must not change an existing Pages project's integration mode."
+      "account_and_project_allowlist_required": true
     }
   },
   "intent_contract": {
@@ -38,23 +40,17 @@
     "task_can_choose_account_id": false,
     "task_can_choose_api_token": false,
     "task_can_choose_project_name": false,
-    "project_binding_source": "trusted-project-plane-config",
+    "task_can_choose_repository": false,
+    "project_binding_source": "dev-hub/config/cloudflare-pages-project-bindings.v1.json",
+    "caller_metadata_allowlist": ["source_commit_sha", "source_branch"],
     "source_ref_must_be_non_production": true
   },
   "output_contract": {
     "result_schema": "chacha.dev/task-result/v1",
     "provider_result_trust": "UNVERIFIED",
     "verification_broker_required": true,
-    "required_evidence": [
-      "deployment_id-or-cloudflare-build-identity",
-      "immutable_preview_url",
-      "source_commit_sha",
-      "source_branch",
-      "project_binding_id",
-      "deployment_environment=preview",
-      "observed_at"
-    ],
-    "optional_evidence": ["branch_alias", "cloudflare-build-status", "x-robots-tag-noindex"],
+    "immutable_preview_url_is_release_identity": true,
+    "branch_alias_is_release_identity": false,
     "raw_credentials_forbidden": true,
     "production_url_as_preview_evidence_forbidden": true
   },
@@ -73,40 +69,39 @@
     "r2_mutation": false,
     "deployment_delete": false,
     "cross_account": false,
-    "credential_values_in_task_or_evidence": false
+    "credential_values_in_task_or_evidence": false,
+    "github_token_runner_owned": true,
+    "cloudflare_credentials_required": false
   },
   "downstream_verification": {
     "browser_source_provider": "chrome-devtools-mcp",
     "browser_independent_provider": "playwright-mcp",
     "target_must_equal_immutable_preview_url": true,
-    "branch_alias_may_be_recorded_but_not_verified_as_release_identity": true,
     "production_target_allowed": false
   },
   "design_qualification": {
+    "workflow_run_id": 35152243720,
+    "workflow_conclusion": "success",
+    "head": "70e69b361f099ea806ff2138c9da9638aaf4f7b7",
     "documentation_checked_on": "2026-09-16",
-    "cloudflare_preview_deployments_are_non_production": true,
-    "git_integration_creates_unique_preview_urls": true,
-    "branch_alias_updates_with_branch": true,
-    "wrangler_supports_preview_branch_deploy": true,
-    "existing_provider_registry_entry": true,
-    "existing_adapter_registry_entry": true,
-    "adapter_current_status": "DESIGNED",
-    "runtime_executed": false,
-    "cloudflare_account_touched": false,
-    "pages_project_touched": false,
     "production_touched": false
+  },
+  "contract_qualification": {
+    "transition": "DESIGNED->CONTRACT_OK",
+    "narrow_preview_only_adapter_surface": true,
+    "trusted_project_binding_contract": true,
+    "provider_result_schema_contract": true,
+    "git_integration_observation_path": true,
+    "production_branch_fail_closed": true,
+    "caller_project_override_fail_closed": true,
+    "workers_checks_excluded": true,
+    "runtime_executed": false,
+    "cloudflare_credentials_used": false,
+    "automatic_promotion": false
   },
   "admission": {
     "automatic_promotion": false,
-    "next_transition": "DESIGNED->CONTRACT_OK",
-    "contract_ok_requires": [
-      "narrow-preview-only-adapter-surface",
-      "trusted-project-binding-contract",
-      "provider-result-schema-contract",
-      "git-integration-observation-path",
-      "fail-closed-production-branch-test",
-      "fail-closed-caller-project-override-test"
-    ],
+    "next_transition": "CONTRACT_OK->PILOT",
     "runtime_pilot_requires": [
       "real-pages-preview-observed",
       "immutable-preview-url-captured",
