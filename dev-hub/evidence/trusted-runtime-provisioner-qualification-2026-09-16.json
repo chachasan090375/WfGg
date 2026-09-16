@@ -1,0 +1,70 @@
+{
+  "schema": "chacha.dev/trusted-runtime-provisioner-qualification/v1",
+  "observed_at": "2026-09-16T18:20:56Z",
+  "status": "PASS",
+  "branch": "dev-hub-v5-trusted-runtime-provisioner",
+  "qualification_head": "8c448ffb966b8593ac7f6d7ad51eddb692312d06",
+  "workflow_run": 35133740937,
+  "job": 104920805636,
+  "business_run_id": "run-20260916T182038Z-d501f6a4",
+  "artifact": {
+    "id": 10463020838,
+    "name": "dev-hub-v5-trusted-runtime-provisioner-35133740937",
+    "digest": "sha256:6fd7ac864e7e937dbd511d0cc97ecce9096c94829ab0f5b9c6e679aefbd2da65"
+  },
+  "manifest": "dev-hub/fixtures/trusted-runtime-provisioner-manifest.v1.json",
+  "provider_agnostic_manifest": true,
+  "single_command_after_platform_test_setup": true,
+  "manual_provider_provisioning_before_command": false,
+  "manual_runtime_binding_before_command": false,
+  "provider_selection_owned_by_scheduler": true,
+  "provisioned": {
+    "chrome-devtools-mcp": {
+      "package": "chrome-devtools-mcp",
+      "version": "1.9.0",
+      "version_source": "dev-hub/config/mcp-chrome-devtools-contract.v1.json",
+      "adapter": "chrome-devtools-mcp-adapter",
+      "runtime_status": "ENABLED",
+      "provider_result_trust": "UNVERIFIED"
+    },
+    "playwright-mcp": {
+      "package": "@playwright/mcp",
+      "version": "0.0.81",
+      "version_source": "dev-hub/config/mcp-playwright-contract.v1.json",
+      "adapter": "playwright-mcp-adapter",
+      "runtime_status": "ENABLED",
+      "provider_result_trust": "UNVERIFIED"
+    }
+  },
+  "binding": {
+    "schema": "chacha.dev/runtime-bindings/v1",
+    "source": "trusted-runner",
+    "project_scoped": true,
+    "ephemeral": true,
+    "sha256_pinned": true,
+    "outside_repository": true,
+    "revalidated_at_dispatch": true,
+    "task_selectable": false,
+    "registry_executable_fields_remained_null": true
+  },
+  "execution": {
+    "explicit_execute_required": true,
+    "initial_bootstrap": "PLANNED",
+    "final_status": "VERIFIED",
+    "runtime_availability_verified": true,
+    "verification_broker_required": true,
+    "audit_integrity": "PASS"
+  },
+  "plan_only_boundary": {
+    "status": "PLANNED",
+    "provider_packages_installed": false,
+    "runtime_binding_created": false,
+    "implicit_execution": false
+  },
+  "repository_unchanged_during_qualification": true,
+  "provider_registry_mutated": false,
+  "production_touched": false,
+  "provider_lifecycle_changed": false,
+  "automatic_merge": false,
+  "blockers": []
+}
