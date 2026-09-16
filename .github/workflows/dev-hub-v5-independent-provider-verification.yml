@@ -1,0 +1,198 @@
+name: Dev Hub V5 Independent Provider Verification Qualification
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - dev-hub-v5-independent-provider-verification
+    paths:
+      - 'dev-hub/bin/provider-aware-verification-broker.py'
+      - 'dev-hub/bin/independent-provider-verification-qualification.py'
+      - 'dev-hub/config/project-control.v1.json'
+      - '.github/workflows/dev-hub-v5-independent-provider-verification.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  independent-provider-verification:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate contracts
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          for path in [
+              'dev-hub/bin/provider-aware-verification-broker.py',
+              'dev-hub/bin/independent-provider-verification-qualification.py',
+              'dev-hub/bin/verification-broker.py',
+              'dev-hub/bin/external-runtime-dispatch.py',
+              'dev-hub/adapters/chrome-devtools-mcp-adapter.py',
+              'dev-hub/bin/playwright-mcp-adapter-runtime.py',
+          ]:
+              compile(Path(path).read_text(encoding='utf-8'), path, 'exec')
+          pc=json.loads(Path('dev-hub/config/project-control.v1.json').read_text())
+          assert pc['engine_paths']['verification_broker']=='dev-hub/bin/provider-aware-verification-broker.py'
+          reg=json.loads(Path('dev-hub/config/provider-adapters.v1.json').read_text())
+          for aid in ['chrome-devtools-mcp-adapter','playwright-mcp-adapter']:
+              assert reg['adapters'][aid]['status']=='ENABLED'
+              assert reg['adapters'][aid]['executable'] is None
+              assert reg['adapters'][aid]['supports']==['read']
+          print('INDEPENDENT_PROVIDER_STATIC_CONTRACT=PASS')
+          PY
+          git status --porcelain > /tmp/git-before.txt
+
+      - name: Provision Chrome DevTools MCP
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/chacha-chrome-devtools-runtime
+          mkdir -p /tmp/chacha-chrome-devtools-runtime
+          cd /tmp/chacha-chrome-devtools-runtime
+          npm init -y >/dev/null 2>&1
+          npm install --no-save chrome-devtools-mcp@1.9.0 >/dev/null
+          test -x node_modules/.bin/chrome-devtools-mcp
+          echo "CHACHA_CHROME_DEVTOOLS_MCP_SERVER=$(realpath node_modules/.bin/chrome-devtools-mcp)" >> "$GITHUB_ENV"
+          echo "CHACHA_CHROME_DEVTOOLS_MCP_WORKDIR=/tmp/chacha-chrome-devtools-runtime" >> "$GITHUB_ENV"
+          echo "CHACHA_CHROME_DEVTOOLS_MCP_PACKAGE_VERSION=1.9.0" >> "$GITHUB_ENV"
+          if command -v google-chrome >/dev/null 2>&1; then
+            browser_version="$(google-chrome --version)"
+          else
+            browser_version="$(google-chrome-stable --version)"
+          fi
+          echo "CHACHA_CHROME_DEVTOOLS_BROWSER_VERSION=$browser_version" >> "$GITHUB_ENV"
+          echo "CHACHA_CHROME_DEVTOOLS_TARGET_CLASS=test" >> "$GITHUB_ENV"
+          echo "CHACHA_CHROME_DEVTOOLS_ALLOWED_ORIGIN=http://127.0.0.1:8765" >> "$GITHUB_ENV"
+
+      - name: Provision Playwright MCP
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/chacha-playwright-mcp-runtime
+          mkdir -p /tmp/chacha-playwright-mcp-runtime
+          cd /tmp/chacha-playwright-mcp-runtime
+          npm init -y >/dev/null 2>&1
+          npm install --no-save @playwright/mcp@0.0.81 >/dev/null
+          test "$(node -p "require('./node_modules/@playwright/mcp/package.json').version")" = "0.0.81"
+          npx playwright install --with-deps chromium >/dev/null
+          echo "PLAYWRIGHT_MCP_SERVER=/tmp/chacha-playwright-mcp-runtime/node_modules/.bin/playwright-mcp" >> "$GITHUB_ENV"
+          echo "PLAYWRIGHT_MCP_WORKDIR=/tmp/chacha-playwright-mcp-runtime" >> "$GITHUB_ENV"
+
+      - name: Start isolated target
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/chacha-independent-provider-web
+          mkdir -p /tmp/chacha-independent-provider-web
+          cat > /tmp/chacha-independent-provider-web/index.html <<'HTML'
+          <!doctype html><html><head><title>ChaCha Independent Verification</title></head>
+          <body><main>CHACHA_INDEPENDENT_PROVIDER_OK</main></body></html>
+          HTML
+          nohup python3 -m http.server 8765 --bind 127.0.0.1 --directory /tmp/chacha-independent-provider-web >/tmp/chacha-independent-provider-http.log 2>&1 &
+          echo $! > /tmp/chacha-independent-provider-http.pid
+          for _ in $(seq 1 20); do
+            curl --fail --silent http://127.0.0.1:8765/ | grep -q CHACHA_INDEPENDENT_PROVIDER_OK && exit 0
+            sleep 0.5
+          done
+          exit 1
+
+      - name: Create runner-owned bindings for both providers
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/chacha-independent-provider-bindings
+          mkdir -p /tmp/chacha-independent-provider-bindings
+          chrome=/tmp/chacha-independent-provider-bindings/chrome-launcher
+          playwright=/tmp/chacha-independent-provider-bindings/playwright-launcher
+          cat > "$chrome" <<EOF
+          #!/usr/bin/env bash
+          exec python3 "$GITHUB_WORKSPACE/dev-hub/adapters/chrome-devtools-mcp-adapter.py"
+          EOF
+          cat > "$playwright" <<EOF
+          #!/usr/bin/env bash
+          exec python3 "$GITHUB_WORKSPACE/dev-hub/bin/playwright-mcp-adapter-runtime.py"
+          EOF
+          chmod 700 "$chrome" "$playwright"
+          export CHROME_LAUNCHER="$chrome"
+          export PLAYWRIGHT_LAUNCHER="$playwright"
+          export CHROME_DIGEST="sha256:$(sha256sum "$chrome" | awk '{print $1}')"
+          export PLAYWRIGHT_DIGEST="sha256:$(sha256sum "$playwright" | awk '{print $1}')"
+          python3 - <<'PY'
+          import json, os
+          from datetime import datetime, timedelta, timezone
+          from pathlib import Path
+          now=datetime.now(timezone.utc)
+          data={
+            'schema':'chacha.dev/runtime-bindings/v1',
+            'project':'dev-hub-v5-independent-provider-verification',
+            'source':'trusted-runner',
+            'issued_at':now.isoformat(),
+            'expires_at':(now+timedelta(minutes=20)).isoformat(),
+            'bindings':{
+              'chrome-devtools-mcp-adapter':{
+                'adapter':'chrome-devtools-mcp-adapter','execution':'external',
+                'executable':os.environ['CHROME_LAUNCHER'],'digest':os.environ['CHROME_DIGEST']},
+              'playwright-mcp-adapter':{
+                'adapter':'playwright-mcp-adapter','execution':'external',
+                'executable':os.environ['PLAYWRIGHT_LAUNCHER'],'digest':os.environ['PLAYWRIGHT_DIGEST']}
+            }
+          }
+          Path('/tmp/chacha-independent-provider-bindings/runtime-bindings.json').write_text(json.dumps(data,indent=2)+'\n')
+          PY
+          echo "CHACHA_DEV_RUNTIME_BINDINGS=/tmp/chacha-independent-provider-bindings/runtime-bindings.json" >> "$GITHUB_ENV"
+
+      - name: Execute Chrome to Playwright to Broker qualification
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/chacha-dev-hub-v5-independent-provider-verification
+          python3 dev-hub/bin/independent-provider-verification-qualification.py \
+            --repo-root "$GITHUB_WORKSPACE" \
+            --work-dir /tmp/chacha-dev-hub-v5-independent-provider-verification \
+            --target-url http://127.0.0.1:8765/ \
+            --output /tmp/chacha-dev-hub-v5-independent-provider-verification/qualification.json
+
+      - name: Validate qualification evidence
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          x=json.loads(Path('/tmp/chacha-dev-hub-v5-independent-provider-verification/qualification.json').read_text())
+          assert x['schema']=='chacha.dev/independent-provider-verification-qualification/v1'
+          assert x['status']=='PASS'
+          assert x['source_provider']=='chrome-devtools-mcp'
+          assert x['independent_provider']=='playwright-mcp'
+          assert x['source_entered_unverified'] is True
+          assert x['independent_result_remained_unverified'] is True
+          assert x['missing_independent_result_blocked'] is True
+          assert x['same_producer_rejected'] is True
+          assert x['broker_final_status']=='VERIFIED'
+          assert x['ledger_status']=='OK'
+          assert x['audit_integrity']=='PASS'
+          assert x['blockers']==[]
+          print('INDEPENDENT_PROVIDER_VERIFICATION_EVIDENCE=PASS')
+          print('RUN_ID='+x['run_id'])
+          PY
+
+      - name: Confirm repository unchanged
+        run: |
+          git status --porcelain > /tmp/git-after.txt
+          diff -u /tmp/git-before.txt /tmp/git-after.txt
+          test ! -s /tmp/git-after.txt
+          echo 'INDEPENDENT_PROVIDER_REPOSITORY_UNCHANGED=PASS'
+
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dev-hub-v5-independent-provider-verification-${{ github.run_id }}
+          path: /tmp/chacha-dev-hub-v5-independent-provider-verification
+          retention-days: 30
+          if-no-files-found: error
