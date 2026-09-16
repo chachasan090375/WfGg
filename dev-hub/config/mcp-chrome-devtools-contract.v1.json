@@ -4,7 +4,7 @@
   "adapter_id": "chrome-devtools-mcp-adapter",
   "decision": "ASSESS",
   "runtime_status": "CONTRACT_OK",
-  "purpose": "Isolated Chrome diagnostics for preview/test targets: page structure, console, network and screenshots without repository, workspace or production mutation.",
+  "purpose": "Isolated Chrome diagnostics for preview/test targets: controlled navigation, page structure, console and network inspection without repository, workspace or production mutation.",
   "upstream": {
     "package": "chrome-devtools-mcp",
     "design_reference_version": "1.9.0",
@@ -14,7 +14,8 @@
     "supported_browser": "Google Chrome or Chrome for Testing",
     "technology_radar_tracks_releases": true,
     "official_repository": "https://github.com/ChromeDevTools/chrome-devtools-mcp",
-    "official_configuration": "https://github.com/ChromeDevTools/chrome-devtools-mcp/blob/chrome-devtools-mcp-v1.9.0/docs/configuration.md"
+    "official_configuration": "https://github.com/ChromeDevTools/chrome-devtools-mcp/blob/chrome-devtools-mcp-v1.9.0/docs/configuration.md",
+    "official_tool_reference": "https://github.com/ChromeDevTools/chrome-devtools-mcp/blob/chrome-devtools-mcp-v1.9.0/docs/tool-reference.md"
   },
   "execution": {
     "pilot_surface": "github-actions-ephemeral",
@@ -58,7 +59,7 @@
       "eligible_for_compat_pilot": true,
       "blockers": []
     },
-    "runtime_protocol_probe_required_before_pilot": true
+    "runtime_protocol_probe_required_before_pilot": false
   },
   "runtime_hardening": {
     "required_flags": [
@@ -67,7 +68,8 @@
       "--no-javascript-evaluation",
       "--no-performance-crux",
       "--no-usage-statistics",
-      "--redact-network-headers"
+      "--redact-network-headers",
+      "--no-source-maps"
     ],
     "required_environment": {
       "CI": "true",
@@ -97,6 +99,7 @@
       "list_network_requests",
       "get_network_request"
     ],
+    "explicit_deny_scope": "caller_direct_control",
     "explicit_deny": [
       "evaluate_script",
       "click",
@@ -119,6 +122,13 @@
       "performance_stop_trace",
       "performance_analyze_insight"
     ],
+    "adapter_internal_allow": [
+      "navigate_page"
+    ],
+    "adapter_internal_navigation_operation": "inspect_url",
+    "caller_direct_tool_selection": false,
+    "caller_direct_page_id_selection": false,
+    "caller_direct_allowlist_selection": false,
     "filename_argument_for_read_tools": "DENY",
     "javascript_evaluation": false,
     "file_upload": false,
@@ -130,8 +140,13 @@
   },
   "network_policy": {
     "test_or_preview_origins_only": true,
+    "allowed_origin_source": "adapter-environment-only",
     "allowed_url_patterns_required_at_runtime": true,
+    "allowed_url_pattern_minimum_chrome_major": 149,
+    "adapter_validates_target_origin_before_runtime": true,
+    "adapter_bootstrap_url_must_match_allowed_origin": true,
     "redirect_target_must_be_revalidated_by_adapter": true,
+    "cross_origin_redirect_must_block": true,
     "network_headers_redacted": true,
     "authorization_header_in_evidence": "REDACT",
     "cookie_header_in_evidence": "REDACT",
@@ -192,11 +207,43 @@
     "tool_injection_blocked": true,
     "write_permission_blocked": true,
     "bad_binding_blocked": true,
-    "navigation_performed": false,
-    "browser_interaction": false,
     "repository_unchanged": true,
     "provider_result_verification": "UNVERIFIED",
-    "eligible_for_pilot_qualification": true,
+    "automatic_promotion": false,
+    "blockers": []
+  },
+  "controlled_navigation_qualification": {
+    "qualified": true,
+    "workflow_run_id": 35120006463,
+    "head_sha": "bdc3228317848e51e82e44ea12a3a9d5de31ade9",
+    "artifact_id": 10456458970,
+    "artifact_digest": "sha256:df91d62c1f237ec485d4311be786f1e5c6da85f42188af1764286833f5e6f56f",
+    "evidence_path": "dev-hub/evidence/chrome-devtools-mcp-controlled-navigation-qualification-2026-09-16.json",
+    "evidence_digest": "sha256:7f6aca77cf098b9e94e5df9bb10094b293e6ed0151bf01b039dfdc770f20c84c",
+    "package_version": "1.9.0",
+    "browser_version": "Google Chrome 152.0.7977.82",
+    "qualified_operation": "inspect_url",
+    "called_tools": [
+      "list_pages",
+      "navigate_page",
+      "list_pages",
+      "take_snapshot",
+      "list_console_messages",
+      "list_network_requests"
+    ],
+    "caller_tool_selection": false,
+    "caller_page_id_selection": false,
+    "caller_allowlist_selection": false,
+    "adapter_controlled_navigation": true,
+    "bootstrap_url_supplied_by_adapter": true,
+    "upstream_allowed_url_pattern": true,
+    "same_origin_redirect_pass": true,
+    "cross_origin_redirect_blocked": true,
+    "final_origin_revalidated": true,
+    "javascript_scheme_blocked_before_runtime": true,
+    "origin_mismatch_blocked_before_runtime": true,
+    "repository_unchanged": true,
+    "provider_result_verification": "UNVERIFIED",
     "automatic_promotion": false,
     "blockers": []
   },
@@ -205,10 +252,8 @@
     "runtime_call_allowed_at_design_stage": false,
     "browser_download_allowed_at_design_stage": false,
     "next_transition": "CONTRACT_OK->PILOT",
-    "pilot_promotion_ready": false,
-    "remaining_pilot_blockers": [
-      "CONTROLLED_NAVIGATION_CONTRACT_NOT_YET_QUALIFIED"
-    ],
+    "pilot_promotion_ready": true,
+    "remaining_pilot_blockers": [],
     "contract_ok_requires": [
       "static-contract-pass",
       "dedicated-adapter-binding",
@@ -227,6 +272,16 @@
       "console-read-pass",
       "network-read-pass",
       "no-workspace-write-pass"
-    ]
+    ],
+    "pilot_requirements_status": {
+      "provider-specific-protocol-compatibility-pass": true,
+      "pinned-package-version": true,
+      "isolated-browser-launch-pass": true,
+      "controlled-navigation-origin-policy-qualified": true,
+      "snapshot-pass": true,
+      "console-read-pass": true,
+      "network-read-pass": true,
+      "no-workspace-write-pass": true
+    }
   }
 }
