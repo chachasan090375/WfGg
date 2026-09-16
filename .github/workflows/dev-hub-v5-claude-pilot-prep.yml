@@ -13,6 +13,7 @@ on:
       - 'dev-hub/fixtures/claude-pilot-readonly-fixture.txt'
       - 'dev-hub/bin/claude-managed-agents-pilot-preflight.py'
       - 'dev-hub/bin/claude-managed-agents-pilot-probe.py'
+      - 'dev-hub/bin/claude-managed-agents-provision.py'
       - 'dev-hub/docs/CLAUDE_PILOT_PREP_V1.md'
       - '.github/workflows/dev-hub-v5-claude-pilot-prep.yml'
   pull_request:
@@ -24,6 +25,7 @@ on:
       - 'dev-hub/fixtures/claude-pilot-readonly-fixture.txt'
       - 'dev-hub/bin/claude-managed-agents-pilot-preflight.py'
       - 'dev-hub/bin/claude-managed-agents-pilot-probe.py'
+      - 'dev-hub/bin/claude-managed-agents-provision.py'
       - 'dev-hub/docs/CLAUDE_PILOT_PREP_V1.md'
       - '.github/workflows/dev-hub-v5-claude-pilot-prep.yml'
 
@@ -47,6 +49,24 @@ jobs:
           python -m json.tool dev-hub/config/capability-registry.v1.json >/dev/null
           python -m py_compile dev-hub/bin/claude-managed-agents-pilot-preflight.py
           python -m py_compile dev-hub/bin/claude-managed-agents-pilot-probe.py
+          python -m py_compile dev-hub/bin/claude-managed-agents-provision.py
+
+      - name: Validate provisioning is plan-only by default
+        run: |
+          python dev-hub/bin/claude-managed-agents-provision.py --output /tmp/claude-provision-plan.json >/dev/null
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          value = json.loads(Path('/tmp/claude-provision-plan.json').read_text())
+          assert value['schema'] == 'chacha.dev/claude-managed-agents-provisioning/v1'
+          assert value['mode'] == 'PLAN_ONLY'
+          assert value['status'] == 'PLAN_ONLY'
+          assert value['created'] is False
+          assert value['agent_id'] is None
+          assert value['environment_id'] is None
+          assert value['credential_value_observed'] is False
+          print('CLAUDE_PROVISIONING_PLAN_ONLY=PASS remote_creation=false')
+          PY
 
       - name: Run no-secret PILOT preflight
         env:
