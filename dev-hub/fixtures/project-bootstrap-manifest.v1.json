@@ -1,0 +1,17 @@
+{
+  "schema": "chacha.dev/project-manifest/v1",
+  "project": "dev-hub-v5-project-bootstrap-qualification",
+  "environment": {
+    "class": "test"
+  },
+  "workflows": [
+    {
+      "id": "bootstrap-browser-verification",
+      "kind": "browser-verification",
+      "target": {
+        "url": "http://127.0.0.1:8765/",
+        "expected_text": "CHACHA_PROJECT_BOOTSTRAP_OK"
+      }
+    }
+  ]
+}
