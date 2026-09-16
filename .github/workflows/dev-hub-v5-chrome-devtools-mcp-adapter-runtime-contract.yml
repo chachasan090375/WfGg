@@ -40,6 +40,7 @@ jobs:
       - name: Validate adapter and fixtures
         run: |
           python -m py_compile dev-hub/adapters/chrome-devtools-mcp-adapter.py
+          find dev-hub/adapters -type d -name '__pycache__' -prune -exec rm -rf {} +
           for f in dev-hub/fixtures/chrome-devtools-mcp-adapter-*.json; do python -m json.tool "$f" >/dev/null; done
 
       - name: Confirm caller-controlled tool injection is blocked before runtime
