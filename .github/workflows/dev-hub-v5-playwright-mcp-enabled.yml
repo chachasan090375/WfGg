@@ -1,0 +1,87 @@
+name: Dev Hub V5 Playwright MCP ENABLED
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - dev-hub-v5-playwright-mcp-enabled
+    paths:
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - 'dev-hub/config/mcp-provider-catalog.v1.json'
+      - 'dev-hub/config/mcp-playwright-contract.v1.json'
+      - 'dev-hub/config/adapter-rollbacks.v1.json'
+      - 'dev-hub/evidence/playwright-mcp-compat-enable-readiness-2026-09-16.json'
+      - 'dev-hub/evidence/playwright-mcp-compat-enable-sandbox-2026-09-16.json'
+      - 'dev-hub/evidence/playwright-mcp-enabled-promotion-35093990825-receipt.json'
+      - 'dev-hub/evidence/playwright-mcp-enabled-promotion-35093990825-report.json'
+      - 'dev-hub/evidence/playwright-mcp-enabled-promotion-35093990825-provenance.json'
+      - 'dev-hub/bin/mcp-playwright-enabled-validate.py'
+      - '.github/workflows/dev-hub-v5-playwright-mcp-enabled.yml'
+  pull_request:
+    paths:
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - 'dev-hub/config/mcp-provider-catalog.v1.json'
+      - 'dev-hub/config/mcp-playwright-contract.v1.json'
+      - 'dev-hub/config/adapter-rollbacks.v1.json'
+      - 'dev-hub/evidence/playwright-mcp-compat-enable-readiness-2026-09-16.json'
+      - 'dev-hub/evidence/playwright-mcp-compat-enable-sandbox-2026-09-16.json'
+      - 'dev-hub/evidence/playwright-mcp-enabled-promotion-35093990825-receipt.json'
+      - 'dev-hub/evidence/playwright-mcp-enabled-promotion-35093990825-report.json'
+      - 'dev-hub/evidence/playwright-mcp-enabled-promotion-35093990825-provenance.json'
+      - 'dev-hub/bin/mcp-playwright-enabled-validate.py'
+      - '.github/workflows/dev-hub-v5-playwright-mcp-enabled.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate JSON and Python syntax
+        run: |
+          python -m json.tool dev-hub/config/provider-adapters.v1.json >/dev/null
+          python -m json.tool dev-hub/config/mcp-provider-catalog.v1.json >/dev/null
+          python -m json.tool dev-hub/config/mcp-playwright-contract.v1.json >/dev/null
+          python -m json.tool dev-hub/config/adapter-rollbacks.v1.json >/dev/null
+          python -m json.tool dev-hub/evidence/playwright-mcp-compat-enable-readiness-2026-09-16.json >/dev/null
+          python -m json.tool dev-hub/evidence/playwright-mcp-compat-enable-sandbox-2026-09-16.json >/dev/null
+          python -m json.tool dev-hub/evidence/playwright-mcp-enabled-promotion-35093990825-receipt.json >/dev/null
+          python -m json.tool dev-hub/evidence/playwright-mcp-enabled-promotion-35093990825-report.json >/dev/null
+          python -m json.tool dev-hub/evidence/playwright-mcp-enabled-promotion-35093990825-provenance.json >/dev/null
+          python -m py_compile dev-hub/bin/mcp-playwright-enabled-validate.py
+
+      - name: Validate Playwright MCP ENABLED state
+        run: python dev-hub/bin/mcp-playwright-enabled-validate.py
+
+      - name: Confirm ENABLED remains read-only non-production and independently unverified
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          registry=json.loads(Path('dev-hub/config/provider-adapters.v1.json').read_text())
+          catalog=json.loads(Path('dev-hub/config/mcp-provider-catalog.v1.json').read_text())
+          contract=json.loads(Path('dev-hub/config/mcp-playwright-contract.v1.json').read_text())
+          receipt=json.loads(Path('dev-hub/evidence/playwright-mcp-enabled-promotion-35093990825-receipt.json').read_text())
+          adapter=registry['adapters']['playwright-mcp-adapter']
+          provider=catalog['providers']['playwright-mcp']
+          assert adapter['status']=='ENABLED'
+          assert adapter['supports']==['read']
+          assert adapter['executable'] is None
+          assert provider['runtime_status']=='ENABLED'
+          assert contract['runtime_status']=='ENABLED'
+          assert contract['tool_policy']['workspace_write'] is False
+          assert contract['tool_policy']['repository_write'] is False
+          assert contract['tool_policy']['production_mutation'] is False
+          assert contract['protocol']['provider_result_trust']=='UNVERIFIED'
+          assert contract['protocol']['verification_broker_required'] is True
+          assert contract['protocol']['generic_legacy_fallback'] is False
+          assert receipt['production_capable'] is False
+          assert receipt['approval_required'] is False
+          assert receipt['blockers']==[]
+          print('PLAYWRIGHT_ENABLED_BOUNDARY=PASS read_only=true production=false verification=UNVERIFIED compatibility=provider-specific')
+          PY
