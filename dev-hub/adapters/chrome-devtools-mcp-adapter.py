@@ -1,23 +1,24 @@
 #!/usr/bin/env python3
 """ChaCha DEV HUB Chrome DevTools MCP Adapter V2.
 
-Provider-specific, read-only diagnostics adapter. The caller never chooses MCP
-methods or tool names. Two high-level operations are supported:
+Read-only, provider-specific adapter. The caller selects only a high-level
+operation and, for inspect_url, an HTTP(S) target URL. The caller never selects
+MCP tools, page IDs, browser endpoints, scripts, MCP arguments or URL allowlists.
 
-- inspect_current_page: inspect the isolated browser's selected page without
-  navigation.
-- inspect_url: navigate the selected isolated page to one approved test/preview
-  URL, then inspect it.
+inspect_current_page:
+  list_pages -> snapshot -> console -> network
 
-For inspect_url, navigation is performed internally by the adapter with
-navigate_page. The caller cannot supply pageId, MCP arguments, initScript,
-methods, tool names, browser endpoints, or allowlists. The adapter enforces an
-exact approved origin from environment and also configures Chrome DevTools MCP
-with --allowed-url-pattern as defence in depth. Redirects are re-observed and
-revalidated after navigation.
+inspect_url:
+  the adapter validates the exact test/preview origin, launches the isolated
+  browser on that already-approved URL as its bootstrap page, then performs the
+  internal fixed sequence:
+  list_pages -> navigate_page(same approved URL) -> list_pages -> snapshot ->
+  console -> network.
 
-Upstream compatibility is explicitly pinned to MCP 2025-11-25; DEV HUB global
-baseline remains 2026-07-28.
+The upstream --allowed-url-pattern guard is enabled for inspect_url as defence
+in depth. Final redirect origin is independently re-observed and revalidated.
+MCP compatibility is provider-specific 2025-11-25; DEV HUB baseline remains
+2026-07-28.
 """
 from __future__ import annotations
 
@@ -40,12 +41,7 @@ OUTPUT_SCHEMA = "chacha.dev/task-result/v1"
 ADAPTER_ID = "chrome-devtools-mcp-adapter"
 PROVIDER_ID = "chrome-devtools-mcp"
 UPSTREAM_PROTOCOL = "2025-11-25"
-READ_TOOLS = (
-    "list_pages",
-    "take_snapshot",
-    "list_console_messages",
-    "list_network_requests",
-)
+READ_TOOLS = ("list_pages", "take_snapshot", "list_console_messages", "list_network_requests")
 INTERNAL_TOOLS = set(READ_TOOLS) | {"navigate_page"}
 ALLOWED_METADATA_KEYS = {"operation", "url", "expected_text"}
 DENIED_INPUT_KEYS = {
@@ -59,8 +55,8 @@ DEFAULT_TIMEOUT = 30
 MAX_TIMEOUT = 60
 MAX_PROVIDER_TEXT = 1_000_000
 MIN_ALLOWED_URL_PATTERN_CHROME_MAJOR = 149
-PAGE_LINE_RE = re.compile(r"(?m)^(\d+):\s+.*?(?:\s+\[selected\])?\s*$")
-SELECTED_PAGE_LINE_RE = re.compile(r"(?m)^(\d+):\s+.*\[selected\]\s*$")
+SELECTED_PAGE_RE = re.compile(r"(?m)^(\d+):\s+.*\[selected\]\s*$")
+ANY_PAGE_RE = re.compile(r"(?m)^(\d+):\s+.+$")
 
 
 def now_iso() -> str:
@@ -77,50 +73,49 @@ def env_required(name: str) -> str | None:
 
 
 def safe_url(url: str) -> str:
-    parsed = urlsplit(url)
-    return urlunsplit((parsed.scheme, parsed.netloc, parsed.path or "/", "", ""))
+    p = urlsplit(url)
+    return urlunsplit((p.scheme, p.netloc, p.path or "/", "", ""))
 
 
 def origin(url: str) -> str | None:
     try:
-        parsed = urlsplit(url)
-        if parsed.scheme not in {"http", "https"} or not parsed.hostname:
+        p = urlsplit(url)
+        if p.scheme not in {"http", "https"} or not p.hostname:
             return None
-        if parsed.username is not None or parsed.password is not None:
+        if p.username is not None or p.password is not None:
             return None
-        host = parsed.hostname.lower().rstrip(".")
-        default_port = 80 if parsed.scheme == "http" else 443
-        port = parsed.port or default_port
+        host = p.hostname.lower().rstrip(".")
+        default_port = 80 if p.scheme == "http" else 443
+        port = p.port or default_port
         suffix = "" if port == default_port else f":{port}"
-        return f"{parsed.scheme}://{host}{suffix}"
+        return f"{p.scheme}://{host}{suffix}"
     except ValueError:
         return None
 
 
 def browser_major(version: str) -> int | None:
-    match = re.search(r"(?:Chrome|Chromium)\s+(\d+)", version)
-    if not match:
-        return None
-    return int(match.group(1))
+    m = re.search(r"(?:Chrome|Chromium)\s+(\d+)", version)
+    return int(m.group(1)) if m else None
 
 
 def selected_page_id(text: str) -> int | None:
-    match = SELECTED_PAGE_LINE_RE.search(text)
-    if match:
-        return int(match.group(1))
-    match = PAGE_LINE_RE.search(text)
-    return int(match.group(1)) if match else None
+    m = SELECTED_PAGE_RE.search(text) or ANY_PAGE_RE.search(text)
+    return int(m.group(1)) if m else None
 
 
 def selected_page_url(text: str, page_id: int) -> str | None:
-    # list_pages format in upstream 1.9.0 is e.g.
-    # "1: My page (https://example.test/) [selected]".
-    for line in text.splitlines():
-        if not line.startswith(f"{page_id}:"):
+    for raw in text.splitlines():
+        if not raw.startswith(f"{page_id}:"):
             continue
-        matches = re.findall(r"\((https?://[^)]+)\)", line)
-        if matches:
-            return matches[-1]
+        line = raw.split(":", 1)[1].strip()
+        line = re.sub(r"\s*\[selected\]\s*$", "", line).strip()
+        # v1.9.0: "1: https://host/path [selected]"
+        if line.startswith(("http://", "https://")):
+            return line
+        # newer formatter: "1: Title (https://host/path) [selected]"
+        urls = re.findall(r"\((https?://[^)]+)\)", line)
+        if urls:
+            return urls[-1]
     return None
 
 
@@ -139,9 +134,7 @@ def task_result(request: dict[str, Any], status: str, summary: str,
         "summary": summary,
         "evidence": evidence or [],
         "verification": {
-            "status": "UNVERIFIED",
-            "method": "none",
-            "verifier": "none",
+            "status": "UNVERIFIED", "method": "none", "verifier": "none",
             "observed_at": observed,
             "notes": "Provider output is unverified; Verification Broker must verify independently.",
         },
@@ -156,10 +149,8 @@ def emit(payload: dict[str, Any], code: int = 0) -> int:
 
 def block(request: dict[str, Any], reason: str, code: int = 0) -> int:
     return emit(task_result(request, "BLOCKED", reason, [{
-        "kind": "report",
-        "source": "chrome-devtools-mcp-adapter-policy",
-        "digest": sha256_text(reason),
-        "details": {"reason": reason},
+        "kind": "report", "source": "chrome-devtools-mcp-adapter-policy",
+        "digest": sha256_text(reason), "details": {"reason": reason},
     }]), code)
 
 
@@ -175,74 +166,60 @@ def validate_request(request: dict[str, Any]) -> tuple[dict[str, Any] | None, st
         return None, "CHROME_DEVTOOLS_MCP_REQUIRES_READ_PERMISSION"
     bindings = request.get("bindings")
     if not isinstance(bindings, list) or not any(
-        isinstance(item, dict)
-        and item.get("provider") == PROVIDER_ID
-        and item.get("adapter") == ADAPTER_ID
-        for item in bindings
+        isinstance(x, dict) and x.get("provider") == PROVIDER_ID and x.get("adapter") == ADAPTER_ID
+        for x in bindings
     ):
         return None, "CHROME_DEVTOOLS_MCP_BINDING_MISSING"
     metadata = request.get("metadata")
-    inspect = metadata.get("chrome_devtools_mcp") if isinstance(metadata, dict) else None
-    if not isinstance(inspect, dict):
+    cfg = metadata.get("chrome_devtools_mcp") if isinstance(metadata, dict) else None
+    if not isinstance(cfg, dict):
         return None, "CHROME_DEVTOOLS_MCP_METADATA_MISSING"
-    unknown = sorted(set(inspect) - ALLOWED_METADATA_KEYS)
+    unknown = sorted(set(cfg) - ALLOWED_METADATA_KEYS)
     if unknown:
         return None, "CHROME_DEVTOOLS_MCP_METADATA_KEY_FORBIDDEN:" + ",".join(unknown)
-    if set(inspect) & DENIED_INPUT_KEYS:
+    if set(cfg) & DENIED_INPUT_KEYS:
         return None, "CHROME_DEVTOOLS_MCP_DIRECT_TOOL_CONTROL_FORBIDDEN"
-    operation = inspect.get("operation")
-    if operation not in {"inspect_current_page", "inspect_url"}:
+    op = cfg.get("operation")
+    if op not in {"inspect_current_page", "inspect_url"}:
         return None, "CHROME_DEVTOOLS_MCP_OPERATION_NOT_ALLOWED"
-    if operation == "inspect_current_page" and ("url" in inspect or "expected_text" in inspect):
+    if op == "inspect_current_page" and ("url" in cfg or "expected_text" in cfg):
         return None, "CHROME_DEVTOOLS_MCP_CURRENT_PAGE_ARGUMENT_FORBIDDEN"
-    if operation == "inspect_url":
-        url = inspect.get("url")
+    if op == "inspect_url":
+        url = cfg.get("url")
         if not isinstance(url, str) or not url:
             return None, "CHROME_DEVTOOLS_MCP_URL_MISSING"
         if origin(url) is None:
             return None, "CHROME_DEVTOOLS_MCP_URL_NOT_HTTP_OR_HTTPS"
-        expected = inspect.get("expected_text")
+        expected = cfg.get("expected_text")
         if expected is not None and (not isinstance(expected, str) or not expected or len(expected) > 500):
             return None, "CHROME_DEVTOOLS_MCP_EXPECTED_TEXT_INVALID"
-    return inspect, None
+    return cfg, None
 
 
 class MCPClient:
     def __init__(self, executable: str, workdir: str, timeout: int,
-                 allowed_origin: str | None = None):
+                 allowed_origin: str | None = None, bootstrap_url: str | None = None):
         argv = [
             executable,
-            "--headless=true",
-            "--isolated=true",
-            "--no-javascript-evaluation",
-            "--no-performance-crux",
-            "--no-usage-statistics",
-            "--redact-network-headers",
+            "--headless=true", "--isolated=true",
+            "--no-javascript-evaluation", "--no-performance-crux",
+            "--no-usage-statistics", "--redact-network-headers",
             "--no-source-maps",
         ]
         if allowed_origin:
-            # Upstream URLPattern guard is defence in depth. The adapter also
-            # validates the requested and observed final origins itself.
-            argv.extend([
-                "--allowed-url-pattern=about:blank",
-                f"--allowed-url-pattern={allowed_origin}/*",
-            ])
+            argv.append(f"--allowed-url-pattern={allowed_origin}/*")
+        if bootstrap_url:
+            # subprocess argv, never shell: validated HTTP(S) URL only.
+            argv.append(f"--chrome-arg={bootstrap_url}")
         env = dict(os.environ)
         env["CI"] = "true"
         env["CHROME_DEVTOOLS_MCP_NO_USAGE_STATISTICS"] = "1"
         env["CHROME_DEVTOOLS_MCP_NO_UPDATE_CHECKS"] = "1"
         self.timeout = timeout
         self.proc = subprocess.Popen(
-            argv,
-            cwd=workdir,
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
-            encoding="utf-8",
-            bufsize=1,
-            shell=False,
-            env=env,
+            argv, cwd=workdir, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE, text=True, encoding="utf-8", bufsize=1,
+            shell=False, env=env,
         )
         assert self.proc.stdin and self.proc.stdout and self.proc.stderr
         self.selector = selectors.DefaultSelector()
@@ -291,8 +268,7 @@ class MCPClient:
             try:
                 self.proc.wait(timeout=5)
             except subprocess.TimeoutExpired:
-                self.proc.kill()
-                self.proc.wait(timeout=5)
+                self.proc.kill(); self.proc.wait(timeout=5)
 
 
 def result_text(msg: dict[str, Any]) -> str:
@@ -311,10 +287,7 @@ def tool_call(client: MCPClient, counter: int, name: str,
               arguments: dict[str, Any] | None = None) -> tuple[dict[str, Any], str]:
     if name not in INTERNAL_TOOLS:
         raise RuntimeError(f"INTERNAL_TOOL_NOT_ALLOWLISTED:{name}")
-    msg = client.request(str(counter), "tools/call", {
-        "name": name,
-        "arguments": arguments or {},
-    })
+    msg = client.request(str(counter), "tools/call", {"name": name, "arguments": arguments or {}})
     return msg, result_text(msg)
 
 
@@ -322,23 +295,21 @@ def main() -> int:
     try:
         request = json.load(sys.stdin)
     except Exception as exc:
-        minimal = {"project": "unknown", "task": {"id": "unknown"}}
-        return emit(task_result(minimal, "BLOCKED", f"INPUT_JSON_INVALID:{type(exc).__name__}"), 2)
+        return emit(task_result({"project":"unknown","task":{"id":"unknown"}}, "BLOCKED", f"INPUT_JSON_INVALID:{type(exc).__name__}"), 2)
     if not isinstance(request, dict):
-        minimal = {"project": "unknown", "task": {"id": "unknown"}}
-        return emit(task_result(minimal, "BLOCKED", "INPUT_ROOT_NOT_OBJECT"), 2)
+        return emit(task_result({"project":"unknown","task":{"id":"unknown"}}, "BLOCKED", "INPUT_ROOT_NOT_OBJECT"), 2)
 
-    inspect, error = validate_request(request)
+    cfg, error = validate_request(request)
     if error:
         return block(request, error)
-    assert inspect is not None
+    assert cfg is not None
 
     server = env_required("CHACHA_CHROME_DEVTOOLS_MCP_SERVER")
     workdir = env_required("CHACHA_CHROME_DEVTOOLS_MCP_WORKDIR")
     package_version = env_required("CHACHA_CHROME_DEVTOOLS_MCP_PACKAGE_VERSION") or "unknown"
     browser_version = env_required("CHACHA_CHROME_DEVTOOLS_BROWSER_VERSION") or "unknown"
     target_class = env_required("CHACHA_CHROME_DEVTOOLS_TARGET_CLASS")
-    allowed_origin_raw = env_required("CHACHA_CHROME_DEVTOOLS_ALLOWED_ORIGIN")
+    allowed_raw = env_required("CHACHA_CHROME_DEVTOOLS_ALLOWED_ORIGIN")
     if not server or not workdir:
         return block(request, "CHROME_DEVTOOLS_MCP_RUNTIME_BINDING_MISSING")
     if target_class not in {"test", "preview"}:
@@ -348,14 +319,14 @@ def main() -> int:
     if not Path(workdir).is_absolute() or not Path(workdir).is_dir():
         return block(request, "CHROME_DEVTOOLS_MCP_WORKDIR_INVALID")
 
-    operation = str(inspect["operation"])
+    op = str(cfg["operation"])
     target: str | None = None
     allowed: str | None = None
-    if operation == "inspect_url":
-        if not allowed_origin_raw:
+    if op == "inspect_url":
+        if not allowed_raw:
             return block(request, "CHROME_DEVTOOLS_MCP_ALLOWED_ORIGIN_MISSING")
-        allowed = origin(allowed_origin_raw)
-        target = str(inspect["url"])
+        allowed = origin(allowed_raw)
+        target = str(cfg["url"])
         target_origin = origin(target)
         if not allowed or not target_origin:
             return block(request, "CHROME_DEVTOOLS_MCP_ORIGIN_INVALID")
@@ -375,11 +346,10 @@ def main() -> int:
     called: list[str] = []
     started = time.monotonic()
     try:
-        client = MCPClient(server, workdir, timeout, allowed)
+        client = MCPClient(server, workdir, timeout, allowed, target if op == "inspect_url" else None)
         init = client.request("init", "initialize", {
-            "protocolVersion": UPSTREAM_PROTOCOL,
-            "capabilities": {},
-            "clientInfo": {"name": "chacha-dev-chrome-devtools-adapter", "version": "2.0.0"},
+            "protocolVersion": UPSTREAM_PROTOCOL, "capabilities": {},
+            "clientInfo": {"name": "chacha-dev-chrome-devtools-adapter", "version": "2.1.0"},
         })
         init_result = init.get("result") or {}
         if "error" in init or init_result.get("protocolVersion") != UPSTREAM_PROTOCOL:
@@ -391,7 +361,7 @@ def main() -> int:
             return block(request, "CHROME_DEVTOOLS_MCP_TOOLS_LIST_FAILED")
         items = ((tools.get("result") or {}).get("tools") or [])
         names = {str(x.get("name")) for x in items if isinstance(x, dict) and x.get("name")}
-        required = list(READ_TOOLS) + (["navigate_page"] if operation == "inspect_url" else [])
+        required = list(READ_TOOLS) + (["navigate_page"] if op == "inspect_url" else [])
         missing = [name for name in required if name not in names]
         if missing:
             return block(request, "CHROME_DEVTOOLS_MCP_SAFE_TOOL_MISSING:" + ",".join(missing))
@@ -405,23 +375,20 @@ def main() -> int:
         if page_id is None:
             return block(request, "CHROME_DEVTOOLS_MCP_SELECTED_PAGE_ID_UNOBSERVED")
 
-        if operation == "inspect_url":
+        if op == "inspect_url":
             assert target is not None and allowed is not None
-            nav, _nav_text = tool_call(client, counter, "navigate_page", {
-                "pageId": page_id,
-                "type": "url",
-                "url": target,
+            nav, _ = tool_call(client, counter, "navigate_page", {
+                "pageId": page_id, "type": "url", "url": target,
                 "timeout": timeout * 1000,
             }); counter += 1
             called.append("navigate_page")
             if "error" in nav:
                 return block(request, "CHROME_DEVTOOLS_MCP_CONTROLLED_NAVIGATION_FAILED")
-
-            pages_after, pages_after_text = tool_call(client, counter, "list_pages"); counter += 1
+            pages2, pages2_text = tool_call(client, counter, "list_pages"); counter += 1
             called.append("list_pages")
-            if "error" in pages_after:
+            if "error" in pages2:
                 return block(request, "CHROME_DEVTOOLS_MCP_POST_NAV_LIST_PAGES_FAILED")
-            final_url = selected_page_url(pages_after_text, page_id)
+            final_url = selected_page_url(pages2_text, page_id)
             if not final_url:
                 return block(request, "CHROME_DEVTOOLS_MCP_FINAL_URL_UNOBSERVED")
             if origin(final_url) != allowed:
@@ -430,73 +397,53 @@ def main() -> int:
             final_url = selected_page_url(pages_text, page_id)
 
         digests: dict[str, str] = {}
-        snapshot, snapshot_text = tool_call(client, counter, "take_snapshot", {"pageId": page_id}); counter += 1
+        snap, snap_text = tool_call(client, counter, "take_snapshot", {"pageId": page_id}); counter += 1
         called.append("take_snapshot")
-        if "error" in snapshot:
+        if "error" in snap:
             return block(request, "CHROME_DEVTOOLS_MCP_READ_TOOL_FAILED:take_snapshot")
-        digests["take_snapshot"] = sha256_text(snapshot_text)
+        digests["take_snapshot"] = sha256_text(snap_text)
+        expected = cfg.get("expected_text")
+        if expected is not None and expected not in snap_text:
+            return emit(task_result(request, "FAILED", "CHROME_DEVTOOLS_MCP_EXPECTED_TEXT_NOT_FOUND"))
 
-        expected = inspect.get("expected_text")
-        if expected is not None and expected not in snapshot_text:
-            return emit(task_result(request, "FAILED", "CHROME_DEVTOOLS_MCP_EXPECTED_TEXT_NOT_FOUND", [{
-                "kind": "url" if final_url else "report",
-                "source": safe_url(final_url) if final_url else "chrome-devtools-mcp-adapter-runtime",
-                "digest": sha256_text(snapshot_text),
-                "details": {
-                    "operation": operation,
-                    "target_class": target_class,
-                    "expected_text_digest": sha256_text(str(expected)),
-                    "snapshot_digest": sha256_text(snapshot_text),
-                    "called_tools": list(called),
-                },
-            }]))
-
-        console, console_text = tool_call(client, counter, "list_console_messages", {"pageId": page_id}); counter += 1
+        con, con_text = tool_call(client, counter, "list_console_messages", {"pageId": page_id}); counter += 1
         called.append("list_console_messages")
-        if "error" in console:
+        if "error" in con:
             return block(request, "CHROME_DEVTOOLS_MCP_READ_TOOL_FAILED:list_console_messages")
-        digests["list_console_messages"] = sha256_text(console_text)
-
-        network, network_text = tool_call(client, counter, "list_network_requests", {"pageId": page_id}); counter += 1
+        digests["list_console_messages"] = sha256_text(con_text)
+        net, net_text = tool_call(client, counter, "list_network_requests", {"pageId": page_id}); counter += 1
         called.append("list_network_requests")
-        if "error" in network:
+        if "error" in net:
             return block(request, "CHROME_DEVTOOLS_MCP_READ_TOOL_FAILED:list_network_requests")
-        digests["list_network_requests"] = sha256_text(network_text)
+        digests["list_network_requests"] = sha256_text(net_text)
 
-        elapsed_ms = round((time.monotonic() - started) * 1000, 2)
         source = safe_url(final_url) if final_url and origin(final_url) else "chrome-devtools-mcp-adapter-runtime"
+        elapsed_ms = round((time.monotonic() - started) * 1000, 2)
         evidence = [{
             "kind": "url" if source.startswith("http") else "report",
             "source": source,
             "digest": sha256_text(json.dumps(digests, sort_keys=True)),
             "details": {
-                "operation": operation,
-                "target_class": target_class,
+                "operation": op, "target_class": target_class,
                 "upstream_protocol": UPSTREAM_PROTOCOL,
-                "package_version": package_version,
-                "browser_version": browser_version,
-                "called_tools": list(called),
-                "tool_result_digests": digests,
+                "package_version": package_version, "browser_version": browser_version,
+                "called_tools": list(called), "tool_result_digests": digests,
                 "elapsed_ms": elapsed_ms,
-                "credentials_used": False,
-                "production_target": False,
-                "navigation_performed": operation == "inspect_url",
+                "credentials_used": False, "production_target": False,
+                "navigation_performed": op == "inspect_url",
                 "navigation_caller_controlled_tool": False,
+                "bootstrap_url_supplied_by_adapter": op == "inspect_url",
                 "allowed_origin": allowed,
-                "final_origin_revalidated": operation != "inspect_url" or origin(final_url or "") == allowed,
-                "browser_interaction": False,
-                "javascript_evaluation": False,
-                "workspace_write": False,
-                "repository_write": False,
+                "upstream_allowed_url_pattern": op == "inspect_url",
+                "final_origin_revalidated": op != "inspect_url" or origin(final_url or "") == allowed,
+                "browser_interaction": False, "javascript_evaluation": False,
+                "workspace_write": False, "repository_write": False,
             },
         }]
-        outputs = [{
-            "type": "artifact",
-            "id": "chrome-devtools-mcp-controlled-diagnostics",
-            "status": "OK",
-            "reason": "Read-only diagnostics completed with adapter-controlled navigation policy.",
-        }]
-        return emit(task_result(request, "OK", "CHROME_DEVTOOLS_MCP_INSPECTION_OK", evidence, outputs))
+        return emit(task_result(request, "OK", "CHROME_DEVTOOLS_MCP_INSPECTION_OK", evidence, [{
+            "type":"artifact", "id":"chrome-devtools-mcp-controlled-diagnostics",
+            "status":"OK", "reason":"Read-only diagnostics completed under adapter-controlled navigation policy."
+        }]))
     except (OSError, RuntimeError, TimeoutError) as exc:
         return block(request, f"CHROME_DEVTOOLS_MCP_RUNTIME_FAILED:{type(exc).__name__}")
     finally:
