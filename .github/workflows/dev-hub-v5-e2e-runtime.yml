@@ -1,0 +1,115 @@
+name: Dev Hub V5 End-to-End Runtime Qualification
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - dev-hub-v5-e2e-runtime
+    paths:
+      - 'dev-hub/bin/dev-hub-e2e-runtime.py'
+      - 'dev-hub/bin/manifest-v3-engine.py'
+      - 'dev-hub/bin/project-control.py'
+      - 'dev-hub/bin/control-plane-store.py'
+      - 'dev-hub/bin/execution-scheduler.py'
+      - 'dev-hub/bin/run-controller.py'
+      - 'dev-hub/bin/verification-broker.py'
+      - 'dev-hub/bin/evidence-collector.py'
+      - 'dev-hub/config/**'
+      - '.github/workflows/dev-hub-v5-e2e-runtime.yml'
+  pull_request:
+    paths:
+      - 'dev-hub/bin/dev-hub-e2e-runtime.py'
+      - 'dev-hub/bin/manifest-v3-engine.py'
+      - 'dev-hub/bin/project-control.py'
+      - 'dev-hub/bin/control-plane-store.py'
+      - 'dev-hub/bin/execution-scheduler.py'
+      - 'dev-hub/bin/run-controller.py'
+      - 'dev-hub/bin/verification-broker.py'
+      - 'dev-hub/bin/evidence-collector.py'
+      - 'dev-hub/config/**'
+      - '.github/workflows/dev-hub-v5-e2e-runtime.yml'
+
+permissions:
+  contents: read
+
+env:
+  PYTHONDONTWRITEBYTECODE: '1'
+
+jobs:
+  e2e-control-plane:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate harness syntax without workspace writes
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          for path in [
+              'dev-hub/bin/dev-hub-e2e-runtime.py',
+              'dev-hub/bin/manifest-v3-engine.py',
+              'dev-hub/bin/project-control.py',
+              'dev-hub/bin/control-plane-store.py',
+              'dev-hub/bin/execution-scheduler.py',
+              'dev-hub/bin/run-controller.py',
+              'dev-hub/bin/verification-broker.py',
+              'dev-hub/bin/evidence-collector.py',
+          ]:
+              compile(Path(path).read_text(), path, 'exec')
+          print('DEV_HUB_E2E_SYNTAX=PASS')
+          PY
+
+      - name: Execute isolated DEV HUB end-to-end qualification
+        run: |
+          rm -rf /tmp/chacha-dev-hub-v5-e2e
+          python dev-hub/bin/dev-hub-e2e-runtime.py \
+            --repo-root "$GITHUB_WORKSPACE" \
+            --work-dir /tmp/chacha-dev-hub-v5-e2e \
+            --output /tmp/chacha-dev-hub-v5-e2e/e2e-qualification.json
+
+      - name: Validate E2E qualification contract
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('/tmp/chacha-dev-hub-v5-e2e/e2e-qualification.json')
+          x=json.loads(p.read_text())
+          assert x['schema']=='chacha.dev/dev-hub-e2e-qualification/v1'
+          assert x['status']=='E2E_QUALIFIED'
+          assert x['production_mutation'] is False
+          assert x['vps_mutation'] is False
+          assert x['manifest']['valid'] is True
+          assert x['manifest']['execution_ready'] is True
+          assert x['provider_selection']['provider']=='http-smoke'
+          assert x['provider_selection']['health']=='HEALTHY'
+          assert x['provider_selection']['fixture_adapter_override'] is True
+          assert x['execution']['producer_result_status']=='OK'
+          assert x['execution']['producer_result_verification']=='UNVERIFIED'
+          assert x['verification']['verifier']=='verification-broker'
+          assert x['verification']['status']=='VERIFIED'
+          assert x['evidence_ledger']['status']=='OK'
+          assert x['evidence_ledger']['producer']=='http-smoke-adapter'
+          assert x['evidence_ledger']['verifier']=='verification-broker'
+          assert x['audit']['chain_integrity']=='PASS'
+          assert x['negative_paths']=={'unknown_capability':'BLOCKED','tampered_evidence':'REJECTED'}
+          assert x['blockers']==[]
+          assert all(v=='PASS' for v in x['gates'].values())
+          print('DEV_HUB_E2E_CONTRACT=PASS')
+          print('DEV_HUB_E2E_RUN_ID='+x['execution']['run_id'])
+          PY
+
+      - name: Confirm repository remained unchanged
+        run: |
+          test -z "$(git status --porcelain)"
+          echo 'DEV_HUB_E2E_REPOSITORY_UNCHANGED=PASS'
+
+      - name: Upload E2E evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dev-hub-v5-e2e-runtime-${{ github.run_id }}
+          path: /tmp/chacha-dev-hub-v5-e2e
+          if-no-files-found: error
+          retention-days: 30
