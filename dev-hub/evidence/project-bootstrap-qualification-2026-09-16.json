@@ -1,0 +1,53 @@
+{
+  "schema": "chacha.dev/project-bootstrap-qualification/v1",
+  "observed_at": "2026-09-16T18:09:23Z",
+  "status": "PASS",
+  "branch": "dev-hub-v5-project-bootstrap",
+  "qualification_head": "cb04b280781d01bb1b8644174beb8db6cfe39609",
+  "workflow_run": 35132544913,
+  "job": 104916804570,
+  "business_run_id": "run-20260916T180912Z-3bfa0997",
+  "artifact": {
+    "id": 10461898530,
+    "name": "dev-hub-v5-project-bootstrap-35132544913",
+    "digest": "sha256:b12f175752c56124217946f0701600e4e4d8d9c24fdd013f6572449536745942"
+  },
+  "manifest": "dev-hub/fixtures/project-bootstrap-manifest.v1.json",
+  "provider_agnostic_manifest": true,
+  "project_specific_runtime_precreated": false,
+  "bootstrap_created": {
+    "control_plane_state": true,
+    "evidence_ledger": true,
+    "provider_health_snapshot": true,
+    "plans_directory": true,
+    "runs_directory": true,
+    "transactions_directory": true
+  },
+  "canonical_provider_eligibility": {
+    "chrome-devtools-mcp": "HEALTHY",
+    "playwright-mcp": "HEALTHY",
+    "source": "canonical-adapter-eligibility",
+    "runtime_availability_claimed_by_health_snapshot": false
+  },
+  "execution": {
+    "explicit_execute_required": true,
+    "runtime_binding_verified_at_dispatch": true,
+    "provider_selection_owned_by_scheduler": true,
+    "final_status": "VERIFIED",
+    "verification_broker_required": true,
+    "audit_integrity": "PASS"
+  },
+  "idempotence": {
+    "second_bootstrap_status": "PLANNED",
+    "state_reinitialized": false,
+    "ledger_reinitialized": false,
+    "state_digest_preserved": true,
+    "ledger_digest_preserved": true,
+    "implicit_execution": false
+  },
+  "repository_unchanged_during_qualification": true,
+  "production_touched": false,
+  "provider_lifecycle_changed": false,
+  "automatic_merge": false,
+  "blockers": []
+}
