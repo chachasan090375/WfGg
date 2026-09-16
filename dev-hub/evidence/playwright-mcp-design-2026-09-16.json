@@ -1,0 +1,24 @@
+{
+  "schema": "chacha.dev/mcp-design-evidence/v1",
+  "provider": "playwright-mcp",
+  "adapter": "playwright-mcp-adapter",
+  "stage": "DESIGNED",
+  "runtime_executed": false,
+  "browser_downloaded": false,
+  "vps_modified": false,
+  "production_modified": false,
+  "checks": {
+    "dedicated-adapter-binding": "PASS",
+    "default-deny-tool-policy": "PASS",
+    "unsafe-code-tool-denied": "PASS",
+    "workspace-write-denied": "PASS",
+    "repository-write-denied": "PASS",
+    "production-mutation-denied": "PASS",
+    "ephemeral-pilot-surface-defined": "PASS",
+    "isolated-browser-required": "PASS",
+    "network-policy-defined": "PASS",
+    "verification-separation": "PASS"
+  },
+  "next_transition": "DESIGNED->CONTRACT_OK",
+  "automatic_promotion": false
+}
