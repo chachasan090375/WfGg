@@ -1,0 +1,34 @@
+{
+  "schema": "chacha.dev/independent-provider-verification-qualification-receipt/v1",
+  "observed_at": "2026-09-16T17:52:54Z",
+  "status": "PASS",
+  "branch": "dev-hub-v5-independent-provider-verification",
+  "workflow_run_id": 35130838104,
+  "workflow_job_id": 104911150587,
+  "artifact_id": 10461707233,
+  "artifact_digest": "sha256:f12997c0a33db9209f1205ef6efca390a17757809e582c26f9754ee6ecb828f9",
+  "run_id": "run-20260916T175244Z-4604f5d8",
+  "source": {
+    "provider": "chrome-devtools-mcp",
+    "adapter": "chrome-devtools-mcp-adapter",
+    "entry_status": "UNVERIFIED"
+  },
+  "independent_observation": {
+    "provider": "playwright-mcp",
+    "adapter": "playwright-mcp-adapter",
+    "result_status": "UNVERIFIED"
+  },
+  "broker": {
+    "adapter": "provider-aware-verification-broker",
+    "final_status": "VERIFIED",
+    "method": "independent-agent",
+    "missing_independent_result_blocked": true,
+    "same_producer_rejected": true
+  },
+  "evidence_ledger_status": "OK",
+  "audit_integrity": "PASS",
+  "repository_unchanged": true,
+  "production_touched": false,
+  "automatic_lifecycle_promotion": false,
+  "blockers": []
+}
