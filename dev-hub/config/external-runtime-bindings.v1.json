@@ -1,0 +1,31 @@
+{
+  "schema": "chacha.dev/external-runtime-binding-policy/v1",
+  "principles": {
+    "canonical_adapter_registry_executable_remains_null": true,
+    "runtime_binding_is_ephemeral": true,
+    "runtime_binding_is_runner_supplied_not_task_supplied": true,
+    "runtime_executable_must_match_versioned_adapter_source_digest": true,
+    "external_provider_must_be_enabled": true,
+    "external_provider_must_remain_unverified": true,
+    "production_binding_requires_separate_contract": true,
+    "shell_interpolation_forbidden": true
+  },
+  "runtime_binding_schema": "chacha.dev/external-runtime-bindings/v1",
+  "allowed_scope": "ephemeral-runner",
+  "adapters": {
+    "playwright-mcp-adapter": {
+      "source_path": "dev-hub/bin/playwright-mcp-adapter-runtime.py",
+      "providers": ["playwright-mcp"],
+      "execution": "external",
+      "supports": ["read"],
+      "production_capable": false
+    },
+    "chrome-devtools-mcp-adapter": {
+      "source_path": "dev-hub/adapters/chrome-devtools-mcp-adapter.py",
+      "providers": ["chrome-devtools-mcp"],
+      "execution": "external",
+      "supports": ["read"],
+      "production_capable": false
+    }
+  }
+}
