@@ -78,7 +78,14 @@
       "default_risk": "low"
     },
     "technology-radar-agent": {
-      "capabilities": ["technology-radar", "web-research", "comparative-evaluation"],
+      "capabilities": [
+        "technology-radar",
+        "web-research",
+        "comparative-evaluation",
+        "mcp-ecosystem-watch",
+        "connector-watch",
+        "protocol-watch"
+      ],
       "default_risk": "low"
     }
   },
@@ -144,7 +151,18 @@
       "review_roles": []
     },
     {
-      "match": ["alternative", "new-tool", "technology", "radar", "upgrade-stack"],
+      "match": [
+        "alternative",
+        "new-tool",
+        "technology",
+        "radar",
+        "upgrade-stack",
+        "mcp",
+        "connector",
+        "provider-catalog",
+        "protocol-version",
+        "deprecation"
+      ],
       "primary_role": "technology-radar-agent",
       "review_roles": ["security-reviewer", "platform-cloud-engineer"]
     }
