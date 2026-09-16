@@ -1,0 +1,30 @@
+{
+  "schema": "chacha.dev/project-manifest-contract/v1",
+  "manifest_schema": "chacha.dev/project-manifest/v1",
+  "principles": {
+    "manifest_declares_intent_not_provider": true,
+    "provider_selection_is_scheduler_owned": true,
+    "execution_requires_explicit_flag": true,
+    "provider_results_remain_unverified_until_broker": true,
+    "independent_provider_must_be_distinct": true,
+    "production_targets_are_out_of_scope": true
+  },
+  "environment_classes": ["test", "preview"],
+  "workflow_kinds": {
+    "browser-verification": {
+      "permission": "read",
+      "source_capability": "browser-diagnostics",
+      "independent_capability": "browser-independent-verification",
+      "source_verification_mode": "independent-agent",
+      "independent_verification_mode": "machine",
+      "evidence_ingest": true
+    }
+  },
+  "target_policy": {
+    "allowed_schemes": ["http", "https"],
+    "inline_credentials": false,
+    "file_urls": false,
+    "data_urls": false,
+    "javascript_urls": false
+  }
+}
