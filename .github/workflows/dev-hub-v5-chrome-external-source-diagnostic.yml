@@ -1,0 +1,60 @@
+name: Dev Hub V5 Chrome External Source Diagnostic
+
+on:
+  push:
+    branches:
+      - dev-hub-v5-playwright-external-preview
+
+permissions:
+  contents: read
+
+jobs:
+  chrome-source:
+    runs-on: ubuntu-24.04
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - name: Provision Chrome DevTools MCP
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/chacha-chrome-source
+          mkdir -p /tmp/chacha-chrome-source
+          cd /tmp/chacha-chrome-source
+          npm init -y >/dev/null 2>&1
+          npm install --no-save --no-audit --no-fund chrome-devtools-mcp@1.9.0 >/dev/null
+          echo "CHACHA_CHROME_DEVTOOLS_MCP_SERVER=$(realpath node_modules/.bin/chrome-devtools-mcp)" >> "$GITHUB_ENV"
+          echo "CHACHA_CHROME_DEVTOOLS_MCP_WORKDIR=/tmp/chacha-chrome-source" >> "$GITHUB_ENV"
+          echo "CHACHA_CHROME_DEVTOOLS_MCP_PACKAGE_VERSION=1.9.0" >> "$GITHUB_ENV"
+          echo "CHACHA_CHROME_DEVTOOLS_TARGET_CLASS=preview" >> "$GITHUB_ENV"
+          echo "CHACHA_CHROME_DEVTOOLS_ALLOWED_ORIGIN=https://example.com" >> "$GITHUB_ENV"
+          if command -v google-chrome >/dev/null 2>&1; then v="$(google-chrome --version)"; else v="$(google-chrome-stable --version)"; fi
+          echo "CHACHA_CHROME_DEVTOOLS_BROWSER_VERSION=$v" >> "$GITHUB_ENV"
+      - name: Run exact source envelope
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY' >/tmp/chrome-source-envelope.json
+          import json
+          print(json.dumps({
+            'schema':'chacha.dev/dispatch-envelope/v1',
+            'project':'dev-hub-v5-playwright-external-preview-qualification',
+            'task':{'id':'external-preview-browser-verification:source','permission':'read'},
+            'bindings':[{'provider':'chrome-devtools-mcp','adapter':'chrome-devtools-mcp-adapter'}],
+            'policy_context':{'human_approval_required':False,'timeout_seconds':45},
+            'metadata':{'chrome_devtools_mcp':{'operation':'inspect_url','url':'https://example.com/','expected_text':'Example Domain'}},
+          }))
+          PY
+          python3 dev-hub/adapters/chrome-devtools-mcp-adapter.py </tmp/chrome-source-envelope.json >/tmp/chrome-source-result.json
+          cat /tmp/chrome-source-result.json
+          python3 - <<'PY'
+          import json
+          x=json.load(open('/tmp/chrome-source-result.json'))
+          print('CHROME_SOURCE_STATUS='+str(x.get('status')))
+          print('CHROME_SOURCE_SUMMARY='+str(x.get('summary')))
+          assert x.get('verification',{}).get('status')=='UNVERIFIED'
+          if x.get('status')!='OK':
+              raise SystemExit(2)
+          print('CHROME_EXTERNAL_SOURCE=PASS')
+          PY
