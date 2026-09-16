@@ -1,0 +1,120 @@
+{
+  "schema": "chacha.dev/cloudflare-pages-preview-contract/v1",
+  "provider_id": "cloudflare-pages",
+  "adapter_id": "cloudflare-pages-adapter",
+  "decision": "ADOPT",
+  "runtime_status": "DESIGNED",
+  "purpose": "Create non-production Cloudflare Pages previews and emit an immutable preview deployment URL for downstream browser verification.",
+  "authoritative_sources": [
+    "https://developers.cloudflare.com/pages/configuration/preview-deployments/",
+    "https://developers.cloudflare.com/pages/configuration/git-integration/",
+    "https://developers.cloudflare.com/pages/get-started/direct-upload/"
+  ],
+  "delivery_model": {
+    "preferred_mode": "git-integration",
+    "qualified_modes": [],
+    "designed_modes": ["git-integration", "wrangler-direct"],
+    "git_integration": {
+      "existing_project_binding_required": true,
+      "non_production_branch_only": true,
+      "cloudflare_managed_build": true,
+      "unique_preview_url_required": true,
+      "branch_alias_is_authoritative": false,
+      "reason": "Branch aliases move with later commits; downstream verification must bind to the immutable deployment URL."
+    },
+    "wrangler_direct": {
+      "runtime_enabled": false,
+      "command_family": "wrangler pages deploy",
+      "preview_branch_required": true,
+      "credentials_runner_owned": true,
+      "account_and_project_allowlist_required": true,
+      "note": "Fallback only. It requires a later credential/runtime qualification and must not change an existing Pages project's integration mode."
+    }
+  },
+  "intent_contract": {
+    "future_manifest_capability": "cloud-preview-static",
+    "permission": "preview-deploy",
+    "manifest_declares_provider": false,
+    "task_can_choose_account_id": false,
+    "task_can_choose_api_token": false,
+    "task_can_choose_project_name": false,
+    "project_binding_source": "trusted-project-plane-config",
+    "source_ref_must_be_non_production": true
+  },
+  "output_contract": {
+    "result_schema": "chacha.dev/task-result/v1",
+    "provider_result_trust": "UNVERIFIED",
+    "verification_broker_required": true,
+    "required_evidence": [
+      "deployment_id-or-cloudflare-build-identity",
+      "immutable_preview_url",
+      "source_commit_sha",
+      "source_branch",
+      "project_binding_id",
+      "deployment_environment=preview",
+      "observed_at"
+    ],
+    "optional_evidence": ["branch_alias", "cloudflare-build-status", "x-robots-tag-noindex"],
+    "raw_credentials_forbidden": true,
+    "production_url_as_preview_evidence_forbidden": true
+  },
+  "security": {
+    "default": "DENY",
+    "preview_only": true,
+    "production_deploy": false,
+    "production_branch": false,
+    "dns_mutation": false,
+    "custom_domain_mutation": false,
+    "project_create_delete": false,
+    "project_settings_mutation": false,
+    "environment_secret_mutation": false,
+    "workers_mutation": false,
+    "d1_mutation": false,
+    "r2_mutation": false,
+    "deployment_delete": false,
+    "cross_account": false,
+    "credential_values_in_task_or_evidence": false
+  },
+  "downstream_verification": {
+    "browser_source_provider": "chrome-devtools-mcp",
+    "browser_independent_provider": "playwright-mcp",
+    "target_must_equal_immutable_preview_url": true,
+    "branch_alias_may_be_recorded_but_not_verified_as_release_identity": true,
+    "production_target_allowed": false
+  },
+  "design_qualification": {
+    "documentation_checked_on": "2026-09-16",
+    "cloudflare_preview_deployments_are_non_production": true,
+    "git_integration_creates_unique_preview_urls": true,
+    "branch_alias_updates_with_branch": true,
+    "wrangler_supports_preview_branch_deploy": true,
+    "existing_provider_registry_entry": true,
+    "existing_adapter_registry_entry": true,
+    "adapter_current_status": "DESIGNED",
+    "runtime_executed": false,
+    "cloudflare_account_touched": false,
+    "pages_project_touched": false,
+    "production_touched": false
+  },
+  "admission": {
+    "automatic_promotion": false,
+    "next_transition": "DESIGNED->CONTRACT_OK",
+    "contract_ok_requires": [
+      "narrow-preview-only-adapter-surface",
+      "trusted-project-binding-contract",
+      "provider-result-schema-contract",
+      "git-integration-observation-path",
+      "fail-closed-production-branch-test",
+      "fail-closed-caller-project-override-test"
+    ],
+    "runtime_pilot_requires": [
+      "real-pages-preview-observed",
+      "immutable-preview-url-captured",
+      "provider-result-unverified",
+      "chrome-source-verification-pass",
+      "playwright-independent-verification-pass",
+      "verification-broker-verified",
+      "production-untouched"
+    ]
+  }
+}
