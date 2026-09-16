@@ -1,0 +1,40 @@
+{
+  "schema": "chacha.dev/ai-agent-contract-qualification-evidence/v1",
+  "provider": "anthropic-claude",
+  "adapter": "claude-agent-adapter",
+  "transition": "DESIGNED->CONTRACT_OK",
+  "source": {
+    "repository": "chachasan090375/WfGg",
+    "branch": "dev-hub-v5-claude-agent-design",
+    "qualified_head": "b554ef948e25e2d3da7b19aec2afb2ce0c69c30e",
+    "workflow_run_id": 35077437340,
+    "workflow_conclusion": "success"
+  },
+  "checks": {
+    "provider-binding": "PASS",
+    "adapter-static-contract": "PASS",
+    "read-plan-only": "PASS",
+    "no-code-edit-routing": "PASS",
+    "default-deny-tools": "PASS",
+    "bash-edit-write-denied": "PASS",
+    "secret-reference-only": "PASS",
+    "verification-broker-required": "PASS",
+    "no-production-mutation": "PASS",
+    "no-automatic-promotion": "PASS"
+  },
+  "runtime": {
+    "executed": false,
+    "credential_used": false,
+    "reason": "Runtime proof and credential binding belong to CONTRACT_OK->PILOT qualification."
+  },
+  "promotion": {
+    "eligible": true,
+    "target": "CONTRACT_OK",
+    "automatic": false,
+    "blockers": []
+  },
+  "notes": [
+    "Claude remains ASSESS and is not routed for code-edit.",
+    "CONTRACT_OK does not authorize Anthropic API calls, workspace writes, repository writes, shell execution, or production mutation."
+  ]
+}
