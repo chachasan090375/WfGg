@@ -38,14 +38,22 @@ def main():
         fail("design status")
 
     integration = config.get("integration", {})
-    if integration.get("primary_surface") != "claude-agent-sdk":
+    if integration.get("primary_surface") != "anthropic-provider-abstraction":
         fail("primary surface")
+    if integration.get("preferred_runtime") != "claude-managed-agents":
+        fail("preferred runtime")
+    if integration.get("compatibility_runtime") != "claude-agent-sdk":
+        fail("compatibility runtime")
     if integration.get("execution") != "external":
         fail("execution")
     if integration.get("mcp_server_mode") != "SECONDARY_OPTIONAL":
         fail("MCP must remain secondary")
     if integration.get("github_action_mode") != "NOT_PRIMARY":
         fail("GitHub Action must not bypass DEV HUB")
+    if integration.get("managed_agents_mode") != "PREFERRED_AFTER_RUNTIME_QUALIFICATION":
+        fail("managed agents mode")
+    if integration.get("agent_sdk_mode") != "COMPATIBILITY_BACKEND":
+        fail("agent SDK mode")
 
     boundary = config.get("boundary", {})
     if boundary.get("input_schema") != "chacha.dev/dispatch-envelope/v1" or boundary.get("output_schema") != "chacha.dev/task-result/v1":
@@ -56,6 +64,14 @@ def main():
         fail("verification separation")
 
     auth = config.get("auth", {})
+    if auth.get("credential_type") != "ANTHROPIC_EXTERNAL_CREDENTIAL":
+        fail("credential type")
+    if set(auth.get("supported_modes", [])) != {"API_KEY", "WORKLOAD_IDENTITY_FEDERATION"}:
+        fail("auth modes")
+    if auth.get("pilot_initial_mode") != "API_KEY_REFERENCE":
+        fail("pilot auth mode")
+    if auth.get("future_ci_preferred_mode") != "WORKLOAD_IDENTITY_FEDERATION":
+        fail("future CI auth mode")
     if auth.get("secret_policy") != "REFERENCE_ONLY":
         fail("secret policy")
     if auth.get("secret_values_in_git") is not False or auth.get("secret_values_in_evidence") is not False:
@@ -128,7 +144,7 @@ def main():
     if "anthropic-claude" in code_edit_ids:
         fail("Claude must not be in code-edit before write contract")
 
-    print("CLAUDE_AGENT_DESIGN_VALID: provider=anthropic-claude status=DESIGNED assess_only=true read_plan_only=true runtime=false")
+    print("CLAUDE_AGENT_DESIGN_VALID: provider=anthropic-claude status=DESIGNED managed-agents-preferred=true agent-sdk=compatibility assess_only=true runtime=false")
 
 
 if __name__ == "__main__":
