@@ -3,7 +3,7 @@
   "provider_id": "playwright-mcp",
   "adapter_id": "playwright-mcp-adapter",
   "decision": "ASSESS",
-  "runtime_status": "CONTRACT_OK",
+  "runtime_status": "PILOT",
   "purpose": "Isolated browser verification and diagnostics for preview/test targets without repository or production mutation.",
   "upstream": {
     "package": "@playwright/mcp",
@@ -31,18 +31,21 @@
     "dev_hub_output": "chacha.dev/task-result/v1",
     "provider_result_trust": "UNVERIFIED",
     "verification_broker_required": true,
-    "producer_must_not_self_verify": true
+    "producer_must_not_self_verify": true,
+    "dev_hub_preferred_protocol_version": "2026-07-28",
+    "upstream_compatibility_protocol_version": "2025-11-25",
+    "compatibility_mode": "EXPLICIT_PROVIDER_COMPATIBILITY",
+    "generic_legacy_fallback": false,
+    "modern_direct_route_blocker": "MCP_2026_07_28_SERVER_DISCOVER_UNSUPPORTED",
+    "technology_radar_followup_required": true
   },
   "tool_policy": {
     "default": "DENY",
     "pilot_allow": [
       "browser_navigate",
       "browser_snapshot",
-      "browser_find",
       "browser_console_messages",
       "browser_network_requests",
-      "browser_network_request",
-      "browser_take_screenshot",
       "browser_close"
     ],
     "explicit_deny": [
@@ -107,11 +110,45 @@
     "permissions_expanded": false,
     "automatic_promotion": false
   },
+  "pilot_qualification": {
+    "transition": "CONTRACT_OK->PILOT",
+    "qualification_evidence": "dev-hub/evidence/playwright-mcp-adapter-runtime-pilot-qualification-2026-09-16.json",
+    "materialization_receipt": "dev-hub/evidence/playwright-mcp-adapter-runtime-pilot-materialization-2026-09-16.json",
+    "runtime_workflow_run_id": 35091837777,
+    "runtime_workflow_conclusion": "success",
+    "runtime_head": "6382cf759a8afaa68c05edb580b4b2ef290c24d0",
+    "runtime_artifact_id": 10443819103,
+    "runtime_artifact_digest": "sha256:c7889bd802e28f490537d4c6828dca81a8160c947c14a4edb0f8e2e152d707dd",
+    "execution": "external",
+    "local_executable": null,
+    "compatibility_mode": "EXPLICIT_PROVIDER_COMPATIBILITY",
+    "negotiated_protocol_version": "2025-11-25",
+    "dev_hub_protocol_baseline": "2026-07-28",
+    "fixed_safe_sequence": [
+      "browser_navigate",
+      "browser_snapshot",
+      "browser_console_messages",
+      "browser_network_requests",
+      "browser_close"
+    ],
+    "dispatch_input_schema": "chacha.dev/dispatch-envelope/v1",
+    "task_result_output_schema": "chacha.dev/task-result/v1",
+    "producer_result_status": "OK",
+    "producer_result_verification": "UNVERIFIED",
+    "write_permission_probe_status": "BLOCKED",
+    "write_permission_probe_reason": "READ_PERMISSION_REQUIRED",
+    "repository_workspace_write": false,
+    "production_mutation": false,
+    "unsafe_tool_invoked": false,
+    "permissions_expanded": false,
+    "automatic_promotion": false,
+    "blockers": []
+  },
   "admission": {
     "automatic_promotion": false,
     "runtime_call_allowed_at_design_stage": false,
     "browser_download_allowed_at_design_stage": false,
-    "next_transition": "CONTRACT_OK->PILOT",
+    "next_transition": "PILOT->ENABLED",
     "contract_ok_requires": [
       "static-contract-pass",
       "dedicated-adapter-binding",
@@ -128,6 +165,12 @@
       "test-origin-navigation-pass",
       "snapshot-pass",
       "no-workspace-write-pass"
+    ],
+    "enablement_requires": [
+      "repeatable-pass",
+      "provider-health-pass",
+      "rollback-defined",
+      "independent-verification-boundary-preserved"
     ]
   }
 }
