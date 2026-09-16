@@ -15,7 +15,10 @@
     "pending_control_transactions_block_further_promotion": true,
     "transaction_recovery_is_forward_only": true,
     "audit_events_are_never_rolled_back_by_recovery": true,
-    "platform_readiness_is_read_only_certification": true
+    "platform_readiness_is_read_only_certification": true,
+    "provider_selection_precedes_execution_scheduling": true,
+    "provider_selection_is_plan_only": true,
+    "scheduler_must_revalidate_selected_provider": true
   },
   "interfaces": {
     "cli": {"enabled": true, "command": "project-control", "adapter": "dev-hub/bin/project-control-cli.py"},
@@ -36,6 +39,7 @@
     "evidence_catalog": "dev-hub/config/evidence-catalog.v1.json",
     "orchestration": "dev-hub/config/orchestration-policy.v1.json",
     "capability_registry": "dev-hub/config/capability-registry.v1.json",
+    "provider_selection_policy": "dev-hub/config/provider-selection-policy.v1.json",
     "execution_scheduler": "dev-hub/config/execution-scheduler.v1.json",
     "run_controller": "dev-hub/config/run-controller.v1.json",
     "provider_adapters": "dev-hub/config/provider-adapters.v1.json",
@@ -49,6 +53,7 @@
     "control_plane_store": "dev-hub/bin/control-plane-store.py",
     "lifecycle_engine": "dev-hub/bin/lifecycle-engine.py",
     "task_graph_engine": "dev-hub/bin/task-graph-engine.py",
+    "provider_selection_engine": "dev-hub/bin/provider-selection-engine.py",
     "execution_scheduler": "dev-hub/bin/execution-scheduler.py",
     "run_controller": "dev-hub/bin/run-controller.py",
     "verification_broker": "dev-hub/bin/verification-broker.py",
@@ -66,7 +71,7 @@
     "recover-transaction": {"class": "recovery", "mutating": false, "apply_flag_makes_mutating": true},
     "platform-readiness": {"class": "verification", "mutating": false},
     "plan-transition": {"class": "plan", "mutating": false},
-    "schedule": {"class": "plan", "mutating": false},
+    "schedule": {"class": "plan", "mutating": false, "provider_selection_required": true},
     "prepare-run": {"class": "plan", "mutating": false},
     "dispatch": {"class": "execution", "mutating": true, "explicit_flag_required": true},
     "verify-result": {"class": "verification", "mutating": false, "ingest_flag_makes_mutating": true},
@@ -115,6 +120,7 @@
     "allow_generic_event_to_mutate_protected_state": false,
     "allow_implicit_transaction_recovery": false,
     "allow_audit_history_rollback": false,
-    "allow_readiness_gate_to_enable_adapters": false
+    "allow_readiness_gate_to_enable_adapters": false,
+    "allow_scheduler_to_bypass_provider_selection": false
   }
 }
