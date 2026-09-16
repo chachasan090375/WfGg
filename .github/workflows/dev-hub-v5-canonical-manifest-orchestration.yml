@@ -1,0 +1,234 @@
+name: Dev Hub V5 Canonical Manifest Orchestration
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - dev-hub-v5-canonical-manifest-orchestration
+    paths:
+      - 'dev-hub/config/capability-registry.v1.json'
+      - 'dev-hub/config/project-manifest-contract.v1.json'
+      - 'dev-hub/bin/project-manifest-orchestrator.py'
+      - 'dev-hub/fixtures/canonical-project-manifest.v1.json'
+      - '.github/workflows/dev-hub-v5-canonical-manifest-orchestration.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  canonical-manifest:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate canonical contracts
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          compile(Path('dev-hub/bin/project-manifest-orchestrator.py').read_text(), 'project-manifest-orchestrator.py', 'exec')
+          registry=json.loads(Path('dev-hub/config/capability-registry.v1.json').read_text())
+          manifest=json.loads(Path('dev-hub/fixtures/canonical-project-manifest.v1.json').read_text())
+          contract=json.loads(Path('dev-hub/config/project-manifest-contract.v1.json').read_text())
+          assert registry['schema']=='chacha.dev/capability-registry/v1'
+          assert registry['capabilities']['browser-diagnostics']['providers'][0]['id']=='chrome-devtools-mcp'
+          assert registry['capabilities']['browser-independent-verification']['providers'][0]['id']=='playwright-mcp'
+          assert manifest['schema']=='chacha.dev/project-manifest/v1'
+          assert contract['principles']['manifest_declares_intent_not_provider'] is True
+          raw=Path('dev-hub/fixtures/canonical-project-manifest.v1.json').read_text()
+          assert 'chrome-devtools-mcp' not in raw and 'playwright-mcp' not in raw
+          print('CANONICAL_MANIFEST_STATIC_CONTRACT=PASS')
+          PY
+          git status --porcelain > /tmp/git-before.txt
+
+      - name: Provision Chrome DevTools MCP
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/chacha-canonical-chrome
+          mkdir -p /tmp/chacha-canonical-chrome
+          cd /tmp/chacha-canonical-chrome
+          npm init -y >/dev/null 2>&1
+          npm install --no-save chrome-devtools-mcp@1.9.0 >/dev/null
+          test -x node_modules/.bin/chrome-devtools-mcp
+          echo "CHACHA_CHROME_DEVTOOLS_MCP_SERVER=$(realpath node_modules/.bin/chrome-devtools-mcp)" >> "$GITHUB_ENV"
+          echo "CHACHA_CHROME_DEVTOOLS_MCP_WORKDIR=/tmp/chacha-canonical-chrome" >> "$GITHUB_ENV"
+          echo "CHACHA_CHROME_DEVTOOLS_MCP_PACKAGE_VERSION=1.9.0" >> "$GITHUB_ENV"
+          if command -v google-chrome >/dev/null 2>&1; then browser_version="$(google-chrome --version)"; else browser_version="$(google-chrome-stable --version)"; fi
+          echo "CHACHA_CHROME_DEVTOOLS_BROWSER_VERSION=$browser_version" >> "$GITHUB_ENV"
+          echo "CHACHA_CHROME_DEVTOOLS_TARGET_CLASS=test" >> "$GITHUB_ENV"
+          echo "CHACHA_CHROME_DEVTOOLS_ALLOWED_ORIGIN=http://127.0.0.1:8765" >> "$GITHUB_ENV"
+
+      - name: Provision Playwright MCP
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/chacha-canonical-playwright
+          mkdir -p /tmp/chacha-canonical-playwright
+          cd /tmp/chacha-canonical-playwright
+          npm init -y >/dev/null 2>&1
+          npm install --no-save @playwright/mcp@0.0.81 >/dev/null
+          npx playwright install --with-deps chromium >/dev/null
+          echo "PLAYWRIGHT_MCP_SERVER=/tmp/chacha-canonical-playwright/node_modules/.bin/playwright-mcp" >> "$GITHUB_ENV"
+          echo "PLAYWRIGHT_MCP_WORKDIR=/tmp/chacha-canonical-playwright" >> "$GITHUB_ENV"
+
+      - name: Start isolated target
+        run: |
+          rm -rf /tmp/chacha-canonical-web
+          mkdir -p /tmp/chacha-canonical-web
+          cat > /tmp/chacha-canonical-web/index.html <<'HTML'
+          <!doctype html><html><head><title>ChaCha Canonical Manifest</title></head>
+          <body><main>CHACHA_CANONICAL_MANIFEST_OK</main></body></html>
+          HTML
+          nohup python3 -m http.server 8765 --bind 127.0.0.1 --directory /tmp/chacha-canonical-web >/tmp/chacha-canonical-http.log 2>&1 &
+          for _ in $(seq 1 20); do curl --fail --silent http://127.0.0.1:8765/ | grep -q CHACHA_CANONICAL_MANIFEST_OK && exit 0; sleep 0.5; done
+          exit 1
+
+      - name: Prepare isolated control plane without registry override
+        shell: bash
+        run: |
+          set -euo pipefail
+          root=/tmp/chacha-dev-hub-v5-canonical-manifest
+          rm -rf "$root"
+          mkdir -p "$root"
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path('/tmp/chacha-dev-hub-v5-canonical-manifest')
+          repo=Path.cwd()
+          state=json.loads((repo/'dev-hub/config/control-plane-state.v1.json').read_text())
+          state['storage']['runtime_root']=str(root/'state')
+          state['storage']['transaction_root']=str(root/'transactions')
+          (root/'control-plane-state.json').write_text(json.dumps(state,indent=2)+'\n')
+          run=json.loads((repo/'dev-hub/config/run-controller.v1.json').read_text())
+          run['mode']='execute-enabled'
+          run['locking']['root']=str(root/'locks/dispatch')
+          (root/'run-controller.json').write_text(json.dumps(run,indent=2)+'\n')
+          pc=json.loads((repo/'dev-hub/config/project-control.v1.json').read_text())
+          pc['runtime'].update({
+            'state_root':str(root/'state'),'evidence_root':str(root/'evidence'),'plans_root':str(root/'plans'),
+            'health_root':str(root/'health'),'runs_root':str(root/'runs'),'transactions_root':str(root/'transactions'),
+            'locks_root':str(root/'locks/control')})
+          pc['repository_paths']['control_plane_state']=str(root/'control-plane-state.json')
+          pc['repository_paths']['run_controller']=str(root/'run-controller.json')
+          # Intentionally DO NOT override capability_registry. The canonical repository registry must be used.
+          assert pc['repository_paths']['capability_registry']=='dev-hub/config/capability-registry.v1.json'
+          (root/'project-control.json').write_text(json.dumps(pc,indent=2)+'\n')
+          project='dev-hub-v5-canonical-manifest-qualification'
+          hp=root/'health'/project/'providers.json'; hp.parent.mkdir(parents=True,exist_ok=True)
+          from datetime import datetime, timezone
+          now=datetime.now(timezone.utc).isoformat()
+          hp.write_text(json.dumps({'schema':'chacha.dev/provider-health-snapshot/v1','observed_at':now,'providers':{
+            'chrome-devtools-mcp':{'state':'HEALTHY','source':'canonical-manifest-gate','checked_at':now},
+            'playwright-mcp':{'state':'HEALTHY','source':'canonical-manifest-gate','checked_at':now}}},indent=2)+'\n')
+          PY
+          test ! -e "$root/capability-registry.json"
+
+      - name: Create runner-owned external bindings
+        shell: bash
+        run: |
+          set -euo pipefail
+          root=/tmp/chacha-canonical-bindings
+          rm -rf "$root"; mkdir -p "$root"
+          chrome="$root/chrome-launcher"; playwright="$root/playwright-launcher"
+          cat > "$chrome" <<EOF
+          #!/usr/bin/env bash
+          exec python3 "$GITHUB_WORKSPACE/dev-hub/adapters/chrome-devtools-mcp-adapter.py"
+          EOF
+          cat > "$playwright" <<EOF
+          #!/usr/bin/env bash
+          exec python3 "$GITHUB_WORKSPACE/dev-hub/bin/playwright-mcp-adapter-runtime.py"
+          EOF
+          chmod 700 "$chrome" "$playwright"
+          export CHROME_LAUNCHER="$chrome" PLAYWRIGHT_LAUNCHER="$playwright"
+          export CHROME_DIGEST="sha256:$(sha256sum "$chrome" | awk '{print $1}')"
+          export PLAYWRIGHT_DIGEST="sha256:$(sha256sum "$playwright" | awk '{print $1}')"
+          python3 - <<'PY'
+          import json, os
+          from datetime import datetime,timedelta,timezone
+          from pathlib import Path
+          now=datetime.now(timezone.utc)
+          data={'schema':'chacha.dev/runtime-bindings/v1','project':'dev-hub-v5-canonical-manifest-qualification',
+            'source':'trusted-runner','issued_at':now.isoformat(),'expires_at':(now+timedelta(minutes=20)).isoformat(),
+            'bindings':{
+              'chrome-devtools-mcp-adapter':{'adapter':'chrome-devtools-mcp-adapter','execution':'external','executable':os.environ['CHROME_LAUNCHER'],'digest':os.environ['CHROME_DIGEST']},
+              'playwright-mcp-adapter':{'adapter':'playwright-mcp-adapter','execution':'external','executable':os.environ['PLAYWRIGHT_LAUNCHER'],'digest':os.environ['PLAYWRIGHT_DIGEST']}}}
+          Path('/tmp/chacha-canonical-bindings/runtime-bindings.json').write_text(json.dumps(data,indent=2)+'\n')
+          PY
+          echo "CHACHA_DEV_RUNTIME_BINDINGS=/tmp/chacha-canonical-bindings/runtime-bindings.json" >> "$GITHUB_ENV"
+
+      - name: Execute canonical manifest through DEV HUB
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 dev-hub/bin/project-manifest-orchestrator.py \
+            --repo-root "$GITHUB_WORKSPACE" \
+            --project-control-policy /tmp/chacha-dev-hub-v5-canonical-manifest/project-control.json \
+            --manifest dev-hub/fixtures/canonical-project-manifest.v1.json \
+            --bootstrap --execute \
+            --output /tmp/chacha-dev-hub-v5-canonical-manifest/manifest-run.json
+
+      - name: Validate canonical selection and verification receipt
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path('/tmp/chacha-dev-hub-v5-canonical-manifest')
+          x=json.loads((root/'manifest-run.json').read_text())
+          assert x['schema']=='chacha.dev/project-manifest-run/v1'
+          assert x['status']=='VERIFIED'
+          assert x['executed'] is True
+          assert x['provider_selection_owned_by_scheduler'] is True
+          assert x['capability_registry'].endswith('/dev-hub/config/capability-registry.v1.json')
+          assert len(x['verified_workflows'])==1
+          w=x['verified_workflows'][0]
+          assert w['source_producer']=='chrome-devtools-mcp-adapter'
+          assert w['independent_producer']=='playwright-mcp-adapter'
+          assert w['verification_status']=='VERIFIED'
+          assert x['audit_integrity']=='PASS'
+          assert not list(root.rglob('*capability-registry*'))
+          plan=json.loads(Path(x['execution_plan']).read_text())
+          providers=[b['provider'] for wave in plan['waves'] for task in wave['tasks'] for b in task['provider_bindings']]
+          assert providers==['chrome-devtools-mcp','playwright-mcp'], providers
+          print('CANONICAL_MANIFEST_ORCHESTRATION=PASS')
+          print('RUN_ID='+x['run_id'])
+          PY
+
+      - name: Prove plan mode does not execute
+        run: |
+          root=/tmp/chacha-dev-hub-v5-canonical-manifest-plan
+          mkdir -p "$root"
+          python3 dev-hub/bin/project-manifest-orchestrator.py \
+            --repo-root "$GITHUB_WORKSPACE" \
+            --project-control-policy /tmp/chacha-dev-hub-v5-canonical-manifest/project-control.json \
+            --manifest dev-hub/fixtures/canonical-project-manifest.v1.json \
+            --output "$root/plan-only.json"
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          x=json.loads(Path('/tmp/chacha-dev-hub-v5-canonical-manifest-plan/plan-only.json').read_text())
+          assert x['status']=='PLANNED' and x['executed'] is False
+          print('CANONICAL_MANIFEST_EXPLICIT_EXECUTION_BOUNDARY=PASS')
+          PY
+
+      - name: Confirm repository unchanged
+        run: |
+          git status --porcelain > /tmp/git-after.txt
+          diff -u /tmp/git-before.txt /tmp/git-after.txt
+          test ! -s /tmp/git-after.txt
+          echo 'CANONICAL_MANIFEST_REPOSITORY_UNCHANGED=PASS'
+
+      - name: Upload qualification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dev-hub-v5-canonical-manifest-${{ github.run_id }}
+          path: |
+            /tmp/chacha-dev-hub-v5-canonical-manifest
+            /tmp/chacha-dev-hub-v5-canonical-manifest-plan
+          retention-days: 30
+          if-no-files-found: error
