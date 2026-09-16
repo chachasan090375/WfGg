@@ -1,0 +1,17 @@
+{
+  "schema": "chacha.dev/project-manifest/v1",
+  "project": "dev-hub-v5-playwright-external-preview-qualification",
+  "environment": {
+    "class": "preview"
+  },
+  "workflows": [
+    {
+      "id": "external-preview-browser-verification",
+      "kind": "browser-verification",
+      "target": {
+        "url": "https://example.com/",
+        "expected_text": "Example Domain"
+      }
+    }
+  ]
+}
