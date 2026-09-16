@@ -1,0 +1,52 @@
+{
+  "schema": "chacha.dev/chrome-devtools-mcp-design-evidence/v1",
+  "provider": "chrome-devtools-mcp",
+  "adapter": "chrome-devtools-mcp-adapter",
+  "transition": "CATALOG_ONLY->DESIGNED",
+  "design_reference": {
+    "package": "chrome-devtools-mcp",
+    "version": "1.9.0",
+    "release_date": "2026-09-08",
+    "official_repository": "https://github.com/ChromeDevTools/chrome-devtools-mcp",
+    "official_release_tag": "chrome-devtools-mcp-v1.9.0"
+  },
+  "runtime_executed": false,
+  "browser_downloaded": false,
+  "vps_modified": false,
+  "production_modified": false,
+  "permissions_expanded": false,
+  "automatic_promotion": false,
+  "provider_result_trust": "UNVERIFIED",
+  "verification_broker_required": true,
+  "design_boundaries": {
+    "execution": "external",
+    "pilot_surface": "github-actions-ephemeral",
+    "supports": ["read"],
+    "local_executable": null,
+    "isolated_browser_required": true,
+    "existing_browser_attach_allowed": false,
+    "authenticated_profile_allowed": false,
+    "javascript_evaluation": false,
+    "browser_interaction": false,
+    "workspace_write": false,
+    "repository_write": false,
+    "production_mutation": false,
+    "network_headers_redacted": true,
+    "request_response_body_capture_default": "DENY"
+  },
+  "checks": {
+    "official-current-release-reviewed": "PASS",
+    "dedicated-adapter-binding-defined": "PASS",
+    "isolated-ephemeral-execution-defined": "PASS",
+    "existing-browser-attach-denied": "PASS",
+    "javascript-evaluation-denied": "PASS",
+    "interactive-tools-denied": "PASS",
+    "network-redaction-defined": "PASS",
+    "filesystem-unrestricted-paths-denied": "PASS",
+    "telemetry-disabled-for-pilot-plan": "PASS",
+    "crux-disabled-for-pilot-plan": "PASS",
+    "runtime-not-executed-at-design": "PASS",
+    "production-not-modified": "PASS"
+  },
+  "next_transition": "DESIGNED->CONTRACT_OK"
+}
