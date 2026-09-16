@@ -1,0 +1,56 @@
+name: Dev Hub V5 MCP Catalog
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - dev-hub-v5-mcp-catalog
+    paths:
+      - 'dev-hub/config/mcp-provider-catalog.v1.json'
+      - 'dev-hub/schemas/mcp-provider-catalog-v1.schema.json'
+      - 'dev-hub/bin/mcp-catalog-validate.py'
+      - 'dev-hub/docs/MCP_PROVIDER_CATALOG_V1.md'
+      - '.github/workflows/dev-hub-v5-mcp-catalog.yml'
+  pull_request:
+    paths:
+      - 'dev-hub/config/mcp-provider-catalog.v1.json'
+      - 'dev-hub/schemas/mcp-provider-catalog-v1.schema.json'
+      - 'dev-hub/bin/mcp-catalog-validate.py'
+      - 'dev-hub/docs/MCP_PROVIDER_CATALOG_V1.md'
+      - '.github/workflows/dev-hub-v5-mcp-catalog.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate JSON syntax
+        run: |
+          python -m json.tool dev-hub/config/mcp-provider-catalog.v1.json >/dev/null
+          python -m json.tool dev-hub/schemas/mcp-provider-catalog-v1.schema.json >/dev/null
+
+      - name: Validate catalog invariants
+        run: python dev-hub/bin/mcp-catalog-validate.py
+
+      - name: Confirm catalog-only phase
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path('dev-hub/config/mcp-provider-catalog.v1.json')
+          data = json.loads(p.read_text())
+          advanced = {
+              k: v['runtime_status']
+              for k, v in data['providers'].items()
+              if v['runtime_status'] in {'CONTRACT_OK', 'PILOT', 'ENABLED'}
+          }
+          if advanced:
+              raise SystemExit(f'Catalog-only workflow refuses advanced runtime states: {advanced}')
+          print('MCP_CATALOG_PHASE_OK: no provider promoted by catalog workflow')
+          PY
