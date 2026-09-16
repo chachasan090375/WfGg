@@ -1,0 +1,69 @@
+name: Dev Hub V5 Playwright MCP PILOT
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - dev-hub-v5-playwright-mcp-pilot
+    paths:
+      - 'dev-hub/config/mcp-playwright-contract.v1.json'
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - 'dev-hub/config/mcp-provider-catalog.v1.json'
+      - 'dev-hub/evidence/playwright-mcp-pilot-runtime-2026-09-16.json'
+      - 'dev-hub/evidence/playwright-mcp-contract-ok-to-pilot-2026-09-16.json'
+      - 'dev-hub/evidence/playwright-mcp-pilot-promotion-35082644829-receipt.json'
+      - 'dev-hub/bin/mcp-playwright-pilot-validate.py'
+      - '.github/workflows/dev-hub-v5-playwright-mcp-pilot.yml'
+  pull_request:
+    paths:
+      - 'dev-hub/config/mcp-playwright-contract.v1.json'
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - 'dev-hub/config/mcp-provider-catalog.v1.json'
+      - 'dev-hub/evidence/playwright-mcp-pilot-runtime-2026-09-16.json'
+      - 'dev-hub/evidence/playwright-mcp-contract-ok-to-pilot-2026-09-16.json'
+      - 'dev-hub/evidence/playwright-mcp-pilot-promotion-35082644829-receipt.json'
+      - 'dev-hub/bin/mcp-playwright-pilot-validate.py'
+      - '.github/workflows/dev-hub-v5-playwright-mcp-pilot.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate JSON and Python syntax
+        run: |
+          python -m json.tool dev-hub/config/mcp-playwright-contract.v1.json >/dev/null
+          python -m json.tool dev-hub/config/provider-adapters.v1.json >/dev/null
+          python -m json.tool dev-hub/config/mcp-provider-catalog.v1.json >/dev/null
+          python -m json.tool dev-hub/evidence/playwright-mcp-pilot-runtime-2026-09-16.json >/dev/null
+          python -m json.tool dev-hub/evidence/playwright-mcp-contract-ok-to-pilot-2026-09-16.json >/dev/null
+          python -m json.tool dev-hub/evidence/playwright-mcp-pilot-promotion-35082644829-receipt.json >/dev/null
+          python -m py_compile dev-hub/bin/mcp-playwright-pilot-validate.py
+
+      - name: Validate Playwright MCP PILOT materialization
+        run: python dev-hub/bin/mcp-playwright-pilot-validate.py
+
+      - name: Confirm PILOT is not ENABLED
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          c=json.loads(Path('dev-hub/config/mcp-playwright-contract.v1.json').read_text())
+          r=json.loads(Path('dev-hub/config/provider-adapters.v1.json').read_text())
+          m=json.loads(Path('dev-hub/config/mcp-provider-catalog.v1.json').read_text())
+          a=r['adapters']['playwright-mcp-adapter']
+          assert c['runtime_status'] == 'PILOT'
+          assert m['providers']['playwright-mcp']['runtime_status'] == 'PILOT'
+          assert a['status'] == 'PILOT'
+          assert a['status'] != 'ENABLED'
+          assert a['supports'] == ['read']
+          assert a['executable'] is None
+          assert c['admission']['automatic_promotion'] is False
+          print('PLAYWRIGHT_MCP_PILOT_BOUNDARY_OK enabled=false automatic_promotion=false')
+          PY
