@@ -6,8 +6,8 @@ its canonical registry entry at executable=null. A digest-bound executable copy
 is staged under /tmp and supplied through CHACHA_DEV_HUB_RUNTIME_BINDINGS.
 
 This qualification intentionally expects Verification Broker to return
-NEEDS_INDEPENDENT_CHECK for the current Chrome symbolic evidence source. That is
-not hidden or upgraded: it becomes the next explicit platform gap.
+NEEDS_INDEPENDENT_CHECK for the current Chrome URL-backed evidence source. That
+is not hidden or upgraded: it becomes the next explicit platform gap.
 """
 from __future__ import annotations
 
@@ -204,7 +204,7 @@ def main() -> int:
                 "description": "Qualify actual external Chrome DevTools MCP dispatch", "owner_role": "dev-hub-runtime",
                 "capabilities": ["browser-diagnostics"], "permission": "read", "depends_on": [],
                 "metadata": {"chrome_devtools_mcp": {"operation": "inspect_url", "url": origin + "/", "expected_text": "external-runtime-binding-ready"}},
-                "outputs": [{"type": "artifact", "id": "chrome-external-runtime-diagnostics"}],
+                "outputs": [{"type": "artifact", "id": "chrome-devtools-mcp-controlled-diagnostics"}],
                 "verification": {"mode": "machine", "self_certification_allowed": False,
                                  "required_evidence": ["source", "timestamp", "digest"]},
                 "blocking": True, "parallel_group": "external-runtime"
@@ -255,7 +255,6 @@ def main() -> int:
             raise SystemExit(f"EXTERNAL_RUNTIME_BROKER_BOUNDARY_INVALID={broker}")
         server.shutdown()
 
-    # Negative binding path: wrong digest must fail before adapter execution.
     bad = load(binding); bad["bindings"][0]["digest"] = "sha256:" + "0" * 64
     bad_binding = root / "runtime-binding-bad.json"; save(bad_binding, bad)
     bad_env = os.environ.copy(); bad_env["CHACHA_DEV_HUB_RUNTIME_BINDINGS"] = str(bad_binding)
@@ -279,7 +278,7 @@ def main() -> int:
         "execution": {"status": "OK", "producer_verification": "UNVERIFIED", "controlled_navigation": True,
                       "final_origin_revalidated": True, "production": False},
         "verification_boundary": {"status": "NEEDS_INDEPENDENT_CHECK", "expected": True,
-                                  "reason": "external/non-local symbolic provider evidence is not machine-addressable"},
+                                  "reason": "URL-backed external provider evidence is not locally machine-addressable"},
         "negative_paths": {"bad_runtime_binding_digest": "BLOCKED"},
         "authoritative_registry_mutated": False, "vps_modified": False, "production_modified": False,
         "next_gap": "EXTERNAL_PROVIDER_EVIDENCE_HANDOFF", "blockers": ["EXTERNAL_PROVIDER_EVIDENCE_HANDOFF"]
