@@ -2,6 +2,7 @@
 from __future__ import annotations
 import importlib.util
 import json
+import os
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -72,11 +73,15 @@ base = {
   'bindings':[{'provider':'cloudflare-pages','adapter':'cloudflare-pages-adapter'}],
   'metadata':{'cloudflare_pages':{'source_commit_sha':'a'*40,'source_branch':'feature-x'}},
 }
+os.environ['GITHUB_REPOSITORY'] = 'chachasan090375/WfGg'
+os.environ['GITHUB_REF_NAME'] = 'feature-x'
 _, _, err = mod.validate_request(base)
 assert err is None, err
 prod = json.loads(json.dumps(base)); prod['metadata']['cloudflare_pages']['source_branch']='main'
+os.environ['GITHUB_REF_NAME'] = 'main'
 _, _, err = mod.validate_request(prod)
 assert err == 'CLOUDFLARE_PAGES_PRODUCTION_BRANCH_FORBIDDEN'
+os.environ['GITHUB_REF_NAME'] = 'feature-x'
 override = json.loads(json.dumps(base)); override['metadata']['cloudflare_pages']['project_name']='other'
 _, _, err = mod.validate_request(override)
 assert err == 'CLOUDFLARE_PAGES_CALLER_OVERRIDE_FORBIDDEN'
