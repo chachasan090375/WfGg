@@ -110,7 +110,7 @@
       "category": "knowledge",
       "priority": 2,
       "decision": "ADOPT",
-      "runtime_status": "CONTRACT_OK",
+      "runtime_status": "PILOT",
       "integration_mode": "remote-mcp",
       "target_capabilities": ["library-docs", "framework-docs"],
       "risk_class": "LOW",
@@ -119,7 +119,7 @@
       "provider_binding": "context7-mcp",
       "health_probe": "mcp-server-discover-and-tools-list",
       "fallback": ["mdn-mcp"],
-      "notes": "Read-only Context7 contract is statically qualified. Runtime discovery, tool listing and sandbox calls remain mandatory before PILOT."
+      "notes": "Read-only Context7 contract is qualified and live sandbox MCP discovery/tool calls passed. PILOT remains non-production and producer results stay UNVERIFIED."
     },
     "sentry-mcp": {
       "display_name": "Sentry MCP",
