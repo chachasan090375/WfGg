@@ -71,9 +71,9 @@ def configured_toolset(agent: dict[str, Any]) -> dict[str, Any] | None:
 
 def validate_remote_agent(agent: dict[str, Any], expected_version: int) -> list[str]:
     blockers: list[str] = []
-    if agent.get('version') not in {None, expected_version}:
+    if agent.get('version') not in (None, expected_version):
         blockers.append(f"AGENT_VERSION_MISMATCH:{agent.get('version')}")
-    if agent.get('mcp_servers') not in {None, []}:
+    if agent.get('mcp_servers') not in (None, []):
         blockers.append('AGENT_HAS_MCP_SERVERS')
     toolset = configured_toolset(agent)
     if not isinstance(toolset, dict):
@@ -104,11 +104,11 @@ def validate_remote_environment(environment: dict[str, Any]) -> list[str]:
     network = cfg.get('networking') or {}
     if network.get('type') != 'limited':
         blockers.append(f"ENV_NETWORK_NOT_LIMITED:{network.get('type')}")
-    if network.get('allowed_hosts') not in {None, []}:
+    if network.get('allowed_hosts') not in (None, []):
         blockers.append('ENV_ALLOWED_HOSTS_NOT_EMPTY')
-    if network.get('allow_mcp_servers') not in {None, False}:
+    if network.get('allow_mcp_servers') not in (None, False):
         blockers.append('ENV_MCP_NETWORKING_ENABLED')
-    if network.get('allow_package_managers') not in {None, False}:
+    if network.get('allow_package_managers') not in (None, False):
         blockers.append('ENV_PACKAGE_MANAGER_NETWORKING_ENABLED')
     return blockers
 
