@@ -1,0 +1,176 @@
+name: Dev Hub V5 Playwright MCP Compatibility Enablement Readiness
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - dev-hub-v5-playwright-mcp-compat-enable-readiness
+    paths:
+      - 'dev-hub/bin/playwright-mcp-enable-readiness-ci.py'
+      - 'dev-hub/bin/playwright-mcp-adapter-runtime.py'
+      - 'dev-hub/bin/adapter-enable-readiness.py'
+      - 'dev-hub/bin/adapter-enablement-evidence.py'
+      - 'dev-hub/bin/adapter-promotion.py'
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - 'dev-hub/config/adapter-enablement.v1.json'
+      - 'dev-hub/config/adapter-rollbacks.v1.json'
+      - 'dev-hub/fixtures/playwright-mcp-dispatch-envelope.v1.json'
+      - '.github/workflows/dev-hub-v5-playwright-mcp-compat-enable-readiness.yml'
+  pull_request:
+    paths:
+      - 'dev-hub/bin/playwright-mcp-enable-readiness-ci.py'
+      - 'dev-hub/bin/playwright-mcp-adapter-runtime.py'
+      - 'dev-hub/bin/adapter-enable-readiness.py'
+      - 'dev-hub/bin/adapter-enablement-evidence.py'
+      - 'dev-hub/bin/adapter-promotion.py'
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - 'dev-hub/config/adapter-enablement.v1.json'
+      - 'dev-hub/config/adapter-rollbacks.v1.json'
+      - 'dev-hub/fixtures/playwright-mcp-dispatch-envelope.v1.json'
+      - '.github/workflows/dev-hub-v5-playwright-mcp-compat-enable-readiness.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  readiness:
+    if: github.event_name != 'pull_request' || github.event.pull_request.base.ref == 'dev-hub-v5-playwright-mcp-compat-pilot'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Validate static inputs
+        run: |
+          python -m py_compile dev-hub/bin/playwright-mcp-enable-readiness-ci.py
+          python -m py_compile dev-hub/bin/playwright-mcp-adapter-runtime.py
+          python -m py_compile dev-hub/bin/adapter-enable-readiness.py
+          python -m py_compile dev-hub/bin/adapter-enablement-evidence.py
+          python -m json.tool dev-hub/config/provider-adapters.v1.json >/dev/null
+          python -m json.tool dev-hub/config/adapter-enablement.v1.json >/dev/null
+          python -m json.tool dev-hub/config/adapter-rollbacks.v1.json >/dev/null
+          python -m json.tool dev-hub/fixtures/playwright-mcp-dispatch-envelope.v1.json >/dev/null
+
+      - name: Confirm Playwright remains PILOT before readiness
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          registry=json.loads(Path('dev-hub/config/provider-adapters.v1.json').read_text())
+          adapter=registry['adapters']['playwright-mcp-adapter']
+          assert adapter['status']=='PILOT'
+          assert adapter['status']!='ENABLED'
+          assert adapter['supports']==['read']
+          assert adapter['executable'] is None
+          print('PLAYWRIGHT_PRE_ENABLEMENT_STATUS=PILOT')
+          PY
+
+      - name: Provision pinned provider runtime outside repository
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/playwright-mcp-runtime
+          cd /tmp/playwright-mcp-runtime
+          npm init -y >/dev/null
+          npm install --no-save @playwright/mcp@0.0.81
+          test "$(node -p "require('./node_modules/@playwright/mcp/package.json').version")" = "0.0.81"
+          npx playwright install --with-deps chromium
+          node -p "require('./node_modules/@playwright/mcp/package.json').version" > /tmp/playwright-package-version.txt
+
+      - name: Start ephemeral local fixture
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/playwright-fixture
+          cat >/tmp/playwright-fixture/index.html <<'HTML'
+          <!doctype html>
+          <html><head><title>DEV HUB Playwright Enablement Readiness</title></head>
+          <body>
+            <h1>DEV HUB Playwright Enablement Readiness</h1>
+            <p>playwright-enable-readiness-ready</p>
+            <script>
+              console.log('playwright-readiness-console-ok');
+              fetch('/api.json').then(r => r.json()).then(x => console.log('playwright-readiness-network-ok', x.ok));
+            </script>
+          </body></html>
+          HTML
+          cat >/tmp/playwright-fixture/api.json <<'JSON'
+          {"ok":true,"source":"playwright-enable-readiness"}
+          JSON
+          cd /tmp/playwright-fixture
+          python -m http.server 8765 --bind 127.0.0.1 >/tmp/playwright-fixture-server.log 2>&1 &
+          echo $! > /tmp/playwright-fixture-server.pid
+          for i in $(seq 1 20); do
+            if curl -fsS http://127.0.0.1:8765/ >/dev/null; then exit 0; fi
+            sleep 0.25
+          done
+          exit 1
+
+      - name: Run three live adapter probes and enablement readiness
+        env:
+          PLAYWRIGHT_MCP_SERVER: /tmp/playwright-mcp-runtime/node_modules/.bin/playwright-mcp
+          PLAYWRIGHT_MCP_WORKDIR: /tmp/playwright-mcp-runtime
+        run: python dev-hub/bin/playwright-mcp-enable-readiness-ci.py
+
+      - name: Validate readiness outputs and non-mutation
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path('/tmp/playwright-mcp-enable-readiness')
+          manifest=json.loads((root/'manifest.json').read_text())
+          receipt=json.loads((root/'readiness'/'enablement-readiness.json').read_text())
+          evidence=json.loads((root/'readiness'/'enablement-evidence.json').read_text())
+          plan=json.loads((root/'readiness'/'enablement-promotion-plan.json').read_text())
+          results=[json.loads((root/f'task-result-{i}.json').read_text()) for i in (1,2,3)]
+          health=json.loads((root/'provider-health.json').read_text())
+          assert manifest['status']=='READY_FOR_ENABLEMENT'
+          assert manifest['promotion_eligible'] is True
+          assert manifest['promotion_applied'] is False
+          assert manifest['registry_mutated'] is False
+          assert manifest['provider_result_verification']=='UNVERIFIED'
+          assert manifest['production_capable'] is False
+          assert manifest['automatic_promotion'] is False
+          assert receipt['status']=='READY_FOR_ENABLEMENT'
+          assert receipt['registry_mutated'] is False
+          assert receipt['blockers']==[]
+          assert plan['eligible'] is True
+          assert plan['blockers']==[]
+          for gate in ('repeatable-pass','provider-health-pass','rollback-defined'):
+            assert evidence['evidence'][gate]['status']=='PASS', gate
+          assert health['providers']['playwright-mcp']['state']=='HEALTHY'
+          assert len({r['observed_at'] for r in results})==3
+          assert len({(r['project'],r['task_id']) for r in results})==1
+          assert all(r['status']=='OK' for r in results)
+          assert all(r['producer']=='playwright-mcp-adapter' for r in results)
+          assert all(r['verification']['status']=='UNVERIFIED' for r in results)
+          registry=json.loads(Path('dev-hub/config/provider-adapters.v1.json').read_text())
+          adapter=registry['adapters']['playwright-mcp-adapter']
+          assert adapter['status']=='PILOT'
+          assert adapter['status']!='ENABLED'
+          assert adapter['supports']==['read']
+          assert adapter['executable'] is None
+          print('PLAYWRIGHT_ENABLEMENT_READINESS=PASS registry_status=PILOT mutation=false enabled=false')
+          PY
+
+      - name: Confirm repository remained unchanged
+        run: |
+          test -z "$(git status --porcelain)"
+          echo 'PLAYWRIGHT_ENABLEMENT_READINESS_REPOSITORY_UNCHANGED=PASS'
+
+      - name: Upload readiness evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-mcp-enable-readiness-${{ github.run_id }}
+          path: |
+            /tmp/playwright-mcp-enable-readiness
+            /tmp/playwright-package-version.txt
+          if-no-files-found: error
+          retention-days: 30
