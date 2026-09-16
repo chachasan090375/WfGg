@@ -1,0 +1,65 @@
+{
+  "schema": "chacha.dev/adapter-promotion-evidence/v1",
+  "adapter": "playwright-mcp-adapter",
+  "provider": "playwright-mcp",
+  "observed_at": "2026-09-16T09:58:56+00:00",
+  "evidence": {
+    "runtime-contract-pass": {
+      "status": "PASS",
+      "source": "github-actions:35082403133",
+      "observed_at": "2026-09-16T09:58:56+00:00",
+      "details": {
+        "runtime_surface": "github-actions-ephemeral",
+        "package": "@playwright/mcp",
+        "package_version": "0.0.81",
+        "mcp_client_package": "@modelcontextprotocol/client",
+        "mcp_client_version": "2.0.0",
+        "negotiated_era": "legacy",
+        "protocol_version": "2025-11-25",
+        "target_origin": "http://127.0.0.1:4173",
+        "navigate": "PASS",
+        "snapshot": "PASS",
+        "find": "PASS",
+        "network_requests": "PASS",
+        "unsafe_tool_present_in_raw_server": true,
+        "unsafe_tool_invoked": false,
+        "artifact_id": 10440801334,
+        "artifact_digest": "sha256:c0aeeb60d12a0fef8674931ae67043d422612290ffd9a35a84338921fe2647e8"
+      }
+    },
+    "sandbox-only": {
+      "status": "PASS",
+      "source": "github-actions:35082403133",
+      "observed_at": "2026-09-16T09:58:56+00:00",
+      "details": {
+        "production_mutation": false,
+        "production_target": false,
+        "target_origin": "http://127.0.0.1:4173",
+        "isolated": true,
+        "headless": true,
+        "persistent_profile": false,
+        "service_workers_blocked": true,
+        "repository_workspace_write": false,
+        "invoked_tools": ["browser_navigate", "browser_snapshot", "browser_find", "browser_network_requests", "browser_close"]
+      }
+    },
+    "provisioning-pass": {
+      "status": "PASS",
+      "source": "github-actions:35082403133",
+      "observed_at": "2026-09-16T09:58:56+00:00",
+      "details": {
+        "execution": "external",
+        "local_executable": null,
+        "provider_binding": "playwright-mcp",
+        "runtime_surface": "github-actions-ephemeral",
+        "package_version": "0.0.81",
+        "browser": "chromium",
+        "browser_provisioning": "ephemeral-runner-only",
+        "vps_modified": false,
+        "binding_verified_by": "provider-specific-mcp-runtime-probe"
+      }
+    }
+  },
+  "approvals": [],
+  "notes": "Evidence is isolated, test-origin only and non-production. MCP legacy 2025-11-25 compatibility is explicit for Playwright 0.0.81 and must be tracked for migration by Technology Radar. Promotion remains explicit through adapter-promotion.py."
+}
