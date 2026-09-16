@@ -1,0 +1,70 @@
+{
+  "schema": "chacha.dev/dev-hub-e2e-runtime-qualification-evidence/v1",
+  "workflow_run_id": 35124102570,
+  "head_sha": "30624149fd394279099e2d060103c3e42479280d",
+  "artifact_id": 10458179745,
+  "artifact_digest": "sha256:04e2736056eb472bb3c33ce5449830729786d3ca38a20f00843f3dc6a625cf8a",
+  "project": "dev-hub-v5-e2e-fixture",
+  "fixture_scope": "ci-only-no-provider-registration",
+  "status": "E2E_QUALIFIED",
+  "run_id": "run-20260916T164722Z-3323ab8a",
+  "manifest": {
+    "valid": true,
+    "execution_ready": true,
+    "digest": "sha256:8f18af582f2b489dc9bc098fec4f8ac6bf0eea0453e1c5dfb07b4819eb58074c",
+    "project_control_event": "DECISION_RECORDED"
+  },
+  "provider_selection": {
+    "capability": "smoke-test-web",
+    "provider": "http-smoke",
+    "adapter": "http-smoke-adapter",
+    "health": "HEALTHY",
+    "fixture_adapter_override": true
+  },
+  "execution": {
+    "task_id": "e2e:smoke",
+    "producer": "http-smoke-adapter",
+    "status": "OK",
+    "verification": "UNVERIFIED",
+    "result_digest": "sha256:a4cc4249e0c6361f3b79993af5c579de750feffbe74a8ebf34051fe3e3723cdb"
+  },
+  "verification": {
+    "verifier": "verification-broker",
+    "method": "machine",
+    "status": "VERIFIED",
+    "report_digest": "sha256:7f698f60f83c0825b9e22772a944e98478d0b8ebeabd73d8ee9ef29e01576331"
+  },
+  "evidence_ledger": {
+    "artifact": "e2e-smoke-report",
+    "status": "OK",
+    "producer": "http-smoke-adapter",
+    "verifier": "verification-broker"
+  },
+  "audit": {
+    "chain_integrity": "PASS",
+    "event_count": 3,
+    "evidence_event_sequence": 3,
+    "evidence_event_digest": "sha256:bff0a5e140cd10a749633d8a0d49d9d616f873ab9655bcfb42b4be1e0aada9bc"
+  },
+  "negative_paths": {
+    "unknown_capability": "BLOCKED",
+    "tampered_evidence": "REJECTED"
+  },
+  "gates": {
+    "manifest_ingested": "PASS",
+    "provider_selected": "PASS",
+    "scheduler_plan": "PASS",
+    "run_controller_dispatch": "PASS",
+    "producer_result_unverified": "PASS",
+    "independent_verification": "PASS",
+    "evidence_ingested": "PASS",
+    "audit_correlated": "PASS",
+    "blocker_path": "PASS",
+    "tamper_rejection": "PASS",
+    "repository_unchanged": "PASS"
+  },
+  "production_mutation": false,
+  "vps_mutation": false,
+  "authoritative_provider_registry_mutated": false,
+  "blockers": []
+}
