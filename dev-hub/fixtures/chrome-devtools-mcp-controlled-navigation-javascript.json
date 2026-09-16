@@ -1,0 +1,8 @@
+{
+  "schema": "chacha.dev/dispatch-envelope/v1",
+  "project": "dev-hub-v5",
+  "task": {"id": "chrome-devtools-controlled-navigation-javascript", "permission": "read"},
+  "bindings": [{"provider": "chrome-devtools-mcp", "adapter": "chrome-devtools-mcp-adapter"}],
+  "metadata": {"chrome_devtools_mcp": {"operation": "inspect_url", "url": "javascript:alert(1)"}},
+  "policy_context": {"timeout_seconds": 30}
+}
