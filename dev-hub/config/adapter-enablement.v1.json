@@ -5,6 +5,9 @@
     "enablement_requires_fresh_provider_health": true,
     "enablement_requires_machine_readable_rollback": true,
     "task_result_must_remain_independently_unverified": true,
+    "repeatability_requires_stable_task_identity": true,
+    "repeatability_rejects_duplicate_result_artifacts": true,
+    "repeatability_requires_concrete_result_evidence": true,
     "evidence_generation_never_mutates_adapter_registry": true,
     "evidence_generation_never_creates_approval": true
   },
@@ -12,7 +15,10 @@
     "minimum_successful_runs": 3,
     "required_task_status": "OK",
     "required_verification_status": "UNVERIFIED",
-    "distinct_observed_at_required": true
+    "distinct_observed_at_required": true,
+    "same_task_identity_required": true,
+    "distinct_result_digests_required": true,
+    "evidence_required": true
   },
   "provider_health": {
     "schema": "chacha.dev/provider-health-snapshot/v1",
