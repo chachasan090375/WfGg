@@ -15,6 +15,7 @@ on:
       - 'dev-hub/evidence/playwright-mcp-enabled-promotion-35093990825-receipt.json'
       - 'dev-hub/evidence/playwright-mcp-enabled-promotion-35093990825-report.json'
       - 'dev-hub/evidence/playwright-mcp-enabled-promotion-35093990825-provenance.json'
+      - 'dev-hub/evidence/playwright-mcp-enabled-materialization-2026-09-16.json'
       - 'dev-hub/bin/mcp-playwright-enabled-validate.py'
       - '.github/workflows/dev-hub-v5-playwright-mcp-enabled.yml'
   pull_request:
@@ -28,6 +29,7 @@ on:
       - 'dev-hub/evidence/playwright-mcp-enabled-promotion-35093990825-receipt.json'
       - 'dev-hub/evidence/playwright-mcp-enabled-promotion-35093990825-report.json'
       - 'dev-hub/evidence/playwright-mcp-enabled-promotion-35093990825-provenance.json'
+      - 'dev-hub/evidence/playwright-mcp-enabled-materialization-2026-09-16.json'
       - 'dev-hub/bin/mcp-playwright-enabled-validate.py'
       - '.github/workflows/dev-hub-v5-playwright-mcp-enabled.yml'
 
@@ -53,6 +55,7 @@ jobs:
           python -m json.tool dev-hub/evidence/playwright-mcp-enabled-promotion-35093990825-receipt.json >/dev/null
           python -m json.tool dev-hub/evidence/playwright-mcp-enabled-promotion-35093990825-report.json >/dev/null
           python -m json.tool dev-hub/evidence/playwright-mcp-enabled-promotion-35093990825-provenance.json >/dev/null
+          python -m json.tool dev-hub/evidence/playwright-mcp-enabled-materialization-2026-09-16.json >/dev/null
           python -m py_compile dev-hub/bin/mcp-playwright-enabled-validate.py
 
       - name: Validate Playwright MCP ENABLED state
@@ -67,6 +70,7 @@ jobs:
           catalog=json.loads(Path('dev-hub/config/mcp-provider-catalog.v1.json').read_text())
           contract=json.loads(Path('dev-hub/config/mcp-playwright-contract.v1.json').read_text())
           receipt=json.loads(Path('dev-hub/evidence/playwright-mcp-enabled-promotion-35093990825-receipt.json').read_text())
+          materialization=json.loads(Path('dev-hub/evidence/playwright-mcp-enabled-materialization-2026-09-16.json').read_text())
           adapter=registry['adapters']['playwright-mcp-adapter']
           provider=catalog['providers']['playwright-mcp']
           assert adapter['status']=='ENABLED'
@@ -83,5 +87,13 @@ jobs:
           assert receipt['production_capable'] is False
           assert receipt['approval_required'] is False
           assert receipt['blockers']==[]
+          assert materialization['materialized_state']['adapter_status']=='ENABLED'
+          assert materialization['materialized_state']['supports']==['read']
+          assert materialization['materialized_state']['production_capable'] is False
+          assert materialization['materialized_state']['provider_result_verification']=='UNVERIFIED'
+          assert materialization['effects']['production_wfgg_modified'] is False
+          assert materialization['effects']['vps_modified'] is False
+          assert materialization['effects']['permissions_expanded'] is False
+          assert materialization['effects']['pull_requests_merged'] is False
           print('PLAYWRIGHT_ENABLED_BOUNDARY=PASS read_only=true production=false verification=UNVERIFIED compatibility=provider-specific')
           PY
