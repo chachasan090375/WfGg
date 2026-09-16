@@ -6,18 +6,21 @@
   "source": {
     "repository": "chachasan090375/WfGg",
     "branch": "dev-hub-v5-claude-agent-design",
-    "qualified_head": "b554ef948e25e2d3da7b19aec2afb2ce0c69c30e",
-    "workflow_run_id": 35077437340,
+    "qualified_head": "0e33859b0c54d8d8dad4846ae60ea4e36f21d1e7",
+    "workflow_run_id": 35078446312,
     "workflow_conclusion": "success"
   },
   "checks": {
     "provider-binding": "PASS",
     "adapter-static-contract": "PASS",
+    "provider-abstraction": "PASS",
+    "managed-agents-preferred": "PASS",
+    "agent-sdk-compatibility-backend": "PASS",
     "read-plan-only": "PASS",
     "no-code-edit-routing": "PASS",
     "default-deny-tools": "PASS",
     "bash-edit-write-denied": "PASS",
-    "secret-reference-only": "PASS",
+    "external-auth-boundary": "PASS",
     "verification-broker-required": "PASS",
     "no-production-mutation": "PASS",
     "no-automatic-promotion": "PASS"
@@ -25,7 +28,7 @@
   "runtime": {
     "executed": false,
     "credential_used": false,
-    "reason": "Runtime proof and credential binding belong to CONTRACT_OK->PILOT qualification."
+    "reason": "Runtime proof and external authentication belong to CONTRACT_OK->PILOT qualification."
   },
   "promotion": {
     "eligible": true,
@@ -35,6 +38,7 @@
   },
   "notes": [
     "Claude remains ASSESS and is not routed for code-edit.",
-    "CONTRACT_OK does not authorize Anthropic API calls, workspace writes, repository writes, shell execution, or production mutation."
+    "The adapter binds to an Anthropic provider abstraction; Managed Agents is the preferred runtime candidate and Claude Agent SDK remains a compatibility backend.",
+    "CONTRACT_OK does not authorize runtime calls, workspace writes, repository writes, shell execution, or production mutation."
   ]
 }
