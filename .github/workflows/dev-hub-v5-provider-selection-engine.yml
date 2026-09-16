@@ -7,13 +7,19 @@ on:
       - dev-hub-v5-provider-selection-engine
     paths:
       - 'dev-hub/config/provider-selection-policy.v1.json'
+      - 'dev-hub/config/capability-registry.v1.json'
+      - 'dev-hub/config/provider-adapters.v1.json'
       - 'dev-hub/bin/provider-selection-policy-validate.py'
+      - 'dev-hub/bin/provider-selection-engine.py'
       - 'dev-hub/docs/PROVIDER_SELECTION_ENGINE_V1.md'
       - '.github/workflows/dev-hub-v5-provider-selection-engine.yml'
   pull_request:
     paths:
       - 'dev-hub/config/provider-selection-policy.v1.json'
+      - 'dev-hub/config/capability-registry.v1.json'
+      - 'dev-hub/config/provider-adapters.v1.json'
       - 'dev-hub/bin/provider-selection-policy-validate.py'
+      - 'dev-hub/bin/provider-selection-engine.py'
       - 'dev-hub/docs/PROVIDER_SELECTION_ENGINE_V1.md'
       - '.github/workflows/dev-hub-v5-provider-selection-engine.yml'
 
@@ -32,6 +38,7 @@ jobs:
         run: |
           python -m json.tool dev-hub/config/provider-selection-policy.v1.json >/dev/null
           python -m py_compile dev-hub/bin/provider-selection-policy-validate.py
+          python -m py_compile dev-hub/bin/provider-selection-engine.py
 
       - name: Validate selection policy
         run: python dev-hub/bin/provider-selection-policy-validate.py
@@ -48,4 +55,84 @@ jobs:
           assert p['principles']['selection_never_changes_provider_status'] is True
           assert p['fallback']['scheduler_remains_authoritative_for_retry_and_failover'] is True
           print('PROVIDER_SELECTION_BOUNDARY_OK: planning=true dispatch=false scheduler_authoritative=true')
+          PY
+
+      - name: Shadow-rank development agents without admitting execution
+        run: |
+          cat >/tmp/selector-graph.json <<'JSON'
+          {
+            "schema":"chacha.dev/task-graph/v1",
+            "project":"selector-shadow",
+            "transition":"BUILD->VERIFY",
+            "tasks":[{"id":"review-1","capabilities":["code-review"],"permission":"read"}]
+          }
+          JSON
+          cat >/tmp/selector-health.json <<'JSON'
+          {
+            "schema":"chacha.dev/provider-health-snapshot/v1",
+            "providers":{
+              "antigravity":{"state":"HEALTHY"},
+              "github":{"state":"HEALTHY"},
+              "anthropic-claude":{"state":"HEALTHY"}
+            }
+          }
+          JSON
+          python dev-hub/bin/provider-selection-engine.py \
+            --graph /tmp/selector-graph.json \
+            --registry dev-hub/config/capability-registry.v1.json \
+            --adapters dev-hub/config/provider-adapters.v1.json \
+            --health /tmp/selector-health.json \
+            --policy dev-hub/config/provider-selection-policy.v1.json \
+            --output /tmp/selector-shadow-plan.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path('/tmp/selector-shadow-plan.json').read_text())
+          assert p['dispatch_authorized'] is False
+          assert p['summary']['execution_selectable_count'] == 0, p
+          item=p['task_plans'][0]
+          assert item['selected_provider'] is None
+          ids={x['provider'] for x in item['ranked_candidates']}
+          assert {'antigravity','github','anthropic-claude'} <= ids
+          assert all(not x['execution_eligible'] for x in item['ranked_candidates'])
+          assert 'SHADOW_RANKING_AVAILABLE' in item['selection_reasons']
+          print('PROVIDER_SELECTOR_SHADOW_OK: ranked=true executable=false')
+          PY
+
+      - name: Select a genuinely admitted provider without dispatching it
+        run: |
+          cat >/tmp/selector-smoke-graph.json <<'JSON'
+          {
+            "schema":"chacha.dev/task-graph/v1",
+            "project":"selector-positive",
+            "transition":"VERIFY->PREVIEW",
+            "tasks":[{"id":"smoke-1","capabilities":["smoke-test-web"],"permission":"read"}]
+          }
+          JSON
+          cat >/tmp/selector-smoke-health.json <<'JSON'
+          {
+            "schema":"chacha.dev/provider-health-snapshot/v1",
+            "providers":{
+              "http-smoke":{"state":"HEALTHY"},
+              "playwright":{"state":"UNKNOWN"}
+            }
+          }
+          JSON
+          python dev-hub/bin/provider-selection-engine.py \
+            --graph /tmp/selector-smoke-graph.json \
+            --registry dev-hub/config/capability-registry.v1.json \
+            --adapters dev-hub/config/provider-adapters.v1.json \
+            --health /tmp/selector-smoke-health.json \
+            --policy dev-hub/config/provider-selection-policy.v1.json \
+            --output /tmp/selector-smoke-plan.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path('/tmp/selector-smoke-plan.json').read_text())
+          item=p['task_plans'][0]
+          assert item['selected_provider'] == 'http-smoke', item
+          assert item['eligible_providers'] == ['http-smoke']
+          assert item['dispatch_authorized'] is False
+          assert p['dispatch_authorized'] is False
+          print('PROVIDER_SELECTOR_POSITIVE_OK: selected=http-smoke dispatch=false')
           PY
