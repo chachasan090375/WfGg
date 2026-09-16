@@ -1,0 +1,79 @@
+{
+  "schema": "chacha.dev/adapter-promotion-evidence/v1",
+  "adapter": "playwright-mcp-adapter",
+  "provider": "playwright-mcp",
+  "observed_at": "2026-09-16T11:31:25.818282+00:00",
+  "evidence": {
+    "runtime-contract-pass": {
+      "status": "PASS",
+      "source": "github-actions:35090712764",
+      "observed_at": "2026-09-16T11:31:25.818282+00:00",
+      "details": {
+        "execution_surface": "github-actions-ephemeral",
+        "adapter_contract": "chacha.dev/dispatch-envelope/v1->chacha.dev/task-result/v1",
+        "provider_specific_harness": true,
+        "result_status": "OK",
+        "result_verification": "UNVERIFIED",
+        "result_producer": "playwright-mcp-adapter",
+        "task_result_digest": "sha256:59bef8be500cc4a542a47576b9d0669fa336ef836783cf1a68ca64ccef8cb50d",
+        "artifact_id": 10443543496,
+        "artifact_digest": "sha256:2da5fd8b9e0ff62a93a5bbd2734f5263d7ab23620ffe0befa3bc87166034deeb",
+        "fixed_tool_sequence": [
+          "browser_navigate",
+          "browser_snapshot",
+          "browser_console_messages",
+          "browser_network_requests",
+          "browser_close"
+        ],
+        "caller_direct_tool_control": false,
+        "tool_injection_blocked": true,
+        "origin_escalation_blocked": true,
+        "query_string_removed_from_evidence": true
+      }
+    },
+    "sandbox-only": {
+      "status": "PASS",
+      "source": "github-actions:35090712764",
+      "observed_at": "2026-09-16T11:31:25.818282+00:00",
+      "details": {
+        "target_class": "test",
+        "production_target": false,
+        "credentials_used": false,
+        "workspace_write": false,
+        "repository_write": false,
+        "vps_modified": false,
+        "repository_unchanged": true,
+        "isolated_browser_session": true,
+        "service_workers_blocked": true,
+        "allowed_origin_required": true,
+        "final_origin_revalidated": true
+      }
+    },
+    "provisioning-pass": {
+      "status": "PASS",
+      "source": "github-actions:35090712764",
+      "observed_at": "2026-09-16T11:31:25.818282+00:00",
+      "details": {
+        "execution": "external",
+        "local_executable": null,
+        "provider_binding": "playwright-mcp",
+        "adapter_binding": "playwright-mcp-adapter",
+        "runtime_surface": "github-actions-ephemeral",
+        "package": "@playwright/mcp",
+        "package_version": "0.0.81",
+        "browser": "chromium",
+        "upstream_protocol": "2025-11-25",
+        "compatibility_mode": "EXPLICIT_PROVIDER_COMPATIBILITY",
+        "secret_transport": "NONE",
+        "runtime_binding_verified_by": "provider-specific-adapter-contract-harness"
+      }
+    }
+  },
+  "approvals": [],
+  "notes": [
+    "Promotion remains explicit and non-automatic.",
+    "External-only adapter keeps executable=null.",
+    "No production-capable permission is supported by this adapter.",
+    "DEV HUB MCP baseline remains 2026-07-28; legacy upstream compatibility is provider-specific."
+  ]
+}
