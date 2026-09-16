@@ -1,0 +1,211 @@
+name: Dev Hub V5 Playwright MCP Strict Enablement Readiness
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - dev-hub-v5-playwright-mcp-enable-readiness-strict
+    paths:
+      - 'dev-hub/bin/playwright-mcp-strict-enable-readiness-ci.py'
+      - 'dev-hub/adapters/playwright-mcp-adapter.py'
+      - 'dev-hub/bin/adapter-enable-readiness.py'
+      - 'dev-hub/bin/adapter-enablement-evidence.py'
+      - 'dev-hub/bin/adapter-promotion.py'
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - 'dev-hub/config/mcp-playwright-contract.v1.json'
+      - 'dev-hub/config/mcp-provider-catalog.v1.json'
+      - 'dev-hub/config/adapter-enablement.v1.json'
+      - 'dev-hub/config/adapter-rollbacks.v1.json'
+      - 'dev-hub/fixtures/playwright-mcp-adapter-valid.template.json'
+      - '.github/workflows/dev-hub-v5-playwright-mcp-enable-readiness-strict.yml'
+  pull_request:
+    paths:
+      - 'dev-hub/bin/playwright-mcp-strict-enable-readiness-ci.py'
+      - 'dev-hub/adapters/playwright-mcp-adapter.py'
+      - 'dev-hub/bin/adapter-enable-readiness.py'
+      - 'dev-hub/bin/adapter-enablement-evidence.py'
+      - 'dev-hub/bin/adapter-promotion.py'
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - 'dev-hub/config/mcp-playwright-contract.v1.json'
+      - 'dev-hub/config/mcp-provider-catalog.v1.json'
+      - 'dev-hub/config/adapter-enablement.v1.json'
+      - 'dev-hub/config/adapter-rollbacks.v1.json'
+      - 'dev-hub/fixtures/playwright-mcp-adapter-valid.template.json'
+      - '.github/workflows/dev-hub-v5-playwright-mcp-enable-readiness-strict.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  readiness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Validate static readiness inputs
+        run: |
+          python -m json.tool dev-hub/config/provider-adapters.v1.json >/dev/null
+          python -m json.tool dev-hub/config/mcp-playwright-contract.v1.json >/dev/null
+          python -m json.tool dev-hub/config/mcp-provider-catalog.v1.json >/dev/null
+          python -m json.tool dev-hub/config/adapter-enablement.v1.json >/dev/null
+          python -m json.tool dev-hub/config/adapter-rollbacks.v1.json >/dev/null
+          python -m py_compile dev-hub/bin/playwright-mcp-strict-enable-readiness-ci.py
+          python -m py_compile dev-hub/adapters/playwright-mcp-adapter.py
+          find dev-hub -type d -name '__pycache__' -prune -exec rm -rf {} +
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path('dev-hub/config/provider-adapters.v1.json').read_text())
+          c=json.loads(Path('dev-hub/config/mcp-playwright-contract.v1.json').read_text())
+          cat=json.loads(Path('dev-hub/config/mcp-provider-catalog.v1.json').read_text())
+          rb=json.loads(Path('dev-hub/config/adapter-rollbacks.v1.json').read_text())
+          a=r['adapters']['playwright-mcp-adapter']
+          p=cat['providers']['playwright-mcp']
+          compat=p['protocol_compatibility']
+          rollback=rb['adapters']['playwright-mcp-adapter']
+          assert a['status']=='PILOT'
+          assert p['runtime_status']=='PILOT'
+          assert c['runtime_status']=='PILOT'
+          assert a['supports']==['read'] and a['executable'] is None
+          assert compat['mode']=='EXPLICIT_PROVIDER_COMPATIBILITY'
+          assert compat['provider_specific'] is True
+          assert compat['dev_hub_baseline']=='2026-07-28'
+          assert compat['upstream_version']=='2025-11-25'
+          assert compat['generic_legacy_fallback'] is False
+          assert rollback['enabled'] is True
+          assert rollback['from_status']=='ENABLED'
+          assert rollback['target_status']=='DISABLED'
+          assert len(rollback['steps']) >= 2 and rollback['verification']
+          assert c['pilot_qualification']['production_capable'] is False
+          print('PLAYWRIGHT_STRICT_ENABLEMENT_STATIC=PASS pilot=true rollback=DISABLED')
+          PY
+
+      - name: Confirm repository clean before runtime
+        run: test -z "$(git status --porcelain)"
+
+      - name: Provision pinned Playwright MCP outside repository
+        shell: bash
+        run: |
+          set -euo pipefail
+          R=/tmp/chacha-playwright-mcp-strict-enable
+          rm -rf "$R" /tmp/playwright-mcp-strict-enable-readiness
+          mkdir -p "$R" "$R/site/api"
+          cd "$R"
+          npm init -y >/dev/null
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm install --no-save --no-audit --no-fund @playwright/mcp@0.0.81
+          test "$(node -p "require('./node_modules/@playwright/mcp/package.json').version")" = "0.0.81"
+          npx playwright install chromium
+          cat >"$R/site/index.html" <<'HTML'
+          <!doctype html><html><head><meta charset="utf-8"><title>ChaCha Strict Playwright Enablement</title></head>
+          <body><h1>ChaCha Strict Playwright Enablement</h1><p>CHACHA_PLAYWRIGHT_STRICT_ENABLE_2026_09_16</p>
+          <script>console.log('strict-enable-console-ok'); fetch('/api/ping').then(r=>r.text()).then(x=>console.log('strict-enable-network-ok',x));</script>
+          </body></html>
+          HTML
+          printf '%s\n' '{"ok":true}' >"$R/site/api/ping"
+
+      - name: Start isolated test origin and build stable dispatch envelope
+        shell: bash
+        run: |
+          set -euo pipefail
+          R=/tmp/chacha-playwright-mcp-strict-enable
+          python3 -m http.server 18766 --bind 127.0.0.1 --directory "$R/site" >/tmp/playwright-strict-enable-site.log 2>&1 &
+          echo $! >/tmp/playwright-strict-enable-site.pid
+          for i in $(seq 1 20); do
+            curl -fsS http://127.0.0.1:18766/ >/dev/null && break
+            sleep 0.25
+          done
+          curl -fsS http://127.0.0.1:18766/ | grep -q 'CHACHA_PLAYWRIGHT_STRICT_ENABLE_2026_09_16'
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path('dev-hub/fixtures/playwright-mcp-adapter-valid.template.json').read_text())
+          p['project']='playwright-mcp-strict-enable-readiness'
+          p['task']['id']='inspect-repeatability-fixture'
+          p['metadata']['playwright_mcp']['url']='http://127.0.0.1:18766/?secret-query-must-not-enter-evidence=yes'
+          p['metadata']['playwright_mcp']['expected_text']='CHACHA_PLAYWRIGHT_STRICT_ENABLE_2026_09_16'
+          Path('/tmp/playwright-strict-enable-dispatch.json').write_text(json.dumps(p,indent=2)+'\n')
+          PY
+
+      - name: Run three real adapter samples and generic enablement readiness
+        shell: bash
+        env:
+          CHACHA_PLAYWRIGHT_MCP_SERVER: /tmp/chacha-playwright-mcp-strict-enable/node_modules/.bin/playwright-mcp
+          CHACHA_PLAYWRIGHT_MCP_WORKDIR: /tmp/chacha-playwright-mcp-strict-enable
+          CHACHA_PLAYWRIGHT_ALLOWED_ORIGIN: http://127.0.0.1:18766
+          CHACHA_PLAYWRIGHT_TARGET_CLASS: test
+          CHACHA_PLAYWRIGHT_MCP_PACKAGE_VERSION: 0.0.81
+          PLAYWRIGHT_STRICT_DISPATCH_FILE: /tmp/playwright-strict-enable-dispatch.json
+          PLAYWRIGHT_ENABLE_WORKDIR: /tmp/playwright-mcp-strict-enable-readiness
+        run: |
+          python dev-hub/bin/playwright-mcp-strict-enable-readiness-ci.py
+
+      - name: Validate strict readiness outputs
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path('/tmp/playwright-mcp-strict-enable-readiness')
+          manifest=json.loads((root/'manifest.json').read_text())
+          receipt=json.loads((root/'readiness'/'enablement-readiness.json').read_text())
+          evidence=json.loads((root/'readiness'/'enablement-evidence.json').read_text())
+          plan=json.loads((root/'readiness'/'enablement-promotion-plan.json').read_text())
+          health=json.loads((root/'provider-health.json').read_text())
+          results=[json.loads((root/f'task-result-{i}.json').read_text()) for i in (1,2,3)]
+          assert manifest['status']=='READY_FOR_ENABLEMENT'
+          assert manifest['promotion_eligible'] is True
+          assert manifest['registry_mutated'] is False
+          assert manifest['sample_count']==3
+          assert len(set(manifest['task_result_digests']))==3
+          assert receipt['status']=='READY_FOR_ENABLEMENT'
+          assert receipt['promotion_eligible'] is True
+          assert receipt['registry_mutated'] is False
+          assert receipt['blockers']==[]
+          assert plan['eligible'] is True and plan['blockers']==[]
+          for label in ('repeatable-pass','provider-health-pass','rollback-defined'):
+              assert evidence['evidence'][label]['status']=='PASS'
+          assert evidence['evidence']['provider-health-pass']['details']['age_seconds'] < 300
+          hp=health['providers']['playwright-mcp']
+          assert hp['state']=='HEALTHY'
+          assert hp['details']['sample_count']==3
+          assert hp['details']['dev_hub_protocol_baseline']=='2026-07-28'
+          assert hp['details']['upstream_protocol']=='2025-11-25'
+          assert hp['details']['generic_legacy_fallback'] is False
+          assert len({r['observed_at'] for r in results})==3
+          assert len({(r['project'],r['task_id']) for r in results})==1
+          assert all(r['status']=='OK' for r in results)
+          assert all(r['producer']=='playwright-mcp-adapter' for r in results)
+          assert all(r['verification']['status']=='UNVERIFIED' for r in results)
+          registry=json.loads(Path('dev-hub/config/provider-adapters.v1.json').read_text())
+          assert registry['adapters']['playwright-mcp-adapter']['status']=='PILOT'
+          print('PLAYWRIGHT_MCP_STRICT_ENABLEMENT_READINESS=PASS registry=PILOT mutation=false samples=3')
+          PY
+
+      - name: Confirm no repository workspace mutation
+        run: |
+          find dev-hub -type d -name '__pycache__' -prune -exec rm -rf {} +
+          test -z "$(git status --porcelain)"
+          git diff --exit-code
+          echo 'PLAYWRIGHT_STRICT_ENABLEMENT_NO_REPOSITORY_WRITE=PASS'
+
+      - name: Stop test origin
+        if: always()
+        run: |
+          if test -f /tmp/playwright-strict-enable-site.pid; then
+            kill "$(cat /tmp/playwright-strict-enable-site.pid)" 2>/dev/null || true
+          fi
+
+      - name: Upload strict readiness evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-mcp-strict-enable-readiness-${{ github.run_id }}
+          path: /tmp/playwright-mcp-strict-enable-readiness
+          if-no-files-found: warn
+          retention-days: 30

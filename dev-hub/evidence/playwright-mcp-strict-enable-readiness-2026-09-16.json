@@ -1,0 +1,99 @@
+{
+  "schema": "chacha.dev/playwright-mcp-strict-enable-readiness-evidence/v1",
+  "provider": "playwright-mcp",
+  "adapter": "playwright-mcp-adapter",
+  "current_status": "PILOT",
+  "target_status": "ENABLED",
+  "status": "READY_FOR_ENABLEMENT",
+  "promotion_eligible": true,
+  "promotion_applied": false,
+  "registry_mutated": false,
+  "production_capable": false,
+  "workflow": {
+    "run_id": 35092368535,
+    "conclusion": "success",
+    "head_sha": "c8de58cc0aacde58c9486ee82896213e2916df2c",
+    "artifact_id": 10444870965,
+    "artifact_digest": "sha256:cc8dd7ce70ee340d3fc685a1a3308bc58e48ab086576d0eaabac88e565553790"
+  },
+  "repeatability": {
+    "sample_count": 3,
+    "successful_runs": 3,
+    "verification_status": "UNVERIFIED",
+    "same_task_identity": true,
+    "distinct_observed_at": 3,
+    "distinct_results": 3,
+    "task_result_file_digests": [
+      "sha256:5f53e8390fe8c3aa49b7147f26afa0cb15764e148370f0c409e4df95269655bc",
+      "sha256:85b94f8c79d70e392960402a5bd5eeb1f8fa400f0758bee3e465c5d58f8e358f",
+      "sha256:165d321b2ce72e0d2773fedb374c592ac66e47d84a2f26da192acc7e01ae73d1"
+    ],
+    "canonical_result_digests": [
+      "sha256:db51adc81fcedad2ff29225e4965d306e3e098166da66f24d2c255209ca54c64",
+      "sha256:56f064d2a5946d0ef66d37c076af5d1798a536e58267cc09bfbcfadd6f3e5099",
+      "sha256:08cec3dbf2920e8ede49715635465bb0b98cb0acbd9e6576be76caf98827fc1b"
+    ],
+    "result_signatures": [
+      "sha256:3c5bfce055f1ed6fdd68eb9fd50caa35731269c044ea1d9223b12e158bf38959",
+      "sha256:52e706d75f6ae2a4c9380771d2e4049744f8720e1361b510a596a801b4009886",
+      "sha256:7f3d8192e178a138762e3ba3ce47662bc08ecab01ca8adf6d807c6e97d553a82"
+    ]
+  },
+  "provider_health": {
+    "status": "PASS",
+    "state": "HEALTHY",
+    "checked_at": "2026-09-16T11:49:39.027856+00:00",
+    "age_seconds_at_evaluation": 0.076,
+    "maximum_age_seconds": 300,
+    "snapshot_digest": "sha256:42f951d12d9928c7cfcd8263947075fa76ac671117ee3f6f9b5aaaf02e41cf8c",
+    "sample_count": 3,
+    "runtime_surface": "github-actions-ephemeral",
+    "package_version": "0.0.81",
+    "dev_hub_protocol_baseline": "2026-07-28",
+    "upstream_protocol": "2025-11-25",
+    "compatibility_mode": "EXPLICIT_PROVIDER_COMPATIBILITY",
+    "generic_legacy_fallback": false,
+    "unsafe_tool_invoked": false,
+    "production_target": false
+  },
+  "rollback": {
+    "status": "PASS",
+    "from_status": "ENABLED",
+    "target_status": "DISABLED",
+    "steps": 4,
+    "verification_checks": 5,
+    "rollback_registry_digest": "sha256:cfe7a14c2abe65da7ca0e99013e4a9113e1d18f3691f31ab44300979b1493ca0"
+  },
+  "enablement_evidence": {
+    "repeatable-pass": "PASS",
+    "provider-health-pass": "PASS",
+    "rollback-defined": "PASS",
+    "digest": "sha256:9b96a5e095d48e2ec9d1bf60c4f8e3368a4b7161ce38f2da4f9cf2eadcb2073d"
+  },
+  "promotion_plan": {
+    "transition": "PILOT->ENABLED",
+    "execution": "external",
+    "requires_local_executable": false,
+    "eligible": true,
+    "applied": false,
+    "production_capable": false,
+    "approval_required": false,
+    "blockers": [],
+    "registry_digest_before": "sha256:8259fceca0cfb5e22fc78b0fe1052fe596f47dc538649b5c71f1b7caad646dcb",
+    "digest": "sha256:89323da0ec61b28562d4f91325a5b3ccd1d528e7788c1c464e54b4821a991b45"
+  },
+  "safety": {
+    "supports": ["read"],
+    "local_executable": null,
+    "automatic_enable": false,
+    "production_mutation": false,
+    "repository_write": false,
+    "workspace_write": false,
+    "verification_broker_required": true
+  },
+  "notes": [
+    "All repeatability samples were produced by the real playwright-mcp-adapter using the same DEV HUB dispatch envelope contract.",
+    "This readiness evidence does not change the canonical adapter status and does not authorize production use.",
+    "PILOT remains the canonical state until a separate explicit promotion step is performed."
+  ]
+}
