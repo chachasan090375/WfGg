@@ -1,0 +1,21 @@
+{
+  "schema": "chacha.dev/dispatch-envelope/v1",
+  "project": "playwright-mcp-adapter-contract",
+  "task": {
+    "id": "tool-injection",
+    "permission": "read"
+  },
+  "bindings": [
+    {
+      "provider": "playwright-mcp",
+      "adapter": "playwright-mcp-adapter"
+    }
+  ],
+  "metadata": {
+    "playwright_mcp": {
+      "operation": "inspect",
+      "url": "http://127.0.0.1:8080/",
+      "tool_name": "browser_run_code_unsafe"
+    }
+  }
+}
