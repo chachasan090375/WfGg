@@ -1,0 +1,8 @@
+{
+  "schema": "chacha.dev/dispatch-envelope/v1",
+  "project": "dev-hub-v5",
+  "task": {"id": "chrome-devtools-mcp-adapter-tool-injection", "permission": "read"},
+  "bindings": [{"provider": "chrome-devtools-mcp", "adapter": "chrome-devtools-mcp-adapter"}],
+  "metadata": {"chrome_devtools_mcp": {"operation": "inspect_current_page", "tool_name": "evaluate_script"}},
+  "policy_context": {"timeout_seconds": 10}
+}
