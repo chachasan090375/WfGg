@@ -28,6 +28,7 @@ permissions:
 
 jobs:
   validate:
+    if: github.event_name != 'pull_request' || github.base_ref == 'dev-hub-v5-mcp-catalog'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
