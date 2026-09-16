@@ -19,6 +19,16 @@ FORBIDDEN_SECRET_FIELDS = {
     "private_key",
     "secret_value",
 }
+EXPECTED_PROTOCOL = {
+    "preferred_version": "2026-07-28",
+    "discovery_method": "server/discover",
+    "tools_list_method": "tools/list",
+    "tools_call_method": "tools/call",
+    "remote_transport": "streamable-http",
+    "local_transport": "stdio",
+    "legacy_sse_for_new_deployments": False,
+    "compatibility_policy": "explicit-provider-adapter-only",
+}
 
 
 def fail(message: str) -> None:
@@ -45,6 +55,13 @@ def main() -> int:
 
     if data.get("schema") != "chacha.dev/mcp-provider-catalog/v1":
         fail("unexpected schema id")
+
+    protocol = data.get("protocol")
+    if not isinstance(protocol, dict):
+        fail("protocol must be an object")
+    for field, expected in EXPECTED_PROTOCOL.items():
+        if protocol.get(field) != expected:
+            fail(f"protocol.{field} must be {expected!r}")
 
     policy = data.get("policy")
     if not isinstance(policy, dict):
@@ -84,6 +101,11 @@ def main() -> int:
         if not isinstance(capabilities, list) or not capabilities or len(capabilities) != len(set(capabilities)):
             fail(f"provider {provider_id} target_capabilities must be unique and non-empty")
 
+        if provider.get("integration_mode") in {"remote-mcp", "local-mcp"}:
+            probe = provider.get("health_probe")
+            if probe and "initialize" in probe.lower():
+                fail(f"provider {provider_id} uses obsolete initialize handshake in health probe")
+
         if provider_id == "filesystem-mcp":
             allowed = provider.get("allowed_roots", [])
             forbidden = provider.get("forbidden_roots", [])
@@ -102,7 +124,11 @@ def main() -> int:
         if provider.get("decision") == "DEFER" and provider.get("runtime_status") != "CATALOG_ONLY":
             fail(f"deferred provider {provider_id} must remain CATALOG_ONLY")
 
-    print(f"MCP_CATALOG_VALID: providers={len(providers)} default_admission=DENY")
+    print(
+        "MCP_CATALOG_VALID: "
+        f"providers={len(providers)} default_admission=DENY "
+        f"protocol={protocol['preferred_version']} discovery={protocol['discovery_method']}"
+    )
     return 0
 
 
