@@ -1,0 +1,83 @@
+name: Dev Hub V5 Chrome DevTools MCP PILOT
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - dev-hub-v5-chrome-devtools-mcp-pilot
+    paths:
+      - 'dev-hub/config/mcp-chrome-devtools-contract.v1.json'
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - 'dev-hub/config/mcp-provider-catalog.v1.json'
+      - 'dev-hub/evidence/chrome-devtools-mcp-adapter-runtime-qualification-2026-09-16.json'
+      - 'dev-hub/evidence/chrome-devtools-mcp-controlled-navigation-qualification-2026-09-16.json'
+      - 'dev-hub/evidence/chrome-devtools-mcp-pilot-materialization-2026-09-16.json'
+      - 'dev-hub/bin/mcp-chrome-devtools-pilot-validate.py'
+      - '.github/workflows/dev-hub-v5-chrome-devtools-mcp-pilot.yml'
+  pull_request:
+    paths:
+      - 'dev-hub/config/mcp-chrome-devtools-contract.v1.json'
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - 'dev-hub/config/mcp-provider-catalog.v1.json'
+      - 'dev-hub/evidence/chrome-devtools-mcp-adapter-runtime-qualification-2026-09-16.json'
+      - 'dev-hub/evidence/chrome-devtools-mcp-controlled-navigation-qualification-2026-09-16.json'
+      - 'dev-hub/evidence/chrome-devtools-mcp-pilot-materialization-2026-09-16.json'
+      - 'dev-hub/bin/mcp-chrome-devtools-pilot-validate.py'
+      - '.github/workflows/dev-hub-v5-chrome-devtools-mcp-pilot.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    if: github.event_name != 'pull_request' || github.event.pull_request.base.ref == 'dev-hub-v5-chrome-devtools-mcp-controlled-navigation-contract'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate syntax without workspace writes
+        run: |
+          python -m json.tool dev-hub/config/mcp-chrome-devtools-contract.v1.json >/dev/null
+          python -m json.tool dev-hub/config/provider-adapters.v1.json >/dev/null
+          python -m json.tool dev-hub/config/mcp-provider-catalog.v1.json >/dev/null
+          python -m json.tool dev-hub/evidence/chrome-devtools-mcp-adapter-runtime-qualification-2026-09-16.json >/dev/null
+          python -m json.tool dev-hub/evidence/chrome-devtools-mcp-controlled-navigation-qualification-2026-09-16.json >/dev/null
+          python -m json.tool dev-hub/evidence/chrome-devtools-mcp-pilot-materialization-2026-09-16.json >/dev/null
+          python - <<'PY'
+          from pathlib import Path
+          compile(Path('dev-hub/bin/mcp-chrome-devtools-pilot-validate.py').read_text(), 'mcp-chrome-devtools-pilot-validate.py', 'exec')
+          print('PILOT_VALIDATOR_SYNTAX=PASS')
+          PY
+
+      - name: Validate PILOT materialization
+        run: python dev-hub/bin/mcp-chrome-devtools-pilot-validate.py
+
+      - name: Confirm PILOT is not ENABLED
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          contract=json.loads(Path('dev-hub/config/mcp-chrome-devtools-contract.v1.json').read_text())
+          adapters=json.loads(Path('dev-hub/config/provider-adapters.v1.json').read_text())
+          catalog=json.loads(Path('dev-hub/config/mcp-provider-catalog.v1.json').read_text())
+          adapter=adapters['adapters']['chrome-devtools-mcp-adapter']
+          assert contract['runtime_status']=='PILOT'
+          assert catalog['providers']['chrome-devtools-mcp']['runtime_status']=='PILOT'
+          assert adapter['status']=='PILOT'
+          assert adapter['status']!='ENABLED'
+          assert adapter['supports']==['read']
+          assert adapter['executable'] is None
+          assert contract['admission']['automatic_promotion'] is False
+          assert contract['admission']['next_transition']=='PILOT->ENABLED'
+          assert contract['tool_policy']['caller_direct_tool_selection'] is False
+          assert contract['tool_policy']['browser_interaction'] is False
+          assert contract['tool_policy']['javascript_evaluation'] is False
+          print('CHROME_DEVTOOLS_MCP_PILOT_BOUNDARY=PASS enabled=false automatic_promotion=false')
+          PY
+
+      - name: Confirm repository remained unchanged
+        run: |
+          test -z "$(git status --porcelain)"
+          echo 'REPOSITORY_UNCHANGED=PASS'
