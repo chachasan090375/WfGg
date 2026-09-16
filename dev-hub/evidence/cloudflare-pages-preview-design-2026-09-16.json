@@ -1,0 +1,55 @@
+{
+  "schema": "chacha.dev/cloudflare-pages-preview-design-evidence/v1",
+  "provider_id": "cloudflare-pages",
+  "observed_at": "2026-09-16T23:22:00+02:00",
+  "sources": [
+    {
+      "url": "https://developers.cloudflare.com/pages/configuration/preview-deployments/",
+      "facts": [
+        "Git-integrated Pages projects create unique preview URLs for non-production branches and pull requests from the same repository.",
+        "Preview deployments also receive mutable branch aliases.",
+        "Preview deployments are served with X-Robots-Tag noindex by default."
+      ]
+    },
+    {
+      "url": "https://developers.cloudflare.com/pages/configuration/git-integration/",
+      "facts": [
+        "Git integration automatically builds and deploys repository branches.",
+        "Preview branch deployments do not replace the configured production deployment."
+      ]
+    },
+    {
+      "url": "https://developers.cloudflare.com/pages/get-started/direct-upload/",
+      "facts": [
+        "Wrangler can create a preview deployment with pages deploy and a non-production branch.",
+        "Direct-upload runtime qualification is intentionally deferred in this design gate."
+      ]
+    }
+  ],
+  "internal_observations": {
+    "provider_adapter_mapping_exists": true,
+    "provider_adapter_status": "DESIGNED",
+    "provider_adapter_executable": null,
+    "cloud_deploy_static_capability_exists": true,
+    "cloudflare_mcp_catalog_status": "CATALOG_ONLY"
+  },
+  "design_decisions": {
+    "preferred_existing-project_path": "git-integration",
+    "immutable_preview_url_is_release_identity": true,
+    "branch_alias_is_release_identity": false,
+    "future_manifest_capability": "cloud-preview-static",
+    "production_is_out_of_scope": true,
+    "provider_result_must_remain_unverified": true,
+    "browser_verification_chain": ["chrome-devtools-mcp", "playwright-mcp", "verification-broker"]
+  },
+  "runtime_executed": false,
+  "cloudflare_account_touched": false,
+  "pages_project_touched": false,
+  "production_touched": false,
+  "automatic_promotion": false,
+  "blockers_to_contract_ok": [
+    "NARROW_PREVIEW_ONLY_ADAPTER_SURFACE",
+    "TRUSTED_PROJECT_BINDING_CONTRACT_REQUIRED",
+    "GIT_INTEGRATION_OBSERVATION_PATH_REQUIRED"
+  ]
+}
