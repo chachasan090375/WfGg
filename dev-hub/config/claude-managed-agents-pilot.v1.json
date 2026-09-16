@@ -11,9 +11,18 @@
     "default_config": {
       "enabled": false
     },
-    "enabled_tools": ["read", "glob", "grep"],
-    "disabled_tools": ["bash", "write", "edit", "web_fetch", "web_search"],
-    "permission_policy": "always_allow_read_only_only"
+    "configs": [
+      {"name": "read", "enabled": true, "permission_policy": {"type": "always_allow"}},
+      {"name": "glob", "enabled": true, "permission_policy": {"type": "always_allow"}},
+      {"name": "grep", "enabled": true, "permission_policy": {"type": "always_allow"}},
+      {"name": "bash", "enabled": false},
+      {"name": "write", "enabled": false},
+      {"name": "edit", "enabled": false},
+      {"name": "web_fetch", "enabled": false},
+      {"name": "web_search", "enabled": false}
+    ],
+    "expected_enabled_tools": ["read", "glob", "grep"],
+    "expected_disabled_tools": ["bash", "write", "edit", "web_fetch", "web_search"]
   },
   "environment": {
     "type": "cloud",
@@ -22,8 +31,7 @@
       "allowed_hosts": [],
       "allow_mcp_servers": false,
       "allow_package_managers": false
-    },
-    "packages": {}
+    }
   },
   "fixture": {
     "source": "dev-hub/fixtures/claude-pilot-readonly-fixture.txt",
