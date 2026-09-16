@@ -1,0 +1,90 @@
+{
+  "schema": "chacha.dev/playwright-mcp-adapter-runtime-pilot-qualification/v1",
+  "observed_at": "2026-09-16T11:44:08.505420+00:00",
+  "provider": "playwright-mcp",
+  "adapter": "playwright-mcp-adapter",
+  "transition": "CONTRACT_OK->PILOT",
+  "qualification_scope": "EXPLICIT_PROVIDER_COMPATIBILITY",
+  "source": {
+    "repository": "chachasan090375/WfGg",
+    "branch": "dev-hub-v5-playwright-mcp-adapter-runtime-contract",
+    "qualified_head": "6382cf759a8afaa68c05edb580b4b2ef290c24d0",
+    "adapter_introduced_at": "ea48e4be7c43562b2f09f117da521bc2947d09f6"
+  },
+  "compatibility": {
+    "dev_hub_protocol_baseline": "2026-07-28",
+    "upstream_protocol": "2025-11-25",
+    "mode": "EXPLICIT_PROVIDER_COMPATIBILITY",
+    "provider_specific": true,
+    "generic_legacy_fallback": false,
+    "modern_direct_route_blocker": "MCP_2026_07_28_SERVER_DISCOVER_UNSUPPORTED"
+  },
+  "runtime": {
+    "execution_surface": "github-actions-ephemeral",
+    "package": "@playwright/mcp",
+    "package_version": "0.0.81",
+    "browser_version": "154.0.8037.0",
+    "server_info": {
+      "name": "Playwright",
+      "version": "1.64.0-alpha-2026-09-14"
+    },
+    "credentials_used": false,
+    "production_target": false,
+    "vps_modified": false,
+    "workspace_write": false,
+    "repository_write": false
+  },
+  "contract": {
+    "input_schema": "chacha.dev/dispatch-envelope/v1",
+    "output_schema": "chacha.dev/task-result/v1",
+    "producer_status": "OK",
+    "provider_result_verification": "UNVERIFIED",
+    "verification_broker_required": true,
+    "called_tools": [
+      "browser_navigate",
+      "browser_snapshot",
+      "browser_console_messages",
+      "browser_network_requests",
+      "browser_close"
+    ],
+    "arbitrary_task_tool_names_allowed": false,
+    "write_permission_probe": {
+      "status": "BLOCKED",
+      "reason": "READ_PERMISSION_REQUIRED"
+    }
+  },
+  "checks": {
+    "dispatch-envelope-accepted": "PASS",
+    "provider-binding-enforced": "PASS",
+    "read-permission-enforced": "PASS",
+    "local-fixture-only-enforced": "PASS",
+    "inline-credentials-denied": "PASS",
+    "safe-tool-inventory-present": "PASS",
+    "fixed-safe-sequence": "PASS",
+    "task-result-contract": "PASS",
+    "producer-verifier-separation": "PASS",
+    "write-permission-blocked": "PASS",
+    "repository-unchanged": "PASS",
+    "runtime-artifact-uploaded": "PASS"
+  },
+  "workflow": {
+    "run_id": 35091837777,
+    "job_id": 104779729195,
+    "conclusion": "success",
+    "artifact_id": 10443819103,
+    "artifact_digest": "sha256:c7889bd802e28f490537d4c6828dca81a8160c947c14a4edb0f8e2e152d707dd",
+    "task_result_evidence_digest": "sha256:b9eb9653a699a997d1a08ec5b301b7a0287aba4160b9b8a60fbc25fd2442c457"
+  },
+  "promotion": {
+    "automatic": false,
+    "eligible_for_pilot": true,
+    "status_change_applied": false,
+    "blockers": []
+  },
+  "notes": [
+    "Eligibility applies only through the explicitly qualified provider-specific compatibility adapter; the modern direct MCP 2026-07-28 route remains blocked by server/discover support.",
+    "This evidence does not change the DEV HUB MCP baseline and does not create a generic legacy fallback.",
+    "The producer result remains UNVERIFIED until the independent Verification Broker verifies it.",
+    "No adapter/provider promotion is applied by this evidence file; promotion requires an explicit separate decision."
+  ]
+}
