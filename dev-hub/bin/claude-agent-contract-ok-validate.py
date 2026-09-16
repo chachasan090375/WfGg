@@ -39,6 +39,18 @@ def main():
     if cfg.get('decision') != 'ASSESS' or cfg.get('runtime_status') != 'CONTRACT_OK':
         fail('qualification status')
 
+    integration = cfg.get('integration', {})
+    if integration.get('primary_surface') != 'anthropic-provider-abstraction':
+        fail('provider abstraction')
+    if integration.get('preferred_runtime') != 'claude-managed-agents':
+        fail('preferred runtime')
+    if integration.get('compatibility_runtime') != 'claude-agent-sdk':
+        fail('compatibility runtime')
+    if integration.get('execution') != 'external':
+        fail('execution')
+    if integration.get('mcp_server_mode') != 'SECONDARY_OPTIONAL' or integration.get('github_action_mode') != 'NOT_PRIMARY':
+        fail('secondary transports')
+
     q = cfg.get('contract_qualification', {})
     if q.get('transition') != 'DESIGNED->CONTRACT_OK':
         fail('transition')
@@ -67,6 +79,14 @@ def main():
             fail(f'{key} must remain false')
 
     auth = cfg.get('auth', {})
+    if auth.get('credential_type') != 'ANTHROPIC_EXTERNAL_CREDENTIAL':
+        fail('credential type')
+    if set(auth.get('supported_modes', [])) != {'API_KEY', 'WORKLOAD_IDENTITY_FEDERATION'}:
+        fail('supported auth modes')
+    if auth.get('pilot_initial_mode') != 'API_KEY_REFERENCE':
+        fail('pilot auth mode')
+    if auth.get('future_ci_preferred_mode') != 'WORKLOAD_IDENTITY_FEDERATION':
+        fail('future CI auth mode')
     if auth.get('secret_policy') != 'REFERENCE_ONLY':
         fail('secret policy')
     if auth.get('secret_values_in_git') is not False or auth.get('secret_values_in_evidence') is not False:
@@ -115,15 +135,17 @@ def main():
     if ev.get('transition') != 'DESIGNED->CONTRACT_OK':
         fail('evidence transition')
     source = ev.get('source', {})
-    if source.get('qualified_head') != 'b554ef948e25e2d3da7b19aec2afb2ce0c69c30e':
+    if source.get('qualified_head') != '0e33859b0c54d8d8dad4846ae60ea4e36f21d1e7':
         fail('qualified head')
-    if source.get('workflow_run_id') != 35077437340 or source.get('workflow_conclusion') != 'success':
+    if source.get('workflow_run_id') != 35078446312 or source.get('workflow_conclusion') != 'success':
         fail('design CI evidence')
     checks = ev.get('checks', {})
     required = {
-        'provider-binding', 'adapter-static-contract', 'read-plan-only', 'no-code-edit-routing',
-        'default-deny-tools', 'bash-edit-write-denied', 'secret-reference-only',
-        'verification-broker-required', 'no-production-mutation', 'no-automatic-promotion'
+        'provider-binding', 'adapter-static-contract', 'provider-abstraction',
+        'managed-agents-preferred', 'agent-sdk-compatibility-backend', 'read-plan-only',
+        'no-code-edit-routing', 'default-deny-tools', 'bash-edit-write-denied',
+        'external-auth-boundary', 'verification-broker-required',
+        'no-production-mutation', 'no-automatic-promotion'
     }
     if set(checks) != required or any(checks[k] != 'PASS' for k in required):
         fail('static evidence')
@@ -136,7 +158,7 @@ def main():
     if promotion.get('automatic') is not False or promotion.get('blockers') != []:
         fail('promotion blockers')
 
-    print('CLAUDE_CONTRACT_OK_VALID: static=true runtime=false credentials=false writes=false next=PILOT')
+    print('CLAUDE_CONTRACT_OK_VALID: provider-abstraction=true preferred=managed-agents compatibility=agent-sdk runtime=false writes=false next=PILOT')
 
 
 if __name__ == '__main__':
