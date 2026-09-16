@@ -1,0 +1,41 @@
+{
+  "schema": "chacha.dev/external-runtime-binding-policy/v1",
+  "binding_schema": "chacha.dev/runtime-bindings/v1",
+  "principles": {
+    "external_adapter_registry_executable_stays_null": true,
+    "runtime_binding_is_runner_owned": true,
+    "runtime_binding_is_project_scoped": true,
+    "runtime_binding_is_ephemeral": true,
+    "runtime_binding_requires_sha256": true,
+    "runtime_binding_is_revalidated_at_dispatch": true,
+    "task_cannot_select_executable": true,
+    "task_cannot_select_runtime_binding_file": true,
+    "binding_file_must_live_outside_repository": true,
+    "bound_executable_must_live_outside_repository": true
+  },
+  "environment": {
+    "binding_file_variable": "CHACHA_DEV_RUNTIME_BINDINGS",
+    "allowed_source": "trusted-runner"
+  },
+  "time": {
+    "maximum_ttl_seconds": 3600,
+    "clock_skew_seconds": 60
+  },
+  "execution": {
+    "allowed_provider_execution": ["external"],
+    "require_enabled_adapter": true,
+    "require_absolute_executable": true,
+    "require_regular_file": true,
+    "require_executable_bit": true,
+    "digest_algorithm": "sha256"
+  },
+  "safety": {
+    "allow_registry_mutation": false,
+    "allow_repository_binding_file": false,
+    "allow_repository_executable": false,
+    "allow_missing_digest": false,
+    "allow_expired_binding": false,
+    "allow_cross_project_binding": false,
+    "allow_task_override": false
+  }
+}
