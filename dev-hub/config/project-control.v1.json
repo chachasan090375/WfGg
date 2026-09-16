@@ -54,7 +54,7 @@
     "lifecycle_engine": "dev-hub/bin/lifecycle-engine.py",
     "task_graph_engine": "dev-hub/bin/task-graph-engine.py",
     "provider_selection_engine": "dev-hub/bin/provider-selection-engine.py",
-    "execution_scheduler": "dev-hub/bin/execution-scheduler.py",
+    "execution_scheduler": "dev-hub/bin/selection-aware-execution-scheduler.py",
     "run_controller": "dev-hub/bin/run-controller.py",
     "verification_broker": "dev-hub/bin/verification-broker.py",
     "evidence_collector": "dev-hub/bin/evidence-collector.py",
