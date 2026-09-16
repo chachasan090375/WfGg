@@ -83,7 +83,7 @@ jobs:
           assert report['approval_required'] is False
           assert report['requires_local_executable'] is False
           assert receipt['receipt_schema'] == 'chacha.dev/adapter-promotion-receipt/v1'
-          assert receipt['old_entry']['status'] == 'PILOT'
+          assert receipt['previous_entry']['status'] == 'PILOT'
           assert receipt['new_entry']['status'] == 'ENABLED'
           assert receipt['new_entry'].get('executable') is None
           print('CONTEXT7_ENABLED_PROMOTION_RECEIPT_OK')
