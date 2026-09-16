@@ -34,6 +34,7 @@ permissions:
 
 jobs:
   readiness:
+    if: github.event_name != 'pull_request' || github.event.pull_request.base.ref == 'dev-hub-v5-context7-pilot'
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
