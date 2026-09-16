@@ -1,0 +1,99 @@
+name: Dev Hub V5 Claude PILOT Provision — Manual Only
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirmation:
+        description: "Type exactly PROVISION_READ_ONLY_CLAUDE_PILOT"
+        required: true
+        type: string
+      model_id:
+        description: "Approved active Anthropic model ID for this sandbox qualification"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  provision:
+    if: inputs.confirmation == 'PROVISION_READ_ONLY_CLAUDE_PILOT'
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Require external secret reference
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          test -n "$ANTHROPIC_API_KEY" || { echo 'ANTHROPIC_API_KEY secret is not configured'; exit 2; }
+
+      - name: Install Anthropic SDK
+        run: python -m pip install --disable-pip-version-check 'anthropic>=1.5,<2'
+
+      - name: Record SDK version
+        run: |
+          python - <<'PY'
+          import anthropic
+          from pathlib import Path
+          Path('/tmp/anthropic-sdk-version.txt').write_text(str(anthropic.__version__) + '\n')
+          print('ANTHROPIC_SDK_VERSION=' + str(anthropic.__version__))
+          PY
+
+      - name: Provision read-only Managed Agent and Environment
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          CHACHA_ANTHROPIC_MODEL_ID: ${{ inputs.model_id }}
+        run: |
+          python dev-hub/bin/claude-managed-agents-provision.py \
+            --apply \
+            --output /tmp/claude-managed-agents-provisioning.json
+
+      - name: Validate safe provisioning receipt
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path('/tmp/claude-managed-agents-provisioning.json')
+          value = json.loads(p.read_text())
+          assert value['schema'] == 'chacha.dev/claude-managed-agents-provisioning/v1'
+          assert value['status'] == 'PROVISIONED'
+          assert value['created'] is True
+          assert value['credential_value_observed'] is False
+          assert value['agent_id']
+          assert int(value['agent_version']) >= 1
+          assert value['environment_id']
+          assert value['blockers'] == []
+          summary = Path('/tmp/claude-provisioning-summary.md')
+          summary.write_text(
+              '## Claude read-only PILOT resources created\n\n'
+              f"- Agent ID: `{value['agent_id']}`\n"
+              f"- Agent version: `{value['agent_version']}`\n"
+              f"- Environment ID: `{value['environment_id']}`\n"
+              f"- Model ID: `{value.get('model_id')}`\n\n"
+              'No credential value is present in this receipt.\n'
+          )
+          PY
+          cat /tmp/claude-provisioning-summary.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Stage provisioning evidence
+        run: |
+          mkdir -p /tmp/claude-provision-artifact
+          cp /tmp/claude-managed-agents-provisioning.json /tmp/claude-provision-artifact/provisioning.json
+          cp /tmp/anthropic-sdk-version.txt /tmp/claude-provision-artifact/sdk-version.txt
+          cp /tmp/claude-provisioning-summary.md /tmp/claude-provision-artifact/summary.md
+
+      - name: Upload provisioning evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: claude-pilot-provisioning-${{ github.run_id }}
+          path: /tmp/claude-provision-artifact
+          if-no-files-found: error
+          retention-days: 30
