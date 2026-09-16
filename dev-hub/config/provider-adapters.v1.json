@@ -49,7 +49,7 @@
     "skywork-adapter": {"status": "DESIGNED", "executable": null, "supports": ["read", "plan", "workspace-write"]},
     "mcp-adapter": {"status": "DESIGNED", "executable": null, "supports": ["read", "plan"]},
     "project-command-adapter": {"status": "DESIGNED", "executable": null, "supports": ["read", "workspace-write", "preview-deploy", "production-deploy"]},
-    "http-smoke-adapter": {"status": "CONTRACT_OK", "executable": null, "supports": ["read"]},
+    "http-smoke-adapter": {"status": "PILOT", "executable": "/opt/chacha-dev/adapters/http-smoke/current/http-smoke-adapter", "supports": ["read"]},
     "nas-ssh-adapter": {"status": "DESIGNED", "executable": null, "supports": ["read", "workspace-write"]},
     "local-binary-adapter": {"status": "DESIGNED", "executable": null, "supports": ["read", "workspace-write"]},
     "python-runtime-adapter": {"status": "DESIGNED", "executable": null, "supports": ["read", "workspace-write"]},
