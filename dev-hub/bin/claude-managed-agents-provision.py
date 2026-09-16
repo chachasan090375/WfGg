@@ -36,6 +36,15 @@ def as_dict(value: Any) -> Any:
     return value
 
 
+def api_toolset_from_contract(toolset: dict[str, Any]) -> dict[str, Any]:
+    """Strip DEV HUB-only expectation fields before sending to Anthropic."""
+    return {
+        'type': toolset.get('type'),
+        'default_config': toolset.get('default_config'),
+        'configs': toolset.get('configs'),
+    }
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description='Provision Claude Managed Agents PILOT resources')
     parser.add_argument('--apply', action='store_true', help='Explicitly create remote Anthropic resources')
@@ -44,6 +53,7 @@ def main() -> int:
 
     pilot = load(PILOT)
     toolset = pilot.get('toolset') or {}
+    api_toolset = api_toolset_from_contract(toolset)
     environment_cfg = pilot.get('environment') or {}
     model_ref_present = 'CHACHA_ANTHROPIC_MODEL_ID' in os.environ
     credential_ref_present = 'ANTHROPIC_API_KEY' in os.environ
@@ -61,7 +71,9 @@ def main() -> int:
         'agent': {
             'name': 'ChaCha DEV HUB read-only PILOT',
             'model_source': 'CHACHA_ANTHROPIC_MODEL_ID',
-            'toolset': toolset,
+            'api_toolset': api_toolset,
+            'expected_enabled_tools': toolset.get('expected_enabled_tools') or [],
+            'expected_disabled_tools': toolset.get('expected_disabled_tools') or [],
             'mcp_servers': [],
             'skills': [],
             'multiagent': None,
@@ -94,8 +106,21 @@ def main() -> int:
         blockers.append('MISSING_EXTERNAL_REFERENCE:CHACHA_ANTHROPIC_MODEL_ID')
     if pilot.get('api_beta') != BETA:
         blockers.append('API_BETA_MISMATCH')
-    if (toolset.get('default_config') or {}).get('enabled') is not False:
+    if api_toolset.get('type') != 'agent_toolset_20260401':
+        blockers.append('TOOLSET_TYPE_INVALID')
+    if (api_toolset.get('default_config') or {}).get('enabled') is not False:
         blockers.append('TOOLSET_DEFAULT_NOT_DISABLED')
+    configs = api_toolset.get('configs') if isinstance(api_toolset.get('configs'), list) else []
+    by_name = {x.get('name'): x for x in configs if isinstance(x, dict) and isinstance(x.get('name'), str)}
+    for name in {'read', 'glob', 'grep'}:
+        item = by_name.get(name) or {}
+        if item.get('enabled') is not True or (item.get('permission_policy') or {}).get('type') != 'always_allow':
+            blockers.append(f'READ_TOOL_INVALID:{name}')
+    for name in {'bash', 'write', 'edit', 'web_fetch', 'web_search'}:
+        if (by_name.get(name) or {}).get('enabled') is not False:
+            blockers.append(f'DANGEROUS_TOOL_NOT_DISABLED:{name}')
+    if set(by_name) != {'read', 'glob', 'grep', 'bash', 'write', 'edit', 'web_fetch', 'web_search'}:
+        blockers.append('UNEXPECTED_TOOL_CONFIG_PRESENT')
     network = (environment_cfg.get('networking') or {}) if isinstance(environment_cfg, dict) else {}
     if environment_cfg.get('type') != 'cloud':
         blockers.append('ENVIRONMENT_NOT_CLOUD')
@@ -122,7 +147,7 @@ def main() -> int:
         print(json.dumps(plan, indent=2, ensure_ascii=False))
         return 2
 
-    # Value is required by the remote API but is never copied into the receipt.
+    # Values are required by the remote API but credentials are never copied into the receipt.
     model_id = os.environ['CHACHA_ANTHROPIC_MODEL_ID']
     client = Anthropic()
     environment_id: str | None = None
@@ -155,7 +180,7 @@ def main() -> int:
                 'Never execute shell commands, write or edit files, access the web, use MCP, '
                 'or attempt any production or repository mutation.'
             ),
-            tools=[toolset],
+            tools=[api_toolset],
             mcp_servers=[],
             metadata={'owner': 'chacha-dev-hub', 'purpose': 'readonly-pilot'},
             betas=[BETA],
