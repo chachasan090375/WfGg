@@ -6,6 +6,20 @@ Le catalogue MCP étend le modèle Provider/Adapter du DEV HUB V5 sans créer de
 
 Un provider présent dans `mcp-provider-catalog.v1.json` n'est **pas** autorisé à s'exécuter. Le catalogue décrit uniquement l'intention d'intégration, les risques, les capacités visées et les restrictions minimales.
 
+## Baseline protocolaire
+
+Pour toute nouvelle intégration, le DEV HUB cible la spécification MCP `2026-07-28` :
+
+- découverte : `server/discover` ;
+- catalogue d'outils : `tools/list` ;
+- invocation : `tools/call` ;
+- transport distant : Streamable HTTP ;
+- transport local : `stdio` ;
+- aucun nouveau déploiement sur le transport SSE historique ;
+- aucun contrat neuf ne dépend du handshake `initialize/initialized` supprimé de la baseline 2026-07-28.
+
+Si un provider ne supporte qu'une version MCP antérieure, la compatibilité doit être explicite dans son adapter et son contrat. Il n'existe aucun fallback silencieux vers un protocole ancien.
+
 ## Règle fondamentale
 
 Le chemin d'admission reste :
@@ -148,7 +162,7 @@ Avant de passer de `CATALOG_ONLY` à `DESIGNED`, un provider doit avoir :
 2. les capacités demandées ;
 3. les scopes read/write séparés ;
 4. le mode d'authentification sans secret en Git ;
-5. un health probe fonctionnel ;
+5. un health probe fonctionnel fondé sur la baseline protocolaire courante ;
 6. une stratégie de timeout ;
 7. une stratégie de rollback/désactivation ;
 8. une politique de redaction des preuves ;
@@ -187,4 +201,4 @@ Cette phase ne :
 - ne promeut aucun adapter ;
 - ne change pas le statut `PILOT` de `http-smoke-adapter`.
 
-Le prochain lot doit définir le **contrat MCP générique read-only** et choisir le premier provider à faire passer `CATALOG_ONLY -> DESIGNED`, sans perturber le travail parallèle `http-smoke PILOT -> ENABLED`.
+Le prochain lot définit le **contrat MCP générique read-only**. Aucun provider ne doit dépasser `DESIGNED` par ce seul lot, et le travail parallèle `http-smoke PILOT -> ENABLED` reste indépendant.
