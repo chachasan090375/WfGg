@@ -1,0 +1,65 @@
+name: Dev Hub V5 Cloudflare Pages Preview ENABLED
+
+on:
+  push:
+    branches:
+      - dev-hub-v5-cloudflare-pages-preview-enabled
+  pull_request:
+    branches:
+      - dev-hub-v5-cloudflare-pages-preview-contract-ok
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate authoritative ENABLED state
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path('.')
+          adapters=json.loads((root/'dev-hub/config/provider-adapters.v1.json').read_text())
+          contract=json.loads((root/'dev-hub/config/cloudflare-pages-preview-contract.v1.json').read_text())
+          receipt=json.loads((root/'dev-hub/evidence/cloudflare-pages-preview-enabled-2026-09-17.json').read_text())
+          provisioner=json.loads((root/'dev-hub/config/trusted-runtime-provisioner.v1.json').read_text())
+          a=adapters['adapters']['cloudflare-pages-adapter']
+          assert a['status']=='ENABLED'
+          assert a['supports']==['preview-deploy']
+          assert a['executable'] is None
+          assert contract['runtime_status']=='ENABLED'
+          assert contract['security']['preview_only'] is True
+          assert contract['security']['production_deploy'] is False
+          assert contract['security']['production_branch'] is False
+          assert contract['delivery_model']['wrangler_direct']['runtime_enabled'] is False
+          q=contract['enablement_qualification']
+          assert q['workflow_run_id']==35159948142
+          assert q['workflow_conclusion']=='success'
+          assert q['artifact_id']==10472586815
+          assert q['business_run_id']=='run-20260916T225607Z-fb98abb3'
+          assert q['real_pages_preview_observed'] is True
+          assert q['repeatability']=='3/3'
+          assert q['provider_health']=='HEALTHY'
+          assert q['verification_broker_status']=='VERIFIED'
+          assert q['production_touched'] is False
+          assert receipt['runtime_status']=='ENABLED'
+          assert receipt['verification_broker']=='VERIFIED'
+          assert receipt['production_touched'] is False
+          assert provisioner['providers']['chrome-devtools-mcp']['launcher_source']=='dev-hub/bin/chrome-devtools-mcp-adapter-runtime-v3-entry.py'
+          assert (root/'dev-hub/bin/chrome-devtools-mcp-adapter-runtime-v3-entry.py').exists()
+          print('CLOUDFLARE_PAGES_PREVIEW_ENABLED_VALID=PASS')
+          PY
+      - name: Confirm no temporary qualification workflows remain
+        shell: bash
+        run: |
+          set -euo pipefail
+          test ! -e .github/workflows/dev-hub-v5-cloudflare-pages-preview-chrome-diagnostic.yml
+          test ! -e .github/workflows/dev-hub-v5-cloudflare-pages-preview-enable-chain-v3.yml
+          echo 'CLOUDFLARE_PAGES_TEMP_WORKFLOWS_REMOVED=PASS'

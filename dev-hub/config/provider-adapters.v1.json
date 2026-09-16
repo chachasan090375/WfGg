@@ -46,7 +46,7 @@
     "github-connector": {"status": "DESIGNED", "executable": null, "supports": ["read", "repository-write"]},
     "github-actions-connector": {"status": "DESIGNED", "executable": null, "supports": ["read"]},
     "github-artifacts-connector": {"status": "DESIGNED", "executable": null, "supports": ["read"]},
-    "cloudflare-pages-adapter": {"status": "CONTRACT_OK", "executable": null, "supports": ["preview-deploy"]},
+    "cloudflare-pages-adapter": {"status": "ENABLED", "executable": null, "supports": ["preview-deploy"]},
     "antigravity-adapter": {"status": "DESIGNED", "executable": null, "supports": ["read", "plan", "workspace-write"]},
     "skywork-adapter": {"status": "DESIGNED", "executable": null, "supports": ["read", "plan", "workspace-write"]},
     "mcp-adapter": {"status": "DESIGNED", "executable": null, "supports": ["read", "plan"]},

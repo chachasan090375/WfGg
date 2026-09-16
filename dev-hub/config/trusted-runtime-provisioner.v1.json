@@ -20,7 +20,7 @@
       "contract": "dev-hub/config/mcp-chrome-devtools-contract.v1.json",
       "adapter": "chrome-devtools-mcp-adapter",
       "package_binary": "chrome-devtools-mcp",
-      "launcher_source": "dev-hub/adapters/chrome-devtools-mcp-adapter.py",
+      "launcher_source": "dev-hub/bin/chrome-devtools-mcp-adapter-runtime-v3-entry.py",
       "browser_install": "none",
       "runtime_environment": {
         "server": "CHACHA_CHROME_DEVTOOLS_MCP_SERVER",
