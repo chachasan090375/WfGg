@@ -1,0 +1,76 @@
+{
+  "schema": "chacha.dev/adapter-promotion-evidence/v1",
+  "adapter": "playwright-mcp-adapter",
+  "provider": "playwright-mcp",
+  "observed_at": "2026-09-16T11:31:25.818282+00:00",
+  "evidence": {
+    "runtime-contract-pass": {
+      "status": "PASS",
+      "source": "github-actions:35090712764",
+      "observed_at": "2026-09-16T11:31:25.818282+00:00",
+      "details": {
+        "input_schema": "chacha.dev/dispatch-envelope/v1",
+        "output_schema": "chacha.dev/task-result/v1",
+        "provider_result_trust": "UNVERIFIED",
+        "operation": "inspect",
+        "caller_selects_mcp_tool": false,
+        "fixed_tool_sequence": [
+          "browser_navigate",
+          "browser_snapshot",
+          "browser_console_messages",
+          "browser_network_requests",
+          "browser_close"
+        ],
+        "upstream_protocol": "2025-11-25",
+        "compatibility_mode": "EXPLICIT_PROVIDER_COMPATIBILITY",
+        "dev_hub_mcp_baseline": "2026-07-28",
+        "final_origin_revalidated": true,
+        "query_string_removed_from_evidence_source": true,
+        "unsafe_tool_invoked": false,
+        "artifact_id": 10443543496,
+        "artifact_digest": "sha256:2da5fd8b9e0ff62a93a5bbd2734f5263d7ab23620ffe0befa3bc87166034deeb"
+      }
+    },
+    "sandbox-only": {
+      "status": "PASS",
+      "source": "github-actions:35090712764",
+      "observed_at": "2026-09-16T11:31:25.818282+00:00",
+      "details": {
+        "execution_surface": "github-actions-ephemeral",
+        "target_class": "test",
+        "production_target": false,
+        "production_mutation": false,
+        "workspace_write": false,
+        "repository_write": false,
+        "credentials_used": false,
+        "vps_modified": false,
+        "permission": "read",
+        "origin_escalation_blocked": true,
+        "repository_unchanged": true,
+        "verification_broker_required": true
+      }
+    },
+    "provisioning-pass": {
+      "status": "PASS",
+      "source": "github-actions:35090712764",
+      "observed_at": "2026-09-16T11:31:25.818282+00:00",
+      "details": {
+        "execution": "external",
+        "local_executable": null,
+        "provider_binding": "playwright-mcp",
+        "adapter_binding": "playwright-mcp-adapter",
+        "runtime_surface": "github-actions-ephemeral",
+        "package": "@playwright/mcp",
+        "package_version": "0.0.81",
+        "browser": "chromium",
+        "upstream_protocol": "2025-11-25",
+        "dev_hub_protocol_baseline": "2026-07-28",
+        "compatibility_mode": "EXPLICIT_PROVIDER_COMPATIBILITY",
+        "credentials_used": false,
+        "binding_verified_by": "playwright-mcp-real-adapter-contract"
+      }
+    }
+  },
+  "approvals": [],
+  "notes": "Read-only external provider evidence. This authorizes only an explicit sandbox evaluation of CONTRACT_OK->PILOT; it does not mutate the canonical registry or enable production use."
+}

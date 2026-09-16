@@ -1,0 +1,133 @@
+name: Dev Hub V5 Playwright MCP Promotion Sandbox
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - dev-hub-v5-playwright-mcp-promotion-sandbox
+    paths:
+      - 'dev-hub/evidence/playwright-mcp-contract-ok-to-pilot-2026-09-16.json'
+      - 'dev-hub/evidence/playwright-mcp-adapter-contract-2026-09-16.json'
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - 'dev-hub/config/adapter-contract.v1.json'
+      - 'dev-hub/config/adapter-promotion.v1.json'
+      - 'dev-hub/bin/adapter-promotion.py'
+      - '.github/workflows/dev-hub-v5-playwright-mcp-promotion-sandbox.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  promote-in-sandbox:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate promotion evidence and canonical precondition
+        run: |
+          python -m json.tool dev-hub/evidence/playwright-mcp-contract-ok-to-pilot-2026-09-16.json >/dev/null
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path('dev-hub/config/provider-adapters.v1.json').read_text())
+          e=json.loads(Path('dev-hub/evidence/playwright-mcp-contract-ok-to-pilot-2026-09-16.json').read_text())
+          a=r['adapters']['playwright-mcp-adapter']
+          p=r['providers']['playwright-mcp']
+          assert a['status']=='CONTRACT_OK'
+          assert a['supports']==['read']
+          assert a.get('executable') is None
+          assert p['execution']=='external'
+          assert e['schema']=='chacha.dev/adapter-promotion-evidence/v1'
+          assert e['adapter']=='playwright-mcp-adapter'
+          assert e['provider']=='playwright-mcp'
+          for label in ('runtime-contract-pass','sandbox-only','provisioning-pass'):
+              assert e['evidence'][label]['status']=='PASS'
+              assert e['evidence'][label]['source']
+          d=e['evidence']['provisioning-pass']['details']
+          assert d['execution']=='external'
+          assert d['local_executable'] is None
+          assert d['provider_binding']=='playwright-mcp'
+          assert e['evidence']['runtime-contract-pass']['details']['unsafe_tool_invoked'] is False
+          print('PLAYWRIGHT_PROMOTION_EVIDENCE_PRECONDITION=PASS')
+          PY
+
+      - name: Plan CONTRACT_OK to PILOT
+        run: |
+          python dev-hub/bin/adapter-promotion.py \
+            --registry dev-hub/config/provider-adapters.v1.json \
+            --contract dev-hub/config/adapter-contract.v1.json \
+            --policy dev-hub/config/adapter-promotion.v1.json \
+            --evidence dev-hub/evidence/playwright-mcp-contract-ok-to-pilot-2026-09-16.json \
+            --report /tmp/playwright-pilot-plan.json \
+            plan --adapter playwright-mcp-adapter --target PILOT
+
+      - name: Apply promotion to sandbox registry copy
+        run: |
+          cp dev-hub/config/provider-adapters.v1.json /tmp/provider-adapters-after.json
+          python dev-hub/bin/adapter-promotion.py \
+            --registry /tmp/provider-adapters-after.json \
+            --contract dev-hub/config/adapter-contract.v1.json \
+            --policy dev-hub/config/adapter-promotion.v1.json \
+            --evidence dev-hub/evidence/playwright-mcp-contract-ok-to-pilot-2026-09-16.json \
+            --report /tmp/playwright-pilot-apply-report.json \
+            apply --adapter playwright-mcp-adapter --target PILOT \
+            --actor "github-actions:${GITHUB_RUN_ID}" \
+            --receipt /tmp/playwright-pilot-receipt.json \
+            --apply
+
+      - name: Validate sandbox receipt and canonical registry immutability
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          canonical=json.loads(Path('dev-hub/config/provider-adapters.v1.json').read_text())
+          sandbox=json.loads(Path('/tmp/provider-adapters-after.json').read_text())
+          plan=json.loads(Path('/tmp/playwright-pilot-plan.json').read_text())
+          report=json.loads(Path('/tmp/playwright-pilot-apply-report.json').read_text())
+          receipt=json.loads(Path('/tmp/playwright-pilot-receipt.json').read_text())
+          c=canonical['adapters']['playwright-mcp-adapter']
+          s=sandbox['adapters']['playwright-mcp-adapter']
+          assert c['status']=='CONTRACT_OK'
+          assert c.get('executable') is None
+          assert c['supports']==['read']
+          assert s['status']=='PILOT'
+          assert s.get('executable') is None
+          assert s['supports']==['read']
+          assert plan['eligible'] is True
+          assert plan['applied'] is False
+          assert plan['blockers']==[]
+          assert plan['requires_local_executable'] is False
+          assert plan['production_capable'] is False
+          assert report['eligible'] is True
+          assert report['applied'] is True
+          assert report['blockers']==[]
+          assert report['requires_local_executable'] is False
+          assert report['production_capable'] is False
+          assert receipt['receipt_schema']=='chacha.dev/adapter-promotion-receipt/v1'
+          assert receipt['previous_entry']['status']=='CONTRACT_OK'
+          assert receipt['new_entry']['status']=='PILOT'
+          assert receipt['new_entry'].get('executable') is None
+          assert receipt['new_entry']['supports']==['read']
+          print('PLAYWRIGHT_PILOT_SANDBOX_PROMOTION=PASS')
+          print('CANONICAL_REGISTRY_MUTATED=NO')
+          PY
+
+      - name: Stage promotion outputs
+        run: |
+          mkdir -p /tmp/playwright-pilot-artifact
+          cp /tmp/provider-adapters-after.json /tmp/playwright-pilot-artifact/provider-adapters.v1.json
+          cp /tmp/playwright-pilot-plan.json /tmp/playwright-pilot-artifact/playwright-pilot-plan.json
+          cp /tmp/playwright-pilot-apply-report.json /tmp/playwright-pilot-artifact/playwright-pilot-apply-report.json
+          cp /tmp/playwright-pilot-receipt.json /tmp/playwright-pilot-artifact/playwright-pilot-receipt.json
+          cp dev-hub/evidence/playwright-mcp-contract-ok-to-pilot-2026-09-16.json /tmp/playwright-pilot-artifact/promotion-evidence.json
+          cp dev-hub/evidence/playwright-mcp-adapter-contract-2026-09-16.json /tmp/playwright-pilot-artifact/adapter-contract-evidence.json
+
+      - name: Upload promotion outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-mcp-pilot-promotion-${{ github.run_id }}
+          path: /tmp/playwright-pilot-artifact
+          if-no-files-found: error
+          retention-days: 30
