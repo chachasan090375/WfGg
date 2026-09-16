@@ -3,7 +3,7 @@
   "provider_id": "cloudflare-pages",
   "adapter_id": "cloudflare-pages-adapter",
   "decision": "ADOPT",
-  "runtime_status": "CONTRACT_OK",
+  "runtime_status": "ENABLED",
   "purpose": "Observe non-production Cloudflare Pages Git-integration previews and emit an immutable preview deployment URL for downstream verification.",
   "authoritative_sources": [
     "https://developers.cloudflare.com/pages/configuration/preview-deployments/",
@@ -12,7 +12,7 @@
   ],
   "delivery_model": {
     "preferred_mode": "git-integration",
-    "qualified_modes": ["git-integration-observation-contract"],
+    "qualified_modes": ["git-integration-observation-contract", "git-integration-preview-enabled"],
     "designed_modes": ["git-integration", "wrangler-direct"],
     "git_integration": {
       "existing_project_binding_required": true,
@@ -99,9 +99,37 @@
     "cloudflare_credentials_used": false,
     "automatic_promotion": false
   },
+  "enablement_qualification": {
+    "transition": "CONTRACT_OK->PILOT->ENABLED",
+    "workflow_run_id": 35159948142,
+    "workflow_conclusion": "success",
+    "qualified_head": "0c1e0a9693f3dd12c87a6c80e6f896991b082a0f",
+    "artifact_id": 10472586815,
+    "artifact_digest": "sha256:ab1bff41f9e6b94e9c81501246535bb70602b99f208feb53ed272c56504d49ea",
+    "business_run_id": "run-20260916T225607Z-fb98abb3",
+    "real_pages_preview_observed": true,
+    "repeatability": "3/3",
+    "provider_health": "HEALTHY",
+    "provider_result_trust": "UNVERIFIED",
+    "chrome_source_verification_pass": true,
+    "playwright_independent_verification_pass": true,
+    "verification_broker_status": "VERIFIED",
+    "readiness": "READY_FOR_ENABLEMENT",
+    "sandbox_promotion_pass": true,
+    "authoritative_registry_mutated_during_sandbox": false,
+    "rollback_defined": true,
+    "rollback_target": "CONTRACT_OK",
+    "production_touched": false,
+    "cloudflare_project_mutated": false,
+    "workers_target_selected": false,
+    "wrangler_direct_enabled": false,
+    "local_executable": null,
+    "automatic_promotion": false,
+    "blockers": []
+  },
   "admission": {
     "automatic_promotion": false,
-    "next_transition": "CONTRACT_OK->PILOT",
+    "next_transition": "ENABLED->DEGRADED",
     "runtime_pilot_requires": [
       "real-pages-preview-observed",
       "immutable-preview-url-captured",
