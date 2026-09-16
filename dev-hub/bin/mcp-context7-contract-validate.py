@@ -6,6 +6,7 @@ ROOT = Path(__file__).resolve().parents[1]
 CONTRACT = ROOT / "config" / "mcp-context7-contract.v1.json"
 REGISTRY = ROOT / "config" / "provider-adapters.v1.json"
 CATALOG = ROOT / "config" / "mcp-provider-catalog.v1.json"
+ALLOWED_STATUSES = {"DESIGNED", "CONTRACT_OK", "PILOT", "ENABLED", "DEGRADED", "DISABLED", "RETIRED"}
 
 
 def load(path: Path):
@@ -77,23 +78,28 @@ def main():
     adapter = registry.get("adapters", {}).get("context7-mcp-adapter")
     if not provider or provider.get("adapter") != "context7-mcp-adapter" or provider.get("execution") != "external":
         fail("registry provider binding")
-    if not adapter or adapter.get("status") != "DESIGNED":
-        fail("adapter must remain DESIGNED during design validation")
+    if not adapter:
+        fail("adapter missing")
+    status = adapter.get("status")
+    if status not in ALLOWED_STATUSES:
+        fail(f"adapter status={status}")
     if adapter.get("executable") not in {None, ""}:
         fail("external adapter must have no local executable")
     if adapter.get("supports") != ["read"]:
         fail("adapter supports must be read-only")
 
     c7 = catalog.get("providers", {}).get("context7-mcp")
-    if not c7 or c7.get("runtime_status") != "DESIGNED":
-        fail("catalog Context7 must remain DESIGNED")
+    if not c7:
+        fail("catalog Context7 missing")
+    if c7.get("runtime_status") != status:
+        fail(f"catalog/adapter status mismatch: catalog={c7.get('runtime_status')} adapter={status}")
     if c7.get("write_scope") != []:
         fail("catalog Context7 write scope")
 
     if contract.get("source_notes", {}).get("breaking_change_guard") != "get-library-docs is not allowed; query-docs is the expected documentation tool":
         fail("breaking change guard")
 
-    print("CONTEXT7_CONTRACT_VALID: provider=context7-mcp adapter=context7-mcp-adapter status=DESIGNED tools=2")
+    print(f"CONTEXT7_CONTRACT_VALID: provider=context7-mcp adapter=context7-mcp-adapter status={status} tools=2")
 
 
 if __name__ == "__main__":
