@@ -3,7 +3,7 @@
   "provider_id": "playwright-mcp",
   "adapter_id": "playwright-mcp-adapter",
   "decision": "ASSESS",
-  "runtime_status": "CONTRACT_OK",
+  "runtime_status": "PILOT",
   "purpose": "Isolated browser verification and diagnostics for preview/test targets without repository or production mutation.",
   "upstream": {
     "package": "@playwright/mcp",
@@ -116,11 +116,39 @@
     "permissions_expanded": false,
     "automatic_promotion": false
   },
+  "pilot_qualification": {
+    "transition": "CONTRACT_OK->PILOT",
+    "runtime_workflow_run_id": 35082403133,
+    "runtime_workflow_conclusion": "success",
+    "runtime_head": "68c29baaeeb077102d724b1d5a65d7d81eac07f4",
+    "runtime_artifact_id": 10440801334,
+    "runtime_artifact_digest": "sha256:c0aeeb60d12a0fef8674931ae67043d422612290ffd9a35a84338921fe2647e8",
+    "promotion_workflow_run_id": 35082644829,
+    "promotion_workflow_conclusion": "success",
+    "promotion_artifact_id": 10441141270,
+    "promotion_artifact_digest": "sha256:a34a2973b0d87cbb0edc5d71bf6e5307568964ce220fd46c69f758d20844535c",
+    "promotion_receipt": "dev-hub/evidence/playwright-mcp-pilot-promotion-35082644829-receipt.json",
+    "execution": "external",
+    "local_executable": null,
+    "negotiated_era": "legacy",
+    "negotiated_protocol_version": "2025-11-25",
+    "runtime_contract_pass": true,
+    "sandbox_only_pass": true,
+    "provisioning_pass": true,
+    "test_origin_navigation_pass": true,
+    "snapshot_pass": true,
+    "repository_workspace_write": false,
+    "production_mutation": false,
+    "unsafe_tool_invoked": false,
+    "permissions_expanded": false,
+    "automatic_promotion": false,
+    "blockers": []
+  },
   "admission": {
     "automatic_promotion": false,
     "runtime_call_allowed_at_design_stage": false,
     "browser_download_allowed_at_design_stage": false,
-    "next_transition": "CONTRACT_OK->PILOT",
+    "next_transition": "PILOT->ENABLED",
     "contract_ok_requires": [
       "static-contract-pass",
       "dedicated-adapter-binding",
@@ -137,6 +165,11 @@
       "test-origin-navigation-pass",
       "snapshot-pass",
       "no-workspace-write-pass"
+    ],
+    "enablement_requires": [
+      "repeatable-pass",
+      "provider-health-pass",
+      "rollback-defined"
     ]
   }
 }
