@@ -1,0 +1,181 @@
+name: Dev Hub V5 Playwright MCP Compatibility Enablement Sandbox
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - dev-hub-v5-playwright-mcp-compat-enable-sandbox
+    paths:
+      - 'dev-hub/bin/playwright-mcp-enable-readiness-ci.py'
+      - 'dev-hub/bin/playwright-mcp-adapter-runtime.py'
+      - 'dev-hub/bin/adapter-enable-readiness.py'
+      - 'dev-hub/bin/adapter-enablement-evidence.py'
+      - 'dev-hub/bin/adapter-promotion.py'
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - 'dev-hub/config/adapter-enablement.v1.json'
+      - 'dev-hub/config/adapter-rollbacks.v1.json'
+      - 'dev-hub/config/adapter-contract.v1.json'
+      - 'dev-hub/config/adapter-promotion.v1.json'
+      - 'dev-hub/fixtures/playwright-mcp-dispatch-envelope.v1.json'
+      - '.github/workflows/dev-hub-v5-playwright-mcp-compat-enable-sandbox.yml'
+  pull_request:
+    paths:
+      - 'dev-hub/bin/playwright-mcp-enable-readiness-ci.py'
+      - 'dev-hub/bin/playwright-mcp-adapter-runtime.py'
+      - 'dev-hub/bin/adapter-enable-readiness.py'
+      - 'dev-hub/bin/adapter-enablement-evidence.py'
+      - 'dev-hub/bin/adapter-promotion.py'
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - 'dev-hub/config/adapter-enablement.v1.json'
+      - 'dev-hub/config/adapter-rollbacks.v1.json'
+      - 'dev-hub/config/adapter-contract.v1.json'
+      - 'dev-hub/config/adapter-promotion.v1.json'
+      - 'dev-hub/fixtures/playwright-mcp-dispatch-envelope.v1.json'
+      - '.github/workflows/dev-hub-v5-playwright-mcp-compat-enable-sandbox.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  sandbox-promotion:
+    if: github.event_name != 'pull_request' || github.event.pull_request.base.ref == 'dev-hub-v5-playwright-mcp-compat-enable-readiness'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Confirm authoritative registry starts at PILOT
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path('dev-hub/config/provider-adapters.v1.json').read_text())
+          a=r['adapters']['playwright-mcp-adapter']
+          assert a['status']=='PILOT'
+          assert a['status']!='ENABLED'
+          assert a['supports']==['read']
+          assert a['executable'] is None
+          print('PLAYWRIGHT_SANDBOX_SOURCE_STATUS=PILOT')
+          PY
+          sha256sum dev-hub/config/provider-adapters.v1.json > /tmp/authoritative-registry-before.sha256
+
+      - name: Provision pinned provider runtime outside repository
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/playwright-mcp-runtime
+          cd /tmp/playwright-mcp-runtime
+          npm init -y >/dev/null
+          npm install --no-save @playwright/mcp@0.0.81
+          test "$(node -p "require('./node_modules/@playwright/mcp/package.json').version")" = "0.0.81"
+          npx playwright install --with-deps chromium
+
+      - name: Start ephemeral local fixture
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/playwright-fixture
+          cat >/tmp/playwright-fixture/index.html <<'HTML'
+          <!doctype html>
+          <html><head><title>DEV HUB Playwright Enablement Sandbox</title></head>
+          <body>
+            <h1>DEV HUB Playwright Enablement Sandbox</h1>
+            <p>playwright-enable-sandbox-ready</p>
+            <script>
+              console.log('playwright-sandbox-console-ok');
+              fetch('/api.json').then(r => r.json()).then(x => console.log('playwright-sandbox-network-ok', x.ok));
+            </script>
+          </body></html>
+          HTML
+          cat >/tmp/playwright-fixture/api.json <<'JSON'
+          {"ok":true,"source":"playwright-enable-sandbox"}
+          JSON
+          cd /tmp/playwright-fixture
+          python -m http.server 8765 --bind 127.0.0.1 >/tmp/playwright-fixture-server.log 2>&1 &
+          echo $! > /tmp/playwright-fixture-server.pid
+          for i in $(seq 1 20); do
+            if curl -fsS http://127.0.0.1:8765/ >/dev/null; then exit 0; fi
+            sleep 0.25
+          done
+          exit 1
+
+      - name: Reproduce readiness evidence
+        env:
+          PLAYWRIGHT_MCP_SERVER: /tmp/playwright-mcp-runtime/node_modules/.bin/playwright-mcp
+          PLAYWRIGHT_MCP_WORKDIR: /tmp/playwright-mcp-runtime
+        run: python dev-hub/bin/playwright-mcp-enable-readiness-ci.py
+
+      - name: Apply PILOT to ENABLED only on temporary registry copy
+        shell: bash
+        run: |
+          set -euo pipefail
+          ROOT=/tmp/playwright-mcp-enable-sandbox
+          mkdir -p "$ROOT"
+          cp dev-hub/config/provider-adapters.v1.json "$ROOT/provider-adapters.sandbox.json"
+          python dev-hub/bin/adapter-promotion.py \
+            --registry "$ROOT/provider-adapters.sandbox.json" \
+            --evidence /tmp/playwright-mcp-enable-readiness/readiness/enablement-evidence.json \
+            --report "$ROOT/promotion-report.json" \
+            --json \
+            apply \
+            --adapter playwright-mcp-adapter \
+            --target ENABLED \
+            --actor github-actions:playwright-mcp-enable-sandbox \
+            --receipt "$ROOT/promotion-receipt.json" \
+            --apply \
+            > "$ROOT/promotion-stdout.json"
+
+      - name: Validate sandbox promotion and authoritative non-mutation
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path('/tmp/playwright-mcp-enable-sandbox')
+          sandbox=json.loads((root/'provider-adapters.sandbox.json').read_text())
+          report=json.loads((root/'promotion-report.json').read_text())
+          receipt=json.loads((root/'promotion-receipt.json').read_text())
+          authoritative=json.loads(Path('dev-hub/config/provider-adapters.v1.json').read_text())
+          sa=sandbox['adapters']['playwright-mcp-adapter']
+          aa=authoritative['adapters']['playwright-mcp-adapter']
+          assert report['eligible'] is True
+          assert report['applied'] is True
+          assert report['current_status']=='PILOT'
+          assert report['target_status']=='ENABLED'
+          assert report['transition']=='PILOT->ENABLED'
+          assert report['production_capable'] is False
+          assert report['approval_required'] is False
+          assert report['requires_local_executable'] is False
+          assert report['blockers']==[]
+          assert sa['status']=='ENABLED'
+          assert sa['supports']==['read']
+          assert sa['executable'] is None
+          assert receipt['receipt_schema']=='chacha.dev/adapter-promotion-receipt/v1'
+          assert receipt['previous_entry']['status']=='PILOT'
+          assert receipt['new_entry']['status']=='ENABLED'
+          assert receipt['new_entry']['supports']==['read']
+          assert receipt['new_entry']['executable'] is None
+          assert aa['status']=='PILOT'
+          assert aa['status']!='ENABLED'
+          assert aa['supports']==['read']
+          assert aa['executable'] is None
+          print('PLAYWRIGHT_ENABLEMENT_SANDBOX=PASS sandbox=ENABLED authoritative=PILOT production=false')
+          PY
+          sha256sum -c /tmp/authoritative-registry-before.sha256
+          test -z "$(git status --porcelain)"
+
+      - name: Upload sandbox promotion evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-mcp-enable-sandbox-${{ github.run_id }}
+          path: |
+            /tmp/playwright-mcp-enable-sandbox
+            /tmp/playwright-mcp-enable-readiness
+          if-no-files-found: error
+          retention-days: 30

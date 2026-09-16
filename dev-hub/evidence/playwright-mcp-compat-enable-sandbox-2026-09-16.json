@@ -1,0 +1,63 @@
+{
+  "schema": "chacha.dev/playwright-mcp-enable-sandbox-evidence/v1",
+  "observed_at": "2026-09-16T12:07:38.098498+00:00",
+  "provider": "playwright-mcp",
+  "adapter": "playwright-mcp-adapter",
+  "transition": "PILOT->ENABLED",
+  "scope": "TEMPORARY_REGISTRY_COPY_ONLY",
+  "compatibility": {
+    "mode": "EXPLICIT_PROVIDER_COMPATIBILITY",
+    "dev_hub_protocol_baseline": "2026-07-28",
+    "upstream_protocol": "2025-11-25",
+    "generic_legacy_fallback": false
+  },
+  "sandbox_promotion": {
+    "eligible": true,
+    "applied_to_sandbox_copy": true,
+    "sandbox_status_before": "PILOT",
+    "sandbox_status_after": "ENABLED",
+    "authoritative_status_after": "PILOT",
+    "execution_kinds": ["external"],
+    "requires_local_executable": false,
+    "executable_before": null,
+    "executable_after": null,
+    "supports_before": ["read"],
+    "supports_after": ["read"],
+    "production_capable": false,
+    "approval_required": false,
+    "blockers": []
+  },
+  "promotion_receipt": {
+    "receipt_schema": "chacha.dev/adapter-promotion-receipt/v1",
+    "actor": "github-actions:playwright-mcp-enable-sandbox",
+    "evidence_digest": "sha256:81ddbbefd1fe021e38e829c8fc9652c7476c0d5fa9bc4f82e039677cba835aea",
+    "registry_digest_before": "sha256:8259fceca0cfb5e22fc78b0fe1052fe596f47dc538649b5c71f1b7caad646dcb",
+    "sandbox_registry_digest_after": "sha256:154d3c69a0cea358e36c8313421274e45273cb5778ee1fb4779c455d8cdc10bd"
+  },
+  "authoritative_boundaries": {
+    "registry_mutated": false,
+    "status": "PILOT",
+    "enabled": false,
+    "supports": ["read"],
+    "local_executable": null,
+    "production_capable": false,
+    "provider_result_verification": "UNVERIFIED",
+    "verification_broker_required": true,
+    "automatic_promotion": false
+  },
+  "workflow": {
+    "run_id": 35093990825,
+    "job_id": 104786726229,
+    "head": "8ca4f7477217c7eee0cd125ffcca9e3f2486404f",
+    "conclusion": "success",
+    "artifact_id": 10445322680,
+    "artifact_digest": "sha256:5b31b7835fe02c9df47cd65b131920e767539c60517425e3e32cac51ed4f33a7"
+  },
+  "blockers": [],
+  "notes": [
+    "The ENABLED transition was applied only to a temporary /tmp copy of provider-adapters.v1.json.",
+    "The authoritative Git repository registry remained unchanged at PILOT and its pre-test SHA-256 check passed.",
+    "This evidence is not an ENABLED materialization and grants no production, write, interactive-browser, or self-verification capability.",
+    "A real PILOT->ENABLED materialization remains a separate explicit governance action."
+  ]
+}
