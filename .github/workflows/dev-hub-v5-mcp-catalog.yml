@@ -7,16 +7,24 @@ on:
       - dev-hub-v5-mcp-catalog
     paths:
       - 'dev-hub/config/mcp-provider-catalog.v1.json'
+      - 'dev-hub/config/mcp-readonly-contract.v1.json'
       - 'dev-hub/schemas/mcp-provider-catalog-v1.schema.json'
+      - 'dev-hub/schemas/mcp-readonly-contract-v1.schema.json'
       - 'dev-hub/bin/mcp-catalog-validate.py'
+      - 'dev-hub/bin/mcp-readonly-contract-validate.py'
       - 'dev-hub/docs/MCP_PROVIDER_CATALOG_V1.md'
+      - 'dev-hub/docs/MCP_READONLY_CONTRACT_V1.md'
       - '.github/workflows/dev-hub-v5-mcp-catalog.yml'
   pull_request:
     paths:
       - 'dev-hub/config/mcp-provider-catalog.v1.json'
+      - 'dev-hub/config/mcp-readonly-contract.v1.json'
       - 'dev-hub/schemas/mcp-provider-catalog-v1.schema.json'
+      - 'dev-hub/schemas/mcp-readonly-contract-v1.schema.json'
       - 'dev-hub/bin/mcp-catalog-validate.py'
+      - 'dev-hub/bin/mcp-readonly-contract-validate.py'
       - 'dev-hub/docs/MCP_PROVIDER_CATALOG_V1.md'
+      - 'dev-hub/docs/MCP_READONLY_CONTRACT_V1.md'
       - '.github/workflows/dev-hub-v5-mcp-catalog.yml'
 
 permissions:
@@ -33,10 +41,15 @@ jobs:
       - name: Validate JSON syntax
         run: |
           python -m json.tool dev-hub/config/mcp-provider-catalog.v1.json >/dev/null
+          python -m json.tool dev-hub/config/mcp-readonly-contract.v1.json >/dev/null
           python -m json.tool dev-hub/schemas/mcp-provider-catalog-v1.schema.json >/dev/null
+          python -m json.tool dev-hub/schemas/mcp-readonly-contract-v1.schema.json >/dev/null
 
       - name: Validate catalog invariants
         run: python dev-hub/bin/mcp-catalog-validate.py
+
+      - name: Validate read-only contract invariants
+        run: python dev-hub/bin/mcp-readonly-contract-validate.py
 
       - name: Confirm catalog-only phase
         run: |
