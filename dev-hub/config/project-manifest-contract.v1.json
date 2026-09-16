@@ -7,7 +7,8 @@
     "execution_requires_explicit_flag": true,
     "provider_results_remain_unverified_until_broker": true,
     "independent_provider_must_be_distinct": true,
-    "production_targets_are_out_of_scope": true
+    "production_targets_are_out_of_scope": true,
+    "preview_url_is_provider_output_not_manifest_input": true
   },
   "environment_classes": ["test", "preview"],
   "workflow_kinds": {
@@ -18,6 +19,19 @@
       "source_verification_mode": "independent-agent",
       "independent_verification_mode": "machine",
       "evidence_ingest": true
+    },
+    "preview-browser-verification": {
+      "environment_class": "preview",
+      "delivery_capability": "cloud-preview-static",
+      "delivery_permission": "preview-deploy",
+      "source_capability": "browser-diagnostics",
+      "independent_capability": "browser-independent-verification",
+      "source_verification_mode": "independent-agent",
+      "independent_verification_mode": "machine",
+      "provider_output_url_required": true,
+      "manifest_target_url_forbidden": true,
+      "evidence_ingest": true,
+      "entrypoint": "dev-hub/bin/project-preview-pipeline.py"
     }
   },
   "target_policy": {

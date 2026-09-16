@@ -1,0 +1,49 @@
+{
+  "schema": "chacha.dev/project-preview-pipeline-qualification/v1",
+  "observed_at": "2026-09-17T01:30:25+02:00",
+  "branch": "dev-hub-v5-preview-pipeline-orchestration",
+  "qualified_head": "17e0d7698872fee1900d8101552024591831ac5b",
+  "workflow_run_id": 35162518688,
+  "workflow_job_id": 105016276147,
+  "workflow_conclusion": "success",
+  "artifact_id": 10474015323,
+  "artifact_digest": "sha256:6b07904e624f3eab2324c4f0a6dd078fbf13f0ab6b4ab46e40a1806fb4734c68",
+  "project": "wfgg",
+  "manifest": {
+    "provider_agnostic": true,
+    "preview_url_in_manifest": false,
+    "provider_name_in_manifest": false,
+    "workflow_kind": "preview-browser-verification"
+  },
+  "plan_only": {
+    "status": "PASS",
+    "execution": false,
+    "runtime_binding_created": false,
+    "browser_runtime_provisioned": false
+  },
+  "execution": {
+    "status": "VERIFIED",
+    "preview_provider_selected_by_scheduler": "cloudflare-pages",
+    "cloudflare_managed_build_observed": true,
+    "immutable_preview_url": "https://f2909007.wfgg.pages.dev",
+    "preview_run_id": "run-20260916T232955Z-0b385f10",
+    "preview_provider_result_status": "OK",
+    "preview_provider_result_verification": "UNVERIFIED",
+    "browser_run_id": "run-20260916T233019Z-911a37b1",
+    "browser_chain_status": "VERIFIED",
+    "audit_integrity": "PASS"
+  },
+  "security": {
+    "production_touched": false,
+    "production_branch_allowed": false,
+    "production_url_allowed": false,
+    "task_can_select_provider": false,
+    "task_can_select_preview_url": false,
+    "task_can_select_runtime_binding": false,
+    "runtime_binding_ephemeral": true,
+    "repository_registry_mutated": false,
+    "provider_result_used_only_as_unverified_routing_input": true
+  },
+  "repository_unchanged_during_qualification": true,
+  "automatic_lifecycle_promotion": false
+}

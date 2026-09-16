@@ -1,0 +1,166 @@
+name: Dev Hub V5 Preview Pipeline Orchestration
+
+on:
+  push:
+    branches:
+      - dev-hub-v5-preview-pipeline-orchestration
+
+permissions:
+  contents: read
+  checks: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Freeze repository state and validate contracts
+        shell: bash
+        run: |
+          set -euo pipefail
+          git status --porcelain > /tmp/git-before.txt
+          test ! -s /tmp/git-before.txt
+          python3 -m py_compile dev-hub/bin/project-preview-pipeline.py
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          contract=json.loads(Path('dev-hub/config/project-manifest-contract.v1.json').read_text())
+          registry=json.loads(Path('dev-hub/config/capability-registry.v1.json').read_text())
+          adapters=json.loads(Path('dev-hub/config/provider-adapters.v1.json').read_text())
+          kind=contract['workflow_kinds']['preview-browser-verification']
+          assert kind['delivery_capability']=='cloud-preview-static'
+          assert kind['manifest_target_url_forbidden'] is True
+          assert 'cloud-preview-static' in registry['capabilities']
+          assert adapters['adapters']['cloudflare-pages-adapter']['status']=='ENABLED'
+          assert adapters['adapters']['cloudflare-pages-adapter']['supports']==['preview-deploy']
+          print('STATIC_CONTRACT=PASS')
+          PY
+
+      - name: Prepare isolated Control Plane and provider agnostic manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/preview-pipeline-control /tmp/preview-pipeline-runtime /tmp/preview-pipeline-evidence
+          mkdir -p /tmp/preview-pipeline-control /tmp/preview-pipeline-evidence
+          python3 - <<'PY'
+          import json,os
+          from pathlib import Path
+          repo=Path.cwd(); root=Path('/tmp/preview-pipeline-control')
+          state=json.loads((repo/'dev-hub/config/control-plane-state.v1.json').read_text())
+          state['storage']['runtime_root']=str(root/'state')
+          state['storage']['transaction_root']=str(root/'transactions')
+          (root/'state-policy.json').write_text(json.dumps(state,indent=2)+'\n')
+          rc=json.loads((repo/'dev-hub/config/run-controller.v1.json').read_text())
+          rc['mode']='execute-enabled'
+          rc['locking']['root']=str(root/'locks/dispatch')
+          (root/'run-controller.json').write_text(json.dumps(rc,indent=2)+'\n')
+          pc=json.loads((repo/'dev-hub/config/project-control.v1.json').read_text())
+          pc['runtime'].update({
+            'state_root':str(root/'state'),
+            'evidence_root':str(root/'evidence'),
+            'plans_root':str(root/'plans'),
+            'health_root':str(root/'health'),
+            'runs_root':str(root/'runs'),
+            'transactions_root':str(root/'transactions'),
+            'locks_root':str(root/'locks/control'),
+          })
+          pc['repository_paths']['control_plane_state']=str(root/'state-policy.json')
+          pc['repository_paths']['run_controller']=str(root/'run-controller.json')
+          (root/'project-control.json').write_text(json.dumps(pc,indent=2)+'\n')
+          manifest={
+            'schema':'chacha.dev/project-manifest/v1',
+            'project':'wfgg',
+            'environment':{'class':'preview'},
+            'workflows':[{
+              'id':'preview-verified',
+              'kind':'preview-browser-verification',
+              'source':{'commit_sha':os.environ['GITHUB_SHA'],'branch':os.environ['GITHUB_REF_NAME']},
+              'target':{}
+            }]
+          }
+          raw=json.dumps(manifest)
+          for forbidden in ('cloudflare-pages','chrome-devtools-mcp','playwright-mcp','preview_url','pages_project','provider','adapter'):
+              assert forbidden not in raw, forbidden
+          assert '"url"' not in raw
+          Path('/tmp/preview-pipeline-manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')
+          print('PROVIDER_AGNOSTIC_MANIFEST=PASS')
+          PY
+
+      - name: Prove plan-only does not execute or provision runtimes
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 dev-hub/bin/project-preview-pipeline.py \
+            --repo-root "$GITHUB_WORKSPACE" \
+            --project-control-policy /tmp/preview-pipeline-control/project-control.json \
+            --manifest /tmp/preview-pipeline-manifest.json \
+            --runtime-root /tmp/preview-pipeline-runtime/plan-only \
+            --output /tmp/preview-pipeline-evidence/plan-only.json
+          python3 - <<'PY'
+          import json
+          x=json.load(open('/tmp/preview-pipeline-evidence/plan-only.json'))
+          assert x['status']=='PLANNED'
+          assert x['executed'] is False
+          assert x['runtime_binding_created'] is False
+          assert x['browser_runtime_provisioned'] is False
+          assert x['provider_selection_owned_by_scheduler'] is True
+          print('PLAN_ONLY=PASS')
+          PY
+
+      - name: Execute manifest preview build observation and independent browser verification
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python3 dev-hub/bin/project-preview-pipeline.py \
+            --repo-root "$GITHUB_WORKSPACE" \
+            --project-control-policy /tmp/preview-pipeline-control/project-control.json \
+            --manifest /tmp/preview-pipeline-manifest.json \
+            --runtime-root /tmp/preview-pipeline-runtime/execute \
+            --build-wait-seconds 420 \
+            --execute \
+            --output /tmp/preview-pipeline-evidence/final.json
+          python3 - <<'PY'
+          import json
+          from urllib.parse import urlsplit
+          x=json.load(open('/tmp/preview-pipeline-evidence/final.json'))
+          assert x['status']=='VERIFIED' and x['executed'] is True,x
+          assert x['preview_provider_selected_by_scheduler']=='cloudflare-pages'
+          assert x['preview_provider_result_status']=='OK'
+          assert x['preview_provider_result_verification']=='UNVERIFIED'
+          assert x['preview_provider_result_used_as_unverified_routing_input'] is True
+          assert x['cloudflare_managed_build_observed'] is True
+          assert x['browser_chain_status']=='VERIFIED'
+          assert x['browser_runtime_provisioned'] is True
+          assert x['runtime_binding_created'] is True
+          assert x['repository_registry_mutated'] is False
+          assert x['production_touched'] is False
+          assert x['audit_integrity']=='PASS'
+          u=urlsplit(x['immutable_preview_url'])
+          assert u.scheme=='https' and u.hostname and u.hostname.endswith('.wfgg.pages.dev')
+          assert u.hostname!='wfgg.pages.dev'
+          print('PREVIEW_PIPELINE=VERIFIED')
+          print('PREVIEW_URL='+x['immutable_preview_url'])
+          print('PREVIEW_RUN_ID='+x['preview_run_id'])
+          print('BROWSER_RUN_ID='+str(x.get('browser_run_id')))
+          PY
+
+      - name: Confirm repository unchanged
+        shell: bash
+        run: |
+          set -euo pipefail
+          git status --porcelain > /tmp/git-after.txt
+          diff -u /tmp/git-before.txt /tmp/git-after.txt
+          test ! -s /tmp/git-after.txt
+          echo REPOSITORY_UNCHANGED=PASS
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dev-hub-v5-preview-pipeline-${{ github.run_id }}
+          path: /tmp/preview-pipeline-evidence
+          retention-days: 30
+          if-no-files-found: error
