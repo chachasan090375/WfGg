@@ -1,0 +1,44 @@
+{
+  "schema": "chacha.dev/ai-agent-contract-qualification-evidence/v1",
+  "provider": "anthropic-claude",
+  "adapter": "claude-agent-adapter",
+  "transition": "DESIGNED->CONTRACT_OK",
+  "source": {
+    "repository": "chachasan090375/WfGg",
+    "branch": "dev-hub-v5-claude-agent-design",
+    "qualified_head": "0e33859b0c54d8d8dad4846ae60ea4e36f21d1e7",
+    "workflow_run_id": 35078446312,
+    "workflow_conclusion": "success"
+  },
+  "checks": {
+    "provider-binding": "PASS",
+    "adapter-static-contract": "PASS",
+    "provider-abstraction": "PASS",
+    "managed-agents-preferred": "PASS",
+    "agent-sdk-compatibility-backend": "PASS",
+    "read-plan-only": "PASS",
+    "no-code-edit-routing": "PASS",
+    "default-deny-tools": "PASS",
+    "bash-edit-write-denied": "PASS",
+    "external-auth-boundary": "PASS",
+    "verification-broker-required": "PASS",
+    "no-production-mutation": "PASS",
+    "no-automatic-promotion": "PASS"
+  },
+  "runtime": {
+    "executed": false,
+    "credential_used": false,
+    "reason": "Runtime proof and external authentication belong to CONTRACT_OK->PILOT qualification."
+  },
+  "promotion": {
+    "eligible": true,
+    "target": "CONTRACT_OK",
+    "automatic": false,
+    "blockers": []
+  },
+  "notes": [
+    "Claude remains ASSESS and is not routed for code-edit.",
+    "The adapter binds to an Anthropic provider abstraction; Managed Agents is the preferred runtime candidate and Claude Agent SDK remains a compatibility backend.",
+    "CONTRACT_OK does not authorize runtime calls, workspace writes, repository writes, shell execution, or production mutation."
+  ]
+}

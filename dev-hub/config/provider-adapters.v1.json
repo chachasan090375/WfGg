@@ -48,7 +48,7 @@
     "cloudflare-pages-adapter": {"status": "DESIGNED", "executable": null, "supports": ["preview-deploy", "production-deploy"]},
     "antigravity-adapter": {"status": "DESIGNED", "executable": null, "supports": ["read", "plan", "workspace-write"]},
     "skywork-adapter": {"status": "DESIGNED", "executable": null, "supports": ["read", "plan", "workspace-write"]},
-    "claude-agent-adapter": {"status": "DESIGNED", "executable": null, "supports": ["read", "plan"]},
+    "claude-agent-adapter": {"status": "CONTRACT_OK", "executable": null, "supports": ["read", "plan"]},
     "mcp-adapter": {"status": "DESIGNED", "executable": null, "supports": ["read", "plan"]},
     "context7-mcp-adapter": {"status": "DESIGNED", "executable": null, "supports": ["read"]},
     "project-command-adapter": {"status": "DESIGNED", "executable": null, "supports": ["read", "workspace-write", "preview-deploy", "production-deploy"]},

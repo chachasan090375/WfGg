@@ -3,7 +3,7 @@
   "provider_id": "anthropic-claude",
   "adapter_id": "claude-agent-adapter",
   "decision": "ASSESS",
-  "runtime_status": "DESIGNED",
+  "runtime_status": "CONTRACT_OK",
   "integration": {
     "primary_surface": "anthropic-provider-abstraction",
     "preferred_runtime": "claude-managed-agents",
@@ -75,9 +75,17 @@
     "record_commands": true,
     "secret_redaction_required": true
   },
+  "contract_qualification": {
+    "transition": "DESIGNED->CONTRACT_OK",
+    "static_contract_pass_required": true,
+    "runtime_executed": false,
+    "credential_used": false,
+    "write_surface_expanded": false,
+    "automatic_promotion": false
+  },
   "admission": {
     "automatic_promotion": false,
-    "next_transition": "DESIGNED->CONTRACT_OK",
+    "next_transition": "CONTRACT_OK->PILOT",
     "runtime_call_allowed_at_design_stage": false,
     "credential_required_at_design_stage": false,
     "production_change_allowed": false

@@ -25,7 +25,7 @@
       "providers": [
         {"id": "antigravity", "status": "ADOPT", "health": "runtime-check", "cost_class": "quota", "scope": "workspace", "fallback": ["github"]},
         {"id": "github", "status": "ADOPT", "health": "managed", "cost_class": "included", "scope": "repository", "fallback": []},
-        {"id": "anthropic-claude", "status": "ASSESS", "health": "contract-not-qualified", "cost_class": "api", "scope": "read-only-workspace", "fallback": []}
+        {"id": "anthropic-claude", "status": "ASSESS", "health": "runtime-not-qualified", "cost_class": "api", "scope": "read-only-workspace", "fallback": []}
       ]
     },
     "documentation": {
@@ -33,7 +33,7 @@
       "providers": [
         {"id": "skywork", "status": "ADOPT", "health": "runtime-check", "cost_class": "local", "scope": "workspace", "fallback": ["antigravity"]},
         {"id": "antigravity", "status": "ADOPT", "health": "runtime-check", "cost_class": "quota", "scope": "workspace", "fallback": []},
-        {"id": "anthropic-claude", "status": "ASSESS", "health": "contract-not-qualified", "cost_class": "api", "scope": "read-only-workspace", "fallback": []}
+        {"id": "anthropic-claude", "status": "ASSESS", "health": "runtime-not-qualified", "cost_class": "api", "scope": "read-only-workspace", "fallback": []}
       ]
     },
     "web-docs": {

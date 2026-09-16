@@ -1,0 +1,85 @@
+name: Dev Hub V5 Claude CONTRACT_OK
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - dev-hub-v5-claude-contract-ok
+    paths:
+      - 'dev-hub/config/claude-agent-adapter.v1.json'
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - 'dev-hub/config/capability-registry.v1.json'
+      - 'dev-hub/config/adapter-contract.v1.json'
+      - 'dev-hub/evidence/claude-contract-ok-2026-09-16.json'
+      - 'dev-hub/bin/claude-agent-contract-ok-validate.py'
+      - 'dev-hub/bin/adapter-contract-harness.py'
+      - 'dev-hub/docs/CLAUDE_CONTRACT_OK_V1.md'
+      - '.github/workflows/dev-hub-v5-claude-contract-ok.yml'
+  pull_request:
+    paths:
+      - 'dev-hub/config/claude-agent-adapter.v1.json'
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - 'dev-hub/config/capability-registry.v1.json'
+      - 'dev-hub/config/adapter-contract.v1.json'
+      - 'dev-hub/evidence/claude-contract-ok-2026-09-16.json'
+      - 'dev-hub/bin/claude-agent-contract-ok-validate.py'
+      - 'dev-hub/bin/adapter-contract-harness.py'
+      - 'dev-hub/docs/CLAUDE_CONTRACT_OK_V1.md'
+      - '.github/workflows/dev-hub-v5-claude-contract-ok.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    if: github.event_name != 'pull_request' || github.event.pull_request.base.ref == 'dev-hub-v5-claude-agent-design'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate JSON syntax
+        run: |
+          python -m json.tool dev-hub/config/claude-agent-adapter.v1.json >/dev/null
+          python -m json.tool dev-hub/config/provider-adapters.v1.json >/dev/null
+          python -m json.tool dev-hub/config/capability-registry.v1.json >/dev/null
+          python -m json.tool dev-hub/config/adapter-contract.v1.json >/dev/null
+          python -m json.tool dev-hub/evidence/claude-contract-ok-2026-09-16.json >/dev/null
+
+      - name: Re-run generic static adapter contract
+        run: |
+          python dev-hub/bin/adapter-contract-harness.py \
+            --registry dev-hub/config/provider-adapters.v1.json \
+            --policy dev-hub/config/adapter-contract.v1.json \
+            --adapter claude-agent-adapter \
+            --report /tmp/claude-contract-ok-static.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path('/tmp/claude-contract-ok-static.json').read_text())
+          assert report['static']['status'] == 'PASS'
+          assert report['promotion']['automatic'] is False
+          print('CLAUDE_GENERIC_STATIC_CONTRACT=PASS automatic=false')
+          PY
+
+      - name: Validate recorded CONTRACT_OK qualification
+        run: python dev-hub/bin/claude-agent-contract-ok-validate.py
+
+      - name: Confirm runtime and write surfaces remain closed
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          cfg = json.loads(Path('dev-hub/config/claude-agent-adapter.v1.json').read_text())
+          ev = json.loads(Path('dev-hub/evidence/claude-contract-ok-2026-09-16.json').read_text())
+          assert cfg['runtime_status'] == 'CONTRACT_OK'
+          assert cfg['contract_qualification']['runtime_executed'] is False
+          assert cfg['contract_qualification']['credential_used'] is False
+          assert cfg['tool_policy']['workspace_write'] is False
+          assert cfg['tool_policy']['repository_write'] is False
+          assert cfg['tool_policy']['production_mutation'] is False
+          assert ev['runtime']['executed'] is False
+          assert ev['runtime']['credential_used'] is False
+          print('CLAUDE_CONTRACT_OK_BOUNDARY: runtime=false credentials=false writes=false')
+          PY
