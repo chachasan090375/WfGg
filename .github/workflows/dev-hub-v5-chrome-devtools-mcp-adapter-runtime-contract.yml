@@ -1,0 +1,172 @@
+name: Dev Hub V5 Chrome DevTools MCP Adapter Runtime Contract
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - dev-hub-v5-chrome-devtools-mcp-adapter-runtime-contract
+    paths:
+      - 'dev-hub/adapters/chrome-devtools-mcp-adapter.py'
+      - 'dev-hub/fixtures/chrome-devtools-mcp-adapter-*.json'
+      - '.github/workflows/dev-hub-v5-chrome-devtools-mcp-adapter-runtime-contract.yml'
+  pull_request:
+    paths:
+      - 'dev-hub/adapters/chrome-devtools-mcp-adapter.py'
+      - 'dev-hub/fixtures/chrome-devtools-mcp-adapter-*.json'
+      - '.github/workflows/dev-hub-v5-chrome-devtools-mcp-adapter-runtime-contract.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  runtime-contract:
+    if: github.event_name != 'pull_request' || github.event.pull_request.base.ref == 'dev-hub-v5-chrome-devtools-mcp-compat-2025-11-25'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      CHROME_DEVTOOLS_MCP_NO_USAGE_STATISTICS: '1'
+      CHROME_DEVTOOLS_MCP_NO_UPDATE_CHECKS: '1'
+      CI: 'true'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node LTS
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+
+      - name: Validate adapter and fixtures
+        run: |
+          python -m py_compile dev-hub/adapters/chrome-devtools-mcp-adapter.py
+          find dev-hub/adapters -type d -name '__pycache__' -prune -exec rm -rf {} +
+          for f in dev-hub/fixtures/chrome-devtools-mcp-adapter-*.json; do python -m json.tool "$f" >/dev/null; done
+
+      - name: Confirm caller-controlled tool injection is blocked before runtime
+        run: |
+          python dev-hub/adapters/chrome-devtools-mcp-adapter.py \
+            < dev-hub/fixtures/chrome-devtools-mcp-adapter-tool-injection.json \
+            > /tmp/tool-injection.json
+          python - <<'PY'
+          import json
+          x=json.load(open('/tmp/tool-injection.json'))
+          assert x['status']=='BLOCKED'
+          assert x['summary'].startswith('CHROME_DEVTOOLS_MCP_METADATA_KEY_FORBIDDEN:')
+          assert x['producer']=='chrome-devtools-mcp-adapter'
+          assert x['verification']['status']=='UNVERIFIED'
+          print('TOOL_INJECTION_BLOCKED=PASS')
+          PY
+
+      - name: Confirm write permission and bad binding are blocked before runtime
+        run: |
+          python dev-hub/adapters/chrome-devtools-mcp-adapter.py \
+            < dev-hub/fixtures/chrome-devtools-mcp-adapter-write-permission.json \
+            > /tmp/write-permission.json
+          python dev-hub/adapters/chrome-devtools-mcp-adapter.py \
+            < dev-hub/fixtures/chrome-devtools-mcp-adapter-bad-binding.json \
+            > /tmp/bad-binding.json
+          python - <<'PY'
+          import json
+          w=json.load(open('/tmp/write-permission.json'))
+          b=json.load(open('/tmp/bad-binding.json'))
+          assert w['status']=='BLOCKED' and w['summary']=='CHROME_DEVTOOLS_MCP_REQUIRES_READ_PERMISSION'
+          assert b['status']=='BLOCKED' and b['summary']=='CHROME_DEVTOOLS_MCP_BINDING_MISSING'
+          print('PERMISSION_AND_BINDING_BOUNDARY=PASS')
+          PY
+
+      - name: Provision pinned upstream package outside repository
+        run: |
+          mkdir -p /tmp/chacha-chrome-devtools-mcp
+          cd /tmp/chacha-chrome-devtools-mcp
+          npm init -y >/dev/null 2>&1
+          npm install --no-save --ignore-scripts=false chrome-devtools-mcp@1.9.0 >/dev/null
+          test -x node_modules/.bin/chrome-devtools-mcp
+          node -p "require('./node_modules/chrome-devtools-mcp/package.json').version" | tee /tmp/package-version.txt
+
+      - name: Qualify real read-only dispatch to task-result runtime
+        env:
+          CHACHA_CHROME_DEVTOOLS_MCP_SERVER: /tmp/chacha-chrome-devtools-mcp/node_modules/.bin/chrome-devtools-mcp
+          CHACHA_CHROME_DEVTOOLS_MCP_WORKDIR: /tmp/chacha-chrome-devtools-mcp
+          CHACHA_CHROME_DEVTOOLS_MCP_PACKAGE_VERSION: '1.9.0'
+          CHACHA_CHROME_DEVTOOLS_TARGET_CLASS: 'test'
+        run: |
+          BROWSER_VERSION="$(google-chrome --version 2>/dev/null || chromium --version 2>/dev/null || echo unknown)"
+          export CHACHA_CHROME_DEVTOOLS_BROWSER_VERSION="$BROWSER_VERSION"
+          python dev-hub/adapters/chrome-devtools-mcp-adapter.py \
+            < dev-hub/fixtures/chrome-devtools-mcp-adapter-valid.json \
+            > /tmp/runtime-result.json
+          python - <<'PY'
+          import json
+          x=json.load(open('/tmp/runtime-result.json'))
+          assert x['schema']=='chacha.dev/task-result/v1'
+          assert x['status']=='OK', x
+          assert x['producer']=='chrome-devtools-mcp-adapter'
+          assert x['verification']['status']=='UNVERIFIED'
+          d=x['evidence'][0]['details']
+          assert d['called_tools']==['list_pages','take_snapshot','list_console_messages','list_network_requests']
+          assert d['upstream_protocol']=='2025-11-25'
+          assert d['package_version']=='1.9.0'
+          assert d['credentials_used'] is False
+          assert d['production_target'] is False
+          assert d['navigation_performed'] is False
+          assert d['browser_interaction'] is False
+          assert d['workspace_write'] is False
+          assert d['repository_write'] is False
+          print('CHROME_DEVTOOLS_MCP_ADAPTER_RUNTIME_CONTRACT=PASS')
+          PY
+          printf '%s\n' "$BROWSER_VERSION" > /tmp/browser-version.txt
+
+      - name: Confirm repository remained unchanged
+        run: |
+          test -z "$(git status --porcelain)"
+          echo 'REPOSITORY_UNCHANGED=PASS'
+
+      - name: Build machine evidence
+        run: |
+          python - <<'PY'
+          import hashlib, json, os
+          result=json.load(open('/tmp/runtime-result.json'))
+          payload={
+            'schema':'chacha.dev/chrome-devtools-mcp-adapter-runtime-qualification/v1',
+            'provider':'chrome-devtools-mcp',
+            'adapter':'chrome-devtools-mcp-adapter',
+            'workflow_run_id':int(os.environ['GITHUB_RUN_ID']),
+            'head_sha':os.environ['GITHUB_SHA'],
+            'package':'chrome-devtools-mcp',
+            'package_version':open('/tmp/package-version.txt').read().strip(),
+            'browser_version':open('/tmp/browser-version.txt').read().strip(),
+            'upstream_protocol':'2025-11-25',
+            'dev_hub_baseline':'2026-07-28',
+            'compatibility_mode':'EXPLICIT_PROVIDER_COMPATIBILITY',
+            'generic_legacy_fallback':False,
+            'runtime_result':result,
+            'boundaries':{
+              'caller_tool_selection':False,
+              'navigation':False,
+              'browser_interaction':False,
+              'credentials_used':False,
+              'production_target':False,
+              'vps_modified':False,
+              'workspace_write':False,
+              'repository_write':False,
+              'provider_result_verification':'UNVERIFIED'
+            },
+            'eligible_for_pilot_qualification':True,
+            'automatic_promotion':False,
+            'blockers':[]
+          }
+          raw=json.dumps(payload,sort_keys=True,separators=(',',':')).encode()
+          payload['evidence_digest']='sha256:'+hashlib.sha256(raw).hexdigest()
+          os.makedirs('/tmp/chrome-devtools-mcp-adapter-evidence',exist_ok=True)
+          open('/tmp/chrome-devtools-mcp-adapter-evidence/evidence.json','w').write(json.dumps(payload,indent=2)+'\n')
+          print(payload['evidence_digest'])
+          PY
+
+      - name: Upload runtime adapter evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: chrome-devtools-mcp-adapter-runtime-${{ github.run_id }}
+          path: /tmp/chrome-devtools-mcp-adapter-evidence/evidence.json
+          if-no-files-found: error
+          retention-days: 30
