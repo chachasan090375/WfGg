@@ -1,0 +1,118 @@
+name: Dev Hub V5 Playwright MCP PILOT Probe
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - dev-hub-v5-playwright-mcp-pilot-probe
+    paths:
+      - 'dev-hub/bin/playwright-mcp-pilot-probe.py'
+      - '.github/workflows/dev-hub-v5-playwright-mcp-pilot-probe.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Record clean checkout state
+        run: git status --porcelain > /tmp/git-before.txt
+
+      - name: Provision pinned Playwright MCP outside repository
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/playwright-mcp-runtime
+          cd /tmp/playwright-mcp-runtime
+          npm init -y >/dev/null
+          npm install --no-save @playwright/mcp@0.0.81
+          INSTALLED="$(node -p "require('./node_modules/@playwright/mcp/package.json').version")"
+          test "$INSTALLED" = "0.0.81"
+          echo "$INSTALLED" > /tmp/playwright-mcp-package-version.txt
+          npx playwright install --with-deps chromium
+
+      - name: Record browser version
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd /tmp/playwright-mcp-runtime
+          node - <<'NODE' >/tmp/playwright-browser-version.txt
+          const { chromium } = require('playwright');
+          (async () => {
+            const browser = await chromium.launch({ headless: true });
+            console.log(browser.version());
+            await browser.close();
+          })().catch(e => { console.error(e); process.exit(1); });
+          NODE
+
+      - name: Run live MCP probe
+        shell: bash
+        run: |
+          set -euo pipefail
+          PKG_VERSION="$(cat /tmp/playwright-mcp-package-version.txt)"
+          BROWSER_VERSION="$(cat /tmp/playwright-browser-version.txt)"
+          python dev-hub/bin/playwright-mcp-pilot-probe.py \
+            --server /tmp/playwright-mcp-runtime/node_modules/.bin/playwright-mcp \
+            --workdir /tmp/playwright-mcp-runtime \
+            --package-version "$PKG_VERSION" \
+            --browser-version "$BROWSER_VERSION" \
+            --output /tmp/playwright-mcp-pilot-probe.json
+
+      - name: Validate evidence envelope and safety boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          e=json.loads(Path('/tmp/playwright-mcp-pilot-probe.json').read_text())
+          assert e['schema']=='chacha.dev/playwright-mcp-direct-probe/v1'
+          assert e['provider']=='playwright-mcp'
+          assert e['adapter']=='playwright-mcp-adapter'
+          assert e['execution_surface']=='github-actions-ephemeral'
+          assert e['package_version']=='0.0.81'
+          assert e['protocol_required']=='2026-07-28'
+          assert e['credentials_used'] is False
+          assert e['production_target'] is False
+          assert e['vps_modified'] is False
+          assert e['workspace_write_expected'] is False
+          assert e['promotion']['automatic'] is False
+          denied=set(e['never_call_policy'])
+          assert not (set(e['called_tools']) & denied)
+          assert e['evidence_digest'].startswith('sha256:')
+          print('PLAYWRIGHT_MCP_PROBE_ENVELOPE=PASS')
+          print('ELIGIBLE_FOR_PILOT=' + ('YES' if e['promotion']['eligible_for_pilot'] else 'NO'))
+          for blocker in e['promotion']['blockers']:
+            print('BLOCKER=' + blocker)
+          PY
+
+      - name: Confirm repository remained unchanged
+        shell: bash
+        run: |
+          set -euo pipefail
+          git status --porcelain > /tmp/git-after.txt
+          diff -u /tmp/git-before.txt /tmp/git-after.txt
+          test ! -s /tmp/git-after.txt
+          echo 'PLAYWRIGHT_MCP_NO_REPOSITORY_WRITE=PASS'
+
+      - name: Upload probe evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-mcp-pilot-probe-${{ github.run_id }}
+          path: |
+            /tmp/playwright-mcp-pilot-probe.json
+            /tmp/playwright-mcp-package-version.txt
+            /tmp/playwright-browser-version.txt
+          retention-days: 30
+          if-no-files-found: error
