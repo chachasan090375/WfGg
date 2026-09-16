@@ -1,0 +1,50 @@
+{
+  "schema": "chacha.dev/adapter-promotion-report/v1",
+  "adapter": "context7-mcp-adapter",
+  "current_status": "CONTRACT_OK",
+  "target_status": "PILOT",
+  "transition": "CONTRACT_OK->PILOT",
+  "execution_kinds": [
+    "external"
+  ],
+  "requires_local_executable": false,
+  "eligible": true,
+  "applied": true,
+  "production_capable": false,
+  "approval_required": false,
+  "approval_id": null,
+  "executable_before": null,
+  "executable_after": null,
+  "provisioned_executable_digest": null,
+  "required_evidence": [
+    "runtime-contract-pass",
+    "sandbox-only",
+    "provisioning-pass"
+  ],
+  "observed_evidence": {
+    "runtime-contract-pass": {
+      "status": "PASS",
+      "source": "github-actions:35071943334",
+      "observed_at": "2026-09-16T08:06:11+00:00",
+      "fresh": true
+    },
+    "sandbox-only": {
+      "status": "PASS",
+      "source": "github-actions:35071943334",
+      "observed_at": "2026-09-16T08:06:11+00:00",
+      "fresh": true
+    },
+    "provisioning-pass": {
+      "status": "PASS",
+      "source": "github-actions:35071943334",
+      "observed_at": "2026-09-16T08:06:11+00:00",
+      "fresh": true
+    }
+  },
+  "blockers": [],
+  "actor": "github-actions:35072331061",
+  "registry_digest_before": "sha256:77775b85c1e852afe23532a9d949733fc89f34d176a8eed9aba9161c89479686",
+  "registry_digest_after": "sha256:cb4f28f3b8ad7f531a7eb4a775408cab035ebabf5b4a751586c8b50311242f88",
+  "receipt": "/tmp/context7-pilot-receipt.json",
+  "observed_at": "2026-09-16T08:10:26.864485+00:00"
+}
