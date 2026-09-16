@@ -12,6 +12,7 @@ on:
       - 'dev-hub/config/capability-registry.v1.json'
       - 'dev-hub/fixtures/claude-pilot-readonly-fixture.txt'
       - 'dev-hub/bin/claude-managed-agents-pilot-preflight.py'
+      - 'dev-hub/bin/claude-managed-agents-pilot-probe.py'
       - 'dev-hub/docs/CLAUDE_PILOT_PREP_V1.md'
       - '.github/workflows/dev-hub-v5-claude-pilot-prep.yml'
   pull_request:
@@ -22,6 +23,7 @@ on:
       - 'dev-hub/config/capability-registry.v1.json'
       - 'dev-hub/fixtures/claude-pilot-readonly-fixture.txt'
       - 'dev-hub/bin/claude-managed-agents-pilot-preflight.py'
+      - 'dev-hub/bin/claude-managed-agents-pilot-probe.py'
       - 'dev-hub/docs/CLAUDE_PILOT_PREP_V1.md'
       - '.github/workflows/dev-hub-v5-claude-pilot-prep.yml'
 
@@ -37,12 +39,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Validate static JSON
+      - name: Validate static JSON and Python syntax
         run: |
           python -m json.tool dev-hub/config/claude-managed-agents-pilot.v1.json >/dev/null
           python -m json.tool dev-hub/config/claude-agent-adapter.v1.json >/dev/null
           python -m json.tool dev-hub/config/provider-adapters.v1.json >/dev/null
           python -m json.tool dev-hub/config/capability-registry.v1.json >/dev/null
+          python -m py_compile dev-hub/bin/claude-managed-agents-pilot-preflight.py
+          python -m py_compile dev-hub/bin/claude-managed-agents-pilot-probe.py
 
       - name: Run no-secret PILOT preflight
         env:
@@ -70,6 +74,24 @@ jobs:
           assert 'ANTHROPIC_API_KEY' in value['missing_external_references']
           assert value['next_action'] == 'configure-external-auth-reference'
           print('CLAUDE_PILOT_PREP=PASS expected_block=AUTH_MISSING runtime=false mutation=false')
+          PY
+
+      - name: Confirm live harness cannot run without external references
+        run: |
+          set +e
+          python dev-hub/bin/claude-managed-agents-pilot-probe.py >/tmp/claude-live-harness-blocked.json
+          rc=$?
+          set -e
+          test "$rc" -eq 2
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          value = json.loads(Path('/tmp/claude-live-harness-blocked.json').read_text())
+          assert value['status'] == 'BLOCKED'
+          blockers = value['blockers']
+          assert 'MISSING_EXTERNAL_REFERENCE:ANTHROPIC_API_KEY' in blockers
+          assert any(x.startswith('MISSING_EXTERNAL_REFERENCE:CHACHA_ANTHROPIC_AGENT_ID') for x in blockers)
+          print('CLAUDE_LIVE_HARNESS_GUARD=PASS no_external_references=true')
           PY
 
       - name: Confirm registry remains CONTRACT_OK
