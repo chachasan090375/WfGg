@@ -1,0 +1,80 @@
+name: Dev Hub V5 Chrome DevTools MCP Compatibility Probe
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - dev-hub-v5-chrome-devtools-mcp-compat-2025-11-25
+    paths:
+      - 'dev-hub/bin/chrome-devtools-mcp-compat-probe.py'
+      - '.github/workflows/dev-hub-v5-chrome-devtools-mcp-compat-probe.yml'
+  pull_request:
+    paths:
+      - 'dev-hub/bin/chrome-devtools-mcp-compat-probe.py'
+      - '.github/workflows/dev-hub-v5-chrome-devtools-mcp-compat-probe.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  compatibility-probe:
+    if: github.event_name != 'pull_request' || github.event.pull_request.base.ref == 'dev-hub-v5-chrome-devtools-mcp-pilot-probe'
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      CI: 'true'
+      CHROME_DEVTOOLS_MCP_NO_USAGE_STATISTICS: '1'
+      CHROME_DEVTOOLS_MCP_NO_UPDATE_CHECKS: '1'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Use Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate probe syntax
+        run: python -m py_compile dev-hub/bin/chrome-devtools-mcp-compat-probe.py
+      - name: Provision pinned provider outside repository
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/chrome-devtools-mcp-runtime
+          cd /tmp/chrome-devtools-mcp-runtime
+          npm init -y >/dev/null
+          npm install --no-save chrome-devtools-mcp@1.9.0
+          test "$(node -p "require('./node_modules/chrome-devtools-mcp/package.json').version")" = "1.9.0"
+      - name: Probe explicit 2025-11-25 compatibility
+        run: |
+          mkdir -p /tmp/chrome-devtools-mcp-compat
+          python dev-hub/bin/chrome-devtools-mcp-compat-probe.py \
+            --server /tmp/chrome-devtools-mcp-runtime/node_modules/.bin/chrome-devtools-mcp \
+            --workdir /tmp/chrome-devtools-mcp-runtime \
+            --package-version 1.9.0 \
+            --output /tmp/chrome-devtools-mcp-compat/evidence.json
+      - name: Validate non-mutation boundary
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          e=json.loads(Path('/tmp/chrome-devtools-mcp-compat/evidence.json').read_text())
+          assert e['schema']=='chacha.dev/chrome-devtools-mcp-compat-probe/v1'
+          assert e['dev_hub_protocol_baseline']=='2026-07-28'
+          assert e['requested_protocol']=='2025-11-25'
+          assert e['generic_legacy_fallback'] is False
+          assert e['browser_launched'] is False
+          assert e['browser_downloaded'] is False
+          assert e['called_tools']==[]
+          assert e['vps_modified'] is False
+          assert e['production_target'] is False
+          assert e['promotion']['automatic'] is False
+          print('CHROME_DEVTOOLS_COMPAT_PROBE_BOUNDARY=PASS browser=false tools_called=0 prod=false')
+          PY
+          test -z "$(git status --porcelain)"
+      - name: Upload compatibility evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: chrome-devtools-mcp-compat-probe-${{ github.run_id }}
+          path: /tmp/chrome-devtools-mcp-compat
+          if-no-files-found: error
+          retention-days: 30
