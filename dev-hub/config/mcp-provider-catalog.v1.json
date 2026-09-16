@@ -64,6 +64,14 @@
       "secret_policy": "REFERENCE_ONLY",
       "provider_binding": "playwright-mcp",
       "health_probe": "playwright-provider-compat-initialize-tools-list-and-browser-launch",
+      "protocol_compatibility": {
+        "mode": "EXPLICIT_PROVIDER_COMPATIBILITY",
+        "provider_specific": true,
+        "dev_hub_baseline": "2026-07-28",
+        "upstream_version": "2025-11-25",
+        "generic_legacy_fallback": false,
+        "modern_probe_blocker": "MCP_2026_07_28_SERVER_DISCOVER_UNSUPPORTED"
+      },
       "fallback": ["playwright"],
       "notes": "Strict PILOT qualified through a real dispatch-envelope/task-result adapter on ephemeral GitHub Actions. DEV HUB baseline remains MCP 2026-07-28; upstream @playwright/mcp 0.0.81 currently uses an explicit provider-specific 2025-11-25 compatibility path with no generic legacy fallback. Read-only, non-production, provider results remain UNVERIFIED and Verification Broker remains required."
     },
