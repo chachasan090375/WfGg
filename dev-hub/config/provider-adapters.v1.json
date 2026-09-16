@@ -16,244 +16,45 @@
     "signing_adapter_never_returns_private_key_material": true
   },
   "providers": {
-    "github": {
-      "adapter": "github-connector",
-      "kind": "connector",
-      "execution": "external"
-    },
-    "github-actions": {
-      "adapter": "github-actions-connector",
-      "kind": "connector",
-      "execution": "external"
-    },
-    "github-artifacts": {
-      "adapter": "github-artifacts-connector",
-      "kind": "connector",
-      "execution": "external"
-    },
-    "cloudflare-pages": {
-      "adapter": "cloudflare-pages-adapter",
-      "kind": "provider-api",
-      "execution": "external"
-    },
-    "antigravity": {
-      "adapter": "antigravity-adapter",
-      "kind": "local-runtime",
-      "execution": "vps"
-    },
-    "skywork": {
-      "adapter": "skywork-adapter",
-      "kind": "local-runtime",
-      "execution": "vps"
-    },
-    "mdn-mcp": {
-      "adapter": "mcp-adapter",
-      "kind": "mcp",
-      "execution": "external"
-    },
-    "context7-mcp": {
-      "adapter": "context7-mcp-adapter",
-      "kind": "mcp",
-      "execution": "external"
-    },
-    "vitest": {
-      "adapter": "project-command-adapter",
-      "kind": "project-command",
-      "execution": "vps"
-    },
-    "node-test": {
-      "adapter": "project-command-adapter",
-      "kind": "project-command",
-      "execution": "vps"
-    },
-    "playwright": {
-      "adapter": "project-command-adapter",
-      "kind": "project-command",
-      "execution": "vps"
-    },
-    "http-smoke": {
-      "adapter": "http-smoke-adapter",
-      "kind": "local-runtime",
-      "execution": "vps"
-    },
-    "npm-audit": {
-      "adapter": "project-command-adapter",
-      "kind": "project-command",
-      "execution": "vps"
-    },
-    "lighthouse": {
-      "adapter": "project-command-adapter",
-      "kind": "project-command",
-      "execution": "vps"
-    },
-    "wrangler-d1": {
-      "adapter": "project-command-adapter",
-      "kind": "project-command",
-      "execution": "vps"
-    },
-    "wrangler": {
-      "adapter": "project-command-adapter",
-      "kind": "project-command",
-      "execution": "vps"
-    },
-    "nas": {
-      "adapter": "nas-ssh-adapter",
-      "kind": "storage",
-      "execution": "vps"
-    },
-    "blender": {
-      "adapter": "local-binary-adapter",
-      "kind": "local-runtime",
-      "execution": "vps"
-    },
-    "unitypy": {
-      "adapter": "python-runtime-adapter",
-      "kind": "local-runtime",
-      "execution": "vps"
-    },
-    "chacha-tech-watch": {
-      "adapter": "platform-command-adapter",
-      "kind": "platform",
-      "execution": "vps"
-    },
-    "chacha-dev-architect": {
-      "adapter": "platform-command-adapter",
-      "kind": "platform",
-      "execution": "vps"
-    },
-    "storage-governor": {
-      "adapter": "platform-command-adapter",
-      "kind": "platform",
-      "execution": "vps"
-    },
-    "openssl-ed25519": {
-      "adapter": "crypto-trust-adapter",
-      "kind": "security-runtime",
-      "execution": "vps"
-    }
+    "github": {"adapter": "github-connector", "kind": "connector", "execution": "external"},
+    "github-actions": {"adapter": "github-actions-connector", "kind": "connector", "execution": "external"},
+    "github-artifacts": {"adapter": "github-artifacts-connector", "kind": "connector", "execution": "external"},
+    "cloudflare-pages": {"adapter": "cloudflare-pages-adapter", "kind": "provider-api", "execution": "external"},
+    "antigravity": {"adapter": "antigravity-adapter", "kind": "local-runtime", "execution": "vps"},
+    "skywork": {"adapter": "skywork-adapter", "kind": "local-runtime", "execution": "vps"},
+    "mdn-mcp": {"adapter": "mcp-adapter", "kind": "mcp", "execution": "external"},
+    "context7-mcp": {"adapter": "context7-mcp-adapter", "kind": "mcp", "execution": "external"},
+    "vitest": {"adapter": "project-command-adapter", "kind": "project-command", "execution": "vps"},
+    "node-test": {"adapter": "project-command-adapter", "kind": "project-command", "execution": "vps"},
+    "playwright": {"adapter": "project-command-adapter", "kind": "project-command", "execution": "vps"},
+    "http-smoke": {"adapter": "http-smoke-adapter", "kind": "local-runtime", "execution": "vps"},
+    "npm-audit": {"adapter": "project-command-adapter", "kind": "project-command", "execution": "vps"},
+    "lighthouse": {"adapter": "project-command-adapter", "kind": "project-command", "execution": "vps"},
+    "wrangler-d1": {"adapter": "project-command-adapter", "kind": "project-command", "execution": "vps"},
+    "wrangler": {"adapter": "project-command-adapter", "kind": "project-command", "execution": "vps"},
+    "nas": {"adapter": "nas-ssh-adapter", "kind": "storage", "execution": "vps"},
+    "blender": {"adapter": "local-binary-adapter", "kind": "local-runtime", "execution": "vps"},
+    "unitypy": {"adapter": "python-runtime-adapter", "kind": "local-runtime", "execution": "vps"},
+    "chacha-tech-watch": {"adapter": "platform-command-adapter", "kind": "platform", "execution": "vps"},
+    "chacha-dev-architect": {"adapter": "platform-command-adapter", "kind": "platform", "execution": "vps"},
+    "storage-governor": {"adapter": "platform-command-adapter", "kind": "platform", "execution": "vps"},
+    "openssl-ed25519": {"adapter": "crypto-trust-adapter", "kind": "security-runtime", "execution": "vps"}
   },
   "adapters": {
-    "github-connector": {
-      "status": "DESIGNED",
-      "executable": null,
-      "supports": [
-        "read",
-        "repository-write"
-      ]
-    },
-    "github-actions-connector": {
-      "status": "DESIGNED",
-      "executable": null,
-      "supports": [
-        "read"
-      ]
-    },
-    "github-artifacts-connector": {
-      "status": "DESIGNED",
-      "executable": null,
-      "supports": [
-        "read"
-      ]
-    },
-    "cloudflare-pages-adapter": {
-      "status": "DESIGNED",
-      "executable": null,
-      "supports": [
-        "preview-deploy",
-        "production-deploy"
-      ]
-    },
-    "antigravity-adapter": {
-      "status": "DESIGNED",
-      "executable": null,
-      "supports": [
-        "read",
-        "plan",
-        "workspace-write"
-      ]
-    },
-    "skywork-adapter": {
-      "status": "DESIGNED",
-      "executable": null,
-      "supports": [
-        "read",
-        "plan",
-        "workspace-write"
-      ]
-    },
-    "mcp-adapter": {
-      "status": "DESIGNED",
-      "executable": null,
-      "supports": [
-        "read",
-        "plan"
-      ]
-    },
-    "context7-mcp-adapter": {
-      "status": "PILOT",
-      "executable": null,
-      "supports": [
-        "read"
-      ]
-    },
-    "project-command-adapter": {
-      "status": "DESIGNED",
-      "executable": null,
-      "supports": [
-        "read",
-        "workspace-write",
-        "preview-deploy",
-        "production-deploy"
-      ]
-    },
-    "http-smoke-adapter": {
-      "status": "PILOT",
-      "executable": "/opt/chacha-dev/adapters/http-smoke/current/http-smoke-adapter",
-      "supports": [
-        "read"
-      ]
-    },
-    "nas-ssh-adapter": {
-      "status": "DESIGNED",
-      "executable": null,
-      "supports": [
-        "read",
-        "workspace-write"
-      ]
-    },
-    "local-binary-adapter": {
-      "status": "DESIGNED",
-      "executable": null,
-      "supports": [
-        "read",
-        "workspace-write"
-      ]
-    },
-    "python-runtime-adapter": {
-      "status": "DESIGNED",
-      "executable": null,
-      "supports": [
-        "read",
-        "workspace-write"
-      ]
-    },
-    "platform-command-adapter": {
-      "status": "DESIGNED",
-      "executable": null,
-      "supports": [
-        "read",
-        "plan",
-        "workspace-write"
-      ]
-    },
-    "crypto-trust-adapter": {
-      "status": "DESIGNED",
-      "executable": null,
-      "supports": [
-        "read",
-        "plan",
-        "workspace-write"
-      ]
-    }
+    "github-connector": {"status": "DESIGNED", "executable": null, "supports": ["read", "repository-write"]},
+    "github-actions-connector": {"status": "DESIGNED", "executable": null, "supports": ["read"]},
+    "github-artifacts-connector": {"status": "DESIGNED", "executable": null, "supports": ["read"]},
+    "cloudflare-pages-adapter": {"status": "DESIGNED", "executable": null, "supports": ["preview-deploy", "production-deploy"]},
+    "antigravity-adapter": {"status": "DESIGNED", "executable": null, "supports": ["read", "plan", "workspace-write"]},
+    "skywork-adapter": {"status": "DESIGNED", "executable": null, "supports": ["read", "plan", "workspace-write"]},
+    "mcp-adapter": {"status": "DESIGNED", "executable": null, "supports": ["read", "plan"]},
+    "context7-mcp-adapter": {"status": "PILOT", "executable": null, "supports": ["read"]},
+    "project-command-adapter": {"status": "DESIGNED", "executable": null, "supports": ["read", "workspace-write", "preview-deploy", "production-deploy"]},
+    "http-smoke-adapter": {"status": "PILOT", "executable": "/opt/chacha-dev/adapters/http-smoke/current/http-smoke-adapter", "supports": ["read"]},
+    "nas-ssh-adapter": {"status": "DESIGNED", "executable": null, "supports": ["read", "workspace-write"]},
+    "local-binary-adapter": {"status": "DESIGNED", "executable": null, "supports": ["read", "workspace-write"]},
+    "python-runtime-adapter": {"status": "DESIGNED", "executable": null, "supports": ["read", "workspace-write"]},
+    "platform-command-adapter": {"status": "DESIGNED", "executable": null, "supports": ["read", "plan", "workspace-write"]},
+    "crypto-trust-adapter": {"status": "DESIGNED", "executable": null, "supports": ["read", "plan", "workspace-write"]}
   }
 }
