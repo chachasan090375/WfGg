@@ -1,0 +1,249 @@
+name: Dev Hub V5 Generic Project Bootstrap
+
+on:
+  push:
+    branches:
+      - dev-hub-v5-project-bootstrap
+  pull_request:
+    branches:
+      - dev-hub-v5-canonical-manifest-orchestration
+
+permissions:
+  contents: read
+
+jobs:
+  project-bootstrap:
+    runs-on: ubuntu-24.04
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate bootstrap contracts
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          compile(Path('dev-hub/bin/project-bootstrap.py').read_text(), 'project-bootstrap.py', 'exec')
+          compile(Path('dev-hub/bin/project-manifest-orchestrator.py').read_text(), 'project-manifest-orchestrator.py', 'exec')
+          manifest=json.loads(Path('dev-hub/fixtures/project-bootstrap-manifest.v1.json').read_text())
+          assert manifest['schema']=='chacha.dev/project-manifest/v1'
+          raw=Path('dev-hub/fixtures/project-bootstrap-manifest.v1.json').read_text()
+          assert 'chrome-devtools-mcp' not in raw and 'playwright-mcp' not in raw
+          registry=json.loads(Path('dev-hub/config/capability-registry.v1.json').read_text())
+          assert registry['capabilities']['browser-diagnostics']['providers'][0]['id']=='chrome-devtools-mcp'
+          assert registry['capabilities']['browser-independent-verification']['providers'][0]['id']=='playwright-mcp'
+          print('PROJECT_BOOTSTRAP_STATIC_CONTRACT=PASS')
+          PY
+          git status --porcelain > /tmp/git-before.txt
+
+      - name: Provision Chrome DevTools MCP
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/chacha-bootstrap-chrome
+          mkdir -p /tmp/chacha-bootstrap-chrome
+          cd /tmp/chacha-bootstrap-chrome
+          npm init -y >/dev/null 2>&1
+          npm install --no-save chrome-devtools-mcp@1.9.0 >/dev/null
+          test -x node_modules/.bin/chrome-devtools-mcp
+          echo "CHACHA_CHROME_DEVTOOLS_MCP_SERVER=$(realpath node_modules/.bin/chrome-devtools-mcp)" >> "$GITHUB_ENV"
+          echo "CHACHA_CHROME_DEVTOOLS_MCP_WORKDIR=/tmp/chacha-bootstrap-chrome" >> "$GITHUB_ENV"
+          echo "CHACHA_CHROME_DEVTOOLS_MCP_PACKAGE_VERSION=1.9.0" >> "$GITHUB_ENV"
+          if command -v google-chrome >/dev/null 2>&1; then browser_version="$(google-chrome --version)"; else browser_version="$(google-chrome-stable --version)"; fi
+          echo "CHACHA_CHROME_DEVTOOLS_BROWSER_VERSION=$browser_version" >> "$GITHUB_ENV"
+          echo "CHACHA_CHROME_DEVTOOLS_TARGET_CLASS=test" >> "$GITHUB_ENV"
+          echo "CHACHA_CHROME_DEVTOOLS_ALLOWED_ORIGIN=http://127.0.0.1:8765" >> "$GITHUB_ENV"
+
+      - name: Provision Playwright MCP
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/chacha-bootstrap-playwright
+          mkdir -p /tmp/chacha-bootstrap-playwright
+          cd /tmp/chacha-bootstrap-playwright
+          npm init -y >/dev/null 2>&1
+          npm install --no-save @playwright/mcp@0.0.81 >/dev/null
+          npx playwright install --with-deps chromium >/dev/null
+          echo "PLAYWRIGHT_MCP_SERVER=/tmp/chacha-bootstrap-playwright/node_modules/.bin/playwright-mcp" >> "$GITHUB_ENV"
+          echo "PLAYWRIGHT_MCP_WORKDIR=/tmp/chacha-bootstrap-playwright" >> "$GITHUB_ENV"
+
+      - name: Start isolated target
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/chacha-bootstrap-web
+          mkdir -p /tmp/chacha-bootstrap-web
+          cat > /tmp/chacha-bootstrap-web/index.html <<'HTML'
+          <!doctype html><html><head><title>ChaCha Project Bootstrap</title></head>
+          <body><main>CHACHA_PROJECT_BOOTSTRAP_OK</main></body></html>
+          HTML
+          nohup python3 -m http.server 8765 --bind 127.0.0.1 --directory /tmp/chacha-bootstrap-web >/tmp/chacha-bootstrap-http.log 2>&1 &
+          for _ in $(seq 1 20); do curl --fail --silent http://127.0.0.1:8765/ | grep -q CHACHA_PROJECT_BOOTSTRAP_OK && exit 0; sleep 0.5; done
+          exit 1
+
+      - name: Prepare isolated platform policy only
+        shell: bash
+        run: |
+          set -euo pipefail
+          root=/tmp/chacha-dev-hub-v5-project-bootstrap
+          rm -rf "$root"
+          mkdir -p "$root"
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path('/tmp/chacha-dev-hub-v5-project-bootstrap')
+          repo=Path.cwd()
+          state=json.loads((repo/'dev-hub/config/control-plane-state.v1.json').read_text())
+          state['storage']['runtime_root']=str(root/'state')
+          state['storage']['transaction_root']=str(root/'transactions')
+          (root/'control-plane-state.json').write_text(json.dumps(state,indent=2)+'\n')
+          run=json.loads((repo/'dev-hub/config/run-controller.v1.json').read_text())
+          run['mode']='execute-enabled'
+          run['locking']['root']=str(root/'locks/dispatch')
+          (root/'run-controller.json').write_text(json.dumps(run,indent=2)+'\n')
+          pc=json.loads((repo/'dev-hub/config/project-control.v1.json').read_text())
+          pc['runtime'].update({
+            'state_root':str(root/'state'),'evidence_root':str(root/'evidence'),'plans_root':str(root/'plans'),
+            'health_root':str(root/'health'),'runs_root':str(root/'runs'),'transactions_root':str(root/'transactions'),
+            'locks_root':str(root/'locks/control')})
+          pc['repository_paths']['control_plane_state']=str(root/'control-plane-state.json')
+          pc['repository_paths']['run_controller']=str(root/'run-controller.json')
+          assert pc['repository_paths']['capability_registry']=='dev-hub/config/capability-registry.v1.json'
+          assert pc['repository_paths']['provider_adapters']=='dev-hub/config/provider-adapters.v1.json'
+          (root/'project-control.json').write_text(json.dumps(pc,indent=2)+'\n')
+          PY
+          project=dev-hub-v5-project-bootstrap-qualification
+          test ! -e "$root/state/$project"
+          test ! -e "$root/evidence/$project"
+          test ! -e "$root/health/$project"
+          test ! -e "$root/plans/$project"
+          test ! -e "$root/runs/$project"
+          test ! -e "$root/transactions/$project"
+          echo 'PROJECT_BOOTSTRAP_NO_PROJECT_PREPARATION=PASS'
+
+      - name: Create runner-owned external bindings
+        shell: bash
+        run: |
+          set -euo pipefail
+          root=/tmp/chacha-bootstrap-bindings
+          rm -rf "$root"; mkdir -p "$root"
+          chrome="$root/chrome-launcher"; playwright="$root/playwright-launcher"
+          cat > "$chrome" <<EOF
+          #!/usr/bin/env bash
+          exec python3 "$GITHUB_WORKSPACE/dev-hub/adapters/chrome-devtools-mcp-adapter.py"
+          EOF
+          cat > "$playwright" <<EOF
+          #!/usr/bin/env bash
+          exec python3 "$GITHUB_WORKSPACE/dev-hub/bin/playwright-mcp-adapter-runtime.py"
+          EOF
+          chmod 700 "$chrome" "$playwright"
+          export CHROME_LAUNCHER="$chrome" PLAYWRIGHT_LAUNCHER="$playwright"
+          export CHROME_DIGEST="sha256:$(sha256sum "$chrome" | awk '{print $1}')"
+          export PLAYWRIGHT_DIGEST="sha256:$(sha256sum "$playwright" | awk '{print $1}')"
+          python3 - <<'PY'
+          import json, os
+          from datetime import datetime,timedelta,timezone
+          from pathlib import Path
+          now=datetime.now(timezone.utc)
+          data={'schema':'chacha.dev/runtime-bindings/v1','project':'dev-hub-v5-project-bootstrap-qualification',
+            'source':'trusted-runner','issued_at':now.isoformat(),'expires_at':(now+timedelta(minutes=20)).isoformat(),
+            'bindings':{
+              'chrome-devtools-mcp-adapter':{'adapter':'chrome-devtools-mcp-adapter','execution':'external','executable':os.environ['CHROME_LAUNCHER'],'digest':os.environ['CHROME_DIGEST']},
+              'playwright-mcp-adapter':{'adapter':'playwright-mcp-adapter','execution':'external','executable':os.environ['PLAYWRIGHT_LAUNCHER'],'digest':os.environ['PLAYWRIGHT_DIGEST']}}}
+          Path('/tmp/chacha-bootstrap-bindings/runtime-bindings.json').write_text(json.dumps(data,indent=2)+'\n')
+          PY
+          echo "CHACHA_DEV_RUNTIME_BINDINGS=/tmp/chacha-bootstrap-bindings/runtime-bindings.json" >> "$GITHUB_ENV"
+
+      - name: Bootstrap and execute project from manifest only
+        shell: bash
+        run: |
+          set -euo pipefail
+          root=/tmp/chacha-dev-hub-v5-project-bootstrap
+          python3 dev-hub/bin/project-bootstrap.py \
+            --repo-root "$GITHUB_WORKSPACE" \
+            --project-control-policy "$root/project-control.json" \
+            --manifest dev-hub/fixtures/project-bootstrap-manifest.v1.json \
+            --execute \
+            --output "$root/bootstrap-executed.json"
+
+      - name: Validate generated runtime and verified run
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path('/tmp/chacha-dev-hub-v5-project-bootstrap')
+          project='dev-hub-v5-project-bootstrap-qualification'
+          x=json.loads((root/'bootstrap-executed.json').read_text())
+          assert x['schema']=='chacha.dev/project-bootstrap-receipt/v1'
+          assert x['status']=='VERIFIED' and x['executed'] is True
+          assert x['state_created'] is True and x['ledger_created'] is True
+          assert x['provider_selection_owned_by_scheduler'] is True
+          assert x['provider_states']=={'chrome-devtools-mcp':'HEALTHY','playwright-mcp':'HEALTHY'}
+          assert x['runtime_availability_verified'] is True
+          assert x['audit_integrity']=='PASS'
+          assert len(x['verified_workflows'])==1
+          assert x['run_id']
+          required=[
+            root/'state'/project/'state.json', root/'evidence'/project/'ledger.json',
+            root/'health'/project/'providers.json', root/'plans'/project/'manifest.task-graph.json',
+            Path(x['execution_plan']), Path(x['manifest_run']), root/'runs'/project, root/'transactions'/project,
+          ]
+          assert all(p.exists() for p in required), required
+          health=json.loads((root/'health'/project/'providers.json').read_text())
+          assert health['providers']['chrome-devtools-mcp']['source']=='canonical-adapter-eligibility'
+          assert health['providers']['playwright-mcp']['source']=='canonical-adapter-eligibility'
+          assert health['providers']['chrome-devtools-mcp']['runtime_availability_verified'] is False
+          print('PROJECT_BOOTSTRAP_EXECUTION=PASS')
+          print('RUN_ID='+x['run_id'])
+          PY
+          project=dev-hub-v5-project-bootstrap-qualification
+          sha256sum "$root/state/$project/state.json" | awk '{print $1}' > /tmp/bootstrap-state-before.sha
+          sha256sum "$root/evidence/$project/ledger.json" | awk '{print $1}' > /tmp/bootstrap-ledger-before.sha
+
+      - name: Prove bootstrap idempotence and plan-only boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          root=/tmp/chacha-dev-hub-v5-project-bootstrap
+          python3 dev-hub/bin/project-bootstrap.py \
+            --repo-root "$GITHUB_WORKSPACE" \
+            --project-control-policy "$root/project-control.json" \
+            --manifest dev-hub/fixtures/project-bootstrap-manifest.v1.json \
+            --output "$root/bootstrap-second.json"
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          x=json.loads(Path('/tmp/chacha-dev-hub-v5-project-bootstrap/bootstrap-second.json').read_text())
+          assert x['status']=='PLANNED' and x['executed'] is False
+          assert x['state_created'] is False and x['ledger_created'] is False
+          assert x['idempotent_existing_state_preserved'] is True
+          assert x['idempotent_existing_ledger_preserved'] is True
+          assert x['run_id'] is None
+          print('PROJECT_BOOTSTRAP_SECOND_RUN=PASS')
+          PY
+          project=dev-hub-v5-project-bootstrap-qualification
+          test "$(cat /tmp/bootstrap-state-before.sha)" = "$(sha256sum "$root/state/$project/state.json" | awk '{print $1}')"
+          test "$(cat /tmp/bootstrap-ledger-before.sha)" = "$(sha256sum "$root/evidence/$project/ledger.json" | awk '{print $1}')"
+          echo 'PROJECT_BOOTSTRAP_IDEMPOTENCE=PASS'
+
+      - name: Confirm repository unchanged
+        shell: bash
+        run: |
+          git status --porcelain > /tmp/git-after.txt
+          diff -u /tmp/git-before.txt /tmp/git-after.txt
+          test ! -s /tmp/git-after.txt
+          echo 'PROJECT_BOOTSTRAP_REPOSITORY_UNCHANGED=PASS'
+
+      - name: Upload qualification evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: dev-hub-v5-project-bootstrap-${{ github.run_id }}
+          path: /tmp/chacha-dev-hub-v5-project-bootstrap
+          retention-days: 30
+          if-no-files-found: error
