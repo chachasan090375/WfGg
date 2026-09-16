@@ -31,7 +31,16 @@
     "dev_hub_output": "chacha.dev/task-result/v1",
     "provider_result_trust": "UNVERIFIED",
     "verification_broker_required": true,
-    "producer_must_not_self_verify": true
+    "producer_must_not_self_verify": true,
+    "pilot_client_package": "@modelcontextprotocol/client",
+    "pilot_client_version": "2.0.0",
+    "version_negotiation": "auto",
+    "preferred_era": "modern",
+    "preferred_protocol_version": "2026-07-28",
+    "legacy_fallback": "EXPLICIT_PROVIDER_COMPATIBILITY",
+    "negotiated_era_must_be_recorded": true,
+    "negotiated_version_must_be_recorded": true,
+    "legacy_result_requires_technology_radar_followup": true
   },
   "tool_policy": {
     "default": "DENY",

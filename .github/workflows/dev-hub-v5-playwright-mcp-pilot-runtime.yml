@@ -1,0 +1,128 @@
+name: Dev Hub V5 Playwright MCP PILOT Runtime
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - dev-hub-v5-playwright-mcp-pilot-prep
+    paths:
+      - 'dev-hub/config/mcp-playwright-contract.v1.json'
+      - 'dev-hub/bin/playwright-mcp-pilot-probe.mjs'
+      - '.github/workflows/dev-hub-v5-playwright-mcp-pilot-runtime.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Confirm repository clean before runtime
+        run: test -z "$(git status --porcelain)"
+
+      - name: Provision pinned MCP runtime in ephemeral temp directory
+        shell: bash
+        run: |
+          set -euo pipefail
+          R=/tmp/chacha-playwright-mcp-pilot
+          rm -rf "$R"
+          mkdir -p "$R" "$R/output" "$R/site"
+          cd "$R"
+          npm init -y >/dev/null
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm install --no-save --no-audit --no-fund \
+            @playwright/mcp@0.0.81 @modelcontextprotocol/client@2.0.0
+          node -e "const p=require('./node_modules/@playwright/mcp/package.json'); if(p.version!=='0.0.81') process.exit(2); console.log('PLAYWRIGHT_MCP_VERSION='+p.version)"
+          node -e "const p=require('./node_modules/@modelcontextprotocol/client/package.json'); if(p.version!=='2.0.0') process.exit(2); console.log('MCP_CLIENT_VERSION='+p.version)"
+          npx playwright install chromium
+          cp "$GITHUB_WORKSPACE/dev-hub/bin/playwright-mcp-pilot-probe.mjs" "$R/probe.mjs"
+          cat >"$R/site/index.html" <<'HTML'
+          <!doctype html>
+          <html lang="en">
+          <head><meta charset="utf-8"><title>ChaCha Playwright MCP Pilot</title></head>
+          <body>
+            <main>
+              <h1>ChaCha DEV HUB Playwright MCP Pilot</h1>
+              <p>CHACHA_PLAYWRIGHT_MCP_PILOT_2026_09_16</p>
+            </main>
+          </body>
+          </html>
+          HTML
+
+      - name: Run local test origin and live MCP probe
+        shell: bash
+        run: |
+          set -euo pipefail
+          R=/tmp/chacha-playwright-mcp-pilot
+          cd "$R/site"
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/chacha-playwright-site.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID" 2>/dev/null || true' EXIT
+          for i in $(seq 1 20); do
+            if curl -fsS http://127.0.0.1:4173/ >/dev/null; then break; fi
+            sleep 0.25
+          done
+          curl -fsS http://127.0.0.1:4173/ | grep -q 'CHACHA_PLAYWRIGHT_MCP_PILOT_2026_09_16'
+          cd "$R"
+          PLAYWRIGHT_MCP_BIN="$R/node_modules/.bin/playwright-mcp" \
+          PLAYWRIGHT_MCP_TARGET_URL='http://127.0.0.1:4173/' \
+          PLAYWRIGHT_MCP_ALLOWED_ORIGIN='http://127.0.0.1:4173' \
+          PLAYWRIGHT_MCP_EVIDENCE='/tmp/playwright-mcp-pilot-evidence.json' \
+          PLAYWRIGHT_MCP_MARKER='CHACHA_PLAYWRIGHT_MCP_PILOT_2026_09_16' \
+          PLAYWRIGHT_MCP_OUTPUT_DIR="$R/output" \
+          node "$R/probe.mjs"
+
+      - name: Validate runtime evidence
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          e=json.loads(Path('/tmp/playwright-mcp-pilot-evidence.json').read_text())
+          assert e['schema'] == 'chacha.dev/playwright-mcp-pilot-runtime-evidence/v1'
+          assert e['provider'] == 'playwright-mcp'
+          assert e['adapter'] == 'playwright-mcp-adapter'
+          assert e['runtime_surface'] == 'github-actions-ephemeral'
+          assert e['package_version'] == '0.0.81'
+          assert e['mcp_client_version'] == '2.0.0'
+          assert e['negotiated_era'] in ['modern','legacy'], e
+          assert e['required_allowed_tools_present'] is True
+          assert e['unsafe_tool_invoked'] is False
+          assert e['marker_found_in_snapshot'] is True
+          assert e['marker_found_in_find'] is True
+          assert e['test_origin_navigation_pass'] is True
+          assert e['snapshot_pass'] is True
+          assert e['runtime_contract_pass'] is True
+          assert e['sandbox_only_pass'] is True
+          assert e['provisioning_pass'] is True
+          assert e['result_trust'] == 'UNVERIFIED'
+          assert e['eligible_for_pilot'] is True
+          assert e['blockers'] == []
+          invoked=set(e['invoked_tools'])
+          assert 'browser_run_code_unsafe' not in invoked
+          assert 'browser_evaluate' not in invoked
+          assert 'browser_click' not in invoked
+          assert 'browser_type' not in invoked
+          print('PLAYWRIGHT_MCP_RUNTIME_EVIDENCE=PASS era='+str(e['negotiated_era'])+' protocol='+str(e['negotiated_protocol_version']))
+          PY
+
+      - name: Confirm no repository workspace mutation
+        run: |
+          test -z "$(git status --porcelain)"
+          git diff --exit-code
+          echo 'PLAYWRIGHT_MCP_NO_REPOSITORY_WRITE=PASS'
+
+      - name: Upload runtime evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-mcp-pilot-runtime-${{ github.run_id }}
+          path: /tmp/playwright-mcp-pilot-evidence.json
+          if-no-files-found: error
+          retention-days: 30
