@@ -30,6 +30,31 @@
         "scheduler no longer selects http-smoke-adapter",
         "previous promotion and rollback receipts remain readable"
       ]
+    },
+    "context7-mcp-adapter": {
+      "enabled": true,
+      "from_status": "ENABLED",
+      "target_status": "DISABLED",
+      "owner_role": "platform-cloud-engineer",
+      "triggers": [
+        "repeatable-runtime-failure",
+        "provider-health-unavailable",
+        "protocol-or-tool-surface-breaking-change",
+        "policy-or-security-block"
+      ],
+      "executable_strategy": "external-binding-no-local-executable",
+      "steps": [
+        "stop scheduling new tasks to context7-mcp-adapter",
+        "apply ENABLED->DISABLED through adapter-promotion with policy-or-security-block evidence",
+        "record the promotion receipt and triggering evidence",
+        "return library documentation capability to scheduler fallback policy"
+      ],
+      "verification": [
+        "adapter registry status is DISABLED",
+        "scheduler no longer selects context7-mcp-adapter",
+        "no local executable was created or removed",
+        "previous promotion and rollback receipts remain readable"
+      ]
     }
   }
 }
