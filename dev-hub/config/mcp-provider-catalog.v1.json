@@ -1,5 +1,15 @@
 {
   "schema": "chacha.dev/mcp-provider-catalog/v1",
+  "protocol": {
+    "preferred_version": "2026-07-28",
+    "discovery_method": "server/discover",
+    "tools_list_method": "tools/list",
+    "tools_call_method": "tools/call",
+    "remote_transport": "streamable-http",
+    "local_transport": "stdio",
+    "legacy_sse_for_new_deployments": false,
+    "compatibility_policy": "explicit-provider-adapter-only"
+  },
   "policy": {
     "default_admission": "DENY",
     "no_secret_values_in_catalog": true,
@@ -37,7 +47,7 @@
       "write_scope": ["preview-deploy", "worker-config", "d1-migration", "r2-object"],
       "secret_policy": "EXTERNAL_OAUTH",
       "provider_binding": "cloudflare",
-      "health_probe": "mcp-initialize-tools-list-and-account-read",
+      "health_probe": "mcp-server-discover-tools-list-and-account-read",
       "fallback": ["wrangler", "cloudflare-pages", "github-actions"],
       "notes": "Primary Cloudflare control candidate. Production deployment, DNS, destructive D1/R2 actions and secret changes must remain separately gated."
     },
@@ -53,7 +63,7 @@
       "write_scope": ["test-artifacts"],
       "secret_policy": "REFERENCE_ONLY",
       "provider_binding": "playwright",
-      "health_probe": "mcp-initialize-tools-list-and-browser-launch",
+      "health_probe": "mcp-server-discover-tools-list-and-browser-launch",
       "fallback": ["playwright"],
       "notes": "Complements the existing Playwright project runner. Initial MCP admission should be non-production and test-account only."
     },
@@ -69,7 +79,7 @@
       "write_scope": ["browser-session"],
       "secret_policy": "REFERENCE_ONLY",
       "provider_binding": null,
-      "health_probe": "mcp-initialize-tools-list-and-browser-attach",
+      "health_probe": "mcp-server-discover-tools-list-and-browser-attach",
       "fallback": ["playwright-mcp", "playwright"],
       "notes": "Diagnostic complement to Playwright; not a deployment provider and not allowed to mutate production state."
     },
@@ -91,7 +101,7 @@
       "forbidden_roots": ["/", "/etc", "/root", "/home", "/var/lib", "/opt/chacha-dev/secrets"],
       "secret_policy": "NONE",
       "provider_binding": null,
-      "health_probe": "mcp-initialize-tools-list-and-approved-root-read",
+      "health_probe": "mcp-server-discover-tools-list-and-approved-root-read",
       "fallback": [],
       "notes": "Never expose filesystem root. Start read-only; any write permission must be explicit per approved root and pass Storage Governor."
     },
@@ -107,7 +117,7 @@
       "write_scope": [],
       "secret_policy": "REFERENCE_ONLY",
       "provider_binding": "context7-mcp",
-      "health_probe": "initialize-and-tools-list",
+      "health_probe": "mcp-server-discover-and-tools-list",
       "fallback": ["mdn-mcp"],
       "notes": "Already represented in DEV HUB V5. Keep read-only and use provider-specific official docs when they are stronger."
     },
@@ -123,7 +133,7 @@
       "write_scope": [],
       "secret_policy": "EXTERNAL_OAUTH",
       "provider_binding": null,
-      "health_probe": "mcp-initialize-tools-list-and-project-read",
+      "health_probe": "mcp-server-discover-tools-list-and-project-read",
       "fallback": ["cloudflare-mcp"],
       "notes": "Read-only incident analysis first. Issue mutation or release management requires a later contract."
     },
@@ -139,7 +149,7 @@
       "write_scope": [],
       "secret_policy": "REFERENCE_ONLY",
       "provider_binding": null,
-      "health_probe": "mcp-initialize-tools-list-and-search",
+      "health_probe": "mcp-server-discover-tools-list-and-search",
       "fallback": ["technology-radar", "github"],
       "notes": "Useful for recent technical examples and obscure bug research; not required for the first MCP wave."
     },
@@ -155,7 +165,7 @@
       "write_scope": [],
       "secret_policy": "REFERENCE_ONLY",
       "provider_binding": null,
-      "health_probe": "mcp-initialize-tools-list-and-scrape",
+      "health_probe": "mcp-server-discover-tools-list-and-scrape",
       "fallback": ["exa-mcp"],
       "notes": "Introduce only when a project needs systematic documentation or website ingestion."
     },
@@ -171,7 +181,7 @@
       "write_scope": [],
       "secret_policy": "EXTERNAL_OAUTH",
       "provider_binding": null,
-      "health_probe": "mcp-initialize-tools-list-and-file-read",
+      "health_probe": "mcp-server-discover-tools-list-and-file-read",
       "fallback": [],
       "notes": "Useful when Figma becomes an authoritative design source; not needed for current WfGg delivery."
     },
