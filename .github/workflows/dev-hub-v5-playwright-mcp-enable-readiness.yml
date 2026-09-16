@@ -1,0 +1,290 @@
+name: Dev Hub V5 Playwright MCP Enable Readiness
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - dev-hub-v5-playwright-mcp-qualified-enable-readiness
+    paths:
+      - 'dev-hub/adapters/playwright-mcp-adapter.py'
+      - 'dev-hub/bin/playwright-mcp-provider-probe.py'
+      - 'dev-hub/bin/playwright-mcp-legacy-compat-probe.py'
+      - 'dev-hub/bin/adapter-enable-readiness.py'
+      - 'dev-hub/bin/adapter-enablement-evidence.py'
+      - 'dev-hub/config/adapter-enablement.v1.json'
+      - 'dev-hub/config/adapter-rollbacks.v1.json'
+      - 'dev-hub/config/provider-health-probes.v1.json'
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - '.github/workflows/dev-hub-v5-playwright-mcp-enable-readiness.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  readiness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Validate readiness configuration and syntax
+        run: |
+          set -euo pipefail
+          python -m json.tool dev-hub/config/adapter-enablement.v1.json >/dev/null
+          python -m json.tool dev-hub/config/adapter-rollbacks.v1.json >/dev/null
+          python -m json.tool dev-hub/config/provider-health-probes.v1.json >/dev/null
+          python -m py_compile dev-hub/bin/playwright-mcp-provider-probe.py
+          python -m py_compile dev-hub/bin/playwright-mcp-legacy-compat-probe.py
+          python -m py_compile dev-hub/bin/adapter-enable-readiness.py
+          python -m py_compile dev-hub/bin/adapter-enablement-evidence.py
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path('dev-hub/config/adapter-rollbacks.v1.json').read_text())
+          h=json.loads(Path('dev-hub/config/provider-health-probes.v1.json').read_text())
+          a=r['adapters']['playwright-mcp-adapter']
+          assert a['enabled'] is True
+          assert a['target_status']=='DISABLED'
+          assert len(a['steps']) >= 2
+          assert a['verification']
+          p=h['providers']['playwright-mcp']
+          assert p['probe']=='provider-specific-mcp'
+          assert p['functional_check']=='legacy-initialize-tools-list-and-safe-inspection'
+          print('PLAYWRIGHT_MCP_READINESS_CONFIG=PASS')
+          PY
+
+      - name: Clean validation bytecode and record repository state
+        run: |
+          set -euo pipefail
+          find dev-hub -type d -name __pycache__ -prune -exec rm -rf {} +
+          git status --porcelain > /tmp/git-before.txt
+          test ! -s /tmp/git-before.txt
+
+      - name: Provision pinned Playwright MCP outside repository
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/playwright-mcp-runtime
+          cd /tmp/playwright-mcp-runtime
+          npm init -y >/dev/null
+          npm install --no-save @playwright/mcp@0.0.81
+          test "$(node -p "require('./node_modules/@playwright/mcp/package.json').version")" = "0.0.81"
+          echo '0.0.81' >/tmp/playwright-mcp-package-version.txt
+          npx playwright install --with-deps chromium
+          node - <<'NODE' >/tmp/playwright-browser-version.txt
+          const { chromium } = require('playwright');
+          (async () => {
+            const browser = await chromium.launch({headless:true});
+            console.log(browser.version());
+            await browser.close();
+          })().catch(e => { console.error(e); process.exit(1); });
+          NODE
+
+      - name: Start stable local fixture for repeated adapter runs
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/playwright-readiness-fixture/api
+          cat >/tmp/playwright-readiness-fixture/index.html <<'HTML'
+          <!doctype html><html><head><title>Playwright Enable Readiness Fixture</title></head>
+          <body><h1>Playwright Enable Readiness Fixture</h1><p>readiness-fixture-ready</p>
+          <script>console.log('readiness-console-ok'); fetch('/api/ping').then(r=>r.text()).then(x=>console.log('readiness-network-ok',x));</script>
+          </body></html>
+          HTML
+          printf '%s\n' '{"ok":true}' >/tmp/playwright-readiness-fixture/api/ping
+          python -m http.server 18767 --bind 127.0.0.1 --directory /tmp/playwright-readiness-fixture >/tmp/readiness-fixture.log 2>&1 &
+          echo $! >/tmp/readiness-fixture.pid
+          for i in $(seq 1 20); do
+            curl -fsS http://127.0.0.1:18767/ >/dev/null && break
+            sleep 0.2
+          done
+          curl -fsS http://127.0.0.1:18767/ >/dev/null
+
+      - name: Build stable dispatch envelope
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p={
+            'schema':'chacha.dev/dispatch-envelope/v1',
+            'project':'playwright-mcp-enable-readiness',
+            'task':{'id':'repeatable-inspection','permission':'read'},
+            'bindings':[{'provider':'playwright-mcp','adapter':'playwright-mcp-adapter'}],
+            'metadata':{'playwright_mcp':{
+              'operation':'inspect',
+              'url':'http://127.0.0.1:18767/?readiness-secret-query=redacted-by-adapter',
+              'expected_text':'readiness-fixture-ready'
+            }},
+            'policy_context':{'timeout_seconds':30}
+          }
+          Path('/tmp/playwright-readiness-dispatch.json').write_text(json.dumps(p,indent=2)+'\n')
+          PY
+
+      - name: Run three real adapter results with stable task identity
+        shell: bash
+        env:
+          CHACHA_PLAYWRIGHT_MCP_SERVER: /tmp/playwright-mcp-runtime/node_modules/.bin/playwright-mcp
+          CHACHA_PLAYWRIGHT_MCP_WORKDIR: /tmp/playwright-mcp-runtime
+          CHACHA_PLAYWRIGHT_ALLOWED_ORIGIN: http://127.0.0.1:18767
+          CHACHA_PLAYWRIGHT_TARGET_CLASS: test
+          CHACHA_PLAYWRIGHT_MCP_PACKAGE_VERSION: 0.0.81
+        run: |
+          set -euo pipefail
+          for i in 1 2 3; do
+            python dev-hub/adapters/playwright-mcp-adapter.py \
+              < /tmp/playwright-readiness-dispatch.json \
+              > "/tmp/playwright-result-${i}.json"
+            sleep 1
+          done
+          python - <<'PY'
+          import hashlib,json
+          from pathlib import Path
+          vals=[]
+          for i in range(1,4):
+            raw=Path(f'/tmp/playwright-result-{i}.json').read_bytes()
+            r=json.loads(raw)
+            assert r['schema']=='chacha.dev/task-result/v1'
+            assert r['project']=='playwright-mcp-enable-readiness'
+            assert r['task_id']=='repeatable-inspection'
+            assert r['status']=='OK', r
+            assert r['producer']=='playwright-mcp-adapter'
+            assert r['verification']['status']=='UNVERIFIED'
+            assert r['evidence']
+            assert r['evidence'][0]['source']=='http://127.0.0.1:18767/'
+            assert '?' not in r['evidence'][0]['source']
+            assert r['evidence'][0]['details']['called_tools']==[
+              'browser_navigate','browser_snapshot','browser_console_messages','browser_network_requests','browser_close'
+            ]
+            vals.append((r['observed_at'], hashlib.sha256(raw).hexdigest()))
+          assert len({x[0] for x in vals})==3
+          assert len({x[1] for x in vals})==3
+          print('PLAYWRIGHT_MCP_REPEATABILITY_RAW=PASS runs=3 timestamps=3 digests=3')
+          PY
+
+      - name: Run independent provider health probe
+        shell: bash
+        run: |
+          set -euo pipefail
+          python dev-hub/bin/playwright-mcp-provider-probe.py \
+            --server /tmp/playwright-mcp-runtime/node_modules/.bin/playwright-mcp \
+            --workdir /tmp/playwright-mcp-runtime \
+            --package-version "$(cat /tmp/playwright-mcp-package-version.txt)" \
+            --browser-version "$(cat /tmp/playwright-browser-version.txt)" \
+            --raw-output /tmp/playwright-health-raw.json \
+            --output /tmp/playwright-provider-probe.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path('/tmp/playwright-provider-probe.json').read_text())
+          assert p['schema']=='chacha.dev/provider-probe-result/v1'
+          assert p['provider']=='playwright-mcp'
+          assert p['state']=='HEALTHY', p
+          assert p['details']['independent_from_adapter_execution'] is True
+          snapshot={
+            'schema':'chacha.dev/provider-health-snapshot/v1',
+            'generated_at':p['checked_at'],
+            'providers':{
+              'playwright-mcp':{
+                'state':p['state'],
+                'checked_at':p['checked_at'],
+                'source':p['source'],
+                'reason':p['reason'],
+                'evidence_digest':p['evidence_digest'],
+                'details':p['details']
+              }
+            }
+          }
+          Path('/tmp/playwright-provider-health.json').write_text(json.dumps(snapshot,indent=2)+'\n')
+          print('PLAYWRIGHT_MCP_PROVIDER_HEALTH=HEALTHY independent=true')
+          PY
+
+      - name: Evaluate official PILOT to ENABLED readiness without mutation
+        shell: bash
+        run: |
+          set -euo pipefail
+          python dev-hub/bin/adapter-enable-readiness.py \
+            --registry dev-hub/config/provider-adapters.v1.json \
+            --adapter playwright-mcp-adapter \
+            --provider playwright-mcp \
+            --result /tmp/playwright-result-1.json \
+            --result /tmp/playwright-result-2.json \
+            --result /tmp/playwright-result-3.json \
+            --health /tmp/playwright-provider-health.json \
+            --rollbacks dev-hub/config/adapter-rollbacks.v1.json \
+            --work-dir /tmp/playwright-enable-readiness \
+            --json > /tmp/playwright-enable-readiness.stdout.json
+
+      - name: Validate readiness receipt, evidence and promotion plan
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          rr=json.loads(Path('/tmp/playwright-enable-readiness/enablement-readiness.json').read_text())
+          ev=json.loads(Path('/tmp/playwright-enable-readiness/enablement-evidence.json').read_text())
+          plan=json.loads(Path('/tmp/playwright-enable-readiness/enablement-promotion-plan.json').read_text())
+          reg=json.loads(Path('dev-hub/config/provider-adapters.v1.json').read_text())
+          assert rr['schema']=='chacha.dev/adapter-enable-readiness/v1'
+          assert rr['adapter']=='playwright-mcp-adapter'
+          assert rr['provider']=='playwright-mcp'
+          assert rr['current_status']=='PILOT'
+          assert rr['target_status']=='ENABLED'
+          assert rr['status']=='READY_FOR_ENABLEMENT', rr['blockers']
+          assert rr['registry_mutated'] is False
+          assert rr['execution_kinds']==['external']
+          assert rr['promotion_eligible'] is True
+          assert rr['blockers']==[]
+          assert len(rr['repeatability_results'])==3
+          assert all(x['valid'] for x in rr['repeatability_results'])
+          assert len({x['observed_at'] for x in rr['repeatability_results']})==3
+          assert len({x['digest'] for x in rr['repeatability_results']})==3
+          assert ev['schema']=='chacha.dev/adapter-promotion-evidence/v1'
+          assert set(ev['evidence'])=={'repeatable-pass','provider-health-pass','rollback-defined'}
+          assert all(x['status']=='PASS' for x in ev['evidence'].values())
+          health=ev['evidence']['provider-health-pass']['details']
+          assert health['observed_state']=='HEALTHY'
+          assert health['age_seconds'] < 300
+          rollback=ev['evidence']['rollback-defined']['details']
+          assert rollback['target_status']=='DISABLED'
+          assert plan['transition']=='PILOT->ENABLED'
+          assert plan['eligible'] is True, plan['blockers']
+          assert plan['blockers']==[]
+          assert plan['production_capable'] is False
+          assert plan['approval_required'] is False
+          assert plan['requires_local_executable'] is False
+          assert reg['adapters']['playwright-mcp-adapter']['status']=='PILOT'
+          print('PLAYWRIGHT_MCP_ENABLE_READINESS=PASS status=READY_FOR_ENABLEMENT registry=PILOT')
+          PY
+
+      - name: Confirm repository remained unchanged by runtime/readiness
+        shell: bash
+        run: |
+          set -euo pipefail
+          find dev-hub -type d -name __pycache__ -prune -exec rm -rf {} +
+          git status --porcelain > /tmp/git-after.txt
+          diff -u /tmp/git-before.txt /tmp/git-after.txt
+          test ! -s /tmp/git-after.txt
+          echo 'PLAYWRIGHT_MCP_ENABLE_READINESS_NO_REPOSITORY_WRITE=PASS'
+
+      - name: Upload enablement readiness evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-mcp-enable-readiness-${{ github.run_id }}
+          path: |
+            /tmp/playwright-result-1.json
+            /tmp/playwright-result-2.json
+            /tmp/playwright-result-3.json
+            /tmp/playwright-health-raw.json
+            /tmp/playwright-provider-probe.json
+            /tmp/playwright-provider-health.json
+            /tmp/playwright-enable-readiness/enablement-readiness.json
+            /tmp/playwright-enable-readiness/enablement-evidence.json
+            /tmp/playwright-enable-readiness/enablement-promotion-plan.json
+          retention-days: 30
+          if-no-files-found: warn
