@@ -5,11 +5,14 @@
   "decision": "ASSESS",
   "runtime_status": "DESIGNED",
   "integration": {
-    "primary_surface": "claude-agent-sdk",
+    "primary_surface": "anthropic-provider-abstraction",
+    "preferred_runtime": "claude-managed-agents",
+    "compatibility_runtime": "claude-agent-sdk",
     "execution": "external",
     "mcp_server_mode": "SECONDARY_OPTIONAL",
     "github_action_mode": "NOT_PRIMARY",
-    "managed_agents_mode": "DEFER_UNTIL_SEPARATELY_ASSESSED"
+    "managed_agents_mode": "PREFERRED_AFTER_RUNTIME_QUALIFICATION",
+    "agent_sdk_mode": "COMPATIBILITY_BACKEND"
   },
   "boundary": {
     "input_schema": "chacha.dev/dispatch-envelope/v1",
@@ -19,7 +22,10 @@
     "producer_must_not_self_verify": true
   },
   "auth": {
-    "credential_type": "ANTHROPIC_API_KEY",
+    "credential_type": "ANTHROPIC_EXTERNAL_CREDENTIAL",
+    "supported_modes": ["API_KEY", "WORKLOAD_IDENTITY_FEDERATION"],
+    "pilot_initial_mode": "API_KEY_REFERENCE",
+    "future_ci_preferred_mode": "WORKLOAD_IDENTITY_FEDERATION",
     "secret_policy": "REFERENCE_ONLY",
     "secret_values_in_git": false,
     "secret_values_in_evidence": false,
@@ -61,6 +67,7 @@
   "evidence": {
     "record_provider": true,
     "record_model_id": true,
+    "record_runtime_surface": true,
     "record_sdk_version": true,
     "record_tool_names": true,
     "record_usage_when_available": true,
