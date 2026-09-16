@@ -28,10 +28,11 @@ jobs:
           import json
           from pathlib import Path
           compile(Path('dev-hub/bin/playwright-mcp-adapter-runtime-v2.py').read_text(), 'playwright-mcp-adapter-runtime-v2.py', 'exec')
+          compile(Path('dev-hub/bin/playwright-mcp-adapter-runtime-v2-entry.py').read_text(), 'playwright-mcp-adapter-runtime-v2-entry.py', 'exec')
           compile(Path('dev-hub/bin/trusted-runtime-provisioner-v2.py').read_text(), 'trusted-runtime-provisioner-v2.py', 'exec')
           policy=json.loads(Path('dev-hub/config/trusted-runtime-provisioner.v1.json').read_text())
           p=policy['providers']['playwright-mcp']
-          assert p['launcher_source']=='dev-hub/bin/playwright-mcp-adapter-runtime-v2.py'
+          assert p['launcher_source']=='dev-hub/bin/playwright-mcp-adapter-runtime-v2-entry.py'
           assert p['runtime_environment']['target_class']=='PLAYWRIGHT_MCP_TARGET_CLASS'
           assert p['runtime_environment']['allowed_origin']=='PLAYWRIGHT_MCP_ALLOWED_ORIGIN'
           assert policy['principles']['task_cannot_select_allowed_origin'] is True
@@ -109,19 +110,19 @@ jobs:
           }
           make_input 'https://example.com/' external /tmp/external.json
           PLAYWRIGHT_MCP_TARGET_CLASS=preview PLAYWRIGHT_MCP_ALLOWED_ORIGIN=https://example.com \
-            python3 dev-hub/bin/playwright-mcp-adapter-runtime-v2.py </tmp/external.json >/tmp/chacha-playwright-preview-evidence/external.json
+            python3 dev-hub/bin/playwright-mcp-adapter-runtime-v2-entry.py </tmp/external.json >/tmp/chacha-playwright-preview-evidence/external.json
 
           make_input 'http://preview.chacha.test:8765/same-redirect' same /tmp/same.json
           PLAYWRIGHT_MCP_TARGET_CLASS=preview PLAYWRIGHT_MCP_ALLOWED_ORIGIN=http://preview.chacha.test:8765 \
-            NO_PROXY='*' no_proxy='*' python3 dev-hub/bin/playwright-mcp-adapter-runtime-v2.py </tmp/same.json >/tmp/chacha-playwright-preview-evidence/same-origin.json
+            NO_PROXY='*' no_proxy='*' python3 dev-hub/bin/playwright-mcp-adapter-runtime-v2-entry.py </tmp/same.json >/tmp/chacha-playwright-preview-evidence/same-origin.json
 
           make_input 'http://preview.chacha.test:8765/cross-redirect' cross /tmp/cross.json
           PLAYWRIGHT_MCP_TARGET_CLASS=preview PLAYWRIGHT_MCP_ALLOWED_ORIGIN=http://preview.chacha.test:8765 \
-            NO_PROXY='*' no_proxy='*' python3 dev-hub/bin/playwright-mcp-adapter-runtime-v2.py </tmp/cross.json >/tmp/chacha-playwright-preview-evidence/cross-origin.json
+            NO_PROXY='*' no_proxy='*' python3 dev-hub/bin/playwright-mcp-adapter-runtime-v2-entry.py </tmp/cross.json >/tmp/chacha-playwright-preview-evidence/cross-origin.json
 
           make_input 'http://other-preview.chacha.test:8766/final' mismatch /tmp/mismatch.json
           PLAYWRIGHT_MCP_TARGET_CLASS=preview PLAYWRIGHT_MCP_ALLOWED_ORIGIN=http://preview.chacha.test:8765 \
-            NO_PROXY='*' no_proxy='*' python3 dev-hub/bin/playwright-mcp-adapter-runtime-v2.py </tmp/mismatch.json >/tmp/chacha-playwright-preview-evidence/origin-mismatch.json
+            NO_PROXY='*' no_proxy='*' python3 dev-hub/bin/playwright-mcp-adapter-runtime-v2-entry.py </tmp/mismatch.json >/tmp/chacha-playwright-preview-evidence/origin-mismatch.json
 
           python3 - <<'PY'
           import json
@@ -137,6 +138,7 @@ jobs:
               details=result['evidence'][0]['details']
               assert details['final_origin_revalidated'] is True
               assert details['upstream_allowed_origins_is_security_boundary'] is False
+              assert details['target_origin']==details['final_target_origin']==details['initial_target_origin']
               assert details['called_tools']==['browser_navigate','browser_snapshot','browser_console_messages','browser_network_requests','browser_close']
               assert details['production_target'] is False and details['workspace_write'] is False and details['repository_write'] is False
           assert ext['evidence'][0]['details']['final_target_origin']=='https://example.com'
@@ -147,6 +149,7 @@ jobs:
           print('PLAYWRIGHT_SAME_ORIGIN_REDIRECT=PASS')
           print('PLAYWRIGHT_CROSS_ORIGIN_REDIRECT=BLOCKED')
           print('PLAYWRIGHT_ORIGIN_MISMATCH=BLOCKED')
+          print('PLAYWRIGHT_BROKER_COMPAT_EVIDENCE=PASS')
           PY
 
       - name: Prepare isolated Control Plane only
@@ -216,7 +219,7 @@ jobs:
           b=json.loads(binding.read_text())
           launcher=Path(b['bindings']['playwright-mcp-adapter']['executable'])
           script=launcher.read_text()
-          assert 'playwright-mcp-adapter-runtime-v2.py' in script
+          assert 'playwright-mcp-adapter-runtime-v2-entry.py' in script
           Path('/tmp/chacha-playwright-preview-evidence/runtime-bindings.json').write_text(binding.read_text())
           print('PLAYWRIGHT_EXTERNAL_PREVIEW_FULL_CHAIN=PASS')
           print('RUN_ID='+x['run_id'])
