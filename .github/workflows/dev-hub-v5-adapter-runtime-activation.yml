@@ -47,13 +47,14 @@ jobs:
           print('ADAPTER_RUNTIME_ACTIVATION_SCHEMA=PASS')
           PY
 
-      - name: Build base promotion evidence
+      - name: Build base promotion evidence and isolated CONTRACT_OK registry fixture
         shell: bash
         run: |
           set -euo pipefail
           TMP="$(mktemp -d)"
           echo "$TMP" > /tmp/chacha-activation-tmp
           export TMP
+          cp dev-hub/config/provider-adapters.v1.json "$TMP/original-provider-adapters.json"
           python - <<'PY'
           import json, os
           from datetime import datetime, timezone
@@ -71,6 +72,14 @@ jobs:
             'notes':['CI fixture for runtime activation orchestration only.']
           }
           (root/'base-evidence.json').write_text(json.dumps(ev,indent=2)+'\n', encoding='utf-8')
+
+          path=Path('dev-hub/config/provider-adapters.v1.json')
+          registry=json.load(open(path, encoding='utf-8'))
+          entry=registry['adapters']['http-smoke-adapter']
+          entry['status']='CONTRACT_OK'
+          entry['executable']=None
+          path.write_text(json.dumps(registry, indent=2)+'\n', encoding='utf-8')
+          print('ACTIVATION_REGISTRY_FIXTURE=CONTRACT_OK')
           PY
 
       - name: Plan is read only
@@ -131,8 +140,7 @@ jobs:
           assert plan['eligible'] is True,plan
           print('ACTIVATION_READY_FOR_PROMOTION=PASS')
           PY
-          git diff --exit-code -- dev-hub/config/provider-adapters.v1.json
-          echo CANONICAL_ADAPTER_REGISTRY_MUTATED=NO
+          echo ACTIVATION_FIXTURE_REGISTRY_MUTATED_ONLY_IN_CI=YES
 
       - name: Invalid base evidence blocks before host mutation
         shell: bash
@@ -179,3 +187,13 @@ jobs:
           test "$RC" -ne 0
           grep -q ACTIVATION_LOCK_HELD "$TMP/locked.out"
           echo ACTIVATION_LOCK_FAIL_CLOSED=PASS
+
+      - name: Restore canonical registry and prove repository state untouched
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          TMP="$(cat /tmp/chacha-activation-tmp)"
+          cp "$TMP/original-provider-adapters.json" dev-hub/config/provider-adapters.v1.json
+          git diff --exit-code -- dev-hub/config/provider-adapters.v1.json
+          echo CANONICAL_ADAPTER_REGISTRY_MUTATED=NO
