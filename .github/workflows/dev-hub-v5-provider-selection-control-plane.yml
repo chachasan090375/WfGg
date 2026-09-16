@@ -1,0 +1,157 @@
+name: Dev Hub V5 Provider Selection Control Plane
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - dev-hub-v5-provider-selection-control-plane
+    paths:
+      - 'dev-hub/config/project-control.v1.json'
+      - 'dev-hub/config/execution-scheduler.v1.json'
+      - 'dev-hub/config/provider-selection-policy.v1.json'
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - 'dev-hub/config/capability-registry.v1.json'
+      - 'dev-hub/bin/provider-selection-engine.py'
+      - 'dev-hub/bin/execution-scheduler.py'
+      - 'dev-hub/bin/selection-aware-execution-scheduler.py'
+      - '.github/workflows/dev-hub-v5-provider-selection-control-plane.yml'
+  pull_request:
+    paths:
+      - 'dev-hub/config/project-control.v1.json'
+      - 'dev-hub/config/execution-scheduler.v1.json'
+      - 'dev-hub/config/provider-selection-policy.v1.json'
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - 'dev-hub/config/capability-registry.v1.json'
+      - 'dev-hub/bin/provider-selection-engine.py'
+      - 'dev-hub/bin/execution-scheduler.py'
+      - 'dev-hub/bin/selection-aware-execution-scheduler.py'
+      - '.github/workflows/dev-hub-v5-provider-selection-control-plane.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate syntax and wiring policy
+        run: |
+          python -m json.tool dev-hub/config/project-control.v1.json >/dev/null
+          python -m json.tool dev-hub/config/execution-scheduler.v1.json >/dev/null
+          python -m json.tool dev-hub/config/provider-selection-policy.v1.json >/dev/null
+          python -m py_compile dev-hub/bin/provider-selection-engine.py
+          python -m py_compile dev-hub/bin/execution-scheduler.py
+          python -m py_compile dev-hub/bin/selection-aware-execution-scheduler.py
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          pc=json.loads(Path('dev-hub/config/project-control.v1.json').read_text())
+          es=json.loads(Path('dev-hub/config/execution-scheduler.v1.json').read_text())
+          assert pc['principles']['provider_selection_precedes_execution_scheduling'] is True
+          assert pc['principles']['scheduler_must_revalidate_selected_provider'] is True
+          assert pc['operations']['schedule']['provider_selection_required'] is True
+          assert pc['engine_paths']['execution_scheduler'] == 'dev-hub/bin/selection-aware-execution-scheduler.py'
+          assert pc['safety']['allow_scheduler_to_bypass_provider_selection'] is False
+          assert es['principles']['provider_selection_plan_required'] is True
+          assert es['principles']['scheduler_revalidates_selected_provider'] is True
+          assert es['principles']['scheduler_does_not_rank_providers'] is True
+          assert es['provider_selection']['adapter_runtime_statuses'] == ['PILOT','ENABLED']
+          print('SELECTION_CONTROL_PLANE_WIRING=PASS')
+          PY
+
+      - name: Positive path selects admitted PILOT provider
+        run: |
+          cat >/tmp/graph-positive.json <<'JSON'
+          {"schema":"chacha.dev/task-graph/v1","project":"selector-control-positive","transition":"VERIFY->PREVIEW","tasks":[{"id":"smoke-1","capabilities":["smoke-test-web"],"permission":"read","depends_on":[]}]}
+          JSON
+          cat >/tmp/health-positive.json <<'JSON'
+          {"schema":"chacha.dev/provider-health-snapshot/v1","providers":{"http-smoke":{"state":"HEALTHY"},"playwright":{"state":"UNKNOWN"}}}
+          JSON
+          python dev-hub/bin/selection-aware-execution-scheduler.py \
+            --graph /tmp/graph-positive.json \
+            --registry dev-hub/config/capability-registry.v1.json \
+            --health /tmp/health-positive.json \
+            --policy dev-hub/config/execution-scheduler.v1.json \
+            --output /tmp/execution-positive.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          plan=json.loads(Path('/tmp/execution-positive.json').read_text())
+          sel=json.loads(Path('/tmp/execution-positive.provider-selection.json').read_text())
+          assert sel['dispatch_authorized'] is False
+          assert sel['task_plans'][0]['selected_provider'] == 'http-smoke'
+          assert plan['summary']['scheduled_count'] == 1
+          assert plan['summary']['blocked_count'] == 0
+          binding=plan['waves'][0]['tasks'][0]['provider_bindings'][0]
+          assert binding['provider'] == 'http-smoke'
+          assert binding['adapter_status'] == 'PILOT'
+          print('SELECTION_CONTROL_POSITIVE=PASS provider=http-smoke')
+          PY
+
+      - name: Non-admitted development agents remain blocked
+        run: |
+          cat >/tmp/graph-shadow.json <<'JSON'
+          {"schema":"chacha.dev/task-graph/v1","project":"selector-control-shadow","transition":"BUILD->VERIFY","tasks":[{"id":"review-1","capabilities":["code-review"],"permission":"read","depends_on":[]}]}
+          JSON
+          cat >/tmp/health-shadow.json <<'JSON'
+          {"schema":"chacha.dev/provider-health-snapshot/v1","providers":{"antigravity":{"state":"HEALTHY"},"github":{"state":"HEALTHY"},"anthropic-claude":{"state":"HEALTHY"}}}
+          JSON
+          python dev-hub/bin/selection-aware-execution-scheduler.py \
+            --graph /tmp/graph-shadow.json \
+            --registry dev-hub/config/capability-registry.v1.json \
+            --health /tmp/health-shadow.json \
+            --policy dev-hub/config/execution-scheduler.v1.json \
+            --output /tmp/execution-shadow.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          plan=json.loads(Path('/tmp/execution-shadow.json').read_text())
+          sel=json.loads(Path('/tmp/execution-shadow.provider-selection.json').read_text())
+          item=sel['task_plans'][0]
+          assert item['selected_provider'] is None
+          assert item['ranked_candidates']
+          assert plan['summary']['scheduled_count'] == 0
+          assert plan['summary']['blocked_count'] == 1
+          assert any('selector-no-execution-eligible-provider' in r for r in plan['blocked_tasks'][0]['reasons'])
+          print('SELECTION_CONTROL_SHADOW_BLOCK=PASS')
+          PY
+
+      - name: Scheduler rejects tampered plan forcing DESIGNED adapter
+        run: |
+          cat >/tmp/selection-tampered.json <<'JSON'
+          {
+            "schema":"chacha.dev/provider-selection-plan/v1",
+            "project":"selector-control-shadow",
+            "transition":"BUILD->VERIFY",
+            "dispatch_authorized":false,
+            "task_plans":[{
+              "task_id":"review-1","capability":"code-review","permission":"read",
+              "eligible_providers":["antigravity"],"rejected_providers":[],
+              "ranked_candidates":[{"provider":"antigravity","score":100}],
+              "selected_provider":"antigravity","confidence":"HIGH",
+              "selection_reasons":["TAMPERED"],"evidence_refs":[],"dispatch_authorized":false
+            }]
+          }
+          JSON
+          python dev-hub/bin/execution-scheduler.py \
+            --graph /tmp/graph-shadow.json \
+            --registry dev-hub/config/capability-registry.v1.json \
+            --adapters dev-hub/config/provider-adapters.v1.json \
+            --health /tmp/health-shadow.json \
+            --selection-plan /tmp/selection-tampered.json \
+            --policy dev-hub/config/execution-scheduler.v1.json \
+            --output /tmp/execution-tampered.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path('/tmp/execution-tampered.json').read_text())
+          assert p['summary']['scheduled_count'] == 0
+          assert p['summary']['blocked_count'] == 1
+          reasons=p['blocked_tasks'][0]['reasons']
+          assert any('selected-adapter-not-runtime-admitted:DESIGNED' in r for r in reasons), reasons
+          print('SELECTION_CONTROL_TAMPER_BLOCK=PASS')
+          PY
