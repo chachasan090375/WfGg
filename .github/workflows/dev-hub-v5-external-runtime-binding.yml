@@ -1,0 +1,187 @@
+name: Dev Hub V5 External Runtime Binding Qualification
+
+on:
+  push:
+    branches:
+      - dev-hub-v5-external-runtime-binding
+  pull_request:
+    branches:
+      - dev-hub-v5-e2e-runtime
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  external-runtime-binding:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate Python and JSON contracts
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          for path in [
+              'dev-hub/bin/external-runtime-dispatch.py',
+              'dev-hub/bin/external-runtime-binding-qualification.py',
+              'dev-hub/adapters/chrome-devtools-mcp-adapter.py',
+              'dev-hub/bin/run-controller.py',
+              'dev-hub/bin/project-control.py',
+          ]:
+              compile(Path(path).read_text(encoding='utf-8'), path, 'exec')
+          for path in [
+              'dev-hub/config/external-runtime-binding.v1.json',
+              'dev-hub/config/project-control.v1.json',
+              'dev-hub/config/provider-adapters.v1.json',
+          ]:
+              json.loads(Path(path).read_text(encoding='utf-8'))
+          pc = json.loads(Path('dev-hub/config/project-control.v1.json').read_text())
+          assert pc['engine_paths']['run_controller'] == 'dev-hub/bin/external-runtime-dispatch.py'
+          reg = json.loads(Path('dev-hub/config/provider-adapters.v1.json').read_text())
+          chrome = reg['adapters']['chrome-devtools-mcp-adapter']
+          assert chrome['status'] == 'ENABLED'
+          assert chrome['executable'] is None
+          print('EXTERNAL_RUNTIME_STATIC_CONTRACT=PASS')
+          PY
+
+      - name: Provision pinned Chrome DevTools MCP outside repository
+        run: |
+          rm -rf /tmp/chacha-chrome-devtools-runtime
+          mkdir -p /tmp/chacha-chrome-devtools-runtime
+          cd /tmp/chacha-chrome-devtools-runtime
+          npm init -y >/dev/null 2>&1
+          npm install --no-save chrome-devtools-mcp@1.9.0 >/dev/null
+          test -x node_modules/.bin/chrome-devtools-mcp
+          echo "CHACHA_CHROME_DEVTOOLS_MCP_SERVER=$(realpath node_modules/.bin/chrome-devtools-mcp)" >> "$GITHUB_ENV"
+          echo "CHACHA_CHROME_DEVTOOLS_MCP_WORKDIR=/tmp/chacha-chrome-devtools-runtime" >> "$GITHUB_ENV"
+          echo "CHACHA_CHROME_DEVTOOLS_MCP_PACKAGE_VERSION=1.9.0" >> "$GITHUB_ENV"
+          if command -v google-chrome >/dev/null 2>&1; then
+            browser_version="$(google-chrome --version)"
+          elif command -v google-chrome-stable >/dev/null 2>&1; then
+            browser_version="$(google-chrome-stable --version)"
+          else
+            echo 'Chrome executable not found on runner' >&2
+            exit 1
+          fi
+          echo "CHACHA_CHROME_DEVTOOLS_BROWSER_VERSION=$browser_version" >> "$GITHUB_ENV"
+          echo "CHACHA_CHROME_DEVTOOLS_TARGET_CLASS=test" >> "$GITHUB_ENV"
+          echo "CHACHA_CHROME_DEVTOOLS_ALLOWED_ORIGIN=http://127.0.0.1:8765" >> "$GITHUB_ENV"
+
+      - name: Start isolated local HTTP target
+        run: |
+          rm -rf /tmp/chacha-external-runtime-web
+          mkdir -p /tmp/chacha-external-runtime-web
+          cat > /tmp/chacha-external-runtime-web/index.html <<'HTML'
+          <!doctype html>
+          <html><head><title>ChaCha External Runtime</title></head>
+          <body><main>CHACHA_EXTERNAL_RUNTIME_OK</main></body></html>
+          HTML
+          nohup python3 -m http.server 8765 --bind 127.0.0.1 --directory /tmp/chacha-external-runtime-web >/tmp/chacha-external-runtime-http.log 2>&1 &
+          echo $! > /tmp/chacha-external-runtime-http.pid
+          for _ in $(seq 1 20); do
+            if curl --fail --silent http://127.0.0.1:8765/ | grep -q CHACHA_EXTERNAL_RUNTIME_OK; then
+              exit 0
+            fi
+            sleep 0.5
+          done
+          cat /tmp/chacha-external-runtime-http.log >&2 || true
+          exit 1
+
+      - name: Create runner-owned runtime binding
+        run: |
+          rm -rf /tmp/chacha-external-runtime-binding
+          mkdir -p /tmp/chacha-external-runtime-binding
+          launcher=/tmp/chacha-external-runtime-binding/chrome-adapter-launcher
+          cat > "$launcher" <<EOF
+          #!/usr/bin/env bash
+          exec python3 "$GITHUB_WORKSPACE/dev-hub/adapters/chrome-devtools-mcp-adapter.py"
+          EOF
+          chmod 700 "$launcher"
+          export CHACHA_RUNTIME_LAUNCHER="$launcher"
+          export CHACHA_RUNTIME_DIGEST="sha256:$(sha256sum "$launcher" | awk '{print $1}')"
+          python3 - <<'PY'
+          import json, os
+          from datetime import datetime, timedelta, timezone
+          from pathlib import Path
+          now = datetime.now(timezone.utc)
+          payload = {
+              'schema': 'chacha.dev/runtime-bindings/v1',
+              'project': 'dev-hub-v5-external-runtime-binding-qualification',
+              'source': 'trusted-runner',
+              'issued_at': now.isoformat(),
+              'expires_at': (now + timedelta(minutes=20)).isoformat(),
+              'bindings': {
+                  'chrome-devtools-mcp-adapter': {
+                      'adapter': 'chrome-devtools-mcp-adapter',
+                      'execution': 'external',
+                      'executable': os.environ['CHACHA_RUNTIME_LAUNCHER'],
+                      'digest': os.environ['CHACHA_RUNTIME_DIGEST'],
+                  }
+              }
+          }
+          target = Path('/tmp/chacha-external-runtime-binding/runtime-bindings.json')
+          target.write_text(json.dumps(payload, indent=2) + '\n', encoding='utf-8')
+          PY
+          echo "CHACHA_DEV_RUNTIME_BINDINGS=/tmp/chacha-external-runtime-binding/runtime-bindings.json" >> "$GITHUB_ENV"
+
+      - name: Execute real external adapter through Project Control
+        run: |
+          rm -rf /tmp/chacha-dev-hub-v5-external-runtime-qualification
+          python3 dev-hub/bin/external-runtime-binding-qualification.py \
+            --repo-root "$GITHUB_WORKSPACE" \
+            --work-dir /tmp/chacha-dev-hub-v5-external-runtime-qualification \
+            --target-url http://127.0.0.1:8765/ \
+            --output /tmp/chacha-dev-hub-v5-external-runtime-qualification/external-runtime-binding-qualification.json
+
+      - name: Validate qualification evidence
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path('/tmp/chacha-dev-hub-v5-external-runtime-qualification/external-runtime-binding-qualification.json')
+          x = json.loads(p.read_text())
+          assert x['schema'] == 'chacha.dev/external-runtime-binding-qualification/v1'
+          assert x['status'] == 'PASS'
+          assert x['provider'] == 'chrome-devtools-mcp'
+          assert x['adapter'] == 'chrome-devtools-mcp-adapter'
+          assert x['canonical_registry_status'] == 'ENABLED'
+          assert x['canonical_registry_executable'] is None
+          assert x['provider_result_status'] == 'OK'
+          assert x['provider_result_verification'] == 'UNVERIFIED'
+          assert x['project_control_dispatch_pass'] is True
+          assert x['missing_binding_blocked'] is True
+          assert x['digest_mismatch_blocked'] is True
+          assert x['expired_binding_blocked'] is True
+          assert x['registry_mutated'] is False
+          assert x['production_touched'] is False
+          assert x['blockers'] == []
+          print('EXTERNAL_RUNTIME_BINDING_EVIDENCE=PASS')
+          print('RUN_ID=' + x['run_id'])
+          PY
+
+      - name: Confirm authoritative registry and repository remained unchanged
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          reg = json.loads(Path('dev-hub/config/provider-adapters.v1.json').read_text())
+          assert reg['adapters']['chrome-devtools-mcp-adapter']['executable'] is None
+          print('AUTHORITATIVE_EXTERNAL_EXECUTABLE_NULL=PASS')
+          PY
+          test -z "$(git status --porcelain)"
+          git diff --exit-code
+
+      - name: Upload qualification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dev-hub-v5-external-runtime-binding-${{ github.run_id }}
+          path: /tmp/chacha-dev-hub-v5-external-runtime-qualification
+          if-no-files-found: error
+          retention-days: 30
