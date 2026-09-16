@@ -1,0 +1,32 @@
+{
+  "schema": "chacha.dev/canonical-project-manifest-orchestration-qualification/v1",
+  "observed_at": "2026-09-16T17:58:20Z",
+  "status": "PASS",
+  "workflow_run": 35131398585,
+  "workflow_job": 104913016519,
+  "artifact": 10461542224,
+  "artifact_digest": "sha256:9932e46b1a235b197d73ca4eecaeeb23b8b555a29697047794074eb406a489b1",
+  "business_run_id": "run-20260916T175816Z-6c7b98f2",
+  "manifest_schema": "chacha.dev/project-manifest/v1",
+  "manifest_provider_names_present": false,
+  "canonical_capability_registry": "dev-hub/config/capability-registry.v1.json",
+  "temporary_capability_registry_created": false,
+  "canonical_capabilities": {
+    "browser-diagnostics": "chrome-devtools-mcp",
+    "browser-independent-verification": "playwright-mcp"
+  },
+  "provider_selection_owned_by_scheduler": true,
+  "selected_providers": ["chrome-devtools-mcp", "playwright-mcp"],
+  "source_producer": "chrome-devtools-mcp-adapter",
+  "independent_producer": "playwright-mcp-adapter",
+  "provider_results_entered_unverified": true,
+  "broker_final_status": "VERIFIED",
+  "evidence_ingested": true,
+  "audit_integrity": "PASS",
+  "plan_without_execute": "PLANNED",
+  "explicit_execution_boundary": "PASS",
+  "repository_unchanged_during_qualification": true,
+  "production_touched": false,
+  "automatic_lifecycle_promotion": false,
+  "blockers": []
+}
