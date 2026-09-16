@@ -1,0 +1,311 @@
+name: Dev Hub V5 Chrome DevTools MCP Controlled Navigation Contract
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - dev-hub-v5-chrome-devtools-mcp-controlled-navigation-contract
+    paths:
+      - 'dev-hub/adapters/chrome-devtools-mcp-adapter.py'
+      - 'dev-hub/fixtures/chrome-devtools-mcp-controlled-navigation-*'
+      - '.github/workflows/dev-hub-v5-chrome-devtools-mcp-controlled-navigation-contract.yml'
+  pull_request:
+    paths:
+      - 'dev-hub/adapters/chrome-devtools-mcp-adapter.py'
+      - 'dev-hub/fixtures/chrome-devtools-mcp-controlled-navigation-*'
+      - '.github/workflows/dev-hub-v5-chrome-devtools-mcp-controlled-navigation-contract.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  controlled-navigation-contract:
+    if: github.event_name != 'pull_request' || github.event.pull_request.base.ref == 'dev-hub-v5-chrome-devtools-mcp-adapter-runtime-contract'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      CHROME_DEVTOOLS_MCP_NO_USAGE_STATISTICS: '1'
+      CHROME_DEVTOOLS_MCP_NO_UPDATE_CHECKS: '1'
+      CI: 'true'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node LTS
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+
+      - name: Validate adapter and fixtures without workspace writes
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          compile(Path('dev-hub/adapters/chrome-devtools-mcp-adapter.py').read_text(), 'chrome-devtools-mcp-adapter.py', 'exec')
+          print('ADAPTER_SYNTAX=PASS')
+          PY
+          for f in dev-hub/fixtures/chrome-devtools-mcp-controlled-navigation-*.json; do python -m json.tool "$f" >/dev/null; done
+
+      - name: Reject javascript URL before runtime
+        run: |
+          python dev-hub/adapters/chrome-devtools-mcp-adapter.py \
+            < dev-hub/fixtures/chrome-devtools-mcp-controlled-navigation-javascript.json \
+            > /tmp/javascript-block.json
+          python - <<'PY'
+          import json
+          x=json.load(open('/tmp/javascript-block.json'))
+          assert x['status']=='BLOCKED', x
+          assert x['summary']=='CHROME_DEVTOOLS_MCP_URL_NOT_HTTP_OR_HTTPS', x
+          assert x['producer']=='chrome-devtools-mcp-adapter'
+          assert x['verification']['status']=='UNVERIFIED'
+          print('FORBIDDEN_SCHEME_BLOCKED=PASS')
+          PY
+
+      - name: Provision pinned upstream package outside repository
+        run: |
+          mkdir -p /tmp/chacha-chrome-devtools-mcp-nav
+          cd /tmp/chacha-chrome-devtools-mcp-nav
+          npm init -y >/dev/null 2>&1
+          npm install --no-save --ignore-scripts=false chrome-devtools-mcp@1.9.0 >/dev/null
+          test -x node_modules/.bin/chrome-devtools-mcp
+          node -p "require('./node_modules/chrome-devtools-mcp/package.json').version" | tee /tmp/package-version.txt
+
+      - name: Start isolated local fixture
+        run: |
+          cat >/tmp/chacha-nav-fixture.py <<'PY'
+          import http.server, json, socketserver
+          from pathlib import Path
+
+          class Handler(http.server.BaseHTTPRequestHandler):
+              def do_GET(self):
+                  port=self.server.server_address[1]
+                  if self.path == '/api/ping':
+                      body=json.dumps({'ok':True,'source':'chrome-devtools-controlled-navigation'}).encode()
+                      self.send_response(200)
+                      self.send_header('Content-Type','application/json')
+                      self.send_header('Content-Length',str(len(body)))
+                      self.end_headers(); self.wfile.write(body); return
+                  if self.path == '/same-redirect':
+                      self.send_response(302); self.send_header('Location','/final'); self.end_headers(); return
+                  if self.path == '/cross-redirect':
+                      self.send_response(302)
+                      self.send_header('Location',f'http://localhost:{port}/final')
+                      self.end_headers(); return
+                  marker='same-origin-final-ok' if self.path == '/final' else 'controlled-navigation-ok'
+                  body=f'''<!doctype html><html><head><title>Chrome DevTools Controlled Navigation</title></head>
+                  <body><h1>{marker}</h1><p id="probe">fixture-ready</p>
+                  <script>console.log('controlled-nav-console-ok');fetch('/api/ping').then(r=>r.json()).then(x=>console.log('controlled-nav-network-ok',x.ok));</script>
+                  </body></html>'''.encode()
+                  self.send_response(200)
+                  self.send_header('Content-Type','text/html; charset=utf-8')
+                  self.send_header('Content-Length',str(len(body)))
+                  self.end_headers(); self.wfile.write(body)
+              def log_message(self, *_args):
+                  pass
+
+          class Server(socketserver.ThreadingMixIn, socketserver.TCPServer):
+              allow_reuse_address=True
+              daemon_threads=True
+
+          with Server(('127.0.0.1',0),Handler) as server:
+              Path('/tmp/chacha-nav-port.txt').write_text(str(server.server_address[1]))
+              server.serve_forever()
+          PY
+          python /tmp/chacha-nav-fixture.py &
+          echo $! >/tmp/chacha-nav-fixture.pid
+          for i in $(seq 1 40); do test -s /tmp/chacha-nav-port.txt && break; sleep 0.25; done
+          test -s /tmp/chacha-nav-port.txt
+          PORT="$(cat /tmp/chacha-nav-port.txt)"
+          curl --fail --silent "http://127.0.0.1:${PORT}/" >/dev/null
+          echo "FIXTURE_PORT=${PORT}"
+
+      - name: Build runtime navigation fixtures
+        run: |
+          PORT="$(cat /tmp/chacha-nav-port.txt)"
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          port=Path('/tmp/chacha-nav-port.txt').read_text().strip()
+          template=json.loads(Path('dev-hub/fixtures/chrome-devtools-mcp-controlled-navigation-valid.template.json').read_text())
+          def write(path, task_id, url, expected=None):
+              x=json.loads(json.dumps(template))
+              x['task']['id']=task_id
+              x['metadata']['chrome_devtools_mcp']['url']=url
+              if expected is None:
+                  x['metadata']['chrome_devtools_mcp'].pop('expected_text',None)
+              else:
+                  x['metadata']['chrome_devtools_mcp']['expected_text']=expected
+              Path(path).write_text(json.dumps(x))
+          write('/tmp/nav-valid.json','chrome-devtools-nav-valid',f'http://127.0.0.1:{port}/','controlled-navigation-ok')
+          write('/tmp/nav-same-redirect.json','chrome-devtools-nav-same-redirect',f'http://127.0.0.1:{port}/same-redirect','same-origin-final-ok')
+          write('/tmp/nav-cross-redirect.json','chrome-devtools-nav-cross-redirect',f'http://127.0.0.1:{port}/cross-redirect')
+          write('/tmp/nav-origin-mismatch.json','chrome-devtools-nav-origin-mismatch',f'http://localhost:{port}/')
+          PY
+
+      - name: Reject non-approved origin before browser call
+        env:
+          CHACHA_CHROME_DEVTOOLS_MCP_SERVER: /tmp/chacha-chrome-devtools-mcp-nav/node_modules/.bin/chrome-devtools-mcp
+          CHACHA_CHROME_DEVTOOLS_MCP_WORKDIR: /tmp/chacha-chrome-devtools-mcp-nav
+          CHACHA_CHROME_DEVTOOLS_MCP_PACKAGE_VERSION: '1.9.0'
+          CHACHA_CHROME_DEVTOOLS_TARGET_CLASS: test
+        run: |
+          PORT="$(cat /tmp/chacha-nav-port.txt)"
+          export CHACHA_CHROME_DEVTOOLS_ALLOWED_ORIGIN="http://127.0.0.1:${PORT}"
+          export CHACHA_CHROME_DEVTOOLS_BROWSER_VERSION="$(google-chrome --version 2>/dev/null || chromium --version 2>/dev/null || echo unknown)"
+          python dev-hub/adapters/chrome-devtools-mcp-adapter.py < /tmp/nav-origin-mismatch.json > /tmp/origin-mismatch.json
+          python - <<'PY'
+          import json
+          x=json.load(open('/tmp/origin-mismatch.json'))
+          assert x['status']=='BLOCKED', x
+          assert x['summary']=='CHROME_DEVTOOLS_MCP_TARGET_ORIGIN_NOT_ALLOWED', x
+          print('ORIGIN_MISMATCH_BLOCKED=PASS')
+          PY
+
+      - name: Qualify adapter-controlled navigation and diagnostics
+        env:
+          CHACHA_CHROME_DEVTOOLS_MCP_SERVER: /tmp/chacha-chrome-devtools-mcp-nav/node_modules/.bin/chrome-devtools-mcp
+          CHACHA_CHROME_DEVTOOLS_MCP_WORKDIR: /tmp/chacha-chrome-devtools-mcp-nav
+          CHACHA_CHROME_DEVTOOLS_MCP_PACKAGE_VERSION: '1.9.0'
+          CHACHA_CHROME_DEVTOOLS_TARGET_CLASS: test
+        run: |
+          PORT="$(cat /tmp/chacha-nav-port.txt)"
+          BROWSER_VERSION="$(google-chrome --version 2>/dev/null || chromium --version 2>/dev/null || echo unknown)"
+          export CHACHA_CHROME_DEVTOOLS_BROWSER_VERSION="$BROWSER_VERSION"
+          export CHACHA_CHROME_DEVTOOLS_ALLOWED_ORIGIN="http://127.0.0.1:${PORT}"
+          python dev-hub/adapters/chrome-devtools-mcp-adapter.py < /tmp/nav-valid.json > /tmp/nav-valid-result.json
+          python - <<'PY'
+          import json
+          x=json.load(open('/tmp/nav-valid-result.json'))
+          assert x['schema']=='chacha.dev/task-result/v1'
+          assert x['status']=='OK', x
+          assert x['producer']=='chrome-devtools-mcp-adapter'
+          assert x['verification']['status']=='UNVERIFIED'
+          d=x['evidence'][0]['details']
+          assert d['operation']=='inspect_url'
+          assert d['called_tools']==['list_pages','navigate_page','list_pages','take_snapshot','list_console_messages','list_network_requests'], d
+          assert d['navigation_performed'] is True
+          assert d['navigation_caller_controlled_tool'] is False
+          assert d['final_origin_revalidated'] is True
+          assert d['javascript_evaluation'] is False
+          assert d['browser_interaction'] is False
+          assert d['workspace_write'] is False
+          assert d['repository_write'] is False
+          assert '?' not in x['evidence'][0]['source']
+          print('CONTROLLED_NAVIGATION_RUNTIME=PASS')
+          PY
+          printf '%s\n' "$BROWSER_VERSION" >/tmp/browser-version.txt
+
+      - name: Qualify same-origin redirect revalidation
+        env:
+          CHACHA_CHROME_DEVTOOLS_MCP_SERVER: /tmp/chacha-chrome-devtools-mcp-nav/node_modules/.bin/chrome-devtools-mcp
+          CHACHA_CHROME_DEVTOOLS_MCP_WORKDIR: /tmp/chacha-chrome-devtools-mcp-nav
+          CHACHA_CHROME_DEVTOOLS_MCP_PACKAGE_VERSION: '1.9.0'
+          CHACHA_CHROME_DEVTOOLS_TARGET_CLASS: test
+        run: |
+          PORT="$(cat /tmp/chacha-nav-port.txt)"
+          export CHACHA_CHROME_DEVTOOLS_BROWSER_VERSION="$(cat /tmp/browser-version.txt)"
+          export CHACHA_CHROME_DEVTOOLS_ALLOWED_ORIGIN="http://127.0.0.1:${PORT}"
+          python dev-hub/adapters/chrome-devtools-mcp-adapter.py < /tmp/nav-same-redirect.json > /tmp/nav-same-redirect-result.json
+          python - <<'PY'
+          import json
+          x=json.load(open('/tmp/nav-same-redirect-result.json'))
+          assert x['status']=='OK', x
+          d=x['evidence'][0]['details']
+          assert d['final_origin_revalidated'] is True
+          assert x['evidence'][0]['source'].endswith('/final'), x
+          print('SAME_ORIGIN_REDIRECT=PASS')
+          PY
+
+      - name: Block cross-origin redirect
+        env:
+          CHACHA_CHROME_DEVTOOLS_MCP_SERVER: /tmp/chacha-chrome-devtools-mcp-nav/node_modules/.bin/chrome-devtools-mcp
+          CHACHA_CHROME_DEVTOOLS_MCP_WORKDIR: /tmp/chacha-chrome-devtools-mcp-nav
+          CHACHA_CHROME_DEVTOOLS_MCP_PACKAGE_VERSION: '1.9.0'
+          CHACHA_CHROME_DEVTOOLS_TARGET_CLASS: test
+        run: |
+          PORT="$(cat /tmp/chacha-nav-port.txt)"
+          export CHACHA_CHROME_DEVTOOLS_BROWSER_VERSION="$(cat /tmp/browser-version.txt)"
+          export CHACHA_CHROME_DEVTOOLS_ALLOWED_ORIGIN="http://127.0.0.1:${PORT}"
+          python dev-hub/adapters/chrome-devtools-mcp-adapter.py < /tmp/nav-cross-redirect.json > /tmp/nav-cross-redirect-result.json
+          python - <<'PY'
+          import json
+          x=json.load(open('/tmp/nav-cross-redirect-result.json'))
+          assert x['status']=='BLOCKED', x
+          assert x['summary'] in {
+            'CHROME_DEVTOOLS_MCP_CONTROLLED_NAVIGATION_FAILED',
+            'CHROME_DEVTOOLS_MCP_FINAL_URL_UNOBSERVED',
+            'CHROME_DEVTOOLS_MCP_REDIRECT_ORIGIN_NOT_ALLOWED'
+          }, x
+          print('CROSS_ORIGIN_REDIRECT_BLOCKED=PASS')
+          PY
+
+      - name: Confirm repository remained unchanged
+        run: |
+          test -z "$(git status --porcelain)"
+          echo 'REPOSITORY_UNCHANGED=PASS'
+
+      - name: Build machine evidence
+        run: |
+          python - <<'PY'
+          import hashlib, json, os
+          valid=json.load(open('/tmp/nav-valid-result.json'))
+          same=json.load(open('/tmp/nav-same-redirect-result.json'))
+          cross=json.load(open('/tmp/nav-cross-redirect-result.json'))
+          payload={
+            'schema':'chacha.dev/chrome-devtools-controlled-navigation-qualification/v1',
+            'provider':'chrome-devtools-mcp',
+            'adapter':'chrome-devtools-mcp-adapter',
+            'workflow_run_id':int(os.environ['GITHUB_RUN_ID']),
+            'head_sha':os.environ['GITHUB_SHA'],
+            'package':'chrome-devtools-mcp',
+            'package_version':open('/tmp/package-version.txt').read().strip(),
+            'browser_version':open('/tmp/browser-version.txt').read().strip(),
+            'upstream_protocol':'2025-11-25',
+            'dev_hub_baseline':'2026-07-28',
+            'compatibility_mode':'EXPLICIT_PROVIDER_COMPATIBILITY',
+            'generic_legacy_fallback':False,
+            'qualified_operation':'inspect_url',
+            'valid_result':valid,
+            'same_origin_redirect_result':same,
+            'cross_origin_redirect_status':cross['status'],
+            'cross_origin_redirect_summary':cross['summary'],
+            'boundaries':{
+              'caller_tool_selection':False,
+              'caller_page_id_selection':False,
+              'caller_allowlist_selection':False,
+              'adapter_controlled_navigation':True,
+              'allowed_origin_required':True,
+              'upstream_allowed_url_pattern':True,
+              'final_origin_revalidation':True,
+              'javascript_evaluation':False,
+              'browser_interaction':False,
+              'credentials_used':False,
+              'production_target':False,
+              'vps_modified':False,
+              'workspace_write':False,
+              'repository_write':False,
+              'provider_result_verification':'UNVERIFIED'
+            },
+            'controlled_navigation_contract_qualified':True,
+            'automatic_promotion':False,
+            'blockers':[]
+          }
+          raw=json.dumps(payload,sort_keys=True,separators=(',',':')).encode()
+          payload['evidence_digest']='sha256:'+hashlib.sha256(raw).hexdigest()
+          os.makedirs('/tmp/chrome-devtools-controlled-navigation-evidence',exist_ok=True)
+          open('/tmp/chrome-devtools-controlled-navigation-evidence/evidence.json','w').write(json.dumps(payload,indent=2)+'\n')
+          print(payload['evidence_digest'])
+          PY
+
+      - name: Upload controlled navigation evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: chrome-devtools-mcp-controlled-navigation-${{ github.run_id }}
+          path: /tmp/chrome-devtools-controlled-navigation-evidence/evidence.json
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Stop fixture
+        if: always()
+        run: |
+          if test -s /tmp/chacha-nav-fixture.pid; then kill "$(cat /tmp/chacha-nav-fixture.pid)" 2>/dev/null || true; fi
