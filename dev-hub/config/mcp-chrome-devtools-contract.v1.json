@@ -40,8 +40,24 @@
     "verification_broker_required": true,
     "producer_must_not_self_verify": true,
     "dev_hub_preferred_protocol_version": "2026-07-28",
-    "upstream_protocol_version": "UNKNOWN_UNTIL_RUNTIME_PROBE",
+    "upstream_protocol_version": "2025-11-25",
+    "compatibility_mode": "EXPLICIT_PROVIDER_COMPATIBILITY",
     "generic_legacy_fallback": false,
+    "direct_modern_probe": {
+      "workflow_run_id": 35110606482,
+      "pass": false,
+      "blocker": "MCP_2026_07_28_SERVER_DISCOVER_UNSUPPORTED"
+    },
+    "provider_specific_compatibility": {
+      "workflow_run_id": 35110982585,
+      "artifact_id": 10452247359,
+      "artifact_digest": "sha256:0fcacb3b6271b6ec57602262e35248628270bdd3a26524d4b08c4e97db8d79e9",
+      "initialize_pass": true,
+      "tools_list_pass": true,
+      "tool_count": 28,
+      "eligible_for_compat_pilot": true,
+      "blockers": []
+    },
     "runtime_protocol_probe_required_before_pilot": true
   },
   "runtime_hardening": {
@@ -156,11 +172,43 @@
     "permissions_expanded": false,
     "automatic_promotion": false
   },
+  "runtime_adapter_qualification": {
+    "qualified": true,
+    "workflow_run_id": 35117348691,
+    "artifact_id": 10455774189,
+    "artifact_digest": "sha256:ae17b67bdd2a68f1b7b00c4807519f1a89aa548b5dec5e86c01b3f402204047f",
+    "evidence_path": "dev-hub/evidence/chrome-devtools-mcp-adapter-runtime-qualification-2026-09-16.json",
+    "evidence_digest": "sha256:9adf66a5fbcdbf620fb01e1337becbdcde4298ec47d21eb7cb057727da984c57",
+    "package_version": "1.9.0",
+    "browser_version": "Google Chrome 152.0.7977.82",
+    "upstream_protocol": "2025-11-25",
+    "called_tools": [
+      "list_pages",
+      "take_snapshot",
+      "list_console_messages",
+      "list_network_requests"
+    ],
+    "dispatch_to_task_result_pass": true,
+    "tool_injection_blocked": true,
+    "write_permission_blocked": true,
+    "bad_binding_blocked": true,
+    "navigation_performed": false,
+    "browser_interaction": false,
+    "repository_unchanged": true,
+    "provider_result_verification": "UNVERIFIED",
+    "eligible_for_pilot_qualification": true,
+    "automatic_promotion": false,
+    "blockers": []
+  },
   "admission": {
     "automatic_promotion": false,
     "runtime_call_allowed_at_design_stage": false,
     "browser_download_allowed_at_design_stage": false,
     "next_transition": "CONTRACT_OK->PILOT",
+    "pilot_promotion_ready": false,
+    "remaining_pilot_blockers": [
+      "CONTROLLED_NAVIGATION_CONTRACT_NOT_YET_QUALIFIED"
+    ],
     "contract_ok_requires": [
       "static-contract-pass",
       "dedicated-adapter-binding",
@@ -171,10 +219,10 @@
       "no-existing-browser-attach"
     ],
     "pilot_requires": [
-      "runtime-protocol-probe-pass",
+      "provider-specific-protocol-compatibility-pass",
       "pinned-package-version",
       "isolated-browser-launch-pass",
-      "allowed-url-pattern-enforced",
+      "controlled-navigation-origin-policy-qualified",
       "snapshot-pass",
       "console-read-pass",
       "network-read-pass",
