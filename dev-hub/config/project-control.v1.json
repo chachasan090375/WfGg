@@ -16,7 +16,8 @@
     "transaction_recovery_is_forward_only": true,
     "audit_events_are_never_rolled_back_by_recovery": true,
     "platform_readiness_is_read_only_certification": true,
-    "external_runtime_bindings_are_ephemeral_and_runner_owned": true
+    "external_runtime_bindings_are_ephemeral_and_runner_owned": true,
+    "independent_provider_results_never_self_verify": true
   },
   "interfaces": {
     "cli": {"enabled": true, "command": "project-control", "adapter": "dev-hub/bin/project-control-cli.py"},
@@ -54,7 +55,8 @@
     "execution_scheduler": "dev-hub/bin/execution-scheduler.py",
     "run_controller": "dev-hub/bin/external-runtime-dispatch.py",
     "core_run_controller": "dev-hub/bin/run-controller.py",
-    "verification_broker": "dev-hub/bin/verification-broker.py",
+    "verification_broker": "dev-hub/bin/provider-aware-verification-broker.py",
+    "core_verification_broker": "dev-hub/bin/verification-broker.py",
     "evidence_collector": "dev-hub/bin/evidence-collector.py",
     "crypto_trust": "dev-hub/bin/crypto-trust.py",
     "transaction_recovery": "dev-hub/bin/transaction-recovery.py",
@@ -120,6 +122,7 @@
     "allow_audit_history_rollback": false,
     "allow_readiness_gate_to_enable_adapters": false,
     "allow_static_executable_for_external_adapter": false,
-    "allow_task_selected_runtime_binding": false
+    "allow_task_selected_runtime_binding": false,
+    "allow_independent_provider_to_mark_verified": false
   }
 }
