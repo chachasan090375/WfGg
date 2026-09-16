@@ -1,0 +1,217 @@
+name: Dev Hub V5 Trusted Runtime Provisioner
+
+on:
+  push:
+    branches:
+      - dev-hub-v5-trusted-runtime-provisioner
+  pull_request:
+    branches:
+      - dev-hub-v5-project-bootstrap
+
+permissions:
+  contents: read
+
+jobs:
+  trusted-runtime-provisioner:
+    runs-on: ubuntu-24.04
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate provisioner contracts
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          compile(Path('dev-hub/bin/trusted-runtime-provisioner.py').read_text(), 'trusted-runtime-provisioner.py', 'exec')
+          policy=json.loads(Path('dev-hub/config/trusted-runtime-provisioner.v1.json').read_text())
+          manifest=json.loads(Path('dev-hub/fixtures/trusted-runtime-provisioner-manifest.v1.json').read_text())
+          chrome=json.loads(Path('dev-hub/config/mcp-chrome-devtools-contract.v1.json').read_text())
+          playwright=json.loads(Path('dev-hub/config/mcp-playwright-contract.v1.json').read_text())
+          adapters=json.loads(Path('dev-hub/config/provider-adapters.v1.json').read_text())
+          assert policy['schema']=='chacha.dev/trusted-runtime-provisioner-policy/v1'
+          assert policy['principles']['versions_come_from_authoritative_provider_contracts'] is True
+          assert manifest['schema']=='chacha.dev/project-manifest/v1'
+          raw=Path('dev-hub/fixtures/trusted-runtime-provisioner-manifest.v1.json').read_text()
+          assert 'chrome-devtools-mcp' not in raw and 'playwright-mcp' not in raw
+          assert chrome['runtime_status']=='ENABLED' and chrome['upstream']['design_reference_version']=='1.9.0'
+          assert playwright['runtime_status']=='ENABLED' and playwright['upstream']['design_reference_version']=='0.0.81'
+          assert chrome['upstream']['runtime_must_pin_exact_version'] is True
+          assert playwright['upstream']['runtime_must_pin_exact_version'] is True
+          assert adapters['adapters']['chrome-devtools-mcp-adapter']['executable'] is None
+          assert adapters['adapters']['playwright-mcp-adapter']['executable'] is None
+          print('TRUSTED_RUNTIME_STATIC_CONTRACT=PASS')
+          PY
+          git status --porcelain > /tmp/git-before.txt
+
+      - name: Start isolated target
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/chacha-trusted-runtime-web
+          mkdir -p /tmp/chacha-trusted-runtime-web
+          cat > /tmp/chacha-trusted-runtime-web/index.html <<'HTML'
+          <!doctype html><html><head><title>ChaCha Trusted Runtime</title></head>
+          <body><main>CHACHA_TRUSTED_RUNTIME_OK</main></body></html>
+          HTML
+          nohup python3 -m http.server 8765 --bind 127.0.0.1 --directory /tmp/chacha-trusted-runtime-web >/tmp/chacha-trusted-runtime-http.log 2>&1 &
+          for _ in $(seq 1 20); do curl --fail --silent http://127.0.0.1:8765/ | grep -q CHACHA_TRUSTED_RUNTIME_OK && exit 0; sleep 0.5; done
+          exit 1
+
+      - name: Prepare isolated platform policy only
+        shell: bash
+        run: |
+          set -euo pipefail
+          root=/tmp/chacha-dev-hub-v5-trusted-runtime
+          rm -rf "$root" /tmp/chacha-trusted-runtime /tmp/chacha-trusted-runtime-plan
+          mkdir -p "$root"
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path('/tmp/chacha-dev-hub-v5-trusted-runtime')
+          repo=Path.cwd()
+          state=json.loads((repo/'dev-hub/config/control-plane-state.v1.json').read_text())
+          state['storage']['runtime_root']=str(root/'state')
+          state['storage']['transaction_root']=str(root/'transactions')
+          (root/'control-plane-state.json').write_text(json.dumps(state,indent=2)+'\n')
+          run=json.loads((repo/'dev-hub/config/run-controller.v1.json').read_text())
+          run['mode']='execute-enabled'
+          run['locking']['root']=str(root/'locks/dispatch')
+          (root/'run-controller.json').write_text(json.dumps(run,indent=2)+'\n')
+          pc=json.loads((repo/'dev-hub/config/project-control.v1.json').read_text())
+          pc['runtime'].update({
+            'state_root':str(root/'state'),'evidence_root':str(root/'evidence'),'plans_root':str(root/'plans'),
+            'health_root':str(root/'health'),'runs_root':str(root/'runs'),'transactions_root':str(root/'transactions'),
+            'locks_root':str(root/'locks/control')})
+          pc['repository_paths']['control_plane_state']=str(root/'control-plane-state.json')
+          pc['repository_paths']['run_controller']=str(root/'run-controller.json')
+          assert pc['repository_paths']['capability_registry']=='dev-hub/config/capability-registry.v1.json'
+          assert pc['repository_paths']['provider_adapters']=='dev-hub/config/provider-adapters.v1.json'
+          (root/'project-control.json').write_text(json.dumps(pc,indent=2)+'\n')
+          PY
+          project=dev-hub-v5-trusted-runtime-provisioner-qualification
+          test ! -e "$root/state/$project"
+          test ! -e "$root/evidence/$project"
+          test ! -e "$root/health/$project"
+          test ! -e "$root/plans/$project"
+          test ! -e "$root/runs/$project"
+          test ! -e "$root/transactions/$project"
+          test -z "${CHACHA_DEV_RUNTIME_BINDINGS:-}"
+          test ! -e /tmp/chacha-trusted-runtime
+          echo 'TRUSTED_RUNTIME_NO_PROJECT_OR_PROVIDER_PREPARATION=PASS'
+
+      - name: Provision and execute from manifest in one command
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/chacha-trusted-runtime
+          python3 dev-hub/bin/trusted-runtime-provisioner.py \
+            --repo-root "$GITHUB_WORKSPACE" \
+            --project-control-policy /tmp/chacha-dev-hub-v5-trusted-runtime/project-control.json \
+            --manifest dev-hub/fixtures/trusted-runtime-provisioner-manifest.v1.json \
+            --runtime-root /tmp/chacha-trusted-runtime \
+            --execute \
+            --output /tmp/chacha-trusted-runtime/qualification-receipt.json
+
+      - name: Validate automatic provisioning and verified execution
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib, json, os
+          from pathlib import Path
+          repo=Path.cwd().resolve()
+          receipt_path=Path('/tmp/chacha-trusted-runtime/qualification-receipt.json')
+          x=json.loads(receipt_path.read_text())
+          assert x['schema']=='chacha.dev/trusted-runtime-provisioning-run/v1'
+          assert x['status']=='VERIFIED' and x['executed'] is True
+          assert x['provider_selection_owned_by_scheduler'] is True
+          assert x['required_external_providers']==['chrome-devtools-mcp','playwright-mcp']
+          assert x['versions_selected_by_task'] is False
+          assert x['executables_selected_by_task'] is False
+          assert x['binding_selected_by_task'] is False
+          assert x['registry_mutated'] is False and x['production_touched'] is False
+          assert x['runtime_availability_verified'] is True
+          assert x['audit_integrity']=='PASS'
+          assert x['run_id'] and len(x['verified_workflows'])==1
+          assert x['initial_project_bootstrap']['status']=='PLANNED'
+          assert x['initial_project_bootstrap']['state_created'] is True
+          assert x['initial_project_bootstrap']['ledger_created'] is True
+          final=x['project_bootstrap']
+          assert final['status']=='VERIFIED' and final['executed'] is True
+          assert final['state_created'] is False and final['ledger_created'] is False
+          chrome=x['provisioned']['chrome-devtools-mcp']
+          playwright=x['provisioned']['playwright-mcp']
+          assert chrome['package']=='chrome-devtools-mcp' and chrome['version']=='1.9.0'
+          assert playwright['package']=='@playwright/mcp' and playwright['version']=='0.0.81'
+          assert chrome['contract_runtime_status']=='ENABLED' and playwright['contract_runtime_status']=='ENABLED'
+          assert chrome['provider_result_trust']=='UNVERIFIED' and playwright['provider_result_trust']=='UNVERIFIED'
+          binding=Path(x['runtime_binding']['path'])
+          assert binding.is_file() and not str(binding.resolve()).startswith(str(repo))
+          h='sha256:'+hashlib.sha256(binding.read_bytes()).hexdigest()
+          assert h==x['runtime_binding']['digest']
+          b=json.loads(binding.read_text())
+          assert b['schema']=='chacha.dev/runtime-bindings/v1'
+          assert b['source']=='trusted-runner'
+          assert b['project']=='dev-hub-v5-trusted-runtime-provisioner-qualification'
+          assert set(b['bindings'])=={'chrome-devtools-mcp-adapter','playwright-mcp-adapter'}
+          for item in b['bindings'].values():
+            exe=Path(item['executable'])
+            assert exe.is_file() and os.access(exe, os.X_OK)
+            assert not str(exe.resolve()).startswith(str(repo))
+            actual='sha256:'+hashlib.sha256(exe.read_bytes()).hexdigest()
+            assert actual==item['digest']
+          adapters=json.loads(Path('dev-hub/config/provider-adapters.v1.json').read_text())
+          assert adapters['adapters']['chrome-devtools-mcp-adapter']['executable'] is None
+          assert adapters['adapters']['playwright-mcp-adapter']['executable'] is None
+          print('TRUSTED_RUNTIME_AUTOMATIC_PROVISIONING=PASS')
+          print('RUN_ID='+x['run_id'])
+          PY
+
+      - name: Prove explicit execution boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/chacha-trusted-runtime-plan
+          python3 dev-hub/bin/trusted-runtime-provisioner.py \
+            --repo-root "$GITHUB_WORKSPACE" \
+            --project-control-policy /tmp/chacha-dev-hub-v5-trusted-runtime/project-control.json \
+            --manifest dev-hub/fixtures/trusted-runtime-provisioner-manifest.v1.json \
+            --runtime-root /tmp/chacha-trusted-runtime-plan \
+            --output /tmp/chacha-trusted-runtime-plan/plan-only-receipt.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          x=json.loads(Path('/tmp/chacha-trusted-runtime-plan/plan-only-receipt.json').read_text())
+          assert x['status']=='PLANNED' and x['executed'] is False
+          assert x['provisioned']=={}
+          assert x['runtime_binding_created'] is False
+          sessions=[p for p in Path('/tmp/chacha-trusted-runtime-plan').iterdir() if p.is_dir()]
+          assert len(sessions)==1
+          assert not (sessions[0]/'providers').exists()
+          assert not (sessions[0]/'runtime-bindings.json').exists()
+          print('TRUSTED_RUNTIME_EXPLICIT_EXECUTION_BOUNDARY=PASS')
+          PY
+
+      - name: Confirm repository unchanged
+        shell: bash
+        run: |
+          git status --porcelain > /tmp/git-after.txt
+          diff -u /tmp/git-before.txt /tmp/git-after.txt
+          test ! -s /tmp/git-after.txt
+          echo 'TRUSTED_RUNTIME_REPOSITORY_UNCHANGED=PASS'
+
+      - name: Upload qualification evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: dev-hub-v5-trusted-runtime-provisioner-${{ github.run_id }}
+          path: |
+            /tmp/chacha-trusted-runtime
+            /tmp/chacha-trusted-runtime-plan
+            /tmp/chacha-dev-hub-v5-trusted-runtime
+          retention-days: 30
+          if-no-files-found: error
