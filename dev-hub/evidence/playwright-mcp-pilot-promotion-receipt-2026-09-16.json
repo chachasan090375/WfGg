@@ -1,0 +1,73 @@
+{
+  "schema": "chacha.dev/adapter-promotion-report/v1",
+  "adapter": "playwright-mcp-adapter",
+  "current_status": "CONTRACT_OK",
+  "target_status": "PILOT",
+  "transition": "CONTRACT_OK->PILOT",
+  "execution_kinds": [
+    "external"
+  ],
+  "requires_local_executable": false,
+  "eligible": true,
+  "applied": true,
+  "production_capable": false,
+  "approval_required": false,
+  "approval_id": null,
+  "executable_before": null,
+  "executable_after": null,
+  "provisioned_executable_digest": null,
+  "required_evidence": [
+    "runtime-contract-pass",
+    "sandbox-only",
+    "provisioning-pass"
+  ],
+  "observed_evidence": {
+    "runtime-contract-pass": {
+      "status": "PASS",
+      "source": "github-actions:35090712764",
+      "observed_at": "2026-09-16T11:31:25.818282+00:00",
+      "fresh": true
+    },
+    "sandbox-only": {
+      "status": "PASS",
+      "source": "github-actions:35090712764",
+      "observed_at": "2026-09-16T11:31:25.818282+00:00",
+      "fresh": true
+    },
+    "provisioning-pass": {
+      "status": "PASS",
+      "source": "github-actions:35090712764",
+      "observed_at": "2026-09-16T11:31:25.818282+00:00",
+      "fresh": true
+    }
+  },
+  "blockers": [],
+  "actor": "github-actions:35091045623",
+  "registry_digest_before": "sha256:ce3851d456fbb67567d6c9cb1b7a3b09918ffbc10da184daaad74a1d235d2059",
+  "registry_digest_after": "sha256:8259fceca0cfb5e22fc78b0fe1052fe596f47dc538649b5c71f1b7caad646dcb",
+  "receipt": "/tmp/playwright-mcp-pilot-receipt.json",
+  "observed_at": "2026-09-16T11:34:36.399552+00:00",
+  "receipt_schema": "chacha.dev/adapter-promotion-receipt/v1",
+  "previous_entry": {
+    "status": "CONTRACT_OK",
+    "executable": null,
+    "supports": [
+      "read"
+    ]
+  },
+  "new_entry": {
+    "status": "PILOT",
+    "executable": null,
+    "supports": [
+      "read"
+    ]
+  },
+  "evidence_digest": "sha256:39d2ab7733b4ca34e371ebd5b4e901ae9e2624b59e2bea62c0507dc762b751cd",
+  "committed_at": "2026-09-16T11:34:36.401176+00:00",
+  "workflow": {
+    "run_id": 35091045623,
+    "conclusion": "success",
+    "artifact_id": 10443598743,
+    "artifact_digest": "sha256:7aa7f402435ca1df9dfad47ef739e3eb653f65f813eb0f4cc2156a87d12dff9c"
+  }
+}

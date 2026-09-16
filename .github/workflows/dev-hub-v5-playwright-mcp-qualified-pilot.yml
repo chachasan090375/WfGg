@@ -1,0 +1,64 @@
+name: Dev Hub V5 Playwright MCP Qualified PILOT
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - dev-hub-v5-playwright-mcp-qualified-pilot
+    paths:
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - 'dev-hub/config/mcp-provider-catalog.v1.json'
+      - 'dev-hub/config/mcp-playwright-contract.v1.json'
+      - 'dev-hub/config/capability-registry.v1.json'
+      - 'dev-hub/evidence/playwright-mcp-pilot-promotion-receipt-2026-09-16.json'
+      - 'dev-hub/evidence/playwright-mcp-contract-ok-to-pilot-2026-09-16.json'
+      - 'dev-hub/evidence/playwright-mcp-adapter-contract-2026-09-16.json'
+      - 'dev-hub/bin/mcp-playwright-pilot-validate.py'
+      - '.github/workflows/dev-hub-v5-playwright-mcp-qualified-pilot.yml'
+  pull_request:
+    paths:
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - 'dev-hub/config/mcp-provider-catalog.v1.json'
+      - 'dev-hub/config/mcp-playwright-contract.v1.json'
+      - 'dev-hub/config/capability-registry.v1.json'
+      - 'dev-hub/evidence/playwright-mcp-pilot-promotion-receipt-2026-09-16.json'
+      - 'dev-hub/bin/mcp-playwright-pilot-validate.py'
+      - '.github/workflows/dev-hub-v5-playwright-mcp-qualified-pilot.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate JSON and Python syntax
+        run: |
+          python -m json.tool dev-hub/config/provider-adapters.v1.json >/dev/null
+          python -m json.tool dev-hub/config/mcp-provider-catalog.v1.json >/dev/null
+          python -m json.tool dev-hub/config/mcp-playwright-contract.v1.json >/dev/null
+          python -m json.tool dev-hub/evidence/playwright-mcp-pilot-promotion-receipt-2026-09-16.json >/dev/null
+          python -m py_compile dev-hub/bin/mcp-playwright-pilot-validate.py
+
+      - name: Validate qualified PILOT state
+        run: python dev-hub/bin/mcp-playwright-pilot-validate.py
+
+      - name: Confirm PILOT is not yet capability-admitted or production-capable
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path('dev-hub/config/provider-adapters.v1.json').read_text())
+          c=json.loads(Path('dev-hub/config/capability-registry.v1.json').read_text())
+          a=r['adapters']['playwright-mcp-adapter']
+          assert a=={'status':'PILOT','executable':None,'supports':['read']}
+          assert all(
+            'playwright-mcp' not in [p.get('id') for p in item.get('providers',[]) if isinstance(p,dict)]
+            for item in c['capabilities'].values()
+          )
+          print('PLAYWRIGHT_MCP_PILOT_BOUNDARY=PASS selectable=false production=false')
+          PY
