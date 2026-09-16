@@ -1,0 +1,24 @@
+{
+  "schema": "chacha.dev/cloudflare-pages-project-bindings/v1",
+  "policy": {
+    "task_can_select_binding": false,
+    "task_can_select_pages_project": false,
+    "task_can_select_repository": false,
+    "task_can_select_production_branch": false,
+    "credentials_stored": false,
+    "git_integration_observed_via_github_checks": true
+  },
+  "projects": {
+    "wfgg": {
+      "binding_id": "cloudflare-pages:wfgg",
+      "repository": "chachasan090375/WfGg",
+      "pages_project": "wfgg",
+      "production_branch": "main",
+      "integration_mode": "git-integration",
+      "github_check_name": "Cloudflare Pages",
+      "github_app_slug": "cloudflare-workers-and-pages",
+      "immutable_preview_host_suffix": ".wfgg.pages.dev",
+      "production_url": "https://wfgg.pages.dev"
+    }
+  }
+}
