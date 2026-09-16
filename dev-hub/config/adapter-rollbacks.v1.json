@@ -58,6 +58,36 @@
         "production capability remains false",
         "previous qualification, promotion and rollback receipts remain readable"
       ]
+    },
+    "chrome-devtools-mcp-adapter": {
+      "enabled": true,
+      "from_status": "ENABLED",
+      "target_status": "DISABLED",
+      "owner_role": "platform-cloud-engineer",
+      "triggers": [
+        "repeatable-runtime-failure",
+        "provider-health-unavailable",
+        "protocol-or-tool-surface-breaking-change",
+        "explicit-provider-compatibility-invalidated",
+        "controlled-navigation-origin-policy-invalidated",
+        "policy-or-security-block"
+      ],
+      "executable_strategy": "external-binding-no-local-executable",
+      "steps": [
+        "stop scheduling new tasks to chrome-devtools-mcp-adapter",
+        "apply ENABLED->DISABLED through adapter-promotion with policy-or-security-block evidence",
+        "record the promotion receipt and triggering evidence",
+        "return browser diagnostics capability to scheduler fallback policy",
+        "keep the DEV HUB 2026-07-28 protocol baseline unchanged and disable only the provider-specific compatibility route"
+      ],
+      "verification": [
+        "adapter registry status is DISABLED",
+        "scheduler no longer selects chrome-devtools-mcp-adapter",
+        "no local executable was created or removed",
+        "controlled navigation remains unavailable while disabled",
+        "production capability remains false",
+        "previous qualification, promotion and rollback receipts remain readable"
+      ]
     }
   }
 }

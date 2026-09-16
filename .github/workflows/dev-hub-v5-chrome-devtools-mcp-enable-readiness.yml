@@ -1,0 +1,158 @@
+name: Dev Hub V5 Chrome DevTools MCP Enablement Readiness
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - dev-hub-v5-chrome-devtools-mcp-enable-readiness
+    paths:
+      - 'dev-hub/bin/chrome-devtools-mcp-enable-readiness-ci.py'
+      - 'dev-hub/adapters/chrome-devtools-mcp-adapter.py'
+      - 'dev-hub/bin/adapter-enable-readiness.py'
+      - 'dev-hub/bin/adapter-enablement-evidence.py'
+      - 'dev-hub/bin/adapter-promotion.py'
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - 'dev-hub/config/adapter-enablement.v1.json'
+      - 'dev-hub/config/adapter-rollbacks.v1.json'
+      - '.github/workflows/dev-hub-v5-chrome-devtools-mcp-enable-readiness.yml'
+  pull_request:
+    paths:
+      - 'dev-hub/bin/chrome-devtools-mcp-enable-readiness-ci.py'
+      - 'dev-hub/adapters/chrome-devtools-mcp-adapter.py'
+      - 'dev-hub/bin/adapter-enable-readiness.py'
+      - 'dev-hub/bin/adapter-enablement-evidence.py'
+      - 'dev-hub/bin/adapter-promotion.py'
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - 'dev-hub/config/adapter-enablement.v1.json'
+      - 'dev-hub/config/adapter-rollbacks.v1.json'
+      - '.github/workflows/dev-hub-v5-chrome-devtools-mcp-enable-readiness.yml'
+
+permissions:
+  contents: read
+
+env:
+  PYTHONDONTWRITEBYTECODE: '1'
+  CHROME_DEVTOOLS_MCP_NO_USAGE_STATISTICS: '1'
+  CHROME_DEVTOOLS_MCP_NO_UPDATE_CHECKS: '1'
+  CI: 'true'
+
+jobs:
+  readiness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node LTS
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+
+      - name: Validate static inputs without workspace writes
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          for p in [
+              'dev-hub/bin/chrome-devtools-mcp-enable-readiness-ci.py',
+              'dev-hub/adapters/chrome-devtools-mcp-adapter.py',
+              'dev-hub/bin/adapter-enable-readiness.py',
+              'dev-hub/bin/adapter-enablement-evidence.py',
+              'dev-hub/bin/adapter-promotion.py',
+          ]:
+              compile(Path(p).read_text(), p, 'exec')
+          print('CHROME_READINESS_SYNTAX=PASS')
+          PY
+          python -m json.tool dev-hub/config/provider-adapters.v1.json >/dev/null
+          python -m json.tool dev-hub/config/adapter-enablement.v1.json >/dev/null
+          python -m json.tool dev-hub/config/adapter-rollbacks.v1.json >/dev/null
+
+      - name: Confirm Chrome DevTools remains PILOT before readiness
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          registry=json.loads(Path('dev-hub/config/provider-adapters.v1.json').read_text())
+          adapter=registry['adapters']['chrome-devtools-mcp-adapter']
+          assert adapter['status']=='PILOT'
+          assert adapter['status']!='ENABLED'
+          assert adapter['supports']==['read']
+          assert adapter['executable'] is None
+          print('CHROME_DEVTOOLS_PRE_ENABLEMENT_STATUS=PILOT')
+          PY
+
+      - name: Provision pinned provider runtime outside repository
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/chrome-devtools-mcp-readiness
+          cd /tmp/chrome-devtools-mcp-readiness
+          npm init -y >/dev/null 2>&1
+          npm install --no-save chrome-devtools-mcp@1.9.0 >/dev/null
+          test "$(node -p "require('./node_modules/chrome-devtools-mcp/package.json').version")" = "1.9.0"
+          test -x node_modules/.bin/chrome-devtools-mcp
+          node -p "require('./node_modules/chrome-devtools-mcp/package.json').version" >/tmp/chrome-devtools-package-version.txt
+          (google-chrome --version 2>/dev/null || chromium --version) >/tmp/chrome-devtools-browser-version.txt
+
+      - name: Run three live adapter probes and enablement readiness
+        env:
+          CHACHA_CHROME_DEVTOOLS_MCP_SERVER: /tmp/chrome-devtools-mcp-readiness/node_modules/.bin/chrome-devtools-mcp
+          CHACHA_CHROME_DEVTOOLS_MCP_WORKDIR: /tmp/chrome-devtools-mcp-readiness
+          CHACHA_CHROME_DEVTOOLS_MCP_PACKAGE_VERSION: '1.9.0'
+          CHACHA_CHROME_DEVTOOLS_BROWSER_VERSION: 'Google Chrome 152.0.7977.82'
+          CHACHA_CHROME_DEVTOOLS_TARGET_CLASS: test
+        run: python dev-hub/bin/chrome-devtools-mcp-enable-readiness-ci.py
+
+      - name: Validate readiness outputs and non-mutation
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path('/tmp/chrome-devtools-mcp-enable-readiness')
+          manifest=json.loads((root/'manifest.json').read_text())
+          receipt=json.loads((root/'readiness'/'enablement-readiness.json').read_text())
+          evidence=json.loads((root/'readiness'/'enablement-evidence.json').read_text())
+          plan=json.loads((root/'readiness'/'enablement-promotion-plan.json').read_text())
+          results=[json.loads((root/f'task-result-{i}.json').read_text()) for i in (1,2,3)]
+          health=json.loads((root/'provider-health.json').read_text())
+          assert manifest['status']=='READY_FOR_ENABLEMENT'
+          assert manifest['promotion_eligible'] is True
+          assert manifest['promotion_applied'] is False
+          assert manifest['registry_mutated'] is False
+          assert manifest['provider_result_verification']=='UNVERIFIED'
+          assert manifest['controlled_navigation'] is True
+          assert manifest['production_capable'] is False
+          assert receipt['status']=='READY_FOR_ENABLEMENT'
+          assert receipt['registry_mutated'] is False
+          assert receipt['blockers']==[]
+          assert plan['eligible'] is True and plan['blockers']==[]
+          for gate in ('repeatable-pass','provider-health-pass','rollback-defined'):
+              assert evidence['evidence'][gate]['status']=='PASS', gate
+          assert health['providers']['chrome-devtools-mcp']['state']=='HEALTHY'
+          assert len({r['observed_at'] for r in results})==3
+          assert all(r['status']=='OK' for r in results)
+          assert all(r['producer']=='chrome-devtools-mcp-adapter' for r in results)
+          assert all(r['verification']['status']=='UNVERIFIED' for r in results)
+          registry=json.loads(Path('dev-hub/config/provider-adapters.v1.json').read_text())
+          adapter=registry['adapters']['chrome-devtools-mcp-adapter']
+          assert adapter['status']=='PILOT'
+          assert adapter['supports']==['read']
+          assert adapter['executable'] is None
+          print('CHROME_DEVTOOLS_ENABLEMENT_READINESS=PASS registry_status=PILOT mutation=false enabled=false')
+          PY
+
+      - name: Confirm repository remained unchanged
+        run: |
+          test -z "$(git status --porcelain)"
+          echo 'CHROME_DEVTOOLS_ENABLEMENT_READINESS_REPOSITORY_UNCHANGED=PASS'
+
+      - name: Upload readiness evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: chrome-devtools-mcp-enable-readiness-${{ github.run_id }}
+          path: |
+            /tmp/chrome-devtools-mcp-enable-readiness
+            /tmp/chrome-devtools-package-version.txt
+            /tmp/chrome-devtools-browser-version.txt
+          if-no-files-found: error
+          retention-days: 30

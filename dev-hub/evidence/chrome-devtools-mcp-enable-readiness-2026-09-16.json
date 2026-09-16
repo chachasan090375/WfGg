@@ -1,0 +1,43 @@
+{
+  "schema": "chacha.dev/chrome-devtools-mcp-enable-readiness/v1",
+  "provider": "chrome-devtools-mcp",
+  "adapter": "chrome-devtools-mcp-adapter",
+  "workflow_run_id": 35122620991,
+  "head_sha": "a3e70fbf2e29c4ce325f554d64d280417cdaa3e5",
+  "artifact_id": 10457443097,
+  "artifact_digest": "sha256:8f43d7a5b32fb8f789a7c19e25931d783be9d7e46ef9126ddce5cd92db495251",
+  "status": "READY_FOR_ENABLEMENT",
+  "current_status": "PILOT",
+  "target_status": "ENABLED",
+  "promotion_eligible": true,
+  "promotion_applied": false,
+  "registry_mutated": false,
+  "provider_health": "HEALTHY",
+  "repeatability_runs": 3,
+  "task_identity": ["dev-hub-v5", "chrome-devtools-mcp-enable-readiness"],
+  "distinct_observed_at": 3,
+  "distinct_result_digests": 3,
+  "result_digests": [
+    "sha256:6033a88fe9c2024de765d779850b4790c6fc305421715f98fd50b4bbe2f3d346",
+    "sha256:aefff583ba91959e08dc5ee16ca37e141aaf715a15d93303f60d81be63cbd48d",
+    "sha256:f87a11da8fd83eeacccf519f18cd383e75f2b5146de41d0f3fc657c9f7e088ba"
+  ],
+  "gates": {
+    "repeatable-pass": "PASS",
+    "provider-health-pass": "PASS",
+    "rollback-defined": "PASS"
+  },
+  "enablement_evidence_digest": "sha256:f2a98fb056827e90666b9d2c06d7853a22216b0e3156e792472ccd4d14a40ad0",
+  "promotion_plan_digest": "sha256:7d54a262caffd416d1da3f7e7aa88dd53114c99ffde0f2936b88426b74f0930e",
+  "provider_result_verification": "UNVERIFIED",
+  "verification_broker_required": true,
+  "compatibility_mode": "EXPLICIT_PROVIDER_COMPATIBILITY",
+  "dev_hub_protocol_baseline": "2026-07-28",
+  "upstream_protocol": "2025-11-25",
+  "controlled_navigation": true,
+  "production_capable": false,
+  "automatic_promotion": false,
+  "vps_modified": false,
+  "production_modified": false,
+  "blockers": []
+}
