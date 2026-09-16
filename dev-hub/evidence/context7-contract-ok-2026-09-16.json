@@ -1,0 +1,32 @@
+{
+  "schema": "chacha.dev/mcp-contract-qualification-evidence/v1",
+  "provider_id": "context7-mcp",
+  "adapter_id": "context7-mcp-adapter",
+  "transition": "DESIGNED->CONTRACT_OK",
+  "observed_at": "2026-09-16T07:59:00Z",
+  "source": {
+    "repository": "chachasan090375/WfGg",
+    "branch": "dev-hub-v5-mcp-catalog",
+    "qualified_head": "e8e4f8166412c6738718f492e5ea89c8c55f4ca3",
+    "workflow_run_id": 35071309971,
+    "workflow_conclusion": "success"
+  },
+  "checks": {
+    "json_syntax": "PASS",
+    "catalog_invariants": "PASS",
+    "generic_readonly_contract": "PASS",
+    "context7_provider_design_contract": "PASS",
+    "generic_adapter_static_contract": "PASS",
+    "technology_radar_coverage": "PASS",
+    "automatic_promotion": false
+  },
+  "runtime": {
+    "executed": false,
+    "reason": "Runtime provider proof belongs to CONTRACT_OK->PILOT and is intentionally not claimed by static qualification."
+  },
+  "decision": {
+    "eligible": true,
+    "target_status": "CONTRACT_OK",
+    "blockers": []
+  }
+}
