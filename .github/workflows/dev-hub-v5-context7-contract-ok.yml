@@ -1,0 +1,78 @@
+name: Dev Hub V5 Context7 CONTRACT_OK
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - dev-hub-v5-context7-contract-ok
+    paths:
+      - 'dev-hub/config/mcp-provider-catalog.v1.json'
+      - 'dev-hub/config/mcp-context7-contract.v1.json'
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - 'dev-hub/config/adapter-contract.v1.json'
+      - 'dev-hub/evidence/context7-contract-ok-2026-09-16.json'
+      - 'dev-hub/bin/mcp-context7-contract-ok-validate.py'
+      - 'dev-hub/bin/adapter-contract-harness.py'
+      - '.github/workflows/dev-hub-v5-context7-contract-ok.yml'
+  pull_request:
+    paths:
+      - 'dev-hub/config/mcp-provider-catalog.v1.json'
+      - 'dev-hub/config/mcp-context7-contract.v1.json'
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - 'dev-hub/config/adapter-contract.v1.json'
+      - 'dev-hub/evidence/context7-contract-ok-2026-09-16.json'
+      - 'dev-hub/bin/mcp-context7-contract-ok-validate.py'
+      - 'dev-hub/bin/adapter-contract-harness.py'
+      - '.github/workflows/dev-hub-v5-context7-contract-ok.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    if: github.event_name != 'pull_request' || github.event.pull_request.base.ref == 'dev-hub-v5-mcp-catalog'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate JSON syntax
+        run: |
+          python -m json.tool dev-hub/config/mcp-provider-catalog.v1.json >/dev/null
+          python -m json.tool dev-hub/config/mcp-context7-contract.v1.json >/dev/null
+          python -m json.tool dev-hub/config/provider-adapters.v1.json >/dev/null
+          python -m json.tool dev-hub/config/adapter-contract.v1.json >/dev/null
+          python -m json.tool dev-hub/evidence/context7-contract-ok-2026-09-16.json >/dev/null
+
+      - name: Re-run generic static adapter checks
+        run: |
+          python dev-hub/bin/adapter-contract-harness.py \
+            --registry dev-hub/config/provider-adapters.v1.json \
+            --policy dev-hub/config/adapter-contract.v1.json \
+            --adapter context7-mcp-adapter \
+            --report /tmp/context7-contract-ok-static.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path('/tmp/context7-contract-ok-static.json').read_text())
+          if report['static']['status'] != 'PASS':
+              raise SystemExit('Static adapter contract failed after promotion')
+          if report['promotion']['automatic'] is not False:
+              raise SystemExit('Automatic promotion must remain disabled')
+          print('CONTEXT7_POST_PROMOTION_STATIC_PASS')
+          PY
+
+      - name: Validate recorded CONTRACT_OK promotion
+        run: python dev-hub/bin/mcp-context7-contract-ok-validate.py
+
+      - name: Confirm no runtime proof is claimed
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          evidence = json.loads(Path('dev-hub/evidence/context7-contract-ok-2026-09-16.json').read_text())
+          if evidence['runtime']['executed'] is not False:
+              raise SystemExit('Runtime evidence must remain false until PILOT qualification')
+          print('CONTEXT7_RUNTIME_NOT_CLAIMED: next_transition=CONTRACT_OK->PILOT')
+          PY

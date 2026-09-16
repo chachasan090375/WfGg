@@ -1,0 +1,53 @@
+name: Dev Hub V5 Context7 Direct MCP Probe
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - dev-hub-v5-context7-contract-ok
+    paths:
+      - 'dev-hub/bin/context7-mcp-direct-probe.py'
+      - '.github/workflows/dev-hub-v5-context7-direct-probe.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run direct Context7 MCP 2026-07-28 probe
+        env:
+          EVIDENCE_PATH: context7-direct-mcp-probe.json
+        run: python dev-hub/bin/context7-mcp-direct-probe.py
+
+      - name: Validate evidence shape
+        if: always()
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path('context7-direct-mcp-probe.json')
+          if not p.exists():
+              raise SystemExit('EVIDENCE_MISSING')
+          data = json.loads(p.read_text())
+          assert data['schema'] == 'chacha.dev/context7-direct-mcp-probe/v1'
+          assert data['endpoint'] == 'https://mcp.context7.com/mcp'
+          assert data['protocol_version'] == '2026-07-28'
+          assert data['credentials_used'] is False
+          assert data['promotion']['automatic'] is False
+          print('CONTEXT7_DIRECT_EVIDENCE_SHAPE_OK')
+          PY
+
+      - name: Upload direct MCP evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: context7-direct-mcp-probe-${{ github.run_id }}
+          path: context7-direct-mcp-probe.json
+          if-no-files-found: error
+          retention-days: 30

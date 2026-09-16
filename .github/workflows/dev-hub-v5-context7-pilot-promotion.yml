@@ -1,0 +1,99 @@
+name: Dev Hub V5 Context7 PILOT Promotion
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - dev-hub-v5-context7-contract-ok
+    paths:
+      - 'dev-hub/evidence/context7-contract-ok-to-pilot-2026-09-16.json'
+      - 'dev-hub/config/provider-health-probes.v1.json'
+      - 'dev-hub/bin/adapter-promotion.py'
+      - '.github/workflows/dev-hub-v5-context7-pilot-promotion.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  promote-in-sandbox:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate Context7 health contract
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          data = json.loads(Path('dev-hub/config/provider-health-probes.v1.json').read_text())
+          c7 = data['providers']['context7-mcp']
+          if c7['probe'] != 'mcp':
+              raise SystemExit('CONTEXT7_HEALTH_PROBE_NOT_MCP')
+          if c7['functional_check'] != 'server-discover-and-tools-list':
+              raise SystemExit(f"CONTEXT7_HEALTH_CHECK_STALE={c7['functional_check']}")
+          print('CONTEXT7_HEALTH_CONTRACT_OK')
+          PY
+
+      - name: Plan CONTRACT_OK to PILOT
+        run: |
+          python dev-hub/bin/adapter-promotion.py \
+            --registry dev-hub/config/provider-adapters.v1.json \
+            --contract dev-hub/config/adapter-contract.v1.json \
+            --policy dev-hub/config/adapter-promotion.v1.json \
+            --evidence dev-hub/evidence/context7-contract-ok-to-pilot-2026-09-16.json \
+            --report /tmp/context7-pilot-plan.json \
+            plan --adapter context7-mcp-adapter --target PILOT
+
+      - name: Apply promotion to sandbox registry copy
+        run: |
+          cp dev-hub/config/provider-adapters.v1.json /tmp/provider-adapters-after.json
+          python dev-hub/bin/adapter-promotion.py \
+            --registry /tmp/provider-adapters-after.json \
+            --contract dev-hub/config/adapter-contract.v1.json \
+            --policy dev-hub/config/adapter-promotion.v1.json \
+            --evidence dev-hub/evidence/context7-contract-ok-to-pilot-2026-09-16.json \
+            --report /tmp/context7-pilot-apply-report.json \
+            apply --adapter context7-mcp-adapter --target PILOT \
+            --actor "github-actions:${GITHUB_RUN_ID}" \
+            --receipt /tmp/context7-pilot-receipt.json \
+            --apply
+
+      - name: Validate generated promotion receipt
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          registry = json.loads(Path('/tmp/provider-adapters-after.json').read_text())
+          report = json.loads(Path('/tmp/context7-pilot-apply-report.json').read_text())
+          receipt = json.loads(Path('/tmp/context7-pilot-receipt.json').read_text())
+          entry = registry['adapters']['context7-mcp-adapter']
+          assert entry['status'] == 'PILOT'
+          assert entry.get('executable') is None
+          assert report['eligible'] is True
+          assert report['applied'] is True
+          assert report['blockers'] == []
+          assert report['requires_local_executable'] is False
+          assert receipt['receipt_schema'] == 'chacha.dev/adapter-promotion-receipt/v1'
+          assert receipt['new_entry']['status'] == 'PILOT'
+          assert receipt['new_entry'].get('executable') is None
+          print('CONTEXT7_PILOT_PROMOTION_RECEIPT_OK')
+          PY
+
+      - name: Stage promotion outputs
+        run: |
+          mkdir -p /tmp/context7-pilot-artifact
+          cp /tmp/provider-adapters-after.json /tmp/context7-pilot-artifact/provider-adapters.v1.json
+          cp /tmp/context7-pilot-plan.json /tmp/context7-pilot-artifact/context7-pilot-plan.json
+          cp /tmp/context7-pilot-apply-report.json /tmp/context7-pilot-artifact/context7-pilot-apply-report.json
+          cp /tmp/context7-pilot-receipt.json /tmp/context7-pilot-artifact/context7-pilot-receipt.json
+          cp dev-hub/evidence/context7-contract-ok-to-pilot-2026-09-16.json /tmp/context7-pilot-artifact/promotion-evidence.json
+
+      - name: Upload promotion outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: context7-pilot-promotion-${{ github.run_id }}
+          path: /tmp/context7-pilot-artifact
+          if-no-files-found: error
+          retention-days: 30

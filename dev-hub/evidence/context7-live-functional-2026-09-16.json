@@ -1,0 +1,61 @@
+{
+  "schema": "chacha.dev/mcp-live-functional-evidence/v1",
+  "provider_id": "context7-mcp",
+  "adapter_id": "context7-mcp-adapter",
+  "observed_at": "2026-09-16T08:05:00Z",
+  "execution_surface": "chatgpt-context7-plugin",
+  "live_calls": [
+    {
+      "tool": "resolve-library-id",
+      "status": "PASS",
+      "input_shape": ["libraryName", "query"],
+      "selected_library_id": "/upstash/context7"
+    },
+    {
+      "tool": "query-docs",
+      "status": "PASS",
+      "input_shape": ["libraryId", "query"],
+      "library_id": "/upstash/context7"
+    }
+  ],
+  "tool_metadata": {
+    "allowed_tools_present": ["resolve-library-id", "query-docs"],
+    "resolve-library-id": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": true
+    },
+    "query-docs": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": true
+    },
+    "deprecated_tool_guard": {
+      "get-library-docs": "NOT_ALLOWED",
+      "replacement": "query-docs"
+    }
+  },
+  "security": {
+    "credential_value_recorded": false,
+    "credential_echo_observed": false,
+    "mutation_observed": false,
+    "destructive_action_observed": false
+  },
+  "pilot_readiness": {
+    "eligible": false,
+    "satisfied": [
+      "sandbox-resolve-library-id-pass",
+      "sandbox-query-docs-pass",
+      "allowed-tools-present",
+      "read-only-annotations-present"
+    ],
+    "blockers": [
+      "direct-mcp-server-discover-proof-missing",
+      "direct-mcp-tools-list-proof-missing",
+      "fresh-provider-health-pass-missing"
+    ]
+  },
+  "notes": "Live functional calls were executed through the connected Context7 ChatGPT plugin. This proves tool behavior but does not by itself prove the raw MCP transport/session semantics required by DEV HUB for CONTRACT_OK->PILOT."
+}
