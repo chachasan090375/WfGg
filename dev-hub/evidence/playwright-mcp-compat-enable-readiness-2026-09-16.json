@@ -1,0 +1,84 @@
+{
+  "schema": "chacha.dev/playwright-mcp-enable-readiness-evidence/v1",
+  "observed_at": "2026-09-16T12:03:51.987269+00:00",
+  "provider": "playwright-mcp",
+  "adapter": "playwright-mcp-adapter",
+  "transition": "PILOT->ENABLED",
+  "current_status": "PILOT",
+  "target_status": "ENABLED",
+  "readiness_status": "READY_FOR_ENABLEMENT",
+  "compatibility": {
+    "mode": "EXPLICIT_PROVIDER_COMPATIBILITY",
+    "dev_hub_protocol_baseline": "2026-07-28",
+    "upstream_protocol": "2025-11-25",
+    "provider_specific": true,
+    "generic_legacy_fallback": false
+  },
+  "repeatability": {
+    "required_runs": 3,
+    "successful_runs": 3,
+    "stable_project": "playwright-mcp-pilot-contract",
+    "stable_task_id": "playwright-readonly-browser-check",
+    "distinct_observed_at": 3,
+    "distinct_result_digests": 3,
+    "result_digests": [
+      "sha256:78eb99162378d460429e737db89b4a55bce434c083172c48632379bb90c60ce3",
+      "sha256:b37d69e767db1d6876bf366c2220466ce3fda78a294cd46db34bb7af5b0514ab",
+      "sha256:2fbec30791a011cb3d447c292fe4b4a80ef3e0e2ee1d5a3b58480a33f5a27f0d"
+    ],
+    "task_status": "OK",
+    "producer": "playwright-mcp-adapter",
+    "verification_status": "UNVERIFIED"
+  },
+  "health": {
+    "state": "HEALTHY",
+    "fresh": true,
+    "snapshot_digest": "sha256:d277c77e3a421c55de3f04eae550ea4b5a330abbb226e521963f4dfde1e32094"
+  },
+  "rollback": {
+    "defined": true,
+    "target_status": "DISABLED",
+    "registry_digest": "sha256:9b494400064f8a9bb100fc9fa68d3d30fd8b27ac8e44e3da75c6cb98675326eb"
+  },
+  "enablement_evidence": {
+    "digest": "sha256:b7b7b592a314e485a721a7f28bde142427080b53874b74ddbe722e02ec9f3dfe",
+    "repeatable-pass": "PASS",
+    "provider-health-pass": "PASS",
+    "rollback-defined": "PASS"
+  },
+  "promotion_plan": {
+    "digest": "sha256:24c5ae8eb6e0d3b90c068a9406a649f3879fa58b04a18cdd637518657f908d83",
+    "eligible": true,
+    "applied": false,
+    "production_capable": false,
+    "approval_required": false,
+    "requires_local_executable": false,
+    "blockers": []
+  },
+  "boundaries": {
+    "registry_mutated": false,
+    "adapter_status_after_readiness": "PILOT",
+    "enabled": false,
+    "supports": ["read"],
+    "local_executable": null,
+    "production_capable": false,
+    "provider_result_verification": "UNVERIFIED",
+    "verification_broker_required": true,
+    "automatic_promotion": false
+  },
+  "workflow": {
+    "run_id": 35093635617,
+    "job_id": 104785585630,
+    "head": "e25f03f2fb20490bebd6f00e7216ffd62ac52ed7",
+    "conclusion": "success",
+    "artifact_id": 10445391711,
+    "artifact_digest": "sha256:ee046b2d953a5f6765f4fd71f7cb5a9a47c81daf4eb0ef6118b0a64405879047"
+  },
+  "blockers": [],
+  "notes": [
+    "This evidence proves readiness only and does not apply PILOT->ENABLED.",
+    "The adapter registry remains PILOT and the provider result remains UNVERIFIED pending independent Verification Broker verification.",
+    "Eligibility remains limited to the explicitly qualified provider-specific compatibility route; the DEV HUB protocol baseline remains 2026-07-28.",
+    "No production target, VPS mutation, repository mutation, local executable or automatic promotion was introduced."
+  ]
+}
