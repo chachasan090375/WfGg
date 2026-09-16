@@ -1,0 +1,45 @@
+{
+  "schema": "chacha.dev/trusted-runtime-provisioner-policy/v1",
+  "binding_policy": "dev-hub/config/external-runtime-binding.v1.json",
+  "binding_ttl_seconds": 1200,
+  "principles": {
+    "versions_come_from_authoritative_provider_contracts": true,
+    "only_enabled_external_adapters_are_provisionable": true,
+    "runtime_root_must_be_outside_repository": true,
+    "task_cannot_select_package_version": true,
+    "task_cannot_select_executable": true,
+    "task_cannot_select_binding_file": true,
+    "runtime_binding_is_ephemeral": true,
+    "runtime_binding_is_sha256_pinned": true,
+    "provisioning_never_mutates_provider_registry": true,
+    "execution_remains_explicit": true
+  },
+  "providers": {
+    "chrome-devtools-mcp": {
+      "contract": "dev-hub/config/mcp-chrome-devtools-contract.v1.json",
+      "adapter": "chrome-devtools-mcp-adapter",
+      "package_binary": "chrome-devtools-mcp",
+      "launcher_source": "dev-hub/adapters/chrome-devtools-mcp-adapter.py",
+      "browser_install": "none",
+      "runtime_environment": {
+        "server": "CHACHA_CHROME_DEVTOOLS_MCP_SERVER",
+        "workdir": "CHACHA_CHROME_DEVTOOLS_MCP_WORKDIR",
+        "package_version": "CHACHA_CHROME_DEVTOOLS_MCP_PACKAGE_VERSION",
+        "browser_version": "CHACHA_CHROME_DEVTOOLS_BROWSER_VERSION",
+        "target_class": "CHACHA_CHROME_DEVTOOLS_TARGET_CLASS",
+        "allowed_origin": "CHACHA_CHROME_DEVTOOLS_ALLOWED_ORIGIN"
+      }
+    },
+    "playwright-mcp": {
+      "contract": "dev-hub/config/mcp-playwright-contract.v1.json",
+      "adapter": "playwright-mcp-adapter",
+      "package_binary": "playwright-mcp",
+      "launcher_source": "dev-hub/bin/playwright-mcp-adapter-runtime.py",
+      "browser_install": "playwright-chromium-with-deps",
+      "runtime_environment": {
+        "server": "PLAYWRIGHT_MCP_SERVER",
+        "workdir": "PLAYWRIGHT_MCP_WORKDIR"
+      }
+    }
+  }
+}
