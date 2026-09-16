@@ -52,7 +52,7 @@
     "mcp-adapter": {"status": "DESIGNED", "executable": null, "supports": ["read", "plan"]},
     "context7-mcp-adapter": {"status": "DESIGNED", "executable": null, "supports": ["read"]},
     "playwright-mcp-adapter": {"status": "ENABLED", "executable": null, "supports": ["read"]},
-    "chrome-devtools-mcp-adapter": {"status": "PILOT", "executable": null, "supports": ["read"]},
+    "chrome-devtools-mcp-adapter": {"status": "ENABLED", "executable": null, "supports": ["read"]},
     "project-command-adapter": {"status": "DESIGNED", "executable": null, "supports": ["read", "workspace-write", "preview-deploy", "production-deploy"]},
     "http-smoke-adapter": {"status": "PILOT", "executable": "/opt/chacha-dev/adapters/http-smoke/current/http-smoke-adapter", "supports": ["read"]},
     "nas-ssh-adapter": {"status": "DESIGNED", "executable": null, "supports": ["read", "workspace-write"]},
