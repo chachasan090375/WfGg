@@ -1,0 +1,108 @@
+name: Dev Hub V5 Context7 ENABLED Promotion
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - dev-hub-v5-context7-enabled
+    paths:
+      - 'dev-hub/evidence/context7-enable-readiness-35076408369-evidence.json'
+      - 'dev-hub/evidence/context7-enable-readiness-35076408369-provenance.json'
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - 'dev-hub/config/adapter-promotion.v1.json'
+      - 'dev-hub/bin/adapter-promotion.py'
+      - '.github/workflows/dev-hub-v5-context7-enable-promotion.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  promote-in-sandbox:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Confirm source status and evidence
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          registry = json.loads(Path('dev-hub/config/provider-adapters.v1.json').read_text())
+          evidence = json.loads(Path('dev-hub/evidence/context7-enable-readiness-35076408369-evidence.json').read_text())
+          assert registry['adapters']['context7-mcp-adapter']['status'] == 'PILOT'
+          assert evidence['adapter'] == 'context7-mcp-adapter'
+          for key in ('repeatable-pass', 'provider-health-pass', 'rollback-defined'):
+              assert evidence['evidence'][key]['status'] == 'PASS'
+          print('CONTEXT7_ENABLE_SOURCE_OK status=PILOT evidence=PASS')
+          PY
+
+      - name: Plan PILOT to ENABLED
+        run: |
+          python dev-hub/bin/adapter-promotion.py \
+            --registry dev-hub/config/provider-adapters.v1.json \
+            --contract dev-hub/config/adapter-contract.v1.json \
+            --policy dev-hub/config/adapter-promotion.v1.json \
+            --evidence dev-hub/evidence/context7-enable-readiness-35076408369-evidence.json \
+            --report /tmp/context7-enable-plan.json \
+            plan --adapter context7-mcp-adapter --target ENABLED
+
+      - name: Apply promotion to sandbox registry copy
+        run: |
+          cp dev-hub/config/provider-adapters.v1.json /tmp/provider-adapters-enabled.json
+          python dev-hub/bin/adapter-promotion.py \
+            --registry /tmp/provider-adapters-enabled.json \
+            --contract dev-hub/config/adapter-contract.v1.json \
+            --policy dev-hub/config/adapter-promotion.v1.json \
+            --evidence dev-hub/evidence/context7-enable-readiness-35076408369-evidence.json \
+            --report /tmp/context7-enable-apply-report.json \
+            apply --adapter context7-mcp-adapter --target ENABLED \
+            --actor "github-actions:${GITHUB_RUN_ID}" \
+            --receipt /tmp/context7-enable-receipt.json \
+            --apply
+
+      - name: Validate ENABLED promotion receipt
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          registry = json.loads(Path('/tmp/provider-adapters-enabled.json').read_text())
+          plan = json.loads(Path('/tmp/context7-enable-plan.json').read_text())
+          report = json.loads(Path('/tmp/context7-enable-apply-report.json').read_text())
+          receipt = json.loads(Path('/tmp/context7-enable-receipt.json').read_text())
+          entry = registry['adapters']['context7-mcp-adapter']
+          assert entry['status'] == 'ENABLED'
+          assert entry.get('executable') is None
+          assert plan['eligible'] is True
+          assert plan['blockers'] == []
+          assert report['eligible'] is True
+          assert report['applied'] is True
+          assert report['blockers'] == []
+          assert report['production_capable'] is False
+          assert report['approval_required'] is False
+          assert report['requires_local_executable'] is False
+          assert receipt['receipt_schema'] == 'chacha.dev/adapter-promotion-receipt/v1'
+          assert receipt['old_entry']['status'] == 'PILOT'
+          assert receipt['new_entry']['status'] == 'ENABLED'
+          assert receipt['new_entry'].get('executable') is None
+          print('CONTEXT7_ENABLED_PROMOTION_RECEIPT_OK')
+          PY
+
+      - name: Stage promotion outputs
+        run: |
+          mkdir -p /tmp/context7-enable-artifact
+          cp /tmp/provider-adapters-enabled.json /tmp/context7-enable-artifact/provider-adapters.v1.json
+          cp /tmp/context7-enable-plan.json /tmp/context7-enable-artifact/context7-enable-plan.json
+          cp /tmp/context7-enable-apply-report.json /tmp/context7-enable-artifact/context7-enable-apply-report.json
+          cp /tmp/context7-enable-receipt.json /tmp/context7-enable-artifact/context7-enable-receipt.json
+          cp dev-hub/evidence/context7-enable-readiness-35076408369-evidence.json /tmp/context7-enable-artifact/enablement-evidence.json
+          cp dev-hub/evidence/context7-enable-readiness-35076408369-provenance.json /tmp/context7-enable-artifact/readiness-provenance.json
+
+      - name: Upload ENABLED promotion outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: context7-enabled-promotion-${{ github.run_id }}
+          path: /tmp/context7-enable-artifact
+          if-no-files-found: error
+          retention-days: 30
