@@ -1,0 +1,77 @@
+{
+  "schema": "chacha.dev/mcp-playwright-legacy-compat/v1",
+  "provider_id": "playwright-mcp",
+  "adapter_id": "playwright-mcp-adapter",
+  "mode": "EXPLICIT_PROVIDER_COMPATIBILITY",
+  "dev_hub_protocol_baseline": "2026-07-28",
+  "upstream_protocol": "2025-11-25",
+  "scope": {
+    "provider_specific_only": true,
+    "generic_legacy_fallback": false,
+    "translate_handshake_only": true,
+    "allowed_upstream_methods": [
+      "initialize",
+      "notifications/initialized",
+      "tools/list",
+      "tools/call"
+    ],
+    "arbitrary_method_passthrough": false
+  },
+  "execution": {
+    "surface": "github-actions-ephemeral",
+    "package": "@playwright/mcp",
+    "package_version": "0.0.81",
+    "browser": "chromium",
+    "isolated": true,
+    "headless": true,
+    "block_service_workers": true,
+    "vps_install": false,
+    "production_target": false
+  },
+  "tool_policy": {
+    "default": "DENY",
+    "allow": [
+      "browser_navigate",
+      "browser_snapshot",
+      "browser_console_messages",
+      "browser_network_requests",
+      "browser_close"
+    ],
+    "deny": [
+      "browser_run_code_unsafe",
+      "browser_evaluate",
+      "browser_click",
+      "browser_type",
+      "browser_fill_form",
+      "browser_file_upload",
+      "browser_drop",
+      "browser_drag",
+      "browser_handle_dialog",
+      "browser_hover",
+      "browser_press_key",
+      "browser_select_option",
+      "browser_webmcp_call",
+      "browser_webmcp_list"
+    ],
+    "filename_arguments": "DENY",
+    "workspace_write": false,
+    "repository_write": false,
+    "production_mutation": false
+  },
+  "network": {
+    "allowed_origin_required": true,
+    "redirect_revalidation_required": true,
+    "file_url": false,
+    "unrestricted_file_access": false
+  },
+  "trust": {
+    "provider_result": "UNVERIFIED",
+    "verification_broker_required": true,
+    "producer_cannot_self_verify": true
+  },
+  "promotion": {
+    "automatic": false,
+    "provider_status_must_remain": "CONTRACT_OK",
+    "compat_probe_must_pass_before_pilot": true
+  }
+}
