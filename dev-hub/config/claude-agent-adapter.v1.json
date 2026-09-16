@@ -1,0 +1,85 @@
+{
+  "schema": "chacha.dev/claude-agent-adapter/v1",
+  "provider_id": "anthropic-claude",
+  "adapter_id": "claude-agent-adapter",
+  "decision": "ASSESS",
+  "runtime_status": "DESIGNED",
+  "integration": {
+    "primary_surface": "anthropic-provider-abstraction",
+    "preferred_runtime": "claude-managed-agents",
+    "compatibility_runtime": "claude-agent-sdk",
+    "execution": "external",
+    "mcp_server_mode": "SECONDARY_OPTIONAL",
+    "github_action_mode": "NOT_PRIMARY",
+    "managed_agents_mode": "PREFERRED_AFTER_RUNTIME_QUALIFICATION",
+    "agent_sdk_mode": "COMPATIBILITY_BACKEND"
+  },
+  "boundary": {
+    "input_schema": "chacha.dev/dispatch-envelope/v1",
+    "output_schema": "chacha.dev/task-result/v1",
+    "provider_result_trust": "UNVERIFIED",
+    "verification_broker_required": true,
+    "producer_must_not_self_verify": true
+  },
+  "auth": {
+    "credential_type": "ANTHROPIC_EXTERNAL_CREDENTIAL",
+    "supported_modes": ["API_KEY", "WORKLOAD_IDENTITY_FEDERATION"],
+    "pilot_initial_mode": "API_KEY_REFERENCE",
+    "future_ci_preferred_mode": "WORKLOAD_IDENTITY_FEDERATION",
+    "secret_policy": "REFERENCE_ONLY",
+    "secret_values_in_git": false,
+    "secret_values_in_evidence": false,
+    "environment_reference": "ANTHROPIC_API_KEY",
+    "authorization_and_api_key_headers_in_evidence": "REDACT"
+  },
+  "model_policy": {
+    "selection": "RUNTIME_CONFIGURED_APPROVED_ACTIVE_MODEL",
+    "hardcoded_model_id": false,
+    "technology_radar_tracks_models": true,
+    "technology_radar_tracks_sdk": true,
+    "technology_radar_tracks_deprecations": true,
+    "model_change_requires_requalification_when_behavior_or_tool_surface_changes": true
+  },
+  "tool_policy": {
+    "default": "DENY",
+    "design_stage_allow": ["Read", "Glob", "Grep"],
+    "design_stage_deny": ["Bash", "Edit", "Write"],
+    "arbitrary_shell": false,
+    "workspace_write": false,
+    "repository_write": false,
+    "production_mutation": false,
+    "destructive_operations": false,
+    "network_tools": "DENY_UNLESS_SEPARATELY_CONTRACTED",
+    "mcp_tools": "DENY_UNLESS_SEPARATELY_ALLOWLISTED"
+  },
+  "capability_stage": {
+    "admitted_now": ["code-review", "documentation", "analysis", "planning"],
+    "future_after_separate_contract": ["code-edit", "workspace-write", "test-orchestration"],
+    "forbidden_without_explicit_production_contract": ["production-deploy", "production-data-write", "secret-change", "destructive-operation"]
+  },
+  "cross_provider_review": {
+    "enabled": true,
+    "may_review_outputs_from": ["antigravity", "skywork"],
+    "claude_output_requires_independent_verifier": true,
+    "same_provider_self_verification": false,
+    "verification_authority": "verification-broker"
+  },
+  "evidence": {
+    "record_provider": true,
+    "record_model_id": true,
+    "record_runtime_surface": true,
+    "record_sdk_version": true,
+    "record_tool_names": true,
+    "record_usage_when_available": true,
+    "record_changed_files": true,
+    "record_commands": true,
+    "secret_redaction_required": true
+  },
+  "admission": {
+    "automatic_promotion": false,
+    "next_transition": "DESIGNED->CONTRACT_OK",
+    "runtime_call_allowed_at_design_stage": false,
+    "credential_required_at_design_stage": false,
+    "production_change_allowed": false
+  }
+}

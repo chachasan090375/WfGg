@@ -1,0 +1,65 @@
+name: Dev Hub V5 Claude Agent Design
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - dev-hub-v5-claude-agent-design
+    paths:
+      - 'dev-hub/config/claude-agent-adapter.v1.json'
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - 'dev-hub/config/capability-registry.v1.json'
+      - 'dev-hub/bin/claude-agent-adapter-validate.py'
+      - 'dev-hub/docs/CLAUDE_AGENT_ADAPTER_V1.md'
+      - '.github/workflows/dev-hub-v5-claude-agent-design.yml'
+  pull_request:
+    paths:
+      - 'dev-hub/config/claude-agent-adapter.v1.json'
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - 'dev-hub/config/capability-registry.v1.json'
+      - 'dev-hub/bin/claude-agent-adapter-validate.py'
+      - 'dev-hub/docs/CLAUDE_AGENT_ADAPTER_V1.md'
+      - '.github/workflows/dev-hub-v5-claude-agent-design.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate JSON syntax
+        run: |
+          python -m json.tool dev-hub/config/claude-agent-adapter.v1.json >/dev/null
+          python -m json.tool dev-hub/config/provider-adapters.v1.json >/dev/null
+          python -m json.tool dev-hub/config/capability-registry.v1.json >/dev/null
+
+      - name: Validate Claude design invariants
+        run: python dev-hub/bin/claude-agent-adapter-validate.py
+
+      - name: Confirm design-only boundary
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          cfg = json.loads(Path('dev-hub/config/claude-agent-adapter.v1.json').read_text())
+          reg = json.loads(Path('dev-hub/config/provider-adapters.v1.json').read_text())
+          cap = json.loads(Path('dev-hub/config/capability-registry.v1.json').read_text())
+          assert reg['adapters']['claude-agent-adapter']['status'] == 'DESIGNED'
+          assert reg['adapters']['claude-agent-adapter']['supports'] == ['read', 'plan']
+          assert cfg['admission']['runtime_call_allowed_at_design_stage'] is False
+          assert cfg['admission']['credential_required_at_design_stage'] is False
+          assert cfg['auth']['secret_policy'] == 'REFERENCE_ONLY'
+          assert cfg['auth']['secret_values_in_git'] is False
+          assert cfg['auth']['secret_values_in_evidence'] is False
+          assert cfg['auth']['environment_reference'] == 'ANTHROPIC_API_KEY'
+          assert cfg['tool_policy']['workspace_write'] is False
+          assert cfg['tool_policy']['repository_write'] is False
+          assert cfg['tool_policy']['production_mutation'] is False
+          assert 'anthropic-claude' not in {p['id'] for p in cap['capabilities']['code-edit']['providers']}
+          print('CLAUDE_DESIGN_ONLY_BOUNDARY_OK: runtime=false credentials=false write=false production=false')
+          PY
