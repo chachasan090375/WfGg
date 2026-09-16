@@ -1,0 +1,117 @@
+name: Dev Hub V5 Claude Provision — Auditable Request
+
+on:
+  push:
+    branches:
+      - dev-hub-v5-claude-pilot-prep
+    paths:
+      - 'dev-hub/requests/claude-provision-request.json'
+
+permissions:
+  contents: read
+
+jobs:
+  provision:
+    if: github.actor == 'chachasan090375'
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate explicit human request
+        id: request
+        run: |
+          python - <<'PY'
+          import json, os, re
+          from pathlib import Path
+          value = json.loads(Path('dev-hub/requests/claude-provision-request.json').read_text())
+          assert value.get('schema') == 'chacha.dev/claude-provision-request/v1'
+          assert value.get('approved') is True
+          assert value.get('approved_by') == 'chachasan090375'
+          assert value.get('confirmation') == 'PROVISION_READ_ONLY_CLAUDE_PILOT'
+          model_id = value.get('model_id')
+          assert isinstance(model_id, str) and re.fullmatch(r'claude-[A-Za-z0-9-]+', model_id)
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as fh:
+              fh.write(f'model_id={model_id}\n')
+          print('CLAUDE_PROVISION_REQUEST=VALID')
+          PY
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Require external secret reference
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          test -n "$ANTHROPIC_API_KEY" || { echo 'ANTHROPIC_API_KEY secret is not configured'; exit 2; }
+
+      - name: Install Anthropic SDK
+        run: python -m pip install --disable-pip-version-check 'anthropic>=1.5,<2'
+
+      - name: Record SDK version
+        run: |
+          python - <<'PY'
+          import anthropic
+          from pathlib import Path
+          Path('/tmp/anthropic-sdk-version.txt').write_text(str(anthropic.__version__) + '\n')
+          print('ANTHROPIC_SDK_VERSION=' + str(anthropic.__version__))
+          PY
+
+      - name: Provision or safely reuse read-only resources
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          CHACHA_ANTHROPIC_MODEL_ID: ${{ steps.request.outputs.model_id }}
+          CHACHA_ANTHROPIC_PROVISION_REQUEST_ID: git-${{ github.sha }}
+        run: |
+          python dev-hub/bin/claude-managed-agents-provision.py \
+            --apply \
+            --output /tmp/claude-managed-agents-provisioning.json
+
+      - name: Validate provisioning receipt
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          value = json.loads(Path('/tmp/claude-managed-agents-provisioning.json').read_text())
+          assert value['schema'] == 'chacha.dev/claude-managed-agents-provisioning/v1'
+          assert value['status'] in {'PROVISIONED', 'PROVISIONED_REUSED'}
+          assert value['credential_value_observed'] is False
+          assert value['provision_request_id'] == 'git-${{ github.sha }}'
+          assert value['agent_id']
+          assert int(value['agent_version']) >= 1
+          assert value['environment_id']
+          assert value['blockers'] == []
+          summary = Path('/tmp/claude-provisioning-summary.md')
+          summary.write_text(
+              '## Claude read-only PILOT provisioning\n\n'
+              f"- Status: `{value['status']}`\n"
+              f"- Agent ID: `{value['agent_id']}`\n"
+              f"- Agent version: `{value['agent_version']}`\n"
+              f"- Environment ID: `{value['environment_id']}`\n"
+              f"- Model ID: `{value.get('model_id')}`\n"
+              f"- Request: `{value['provision_request_id']}`\n\n"
+              'Credential value was not included in evidence.\n'
+          )
+          PY
+          cat /tmp/claude-provisioning-summary.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Stage evidence
+        if: always()
+        run: |
+          mkdir -p /tmp/claude-provision-artifact
+          test ! -f /tmp/claude-managed-agents-provisioning.json || cp /tmp/claude-managed-agents-provisioning.json /tmp/claude-provision-artifact/provisioning.json
+          test ! -f /tmp/anthropic-sdk-version.txt || cp /tmp/anthropic-sdk-version.txt /tmp/claude-provision-artifact/sdk-version.txt
+          test ! -f /tmp/claude-provisioning-summary.md || cp /tmp/claude-provisioning-summary.md /tmp/claude-provision-artifact/summary.md
+          cp dev-hub/requests/claude-provision-request.json /tmp/claude-provision-artifact/request.json
+
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: claude-provision-request-${{ github.run_id }}
+          path: /tmp/claude-provision-artifact
+          if-no-files-found: error
+          retention-days: 30
