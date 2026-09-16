@@ -114,6 +114,19 @@
           },
           "provider_binding": {"type": ["string", "null"]},
           "health_probe": {"type": ["string", "null"]},
+          "protocol_compatibility": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["mode", "provider_specific", "dev_hub_baseline", "upstream_version", "generic_legacy_fallback"],
+            "properties": {
+              "mode": {"const": "EXPLICIT_PROVIDER_COMPATIBILITY"},
+              "provider_specific": {"const": true},
+              "dev_hub_baseline": {"const": "2026-07-28"},
+              "upstream_version": {"type": "string", "minLength": 1},
+              "generic_legacy_fallback": {"const": false},
+              "modern_probe_blocker": {"type": "string", "minLength": 1}
+            }
+          },
           "fallback": {
             "type": "array",
             "uniqueItems": true,
