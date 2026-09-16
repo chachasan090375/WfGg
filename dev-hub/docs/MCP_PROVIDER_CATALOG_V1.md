@@ -6,6 +6,8 @@ Le catalogue MCP étend le modèle Provider/Adapter du DEV HUB V5 sans créer de
 
 Un provider présent dans `mcp-provider-catalog.v1.json` n'est **pas** autorisé à s'exécuter. Le catalogue décrit uniquement l'intention d'intégration, les risques, les capacités visées et les restrictions minimales.
 
+Le catalogue est aussi la **source d'inventaire dynamique** du `technology-radar-agent`. Tout provider ajouté ici entre automatiquement dans son périmètre de veille, sans liste parallèle à maintenir. Le Radar surveille également la spécification MCP elle-même et produit uniquement des recommandations sourcées ; il ne peut ni modifier le catalogue, ni promouvoir un adapter, ni toucher à la production.
+
 ## Baseline protocolaire
 
 Pour toute nouvelle intégration, le DEV HUB cible la spécification MCP `2026-07-28` :
@@ -179,6 +181,20 @@ Avant de passer de `CATALOG_ONLY` à `DESIGNED`, un provider doit avoir :
 - Toute capacité destructive doit être séparée d'une capacité read-only.
 - Les actions filesystem doivent être limitées à des racines déclarées.
 - Le Run Controller reste dispatch-only tant que la politique globale V5 ne l'autorise pas autrement.
+
+## Veille technologique automatique
+
+Le fichier `technology-radar-mcp-watch.v1.json` impose le mode `DYNAMIC_ALL_PROVIDERS`.
+
+Conséquences :
+- tous les providers présents dans ce catalogue sont suivis, y compris `WATCH`, `DEFER`, `REJECT` et `DISABLED` ;
+- aucune exclusion silencieuse n'est autorisée ;
+- l'ajout futur d'un provider l'ajoute automatiquement au périmètre de veille ;
+- les changements de protocole MCP, SDK, transport, auth, sécurité, API, capacités, quotas et dépréciations sont surveillés ;
+- les nouveaux providers non catalogués peuvent être signalés comme candidats ;
+- toute sortie du Radar reste une recommandation sourcée, jamais une promotion automatique.
+
+La CI vérifie cette couverture avec `technology-radar-mcp-watch-validate.py`.
 
 ## Ordre d'intégration proposé
 
