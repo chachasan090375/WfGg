@@ -30,6 +30,32 @@
         "scheduler no longer selects http-smoke-adapter",
         "previous promotion and rollback receipts remain readable"
       ]
+    },
+    "playwright-mcp-adapter": {
+      "enabled": true,
+      "from_status": "ENABLED",
+      "target_status": "DISABLED",
+      "owner_role": "platform-cloud-engineer",
+      "triggers": [
+        "repeatable-runtime-failure",
+        "provider-health-unavailable",
+        "policy-or-security-block",
+        "unsafe-tool-policy-violation",
+        "protocol-compatibility-break"
+      ],
+      "executable_strategy": "external-no-local-executable",
+      "steps": [
+        "stop scheduling new browser verification tasks to playwright-mcp-adapter",
+        "apply ENABLED->DISABLED through adapter-promotion with the triggering evidence",
+        "record the promotion receipt and triggering evidence",
+        "return unresolved browser verification capability to scheduler fallback policy"
+      ],
+      "verification": [
+        "adapter registry status is DISABLED",
+        "scheduler no longer selects playwright-mcp-adapter",
+        "previous promotion and rollback receipts remain readable",
+        "no local Playwright MCP executable is required or retained"
+      ]
     }
   }
 }

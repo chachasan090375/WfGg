@@ -1,0 +1,179 @@
+name: Dev Hub V5 Playwright MCP Enablement Readiness
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - dev-hub-v5-playwright-mcp-enable-readiness
+    paths:
+      - 'dev-hub/bin/playwright-mcp-enable-readiness-ci.py'
+      - 'dev-hub/bin/playwright-mcp-pilot-probe.mjs'
+      - 'dev-hub/bin/adapter-enable-readiness.py'
+      - 'dev-hub/bin/adapter-enablement-evidence.py'
+      - 'dev-hub/bin/adapter-promotion.py'
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - 'dev-hub/config/adapter-enablement.v1.json'
+      - 'dev-hub/config/adapter-rollbacks.v1.json'
+      - '.github/workflows/dev-hub-v5-playwright-mcp-enable-readiness.yml'
+  pull_request:
+    paths:
+      - 'dev-hub/bin/playwright-mcp-enable-readiness-ci.py'
+      - 'dev-hub/bin/playwright-mcp-pilot-probe.mjs'
+      - 'dev-hub/bin/adapter-enable-readiness.py'
+      - 'dev-hub/bin/adapter-enablement-evidence.py'
+      - 'dev-hub/bin/adapter-promotion.py'
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - 'dev-hub/config/adapter-enablement.v1.json'
+      - 'dev-hub/config/adapter-rollbacks.v1.json'
+      - '.github/workflows/dev-hub-v5-playwright-mcp-enable-readiness.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  readiness:
+    if: github.event_name != 'pull_request' || github.event.pull_request.base.ref == 'dev-hub-v5-playwright-mcp-pilot'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Validate static inputs
+        run: |
+          python -m json.tool dev-hub/config/provider-adapters.v1.json >/dev/null
+          python -m json.tool dev-hub/config/adapter-enablement.v1.json >/dev/null
+          python -m json.tool dev-hub/config/adapter-rollbacks.v1.json >/dev/null
+          python -m py_compile dev-hub/bin/playwright-mcp-enable-readiness-ci.py
+          node --check dev-hub/bin/playwright-mcp-pilot-probe.mjs
+          find dev-hub/bin -type d -name '__pycache__' -prune -exec rm -rf {} +
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path('dev-hub/config/provider-adapters.v1.json').read_text())
+          rb=json.loads(Path('dev-hub/config/adapter-rollbacks.v1.json').read_text())
+          a=r['adapters']['playwright-mcp-adapter']
+          assert a['status'] == 'PILOT'
+          assert a['supports'] == ['read']
+          assert a['executable'] is None
+          p=rb['adapters']['playwright-mcp-adapter']
+          assert p['enabled'] is True
+          assert p['from_status'] == 'ENABLED'
+          assert p['target_status'] == 'DISABLED'
+          assert len(p['steps']) >= 2
+          assert p['verification']
+          print('PLAYWRIGHT_ENABLEMENT_STATIC_PRECHECK=PASS status=PILOT rollback=DISABLED')
+          PY
+
+      - name: Confirm repository clean before runtime
+        run: test -z "$(git status --porcelain)"
+
+      - name: Provision pinned Playwright MCP runtime in ephemeral temp directory
+        shell: bash
+        run: |
+          set -euo pipefail
+          R=/tmp/chacha-playwright-mcp-enable
+          rm -rf "$R" /tmp/playwright-mcp-enable-readiness
+          mkdir -p "$R" "$R/site"
+          cd "$R"
+          npm init -y >/dev/null
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm install --no-save --no-audit --no-fund \
+            @playwright/mcp@0.0.81 @modelcontextprotocol/client@2.0.0
+          node -e "const p=require('./node_modules/@playwright/mcp/package.json'); if(p.version!=='0.0.81') process.exit(2); console.log('PLAYWRIGHT_MCP_VERSION='+p.version)"
+          node -e "const p=require('./node_modules/@modelcontextprotocol/client/package.json'); if(p.version!=='2.0.0') process.exit(2); console.log('MCP_CLIENT_VERSION='+p.version)"
+          npx playwright install chromium
+          cp "$GITHUB_WORKSPACE/dev-hub/bin/playwright-mcp-pilot-probe.mjs" "$R/probe.mjs"
+          cat >"$R/site/index.html" <<'HTML'
+          <!doctype html>
+          <html lang="en">
+          <head><meta charset="utf-8"><title>ChaCha Playwright MCP Enablement Readiness</title></head>
+          <body>
+            <main>
+              <h1>ChaCha DEV HUB Playwright MCP Enablement Readiness</h1>
+              <p>CHACHA_PLAYWRIGHT_MCP_ENABLE_READINESS_2026_09_16</p>
+            </main>
+          </body>
+          </html>
+          HTML
+
+      - name: Run three isolated browser probes and generic enablement readiness
+        shell: bash
+        run: |
+          set -euo pipefail
+          R=/tmp/chacha-playwright-mcp-enable
+          cd "$R/site"
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/chacha-playwright-enable-site.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID" 2>/dev/null || true' EXIT
+          for i in $(seq 1 20); do
+            if curl -fsS http://127.0.0.1:4173/ >/dev/null; then break; fi
+            sleep 0.25
+          done
+          curl -fsS http://127.0.0.1:4173/ | grep -q 'CHACHA_PLAYWRIGHT_MCP_ENABLE_READINESS_2026_09_16'
+          cd "$GITHUB_WORKSPACE"
+          PLAYWRIGHT_MCP_BIN="$R/node_modules/.bin/playwright-mcp" \
+          PLAYWRIGHT_MCP_TARGET_URL='http://127.0.0.1:4173/' \
+          PLAYWRIGHT_MCP_ALLOWED_ORIGIN='http://127.0.0.1:4173' \
+          PLAYWRIGHT_MCP_MARKER='CHACHA_PLAYWRIGHT_MCP_ENABLE_READINESS_2026_09_16' \
+          PLAYWRIGHT_MCP_PROBE_SCRIPT="$R/probe.mjs" \
+          PLAYWRIGHT_ENABLE_WORKDIR='/tmp/playwright-mcp-enable-readiness' \
+          python dev-hub/bin/playwright-mcp-enable-readiness-ci.py
+
+      - name: Validate readiness outputs
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path('/tmp/playwright-mcp-enable-readiness')
+          manifest=json.loads((root/'manifest.json').read_text())
+          receipt=json.loads((root/'readiness'/'enablement-readiness.json').read_text())
+          evidence=json.loads((root/'readiness'/'enablement-evidence.json').read_text())
+          plan=json.loads((root/'readiness'/'enablement-promotion-plan.json').read_text())
+          health=json.loads((root/'provider-health.json').read_text())
+          results=[json.loads((root/f'task-result-{i}.json').read_text()) for i in (1,2,3)]
+          probes=[json.loads((root/f'runtime-probe-{i}.json').read_text()) for i in (1,2,3)]
+          assert manifest['status'] == 'READY_FOR_ENABLEMENT'
+          assert manifest['promotion_eligible'] is True
+          assert manifest['registry_mutated'] is False
+          assert receipt['status'] == 'READY_FOR_ENABLEMENT'
+          assert receipt['promotion_eligible'] is True
+          assert receipt['registry_mutated'] is False
+          assert receipt['blockers'] == []
+          assert plan['eligible'] is True
+          assert plan['blockers'] == []
+          assert evidence['evidence']['repeatable-pass']['status'] == 'PASS'
+          assert evidence['evidence']['provider-health-pass']['status'] == 'PASS'
+          assert evidence['evidence']['rollback-defined']['status'] == 'PASS'
+          assert health['providers']['playwright-mcp']['state'] == 'HEALTHY'
+          assert len({r['observed_at'] for r in results}) == 3
+          assert len({(r['project'],r['task_id']) for r in results}) == 1
+          assert all(r['status'] == 'OK' for r in results)
+          assert all(r['producer'] == 'playwright-mcp-adapter' for r in results)
+          assert all(r['verification']['status'] == 'UNVERIFIED' for r in results)
+          assert all(p['runtime_contract_pass'] is True for p in probes)
+          assert all(p['unsafe_tool_invoked'] is False for p in probes)
+          assert all(p['production_target'] is False for p in probes)
+          assert all(p['blockers'] == [] for p in probes)
+          registry=json.loads(Path('dev-hub/config/provider-adapters.v1.json').read_text())
+          assert registry['adapters']['playwright-mcp-adapter']['status'] == 'PILOT'
+          print('PLAYWRIGHT_MCP_ENABLEMENT_READINESS=PASS registry_status=PILOT mutation=false samples=3')
+          PY
+
+      - name: Confirm no repository workspace mutation
+        run: |
+          test -z "$(git status --porcelain)"
+          git diff --exit-code
+          echo 'PLAYWRIGHT_ENABLEMENT_NO_REPOSITORY_WRITE=PASS'
+
+      - name: Upload readiness evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-mcp-enable-readiness-${{ github.run_id }}
+          path: /tmp/playwright-mcp-enable-readiness
+          if-no-files-found: error
+          retention-days: 30
