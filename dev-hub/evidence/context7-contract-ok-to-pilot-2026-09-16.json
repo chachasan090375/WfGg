@@ -1,0 +1,55 @@
+{
+  "schema": "chacha.dev/adapter-promotion-evidence/v1",
+  "adapter": "context7-mcp-adapter",
+  "provider": "context7-mcp",
+  "observed_at": "2026-09-16T08:06:11+00:00",
+  "evidence": {
+    "runtime-contract-pass": {
+      "status": "PASS",
+      "source": "github-actions:35071943334",
+      "observed_at": "2026-09-16T08:06:11+00:00",
+      "details": {
+        "endpoint": "https://mcp.context7.com/mcp",
+        "protocol_version": "2026-07-28",
+        "server_discover": "PASS",
+        "tools_list": "PASS",
+        "tools_call_resolve_library_id": "PASS",
+        "tools_call_query_docs": "PASS",
+        "server_version": "4.1.1",
+        "artifact_id": 10436408004,
+        "artifact_digest": "sha256:1d93d45b58064ddb16d56f68cca5fcdf4f3faba3c9fff4826470ebf78a739917"
+      }
+    },
+    "sandbox-only": {
+      "status": "PASS",
+      "source": "github-actions:35071943334",
+      "observed_at": "2026-09-16T08:06:11+00:00",
+      "details": {
+        "production_mutation": false,
+        "anonymous": true,
+        "credentials_used": false,
+        "allowed_tools": ["resolve-library-id", "query-docs"],
+        "read_only_hint_required": true,
+        "read_only_hint_observed": true,
+        "destructive_hint_observed": false
+      }
+    },
+    "provisioning-pass": {
+      "status": "PASS",
+      "source": "github-actions:35071943334",
+      "observed_at": "2026-09-16T08:06:11+00:00",
+      "details": {
+        "execution": "external",
+        "local_executable": null,
+        "provider_binding": "context7-mcp",
+        "endpoint": "https://mcp.context7.com/mcp",
+        "transport": "streamable-http",
+        "protocol_version": "2026-07-28",
+        "credentials_used": false,
+        "binding_verified_by": "direct-mcp-probe"
+      }
+    }
+  },
+  "approvals": [],
+  "notes": "Evidence is read-only, non-production and does not authorize automatic promotion. The promotion engine must still be invoked explicitly."
+}
