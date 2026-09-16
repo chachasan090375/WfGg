@@ -1,0 +1,92 @@
+name: Dev Hub V5 Playwright MCP Strict PILOT
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - dev-hub-v5-playwright-mcp-pilot-strict
+    paths:
+      - 'dev-hub/config/mcp-playwright-contract.v1.json'
+      - 'dev-hub/config/mcp-provider-catalog.v1.json'
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - 'dev-hub/evidence/playwright-mcp-contract-ok-to-pilot-2026-09-16.json'
+      - 'dev-hub/evidence/playwright-mcp-adapter-contract-2026-09-16.json'
+      - 'dev-hub/evidence/playwright-mcp-pilot-strict-35091189045-*.json'
+      - 'dev-hub/bin/mcp-playwright-pilot-strict-validate.py'
+      - '.github/workflows/dev-hub-v5-playwright-mcp-pilot-strict.yml'
+  pull_request:
+    paths:
+      - 'dev-hub/config/mcp-playwright-contract.v1.json'
+      - 'dev-hub/config/mcp-provider-catalog.v1.json'
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - 'dev-hub/evidence/playwright-mcp-contract-ok-to-pilot-2026-09-16.json'
+      - 'dev-hub/evidence/playwright-mcp-adapter-contract-2026-09-16.json'
+      - 'dev-hub/evidence/playwright-mcp-pilot-strict-35091189045-*.json'
+      - 'dev-hub/bin/mcp-playwright-pilot-strict-validate.py'
+      - '.github/workflows/dev-hub-v5-playwright-mcp-pilot-strict.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate JSON and Python syntax
+        run: |
+          python -m json.tool dev-hub/config/mcp-playwright-contract.v1.json >/dev/null
+          python -m json.tool dev-hub/config/mcp-provider-catalog.v1.json >/dev/null
+          python -m json.tool dev-hub/config/provider-adapters.v1.json >/dev/null
+          python -m json.tool dev-hub/evidence/playwright-mcp-contract-ok-to-pilot-2026-09-16.json >/dev/null
+          python -m json.tool dev-hub/evidence/playwright-mcp-adapter-contract-2026-09-16.json >/dev/null
+          python -m json.tool dev-hub/evidence/playwright-mcp-pilot-strict-35091189045-receipt.json >/dev/null
+          python -m json.tool dev-hub/evidence/playwright-mcp-pilot-strict-35091189045-report.json >/dev/null
+          python -m json.tool dev-hub/evidence/playwright-mcp-pilot-strict-35091189045-provenance.json >/dev/null
+          python -m py_compile dev-hub/bin/mcp-playwright-pilot-strict-validate.py
+
+      - name: Validate generic adapter registry contract
+        run: |
+          python dev-hub/bin/adapter-contract-harness.py \
+            --registry dev-hub/config/provider-adapters.v1.json \
+            --policy dev-hub/config/adapter-contract.v1.json \
+            --report /tmp/playwright-pilot-generic-contract.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path('/tmp/playwright-pilot-generic-contract.json').read_text())
+          assert r['static']['status']=='PASS', r
+          assert r['promotion']['automatic'] is False
+          print('PLAYWRIGHT_MCP_PILOT_GENERIC_REGISTRY_CONTRACT=PASS')
+          PY
+
+      - name: Validate strict PILOT evidence chain
+        run: python dev-hub/bin/mcp-playwright-pilot-strict-validate.py
+
+      - name: Confirm PILOT is not ENABLED
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          c=json.loads(Path('dev-hub/config/mcp-playwright-contract.v1.json').read_text())
+          cat=json.loads(Path('dev-hub/config/mcp-provider-catalog.v1.json').read_text())
+          r=json.loads(Path('dev-hub/config/provider-adapters.v1.json').read_text())
+          p=cat['providers']['playwright-mcp']
+          a=r['adapters']['playwright-mcp-adapter']
+          assert c['runtime_status']=='PILOT'
+          assert p['runtime_status']=='PILOT'
+          assert a['status']=='PILOT'
+          assert a['status']!='ENABLED'
+          assert a['supports']==['read']
+          assert a.get('executable') is None
+          assert c['protocol']['dev_hub_baseline']=='2026-07-28'
+          assert c['protocol']['upstream_observed']=='2025-11-25'
+          assert c['protocol']['generic_legacy_fallback'] is False
+          assert c['pilot_qualification']['production_capable'] is False
+          assert c['pilot_qualification']['automatic_promotion'] is False
+          assert 'browser_run_code_unsafe' in c['tool_policy']['explicit_deny']
+          print('PLAYWRIGHT_MCP_PILOT_NOT_ENABLED=PASS')
+          PY

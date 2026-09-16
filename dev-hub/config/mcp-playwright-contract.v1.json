@@ -3,7 +3,7 @@
   "provider_id": "playwright-mcp",
   "adapter_id": "playwright-mcp-adapter",
   "decision": "ASSESS",
-  "runtime_status": "CONTRACT_OK",
+  "runtime_status": "PILOT",
   "purpose": "Isolated browser verification and diagnostics for preview/test targets without repository or production mutation.",
   "upstream": {
     "package": "@playwright/mcp",
@@ -17,6 +17,7 @@
   "execution": {
     "pilot_surface": "github-actions-ephemeral",
     "vps_install_allowed_at_design_stage": false,
+    "vps_install_allowed_at_pilot_stage": false,
     "vps_reason": "Browser binaries are resource-heavy; current Storage Governor constraints make ephemeral CI the safer qualification surface.",
     "persistent_profile": false,
     "isolated_session_required": true,
@@ -31,7 +32,11 @@
     "dev_hub_output": "chacha.dev/task-result/v1",
     "provider_result_trust": "UNVERIFIED",
     "verification_broker_required": true,
-    "producer_must_not_self_verify": true
+    "producer_must_not_self_verify": true,
+    "dev_hub_baseline": "2026-07-28",
+    "upstream_observed": "2025-11-25",
+    "compatibility_mode": "EXPLICIT_PROVIDER_COMPATIBILITY",
+    "generic_legacy_fallback": false
   },
   "tool_policy": {
     "default": "DENY",
@@ -107,11 +112,33 @@
     "permissions_expanded": false,
     "automatic_promotion": false
   },
+  "pilot_qualification": {
+    "transition": "CONTRACT_OK->PILOT",
+    "modern_probe_workflow_run_id": 35089773583,
+    "modern_probe_result": "BLOCKED_UPSTREAM_SERVER_DISCOVER_UNSUPPORTED",
+    "legacy_compat_workflow_run_id": 35090224070,
+    "legacy_compat_pass": true,
+    "adapter_contract_workflow_run_id": 35090712764,
+    "adapter_contract_pass": true,
+    "promotion_sandbox_workflow_run_id": 35091189045,
+    "promotion_sandbox_artifact_id": 10443899182,
+    "promotion_sandbox_artifact_digest": "sha256:1030b3caf128760d110f5b72495addb975adc97a7543ff075e270589e655da88",
+    "promotion_evidence_digest": "sha256:fbd8a337bb54ffe90309e5ec2ab5215be265960b515e19579aba340b73a14854",
+    "eligible": true,
+    "sandbox_applied": true,
+    "blockers": [],
+    "production_capable": false,
+    "requires_local_executable": false,
+    "permissions_expanded": false,
+    "automatic_promotion": false
+  },
   "admission": {
     "automatic_promotion": false,
     "runtime_call_allowed_at_design_stage": false,
     "browser_download_allowed_at_design_stage": false,
-    "next_transition": "CONTRACT_OK->PILOT",
+    "runtime_call_allowed_at_pilot_stage": true,
+    "browser_download_allowed_at_pilot_stage": true,
+    "next_transition": "PILOT->ENABLED",
     "contract_ok_requires": [
       "static-contract-pass",
       "dedicated-adapter-binding",

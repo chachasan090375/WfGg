@@ -1,0 +1,65 @@
+{
+  "schema": "chacha.dev/playwright-mcp-pilot-provenance/v1",
+  "provider": "playwright-mcp",
+  "adapter": "playwright-mcp-adapter",
+  "materialized_status": "PILOT",
+  "materialized_branch": "dev-hub-v5-playwright-mcp-pilot-strict",
+  "baseline_protocol": "2026-07-28",
+  "upstream_protocol": "2025-11-25",
+  "compatibility_mode": "EXPLICIT_PROVIDER_COMPATIBILITY",
+  "generic_legacy_fallback": false,
+  "chain": [
+    {
+      "stage": "modern-protocol-probe",
+      "workflow_run_id": 35089773583,
+      "artifact_id": 10442974000,
+      "artifact_digest": "sha256:5f1e41998f4ed68b3bb4c4fd76bbcc427c0757e8bf70d2d0a67885bb0e109b4a",
+      "outcome": "BLOCKED_UPSTREAM_SERVER_DISCOVER_UNSUPPORTED"
+    },
+    {
+      "stage": "explicit-legacy-compatibility",
+      "workflow_run_id": 35090224070,
+      "artifact_id": 10443399903,
+      "artifact_digest": "sha256:4268d037f7c0173404a72ad46c7271a8d9700501d9511764b88ab314fc451ed5",
+      "outcome": "PASS"
+    },
+    {
+      "stage": "real-dev-hub-adapter-contract",
+      "workflow_run_id": 35090712764,
+      "artifact_id": 10443543496,
+      "artifact_digest": "sha256:2da5fd8b9e0ff62a93a5bbd2734f5263d7ab23620ffe0befa3bc87166034deeb",
+      "outcome": "PASS"
+    },
+    {
+      "stage": "official-promotion-sandbox",
+      "workflow_run_id": 35091189045,
+      "artifact_id": 10443899182,
+      "artifact_digest": "sha256:1030b3caf128760d110f5b72495addb975adc97a7543ff075e270589e655da88",
+      "promotion_evidence_digest": "sha256:fbd8a337bb54ffe90309e5ec2ab5215be265960b515e19579aba340b73a14854",
+      "outcome": "PASS",
+      "eligible": true,
+      "sandbox_applied": true,
+      "blockers": []
+    }
+  ],
+  "safety": {
+    "supports": ["read"],
+    "local_executable": null,
+    "execution": "external",
+    "provider_result_trust": "UNVERIFIED",
+    "verification_broker_required": true,
+    "production_capable": false,
+    "production_target_allowed": false,
+    "workspace_write": false,
+    "repository_write": false,
+    "unsafe_tool_allowed": false,
+    "automatic_promotion": false,
+    "automatic_enable": false,
+    "vps_modified": false
+  },
+  "notes": [
+    "The failed modern server/discover probe is retained as evidence rather than hidden by compatibility fallback.",
+    "Legacy compatibility is provider-specific and does not alter the DEV HUB MCP 2026-07-28 baseline.",
+    "PILOT is non-production and does not imply ENABLED."
+  ]
+}
