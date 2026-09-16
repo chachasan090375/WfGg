@@ -1,0 +1,165 @@
+name: Dev Hub V5 Claude PILOT Probe — Auditable Request
+
+on:
+  push:
+    branches:
+      - dev-hub-v5-claude-pilot-prep
+    paths:
+      - 'dev-hub/requests/claude-pilot-probe-request.json'
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    if: github.actor == 'chachasan090375'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate explicit human request
+        id: request
+        run: |
+          python - <<'PY'
+          import json, os, re
+          from pathlib import Path
+          value = json.loads(Path('dev-hub/requests/claude-pilot-probe-request.json').read_text())
+          assert value.get('schema') == 'chacha.dev/claude-pilot-probe-request/v1'
+          assert value.get('approved') is True
+          assert value.get('approved_by') == 'chachasan090375'
+          assert value.get('confirmation') == 'RUN_READ_ONLY_CLAUDE_PILOT'
+          agent_id = value.get('agent_id')
+          environment_id = value.get('environment_id')
+          agent_version = value.get('agent_version')
+          assert isinstance(agent_id, str) and re.fullmatch(r'agent_[A-Za-z0-9]+', agent_id)
+          assert isinstance(environment_id, str) and re.fullmatch(r'env_[A-Za-z0-9]+', environment_id)
+          assert isinstance(agent_version, int) and agent_version >= 1
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as fh:
+              fh.write(f'agent_id={agent_id}\n')
+              fh.write(f'environment_id={environment_id}\n')
+              fh.write(f'agent_version={agent_version}\n')
+          print('CLAUDE_PILOT_PROBE_REQUEST=VALID')
+          PY
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Require external secret reference
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          test -n "$ANTHROPIC_API_KEY" || { echo 'ANTHROPIC_API_KEY secret is not configured'; exit 2; }
+
+      - name: Install Anthropic SDK
+        run: python -m pip install --disable-pip-version-check 'anthropic>=1.5,<2'
+
+      - name: Record SDK version
+        run: |
+          python - <<'PY'
+          import anthropic
+          from pathlib import Path
+          Path('/tmp/anthropic-sdk-version.txt').write_text(str(anthropic.__version__) + '\n')
+          print('ANTHROPIC_SDK_VERSION=' + str(anthropic.__version__))
+          PY
+
+      - name: Preflight external bindings
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          CHACHA_ANTHROPIC_AGENT_ID: ${{ steps.request.outputs.agent_id }}
+          CHACHA_ANTHROPIC_AGENT_VERSION: ${{ steps.request.outputs.agent_version }}
+          CHACHA_ANTHROPIC_ENVIRONMENT_ID: ${{ steps.request.outputs.environment_id }}
+          CLAUDE_PILOT_PREFLIGHT_OUTPUT: /tmp/claude-pilot-preflight.json
+        run: |
+          python dev-hub/bin/claude-managed-agents-pilot-preflight.py >/dev/null
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          value = json.loads(Path('/tmp/claude-pilot-preflight.json').read_text())
+          assert value['status'] == 'READY_FOR_RUNTIME_PROBE', value
+          assert value['static_blockers'] == []
+          assert value['credential_value_observed'] is False
+          assert value['registry_mutated'] is False
+          assert value['promotion_eligible'] is False
+          print('CLAUDE_PILOT_PREFLIGHT=READY_FOR_RUNTIME_PROBE')
+          PY
+
+      - name: Execute read-only Managed Agents runtime probe
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          CHACHA_ANTHROPIC_AGENT_ID: ${{ steps.request.outputs.agent_id }}
+          CHACHA_ANTHROPIC_AGENT_VERSION: ${{ steps.request.outputs.agent_version }}
+          CHACHA_ANTHROPIC_ENVIRONMENT_ID: ${{ steps.request.outputs.environment_id }}
+          CLAUDE_PILOT_RESULT_OUTPUT: /tmp/claude-pilot-task-result.json
+          CLAUDE_PILOT_CLEANUP_OUTPUT: /tmp/claude-pilot-cleanup.json
+        run: python dev-hub/bin/claude-managed-agents-pilot-probe.py
+
+      - name: Validate Task Result and read-only evidence
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          result = json.loads(Path('/tmp/claude-pilot-task-result.json').read_text())
+          assert result['schema'] == 'chacha.dev/task-result/v1'
+          assert result['project'] == 'chacha-dev-hub'
+          assert result['task_id'] == 'claude-managed-agents-readonly-pilot'
+          assert result['producer'] == 'claude-agent-adapter'
+          assert result['status'] == 'OK'
+          assert result['verification']['status'] == 'UNVERIFIED'
+          assert result['verification']['verifier'] == 'verification-broker'
+          details = result['evidence'][0]['details']
+          assert details['runtime_surface'] == 'claude-managed-agents'
+          assert details['marker_returned'] is True
+          assert details['blockers'] == []
+          assert details['observed_tools']
+          assert set(details['observed_tools']).issubset({'read', 'glob', 'grep'})
+          print('CLAUDE_PILOT_TASK_RESULT=PASS status=OK verification=UNVERIFIED tools=read-only')
+          PY
+
+      - name: Validate cleanup completed
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          cleanup = json.loads(Path('/tmp/claude-pilot-cleanup.json').read_text())
+          assert cleanup.get('session_archived') is True, cleanup
+          assert cleanup.get('uploaded_file_deleted') is True, cleanup
+          assert cleanup.get('session_archive_failed') is not True, cleanup
+          assert cleanup.get('uploaded_file_delete_failed') is not True, cleanup
+          print('CLAUDE_PILOT_CLEANUP=PASS')
+          PY
+
+      - name: Confirm registry remains CONTRACT_OK
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          reg = json.loads(Path('dev-hub/config/provider-adapters.v1.json').read_text())
+          cap = json.loads(Path('dev-hub/config/capability-registry.v1.json').read_text())
+          assert reg['adapters']['claude-agent-adapter']['status'] == 'CONTRACT_OK'
+          assert reg['adapters']['claude-agent-adapter']['supports'] == ['read', 'plan']
+          assert 'anthropic-claude' not in {p['id'] for p in cap['capabilities']['code-edit']['providers']}
+          print('CLAUDE_SOURCE_REGISTRY_UNCHANGED status=CONTRACT_OK code_edit=false')
+          PY
+
+      - name: Stage evidence
+        if: always()
+        run: |
+          mkdir -p /tmp/claude-pilot-artifact
+          cp dev-hub/requests/claude-pilot-probe-request.json /tmp/claude-pilot-artifact/request.json
+          test ! -f /tmp/claude-pilot-preflight.json || cp /tmp/claude-pilot-preflight.json /tmp/claude-pilot-artifact/preflight.json
+          test ! -f /tmp/claude-pilot-task-result.json || cp /tmp/claude-pilot-task-result.json /tmp/claude-pilot-artifact/task-result.json
+          test ! -f /tmp/claude-pilot-cleanup.json || cp /tmp/claude-pilot-cleanup.json /tmp/claude-pilot-artifact/cleanup.json
+          test ! -f /tmp/anthropic-sdk-version.txt || cp /tmp/anthropic-sdk-version.txt /tmp/claude-pilot-artifact/sdk-version.txt
+
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: claude-pilot-probe-request-${{ github.run_id }}
+          path: /tmp/claude-pilot-artifact
+          if-no-files-found: error
+          retention-days: 30
