@@ -72,7 +72,7 @@
       "category": "observability",
       "priority": 1,
       "decision": "ASSESS",
-      "runtime_status": "CONTRACT_OK",
+      "runtime_status": "PILOT",
       "integration_mode": "local-mcp",
       "target_capabilities": ["browser-diagnostics", "console-inspection", "network-inspection", "performance-inspection"],
       "risk_class": "MEDIUM",
@@ -81,7 +81,7 @@
       "provider_binding": "chrome-devtools-mcp",
       "health_probe": "chrome-devtools-provider-protocol-tools-list-and-isolated-browser-launch",
       "fallback": ["playwright-mcp", "playwright"],
-      "notes": "Static contract qualified. Runtime remains closed. PILOT requires a pinned chrome-devtools-mcp version on an ephemeral GitHub Actions runner, isolated headless Chrome, no existing-browser attach, JavaScript evaluation disabled, network header redaction, and preview/test targets only."
+      "notes": "PILOT qualified through the explicit provider-specific compatibility adapter on ephemeral GitHub Actions with chrome-devtools-mcp 1.9.0 and isolated headless Chrome. DEV HUB baseline remains MCP 2026-07-28 while upstream compatibility is 2025-11-25. PILOT is read-only, test/preview scoped, production incapable, JavaScript evaluation and browser interaction remain denied, navigation is adapter-controlled with exact-origin enforcement and redirect revalidation, and Verification Broker remains required."
     },
     "filesystem-mcp": {
       "display_name": "Filesystem MCP",
@@ -93,11 +93,7 @@
       "target_capabilities": ["workspace-files", "adapter-files", "evidence-files"],
       "risk_class": "CRITICAL",
       "write_scope": ["approved-workspace-only"],
-      "allowed_roots": [
-        "/opt/chacha-dev/workspaces",
-        "/opt/chacha-dev/adapters",
-        "/opt/chacha-dev/evidence"
-      ],
+      "allowed_roots": ["/opt/chacha-dev/workspaces", "/opt/chacha-dev/adapters", "/opt/chacha-dev/evidence"],
       "forbidden_roots": ["/", "/etc", "/root", "/home", "/var/lib", "/opt/chacha-dev/secrets"],
       "secret_policy": "NONE",
       "provider_binding": null,
