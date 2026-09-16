@@ -4,9 +4,33 @@
   "title": "ChaCha DEV HUB MCP Provider Catalog v1",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schema", "policy", "providers"],
+  "required": ["schema", "protocol", "policy", "providers"],
   "properties": {
     "schema": {"const": "chacha.dev/mcp-provider-catalog/v1"},
+    "protocol": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "preferred_version",
+        "discovery_method",
+        "tools_list_method",
+        "tools_call_method",
+        "remote_transport",
+        "local_transport",
+        "legacy_sse_for_new_deployments",
+        "compatibility_policy"
+      ],
+      "properties": {
+        "preferred_version": {"const": "2026-07-28"},
+        "discovery_method": {"const": "server/discover"},
+        "tools_list_method": {"const": "tools/list"},
+        "tools_call_method": {"const": "tools/call"},
+        "remote_transport": {"const": "streamable-http"},
+        "local_transport": {"const": "stdio"},
+        "legacy_sse_for_new_deployments": {"const": false},
+        "compatibility_policy": {"const": "explicit-provider-adapter-only"}
+      }
+    },
     "policy": {
       "type": "object",
       "additionalProperties": false,
