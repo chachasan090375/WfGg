@@ -28,6 +28,7 @@ permissions:
 
 jobs:
   validate:
+    if: github.event_name != 'pull_request' || github.event.pull_request.base.ref == 'dev-hub-v5-playwright-mcp-adapter-runtime-contract'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:

@@ -1,0 +1,62 @@
+{
+  "schema": "chacha.dev/playwright-mcp-enabled-materialization/v1",
+  "provider": "playwright-mcp",
+  "adapter": "playwright-mcp-adapter",
+  "transition": "PILOT->ENABLED",
+  "materialized_branch": "dev-hub-v5-playwright-mcp-enabled",
+  "source_chain": {
+    "pilot_pr": 100,
+    "readiness_pr": 101,
+    "sandbox_pr": 102
+  },
+  "qualification": {
+    "readiness_run_id": 35093635617,
+    "readiness_artifact_id": 10445391711,
+    "readiness_artifact_digest": "sha256:ee046b2d953a5f6765f4fd71f7cb5a9a47c81daf4eb0ef6118b0a64405879047",
+    "sandbox_run_id": 35093990825,
+    "sandbox_artifact_id": 10445322680,
+    "sandbox_artifact_digest": "sha256:5b31b7835fe02c9df47cd65b131920e767539c60517425e3e32cac51ed4f33a7",
+    "promotion_receipt": "dev-hub/evidence/playwright-mcp-enabled-promotion-35093990825-receipt.json",
+    "promotion_report": "dev-hub/evidence/playwright-mcp-enabled-promotion-35093990825-report.json",
+    "promotion_provenance": "dev-hub/evidence/playwright-mcp-enabled-promotion-35093990825-provenance.json",
+    "eligible": true,
+    "blockers": []
+  },
+  "materialized_state": {
+    "adapter_status": "ENABLED",
+    "catalog_runtime_status": "ENABLED",
+    "contract_runtime_status": "ENABLED",
+    "execution": "external",
+    "supports": ["read"],
+    "local_executable": null,
+    "production_capable": false,
+    "production_target_allowed": false,
+    "workspace_write": false,
+    "repository_write": false,
+    "interactive_browser_write_tools": "DENY",
+    "provider_result_verification": "UNVERIFIED",
+    "verification_broker_required": true,
+    "automatic_promotion": false,
+    "rollback_target": "DISABLED"
+  },
+  "compatibility": {
+    "dev_hub_protocol_baseline": "2026-07-28",
+    "upstream_protocol": "2025-11-25",
+    "mode": "EXPLICIT_PROVIDER_COMPATIBILITY",
+    "provider_specific_only": true,
+    "generic_legacy_fallback": false,
+    "modern_direct_route_blocker": "MCP_2026_07_28_SERVER_DISCOVER_UNSUPPORTED"
+  },
+  "effects": {
+    "production_wfgg_modified": false,
+    "vps_modified": false,
+    "local_executable_created": false,
+    "permissions_expanded": false,
+    "pull_requests_merged": false
+  },
+  "notes": [
+    "This file records the explicit governance decision to materialize the already-qualified PILOT->ENABLED transition on a dedicated unmerged branch.",
+    "ENABLED authorizes only the qualified read-only compatibility adapter surface; it does not authorize production mutation, interactive browser writes, self-verification, or generic MCP legacy fallback.",
+    "Rollback remains explicit and machine-readable through ENABLED->DISABLED."
+  ]
+}
