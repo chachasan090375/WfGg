@@ -1,0 +1,73 @@
+{
+  "schema": "chacha.dev/claude-managed-agents-pilot/v1",
+  "provider": "anthropic-claude",
+  "adapter": "claude-agent-adapter",
+  "source_status": "CONTRACT_OK",
+  "target_status": "PILOT",
+  "runtime_surface": "claude-managed-agents",
+  "api_beta": "managed-agents-2026-04-01",
+  "toolset": {
+    "type": "agent_toolset_20260401",
+    "default_config": {
+      "enabled": false
+    },
+    "enabled_tools": ["read", "glob", "grep"],
+    "disabled_tools": ["bash", "write", "edit", "web_fetch", "web_search"],
+    "permission_policy": "always_allow_read_only_only"
+  },
+  "environment": {
+    "type": "cloud",
+    "networking": {
+      "type": "limited",
+      "allowed_hosts": [],
+      "allow_mcp_servers": false,
+      "allow_package_managers": false
+    },
+    "packages": {}
+  },
+  "fixture": {
+    "source": "dev-hub/fixtures/claude-pilot-readonly-fixture.txt",
+    "mount_path": "/claude-pilot-readonly-fixture.txt",
+    "mounted_copy_expected_read_only": true
+  },
+  "authentication": {
+    "initial_mode": "API_KEY_REFERENCE",
+    "api_key_env": "ANTHROPIC_API_KEY",
+    "future_ci_preferred_mode": "WORKLOAD_IDENTITY_FEDERATION",
+    "secret_policy": "REFERENCE_ONLY",
+    "secret_value_must_not_be_logged": true,
+    "secret_value_must_not_be_hashed_into_evidence": true
+  },
+  "external_bindings": {
+    "agent_id_env": "CHACHA_ANTHROPIC_AGENT_ID",
+    "environment_id_env": "CHACHA_ANTHROPIC_ENVIRONMENT_ID",
+    "agent_version_env": "CHACHA_ANTHROPIC_AGENT_VERSION",
+    "provisioning_must_precede_runtime_probe": true
+  },
+  "runtime_probe": {
+    "sandbox_only": true,
+    "create_session_allowed": true,
+    "upload_fixture_allowed": true,
+    "repository_write": false,
+    "workspace_write": false,
+    "production_mutation": false,
+    "mcp_allowed": false,
+    "web_allowed": false,
+    "shell_allowed": false,
+    "expected_result_schema": "chacha.dev/task-result/v1",
+    "expected_task_status": "OK",
+    "expected_verification_status": "UNVERIFIED",
+    "record_runtime_surface": true,
+    "record_agent_id": true,
+    "record_agent_version": true,
+    "record_environment_id": true,
+    "record_model_id": true,
+    "record_observed_tool_names": true
+  },
+  "promotion": {
+    "automatic": false,
+    "required_evidence": ["runtime-contract-pass", "sandbox-only", "provisioning-pass"],
+    "blocked_until_external_bindings_present": true,
+    "registry_mutation_in_preparation_phase": false
+  }
+}
