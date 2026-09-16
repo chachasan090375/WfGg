@@ -1,0 +1,90 @@
+{
+  "schema": "chacha.dev/technology-radar-mcp-watch/v1",
+  "owner_role": "technology-radar-agent",
+  "inventory": {
+    "catalog_path": "dev-hub/config/mcp-provider-catalog.v1.json",
+    "mode": "DYNAMIC_ALL_PROVIDERS",
+    "exclude_provider_ids": [],
+    "include_catalog_decisions": ["ADOPT", "ASSESS", "WATCH", "DEFER", "REJECT"],
+    "include_runtime_statuses": ["CATALOG_ONLY", "DESIGNED", "CONTRACT_OK", "PILOT", "ENABLED", "DISABLED"]
+  },
+  "protocol_watch": {
+    "enabled": true,
+    "protocol": "MCP",
+    "current_baseline": "2026-07-28",
+    "canonical_source": "https://modelcontextprotocol.io",
+    "official_blog_source": "https://blog.modelcontextprotocol.io",
+    "track_spec_revisions": true,
+    "track_sdk_migration_guides": true,
+    "track_extensions": true,
+    "track_deprecations": true,
+    "track_security_changes": true
+  },
+  "provider_watch": {
+    "enabled": true,
+    "official_sources_first": true,
+    "dimensions": [
+      "release",
+      "capability",
+      "tool-surface",
+      "api-change",
+      "breaking-change",
+      "deprecation",
+      "authentication",
+      "authorization",
+      "security-advisory",
+      "sdk",
+      "transport",
+      "quota-limit",
+      "pricing-model",
+      "service-status",
+      "compatibility"
+    ],
+    "discover_uncatalogued_candidates": true,
+    "candidate_discovery_is_recommendation_only": true
+  },
+  "impact_analysis": {
+    "compare_against": [
+      "mcp-provider-catalog",
+      "mcp-readonly-contract",
+      "provider-adapters",
+      "provider-health-probes",
+      "capability-registry",
+      "agent-routing"
+    ],
+    "classify": ["NO_IMPACT", "DOC_ONLY", "RETEST", "RECONTRACT", "SECURITY_REVIEW", "MIGRATION_REQUIRED", "DEPRECATE_PROVIDER"]
+  },
+  "governance": {
+    "evidence_required": true,
+    "source_urls_required": true,
+    "recommendations_only": true,
+    "catalog_mutation_allowed": false,
+    "provider_status_mutation_allowed": false,
+    "adapter_promotion_allowed": false,
+    "production_change_allowed": false,
+    "human_approval_for_catalog_decision_change": true,
+    "security_review_on_security_change": true,
+    "platform_review_on_protocol_or_transport_change": true
+  },
+  "alerts": {
+    "immediate_review_triggers": [
+      "protocol-breaking-change",
+      "security-advisory-critical",
+      "authentication-breaking-change",
+      "provider-deprecation",
+      "transport-deprecation"
+    ],
+    "standard_review_triggers": [
+      "new-release",
+      "new-capability",
+      "new-tool",
+      "sdk-major-release",
+      "quota-change",
+      "pricing-change"
+    ]
+  },
+  "scheduling": {
+    "mode": "INHERIT_TECHNOLOGY_RADAR_SCHEDULE",
+    "no_independent_schedule_created": true
+  }
+}
