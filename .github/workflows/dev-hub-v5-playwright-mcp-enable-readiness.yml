@@ -51,6 +51,7 @@ jobs:
           python -m json.tool dev-hub/config/adapter-rollbacks.v1.json >/dev/null
           python -m py_compile dev-hub/bin/playwright-mcp-enable-readiness-ci.py
           node --check dev-hub/bin/playwright-mcp-pilot-probe.mjs
+          find dev-hub/bin -type d -name '__pycache__' -prune -exec rm -rf {} +
           python - <<'PY'
           import json
           from pathlib import Path
