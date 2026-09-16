@@ -1,0 +1,139 @@
+name: Dev Hub V5 External Runtime Bindings
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - dev-hub-v5-external-runtime-bindings
+    paths:
+      - 'dev-hub/bin/run-controller-external-dispatch.py'
+      - 'dev-hub/bin/external-runtime-binding-qualification.py'
+      - 'dev-hub/config/external-runtime-bindings.v1.json'
+      - 'dev-hub/adapters/chrome-devtools-mcp-adapter.py'
+      - 'dev-hub/bin/run-controller.py'
+      - 'dev-hub/bin/project-control.py'
+      - '.github/workflows/dev-hub-v5-external-runtime-bindings.yml'
+  pull_request:
+    paths:
+      - 'dev-hub/bin/run-controller-external-dispatch.py'
+      - 'dev-hub/bin/external-runtime-binding-qualification.py'
+      - 'dev-hub/config/external-runtime-bindings.v1.json'
+      - 'dev-hub/adapters/chrome-devtools-mcp-adapter.py'
+      - 'dev-hub/bin/run-controller.py'
+      - 'dev-hub/bin/project-control.py'
+      - '.github/workflows/dev-hub-v5-external-runtime-bindings.yml'
+
+permissions:
+  contents: read
+
+env:
+  PYTHONDONTWRITEBYTECODE: '1'
+  CI: 'true'
+  CHROME_DEVTOOLS_MCP_NO_USAGE_STATISTICS: '1'
+  CHROME_DEVTOOLS_MCP_NO_UPDATE_CHECKS: '1'
+
+jobs:
+  qualify-external-runtime:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node LTS
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+
+      - name: Validate static contracts without workspace writes
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          for p in [
+              'dev-hub/bin/run-controller-external-dispatch.py',
+              'dev-hub/bin/external-runtime-binding-qualification.py',
+              'dev-hub/adapters/chrome-devtools-mcp-adapter.py',
+          ]:
+              compile(Path(p).read_text(), p, 'exec')
+          print('EXTERNAL_RUNTIME_BINDING_SYNTAX=PASS')
+          PY
+          python -m json.tool dev-hub/config/external-runtime-bindings.v1.json >/dev/null
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path('dev-hub/config/provider-adapters.v1.json').read_text())
+          a=r['adapters']['chrome-devtools-mcp-adapter']
+          assert a=={'status':'ENABLED','executable':None,'supports':['read']}
+          assert r['providers']['chrome-devtools-mcp']['execution']=='external'
+          print('EXTERNAL_RUNTIME_CANONICAL_BOUNDARY=PASS')
+          PY
+
+      - name: Provision pinned Chrome DevTools MCP outside repository
+        run: |
+          set -euo pipefail
+          ROOT=/tmp/chacha-external-chrome-runtime
+          rm -rf "$ROOT"
+          mkdir -p "$ROOT"
+          cd "$ROOT"
+          npm init -y >/dev/null 2>&1
+          npm install --no-save chrome-devtools-mcp@1.9.0 >/dev/null
+          test "$(node -p "require('./node_modules/chrome-devtools-mcp/package.json').version")" = '1.9.0'
+          test -x node_modules/.bin/chrome-devtools-mcp
+          echo "CHACHA_CHROME_DEVTOOLS_MCP_SERVER=$ROOT/node_modules/.bin/chrome-devtools-mcp" >> "$GITHUB_ENV"
+          echo "CHACHA_CHROME_DEVTOOLS_MCP_WORKDIR=$ROOT" >> "$GITHUB_ENV"
+          echo 'CHACHA_CHROME_DEVTOOLS_MCP_PACKAGE_VERSION=1.9.0' >> "$GITHUB_ENV"
+          BROWSER_VERSION="$(google-chrome --version 2>/dev/null || chromium --version 2>/dev/null || true)"
+          test -n "$BROWSER_VERSION"
+          echo "CHACHA_CHROME_DEVTOOLS_BROWSER_VERSION=$BROWSER_VERSION" >> "$GITHUB_ENV"
+          echo "EXTERNAL_RUNTIME_BROWSER=$BROWSER_VERSION"
+
+      - name: Qualify actual external provider dispatch
+        run: |
+          rm -rf /tmp/chacha-external-runtime-binding
+          python dev-hub/bin/external-runtime-binding-qualification.py \
+            --repo-root "$GITHUB_WORKSPACE" \
+            --work-dir /tmp/chacha-external-runtime-binding \
+            --output /tmp/chacha-external-runtime-binding/qualification.json
+
+      - name: Validate qualification and honest verification boundary
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          x=json.loads(Path('/tmp/chacha-external-runtime-binding/qualification.json').read_text())
+          assert x['schema']=='chacha.dev/external-runtime-dispatch-qualification/v1'
+          assert x['status']=='EXTERNAL_RUNTIME_DISPATCH_QUALIFIED'
+          assert x['provider']=='chrome-devtools-mcp'
+          assert x['adapter']=='chrome-devtools-mcp-adapter'
+          assert x['runtime_binding']['scope']=='ephemeral-runner'
+          assert x['runtime_binding']['digest_match'] is True
+          assert x['runtime_binding']['canonical_executable'] is None
+          assert x['execution']['status']=='OK'
+          assert x['execution']['producer_verification']=='UNVERIFIED'
+          assert x['execution']['controlled_navigation'] is True
+          assert x['execution']['final_origin_revalidated'] is True
+          assert x['execution']['production'] is False
+          assert x['verification_boundary']['status']=='NEEDS_INDEPENDENT_CHECK'
+          assert x['verification_boundary']['expected'] is True
+          assert x['negative_paths']['bad_runtime_binding_digest']=='BLOCKED'
+          assert x['authoritative_registry_mutated'] is False
+          assert x['vps_modified'] is False
+          assert x['production_modified'] is False
+          assert x['next_gap']=='EXTERNAL_PROVIDER_EVIDENCE_HANDOFF'
+          assert x['blockers']==['EXTERNAL_PROVIDER_EVIDENCE_HANDOFF']
+          print('EXTERNAL_RUNTIME_DISPATCH_CONTRACT=PASS')
+          PY
+
+      - name: Confirm repository remained unchanged
+        run: |
+          test -z "$(git status --porcelain)"
+          echo 'EXTERNAL_RUNTIME_BINDING_REPOSITORY_UNCHANGED=PASS'
+
+      - name: Upload external runtime qualification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dev-hub-v5-external-runtime-bindings-${{ github.run_id }}
+          path: /tmp/chacha-external-runtime-binding
+          if-no-files-found: error
+          retention-days: 30
