@@ -14,21 +14,26 @@ No Anthropic credential is required or accepted during this design stage and no 
 
 The DEV HUB already routes by capability rather than by vendor and supports best-fit selection with fallback. Claude adds provider/model diversity for code review, documentation, architecture analysis, debugging and later — after a separate write contract — code editing. This allows cross-provider review rather than having one engine produce and validate its own work.
 
-## Primary integration surface
+## Provider abstraction and runtime surfaces
 
-The preferred integration is the Claude Agent SDK behind `claude-agent-adapter` because it provides a programmatic agent loop while letting the DEV HUB preserve its own dispatch envelope, result schema, evidence, tool policy and Verification Broker.
+The DEV HUB binds to an `anthropic-provider-abstraction`, not directly to one Anthropic SDK generation.
 
-Claude Code as an MCP server (`claude mcp serve`) is retained only as a secondary optional transport. Claude Code GitHub Actions is also not the primary path because direct repository automation could bypass DEV HUB scheduling and evidence boundaries unless wrapped by a later dedicated contract.
+Preferred runtime candidate: `claude-managed-agents` after separate runtime qualification.  
+Compatibility runtime: `claude-agent-sdk`.
+
+This reflects Anthropic's current migration path while keeping the DEV HUB contract stable if Anthropic changes its agent runtime again.
+
+Claude Code as an MCP server remains a secondary optional transport. Claude Code GitHub Actions is also not the primary path because direct repository automation could bypass DEV HUB scheduling and evidence boundaries unless wrapped by a later dedicated contract.
 
 Official references:
-- https://platform.claude.com/docs/fr/cli-sdks-libraries/overview
-- https://code.claude.com/docs/en/mcp
-- https://code.claude.com/docs/en/github-actions
-- https://docs.anthropic.com/en/docs/about-claude/model-deprecations
+- https://platform.claude.com/docs/en/managed-agents/migration
+- https://platform.claude.com/docs/en/managed-agents/permission-policies
+- https://platform.claude.com/docs/en/manage-claude/authentication
+- https://platform.claude.com/docs/en/agents-and-tools/tool-use/tool-runner
 
 ## Design-stage permissions
 
-Allowed Agent SDK tool names:
+Allowed read-only tool names in the contract:
 - `Read`
 - `Glob`
 - `Grep`
@@ -47,11 +52,16 @@ The initial capability registry exposes Claude only as an `ASSESS` candidate for
 
 ## Authentication
 
-A future runtime binding may reference `ANTHROPIC_API_KEY`, but the secret value must remain outside Git and outside evidence. Headers and credential values must be redacted. Runtime credentials are not needed for the `DESIGNED` stage.
+The provider abstraction supports two future authentication modes:
+
+- API key reference for initial sandbox qualification;
+- Workload Identity Federation as the preferred future CI/CD direction when the execution environment supports it.
+
+A future API-key runtime binding may reference `ANTHROPIC_API_KEY`, but the secret value must remain outside Git and outside evidence. Headers and credential values must be redacted. Runtime credentials are not needed for the `DESIGNED` stage.
 
 ## Model policy
 
-No fixed Claude model ID is stored in the architectural contract. Runtime selection must use an approved active model. Technology Radar must track Anthropic model availability, SDK/tool-surface changes and deprecations, and breaking changes may require requalification.
+No fixed Claude model ID is stored in the architectural contract. Runtime selection must use an approved active model. Technology Radar must track Anthropic model availability, runtime/SDK tool-surface changes and deprecations; breaking changes may require requalification.
 
 ## Verification separation
 
