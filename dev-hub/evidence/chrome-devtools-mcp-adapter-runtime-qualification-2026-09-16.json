@@ -1,0 +1,44 @@
+{
+  "schema": "chacha.dev/chrome-devtools-mcp-adapter-runtime-qualification/v1",
+  "provider": "chrome-devtools-mcp",
+  "adapter": "chrome-devtools-mcp-adapter",
+  "workflow_run_id": 35117348691,
+  "head_sha": "80c1ad4f7f2987d2b0aa92c1d2611d2d1ad8b63e",
+  "artifact_id": 10455774189,
+  "artifact_digest": "sha256:ae17b67bdd2a68f1b7b00c4807519f1a89aa548b5dec5e86c01b3f402204047f",
+  "evidence_digest": "sha256:9adf66a5fbcdbf620fb01e1337becbdcde4298ec47d21eb7cb057727da984c57",
+  "package": "chrome-devtools-mcp",
+  "package_version": "1.9.0",
+  "browser_version": "Google Chrome 152.0.7977.82",
+  "upstream_protocol": "2025-11-25",
+  "dev_hub_baseline": "2026-07-28",
+  "compatibility_mode": "EXPLICIT_PROVIDER_COMPATIBILITY",
+  "generic_legacy_fallback": false,
+  "runtime_result": {
+    "schema": "chacha.dev/task-result/v1",
+    "status": "OK",
+    "producer": "chrome-devtools-mcp-adapter",
+    "verification": "UNVERIFIED",
+    "called_tools": [
+      "list_pages",
+      "take_snapshot",
+      "list_console_messages",
+      "list_network_requests"
+    ]
+  },
+  "boundaries": {
+    "caller_tool_selection": false,
+    "navigation": false,
+    "browser_interaction": false,
+    "credentials_used": false,
+    "production_target": false,
+    "vps_modified": false,
+    "workspace_write": false,
+    "repository_write": false,
+    "provider_result_verification": "UNVERIFIED",
+    "verification_broker_required": true
+  },
+  "eligible_for_pilot_qualification": true,
+  "automatic_promotion": false,
+  "blockers": []
+}
