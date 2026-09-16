@@ -1,0 +1,39 @@
+{
+  "schema": "chacha.dev/dispatch-envelope/v1",
+  "project": "playwright-mcp-pilot-contract",
+  "transition": "VERIFY->PREVIEW",
+  "run_id": "pilot-runtime-contract",
+  "wave": 1,
+  "task": {
+    "id": "playwright-readonly-browser-check",
+    "kind": "browser-verification",
+    "description": "Read-only browser verification against an ephemeral local fixture.",
+    "owner_role": "test-agent",
+    "permission": "read",
+    "outputs": [],
+    "verification": {
+      "required": true,
+      "broker": "verification-broker"
+    }
+  },
+  "bindings": [
+    {
+      "capability": "browser-automation",
+      "provider": "playwright-mcp",
+      "adapter": "playwright-mcp-adapter",
+      "fallback_used": false,
+      "health_state": "HEALTHY"
+    }
+  ],
+  "policy_context": {
+    "resource_class": "medium",
+    "requires_storage_preflight": false,
+    "human_approval_required": false,
+    "approval_id": null,
+    "timeout_seconds": 30
+  },
+  "workspace": null,
+  "metadata": {
+    "target_url": "http://127.0.0.1:8765/"
+  }
+}
