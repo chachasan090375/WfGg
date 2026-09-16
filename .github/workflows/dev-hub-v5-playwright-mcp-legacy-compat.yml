@@ -1,0 +1,140 @@
+name: Dev Hub V5 Playwright MCP Legacy Compatibility
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - dev-hub-v5-playwright-mcp-legacy-compat
+    paths:
+      - 'dev-hub/config/mcp-playwright-legacy-compat.v1.json'
+      - 'dev-hub/bin/playwright-mcp-legacy-compat-probe.py'
+      - '.github/workflows/dev-hub-v5-playwright-mcp-legacy-compat.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Validate compatibility contract
+        run: |
+          python -m json.tool dev-hub/config/mcp-playwright-legacy-compat.v1.json >/dev/null
+          python -m py_compile dev-hub/bin/playwright-mcp-legacy-compat-probe.py
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          c=json.loads(Path('dev-hub/config/mcp-playwright-legacy-compat.v1.json').read_text())
+          assert c['mode']=='EXPLICIT_PROVIDER_COMPATIBILITY'
+          assert c['dev_hub_protocol_baseline']=='2026-07-28'
+          assert c['upstream_protocol']=='2025-11-25'
+          assert c['scope']['provider_specific_only'] is True
+          assert c['scope']['generic_legacy_fallback'] is False
+          assert c['tool_policy']['default']=='DENY'
+          assert c['tool_policy']['workspace_write'] is False
+          assert c['tool_policy']['repository_write'] is False
+          assert c['promotion']['automatic'] is False
+          assert c['promotion']['provider_status_must_remain']=='CONTRACT_OK'
+          print('PLAYWRIGHT_LEGACY_COMPAT_CONTRACT=PASS')
+          PY
+
+      - name: Record clean checkout state
+        shell: bash
+        run: |
+          set -euo pipefail
+          find dev-hub -type d -name __pycache__ -prune -exec rm -rf {} +
+          git status --porcelain > /tmp/git-before.txt
+          test ! -s /tmp/git-before.txt
+
+      - name: Provision pinned Playwright MCP outside repository
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/playwright-mcp-runtime
+          cd /tmp/playwright-mcp-runtime
+          npm init -y >/dev/null
+          npm install --no-save @playwright/mcp@0.0.81
+          INSTALLED="$(node -p "require('./node_modules/@playwright/mcp/package.json').version")"
+          test "$INSTALLED" = "0.0.81"
+          echo "$INSTALLED" > /tmp/playwright-mcp-package-version.txt
+          npx playwright install --with-deps chromium
+
+      - name: Record browser version
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd /tmp/playwright-mcp-runtime
+          node - <<'NODE' >/tmp/playwright-browser-version.txt
+          const { chromium } = require('playwright');
+          (async () => {
+            const browser = await chromium.launch({ headless: true });
+            console.log(browser.version());
+            await browser.close();
+          })().catch(e => { console.error(e); process.exit(1); });
+          NODE
+
+      - name: Run explicit legacy compatibility probe
+        shell: bash
+        run: |
+          set -euo pipefail
+          python dev-hub/bin/playwright-mcp-legacy-compat-probe.py \
+            --server /tmp/playwright-mcp-runtime/node_modules/.bin/playwright-mcp \
+            --workdir /tmp/playwright-mcp-runtime \
+            --package-version "$(cat /tmp/playwright-mcp-package-version.txt)" \
+            --browser-version "$(cat /tmp/playwright-browser-version.txt)" \
+            --output /tmp/playwright-mcp-legacy-compat-probe.json
+
+      - name: Validate compatibility evidence envelope
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          e=json.loads(Path('/tmp/playwright-mcp-legacy-compat-probe.json').read_text())
+          assert e['schema']=='chacha.dev/playwright-mcp-legacy-compat-probe/v1'
+          assert e['compatibility_mode']=='EXPLICIT_PROVIDER_COMPATIBILITY'
+          assert e['dev_hub_protocol_baseline']=='2026-07-28'
+          assert e['upstream_protocol_requested']=='2025-11-25'
+          assert e['package_version']=='0.0.81'
+          assert e['credentials_used'] is False
+          assert e['production_target'] is False
+          assert e['vps_modified'] is False
+          assert e['promotion']['automatic'] is False
+          assert not (set(e['called_tools']) & set(e['deny_policy']))
+          print('PLAYWRIGHT_LEGACY_COMPAT_ENVELOPE=PASS')
+          print('ELIGIBLE_FOR_COMPAT_PILOT=' + ('YES' if e['promotion']['eligible_for_compat_pilot'] else 'NO'))
+          for blocker in e['promotion']['blockers']:
+            print('BLOCKER=' + blocker)
+          PY
+
+      - name: Confirm repository remained unchanged
+        shell: bash
+        run: |
+          set -euo pipefail
+          find dev-hub -type d -name __pycache__ -prune -exec rm -rf {} +
+          git status --porcelain > /tmp/git-after.txt
+          diff -u /tmp/git-before.txt /tmp/git-after.txt
+          test ! -s /tmp/git-after.txt
+          echo 'PLAYWRIGHT_LEGACY_COMPAT_NO_REPOSITORY_WRITE=PASS'
+
+      - name: Upload compatibility evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-mcp-legacy-compat-${{ github.run_id }}
+          path: |
+            /tmp/playwright-mcp-legacy-compat-probe.json
+            /tmp/playwright-mcp-package-version.txt
+            /tmp/playwright-browser-version.txt
+          retention-days: 30
+          if-no-files-found: error
