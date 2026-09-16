@@ -1,0 +1,21 @@
+{
+  "schema": "chacha.dev/context7-enabled-promotion-provenance/v1",
+  "workflow_run_id": 35076725665,
+  "artifact_id": 10437409843,
+  "artifact_digest": "sha256:11bfad6376a18a81d614124fa8c829617d00345540c40d9e8c0b490a6d9d3a5d",
+  "head_sha": "4636d58313e8a29d64448986fa06808655d114db",
+  "branch": "dev-hub-v5-context7-enabled",
+  "workflow_conclusion": "success",
+  "transition": "PILOT->ENABLED",
+  "eligible": true,
+  "applied_in_sandbox": true,
+  "production_capable": false,
+  "approval_required": false,
+  "requires_local_executable": false,
+  "blockers": [],
+  "materialized_branch_state": {
+    "registry_status": "ENABLED",
+    "catalog_status": "ENABLED",
+    "production_modified": false
+  }
+}

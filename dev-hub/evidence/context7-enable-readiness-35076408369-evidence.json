@@ -1,0 +1,88 @@
+{
+  "schema": "chacha.dev/adapter-promotion-evidence/v1",
+  "adapter": "context7-mcp-adapter",
+  "observed_at": "2026-09-16T08:55:03.818072+00:00",
+  "evidence": {
+    "repeatable-pass": {
+      "status": "PASS",
+      "source": "adapter-enablement:repeatability",
+      "observed_at": "2026-09-16T08:55:03.817866+00:00",
+      "details": {
+        "minimum_successful_runs": 3,
+        "provided_runs": 3,
+        "successful_runs": 3,
+        "distinct_observed_at": 3,
+        "distinct_required": true,
+        "result_signatures": [
+          "sha256:76c82a83636d6273646c55383ed2c6b4030ca3891f3da785529e363a46819ba3",
+          "sha256:c228e30ac8c047abb771854f3c04ae0a4480738f7a797d588bb6f1e191014893",
+          "sha256:f8e650aac908ccfd6290399f8457fd79b4ed5cf811d33d2546a49e9a618c8ff0"
+        ],
+        "runs": [
+          {
+            "path": "/tmp/context7-enable-readiness/task-result-1.json",
+            "ok": true,
+            "status": "OK",
+            "producer": "context7-mcp-adapter",
+            "verification_status": "UNVERIFIED",
+            "observed_at": "2026-09-16T08:54:51.122210+00:00",
+            "digest": "sha256:9072628f3d1daa69bd2983b0fc5191c9f3ad13152f444c746c84b0624412db4e"
+          },
+          {
+            "path": "/tmp/context7-enable-readiness/task-result-2.json",
+            "ok": true,
+            "status": "OK",
+            "producer": "context7-mcp-adapter",
+            "verification_status": "UNVERIFIED",
+            "observed_at": "2026-09-16T08:54:55.649150+00:00",
+            "digest": "sha256:741cd7147d33c2dbd5cf49c6b1bdf342be8ce2484d281547a5ebcab19e538caf"
+          },
+          {
+            "path": "/tmp/context7-enable-readiness/task-result-3.json",
+            "ok": true,
+            "status": "OK",
+            "producer": "context7-mcp-adapter",
+            "verification_status": "UNVERIFIED",
+            "observed_at": "2026-09-16T08:54:59.915131+00:00",
+            "digest": "sha256:410bfe97db7a57e800030bddb7a44fb3b291a1bbd665ae9177dc832c54a29396"
+          }
+        ]
+      }
+    },
+    "provider-health-pass": {
+      "status": "PASS",
+      "source": "provider-health-snapshot:/tmp/context7-enable-readiness/provider-health.json",
+      "observed_at": "2026-09-16T08:55:03.817971+00:00",
+      "details": {
+        "provider": "context7-mcp",
+        "required_state": "HEALTHY",
+        "observed_state": "HEALTHY",
+        "checked_at": "2026-09-16T08:55:03.736818+00:00",
+        "age_seconds": 0.081,
+        "maximum_age_seconds": 300,
+        "blockers": [],
+        "snapshot_digest": "sha256:9ce5f374466932ce30a8f009d789114727c000bb383ca6cafd5fbd6fd7039f12"
+      }
+    },
+    "rollback-defined": {
+      "status": "PASS",
+      "source": "adapter-rollbacks:dev-hub/config/adapter-rollbacks.v1.json",
+      "observed_at": "2026-09-16T08:55:03.818065+00:00",
+      "details": {
+        "adapter": "context7-mcp-adapter",
+        "enabled": true,
+        "target_status": "DISABLED",
+        "required_target_status": "DISABLED",
+        "steps": 4,
+        "verification_checks": 4,
+        "blockers": [],
+        "rollback_digest": "sha256:0dbe16a55a80017aceea82920450804a307f335e4ceba2b5fa3b04bdd3d9b89c"
+      }
+    }
+  },
+  "approvals": [],
+  "notes": [
+    "PILOT->ENABLED evidence derived from repeated concrete runtime results, normalized health, and rollback policy.",
+    "No registry mutation and no approval creation occurred."
+  ]
+}
