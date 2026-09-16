@@ -135,7 +135,11 @@ def main() -> int:
         results: list[tuple[Path, dict]] = []
         for index in (1, 2, 3):
             results.append(run_adapter(index, request, allowed_origin))
-            time.sleep(0.2)
+            # Isolated Chrome teardown is asynchronous after the MCP server exits.
+            # Give the provider enough time to release its temporary browser profile
+            # before the next independent repeatability run.
+            if index != 3:
+                time.sleep(1.5)
         server.shutdown()
 
     identities = {(r['project'], r['task_id']) for _, r in results}
