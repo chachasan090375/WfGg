@@ -1,0 +1,111 @@
+{
+  "schema": "chacha.dev/provider-selection-policy/v1",
+  "engine": "provider-selection-engine",
+  "mode": "PLAN_ONLY",
+  "decision_owner": "chacha-dev-architect",
+  "dispatch_owner": "run-controller",
+  "references": {
+    "agent_routing": "dev-hub/config/agent-routing.v1.json",
+    "capability_registry": "dev-hub/config/capability-registry.v1.json",
+    "execution_scheduler": "dev-hub/config/execution-scheduler.v1.json",
+    "provider_adapters": "dev-hub/config/provider-adapters.v1.json",
+    "provider_health": "dev-hub/config/provider-health-probes.v1.json",
+    "verification_broker": "dev-hub/config/verification-broker.v1.json",
+    "evidence_catalog": "dev-hub/config/evidence-catalog.v1.json"
+  },
+  "principles": {
+    "route_by_capability_not_vendor": true,
+    "hard_policy_filters_before_scoring": true,
+    "historical_quality_requires_verified_evidence": true,
+    "unverified_provider_self_reports_do_not_improve_score": true,
+    "selection_is_explainable": true,
+    "selection_is_recorded": true,
+    "selection_never_dispatches": true,
+    "selection_never_changes_provider_status": true,
+    "selection_never_bypasses_human_approval": true,
+    "same_provider_cannot_produce_and_independently_verify_same_task": true,
+    "insufficient_evidence_must_be_reported": true
+  },
+  "eligibility": {
+    "require_capability_match": true,
+    "require_registered_adapter": true,
+    "require_adapter_runtime_status": ["PILOT", "ENABLED"],
+    "require_health": ["HEALTHY", "DEGRADED"],
+    "allow_degraded_non_production_only": true,
+    "require_permission_compatibility": true,
+    "require_lifecycle_permission_compatibility": true,
+    "require_platform_readiness": true,
+    "reject_unknown_health": true,
+    "reject_designed_or_contract_only_runtime": true,
+    "reject_provider_if_same_task_independent_verifier": true
+  },
+  "score": {
+    "scale": 100,
+    "weights": {
+      "task_capability_fit": 30,
+      "verified_historical_quality": 25,
+      "provider_health": 15,
+      "risk_fit": 10,
+      "latency_fit": 8,
+      "cost_fit": 7,
+      "cross_provider_diversity": 5
+    },
+    "historical_window": {
+      "max_verified_runs": 50,
+      "max_age_days": 90,
+      "minimum_verified_runs_for_confident_ranking": 5,
+      "use_exponential_recency_weighting": true
+    },
+    "quality_signals": [
+      "verified_success_rate",
+      "verification_first_pass_rate",
+      "rollback_rate",
+      "regression_rate",
+      "human_rework_rate",
+      "task_type_success_rate"
+    ],
+    "operational_signals": [
+      "p50_latency_ms",
+      "p95_latency_ms",
+      "rate_limit_frequency",
+      "transient_failure_rate",
+      "estimated_cost_class"
+    ]
+  },
+  "confidence": {
+    "HIGH": {"minimum_verified_runs": 20},
+    "MEDIUM": {"minimum_verified_runs": 5},
+    "LOW": {"minimum_verified_runs": 1},
+    "NONE": {"minimum_verified_runs": 0}
+  },
+  "tie_break": [
+    "higher_confidence",
+    "healthier_provider",
+    "lower_required_permission",
+    "lower_risk",
+    "lower_cost",
+    "lower_latency",
+    "stable_provider_id"
+  ],
+  "output": {
+    "schema": "chacha.dev/provider-selection-plan/v1",
+    "required_fields": [
+      "task_id",
+      "capability",
+      "eligible_providers",
+      "rejected_providers",
+      "ranked_candidates",
+      "selected_provider",
+      "confidence",
+      "selection_reasons",
+      "evidence_refs",
+      "dispatch_authorized"
+    ],
+    "dispatch_authorized": false
+  },
+  "fallback": {
+    "scheduler_remains_authoritative_for_retry_and_failover": true,
+    "fallback_must_preserve_capability_and_permission_contract": true,
+    "fallback_selection_must_be_recorded": true
+  }
+}
