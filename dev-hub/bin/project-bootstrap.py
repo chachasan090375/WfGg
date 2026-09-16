@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 """ChaCha DEV HUB generic project bootstrap V1.
 
-Creates the persistent runtime skeleton needed by a project manifest without
-executing project work. Provider selection remains Scheduler-owned. The initial
-health snapshot expresses canonical provider eligibility only; external runtime
-availability is still verified independently at dispatch by the runner-owned
-binding contract.
+Creates the runtime skeleton for a provider-agnostic project manifest, derives a
+canonical provider-eligibility health snapshot, and then delegates planning or
+explicit execution to the canonical manifest orchestrator. Provider selection
+remains Scheduler-owned; external runtime availability remains dispatch-owned.
 """
 from __future__ import annotations
 
@@ -51,11 +50,12 @@ def resolve(repo: Path, raw: str) -> Path:
     return p if p.is_absolute() else repo / p
 
 
-def run(argv: list[str], repo: Path) -> None:
+def run(argv: list[str], repo: Path, timeout: int = 900) -> subprocess.CompletedProcess[str]:
     proc = subprocess.run(argv, cwd=str(repo), stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                          text=True, shell=False, check=False, timeout=120)
+                          text=True, shell=False, check=False, timeout=timeout)
     if proc.returncode != 0:
         raise SystemExit(f"BOOTSTRAP_COMMAND_FAILED={proc.returncode}:{' '.join(argv)}\nSTDOUT={proc.stdout}\nSTDERR={proc.stderr}")
+    return proc
 
 
 def manifest_requirements(manifest: dict[str, Any], contract: dict[str, Any]) -> tuple[str, str, set[str]]:
@@ -128,18 +128,23 @@ def main() -> int:
     ap.add_argument("--repo-root", type=Path, default=Path.cwd())
     ap.add_argument("--project-control-policy", type=Path, default=Path("dev-hub/config/project-control.v1.json"))
     ap.add_argument("--contract", type=Path, default=Path("dev-hub/config/project-manifest-contract.v1.json"))
+    ap.add_argument("--execute", action="store_true")
     ap.add_argument("--output", type=Path)
     args = ap.parse_args()
 
     repo = args.repo_root.resolve()
-    manifest = load(args.manifest.resolve())
+    manifest_path = args.manifest.resolve()
+    manifest = load(manifest_path)
     policy_path = resolve(repo, str(args.project_control_policy))
     policy = load(policy_path)
-    contract = load(resolve(repo, str(args.contract)))
+    contract_path = resolve(repo, str(args.contract))
+    contract = load(contract_path)
     project, env_class, capabilities = manifest_requirements(manifest, contract)
     refs = policy.get("repository_paths") or {}
-    registry = load(resolve(repo, str(refs["capability_registry"])))
-    adapters = load(resolve(repo, str(refs["provider_adapters"])))
+    registry_path = resolve(repo, str(refs["capability_registry"]))
+    adapters_path = resolve(repo, str(refs["provider_adapters"]))
+    registry = load(registry_path)
+    adapters = load(adapters_path)
 
     runtime = policy.get("runtime") or {}
     roots = {
@@ -165,42 +170,84 @@ def main() -> int:
     ledger_created = not ledger_path.exists()
     if state_created:
         run(["python3", "dev-hub/bin/control-plane-store.py", "--policy", str(state_policy),
-             "--root", str(state_root), "init", "--project", project, "--actor", "project-bootstrap"], repo)
+             "--root", str(state_root), "init", "--project", project, "--actor", "project-bootstrap"], repo, 120)
     if ledger_created:
         run(["python3", "dev-hub/bin/evidence-collector.py", "init", "--project", project,
-             "--ledger", str(ledger_path)], repo)
+             "--ledger", str(ledger_path)], repo, 120)
 
     health = provider_snapshot(capabilities, registry, adapters)
     save(health_path, health)
     provider_states = {pid: item.get("state") for pid, item in (health.get("providers") or {}).items()}
     blockers = [f"PROVIDER_NOT_CANONICALLY_ELIGIBLE:{pid}" for pid, state in provider_states.items() if state != "HEALTHY"]
+    if blockers:
+        receipt = {
+            "schema": "chacha.dev/project-bootstrap-receipt/v1", "project": project,
+            "environment_class": env_class, "observed_at": now_iso(), "status": "BLOCKED",
+            "state_created": state_created, "ledger_created": ledger_created,
+            "required_capabilities": sorted(capabilities), "provider_states": provider_states,
+            "runtime_availability_verified": False, "paths": {name: str(path) for name, path in roots.items()},
+            "state": str(state_path), "ledger": str(ledger_path), "health": str(health_path), "blockers": blockers,
+        }
+        if args.output:
+            save(args.output, receipt)
+        print("PROJECT_BOOTSTRAP_STATUS=BLOCKED")
+        for blocker in blockers:
+            print(f"BLOCKER={blocker}")
+        return 2
+
+    manifest_run_path = roots["plans"] / "manifest-run.json"
+    command = [
+        "python3", "dev-hub/bin/project-manifest-orchestrator.py",
+        "--repo-root", str(repo), "--project-control-policy", str(policy_path),
+        "--contract", str(contract_path), "--manifest", str(manifest_path),
+        "--output", str(manifest_run_path),
+    ]
+    if args.execute:
+        command.append("--execute")
+    run(command, repo, 1200)
+    manifest_run = load(manifest_run_path)
+    expected_status = "VERIFIED" if args.execute else "PLANNED"
+    if manifest_run.get("status") != expected_status:
+        raise SystemExit(f"PROJECT_BOOTSTRAP_MANIFEST_RUN_INVALID={manifest_run.get('status')}:{expected_status}")
+
     receipt = {
         "schema": "chacha.dev/project-bootstrap-receipt/v1",
         "project": project,
         "environment_class": env_class,
         "observed_at": now_iso(),
-        "status": "READY" if not blockers else "BLOCKED",
+        "status": expected_status,
+        "executed": bool(args.execute),
         "state_created": state_created,
         "ledger_created": ledger_created,
         "idempotent_existing_state_preserved": not state_created,
         "idempotent_existing_ledger_preserved": not ledger_created,
         "required_capabilities": sorted(capabilities),
         "provider_states": provider_states,
-        "runtime_availability_verified": False,
+        "runtime_availability_verified": bool(args.execute),
+        "provider_selection_owned_by_scheduler": manifest_run.get("provider_selection_owned_by_scheduler") is True,
         "paths": {name: str(path) for name, path in roots.items()},
         "state": str(state_path),
         "ledger": str(ledger_path),
         "health": str(health_path),
-        "blockers": blockers,
+        "task_graph": manifest_run.get("task_graph"),
+        "execution_plan": manifest_run.get("execution_plan"),
+        "manifest_run": str(manifest_run_path),
+        "run_id": manifest_run.get("run_id"),
+        "verified_workflows": manifest_run.get("verified_workflows") or [],
+        "audit_integrity": manifest_run.get("audit_integrity"),
+        "blockers": [],
     }
     if args.output:
         save(args.output, receipt)
-    print(f"PROJECT_BOOTSTRAP_STATUS={receipt['status']}")
+    print(f"PROJECT_BOOTSTRAP_STATUS={expected_status}")
     print(f"PROJECT={project}")
     print(f"STATE_CREATED={'YES' if state_created else 'NO'}")
     print(f"LEDGER_CREATED={'YES' if ledger_created else 'NO'}")
     print(f"HEALTH_SNAPSHOT={health_path}")
-    return 0 if not blockers else 2
+    print(f"MANIFEST_RUN={manifest_run_path}")
+    if receipt.get("run_id"):
+        print(f"RUN_ID={receipt['run_id']}")
+    return 0
 
 
 if __name__ == "__main__":
