@@ -53,10 +53,13 @@ jobs:
           assert reg['adapters']['claude-agent-adapter']['supports'] == ['read', 'plan']
           assert cfg['admission']['runtime_call_allowed_at_design_stage'] is False
           assert cfg['admission']['credential_required_at_design_stage'] is False
+          assert cfg['auth']['secret_policy'] == 'REFERENCE_ONLY'
+          assert cfg['auth']['secret_values_in_git'] is False
+          assert cfg['auth']['secret_values_in_evidence'] is False
+          assert cfg['auth']['environment_reference'] == 'ANTHROPIC_API_KEY'
           assert cfg['tool_policy']['workspace_write'] is False
           assert cfg['tool_policy']['repository_write'] is False
           assert cfg['tool_policy']['production_mutation'] is False
           assert 'anthropic-claude' not in {p['id'] for p in cap['capabilities']['code-edit']['providers']}
-          assert 'ANTHROPIC_API_KEY' not in Path('dev-hub/config/claude-agent-adapter.v1.json').read_text().replace('"environment_reference": "ANTHROPIC_API_KEY"', '')
           print('CLAUDE_DESIGN_ONLY_BOUNDARY_OK: runtime=false credentials=false write=false production=false')
           PY
