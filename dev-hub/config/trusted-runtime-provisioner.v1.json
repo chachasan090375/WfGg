@@ -35,7 +35,7 @@
       "contract": "dev-hub/config/mcp-playwright-contract.v1.json",
       "adapter": "playwright-mcp-adapter",
       "package_binary": "playwright-mcp",
-      "launcher_source": "dev-hub/bin/playwright-mcp-adapter-runtime-v2.py",
+      "launcher_source": "dev-hub/bin/playwright-mcp-adapter-runtime-v2-entry.py",
       "browser_install": "playwright-chromium-with-deps",
       "runtime_environment": {
         "server": "PLAYWRIGHT_MCP_SERVER",
