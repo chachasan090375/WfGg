@@ -1,0 +1,261 @@
+name: Dev Hub V5 Playwright External Preview
+
+on:
+  push:
+    branches:
+      - dev-hub-v5-playwright-external-preview
+  pull_request:
+    branches:
+      - dev-hub-v5-trusted-runtime-provisioner
+
+permissions:
+  contents: read
+
+jobs:
+  playwright-external-preview:
+    runs-on: ubuntu-24.04
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate static contracts
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          compile(Path('dev-hub/bin/playwright-mcp-adapter-runtime-v2.py').read_text(), 'playwright-mcp-adapter-runtime-v2.py', 'exec')
+          compile(Path('dev-hub/bin/trusted-runtime-provisioner-v2.py').read_text(), 'trusted-runtime-provisioner-v2.py', 'exec')
+          policy=json.loads(Path('dev-hub/config/trusted-runtime-provisioner.v1.json').read_text())
+          p=policy['providers']['playwright-mcp']
+          assert p['launcher_source']=='dev-hub/bin/playwright-mcp-adapter-runtime-v2.py'
+          assert p['runtime_environment']['target_class']=='PLAYWRIGHT_MCP_TARGET_CLASS'
+          assert p['runtime_environment']['allowed_origin']=='PLAYWRIGHT_MCP_ALLOWED_ORIGIN'
+          assert policy['principles']['task_cannot_select_allowed_origin'] is True
+          contract=json.loads(Path('dev-hub/config/mcp-playwright-contract.v1.json').read_text())
+          assert contract['runtime_status']=='ENABLED'
+          assert contract['upstream']['design_reference_version']=='0.0.81'
+          assert contract['network_policy']['allowed_origins_is_not_treated_as_security_boundary'] is True
+          adapters=json.loads(Path('dev-hub/config/provider-adapters.v1.json').read_text())
+          assert adapters['adapters']['playwright-mcp-adapter']['status']=='ENABLED'
+          assert adapters['adapters']['playwright-mcp-adapter']['executable'] is None
+          manifest=Path('dev-hub/fixtures/playwright-external-preview-manifest.v1.json').read_text()
+          assert 'chrome-devtools-mcp' not in manifest and 'playwright-mcp' not in manifest
+          print('PLAYWRIGHT_EXTERNAL_PREVIEW_STATIC=PASS')
+          PY
+          git status --porcelain > /tmp/git-before.txt
+
+      - name: Start controlled redirect fixtures
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo '127.0.0.1 preview.chacha.test other-preview.chacha.test' | sudo tee -a /etc/hosts >/dev/null
+          cat > /tmp/chacha-preview-fixture.py <<'PY'
+          from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+          import threading
+          class Handler(BaseHTTPRequestHandler):
+              def do_GET(self):
+                  port=self.server.server_address[1]
+                  if port == 8765 and self.path == '/same-redirect':
+                      self.send_response(302); self.send_header('Location','http://preview.chacha.test:8765/final'); self.end_headers(); return
+                  if port == 8765 and self.path == '/cross-redirect':
+                      self.send_response(302); self.send_header('Location','http://other-preview.chacha.test:8766/final'); self.end_headers(); return
+                  body=('CHACHA_PLAYWRIGHT_PREVIEW_OK' if port == 8765 else 'CHACHA_CROSS_ORIGIN_TARGET').encode()
+                  self.send_response(200); self.send_header('Content-Type','text/html; charset=utf-8'); self.send_header('Content-Length',str(len(body))); self.end_headers(); self.wfile.write(body)
+              def log_message(self, fmt, *args): pass
+          servers=[ThreadingHTTPServer(('127.0.0.1',8765),Handler),ThreadingHTTPServer(('127.0.0.1',8766),Handler)]
+          for server in servers: threading.Thread(target=server.serve_forever,daemon=True).start()
+          threading.Event().wait()
+          PY
+          nohup python3 /tmp/chacha-preview-fixture.py >/tmp/chacha-preview-fixture.log 2>&1 &
+          for _ in $(seq 1 20); do curl --noproxy '*' --fail --silent http://preview.chacha.test:8765/ | grep -q CHACHA_PLAYWRIGHT_PREVIEW_OK && break; sleep 0.5; done
+          curl --noproxy '*' --fail --silent http://preview.chacha.test:8765/ | grep -q CHACHA_PLAYWRIGHT_PREVIEW_OK
+          curl --fail --silent https://example.com/ | grep -q 'Example Domain'
+
+      - name: Provision direct Playwright qualification runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/chacha-playwright-preview-direct /tmp/chacha-playwright-preview-evidence
+          mkdir -p /tmp/chacha-playwright-preview-direct /tmp/chacha-playwright-preview-evidence
+          cd /tmp/chacha-playwright-preview-direct
+          npm init -y >/dev/null 2>&1
+          npm install --no-save --no-audit --no-fund @playwright/mcp@0.0.81 >/dev/null
+          ./node_modules/.bin/playwright install --with-deps chromium >/dev/null
+          echo "PLAYWRIGHT_MCP_SERVER=$(realpath node_modules/.bin/playwright-mcp)" >> "$GITHUB_ENV"
+          echo "PLAYWRIGHT_MCP_WORKDIR=/tmp/chacha-playwright-preview-direct" >> "$GITHUB_ENV"
+
+      - name: Qualify external HTTPS and redirect boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          make_input() {
+            local target="$1" id="$2" out="$3"
+            python3 - "$target" "$id" "$out" <<'PY'
+          import json,sys
+          target,task_id,out=sys.argv[1:]
+          doc={
+            'schema':'chacha.dev/dispatch-envelope/v1','project':'playwright-external-preview-direct',
+            'task':{'id':task_id,'permission':'read'},
+            'bindings':[{'provider':'playwright-mcp','adapter':'playwright-mcp-adapter'}],
+            'policy_context':{'human_approval_required':False,'timeout_seconds':45},
+            'metadata':{'target_url':target},
+          }
+          open(out,'w').write(json.dumps(doc))
+          PY
+          }
+          make_input 'https://example.com/' external /tmp/external.json
+          PLAYWRIGHT_MCP_TARGET_CLASS=preview PLAYWRIGHT_MCP_ALLOWED_ORIGIN=https://example.com \
+            python3 dev-hub/bin/playwright-mcp-adapter-runtime-v2.py </tmp/external.json >/tmp/chacha-playwright-preview-evidence/external.json
+
+          make_input 'http://preview.chacha.test:8765/same-redirect' same /tmp/same.json
+          PLAYWRIGHT_MCP_TARGET_CLASS=preview PLAYWRIGHT_MCP_ALLOWED_ORIGIN=http://preview.chacha.test:8765 \
+            NO_PROXY='*' no_proxy='*' python3 dev-hub/bin/playwright-mcp-adapter-runtime-v2.py </tmp/same.json >/tmp/chacha-playwright-preview-evidence/same-origin.json
+
+          make_input 'http://preview.chacha.test:8765/cross-redirect' cross /tmp/cross.json
+          PLAYWRIGHT_MCP_TARGET_CLASS=preview PLAYWRIGHT_MCP_ALLOWED_ORIGIN=http://preview.chacha.test:8765 \
+            NO_PROXY='*' no_proxy='*' python3 dev-hub/bin/playwright-mcp-adapter-runtime-v2.py </tmp/cross.json >/tmp/chacha-playwright-preview-evidence/cross-origin.json
+
+          make_input 'http://other-preview.chacha.test:8766/final' mismatch /tmp/mismatch.json
+          PLAYWRIGHT_MCP_TARGET_CLASS=preview PLAYWRIGHT_MCP_ALLOWED_ORIGIN=http://preview.chacha.test:8765 \
+            NO_PROXY='*' no_proxy='*' python3 dev-hub/bin/playwright-mcp-adapter-runtime-v2.py </tmp/mismatch.json >/tmp/chacha-playwright-preview-evidence/origin-mismatch.json
+
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path('/tmp/chacha-playwright-preview-evidence')
+          ext=json.loads((root/'external.json').read_text())
+          same=json.loads((root/'same-origin.json').read_text())
+          cross=json.loads((root/'cross-origin.json').read_text())
+          mismatch=json.loads((root/'origin-mismatch.json').read_text())
+          for result in (ext,same):
+              assert result['status']=='OK', result
+              assert result['verification']['status']=='UNVERIFIED'
+              details=result['evidence'][0]['details']
+              assert details['final_origin_revalidated'] is True
+              assert details['upstream_allowed_origins_is_security_boundary'] is False
+              assert details['called_tools']==['browser_navigate','browser_snapshot','browser_console_messages','browser_network_requests','browser_close']
+              assert details['production_target'] is False and details['workspace_write'] is False and details['repository_write'] is False
+          assert ext['evidence'][0]['details']['final_target_origin']=='https://example.com'
+          assert same['evidence'][0]['details']['final_target_origin']=='http://preview.chacha.test:8765'
+          assert cross['status']=='BLOCKED' and cross['summary']=='PLAYWRIGHT_MCP_FINAL_ORIGIN_NOT_ALLOWED', cross
+          assert mismatch['status']=='BLOCKED' and mismatch['summary']=='PLAYWRIGHT_MCP_TARGET_ORIGIN_NOT_ALLOWED', mismatch
+          print('PLAYWRIGHT_EXTERNAL_HTTPS=PASS')
+          print('PLAYWRIGHT_SAME_ORIGIN_REDIRECT=PASS')
+          print('PLAYWRIGHT_CROSS_ORIGIN_REDIRECT=BLOCKED')
+          print('PLAYWRIGHT_ORIGIN_MISMATCH=BLOCKED')
+          PY
+
+      - name: Prepare isolated Control Plane only
+        shell: bash
+        run: |
+          set -euo pipefail
+          root=/tmp/chacha-dev-hub-v5-playwright-external-preview
+          rm -rf "$root" /tmp/chacha-playwright-preview-runtime /tmp/chacha-playwright-preview-plan
+          mkdir -p "$root" /tmp/chacha-playwright-preview-runtime /tmp/chacha-playwright-preview-plan
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path('/tmp/chacha-dev-hub-v5-playwright-external-preview'); repo=Path.cwd()
+          state=json.loads((repo/'dev-hub/config/control-plane-state.v1.json').read_text())
+          state['storage']['runtime_root']=str(root/'state'); state['storage']['transaction_root']=str(root/'transactions')
+          (root/'control-plane-state.json').write_text(json.dumps(state,indent=2)+'\n')
+          run=json.loads((repo/'dev-hub/config/run-controller.v1.json').read_text())
+          run['mode']='execute-enabled'; run['locking']['root']=str(root/'locks/dispatch')
+          (root/'run-controller.json').write_text(json.dumps(run,indent=2)+'\n')
+          pc=json.loads((repo/'dev-hub/config/project-control.v1.json').read_text())
+          pc['runtime'].update({'state_root':str(root/'state'),'evidence_root':str(root/'evidence'),'plans_root':str(root/'plans'),'health_root':str(root/'health'),'runs_root':str(root/'runs'),'transactions_root':str(root/'transactions'),'locks_root':str(root/'locks/control')})
+          pc['repository_paths']['control_plane_state']=str(root/'control-plane-state.json')
+          pc['repository_paths']['run_controller']=str(root/'run-controller.json')
+          assert pc['repository_paths']['capability_registry']=='dev-hub/config/capability-registry.v1.json'
+          assert pc['repository_paths']['provider_adapters']=='dev-hub/config/provider-adapters.v1.json'
+          (root/'project-control.json').write_text(json.dumps(pc,indent=2)+'\n')
+          PY
+          test -z "${CHACHA_DEV_RUNTIME_BINDINGS:-}"
+          test ! -e /tmp/chacha-playwright-preview-runtime/runtime-bindings.json
+          echo 'PLAYWRIGHT_EXTERNAL_PREVIEW_NO_RUNTIME_PREPARATION=PASS'
+
+      - name: Execute real external preview through Trusted Runtime V2
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 dev-hub/bin/trusted-runtime-provisioner-v2.py \
+            --repo-root "$GITHUB_WORKSPACE" \
+            --project-control-policy /tmp/chacha-dev-hub-v5-playwright-external-preview/project-control.json \
+            --manifest dev-hub/fixtures/playwright-external-preview-manifest.v1.json \
+            --runtime-root /tmp/chacha-playwright-preview-runtime \
+            --execute \
+            --output /tmp/chacha-playwright-preview-evidence/full-chain.json
+
+      - name: Validate full external preview chain
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          x=json.loads(Path('/tmp/chacha-playwright-preview-evidence/full-chain.json').read_text())
+          assert x['schema']=='chacha.dev/trusted-runtime-provisioning-run/v1'
+          assert x['status']=='VERIFIED' and x['executed'] is True
+          assert x['required_external_providers']==['chrome-devtools-mcp','playwright-mcp']
+          assert x['provider_selection_owned_by_scheduler'] is True
+          assert x['versions_selected_by_task'] is False
+          assert x['executables_selected_by_task'] is False
+          assert x['binding_selected_by_task'] is False
+          assert x['registry_mutated'] is False and x['production_touched'] is False
+          assert x['runtime_availability_verified'] is True
+          assert x['audit_integrity']=='PASS'
+          assert x['run_id'] and len(x['verified_workflows'])==1
+          pw=x['provisioned']['playwright-mcp']
+          assert pw['package']=='@playwright/mcp' and pw['version']=='0.0.81'
+          assert pw['contract_runtime_status']=='ENABLED' and pw['provider_result_trust']=='UNVERIFIED'
+          binding=Path(x['runtime_binding']['path'])
+          b=json.loads(binding.read_text())
+          launcher=Path(b['bindings']['playwright-mcp-adapter']['executable'])
+          script=launcher.read_text()
+          assert 'playwright-mcp-adapter-runtime-v2.py' in script
+          Path('/tmp/chacha-playwright-preview-evidence/runtime-bindings.json').write_text(binding.read_text())
+          print('PLAYWRIGHT_EXTERNAL_PREVIEW_FULL_CHAIN=PASS')
+          print('RUN_ID='+x['run_id'])
+          PY
+
+      - name: Prove V2 plan-only boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 dev-hub/bin/trusted-runtime-provisioner-v2.py \
+            --repo-root "$GITHUB_WORKSPACE" \
+            --project-control-policy /tmp/chacha-dev-hub-v5-playwright-external-preview/project-control.json \
+            --manifest dev-hub/fixtures/playwright-external-preview-manifest.v1.json \
+            --runtime-root /tmp/chacha-playwright-preview-plan \
+            --output /tmp/chacha-playwright-preview-evidence/plan-only.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          x=json.loads(Path('/tmp/chacha-playwright-preview-evidence/plan-only.json').read_text())
+          assert x['status']=='PLANNED' and x['executed'] is False
+          assert x['provisioned']=={} and x['runtime_binding_created'] is False
+          sessions=[p for p in Path('/tmp/chacha-playwright-preview-plan').iterdir() if p.is_dir()]
+          assert len(sessions)==1 and not (sessions[0]/'providers').exists() and not (sessions[0]/'runtime-bindings.json').exists()
+          print('PLAYWRIGHT_EXTERNAL_PREVIEW_PLAN_ONLY=PASS')
+          PY
+
+      - name: Confirm repository unchanged
+        shell: bash
+        run: |
+          set -euo pipefail
+          git status --porcelain > /tmp/git-after.txt
+          diff -u /tmp/git-before.txt /tmp/git-after.txt
+          test ! -s /tmp/git-after.txt
+          echo 'PLAYWRIGHT_EXTERNAL_PREVIEW_REPOSITORY_UNCHANGED=PASS'
+
+      - name: Upload qualification evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: dev-hub-v5-playwright-external-preview-${{ github.run_id }}
+          path: /tmp/chacha-playwright-preview-evidence
+          retention-days: 30
+          if-no-files-found: error
