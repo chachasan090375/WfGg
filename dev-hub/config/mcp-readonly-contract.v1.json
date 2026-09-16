@@ -1,0 +1,54 @@
+{
+  "schema": "chacha.dev/mcp-readonly-contract/v1",
+  "protocol": {
+    "version": "2026-07-28",
+    "discovery": "server/discover",
+    "tools_list": "tools/list",
+    "tools_call": "tools/call",
+    "remote_transport": "streamable-http",
+    "local_transport": "stdio"
+  },
+  "boundary": {
+    "input": "chacha.dev/dispatch-envelope/v1",
+    "output": "chacha.dev/task-result/v1",
+    "shell": false,
+    "provider_result_trust": "UNVERIFIED"
+  },
+  "policy": {
+    "default_tool_policy": "DENY",
+    "explicit_allowlist_required": true,
+    "unknown_tools": "DENY",
+    "mutation_tools": "DENY",
+    "destructive_tools": "DENY",
+    "missing_or_ambiguous_annotations": "DENY",
+    "production_mutation": "DENY",
+    "max_execution_seconds": 30,
+    "max_result_bytes": 2097152
+  },
+  "auth": {
+    "secret_values_in_git": false,
+    "secret_transport": "REFERENCE_ONLY",
+    "authorization_headers_in_evidence": "REDACT",
+    "credential_echo": "DENY"
+  },
+  "health": {
+    "discovery_required": true,
+    "tools_list_required": true,
+    "freshness_seconds": 300,
+    "timeout_seconds": 10,
+    "failure_state": "UNAVAILABLE"
+  },
+  "evidence": {
+    "producer_cannot_self_verify": true,
+    "independent_verifier": "verification-broker",
+    "redact_secrets": true,
+    "record_tool_name": true,
+    "record_provider": true,
+    "record_protocol_version": true
+  },
+  "rollback": {
+    "target_state": "DISABLED",
+    "must_not_require_provider": true,
+    "reversible_without_secret_rotation": true
+  }
+}
