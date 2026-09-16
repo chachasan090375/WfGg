@@ -1,0 +1,78 @@
+name: Dev Hub V5 Context7 PILOT
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - dev-hub-v5-context7-pilot
+    paths:
+      - 'dev-hub/config/mcp-provider-catalog.v1.json'
+      - 'dev-hub/config/mcp-context7-contract.v1.json'
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - 'dev-hub/evidence/context7-contract-ok-to-pilot-2026-09-16.json'
+      - 'dev-hub/evidence/context7-pilot-promotion-35072331061-receipt.json'
+      - 'dev-hub/evidence/context7-pilot-promotion-35072331061-report.json'
+      - 'dev-hub/evidence/context7-pilot-promotion-35072331061-provenance.json'
+      - 'dev-hub/bin/mcp-context7-contract-validate.py'
+      - 'dev-hub/bin/mcp-context7-contract-ok-validate.py'
+      - 'dev-hub/bin/mcp-context7-pilot-validate.py'
+      - '.github/workflows/dev-hub-v5-context7-pilot.yml'
+  pull_request:
+    paths:
+      - 'dev-hub/config/mcp-provider-catalog.v1.json'
+      - 'dev-hub/config/mcp-context7-contract.v1.json'
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - 'dev-hub/evidence/context7-contract-ok-to-pilot-2026-09-16.json'
+      - 'dev-hub/evidence/context7-pilot-promotion-35072331061-receipt.json'
+      - 'dev-hub/evidence/context7-pilot-promotion-35072331061-report.json'
+      - 'dev-hub/evidence/context7-pilot-promotion-35072331061-provenance.json'
+      - 'dev-hub/bin/mcp-context7-contract-validate.py'
+      - 'dev-hub/bin/mcp-context7-contract-ok-validate.py'
+      - 'dev-hub/bin/mcp-context7-pilot-validate.py'
+      - '.github/workflows/dev-hub-v5-context7-pilot.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate JSON syntax
+        run: |
+          python -m json.tool dev-hub/config/mcp-provider-catalog.v1.json >/dev/null
+          python -m json.tool dev-hub/config/mcp-context7-contract.v1.json >/dev/null
+          python -m json.tool dev-hub/config/provider-adapters.v1.json >/dev/null
+          python -m json.tool dev-hub/evidence/context7-contract-ok-to-pilot-2026-09-16.json >/dev/null
+          python -m json.tool dev-hub/evidence/context7-pilot-promotion-35072331061-receipt.json >/dev/null
+          python -m json.tool dev-hub/evidence/context7-pilot-promotion-35072331061-report.json >/dev/null
+          python -m json.tool dev-hub/evidence/context7-pilot-promotion-35072331061-provenance.json >/dev/null
+
+      - name: Validate Context7 design contract
+        run: python dev-hub/bin/mcp-context7-contract-validate.py
+
+      - name: Validate historical CONTRACT_OK evidence
+        run: python dev-hub/bin/mcp-context7-contract-ok-validate.py
+
+      - name: Validate Context7 PILOT evidence
+        run: python dev-hub/bin/mcp-context7-pilot-validate.py
+
+      - name: Confirm PILOT is not ENABLED
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          registry = json.loads(Path('dev-hub/config/provider-adapters.v1.json').read_text())
+          catalog = json.loads(Path('dev-hub/config/mcp-provider-catalog.v1.json').read_text())
+          adapter = registry['adapters']['context7-mcp-adapter']
+          provider = catalog['providers']['context7-mcp']
+          assert adapter['status'] == 'PILOT'
+          assert provider['runtime_status'] == 'PILOT'
+          assert adapter.get('executable') is None
+          assert provider.get('write_scope') == []
+          print('CONTEXT7_PILOT_BOUNDARY_OK: enabled=false production=false')
+          PY
