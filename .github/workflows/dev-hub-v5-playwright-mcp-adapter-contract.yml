@@ -1,0 +1,218 @@
+name: Dev Hub V5 Playwright MCP Adapter Contract
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - dev-hub-v5-playwright-mcp-adapter-contract
+    paths:
+      - 'dev-hub/adapters/playwright-mcp-adapter.py'
+      - 'dev-hub/fixtures/playwright-mcp-adapter-*.json'
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - 'dev-hub/config/adapter-contract.v1.json'
+      - 'dev-hub/bin/adapter-contract-harness.py'
+      - '.github/workflows/dev-hub-v5-playwright-mcp-adapter-contract.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Validate syntax and generic adapter registry contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile dev-hub/adapters/playwright-mcp-adapter.py
+          python -m json.tool dev-hub/fixtures/playwright-mcp-adapter-valid.template.json >/dev/null
+          python -m json.tool dev-hub/fixtures/playwright-mcp-adapter-tool-injection.json >/dev/null
+          python -m json.tool dev-hub/fixtures/playwright-mcp-adapter-write-permission.json >/dev/null
+          python -m json.tool dev-hub/fixtures/playwright-mcp-adapter-bad-binding.json >/dev/null
+          python dev-hub/bin/adapter-contract-harness.py \
+            --registry dev-hub/config/provider-adapters.v1.json \
+            --policy dev-hub/config/adapter-contract.v1.json \
+            --report /tmp/playwright-mcp-generic-adapter-contract.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path('/tmp/playwright-mcp-generic-adapter-contract.json').read_text())
+          assert r['static']['status']=='PASS'
+          assert r['promotion']['automatic'] is False
+          print('PLAYWRIGHT_MCP_GENERIC_ADAPTER_CONTRACT=PASS')
+          PY
+
+      - name: Clean validation bytecode and record repository state
+        shell: bash
+        run: |
+          set -euo pipefail
+          find dev-hub -type d -name __pycache__ -prune -exec rm -rf {} +
+          git status --porcelain > /tmp/git-before.txt
+          test ! -s /tmp/git-before.txt
+
+      - name: Negative contract tests do not require runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          run_blocked() {
+            fixture="$1"
+            expected="$2"
+            python dev-hub/adapters/playwright-mcp-adapter.py < "$fixture" > /tmp/result.json
+            python - "$expected" <<'PY'
+          import json, sys
+          from pathlib import Path
+          expected=sys.argv[1]
+          r=json.loads(Path('/tmp/result.json').read_text())
+          assert r['schema']=='chacha.dev/task-result/v1'
+          assert r['status']=='BLOCKED', r
+          assert r['producer']=='playwright-mcp-adapter'
+          assert r['verification']['status']=='UNVERIFIED'
+          assert expected in r['summary'], (expected, r['summary'])
+          print('NEGATIVE_CONTRACT_PASS=' + expected)
+          PY
+          }
+          run_blocked dev-hub/fixtures/playwright-mcp-adapter-tool-injection.json PLAYWRIGHT_MCP_METADATA_KEY_FORBIDDEN
+          run_blocked dev-hub/fixtures/playwright-mcp-adapter-write-permission.json PLAYWRIGHT_MCP_REQUIRES_READ_PERMISSION
+          run_blocked dev-hub/fixtures/playwright-mcp-adapter-bad-binding.json PLAYWRIGHT_MCP_BINDING_MISSING
+
+      - name: Provision pinned Playwright MCP outside repository
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/playwright-mcp-runtime
+          cd /tmp/playwright-mcp-runtime
+          npm init -y >/dev/null
+          npm install --no-save @playwright/mcp@0.0.81
+          test "$(node -p "require('./node_modules/@playwright/mcp/package.json').version")" = "0.0.81"
+          npx playwright install --with-deps chromium
+
+      - name: Build isolated local test fixture
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/playwright-adapter-fixture/api
+          cat >/tmp/playwright-adapter-fixture/index.html <<'HTML'
+          <!doctype html><html><head><title>DEV HUB Playwright Adapter Fixture</title></head>
+          <body><h1>DEV HUB Playwright Adapter Fixture</h1><p>fixture-ready</p>
+          <script>console.log('adapter-console-ok'); fetch('/api/ping').then(r => r.text()).then(x => console.log('adapter-network-ok', x));</script>
+          </body></html>
+          HTML
+          printf '%s\n' '{"ok":true}' >/tmp/playwright-adapter-fixture/api/ping
+          python -m http.server 18765 --bind 127.0.0.1 --directory /tmp/playwright-adapter-fixture >/tmp/fixture-server.log 2>&1 &
+          echo $! >/tmp/fixture-server.pid
+          for i in $(seq 1 20); do
+            curl -fsS http://127.0.0.1:18765/ >/dev/null && break
+            sleep 0.2
+          done
+          curl -fsS http://127.0.0.1:18765/ >/dev/null
+
+      - name: Build real dispatch envelope
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path('dev-hub/fixtures/playwright-mcp-adapter-valid.template.json').read_text())
+          p['metadata']['playwright_mcp']['url']='http://127.0.0.1:18765/?secret-query-must-not-enter-evidence=yes'
+          Path('/tmp/playwright-mcp-dispatch.json').write_text(json.dumps(p, indent=2)+'\n')
+          PY
+
+      - name: Run real dispatch-envelope to task-result adapter contract
+        shell: bash
+        env:
+          CHACHA_PLAYWRIGHT_MCP_SERVER: /tmp/playwright-mcp-runtime/node_modules/.bin/playwright-mcp
+          CHACHA_PLAYWRIGHT_MCP_WORKDIR: /tmp/playwright-mcp-runtime
+          CHACHA_PLAYWRIGHT_ALLOWED_ORIGIN: http://127.0.0.1:18765
+          CHACHA_PLAYWRIGHT_TARGET_CLASS: test
+          CHACHA_PLAYWRIGHT_MCP_PACKAGE_VERSION: 0.0.81
+        run: |
+          set -euo pipefail
+          python dev-hub/adapters/playwright-mcp-adapter.py \
+            < /tmp/playwright-mcp-dispatch.json \
+            > /tmp/playwright-mcp-task-result.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path('/tmp/playwright-mcp-task-result.json').read_text())
+          assert r['schema']=='chacha.dev/task-result/v1'
+          assert r['project']=='playwright-mcp-adapter-contract'
+          assert r['task_id']=='inspect-fixture'
+          assert r['producer']=='playwright-mcp-adapter'
+          assert r['status']=='OK', r
+          assert r['summary']=='PLAYWRIGHT_MCP_INSPECTION_OK'
+          assert r['verification']['status']=='UNVERIFIED'
+          assert len(r['evidence'])==1
+          e=r['evidence'][0]
+          assert e['kind']=='url'
+          assert e['source']=='http://127.0.0.1:18765/'
+          assert '?' not in e['source']
+          d=e['details']
+          assert d['target_class']=='test'
+          assert d['upstream_protocol']=='2025-11-25'
+          assert d['package_version']=='0.0.81'
+          assert d['credentials_used'] is False
+          assert d['production_target'] is False
+          assert d['workspace_write'] is False
+          assert d['called_tools']==[
+            'browser_navigate','browser_snapshot','browser_console_messages','browser_network_requests','browser_close'
+          ]
+          assert all(str(d[k]).startswith('sha256:') for k in ['snapshot_digest','console_digest','network_digest'])
+          print('PLAYWRIGHT_MCP_ADAPTER_RUNTIME_CONTRACT=PASS')
+          PY
+
+      - name: Reject origin escalation before provider call
+        shell: bash
+        env:
+          CHACHA_PLAYWRIGHT_MCP_SERVER: /tmp/playwright-mcp-runtime/node_modules/.bin/playwright-mcp
+          CHACHA_PLAYWRIGHT_MCP_WORKDIR: /tmp/playwright-mcp-runtime
+          CHACHA_PLAYWRIGHT_ALLOWED_ORIGIN: http://127.0.0.1:18765
+          CHACHA_PLAYWRIGHT_TARGET_CLASS: test
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path('/tmp/playwright-mcp-dispatch.json').read_text())
+          p['metadata']['playwright_mcp']['url']='http://localhost:18765/'
+          Path('/tmp/playwright-origin-escalation.json').write_text(json.dumps(p))
+          PY
+          python dev-hub/adapters/playwright-mcp-adapter.py < /tmp/playwright-origin-escalation.json > /tmp/origin-result.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path('/tmp/origin-result.json').read_text())
+          assert r['status']=='BLOCKED'
+          assert r['summary']=='PLAYWRIGHT_MCP_TARGET_ORIGIN_NOT_ALLOWED'
+          print('PLAYWRIGHT_MCP_ORIGIN_ESCALATION_BLOCK=PASS')
+          PY
+
+      - name: Confirm repository remained unchanged
+        shell: bash
+        run: |
+          set -euo pipefail
+          find dev-hub -type d -name __pycache__ -prune -exec rm -rf {} +
+          git status --porcelain > /tmp/git-after.txt
+          diff -u /tmp/git-before.txt /tmp/git-after.txt
+          test ! -s /tmp/git-after.txt
+          echo 'PLAYWRIGHT_MCP_ADAPTER_NO_REPOSITORY_WRITE=PASS'
+
+      - name: Upload adapter contract evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-mcp-adapter-contract-${{ github.run_id }}
+          path: |
+            /tmp/playwright-mcp-generic-adapter-contract.json
+            /tmp/playwright-mcp-task-result.json
+          retention-days: 30
+          if-no-files-found: warn

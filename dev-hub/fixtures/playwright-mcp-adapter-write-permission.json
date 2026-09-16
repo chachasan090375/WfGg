@@ -1,0 +1,20 @@
+{
+  "schema": "chacha.dev/dispatch-envelope/v1",
+  "project": "playwright-mcp-adapter-contract",
+  "task": {
+    "id": "write-permission",
+    "permission": "workspace-write"
+  },
+  "bindings": [
+    {
+      "provider": "playwright-mcp",
+      "adapter": "playwright-mcp-adapter"
+    }
+  ],
+  "metadata": {
+    "playwright_mcp": {
+      "operation": "inspect",
+      "url": "http://127.0.0.1:8080/"
+    }
+  }
+}
