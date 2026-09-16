@@ -1,0 +1,46 @@
+{
+  "schema": "chacha.dev/playwright-mcp-direct-probe/v1",
+  "observed_at": "2026-09-16T11:20:58.467716+00:00",
+  "provider": "playwright-mcp",
+  "adapter": "playwright-mcp-adapter",
+  "execution_surface": "github-actions-ephemeral",
+  "package": "@playwright/mcp",
+  "package_version": "0.0.81",
+  "browser_version": "154.0.8037.0",
+  "protocol_required": "2026-07-28",
+  "credentials_used": false,
+  "production_target": false,
+  "vps_modified": false,
+  "workspace_write_expected": false,
+  "called_tools": [],
+  "checks": {
+    "server_discover": {
+      "pass": false,
+      "error": {
+        "code": -32601,
+        "message": "Method not found"
+      },
+      "result_digest": null
+    }
+  },
+  "promotion": {
+    "automatic": false,
+    "eligible_for_pilot": false,
+    "blockers": [
+      "MCP_2026_07_28_SERVER_DISCOVER_UNSUPPORTED"
+    ]
+  },
+  "probe_exception": "SERVER_DISCOVER_BLOCKED",
+  "evidence_digest": "sha256:a24e3cd5b4116c9be8d7929fde57887a15fa451e97dc0385d81d9e49c715e8f6",
+  "workflow": {
+    "run_id": 35089773583,
+    "conclusion": "success",
+    "artifact_id": 10442974000,
+    "artifact_digest": "sha256:5f1e41998f4ed68b3bb4c4fd76bbcc427c0757e8bf70d2d0a67885bb0e109b4a"
+  },
+  "notes": [
+    "Workflow success means the qualification probe executed reproducibly; it does not mean PILOT qualification succeeded.",
+    "No browser tools were called because the mandatory modern server/discover gate failed first.",
+    "Provider remains CONTRACT_OK until upstream supports MCP 2026-07-28 or an explicit provider-specific compatibility adapter is independently qualified."
+  ]
+}
