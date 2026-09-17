@@ -50,8 +50,8 @@ def patch_main() -> None:
 
     text = replace_once(
         text,
-        '''\tvar mapTemplates []*sfs.SFSObject\n\tvar profileTemplate *sfs.SFSObject\n\tscanCommand := ""\n\tif scanMode {\n\t\tmapTemplates, profileTemplate = findPlayerScanV3Templates(convs, server)\n\t\tscanCommand = v3MapCommand + "(synthetic-v4)"\n\t\tif len(mapTemplates) > 0 {\n\t\t\tscanCommand = v3MapCommand + "(captured-v3)"\n\t\t}\n\t\tif profileTemplate != nil {\n\t\t\tscanCommand += "+" + v3ProfileCommand\n\t\t}\n\t}\n''',
-        '''\tvar mapTemplates []*sfs.SFSObject\n\tvar profileTemplate *sfs.SFSObject\n\tscanCommand := ""\n\tif activeReadMode {\n\t\tmapTemplates, profileTemplate = findPlayerScanV3Templates(convs, server)\n\t\tif scanMode {\n\t\t\tscanCommand = v3MapCommand + "(synthetic-v4)"\n\t\t\tif len(mapTemplates) > 0 {\n\t\t\t\tscanCommand = v3MapCommand + "(captured-v3)"\n\t\t\t}\n\t\t\tif profileTemplate != nil {\n\t\t\t\tscanCommand += "+" + v3ProfileCommand\n\t\t\t}\n\t\t} else {\n\t\t\tscanCommand = v3ProfileCommand + "(native-v6.9)"\n\t\t}\n\t}\n''',
+        '''\tvar mapTemplates []*sfs.SFSObject\n\tvar profileTemplate *sfs.SFSObject\n\tscanCommand := ""\n\tif scanMode {\n\t\tmapTemplates, profileTemplate = findPlayerScanV3Templates(convs, server)\n\t\tscanCommand = v3MapCommand + "(synthetic-v4.1)"\n\t\tif len(mapTemplates) > 0 {\n\t\t\tscanCommand = v3MapCommand + "(captured-v3)"\n\t\t}\n\t\tif profileTemplate != nil {\n\t\t\tscanCommand += "+" + v3ProfileCommand\n\t\t}\n\t}\n''',
+        '''\tvar mapTemplates []*sfs.SFSObject\n\tvar profileTemplate *sfs.SFSObject\n\tscanCommand := ""\n\tif activeReadMode {\n\t\tmapTemplates, profileTemplate = findPlayerScanV3Templates(convs, server)\n\t\tif scanMode {\n\t\t\tscanCommand = v3MapCommand + "(synthetic-v4.1)"\n\t\t\tif len(mapTemplates) > 0 {\n\t\t\t\tscanCommand = v3MapCommand + "(captured-v3)"\n\t\t\t}\n\t\t\tif profileTemplate != nil {\n\t\t\t\tscanCommand += "+" + v3ProfileCommand\n\t\t\t}\n\t\t} else {\n\t\t\tscanCommand = v3ProfileCommand + "(native-v6.9)"\n\t\t}\n\t}\n''',
         'profile template discovery',
     )
 
