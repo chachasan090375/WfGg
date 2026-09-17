@@ -56,6 +56,30 @@ func TestProfileExecutionFailureV692(t *testing.T) {
 			want:   "LASTWAR_PLAYER_PROFILE_PANIC_TEMPLATE_DISCOVERY",
 		},
 		{
+			name:   "panic unsupported SFS encode type",
+			runErr: errors.New("exit status 2"),
+			stderr: "panic: sfsobject: unsupported encode type 21\nlastwar-client/internal/sfs.someEncoder(...)\n",
+			want:   "LASTWAR_PLAYER_PROFILE_PANIC_SFS_UNSUPPORTED_ENCODE_TYPE",
+		},
+		{
+			name:   "panic native source line",
+			runErr: errors.New("exit status 2"),
+			stderr: "panic: exotic helper failure\nruntime.gopanic(...)\n\t/usr/local/go/src/runtime/panic.go:783 +0x1\nmain.unknownProfilePath(...)\n\tlastwar-client/cmd/wfgg-radar-native-template/profile_scan_v69.go:141 +0x2\n",
+			want:   "LASTWAR_PLAYER_PROFILE_PANIC_NATIVE_PROFILE_SCAN_V69_L141",
+		},
+		{
+			name:   "panic SFS source line",
+			runErr: errors.New("exit status 2"),
+			stderr: "panic: exotic helper failure\nruntime.gopanic(...)\n\t/usr/local/go/src/runtime/panic.go:783 +0x1\nsfs.unknownEncoder(...)\n\tlastwar-client/internal/sfs/sfsobject.go:823 +0x2\n",
+			want:   "LASTWAR_PLAYER_PROFILE_PANIC_SFS_SFSOBJECT_L823",
+		},
+		{
+			name:   "panic auth source line",
+			runErr: errors.New("exit status 2"),
+			stderr: "panic: exotic helper failure\nauth.unknown(...)\n\tlastwar-client/internal/auth/login.go:77 +0x2\n",
+			want:   "LASTWAR_PLAYER_PROFILE_PANIC_AUTH_LOGIN_L77",
+		},
+		{
 			name:   "panic nil fallback",
 			runErr: errors.New("exit status 2"),
 			stderr: "panic: runtime error: invalid memory address or nil pointer dereference\nmain.unknownFunction(...)\n",
@@ -83,7 +107,7 @@ func TestProfileExecutionFailureV692(t *testing.T) {
 			name:   "panic unknown fallback",
 			runErr: errors.New("exit status 2"),
 			stderr: "panic: unexpected runtime failure\nmain.unknownFunction(...)\n",
-			want:   "LASTWAR_PLAYER_PROFILE_HELPER_PANIC",
+			want:   "LASTWAR_PLAYER_PROFILE_PANIC_UNKNOWN_V695",
 		},
 		{
 			name:   "signal crash",
