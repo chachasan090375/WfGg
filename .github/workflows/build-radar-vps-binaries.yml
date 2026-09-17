@@ -102,17 +102,22 @@ jobs:
           set -euo pipefail
           chmod 0755 radar-vps/release/radar-connector radar-vps/release/radar-native-template radar-vps/release/radar-lastwar-auth-client
           cd radar-vps/release
-          sha256sum radar-connector radar-native-template radar-lastwar-auth-client > SHA256SUMS
+          # Sentinel deploys only these two files. Keep its checksum manifest scoped
+          # to exactly that deployment surface so an unrelated auth-client artifact
+          # can never block connector reconciliation on the VPS.
+          sha256sum radar-connector radar-native-template > SHA256SUMS
+          sha256sum radar-lastwar-auth-client > LASTWAR_AUTH_SHA256SUM
           file radar-connector radar-native-template radar-lastwar-auth-client
           test -s radar-lastwar-auth-client
           cat SHA256SUMS
+          cat LASTWAR_AUTH_SHA256SUM
 
       - name: Commit VPS release binaries
         run: |
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add radar-vps/release/radar-connector radar-vps/release/radar-native-template radar-vps/release/radar-lastwar-auth-client radar-vps/release/SHA256SUMS
+          git add radar-vps/release/radar-connector radar-vps/release/radar-native-template radar-vps/release/radar-lastwar-auth-client radar-vps/release/SHA256SUMS radar-vps/release/LASTWAR_AUTH_SHA256SUM
           if git diff --cached --quiet; then
             echo 'VPS_BINARIES=UNCHANGED'
             exit 0
