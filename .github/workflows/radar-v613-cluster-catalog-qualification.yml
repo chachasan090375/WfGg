@@ -1,0 +1,74 @@
+name: Radar V6.13 cluster catalog qualification
+
+on:
+  push:
+    branches: [radar-v613-cluster-catalog]
+    paths:
+      - '.radar-release-src/v613-source/**'
+      - '.github/scripts/patch-radar-server-cluster-catalog-v613.py'
+      - '.github/scripts/patch-radar-connector-runtime-v693.py'
+      - '.github/workflows/radar-v613-cluster-catalog-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  LASTWAR_CLIENT_REF: ee5f64de160a8051c2f9f98189b75038dd225a0a
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: radar-v613-cluster-catalog
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.27.x'
+
+      - name: Reconstruct V6.13 connector
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/wfgg-radar
+          mkdir -p /tmp/wfgg-radar
+          python3 .github/scripts/reconstruct-radar-release.py
+          echo '234df1dec57f6211bc625855bf13350c9f17fbd843fbe92d8cf1ab7cb5c081ef  /tmp/radar-src.tar.gz' | sha256sum -c -
+          tar -xzf /tmp/radar-src.tar.gz -C /tmp/wfgg-radar
+          rm -rf /tmp/wfgg-radar/connector-go
+          cp -a .radar-release-src/v2-source/connector-go /tmp/wfgg-radar/connector-go
+          python3 .github/scripts/patch-radar-target-profile-retry.py
+          python3 .github/scripts/patch-radar-federated-diagnostics-v65.py
+          python3 .github/scripts/patch-player-scan-v3.py
+          python3 .github/scripts/patch-player-scan-v4.py
+          python3 .github/scripts/patch-radar-protocol-discovery-v67.py
+          python3 .github/scripts/patch-radar-profile-isolation-v68.py
+          python3 .github/scripts/patch-radar-native-profile-v69.py
+          python3 .github/scripts/patch-radar-native-profile-handshake-v691.py
+          python3 .github/scripts/patch-radar-native-profile-exec-v692.py
+          python3 .github/scripts/patch-radar-connector-runtime-v693.py
+
+      - name: Test cluster catalog and frontier
+        working-directory: /tmp/wfgg-radar/connector-go
+        run: |
+          set -euo pipefail
+          gofmt -w ./cmd ./internal
+          go test ./cmd/radar-connector -run 'TestDeriveServerClusterCatalogV613|TestServerClusterCatalogV613ContainsNoIdentityKeys' -count=1
+          go test ./...
+          go vet ./...
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w' -o /tmp/radar-connector-v613 ./cmd/radar-connector
+          test -s /tmp/radar-connector-v613
+
+      - name: Verify aggregate-only catalog surface
+        run: |
+          set -euo pipefail
+          grep -Fq 'WFGG_RADAR_SERVER_CLUSTER_CATALOG_V613' /tmp/wfgg-radar/connector-go/cmd/radar-connector/server_cluster_catalog_v613.go
+          grep -Fq 'WFGG_RADAR_SERVER_CLUSTER_CATALOG_ROUTE_V613' /tmp/wfgg-radar/connector-go/cmd/radar-connector/main.go
+          grep -Fq 'GET /v1/collector/server-cluster-catalog' /tmp/wfgg-radar/connector-go/cmd/radar-connector/main.go
+          grep -Fq 'largest_unmapped_known_population' /tmp/wfgg-radar/connector-go/cmd/radar-connector/server_cluster_catalog_v613.go
+          grep -Fq 'clusterConfirmMinCyclesV613 = 3' /tmp/wfgg-radar/connector-go/cmd/radar-connector/server_cluster_catalog_v613.go
+          ! grep -REq 'game_uid|gameUid|pseudo|alliance_tag|credential|token' .radar-release-src/v613-source
+          echo RADAR_V613_CLUSTER_CATALOG=QUALIFIED
