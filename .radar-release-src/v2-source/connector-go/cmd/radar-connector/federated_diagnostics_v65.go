@@ -93,6 +93,7 @@ func classifyCollectorFailureV65(code, cause string) string {
 			if strings.Contains(joined, part) {
 				return true
 			}
+		}
 		return false
 	}
 
