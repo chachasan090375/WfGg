@@ -1,0 +1,70 @@
+name: Radar V6.16 live catalog probe
+
+on:
+  push:
+    branches: [radar-v616-live-probe-run]
+    paths:
+      - '.github/workflows/radar-v616-live-catalog-probe.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  RADAR_CONNECTOR_URL: https://chachavps.tail3ab05a.ts.net
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Wait for live V6.16 and verify pre-third-scan state
+        env:
+          RADAR_CONNECTOR_SHARED_KEY: ${{ secrets.RADAR_CONNECTOR_SHARED_KEY }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib,hmac,json,os,secrets,time,urllib.request
+          base=os.environ['RADAR_CONNECTOR_URL'].rstrip('/')
+          key=os.environ['RADAR_CONNECTOR_SHARED_KEY'].encode()
+          path='/v1/collector/server-cluster-catalog'
+          target={'953','964','972','977','991','1027','1042','1057','8119'}
+          for attempt in range(1,61):
+              ts=str(int(time.time())); nonce=secrets.token_hex(16)
+              bh=hashlib.sha256(b'').hexdigest()
+              canonical='\n'.join(['GET',path,ts,nonce,bh])
+              sig=hmac.new(key,canonical.encode(),hashlib.sha256).hexdigest()
+              req=urllib.request.Request(base+path,method='GET',headers={
+                  'X-Radar-Timestamp':ts,
+                  'X-Radar-Nonce':nonce,
+                  'X-Radar-Signature':sig,
+              })
+              try:
+                  with urllib.request.urlopen(req,timeout=40) as r:
+                      data=json.loads(r.read().decode())
+              except Exception as exc:
+                  print('RADAR_V616_LIVE_ATTEMPT='+str(attempt)+' error='+type(exc).__name__)
+                  if attempt<60: time.sleep(10); continue
+                  raise
+              version=str(data.get('catalogVersion') or '')
+              print('RADAR_V616_LIVE_ATTEMPT='+str(attempt)+' version='+version)
+              if version!='v6.16':
+                  if attempt<60: time.sleep(10); continue
+                  raise SystemExit('RADAR_V616_LIVE_VERSION_TIMEOUT')
+              assert data.get('ok') is True
+              assert data.get('readonly') is True
+              assert data.get('rawPlayerDataExposed') is False
+              confirmed=data.get('confirmedClusters') or []
+              confirmed_sets=[set(map(str,c.get('members') or [])) for c in confirmed]
+              assert not any('972' in s for s in confirmed_sets), confirmed
+              frontier={str(r.get('serverId')):r for r in (data.get('frontier') or [])}
+              missing=sorted(target-set(frontier))
+              assert not missing, missing
+              wrong={sid:int(frontier[sid].get('distinctCycles') or 0) for sid in sorted(target) if int(frontier[sid].get('distinctCycles') or 0)!=2}
+              assert not wrong, wrong
+              print('RADAR_V616_LIVE=PASS')
+              print('RADAR_V616_CONFIRMED_CLUSTERS='+str(len(confirmed)))
+              print('RADAR_V616_972_CANDIDATE_CYCLES=2')
+              print('RADAR_V616_972_CANDIDATE_MEMBERS='+','.join(sorted(target,key=lambda x:int(x))))
+              break
+          PY
