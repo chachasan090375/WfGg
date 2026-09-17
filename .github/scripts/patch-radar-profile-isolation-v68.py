@@ -30,10 +30,11 @@ def patch_collector() -> None:
         print('RADAR_V68_COLLECTOR=ALREADY_PRESENT')
         return
 
+    anchor = '\tRegionDiagnostics []collectorRegionDiagnosticV67 `json:"regionDiagnostics,omitempty"`\n'
     text = replace_once(
         text,
-        '\tRegionFailures   []collectorRegionFailure `json:"regionFailures,omitempty"`\n',
-        '\tRegionFailures   []collectorRegionFailure `json:"regionFailures,omitempty"`\n\t// WFGG_RADAR_PROFILE_ISOLATION_JOB_V68\n\tProfileStats     collectorProfileStatsV68 `json:"profileStats,omitempty"`\n',
+        anchor,
+        anchor + '\t// WFGG_RADAR_PROFILE_ISOLATION_JOB_V68\n\tProfileStats collectorProfileStatsV68 `json:"profileStats,omitempty"`\n',
         'profile stats field',
     )
 
