@@ -1,0 +1,145 @@
+name: Radar V6.10.1 D1 writer bundle qualification
+
+on:
+  push:
+    branches: [radar-v6101-d1-writer-bundle-fix]
+    paths:
+      - '.github/workflows/radar-v6101-d1-writer-bundle-qualification.yml'
+      - '.github/scripts/patch-radar-async-collector-worker.py'
+      - '.github/scripts/patch-radar-worker-collector-index-v610.py'
+      - '.github/scripts/patch-radar-collector-index-v610.py'
+      - '.github/scripts/patch-radar-connector-runtime-v693.py'
+      - '.radar-release-src/v610-source/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  LASTWAR_CLIENT_REF: ee5f64de160a8051c2f9f98189b75038dd225a0a
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: radar-v6101-d1-writer-bundle-fix
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.27.x'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Reconstruct Radar through V6.10.1
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/wfgg-radar
+          mkdir -p /tmp/wfgg-radar
+          python3 .github/scripts/reconstruct-radar-release.py
+          echo '234df1dec57f6211bc625855bf13350c9f17fbd843fbe92d8cf1ab7cb5c081ef  /tmp/radar-src.tar.gz' | sha256sum -c -
+          tar -xzf /tmp/radar-src.tar.gz -C /tmp/wfgg-radar
+          rm -rf /tmp/wfgg-radar/connector-go
+          cp -a .radar-release-src/v2-source/connector-go /tmp/wfgg-radar/connector-go
+          python3 .github/scripts/patch-radar-target-profile-retry.py
+          python3 .github/scripts/patch-radar-federated-diagnostics-v65.py
+          python3 .github/scripts/patch-player-scan-v3.py
+          python3 .github/scripts/patch-player-scan-v4.py
+          python3 .github/scripts/patch-radar-protocol-discovery-v67.py
+          python3 .github/scripts/patch-radar-profile-isolation-v68.py
+          python3 .github/scripts/patch-radar-native-profile-v69.py
+          python3 .github/scripts/patch-radar-native-profile-handshake-v691.py
+          python3 .github/scripts/patch-radar-native-profile-exec-v692.py
+          python3 .github/scripts/patch-radar-connector-runtime-v693.py
+          install -m 0644 .radar-release-src/v2-source/src/game/remote-transport.js /tmp/wfgg-radar/src/game/remote-transport.js
+          python3 .github/scripts/patch-radar-async-collector-worker.py
+          grep -Fq 'WFGG_RADAR_D1_OBSERVATION_WRITER_V6101' /tmp/wfgg-radar/src/db/repository.js
+          grep -Fq 'export async function saveRadarPlayerObservations' /tmp/wfgg-radar/src/db/repository.js
+          grep -Fq 'saveRadarPlayerObservations' /tmp/wfgg-radar/src/worker.js
+          echo RADAR_V6101_RECONSTRUCT=PASS
+
+      - name: Re-run application and Connector gates
+        working-directory: /tmp/wfgg-radar
+        run: |
+          set -euo pipefail
+          node --check src/worker.js
+          node --check src/game/remote-transport.js
+          node --check src/db/repository.js
+          npm test
+          npm run check
+          cd connector-go
+          gofmt -w ./cmd ./internal
+          go test ./...
+          go test ./cmd/radar-connector -run 'TestCollectorIndexSearchV610' -count=1
+          go vet ./...
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w' -o /tmp/radar-connector-v6101 ./cmd/radar-connector
+          test -s /tmp/radar-connector-v6101
+          echo RADAR_V6101_CODE_GATES=PASS
+
+      - name: Verify V6.10.1 search order and writer safety
+        working-directory: /tmp/wfgg-radar
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          worker=Path('src/worker.js').read_text()
+          repo=Path('src/db/repository.js').read_text()
+          route="if (url.pathname === '/api/radar/search' && request.method === 'GET')"
+          start=worker.index(route)
+          end=worker.index("if (url.pathname === '/api/oracle/status'", start)
+          block=worker[start:end]
+          d1=block.index('const cached = await searchRadar')
+          idx=block.index('WFGG_RADAR_COLLECTOR_INDEX_CACHE_V610')
+          owner=block.index('if (session.role !== ROLES.OWNER)')
+          live=block.index('const record = await getCredential', owner)
+          scan=block.index('transport.scanPlayer', live)
+          assert d1 < idx < owner < live < scan
+          assert "sourceCommand: 'collector-index-v610'" in block
+          assert 'WFGG_RADAR_D1_OBSERVATION_WRITER_V6101' in repo
+          assert 'players.slice(0, 100)' in repo
+          assert 'ciphertext' not in repo[repo.index('WFGG_RADAR_D1_OBSERVATION_WRITER_V6101'):]
+          assert 'RADAR_TOKEN_VAULT_KEY' not in repo[repo.index('WFGG_RADAR_D1_OBSERVATION_WRITER_V6101'):]
+          print('RADAR_V6101_SEARCH_ORDER=D1_COLLECTOR_OWNER_LIVE')
+          print('RADAR_V6101_WRITER_SCOPE=OBSERVATION_ONLY')
+          PY
+
+      - name: Wrangler bundle dry-run
+        working-directory: /tmp/wfgg-radar
+        run: |
+          set -euo pipefail
+          cat > wrangler-v6101.toml <<'EOF'
+          name = "wfgg-radar-v6101-qualification"
+          main = "src/worker.js"
+          compatibility_date = "2026-09-10"
+
+          [assets]
+          directory = "./public"
+          binding = "ASSETS"
+          run_worker_first = ["/api/*"]
+
+          [[d1_databases]]
+          binding = "DB"
+          database_name = "wfgg-radar"
+          database_id = "00000000-0000-0000-0000-000000000000"
+
+          [vars]
+          RADAR_SESSION_TTL = "3600"
+          RADAR_OWNER_PSEUDO = "__OWNER_BOOTSTRAP_PENDING__"
+          RADAR_CONNECTOR_URL = "https://example.invalid"
+          EOF
+          npx --yes wrangler@4 deploy --dry-run --config wrangler-v6101.toml --outdir /tmp/wrangler-v6101
+          test -d /tmp/wrangler-v6101
+          echo RADAR_V6101_WRANGLER_BUNDLE=PASS
+
+      - name: Verify read-only patch surface
+        run: |
+          set -euo pipefail
+          ! grep -REq 'building\.production\.collect|mail\.reward|al\.science\.donate|visitor\.operate|attack|march|purchase' \
+            .github/scripts/patch-radar-worker-collector-index-v610.py \
+            .github/scripts/patch-radar-async-collector-worker.py
+          echo RADAR_V6101_READONLY=PASS
