@@ -26,21 +26,17 @@ def patch_transport() -> None:
     print('RADAR_V610_TRANSPORT=PATCHED')
 
 
-def dump_search_block(text: str) -> None:
-    route = "if (url.pathname === '/api/radar/search' && request.method === 'GET')"
-    pos = text.find(route)
-    if pos < 0:
-        pos = text.find('const cached = await searchRadar')
-    if pos < 0:
-        print('RADAR_V610_SEARCH_BLOCK=NOT_FOUND')
-        return
-    start = max(0, pos - 300)
-    end = min(len(text), pos + 5200)
-    snippet = text[start:end]
-    # Static source only. Never print environment values or runtime data.
-    print('RADAR_V610_SEARCH_BLOCK_BEGIN')
-    print(snippet)
-    print('RADAR_V610_SEARCH_BLOCK_END')
+def ensure_repository_import(text: str) -> str:
+    if re.search(r"import\s*\{[^}]*\bsaveRadarPlayerObservations\b[^}]*\}\s*from\s*['\"]\./db/repository\.js['\"]", text, re.S):
+        return text
+    pattern = re.compile(r"import\s*\{(?P<body>[^}]*)\}\s*from\s*'\./db/repository\.js';")
+    matches = list(pattern.finditer(text))
+    if len(matches) != 1:
+        raise SystemExit(f'repository import: expected exactly 1 match, got {len(matches)}')
+    body = matches[0].group('body').strip()
+    body = body + (', ' if body else '') + 'saveRadarPlayerObservations'
+    replacement = "import { " + body + " } from './db/repository.js';"
+    return text[:matches[0].start()] + replacement + text[matches[0].end():]
 
 
 def patch_worker() -> None:
@@ -50,19 +46,10 @@ def patch_worker() -> None:
         print('RADAR_V610_WORKER=ALREADY_PRESENT')
         return
 
-    pattern = re.compile(
-        r"(?P<indent>[ \t]+)const cached = await searchRadar\(env, query, \{ limit \}\);\n"
-        r"(?P=indent)if \(!query \|\| cached\.results\.length > 0(?: \|\| session\.role !== ROLES\.OWNER)?\) return json\(cached\);\n\n"
-        r"(?P=indent)// Experimental V0\.6 live fallback: OWNER-only until the native READONLY\n"
-    )
-    matches = list(pattern.finditer(text))
-    if len(matches) != 1:
-        dump_search_block(text)
-        raise SystemExit(f'worker search anchor: expected exactly 1 match, got {len(matches)}')
-    indent = matches[0].group('indent')
-    block = f'''{indent}const cached = await searchRadar(env, query, {{ limit }});\n{indent}if (!query || cached.results.length > 0) return json(cached);\n\n{indent}// WFGG_RADAR_COLLECTOR_INDEX_CACHE_V610\n{indent}// The VPS Collector is the canonical accumulated read-only index. Query it\n{indent}// before any live Last War operation, then lazily cache only matching rows in D1.\n{indent}let collectorIndex = {{ attempted: true, status: 'miss', matched: 0, cached: 0 }};\n{indent}const indexTransport = new RemoteLastWarTransport({{ baseUrl: env.RADAR_CONNECTOR_URL, sharedKey: env.RADAR_CONNECTOR_SHARED_KEY, timeoutMs: 30000 }});\n{indent}try {{\n{indent}  const indexed = await indexTransport.collectorIndexSearch(query, limit);\n{indent}  const players = Array.isArray(indexed?.players) ? indexed.players : [];\n{indent}  collectorIndex.matched = players.length;\n{indent}  if (players.length > 0) {{\n{indent}    const stored = await saveRadarPlayerObservations(env, players, {{ sourceCommand: 'collector-index-v610' }});\n{indent}    collectorIndex = {{ attempted: true, status: 'hit', matched: players.length, cached: stored.inserted }};\n{indent}    const refreshed = await searchRadar(env, query, {{ limit }});\n{indent}    return json({{ ...refreshed, collectorIndex }});\n{indent}  }}\n{indent}}} catch (indexError) {{\n{indent}  collectorIndex = {{ attempted: true, status: 'unavailable', matched: 0, cached: 0, error: String(indexError?.message || 'COLLECTOR_INDEX_UNAVAILABLE') }};\n{indent}}} finally {{\n{indent}  await indexTransport.close().catch(() => {{}});\n{indent}}}\n\n{indent}// Non-OWNER users stop here: a Collector miss must never trigger a live game scan.\n{indent}if (session.role !== ROLES.OWNER) return json({{ ...cached, collectorIndex }});\n\n{indent}// Experimental V0.6 live fallback: OWNER-only until the native READONLY\n'''
-    text = text[:matches[0].start()] + block + text[matches[0].end():]
-    WORKER.write_text(text, encoding='utf-8')
+    text = ensure_repository_import(text)
+    old = '''      if (url.pathname === '/api/radar/search' && request.method === 'GET') {\n        const session = await requireSession(request, env);\n        assertCapability(session.role, 'radar.search');\n        return json(await searchRadar(env, url.searchParams.get('q') || '', { limit: url.searchParams.get('limit') || 50 }));\n      }\n'''
+    new = '''      if (url.pathname === '/api/radar/search' && request.method === 'GET') {\n        const session = await requireSession(request, env);\n        assertCapability(session.role, 'radar.search');\n        const query = String(url.searchParams.get('q') || '').trim();\n        const limit = url.searchParams.get('limit') || 50;\n        const cached = await searchRadar(env, query, { limit });\n        if (!query || cached.results.length > 0) return json(cached);\n\n        // WFGG_RADAR_COLLECTOR_INDEX_CACHE_V610\n        // The VPS Collector is the canonical accumulated read-only index. Query it\n        // before any live Last War operation, then lazily cache only matching rows in D1.\n        let collectorIndex = { attempted: true, status: 'miss', matched: 0, cached: 0 };\n        const indexTransport = new RemoteLastWarTransport({ baseUrl: env.RADAR_CONNECTOR_URL, sharedKey: env.RADAR_CONNECTOR_SHARED_KEY, timeoutMs: 30000 });\n        try {\n          const indexed = await indexTransport.collectorIndexSearch(query, limit);\n          const players = Array.isArray(indexed?.players) ? indexed.players : [];\n          collectorIndex.matched = players.length;\n          if (players.length > 0) {\n            const stored = await saveRadarPlayerObservations(env, players, { sourceCommand: 'collector-index-v610' });\n            collectorIndex = { attempted: true, status: 'hit', matched: players.length, cached: stored.inserted };\n            const refreshed = await searchRadar(env, query, { limit });\n            return json({ ...refreshed, collectorIndex });\n          }\n        } catch (indexError) {\n          collectorIndex = { attempted: true, status: 'unavailable', matched: 0, cached: 0, error: String(indexError?.message || 'COLLECTOR_INDEX_UNAVAILABLE') };\n        } finally {\n          await indexTransport.close().catch(() => {});\n        }\n\n        // Non-OWNER users stop here: a Collector miss must never trigger a live game scan.\n        if (session.role !== ROLES.OWNER) return json({ ...cached, collectorIndex });\n\n        // Last-resort read-only Last War lookup for OWNER only.\n        const record = await getCredential(env, session.gameUid);\n        if (!record) return json({ ...cached, collectorIndex, liveScan: { attempted: false, status: 'credential-missing' } });\n        const vaultKey = requireSecret(env.RADAR_TOKEN_VAULT_KEY, 'RADAR_TOKEN_VAULT_KEY');\n        const token = await decryptGameToken({ ciphertext: record.ciphertext, iv: record.iv, keyVersion: record.key_version }, vaultKey, session.gameUid);\n        const transport = new RemoteLastWarTransport({ baseUrl: env.RADAR_CONNECTOR_URL, sharedKey: env.RADAR_CONNECTOR_SHARED_KEY });\n        try {\n          const result = await transport.scanPlayer(query, token);\n          const players = Array.isArray(result?.players) ? result.players : [];\n          const stored = await saveRadarPlayerObservations(env, players, { sourceCommand: 'native-template-player-scan-v2' });\n          await audit(env, session.gameUid, 'radar.live-player-scan', query, { observedPlayers: players.length, inserted: stored.inserted });\n          const refreshed = await searchRadar(env, query, { limit });\n          return json({ ...refreshed, collectorIndex, liveScan: { attempted: true, status: 'ok', observedPlayers: players.length, inserted: stored.inserted } });\n        } catch (error) {\n          const code = String(error?.message || 'LASTWAR_PLAYER_SCAN_FAILED');\n          return json({ ...cached, collectorIndex, liveScan: { attempted: true, status: 'unavailable', error: code } });\n        } finally {\n          await transport.close().catch(() => {});\n        }\n      }\n'''
+    WORKER.write_text(replace_once(text, old, new, 'actual reconstructed worker search route'), encoding='utf-8')
     print('RADAR_V610_WORKER=PATCHED')
 
 
