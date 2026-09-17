@@ -1,0 +1,109 @@
+name: Radar V6.9.8 D1 profile persistence audit
+
+on:
+  push:
+    branches: [radar-v698-d1-profile-audit]
+    paths:
+      - '.github/workflows/radar-v698-d1-profile-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Read-only D1 schema and profile coverage audit
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: 9f09842ae58aee7111e1c40de8b33c92
+          RADAR_D1_NAME: wfgg-radar
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, os, urllib.request
+
+          account = os.environ['CLOUDFLARE_ACCOUNT_ID']
+          token = os.environ['CLOUDFLARE_API_TOKEN']
+          wanted = os.environ['RADAR_D1_NAME']
+          base = f'https://api.cloudflare.com/client/v4/accounts/{account}'
+          headers = {'Authorization': f'Bearer {token}', 'Content-Type': 'application/json'}
+
+          def http_json(url, method='GET', payload=None):
+              data = None if payload is None else json.dumps(payload).encode()
+              req = urllib.request.Request(url, method=method, headers=headers, data=data)
+              with urllib.request.urlopen(req, timeout=30) as r:
+                  out = json.loads(r.read().decode())
+              if out.get('success') is not True:
+                  raise SystemExit('CLOUDFLARE_API_FAILED')
+              return out
+
+          dbs = http_json(base + '/d1/database?per_page=100').get('result') or []
+          db = next((x for x in dbs if x.get('name') == wanted), None)
+          if not db or not db.get('uuid'):
+              raise SystemExit('RADAR_D1_NOT_FOUND')
+          dbid = db['uuid']
+          qurl = base + f'/d1/database/{dbid}/query'
+
+          def query(sql):
+              out = http_json(qurl, 'POST', {'sql': sql})
+              blocks = out.get('result') or []
+              if not blocks:
+                  return []
+              block = blocks[0] or {}
+              if block.get('success') is False:
+                  raise RuntimeError('D1_QUERY_FAILED')
+              return block.get('results') or []
+
+          schema = query("SELECT name, sql FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name")
+          print('RADAR_V698_D1=FOUND')
+          print('RADAR_V698_TABLE_COUNT=' + str(len(schema)))
+
+          sensitive_fragments = ('credential', 'secret', 'token', 'session', 'audit', 'grant', 'auth')
+          profile_hints = {
+              'game_uid','uid','pseudo','player_name','name','alliance','alliance_name','alliance_tag',
+              'level','hq_level','power','server_id','server','x','y','region','region_id',
+              'observed_at','first_seen_at','last_seen_at','updated_at','source','source_command'
+          }
+
+          def qi(name):
+              return '"' + str(name).replace('"', '""') + '"'
+
+          for row in schema:
+              table = str(row.get('name') or '')
+              if not table:
+                  continue
+              count_rows = query(f'SELECT COUNT(*) AS n FROM {qi(table)}')
+              count = int((count_rows[0] if count_rows else {}).get('n') or 0)
+              cols = query(f'PRAGMA table_info({qi(table)})')
+              names = [str(c.get('name') or '') for c in cols if c.get('name')]
+              print(f'TABLE={table}|ROWS={count}|COLUMNS=' + ','.join(names))
+
+              lower_table = table.lower()
+              if any(x in lower_table for x in sensitive_fragments):
+                  continue
+              selected = [c for c in names if c.lower() in profile_hints]
+              if not selected:
+                  continue
+
+              parts = ['COUNT(*) AS total']
+              aliases = []
+              for idx, col in enumerate(selected):
+                  alias = f'f{idx}'
+                  aliases.append((alias, col))
+                  parts.append(f"SUM(CASE WHEN {qi(col)} IS NOT NULL AND TRIM(CAST({qi(col)} AS TEXT)) <> '' THEN 1 ELSE 0 END) AS {alias}")
+              coverage_rows = query('SELECT ' + ', '.join(parts) + f' FROM {qi(table)}')
+              cov = coverage_rows[0] if coverage_rows else {}
+              summary = [f'{col}:{int(cov.get(alias) or 0)}' for alias, col in aliases]
+              print(f'PROFILE_COVERAGE={table}|TOTAL={int(cov.get("total") or 0)}|' + '|'.join(summary))
+
+              for candidate in ('game_uid','uid','pseudo','player_name'):
+                  if candidate in names:
+                      distinct_rows = query(f"SELECT COUNT(DISTINCT {qi(candidate)}) AS n FROM {qi(table)} WHERE {qi(candidate)} IS NOT NULL AND TRIM(CAST({qi(candidate)} AS TEXT)) <> ''")
+                      distinct_n = int((distinct_rows[0] if distinct_rows else {}).get('n') or 0)
+                      print(f'PROFILE_DISTINCT={table}|FIELD={candidate}|COUNT={distinct_n}')
+
+          print('RADAR_V698_D1_PROFILE_AUDIT=PASS')
+          PY
