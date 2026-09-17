@@ -1,0 +1,71 @@
+name: Radar V6.16 post-partial 972 probe
+
+on:
+  push:
+    branches: [radar-v616-post-partial-972-probe]
+    paths:
+      - '.github/workflows/radar-v616-post-partial-972-probe.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  RADAR_CONNECTOR_URL: https://chachavps.tail3ab05a.ts.net
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Inspect latest aggregate cycle and catalog
+        env:
+          RADAR_CONNECTOR_SHARED_KEY: ${{ secrets.RADAR_CONNECTOR_SHARED_KEY }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib,hmac,json,os,secrets,time,urllib.request
+          base=os.environ['RADAR_CONNECTOR_URL'].rstrip('/')
+          key=os.environ['RADAR_CONNECTOR_SHARED_KEY'].encode()
+          def get(path):
+              ts=str(int(time.time())); nonce=secrets.token_hex(16)
+              bh=hashlib.sha256(b'').hexdigest()
+              canonical='\n'.join(['GET',path,ts,nonce,bh])
+              sig=hmac.new(key,canonical.encode(),hashlib.sha256).hexdigest()
+              req=urllib.request.Request(base+path,method='GET',headers={
+                'X-Radar-Timestamp':ts,
+                'X-Radar-Nonce':nonce,
+                'X-Radar-Signature':sig,
+              })
+              with urllib.request.urlopen(req,timeout=40) as r:
+                  return json.loads(r.read().decode())
+          hist=get('/v1/collector/server-cycle-history')
+          cat=get('/v1/collector/server-cluster-catalog')
+          assert hist.get('ok') is True and hist.get('readonly') is True and hist.get('rawPlayerDataExposed') is False
+          assert cat.get('ok') is True and cat.get('readonly') is True and cat.get('rawPlayerDataExposed') is False
+          cycles=hist.get('cycles') or []
+          latest=cycles[-1] if cycles else {}
+          members=[]
+          for row in latest.get('servers') or []:
+              sid=str(row.get('serverId') or '')
+              obs=int(row.get('observations') or 0)
+              if sid:
+                  members.append((sid,obs))
+          members.sort(key=lambda x:int(x[0]) if x[0].isdigit() else 10**12)
+          target={'953','964','972','977','991','1027','1042','1057','8119'}
+          latest_set={sid for sid,_ in members}
+          confirmed=[set(map(str,c.get('members') or [])) for c in (cat.get('confirmedClusters') or [])]
+          frontier={str(r.get('serverId')):int(r.get('distinctCycles') or 0) for r in (cat.get('frontier') or [])}
+          print('RADAR_POST_PARTIAL_HISTORY_CYCLE_COUNT='+str(hist.get('cycleCount',0)))
+          print('RADAR_POST_PARTIAL_LATEST_CYCLE_ID='+str(latest.get('cycleId','')))
+          print('RADAR_POST_PARTIAL_LATEST_SERVER_COUNT='+str(latest.get('serverCount',0)))
+          print('RADAR_POST_PARTIAL_LATEST_MEMBERS='+','.join(f'{sid}:{obs}' for sid,obs in members))
+          print('RADAR_POST_PARTIAL_LATEST_TARGET_PRESENT='+','.join(sorted(target & latest_set,key=int)))
+          print('RADAR_POST_PARTIAL_LATEST_TARGET_MISSING='+','.join(sorted(target-latest_set,key=int)))
+          print('RADAR_POST_PARTIAL_HASH_MATCHED='+str(latest.get('hashMatched',0)))
+          print('RADAR_POST_PARTIAL_UNRESOLVED='+str(latest.get('unresolved',0)))
+          print('RADAR_POST_PARTIAL_CATALOG_VERSION='+str(cat.get('catalogVersion') or ''))
+          print('RADAR_POST_PARTIAL_CONFIRMED_CLUSTER_COUNT='+str(len(confirmed)))
+          print('RADAR_POST_PARTIAL_972_CONFIRMED='+str(any(target==s for s in confirmed)).lower())
+          print('RADAR_POST_PARTIAL_TARGET_CYCLES='+','.join(f'{sid}:{frontier.get(sid,-1)}' for sid in sorted(target,key=int)))
+          PY
