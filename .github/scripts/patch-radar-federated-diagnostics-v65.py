@@ -18,7 +18,6 @@ if collector.is_file():
         if s.count(old_fail) != 1:
             raise SystemExit('V65_COLLECTOR_FAIL_ANCHOR_MISSING')
         s = s.replace(old_fail, new_fail, 1)
-
         for old, new in {
             'fail("COLLECTOR_CYCLE_START_FAILED")': 'fail("COLLECTOR_CYCLE_START_FAILED", err)',
             'fail("COLLECTOR_JOINED_CYCLE_FAILED")': 'fail("COLLECTOR_JOINED_CYCLE_FAILED", err)',
@@ -39,8 +38,11 @@ if collector.is_file():
 worker = Path('/tmp/wfgg-radar/src/worker.js')
 if worker.is_file():
     s = worker.read_text(encoding='utf-8')
-    helper_marker = '// WFGG_RADAR_FEDERATED_DIAGNOSTICS_V65'
-    if helper_marker not in s:
+    if "'/api/radar/search/status'" not in s:
+        print('RADAR_V65_WORKER_DIAGNOSTICS=SKIPPED_NO_ASYNC_BRIDGE')
+    elif '// WFGG_RADAR_FEDERATED_DIAGNOSTICS_V65' in s:
+        print('RADAR_V65_WORKER_DIAGNOSTICS=ALREADY_PRESENT')
+    else:
         export_anchor = 'export default {\n'
         if s.count(export_anchor) != 1:
             raise SystemExit('V65_WORKER_EXPORT_ANCHOR_MISSING')
@@ -74,18 +76,15 @@ function normalizeFederatedDiagnosticV65(job) {
 
 '''
         s = s.replace(export_anchor, helper + export_anchor, 1)
-
         status_anchor = "          if (!job) throw Object.assign(new Error('COLLECTOR_JOB_STATUS_INVALID'), { status: 502 });\n"
         if s.count(status_anchor) != 1:
             raise SystemExit('V65_WORKER_STATUS_ANCHOR_MISSING')
         s = s.replace(status_anchor, status_anchor + '          normalizeFederatedDiagnosticV65(job);\n', 1)
-
         probe_old = '''                  try {\n                    await transport.authenticate(token);\n                  } catch (probeError) {'''
         probe_new = '''                  try {\n                    await transport.authenticate(token);\n                    job.authState = 'VALID';\n                  } catch (probeError) {'''
         if s.count(probe_old) != 1:
             raise SystemExit('V65_AUTH_PROBE_ANCHOR_MISSING')
         s = s.replace(probe_old, probe_new, 1)
-
         reject_old = '''                      job.error = 'LASTWAR_AUTH_REJECTED';\n                      await audit(env, session.gameUid, 'auth.lastwar.credential-rejected', session.gameUid, {'''
         reject_new = '''                      job.error = 'LASTWAR_AUTH_REJECTED';\n                      job.failureCategory = 'AUTH';\n                      job.failureCode = 'LASTWAR_AUTH_REJECTED';\n                      job.failureCause = 'LASTWAR_AUTH_REJECTED';\n                      job.authState = 'REJECTED';\n                      await audit(env, session.gameUid, 'auth.lastwar.credential-rejected', session.gameUid, {'''
         if s.count(reject_old) != 1:
@@ -93,14 +92,15 @@ function normalizeFederatedDiagnosticV65(job) {
         s = s.replace(reject_old, reject_new, 1)
         worker.write_text(s, encoding='utf-8')
         print('RADAR_V65_WORKER_DIAGNOSTICS=PATCHED')
-    else:
-        print('RADAR_V65_WORKER_DIAGNOSTICS=ALREADY_PRESENT')
 
 ui = Path('/tmp/wfgg-radar/public/live-radar.html')
 if ui.is_file():
     s = ui.read_text(encoding='utf-8')
-    ui_marker = 'WFGG_RADAR_FEDERATED_DIAGNOSTICS_UI_V65'
-    if ui_marker not in s:
+    if 'WFGG_RADAR_FEDERATED_PROGRESS_V64' not in s:
+        print('RADAR_V65_UI_DIAGNOSTICS=SKIPPED_NO_V64_UI')
+    elif 'WFGG_RADAR_FEDERATED_DIAGNOSTICS_UI_V65' in s:
+        print('RADAR_V65_UI_DIAGNOSTICS=ALREADY_PRESENT')
+    else:
         old = "else if(job.status==='FAILED'){title.textContent=`COLLECTOR FÉDÉRÉ · SERVEUR ${m[1]} · ÉCHEC`;meta.textContent=job.error||'Erreur Collector'}"
         new = "else if(job.status==='FAILED'){/* WFGG_RADAR_FEDERATED_DIAGNOSTICS_UI_V65 */const cat=String(job.failureCategory||'PROTOCOL');const code=String(job.failureCode||job.error||'COLLECTOR_FAILED');const cause=String(job.failureCause||code);const phase=String(job.failurePhase||job.phase||'UNKNOWN');const region=Number(job.region||0)||0;const auth=String(job.authState||'UNKNOWN');title.textContent=`COLLECTOR FÉDÉRÉ · SERVEUR ${job.serverTarget||m[1]} · ÉCHEC ${cat}`;meta.textContent=`${code} · cause ${cause} · phase ${phase} · région ${region}/${job.regions||9} · auth ${auth}`}"
         if s.count(old) != 1:
@@ -108,7 +108,5 @@ if ui.is_file():
         s = s.replace(old, new, 1)
         ui.write_text(s, encoding='utf-8')
         print('RADAR_V65_UI_DIAGNOSTICS=PATCHED')
-    else:
-        print('RADAR_V65_UI_DIAGNOSTICS=ALREADY_PRESENT')
 
 print('RADAR_FEDERATED_DIAGNOSTICS_V65=READY')
