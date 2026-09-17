@@ -1,0 +1,57 @@
+name: Radar V6.14 live recent cycle history probe
+
+on:
+  push:
+    branches: [radar-v614-history-probe-run]
+    paths:
+      - '.github/workflows/radar-v614-history-probe-run.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  RADAR_CONNECTOR_URL: https://chachavps.tail3ab05a.ts.net
+
+jobs:
+  history:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Read last aggregate server cycles
+        env:
+          RADAR_CONNECTOR_SHARED_KEY: ${{ secrets.RADAR_CONNECTOR_SHARED_KEY }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib, hmac, json, os, secrets, time, urllib.request
+          base=os.environ['RADAR_CONNECTOR_URL'].rstrip('/')
+          key=os.environ['RADAR_CONNECTOR_SHARED_KEY'].encode()
+          path='/v1/collector/server-cycle-history'
+          ts=str(int(time.time())); nonce=secrets.token_hex(16)
+          body_hash=hashlib.sha256(b'').hexdigest()
+          canonical='\n'.join(['GET',path,ts,nonce,body_hash])
+          sig=hmac.new(key,canonical.encode(),hashlib.sha256).hexdigest()
+          req=urllib.request.Request(base+path,method='GET',headers={
+            'X-Radar-Timestamp':ts,
+            'X-Radar-Nonce':nonce,
+            'X-Radar-Signature':sig,
+          })
+          with urllib.request.urlopen(req,timeout=40) as response:
+            data=json.loads(response.read().decode())
+          assert data.get('ok') is True
+          assert data.get('readonly') is True
+          assert data.get('rawPlayerDataExposed') is False
+          print('RADAR_V614_HISTORY=PASS')
+          print('RADAR_V614_CYCLE_COUNT='+str(data.get('cycleCount',0)))
+          cycles=data.get('cycles') or []
+          for c in cycles[-6:]:
+            members=[]
+            for row in c.get('servers') or []:
+              sid=str(row.get('serverId') or '')
+              obs=int(row.get('observations') or 0)
+              if sid:
+                members.append(f'{sid}:{obs}')
+            print('CYCLE|id={}|servers={}|seen={}|matched={}|unresolved={}'.format(
+              c.get('cycleId',''),','.join(members),c.get('seenRows',0),c.get('hashMatched',0),c.get('unresolved',0)))
+          PY
