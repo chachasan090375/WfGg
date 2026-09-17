@@ -1,0 +1,76 @@
+name: Radar V6.13 live cluster catalog
+
+on:
+  push:
+    branches: [radar-v613-live-catalog-probe]
+    paths:
+      - '.github/workflows/radar-v613-live-cluster-catalog.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  RADAR_CONNECTOR_URL: https://chachavps.tail3ab05a.ts.net
+
+jobs:
+  catalog:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Read aggregate cluster catalog
+        env:
+          RADAR_CONNECTOR_SHARED_KEY: ${{ secrets.RADAR_CONNECTOR_SHARED_KEY }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib, hmac, json, os, secrets, time, urllib.request
+
+          base = os.environ['RADAR_CONNECTOR_URL'].rstrip('/')
+          key = os.environ['RADAR_CONNECTOR_SHARED_KEY'].encode()
+          path = '/v1/collector/server-cluster-catalog'
+          ts = str(int(time.time()))
+          nonce = secrets.token_hex(16)
+          body_hash = hashlib.sha256(b'').hexdigest()
+          canonical = '\n'.join(['GET', path, ts, nonce, body_hash])
+          sig = hmac.new(key, canonical.encode(), hashlib.sha256).hexdigest()
+          req = urllib.request.Request(base + path, method='GET', headers={
+              'X-Radar-Timestamp': ts,
+              'X-Radar-Nonce': nonce,
+              'X-Radar-Signature': sig,
+          })
+          started = time.monotonic()
+          with urllib.request.urlopen(req, timeout=40) as response:
+              data = json.loads(response.read().decode())
+          elapsed_ms = int((time.monotonic() - started) * 1000)
+          assert data.get('ok') is True
+          assert data.get('readonly') is True
+          assert data.get('rawPlayerDataExposed') is False
+          assert data.get('catalogVersion') == 'v6.13'
+          print('RADAR_V613_CATALOG=PASS')
+          print('RADAR_V613_ELAPSED_MS=' + str(elapsed_ms))
+          print('RADAR_V613_CONFIRMED_CLUSTERS=' + str(data.get('confirmedClusterCount',0)))
+          print('RADAR_V613_CONFIRMED_SERVERS=' + str(data.get('confirmedServerCount',0)))
+          print('RADAR_V613_FRONTIER_COUNT=' + str(data.get('frontierCount',0)))
+          print('RADAR_V613_NOISE_COUNT=' + str(data.get('noiseCount',0)))
+          for cluster in data.get('confirmedClusters') or []:
+              print('CLUSTER|{id}|members={members}|minCycles={minc}|maxCycles={maxc}|clique={clique}'.format(
+                  id=cluster.get('clusterId',''),
+                  members=','.join(str(x) for x in cluster.get('members') or []),
+                  minc=cluster.get('minCyclesTogether',0),
+                  maxc=cluster.get('maxCyclesTogether',0),
+                  clique=cluster.get('cliqueComplete',False),
+              ))
+          for row in data.get('frontier') or []:
+              print('FRONTIER|{sid}|players={players}|observations={obs}|cycles={cycles}|reason={reason}'.format(
+                  sid=row.get('serverId',''), players=row.get('players',0), obs=row.get('observations',0),
+                  cycles=row.get('distinctCycles',0), reason=row.get('reason','')))
+          for row in data.get('noise') or []:
+              print('NOISE|{sid}|players={players}|observations={obs}|cycles={cycles}|reason={reason}'.format(
+                  sid=row.get('serverId',''), players=row.get('players',0), obs=row.get('observations',0),
+                  cycles=row.get('distinctCycles',0), reason=row.get('reason','')))
+          seed = data.get('recommendedSeed') or {}
+          print('RADAR_V613_RECOMMENDED_SEED=' + str(seed.get('serverId') or ''))
+          print('RADAR_V613_RECOMMENDED_COMMAND=' + str(seed.get('command') or ''))
+          print('RADAR_V613_RECOMMENDED_PLAYERS=' + str(seed.get('players') or 0))
+          PY
