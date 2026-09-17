@@ -5,6 +5,7 @@ on:
     branches: [radar-v611-fast-identity-lookup]
     paths:
       - '.github/workflows/radar-v611-fast-lookup-qualification.yml'
+      - '.github/workflows/radar-v611-live-fast-probe.yml'
       - '.github/scripts/patch-radar-collector-fast-lookup-v611.py'
       - '.github/scripts/patch-radar-worker-fast-lookup-v611.py'
       - '.github/scripts/patch-live-radar-fast-lookup-v611.py'
@@ -74,6 +75,6 @@ jobs:
           grep -Fq 'collectorFastLookup(query' /tmp/wfgg-radar/src/game/remote-transport.js
           grep -Fq 'WFGG_RADAR_FAST_LOOKUP_UI_V611' radar-ui-live/live-radar.html
           grep -Fq "api('/api/radar/search?q='" radar-ui-live/live-radar.html
-          ! grep -F "WFGG_RADAR_FAST_LOOKUP_UI_V611" radar-ui-live/live-radar.html | grep -Fq 'runCollectorSearch(q)'
+          grep -Fq "federated?await runCollectorSearch(q):await api('/api/radar/search?q='" radar-ui-live/live-radar.html
           grep -Fq "refreshAvailable: session.role === ROLES.OWNER" /tmp/wfgg-radar/src/worker.js
           echo RADAR_V611_FAST_LOOKUP_QUALIFIED=PASS
