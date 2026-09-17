@@ -1,0 +1,71 @@
+name: Radar V6.9.4 profile panic fingerprint qualification
+
+on:
+  push:
+    branches: [radar-v694-profile-panic-fingerprint]
+    paths:
+      - '.github/workflows/radar-v694-profile-panic-qualification.yml'
+      - '.radar-release-src/v692-source/connector-go/internal/protocol/profile_exec_v692.go'
+      - '.radar-release-src/v692-source/connector-go/internal/protocol/profile_exec_v692_test.go'
+      - '.github/scripts/patch-radar-native-profile-exec-v692.py'
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: radar-v694-profile-panic-fingerprint
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.27.x'
+
+      - name: Reconstruct connector through V6.9.4 diagnostics
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/wfgg-radar
+          mkdir -p /tmp/wfgg-radar
+          python3 .github/scripts/reconstruct-radar-release.py
+          echo '234df1dec57f6211bc625855bf13350c9f17fbd843fbe92d8cf1ab7cb5c081ef  /tmp/radar-src.tar.gz' | sha256sum -c -
+          tar -xzf /tmp/radar-src.tar.gz -C /tmp/wfgg-radar
+          rm -rf /tmp/wfgg-radar/connector-go
+          cp -a .radar-release-src/v2-source/connector-go /tmp/wfgg-radar/connector-go
+          python3 .github/scripts/patch-radar-target-profile-retry.py
+          python3 .github/scripts/patch-radar-federated-diagnostics-v65.py
+          python3 .github/scripts/patch-player-scan-v3.py
+          python3 .github/scripts/patch-player-scan-v4.py
+          python3 .github/scripts/patch-radar-protocol-discovery-v67.py
+          python3 .github/scripts/patch-radar-profile-isolation-v68.py
+          python3 .github/scripts/patch-radar-native-profile-v69.py
+          python3 .github/scripts/patch-radar-native-profile-handshake-v691.py
+          python3 .github/scripts/patch-radar-native-profile-exec-v692.py
+          python3 .github/scripts/patch-radar-connector-runtime-v693.py
+
+      - name: Qualify V6.9.4 profile panic fingerprint
+        working-directory: /tmp/wfgg-radar/connector-go
+        run: |
+          set -euo pipefail
+          gofmt -w ./cmd ./internal
+          go test ./...
+          go test ./internal/protocol -run TestProfileExecutionFailureV692 -count=1
+          go vet ./...
+          grep -Fq 'WFGG_RADAR_PROFILE_PANIC_FINGERPRINT_V694' internal/protocol/profile_exec_v692.go
+          grep -Fq 'LASTWAR_PLAYER_PROFILE_PANIC_CLONE' internal/protocol/profile_exec_v692.go
+          grep -Fq 'LASTWAR_PLAYER_PROFILE_PANIC_ENCODE' internal/protocol/profile_exec_v692.go
+          grep -Fq 'LASTWAR_PLAYER_PROFILE_PANIC_READ' internal/protocol/profile_exec_v692.go
+          grep -Fq 'LASTWAR_PLAYER_PROFILE_PANIC_DECODE' internal/protocol/profile_exec_v692.go
+          grep -Fq 'WFGG_RADAR_NATIVE_PROFILE_EXEC_BRIDGE_V692' internal/protocol/profile_scan_v69.go
+          ! grep -Fq 'return nil, errors.New("LASTWAR_PLAYER_PROFILE_FAILED")' internal/protocol/profile_scan_v69.go
+          echo RADAR_V694_PROFILE_PANIC=QUALIFIED
+
+      - name: Verify diagnostic remains read-only
+        run: |
+          set -euo pipefail
+          ! grep -REq 'building\.production\.collect|mail\.reward|al\.science\.donate|visitor\.operate|attack|march|purchase' .radar-release-src/v692-source/connector-go/internal/protocol/profile_exec_v692.go .radar-release-src/v692-source/connector-go/internal/protocol/profile_exec_v692_test.go
+          echo RADAR_V694_READONLY=PASS
