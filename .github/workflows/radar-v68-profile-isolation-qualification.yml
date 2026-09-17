@@ -7,6 +7,7 @@ on:
       - '.github/scripts/patch-radar-profile-isolation-v68.py'
       - '.github/scripts/patch-live-radar-profile-isolation-v68.py'
       - '.github/workflows/radar-v68-profile-isolation-qualification.yml'
+      - '.github/workflows/radar-v68-build.yml'
       - '.radar-release-src/v68-source/**'
       - 'docs/RADAR_PROFILE_ISOLATION_V68.md'
   workflow_dispatch:
@@ -115,6 +116,14 @@ jobs:
           ! grep -REq 'fmt\.Print|log\.Print|slog\.' /tmp/wfgg-radar/connector-go/cmd/radar-connector/profile_isolation_v68.go
           ! grep -REq 'building\.production\.collect|mail\.reward|al\.science\.donate|visitor\.operate' /tmp/wfgg-radar/connector-go || false
           echo RADAR_V68_PRESERVATION_PRIVACY=PASS
+
+      - name: Validate release workflow contract
+        run: |
+          set -euo pipefail
+          grep -Fq 'patch-radar-profile-isolation-v68.py' .github/workflows/radar-v68-build.yml
+          grep -Fq 'patch-live-radar-profile-isolation-v68.py' .github/workflows/radar-v68-build.yml
+          grep -Fq 'sha256sum radar-connector radar-native-template > SHA256SUMS' .github/workflows/radar-v68-build.yml
+          echo RADAR_V68_RELEASE_WORKFLOW=PASS
 
       - name: Confirm production untouched
         run: |
