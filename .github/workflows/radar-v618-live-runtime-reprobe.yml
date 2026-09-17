@@ -1,0 +1,91 @@
+name: Radar V6.18 live runtime reprobe
+
+on:
+  push:
+    branches:
+      - radar-v618-live-runtime-reprobe
+    paths:
+      - '.github/workflows/radar-v618-live-runtime-reprobe.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  RADAR_CONNECTOR_URL: https://chachavps.tail3ab05a.ts.net
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Probe live connector and helper fingerprints only
+        env:
+          RADAR_CONNECTOR_SHARED_KEY: ${{ secrets.RADAR_CONNECTOR_SHARED_KEY }}
+        run: |
+          set -euo pipefail
+          EXPECTED_CONNECTOR="$(awk '$2=="radar-connector"{print $1}' radar-vps/release/SHA256SUMS | head -1)"
+          EXPECTED_NATIVE="$(awk '$2=="radar-native-template"{print $1}' radar-vps/release/SHA256SUMS | head -1)"
+          test -n "$EXPECTED_CONNECTOR"
+          test -n "$EXPECTED_NATIVE"
+          export EXPECTED_CONNECTOR EXPECTED_NATIVE
+          python3 - <<'PY'
+          import hashlib,hmac,json,os,secrets,time,urllib.request
+
+          base=os.environ['RADAR_CONNECTOR_URL'].rstrip('/')
+          key=os.environ['RADAR_CONNECTOR_SHARED_KEY'].encode()
+          expected_connector=os.environ['EXPECTED_CONNECTOR']
+          expected_native=os.environ['EXPECTED_NATIVE']
+          path='/v1/health'
+
+          last=None
+          for attempt in range(1,4):
+              timestamp=str(int(time.time()))
+              nonce=secrets.token_hex(16)
+              body_hash=hashlib.sha256(b'').hexdigest()
+              canonical='\n'.join(['GET',path,timestamp,nonce,body_hash])
+              signature=hmac.new(key,canonical.encode(),hashlib.sha256).hexdigest()
+              req=urllib.request.Request(base+path,method='GET',headers={
+                  'X-Radar-Timestamp':timestamp,
+                  'X-Radar-Nonce':nonce,
+                  'X-Radar-Signature':signature,
+              })
+              try:
+                  with urllib.request.urlopen(req,timeout=15) as response:
+                      data=json.loads(response.read().decode())
+                  runtime=data.get('connectorRuntime') or {}
+                  helper=data.get('nativeHelper') or {}
+                  rsha=str(runtime.get('sha256') or '')
+                  hsha=str(helper.get('helperSha256') or '')
+                  last=(rsha,hsha,runtime.get('state'),helper.get('helperState'))
+                  print(f'RADAR_RUNTIME_PROBE_ATTEMPT={attempt}')
+                  print('RADAR_LIVE_CONNECTOR_STATE='+str(runtime.get('state','MISSING')))
+                  print('RADAR_LIVE_CONNECTOR_SHA='+(rsha or 'MISSING'))
+                  print('RADAR_LIVE_PROFILE_EXEC='+str(runtime.get('profileExecDiagnostics','MISSING')))
+                  print('RADAR_LIVE_HELPER_STATE='+str(helper.get('helperState','MISSING')))
+                  print('RADAR_LIVE_HELPER_SHA='+(hsha or 'MISSING'))
+                  print('RADAR_EXPECTED_CONNECTOR_SHA='+expected_connector)
+                  print('RADAR_EXPECTED_HELPER_SHA='+expected_native)
+                  if (
+                      data.get('ok') is True
+                      and runtime.get('state') == 'CONNECTOR_READY'
+                      and runtime.get('profileExecDiagnostics') == 'v6.9.2'
+                      and rsha == expected_connector
+                      and helper.get('helperState') == 'PROFILE_READY'
+                      and helper.get('profileCLI') is True
+                      and helper.get('profileCommand') is True
+                      and hsha == expected_native
+                  ):
+                      print('RADAR_V618_LIVE_RUNTIME=PASS')
+                      raise SystemExit(0)
+              except Exception as exc:
+                  print('RADAR_RUNTIME_PROBE_ERROR='+type(exc).__name__)
+              if attempt<3:
+                  time.sleep(5)
+
+          print('RADAR_V618_LIVE_RUNTIME=MISMATCH')
+          print('RADAR_LAST_SAFE_STATE='+str(last))
+          raise SystemExit(1)
+          PY
