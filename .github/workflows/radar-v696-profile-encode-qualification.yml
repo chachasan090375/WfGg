@@ -1,0 +1,87 @@
+name: Radar V6.9.6 profile encode type preservation qualification
+
+on:
+  push:
+    branches: [radar-v696-encode-type-preserve]
+    paths:
+      - '.github/workflows/radar-v696-profile-encode-qualification.yml'
+      - '.github/scripts/patch-radar-native-profile-exec-v692.py'
+
+permissions:
+  contents: read
+
+env:
+  LASTWAR_CLIENT_REF: ee5f64de160a8051c2f9f98189b75038dd225a0a
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: radar-v696-encode-type-preserve
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.27.x'
+
+      - name: Reconstruct connector through V6.9.6
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/wfgg-radar
+          mkdir -p /tmp/wfgg-radar
+          python3 .github/scripts/reconstruct-radar-release.py
+          echo '234df1dec57f6211bc625855bf13350c9f17fbd843fbe92d8cf1ab7cb5c081ef  /tmp/radar-src.tar.gz' | sha256sum -c -
+          tar -xzf /tmp/radar-src.tar.gz -C /tmp/wfgg-radar
+          rm -rf /tmp/wfgg-radar/connector-go
+          cp -a .radar-release-src/v2-source/connector-go /tmp/wfgg-radar/connector-go
+          python3 .github/scripts/patch-radar-target-profile-retry.py
+          python3 .github/scripts/patch-radar-federated-diagnostics-v65.py
+          python3 .github/scripts/patch-player-scan-v3.py
+          python3 .github/scripts/patch-player-scan-v4.py
+          python3 .github/scripts/patch-radar-protocol-discovery-v67.py
+          python3 .github/scripts/patch-radar-profile-isolation-v68.py
+          python3 .github/scripts/patch-radar-native-profile-v69.py
+          python3 .github/scripts/patch-radar-native-profile-handshake-v691.py
+          python3 .github/scripts/patch-radar-native-profile-exec-v692.py
+          python3 .github/scripts/patch-radar-connector-runtime-v693.py
+
+      - name: Qualify connector diagnostics V6.9.6
+        working-directory: /tmp/wfgg-radar/connector-go
+        run: |
+          set -euo pipefail
+          gofmt -w ./cmd ./internal
+          go test ./...
+          go test ./internal/protocol -run 'TestProfileExecutionFailureV692|TestProfilePanicSpecificPrecedenceV696' -count=1
+          go vet ./...
+          grep -Fq 'WFGG_RADAR_PROFILE_PANIC_PRECEDENCE_V696' internal/protocol/profile_exec_v692.go
+          grep -Fq 'WFGG_RADAR_PROFILE_ENCODE_TYPE_PRESERVE_V696' native-template/profile_scan_v69.go
+
+      - name: Qualify native helper V6.9.6 encode path
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/lastwar-client
+          git clone --quiet --filter=blob:none --no-checkout https://github.com/ljagiello/lastwar-client.git /tmp/lastwar-client
+          cd /tmp/lastwar-client
+          git fetch --quiet --depth 1 origin "$LASTWAR_CLIENT_REF"
+          git checkout --quiet --detach FETCH_HEAD
+          test "$(git rev-parse HEAD)" = "$LASTWAR_CLIENT_REF"
+          mkdir -p cmd/wfgg-radar-native-template
+          cp /tmp/wfgg-radar/connector-go/native-template/main.go cmd/wfgg-radar-native-template/main.go
+          cp /tmp/wfgg-radar/connector-go/native-template/player_scan_v3.go cmd/wfgg-radar-native-template/player_scan_v3.go
+          cp /tmp/wfgg-radar/connector-go/native-template/player_scan_v4.go cmd/wfgg-radar-native-template/player_scan_v4.go
+          cp /tmp/wfgg-radar/connector-go/native-template/profile_scan_v69.go cmd/wfgg-radar-native-template/profile_scan_v69.go
+          cp /tmp/wfgg-radar/connector-go/native-template/profile_scan_v69_test.go cmd/wfgg-radar-native-template/profile_scan_v69_test.go
+          gofmt -w cmd/wfgg-radar-native-template/*.go
+          go test -tags lastwar_native_template ./cmd/wfgg-radar-native-template -run 'TestProfileCloneAllServersNumericEncodesV696|TestReplaceProfileUIDArrayV69|TestParseProfileUIDsV69' -count=1
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -tags lastwar_native_template -trimpath -ldflags='-s -w' -o /tmp/radar-native-template-v696 ./cmd/wfgg-radar-native-template
+          test -s /tmp/radar-native-template-v696
+          echo RADAR_V696_NATIVE_ENCODE=PASS
+
+      - name: Verify read-only scope
+        run: |
+          set -euo pipefail
+          ! grep -Eq 'building\.production\.collect|mail\.reward|al\.science\.donate|visitor\.operate|attack|march|purchase' .github/scripts/patch-radar-native-profile-exec-v692.py
+          echo RADAR_V696_READONLY=PASS
