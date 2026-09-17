@@ -37,28 +37,57 @@ def patch_worker() -> None:
         raise SystemExit('V611_SEARCH_ROUTE_END_MISSING')
 
     block = r'''      // WFGG_RADAR_FAST_LOOKUP_ROUTE_V611
+      // WFGG_RADAR_CACHE_ENRICHMENT_V6111
       if (url.pathname === '/api/radar/search' && request.method === 'GET') {
         const session = await requireSession(request, env);
         assertCapability(session.role, 'radar.search');
         const query = String(url.searchParams.get('q') || '').trim();
         const limit = url.searchParams.get('limit') || 50;
         const cached = await searchRadar(env, query, { limit });
-        if (!query || cached.results.length > 0) {
-          return json({ ...cached, fastLookup: { attempted: false, status: cached.results.length ? 'd1-hit' : 'empty', source: 'd1' } });
+        const cachedRows = Array.isArray(cached?.results) ? cached.results : [];
+        const cachedPlayer = cachedRows[0] || null;
+        const hasValue = (obj, ...keys) => keys.some((key) => obj?.[key] !== undefined && obj?.[key] !== null && obj?.[key] !== '');
+        const playerDisplayComplete = (player) => Boolean(player
+          && hasValue(player, 'game_uid', 'gameUid', 'uid', 'playerId')
+          && hasValue(player, 'server_id', 'serverId', 'server')
+          && hasValue(player, 'alliance_tag', 'allianceTag', 'alliance_id', 'allianceId', 'alliance_name', 'allianceName', 'alliance')
+          && hasValue(player, 'hq_level', 'hqLevel', 'level', 'baseLevel')
+          && hasValue(player, 'power', 'combatPower', 'strength')
+          && hasValue(player, 'x', 'mapX', 'pos_x')
+          && hasValue(player, 'y', 'mapY', 'pos_y'));
+        const cachedComplete = playerDisplayComplete(cachedPlayer);
+
+        if (!query) {
+          return json({ ...cached, fastLookup: { attempted: false, status: 'empty', source: 'd1' } });
+        }
+        if (cachedRows.length > 0 && cachedComplete) {
+          return json({ ...cached, fastLookup: { attempted: false, status: 'd1-hit', source: 'd1', complete: true } });
         }
 
+        const hadPartialCache = cachedRows.length > 0;
         const startedAt = Date.now();
         const transport = new RemoteLastWarTransport({ baseUrl: env.RADAR_CONNECTOR_URL, sharedKey: env.RADAR_CONNECTOR_SHARED_KEY, timeoutMs: 10000 });
         try {
           const exact = await transport.collectorFastLookup(query);
           if (exact?.resolved && exact?.player) {
-            const stored = await saveRadarPlayerObservations(env, [exact.player], { sourceCommand: 'collector-fast-identity-v611' });
+            const stored = await saveRadarPlayerObservations(env, [exact.player], { sourceCommand: 'collector-fast-identity-v6111' });
             const refreshed = await searchRadar(env, query, { limit });
+            const refreshedRows = Array.isArray(refreshed?.results) ? refreshed.results : [];
+            const refreshedComplete = playerDisplayComplete(refreshedRows[0]);
+            const canonicalResults = refreshedComplete ? refreshedRows : [exact.player];
             return json({
               ...refreshed,
+              results: canonicalResults,
               fastLookup: {
-                attempted: true, status: 'exact-hit', source: 'identity-index', route: String(exact.route || 'EXACT_PLAYER'),
-                matched: 1, cached: stored.inserted, elapsedMs: Date.now() - startedAt
+                attempted: true,
+                status: hadPartialCache ? 'cache-enriched' : 'exact-hit',
+                source: 'identity-index',
+                route: String(exact.route || 'EXACT_PLAYER'),
+                matched: 1,
+                cached: stored.inserted,
+                cacheWasPartial: hadPartialCache,
+                canonicalFallback: !refreshedComplete,
+                elapsedMs: Date.now() - startedAt
               }
             });
           }
@@ -78,10 +107,11 @@ def patch_worker() -> None:
           const indexed = await transport.collectorIndexSearch(query, limit);
           const players = Array.isArray(indexed?.players) ? indexed.players : [];
           if (players.length > 0) {
-            const stored = await saveRadarPlayerObservations(env, players, { sourceCommand: 'collector-index-fuzzy-v611' });
+            const stored = await saveRadarPlayerObservations(env, players, { sourceCommand: 'collector-index-fuzzy-v6111' });
             const refreshed = await searchRadar(env, query, { limit });
             return json({
               ...refreshed,
+              results: Array.isArray(refreshed?.results) && refreshed.results.length > 0 ? refreshed.results : players,
               fastLookup: {
                 attempted: true, status: 'fuzzy-hit', source: 'collector-index', route: 'FUZZY_LOCAL',
                 matched: players.length, cached: stored.inserted, elapsedMs: Date.now() - startedAt
@@ -91,13 +121,13 @@ def patch_worker() -> None:
 
           return json({
             ...cached,
-            fastLookup: { attempted: true, status: 'miss', source: 'identity-index', route: String(exact?.route || 'MISS'), elapsedMs: Date.now() - startedAt },
+            fastLookup: { attempted: true, status: 'miss', source: 'identity-index', route: String(exact?.route || 'MISS'), cacheWasPartial: hadPartialCache, elapsedMs: Date.now() - startedAt },
             refreshAvailable: session.role === ROLES.OWNER
           });
         } catch (error) {
           return json({
             ...cached,
-            fastLookup: { attempted: true, status: 'unavailable', source: 'identity-index', error: String(error?.message || 'FAST_LOOKUP_UNAVAILABLE'), elapsedMs: Date.now() - startedAt },
+            fastLookup: { attempted: true, status: 'unavailable', source: 'identity-index', error: String(error?.message || 'FAST_LOOKUP_UNAVAILABLE'), cacheWasPartial: hadPartialCache, elapsedMs: Date.now() - startedAt },
             refreshAvailable: session.role === ROLES.OWNER
           });
         } finally {
@@ -108,6 +138,7 @@ def patch_worker() -> None:
 
     WORKER.write_text(text[:start] + block + text[next_route:], encoding='utf-8')
     print('RADAR_V611_WORKER=PATCHED')
+    print('RADAR_CACHE_ENRICHMENT_V6111=READY')
 
 
 patch_transport()
