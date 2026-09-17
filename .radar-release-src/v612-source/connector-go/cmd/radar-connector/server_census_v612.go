@@ -12,6 +12,7 @@ import (
 )
 
 // WFGG_RADAR_SERVER_CENSUS_V612
+// WFGG_RADAR_SERVER_CENSUS_STREAM_V6121
 // This endpoint reads the local Collector SQLite database strictly in read-only mode
 // and returns aggregate server/cycle counts only. It never exposes UIDs, pseudos,
 // alliances, coordinates, tokens or credentials.
@@ -66,6 +67,21 @@ def pick_col(columns, candidates):
     return None
 
 
+def norm_server(value):
+    if value is None:
+        return ''
+    return str(value).strip()
+
+
+def cycle_int(value):
+    if value is None:
+        return None
+    try:
+        return int(value)
+    except Exception:
+        return None
+
+
 tables = [r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'")]
 server_names = ['server_id', 'serverId', 'server', 'serverid']
 uid_names = ['game_uid', 'gameUid', 'uid', 'player_uid', 'playerId', 'player_id']
@@ -95,23 +111,50 @@ schema = {t: cols(t) for t in tables}
 player_candidates = [(score_player(t, schema[t]), t) for t in tables if pick_col(schema[t], server_names)]
 player_candidates.sort(reverse=True)
 player_table = player_candidates[0][1] if player_candidates else None
-
 obs_candidates = [(score_obs(t, schema[t]), t) for t in tables if pick_col(schema[t], cycle_names)]
 obs_candidates.sort(reverse=True)
 obs_table = obs_candidates[0][1] if obs_candidates else None
 
 servers = {}
+uid_to_server = {}
+player_sets = {}
+cycle_sets = {}
 join_mode = 'NONE'
+
+
+def ensure(sid):
+    return servers.setdefault(sid, {
+        'serverId': sid,
+        'players': 0,
+        'observations': 0,
+        'distinctCycles': 0,
+        'firstCycle': None,
+        'lastCycle': None,
+    })
 
 if player_table:
     pc = schema[player_table]
     pserver = pick_col(pc, server_names)
     puid = pick_col(pc, uid_names)
-    count_expr = 'COUNT(DISTINCT ' + qident(puid) + ')' if puid else 'COUNT(*)'
-    sql = 'SELECT CAST(' + qident(pserver) + ' AS TEXT) server_id, ' + count_expr + ' players FROM ' + qident(player_table) + ' WHERE ' + qident(pserver) + ' IS NOT NULL AND TRIM(CAST(' + qident(pserver) + ' AS TEXT)) <> \'\' GROUP BY CAST(' + qident(pserver) + ' AS TEXT)'
-    for r in conn.execute(sql):
-        sid = str(r['server_id'])
-        servers[sid] = {'serverId': sid, 'players': int(r['players'] or 0), 'observations': 0, 'distinctCycles': 0, 'firstCycle': None, 'lastCycle': None}
+    if puid:
+        sql = 'SELECT ' + qident(pserver) + ' server_id, ' + qident(puid) + ' player_uid FROM ' + qident(player_table) + ' WHERE ' + qident(pserver) + ' IS NOT NULL'
+        for r in conn.execute(sql):
+            sid = norm_server(r['server_id'])
+            if not sid:
+                continue
+            uid = '' if r['player_uid'] is None else str(r['player_uid']).strip()
+            ensure(sid)
+            if uid:
+                uid_to_server[uid] = sid
+                player_sets.setdefault(sid, set()).add(uid)
+        for sid, values in player_sets.items():
+            ensure(sid)['players'] = len(values)
+    else:
+        sql = 'SELECT ' + qident(pserver) + ' server_id FROM ' + qident(player_table) + ' WHERE ' + qident(pserver) + ' IS NOT NULL'
+        for r in conn.execute(sql):
+            sid = norm_server(r['server_id'])
+            if sid:
+                ensure(sid)['players'] += 1
 
 if obs_table:
     oc = schema[obs_table]
@@ -119,27 +162,35 @@ if obs_table:
     ouid = pick_col(oc, uid_names)
     ocycle = pick_col(oc, cycle_names)
     if oserver:
-        join_mode = 'OBSERVATION_SERVER'
-        sql = 'SELECT CAST(' + qident(oserver) + ' AS TEXT) server_id, COUNT(*) observations, COUNT(DISTINCT ' + qident(ocycle) + ') cycles, MIN(CAST(' + qident(ocycle) + ' AS INTEGER)) first_cycle, MAX(CAST(' + qident(ocycle) + ' AS INTEGER)) last_cycle FROM ' + qident(obs_table) + ' WHERE ' + qident(oserver) + ' IS NOT NULL AND TRIM(CAST(' + qident(oserver) + ' AS TEXT)) <> \'\' GROUP BY CAST(' + qident(oserver) + ' AS TEXT)'
-    elif player_table and ouid:
-        pc = schema[player_table]
-        pserver = pick_col(pc, server_names)
-        puid = pick_col(pc, uid_names)
-        if pserver and puid:
-            join_mode = 'UID_JOIN'
-            sql = 'SELECT CAST(p.' + qident(pserver) + ' AS TEXT) server_id, COUNT(*) observations, COUNT(DISTINCT o.' + qident(ocycle) + ') cycles, MIN(CAST(o.' + qident(ocycle) + ' AS INTEGER)) first_cycle, MAX(CAST(o.' + qident(ocycle) + ' AS INTEGER)) last_cycle FROM ' + qident(obs_table) + ' o JOIN ' + qident(player_table) + ' p ON CAST(o.' + qident(ouid) + ' AS TEXT)=CAST(p.' + qident(puid) + ' AS TEXT) WHERE p.' + qident(pserver) + ' IS NOT NULL AND TRIM(CAST(p.' + qident(pserver) + ' AS TEXT)) <> \'\' GROUP BY CAST(p.' + qident(pserver) + ' AS TEXT)'
-        else:
-            sql = None
-    else:
-        sql = None
-    if sql:
+        join_mode = 'OBSERVATION_SERVER_STREAM'
+        sql = 'SELECT ' + qident(oserver) + ' server_id, ' + qident(ocycle) + ' cycle_id FROM ' + qident(obs_table) + ' WHERE ' + qident(oserver) + ' IS NOT NULL'
         for r in conn.execute(sql):
-            sid = str(r['server_id'])
-            item = servers.setdefault(sid, {'serverId': sid, 'players': 0, 'observations': 0, 'distinctCycles': 0, 'firstCycle': None, 'lastCycle': None})
-            item['observations'] = int(r['observations'] or 0)
-            item['distinctCycles'] = int(r['cycles'] or 0)
-            item['firstCycle'] = int(r['first_cycle']) if r['first_cycle'] is not None else None
-            item['lastCycle'] = int(r['last_cycle']) if r['last_cycle'] is not None else None
+            sid = norm_server(r['server_id'])
+            if not sid:
+                continue
+            ensure(sid)['observations'] += 1
+            cycle = cycle_int(r['cycle_id'])
+            if cycle is not None:
+                cycle_sets.setdefault(sid, set()).add(cycle)
+    elif ouid and uid_to_server:
+        join_mode = 'UID_STREAM'
+        sql = 'SELECT ' + qident(ouid) + ' player_uid, ' + qident(ocycle) + ' cycle_id FROM ' + qident(obs_table) + ' WHERE ' + qident(ouid) + ' IS NOT NULL'
+        for r in conn.execute(sql):
+            uid = '' if r['player_uid'] is None else str(r['player_uid']).strip()
+            sid = uid_to_server.get(uid, '')
+            if not sid:
+                continue
+            ensure(sid)['observations'] += 1
+            cycle = cycle_int(r['cycle_id'])
+            if cycle is not None:
+                cycle_sets.setdefault(sid, set()).add(cycle)
+
+for sid, cycles in cycle_sets.items():
+    item = ensure(sid)
+    item['distinctCycles'] = len(cycles)
+    if cycles:
+        item['firstCycle'] = min(cycles)
+        item['lastCycle'] = max(cycles)
 
 
 def sort_key(item):
@@ -149,7 +200,7 @@ def sort_key(item):
 rows = sorted(servers.values(), key=sort_key)
 payload = {
     'ok': True,
-    'censusVersion': 'v6.12',
+    'censusVersion': 'v6.12.1',
     'readonly': True,
     'rawPlayerDataExposed': False,
     'serverCount': len(rows),
@@ -169,9 +220,21 @@ func runServerCensusV612(ctx context.Context, dbPath string) (serverCensusPayloa
 	if strings.TrimSpace(dbPath) == "" {
 		return serverCensusPayloadV612{}, errors.New("COLLECTOR_DB_PATH_EMPTY")
 	}
+	if _, err := exec.LookPath("python3"); err != nil {
+		return serverCensusPayloadV612{}, errors.New("COLLECTOR_CENSUS_PYTHON3_MISSING")
+	}
+	if _, err := os.Stat(dbPath); err != nil {
+		if os.IsNotExist(err) {
+			return serverCensusPayloadV612{}, errors.New("COLLECTOR_DB_NOT_FOUND")
+		}
+		return serverCensusPayloadV612{}, errors.New("COLLECTOR_DB_ACCESS_FAILED")
+	}
 	cmd := exec.CommandContext(ctx, "python3", "-c", serverCensusPythonV612, dbPath)
 	out, err := cmd.Output()
 	if err != nil {
+		if errors.Is(ctx.Err(), context.DeadlineExceeded) {
+			return serverCensusPayloadV612{}, errors.New("COLLECTOR_CENSUS_TIMEOUT")
+		}
 		return serverCensusPayloadV612{}, errors.New("COLLECTOR_CENSUS_EXEC_FAILED")
 	}
 	var payload serverCensusPayloadV612
@@ -189,13 +252,13 @@ func (s *server) serverCensusV612(w http.ResponseWriter, r *http.Request, _ []by
 	if dbPath == "" {
 		dbPath = "/opt/wfgg-collector/data/collector.db"
 	}
-	ctx, cancel := context.WithTimeout(r.Context(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(r.Context(), 30*time.Second)
 	defer cancel()
 	payload, err := runServerCensusV612(ctx, dbPath)
 	if err != nil {
 		writeJSON(w, http.StatusBadGateway, map[string]any{
 			"ok":            false,
-			"censusVersion": "v6.12",
+			"censusVersion": "v6.12.1",
 			"readonly":      true,
 			"error":         err.Error(),
 		})
