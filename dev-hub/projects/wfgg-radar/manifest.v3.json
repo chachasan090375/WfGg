@@ -1,0 +1,526 @@
+{
+  "schema": "chacha.dev/project-manifest/v3",
+  "identity": {
+    "name": "WfGg Radar",
+    "slug": "wfgg-radar",
+    "description": "READONLY Last War radar: federated map observation, GameUID identity index, player search, map location and verified player-data enrichment.",
+    "lifecycle_stage": "IMPROVE",
+    "criticality": "high",
+    "tags": [
+      "radar",
+      "last-war",
+      "readonly",
+      "cloudflare",
+      "vps",
+      "player-index",
+      "observability"
+    ]
+  },
+  "repository": {
+    "url": "https://github.com/chachasan090375/WfGg.git",
+    "default_branch": "main",
+    "working_branch": "radar-production-v1",
+    "monorepo": true,
+    "source_of_truth": "git"
+  },
+  "ownership": {
+    "technical_owner": "project-owner",
+    "product_owner": "project-owner",
+    "operations_owner": "project-owner"
+  },
+  "components": [
+    {
+      "id": "radar-ui",
+      "type": "frontend-web",
+      "path": "radar-ui-live",
+      "runtime": "browser",
+      "framework": "static-web",
+      "interfaces": [
+        "https"
+      ],
+      "depends_on": [
+        "radar-worker"
+      ],
+      "commands": {},
+      "artifacts": [
+        "radar-ui"
+      ],
+      "env_refs": [],
+      "secret_refs": [],
+      "observability_hooks": [
+        "client-errors"
+      ],
+      "owner": "radar-ui-role"
+    },
+    {
+      "id": "radar-worker",
+      "type": "worker-edge",
+      "path": ".radar-release-src",
+      "runtime": "cloudflare-workers",
+      "framework": "wrangler",
+      "package_manager": "npm",
+      "interfaces": [
+        "https-api"
+      ],
+      "depends_on": [
+        "radar-d1",
+        "radar-connector"
+      ],
+      "commands": {
+        "check": "npm run check",
+        "test": "npm test"
+      },
+      "artifacts": [
+        "worker-bundle"
+      ],
+      "env_refs": [
+        "worker-config"
+      ],
+      "secret_refs": [
+        "worker-secrets"
+      ],
+      "observability_hooks": [
+        "structured-logs",
+        "request-errors"
+      ],
+      "owner": "radar-backend-role"
+    },
+    {
+      "id": "radar-d1",
+      "type": "database",
+      "path": "radar-release",
+      "runtime": "cloudflare-d1",
+      "framework": "d1",
+      "interfaces": [
+        "sql"
+      ],
+      "depends_on": [],
+      "commands": {},
+      "artifacts": [
+        "schema-migrations"
+      ],
+      "env_refs": [
+        "d1-binding"
+      ],
+      "secret_refs": [],
+      "observability_hooks": [
+        "query-errors"
+      ],
+      "owner": "radar-data-role"
+    },
+    {
+      "id": "radar-connector",
+      "type": "service",
+      "path": "radar-vps",
+      "runtime": "linux-systemd-go",
+      "framework": "go",
+      "interfaces": [
+        "signed-https"
+      ],
+      "depends_on": [],
+      "commands": {},
+      "artifacts": [
+        "radar-connector",
+        "radar-native-template"
+      ],
+      "env_refs": [
+        "connector-runtime"
+      ],
+      "secret_refs": [
+        "connector-shared-key",
+        "lastwar-session-runtime"
+      ],
+      "observability_hooks": [
+        "health",
+        "runtime-fingerprint"
+      ],
+      "owner": "radar-connector-role"
+    }
+  ],
+  "dependencies": [
+    {
+      "from": "radar-ui",
+      "to": "radar-worker",
+      "kind": "network",
+      "required": true
+    },
+    {
+      "from": "radar-worker",
+      "to": "radar-d1",
+      "kind": "data",
+      "required": true
+    },
+    {
+      "from": "radar-worker",
+      "to": "radar-connector",
+      "kind": "signed-network",
+      "required": true
+    }
+  ],
+  "environments": [
+    {
+      "name": "development",
+      "class": "dev",
+      "provider": "vps",
+      "approval_required": false
+    },
+    {
+      "name": "preview",
+      "class": "preview",
+      "provider": "hybrid-cloudflare-vps",
+      "promotion_from": "development",
+      "approval_required": false
+    },
+    {
+      "name": "production",
+      "class": "production",
+      "provider": "hybrid-cloudflare-vps",
+      "promotion_from": "preview",
+      "approval_required": true
+    }
+  ],
+  "capabilities": [
+    {
+      "id": "source-control",
+      "required": true,
+      "preferred_provider": "github"
+    },
+    {
+      "id": "code-edit",
+      "required": true,
+      "preferred_provider": "antigravity"
+    },
+    {
+      "id": "code-review",
+      "required": true,
+      "preferred_provider": "github"
+    },
+    {
+      "id": "library-docs",
+      "required": false,
+      "preferred_provider": "context7-mcp"
+    },
+    {
+      "id": "unit-test-js",
+      "required": true,
+      "preferred_provider": "node-test"
+    },
+    {
+      "id": "smoke-test-web",
+      "required": true,
+      "preferred_provider": "http-smoke"
+    },
+    {
+      "id": "browser-diagnostics",
+      "required": true,
+      "preferred_provider": "chrome-devtools-mcp"
+    },
+    {
+      "id": "browser-independent-verification",
+      "required": true,
+      "preferred_provider": "playwright-mcp"
+    },
+    {
+      "id": "database-migrate",
+      "required": true,
+      "preferred_provider": "wrangler-d1"
+    },
+    {
+      "id": "cloud-deploy-edge",
+      "required": true,
+      "preferred_provider": "wrangler"
+    },
+    {
+      "id": "ci",
+      "required": true,
+      "preferred_provider": "github-actions"
+    },
+    {
+      "id": "artifact-store",
+      "required": true,
+      "preferred_provider": "nas"
+    },
+    {
+      "id": "backup-store",
+      "required": true,
+      "preferred_provider": "nas"
+    },
+    {
+      "id": "architecture-audit",
+      "required": true,
+      "preferred_provider": "chacha-dev-architect"
+    },
+    {
+      "id": "technology-radar",
+      "required": true,
+      "preferred_provider": "chacha-tech-watch"
+    },
+    {
+      "id": "storage-governance",
+      "required": true,
+      "preferred_provider": "storage-governor"
+    }
+  ],
+  "quality_gates": {
+    "product-domain": {
+      "required": true,
+      "blocking": false,
+      "minimum_status": "PARTIAL",
+      "evidence_required": true
+    },
+    "ux-frontend": {
+      "required": true,
+      "blocking": true,
+      "minimum_status": "OK",
+      "evidence_required": true
+    },
+    "api-backend": {
+      "required": true,
+      "blocking": true,
+      "minimum_status": "OK",
+      "evidence_required": true
+    },
+    "data": {
+      "required": true,
+      "blocking": true,
+      "minimum_status": "OK",
+      "evidence_required": true
+    },
+    "integrations": {
+      "required": true,
+      "blocking": true,
+      "minimum_status": "OK",
+      "evidence_required": true
+    },
+    "identity-security": {
+      "required": true,
+      "blocking": true,
+      "minimum_status": "OK",
+      "evidence_required": true
+    },
+    "testing": {
+      "required": true,
+      "blocking": true,
+      "minimum_status": "OK",
+      "evidence_required": true
+    },
+    "build-dependencies": {
+      "required": true,
+      "blocking": true,
+      "minimum_status": "OK",
+      "evidence_required": true
+    },
+    "ci-cd-release": {
+      "required": true,
+      "blocking": true,
+      "minimum_status": "OK",
+      "evidence_required": true
+    },
+    "environments-infra": {
+      "required": true,
+      "blocking": true,
+      "minimum_status": "PARTIAL",
+      "evidence_required": true
+    },
+    "observability": {
+      "required": true,
+      "blocking": true,
+      "minimum_status": "PARTIAL",
+      "evidence_required": true
+    },
+    "performance": {
+      "required": true,
+      "blocking": false,
+      "minimum_status": "PARTIAL",
+      "evidence_required": true
+    },
+    "reliability-resilience": {
+      "required": true,
+      "blocking": true,
+      "minimum_status": "PARTIAL",
+      "evidence_required": true
+    },
+    "backup-recovery": {
+      "required": true,
+      "blocking": true,
+      "minimum_status": "OK",
+      "evidence_required": true
+    },
+    "documentation": {
+      "required": true,
+      "blocking": false,
+      "minimum_status": "OK",
+      "evidence_required": true
+    },
+    "operations-sre": {
+      "required": true,
+      "blocking": true,
+      "minimum_status": "PARTIAL",
+      "evidence_required": true
+    },
+    "finops-capacity": {
+      "required": true,
+      "blocking": false,
+      "minimum_status": "PARTIAL",
+      "evidence_required": true
+    },
+    "governance-compliance": {
+      "required": true,
+      "blocking": true,
+      "minimum_status": "PARTIAL",
+      "evidence_required": true
+    }
+  },
+  "non_functional_requirements": {
+    "availability_target": "99.9%",
+    "latency_target": "interactive search and map navigation",
+    "accessibility_target": "WCAG-aware",
+    "supported_locales": [
+      "fr"
+    ],
+    "supported_clients": [
+      "modern-mobile-browser",
+      "modern-desktop-browser"
+    ]
+  },
+  "security": {
+    "secrets_management": "provider-managed-secrets",
+    "dependency_scanning": true,
+    "security_headers_required": true,
+    "audit_logging_required": true,
+    "production_change_requires_approval": true,
+    "game_protocol_mode": "readonly"
+  },
+  "data": {
+    "classification": "application-data",
+    "migrations_required": true,
+    "retention_policy": "versioned observations plus player alias history",
+    "canonical_player_key": "GameUID",
+    "provenance_states": [
+      "OBSERVED",
+      "INFERRED",
+      "CONFIRMED",
+      "OBSOLETE",
+      "UNKNOWN"
+    ]
+  },
+  "observability": {
+    "structured_logs": true,
+    "health_checks": true,
+    "alerts_required": true
+  },
+  "recovery": {
+    "rpo_hours": 24,
+    "rto_hours": 2,
+    "backup_policy": "NAS-backed recovery packages plus cloud-native exports",
+    "restore_procedure": "versioned rollback and evidence-backed recovery",
+    "production_restore_test_required": true
+  },
+  "delivery": {
+    "ci_provider": "github-actions",
+    "release_strategy": "preview-then-production",
+    "rollback_strategy": "versioned rollback",
+    "artifact_versioning": "git-sha"
+  },
+  "storage": {
+    "governor_required": true,
+    "tiers": [
+      {
+        "name": "git",
+        "purpose": [
+          "source",
+          "configuration",
+          "docs",
+          "tests"
+        ],
+        "provider": "github",
+        "retention": "versioned"
+      },
+      {
+        "name": "execution",
+        "purpose": [
+          "workspace",
+          "temporary-builds",
+          "bounded-caches"
+        ],
+        "provider": "vps",
+        "path_or_ref": "/opt/chacha-dev",
+        "retention": "ephemeral"
+      },
+      {
+        "name": "archive",
+        "purpose": [
+          "artifacts",
+          "backups",
+          "evidence",
+          "history"
+        ],
+        "provider": "nas",
+        "path_or_ref": "ChaCha-DEV-HUB/WfGg-Radar",
+        "retention": "policy-driven"
+      },
+      {
+        "name": "production-state",
+        "purpose": [
+          "database",
+          "worker-state"
+        ],
+        "provider": "cloudflare",
+        "retention": "service-policy"
+      }
+    ]
+  },
+  "agents": [
+    {
+      "role": "orchestrator",
+      "provider": "chacha-dev-architect",
+      "capabilities": [
+        "architecture-audit",
+        "technology-radar"
+      ],
+      "approval_scope": "workspace-write"
+    }
+  ],
+  "knowledge_sources": [
+    {
+      "id": "context7",
+      "capability": "library-docs",
+      "provider": "context7-mcp",
+      "required_for": [
+        "libraries",
+        "frameworks"
+      ]
+    },
+    {
+      "id": "github",
+      "capability": "source-control",
+      "provider": "github",
+      "required_for": [
+        "history",
+        "issues",
+        "releases"
+      ]
+    }
+  ],
+  "technology_policy": {
+    "radar_enabled": true,
+    "auto_replace_production": false,
+    "pilot_requires_approval": true,
+    "recommend_requires_comparative_evidence": true,
+    "allowed_stages": [
+      "DISCOVER",
+      "WATCH",
+      "ASSESS",
+      "PILOT",
+      "RECOMMEND",
+      "ADOPT",
+      "DEPRECATE",
+      "RETIRE"
+    ]
+  },
+  "operations": {
+    "incident_runbook_required": true,
+    "rollback_required": true,
+    "quota_monitoring_required": true
+  }
+}
