@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from pathlib import Path
+import re
 
 ROOT = Path('/tmp/wfgg-radar')
 WORKER = ROOT / 'src/worker.js'
@@ -31,9 +32,19 @@ def patch_worker() -> None:
     if marker in text:
         print('RADAR_V610_WORKER=ALREADY_PRESENT')
         return
-    old = '''        const cached = await searchRadar(env, query, { limit });\n        if (!query || cached.results.length > 0 || session.role !== ROLES.OWNER) return json(cached);\n\n        // Experimental V0.6 live fallback: OWNER-only until the native READONLY\n'''
-    new = '''        const cached = await searchRadar(env, query, { limit });\n        if (!query || cached.results.length > 0) return json(cached);\n\n        // WFGG_RADAR_COLLECTOR_INDEX_CACHE_V610\n        // The VPS Collector is the canonical accumulated read-only index. Query it\n        // before any live Last War operation, then lazily cache only matching rows in D1.\n        let collectorIndex = { attempted: true, status: 'miss', matched: 0, cached: 0 };\n        const indexTransport = new RemoteLastWarTransport({ baseUrl: env.RADAR_CONNECTOR_URL, sharedKey: env.RADAR_CONNECTOR_SHARED_KEY, timeoutMs: 30000 });\n        try {\n          const indexed = await indexTransport.collectorIndexSearch(query, limit);\n          const players = Array.isArray(indexed?.players) ? indexed.players : [];\n          collectorIndex.matched = players.length;\n          if (players.length > 0) {\n            const stored = await saveRadarPlayerObservations(env, players, { sourceCommand: 'collector-index-v610' });\n            collectorIndex = { attempted: true, status: 'hit', matched: players.length, cached: stored.inserted };\n            const refreshed = await searchRadar(env, query, { limit });\n            return json({ ...refreshed, collectorIndex });\n          }\n        } catch (indexError) {\n          collectorIndex = { attempted: true, status: 'unavailable', matched: 0, cached: 0, error: String(indexError?.message || 'COLLECTOR_INDEX_UNAVAILABLE') };\n        } finally {\n          await indexTransport.close().catch(() => {});\n        }\n\n        // Non-OWNER users stop here: a Collector miss must never trigger a live game scan.\n        if (session.role !== ROLES.OWNER) return json({ ...cached, collectorIndex });\n\n        // Experimental V0.6 live fallback: OWNER-only until the native READONLY\n'''
-    WORKER.write_text(replace_once(text, old, new, 'worker search anchor'), encoding='utf-8')
+
+    pattern = re.compile(
+        r"(?P<indent>[ \t]+)const cached = await searchRadar\(env, query, \{ limit \}\);\n"
+        r"(?P=indent)if \(!query \|\| cached\.results\.length > 0(?: \|\| session\.role !== ROLES\.OWNER)?\) return json\(cached\);\n\n"
+        r"(?P=indent)// Experimental V0\.6 live fallback: OWNER-only until the native READONLY\n"
+    )
+    matches = list(pattern.finditer(text))
+    if len(matches) != 1:
+        raise SystemExit(f'worker search anchor: expected exactly 1 match, got {len(matches)}')
+    indent = matches[0].group('indent')
+    block = f'''{indent}const cached = await searchRadar(env, query, {{ limit }});\n{indent}if (!query || cached.results.length > 0) return json(cached);\n\n{indent}// WFGG_RADAR_COLLECTOR_INDEX_CACHE_V610\n{indent}// The VPS Collector is the canonical accumulated read-only index. Query it\n{indent}// before any live Last War operation, then lazily cache only matching rows in D1.\n{indent}let collectorIndex = {{ attempted: true, status: 'miss', matched: 0, cached: 0 }};\n{indent}const indexTransport = new RemoteLastWarTransport({{ baseUrl: env.RADAR_CONNECTOR_URL, sharedKey: env.RADAR_CONNECTOR_SHARED_KEY, timeoutMs: 30000 }});\n{indent}try {{\n{indent}  const indexed = await indexTransport.collectorIndexSearch(query, limit);\n{indent}  const players = Array.isArray(indexed?.players) ? indexed.players : [];\n{indent}  collectorIndex.matched = players.length;\n{indent}  if (players.length > 0) {{\n{indent}    const stored = await saveRadarPlayerObservations(env, players, {{ sourceCommand: 'collector-index-v610' }});\n{indent}    collectorIndex = {{ attempted: true, status: 'hit', matched: players.length, cached: stored.inserted }};\n{indent}    const refreshed = await searchRadar(env, query, {{ limit }});\n{indent}    return json({{ ...refreshed, collectorIndex }});\n{indent}  }}\n{indent}}} catch (indexError) {{\n{indent}  collectorIndex = {{ attempted: true, status: 'unavailable', matched: 0, cached: 0, error: String(indexError?.message || 'COLLECTOR_INDEX_UNAVAILABLE') }};\n{indent}}} finally {{\n{indent}  await indexTransport.close().catch(() => {{}});\n{indent}}}\n\n{indent}// Non-OWNER users stop here: a Collector miss must never trigger a live game scan.\n{indent}if (session.role !== ROLES.OWNER) return json({{ ...cached, collectorIndex }});\n\n{indent}// Experimental V0.6 live fallback: OWNER-only until the native READONLY\n'''
+    text = text[:matches[0].start()] + block + text[matches[0].end():]
+    WORKER.write_text(text, encoding='utf-8')
     print('RADAR_V610_WORKER=PATCHED')
 
 
