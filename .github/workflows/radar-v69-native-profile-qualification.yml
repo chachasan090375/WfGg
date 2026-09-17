@@ -6,6 +6,7 @@ on:
     paths:
       - '.github/scripts/patch-radar-native-profile-v69.py'
       - '.github/workflows/radar-v69-native-profile-qualification.yml'
+      - '.github/workflows/radar-v69-build.yml'
       - '.radar-release-src/v69-source/**'
       - 'docs/RADAR_NATIVE_PROFILE_V69.md'
   workflow_dispatch:
@@ -101,6 +102,16 @@ jobs:
           ! grep -REq 'fmt\.Print|log\.Print|slog\.' .radar-release-src/v69-source/connector-go/internal/protocol/profile_scan_v69.go
           grep -Fq 'never routes profile UIDs through the map/player search path' .radar-release-src/v69-source/connector-go/native-template/profile_scan_v69.go
           echo RADAR_V69_READONLY_PRIVACY=PASS
+
+      - name: Validate V6.9 release workflow contract
+        run: |
+          set -euo pipefail
+          grep -Fq 'patch-radar-native-profile-v69.py' .github/workflows/radar-v69-build.yml
+          grep -Fq 'profile_scan_v69.go' .github/workflows/radar-v69-build.yml
+          grep -Fq 'go test -tags lastwar_native_template' .github/workflows/radar-v69-build.yml
+          grep -Fq 'sha256sum radar-connector radar-native-template > SHA256SUMS' .github/workflows/radar-v69-build.yml
+          grep -Fq 'gh workflow run deploy-radar-production.yml --ref radar-production-v1' .github/workflows/radar-v69-build.yml
+          echo RADAR_V69_RELEASE_WORKFLOW=PASS
 
       - name: Confirm production untouched
         run: |
