@@ -14,9 +14,75 @@ func TestProfileExecutionFailureV692(t *testing.T) {
 		want   string
 	}{
 		{
-			name:   "panic",
+			name:   "panic clone",
 			runErr: errors.New("exit status 2"),
-			stderr: "panic: runtime error: index out of range",
+			stderr: "panic: runtime error: index out of range\nmain.cloneProfileBatchValueV69(...)\nmain.runProfileScanV69(...)\n",
+			want:   "LASTWAR_PLAYER_PROFILE_PANIC_CLONE",
+		},
+		{
+			name:   "panic encode",
+			runErr: errors.New("exit status 2"),
+			stderr: "panic: interface conversion\nlastwar-client/internal/sfs.EncodeObject(...)\nmain.runProfileScanV69(...)\n",
+			want:   "LASTWAR_PLAYER_PROFILE_PANIC_ENCODE",
+		},
+		{
+			name:   "panic frame",
+			runErr: errors.New("exit status 2"),
+			stderr: "panic: runtime error\nlastwar-client/internal/sfs.EncodePacket(...)\n",
+			want:   "LASTWAR_PLAYER_PROFILE_PANIC_FRAME",
+		},
+		{
+			name:   "panic read",
+			runErr: errors.New("exit status 2"),
+			stderr: "panic: runtime error\nlastwar-client/internal/sfs.ReadPacket(...)\n",
+			want:   "LASTWAR_PLAYER_PROFILE_PANIC_READ",
+		},
+		{
+			name:   "panic decode",
+			runErr: errors.New("exit status 2"),
+			stderr: "panic: runtime error\nlastwar-client/internal/sfs.DecodeObject(...)\n",
+			want:   "LASTWAR_PLAYER_PROFILE_PANIC_DECODE",
+		},
+		{
+			name:   "panic profile parse",
+			runErr: errors.New("exit status 2"),
+			stderr: "panic: runtime error\nmain.findProfileV3(...)\n",
+			want:   "LASTWAR_PLAYER_PROFILE_PANIC_PROFILE_PARSE",
+		},
+		{
+			name:   "panic template discovery",
+			runErr: errors.New("exit status 2"),
+			stderr: "panic: runtime error\nmain.findPlayerScanV3Templates(...)\n",
+			want:   "LASTWAR_PLAYER_PROFILE_PANIC_TEMPLATE_DISCOVERY",
+		},
+		{
+			name:   "panic nil fallback",
+			runErr: errors.New("exit status 2"),
+			stderr: "panic: runtime error: invalid memory address or nil pointer dereference\nmain.unknownFunction(...)\n",
+			want:   "LASTWAR_PLAYER_PROFILE_PANIC_NIL",
+		},
+		{
+			name:   "panic type fallback",
+			runErr: errors.New("exit status 2"),
+			stderr: "panic: interface conversion: interface {} is string, not int64\nmain.unknownFunction(...)\n",
+			want:   "LASTWAR_PLAYER_PROFILE_PANIC_TYPE",
+		},
+		{
+			name:   "panic bounds fallback",
+			runErr: errors.New("exit status 2"),
+			stderr: "panic: runtime error: index out of range [4] with length 2\nmain.unknownFunction(...)\n",
+			want:   "LASTWAR_PLAYER_PROFILE_PANIC_BOUNDS",
+		},
+		{
+			name:   "panic map fallback",
+			runErr: errors.New("exit status 2"),
+			stderr: "panic: assignment to entry in nil map\nmain.unknownFunction(...)\n",
+			want:   "LASTWAR_PLAYER_PROFILE_PANIC_MAP",
+		},
+		{
+			name:   "panic unknown fallback",
+			runErr: errors.New("exit status 2"),
+			stderr: "panic: unexpected runtime failure\nmain.unknownFunction(...)\n",
 			want:   "LASTWAR_PLAYER_PROFILE_HELPER_PANIC",
 		},
 		{
