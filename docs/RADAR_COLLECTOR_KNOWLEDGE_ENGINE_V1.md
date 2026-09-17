@@ -58,3 +58,5 @@ Collector reste read-only vis-à-vis du jeu. L'apprentissage repose sur observat
 
 ## Premier jalon implémenté
 V6.6 matérialise le principe de `Region learning` dans la source canonique : une région de scan défaillante est isolée et journalisée, les autres régions continuent, et les données valides restent utilisables. L'échec global n'est conservé que si aucune des neuf régions n'a pu être traitée avec succès.
+
+Qualification canonique : connecteur, Worker/UI, compilation Go et garde-fous read-only validés sur le HEAD V6.6 avant ouverture de la PR.
