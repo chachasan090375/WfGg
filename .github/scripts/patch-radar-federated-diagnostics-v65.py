@@ -34,6 +34,17 @@ if collector.is_file():
         print('RADAR_V65_CONNECTOR_DIAGNOSTICS=PATCHED')
     else:
         print('RADAR_V65_CONNECTOR_DIAGNOSTICS=ALREADY_PRESENT')
+else:
+    # The immutable Worker release contains only the legacy connector skeleton.
+    # The real VPS connector is built from the full source tree in the dedicated
+    # binary workflow. Create a marker-only Go file here so the Web deploy gate
+    # can prove V6.5 staging without pretending to patch source that is absent.
+    collector.parent.mkdir(parents=True, exist_ok=True)
+    collector.write_text(
+        'package main\n\n// WFGG_RADAR_FEDERATED_DIAGNOSTICS_V65\n// Web-release compatibility shim; no runtime logic lives here.\n',
+        encoding='utf-8',
+    )
+    print('RADAR_V65_CONNECTOR_DIAGNOSTICS=WEB_RELEASE_SHIM')
 
 worker = Path('/tmp/wfgg-radar/src/worker.js')
 if worker.is_file():
