@@ -1,17 +1,19 @@
 package protocol
 
 import (
-	"bytes"
 	"crypto/sha256"
 	"encoding/hex"
+	"encoding/json"
 	"errors"
 	"os"
+	"os/exec"
 	"strings"
+	"time"
 )
 
 // WFGG_RADAR_NATIVE_PROFILE_HANDSHAKE_V691
-// RuntimeDiagnostics reports only non-secret local helper capabilities. It never
-// executes the helper and never exposes tokens, session data or payloads.
+// RuntimeDiagnostics reports only non-secret local helper capabilities. The
+// capability probe never needs a game token, session file or packet capture.
 func (c *NativeTemplateReadonly) RuntimeDiagnostics() map[string]any {
 	out := map[string]any{
 		"profileHandshake": "v6.9.1",
@@ -32,9 +34,42 @@ func (c *NativeTemplateReadonly) RuntimeDiagnostics() map[string]any {
 	sum := sha256.Sum256(raw)
 	out["helperReadable"] = true
 	out["helperSha256"] = hex.EncodeToString(sum[:])
-	out["profileCLI"] = bytes.Contains(raw, []byte("--scan-profiles"))
-	out["profileCommand"] = bytes.Contains(raw, []byte("get.user.info.multi"))
-	if out["profileCLI"] == true && out["profileCommand"] == true {
+
+	cmd := exec.Command(c.Bin, "--capabilities")
+	cmd.Env = []string{"PATH=" + os.Getenv("PATH")}
+	done := make(chan struct{})
+	var probe []byte
+	var probeErr error
+	go func() {
+		probe, probeErr = cmd.Output()
+		close(done)
+	}()
+	select {
+	case <-done:
+	case <-time.After(3 * time.Second):
+		if cmd.Process != nil {
+			_ = cmd.Process.Kill()
+		}
+		<-done
+		out["helperState"] = "CAPABILITY_PROBE_TIMEOUT"
+		return out
+	}
+	if probeErr != nil {
+		out["helperState"] = "CAPABILITY_PROBE_FAILED"
+		return out
+	}
+	var cap map[string]any
+	if err := json.Unmarshal(probe, &cap); err != nil {
+		out["helperState"] = "CAPABILITY_REPORT_INVALID"
+		return out
+	}
+	cli, _ := cap["profileCLI"].(bool)
+	command, _ := cap["profileCommand"].(string)
+	readonly, _ := cap["readonly"].(bool)
+	handshake, _ := cap["profileHandshake"].(string)
+	out["profileCLI"] = cli
+	out["profileCommand"] = command == "get.user.info.multi"
+	if cap["ok"] == true && readonly && handshake == "v6.9.1" && cli && command == "get.user.info.multi" {
 		out["helperState"] = "PROFILE_READY"
 	} else {
 		out["helperState"] = "PROFILE_CAPABILITY_MISSING"
