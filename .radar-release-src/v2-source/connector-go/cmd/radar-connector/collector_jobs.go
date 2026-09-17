@@ -26,22 +26,39 @@ type collectorSearchRequest struct {
 }
 
 type collectorJob struct {
-	ID          string         `json:"id"`
-	Query       string         `json:"query"`
-	Status      string         `json:"status"`
-	Phase       string         `json:"phase"`
-	Region      int            `json:"region"`
-	Regions     int            `json:"regions"`
-	CycleID     int64          `json:"cycleId,omitempty"`
-	Joined      bool           `json:"joined"`
-	PlayersSeen int            `json:"playersSeen"`
-	Candidates int            `json:"candidates"`
-	Enriched    int            `json:"enriched"`
-	Player      map[string]any `json:"player,omitempty"`
-	Error       string         `json:"error,omitempty"`
-	StartedAt   string         `json:"startedAt"`
-	UpdatedAt   string         `json:"updatedAt"`
-	FinishedAt  string         `json:"finishedAt,omitempty"`
+	ID               string                   `json:"id"`
+	Query            string                   `json:"query"`
+	Status           string                   `json:"status"`
+	Phase            string                   `json:"phase"`
+	Region           int                      `json:"region"`
+	Regions          int                      `json:"regions"`
+	CycleID          int64                    `json:"cycleId,omitempty"`
+	Joined           bool                     `json:"joined"`
+	PlayersSeen      int                      `json:"playersSeen"`
+	Candidates       int                      `json:"candidates"`
+	Enriched         int                      `json:"enriched"`
+	Player           map[string]any           `json:"player,omitempty"`
+	Error            string                   `json:"error,omitempty"`
+	FailureCategory  string                   `json:"failureCategory,omitempty"`
+	FailureCode      string                   `json:"failureCode,omitempty"`
+	FailureCause     string                   `json:"failureCause,omitempty"`
+	FailurePhase     string                   `json:"failurePhase,omitempty"`
+	ServerTarget     string                   `json:"serverTarget,omitempty"`
+	AuthState        string                   `json:"authState,omitempty"`
+	RegionsCompleted int                      `json:"regionsCompleted,omitempty"`
+	RegionsFailed    int                      `json:"regionsFailed,omitempty"`
+	RegionFailures   []collectorRegionFailure `json:"regionFailures,omitempty"`
+	StartedAt        string                   `json:"startedAt"`
+	UpdatedAt        string                   `json:"updatedAt"`
+	FinishedAt       string                   `json:"finishedAt,omitempty"`
+}
+
+// WFGG_RADAR_REGION_ISOLATION_V66
+type collectorRegionFailure struct {
+	Region   int    `json:"region"`
+	Category string `json:"category"`
+	Code     string `json:"code"`
+	Cause    string `json:"cause"`
 }
 
 type collectorJobStore struct {
@@ -156,9 +173,21 @@ func (s *server) collectorSearchStatus(w http.ResponseWriter, r *http.Request, _
 func (s *server) runCollectorSearch(jobID, token, query string) {
 	ctx, cancel := context.WithTimeout(context.Background(), 12*time.Minute)
 	defer cancel()
-	fail := func(code string) {
+	// WFGG_RADAR_FEDERATED_DIAGNOSTICS_V65
+	fail := func(code string, causes ...error) {
+		var cause error
+		if len(causes) > 0 {
+			cause = causes[0]
+		}
 		radarCollectorJobs.update(jobID, func(j *collectorJob) {
+			d := buildCollectorFailureDiagnosticV65(query, j.Phase, j.Region, code, cause)
 			j.Status = "FAILED"
+			j.FailureCategory = d.Category
+			j.FailureCode = d.Code
+			j.FailureCause = d.Cause
+			j.FailurePhase = d.FailurePhase
+			j.ServerTarget = d.ServerTarget
+			j.AuthState = d.AuthState
 			j.Phase = "FAILED"
 			j.Error = code
 			j.FinishedAt = utcNow()
@@ -168,7 +197,7 @@ func (s *server) runCollectorSearch(jobID, token, query string) {
 	radarCollectorJobs.update(jobID, func(j *collectorJob) { j.Status = "RUNNING"; j.Phase = "STARTING" })
 	cycle, joined, err := collectorStartCycle(ctx, query)
 	if err != nil {
-		fail("COLLECTOR_CYCLE_START_FAILED")
+		fail("COLLECTOR_CYCLE_START_FAILED", err)
 		return
 	}
 	radarCollectorJobs.update(jobID, func(j *collectorJob) { j.CycleID = cycle.ID; j.Joined = joined })
@@ -176,15 +205,14 @@ func (s *server) runCollectorSearch(jobID, token, query string) {
 	if joined {
 		radarCollectorJobs.update(jobID, func(j *collectorJob) { j.Phase = "WAITING_FOR_CYCLE" })
 		if err := waitCollectorCycle(ctx, cycle.ID); err != nil {
-			fail("COLLECTOR_JOINED_CYCLE_FAILED")
+			fail("COLLECTOR_JOINED_CYCLE_FAILED", err)
 			return
 		}
 		// A joined SEARCH did not own the running cycle. Refresh its own target
 		// after that cycle, without attaching to the already completed cycle.
-		if err := s.refreshSearchTarget(ctx, token, query, 0, jobID); err != nil && !errors.Is(err, errPlayerNotFound) {
-			fail("COLLECTOR_TARGET_REFRESH_FAILED")
-			return
-		}
+		// PROFILE_TARGET_RETRY_V1: a joined SEARCH must still refresh its own
+		// target, but a transient profile miss must not discard the valid map row.
+		_ = s.refreshSearchTarget(ctx, token, query, 0, jobID)
 		player, _ := collectorGetPlayer(ctx, query)
 		completeCollectorJob(jobID, player)
 		return
@@ -201,24 +229,46 @@ func (s *server) runCollectorSearch(jobID, token, query string) {
 		radarCollectorJobs.update(jobID, func(j *collectorJob) { j.Phase = "MAP"; j.Region = region + 1 })
 		players, err := regionScanner.ScanPlayerRegion(ctx, token, "*", region)
 		if err != nil {
-			_ = collectorFinishCycle(context.Background(), cycle.ID, "FAILED", "MAP_REGION_FAILED")
-			fail("MAP_REGION_FAILED")
-			return
+			d := buildCollectorFailureDiagnosticV65(query, "MAP", region+1, "MAP_REGION_FAILED", err)
+			radarCollectorJobs.update(jobID, func(j *collectorJob) {
+				j.RegionsFailed++
+				j.RegionFailures = append(j.RegionFailures, collectorRegionFailure{
+					Region: region + 1, Category: d.Category, Code: d.Code, Cause: d.Cause,
+				})
+				j.FailureCategory = d.Category
+				j.FailureCode = d.Code
+				j.FailureCause = d.Cause
+				j.FailurePhase = d.FailurePhase
+				j.ServerTarget = d.ServerTarget
+				j.AuthState = d.AuthState
+			})
+			// Region isolation V6.6: a protocol-special or temporarily unavailable
+			// region must not discard observations from the other eight regions.
+			continue
 		}
 		accepted, err := collectorIngest(ctx, players, cycle.ID)
 		if err != nil {
 			_ = collectorFinishCycle(context.Background(), cycle.ID, "FAILED", "MAP_INGEST_FAILED")
-			fail("MAP_INGEST_FAILED")
+			fail("MAP_INGEST_FAILED", err)
 			return
 		}
-		radarCollectorJobs.update(jobID, func(j *collectorJob) { j.PlayersSeen += accepted })
+		radarCollectorJobs.update(jobID, func(j *collectorJob) {
+			j.PlayersSeen += accepted
+			j.RegionsCompleted++
+		})
+	}
+
+	if current, ok := radarCollectorJobs.get(jobID); ok && current.RegionsCompleted == 0 && current.RegionsFailed > 0 {
+		_ = collectorFinishCycle(context.Background(), cycle.ID, "FAILED", "MAP_ALL_REGIONS_FAILED")
+		fail("MAP_ALL_REGIONS_FAILED", errors.New("ALL_REGION_SCANS_FAILED"))
+		return
 	}
 
 	radarCollectorJobs.update(jobID, func(j *collectorJob) { j.Phase = "ENRICHING"; j.Region = 9 })
 	uids, err := collectorChangedUIDs(ctx, cycle.ID)
 	if err != nil {
 		_ = collectorFinishCycle(context.Background(), cycle.ID, "FAILED", "DELTA_READ_FAILED")
-		fail("DELTA_READ_FAILED")
+		fail("DELTA_READ_FAILED", err)
 		return
 	}
 	if target, err := collectorGetPlayer(ctx, query); err == nil {
@@ -237,26 +287,33 @@ func (s *server) runCollectorSearch(jobID, token, query string) {
 		}
 		for start := 0; start < len(uids); start += 50 {
 			end := start + 50
-			if end > len(uids) { end = len(uids) }
+			if end > len(uids) {
+				end = len(uids)
+			}
 			players, err := profileScanner.ScanProfiles(ctx, token, uids[start:end])
 			if err != nil {
 				_ = collectorFinishCycle(context.Background(), cycle.ID, "FAILED", "PROFILE_BATCH_FAILED")
-				fail("PROFILE_BATCH_FAILED")
+				fail("PROFILE_BATCH_FAILED", err)
 				return
 			}
 			accepted, err := collectorIngest(ctx, players, cycle.ID)
 			if err != nil {
 				_ = collectorFinishCycle(context.Background(), cycle.ID, "FAILED", "PROFILE_INGEST_FAILED")
-				fail("PROFILE_INGEST_FAILED")
+				fail("PROFILE_INGEST_FAILED", err)
 				return
 			}
 			radarCollectorJobs.update(jobID, func(j *collectorJob) { j.Enriched += accepted })
 		}
 	}
 
+	// Give the searched player a dedicated retry pass after bulk enrichment.
+	// Bulk @profile batches are intentionally best-effort and can occasionally
+	// return zero rows for one UID even though the player exists on the map.
+	_ = s.refreshSearchTarget(ctx, token, query, cycle.ID, jobID)
+
 	radarCollectorJobs.update(jobID, func(j *collectorJob) { j.Phase = "FINALIZING" })
 	if err := collectorFinishCycle(ctx, cycle.ID, "SUCCESS", ""); err != nil {
-		fail("COLLECTOR_CYCLE_FINISH_FAILED")
+		fail("COLLECTOR_CYCLE_FINISH_FAILED", err)
 		return
 	}
 	player, _ := collectorGetPlayer(ctx, query)
@@ -267,18 +324,48 @@ var errPlayerNotFound = errors.New("COLLECTOR_PLAYER_NOT_FOUND")
 
 func (s *server) refreshSearchTarget(ctx context.Context, token, query string, cycleID int64, jobID string) error {
 	player, err := collectorGetPlayer(ctx, query)
-	if err != nil { return errPlayerNotFound }
+	if err != nil {
+		return errPlayerNotFound
+	}
 	uid := stringField(player, "game_uid", "gameUid")
-	if uid == "" { return errPlayerNotFound }
+	if uid == "" {
+		return errPlayerNotFound
+	}
 	profileScanner, ok := s.game.(protocol.ProfileScanner)
-	if !ok { return errors.New("PROFILE_SCANNER_UNAVAILABLE") }
-	radarCollectorJobs.update(jobID, func(j *collectorJob) { j.Phase = "ENRICHING"; j.Candidates = 1 })
-	players, err := profileScanner.ScanProfiles(ctx, token, []string{uid})
-	if err != nil { return err }
-	accepted, err := collectorIngest(ctx, players, cycleID)
-	if err != nil { return err }
-	radarCollectorJobs.update(jobID, func(j *collectorJob) { j.Enriched += accepted })
-	return nil
+	if !ok {
+		return errors.New("PROFILE_SCANNER_UNAVAILABLE")
+	}
+	radarCollectorJobs.update(jobID, func(j *collectorJob) {
+		j.Phase = "ENRICHING"
+		if j.Candidates < 1 {
+			j.Candidates = 1
+		}
+	})
+	var lastErr error
+	for attempt := 0; attempt < 3; attempt++ {
+		players, scanErr := profileScanner.ScanProfiles(ctx, token, []string{uid})
+		if scanErr == nil && len(players) > 0 {
+			accepted, ingestErr := collectorIngest(ctx, players, cycleID)
+			if ingestErr != nil {
+				return ingestErr
+			}
+			radarCollectorJobs.update(jobID, func(j *collectorJob) { j.Enriched += accepted })
+			if accepted > 0 {
+				return nil
+			}
+			lastErr = errors.New("PROFILE_TARGET_NOT_ACCEPTED")
+		} else if scanErr != nil {
+			lastErr = scanErr
+		} else {
+			lastErr = errors.New("PROFILE_TARGET_NOT_RETURNED")
+		}
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case <-time.After(time.Duration(attempt+1) * 350 * time.Millisecond):
+		}
+	}
+	return lastErr
 }
 
 func completeCollectorJob(jobID string, player map[string]any) {
@@ -291,33 +378,49 @@ func completeCollectorJob(jobID string, player map[string]any) {
 	})
 }
 
-type collectorCycle struct { ID int64 `json:"id"`; Status string `json:"status"` }
+type collectorCycle struct {
+	ID     int64  `json:"id"`
+	Status string `json:"status"`
+}
 
 type collectorClientResponse struct {
-	OK      bool             `json:"ok"`
-	Joined  bool             `json:"joined"`
-	Cycle   collectorCycle   `json:"cycle"`
-	Changes []map[string]any `json:"changes"`
-	Player  map[string]any   `json:"player"`
-	Accepted int             `json:"accepted"`
+	OK       bool             `json:"ok"`
+	Joined   bool             `json:"joined"`
+	Cycle    collectorCycle   `json:"cycle"`
+	Changes  []map[string]any `json:"changes"`
+	Player   map[string]any   `json:"player"`
+	Accepted int              `json:"accepted"`
 }
 
 func collectorBase() string {
 	b := strings.TrimRight(strings.TrimSpace(os.Getenv("WFGG_COLLECTOR_URL")), "/")
-	if b == "" { b = "http://127.0.0.1:8790" }
+	if b == "" {
+		b = "http://127.0.0.1:8790"
+	}
 	return b
 }
 
 func collectorJSON(ctx context.Context, method, path string, payload any, out any) error {
 	var body io.Reader
 	if payload != nil {
-		raw, err := json.Marshal(payload); if err != nil { return err }
+		raw, err := json.Marshal(payload)
+		if err != nil {
+			return err
+		}
 		body = bytes.NewReader(raw)
 	}
-	req, err := http.NewRequestWithContext(ctx, method, collectorBase()+path, body); if err != nil { return err }
-	if payload != nil { req.Header.Set("Content-Type", "application/json") }
+	req, err := http.NewRequestWithContext(ctx, method, collectorBase()+path, body)
+	if err != nil {
+		return err
+	}
+	if payload != nil {
+		req.Header.Set("Content-Type", "application/json")
+	}
 	client := &http.Client{Timeout: 90 * time.Second}
-	resp, err := client.Do(req); if err != nil { return err }
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
 	defer resp.Body.Close()
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		io.Copy(io.Discard, io.LimitReader(resp.Body, 4096))
@@ -328,81 +431,132 @@ func collectorJSON(ctx context.Context, method, path string, payload any, out an
 
 func collectorStartCycle(ctx context.Context, query string) (collectorCycle, bool, error) {
 	var r collectorClientResponse
-	err := collectorJSON(ctx, http.MethodPost, "/cycle/start", map[string]any{"trigger":"SEARCH","query":query}, &r)
+	err := collectorJSON(ctx, http.MethodPost, "/cycle/start", map[string]any{"trigger": "SEARCH", "query": query}, &r)
 	return r.Cycle, r.Joined, err
 }
 
 func collectorCycleStatus(ctx context.Context, id int64) (collectorCycle, error) {
 	var r collectorClientResponse
-	err := collectorJSON(ctx, http.MethodGet, "/cycle/status?id="+strconv.FormatInt(id,10), nil, &r)
+	err := collectorJSON(ctx, http.MethodGet, "/cycle/status?id="+strconv.FormatInt(id, 10), nil, &r)
 	return r.Cycle, err
 }
 
 func waitCollectorCycle(ctx context.Context, id int64) error {
-	ticker := time.NewTicker(2*time.Second); defer ticker.Stop()
+	ticker := time.NewTicker(2 * time.Second)
+	defer ticker.Stop()
 	for {
-		cy, err := collectorCycleStatus(ctx,id); if err != nil { return err }
+		cy, err := collectorCycleStatus(ctx, id)
+		if err != nil {
+			return err
+		}
 		if cy.Status != "RUNNING" {
-			if cy.Status == "SUCCESS" { return nil }
+			if cy.Status == "SUCCESS" {
+				return nil
+			}
 			return errors.New("COLLECTOR_CYCLE_FAILED")
 		}
-		select { case <-ctx.Done(): return ctx.Err(); case <-ticker.C: }
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case <-ticker.C:
+		}
 	}
 }
 
 func collectorFinishCycle(ctx context.Context, id int64, status, errorCode string) error {
 	var r collectorClientResponse
-	return collectorJSON(ctx,http.MethodPost,"/cycle/finish",map[string]any{"cycleId":id,"status":status,"error":errorCode},&r)
+	return collectorJSON(ctx, http.MethodPost, "/cycle/finish", map[string]any{"cycleId": id, "status": status, "error": errorCode}, &r)
 }
 
-func collectorIngest(ctx context.Context, players []protocol.Player, cycleID int64) (int,error) {
+func collectorIngest(ctx context.Context, players []protocol.Player, cycleID int64) (int, error) {
 	total := 0
-	for start:=0; start<len(players); start+=250 {
-		end:=start+250; if end>len(players){end=len(players)}
-		payload:=map[string]any{"players":players[start:end]}
-		if cycleID>0 { payload["cycleId"]=cycleID }
+	for start := 0; start < len(players); start += 250 {
+		end := start + 250
+		if end > len(players) {
+			end = len(players)
+		}
+		payload := map[string]any{"players": players[start:end]}
+		if cycleID > 0 {
+			payload["cycleId"] = cycleID
+		}
 		var r collectorClientResponse
-		if err:=collectorJSON(ctx,http.MethodPost,"/ingest",payload,&r); err!=nil{return total,err}
+		if err := collectorJSON(ctx, http.MethodPost, "/ingest", payload, &r); err != nil {
+			return total, err
+		}
 		total += r.Accepted
 	}
-	return total,nil
+	return total, nil
 }
 
-func collectorChangedUIDs(ctx context.Context, cycleID int64) ([]string,error) {
-	out:=[]string{}; seen:=map[string]bool{}; offset:=0
+func collectorChangedUIDs(ctx context.Context, cycleID int64) ([]string, error) {
+	out := []string{}
+	seen := map[string]bool{}
+	offset := 0
 	for {
 		var r collectorClientResponse
-		path:="/cycle/changes?id="+strconv.FormatInt(cycleID,10)+"&limit=1000&offset="+strconv.Itoa(offset)
-		if err:=collectorJSON(ctx,http.MethodGet,path,nil,&r); err!=nil{return nil,err}
-		if len(r.Changes)==0 { break }
-		newOnPage:=0
-		for _,ch:=range r.Changes {
-			uid:=stringField(ch,"game_uid","gameUid")
-			if uid=="" { if a,ok:=ch["after"].(map[string]any);ok{uid=stringField(a,"game_uid","gameUid")} }
-			if uid!=""&&!seen[uid]{seen[uid]=true;out=append(out,uid);newOnPage++}
+		path := "/cycle/changes?id=" + strconv.FormatInt(cycleID, 10) + "&limit=1000&offset=" + strconv.Itoa(offset)
+		if err := collectorJSON(ctx, http.MethodGet, path, nil, &r); err != nil {
+			return nil, err
 		}
-		if len(r.Changes)<1000 { break }
-		if newOnPage==0 { return nil,errors.New("COLLECTOR_CHANGES_PAGINATION_REQUIRED") }
+		if len(r.Changes) == 0 {
+			break
+		}
+		newOnPage := 0
+		for _, ch := range r.Changes {
+			uid := stringField(ch, "game_uid", "gameUid")
+			if uid == "" {
+				if a, ok := ch["after"].(map[string]any); ok {
+					uid = stringField(a, "game_uid", "gameUid")
+				}
+			}
+			if uid != "" && !seen[uid] {
+				seen[uid] = true
+				out = append(out, uid)
+				newOnPage++
+			}
+		}
+		if len(r.Changes) < 1000 {
+			break
+		}
+		if newOnPage == 0 {
+			return nil, errors.New("COLLECTOR_CHANGES_PAGINATION_REQUIRED")
+		}
 		offset += len(r.Changes)
-		if offset>10000 { return nil,errors.New("COLLECTOR_CHANGE_LIMIT_EXCEEDED") }
+		if offset > 10000 {
+			return nil, errors.New("COLLECTOR_CHANGE_LIMIT_EXCEEDED")
+		}
 	}
-	return out,nil
+	return out, nil
 }
 
-func collectorGetPlayer(ctx context.Context, query string) (map[string]any,error) {
+func collectorGetPlayer(ctx context.Context, query string) (map[string]any, error) {
 	var r collectorClientResponse
-	path:="/player?q="+url.QueryEscape(query)
-	if err:=collectorJSON(ctx,http.MethodGet,path,nil,&r);err!=nil{return nil,err}
-	if r.Player==nil{return nil,errPlayerNotFound}
-	return r.Player,nil
+	path := "/player?q=" + url.QueryEscape(query)
+	if err := collectorJSON(ctx, http.MethodGet, path, nil, &r); err != nil {
+		return nil, err
+	}
+	if r.Player == nil {
+		return nil, errPlayerNotFound
+	}
+	return r.Player, nil
 }
 
 func stringField(m map[string]any, keys ...string) string {
-	for _,k:=range keys { if v,ok:=m[k];ok { if s,ok:=v.(string);ok{return strings.TrimSpace(s)} } }
+	for _, k := range keys {
+		if v, ok := m[k]; ok {
+			if s, ok := v.(string); ok {
+				return strings.TrimSpace(s)
+			}
+		}
+	}
 	return ""
 }
 
 func appendUnique(in []string, value string) []string {
-	for _,v:=range in { if v==value{return in} }
-	return append(in,value)
+	for _, v := range in {
+		if v == value {
+			return in
+		}
+	}
+	return append(in, value)
 }
