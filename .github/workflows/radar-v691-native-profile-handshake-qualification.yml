@@ -60,7 +60,7 @@ jobs:
           grep -Fq 'LASTWAR_PLAYER_PROFILE_DECODE_FAILED' internal/protocol/profile_handshake_v691.go
           echo RADAR_V691_CONNECTOR=PASS
 
-      - name: Build and prove native profile CLI
+      - name: Build and prove native profile capability handshake
         run: |
           set -euo pipefail
           rm -rf /tmp/lastwar-client
@@ -78,17 +78,26 @@ jobs:
           cp /tmp/wfgg-radar/connector-go/native-template/profile_scan_v69_test.go cmd/wfgg-radar-native-template/profile_scan_v69_test.go
           gofmt -w cmd/wfgg-radar-native-template/*.go
           go test -tags lastwar_native_template ./cmd/wfgg-radar-native-template
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -tags lastwar_native_template -trimpath -ldflags='-s -w' -o /tmp/radar-native-template-v691 ./cmd/wfgg-radar-native-template
+          test -s /tmp/radar-native-template-v691
+          /tmp/radar-native-template-v691 --capabilities > /tmp/v691-capabilities.json
+          python3 - <<'PY'
+          import json
+          d=json.load(open('/tmp/v691-capabilities.json'))
+          assert d.get('ok') is True
+          assert d.get('readonly') is True
+          assert d.get('profileHandshake') == 'v6.9.1'
+          assert d.get('profileCLI') is True
+          assert d.get('profileCommand') == 'get.user.info.multi'
+          print('RADAR_V691_NATIVE_PROFILE_CAPABILITY=PASS')
+          PY
           set +e
-          probe="$(go run -tags lastwar_native_template ./cmd/wfgg-radar-native-template /tmp/no-capture /tmp/no-session --scan-profiles 1 2>/dev/null)"
+          probe="$(/tmp/radar-native-template-v691 /tmp/no-capture /tmp/no-session --scan-profiles 1 2>/dev/null)"
           rc=$?
           set -e
           test "$rc" -ne 0
           echo "$probe" | grep -Fq 'SESSION_READ_FAILED'
           ! echo "$probe" | grep -Fq 'INVALID_ARGS'
-          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -tags lastwar_native_template -trimpath -ldflags='-s -w' -o /tmp/radar-native-template-v691 ./cmd/wfgg-radar-native-template
-          test -s /tmp/radar-native-template-v691
-          grep -aFq -- '--scan-profiles' /tmp/radar-native-template-v691
-          grep -aFq 'get.user.info.multi' /tmp/radar-native-template-v691
           echo RADAR_V691_NATIVE_PROFILE_CLI=PASS
 
       - name: Validate safety and production workflow contract
@@ -96,7 +105,7 @@ jobs:
           set -euo pipefail
           ! grep -REq 'building\.production\.collect|mail\.reward|al\.science\.donate|visitor\.operate|attack|march|purchase' .radar-release-src/v691-source
           grep -Fq 'patch-radar-native-profile-handshake-v691.py' .github/workflows/radar-v69-build.yml
-          grep -Fq 'RADAR_V691_PROFILE_CLI=RECOGNIZED' .github/workflows/radar-v69-build.yml
+          grep -Fq 'RADAR_V691_PROFILE_CAPABILITY=RECOGNIZED' .github/workflows/radar-v69-build.yml
           grep -Fq 'helperSha256' .github/workflows/radar-v691-runtime-handshake.yml
           grep -Fq 'PROFILE_READY' .github/workflows/radar-v691-runtime-handshake.yml
           test "$GITHUB_REF_NAME" = 'radar-v691-native-profile-handshake'
