@@ -1,6 +1,10 @@
 name: Radar V6.11 live fast identity probe
 
 on:
+  push:
+    branches: [radar-v611-live-probe-run]
+    paths:
+      - '.github/workflows/radar-v611-live-fast-probe.yml'
   workflow_dispatch:
 
 permissions:
