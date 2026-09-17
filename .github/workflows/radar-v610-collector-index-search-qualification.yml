@@ -12,6 +12,7 @@ on:
       - '.github/scripts/patch-radar-async-collector-worker-vpre610.py'
       - '.github/scripts/patch-radar-connector-runtime-v693.py'
       - '.radar-release-src/v610-source/**'
+      - 'docs/RADAR_V610_COLLECTOR_INDEX_SEARCH.md'
   workflow_dispatch:
 
 permissions:
@@ -120,5 +121,7 @@ jobs:
           grep -Fq '__WFGG_V610_ROUTE_PROBE_7f3c9e__' .github/workflows/radar-v610-live-index-probe.yml
           grep -Fq 'len(players) == 0' .github/workflows/radar-v610-live-index-probe.yml
           ! grep -Eq 'print\((data|players)|json\.dumps\((data|players)' .github/workflows/radar-v610-live-index-probe.yml
+          grep -Fq 'D1 `radar_observations` cache.' docs/RADAR_V610_COLLECTOR_INDEX_SEARCH.md
+          grep -Fq 'Signed read-only VPS Collector index' docs/RADAR_V610_COLLECTOR_INDEX_SEARCH.md
           echo RADAR_V610_PROBE_PRIVACY=PASS
           echo RADAR_V610_READONLY=PASS
