@@ -5,6 +5,7 @@ import re
 ROOT = Path('/tmp/wfgg-radar')
 WORKER = ROOT / 'src/worker.js'
 TRANSPORT = ROOT / 'src/game/remote-transport.js'
+REPOSITORY = ROOT / 'src/db/repository.js'
 
 
 def replace_once(text: str, old: str, new: str, label: str) -> str:
@@ -24,6 +25,54 @@ def patch_transport() -> None:
     new = '''  collectorSearchStatus(id) { return this.request(`/v1/collector/search/status?id=${encodeURIComponent(id)}`, { method: 'GET' }); }\n  // WFGG_RADAR_COLLECTOR_INDEX_TRANSPORT_V610\n  collectorIndexSearch(query, limit = 50) {\n    const safeLimit = Math.max(1, Math.min(Number(limit) || 50, 100));\n    return this.request(`/v1/collector/index/search?q=${encodeURIComponent(String(query || ''))}&limit=${safeLimit}`, { method: 'GET' });\n  }\n  cartographerTick(token) { return this.request('/v1/cartographer/tick', { body: { token } }); }\n'''
     TRANSPORT.write_text(replace_once(text, old, new, 'transport anchor'), encoding='utf-8')
     print('RADAR_V610_TRANSPORT=PATCHED')
+
+
+def patch_repository_writer() -> None:
+    text = REPOSITORY.read_text(encoding='utf-8')
+    marker = 'WFGG_RADAR_D1_OBSERVATION_WRITER_V6101'
+    if marker in text:
+        print('RADAR_V6101_D1_WRITER=ALREADY_PRESENT')
+        return
+    addition = r'''
+
+// WFGG_RADAR_D1_OBSERVATION_WRITER_V6101
+// Minimal immutable-release writer used by the V6.10 Collector-index lazy cache.
+// It stores only normalized Radar observation fields; no token, credential or raw payload.
+export async function saveRadarPlayerObservations(env, players = [], { sourceCommand = 'collector-index-v610', rawRef = null } = {}) {
+  if (!env?.DB) throw Object.assign(new Error('RADAR_DB_NOT_CONFIGURED'), { status: 503 });
+  const safe = Array.isArray(players) ? players.slice(0, 100) : [];
+  let inserted = 0;
+  const intOrNull = value => (value === null || value === undefined || value === '')
+    ? null
+    : (Number.isFinite(Number(value)) ? Math.trunc(Number(value)) : null);
+  for (const player of safe) {
+    const pseudo = String(player?.pseudo || '').trim();
+    const subjectUid = player?.gameUid ? String(player.gameUid).trim() : null;
+    if (!pseudo && !subjectUid) continue;
+    const observedAt = String(player?.observedAt || new Date().toISOString());
+    await env.DB.prepare(`
+      INSERT INTO radar_observations(
+        subject_uid, pseudo, server_id, alliance_id, alliance_tag,
+        x, y, hq_level, power, shield_state,
+        observed_at, source_command, raw_ref
+      ) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)
+    `).bind(
+      subjectUid,
+      pseudo || null,
+      player?.serverId ? String(player.serverId) : null,
+      player?.allianceId ? String(player.allianceId) : null,
+      player?.allianceTag ? String(player.allianceTag) : null,
+      intOrNull(player?.x), intOrNull(player?.y), intOrNull(player?.hqLevel), intOrNull(player?.power),
+      player?.shieldState == null ? null : String(player.shieldState),
+      observedAt, String(sourceCommand || 'collector-index-v610'), rawRef ? String(rawRef) : null
+    ).run();
+    inserted++;
+  }
+  return { inserted };
+}
+'''
+    REPOSITORY.write_text(text.rstrip() + addition + '\n', encoding='utf-8')
+    print('RADAR_V6101_D1_WRITER=PATCHED')
 
 
 def ensure_repository_import(text: str) -> str:
@@ -54,5 +103,7 @@ def patch_worker() -> None:
 
 
 patch_transport()
+patch_repository_writer()
 patch_worker()
 print('RADAR_COLLECTOR_INDEX_WORKER_V610=READY')
+print('RADAR_D1_OBSERVATION_WRITER_V6101=READY')
