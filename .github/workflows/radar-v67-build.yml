@@ -1,0 +1,118 @@
+name: Radar V6.7 protocol discovery build
+
+on:
+  push:
+    branches: [radar-production-v1]
+    paths:
+      - '.github/workflows/radar-v67-build.yml'
+      - '.github/scripts/patch-radar-protocol-discovery-v67.py'
+      - '.github/scripts/patch-live-radar-protocol-discovery-v67.py'
+      - '.radar-release-src/v67-source/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: wfgg-radar-v67-build
+  cancel-in-progress: false
+
+env:
+  LASTWAR_CLIENT_REF: ee5f64de160a8051c2f9f98189b75038dd225a0a
+
+jobs:
+  build-publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: radar-production-v1
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.27.x'
+
+      - name: Reconstruct current Radar connector
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/wfgg-radar
+          mkdir -p /tmp/wfgg-radar
+          python3 .github/scripts/reconstruct-radar-release.py
+          echo '234df1dec57f6211bc625855bf13350c9f17fbd843fbe92d8cf1ab7cb5c081ef  /tmp/radar-src.tar.gz' | sha256sum -c -
+          tar -xzf /tmp/radar-src.tar.gz -C /tmp/wfgg-radar
+          rm -rf /tmp/wfgg-radar/connector-go
+          cp -a .radar-release-src/v2-source/connector-go /tmp/wfgg-radar/connector-go
+          python3 .github/scripts/patch-radar-target-profile-retry.py
+          python3 .github/scripts/patch-radar-federated-diagnostics-v65.py
+          python3 .github/scripts/patch-player-scan-v3.py
+          python3 .github/scripts/patch-player-scan-v4.py
+          python3 .github/scripts/patch-radar-protocol-discovery-v67.py
+
+      - name: Test and build V6.7 connector
+        working-directory: /tmp/wfgg-radar/connector-go
+        run: |
+          set -euo pipefail
+          gofmt -w ./cmd ./internal
+          go test ./...
+          go vet ./...
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w' -o "$GITHUB_WORKSPACE/radar-vps/release/radar-connector" ./cmd/radar-connector
+          test -s "$GITHUB_WORKSPACE/radar-vps/release/radar-connector"
+
+      - name: Build V6.7 native helper from pinned upstream
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/lastwar-client
+          git clone --quiet --filter=blob:none --no-checkout https://github.com/ljagiello/lastwar-client.git /tmp/lastwar-client
+          cd /tmp/lastwar-client
+          git fetch --quiet --depth 1 origin "$LASTWAR_CLIENT_REF"
+          git checkout --quiet --detach FETCH_HEAD
+          test "$(git rev-parse HEAD)" = "$LASTWAR_CLIENT_REF"
+          go test ./internal/auth ./internal/pcap ./internal/sfs
+          mkdir -p cmd/wfgg-radar-native-template
+          cp /tmp/wfgg-radar/connector-go/native-template/main.go cmd/wfgg-radar-native-template/main.go
+          cp /tmp/wfgg-radar/connector-go/native-template/player_scan_v3.go cmd/wfgg-radar-native-template/player_scan_v3.go
+          cp /tmp/wfgg-radar/connector-go/native-template/player_scan_v4.go cmd/wfgg-radar-native-template/player_scan_v4.go
+          gofmt -w cmd/wfgg-radar-native-template/*.go
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -tags lastwar_native_template -trimpath -ldflags='-s -w' -o "$GITHUB_WORKSPACE/radar-vps/release/radar-native-template" ./cmd/wfgg-radar-native-template
+          test -s "$GITHUB_WORKSPACE/radar-vps/release/radar-native-template"
+          strings "$GITHUB_WORKSPACE/radar-vps/release/radar-native-template" | grep -Fq 'WFGG_SCAN_V67'
+          strings "$GITHUB_WORKSPACE/radar-vps/release/radar-native-template" | grep -Fq 'WFGG_COLLECTOR_ORIGIN_INDEX'
+
+      - name: Materialize V6.7 live UI
+        run: |
+          set -euo pipefail
+          install -m 0644 radar-ui-live/live-radar.html /tmp/wfgg-radar/public/live-radar.html
+          python3 .github/scripts/patch-live-radar-protocol-discovery-v67.py
+          cp /tmp/wfgg-radar/public/live-radar.html radar-ui-live/live-radar.html
+          grep -Fq 'WFGG_RADAR_PROTOCOL_DISCOVERY_UI_V67' radar-ui-live/live-radar.html
+
+      - name: Verify read-only release surface
+        run: |
+          set -euo pipefail
+          chmod 0755 radar-vps/release/radar-connector radar-vps/release/radar-native-template
+          grep -aFq 'native-template-readonly-v4' radar-vps/release/radar-native-template
+          grep -aFq 'world.get.block' radar-vps/release/radar-native-template
+          ! grep -REq 'building\.production\.collect|mail\.reward|al\.science\.donate|visitor\.operate' /tmp/wfgg-radar/connector-go || false
+          (
+            cd radar-vps/release
+            sha256sum radar-connector radar-native-template > SHA256SUMS
+          )
+          cat radar-vps/release/SHA256SUMS
+
+      - name: Publish V6.7 release
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add radar-vps/release/radar-connector radar-vps/release/radar-native-template radar-vps/release/SHA256SUMS radar-ui-live/live-radar.html
+          if git diff --cached --quiet; then
+            echo RADAR_V67_RELEASE=UNCHANGED
+            exit 0
+          fi
+          git commit -m 'build(radar): publish V6.7 protocol discovery'
+          git fetch origin radar-production-v1
+          git rebase origin/radar-production-v1
+          git push origin HEAD:radar-production-v1
+          echo RADAR_V67_RELEASE=PUBLISHED
