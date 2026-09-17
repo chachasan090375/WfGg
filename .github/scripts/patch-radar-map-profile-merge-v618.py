@@ -43,8 +43,15 @@ old_bulk = '''\t\t\tstats := enrichProfilesIsolatedV68(ctx, profileScanner, toke
 new_bulk = '''\t\t\tprofileIngestV618 := func(ingestCtx context.Context, profiles []protocol.Player, ingestCycleID int64) (int, error) {\n\t\t\t\treturn collectorIngest(ingestCtx, mergeProfileBatchV618(mapPlayersV618, profiles), ingestCycleID)\n\t\t\t}\n\t\t\tstats := enrichProfilesIsolatedV68(ctx, profileScanner, token, uids, cycle.ID, profileIngestV618)\n'''
 text = replace_once(text, old_bulk, new_bulk, 'bulk profile ingest')
 
-# The dedicated searched-player retry is another profile write path and must use
-# the same sparse merge rule.
+# A SEARCH that joined somebody else's running cycle has no local map index.
+# It still retries its own target, but with a nil index so no map evidence is
+# fabricated or overwritten by V6.18.
+old_joined_call = '''\t\t_ = s.refreshSearchTarget(ctx, token, query, 0, jobID)\n'''
+new_joined_call = '''\t\t_ = s.refreshSearchTarget(ctx, token, query, 0, jobID, nil)\n'''
+text = replace_once(text, old_joined_call, new_joined_call, 'joined target retry call')
+
+# The dedicated searched-player retry after an owned map cycle must use the same
+# sparse merge rule as bulk enrichment.
 old_call = '''\t_ = s.refreshSearchTarget(ctx, token, query, cycle.ID, jobID)\n'''
 new_call = '''\t_ = s.refreshSearchTarget(ctx, token, query, cycle.ID, jobID, mapPlayersV618)\n'''
 text = replace_once(text, old_call, new_call, 'target retry call')
