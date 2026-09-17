@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"strings"
 	"unicode"
 
@@ -22,20 +23,20 @@ type collectorProfileFailureV68 struct {
 }
 
 type collectorProfileStatsV68 struct {
-	Status            string                       `json:"status"`
-	Requested         int                          `json:"requested"`
-	Attempts          int                          `json:"attempts"`
-	BatchesSucceeded  int                          `json:"batchesSucceeded"`
-	BatchesFailed     int                          `json:"batchesFailed"`
-	ProfilesReturned  int                          `json:"profilesReturned"`
-	ProfilesResolved  int                          `json:"profilesResolved"`
-	ProfilesUnresolved int                         `json:"profilesUnresolved"`
-	ProfilesAccepted  int                          `json:"profilesAccepted"`
-	SinglesFailed     int                          `json:"singlesFailed"`
-	IngestFailures    int                          `json:"ingestFailures"`
-	BudgetExhausted   bool                         `json:"budgetExhausted"`
-	ContextDone       bool                         `json:"contextDone"`
-	Failures          []collectorProfileFailureV68 `json:"failures,omitempty"`
+	Status             string                       `json:"status"`
+	Requested          int                          `json:"requested"`
+	Attempts           int                          `json:"attempts"`
+	BatchesSucceeded   int                          `json:"batchesSucceeded"`
+	BatchesFailed      int                          `json:"batchesFailed"`
+	ProfilesReturned   int                          `json:"profilesReturned"`
+	ProfilesResolved   int                          `json:"profilesResolved"`
+	ProfilesUnresolved int                          `json:"profilesUnresolved"`
+	ProfilesAccepted   int                          `json:"profilesAccepted"`
+	SinglesFailed      int                          `json:"singlesFailed"`
+	IngestFailures     int                          `json:"ingestFailures"`
+	BudgetExhausted    bool                         `json:"budgetExhausted"`
+	ContextDone        bool                         `json:"contextDone"`
+	Failures           []collectorProfileFailureV68 `json:"failures,omitempty"`
 }
 
 type profileIngestV68 func(context.Context, []protocol.Player, int64) (int, error)
@@ -52,11 +53,14 @@ func safeProfileCodeV68(err error) string {
 		raw = raw[:i]
 	}
 	var b strings.Builder
+	lastUnderscore := false
 	for _, r := range raw {
 		if unicode.IsLetter(r) || unicode.IsDigit(r) || r == '_' || r == '-' || r == '.' {
 			b.WriteRune(unicode.ToUpper(r))
-		} else if b.Len() > 0 && !strings.HasSuffix(b.String(), "_") {
+			lastUnderscore = r == '_'
+		} else if b.Len() > 0 && !lastUnderscore {
 			b.WriteByte('_')
+			lastUnderscore = true
 		}
 		if b.Len() >= 96 {
 			break
@@ -120,7 +124,7 @@ func enrichProfilesIsolatedV68(
 		}
 		if stats.Attempts >= v68ProfileAttemptBudget {
 			stats.BudgetExhausted = true
-			addProfileFailureV68(&stats, "BUDGET", len(batch), context.DeadlineExceeded)
+			addProfileFailureV68(&stats, "BUDGET", len(batch), errors.New("PROFILE_ATTEMPT_BUDGET_EXHAUSTED"))
 			return
 		}
 
@@ -171,7 +175,7 @@ func enrichProfilesIsolatedV68(
 		}
 		if len(batch) == 1 {
 			stats.SinglesFailed++
-			addProfileFailureV68(&stats, "EMPTY", 1, context.Canceled)
+			addProfileFailureV68(&stats, "EMPTY", 1, errors.New("PROFILE_NOT_RETURNED"))
 			return
 		}
 		// A partial/empty multi response is itself useful protocol evidence. Retry
