@@ -1,0 +1,60 @@
+name: Radar V6.6 materialize canonical sources
+
+on:
+  push:
+    branches: [radar-v66-region-isolation-work]
+    paths:
+      - '.github/workflows/radar-v66-materialize.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  materialize:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: radar-v66-region-isolation-work
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.27.x'
+
+      - name: Materialize current Collector source
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/wfgg-radar
+          mkdir -p /tmp/wfgg-radar/connector-go/cmd/radar-connector /tmp/wfgg-radar/public
+          cp -a .radar-release-src/v2-source/connector-go/. /tmp/wfgg-radar/connector-go/
+          install -m 0644 radar-ui-live/live-radar.html /tmp/wfgg-radar/public/live-radar.html
+          python3 .github/scripts/patch-radar-target-profile-retry.py
+          python3 .github/scripts/patch-radar-federated-diagnostics-v65.py
+          python3 .github/scripts/patch-radar-region-isolation-v66.py
+          cd /tmp/wfgg-radar/connector-go
+          gofmt -w ./cmd ./internal
+          go test ./...
+          go vet ./...
+          cd "$GITHUB_WORKSPACE"
+          install -m 0644 /tmp/wfgg-radar/connector-go/cmd/radar-connector/collector_jobs.go .radar-release-src/v2-source/connector-go/cmd/radar-connector/collector_jobs.go
+          install -m 0644 /tmp/wfgg-radar/public/live-radar.html radar-ui-live/live-radar.html
+          grep -q 'PROFILE_TARGET_RETRY_V1' .radar-release-src/v2-source/connector-go/cmd/radar-connector/collector_jobs.go
+          grep -q 'WFGG_RADAR_FEDERATED_DIAGNOSTICS_V65' .radar-release-src/v2-source/connector-go/cmd/radar-connector/collector_jobs.go
+          grep -q 'WFGG_RADAR_REGION_ISOLATION_V66' .radar-release-src/v2-source/connector-go/cmd/radar-connector/collector_jobs.go
+          grep -q 'WFGG_RADAR_REGION_ISOLATION_UI_V66' radar-ui-live/live-radar.html
+
+      - name: Commit canonical V6.6 sources
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add .radar-release-src/v2-source/connector-go/cmd/radar-connector/collector_jobs.go radar-ui-live/live-radar.html
+          if git diff --cached --quiet; then
+            echo 'RADAR_V66_CANONICAL=UNCHANGED'
+            exit 0
+          fi
+          git commit -m 'feat(radar): materialize V6.6 region isolation'
+          git push origin HEAD:radar-v66-region-isolation-work
+          echo 'RADAR_V66_CANONICAL=PUBLISHED'
