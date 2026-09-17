@@ -1,0 +1,78 @@
+name: Radar V6.11 fast identity lookup qualification
+
+on:
+  push:
+    branches: [radar-v611-fast-identity-lookup]
+    paths:
+      - '.github/workflows/radar-v611-fast-lookup-qualification.yml'
+      - '.github/scripts/patch-radar-collector-fast-lookup-v611.py'
+      - '.github/scripts/patch-radar-worker-fast-lookup-v611.py'
+      - '.github/scripts/patch-live-radar-fast-lookup-v611.py'
+      - '.github/scripts/patch-radar-connector-runtime-v693.py'
+      - '.github/scripts/patch-radar-async-collector-worker.py'
+      - '.radar-release-src/v611-source/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: radar-v611-fast-identity-lookup
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.27.x'
+
+      - name: Reconstruct V6.11 connector and Worker
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/wfgg-radar
+          mkdir -p /tmp/wfgg-radar
+          python3 .github/scripts/reconstruct-radar-release.py
+          echo '234df1dec57f6211bc625855bf13350c9f17fbd843fbe92d8cf1ab7cb5c081ef  /tmp/radar-src.tar.gz' | sha256sum -c -
+          tar -xzf /tmp/radar-src.tar.gz -C /tmp/wfgg-radar
+          rm -rf /tmp/wfgg-radar/connector-go
+          cp -a .radar-release-src/v2-source/connector-go /tmp/wfgg-radar/connector-go
+          python3 .github/scripts/patch-radar-target-profile-retry.py
+          python3 .github/scripts/patch-radar-federated-diagnostics-v65.py
+          python3 .github/scripts/patch-player-scan-v3.py
+          python3 .github/scripts/patch-player-scan-v4.py
+          python3 .github/scripts/patch-radar-protocol-discovery-v67.py
+          python3 .github/scripts/patch-radar-profile-isolation-v68.py
+          python3 .github/scripts/patch-radar-native-profile-v69.py
+          python3 .github/scripts/patch-radar-native-profile-handshake-v691.py
+          python3 .github/scripts/patch-radar-native-profile-exec-v692.py
+          python3 .github/scripts/patch-radar-connector-runtime-v693.py
+          python3 .github/scripts/patch-radar-async-collector-worker.py
+
+      - name: Test V6.11 connector
+        working-directory: /tmp/wfgg-radar/connector-go
+        run: |
+          set -euo pipefail
+          gofmt -w ./cmd ./internal
+          go test ./...
+          go test ./cmd/radar-connector -run 'TestFastLookup(Query|Player)V611' -count=1
+          go vet ./...
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w' -o /tmp/radar-v611-connector ./cmd/radar-connector
+          test -s /tmp/radar-v611-connector
+
+      - name: Verify fast lookup routing and UI
+        run: |
+          set -euo pipefail
+          node --check /tmp/wfgg-radar/src/worker.js
+          grep -Fq 'WFGG_RADAR_FAST_IDENTITY_LOOKUP_V611' /tmp/wfgg-radar/connector-go/cmd/radar-connector/collector_fast_lookup_v611.go
+          grep -Fq 'GET /v1/collector/identity/lookup' /tmp/wfgg-radar/connector-go/cmd/radar-connector/main.go
+          grep -Fq 'WFGG_RADAR_FAST_LOOKUP_ROUTE_V611' /tmp/wfgg-radar/src/worker.js
+          grep -Fq 'collectorFastLookup(query' /tmp/wfgg-radar/src/game/remote-transport.js
+          grep -Fq 'WFGG_RADAR_FAST_LOOKUP_UI_V611' radar-ui-live/live-radar.html
+          grep -Fq "api('/api/radar/search?q='" radar-ui-live/live-radar.html
+          ! grep -F "WFGG_RADAR_FAST_LOOKUP_UI_V611" radar-ui-live/live-radar.html | grep -Fq 'runCollectorSearch(q)'
+          grep -Fq "refreshAvailable: session.role === ROLES.OWNER" /tmp/wfgg-radar/src/worker.js
+          echo RADAR_V611_FAST_LOOKUP_QUALIFIED=PASS
