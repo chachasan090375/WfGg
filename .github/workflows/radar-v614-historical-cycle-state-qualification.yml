@@ -1,0 +1,71 @@
+name: Radar V6.14 historical cycle-state qualification
+
+on:
+  push:
+    branches: [radar-v614-historical-cycle-state]
+    paths:
+      - '.radar-release-src/v614-source/**'
+      - '.github/scripts/patch-radar-server-cycle-history-v614.py'
+      - '.github/scripts/patch-radar-connector-runtime-v693.py'
+      - '.github/workflows/radar-v614-historical-cycle-state-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: radar-v614-historical-cycle-state
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.27.x'
+
+      - name: Reconstruct V6.14 connector
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/wfgg-radar
+          mkdir -p /tmp/wfgg-radar
+          python3 .github/scripts/reconstruct-radar-release.py
+          echo '234df1dec57f6211bc625855bf13350c9f17fbd843fbe92d8cf1ab7cb5c081ef  /tmp/radar-src.tar.gz' | sha256sum -c -
+          tar -xzf /tmp/radar-src.tar.gz -C /tmp/wfgg-radar
+          rm -rf /tmp/wfgg-radar/connector-go
+          cp -a .radar-release-src/v2-source/connector-go /tmp/wfgg-radar/connector-go
+          python3 .github/scripts/patch-radar-target-profile-retry.py
+          python3 .github/scripts/patch-radar-federated-diagnostics-v65.py
+          python3 .github/scripts/patch-player-scan-v3.py
+          python3 .github/scripts/patch-player-scan-v4.py
+          python3 .github/scripts/patch-radar-protocol-discovery-v67.py
+          python3 .github/scripts/patch-radar-profile-isolation-v68.py
+          python3 .github/scripts/patch-radar-native-profile-v69.py
+          python3 .github/scripts/patch-radar-native-profile-handshake-v691.py
+          python3 .github/scripts/patch-radar-native-profile-exec-v692.py
+          python3 .github/scripts/patch-radar-connector-runtime-v693.py
+
+      - name: Test V6.14 historical reconstruction
+        working-directory: /tmp/wfgg-radar/connector-go
+        run: |
+          set -euo pipefail
+          gofmt -w ./cmd ./internal
+          go test ./cmd/radar-connector -run 'TestServerCycleHistoryV614UsesCycleTimeState|TestServerCycleHistoryV614PayloadContainsNoIdentityKeys' -count=1
+          go test ./...
+          go vet ./...
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w' -o /tmp/radar-connector-v614 ./cmd/radar-connector
+          test -s /tmp/radar-connector-v614
+
+      - name: Verify historical aggregate-only surface
+        run: |
+          set -euo pipefail
+          grep -Fq 'WFGG_RADAR_SERVER_CYCLE_HISTORY_V614' /tmp/wfgg-radar/connector-go/cmd/radar-connector/server_cycle_history_v614.go
+          grep -Fq 'WFGG_RADAR_SERVER_CYCLE_HISTORY_ROUTE_V614' /tmp/wfgg-radar/connector-go/cmd/radar-connector/main.go
+          grep -Fq 'GET /v1/collector/server-cycle-history' /tmp/wfgg-radar/connector-go/cmd/radar-connector/main.go
+          grep -Fq 'OBSERVED_MAP_TARGET_HISTORY' /tmp/wfgg-radar/connector-go/cmd/radar-connector/server_cycle_history_v614.go
+          grep -Fq 'clusterSemanticsProven' /tmp/wfgg-radar/connector-go/cmd/radar-connector/server_cycle_history_v614.go
+          ! grep -REq 'gameUid|pseudo|alliance_tag|credential|token' .radar-release-src/v614-source/connector-go/cmd/radar-connector/server_cycle_history_v614.go
+          echo RADAR_V614_HISTORICAL_CYCLE_STATE=QUALIFIED
