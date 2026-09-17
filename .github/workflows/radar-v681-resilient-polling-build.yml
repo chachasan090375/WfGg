@@ -1,0 +1,74 @@
+name: Radar V6.8.1 resilient polling build
+
+on:
+  push:
+    branches: [radar-production-v1]
+    paths:
+      - '.github/scripts/patch-radar-resilient-polling-v681.py'
+      - '.github/workflows/radar-v681-resilient-polling-build.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: wfgg-radar-v681-build
+  cancel-in-progress: false
+
+jobs:
+  materialize-and-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: radar-production-v1
+          fetch-depth: 0
+
+      - name: Materialize resilient polling into canonical UI
+        run: |
+          set -euo pipefail
+          python3 .github/scripts/patch-radar-resilient-polling-v681.py radar-ui-live/live-radar.html
+          grep -q 'WFGG_RADAR_RESILIENT_POLLING_V681' radar-ui-live/live-radar.html
+          grep -q 'CONNEXION MOMENTANÉMENT PERDUE' radar-ui-live/live-radar.html
+          grep -q 'wfgg_radar_active_job_v681' radar-ui-live/live-radar.html
+
+      - name: Validate JavaScript syntax
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          html=Path('radar-ui-live/live-radar.html').read_text(encoding='utf-8')
+          scripts=re.findall(r'<script[^>]*>(.*?)</script>',html,re.S|re.I)
+          if not scripts:
+              raise SystemExit('RADAR_V681_NO_INLINE_SCRIPT')
+          Path('/tmp/radar-v681.js').write_text('\n'.join(scripts),encoding='utf-8')
+          PY
+          node --check /tmp/radar-v681.js
+
+      - name: Commit canonical V6.8.1 UI if needed
+        id: commit
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- radar-ui-live/live-radar.html; then
+            echo 'changed=false' >> "$GITHUB_OUTPUT"
+            echo 'RADAR_V681_UI=ALREADY_MATERIALIZED'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add radar-ui-live/live-radar.html
+          git commit -m 'build(radar): materialize V6.8.1 resilient polling UI'
+          git push origin HEAD:radar-production-v1
+          echo 'changed=true' >> "$GITHUB_OUTPUT"
+          echo 'RADAR_V681_UI=PUBLISHED'
+
+      - name: Dispatch Radar production deployment
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh workflow run deploy-radar-production.yml --ref radar-production-v1
+          echo 'RADAR_V681_DEPLOY=DISPATCHED'
