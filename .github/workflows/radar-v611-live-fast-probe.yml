@@ -1,0 +1,52 @@
+name: Radar V6.11 live fast identity probe
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  RADAR_CONNECTOR_URL: https://chachavps.tail3ab05a.ts.net
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Probe signed V6.11 fast lookup route
+        env:
+          RADAR_CONNECTOR_SHARED_KEY: ${{ secrets.RADAR_CONNECTOR_SHARED_KEY }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib, hmac, json, os, secrets, time, urllib.parse, urllib.request
+
+          base = os.environ['RADAR_CONNECTOR_URL'].rstrip('/')
+          key = os.environ['RADAR_CONNECTOR_SHARED_KEY'].encode()
+          canonical_path = '/v1/collector/identity/lookup'
+          query = '__WFGG_V611_FAST_ROUTE_PROBE_91c8a7__'
+          request_path = canonical_path + '?q=' + urllib.parse.quote(query)
+
+          ts = str(int(time.time()))
+          nonce = secrets.token_hex(16)
+          body_hash = hashlib.sha256(b'').hexdigest()
+          canonical = '\n'.join(['GET', canonical_path, ts, nonce, body_hash])
+          sig = hmac.new(key, canonical.encode(), hashlib.sha256).hexdigest()
+          req = urllib.request.Request(base + request_path, method='GET', headers={
+              'X-Radar-Timestamp': ts,
+              'X-Radar-Nonce': nonce,
+              'X-Radar-Signature': sig,
+          })
+          started = time.monotonic()
+          with urllib.request.urlopen(req, timeout=20) as response:
+              data = json.loads(response.read().decode())
+          elapsed_ms = int((time.monotonic() - started) * 1000)
+          assert data.get('ok') is True
+          assert data.get('resolved') is False
+          assert data.get('readonly') is True
+          assert data.get('route') == 'MISS'
+          assert data.get('player') is None
+          print('RADAR_V611_LIVE_FAST_ROUTE=PASS')
+          print('RADAR_V611_LIVE_FAST_PROBE_MS=' + str(elapsed_ms))
+          PY
