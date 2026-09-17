@@ -1,0 +1,78 @@
+name: Radar V6.9.1 runtime handshake
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  RADAR_CONNECTOR_URL: https://chachavps.tail3ab05a.ts.net
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: radar-production-v1
+
+      - name: Verify installed native helper handshake
+        env:
+          RADAR_CONNECTOR_SHARED_KEY: ${{ secrets.RADAR_CONNECTOR_SHARED_KEY }}
+        run: |
+          set -euo pipefail
+          EXPECTED_NATIVE="$(awk '$2=="radar-native-template"{print $1}' radar-vps/release/SHA256SUMS | head -1)"
+          test -n "$EXPECTED_NATIVE"
+          export EXPECTED_NATIVE
+          python3 - <<'PY'
+          import hashlib, hmac, json, os, secrets, time, urllib.request
+
+          base = os.environ['RADAR_CONNECTOR_URL'].rstrip('/')
+          expected = os.environ['EXPECTED_NATIVE']
+          key = os.environ['RADAR_CONNECTOR_SHARED_KEY'].encode()
+
+          def probe():
+              path = '/v1/health'
+              method = 'GET'
+              body = b''
+              timestamp = str(int(time.time()))
+              nonce = secrets.token_hex(16)
+              body_hash = hashlib.sha256(body).hexdigest()
+              canonical = '\n'.join([method, path, timestamp, nonce, body_hash])
+              signature = hmac.new(key, canonical.encode(), hashlib.sha256).hexdigest()
+              req = urllib.request.Request(base + path, method=method, headers={
+                  'X-Radar-Timestamp': timestamp,
+                  'X-Radar-Nonce': nonce,
+                  'X-Radar-Signature': signature,
+              })
+              with urllib.request.urlopen(req, timeout=15) as response:
+                  return json.loads(response.read().decode())
+
+          last = None
+          for attempt in range(1, 19):
+              try:
+                  data = probe()
+                  helper = data.get('nativeHelper') or {}
+                  state = helper.get('helperState', 'MISSING')
+                  sha = helper.get('helperSha256', '')
+                  cli = helper.get('profileCLI')
+                  command = helper.get('profileCommand')
+                  print(f'RADAR_V691_PROBE={attempt}')
+                  print('CHACHAVPS_NATIVE_HELPER_STATE=' + str(state))
+                  print('CHACHAVPS_NATIVE_PROFILE_CLI=' + str(cli))
+                  print('CHACHAVPS_NATIVE_PROFILE_COMMAND=' + str(command))
+                  print('CHACHAVPS_NATIVE_HELPER_SHA256=' + str(sha))
+                  if data.get('ok') is True and state == 'PROFILE_READY' and cli is True and command is True and sha == expected:
+                      print('RADAR_V691_RUNTIME_HANDSHAKE=PASS')
+                      raise SystemExit(0)
+                  last = (state, cli, command, sha)
+              except Exception as exc:
+                  print('RADAR_V691_PROBE_ERROR=' + type(exc).__name__)
+                  last = str(exc)
+              time.sleep(10)
+          print('RADAR_V691_RUNTIME_HANDSHAKE=FAILED')
+          print('RADAR_V691_LAST_STATE=' + str(last))
+          raise SystemExit(1)
+          PY
