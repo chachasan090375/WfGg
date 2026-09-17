@@ -1,4 +1,4 @@
-name: Radar V6.9.1 native profile build
+name: Radar V6.9.2 profile exec diagnostics build
 
 on:
   push:
@@ -7,8 +7,10 @@ on:
       - '.github/workflows/radar-v69-build.yml'
       - '.github/scripts/patch-radar-native-profile-v69.py'
       - '.github/scripts/patch-radar-native-profile-handshake-v691.py'
+      - '.github/scripts/patch-radar-native-profile-exec-v692.py'
       - '.radar-release-src/v69-source/**'
       - '.radar-release-src/v691-source/**'
+      - '.radar-release-src/v692-source/**'
   workflow_dispatch:
 
 permissions:
@@ -16,7 +18,7 @@ permissions:
   actions: write
 
 concurrency:
-  group: wfgg-radar-v691-build
+  group: wfgg-radar-v692-build
   cancel-in-progress: false
 
 env:
@@ -54,18 +56,20 @@ jobs:
           python3 .github/scripts/patch-radar-profile-isolation-v68.py
           python3 .github/scripts/patch-radar-native-profile-v69.py
           python3 .github/scripts/patch-radar-native-profile-handshake-v691.py
+          python3 .github/scripts/patch-radar-native-profile-exec-v692.py
 
-      - name: Test and build V6.9.1 connector
+      - name: Test and build V6.9.2 connector
         working-directory: /tmp/wfgg-radar/connector-go
         run: |
           set -euo pipefail
           gofmt -w ./cmd ./internal
           go test ./...
+          go test ./internal/protocol -run TestProfileExecutionFailureV692 -count=1
           go vet ./...
           CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w' -o "$GITHUB_WORKSPACE/radar-vps/release/radar-connector" ./cmd/radar-connector
           test -s "$GITHUB_WORKSPACE/radar-vps/release/radar-connector"
 
-      - name: Build V6.9.1 native helper from pinned upstream
+      - name: Build native helper for V6.9.2 release
         run: |
           set -euo pipefail
           rm -rf /tmp/lastwar-client
@@ -85,16 +89,16 @@ jobs:
           go test -tags lastwar_native_template ./cmd/wfgg-radar-native-template
           CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -tags lastwar_native_template -trimpath -ldflags='-s -w' -o "$GITHUB_WORKSPACE/radar-vps/release/radar-native-template" ./cmd/wfgg-radar-native-template
           test -s "$GITHUB_WORKSPACE/radar-vps/release/radar-native-template"
-          "$GITHUB_WORKSPACE/radar-vps/release/radar-native-template" --capabilities > /tmp/v691-capabilities.json
+          "$GITHUB_WORKSPACE/radar-vps/release/radar-native-template" --capabilities > /tmp/v692-capabilities.json
           python3 - <<'PY'
           import json
-          d=json.load(open('/tmp/v691-capabilities.json'))
+          d=json.load(open('/tmp/v692-capabilities.json'))
           assert d.get('ok') is True
           assert d.get('readonly') is True
           assert d.get('profileHandshake') == 'v6.9.1'
           assert d.get('profileCLI') is True
           assert d.get('profileCommand') == 'get.user.info.multi'
-          print('RADAR_V691_PROFILE_CAPABILITY=RECOGNIZED')
+          print('RADAR_V692_PROFILE_CAPABILITY=RECOGNIZED')
           PY
           set +e
           cli_probe="$("$GITHUB_WORKSPACE/radar-vps/release/radar-native-template" /tmp/no-capture /tmp/no-session --scan-profiles 1 2>/dev/null)"
@@ -103,17 +107,20 @@ jobs:
           test "$cli_rc" -ne 0
           echo "$cli_probe" | grep -Fq 'SESSION_READ_FAILED'
           ! echo "$cli_probe" | grep -Fq 'INVALID_ARGS'
-          echo RADAR_V691_PROFILE_CLI=RECOGNIZED
+          echo RADAR_V692_PROFILE_CLI=RECOGNIZED
 
-      - name: Verify V6.9.1 read-only release surface
+      - name: Verify V6.9.2 read-only release surface
         run: |
           set -euo pipefail
           grep -Fq 'WFGG_RADAR_NATIVE_PROFILE_HANDSHAKE_V691' /tmp/wfgg-radar/connector-go/internal/protocol/profile_handshake_v691.go
           grep -Fq 'WFGG_RADAR_NATIVE_PROFILE_HEALTH_V691' /tmp/wfgg-radar/connector-go/cmd/radar-connector/main.go
           grep -Fq 'WFGG_RADAR_NATIVE_PROFILE_CAPABILITIES_V691' /tmp/wfgg-radar/connector-go/native-template/main.go
           grep -Fq 'profileFailureV691(rep)' /tmp/wfgg-radar/connector-go/internal/protocol/profile_scan_v69.go
+          grep -Fq 'WFGG_RADAR_NATIVE_PROFILE_EXEC_BRIDGE_V692' /tmp/wfgg-radar/connector-go/internal/protocol/profile_scan_v69.go
+          grep -Fq 'WFGG_RADAR_NATIVE_PROFILE_EXEC_DIAGNOSTICS_V692' /tmp/wfgg-radar/connector-go/internal/protocol/profile_exec_v692.go
           grep -Fq 'PLAYER_PROFILE_DECODE_FAILED' /tmp/wfgg-radar/connector-go/native-template/profile_scan_v69.go
-          ! grep -REq 'building\.production\.collect|mail\.reward|al\.science\.donate|visitor\.operate|attack|march|purchase' .radar-release-src/v691-source .radar-release-src/v69-source/connector-go
+          ! grep -Fq 'return nil, errors.New("LASTWAR_PLAYER_PROFILE_FAILED")' /tmp/wfgg-radar/connector-go/internal/protocol/profile_scan_v69.go
+          ! grep -REq 'building\.production\.collect|mail\.reward|al\.science\.donate|visitor\.operate|attack|march|purchase' .radar-release-src/v692-source .radar-release-src/v691-source .radar-release-src/v69-source/connector-go
           chmod 0755 radar-vps/release/radar-connector radar-vps/release/radar-native-template
           (
             cd radar-vps/release
@@ -121,7 +128,7 @@ jobs:
           )
           cat radar-vps/release/SHA256SUMS
 
-      - name: Publish V6.9.1 release
+      - name: Publish V6.9.2 release
         id: publish
         run: |
           set -euo pipefail
@@ -130,15 +137,15 @@ jobs:
           git add radar-vps/release/radar-connector radar-vps/release/radar-native-template radar-vps/release/SHA256SUMS
           if git diff --cached --quiet; then
             echo 'changed=false' >> "$GITHUB_OUTPUT"
-            echo RADAR_V691_RELEASE=UNCHANGED
+            echo RADAR_V692_RELEASE=UNCHANGED
             exit 0
           fi
-          git commit -m 'build(radar): publish V6.9.1 profile handshake diagnostics'
+          git commit -m 'build(radar): publish V6.9.2 profile execution diagnostics'
           git fetch origin radar-production-v1
           git rebase origin/radar-production-v1
           git push origin HEAD:radar-production-v1
           echo 'changed=true' >> "$GITHUB_OUTPUT"
-          echo RADAR_V691_RELEASE=PUBLISHED
+          echo RADAR_V692_RELEASE=PUBLISHED
 
       - name: Dispatch Radar production verification
         env:
@@ -146,4 +153,4 @@ jobs:
         run: |
           set -euo pipefail
           gh workflow run deploy-radar-production.yml --ref radar-production-v1
-          echo RADAR_V691_PRODUCTION_VERIFY=DISPATCHED
+          echo RADAR_V692_PRODUCTION_VERIFY=DISPATCHED
