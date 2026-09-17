@@ -1,0 +1,70 @@
+name: Radar V6.12 server census qualification
+
+on:
+  push:
+    branches: [radar-v612-server-census]
+    paths:
+      - '.github/workflows/radar-v612-server-census-qualification.yml'
+      - '.github/scripts/patch-radar-server-census-v612.py'
+      - '.github/scripts/patch-radar-connector-runtime-v693.py'
+      - '.radar-release-src/v612-source/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: radar-v612-server-census
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.27.x'
+
+      - name: Reconstruct V6.12 connector
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/wfgg-radar
+          mkdir -p /tmp/wfgg-radar
+          python3 .github/scripts/reconstruct-radar-release.py
+          echo '234df1dec57f6211bc625855bf13350c9f17fbd843fbe92d8cf1ab7cb5c081ef  /tmp/radar-src.tar.gz' | sha256sum -c -
+          tar -xzf /tmp/radar-src.tar.gz -C /tmp/wfgg-radar
+          rm -rf /tmp/wfgg-radar/connector-go
+          cp -a .radar-release-src/v2-source/connector-go /tmp/wfgg-radar/connector-go
+          python3 .github/scripts/patch-radar-target-profile-retry.py
+          python3 .github/scripts/patch-radar-federated-diagnostics-v65.py
+          python3 .github/scripts/patch-player-scan-v3.py
+          python3 .github/scripts/patch-player-scan-v4.py
+          python3 .github/scripts/patch-radar-protocol-discovery-v67.py
+          python3 .github/scripts/patch-radar-profile-isolation-v68.py
+          python3 .github/scripts/patch-radar-native-profile-v69.py
+          python3 .github/scripts/patch-radar-native-profile-handshake-v691.py
+          python3 .github/scripts/patch-radar-native-profile-exec-v692.py
+          python3 .github/scripts/patch-radar-connector-runtime-v693.py
+
+      - name: Test V6.12 read-only census
+        working-directory: /tmp/wfgg-radar/connector-go
+        run: |
+          set -euo pipefail
+          gofmt -w ./cmd ./internal
+          go test ./...
+          go test ./cmd/radar-connector -run TestServerCensusV612 -count=1
+          go vet ./...
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w' -o /tmp/radar-v612-connector ./cmd/radar-connector
+          test -s /tmp/radar-v612-connector
+
+      - name: Verify aggregate-only surface
+        run: |
+          set -euo pipefail
+          grep -Fq 'WFGG_RADAR_SERVER_CENSUS_V612' /tmp/wfgg-radar/connector-go/cmd/radar-connector/server_census_v612.go
+          grep -Fq 'GET /v1/collector/server-census' /tmp/wfgg-radar/connector-go/cmd/radar-connector/main.go
+          grep -Fq "?mode=ro" /tmp/wfgg-radar/connector-go/cmd/radar-connector/server_census_v612.go
+          grep -Fq 'rawPlayerDataExposed' /tmp/wfgg-radar/connector-go/cmd/radar-connector/server_census_v612.go
+          ! grep -Eq 'json:"(pseudo|gameUid|game_uid|alliance|token|credential)' /tmp/wfgg-radar/connector-go/cmd/radar-connector/server_census_v612.go
+          echo RADAR_V612_SERVER_CENSUS_QUALIFIED=PASS
