@@ -56,4 +56,5 @@ run_patch('.github/scripts/patch-radar-server-cycle-history-v614.py', 'RADAR_SER
 run_patch('.github/scripts/patch-radar-targeted-federated-server-v615.py', 'RADAR_TARGETED_FEDERATED_SERVER_V615=CHAINED')
 run_patch('.github/scripts/patch-radar-history-backed-cluster-catalog-v616.py', 'RADAR_HISTORY_BACKED_CLUSTER_CATALOG_V616=CHAINED')
 run_patch('.github/scripts/patch-radar-cycle-quality-gate-v617.py', 'RADAR_CYCLE_QUALITY_GATE_V617=CHAINED')
+run_patch('.github/scripts/patch-radar-map-profile-merge-v618.py', 'RADAR_MAP_PROFILE_MERGE_V618=CHAINED')
 print('RADAR_CONNECTOR_RUNTIME_V693=READY')
