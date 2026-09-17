@@ -1,0 +1,81 @@
+name: Radar V6.9.9 live Collector persistence audit
+
+on:
+  push:
+    branches: [radar-production-v1]
+    paths:
+      - '.github/workflows/radar-v699-live-collector-audit.yml'
+      - '.github/scripts/patch-radar-collector-live-audit-v699.py'
+      - '.github/scripts/patch-radar-connector-runtime-v693.py'
+      - '.radar-release-src/v699-source/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  RADAR_CONNECTOR_URL: https://chachavps.tail3ab05a.ts.net
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Wait for V6.9.9 runtime and read aggregate Collector counters
+        env:
+          RADAR_CONNECTOR_SHARED_KEY: ${{ secrets.RADAR_CONNECTOR_SHARED_KEY }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib, hmac, json, os, secrets, time, urllib.error, urllib.request
+
+          base = os.environ['RADAR_CONNECTOR_URL'].rstrip('/')
+          key = os.environ['RADAR_CONNECTOR_SHARED_KEY'].encode()
+          path = '/v1/collector/audit'
+
+          def signed_request():
+              timestamp = str(int(time.time()))
+              nonce = secrets.token_hex(16)
+              body_hash = hashlib.sha256(b'').hexdigest()
+              canonical = '\n'.join(['GET', path, timestamp, nonce, body_hash])
+              signature = hmac.new(key, canonical.encode(), hashlib.sha256).hexdigest()
+              req = urllib.request.Request(base + path, method='GET', headers={
+                  'X-Radar-Timestamp': timestamp,
+                  'X-Radar-Nonce': nonce,
+                  'X-Radar-Signature': signature,
+              })
+              with urllib.request.urlopen(req, timeout=20) as response:
+                  return json.loads(response.read().decode())
+
+          for attempt in range(1, 73):
+              try:
+                  data = signed_request()
+                  if (
+                      data.get('ok') is True
+                      and data.get('auditVersion') == 'v6.9.9'
+                      and data.get('readonly') is True
+                      and data.get('rawPlayerDataExposed') is False
+                  ):
+                      c = data.get('collector') or {}
+                      ids = c.get('identityIndex') or {}
+                      cycle = c.get('lastCycle') or {}
+                      print('RADAR_V699_COLLECTOR_PLAYERS=' + str(c.get('players', 0)))
+                      print('RADAR_V699_COLLECTOR_ACTIVE=' + str(c.get('activePlayers', 0)))
+                      print('RADAR_V699_COLLECTOR_OBSERVATIONS=' + str(c.get('observations', 0)))
+                      print('RADAR_V699_IDENTITIES=' + str(ids.get('identities', 0)))
+                      print('RADAR_V699_ALIASES=' + str(ids.get('aliases', 0)))
+                      print('RADAR_V699_PSEUDO_COLLISIONS=' + str(ids.get('pseudoCollisions', 0)))
+                      print('RADAR_V699_COVERAGE_SCOPES=' + str(ids.get('coverageScopes', 0)))
+                      print('RADAR_V699_COVERAGE_COMPLETE=' + str(ids.get('coverageComplete', 0)))
+                      print('RADAR_V699_LAST_CYCLE_ID=' + str(cycle.get('id', 0)))
+                      print('RADAR_V699_LAST_CYCLE_STATUS=' + str(cycle.get('status', 'MISSING')))
+                      print('RADAR_V699_LIVE_COLLECTOR_AUDIT=PASS')
+                      break
+                  print(f'RADAR_V699_AUDIT_ATTEMPT={attempt}|STATE=OLD_OR_INVALID_RUNTIME')
+              except Exception as exc:
+                  print(f'RADAR_V699_AUDIT_ATTEMPT={attempt}|STATE={type(exc).__name__}')
+              if attempt < 72:
+                  time.sleep(10)
+          else:
+              raise SystemExit('RADAR_V699_LIVE_COLLECTOR_AUDIT=TIMEOUT')
+          PY
