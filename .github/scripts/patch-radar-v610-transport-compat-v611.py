@@ -8,10 +8,21 @@ if marker in text:
     print('RADAR_V610_TRANSPORT_COMPAT=ALREADY_PRESENT')
     raise SystemExit(0)
 
-needle = "  collectorSearchStatus(id) { return this.request(`/v1/collector/search/status?id=${encodeURIComponent(id)}`, { method: 'GET' }); }\n"
-count = text.count(needle)
-if count != 1:
-    raise SystemExit(f'RADAR_V610_TRANSPORT_COMPAT_ANCHOR_COUNT={count}')
-addition = needle + "  // WFGG_RADAR_COLLECTOR_INDEX_TRANSPORT_V610\n  collectorIndexSearch(query, limit = 50) {\n    const safeLimit = Math.max(1, Math.min(Number(limit) || 50, 100));\n    return this.request(`/v1/collector/index/search?q=${encodeURIComponent(String(query || ''))}&limit=${safeLimit}`, { method: 'GET' });\n  }\n"
-TRANSPORT.write_text(text.replace(needle, addition, 1), encoding='utf-8')
+needle = 'collectorSearchStatus(id)'
+if text.count(needle) != 1:
+    raise SystemExit(f'RADAR_V610_TRANSPORT_COMPAT_METHOD_COUNT={text.count(needle)}')
+idx = text.index(needle)
+line_start = text.rfind('\n', 0, idx) + 1
+line_end = text.find('\n', idx)
+if line_end < 0:
+    line_end = len(text)
+    suffix = ''
+else:
+    suffix = '\n'
+line = text[line_start:line_end] + suffix
+if '/v1/collector/search/status' not in line or 'this.request' not in line:
+    raise SystemExit('RADAR_V610_TRANSPORT_COMPAT_METHOD_SHAPE_INVALID')
+
+addition = line + "  // WFGG_RADAR_COLLECTOR_INDEX_TRANSPORT_V610\n  collectorIndexSearch(query, limit = 50) {\n    const safeLimit = Math.max(1, Math.min(Number(limit) || 50, 100));\n    return this.request(`/v1/collector/index/search?q=${encodeURIComponent(String(query || ''))}&limit=${safeLimit}`, { method: 'GET' });\n  }\n"
+TRANSPORT.write_text(text[:line_start] + addition + text[line_end + (1 if suffix else 0):], encoding='utf-8')
 print('RADAR_V610_TRANSPORT_COMPAT=PATCHED')
