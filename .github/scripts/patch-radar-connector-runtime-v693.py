@@ -33,15 +33,16 @@ def patch_health() -> None:
     print('RADAR_V693_HEALTH=PATCHED')
 
 
-def patch_full_profile_universe_v697() -> None:
-    script = Path('.github/scripts/patch-radar-full-profile-universe-v697.py')
+def run_patch(path: str, ready: str) -> None:
+    script = Path(path)
     if not script.is_file():
-        raise SystemExit(f'V697_PATCH_MISSING={script}')
+        raise SystemExit(f'PATCH_MISSING={script}')
     subprocess.run([sys.executable, str(script)], check=True)
+    print(ready)
 
 
 install_sources()
 patch_health()
-patch_full_profile_universe_v697()
+run_patch('.github/scripts/patch-radar-full-profile-universe-v697.py', 'RADAR_FULL_PROFILE_UNIVERSE_V697=CHAINED')
+run_patch('.github/scripts/patch-radar-collector-live-audit-v699.py', 'RADAR_COLLECTOR_LIVE_AUDIT_V699=CHAINED')
 print('RADAR_CONNECTOR_RUNTIME_V693=READY')
-print('RADAR_FULL_PROFILE_UNIVERSE_V697=CHAINED')
