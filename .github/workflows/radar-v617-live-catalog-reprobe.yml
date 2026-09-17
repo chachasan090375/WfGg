@@ -1,0 +1,87 @@
+name: Radar V6.17 live cluster catalog reprobe
+
+on:
+  push:
+    branches:
+      - radar-v618-live-runtime-reprobe
+    paths:
+      - '.github/workflows/radar-v617-live-catalog-reprobe.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  RADAR_CONNECTOR_URL: https://chachavps.tail3ab05a.ts.net
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Probe quality-gated live cluster catalog
+        env:
+          RADAR_CONNECTOR_SHARED_KEY: ${{ secrets.RADAR_CONNECTOR_SHARED_KEY }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib,hmac,json,os,secrets,time,urllib.request
+
+          base=os.environ['RADAR_CONNECTOR_URL'].rstrip('/')
+          key=os.environ['RADAR_CONNECTOR_SHARED_KEY'].encode()
+          path='/v1/collector/server-cluster-catalog'
+          expected_990={'956','990','992','1008','1015','1029','1033','1059','8132'}
+          expected_972={'953','964','972','977','991','1027','1042','1057','8119'}
+          forbidden_subset={'972','1027','1057'}
+
+          def get():
+              timestamp=str(int(time.time()))
+              nonce=secrets.token_hex(16)
+              body_hash=hashlib.sha256(b'').hexdigest()
+              canonical='\n'.join(['GET',path,timestamp,nonce,body_hash])
+              signature=hmac.new(key,canonical.encode(),hashlib.sha256).hexdigest()
+              req=urllib.request.Request(base+path,method='GET',headers={
+                  'X-Radar-Timestamp':timestamp,
+                  'X-Radar-Nonce':nonce,
+                  'X-Radar-Signature':signature,
+              })
+              with urllib.request.urlopen(req,timeout=20) as response:
+                  return json.loads(response.read().decode())
+
+          data=get()
+          assert data.get('ok') is True, data
+          assert data.get('readonly') is True, data
+          assert data.get('rawPlayerDataExposed') is False, data
+          assert data.get('catalogVersion') == 'v6.17', data.get('catalogVersion')
+
+          clusters=data.get('confirmedClusters') or []
+          print('RADAR_V617_CATALOG_VERSION='+str(data.get('catalogVersion')))
+          print('RADAR_V617_CONFIRMED_CLUSTER_COUNT='+str(len(clusters)))
+          for i,c in enumerate(clusters,1):
+              members=[str(x) for x in (c.get('members') or [])]
+              print(f'RADAR_V617_CONFIRMED_{i}='+','.join(members))
+              print(f'RADAR_V617_CONFIRMED_{i}_MIN_CYCLES='+str(c.get('minCyclesTogether')))
+              print(f'RADAR_V617_CONFIRMED_{i}_CLIQUE='+str(c.get('cliqueComplete')))
+
+          assert len(clusters) == 1, clusters
+          members=set(str(x) for x in (clusters[0].get('members') or []))
+          assert members == expected_990, members
+          assert clusters[0].get('cliqueComplete') is True, clusters[0]
+          assert int(clusters[0].get('minCyclesTogether') or 0) >= 3, clusters[0]
+          assert not any(set(str(x) for x in (c.get('members') or [])) == forbidden_subset for c in clusters), clusters
+
+          frontier={str(x.get('serverId')):x for x in (data.get('frontier') or []) if isinstance(x,dict)}
+          missing=sorted(expected_972-set(frontier))
+          assert not missing, ('972_GROUP_MISSING_FROM_FRONTIER',missing)
+
+          counts={sid:int(frontier[sid].get('distinctCycles') or 0) for sid in sorted(expected_972)}
+          print('RADAR_V617_972_CYCLE_COUNTS='+json.dumps(counts,sort_keys=True,separators=(',',':')))
+          assert all(v == 2 for v in counts.values()), counts
+
+          recommended=data.get('recommendedSeed') or {}
+          print('RADAR_V617_RECOMMENDED_SEED='+str(recommended.get('serverId','MISSING')))
+          print('RADAR_V617_RECOMMENDED_COMMAND='+str(recommended.get('command','MISSING')))
+          print('RADAR_V617_LIVE_CATALOG=PASS')
+          PY
