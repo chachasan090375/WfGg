@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - name: Read aggregate server census V6.12.1
+      - name: Read aggregate server cooccurrence map V6.12.2
         env:
           RADAR_CONNECTOR_SHARED_KEY: ${{ secrets.RADAR_CONNECTOR_SHARED_KEY }}
         run: |
@@ -28,7 +28,7 @@ jobs:
 
           base = os.environ['RADAR_CONNECTOR_URL'].rstrip('/')
           key = os.environ['RADAR_CONNECTOR_SHARED_KEY'].encode()
-          path = '/v1/collector/server-census'
+          path = '/v1/collector/server-cycle-map'
           ts = str(int(time.time()))
           nonce = secrets.token_hex(16)
           body_hash = hashlib.sha256(b'').hexdigest()
@@ -49,29 +49,25 @@ jobs:
                   data = json.loads(body)
               except Exception:
                   data = {'error': 'NON_JSON_ERROR'}
-              print('RADAR_V612_HTTP_STATUS=' + str(exc.code))
-              print('RADAR_V612_ERROR=' + str(data.get('error') or 'UNKNOWN'))
-              print('RADAR_V612_READONLY=' + str(data.get('readonly')))
+              print('RADAR_V6122_HTTP_STATUS=' + str(exc.code))
+              print('RADAR_V6122_ERROR=' + str(data.get('error') or 'UNKNOWN'))
+              print('RADAR_V6122_READONLY=' + str(data.get('readonly')))
               raise SystemExit(2)
 
           elapsed_ms = int((time.monotonic() - started) * 1000)
           assert data.get('ok') is True
           assert data.get('readonly') is True
           assert data.get('rawPlayerDataExposed') is False
-          print('RADAR_V612_CENSUS=PASS')
-          print('RADAR_V612_VERSION=' + str(data.get('censusVersion', '')))
-          print('RADAR_V612_ELAPSED_MS=' + str(elapsed_ms))
-          print('RADAR_V612_SERVER_COUNT=' + str(data.get('serverCount', 0)))
-          print('RADAR_V612_PLAYERS_TOTAL=' + str(data.get('playersTotal', 0)))
-          print('RADAR_V612_OBSERVATIONS_TOTAL=' + str(data.get('observationsTotal', 0)))
-          print('RADAR_V612_SCHEMA=' + json.dumps(data.get('schema') or {}, sort_keys=True))
-          for row in data.get('servers') or []:
-              print('SERVER|{serverId}|players={players}|observations={observations}|cycles={distinctCycles}|first={firstCycle}|last={lastCycle}'.format(
-                  serverId=row.get('serverId',''),
-                  players=row.get('players',0),
-                  observations=row.get('observations',0),
-                  distinctCycles=row.get('distinctCycles',0),
-                  firstCycle=row.get('firstCycle',''),
-                  lastCycle=row.get('lastCycle',''),
-              ))
+          assert data.get('mapVersion') == 'v6.12.2'
+          print('RADAR_V6122_MAP=PASS')
+          print('RADAR_V6122_ELAPSED_MS=' + str(elapsed_ms))
+          print('RADAR_V6122_CYCLE_COUNT=' + str(data.get('cycleCount', 0)))
+          print('RADAR_V6122_EDGE_COUNT=' + str(data.get('edgeCount', 0)))
+          for row in data.get('cycles') or []:
+              members = ','.join(str(x.get('serverId','')) + ':' + str(x.get('observations',0)) for x in row.get('servers') or [])
+              print('CYCLE|{cycle}|servers={count}|{members}'.format(
+                  cycle=row.get('cycleId',''), count=row.get('serverCount',0), members=members))
+          for row in data.get('edges') or []:
+              print('EDGE|{a}|{b}|cyclesTogether={n}'.format(
+                  a=row.get('serverA',''), b=row.get('serverB',''), n=row.get('cyclesTogether',0)))
           PY
