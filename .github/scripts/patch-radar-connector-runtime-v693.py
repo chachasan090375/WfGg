@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 from pathlib import Path
 import shutil
+import subprocess
+import sys
 
 ROOT = Path('/tmp/wfgg-radar')
 MAIN = ROOT / 'connector-go/cmd/radar-connector/main.go'
@@ -31,6 +33,15 @@ def patch_health() -> None:
     print('RADAR_V693_HEALTH=PATCHED')
 
 
+def patch_full_profile_universe_v697() -> None:
+    script = Path('.github/scripts/patch-radar-full-profile-universe-v697.py')
+    if not script.is_file():
+        raise SystemExit(f'V697_PATCH_MISSING={script}')
+    subprocess.run([sys.executable, str(script)], check=True)
+
+
 install_sources()
 patch_health()
+patch_full_profile_universe_v697()
 print('RADAR_CONNECTOR_RUNTIME_V693=READY')
+print('RADAR_FULL_PROFILE_UNIVERSE_V697=CHAINED')
