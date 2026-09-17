@@ -1,0 +1,20 @@
+{
+  "schema": "wfgg.radar/federated-diagnostics-qualification/v1",
+  "version": "6.5",
+  "date": "2026-09-17",
+  "branch": "radar-v6-5-federated-diagnostics",
+  "base_branch": "radar-production-v1",
+  "qualification_run": 35189952125,
+  "qualification_status": "PASS",
+  "categories": ["AUTH", "NETWORK", "PROTOCOL", "DECODE", "INGEST", "SERVER_TARGET"],
+  "diagnostic_fields": ["failureCategory", "failureCode", "failureCause", "failurePhase", "serverTarget", "region", "authState"],
+  "raw_stderr_exposed": false,
+  "credentials_exposed": false,
+  "connector_tests": "PASS",
+  "worker_tests": "PASS",
+  "ui_contract": "PASS",
+  "future_production_wiring": "PASS_NOT_EXECUTED",
+  "production_touched": false,
+  "vps_touched": false,
+  "merged": false
+}
