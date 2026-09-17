@@ -1,0 +1,96 @@
+name: Radar V6.15 targeted federated server qualification
+
+on:
+  push:
+    branches: [radar-v615-targeted-federated-server]
+    paths:
+      - '.radar-release-src/v615-source/**'
+      - '.github/scripts/patch-radar-targeted-federated-server-v615.py'
+      - '.github/scripts/patch-radar-connector-runtime-v693.py'
+      - '.github/workflows/radar-v615-targeted-federated-server-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  LASTWAR_CLIENT_REF: ee5f64de160a8051c2f9f98189b75038dd225a0a
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: radar-v615-targeted-federated-server
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.27.x'
+
+      - name: Reconstruct V6.15 connector
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/wfgg-radar
+          mkdir -p /tmp/wfgg-radar
+          python3 .github/scripts/reconstruct-radar-release.py
+          echo '234df1dec57f6211bc625855bf13350c9f17fbd843fbe92d8cf1ab7cb5c081ef  /tmp/radar-src.tar.gz' | sha256sum -c -
+          tar -xzf /tmp/radar-src.tar.gz -C /tmp/wfgg-radar
+          rm -rf /tmp/wfgg-radar/connector-go
+          cp -a .radar-release-src/v2-source/connector-go /tmp/wfgg-radar/connector-go
+          python3 .github/scripts/patch-radar-target-profile-retry.py
+          python3 .github/scripts/patch-radar-federated-diagnostics-v65.py
+          python3 .github/scripts/patch-player-scan-v3.py
+          python3 .github/scripts/patch-player-scan-v4.py
+          python3 .github/scripts/patch-radar-protocol-discovery-v67.py
+          python3 .github/scripts/patch-radar-profile-isolation-v68.py
+          python3 .github/scripts/patch-radar-native-profile-v69.py
+          python3 .github/scripts/patch-radar-native-profile-handshake-v691.py
+          python3 .github/scripts/patch-radar-native-profile-exec-v692.py
+          python3 .github/scripts/patch-radar-connector-runtime-v693.py
+
+      - name: Test connector routing V6.15
+        working-directory: /tmp/wfgg-radar/connector-go
+        run: |
+          set -euo pipefail
+          gofmt -w ./cmd ./internal
+          go test ./internal/protocol -run TestNormalizeFederatedTargetServerV615 -count=1
+          go test ./cmd/radar-connector -run TestFederatedServerTargetV615 -count=1
+          go test ./...
+          go vet ./...
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w' -o /tmp/radar-connector-v615 ./cmd/radar-connector
+          test -s /tmp/radar-connector-v615
+
+      - name: Build patched native helper
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/lastwar-client
+          git clone --quiet --filter=blob:none --no-checkout https://github.com/ljagiello/lastwar-client.git /tmp/lastwar-client
+          cd /tmp/lastwar-client
+          git fetch --quiet --depth 1 origin "$LASTWAR_CLIENT_REF"
+          git checkout --quiet --detach FETCH_HEAD
+          test "$(git rev-parse HEAD)" = "$LASTWAR_CLIENT_REF"
+          mkdir -p cmd/wfgg-radar-native-template
+          cp /tmp/wfgg-radar/connector-go/native-template/main.go cmd/wfgg-radar-native-template/main.go
+          cp /tmp/wfgg-radar/connector-go/native-template/player_scan_v3.go cmd/wfgg-radar-native-template/player_scan_v3.go
+          cp /tmp/wfgg-radar/connector-go/native-template/player_scan_v4.go cmd/wfgg-radar-native-template/player_scan_v4.go
+          cp /tmp/wfgg-radar/connector-go/native-template/profile_scan_v69.go cmd/wfgg-radar-native-template/profile_scan_v69.go
+          cp /tmp/wfgg-radar/connector-go/native-template/profile_scan_v69_test.go cmd/wfgg-radar-native-template/profile_scan_v69_test.go
+          gofmt -w cmd/wfgg-radar-native-template/*.go
+          go test -tags lastwar_native_template ./cmd/wfgg-radar-native-template
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -tags lastwar_native_template -trimpath -ldflags='-s -w' -o /tmp/radar-native-v615 ./cmd/wfgg-radar-native-template
+          test -s /tmp/radar-native-v615
+
+      - name: Verify targeted read-only surface
+        run: |
+          set -euo pipefail
+          grep -Fq 'WFGG_RADAR_TARGETED_FEDERATED_SERVER_V615' /tmp/wfgg-radar/connector-go/cmd/radar-connector/collector_jobs.go
+          grep -Fq 'scanCollectorRegionTargetV615' /tmp/wfgg-radar/connector-go/cmd/radar-connector/collector_jobs.go
+          grep -Fq 'WFGG_COLLECTOR_TARGET_SERVER_ID' /tmp/wfgg-radar/connector-go/internal/protocol/federated_target_v615.go
+          grep -Fq 'WFGG_RADAR_TARGET_SERVER_ID_V615' /tmp/wfgg-radar/connector-go/native-template/player_scan_v4.go
+          grep -Fq 'params.PutInt("serverId", int32(serverID))' /tmp/wfgg-radar/connector-go/native-template/player_scan_v4.go
+          grep -Fq 'collectMapPlayersV3(obj, query, scanServer' /tmp/wfgg-radar/connector-go/native-template/player_scan_v4.go
+          ! grep -REq 'building\.production\.collect|mail\.reward|al\.science\.donate|visitor\.operate|attack|march|purchase' .radar-release-src/v615-source
+          echo RADAR_V615_TARGETED_FEDERATED_SERVER=QUALIFIED
