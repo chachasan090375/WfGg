@@ -10,7 +10,17 @@ if marker in text:
 
 needle = 'collectorSearchStatus(id)'
 if text.count(needle) != 1:
-    raise SystemExit(f'RADAR_V610_TRANSPORT_COMPAT_METHOD_COUNT={text.count(needle)}')
+    print(f'RADAR_V610_TRANSPORT_COMPAT_METHOD_COUNT={text.count(needle)}')
+    print('RADAR_V610_TRANSPORT_SAFE_SHAPE_BEGIN')
+    for no, line in enumerate(text.splitlines(), 1):
+        low = line.lower()
+        if any(token in low for token in ('class remotelastwartransport', 'request(', 'collector', 'cartographer', 'scanplayer', 'health()', 'close()')):
+            safe = line.strip()
+            if len(safe) > 260:
+                safe = safe[:260] + '…'
+            print(f'L{no}:{safe}')
+    print('RADAR_V610_TRANSPORT_SAFE_SHAPE_END')
+    raise SystemExit('RADAR_V610_TRANSPORT_COMPAT_NEEDS_REAL_ANCHOR')
 idx = text.index(needle)
 line_start = text.rfind('\n', 0, idx) + 1
 line_end = text.find('\n', idx)
