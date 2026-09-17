@@ -3,8 +3,6 @@ from pathlib import Path
 
 MARKER = 'WFGG_RADAR_FEDERATED_DIAGNOSTICS_V65'
 
-# Connector job envelope: preserve bounded low-level error codes that are
-# already produced by the READONLY protocol adapter. Never copy stderr/stdout.
 collector = Path('/tmp/wfgg-radar/connector-go/cmd/radar-connector/collector_jobs.go')
 if collector.is_file():
     s = collector.read_text(encoding='utf-8')
@@ -21,8 +19,7 @@ if collector.is_file():
             raise SystemExit('V65_COLLECTOR_FAIL_ANCHOR_MISSING')
         s = s.replace(old_fail, new_fail, 1)
 
-        # Preserve the actual safe Go error on the failure paths where it exists.
-        replacements = {
+        for old, new in {
             'fail("COLLECTOR_CYCLE_START_FAILED")': 'fail("COLLECTOR_CYCLE_START_FAILED", err)',
             'fail("COLLECTOR_JOINED_CYCLE_FAILED")': 'fail("COLLECTOR_JOINED_CYCLE_FAILED", err)',
             'fail("MAP_REGION_FAILED")': 'fail("MAP_REGION_FAILED", err)',
@@ -32,16 +29,13 @@ if collector.is_file():
             'fail("PROFILE_INGEST_FAILED")': 'fail("PROFILE_INGEST_FAILED", err)',
             'fail("COLLECTOR_CYCLE_FINISH_FAILED")': 'fail("COLLECTOR_CYCLE_FINISH_FAILED", err)',
             'fail("COLLECTOR_TARGET_REFRESH_FAILED")': 'fail("COLLECTOR_TARGET_REFRESH_FAILED", err)',
-        }
-        for old, new in replacements.items():
+        }.items():
             s = s.replace(old, new)
         collector.write_text(s, encoding='utf-8')
         print('RADAR_V65_CONNECTOR_DIAGNOSTICS=PATCHED')
     else:
         print('RADAR_V65_CONNECTOR_DIAGNOSTICS=ALREADY_PRESENT')
 
-# Worker bridge: normalize legacy jobs, perform the existing auth validation
-# probe, and return/audit only the bounded diagnostic envelope.
 worker = Path('/tmp/wfgg-radar/src/worker.js')
 if worker.is_file():
     s = worker.read_text(encoding='utf-8')
@@ -68,10 +62,7 @@ function normalizeFederatedDiagnosticV65(job) {
   if (!job || typeof job !== 'object') return job;
   const m = String(job.query || '').match(/^@federated:(?:APS)?(\d{1,8})/i);
   if (m && !job.serverTarget) job.serverTarget = m[1];
-  if (job.status === 'SUCCESS') {
-    job.authState = 'VALID';
-    return job;
-  }
+  if (job.status === 'SUCCESS') { job.authState = 'VALID'; return job; }
   if (job.status !== 'FAILED') return job;
   job.failureCode = radarDiagnosticCodeV65(job.failureCode || job.error || 'COLLECTOR_FAILED');
   job.failureCause = radarDiagnosticCodeV65(job.failureCause || job.failureCode);
@@ -84,6 +75,11 @@ function normalizeFederatedDiagnosticV65(job) {
 '''
         s = s.replace(export_anchor, helper + export_anchor, 1)
 
+        status_anchor = "          if (!job) throw Object.assign(new Error('COLLECTOR_JOB_STATUS_INVALID'), { status: 502 });\n"
+        if s.count(status_anchor) != 1:
+            raise SystemExit('V65_WORKER_STATUS_ANCHOR_MISSING')
+        s = s.replace(status_anchor, status_anchor + '          normalizeFederatedDiagnosticV65(job);\n', 1)
+
         probe_old = '''                  try {\n                    await transport.authenticate(token);\n                  } catch (probeError) {'''
         probe_new = '''                  try {\n                    await transport.authenticate(token);\n                    job.authState = 'VALID';\n                  } catch (probeError) {'''
         if s.count(probe_old) != 1:
@@ -95,19 +91,11 @@ function normalizeFederatedDiagnosticV65(job) {
         if s.count(reject_old) != 1:
             raise SystemExit('V65_AUTH_REJECT_ANCHOR_MISSING')
         s = s.replace(reject_old, reject_new, 1)
-
-        return_old = '''          return json({ ok: true, job });\n        } finally {\n          await transport.close().catch(() => {});\n        }\n      }\n\n      if (url.pathname === '/api/auth/lastwar/start' '''
-        return_new = '''          normalizeFederatedDiagnosticV65(job);\n          if (job.status === 'FAILED') {\n            await audit(env, session.gameUid, 'radar.collector-search.failure-diagnostic', job.id, {\n              category: job.failureCategory || 'PROTOCOL',\n              code: job.failureCode || job.error || 'COLLECTOR_FAILED',\n              cause: job.failureCause || job.failureCode || job.error || 'COLLECTOR_FAILED',\n              phase: job.failurePhase || job.phase || 'UNKNOWN',\n              region: Number(job.region || 0) || 0,\n              serverTarget: job.serverTarget || null,\n              authState: job.authState || 'UNKNOWN'\n            });\n          }\n          return json({ ok: true, job });\n        } finally {\n          await transport.close().catch(() => {});\n        }\n      }\n\n      if (url.pathname === '/api/auth/lastwar/start' '''
-        if s.count(return_old) != 1:
-            raise SystemExit('V65_WORKER_RETURN_ANCHOR_MISSING')
-        s = s.replace(return_old, return_new, 1)
         worker.write_text(s, encoding='utf-8')
         print('RADAR_V65_WORKER_DIAGNOSTICS=PATCHED')
     else:
         print('RADAR_V65_WORKER_DIAGNOSTICS=ALREADY_PRESENT')
 
-# Live UI: augment only the V6.4 federated failure line. No raw transcript or
-# credential material is ever rendered.
 ui = Path('/tmp/wfgg-radar/public/live-radar.html')
 if ui.is_file():
     s = ui.read_text(encoding='utf-8')
