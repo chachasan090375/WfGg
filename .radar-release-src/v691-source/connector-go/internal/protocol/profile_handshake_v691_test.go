@@ -9,7 +9,8 @@ import (
 func TestRuntimeDiagnosticsV691(t *testing.T) {
 	dir := t.TempDir()
 	bin := filepath.Join(dir, "radar-native-template")
-	if err := os.WriteFile(bin, []byte("prefix --scan-profiles middle get.user.info.multi suffix"), 0o755); err != nil {
+	script := "#!/bin/sh\nprintf '%s\\n' '{\"ok\":true,\"readonly\":true,\"profileHandshake\":\"v6.9.1\",\"profileCLI\":true,\"profileCommand\":\"get.user.info.multi\"}'\n"
+	if err := os.WriteFile(bin, []byte(script), 0o755); err != nil {
 		t.Fatal(err)
 	}
 	c := &NativeTemplateReadonly{Bin: bin}
@@ -27,15 +28,15 @@ func TestRuntimeDiagnosticsV691(t *testing.T) {
 
 func TestProfileFailureStagesV691(t *testing.T) {
 	cases := map[string]string{
-		"INVALID_ARGS":                      "LASTWAR_PLAYER_PROFILE_CLI_UNSUPPORTED",
-		"NO_RESPONSE":                       "LASTWAR_PLAYER_PROFILE_LOGIN_NO_RESPONSE",
-		"PLAYER_SCAN_INIT_REQUIRED":         "LASTWAR_PLAYER_PROFILE_INIT_REQUIRED",
-		"PLAYER_PROFILE_TEMPLATE_NOT_FOUND": "LASTWAR_PLAYER_PROFILE_TEMPLATE_NOT_FOUND",
-		"PLAYER_PROFILE_UIDS_FIELD_NOT_FOUND":"LASTWAR_PLAYER_PROFILE_UID_REPLACE_FAILED",
-		"PLAYER_PROFILE_WRITE_FAILED":        "LASTWAR_PLAYER_PROFILE_SEND_FAILED",
-		"PLAYER_PROFILE_RESPONSE_NOT_OBSERVED":"LASTWAR_PLAYER_PROFILE_RESPONSE_NOT_OBSERVED",
-		"PLAYER_PROFILE_DECODE_FAILED":       "LASTWAR_PLAYER_PROFILE_DECODE_FAILED",
-		"SOMETHING_NEW":                     "LASTWAR_PLAYER_PROFILE_UNKNOWN_STATE",
+		"INVALID_ARGS":                       "LASTWAR_PLAYER_PROFILE_CLI_UNSUPPORTED",
+		"NO_RESPONSE":                        "LASTWAR_PLAYER_PROFILE_LOGIN_NO_RESPONSE",
+		"PLAYER_SCAN_INIT_REQUIRED":          "LASTWAR_PLAYER_PROFILE_INIT_REQUIRED",
+		"PLAYER_PROFILE_TEMPLATE_NOT_FOUND":  "LASTWAR_PLAYER_PROFILE_TEMPLATE_NOT_FOUND",
+		"PLAYER_PROFILE_UIDS_FIELD_NOT_FOUND": "LASTWAR_PLAYER_PROFILE_UID_REPLACE_FAILED",
+		"PLAYER_PROFILE_WRITE_FAILED":         "LASTWAR_PLAYER_PROFILE_SEND_FAILED",
+		"PLAYER_PROFILE_RESPONSE_NOT_OBSERVED": "LASTWAR_PLAYER_PROFILE_RESPONSE_NOT_OBSERVED",
+		"PLAYER_PROFILE_DECODE_FAILED":        "LASTWAR_PLAYER_PROFILE_DECODE_FAILED",
+		"SOMETHING_NEW":                      "LASTWAR_PLAYER_PROFILE_UNKNOWN_STATE",
 	}
 	for input, want := range cases {
 		if got := profileFailureV691(nativeProfileReportV69{LoginResponse: input}).Error(); got != want {
