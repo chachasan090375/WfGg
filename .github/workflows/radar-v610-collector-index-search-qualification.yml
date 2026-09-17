@@ -1,0 +1,127 @@
+name: Radar V6.10 Collector index search qualification
+
+on:
+  push:
+    branches: [radar-v610-collector-index-search]
+    paths:
+      - '.github/workflows/radar-v610-collector-index-search-qualification.yml'
+      - '.github/workflows/radar-v610-live-index-probe.yml'
+      - '.github/scripts/patch-radar-collector-index-v610.py'
+      - '.github/scripts/patch-radar-worker-collector-index-v610.py'
+      - '.github/scripts/patch-radar-async-collector-worker.py'
+      - '.github/scripts/patch-radar-async-collector-worker-vpre610.py'
+      - '.github/scripts/patch-radar-connector-runtime-v693.py'
+      - '.radar-release-src/v610-source/**'
+      - 'docs/RADAR_V610_COLLECTOR_INDEX_SEARCH.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  LASTWAR_CLIENT_REF: ee5f64de160a8051c2f9f98189b75038dd225a0a
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: radar-v610-collector-index-search
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.27.x'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Reconstruct Radar through V6.10
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/wfgg-radar
+          mkdir -p /tmp/wfgg-radar
+          python3 .github/scripts/reconstruct-radar-release.py
+          echo '234df1dec57f6211bc625855bf13350c9f17fbd843fbe92d8cf1ab7cb5c081ef  /tmp/radar-src.tar.gz' | sha256sum -c -
+          tar -xzf /tmp/radar-src.tar.gz -C /tmp/wfgg-radar
+          rm -rf /tmp/wfgg-radar/connector-go
+          cp -a .radar-release-src/v2-source/connector-go /tmp/wfgg-radar/connector-go
+          python3 .github/scripts/patch-radar-target-profile-retry.py
+          python3 .github/scripts/patch-radar-federated-diagnostics-v65.py
+          python3 .github/scripts/patch-player-scan-v3.py
+          python3 .github/scripts/patch-player-scan-v4.py
+          python3 .github/scripts/patch-radar-protocol-discovery-v67.py
+          python3 .github/scripts/patch-radar-profile-isolation-v68.py
+          python3 .github/scripts/patch-radar-native-profile-v69.py
+          python3 .github/scripts/patch-radar-native-profile-handshake-v691.py
+          python3 .github/scripts/patch-radar-native-profile-exec-v692.py
+          python3 .github/scripts/patch-radar-connector-runtime-v693.py
+          install -m 0644 .radar-release-src/v2-source/src/game/remote-transport.js /tmp/wfgg-radar/src/game/remote-transport.js
+          python3 .github/scripts/patch-radar-async-collector-worker.py
+          echo RADAR_V610_RECONSTRUCT=PASS
+
+      - name: Qualify Connector index endpoint
+        working-directory: /tmp/wfgg-radar/connector-go
+        run: |
+          set -euo pipefail
+          gofmt -w ./cmd ./internal
+          go test ./...
+          go test ./cmd/radar-connector -run 'TestCollectorIndexSearchV610' -count=1
+          go vet ./...
+          grep -Fq 'WFGG_RADAR_COLLECTOR_INDEX_ROUTE_V610' cmd/radar-connector/main.go
+          grep -Fq 'GET /v1/collector/index/search' cmd/radar-connector/main.go
+          grep -Fq 'collectorIndexSearchV610' cmd/radar-connector/collector_index_v610.go
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w' -o /tmp/radar-connector-v610 ./cmd/radar-connector
+          test -s /tmp/radar-connector-v610
+          echo RADAR_V610_CONNECTOR=PASS
+
+      - name: Qualify Worker search order and lazy D1 cache
+        working-directory: /tmp/wfgg-radar
+        run: |
+          set -euo pipefail
+          node --check src/worker.js
+          node --check src/game/remote-transport.js
+          grep -Fq 'WFGG_RADAR_COLLECTOR_INDEX_CACHE_V610' src/worker.js
+          grep -Fq 'WFGG_RADAR_COLLECTOR_INDEX_TRANSPORT_V610' src/game/remote-transport.js
+          grep -Fq "sourceCommand: 'collector-index-v610'" src/worker.js
+          grep -Fq 'if (session.role !== ROLES.OWNER) return json({ ...cached, collectorIndex });' src/worker.js
+          python3 - <<'PY'
+          from pathlib import Path
+          s=Path('src/worker.js').read_text()
+          route="if (url.pathname === '/api/radar/search' && request.method === 'GET')"
+          start=s.index(route)
+          end=s.index("if (url.pathname === '/api/oracle/status'", start)
+          block=s[start:end]
+          d1=block.index('const cached = await searchRadar')
+          idx=block.index('WFGG_RADAR_COLLECTOR_INDEX_CACHE_V610')
+          owner=block.index('if (session.role !== ROLES.OWNER)')
+          live=block.index('const record = await getCredential', owner)
+          scan=block.index('transport.scanPlayer', live)
+          assert d1 < idx < owner < live < scan, (d1,idx,owner,live,scan)
+          assert 'saveRadarPlayerObservations(env, players' in block
+          print('RADAR_V610_SEARCH_ORDER=D1_COLLECTOR_OWNER_LIVE')
+          PY
+          npm test
+          npm run check
+          echo RADAR_V610_WORKER=PASS
+
+      - name: Verify V6.10 read-only scope and probe privacy
+        run: |
+          set -euo pipefail
+          ! grep -REq 'building\.production\.collect|mail\.reward|al\.science\.donate|visitor\.operate|attack|march|purchase' \
+            .github/scripts/patch-radar-collector-index-v610.py \
+            .github/scripts/patch-radar-worker-collector-index-v610.py \
+            .radar-release-src/v610-source \
+            .github/workflows/radar-v610-live-index-probe.yml
+          grep -Fq 'http.MethodGet' .radar-release-src/v610-source/connector-go/cmd/radar-connector/collector_index_v610.go
+          ! grep -Fq 'http.MethodPost' .radar-release-src/v610-source/connector-go/cmd/radar-connector/collector_index_v610.go
+          grep -Fq '__WFGG_V610_ROUTE_PROBE_7f3c9e__' .github/workflows/radar-v610-live-index-probe.yml
+          grep -Fq 'len(players) == 0' .github/workflows/radar-v610-live-index-probe.yml
+          ! grep -Eq 'print\((data|players)|json\.dumps\((data|players)' .github/workflows/radar-v610-live-index-probe.yml
+          grep -Fq 'D1 `radar_observations` cache.' docs/RADAR_V610_COLLECTOR_INDEX_SEARCH.md
+          grep -Fq 'Signed read-only VPS Collector index' docs/RADAR_V610_COLLECTOR_INDEX_SEARCH.md
+          echo RADAR_V610_PROBE_PRIVACY=PASS
+          echo RADAR_V610_READONLY=PASS

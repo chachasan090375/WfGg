@@ -1,0 +1,67 @@
+name: Radar V6.10 live Collector index probe
+
+on:
+  push:
+    branches: [radar-production-v1]
+    paths:
+      - '.github/scripts/patch-radar-collector-index-v610.py'
+      - '.github/scripts/patch-radar-worker-collector-index-v610.py'
+      - '.github/scripts/patch-radar-async-collector-worker.py'
+      - '.radar-release-src/v610-source/**'
+      - 'radar-release/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  RADAR_CONNECTOR_URL: https://chachavps.tail3ab05a.ts.net
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Wait for V6.10 signed index route
+        env:
+          RADAR_CONNECTOR_SHARED_KEY: ${{ secrets.RADAR_CONNECTOR_SHARED_KEY }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib, hmac, json, os, secrets, time, urllib.parse, urllib.request
+
+          base = os.environ['RADAR_CONNECTOR_URL'].rstrip('/')
+          key = os.environ['RADAR_CONNECTOR_SHARED_KEY'].encode()
+          # Guaranteed-miss probe: validates route/signing/shape without emitting player data.
+          query = '__WFGG_V610_ROUTE_PROBE_7f3c9e__'
+          path = '/v1/collector/index/search?q=' + urllib.parse.quote(query) + '&limit=1'
+
+          def request_once():
+              ts = str(int(time.time()))
+              nonce = secrets.token_hex(16)
+              body_hash = hashlib.sha256(b'').hexdigest()
+              canonical = '\n'.join(['GET', path, ts, nonce, body_hash])
+              sig = hmac.new(key, canonical.encode(), hashlib.sha256).hexdigest()
+              req = urllib.request.Request(base + path, method='GET', headers={
+                  'X-Radar-Timestamp': ts,
+                  'X-Radar-Nonce': nonce,
+                  'X-Radar-Signature': sig,
+              })
+              with urllib.request.urlopen(req, timeout=20) as response:
+                  return json.loads(response.read().decode())
+
+          for attempt in range(1, 73):
+              try:
+                  data = request_once()
+                  players = data.get('players')
+                  if data.get('ok') is True and isinstance(players, list) and len(players) == 0:
+                      print('RADAR_V610_LIVE_INDEX_ROUTE=PASS')
+                      break
+                  print(f'RADAR_V610_PROBE_ATTEMPT={attempt}|STATE=OLD_OR_INVALID_RUNTIME')
+              except Exception as exc:
+                  print(f'RADAR_V610_PROBE_ATTEMPT={attempt}|STATE={type(exc).__name__}')
+              if attempt < 72:
+                  time.sleep(10)
+          else:
+              raise SystemExit('RADAR_V610_LIVE_INDEX_ROUTE=TIMEOUT')
+          PY
