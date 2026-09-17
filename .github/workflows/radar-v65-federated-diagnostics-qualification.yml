@@ -1,0 +1,92 @@
+name: Radar V6.5 federated diagnostics qualification
+
+on:
+  push:
+    branches: [radar-v6-5-federated-diagnostics]
+    paths:
+      - '.radar-release-src/v2-source/connector-go/**'
+      - '.github/scripts/patch-radar-federated-diagnostics-v65.py'
+      - '.github/workflows/radar-v65-federated-diagnostics-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.27.x'
+
+      - name: Reconstruct isolated Radar tree
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/wfgg-radar
+          mkdir -p /tmp/wfgg-radar
+          python3 .github/scripts/reconstruct-radar-release.py
+          echo '234df1dec57f6211bc625855bf13350c9f17fbd843fbe92d8cf1ab7cb5c081ef  /tmp/radar-src.tar.gz' | sha256sum -c -
+          tar -xzf /tmp/radar-src.tar.gz -C /tmp/wfgg-radar
+          rm -rf /tmp/wfgg-radar/connector-go
+          cp -a .radar-release-src/v2-source/connector-go /tmp/wfgg-radar/connector-go
+          install -m 0644 .radar-release-src/v2-source/src/game/remote-transport.js /tmp/wfgg-radar/src/game/remote-transport.js
+          python3 .github/scripts/patch-radar-target-profile-retry.py
+          python3 .github/scripts/patch-radar-async-collector-worker.py
+          install -m 0644 radar-ui-live/live-radar.html /tmp/wfgg-radar/public/live-radar.html
+          python3 .github/scripts/patch-radar-federated-diagnostics-v65.py
+
+      - name: Validate V6.5 contracts
+        run: |
+          set -euo pipefail
+          grep -q 'WFGG_RADAR_FEDERATED_DIAGNOSTICS_V65' /tmp/wfgg-radar/connector-go/cmd/radar-connector/collector_jobs.go
+          grep -q 'failureCategory' /tmp/wfgg-radar/connector-go/cmd/radar-connector/collector_jobs.go
+          grep -q 'failureCause' /tmp/wfgg-radar/connector-go/cmd/radar-connector/collector_jobs.go
+          grep -q 'serverTarget' /tmp/wfgg-radar/connector-go/cmd/radar-connector/collector_jobs.go
+          grep -q 'authState' /tmp/wfgg-radar/connector-go/cmd/radar-connector/collector_jobs.go
+          grep -q 'WFGG_RADAR_FEDERATED_DIAGNOSTICS_V65' /tmp/wfgg-radar/src/worker.js
+          grep -q 'WFGG_RADAR_FEDERATED_DIAGNOSTICS_UI_V65' /tmp/wfgg-radar/public/live-radar.html
+          for category in AUTH NETWORK PROTOCOL DECODE INGEST SERVER_TARGET; do
+            grep -q "$category" /tmp/wfgg-radar/connector-go/cmd/radar-connector/federated_diagnostics_v65.go
+          done
+          ! grep -q 'stderr' /tmp/wfgg-radar/public/live-radar.html
+          ! grep -q 'accessToken' /tmp/wfgg-radar/public/live-radar.html
+          echo 'RADAR_V65_STATIC_CONTRACT=PASS'
+
+      - name: Test connector diagnostics
+        working-directory: /tmp/wfgg-radar/connector-go
+        run: |
+          set -euo pipefail
+          gofmt -w ./cmd ./internal
+          go test ./...
+          go vet ./...
+          CGO_ENABLED=0 go build ./cmd/radar-connector
+          echo 'RADAR_V65_CONNECTOR=PASS'
+
+      - name: Test Worker and UI staging
+        working-directory: /tmp/wfgg-radar
+        run: |
+          set -euo pipefail
+          npm test
+          npm run check
+          node --check src/worker.js
+          python3 - <<'PY'
+          from pathlib import Path
+          ui=Path('public/live-radar.html').read_text()
+          assert 'ÉCHEC ${cat}' in ui
+          assert 'cause ${cause}' in ui
+          assert 'auth ${auth}' in ui
+          worker=Path('src/worker.js').read_text()
+          assert "job.authState = 'VALID'" in worker
+          assert "job.failureCategory = 'AUTH'" in worker
+          print('RADAR_V65_UI_WORKER=PASS')
+          PY
+
+      - name: Confirm repository unchanged
+        run: |
+          set -euo pipefail
+          test -z "$(git status --porcelain)"
+          echo 'RADAR_V65_REPOSITORY_UNCHANGED=PASS'
