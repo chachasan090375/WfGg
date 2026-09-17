@@ -1,0 +1,124 @@
+name: Radar V6.8 profile isolation qualification
+
+on:
+  push:
+    branches: [radar-v68-profile-isolation]
+    paths:
+      - '.github/scripts/patch-radar-profile-isolation-v68.py'
+      - '.github/scripts/patch-live-radar-profile-isolation-v68.py'
+      - '.github/workflows/radar-v68-profile-isolation-qualification.yml'
+      - '.radar-release-src/v68-source/**'
+      - 'docs/RADAR_PROFILE_ISOLATION_V68.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: wfgg-radar-v68-qualification
+  cancel-in-progress: true
+
+env:
+  LASTWAR_CLIENT_REF: ee5f64de160a8051c2f9f98189b75038dd225a0a
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.27.x'
+
+      - name: Reconstruct current Radar connector
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/wfgg-radar
+          mkdir -p /tmp/wfgg-radar
+          python3 .github/scripts/reconstruct-radar-release.py
+          echo '234df1dec57f6211bc625855bf13350c9f17fbd843fbe92d8cf1ab7cb5c081ef  /tmp/radar-src.tar.gz' | sha256sum -c -
+          tar -xzf /tmp/radar-src.tar.gz -C /tmp/wfgg-radar
+          rm -rf /tmp/wfgg-radar/connector-go
+          cp -a .radar-release-src/v2-source/connector-go /tmp/wfgg-radar/connector-go
+          python3 .github/scripts/patch-radar-target-profile-retry.py
+          python3 .github/scripts/patch-radar-federated-diagnostics-v65.py
+          python3 .github/scripts/patch-player-scan-v3.py
+          python3 .github/scripts/patch-player-scan-v4.py
+          python3 .github/scripts/patch-radar-protocol-discovery-v67.py
+
+      - name: Apply V6.8 profile isolation
+        run: |
+          set -euo pipefail
+          python3 .github/scripts/patch-radar-profile-isolation-v68.py
+          grep -Fq 'WFGG_RADAR_PROFILE_ISOLATION_JOB_V68' /tmp/wfgg-radar/connector-go/cmd/radar-connector/collector_jobs.go
+          grep -Fq 'WFGG_RADAR_PROFILE_ISOLATION_V68' /tmp/wfgg-radar/connector-go/cmd/radar-connector/profile_isolation_v68.go
+          ! grep -Fq 'fail("PROFILE_BATCH_FAILED"' /tmp/wfgg-radar/connector-go/cmd/radar-connector/collector_jobs.go
+          echo RADAR_V68_PROFILE_ISOLATION=STAGED
+
+      - name: Test connector and adaptive isolation
+        working-directory: /tmp/wfgg-radar/connector-go
+        run: |
+          set -euo pipefail
+          gofmt -w ./cmd ./internal
+          go test ./...
+          go vet ./...
+          go build ./cmd/radar-connector
+          echo RADAR_V68_CONNECTOR=PASS
+
+      - name: Build native helper from pinned upstream
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/lastwar-client
+          git clone --quiet --filter=blob:none --no-checkout https://github.com/ljagiello/lastwar-client.git /tmp/lastwar-client
+          cd /tmp/lastwar-client
+          git fetch --quiet --depth 1 origin "$LASTWAR_CLIENT_REF"
+          git checkout --quiet --detach FETCH_HEAD
+          test "$(git rev-parse HEAD)" = "$LASTWAR_CLIENT_REF"
+          go test ./internal/auth ./internal/pcap ./internal/sfs
+          mkdir -p cmd/wfgg-radar-native-template
+          cp /tmp/wfgg-radar/connector-go/native-template/main.go cmd/wfgg-radar-native-template/main.go
+          cp /tmp/wfgg-radar/connector-go/native-template/player_scan_v3.go cmd/wfgg-radar-native-template/player_scan_v3.go
+          cp /tmp/wfgg-radar/connector-go/native-template/player_scan_v4.go cmd/wfgg-radar-native-template/player_scan_v4.go
+          gofmt -w cmd/wfgg-radar-native-template/*.go
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -tags lastwar_native_template -trimpath -ldflags='-s -w' -o /tmp/radar-native-template ./cmd/wfgg-radar-native-template
+          test -s /tmp/radar-native-template
+          strings /tmp/radar-native-template | grep -Fq 'WFGG_SCAN_V67'
+          echo RADAR_V68_NATIVE_HELPER=PASS
+
+      - name: Validate V6.8 live UI
+        run: |
+          set -euo pipefail
+          install -m 0644 radar-ui-live/live-radar.html /tmp/wfgg-radar/public/live-radar.html
+          python3 .github/scripts/patch-live-radar-protocol-discovery-v67.py
+          python3 .github/scripts/patch-live-radar-profile-isolation-v68.py
+          grep -Fq 'WFGG_RADAR_PROFILE_ISOLATION_UI_V68' /tmp/wfgg-radar/public/live-radar.html
+          grep -Fq 'PROF V6.8' /tmp/wfgg-radar/public/live-radar.html
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          s=Path('/tmp/wfgg-radar/public/live-radar.html').read_text()
+          blocks=re.findall(r'<script[^>]*>(.*?)</script>',s,re.S|re.I)
+          if not blocks: raise SystemExit('NO_SCRIPT_BLOCK')
+          Path('/tmp/radar-v68-ui.js').write_text('\n'.join(blocks))
+          PY
+          node --check /tmp/radar-v68-ui.js
+          echo RADAR_V68_UI=PASS
+
+      - name: Validate preservation and privacy boundaries
+        run: |
+          set -euo pipefail
+          grep -Fq 'map evidence survives profile' /tmp/wfgg-radar/connector-go/cmd/radar-connector/collector_jobs.go
+          grep -Fq 'no UID is exposed' /tmp/wfgg-radar/connector-go/cmd/radar-connector/collector_jobs.go
+          grep -Fq 'v68ProfileAttemptBudget = 192' /tmp/wfgg-radar/connector-go/cmd/radar-connector/profile_isolation_v68.go
+          ! grep -REq 'fmt\.Print|log\.Print|slog\.' /tmp/wfgg-radar/connector-go/cmd/radar-connector/profile_isolation_v68.go
+          ! grep -REq 'building\.production\.collect|mail\.reward|al\.science\.donate|visitor\.operate' /tmp/wfgg-radar/connector-go || false
+          echo RADAR_V68_PRESERVATION_PRIVACY=PASS
+
+      - name: Confirm production untouched
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF_NAME" = 'radar-v68-profile-isolation'
+          git diff --quiet
+          echo RADAR_PRODUCTION_MUTATION=NO
