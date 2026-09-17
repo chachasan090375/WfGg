@@ -5,6 +5,7 @@ on:
     branches: [radar-v693-connector-runtime-fingerprint]
     paths:
       - '.github/workflows/radar-v693-connector-runtime-qualification.yml'
+      - '.github/workflows/radar-v69-build.yml'
       - '.github/scripts/patch-radar-connector-runtime-v693.py'
       - '.radar-release-src/v693-source/**'
 
@@ -61,3 +62,13 @@ jobs:
           grep -Fq 'WFGG_RADAR_NATIVE_PROFILE_EXEC_BRIDGE_V692' internal/protocol/profile_scan_v69.go
           ! grep -Fq 'return nil, errors.New("LASTWAR_PLAYER_PROFILE_FAILED")' internal/protocol/profile_scan_v69.go
           echo RADAR_V693_CONNECTOR_RUNTIME=QUALIFIED
+
+      - name: Verify production build runtime gate
+        run: |
+          set -euo pipefail
+          grep -Fq 'patch-radar-connector-runtime-v693.py' .github/workflows/radar-v69-build.yml
+          grep -Fq 'Certify live V6.9.3 connector runtime' .github/workflows/radar-v69-build.yml
+          grep -Fq 'RADAR_V693_CONNECTOR_RUNTIME=PASS' .github/workflows/radar-v69-build.yml
+          grep -Fq 'profileExecDiagnostics' .github/workflows/radar-v69-build.yml
+          grep -Fq 'EXPECTED_CONNECTOR' .github/workflows/radar-v69-build.yml
+          echo RADAR_V693_FINAL_BUILD_GATE=QUALIFIED
