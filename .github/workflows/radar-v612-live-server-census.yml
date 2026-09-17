@@ -24,7 +24,7 @@ jobs:
         run: |
           set -euo pipefail
           python3 - <<'PY'
-          import hashlib, hmac, json, os, secrets, time, urllib.request
+          import hashlib, hmac, json, os, secrets, time, urllib.error, urllib.request
 
           base = os.environ['RADAR_CONNECTOR_URL'].rstrip('/')
           key = os.environ['RADAR_CONNECTOR_SHARED_KEY'].encode()
@@ -39,8 +39,19 @@ jobs:
               'X-Radar-Nonce': nonce,
               'X-Radar-Signature': sig,
           })
-          with urllib.request.urlopen(req, timeout=20) as response:
-              data = json.loads(response.read().decode())
+          try:
+              with urllib.request.urlopen(req, timeout=20) as response:
+                  data = json.loads(response.read().decode())
+          except urllib.error.HTTPError as exc:
+              body = exc.read().decode(errors='replace')
+              try:
+                  data = json.loads(body)
+              except Exception:
+                  data = {'error': 'NON_JSON_ERROR'}
+              print('RADAR_V612_HTTP_STATUS=' + str(exc.code))
+              print('RADAR_V612_ERROR=' + str(data.get('error') or 'UNKNOWN'))
+              print('RADAR_V612_READONLY=' + str(data.get('readonly')))
+              raise SystemExit(2)
 
           assert data.get('ok') is True
           assert data.get('readonly') is True
