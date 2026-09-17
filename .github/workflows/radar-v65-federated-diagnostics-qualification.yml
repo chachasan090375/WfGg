@@ -6,6 +6,8 @@ on:
     paths:
       - '.radar-release-src/v2-source/connector-go/**'
       - '.github/scripts/patch-radar-federated-diagnostics-v65.py'
+      - '.github/workflows/build-radar-vps-binaries.yml'
+      - '.github/workflows/deploy-radar-production.yml'
       - '.github/workflows/radar-v65-federated-diagnostics-qualification.yml'
   workflow_dispatch:
 
@@ -55,6 +57,17 @@ jobs:
           ! grep -q 'stderr' /tmp/wfgg-radar/public/live-radar.html
           ! grep -q 'accessToken' /tmp/wfgg-radar/public/live-radar.html
           echo 'RADAR_V65_STATIC_CONTRACT=PASS'
+
+      - name: Validate future production wiring without deploying
+        run: |
+          set -euo pipefail
+          grep -q 'patch-radar-federated-diagnostics-v65.py' .github/workflows/build-radar-vps-binaries.yml
+          grep -q 'RADAR_FEDERATED_DIAGNOSTICS_V65=STAGED' .github/workflows/build-radar-vps-binaries.yml
+          grep -q 'Overlay federated diagnostics V6.5' .github/workflows/deploy-radar-production.yml
+          grep -q 'patch-radar-federated-diagnostics-v65.py' .github/workflows/deploy-radar-production.yml
+          grep -q 'WFGG_RADAR_FEDERATED_DIAGNOSTICS_UI_V65' .github/workflows/deploy-radar-production.yml
+          grep -q 'branches: \[radar-production-v1\]' .github/workflows/deploy-radar-production.yml
+          echo 'RADAR_V65_PRODUCTION_WIRING=PASS_NOT_EXECUTED'
 
       - name: Test connector diagnostics
         working-directory: /tmp/wfgg-radar/connector-go
