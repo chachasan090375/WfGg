@@ -7,7 +7,10 @@ on:
       - 'radar-release/**'
       - 'radar-ui-live/**'
       - '.radar-release-src/v2-source/src/game/remote-transport.js'
+      - '.radar-release-src/v2-source/connector-go/cmd/radar-connector/federated_diagnostics_v65.go'
+      - '.radar-release-src/v2-source/connector-go/cmd/radar-connector/federated_diagnostics_v65_test.go'
       - '.github/scripts/patch-radar-async-collector-worker.py'
+      - '.github/scripts/patch-radar-federated-diagnostics-v65.py'
       - '.github/workflows/deploy-radar-production.yml'
   workflow_dispatch:
 
@@ -68,6 +71,17 @@ jobs:
           install -m 0644 radar-ui-live/live-radar.html /tmp/wfgg-radar/public/live-radar.html
           grep -q 'WfGg Radar Live' /tmp/wfgg-radar/public/live-radar.html
           echo 'RADAR_LIVE_UI=STAGED'
+
+      - name: Overlay federated diagnostics V6.5
+        run: |
+          set -euo pipefail
+          install -m 0644 .radar-release-src/v2-source/connector-go/cmd/radar-connector/federated_diagnostics_v65.go /tmp/wfgg-radar/connector-go/cmd/radar-connector/federated_diagnostics_v65.go
+          install -m 0644 .radar-release-src/v2-source/connector-go/cmd/radar-connector/federated_diagnostics_v65_test.go /tmp/wfgg-radar/connector-go/cmd/radar-connector/federated_diagnostics_v65_test.go
+          python3 .github/scripts/patch-radar-federated-diagnostics-v65.py
+          grep -q 'WFGG_RADAR_FEDERATED_DIAGNOSTICS_V65' /tmp/wfgg-radar/connector-go/cmd/radar-connector/collector_jobs.go
+          grep -q 'WFGG_RADAR_FEDERATED_DIAGNOSTICS_V65' /tmp/wfgg-radar/src/worker.js
+          grep -q 'WFGG_RADAR_FEDERATED_DIAGNOSTICS_UI_V65' /tmp/wfgg-radar/public/live-radar.html
+          echo 'RADAR_FEDERATED_DIAGNOSTICS_V65=STAGED'
 
       - name: Guardian pre-deploy gate
         working-directory: /tmp/wfgg-radar
