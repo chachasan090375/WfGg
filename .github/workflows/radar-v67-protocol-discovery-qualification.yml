@@ -1,0 +1,131 @@
+name: Radar V6.7 protocol discovery qualification
+
+on:
+  push:
+    branches: [radar-v67-protocol-discovery]
+    paths:
+      - '.github/scripts/patch-radar-protocol-discovery-v67.py'
+      - '.github/scripts/patch-live-radar-protocol-discovery-v67.py'
+      - '.github/workflows/radar-v67-protocol-discovery-qualification.yml'
+      - '.radar-release-src/v67-source/**'
+      - '.github/workflows/radar-v67-build.yml'
+      - '.github/workflows/deploy-radar-production.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: wfgg-radar-v67-qualification
+  cancel-in-progress: true
+
+env:
+  LASTWAR_CLIENT_REF: ee5f64de160a8051c2f9f98189b75038dd225a0a
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.27.x'
+
+      - name: Reconstruct current Radar connector
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/wfgg-radar
+          mkdir -p /tmp/wfgg-radar
+          python3 .github/scripts/reconstruct-radar-release.py
+          echo '234df1dec57f6211bc625855bf13350c9f17fbd843fbe92d8cf1ab7cb5c081ef  /tmp/radar-src.tar.gz' | sha256sum -c -
+          tar -xzf /tmp/radar-src.tar.gz -C /tmp/wfgg-radar
+          rm -rf /tmp/wfgg-radar/connector-go
+          cp -a .radar-release-src/v2-source/connector-go /tmp/wfgg-radar/connector-go
+          python3 .github/scripts/patch-radar-target-profile-retry.py
+          python3 .github/scripts/patch-radar-federated-diagnostics-v65.py
+
+      - name: Reconstruct validated V4 native scan engine
+        run: |
+          set -euo pipefail
+          # V3/V4 patchers expect the immutable player-scan v2 base. Restore only
+          # native/protocol files from that pipeline while preserving V6.6 Collector.
+          python3 .github/scripts/patch-player-scan-v3.py
+          python3 .github/scripts/patch-player-scan-v4.py
+          grep -Fq 'runPlayerScanV4' /tmp/wfgg-radar/connector-go/native-template/main.go
+          grep -Fq 'syntheticMapSweepV4' /tmp/wfgg-radar/connector-go/native-template/player_scan_v4.go
+
+      - name: Apply V6.7 protocol discovery
+        run: |
+          set -euo pipefail
+          python3 .github/scripts/patch-radar-protocol-discovery-v67.py
+          grep -Fq 'WFGG_RADAR_PROTOCOL_DISCOVERY_V67' /tmp/wfgg-radar/connector-go/cmd/radar-connector/collector_jobs.go
+          grep -Fq 'WFGG_RADAR_WILDCARD_DISCOVERY_V67' /tmp/wfgg-radar/connector-go/native-template/player_scan_v3.go
+          grep -Fq 'WFGG_RADAR_REGION_SELECTOR_V67' /tmp/wfgg-radar/connector-go/native-template/player_scan_v4.go
+          grep -Fq 'WFGG_SCAN_V67' /tmp/wfgg-radar/connector-go/native-template/player_scan_v4.go
+          grep -Fq 'protoBytesV3(m, 3)' /tmp/wfgg-radar/connector-go/native-template/player_scan_v4.go
+
+      - name: Test connector and diagnostic parser
+        working-directory: /tmp/wfgg-radar/connector-go
+        run: |
+          set -euo pipefail
+          gofmt -w ./cmd ./internal
+          go test ./...
+          go vet ./...
+          go build ./cmd/radar-connector
+          echo RADAR_V67_CONNECTOR=PASS
+
+      - name: Build V6.7 native helper from pinned upstream
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/lastwar-client
+          git clone --quiet --filter=blob:none --no-checkout https://github.com/ljagiello/lastwar-client.git /tmp/lastwar-client
+          cd /tmp/lastwar-client
+          git fetch --quiet --depth 1 origin "$LASTWAR_CLIENT_REF"
+          git checkout --quiet --detach FETCH_HEAD
+          test "$(git rev-parse HEAD)" = "$LASTWAR_CLIENT_REF"
+          go test ./internal/auth ./internal/pcap ./internal/sfs
+          mkdir -p cmd/wfgg-radar-native-template
+          cp /tmp/wfgg-radar/connector-go/native-template/main.go cmd/wfgg-radar-native-template/main.go
+          cp /tmp/wfgg-radar/connector-go/native-template/player_scan_v3.go cmd/wfgg-radar-native-template/player_scan_v3.go
+          cp /tmp/wfgg-radar/connector-go/native-template/player_scan_v4.go cmd/wfgg-radar-native-template/player_scan_v4.go
+          gofmt -w cmd/wfgg-radar-native-template/*.go
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -tags lastwar_native_template -trimpath -ldflags='-s -w' -o /tmp/radar-native-template ./cmd/wfgg-radar-native-template
+          test -s /tmp/radar-native-template
+          strings /tmp/radar-native-template | grep -Fq 'WFGG_SCAN_V67'
+          strings /tmp/radar-native-template | grep -Fq 'WFGG_COLLECTOR_ORIGIN_INDEX'
+          echo RADAR_V67_NATIVE_HELPER=PASS
+
+      - name: Validate V6.7 live UI
+        run: |
+          set -euo pipefail
+          install -m 0644 radar-ui-live/live-radar.html /tmp/wfgg-radar/public/live-radar.html
+          python3 .github/scripts/patch-live-radar-protocol-discovery-v67.py
+          grep -Fq 'WFGG_RADAR_PROTOCOL_DISCOVERY_UI_V67' /tmp/wfgg-radar/public/live-radar.html
+          grep -Fq 'PROTO V6.7' /tmp/wfgg-radar/public/live-radar.html
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          s=Path('/tmp/wfgg-radar/public/live-radar.html').read_text()
+          blocks=re.findall(r'<script[^>]*>(.*?)</script>',s,re.S|re.I)
+          if not blocks: raise SystemExit('NO_SCRIPT_BLOCK')
+          Path('/tmp/radar-v67-ui.js').write_text('\n'.join(blocks))
+          PY
+          node --check /tmp/radar-v67-ui.js
+          echo RADAR_V67_UI=PASS
+
+      - name: Validate read-only and privacy boundaries
+        run: |
+          set -euo pipefail
+          grep -Fq 'Safe diagnostics only: aggregate counters' /tmp/wfgg-radar/connector-go/native-template/player_scan_v4.go
+          grep -Fq 'excludes payloads, tokens, session identifiers and player values' /tmp/wfgg-radar/connector-go/internal/protocol/region_diagnostics_v67.go
+          ! grep -REq 'building\.production\.collect|mail\.reward|al\.science\.donate|visitor\.operate' /tmp/wfgg-radar/connector-go || false
+          echo RADAR_V67_READONLY_PRIVACY=PASS
+
+      - name: Confirm production untouched
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF_NAME" = 'radar-v67-protocol-discovery'
+          git diff --quiet
+          echo RADAR_PRODUCTION_MUTATION=NO
