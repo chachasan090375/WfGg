@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - name: Read aggregate server census
+      - name: Read aggregate server census V6.12.1
         env:
           RADAR_CONNECTOR_SHARED_KEY: ${{ secrets.RADAR_CONNECTOR_SHARED_KEY }}
         run: |
@@ -39,8 +39,9 @@ jobs:
               'X-Radar-Nonce': nonce,
               'X-Radar-Signature': sig,
           })
+          started = time.monotonic()
           try:
-              with urllib.request.urlopen(req, timeout=20) as response:
+              with urllib.request.urlopen(req, timeout=40) as response:
                   data = json.loads(response.read().decode())
           except urllib.error.HTTPError as exc:
               body = exc.read().decode(errors='replace')
@@ -53,10 +54,13 @@ jobs:
               print('RADAR_V612_READONLY=' + str(data.get('readonly')))
               raise SystemExit(2)
 
+          elapsed_ms = int((time.monotonic() - started) * 1000)
           assert data.get('ok') is True
           assert data.get('readonly') is True
           assert data.get('rawPlayerDataExposed') is False
           print('RADAR_V612_CENSUS=PASS')
+          print('RADAR_V612_VERSION=' + str(data.get('censusVersion', '')))
+          print('RADAR_V612_ELAPSED_MS=' + str(elapsed_ms))
           print('RADAR_V612_SERVER_COUNT=' + str(data.get('serverCount', 0)))
           print('RADAR_V612_PLAYERS_TOTAL=' + str(data.get('playersTotal', 0)))
           print('RADAR_V612_OBSERVATIONS_TOTAL=' + str(data.get('observationsTotal', 0)))
