@@ -50,4 +50,5 @@ run_patch('.github/scripts/patch-radar-collector-fast-lookup-v611.py', 'RADAR_FA
 # V6.12.1 streaming implementation is carried by the V6.12 source set.
 run_patch('.github/scripts/patch-radar-server-census-v612.py', 'RADAR_SERVER_CENSUS_V6121=CHAINED')
 run_patch('.github/scripts/patch-radar-server-cycle-map-v6122.py', 'RADAR_SERVER_CYCLE_MAP_V6122=CHAINED')
+run_patch('.github/scripts/patch-radar-server-cluster-evidence-v6123.py', 'RADAR_SERVER_CLUSTER_EVIDENCE_V6123=CHAINED')
 print('RADAR_CONNECTOR_RUNTIME_V693=READY')
