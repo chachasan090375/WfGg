@@ -5,6 +5,7 @@ on:
     branches: [radar-v610-collector-index-search]
     paths:
       - '.github/workflows/radar-v610-collector-index-search-qualification.yml'
+      - '.github/workflows/radar-v610-live-index-probe.yml'
       - '.github/scripts/patch-radar-collector-index-v610.py'
       - '.github/scripts/patch-radar-worker-collector-index-v610.py'
       - '.github/scripts/patch-radar-async-collector-worker.py'
@@ -106,13 +107,18 @@ jobs:
           npm run check
           echo RADAR_V610_WORKER=PASS
 
-      - name: Verify V6.10 read-only scope
+      - name: Verify V6.10 read-only scope and probe privacy
         run: |
           set -euo pipefail
           ! grep -REq 'building\.production\.collect|mail\.reward|al\.science\.donate|visitor\.operate|attack|march|purchase' \
             .github/scripts/patch-radar-collector-index-v610.py \
             .github/scripts/patch-radar-worker-collector-index-v610.py \
-            .radar-release-src/v610-source
+            .radar-release-src/v610-source \
+            .github/workflows/radar-v610-live-index-probe.yml
           grep -Fq 'http.MethodGet' .radar-release-src/v610-source/connector-go/cmd/radar-connector/collector_index_v610.go
           ! grep -Fq 'http.MethodPost' .radar-release-src/v610-source/connector-go/cmd/radar-connector/collector_index_v610.go
+          grep -Fq '__WFGG_V610_ROUTE_PROBE_7f3c9e__' .github/workflows/radar-v610-live-index-probe.yml
+          grep -Fq 'len(players) == 0' .github/workflows/radar-v610-live-index-probe.yml
+          ! grep -Eq 'print\((data|players)|json\.dumps\((data|players)' .github/workflows/radar-v610-live-index-probe.yml
+          echo RADAR_V610_PROBE_PRIVACY=PASS
           echo RADAR_V610_READONLY=PASS
