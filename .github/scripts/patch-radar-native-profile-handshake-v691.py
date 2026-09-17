@@ -4,6 +4,7 @@ import shutil
 
 ROOT = Path('/tmp/wfgg-radar')
 MAIN = ROOT / 'connector-go/cmd/radar-connector/main.go'
+NATIVE_MAIN = ROOT / 'connector-go/native-template/main.go'
 BRIDGE = ROOT / 'connector-go/internal/protocol/profile_scan_v69.go'
 HELPER = ROOT / 'connector-go/native-template/profile_scan_v69.go'
 SRC = Path('.radar-release-src/v691-source/connector-go/internal/protocol')
@@ -39,6 +40,19 @@ def patch_health() -> None:
     print('RADAR_V691_HEALTH=PATCHED')
 
 
+def patch_native_capabilities() -> None:
+    text = NATIVE_MAIN.read_text(encoding='utf-8')
+    if 'WFGG_RADAR_NATIVE_PROFILE_CAPABILITIES_V691' in text:
+        print('RADAR_V691_CAPABILITIES=ALREADY_PRESENT')
+        return
+    old = 'func main() {\n'
+    new = '''func main() {\n\t// WFGG_RADAR_NATIVE_PROFILE_CAPABILITIES_V691\n\tif len(os.Args) == 2 && os.Args[1] == "--capabilities" {\n\t\t_ = json.NewEncoder(os.Stdout).Encode(map[string]any{\n\t\t\t"ok": true,\n\t\t\t"mode": "native-template-readonly-v4",\n\t\t\t"readonly": true,\n\t\t\t"profileHandshake": "v6.9.1",\n\t\t\t"profileCLI": true,\n\t\t\t"profileCommand": "get.user.info.multi",\n\t\t})\n\t\treturn\n\t}\n'''
+    if text.count(old) != 1:
+        raise SystemExit(f'native main anchor count={text.count(old)}')
+    NATIVE_MAIN.write_text(text.replace(old, new, 1), encoding='utf-8')
+    print('RADAR_V691_CAPABILITIES=PATCHED')
+
+
 def patch_bridge() -> None:
     text = BRIDGE.read_text(encoding='utf-8')
     if 'profileFailureV691(rep)' in text:
@@ -67,6 +81,7 @@ def patch_helper() -> None:
 
 install_sources()
 patch_health()
+patch_native_capabilities()
 patch_bridge()
 patch_helper()
 print('RADAR_NATIVE_PROFILE_HANDSHAKE_V691=READY')
