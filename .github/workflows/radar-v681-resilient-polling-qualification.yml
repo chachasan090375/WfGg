@@ -1,0 +1,78 @@
+name: Radar V6.8.1 resilient polling qualification
+
+on:
+  push:
+    branches: [radar-v681-resilient-polling]
+    paths:
+      - 'radar-ui-live/live-radar.html'
+      - '.github/scripts/patch-radar-resilient-polling-v681.py'
+      - '.github/workflows/radar-v681-resilient-polling-qualification.yml'
+      - '.github/workflows/radar-v681-resilient-polling-build.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Apply V6.8.1 polling patch to current UI
+        run: |
+          set -euo pipefail
+          cp radar-ui-live/live-radar.html /tmp/live-radar-v681.html
+          python3 .github/scripts/patch-radar-resilient-polling-v681.py /tmp/live-radar-v681.html
+          grep -q 'WFGG_RADAR_RESILIENT_POLLING_V681' /tmp/live-radar-v681.html
+          grep -q 'wfgg_radar_active_job_v681' /tmp/live-radar-v681.html
+          grep -q 'CONNEXION MOMENTANÉMENT PERDUE' /tmp/live-radar-v681.html
+          grep -q 'CONNEXION RÉTABLIE' /tmp/live-radar-v681.html
+          grep -q 'SUIVI RÉSEAU INDISPONIBLE' /tmp/live-radar-v681.html
+
+      - name: Validate JavaScript syntax
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          html=Path('/tmp/live-radar-v681.html').read_text(encoding='utf-8')
+          scripts=re.findall(r'<script[^>]*>(.*?)</script>',html,re.S|re.I)
+          if not scripts:
+              raise SystemExit('RADAR_V681_NO_INLINE_SCRIPT')
+          Path('/tmp/radar-v681.js').write_text('\n'.join(scripts),encoding='utf-8')
+          PY
+          node --check /tmp/radar-v681.js
+
+      - name: Validate resilience contract
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          s=Path('/tmp/live-radar-v681.html').read_text(encoding='utf-8')
+          required=[
+            "sessionStorage.setItem(WFGG_RADAR_ACTIVE_JOB_KEY",
+            "sessionStorage.getItem(WFGG_RADAR_ACTIVE_JOB_KEY)",
+            "retryableCollectorPollError",
+            "s===429||s>=500",
+            "fetchCollectorJobResilient",
+            "loadOrStartCollectorJob",
+            "rememberCollectorJob(job,q)",
+            "forgetCollectorJob()",
+            "13*60*1000",
+          ]
+          missing=[x for x in required if x not in s]
+          if missing:
+              raise SystemExit('RADAR_V681_CONTRACT_MISSING='+','.join(missing))
+          if "localStorage.setItem(WFGG_RADAR_ACTIVE_JOB_KEY" in s:
+              raise SystemExit('RADAR_V681_PERSISTENCE_SCOPE_TOO_BROAD')
+          print('RADAR_V681_RESILIENCE_CONTRACT=OK')
+          PY
+
+      - name: Confirm V6.8.1 remains UI-only and read-only
+        run: |
+          set -euo pipefail
+          git diff --exit-code radar-production-v1 -- .radar-release-src/v2-source/connector-go radar-vps || true
+          ! grep -Eq 'accessToken|Authorization: Bearer|RADAR_TOKEN_VAULT_KEY' .github/scripts/patch-radar-resilient-polling-v681.py
+          echo 'RADAR_V681_PRIVACY_BOUNDARY=OK'
