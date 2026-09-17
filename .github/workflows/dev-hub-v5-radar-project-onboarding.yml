@@ -1,0 +1,199 @@
+name: DEV HUB V5 Radar Project Control Onboarding
+
+on:
+  push:
+    branches:
+      - dev-hub-v5-radar-project-control-onboarding
+    paths:
+      - 'dev-hub/projects/wfgg-radar/**'
+      - 'dev-hub/config/**'
+      - 'dev-hub/bin/manifest-v3-engine.py'
+      - '.github/workflows/dev-hub-v5-radar-project-onboarding.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  plan-readiness:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Freeze repository and validate Radar source of truth
+        shell: bash
+        run: |
+          set -euo pipefail
+          git status --porcelain > /tmp/git-before.txt
+          test ! -s /tmp/git-before.txt
+          test -s dev-hub/projects/wfgg-radar/PRODUCT_SPEC_2026-09-17.md
+          test -s dev-hub/projects/wfgg-radar/manifest.v3.json
+          grep -Fq 'P1 — Serveur + coordonnées cliquables' dev-hub/projects/wfgg-radar/PRODUCT_SPEC_2026-09-17.md
+          grep -Fq 'GameUID comme identité canonique' dev-hub/projects/wfgg-radar/PRODUCT_SPEC_2026-09-17.md
+          grep -Fq 'Recherche utilisateur à partir de **3 caractères**' dev-hub/projects/wfgg-radar/PRODUCT_SPEC_2026-09-17.md
+          grep -Fq 'ShieldInfo' dev-hub/projects/wfgg-radar/PRODUCT_SPEC_2026-09-17.md
+          grep -Fq 'WorldPointInfo' dev-hub/projects/wfgg-radar/PRODUCT_SPEC_2026-09-17.md
+          grep -Fq 'V6.19 — Player data / Shield inventory' dev-hub/projects/wfgg-radar/PRODUCT_SPEC_2026-09-17.md
+          echo RADAR_PRODUCT_SPEC=LOCKED
+
+      - name: Validate Radar Manifest V3
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m json.tool dev-hub/projects/wfgg-radar/manifest.v3.json >/dev/null
+          python3 dev-hub/bin/manifest-v3-engine.py inspect             dev-hub/projects/wfgg-radar/manifest.v3.json             --registry dev-hub/config/capability-registry.v1.json             --json > /tmp/radar-manifest-report.json
+          python3 - <<'PY'
+          import json
+          r=json.load(open('/tmp/radar-manifest-report.json'))
+          assert r['valid'] is True, r
+          assert r['component_graph']['acyclic'] is True, r
+          assert r['environment_graph']['acyclic'] is True, r
+          print('RADAR_MANIFEST_V3=VALID')
+          print('RADAR_MANIFEST_WARNINGS=' + str(r['warnings']))
+          PY
+
+      - name: Resolve canonical DEV HUB execution readiness for Radar
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib,json
+          from pathlib import Path
+
+          root=Path('.')
+          manifest=json.loads((root/'dev-hub/projects/wfgg-radar/manifest.v3.json').read_text())
+          registry=json.loads((root/'dev-hub/config/capability-registry.v1.json').read_text())
+          adapters=json.loads((root/'dev-hub/config/provider-adapters.v1.json').read_text())
+          catalog=json.loads((root/'dev-hub/config/mcp-provider-catalog.v1.json').read_text())
+
+          permission={
+            'source-control':'repository-write',
+            'code-edit':'workspace-write',
+            'code-review':'read',
+            'library-docs':'read',
+            'unit-test-js':'read',
+            'smoke-test-web':'read',
+            'browser-diagnostics':'read',
+            'browser-independent-verification':'read',
+            'database-migrate':'workspace-write',
+            'cloud-deploy-edge':'preview-deploy',
+            'ci':'read',
+            'artifact-store':'read',
+            'backup-store':'read',
+            'architecture-audit':'read',
+            'technology-radar':'read',
+            'storage-governance':'read',
+          }
+
+          provider_defs=adapters['providers']
+          adapter_defs=adapters['adapters']
+          rows=[]
+          for req in manifest['capabilities']:
+            cid=req['id']
+            cap=registry['capabilities'][cid]
+            providers=cap.get('providers') or []
+            preferred=req.get('preferred_provider')
+            chosen=next((p for p in providers if p.get('id')==preferred), providers[0] if providers else None)
+            pid=(chosen or {}).get('id')
+            pdef=provider_defs.get(pid) if pid else None
+            aid=(pdef or {}).get('adapter')
+            adef=adapter_defs.get(aid) if aid else None
+            needed=permission.get(cid,'read')
+            status=(adef or {}).get('status','MISSING')
+            supports=set((adef or {}).get('supports') or [])
+            eligible=status in {'PILOT','ENABLED'} and needed in supports
+            mcp=((catalog.get('providers') or {}).get(pid) or {}).get('runtime_status')
+            rows.append({
+              'capability':cid,
+              'required':bool(req.get('required')),
+              'provider':pid,
+              'adapter':aid,
+              'adapter_status':status,
+              'required_permission':needed,
+              'permission_supported':needed in supports,
+              'runtime_status':mcp,
+              'execution_eligible':eligible,
+              'reason':'eligible' if eligible else (
+                'adapter-not-pilot-or-enabled' if status not in {'PILOT','ENABLED'}
+                else 'required-permission-not-supported'
+              )
+            })
+
+          required_blockers=[x for x in rows if x['required'] and not x['execution_eligible']]
+          ready=[x for x in rows if x['execution_eligible']]
+          spec=(root/'dev-hub/projects/wfgg-radar/PRODUCT_SPEC_2026-09-17.md').read_bytes()
+          receipt={
+            'schema':'chacha.dev/project-runtime-readiness/v1',
+            'project':'wfgg-radar',
+            'source_branch':'dev-hub-v5-radar-project-control-onboarding',
+            'product_spec_sha256':hashlib.sha256(spec).hexdigest(),
+            'manifest_valid':True,
+            'planning_ready':True,
+            'execution_ready':len(required_blockers)==0,
+            'production_change_allowed':False,
+            'production_touched':False,
+            'provider_selection_owned_by_control_plane':True,
+            'capabilities':rows,
+            'eligible_capabilities':[x['capability'] for x in ready],
+            'required_blockers':[{
+              'capability':x['capability'],
+              'provider':x['provider'],
+              'adapter':x['adapter'],
+              'adapter_status':x['adapter_status'],
+              'reason':x['reason']
+            } for x in required_blockers],
+            'next_product_front':'V6.19 Player data / Shield inventory',
+            'next_control_plane_action':'enable or pilot the minimum implementation adapters before Radar code execution',
+          }
+          Path('/tmp/radar-project-readiness.json').write_text(json.dumps(receipt,indent=2)+'\n')
+
+          by={x['capability']:x for x in rows}
+          assert by['browser-diagnostics']['execution_eligible'] is True, by['browser-diagnostics']
+          assert by['browser-independent-verification']['execution_eligible'] is True, by['browser-independent-verification']
+          assert by['smoke-test-web']['execution_eligible'] is True, by['smoke-test-web']
+          assert by['code-edit']['execution_eligible'] is False, by['code-edit']
+          assert by['source-control']['execution_eligible'] is False, by['source-control']
+          assert by['cloud-deploy-edge']['execution_eligible'] is False, by['cloud-deploy-edge']
+          assert by['database-migrate']['execution_eligible'] is False, by['database-migrate']
+
+          print('RADAR_PROJECT_CONTROL_PLANNING=READY')
+          print('RADAR_PROJECT_CONTROL_EXECUTION=' + ('READY' if receipt['execution_ready'] else 'BLOCKED'))
+          print('RADAR_READY_CAPABILITIES=' + ','.join(receipt['eligible_capabilities']))
+          for x in receipt['required_blockers']:
+            print('RADAR_BLOCKER={capability}:{adapter}:{adapter_status}:{reason}'.format(**x))
+          PY
+
+      - name: Assert no implicit execution or production mutation
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          x=json.load(open('/tmp/radar-project-readiness.json'))
+          assert x['planning_ready'] is True
+          assert x['production_change_allowed'] is False
+          assert x['production_touched'] is False
+          assert x['execution_ready'] is False
+          print('RADAR_NO_IMPLICIT_EXECUTION=PASS')
+          print('RADAR_PRODUCTION_UNTOUCHED=PASS')
+          PY
+          git status --porcelain > /tmp/git-after.txt
+          diff -u /tmp/git-before.txt /tmp/git-after.txt
+          test ! -s /tmp/git-after.txt
+          echo REPOSITORY_UNCHANGED=PASS
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dev-hub-v5-radar-project-readiness-${{ github.run_id }}
+          path: |
+            /tmp/radar-manifest-report.json
+            /tmp/radar-project-readiness.json
+          retention-days: 30
+          if-no-files-found: error
