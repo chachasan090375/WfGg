@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
@@ -37,10 +36,13 @@ c.commit()
 	if err != nil {
 		t.Fatal(err)
 	}
+	if payload.CensusVersion != "v6.12.1" {
+		t.Fatalf("version=%q", payload.CensusVersion)
+	}
 	if payload.ServerCount != 2 || payload.PlayersTotal != 3 || payload.ObservationsTotal != 5 {
 		t.Fatalf("unexpected totals: %+v", payload)
 	}
-	if payload.Schema.JoinMode != "UID_JOIN" {
+	if payload.Schema.JoinMode != "UID_STREAM" {
 		t.Fatalf("join mode=%q", payload.Schema.JoinMode)
 	}
 	if len(payload.Servers) != 2 {
@@ -65,8 +67,8 @@ func TestServerCensusV612MissingDBFailsClosed(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	_, err := runServerCensusV612(ctx, filepath.Join(t.TempDir(), "missing.db"))
-	if err == nil {
-		t.Fatal("expected error")
+	if err == nil || err.Error() != "COLLECTOR_DB_NOT_FOUND" {
+		t.Fatalf("unexpected error: %v", err)
 	}
 }
 
@@ -78,5 +80,4 @@ func TestServerCensusV612PayloadContainsNoSensitiveKeys(t *testing.T) {
 			t.Fatalf("sensitive key present: %s", forbidden)
 		}
 	}
-	_ = os.ErrNotExist
 }
