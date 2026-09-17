@@ -1,0 +1,62 @@
+name: Radar V6.12 live server census
+
+on:
+  push:
+    branches: [radar-v612-live-census-probe]
+    paths:
+      - '.github/workflows/radar-v612-live-server-census.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  RADAR_CONNECTOR_URL: https://chachavps.tail3ab05a.ts.net
+
+jobs:
+  census:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Read aggregate server census
+        env:
+          RADAR_CONNECTOR_SHARED_KEY: ${{ secrets.RADAR_CONNECTOR_SHARED_KEY }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib, hmac, json, os, secrets, time, urllib.request
+
+          base = os.environ['RADAR_CONNECTOR_URL'].rstrip('/')
+          key = os.environ['RADAR_CONNECTOR_SHARED_KEY'].encode()
+          path = '/v1/collector/server-census'
+          ts = str(int(time.time()))
+          nonce = secrets.token_hex(16)
+          body_hash = hashlib.sha256(b'').hexdigest()
+          canonical = '\n'.join(['GET', path, ts, nonce, body_hash])
+          sig = hmac.new(key, canonical.encode(), hashlib.sha256).hexdigest()
+          req = urllib.request.Request(base + path, method='GET', headers={
+              'X-Radar-Timestamp': ts,
+              'X-Radar-Nonce': nonce,
+              'X-Radar-Signature': sig,
+          })
+          with urllib.request.urlopen(req, timeout=20) as response:
+              data = json.loads(response.read().decode())
+
+          assert data.get('ok') is True
+          assert data.get('readonly') is True
+          assert data.get('rawPlayerDataExposed') is False
+          print('RADAR_V612_CENSUS=PASS')
+          print('RADAR_V612_SERVER_COUNT=' + str(data.get('serverCount', 0)))
+          print('RADAR_V612_PLAYERS_TOTAL=' + str(data.get('playersTotal', 0)))
+          print('RADAR_V612_OBSERVATIONS_TOTAL=' + str(data.get('observationsTotal', 0)))
+          print('RADAR_V612_SCHEMA=' + json.dumps(data.get('schema') or {}, sort_keys=True))
+          for row in data.get('servers') or []:
+              print('SERVER|{serverId}|players={players}|observations={observations}|cycles={distinctCycles}|first={firstCycle}|last={lastCycle}'.format(
+                  serverId=row.get('serverId',''),
+                  players=row.get('players',0),
+                  observations=row.get('observations',0),
+                  distinctCycles=row.get('distinctCycles',0),
+                  firstCycle=row.get('firstCycle',''),
+                  lastCycle=row.get('lastCycle',''),
+              ))
+          PY
