@@ -5,6 +5,7 @@ on:
     branches: [radar-v699-collector-live-audit]
     paths:
       - '.github/workflows/radar-v699-collector-live-audit-qualification.yml'
+      - '.github/workflows/radar-v699-live-collector-audit.yml'
       - '.github/scripts/patch-radar-collector-live-audit-v699.py'
       - '.github/scripts/patch-radar-connector-runtime-v693.py'
       - '.radar-release-src/v699-source/**'
