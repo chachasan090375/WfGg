@@ -2,8 +2,9 @@ name: Radar V6.10 live Collector index probe
 
 on:
   push:
-    branches: [radar-production-v1]
+    branches: [radar-production-v1, radar-v6102-probe-signature-fix]
     paths:
+      - '.github/workflows/radar-v610-live-index-probe.yml'
       - '.github/scripts/patch-radar-collector-index-v610.py'
       - '.github/scripts/patch-radar-worker-collector-index-v610.py'
       - '.github/scripts/patch-radar-async-collector-worker.py'
@@ -32,17 +33,19 @@ jobs:
 
           base = os.environ['RADAR_CONNECTOR_URL'].rstrip('/')
           key = os.environ['RADAR_CONNECTOR_SHARED_KEY'].encode()
-          # Guaranteed-miss probe: validates route/signing/shape without emitting player data.
+          # The Connector HMAC contract signs URL.Path only. Query parameters stay
+          # in the request URL but are deliberately excluded from the canonical path.
+          canonical_path = '/v1/collector/index/search'
           query = '__WFGG_V610_ROUTE_PROBE_7f3c9e__'
-          path = '/v1/collector/index/search?q=' + urllib.parse.quote(query) + '&limit=1'
+          request_path = canonical_path + '?q=' + urllib.parse.quote(query) + '&limit=1'
 
           def request_once():
               ts = str(int(time.time()))
               nonce = secrets.token_hex(16)
               body_hash = hashlib.sha256(b'').hexdigest()
-              canonical = '\n'.join(['GET', path, ts, nonce, body_hash])
+              canonical = '\n'.join(['GET', canonical_path, ts, nonce, body_hash])
               sig = hmac.new(key, canonical.encode(), hashlib.sha256).hexdigest()
-              req = urllib.request.Request(base + path, method='GET', headers={
+              req = urllib.request.Request(base + request_path, method='GET', headers={
                   'X-Radar-Timestamp': ts,
                   'X-Radar-Nonce': nonce,
                   'X-Radar-Signature': sig,
