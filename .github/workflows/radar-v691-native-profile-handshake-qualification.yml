@@ -1,0 +1,105 @@
+name: Radar V6.9.1 native profile handshake qualification
+
+on:
+  push:
+    branches: [radar-v691-native-profile-handshake]
+    paths:
+      - '.github/scripts/patch-radar-native-profile-handshake-v691.py'
+      - '.github/workflows/radar-v691-native-profile-handshake-qualification.yml'
+      - '.github/workflows/radar-v69-build.yml'
+      - '.github/workflows/radar-v691-runtime-handshake.yml'
+      - '.radar-release-src/v691-source/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  LASTWAR_CLIENT_REF: ee5f64de160a8051c2f9f98189b75038dd225a0a
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.27.x'
+
+      - name: Reconstruct current Radar connector
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/wfgg-radar
+          mkdir -p /tmp/wfgg-radar
+          python3 .github/scripts/reconstruct-radar-release.py
+          echo '234df1dec57f6211bc625855bf13350c9f17fbd843fbe92d8cf1ab7cb5c081ef  /tmp/radar-src.tar.gz' | sha256sum -c -
+          tar -xzf /tmp/radar-src.tar.gz -C /tmp/wfgg-radar
+          rm -rf /tmp/wfgg-radar/connector-go
+          cp -a .radar-release-src/v2-source/connector-go /tmp/wfgg-radar/connector-go
+          python3 .github/scripts/patch-radar-target-profile-retry.py
+          python3 .github/scripts/patch-radar-federated-diagnostics-v65.py
+          python3 .github/scripts/patch-player-scan-v3.py
+          python3 .github/scripts/patch-player-scan-v4.py
+          python3 .github/scripts/patch-radar-protocol-discovery-v67.py
+          python3 .github/scripts/patch-radar-profile-isolation-v68.py
+          python3 .github/scripts/patch-radar-native-profile-v69.py
+          python3 .github/scripts/patch-radar-native-profile-handshake-v691.py
+
+      - name: Test V6.9.1 connector diagnostics
+        working-directory: /tmp/wfgg-radar/connector-go
+        run: |
+          set -euo pipefail
+          gofmt -w ./cmd ./internal
+          go test ./...
+          go vet ./...
+          go build ./cmd/radar-connector
+          grep -Fq 'WFGG_RADAR_NATIVE_PROFILE_HEALTH_V691' cmd/radar-connector/main.go
+          grep -Fq 'profileFailureV691(rep)' internal/protocol/profile_scan_v69.go
+          grep -Fq 'LASTWAR_PLAYER_PROFILE_CLI_UNSUPPORTED' internal/protocol/profile_handshake_v691.go
+          grep -Fq 'LASTWAR_PLAYER_PROFILE_DECODE_FAILED' internal/protocol/profile_handshake_v691.go
+          echo RADAR_V691_CONNECTOR=PASS
+
+      - name: Build and prove native profile CLI
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/lastwar-client
+          git clone --quiet --filter=blob:none --no-checkout https://github.com/ljagiello/lastwar-client.git /tmp/lastwar-client
+          cd /tmp/lastwar-client
+          git fetch --quiet --depth 1 origin "$LASTWAR_CLIENT_REF"
+          git checkout --quiet --detach FETCH_HEAD
+          test "$(git rev-parse HEAD)" = "$LASTWAR_CLIENT_REF"
+          go test ./internal/auth ./internal/pcap ./internal/sfs
+          mkdir -p cmd/wfgg-radar-native-template
+          cp /tmp/wfgg-radar/connector-go/native-template/main.go cmd/wfgg-radar-native-template/main.go
+          cp /tmp/wfgg-radar/connector-go/native-template/player_scan_v3.go cmd/wfgg-radar-native-template/player_scan_v3.go
+          cp /tmp/wfgg-radar/connector-go/native-template/player_scan_v4.go cmd/wfgg-radar-native-template/player_scan_v4.go
+          cp /tmp/wfgg-radar/connector-go/native-template/profile_scan_v69.go cmd/wfgg-radar-native-template/profile_scan_v69.go
+          cp /tmp/wfgg-radar/connector-go/native-template/profile_scan_v69_test.go cmd/wfgg-radar-native-template/profile_scan_v69_test.go
+          gofmt -w cmd/wfgg-radar-native-template/*.go
+          go test -tags lastwar_native_template ./cmd/wfgg-radar-native-template
+          set +e
+          probe="$(go run -tags lastwar_native_template ./cmd/wfgg-radar-native-template /tmp/no-capture /tmp/no-session --scan-profiles 1 2>/dev/null)"
+          rc=$?
+          set -e
+          test "$rc" -ne 0
+          echo "$probe" | grep -Fq 'SESSION_READ_FAILED'
+          ! echo "$probe" | grep -Fq 'INVALID_ARGS'
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -tags lastwar_native_template -trimpath -ldflags='-s -w' -o /tmp/radar-native-template-v691 ./cmd/wfgg-radar-native-template
+          test -s /tmp/radar-native-template-v691
+          grep -aFq -- '--scan-profiles' /tmp/radar-native-template-v691
+          grep -aFq 'get.user.info.multi' /tmp/radar-native-template-v691
+          echo RADAR_V691_NATIVE_PROFILE_CLI=PASS
+
+      - name: Validate safety and production workflow contract
+        run: |
+          set -euo pipefail
+          ! grep -REq 'building\.production\.collect|mail\.reward|al\.science\.donate|visitor\.operate|attack|march|purchase' .radar-release-src/v691-source
+          grep -Fq 'patch-radar-native-profile-handshake-v691.py' .github/workflows/radar-v69-build.yml
+          grep -Fq 'RADAR_V691_PROFILE_CLI=RECOGNIZED' .github/workflows/radar-v69-build.yml
+          grep -Fq 'helperSha256' .github/workflows/radar-v691-runtime-handshake.yml
+          grep -Fq 'PROFILE_READY' .github/workflows/radar-v691-runtime-handshake.yml
+          test "$GITHUB_REF_NAME" = 'radar-v691-native-profile-handshake'
+          git diff --quiet
+          echo RADAR_V691_READONLY_PRIVACY=PASS
+          echo RADAR_PRODUCTION_MUTATION=NO
