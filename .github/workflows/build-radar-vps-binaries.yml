@@ -6,6 +6,7 @@ on:
     paths:
       - '.github/workflows/build-radar-vps-binaries.yml'
       - '.github/scripts/patch-radar-target-profile-retry.py'
+      - '.github/scripts/patch-radar-federated-diagnostics-v65.py'
       - '.radar-release-src/v2-source/connector-go/**'
   workflow_dispatch:
 
@@ -54,6 +55,15 @@ jobs:
           grep -q 'PROFILE_TARGET_RETRY_V1' /tmp/wfgg-radar/connector-go/cmd/radar-connector/collector_jobs.go
           grep -q 'PROFILE_TARGET_NOT_RETURNED' /tmp/wfgg-radar/connector-go/cmd/radar-connector/collector_jobs.go
           echo 'RADAR_TARGET_PROFILE_RETRY=STAGED'
+
+      - name: Apply federated diagnostics V6.5
+        run: |
+          set -euo pipefail
+          python3 .github/scripts/patch-radar-federated-diagnostics-v65.py
+          grep -q 'WFGG_RADAR_FEDERATED_DIAGNOSTICS_V65' /tmp/wfgg-radar/connector-go/cmd/radar-connector/collector_jobs.go
+          grep -q 'failureCategory' /tmp/wfgg-radar/connector-go/cmd/radar-connector/collector_jobs.go
+          grep -q 'failureCause' /tmp/wfgg-radar/connector-go/cmd/radar-connector/collector_jobs.go
+          echo 'RADAR_FEDERATED_DIAGNOSTICS_V65=STAGED'
 
       - name: Test and build Radar connector
         working-directory: /tmp/wfgg-radar/connector-go
@@ -107,7 +117,7 @@ jobs:
             echo 'VPS_BINARIES=UNCHANGED'
             exit 0
           fi
-          git commit -m 'build(radar): publish profile-retry connector bundle'
+          git commit -m 'build(radar): publish v6.5 diagnostics connector bundle'
           git fetch origin radar-production-v1
           git rebase origin/radar-production-v1
           git push origin HEAD:radar-production-v1
