@@ -5,6 +5,7 @@ on:
     branches: [radar-v692-profile-exec-diagnostics]
     paths:
       - '.github/workflows/radar-v692-profile-exec-qualification.yml'
+      - '.github/workflows/radar-v69-build.yml'
       - '.github/scripts/patch-radar-native-profile-exec-v692.py'
       - '.radar-release-src/v692-source/**'
 
