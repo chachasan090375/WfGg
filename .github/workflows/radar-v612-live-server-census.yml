@@ -1,4 +1,4 @@
-name: Radar V6.12 live server census
+name: Radar V6.14 live historical cycle-state probe
 
 on:
   push:
@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - name: Read explainable server cluster evidence V6.12.3
+      - name: Read historical cycle-state graph V6.14
         env:
           RADAR_CONNECTOR_SHARED_KEY: ${{ secrets.RADAR_CONNECTOR_SHARED_KEY }}
         run: |
@@ -28,7 +28,7 @@ jobs:
 
           base = os.environ['RADAR_CONNECTOR_URL'].rstrip('/')
           key = os.environ['RADAR_CONNECTOR_SHARED_KEY'].encode()
-          path = '/v1/collector/server-cluster-evidence'
+          path = '/v1/collector/server-cycle-history'
           ts = str(int(time.time()))
           nonce = secrets.token_hex(16)
           body_hash = hashlib.sha256(b'').hexdigest()
@@ -49,32 +49,36 @@ jobs:
                   data = json.loads(body)
               except Exception:
                   data = {'error': 'NON_JSON_ERROR'}
-              print('RADAR_V6123_HTTP_STATUS=' + str(exc.code))
-              print('RADAR_V6123_ERROR=' + str(data.get('error') or 'UNKNOWN'))
-              print('RADAR_V6123_READONLY=' + str(data.get('readonly')))
+              print('RADAR_V614_HTTP_STATUS=' + str(exc.code))
+              print('RADAR_V614_ERROR=' + str(data.get('error') or 'UNKNOWN'))
+              print('RADAR_V614_READONLY=' + str(data.get('readonly')))
               raise SystemExit(2)
 
           elapsed_ms = int((time.monotonic() - started) * 1000)
           assert data.get('ok') is True
           assert data.get('readonly') is True
           assert data.get('rawPlayerDataExposed') is False
-          assert data.get('evidenceVersion') == 'v6.12.3'
-          print('RADAR_V6123_EVIDENCE=PASS')
-          print('RADAR_V6123_ELAPSED_MS=' + str(elapsed_ms))
-          print('RADAR_V6123_CYCLE_COUNT=' + str(data.get('cycleCount', 0)))
-          print('RADAR_V6123_PERSISTENT_COUNT=' + str(data.get('persistentCount', 0)))
-          print('RADAR_V6123_TRANSIENT_COUNT=' + str(data.get('transientCount', 0)))
-          print('RADAR_V6123_CORE_EDGES=' + str(data.get('coreStrongEdges', 0)) + '/' + str(data.get('coreExpectedEdges', 0)))
-          print('RADAR_V6123_CORE_CLIQUE_COMPLETE=' + str(data.get('coreCliqueComplete')))
-          print('RADAR_V6123_LOW_VOLUME_THRESHOLD=' + str(data.get('lowVolumeThreshold')))
-          for row in data.get('persistent') or []:
-              print('PERSISTENT|{sid}|cycles={cycles}|coverage={coverage:.6f}|observations={obs}|mean={mean:.3f}|relative={relative:.6f}|class={cls}'.format(
-                  sid=row.get('serverId',''), cycles=row.get('cyclesSeen',0), coverage=float(row.get('cycleCoverage',0)),
-                  obs=row.get('observations',0), mean=float(row.get('meanObservationsPerCycle',0)),
-                  relative=float(row.get('relativeVolumeToCoreMedian',0)), cls=row.get('evidenceClass','')))
-          for row in data.get('transient') or []:
-              print('TRANSIENT|{sid}|cycles={cycles}|coverage={coverage:.6f}|observations={obs}|mean={mean:.3f}|relative={relative:.6f}|class={cls}'.format(
-                  sid=row.get('serverId',''), cycles=row.get('cyclesSeen',0), coverage=float(row.get('cycleCoverage',0)),
-                  obs=row.get('observations',0), mean=float(row.get('meanObservationsPerCycle',0)),
-                  relative=float(row.get('relativeVolumeToCoreMedian',0)), cls=row.get('evidenceClass','')))
+          assert data.get('mapVersion') == 'v6.14'
+          assert data.get('clusterSemanticsProven') is False
+          print('RADAR_V614_HISTORY=PASS')
+          print('RADAR_V614_ELAPSED_MS=' + str(elapsed_ms))
+          print('RADAR_V614_SEMANTICS=' + str(data.get('semantics','')))
+          print('RADAR_V614_SERVER_ID_SOURCE=' + str(data.get('serverIdSource','')))
+          print('RADAR_V614_ATTRIBUTION=' + str(data.get('underlyingAttribution','')))
+          print('RADAR_V614_CLUSTER_SEMANTICS_PROVEN=' + str(data.get('clusterSemanticsProven')))
+          print('RADAR_V614_CYCLE_COUNT=' + str(data.get('cycleCount',0)))
+          print('RADAR_V614_EDGE_COUNT=' + str(data.get('edgeCount',0)))
+          print('RADAR_V614_SEEN_ROWS=' + str(data.get('seenRows',0)))
+          print('RADAR_V614_HASH_MATCHED=' + str(data.get('hashMatched',0)))
+          print('RADAR_V614_HASH_MISMATCHED=' + str(data.get('hashMismatched',0)))
+          print('RADAR_V614_UNRESOLVED=' + str(data.get('unresolved',0)))
+          print('RADAR_V614_HASH_MATCH_RATE={:.9f}'.format(float(data.get('hashMatchRate',0))))
+          for row in data.get('cycles') or []:
+              members = ','.join(str(x.get('serverId','')) + ':' + str(x.get('observations',0)) for x in row.get('servers') or [])
+              print('CYCLE|{cycle}|servers={count}|seen={seen}|matched={matched}|mismatched={mismatched}|unresolved={unresolved}|{members}'.format(
+                  cycle=row.get('cycleId',''), count=row.get('serverCount',0), seen=row.get('seenRows',0),
+                  matched=row.get('hashMatched',0), mismatched=row.get('hashMismatched',0), unresolved=row.get('unresolved',0), members=members))
+          for row in data.get('edges') or []:
+              print('EDGE|{a}|{b}|cyclesTogether={n}'.format(
+                  a=row.get('serverA',''), b=row.get('serverB',''), n=row.get('cyclesTogether',0)))
           PY
