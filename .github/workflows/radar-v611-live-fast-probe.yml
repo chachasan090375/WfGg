@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - name: Probe signed V6.11 fast lookup route
+      - name: Probe canonical El TonTon lookup field presence
         env:
           RADAR_CONNECTOR_SHARED_KEY: ${{ secrets.RADAR_CONNECTOR_SHARED_KEY }}
         run: |
@@ -29,7 +29,7 @@ jobs:
           base = os.environ['RADAR_CONNECTOR_URL'].rstrip('/')
           key = os.environ['RADAR_CONNECTOR_SHARED_KEY'].encode()
           canonical_path = '/v1/collector/identity/lookup'
-          query = '__WFGG_V611_FAST_ROUTE_PROBE_91c8a7__'
+          query = 'El TonTon'
           request_path = canonical_path + '?q=' + urllib.parse.quote(query)
 
           ts = str(int(time.time()))
@@ -47,10 +47,19 @@ jobs:
               data = json.loads(response.read().decode())
           elapsed_ms = int((time.monotonic() - started) * 1000)
           assert data.get('ok') is True
-          assert data.get('resolved') is False
+          assert data.get('resolved') is True
           assert data.get('readonly') is True
-          assert data.get('route') == 'MISS'
-          assert data.get('player') is None
-          print('RADAR_V611_LIVE_FAST_ROUTE=PASS')
-          print('RADAR_V611_LIVE_FAST_PROBE_MS=' + str(elapsed_ms))
+          p = data.get('player') or {}
+          fields = {
+              'uid': bool(str(p.get('gameUid') or '').strip()),
+              'server': bool(str(p.get('serverId') or '').strip()),
+              'alliance': bool(str(p.get('allianceTag') or p.get('allianceId') or '').strip()),
+              'hq': p.get('hqLevel') is not None,
+              'power': p.get('power') is not None,
+              'position': p.get('x') is not None and p.get('y') is not None,
+          }
+          print('RADAR_V611_ELTONTON_ROUTE=' + str(data.get('route') or ''))
+          print('RADAR_V611_ELTONTON_FIELDS=' + json.dumps(fields, sort_keys=True))
+          print('RADAR_V611_ELTONTON_SERVER_992=' + str(str(p.get('serverId') or '') == '992').lower())
+          print('RADAR_V611_ELTONTON_PROBE_MS=' + str(elapsed_ms))
           PY
