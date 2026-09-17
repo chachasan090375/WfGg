@@ -47,4 +47,5 @@ run_patch('.github/scripts/patch-radar-full-profile-universe-v697.py', 'RADAR_FU
 run_patch('.github/scripts/patch-radar-collector-live-audit-v699.py', 'RADAR_COLLECTOR_LIVE_AUDIT_V699=CHAINED')
 run_patch('.github/scripts/patch-radar-collector-index-v610.py', 'RADAR_COLLECTOR_INDEX_V610=CHAINED')
 run_patch('.github/scripts/patch-radar-collector-fast-lookup-v611.py', 'RADAR_FAST_IDENTITY_LOOKUP_V611=CHAINED')
+run_patch('.github/scripts/patch-radar-server-census-v612.py', 'RADAR_SERVER_CENSUS_V612=CHAINED')
 print('RADAR_CONNECTOR_RUNTIME_V693=READY')
