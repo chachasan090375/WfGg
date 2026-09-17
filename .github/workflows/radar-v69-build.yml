@@ -83,22 +83,34 @@ jobs:
           cp /tmp/wfgg-radar/connector-go/native-template/profile_scan_v69_test.go cmd/wfgg-radar-native-template/profile_scan_v69_test.go
           gofmt -w cmd/wfgg-radar-native-template/*.go
           go test -tags lastwar_native_template ./cmd/wfgg-radar-native-template
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -tags lastwar_native_template -trimpath -ldflags='-s -w' -o "$GITHUB_WORKSPACE/radar-vps/release/radar-native-template" ./cmd/wfgg-radar-native-template
+          test -s "$GITHUB_WORKSPACE/radar-vps/release/radar-native-template"
+          "$GITHUB_WORKSPACE/radar-vps/release/radar-native-template" --capabilities > /tmp/v691-capabilities.json
+          python3 - <<'PY'
+          import json
+          d=json.load(open('/tmp/v691-capabilities.json'))
+          assert d.get('ok') is True
+          assert d.get('readonly') is True
+          assert d.get('profileHandshake') == 'v6.9.1'
+          assert d.get('profileCLI') is True
+          assert d.get('profileCommand') == 'get.user.info.multi'
+          print('RADAR_V691_PROFILE_CAPABILITY=RECOGNIZED')
+          PY
           set +e
-          cli_probe="$(go run -tags lastwar_native_template ./cmd/wfgg-radar-native-template /tmp/no-capture /tmp/no-session --scan-profiles 1 2>/dev/null)"
+          cli_probe="$("$GITHUB_WORKSPACE/radar-vps/release/radar-native-template" /tmp/no-capture /tmp/no-session --scan-profiles 1 2>/dev/null)"
           cli_rc=$?
           set -e
           test "$cli_rc" -ne 0
           echo "$cli_probe" | grep -Fq 'SESSION_READ_FAILED'
           ! echo "$cli_probe" | grep -Fq 'INVALID_ARGS'
           echo RADAR_V691_PROFILE_CLI=RECOGNIZED
-          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -tags lastwar_native_template -trimpath -ldflags='-s -w' -o "$GITHUB_WORKSPACE/radar-vps/release/radar-native-template" ./cmd/wfgg-radar-native-template
-          test -s "$GITHUB_WORKSPACE/radar-vps/release/radar-native-template"
 
       - name: Verify V6.9.1 read-only release surface
         run: |
           set -euo pipefail
           grep -Fq 'WFGG_RADAR_NATIVE_PROFILE_HANDSHAKE_V691' /tmp/wfgg-radar/connector-go/internal/protocol/profile_handshake_v691.go
           grep -Fq 'WFGG_RADAR_NATIVE_PROFILE_HEALTH_V691' /tmp/wfgg-radar/connector-go/cmd/radar-connector/main.go
+          grep -Fq 'WFGG_RADAR_NATIVE_PROFILE_CAPABILITIES_V691' /tmp/wfgg-radar/connector-go/native-template/main.go
           grep -Fq 'profileFailureV691(rep)' /tmp/wfgg-radar/connector-go/internal/protocol/profile_scan_v69.go
           grep -Fq 'PLAYER_PROFILE_DECODE_FAILED' /tmp/wfgg-radar/connector-go/native-template/profile_scan_v69.go
           ! grep -REq 'building\.production\.collect|mail\.reward|al\.science\.donate|visitor\.operate|attack|march|purchase' .radar-release-src/v691-source .radar-release-src/v69-source/connector-go
