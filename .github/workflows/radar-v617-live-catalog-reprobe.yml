@@ -47,10 +47,23 @@ jobs:
                   'X-Radar-Nonce':nonce,
                   'X-Radar-Signature':signature,
               })
-              with urllib.request.urlopen(req,timeout=20) as response:
+              with urllib.request.urlopen(req,timeout=40) as response:
                   return json.loads(response.read().decode())
 
-          data=get()
+          data=None
+          last_error=None
+          for attempt in range(1,4):
+              try:
+                  data=get()
+                  print('RADAR_V617_CATALOG_PROBE_ATTEMPT='+str(attempt))
+                  break
+              except Exception as exc:
+                  last_error=type(exc).__name__
+                  print('RADAR_V617_CATALOG_PROBE_ERROR='+last_error)
+                  if attempt<3:
+                      time.sleep(5)
+          if data is None:
+              raise SystemExit('RADAR_V617_CATALOG_PROBE_FAILED='+str(last_error))
           assert data.get('ok') is True, data
           assert data.get('readonly') is True, data
           assert data.get('rawPlayerDataExposed') is False, data
