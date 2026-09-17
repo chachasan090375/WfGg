@@ -1,0 +1,63 @@
+name: Radar V6.9.2 profile exec diagnostics qualification
+
+on:
+  push:
+    branches: [radar-v692-profile-exec-diagnostics]
+    paths:
+      - '.github/workflows/radar-v692-profile-exec-qualification.yml'
+      - '.github/scripts/patch-radar-native-profile-exec-v692.py'
+      - '.radar-release-src/v692-source/**'
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: radar-v692-profile-exec-diagnostics
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.27.x'
+
+      - name: Reconstruct connector through V6.9.2
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/wfgg-radar
+          mkdir -p /tmp/wfgg-radar
+          python3 .github/scripts/reconstruct-radar-release.py
+          echo '234df1dec57f6211bc625855bf13350c9f17fbd843fbe92d8cf1ab7cb5c081ef  /tmp/radar-src.tar.gz' | sha256sum -c -
+          tar -xzf /tmp/radar-src.tar.gz -C /tmp/wfgg-radar
+          rm -rf /tmp/wfgg-radar/connector-go
+          cp -a .radar-release-src/v2-source/connector-go /tmp/wfgg-radar/connector-go
+          python3 .github/scripts/patch-radar-target-profile-retry.py
+          python3 .github/scripts/patch-radar-federated-diagnostics-v65.py
+          python3 .github/scripts/patch-player-scan-v3.py
+          python3 .github/scripts/patch-player-scan-v4.py
+          python3 .github/scripts/patch-radar-protocol-discovery-v67.py
+          python3 .github/scripts/patch-radar-profile-isolation-v68.py
+          python3 .github/scripts/patch-radar-native-profile-v69.py
+          python3 .github/scripts/patch-radar-native-profile-handshake-v691.py
+          python3 .github/scripts/patch-radar-native-profile-exec-v692.py
+
+      - name: Test V6.9.2 connector diagnostics
+        working-directory: /tmp/wfgg-radar/connector-go
+        run: |
+          set -euo pipefail
+          gofmt -w ./cmd ./internal
+          go test ./...
+          go test ./internal/protocol -run TestProfileExecutionFailureV692 -count=1
+          go vet ./...
+          grep -Fq 'WFGG_RADAR_NATIVE_PROFILE_EXEC_BRIDGE_V692' internal/protocol/profile_scan_v69.go
+          grep -Fq 'LASTWAR_PLAYER_PROFILE_HELPER_NO_REPORT' internal/protocol/profile_exec_v692.go
+          grep -Fq 'LASTWAR_PLAYER_PROFILE_HELPER_REPORT_INVALID' internal/protocol/profile_exec_v692.go
+          grep -Fq 'LASTWAR_PLAYER_PROFILE_HELPER_PANIC' internal/protocol/profile_exec_v692.go
+          grep -Fq 'LASTWAR_PLAYER_PROFILE_HELPER_CRASH' internal/protocol/profile_exec_v692.go
+          grep -Fq 'LASTWAR_PLAYER_PROFILE_HELPER_EXEC_FAILED' internal/protocol/profile_exec_v692.go
+          ! grep -Fq 'return nil, errors.New("LASTWAR_PLAYER_PROFILE_FAILED")' internal/protocol/profile_scan_v69.go
+          echo RADAR_V692_PROFILE_EXEC_DIAGNOSTICS=QUALIFIED
