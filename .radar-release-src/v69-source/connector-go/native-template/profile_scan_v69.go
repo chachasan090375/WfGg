@@ -14,12 +14,12 @@ import (
 // Native profile mode sends the captured read-only get.user.info.multi command
 // directly. It never routes profile UIDs through the map/player search path.
 type profileDiagnosticsV69 struct {
-	Requested       int  `json:"requested"`
-	Packets         int  `json:"packets"`
-	DecodeErrors    int  `json:"decodeErrors"`
-	CommandMatches  int  `json:"commandMatches"`
-	ProfilesResolved int `json:"profilesResolved"`
-	UIDsReplaced    bool `json:"uidsReplaced"`
+	Requested        int  `json:"requested"`
+	Packets          int  `json:"packets"`
+	DecodeErrors     int  `json:"decodeErrors"`
+	CommandMatches   int  `json:"commandMatches"`
+	ProfilesResolved int  `json:"profilesResolved"`
+	UIDsReplaced     bool `json:"uidsReplaced"`
 }
 
 func parseProfileUIDsV69(raw string) ([]string, error) {
@@ -56,7 +56,7 @@ func replaceProfileUIDValueV69(v sfs.SFSValue, uids []string) (sfs.SFSValue, boo
 		return sfs.SFSValue{Type: v.Type, Val: strings.Join(uids, ",")}, true
 	case *sfs.SFSArray:
 		a := sfs.NewSFSArray()
-		itemType := sfs.SFSUtfString
+		itemType := byte(sfs.SFSUtfString)
 		if old != nil && len(old.Items()) > 0 {
 			itemType = old.Items()[0].Type
 		}
