@@ -89,8 +89,9 @@ jobs:
           go test -tags lastwar_native_template ./cmd/wfgg-radar-native-template
           CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -tags lastwar_native_template -trimpath -ldflags='-s -w' -o /tmp/radar-native-template-v69 ./cmd/wfgg-radar-native-template
           test -s /tmp/radar-native-template-v69
-          strings /tmp/radar-native-template-v69 | grep -Fq -- '--scan-profiles'
-          strings /tmp/radar-native-template-v69 | grep -Fq 'get.user.info.multi'
+          strings /tmp/radar-native-template-v69 > /tmp/radar-native-template-v69.strings
+          grep -Fq -- '--scan-profiles' /tmp/radar-native-template-v69.strings
+          grep -Fq 'get.user.info.multi' /tmp/radar-native-template-v69.strings
           echo RADAR_V69_NATIVE_HELPER=PASS
 
       - name: Validate profile-only safety boundary
