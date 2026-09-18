@@ -1,0 +1,122 @@
+name: DEV HUB V5 Radar runtime adapter PILOT materialization
+
+on:
+  push:
+    branches:
+      - dev-hub-v5-radar-runtime-adapter-pilot
+    paths:
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - 'dev-hub/evidence/radar-runtime-adapter-pilot-2026-09-18.json'
+      - 'dev-hub/bin/adapter-promotion.py'
+      - 'dev-hub/config/adapter-contract.v1.json'
+      - 'dev-hub/config/adapter-promotion.v1.json'
+      - 'dev-hub/projects/wfgg-radar/manifest.v3.json'
+      - '.github/workflows/dev-hub-v5-radar-runtime-adapter-pilot-materialization.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-materialization:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Reproduce promotion through canonical engine
+        run: |
+          set -euo pipefail
+          cp dev-hub/config/provider-adapters.v1.json /tmp/committed-registry.json
+          python3 - <<'PY'
+          import json
+          p='/tmp/committed-registry.json'
+          x=json.load(open(p,encoding='utf-8'))
+          a=x['adapters']['radar-runtime-adapter']
+          assert a['status']=='PILOT',a
+          assert a['executable']=='/opt/chacha-dev/adapters/radar-runtime/current/radar-runtime-adapter',a
+          a['status']='CONTRACT_OK'
+          a['executable']=None
+          open('/tmp/pre-promotion-registry.json','w',encoding='utf-8').write(json.dumps(x,indent=2)+'\n')
+          print('RADAR_PILOT_PRESTATE_RECONSTRUCTED=PASS')
+          PY
+
+          python3 dev-hub/bin/adapter-promotion.py             --registry /tmp/pre-promotion-registry.json             --contract dev-hub/config/adapter-contract.v1.json             --policy dev-hub/config/adapter-promotion.v1.json             --evidence dev-hub/evidence/radar-runtime-adapter-pilot-2026-09-18.json             --report /tmp/promotion-report.json             --json apply             --adapter radar-runtime-adapter             --target PILOT             --executable /opt/chacha-dev/adapters/radar-runtime/current/radar-runtime-adapter             --actor chacha-dev-pilot-materializer             --receipt /tmp/promotion-receipt.json             --apply > /tmp/promotion-stdout.json
+
+          python3 - <<'PY'
+          import json
+          committed=json.load(open('/tmp/committed-registry.json',encoding='utf-8'))
+          generated=json.load(open('/tmp/pre-promotion-registry.json',encoding='utf-8'))
+          report=json.load(open('/tmp/promotion-report.json',encoding='utf-8'))
+          receipt=json.load(open('/tmp/promotion-receipt.json',encoding='utf-8'))
+
+          ca=committed['adapters']['radar-runtime-adapter']
+          ga=generated['adapters']['radar-runtime-adapter']
+          assert ga==ca,(ga,ca)
+          assert report['eligible'] is True,report
+          assert report['applied'] is True,report
+          assert report['current_status']=='CONTRACT_OK',report
+          assert report['target_status']=='PILOT',report
+          assert report['approval_required'] is False,report
+          assert report['blockers']==[],report
+          assert receipt['receipt_schema']=='chacha.dev/adapter-promotion-receipt/v1',receipt
+          assert receipt['new_entry']==ca,receipt
+          assert receipt['provisioned_executable_digest']=='sha256:a2bbfa66d16d75858940b621690e9001de8cbb69e4debd0dad284034eb52b332',receipt
+          print('RADAR_PILOT_ENGINE_REPRODUCTION=PASS')
+          print('RADAR_PILOT_REGISTRY_MATCH=PASS')
+          print('RADAR_PILOT_RECEIPT=PASS')
+          PY
+
+      - name: Validate manifest and adapter registry
+        run: |
+          set -euo pipefail
+          python3 dev-hub/bin/adapter-contract-harness.py             --registry dev-hub/config/provider-adapters.v1.json             --policy dev-hub/config/adapter-contract.v1.json             --report /tmp/adapter-contract-report.json
+
+          python3 dev-hub/bin/manifest-v3-engine.py validate             dev-hub/projects/wfgg-radar/manifest.v3.json             --registry dev-hub/config/capability-registry.v1.json
+
+          echo RADAR_PILOT_MANIFEST=PASS
+          echo RADAR_PILOT_ADAPTER_REGISTRY=PASS
+
+      - name: Assert PILOT is not execute-enabled
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          r=json.load(open('dev-hub/config/provider-adapters.v1.json',encoding='utf-8'))
+          a=r['adapters']['radar-runtime-adapter']
+          assert a['status']=='PILOT',a
+          assert a['status']!='ENABLED',a
+          print('RADAR_RUNTIME_ADAPTER_STATUS=PILOT')
+          print('RADAR_RUNTIME_RUN_CONTROLLER_EXECUTION=BLOCKED_UNTIL_ENABLED')
+          PY
+          grep -Fq 'adef.get("status") != "ENABLED"' dev-hub/bin/run-controller.py
+          echo RADAR_PILOT_EXECUTION_SAFETY=PASS
+
+      - name: Assert evidence binding
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          e=json.load(open('dev-hub/evidence/radar-runtime-adapter-pilot-2026-09-18.json',encoding='utf-8'))
+          p=e['evidence']['provisioning-pass']['details']
+          assert p['executable_path']=='/opt/chacha-dev/adapters/radar-runtime/current/radar-runtime-adapter'
+          assert p['source_digest']==p['installed_digest']==p['executable_digest']
+          assert p['receipt_digest']=='sha256:c7e61615d11fa1ed439b4c0cab7d7b2e9da576e7dfec00fdaf65fb1f56592e1d'
+          assert e['evidence']['runtime-contract-pass']['status']=='PASS'
+          assert e['evidence']['sandbox-only']['status']=='PASS'
+          print('RADAR_PILOT_EVIDENCE_BINDING=PASS')
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: radar-runtime-adapter-pilot-materialization-${{ github.run_id }}
+          path: |
+            /tmp/promotion-report.json
+            /tmp/promotion-receipt.json
+            /tmp/adapter-contract-report.json
+          retention-days: 30
+          if-no-files-found: error
