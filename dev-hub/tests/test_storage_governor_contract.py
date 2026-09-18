@@ -136,6 +136,26 @@ class StorageGovernorContractTests(unittest.TestCase):
             self.assertNotIn("SECRET",serialized)
             self.assertNotIn("HIDDEN",serialized)
 
+    def test_incremental_plan_explicit_dimension_refresh(self):
+        with tempfile.TemporaryDirectory() as td:
+            db=Path(td)/"collector.db"
+            conn=sqlite3.connect(db)
+            conn.execute("create table master_players(master_id integer, game_uid text, value text, primary key(master_id,game_uid))")
+            conn.execute("create table player_aliases(game_uid text primary key, alias text)")
+            conn.execute("create table player_identity(game_uid text primary key, identity text)")
+            conn.executemany("insert into master_players values (?,?,?)", [(1,str(i),"x") for i in range(3)])
+            conn.executemany("insert into player_aliases values (?,?)", [(str(i),"a") for i in range(3)])
+            conn.executemany("insert into player_identity values (?,?)", [(str(i),"i") for i in range(3)])
+            conn.commit()
+            plans={}
+            for table in ("master_players","player_aliases","player_identity"):
+                meta=mod.table_schema(conn,table)
+                plans[table]=mod.choose_incremental_policy(meta)
+            conn.close()
+            for table,plan in plans.items():
+                self.assertEqual(plan["mode"],"full-table-dimension",table)
+                self.assertEqual(plan["watermark_columns"],[],table)
+
     def test_source_safety_invariants(self):
         text=ADAPTER_PATH.read_text(encoding="utf-8")
         self.assertIn('mode=ro',text)
