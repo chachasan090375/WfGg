@@ -47,45 +47,89 @@ echo "VPS_FREE_KB_BEFORE=$FREE_BEFORE"
 
 echo "=== COLLECTOR SQLITE DISCOVERY ==="
 COLLECTOR_DB="$(
-python3 - <<'PY'
+python3 - "$PID_BEFORE" <<'PY'
 from pathlib import Path
-import sqlite3,sys
+import os,sqlite3,sys
 
+pid=sys.argv[1].strip()
 root=Path("/opt/wfgg-collector/data")
 if not root.is_dir():
     print("COLLECTOR_DATA_DIR_MISSING",file=sys.stderr)
     raise SystemExit(20)
 
-candidates=[]
-for p in root.rglob("*"):
-    if not p.is_file():
-        continue
+def sqlite_info(path: Path):
     try:
-        if p.stat().st_size < 4096:
-            continue
-        conn=sqlite3.connect(f"file:{p}?mode=ro",uri=True,timeout=2)
+        if not path.is_file() or path.stat().st_size < 4096:
+            return None
+        conn=sqlite3.connect(f"file:{path}?mode=ro",uri=True,timeout=2)
         try:
             tables=int(conn.execute("select count(*) from sqlite_master where type='table'").fetchone()[0])
-            if tables > 0:
-                candidates.append((tables,p.stat().st_size,str(p)))
+            if tables <= 0:
+                return None
+            return (tables,path.stat().st_size,str(path.resolve()))
         finally:
             conn.close()
     except Exception:
-        pass
+        return None
 
-candidates.sort(reverse=True)
-for tables,size,path in candidates:
-    print(f"CANDIDATE|tables={tables}|bytes={size}|path={path}",file=sys.stderr)
+opened=[]
+fd_root=Path("/proc")/pid/"fd"
+if pid.isdigit() and fd_root.is_dir():
+    seen=set()
+    for fd in fd_root.iterdir():
+        try:
+            target=Path(os.readlink(fd))
+            if not target.is_absolute():
+                continue
+            resolved=target.resolve()
+            if str(resolved).startswith(str(root.resolve())+"/") and resolved not in seen:
+                info=sqlite_info(resolved)
+                if info:
+                    opened.append(info)
+                    seen.add(resolved)
+        except Exception:
+            pass
 
-if len(candidates) != 1:
-    print(f"COLLECTOR_SQLITE_CANDIDATE_COUNT={len(candidates)}",file=sys.stderr)
+for tables,size,path in sorted(opened,reverse=True):
+    print(f"OPEN_FD_CANDIDATE|tables={tables}|bytes={size}|path={path}",file=sys.stderr)
+
+if len(opened) == 1:
+    print(opened[0][2])
+    raise SystemExit(0)
+if len(opened) > 1:
+    print(f"COLLECTOR_OPEN_SQLITE_CANDIDATE_COUNT={len(opened)}",file=sys.stderr)
     raise SystemExit(21)
 
-print(candidates[0][2])
+# Safe fallback: only top-level SQLite databases in data/. Historical masters,
+# backups, snapshots and archives are deliberately excluded.
+fallback=[]
+for p in root.iterdir():
+    if not p.is_file():
+        continue
+    info=sqlite_info(p)
+    if info:
+        fallback.append(info)
+
+for tables,size,path in sorted(fallback,reverse=True):
+    print(f"TOPLEVEL_CANDIDATE|tables={tables}|bytes={size}|path={path}",file=sys.stderr)
+
+if len(fallback) != 1:
+    print(f"COLLECTOR_TOPLEVEL_SQLITE_CANDIDATE_COUNT={len(fallback)}",file=sys.stderr)
+    raise SystemExit(22)
+
+print(fallback[0][2])
 PY
 )"
 export WFGG_COLLECTOR_DB="$COLLECTOR_DB"
 echo "COLLECTOR_DB_DISCOVERED=$COLLECTOR_DB"
+
+case "$COLLECTOR_DB" in
+  /opt/wfgg-collector/data/masters/*|/opt/wfgg-collector/data/backups/*|/opt/wfgg-collector/data/snapshots/*|/opt/wfgg-collector/data/archives/*)
+    echo "COLLECTOR_DB_DISCOVERY=BLOCKED historical_path_selected"
+    exit 23
+    ;;
+esac
+echo "COLLECTOR_DB_DISCOVERY=PASS"
 
 python3 - "$WORK/assess.json" <<'PY'
 import json,sys
