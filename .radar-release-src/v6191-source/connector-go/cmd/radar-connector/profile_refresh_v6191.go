@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"errors"
+	"encoding/json"
 	"net/http"
 	"strings"
 	"time"
@@ -11,9 +11,8 @@ import (
 )
 
 // WFGG_RADAR_TARGET_PROFILE_REFRESH_V6191
-// A bounded, explicit, read-only profile refresh for exactly one already-known
-// player. It never starts a map scan or Collector cycle. The Last War command
-// used behind protocol.ProfileScanner is get.user.info.multi.
+// Bounded, explicit and read-only refresh for one already-known player.
+// It uses get.user.info.multi only; it never starts a map scan or Collector cycle.
 type profileRefreshRequestV6191 struct {
 	Token   string `json:"token"`
 	GameUID string `json:"gameUid"`
@@ -66,9 +65,105 @@ func collectorBasePlayerV6191(row map[string]any) protocol.Player {
 	}
 }
 
+func profileOnlyUIDV6191(query string) (string, bool) {
+	q := strings.TrimSpace(query)
+	if !strings.HasPrefix(strings.ToLower(q), "@profile:") {
+		return "", false
+	}
+	uid := strings.TrimSpace(q[len("@profile:"):])
+	if uid == "" || len(uid) > 64 {
+		return "", false
+	}
+	for _, r := range uid {
+		if r < '0' || r > '9' {
+			return "", false
+		}
+	}
+	return uid, true
+}
+
 func richObservedV6191(p protocol.Player) bool {
 	return p.ArmyPower != nil || p.ArmyKill != nil || p.SVIPLevel != nil ||
 		strings.TrimSpace(p.Country) != "" || strings.TrimSpace(p.AvatarRef) != ""
+}
+
+func playerMapV6191(p protocol.Player) map[string]any {
+	raw, _ := json.Marshal(p)
+	out := map[string]any{}
+	_ = json.Unmarshal(raw, &out)
+	return out
+}
+
+func (s *server) runTargetProfileRefreshV6191(ctx context.Context, token, gameUID string) (protocol.Player, error) {
+	baseRow, err := collectorGetPlayer(ctx, gameUID)
+	if err != nil {
+		return protocol.Player{}, errPlayerNotFound
+	}
+	base := collectorBasePlayerV6191(baseRow)
+	if strings.TrimSpace(base.GameUID) == "" {
+		return protocol.Player{}, errPlayerNotFound
+	}
+
+	scanner, ok := s.game.(protocol.ProfileScanner)
+	if !ok {
+		return protocol.Player{}, errPlayerNotFound
+	}
+
+	var (
+		profiles []protocol.Player
+		lastErr  error
+	)
+	for attempt := 0; attempt < 3; attempt++ {
+		profiles, lastErr = scanner.ScanProfiles(ctx, token, []string{base.GameUID})
+		if lastErr == nil && len(profiles) > 0 {
+			break
+		}
+		if ctx.Err() != nil {
+			break
+		}
+		select {
+		case <-ctx.Done():
+			lastErr = ctx.Err()
+		case <-time.After(time.Duration(attempt+1) * 250 * time.Millisecond):
+		}
+	}
+	if lastErr != nil {
+		return protocol.Player{}, lastErr
+	}
+	if len(profiles) == 0 {
+		return protocol.Player{}, errPlayerNotFound
+	}
+
+	var selected *protocol.Player
+	for i := range profiles {
+		if strings.TrimSpace(profiles[i].GameUID) == base.GameUID {
+			selected = &profiles[i]
+			break
+		}
+	}
+	if selected == nil {
+		selected = &profiles[0]
+	}
+	if strings.TrimSpace(selected.GameUID) != "" && strings.TrimSpace(selected.GameUID) != base.GameUID {
+		return protocol.Player{}, errPlayerNotFound
+	}
+
+	merged := mergeProfileWithMapV618(base, *selected)
+	if strings.TrimSpace(merged.GameUID) == "" {
+		merged.GameUID = base.GameUID
+	}
+	if strings.TrimSpace(merged.ObservedAt) == "" {
+		merged.ObservedAt = utcNow()
+	}
+
+	accepted, err := collectorIngest(ctx, []protocol.Player{merged}, 0)
+	if err != nil {
+		return protocol.Player{}, err
+	}
+	if accepted != 1 {
+		return protocol.Player{}, errPlayerNotFound
+	}
+	return merged, nil
 }
 
 func (s *server) profileRefreshV6191(w http.ResponseWriter, r *http.Request, body []byte) {
@@ -84,97 +179,14 @@ func (s *server) profileRefreshV6191(w http.ResponseWriter, r *http.Request, bod
 		return
 	}
 
-	baseRow, err := collectorGetPlayer(r.Context(), input.GameUID)
-	if err != nil {
-		writeJSON(w, http.StatusNotFound, map[string]any{"error": "COLLECTOR_PLAYER_NOT_FOUND"})
-		return
-	}
-	base := collectorBasePlayerV6191(baseRow)
-	if strings.TrimSpace(base.GameUID) == "" {
-		writeJSON(w, http.StatusNotFound, map[string]any{"error": "COLLECTOR_PLAYER_UID_MISSING"})
-		return
-	}
-
-	scanner, ok := s.game.(protocol.ProfileScanner)
-	if !ok {
-		writeJSON(w, http.StatusServiceUnavailable, map[string]any{"error": "PROFILE_SCANNER_UNAVAILABLE"})
-		return
-	}
-
 	ctx, cancel := context.WithTimeout(r.Context(), 35*time.Second)
 	defer cancel()
-
-	var (
-		profiles []protocol.Player
-		lastErr  error
-	)
-	for attempt := 0; attempt < 3; attempt++ {
-		profiles, lastErr = scanner.ScanProfiles(ctx, input.Token, []string{base.GameUID})
-		if lastErr == nil && len(profiles) > 0 {
-			break
-		}
-		if ctx.Err() != nil {
-			break
-		}
-		select {
-		case <-ctx.Done():
-			lastErr = ctx.Err()
-		case <-time.After(time.Duration(attempt+1) * 250 * time.Millisecond):
-		}
-	}
-	if lastErr != nil {
-		writeGameError(w, lastErr)
-		return
-	}
-	if len(profiles) == 0 {
-		writeJSON(w, http.StatusBadGateway, map[string]any{"error": "PROFILE_TARGET_NOT_RETURNED"})
-		return
-	}
-
-	var selected *protocol.Player
-	for i := range profiles {
-		if strings.TrimSpace(profiles[i].GameUID) == base.GameUID {
-			selected = &profiles[i]
-			break
-		}
-	}
-	if selected == nil {
-		selected = &profiles[0]
-	}
-	if strings.TrimSpace(selected.GameUID) != "" && strings.TrimSpace(selected.GameUID) != base.GameUID {
-		writeJSON(w, http.StatusBadGateway, map[string]any{"error": "PROFILE_TARGET_UID_MISMATCH"})
-		return
-	}
-
-	merged := mergeProfileWithMapV618(base, *selected)
-	if strings.TrimSpace(merged.GameUID) == "" {
-		merged.GameUID = base.GameUID
-	}
-	if strings.TrimSpace(merged.ObservedAt) == "" {
-		merged.ObservedAt = utcNow()
-	}
-
-	// Persist via the existing Collector ingest endpoint outside a cycle.
-	// Collector V6.19.1 stores rich profile fields as time-watermarked
-	// observations, so storage-governor continues to cover them without a new
-	// table or a synthetic Collector cycle.
-	accepted, err := collectorIngest(ctx, []protocol.Player{merged}, 0)
+	player, err := s.runTargetProfileRefreshV6191(ctx, input.Token, input.GameUID)
 	if err != nil {
-		writeJSON(w, http.StatusBadGateway, map[string]any{"error": "PROFILE_REFRESH_INGEST_FAILED"})
+		writeGameError(w, err)
 		return
 	}
-	if accepted != 1 {
-		writeJSON(w, http.StatusBadGateway, map[string]any{"error": "PROFILE_REFRESH_NOT_ACCEPTED"})
-		return
-	}
-	if !richObservedV6191(merged) {
-		// This is still a valid read-only refresh. Keep the response explicit:
-		// no rich value was invented when Last War omitted the keys.
-	}
-
 	writeJSON(w, http.StatusOK, profileRefreshResponseV6191{
-		OK: true, Readonly: true, Command: "get.user.info.multi", Player: merged,
+		OK: true, Readonly: true, Command: "get.user.info.multi", Player: player,
 	})
 }
-
-var _ = errors.New
