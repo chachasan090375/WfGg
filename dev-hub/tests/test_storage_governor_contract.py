@@ -177,6 +177,11 @@ class StorageGovernorContractTests(unittest.TestCase):
         self.assertIsNone(error)
         self.assertEqual(cfg["action"],"collector-incremental-package")
 
+        payload["metadata"]["storage_governor"]["action"]="collector-incremental-commit"
+        cfg,error=mod.validate_request(payload)
+        self.assertIsNone(error)
+        self.assertEqual(cfg["action"],"collector-incremental-commit")
+
     def test_incremental_chain_generates_one_completed_cycle(self):
         conn=sqlite3.connect(":memory:")
         conn.executescript("""
@@ -255,7 +260,10 @@ class StorageGovernorContractTests(unittest.TestCase):
         self.assertIn("COLLECTOR_INCREMENTAL_DISCOVERY_OK",text)
         self.assertIn("COLLECTOR_INCREMENTAL_PLAN_OK",text)
         self.assertIn("COLLECTOR_INCREMENTAL_CHAIN_ANCHORED",text)
-        self.assertIn("COLLECTOR_INCREMENTAL_PACKAGE_CREATED",text)
+        self.assertIn("COLLECTOR_INCREMENTAL_CANDIDATE_CREATED",text)
+        self.assertIn("COLLECTOR_INCREMENTAL_COMMITTED",text)
+        self.assertIn("COLLECTOR_INCREMENTAL_VERIFICATION_NOT_VERIFIED",text)
+        self.assertIn("restored_row_counts",text)
         self.assertIn("COLLECTOR_INCREMENTAL_NOOP",text)
         self.assertIn('"raw_row_data_exposed":False',text)
         self.assertIn("shell=False",text)
