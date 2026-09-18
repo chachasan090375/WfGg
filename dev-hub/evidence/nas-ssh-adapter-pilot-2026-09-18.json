@@ -1,0 +1,26 @@
+{
+  "schema": "chacha.dev/nas-ssh-adapter-pilot-evidence/v1",
+  "observed_at": "2026-09-18T08:23:28Z",
+  "source": "ChaChaVPS runtime pilot observed from operator terminal",
+  "adapter": "nas-ssh-adapter",
+  "provider": "nas",
+  "status": "PASS",
+  "runtime_path": "/opt/chacha-dev/adapters/nas-ssh/current/nas-ssh-adapter",
+  "checks": {
+    "install_staged": "PASS",
+    "runtime_link": "PASS",
+    "preflight": "PASS",
+    "put_file": "PASS",
+    "independent_sha256": "PASS",
+    "production_mutation": "NO",
+    "persistent_delete": "NO"
+  },
+  "promotion": {
+    "from": "CONTRACT_OK",
+    "to": "PILOT",
+    "runtime_contract_pass": true,
+    "provisioning_pass": true,
+    "sandbox_only": true,
+    "automatic": false
+  }
+}
