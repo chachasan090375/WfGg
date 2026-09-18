@@ -304,8 +304,8 @@
       ]
     },
     "radar-runtime-adapter": {
-      "status": "CONTRACT_OK",
-      "executable": null,
+      "status": "PILOT",
+      "executable": "/opt/chacha-dev/adapters/radar-runtime/current/radar-runtime-adapter",
       "supports": [
         "read",
         "production-deploy"
