@@ -426,7 +426,7 @@ def verify_incremental_candidate(request: dict[str,Any], cfg: dict[str,Any]) -> 
                     "type":"artifact","id":receipt_rel,"status":"VERIFIED",
                     "reason":"Existing immutable verification receipt matches candidate and package."
                 }]
-            )
+            ))
         return blocked(request,"INCREMENTAL_VERIFICATION_RECEIPT_COLLISION")
 
     previous_rel=safe_rel(
