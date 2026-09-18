@@ -1,0 +1,156 @@
+{
+  "schema": "chacha.dev/storage-governor-incremental-plan-evidence/v1",
+  "observed_at": "2026-09-18T09:30:00Z",
+  "source": "ChaChaVPS runtime pilot observed from operator terminal",
+  "status": "PASS",
+  "summary": "COLLECTOR_INCREMENTAL_PLAN_OK",
+  "raw_row_data_exposed": false,
+  "production_data_mutation": false,
+  "table_count": 11,
+  "blocked_table_count": 0,
+  "baseline_cycle": 35,
+  "plans": [
+    {
+      "table": "cycle_baseline",
+      "rows": 1171660,
+      "mode": "cycle-watermark",
+      "pk": [
+        "cycle_id",
+        "game_uid"
+      ],
+      "watermark": [
+        "cycle_id"
+      ],
+      "current_max": {
+        "cycle_id": "35"
+      }
+    },
+    {
+      "table": "cycle_changes",
+      "rows": 96024,
+      "mode": "cycle-watermark",
+      "pk": [
+        "id"
+      ],
+      "watermark": [
+        "cycle_id"
+      ],
+      "current_max": {
+        "cycle_id": "35"
+      }
+    },
+    {
+      "table": "cycle_seen",
+      "rows": 470620,
+      "mode": "cycle-watermark",
+      "pk": [
+        "cycle_id",
+        "game_uid"
+      ],
+      "watermark": [
+        "cycle_id"
+      ],
+      "current_max": {
+        "cycle_id": "35"
+      }
+    },
+    {
+      "table": "cycles",
+      "rows": 35,
+      "mode": "cycle-id",
+      "pk": [
+        "id"
+      ],
+      "watermark": [
+        "id"
+      ],
+      "current_max": {
+        "id": "35"
+      }
+    },
+    {
+      "table": "identity_coverage",
+      "rows": 0,
+      "mode": "full-table-small",
+      "pk": [
+        "scope_id"
+      ],
+      "watermark": []
+    },
+    {
+      "table": "master_players",
+      "rows": 27753,
+      "mode": "full-table-dimension",
+      "pk": [
+        "master_id",
+        "game_uid"
+      ],
+      "watermark": []
+    },
+    {
+      "table": "masters",
+      "rows": 1,
+      "mode": "time-watermark",
+      "pk": [
+        "id"
+      ],
+      "watermark": [
+        "created_at",
+        "id"
+      ],
+      "current_max": {
+        "created_at": "2026-09-11T22:23:30.164682Z",
+        "id": "1"
+      }
+    },
+    {
+      "table": "observations",
+      "rows": 126611,
+      "mode": "time-watermark",
+      "pk": [
+        "id"
+      ],
+      "watermark": [
+        "observed_at",
+        "id"
+      ],
+      "current_max": {
+        "observed_at": "2026-09-18T05:18:47.18986397Z",
+        "id": "126611"
+      }
+    },
+    {
+      "table": "player_aliases",
+      "rows": 56695,
+      "mode": "full-table-dimension",
+      "pk": [
+        "game_uid",
+        "pseudo_key"
+      ],
+      "watermark": []
+    },
+    {
+      "table": "player_identity",
+      "rows": 56645,
+      "mode": "full-table-dimension",
+      "pk": [
+        "game_uid"
+      ],
+      "watermark": []
+    },
+    {
+      "table": "players",
+      "rows": 56645,
+      "mode": "cycle-watermark",
+      "pk": [
+        "game_uid"
+      ],
+      "watermark": [
+        "last_change_cycle"
+      ],
+      "current_max": {
+        "last_change_cycle": "35"
+      }
+    }
+  ]
+}
