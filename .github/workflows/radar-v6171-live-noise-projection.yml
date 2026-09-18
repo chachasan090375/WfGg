@@ -58,7 +58,8 @@ jobs:
           census=signed_get('/v1/collector/server-census',timeout=60)
 
           assert catalog.get('ok') is True
-          assert catalog.get('catalogVersion') == 'v6.17.1'\n          assert catalog.get('readonly') is True
+          assert catalog.get('catalogVersion') == 'v6.17.1'
+          assert catalog.get('readonly') is True
           assert catalog.get('rawPlayerDataExposed') is False
           assert census.get('ok') is True
           assert census.get('readonly') is True
@@ -83,7 +84,12 @@ jobs:
           assert target[0] == target_expected, target
           assert target[1] == [], target
           assert stable[0] == cluster990_expected, stable
-          assert players.get('1040') == 1, players.get('1040')\n          noise1040=next((x for x in (catalog.get('noise') or []) if str(x.get('serverId'))=='1040'),None)\n          assert noise1040 is not None, catalog.get('noise')\n          assert noise1040.get('reason') == 'insufficient_population_evidence', noise1040\n          assert catalog.get('confirmedClusterCount') == 2, catalog.get('confirmedClusterCount')\n          assert catalog.get('confirmedServerCount') == 18, catalog.get('confirmedServerCount')
+          assert players.get('1040') == 1, players.get('1040')
+          noise1040=next((x for x in (catalog.get('noise') or []) if str(x.get('serverId'))=='1040'),None)
+          assert noise1040 is not None, catalog.get('noise')
+          assert noise1040.get('reason') == 'insufficient_population_evidence', noise1040
+          assert catalog.get('confirmedClusterCount') == 2, catalog.get('confirmedClusterCount')
+          assert catalog.get('confirmedServerCount') == 18, catalog.get('confirmedServerCount')
           assert players.get('8119',0) >= threshold, players.get('8119')
 
           print('RADAR_V6171_FINAL_CATALOG=PASS')
