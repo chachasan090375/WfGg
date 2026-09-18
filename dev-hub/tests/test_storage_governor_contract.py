@@ -2,10 +2,13 @@
 from __future__ import annotations
 
 import importlib.util
+import io
 import json
+import os
 import sqlite3
 import tempfile
 import unittest
+from contextlib import redirect_stdout
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[2]
@@ -54,12 +57,50 @@ class StorageGovernorContractTests(unittest.TestCase):
             self.assertEqual(conn.execute("select count(*) from sample").fetchone()[0],1)
             conn.close()
 
+    def test_incremental_discovery_is_schema_only(self):
+        with tempfile.TemporaryDirectory() as td:
+            db=Path(td)/"collector.db"
+            conn=sqlite3.connect(db)
+            conn.execute("create table cycles(id integer primary key, cycle_id integer not null, updated_at text)")
+            conn.execute("create table players(id integer primary key, nickname text, cycle_id integer)")
+            conn.execute("insert into cycles(cycle_id,updated_at) values (42,'2026-09-18T00:00:00Z')")
+            conn.execute("insert into players(nickname,cycle_id) values ('SECRET_PLAYER',42)")
+            conn.commit()
+            conn.close()
+
+            payload=self.fixture()
+            payload["metadata"]["storage_governor"]["action"]="collector-incremental-discovery"
+            old=os.environ.get("WFGG_COLLECTOR_DB")
+            os.environ["WFGG_COLLECTOR_DB"]=str(db)
+            try:
+                out=io.StringIO()
+                with redirect_stdout(out):
+                    rc=mod.collector_incremental_discovery(payload)
+                self.assertEqual(rc,0)
+                value=json.loads(out.getvalue())
+            finally:
+                if old is None:
+                    os.environ.pop("WFGG_COLLECTOR_DB",None)
+                else:
+                    os.environ["WFGG_COLLECTOR_DB"]=old
+
+            self.assertEqual(value["status"],"OK")
+            self.assertEqual(value["summary"],"COLLECTOR_INCREMENTAL_DISCOVERY_OK")
+            details=value["evidence"][0]["details"]
+            self.assertFalse(details["raw_row_data_exposed"])
+            self.assertGreaterEqual(details["candidate_table_count"],1)
+            serialized=json.dumps(value)
+            self.assertNotIn("SECRET_PLAYER",serialized)
+            self.assertIn("cycle_id",serialized)
+
     def test_source_safety_invariants(self):
         text=ADAPTER_PATH.read_text(encoding="utf-8")
         self.assertIn('mode=ro',text)
         self.assertIn('conn.execute("BEGIN")',text)
         self.assertIn('collector_service_stopped":False',text)
         self.assertIn("COLLECTOR_MASTER_ALREADY_EXISTS",text)
+        self.assertIn("COLLECTOR_INCREMENTAL_DISCOVERY_OK",text)
+        self.assertIn('"raw_row_data_exposed":False',text)
         self.assertIn("shell=False",text)
         self.assertNotIn("systemctl stop",text)
         self.assertNotIn("rm -rf",text)
