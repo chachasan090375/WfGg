@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - dev-hub-v5-storage-restore-verifier-pilot
-      - dev-hub-v5-storage-governor-incremental-auto-watch
     paths:
       - 'dev-hub/tools/storage-restore-verifier-nas/main.go'
       - '.github/workflows/dev-hub-v5-portable-nas-restore-verifier-build.yml'
@@ -20,7 +19,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.ref_name }}
+          ref: dev-hub-v5-storage-restore-verifier-pilot
 
       - uses: actions/setup-go@v5
         with:
@@ -89,37 +88,27 @@ jobs:
           conn.close()
           expected={
             'row_counts':{t:0 for t in schema},
-            'baseline_cycle':36,
+            'baseline_cycle':35,
             'observations_watermark':{'observed_at':'2026-09-18T05:18:47.18986397Z','id':126611},
             'masters_watermark':{'created_at':'2026-09-11T22:23:30.164682Z','id':1},
           }
-          expected['row_counts']['cycles']=2
+          expected['row_counts']['cycles']=1
           expected['row_counts']['observations']=1
           expected['row_counts']['masters']=1
           open('/tmp/expected.json','w').write(json.dumps(expected))
-          with gzip.open('/tmp/cycle36.sql.gz','wt',encoding='utf-8') as g:
-            g.write('PRAGMA foreign_keys=OFF;\n')
-            g.write('BEGIN TRANSACTION;\n')
-            g.write("INSERT OR REPLACE INTO cycles(id,started_at,finished_at) VALUES (36,'s36','f36');\n")
-            g.write('COMMIT;\n')
-            g.write('PRAGMA foreign_keys=ON;\n')
           PY
-          dev-hub/release/storage-restore-verifier-nas-linux-amd64             --master /tmp/master.sql.gz             --patch /tmp/cycle36.sql.gz             --restore /tmp/restored.db             --expected /tmp/expected.json             --result /tmp/result.json
+          dev-hub/release/storage-restore-verifier-nas-linux-amd64             --master /tmp/master.sql.gz             --restore /tmp/restored.db             --expected /tmp/expected.json             --result /tmp/result.json
           python3 - <<'PY'
           import json,sqlite3
           x=json.load(open('/tmp/result.json'))
           assert x['status']=='PASS',x
           assert x['integrity']=='ok',x
-          assert x['baseline_cycle']==36,x
-          assert x['patch_count']==1,x
+          assert x['baseline_cycle']==35,x
           conn=sqlite3.connect('/tmp/restored.db')
           trigger_count=conn.execute("select count(*) from sqlite_master where type='trigger' and name='trg_players_restore_test'").fetchone()[0]
-          cycle36=conn.execute("select count(*) from cycles where id=36").fetchone()[0]
           conn.close()
           assert trigger_count==1,trigger_count
-          assert cycle36==1,cycle36
           print('PORTABLE_RESTORE_VERIFIER_TRIGGER_RESTORE=PASS')
-          print('PORTABLE_RESTORE_VERIFIER_INCREMENTAL_PATCH=PASS')
           print('PORTABLE_RESTORE_VERIFIER_SELFTEST=PASS')
           PY
 
@@ -133,6 +122,6 @@ jobs:
             echo PORTABLE_RESTORE_VERIFIER_PUBLISH=NO_CHANGE
           else
             git commit -m 'build(dev-hub): publish portable NAS restore verifier [skip ci]'
-            git push origin HEAD:${{ github.ref_name }}
+            git push origin HEAD:dev-hub-v5-storage-restore-verifier-pilot
             echo PORTABLE_RESTORE_VERIFIER_PUBLISH=PASS
           fi
