@@ -1,0 +1,62 @@
+name: DEV HUB V5 Storage Governor incremental chain v1
+
+on:
+  push:
+    branches:
+      - dev-hub-v5-storage-governor-incremental-chain-v1
+    paths:
+      - 'dev-hub/adapters/storage-governor-adapter.py'
+      - 'dev-hub/adapters/storage-governor-incremental-chain.py'
+      - 'dev-hub/tests/test_storage_governor_contract.py'
+      - 'dev-hub/bin/run-storage-governor-incremental-chain-pilot.sh'
+      - '.github/workflows/dev-hub-v5-storage-governor-incremental-chain-v1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify-chain:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Compile chain
+        run: |
+          set -euo pipefail
+          python3 -m py_compile dev-hub/adapters/storage-governor-adapter.py
+          python3 -m py_compile dev-hub/adapters/storage-governor-incremental-chain.py
+          bash -n dev-hub/bin/run-storage-governor-incremental-chain-pilot.sh
+          echo STORAGE_INCREMENTAL_CHAIN_COMPILE=PASS
+
+      - name: Run contract tests
+        run: |
+          set -euo pipefail
+          python3 -m unittest -v dev-hub/tests/test_storage_governor_contract.py
+          echo STORAGE_INCREMENTAL_CHAIN_TESTS=PASS
+
+      - name: Assert chain safety invariants
+        run: |
+          set -euo pipefail
+          grep -Fq 'COLLECTOR_INCREMENTAL_CHAIN_ANCHORED' dev-hub/adapters/storage-governor-adapter.py
+          grep -Fq 'COLLECTOR_INCREMENTAL_PACKAGE_CREATED' dev-hub/adapters/storage-governor-adapter.py
+          grep -Fq 'COLLECTOR_INCREMENTAL_NOOP' dev-hub/adapters/storage-governor-adapter.py
+          grep -Fq 'CHAIN_CYCLE_GAP' dev-hub/adapters/storage-governor-incremental-chain.py
+          grep -Fq 'PRAGMA foreign_keys=OFF;' dev-hub/adapters/storage-governor-incremental-chain.py
+          grep -Fq 'BEGIN TRANSACTION;' dev-hub/adapters/storage-governor-incremental-chain.py
+          grep -Fq 'full-table-dimension' dev-hub/adapters/storage-governor-adapter.py
+          ! grep -Fq 'systemctl stop' dev-hub/adapters/storage-governor-adapter.py
+          ! grep -Fq 'rm -rf' dev-hub/adapters/storage-governor-adapter.py
+          echo STORAGE_INCREMENTAL_CHAIN_ONE_CYCLE_AT_A_TIME=PASS
+          echo STORAGE_INCREMENTAL_CHAIN_CREATE_ONLY=PASS
+          grep -Fq 'COLLECTOR_SERVICE_INTERRUPTION=NO' dev-hub/bin/run-storage-governor-incremental-chain-pilot.sh
+          grep -Fq 'COLLECTOR_INCREMENTAL_GZIP_INTEGRITY=PASS' dev-hub/bin/run-storage-governor-incremental-chain-pilot.sh
+          grep -Fq 'COLLECTOR_INCREMENTAL_PACKAGE=NOOP' dev-hub/bin/run-storage-governor-incremental-chain-pilot.sh
+          grep -Fq 'SOURCE_REVISION="ed5957a410d03a60c5a2a7525e0968174d62f677"' dev-hub/bin/run-storage-governor-incremental-chain-pilot.sh
+          echo STORAGE_INCREMENTAL_CHAIN_NO_SERVICE_STOP=PASS
+          echo STORAGE_INCREMENTAL_CHAIN_PILOT_PINNED_SOURCE=PASS

@@ -1,0 +1,27 @@
+{
+  "schema": "chacha.dev/storage-governor-incremental-chain-pilot/v1",
+  "observed_at": "2026-09-18T09:51:00Z",
+  "source": "ChaChaVPS runtime pilot observed from operator terminal",
+  "status": "PASS",
+  "master_sha256": "sha256:4fd82f1ecab892372998dd4ef6e0df085474876a914409f70c6502d97929f730",
+  "anchor": {
+    "sequence": 0,
+    "sha256": "sha256:9f83a76d63d4bb161244ed2e1f6abe2bc4eda943f8f2ad1479de5b1c983e1010",
+    "baseline_cycle": 35,
+    "status": "PASS"
+  },
+  "package_attempt": {
+    "result": "COLLECTOR_INCREMENTAL_NOOP",
+    "package_created": false,
+    "reason": "No completed cycle exists beyond current chain watermark."
+  },
+  "runtime": {
+    "collector_service_before": "active",
+    "collector_service_after": "active",
+    "collector_pid_before": "3235883",
+    "collector_pid_after": "3235883",
+    "service_interruption": false,
+    "production_data_mutation": false,
+    "raw_row_data_exposed": false
+  }
+}
