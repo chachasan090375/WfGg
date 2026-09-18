@@ -50,7 +50,7 @@ EVIDENCE=Path(os.environ.get(
 ))
 LOCK=Path(os.environ.get(
     "CHACHA_INCREMENTAL_WATCH_LOCK",
-    "/run/lock/wfgg-collector-incremental-auto-watch.lock",
+    "/run/chacha-storage-incremental-watch.lock",
 ))
 MAX_ADVANCE_PER_RUN=int(os.environ.get("WFGG_INCREMENTAL_MAX_ADVANCE","4"))
 
