@@ -907,6 +907,12 @@ def collector_incremental_package(request: dict[str,Any]) -> int:
             package=helper.generate_incremental_sql(conn,state,writer.line)
             if package is None:
                 raise RuntimeError("INCREMENTAL_TARGET_DISAPPEARED")
+            restored_row_counts={
+                table:int(conn.execute(
+                    f'SELECT COUNT(*) FROM "{table}"'
+                ).fetchone()[0])
+                for table in helper.TABLE_ORDER
+            }
             writer.close()
             ssh.stdin.close()
             rc=ssh.wait(timeout=1800)
@@ -995,6 +1001,7 @@ def collector_incremental_package(request: dict[str,Any]) -> int:
             "target_finished_at":package["target_finished_at"],
             "target_cycle":int(package["to_cycle"]),
             "patch_row_counts":package["row_counts"],
+            "restored_row_counts":restored_row_counts,
             "result_watermarks":package["watermarks"],
         },
         "immutable":True,
