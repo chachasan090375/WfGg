@@ -1,0 +1,68 @@
+name: DEV HUB V5 Radar runtime adapter PILOT qualification
+
+on:
+  push:
+    branches:
+      - dev-hub-v5-radar-runtime-adapter-pilot-qualification
+    paths:
+      - 'dev-hub/bin/qualify-radar-runtime-adapter-pilot.sh'
+      - 'dev-hub/bin/adapter-promotion.py'
+      - 'dev-hub/bin/adapter-provisioning-evidence.py'
+      - 'dev-hub/config/adapter-contract.v1.json'
+      - 'dev-hub/config/adapter-promotion.v1.json'
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - '.github/workflows/dev-hub-v5-radar-runtime-adapter-pilot-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify-script:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Syntax
+        run: |
+          set -euo pipefail
+          bash -n dev-hub/bin/qualify-radar-runtime-adapter-pilot.sh
+          python3 -m py_compile             dev-hub/bin/adapter-promotion.py             dev-hub/bin/adapter-provisioning-evidence.py
+          echo RADAR_PILOT_QUALIFICATION_SYNTAX=PASS
+
+      - name: Assert qualification is plan-only
+        run: |
+          set -euo pipefail
+          grep -Fq -- '--json plan' dev-hub/bin/qualify-radar-runtime-adapter-pilot.sh
+          ! grep -Fq -- '--apply' dev-hub/bin/qualify-radar-runtime-adapter-pilot.sh
+          grep -Fq 'REGISTRY_MUTATION=NO' dev-hub/bin/qualify-radar-runtime-adapter-pilot.sh
+          grep -Fq 'RADAR_PRODUCTION_MUTATION=NO' dev-hub/bin/qualify-radar-runtime-adapter-pilot.sh
+          ! grep -Fq 'systemctl stop' dev-hub/bin/qualify-radar-runtime-adapter-pilot.sh
+          ! grep -Fq 'systemctl restart wfgg-radar' dev-hub/bin/qualify-radar-runtime-adapter-pilot.sh
+          echo RADAR_PILOT_QUALIFICATION_PLAN_ONLY=PASS
+
+      - name: Assert canonical evidence requirements
+        run: |
+          set -euo pipefail
+          grep -Fq 'runtime-contract-pass' dev-hub/bin/qualify-radar-runtime-adapter-pilot.sh
+          grep -Fq 'sandbox-only' dev-hub/bin/qualify-radar-runtime-adapter-pilot.sh
+          grep -Fq 'adapter-provisioning-evidence.py' dev-hub/bin/qualify-radar-runtime-adapter-pilot.sh
+          grep -Fq 'provisioning-pass' dev-hub/bin/qualify-radar-runtime-adapter-pilot.sh
+          grep -Fq 'PROVISIONING_RECEIPT_DIGEST=' dev-hub/bin/qualify-radar-runtime-adapter-pilot.sh
+          echo RADAR_PILOT_EVIDENCE_CHAIN=PASS
+
+      - name: Assert registry precondition remains CONTRACT_OK
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          r=json.load(open('dev-hub/config/provider-adapters.v1.json'))
+          a=r['adapters']['radar-runtime-adapter']
+          assert a['status']=='CONTRACT_OK',a
+          assert a['executable'] is None,a
+          print('RADAR_RUNTIME_ADAPTER_PRECONDITION=CONTRACT_OK')
+          PY
