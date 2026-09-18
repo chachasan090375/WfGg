@@ -1,0 +1,48 @@
+name: DEV HUB V5 Storage Governor incremental plan
+
+on:
+  push:
+    branches:
+      - dev-hub-v5-storage-governor-incremental-plan
+    paths:
+      - 'dev-hub/adapters/storage-governor-adapter.py'
+      - 'dev-hub/tests/test_storage_governor_contract.py'
+      - 'dev-hub/bin/run-storage-governor-incremental-plan-pilot.sh'
+      - '.github/workflows/dev-hub-v5-storage-governor-incremental-plan.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify-plan:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Compile and test
+        run: |
+          set -euo pipefail
+          python3 -m py_compile dev-hub/adapters/storage-governor-adapter.py
+          python3 -m unittest -v dev-hub/tests/test_storage_governor_contract.py
+          if [ -f dev-hub/bin/run-storage-governor-incremental-plan-pilot.sh ]; then
+            bash -n dev-hub/bin/run-storage-governor-incremental-plan-pilot.sh
+          fi
+          echo STORAGE_INCREMENTAL_PLAN_TESTS=PASS
+
+      - name: Assert plan privacy and safety
+        run: |
+          set -euo pipefail
+          grep -Fq 'COLLECTOR_INCREMENTAL_PLAN_OK' dev-hub/adapters/storage-governor-adapter.py
+          grep -Fq 'blocked-unclassified' dev-hub/adapters/storage-governor-adapter.py
+          grep -Fq '"raw_row_data_exposed":False' dev-hub/adapters/storage-governor-adapter.py
+          ! grep -Fq 'SELECT *' dev-hub/adapters/storage-governor-adapter.py
+          ! grep -Fq 'systemctl stop' dev-hub/adapters/storage-governor-adapter.py
+          ! grep -Fq 'rm -rf' dev-hub/adapters/storage-governor-adapter.py
+          echo STORAGE_INCREMENTAL_PLAN_READONLY=PASS
+          echo STORAGE_INCREMENTAL_PLAN_RAW_DATA_EXPOSED=NO
