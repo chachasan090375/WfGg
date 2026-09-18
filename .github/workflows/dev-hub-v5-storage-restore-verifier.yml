@@ -9,6 +9,8 @@ on:
       - 'dev-hub/tests/test_storage_restore_verifier_contract.py'
       - 'dev-hub/config/provider-adapters.v1.json'
       - 'dev-hub/bin/run-storage-restore-verifier-pilot.sh'
+      - 'dev-hub/tools/storage-restore-verifier-nas/**'
+      - 'dev-hub/release/storage-restore-verifier-nas-linux-amd64.sha256'
       - '.github/workflows/dev-hub-v5-storage-restore-verifier.yml'
   workflow_dispatch:
 
