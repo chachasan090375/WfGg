@@ -517,6 +517,17 @@ def choose_incremental_policy(meta: dict[str,Any]) -> dict[str,Any]:
             "watermark_columns":cols,
             "reason":"table exposes a timestamp watermark"+(" with PK tie-breaker" if tie else ""),
         }
+    # These are bounded current-state/dimension tables. They intentionally
+    # carry no intrinsic change watermark, so a complete refresh inside each
+    # incremental package is safer than inventing a synthetic watermark.
+    # The explicit allowlist is schema-policy, not a generic size heuristic.
+    dimension_full_refresh={"master_players","player_aliases","player_identity"}
+    if table in dimension_full_refresh:
+        return {
+            "mode":"full-table-dimension",
+            "watermark_columns":[],
+            "reason":"current-state dimension table without safe intrinsic watermark; refresh atomically per incremental package",
+        }
     if meta["row_count"]<=10000:
         return {
             "mode":"full-table-small",
