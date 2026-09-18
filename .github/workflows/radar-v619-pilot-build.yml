@@ -91,6 +91,8 @@ jobs:
       - name: Verify and manifest pilot
         run: |
           set -euo pipefail
+          bash -n radar-vps/install-v619-pilot.sh
+          echo RADAR_V619_PILOT_INSTALLER_SYNTAX=PASS
           chmod 0755 radar-vps/pilot-v619/radar-connector radar-vps/pilot-v619/radar-native-template
           grep -aFq 'get.user.info.multi' radar-vps/pilot-v619/radar-native-template
           grep -aFq 'world.get.block' radar-vps/pilot-v619/radar-native-template
