@@ -1,0 +1,50 @@
+{
+  "schema": "chacha.dev/storage-restore-verifier-pilot-evidence/v1",
+  "observed_at": "2026-09-18T11:36:00Z",
+  "source": "ChaChaVPS runtime pilot observed from operator terminal",
+  "status": "PASS",
+  "verifier": {
+    "adapter": "storage-restore-verifier-adapter",
+    "runtime_path": "/opt/chacha-dev/adapters/storage-restore-verifier/current/storage-restore-verifier-adapter",
+    "independent": true,
+    "portable_sha256": "sha256:3121f9a11bcc250b671ee899ac8dd97e50ba22c86e6f76a7c608a6eceaf83623",
+    "portable_arch": "x86_64",
+    "nas_sqlite_install": false
+  },
+  "restore": {
+    "master_sha256": "sha256:4fd82f1ecab892372998dd4ef6e0df085474876a914409f70c6502d97929f730",
+    "sqlite_integrity": "PASS",
+    "table_count": 11,
+    "baseline_cycle": 35,
+    "row_counts": {
+      "cycle_baseline": 1171660,
+      "cycle_changes": 96024,
+      "cycle_seen": 470620,
+      "cycles": 35,
+      "identity_coverage": 0,
+      "master_players": 27753,
+      "masters": 1,
+      "observations": 126611,
+      "player_aliases": 56695,
+      "player_identity": 56645,
+      "players": 56645
+    },
+    "sandbox_cleanup": "PASS"
+  },
+  "runtime": {
+    "collector_service_before": "active",
+    "collector_service_after": "active",
+    "collector_pid_before": "3235883",
+    "collector_pid_after": "3235883",
+    "service_interruption": false,
+    "vps_restore_local_delta_kb": 40,
+    "vps_full_local_restore": false,
+    "production_data_mutation": false
+  },
+  "promotion": {
+    "from": "CONTRACT_OK",
+    "to": "PILOT",
+    "automatic": false,
+    "runtime_restore_verified": true
+  }
+}
