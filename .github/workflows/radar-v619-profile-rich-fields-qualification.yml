@@ -1,0 +1,129 @@
+name: Radar V6.19 rich profile fields qualification
+
+on:
+  push:
+    branches: [radar-v619-profile-rich-fields]
+    paths:
+      - '.radar-release-src/v619-source/**'
+      - '.github/scripts/patch-radar-profile-rich-fields-v619.py'
+      - '.github/scripts/patch-radar-connector-runtime-v693.py'
+      - '.github/workflows/radar-v619-profile-rich-fields-qualification.yml'
+      - '.github/workflows/radar-v69-build.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: wfgg-radar-v619-profile-rich-fields-qualification
+  cancel-in-progress: true
+
+env:
+  LASTWAR_CLIENT_REF: ee5f64de160a8051c2f9f98189b75038dd225a0a
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: radar-v619-profile-rich-fields
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.27.x'
+
+      - name: Reconstruct connector through V6.19
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/wfgg-radar
+          mkdir -p /tmp/wfgg-radar
+          python3 .github/scripts/reconstruct-radar-release.py
+          echo '234df1dec57f6211bc625855bf13350c9f17fbd843fbe92d8cf1ab7cb5c081ef  /tmp/radar-src.tar.gz' | sha256sum -c -
+          tar -xzf /tmp/radar-src.tar.gz -C /tmp/wfgg-radar
+          rm -rf /tmp/wfgg-radar/connector-go
+          cp -a .radar-release-src/v2-source/connector-go /tmp/wfgg-radar/connector-go
+          python3 .github/scripts/patch-radar-target-profile-retry.py
+          python3 .github/scripts/patch-radar-federated-diagnostics-v65.py
+          python3 .github/scripts/patch-player-scan-v3.py
+          python3 .github/scripts/patch-player-scan-v4.py
+          python3 .github/scripts/patch-radar-protocol-discovery-v67.py
+          python3 .github/scripts/patch-radar-profile-isolation-v68.py
+          python3 .github/scripts/patch-radar-native-profile-v69.py
+          python3 .github/scripts/patch-radar-native-profile-handshake-v691.py
+          python3 .github/scripts/patch-radar-native-profile-exec-v692.py
+          python3 .github/scripts/patch-radar-connector-runtime-v693.py
+          echo RADAR_V619_RECONSTRUCT=PASS
+
+      - name: Test connector rich field contract
+        working-directory: /tmp/wfgg-radar/connector-go
+        run: |
+          set -euo pipefail
+          gofmt -w ./cmd ./internal
+          go test ./internal/protocol -run 'TestPlayerRichFieldsJSONV619|TestPlayerRichFieldsOmitUnknownV619' -count=1
+          go test ./cmd/radar-connector -run 'TestMergeProfileWithMapV618PreservesWorldFields|TestQualityCatalogV617DoesNotConfirmTwoFullPlusOnePartial|TestNoiseGateV6171FiltersPersistentOnePlayerServer' -count=1
+          go test ./...
+          go vet ./...
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w' -o /tmp/radar-connector-v619 ./cmd/radar-connector
+          test -s /tmp/radar-connector-v619
+          echo RADAR_V619_CONNECTOR=PASS
+
+      - name: Test native helper rich profile parser
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/lastwar-client
+          git clone --quiet --filter=blob:none --no-checkout https://github.com/ljagiello/lastwar-client.git /tmp/lastwar-client
+          cd /tmp/lastwar-client
+          git fetch --quiet --depth 1 origin "$LASTWAR_CLIENT_REF"
+          git checkout --quiet --detach FETCH_HEAD
+          test "$(git rev-parse HEAD)" = "$LASTWAR_CLIENT_REF"
+          go test ./internal/auth ./internal/pcap ./internal/sfs
+          mkdir -p cmd/wfgg-radar-native-template
+          cp /tmp/wfgg-radar/connector-go/native-template/main.go cmd/wfgg-radar-native-template/main.go
+          cp /tmp/wfgg-radar/connector-go/native-template/player_scan_v3.go cmd/wfgg-radar-native-template/player_scan_v3.go
+          cp /tmp/wfgg-radar/connector-go/native-template/player_scan_v4.go cmd/wfgg-radar-native-template/player_scan_v4.go
+          cp /tmp/wfgg-radar/connector-go/native-template/profile_scan_v69.go cmd/wfgg-radar-native-template/profile_scan_v69.go
+          cp /tmp/wfgg-radar/connector-go/native-template/profile_scan_v69_test.go cmd/wfgg-radar-native-template/profile_scan_v69_test.go
+          cp /tmp/wfgg-radar/connector-go/native-template/profile_rich_fields_v619_test.go cmd/wfgg-radar-native-template/profile_rich_fields_v619_test.go
+          gofmt -w cmd/wfgg-radar-native-template/*.go
+          go test -tags lastwar_native_template ./cmd/wfgg-radar-native-template -run 'TestFindProfileV3RichFieldsV619|TestFindProfileV3RichFieldsRemainAbsentWhenUnobservedV619|TestParseProfileUIDsV69' -count=1
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -tags lastwar_native_template -trimpath -ldflags='-s -w' -o /tmp/radar-native-template-v619 ./cmd/wfgg-radar-native-template
+          test -s /tmp/radar-native-template-v619
+          echo RADAR_V619_NATIVE_HELPER=PASS
+
+      - name: Verify V6.19 observed-only surface
+        run: |
+          set -euo pipefail
+          grep -Fq 'WFGG_RADAR_PROFILE_RICH_FIELDS_V619' /tmp/wfgg-radar/connector-go/internal/protocol/protocol.go
+          grep -Fq 'WFGG_RADAR_PROFILE_RICH_FIELDS_V619' /tmp/wfgg-radar/connector-go/native-template/main.go
+          grep -Fq 'WFGG_RADAR_PROFILE_RICH_PARSE_V619' /tmp/wfgg-radar/connector-go/native-template/player_scan_v3.go
+          grep -Fq 'v3IntField(t, "armyPower")' /tmp/wfgg-radar/connector-go/native-template/player_scan_v3.go
+          grep -Fq 'v3IntField(t, "armyKill")' /tmp/wfgg-radar/connector-go/native-template/player_scan_v3.go
+          grep -Fq 'v3IntField(t, "svipLevel")' /tmp/wfgg-radar/connector-go/native-template/player_scan_v3.go
+          grep -Fq 'v3ScalarAt(t, "country")' /tmp/wfgg-radar/connector-go/native-template/player_scan_v3.go
+          grep -Fq 'v3ScalarAt(t, "avatar")' /tmp/wfgg-radar/connector-go/native-template/player_scan_v3.go
+          grep -Fq 'v3ScalarAt(t, "avatarUrl")' /tmp/wfgg-radar/connector-go/native-template/player_scan_v3.go
+          grep -Fq 'v3ScalarAt(t, "avatarId")' /tmp/wfgg-radar/connector-go/native-template/player_scan_v3.go
+          ! grep -Eq 'headSkinId|picVer' .github/scripts/patch-radar-profile-rich-fields-v619.py
+          grep -Fq 'WFGG_RADAR_MAP_PROFILE_MERGE_JOB_V618' /tmp/wfgg-radar/connector-go/cmd/radar-connector/collector_jobs.go
+          grep -Fq 'WFGG_RADAR_CLUSTER_NOISE_GATE_V6171' /tmp/wfgg-radar/connector-go/cmd/radar-connector/server_cluster_noise_gate_v6171.go
+          ! grep -REiq 'attack|march|purchase|donate|reward collection|building production|collect reward' .radar-release-src/v619-source .github/scripts/patch-radar-profile-rich-fields-v619.py
+          echo RADAR_V619_OBSERVED_ONLY=PASS
+          echo RADAR_V619_READONLY=PASS
+
+      - name: Verify production build trigger contract
+        run: |
+          set -euo pipefail
+          grep -Fq '.radar-release-src/v619-source/**' .github/workflows/radar-v69-build.yml
+          grep -Fq 'patch-radar-profile-rich-fields-v619.py' .github/workflows/radar-v69-build.yml
+          grep -Fq 'RADAR_PROFILE_RICH_FIELDS_V619=CHAINED' .github/scripts/patch-radar-connector-runtime-v693.py
+          echo RADAR_V619_RELEASE_CONTRACT=PASS
+
+      - name: Assert production untouched
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF_NAME" = 'radar-v619-profile-rich-fields'
+          git diff --quiet
+          echo RADAR_V619_PRODUCTION_UNTOUCHED=PASS
