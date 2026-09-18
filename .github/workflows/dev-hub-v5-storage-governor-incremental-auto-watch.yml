@@ -1,0 +1,61 @@
+name: DEV HUB V5 Storage Governor incremental auto-watch
+
+on:
+  push:
+    branches:
+      - dev-hub-v5-storage-governor-incremental-auto-watch
+    paths:
+      - 'dev-hub/adapters/storage-governor-adapter.py'
+      - 'dev-hub/adapters/storage-governor-incremental-chain.py'
+      - 'dev-hub/adapters/storage-restore-verifier-adapter.py'
+      - 'dev-hub/bin/storage-governor-incremental-watch.py'
+      - 'dev-hub/bin/install-storage-governor-incremental-watch.sh'
+      - 'dev-hub/tests/test_storage_governor_contract.py'
+      - 'dev-hub/tests/test_storage_restore_verifier_contract.py'
+      - '.github/workflows/dev-hub-v5-storage-governor-incremental-auto-watch.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Compile runtime
+        run: |
+          set -euo pipefail
+          python3 -m py_compile             dev-hub/adapters/storage-governor-adapter.py             dev-hub/adapters/storage-governor-incremental-chain.py             dev-hub/adapters/storage-restore-verifier-adapter.py             dev-hub/bin/storage-governor-incremental-watch.py
+          if [ -f dev-hub/bin/install-storage-governor-incremental-watch.sh ]; then
+            bash -n dev-hub/bin/install-storage-governor-incremental-watch.sh
+          fi
+          echo STORAGE_INCREMENTAL_AUTO_WATCH_COMPILE=PASS
+
+      - name: Run Storage Governor contracts
+        run: |
+          set -euo pipefail
+          python3 -m unittest -v dev-hub/tests/test_storage_governor_contract.py
+          python3 -m unittest -v dev-hub/tests/test_storage_restore_verifier_contract.py
+          echo STORAGE_INCREMENTAL_AUTO_WATCH_CONTRACTS=PASS
+
+      - name: Assert two-phase verification gate
+        run: |
+          set -euo pipefail
+          grep -Fq 'COLLECTOR_INCREMENTAL_CANDIDATE_CREATED' dev-hub/adapters/storage-governor-adapter.py
+          grep -Fq 'COLLECTOR_INCREMENTAL_RESTORE_VERIFIED' dev-hub/adapters/storage-restore-verifier-adapter.py
+          grep -Fq 'COLLECTOR_INCREMENTAL_VERIFICATION_NOT_VERIFIED' dev-hub/adapters/storage-governor-adapter.py
+          grep -Fq 'collector-chain-verification-' dev-hub/adapters/storage-restore-verifier-adapter.py
+          grep -Fq 'verify-incremental-candidate' dev-hub/bin/storage-governor-incremental-watch.py
+          grep -Fq 'collector-incremental-commit' dev-hub/bin/storage-governor-incremental-watch.py
+          grep -Fq 'STORAGE_INCREMENTAL_WATCH=NOOP' dev-hub/bin/storage-governor-incremental-watch.py
+          ! grep -Fq 'systemctl stop wfgg-collector' dev-hub/bin/storage-governor-incremental-watch.py
+          ! grep -Fq 'systemctl restart wfgg-collector' dev-hub/bin/storage-governor-incremental-watch.py
+          echo STORAGE_INCREMENTAL_TWO_PHASE_GATE=PASS
+          echo STORAGE_INCREMENTAL_COLLECTOR_SERVICE_MUTATION=NO
