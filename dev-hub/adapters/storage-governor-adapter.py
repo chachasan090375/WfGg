@@ -9,8 +9,10 @@ Policy-owned storage operations for WfGg. V1 supports:
   cycle/time/full-table backup policy using schema and aggregate counts only
 - collector-incremental-anchor: create exactly one immutable chain anchor
   bound to the validated MASTER and its baseline watermarks
-- collector-incremental-package: create one immutable patch per completed
-  cycle after the anchor, or NOOP if no newer completed cycle exists
+- collector-incremental-package: prepare one immutable patch candidate per
+  completed cycle after the anchor, without advancing committed chain state
+- collector-incremental-commit: advance chain state only after an independent
+  VERIFIED receipt matches both candidate and package digests
 - collector-master-snapshot: create exactly one immutable, logical SQLite
   MASTER dump of the active Collector DB, gzip-streamed directly to the NAS.
 
@@ -117,9 +119,9 @@ def validate_request(request: dict[str,Any]) -> tuple[dict[str,Any]|None,str|Non
     permission=str(task.get("permission") or "")
     if action in {"assess","collector-incremental-discovery","collector-incremental-plan"} and permission!="read":
         return None,"STORAGE_READ_ACTION_REQUIRES_READ"
-    if action in {"collector-master-snapshot","collector-incremental-anchor","collector-incremental-package"} and permission!="workspace-write":
+    if action in {"collector-master-snapshot","collector-incremental-anchor","collector-incremental-package","collector-incremental-commit"} and permission!="workspace-write":
         return None,"STORAGE_WRITE_ACTION_REQUIRES_WORKSPACE_WRITE"
-    if action not in {"assess","collector-incremental-discovery","collector-incremental-plan","collector-incremental-anchor","collector-incremental-package","collector-master-snapshot"}:
+    if action not in {"assess","collector-incremental-discovery","collector-incremental-plan","collector-incremental-anchor","collector-incremental-package","collector-incremental-commit","collector-master-snapshot"}:
         return None,"STORAGE_GOVERNOR_ACTION_NOT_ALLOWED"
     return cfg,None
 
@@ -803,6 +805,14 @@ def latest_chain_state() -> tuple[str,dict[str,Any]]:
     return path,read_remote_json(path)
 
 
+def incremental_candidate_rel(sequence: int) -> str:
+    return f"{CHAIN_REL_ROOT}/collector-chain-candidate-{sequence:06d}.json"
+
+
+def incremental_verification_rel(sequence: int) -> str:
+    return f"{CHAIN_REL_ROOT}/collector-chain-verification-{sequence:06d}.json"
+
+
 def collector_incremental_package(request: dict[str,Any]) -> int:
     helper=load_chain_helper()
     ensure_chain_dirs()
@@ -814,6 +824,26 @@ def collector_incremental_package(request: dict[str,Any]) -> int:
     expected_name=f"collector-chain-state-{sequence:06d}.json"
     if not state_path.endswith("/"+expected_name):
         return blocked(request,"CHAIN_STATE_SEQUENCE_MISMATCH")
+
+    next_seq=sequence+1
+    candidate_rel=incremental_candidate_rel(next_seq)
+    candidate_abs=f"{nas_root()}/{candidate_rel}"
+    if remote_exists(candidate_abs):
+        candidate=read_remote_json(candidate_abs)
+        evidence=[{
+            "kind":"file",
+            "source":"nas://"+nas_host()+"/"+candidate_rel,
+            "digest":sha256_bytes(json.dumps(candidate,sort_keys=True,separators=(",",":")).encode()),
+            "details":{
+                "sequence":next_seq,
+                "status":candidate.get("status"),
+                "candidate_reused":True,
+            },
+        }]
+        return emit(result(request,"OK","COLLECTOR_INCREMENTAL_CANDIDATE_EXISTS",evidence,[{
+            "type":"artifact","id":candidate_rel,"status":"UNVERIFIED",
+            "reason":"Existing immutable candidate awaits independent verification.",
+        }]))
 
     child_preflight(request,512)
     path=db_path()
@@ -845,7 +875,6 @@ def collector_incremental_package(request: dict[str,Any]) -> int:
                 "reason":"No completed cycle exists beyond current chain watermark.",
             }]))
 
-        next_seq=sequence+1
         to_cycle=int(target["cycle"])
         archive_rel=(
             f"{CHAIN_REL_ROOT}/incrementals/"
@@ -853,9 +882,12 @@ def collector_incremental_package(request: dict[str,Any]) -> int:
         )
         final=f"{nas_root()}/{archive_rel}"
         temp=final+".incoming"
-        if remote_exists(final) or remote_exists(temp):
+        if remote_exists(final):
             conn.execute("ROLLBACK")
-            return blocked(request,"COLLECTOR_INCREMENTAL_DESTINATION_COLLISION")
+            return blocked(request,"COLLECTOR_INCREMENTAL_ORPHAN_ARCHIVE")
+        if remote_exists(temp):
+            conn.execute("ROLLBACK")
+            return blocked(request,"COLLECTOR_INCREMENTAL_TEMP_COLLISION")
 
         remote_cmd=f"umask 077; cat > '{temp}'"
         ssh=subprocess.Popen(
@@ -920,16 +952,16 @@ def collector_incremental_package(request: dict[str,Any]) -> int:
         raise RuntimeError("INCREMENTAL_ATOMIC_PUBLISH_FAILED")
 
     previous_digest=sha256_bytes(json.dumps(state,sort_keys=True,separators=(",",":")).encode())
-    new_state={
-        "schema":helper.CHAIN_SCHEMA,
+    candidate={
+        "schema":"chacha.dev/collector-incremental-candidate/v1",
+        "status":"PENDING_VERIFICATION",
         "sequence":int(package["sequence"]),
         "created_at":now_iso(),
         "master":state["master"],
         "watermarks":package["watermarks"],
         "plan_digest":state.get("plan_digest"),
         "package_format":state.get("package_format"),
-        "next_sequence":int(package["sequence"])+1,
-        "immutable":True,
+        "previous_state_path":state_path.replace(nas_root()+"/",""),
         "previous_state_sha256":previous_digest,
         "incremental":{
             "archive":archive_rel,
@@ -941,14 +973,39 @@ def collector_incremental_package(request: dict[str,Any]) -> int:
             "compressed_bytes":writer.compressed_bytes,
             "sql_lines":writer.lines,
         },
+        "verification_expectations":{
+            "table_names":[
+                "cycle_baseline","cycle_changes","cycle_seen","cycles",
+                "identity_coverage","master_players","masters","observations",
+                "player_aliases","player_identity","players"
+            ],
+            "full_refresh_tables":[
+                "identity_coverage","master_players","player_aliases","player_identity"
+            ],
+            "cycle_watermarks":{
+                "cycle_baseline":"cycle_id",
+                "cycle_changes":"cycle_id",
+                "cycle_seen":"cycle_id",
+                "players":"last_change_cycle"
+            },
+            "previous_watermarks":{
+                "observations":dict((state.get("watermarks") or {}).get("observations") or {}),
+                "masters":dict((state.get("watermarks") or {}).get("masters") or {}),
+            },
+            "target_finished_at":package["target_finished_at"],
+            "target_cycle":int(package["to_cycle"]),
+            "patch_row_counts":package["row_counts"],
+            "result_watermarks":package["watermarks"],
+        },
+        "immutable":True,
     }
-    state_rel=f"{CHAIN_REL_ROOT}/collector-chain-state-{int(package['sequence']):06d}.json"
     write_json_via_nas_adapter(
-        request,new_state,state_rel,
-        "collector-incremental-state",
-        "Publish immutable Collector incremental chain state.",
+        request,candidate,candidate_rel,
+        "collector-incremental-candidate",
+        "Publish immutable Collector incremental candidate awaiting independent verification.",
     )
 
+    candidate_digest=sha256_bytes(json.dumps(candidate,sort_keys=True,separators=(",",":")).encode())
     evidence=[{
         "kind":"file",
         "source":"nas://"+nas_host()+"/"+archive_rel,
@@ -960,14 +1017,113 @@ def collector_incremental_package(request: dict[str,Any]) -> int:
             "compressed_bytes":writer.compressed_bytes,
             "sql_lines":writer.lines,
             "row_counts":package["row_counts"],
+            "candidate_sha256":candidate_digest,
+            "chain_state_advanced":False,
             "raw_row_data_exposed":False,
             "collector_service_stopped":False,
         },
     }]
-    return emit(result(request,"OK","COLLECTOR_INCREMENTAL_PACKAGE_CREATED",evidence,[
-        {"type":"artifact","id":archive_rel,"status":"UNVERIFIED","reason":"Awaiting independent package verifier."},
-        {"type":"artifact","id":state_rel,"status":"UNVERIFIED","reason":"Immutable chain state published."},
+    return emit(result(request,"OK","COLLECTOR_INCREMENTAL_CANDIDATE_CREATED",evidence,[
+        {"type":"artifact","id":archive_rel,"status":"UNVERIFIED","reason":"Awaiting independent candidate verifier."},
+        {"type":"artifact","id":candidate_rel,"status":"UNVERIFIED","reason":"Committed chain state is unchanged until VERIFIED receipt."},
     ]))
+
+
+def collector_incremental_commit(request: dict[str,Any]) -> int:
+    helper=load_chain_helper()
+    ensure_chain_dirs()
+    state_path,state=latest_chain_state()
+    sequence=int(state.get("sequence") or 0)
+    next_seq=sequence+1
+    candidate_rel=incremental_candidate_rel(next_seq)
+    verification_rel=incremental_verification_rel(next_seq)
+    candidate_abs=f"{nas_root()}/{candidate_rel}"
+    verification_abs=f"{nas_root()}/{verification_rel}"
+    if not remote_exists(candidate_abs):
+        return blocked(request,"COLLECTOR_INCREMENTAL_CANDIDATE_MISSING")
+    if not remote_exists(verification_abs):
+        return blocked(request,"COLLECTOR_INCREMENTAL_VERIFICATION_MISSING")
+
+    candidate=read_remote_json(candidate_abs)
+    receipt=read_remote_json(verification_abs)
+    if candidate.get("schema")!="chacha.dev/collector-incremental-candidate/v1":
+        return blocked(request,"COLLECTOR_INCREMENTAL_CANDIDATE_SCHEMA_INVALID")
+    if candidate.get("status")!="PENDING_VERIFICATION":
+        return blocked(request,"COLLECTOR_INCREMENTAL_CANDIDATE_STATUS_INVALID")
+    if int(candidate.get("sequence") or -1)!=next_seq:
+        return blocked(request,"COLLECTOR_INCREMENTAL_CANDIDATE_SEQUENCE_INVALID")
+
+    candidate_digest=sha256_bytes(json.dumps(candidate,sort_keys=True,separators=(",",":")).encode())
+    incremental=dict(candidate.get("incremental") or {})
+    package_sha=str(incremental.get("sha256") or "")
+    if receipt.get("schema")!="chacha.dev/collector-incremental-verification/v1":
+        return blocked(request,"COLLECTOR_INCREMENTAL_VERIFICATION_SCHEMA_INVALID")
+    if receipt.get("status")!="VERIFIED":
+        return blocked(request,"COLLECTOR_INCREMENTAL_VERIFICATION_NOT_VERIFIED")
+    if int(receipt.get("sequence") or -1)!=next_seq:
+        return blocked(request,"COLLECTOR_INCREMENTAL_VERIFICATION_SEQUENCE_INVALID")
+    if receipt.get("candidate_sha256")!=candidate_digest:
+        return blocked(request,"COLLECTOR_INCREMENTAL_VERIFICATION_CANDIDATE_MISMATCH")
+    if receipt.get("package_sha256")!=package_sha:
+        return blocked(request,"COLLECTOR_INCREMENTAL_VERIFICATION_PACKAGE_MISMATCH")
+
+    previous_digest=sha256_bytes(json.dumps(state,sort_keys=True,separators=(",",":")).encode())
+    if candidate.get("previous_state_sha256")!=previous_digest:
+        return blocked(request,"COLLECTOR_INCREMENTAL_PREVIOUS_STATE_MISMATCH")
+
+    final_state={
+        "schema":helper.CHAIN_SCHEMA,
+        "sequence":next_seq,
+        "created_at":now_iso(),
+        "master":candidate["master"],
+        "watermarks":candidate["watermarks"],
+        "plan_digest":candidate.get("plan_digest"),
+        "package_format":candidate.get("package_format"),
+        "next_sequence":next_seq+1,
+        "immutable":True,
+        "previous_state_sha256":previous_digest,
+        "incremental":incremental,
+        "verification":{
+            "receipt":verification_rel,
+            "receipt_sha256":sha256_bytes(json.dumps(receipt,sort_keys=True,separators=(",",":")).encode()),
+            "status":"VERIFIED",
+            "verifier":receipt.get("verifier"),
+            "verified_at":receipt.get("verified_at"),
+        },
+    }
+    state_rel=f"{CHAIN_REL_ROOT}/collector-chain-state-{next_seq:06d}.json"
+    state_abs=f"{nas_root()}/{state_rel}"
+    if remote_exists(state_abs):
+        existing=read_remote_json(state_abs)
+        existing_digest=sha256_bytes(json.dumps(existing,sort_keys=True,separators=(",",":")).encode())
+        desired_digest=sha256_bytes(json.dumps(final_state,sort_keys=True,separators=(",",":")).encode())
+        if existing_digest==desired_digest:
+            return emit(result(request,"OK","COLLECTOR_INCREMENTAL_ALREADY_COMMITTED",[],[{
+                "type":"artifact","id":state_rel,"status":"VERIFIED","reason":"Existing committed state matches verified candidate.",
+            }]))
+        return blocked(request,"COLLECTOR_INCREMENTAL_STATE_COLLISION")
+
+    write_json_via_nas_adapter(
+        request,final_state,state_rel,
+        "collector-incremental-commit",
+        "Commit independently verified Collector incremental chain state.",
+    )
+    evidence=[{
+        "kind":"file",
+        "source":"nas://"+nas_host()+"/"+state_rel,
+        "digest":sha256_bytes(json.dumps(final_state,sort_keys=True,separators=(",",":")).encode()),
+        "details":{
+            "sequence":next_seq,
+            "to_cycle":incremental.get("to_cycle"),
+            "verification_status":"VERIFIED",
+            "candidate_sha256":candidate_digest,
+            "package_sha256":package_sha,
+        },
+    }]
+    return emit(result(request,"OK","COLLECTOR_INCREMENTAL_COMMITTED",evidence,[{
+        "type":"artifact","id":state_rel,"status":"VERIFIED",
+        "reason":"Chain advanced only after independent VERIFIED receipt.",
+    }]))
 
 
 def assess(request: dict[str,Any]) -> int:
@@ -1102,6 +1258,8 @@ def main() -> int:
             return collector_incremental_anchor(request,cfg)
         if cfg.get("action")=="collector-incremental-package":
             return collector_incremental_package(request)
+        if cfg.get("action")=="collector-incremental-commit":
+            return collector_incremental_commit(request)
         return collector_master(request)
     except subprocess.TimeoutExpired:
         return emit(result(request,"FAILED","STORAGE_GOVERNOR_TIMEOUT"))
