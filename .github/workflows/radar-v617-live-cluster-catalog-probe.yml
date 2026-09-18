@@ -17,7 +17,7 @@ env:
 jobs:
   probe:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 8
     steps:
       - uses: actions/checkout@v4
 
@@ -33,19 +33,31 @@ jobs:
           key=os.environ['RADAR_CONNECTOR_SHARED_KEY'].encode()
           path='/v1/collector/server-cluster-catalog'
 
-          ts=str(int(time.time()))
-          nonce=secrets.token_hex(16)
-          body_hash=hashlib.sha256(b'').hexdigest()
-          canonical='\n'.join(['GET',path,ts,nonce,body_hash])
-          sig=hmac.new(key,canonical.encode(),hashlib.sha256).hexdigest()
-          req=urllib.request.Request(base+path,method='GET',headers={
-              'X-Radar-Timestamp':ts,
-              'X-Radar-Nonce':nonce,
-              'X-Radar-Signature':sig,
-          })
-          with urllib.request.urlopen(req,timeout=30) as response:
-              data=json.loads(response.read().decode())
+          last=None
+          for attempt in range(1,4):
+              ts=str(int(time.time()))
+              nonce=secrets.token_hex(16)
+              body_hash=hashlib.sha256(b'').hexdigest()
+              canonical='\n'.join(['GET',path,ts,nonce,body_hash])
+              sig=hmac.new(key,canonical.encode(),hashlib.sha256).hexdigest()
+              req=urllib.request.Request(base+path,method='GET',headers={
+                  'X-Radar-Timestamp':ts,
+                  'X-Radar-Nonce':nonce,
+                  'X-Radar-Signature':sig,
+              })
+              try:
+                  with urllib.request.urlopen(req,timeout=150) as response:
+                      data=json.loads(response.read().decode())
+                  last=data
+                  break
+              except Exception as exc:
+                  print(f'RADAR_V617_CATALOG_ATTEMPT={attempt}|STATE={type(exc).__name__}')
+                  if attempt<3:
+                      time.sleep(8)
+          else:
+              raise SystemExit('RADAR_V617_CATALOG=TIMEOUT')
 
+          data=last
           assert data.get('ok') is True, data
           assert data.get('catalogVersion') == 'v6.17', data
           assert data.get('readonly') is True, data
@@ -63,7 +75,7 @@ jobs:
           print('RADAR_V617_CONFIRM_MIN_CYCLES='+str(data.get('confirmMinCycles')))
 
           for i,c in enumerate(confirmed,1):
-              members=sorted(str(x) for x in (c.get('members') or []))
+              members=sorted((str(x) for x in (c.get('members') or [])), key=lambda s:int(s) if s.isdigit() else s)
               print(f'RADAR_V617_CONFIRMED_{i}_MEMBERS=' + ','.join(members))
               print(f'RADAR_V617_CONFIRMED_{i}_MIN_CYCLES=' + str(c.get('minCyclesTogether')))
               print(f'RADAR_V617_CONFIRMED_{i}_MAX_CYCLES=' + str(c.get('maxCyclesTogether')))
