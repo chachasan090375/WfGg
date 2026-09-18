@@ -1,0 +1,127 @@
+name: DEV HUB V5 portable NAS restore verifier build
+
+on:
+  push:
+    branches:
+      - dev-hub-v5-storage-restore-verifier-pilot
+    paths:
+      - 'dev-hub/tools/storage-restore-verifier-nas/main.go'
+      - '.github/workflows/dev-hub-v5-portable-nas-restore-verifier-build.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev-hub-v5-storage-restore-verifier-pilot
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.25.x'
+
+      - name: Resolve module and build static linux amd64 verifier
+        working-directory: dev-hub/tools/storage-restore-verifier-nas
+        run: |
+          set -euo pipefail
+          if [ ! -f go.mod ]; then
+            go mod init github.com/chachasan090375/WfGg/dev-hub/tools/storage-restore-verifier-nas
+            go get modernc.org/sqlite@latest
+          fi
+          go mod tidy
+          mkdir -p ../../release
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64             go build -trimpath -ldflags='-s -w -buildid='             -o ../../release/storage-restore-verifier-nas-linux-amd64 .
+          chmod 0755 ../../release/storage-restore-verifier-nas-linux-amd64
+          file ../../release/storage-restore-verifier-nas-linux-amd64
+          sha256sum ../../release/storage-restore-verifier-nas-linux-amd64             > ../../release/storage-restore-verifier-nas-linux-amd64.sha256
+          MODERN_VERSION="$(go list -m -f '{{.Version}}' modernc.org/sqlite)"
+          BINARY_SHA="$(cut -d' ' -f1 ../../release/storage-restore-verifier-nas-linux-amd64.sha256)"
+          printf '{"schema":"chacha.dev/portable-restore-verifier-build/v1","go_version":"%s","modernc_sqlite":"%s","goos":"linux","goarch":"amd64","sha256":"%s"}\n'             "$(go version | awk '{print $3}')" "$MODERN_VERSION" "$BINARY_SHA"             > ../../release/storage-restore-verifier-nas-linux-amd64.build.json
+          echo "PORTABLE_RESTORE_VERIFIER_BUILD=PASS"
+          echo "PORTABLE_RESTORE_VERIFIER_SHA256=$BINARY_SHA"
+
+      - name: Exercise verifier on synthetic SQLite dump
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import gzip,json,sqlite3
+          db='/tmp/source.db'
+          conn=sqlite3.connect(db)
+          schema={
+            'cycle_baseline':'cycle_id integer, game_uid text, primary key(cycle_id,game_uid)',
+            'cycle_changes':'id integer primary key, cycle_id integer',
+            'cycle_seen':'cycle_id integer, game_uid text, primary key(cycle_id,game_uid)',
+            'cycles':'id integer primary key, started_at text, finished_at text',
+            'identity_coverage':'scope_id text primary key',
+            'master_players':'master_id integer, game_uid text, primary key(master_id,game_uid)',
+            'masters':'id integer primary key, created_at text',
+            'observations':'id integer primary key, observed_at text',
+            'player_aliases':'game_uid text, pseudo_key text, primary key(game_uid,pseudo_key)',
+            'player_identity':'game_uid text primary key',
+            'players':'game_uid text primary key, last_change_cycle integer',
+          }
+          for t,cols in schema.items():
+            conn.execute(f'create table "{t}"({cols})')
+          conn.execute("insert into cycles values(35,'s','f')")
+          conn.execute("insert into observations values(126611,'2026-09-18T05:18:47.18986397Z')")
+          conn.execute("insert into masters values(1,'2026-09-11T22:23:30.164682Z')")
+          conn.execute("""
+          create trigger trg_players_restore_test
+          after insert on players
+          begin
+            update identity_coverage
+               set scope_id=case when scope_id='' then scope_id else scope_id end
+             where 0;
+            insert into identity_coverage(scope_id)
+            select 'never' where 0;
+          end
+          """)
+          conn.commit()
+          with gzip.open('/tmp/master.sql.gz','wt',encoding='utf-8') as g:
+            for line in conn.iterdump():
+              g.write(line+'\n')
+          conn.close()
+          expected={
+            'row_counts':{t:0 for t in schema},
+            'baseline_cycle':35,
+            'observations_watermark':{'observed_at':'2026-09-18T05:18:47.18986397Z','id':126611},
+            'masters_watermark':{'created_at':'2026-09-11T22:23:30.164682Z','id':1},
+          }
+          expected['row_counts']['cycles']=1
+          expected['row_counts']['observations']=1
+          expected['row_counts']['masters']=1
+          open('/tmp/expected.json','w').write(json.dumps(expected))
+          PY
+          dev-hub/release/storage-restore-verifier-nas-linux-amd64             --master /tmp/master.sql.gz             --restore /tmp/restored.db             --expected /tmp/expected.json             --result /tmp/result.json
+          python3 - <<'PY'
+          import json,sqlite3
+          x=json.load(open('/tmp/result.json'))
+          assert x['status']=='PASS',x
+          assert x['integrity']=='ok',x
+          assert x['baseline_cycle']==35,x
+          conn=sqlite3.connect('/tmp/restored.db')
+          trigger_count=conn.execute("select count(*) from sqlite_master where type='trigger' and name='trg_players_restore_test'").fetchone()[0]
+          conn.close()
+          assert trigger_count==1,trigger_count
+          print('PORTABLE_RESTORE_VERIFIER_TRIGGER_RESTORE=PASS')
+          print('PORTABLE_RESTORE_VERIFIER_SELFTEST=PASS')
+          PY
+
+      - name: Publish binary on feature branch
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add             dev-hub/tools/storage-restore-verifier-nas/go.mod             dev-hub/tools/storage-restore-verifier-nas/go.sum             dev-hub/release/storage-restore-verifier-nas-linux-amd64             dev-hub/release/storage-restore-verifier-nas-linux-amd64.sha256             dev-hub/release/storage-restore-verifier-nas-linux-amd64.build.json
+          if git diff --cached --quiet; then
+            echo PORTABLE_RESTORE_VERIFIER_PUBLISH=NO_CHANGE
+          else
+            git commit -m 'build(dev-hub): publish portable NAS restore verifier [skip ci]'
+            git push origin HEAD:dev-hub-v5-storage-restore-verifier-pilot
+            echo PORTABLE_RESTORE_VERIFIER_PUBLISH=PASS
+          fi

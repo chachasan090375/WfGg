@@ -1,0 +1,99 @@
+name: DEV HUB V5 storage restore verifier qualification
+
+on:
+  push:
+    branches:
+      - dev-hub-v5-storage-restore-verifier-pilot
+    paths:
+      - 'dev-hub/adapters/storage-restore-verifier-adapter.py'
+      - 'dev-hub/tests/test_storage_restore_verifier_contract.py'
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - 'dev-hub/evidence/storage-restore-verifier-pilot-pass-2026-09-18.json'
+      - 'dev-hub/bin/run-storage-restore-verifier-pilot.sh'
+      - 'dev-hub/tools/storage-restore-verifier-nas/**'
+      - 'dev-hub/release/storage-restore-verifier-nas-linux-amd64.sha256'
+      - '.github/workflows/dev-hub-v5-storage-restore-verifier.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Compile and unit test
+        run: |
+          set -euo pipefail
+          python3 -m py_compile dev-hub/adapters/storage-restore-verifier-adapter.py
+          python3 -m unittest -v dev-hub/tests/test_storage_restore_verifier_contract.py
+          if [ -f dev-hub/bin/run-storage-restore-verifier-pilot.sh ]; then
+            bash -n dev-hub/bin/run-storage-restore-verifier-pilot.sh
+          fi
+          echo STORAGE_RESTORE_VERIFIER_TESTS=PASS
+
+      - name: Validate registry contract
+        run: |
+          set -euo pipefail
+          python3 dev-hub/bin/adapter-contract-harness.py             --registry dev-hub/config/provider-adapters.v1.json             --policy dev-hub/config/adapter-contract.v1.json             --report /tmp/storage-restore-verifier-contract.json
+          python3 - <<'PY'
+          import json
+          r=json.load(open('dev-hub/config/provider-adapters.v1.json'))
+          p=r['providers']['storage-restore-verifier']
+          a=r['adapters']['storage-restore-verifier-adapter']
+          assert p['execution']=='vps',p
+          assert a['supports']==['workspace-write'],a
+          if a['status']=='CONTRACT_OK':
+              assert a['executable'] is None,a
+              print('STORAGE_RESTORE_VERIFIER_STATUS=CONTRACT_OK')
+              print('STORAGE_RESTORE_VERIFIER_RUNTIME_ENABLED=NO')
+          elif a['status']=='PILOT':
+              expected='/opt/chacha-dev/adapters/storage-restore-verifier/current/storage-restore-verifier-adapter'
+              assert a['executable']==expected,a
+              e=json.load(open('dev-hub/evidence/storage-restore-verifier-pilot-pass-2026-09-18.json'))
+              assert e['status']=='PASS',e
+              assert e['verifier']['independent'] is True,e
+              assert e['verifier']['nas_sqlite_install'] is False,e
+              assert e['restore']['sqlite_integrity']=='PASS',e
+              assert e['restore']['table_count']==11,e
+              assert e['restore']['baseline_cycle']==35,e
+              assert e['restore']['sandbox_cleanup']=='PASS',e
+              assert e['runtime']['service_interruption'] is False,e
+              assert e['runtime']['vps_full_local_restore'] is False,e
+              assert e['runtime']['production_data_mutation'] is False,e
+              assert e['promotion']['runtime_restore_verified'] is True,e
+              print('STORAGE_RESTORE_VERIFIER_STATUS=PILOT')
+              print('STORAGE_RESTORE_VERIFIER_RUNTIME_EVIDENCE=PASS')
+          else:
+              raise AssertionError(a)
+          PY
+
+      - name: Assert verifier independence and sandbox safety
+        run: |
+          set -euo pipefail
+          grep -Fq 'independent-restore' dev-hub/adapters/storage-restore-verifier-adapter.py
+          grep -Fq 'portable_verifier_sha256' dev-hub/adapters/storage-restore-verifier-adapter.py
+          grep -Fq 'sandbox_deleted_after_verification' dev-hub/adapters/storage-restore-verifier-adapter.py
+          grep -Fq 'PRAGMA integrity_check' dev-hub/tools/storage-restore-verifier-nas/main.go
+          grep -Fq 'modernc.org/sqlite' dev-hub/tools/storage-restore-verifier-nas/main.go
+          ! grep -Fq 'storage-governor-adapter.py' dev-hub/adapters/storage-restore-verifier-adapter.py
+          ! grep -Fq 'rm -rf' dev-hub/adapters/storage-restore-verifier-adapter.py
+          ! grep -Fq 'systemctl stop' dev-hub/adapters/storage-restore-verifier-adapter.py
+          grep -Fq 'NAS_SQLITE3=NOT_REQUIRED' dev-hub/bin/run-storage-restore-verifier-pilot.sh
+          echo STORAGE_RESTORE_VERIFIER_INDEPENDENCE=PASS
+          echo STORAGE_RESTORE_VERIFIER_PORTABLE_SQLITE=PASS
+          echo STORAGE_RESTORE_VERIFIER_SANDBOX_DELETE_ONLY=PASS
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: storage-restore-verifier-contract-${{ github.run_id }}
+          path: /tmp/storage-restore-verifier-contract.json
+          retention-days: 30
+          if-no-files-found: error

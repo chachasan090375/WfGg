@@ -140,6 +140,11 @@
       "adapter": "crypto-trust-adapter",
       "kind": "security-runtime",
       "execution": "vps"
+    },
+    "storage-restore-verifier": {
+      "adapter": "storage-restore-verifier-adapter",
+      "kind": "platform",
+      "execution": "vps"
     }
   },
   "adapters": {
@@ -283,6 +288,13 @@
       "executable": "/opt/chacha-dev/adapters/storage-governor/current/storage-governor-adapter",
       "supports": [
         "read",
+        "workspace-write"
+      ]
+    },
+    "storage-restore-verifier-adapter": {
+      "status": "PILOT",
+      "executable": "/opt/chacha-dev/adapters/storage-restore-verifier/current/storage-restore-verifier-adapter",
+      "supports": [
         "workspace-write"
       ]
     }
