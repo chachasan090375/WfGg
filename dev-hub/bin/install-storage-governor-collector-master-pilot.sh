@@ -45,6 +45,48 @@ test "$COLLECTOR_BEFORE" = "active"
 FREE_BEFORE="$(df -Pk / | awk 'NR==2{print $4}')"
 echo "VPS_FREE_KB_BEFORE=$FREE_BEFORE"
 
+echo "=== COLLECTOR SQLITE DISCOVERY ==="
+COLLECTOR_DB="$(
+python3 - <<'PY'
+from pathlib import Path
+import sqlite3,sys
+
+root=Path("/opt/wfgg-collector/data")
+if not root.is_dir():
+    print("COLLECTOR_DATA_DIR_MISSING",file=sys.stderr)
+    raise SystemExit(20)
+
+candidates=[]
+for p in root.rglob("*"):
+    if not p.is_file():
+        continue
+    try:
+        if p.stat().st_size < 4096:
+            continue
+        conn=sqlite3.connect(f"file:{p}?mode=ro",uri=True,timeout=2)
+        try:
+            tables=int(conn.execute("select count(*) from sqlite_master where type='table'").fetchone()[0])
+            if tables > 0:
+                candidates.append((tables,p.stat().st_size,str(p)))
+        finally:
+            conn.close()
+    except Exception:
+        pass
+
+candidates.sort(reverse=True)
+for tables,size,path in candidates:
+    print(f"CANDIDATE|tables={tables}|bytes={size}|path={path}",file=sys.stderr)
+
+if len(candidates) != 1:
+    print(f"COLLECTOR_SQLITE_CANDIDATE_COUNT={len(candidates)}",file=sys.stderr)
+    raise SystemExit(21)
+
+print(candidates[0][2])
+PY
+)"
+export WFGG_COLLECTOR_DB="$COLLECTOR_DB"
+echo "COLLECTOR_DB_DISCOVERED=$COLLECTOR_DB"
+
 python3 - "$WORK/assess.json" <<'PY'
 import json,sys
 out=sys.argv[1]
@@ -83,7 +125,7 @@ payload={
 open(out,"w",encoding="utf-8").write(json.dumps(payload))
 PY
 
-CHACHA_NAS_ADAPTER="/opt/chacha-dev/adapters/nas-ssh/current/nas-ssh-adapter" CHACHA_NAS_HOST="chachanas" CHACHA_NAS_ROOT="$NAS_ROOT" "$RELEASE/storage-governor-adapter" < "$WORK/assess.json" > "$WORK/assess-result.json"
+WFGG_COLLECTOR_DB="$COLLECTOR_DB" CHACHA_NAS_ADAPTER="/opt/chacha-dev/adapters/nas-ssh/current/nas-ssh-adapter" CHACHA_NAS_HOST="chachanas" CHACHA_NAS_ROOT="$NAS_ROOT" "$RELEASE/storage-governor-adapter" < "$WORK/assess.json" > "$WORK/assess-result.json"
 
 python3 - "$WORK/assess-result.json" <<'PY'
 import json,sys
@@ -134,7 +176,7 @@ open(out,"w",encoding="utf-8").write(json.dumps(payload))
 PY
 
 echo "STORAGE_GOVERNOR_MASTER=START"
-CHACHA_NAS_ADAPTER="/opt/chacha-dev/adapters/nas-ssh/current/nas-ssh-adapter" CHACHA_NAS_HOST="chachanas" CHACHA_NAS_ROOT="$NAS_ROOT" "$RELEASE/storage-governor-adapter" < "$WORK/master.json" > "$WORK/master-result.json"
+WFGG_COLLECTOR_DB="$COLLECTOR_DB" CHACHA_NAS_ADAPTER="/opt/chacha-dev/adapters/nas-ssh/current/nas-ssh-adapter" CHACHA_NAS_HOST="chachanas" CHACHA_NAS_ROOT="$NAS_ROOT" "$RELEASE/storage-governor-adapter" < "$WORK/master.json" > "$WORK/master-result.json"
 
 python3 - "$WORK/master-result.json" "$WORK/master-meta.env" <<'PY'
 import json,sys
@@ -164,6 +206,29 @@ REMOTE_SHA="$(ssh -n chachanas sha256sum "$NAS_ROOT/$ARCHIVE_REL" | awk '{print 
 test -n "$REMOTE_SHA"
 test "$REMOTE_SHA" = "$ARCHIVE_SHA"
 echo "COLLECTOR_MASTER_INDEPENDENT_SHA256=PASS"
+
+ssh -n chachanas gzip -t "$NAS_ROOT/$ARCHIVE_REL"
+echo "COLLECTOR_MASTER_GZIP_INTEGRITY=PASS"
+
+ssh -n chachanas gzip -dc "$NAS_ROOT/$ARCHIVE_REL" | python3 - <<'PY'
+import sys
+first=None
+last=None
+count=0
+for raw in sys.stdin.buffer:
+    line=raw.decode("utf-8","strict").strip()
+    if not line:
+        continue
+    if first is None:
+        first=line
+    last=line
+    count+=1
+assert first == "BEGIN TRANSACTION;", first
+assert last == "COMMIT;", last
+assert count > 10, count
+print("COLLECTOR_MASTER_LOGICAL_DUMP_STRUCTURE=PASS")
+print("COLLECTOR_MASTER_LOGICAL_LINES="+str(count))
+PY
 
 COLLECTOR_AFTER="$(systemctl is-active wfgg-collector || true)"
 PID_AFTER="$(systemctl show -p MainPID --value wfgg-collector 2>/dev/null || true)"
