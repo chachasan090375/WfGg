@@ -13,6 +13,8 @@ on:
       - 'radar-vps/collector-rich-profile-v6191.py'
       - 'radar-vps/install-collector-rich-profile-v6191.sh'
       - '.github/workflows/radar-v6191-rich-profile-e2e-qualification.yml'
+      - '.github/workflows/radar-v69-build.yml'
+      - '.github/workflows/deploy-radar-production.yml'
   workflow_dispatch:
 
 permissions:
@@ -193,5 +195,11 @@ jobs:
           grep -Fq 'get.user.info.multi' .radar-release-src/v6191-source/connector-go/cmd/radar-connector/profile_refresh_v6191.go
           ! grep -REiq 'attack|march|purchase|donate|reward collection|building production|collect reward'             .radar-release-src/v6191-source             .github/scripts/patch-radar-profile-refresh-v6191.py             .github/scripts/patch-radar-worker-rich-profile-v6191.py             radar-vps/collector-rich-profile-v6191.py
           grep -Fq 'COLLECTOR_V6191_STORAGE_TABLES_UNCHANGED=PASS' radar-vps/install-collector-rich-profile-v6191.sh
+          grep -Fq ".radar-release-src/v6191-source/**" .github/workflows/radar-v69-build.yml
+          grep -Fq 'patch-radar-profile-refresh-v6191.py' .github/workflows/radar-v69-build.yml
+          grep -Fq 'patch-radar-worker-rich-profile-v6191.py' .github/workflows/deploy-radar-production.yml
+          grep -Fq '0004_radar_profile_rich_v6191.sql' .github/workflows/deploy-radar-production.yml
+          grep -Fq 'federatedServerTargetV615(query)' /tmp/wfgg-radar/connector-go/cmd/radar-connector/collector_jobs.go
+          echo RADAR_V6191_PRODUCTION_WIRING=PASS
           echo RADAR_V6191_READONLY=PASS
           echo RADAR_V6191_QUALIFICATION=PASS
