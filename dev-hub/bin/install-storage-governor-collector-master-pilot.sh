@@ -210,7 +210,7 @@ echo "COLLECTOR_MASTER_INDEPENDENT_SHA256=PASS"
 ssh -n chachanas gzip -t "$NAS_ROOT/$ARCHIVE_REL"
 echo "COLLECTOR_MASTER_GZIP_INTEGRITY=PASS"
 
-ssh -n chachanas gzip -dc "$NAS_ROOT/$ARCHIVE_REL" | python3 - <<'PY'
+ssh -n chachanas gzip -dc "$NAS_ROOT/$ARCHIVE_REL" | python3 -c '
 import sys
 first=None
 last=None
@@ -228,7 +228,7 @@ assert last == "COMMIT;", last
 assert count > 10, count
 print("COLLECTOR_MASTER_LOGICAL_DUMP_STRUCTURE=PASS")
 print("COLLECTOR_MASTER_LOGICAL_LINES="+str(count))
-PY
+'
 
 COLLECTOR_AFTER="$(systemctl is-active wfgg-collector || true)"
 PID_AFTER="$(systemctl show -p MainPID --value wfgg-collector 2>/dev/null || true)"
