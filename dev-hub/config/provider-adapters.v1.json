@@ -237,8 +237,8 @@
       ]
     },
     "nas-ssh-adapter": {
-      "status": "CONTRACT_OK",
-      "executable": null,
+      "status": "PILOT",
+      "executable": "/opt/chacha-dev/adapters/nas-ssh/current/nas-ssh-adapter",
       "supports": [
         "read",
         "workspace-write"
