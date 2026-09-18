@@ -1,0 +1,13 @@
+[Unit]
+Description=Run WfGg Collector incremental auto-watch every 10 minutes
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=10min
+RandomizedDelaySec=30s
+AccuracySec=30s
+Persistent=true
+Unit=wfgg-collector-incremental-auto-watch.service
+
+[Install]
+WantedBy=timers.target

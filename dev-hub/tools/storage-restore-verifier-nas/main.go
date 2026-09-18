@@ -28,6 +28,20 @@ type Expected struct {
 	MastersWatermark      map[string]any    `json:"masters_watermark"`
 }
 
+type stringList []string
+
+func (s *stringList) String() string {
+	return strings.Join(*s, ",")
+}
+
+func (s *stringList) Set(value string) error {
+	if strings.TrimSpace(value) == "" {
+		return errors.New("empty patch path")
+	}
+	*s = append(*s, value)
+	return nil
+}
+
 type Result struct {
 	Schema                string           `json:"schema"`
 	Status                string           `json:"status"`
@@ -40,6 +54,7 @@ type Result struct {
 	MastersWatermark      map[string]any   `json:"masters_watermark"`
 	Errors                []string         `json:"errors"`
 	StatementsExecuted    int64            `json:"statements_executed"`
+	PatchCount            int              `json:"patch_count"`
 }
 
 func main() {
@@ -48,6 +63,8 @@ func main() {
 	expectedPath := flag.String("expected", "", "expected baseline JSON file")
 	expectedB64 := flag.String("expected-b64", "", "base64-encoded expected baseline JSON")
 	resultPath := flag.String("result", "", "result JSON path")
+	var patches stringList
+	flag.Var(&patches, "patch", "gzip-compressed SQLite SQL patch; repeat in chain order")
 	flag.Parse()
 
 	if *master == "" || *restore == "" || (*expectedPath == "" && *expectedB64 == "") || *resultPath == "" {
@@ -58,6 +75,11 @@ func main() {
 	}
 	if filepath.Clean(*master) == filepath.Clean(*restore) {
 		fail("RESTORE_PATH_INVALID")
+	}
+	for _, patch := range patches {
+		if filepath.Clean(patch) == filepath.Clean(*restore) {
+			fail("PATCH_PATH_INVALID")
+		}
 	}
 
 	exp, err := readExpected(*expectedPath, *expectedB64)
@@ -80,14 +102,28 @@ func main() {
 		ObservationsWatermark: map[string]any{},
 		MastersWatermark:      map[string]any{},
 		Errors:                []string{},
+		PatchCount:            len(patches),
 	}
 
-	statements, err := restoreDump(*master, *restore)
+	statements, err := applyGzipSQL(*master, *restore)
 	res.StatementsExecuted = statements
 	if err != nil {
 		res.Errors = append(res.Errors, "RESTORE_FAILED:"+err.Error())
 		writeResult(*resultPath, res)
 		os.Exit(2)
+	}
+
+	for index, patch := range patches {
+		n, patchErr := applyGzipSQL(patch, *restore)
+		res.StatementsExecuted += n
+		if patchErr != nil {
+			res.Errors = append(
+				res.Errors,
+				fmt.Sprintf("PATCH_FAILED:%d:%s", index+1, patchErr.Error()),
+			)
+			writeResult(*resultPath, res)
+			os.Exit(2)
+		}
 	}
 
 	if err := verifyDB(*restore, exp, &res); err != nil {
@@ -126,7 +162,7 @@ func readExpected(path, encoded string) (Expected, error) {
 	return exp, nil
 }
 
-func restoreDump(master, restore string) (int64, error) {
+func applyGzipSQL(master, restore string) (int64, error) {
 	f, err := os.Open(master)
 	if err != nil {
 		return 0, err

@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - dev-hub-v5-storage-restore-verifier-pilot
+      - dev-hub-v5-storage-governor-incremental-auto-watch
     paths:
       - 'dev-hub/adapters/storage-restore-verifier-adapter.py'
       - 'dev-hub/tests/test_storage_restore_verifier_contract.py'
@@ -80,6 +81,9 @@ jobs:
           set -euo pipefail
           grep -Fq 'independent-restore' dev-hub/adapters/storage-restore-verifier-adapter.py
           grep -Fq 'portable_verifier_sha256' dev-hub/adapters/storage-restore-verifier-adapter.py
+          grep -Fq 'COLLECTOR_INCREMENTAL_RESTORE_VERIFIED' dev-hub/adapters/storage-restore-verifier-adapter.py
+          grep -Fq 'collector-incremental-verification/v1' dev-hub/adapters/storage-restore-verifier-adapter.py
+          grep -Fq 'flag.Var(&patches, "patch"' dev-hub/tools/storage-restore-verifier-nas/main.go
           grep -Fq 'sandbox_deleted_after_verification' dev-hub/adapters/storage-restore-verifier-adapter.py
           grep -Fq 'PRAGMA integrity_check' dev-hub/tools/storage-restore-verifier-nas/main.go
           grep -Fq 'modernc.org/sqlite' dev-hub/tools/storage-restore-verifier-nas/main.go

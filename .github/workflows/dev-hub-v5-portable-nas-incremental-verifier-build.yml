@@ -1,0 +1,134 @@
+name: DEV HUB V5 portable NAS incremental restore verifier build
+
+on:
+  push:
+    branches:
+      - dev-hub-v5-storage-governor-incremental-auto-watch
+    paths:
+      - 'dev-hub/tools/storage-restore-verifier-nas/main.go'
+      - 'dev-hub/tools/storage-restore-verifier-nas/go.mod'
+      - 'dev-hub/tools/storage-restore-verifier-nas/go.sum'
+      - '.github/workflows/dev-hub-v5-portable-nas-incremental-verifier-build.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev-hub-v5-storage-governor-incremental-auto-watch
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.25.x'
+
+      - name: Build static linux amd64 verifier
+        working-directory: dev-hub/tools/storage-restore-verifier-nas
+        run: |
+          set -euo pipefail
+          go mod tidy
+          mkdir -p ../../release
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64             go build -trimpath -ldflags='-s -w -buildid='             -o ../../release/storage-restore-verifier-nas-linux-amd64 .
+          chmod 0755 ../../release/storage-restore-verifier-nas-linux-amd64
+          sha256sum ../../release/storage-restore-verifier-nas-linux-amd64             > ../../release/storage-restore-verifier-nas-linux-amd64.sha256
+          MODERN_VERSION="$(go list -m -f '{{.Version}}' modernc.org/sqlite)"
+          BINARY_SHA="$(cut -d' ' -f1 ../../release/storage-restore-verifier-nas-linux-amd64.sha256)"
+          printf '{"schema":"chacha.dev/portable-restore-verifier-build/v1","go_version":"%s","modernc_sqlite":"%s","goos":"linux","goarch":"amd64","sha256":"%s","incremental_patch_support":true}\n'             "$(go version | awk '{print $3}')" "$MODERN_VERSION" "$BINARY_SHA"             > ../../release/storage-restore-verifier-nas-linux-amd64.build.json
+          echo "PORTABLE_INCREMENTAL_VERIFIER_BUILD=PASS"
+          echo "PORTABLE_INCREMENTAL_VERIFIER_SHA256=$BINARY_SHA"
+
+      - name: Exercise MASTER plus ordered incremental patch
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import gzip,json,sqlite3
+          db='/tmp/source.db'
+          conn=sqlite3.connect(db)
+          schema={
+            'cycle_baseline':'cycle_id integer, game_uid text, primary key(cycle_id,game_uid)',
+            'cycle_changes':'id integer primary key, cycle_id integer',
+            'cycle_seen':'cycle_id integer, game_uid text, primary key(cycle_id,game_uid)',
+            'cycles':'id integer primary key, started_at text, finished_at text',
+            'identity_coverage':'scope_id text primary key',
+            'master_players':'master_id integer, game_uid text, primary key(master_id,game_uid)',
+            'masters':'id integer primary key, created_at text',
+            'observations':'id integer primary key, observed_at text',
+            'player_aliases':'game_uid text, pseudo_key text, primary key(game_uid,pseudo_key)',
+            'player_identity':'game_uid text primary key',
+            'players':'game_uid text primary key, last_change_cycle integer',
+          }
+          for t,cols in schema.items():
+            conn.execute(f'create table "{t}"({cols})')
+          conn.execute("insert into cycles values(35,'s35','f35')")
+          conn.execute("insert into observations values(10,'2026-09-18T05:18:00Z')")
+          conn.execute("insert into masters values(1,'2026-09-11T22:23:30Z')")
+          conn.commit()
+          with gzip.open('/tmp/master.sql.gz','wt',encoding='utf-8') as g:
+            for line in conn.iterdump():
+              g.write(line+'\n')
+          conn.close()
+
+          patch=[
+            '-- chacha.dev Collector incremental SQL v1',
+            '-- sequence=1',
+            '-- from_cycle=35',
+            '-- to_cycle=36',
+            'PRAGMA foreign_keys=OFF;',
+            'BEGIN TRANSACTION;',
+            'DELETE FROM "identity_coverage";',
+            'DELETE FROM "master_players";',
+            'DELETE FROM "player_aliases";',
+            'DELETE FROM "player_identity";',
+            'INSERT OR REPLACE INTO "cycles" ("id","started_at","finished_at") VALUES (36,\'s36\',\'f36\');',
+            'INSERT OR REPLACE INTO "players" ("game_uid","last_change_cycle") VALUES (\'u1\',36);',
+            'INSERT OR REPLACE INTO "cycle_baseline" ("cycle_id","game_uid") VALUES (36,\'u1\');',
+            'INSERT OR REPLACE INTO "cycle_seen" ("cycle_id","game_uid") VALUES (36,\'u1\');',
+            'INSERT OR REPLACE INTO "cycle_changes" ("id","cycle_id") VALUES (11,36);',
+            'INSERT OR REPLACE INTO "observations" ("id","observed_at") VALUES (11,\'2026-09-18T06:18:00Z\');',
+            'COMMIT;',
+            'PRAGMA foreign_keys=ON;',
+          ]
+          with gzip.open('/tmp/inc1.sql.gz','wt',encoding='utf-8') as g:
+            g.write('\n'.join(patch)+'\n')
+          expected={
+            'row_counts':{
+              'cycle_baseline':1,'cycle_changes':1,'cycle_seen':1,'cycles':2,
+              'identity_coverage':0,'master_players':0,'masters':1,'observations':2,
+              'player_aliases':0,'player_identity':0,'players':1,
+            },
+            'baseline_cycle':36,
+            'observations_watermark':{'observed_at':'2026-09-18T06:18:00Z','id':11},
+            'masters_watermark':{'created_at':'2026-09-11T22:23:30Z','id':1},
+          }
+          open('/tmp/expected.json','w').write(json.dumps(expected))
+          PY
+          dev-hub/release/storage-restore-verifier-nas-linux-amd64             --master /tmp/master.sql.gz             --patch /tmp/inc1.sql.gz             --restore /tmp/restored.db             --expected /tmp/expected.json             --result /tmp/result.json
+          python3 - <<'PY'
+          import json
+          x=json.load(open('/tmp/result.json'))
+          assert x['status']=='PASS',x
+          assert x['integrity']=='ok',x
+          assert x['baseline_cycle']==36,x
+          assert x['patch_count']==1,x
+          assert x['row_counts']['cycles']==2,x
+          print('PORTABLE_INCREMENTAL_PATCH_RESTORE=PASS')
+          PY
+
+      - name: Publish binary on auto-watch branch
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add             dev-hub/tools/storage-restore-verifier-nas/go.mod             dev-hub/tools/storage-restore-verifier-nas/go.sum             dev-hub/release/storage-restore-verifier-nas-linux-amd64             dev-hub/release/storage-restore-verifier-nas-linux-amd64.sha256             dev-hub/release/storage-restore-verifier-nas-linux-amd64.build.json
+          if git diff --cached --quiet; then
+            echo PORTABLE_INCREMENTAL_VERIFIER_PUBLISH=NO_CHANGE
+          else
+            git commit -m 'build(dev-hub): publish portable incremental restore verifier [skip ci]'
+            git push origin HEAD:dev-hub-v5-storage-governor-incremental-auto-watch
+            echo PORTABLE_INCREMENTAL_VERIFIER_PUBLISH=PASS
+          fi

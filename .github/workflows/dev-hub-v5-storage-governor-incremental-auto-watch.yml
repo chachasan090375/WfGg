@@ -1,0 +1,108 @@
+name: DEV HUB V5 Collector incremental auto-watch qualification
+
+on:
+  push:
+    branches:
+      - dev-hub-v5-storage-governor-incremental-auto-watch
+    paths:
+      - 'dev-hub/adapters/storage-governor-adapter.py'
+      - 'dev-hub/adapters/storage-governor-incremental-chain.py'
+      - 'dev-hub/adapters/storage-restore-verifier-adapter.py'
+      - 'dev-hub/bin/collector-incremental-auto-watch.py'
+      - 'dev-hub/bin/install-collector-incremental-auto-watch.sh'
+      - 'dev-hub/systemd/wfgg-collector-incremental-auto-watch.*'
+      - 'dev-hub/tests/test_storage_governor_contract.py'
+      - 'dev-hub/tests/test_storage_restore_verifier_contract.py'
+      - 'dev-hub/tests/test_collector_incremental_auto_watch.py'
+      - 'dev-hub/tools/storage-restore-verifier-nas/**'
+      - 'dev-hub/release/storage-restore-verifier-nas-linux-amd64'
+      - 'dev-hub/release/storage-restore-verifier-nas-linux-amd64.sha256'
+      - 'dev-hub/release/storage-restore-verifier-nas-linux-amd64.build.json'
+      - '.github/workflows/dev-hub-v5-storage-governor-incremental-auto-watch.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 30
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Compile and contract tests
+        run: |
+          set -euo pipefail
+          python3 -m py_compile             dev-hub/adapters/storage-governor-adapter.py             dev-hub/adapters/storage-governor-incremental-chain.py             dev-hub/adapters/storage-restore-verifier-adapter.py             dev-hub/bin/collector-incremental-auto-watch.py
+          bash -n dev-hub/bin/install-collector-incremental-auto-watch.sh
+          grep -Fq 'ssh -n -o BatchMode=yes' dev-hub/bin/install-collector-incremental-auto-watch.sh
+          echo COLLECTOR_INCREMENTAL_INSTALLER_STDIN_ISOLATION=PASS
+          python3 -m unittest -v             dev-hub/tests/test_storage_governor_contract.py             dev-hub/tests/test_storage_restore_verifier_contract.py             dev-hub/tests/test_collector_incremental_auto_watch.py
+          echo COLLECTOR_INCREMENTAL_AUTO_WATCH_TESTS=PASS
+
+      - name: Assert two-phase verification contract
+        run: |
+          set -euo pipefail
+          grep -Fq 'COLLECTOR_INCREMENTAL_CANDIDATE_CREATED' dev-hub/adapters/storage-governor-adapter.py
+          grep -Fq 'COLLECTOR_INCREMENTAL_RESTORE_VERIFIED' dev-hub/adapters/storage-restore-verifier-adapter.py
+          grep -Fq 'COLLECTOR_INCREMENTAL_COMMITTED' dev-hub/adapters/storage-governor-adapter.py
+          grep -Fq 'COLLECTOR_INCREMENTAL_VERIFICATION_NOT_VERIFIED' dev-hub/adapters/storage-governor-adapter.py
+          grep -Fq 'restored_row_counts' dev-hub/adapters/storage-governor-adapter.py
+          grep -Fq 'candidate_sha256' dev-hub/adapters/storage-restore-verifier-adapter.py
+          grep -Fq 'package_sha256' dev-hub/adapters/storage-restore-verifier-adapter.py
+          grep -Fq 'COLLECTOR_INCREMENTAL_ALREADY_VERIFIED' dev-hub/adapters/storage-restore-verifier-adapter.py
+          grep -Fq 'fcntl.LOCK_EX|fcntl.LOCK_NB' dev-hub/bin/collector-incremental-auto-watch.py
+          ! grep -Fq 'systemctl stop' dev-hub/bin/collector-incremental-auto-watch.py
+          ! grep -Fq 'systemctl stop' dev-hub/adapters/storage-governor-adapter.py
+          ! grep -Fq 'systemctl stop' dev-hub/adapters/storage-restore-verifier-adapter.py
+          echo COLLECTOR_INCREMENTAL_TWO_PHASE_COMMIT=PASS
+          echo COLLECTOR_INCREMENTAL_VERIFIER_INDEPENDENT=PASS
+          echo COLLECTOR_INCREMENTAL_NO_SERVICE_STOP=PASS
+
+      - name: Assert systemd watch policy
+        run: |
+          set -euo pipefail
+          grep -Fq 'ExecStart=/opt/chacha-dev/bin/collector-incremental-auto-watch'             dev-hub/systemd/wfgg-collector-incremental-auto-watch.service
+          grep -Fq 'OnUnitActiveSec=10min'             dev-hub/systemd/wfgg-collector-incremental-auto-watch.timer
+          grep -Fq 'RandomizedDelaySec=30s'             dev-hub/systemd/wfgg-collector-incremental-auto-watch.timer
+          grep -Fq 'Persistent=true'             dev-hub/systemd/wfgg-collector-incremental-auto-watch.timer
+          echo COLLECTOR_INCREMENTAL_TIMER_POLICY=PASS
+
+      - name: Assert portable incremental verifier artifact
+        run: |
+          set -euo pipefail
+          EXPECTED="$(cut -d' ' -f1 dev-hub/release/storage-restore-verifier-nas-linux-amd64.sha256)"
+          ACTUAL="$(sha256sum dev-hub/release/storage-restore-verifier-nas-linux-amd64 | awk '{print $1}')"
+          test "$ACTUAL" = "$EXPECTED"
+          python3 - <<'PY'
+          import json
+          x=json.load(open('dev-hub/release/storage-restore-verifier-nas-linux-amd64.build.json'))
+          assert x['incremental_patch_support'] is True,x
+          assert x['goos']=='linux' and x['goarch']=='amd64',x
+          print('PORTABLE_INCREMENTAL_VERIFIER_METADATA=PASS')
+          PY
+          echo PORTABLE_INCREMENTAL_VERIFIER_ARTIFACT_SHA256=PASS
+
+      - name: Assert pinned installer source is self-contained
+        run: |
+          set -euo pipefail
+          PIN="$(sed -n 's/^SOURCE_REVISION="\([^"]*\)"/\1/p' dev-hub/bin/install-collector-incremental-auto-watch.sh)"
+          PIN_SHA="$(sed -n 's/^PORTABLE_SHA="\([^"]*\)"/\1/p' dev-hub/bin/install-collector-incremental-auto-watch.sh)"
+          test -n "$PIN"
+          test -n "$PIN_SHA"
+          git fetch --no-tags --depth=1 origin "$PIN"
+          for path in             dev-hub/adapters/storage-governor-adapter.py             dev-hub/adapters/storage-governor-incremental-chain.py             dev-hub/adapters/storage-restore-verifier-adapter.py             dev-hub/bin/collector-incremental-auto-watch.py             dev-hub/systemd/wfgg-collector-incremental-auto-watch.service             dev-hub/systemd/wfgg-collector-incremental-auto-watch.timer             dev-hub/release/storage-restore-verifier-nas-linux-amd64
+          do
+            git cat-file -e "$PIN:$path"
+          done
+          ACTUAL_PIN_SHA="$(git show "$PIN:dev-hub/release/storage-restore-verifier-nas-linux-amd64" | sha256sum | awk '{print $1}')"
+          test "$ACTUAL_PIN_SHA" = "$PIN_SHA"
+          echo COLLECTOR_INCREMENTAL_INSTALLER_PIN=PASS
+          echo COLLECTOR_INCREMENTAL_INSTALLER_PORTABLE_SHA=PASS

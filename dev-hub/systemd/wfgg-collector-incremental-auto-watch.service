@@ -1,0 +1,17 @@
+[Unit]
+Description=WfGg Collector incremental auto-watch (ChaCha DEV)
+After=network-online.target tailscaled.service wfgg-collector.service
+Wants=network-online.target
+Requires=wfgg-collector.service
+ConditionPathExists=/opt/chacha-dev/bin/collector-incremental-auto-watch
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+UMask=0077
+ExecStart=/opt/chacha-dev/bin/collector-incremental-auto-watch
+Nice=10
+IOSchedulingClass=idle
+TimeoutStartSec=3h
+NoNewPrivileges=true

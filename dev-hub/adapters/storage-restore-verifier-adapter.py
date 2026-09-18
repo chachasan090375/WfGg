@@ -99,7 +99,8 @@ def validate_request(request: dict[str,Any]) -> tuple[dict[str,Any]|None,str|Non
     cfg=metadata.get("storage_restore_verifier") if isinstance(metadata,dict) else None
     if not isinstance(cfg,dict):
         return None,"RESTORE_VERIFIER_METADATA_MISSING"
-    if str(cfg.get("action") or "")!="verify-master-anchor":
+    action=str(cfg.get("action") or "")
+    if action not in {"verify-master-anchor","verify-incremental-candidate"}:
         return None,"RESTORE_VERIFIER_ACTION_NOT_ALLOWED"
     return cfg,None
 
@@ -199,6 +200,387 @@ def verify_probe(probe: dict[str,Any], expected_rows: dict[str,int], expected: d
     if int(masters.get("id") or -1)!=int(expected["masters"]["id"]):
         errors.append("MASTER_ID_WATERMARK_MISMATCH")
     return errors
+
+
+def read_remote_json(path: str) -> dict[str,Any]:
+    proc=run(ssh_base()+["cat",path],timeout=60)
+    if proc.returncode!=0:
+        raise RuntimeError("REMOTE_JSON_READ_FAILED")
+    value=json.loads(proc.stdout.decode("utf-8","replace"))
+    if not isinstance(value,dict):
+        raise RuntimeError("REMOTE_JSON_INVALID")
+    return value
+
+
+def write_remote_json_immutable(path: str, document: dict[str,Any]) -> None:
+    if run(ssh_base()+["test","-e",path],timeout=30).returncode==0:
+        existing=read_remote_json(path)
+        if existing==document:
+            return
+        raise RuntimeError("REMOTE_JSON_COLLISION")
+    temp=path+f".incoming-{os.getpid()}"
+    payload=(json.dumps(document,indent=2,ensure_ascii=False)+"\n").encode()
+    remote_cmd=f"umask 077; cat > {shlex.quote(temp)}"
+    proc=subprocess.Popen(
+        ["/usr/bin/ssh","-o","BatchMode=yes","-o","ConnectTimeout=12",nas_host(),remote_cmd],
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        shell=False,
+    )
+    out,err=proc.communicate(payload,timeout=60)
+    if proc.returncode!=0:
+        run(ssh_base()+["rm","-f",temp],timeout=20)
+        raise RuntimeError("REMOTE_JSON_UPLOAD_FAILED:"+err.decode("utf-8","replace")[:160])
+    move=run(
+        ssh_base()+[
+            f"test ! -e {shlex.quote(path)} && mv {shlex.quote(temp)} {shlex.quote(path)}"
+        ],
+        timeout=30,
+    )
+    if move.returncode!=0:
+        run(ssh_base()+["rm","-f",temp],timeout=20)
+        raise RuntimeError("REMOTE_JSON_ATOMIC_PUBLISH_FAILED")
+
+
+def canonical_digest(value: dict[str,Any]) -> str:
+    return sha256_bytes(json.dumps(value,sort_keys=True,separators=(",",":")).encode())
+
+
+def portable_verifier_path(cfg: dict[str,Any]) -> tuple[Path,str]:
+    path=Path(os.environ.get("CHACHA_PORTABLE_RESTORE_VERIFIER","")).resolve()
+    expected=str(cfg.get("portable_verifier_sha256") or "")
+    if not path.is_file():
+        raise RuntimeError("PORTABLE_RESTORE_VERIFIER_MISSING")
+    if not re.fullmatch(r"sha256:[0-9a-f]{64}",expected):
+        raise RuntimeError("PORTABLE_RESTORE_VERIFIER_SHA_INVALID")
+    actual="sha256:"+hashlib.sha256(path.read_bytes()).hexdigest()
+    if actual!=expected:
+        raise RuntimeError("PORTABLE_RESTORE_VERIFIER_LOCAL_SHA_MISMATCH")
+    return path,expected
+
+
+def upload_portable_verifier(local_path: Path, remote_path: str, expected_sha: str) -> None:
+    scp=subprocess.run(
+        [
+            "/usr/bin/scp","-q",
+            "-o","BatchMode=yes",
+            "-o","ConnectTimeout=12",
+            str(local_path),
+            f"{nas_host()}:{remote_path}",
+        ],
+        stdin=subprocess.DEVNULL,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        timeout=120,
+        shell=False,
+        check=False,
+    )
+    if scp.returncode!=0:
+        raise RuntimeError(
+            "PORTABLE_RESTORE_VERIFIER_UPLOAD_FAILED:"+
+            scp.stderr.decode("utf-8","replace")[:160]
+        )
+    remote_exec(
+        f"chmod 0700 {shlex.quote(remote_path)}; "
+        f"test \"sha256:$(sha256sum {shlex.quote(remote_path)} | awk '{{print $1}}')\" = "
+        f"{shlex.quote(expected_sha)}",
+        timeout=60,
+    )
+
+
+def run_portable_restore(
+    *,
+    local_portable: Path,
+    portable_sha: str,
+    master_abs: str,
+    patch_abs: list[str],
+    sandbox: str,
+    expected_doc: dict[str,Any],
+) -> tuple[dict[str,Any]|None,subprocess.CompletedProcess[bytes],str,str]:
+    restored=f"{sandbox}/collector-restore.db"
+    remote_bin=f"{sandbox}/storage-restore-verifier"
+    remote_result=f"{sandbox}/result.json"
+    expected_b64=base64.b64encode(
+        json.dumps(expected_doc,separators=(",",":"),sort_keys=True).encode()
+    ).decode()
+
+    remote_exec(
+        f"umask 077; mkdir -p {shlex.quote(sandbox)}; "
+        f"test ! -e {shlex.quote(restored)}; "
+        f"test ! -e {shlex.quote(remote_bin)}",
+        timeout=30,
+    )
+    upload_portable_verifier(local_portable,remote_bin,portable_sha)
+
+    patch_args="".join(
+        f" --patch {shlex.quote(path)}"
+        for path in patch_abs
+    )
+    verifier_cmd=(
+        f"{shlex.quote(remote_bin)} "
+        f"--master {shlex.quote(master_abs)}"
+        f"{patch_args} "
+        f"--restore {shlex.quote(restored)} "
+        f"--expected-b64 {shlex.quote(expected_b64)} "
+        f"--result {shlex.quote(remote_result)}"
+    )
+    verifier_proc=run(ssh_base()+[verifier_cmd],timeout=1800)
+    probe=None
+    probe_proc=run(
+        ssh_base()+[
+            f"test -s {shlex.quote(remote_result)} && cat {shlex.quote(remote_result)}"
+        ],
+        timeout=60,
+    )
+    if probe_proc.returncode==0 and probe_proc.stdout.strip():
+        try:
+            probe=json.loads(probe_proc.stdout.decode("utf-8","replace"))
+        except Exception:
+            probe=None
+    return probe,verifier_proc,restored,remote_result
+
+
+def cleanup_restore_sandbox(sandbox: str, restored: str, remote_result: str) -> None:
+    remote_bin=f"{sandbox}/storage-restore-verifier"
+    try:
+        remote_exec(
+            f"rm -f {shlex.quote(restored)} "
+            f"{shlex.quote(restored+'-journal')} "
+            f"{shlex.quote(restored+'-wal')} "
+            f"{shlex.quote(restored+'-shm')} "
+            f"{shlex.quote(remote_result)} "
+            f"{shlex.quote(remote_bin)}; "
+            f"rmdir {shlex.quote(sandbox)} 2>/dev/null || true",
+            timeout=60,
+        )
+    except Exception:
+        pass
+
+
+def verify_incremental_candidate(request: dict[str,Any], cfg: dict[str,Any]) -> int:
+    run_id=str(request.get("run_id") or "incremental-restore-verifier")
+    if not SAFE_RUN.fullmatch(run_id):
+        return blocked(request,"RESTORE_VERIFIER_RUN_ID_INVALID")
+
+    root=nas_root()
+    candidate_rel=safe_rel(
+        str(cfg.get("candidate_path") or ""),
+        "projects/wfgg/backups/collector-chain/",
+    )
+    candidate_abs=f"{root}/{candidate_rel}"
+    candidate=read_remote_json(candidate_abs)
+    if candidate.get("schema")!="chacha.dev/collector-incremental-candidate/v1":
+        return blocked(request,"INCREMENTAL_CANDIDATE_SCHEMA_INVALID")
+    if candidate.get("status")!="PENDING_VERIFICATION":
+        return blocked(request,"INCREMENTAL_CANDIDATE_STATUS_INVALID")
+
+    sequence=int(candidate.get("sequence") or 0)
+    if sequence<=0:
+        return blocked(request,"INCREMENTAL_CANDIDATE_SEQUENCE_INVALID")
+    expected_name=f"collector-chain-candidate-{sequence:06d}.json"
+    if not candidate_rel.endswith("/"+expected_name):
+        return blocked(request,"INCREMENTAL_CANDIDATE_PATH_SEQUENCE_MISMATCH")
+
+    candidate_sha=canonical_digest(candidate)
+    incremental=dict(candidate.get("incremental") or {})
+    package_rel=safe_rel(
+        str(incremental.get("archive") or ""),
+        "projects/wfgg/backups/collector-chain/incrementals/",
+    )
+    package_sha=str(incremental.get("sha256") or "")
+    if not re.fullmatch(r"sha256:[0-9a-f]{64}",package_sha):
+        return blocked(request,"INCREMENTAL_PACKAGE_SHA_INVALID")
+    package_abs=f"{root}/{package_rel}"
+    if "sha256:"+remote_sha256(package_abs)!=package_sha:
+        return blocked(request,"INCREMENTAL_PACKAGE_SHA_MISMATCH")
+
+    receipt_rel=(
+        "projects/wfgg/backups/collector-chain/"
+        f"collector-chain-verification-{sequence:06d}.json"
+    )
+    receipt_abs=f"{root}/{receipt_rel}"
+    if run(ssh_base()+["test","-e",receipt_abs],timeout=30).returncode==0:
+        receipt=read_remote_json(receipt_abs)
+        if (
+            receipt.get("schema")=="chacha.dev/collector-incremental-verification/v1"
+            and receipt.get("status")=="VERIFIED"
+            and int(receipt.get("sequence") or -1)==sequence
+            and receipt.get("candidate_sha256")==candidate_sha
+            and receipt.get("package_sha256")==package_sha
+        ):
+            return emit(result(
+                request,"OK","COLLECTOR_INCREMENTAL_ALREADY_VERIFIED",
+                [{
+                    "kind":"report",
+                    "source":"nas://"+nas_host()+"/"+receipt_rel,
+                    "digest":canonical_digest(receipt),
+                    "details":{
+                        "sequence":sequence,
+                        "candidate_sha256":candidate_sha,
+                        "package_sha256":package_sha,
+                        "receipt_reused":True,
+                    },
+                }],
+                [{
+                    "type":"artifact","id":receipt_rel,"status":"VERIFIED",
+                    "reason":"Existing immutable verification receipt matches candidate and package."
+                }]
+            ))
+        return blocked(request,"INCREMENTAL_VERIFICATION_RECEIPT_COLLISION")
+
+    previous_rel=safe_rel(
+        str(candidate.get("previous_state_path") or ""),
+        "projects/wfgg/backups/collector-chain/",
+    )
+    previous_abs=f"{root}/{previous_rel}"
+    previous=read_remote_json(previous_abs)
+    previous_sha=canonical_digest(previous)
+    if previous_sha!=str(candidate.get("previous_state_sha256") or ""):
+        return blocked(request,"INCREMENTAL_PREVIOUS_STATE_SHA_MISMATCH")
+    if int(previous.get("sequence") or -1)!=sequence-1:
+        return blocked(request,"INCREMENTAL_PREVIOUS_STATE_SEQUENCE_MISMATCH")
+
+    master=dict(candidate.get("master") or {})
+    master_rel=safe_rel(
+        str(master.get("archive") or ""),
+        "projects/wfgg/backups/",
+    )
+    master_sha=str(master.get("sha256") or "")
+    if not re.fullmatch(r"sha256:[0-9a-f]{64}",master_sha):
+        return blocked(request,"INCREMENTAL_MASTER_SHA_INVALID")
+    master_abs=f"{root}/{master_rel}"
+    if "sha256:"+remote_sha256(master_abs)!=master_sha:
+        return blocked(request,"INCREMENTAL_MASTER_SHA_MISMATCH")
+
+    # Replay every committed package in strict sequence before the candidate.
+    patch_abs=[]
+    for index in range(1,sequence):
+        state_rel=(
+            "projects/wfgg/backups/collector-chain/"
+            f"collector-chain-state-{index:06d}.json"
+        )
+        state=read_remote_json(f"{root}/{state_rel}")
+        if int(state.get("sequence") or -1)!=index:
+            return blocked(request,"INCREMENTAL_COMMITTED_STATE_SEQUENCE_MISMATCH")
+        inc=dict(state.get("incremental") or {})
+        rel=safe_rel(
+            str(inc.get("archive") or ""),
+            "projects/wfgg/backups/collector-chain/incrementals/",
+        )
+        digest=str(inc.get("sha256") or "")
+        if not re.fullmatch(r"sha256:[0-9a-f]{64}",digest):
+            return blocked(request,"INCREMENTAL_COMMITTED_PACKAGE_SHA_INVALID")
+        absolute=f"{root}/{rel}"
+        if "sha256:"+remote_sha256(absolute)!=digest:
+            return blocked(request,"INCREMENTAL_COMMITTED_PACKAGE_SHA_MISMATCH")
+        patch_abs.append(absolute)
+    patch_abs.append(package_abs)
+
+    expectations=dict(candidate.get("verification_expectations") or {})
+    restored_rows=dict(expectations.get("restored_row_counts") or {})
+    result_wm=dict(expectations.get("result_watermarks") or {})
+    if sorted(restored_rows)!=sorted(EXPECTED_TABLES):
+        return blocked(request,"INCREMENTAL_RESTORED_ROW_COUNTS_INCOMPLETE")
+    expected_doc={
+        "row_counts":{k:int(v) for k,v in restored_rows.items()},
+        "baseline_cycle":int(incremental.get("to_cycle") or 0),
+        "observations_watermark":dict(result_wm.get("observations") or {}),
+        "masters_watermark":dict(result_wm.get("masters") or {}),
+    }
+
+    local_portable,portable_sha=portable_verifier_path(cfg)
+    arch=remote_exec("uname -m",timeout=30).strip()
+    if arch not in {"x86_64","amd64"}:
+        return blocked(request,"NAS_ARCH_UNSUPPORTED:"+arch)
+
+    sandbox=f"{root}/artifacts/restore-verification/{run_id}"
+    restored=remote_result=""
+    try:
+        probe,proc,restored,remote_result=run_portable_restore(
+            local_portable=local_portable,
+            portable_sha=portable_sha,
+            master_abs=master_abs,
+            patch_abs=patch_abs,
+            sandbox=sandbox,
+            expected_doc=expected_doc,
+        )
+        if proc.returncode!=0 or not isinstance(probe,dict) or probe.get("status")!="PASS":
+            details={
+                "remote_returncode":proc.returncode,
+                "remote_stderr":proc.stderr.decode("utf-8","replace")[:500],
+                "result_json_present":isinstance(probe,dict),
+            }
+            if isinstance(probe,dict):
+                details.update({
+                    "portable_status":probe.get("status"),
+                    "portable_errors":list(probe.get("errors") or []),
+                    "statements_executed":probe.get("statements_executed"),
+                    "patch_count":probe.get("patch_count"),
+                    "integrity":probe.get("integrity"),
+                    "table_count":len(probe.get("tables") or []),
+                    "row_counts":dict(probe.get("row_counts") or {}),
+                    "baseline_cycle":probe.get("baseline_cycle"),
+                })
+            return emit(result(
+                request,"FAILED","COLLECTOR_INCREMENTAL_RESTORE_VERIFICATION_FAILED",
+                [{
+                    "kind":"report",
+                    "source":"nas://"+nas_host()+"/restore-verification",
+                    "digest":sha256_bytes(json.dumps(details,sort_keys=True).encode()),
+                    "details":details,
+                }]
+            ))
+
+        receipt={
+            "schema":"chacha.dev/collector-incremental-verification/v1",
+            "status":"VERIFIED",
+            "sequence":sequence,
+            "verified_at":now_iso(),
+            "verifier":ADAPTER_ID,
+            "candidate_path":candidate_rel,
+            "candidate_sha256":candidate_sha,
+            "package_sha256":package_sha,
+            "master_sha256":master_sha,
+            "portable_verifier_sha256":portable_sha,
+            "patch_count":len(patch_abs),
+            "restored":{
+                "integrity":probe.get("integrity"),
+                "table_count":len(probe.get("tables") or []),
+                "row_counts":dict(probe.get("row_counts") or {}),
+                "baseline_cycle":int(probe.get("baseline_cycle") or 0),
+                "observations_watermark":dict(probe.get("observations_watermark") or {}),
+                "masters_watermark":dict(probe.get("masters_watermark") or {}),
+            },
+            "production_data_mutation":False,
+            "immutable":True,
+        }
+        write_remote_json_immutable(f"{root}/{receipt_rel}",receipt)
+        evidence=[{
+            "kind":"report",
+            "source":"nas://"+nas_host()+"/"+receipt_rel,
+            "digest":canonical_digest(receipt),
+            "details":{
+                "sequence":sequence,
+                "candidate_sha256":candidate_sha,
+                "package_sha256":package_sha,
+                "patch_count":len(patch_abs),
+                "integrity":"ok",
+                "baseline_cycle":receipt["restored"]["baseline_cycle"],
+                "production_data_mutation":False,
+            },
+        }]
+        return emit(result(
+            request,"OK","COLLECTOR_INCREMENTAL_RESTORE_VERIFIED",
+            evidence,
+            [{
+                "type":"artifact","id":receipt_rel,"status":"VERIFIED",
+                "reason":"MASTER plus committed chain plus candidate restored independently."
+            }]
+        ))
+    finally:
+        if restored and remote_result:
+            cleanup_restore_sandbox(sandbox,restored,remote_result)
 
 
 def verify_master_anchor(request: dict[str,Any], cfg: dict[str,Any]) -> int:
@@ -462,6 +844,8 @@ def main() -> int:
         return blocked(request,error)
     assert cfg is not None
     try:
+        if cfg.get("action")=="verify-incremental-candidate":
+            return verify_incremental_candidate(request,cfg)
         return verify_master_anchor(request,cfg)
     except subprocess.TimeoutExpired:
         return emit(result(request,"FAILED","RESTORE_VERIFIER_TIMEOUT"))
