@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - dev-hub-v5-storage-governor-incremental-chain-v1
+      - dev-hub-v5-storage-governor-incremental-auto-watch
     paths:
       - 'dev-hub/adapters/storage-governor-adapter.py'
       - 'dev-hub/adapters/storage-governor-incremental-chain.py'
@@ -44,7 +45,10 @@ jobs:
         run: |
           set -euo pipefail
           grep -Fq 'COLLECTOR_INCREMENTAL_CHAIN_ANCHORED' dev-hub/adapters/storage-governor-adapter.py
-          grep -Fq 'COLLECTOR_INCREMENTAL_PACKAGE_CREATED' dev-hub/adapters/storage-governor-adapter.py
+          grep -Fq 'COLLECTOR_INCREMENTAL_CANDIDATE_CREATED' dev-hub/adapters/storage-governor-adapter.py
+          grep -Fq 'COLLECTOR_INCREMENTAL_COMMITTED' dev-hub/adapters/storage-governor-adapter.py
+          grep -Fq 'COLLECTOR_INCREMENTAL_VERIFICATION_NOT_VERIFIED' dev-hub/adapters/storage-governor-adapter.py
+          grep -Fq 'restored_row_counts' dev-hub/adapters/storage-governor-adapter.py
           grep -Fq 'COLLECTOR_INCREMENTAL_NOOP' dev-hub/adapters/storage-governor-adapter.py
           grep -Fq 'CHAIN_CYCLE_GAP' dev-hub/adapters/storage-governor-incremental-chain.py
           grep -Fq 'PRAGMA foreign_keys=OFF;' dev-hub/adapters/storage-governor-incremental-chain.py
