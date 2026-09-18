@@ -1,0 +1,46 @@
+{
+  "schema": "chacha.dev/dispatch-envelope/v1",
+  "project": "wfgg-radar",
+  "transition": "storage-governor-assess",
+  "run_id": "storage-governor-contract-001",
+  "wave": 1,
+  "task": {
+    "id": "collector-storage-assess",
+    "kind": "storage-governance",
+    "description": "Assess Collector backup readiness.",
+    "owner_role": "storage-governor",
+    "permission": "read",
+    "outputs": [
+      {
+        "type": "gate",
+        "id": "collector-master-readiness"
+      }
+    ],
+    "verification": {
+      "required": true,
+      "mode": "machine"
+    }
+  },
+  "bindings": [
+    {
+      "capability": "storage-governance",
+      "provider": "storage-governor",
+      "adapter": "storage-governor-adapter",
+      "fallback_used": false,
+      "health_state": "contract-test"
+    }
+  ],
+  "policy_context": {
+    "resource_class": "heavy",
+    "requires_storage_preflight": true,
+    "human_approval_required": false,
+    "approval_id": null,
+    "timeout_seconds": 30
+  },
+  "workspace": "/opt/chacha-dev",
+  "metadata": {
+    "storage_governor": {
+      "action": "assess"
+    }
+  }
+}

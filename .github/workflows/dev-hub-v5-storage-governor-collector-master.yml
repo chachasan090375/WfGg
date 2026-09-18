@@ -1,0 +1,83 @@
+name: DEV HUB V5 Storage Governor Collector MASTER CONTRACT_OK
+
+on:
+  push:
+    branches:
+      - dev-hub-v5-storage-governor-collector-master
+    paths:
+      - 'dev-hub/adapters/storage-governor-adapter.py'
+      - 'dev-hub/tests/test_storage_governor_contract.py'
+      - 'dev-hub/fixtures/storage-governor.assess.v1.json'
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - '.github/workflows/dev-hub-v5-storage-governor-collector-master.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify-contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Compile Storage Governor
+        run: |
+          set -euo pipefail
+          python3 -m py_compile dev-hub/adapters/storage-governor-adapter.py
+          echo STORAGE_GOVERNOR_COMPILE=PASS
+
+      - name: Run offline contract tests
+        run: |
+          set -euo pipefail
+          python3 -m unittest -v dev-hub/tests/test_storage_governor_contract.py
+          echo STORAGE_GOVERNOR_TESTS=PASS
+
+      - name: Validate adapter registry contract
+        run: |
+          set -euo pipefail
+          python3 dev-hub/bin/adapter-contract-harness.py             --registry dev-hub/config/provider-adapters.v1.json             --policy dev-hub/config/adapter-contract.v1.json             --report /tmp/storage-governor-contract-report.json
+          echo STORAGE_GOVERNOR_STATIC_CONTRACT=PASS
+
+      - name: Assert dedicated adapter remains CONTRACT_OK
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          r=json.load(open('dev-hub/config/provider-adapters.v1.json'))
+          p=r['providers']['storage-governor']
+          a=r['adapters']['storage-governor-adapter']
+          assert p['adapter']=='storage-governor-adapter',p
+          assert p['execution']=='vps',p
+          assert a['status']=='CONTRACT_OK',a
+          assert a['executable'] is None,a
+          assert set(a['supports'])=={'read','workspace-write'},a
+          print('STORAGE_GOVERNOR_STATUS=CONTRACT_OK')
+          print('STORAGE_GOVERNOR_RUNTIME_ENABLED=NO')
+          PY
+
+      - name: Assert Collector MASTER safety invariants
+        run: |
+          set -euo pipefail
+          grep -Fq 'sqlite-read-transaction-logical-dump' dev-hub/adapters/storage-governor-adapter.py
+          grep -Fq 'COLLECTOR_MASTER_ALREADY_EXISTS' dev-hub/adapters/storage-governor-adapter.py
+          grep -Fq 'collector_service_stopped":False' dev-hub/adapters/storage-governor-adapter.py
+          grep -Fq 'incremental_chain_started":False' dev-hub/adapters/storage-governor-adapter.py
+          grep -Fq 'shell=False' dev-hub/adapters/storage-governor-adapter.py
+          ! grep -Fq 'systemctl stop' dev-hub/adapters/storage-governor-adapter.py
+          ! grep -Fq 'rm -rf' dev-hub/adapters/storage-governor-adapter.py
+          echo COLLECTOR_MASTER_READONLY_SOURCE=PASS
+          echo COLLECTOR_SERVICE_DOWNTIME=NO
+          echo LOCAL_FULL_SNAPSHOT=NO
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dev-hub-v5-storage-governor-contract-${{ github.run_id }}
+          path: /tmp/storage-governor-contract-report.json
+          retention-days: 30
+          if-no-files-found: error
