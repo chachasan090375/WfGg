@@ -299,18 +299,70 @@ def verify_master_anchor(request: dict[str,Any], cfg: dict[str,Any]) -> int:
             timeout=60,
         )
 
-        remote_exec(
+        verifier_cmd=(
             f"{shlex.quote(remote_bin)} "
             f"--master {shlex.quote(master_abs)} "
             f"--restore {shlex.quote(restored)} "
             f"--expected-b64 {shlex.quote(expected_b64)} "
-            f"--result {shlex.quote(remote_result)}",
-            timeout=1800,
+            f"--result {shlex.quote(remote_result)}"
         )
+        verifier_proc=run(ssh_base()+[verifier_cmd],timeout=1800)
 
-        probe=json.loads(remote_exec(
-            f"cat {shlex.quote(remote_result)}",timeout=60
-        ))
+        probe=None
+        probe_proc=run(
+            ssh_base()+[
+                f"test -s {shlex.quote(remote_result)} && "
+                f"cat {shlex.quote(remote_result)}"
+            ],
+            timeout=60,
+        )
+        if probe_proc.returncode==0 and probe_proc.stdout.strip():
+            try:
+                probe=json.loads(probe_proc.stdout.decode("utf-8","replace"))
+            except Exception:
+                probe=None
+
+        if verifier_proc.returncode!=0:
+            details={
+                "remote_returncode":verifier_proc.returncode,
+                "remote_stderr":verifier_proc.stderr.decode("utf-8","replace")[:500],
+                "result_json_present":probe is not None,
+            }
+            if isinstance(probe,dict):
+                details.update({
+                    "portable_status":probe.get("status"),
+                    "portable_errors":list(probe.get("errors") or []),
+                    "statements_executed":probe.get("statements_executed"),
+                    "integrity":probe.get("integrity"),
+                    "table_count":len(probe.get("tables") or []),
+                    "row_counts":dict(probe.get("row_counts") or {}),
+                    "baseline_cycle":probe.get("baseline_cycle"),
+                })
+            return emit(result(
+                request,
+                "FAILED",
+                "COLLECTOR_RESTORE_PORTABLE_VERIFIER_FAILED",
+                [{
+                    "kind":"report",
+                    "source":"nas://"+nas_host()+"/restore-verification",
+                    "digest":sha256_bytes(json.dumps(details,sort_keys=True).encode()),
+                    "details":details,
+                }]
+            ))
+
+        if not isinstance(probe,dict):
+            return emit(result(
+                request,
+                "FAILED",
+                "COLLECTOR_RESTORE_RESULT_MISSING",
+                [{
+                    "kind":"report",
+                    "source":"nas://"+nas_host()+"/restore-verification",
+                    "digest":sha256_bytes(b"result-missing"),
+                    "details":{"remote_returncode":verifier_proc.returncode},
+                }]
+            ))
+
         if probe.get("status")!="PASS":
             return emit(result(request,"FAILED","COLLECTOR_RESTORE_VERIFICATION_FAILED",[{
                 "kind":"report",
@@ -322,6 +374,7 @@ def verify_master_anchor(request: dict[str,Any], cfg: dict[str,Any]) -> int:
                     "table_count":len(probe.get("tables") or []),
                     "row_counts":dict(probe.get("row_counts") or {}),
                     "max_cycle":probe.get("baseline_cycle"),
+                    "statements_executed":probe.get("statements_executed"),
                 },
             }]))
 
@@ -382,7 +435,11 @@ def verify_master_anchor(request: dict[str,Any], cfg: dict[str,Any]) -> int:
             # Delete only verifier-owned sandbox files and then its empty directory.
             try:
                 remote_exec(
-                    f"rm -f {shlex.quote(restored)} {shlex.quote(remote_result)} "
+                    f"rm -f {shlex.quote(restored)} "
+                    f"{shlex.quote(restored+'-journal')} "
+                    f"{shlex.quote(restored+'-wal')} "
+                    f"{shlex.quote(restored+'-shm')} "
+                    f"{shlex.quote(remote_result)} "
                     f"{shlex.quote(remote_bin)}; "
                     f"rmdir {shlex.quote(sandbox)} 2>/dev/null || true",
                     timeout=60,
