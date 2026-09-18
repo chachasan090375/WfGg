@@ -1,8 +1,8 @@
-name: Radar V6.17.1 live noise-gate projection
+name: Radar V6.17.1 final live catalog probe
 
 on:
   push:
-    branches: [radar-v6171-cluster-noise-gate]
+    branches: [radar-v6171-runtime-reprobe]
     paths:
       - '.github/workflows/radar-v6171-live-noise-projection.yml'
   workflow_dispatch:
@@ -58,7 +58,7 @@ jobs:
           census=signed_get('/v1/collector/server-census',timeout=60)
 
           assert catalog.get('ok') is True
-          assert catalog.get('readonly') is True
+          assert catalog.get('catalogVersion') == 'v6.17.1'\n          assert catalog.get('readonly') is True
           assert catalog.get('rawPlayerDataExposed') is False
           assert census.get('ok') is True
           assert census.get('readonly') is True
@@ -81,17 +81,17 @@ jobs:
           assert target is not None, projected
           assert stable is not None, projected
           assert target[0] == target_expected, target
-          assert target[1] == ['1040'] or set(target[1]) == {'1040'}, target
+          assert target[1] == [], target
           assert stable[0] == cluster990_expected, stable
-          assert players.get('1040') == 1, players.get('1040')
+          assert players.get('1040') == 1, players.get('1040')\n          noise1040=next((x for x in (catalog.get('noise') or []) if str(x.get('serverId'))=='1040'),None)\n          assert noise1040 is not None, catalog.get('noise')\n          assert noise1040.get('reason') == 'insufficient_population_evidence', noise1040\n          assert catalog.get('confirmedClusterCount') == 2, catalog.get('confirmedClusterCount')\n          assert catalog.get('confirmedServerCount') == 18, catalog.get('confirmedServerCount')
           assert players.get('8119',0) >= threshold, players.get('8119')
 
-          print('RADAR_V6171_LIVE_PROJECTION=PASS')
+          print('RADAR_V6171_FINAL_CATALOG=PASS')
           print('RADAR_V6171_THRESHOLD='+str(threshold))
           print('RADAR_V6171_1040_PLAYERS='+str(players.get('1040')))
           print('RADAR_V6171_8119_PLAYERS='+str(players.get('8119')))
           print('RADAR_V6171_972_PROJECTED=' + ','.join(sorted(target[0],key=int)))
-          print('RADAR_V6171_972_REMOVED=' + ','.join(sorted(target[1],key=int)))
+          print('RADAR_V6171_1040=NOISE|players=1|reason=' + str(noise1040.get('reason')))
           print('RADAR_V6171_990_PROJECTED=' + ','.join(sorted(stable[0],key=int)))
           print('RADAR_V6171_PRODUCTION_MUTATION=NONE')
           PY
