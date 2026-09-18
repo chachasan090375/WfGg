@@ -27,13 +27,81 @@
         "input": {
           "schema": "chacha.dev/dispatch-envelope/v1",
           "project": "adapter-provisioning-probe",
-          "task": {"id": "probe", "permission": "read"},
+          "task": {
+            "id": "probe",
+            "permission": "read"
+          },
           "bindings": [],
           "metadata": {}
         },
         "expected_schema": "chacha.dev/task-result/v1",
         "expected_status": "BLOCKED",
         "expected_producer": "http-smoke-adapter",
+        "expected_verification_status": "UNVERIFIED"
+      }
+    },
+    "radar-runtime-adapter": {
+      "source": "dev-hub/adapters/radar-runtime-adapter.py",
+      "namespace": "radar-runtime",
+      "version": "1.0.0",
+      "executable_name": "radar-runtime-adapter",
+      "mode": "0755",
+      "current_link_name": "current",
+      "probe": {
+        "input": {
+          "schema": "chacha.dev/dispatch-envelope/v1",
+          "project": "wfgg-radar",
+          "transition": "OPERATE->OPERATE",
+          "run_id": "radar-runtime-provisioning-probe",
+          "wave": 1,
+          "task": {
+            "id": "radar-runtime:status",
+            "kind": "runtime-status",
+            "description": "Provisioning probe for WfGg Radar runtime adapter.",
+            "owner_role": "sre-observability",
+            "permission": "read",
+            "outputs": [
+              {
+                "type": "artifact",
+                "id": "radar-runtime-status"
+              }
+            ],
+            "verification": {
+              "mode": "machine",
+              "self_certification_allowed": false,
+              "required_evidence": [
+                "source",
+                "timestamp",
+                "digest"
+              ]
+            }
+          },
+          "bindings": [
+            {
+              "capability": "radar-runtime-inspect",
+              "provider": "radar-vps-runtime",
+              "adapter": "radar-runtime-adapter",
+              "fallback_used": false,
+              "health_state": "HEALTHY"
+            }
+          ],
+          "policy_context": {
+            "resource_class": "light",
+            "requires_storage_preflight": false,
+            "human_approval_required": false,
+            "approval_id": null,
+            "timeout_seconds": 20
+          },
+          "workspace": null,
+          "metadata": {
+            "radar_runtime": {
+              "action": "status"
+            }
+          }
+        },
+        "expected_schema": "chacha.dev/task-result/v1",
+        "expected_status": "OK",
+        "expected_producer": "radar-runtime-adapter",
         "expected_verification_status": "UNVERIFIED"
       }
     }
