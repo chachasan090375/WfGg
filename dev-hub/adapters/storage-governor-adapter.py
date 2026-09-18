@@ -5,6 +5,8 @@ Policy-owned storage operations for WfGg. V1 supports:
 - assess: read-only local/NAS capacity assessment through nas-ssh-adapter
 - collector-incremental-discovery: schema-only discovery of safe incremental
   watermark candidates without exposing application row data
+- collector-incremental-plan: classify every table into a deterministic
+  cycle/time/full-table backup policy using schema and aggregate counts only
 - collector-master-snapshot: create exactly one immutable, logical SQLite
   MASTER dump of the active Collector DB, gzip-streamed directly to the NAS.
 
@@ -106,11 +108,11 @@ def validate_request(request: dict[str,Any]) -> tuple[dict[str,Any]|None,str|Non
         return None,"STORAGE_GOVERNOR_METADATA_MISSING"
     action=str(cfg.get("action") or "")
     permission=str(task.get("permission") or "")
-    if action in {"assess","collector-incremental-discovery"} and permission!="read":
+    if action in {"assess","collector-incremental-discovery","collector-incremental-plan"} and permission!="read":
         return None,"STORAGE_READ_ACTION_REQUIRES_READ"
     if action=="collector-master-snapshot" and permission!="workspace-write":
         return None,"COLLECTOR_MASTER_REQUIRES_WORKSPACE_WRITE"
-    if action not in {"assess","collector-incremental-discovery","collector-master-snapshot"}:
+    if action not in {"assess","collector-incremental-discovery","collector-incremental-plan","collector-master-snapshot"}:
         return None,"STORAGE_GOVERNOR_ACTION_NOT_ALLOWED"
     return cfg,None
 
@@ -444,6 +446,163 @@ def collector_incremental_discovery(request: dict[str,Any]) -> int:
     }]))
 
 
+def table_schema(conn: sqlite3.Connection, table: str) -> dict[str,Any]:
+    q=quote_ident(table)
+    columns=[]
+    pk=[]
+    for row in conn.execute(f"PRAGMA table_info({q})").fetchall():
+        cid,name,ctype,notnull,default_value,pk_order=row
+        item={
+            "name":str(name),
+            "type":str(ctype or ""),
+            "notnull":bool(notnull),
+            "pk_order":int(pk_order or 0),
+        }
+        columns.append(item)
+        if item["pk_order"]>0:
+            pk.append((item["pk_order"],item["name"]))
+    pk=[name for _,name in sorted(pk)]
+    count=int(conn.execute(f"SELECT COUNT(*) FROM {q}").fetchone()[0])
+    return {"table":table,"columns":columns,"pk":pk,"row_count":count}
+
+
+def choose_incremental_policy(meta: dict[str,Any]) -> dict[str,Any]:
+    table=meta["table"]
+    names=[x["name"] for x in meta["columns"]]
+    lower={x.lower():x for x in names}
+
+    cycle_candidates=[
+        x for x in names
+        if "cycle" in x.lower().replace("_","")
+    ]
+    preferred_cycle=None
+    for wanted in ("cycle_id","last_change_cycle"):
+        if wanted in lower:
+            preferred_cycle=lower[wanted]
+            break
+    if preferred_cycle is None and cycle_candidates:
+        preferred_cycle=cycle_candidates[0]
+
+    time_candidates=[
+        x for x in names
+        if x.lower() in {"updated_at","observed_at","created_at","changed_at","started_at","finished_at","timestamp","ts"}
+        or x.lower().endswith("_at")
+    ]
+
+    if table=="cycles" and "id" in lower:
+        return {
+            "mode":"cycle-id",
+            "watermark_columns":[lower["id"]],
+            "reason":"cycles table uses monotonic primary cycle id",
+        }
+    if preferred_cycle:
+        return {
+            "mode":"cycle-watermark",
+            "watermark_columns":[preferred_cycle],
+            "reason":"table exposes an explicit cycle watermark",
+        }
+    if time_candidates:
+        ordered=[]
+        preferred=("observed_at","changed_at","updated_at","created_at","finished_at","started_at","timestamp","ts")
+        for p in preferred:
+            if p in lower and lower[p] in time_candidates and lower[p] not in ordered:
+                ordered.append(lower[p])
+        for x in time_candidates:
+            if x not in ordered:
+                ordered.append(x)
+        tie=meta["pk"][0] if meta["pk"] else None
+        cols=[ordered[0]]+([tie] if tie and tie!=ordered[0] else [])
+        return {
+            "mode":"time-watermark",
+            "watermark_columns":cols,
+            "reason":"table exposes a timestamp watermark"+(" with PK tie-breaker" if tie else ""),
+        }
+    # These are bounded current-state/dimension tables. They intentionally
+    # carry no intrinsic change watermark, so a complete refresh inside each
+    # incremental package is safer than inventing a synthetic watermark.
+    # The explicit allowlist is schema-policy, not a generic size heuristic.
+    dimension_full_refresh={"master_players","player_aliases","player_identity"}
+    if table in dimension_full_refresh:
+        return {
+            "mode":"full-table-dimension",
+            "watermark_columns":[],
+            "reason":"current-state dimension table without safe intrinsic watermark; refresh atomically per incremental package",
+        }
+    if meta["row_count"]<=10000:
+        return {
+            "mode":"full-table-small",
+            "watermark_columns":[],
+            "reason":"no safe watermark; bounded aggregate row count allows full-table refresh",
+        }
+    return {
+        "mode":"blocked-unclassified",
+        "watermark_columns":[],
+        "reason":"no safe watermark and table too large for blind full-table increments",
+    }
+
+
+def collector_incremental_plan(request: dict[str,Any]) -> int:
+    path=db_path()
+    if not path.is_file():
+        return blocked(request,"COLLECTOR_DB_MISSING")
+    uri=f"file:{path}?mode=ro"
+    conn=sqlite3.connect(uri,uri=True,timeout=20)
+    try:
+        tables=[
+            str(row[0]) for row in conn.execute(
+                "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name"
+            ).fetchall()
+        ]
+        plans=[]
+        for table in tables:
+            meta=table_schema(conn,table)
+            policy=choose_incremental_policy(meta)
+            aggregates={}
+            for col in policy["watermark_columns"]:
+                try:
+                    q=quote_ident(table)
+                    value=conn.execute(f"SELECT MAX({quote_ident(col)}) FROM {q}").fetchone()[0]
+                    if value is not None:
+                        aggregates[col]=str(value)[:128]
+                except Exception:
+                    pass
+            plans.append({
+                "table":table,
+                "row_count":meta["row_count"],
+                "pk":meta["pk"],
+                "mode":policy["mode"],
+                "watermark_columns":policy["watermark_columns"],
+                "current_max":aggregates,
+                "reason":policy["reason"],
+            })
+    finally:
+        conn.close()
+
+    blocked_tables=[x["table"] for x in plans if x["mode"]=="blocked-unclassified"]
+    summary={
+        "source_db":str(path),
+        "table_count":len(plans),
+        "plans":plans,
+        "blocked_tables":blocked_tables,
+        "raw_row_data_exposed":False,
+    }
+    digest=sha256_bytes(json.dumps(summary,sort_keys=True,separators=(",",":")).encode())
+    evidence=[{
+        "kind":"report",
+        "source":"collector-schema://incremental-plan",
+        "digest":digest,
+        "details":summary,
+    }]
+    status="OK" if not blocked_tables else "BLOCKED"
+    label="COLLECTOR_INCREMENTAL_PLAN_OK" if status=="OK" else "COLLECTOR_INCREMENTAL_PLAN_REQUIRES_CLASSIFICATION"
+    return emit(result(request,status,label,evidence,[{
+        "type":"report",
+        "id":"collector-incremental-plan",
+        "status":"UNVERIFIED",
+        "reason":"Schema/aggregate-only policy plan; no application rows exposed.",
+    }]))
+
+
 def assess(request: dict[str,Any]) -> int:
     path=db_path()
     if not path.is_file():
@@ -570,6 +729,8 @@ def main() -> int:
             return assess(request)
         if cfg.get("action")=="collector-incremental-discovery":
             return collector_incremental_discovery(request)
+        if cfg.get("action")=="collector-incremental-plan":
+            return collector_incremental_plan(request)
         return collector_master(request)
     except subprocess.TimeoutExpired:
         return emit(result(request,"FAILED","STORAGE_GOVERNOR_TIMEOUT"))
