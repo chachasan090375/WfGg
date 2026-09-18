@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-SOURCE_REVISION="99e45c67f621d67ea5b46d0bf684e28ad3655dbe"
+SOURCE_REVISION="4118c5b36a99d76d29d8fc96c8485499425951d7"
 ARTIFACT_REVISION="e27c82769def0d16b01a20ef9ecacb5e7a824b59"
 RAW="https://raw.githubusercontent.com/chachasan090375/WfGg/${SOURCE_REVISION}"
 ARTIFACT_RAW="https://raw.githubusercontent.com/chachasan090375/WfGg/${ARTIFACT_REVISION}"
