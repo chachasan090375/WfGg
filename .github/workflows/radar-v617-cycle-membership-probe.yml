@@ -1,0 +1,84 @@
+name: Radar V6.17 cycle membership probe
+
+on:
+  push:
+    branches:
+      - radar-v618-live-runtime-reprobe
+    paths:
+      - '.github/workflows/radar-v617-cycle-membership-probe.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  RADAR_CONNECTOR_URL: https://chachavps.tail3ab05a.ts.net
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Probe aggregate cycle-time server membership
+        env:
+          RADAR_CONNECTOR_SHARED_KEY: ${{ secrets.RADAR_CONNECTOR_SHARED_KEY }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib,hmac,json,os,secrets,time,urllib.request
+
+          base=os.environ['RADAR_CONNECTOR_URL'].rstrip('/')
+          key=os.environ['RADAR_CONNECTOR_SHARED_KEY'].encode()
+          path='/v1/collector/server-cycle-history'
+
+          data=None
+          for attempt in range(1,4):
+              ts=str(int(time.time()))
+              nonce=secrets.token_hex(16)
+              body_hash=hashlib.sha256(b'').hexdigest()
+              canonical='\n'.join(['GET',path,ts,nonce,body_hash])
+              sig=hmac.new(key,canonical.encode(),hashlib.sha256).hexdigest()
+              req=urllib.request.Request(base+path,method='GET',headers={
+                  'X-Radar-Timestamp':ts,
+                  'X-Radar-Nonce':nonce,
+                  'X-Radar-Signature':sig,
+              })
+              try:
+                  with urllib.request.urlopen(req,timeout=60) as response:
+                      data=json.loads(response.read().decode())
+                  if data.get('ok') is True:
+                      break
+              except Exception as exc:
+                  print(f'RADAR_V617_HISTORY_ATTEMPT={attempt}|STATE={type(exc).__name__}')
+              if attempt<3:
+                  time.sleep(5)
+          if not data or data.get('ok') is not True:
+              raise SystemExit('RADAR_V617_HISTORY=FAILED')
+
+          assert data.get('readonly') is True
+          assert data.get('rawPlayerDataExposed') is False
+          print('RADAR_V617_HISTORY=PASS')
+          print('RADAR_V617_HISTORY_CYCLES='+str(data.get('cycleCount')))
+
+          focus={'953','964','972','977','991','1027','1040','1042','1057','8119'}
+          cycles=data.get('cycles') or []
+          for c in cycles:
+              cid=int(c.get('cycleId') or 0)
+              if cid < 30:
+                  continue
+              members={str(x.get('serverId')):int(x.get('observations') or 0) for x in (c.get('servers') or [])}
+              relevant={k:v for k,v in members.items() if k in focus}
+              if relevant:
+                  ordered=','.join(f'{k}:{relevant[k]}' for k in sorted(relevant,key=lambda s:int(s)))
+                  print(f'RADAR_V617_CYCLE={cid}|serverCount={c.get("serverCount")}|members={ordered}')
+
+          for target in ('972','1040'):
+              present=[]
+              for c in cycles:
+                  row=next((x for x in (c.get('servers') or []) if str(x.get('serverId'))==target),None)
+                  if row:
+                      present.append(f'{c.get("cycleId")}:{row.get("observations")}')
+              print(f'RADAR_V617_SERVER_{target}_HISTORY=' + ','.join(present))
+          PY
