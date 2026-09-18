@@ -278,7 +278,7 @@ def stream_master_dump(path: Path, remote_temp: str) -> tuple[str,int,int]:
             ssh.stdin.close()
         except Exception:
             pass
-    rc=ssh.wait(timeout=300)
+    rc=ssh.wait(timeout=1800)
     if rc!=0:
         err=ssh.stderr.read(4096).decode("utf-8","replace") if ssh.stderr else ""
         raise RuntimeError("NAS_STREAM_FAILED:"+err[:120])
