@@ -1,0 +1,49 @@
+name: DEV HUB V5 Storage Governor incremental discovery
+
+on:
+  push:
+    branches:
+      - dev-hub-v5-storage-governor-incremental-discovery
+    paths:
+      - 'dev-hub/adapters/storage-governor-adapter.py'
+      - 'dev-hub/tests/test_storage_governor_contract.py'
+      - '.github/workflows/dev-hub-v5-storage-governor-incremental-discovery.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify-discovery:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Compile adapter
+        run: |
+          set -euo pipefail
+          python3 -m py_compile dev-hub/adapters/storage-governor-adapter.py
+          echo STORAGE_GOVERNOR_INCREMENTAL_DISCOVERY_COMPILE=PASS
+
+      - name: Run contract tests
+        run: |
+          set -euo pipefail
+          python3 -m unittest -v dev-hub/tests/test_storage_governor_contract.py
+          echo STORAGE_GOVERNOR_INCREMENTAL_DISCOVERY_TESTS=PASS
+
+      - name: Assert discovery privacy and read-only invariants
+        run: |
+          set -euo pipefail
+          grep -Fq 'COLLECTOR_INCREMENTAL_DISCOVERY_OK' dev-hub/adapters/storage-governor-adapter.py
+          grep -Fq '"raw_row_data_exposed":False' dev-hub/adapters/storage-governor-adapter.py
+          grep -Fq 'mode=ro' dev-hub/adapters/storage-governor-adapter.py
+          ! grep -Fq 'SELECT *' dev-hub/adapters/storage-governor-adapter.py
+          ! grep -Fq 'systemctl stop' dev-hub/adapters/storage-governor-adapter.py
+          ! grep -Fq 'rm -rf' dev-hub/adapters/storage-governor-adapter.py
+          echo STORAGE_GOVERNOR_INCREMENTAL_DISCOVERY_READONLY=PASS
+          echo STORAGE_GOVERNOR_INCREMENTAL_DISCOVERY_RAW_DATA_EXPOSED=NO
