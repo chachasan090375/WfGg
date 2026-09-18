@@ -7,34 +7,498 @@
     "health_required_for_execution": true
   },
   "capabilities": {
-    "source-control": {"class":"control","providers":[{"id":"github","status":"ADOPT","health":"managed","cost_class":"included","scope":"repository","fallback":[]}]},
-    "code-edit": {"class":"execution","providers":[{"id":"antigravity","status":"ADOPT","health":"runtime-check","cost_class":"quota","scope":"workspace","fallback":["skywork"]},{"id":"skywork","status":"ADOPT","health":"runtime-check","cost_class":"local","scope":"workspace","fallback":[]}]},
-    "code-review": {"class":"execution","providers":[{"id":"antigravity","status":"ADOPT","health":"runtime-check","cost_class":"quota","scope":"workspace","fallback":["github"]},{"id":"github","status":"ADOPT","health":"managed","cost_class":"included","scope":"repository","fallback":[]}]},
-    "documentation": {"class":"knowledge","providers":[{"id":"skywork","status":"ADOPT","health":"runtime-check","cost_class":"local","scope":"workspace","fallback":["antigravity"]},{"id":"antigravity","status":"ADOPT","health":"runtime-check","cost_class":"quota","scope":"workspace","fallback":[]}]},
-    "web-docs": {"class":"knowledge","providers":[{"id":"mdn-mcp","status":"ADOPT","health":"mcp-probe","cost_class":"free","scope":"documentation","fallback":["context7-mcp"]}]},
-    "library-docs": {"class":"knowledge","providers":[{"id":"context7-mcp","status":"ADOPT","health":"mcp-probe","cost_class":"free","scope":"documentation","fallback":["mdn-mcp"]}]},
-    "web-research": {"class":"knowledge","providers":[{"id":"technology-radar","status":"ADOPT","health":"scheduled","cost_class":"low","scope":"public-web","fallback":["github"]}]},
-    "unit-test-js": {"class":"verification","providers":[{"id":"vitest","status":"WATCH","health":"project-local","cost_class":"free","scope":"project","fallback":["node-test"]},{"id":"node-test","status":"WATCH","health":"runtime","cost_class":"free","scope":"project","fallback":[]}]},
-    "e2e-test-web": {"class":"verification","providers":[{"id":"playwright","status":"WATCH","health":"project-local","cost_class":"free","scope":"project","fallback":[]}]},
-    "smoke-test-web": {"class":"verification","providers":[{"id":"http-smoke","status":"ADOPT","health":"runtime","cost_class":"free","scope":"project","fallback":["playwright"]},{"id":"playwright","status":"WATCH","health":"project-local","cost_class":"free","scope":"project","fallback":[]}]},
-    "security-scan-js": {"class":"verification","providers":[{"id":"npm-audit","status":"ADOPT","health":"runtime","cost_class":"free","scope":"project","fallback":[]}]},
-    "performance-test-web": {"class":"verification","providers":[{"id":"lighthouse","status":"WATCH","health":"project-local","cost_class":"free","scope":"project","fallback":[]}]},
-    "browser-automation": {"class":"execution","providers":[{"id":"playwright","status":"WATCH","health":"project-local","cost_class":"free","scope":"project","fallback":[]}]},
-    "browser-diagnostics": {"class":"verification","providers":[{"id":"chrome-devtools-mcp","status":"ADOPT","health":"runtime","cost_class":"free","scope":"test-preview-readonly","fallback":[]}]},
-    "browser-independent-verification": {"class":"verification","providers":[{"id":"playwright-mcp","status":"ADOPT","health":"runtime","cost_class":"free","scope":"test-preview-readonly","fallback":[]}]},
-    "database-migrate": {"class":"data","providers":[{"id":"wrangler-d1","status":"ADOPT","health":"runtime","cost_class":"included","scope":"cloudflare-d1","fallback":[]}]},
-    "cloud-deploy-edge": {"class":"delivery","providers":[{"id":"wrangler","status":"ADOPT","health":"runtime","cost_class":"included","scope":"cloudflare","fallback":["github-actions"]}]},
-    "cloud-deploy-static": {"class":"delivery","providers":[{"id":"cloudflare-pages","status":"ADOPT","health":"managed","cost_class":"included","scope":"cloudflare","fallback":["github-actions"]}]},
-    "cloud-preview-static": {"class":"delivery","providers":[{"id":"cloudflare-pages","status":"ADOPT","health":"managed","cost_class":"included","scope":"cloudflare-pages-preview-only","fallback":[]}]},
-    "ci": {"class":"delivery","providers":[{"id":"github-actions","status":"ADOPT","health":"managed","cost_class":"included","scope":"repository","fallback":[]}]},
-    "artifact-store": {"class":"storage","providers":[{"id":"nas","status":"ADOPT","health":"ssh-probe","cost_class":"owned","scope":"private-storage","fallback":["github-artifacts"]},{"id":"github-artifacts","status":"WATCH","health":"managed","cost_class":"quota","scope":"repository","fallback":[]}]},
-    "backup-store": {"class":"storage","providers":[{"id":"nas","status":"ADOPT","health":"ssh-probe","cost_class":"owned","scope":"private-storage","fallback":[]}]},
-    "3d-pipeline": {"class":"execution","providers":[{"id":"blender","status":"ADOPT","health":"runtime-check","cost_class":"free","scope":"vps","fallback":[]},{"id":"unitypy","status":"ADOPT","health":"runtime-check","cost_class":"free","scope":"vps","fallback":[]}]},
-    "technology-radar": {"class":"governance","providers":[{"id":"chacha-tech-watch","status":"ADOPT","health":"scheduled","cost_class":"low","scope":"public-sources","fallback":["github"]}]},
-    "architecture-audit": {"class":"governance","providers":[{"id":"chacha-dev-architect","status":"ADOPT","health":"platform-health","cost_class":"local","scope":"project","fallback":[]}]},
-    "storage-governance": {"class":"governance","providers":[{"id":"storage-governor","status":"ADOPT","health":"platform-health","cost_class":"local","scope":"vps+nas","fallback":[]}]},
-    "audit-signing": {"class":"security","providers":[{"id":"openssl-ed25519","status":"ASSESS","health":"runtime-check","cost_class":"free","scope":"approved-signing-backend","fallback":[]}]},
-    "digital-signature-verification": {"class":"verification","providers":[{"id":"openssl-ed25519","status":"ASSESS","health":"runtime-check","cost_class":"free","scope":"project","fallback":[]}]},
-    "trust-anchor-write": {"class":"security","providers":[{"id":"nas","status":"ADOPT","health":"ssh-probe","cost_class":"owned","scope":"independent-private-anchor","fallback":["github"]},{"id":"github","status":"ADOPT","health":"managed","cost_class":"included","scope":"independent-repository-anchor","fallback":[]}]}
+    "source-control": {
+      "class": "control",
+      "providers": [
+        {
+          "id": "github",
+          "status": "ADOPT",
+          "health": "managed",
+          "cost_class": "included",
+          "scope": "repository",
+          "fallback": []
+        }
+      ]
+    },
+    "code-edit": {
+      "class": "execution",
+      "providers": [
+        {
+          "id": "antigravity",
+          "status": "ADOPT",
+          "health": "runtime-check",
+          "cost_class": "quota",
+          "scope": "workspace",
+          "fallback": [
+            "skywork"
+          ]
+        },
+        {
+          "id": "skywork",
+          "status": "ADOPT",
+          "health": "runtime-check",
+          "cost_class": "local",
+          "scope": "workspace",
+          "fallback": []
+        }
+      ]
+    },
+    "code-review": {
+      "class": "execution",
+      "providers": [
+        {
+          "id": "antigravity",
+          "status": "ADOPT",
+          "health": "runtime-check",
+          "cost_class": "quota",
+          "scope": "workspace",
+          "fallback": [
+            "github"
+          ]
+        },
+        {
+          "id": "github",
+          "status": "ADOPT",
+          "health": "managed",
+          "cost_class": "included",
+          "scope": "repository",
+          "fallback": []
+        }
+      ]
+    },
+    "documentation": {
+      "class": "knowledge",
+      "providers": [
+        {
+          "id": "skywork",
+          "status": "ADOPT",
+          "health": "runtime-check",
+          "cost_class": "local",
+          "scope": "workspace",
+          "fallback": [
+            "antigravity"
+          ]
+        },
+        {
+          "id": "antigravity",
+          "status": "ADOPT",
+          "health": "runtime-check",
+          "cost_class": "quota",
+          "scope": "workspace",
+          "fallback": []
+        }
+      ]
+    },
+    "web-docs": {
+      "class": "knowledge",
+      "providers": [
+        {
+          "id": "mdn-mcp",
+          "status": "ADOPT",
+          "health": "mcp-probe",
+          "cost_class": "free",
+          "scope": "documentation",
+          "fallback": [
+            "context7-mcp"
+          ]
+        }
+      ]
+    },
+    "library-docs": {
+      "class": "knowledge",
+      "providers": [
+        {
+          "id": "context7-mcp",
+          "status": "ADOPT",
+          "health": "mcp-probe",
+          "cost_class": "free",
+          "scope": "documentation",
+          "fallback": [
+            "mdn-mcp"
+          ]
+        }
+      ]
+    },
+    "web-research": {
+      "class": "knowledge",
+      "providers": [
+        {
+          "id": "technology-radar",
+          "status": "ADOPT",
+          "health": "scheduled",
+          "cost_class": "low",
+          "scope": "public-web",
+          "fallback": [
+            "github"
+          ]
+        }
+      ]
+    },
+    "unit-test-js": {
+      "class": "verification",
+      "providers": [
+        {
+          "id": "vitest",
+          "status": "WATCH",
+          "health": "project-local",
+          "cost_class": "free",
+          "scope": "project",
+          "fallback": [
+            "node-test"
+          ]
+        },
+        {
+          "id": "node-test",
+          "status": "WATCH",
+          "health": "runtime",
+          "cost_class": "free",
+          "scope": "project",
+          "fallback": []
+        }
+      ]
+    },
+    "e2e-test-web": {
+      "class": "verification",
+      "providers": [
+        {
+          "id": "playwright",
+          "status": "WATCH",
+          "health": "project-local",
+          "cost_class": "free",
+          "scope": "project",
+          "fallback": []
+        }
+      ]
+    },
+    "smoke-test-web": {
+      "class": "verification",
+      "providers": [
+        {
+          "id": "http-smoke",
+          "status": "ADOPT",
+          "health": "runtime",
+          "cost_class": "free",
+          "scope": "project",
+          "fallback": [
+            "playwright"
+          ]
+        },
+        {
+          "id": "playwright",
+          "status": "WATCH",
+          "health": "project-local",
+          "cost_class": "free",
+          "scope": "project",
+          "fallback": []
+        }
+      ]
+    },
+    "security-scan-js": {
+      "class": "verification",
+      "providers": [
+        {
+          "id": "npm-audit",
+          "status": "ADOPT",
+          "health": "runtime",
+          "cost_class": "free",
+          "scope": "project",
+          "fallback": []
+        }
+      ]
+    },
+    "performance-test-web": {
+      "class": "verification",
+      "providers": [
+        {
+          "id": "lighthouse",
+          "status": "WATCH",
+          "health": "project-local",
+          "cost_class": "free",
+          "scope": "project",
+          "fallback": []
+        }
+      ]
+    },
+    "browser-automation": {
+      "class": "execution",
+      "providers": [
+        {
+          "id": "playwright",
+          "status": "WATCH",
+          "health": "project-local",
+          "cost_class": "free",
+          "scope": "project",
+          "fallback": []
+        }
+      ]
+    },
+    "browser-diagnostics": {
+      "class": "verification",
+      "providers": [
+        {
+          "id": "chrome-devtools-mcp",
+          "status": "ADOPT",
+          "health": "runtime",
+          "cost_class": "free",
+          "scope": "test-preview-readonly",
+          "fallback": []
+        }
+      ]
+    },
+    "browser-independent-verification": {
+      "class": "verification",
+      "providers": [
+        {
+          "id": "playwright-mcp",
+          "status": "ADOPT",
+          "health": "runtime",
+          "cost_class": "free",
+          "scope": "test-preview-readonly",
+          "fallback": []
+        }
+      ]
+    },
+    "database-migrate": {
+      "class": "data",
+      "providers": [
+        {
+          "id": "wrangler-d1",
+          "status": "ADOPT",
+          "health": "runtime",
+          "cost_class": "included",
+          "scope": "cloudflare-d1",
+          "fallback": []
+        }
+      ]
+    },
+    "cloud-deploy-edge": {
+      "class": "delivery",
+      "providers": [
+        {
+          "id": "wrangler",
+          "status": "ADOPT",
+          "health": "runtime",
+          "cost_class": "included",
+          "scope": "cloudflare",
+          "fallback": [
+            "github-actions"
+          ]
+        }
+      ]
+    },
+    "cloud-deploy-static": {
+      "class": "delivery",
+      "providers": [
+        {
+          "id": "cloudflare-pages",
+          "status": "ADOPT",
+          "health": "managed",
+          "cost_class": "included",
+          "scope": "cloudflare",
+          "fallback": [
+            "github-actions"
+          ]
+        }
+      ]
+    },
+    "cloud-preview-static": {
+      "class": "delivery",
+      "providers": [
+        {
+          "id": "cloudflare-pages",
+          "status": "ADOPT",
+          "health": "managed",
+          "cost_class": "included",
+          "scope": "cloudflare-pages-preview-only",
+          "fallback": []
+        }
+      ]
+    },
+    "ci": {
+      "class": "delivery",
+      "providers": [
+        {
+          "id": "github-actions",
+          "status": "ADOPT",
+          "health": "managed",
+          "cost_class": "included",
+          "scope": "repository",
+          "fallback": []
+        }
+      ]
+    },
+    "artifact-store": {
+      "class": "storage",
+      "providers": [
+        {
+          "id": "nas",
+          "status": "ADOPT",
+          "health": "ssh-probe",
+          "cost_class": "owned",
+          "scope": "private-storage",
+          "fallback": [
+            "github-artifacts"
+          ]
+        },
+        {
+          "id": "github-artifacts",
+          "status": "WATCH",
+          "health": "managed",
+          "cost_class": "quota",
+          "scope": "repository",
+          "fallback": []
+        }
+      ]
+    },
+    "backup-store": {
+      "class": "storage",
+      "providers": [
+        {
+          "id": "nas",
+          "status": "ADOPT",
+          "health": "ssh-probe",
+          "cost_class": "owned",
+          "scope": "private-storage",
+          "fallback": []
+        }
+      ]
+    },
+    "3d-pipeline": {
+      "class": "execution",
+      "providers": [
+        {
+          "id": "blender",
+          "status": "ADOPT",
+          "health": "runtime-check",
+          "cost_class": "free",
+          "scope": "vps",
+          "fallback": []
+        },
+        {
+          "id": "unitypy",
+          "status": "ADOPT",
+          "health": "runtime-check",
+          "cost_class": "free",
+          "scope": "vps",
+          "fallback": []
+        }
+      ]
+    },
+    "technology-radar": {
+      "class": "governance",
+      "providers": [
+        {
+          "id": "chacha-tech-watch",
+          "status": "ADOPT",
+          "health": "scheduled",
+          "cost_class": "low",
+          "scope": "public-sources",
+          "fallback": [
+            "github"
+          ]
+        }
+      ]
+    },
+    "architecture-audit": {
+      "class": "governance",
+      "providers": [
+        {
+          "id": "chacha-dev-architect",
+          "status": "ADOPT",
+          "health": "platform-health",
+          "cost_class": "local",
+          "scope": "project",
+          "fallback": []
+        }
+      ]
+    },
+    "storage-governance": {
+      "class": "governance",
+      "providers": [
+        {
+          "id": "storage-governor",
+          "status": "ADOPT",
+          "health": "platform-health",
+          "cost_class": "local",
+          "scope": "vps+nas",
+          "fallback": []
+        }
+      ]
+    },
+    "audit-signing": {
+      "class": "security",
+      "providers": [
+        {
+          "id": "openssl-ed25519",
+          "status": "ASSESS",
+          "health": "runtime-check",
+          "cost_class": "free",
+          "scope": "approved-signing-backend",
+          "fallback": []
+        }
+      ]
+    },
+    "digital-signature-verification": {
+      "class": "verification",
+      "providers": [
+        {
+          "id": "openssl-ed25519",
+          "status": "ASSESS",
+          "health": "runtime-check",
+          "cost_class": "free",
+          "scope": "project",
+          "fallback": []
+        }
+      ]
+    },
+    "trust-anchor-write": {
+      "class": "security",
+      "providers": [
+        {
+          "id": "nas",
+          "status": "ADOPT",
+          "health": "ssh-probe",
+          "cost_class": "owned",
+          "scope": "independent-private-anchor",
+          "fallback": [
+            "github"
+          ]
+        },
+        {
+          "id": "github",
+          "status": "ADOPT",
+          "health": "managed",
+          "cost_class": "included",
+          "scope": "independent-repository-anchor",
+          "fallback": []
+        }
+      ]
+    },
+    "radar-runtime-inspect": {
+      "class": "verification",
+      "providers": [
+        {
+          "id": "radar-vps-runtime",
+          "status": "PILOT",
+          "health": "runtime",
+          "cost_class": "owned",
+          "scope": "wfgg-radar-vps",
+          "fallback": []
+        }
+      ]
+    },
+    "radar-pilot-control": {
+      "class": "delivery",
+      "providers": [
+        {
+          "id": "radar-vps-runtime",
+          "status": "PILOT",
+          "health": "runtime",
+          "cost_class": "owned",
+          "scope": "wfgg-radar-vps",
+          "fallback": []
+        }
+      ]
+    }
   }
 }

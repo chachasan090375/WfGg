@@ -1,0 +1,109 @@
+name: DEV HUB V5 Radar runtime adapter CONTRACT_OK
+
+on:
+  push:
+    branches:
+      - dev-hub-v5-radar-runtime-adapter-contract-ok
+    paths:
+      - 'dev-hub/adapters/radar-runtime-adapter.py'
+      - 'dev-hub/tests/test_radar_runtime_adapter_contract.py'
+      - 'dev-hub/fixtures/radar-runtime-adapter.status.v1.json'
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - 'dev-hub/config/capability-registry.v1.json'
+      - 'dev-hub/projects/wfgg-radar/manifest.v3.json'
+      - '.github/workflows/dev-hub-v5-radar-runtime-adapter-contract-ok.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify-contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Compile adapter
+        run: |
+          set -euo pipefail
+          python3 -m py_compile dev-hub/adapters/radar-runtime-adapter.py
+          echo RADAR_RUNTIME_ADAPTER_COMPILE=PASS
+
+      - name: Run offline contract tests
+        run: |
+          set -euo pipefail
+          python3 -m unittest -v dev-hub/tests/test_radar_runtime_adapter_contract.py
+          echo RADAR_RUNTIME_ADAPTER_POLICY_TESTS=PASS
+
+      - name: Validate adapter registry contract
+        run: |
+          set -euo pipefail
+          python3 dev-hub/bin/adapter-contract-harness.py             --registry dev-hub/config/provider-adapters.v1.json             --policy dev-hub/config/adapter-contract.v1.json             --report /tmp/radar-runtime-adapter-contract-report.json
+          echo RADAR_RUNTIME_ADAPTER_STATIC_CONTRACT=PASS
+
+      - name: Validate WfGg Radar manifest resolution
+        run: |
+          set -euo pipefail
+          python3 dev-hub/bin/manifest-v3-engine.py validate             dev-hub/projects/wfgg-radar/manifest.v3.json             --registry dev-hub/config/capability-registry.v1.json
+          python3 dev-hub/bin/manifest-v3-engine.py inspect             dev-hub/projects/wfgg-radar/manifest.v3.json             --registry dev-hub/config/capability-registry.v1.json             --json > /tmp/wfgg-radar-manifest-report.json
+          python3 - <<'PY'
+          import json
+          x=json.load(open('/tmp/wfgg-radar-manifest-report.json'))
+          assert x['valid'] is True, x
+          caps=(x.get('capability_resolution') or {}).get('resolutions') or []
+          by={c.get('id'):c for c in caps}
+          for cid in ('radar-runtime-inspect','radar-pilot-control'):
+              assert cid in by, (cid,by)
+              assert by[cid]['provider']=='radar-vps-runtime', by[cid]
+              assert by[cid]['state']=='CONDITIONAL', by[cid]
+          print('WFGG_RADAR_CHACHA_DEV_MANIFEST=PASS')
+          print('RADAR_RUNTIME_PROVIDER=radar-vps-runtime')
+          print('RADAR_RUNTIME_EXECUTION_READY=CONDITIONAL')
+          PY
+
+      - name: Assert CONTRACT_OK is not executable yet
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          r=json.load(open('dev-hub/config/provider-adapters.v1.json'))
+          a=r['adapters']['radar-runtime-adapter']
+          p=r['providers']['radar-vps-runtime']
+          assert p['execution']=='vps', p
+          assert a['status']=='CONTRACT_OK', a
+          assert a['executable'] is None, a
+          assert set(a['supports'])=={'read','production-deploy'}, a
+          print('RADAR_RUNTIME_ADAPTER_STATUS=CONTRACT_OK')
+          print('RADAR_RUNTIME_ADAPTER_EXECUTABLE=UNPROVISIONED')
+          print('RADAR_RUNTIME_DIRECT_SSH_REPLACEMENT=NOT_YET')
+          PY
+
+      - name: Assert safety invariants
+        run: |
+          set -euo pipefail
+          grep -Fq 'RADAR_PRODUCTION_APPROVAL_MISSING' dev-hub/adapters/radar-runtime-adapter.py
+          grep -Fq 'RADAR_PILOT_WINDOW_NOT_OPEN' dev-hub/adapters/radar-runtime-adapter.py
+          grep -Fq 'COLLECTOR_SENTINEL_NOT_ACTIVE' dev-hub/adapters/radar-runtime-adapter.py
+          grep -Fq 'shell=False' dev-hub/adapters/radar-runtime-adapter.py
+          ! grep -Fq 'shell=True' dev-hub/adapters/radar-runtime-adapter.py
+          ! grep -Fq 'os.system(' dev-hub/adapters/radar-runtime-adapter.py
+          grep -Fq 'REV_RE = re.compile' dev-hub/adapters/radar-runtime-adapter.py
+          grep -Fq 'INSTALL_RE = re.compile' dev-hub/adapters/radar-runtime-adapter.py
+          grep -Fq 'PROBE_RE = re.compile' dev-hub/adapters/radar-runtime-adapter.py
+          echo RADAR_RUNTIME_APPROVAL_GATE=PASS
+          echo RADAR_RUNTIME_NO_ARBITRARY_SHELL=PASS
+          echo RADAR_RUNTIME_PINNED_ASSETS_ONLY=PASS
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dev-hub-v5-radar-runtime-adapter-contract-${{ github.run_id }}
+          path: |
+            /tmp/radar-runtime-adapter-contract-report.json
+            /tmp/wfgg-radar-manifest-report.json
+          retention-days: 30
+          if-no-files-found: error

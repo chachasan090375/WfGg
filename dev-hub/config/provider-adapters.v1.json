@@ -145,6 +145,11 @@
       "adapter": "storage-restore-verifier-adapter",
       "kind": "platform",
       "execution": "vps"
+    },
+    "radar-vps-runtime": {
+      "adapter": "radar-runtime-adapter",
+      "kind": "local-runtime",
+      "execution": "vps"
     }
   },
   "adapters": {
@@ -296,6 +301,14 @@
       "executable": "/opt/chacha-dev/adapters/storage-restore-verifier/current/storage-restore-verifier-adapter",
       "supports": [
         "workspace-write"
+      ]
+    },
+    "radar-runtime-adapter": {
+      "status": "CONTRACT_OK",
+      "executable": null,
+      "supports": [
+        "read",
+        "production-deploy"
       ]
     }
   }

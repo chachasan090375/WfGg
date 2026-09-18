@@ -259,6 +259,16 @@
       "id": "storage-governance",
       "required": true,
       "preferred_provider": "storage-governor"
+    },
+    {
+      "id": "radar-runtime-inspect",
+      "required": true,
+      "preferred_provider": "radar-vps-runtime"
+    },
+    {
+      "id": "radar-pilot-control",
+      "required": true,
+      "preferred_provider": "radar-vps-runtime"
     }
   ],
   "quality_gates": {
