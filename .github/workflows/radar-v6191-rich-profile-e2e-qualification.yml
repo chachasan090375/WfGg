@@ -10,8 +10,6 @@ on:
       - '.github/scripts/patch-radar-connector-runtime-v693.py'
       - 'radar-ui-live/live-radar.html'
       - 'worker/migrations/0004_radar_profile_rich_v6191.sql'
-      - 'radar-vps/collector-rich-profile-v6191.py'
-      - 'radar-vps/install-collector-rich-profile-v6191.sh'
       - '.github/workflows/radar-v6191-rich-profile-e2e-qualification.yml'
       - '.github/workflows/radar-v69-build.yml'
       - '.github/workflows/deploy-radar-production.yml'
@@ -131,75 +129,32 @@ jobs:
           grep -Fq "/api/radar/profile/rich?uid=" radar-ui-live/live-radar.html
           echo RADAR_V6191_UI=PASS
 
-      - name: Test Collector rich observation patch
+      - name: Verify Collector storage schema remains untouched
         run: |
           set -euo pipefail
-          rm -rf /tmp/collector-v6191
-          mkdir -p /tmp/collector-v6191
-          git fetch --quiet origin collector-identity-index-v1
-          git show FETCH_HEAD:collector/collector_agent.py > /tmp/collector-v6191/collector_agent.py
-          git show FETCH_HEAD:collector/incremental_engine.py > /tmp/collector-v6191/incremental_engine.py
-          export WFGG_COLLECTOR_ROOT=/tmp/collector-v6191
-          export WFGG_COLLECTOR_DB=/tmp/collector-v6191/collector.db
-          export WFGG_COLLECTOR_MASTER_DIR=/tmp/collector-v6191/masters
-          export WFGG_IDENTITY_SCHEMA=/tmp/collector-v6191/no-identity-schema.sql
-          python3 - <<'PY'
-          import os,sys
-          sys.path.insert(0,'/tmp/collector-v6191')
-          import collector_agent
-          collector_agent.init_db()
-          PY
-          TABLES_BEFORE="$(python3 - <<'PY'
-          import sqlite3
-          c=sqlite3.connect('/tmp/collector-v6191/collector.db')
-          print(c.execute("select count(*) from sqlite_master where type='table' and name not like 'sqlite_%'").fetchone()[0])
-          PY
-          )"
-          python3 radar-vps/collector-rich-profile-v6191.py --agent /tmp/collector-v6191/collector_agent.py --db /tmp/collector-v6191/collector.db
-          python3 -m py_compile /tmp/collector-v6191/collector_agent.py
-          python3 - <<'PY'
-          import importlib.util,os,sys
-          sys.path.insert(0,'/tmp/collector-v6191')
-          spec=importlib.util.spec_from_file_location('collector_agent_v6191','/tmp/collector-v6191/collector_agent.py')
-          m=importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
-          m.init_db()
-          result=m.ingest_players([{
-            'gameUid':'101','pseudo':'Pilot','serverId':'992','allianceTag':'WfGg',
-            'x':96,'y':450,'hqLevel':30,'power':286651443,
-            'armyPower':123456789,'armyKill':5555,'svipLevel':17,'country':'FR','avatarId':'44',
-            'avatarRef':'44','observedAt':'2026-09-18T13:00:00Z'
-          }])
-          assert result['accepted']==1
-          p=m.find_player('101')
-          assert p['army_power']==123456789
-          assert p['army_kill']==5555
-          assert p['svip_level']==17
-          assert p['country']=='FR'
-          assert p['avatar_ref']=='44'
-          print('COLLECTOR_V6191_INGEST=PASS')
-          PY
-          TABLES_AFTER="$(python3 - <<'PY'
-          import sqlite3
-          c=sqlite3.connect('/tmp/collector-v6191/collector.db')
-          print(c.execute("select count(*) from sqlite_master where type='table' and name not like 'sqlite_%'").fetchone()[0])
-          PY
-          )"
-          test "$TABLES_BEFORE" = "$TABLES_AFTER"
-          echo COLLECTOR_V6191_STORAGE_TABLES_UNCHANGED=PASS
+          test ! -e radar-vps/collector-rich-profile-v6191.py
+          test ! -e radar-vps/install-collector-rich-profile-v6191.sh
+          ! grep -REq 'ALTER TABLE[[:space:]]+observations|army_power|army_kill|svip_level|avatar_ref' \
+            .radar-release-src/v6191-source/connector-go/cmd/radar-connector \
+            .github/scripts/patch-radar-profile-refresh-v6191.py
+          grep -Fq "TIME_TABLES" dev-hub/adapters/storage-governor-incremental-chain.py
+          grep -Fq '"observations":("observed_at","id")' dev-hub/adapters/storage-governor-incremental-chain.py
+          echo COLLECTOR_V6191_SCHEMA_MUTATION=NO
+          echo COLLECTOR_V6191_STORAGE_CHAIN_UNCHANGED=PASS
 
-      - name: Verify installer and read-only invariants
+      - name: Verify read-only and production invariants
         run: |
           set -euo pipefail
-          bash -n radar-vps/install-collector-rich-profile-v6191.sh
-          python3 -m py_compile radar-vps/collector-rich-profile-v6191.py
           grep -Fq 'get.user.info.multi' .radar-release-src/v6191-source/connector-go/cmd/radar-connector/profile_refresh_v6191.go
-          ! grep -REiq 'attack|march|purchase|donate|reward collection|building production|collect reward'             .radar-release-src/v6191-source             .github/scripts/patch-radar-profile-refresh-v6191.py             .github/scripts/patch-radar-worker-rich-profile-v6191.py             radar-vps/collector-rich-profile-v6191.py
-          grep -Fq 'COLLECTOR_V6191_STORAGE_TABLES_UNCHANGED=PASS' radar-vps/install-collector-rich-profile-v6191.sh
+          ! grep -REiq 'attack|march|purchase|donate|reward collection|building production|collect reward'             .radar-release-src/v6191-source             .github/scripts/patch-radar-profile-refresh-v6191.py             .github/scripts/patch-radar-worker-rich-profile-v6191.py
           grep -Fq ".radar-release-src/v6191-source/**" .github/workflows/radar-v69-build.yml
           grep -Fq 'patch-radar-profile-refresh-v6191.py' .github/workflows/radar-v69-build.yml
           grep -Fq 'patch-radar-worker-rich-profile-v6191.py' .github/workflows/deploy-radar-production.yml
           grep -Fq '0004_radar_profile_rich_v6191.sql' .github/workflows/deploy-radar-production.yml
           grep -Fq 'federatedServerTargetV615(query)' /tmp/wfgg-radar/connector-go/cmd/radar-connector/collector_jobs.go
+          test ! -e radar-vps/collector-rich-profile-v6191.py
+          test ! -e radar-vps/install-collector-rich-profile-v6191.sh
+          echo RADAR_V6191_COLLECTOR_SCHEMA_MUTATION=NO
           echo RADAR_V6191_PRODUCTION_WIRING=PASS
           echo RADAR_V6191_READONLY=PASS
           echo RADAR_V6191_QUALIFICATION=PASS
