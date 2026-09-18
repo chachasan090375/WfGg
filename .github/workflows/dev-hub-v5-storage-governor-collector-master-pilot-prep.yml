@@ -1,0 +1,55 @@
+name: DEV HUB V5 Storage Governor Collector MASTER PILOT prep
+
+on:
+  push:
+    branches:
+      - dev-hub-v5-storage-governor-collector-master-pilot-prep
+    paths:
+      - 'dev-hub/bin/install-storage-governor-collector-master-pilot.sh'
+      - 'dev-hub/adapters/storage-governor-adapter.py'
+      - '.github/workflows/dev-hub-v5-storage-governor-collector-master-pilot-prep.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify-prep:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Syntax checks
+        run: |
+          set -euo pipefail
+          bash -n dev-hub/bin/install-storage-governor-collector-master-pilot.sh
+          python3 -m py_compile dev-hub/adapters/storage-governor-adapter.py
+          echo STORAGE_GOVERNOR_PILOT_SYNTAX=PASS
+
+      - name: Safety invariants
+        run: |
+          set -euo pipefail
+          grep -Fq 'COLLECTOR_SERVICE_INTERRUPTION=NO' dev-hub/bin/install-storage-governor-collector-master-pilot.sh
+          grep -Fq 'VPS_FULL_LOCAL_SNAPSHOT=NO' dev-hub/bin/install-storage-governor-collector-master-pilot.sh
+          grep -Fq 'COLLECTOR_PRODUCTION_DATA_MUTATION=NO' dev-hub/bin/install-storage-governor-collector-master-pilot.sh
+          grep -Fq 'collector-master-snapshot' dev-hub/bin/install-storage-governor-collector-master-pilot.sh
+          grep -Fq 'mode=ro' dev-hub/adapters/storage-governor-adapter.py
+          grep -Fq 'conn.execute("BEGIN")' dev-hub/adapters/storage-governor-adapter.py
+          grep -Fq 'COLLECTOR_MASTER_ALREADY_EXISTS' dev-hub/adapters/storage-governor-adapter.py
+          ! grep -Fq 'systemctl stop' dev-hub/adapters/storage-governor-adapter.py
+          ! grep -Fq 'rm -rf' dev-hub/adapters/storage-governor-adapter.py
+          echo STORAGE_GOVERNOR_PILOT_GUARDRAILS=PASS
+
+      - name: Assert no registry promotion yet
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          r=json.load(open('dev-hub/config/provider-adapters.v1.json'))
+          a=r['adapters']['storage-governor-adapter']
+          assert a['status']=='CONTRACT_OK',a
+          assert a['executable'] is None,a
+          print('STORAGE_GOVERNOR_STATUS=CONTRACT_OK')
+          print('STORAGE_GOVERNOR_PILOT_PROMOTION=NOT_YET')
+          PY
