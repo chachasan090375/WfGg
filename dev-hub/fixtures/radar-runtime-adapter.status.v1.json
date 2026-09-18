@@ -1,0 +1,51 @@
+{
+  "schema": "chacha.dev/dispatch-envelope/v1",
+  "project": "wfgg-radar",
+  "transition": "OPERATE->OPERATE",
+  "run_id": "radar-runtime-contract-status",
+  "wave": 1,
+  "task": {
+    "id": "radar-runtime:status",
+    "kind": "runtime-status",
+    "description": "Read WfGg Radar runtime and Sentinel state.",
+    "owner_role": "sre-observability",
+    "permission": "read",
+    "outputs": [
+      {
+        "type": "artifact",
+        "id": "radar-runtime-status"
+      }
+    ],
+    "verification": {
+      "mode": "machine",
+      "self_certification_allowed": false,
+      "required_evidence": [
+        "source",
+        "timestamp",
+        "digest"
+      ]
+    }
+  },
+  "bindings": [
+    {
+      "capability": "radar-runtime-inspect",
+      "provider": "radar-vps-runtime",
+      "adapter": "radar-runtime-adapter",
+      "fallback_used": false,
+      "health_state": "HEALTHY"
+    }
+  ],
+  "policy_context": {
+    "resource_class": "light",
+    "requires_storage_preflight": false,
+    "human_approval_required": false,
+    "approval_id": null,
+    "timeout_seconds": 30
+  },
+  "workspace": null,
+  "metadata": {
+    "radar_runtime": {
+      "action": "status"
+    }
+  }
+}
