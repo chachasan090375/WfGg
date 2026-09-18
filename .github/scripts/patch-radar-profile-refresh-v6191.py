@@ -32,7 +32,15 @@ def patch_profile_only_job() -> None:
     if marker in text:
         print('RADAR_V6191_PROFILE_ONLY_JOB=ALREADY_PRESENT')
         return
-    old = '''\tradarCollectorJobs.update(jobID, func(j *collectorJob) { j.Status = "RUNNING"; j.Phase = "STARTING" })\n\tcycle, joined, err := collectorStartCycle(ctx, query)\n'''
+    old = '''\tradarCollectorJobs.update(jobID, func(j *collectorJob) {
+\t\tj.Status = "RUNNING"
+\t\tj.Phase = "STARTING"
+\t\tif target, ok := federatedServerTargetV615(query); ok {
+\t\t\tj.ServerTarget = target
+\t\t}
+\t})
+\tcycle, joined, err := collectorStartCycle(ctx, query)
+'''
     new = '''\tradarCollectorJobs.update(jobID, func(j *collectorJob) { j.Status = "RUNNING"; j.Phase = "STARTING" })\n\n\t// WFGG_RADAR_PROFILE_ONLY_JOB_V6191\n\t// Explicit @profile:<uid> uses only get.user.info.multi. It does not start\n\t// a map sweep or a Collector cycle, so cluster evidence is untouched.\n\tif uid, ok := profileOnlyUIDV6191(query); ok {\n\t\tradarCollectorJobs.update(jobID, func(j *collectorJob) {\n\t\t\tj.Phase = "PROFILE_ONLY"\n\t\t\tj.Candidates = 1\n\t\t})\n\t\tplayer, refreshErr := s.runTargetProfileRefreshV6191(ctx, token, uid)\n\t\tif refreshErr != nil {\n\t\t\tfail("PROFILE_TARGET_REFRESH_FAILED", refreshErr)\n\t\t\treturn\n\t\t}\n\t\tradarCollectorJobs.update(jobID, func(j *collectorJob) { j.Enriched = 1 })\n\t\tcompleteCollectorJob(jobID, playerMapV6191(player))\n\t\treturn\n\t}\n\n\tcycle, joined, err := collectorStartCycle(ctx, query)\n'''
     text = replace_once(text, old, new, 'profile-only collector job')
     COLLECTOR.write_text(text, encoding='utf-8')
