@@ -1,0 +1,72 @@
+name: DEV HUB V5 Radar runtime adapter PILOT prep
+
+on:
+  push:
+    branches:
+      - dev-hub-v5-radar-runtime-adapter-pilot-prep
+    paths:
+      - 'dev-hub/adapters/radar-runtime-adapter.py'
+      - 'dev-hub/bin/install-radar-runtime-adapter-pilot.sh'
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - 'dev-hub/config/capability-registry.v1.json'
+      - 'dev-hub/projects/wfgg-radar/manifest.v3.json'
+      - '.github/workflows/dev-hub-v5-radar-runtime-adapter-pilot-prep.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify-prep:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Syntax
+        run: |
+          set -euo pipefail
+          bash -n dev-hub/bin/install-radar-runtime-adapter-pilot.sh
+          python3 -m py_compile dev-hub/adapters/radar-runtime-adapter.py
+          echo RADAR_RUNTIME_PILOT_PREP_SYNTAX=PASS
+
+      - name: Re-run offline contract tests
+        run: |
+          set -euo pipefail
+          python3 -m unittest -v dev-hub/tests/test_radar_runtime_adapter_contract.py
+          echo RADAR_RUNTIME_PILOT_PREP_CONTRACT=PASS
+
+      - name: Assert bootstrap is non-Radar-mutating
+        run: |
+          set -euo pipefail
+          grep -Fq 'RADAR_RUNTIME_ADAPTER_PRODUCTION_RADAR_MUTATION=NO' dev-hub/bin/install-radar-runtime-adapter-pilot.sh
+          grep -Fq 'radar_sentinel_not_active' dev-hub/bin/install-radar-runtime-adapter-pilot.sh
+          grep -Fq 'collector_sentinel_not_active' dev-hub/bin/install-radar-runtime-adapter-pilot.sh
+          grep -Fq 'radar-runtime:status' dev-hub/bin/install-radar-runtime-adapter-pilot.sh
+          ! grep -Fq 'systemctl stop wfgg-radar-sentinel' dev-hub/bin/install-radar-runtime-adapter-pilot.sh
+          ! grep -Fq 'systemctl restart wfgg-radar-connector' dev-hub/bin/install-radar-runtime-adapter-pilot.sh
+          echo RADAR_RUNTIME_BOOTSTRAP_MUTATES_RADAR=NO
+          echo RADAR_RUNTIME_BOOTSTRAP_SENTINEL_GUARD=PASS
+
+      - name: Assert registry remains CONTRACT_OK
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          r=json.load(open('dev-hub/config/provider-adapters.v1.json'))
+          a=r['adapters']['radar-runtime-adapter']
+          assert a['status']=='CONTRACT_OK',a
+          assert a['executable'] is None,a
+          print('RADAR_RUNTIME_ADAPTER_REGISTRY_STATUS=CONTRACT_OK')
+          print('RADAR_RUNTIME_ADAPTER_PROMOTION=NOT_YET')
+          PY
+
+      - name: Validate project manifest
+        run: |
+          set -euo pipefail
+          python3 dev-hub/bin/manifest-v3-engine.py validate             dev-hub/projects/wfgg-radar/manifest.v3.json             --registry dev-hub/config/capability-registry.v1.json
+          echo WFGG_RADAR_MANIFEST_PILOT_PREP=PASS
