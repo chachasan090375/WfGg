@@ -1,0 +1,55 @@
+{
+  "schema": "chacha.dev/adapter-promotion-evidence/v1",
+  "adapter": "radar-runtime-adapter",
+  "observed_at": "2026-09-18T18:52:57Z",
+  "evidence": {
+    "runtime-contract-pass": {
+      "status": "PASS",
+      "source": "github-actions:35379380803:radar-runtime-adapter-contract",
+      "observed_at": "2026-09-18T18:52:57Z",
+      "details": {
+        "contract_run": "35379380803",
+        "contract_status": "SUCCESS",
+        "offline_contract_tests": "PASS",
+        "static_adapter_contract": "PASS",
+        "manifest_resolution": "PASS"
+      }
+    },
+    "sandbox-only": {
+      "status": "PASS",
+      "source": "github-actions:35379828903:radar-runtime-adapter-pilot-prep",
+      "observed_at": "2026-09-18T18:52:57Z",
+      "details": {
+        "pilot_prep_run": "35379828903",
+        "pilot_prep_status": "SUCCESS",
+        "production_radar_mutation": "NO",
+        "registry_mutation": "NO",
+        "radar_sentinel_guard": "PASS",
+        "collector_sentinel_guard": "PASS"
+      }
+    },
+    "provisioning-pass": {
+      "status": "PASS",
+      "source": "runtime:/opt/chacha-dev/runtime/adapter-provisioning/radar-runtime-adapter-20260918T184505Z.json",
+      "observed_at": "2026-09-18T18:52:57Z",
+      "details": {
+        "adapter": "radar-runtime-adapter",
+        "version": "1.0.0",
+        "executable_path": "/opt/chacha-dev/adapters/radar-runtime/current/radar-runtime-adapter",
+        "source_digest": "sha256:a2bbfa66d16d75858940b621690e9001de8cbb69e4debd0dad284034eb52b332",
+        "installed_digest": "sha256:a2bbfa66d16d75858940b621690e9001de8cbb69e4debd0dad284034eb52b332",
+        "executable_digest": "sha256:a2bbfa66d16d75858940b621690e9001de8cbb69e4debd0dad284034eb52b332",
+        "receipt_digest": "sha256:c7e61615d11fa1ed439b4c0cab7d7b2e9da576e7dfec00fdaf65fb1f56592e1d",
+        "probe_status": "PASS",
+        "idempotent": false,
+        "blockers": []
+      }
+    }
+  },
+  "approvals": [],
+  "notes": [
+    "Observed on ChaChaVPS after standard provisioning and plan-only CONTRACT_OK -> PILOT qualification.",
+    "Promotion plan returned eligible=true with required evidence runtime-contract-pass, sandbox-only and provisioning-pass.",
+    "No Radar production mutation occurred during qualification."
+  ]
+}
