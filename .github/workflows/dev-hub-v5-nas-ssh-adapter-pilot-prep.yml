@@ -1,0 +1,57 @@
+name: DEV HUB V5 NAS SSH adapter PILOT prep
+
+on:
+  push:
+    branches:
+      - dev-hub-v5-nas-ssh-adapter-pilot-prep
+    paths:
+      - 'dev-hub/bin/install-nas-ssh-adapter-pilot.sh'
+      - 'dev-hub/adapters/nas-ssh-adapter.py'
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - '.github/workflows/dev-hub-v5-nas-ssh-adapter-pilot-prep.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify-prep:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Shell syntax
+        run: |
+          set -euo pipefail
+          bash -n dev-hub/bin/install-nas-ssh-adapter-pilot.sh
+          echo NAS_PILOT_INSTALLER_SYNTAX=PASS
+
+      - name: Python syntax
+        run: |
+          set -euo pipefail
+          python3 -m py_compile dev-hub/adapters/nas-ssh-adapter.py
+          echo NAS_ADAPTER_PYTHON_SYNTAX=PASS
+
+      - name: Assert pilot prep does not promote registry
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          r=json.load(open('dev-hub/config/provider-adapters.v1.json'))
+          a=r['adapters']['nas-ssh-adapter']
+          assert a['status']=='CONTRACT_OK', a
+          assert a['executable'] is None, a
+          print('NAS_ADAPTER_REGISTRY_STATUS=CONTRACT_OK')
+          print('NAS_ADAPTER_PILOT_PROMOTION=NOT_YET')
+          PY
+
+      - name: Assert runtime pilot safeguards
+        run: |
+          set -euo pipefail
+          grep -Fq 'NAS_ADAPTER_INDEPENDENT_SHA256=PASS' dev-hub/bin/install-nas-ssh-adapter-pilot.sh
+          grep -Fq 'NAS_ADAPTER_PRODUCTION_MUTATION=NO' dev-hub/bin/install-nas-ssh-adapter-pilot.sh
+          grep -Fq 'NAS_ADAPTER_PERSISTENT_DELETE=NO' dev-hub/bin/install-nas-ssh-adapter-pilot.sh
+          grep -Fq 'artifacts/adapter-pilot/' dev-hub/bin/install-nas-ssh-adapter-pilot.sh
+          ! grep -Fq 'rm -rf -- "$NAS_ROOT"' dev-hub/bin/install-nas-ssh-adapter-pilot.sh
+          echo NAS_PILOT_PREP_GUARDRAILS=PASS
