@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-SOURCE_REVISION="f5abfb0d5aff613c7d830ee6b6e8f33734d9bf31"
+SOURCE_REVISION="89712cc7abd43c422cf4ff82dc4fbcd1801e0776"
 RAW="https://raw.githubusercontent.com/chachasan090375/WfGg/${SOURCE_REVISION}"
 PORTABLE_SHA="db0da08a11c2b2cbdddb5f1ac6b89aba228acac624815079e48e2fd13148eec3"
 
@@ -140,6 +140,12 @@ echo "COLLECTOR_INCREMENTAL_AUTO_WATCH_TIMER_ACTIVE=$TIMER_ACTIVE"
 echo "COLLECTOR_INCREMENTAL_AUTO_WATCH_TIMER_ENABLED=$TIMER_ENABLED"
 test "$TIMER_ACTIVE" = "active"
 test "$TIMER_ENABLED" = "enabled"
+
+# Remove the superseded single-cycle watcher only after the new timer is proven active.
+systemctl disable --now chacha-storage-incremental-watch.timer >/dev/null 2>&1 || true
+rm -f   /etc/systemd/system/chacha-storage-incremental-watch.timer   /etc/systemd/system/chacha-storage-incremental-watch.service   /opt/chacha-dev/bin/storage-governor-incremental-watch.py
+systemctl daemon-reload
+echo "COLLECTOR_INCREMENTAL_LEGACY_WATCH=DISABLED"
 
 systemctl list-timers --all --no-pager wfgg-collector-incremental-auto-watch.timer || true
 
