@@ -7,6 +7,10 @@ Policy-owned storage operations for WfGg. V1 supports:
   watermark candidates without exposing application row data
 - collector-incremental-plan: classify every table into a deterministic
   cycle/time/full-table backup policy using schema and aggregate counts only
+- collector-incremental-anchor: create exactly one immutable chain anchor
+  bound to the validated MASTER and its baseline watermarks
+- collector-incremental-package: create one immutable patch per completed
+  cycle after the anchor, or NOOP if no newer completed cycle exists
 - collector-master-snapshot: create exactly one immutable, logical SQLite
   MASTER dump of the active Collector DB, gzip-streamed directly to the NAS.
 
@@ -18,6 +22,7 @@ from __future__ import annotations
 
 import gzip
 import hashlib
+import importlib.util
 import json
 import os
 import re
@@ -41,6 +46,8 @@ DEFAULT_NAS_ADAPTER=Path("/opt/chacha-dev/adapters/nas-ssh/current/nas-ssh-adapt
 DEFAULT_NAS_HOST="chachanas"
 DEFAULT_NAS_ROOT="/share/CACHEDEV1_DATA/ChaCha-DEV-HUB"
 BACKUP_REL_ROOT="projects/wfgg/backups"
+CHAIN_REL_ROOT=BACKUP_REL_ROOT+"/collector-chain"
+CHAIN_HELPER_FILE="storage-governor-incremental-chain.py"
 SAFE_TOKEN=re.compile(r"^[A-Za-z0-9._/-]+$")
 
 
@@ -110,9 +117,9 @@ def validate_request(request: dict[str,Any]) -> tuple[dict[str,Any]|None,str|Non
     permission=str(task.get("permission") or "")
     if action in {"assess","collector-incremental-discovery","collector-incremental-plan"} and permission!="read":
         return None,"STORAGE_READ_ACTION_REQUIRES_READ"
-    if action=="collector-master-snapshot" and permission!="workspace-write":
-        return None,"COLLECTOR_MASTER_REQUIRES_WORKSPACE_WRITE"
-    if action not in {"assess","collector-incremental-discovery","collector-incremental-plan","collector-master-snapshot"}:
+    if action in {"collector-master-snapshot","collector-incremental-anchor","collector-incremental-package"} and permission!="workspace-write":
+        return None,"STORAGE_WRITE_ACTION_REQUIRES_WORKSPACE_WRITE"
+    if action not in {"assess","collector-incremental-discovery","collector-incremental-plan","collector-incremental-anchor","collector-incremental-package","collector-master-snapshot"}:
         return None,"STORAGE_GOVERNOR_ACTION_NOT_ALLOWED"
     return cfg,None
 
@@ -603,6 +610,366 @@ def collector_incremental_plan(request: dict[str,Any]) -> int:
     }]))
 
 
+def load_chain_helper():
+    path=Path(__file__).resolve().with_name(CHAIN_HELPER_FILE)
+    if not path.is_file():
+        raise RuntimeError("INCREMENTAL_CHAIN_HELPER_MISSING")
+    spec=importlib.util.spec_from_file_location("storage_governor_incremental_chain",path)
+    if spec is None or spec.loader is None:
+        raise RuntimeError("INCREMENTAL_CHAIN_HELPER_LOAD_FAILED")
+    mod=importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+def ensure_chain_dirs() -> None:
+    root=f"{nas_root()}/{CHAIN_REL_ROOT}"
+    proc=run(ssh_base()+["mkdir","-p",root,root+"/incrementals"],timeout=30)
+    if proc.returncode!=0:
+        raise RuntimeError("CHAIN_DIRECTORY_CREATE_FAILED")
+
+
+def list_chain_state_files() -> list[str]:
+    root=f"{nas_root()}/{CHAIN_REL_ROOT}"
+    proc=run(
+        ssh_base()+[
+            "find",root,"-maxdepth","1","-type","f",
+            "-name","collector-chain-state-*.json","-print"
+        ],
+        timeout=30,
+    )
+    if proc.returncode not in {0,1}:
+        raise RuntimeError("CHAIN_STATE_DISCOVERY_FAILED")
+    return sorted(x.strip() for x in proc.stdout.decode("utf-8","replace").splitlines() if x.strip())
+
+
+def read_remote_json(path: str) -> dict[str,Any]:
+    proc=run(ssh_base()+["cat",path],timeout=30)
+    if proc.returncode!=0:
+        raise RuntimeError("CHAIN_STATE_READ_FAILED")
+    value=json.loads(proc.stdout.decode("utf-8"))
+    if not isinstance(value,dict):
+        raise RuntimeError("CHAIN_STATE_INVALID")
+    return value
+
+
+def write_json_via_nas_adapter(
+    request: dict[str,Any],
+    document: dict[str,Any],
+    remote_rel: str,
+    task_id: str,
+    description: str,
+) -> dict[str,Any]:
+    adapter=nas_adapter_path()
+    with tempfile.TemporaryDirectory(prefix="chacha-storage-governor-json-") as td:
+        workspace=Path(td)
+        local=workspace/"document.json"
+        local.write_text(json.dumps(document,indent=2,ensure_ascii=False)+"\n",encoding="utf-8")
+        envelope={
+            "schema":INPUT_SCHEMA,
+            "project":str(request.get("project") or "wfgg-radar"),
+            "transition":task_id,
+            "run_id":str(request.get("run_id") or "storage-governor"),
+            "wave":1,
+            "task":{
+                "id":task_id,
+                "kind":"backup-manifest",
+                "description":description,
+                "owner_role":"storage-governor",
+                "permission":"workspace-write",
+                "outputs":[{"type":"artifact","id":remote_rel}],
+                "verification":{"required":True,"mode":"machine"},
+            },
+            "bindings":[{
+                "capability":"backup-store",
+                "provider":NAS_PROVIDER_ID,
+                "adapter":NAS_ADAPTER_ID,
+                "fallback_used":False,
+                "health_state":"pilot",
+            }],
+            "policy_context":{
+                "resource_class":"light",
+                "requires_storage_preflight":False,
+                "human_approval_required":False,
+                "approval_id":None,
+                "timeout_seconds":30,
+            },
+            "workspace":str(workspace),
+            "metadata":{"nas_storage":{
+                "action":"put-file",
+                "local_path":"document.json",
+                "remote_path":remote_rel,
+                "reserve_mb":1024,
+            }},
+        }
+        proc=run([str(adapter)],timeout=40,stdin=json.dumps(envelope).encode())
+        if proc.returncode!=0:
+            raise RuntimeError("NAS_JSON_ADAPTER_FAILED")
+        value=json.loads(proc.stdout.decode())
+        if value.get("status")!="OK":
+            raise RuntimeError("NAS_JSON_PUBLISH_FAILED:"+str(value.get("summary")))
+        return value
+
+
+def collector_incremental_anchor(request: dict[str,Any], cfg: dict[str,Any]) -> int:
+    helper=load_chain_helper()
+    ensure_chain_dirs()
+    existing=list_chain_state_files()
+    if existing:
+        return blocked(request,"COLLECTOR_INCREMENTAL_CHAIN_ALREADY_ANCHORED")
+
+    master_archive=str(cfg.get("master_archive") or "")
+    master_sha=str(cfg.get("master_sha256") or "")
+    master_created_at=str(cfg.get("master_created_at") or "")
+    baseline_cycle=int(cfg.get("baseline_cycle") or 0)
+    obs=dict(cfg.get("observations_watermark") or {})
+    masters=dict(cfg.get("masters_watermark") or {})
+    plan_digest=str(cfg.get("plan_digest") or "")
+
+    if not master_archive.startswith(BACKUP_REL_ROOT+"/collector-master-"):
+        return blocked(request,"CHAIN_MASTER_ARCHIVE_INVALID")
+    if not re.fullmatch(r"sha256:[0-9a-f]{64}",master_sha):
+        return blocked(request,"CHAIN_MASTER_SHA_INVALID")
+    if baseline_cycle<=0 or not master_created_at:
+        return blocked(request,"CHAIN_BASELINE_INVALID")
+    if not plan_digest.startswith("sha256:"):
+        return blocked(request,"CHAIN_PLAN_DIGEST_INVALID")
+
+    remote_master=f"{nas_root()}/{master_archive}"
+    proc=run(ssh_base()+["sha256sum",remote_master],timeout=120)
+    if proc.returncode!=0:
+        return blocked(request,"CHAIN_MASTER_REMOTE_HASH_FAILED")
+    remote_hash=proc.stdout.decode("utf-8","replace").split()[0].strip()
+    if "sha256:"+remote_hash != master_sha:
+        return blocked(request,"CHAIN_MASTER_SHA_MISMATCH")
+
+    state=helper.make_anchor_state(
+        master_archive=master_archive,
+        master_sha256=master_sha,
+        master_created_at=master_created_at,
+        baseline_cycle=baseline_cycle,
+        observations_watermark=obs,
+        masters_watermark=masters,
+        plan_digest=plan_digest,
+    )
+    remote_rel=f"{CHAIN_REL_ROOT}/collector-chain-state-000000.json"
+    write_json_via_nas_adapter(
+        request,state,remote_rel,
+        "collector-incremental-anchor",
+        "Publish immutable Collector incremental chain anchor.",
+    )
+    digest=sha256_bytes(json.dumps(state,sort_keys=True,separators=(",",":")).encode())
+    evidence=[{
+        "kind":"file",
+        "source":"nas://"+nas_host()+"/"+remote_rel,
+        "digest":digest,
+        "details":{
+            "sequence":0,
+            "baseline_cycle":baseline_cycle,
+            "master_archive":master_archive,
+            "master_sha256":master_sha,
+            "raw_row_data_exposed":False,
+        },
+    }]
+    return emit(result(request,"OK","COLLECTOR_INCREMENTAL_CHAIN_ANCHORED",evidence,[{
+        "type":"artifact","id":remote_rel,"status":"UNVERIFIED",
+        "reason":"Immutable anchor published; independent chain verifier pending.",
+    }]))
+
+
+class LineHashingGzipWriter:
+    def __init__(self, raw):
+        self.raw=raw
+        self.hash=hashlib.sha256()
+        self.compressed_bytes=0
+        self.lines=0
+        self._hashing=HashingWriter(raw)
+        self.gz=gzip.GzipFile(fileobj=self._hashing,mode="wb",compresslevel=6,mtime=0)
+    def line(self,value: str) -> None:
+        data=(value+"\n").encode("utf-8")
+        self.gz.write(data)
+        self.lines+=1
+    def close(self) -> None:
+        self.gz.close()
+        self.compressed_bytes=self._hashing.count
+        self.hash=self._hashing.hash
+
+
+def latest_chain_state() -> tuple[str,dict[str,Any]]:
+    files=list_chain_state_files()
+    if not files:
+        raise RuntimeError("COLLECTOR_INCREMENTAL_CHAIN_NOT_ANCHORED")
+    path=files[-1]
+    return path,read_remote_json(path)
+
+
+def collector_incremental_package(request: dict[str,Any]) -> int:
+    helper=load_chain_helper()
+    ensure_chain_dirs()
+    state_path,state=latest_chain_state()
+    if state.get("schema")!=helper.CHAIN_SCHEMA:
+        return blocked(request,"CHAIN_STATE_SCHEMA_INVALID")
+
+    sequence=int(state.get("sequence") or 0)
+    expected_name=f"collector-chain-state-{sequence:06d}.json"
+    if not state_path.endswith("/"+expected_name):
+        return blocked(request,"CHAIN_STATE_SEQUENCE_MISMATCH")
+
+    child_preflight(request,512)
+    path=db_path()
+    if not path.is_file():
+        return blocked(request,"COLLECTOR_DB_MISSING")
+
+    uri=f"file:{path}?mode=ro"
+    conn=sqlite3.connect(uri,uri=True,timeout=30,isolation_level=None)
+    try:
+        conn.execute("BEGIN")
+        from_cycle=int((state.get("watermarks") or {}).get("cycle") or 0)
+        target=helper.next_completed_cycle(conn,from_cycle)
+        if target is None:
+            conn.execute("ROLLBACK")
+            evidence=[{
+                "kind":"report",
+                "source":"collector://incremental-chain",
+                "digest":sha256_bytes(f"noop:{sequence}:{from_cycle}".encode()),
+                "details":{
+                    "sequence":sequence,
+                    "baseline_cycle":from_cycle,
+                    "next_completed_cycle":None,
+                    "nas_mutation":False,
+                    "raw_row_data_exposed":False,
+                },
+            }]
+            return emit(result(request,"OK","COLLECTOR_INCREMENTAL_NOOP",evidence,[{
+                "type":"gate","id":"collector-incremental-next","status":"OK",
+                "reason":"No completed cycle exists beyond current chain watermark.",
+            }]))
+
+        next_seq=sequence+1
+        to_cycle=int(target["cycle"])
+        archive_rel=(
+            f"{CHAIN_REL_ROOT}/incrementals/"
+            f"collector-incremental-{next_seq:06d}-cycle-{to_cycle:06d}.sql.gz"
+        )
+        final=f"{nas_root()}/{archive_rel}"
+        temp=final+".incoming"
+        if remote_exists(final) or remote_exists(temp):
+            conn.execute("ROLLBACK")
+            return blocked(request,"COLLECTOR_INCREMENTAL_DESTINATION_COLLISION")
+
+        remote_cmd=f"umask 077; cat > '{temp}'"
+        ssh=subprocess.Popen(
+            ["/usr/bin/ssh","-o","BatchMode=yes","-o","ConnectTimeout=12",nas_host(),remote_cmd],
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            shell=False,
+        )
+        if ssh.stdin is None:
+            conn.execute("ROLLBACK")
+            raise RuntimeError("INCREMENTAL_STREAM_STDIN_MISSING")
+
+        writer=LineHashingGzipWriter(ssh.stdin)
+        package=None
+        try:
+            package=helper.generate_incremental_sql(conn,state,writer.line)
+            if package is None:
+                raise RuntimeError("INCREMENTAL_TARGET_DISAPPEARED")
+            writer.close()
+            ssh.stdin.close()
+            rc=ssh.wait(timeout=1800)
+            if rc!=0:
+                err=ssh.stderr.read(4096).decode("utf-8","replace") if ssh.stderr else ""
+                raise RuntimeError("INCREMENTAL_STREAM_FAILED:"+err[:120])
+            conn.execute("ROLLBACK")
+        except Exception:
+            try:
+                writer.close()
+            except Exception:
+                pass
+            try:
+                ssh.stdin.close()
+            except Exception:
+                pass
+            try:
+                ssh.kill()
+            except Exception:
+                pass
+            try:
+                conn.execute("ROLLBACK")
+            except Exception:
+                pass
+            run(ssh_base()+["rm","-f",temp],timeout=20)
+            raise
+    finally:
+        conn.close()
+
+    local_hash=writer.hash.hexdigest()
+    proc=run(ssh_base()+["sha256sum",temp],timeout=120)
+    if proc.returncode!=0:
+        run(ssh_base()+["rm","-f",temp],timeout=20)
+        raise RuntimeError("INCREMENTAL_REMOTE_HASH_FAILED")
+    remote_hash=proc.stdout.decode("utf-8","replace").split()[0].strip()
+    if remote_hash!=local_hash:
+        run(ssh_base()+["rm","-f",temp],timeout=20)
+        raise RuntimeError("INCREMENTAL_SHA256_MISMATCH")
+
+    move=run(ssh_base()+["mv",temp,final],timeout=30)
+    if move.returncode!=0:
+        run(ssh_base()+["rm","-f",temp],timeout=20)
+        raise RuntimeError("INCREMENTAL_ATOMIC_PUBLISH_FAILED")
+
+    previous_digest=sha256_bytes(json.dumps(state,sort_keys=True,separators=(",",":")).encode())
+    new_state={
+        "schema":helper.CHAIN_SCHEMA,
+        "sequence":int(package["sequence"]),
+        "created_at":now_iso(),
+        "master":state["master"],
+        "watermarks":package["watermarks"],
+        "plan_digest":state.get("plan_digest"),
+        "package_format":state.get("package_format"),
+        "next_sequence":int(package["sequence"])+1,
+        "immutable":True,
+        "previous_state_sha256":previous_digest,
+        "incremental":{
+            "archive":archive_rel,
+            "sha256":"sha256:"+local_hash,
+            "from_cycle":int(package["from_cycle"]),
+            "to_cycle":int(package["to_cycle"]),
+            "target_finished_at":package["target_finished_at"],
+            "row_counts":package["row_counts"],
+            "compressed_bytes":writer.compressed_bytes,
+            "sql_lines":writer.lines,
+        },
+    }
+    state_rel=f"{CHAIN_REL_ROOT}/collector-chain-state-{int(package['sequence']):06d}.json"
+    write_json_via_nas_adapter(
+        request,new_state,state_rel,
+        "collector-incremental-state",
+        "Publish immutable Collector incremental chain state.",
+    )
+
+    evidence=[{
+        "kind":"file",
+        "source":"nas://"+nas_host()+"/"+archive_rel,
+        "digest":"sha256:"+local_hash,
+        "details":{
+            "sequence":int(package["sequence"]),
+            "from_cycle":int(package["from_cycle"]),
+            "to_cycle":int(package["to_cycle"]),
+            "compressed_bytes":writer.compressed_bytes,
+            "sql_lines":writer.lines,
+            "row_counts":package["row_counts"],
+            "raw_row_data_exposed":False,
+            "collector_service_stopped":False,
+        },
+    }]
+    return emit(result(request,"OK","COLLECTOR_INCREMENTAL_PACKAGE_CREATED",evidence,[
+        {"type":"artifact","id":archive_rel,"status":"UNVERIFIED","reason":"Awaiting independent package verifier."},
+        {"type":"artifact","id":state_rel,"status":"UNVERIFIED","reason":"Immutable chain state published."},
+    ]))
+
+
 def assess(request: dict[str,Any]) -> int:
     path=db_path()
     if not path.is_file():
@@ -731,6 +1098,10 @@ def main() -> int:
             return collector_incremental_discovery(request)
         if cfg.get("action")=="collector-incremental-plan":
             return collector_incremental_plan(request)
+        if cfg.get("action")=="collector-incremental-anchor":
+            return collector_incremental_anchor(request,cfg)
+        if cfg.get("action")=="collector-incremental-package":
+            return collector_incremental_package(request)
         return collector_master(request)
     except subprocess.TimeoutExpired:
         return emit(result(request,"FAILED","STORAGE_GOVERNOR_TIMEOUT"))
