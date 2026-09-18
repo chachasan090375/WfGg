@@ -8,10 +8,12 @@ then removes only the disposable restore database it created.
 """
 from __future__ import annotations
 
+import base64
 import hashlib
 import json
 import os
 import re
+import shlex
 import subprocess
 import sys
 from datetime import datetime, timezone
@@ -229,114 +231,162 @@ def verify_master_anchor(request: dict[str,Any], cfg: dict[str,Any]) -> int:
     if "sha256:"+remote_sha256(anchor_abs)!=expected_anchor:
         return blocked(request,"RESTORE_ANCHOR_SHA_MISMATCH")
 
-    # Capability probe before any sandbox write.
-    caps=remote_exec("command -v gzip; command -v sqlite3",timeout=30)
-    cap_lines=[x.strip() for x in caps.splitlines() if x.strip()]
-    if len(cap_lines)<2:
-        return blocked(request,"NAS_RESTORE_RUNTIME_MISSING")
+    portable_path=Path(
+        os.environ.get("CHACHA_PORTABLE_RESTORE_VERIFIER","")
+    ).resolve()
+    portable_expected=str(cfg.get("portable_verifier_sha256") or "")
+    if not portable_path.is_file():
+        return blocked(request,"PORTABLE_RESTORE_VERIFIER_MISSING")
+    if not re.fullmatch(r"sha256:[0-9a-f]{64}",portable_expected):
+        return blocked(request,"PORTABLE_RESTORE_VERIFIER_SHA_INVALID")
+    local_portable_sha="sha256:"+hashlib.sha256(portable_path.read_bytes()).hexdigest()
+    if local_portable_sha!=portable_expected:
+        return blocked(request,"PORTABLE_RESTORE_VERIFIER_LOCAL_SHA_MISMATCH")
+
+    arch=remote_exec("uname -m",timeout=30).strip()
+    if arch not in {"x86_64","amd64"}:
+        return blocked(request,"NAS_ARCH_UNSUPPORTED:"+arch)
 
     sandbox=f"{root}/artifacts/restore-verification/{run_id}"
     restored=f"{sandbox}/collector-restore.db"
+    remote_bin=f"{sandbox}/storage-restore-verifier"
+    remote_result=f"{sandbox}/result.json"
+
+    expected_doc={
+        "row_counts":expected_rows,
+        "baseline_cycle":expected["baseline_cycle"],
+        "observations_watermark":expected["observations"],
+        "masters_watermark":expected["masters"],
+    }
+    expected_b64=base64.b64encode(
+        json.dumps(expected_doc,separators=(",",":"),sort_keys=True).encode()
+    ).decode()
 
     # The sandbox path is policy-owned and unique to this run.
-    remote_exec(f"umask 077; mkdir -p '{sandbox}'; test ! -e '{restored}'",timeout=30)
+    remote_exec(
+        f"umask 077; mkdir -p {shlex.quote(sandbox)}; "
+        f"test ! -e {shlex.quote(restored)}; "
+        f"test ! -e {shlex.quote(remote_bin)}",
+        timeout=30,
+    )
     cleanup_needed=True
     try:
+        scp=subprocess.run(
+            [
+                "/usr/bin/scp","-q",
+                "-o","BatchMode=yes",
+                "-o","ConnectTimeout=12",
+                str(portable_path),
+                f"{nas_host()}:{remote_bin}",
+            ],
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            timeout=120,
+            shell=False,
+            check=False,
+        )
+        if scp.returncode!=0:
+            raise RuntimeError(
+                "PORTABLE_RESTORE_VERIFIER_UPLOAD_FAILED:"+
+                scp.stderr.decode("utf-8","replace")[:160]
+            )
+
         remote_exec(
-            f"set -e; gzip -dc '{master_abs}' | sqlite3 '{restored}'",
+            f"chmod 0700 {shlex.quote(remote_bin)}; "
+            f"test \"sha256:$(sha256sum {shlex.quote(remote_bin)} | awk '{{print $1}}')\" = "
+            f"{shlex.quote(portable_expected)}",
+            timeout=60,
+        )
+
+        remote_exec(
+            f"{shlex.quote(remote_bin)} "
+            f"--master {shlex.quote(master_abs)} "
+            f"--restore {shlex.quote(restored)} "
+            f"--expected-b64 {shlex.quote(expected_b64)} "
+            f"--result {shlex.quote(remote_result)}",
             timeout=1800,
         )
 
-        tables_sql="SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name;"
-        tables_raw=remote_exec(
-            f"sqlite3 -batch -noheader '{restored}' \"{tables_sql}\"",
-            timeout=60,
-        )
-        tables=[x.strip() for x in tables_raw.splitlines() if x.strip()]
-
-        integrity=remote_exec(
-            f"sqlite3 -batch -noheader '{restored}' 'PRAGMA integrity_check;'",
-            timeout=300,
-        ).strip()
-
-        row_counts={}
-        for table in EXPECTED_TABLES:
-            value=remote_exec(
-                f"sqlite3 -batch -noheader '{restored}' 'SELECT COUNT(*) FROM \"{table}\";'",
-                timeout=120,
-            ).strip()
-            row_counts[table]=int(value)
-
-        max_cycle=int(remote_exec(
-            f"sqlite3 -batch -noheader '{restored}' 'SELECT MAX(id) FROM cycles;'",
-            timeout=60,
-        ).strip())
-
-        obs_raw=remote_exec(
-            f"sqlite3 -batch -noheader -separator '|' '{restored}' "
-            f"'SELECT observed_at,id FROM observations ORDER BY observed_at DESC,id DESC LIMIT 1;'",
-            timeout=60,
-        ).strip()
-        obs_parts=obs_raw.split("|",1)
-        observations={"observed_at":obs_parts[0],"id":int(obs_parts[1])}
-
-        master_raw=remote_exec(
-            f"sqlite3 -batch -noheader -separator '|' '{restored}' "
-            f"'SELECT created_at,id FROM masters ORDER BY created_at DESC,id DESC LIMIT 1;'",
-            timeout=60,
-        ).strip()
-        master_parts=master_raw.split("|",1)
-        masters={"created_at":master_parts[0],"id":int(master_parts[1])}
-
-        probe={
-            "integrity":integrity,
-            "tables":tables,
-            "row_counts":row_counts,
-            "max_cycle":max_cycle,
-            "observations":observations,
-            "masters":masters,
-        }
-        errors=verify_probe(probe,expected_rows,expected)
-        if errors:
+        probe=json.loads(remote_exec(
+            f"cat {shlex.quote(remote_result)}",timeout=60
+        ))
+        if probe.get("status")!="PASS":
             return emit(result(request,"FAILED","COLLECTOR_RESTORE_VERIFICATION_FAILED",[{
                 "kind":"report",
                 "source":"nas://"+nas_host()+"/restore-verification",
                 "digest":sha256_bytes(json.dumps(probe,sort_keys=True).encode()),
                 "details":{
+                    "errors":list(probe.get("errors") or []),
+                    "integrity":probe.get("integrity"),
+                    "table_count":len(probe.get("tables") or []),
+                    "row_counts":dict(probe.get("row_counts") or {}),
+                    "max_cycle":probe.get("baseline_cycle"),
+                },
+            }]))
+
+        translated={
+            "integrity":probe.get("integrity"),
+            "tables":list(probe.get("tables") or []),
+            "row_counts":dict(probe.get("row_counts") or {}),
+            "max_cycle":int(probe.get("baseline_cycle") or 0),
+            "observations":{
+                "observed_at":str((probe.get("observations_watermark") or {}).get("observed_at") or ""),
+                "id":int((probe.get("observations_watermark") or {}).get("id") or 0),
+            },
+            "masters":{
+                "created_at":str((probe.get("masters_watermark") or {}).get("created_at") or ""),
+                "id":int((probe.get("masters_watermark") or {}).get("id") or 0),
+            },
+        }
+        errors=verify_probe(translated,expected_rows,expected)
+        if errors:
+            return emit(result(request,"FAILED","COLLECTOR_RESTORE_VERIFICATION_FAILED",[{
+                "kind":"report",
+                "source":"nas://"+nas_host()+"/restore-verification",
+                "digest":sha256_bytes(json.dumps(translated,sort_keys=True).encode()),
+                "details":{
                     "errors":errors,
-                    "integrity":integrity,
-                    "table_count":len(tables),
-                    "row_counts":row_counts,
-                    "max_cycle":max_cycle,
+                    "integrity":translated["integrity"],
+                    "table_count":len(translated["tables"]),
+                    "row_counts":translated["row_counts"],
+                    "max_cycle":translated["max_cycle"],
                 },
             }]))
 
         evidence=[{
             "kind":"report",
             "source":"nas://"+nas_host()+"/restore-verification",
-            "digest":sha256_bytes(json.dumps(probe,sort_keys=True).encode()),
+            "digest":sha256_bytes(json.dumps(translated,sort_keys=True).encode()),
             "details":{
                 "master_sha256":expected_master,
                 "anchor_sha256":expected_anchor,
+                "portable_verifier_sha256":portable_expected,
+                "portable_verifier_arch":arch,
                 "integrity":"ok",
-                "table_count":len(tables),
-                "row_counts":row_counts,
-                "baseline_cycle":max_cycle,
-                "observations_watermark":observations,
-                "masters_watermark":masters,
+                "table_count":len(translated["tables"]),
+                "row_counts":translated["row_counts"],
+                "baseline_cycle":translated["max_cycle"],
+                "observations_watermark":translated["observations"],
+                "masters_watermark":translated["masters"],
                 "sandbox_deleted_after_verification":True,
                 "production_data_mutation":False,
             },
         }]
         return emit(result(request,"OK","COLLECTOR_MASTER_RESTORE_VERIFIED",evidence,[{
             "type":"gate","id":"collector-restore-proof","status":"VERIFIED",
-            "reason":"MASTER restored independently and matched anchor baseline."
+            "reason":"MASTER restored independently with portable SQLite verifier and matched anchor baseline."
         }]))
     finally:
         if cleanup_needed:
-            # Only the verifier-owned disposable DB is deleted.
+            # Delete only verifier-owned sandbox files and then its empty directory.
             try:
-                remote_exec(f"rm -f '{restored}'; rmdir '{sandbox}' 2>/dev/null || true",timeout=60)
+                remote_exec(
+                    f"rm -f {shlex.quote(restored)} {shlex.quote(remote_result)} "
+                    f"{shlex.quote(remote_bin)}; "
+                    f"rmdir {shlex.quote(sandbox)} 2>/dev/null || true",
+                    timeout=60,
+                )
             except Exception:
                 pass
 
