@@ -132,7 +132,7 @@
       "execution": "vps"
     },
     "storage-governor": {
-      "adapter": "platform-command-adapter",
+      "adapter": "storage-governor-adapter",
       "kind": "platform",
       "execution": "vps"
     },
@@ -275,6 +275,14 @@
       "supports": [
         "read",
         "plan",
+        "workspace-write"
+      ]
+    },
+    "storage-governor-adapter": {
+      "status": "CONTRACT_OK",
+      "executable": null,
+      "supports": [
+        "read",
         "workspace-write"
       ]
     }
