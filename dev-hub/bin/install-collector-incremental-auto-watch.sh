@@ -69,7 +69,7 @@ test "$COLLECTOR_BEFORE" = "active"
 test -n "$PID_BEFORE"
 test "$PID_BEFORE" != "0"
 
-ssh -o BatchMode=yes -o ConnectTimeout=12 chachanas   'test -d /share/CACHEDEV1_DATA/ChaCha-DEV-HUB && echo NAS_AUTO_WATCH_LINK=PASS'
+ssh -n -o BatchMode=yes -o ConnectTimeout=12 chachanas   'test -d /share/CACHEDEV1_DATA/ChaCha-DEV-HUB && echo NAS_AUTO_WATCH_LINK=PASS'
 test -x /opt/chacha-dev/adapters/nas-ssh/current/nas-ssh-adapter
 
 curl -fsSL "$RAW/dev-hub/adapters/storage-governor-adapter.py"   -o "$GOV_RELEASE/storage-governor-adapter"
