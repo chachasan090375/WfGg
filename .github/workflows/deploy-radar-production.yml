@@ -10,6 +10,8 @@ on:
       - '.radar-release-src/v2-source/connector-go/cmd/radar-connector/federated_diagnostics_v65.go'
       - '.radar-release-src/v2-source/connector-go/cmd/radar-connector/federated_diagnostics_v65_test.go'
       - '.github/scripts/patch-radar-async-collector-worker.py'
+      - '.github/scripts/patch-radar-worker-rich-profile-v6191.py'
+      - 'worker/migrations/0004_radar_profile_rich_v6191.sql'
       - '.github/scripts/patch-radar-federated-diagnostics-v65.py'
       - '.github/workflows/deploy-radar-production.yml'
   workflow_dispatch:
@@ -59,9 +61,12 @@ jobs:
           test -s .radar-release-src/v2-source/src/game/remote-transport.js
           install -m 0644 .radar-release-src/v2-source/src/game/remote-transport.js /tmp/wfgg-radar/src/game/remote-transport.js
           python3 .github/scripts/patch-radar-async-collector-worker.py
+          python3 .github/scripts/patch-radar-worker-rich-profile-v6191.py
           grep -q "/api/radar/search/start" /tmp/wfgg-radar/src/worker.js
           grep -q "/api/radar/search/status" /tmp/wfgg-radar/src/worker.js
           grep -q "startCollectorSearch" /tmp/wfgg-radar/src/game/remote-transport.js
+          grep -Fq 'WFGG_RADAR_RICH_PROFILE_WORKER_V6191' /tmp/wfgg-radar/src/worker.js
+          grep -Fq '/api/radar/profile/rich' /tmp/wfgg-radar/src/worker.js
           echo 'RADAR_ASYNC_COLLECTOR_WORKER=STAGED'
 
       - name: Overlay live animated Radar UI
@@ -220,6 +225,13 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ steps.cf.outputs.account_id }}
         working-directory: /tmp/wfgg-radar
         run: wrangler d1 execute wfgg-radar --remote --file=schema.sql
+
+      - name: Apply V6.19.1 rich profile cache schema
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ steps.cf.outputs.account_id }}
+        working-directory: /tmp/wfgg-radar
+        run: wrangler d1 execute wfgg-radar --remote --file="$GITHUB_WORKSPACE/worker/migrations/0004_radar_profile_rich_v6191.sql"
 
       - name: Deploy Radar Worker and static UI
         env:
