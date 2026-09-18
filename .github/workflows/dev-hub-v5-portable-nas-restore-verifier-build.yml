@@ -99,7 +99,7 @@ jobs:
           PY
           dev-hub/release/storage-restore-verifier-nas-linux-amd64             --master /tmp/master.sql.gz             --restore /tmp/restored.db             --expected /tmp/expected.json             --result /tmp/result.json
           python3 - <<'PY'
-          import json
+          import json,sqlite3
           x=json.load(open('/tmp/result.json'))
           assert x['status']=='PASS',x
           assert x['integrity']=='ok',x
