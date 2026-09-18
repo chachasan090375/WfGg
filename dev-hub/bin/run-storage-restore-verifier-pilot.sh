@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-SOURCE_REVISION="1ed20c32130993194229d22577fef26988ea7c57"
+SOURCE_REVISION="99e45c67f621d67ea5b46d0bf684e28ad3655dbe"
+ARTIFACT_REVISION="e27c82769def0d16b01a20ef9ecacb5e7a824b59"
 RAW="https://raw.githubusercontent.com/chachasan090375/WfGg/${SOURCE_REVISION}"
+ARTIFACT_RAW="https://raw.githubusercontent.com/chachasan090375/WfGg/${ARTIFACT_REVISION}"
+PORTABLE_SHA="b9b0ed44d1932ec670ee146bd14e3269dc7a4d3b6b8a634fc70fe12bbb572314"
 BASE="/opt/chacha-dev/adapters/storage-restore-verifier"
 EVIDENCE_DIR="/opt/chacha-dev/evidence"
 NAS_ROOT="/share/CACHEDEV1_DATA/ChaCha-DEV-HUB"
@@ -21,7 +24,7 @@ if [ "$(id -u)" -ne 0 ]; then
   exit 2
 fi
 
-for cmd in curl python3 ssh systemctl ln df; do
+for cmd in curl python3 ssh scp sha256sum systemctl ln df; do
   command -v "$cmd" >/dev/null 2>&1 || {
     echo "STORAGE_RESTORE_VERIFIER_PILOT=BLOCKED reason=missing_command:$cmd"
     exit 2
@@ -33,15 +36,26 @@ mkdir -p "$RELEASE" "$EVIDENCE_DIR" "$WORK"
 curl -fsSL "$RAW/dev-hub/adapters/storage-restore-verifier-adapter.py"   -o "$RELEASE/storage-restore-verifier-adapter"
 chmod 0755 "$RELEASE/storage-restore-verifier-adapter"
 python3 -m py_compile "$RELEASE/storage-restore-verifier-adapter"
+
+curl -fsSL "$ARTIFACT_RAW/dev-hub/release/storage-restore-verifier-nas-linux-amd64"   -o "$WORK/storage-restore-verifier-nas-linux-amd64"
+chmod 0700 "$WORK/storage-restore-verifier-nas-linux-amd64"
+LOCAL_PORTABLE_SHA="$(sha256sum "$WORK/storage-restore-verifier-nas-linux-amd64" | awk '{print $1}')"
+test "$LOCAL_PORTABLE_SHA" = "$PORTABLE_SHA"
+
 echo "STORAGE_RESTORE_VERIFIER_INSTALL=STAGED"
+echo "PORTABLE_RESTORE_VERIFIER_SHA256=sha256:$LOCAL_PORTABLE_SHA"
 
 echo "=== NAS RESTORE CAPABILITIES ==="
-GZIP_REMOTE="$(ssh -n chachanas command -v gzip || true)"
-SQLITE_REMOTE="$(ssh -n chachanas command -v sqlite3 || true)"
-echo "NAS_GZIP=${GZIP_REMOTE:-MISSING}"
-echo "NAS_SQLITE3=${SQLITE_REMOTE:-MISSING}"
-test -n "$GZIP_REMOTE"
-test -n "$SQLITE_REMOTE"
+NAS_ARCH="$(ssh -n chachanas uname -m)"
+echo "NAS_ARCH=$NAS_ARCH"
+case "$NAS_ARCH" in
+  x86_64|amd64) ;;
+  *)
+    echo "NAS_RESTORE_RUNTIME=BLOCKED reason=unsupported_arch"
+    exit 3
+    ;;
+esac
+echo "NAS_SQLITE3=NOT_REQUIRED"
 echo "NAS_RESTORE_RUNTIME=PASS"
 
 COLLECTOR_BEFORE="$(systemctl is-active wfgg-collector || true)"
@@ -91,6 +105,7 @@ payload={
     "master_sha256":"sha256:4fd82f1ecab892372998dd4ef6e0df085474876a914409f70c6502d97929f730",
     "anchor_path":"projects/wfgg/backups/collector-chain/collector-chain-state-000000.json",
     "anchor_sha256":"sha256:9f83a76d63d4bb161244ed2e1f6abe2bc4eda943f8f2ad1479de5b1c983e1010",
+    "portable_verifier_sha256":"sha256:b9b0ed44d1932ec670ee146bd14e3269dc7a4d3b6b8a634fc70fe12bbb572314",
     "baseline_cycle":35,
     "observations_watermark":{
       "observed_at":"2026-09-18T05:18:47.18986397Z",
@@ -118,7 +133,7 @@ payload={
 open(out,"w",encoding="utf-8").write(json.dumps(payload))
 PY
 
-CHACHA_NAS_HOST="chachanas" CHACHA_NAS_ROOT="$NAS_ROOT" "$RELEASE/storage-restore-verifier-adapter"   < "$WORK/request.json"   > "$WORK/result.json"
+CHACHA_NAS_HOST="chachanas" CHACHA_NAS_ROOT="$NAS_ROOT" CHACHA_PORTABLE_RESTORE_VERIFIER="$WORK/storage-restore-verifier-nas-linux-amd64" "$RELEASE/storage-restore-verifier-adapter"   < "$WORK/request.json"   > "$WORK/result.json"
 
 python3 - "$WORK/result.json" "$EVIDENCE_DIR/storage-restore-verifier-pilot-$STAMP.json" <<'PY'
 import json,sys
@@ -138,6 +153,8 @@ print("COLLECTOR_MASTER_RESTORE_VERIFIED=PASS")
 print("COLLECTOR_RESTORE_SQLITE_INTEGRITY=PASS")
 print("COLLECTOR_RESTORE_TABLE_COUNT="+str(details["table_count"]))
 print("COLLECTOR_RESTORE_BASELINE_CYCLE="+str(details["baseline_cycle"]))
+print("COLLECTOR_RESTORE_PORTABLE_SHA256="+details["portable_verifier_sha256"])
+print("COLLECTOR_RESTORE_PORTABLE_ARCH="+details["portable_verifier_arch"])
 for table,count in sorted(details["row_counts"].items()):
     print("COLLECTOR_RESTORE_ROWS|table="+table+"|rows="+str(count))
 ev={
@@ -182,4 +199,5 @@ ln -sfn "$RELEASE" "$BASE/current"
 echo "STORAGE_RESTORE_VERIFIER_CURRENT=$BASE/current/storage-restore-verifier-adapter"
 echo "STORAGE_RESTORE_VERIFIER_PILOT=PASS"
 echo "STORAGE_RESTORE_VERIFIER_INDEPENDENT=YES"
+echo "STORAGE_RESTORE_VERIFIER_NAS_SQLITE_INSTALL=NO"
 echo "STORAGE_RESTORE_VERIFIER_PRODUCTION_MUTATION=NO"
