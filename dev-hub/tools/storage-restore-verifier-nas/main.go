@@ -6,6 +6,7 @@ import (
 	"compress/gzip"
 	"context"
 	"database/sql"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"flag"
@@ -44,18 +45,22 @@ type Result struct {
 func main() {
 	master := flag.String("master", "", "gzip-compressed SQLite SQL dump")
 	restore := flag.String("restore", "", "sandbox SQLite restore path")
-	expectedPath := flag.String("expected", "", "expected baseline JSON")
+	expectedPath := flag.String("expected", "", "expected baseline JSON file")
+	expectedB64 := flag.String("expected-b64", "", "base64-encoded expected baseline JSON")
 	resultPath := flag.String("result", "", "result JSON path")
 	flag.Parse()
 
-	if *master == "" || *restore == "" || *expectedPath == "" || *resultPath == "" {
+	if *master == "" || *restore == "" || (*expectedPath == "" && *expectedB64 == "") || *resultPath == "" {
 		fail("ARGS_MISSING")
+	}
+	if *expectedPath != "" && *expectedB64 != "" {
+		fail("EXPECTED_SOURCE_AMBIGUOUS")
 	}
 	if filepath.Clean(*master) == filepath.Clean(*restore) {
 		fail("RESTORE_PATH_INVALID")
 	}
 
-	exp, err := readExpected(*expectedPath)
+	exp, err := readExpected(*expectedPath, *expectedB64)
 	if err != nil {
 		fail("EXPECTED_READ_FAILED:" + err.Error())
 	}
@@ -100,9 +105,15 @@ func main() {
 	}
 }
 
-func readExpected(path string) (Expected, error) {
+func readExpected(path, encoded string) (Expected, error) {
 	var exp Expected
-	b, err := os.ReadFile(path)
+	var b []byte
+	var err error
+	if encoded != "" {
+		b, err = base64.StdEncoding.DecodeString(encoded)
+	} else {
+		b, err = os.ReadFile(path)
+	}
 	if err != nil {
 		return exp, err
 	}
