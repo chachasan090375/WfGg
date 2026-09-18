@@ -50,7 +50,7 @@ jobs:
           grep -Fq 'RADAR_RUNTIME_ADAPTER_REGISTRY_MUTATION=NO' dev-hub/bin/install-radar-runtime-adapter-pilot.sh
           grep -Fq 'radar_sentinel_not_active' dev-hub/bin/install-radar-runtime-adapter-pilot.sh
           grep -Fq 'collector_sentinel_not_active' dev-hub/bin/install-radar-runtime-adapter-pilot.sh
-          grep -Fq 'radar-runtime:status' dev-hub/bin/install-radar-runtime-adapter-pilot.sh
+          grep -Fq 'radar-runtime:status' dev-hub/config/adapter-provisioning.v1.json
           ! grep -Fq 'systemctl stop wfgg-radar-sentinel' dev-hub/bin/install-radar-runtime-adapter-pilot.sh
           ! grep -Fq 'systemctl restart wfgg-radar-connector' dev-hub/bin/install-radar-runtime-adapter-pilot.sh
           echo RADAR_RUNTIME_BOOTSTRAP_MUTATES_RADAR=NO
