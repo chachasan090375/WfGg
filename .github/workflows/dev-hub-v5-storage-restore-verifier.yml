@@ -57,12 +57,16 @@ jobs:
         run: |
           set -euo pipefail
           grep -Fq 'independent-restore' dev-hub/adapters/storage-restore-verifier-adapter.py
-          grep -Fq 'PRAGMA integrity_check' dev-hub/adapters/storage-restore-verifier-adapter.py
+          grep -Fq 'portable_verifier_sha256' dev-hub/adapters/storage-restore-verifier-adapter.py
           grep -Fq 'sandbox_deleted_after_verification' dev-hub/adapters/storage-restore-verifier-adapter.py
+          grep -Fq 'PRAGMA integrity_check' dev-hub/tools/storage-restore-verifier-nas/main.go
+          grep -Fq 'modernc.org/sqlite' dev-hub/tools/storage-restore-verifier-nas/main.go
           ! grep -Fq 'storage-governor-adapter.py' dev-hub/adapters/storage-restore-verifier-adapter.py
           ! grep -Fq 'rm -rf' dev-hub/adapters/storage-restore-verifier-adapter.py
           ! grep -Fq 'systemctl stop' dev-hub/adapters/storage-restore-verifier-adapter.py
+          grep -Fq 'NAS_SQLITE3=NOT_REQUIRED' dev-hub/bin/run-storage-restore-verifier-pilot.sh
           echo STORAGE_RESTORE_VERIFIER_INDEPENDENCE=PASS
+          echo STORAGE_RESTORE_VERIFIER_PORTABLE_SQLITE=PASS
           echo STORAGE_RESTORE_VERIFIER_SANDBOX_DELETE_ONLY=PASS
 
       - uses: actions/upload-artifact@v4
