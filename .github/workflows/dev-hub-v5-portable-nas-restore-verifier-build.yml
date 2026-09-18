@@ -71,7 +71,7 @@ jobs:
           conn.execute("insert into observations values(126611,'2026-09-18T05:18:47.18986397Z')")
           conn.execute("insert into masters values(1,'2026-09-11T22:23:30.164682Z')")
           conn.commit()
-          with gzip.open('/tmp/master.sql.gz','wt',encoding='utf-8',mtime=0) as g:
+          with gzip.open('/tmp/master.sql.gz','wt',encoding='utf-8') as g:
             for line in conn.iterdump():
               g.write(line+'\n')
           conn.close()
