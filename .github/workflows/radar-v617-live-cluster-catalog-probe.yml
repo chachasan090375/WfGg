@@ -1,0 +1,88 @@
+name: Radar V6.17 live cluster catalog probe
+
+on:
+  push:
+    branches:
+      - radar-v618-live-runtime-reprobe
+    paths:
+      - '.github/workflows/radar-v617-live-cluster-catalog-probe.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  RADAR_CONNECTOR_URL: https://chachavps.tail3ab05a.ts.net
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Probe V6.17 aggregate server cluster catalog
+        env:
+          RADAR_CONNECTOR_SHARED_KEY: ${{ secrets.RADAR_CONNECTOR_SHARED_KEY }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib,hmac,json,os,secrets,time,urllib.request
+
+          base=os.environ['RADAR_CONNECTOR_URL'].rstrip('/')
+          key=os.environ['RADAR_CONNECTOR_SHARED_KEY'].encode()
+          path='/v1/collector/server-cluster-catalog'
+
+          ts=str(int(time.time()))
+          nonce=secrets.token_hex(16)
+          body_hash=hashlib.sha256(b'').hexdigest()
+          canonical='\n'.join(['GET',path,ts,nonce,body_hash])
+          sig=hmac.new(key,canonical.encode(),hashlib.sha256).hexdigest()
+          req=urllib.request.Request(base+path,method='GET',headers={
+              'X-Radar-Timestamp':ts,
+              'X-Radar-Nonce':nonce,
+              'X-Radar-Signature':sig,
+          })
+          with urllib.request.urlopen(req,timeout=30) as response:
+              data=json.loads(response.read().decode())
+
+          assert data.get('ok') is True, data
+          assert data.get('catalogVersion') == 'v6.17', data
+          assert data.get('readonly') is True, data
+          assert data.get('rawPlayerDataExposed') is False, data
+
+          confirmed=data.get('confirmedClusters') or []
+          frontier=data.get('frontier') or []
+          noise=data.get('noise') or []
+
+          print('RADAR_V617_CATALOG=PASS')
+          print('RADAR_V617_CONFIRMED_CLUSTER_COUNT='+str(data.get('confirmedClusterCount')))
+          print('RADAR_V617_CONFIRMED_SERVER_COUNT='+str(data.get('confirmedServerCount')))
+          print('RADAR_V617_FRONTIER_COUNT='+str(data.get('frontierCount')))
+          print('RADAR_V617_NOISE_COUNT='+str(data.get('noiseCount')))
+          print('RADAR_V617_CONFIRM_MIN_CYCLES='+str(data.get('confirmMinCycles')))
+
+          for i,c in enumerate(confirmed,1):
+              members=sorted(str(x) for x in (c.get('members') or []))
+              print(f'RADAR_V617_CONFIRMED_{i}_MEMBERS=' + ','.join(members))
+              print(f'RADAR_V617_CONFIRMED_{i}_MIN_CYCLES=' + str(c.get('minCyclesTogether')))
+              print(f'RADAR_V617_CONFIRMED_{i}_MAX_CYCLES=' + str(c.get('maxCyclesTogether')))
+              print(f'RADAR_V617_CONFIRMED_{i}_CLIQUE=' + str(c.get('cliqueComplete')))
+
+          focus={'953','964','972','977','991','1027','1042','1057','8119','1040'}
+          relevant=[]
+          for row in frontier:
+              sid=str(row.get('serverId') or '')
+              if sid in focus:
+                  relevant.append(('FRONTIER',sid,row.get('players'),row.get('observations'),row.get('distinctCycles'),row.get('reason')))
+          for row in noise:
+              sid=str(row.get('serverId') or '')
+              if sid in focus:
+                  relevant.append(('NOISE',sid,row.get('players'),row.get('observations'),row.get('distinctCycles'),row.get('reason')))
+          for kind,sid,players,obs,cycles,reason in sorted(relevant,key=lambda x:int(x[1])):
+              print(f'RADAR_V617_FOCUS={kind}|server={sid}|players={players}|observations={obs}|cycles={cycles}|reason={reason}')
+
+          seed=data.get('recommendedSeed') or {}
+          print('RADAR_V617_RECOMMENDED_SEED='+str(seed.get('serverId') or 'NONE'))
+          print('RADAR_V617_RECOMMENDED_COMMAND='+str(seed.get('command') or 'NONE'))
+          PY
