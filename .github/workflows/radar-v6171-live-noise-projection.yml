@@ -54,8 +54,11 @@ jobs:
                           time.sleep(6)
               raise SystemExit(f'RADAR_V6171_PROJECTION_FETCH_FAILED={path}|last={last}')
 
-          catalog=signed_get('/v1/collector/server-cluster-catalog')
           census=signed_get('/v1/collector/server-census',timeout=60)
+          print('RADAR_V6171_CENSUS=PASS|servers='+str(census.get('serverCount')))
+          history=signed_get('/v1/collector/server-cycle-history',timeout=60)
+          print('RADAR_V6171_HISTORY=PASS|cycles='+str(history.get('cycleCount')))
+          catalog=signed_get('/v1/collector/server-cluster-catalog')
 
           assert catalog.get('ok') is True
           assert catalog.get('catalogVersion') == 'v6.17.1'
