@@ -1,0 +1,65 @@
+name: Radar V6.17.1 live runtime reprobe
+
+on:
+  push:
+    branches: [radar-v6171-runtime-reprobe]
+    paths:
+      - '.github/workflows/radar-v6171-live-runtime-reprobe.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  RADAR_CONNECTOR_URL: https://chachavps.tail3ab05a.ts.net
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Probe current V6.17.1 runtime fingerprints
+        env:
+          RADAR_CONNECTOR_SHARED_KEY: ${{ secrets.RADAR_CONNECTOR_SHARED_KEY }}
+        run: |
+          set -euo pipefail
+          EXPECTED_CONNECTOR="$(awk '$2=="radar-connector"{print $1}' radar-vps/release/SHA256SUMS | head -1)"
+          EXPECTED_NATIVE="$(awk '$2=="radar-native-template"{print $1}' radar-vps/release/SHA256SUMS | head -1)"
+          export EXPECTED_CONNECTOR EXPECTED_NATIVE
+          python3 - <<'PY'
+          import hashlib,hmac,json,os,secrets,time,urllib.request
+          base=os.environ['RADAR_CONNECTOR_URL'].rstrip('/')
+          key=os.environ['RADAR_CONNECTOR_SHARED_KEY'].encode()
+          path='/v1/health'
+          ts=str(int(time.time()))
+          nonce=secrets.token_hex(16)
+          bh=hashlib.sha256(b'').hexdigest()
+          canonical='\n'.join(['GET',path,ts,nonce,bh])
+          sig=hmac.new(key,canonical.encode(),hashlib.sha256).hexdigest()
+          req=urllib.request.Request(base+path,method='GET',headers={
+              'X-Radar-Timestamp':ts,
+              'X-Radar-Nonce':nonce,
+              'X-Radar-Signature':sig,
+          })
+          with urllib.request.urlopen(req,timeout=20) as response:
+              data=json.loads(response.read().decode())
+          runtime=data.get('connectorRuntime') or {}
+          helper=data.get('nativeHelper') or {}
+          rsha=str(runtime.get('sha256') or '')
+          hsha=str(helper.get('helperSha256') or '')
+          print('RADAR_V6171_LIVE_CONNECTOR_SHA='+rsha)
+          print('RADAR_V6171_EXPECTED_CONNECTOR_SHA='+os.environ['EXPECTED_CONNECTOR'])
+          print('RADAR_V6171_LIVE_HELPER_SHA='+hsha)
+          print('RADAR_V6171_EXPECTED_HELPER_SHA='+os.environ['EXPECTED_NATIVE'])
+          print('RADAR_V6171_CONNECTOR_STATE='+str(runtime.get('state')))
+          print('RADAR_V6171_HELPER_STATE='+str(helper.get('helperState')))
+          ok=(data.get('ok') is True and
+              runtime.get('state')=='CONNECTOR_READY' and
+              rsha==os.environ['EXPECTED_CONNECTOR'] and
+              helper.get('helperState')=='PROFILE_READY' and
+              hsha==os.environ['EXPECTED_NATIVE'])
+          print('RADAR_V6171_LIVE_RUNTIME=' + ('PASS' if ok else 'WAITING'))
+          raise SystemExit(0 if ok else 1)
+          PY
