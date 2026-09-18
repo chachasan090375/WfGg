@@ -8,6 +8,7 @@ on:
       - 'dev-hub/adapters/radar-runtime-adapter.py'
       - 'dev-hub/bin/install-radar-runtime-adapter-pilot.sh'
       - 'dev-hub/config/provider-adapters.v1.json'
+      - 'dev-hub/config/adapter-provisioning.v1.json'
       - 'dev-hub/config/capability-registry.v1.json'
       - 'dev-hub/projects/wfgg-radar/manifest.v3.json'
       - '.github/workflows/dev-hub-v5-radar-runtime-adapter-pilot-prep.yml'
@@ -44,6 +45,9 @@ jobs:
         run: |
           set -euo pipefail
           grep -Fq 'RADAR_RUNTIME_ADAPTER_PRODUCTION_RADAR_MUTATION=NO' dev-hub/bin/install-radar-runtime-adapter-pilot.sh
+          grep -Fq 'adapter-provision.py' dev-hub/bin/install-radar-runtime-adapter-pilot.sh
+          grep -Fq 'RADAR_RUNTIME_ADAPTER_STANDARD_PROVISIONING=PASS' dev-hub/bin/install-radar-runtime-adapter-pilot.sh
+          grep -Fq 'RADAR_RUNTIME_ADAPTER_REGISTRY_MUTATION=NO' dev-hub/bin/install-radar-runtime-adapter-pilot.sh
           grep -Fq 'radar_sentinel_not_active' dev-hub/bin/install-radar-runtime-adapter-pilot.sh
           grep -Fq 'collector_sentinel_not_active' dev-hub/bin/install-radar-runtime-adapter-pilot.sh
           grep -Fq 'radar-runtime:status' dev-hub/bin/install-radar-runtime-adapter-pilot.sh
@@ -62,6 +66,12 @@ jobs:
           assert a['status']=='CONTRACT_OK',a
           assert a['executable'] is None,a
           print('RADAR_RUNTIME_ADAPTER_REGISTRY_STATUS=CONTRACT_OK')
+          p=json.load(open('dev-hub/config/adapter-provisioning.v1.json'))
+          x=p['adapters']['radar-runtime-adapter']
+          assert x['source']=='dev-hub/adapters/radar-runtime-adapter.py',x
+          assert x['namespace']=='radar-runtime',x
+          assert x['probe']['expected_status']=='OK',x
+          print('RADAR_RUNTIME_STANDARD_PROVISIONING_CONFIG=PASS')
           print('RADAR_RUNTIME_ADAPTER_PROMOTION=NOT_YET')
           PY
 
