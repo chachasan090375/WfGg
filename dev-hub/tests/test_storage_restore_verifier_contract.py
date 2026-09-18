@@ -112,7 +112,8 @@ class RestoreVerifierContractTests(unittest.TestCase):
     def test_source_safety_invariants(self):
         text=ADAPTER_PATH.read_text(encoding="utf-8")
         self.assertIn("independent-restore",text)
-        self.assertIn("PRAGMA integrity_check",text)
+        self.assertIn("PORTABLE_RESTORE_VERIFIER",text)
+        self.assertIn("portable_verifier_sha256",text)
         self.assertIn("sandbox_deleted_after_verification",text)
         self.assertIn("production_data_mutation",text)
         self.assertIn("rm -f",text)
