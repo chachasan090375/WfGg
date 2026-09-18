@@ -3,6 +3,8 @@
 
 Policy-owned storage operations for WfGg. V1 supports:
 - assess: read-only local/NAS capacity assessment through nas-ssh-adapter
+- collector-incremental-discovery: schema-only discovery of safe incremental
+  watermark candidates without exposing application row data
 - collector-master-snapshot: create exactly one immutable, logical SQLite
   MASTER dump of the active Collector DB, gzip-streamed directly to the NAS.
 
@@ -104,11 +106,11 @@ def validate_request(request: dict[str,Any]) -> tuple[dict[str,Any]|None,str|Non
         return None,"STORAGE_GOVERNOR_METADATA_MISSING"
     action=str(cfg.get("action") or "")
     permission=str(task.get("permission") or "")
-    if action=="assess" and permission!="read":
-        return None,"STORAGE_ASSESS_REQUIRES_READ"
+    if action in {"assess","collector-incremental-discovery"} and permission!="read":
+        return None,"STORAGE_READ_ACTION_REQUIRES_READ"
     if action=="collector-master-snapshot" and permission!="workspace-write":
         return None,"COLLECTOR_MASTER_REQUIRES_WORKSPACE_WRITE"
-    if action not in {"assess","collector-master-snapshot"}:
+    if action not in {"assess","collector-incremental-discovery","collector-master-snapshot"}:
         return None,"STORAGE_GOVERNOR_ACTION_NOT_ALLOWED"
     return cfg,None
 
@@ -337,6 +339,111 @@ def write_manifest_via_nas_adapter(request: dict[str,Any], manifest: dict[str,An
         return value
 
 
+def quote_ident(value: str) -> str:
+    return '"' + value.replace('"','""') + '"'
+
+
+def collector_incremental_discovery(request: dict[str,Any]) -> int:
+    path=db_path()
+    if not path.is_file():
+        return blocked(request,"COLLECTOR_DB_MISSING")
+    uri=f"file:{path}?mode=ro"
+    conn=sqlite3.connect(uri,uri=True,timeout=15)
+    inventory=[]
+    try:
+        tables=[
+            str(row[0]) for row in conn.execute(
+                "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name"
+            ).fetchall()
+        ]
+        for table in tables:
+            q=quote_ident(table)
+            cols=[]
+            candidates=[]
+            for row in conn.execute(f"PRAGMA table_info({q})").fetchall():
+                cid,name,ctype,notnull,default_value,pk=row
+                name=str(name)
+                ctype=str(ctype or "")
+                lower=name.lower()
+                normalized=lower.replace("_","")
+                candidate_kind=None
+                sample=None
+                if "cycle" in normalized:
+                    candidate_kind="cycle-watermark"
+                elif lower in {"updated_at","observed_at","created_at","timestamp","ts"} or lower.endswith("_at"):
+                    candidate_kind="time-watermark"
+                elif int(pk or 0)>0 and lower in {"id","row_id","rowid","seq","sequence"}:
+                    candidate_kind="monotonic-pk"
+                if candidate_kind in {"cycle-watermark","time-watermark"}:
+                    try:
+                        max_value=conn.execute(
+                            f"SELECT MAX({quote_ident(name)}) FROM {q}"
+                        ).fetchone()[0]
+                        if max_value is not None and isinstance(max_value,(int,float,str)):
+                            sample={"max":str(max_value)[:128]}
+                    except Exception:
+                        sample=None
+                col={
+                    "name":name,
+                    "type":ctype,
+                    "notnull":bool(notnull),
+                    "pk_order":int(pk or 0),
+                }
+                cols.append(col)
+                if candidate_kind:
+                    item={"column":name,"kind":candidate_kind}
+                    if sample is not None:
+                        item["aggregate"]=sample
+                    candidates.append(item)
+            indexes=[]
+            try:
+                for idx in conn.execute(f"PRAGMA index_list({q})").fetchall():
+                    if len(idx)>=3:
+                        indexes.append({"name":str(idx[1]),"unique":bool(idx[2])})
+            except Exception:
+                pass
+            inventory.append({
+                "table":table,
+                "columns":cols,
+                "indexes":indexes,
+                "watermark_candidates":candidates,
+            })
+    finally:
+        conn.close()
+
+    safe={
+        "source_db":str(path),
+        "table_count":len(inventory),
+        "tables":inventory,
+        "raw_row_data_exposed":False,
+    }
+    digest=sha256_bytes(json.dumps(safe,sort_keys=True,separators=(",",":")).encode())
+    candidate_tables=[
+        {
+            "table":x["table"],
+            "watermark_candidates":x["watermark_candidates"],
+        }
+        for x in inventory if x["watermark_candidates"]
+    ]
+    evidence=[{
+        "kind":"report",
+        "source":"collector-schema://incremental-discovery",
+        "digest":digest,
+        "details":{
+            "table_count":len(inventory),
+            "candidate_table_count":len(candidate_tables),
+            "candidate_tables":candidate_tables,
+            "raw_row_data_exposed":False,
+        },
+    }]
+    return emit(result(request,"OK","COLLECTOR_INCREMENTAL_DISCOVERY_OK",evidence,[{
+        "type":"report",
+        "id":"collector-incremental-schema",
+        "status":"UNVERIFIED",
+        "reason":"Schema-only discovery; incremental strategy still requires policy selection.",
+    }]))
+
+
 def assess(request: dict[str,Any]) -> int:
     path=db_path()
     if not path.is_file():
@@ -461,6 +568,8 @@ def main() -> int:
     try:
         if cfg.get("action")=="assess":
             return assess(request)
+        if cfg.get("action")=="collector-incremental-discovery":
+            return collector_incremental_discovery(request)
         return collector_master(request)
     except subprocess.TimeoutExpired:
         return emit(result(request,"FAILED","STORAGE_GOVERNOR_TIMEOUT"))
