@@ -2,10 +2,10 @@
 set -Eeuo pipefail
 
 SOURCE_REVISION="4118c5b36a99d76d29d8fc96c8485499425951d7"
-ARTIFACT_REVISION="e27c82769def0d16b01a20ef9ecacb5e7a824b59"
+ARTIFACT_REVISION="f36b2e8b35622aad24731b99c85ed1f3ab32b6ec"
 RAW="https://raw.githubusercontent.com/chachasan090375/WfGg/${SOURCE_REVISION}"
 ARTIFACT_RAW="https://raw.githubusercontent.com/chachasan090375/WfGg/${ARTIFACT_REVISION}"
-PORTABLE_SHA="b9b0ed44d1932ec670ee146bd14e3269dc7a4d3b6b8a634fc70fe12bbb572314"
+PORTABLE_SHA="3121f9a11bcc250b671ee899ac8dd97e50ba22c86e6f76a7c608a6eceaf83623"
 BASE="/opt/chacha-dev/adapters/storage-restore-verifier"
 EVIDENCE_DIR="/opt/chacha-dev/evidence"
 NAS_ROOT="/share/CACHEDEV1_DATA/ChaCha-DEV-HUB"
@@ -105,7 +105,7 @@ payload={
     "master_sha256":"sha256:4fd82f1ecab892372998dd4ef6e0df085474876a914409f70c6502d97929f730",
     "anchor_path":"projects/wfgg/backups/collector-chain/collector-chain-state-000000.json",
     "anchor_sha256":"sha256:9f83a76d63d4bb161244ed2e1f6abe2bc4eda943f8f2ad1479de5b1c983e1010",
-    "portable_verifier_sha256":"sha256:b9b0ed44d1932ec670ee146bd14e3269dc7a4d3b6b8a634fc70fe12bbb572314",
+    "portable_verifier_sha256":"sha256:3121f9a11bcc250b671ee899ac8dd97e50ba22c86e6f76a7c608a6eceaf83623",
     "baseline_cycle":35,
     "observations_watermark":{
       "observed_at":"2026-09-18T05:18:47.18986397Z",
