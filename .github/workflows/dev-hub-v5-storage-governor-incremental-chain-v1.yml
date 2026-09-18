@@ -31,9 +31,7 @@ jobs:
           set -euo pipefail
           python3 -m py_compile dev-hub/adapters/storage-governor-adapter.py
           python3 -m py_compile dev-hub/adapters/storage-governor-incremental-chain.py
-          if [ -f dev-hub/bin/run-storage-governor-incremental-chain-pilot.sh ]; then
-            bash -n dev-hub/bin/run-storage-governor-incremental-chain-pilot.sh
-          fi
+          bash -n dev-hub/bin/run-storage-governor-incremental-chain-pilot.sh
           echo STORAGE_INCREMENTAL_CHAIN_COMPILE=PASS
 
       - name: Run contract tests
@@ -56,4 +54,9 @@ jobs:
           ! grep -Fq 'rm -rf' dev-hub/adapters/storage-governor-adapter.py
           echo STORAGE_INCREMENTAL_CHAIN_ONE_CYCLE_AT_A_TIME=PASS
           echo STORAGE_INCREMENTAL_CHAIN_CREATE_ONLY=PASS
+          grep -Fq 'COLLECTOR_SERVICE_INTERRUPTION=NO' dev-hub/bin/run-storage-governor-incremental-chain-pilot.sh
+          grep -Fq 'COLLECTOR_INCREMENTAL_GZIP_INTEGRITY=PASS' dev-hub/bin/run-storage-governor-incremental-chain-pilot.sh
+          grep -Fq 'COLLECTOR_INCREMENTAL_PACKAGE=NOOP' dev-hub/bin/run-storage-governor-incremental-chain-pilot.sh
+          grep -Fq 'SOURCE_REVISION="ed5957a410d03a60c5a2a7525e0968174d62f677"' dev-hub/bin/run-storage-governor-incremental-chain-pilot.sh
           echo STORAGE_INCREMENTAL_CHAIN_NO_SERVICE_STOP=PASS
+          echo STORAGE_INCREMENTAL_CHAIN_PILOT_PINNED_SOURCE=PASS
