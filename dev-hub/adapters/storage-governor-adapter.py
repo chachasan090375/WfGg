@@ -1006,11 +1006,16 @@ def collector_incremental_package(request: dict[str,Any]) -> int:
         },
         "immutable":True,
     }
-    write_json_via_nas_adapter(
-        request,candidate,candidate_rel,
-        "collector-incremental-candidate",
-        "Publish immutable Collector incremental candidate awaiting independent verification.",
-    )
+    try:
+        write_json_via_nas_adapter(
+            request,candidate,candidate_rel,
+            "collector-incremental-candidate",
+            "Publish immutable Collector incremental candidate awaiting independent verification.",
+        )
+    except Exception:
+        if not remote_exists(candidate_abs):
+            run(ssh_base()+["rm","-f",final],timeout=30)
+        raise
 
     candidate_digest=sha256_bytes(json.dumps(candidate,sort_keys=True,separators=(",",":")).encode())
     evidence=[{
@@ -1063,6 +1068,18 @@ def collector_incremental_commit(request: dict[str,Any]) -> int:
     candidate_digest=sha256_bytes(json.dumps(candidate,sort_keys=True,separators=(",",":")).encode())
     incremental=dict(candidate.get("incremental") or {})
     package_sha=str(incremental.get("sha256") or "")
+    package_rel=str(incremental.get("archive") or "")
+    if not re.fullmatch(r"sha256:[0-9a-f]{64}",package_sha):
+        return blocked(request,"COLLECTOR_INCREMENTAL_PACKAGE_SHA_INVALID")
+    if not package_rel.startswith(CHAIN_REL_ROOT+"/incrementals/") or ".." in Path(package_rel).parts:
+        return blocked(request,"COLLECTOR_INCREMENTAL_PACKAGE_PATH_INVALID")
+    package_abs=f"{nas_root()}/{package_rel}"
+    package_proc=run(ssh_base()+["sha256sum",package_abs],timeout=120)
+    if package_proc.returncode!=0:
+        return blocked(request,"COLLECTOR_INCREMENTAL_PACKAGE_HASH_READ_FAILED")
+    package_actual="sha256:"+package_proc.stdout.decode("utf-8","replace").split()[0].strip()
+    if package_actual!=package_sha:
+        return blocked(request,"COLLECTOR_INCREMENTAL_PACKAGE_SHA_MISMATCH")
     if receipt.get("schema")!="chacha.dev/collector-incremental-verification/v1":
         return blocked(request,"COLLECTOR_INCREMENTAL_VERIFICATION_SCHEMA_INVALID")
     if receipt.get("status")!="VERIFIED":
