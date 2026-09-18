@@ -55,7 +55,7 @@ jobs:
           import json
           x=json.load(open('/tmp/wfgg-radar-manifest-report.json'))
           assert x['valid'] is True, x
-          caps=(x.get('capabilities') or {}).get('resolutions') or []
+          caps=(x.get('capability_resolution') or {}).get('resolutions') or []
           by={c.get('id'):c for c in caps}
           for cid in ('radar-runtime-inspect','radar-pilot-control'):
               assert cid in by, (cid,by)
