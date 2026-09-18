@@ -1,0 +1,97 @@
+name: Radar V6.17.1 live noise-gate projection
+
+on:
+  push:
+    branches: [radar-v6171-cluster-noise-gate]
+    paths:
+      - '.github/workflows/radar-v6171-live-noise-projection.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  RADAR_CONNECTOR_URL: https://chachavps.tail3ab05a.ts.net
+
+jobs:
+  project-live:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Project V6.17.1 noise gate on current aggregate Collector data
+        env:
+          RADAR_CONNECTOR_SHARED_KEY: ${{ secrets.RADAR_CONNECTOR_SHARED_KEY }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib,hmac,json,os,secrets,time,urllib.request,urllib.error
+
+          base=os.environ['RADAR_CONNECTOR_URL'].rstrip('/')
+          key=os.environ['RADAR_CONNECTOR_SHARED_KEY'].encode()
+
+          def signed_get(path, attempts=3, timeout=150):
+              last=None
+              for attempt in range(1,attempts+1):
+                  ts=str(int(time.time()))
+                  nonce=secrets.token_hex(16)
+                  bh=hashlib.sha256(b'').hexdigest()
+                  canonical='\n'.join(['GET',path,ts,nonce,bh])
+                  sig=hmac.new(key,canonical.encode(),hashlib.sha256).hexdigest()
+                  req=urllib.request.Request(base+path,method='GET',headers={
+                      'X-Radar-Timestamp':ts,
+                      'X-Radar-Nonce':nonce,
+                      'X-Radar-Signature':sig,
+                  })
+                  try:
+                      with urllib.request.urlopen(req,timeout=timeout) as response:
+                          return json.loads(response.read().decode())
+                  except Exception as exc:
+                      last=type(exc).__name__
+                      print(f'RADAR_V6171_PROJECTION_RETRY={path}|attempt={attempt}|state={last}')
+                      if attempt<attempts:
+                          time.sleep(6)
+              raise SystemExit(f'RADAR_V6171_PROJECTION_FETCH_FAILED={path}|last={last}')
+
+          catalog=signed_get('/v1/collector/server-cluster-catalog')
+          census=signed_get('/v1/collector/server-census',timeout=60)
+
+          assert catalog.get('ok') is True
+          assert catalog.get('readonly') is True
+          assert catalog.get('rawPlayerDataExposed') is False
+          assert census.get('ok') is True
+          assert census.get('readonly') is True
+          assert census.get('rawPlayerDataExposed') is False
+
+          players={str(x.get('serverId')):int(x.get('players') or 0) for x in (census.get('servers') or [])}
+          threshold=50
+          projected=[]
+          for cluster in (catalog.get('confirmedClusters') or []):
+              original=[str(x) for x in (cluster.get('members') or [])]
+              kept=[sid for sid in original if players.get(sid,0) >= threshold]
+              removed=[sid for sid in original if players.get(sid,0) < threshold]
+              projected.append((kept,removed))
+
+          target_expected={'953','964','972','977','991','1027','1042','1057','8119'}
+          cluster990_expected={'956','990','992','1008','1015','1029','1033','1059','8132'}
+
+          target=next(((set(k),r) for k,r in projected if '972' in k),None)
+          stable=next(((set(k),r) for k,r in projected if '990' in k),None)
+          assert target is not None, projected
+          assert stable is not None, projected
+          assert target[0] == target_expected, target
+          assert target[1] == ['1040'] or set(target[1]) == {'1040'}, target
+          assert stable[0] == cluster990_expected, stable
+          assert players.get('1040') == 1, players.get('1040')
+          assert players.get('8119',0) >= threshold, players.get('8119')
+
+          print('RADAR_V6171_LIVE_PROJECTION=PASS')
+          print('RADAR_V6171_THRESHOLD='+str(threshold))
+          print('RADAR_V6171_1040_PLAYERS='+str(players.get('1040')))
+          print('RADAR_V6171_8119_PLAYERS='+str(players.get('8119')))
+          print('RADAR_V6171_972_PROJECTED=' + ','.join(sorted(target[0],key=int)))
+          print('RADAR_V6171_972_REMOVED=' + ','.join(sorted(target[1],key=int)))
+          print('RADAR_V6171_990_PROJECTED=' + ','.join(sorted(stable[0],key=int)))
+          print('RADAR_V6171_PRODUCTION_MUTATION=NONE')
+          PY
