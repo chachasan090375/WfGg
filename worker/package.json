@@ -5,12 +5,17 @@
   "type": "module",
   "scripts": {
     "check": "node --check src/index.js",
+    "test": "vitest",
+    "test:ci": "vitest run --reporter=default",
+    "audit:security": "npm audit --audit-level=high",
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
     "db:local": "wrangler d1 execute wfgg-db --local --file=migrations/0001_initial.sql",
     "db:remote": "wrangler d1 execute wfgg-db --remote --file=migrations/0001_initial.sql"
   },
   "devDependencies": {
+    "@cloudflare/vitest-plugin": "1.1.9",
+    "vitest": "4.1.11",
     "wrangler": "^4.45.0"
   }
 }
