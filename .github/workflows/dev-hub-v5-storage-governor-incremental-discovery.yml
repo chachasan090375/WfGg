@@ -7,6 +7,7 @@ on:
     paths:
       - 'dev-hub/adapters/storage-governor-adapter.py'
       - 'dev-hub/tests/test_storage_governor_contract.py'
+      - 'dev-hub/bin/run-storage-governor-incremental-discovery-pilot.sh'
       - '.github/workflows/dev-hub-v5-storage-governor-incremental-discovery.yml'
   workflow_dispatch:
 
@@ -24,11 +25,13 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Compile adapter
+      - name: Compile adapter and validate pilot script
         run: |
           set -euo pipefail
           python3 -m py_compile dev-hub/adapters/storage-governor-adapter.py
+          bash -n dev-hub/bin/run-storage-governor-incremental-discovery-pilot.sh
           echo STORAGE_GOVERNOR_INCREMENTAL_DISCOVERY_COMPILE=PASS
+          echo STORAGE_GOVERNOR_INCREMENTAL_DISCOVERY_PILOT_SYNTAX=PASS
 
       - name: Run contract tests
         run: |
@@ -45,5 +48,8 @@ jobs:
           ! grep -Fq 'SELECT *' dev-hub/adapters/storage-governor-adapter.py
           ! grep -Fq 'systemctl stop' dev-hub/adapters/storage-governor-adapter.py
           ! grep -Fq 'rm -rf' dev-hub/adapters/storage-governor-adapter.py
+          grep -Fq 'STORAGE_INCREMENTAL_DISCOVERY_RAW_DATA_EXPOSED=NO' dev-hub/bin/run-storage-governor-incremental-discovery-pilot.sh
+          grep -Fq 'STORAGE_INCREMENTAL_DISCOVERY_PRODUCTION_MUTATION=NO' dev-hub/bin/run-storage-governor-incremental-discovery-pilot.sh
+          ! grep -Fq 'systemctl stop' dev-hub/bin/run-storage-governor-incremental-discovery-pilot.sh
           echo STORAGE_GOVERNOR_INCREMENTAL_DISCOVERY_READONLY=PASS
           echo STORAGE_GOVERNOR_INCREMENTAL_DISCOVERY_RAW_DATA_EXPOSED=NO
