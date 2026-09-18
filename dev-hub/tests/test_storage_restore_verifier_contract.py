@@ -8,6 +8,7 @@ from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[2]
 ADAPTER_PATH=ROOT/"dev-hub/adapters/storage-restore-verifier-adapter.py"
+PORTABLE_SOURCE=ROOT/"dev-hub/tools/storage-restore-verifier-nas/main.go"
 
 spec=importlib.util.spec_from_file_location("storage_restore_verifier",ADAPTER_PATH)
 mod=importlib.util.module_from_spec(spec)
@@ -111,6 +112,7 @@ class RestoreVerifierContractTests(unittest.TestCase):
 
     def test_source_safety_invariants(self):
         text=ADAPTER_PATH.read_text(encoding="utf-8")
+        portable=PORTABLE_SOURCE.read_text(encoding="utf-8")
         self.assertIn("independent-restore",text)
         self.assertIn("PORTABLE_RESTORE_VERIFIER",text)
         self.assertIn("portable_verifier_sha256",text)
@@ -120,6 +122,9 @@ class RestoreVerifierContractTests(unittest.TestCase):
         self.assertNotIn("rm -rf",text)
         self.assertNotIn("systemctl stop",text)
         self.assertNotIn("storage-governor-adapter.py",text)
+        self.assertIn("PRAGMA integrity_check",portable)
+        self.assertIn("modernc.org/sqlite",portable)
+        self.assertNotIn("os.RemoveAll(*master)",portable)
 
 
 if __name__=="__main__":
