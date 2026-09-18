@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-BRANCH="dev-hub-v5-storage-governor-incremental-plan"
-RAW="https://raw.githubusercontent.com/chachasan090375/WfGg/${BRANCH}"
+SOURCE_REVISION="a51bed6da147a99450d9795cb3129436abbcd634"
+RAW="https://raw.githubusercontent.com/chachasan090375/WfGg/${SOURCE_REVISION}"
 BASE="/opt/chacha-dev/adapters/storage-governor"
 EVIDENCE_DIR="/opt/chacha-dev/evidence"
 STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
