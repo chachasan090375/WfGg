@@ -1,0 +1,57 @@
+name: DEV HUB V5 NAS SSH adapter PILOT promotion
+
+on:
+  push:
+    branches:
+      - dev-hub-v5-nas-ssh-adapter-pilot
+    paths:
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - 'dev-hub/evidence/nas-ssh-adapter-pilot-2026-09-18.json'
+      - '.github/workflows/dev-hub-v5-nas-ssh-adapter-pilot.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify-pilot:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate registry lifecycle
+        run: |
+          set -euo pipefail
+          python3 dev-hub/bin/adapter-contract-harness.py             --registry dev-hub/config/provider-adapters.v1.json             --policy dev-hub/config/adapter-contract.v1.json             --report /tmp/nas-pilot-contract-report.json
+          echo NAS_ADAPTER_PILOT_STATIC_CONTRACT=PASS
+
+      - name: Validate recorded runtime evidence
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          r=json.load(open('dev-hub/config/provider-adapters.v1.json'))
+          e=json.load(open('dev-hub/evidence/nas-ssh-adapter-pilot-2026-09-18.json'))
+          a=r['adapters']['nas-ssh-adapter']
+          assert a['status']=='PILOT', a
+          assert a['executable']=='/opt/chacha-dev/adapters/nas-ssh/current/nas-ssh-adapter', a
+          assert e['status']=='PASS', e
+          assert e['checks']['runtime_link']=='PASS', e
+          assert e['checks']['preflight']=='PASS', e
+          assert e['checks']['put_file']=='PASS', e
+          assert e['checks']['independent_sha256']=='PASS', e
+          assert e['checks']['production_mutation']=='NO', e
+          assert e['checks']['persistent_delete']=='NO', e
+          assert e['promotion']['automatic'] is False, e
+          print('NAS_ADAPTER_STATUS=PILOT')
+          print('NAS_ADAPTER_RUNTIME_EVIDENCE=PASS')
+          print('NAS_ADAPTER_AUTOMATIC_PROMOTION=NO')
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dev-hub-v5-nas-ssh-adapter-pilot-${{ github.run_id }}
+          path: /tmp/nas-pilot-contract-report.json
+          retention-days: 30
+          if-no-files-found: error
