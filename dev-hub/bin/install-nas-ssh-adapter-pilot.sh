@@ -39,11 +39,11 @@ chmod 0755 "$RELEASE/nas-ssh-adapter"
 python3 -m py_compile "$RELEASE/nas-ssh-adapter"
 echo "NAS_ADAPTER_INSTALL=STAGED"
 
-ssh -o BatchMode=yes -o ConnectTimeout=12 "$NAS_HOST" 'echo NAS_RUNTIME_LINK=OK; hostname' >"$WORK/nas-link.txt"
+ssh -n -o BatchMode=yes -o ConnectTimeout=12 "$NAS_HOST" 'echo NAS_RUNTIME_LINK=OK; hostname' >"$WORK/nas-link.txt"
 grep -Fq 'NAS_RUNTIME_LINK=OK' "$WORK/nas-link.txt"
 echo "NAS_RUNTIME_LINK=PASS"
 
-ssh "$NAS_HOST" mkdir -p "$NAS_ROOT/artifacts/adapter-pilot"
+ssh -n "$NAS_HOST" mkdir -p "$NAS_ROOT/artifacts/adapter-pilot"
 
 cat > "$WORK/payload.txt" <<EOF
 ChaCha DEV NAS adapter sandbox pilot
@@ -156,7 +156,7 @@ print("NAS_ADAPTER_PUT_FILE=PASS")
 PY
 
 LOCAL_SHA="$(sha256sum "$WORK/payload.txt" | awk '{print $1}')"
-REMOTE_SHA="$(ssh "$NAS_HOST" sha256sum "$REMOTE_ABS" | awk '{print $1}')"
+REMOTE_SHA="$(ssh -n "$NAS_HOST" sha256sum "$REMOTE_ABS" | awk '{print $1}')"
 test -n "$LOCAL_SHA"
 test "$LOCAL_SHA" = "$REMOTE_SHA"
 echo "NAS_ADAPTER_INDEPENDENT_SHA256=PASS"
