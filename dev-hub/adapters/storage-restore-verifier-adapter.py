@@ -395,6 +395,40 @@ def verify_incremental_candidate(request: dict[str,Any], cfg: dict[str,Any]) -> 
     if "sha256:"+remote_sha256(package_abs)!=package_sha:
         return blocked(request,"INCREMENTAL_PACKAGE_SHA_MISMATCH")
 
+    receipt_rel=(
+        "projects/wfgg/backups/collector-chain/"
+        f"collector-chain-verification-{sequence:06d}.json"
+    )
+    receipt_abs=f"{root}/{receipt_rel}"
+    if run(ssh_base()+["test","-e",receipt_abs],timeout=30).returncode==0:
+        receipt=read_remote_json(receipt_abs)
+        if (
+            receipt.get("schema")=="chacha.dev/collector-incremental-verification/v1"
+            and receipt.get("status")=="VERIFIED"
+            and int(receipt.get("sequence") or -1)==sequence
+            and receipt.get("candidate_sha256")==candidate_sha
+            and receipt.get("package_sha256")==package_sha
+        ):
+            return emit(result(
+                request,"OK","COLLECTOR_INCREMENTAL_ALREADY_VERIFIED",
+                [{
+                    "kind":"report",
+                    "source":"nas://"+nas_host()+"/"+receipt_rel,
+                    "digest":canonical_digest(receipt),
+                    "details":{
+                        "sequence":sequence,
+                        "candidate_sha256":candidate_sha,
+                        "package_sha256":package_sha,
+                        "receipt_reused":True,
+                    },
+                }],
+                [{
+                    "type":"artifact","id":receipt_rel,"status":"VERIFIED",
+                    "reason":"Existing immutable verification receipt matches candidate and package."
+                }]
+            )
+        return blocked(request,"INCREMENTAL_VERIFICATION_RECEIPT_COLLISION")
+
     previous_rel=safe_rel(
         str(candidate.get("previous_state_path") or ""),
         "projects/wfgg/backups/collector-chain/",
@@ -498,10 +532,6 @@ def verify_incremental_candidate(request: dict[str,Any], cfg: dict[str,Any]) -> 
                 }]
             ))
 
-        receipt_rel=(
-            "projects/wfgg/backups/collector-chain/"
-            f"collector-chain-verification-{sequence:06d}.json"
-        )
         receipt={
             "schema":"chacha.dev/collector-incremental-verification/v1",
             "status":"VERIFIED",
