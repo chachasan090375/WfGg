@@ -25,15 +25,33 @@ from pathlib import Path
 from typing import Any
 
 INPUT_SCHEMA="chacha.dev/dispatch-envelope/v1"
-GOVERNOR=Path("/opt/chacha-dev/adapters/storage-governor/current/storage-governor-adapter")
-RESTORE_VERIFIER=Path("/opt/chacha-dev/adapters/storage-restore-verifier/current/storage-restore-verifier-adapter")
-PORTABLE_VERIFIER=Path("/opt/chacha-dev/adapters/storage-restore-verifier/current/storage-restore-verifier-nas-linux-amd64")
-NAS_ADAPTER=Path("/opt/chacha-dev/adapters/nas-ssh/current/nas-ssh-adapter")
+GOVERNOR=Path(os.environ.get(
+    "CHACHA_STORAGE_GOVERNOR",
+    "/opt/chacha-dev/adapters/storage-governor/current/storage-governor-adapter",
+))
+RESTORE_VERIFIER=Path(os.environ.get(
+    "CHACHA_STORAGE_RESTORE_VERIFIER",
+    "/opt/chacha-dev/adapters/storage-restore-verifier/current/storage-restore-verifier-adapter",
+))
+PORTABLE_VERIFIER=Path(os.environ.get(
+    "CHACHA_PORTABLE_RESTORE_VERIFIER",
+    "/opt/chacha-dev/adapters/storage-restore-verifier/current/storage-restore-verifier-nas-linux-amd64",
+))
+NAS_ADAPTER=Path(os.environ.get(
+    "CHACHA_NAS_ADAPTER",
+    "/opt/chacha-dev/adapters/nas-ssh/current/nas-ssh-adapter",
+))
 COLLECTOR_DB=Path(os.environ.get("WFGG_COLLECTOR_DB","/opt/wfgg-collector/data/collector.db"))
 NAS_HOST=os.environ.get("CHACHA_NAS_HOST","chachanas")
 NAS_ROOT=os.environ.get("CHACHA_NAS_ROOT","/share/CACHEDEV1_DATA/ChaCha-DEV-HUB")
-EVIDENCE=Path("/opt/chacha-dev/evidence/collector-incremental-auto-watch-last.json")
-LOCK=Path("/run/lock/wfgg-collector-incremental-auto-watch.lock")
+EVIDENCE=Path(os.environ.get(
+    "CHACHA_INCREMENTAL_WATCH_EVIDENCE",
+    "/opt/chacha-dev/evidence/collector-incremental-auto-watch-last.json",
+))
+LOCK=Path(os.environ.get(
+    "CHACHA_INCREMENTAL_WATCH_LOCK",
+    "/run/lock/wfgg-collector-incremental-auto-watch.lock",
+))
 MAX_ADVANCE_PER_RUN=int(os.environ.get("WFGG_INCREMENTAL_MAX_ADVANCE","4"))
 
 
