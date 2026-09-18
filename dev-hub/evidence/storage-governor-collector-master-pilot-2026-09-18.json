@@ -1,0 +1,37 @@
+{
+  "schema": "chacha.dev/storage-governor-collector-master-pilot/v1",
+  "observed_at": "2026-09-18T08:57:57Z",
+  "source": "ChaChaVPS runtime pilot observed from operator terminal",
+  "status": "PASS",
+  "adapter": "storage-governor-adapter",
+  "provider": "storage-governor",
+  "runtime_path": "/opt/chacha-dev/adapters/storage-governor/current/storage-governor-adapter",
+  "snapshot": {
+    "kind": "MASTER",
+    "archive": "projects/wfgg/backups/collector-master-20260918T085757Z.sql.gz",
+    "sha256": "sha256:4fd82f1ecab892372998dd4ef6e0df085474876a914409f70c6502d97929f730",
+    "gzip_integrity": "PASS",
+    "logical_dump_structure": "PASS",
+    "logical_lines": 2062879,
+    "active_db": "/opt/wfgg-collector/data/collector.db",
+    "active_db_tables": 12,
+    "active_db_bytes": 523792384
+  },
+  "runtime": {
+    "collector_service_before": "active",
+    "collector_service_after": "active",
+    "collector_pid_before": "3235883",
+    "collector_pid_after": "3235883",
+    "service_interruption": false,
+    "local_full_snapshot": false,
+    "local_snapshot_delta_kb": 28,
+    "production_data_mutation": false,
+    "incremental_chain_started": false
+  },
+  "promotion": {
+    "from": "CONTRACT_OK",
+    "to": "PILOT",
+    "automatic": false,
+    "runtime_pass": true
+  }
+}

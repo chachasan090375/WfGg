@@ -1,0 +1,66 @@
+name: DEV HUB V5 Storage Governor Collector MASTER PILOT promotion
+
+on:
+  push:
+    branches:
+      - dev-hub-v5-storage-governor-collector-master-pilot
+    paths:
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - 'dev-hub/evidence/storage-governor-collector-master-pilot-2026-09-18.json'
+      - '.github/workflows/dev-hub-v5-storage-governor-collector-master-pilot.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify-pilot:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate registry contract
+        run: |
+          set -euo pipefail
+          python3 dev-hub/bin/adapter-contract-harness.py             --registry dev-hub/config/provider-adapters.v1.json             --policy dev-hub/config/adapter-contract.v1.json             --report /tmp/storage-governor-pilot-contract.json
+          echo STORAGE_GOVERNOR_PILOT_STATIC_CONTRACT=PASS
+
+      - name: Validate runtime evidence
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          r=json.load(open('dev-hub/config/provider-adapters.v1.json'))
+          e=json.load(open('dev-hub/evidence/storage-governor-collector-master-pilot-2026-09-18.json'))
+          a=r['adapters']['storage-governor-adapter']
+          assert a['status']=='PILOT',a
+          assert a['executable']=='/opt/chacha-dev/adapters/storage-governor/current/storage-governor-adapter',a
+          assert e['status']=='PASS',e
+          s=e['snapshot']; rt=e['runtime']
+          assert s['kind']=='MASTER',s
+          assert s['gzip_integrity']=='PASS',s
+          assert s['logical_dump_structure']=='PASS',s
+          assert s['logical_lines']>1000,s
+          assert s['active_db'].endswith('/collector.db'),s
+          assert rt['collector_service_before']=='active',rt
+          assert rt['collector_service_after']=='active',rt
+          assert rt['collector_pid_before']==rt['collector_pid_after'],rt
+          assert rt['service_interruption'] is False,rt
+          assert rt['local_full_snapshot'] is False,rt
+          assert rt['production_data_mutation'] is False,rt
+          assert rt['incremental_chain_started'] is False,rt
+          assert e['promotion']['automatic'] is False,e
+          print('STORAGE_GOVERNOR_STATUS=PILOT')
+          print('COLLECTOR_MASTER_RUNTIME_EVIDENCE=PASS')
+          print('COLLECTOR_MASTER_SERVICE_INTERRUPTION=NO')
+          print('COLLECTOR_MASTER_LOCAL_FULL_SNAPSHOT=NO')
+          print('COLLECTOR_INCREMENTAL_CHAIN_STARTED=NO')
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dev-hub-v5-storage-governor-master-pilot-${{ github.run_id }}
+          path: /tmp/storage-governor-pilot-contract.json
+          retention-days: 30
+          if-no-files-found: error
