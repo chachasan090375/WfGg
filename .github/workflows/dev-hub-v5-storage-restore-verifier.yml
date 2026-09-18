@@ -1,0 +1,73 @@
+name: DEV HUB V5 storage restore verifier CONTRACT_OK
+
+on:
+  push:
+    branches:
+      - dev-hub-v5-storage-restore-verifier-pilot
+    paths:
+      - 'dev-hub/adapters/storage-restore-verifier-adapter.py'
+      - 'dev-hub/tests/test_storage_restore_verifier_contract.py'
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - 'dev-hub/bin/run-storage-restore-verifier-pilot.sh'
+      - '.github/workflows/dev-hub-v5-storage-restore-verifier.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Compile and unit test
+        run: |
+          set -euo pipefail
+          python3 -m py_compile dev-hub/adapters/storage-restore-verifier-adapter.py
+          python3 -m unittest -v dev-hub/tests/test_storage_restore_verifier_contract.py
+          if [ -f dev-hub/bin/run-storage-restore-verifier-pilot.sh ]; then
+            bash -n dev-hub/bin/run-storage-restore-verifier-pilot.sh
+          fi
+          echo STORAGE_RESTORE_VERIFIER_TESTS=PASS
+
+      - name: Validate registry contract
+        run: |
+          set -euo pipefail
+          python3 dev-hub/bin/adapter-contract-harness.py             --registry dev-hub/config/provider-adapters.v1.json             --policy dev-hub/config/adapter-contract.v1.json             --report /tmp/storage-restore-verifier-contract.json
+          python3 - <<'PY'
+          import json
+          r=json.load(open('dev-hub/config/provider-adapters.v1.json'))
+          p=r['providers']['storage-restore-verifier']
+          a=r['adapters']['storage-restore-verifier-adapter']
+          assert p['execution']=='vps',p
+          assert a['status']=='CONTRACT_OK',a
+          assert a['executable'] is None,a
+          assert a['supports']==['workspace-write'],a
+          print('STORAGE_RESTORE_VERIFIER_STATUS=CONTRACT_OK')
+          print('STORAGE_RESTORE_VERIFIER_RUNTIME_ENABLED=NO')
+          PY
+
+      - name: Assert verifier independence and sandbox safety
+        run: |
+          set -euo pipefail
+          grep -Fq 'independent-restore' dev-hub/adapters/storage-restore-verifier-adapter.py
+          grep -Fq 'PRAGMA integrity_check' dev-hub/adapters/storage-restore-verifier-adapter.py
+          grep -Fq 'sandbox_deleted_after_verification' dev-hub/adapters/storage-restore-verifier-adapter.py
+          ! grep -Fq 'storage-governor-adapter.py' dev-hub/adapters/storage-restore-verifier-adapter.py
+          ! grep -Fq 'rm -rf' dev-hub/adapters/storage-restore-verifier-adapter.py
+          ! grep -Fq 'systemctl stop' dev-hub/adapters/storage-restore-verifier-adapter.py
+          echo STORAGE_RESTORE_VERIFIER_INDEPENDENCE=PASS
+          echo STORAGE_RESTORE_VERIFIER_SANDBOX_DELETE_ONLY=PASS
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: storage-restore-verifier-contract-${{ github.run_id }}
+          path: /tmp/storage-restore-verifier-contract.json
+          retention-days: 30
+          if-no-files-found: error
