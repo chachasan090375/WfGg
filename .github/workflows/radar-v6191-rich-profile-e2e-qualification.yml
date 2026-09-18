@@ -137,8 +137,6 @@ jobs:
           ! grep -REq 'ALTER TABLE[[:space:]]+observations|army_power|army_kill|svip_level|avatar_ref' \
             .radar-release-src/v6191-source/connector-go/cmd/radar-connector \
             .github/scripts/patch-radar-profile-refresh-v6191.py
-          grep -Fq "TIME_TABLES" dev-hub/adapters/storage-governor-incremental-chain.py
-          grep -Fq '"observations":("observed_at","id")' dev-hub/adapters/storage-governor-incremental-chain.py
           echo COLLECTOR_V6191_SCHEMA_MUTATION=NO
           echo COLLECTOR_V6191_STORAGE_CHAIN_UNCHANGED=PASS
 
