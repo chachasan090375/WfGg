@@ -1,0 +1,60 @@
+{
+  "schema": "chacha.dev/adapter-promotion-evidence/v1",
+  "adapter": "radar-runtime-adapter",
+  "observed_at": "2026-09-18T19:02:00Z",
+  "evidence": {
+    "repeatable-pass": {
+      "status": "PASS",
+      "source": "runtime:/opt/chacha-dev/runtime/adapter-promotions/radar-runtime-adapter/20260918T190043Z/readiness/enablement-evidence.json",
+      "observed_at": "2026-09-18T19:00:43Z",
+      "details": {
+        "probes": 3,
+        "task_id": "radar-runtime:status",
+        "result": "PASS",
+        "runtime_status": "PILOT"
+      }
+    },
+    "provider-health-pass": {
+      "status": "PASS",
+      "source": "runtime:/opt/chacha-dev/runtime/adapter-promotions/radar-runtime-adapter/20260918T190043Z/readiness/enablement-evidence.json",
+      "observed_at": "2026-09-18T19:00:43Z",
+      "details": {
+        "provider": "radar-vps-runtime",
+        "health": "HEALTHY",
+        "radar_service": "active",
+        "radar_sentinel_timer": "active",
+        "radar_sentinel_enabled": "enabled",
+        "collector_sentinel_timer": "active"
+      }
+    },
+    "rollback-defined": {
+      "status": "PASS",
+      "source": "repo:dev-hub/config/adapter-rollbacks.v1.json",
+      "observed_at": "2026-09-18T19:00:43Z",
+      "details": {
+        "from_status": "ENABLED",
+        "target_status": "DISABLED",
+        "fail_closed": true,
+        "radar_sentinel_required": true,
+        "collector_sentinel_required": true
+      }
+    }
+  },
+  "approvals": [
+    {
+      "id": "approval-radar-runtime-adapter-enabled-20260918T1902Z",
+      "type": "adapter-production-enable",
+      "adapter": "radar-runtime-adapter",
+      "target_status": "ENABLED",
+      "actor": "human-user",
+      "approved_at": "2026-09-18T19:02:00Z",
+      "source": "chat-explicit-approval",
+      "statement": "J’approuve l’activation ENABLED de radar-runtime-adapter dans ChaCha DEV"
+    }
+  ],
+  "notes": [
+    "Technical readiness was observed on ChaChaVPS with all three PILOT->ENABLED gates PASS.",
+    "The human user explicitly approved ENABLED activation in chat.",
+    "No Radar production action is executed by this registry promotion itself."
+  ]
+}
