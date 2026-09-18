@@ -1,0 +1,82 @@
+name: DEV HUB V5 NAS SSH adapter CONTRACT_OK
+
+on:
+  push:
+    branches:
+      - dev-hub-v5-nas-ssh-adapter-contract-ok
+    paths:
+      - 'dev-hub/adapters/nas-ssh-adapter.py'
+      - 'dev-hub/tests/test_nas_ssh_adapter_contract.py'
+      - 'dev-hub/fixtures/nas-ssh-adapter.preflight.v1.json'
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - '.github/workflows/dev-hub-v5-nas-ssh-adapter-contract-ok.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify-contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Compile adapter
+        run: |
+          set -euo pipefail
+          python3 -m py_compile dev-hub/adapters/nas-ssh-adapter.py
+          echo NAS_SSH_ADAPTER_COMPILE=PASS
+
+      - name: Run offline policy tests
+        run: |
+          set -euo pipefail
+          python3 -m unittest -v dev-hub/tests/test_nas_ssh_adapter_contract.py
+          echo NAS_SSH_ADAPTER_POLICY_TESTS=PASS
+
+      - name: Validate adapter registry contract
+        run: |
+          set -euo pipefail
+          python3 dev-hub/bin/adapter-contract-harness.py             --registry dev-hub/config/provider-adapters.v1.json             --policy dev-hub/config/adapter-contract.v1.json             --report /tmp/nas-adapter-contract-report.json
+          echo NAS_SSH_ADAPTER_STATIC_CONTRACT=PASS
+
+      - name: Assert CONTRACT_OK is not runtime enabled
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          r=json.load(open('dev-hub/config/provider-adapters.v1.json'))
+          a=r['adapters']['nas-ssh-adapter']
+          p=r['providers']['nas']
+          assert p['execution']=='vps', p
+          assert a['status']=='CONTRACT_OK', a
+          assert a['executable'] is None, a
+          assert set(a['supports'])=={'read','workspace-write'}, a
+          print('NAS_SSH_ADAPTER_STATUS=CONTRACT_OK')
+          print('NAS_SSH_ADAPTER_RUNTIME_ENABLED=NO')
+          print('NAS_SSH_ADAPTER_EXECUTABLE=UNPROVISIONED')
+          PY
+
+      - name: Assert storage safety invariants
+        run: |
+          set -euo pipefail
+          grep -Fq 'create-only atomic file publication' dev-hub/adapters/nas-ssh-adapter.py
+          grep -Fq 'NAS_DESTINATION_ALREADY_EXISTS' dev-hub/adapters/nas-ssh-adapter.py
+          grep -Fq 'NAS_WRITE_APPROVAL_MISSING' dev-hub/adapters/nas-ssh-adapter.py
+          grep -Fq 'shell=False' dev-hub/adapters/nas-ssh-adapter.py
+          ! grep -Fq 'shell=True' dev-hub/adapters/nas-ssh-adapter.py
+          ! grep -Fq 'rm -rf' dev-hub/adapters/nas-ssh-adapter.py
+          echo NAS_SSH_ADAPTER_CREATE_ONLY=PASS
+          echo NAS_SSH_ADAPTER_NO_LOCAL_SHELL=PASS
+          echo NAS_SSH_ADAPTER_NO_PERSISTENT_DELETE=PASS
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dev-hub-v5-nas-ssh-adapter-contract-${{ github.run_id }}
+          path: /tmp/nas-adapter-contract-report.json
+          retention-days: 30
+          if-no-files-found: error

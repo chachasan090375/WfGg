@@ -1,0 +1,48 @@
+{
+  "schema": "chacha.dev/dispatch-envelope/v1",
+  "project": "wfgg-radar",
+  "transition": "storage-preflight",
+  "run_id": "nas-contract-001",
+  "wave": 1,
+  "task": {
+    "id": "nas-preflight",
+    "kind": "storage-preflight",
+    "description": "Validate NAS capacity without mutation.",
+    "owner_role": "storage-governor",
+    "permission": "read",
+    "outputs": [
+      {
+        "type": "gate",
+        "id": "storage-preflight"
+      }
+    ],
+    "verification": {
+      "required": true,
+      "mode": "machine"
+    }
+  },
+  "bindings": [
+    {
+      "capability": "artifact-store",
+      "provider": "nas",
+      "adapter": "nas-ssh-adapter",
+      "fallback_used": false,
+      "health_state": "contract-test"
+    }
+  ],
+  "policy_context": {
+    "resource_class": "small",
+    "requires_storage_preflight": true,
+    "human_approval_required": false,
+    "approval_id": null,
+    "timeout_seconds": 10
+  },
+  "workspace": "/tmp/chacha-dev-contract",
+  "metadata": {
+    "nas_storage": {
+      "action": "preflight",
+      "need_mb": 512,
+      "reserve_mb": 1024
+    }
+  }
+}
