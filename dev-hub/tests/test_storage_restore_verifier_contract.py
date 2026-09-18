@@ -56,6 +56,13 @@ class RestoreVerifierContractTests(unittest.TestCase):
         self.assertIsNone(error)
         self.assertEqual(cfg["action"],"verify-master-anchor")
 
+    def test_contract_accepts_incremental_candidate_action(self):
+        req=self.base_request()
+        req["metadata"]["storage_restore_verifier"]["action"]="verify-incremental-candidate"
+        cfg,error=mod.validate_request(req)
+        self.assertIsNone(error)
+        self.assertEqual(cfg["action"],"verify-incremental-candidate")
+
     def test_contract_rejects_read_only(self):
         req=self.base_request()
         req["task"]["permission"]="read"
@@ -118,6 +125,12 @@ class RestoreVerifierContractTests(unittest.TestCase):
         self.assertIn("portable_verifier_sha256",text)
         self.assertIn("sandbox_deleted_after_verification",text)
         self.assertIn("production_data_mutation",text)
+        self.assertIn("COLLECTOR_INCREMENTAL_RESTORE_VERIFIED",text)
+        self.assertIn("collector-incremental-verification/v1",text)
+        self.assertIn("candidate_sha256",text)
+        self.assertIn("package_sha256",text)
+        self.assertIn("patch_count",text)
+        self.assertIn('flag.Var(&patches, "patch"',portable)
         self.assertIn("rm -f",text)
         self.assertNotIn("rm -rf",text)
         self.assertNotIn("systemctl stop",text)
