@@ -175,7 +175,7 @@ func restoreDump(master, restore string) (int64, error) {
 			stmt.Write(frag)
 		}
 
-		if len(frag) > 0 && frag[len(frag)-1] == ';' && terminalSemicolonOutsideSQL(stmt.Bytes()) {
+		if len(frag) > 0 && frag[len(frag)-1] == ';' && statementCompleteSQL(stmt.Bytes()) {
 			sqlText := strings.TrimSpace(stmt.String())
 			stmt.Reset()
 			if sqlText != "" {
@@ -200,33 +200,53 @@ func restoreDump(master, restore string) (int64, error) {
 	return count, nil
 }
 
-func terminalSemicolonOutsideSQL(b []byte) bool {
+func statementCompleteSQL(b []byte) bool {
+	if len(b) == 0 || b[len(b)-1] != ';' {
+		return false
+	}
+
+	type token struct {
+		word string
+		pos  int
+	}
+	var tokens []token
+
 	inSingle, inDouble, inBacktick, inBracket := false, false, false, false
 	lineComment, blockComment := false, false
-	candidateOutside := false
+	wordStart := -1
+
+	flushWord := func(i int) {
+		if wordStart >= 0 {
+			tokens = append(tokens, token{
+				word: strings.ToUpper(string(b[wordStart:i])),
+				pos:  wordStart,
+			})
+			wordStart = -1
+		}
+	}
 
 	for i := 0; i < len(b); i++ {
-		c := b[i]
+		ch := b[i]
 		var next byte
 		if i+1 < len(b) {
 			next = b[i+1]
 		}
 
 		if lineComment {
-			if c == '\n' {
+			if ch == '\n' {
 				lineComment = false
 			}
 			continue
 		}
 		if blockComment {
-			if c == '*' && next == '/' {
+			if ch == '*' && next == '/' {
 				blockComment = false
 				i++
 			}
 			continue
 		}
 		if inSingle {
-			if c == '\'' {
+			if ch == '\'' {
 				if next == '\'' {
 					i++
 				} else {
@@ -236,7 +256,7 @@ func terminalSemicolonOutsideSQL(b []byte) bool {
 			continue
 		}
 		if inDouble {
-			if c == '"' {
+			if ch == '"' {
 				if next == '"' {
 					i++
 				} else {
@@ -246,7 +266,7 @@ func terminalSemicolonOutsideSQL(b []byte) bool {
 			continue
 		}
 		if inBacktick {
-			if c == '`' {
+			if ch == '`' {
 				if next == '`' {
 					i++
 				} else {
@@ -256,36 +276,109 @@ func terminalSemicolonOutsideSQL(b []byte) bool {
 			continue
 		}
 		if inBracket {
-			if c == ']' {
+			if ch == ']' {
 				inBracket = false
 			}
 			continue
 		}
 
-		if c == '-' && next == '-' {
+		if ch == '-' && next == '-' {
+			flushWord(i)
 			lineComment = true
 			i++
 			continue
 		}
-		if c == '/' && next == '*' {
+		if ch == '/' && next == '*' {
+			flushWord(i)
 			blockComment = true
 			i++
 			continue
 		}
-		switch c {
+
+		switch ch {
 		case '\'':
+			flushWord(i)
 			inSingle = true
+			continue
 		case '"':
+			flushWord(i)
 			inDouble = true
+			continue
 		case '`':
+			flushWord(i)
 			inBacktick = true
+			continue
 		case '[':
+			flushWord(i)
 			inBracket = true
-		case ';':
-			candidateOutside = (i == len(b)-1)
+			continue
+		}
+
+		isWord := (ch >= 'a' && ch <= 'z') ||
+			(ch >= 'A' && ch <= 'Z') ||
+			(ch >= '0' && ch <= '9') ||
+			ch == '_'
+		if isWord {
+			if wordStart < 0 {
+				wordStart = i
+			}
+		} else {
+			flushWord(i)
 		}
 	}
-	return candidateOutside && !inSingle && !inDouble && !inBacktick && !inBracket && !lineComment && !blockComment
+	flushWord(len(b))
+
+	if inSingle || inDouble || inBacktick || inBracket || blockComment {
+		return false
+	}
+
+	// Ordinary SQLite statements are complete at a terminal semicolon.
+	// CREATE TRIGGER is the important exception: its body contains internal
+	// semicolons between statements and is complete only at the outer END;.
+	isTrigger := false
+	if len(tokens) >= 2 && tokens[0].word == "CREATE" {
+		if tokens[1].word == "TRIGGER" {
+			isTrigger = true
+		} else if len(tokens) >= 3 &&
+			(tokens[1].word == "TEMP" || tokens[1].word == "TEMPORARY") &&
+			tokens[2].word == "TRIGGER" {
+			isTrigger = true
+		}
+	}
+	if !isTrigger {
+		return true
+	}
+
+	bodyStarted := false
+	caseDepth := 0
+	outerEndSeen := false
+	for _, t := range tokens {
+		switch t.word {
+		case "BEGIN":
+			if !bodyStarted {
+				bodyStarted = true
+			}
+		case "CASE":
+			if bodyStarted {
+				caseDepth++
+			}
+		case "END":
+			if bodyStarted {
+				if caseDepth > 0 {
+					caseDepth--
+				} else {
+					outerEndSeen = true
+				}
+			}
+		default:
+			if bodyStarted && outerEndSeen {
+				// Any SQL token after the outer END means that END belonged
+				// to something else; keep accumulating until a later END;.
+				outerEndSeen = false
+			}
+		}
+	}
+	return bodyStarted && caseDepth == 0 && outerEndSeen
 }
 
 func verifyDB(path string, exp Expected, res *Result) error {
