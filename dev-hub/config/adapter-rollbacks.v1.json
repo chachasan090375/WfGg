@@ -88,6 +88,36 @@
         "production capability remains false",
         "previous qualification, promotion and rollback receipts remain readable"
       ]
+    },
+    "radar-runtime-adapter": {
+      "enabled": true,
+      "from_status": "ENABLED",
+      "target_status": "DISABLED",
+      "owner_role": "platform-cloud-engineer",
+      "triggers": [
+        "repeatable-runtime-failure",
+        "provider-health-unavailable",
+        "radar-sentinel-protection-unavailable",
+        "collector-sentinel-protection-unavailable",
+        "policy-or-security-block"
+      ],
+      "executable_strategy": "retain-for-forensics",
+      "steps": [
+        "stop scheduling new tasks to radar-runtime-adapter",
+        "apply ENABLED->DISABLED through adapter-promotion with policy-or-security-block evidence",
+        "record the promotion receipt and triggering evidence",
+        "retain the provisioned executable and provisioning receipt for forensics",
+        "confirm wfgg-radar-sentinel.timer is active and enabled and wfgg-collector-sentinel.timer remains active",
+        "leave unresolved radar runtime capabilities fail-closed until a qualified adapter is available"
+      ],
+      "verification": [
+        "adapter registry status is DISABLED",
+        "run controller no longer executes radar-runtime-adapter",
+        "wfgg-radar-sentinel.timer is active and enabled",
+        "wfgg-collector-sentinel.timer is active",
+        "previous provisioning promotion and rollback receipts remain readable",
+        "provisioned executable remains unchanged for forensics"
+      ]
     }
   }
 }

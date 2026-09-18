@@ -1,0 +1,153 @@
+name: DEV HUB V5 Radar runtime adapter ENABLED readiness
+
+on:
+  push:
+    branches:
+      - dev-hub-v5-radar-runtime-adapter-enable-readiness
+    paths:
+      - 'dev-hub/bin/qualify-radar-runtime-adapter-enabled-readiness.sh'
+      - 'dev-hub/bin/adapter-enable-readiness.py'
+      - 'dev-hub/bin/adapter-enablement-evidence.py'
+      - 'dev-hub/bin/adapter-promotion.py'
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - 'dev-hub/config/adapter-enablement.v1.json'
+      - 'dev-hub/config/adapter-rollbacks.v1.json'
+      - 'dev-hub/config/adapter-contract.v1.json'
+      - 'dev-hub/config/adapter-promotion.v1.json'
+      - '.github/workflows/dev-hub-v5-radar-runtime-adapter-enabled-readiness.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Syntax and static safety
+        run: |
+          set -euo pipefail
+          bash -n dev-hub/bin/qualify-radar-runtime-adapter-enabled-readiness.sh
+          python3 -m py_compile             dev-hub/bin/adapter-enable-readiness.py             dev-hub/bin/adapter-enablement-evidence.py             dev-hub/bin/adapter-promotion.py
+          grep -Fq 'EXPLICIT_PRODUCTION_APPROVAL_ID_REQUIRED' dev-hub/bin/qualify-radar-runtime-adapter-enabled-readiness.sh
+          grep -Fq 'RADAR_ENABLE_READINESS=WAITING_FOR_HUMAN_APPROVAL' dev-hub/bin/qualify-radar-runtime-adapter-enabled-readiness.sh
+          ! grep -Fq -- '--apply' dev-hub/bin/qualify-radar-runtime-adapter-enabled-readiness.sh
+          ! grep -Fq 'systemctl stop' dev-hub/bin/qualify-radar-runtime-adapter-enabled-readiness.sh
+          ! grep -Fq 'systemctl restart wfgg-radar' dev-hub/bin/qualify-radar-runtime-adapter-enabled-readiness.sh
+          echo RADAR_ENABLE_READINESS_PLAN_ONLY=PASS
+
+      - name: Validate rollback definition
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          x=json.load(open('dev-hub/config/adapter-rollbacks.v1.json',encoding='utf-8'))
+          r=x['adapters']['radar-runtime-adapter']
+          assert r['enabled'] is True,r
+          assert r['from_status']=='ENABLED',r
+          assert r['target_status']=='DISABLED',r
+          assert len(r['steps'])>=2,r
+          assert len(r['verification'])>=1,r
+          assert 'wfgg-radar-sentinel.timer is active and enabled' in r['verification'],r
+          assert 'wfgg-collector-sentinel.timer is active' in r['verification'],r
+          print('RADAR_ROLLBACK_DEFINED=PASS')
+          PY
+
+      - name: Simulate production-capable enablement evidence and approval gate
+        run: |
+          set -euo pipefail
+          ROOT=/tmp/radar-enable-ci
+          mkdir -p "$ROOT"
+          cp dev-hub/config/provider-adapters.v1.json "$ROOT/registry.json"
+          python3 - "$ROOT/registry.json" "$ROOT/fake-adapter" <<'PY'
+          import json,sys,os
+          rp,ep=sys.argv[1:3]
+          open(ep,'w').write('#!/bin/sh\nexit 0\n')
+          os.chmod(ep,0o755)
+          x=json.load(open(rp))
+          a=x['adapters']['radar-runtime-adapter']
+          assert a['status']=='PILOT',a
+          a['executable']=ep
+          open(rp,'w').write(json.dumps(x,indent=2)+'\n')
+          PY
+
+          python3 - "$ROOT" <<'PY'
+          import json,sys
+          from datetime import datetime,timezone,timedelta
+          from pathlib import Path
+          root=Path(sys.argv[1])
+          base=datetime.now(timezone.utc)
+          for i in range(3):
+              observed=(base+timedelta(seconds=i)).isoformat()
+              r={
+                'schema':'chacha.dev/task-result/v1',
+                'project':'wfgg-radar',
+                'task_id':'radar-runtime:status',
+                'status':'OK',
+                'producer':'radar-runtime-adapter',
+                'observed_at':observed,
+                'summary':'RADAR_RUNTIME_STATUS_OK',
+                'evidence':[{'kind':'metric','source':'ci://radar-runtime','digest':'sha256:'+str(i+1).zfill(64),'details':{'run':i+1}}],
+                'verification':{'status':'UNVERIFIED','method':'none','verifier':'none','observed_at':observed,'notes':'ci'},
+                'outputs':[]
+              }
+              (root/f'result-{i+1}.json').write_text(json.dumps(r)+'\n')
+          health={
+            'schema':'chacha.dev/provider-health-snapshot/v1',
+            'observed_at':base.isoformat(),
+            'providers':{
+              'radar-vps-runtime':{
+                'state':'HEALTHY',
+                'source':'ci-synthetic',
+                'checked_at':base.isoformat()
+              }
+            }
+          }
+          (root/'health.json').write_text(json.dumps(health)+'\n')
+          PY
+
+          set +e
+          python3 dev-hub/bin/adapter-enable-readiness.py             --registry "$ROOT/registry.json"             --adapter radar-runtime-adapter             --provider radar-vps-runtime             --result "$ROOT/result-1.json"             --result "$ROOT/result-2.json"             --result "$ROOT/result-3.json"             --health "$ROOT/health.json"             --rollbacks dev-hub/config/adapter-rollbacks.v1.json             --work-dir "$ROOT/readiness"             --json > "$ROOT/stdout.json"
+          RC=$?
+          set -e
+
+          python3 - "$ROOT" "$RC" <<'PY'
+          import json,sys
+          from pathlib import Path
+          root=Path(sys.argv[1]); rc=int(sys.argv[2])
+          evidence=json.load(open(root/'readiness'/'enablement-evidence.json'))
+          plan=json.load(open(root/'readiness'/'enablement-promotion-plan.json'))
+          receipt=json.load(open(root/'readiness'/'enablement-readiness.json'))
+          for gate in ('repeatable-pass','provider-health-pass','rollback-defined'):
+              assert evidence['evidence'][gate]['status']=='PASS',(gate,evidence)
+          assert plan['production_capable'] is True,plan
+          assert plan['approval_required'] is True,plan
+          assert plan['eligible'] is False,plan
+          assert plan['blockers']==['EXPLICIT_PRODUCTION_APPROVAL_ID_REQUIRED'],plan
+          assert receipt['registry_mutated'] is False,receipt
+          assert receipt['blockers']==['PROMOTION:EXPLICIT_PRODUCTION_APPROVAL_ID_REQUIRED'],receipt
+          assert rc==2,rc
+          print('RADAR_ENABLE_TECHNICAL_EVIDENCE=PASS')
+          print('RADAR_ENABLE_HUMAN_APPROVAL_GATE=PASS')
+          PY
+
+      - name: Verify PILOT remains non-executable through Run Controller
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          r=json.load(open('dev-hub/config/provider-adapters.v1.json'))
+          a=r['adapters']['radar-runtime-adapter']
+          assert a['status']=='PILOT',a
+          assert a['status']!='ENABLED',a
+          print('RADAR_ENABLE_SOURCE_STATUS=PILOT')
+          PY
+          grep -Fq 'adef.get("status") != "ENABLED"' dev-hub/bin/run-controller.py
+          echo RADAR_ENABLE_RUN_CONTROLLER_GATE=PASS
