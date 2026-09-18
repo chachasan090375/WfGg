@@ -70,6 +70,17 @@ jobs:
           conn.execute("insert into cycles values(35,'s','f')")
           conn.execute("insert into observations values(126611,'2026-09-18T05:18:47.18986397Z')")
           conn.execute("insert into masters values(1,'2026-09-11T22:23:30.164682Z')")
+          conn.execute("""
+          create trigger trg_players_restore_test
+          after insert on players
+          begin
+            update identity_coverage
+               set scope_id=case when scope_id='' then scope_id else scope_id end
+             where 0;
+            insert into identity_coverage(scope_id)
+            select 'never' where 0;
+          end
+          """)
           conn.commit()
           with gzip.open('/tmp/master.sql.gz','wt',encoding='utf-8') as g:
             for line in conn.iterdump():
@@ -93,6 +104,11 @@ jobs:
           assert x['status']=='PASS',x
           assert x['integrity']=='ok',x
           assert x['baseline_cycle']==35,x
+          conn=sqlite3.connect('/tmp/restored.db')
+          trigger_count=conn.execute("select count(*) from sqlite_master where type='trigger' and name='trg_players_restore_test'").fetchone()[0]
+          conn.close()
+          assert trigger_count==1,trigger_count
+          print('PORTABLE_RESTORE_VERIFIER_TRIGGER_RESTORE=PASS')
           print('PORTABLE_RESTORE_VERIFIER_SELFTEST=PASS')
           PY
 
