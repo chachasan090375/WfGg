@@ -1,0 +1,187 @@
+name: DEV HUB V5 Project Control operate
+
+on:
+  push:
+    branches:
+      - dev-hub-v5-project-control-operate
+    paths:
+      - 'dev-hub/bin/project-control.py'
+      - 'dev-hub/bin/project-control-api.py'
+      - 'dev-hub/config/project-control.v1.json'
+      - 'dev-hub/config/run-controller.operate.v1.json'
+      - 'dev-hub/schemas/project-control-request-v1.schema.json'
+      - 'dev-hub/schemas/task-graph-v1.schema.json'
+      - 'dev-hub/operations/wfgg-radar/runtime-status.task-graph.json'
+      - '.github/workflows/dev-hub-v5-project-control-operate.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Syntax and policy invariants
+        run: |
+          set -euo pipefail
+          python3 -m py_compile             dev-hub/bin/project-control.py             dev-hub/bin/project-control-api.py             dev-hub/bin/execution-scheduler.py             dev-hub/bin/run-controller.py             dev-hub/bin/external-runtime-dispatch.py
+          python3 - <<'PY'
+          import json
+          normal=json.load(open('dev-hub/config/run-controller.v1.json'))
+          operate=json.load(open('dev-hub/config/run-controller.operate.v1.json'))
+          pc=json.load(open('dev-hub/config/project-control.v1.json'))
+          schema=json.load(open('dev-hub/schemas/project-control-request-v1.schema.json'))
+          graph=json.load(open('dev-hub/operations/wfgg-radar/runtime-status.task-graph.json'))
+          assert normal['mode']=='dispatch-only',normal
+          assert operate['mode']=='execute-enabled',operate
+          assert pc['repository_paths']['run_controller_operate']=='dev-hub/config/run-controller.operate.v1.json'
+          assert pc['operations']['operate']['explicit_flag_required'] is True
+          assert 'operate' in schema['properties']['operation']['enum']
+          assert graph['project']=='wfgg-radar'
+          assert graph['transition']=='OPERATE->OPERATE'
+          assert graph['tasks'][0]['permission']=='read'
+          assert graph['tasks'][0]['metadata']['radar_runtime']['action']=='status'
+          print('PROJECT_CONTROL_OPERATE_POLICY=PASS')
+          print('DEFAULT_RUN_CONTROLLER_REMAINS_DISPATCH_ONLY=PASS')
+          PY
+
+      - name: Execute synthetic read-only operation through full control chain
+        run: |
+          set -euo pipefail
+          ROOT=/tmp/chacha-operate-ci
+          RUNTIME="$ROOT/runtime"
+          mkdir -p "$ROOT" "$RUNTIME"
+
+          cat > "$ROOT/fake-radar-adapter.py" <<'PY'
+          #!/usr/bin/env python3
+          import hashlib,json,sys
+          e=json.load(sys.stdin)
+          raw=json.dumps(e,sort_keys=True,separators=(',',':')).encode()
+          print(json.dumps({
+            'schema':'chacha.dev/task-result/v1',
+            'project':e['project'],
+            'task_id':e['task']['id'],
+            'status':'OK',
+            'producer':'radar-runtime-adapter',
+            'observed_at':'2026-09-19T00:00:00+00:00',
+            'summary':'RADAR_RUNTIME_STATUS_OK',
+            'evidence':[{
+              'kind':'metric',
+              'source':'ci://fake-radar-runtime/status',
+              'digest':'sha256:'+hashlib.sha256(raw).hexdigest(),
+              'details':{
+                'radar_service':'active',
+                'radar_sentinel_timer':'active',
+                'radar_sentinel_enabled':'enabled',
+                'collector_sentinel_timer':'active'
+              }
+            }],
+            'verification':{
+              'status':'UNVERIFIED','method':'none','verifier':'none',
+              'observed_at':'2026-09-19T00:00:00+00:00',
+              'notes':'synthetic adapter contract'
+            },
+            'outputs':[{
+              'type':'artifact','id':'radar-runtime-status',
+              'status':'UNVERIFIED','reason':'independent verification pending'
+            }]
+          },separators=(',',':')))
+          PY
+          chmod 0755 "$ROOT/fake-radar-adapter.py"
+
+          python3 - "$ROOT" "$RUNTIME" <<'PY'
+          import json,sys
+          from pathlib import Path
+          root=Path(sys.argv[1]); runtime=Path(sys.argv[2])
+
+          pc=json.load(open('dev-hub/config/project-control.v1.json'))
+          pc['runtime']={
+            'state_root':str(runtime/'state'),
+            'evidence_root':str(runtime/'evidence'),
+            'plans_root':str(runtime/'plans'),
+            'health_root':str(runtime/'health'),
+            'runs_root':str(runtime/'runs'),
+            'transactions_root':str(runtime/'transactions'),
+            'locks_root':str(runtime/'locks'/'control')
+          }
+          pc['repository_paths']['provider_adapters']=str(root/'provider-adapters.json')
+          (root/'project-control.json').write_text(json.dumps(pc,indent=2)+'\n')
+
+          reg=json.load(open('dev-hub/config/provider-adapters.v1.json'))
+          a=reg['adapters']['radar-runtime-adapter']
+          assert a['status']=='ENABLED',a
+          a['executable']=str(root/'fake-radar-adapter.py')
+          (root/'provider-adapters.json').write_text(json.dumps(reg,indent=2)+'\n')
+
+          health={
+            'schema':'chacha.dev/provider-health-snapshot/v1',
+            'observed_at':'2026-09-19T00:00:00+00:00',
+            'providers':{
+              'radar-vps-runtime':{
+                'state':'HEALTHY',
+                'source':'ci://health',
+                'checked_at':'2026-09-19T00:00:00+00:00'
+              }
+            }
+          }
+          hp=runtime/'health'/'wfgg-radar'/'providers.json'
+          hp.parent.mkdir(parents=True,exist_ok=True)
+          hp.write_text(json.dumps(health,indent=2)+'\n')
+
+          initial={'lifecycle':{'stage':'OPERATE'}}
+          (root/'initial.json').write_text(json.dumps(initial)+'\n')
+          PY
+
+          python3 dev-hub/bin/control-plane-store.py             --policy dev-hub/config/control-plane-state.v1.json             --root "$RUNTIME/state"             init --project wfgg-radar --actor ci-project-control-operate             --initial "$ROOT/initial.json"
+
+          python3 dev-hub/bin/evidence-collector.py init             --project wfgg-radar             --ledger "$RUNTIME/evidence/wfgg-radar/ledger.json"
+
+          python3 dev-hub/bin/project-control-cli.py             --repo-root "$GITHUB_WORKSPACE"             --policy "$ROOT/project-control.json"             --json operate             --project wfgg-radar             --graph "$GITHUB_WORKSPACE/dev-hub/operations/wfgg-radar/runtime-status.task-graph.json"             --execute > "$ROOT/operate.json"
+
+          python3 - "$ROOT/operate.json" <<'PY'
+          import json,sys
+          from pathlib import Path
+          x=json.load(open(sys.argv[1]))
+          assert x['schema']=='chacha.dev/project-control-response/v1',x
+          assert x['operation']=='operate',x
+          assert x['status']=='OK',x
+          d=x['details']
+          assert d['current_stage']=='OPERATE',d
+          assert d['execution_mode']=='execute',d
+          rr=Path(d['RUN_RECORD'])
+          assert rr.is_file(),rr
+          record=json.load(open(rr))
+          assert record['mode']=='execute',record
+          assert record['summary']['succeeded']==1,record
+          task=record['waves'][0]['tasks'][0]
+          assert task['status']=='SUCCEEDED',task
+          result=json.load(open(task['task_result']))
+          assert result['producer']=='radar-runtime-adapter',result
+          assert result['verification']['status']=='UNVERIFIED',result
+          print('PROJECT_CONTROL_TO_SCHEDULER=PASS')
+          print('SCHEDULER_TO_RUN_CONTROLLER=PASS')
+          print('RUN_CONTROLLER_TO_RADAR_ADAPTER=PASS')
+          print('RADAR_ADAPTER_RESULT_UNVERIFIED=PASS')
+          print('PROJECT_CONTROL_OPERATE_E2E=PASS')
+          PY
+
+      - name: Assert stage and permission fail-closed behavior
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import ast
+          src=open('dev-hub/bin/project-control.py',encoding='utf-8').read()
+          assert 'OPERATE_TRANSITION_MISMATCH' in src
+          assert 'STAGE_PERMISSION_NOT_ALLOWED' in src
+          assert 'run_controller_operate' in src
+          assert 'execution_scheduler' in src
+          assert 'provider_adapters' in src
+          print('PROJECT_CONTROL_OPERATE_FAIL_CLOSED=PASS')
+          PY
