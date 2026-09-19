@@ -1,0 +1,40 @@
+{
+  "schema": "chacha.dev/project-intent/v1",
+  "project": "wfgg-radar",
+  "title": "WfGg Radar operational discovery and controlled runtime evolution",
+  "problem": "Maintain reliable WfGg Radar server discovery while preserving already validated collection data, production safety controls, and the targeted federated discovery workflow.",
+  "goals": [
+    "Continue discovering Last War server clusters through targeted sequential @federated:<serverId> scans.",
+    "Preserve validated Collector history and avoid repeating already acquired server scans.",
+    "Use ChaCha DEV Project Control, Scheduler, Run Controller and registered Radar Runtime Adapter for runtime intervention.",
+    "Keep production changes bounded, approval-gated, reversible and independently observable."
+  ],
+  "non_goals": [
+    "Do not change game protocol semantics as part of the V6.19.2 catalog-budget pilot.",
+    "Do not rescan server 972.",
+    "Do not replace authoritative NAS persistence with VPS-local project storage.",
+    "Do not expose raw player data, credentials or runtime secrets."
+  ],
+  "current_change": {
+    "id": "radar-v6192-cluster-catalog-budget",
+    "purpose": "Temporarily increase only the server-cluster-catalog handler timeout from 30 seconds to 75 seconds so the existing history-backed catalog can finish and return the next recommended discovery seed.",
+    "discovery_mode": "targeted-federated-sequential",
+    "pilot_only": true,
+    "rollback_required": true
+  },
+  "acceptance_criteria": [
+    "V6.19.2 build and tests pass on a pinned Git revision.",
+    "Pilot binaries are SHA256 pinned before runtime installation.",
+    "Production-deploy permission requires explicit human approval recorded in ChaCha DEV Evidence Ledger.",
+    "Catalog probe returns HTTP 200 and a read-only catalog result, or the pilot is closed without continuing discovery.",
+    "Radar Sentinel protection is restored after the pilot window.",
+    "The production-release approval is revoked after the pilot window."
+  ],
+  "architecture_invariants": [
+    "GitHub stores code, branches, CI and release artifacts.",
+    "ChaCha DEV on ChaChaVPS is the runtime orchestrator.",
+    "ChaChaNas remains authoritative persistent storage for project data and backups.",
+    "VPS is runtime-oriented and not the authoritative durable project store.",
+    "Producer and verifier responsibilities remain separated."
+  ]
+}
