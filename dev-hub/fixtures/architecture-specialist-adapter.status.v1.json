@@ -1,0 +1,51 @@
+{
+  "schema": "chacha.dev/dispatch-envelope/v1",
+  "project": "architecture-specialist-contract-fixture",
+  "transition": "DESIGN->DESIGN",
+  "run_id": "architecture-specialist-contract-fixture",
+  "wave": 1,
+  "task": {
+    "id": "architecture-specialist:status",
+    "kind": "runtime-status",
+    "description": "Static contract fixture for Architecture Specialist Runtime.",
+    "owner_role": "sre-observability-engineer",
+    "permission": "read",
+    "outputs": [
+      {
+        "type": "artifact",
+        "id": "architecture-specialist-runtime-status"
+      }
+    ],
+    "verification": {
+      "mode": "machine",
+      "self_certification_allowed": false,
+      "required_evidence": [
+        "source",
+        "timestamp",
+        "digest"
+      ]
+    }
+  },
+  "bindings": [
+    {
+      "capability": "architecture-audit",
+      "provider": "chacha-dev-architect",
+      "adapter": "architecture-specialist-adapter",
+      "fallback_used": false,
+      "health_state": "HEALTHY"
+    }
+  ],
+  "policy_context": {
+    "resource_class": "light",
+    "requires_storage_preflight": false,
+    "human_approval_required": false,
+    "approval_id": null,
+    "timeout_seconds": 30
+  },
+  "workspace": null,
+  "metadata": {
+    "architecture_specialist": {
+      "action": "status"
+    }
+  }
+}
