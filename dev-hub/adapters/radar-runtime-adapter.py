@@ -4,8 +4,9 @@
 Narrow VPS runtime adapter for the WfGg Radar pilot lifecycle.
 
 Supported actions:
-- status            (read)
-- pilot-open        (production-deploy)
+- status                     (read)
+- cluster-quality-diagnostic (read)
+- pilot-open                 (production-deploy)
 - pilot-install     (production-deploy)
 - pilot-probe       (read)
 - pilot-close       (production-deploy)
@@ -20,6 +21,8 @@ import hashlib
 import json
 import os
 import re
+import shutil
+import sqlite3
 import subprocess
 import sys
 import tempfile
@@ -48,6 +51,8 @@ INSTALL_RE = re.compile(r"^radar-vps/install-v[0-9]+-pilot\.sh$")
 PROBE_RE = re.compile(r"^radar-vps/probe-v[0-9]+-pilot-runtime\.sh$")
 HEX64_RE = re.compile(r"^[0-9a-f]{64}$")
 ABSOLUTE_MAX_TIMEOUT = 180
+COLLECTOR_DB_DEFAULT = Path("/opt/wfgg-collector/data/collector.db")
+QUALITY_REQUIRED_COLUMNS = {"id", "status", "error", "query"}
 
 
 def now_iso() -> str:
@@ -154,6 +159,7 @@ def validate_request(request: dict[str, Any]) -> tuple[dict[str, Any] | None, st
     permission = str(task.get("permission") or "")
     expected_permission = {
         "status": "read",
+        "cluster-quality-diagnostic": "read",
         "pilot-open": "production-deploy",
         "pilot-install": "production-deploy",
         "pilot-probe": "read",
@@ -252,6 +258,99 @@ def do_status(request: dict[str, Any]) -> int:
     return emit(result(request, "OK", "RADAR_RUNTIME_STATUS_OK", evidence_snapshot("status", snap), [{
         "type": "artifact", "id": "radar-runtime-status", "status": "UNVERIFIED",
         "reason": "Observed locally; independent verification required.",
+    }]))
+
+
+def collector_db_path() -> Path:
+    raw = str(os.environ.get("WFGG_COLLECTOR_DB") or "").strip()
+    return Path(raw) if raw else COLLECTOR_DB_DEFAULT
+
+
+def cluster_quality_snapshot() -> dict[str, Any]:
+    db_path = collector_db_path()
+    snap: dict[str, Any] = {
+        "db_path": str(db_path),
+        "db_path_source": "environment" if str(os.environ.get("WFGG_COLLECTOR_DB") or "").strip() else "default",
+        "db_exists": db_path.is_file(),
+        "db_readable": os.access(db_path, os.R_OK) if db_path.exists() else False,
+        "python3_path": shutil.which("python3"),
+        "cycles_table_present": False,
+        "cycles_columns": [],
+        "required_columns": sorted(QUALITY_REQUIRED_COLUMNS),
+        "missing_columns": sorted(QUALITY_REQUIRED_COLUMNS),
+        "cycle_count": 0,
+        "status_counts": {},
+        "cycles_with_error": 0,
+        "federated_cycles": 0,
+        "quality_gate_ready": False,
+        "failure_class": None,
+    }
+    if not snap["db_exists"]:
+        snap["failure_class"] = "COLLECTOR_DB_NOT_FOUND"
+        return snap
+    if not snap["db_readable"]:
+        snap["failure_class"] = "COLLECTOR_DB_NOT_READABLE"
+        return snap
+    if not snap["python3_path"]:
+        snap["failure_class"] = "COLLECTOR_QUALITY_PYTHON3_MISSING"
+        return snap
+
+    try:
+        uri = "file:" + str(db_path) + "?mode=ro"
+        conn = sqlite3.connect(uri, uri=True)
+        try:
+            tables = {str(r[0]) for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+            snap["cycles_table_present"] = "cycles" in tables
+            if "cycles" not in tables:
+                snap["failure_class"] = "CYCLES_TABLE_MISSING"
+                return snap
+            columns = [str(r[1]) for r in conn.execute("PRAGMA table_info(cycles)")]
+            snap["cycles_columns"] = sorted(columns)
+            missing = sorted(QUALITY_REQUIRED_COLUMNS.difference(columns))
+            snap["missing_columns"] = missing
+            if missing:
+                snap["failure_class"] = "CYCLES_REQUIRED_COLUMNS_MISSING"
+                return snap
+
+            snap["cycle_count"] = int(conn.execute("SELECT COUNT(*) FROM cycles").fetchone()[0])
+            snap["status_counts"] = {
+                str(status or ""): int(count)
+                for status, count in conn.execute(
+                    "SELECT COALESCE(status,''), COUNT(*) FROM cycles GROUP BY COALESCE(status,'') ORDER BY 1"
+                )
+            }
+            snap["cycles_with_error"] = int(
+                conn.execute("SELECT COUNT(*) FROM cycles WHERE TRIM(COALESCE(error,'')) <> ''").fetchone()[0]
+            )
+            snap["federated_cycles"] = int(
+                conn.execute(
+                    "SELECT COUNT(*) FROM cycles WHERE LOWER(TRIM(COALESCE(query,''))) LIKE '@federated:%'"
+                ).fetchone()[0]
+            )
+        finally:
+            conn.close()
+    except sqlite3.Error as exc:
+        snap["failure_class"] = "SQLITE_READ_FAILED"
+        snap["sqlite_error_class"] = type(exc).__name__
+        return snap
+
+    snap["quality_gate_ready"] = True
+    return snap
+
+
+def do_cluster_quality_diagnostic(request: dict[str, Any]) -> int:
+    snap = cluster_quality_snapshot()
+    raw = json.dumps(snap, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    return emit(result(request, "OK", "RADAR_CLUSTER_QUALITY_DIAGNOSTIC_OK", [{
+        "kind": "diagnostic",
+        "source": "vps://localhost/wfgg-collector/cycle-quality-v617",
+        "digest": sha256_bytes(raw),
+        "details": snap,
+    }], [{
+        "type": "artifact",
+        "id": "radar-cluster-quality-diagnostic",
+        "status": "UNVERIFIED",
+        "reason": "Read-only Collector schema/quality-gate diagnostic; independent verification required.",
     }]))
 
 
@@ -390,6 +489,8 @@ def main() -> int:
     try:
         if action == "status":
             return do_status(request)
+        if action == "cluster-quality-diagnostic":
+            return do_cluster_quality_diagnostic(request)
         if action == "pilot-open":
             return do_open(request)
         if action == "pilot-install":
