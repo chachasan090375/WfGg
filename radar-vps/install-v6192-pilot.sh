@@ -49,8 +49,6 @@ for f in SHA256SUMS PILOT_INFO.txt radar-connector radar-native-template; do
 done
 (cd "$TMP" && sha256sum -c SHA256SUMS) >/dev/null || fail CHECKSUM
 
-grep -aFq 'WFGG_RADAR_CLUSTER_CATALOG_BUDGET_V6192' "$TMP/radar-connector" || fail CATALOG_BUDGET_MARKER_MISSING
-
 EXPECTED_CONNECTOR="$(awk '$2=="radar-connector"{print $1}' "$TMP/SHA256SUMS" | head -1)"
 EXPECTED_NATIVE="$(awk '$2=="radar-native-template"{print $1}' "$TMP/SHA256SUMS" | head -1)"
 [[ -n "$EXPECTED_CONNECTOR" && -n "$EXPECTED_NATIVE" ]] || fail MANIFEST
