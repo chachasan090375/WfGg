@@ -64,6 +64,17 @@ class RadarRuntimeAdapterContract(unittest.TestCase):
         self.assertIsNone(err)
         self.assertEqual(radar["action"], "cluster-quality-diagnostic")
 
+    def test_cluster_catalog_probe_contract(self):
+        req = envelope("cluster-catalog-probe", "read")
+        radar, err = mod.validate_request(req)
+        self.assertIsNone(err)
+        self.assertEqual(radar["action"], "cluster-catalog-probe")
+
+    def test_radar_signature_is_stable(self):
+        got = mod.radar_signature("GET", "/x", "1", "n", b"", "s" * 32)
+        self.assertEqual(len(got), 64)
+        self.assertRegex(got, r"^[0-9a-f]{64}$")
+
     def test_write_action_requires_production_deploy_permission(self):
         req = envelope("pilot-open", "read")
         _radar, err = mod.validate_request(req)
