@@ -88,9 +88,12 @@ jobs:
           grep -Fq 'WFGG_RADAR_SEED_SCOUT_WORKER_V6193' /tmp/wfgg-radar/src/worker.js
           grep -Fq '/api/radar/seed-scout/start' /tmp/wfgg-radar/src/worker.js
           grep -Fq '/api/radar/seed-scout/status' /tmp/wfgg-radar/src/worker.js
+          grep -Fq 'SEED_SCOUT_OFFSET_INVALID' /tmp/wfgg-radar/src/worker.js
           grep -Fq 'WFGG_RADAR_SEED_SCOUT_UI_V6193' /tmp/wfgg-radar/public/live-radar.html
           grep -Fq 'DÉCOUVRIR LA PROCHAINE GRAPPE' /tmp/wfgg-radar/public/live-radar.html
           grep -Fq "\$('q').value=String(seed.command)" /tmp/wfgg-radar/public/live-radar.html
+          grep -Fq 'WFGG_RADAR_SEED_SCOUT_OFFSET_KEY' /tmp/wfgg-radar/public/live-radar.html
+          grep -Fq 'job.nextOffset' /tmp/wfgg-radar/public/live-radar.html
           ! grep -Fq 'runCollectorSearch(seed.command)' /tmp/wfgg-radar/public/live-radar.html
           echo RADAR_V6193_WORKER_UI=PASS
 
@@ -103,6 +106,8 @@ jobs:
           grep -Fq 'CollectorMutation:   false' "$S"
           grep -Fq 'CyclesCreated:       0' "$S"
           grep -Fq 'ProfilesEnriched:    0' "$S"
+          grep -Fq 'seedScoutCandidateWindowV6193' "$S"
+          grep -Fq 'NextOffset:' "$S"
           ! grep -Fq 'collectorStartCycle(' "$S"
           ! grep -Fq 'collectorIngest(' "$S"
           ! grep -Fq 'collectorFinishCycle(' "$S"
