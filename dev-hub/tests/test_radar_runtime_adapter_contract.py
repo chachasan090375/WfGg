@@ -1,6 +1,9 @@
 import importlib.util
 import json
+import os
 import pathlib
+import sqlite3
+import tempfile
 import unittest
 from unittest import mock
 
@@ -54,6 +57,12 @@ class RadarRuntimeAdapterContract(unittest.TestCase):
         radar, err = mod.validate_request(req)
         self.assertIsNone(err)
         self.assertEqual(radar["action"], "status")
+
+    def test_cluster_quality_diagnostic_contract(self):
+        req = envelope("cluster-quality-diagnostic", "read")
+        radar, err = mod.validate_request(req)
+        self.assertIsNone(err)
+        self.assertEqual(radar["action"], "cluster-quality-diagnostic")
 
     def test_write_action_requires_production_deploy_permission(self):
         req = envelope("pilot-open", "read")
@@ -111,6 +120,40 @@ class RadarRuntimeAdapterContract(unittest.TestCase):
         payload = mod.result(req, "OK", "RADAR_RUNTIME_STATUS_OK")
         self.assertEqual(payload["verification"]["status"], "UNVERIFIED")
         self.assertEqual(payload["producer"], "radar-runtime-adapter")
+
+    def test_cluster_quality_snapshot_ready(self):
+        with tempfile.TemporaryDirectory() as td:
+            db = pathlib.Path(td) / "collector.db"
+            conn = sqlite3.connect(db)
+            try:
+                conn.execute("CREATE TABLE cycles (id INTEGER PRIMARY KEY, status TEXT, error TEXT, query TEXT)")
+                conn.execute("INSERT INTO cycles(status,error,query) VALUES ('SUCCESS','','@federated:972')")
+                conn.commit()
+            finally:
+                conn.close()
+            with mock.patch.dict(os.environ, {"WFGG_COLLECTOR_DB": str(db)}, clear=False):
+                snap = mod.cluster_quality_snapshot()
+            self.assertTrue(snap["quality_gate_ready"])
+            self.assertTrue(snap["cycles_table_present"])
+            self.assertEqual(snap["missing_columns"], [])
+            self.assertEqual(snap["cycle_count"], 1)
+            self.assertEqual(snap["federated_cycles"], 1)
+
+    def test_cluster_quality_snapshot_missing_columns(self):
+        with tempfile.TemporaryDirectory() as td:
+            db = pathlib.Path(td) / "collector.db"
+            conn = sqlite3.connect(db)
+            try:
+                conn.execute("CREATE TABLE cycles (id INTEGER PRIMARY KEY, status TEXT)")
+                conn.commit()
+            finally:
+                conn.close()
+            with mock.patch.dict(os.environ, {"WFGG_COLLECTOR_DB": str(db)}, clear=False):
+                snap = mod.cluster_quality_snapshot()
+            self.assertFalse(snap["quality_gate_ready"])
+            self.assertEqual(snap["failure_class"], "CYCLES_REQUIRED_COLUMNS_MISSING")
+            self.assertIn("error", snap["missing_columns"])
+            self.assertIn("query", snap["missing_columns"])
 
     def test_no_shell_true_in_source(self):
         source = ADAPTER.read_text(encoding="utf-8")
