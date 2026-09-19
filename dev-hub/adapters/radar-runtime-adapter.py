@@ -7,6 +7,7 @@ Supported actions:
 - status                     (read)
 - cluster-quality-diagnostic (read)
 - cluster-catalog-probe      (read)
+- history-performance-diagnostic (read)
 - pilot-open                 (production-deploy)
 - pilot-install     (production-deploy)
 - pilot-probe       (read)
@@ -164,6 +165,7 @@ def validate_request(request: dict[str, Any]) -> tuple[dict[str, Any] | None, st
         "status": "read",
         "cluster-quality-diagnostic": "read",
         "cluster-catalog-probe": "read",
+        "history-performance-diagnostic": "read",
         "pilot-open": "production-deploy",
         "pilot-install": "production-deploy",
         "pilot-probe": "read",
@@ -459,6 +461,135 @@ def do_cluster_catalog_probe(request: dict[str, Any]) -> int:
     }]))
 
 
+def history_performance_snapshot() -> dict[str, Any]:
+    db_path = collector_db_path()
+    started = time.monotonic()
+    snap: dict[str, Any] = {
+        "db_exists": db_path.is_file(),
+        "db_readable": os.access(db_path, os.R_OK) if db_path.exists() else False,
+        "required_tables_present": False,
+        "cycle_count": 0,
+        "seen_rows": 0,
+        "hash_matched": 0,
+        "hash_mismatched": 0,
+        "unresolved": 0,
+        "elapsed_ms": None,
+        "slowest_cycles": [],
+        "indexes": {},
+        "failure_class": None,
+    }
+    if not snap["db_exists"]:
+        snap["failure_class"] = "COLLECTOR_DB_NOT_FOUND"
+        return snap
+    if not snap["db_readable"]:
+        snap["failure_class"] = "COLLECTOR_DB_NOT_READABLE"
+        return snap
+
+    required = {"cycle_seen", "cycle_baseline", "cycle_changes"}
+    try:
+        conn = sqlite3.connect("file:" + str(db_path) + "?mode=ro", uri=True)
+        conn.row_factory = sqlite3.Row
+        try:
+            tables = {str(r[0]) for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+            snap["required_tables_present"] = required.issubset(tables)
+            if not snap["required_tables_present"]:
+                snap["failure_class"] = "HISTORICAL_SCHEMA_MISSING"
+                return snap
+
+            for table in sorted(required):
+                idxs = []
+                for row in conn.execute(f"PRAGMA index_list({table})"):
+                    idx_name = str(row[1])
+                    cols = [str(x[2]) for x in conn.execute(f"PRAGMA index_info({idx_name})")]
+                    idxs.append({"name": idx_name, "columns": cols})
+                snap["indexes"][table] = idxs
+
+            cycle_ids = [int(r[0]) for r in conn.execute(
+                "SELECT DISTINCT cycle_id FROM cycle_seen ORDER BY cycle_id"
+            )]
+            snap["cycle_count"] = len(cycle_ids)
+            timings = []
+            for cid in cycle_ids:
+                cstart = time.monotonic()
+                baseline = {
+                    str(r["game_uid"]): str(r["state_json"] or "")
+                    for r in conn.execute(
+                        "SELECT game_uid,state_json FROM cycle_baseline WHERE cycle_id=?", (cid,)
+                    )
+                }
+                changes: dict[str, str] = {}
+                for r in conn.execute(
+                    "SELECT game_uid,after_json FROM cycle_changes WHERE cycle_id=? ORDER BY id", (cid,)
+                ):
+                    if r["after_json"]:
+                        changes[str(r["game_uid"])] = str(r["after_json"])
+
+                seen = matched = mismatched = unresolved = 0
+                for r in conn.execute(
+                    "SELECT game_uid,state_hash FROM cycle_seen WHERE cycle_id=?", (cid,)
+                ):
+                    seen += 1
+                    uid = str(r["game_uid"])
+                    expected = str(r["state_hash"] or "").strip().lower()
+                    raw = changes.get(uid) or baseline.get(uid) or ""
+                    if not raw or not expected:
+                        unresolved += 1
+                        continue
+                    actual = hashlib.sha256(raw.encode("utf-8")).hexdigest()
+                    if actual != expected:
+                        mismatched += 1
+                        continue
+                    try:
+                        obj = json.loads(raw)
+                    except Exception:
+                        unresolved += 1
+                        continue
+                    sid = obj.get("server_id") if isinstance(obj, dict) else None
+                    if sid is None or not str(sid).strip():
+                        unresolved += 1
+                        continue
+                    matched += 1
+
+                snap["seen_rows"] += seen
+                snap["hash_matched"] += matched
+                snap["hash_mismatched"] += mismatched
+                snap["unresolved"] += unresolved
+                timings.append({
+                    "cycle_id": cid,
+                    "elapsed_ms": int(round((time.monotonic() - cstart) * 1000)),
+                    "seen_rows": seen,
+                })
+        finally:
+            conn.close()
+    except sqlite3.Error as exc:
+        snap["failure_class"] = "SQLITE_READ_FAILED"
+        snap["sqlite_error_class"] = type(exc).__name__
+        return snap
+
+    snap["elapsed_ms"] = int(round((time.monotonic() - started) * 1000))
+    snap["slowest_cycles"] = sorted(
+        timings, key=lambda x: (x["elapsed_ms"], x["seen_rows"]), reverse=True
+    )[:8]
+    snap["exceeds_catalog_budget_30s"] = bool((snap["elapsed_ms"] or 0) >= 30000)
+    return snap
+
+
+def do_history_performance_diagnostic(request: dict[str, Any]) -> int:
+    snap = history_performance_snapshot()
+    raw = json.dumps(snap, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    return emit(result(request, "OK", "RADAR_HISTORY_PERFORMANCE_DIAGNOSTIC_OK", [{
+        "kind": "diagnostic",
+        "source": "vps://localhost/wfgg-collector/server-cycle-history-v614",
+        "digest": sha256_bytes(raw),
+        "details": snap,
+    }], [{
+        "type": "artifact",
+        "id": "radar-history-performance-diagnostic",
+        "status": "UNVERIFIED",
+        "reason": "Read-only reconstruction timing with aggregate-only output; independent verification required.",
+    }]))
+
+
 def do_open(request: dict[str, Any]) -> int:
     approval_error = approval_required(request)
     if approval_error:
@@ -598,6 +729,8 @@ def main() -> int:
             return do_cluster_quality_diagnostic(request)
         if action == "cluster-catalog-probe":
             return do_cluster_catalog_probe(request)
+        if action == "history-performance-diagnostic":
+            return do_history_performance_diagnostic(request)
         if action == "pilot-open":
             return do_open(request)
         if action == "pilot-install":
