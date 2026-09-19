@@ -144,10 +144,14 @@ def infer_domains(req: dict[str, Any], manifest: dict[str, Any], policy: dict[st
     reasons: dict[str, list[str]] = {d: ["explicit product requirement domain"] for d in explicit}
     text = requirement_text(req)
 
-    for domain, words in KEYWORDS.items():
-        hits = sorted({w for w in words if w in text})
-        if hits:
-            reasons.setdefault(domain, []).append("keyword evidence: " + ", ".join(hits[:8]))
+    # Explicit domains are authoritative when the Product Requirement has already
+    # been normalized by ChaCha Dev Architect. Keyword routing is only the
+    # fallback for older/less-structured requirements.
+    if not explicit:
+        for domain, words in KEYWORDS.items():
+            hits = sorted({w for w in words if w in text})
+            if hits:
+                reasons.setdefault(domain, []).append("keyword evidence: " + ", ".join(hits[:8]))
 
     # A functional product change always needs domain normalization, tests and ADR traceability.
     reasons.setdefault("product-domain", []).append("mandatory product/domain normalization")
@@ -164,7 +168,7 @@ def infer_domains(req: dict[str, Any], manifest: dict[str, Any], policy: dict[st
         path = str(comp.get("path") or "")
         ctype = str(comp.get("type") or "")
         named = bool(cid and cid.lower() in text) or bool(path and path.lower() in text)
-        if named:
+        if named and not explicit:
             for domain in component_domains.get(ctype) or []:
                 reasons.setdefault(str(domain), []).append(f"affected component named: {cid}")
 
