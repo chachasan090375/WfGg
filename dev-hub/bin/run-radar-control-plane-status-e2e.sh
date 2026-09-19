@@ -108,14 +108,28 @@ PY
 
 PC=(python3 dev-hub/bin/project-control-cli.py --repo-root "$REPO" --policy dev-hub/config/project-control.v1.json --json)
 
+set +e
 "${PC[@]}" status --project "$PROJECT" > "$WORK/status.json"
-python3 - "$WORK/status.json" <<'PY'
+STATUS_RC=$?
+set -e
+python3 - "$WORK/status.json" "$STATUS_RC" <<'PY'
 import json,sys
 x=json.load(open(sys.argv[1],encoding='utf-8'))
+rc=int(sys.argv[2])
 assert x['project']=='wfgg-radar',x
-assert x['status'] in {'READY','OK','COMPLETE','BLOCKED','AWAITING_APPROVAL','DEGRADED','UNKNOWN'},x
-print('PROJECT_CONTROL_STATUS=PASS')
-print('PROJECT_CONTROL_STATUS_VALUE='+str(x['status']))
+status=str(x.get('status') or '')
+allowed={'READY','OK','COMPLETE','BLOCKED','AWAITING_APPROVAL','DEGRADED','UNKNOWN'}
+assert status in allowed,x
+if status in {'READY','OK','COMPLETE'}:
+    assert rc==0,(rc,x)
+else:
+    assert rc==2,(rc,x)
+print('PROJECT_CONTROL_STATUS_OBSERVED=PASS')
+print('PROJECT_CONTROL_STATUS_VALUE='+status)
+print('PROJECT_CONTROL_STATUS_RC='+str(rc))
+blockers=x.get('blockers') or []
+print('PROJECT_CONTROL_STATUS_BLOCKERS='+(','.join(blockers) if blockers else 'NONE'))
+print('PROJECT_CONTROL_STATUS_NONREADY_ALLOWED_FOR_READONLY_DIAGNOSTIC=YES')
 PY
 
 "${PC[@]}" verify-state --project "$PROJECT" > "$WORK/verify-state.json"

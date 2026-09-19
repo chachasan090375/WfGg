@@ -1,0 +1,172 @@
+name: DEV HUB V5 Radar control-plane status E2E
+
+on:
+  push:
+    branches:
+      - dev-hub-v5-radar-control-plane-status-e2e-fix
+    paths:
+      - 'dev-hub/bin/run-radar-control-plane-status-e2e.sh'
+      - 'dev-hub/bin/project-control-cli.py'
+      - 'dev-hub/bin/project-control.py'
+      - 'dev-hub/bin/execution-scheduler.py'
+      - 'dev-hub/bin/run-controller.py'
+      - 'dev-hub/bin/external-runtime-dispatch.py'
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - 'dev-hub/config/capability-registry.v1.json'
+      - '.github/workflows/dev-hub-v5-radar-control-plane-status-e2e-fix.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Syntax and static routing
+        run: |
+          set -euo pipefail
+          bash -n dev-hub/bin/run-radar-control-plane-status-e2e.sh
+          python3 -m py_compile             dev-hub/bin/project-control-cli.py             dev-hub/bin/project-control.py             dev-hub/bin/execution-scheduler.py             dev-hub/bin/run-controller.py             dev-hub/bin/external-runtime-dispatch.py
+
+          grep -Fq 'schedule --project "$PROJECT"' dev-hub/bin/run-radar-control-plane-status-e2e.sh
+          grep -Fq 'prepare-run' dev-hub/bin/run-radar-control-plane-status-e2e.sh
+          grep -Fq 'dispatch' dev-hub/bin/run-radar-control-plane-status-e2e.sh
+          grep -Fq -- '--execute' dev-hub/bin/run-radar-control-plane-status-e2e.sh
+          grep -Fq 'verify-result' dev-hub/bin/run-radar-control-plane-status-e2e.sh
+          grep -Fq 'RADAR_CONTROL_PLANE_PATH=PROJECT_CONTROL>SCHEDULER>RUN_CONTROLLER>RADAR_RUNTIME_ADAPTER' dev-hub/bin/run-radar-control-plane-status-e2e.sh
+          grep -Fq 'PROJECT_CONTROL_STATUS_NONREADY_ALLOWED_FOR_READONLY_DIAGNOSTIC=YES' dev-hub/bin/run-radar-control-plane-status-e2e.sh
+          grep -Fq 'STATUS_RC=$?' dev-hub/bin/run-radar-control-plane-status-e2e.sh
+          echo RADAR_PROJECT_STATUS_EXIT_HANDLING=PASS
+          echo RADAR_CONTROL_PLANE_STATIC_ROUTING=PASS
+
+      - name: Assert read-only first run
+        run: |
+          set -euo pipefail
+          grep -Fq "'permission':'read'" dev-hub/bin/run-radar-control-plane-status-e2e.sh
+          grep -Fq "'action':'status'" dev-hub/bin/run-radar-control-plane-status-e2e.sh
+          grep -Fq 'RADAR_PRODUCTION_MUTATION=NO' dev-hub/bin/run-radar-control-plane-status-e2e.sh
+          ! grep -Fq "'action':'pilot-open'" dev-hub/bin/run-radar-control-plane-status-e2e.sh
+          ! grep -Fq "'action':'pilot-install'" dev-hub/bin/run-radar-control-plane-status-e2e.sh
+          ! grep -Fq 'systemctl stop wfgg-radar-sentinel' dev-hub/bin/run-radar-control-plane-status-e2e.sh
+          ! grep -Fq 'systemctl restart wfgg-radar' dev-hub/bin/run-radar-control-plane-status-e2e.sh
+          echo RADAR_CONTROL_PLANE_FIRST_RUN_READONLY=PASS
+
+      - name: Validate ENABLED registry binding
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          a=json.load(open('dev-hub/config/provider-adapters.v1.json'))['adapters']['radar-runtime-adapter']
+          assert a['status']=='ENABLED',a
+          assert a['executable']=='/opt/chacha-dev/adapters/radar-runtime/current/radar-runtime-adapter',a
+          assert set(a['supports'])=={'read','production-deploy'},a
+          c=json.load(open('dev-hub/config/capability-registry.v1.json'))['capabilities']['radar-runtime-inspect']
+          assert c['providers'][0]['id']=='radar-vps-runtime',c
+          print('RADAR_CONTROL_PLANE_ENABLED_BINDING=PASS')
+          PY
+
+      - name: Simulate Scheduler and Run Controller path
+        run: |
+          set -euo pipefail
+          ROOT=/tmp/radar-cp-ci
+          mkdir -p "$ROOT/runs"
+          cat > "$ROOT/graph.json" <<'JSON'
+          {
+            "schema":"chacha.dev/task-graph/v1",
+            "project":"wfgg-radar",
+            "transition":"CI->CONTROL_DIAGNOSTIC",
+            "generated_at":"2026-09-18T00:00:00Z",
+            "tasks":[{
+              "id":"radar-runtime:status",
+              "kind":"health",
+              "description":"CI control-plane routing probe",
+              "owner_role":"sre-observability",
+              "capabilities":["radar-runtime-inspect"],
+              "permission":"read",
+              "depends_on":[],
+              "outputs":[{"type":"artifact","id":"radar-runtime-status"}],
+              "verification":{"mode":"machine","self_certification_allowed":false,"required_evidence":["source","timestamp","digest"]},
+              "blocking":true,
+              "parallel_group":"radar-runtime-diagnostic",
+              "metadata":{"radar_runtime":{"action":"status"}}
+            }]
+          }
+          JSON
+
+          cat > "$ROOT/health.json" <<'JSON'
+          {
+            "schema":"chacha.dev/provider-health-snapshot/v1",
+            "observed_at":"2026-09-18T00:00:00Z",
+            "providers":{
+              "radar-vps-runtime":{"state":"HEALTHY","source":"ci","checked_at":"2026-09-18T00:00:00Z"}
+            }
+          }
+          JSON
+
+          python3 dev-hub/bin/execution-scheduler.py             --graph "$ROOT/graph.json"             --registry dev-hub/config/capability-registry.v1.json             --health "$ROOT/health.json"             --policy dev-hub/config/execution-scheduler.v1.json             --output "$ROOT/plan.json"
+
+          cat > "$ROOT/fake-adapter" <<'PY'
+          #!/usr/bin/env python3
+          import hashlib,json,sys
+          x=json.load(sys.stdin)
+          details={"radar_service":"active","radar_sentinel_timer":"active","radar_sentinel_enabled":"enabled","collector_sentinel_timer":"active"}
+          raw=json.dumps(details,sort_keys=True,separators=(',',':')).encode()
+          print(json.dumps({
+            "schema":"chacha.dev/task-result/v1",
+            "project":x["project"],
+            "task_id":x["task"]["id"],
+            "status":"OK",
+            "producer":"radar-runtime-adapter",
+            "observed_at":"2026-09-18T00:00:01Z",
+            "summary":"RADAR_RUNTIME_STATUS_OK",
+            "evidence":[{"kind":"metric","source":"vps://localhost/wfgg-radar/status","digest":"sha256:"+hashlib.sha256(raw).hexdigest(),"details":details}],
+            "verification":{"status":"UNVERIFIED","method":"none","verifier":"none","observed_at":"2026-09-18T00:00:01Z","notes":"ci"},
+            "outputs":[{"type":"artifact","id":"radar-runtime-status","status":"UNVERIFIED","reason":"ci"}]
+          }))
+          PY
+          chmod +x "$ROOT/fake-adapter"
+
+          python3 - "$ROOT/adapters.json" "$ROOT/fake-adapter" <<'PY'
+          import json,sys
+          out,exe=sys.argv[1:3]
+          x=json.load(open('dev-hub/config/provider-adapters.v1.json'))
+          x['adapters']['radar-runtime-adapter']['executable']=exe
+          open(out,'w').write(json.dumps(x,indent=2)+'\n')
+          PY
+
+          python3 dev-hub/bin/evidence-collector.py init --project wfgg-radar --ledger "$ROOT/ledger.json"
+
+          python3 dev-hub/bin/run-controller.py             --plan "$ROOT/plan.json"             --graph "$ROOT/graph.json"             --ledger "$ROOT/ledger.json"             --policy dev-hub/config/run-controller.v1.json             --adapters "$ROOT/adapters.json"             --output-dir "$ROOT/runs"             --execute > "$ROOT/run.stdout"
+
+          python3 - "$ROOT/run.stdout" <<'PY'
+          import json,sys,re
+          s=open(sys.argv[1]).read()
+          m=re.search(r'^RUN_RECORD=(.+)$',s,re.M)
+          assert m,s
+          path=m.group(1)
+          r=json.load(open(path,encoding='utf-8'))
+          assert r['mode']=='execute',r
+          assert r['summary']['dispatched']==1,r
+          assert r['summary']['succeeded']==1,r
+          assert r['summary']['failed']==0,r
+          assert r['summary']['blocked']==0,r
+          t=r['waves'][0]['tasks'][0]
+          assert t['status']=='SUCCEEDED',t
+          print('RADAR_CONTROL_PLANE_CI_RUN_RECORD='+path)
+          print('RADAR_CONTROL_PLANE_CI_EXECUTION=PASS')
+          PY
+          echo RADAR_CONTROL_PLANE_SCHEDULER_RUN_CONTROLLER=PASS
+
+      - name: Assert verification remains fail-closed
+        run: |
+          set -euo pipefail
+          grep -Fq 'VERIFICATION_STATUS=NEEDS_INDEPENDENT_CHECK' dev-hub/bin/run-radar-control-plane-status-e2e.sh
+          grep -Fq 'VERIFICATION_FAIL_CLOSED=PASS' dev-hub/bin/run-radar-control-plane-status-e2e.sh
+          echo RADAR_CONTROL_PLANE_VERIFICATION_BOUNDARY=PASS
