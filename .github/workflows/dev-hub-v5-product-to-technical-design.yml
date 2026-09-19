@@ -6,6 +6,7 @@ on:
       - dev-hub-v5-product-to-technical-design
     paths:
       - 'dev-hub/bin/technical-design-router.py'
+      - 'dev-hub/bin/run-technical-design-via-project-control.sh'
       - 'dev-hub/bin/project-control-cli.py'
       - 'dev-hub/bin/project-control-api.py'
       - 'dev-hub/config/technical-design.v1.json'
@@ -233,6 +234,18 @@ jobs:
           assert x['details']['code_generation_allowed'] is False,x
           print('PROJECT_CONTROL_API_TECHNICAL_DESIGN=PASS')
           PY
+
+      - name: Validate runtime launcher remains Project Control only
+        run: |
+          set -euo pipefail
+          bash -n dev-hub/bin/run-technical-design-via-project-control.sh
+          grep -Fq 'project-control-cli.py' dev-hub/bin/run-technical-design-via-project-control.sh
+          grep -Fq 'technical-design' dev-hub/bin/run-technical-design-via-project-control.sh
+          grep -Fq 'CODE_GENERATION_ALLOWED=NO' dev-hub/bin/run-technical-design-via-project-control.sh
+          grep -Fq 'RADAR_PRODUCTION_MUTATION=NO' dev-hub/bin/run-technical-design-via-project-control.sh
+          ! grep -Fq 'systemctl' dev-hub/bin/run-technical-design-via-project-control.sh
+          ! grep -Fq 'wrangler' dev-hub/bin/run-technical-design-via-project-control.sh
+          echo TECHNICAL_DESIGN_RUNTIME_LAUNCHER=PASS
 
       - name: Assert architecture layer does not implement
         run: |
