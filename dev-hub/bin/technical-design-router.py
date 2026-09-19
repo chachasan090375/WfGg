@@ -492,6 +492,7 @@ def main() -> int:
     ap.add_argument("--policy", type=Path, default=Path("dev-hub/config/technical-design.v1.json"))
     ap.add_argument("--output", required=True, type=Path)
     ap.add_argument("--task-graph-output", required=True, type=Path)
+    ap.add_argument("--json", action="store_true")
     args = ap.parse_args()
 
     result, graph = plan(
@@ -506,17 +507,34 @@ def main() -> int:
     args.task_graph_output.write_text(json.dumps(graph, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
     roles = [x["role"] for x in result["specialist_assignments"]]
-    print("TECHNICAL_DESIGN_PLAN=PASS")
-    print("PROJECT=" + result["project"])
-    print("REQUIREMENT_ID=" + result["requirement_id"])
-    print("AFFECTED_COMPONENTS=" + ",".join(result["affected_components"]))
-    print("SPECIALIST_ROLES=" + ",".join(roles))
-    print("BACKEND_ARCHITECT=" + ("YES" if "backend-api-architect" in roles else "NO"))
-    print("DATA_ARCHITECT=" + ("YES" if "data-architect" in roles else "NO"))
-    print("CODE_GENERATION_ALLOWED=NO")
-    print("IMPLEMENTATION_BLOCKED_UNTIL_TECHNICAL_DESIGN=PASS")
-    print("TECHNICAL_DESIGN_OUTPUT=" + str(args.output))
-    print("TECHNICAL_DESIGN_TASK_GRAPH=" + str(args.task_graph_output))
+    summary = {
+        "schema": "chacha.dev/technical-design-routing-result/v1",
+        "status": "PASS",
+        "project": result["project"],
+        "requirement_id": result["requirement_id"],
+        "affected_components": result["affected_components"],
+        "specialist_roles": roles,
+        "backend_architect": "backend-api-architect" in roles,
+        "data_architect": "data-architect" in roles,
+        "code_generation_allowed": False,
+        "technical_design_output": str(args.output),
+        "technical_design_task_graph": str(args.task_graph_output),
+        "implementation_blockers": result["implementation_gate"]["blocking_reasons"],
+    }
+    if args.json:
+        print(json.dumps(summary, ensure_ascii=False, indent=2))
+    else:
+        print("TECHNICAL_DESIGN_PLAN=PASS")
+        print("PROJECT=" + result["project"])
+        print("REQUIREMENT_ID=" + result["requirement_id"])
+        print("AFFECTED_COMPONENTS=" + ",".join(result["affected_components"]))
+        print("SPECIALIST_ROLES=" + ",".join(roles))
+        print("BACKEND_ARCHITECT=" + ("YES" if "backend-api-architect" in roles else "NO"))
+        print("DATA_ARCHITECT=" + ("YES" if "data-architect" in roles else "NO"))
+        print("CODE_GENERATION_ALLOWED=NO")
+        print("IMPLEMENTATION_BLOCKED_UNTIL_TECHNICAL_DESIGN=PASS")
+        print("TECHNICAL_DESIGN_OUTPUT=" + str(args.output))
+        print("TECHNICAL_DESIGN_TASK_GRAPH=" + str(args.task_graph_output))
     return 0
 
 
