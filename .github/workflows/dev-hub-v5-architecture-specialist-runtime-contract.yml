@@ -10,6 +10,7 @@ on:
       - 'dev-hub/config/provider-adapters.v1.json'
       - 'dev-hub/config/adapter-provisioning.v1.json'
       - 'dev-hub/bin/project-control-cli.py'
+      - 'dev-hub/bin/bootstrap-architecture-specialist-runtime.sh'
       - 'dev-hub/bin/technical-design-router.py'
       - 'dev-hub/schemas/architecture-specialist-output-v1.schema.json'
       - 'dev-hub/fixtures/architecture-specialist-adapter.status.v1.json'
@@ -164,6 +165,20 @@ jobs:
           echo ARCHITECTURE_SPECIALIST_ZERO_TOOL_AGENT=PASS
           echo ARCHITECTURE_SPECIALIST_NO_PERMISSION_BYPASS=PASS
           echo ARCHITECTURE_SPECIALIST_NO_SHELL=PASS
+
+      - name: Validate runtime bootstrap safety
+        run: |
+          set -euo pipefail
+          bash -n dev-hub/bin/bootstrap-architecture-specialist-runtime.sh
+          grep -Fq 'adapter-provision.py' dev-hub/bin/bootstrap-architecture-specialist-runtime.sh
+          grep -Fq 'architecture-specialist:inference-probe' dev-hub/bin/bootstrap-architecture-specialist-runtime.sh
+          grep -Fq 'ARCHITECTURE_SPECIALIST_TOOL_ACCESS=DENIED' dev-hub/bin/bootstrap-architecture-specialist-runtime.sh
+          grep -Fq 'ARCHITECTURE_SPECIALIST_REGISTRY_MUTATION=NO' dev-hub/bin/bootstrap-architecture-specialist-runtime.sh
+          grep -Fq 'ARCHITECTURE_SPECIALIST_PRODUCTION_MUTATION=NO' dev-hub/bin/bootstrap-architecture-specialist-runtime.sh
+          ! grep -Fq 'adapter-promotion.py' dev-hub/bin/bootstrap-architecture-specialist-runtime.sh
+          ! grep -Fq 'systemctl' dev-hub/bin/bootstrap-architecture-specialist-runtime.sh
+          ! grep -Fq 'wrangler' dev-hub/bin/bootstrap-architecture-specialist-runtime.sh
+          echo ARCHITECTURE_SPECIALIST_BOOTSTRAP_STATIC_SAFETY=PASS
 
       - name: Validate provisioning contract is non-promoting
         run: |
