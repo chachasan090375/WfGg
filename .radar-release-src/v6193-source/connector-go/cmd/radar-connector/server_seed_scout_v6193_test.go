@@ -57,7 +57,7 @@ func TestSeedScoutAggregateDropsPlayerIdentity(t *testing.T) {
 func TestSeedScoutRecommendationPrefersTarget(t *testing.T) {
 	observed := []seedScoutServerCountV6193{{ServerID: "1060", Players: 25}, {ServerID: "1061", Players: 30}}
 	novel := append([]seedScoutServerCountV6193(nil), observed...)
-	got := seedScoutRecommendationV6193("1060", observed, novel, 20)
+	got := seedScoutChooseRecommendationV6193("1060", observed, novel, 20)
 	if got == nil || got.ServerID != "1060" || got.Command != "@federated:1060" {
 		t.Fatalf("got=%+v", got)
 	}
@@ -66,7 +66,7 @@ func TestSeedScoutRecommendationPrefersTarget(t *testing.T) {
 func TestSeedScoutRecommendationUsesNovelFallback(t *testing.T) {
 	observed := []seedScoutServerCountV6193{{ServerID: "990", Players: 50}, {ServerID: "1062", Players: 22}}
 	novel := []seedScoutServerCountV6193{{ServerID: "1062", Players: 22}}
-	got := seedScoutRecommendationV6193("1060", observed, novel, 20)
+	got := seedScoutChooseRecommendationV6193("1060", observed, novel, 20)
 	if got == nil || got.ServerID != "1062" || got.Reason != "novel_server_observed_in_single_region" {
 		t.Fatalf("got=%+v", got)
 	}
