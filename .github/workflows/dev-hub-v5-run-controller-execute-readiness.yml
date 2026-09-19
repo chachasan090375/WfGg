@@ -1,0 +1,367 @@
+name: DEV HUB V5 Run Controller execute readiness
+
+on:
+  push:
+    branches:
+      - dev-hub-v5-run-controller-execute-readiness
+    paths:
+      - 'dev-hub/config/run-controller-execution-activation.v1.json'
+      - 'dev-hub/config/run-controller.v1.json'
+      - 'dev-hub/bin/run-controller.py'
+      - 'dev-hub/bin/external-runtime-dispatch.py'
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - '.github/workflows/dev-hub-v5-run-controller-execute-readiness.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Validate activation policy and current lock
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          a=json.load(open('dev-hub/config/run-controller-execution-activation.v1.json'))
+          p=json.load(open('dev-hub/config/run-controller.v1.json'))
+          assert a['schema']=='chacha.dev/run-controller-execution-activation/v1',a
+          assert a['current_mode']=='dispatch-only',a
+          assert a['target_mode']=='execute-enabled',a
+          assert a['production_capable'] is True,a
+          assert a['human_approval_required'] is True,a
+          assert a['rollback']['target_mode']=='dispatch-only',a
+          assert p['mode']=='dispatch-only',p
+          print('RUN_CONTROLLER_CURRENT_MODE=dispatch-only')
+          print('RUN_CONTROLLER_TARGET_MODE=execute-enabled')
+          print('RUN_CONTROLLER_APPROVAL_REQUIRED=YES')
+          print('RUN_CONTROLLER_ROLLBACK_DEFINED=PASS')
+          PY
+
+      - name: Build execute-enabled test policy
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/rc-ready
+          python3 - <<'PY'
+          import json
+          x=json.load(open('dev-hub/config/run-controller.v1.json'))
+          x['mode']='execute-enabled'
+          open('/tmp/rc-ready/policy.json','w').write(json.dumps(x,indent=2)+'\n')
+          PY
+          python3 -m py_compile dev-hub/bin/run-controller.py dev-hub/bin/external-runtime-dispatch.py
+
+      - name: Create fake ENABLED Radar adapter and registries
+        run: |
+          set -euo pipefail
+          ROOT=/tmp/rc-ready
+          cat > "$ROOT/fake-radar-adapter" <<'PY'
+          #!/usr/bin/env python3
+          import hashlib,json,os,sys
+          env=json.load(sys.stdin)
+          marker=os.environ.get('RADAR_FAKE_MARKER')
+          if marker:
+              open(marker,'a').write(str(env['task']['permission'])+'\n')
+          details={"adapter":"fake-radar","permission":env['task']['permission']}
+          raw=json.dumps(details,sort_keys=True,separators=(',',':')).encode()
+          print(json.dumps({
+            "schema":"chacha.dev/task-result/v1",
+            "project":env["project"],
+            "task_id":env["task"]["id"],
+            "status":"OK",
+            "producer":"radar-runtime-adapter",
+            "observed_at":"2026-09-19T00:00:00Z",
+            "summary":"CI_EXECUTION_OK",
+            "evidence":[{"kind":"metric","source":"ci://radar-run-controller","digest":"sha256:"+hashlib.sha256(raw).hexdigest(),"details":details}],
+            "verification":{"status":"UNVERIFIED","method":"none","verifier":"none","observed_at":"2026-09-19T00:00:00Z","notes":"ci"},
+            "outputs":[{"type":"artifact","id":"radar-runtime-status","status":"UNVERIFIED","reason":"ci"}]
+          }))
+          PY
+          chmod +x "$ROOT/fake-radar-adapter"
+
+          python3 - <<'PY'
+          import json
+          x=json.load(open('dev-hub/config/provider-adapters.v1.json'))
+          a=x['adapters']['radar-runtime-adapter']
+          assert a['status']=='ENABLED',a
+          a['executable']='/tmp/rc-ready/fake-radar-adapter'
+          open('/tmp/rc-ready/adapters.json','w').write(json.dumps(x,indent=2)+'\n')
+          PY
+
+          python3 dev-hub/bin/evidence-collector.py init --project wfgg-radar --ledger "$ROOT/ledger.json"
+
+      - name: Read-only execution passes
+        env:
+          RADAR_FAKE_MARKER: /tmp/rc-ready/read-marker
+        run: |
+          set -euo pipefail
+          ROOT=/tmp/rc-ready
+          cat > "$ROOT/read-graph.json" <<'JSON'
+          {
+            "schema":"chacha.dev/task-graph/v1",
+            "project":"wfgg-radar",
+            "transition":"CONTROL->READ",
+            "generated_at":"2026-09-19T00:00:00Z",
+            "tasks":[{
+              "id":"radar-runtime:status",
+              "kind":"health",
+              "description":"read-only",
+              "owner_role":"sre-observability",
+              "capabilities":["radar-runtime-inspect"],
+              "permission":"read",
+              "depends_on":[],
+              "outputs":[{"type":"artifact","id":"radar-runtime-status"}],
+              "verification":{"mode":"machine","self_certification_allowed":false,"required_evidence":["source","timestamp","digest"]},
+              "blocking":true
+            }]
+          }
+          JSON
+          cat > "$ROOT/read-plan.json" <<'JSON'
+          {
+            "schema":"chacha.dev/execution-plan/v1",
+            "project":"wfgg-radar",
+            "transition":"CONTROL->READ",
+            "generated_at":"2026-09-19T00:00:00Z",
+            "waves":[{"index":1,"tasks":[{
+              "task_id":"radar-runtime:status",
+              "permission":"read",
+              "resource_class":"light",
+              "requires_storage_preflight":false,
+              "provider_bindings":[{
+                "capability":"radar-runtime-inspect",
+                "provider":"radar-vps-runtime",
+                "provider_status":"PILOT",
+                "health_state":"HEALTHY",
+                "state":"READY",
+                "fallback_used":false,
+                "reason":"ci"
+              }]
+            }]}],
+            "blocked_tasks":[],
+            "summary":{"task_count":1,"scheduled_count":1,"blocked_count":0,"wave_count":1,"failover_bindings":0}
+          }
+          JSON
+
+          python3 dev-hub/bin/run-controller.py             --plan "$ROOT/read-plan.json"             --graph "$ROOT/read-graph.json"             --ledger "$ROOT/ledger.json"             --policy "$ROOT/policy.json"             --adapters "$ROOT/adapters.json"             --output-dir "$ROOT/read-runs"             --execute > "$ROOT/read.stdout"
+
+          test -s "$ROOT/read-marker"
+          python3 - "$ROOT/read.stdout" <<'PY'
+          import json,re,sys
+          s=open(sys.argv[1]).read()
+          m=re.search(r'^RUN_RECORD=(.+)$',s,re.M); assert m,s
+          r=json.load(open(m.group(1)))
+          assert r['mode']=='execute',r
+          assert r['summary']['dispatched']==1,r
+          assert r['summary']['succeeded']==1,r
+          assert r['summary']['blocked']==0,r
+          t=r['waves'][0]['tasks'][0]
+          assert t['status']=='SUCCEEDED',t
+          print('RUN_CONTROLLER_READONLY_EXECUTION=PASS')
+          PY
+
+      - name: Production execution without approval is blocked before adapter
+        env:
+          RADAR_FAKE_MARKER: /tmp/rc-ready/prod-marker
+        run: |
+          set -euo pipefail
+          ROOT=/tmp/rc-ready
+          rm -f "$ROOT/prod-marker"
+          cat > "$ROOT/prod-graph.json" <<'JSON'
+          {
+            "schema":"chacha.dev/task-graph/v1",
+            "project":"wfgg-radar",
+            "transition":"CONTROL->PROD",
+            "generated_at":"2026-09-19T00:00:00Z",
+            "tasks":[{
+              "id":"radar-runtime:pilot-open",
+              "kind":"deployment-check",
+              "description":"production permission gate",
+              "owner_role":"platform-cloud-engineer",
+              "capabilities":["radar-pilot-control"],
+              "permission":"production-deploy",
+              "depends_on":[],
+              "outputs":[{"type":"artifact","id":"radar-pilot-window"}],
+              "verification":{"mode":"machine","self_certification_allowed":false,"required_evidence":["source","timestamp","digest"]},
+              "blocking":true
+            }]
+          }
+          JSON
+          cat > "$ROOT/prod-plan.json" <<'JSON'
+          {
+            "schema":"chacha.dev/execution-plan/v1",
+            "project":"wfgg-radar",
+            "transition":"CONTROL->PROD",
+            "generated_at":"2026-09-19T00:00:00Z",
+            "waves":[{"index":1,"tasks":[{
+              "task_id":"radar-runtime:pilot-open",
+              "permission":"production-deploy",
+              "resource_class":"light",
+              "requires_storage_preflight":false,
+              "provider_bindings":[{
+                "capability":"radar-pilot-control",
+                "provider":"radar-vps-runtime",
+                "provider_status":"PILOT",
+                "health_state":"HEALTHY",
+                "state":"READY",
+                "fallback_used":false,
+                "reason":"ci"
+              }]
+            }]}],
+            "blocked_tasks":[],
+            "summary":{"task_count":1,"scheduled_count":1,"blocked_count":0,"wave_count":1,"failover_bindings":0}
+          }
+          JSON
+
+          python3 dev-hub/bin/run-controller.py             --plan "$ROOT/prod-plan.json"             --graph "$ROOT/prod-graph.json"             --ledger "$ROOT/ledger.json"             --policy "$ROOT/policy.json"             --adapters "$ROOT/adapters.json"             --output-dir "$ROOT/prod-blocked-runs"             --execute > "$ROOT/prod-blocked.stdout"
+
+          test ! -e "$ROOT/prod-marker"
+          python3 - "$ROOT/prod-blocked.stdout" <<'PY'
+          import json,re,sys
+          s=open(sys.argv[1]).read()
+          m=re.search(r'^RUN_RECORD=(.+)$',s,re.M); assert m,s
+          r=json.load(open(m.group(1)))
+          t=r['waves'][0]['tasks'][0]
+          assert t['status']=='BLOCKED',t
+          assert 'APPROVAL_MISSING:production-release' in t['blockers'],t
+          assert r['summary']['dispatched']==0,r
+          print('RUN_CONTROLLER_PRODUCTION_NO_APPROVAL=BLOCKED')
+          print('RUN_CONTROLLER_APPROVAL_GATE=PASS')
+          PY
+
+      - name: Production execution with ledger approval passes
+        env:
+          RADAR_FAKE_MARKER: /tmp/rc-ready/prod-marker-approved
+        run: |
+          set -euo pipefail
+          ROOT=/tmp/rc-ready
+          python3 - <<'PY'
+          import json
+          p='/tmp/rc-ready/ledger.json'
+          x=json.load(open(p))
+          x.setdefault('approvals',{})['production-release']={
+            'status':'APPROVED',
+            'actor':'ci-human-fixture',
+            'observed_at':'2026-09-19T00:00:00Z'
+          }
+          open(p,'w').write(json.dumps(x,indent=2)+'\n')
+          PY
+
+          python3 dev-hub/bin/run-controller.py             --plan "$ROOT/prod-plan.json"             --graph "$ROOT/prod-graph.json"             --ledger "$ROOT/ledger.json"             --policy "$ROOT/policy.json"             --adapters "$ROOT/adapters.json"             --output-dir "$ROOT/prod-approved-runs"             --execute > "$ROOT/prod-approved.stdout"
+
+          test -s "$ROOT/prod-marker-approved"
+          python3 - "$ROOT/prod-approved.stdout" <<'PY'
+          import json,re,sys
+          s=open(sys.argv[1]).read()
+          m=re.search(r'^RUN_RECORD=(.+)$',s,re.M); assert m,s
+          r=json.load(open(m.group(1)))
+          assert r['summary']['dispatched']==1,r
+          assert r['summary']['succeeded']==1,r
+          print('RUN_CONTROLLER_PRODUCTION_WITH_APPROVAL=PASS')
+          PY
+
+      - name: Adapter ENABLED and health gates stay fail-closed
+        run: |
+          set -euo pipefail
+          ROOT=/tmp/rc-ready
+          python3 - <<'PY'
+          import json
+          x=json.load(open('/tmp/rc-ready/adapters.json'))
+          x['adapters']['radar-runtime-adapter']['status']='PILOT'
+          open('/tmp/rc-ready/adapters-pilot.json','w').write(json.dumps(x,indent=2)+'\n')
+          PY
+
+          python3 dev-hub/bin/run-controller.py             --plan "$ROOT/read-plan.json"             --graph "$ROOT/read-graph.json"             --ledger "$ROOT/ledger.json"             --policy "$ROOT/policy.json"             --adapters "$ROOT/adapters-pilot.json"             --output-dir "$ROOT/not-enabled-runs"             --execute > "$ROOT/not-enabled.stdout"
+
+          python3 - "$ROOT/not-enabled.stdout" <<'PY'
+          import json,re,sys
+          s=open(sys.argv[1]).read(); m=re.search(r'^RUN_RECORD=(.+)$',s,re.M); assert m
+          r=json.load(open(m.group(1))); t=r['waves'][0]['tasks'][0]
+          assert t['status']=='BLOCKED',t
+          assert any(x.startswith('ADAPTER_NOT_ENABLED:radar-runtime-adapter') for x in t['blockers']),t
+          print('RUN_CONTROLLER_ADAPTER_ENABLED_GATE=PASS')
+          PY
+
+          python3 - <<'PY'
+          import json
+          p='/tmp/rc-ready/read-plan.json'
+          x=json.load(open(p))
+          x['waves'][0]['tasks'][0]['provider_bindings'][0]['health_state']='DEGRADED'
+          open('/tmp/rc-ready/read-plan-degraded.json','w').write(json.dumps(x,indent=2)+'\n')
+          PY
+
+          python3 dev-hub/bin/run-controller.py             --plan "$ROOT/read-plan-degraded.json"             --graph "$ROOT/read-graph.json"             --ledger "$ROOT/ledger.json"             --policy "$ROOT/policy.json"             --adapters "$ROOT/adapters.json"             --output-dir "$ROOT/degraded-runs"             --execute > "$ROOT/degraded.stdout"
+
+          python3 - "$ROOT/degraded.stdout" <<'PY'
+          import json,re,sys
+          s=open(sys.argv[1]).read(); m=re.search(r'^RUN_RECORD=(.+)$',s,re.M); assert m
+          r=json.load(open(m.group(1))); t=r['waves'][0]['tasks'][0]
+          assert t['status']=='BLOCKED',t
+          assert 'PROVIDER_HEALTH_NOT_HEALTHY:radar-vps-runtime:DEGRADED' in t['blockers'],t
+          print('RUN_CONTROLLER_PROVIDER_HEALTH_GATE=PASS')
+          PY
+
+      - name: External runtime binding gate remains required
+        run: |
+          set -euo pipefail
+          ROOT=/tmp/rc-ready
+          cat > "$ROOT/external-plan.json" <<'JSON'
+          {
+            "schema":"chacha.dev/execution-plan/v1",
+            "project":"wfgg-radar",
+            "transition":"CONTROL->EXTERNAL",
+            "generated_at":"2026-09-19T00:00:00Z",
+            "waves":[{"index":1,"tasks":[{
+              "task_id":"external-read",
+              "permission":"read",
+              "provider_bindings":[{
+                "capability":"browser-e2e",
+                "provider":"playwright-mcp",
+                "provider_status":"ADOPT",
+                "health_state":"HEALTHY",
+                "state":"READY",
+                "fallback_used":false,
+                "reason":"ci"
+              }]
+            }]}],
+            "blocked_tasks":[],
+            "summary":{"task_count":1,"scheduled_count":1,"blocked_count":0,"wave_count":1,"failover_bindings":0}
+          }
+          JSON
+          set +e
+          env -u CHACHA_DEV_RUNTIME_BINDINGS python3 dev-hub/bin/external-runtime-dispatch.py             --plan "$ROOT/external-plan.json"             --graph "$ROOT/read-graph.json"             --ledger "$ROOT/ledger.json"             --policy "$ROOT/policy.json"             --adapters dev-hub/config/provider-adapters.v1.json             --output-dir "$ROOT/external-runs"             --execute > "$ROOT/external.stdout"
+          RC=$?
+          set -e
+          test "$RC" -eq 2
+          grep -Fq 'BLOCKER=EXTERNAL_RUNTIME_BINDING_PATH_MISSING' "$ROOT/external.stdout"
+          echo RUN_CONTROLLER_EXTERNAL_BINDING_GATE=PASS
+
+      - name: Final readiness
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          a=json.load(open('dev-hub/config/run-controller-execution-activation.v1.json'))
+          required=set(a['required_gates'])
+          observed={
+            'readonly-execution-pass',
+            'production-without-approval-blocked',
+            'production-with-approval-pass',
+            'adapter-enabled-gate-pass',
+            'provider-health-gate-pass',
+            'external-runtime-binding-gate-preserved',
+            'rollback-defined'
+          }
+          assert required==observed,(required,observed)
+          print('RUN_CONTROLLER_EXECUTE_TECHNICAL_GATES=PASS')
+          print('RUN_CONTROLLER_EXECUTE_PRODUCTION_APPROVAL_GATE=PASS')
+          print('RUN_CONTROLLER_EXECUTE_EXTERNAL_BINDING_GATE=PASS')
+          print('RUN_CONTROLLER_EXECUTE_ROLLBACK_DEFINED=PASS')
+          print('RUN_CONTROLLER_EXECUTE_READINESS=WAITING_FOR_HUMAN_APPROVAL')
+          PY
