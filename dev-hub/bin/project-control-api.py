@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""ChaCha DEV HUB Project Control JSON API V1.3.
+"""ChaCha DEV HUB Project Control JSON API V1.4.
 
 Local stdin/stdout adapter over the unified Project Control CLI router. No
 network listener is created. Human verification cannot be asserted through this
@@ -71,6 +71,18 @@ def main() -> int:
             cmd.append("--apply")
         if args.get("report"):
             cmd += ["--report", str(args["report"])]
+    elif operation == "technical-design":
+        if not args.get("requirement") or not args.get("manifest"):
+            fail("REQUEST_REQUIREMENT_AND_MANIFEST_REQUIRED", project, operation)
+        cmd += [
+            operation, "--project", project,
+            "--requirement", str(args["requirement"]),
+            "--manifest", str(args["manifest"]),
+        ]
+        if args.get("output"):
+            cmd += ["--output", str(args["output"])]
+        if args.get("task_graph_output"):
+            cmd += ["--task-graph-output", str(args["task_graph_output"])]
     elif operation == "platform-readiness":
         cmd += [operation, "--project", project]
         if args.get("profile"):
