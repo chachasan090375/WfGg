@@ -21,11 +21,15 @@ js_anchor = 'async function health(){'
 if text.count(js_anchor) != 1:
     raise SystemExit(f'V6193_UI_JS_ANCHOR_COUNT={text.count(js_anchor)}')
 js = r'''/* WFGG_RADAR_SEED_SCOUT_UI_V6193 */
+const WFGG_RADAR_SEED_SCOUT_OFFSET_KEY='wfgg_radar_seed_scout_offset_v6193';
+function seedScoutOffsetV6193(){try{return Math.max(0,Number(sessionStorage.getItem(WFGG_RADAR_SEED_SCOUT_OFFSET_KEY)||0)||0)}catch(_){return 0}}
+function saveSeedScoutOffsetV6193(value){try{sessionStorage.setItem(WFGG_RADAR_SEED_SCOUT_OFFSET_KEY,String(Math.max(0,Number(value)||0)))}catch(_){}}
 async function runSeedScoutV6193(){
   const b=$('seedScout'),note=$('seedScoutNote'),box=$('federatedLive'),title=$('federatedTitle'),meta=$('federatedMeta');
   b.disabled=true;box?.classList.add('show');note.textContent='Seed Scout en cours · essais ciblés READ-ONLY…';setStatus('SEED SCOUT','Recherche de la prochaine seed sans créer de cycle…');
   try{
-    const started=await api('/api/radar/seed-scout/start',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({limit:8,region:4,minTargetPlayers:20})});
+    const offset=seedScoutOffsetV6193();
+    const started=await api('/api/radar/seed-scout/start',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({limit:8,region:4,minTargetPlayers:20,offset})});
     let job=started.job;if(!job?.id)throw new Error('SEED_SCOUT_JOB_START_INVALID');
     for(;;){
       const attempts=Array.isArray(job.attempts)?job.attempts:[],last=attempts.length?attempts[attempts.length-1]:null;
@@ -34,12 +38,15 @@ async function runSeedScoutV6193(){
       if(job.status==='SUCCESS'){
         const seed=job.recommendedSeed||null;
         if(seed?.command){
+          saveSeedScoutOffsetV6193(0);
           $('q').value=String(seed.command);
           note.textContent=¤Seed trouvée : serveur ${seed.serverId} · ${fmt(seed.players||0)} joueurs sur 1 région. La commande ${seed.command} est prête ; appuie sur RECHERCHER pour lancer le scan 9/9.¤;
           setStatus('NOUVELLE SEED TROUVÉE',String(seed.command),'ok');tone(980,.07,.03);setTimeout(()=>tone(1320,.09,.025),90);
         }else{
-          note.textContent=¤Batch terminé sans seed · ${attempts.length} serveur(s) testés · aucun cycle Collector créé.¤;
-          setStatus('SEED SCOUT TERMINÉ','Aucune seed dans ce batch','error');
+          const next=Math.max(Number(job.nextOffset||0),seedScoutOffsetV6193()+attempts.length);
+          saveSeedScoutOffsetV6193(next);
+          note.textContent=¤Batch terminé sans seed · ${attempts.length} serveur(s) testés · prochain batch à partir de l’offset ${next} · aucun cycle Collector créé. Relance DÉCOUVRIR pour continuer.¤;
+          setStatus('SEED SCOUT TERMINÉ',¤Aucune seed · prochain offset ${next}¤,'error');
         }
         return;
       }
