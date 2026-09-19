@@ -1,0 +1,42 @@
+{
+  "schema": "chacha.dev/task-graph/v1",
+  "project": "wfgg-radar",
+  "transition": "OPERATE->OPERATE",
+  "generated_at": "2026-09-19T05:55:00Z",
+  "tasks": [
+    {
+      "id": "radar-runtime:status",
+      "kind": "health",
+      "description": "Read WfGg Radar runtime, adapter and Sentinel state through ChaCha DEV.",
+      "owner_role": "sre-observability",
+      "capabilities": [
+        "radar-runtime-inspect"
+      ],
+      "permission": "read",
+      "depends_on": [],
+      "outputs": [
+        {
+          "type": "artifact",
+          "id": "radar-runtime-status"
+        }
+      ],
+      "verification": {
+        "mode": "machine",
+        "self_certification_allowed": false,
+        "required_evidence": [
+          "source",
+          "timestamp",
+          "digest"
+        ]
+      },
+      "blocking": true,
+      "metadata": {
+        "radar_runtime": {
+          "action": "status"
+        },
+        "operation_class": "read-only-runtime-observation",
+        "production_mutation": false
+      }
+    }
+  ]
+}

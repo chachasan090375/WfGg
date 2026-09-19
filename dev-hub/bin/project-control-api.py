@@ -107,6 +107,14 @@ def main() -> int:
             cmd += ["--workspace", str(args["workspace"])]
         if operation == "dispatch" and args.get("execute") is True:
             cmd.append("--execute")
+    elif operation == "operate":
+        if not args.get("graph"):
+            fail("REQUEST_GRAPH_REQUIRED", project, operation)
+        cmd += [operation, "--project", project, "--graph", str(args["graph"])]
+        if args.get("workspace"):
+            cmd += ["--workspace", str(args["workspace"])]
+        if args.get("execute") is True:
+            cmd.append("--execute")
     elif operation == "verify-result":
         if not args.get("result") or not args.get("graph"):
             fail("REQUEST_RESULT_AND_GRAPH_REQUIRED", project, operation)

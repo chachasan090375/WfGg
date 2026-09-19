@@ -1,0 +1,102 @@
+{
+  "schema": "chacha.dev/run-controller/v1",
+  "mode": "execute-enabled",
+  "principles": {
+    "execution_plan_is_not_execution": true,
+    "explicit_dispatch_required": true,
+    "project_lock_required_for_write": true,
+    "approval_rechecked_at_dispatch": true,
+    "storage_preflight_rechecked_for_heavy_tasks": true,
+    "no_shell_interpolation": true,
+    "structured_argv_only": true,
+    "stdout_stderr_are_captured": true,
+    "secrets_are_redacted_from_logs": true,
+    "task_result_is_not_self_verified": true,
+    "provider_failover_reenters_policy": true,
+    "production_dispatch_requires_human_approval": true,
+    "project_control_operate_only": true
+  },
+  "locking": {
+    "strategy": "project-file-lock",
+    "root": "/opt/chacha-dev/runtime/locks",
+    "write_permissions": [
+      "workspace-write",
+      "repository-write",
+      "preview-deploy",
+      "production-deploy",
+      "production-data-write",
+      "secret-change",
+      "destructive-operation",
+      "technology-replacement"
+    ],
+    "stale_after_seconds": 1800,
+    "force_unlock_requires_human_approval": true
+  },
+  "dispatch": {
+    "default_timeout_seconds": 300,
+    "max_timeout_seconds": 3600,
+    "max_attempts": 2,
+    "retryable_failure_classes": [
+      "timeout",
+      "rate-limit",
+      "transient-network",
+      "provider-5xx"
+    ],
+    "non_retryable_failure_classes": [
+      "policy-denied",
+      "invalid-input",
+      "security-block",
+      "approval-missing",
+      "adapter-missing"
+    ],
+    "work_root": "/opt/chacha-dev/runtime/runs",
+    "result_format": "chacha.dev/task-result/v1"
+  },
+  "approvals": {
+    "explicit_human_permissions": [
+      "production-deploy",
+      "production-data-write",
+      "secret-change",
+      "destructive-operation",
+      "technology-replacement"
+    ],
+    "approval_ledger_key": "approvals",
+    "approval_must_be_current": true
+  },
+  "storage": {
+    "preflight_required_for_resource_classes": [
+      "heavy",
+      "very-heavy"
+    ],
+    "preflight_artifact": "storage-preflight",
+    "minimum_status": "OK"
+  },
+  "logs": {
+    "capture_stdout": true,
+    "capture_stderr": true,
+    "max_bytes_per_stream": 1048576,
+    "store_digest": true,
+    "store_full_log_outside_git": true,
+    "redaction_patterns": [
+      "TOKEN",
+      "SECRET",
+      "PASSWORD",
+      "API_KEY",
+      "AUTHORIZATION"
+    ]
+  },
+  "verification": {
+    "controller_may_produce_task_result": true,
+    "controller_may_not_mark_result_verified": true,
+    "default_verification_status": "UNVERIFIED",
+    "default_verification_method": "none",
+    "independent_evidence_collector_required": true
+  },
+  "safety": {
+    "allow_arbitrary_shell": false,
+    "allow_inline_secret_values": false,
+    "allow_unregistered_adapter": false,
+    "allow_unknown_provider_health": false,
+    "allow_implicit_production_change": false
+  }
+}
