@@ -127,8 +127,8 @@
       "execution": "vps"
     },
     "chacha-dev-architect": {
-      "adapter": "platform-command-adapter",
-      "kind": "platform",
+      "adapter": "architecture-specialist-adapter",
+      "kind": "architecture-agent-runtime",
       "execution": "vps"
     },
     "storage-governor": {
@@ -309,6 +309,14 @@
       "supports": [
         "read",
         "production-deploy"
+      ]
+    },
+    "architecture-specialist-adapter": {
+      "status": "CONTRACT_OK",
+      "executable": null,
+      "supports": [
+        "read",
+        "plan"
       ]
     }
   }

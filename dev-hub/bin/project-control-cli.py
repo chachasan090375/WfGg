@@ -303,12 +303,18 @@ def handle_technical_design(args: argparse.Namespace, policy: dict[str, Any]) ->
     safe_id = "".join(ch if ch.isalnum() or ch in "._-" else "-" for ch in req_id)
     output = args.output or (out_dir / f"{safe_id}.technical-design.json")
     graph = args.task_graph_output or (out_dir / f"{safe_id}.task-graph.json")
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    requirement_snapshot = out_dir / f"{safe_id}.requirement.json"
+    manifest_snapshot = out_dir / f"{safe_id}.manifest.v3.json"
+    requirement_snapshot.write_bytes(requirement.read_bytes())
+    manifest_snapshot.write_bytes(manifest.read_bytes())
 
     rc, payload, stdout, stderr = run_json(
         engine,
         [
-            "--requirement", str(requirement),
-            "--manifest", str(manifest),
+            "--requirement", str(requirement_snapshot),
+            "--manifest", str(manifest_snapshot),
             "--routing", str(routing),
             "--policy", str(design_policy),
             "--output", str(output),
@@ -337,6 +343,8 @@ def handle_technical_design(args: argparse.Namespace, policy: dict[str, Any]) ->
             "requirement_id": payload.get("requirement_id"),
             "technical_design_plan": str(output),
             "technical_design_task_graph": str(graph),
+            "product_requirement_snapshot": str(requirement_snapshot),
+            "manifest_snapshot": str(manifest_snapshot),
             "affected_components": payload.get("affected_components") or [],
             "specialist_roles": roles,
             "backend_architect": bool(payload.get("backend_architect")),
@@ -352,6 +360,8 @@ def handle_technical_design(args: argparse.Namespace, policy: dict[str, Any]) ->
         [
             {"type": "technical-design-plan", "path": str(output)},
             {"type": "task-graph", "path": str(graph)},
+            {"type": "product-requirement-snapshot", "path": str(requirement_snapshot)},
+            {"type": "project-manifest-snapshot", "path": str(manifest_snapshot)},
         ],
     )
     emit(result, args.json)

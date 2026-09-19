@@ -104,6 +104,71 @@
         "expected_producer": "radar-runtime-adapter",
         "expected_verification_status": "UNVERIFIED"
       }
+    },
+    "architecture-specialist-adapter": {
+      "source": "dev-hub/adapters/architecture-specialist-adapter.py",
+      "namespace": "architecture-specialist",
+      "version": "1.0.4",
+      "executable_name": "architecture-specialist-adapter",
+      "mode": "0755",
+      "current_link_name": "current",
+      "probe": {
+        "input": {
+          "schema": "chacha.dev/dispatch-envelope/v1",
+          "project": "architecture-specialist-provisioning-probe",
+          "transition": "DESIGN->DESIGN",
+          "run_id": "architecture-specialist-provisioning-probe",
+          "wave": 1,
+          "task": {
+            "id": "architecture-specialist:status",
+            "kind": "runtime-status",
+            "description": "Provisioning status probe for ChaCha DEV Architecture Specialist Runtime.",
+            "owner_role": "sre-observability-engineer",
+            "permission": "read",
+            "outputs": [
+              {
+                "type": "artifact",
+                "id": "architecture-specialist-runtime-status"
+              }
+            ],
+            "verification": {
+              "mode": "machine",
+              "self_certification_allowed": false,
+              "required_evidence": [
+                "source",
+                "timestamp",
+                "digest"
+              ]
+            }
+          },
+          "bindings": [
+            {
+              "capability": "architecture-audit",
+              "provider": "chacha-dev-architect",
+              "adapter": "architecture-specialist-adapter",
+              "fallback_used": false,
+              "health_state": "HEALTHY"
+            }
+          ],
+          "policy_context": {
+            "resource_class": "light",
+            "requires_storage_preflight": false,
+            "human_approval_required": false,
+            "approval_id": null,
+            "timeout_seconds": 30
+          },
+          "workspace": null,
+          "metadata": {
+            "architecture_specialist": {
+              "action": "status"
+            }
+          }
+        },
+        "expected_schema": "chacha.dev/task-result/v1",
+        "expected_status": "OK",
+        "expected_producer": "architecture-specialist-adapter",
+        "expected_verification_status": "UNVERIFIED"
+      }
     }
   }
 }
