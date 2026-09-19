@@ -1,0 +1,185 @@
+name: DEV HUB V5 Product to Technical Design
+
+on:
+  push:
+    branches:
+      - dev-hub-v5-product-to-technical-design
+    paths:
+      - 'dev-hub/bin/technical-design-router.py'
+      - 'dev-hub/config/technical-design.v1.json'
+      - 'dev-hub/config/agent-routing.v1.json'
+      - 'dev-hub/config/orchestration-policy.v1.json'
+      - 'dev-hub/schemas/product-requirement-v1.schema.json'
+      - 'dev-hub/schemas/technical-design-plan-v1.schema.json'
+      - 'dev-hub/schemas/task-graph-v1.schema.json'
+      - 'dev-hub/projects/wfgg-radar/manifest.v3.json'
+      - 'dev-hub/projects/wfgg-radar/requirements/RADAR_REQ_V619_PLAYER_DATA_SHIELD.v1.json'
+      - '.github/workflows/dev-hub-v5-product-to-technical-design.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Compile and validate source contracts
+        run: |
+          set -euo pipefail
+          python3 -m py_compile dev-hub/bin/technical-design-router.py
+          python3 - <<'PY'
+          import json
+          files=[
+            'dev-hub/config/technical-design.v1.json',
+            'dev-hub/config/agent-routing.v1.json',
+            'dev-hub/config/orchestration-policy.v1.json',
+            'dev-hub/schemas/product-requirement-v1.schema.json',
+            'dev-hub/schemas/technical-design-plan-v1.schema.json',
+            'dev-hub/schemas/task-graph-v1.schema.json',
+            'dev-hub/projects/wfgg-radar/requirements/RADAR_REQ_V619_PLAYER_DATA_SHIELD.v1.json'
+          ]
+          for p in files:
+              json.load(open(p,encoding='utf-8'))
+          print('PRODUCT_TO_TECHNICAL_DESIGN_JSON=PASS')
+          PY
+
+      - name: Validate Radar Manifest V3
+        run: |
+          set -euo pipefail
+          python3 dev-hub/bin/manifest-v3-engine.py validate             dev-hub/projects/wfgg-radar/manifest.v3.json             --registry dev-hub/config/capability-registry.v1.json
+          echo RADAR_MANIFEST_WITH_SPECIALISTS=PASS
+
+      - name: Route Radar V6.19 requirement
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/technical-design
+          python3 dev-hub/bin/technical-design-router.py             --requirement dev-hub/projects/wfgg-radar/requirements/RADAR_REQ_V619_PLAYER_DATA_SHIELD.v1.json             --manifest dev-hub/projects/wfgg-radar/manifest.v3.json             --routing dev-hub/config/agent-routing.v1.json             --policy dev-hub/config/technical-design.v1.json             --output /tmp/technical-design/radar-v619.plan.json             --task-graph-output /tmp/technical-design/radar-v619.task-graph.json             | tee /tmp/technical-design/router.stdout
+
+          grep -Fq 'TECHNICAL_DESIGN_PLAN=PASS' /tmp/technical-design/router.stdout
+          grep -Fq 'BACKEND_ARCHITECT=YES' /tmp/technical-design/router.stdout
+          grep -Fq 'DATA_ARCHITECT=YES' /tmp/technical-design/router.stdout
+          grep -Fq 'CODE_GENERATION_ALLOWED=NO' /tmp/technical-design/router.stdout
+          echo RADAR_V619_REQUIREMENT_ROUTING=PASS
+
+      - name: Assert product to backend/data ownership
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          p=json.load(open('/tmp/technical-design/radar-v619.plan.json',encoding='utf-8'))
+          assert p['schema']=='chacha.dev/technical-design-plan/v1',p
+          assert p['project']=='wfgg-radar',p
+          assert p['requirement_id']=='RADAR-V619-PLAYER-DATA-SHIELD',p
+          assert p['orchestrator']=='chacha-dev-architect',p
+
+          roles={x['role']:x for x in p['specialist_assignments']}
+          required={
+            'product-domain-architect',
+            'backend-api-architect',
+            'data-architect',
+            'security-reviewer',
+            'test-engineer',
+            'sre-observability-engineer',
+            'performance-engineer',
+            'documentation-adr-agent'
+          }
+          assert required <= set(roles),set(roles)
+          assert roles['backend-api-architect']['primary'] is True
+          assert roles['data-architect']['primary'] is True
+
+          components=set(p['affected_components'])
+          assert 'radar-worker' in components,components
+          assert 'radar-d1' in components,components
+          assert 'radar-connector' in components,components
+          assert 'radar-ui' not in components,components
+
+          decisions={x['id']:x for x in p['architecture_decisions']}
+          for did,owner in {
+            'BACKEND_BOUNDARIES':'backend-api-architect',
+            'API_CONTRACT':'backend-api-architect',
+            'BACKEND_FAILURE_MODEL':'backend-api-architect',
+            'CANONICAL_DATA_MODEL':'data-architect',
+            'DATA_QUERY_INDEX_PLAN':'data-architect',
+            'DATA_MIGRATION':'data-architect',
+            'SECURITY_BOUNDARIES':'security-reviewer',
+            'TEST_OBLIGATIONS':'test-engineer'
+          }.items():
+              assert decisions[did]['owner_role']==owner,(did,decisions[did])
+
+          gate=p['implementation_gate']
+          assert gate['code_generation_allowed'] is False,gate
+          assert 'all-primary-specialist-contracts-complete' in gate['required_before_implementation'],gate
+          assert 'mandatory-cross-reviews-complete' in gate['required_before_implementation'],gate
+          assert 'adr-set-recorded' in gate['required_before_implementation'],gate
+
+          print('PRODUCT_OWNER_OWNS_WHAT=PASS')
+          print('CHACHA_DEV_ARCHITECT_OWNS_ORCHESTRATION=PASS')
+          print('BACKEND_API_ARCHITECT_OWNS_BACKEND_HOW=PASS')
+          print('DATA_ARCHITECT_OWNS_DATA_HOW=PASS')
+          print('IMPLEMENTATION_PREMATURE=BLOCKED')
+          PY
+
+      - name: Assert specialist design Task Graph
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          g=json.load(open('/tmp/technical-design/radar-v619.task-graph.json',encoding='utf-8'))
+          assert g['schema']=='chacha.dev/task-graph/v1',g
+          assert g['transition']=='PRODUCT_REQUIREMENT->TECHNICAL_DESIGN',g
+          tasks={x['id']:x for x in g['tasks']}
+          assert 'design:backend-api-architect' in tasks,tasks.keys()
+          assert 'design:data-architect' in tasks,tasks.keys()
+          assert 'design:product-domain-architect' in tasks,tasks.keys()
+          assert 'design:documentation-adr-agent' in tasks,tasks.keys()
+
+          for t in tasks.values():
+              assert t['permission']=='plan',t
+              assert t['verification']['self_certification_allowed'] is False,t
+              assert t['blocking'] is True,t
+
+          adr=tasks['design:documentation-adr-agent']
+          assert len(adr['depends_on']) >= 4,adr
+          assert all(x!='design:documentation-adr-agent' for x in adr['depends_on']),adr
+
+          backend=tasks['design:backend-api-architect']
+          assert backend['owner_role']=='backend-api-architect',backend
+          assert backend['metadata']['specialist_role']=='backend-api-architect',backend
+          assert 'api-contract' in backend['metadata']['design_outputs'],backend
+
+          data=tasks['design:data-architect']
+          assert data['owner_role']=='data-architect',data
+          assert 'data-model' in data['metadata']['design_outputs'],data
+
+          print('SPECIALIST_TASK_GRAPH=PASS')
+          print('SPECIALIST_SELF_CERTIFICATION=DENIED')
+          print('ADR_SYNTHESIS_AFTER_SPECIALISTS=PASS')
+          PY
+
+      - name: Assert architecture layer does not implement
+        run: |
+          set -euo pipefail
+          grep -Fq 'It never implements code, changes production' dev-hub/bin/technical-design-router.py
+          ! grep -Fq 'subprocess.run' dev-hub/bin/technical-design-router.py
+          ! grep -Fq 'urllib.request' dev-hub/bin/technical-design-router.py
+          ! grep -Fq 'systemctl' dev-hub/bin/technical-design-router.py
+          ! grep -Fq 'wrangler' dev-hub/bin/technical-design-router.py
+          echo TECHNICAL_DESIGN_EXECUTION=NONE
+          echo TECHNICAL_DESIGN_PRODUCTION_MUTATION=NO
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-to-technical-design-${{ github.run_id }}
+          path: |
+            /tmp/technical-design/radar-v619.plan.json
+            /tmp/technical-design/radar-v619.task-graph.json
+            /tmp/technical-design/router.stdout
+          retention-days: 30
+          if-no-files-found: error
