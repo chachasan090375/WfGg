@@ -176,7 +176,10 @@ def affected_components(req: dict[str, Any], manifest: dict[str, Any], domains: 
     text = requirement_text(req)
     component_domains = policy.get("component_domains") or {}
     out: list[str] = []
-    domain_set = set(domains)
+    # Cross-cutting review domains (testing/security/observability/etc.) do not
+    # by themselves make every component an implementation target.
+    impact_domains = {"frontend", "backend-api", "data", "integration", "platform"}
+    domain_set = set(domains) & impact_domains
 
     for comp in manifest.get("components") or []:
         if not isinstance(comp, dict):
