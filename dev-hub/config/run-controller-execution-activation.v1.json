@@ -1,0 +1,36 @@
+{
+  "schema": "chacha.dev/run-controller-execution-activation/v1",
+  "control": "run-controller",
+  "current_mode": "dispatch-only",
+  "target_mode": "execute-enabled",
+  "production_capable": true,
+  "human_approval_required": true,
+  "approval_scope": "enable-run-controller-execution",
+  "rationale": "Allow ChaCha DEV Run Controller to invoke ENABLED adapters. Per-task production permissions remain independently approval-gated by the Evidence Ledger.",
+  "required_gates": [
+    "readonly-execution-pass",
+    "production-without-approval-blocked",
+    "production-with-approval-pass",
+    "adapter-enabled-gate-pass",
+    "provider-health-gate-pass",
+    "external-runtime-binding-gate-preserved",
+    "rollback-defined"
+  ],
+  "invariants": {
+    "adapter_status_required": "ENABLED",
+    "production_permissions_require_evidence_ledger_approval": true,
+    "run_controller_cannot_self_verify": true,
+    "arbitrary_shell_forbidden": true,
+    "external_adapters_require_runner_owned_binding": true,
+    "provider_health_required": true
+  },
+  "rollback": {
+    "target_mode": "dispatch-only",
+    "effect": "Stop all adapter invocation while preserving planning, scheduling, run records and existing adapter registrations.",
+    "verification": [
+      "dispatch --execute returns EXECUTION_DISABLED_BY_POLICY",
+      "prepare-run remains available",
+      "provider and adapter registries remain unchanged"
+    ]
+  }
+}
