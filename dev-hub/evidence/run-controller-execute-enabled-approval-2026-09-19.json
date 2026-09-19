@@ -1,0 +1,39 @@
+{
+  "schema": "chacha.dev/run-controller-execution-activation-evidence/v1",
+  "control": "run-controller",
+  "target_mode": "execute-enabled",
+  "approval": {
+    "id": "approval-run-controller-execute-enabled-20260919",
+    "type": "control-plane-execution-enable",
+    "actor": "human-user",
+    "approved_on": "2026-09-19",
+    "source": "chat-explicit-approval",
+    "statement": "J’approuve l’activation du Run Controller ChaCha DEV en mode execute-enabled."
+  },
+  "technical_readiness": {
+    "workflow_run_id": 35425795372,
+    "workflow_result": "SUCCESS",
+    "gates": {
+      "readonly-execution-pass": "PASS",
+      "production-without-approval-blocked": "PASS",
+      "production-with-approval-pass": "PASS",
+      "adapter-enabled-gate-pass": "PASS",
+      "provider-health-gate-pass": "PASS",
+      "external-runtime-binding-gate-preserved": "PASS",
+      "rollback-defined": "PASS"
+    }
+  },
+  "safety": {
+    "production_permissions_remain_approval_gated": true,
+    "adapter_must_be_enabled": true,
+    "provider_must_be_healthy": true,
+    "external_runtime_bindings_remain_ephemeral": true,
+    "run_controller_self_verification_forbidden": true,
+    "rollback_mode": "dispatch-only"
+  },
+  "notes": [
+    "This approval enables the Run Controller execution engine globally.",
+    "It does not grant any per-task production approval.",
+    "Production-deploy and other protected permissions remain blocked unless their Evidence Ledger approval is present."
+  ]
+}

@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/run-controller/v1",
-  "mode": "dispatch-only",
+  "mode": "execute-enabled",
   "principles": {
     "execution_plan_is_not_execution": true,
     "explicit_dispatch_required": true,
@@ -35,8 +35,19 @@
     "default_timeout_seconds": 300,
     "max_timeout_seconds": 3600,
     "max_attempts": 2,
-    "retryable_failure_classes": ["timeout", "rate-limit", "transient-network", "provider-5xx"],
-    "non_retryable_failure_classes": ["policy-denied", "invalid-input", "security-block", "approval-missing", "adapter-missing"],
+    "retryable_failure_classes": [
+      "timeout",
+      "rate-limit",
+      "transient-network",
+      "provider-5xx"
+    ],
+    "non_retryable_failure_classes": [
+      "policy-denied",
+      "invalid-input",
+      "security-block",
+      "approval-missing",
+      "adapter-missing"
+    ],
     "work_root": "/opt/chacha-dev/runtime/runs",
     "result_format": "chacha.dev/task-result/v1"
   },
@@ -52,7 +63,10 @@
     "approval_must_be_current": true
   },
   "storage": {
-    "preflight_required_for_resource_classes": ["heavy", "very-heavy"],
+    "preflight_required_for_resource_classes": [
+      "heavy",
+      "very-heavy"
+    ],
     "preflight_artifact": "storage-preflight",
     "minimum_status": "OK"
   },
@@ -62,7 +76,13 @@
     "max_bytes_per_stream": 1048576,
     "store_digest": true,
     "store_full_log_outside_git": true,
-    "redaction_patterns": ["TOKEN", "SECRET", "PASSWORD", "API_KEY", "AUTHORIZATION"]
+    "redaction_patterns": [
+      "TOKEN",
+      "SECRET",
+      "PASSWORD",
+      "API_KEY",
+      "AUTHORIZATION"
+    ]
   },
   "verification": {
     "controller_may_produce_task_result": true,
