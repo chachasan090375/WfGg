@@ -6,6 +6,7 @@ Narrow VPS runtime adapter for the WfGg Radar pilot lifecycle.
 Supported actions:
 - status                     (read)
 - cluster-quality-diagnostic (read)
+- cluster-catalog-probe      (read)
 - pilot-open                 (production-deploy)
 - pilot-install     (production-deploy)
 - pilot-probe       (read)
@@ -18,6 +19,7 @@ interpolation, never accepts arbitrary URLs or service names, requires a pinned
 from __future__ import annotations
 
 import hashlib
+import hmac
 import json
 import os
 import re
@@ -27,6 +29,7 @@ import subprocess
 import sys
 import tempfile
 import time
+import urllib.error
 import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
@@ -160,6 +163,7 @@ def validate_request(request: dict[str, Any]) -> tuple[dict[str, Any] | None, st
     expected_permission = {
         "status": "read",
         "cluster-quality-diagnostic": "read",
+        "cluster-catalog-probe": "read",
         "pilot-open": "production-deploy",
         "pilot-install": "production-deploy",
         "pilot-probe": "read",
@@ -354,6 +358,107 @@ def do_cluster_quality_diagnostic(request: dict[str, Any]) -> int:
     }]))
 
 
+def connector_shared_key() -> str:
+    proc = systemctl("show", "-p", "MainPID", "--value", RADAR_SERVICE)
+    if proc.returncode != 0:
+        raise RuntimeError("RADAR_CONNECTOR_MAINPID_UNAVAILABLE")
+    pid = proc.stdout.decode("utf-8", "replace").strip()
+    if not pid.isdigit() or pid == "0":
+        raise RuntimeError("RADAR_CONNECTOR_NOT_RUNNING")
+    try:
+        raw = Path(f"/proc/{pid}/environ").read_bytes()
+    except OSError as exc:
+        raise RuntimeError("RADAR_CONNECTOR_ENV_UNAVAILABLE") from exc
+    for item in raw.split(b"\x00"):
+        if item.startswith(b"RADAR_CONNECTOR_SHARED_KEY="):
+            value = item.split(b"=", 1)[1].decode("utf-8", "replace")
+            if len(value) >= 32:
+                return value
+    raise RuntimeError("RADAR_CONNECTOR_SHARED_KEY_UNAVAILABLE")
+
+
+def radar_signature(method: str, path: str, timestamp: str, nonce: str, body: bytes, secret: str) -> str:
+    body_hash = hashlib.sha256(body).hexdigest()
+    canonical = "\n".join([method.upper(), path, timestamp, nonce, body_hash])
+    return hmac.new(secret.encode("utf-8"), canonical.encode("utf-8"), hashlib.sha256).hexdigest()
+
+
+def cluster_catalog_probe_snapshot() -> dict[str, Any]:
+    path = "/v1/collector/server-cluster-catalog"
+    secret = connector_shared_key()
+    timestamp = str(int(time.time()))
+    nonce = os.urandom(16).hex()
+    body = b""
+    signature = radar_signature("GET", path, timestamp, nonce, body, secret)
+    req = urllib.request.Request(
+        "http://127.0.0.1:8788" + path,
+        method="GET",
+        headers={
+            "Accept": "application/json",
+            "X-Radar-Timestamp": timestamp,
+            "X-Radar-Nonce": nonce,
+            "X-Radar-Signature": signature,
+        },
+    )
+    started = time.monotonic()
+    status = 0
+    raw = b""
+    try:
+        with urllib.request.urlopen(req, timeout=45) as response:
+            status = int(response.status)
+            raw = response.read(65537)
+    except urllib.error.HTTPError as exc:
+        status = int(exc.code)
+        raw = exc.read(65537)
+    elapsed_ms = int(round((time.monotonic() - started) * 1000))
+    if len(raw) > 65536:
+        raise RuntimeError("RADAR_CATALOG_RESPONSE_TOO_LARGE")
+    try:
+        payload = json.loads(raw.decode("utf-8", "strict"))
+    except Exception:
+        payload = {}
+    if not isinstance(payload, dict):
+        payload = {}
+    seed = payload.get("recommendedSeed") if isinstance(payload.get("recommendedSeed"), dict) else {}
+    return {
+        "http_status": status,
+        "elapsed_ms": elapsed_ms,
+        "ok": payload.get("ok"),
+        "readonly": payload.get("readonly"),
+        "catalog_version": payload.get("catalogVersion"),
+        "error": payload.get("error"),
+        "confirmed_cluster_count": payload.get("confirmedClusterCount"),
+        "confirmed_server_count": payload.get("confirmedServerCount"),
+        "frontier_count": payload.get("frontierCount"),
+        "noise_count": payload.get("noiseCount"),
+        "recommended_seed": {
+            "serverId": seed.get("serverId"),
+            "command": seed.get("command"),
+            "players": seed.get("players"),
+        } if seed else None,
+        "near_handler_deadline_30s": 28500 <= elapsed_ms <= 33000,
+    }
+
+
+def do_cluster_catalog_probe(request: dict[str, Any]) -> int:
+    try:
+        snap = cluster_catalog_probe_snapshot()
+    except RuntimeError as exc:
+        return emit(result(request, "FAILED", str(exc)))
+    raw = json.dumps(snap, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    return emit(result(request, "OK", "RADAR_CLUSTER_CATALOG_PROBE_OK", [{
+        "kind": "diagnostic",
+        "source": "http://127.0.0.1:8788/v1/collector/server-cluster-catalog",
+        "digest": sha256_bytes(raw),
+        "details": snap,
+    }], [{
+        "type": "artifact",
+        "id": "radar-cluster-catalog-probe",
+        "status": "UNVERIFIED",
+        "reason": "Signed localhost read-only probe; independent verification required.",
+    }]))
+
+
 def do_open(request: dict[str, Any]) -> int:
     approval_error = approval_required(request)
     if approval_error:
@@ -491,6 +596,8 @@ def main() -> int:
             return do_status(request)
         if action == "cluster-quality-diagnostic":
             return do_cluster_quality_diagnostic(request)
+        if action == "cluster-catalog-probe":
+            return do_cluster_catalog_probe(request)
         if action == "pilot-open":
             return do_open(request)
         if action == "pilot-install":
