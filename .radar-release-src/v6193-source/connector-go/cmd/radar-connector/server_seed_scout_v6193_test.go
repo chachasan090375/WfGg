@@ -38,6 +38,39 @@ func TestSeedScoutCandidateOrderUsesTrialProximityOnly(t *testing.T) {
 	}
 }
 
+
+func TestSeedScoutCandidateWindowsDoNotRepeat(t *testing.T) {
+	census := censusV6193("10", "12", "20")
+	first := seedScoutCandidateWindowV6193(census, 0, 4)
+	second := seedScoutCandidateWindowV6193(census, 4, 4)
+	if len(first) != 4 || len(second) != 4 {
+		t.Fatalf("first=%v second=%v", first, second)
+	}
+	seen := map[string]bool{}
+	for _, id := range first {
+		seen[id] = true
+	}
+	for _, id := range second {
+		if seen[id] {
+			t.Fatalf("candidate repeated across windows: %s first=%v second=%v", id, first, second)
+		}
+	}
+}
+
+func TestSeedScoutCandidateWindowOffsetMatchesSequence(t *testing.T) {
+	census := censusV6193("10", "12", "20")
+	all := seedScoutCandidateWindowV6193(census, 0, 8)
+	window := seedScoutCandidateWindowV6193(census, 3, 3)
+	if len(all) < 6 || len(window) != 3 {
+		t.Fatalf("all=%v window=%v", all, window)
+	}
+	for i := range window {
+		if window[i] != all[i+3] {
+			t.Fatalf("all=%v window=%v", all, window)
+		}
+	}
+}
+
 func TestSeedScoutAggregateDropsPlayerIdentity(t *testing.T) {
 	known := map[string]bool{"990": true}
 	players := []protocol.Player{
