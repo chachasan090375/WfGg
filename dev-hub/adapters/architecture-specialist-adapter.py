@@ -514,31 +514,42 @@ def parse_backend_envelope(raw: bytes) -> tuple[dict[str, Any], dict[str, Any]]:
     if not isinstance(envelope, dict):
         raise ValueError("ARCHITECT_BACKEND_ENVELOPE_NOT_OBJECT")
 
-    status = envelope.get("status")
     structured = envelope.get("structured_output")
+    response = envelope.get("response")
+    artifact: dict[str, Any] | None = None
+
+    if isinstance(structured, dict):
+        artifact = structured
+    elif isinstance(structured, str):
+        try:
+            parsed = json.loads(structured.strip(), strict=False)
+        except Exception:
+            parsed = None
+        if isinstance(parsed, dict):
+            artifact = parsed
+
+    if artifact is None and isinstance(response, dict):
+        artifact = response
+    elif artifact is None and isinstance(response, str):
+        try:
+            parsed = json.loads(response.strip(), strict=False)
+        except Exception:
+            parsed = None
+        if isinstance(parsed, dict):
+            artifact = parsed
+
+    status = envelope.get("status")
     error_text = str(envelope.get("error") or "")
     recoverable_interruption = bool(
         status == "ERROR"
-        and isinstance(structured, dict)
+        and artifact is not None
         and "stream was interrupted" in error_text.lower()
     )
     if status != "SUCCESS" and not recoverable_interruption:
         raise ValueError("ARCHITECT_BACKEND_STATUS_NOT_SUCCESS")
 
-    response = envelope.get("response")
-    if isinstance(structured, dict):
-        artifact = structured
-    elif isinstance(response, dict):
-        artifact = response
-    elif isinstance(response, str):
-        try:
-            artifact = json.loads(response.strip(), strict=False)
-        except Exception as exc:
-            raise ValueError(f"ARCHITECT_SPECIALIST_JSON_INVALID:{type(exc).__name__}") from exc
-    else:
+    if artifact is None:
         raise ValueError("ARCHITECT_SPECIALIST_RESPONSE_MISSING")
-    if not isinstance(artifact, dict):
-        raise ValueError("ARCHITECT_SPECIALIST_RESPONSE_NOT_OBJECT")
     return envelope, artifact
 
 
