@@ -22,7 +22,8 @@
     "transaction_recovery": "dev-hub/config/transaction-recovery.v1.json",
     "recovery_drill": "dev-hub/config/recovery-drill.v1.json",
     "platform_evidence": "dev-hub/config/platform-evidence.v1.json",
-    "platform_readiness": "dev-hub/config/platform-readiness.v1.json"
+    "platform_readiness": "dev-hub/config/platform-readiness.v1.json",
+    "technical_design": "dev-hub/config/technical-design.v1.json"
   },
   "principles": {
     "least_privilege": true,
@@ -68,33 +69,237 @@
     "stale_provider_health_is_unknown": true,
     "platform_readiness_is_evidence_based": true,
     "contract_readiness_does_not_authorize_runtime_execution": true,
-    "unknown_platform_readiness_blocks_execution": true
+    "unknown_platform_readiness_blocks_execution": true,
+    "product_requirement_precedes_technical_design": true,
+    "product_owner_defines_what_specialists_define_how": true,
+    "implementation_requires_completed_technical_design": true
   },
   "permissions": {
-    "read": {"approval": "none"},
-    "plan": {"approval": "none"},
-    "workspace-write": {"approval": "policy"},
-    "repository-write": {"approval": "policy"},
-    "preview-deploy": {"approval": "policy"},
-    "production-deploy": {"approval": "explicit-human"},
-    "production-data-write": {"approval": "explicit-human"},
-    "secret-change": {"approval": "explicit-human"},
-    "destructive-operation": {"approval": "explicit-human"},
-    "technology-replacement": {"approval": "explicit-human"},
-    "signing-key-activation": {"approval": "explicit-human"},
-    "signing-key-rotation": {"approval": "explicit-human"},
-    "signing-key-revocation": {"approval": "explicit-human"}
+    "read": {
+      "approval": "none"
+    },
+    "plan": {
+      "approval": "none"
+    },
+    "workspace-write": {
+      "approval": "policy"
+    },
+    "repository-write": {
+      "approval": "policy"
+    },
+    "preview-deploy": {
+      "approval": "policy"
+    },
+    "production-deploy": {
+      "approval": "explicit-human"
+    },
+    "production-data-write": {
+      "approval": "explicit-human"
+    },
+    "secret-change": {
+      "approval": "explicit-human"
+    },
+    "destructive-operation": {
+      "approval": "explicit-human"
+    },
+    "technology-replacement": {
+      "approval": "explicit-human"
+    },
+    "signing-key-activation": {
+      "approval": "explicit-human"
+    },
+    "signing-key-rotation": {
+      "approval": "explicit-human"
+    },
+    "signing-key-revocation": {
+      "approval": "explicit-human"
+    }
   },
   "stages": {
-    "IDEA": {"lead_roles": ["product-domain", "orchestrator"], "allowed_permissions": ["read", "plan"], "outputs": ["project-intent"]},
-    "DESIGN": {"lead_roles": ["orchestrator", "platform", "security", "data", "frontend", "backend-api"], "allowed_permissions": ["read", "plan"], "outputs": ["project-plan", "manifest-v3", "architecture-decisions", "capability-resolution"]},
-    "READY": {"lead_roles": ["orchestrator", "platform", "security"], "allowed_permissions": ["read", "plan", "workspace-write"], "outputs": ["workspace-health", "provider-health-snapshot", "storage-preflight", "dependency-resolution", "cryptographic-trust-readiness", "platform-readiness", "adapter-provisioning-receipt", "adapter-promotion-plan", "adapter-enablement-evidence", "adapter-rollback-plan"]},
-    "BUILD": {"lead_roles": ["frontend", "backend-api", "data", "platform", "documentation"], "allowed_permissions": ["read", "plan", "workspace-write", "repository-write"], "outputs": ["change-set", "build-result", "static-check"]},
-    "VERIFY": {"lead_roles": ["testing", "security", "performance", "orchestrator"], "allowed_permissions": ["read", "plan", "workspace-write", "repository-write"], "outputs": ["test-result", "security-scan", "ci-result", "trust-verification"]},
-    "PREVIEW": {"lead_roles": ["release", "testing", "sre-observability", "security"], "allowed_permissions": ["read", "plan", "workspace-write", "repository-write", "preview-deploy"], "outputs": ["preview-validation", "e2e-result", "smoke-result", "rollback-plan", "signed-release-checkpoint-candidate"]},
-    "RELEASE": {"lead_roles": ["release", "orchestrator", "recovery", "security"], "allowed_permissions": ["read", "plan", "repository-write", "production-deploy"], "outputs": ["production-deployment-receipt", "signed-release-checkpoint", "external-anchor-receipts"]},
-    "OPERATE": {"lead_roles": ["operations", "sre-observability", "recovery", "technology-radar", "security"], "allowed_permissions": ["read", "plan", "workspace-write", "repository-write"], "outputs": ["production-health", "observability-health", "incident-records", "technology-watch", "routine-signed-checkpoints"]},
-    "RETIRE": {"lead_roles": ["orchestrator", "operations", "recovery", "data", "security"], "allowed_permissions": ["read", "plan", "repository-write", "destructive-operation"], "outputs": ["retirement-record", "archive-proof", "data-disposition", "signed-retirement-checkpoint"]}
+    "IDEA": {
+      "lead_roles": [
+        "product-domain",
+        "orchestrator"
+      ],
+      "allowed_permissions": [
+        "read",
+        "plan"
+      ],
+      "outputs": [
+        "project-intent"
+      ]
+    },
+    "DESIGN": {
+      "lead_roles": [
+        "orchestrator",
+        "platform",
+        "security",
+        "data",
+        "frontend",
+        "backend-api"
+      ],
+      "allowed_permissions": [
+        "read",
+        "plan"
+      ],
+      "outputs": [
+        "project-plan",
+        "manifest-v3",
+        "architecture-decisions",
+        "capability-resolution",
+        "product-requirement",
+        "technical-design-plan",
+        "specialist-design-fragments"
+      ]
+    },
+    "READY": {
+      "lead_roles": [
+        "orchestrator",
+        "platform",
+        "security"
+      ],
+      "allowed_permissions": [
+        "read",
+        "plan",
+        "workspace-write"
+      ],
+      "outputs": [
+        "workspace-health",
+        "provider-health-snapshot",
+        "storage-preflight",
+        "dependency-resolution",
+        "cryptographic-trust-readiness",
+        "platform-readiness",
+        "adapter-provisioning-receipt",
+        "adapter-promotion-plan",
+        "adapter-enablement-evidence",
+        "adapter-rollback-plan"
+      ]
+    },
+    "BUILD": {
+      "lead_roles": [
+        "frontend",
+        "backend-api",
+        "data",
+        "platform",
+        "documentation"
+      ],
+      "allowed_permissions": [
+        "read",
+        "plan",
+        "workspace-write",
+        "repository-write"
+      ],
+      "outputs": [
+        "change-set",
+        "build-result",
+        "static-check"
+      ]
+    },
+    "VERIFY": {
+      "lead_roles": [
+        "testing",
+        "security",
+        "performance",
+        "orchestrator"
+      ],
+      "allowed_permissions": [
+        "read",
+        "plan",
+        "workspace-write",
+        "repository-write"
+      ],
+      "outputs": [
+        "test-result",
+        "security-scan",
+        "ci-result",
+        "trust-verification"
+      ]
+    },
+    "PREVIEW": {
+      "lead_roles": [
+        "release",
+        "testing",
+        "sre-observability",
+        "security"
+      ],
+      "allowed_permissions": [
+        "read",
+        "plan",
+        "workspace-write",
+        "repository-write",
+        "preview-deploy"
+      ],
+      "outputs": [
+        "preview-validation",
+        "e2e-result",
+        "smoke-result",
+        "rollback-plan",
+        "signed-release-checkpoint-candidate"
+      ]
+    },
+    "RELEASE": {
+      "lead_roles": [
+        "release",
+        "orchestrator",
+        "recovery",
+        "security"
+      ],
+      "allowed_permissions": [
+        "read",
+        "plan",
+        "repository-write",
+        "production-deploy"
+      ],
+      "outputs": [
+        "production-deployment-receipt",
+        "signed-release-checkpoint",
+        "external-anchor-receipts"
+      ]
+    },
+    "OPERATE": {
+      "lead_roles": [
+        "operations",
+        "sre-observability",
+        "recovery",
+        "technology-radar",
+        "security"
+      ],
+      "allowed_permissions": [
+        "read",
+        "plan",
+        "workspace-write",
+        "repository-write"
+      ],
+      "outputs": [
+        "production-health",
+        "observability-health",
+        "incident-records",
+        "technology-watch",
+        "routine-signed-checkpoints"
+      ]
+    },
+    "RETIRE": {
+      "lead_roles": [
+        "orchestrator",
+        "operations",
+        "recovery",
+        "data",
+        "security"
+      ],
+      "allowed_permissions": [
+        "read",
+        "plan",
+        "repository-write",
+        "destructive-operation"
+      ],
+      "outputs": [
+        "retirement-record",
+        "archive-proof",
+        "data-disposition",
+        "signed-retirement-checkpoint"
+      ]
+    }
   },
   "execution_rules": {
     "max_parallel_write_agents_per_project": 1,
@@ -154,6 +359,10 @@
     "recovery_drill_ambiguous_state_requires_manual_review": true,
     "development_execution_requires_platform_readiness_yes": true,
     "production_execution_requires_production_readiness_yes": true,
-    "platform_readiness_gate_must_not_enable_adapters_or_generate_approvals": true
+    "platform_readiness_gate_must_not_enable_adapters_or_generate_approvals": true,
+    "technical_design_must_route_to_specialist_roles": true,
+    "backend_change_requires_backend_api_architect": true,
+    "data_change_requires_data_architect": true,
+    "technical_design_requires_cross_review": true
   }
 }
