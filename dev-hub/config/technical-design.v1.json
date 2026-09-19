@@ -1,0 +1,361 @@
+{
+  "schema": "chacha.dev/technical-design-policy/v1",
+  "orchestrator": "chacha-dev-architect",
+  "principles": {
+    "product_owner_defines_what_not_how": true,
+    "orchestrator_translates_requirement_to_design_work": true,
+    "specialist_owns_domain_decisions": true,
+    "specialist_cannot_self_approve_cross_domain_risk": true,
+    "implementation_blocked_until_design_complete": true,
+    "architecture_decisions_are_versioned": true,
+    "existing_architecture_is_preserved_unless_change_is_justified": true,
+    "production_change_is_never_implied_by_design": true
+  },
+  "domain_roles": {
+    "product-domain": "product-domain-architect",
+    "frontend": "frontend-architect",
+    "backend-api": "backend-api-architect",
+    "data": "data-architect",
+    "integration": "backend-api-architect",
+    "security": "security-reviewer",
+    "testing": "test-engineer",
+    "platform": "platform-cloud-engineer",
+    "sre-observability": "sre-observability-engineer",
+    "performance": "performance-engineer",
+    "recovery": "recovery-engineer",
+    "release": "release-engineer",
+    "documentation": "documentation-adr-agent"
+  },
+  "component_domains": {
+    "frontend-web": [
+      "frontend",
+      "testing",
+      "performance"
+    ],
+    "frontend-mobile": [
+      "frontend",
+      "testing",
+      "performance"
+    ],
+    "worker-edge": [
+      "backend-api",
+      "integration",
+      "security",
+      "testing",
+      "sre-observability"
+    ],
+    "backend-api": [
+      "backend-api",
+      "integration",
+      "security",
+      "testing",
+      "sre-observability"
+    ],
+    "service": [
+      "backend-api",
+      "integration",
+      "security",
+      "testing",
+      "sre-observability"
+    ],
+    "database": [
+      "data",
+      "security",
+      "testing",
+      "recovery"
+    ],
+    "object-storage": [
+      "data",
+      "security",
+      "recovery"
+    ],
+    "cache": [
+      "backend-api",
+      "data",
+      "performance"
+    ],
+    "queue-event-bus": [
+      "backend-api",
+      "integration",
+      "sre-observability"
+    ],
+    "scheduled-job": [
+      "backend-api",
+      "data",
+      "sre-observability"
+    ],
+    "data-pipeline": [
+      "data",
+      "backend-api",
+      "sre-observability"
+    ],
+    "ai-agent": [
+      "backend-api",
+      "security",
+      "testing"
+    ],
+    "cli": [
+      "backend-api",
+      "testing"
+    ],
+    "desktop": [
+      "frontend",
+      "backend-api",
+      "testing"
+    ]
+  },
+  "design_contracts": {
+    "product-domain-architect": {
+      "responsibilities": [
+        "Normalize the functional requirement without introducing implementation choices.",
+        "Define domain rules, invariants, actors and acceptance criteria.",
+        "Identify unresolved product questions that must return to the product owner."
+      ],
+      "outputs": [
+        "domain-contract",
+        "acceptance-contract",
+        "product-unknowns"
+      ]
+    },
+    "frontend-architect": {
+      "responsibilities": [
+        "Define UI information flow, client state and error/loading/empty states.",
+        "Define accessibility and responsive behavior.",
+        "Specify frontend/backend contract needs without owning backend implementation."
+      ],
+      "outputs": [
+        "frontend-contract",
+        "ui-state-contract",
+        "frontend-acceptance-notes"
+      ]
+    },
+    "backend-api-architect": {
+      "responsibilities": [
+        "Define API/service boundaries and contracts.",
+        "Define validation, error model, pagination/rate limiting and idempotency where applicable.",
+        "Define integration behavior, timeouts/retries and backend ownership boundaries.",
+        "Preserve existing components unless a change is justified by evidence."
+      ],
+      "outputs": [
+        "backend-service-contract",
+        "api-contract",
+        "integration-contract",
+        "backend-failure-model"
+      ]
+    },
+    "data-architect": {
+      "responsibilities": [
+        "Define entities, canonical identifiers, relationships and integrity constraints.",
+        "Define indexes, query patterns, migrations and retention impact.",
+        "Define provenance requirements and data lifecycle."
+      ],
+      "outputs": [
+        "data-model",
+        "migration-plan",
+        "index-query-plan",
+        "data-provenance-contract"
+      ]
+    },
+    "security-reviewer": {
+      "responsibilities": [
+        "Define trust boundaries, sensitive-data handling and authorization implications.",
+        "Review secrets, logging, abuse and input/output protection.",
+        "Block any design that violates explicit security constraints."
+      ],
+      "outputs": [
+        "security-review",
+        "threat-boundary-review",
+        "logging-redaction-contract"
+      ]
+    },
+    "test-engineer": {
+      "responsibilities": [
+        "Translate acceptance criteria into unit, integration, contract and E2E test obligations.",
+        "Define regression coverage and test data strategy.",
+        "Ensure tests can independently falsify implementation claims."
+      ],
+      "outputs": [
+        "test-strategy",
+        "acceptance-test-matrix",
+        "regression-plan"
+      ]
+    },
+    "platform-cloud-engineer": {
+      "responsibilities": [
+        "Define runtime, environment and deployment impact.",
+        "Define configuration, capacity and operational constraints.",
+        "Do not change production technology without explicit approval."
+      ],
+      "outputs": [
+        "runtime-impact",
+        "environment-plan",
+        "deployment-constraints"
+      ]
+    },
+    "sre-observability-engineer": {
+      "responsibilities": [
+        "Define health, logs, metrics, alerts and diagnosability requirements.",
+        "Define operational failure signals and recovery observability."
+      ],
+      "outputs": [
+        "observability-contract",
+        "health-contract",
+        "operational-signals"
+      ]
+    },
+    "performance-engineer": {
+      "responsibilities": [
+        "Define performance budgets and query/request cost assumptions.",
+        "Identify load-sensitive paths and measurable performance tests."
+      ],
+      "outputs": [
+        "performance-budget",
+        "performance-test-contract"
+      ]
+    },
+    "recovery-engineer": {
+      "responsibilities": [
+        "Assess backup/restore and rollback impact for state changes.",
+        "Define recovery evidence required before release."
+      ],
+      "outputs": [
+        "recovery-impact",
+        "rollback-requirements"
+      ]
+    },
+    "release-engineer": {
+      "responsibilities": [
+        "Define preview, release and rollback sequencing.",
+        "Preserve explicit production approval boundaries."
+      ],
+      "outputs": [
+        "release-plan",
+        "promotion-gates",
+        "rollback-plan"
+      ]
+    },
+    "documentation-adr-agent": {
+      "responsibilities": [
+        "Record consequential architecture choices as ADRs.",
+        "Maintain traceability from requirement to technical decisions and implementation tasks."
+      ],
+      "outputs": [
+        "adr-set",
+        "requirement-design-traceability"
+      ]
+    }
+  },
+  "mandatory_cross_reviews": {
+    "backend-api-architect": [
+      "security-reviewer",
+      "test-engineer"
+    ],
+    "data-architect": [
+      "security-reviewer",
+      "recovery-engineer",
+      "test-engineer"
+    ],
+    "frontend-architect": [
+      "test-engineer"
+    ],
+    "platform-cloud-engineer": [
+      "security-reviewer",
+      "release-engineer"
+    ]
+  },
+  "decision_catalog": {
+    "product-domain": [
+      {
+        "id": "DOMAIN_INVARIANTS",
+        "question": "What domain invariants must remain true?",
+        "required_output": "domain-contract"
+      }
+    ],
+    "backend-api": [
+      {
+        "id": "BACKEND_BOUNDARIES",
+        "question": "Which existing backend component owns each responsibility?",
+        "required_output": "backend-service-contract"
+      },
+      {
+        "id": "API_CONTRACT",
+        "question": "What request/response contracts and validation rules are required?",
+        "required_output": "api-contract"
+      },
+      {
+        "id": "BACKEND_FAILURE_MODEL",
+        "question": "What errors, timeouts, retries and idempotency rules apply?",
+        "required_output": "backend-failure-model"
+      }
+    ],
+    "data": [
+      {
+        "id": "CANONICAL_DATA_MODEL",
+        "question": "What canonical entities, identifiers and integrity constraints are required?",
+        "required_output": "data-model"
+      },
+      {
+        "id": "DATA_QUERY_INDEX_PLAN",
+        "question": "What query patterns and indexes are required?",
+        "required_output": "index-query-plan"
+      },
+      {
+        "id": "DATA_MIGRATION",
+        "question": "Does the change require a migration and how is rollback handled?",
+        "required_output": "migration-plan"
+      }
+    ],
+    "security": [
+      {
+        "id": "SECURITY_BOUNDARIES",
+        "question": "What trust boundaries and sensitive-data constraints apply?",
+        "required_output": "security-review"
+      }
+    ],
+    "testing": [
+      {
+        "id": "TEST_OBLIGATIONS",
+        "question": "Which tests prove each acceptance criterion independently?",
+        "required_output": "acceptance-test-matrix"
+      }
+    ],
+    "sre-observability": [
+      {
+        "id": "OBSERVABILITY",
+        "question": "What health/log/metric evidence will prove the feature operates correctly?",
+        "required_output": "observability-contract"
+      }
+    ],
+    "performance": [
+      {
+        "id": "PERFORMANCE_BUDGET",
+        "question": "What measurable latency/cost/load budget applies?",
+        "required_output": "performance-budget"
+      }
+    ],
+    "recovery": [
+      {
+        "id": "RECOVERY_IMPACT",
+        "question": "What rollback/restore behavior is required if the change fails?",
+        "required_output": "recovery-impact"
+      }
+    ],
+    "release": [
+      {
+        "id": "RELEASE_SEQUENCE",
+        "question": "What preview, promotion and rollback sequence is required?",
+        "required_output": "release-plan"
+      }
+    ]
+  },
+  "implementation_gate": {
+    "required_before_implementation": [
+      "product-domain-contract-complete",
+      "all-primary-specialist-contracts-complete",
+      "mandatory-cross-reviews-complete",
+      "architecture-decisions-resolved-or-explicitly-deferred",
+      "adr-set-recorded",
+      "acceptance-test-matrix-defined"
+    ]
+  }
+}
