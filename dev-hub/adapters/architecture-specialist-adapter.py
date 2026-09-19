@@ -11,6 +11,7 @@ adapter, write project source code, or self-verify its output.
 
 Supported actions:
 - status: read-only runtime/version probe
+- inference-probe: planning-only structured model smoke probe
 - design: planning-only specialist design/review/ADR artifact
 """
 from __future__ import annotations
@@ -266,6 +267,10 @@ def validate_request(request: dict[str, Any]) -> tuple[str | None, dict[str, Any
         if task.get("permission") != "read":
             return None, None, "ARCHITECT_STATUS_PERMISSION_REQUIRED:read"
         return "status", runtime, None
+    if isinstance(runtime, dict) and runtime.get("action") == "inference-probe":
+        if task.get("permission") != "plan":
+            return None, None, "ARCHITECT_INFERENCE_PROBE_PERMISSION_REQUIRED:plan"
+        return "inference-probe", runtime, None
 
     context = metadata.get("technical_design_context")
     role = str(metadata.get("specialist_role") or task.get("owner_role") or "")
@@ -669,6 +674,105 @@ def execute_design(request: dict[str, Any], design: dict[str, Any]) -> int:
     return emit(result(request, task_status, summary, evidence, outputs), 0 if task_status == "OK" else 2)
 
 
+def execute_inference_probe(request: dict[str, Any]) -> int:
+    status, status_error = backend_status()
+    if status_error:
+        return blocked(request, status_error)
+
+    probe_schema = {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "additionalProperties": False,
+        "required": ["schema", "probe", "tool_use"],
+        "properties": {
+            "schema": {"const": "chacha.dev/architecture-specialist-inference-probe/v1"},
+            "probe": {"const": "PASS"},
+            "tool_use": {"const": False},
+        },
+    }
+    prompt = (
+        "This is a ChaCha DEV runtime contract probe. Do not use tools. "
+        "Return only the JSON object required by the supplied JSON schema with "
+        "probe=PASS and tool_use=false."
+    )
+    timeout = timeout_from(request)
+    with tempfile.TemporaryDirectory(prefix="chacha-architect-probe-") as td:
+        workspace = Path(td)
+        agent_dir = workspace / ".agents" / "agents" / "chacha-architecture-specialist"
+        agent_dir.mkdir(parents=True, exist_ok=True)
+        (agent_dir / "agent.md").write_text(custom_agent_markdown(), encoding="utf-8")
+        schema_path = workspace / "probe.schema.json"
+        schema_path.write_text(json.dumps(probe_schema, indent=2) + "\n", encoding="utf-8")
+        env = os.environ.copy()
+        env["CI"] = "1"
+        env["NO_COLOR"] = "1"
+        try:
+            proc = run(
+                [
+                    str(BACKEND),
+                    "-p", prompt,
+                    "--agent", "chacha-architecture-specialist",
+                    "--output-format", "json",
+                    "--json-schema", str(schema_path),
+                    "--print-timeout", f"{timeout}s",
+                    "--sandbox",
+                    "--effort", "low",
+                ],
+                timeout=timeout + 20,
+                cwd=workspace,
+                env=env,
+            )
+        except subprocess.TimeoutExpired:
+            return emit(result(request, "FAILED", "ARCHITECT_INFERENCE_PROBE_TIMEOUT"))
+        except OSError as exc:
+            return emit(result(request, "FAILED", f"ARCHITECT_INFERENCE_PROBE_START_FAILED:{type(exc).__name__}"))
+
+    digest = sha256_bytes(proc.stdout[:MAX_BACKEND_STDOUT] + proc.stderr[:65536])
+    if proc.returncode != 0:
+        return emit(result(request, "FAILED", "ARCHITECT_INFERENCE_PROBE_BACKEND_FAILED", [{
+            "kind": "command",
+            "source": "local://antigravity-headless/inference-probe",
+            "digest": digest,
+            "details": {"returncode": proc.returncode, "backend_version": status.get("version")},
+        }]))
+    try:
+        envelope, artifact = parse_backend_envelope(proc.stdout)
+    except (UnicodeDecodeError, ValueError) as exc:
+        return emit(result(request, "FAILED", str(exc))
+    if artifact != {
+        "schema": "chacha.dev/architecture-specialist-inference-probe/v1",
+        "probe": "PASS",
+        "tool_use": False,
+    }:
+        return emit(result(request, "FAILED", "ARCHITECT_INFERENCE_PROBE_RESPONSE_INVALID"))
+
+    usage = envelope.get("usage") if isinstance(envelope.get("usage"), dict) else {}
+    return emit(result(request, "OK", "ARCHITECTURE_SPECIALIST_INFERENCE_PROBE_PASS", [{
+        "kind": "report",
+        "source": "local://antigravity-headless/inference-probe",
+        "digest": digest,
+        "details": {
+            "backend": "antigravity",
+            "backend_version": status.get("version"),
+            "conversation_id": envelope.get("conversation_id"),
+            "tool_access": "DENIED_BY_CUSTOM_AGENT",
+            "sandbox": True,
+            "structured_output": True,
+            "usage": {
+                k: usage.get(k) for k in (
+                    "input_tokens", "output_tokens", "thinking_tokens",
+                    "cache_read_tokens", "total_tokens",
+                ) if isinstance(usage.get(k), (int, float))
+            },
+        },
+    }], [{
+        "type": "gate",
+        "id": "architecture-specialist-inference-runtime",
+        "status": "UNVERIFIED",
+        "reason": "Structured planning-only inference passed; independent verification required.",
+    }]))
+
+
 def execute_status(request: dict[str, Any]) -> int:
     status, error = backend_status()
     raw = json.dumps(status, sort_keys=True, separators=(",", ":")).encode("utf-8")
@@ -704,6 +808,8 @@ def main() -> int:
     assert action and data is not None
     if action == "status":
         return execute_status(request)
+    if action == "inference-probe":
+        return execute_inference_probe(request)
     return execute_design(request, data)
 
 
