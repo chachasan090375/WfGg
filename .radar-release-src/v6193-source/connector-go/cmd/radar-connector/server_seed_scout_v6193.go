@@ -295,7 +295,7 @@ func seedScoutAggregateV6193(players []protocol.Player, known map[string]bool) (
 	return rows, novel
 }
 
-func seedScoutRecommendationV6193(candidate string, observed, novel []seedScoutServerCountV6193, minPlayers int) *seedScoutRecommendationV6193 {
+func seedScoutChooseRecommendationV6193(candidate string, observed, novel []seedScoutServerCountV6193, minPlayers int) *seedScoutRecommendationV6193 {
 	for _, row := range observed {
 		if row.ServerID == candidate && row.Players >= minPlayers {
 			return &seedScoutRecommendationV6193{
@@ -391,7 +391,7 @@ func (s *server) runSeedScoutV6193(jobID, token string, census serverCensusPaylo
 		if len(observed) == 0 {
 			attempt.Status = "EMPTY"
 		}
-		recommendation := seedScoutRecommendationV6193(candidate, observed, novel, job.MinTargetPlayers)
+		recommendation := seedScoutChooseRecommendationV6193(candidate, observed, novel, job.MinTargetPlayers)
 		radarSeedScoutJobsV6193.update(jobID, func(j *seedScoutJobV6193) {
 			j.Attempts = append(j.Attempts, attempt)
 			if recommendation != nil {
