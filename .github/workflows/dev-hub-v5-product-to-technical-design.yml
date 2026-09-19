@@ -6,12 +6,17 @@ on:
       - dev-hub-v5-product-to-technical-design
     paths:
       - 'dev-hub/bin/technical-design-router.py'
+      - 'dev-hub/bin/project-control-cli.py'
+      - 'dev-hub/bin/project-control-api.py'
       - 'dev-hub/config/technical-design.v1.json'
       - 'dev-hub/config/agent-routing.v1.json'
       - 'dev-hub/config/orchestration-policy.v1.json'
+      - 'dev-hub/config/project-control.v1.json'
+      - 'dev-hub/config/capability-registry.v1.json'
       - 'dev-hub/schemas/product-requirement-v1.schema.json'
       - 'dev-hub/schemas/technical-design-plan-v1.schema.json'
       - 'dev-hub/schemas/task-graph-v1.schema.json'
+      - 'dev-hub/schemas/project-control-request-v1.schema.json'
       - 'dev-hub/projects/wfgg-radar/manifest.v3.json'
       - 'dev-hub/projects/wfgg-radar/requirements/RADAR_REQ_V619_PLAYER_DATA_SHIELD.v1.json'
       - '.github/workflows/dev-hub-v5-product-to-technical-design.yml'
@@ -26,6 +31,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -33,16 +39,19 @@ jobs:
       - name: Compile and validate source contracts
         run: |
           set -euo pipefail
-          python3 -m py_compile dev-hub/bin/technical-design-router.py
+          python3 -m py_compile             dev-hub/bin/technical-design-router.py             dev-hub/bin/project-control-cli.py             dev-hub/bin/project-control-api.py
           python3 - <<'PY'
           import json
           files=[
             'dev-hub/config/technical-design.v1.json',
             'dev-hub/config/agent-routing.v1.json',
             'dev-hub/config/orchestration-policy.v1.json',
+            'dev-hub/config/project-control.v1.json',
+            'dev-hub/config/capability-registry.v1.json',
             'dev-hub/schemas/product-requirement-v1.schema.json',
             'dev-hub/schemas/technical-design-plan-v1.schema.json',
             'dev-hub/schemas/task-graph-v1.schema.json',
+            'dev-hub/schemas/project-control-request-v1.schema.json',
             'dev-hub/projects/wfgg-radar/requirements/RADAR_REQ_V619_PLAYER_DATA_SHIELD.v1.json'
           ]
           for p in files:
@@ -50,11 +59,13 @@ jobs:
           print('PRODUCT_TO_TECHNICAL_DESIGN_JSON=PASS')
           PY
 
-      - name: Validate Radar Manifest V3
+      - name: Validate Radar Manifest V3 and specialist capabilities
         run: |
           set -euo pipefail
-          python3 dev-hub/bin/manifest-v3-engine.py validate             dev-hub/projects/wfgg-radar/manifest.v3.json             --registry dev-hub/config/capability-registry.v1.json
+          python3 dev-hub/bin/manifest-v3-engine.py validate             dev-hub/projects/wfgg-radar/manifest.v3.json             --registry dev-hub/config/capability-registry.v1.json             | tee /tmp/radar-manifest-validation.txt
+          ! grep -Fq 'AGENT_CAPABILITY_UNREGISTERED' /tmp/radar-manifest-validation.txt
           echo RADAR_MANIFEST_WITH_SPECIALISTS=PASS
+          echo RADAR_SPECIALIST_CAPABILITIES_REGISTERED=PASS
 
       - name: Route Radar V6.19 requirement
         run: |
@@ -95,10 +106,7 @@ jobs:
           assert roles['data-architect']['primary'] is True
 
           components=set(p['affected_components'])
-          assert 'radar-worker' in components,components
-          assert 'radar-d1' in components,components
-          assert 'radar-connector' in components,components
-          assert 'radar-ui' not in components,components
+          assert components=={'radar-worker','radar-d1','radar-connector'},components
 
           decisions={x['id']:x for x in p['architecture_decisions']}
           for did,owner in {
@@ -163,6 +171,69 @@ jobs:
           print('ADR_SYNTHESIS_AFTER_SPECIALISTS=PASS')
           PY
 
+      - name: Project Control technical-design entrypoint
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/pc
+          python3 - <<'PY'
+          import json
+          x=json.load(open('dev-hub/config/project-control.v1.json',encoding='utf-8'))
+          x['runtime']['plans_root']='/tmp/pc/plans'
+          open('/tmp/pc/project-control.json','w').write(json.dumps(x,indent=2)+'\n')
+          PY
+
+          python3 dev-hub/bin/project-control-cli.py             --repo-root "$PWD"             --policy /tmp/pc/project-control.json             --json             technical-design             --project wfgg-radar             --requirement dev-hub/projects/wfgg-radar/requirements/RADAR_REQ_V619_PLAYER_DATA_SHIELD.v1.json             --manifest dev-hub/projects/wfgg-radar/manifest.v3.json             > /tmp/pc/response.json
+
+          python3 - <<'PY'
+          import json,os
+          x=json.load(open('/tmp/pc/response.json'))
+          assert x['schema']=='chacha.dev/project-control-response/v1',x
+          assert x['operation']=='technical-design',x
+          assert x['status']=='READY',x
+          d=x['details']
+          assert d['backend_architect'] is True,d
+          assert d['data_architect'] is True,d
+          assert d['code_generation_allowed'] is False,d
+          assert 'backend-api-architect' in d['specialist_roles'],d
+          assert 'data-architect' in d['specialist_roles'],d
+          assert os.path.isfile(d['technical_design_plan']),d
+          assert os.path.isfile(d['technical_design_task_graph']),d
+          print('PROJECT_CONTROL_TECHNICAL_DESIGN=PASS')
+          print('PROJECT_CONTROL_BACKEND_ARCHITECT_ROUTED=PASS')
+          print('PROJECT_CONTROL_IMPLEMENTATION_GATE=CLOSED')
+          PY
+
+      - name: Project Control JSON API technical-design entrypoint
+        run: |
+          set -euo pipefail
+          python3 - <<'PY' | python3 dev-hub/bin/project-control-api.py > /tmp/pc/api-response.json
+          import json,os
+          print(json.dumps({
+            'schema':'chacha.dev/project-control-request/v1',
+            'project':'wfgg-radar',
+            'operation':'technical-design',
+            'arguments':{
+              'repo_root':os.getcwd(),
+              'policy':'/tmp/pc/project-control.json',
+              'requirement':'dev-hub/projects/wfgg-radar/requirements/RADAR_REQ_V619_PLAYER_DATA_SHIELD.v1.json',
+              'manifest':'dev-hub/projects/wfgg-radar/manifest.v3.json',
+              'output':'/tmp/pc/api-design.json',
+              'task_graph_output':'/tmp/pc/api-task-graph.json'
+            }
+          }))
+          PY
+
+          python3 - <<'PY'
+          import json
+          x=json.load(open('/tmp/pc/api-response.json'))
+          assert x['operation']=='technical-design',x
+          assert x['status']=='READY',x
+          assert x['details']['backend_architect'] is True,x
+          assert x['details']['data_architect'] is True,x
+          assert x['details']['code_generation_allowed'] is False,x
+          print('PROJECT_CONTROL_API_TECHNICAL_DESIGN=PASS')
+          PY
+
       - name: Assert architecture layer does not implement
         run: |
           set -euo pipefail
@@ -181,5 +252,7 @@ jobs:
             /tmp/technical-design/radar-v619.plan.json
             /tmp/technical-design/radar-v619.task-graph.json
             /tmp/technical-design/router.stdout
+            /tmp/pc/response.json
+            /tmp/pc/api-response.json
           retention-days: 30
           if-no-files-found: error
