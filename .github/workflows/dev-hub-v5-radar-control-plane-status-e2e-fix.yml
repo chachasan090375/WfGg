@@ -145,13 +145,30 @@ jobs:
 
           python3 dev-hub/bin/run-controller.py             --plan "$ROOT/plan.json"             --graph "$ROOT/graph.json"             --ledger "$ROOT/ledger.json"             --policy dev-hub/config/run-controller.v1.json             --adapters "$ROOT/adapters.json"             --output-dir "$ROOT/runs"             --execute > "$ROOT/run.stdout"
 
-          grep -Fq 'RUN_STATUS=COMPLETE' "$ROOT/run.stdout"
           python3 - "$ROOT/run.stdout" <<'PY'
-          import sys,re
+          import json,sys,re
           s=open(sys.argv[1]).read()
-          m=re.search(r'^RUN_RECORD=(.+)$',s,re.M)
+          m=re.search(r'^RUN_RECORD=(.+)          echo RADAR_CONTROL_PLANE_SCHEDULER_RUN_CONTROLLER=PASS
+
+      - name: Assert verification remains fail-closed
+        run: |
+          set -euo pipefail
+          grep -Fq 'VERIFICATION_STATUS=NEEDS_INDEPENDENT_CHECK' dev-hub/bin/run-radar-control-plane-status-e2e.sh
+          grep -Fq 'VERIFICATION_FAIL_CLOSED=PASS' dev-hub/bin/run-radar-control-plane-status-e2e.sh
+          echo RADAR_CONTROL_PLANE_VERIFICATION_BOUNDARY=PASS
+,s,re.M)
           assert m,s
-          print('RADAR_CONTROL_PLANE_CI_RUN_RECORD='+m.group(1))
+          path=m.group(1)
+          r=json.load(open(path,encoding='utf-8'))
+          assert r['mode']=='execute',r
+          assert r['summary']['dispatched']==1,r
+          assert r['summary']['succeeded']==1,r
+          assert r['summary']['failed']==0,r
+          assert r['summary']['blocked']==0,r
+          t=r['waves'][0]['tasks'][0]
+          assert t['status']=='SUCCEEDED',t
+          print('RADAR_CONTROL_PLANE_CI_RUN_RECORD='+path)
+          print('RADAR_CONTROL_PLANE_CI_EXECUTION=PASS')
           PY
           echo RADAR_CONTROL_PLANE_SCHEDULER_RUN_CONTROLLER=PASS
 
