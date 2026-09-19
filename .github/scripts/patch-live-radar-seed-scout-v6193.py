@@ -8,7 +8,7 @@ if 'WFGG_RADAR_SEED_SCOUT_UI_V6193' in text:
     print('RADAR_V6193_SEED_SCOUT_UI=ALREADY_PRESENT')
     raise SystemExit(0)
 
-anchor = '  <div id="federatedLive" class="federated-live"><span id="federatedTitle" class="federated-title">COLLECTOR FÉDÉRÉ · EN ATTENTE</span><span id="federatedMeta" class="federated-meta">Aucun cycle actif.</span></div>\\n'
+anchor = '  <div id="federatedLive" class="federated-live"><span id="federatedTitle" class="federated-title">COLLECTOR FÉDÉRÉ · EN ATTENTE</span><span id="federatedMeta" class="federated-meta">Aucun cycle actif.</span></div>\n'
 if text.count(anchor) != 1:
     raise SystemExit(f'V6193_UI_PANEL_ANCHOR_COUNT={text.count(anchor)}')
 addition = anchor + '''  <!-- WFGG_RADAR_SEED_SCOUT_UI_V6193 -->
@@ -61,7 +61,7 @@ text = text.replace(js_anchor, js + js_anchor, 1)
 hook_anchor = "$('logoutRadar').onclick=async()=>"
 if text.count(hook_anchor) != 1:
     raise SystemExit(f'V6193_UI_HOOK_ANCHOR_COUNT={text.count(hook_anchor)}')
-text = text.replace(hook_anchor, "$('seedScout').onclick=runSeedScoutV6193;\\n" + hook_anchor, 1)
+text = text.replace(hook_anchor, "$('seedScout').onclick=runSeedScoutV6193;\n" + hook_anchor, 1)
 
 UI.write_text(text, encoding='utf-8')
 print('RADAR_V6193_SEED_SCOUT_UI=PATCHED')
