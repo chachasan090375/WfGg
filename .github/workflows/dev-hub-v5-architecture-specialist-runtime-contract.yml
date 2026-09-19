@@ -1,0 +1,195 @@
+name: DEV HUB V5 Architecture Specialist Runtime contract
+
+on:
+  push:
+    branches:
+      - dev-hub-v5-architecture-specialist-runtime-contract
+    paths:
+      - 'dev-hub/adapters/architecture-specialist-adapter.py'
+      - 'dev-hub/tests/test_architecture_specialist_adapter_contract.py'
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - 'dev-hub/config/adapter-provisioning.v1.json'
+      - 'dev-hub/bin/project-control-cli.py'
+      - 'dev-hub/bin/technical-design-router.py'
+      - 'dev-hub/schemas/architecture-specialist-output-v1.schema.json'
+      - 'dev-hub/fixtures/architecture-specialist-adapter.status.v1.json'
+      - '.github/workflows/dev-hub-v5-architecture-specialist-runtime-contract.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Compile and unit contract
+        run: |
+          set -euo pipefail
+          python3 -m py_compile             dev-hub/adapters/architecture-specialist-adapter.py             dev-hub/bin/project-control-cli.py             dev-hub/bin/technical-design-router.py
+          python3 -m unittest -v dev-hub/tests/test_architecture_specialist_adapter_contract.py
+          echo ARCHITECTURE_SPECIALIST_PYTHON_CONTRACT=PASS
+
+      - name: Static adapter contract
+        run: |
+          set -euo pipefail
+          python3 dev-hub/bin/adapter-contract-harness.py             --registry dev-hub/config/provider-adapters.v1.json             --policy dev-hub/config/adapter-contract.v1.json             --report /tmp/adapter-contract-report.json
+
+          python3 - <<'PY'
+          import json
+          r=json.load(open('/tmp/adapter-contract-report.json'))
+          assert r['static']['status']=='PASS',r
+          a=json.load(open('dev-hub/config/provider-adapters.v1.json'))
+          p=a['providers']['chacha-dev-architect']
+          x=a['adapters']['architecture-specialist-adapter']
+          assert p=={
+            'adapter':'architecture-specialist-adapter',
+            'kind':'architecture-agent-runtime',
+            'execution':'vps'
+          },p
+          assert x['status']=='CONTRACT_OK',x
+          assert x['executable'] is None,x
+          assert x['supports']==['read','plan'],x
+          print('ARCHITECTURE_SPECIALIST_STATIC_CONTRACT=PASS')
+          print('CHACHA_DEV_ARCHITECT_PROVIDER_BINDING=PASS')
+          PY
+
+      - name: Reproduce DESIGNED to CONTRACT_OK via canonical promotion engine
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          committed=json.load(open('dev-hub/config/provider-adapters.v1.json'))
+          pre=json.loads(json.dumps(committed))
+          a=pre['adapters']['architecture-specialist-adapter']
+          a['status']='DESIGNED'
+          a['executable']=None
+          open('/tmp/pre-registry.json','w').write(json.dumps(pre,indent=2)+'\n')
+
+          evidence={
+            'schema':'chacha.dev/adapter-promotion-evidence/v1',
+            'adapter':'architecture-specialist-adapter',
+            'observed_at':'2026-09-19T00:00:00+00:00',
+            'evidence':{
+              'static-contract-pass':{
+                'status':'PASS',
+                'source':'ci:adapter-contract-harness',
+                'observed_at':'2026-09-19T00:00:00+00:00',
+                'details':{
+                  'static_status':'PASS',
+                  'provider_binding':'chacha-dev-architect',
+                  'permissions':['read','plan'],
+                  'shell':False
+                }
+              }
+            },
+            'approvals':[],
+            'notes':['CI reproduction only; no runtime promotion and no production mutation.']
+          }
+          open('/tmp/contract-evidence.json','w').write(json.dumps(evidence,indent=2)+'\n')
+          PY
+
+          python3 dev-hub/bin/adapter-promotion.py             --registry /tmp/pre-registry.json             --contract dev-hub/config/adapter-contract.v1.json             --policy dev-hub/config/adapter-promotion.v1.json             --evidence /tmp/contract-evidence.json             --report /tmp/contract-promotion-report.json             --json apply             --adapter architecture-specialist-adapter             --target CONTRACT_OK             --actor chacha-dev-contract-ci             --receipt /tmp/contract-promotion-receipt.json             --apply > /tmp/contract-promotion.stdout.json
+
+          python3 - <<'PY'
+          import json
+          committed=json.load(open('dev-hub/config/provider-adapters.v1.json'))
+          generated=json.load(open('/tmp/pre-registry.json'))
+          report=json.load(open('/tmp/contract-promotion-report.json'))
+          receipt=json.load(open('/tmp/contract-promotion-receipt.json'))
+          ca=committed['adapters']['architecture-specialist-adapter']
+          ga=generated['adapters']['architecture-specialist-adapter']
+          assert ga==ca,(ga,ca)
+          assert report['eligible'] is True,report
+          assert report['applied'] is True,report
+          assert report['current_status']=='DESIGNED',report
+          assert report['target_status']=='CONTRACT_OK',report
+          assert report['blockers']==[],report
+          assert receipt['new_entry']==ca,receipt
+          print('ARCHITECTURE_SPECIALIST_CONTRACT_PROMOTION_REPRODUCTION=PASS')
+          print('ARCHITECTURE_SPECIALIST_CONTRACT_REGISTRY_MATCH=PASS')
+          PY
+
+      - name: Verify Project Control persists specialist runtime context
+        run: |
+          set -euo pipefail
+          ROOT=/tmp/architect-pc
+          mkdir -p "$ROOT"
+          python3 - <<'PY'
+          import json
+          x=json.load(open('dev-hub/config/project-control.v1.json'))
+          x['runtime']['plans_root']='/tmp/architect-pc/plans'
+          open('/tmp/architect-pc/project-control.json','w').write(json.dumps(x,indent=2)+'\n')
+          PY
+
+          python3 dev-hub/bin/project-control-cli.py             --repo-root "$PWD"             --policy "$ROOT/project-control.json"             --json             technical-design             --project wfgg-radar             --requirement dev-hub/projects/wfgg-radar/requirements/RADAR_REQ_V619_PLAYER_DATA_SHIELD.v1.json             --manifest dev-hub/projects/wfgg-radar/manifest.v3.json             > "$ROOT/response.json"
+
+          python3 - <<'PY'
+          import json,os
+          r=json.load(open('/tmp/architect-pc/response.json'))
+          assert r['status']=='READY',r
+          d=r['details']
+          for k in ('technical_design_plan','technical_design_task_graph','product_requirement_snapshot','manifest_snapshot'):
+              p=d[k]
+              assert p.startswith('/tmp/architect-pc/plans/wfgg-radar/technical-design/'),(k,p)
+              assert os.path.isfile(p),(k,p)
+          g=json.load(open(d['technical_design_task_graph']))
+          for t in g['tasks']:
+              c=t['metadata']['technical_design_context']
+              assert c['requirement_path']==d['product_requirement_snapshot'],(t,c)
+              assert c['manifest_path']==d['manifest_snapshot'],(t,c)
+              assert c['technical_design_plan_path']==d['technical_design_plan'],(t,c)
+          print('ARCHITECTURE_SPECIALIST_PERSISTENT_CONTEXT=PASS')
+          PY
+
+      - name: Assert Antigravity planning-only safety contract
+        run: |
+          set -euo pipefail
+          grep -Fq 'BACKEND = Path("/usr/local/bin/agy-dev")' dev-hub/adapters/architecture-specialist-adapter.py
+          grep -Fq 'tools: []' dev-hub/adapters/architecture-specialist-adapter.py
+          grep -Fq '"--output-format", "json"' dev-hub/adapters/architecture-specialist-adapter.py
+          grep -Fq '"--json-schema", str(schema_path)' dev-hub/adapters/architecture-specialist-adapter.py
+          grep -Fq '"--sandbox"' dev-hub/adapters/architecture-specialist-adapter.py
+          grep -Fq '"--effort", "high"' dev-hub/adapters/architecture-specialist-adapter.py
+          ! grep -Fq -- '--dangerously-skip-permissions' dev-hub/adapters/architecture-specialist-adapter.py
+          ! grep -Fq 'shell=True' dev-hub/adapters/architecture-specialist-adapter.py
+          ! grep -Fq 'os.system(' dev-hub/adapters/architecture-specialist-adapter.py
+          echo ARCHITECTURE_SPECIALIST_ZERO_TOOL_AGENT=PASS
+          echo ARCHITECTURE_SPECIALIST_NO_PERMISSION_BYPASS=PASS
+          echo ARCHITECTURE_SPECIALIST_NO_SHELL=PASS
+
+      - name: Validate provisioning contract is non-promoting
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          p=json.load(open('dev-hub/config/adapter-provisioning.v1.json'))
+          a=p['adapters']['architecture-specialist-adapter']
+          assert a['source']=='dev-hub/adapters/architecture-specialist-adapter.py',a
+          assert a['namespace']=='architecture-specialist',a
+          assert a['probe']['input']['metadata']['architecture_specialist']['action']=='status',a
+          assert a['probe']['expected_status']=='OK',a
+          assert p['principles']['provisioning_never_changes_adapter_status'] is True,p
+          print('ARCHITECTURE_SPECIALIST_PROVISIONING_CONFIG=PASS')
+          print('ARCHITECTURE_SPECIALIST_RUNTIME_STATUS=CONTRACT_OK')
+          print('ARCHITECTURE_SPECIALIST_EXECUTION=NOT_YET')
+          print('ARCHITECTURE_SPECIALIST_PRODUCTION_MUTATION=NO')
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: architecture-specialist-runtime-contract-${{ github.run_id }}
+          path: |
+            /tmp/adapter-contract-report.json
+            /tmp/contract-promotion-report.json
+            /tmp/contract-promotion-receipt.json
+            /tmp/architect-pc/response.json
+          retention-days: 30
+          if-no-files-found: error
