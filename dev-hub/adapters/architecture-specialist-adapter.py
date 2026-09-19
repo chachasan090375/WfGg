@@ -513,9 +513,18 @@ def parse_backend_envelope(raw: bytes) -> tuple[dict[str, Any], dict[str, Any]]:
         raise ValueError(f"ARCHITECT_BACKEND_ENVELOPE_INVALID:{type(exc).__name__}") from exc
     if not isinstance(envelope, dict):
         raise ValueError("ARCHITECT_BACKEND_ENVELOPE_NOT_OBJECT")
-    if envelope.get("status") != "SUCCESS":
-        raise ValueError("ARCHITECT_BACKEND_STATUS_NOT_SUCCESS")
+
+    status = envelope.get("status")
     structured = envelope.get("structured_output")
+    error_text = str(envelope.get("error") or "")
+    recoverable_interruption = bool(
+        status == "ERROR"
+        and isinstance(structured, dict)
+        and "stream was interrupted" in error_text.lower()
+    )
+    if status != "SUCCESS" and not recoverable_interruption:
+        raise ValueError("ARCHITECT_BACKEND_STATUS_NOT_SUCCESS")
+
     response = envelope.get("response")
     if isinstance(structured, dict):
         artifact = structured
@@ -681,6 +690,12 @@ def execute_design(request: dict[str, Any], design: dict[str, Any]) -> int:
             "backend_version": status.get("version"),
             "model": MODEL,
             "conversation_id": backend_envelope.get("conversation_id"),
+            "backend_status": backend_envelope.get("status"),
+            "stream_interruption_recovered": bool(
+                backend_envelope.get("status") == "ERROR"
+                and isinstance(backend_envelope.get("structured_output"), dict)
+                and "stream was interrupted" in str(backend_envelope.get("error") or "").lower()
+            ),
             "usage": {
                 k: usage.get(k) for k in (
                     "input_tokens", "output_tokens", "thinking_tokens",
@@ -790,6 +805,12 @@ def execute_inference_probe(request: dict[str, Any]) -> int:
             "backend_version": status.get("version"),
             "model": MODEL,
             "conversation_id": envelope.get("conversation_id"),
+            "backend_status": envelope.get("status"),
+            "stream_interruption_recovered": bool(
+                envelope.get("status") == "ERROR"
+                and isinstance(envelope.get("structured_output"), dict)
+                and "stream was interrupted" in str(envelope.get("error") or "").lower()
+            ),
             "tool_access": "DENIED_BY_CUSTOM_AGENT",
             "sandbox": True,
             "structured_output": True,
