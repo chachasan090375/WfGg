@@ -377,6 +377,148 @@ def schedule_operation(project: str, graph: Path | None, policy: dict[str, Any],
                     artifacts=[{"type": "execution-plan", "path": str(out)}])
 
 
+
+def operate_operation(project: str, graph: Path, workspace: str | None, execute: bool,
+                      policy: dict[str, Any], repo_root: Path) -> dict[str, Any]:
+    """Schedule and optionally execute an explicit same-stage operational graph.
+
+    This path is deliberately separate from lifecycle transition scheduling.
+    It never advances lifecycle state. Runtime execution still goes through the
+    Scheduler, Run Controller, registered adapters, provider health, approvals
+    and evidence ledger.
+    """
+    p = project_paths(policy, project)
+    operation = "operate"
+    if not p["state"].exists():
+        return response(project, operation, "BLOCKED", "Control-plane state missing.",
+                        blockers=["CONTROL_PLANE_STATE_MISSING"])
+    if not p["ledger"].exists():
+        return response(project, operation, "BLOCKED", "Evidence ledger missing.",
+                        blockers=["EVIDENCE_LEDGER_MISSING"])
+    if not p["health"].exists():
+        return response(project, operation, "BLOCKED", "Provider health snapshot does not exist.",
+                        {"health": str(p["health"])}, ["PROVIDER_HEALTH_SNAPSHOT_MISSING"])
+    if not graph.exists():
+        return response(project, operation, "BLOCKED", "Operational Task Graph does not exist.",
+                        {"task_graph": str(graph)}, ["TASK_GRAPH_MISSING"])
+
+    projection = load(p["state"])
+    stage = str(((projection.get("state") or {}).get("lifecycle") or {}).get("stage") or "UNKNOWN")
+    graph_value = load(graph)
+    if graph_value.get("schema") != "chacha.dev/task-graph/v1":
+        return response(project, operation, "BLOCKED", "Operational Task Graph schema is invalid.",
+                        {"schema": graph_value.get("schema")}, ["TASK_GRAPH_SCHEMA_INVALID"])
+    if graph_value.get("project") != project:
+        return response(project, operation, "BLOCKED", "Operational Task Graph project does not match.",
+                        {"graph_project": graph_value.get("project")}, ["TASK_GRAPH_PROJECT_MISMATCH"])
+    expected_transition = f"{stage}->{stage}"
+    if graph_value.get("transition") != expected_transition:
+        return response(project, operation, "BLOCKED",
+                        "Operational Task Graph must be a same-stage graph for the current lifecycle stage.",
+                        {"current_stage": stage, "expected_transition": expected_transition,
+                         "actual_transition": graph_value.get("transition")},
+                        ["OPERATE_TRANSITION_MISMATCH"])
+
+    refs, tools = policy.get("repository_paths") or {}, policy.get("engine_paths") or {}
+    orchestration = load(resolve_repo(repo_root, refs["orchestration"]))
+    stage_policy = ((orchestration.get("stages") or {}).get(stage) or {})
+    allowed_permissions = set(stage_policy.get("allowed_permissions") or [])
+    permission_blockers: list[str] = []
+    for task in graph_value.get("tasks") or []:
+        if not isinstance(task, dict):
+            continue
+        permission = str(task.get("permission") or "read")
+        if permission not in allowed_permissions:
+            permission_blockers.append(
+                f"STAGE_PERMISSION_NOT_ALLOWED:{stage}:{task.get('id')}:{permission}"
+            )
+    if permission_blockers:
+        return response(project, operation, "BLOCKED",
+                        "Operational Task Graph contains permissions not allowed in the current stage.",
+                        {"current_stage": stage}, sorted(set(permission_blockers)))
+
+    plan_name = graph.stem + ".execution-plan.json"
+    out = p["plans"] / "operations" / plan_name
+    rc_sched, stdout_sched, stderr_sched = run_tool(
+        resolve_repo(repo_root, tools["execution_scheduler"]),
+        [
+            "--graph", str(graph),
+            "--registry", str(resolve_repo(repo_root, refs["capability_registry"])),
+            "--health", str(p["health"]),
+            "--policy", str(resolve_repo(repo_root, refs["execution_scheduler"])),
+            "--output", str(out),
+        ],
+    )
+    if rc_sched != 0:
+        return response(project, operation, "FAILED", "Operational execution scheduling failed.",
+                        {"stderr": stderr_sched.strip(), "stdout": stdout_sched.strip()},
+                        ["EXECUTION_SCHEDULER_FAILED"])
+    plan = load(out)
+    blocked = [
+        f"TASK_BLOCKED:{x.get('task_id')}:{'|'.join(x.get('reasons') or [])}"
+        for x in plan.get("blocked_tasks") or []
+    ]
+    if blocked:
+        return response(project, operation, "BLOCKED", "Operational execution plan contains blocked tasks.",
+                        {"execution_plan": str(out), "summary": plan.get("summary")}, blocked,
+                        artifacts=[{"type": "execution-plan", "path": str(out)}])
+
+    run_policy_key = "run_controller_operate" if execute else "run_controller"
+    run_policy = refs.get(run_policy_key)
+    if not run_policy:
+        return response(project, operation, "BLOCKED", "Run Controller policy for operational execution is missing.",
+                        blockers=[f"RUN_CONTROLLER_POLICY_MISSING:{run_policy_key}"])
+    argv = [
+        "--plan", str(out),
+        "--graph", str(graph),
+        "--ledger", str(p["ledger"]),
+        "--policy", str(resolve_repo(repo_root, run_policy)),
+        "--adapters", str(resolve_repo(repo_root, refs["provider_adapters"])),
+        "--output-dir", str(p["runs"]),
+    ]
+    if workspace:
+        argv += ["--workspace", workspace]
+    if execute:
+        argv.append("--execute")
+
+    rc_run, stdout_run, stderr_run = run_tool(
+        resolve_repo(repo_root, tools["run_controller"]),
+        argv,
+        timeout=3700 if execute else 120,
+    )
+    values, run_blockers = parse_kv(stdout_run)
+    if rc_run != 0:
+        detail = {
+            "execution_plan": str(out),
+            "stdout": stdout_run.strip(),
+            "stderr": stderr_run.strip(),
+            **values,
+        }
+        if execute and "EXECUTION_DISABLED_BY_POLICY" in stderr_run + stdout_run:
+            run_blockers.append("EXECUTION_DISABLED_BY_POLICY")
+        return response(project, operation, "BLOCKED" if run_blockers else "FAILED",
+                        "Operational Run Controller did not complete.",
+                        detail, run_blockers or ["RUN_CONTROLLER_FAILED"],
+                        artifacts=[{"type": "execution-plan", "path": str(out)}])
+
+    return response(
+        project,
+        operation,
+        "OK",
+        "Operational graph was scheduled through ChaCha DEV and Run Controller completed.",
+        {
+            "current_stage": stage,
+            "execution_mode": "execute" if execute else "dispatch-only",
+            "execution_plan": str(out),
+            **values,
+        },
+        artifacts=[
+            {"type": "execution-plan", "path": str(out)},
+            {"type": "run-record", "path": values.get("RUN_RECORD")},
+        ],
+    )
+
+
 def prepare_or_dispatch(project: str, execute: bool, plan: Path, graph: Path, workspace: str | None,
                         policy: dict[str, Any], repo_root: Path) -> dict[str, Any]:
     p = project_paths(policy, project)
@@ -779,6 +921,12 @@ def main() -> int:
     dispatch.add_argument("--workspace")
     dispatch.add_argument("--execute", action="store_true")
 
+    operate = sub.add_parser("operate")
+    operate.add_argument("--project", required=True)
+    operate.add_argument("--graph", required=True, type=Path)
+    operate.add_argument("--workspace")
+    operate.add_argument("--execute", action="store_true")
+
     verify = sub.add_parser("verify-result")
     verify.add_argument("--project", required=True)
     verify.add_argument("--result", required=True, type=Path)
@@ -828,6 +976,8 @@ def main() -> int:
                               blockers=["EXPLICIT_DISPATCH_FLAG_REQUIRED"])
         else:
             result = prepare_or_dispatch(args.project, True, args.plan, args.graph, args.workspace, policy, args.repo_root)
+    elif args.command == "operate":
+        result = operate_operation(args.project, args.graph, args.workspace, args.execute, policy, args.repo_root)
     elif args.command == "verify-result":
         result = verify_result_operation(args.project, args.result, args.graph, args.method, args.verifier,
                                          args.ingest, policy, args.repo_root)
