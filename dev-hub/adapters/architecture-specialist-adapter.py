@@ -33,6 +33,7 @@ ADAPTER_ID = "architecture-specialist-adapter"
 PROVIDER_ID = "chacha-dev-architect"
 
 BACKEND = Path("/usr/local/bin/agy-dev")
+MODEL = os.environ.get("CHACHA_DEV_ARCHITECT_MODEL", "gemini-3.8-flash-medium")
 PLANS_ROOT = Path(os.environ.get("CHACHA_DEV_PLANS_ROOT", "/opt/chacha-dev/runtime/plans"))
 RESULT_ROOT = Path(os.environ.get(
     "CHACHA_DEV_ARCHITECT_RESULT_ROOT",
@@ -301,6 +302,7 @@ def backend_status() -> tuple[dict[str, Any], str | None]:
         "available": True,
         "version": version.splitlines()[0][:200],
         "backend_sha256": sha256_file(BACKEND),
+        "model": MODEL,
     }, None
 
 
@@ -513,8 +515,11 @@ def parse_backend_envelope(raw: bytes) -> tuple[dict[str, Any], dict[str, Any]]:
         raise ValueError("ARCHITECT_BACKEND_ENVELOPE_NOT_OBJECT")
     if envelope.get("status") != "SUCCESS":
         raise ValueError("ARCHITECT_BACKEND_STATUS_NOT_SUCCESS")
+    structured = envelope.get("structured_output")
     response = envelope.get("response")
-    if isinstance(response, dict):
+    if isinstance(structured, dict):
+        artifact = structured
+    elif isinstance(response, dict):
         artifact = response
     elif isinstance(response, str):
         try:
@@ -562,6 +567,24 @@ def validate_specialist_artifact(
             raise ValueError(f"ARCHITECT_SPECIALIST_FIELD_NOT_LIST:{key}")
 
 
+def classify_backend_failure(stdout: bytes, stderr: bytes) -> str:
+    text = (stdout + b"\n" + stderr).decode("utf-8", "replace").lower()
+    checks = [
+        ("quota", ("quota", "429", "resource_exhausted")),
+        ("model", ("model not found", "unknown model", "unsupported model", "invalid model")),
+        ("sandbox", ("nsjail", "sandbox", "appcontainer", "sandbox-exec")),
+        ("agent", ("agent not found", "unknown agent", "invalid agent")),
+        ("auth", ("unauthenticated", "authentication", "api key", "permission denied")),
+        ("location", ("location", "region", "country")),
+        ("network", ("network", "connection", "dns", "timeout")),
+        ("schema", ("json schema", "structured output", "schema")),
+    ]
+    for label, needles in checks:
+        if any(x in text for x in needles):
+            return label
+    return "unknown"
+
+
 def execute_design(request: dict[str, Any], design: dict[str, Any]) -> int:
     status, status_error = backend_status()
     if status_error:
@@ -594,6 +617,7 @@ def execute_design(request: dict[str, Any], design: dict[str, Any]) -> int:
                 [
                     str(BACKEND),
                     "-p", prompt,
+                    "--model", MODEL,
                     "--agent", "chacha-architecture-specialist",
                     "--output-format", "json",
                     "--json-schema", str(schema_path),
@@ -616,7 +640,12 @@ def execute_design(request: dict[str, Any], design: dict[str, Any]) -> int:
             "kind": "command",
             "source": "local://antigravity-headless",
             "digest": digest,
-            "details": {"returncode": proc.returncode, "backend_version": status.get("version")},
+            "details": {
+                "returncode": proc.returncode,
+                "backend_version": status.get("version"),
+                "model": MODEL,
+                "failure_class": classify_backend_failure(proc.stdout, proc.stderr),
+            },
         }]))
 
     try:
@@ -651,6 +680,7 @@ def execute_design(request: dict[str, Any], design: dict[str, Any]) -> int:
             "artifact_kind": artifact.get("artifact_kind"),
             "backend": "antigravity",
             "backend_version": status.get("version"),
+            "model": MODEL,
             "conversation_id": backend_envelope.get("conversation_id"),
             "usage": {
                 k: usage.get(k) for k in (
@@ -711,6 +741,7 @@ def execute_inference_probe(request: dict[str, Any]) -> int:
                 [
                     str(BACKEND),
                     "-p", prompt,
+                    "--model", MODEL,
                     "--agent", "chacha-architecture-specialist",
                     "--output-format", "json",
                     "--json-schema", str(schema_path),
@@ -733,7 +764,12 @@ def execute_inference_probe(request: dict[str, Any]) -> int:
             "kind": "command",
             "source": "local://antigravity-headless/inference-probe",
             "digest": digest,
-            "details": {"returncode": proc.returncode, "backend_version": status.get("version")},
+            "details": {
+                "returncode": proc.returncode,
+                "backend_version": status.get("version"),
+                "model": MODEL,
+                "failure_class": classify_backend_failure(proc.stdout, proc.stderr),
+            },
         }]))
     try:
         envelope, artifact = parse_backend_envelope(proc.stdout)
@@ -754,6 +790,7 @@ def execute_inference_probe(request: dict[str, Any]) -> int:
         "details": {
             "backend": "antigravity",
             "backend_version": status.get("version"),
+            "model": MODEL,
             "conversation_id": envelope.get("conversation_id"),
             "tool_access": "DENIED_BY_CUSTOM_AGENT",
             "sandbox": True,
