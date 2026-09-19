@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Qualified by dev-hub-radar-v6192-pilot-runner-qualification.
 set -Eeuo pipefail
 
 REV="${WFGG_DEV_HUB_RADAR_V6192_DEPLOY_REV:-}"
