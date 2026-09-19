@@ -76,6 +76,12 @@ class RadarRuntimeAdapterContract(unittest.TestCase):
         self.assertIsNone(err)
         self.assertEqual(radar["action"], "history-performance-diagnostic")
 
+    def test_census_frontier_diagnostic_contract(self):
+        req = envelope("census-frontier-diagnostic", "read")
+        radar, err = mod.validate_request(req)
+        self.assertIsNone(err)
+        self.assertEqual(radar["action"], "census-frontier-diagnostic")
+
     def test_radar_signature_is_stable(self):
         got = mod.radar_signature("GET", "/x", "1", "n", b"", "s" * 32)
         self.assertEqual(len(got), 64)
