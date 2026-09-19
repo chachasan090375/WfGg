@@ -501,6 +501,19 @@ def main() -> int:
         load(args.routing),
         load(args.policy),
     )
+
+    context = {
+        "requirement_path": str(args.requirement.resolve()),
+        "manifest_path": str(args.manifest.resolve()),
+        "technical_design_plan_path": str(args.output.resolve()),
+        "requirement_id": result["requirement_id"],
+        "project": result["project"],
+    }
+    result.setdefault("provenance", {})["runtime_context"] = context
+    for task in graph.get("tasks") or []:
+        metadata = task.setdefault("metadata", {})
+        metadata["technical_design_context"] = context
+
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.task_graph_output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
