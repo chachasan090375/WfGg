@@ -1,0 +1,251 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://chacha.dev/schemas/architecture-specialist-output-v1.schema.json",
+  "title": "ChaCha DEV Architecture Specialist Output V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "project",
+    "requirement_id",
+    "task_id",
+    "role",
+    "artifact_kind",
+    "status",
+    "summary",
+    "decisions",
+    "recommendations",
+    "risks",
+    "unresolved_questions",
+    "acceptance_obligations",
+    "implementation_constraints",
+    "source_references"
+  ],
+  "properties": {
+    "schema": {
+      "const": "chacha.dev/architecture-specialist-output/v1"
+    },
+    "project": {
+      "type": "string",
+      "minLength": 1
+    },
+    "requirement_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "task_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "role": {
+      "type": "string",
+      "minLength": 1
+    },
+    "artifact_kind": {
+      "enum": [
+        "design-fragment",
+        "cross-review",
+        "adr-set"
+      ]
+    },
+    "status": {
+      "enum": [
+        "PROPOSED",
+        "BLOCKED"
+      ]
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1
+    },
+    "decisions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "decision",
+          "rationale",
+          "confidence",
+          "alternatives",
+          "evidence_needed"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "decision": {
+            "type": "string",
+            "minLength": 1
+          },
+          "rationale": {
+            "type": "string",
+            "minLength": 1
+          },
+          "confidence": {
+            "enum": [
+              "LOW",
+              "MEDIUM",
+              "HIGH"
+            ]
+          },
+          "alternatives": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "evidence_needed": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "recommendations": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "risks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "severity",
+          "description",
+          "mitigation"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "severity": {
+            "enum": [
+              "LOW",
+              "MEDIUM",
+              "HIGH",
+              "CRITICAL"
+            ]
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1
+          },
+          "mitigation": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "unresolved_questions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "question",
+          "owner",
+          "blocking"
+        ],
+        "properties": {
+          "question": {
+            "type": "string",
+            "minLength": 1
+          },
+          "owner": {
+            "enum": [
+              "product-owner",
+              "specialist",
+              "runtime-evidence",
+              "cross-review"
+            ]
+          },
+          "blocking": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "acceptance_obligations": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "implementation_constraints": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "source_references": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "reviewed_roles": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "adr_records": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "title",
+          "status",
+          "decision",
+          "consequences"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "enum": [
+              "PROPOSED",
+              "ACCEPTED",
+              "DEFERRED"
+            ]
+          },
+          "decision": {
+            "type": "string",
+            "minLength": 1
+          },
+          "consequences": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}
