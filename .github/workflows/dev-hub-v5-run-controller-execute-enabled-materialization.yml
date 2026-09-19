@@ -1,0 +1,199 @@
+name: DEV HUB V5 Run Controller execute-enabled materialization
+
+on:
+  push:
+    branches:
+      - dev-hub-v5-run-controller-execute-enabled
+    paths:
+      - 'dev-hub/config/run-controller.v1.json'
+      - 'dev-hub/config/run-controller-execution-activation.v1.json'
+      - 'dev-hub/evidence/run-controller-execute-enabled-approval-2026-09-19.json'
+      - 'dev-hub/bin/run-controller.py'
+      - 'dev-hub/bin/run-radar-control-plane-status-e2e.sh'
+      - '.github/workflows/dev-hub-v5-run-controller-execute-enabled-materialization.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Validate explicit approval and materialized mode
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          e=json.load(open('dev-hub/evidence/run-controller-execute-enabled-approval-2026-09-19.json'))
+          p=json.load(open('dev-hub/config/run-controller.v1.json'))
+          a=json.load(open('dev-hub/config/run-controller-execution-activation.v1.json'))
+          ap=e['approval']
+          assert ap['id']=='approval-run-controller-execute-enabled-20260919',ap
+          assert ap['type']=='control-plane-execution-enable',ap
+          assert ap['actor']=='human-user',ap
+          assert ap['source']=='chat-explicit-approval',ap
+          assert ap['statement']=='J’approuve l’activation du Run Controller ChaCha DEV en mode execute-enabled.',ap
+          assert e['technical_readiness']['workflow_run_id']==35425795372,e
+          assert e['technical_readiness']['workflow_result']=='SUCCESS',e
+          assert all(v=='PASS' for v in e['technical_readiness']['gates'].values()),e
+          assert a['current_mode']=='dispatch-only',a
+          assert a['target_mode']=='execute-enabled',a
+          assert a['human_approval_required'] is True,a
+          assert p['mode']=='execute-enabled',p
+          print('RUN_CONTROLLER_HUMAN_APPROVAL_EVIDENCE=PASS')
+          print('RUN_CONTROLLER_MODE=execute-enabled')
+          print('RUN_CONTROLLER_MATERIALIZATION=PASS')
+          PY
+
+      - name: Verify rollback reconstructs dispatch-only lock
+        run: |
+          set -euo pipefail
+          ROOT=/tmp/rc-material
+          mkdir -p "$ROOT"
+          python3 - <<'PY'
+          import json
+          x=json.load(open('dev-hub/config/run-controller.v1.json'))
+          assert x['mode']=='execute-enabled'
+          x['mode']='dispatch-only'
+          open('/tmp/rc-material/rollback-policy.json','w').write(json.dumps(x,indent=2)+'\n')
+          print('RUN_CONTROLLER_ROLLBACK_RECONSTRUCTED=dispatch-only')
+          PY
+          grep -Fq 'if args.execute and policy.get("mode") != "execute-enabled"' dev-hub/bin/run-controller.py
+          echo RUN_CONTROLLER_ROLLBACK_GATE=PASS
+
+      - name: Execute read-only task through materialized policy
+        run: |
+          set -euo pipefail
+          ROOT=/tmp/rc-material
+          cat > "$ROOT/adapter" <<'PY'
+          #!/usr/bin/env python3
+          import hashlib,json,sys
+          e=json.load(sys.stdin)
+          d={"permission":e["task"]["permission"],"route":"run-controller"}
+          raw=json.dumps(d,sort_keys=True,separators=(',',':')).encode()
+          print(json.dumps({
+            "schema":"chacha.dev/task-result/v1",
+            "project":e["project"],
+            "task_id":e["task"]["id"],
+            "status":"OK",
+            "producer":"radar-runtime-adapter",
+            "observed_at":"2026-09-19T00:00:00Z",
+            "summary":"MATERIALIZED_EXECUTION_OK",
+            "evidence":[{"kind":"metric","source":"ci://run-controller-materialization","digest":"sha256:"+hashlib.sha256(raw).hexdigest(),"details":d}],
+            "verification":{"status":"UNVERIFIED","method":"none","verifier":"none","observed_at":"2026-09-19T00:00:00Z","notes":"ci"},
+            "outputs":[{"type":"artifact","id":"radar-runtime-status","status":"UNVERIFIED"}]
+          }))
+          PY
+          chmod +x "$ROOT/adapter"
+
+          cat > "$ROOT/graph.json" <<'JSON'
+          {
+            "schema":"chacha.dev/task-graph/v1",
+            "project":"wfgg-radar",
+            "transition":"CONTROL->READ",
+            "generated_at":"2026-09-19T00:00:00Z",
+            "tasks":[{
+              "id":"radar-runtime:status",
+              "kind":"health",
+              "owner_role":"sre-observability",
+              "capabilities":["radar-runtime-inspect"],
+              "permission":"read",
+              "depends_on":[],
+              "outputs":[{"type":"artifact","id":"radar-runtime-status"}],
+              "verification":{"mode":"machine","self_certification_allowed":false},
+              "blocking":true
+            }]
+          }
+          JSON
+
+          cat > "$ROOT/plan.json" <<'JSON'
+          {
+            "schema":"chacha.dev/execution-plan/v1",
+            "project":"wfgg-radar",
+            "transition":"CONTROL->READ",
+            "generated_at":"2026-09-19T00:00:00Z",
+            "waves":[{"index":1,"tasks":[{
+              "task_id":"radar-runtime:status",
+              "permission":"read",
+              "resource_class":"light",
+              "requires_storage_preflight":false,
+              "provider_bindings":[{
+                "capability":"radar-runtime-inspect",
+                "provider":"radar-vps-runtime",
+                "provider_status":"PILOT",
+                "health_state":"HEALTHY",
+                "state":"READY",
+                "fallback_used":false,
+                "reason":"ci"
+              }]
+            }]}],
+            "blocked_tasks":[],
+            "summary":{"task_count":1,"scheduled_count":1,"blocked_count":0,"wave_count":1,"failover_bindings":0}
+          }
+          JSON
+
+          python3 - <<'PY'
+          import json
+          x=json.load(open('dev-hub/config/provider-adapters.v1.json'))
+          a=x['adapters']['radar-runtime-adapter']
+          assert a['status']=='ENABLED',a
+          a['executable']='/tmp/rc-material/adapter'
+          open('/tmp/rc-material/adapters.json','w').write(json.dumps(x,indent=2)+'\n')
+          PY
+
+          python3 dev-hub/bin/evidence-collector.py init --project wfgg-radar --ledger "$ROOT/ledger.json"
+
+          python3 dev-hub/bin/run-controller.py             --plan "$ROOT/plan.json"             --graph "$ROOT/graph.json"             --ledger "$ROOT/ledger.json"             --policy dev-hub/config/run-controller.v1.json             --adapters "$ROOT/adapters.json"             --output-dir "$ROOT/runs"             --execute > "$ROOT/stdout"
+
+          python3 - "$ROOT/stdout" <<'PY'
+          import json,re,sys
+          s=open(sys.argv[1]).read()
+          m=re.search(r'^RUN_RECORD=(.+)$',s,re.M); assert m,s
+          r=json.load(open(m.group(1)))
+          assert r['mode']=='execute',r
+          assert r['summary']['dispatched']==1,r
+          assert r['summary']['succeeded']==1,r
+          t=r['waves'][0]['tasks'][0]
+          assert t['status']=='SUCCEEDED',t
+          result=json.load(open(t['task_result']))
+          assert result['verification']['status']=='UNVERIFIED',result
+          print('RUN_CONTROLLER_EXECUTE_ENABLED_READ=PASS')
+          print('RUN_CONTROLLER_SELF_VERIFICATION=NO')
+          PY
+
+      - name: Production approval remains independently required
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          p=json.load(open('dev-hub/config/run-controller.v1.json'))
+          explicit=set(p['approvals']['explicit_human_permissions'])
+          assert 'production-deploy' in explicit,explicit
+          assert p['approvals']['approval_must_be_current'] is True,p
+          assert p['safety']['allow_implicit_production_change'] is False,p
+          print('RUN_CONTROLLER_PRODUCTION_APPROVAL_GATE=PASS')
+          print('RUN_CONTROLLER_IMPLICIT_PRODUCTION_CHANGE=DENIED')
+          PY
+
+      - name: Validate live Radar E2E launcher remains read-only
+        run: |
+          set -euo pipefail
+          bash -n dev-hub/bin/run-radar-control-plane-status-e2e.sh
+          grep -Fq "'permission':'read'" dev-hub/bin/run-radar-control-plane-status-e2e.sh
+          grep -Fq "'action':'status'" dev-hub/bin/run-radar-control-plane-status-e2e.sh
+          grep -Fq 'RADAR_PRODUCTION_MUTATION=NO' dev-hub/bin/run-radar-control-plane-status-e2e.sh
+          ! grep -Fq "'action':'pilot-open'" dev-hub/bin/run-radar-control-plane-status-e2e.sh
+          ! grep -Fq "'action':'pilot-install'" dev-hub/bin/run-radar-control-plane-status-e2e.sh
+          echo RADAR_FIRST_LIVE_CONTROL_PLANE_RUN_READONLY=PASS
+
+      - name: Final
+        run: |
+          echo RUN_CONTROLLER_EXECUTE_ENABLED_MATERIALIZATION=PASS
+          echo RUN_CONTROLLER_NEXT=LIVE_RADAR_READONLY_E2E
