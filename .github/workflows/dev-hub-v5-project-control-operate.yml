@@ -12,6 +12,7 @@ on:
       - 'dev-hub/schemas/project-control-request-v1.schema.json'
       - 'dev-hub/schemas/task-graph-v1.schema.json'
       - 'dev-hub/operations/wfgg-radar/runtime-status.task-graph.json'
+      - 'dev-hub/bin/run-radar-status-via-project-control.sh'
       - '.github/workflows/dev-hub-v5-project-control-operate.yml'
   workflow_dispatch:
 
@@ -31,6 +32,7 @@ jobs:
       - name: Syntax and policy invariants
         run: |
           set -euo pipefail
+          bash -n dev-hub/bin/run-radar-status-via-project-control.sh
           python3 -m py_compile             dev-hub/bin/project-control.py             dev-hub/bin/project-control-api.py             dev-hub/bin/execution-scheduler.py             dev-hub/bin/run-controller.py             dev-hub/bin/external-runtime-dispatch.py
           python3 - <<'PY'
           import json
@@ -50,6 +52,12 @@ jobs:
           assert graph['tasks'][0]['metadata']['radar_runtime']['action']=='status'
           print('PROJECT_CONTROL_OPERATE_POLICY=PASS')
           print('DEFAULT_RUN_CONTROLLER_REMAINS_DISPATCH_ONLY=PASS')
+          script=open('dev-hub/bin/run-radar-status-via-project-control.sh',encoding='utf-8').read()
+          assert 'project-control-cli.py' in script
+          assert '--json operate' in script
+          assert '--execute' in script
+          assert 'RADAR_RUNTIME_STATUS_ACTION=PASS' in script
+          print('RADAR_STATUS_BOOTSTRAP_USES_PROJECT_CONTROL=PASS')
           PY
 
       - name: Execute synthetic read-only operation through full control chain
