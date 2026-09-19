@@ -156,6 +156,18 @@ class ArchitectureSpecialistAdapterContract(unittest.TestCase):
         self.assertEqual(action, "status")
         self.assertEqual(data["action"], "status")
 
+    def test_inference_probe_requires_plan_permission(self):
+        req = status_envelope()
+        req["task"]["id"] = "architecture-specialist:inference-probe"
+        req["task"]["permission"] = "plan"
+        req["metadata"] = {"architecture_specialist": {"action": "inference-probe"}}
+        action, _data, err = mod.validate_request(req)
+        self.assertIsNone(err)
+        self.assertEqual(action, "inference-probe")
+        req["task"]["permission"] = "read"
+        _action, _data, err = mod.validate_request(req)
+        self.assertEqual(err, "ARCHITECT_INFERENCE_PROBE_PERMISSION_REQUIRED:plan")
+
     def test_binding_must_be_healthy(self):
         req = status_envelope()
         req["bindings"][0]["health_state"] = "DEGRADED"
