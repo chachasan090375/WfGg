@@ -489,6 +489,118 @@
         "technology-radar"
       ],
       "approval_scope": "workspace-write"
+    },
+    {
+      "role": "product-domain-architect",
+      "provider": "chacha-dev-architect",
+      "capabilities": [
+        "requirements-analysis",
+        "domain-modeling",
+        "acceptance-criteria"
+      ],
+      "approval_scope": "read-only"
+    },
+    {
+      "role": "frontend-architect",
+      "provider": "chacha-dev-architect",
+      "capabilities": [
+        "code-edit",
+        "web-docs",
+        "library-docs",
+        "accessibility-review",
+        "frontend-performance"
+      ],
+      "approval_scope": "read-only"
+    },
+    {
+      "role": "backend-api-architect",
+      "provider": "chacha-dev-architect",
+      "capabilities": [
+        "code-edit",
+        "library-docs",
+        "api-contract-review",
+        "integration-design"
+      ],
+      "approval_scope": "read-only"
+    },
+    {
+      "role": "data-architect",
+      "provider": "chacha-dev-architect",
+      "capabilities": [
+        "database-migrate",
+        "data-model-review",
+        "backup-design"
+      ],
+      "approval_scope": "read-only"
+    },
+    {
+      "role": "security-reviewer",
+      "provider": "chacha-dev-architect",
+      "capabilities": [
+        "security-scan-js",
+        "threat-model",
+        "secrets-review",
+        "dependency-review",
+        "audit-signing-policy",
+        "digital-signature-verification",
+        "key-lifecycle-review",
+        "trust-anchor-review"
+      ],
+      "approval_scope": "read-only"
+    },
+    {
+      "role": "test-engineer",
+      "provider": "chacha-dev-architect",
+      "capabilities": [
+        "unit-test-js",
+        "e2e-test-web",
+        "performance-test-web",
+        "test-strategy"
+      ],
+      "approval_scope": "read-only"
+    },
+    {
+      "role": "sre-observability-engineer",
+      "provider": "chacha-dev-architect",
+      "capabilities": [
+        "health-checks",
+        "logging",
+        "metrics",
+        "alerts",
+        "incident-readiness"
+      ],
+      "approval_scope": "read-only"
+    },
+    {
+      "role": "performance-engineer",
+      "provider": "chacha-dev-architect",
+      "capabilities": [
+        "performance-test-web",
+        "capacity-analysis",
+        "frontend-performance"
+      ],
+      "approval_scope": "read-only"
+    },
+    {
+      "role": "recovery-engineer",
+      "provider": "chacha-dev-architect",
+      "capabilities": [
+        "backup-store",
+        "restore-drill",
+        "rpo-rto-validation",
+        "signed-checkpoint-recovery-validation"
+      ],
+      "approval_scope": "read-only"
+    },
+    {
+      "role": "documentation-adr-agent",
+      "provider": "chacha-dev-architect",
+      "capabilities": [
+        "architecture-documentation",
+        "adr-management",
+        "runbook-maintenance"
+      ],
+      "approval_scope": "read-only"
     }
   ],
   "knowledge_sources": [
