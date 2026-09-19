@@ -35,6 +35,7 @@ type seedScoutStartRequestV6193 struct {
 	Limit            int    `json:"limit,omitempty"`
 	Region           *int   `json:"region,omitempty"`
 	MinTargetPlayers int    `json:"minTargetPlayers,omitempty"`
+	Offset           int    `json:"offset,omitempty"`
 }
 
 type seedScoutServerCountV6193 struct {
@@ -73,6 +74,8 @@ type seedScoutJobV6193 struct {
 	RegionsPerCandidate int                           `json:"regionsPerCandidate"`
 	Region              int                           `json:"region"`
 	MinTargetPlayers    int                           `json:"minTargetPlayers"`
+	Offset              int                           `json:"offset"`
+	NextOffset          int                           `json:"nextOffset"`
 	KnownServerCount    int                           `json:"knownServerCount"`
 	Candidates          []string                      `json:"candidates"`
 	CandidateIndex      int                           `json:"candidateIndex"`
@@ -201,13 +204,19 @@ func seedScoutNearestDistanceV6193(value int, known []int) int {
 }
 
 // Numeric proximity orders probes only; it never infers cluster membership.
-func seedScoutCandidateSequenceV6193(census serverCensusPayloadV612, limit int) []string {
+// Offset gives deterministic, non-overlapping batches so repeated scout runs
+// continue where the previous batch stopped while the census is unchanged.
+func seedScoutCandidateWindowV6193(census serverCensusPayloadV612, offset, limit int) []string {
 	if limit <= 0 {
 		limit = seedScoutDefaultLimitV6193
 	}
 	if limit > seedScoutMaxLimitV6193 {
 		limit = seedScoutMaxLimitV6193
 	}
+	if offset < 0 {
+		offset = 0
+	}
+	needed := offset + limit
 	knownInts := seedScoutRegularKnownIntsV6193(census)
 	if len(knownInts) == 0 {
 		return nil
@@ -233,30 +242,41 @@ func seedScoutCandidateSequenceV6193(census serverCensusPayloadV612, limit int) 
 		return gaps[i] < gaps[j]
 	})
 
-	out := make([]string, 0, limit)
+	ordered := make([]string, 0, needed)
 	add := func(n int) {
-		if len(out) >= limit || n <= 0 || n > seedScoutRegularServerMaxV6193 || known[n] {
+		if len(ordered) >= needed || n <= 0 || n > seedScoutRegularServerMaxV6193 || known[n] {
 			return
 		}
 		id := strconv.Itoa(n)
-		for _, existing := range out {
+		for _, existing := range ordered {
 			if existing == id {
 				return
 			}
 		}
-		out = append(out, id)
+		ordered = append(ordered, id)
 	}
 	for _, n := range gaps {
 		add(n)
-		if len(out) >= limit {
-			return out
+		if len(ordered) >= needed {
+			break
 		}
 	}
-	for step := 1; len(out) < limit && step <= seedScoutRegularServerMaxV6193; step++ {
+	for step := 1; len(ordered) < needed && step <= seedScoutRegularServerMaxV6193; step++ {
 		add(maxID + step)
 		add(minID - step)
 	}
-	return out
+	if offset >= len(ordered) {
+		return nil
+	}
+	end := offset + limit
+	if end > len(ordered) {
+		end = len(ordered)
+	}
+	return append([]string(nil), ordered[offset:end]...)
+}
+
+func seedScoutCandidateSequenceV6193(census serverCensusPayloadV612, limit int) []string {
+	return seedScoutCandidateWindowV6193(census, 0, limit)
 }
 
 func seedScoutAggregateV6193(players []protocol.Player, known map[string]bool) ([]seedScoutServerCountV6193, []seedScoutServerCountV6193) {
@@ -443,6 +463,11 @@ func (s *server) serverSeedScoutStartV6193(w http.ResponseWriter, r *http.Reques
 		writeJSON(w, http.StatusBadRequest, map[string]any{"error": "SEED_SCOUT_MIN_PLAYERS_INVALID"})
 		return
 	}
+	offset := input.Offset
+	if offset < 0 || offset > 500 {
+		writeJSON(w, http.StatusBadRequest, map[string]any{"error": "SEED_SCOUT_OFFSET_INVALID"})
+		return
+	}
 
 	dbPath := strings.TrimSpace(os.Getenv("WFGG_COLLECTOR_DB"))
 	if dbPath == "" {
@@ -458,7 +483,7 @@ func (s *server) serverSeedScoutStartV6193(w http.ResponseWriter, r *http.Reques
 		})
 		return
 	}
-	candidates := seedScoutCandidateSequenceV6193(census, limit)
+	candidates := seedScoutCandidateWindowV6193(census, offset, limit)
 	if len(candidates) == 0 {
 		writeJSON(w, http.StatusConflict, map[string]any{
 			"ok": false, "scoutVersion": seedScoutVersionV6193, "readonly": true,
@@ -480,6 +505,8 @@ func (s *server) serverSeedScoutStartV6193(w http.ResponseWriter, r *http.Reques
 		RegionsPerCandidate: 1,
 		Region:              region,
 		MinTargetPlayers:    minPlayers,
+		Offset:              offset,
+		NextOffset:          offset + len(candidates),
 		KnownServerCount:    len(census.Servers),
 		Candidates:          candidates,
 		Attempts:            []seedScoutAttemptV6193{},
