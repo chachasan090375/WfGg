@@ -159,6 +159,7 @@ jobs:
             exit 0
           fi
           git commit -m 'build(radar): publish V6.19.3 Seed Scout pilot'
+          git reset --hard HEAD
           git fetch origin radar-v6193-seed-scout
           git rebase origin/radar-v6193-seed-scout
           git push origin HEAD:radar-v6193-seed-scout
