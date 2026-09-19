@@ -4,10 +4,19 @@
   "title": "ChaCha DEV HUB Project Control Request V1",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schema", "project", "operation"],
+  "required": [
+    "schema",
+    "project",
+    "operation"
+  ],
   "properties": {
-    "schema": {"const": "chacha.dev/project-control-request/v1"},
-    "project": {"type": "string", "minLength": 1},
+    "schema": {
+      "const": "chacha.dev/project-control-request/v1"
+    },
+    "project": {
+      "type": "string",
+      "minLength": 1
+    },
     "operation": {
       "enum": [
         "status",
@@ -20,14 +29,22 @@
         "schedule",
         "prepare-run",
         "dispatch",
+        "operate",
         "verify-result",
         "record-control-event",
         "advance",
         "crypto-verify"
       ]
     },
-    "arguments": {"type": "object", "additionalProperties": true},
-    "actor": {"type": "string"},
-    "request_id": {"type": "string"}
+    "arguments": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "actor": {
+      "type": "string"
+    },
+    "request_id": {
+      "type": "string"
+    }
   }
 }
