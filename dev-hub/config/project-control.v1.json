@@ -17,11 +17,22 @@
     "audit_events_are_never_rolled_back_by_recovery": true,
     "platform_readiness_is_read_only_certification": true,
     "external_runtime_bindings_are_ephemeral_and_runner_owned": true,
-    "independent_provider_results_never_self_verify": true
+    "independent_provider_results_never_self_verify": true,
+    "product_requirement_enters_before_technical_design": true,
+    "technical_design_precedes_implementation": true
   },
   "interfaces": {
-    "cli": {"enabled": true, "command": "project-control", "adapter": "dev-hub/bin/project-control-cli.py"},
-    "json_api": {"enabled": true, "transport": "stdin-stdout", "network_listener": false, "adapter": "dev-hub/bin/project-control-api.py"}
+    "cli": {
+      "enabled": true,
+      "command": "project-control",
+      "adapter": "dev-hub/bin/project-control-cli.py"
+    },
+    "json_api": {
+      "enabled": true,
+      "transport": "stdin-stdout",
+      "network_listener": false,
+      "adapter": "dev-hub/bin/project-control-api.py"
+    }
   },
   "runtime": {
     "state_root": "/opt/chacha-dev/runtime/state",
@@ -46,7 +57,9 @@
     "cryptographic_trust": "dev-hub/config/cryptographic-trust.v1.json",
     "transaction_recovery": "dev-hub/config/transaction-recovery.v1.json",
     "platform_readiness": "dev-hub/config/platform-readiness.v1.json",
-    "external_runtime_binding": "dev-hub/config/external-runtime-binding.v1.json"
+    "external_runtime_binding": "dev-hub/config/external-runtime-binding.v1.json",
+    "agent_routing": "dev-hub/config/agent-routing.v1.json",
+    "technical_design": "dev-hub/config/technical-design.v1.json"
   },
   "engine_paths": {
     "control_plane_store": "dev-hub/bin/control-plane-store.py",
@@ -60,24 +73,83 @@
     "evidence_collector": "dev-hub/bin/evidence-collector.py",
     "crypto_trust": "dev-hub/bin/crypto-trust.py",
     "transaction_recovery": "dev-hub/bin/transaction-recovery.py",
-    "platform_readiness": "dev-hub/bin/platform-readiness.py"
+    "platform_readiness": "dev-hub/bin/platform-readiness.py",
+    "technical_design_router": "dev-hub/bin/technical-design-router.py"
   },
-  "status_model": ["READY", "BLOCKED", "AWAITING_APPROVAL", "DEGRADED", "UNKNOWN", "COMPLETE"],
+  "status_model": [
+    "READY",
+    "BLOCKED",
+    "AWAITING_APPROVAL",
+    "DEGRADED",
+    "UNKNOWN",
+    "COMPLETE"
+  ],
   "operations": {
-    "status": {"class": "read", "mutating": false},
-    "explain": {"class": "read", "mutating": false},
-    "verify-state": {"class": "read", "mutating": false},
-    "transactions": {"class": "read", "mutating": false},
-    "recover-transaction": {"class": "recovery", "mutating": false, "apply_flag_makes_mutating": true},
-    "platform-readiness": {"class": "verification", "mutating": false},
-    "plan-transition": {"class": "plan", "mutating": false},
-    "schedule": {"class": "plan", "mutating": false},
-    "prepare-run": {"class": "plan", "mutating": false},
-    "dispatch": {"class": "execution", "mutating": true, "explicit_flag_required": true},
-    "verify-result": {"class": "verification", "mutating": false, "ingest_flag_makes_mutating": true},
-    "record-control-event": {"class": "state-write", "mutating": true},
-    "advance": {"class": "state-write", "mutating": true, "transition_recheck_required": true},
-    "crypto-verify": {"class": "verification", "mutating": false}
+    "status": {
+      "class": "read",
+      "mutating": false
+    },
+    "explain": {
+      "class": "read",
+      "mutating": false
+    },
+    "verify-state": {
+      "class": "read",
+      "mutating": false
+    },
+    "transactions": {
+      "class": "read",
+      "mutating": false
+    },
+    "recover-transaction": {
+      "class": "recovery",
+      "mutating": false,
+      "apply_flag_makes_mutating": true
+    },
+    "platform-readiness": {
+      "class": "verification",
+      "mutating": false
+    },
+    "plan-transition": {
+      "class": "plan",
+      "mutating": false
+    },
+    "schedule": {
+      "class": "plan",
+      "mutating": false
+    },
+    "prepare-run": {
+      "class": "plan",
+      "mutating": false
+    },
+    "dispatch": {
+      "class": "execution",
+      "mutating": true,
+      "explicit_flag_required": true
+    },
+    "verify-result": {
+      "class": "verification",
+      "mutating": false,
+      "ingest_flag_makes_mutating": true
+    },
+    "record-control-event": {
+      "class": "state-write",
+      "mutating": true
+    },
+    "advance": {
+      "class": "state-write",
+      "mutating": true,
+      "transition_recheck_required": true
+    },
+    "crypto-verify": {
+      "class": "verification",
+      "mutating": false
+    },
+    "technical-design": {
+      "class": "plan",
+      "mutating": false,
+      "implementation_gate": "blocked-until-specialist-design-complete"
+    }
   },
   "transaction_policy": {
     "project_lock_required": true,
@@ -99,7 +171,10 @@
       "SIGNING_KEY_REVOKED",
       "PROJECT_RETIRED"
     ],
-    "protected_state_sections": ["lifecycle", "approvals"]
+    "protected_state_sections": [
+      "lifecycle",
+      "approvals"
+    ]
   },
   "approval_boundaries": {
     "dispatch_production": "explicit-human",
