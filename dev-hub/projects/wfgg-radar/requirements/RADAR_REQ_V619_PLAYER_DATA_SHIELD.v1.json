@@ -1,0 +1,74 @@
+{
+  "schema": "chacha.dev/product-requirement/v1",
+  "project": "wfgg-radar",
+  "id": "RADAR-V619-PLAYER-DATA-SHIELD",
+  "title": "V6.19 — Player data / Shield inventory",
+  "objective": "Inventorier et qualifier les données joueur réellement observables en READONLY, en priorité le bouclier, tout en préservant l'identité GameUID et les champs carte déjà acquis.",
+  "functional_requirements": [
+    "Utiliser GameUID comme identité canonique d'un joueur.",
+    "Préserver serveur, alliance, HQ et coordonnées X/Y provenant de la carte quand l'enrichissement profil est plus pauvre.",
+    "Inventorier la présence et la structure des données ShieldInfo et WorldPointInfo associées au joueur ou au point monde.",
+    "Déterminer pour le bouclier la présence ou absence, l'éventuel timestamp d'expiration, la provenance du champ et sa stabilité entre observations.",
+    "Classer chaque champ joueur comme OBSERVED, INFERRED, CONFIRMED ou UNKNOWN.",
+    "Ne pas limiter l'inventaire joueur à get.user.info.multi ; prendre en compte les observations monde/ville pertinentes.",
+    "Conserver les observations nécessaires pour relier les données monde, profil et identité canonique sans créer de doublons par changement de pseudo."
+  ],
+  "acceptance_criteria": [
+    "Aucune commande ou action de gameplay en écriture n'est émise vers Last War.",
+    "Chaque champ exposé possède une provenance explicite et un statut OBSERVED, INFERRED, CONFIRMED ou UNKNOWN.",
+    "Un changement de pseudo ne crée pas un nouveau joueur lorsque GameUID est identique.",
+    "Les champs serveur et X/Y déjà acquis ne sont pas perdus lors de l'enrichissement.",
+    "Le bouclier n'est présenté comme confirmé que si l'observation est directement prouvée ou corroborée selon la politique de provenance.",
+    "Aucun secret, token Last War, session, payload brut sensible ou clé HMAC n'est écrit dans Git, les artifacts ou les logs.",
+    "Les décisions backend, data, sécurité et tests sont documentées avant génération de code."
+  ],
+  "constraints": [
+    "Last War est strictement READONLY.",
+    "Provider result != vérité ; les résultats externes exigent une vérification indépendante.",
+    "Planning != execution ; Run Controller est le seul dispatch explicite.",
+    "Toute mutation production exige une approbation humaine explicite.",
+    "Les incidents VPS/Sentinel sont des blockers d'environnement et ne doivent pas redéfinir le besoin produit."
+  ],
+  "must_preserve": [
+    "V6.18 preserve map fields during profile enrichment.",
+    "La chaîne carte -> GameUID -> profil déjà validée.",
+    "Les 9 régions de collecte déjà validées.",
+    "Le comportement de production existant tant qu'une modification n'est pas justifiée et vérifiée."
+  ],
+  "unknowns": [
+    "Structure exacte et stabilité des champs ShieldInfo disponibles en runtime.",
+    "Structure exacte et stabilité des champs WorldPointInfo pertinents.",
+    "Relation exacte entre pointId, GameUID et expiration du bouclier.",
+    "Quels autres attributs joueur sont réellement observables sans écriture."
+  ],
+  "domains": [
+    "product-domain",
+    "backend-api",
+    "data",
+    "integration",
+    "security",
+    "testing",
+    "sre-observability",
+    "performance",
+    "documentation"
+  ],
+  "source": {
+    "kind": "product-spec",
+    "reference": "dev-hub/projects/wfgg-radar/PRODUCT_SPEC_2026-09-17.md#6-prochain-front-produit",
+    "captured_at": "2026-09-19"
+  },
+  "technical_constraints": {
+    "must_use": [
+      "existing radar-worker / radar-connector / radar-d1 boundaries unless an ADR justifies a change",
+      "GameUID as canonical player key",
+      "Verification Broker for external provider claims"
+    ],
+    "must_not_use": [
+      "manual SSH as normal development orchestration path",
+      "unverified inferred data presented as directly observed",
+      "production technology replacement without explicit approval"
+    ],
+    "production_change_requires_approval": true,
+    "readonly_external_system": true
+  }
+}
