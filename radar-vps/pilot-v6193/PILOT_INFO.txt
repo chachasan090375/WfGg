@@ -1,0 +1,9 @@
+WFGG_RADAR_PILOT=V6.19.3
+SOURCE_BRANCH=radar-v6193-seed-scout
+SOURCE_SHA=88fe2a208fce8abeb06bfdaf0f5daef32ea4e1a6
+CHANGE=read-only-one-region-seed-scout
+BATCH_SIZE=8
+BATCH_CURSOR=non-overlapping-offset
+COLLECTOR_MUTATION=NO
+GAME_MUTATION=NO
+PRODUCTION_MUTATION=NO

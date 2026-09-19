@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#11160d">
+<title>WfGg Radar Live</title>
+<style>
+:root{--bg:#080b07;--panel:#171d12;--panel2:#222b19;--edge:#53633c;--green:#55ff78;--green2:#c8ff6f;--amber:#ffd429;--red:#ff6b57;--ink:#eaf6d5;--muted:#9bad88}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:radial-gradient(circle at 50% -10%,#202919 0,#0b0f09 42%,#050705 100%);color:var(--ink);font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+body{min-height:100dvh;padding:calc(14px + env(safe-area-inset-top)) 14px calc(18px + env(safe-area-inset-bottom));overflow-x:hidden}.shell{width:min(720px,100%);margin:auto}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:2px 4px 12px}.brand{font-weight:900;letter-spacing:.14em;font-size:clamp(18px,5vw,28px)}.brand b{color:var(--green)}
+.pill{font-size:11px;border:1px solid #405134;border-radius:999px;padding:7px 10px;color:var(--muted);background:#10150d}.pill.online{color:var(--green2);border-color:#396d3c}.pill.bad{color:#ff9b89;border-color:#7d3a30}
+.device{position:relative;background:linear-gradient(145deg,#343d2a,#171d12 42%,#0e120c 100%);border:1px solid #5f6e4a;border-radius:34px;padding:16px 18px 22px;box-shadow:0 28px 65px #000a,inset 0 1px 0 #7c8d6259,inset 0 -12px 30px #0008}
+.radar-wrap{display:flex;justify-content:center;align-items:center;width:100%;min-width:0;padding:0 2px}.radar-stage{position:relative;width:min(100%,520px);aspect-ratio:240/278;margin-inline:auto;isolation:isolate;filter:drop-shadow(0 18px 22px #000a)}
+.radar-face{position:absolute;z-index:1;left:12.8%;top:21.3%;width:74.4%;aspect-ratio:1;border-radius:50%;overflow:hidden;background:radial-gradient(circle at 50% 48%,#145d37 0 13%,#0c452c 31%,#07361f 55%,#031d11 78%,#010b06 100%);box-shadow:inset 0 0 26px #000,inset 0 0 8px #61ff9c60}
+.radar-grid{position:absolute;inset:0;background-image:linear-gradient(#00a65388 1px,transparent 1px),linear-gradient(90deg,#00a65388 1px,transparent 1px);background-size:8.2% 8.2%;background-position:center;opacity:.92}
+.radar-grid:after{content:"";position:absolute;inset:0;background:linear-gradient(142deg,transparent 0 20%,#d9fff11f 20.4% 27%,#0008 27.3% 31%,#d9fff126 31.3% 40%,transparent 40.4% 100%);mix-blend-mode:screen;pointer-events:none}
+.radar-vignette{position:absolute;inset:0;border-radius:50%;box-shadow:inset 0 0 0 2px #43ff7d30,inset 0 0 45px #000b;pointer-events:none}
+.center-arrow{position:absolute;z-index:5;left:50%;top:50%;width:0;height:0;border-left:10px solid transparent;border-right:10px solid transparent;border-bottom:28px solid #10dfb6;transform:translate(-50%,-56%);filter:drop-shadow(0 0 7px #11ffe1);opacity:.95}.center-arrow:after{content:"";position:absolute;left:-7px;top:8px;border-left:7px solid transparent;border-right:7px solid transparent;border-bottom:17px solid #40ffe0;opacity:.72}
+.scan-waves{position:absolute;inset:0;z-index:2;pointer-events:none}.scan-waves i{position:absolute;left:50%;top:50%;width:14%;height:14%;border-radius:50%;background:#0cdb6940;border:1px solid #48ff8d60;transform:translate(-50%,-50%) scale(.35);opacity:0}.scanning .scan-waves i{animation:wave 2.25s cubic-bezier(.15,.55,.25,1) infinite}.scanning .scan-waves i:nth-child(2){animation-delay:.75s}.scanning .scan-waves i:nth-child(3){animation-delay:1.5s}@keyframes wave{0%{transform:translate(-50%,-50%) scale(.35);opacity:.65}75%{opacity:.22}100%{transform:translate(-50%,-50%) scale(7.2);opacity:0}}
+.scan-beam{position:absolute;z-index:3;inset:-4%;border-radius:50%;opacity:0;background:conic-gradient(from -30deg,transparent 0 322deg,#40ff7a08 328deg,#42ff7860 352deg,#b8ffb09a 359deg,transparent 360deg);transform:rotate(0)}.scanning .scan-beam{opacity:.72;animation:beam 1.35s linear infinite}@keyframes beam{to{transform:rotate(360deg)}}
+.scanning .radar-grid{animation:gridGlow 1.15s ease-in-out infinite alternate}@keyframes gridGlow{from{filter:brightness(.8)}to{filter:brightness(1.35)}}
+.found-blips{position:absolute;z-index:6;inset:0;pointer-events:none}.found-blips i,.target{position:absolute;width:8px;height:8px;border-radius:50%;background:#ffdf17;opacity:0;box-shadow:0 0 4px #fff88a,0 0 10px #ffd900,0 0 18px #ffb300}.found .found-blips i{animation:yellowBlink 1.05s steps(1,end) infinite}.found .found-blips i:nth-child(1){left:25%;top:8%;animation-delay:.08s}.found .found-blips i:nth-child(2){left:78%;top:16%;animation-delay:.32s}.found .found-blips i:nth-child(3){left:8%;top:49%;animation-delay:.55s}.found .found-blips i:nth-child(4){left:62%;top:72%;animation-delay:.19s}.found .found-blips i:nth-child(5){left:27%;top:90%;animation-delay:.71s}.found .found-blips i:nth-child(6){left:75%;top:94%;animation-delay:.43s}@keyframes yellowBlink{0%,44%,100%{opacity:.18;transform:scale(.75)}45%,78%{opacity:1;transform:scale(1.18)}}
+.target{--x:63%;--y:34%;z-index:8;left:var(--x);top:var(--y);width:12px;height:12px;transform:translate(-50%,-50%) scale(0)}.found .target.hit{opacity:1;transform:translate(-50%,-50%) scale(1);animation:targetBlink .72s ease-in-out infinite}@keyframes targetBlink{50%{transform:translate(-50%,-50%) scale(1.55);box-shadow:0 0 7px #fff,0 0 18px #ffe82d,0 0 32px #ffd000}}
+.radar-frame{position:absolute;z-index:10;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}.radar-frame .shadow{fill:none;stroke:#000b;stroke-width:8}.radar-frame .rim-dark{fill:none;stroke:#272d31;stroke-width:18}.radar-frame .rim-mid{fill:none;stroke:url(#metal);stroke-width:13}.radar-frame .rim-light{fill:none;stroke:#f4f7f1;stroke-width:3.5;opacity:.85}.radar-frame .rim-inner{fill:none;stroke:#8e9a98;stroke-width:2.5;opacity:.9}.radar-frame .knob-outline{fill:#202428;stroke:#050607;stroke-width:2}.radar-frame .knob{fill:url(#knobMetal);stroke:#d9dedb;stroke-width:1.2}.radar-frame .neck{fill:url(#metal);stroke:#22282a;stroke-width:2}.radar-frame .neck2{fill:url(#knobMetal);stroke:#d9dedb;stroke-width:1}
+.statusbox{display:none}.status-main{font-size:clamp(10px,2.8vw,14px);font-weight:900;letter-spacing:.08em;color:#baffc2}.status-sub{font-size:9px;color:#82bb8d;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.controls{margin-top:8px;display:grid;grid-template-columns:1fr auto;gap:10px}.query{min-width:0;border:1px solid #586748;background:#0b1009;color:#f1ffe5;border-radius:12px;padding:14px;font:700 16px ui-monospace,monospace;outline:none;box-shadow:inset 0 2px 8px #0009}.query:focus{border-color:#8ebd5e;box-shadow:0 0 0 3px #88ff7420,inset 0 2px 8px #0009}.go{border:1px solid #95a85f;border-radius:12px;background:linear-gradient(#d1e66e,#7d9738);color:#111707;font-weight:1000;letter-spacing:.08em;padding:0 20px;min-height:50px;box-shadow:inset 0 1px #fff8,0 5px 0 #3e4e20,0 8px 16px #0008}.go:active{transform:translateY(3px);box-shadow:inset 0 1px #fff8,0 2px 0 #3e4e20}.go:disabled{filter:grayscale(.8);opacity:.55}
+.progress-text{margin-top:9px;min-height:16px;text-align:center;color:#9fbc84;font-size:10px;letter-spacing:.05em}.steps{display:flex;gap:6px;margin-top:8px}.step{height:4px;flex:1;border-radius:999px;background:#303a29;overflow:hidden}.step.on{background:var(--green);box-shadow:0 0 8px #6dff7c}.step.done{background:#819b49}
+.result{margin-top:16px;background:#0c120a;border:1px solid #435137;border-radius:18px;overflow:hidden;box-shadow:inset 0 1px #ffffff0c;display:none}.result.show{display:block;animation:rise .28s ease-out}@keyframes rise{from{opacity:0;transform:translateY(8px)}}.rhead{display:flex;align-items:center;justify-content:space-between;padding:13px 14px;background:linear-gradient(90deg,#1b2b17,#10160d);border-bottom:1px solid #37452f}.rname{font-size:19px;font-weight:1000;color:#dfff91}.badge{font-size:10px;padding:5px 8px;border:1px solid #5c7d45;border-radius:999px;color:#aaf2a2}.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:#293222}.field{background:#0d130b;padding:12px 13px;min-width:0}.k{font-size:9px;color:#738268;letter-spacing:.11em;margin-bottom:4px}.v{font-size:14px;color:#e9f7d6;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.raw{font-size:9px;color:#62715b;padding:8px 13px;border-top:1px solid #293222;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.profile-actions{display:flex;gap:8px;padding:10px 13px;border-top:1px solid #293222;background:#0a1008}.profile-refresh{width:100%;min-height:40px;border:1px solid #6b7f43;border-radius:10px;background:#17220f;color:#dfff91;font:900 10px ui-monospace,monospace;letter-spacing:.05em}.profile-refresh:disabled{opacity:.5}.profile-note{font-size:9px;color:#74866b;padding:0 13px 10px;background:#0a1008}.avatar-mini{width:26px;height:26px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:7px;display:none;border:1px solid #63784b}
+.login{display:none;margin-top:15px;padding:14px;border:1px solid #6f6235;background:#17140a;border-radius:15px}.login.show{display:block}.auth-fields{display:grid;gap:8px}.authwide{min-height:44px}.auth-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.authbtn.secondary{background:#292613;color:#d8c987;border-color:#6f6235}.auth-hidden{display:none!important}.authmsg{margin-top:9px;min-height:18px;font-size:10px;color:#9d9167}.authmsg.ok{color:#b8ff8a}.authmsg.error{color:#ff8d78}.token.code{text-align:center;letter-spacing:.32em;font-size:18px;font-weight:900}.remember-row{display:flex;align-items:center;gap:9px;padding:4px 2px;color:#b7c6a5;font-size:10px;line-height:1.35;cursor:pointer}.remember-row input{width:17px;height:17px;accent-color:#91b84f;flex:0 0 auto}.login p{margin:0 0 10px;font-size:12px;color:#d8c987}.tokenrow{display:grid;grid-template-columns:1fr auto;gap:8px}.token{min-width:0;background:#090b08;color:#fff;border:1px solid #5d5332;border-radius:10px;padding:11px;font:12px ui-monospace,monospace}.authbtn{border:1px solid #af9040;background:#5f4d1c;color:#fff2bd;border-radius:10px;padding:0 13px;font-weight:900}.foot{margin:12px 5px 0;display:flex;justify-content:space-between;gap:8px;color:#65725f;font-size:9px}.error{color:#ff8d78!important}.ok{color:#b8ff8a!important}
+@media(max-width:450px){.device{padding:10px 11px 18px;border-radius:28px}.controls{grid-template-columns:1fr 92px}.go{padding:0 8px}.fields{grid-template-columns:1fr 1fr}}
+@media(prefers-reduced-motion:reduce){.scanning .scan-waves i,.scanning .scan-beam,.scanning .radar-grid,.found .found-blips i,.found .target.hit{animation:none!important}.scanning .scan-beam{opacity:.42}.found .found-blips i,.found .target.hit{opacity:1!important}}
+
+/* WFGG_RADAR_ACCOUNT_CONTROLS_V1 */
+.accountbar{margin:14px 5px 0;display:none;align-items:center;justify-content:space-between;gap:10px;padding:10px 11px;border:1px solid #33432d;border-radius:14px;background:#0b1009;box-shadow:inset 0 1px #ffffff08}.accountbar.show{display:flex}.account-session{min-width:0;color:#8e9b86;font-size:9px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.account-actions{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}.accountbtn{border:1px solid #506442;background:#182114;color:#dff5c9;border-radius:9px;padding:8px 10px;font:800 9px ui-monospace,monospace;letter-spacing:.04em}.accountbtn.reauth{border-color:#7b7a3c;color:#f0ed9b}.accountbtn.logout{border-color:#674034;color:#ffb29f;background:#21120f}.accountbtn:disabled{opacity:.55}.auth-state{color:#74826d}.auth-state.warn{color:#ffd56d}.auth-state.bad{color:#ff8d78;font-weight:900}.auth-expired{display:none;margin:10px 5px 0;padding:10px 12px;border:1px solid #7d3a30;border-radius:12px;background:#24100d;color:#ff9b89;font-size:10px;font-weight:900;letter-spacing:.04em}.auth-expired.show{display:block}
+@media(max-width:520px){.accountbar{align-items:flex-start;flex-direction:column}.account-actions{width:100%;display:grid;grid-template-columns:1fr 1fr}.accountbtn{min-height:38px}}
+
+/* WFGG_RADAR_FEDERATED_PROGRESS_V64 */
+.federated-live{display:none;margin:10px 5px 0;padding:10px 12px;border:1px solid #42623a;border-radius:12px;background:#081108}.federated-live.show{display:block}.federated-live.error{border-color:#7d3a30;background:#1d0d0a}.federated-title{display:block;color:#c7f3a6;font:900 10px ui-monospace,monospace;letter-spacing:.05em}.federated-meta{display:block;margin-top:5px;color:#8fa787;font:10px ui-monospace,monospace}.federated-live.error .federated-title,.federated-live.error .federated-meta{color:#ff9b89}
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="topbar"><div class="brand">WfGg <b>RADAR</b></div><div id="health" class="pill">API…</div></div>
+  <main class="device">
+    <div class="radar-wrap">
+      <div id="screen" class="radar-stage" aria-label="Radar WfGg">
+        <div class="radar-face">
+          <div class="radar-grid"></div>
+          <div class="scan-waves"><i></i><i></i><i></i></div>
+          <div class="scan-beam"></div>
+          <div class="center-arrow"></div>
+          <div class="found-blips"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          <div id="target" class="target"></div>
+          <div class="radar-vignette"></div>
+        </div>
+        <svg class="radar-frame" viewBox="0 0 240 278" role="presentation" aria-hidden="true">
+          <defs>
+            <linearGradient id="metal" x1="0" x2="1"><stop offset="0" stop-color="#485156"/><stop offset=".16" stop-color="#f6faf8"/><stop offset=".34" stop-color="#8c9699"/><stop offset=".52" stop-color="#ffffff"/><stop offset=".71" stop-color="#697277"/><stop offset=".9" stop-color="#eef1ee"/><stop offset="1" stop-color="#31383d"/></linearGradient>
+            <linearGradient id="knobMetal" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fbfbf8"/><stop offset=".35" stop-color="#b9bec0"/><stop offset=".72" stop-color="#f7f8f5"/><stop offset="1" stop-color="#646d72"/></linearGradient>
+          </defs>
+          <circle class="shadow" cx="120" cy="147" r="103"/>
+          <circle class="rim-dark" cx="120" cy="147" r="101"/>
+          <circle class="rim-mid" cx="120" cy="147" r="99"/>
+          <circle class="rim-light" cx="120" cy="147" r="94"/>
+          <circle class="rim-inner" cx="120" cy="147" r="88"/>
+          <rect class="knob-outline" x="91" y="7" width="58" height="28" rx="7"/>
+          <rect class="knob" x="94" y="9" width="52" height="23" rx="5"/>
+          <rect class="neck" x="103" y="31" width="34" height="22" rx="2"/>
+          <rect class="neck2" x="98" y="49" width="44" height="18" rx="5"/>
+        </svg>
+        <div class="statusbox"><div id="statusMain" class="status-main">RADAR EN VEILLE</div><div id="statusSub" class="status-sub">Connexion au système…</div></div>
+      </div>
+    </div>
+    <form id="searchForm" class="controls" autocomplete="off">
+      <input id="q" class="query" maxlength="80" placeholder="Pseudo du joueur" spellcheck="false" autocapitalize="none">
+      <button id="go" class="go" type="submit">RECHERCHER</button>
+    </form>
+    <div id="progressText" class="progress-text" data-ui="WFGG_RADAR_PROGRESS_TEXT_V2">RADAR PRÊT</div><div class="steps" aria-hidden="true"><span class="step" id="s1"></span><span class="step" id="s2"></span><span class="step" id="s3"></span><span class="step" id="s4"></span></div>
+    <section id="login" class="login" data-auth="WFGG_LASTWAR_EMAIL_AUTH_V1" data-identity-memory="WFGG_LASTWAR_IDENTITY_MEMORY_V1">
+      <p id="authIntro">Connexion Last War : indique ton ID joueur et l’adresse e-mail liée au compte. Last War t’enverra un code à 6 chiffres.</p>
+      <div id="authStartPanel" class="auth-fields">
+        <input id="gameUid" name="lastwar-game-uid" class="token" inputmode="numeric" maxlength="64" placeholder="ID joueur Last War" autocomplete="username">
+        <input id="gameEmail" name="email" class="token" type="email" inputmode="email" maxlength="320" placeholder="Adresse e-mail Last War" autocomplete="email">
+        <label class="remember-row"><input id="rememberIdentity" type="checkbox"><span>Mémoriser l’ID et l’e-mail sur cet appareil</span></label>
+        <button id="authSend" class="authbtn authwide" type="button">RECEVOIR LE CODE</button>
+      </div>
+      <div id="authCodePanel" class="auth-fields auth-hidden">
+        <input id="gameCode" class="token code" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="Code à 6 chiffres" autocomplete="one-time-code">
+        <div class="auth-actions">
+          <button id="authFinish" class="authbtn" type="button">CONNECTER</button>
+          <button id="authRestart" class="authbtn secondary" type="button">RECOMMENCER</button>
+        </div>
+      </div>
+      <div id="authMsg" class="authmsg">Aucun jeton n’est demandé au joueur.</div>
+    </section>
+    <section id="result" class="result">
+      <div class="rhead"><div id="rname" class="rname">—</div><div id="rsource" class="badge">API LIVE</div></div>
+      <div class="fields">
+        <div class="field"><div class="k">SERVEUR</div><div id="rserver" class="v">—</div></div>
+        <div class="field"><div class="k">ALLIANCE</div><div id="ralliance" class="v">—</div></div>
+        <div class="field"><div class="k">QG</div><div id="rhq" class="v">—</div></div>
+        <div class="field"><div class="k">PUISSANCE</div><div id="rpower" class="v">—</div></div>
+        <div class="field"><div class="k">POSITION</div><div id="rpos" class="v">—</div></div>
+        <div class="field"><div class="k">UID</div><div id="ruid" class="v">—</div></div>
+        <div class="field"><div class="k">PUISSANCE ARMÉE</div><div id="rarmypower" class="v">—</div></div>
+        <div class="field"><div class="k">KILLS</div><div id="rarmykill" class="v">—</div></div>
+        <div class="field"><div class="k">SVIP</div><div id="rsvip" class="v">—</div></div>
+        <div class="field"><div class="k">PAYS</div><div id="rcountry" class="v">—</div></div>
+        <div class="field"><div class="k">AVATAR</div><div id="ravatarwrap" class="v"><img id="ravatar" class="avatar-mini" alt=""><span id="ravatarref">—</span></div></div>
+        <div class="field"><div class="k">SOURCE PROFIL</div><div id="rprofilesource" class="v">—</div></div>
+      </div>
+      <div id="rraw" class="raw">—</div>
+      <div class="profile-actions"><button id="refreshProfile" class="profile-refresh" type="button" disabled>ACTUALISER LE PROFIL</button></div>
+      <div id="profileNote" class="profile-note">Recherche normale = cache local. L’actualisation profil est explicite et READ-ONLY.</div>
+    </section>
+  </main>
+  <div id="federatedLive" class="federated-live"><span id="federatedTitle" class="federated-title">COLLECTOR FÉDÉRÉ · EN ATTENTE</span><span id="federatedMeta" class="federated-meta">Aucun cycle actif.</span></div>
+  <!-- WFGG_RADAR_SEED_SCOUT_UI_V6193 -->
+  <div class="profile-actions"><button id="seedScout" class="profile-refresh" type="button">DÉCOUVRIR LA PROCHAINE GRAPPE</button></div>
+  <div id="seedScoutNote" class="profile-note">Seed Scout V6.19.3 · 1 région par serveur · aucune écriture Collector.</div>
+  <div id="authExpired" class="auth-expired">AUTH LAST WAR EXPIRÉE · RÉAUTHENTIFICATION REQUISE</div>
+  <div id="accountBar" class="accountbar">
+    <span id="session" class="account-session">SESSION: …</span>
+    <div class="account-actions">
+      <button id="reauthLastWar" class="accountbtn reauth" type="button">RECONNECTER LAST WAR</button>
+      <button id="logoutRadar" class="accountbtn logout" type="button">DÉCONNEXION</button>
+    </div>
+  </div>
+  <div class="foot"><span id="authState" class="auth-state">AUTH LAST WAR · À VÉRIFIER</span><span>COLLECTOR V4 · LIVE</span></div>
+</div>
+<script>
+const $=id=>document.getElementById(id);const screen=$('screen'),go=$('go'),result=$('result'),login=$('login'),target=$('target');let phaseTimer=null,audioCtx=null;
+function setStatus(main,sub='',kind=''){$('statusMain').textContent=main;$('statusMain').className='status-main '+kind;$('statusSub').textContent=sub;const p=$('progressText');if(p){p.textContent=sub?main+' · '+sub:main;p.className='progress-text '+kind}}
+function steps(n){for(let i=1;i<=4;i++){const e=$('s'+i);e.className='step'+(i<n?' done':i===n?' on':'')}}
+function tone(freq=760,dur=.055,vol=.025){try{audioCtx||=new(window.AudioContext||window.webkitAudioContext)();const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.frequency.value=freq;o.type='square';g.gain.value=vol;o.connect(g);g.connect(audioCtx.destination);o.start();o.stop(audioCtx.currentTime+dur)}catch(_){}}
+function startScan(q){screen.classList.remove('found');screen.classList.add('scanning');target.classList.remove('hit');result.classList.remove('show');go.disabled=true;steps(1);setStatus(/^@federated:/i.test(q)?'DÉMARRAGE DU CYCLE':'RECHERCHE INDEXÉE',q);tone(420,.04,.018);clearInterval(phaseTimer)}
+function stopScan(){clearInterval(phaseTimer);screen.classList.remove('scanning');go.disabled=false}
+function sleep(ms){return new Promise(r=>setTimeout(r,ms))}
+function renderJob(job){if(!job)return;const phase=String(job.phase||job.status||'').toUpperCase();const box=$('federatedLive'),title=$('federatedTitle'),meta=$('federatedMeta');const q=String(job.query||$('q')?.value||'');const m=q.match(/^@federated:(?:APS)?(\d+)/i);if(m&&box){box.classList.add('show');box.classList.toggle('error',job.status==='FAILED');if(phase==='FEDERATED_MAP'){title.textContent=`COLLECTOR FÉDÉRÉ · SERVEUR ${m[1]} · RÉGION ${job.region||0}/${job.regions||9}`;meta.textContent=`${fmt(job.playersSeen||0)} joueurs décodés · ${fmt(job.enriched||0)} intégrés`}else if(job.status==='SUCCESS'){/* WFGG_RADAR_REGION_ISOLATION_UI_V66 */const p=job.player||{};const failed=Number(job.regionsFailed||0)||0;const done=Number(job.regionsCompleted||0)||Math.max(0,(Number(job.regions||9)||9)-failed);const first=Array.isArray(job.regionFailures)&&job.regionFailures.length?job.regionFailures[0]:null;title.textContent=`COLLECTOR FÉDÉRÉ · SERVEUR ${m[1]} · ${failed?'TERMINÉ PARTIEL':'TERMINÉ'}`;/* WFGG_RADAR_PROTOCOL_DISCOVERY_UI_V67 */const rd=Array.isArray(job.regionDiagnostics)?job.regionDiagnostics:[];const sums=rd.reduce((a,d)=>{a.req+=Number(d.requests||0);a.pkt+=Number(d.packets||0);a.city+=Number(d.playerCities||0);a.dec+=Number(d.playersDecoded||0);a.match+=Number(d.queryMatches||0);a.err+=Number(d.decodeErrors||0);return a},{req:0,pkt:0,city:0,dec:0,match:0,err:0});const proto=`PROTO V6.7 · ${rd.length||0} origines · ${fmt(sums.req)} req · ${fmt(sums.pkt)} paquets · ${fmt(sums.city)} villes · ${fmt(sums.dec)} décodés`;/* WFGG_RADAR_PROFILE_ISOLATION_UI_V68 */const ps=job.profileStats||{};const pf=Array.isArray(ps.failures)&&ps.failures.length?ps.failures[0]:null;const prof=`PROF V6.8 · ${String(ps.status||'—')} · ${fmt(ps.profilesResolved||0)}/${fmt(ps.requested||job.candidates||0)} résolus · ${fmt(ps.attempts||0)} essais · ${fmt(ps.batchesFailed||0)} lots KO${pf?` · ${pf.code}`:''}`;meta.textContent=failed?`${done}/${job.regions||9} régions OK · ${failed} isolée(s) · première R${first?.region||'?'} ${first?.cause||first?.code||'ERREUR'} · ${proto} · ${prof}`:`${fmt(p.regions||job.regions||0)}/9 régions · ${fmt(p.decoded||job.playersSeen||0)} intégrables · ${proto} · ${prof}`}else if(job.status==='FAILED'){/* WFGG_RADAR_FEDERATED_DIAGNOSTICS_UI_V65 */const cat=String(job.failureCategory||'PROTOCOL');const code=String(job.failureCode||job.error||'COLLECTOR_FAILED');const cause=String(job.failureCause||code);const phase=String(job.failurePhase||job.phase||'UNKNOWN');const region=Number(job.region||0)||0;const auth=String(job.authState||'UNKNOWN');title.textContent=`COLLECTOR FÉDÉRÉ · SERVEUR ${job.serverTarget||m[1]} · ÉCHEC ${cat}`;meta.textContent=`${code} · cause ${cause} · phase ${phase} · région ${region}/${job.regions||9} · auth ${auth}`}else{title.textContent=`COLLECTOR FÉDÉRÉ · SERVEUR ${m[1]}`;meta.textContent=`Phase ${phase||'—'} · région ${job.region||0}/${job.regions||9}`}}if(phase==='QUEUED'||phase==='STARTING'){steps(1);setStatus('DÉMARRAGE DU CYCLE','Préparation du Collector…');return}if(phase==='WAITING_FOR_CYCLE'){steps(1);setStatus('CYCLE DÉJÀ EN COURS','La recherche rejoint l’actualisation active…');return}if(phase==='FEDERATED_MAP'){steps(2);setStatus('COLLECTOR FÉDÉRÉ',`Serveur ${m?.[1]||'—'} · région ${job.region||0}/${job.regions||9} · ${fmt(job.playersSeen||0)} joueurs`);return}if(phase==='MAP'){steps(2);setStatus('ACTUALISATION DE LA CARTE',`Région ${job.region||0}/${job.regions||9} · ${fmt(job.playersSeen||0)} observations`);return}if(phase==='ENRICHING'){steps(3);const ps=job.profileStats||{};setStatus('MISE À JOUR DES PROFILS',`V6.8 · ${fmt(ps.profilesResolved||job.enriched||0)} / ${fmt(ps.requested||job.candidates||0)} · ${fmt(ps.attempts||0)} essais`);return}if(phase==='FINALIZING'){steps(3);setStatus('FINALISATION','Validation de l’incrément…');return}if(phase==='DONE'||job.status==='SUCCESS'){steps(4);const rf=Number(job.regionsFailed||0)||0;setStatus(rf?'CYCLE TERMINÉ PARTIEL':'CYCLE TERMINÉ',rf?`${rf} région(s) isolée(s) · données valides conservées`:'Base Collector actualisée','ok');return}if(phase==='FEDERATED_V63_FAILED'||phase==='FAILED'||job.status==='FAILED'){steps(4);setStatus('CYCLE INTERROMPU',job.error||'Erreur Collector','error')}}
+/* WFGG_RADAR_RESILIENT_POLLING_V681 */
+const WFGG_RADAR_ACTIVE_JOB_KEY='wfgg_radar_active_job_v681';
+const WFGG_RADAR_POLL_RETRY_MS=[1500,2500,4000,6000,8000,10000,12000,15000];
+function rememberCollectorJob(job,q){try{if(job?.id)sessionStorage.setItem(WFGG_RADAR_ACTIVE_JOB_KEY,JSON.stringify({id:String(job.id),query:String(q||''),at:Date.now()}))}catch(_){}}
+function forgetCollectorJob(){try{sessionStorage.removeItem(WFGG_RADAR_ACTIVE_JOB_KEY)}catch(_){}}
+function savedCollectorJob(q){try{const raw=sessionStorage.getItem(WFGG_RADAR_ACTIVE_JOB_KEY);if(!raw)return null;const v=JSON.parse(raw);if(!v?.id||v.query!==String(q||'')||Date.now()-Number(v.at||0)>13*60*1000){forgetCollectorJob();return null}return v}catch(_){forgetCollectorJob();return null}}
+function retryableCollectorPollError(err){const s=Number(err?.status||0);return !s||s===429||s>=500}
+async function fetchCollectorJobResilient(id,lastJob){let failures=0;for(;;){try{const d=await api('/api/radar/search/status?id='+encodeURIComponent(id));if(!d.job)throw new Error('COLLECTOR_JOB_STATUS_INVALID');if(failures)setStatus('CONNEXION RÉTABLIE','Reprise du suivi du cycle…','ok');return d.job}catch(err){if(!retryableCollectorPollError(err))throw err;failures++;if(failures>WFGG_RADAR_POLL_RETRY_MS.length){const e=new Error('SUIVI RÉSEAU INDISPONIBLE · le cycle continue, relance RECHERCHER pour reprendre');e.code='COLLECTOR_POLL_NETWORK_UNAVAILABLE';e.cause=err;throw e}renderJob(lastJob);const delay=WFGG_RADAR_POLL_RETRY_MS[failures-1];setStatus('CONNEXION MOMENTANÉMENT PERDUE',`Cycle conservé · reprise ${failures}/${WFGG_RADAR_POLL_RETRY_MS.length} dans ${Math.ceil(delay/1000)} s`);await sleep(delay)}}}
+async function loadOrStartCollectorJob(q){const saved=savedCollectorJob(q);if(saved){try{const d=await api('/api/radar/search/status?id='+encodeURIComponent(saved.id));if(d.job)return d.job;forgetCollectorJob()}catch(err){if(err?.status===404){forgetCollectorJob()}else if(retryableCollectorPollError(err)){return await fetchCollectorJobResilient(saved.id,{id:saved.id,query:q,status:'RUNNING',phase:'WAITING_FOR_CYCLE',regions:9})}else throw err}}const started=await api('/api/radar/search/start',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({q})});const job=started.job;if(!job?.id)throw new Error('COLLECTOR_JOB_START_INVALID');rememberCollectorJob(job,q);return job}
+async function runCollectorSearch(q){let job=await loadOrStartCollectorJob(q);rememberCollectorJob(job,q);for(;;){renderJob(job);if(job.status==='SUCCESS'){forgetCollectorJob();return {job,player:job.player||null}}if(job.status==='FAILED'){forgetCollectorJob();throw new Error(job.error||'COLLECTOR_SEARCH_FAILED')}await sleep(2000);job=await fetchCollectorJobResilient(job.id,job);rememberCollectorJob(job,q)}}
+function pick(obj,...keys){for(const k of keys){if(obj&&obj[k]!==undefined&&obj[k]!==null&&obj[k]!=='')return obj[k]}return null}
+function fmt(v){if(v===null||v===undefined||v==='')return '—';const n=Number(v);return Number.isFinite(n)&&Math.abs(n)>=10000?n.toLocaleString('fr-FR'):String(v)}
+function playerFrom(data){if(!data)return null;if(data.job?.player)return data.job.player;const arr=Array.isArray(data.results)?data.results:Array.isArray(data.players)?data.players:[];return arr[0]||data.player||data.result||null}
+/* WFGG_RADAR_RICH_PROFILE_UI_V6191 */
+let currentProfileUID='';
+function clearRichProfile(){for(const id of ['rarmypower','rarmykill','rsvip','rcountry','ravatarref','rprofilesource']){const e=$(id);if(e)e.textContent='—'}const img=$('ravatar');if(img){img.removeAttribute('src');img.style.display='none'}}
+function applyRichProfile(p){if(!p)return;const armyPower=pick(p,'armyPower','army_power'),armyKill=pick(p,'armyKill','army_kill'),svip=pick(p,'svipLevel','svip_level'),country=pick(p,'country'),avatar=pick(p,'avatarRef','avatar_ref'),source=pick(p,'sourceCommand','source_command');$('rarmypower').textContent=fmt(armyPower);$('rarmykill').textContent=fmt(armyKill);$('rsvip').textContent=fmt(svip);$('rcountry').textContent=fmt(country);$('ravatarref').textContent=fmt(avatar);$('rprofilesource').textContent=source||((armyPower!=null||armyKill!=null||svip!=null||country||avatar)?'get.user.info.multi':'—');const img=$('ravatar');if(img&&avatar&&/^https?:\/\//i.test(String(avatar))){img.src=String(avatar);img.style.display='inline-block'}else if(img){img.removeAttribute('src');img.style.display='none'}}
+async function loadCachedRichProfile(uid){if(!uid)return;try{const d=await api('/api/radar/profile/rich?uid='+encodeURIComponent(uid));if(String(uid)!==String(currentProfileUID))return;if(d?.profile)applyRichProfile(d.profile)}catch(_){}}
+async function refreshCurrentProfile(){const uid=String(currentProfileUID||'').trim();if(!uid)return;const b=$('refreshProfile');b.disabled=true;$('profileNote').textContent='Actualisation READ-ONLY via get.user.info.multi…';setStatus('ACTUALISATION PROFIL',uid);try{const d=await runCollectorSearch('@profile:'+uid);const p=playerFrom(d);if(p)applyRichProfile(p);await loadCachedRichProfile(uid);$('rprofilesource').textContent='get.user.info.multi';$('profileNote').textContent='Profil observé et mis en cache localement. Aucun scan cartographique lancé.';setStatus('PROFIL ACTUALISÉ',$('rname').textContent,'ok')}catch(err){if(isLastWarAuthError(err)){showReauthRequired(err.message)}else{$('profileNote').textContent='Actualisation profil impossible : '+String(err.message||err);setStatus('PROFIL NON ACTUALISÉ',String(err.message||err),'error')}}finally{b.disabled=false}}
+function locate(p){let x=Number(pick(p,'x','mapX','pos_x')),y=Number(pick(p,'y','mapY','pos_y'));if(!Number.isFinite(x)||!Number.isFinite(y)){x=50;y=42}else{x=10+(Math.abs(x)%1000)/1000*80;y=10+(Math.abs(y)%1000)/1000*80}target.style.setProperty('--x',x+'%');target.style.setProperty('--y',y+'%');target.classList.add('hit');screen.classList.add('found')}
+function showPlayer(p,data,q){const name=pick(p,'pseudo','name','player_name','playerName')||q;const server=pick(p,'server_id','serverId','server');const alliance=pick(p,'alliance_tag','allianceTag','alliance_name','allianceName','alliance');const hq=pick(p,'hq_level','hqLevel','level','baseLevel');const power=pick(p,'power','combatPower','strength');const x=pick(p,'x','mapX','pos_x'),y=pick(p,'y','mapY','pos_y');const uid=pick(p,'game_uid','gameUid','uid','playerId');$('rname').textContent=name;$('rserver').textContent=fmt(server);$('ralliance').textContent=fmt(alliance);$('rhq').textContent=fmt(hq);$('rpower').textContent=fmt(power);$('rpos').textContent=(x!=null&&y!=null)?`${x} / ${y}`:'—';$('ruid').textContent=fmt(uid);currentProfileUID=uid?String(uid):'';clearRichProfile();$('refreshProfile').disabled=!currentProfileUID;$('profileNote').textContent='Recherche normale = cache local. Actualisation profil explicite et READ-ONLY.';applyRichProfile(p);if(currentProfileUID)queueMicrotask(()=>loadCachedRichProfile(currentProfileUID));const fast=data?.fastLookup;const job=data?.job;const src=job?'COLLECTOR V4':fast?.status==='d1-hit'?'CACHE LOCAL':fast?.status==='exact-hit'?'INDEX IDENTITÉ':fast?.status==='fuzzy-hit'?'INDEX COLLECTOR':'RADAR';$('rsource').textContent=src;$('rraw').textContent=job?`Cycle ${job.cycleId||'—'} · ${job.joined?'rejoint':'complet'} · ${fmt(job.playersSeen||0)} observations · ${fmt(job.enriched||0)} profils`:fast?.elapsedMs!=null?`${fast.route||fast.status} · ${fast.elapsedMs} ms`:(fast?.route||'Résultat local');locate(p);result.classList.add('show');steps(4);setStatus('CIBLE LOCALISÉE',name,'ok');tone(980,.07,.03);setTimeout(()=>tone(1320,.09,.025),90)}
+async function api(path,opt={}){const r=await fetch(path,{credentials:'include',cache:'no-store',...opt});let d={};try{d=await r.json()}catch(_){}if(!r.ok){const e=new Error(d.error||`HTTP_${r.status}`);e.status=r.status;e.data=d;throw e}return d}
+/* WFGG_RADAR_SEED_SCOUT_UI_V6193 */
+const WFGG_RADAR_SEED_SCOUT_OFFSET_KEY='wfgg_radar_seed_scout_offset_v6193';
+function seedScoutOffsetV6193(){try{return Math.max(0,Number(sessionStorage.getItem(WFGG_RADAR_SEED_SCOUT_OFFSET_KEY)||0)||0)}catch(_){return 0}}
+function saveSeedScoutOffsetV6193(value){try{sessionStorage.setItem(WFGG_RADAR_SEED_SCOUT_OFFSET_KEY,String(Math.max(0,Number(value)||0)))}catch(_){}}
+async function runSeedScoutV6193(){
+  const b=$('seedScout'),note=$('seedScoutNote'),box=$('federatedLive'),title=$('federatedTitle'),meta=$('federatedMeta');
+  b.disabled=true;box?.classList.add('show');note.textContent='Seed Scout en cours · essais ciblés READ-ONLY…';setStatus('SEED SCOUT','Recherche de la prochaine seed sans créer de cycle…');
+  try{
+    const offset=seedScoutOffsetV6193();
+    const started=await api('/api/radar/seed-scout/start',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({limit:8,region:4,minTargetPlayers:20,offset})});
+    let job=started.job;if(!job?.id)throw new Error('SEED_SCOUT_JOB_START_INVALID');
+    for(;;){
+      const attempts=Array.isArray(job.attempts)?job.attempts:[],last=attempts.length?attempts[attempts.length-1]:null;
+      title.textContent=`SEED SCOUT V6.19.3 · ${String(job.phase||job.status||'').toUpperCase()}`;
+      meta.textContent=last?`Essai ${job.candidateIndex||attempts.length}/${job.candidates?.length||'?'} · serveur ${last.candidateServer} · ${fmt(last.playersDecoded||0)} joueurs décodés · ${fmt(last.targetPlayers||0)} sur cible`:`Préparation · région ${(Number(job.region)||0)+1}/9`;
+      if(job.status==='SUCCESS'){
+        const seed=job.recommendedSeed||null;
+        if(seed?.command){
+          saveSeedScoutOffsetV6193(0);
+          $('q').value=String(seed.command);
+          note.textContent=`Seed trouvée : serveur ${seed.serverId} · ${fmt(seed.players||0)} joueurs sur 1 région. La commande ${seed.command} est prête ; appuie sur RECHERCHER pour lancer le scan 9/9.`;
+          setStatus('NOUVELLE SEED TROUVÉE',String(seed.command),'ok');tone(980,.07,.03);setTimeout(()=>tone(1320,.09,.025),90);
+        }else{
+          const next=Math.max(Number(job.nextOffset||0),seedScoutOffsetV6193()+attempts.length);
+          saveSeedScoutOffsetV6193(next);
+          note.textContent=`Batch terminé sans seed · ${attempts.length} serveur(s) testés · prochain batch à partir de l’offset ${next} · aucun cycle Collector créé. Relance DÉCOUVRIR pour continuer.`;
+          setStatus('SEED SCOUT TERMINÉ',`Aucune seed · prochain offset ${next}`,'error');
+        }
+        return;
+      }
+      if(job.status==='FAILED')throw new Error(String(job.phase||'SEED_SCOUT_FAILED'));
+      await sleep(2000);
+      const d=await api('/api/radar/seed-scout/status?id='+encodeURIComponent(job.id));
+      job=d.job;if(!job)throw new Error('SEED_SCOUT_JOB_STATUS_INVALID');
+    }
+  }catch(err){
+    if(err.status===401){login.classList.add('show');setStatus('SESSION REQUISE','Connecte le Radar avant Seed Scout','error')}
+    else if(isLastWarAuthError(err)){showReauthRequired(err.message)}
+    else setStatus('SEED SCOUT IMPOSSIBLE',String(err.message||err),'error');
+    note.textContent='Seed Scout interrompu : '+String(err.message||err);
+  }finally{b.disabled=false}
+}
+async function health(){try{const d=await api('/api/health?ui=live-radar');$('health').textContent=`API ${d.version||''} · ONLINE`;$('health').className='pill online';setStatus('RADAR PRÊT','API connectée')}catch(e){$('health').textContent='API HORS LIGNE';$('health').className='pill bad';setStatus('API INDISPONIBLE',e.message,'error')}}
+async function session(){try{const d=await api('/api/me');onAuthSessionReady(d.user);login.classList.remove('show');setAuthState('AUTH LAST WAR · SESSION ACTIVE');return true}catch(e){$('accountBar')?.classList.remove('show');$('session').textContent='SESSION: NON CONNECTÉE';setAuthState('AUTH LAST WAR · DÉCONNECTÉE','warn');if(e.status===401)login.classList.add('show');return false}}
+let emailChallengeId='';
+const LASTWAR_IDENTITY_MEMORY_KEY='wfgg_radar_lastwar_identity_v1';
+function authMessage(text,kind=''){const el=$('authMsg');el.textContent=text;el.className='authmsg'+(kind?' '+kind:'')}
+function authStage(stage){$('authStartPanel').classList.toggle('auth-hidden',stage!=='start');$('authCodePanel').classList.toggle('auth-hidden',stage!=='code')}
+function resetEmailAuth(){emailChallengeId='';$('gameCode').value='';authStage('start');authMessage('Aucun jeton n’est demandé au joueur.')}
+function loadRememberedLastWarIdentity(){try{const raw=localStorage.getItem(LASTWAR_IDENTITY_MEMORY_KEY);if(!raw)return;const d=JSON.parse(raw);const uid=String(d?.gameUid||'').trim(),email=String(d?.email||'').trim();if(uid)$('gameUid').value=uid;if(email)$('gameEmail').value=email;if(uid||email)$('rememberIdentity').checked=true}catch(_){}}
+function persistLastWarIdentity(){try{if(!$('rememberIdentity').checked){localStorage.removeItem(LASTWAR_IDENTITY_MEMORY_KEY);return}const gameUid=$('gameUid').value.trim(),email=$('gameEmail').value.trim();if(gameUid&&email)localStorage.setItem(LASTWAR_IDENTITY_MEMORY_KEY,JSON.stringify({gameUid,email}))}catch(_){}}
+$('refreshProfile').addEventListener('click',refreshCurrentProfile);
+$('rememberIdentity').addEventListener('change',()=>{if(!$('rememberIdentity').checked){try{localStorage.removeItem(LASTWAR_IDENTITY_MEMORY_KEY)}catch(_){}}else persistLastWarIdentity()});
+$('authSend').onclick=async()=>{const uid=$('gameUid').value.trim(),email=$('gameEmail').value.trim();if(!/^\d{6,64}$/.test(uid)){authMessage('ID joueur invalide.','error');return}if(!email||!email.includes('@')){authMessage('Adresse e-mail invalide.','error');return}const b=$('authSend');b.disabled=true;authMessage('Demande du code à Last War…');try{const d=await api('/api/auth/lastwar/start',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({gameUid:uid,email})});emailChallengeId=String(d.challengeId||'');if(!emailChallengeId)throw new Error('CHALLENGE_LASTWAR_INVALIDE');persistLastWarIdentity();authStage('code');authMessage('Code envoyé par Last War. Saisis les 6 chiffres reçus.','ok');$('gameCode').focus()}catch(e){authMessage(e.message||'Impossible d’envoyer le code.','error')}finally{b.disabled=false}};
+$('authFinish').onclick=async()=>{const code=$('gameCode').value.trim();if(!emailChallengeId){resetEmailAuth();return}if(!/^\d{6}$/.test(code)){authMessage('Le code doit contenir 6 chiffres.','error');return}const b=$('authFinish');b.disabled=true;authMessage('Validation auprès de Last War…');try{const d=await api('/api/auth/lastwar/finish',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({challengeId:emailChallengeId,code})});emailChallengeId='';$('gameCode').value='';persistLastWarIdentity();if(!$('rememberIdentity').checked){$('gameUid').value='';$('gameEmail').value=''}login.classList.remove('show');onAuthSessionReady(d.user);authStage('start');authMessage('Connexion Last War validée.','ok');tone(900,.07,.02)}catch(e){authMessage(e.message||'Code refusé par Last War.','error')}finally{b.disabled=false}};
+$('authRestart').onclick=()=>resetEmailAuth();
+function setAuthState(text,kind=''){const e=$('authState');if(!e)return;e.textContent=text;e.className='auth-state'+(kind?' '+kind:'')}
+function onAuthSessionReady(user){$('accountBar')?.classList.add('show');$('authExpired')?.classList.remove('show');$('session').textContent=`SESSION: ${user?.pseudo||'OK'} · ${user?.role||''}`;setAuthState('AUTH LAST WAR · VALIDÉE')}
+function isLastWarAuthError(err){const m=String(err?.message||err||'').toUpperCase();return m.includes('LASTWAR_AUTH_REJECTED')||m.includes('LASTWAR_AUTH_EXPIRED')||m.includes('AUTH_REJECTED')}
+function showReauthRequired(detail=''){stopScan();$('accountBar')?.classList.add('show');$('authExpired')?.classList.add('show');setAuthState('AUTH LAST WAR · EXPIRÉE','bad');resetEmailAuth();$('authIntro').textContent='La connexion Last War a expiré. Indique ton ID joueur et ton e-mail puis saisis le nouveau code reçu.';login.classList.add('show');setStatus('AUTH LAST WAR EXPIRÉE',detail||'Réauthentification requise','error');setTimeout(()=>login.scrollIntoView({behavior:'smooth',block:'center'}),60)}
+$('reauthLastWar').onclick=()=>{resetEmailAuth();$('authIntro').textContent='Réauthentification Last War : indique ton ID joueur et ton e-mail pour recevoir un nouveau code.';$('authExpired')?.classList.remove('show');setAuthState('AUTH LAST WAR · RÉAUTHENTIFICATION','warn');login.classList.add('show');setTimeout(()=>login.scrollIntoView({behavior:'smooth',block:'center'}),60)};
+$('seedScout').onclick=runSeedScoutV6193;
+$('logoutRadar').onclick=async()=>{const b=$('logoutRadar');b.disabled=true;try{await api('/api/auth/logout',{method:'POST'});$('accountBar')?.classList.remove('show');$('authExpired')?.classList.remove('show');$('session').textContent='SESSION: NON CONNECTÉE';setAuthState('AUTH LAST WAR · DÉCONNECTÉE','warn');result.classList.remove('show');screen.classList.remove('found','scanning');resetEmailAuth();$('authIntro').textContent='Connexion Last War : indique ton ID joueur et l’adresse e-mail liée au compte. Last War t’enverra un code à 6 chiffres.';login.classList.add('show');setStatus('SESSION FERMÉE','Reconnecte-toi pour utiliser le Radar');tone(260,.07,.018)}catch(e){setStatus('DÉCONNEXION IMPOSSIBLE',e.message,'error')}finally{b.disabled=false}};
+
+loadRememberedLastWarIdentity();
+/* WFGG_RADAR_FAST_LOOKUP_UI_V611 */
+$('searchForm').onsubmit=async e=>{e.preventDefault();const q=$('q').value.trim();if(!q)return;const federated=/^@federated:(?:APS)?\d+/i.test(q);startScan(q);if(!federated)setStatus('RECHERCHE INDEXÉE','Pseudo → UID → fiche locale');try{const d=federated?await runCollectorSearch(q):await api('/api/radar/search?q='+encodeURIComponent(q)+'&limit=50');const p=playerFrom(d);stopScan();if(p)showPlayer(p,d,q);else if(federated){screen.classList.remove('found');result.classList.remove('show');steps(4);/* le panneau fédéré est le résultat */}else{screen.classList.remove('found');steps(4);const fast=d?.fastLookup||{};const ambiguous=fast.status==='ambiguous';setStatus(ambiguous?'PSEUDO AMBIGU':'AUCUNE CIBLE',ambiguous?`${fast.candidateCount||0} correspondance(s) · précise le serveur ou l’UID`:`« ${q} » absent de l’index local`,'error');$('rname').textContent=q;$('rserver').textContent=$('ralliance').textContent=$('rhq').textContent=$('rpower').textContent=$('rpos').textContent=$('ruid').textContent='—';$('rsource').textContent=ambiguous?'INDEX IDENTITÉ':'INDEX LOCAL';$('rraw').textContent=fast.elapsedMs!=null?`${fast.route||fast.status} · ${fast.elapsedMs} ms`:(fast.route||'Aucun résultat');result.classList.add('show');tone(180,.14,.02)}}catch(err){stopScan();screen.classList.remove('found');if(err.status===401){login.classList.add('show');setStatus('SESSION REQUISE','Connecte le Radar puis relance la recherche','error')}else if(isLastWarAuthError(err)){showReauthRequired(err.message)}else setStatus('ERREUR RADAR',err.message,'error')}};
+health();session();
+</script>
+</body>
+</html>
