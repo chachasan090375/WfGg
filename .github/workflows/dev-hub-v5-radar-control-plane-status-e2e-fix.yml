@@ -148,15 +148,7 @@ jobs:
           python3 - "$ROOT/run.stdout" <<'PY'
           import json,sys,re
           s=open(sys.argv[1]).read()
-          m=re.search(r'^RUN_RECORD=(.+)          echo RADAR_CONTROL_PLANE_SCHEDULER_RUN_CONTROLLER=PASS
-
-      - name: Assert verification remains fail-closed
-        run: |
-          set -euo pipefail
-          grep -Fq 'VERIFICATION_STATUS=NEEDS_INDEPENDENT_CHECK' dev-hub/bin/run-radar-control-plane-status-e2e.sh
-          grep -Fq 'VERIFICATION_FAIL_CLOSED=PASS' dev-hub/bin/run-radar-control-plane-status-e2e.sh
-          echo RADAR_CONTROL_PLANE_VERIFICATION_BOUNDARY=PASS
-,s,re.M)
+          m=re.search(r'^RUN_RECORD=(.+)$',s,re.M)
           assert m,s
           path=m.group(1)
           r=json.load(open(path,encoding='utf-8'))
