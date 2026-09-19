@@ -738,7 +738,7 @@ def execute_inference_probe(request: dict[str, Any]) -> int:
     try:
         envelope, artifact = parse_backend_envelope(proc.stdout)
     except (UnicodeDecodeError, ValueError) as exc:
-        return emit(result(request, "FAILED", str(exc))
+        return emit(result(request, "FAILED", str(exc)))
     if artifact != {
         "schema": "chacha.dev/architecture-specialist-inference-probe/v1",
         "probe": "PASS",
