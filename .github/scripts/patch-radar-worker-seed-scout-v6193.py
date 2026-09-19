@@ -10,9 +10,9 @@ if 'WFGG_RADAR_SEED_SCOUT_TRANSPORT_V6193' not in transport:
     if transport.count(anchor) != 1:
         raise SystemExit(f'V6193_TRANSPORT_ANCHOR_COUNT={transport.count(anchor)}')
     addition = anchor + """  // WFGG_RADAR_SEED_SCOUT_TRANSPORT_V6193
-  startSeedScout(token, { limit = 8, region = 4, minTargetPlayers = 20 } = {}) {
+  startSeedScout(token, { limit = 8, region = 4, minTargetPlayers = 20, offset = 0 } = {}) {
     return this.request('/v1/collector/server-seed-scout/start', {
-      body: { token, limit, region, minTargetPlayers }
+      body: { token, limit, region, minTargetPlayers, offset }
     });
   }
   seedScoutStatus(id) {
@@ -37,9 +37,11 @@ if 'WFGG_RADAR_SEED_SCOUT_WORKER_V6193' not in worker:
         const limit = body.limit == null ? 8 : Number(body.limit);
         const region = body.region == null ? 4 : Number(body.region);
         const minTargetPlayers = body.minTargetPlayers == null ? 20 : Number(body.minTargetPlayers);
+        const offset = body.offset == null ? 0 : Number(body.offset);
         if (!Number.isInteger(limit) || limit < 1 || limit > 20) throw Object.assign(new Error('SEED_SCOUT_LIMIT_INVALID'), { status: 400 });
         if (!Number.isInteger(region) || region < 0 || region > 8) throw Object.assign(new Error('SEED_SCOUT_REGION_INVALID'), { status: 400 });
         if (!Number.isInteger(minTargetPlayers) || minTargetPlayers < 1 || minTargetPlayers > 500) throw Object.assign(new Error('SEED_SCOUT_MIN_PLAYERS_INVALID'), { status: 400 });
+        if (!Number.isInteger(offset) || offset < 0 || offset > 500) throw Object.assign(new Error('SEED_SCOUT_OFFSET_INVALID'), { status: 400 });
 
         const record = await getCredential(env, session.gameUid);
         if (!record) throw Object.assign(new Error('GAME_CREDENTIAL_NOT_FOUND'), { status: 409 });
@@ -55,7 +57,7 @@ if 'WFGG_RADAR_SEED_SCOUT_WORKER_V6193' not in worker:
           timeoutMs: 30000
         });
         try {
-          const started = await transport.startSeedScout(token, { limit, region, minTargetPlayers });
+          const started = await transport.startSeedScout(token, { limit, region, minTargetPlayers, offset });
           const job = started?.job || null;
           if (!job?.id) throw Object.assign(new Error('SEED_SCOUT_JOB_START_INVALID'), { status: 502 });
           return json({ ok: true, readonly: true, collectorMutation: false, job }, 202);
