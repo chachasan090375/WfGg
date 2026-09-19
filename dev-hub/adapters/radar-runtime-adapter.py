@@ -8,6 +8,7 @@ Supported actions:
 - cluster-quality-diagnostic (read)
 - cluster-catalog-probe      (read)
 - history-performance-diagnostic (read)
+- census-frontier-diagnostic  (read)
 - pilot-open                 (production-deploy)
 - pilot-install     (production-deploy)
 - pilot-probe       (read)
@@ -166,6 +167,7 @@ def validate_request(request: dict[str, Any]) -> tuple[dict[str, Any] | None, st
         "cluster-quality-diagnostic": "read",
         "cluster-catalog-probe": "read",
         "history-performance-diagnostic": "read",
+        "census-frontier-diagnostic": "read",
         "pilot-open": "production-deploy",
         "pilot-install": "production-deploy",
         "pilot-probe": "read",
@@ -590,6 +592,97 @@ def do_history_performance_diagnostic(request: dict[str, Any]) -> int:
     }]))
 
 
+def signed_json_get(path: str, timeout_seconds: int = 45) -> tuple[int, dict[str, Any], int]:
+    secret = connector_shared_key()
+    timestamp = str(int(time.time()))
+    nonce = os.urandom(16).hex()
+    body = b""
+    signature = radar_signature("GET", path, timestamp, nonce, body, secret)
+    req = urllib.request.Request(
+        "http://127.0.0.1:8788" + path,
+        method="GET",
+        headers={
+            "Accept": "application/json",
+            "X-Radar-Timestamp": timestamp,
+            "X-Radar-Nonce": nonce,
+            "X-Radar-Signature": signature,
+        },
+    )
+    started = time.monotonic()
+    status = 0
+    raw = b""
+    try:
+        with urllib.request.urlopen(req, timeout=timeout_seconds) as response:
+            status = int(response.status)
+            raw = response.read(262145)
+    except urllib.error.HTTPError as exc:
+        status = int(exc.code)
+        raw = exc.read(262145)
+    elapsed_ms = int(round((time.monotonic() - started) * 1000))
+    if len(raw) > 262144:
+        raise RuntimeError("RADAR_RESPONSE_TOO_LARGE")
+    try:
+        payload = json.loads(raw.decode("utf-8", "strict"))
+    except Exception as exc:
+        raise RuntimeError("RADAR_RESPONSE_JSON_INVALID") from exc
+    if not isinstance(payload, dict):
+        raise RuntimeError("RADAR_RESPONSE_NOT_OBJECT")
+    return status, payload, elapsed_ms
+
+
+def census_frontier_snapshot() -> dict[str, Any]:
+    status, payload, elapsed_ms = signed_json_get("/v1/collector/server-census", 45)
+    rows = payload.get("servers") if isinstance(payload.get("servers"), list) else []
+    sanitized = []
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        sid = str(row.get("serverId") or "").strip()
+        if not sid:
+            continue
+        sanitized.append({
+            "serverId": sid,
+            "players": int(row.get("players") or 0),
+            "observations": int(row.get("observations") or 0),
+            "distinctCycles": int(row.get("distinctCycles") or 0),
+        })
+    sanitized.sort(key=lambda x: (-x["players"], int(x["serverId"]) if x["serverId"].isdigit() else 10**18, x["serverId"]))
+    eligible = [x for x in sanitized if x["players"] >= 50]
+    noise = [x for x in sanitized if x["players"] < 50]
+    return {
+        "http_status": status,
+        "elapsed_ms": elapsed_ms,
+        "ok": payload.get("ok"),
+        "readonly": payload.get("readonly"),
+        "census_version": payload.get("censusVersion"),
+        "server_count": len(sanitized),
+        "seed_floor": 50,
+        "eligible_count": len(eligible),
+        "noise_count": len(noise),
+        "eligible_servers": eligible,
+        "noise_servers": noise,
+    }
+
+
+def do_census_frontier_diagnostic(request: dict[str, Any]) -> int:
+    try:
+        snap = census_frontier_snapshot()
+    except RuntimeError as exc:
+        return emit(result(request, "FAILED", str(exc)))
+    raw = json.dumps(snap, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    return emit(result(request, "OK", "RADAR_CENSUS_FRONTIER_DIAGNOSTIC_OK", [{
+        "kind": "diagnostic",
+        "source": "http://127.0.0.1:8788/v1/collector/server-census",
+        "digest": sha256_bytes(raw),
+        "details": snap,
+    }], [{
+        "type": "artifact",
+        "id": "radar-census-frontier-diagnostic",
+        "status": "UNVERIFIED",
+        "reason": "Signed localhost read-only aggregate census diagnostic; independent verification required.",
+    }]))
+
+
 def do_open(request: dict[str, Any]) -> int:
     approval_error = approval_required(request)
     if approval_error:
@@ -731,6 +824,8 @@ def main() -> int:
             return do_cluster_catalog_probe(request)
         if action == "history-performance-diagnostic":
             return do_history_performance_diagnostic(request)
+        if action == "census-frontier-diagnostic":
+            return do_census_frontier_diagnostic(request)
         if action == "pilot-open":
             return do_open(request)
         if action == "pilot-install":
