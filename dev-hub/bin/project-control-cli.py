@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""ChaCha DEV HUB unified Project Control CLI router V1.3.
+"""ChaCha DEV HUB unified Project Control CLI router V1.4.
 
 Routes standard operations to project-control.py, transaction inspection /
 recovery to transaction-recovery.py, and platform certification to
@@ -20,7 +20,7 @@ from typing import Any
 POLICY_SCHEMA = "chacha.dev/project-control/v1"
 RESPONSE_SCHEMA = "chacha.dev/project-control-response/v1"
 RECOVERY_OPERATIONS = {"transactions", "recover-transaction"}
-ROUTED_OPERATIONS = RECOVERY_OPERATIONS | {"platform-readiness"}
+ROUTED_OPERATIONS = RECOVERY_OPERATIONS | {"platform-readiness", "technical-design"}
 
 
 def now_iso() -> str:
@@ -122,6 +122,13 @@ def routed_parser() -> argparse.ArgumentParser:
     ready.add_argument("--run-recovery-drill", action="store_true")
     ready.add_argument("--required-provider", action="append", default=[])
     ready.add_argument("--report", type=Path)
+
+    design = sub.add_parser("technical-design")
+    design.add_argument("--project", required=True)
+    design.add_argument("--requirement", required=True, type=Path)
+    design.add_argument("--manifest", required=True, type=Path)
+    design.add_argument("--output", type=Path)
+    design.add_argument("--task-graph-output", type=Path)
     return parser
 
 
@@ -262,6 +269,95 @@ def handle_readiness(args: argparse.Namespace, policy: dict[str, Any]) -> int:
     return 0 if result["status"] in {"OK", "READY"} else 2
 
 
+def handle_technical_design(args: argparse.Namespace, policy: dict[str, Any]) -> int:
+    refs = policy.get("repository_paths") or {}
+    tools = policy.get("engine_paths") or {}
+    engine = resolve(args.repo_root, str(tools.get("technical_design_router")))
+    routing = resolve(args.repo_root, str(refs.get("agent_routing")))
+    design_policy = resolve(args.repo_root, str(refs.get("technical_design")))
+
+    requirement = args.requirement if args.requirement.is_absolute() else args.repo_root / args.requirement
+    manifest = args.manifest if args.manifest.is_absolute() else args.repo_root / args.manifest
+    try:
+        req_value = load(requirement)
+    except SystemExit as exc:
+        result = response(args.project, args.command, "FAILED", "Product requirement could not be loaded.",
+                          {"error": str(exc)}, ["PRODUCT_REQUIREMENT_INVALID"])
+        emit(result, args.json)
+        return 2
+
+    if str(req_value.get("project") or "") != args.project:
+        result = response(
+            args.project, args.command, "BLOCKED",
+            "Product requirement project does not match requested Project Control project.",
+            {"requirement_project": req_value.get("project")},
+            ["PRODUCT_REQUIREMENT_PROJECT_MISMATCH"],
+        )
+        emit(result, args.json)
+        return 2
+
+    runtime = policy.get("runtime") or {}
+    plans_root = Path(str(runtime.get("plans_root", "/opt/chacha-dev/runtime/plans")))
+    out_dir = plans_root / args.project / "technical-design"
+    req_id = str(req_value.get("id") or "requirement")
+    safe_id = "".join(ch if ch.isalnum() or ch in "._-" else "-" for ch in req_id)
+    output = args.output or (out_dir / f"{safe_id}.technical-design.json")
+    graph = args.task_graph_output or (out_dir / f"{safe_id}.task-graph.json")
+
+    rc, payload, stdout, stderr = run_json(
+        engine,
+        [
+            "--requirement", str(requirement),
+            "--manifest", str(manifest),
+            "--routing", str(routing),
+            "--policy", str(design_policy),
+            "--output", str(output),
+            "--task-graph-output", str(graph),
+            "--json",
+        ],
+    )
+    if rc != 0 or payload is None or payload.get("status") != "PASS":
+        result = response(
+            args.project, args.command, "FAILED",
+            "Technical design routing failed.",
+            {"stdout": stdout.strip(), "stderr": stderr.strip(), "routing_result": payload},
+            ["TECHNICAL_DESIGN_ROUTING_FAILED"],
+        )
+        emit(result, args.json)
+        return 2
+
+    blockers = [str(x) for x in payload.get("implementation_blockers") or []]
+    roles = [str(x) for x in payload.get("specialist_roles") or []]
+    result = response(
+        args.project,
+        args.command,
+        "READY",
+        "Product requirement was routed to ChaCha DEV technical-design specialists; implementation remains intentionally gated.",
+        {
+            "requirement_id": payload.get("requirement_id"),
+            "technical_design_plan": str(output),
+            "technical_design_task_graph": str(graph),
+            "affected_components": payload.get("affected_components") or [],
+            "specialist_roles": roles,
+            "backend_architect": bool(payload.get("backend_architect")),
+            "data_architect": bool(payload.get("data_architect")),
+            "code_generation_allowed": False,
+            "implementation_blockers": blockers,
+        },
+        [],
+        [
+            "complete specialist technical-design fragments and mandatory cross-reviews",
+            "record ADRs and resolve architecture decisions before implementation",
+        ],
+        [
+            {"type": "technical-design-plan", "path": str(output)},
+            {"type": "task-graph", "path": str(graph)},
+        ],
+    )
+    emit(result, args.json)
+    return 0
+
+
 def main() -> int:
     argv = sys.argv[1:]
     command = routed_command(argv)
@@ -273,6 +369,8 @@ def main() -> int:
             raise SystemExit(f"POLICY_SCHEMA_INVALID={policy.get('schema')}")
         if command in RECOVERY_OPERATIONS:
             return handle_recovery(args, policy)
+        if command == "technical-design":
+            return handle_technical_design(args, policy)
         return handle_readiness(args, policy)
 
     core = Path(__file__).with_name("project-control.py")
