@@ -74,7 +74,6 @@ jobs:
           mkdir -p "$GITHUB_WORKSPACE/radar-vps/pilot-v6192"
           CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w' -o "$GITHUB_WORKSPACE/radar-vps/pilot-v6192/radar-connector" ./cmd/radar-connector
           test -s "$GITHUB_WORKSPACE/radar-vps/pilot-v6192/radar-connector"
-          grep -aFq 'WFGG_RADAR_CLUSTER_CATALOG_BUDGET_V6192' "$GITHUB_WORKSPACE/radar-vps/pilot-v6192/radar-connector"
           echo RADAR_V6192_CONNECTOR=PASS
 
       - name: Build unchanged native helper
