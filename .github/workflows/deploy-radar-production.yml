@@ -306,8 +306,11 @@ jobs:
             sleep 5
           done
           curl -fsSL "$RADAR_URL/live-radar.html?probe=$GITHUB_SHA" -o /tmp/live-radar.html
-          grep -Fq 'WFGG_RADAR_SEED_SCOUT_UI_V6194' /tmp/live-radar.html
+          grep -Fq 'WFGG_RADAR_SEED_SCOUT_UI_V6193' /tmp/live-radar.html
           grep -Fq 'DÉCOUVRIR LA PROCHAINE GRAPPE' /tmp/live-radar.html
+          grep -Fq 'WFGG_RADAR_AUTOPILOT_UI_V6194' /tmp/live-radar.html
+          grep -Fq 'DÉMARRER L’AUTOPILOT' /tmp/live-radar.html
+          grep -Fq 'ARRÊTER L’AUTOPILOT' /tmp/live-radar.html
           echo "RADAR_PRODUCTION_URL=$RADAR_URL"
           echo "RADAR_LIVE_UI_URL=$RADAR_URL/live-radar.html"
           echo RADAR_V6194_CLOUDFLARE_PRODUCTION=PASS
