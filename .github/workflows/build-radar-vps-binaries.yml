@@ -1,4 +1,4 @@
-name: Build Radar VPS binaries
+name: Build Radar VPS production binaries
 
 on:
   push:
@@ -7,7 +7,18 @@ on:
       - '.github/workflows/build-radar-vps-binaries.yml'
       - '.github/scripts/patch-radar-target-profile-retry.py'
       - '.github/scripts/patch-radar-federated-diagnostics-v65.py'
+      - '.github/scripts/patch-player-scan-v3.py'
+      - '.github/scripts/patch-player-scan-v4.py'
+      - '.github/scripts/patch-radar-protocol-discovery-v67.py'
+      - '.github/scripts/patch-radar-profile-isolation-v68.py'
+      - '.github/scripts/patch-radar-native-profile-v69.py'
+      - '.github/scripts/patch-radar-native-profile-handshake-v691.py'
+      - '.github/scripts/patch-radar-native-profile-exec-v692.py'
+      - '.github/scripts/patch-radar-connector-runtime-v693.py'
+      - '.github/scripts/patch-radar-cluster-catalog-budget-v6192.py'
+      - '.github/scripts/patch-radar-seed-scout-v6193.py'
       - '.radar-release-src/v2-source/connector-go/**'
+      - '.radar-release-src/v6193-source/**'
   workflow_dispatch:
 
 permissions:
@@ -17,10 +28,15 @@ concurrency:
   group: wfgg-radar-vps-binaries
   cancel-in-progress: false
 
+env:
+  LASTWAR_CLIENT_REF: ee5f64de160a8051c2f9f98189b75038dd225a0a
+  EXPECTED_CONNECTOR_SHA256: 73b64743031e4a47212dfdafae8ad67551f88d131831e70cb08a40957824f9a8
+  EXPECTED_NATIVE_SHA256: 274d040f5294cb09422e5d55cc4b5335ac7739924c33dcb67b3f279645814900
+
 jobs:
   build:
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
         with:
@@ -31,99 +47,99 @@ jobs:
         with:
           go-version: '1.27.x'
 
-      - name: Reconstruct immutable Radar V0.5 base
+      - name: Reconstruct cumulative V6.19.3
         run: |
           set -euo pipefail
-          rm -rf /tmp/wfgg-radar
+          rm -rf /tmp/wfgg-radar /tmp/lastwar-client
           mkdir -p /tmp/wfgg-radar
           python3 .github/scripts/reconstruct-radar-release.py
           echo '234df1dec57f6211bc625855bf13350c9f17fbd843fbe92d8cf1ab7cb5c081ef  /tmp/radar-src.tar.gz' | sha256sum -c -
           tar -xzf /tmp/radar-src.tar.gz -C /tmp/wfgg-radar
-
-      - name: Overlay current connector source
-        run: |
-          set -euo pipefail
-          test -f .radar-release-src/v2-source/connector-go/go.mod
-          test -f .radar-release-src/v2-source/connector-go/cmd/radar-connector/main.go
           rm -rf /tmp/wfgg-radar/connector-go
           cp -a .radar-release-src/v2-source/connector-go /tmp/wfgg-radar/connector-go
 
-      - name: Apply searched-target profile retry
-        run: |
-          set -euo pipefail
           python3 .github/scripts/patch-radar-target-profile-retry.py
-          grep -q 'PROFILE_TARGET_RETRY_V1' /tmp/wfgg-radar/connector-go/cmd/radar-connector/collector_jobs.go
-          grep -q 'PROFILE_TARGET_NOT_RETURNED' /tmp/wfgg-radar/connector-go/cmd/radar-connector/collector_jobs.go
-          echo 'RADAR_TARGET_PROFILE_RETRY=STAGED'
-
-      - name: Apply federated diagnostics V6.5
-        run: |
-          set -euo pipefail
           python3 .github/scripts/patch-radar-federated-diagnostics-v65.py
-          grep -q 'WFGG_RADAR_FEDERATED_DIAGNOSTICS_V65' /tmp/wfgg-radar/connector-go/cmd/radar-connector/collector_jobs.go
-          grep -q 'failureCategory' /tmp/wfgg-radar/connector-go/cmd/radar-connector/collector_jobs.go
-          grep -q 'failureCause' /tmp/wfgg-radar/connector-go/cmd/radar-connector/collector_jobs.go
-          echo 'RADAR_FEDERATED_DIAGNOSTICS_V65=STAGED'
+          python3 .github/scripts/patch-player-scan-v3.py
+          python3 .github/scripts/patch-player-scan-v4.py
+          python3 .github/scripts/patch-radar-protocol-discovery-v67.py
+          python3 .github/scripts/patch-radar-profile-isolation-v68.py
+          python3 .github/scripts/patch-radar-native-profile-v69.py
+          python3 .github/scripts/patch-radar-native-profile-handshake-v691.py
+          python3 .github/scripts/patch-radar-native-profile-exec-v692.py
+          python3 .github/scripts/patch-radar-connector-runtime-v693.py
+          python3 .github/scripts/patch-radar-cluster-catalog-budget-v6192.py
+          python3 .github/scripts/patch-radar-seed-scout-v6193.py
 
-      - name: Test and build Radar connector
+          grep -Fq 'WFGG_RADAR_CLUSTER_CATALOG_BUDGET_V6192' /tmp/wfgg-radar/connector-go/cmd/radar-connector/server_cluster_catalog_v613.go
+          grep -Fq 'WFGG_RADAR_SEED_SCOUT_V6193' /tmp/wfgg-radar/connector-go/cmd/radar-connector/server_seed_scout_v6193.go
+          echo RADAR_V6193_PRODUCTION_RECONSTRUCT=PASS
+
+      - name: Test and build connector
         working-directory: /tmp/wfgg-radar/connector-go
         run: |
           set -euo pipefail
           gofmt -w ./cmd ./internal
           go test ./...
+          go vet ./...
           mkdir -p "$GITHUB_WORKSPACE/radar-vps/release"
           CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w' -o "$GITHUB_WORKSPACE/radar-vps/release/radar-connector" ./cmd/radar-connector
+          actual="$(sha256sum "$GITHUB_WORKSPACE/radar-vps/release/radar-connector" | awk '{print $1}')"
+          test "$actual" = "$EXPECTED_CONNECTOR_SHA256"
+          echo "RADAR_V6193_CONNECTOR_SHA256=$actual"
 
-      - name: Build pinned Last War email auth client
+      - name: Build qualified native helper
         run: |
           set -euo pipefail
-          UPSTREAM_COMMIT='ee5f64de160a8051c2f9f98189b75038dd225a0a'
-          rm -rf /tmp/lastwar-client
-          git clone --quiet --filter=blob:none https://github.com/ljagiello/lastwar-client.git /tmp/lastwar-client
+          git clone --quiet --filter=blob:none --no-checkout https://github.com/ljagiello/lastwar-client.git /tmp/lastwar-client
           cd /tmp/lastwar-client
-          git fetch --quiet --depth 1 origin "$UPSTREAM_COMMIT"
-          git checkout --quiet --detach "$UPSTREAM_COMMIT"
-          test "$(git rev-parse HEAD)" = "$UPSTREAM_COMMIT"
-          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w' -o "$GITHUB_WORKSPACE/radar-vps/release/radar-lastwar-auth-client" ./cmd/lastwar-client
-          chmod 0755 "$GITHUB_WORKSPACE/radar-vps/release/radar-lastwar-auth-client"
-          echo "LASTWAR_AUTH_CLIENT_UPSTREAM=$UPSTREAM_COMMIT"
+          git fetch --quiet --depth 1 origin "$LASTWAR_CLIENT_REF"
+          git checkout --quiet --detach FETCH_HEAD
+          test "$(git rev-parse HEAD)" = "$LASTWAR_CLIENT_REF"
 
-      - name: Preserve validated V4 native helper
+          mkdir -p cmd/wfgg-radar-native-template
+          cp /tmp/wfgg-radar/connector-go/native-template/main.go cmd/wfgg-radar-native-template/main.go
+          cp /tmp/wfgg-radar/connector-go/native-template/player_scan_v3.go cmd/wfgg-radar-native-template/player_scan_v3.go
+          cp /tmp/wfgg-radar/connector-go/native-template/player_scan_v4.go cmd/wfgg-radar-native-template/player_scan_v4.go
+          cp /tmp/wfgg-radar/connector-go/native-template/profile_scan_v69.go cmd/wfgg-radar-native-template/profile_scan_v69.go
+          cp /tmp/wfgg-radar/connector-go/native-template/profile_scan_v69_test.go cmd/wfgg-radar-native-template/profile_scan_v69_test.go
+          cp /tmp/wfgg-radar/connector-go/native-template/profile_rich_fields_v619_test.go cmd/wfgg-radar-native-template/profile_rich_fields_v619_test.go
+          gofmt -w cmd/wfgg-radar-native-template/*.go
+          go test -tags lastwar_native_template ./cmd/wfgg-radar-native-template
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -tags lastwar_native_template -trimpath -ldflags='-s -w' -o "$GITHUB_WORKSPACE/radar-vps/release/radar-native-template" ./cmd/wfgg-radar-native-template
+          actual="$(sha256sum "$GITHUB_WORKSPACE/radar-vps/release/radar-native-template" | awk '{print $1}')"
+          test "$actual" = "$EXPECTED_NATIVE_SHA256"
+          echo "RADAR_V6193_NATIVE_SHA256=$actual"
+
+      - name: Verify read-only production release
         run: |
           set -euo pipefail
-          test -x radar-vps/release/radar-native-template || chmod 0755 radar-vps/release/radar-native-template
+          chmod 0755 radar-vps/release/radar-connector radar-vps/release/radar-native-template
           grep -aFq 'native-template-readonly-v4' radar-vps/release/radar-native-template
           grep -aFq 'world.get.block' radar-vps/release/radar-native-template
           grep -aFq 'get.user.info.multi' radar-vps/release/radar-native-template
-          echo 'RADAR_NATIVE_TEMPLATE=PRESERVED_V4'
+          (
+            cd radar-vps/release
+            sha256sum radar-connector radar-native-template > SHA256SUMS
+          )
+          grep -Fq "$EXPECTED_CONNECTOR_SHA256  radar-connector" radar-vps/release/SHA256SUMS
+          grep -Fq "$EXPECTED_NATIVE_SHA256  radar-native-template" radar-vps/release/SHA256SUMS
+          echo RADAR_V6193_GAME_MUTATION=NO
+          echo RADAR_V6193_COLLECTOR_MUTATION=NO
+          echo RADAR_V6193_PRODUCTION_RELEASE=QUALIFIED
 
-      - name: Verify release binaries
-        run: |
-          set -euo pipefail
-          chmod 0755 radar-vps/release/radar-connector radar-vps/release/radar-native-template radar-vps/release/radar-lastwar-auth-client
-          cd radar-vps/release
-          # Sentinel deploys only these two files. Keep its checksum manifest scoped
-          # to exactly that deployment surface so an unrelated auth-client artifact
-          # can never block connector reconciliation on the VPS.
-          sha256sum radar-connector radar-native-template > SHA256SUMS
-          sha256sum radar-lastwar-auth-client > LASTWAR_AUTH_SHA256SUM
-          file radar-connector radar-native-template radar-lastwar-auth-client
-          test -s radar-lastwar-auth-client
-          cat SHA256SUMS
-          cat LASTWAR_AUTH_SHA256SUM
-
-      - name: Commit VPS release binaries
+      - name: Commit production release binaries
         run: |
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add radar-vps/release/radar-connector radar-vps/release/radar-native-template radar-vps/release/radar-lastwar-auth-client radar-vps/release/SHA256SUMS radar-vps/release/LASTWAR_AUTH_SHA256SUM
+          git add radar-vps/release/radar-connector radar-vps/release/radar-native-template radar-vps/release/SHA256SUMS
           if git diff --cached --quiet; then
-            echo 'VPS_BINARIES=UNCHANGED'
+            echo RADAR_V6193_RELEASE_BINARIES=UNCHANGED
             exit 0
           fi
-          git commit -m 'build(radar): publish v6.5 diagnostics connector bundle'
+          git commit -m 'build(radar): publish V6.19.3 Seed Scout production binaries'
           git fetch origin radar-production-v1
           git rebase origin/radar-production-v1
           git push origin HEAD:radar-production-v1
-          echo 'VPS_BINARIES=PUBLISHED'
+          echo RADAR_V6193_RELEASE_BINARIES=PUBLISHED

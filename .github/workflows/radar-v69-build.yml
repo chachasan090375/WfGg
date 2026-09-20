@@ -13,6 +13,10 @@ on:
       - '.radar-release-src/v691-source/**'
       - '.radar-release-src/v692-source/**'
       - '.radar-release-src/v693-source/**'
+      - '.github/scripts/patch-radar-profile-rich-fields-v619.py'
+      - '.radar-release-src/v619-source/**'
+      - '.github/scripts/patch-radar-profile-refresh-v6191.py'
+      - '.radar-release-src/v6191-source/**'
   workflow_dispatch:
 
 permissions:
@@ -126,6 +130,16 @@ jobs:
           grep -Fq 'WFGG_RADAR_CONNECTOR_RUNTIME_FINGERPRINT_V693' /tmp/wfgg-radar/connector-go/cmd/radar-connector/runtime_fingerprint_v693.go
           grep -Fq 'WFGG_RADAR_CONNECTOR_RUNTIME_HEALTH_V693' /tmp/wfgg-radar/connector-go/cmd/radar-connector/main.go
           grep -Fq 'PLAYER_PROFILE_DECODE_FAILED' /tmp/wfgg-radar/connector-go/native-template/profile_scan_v69.go
+          grep -Fq 'WFGG_RADAR_PROFILE_RICH_FIELDS_V619' /tmp/wfgg-radar/connector-go/internal/protocol/protocol.go
+          grep -Fq 'WFGG_RADAR_PROFILE_RICH_PARSE_V619' /tmp/wfgg-radar/connector-go/native-template/player_scan_v3.go
+          grep -Fq 'json:"armyPower,omitempty"' /tmp/wfgg-radar/connector-go/internal/protocol/protocol.go
+          grep -Fq 'json:"armyKill,omitempty"' /tmp/wfgg-radar/connector-go/internal/protocol/protocol.go
+          grep -Fq 'json:"svipLevel,omitempty"' /tmp/wfgg-radar/connector-go/internal/protocol/protocol.go
+          grep -Fq 'json:"country,omitempty"' /tmp/wfgg-radar/connector-go/internal/protocol/protocol.go
+          grep -Fq 'json:"avatarRef,omitempty"' /tmp/wfgg-radar/connector-go/internal/protocol/protocol.go
+          grep -Fq 'WFGG_RADAR_TARGET_PROFILE_REFRESH_V6191' /tmp/wfgg-radar/connector-go/cmd/radar-connector/profile_refresh_v6191.go
+          grep -Fq 'WFGG_RADAR_PROFILE_ONLY_JOB_V6191' /tmp/wfgg-radar/connector-go/cmd/radar-connector/collector_jobs.go
+          grep -Fq 'POST /v1/collector/profile/refresh' /tmp/wfgg-radar/connector-go/cmd/radar-connector/main.go
           ! grep -Fq 'return nil, errors.New("LASTWAR_PLAYER_PROFILE_FAILED")' /tmp/wfgg-radar/connector-go/internal/protocol/profile_scan_v69.go
           ! grep -REq 'building\.production\.collect|mail\.reward|al\.science\.donate|visitor\.operate|attack|march|purchase' .radar-release-src/v693-source .radar-release-src/v692-source .radar-release-src/v691-source .radar-release-src/v69-source/connector-go
           chmod 0755 radar-vps/release/radar-connector radar-vps/release/radar-native-template

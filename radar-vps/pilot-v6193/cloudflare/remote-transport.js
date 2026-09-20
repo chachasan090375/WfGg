@@ -1,0 +1,102 @@
+const enc = new TextEncoder();
+
+function hex(bytes) {
+  return [...bytes].map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+async function sha256Hex(value) {
+  return hex(new Uint8Array(await crypto.subtle.digest('SHA-256', enc.encode(value))));
+}
+
+async function hmacHex(secret, value) {
+  const key = await crypto.subtle.importKey('raw', enc.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+  return hex(new Uint8Array(await crypto.subtle.sign('HMAC', key, enc.encode(value))));
+}
+
+function nonce() {
+  const bytes = crypto.getRandomValues(new Uint8Array(16));
+  return hex(bytes);
+}
+
+export async function connectorSignature({ method, path, timestamp, nonce: requestNonce, body = '', secret }) {
+  const bodyHash = await sha256Hex(body);
+  const canonical = `${String(method).toUpperCase()}\n${path}\n${timestamp}\n${requestNonce}\n${bodyHash}`;
+  return hmacHex(secret, canonical);
+}
+
+export class RemoteLastWarTransport {
+  constructor({ baseUrl, sharedKey, timeoutMs = 65000, fetchImpl = (...args) => globalThis.fetch(...args) } = {}) {
+    if (!baseUrl) throw new Error('RADAR_CONNECTOR_URL_REQUIRED');
+    if (!sharedKey || String(sharedKey).length < 32) throw new Error('RADAR_CONNECTOR_SHARED_KEY_MISSING_OR_WEAK');
+    this.baseUrl = String(baseUrl).replace(/\/+$/, '');
+    this.sharedKey = String(sharedKey);
+    this.timeoutMs = timeoutMs;
+    this.fetchImpl = fetchImpl;
+  }
+
+  async request(path, { method = 'POST', body = null } = {}) {
+    const bodyText = body === null ? '' : JSON.stringify(body);
+    const timestamp = String(Math.floor(Date.now() / 1000));
+    const requestNonce = nonce();
+    // The connector deliberately signs URL.Path only. Query parameters remain in
+    // the request URL but are not part of the HMAC canonical path.
+    const parsed = new URL(this.baseUrl + path);
+    const signature = await connectorSignature({ method, path: parsed.pathname, timestamp, nonce: requestNonce, body: bodyText, secret: this.sharedKey });
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort('timeout'), this.timeoutMs);
+    try {
+      const response = await this.fetchImpl(parsed.toString(), {
+        method,
+        headers: {
+          'content-type': 'application/json',
+          'x-radar-timestamp': timestamp,
+          'x-radar-nonce': requestNonce,
+          'x-radar-signature': signature
+        },
+        body: bodyText || undefined,
+        signal: controller.signal,
+        cache: 'no-store'
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        const error = new Error(data.error || `CONNECTOR_HTTP_${response.status}`);
+        error.status = response.status === 401 || response.status === 403 ? 503 : response.status;
+        throw error;
+      }
+      return data;
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
+  authenticate(token) { return this.request('/v1/authenticate', { body: { token } }); }
+  startEmailAuth(gameUid, email) { return this.request('/v1/auth/email/start', { body: { gameUid, email } }); }
+  finishEmailAuth(challengeId, code) { return this.request('/v1/auth/email/finish', { body: { challengeId, code } }); }
+  snapshot(token) { return this.request('/v1/snapshot', { body: { token } }); }
+  scanPlayer(query, token) { return this.request('/v1/scan/player', { body: { token, query } }); }
+  startCollectorSearch(query, token) { return this.request('/v1/collector/search/start', { body: { token, query } }); }
+  collectorSearchStatus(id) { return this.request(`/v1/collector/search/status?id=${encodeURIComponent(id)}`, { method: 'GET' }); }
+  // WFGG_RADAR_SEED_SCOUT_TRANSPORT_V6193
+  startSeedScout(token, { limit = 8, region = 4, minTargetPlayers = 20, offset = 0 } = {}) {
+    return this.request('/v1/collector/server-seed-scout/start', {
+      body: { token, limit, region, minTargetPlayers, offset }
+    });
+  }
+  seedScoutStatus(id) {
+    return this.request(`/v1/collector/server-seed-scout/status?id=${encodeURIComponent(id)}`, { method: 'GET' });
+  }
+  // WFGG_RADAR_COLLECTOR_INDEX_TRANSPORT_V610
+  collectorIndexSearch(query, limit = 50) {
+    const safeLimit = Math.max(1, Math.min(Number(limit) || 50, 100));
+    return this.request(`/v1/collector/index/search?q=${encodeURIComponent(String(query || ''))}&limit=${safeLimit}`, { method: 'GET' });
+  }
+  // WFGG_RADAR_FAST_IDENTITY_TRANSPORT_V611
+  collectorFastLookup(query, server = '') {
+    const q = encodeURIComponent(String(query || ''));
+    const s = String(server || '').trim();
+    return this.request(`/v1/collector/identity/lookup?q=${q}${s ? `&server=${encodeURIComponent(s)}` : ''}`, { method: 'GET' });
+  }
+  cartographerTick(token) { return this.request('/v1/cartographer/tick', { body: { token } }); }
+  health() { return this.request('/v1/health', { method: 'GET' }); }
+  async close() {}
+}

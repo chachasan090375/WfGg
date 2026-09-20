@@ -1,0 +1,6 @@
+WFGG_RADAR_PILOT=V6.19.2
+SOURCE_BRANCH=radar-v6192-cluster-catalog-budget
+SOURCE_SHA=8a729a2c1f0c64b16bb47594b8536d6108ad7e3c
+CHANGE=server-cluster-catalog-timeout-30s-to-75s
+DISCOVERY_MODE=targeted-federated-sequential
+PRODUCTION_MUTATION=NO

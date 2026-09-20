@@ -1,0 +1,126 @@
+name: Radar V6.19.1 pilot binaries
+
+on:
+  push:
+    branches: [radar-v6191-rich-profile-e2e]
+    paths:
+      - '.radar-release-src/v6191-source/**'
+      - '.github/scripts/patch-radar-profile-refresh-v6191.py'
+      - '.github/scripts/patch-radar-connector-runtime-v693.py'
+      - '.github/workflows/radar-v6191-pilot-build.yml'
+      - 'radar-vps/install-v6191-pilot.sh'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: wfgg-radar-v6191-pilot-build
+  cancel-in-progress: true
+
+env:
+  LASTWAR_CLIENT_REF: ee5f64de160a8051c2f9f98189b75038dd225a0a
+
+jobs:
+  build-pilot:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: radar-v6191-rich-profile-e2e
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.27.x'
+
+      - name: Reconstruct cumulative V6.19.1 source
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/wfgg-radar /tmp/lastwar-client
+          mkdir -p /tmp/wfgg-radar
+          python3 .github/scripts/reconstruct-radar-release.py
+          echo '234df1dec57f6211bc625855bf13350c9f17fbd843fbe92d8cf1ab7cb5c081ef  /tmp/radar-src.tar.gz' | sha256sum -c -
+          tar -xzf /tmp/radar-src.tar.gz -C /tmp/wfgg-radar
+          rm -rf /tmp/wfgg-radar/connector-go
+          cp -a .radar-release-src/v2-source/connector-go /tmp/wfgg-radar/connector-go
+          python3 .github/scripts/patch-radar-target-profile-retry.py
+          python3 .github/scripts/patch-radar-federated-diagnostics-v65.py
+          python3 .github/scripts/patch-player-scan-v3.py
+          python3 .github/scripts/patch-player-scan-v4.py
+          python3 .github/scripts/patch-radar-protocol-discovery-v67.py
+          python3 .github/scripts/patch-radar-profile-isolation-v68.py
+          python3 .github/scripts/patch-radar-native-profile-v69.py
+          python3 .github/scripts/patch-radar-native-profile-handshake-v691.py
+          python3 .github/scripts/patch-radar-native-profile-exec-v692.py
+          python3 .github/scripts/patch-radar-connector-runtime-v693.py
+
+      - name: Test and build connector pilot
+        working-directory: /tmp/wfgg-radar/connector-go
+        run: |
+          set -euo pipefail
+          gofmt -w ./cmd ./internal
+          go test ./...
+          go vet ./...
+          mkdir -p "$GITHUB_WORKSPACE/radar-vps/pilot-v6191"
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w' -o "$GITHUB_WORKSPACE/radar-vps/pilot-v6191/radar-connector" ./cmd/radar-connector
+          test -s "$GITHUB_WORKSPACE/radar-vps/pilot-v6191/radar-connector"
+
+      - name: Build native helper pilot
+        run: |
+          set -euo pipefail
+          git clone --quiet --filter=blob:none --no-checkout https://github.com/ljagiello/lastwar-client.git /tmp/lastwar-client
+          cd /tmp/lastwar-client
+          git fetch --quiet --depth 1 origin "$LASTWAR_CLIENT_REF"
+          git checkout --quiet --detach FETCH_HEAD
+          test "$(git rev-parse HEAD)" = "$LASTWAR_CLIENT_REF"
+          go test ./internal/auth ./internal/pcap ./internal/sfs
+          mkdir -p cmd/wfgg-radar-native-template
+          cp /tmp/wfgg-radar/connector-go/native-template/main.go cmd/wfgg-radar-native-template/main.go
+          cp /tmp/wfgg-radar/connector-go/native-template/player_scan_v3.go cmd/wfgg-radar-native-template/player_scan_v3.go
+          cp /tmp/wfgg-radar/connector-go/native-template/player_scan_v4.go cmd/wfgg-radar-native-template/player_scan_v4.go
+          cp /tmp/wfgg-radar/connector-go/native-template/profile_scan_v69.go cmd/wfgg-radar-native-template/profile_scan_v69.go
+          cp /tmp/wfgg-radar/connector-go/native-template/profile_scan_v69_test.go cmd/wfgg-radar-native-template/profile_scan_v69_test.go
+          cp /tmp/wfgg-radar/connector-go/native-template/profile_rich_fields_v619_test.go cmd/wfgg-radar-native-template/profile_rich_fields_v619_test.go
+          gofmt -w cmd/wfgg-radar-native-template/*.go
+          go test -tags lastwar_native_template ./cmd/wfgg-radar-native-template
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -tags lastwar_native_template -trimpath -ldflags='-s -w' -o "$GITHUB_WORKSPACE/radar-vps/pilot-v6191/radar-native-template" ./cmd/wfgg-radar-native-template
+          test -s "$GITHUB_WORKSPACE/radar-vps/pilot-v6191/radar-native-template"
+
+      - name: Verify and manifest pilot
+        run: |
+          set -euo pipefail
+          bash -n radar-vps/install-v6191-pilot.sh
+          chmod 0755 radar-vps/pilot-v6191/radar-connector radar-vps/pilot-v6191/radar-native-template
+          grep -aFq '/v1/collector/profile/refresh' radar-vps/pilot-v6191/radar-connector
+          grep -aFq 'PROFILE_TARGET_REFRESH_FAILED' radar-vps/pilot-v6191/radar-connector
+          grep -aFq 'get.user.info.multi' radar-vps/pilot-v6191/radar-native-template
+          (
+            cd radar-vps/pilot-v6191
+            sha256sum radar-connector radar-native-template > SHA256SUMS
+          )
+          {
+            echo "WFGG_RADAR_PILOT=V6.19.1"
+            echo "SOURCE_BRANCH=radar-v6191-rich-profile-e2e"
+            echo "SOURCE_SHA=$GITHUB_SHA"
+            echo "PROFILE_ONLY=get.user.info.multi"
+            echo "PRODUCTION_MUTATION=NO"
+          } > radar-vps/pilot-v6191/PILOT_INFO.txt
+          cat radar-vps/pilot-v6191/SHA256SUMS
+
+      - name: Publish pilot binaries to branch only
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add radar-vps/pilot-v6191
+          if git diff --cached --quiet; then
+            echo RADAR_V6191_PILOT=UNCHANGED
+            exit 0
+          fi
+          git commit -m 'build(radar): publish V6.19.1 pilot binaries'
+          git fetch origin radar-v6191-rich-profile-e2e
+          git rebase origin/radar-v6191-rich-profile-e2e
+          git push origin HEAD:radar-v6191-rich-profile-e2e
+          echo RADAR_V6191_PILOT=PUBLISHED

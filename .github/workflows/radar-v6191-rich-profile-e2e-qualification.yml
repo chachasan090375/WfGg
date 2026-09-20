@@ -1,0 +1,158 @@
+name: Radar V6.19.1 rich profile end-to-end qualification
+
+on:
+  push:
+    branches: [radar-v6191-rich-profile-e2e]
+    paths:
+      - '.radar-release-src/v6191-source/**'
+      - '.github/scripts/patch-radar-profile-refresh-v6191.py'
+      - '.github/scripts/patch-radar-worker-rich-profile-v6191.py'
+      - '.github/scripts/patch-radar-connector-runtime-v693.py'
+      - 'radar-ui-live/live-radar.html'
+      - 'worker/migrations/0004_radar_profile_rich_v6191.sql'
+      - '.github/workflows/radar-v6191-rich-profile-e2e-qualification.yml'
+      - '.github/workflows/radar-v69-build.yml'
+      - '.github/workflows/deploy-radar-production.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: wfgg-radar-v6191-rich-profile-e2e
+  cancel-in-progress: true
+
+env:
+  LASTWAR_CLIENT_REF: ee5f64de160a8051c2f9f98189b75038dd225a0a
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: radar-v6191-rich-profile-e2e
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.27.x'
+
+      - name: Reconstruct cumulative connector and Worker
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/wfgg-radar
+          mkdir -p /tmp/wfgg-radar
+          python3 .github/scripts/reconstruct-radar-release.py
+          echo '234df1dec57f6211bc625855bf13350c9f17fbd843fbe92d8cf1ab7cb5c081ef  /tmp/radar-src.tar.gz' | sha256sum -c -
+          tar -xzf /tmp/radar-src.tar.gz -C /tmp/wfgg-radar
+          rm -rf /tmp/wfgg-radar/connector-go
+          cp -a .radar-release-src/v2-source/connector-go /tmp/wfgg-radar/connector-go
+          python3 .github/scripts/patch-radar-target-profile-retry.py
+          python3 .github/scripts/patch-radar-federated-diagnostics-v65.py
+          python3 .github/scripts/patch-player-scan-v3.py
+          python3 .github/scripts/patch-player-scan-v4.py
+          python3 .github/scripts/patch-radar-protocol-discovery-v67.py
+          python3 .github/scripts/patch-radar-profile-isolation-v68.py
+          python3 .github/scripts/patch-radar-native-profile-v69.py
+          python3 .github/scripts/patch-radar-native-profile-handshake-v691.py
+          python3 .github/scripts/patch-radar-native-profile-exec-v692.py
+          python3 .github/scripts/patch-radar-connector-runtime-v693.py
+          python3 .github/scripts/patch-radar-async-collector-worker.py
+          python3 .github/scripts/patch-radar-worker-rich-profile-v6191.py
+          install -m 0644 radar-ui-live/live-radar.html /tmp/wfgg-radar/public/live-radar.html
+          echo RADAR_V6191_RECONSTRUCT=PASS
+
+      - name: Test connector profile-only path
+        working-directory: /tmp/wfgg-radar/connector-go
+        run: |
+          set -euo pipefail
+          gofmt -w ./cmd ./internal
+          go test ./cmd/radar-connector -run 'TestCollectorBasePlayerV6191|TestRichObservedV6191|TestMergeProfileWithMapV618PreservesWorldFields' -count=1
+          go test ./internal/protocol -run 'TestPlayerRichFieldsJSONV619|TestPlayerRichFieldsOmitUnknownV619' -count=1
+          go test ./...
+          go vet ./...
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w' -o /tmp/radar-connector-v6191 ./cmd/radar-connector
+          test -s /tmp/radar-connector-v6191
+          echo RADAR_V6191_CONNECTOR=PASS
+
+      - name: Test native helper regression
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/lastwar-client
+          git clone --quiet --filter=blob:none --no-checkout https://github.com/ljagiello/lastwar-client.git /tmp/lastwar-client
+          cd /tmp/lastwar-client
+          git fetch --quiet --depth 1 origin "$LASTWAR_CLIENT_REF"
+          git checkout --quiet --detach FETCH_HEAD
+          test "$(git rev-parse HEAD)" = "$LASTWAR_CLIENT_REF"
+          mkdir -p cmd/wfgg-radar-native-template
+          cp /tmp/wfgg-radar/connector-go/native-template/main.go cmd/wfgg-radar-native-template/main.go
+          cp /tmp/wfgg-radar/connector-go/native-template/player_scan_v3.go cmd/wfgg-radar-native-template/player_scan_v3.go
+          cp /tmp/wfgg-radar/connector-go/native-template/player_scan_v4.go cmd/wfgg-radar-native-template/player_scan_v4.go
+          cp /tmp/wfgg-radar/connector-go/native-template/profile_scan_v69.go cmd/wfgg-radar-native-template/profile_scan_v69.go
+          cp /tmp/wfgg-radar/connector-go/native-template/profile_scan_v69_test.go cmd/wfgg-radar-native-template/profile_scan_v69_test.go
+          cp /tmp/wfgg-radar/connector-go/native-template/profile_rich_fields_v619_test.go cmd/wfgg-radar-native-template/profile_rich_fields_v619_test.go
+          gofmt -w cmd/wfgg-radar-native-template/*.go
+          go test -tags lastwar_native_template ./cmd/wfgg-radar-native-template -run 'TestFindProfileV3RichFieldsV619|TestFindProfileV3RichFieldsRemainAbsentWhenUnobservedV619' -count=1
+          echo RADAR_V6191_NATIVE_REGRESSION=PASS
+
+      - name: Test Worker and D1 contract
+        run: |
+          set -euo pipefail
+          node --check /tmp/wfgg-radar/src/worker.js
+          grep -Fq 'WFGG_RADAR_RICH_PROFILE_WORKER_V6191' /tmp/wfgg-radar/src/worker.js
+          grep -Fq "/api/radar/profile/rich" /tmp/wfgg-radar/src/worker.js
+          grep -Fq "@profile:" /tmp/wfgg-radar/connector-go/cmd/radar-connector/collector_jobs.go
+          grep -Fq 'PROFILE_ONLY' /tmp/wfgg-radar/connector-go/cmd/radar-connector/collector_jobs.go
+          grep -Fq 'POST /v1/collector/profile/refresh' /tmp/wfgg-radar/connector-go/cmd/radar-connector/main.go
+          python3 - <<'PY'
+          import sqlite3
+          db=sqlite3.connect(':memory:')
+          db.executescript(open('worker/migrations/0004_radar_profile_rich_v6191.sql',encoding='utf-8').read())
+          cols={r[1] for r in db.execute('pragma table_info(radar_profile_rich)')}
+          assert {'subject_uid','army_power','army_kill','svip_level','country','avatar_ref','observed_at','source_command'} <= cols
+          print('RADAR_V6191_D1_SCHEMA=PASS')
+          PY
+          echo RADAR_V6191_WORKER=PASS
+
+      - name: Test live UI contract
+        run: |
+          set -euo pipefail
+          grep -Fq 'WFGG_RADAR_RICH_PROFILE_UI_V6191' radar-ui-live/live-radar.html
+          grep -Fq 'PUISSANCE ARMÉE' radar-ui-live/live-radar.html
+          grep -Fq 'KILLS' radar-ui-live/live-radar.html
+          grep -Fq 'SVIP' radar-ui-live/live-radar.html
+          grep -Fq 'PAYS' radar-ui-live/live-radar.html
+          grep -Fq 'ACTUALISER LE PROFIL' radar-ui-live/live-radar.html
+          grep -Fq "runCollectorSearch('@profile:'+uid)" radar-ui-live/live-radar.html
+          grep -Fq "/api/radar/profile/rich?uid=" radar-ui-live/live-radar.html
+          echo RADAR_V6191_UI=PASS
+
+      - name: Verify Collector storage schema remains untouched
+        run: |
+          set -euo pipefail
+          test ! -e radar-vps/collector-rich-profile-v6191.py
+          test ! -e radar-vps/install-collector-rich-profile-v6191.sh
+          ! grep -REq 'ALTER TABLE[[:space:]]+observations|army_power|army_kill|svip_level|avatar_ref' \
+            .radar-release-src/v6191-source/connector-go/cmd/radar-connector \
+            .github/scripts/patch-radar-profile-refresh-v6191.py
+          echo COLLECTOR_V6191_SCHEMA_MUTATION=NO
+          echo COLLECTOR_V6191_STORAGE_CHAIN_UNCHANGED=PASS
+
+      - name: Verify read-only and production invariants
+        run: |
+          set -euo pipefail
+          grep -Fq 'get.user.info.multi' .radar-release-src/v6191-source/connector-go/cmd/radar-connector/profile_refresh_v6191.go
+          ! grep -REiq 'attack|march|purchase|donate|reward collection|building production|collect reward'             .radar-release-src/v6191-source             .github/scripts/patch-radar-profile-refresh-v6191.py             .github/scripts/patch-radar-worker-rich-profile-v6191.py
+          grep -Fq ".radar-release-src/v6191-source/**" .github/workflows/radar-v69-build.yml
+          grep -Fq 'patch-radar-profile-refresh-v6191.py' .github/workflows/radar-v69-build.yml
+          grep -Fq 'patch-radar-worker-rich-profile-v6191.py' .github/workflows/deploy-radar-production.yml
+          grep -Fq '0004_radar_profile_rich_v6191.sql' .github/workflows/deploy-radar-production.yml
+          grep -Fq 'federatedServerTargetV615(query)' /tmp/wfgg-radar/connector-go/cmd/radar-connector/collector_jobs.go
+          test ! -e radar-vps/collector-rich-profile-v6191.py
+          test ! -e radar-vps/install-collector-rich-profile-v6191.sh
+          echo RADAR_V6191_COLLECTOR_SCHEMA_MUTATION=NO
+          echo RADAR_V6191_PRODUCTION_WIRING=PASS
+          echo RADAR_V6191_READONLY=PASS
+          echo RADAR_V6191_QUALIFICATION=PASS
