@@ -46,7 +46,7 @@ jobs:
           set -euo pipefail
           F=dev-hub/bin/run-radar-v6194-pilot-via-chacha-dev.sh
           grep -Fq 'APPROVAL_ID="production-release"' "$F"
-          grep -Fq 'J’approuve le déploiement PILOT Radar V6.19.4 Autopilot avec probe de garde sans scan de jeu.' "$F"
+          grep -Fq 'J’approuve le PILOT Radar V6.19.4 Autopilot révision debde73d468015d3f1287c4e976f2c8bb40fa46c avec probe de garde sans scan de jeu.' "$F"
           grep -Fq 'PRODUCTION_RELEASE_APPROVAL_REVOKED=PASS' "$F"
           grep -Fq 'close_pilot' "$F"
           grep -Fq 'revoke_approval' "$F"
