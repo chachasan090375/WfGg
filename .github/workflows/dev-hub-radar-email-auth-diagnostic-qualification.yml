@@ -1,0 +1,59 @@
+name: ChaCha DEV Radar email-auth runtime diagnostic qualification
+
+on:
+  push:
+    branches: [dev-hub-v5-radar-cluster-quality-diagnostic-v1]
+    paths:
+      - 'dev-hub/adapters/radar-runtime-adapter.py'
+      - 'dev-hub/tests/test_radar_runtime_adapter_contract.py'
+      - 'dev-hub/bin/run-radar-email-auth-runtime-diagnostic-e2e.sh'
+      - '.github/workflows/dev-hub-radar-email-auth-diagnostic-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev-hub-v5-radar-cluster-quality-diagnostic-v1
+
+      - name: Validate adapter and runner
+        run: |
+          set -euo pipefail
+          python3 -m py_compile dev-hub/adapters/radar-runtime-adapter.py
+          python3 dev-hub/tests/test_radar_runtime_adapter_contract.py
+          bash -n dev-hub/bin/run-radar-email-auth-runtime-diagnostic-e2e.sh
+          echo RADAR_EMAIL_AUTH_DIAGNOSTIC_SYNTAX=PASS
+
+      - name: Verify read-only guard contract
+        run: |
+          set -euo pipefail
+          A=dev-hub/adapters/radar-runtime-adapter.py
+          R=dev-hub/bin/run-radar-email-auth-runtime-diagnostic-e2e.sh
+          grep -Fq '"email-auth-runtime-diagnostic": "read"' "$A"
+          grep -Fq 'EMAIL_AUTH_PUBLIC_BASE = "https://chachavps.tail3ab05a.ts.net"' "$A"
+          grep -Fq '"gameUid": "x", "email": "invalid"' "$A"
+          grep -Fq 'LASTWAR_EMAIL_GAME_UID_REQUIRED' "$A"
+          grep -Fq 'email_auth_helper_executable' "$A"
+          grep -Fq 'EMAIL_AUTH_PUBLIC_PROXY_FAILED' "$A"
+          grep -Fq 'LASTWAR_EMAIL_CODE_REQUESTED=NO' "$R"
+          grep -Fq 'RADAR_PRODUCTION_MUTATION=NO' "$R"
+          grep -Fq 'COLLECTOR_DATA_MUTATION=NO' "$R"
+          ! grep -Eq 'pilot-open|pilot-install|production-deploy' "$R"
+          echo RADAR_EMAIL_AUTH_DIAGNOSTIC_READONLY=PASS
+
+      - name: Verify ChaCha DEV governed path
+        run: |
+          set -euo pipefail
+          R=dev-hub/bin/run-radar-email-auth-runtime-diagnostic-e2e.sh
+          grep -Fq 'project-control-cli.py' "$R"
+          grep -Fq 'schedule --project' "$R"
+          grep -Fq 'prepare-run --project' "$R"
+          grep -Fq 'dispatch --project' "$R"
+          grep -Fq 'PROJECT_CONTROL>SCHEDULER>RUN_CONTROLLER>RADAR_RUNTIME_ADAPTER' "$R"
+          echo RADAR_EMAIL_AUTH_DIAGNOSTIC_GOVERNANCE=PASS
