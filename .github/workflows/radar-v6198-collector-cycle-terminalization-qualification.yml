@@ -105,9 +105,9 @@ jobs:
           grep -Fq 'collectorTerminalizationAttemptsV6198 = 12' "$C"
           grep -Fq 'collectorFinishCycleReliableV6198' "$C"
           grep -Fq 'collectorCycleTerminalStateV6198' "$C"
-          grep -Fq 'finishFailedV6198 := func(' "$J"
-          grep -Fq 'MAP_INGEST_FAILED_CYCLE_TERMINALIZATION_FAILED' "$J" || grep -Fq 'code+"_CYCLE_TERMINALIZATION_FAILED"' "$J"
-          grep -Fq 'collectorFinishCycleReliableV6198(cycle.ID, "SUCCESS", "")' "$J"
+          grep -Fq 'WFGG_RADAR_COLLECTOR_CYCLE_TERMINALIZATION_CALLSITE_V6198' "$J"
+          grep -Fq 'ownsCycleV6198 = !joined' "$J"
+          grep -Fq 'code = code + "_CYCLE_TERMINALIZATION_FAILED"' "$J"
           grep -Eq 'autopilotVersionV6194[[:space:]]*=[[:space:]]*"v6\.19\.8"' "$A"
           echo RADAR_V6198_TERMINALIZATION_RETRY=PASS
           echo RADAR_V6198_TERMINAL_STATE_VERIFICATION=PASS
