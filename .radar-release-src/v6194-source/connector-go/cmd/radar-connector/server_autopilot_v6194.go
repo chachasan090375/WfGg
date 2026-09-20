@@ -86,6 +86,7 @@ type autopilotJobV6194 struct {
 	StopRequested           bool                            `json:"stopRequested"`
 	CurrentSeed             string                          `json:"currentSeed,omitempty"`
 	CurrentCommand          string                          `json:"currentCommand,omitempty"`
+	CurrentFullCycleIDs     []int64                         `json:"currentFullCycleIds,omitempty"`
 	RequiredFullCycles      int                             `json:"requiredFullCycles"`
 	ValidatedCycles         int                             `json:"validatedCycles"`
 	PartialCycles           int                             `json:"partialCycles"`
@@ -132,6 +133,7 @@ func cloneAutopilotJobV6194(src *autopilotJobV6194) autopilotJobV6194 {
 		return autopilotJobV6194{}
 	}
 	out := *src
+	out.CurrentFullCycleIDs = append([]int64(nil), src.CurrentFullCycleIDs...)
 	out.History = append([]autopilotClusterResultV6194(nil), src.History...)
 	for i := range out.History {
 		out.History[i].CycleIDs = append([]int64(nil), src.History[i].CycleIDs...)
@@ -249,6 +251,68 @@ func autopilotCompleteV6194(id, phase string) {
 	})
 }
 
+// Existing complete targeted cycles are safe to reuse because V6.17 quality
+// metadata excludes failed/partial cycles. This lets Autopilot continue the
+// current cluster without repeating already-valid 9/9 evidence.
+func autopilotExistingFullCycleIDsV6194(ctx context.Context, seed string) ([]int64, error) {
+	seed = strings.TrimSpace(seed)
+	if seed == "" {
+		return nil, nil
+	}
+	dbPath := strings.TrimSpace(os.Getenv("WFGG_COLLECTOR_DB"))
+	if dbPath == "" {
+		dbPath = "/opt/wfgg-collector/data/collector.db"
+	}
+	history, err := runServerCycleHistoryV614(ctx, dbPath)
+	if err != nil {
+		return nil, err
+	}
+	quality, err := runCycleQualityMetaV617(ctx, dbPath)
+	if err != nil {
+		return nil, err
+	}
+	ids := []int64{}
+	for _, cycle := range history.Cycles {
+		meta, found := quality[cycle.CycleID]
+		eligible, _ := cycleEligibleForClusterV617(cycle, meta, found)
+		if !eligible {
+			continue
+		}
+		if federatedTargetV617(meta.Query) != seed {
+			continue
+		}
+		if !cycleContainsServerV617(cycle, seed) {
+			continue
+		}
+		ids = append(ids, cycle.CycleID)
+	}
+	return ids, nil
+}
+
+func (s *server) autopilotApplyHistoricalEvidenceV6194(ctx context.Context, jobID, seed string) string {
+	evidenceCtx, cancel := context.WithTimeout(ctx, 90*time.Second)
+	defer cancel()
+	ids, err := autopilotExistingFullCycleIDsV6194(evidenceCtx, seed)
+	if err != nil {
+		return "AUTOPILOT_HISTORY_QUALITY_UNAVAILABLE"
+	}
+	job, ok := radarAutopilotJobsV6194.get(jobID)
+	if !ok {
+		return "AUTOPILOT_JOB_NOT_FOUND"
+	}
+	if len(ids) > job.RequiredFullCycles {
+		ids = append([]int64(nil), ids[len(ids)-job.RequiredFullCycles:]...)
+	}
+	radarAutopilotJobsV6194.update(jobID, func(a *autopilotJobV6194) {
+		a.CurrentFullCycleIDs = append([]int64(nil), ids...)
+		a.ValidatedCycles = len(ids)
+		if len(ids) > 0 {
+			a.Phase = "HISTORICAL_EVIDENCE_REUSED"
+		}
+	})
+	return ""
+}
+
 func (s *server) autopilotScoutNextSeedV6194(ctx context.Context, jobID, token string) (*seedScoutRecommendationV6193, string) {
 	job, ok := radarAutopilotJobsV6194.get(jobID)
 	if !ok {
@@ -337,6 +401,13 @@ func (s *server) runAutopilotV6194(jobID, token string) {
 		job.Phase = "STARTING"
 	})
 
+	if initial, ok := radarAutopilotJobsV6194.get(jobID); ok && strings.TrimSpace(initial.CurrentSeed) != "" {
+		if errCode := s.autopilotApplyHistoricalEvidenceV6194(ctx, jobID, initial.CurrentSeed); errCode != "" {
+			autopilotFailV6194(jobID, "HISTORY_QUALITY_FAILED", errCode)
+			return
+		}
+	}
+
 	for {
 		if ctx.Err() != nil {
 			autopilotFailV6194(jobID, "TIMEOUT", "AUTOPILOT_TIMEOUT")
@@ -370,6 +441,7 @@ func (s *server) runAutopilotV6194(jobID, token string) {
 			radarAutopilotJobsV6194.update(jobID, func(a *autopilotJobV6194) {
 				a.CurrentSeed = rec.ServerID
 				a.CurrentCommand = rec.Command
+				a.CurrentFullCycleIDs = nil
 				a.ValidatedCycles = 0
 				a.PartialCycles = 0
 				a.FailedCycles = 0
@@ -379,6 +451,10 @@ func (s *server) runAutopilotV6194(jobID, token string) {
 				a.ScoutOffset = 0
 				a.Phase = "COLLECTING"
 			})
+			if errCode := s.autopilotApplyHistoricalEvidenceV6194(ctx, jobID, rec.ServerID); errCode != "" {
+				autopilotFailV6194(jobID, "HISTORY_QUALITY_FAILED", errCode)
+				return
+			}
 			continue
 		}
 
@@ -417,6 +493,9 @@ func (s *server) runAutopilotV6194(jobID, token string) {
 			switch classification {
 			case "FULL":
 				a.ValidatedCycles++
+				if final.CycleID > 0 {
+					a.CurrentFullCycleIDs = append(a.CurrentFullCycleIDs, final.CycleID)
+				}
 				a.ConsecutiveFailures = 0
 				a.Phase = "CYCLE_FULL"
 			case "PARTIAL":
@@ -457,13 +536,7 @@ func (s *server) runAutopilotV6194(jobID, token string) {
 			continue
 		}
 
-		cycleIDs := []int64{}
-		// The current run intentionally uses fresh 9/9 evidence only. Historical
-		// pre-Autopilot cycles are not silently counted because older partial
-		// cycles did not persist region-completeness metadata in the Collector.
-		if job.LastCycle != nil && job.LastCycle.Classification == "FULL" && job.LastCycle.CycleID > 0 {
-			cycleIDs = append(cycleIDs, job.LastCycle.CycleID)
-		}
+		cycleIDs := append([]int64(nil), job.CurrentFullCycleIDs...)
 		radarAutopilotJobsV6194.update(jobID, func(a *autopilotJobV6194) {
 			a.ConfirmedClusters++
 			a.History = append(a.History, autopilotClusterResultV6194{
@@ -478,6 +551,7 @@ func (s *server) runAutopilotV6194(jobID, token string) {
 			a.Phase = "CLUSTER_CONFIRMED"
 			a.CurrentSeed = ""
 			a.CurrentCommand = ""
+			a.CurrentFullCycleIDs = nil
 			a.ValidatedCycles = 0
 			a.PartialCycles = 0
 			a.FailedCycles = 0
@@ -579,6 +653,7 @@ func (s *server) serverAutopilotStartV6194(w http.ResponseWriter, r *http.Reques
 		BrowserRequired:         false,
 		CurrentSeed:             seed,
 		CurrentCommand:          func() string { if seed == "" { return "" }; return "@federated:" + seed }(),
+		CurrentFullCycleIDs:     []int64{},
 		RequiredFullCycles:      fullCycles,
 		PartialRetryLimit:       partialLimit,
 		ConsecutiveFailureLimit: failureLimit,
