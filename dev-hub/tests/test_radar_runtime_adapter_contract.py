@@ -100,6 +100,24 @@ class RadarRuntimeAdapterContract(unittest.TestCase):
         self.assertIsNone(err)
         self.assertEqual(radar["action"], "autopilot-progress-diagnostic")
 
+    def test_sentinel_release_diagnostic_contract(self):
+        req = envelope("sentinel-release-diagnostic", "read")
+        req["metadata"]["radar_runtime"].update({
+            "production_revision": "a" * 40,
+            "expected_connector_sha256": "b" * 64,
+            "expected_native_sha256": "c" * 64,
+        })
+        radar, err = mod.validate_request(req)
+        self.assertIsNone(err)
+        self.assertEqual(radar["action"], "sentinel-release-diagnostic")
+
+    def test_sentinel_release_diagnostic_is_read_only(self):
+        source = ADAPTER.read_text(encoding="utf-8")
+        self.assertIn('"sentinel-release-diagnostic": "read"', source)
+        self.assertIn('"runtime_mutation": False', source)
+        self.assertIn('"game_scan_executed": False', source)
+        self.assertIn('"collector_mutation": False', source)
+
     def test_radar_signature_is_stable(self):
         got = mod.radar_signature("GET", "/x", "1", "n", b"", "s" * 32)
         self.assertEqual(len(got), 64)
