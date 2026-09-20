@@ -47,8 +47,8 @@ jobs:
           python3 - <<'PY'
           import json
           x=json.load(open('dev-hub/config/adapter-provisioning.v1.json',encoding='utf-8'))
-          assert x['adapters']['radar-runtime-adapter']['version']=='1.5.3',x
-          print('RADAR_RUNTIME_ADAPTER_VERSION=1.5.3')
+          assert x['adapters']['radar-runtime-adapter']['version']=='1.5.4',x
+          print('RADAR_RUNTIME_ADAPTER_VERSION=1.5.4')
           PY
           echo RADAR_AUTOPILOT_PROGRESS_READONLY=PASS
 
