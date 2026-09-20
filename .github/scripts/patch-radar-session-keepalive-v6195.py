@@ -47,9 +47,11 @@ async function renewRadarSessionV6195(request, env) {
     worker = worker.replace(require_anchor, helper, 1)
 
     old_ttl = "const ttl = Math.max(900, Math.min(Number(env.RADAR_SESSION_TTL || 3600), 43200));"
-    if worker.count(old_ttl) != 1:
+    if worker.count(old_ttl) < 1:
         raise SystemExit(f'V6195_AUTH_TTL_ANCHOR_COUNT={worker.count(old_ttl)}')
-    worker = worker.replace(old_ttl, "const ttl = radarSessionTtlV6195(env);", 1)
+    ttl_anchor_count = worker.count(old_ttl)
+    worker = worker.replace(old_ttl, "const ttl = radarSessionTtlV6195(env);")
+    print(f'RADAR_V6195_SESSION_TTL_ISSUERS_PATCHED={ttl_anchor_count}')
 
     route_anchor = """      if (url.pathname === '/api/auth/game-token' && request.method === 'POST') return await authenticateGameToken(request, env);
 
