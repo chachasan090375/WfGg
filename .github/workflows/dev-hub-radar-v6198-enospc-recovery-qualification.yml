@@ -1,0 +1,54 @@
+name: ChaCha DEV Radar V6.19.8 ENOSPC recovery qualification
+
+on:
+  push:
+    branches: [dev-hub-v5-radar-cluster-quality-diagnostic-v1]
+    paths:
+      - 'dev-hub/bin/run-radar-v6198-enospc-recovery-via-chacha-dev.sh'
+      - '.github/workflows/dev-hub-radar-v6198-enospc-recovery-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  PROD_REV: c5a5b0f6acda2870f2567be7e43d48fcb9af05c4
+  PROD_CONNECTOR: b7ff60476f3afe7c8bcb9b78963c46daa4e8b5507490cc83cbcbc4ced63e7c35
+  PROD_NATIVE: 274d040f5294cb09422e5d55cc4b5335ac7739924c33dcb67b3f279645814900
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev-hub-v5-radar-cluster-quality-diagnostic-v1
+
+      - name: Validate recovery runner
+        run: |
+          set -euo pipefail
+          R=dev-hub/bin/run-radar-v6198-enospc-recovery-via-chacha-dev.sh
+          bash -n "$R"
+          grep -Fq 'PROD_REV="c5a5b0f6acda2870f2567be7e43d48fcb9af05c4"' "$R"
+          grep -Fq 'PROD_CONNECTOR="b7ff60476f3afe7c8bcb9b78963c46daa4e8b5507490cc83cbcbc4ced63e7c35"' "$R"
+          grep -Fq 'PROD_NATIVE="274d040f5294cb09422e5d55cc4b5335ac7739924c33dcb67b3f279645814900"' "$R"
+          grep -Fq '"action":"pilot-close"' "$R"
+          grep -Fq 'RADAR_V6198_PRODUCTION_RUNTIME_RESTORED=PASS' "$R"
+          grep -Fq 'PRODUCTION_RELEASE_APPROVAL_REVOKED=PASS' "$R"
+          grep -Fq 'PROJECT_CONTROL_INTEGRITY_AFTER=PASS' "$R"
+          grep -Fq 'LASTWAR_CONTACT=NO' "$R"
+          grep -Fq 'RADAR_V6198_GAME_SCAN_EXECUTED=NO' "$R"
+          grep -Fq 'RADAR_V6198_COLLECTOR_MUTATION=NO' "$R"
+          grep -Fq 'RADAR_V6198_PILOT_WINDOW_CLOSED=YES' "$R"
+          grep -Fq 'RADAR_V6198_PRODUCTION_APPROVAL_STANDING=NO' "$R"
+          grep -Fq 'RADAR_V6198_ENOSPC_RECOVERY=PASS' "$R"
+          echo RADAR_V6198_ENOSPC_RECOVERY_RUNNER=PASS
+
+      - name: Verify production fingerprints from immutable production
+        run: |
+          set -euo pipefail
+          curl -fsSL "https://raw.githubusercontent.com/chachasan090375/WfGg/$PROD_REV/radar-vps/release/SHA256SUMS" -o /tmp/SHA256SUMS
+          grep -Fq "$PROD_CONNECTOR  radar-connector" /tmp/SHA256SUMS
+          grep -Fq "$PROD_NATIVE  radar-native-template" /tmp/SHA256SUMS
+          echo RADAR_V6198_ENOSPC_PRODUCTION_FINGERPRINTS=PASS
