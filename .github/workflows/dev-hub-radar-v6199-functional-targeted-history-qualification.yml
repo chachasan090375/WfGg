@@ -1,0 +1,77 @@
+name: ChaCha DEV Radar V6.19.9 functional targeted-history qualification
+
+on:
+  push:
+    branches: [dev-hub-v5-radar-cluster-quality-diagnostic-v1]
+    paths:
+      - 'dev-hub/bin/run-radar-v6199-functional-targeted-history-pilot-via-chacha-dev.sh'
+      - 'dev-hub/projects/wfgg-radar/project-intent.v1.json'
+      - '.github/workflows/dev-hub-radar-v6199-functional-targeted-history-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  PILOT_REV: 53ad1ca3295bca9cf45b4a06d40f4fb61a84d6de
+  EXPECTED_CONNECTOR_SHA256: 5058159307ccb99e8e631fe71014608934b8575e69d5599e4388550306baab7f
+  EXPECTED_NATIVE_SHA256: 274d040f5294cb09422e5d55cc4b5335ac7739924c33dcb67b3f279645814900
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev-hub-v5-radar-cluster-quality-diagnostic-v1
+
+      - name: Validate functional runner
+        run: |
+          set -euo pipefail
+          R=dev-hub/bin/run-radar-v6199-functional-targeted-history-pilot-via-chacha-dev.sh
+          bash -n "$R"
+          grep -Fq 'PILOT_REV="53ad1ca3295bca9cf45b4a06d40f4fb61a84d6de"' "$R"
+          grep -Fq 'PILOT_BRANCH="radar-v6199-autopilot-targeted-history-quality"' "$R"
+          grep -Fq 'CONNECTOR_SHA="5058159307ccb99e8e631fe71014608934b8575e69d5599e4388550306baab7f"' "$R"
+          grep -Fq 'TARGET_SEED="8125"' "$R"
+          grep -Fq 'TARGET_QUERY="@federated:8125"' "$R"
+          grep -Fq "sqlite3.connect('file:'+db+'?mode=ro'" "$R"
+          grep -Fq "PRAGMA query_only=ON" "$R"
+          grep -Fq 'RADAR_V6199_FUNCTIONAL_TARGETED_HISTORY_MS=' "$R"
+          grep -Fq 'RADAR_V6199_TARGETED_HISTORY_UNDER_90S=PASS' "$R"
+          grep -Fq 'RADAR_V6199_FUNCTIONAL_WINDOW_READY=YES' "$R"
+          grep -Fq 'DÉMARRER L’AUTOPILOT' "$R"
+          grep -Fq 'RADAR_V6199_FUNCTIONAL_HISTORY_GUARD_SECONDS=90' "$R"
+          grep -Fq 'RADAR_V6199_HISTORY_QUALITY_FAILED_REPRODUCED=NO' "$R"
+          grep -Fq 'RADAR_V6199_AUTOPILOT_ACTIVITY_OBSERVED=PASS' "$R"
+          grep -Fq 'RADAR_V6199_FUNCTIONAL_COLLECTOR_MUTATION=DISCOVERY_EVIDENCE_TERMINALIZATION_ONLY' "$R"
+          grep -Fq 'RADAR_V6199_LASTWAR_MUTATION=NO' "$R"
+          grep -Fq 'RADAR_V6199_FUNCTIONAL_PROOF=PASS' "$R"
+          echo RADAR_V6199_FUNCTIONAL_RUNNER=PASS
+
+      - name: Validate one-shot functional approval
+        run: |
+          set -euo pipefail
+          R=dev-hub/bin/run-radar-v6199-functional-targeted-history-pilot-via-chacha-dev.sh
+          grep -Fq 'J’approuve le PILOT fonctionnel Radar V6.19.9 Autopilot Targeted History Quality révision 53ad1ca3295bca9cf45b4a06d40f4fb61a84d6de avec démarrage Autopilot READ-ONLY sur @federated:8125 et mutations Collector limitées aux cycles de découverte, preuves et terminalisation.' "$R"
+          grep -Fq '"revision":"53ad1ca3295bca9cf45b4a06d40f4fb61a84d6de"' "$R"
+          grep -Fq 'PRODUCTION_RELEASE_APPROVAL_INGESTED=PASS' "$R"
+          grep -Fq 'PRODUCTION_RELEASE_APPROVAL_REVOKED=PASS' "$R"
+          grep -Fq 'RADAR_V6199_PILOT_CLOSE=' "$R"
+          grep -Fq 'RADAR_V6199_PRODUCTION_APPROVAL_STANDING=NO' "$R"
+          grep -Fq 'RADAR_V6199_PILOT_WINDOW_CLOSED=YES' "$R"
+          echo RADAR_V6199_FUNCTIONAL_APPROVAL=PASS
+
+      - name: Validate pinned pilot assets
+        run: |
+          set -euo pipefail
+          BASE="https://raw.githubusercontent.com/chachasan090375/WfGg/$PILOT_REV"
+          curl -fsSL "$BASE/radar-vps/pilot-v6199/SHA256SUMS" -o /tmp/SHA256SUMS
+          curl -fsSL "$BASE/radar-vps/pilot-v6199/radar-connector" -o /tmp/radar-connector
+          curl -fsSL "$BASE/radar-vps/pilot-v6199/radar-native-template" -o /tmp/radar-native-template
+          grep -Fq "$EXPECTED_CONNECTOR_SHA256  radar-connector" /tmp/SHA256SUMS
+          grep -Fq "$EXPECTED_NATIVE_SHA256  radar-native-template" /tmp/SHA256SUMS
+          test "$(sha256sum /tmp/radar-connector | awk '{print $1}')" = "$EXPECTED_CONNECTOR_SHA256"
+          test "$(sha256sum /tmp/radar-native-template | awk '{print $1}')" = "$EXPECTED_NATIVE_SHA256"
+          echo RADAR_V6199_FUNCTIONAL_PINNED_ASSETS=PASS
