@@ -1,0 +1,171 @@
+name: Radar V6.19.6 Continue-on-No-Data qualification
+
+on:
+  push:
+    branches: [radar-v6196-autopilot-continue-no-data]
+    paths:
+      - '.radar-release-src/v6194-source/**'
+      - '.github/scripts/patch-live-radar-autopilot-v6196.py'
+      - '.github/workflows/radar-v6196-autopilot-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: wfgg-radar-v6196-autopilot
+  cancel-in-progress: true
+
+env:
+  EXPECTED_NATIVE_SHA256: 274d040f5294cb09422e5d55cc4b5335ac7739924c33dcb67b3f279645814900
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: radar-v6196-autopilot-continue-no-data
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.27.x'
+
+      - name: Reconstruct cumulative V6.19.6 candidate
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/wfgg-radar
+          mkdir -p /tmp/wfgg-radar
+          python3 .github/scripts/reconstruct-radar-release.py
+          echo '234df1dec57f6211bc625855bf13350c9f17fbd843fbe92d8cf1ab7cb5c081ef  /tmp/radar-src.tar.gz' | sha256sum -c -
+          tar -xzf /tmp/radar-src.tar.gz -C /tmp/wfgg-radar
+          rm -rf /tmp/wfgg-radar/connector-go
+          cp -a .radar-release-src/v2-source/connector-go /tmp/wfgg-radar/connector-go
+
+          python3 .github/scripts/patch-radar-target-profile-retry.py
+          python3 .github/scripts/patch-radar-federated-diagnostics-v65.py
+          python3 .github/scripts/patch-player-scan-v3.py
+          python3 .github/scripts/patch-player-scan-v4.py
+          python3 .github/scripts/patch-radar-protocol-discovery-v67.py
+          python3 .github/scripts/patch-radar-profile-isolation-v68.py
+          python3 .github/scripts/patch-radar-native-profile-v69.py
+          python3 .github/scripts/patch-radar-native-profile-handshake-v691.py
+          python3 .github/scripts/patch-radar-native-profile-exec-v692.py
+          python3 .github/scripts/patch-radar-connector-runtime-v693.py
+          python3 .github/scripts/patch-radar-cluster-catalog-budget-v6192.py
+          python3 .github/scripts/patch-radar-seed-scout-v6193.py
+          python3 .github/scripts/patch-radar-autopilot-v6194.py
+
+          install -m 0644 .radar-release-src/v2-source/src/game/remote-transport.js /tmp/wfgg-radar/src/game/remote-transport.js
+          python3 .github/scripts/patch-radar-async-collector-worker.py
+          python3 .github/scripts/patch-radar-worker-rich-profile-v6191.py
+          python3 .github/scripts/patch-radar-worker-seed-scout-v6193.py
+          python3 .github/scripts/patch-radar-worker-autopilot-v6194.py
+
+          install -m 0644 radar-ui-live/live-radar.html /tmp/wfgg-radar/public/live-radar.html
+          python3 .github/scripts/patch-live-radar-seed-scout-v6193.py
+          python3 .github/scripts/patch-live-radar-autopilot-v6194.py
+          python3 .github/scripts/patch-radar-session-keepalive-v6195.py
+          python3 .github/scripts/patch-live-radar-autopilot-v6196.py
+
+          grep -Fq 'WFGG_RADAR_AUTOPILOT_CONTINUE_NO_DATA_V6196' /tmp/wfgg-radar/connector-go/cmd/radar-connector/server_autopilot_v6194.go
+          grep -Fq 'WFGG_RADAR_AUTOPILOT_CONTINUE_NO_DATA_UI_V6196' /tmp/wfgg-radar/public/live-radar.html
+          echo RADAR_V6196_RECONSTRUCT=PASS
+
+      - name: Test and build connector
+        working-directory: /tmp/wfgg-radar/connector-go
+        run: |
+          set -euo pipefail
+          gofmt -w ./cmd ./internal
+          go test ./...
+          go vet ./...
+          mkdir -p "$GITHUB_WORKSPACE/radar-vps/pilot-v6196"
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w' -o "$GITHUB_WORKSPACE/radar-vps/pilot-v6196/radar-connector" ./cmd/radar-connector
+          test -s "$GITHUB_WORKSPACE/radar-vps/pilot-v6196/radar-connector"
+          echo "RADAR_V6196_CONNECTOR_SHA256=$(sha256sum "$GITHUB_WORKSPACE/radar-vps/pilot-v6196/radar-connector" | awk '{print $1}')"
+          echo RADAR_V6196_CONNECTOR=PASS
+
+      - name: Reuse unchanged qualified native helper
+        run: |
+          set -euo pipefail
+          install -m 0755 radar-vps/release/radar-native-template radar-vps/pilot-v6196/radar-native-template
+          actual="$(sha256sum radar-vps/pilot-v6196/radar-native-template | awk '{print $1}')"
+          test "$actual" = "$EXPECTED_NATIVE_SHA256"
+          echo RADAR_V6196_NATIVE_CHANGE=NO
+          echo "RADAR_V6196_NATIVE_SHA256=$actual"
+
+      - name: Verify no-data continuation contract
+        run: |
+          set -euo pipefail
+          SRC=/tmp/wfgg-radar/connector-go/cmd/radar-connector/server_autopilot_v6194.go
+          grep -Fq 'autopilotVersionV6194                    = "v6.19.6"' "$SRC"
+          grep -Fq 'func autopilotIsNoDataFailureV6196' "$SRC"
+          grep -Fq 'MAP_ALL_REGIONS_FAILED' "$SRC"
+          grep -Fq 'len(job.RegionFailures) < 9' "$SRC"
+          grep -Fq 'category != "PROTOCOL" && category != "SERVER_TARGET"' "$SRC"
+          grep -Fq 'AUTOPILOT_NO_DATA' "$SRC"
+          grep -Fq 'SEED_SKIPPED_NO_DATA' "$SRC"
+          grep -Fq 'SkippedSeeds' "$SRC"
+          grep -Fq 'ValidatedCycles: job.ValidatedCycles' "$SRC"
+          grep -Fq 'a.CurrentSeed = ""' "$SRC"
+          grep -Fq 'a.ConsecutiveFailures = 0' "$SRC"
+          grep -Fq 'AUTOPILOT_CONSECUTIVE_FAILURE_LIMIT' "$SRC"
+          grep -Fq 'AUTOPILOT_AUTH_FAILED' "$SRC"
+          echo RADAR_V6196_NO_DATA_CONTINUE=PASS
+          echo RADAR_V6196_GLOBAL_FAILURE_GUARDS=PRESERVED
+
+      - name: Verify UI and session keepalive regression
+        run: |
+          set -euo pipefail
+          node --check /tmp/wfgg-radar/src/worker.js
+          U=/tmp/wfgg-radar/public/live-radar.html
+          grep -Fq 'AUTOPILOT V6.19.6 · ARRÊTÉ' "$U"
+          grep -Fq 'SEED_SKIPPED_NO_DATA' "$U"
+          grep -Fq 'Aucune donnée exploitable' "$U"
+          grep -Fq 'AUTO 12H' "$U"
+          grep -Fq '/api/auth/session/refresh' /tmp/wfgg-radar/src/worker.js
+          echo RADAR_V6196_UI=PASS
+          echo RADAR_V6195_SESSION_KEEPALIVE_REGRESSION=PASS
+
+      - name: Verify Last War read-only safety
+        run: |
+          set -euo pipefail
+          ! grep -REiq 'building\.production\.collect|mail\.reward|al\.science\.donate|visitor\.operate|march|attack|purchase'             .radar-release-src/v6194-source
+          echo RADAR_V6196_LASTWAR_MUTATION=NO
+          echo RADAR_V6196_COLLECTOR_VALID_EVIDENCE_PRESERVED=YES
+          echo RADAR_V6196_SKIPPED_SEED_COUNTS_AS_CONFIRMED=NO
+
+      - name: Publish qualified pilot artifacts
+        run: |
+          set -euo pipefail
+          chmod 0755 radar-vps/pilot-v6196/radar-connector radar-vps/pilot-v6196/radar-native-template
+          (
+            cd radar-vps/pilot-v6196
+            sha256sum radar-connector radar-native-template > SHA256SUMS
+          )
+          {
+            echo "WFGG_RADAR_PILOT=V6.19.6"
+            echo "SOURCE_BRANCH=radar-v6196-autopilot-continue-no-data"
+            echo "SOURCE_SHA=$GITHUB_SHA"
+            echo "CHANGE=autopilot-continue-on-no-data"
+            echo "NO_DATA_RETRIES=3"
+            echo "NO_DATA_RESULT=SKIPPED_NOT_CONFIRMED"
+            echo "VALID_EVIDENCE_PRESERVED=YES"
+            echo "GLOBAL_FAILURE_GUARDS=PRESERVED"
+            echo "LASTWAR_MUTATION=NO"
+            echo "COLLECTOR_MUTATION=YES"
+            echo "TOKEN_PERSISTENCE=NO"
+          } > radar-vps/pilot-v6196/PILOT_INFO.txt
+
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add radar-vps/pilot-v6196
+          if git diff --cached --quiet; then
+            echo RADAR_V6196_PILOT=UNCHANGED
+            exit 0
+          fi
+          git commit -m 'build(radar): publish V6.19.6 continue-on-no-data pilot'
+          git push origin HEAD:radar-v6196-autopilot-continue-no-data
+          echo RADAR_V6196_PILOT=PUBLISHED
