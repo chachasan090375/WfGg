@@ -136,6 +136,15 @@ for i,item in enumerate(active[:3],1):
     print(f'ACTIVE_{i}_ID='+str(item.get('id')))
     print(f'ACTIVE_{i}_QUERY='+str(item.get('query')))
     print(f'ACTIVE_{i}_STATUS='+str(item.get('status')))
+recent=second.get('latest_targeted_cycles') or []
+print('RECENT_TARGETED_CYCLE_COUNT='+str(len(recent)))
+for i,item in enumerate(recent[:8],1):
+    print(f'RECENT_{i}_ID='+str(item.get('id')))
+    print(f'RECENT_{i}_QUERY='+str(item.get('query') or 'NONE'))
+    print(f'RECENT_{i}_STATUS='+str(item.get('status') or 'NONE'))
+    print(f'RECENT_{i}_ERROR='+str(item.get('error') or 'NONE'))
+    print(f'RECENT_{i}_STARTED_AT='+str(item.get('started_at') or 'NONE'))
+    print(f'RECENT_{i}_FINISHED_AT='+str(item.get('finished_at') or 'NONE'))
 print('EXACT_JOB_STATUS_AVAILABLE='+('YES' if d.get('definitive_job_status_available') else 'NO'))
 print('JOB_STATUS_NOTE='+str(d.get('job_status_note') or ''))
 print('RADAR_ADAPTER_SELF_VERIFIED=NO')
