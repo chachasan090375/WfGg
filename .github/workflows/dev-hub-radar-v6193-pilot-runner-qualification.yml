@@ -50,7 +50,7 @@ jobs:
           grep -Fq 'radar-runtime:pilot-install-v6193' "$F"
           grep -Fq 'radar-runtime:pilot-probe-v6193' "$F"
           grep -Fq 'radar-runtime:pilot-close-v6193' "$F"
-          grep -Fq '28711402ce60896adfd7469d4a7c8da141cc9f84' "$F"
+          grep -Fq 'c0ceb376b8735d3aa037608c91b8c0702f27d9f5' "$F"
           grep -Fq '73b64743031e4a47212dfdafae8ad67551f88d131831e70cb08a40957824f9a8' "$F"
           grep -Fq '274d040f5294cb09422e5d55cc4b5335ac7739924c33dcb67b3f279645814900' "$F"
           grep -Fq 'RADAR_V6193_GAME_SCAN_EXECUTED=NO' "$F"
