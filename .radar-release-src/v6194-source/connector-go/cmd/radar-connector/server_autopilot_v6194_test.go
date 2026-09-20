@@ -45,3 +45,35 @@ func TestAutopilotAuthFailureV6194(t *testing.T) {
 		t.Fatal("unexpected auth failure")
 	}
 }
+
+func TestAutopilotConfirmCurrentClusterV6194SkipsRedundantScan(t *testing.T) {
+	id := "test-confirm-complete"
+	radarAutopilotJobsV6194.add(&autopilotJobV6194{
+		ID:                  id,
+		Status:              "RUNNING",
+		Phase:               "HISTORICAL_EVIDENCE_REUSED",
+		CurrentSeed:         "8122",
+		CurrentCommand:      "@federated:8122",
+		CurrentFullCycleIDs: []int64{101, 102, 103},
+		RequiredFullCycles:  3,
+		ValidatedCycles:     3,
+		MaxClusters:         5,
+		History:             []autopilotClusterResultV6194{},
+	})
+	if !autopilotConfirmCurrentClusterV6194(id) {
+		t.Fatal("expected existing 3/3 evidence to confirm without another scan")
+	}
+	job, ok := radarAutopilotJobsV6194.get(id)
+	if !ok {
+		t.Fatal("job missing")
+	}
+	if job.ConfirmedClusters != 1 {
+		t.Fatalf("confirmed clusters=%d want=1", job.ConfirmedClusters)
+	}
+	if job.CurrentSeed != "" {
+		t.Fatalf("current seed should be cleared, got %q", job.CurrentSeed)
+	}
+	if len(job.History) != 1 || len(job.History[0].CycleIDs) != 3 {
+		t.Fatalf("unexpected history: %#v", job.History)
+	}
+}
