@@ -81,47 +81,24 @@ print('PROJECT_CONTROL_INTEGRITY_BEFORE=PASS')
 PY
 
 # ---------------------------------------------------------------------------
-# 0) Functional preflight: prove the existing @federated:8131 cycle is stale.
+# 0) Functional preflight: capture the latest existing target cycle as baseline.
+#    V6.19.8 terminalization does not require a pre-existing stale cycle.
 #    Read-only DB inspection; no runtime or Collector mutation.
 # ---------------------------------------------------------------------------
 COLLECTOR_DB="${WFGG_COLLECTOR_DB:-/opt/wfgg-collector/data/collector.db}"
 TARGET_QUERY="@federated:8131"
 [ -r "$COLLECTOR_DB" ] || die collector_db_unreadable
-STALE_INFO="$(python3 - "$COLLECTOR_DB" "$TARGET_QUERY" <<'PY'
-import sqlite3,sys,time
-from datetime import datetime,timezone
+BASELINE_CYCLE_ID="$(python3 - "$COLLECTOR_DB" "$TARGET_QUERY" <<'PY'
+import sqlite3,sys
 db,q=sys.argv[1:3]
-deadline=time.time()+960
-while True:
-    con=sqlite3.connect('file:'+db+'?mode=ro',uri=True)
-    con.row_factory=sqlite3.Row
-    row=con.execute("SELECT id,status,COALESCE(started_at,'') started_at,COALESCE(error,'') error FROM cycles WHERE lower(query)=lower(?) AND upper(status)='RUNNING' ORDER BY id DESC LIMIT 1",(q,)).fetchone()
-    con.close()
-    if row is None:
-        raise SystemExit('STALE_TARGET_CYCLE_NOT_FOUND')
-    raw=str(row['started_at'] or '').strip()
-    try:
-        started=datetime.fromisoformat(raw.replace('Z','+00:00'))
-    except Exception:
-        raise SystemExit('STALE_TARGET_STARTED_AT_INVALID')
-    if started.tzinfo is None:
-        started=started.replace(tzinfo=timezone.utc)
-    age=(datetime.now(timezone.utc)-started.astimezone(timezone.utc)).total_seconds()
-    if age >= 900:
-        print(f"{int(row['id'])}|{raw}|{int(age)}")
-        break
-    wait=max(1,min(30,int(900-age)+1))
-    print(f"RADAR_V6198_FUNCTIONAL_PREFLIGHT_WAIT_SECONDS={wait} CURRENT_AGE_SECONDS={int(age)}",file=sys.stderr,flush=True)
-    if time.time()+wait > deadline:
-        raise SystemExit('TARGET_CYCLE_DID_NOT_BECOME_STALE')
-    time.sleep(wait)
+con=sqlite3.connect("file:"+db+"?mode=ro",uri=True)
+row=con.execute("SELECT COALESCE(MAX(id),0) FROM cycles WHERE lower(query)=lower(?)",(q,)).fetchone()
+con.close()
+print(int(row[0] or 0))
 PY
-)" || die stale_cycle_preflight_failed
-IFS='|' read -r STALE_CYCLE_ID STALE_STARTED_AT STALE_AGE_SECONDS <<< "$STALE_INFO"
+)" || die baseline_cycle_preflight_failed
 echo "RADAR_V6198_FUNCTIONAL_TARGET_QUERY=$TARGET_QUERY"
-echo "RADAR_V6198_FUNCTIONAL_STALE_CYCLE_ID=$STALE_CYCLE_ID"
-echo "RADAR_V6198_FUNCTIONAL_STALE_STARTED_AT=$STALE_STARTED_AT"
-echo "RADAR_V6198_FUNCTIONAL_STALE_AGE_SECONDS=$STALE_AGE_SECONDS"
+echo "RADAR_V6198_FUNCTIONAL_BASELINE_CYCLE_ID=$BASELINE_CYCLE_ID"
 echo "RADAR_V6198_FUNCTIONAL_PREFLIGHT=PASS"
 
 # ---------------------------------------------------------------------------
