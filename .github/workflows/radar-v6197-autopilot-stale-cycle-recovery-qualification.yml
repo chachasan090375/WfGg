@@ -10,16 +10,19 @@ on:
       - '.github/scripts/patch-radar-autopilot-stale-cycle-v6197.py'
       - '.github/scripts/patch-live-radar-autopilot-v6197.py'
       - '.github/workflows/radar-v6197-autopilot-stale-cycle-recovery-qualification.yml'
+      - 'radar-vps/install-v6197-pilot.sh'
+      - 'radar-vps/probe-v6197-pilot-runtime.sh'
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: wfgg-radar-v6197-autopilot
   cancel-in-progress: true
 
 env:
+  EXPECTED_CONNECTOR_SHA256: ccbb1a178212d3137136fff30c31725b88a7e3a8113dca922138018186a158d5
   EXPECTED_NATIVE_SHA256: 274d040f5294cb09422e5d55cc4b5335ac7739924c33dcb67b3f279645814900
 
 jobs:
@@ -86,11 +89,13 @@ jobs:
           gofmt -w ./cmd ./internal
           go test ./...
           go vet ./...
-          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w' -o /tmp/radar-connector-v6197 ./cmd/radar-connector
-          actual="$(sha256sum /tmp/radar-connector-v6197 | awk '{print $1}')"
+          mkdir -p "$GITHUB_WORKSPACE/radar-vps/pilot-v6197"
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w' -o "$GITHUB_WORKSPACE/radar-vps/pilot-v6197/radar-connector" ./cmd/radar-connector
+          actual="$(sha256sum "$GITHUB_WORKSPACE/radar-vps/pilot-v6197/radar-connector" | awk '{print $1}')"
+          test "$actual" = "$EXPECTED_CONNECTOR_SHA256"
           echo "RADAR_V6197_CONNECTOR_SHA256=$actual"
-          grep -aFq 'v6.19.7' /tmp/radar-connector-v6197
-          grep -aFq 'STALE_RUNNING_CYCLE_RECOVERED_V6197' /tmp/radar-connector-v6197
+          grep -aFq 'v6.19.7' "$GITHUB_WORKSPACE/radar-vps/pilot-v6197/radar-connector"
+          grep -aFq 'STALE_RUNNING_CYCLE_RECOVERED_V6197' "$GITHUB_WORKSPACE/radar-vps/pilot-v6197/radar-connector"
           echo RADAR_V6197_CONNECTOR=PASS
 
       - name: Verify stale-cycle safety contract
@@ -136,3 +141,53 @@ jobs:
           echo RADAR_V6197_NATIVE_CHANGE=NO
           echo RADAR_V6197_LASTWAR_MUTATION=NO
           echo RADAR_V6197_COLLECTOR_STALE_RECOVERY_MUTATION=YES
+
+      - name: Verify pilot installer and guard-only probe
+        run: |
+          set -euo pipefail
+          bash -n radar-vps/install-v6197-pilot.sh
+          bash -n radar-vps/probe-v6197-pilot-runtime.sh
+          grep -Fq 'WFGG_RADAR_PILOT=V6.19.7' radar-vps/install-v6197-pilot.sh
+          grep -Fq "$EXPECTED_CONNECTOR_SHA256" radar-vps/probe-v6197-pilot-runtime.sh
+          grep -Fq 'GAME_TOKEN_REQUIRED' radar-vps/probe-v6197-pilot-runtime.sh
+          grep -Fq 'RADAR_V6197_GAME_SCAN_EXECUTED=NO' radar-vps/probe-v6197-pilot-runtime.sh
+          grep -Fq 'RADAR_V6197_COLLECTOR_MUTATION=NO' radar-vps/probe-v6197-pilot-runtime.sh
+          echo RADAR_V6197_PILOT_GUARD_PROBE=PASS
+
+      - name: Publish qualified V6.19.7 pilot artifacts
+        run: |
+          set -euo pipefail
+          install -m 0755 radar-vps/release/radar-native-template radar-vps/pilot-v6197/radar-native-template
+          actual_native="$(sha256sum radar-vps/pilot-v6197/radar-native-template | awk '{print $1}')"
+          test "$actual_native" = "$EXPECTED_NATIVE_SHA256"
+          chmod 0755 radar-vps/pilot-v6197/radar-connector radar-vps/pilot-v6197/radar-native-template
+          (
+            cd radar-vps/pilot-v6197
+            sha256sum radar-connector radar-native-template > SHA256SUMS
+          )
+          grep -Fq "$EXPECTED_CONNECTOR_SHA256  radar-connector" radar-vps/pilot-v6197/SHA256SUMS
+          grep -Fq "$EXPECTED_NATIVE_SHA256  radar-native-template" radar-vps/pilot-v6197/SHA256SUMS
+          {
+            echo "WFGG_RADAR_PILOT=V6.19.7"
+            echo "SOURCE_BRANCH=radar-v6197-autopilot-stale-cycle-recovery"
+            echo "SOURCE_SHA=$GITHUB_SHA"
+            echo "CHANGE=autopilot-stale-cycle-recovery"
+            echo "STALE_CYCLE_RECOVERY=YES"
+            echo "STALE_THRESHOLD_MINUTES=15"
+            echo "STALE_RESULT=FAILED_NOT_CONFIRMED"
+            echo "NO_DATA_CONTINUE_PRESERVED=YES"
+            echo "GLOBAL_FAILURE_GUARDS=PRESERVED"
+            echo "LASTWAR_MUTATION=NO"
+            echo "COLLECTOR_MUTATION=YES"
+            echo "TOKEN_PERSISTENCE=NO"
+          } > radar-vps/pilot-v6197/PILOT_INFO.txt
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add radar-vps/pilot-v6197
+          if git diff --cached --quiet; then
+            echo RADAR_V6197_PILOT=UNCHANGED
+            exit 0
+          fi
+          git commit -m 'build(radar): publish V6.19.7 stale-cycle recovery pilot'
+          git push origin HEAD:radar-v6197-autopilot-stale-cycle-recovery
+          echo RADAR_V6197_PILOT=PUBLISHED
