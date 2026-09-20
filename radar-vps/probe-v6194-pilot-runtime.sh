@@ -3,7 +3,7 @@ set -Eeuo pipefail
 
 SERVICE="wfgg-radar-connector"
 BIN="/opt/wfgg-radar/bin/radar-connector"
-EXPECTED_CONNECTOR="48dc8e85825d71ae2cda8e23b6f92ce0a2f1a5756336fbfcf232b27d728df096"
+EXPECTED_CONNECTOR="dd3fa071deebe3a2c9efb8e6fcdce115d13497a542b9afae4f1133ddcb1b01e3"
 EXPECTED_NATIVE="274d040f5294cb09422e5d55cc4b5335ac7739924c33dcb67b3f279645814900"
 
 fail(){ printf 'RADAR_V6194_RUNTIME_PROBE=FAIL reason=%s\n' "$1"; exit 1; }
