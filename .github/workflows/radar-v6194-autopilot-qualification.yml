@@ -71,7 +71,7 @@ jobs:
           python3 .github/scripts/patch-live-radar-autopilot-v6194.py
 
           grep -Fq 'WFGG_RADAR_AUTOPILOT_ROUTE_V6194' /tmp/wfgg-radar/connector-go/cmd/radar-connector/main.go
-          grep -Fq 'WFGG_RADAR_PARTIAL_CYCLE_QUALITY_MARKER_V6194' /tmp/wfgg-radar/connector-go/cmd/radar-connector/collector_jobs.go
+          grep -Fq 'WFGG_RADAR_PARTIAL_CYCLE_MARKER_V617' /tmp/wfgg-radar/connector-go/cmd/radar-connector/collector_jobs.go
           grep -Fq 'WFGG_RADAR_AUTOPILOT_WORKER_V6194' /tmp/wfgg-radar/src/worker.js
           grep -Fq 'WFGG_RADAR_AUTOPILOT_UI_V6194' /tmp/wfgg-radar/public/live-radar.html
           echo RADAR_V6194_RECONSTRUCT=PASS
