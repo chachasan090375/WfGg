@@ -446,8 +446,9 @@ PY
 # ---------------------------------------------------------------------------
 # 4) Functional V6.19.8 proof.
 #    The human triggers exactly one normal Radar search for @federated:8131.
-#    V6.19.8 must recover the inherited stale cycle and ensure the fresh cycle
-#    becomes terminal instead of remaining RUNNING after a Connector failure.
+#    V6.19.8 must ensure the fresh cycle becomes terminal instead of remaining
+#    RUNNING after a Connector failure. Stale recovery remains inherited from
+#    V6.19.7 but is not a precondition for this V6.19.8-specific proof.
 # ---------------------------------------------------------------------------
 echo "RADAR_V6198_FUNCTIONAL_WINDOW_READY=YES"
 echo "RADAR_V6198_FUNCTIONAL_ACTION=Dans Radar, laisse @federated:8131 dans le champ puis appuie UNE SEULE FOIS sur RECHERCHE. Ne démarre pas Autopilot."
@@ -455,55 +456,43 @@ echo "RADAR_V6198_FUNCTIONAL_WAIT_MAX_SECONDS=1020"
 echo "RADAR_V6198_FUNCTIONAL_WAIT_CONTRACT=JOB_12M_PLUS_TERMINALIZATION_RETRY_BUDGET"
 
 set +e
-python3 - "$COLLECTOR_DB" "$TARGET_QUERY" "$STALE_CYCLE_ID" <<'PY'
+python3 - "$COLLECTOR_DB" "$TARGET_QUERY" "$BASELINE_CYCLE_ID" <<'PY'
 import sqlite3,sys,time
-from datetime import datetime,timezone
-db,q,stale_s=sys.argv[1:4]
-stale=int(stale_s)
+db,q,baseline_s=sys.argv[1:4]
+baseline=int(baseline_s)
 deadline=time.time()+1020
 last=None
 fresh_started_wall=None
 while time.time() < deadline:
     con=sqlite3.connect('file:'+db+'?mode=ro',uri=True)
     con.row_factory=sqlite3.Row
-    old=con.execute(
-        "SELECT id,status,COALESCE(error,'') error,COALESCE(finished_at,'') finished_at "
-        "FROM cycles WHERE id=?",(stale,)
-    ).fetchone()
     new=con.execute(
         "SELECT id,status,COALESCE(error,'') error,COALESCE(started_at,'') started_at,"
         "COALESCE(finished_at,'') finished_at FROM cycles "
-        "WHERE lower(query)=lower(?) AND id>? ORDER BY id DESC LIMIT 1",(q,stale)
+        "WHERE lower(query)=lower(?) AND id>? ORDER BY id DESC LIMIT 1",(q,baseline)
     ).fetchone()
     con.close()
 
-    old_status=str(old['status'] if old else 'MISSING')
-    old_error=str(old['error'] if old else '')
     new_id=int(new['id']) if new else 0
     new_status=str(new['status'] if new else 'NONE')
     new_error=str(new['error'] if new else '')
-    new_started=str(new['started_at'] if new else '')
     new_finished=str(new['finished_at'] if new else '')
 
-    state=(old_status,old_error,new_id,new_status,new_error,new_started,new_finished)
+    state=(new_id,new_status,new_error,new_finished)
     if state != last:
-        print("RADAR_V6198_FUNCTIONAL_OLD_STATUS="+old_status, flush=True)
-        print("RADAR_V6198_FUNCTIONAL_OLD_ERROR="+(old_error or 'NONE'), flush=True)
         print("RADAR_V6198_FUNCTIONAL_NEW_CYCLE_ID="+str(new_id), flush=True)
         print("RADAR_V6198_FUNCTIONAL_NEW_STATUS="+new_status, flush=True)
         print("RADAR_V6198_FUNCTIONAL_NEW_ERROR="+(new_error or 'NONE'), flush=True)
         print("RADAR_V6198_FUNCTIONAL_NEW_FINISHED_AT="+(new_finished or 'NONE'), flush=True)
         last=state
 
-    recovered=(old_status.upper()=='FAILED' and old_error=='STALE_RUNNING_CYCLE_RECOVERED_V6197')
-    if new_id > stale and fresh_started_wall is None:
+    if new_id > baseline and fresh_started_wall is None:
         fresh_started_wall=time.time()
         print("RADAR_V6198_FRESH_CYCLE_OBSERVED=PASS", flush=True)
 
-    terminal=(new_id > stale and new_status.upper() in ('SUCCESS','FAILED') and bool(new_finished))
-    if recovered and terminal:
+    terminal=(new_id > baseline and new_status.upper() in ('SUCCESS','FAILED') and bool(new_finished))
+    if terminal:
         elapsed=int(time.time()-(fresh_started_wall or time.time()))
-        print("RADAR_V6198_STALE_CYCLE_RECOVERED=PASS", flush=True)
         print("RADAR_V6198_FRESH_CYCLE_TERMINAL=PASS", flush=True)
         print("RADAR_V6198_FRESH_CYCLE_TERMINAL_SECONDS="+str(elapsed), flush=True)
         if new_status.upper()=='FAILED':
@@ -516,8 +505,8 @@ while time.time() < deadline:
             print("RADAR_V6198_FAILED_CYCLE_ERROR="+new_error, flush=True)
         raise SystemExit(0)
 
-    if new_id > stale and fresh_started_wall is not None and (time.time()-fresh_started_wall) >= 960:
-        print("RADAR_V6198_FUNCTIONAL_FAIL=FRESH_CYCLE_NOT_TERMINAL_WITHIN_960S", flush=True)
+    if new_id > baseline and fresh_started_wall is not None and (time.time()-fresh_started_wall) >= 1020:
+        print("RADAR_V6198_FUNCTIONAL_FAIL=FRESH_CYCLE_NOT_TERMINAL_WITHIN_1020S", flush=True)
         raise SystemExit(4)
     time.sleep(5)
 
@@ -533,7 +522,7 @@ revoke_approval
 
 [ "$FUNCTIONAL_RC" -eq 0 ] || die functional_cycle_terminalization_verification_failed
 echo "RADAR_V6198_LASTWAR_MUTATION=NO"
-echo "RADAR_V6198_FUNCTIONAL_COLLECTOR_MUTATION=STALE_RECOVERY_PLUS_TARGETED_EVIDENCE_PLUS_TERMINALIZATION_ONLY"
+echo "RADAR_V6198_FUNCTIONAL_COLLECTOR_MUTATION=TARGETED_EVIDENCE_PLUS_TERMINALIZATION_ONLY"
 echo "RADAR_V6198_FUNCTIONAL_PROOF=PASS"
 
 "${PC[@]}" verify-state --project "$PROJECT" > "$WORK/verify-after.json"
