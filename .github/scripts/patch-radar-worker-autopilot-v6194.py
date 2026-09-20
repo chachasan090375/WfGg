@@ -116,7 +116,7 @@ if 'WFGG_RADAR_AUTOPILOT_WORKER_V6194' not in worker:
         const id = String(body.id || '').trim();
         if (!/^[a-zA-Z0-9_-]{8,128}$/.test(id)) throw Object.assign(new Error('AUTOPILOT_JOB_ID_REQUIRED'), { status: 400 });
         const transport = new RemoteLastWarTransport({
-          baseUrl: env.RADAR_CONECTOR_URL,
+          baseUrl: env.RADAR_CONNECTOR_URL,
           sharedKey: env.RADAR_CONNECTOR_SHARED_KEY,
           timeoutMs: 30000
         });
