@@ -88,5 +88,5 @@ jobs:
           R=dev-hub/bin/run-radar-v6196-pilot-via-chacha-dev.sh
           grep -Fq 'J’approuve le PILOT Radar V6.19.6 Autopilot révision 98e9bf4c04f25903d72063023d73583387091c4e avec probe de garde sans scan de jeu.' "$R"
           grep -Fq 'PRODUCTION_RELEASE_APPROVAL_REVOKED=PASS' "$R"
-          grep -Fq 'RADAR_V6196_PILOT_CLOSE=PASS' "$R"
+          grep -Fq "RADAR_V6196_PILOT_CLOSE='+('PASS' if ok else 'FAIL')" "$R"
           echo RADAR_V6196_ONE_SHOT_APPROVAL=PASS
