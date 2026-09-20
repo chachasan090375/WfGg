@@ -127,6 +127,15 @@ python3 - "$RESULT" <<'PY'
 import json,sys
 x=json.load(open(sys.argv[1],encoding='utf-8')); assert x['status']=='OK',x
 d=(x.get('evidence') or [])[0].get('details') or {}
+assert d.get('radar_service') == 'active', d
+assert d.get('radar_sentinel_timer') == 'active', d
+assert d.get('radar_sentinel_enabled') == 'enabled', d
+assert d.get('runtime_matches_expected') is True, d
+assert d.get('mutable_manifest_matches_expected') is True, d
+assert d.get('immutable_manifest_matches_expected') is True, d
+assert d.get('runtime_mutation') is False, d
+assert d.get('game_scan_executed') is False, d
+assert d.get('collector_mutation') is False, d
 print('RADAR_V6198_SENTINEL_RELEASE_DIAGNOSTIC=PASS')
 print('RADAR_SERVICE='+str(d.get('radar_service')))
 print('RADAR_SENTINEL_TIMER='+str(d.get('radar_sentinel_timer')))
