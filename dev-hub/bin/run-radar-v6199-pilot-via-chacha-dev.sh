@@ -168,7 +168,7 @@ obj={
   "project":"wfgg-radar",
   "scope":{
     "pilot":"V6.19.9",
-    "revision":"93d58f84a8182e141dbc86ac5b0d4dde893484bc",
+    "revision":"53ad1ca3295bca9cf45b4a06d40f4fb61a84d6de",
     "change":"Autopilot targeted history quality lookup",
     "purpose":"qualify the V6.19.9 targeted-history runtime and safety guards without executing a Last War scan or mutating Collector during the guard probe"
   },
@@ -196,7 +196,7 @@ graph={
   "tasks":[{
     "id":"approval:radar-v6199-pilot",
     "kind":"approval",
-    "description":"Record explicit human approval for the single V6.19.9 Autopilot Radar pilot window.",
+    "description":"Record explicit human approval for the single V6.19.9 Targeted History Quality pilot window.",
     "owner_role":"project-owner",
     "capabilities":[],
     "permission":"read",
@@ -214,7 +214,7 @@ result={
   "status":"OK",
   "producer":"human-approval-recorder",
   "observed_at":now,
-  "summary":"Human approved the single V6.19.9 Autopilot Radar pilot deployment window.",
+  "summary":"Human approved the single V6.19.9 Targeted History Quality pilot deployment window.",
   "evidence":[{"kind":"human-approval","source":src,"digest":digest,"details":{"approval_id":"production-release","scope":"radar-v6199-pilot"}}],
   "outputs":[{"type":"approval","id":"production-release","status":"APPROVED"}],
   "verification":{"status":"UNVERIFIED","method":"none","verifier":None,"observed_at":None,"notes":"Human verification required."}
@@ -314,7 +314,7 @@ graph={
  "summary":{"task_count":1,"artifact_tasks":0,"gate_tasks":0,"approval_tasks":1,"blocking_tasks":1}}
 res={
  "schema":"chacha.dev/task-result/v1","project":"wfgg-radar","task_id":"approval:radar-v6199-pilot-revoke","status":"OK","producer":"human-approval-recorder","observed_at":now,
- "summary":"Consumed single-window V6.19.9 Autopilot production approval revoked.","evidence":[{"kind":"human-approval","source":s,"digest":d,"details":{"approval_id":"production-release","status":"REJECTED"}}],
+ "summary":"Consumed single-window V6.19.9 Targeted History Quality production approval revoked.","evidence":[{"kind":"human-approval","source":s,"digest":d,"details":{"approval_id":"production-release","status":"REJECTED"}}],
  "outputs":[{"type":"approval","id":"production-release","status":"REJECTED"}],
  "verification":{"status":"UNVERIFIED","method":"none","verifier":None,"observed_at":None,"notes":"Human verification required."}}
 open(g,"w",encoding="utf-8").write(json.dumps(graph,indent=2)+"\n")
