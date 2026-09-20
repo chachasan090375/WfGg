@@ -1,36 +1,15 @@
 name: Deploy autonomous WfGg Radar production
 
 on:
+  # Production ordering: source/workflow promotion first triggers the VPS binary
+  # builder. Cloudflare deploys only after that builder publishes the immutable
+  # radar-vps/release artifacts to radar-production-v1.
   push:
     branches: [radar-production-v1]
     paths:
-      - 'radar-release/**'
-      - 'radar-ui-live/**'
-      - '.radar-release-src/v2-source/src/game/remote-transport.js'
-      - '.radar-release-src/v2-source/connector-go/**'
-      - '.radar-release-src/v6193-source/**'
-      - '.radar-release-src/v6194-source/**'
-      - '.radar-release-src/v6197-source/**'
-      - '.radar-release-src/v6198-source/**'
-      - '.github/scripts/patch-radar-async-collector-worker.py'
-      - '.github/scripts/patch-radar-worker-rich-profile-v6191.py'
-      - '.github/scripts/patch-radar-worker-seed-scout-v6193.py'
-      - '.github/scripts/patch-live-radar-seed-scout-v6193.py'
-      - '.github/scripts/patch-radar-autopilot-v6194.py'
-      - '.github/scripts/patch-radar-worker-autopilot-v6194.py'
-      - '.github/scripts/patch-live-radar-autopilot-v6194.py'
-      - '.github/scripts/patch-live-radar-autopilot-v6196.py'
-      - '.github/scripts/patch-radar-autopilot-stale-cycle-v6197.py'
-      - '.github/scripts/patch-live-radar-autopilot-v6197.py'
-      - '.github/scripts/patch-radar-collector-cycle-terminalization-v6198.py'
-      - '.github/scripts/patch-live-radar-autopilot-v6198.py'
-      - '.github/scripts/patch-radar-session-keepalive-v6195.py'
-      - '.github/scripts/patch-radar-federated-diagnostics-v65.py'
-      - '.github/scripts/patch-radar-cluster-catalog-budget-v6192.py'
-      - '.github/scripts/patch-radar-seed-scout-v6193.py'
-      - 'worker/migrations/0004_radar_profile_rich_v6191.sql'
-      - '.github/workflows/deploy-radar-production.yml'
+      - 'radar-vps/release/**'
   workflow_dispatch:
+
 
 permissions:
   contents: read
