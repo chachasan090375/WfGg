@@ -38,7 +38,7 @@ jobs:
           grep -Fq '"email-auth-runtime-diagnostic": "read"' "$A"
           grep -Fq 'EMAIL_AUTH_PUBLIC_BASE = "https://chachavps.tail3ab05a.ts.net"' "$A"
           grep -Fq '"gameUid": "x", "email": "invalid"' "$A"
-          grep -Fq 'LASTWAR_EMAIL_GAME_UID_REQUIRED' "$A"
+          grep -Fq 'LASTWAR_GAME_UID_REQUIRED' "$A"
           grep -Fq 'email_auth_helper_executable' "$A"
           grep -Fq 'EMAIL_AUTH_PUBLIC_PROXY_FAILED' "$A"
           grep -Fq 'LASTWAR_EMAIL_CODE_REQUESTED=NO' "$R"
