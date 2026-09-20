@@ -100,7 +100,7 @@ jobs:
         run: |
           set -euo pipefail
           SRC=/tmp/wfgg-radar/connector-go/cmd/radar-connector/server_autopilot_v6194.go
-          grep -Fq 'autopilotVersionV6194                    = "v6.19.6"' "$SRC"
+          grep -Eq 'autopilotVersionV6194[[:space:]]*=[[:space:]]*"v6\.19\.6"' "$SRC"
           grep -Fq 'func autopilotIsNoDataFailureV6196' "$SRC"
           grep -Fq 'MAP_ALL_REGIONS_FAILED' "$SRC"
           grep -Fq 'len(job.RegionFailures) < 9' "$SRC"
