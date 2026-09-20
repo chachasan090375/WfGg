@@ -2,34 +2,42 @@
   "schema": "chacha.dev/project-intent/v1",
   "project": "wfgg-radar",
   "title": "WfGg Radar operational discovery and controlled runtime evolution",
-  "problem": "Maintain reliable WfGg Radar server discovery while preserving already validated collection data, production safety controls, and the targeted federated discovery workflow.",
+  "problem": "Automate WfGg Radar cluster discovery end-to-end while preserving evidence quality, Last War read-only behavior, Collector integrity, and ChaCha DEV production governance.",
   "goals": [
-    "Continue discovering Last War server clusters through targeted sequential @federated:<serverId> scans.",
-    "Preserve validated Collector history and avoid repeating already acquired server scans.",
-    "Use ChaCha DEV Project Control, Scheduler, Run Controller and registered Radar Runtime Adapter for runtime intervention.",
+    "Run targeted @federated:<serverId> discovery cycles automatically until each cluster has three complete 9/9 evidence cycles.",
+    "Keep valid data from partial cycles while ensuring partial or joined cycles never count toward cluster confirmation.",
+    "After a cluster is confirmed, run Seed Scout automatically to discover the next observed seed and continue without manual browser actions.",
+    "Allow the browser/phone to disconnect or lock after Autopilot starts; execution remains server-side on the VPS.",
+    "Use ChaCha DEV Project Control, Scheduler, Run Controller and Radar Runtime Adapter for all runtime deployment changes.",
     "Keep production changes bounded, approval-gated, reversible and independently observable."
   ],
   "non_goals": [
     "Do not change Last War game state or invoke mutating game commands.",
     "Do not rescan server 972.",
+    "Do not count partial 8/9 cycles, failed cycles, or joined cycles as cluster-confirmation evidence.",
+    "Do not persist the Last War token in jobs, Collector DB, logs, receipts, or filesystem.",
     "Do not replace authoritative NAS persistence with VPS-local project storage.",
     "Do not expose raw player data, credentials or runtime secrets."
   ],
   "current_change": {
-    "id": "radar-v6193-seed-scout",
-    "purpose": "Add a read-only one-region Seed Scout that tries small non-overlapping batches of candidate server IDs, without creating Collector cycles or enriching profiles, and returns an observed seed for the existing targeted @federated workflow.",
-    "discovery_mode": "read-only-one-region-seed-scout-then-targeted-federated",
+    "id": "radar-v6194-autopilot",
+    "purpose": "Add a server-side Autopilot that chains complete targeted Collector cycles and Seed Scout discovery. It requires three fresh complete 9/9 cycles per seed, retries partial cycles without counting them, automatically discovers the next seed, and can continue while the browser is closed.",
+    "discovery_mode": "server-side-autopilot-3x-full-9of9-then-seed-scout",
     "pilot_only": true,
     "rollback_required": true
   },
   "acceptance_criteria": [
-    "V6.19.3 build and tests pass on a pinned Git revision.",
-    "Pilot binaries and staged Cloudflare surfaces are SHA256 pinned before any runtime deployment.",
-    "Seed Scout creates zero Collector cycles, performs zero Collector ingestion, and performs zero profile enrichment.",
-    "Seed Scout uses only one map region per candidate and exposes aggregate server counts only.",
-    "Numeric proximity is used only to order candidate probes and never to infer cluster membership.",
+    "V6.19.4 connector, Worker and UI build/tests pass on a pinned Git revision.",
+    "Pilot connector/native binaries and staged Cloudflare surfaces are SHA256 pinned before runtime installation.",
+    "Only SUCCESS non-joined cycles with 9/9 regions and zero isolated regions count toward the three-cycle confirmation target.",
+    "Partial cycles preserve valid Collector observations but retain a non-empty quality marker and never count as cluster confirmation.",
+    "Autopilot retries the same seed after partial cycles, stops on bounded failure/authentication guards, and supports stop-after-current-step.",
+    "After three complete cycles for a seed, Seed Scout runs automatically and the next observed seed becomes the next targeted scan.",
+    "Last War operations remain read-only; normal full discovery cycles intentionally update Collector evidence.",
+    "The Last War token remains ephemeral in memory and is never persisted by Autopilot.",
+    "The Autopilot runner does not require the phone/browser to remain open after start.",
     "Production-deploy permission requires explicit human approval recorded in ChaCha DEV Evidence Ledger.",
-    "Radar Sentinel protection is restored after the pilot window and the production-release approval is revoked."
+    "The guard-only PILOT executes no Last War scan and no Collector mutation; Radar Sentinel protection is restored and the approval is revoked after the pilot window."
   ],
   "architecture_invariants": [
     "GitHub stores code, branches, CI and release artifacts.",
