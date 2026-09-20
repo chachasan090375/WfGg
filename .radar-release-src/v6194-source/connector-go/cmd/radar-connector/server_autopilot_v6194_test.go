@@ -77,3 +77,64 @@ func TestAutopilotConfirmCurrentClusterV6194SkipsRedundantScan(t *testing.T) {
 		t.Fatalf("unexpected history: %#v", job.History)
 	}
 }
+
+
+func TestAutopilotNoDataFailureV6196(t *testing.T) {
+	regions := make([]collectorRegionFailure, 0, 9)
+	for i := 1; i <= 9; i++ {
+		regions = append(regions, collectorRegionFailure{
+			Region: i, Category: "PROTOCOL", Code: "MAP_REGION_FAILED",
+			Cause: "LASTWAR_PLAYER_SCAN_SYNTHETIC_READ_FAILED:FMTWIREERROR",
+		})
+	}
+	job := collectorJob{
+		Status: "FAILED", Error: "MAP_ALL_REGIONS_FAILED",
+		RegionsCompleted: 0, RegionsFailed: 9, PlayersSeen: 0,
+		RegionFailures: regions,
+	}
+	if !autopilotIsNoDataFailureV6196(job) {
+		t.Fatal("expected all-region protocol/no-data failure to be skippable")
+	}
+	job.RegionFailures[0].Category = "NETWORK"
+	job.RegionFailures[0].Cause = "LASTWAR_NATIVE_DIAL_FAILED"
+	if autopilotIsNoDataFailureV6196(job) {
+		t.Fatal("network failure must not be classified as no-data")
+	}
+	job.RegionFailures[0].Category = "AUTH"
+	job.RegionFailures[0].Cause = "LASTWAR_AUTH_REJECTED"
+	if autopilotIsNoDataFailureV6196(job) {
+		t.Fatal("auth failure must not be classified as no-data")
+	}
+}
+
+func TestAutopilotSkipNoDataPreservesEvidenceV6196(t *testing.T) {
+	id := "test-skip-no-data"
+	radarAutopilotJobsV6194.add(&autopilotJobV6194{
+		ID: id, Status: "RUNNING", Phase: "CYCLE_NO_DATA_RETRY",
+		CurrentSeed: "8124", CurrentCommand: "@federated:8124",
+		CurrentFullCycleIDs: []int64{41}, RequiredFullCycles: 3,
+		ValidatedCycles: 1, FailedCycles: 3, ConsecutiveNoData: 3,
+		NoDataRetryLimit: 3, MaxClusters: 5,
+		History: []autopilotClusterResultV6194{},
+		SkippedSeeds: []autopilotSkippedSeedV6196{},
+	})
+	if !autopilotSkipCurrentSeedNoDataV6196(id) {
+		t.Fatal("expected seed skip")
+	}
+	job, ok := radarAutopilotJobsV6194.get(id)
+	if !ok {
+		t.Fatal("job missing")
+	}
+	if job.CurrentSeed != "" || job.ValidatedCycles != 0 || job.ConsecutiveNoData != 0 {
+		t.Fatalf("current seed state not reset: %#v", job)
+	}
+	if job.ConfirmedClusters != 0 {
+		t.Fatalf("skipped seed must not count as confirmed: %d", job.ConfirmedClusters)
+	}
+	if len(job.SkippedSeeds) != 1 || job.SkippedSeeds[0].Seed != "8124" {
+		t.Fatalf("missing skipped seed evidence: %#v", job.SkippedSeeds)
+	}
+	if job.SkippedSeeds[0].ValidatedCycles != 1 || len(job.SkippedSeeds[0].CycleIDs) != 1 || job.SkippedSeeds[0].CycleIDs[0] != 41 {
+		t.Fatalf("valid historical evidence was not preserved: %#v", job.SkippedSeeds[0])
+	}
+}
