@@ -38,7 +38,7 @@ jobs:
           grep -Fq 'STALE_RUNNING_CYCLE_RECOVERED_V6197' "$R"
           grep -Fq 'RADAR_V6198_FUNCTIONAL_WINDOW_READY=YES' "$R"
           grep -Fq 'appuie UNE SEULE FOIS sur RECHERCHE' "$R"
-          grep -Fq 'FRESH_CYCLE_NOT_TERMINAL_WITHIN_300S' "$R"
+          grep -Fq 'FRESH_CYCLE_NOT_TERMINAL_WITHIN_960S' "$R"
           grep -Fq 'TERMINALIZATION_RETRIES_EXHAUSTED' "$R"
           grep -Fq 'RADAR_V6198_FRESH_CYCLE_TERMINAL=PASS' "$R"
           grep -Fq 'RADAR_V6198_FUNCTIONAL_PROOF=PASS' "$R"
@@ -64,7 +64,7 @@ jobs:
           c='\n'.join(x.get('acceptance_criteria') or [])
           assert 'exactly one normal @federated:8131 search' in c,c
           assert 'STALE_RUNNING_CYCLE_RECOVERED_V6197' in c,c
-          assert 'within 300 seconds' in c,c
+          assert 'within 960 seconds' in c,c
           assert '_CYCLE_TERMINALIZATION_FAILED' in c,c
           assert 'Last War READ-ONLY' in c,c
           print('RADAR_V6198_FUNCTIONAL_INTENT=PASS')
