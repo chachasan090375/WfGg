@@ -23,8 +23,10 @@ on:
       - '.radar-release-src/v6194-source/**'
       - '.radar-release-src/v6197-source/**'
       - '.radar-release-src/v6198-source/**'
+      - '.radar-release-src/v6199-source/**'
       - '.github/scripts/patch-radar-autopilot-stale-cycle-v6197.py'
       - '.github/scripts/patch-radar-collector-cycle-terminalization-v6198.py'
+      - '.github/scripts/patch-radar-autopilot-targeted-history-v6199.py'
   workflow_dispatch:
 
 permissions:
@@ -37,7 +39,7 @@ concurrency:
 
 env:
   LASTWAR_CLIENT_REF: ee5f64de160a8051c2f9f98189b75038dd225a0a
-  EXPECTED_CONNECTOR_SHA256: fb21a02feeaaa6a7013cf4e17c77bbb033a30a4bce021066fd947fc665360a9b
+  EXPECTED_CONNECTOR_SHA256: 5058159307ccb99e8e631fe71014608934b8575e69d5599e4388550306baab7f
   EXPECTED_NATIVE_SHA256: 274d040f5294cb09422e5d55cc4b5335ac7739924c33dcb67b3f279645814900
 
 jobs:
@@ -54,7 +56,7 @@ jobs:
         with:
           go-version: '1.27.x'
 
-      - name: Reconstruct cumulative V6.19.8
+      - name: Reconstruct cumulative V6.19.9
         run: |
           set -euo pipefail
           rm -rf /tmp/wfgg-radar /tmp/lastwar-client
@@ -80,13 +82,15 @@ jobs:
           python3 .github/scripts/patch-radar-autopilot-v6194.py
           python3 .github/scripts/patch-radar-autopilot-stale-cycle-v6197.py
           python3 .github/scripts/patch-radar-collector-cycle-terminalization-v6198.py
+          python3 .github/scripts/patch-radar-autopilot-targeted-history-v6199.py
 
           grep -Fq 'WFGG_RADAR_CLUSTER_CATALOG_BUDGET_V6192' /tmp/wfgg-radar/connector-go/cmd/radar-connector/server_cluster_catalog_v613.go
           grep -Fq 'WFGG_RADAR_SEED_SCOUT_V6193' /tmp/wfgg-radar/connector-go/cmd/radar-connector/server_seed_scout_v6193.go
           grep -Fq 'WFGG_RADAR_AUTOPILOT_CONTINUE_NO_DATA_V6196' /tmp/wfgg-radar/connector-go/cmd/radar-connector/server_autopilot_v6194.go
           grep -Fq 'SEED_SKIPPED_NO_DATA' /tmp/wfgg-radar/connector-go/cmd/radar-connector/server_autopilot_v6194.go
           grep -Fq 'AUTOPILOT_NO_DATA' /tmp/wfgg-radar/connector-go/cmd/radar-connector/server_autopilot_v6194.go
-          echo RADAR_V6198_PRODUCTION_RECONSTRUCT=PASS
+          grep -Fq 'WFGG_RADAR_AUTOPILOT_TARGETED_HISTORY_CALLSITE_V6199' /tmp/wfgg-radar/connector-go/cmd/radar-connector/server_autopilot_v6194.go
+          echo RADAR_V6199_PRODUCTION_RECONSTRUCT=PASS
 
       - name: Test and build connector
         working-directory: /tmp/wfgg-radar/connector-go
@@ -99,7 +103,7 @@ jobs:
           CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w' -o "$GITHUB_WORKSPACE/radar-vps/release/radar-connector" ./cmd/radar-connector
           actual="$(sha256sum "$GITHUB_WORKSPACE/radar-vps/release/radar-connector" | awk '{print $1}')"
           test "$actual" = "$EXPECTED_CONNECTOR_SHA256"
-          echo "RADAR_V6198_CONNECTOR_SHA256=$actual"
+          echo "RADAR_V6199_CONNECTOR_SHA256=$actual"
 
       - name: Build qualified native helper
         run: |
@@ -122,7 +126,7 @@ jobs:
           CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -tags lastwar_native_template -trimpath -ldflags='-s -w' -o "$GITHUB_WORKSPACE/radar-vps/release/radar-native-template" ./cmd/wfgg-radar-native-template
           actual="$(sha256sum "$GITHUB_WORKSPACE/radar-vps/release/radar-native-template" | awk '{print $1}')"
           test "$actual" = "$EXPECTED_NATIVE_SHA256"
-          echo "RADAR_V6198_NATIVE_SHA256=$actual"
+          echo "RADAR_V6199_NATIVE_SHA256=$actual"
 
       - name: Verify read-only production release
         run: |
@@ -137,16 +141,17 @@ jobs:
           )
           grep -Fq "$EXPECTED_CONNECTOR_SHA256  radar-connector" radar-vps/release/SHA256SUMS
           grep -Fq "$EXPECTED_NATIVE_SHA256  radar-native-template" radar-vps/release/SHA256SUMS
-          grep -aFq 'v6.19.8' radar-vps/release/radar-connector
+          grep -aFq 'v6.19.9' radar-vps/release/radar-connector
           grep -aFq 'SEED_SKIPPED_NO_DATA' radar-vps/release/radar-connector
           grep -aFq 'AUTOPILOT_NO_DATA' radar-vps/release/radar-connector
           grep -aFq 'STALE_RUNNING_CYCLE_RECOVERED_V6197' radar-vps/release/radar-connector
           grep -aFq 'COLLECTOR_CYCLE_TERMINALIZATION_FAILED' radar-vps/release/radar-connector
-          echo RADAR_V6198_GAME_MUTATION=NO
-          echo RADAR_V6198_LASTWAR_MUTATION=NO
-          echo RADAR_V6198_AUTOPILOT_COLLECTOR_MUTATION=YES
-          echo RADAR_V6198_TOKEN_PERSISTENCE=NO
-          echo RADAR_V6198_PRODUCTION_RELEASE=QUALIFIED
+          grep -aFq 'AUTOPILOT_TARGET_HISTORY_TIMEOUT_V6199' radar-vps/release/radar-connector
+          echo RADAR_V6199_GAME_MUTATION=NO
+          echo RADAR_V6199_LASTWAR_MUTATION=NO
+          echo RADAR_V6199_AUTOPILOT_COLLECTOR_MUTATION=YES
+          echo RADAR_V6199_TOKEN_PERSISTENCE=NO
+          echo RADAR_V6199_PRODUCTION_RELEASE=QUALIFIED
 
       - name: Commit production release binaries
         run: |
@@ -155,15 +160,15 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add radar-vps/release/radar-connector radar-vps/release/radar-native-template radar-vps/release/SHA256SUMS
           if git diff --cached --quiet; then
-            echo RADAR_V6198_RELEASE_BINARIES=UNCHANGED
+            echo RADAR_V6199_RELEASE_BINARIES=UNCHANGED
             GH_TOKEN="${{ github.token }}" gh workflow run deploy-radar-production.yml --ref radar-production-v1
-            echo RADAR_V6198_CLOUDFLARE_DISPATCH=TRIGGERED
+            echo RADAR_V6199_CLOUDFLARE_DISPATCH=TRIGGERED
             exit 0
           fi
-          git commit -m 'build(radar): publish V6.19.8 Collector Cycle Terminalization production binaries'
+          git commit -m 'build(radar): publish V6.19.9 Targeted History Quality production binaries'
           git fetch origin radar-production-v1
           git rebase origin/radar-production-v1
           git push origin HEAD:radar-production-v1
-          echo RADAR_V6198_RELEASE_BINARIES=PUBLISHED
+          echo RADAR_V6199_RELEASE_BINARIES=PUBLISHED
           GH_TOKEN="${{ github.token }}" gh workflow run deploy-radar-production.yml --ref radar-production-v1
-          echo RADAR_V6198_CLOUDFLARE_DISPATCH=TRIGGERED
+          echo RADAR_V6199_CLOUDFLARE_DISPATCH=TRIGGERED
