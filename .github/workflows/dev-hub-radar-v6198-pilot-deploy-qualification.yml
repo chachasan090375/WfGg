@@ -1,0 +1,94 @@
+name: ChaCha DEV Radar V6.19.8 pilot deploy qualification
+
+on:
+  push:
+    branches: [dev-hub-v5-radar-cluster-quality-diagnostic-v1]
+    paths:
+      - 'dev-hub/bin/run-radar-v6198-pilot-via-chacha-dev.sh'
+      - 'dev-hub/projects/wfgg-radar/project-intent.v1.json'
+      - '.github/workflows/dev-hub-radar-v6198-pilot-deploy-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  PILOT_REV: 80cb17a0baa91ec534d0b54625f65113ba3d34e1
+  EXPECTED_CONNECTOR_SHA256: fb21a02feeaaa6a7013cf4e17c77bbb033a30a4bce021066fd947fc665360a9b
+  EXPECTED_NATIVE_SHA256: 274d040f5294cb09422e5d55cc4b5335ac7739924c33dcb67b3f279645814900
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev-hub-v5-radar-cluster-quality-diagnostic-v1
+
+      - name: Validate governed runner
+        run: |
+          set -euo pipefail
+          R=dev-hub/bin/run-radar-v6198-pilot-via-chacha-dev.sh
+          bash -n "$R"
+          grep -Fq 'PILOT_REV="80cb17a0baa91ec534d0b54625f65113ba3d34e1"' "$R"
+          grep -Fq 'PILOT_BRANCH="radar-v6198-collector-cycle-terminalization"' "$R"
+          grep -Fq 'CONNECTOR_SHA="fb21a02feeaaa6a7013cf4e17c77bbb033a30a4bce021066fd947fc665360a9b"' "$R"
+          grep -Fq 'NATIVE_SHA="274d040f5294cb09422e5d55cc4b5335ac7739924c33dcb67b3f279645814900"' "$R"
+          grep -Fq 'radar-vps/install-v6198-pilot.sh' "$R"
+          grep -Fq 'radar-vps/probe-v6198-pilot-runtime.sh' "$R"
+          grep -Fq 'PROJECT_CONTROL' "$R"
+          grep -Fq 'run_graph' "$R"
+          grep -Fq 'RADAR_V6198_GAME_SCAN_EXECUTED=NO' "$R"
+          grep -Fq 'RADAR_V6198_COLLECTOR_MUTATION=NO' "$R"
+          echo RADAR_V6198_CHACHA_RUNNER=PASS
+
+      - name: Validate project intent
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          x=json.load(open('dev-hub/projects/wfgg-radar/project-intent.v1.json',encoding='utf-8'))
+          assert x['current_change']['id']=='radar-v6198-collector-cycle-terminalization',x
+          assert x['current_change']['pilot_only'] is True,x
+          criteria='\n'.join(x.get('acceptance_criteria') or [])
+          assert '12 attempts' in criteria,criteria
+          assert '*_CYCLE_TERMINALIZATION_FAILED' in criteria,criteria
+          assert 'Joined cycles are not terminalized' in criteria,criteria
+          assert 'Production promotion requires a separate explicit human approval.' in criteria,criteria
+          print('RADAR_V6198_PROJECT_INTENT=PASS')
+          PY
+
+      - name: Validate pinned pilot assets
+        run: |
+          set -euo pipefail
+          BASE="https://raw.githubusercontent.com/chachasan090375/WfGg/$PILOT_REV"
+          mkdir -p /tmp/v6198
+          for f in radar-vps/pilot-v6198/SHA256SUMS radar-vps/pilot-v6198/PILOT_INFO.txt radar-vps/pilot-v6198/radar-connector radar-vps/pilot-v6198/radar-native-template radar-vps/install-v6198-pilot.sh radar-vps/probe-v6198-pilot-runtime.sh; do
+            curl -fsSL "$BASE/$f" -o "/tmp/v6198/$(basename "$f")"
+          done
+          grep -Fq 'WFGG_RADAR_PILOT=V6.19.8' /tmp/v6198/PILOT_INFO.txt
+          grep -Fq 'COLLECTOR_CYCLE_TERMINALIZATION=YES' /tmp/v6198/PILOT_INFO.txt
+          grep -Fq 'TERMINALIZATION_ATTEMPTS=12' /tmp/v6198/PILOT_INFO.txt
+          grep -Fq 'STALE_CYCLE_RECOVERY_PRESERVED=YES' /tmp/v6198/PILOT_INFO.txt
+          grep -Fq 'NO_DATA_CONTINUE_PRESERVED=YES' /tmp/v6198/PILOT_INFO.txt
+          (
+            cd /tmp/v6198
+            sha256sum -c SHA256SUMS
+          )
+          test "$(sha256sum /tmp/v6198/radar-connector | awk '{print $1}')" = "$EXPECTED_CONNECTOR_SHA256"
+          test "$(sha256sum /tmp/v6198/radar-native-template | awk '{print $1}')" = "$EXPECTED_NATIVE_SHA256"
+          bash -n /tmp/v6198/install-v6198-pilot.sh
+          bash -n /tmp/v6198/probe-v6198-pilot-runtime.sh
+          grep -Fq 'GAME_TOKEN_REQUIRED' /tmp/v6198/probe-v6198-pilot-runtime.sh
+          grep -Fq 'RADAR_V6198_GAME_SCAN_EXECUTED=NO' /tmp/v6198/probe-v6198-pilot-runtime.sh
+          echo RADAR_V6198_PINNED_PILOT_ASSETS=PASS
+
+      - name: Verify one-shot approval contract
+        run: |
+          set -euo pipefail
+          R=dev-hub/bin/run-radar-v6198-pilot-via-chacha-dev.sh
+          grep -Fq 'J’approuve le PILOT Radar V6.19.8 Collector Cycle Terminalization révision 80cb17a0baa91ec534d0b54625f65113ba3d34e1 avec probe de garde sans scan de jeu.' "$R"
+          grep -Fq 'PRODUCTION_RELEASE_APPROVAL_REVOKED=PASS' "$R"
+          grep -Fq "RADAR_V6198_PILOT_CLOSE='+('PASS' if ok else 'FAIL')" "$R"
+          echo RADAR_V6198_ONE_SHOT_APPROVAL=PASS
