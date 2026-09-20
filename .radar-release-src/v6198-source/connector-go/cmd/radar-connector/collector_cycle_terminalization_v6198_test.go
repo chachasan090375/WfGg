@@ -1,5 +1,7 @@
 package main
 
+// V6.19.8 qualification trigger: central fail path owns terminalization.
+
 import (
 	"encoding/json"
 	"net/http"
