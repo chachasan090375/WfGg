@@ -25,7 +25,8 @@ jobs:
           F=dev-hub/bin/run-radar-v6196-production-sentinel-reconcile.sh
           bash -n "$F"
           grep -Fq 'WFGG_DEV_HUB_RADAR_V6196_PROD_RECONCILE_REV' "$F"
-          grep -Fq '/opt/chacha-dev/runtime/tmp' "$F"
+          grep -Fq 'RUNTIME="/opt/chacha-dev/runtime"' "$F"
+          grep -Fq 'WORK_ROOT="$RUNTIME/tmp"' "$F"
           grep -Fq 'J’approuve la promotion production Radar V6.19.6 Autopilot Continue-on-No-Data et le déploiement des surfaces Cloudflare associées.' "$F"
           grep -Fq 'production-release' "$F"
           grep -Fq 'radar-runtime:production-sentinel-reconcile-v6196' "$F"
