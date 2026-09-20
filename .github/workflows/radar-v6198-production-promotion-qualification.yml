@@ -1,19 +1,21 @@
-name: Radar V6.19.6 production promotion qualification
+name: Radar V6.19.8 production promotion qualification
 
 on:
   push:
-    branches: [radar-v6196-production-promotion]
+    branches: [radar-v6198-production-promotion]
+  pull_request:
+    branches: [radar-production-v1]
   workflow_dispatch:
 
 permissions:
   contents: read
 
 env:
-  EXPECTED_CONNECTOR_SHA256: b7ff60476f3afe7c8bcb9b78963c46daa4e8b5507490cc83cbcbc4ced63e7c35
+  EXPECTED_CONNECTOR_SHA256: fb21a02feeaaa6a7013cf4e17c77bbb033a30a4bce021066fd947fc665360a9b
   EXPECTED_NATIVE_SHA256: 274d040f5294cb09422e5d55cc4b5335ac7739924c33dcb67b3f279645814900
   EXPECTED_WORKER_SHA256: 052deb78c56aa6eb522f8808ffe0cc427c9d605d65a0e6983b6dbb9749da56ea
   EXPECTED_TRANSPORT_SHA256: 9dc489b759c75cc0a4882d29324965ca8171de84febae788ced52404b28ee573
-  EXPECTED_UI_SHA256: e3565d7a3a475d475ad5eb46b541c9f0a000f042c0f82d945dfa9dde9b908ec1
+  EXPECTED_UI_SHA256: 3d67b6d7667e42ec95a618f1fb3c0f3722a0b59f220fe4658dd31dbd8c955cd7
 
 jobs:
   qualify:
@@ -22,14 +24,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: radar-v6196-production-promotion
+          ref: radar-v6198-production-promotion
           fetch-depth: 0
 
       - uses: actions/setup-go@v5
         with:
           go-version: '1.27.x'
 
-      - name: Reconstruct cumulative V6.19.6 production candidate
+      - name: Reconstruct cumulative V6.19.8 production candidate
         run: |
           set -euo pipefail
           rm -rf /tmp/wfgg-radar
@@ -53,6 +55,8 @@ jobs:
           python3 .github/scripts/patch-radar-cluster-catalog-budget-v6192.py
           python3 .github/scripts/patch-radar-seed-scout-v6193.py
           python3 .github/scripts/patch-radar-autopilot-v6194.py
+          python3 .github/scripts/patch-radar-autopilot-stale-cycle-v6197.py
+          python3 .github/scripts/patch-radar-collector-cycle-terminalization-v6198.py
 
           install -m 0644 .radar-release-src/v2-source/src/game/remote-transport.js /tmp/wfgg-radar/src/game/remote-transport.js
           python3 .github/scripts/patch-radar-async-collector-worker.py
@@ -65,10 +69,12 @@ jobs:
           python3 .github/scripts/patch-live-radar-autopilot-v6194.py
           python3 .github/scripts/patch-radar-session-keepalive-v6195.py
           python3 .github/scripts/patch-live-radar-autopilot-v6196.py
+          python3 .github/scripts/patch-live-radar-autopilot-v6197.py
+          python3 .github/scripts/patch-live-radar-autopilot-v6198.py
 
-          grep -Fq 'WFGG_RADAR_AUTOPILOT_CONTINUE_NO_DATA_V6196' /tmp/wfgg-radar/connector-go/cmd/radar-connector/server_autopilot_v6194.go
-          grep -Fq 'WFGG_RADAR_AUTOPILOT_CONTINUE_NO_DATA_UI_V6196' /tmp/wfgg-radar/public/live-radar.html
-          echo RADAR_V6196_PRODUCTION_RECONSTRUCT=PASS
+          grep -Fq 'WFGG_RADAR_COLLECTOR_CYCLE_TERMINALIZATION_V6198' /tmp/wfgg-radar/connector-go/cmd/radar-connector/server_autopilot_v6194.go
+          grep -Fq 'WFGG_RADAR_COLLECTOR_CYCLE_TERMINALIZATION_UI_V6198' /tmp/wfgg-radar/public/live-radar.html
+          echo RADAR_V6198_PRODUCTION_RECONSTRUCT=PASS
 
       - name: Qualify connector and exact SHA
         working-directory: /tmp/wfgg-radar/connector-go
@@ -79,13 +85,13 @@ jobs:
           go vet ./...
           CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w' -o /tmp/radar-connector ./cmd/radar-connector
           actual="$(sha256sum /tmp/radar-connector | awk '{print $1}')"
-          echo "RADAR_V6196_CONNECTOR_SHA256=$actual"
+          echo "RADAR_V6198_CONNECTOR_SHA256=$actual"
           test "$actual" = "$EXPECTED_CONNECTOR_SHA256"
-          grep -Fq 'SEED_SKIPPED_NO_DATA' cmd/radar-connector/server_autopilot_v6194.go
-          grep -Fq 'AUTOPILOT_NO_DATA' cmd/radar-connector/server_autopilot_v6194.go
-          grep -Fq 'AUTOPILOT_CONSECUTIVE_FAILURE_LIMIT' cmd/radar-connector/server_autopilot_v6194.go
-          grep -Fq 'AUTOPILOT_AUTH_FAILED' cmd/radar-connector/server_autopilot_v6194.go
-          echo RADAR_V6196_CONNECTOR_QUALIFIED=PASS
+          grep -aFq 'v6.19.8' /tmp/radar-connector
+          grep -aFq 'STALE_RUNNING_CYCLE_RECOVERED_V6197' /tmp/radar-connector
+          grep -aFq 'COLLECTOR_CYCLE_TERMINALIZATION_FAILED' /tmp/radar-connector
+          grep -aFq 'SEED_SKIPPED_NO_DATA' /tmp/radar-connector
+          echo RADAR_V6198_CONNECTOR_QUALIFIED=PASS
 
       - name: Discover and qualify Cloudflare surface digests
         run: |
@@ -94,38 +100,45 @@ jobs:
           worker="$(sha256sum /tmp/wfgg-radar/src/worker.js | awk '{print $1}')"
           transport="$(sha256sum /tmp/wfgg-radar/src/game/remote-transport.js | awk '{print $1}')"
           ui="$(sha256sum /tmp/wfgg-radar/public/live-radar.html | awk '{print $1}')"
-          echo "RADAR_V6196_WORKER_SHA256=$worker"
-          echo "RADAR_V6196_TRANSPORT_SHA256=$transport"
-          echo "RADAR_V6196_UI_SHA256=$ui"
-          test "$ui" = "$EXPECTED_UI_SHA256"
+          echo "RADAR_V6198_WORKER_SHA256=$worker"
+          echo "RADAR_V6198_TRANSPORT_SHA256=$transport"
+          echo "RADAR_V6198_UI_SHA256=$ui"
           test "$worker" = "$EXPECTED_WORKER_SHA256"
           test "$transport" = "$EXPECTED_TRANSPORT_SHA256"
+          test "$ui" = "$EXPECTED_UI_SHA256"
           grep -Fq 'WFGG_RADAR_SESSION_KEEPALIVE_V6195' /tmp/wfgg-radar/src/worker.js
           grep -Fq '/api/auth/session/refresh' /tmp/wfgg-radar/src/worker.js
-          grep -Fq 'WFGG_RADAR_SESSION_KEEPALIVE_UI_V6195' /tmp/wfgg-radar/public/live-radar.html
-          grep -Fq 'AUTO 12H' /tmp/wfgg-radar/public/live-radar.html
           grep -Fq 'WFGG_RADAR_AUTOPILOT_CONTINUE_NO_DATA_UI_V6196' /tmp/wfgg-radar/public/live-radar.html
-          grep -Fq 'SEED_SKIPPED_NO_DATA' /tmp/wfgg-radar/public/live-radar.html
-          grep -Fq 'Aucune donnée exploitable' /tmp/wfgg-radar/public/live-radar.html
-          echo RADAR_V6196_CLOUDFLARE_SURFACES_DISCOVERY=PASS
+          grep -Fq 'WFGG_RADAR_AUTOPILOT_STALE_CYCLE_RECOVERY_UI_V6197' /tmp/wfgg-radar/public/live-radar.html
+          grep -Fq 'WFGG_RADAR_COLLECTOR_CYCLE_TERMINALIZATION_UI_V6198' /tmp/wfgg-radar/public/live-radar.html
+          grep -Fq 'AUTOPILOT V6.19.8 · ARRÊTÉ' /tmp/wfgg-radar/public/live-radar.html
+          grep -Fq 'AUTO 12H' /tmp/wfgg-radar/public/live-radar.html
+          echo RADAR_V6198_CLOUDFLARE_SURFACES_DISCOVERY=PASS
 
       - name: Verify Last War read-only safety
         run: |
           set -euo pipefail
-          ! grep -REiq 'building\.production\.collect|mail\.reward|al\.science\.donate|visitor\.operate|march|attack|purchase' .radar-release-src/v6194-source
-          echo RADAR_V6196_LASTWAR_MUTATION=NO
-          echo RADAR_V6196_COLLECTOR_MUTATION=NORMAL_DISCOVERY_ONLY
-          echo RADAR_V6196_TOKEN_PERSISTENCE=NO
+          ! grep -REiq 'building\.production\.collect|mail\.reward|al\.science\.donate|visitor\.operate|march|attack|purchase'             .radar-release-src/v6194-source .radar-release-src/v6197-source .radar-release-src/v6198-source
+          echo RADAR_V6198_LASTWAR_MUTATION=NO
+          echo RADAR_V6198_COLLECTOR_MUTATION=DISCOVERY_AND_TERMINALIZATION_ONLY
+          echo RADAR_V6198_TOKEN_PERSISTENCE=NO
 
-      - name: Verify guarded production workflows
+      - name: Verify guarded production workflows are pinned
         run: |
           set -euo pipefail
           B=.github/workflows/build-radar-vps-binaries.yml
           D=.github/workflows/deploy-radar-production.yml
-          grep -Fq 'EXPECTED_CONNECTOR_SHA256: b7ff60476f3afe7c8bcb9b78963c46daa4e8b5507490cc83cbcbc4ced63e7c35' "$B"
-          grep -Fq 'EXPECTED_CONNECTOR_SHA256: b7ff60476f3afe7c8bcb9b78963c46daa4e8b5507490cc83cbcbc4ced63e7c35' "$D"
-          grep -Fq 'EXPECTED_UI_SHA256: e3565d7a3a475d475ad5eb46b541c9f0a000f042c0f82d945dfa9dde9b908ec1' "$D"
-          grep -Fq 'patch-live-radar-autopilot-v6196.py' "$D"
-          grep -Fq 'RADAR_SESSION_TTL = "43200"' "$D"
-          grep -Fq 'RADAR_V6196_CLOUDFLARE_PRODUCTION=PASS' "$D"
-          echo RADAR_V6196_PRODUCTION_PROMOTION=QUALIFIED
+          grep -Fq 'EXPECTED_CONNECTOR_SHA256: fb21a02feeaaa6a7013cf4e17c77bbb033a30a4bce021066fd947fc665360a9b' "$B"
+          grep -Fq 'patch-radar-autopilot-stale-cycle-v6197.py' "$B"
+          grep -Fq 'patch-radar-collector-cycle-terminalization-v6198.py' "$B"
+          grep -Fq "grep -aFq 'v6.19.8'" "$B"
+          grep -Fq 'EXPECTED_CONNECTOR_SHA256: fb21a02feeaaa6a7013cf4e17c77bbb033a30a4bce021066fd947fc665360a9b' "$D"
+          grep -Fq 'EXPECTED_UI_SHA256: 3d67b6d7667e42ec95a618f1fb3c0f3722a0b59f220fe4658dd31dbd8c955cd7' "$D"
+          grep -Fq 'patch-radar-autopilot-stale-cycle-v6197.py' "$D"
+          grep -Fq 'patch-radar-collector-cycle-terminalization-v6198.py' "$D"
+          grep -Fq 'patch-live-radar-autopilot-v6198.py' "$D"
+          grep -Fq -- "- 'radar-vps/release/**'" "$D"
+          ! grep -Fq -- "- '.radar-release-src/v6198-source/**'" "$D"
+          grep -Fq 'RADAR_V6198_CLOUDFLARE_PRODUCTION=PASS' "$D"
+          echo RADAR_V6198_PRODUCTION_ORDERING=BINARIES_THEN_CLOUDFLARE
+          echo RADAR_V6198_PRODUCTION_WORKFLOWS=QUALIFIED
