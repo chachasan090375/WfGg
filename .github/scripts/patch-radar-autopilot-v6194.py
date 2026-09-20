@@ -39,27 +39,11 @@ else:
     print('RADAR_V6194_AUTOPILOT_ROUTE=ALREADY_PRESENT')
 
 jobs = JOBS.read_text(encoding='utf-8')
-quality_marker = 'WFGG_RADAR_PARTIAL_CYCLE_QUALITY_MARKER_V6194'
-if quality_marker not in jobs:
-    old = '''\tradarCollectorJobs.update(jobID, func(j *collectorJob) { j.Phase = "FINALIZING" })
-\tif err := collectorFinishCycle(ctx, cycle.ID, "SUCCESS", ""); err != nil {
-'''
-    if jobs.count(old) != 1:
-        raise SystemExit(f'V6194_FINALIZE_ANCHOR_COUNT={jobs.count(old)}')
-    new = '''\tradarCollectorJobs.update(jobID, func(j *collectorJob) { j.Phase = "FINALIZING" })
-\t// WFGG_RADAR_PARTIAL_CYCLE_QUALITY_MARKER_V6194
-\t// Keep valid observations, but mark a region-isolated cycle so V6.17 quality
-\t// gating cannot accidentally use it as cluster-confirmation evidence.
-\tfinishMarker := ""
-\tif current, ok := radarCollectorJobs.get(jobID); ok && current.RegionsFailed > 0 {
-\t\tfinishMarker = "PARTIAL_REGIONS"
-\t}
-\tif err := collectorFinishCycle(ctx, cycle.ID, "SUCCESS", finishMarker); err != nil {
-'''
-    jobs = jobs.replace(old, new, 1)
-    JOBS.write_text(jobs, encoding='utf-8')
-    print('RADAR_V6194_PARTIAL_QUALITY_MARKER=PATCHED')
-else:
-    print('RADAR_V6194_PARTIAL_QUALITY_MARKER=ALREADY_PRESENT')
+# V6.17 already persists region-isolated cycles with a non-empty error marker,
+# which is exactly the quality invariant Autopilot requires. Reuse that
+# established gate instead of introducing a second partial-cycle semantic.
+if 'WFGG_RADAR_PARTIAL_CYCLE_MARKER_V617' not in jobs:
+    raise SystemExit('V6194_REQUIRES_V617_PARTIAL_QUALITY_MARKER')
+print('RADAR_V6194_PARTIAL_QUALITY_MARKER=V617_REUSED')
 
 print('RADAR_V6194_AUTOPILOT=READY')
