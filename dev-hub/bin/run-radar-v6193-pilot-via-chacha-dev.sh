@@ -171,7 +171,7 @@ obj={
   },
   "actor":"human-user",
   "source":"chat-explicit-approval",
-  "statement":"J’approuve le déploiement PILOT Radar V6.19.3 Seed Scout en lecture seule.",
+  "statement":"J’approuve le redéploiement PILOT Radar V6.19.3 Seed Scout corrigé en lecture seule.",
   "observed_at":datetime.now(timezone.utc).isoformat(),
   "single_pilot_window":True
 }
