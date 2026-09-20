@@ -35,12 +35,12 @@ jobs:
           grep -Fq 'PILOT_BRANCH="radar-v6198-collector-cycle-terminalization"' "$R"
           grep -Fq 'CONNECTOR_SHA="fb21a02feeaaa6a7013cf4e17c77bbb033a30a4bce021066fd947fc665360a9b"' "$R"
           grep -Fq 'TARGET_QUERY="@federated:8131"' "$R"
-          grep -Fq 'STALE_RUNNING_CYCLE_RECOVERED_V6197' "$R"
+          grep -Fq 'RADAR_V6198_FUNCTIONAL_BASELINE_CYCLE_ID=' "$R"
           grep -Fq 'RADAR_V6198_FUNCTIONAL_WINDOW_READY=YES' "$R"
           grep -Fq 'RADAR_V6198_FUNCTIONAL_WAIT_MAX_SECONDS=1020' "$R"
           grep -Fq 'JOB_12M_PLUS_TERMINALIZATION_RETRY_BUDGET' "$R"
           grep -Fq 'appuie UNE SEULE FOIS sur RECHERCHE' "$R"
-          grep -Fq 'FRESH_CYCLE_NOT_TERMINAL_WITHIN_960S' "$R"
+          grep -Fq 'FRESH_CYCLE_NOT_TERMINAL_WITHIN_1020S' "$R"
           grep -Fq 'TERMINALIZATION_RETRIES_EXHAUSTED' "$R"
           grep -Fq 'RADAR_V6198_FRESH_CYCLE_TERMINAL=PASS' "$R"
           grep -Fq 'RADAR_V6198_FUNCTIONAL_PROOF=PASS' "$R"
@@ -65,8 +65,8 @@ jobs:
           assert x['current_change']['id']=='radar-v6198-collector-cycle-terminalization',x
           c='\n'.join(x.get('acceptance_criteria') or [])
           assert 'exactly one normal @federated:8131 search' in c,c
-          assert 'STALE_RUNNING_CYCLE_RECOVERED_V6197' in c,c
-          assert 'within 960 seconds' in c,c
+          assert 'pre-existing stale cycle is not required' in c,c
+          assert 'within 1020 seconds' in c,c
           assert '_CYCLE_TERMINALIZATION_FAILED' in c,c
           assert 'Last War READ-ONLY' in c,c
           print('RADAR_V6198_FUNCTIONAL_INTENT=PASS')
