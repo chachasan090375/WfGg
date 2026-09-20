@@ -37,6 +37,8 @@ jobs:
           grep -Fq 'TARGET_QUERY="@federated:8131"' "$R"
           grep -Fq 'STALE_RUNNING_CYCLE_RECOVERED_V6197' "$R"
           grep -Fq 'RADAR_V6198_FUNCTIONAL_WINDOW_READY=YES' "$R"
+          grep -Fq 'RADAR_V6198_FUNCTIONAL_WAIT_MAX_SECONDS=1020' "$R"
+          grep -Fq 'JOB_12M_PLUS_TERMINALIZATION_RETRY_BUDGET' "$R"
           grep -Fq 'appuie UNE SEULE FOIS sur RECHERCHE' "$R"
           grep -Fq 'FRESH_CYCLE_NOT_TERMINAL_WITHIN_960S' "$R"
           grep -Fq 'TERMINALIZATION_RETRIES_EXHAUSTED' "$R"
