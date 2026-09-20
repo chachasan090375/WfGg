@@ -21,7 +21,7 @@
   ],
   "current_change": {
     "id": "radar-v6194-autopilot",
-    "purpose": "Add a server-side Autopilot that chains complete targeted Collector cycles and Seed Scout discovery. It requires three fresh complete 9/9 cycles per seed, retries partial cycles without counting them, automatically discovers the next seed, and can continue while the browser is closed.",
+    "purpose": "Add a server-side Autopilot that chains targeted Collector cycles and Seed Scout discovery. It requires three quality-gated complete 9/9 cycles per seed, reuses already-valid V6.17 evidence, retries partial cycles without counting them, automatically discovers the next seed, and can continue while the browser is closed.",
     "discovery_mode": "server-side-autopilot-3x-full-9of9-then-seed-scout",
     "pilot_only": true,
     "rollback_required": true
@@ -29,7 +29,7 @@
   "acceptance_criteria": [
     "V6.19.4 connector, Worker and UI build/tests pass on a pinned Git revision.",
     "Pilot connector/native binaries and staged Cloudflare surfaces are SHA256 pinned before runtime installation.",
-    "Only SUCCESS non-joined cycles with 9/9 regions and zero isolated regions count toward the three-cycle confirmation target.",
+    "Only V6.17 quality-eligible SUCCESS non-joined cycles with 9/9 evidence count toward the three-cycle confirmation target; already-valid targeted evidence may be reused.",
     "Partial cycles preserve valid Collector observations but retain a non-empty quality marker and never count as cluster confirmation.",
     "Autopilot retries the same seed after partial cycles, stops on bounded failure/authentication guards, and supports stop-after-current-step.",
     "After three complete cycles for a seed, Seed Scout runs automatically and the next observed seed becomes the next targeted scan.",
