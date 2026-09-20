@@ -9,10 +9,14 @@ on:
       - '.radar-release-src/v2-source/src/game/remote-transport.js'
       - '.radar-release-src/v2-source/connector-go/**'
       - '.radar-release-src/v6193-source/**'
+      - '.radar-release-src/v6194-source/**'
       - '.github/scripts/patch-radar-async-collector-worker.py'
       - '.github/scripts/patch-radar-worker-rich-profile-v6191.py'
       - '.github/scripts/patch-radar-worker-seed-scout-v6193.py'
       - '.github/scripts/patch-live-radar-seed-scout-v6193.py'
+      - '.github/scripts/patch-radar-autopilot-v6194.py'
+      - '.github/scripts/patch-radar-worker-autopilot-v6194.py'
+      - '.github/scripts/patch-live-radar-autopilot-v6194.py'
       - '.github/scripts/patch-radar-federated-diagnostics-v65.py'
       - '.github/scripts/patch-radar-cluster-catalog-budget-v6192.py'
       - '.github/scripts/patch-radar-seed-scout-v6193.py'
@@ -31,11 +35,11 @@ env:
   RADAR_WORKER: wfgg-radar
   RADAR_D1_NAME: wfgg-radar
   RADAR_CONNECTOR_URL: https://chachavps.tail3ab05a.ts.net
-  EXPECTED_CONNECTOR_SHA256: 73b64743031e4a47212dfdafae8ad67551f88d131831e70cb08a40957824f9a8
+  EXPECTED_CONNECTOR_SHA256: dd3fa071deebe3a2c9efb8e6fcdce115d13497a542b9afae4f1133ddcb1b01e3
   EXPECTED_NATIVE_SHA256: 274d040f5294cb09422e5d55cc4b5335ac7739924c33dcb67b3f279645814900
-  EXPECTED_WORKER_SHA256: cb172b9c4a820bcd4a1325e551bcd6d051114a8de9e0d83ddbb760d525e46ab6
-  EXPECTED_TRANSPORT_SHA256: e1ee842e06555b886d1cfa3c69ff15a051e61fc1bb63beffa0aa3731f42e796b
-  EXPECTED_UI_SHA256: 9fad689006b10653ff94bb5f61fba0e79604d1520ef3b60d6ade73ea5bd66f39
+  EXPECTED_WORKER_SHA256: 21baaf37865cb7e1962d482d31944e182470dcd05924a89ef495a40fd9a941a0
+  EXPECTED_TRANSPORT_SHA256: 9dc489b759c75cc0a4882d29324965ca8171de84febae788ced52404b28ee573
+  EXPECTED_UI_SHA256: 3dbf0d7944295e9bc396522d0c9a0b109a99d556bdb347d7488c6ba918296ac5
 
 jobs:
   deploy:
@@ -55,7 +59,7 @@ jobs:
           echo CLOUDFLARE_API_TOKEN=OK
           echo RADAR_CONNECTOR_SHARED_KEY=OK
 
-      - name: Reconstruct cumulative V6.19.3
+      - name: Reconstruct cumulative V6.19.4
         run: |
           set -euo pipefail
           rm -rf /tmp/wfgg-radar
@@ -78,15 +82,18 @@ jobs:
           python3 .github/scripts/patch-radar-connector-runtime-v693.py
           python3 .github/scripts/patch-radar-cluster-catalog-budget-v6192.py
           python3 .github/scripts/patch-radar-seed-scout-v6193.py
+          python3 .github/scripts/patch-radar-autopilot-v6194.py
 
           install -m 0644 .radar-release-src/v2-source/src/game/remote-transport.js /tmp/wfgg-radar/src/game/remote-transport.js
           python3 .github/scripts/patch-radar-async-collector-worker.py
           python3 .github/scripts/patch-radar-worker-rich-profile-v6191.py
           python3 .github/scripts/patch-radar-worker-seed-scout-v6193.py
+          python3 .github/scripts/patch-radar-worker-autopilot-v6194.py
 
           install -m 0644 radar-ui-live/live-radar.html /tmp/wfgg-radar/public/live-radar.html
           python3 .github/scripts/patch-live-radar-seed-scout-v6193.py
-          echo RADAR_V6193_PRODUCTION_RECONSTRUCT=PASS
+          python3 .github/scripts/patch-live-radar-autopilot-v6194.py
+          echo RADAR_V6194_PRODUCTION_RECONSTRUCT=PASS
 
       - name: Verify qualified Cloudflare surface digests
         run: |
@@ -98,8 +105,12 @@ jobs:
           test "$transport" = "$EXPECTED_TRANSPORT_SHA256"
           test "$ui" = "$EXPECTED_UI_SHA256"
           grep -Fq '/api/radar/seed-scout/start' /tmp/wfgg-radar/src/worker.js
+          grep -Fq '/api/radar/autopilot/start' /tmp/wfgg-radar/src/worker.js
+          grep -Fq '/api/radar/autopilot/status' /tmp/wfgg-radar/src/worker.js
+          grep -Fq '/api/radar/autopilot/stop' /tmp/wfgg-radar/src/worker.js
           grep -Fq 'WFGG_RADAR_SEED_SCOUT_OFFSET_KEY' /tmp/wfgg-radar/public/live-radar.html
-          echo RADAR_V6193_CLOUDFLARE_DIGESTS=PASS
+          grep -Fq 'WFGG_RADAR_AUTOPILOT_UI_V6194' /tmp/wfgg-radar/public/live-radar.html
+          echo RADAR_V6194_CLOUDFLARE_DIGESTS=PASS
 
       - name: Guardian pre-deploy gate
         working-directory: /tmp/wfgg-radar
@@ -112,9 +123,9 @@ jobs:
           go vet ./...
           cd ..
           ! grep -REq 'building\.production\.collect|mail\.reward|al\.science\.donate|visitor\.operate' connector-go src || false
-          echo RADAR_V6193_GUARDIAN=PASS
+          echo RADAR_V6194_GUARDIAN=PASS
 
-      - name: Wait for Sentinel-promoted V6.19.3 connector
+      - name: Wait for Sentinel-promoted V6.19.4 connector
         env:
           RADAR_CONNECTOR_SHARED_KEY: ${{ secrets.RADAR_CONNECTOR_SHARED_KEY }}
         run: |
@@ -123,7 +134,7 @@ jobs:
           import hashlib,hmac,json,os,secrets,time,urllib.request,urllib.error
           base=os.environ['RADAR_CONNECTOR_URL'].rstrip('/')
           secret=os.environ['RADAR_CONNECTOR_SHARED_KEY']
-          path='/v1/collector/server-seed-scout/start'
+          path='/v1/collector/autopilot/start'
           body=b'{}'
           for attempt in range(1,91):
               ts=str(int(time.time()))
@@ -144,12 +155,12 @@ jobs:
                   status=e.code
                   try: data=json.loads(e.read().decode())
                   except Exception: data={}
-              print(f'RADAR_V6193_CONNECTOR_WAIT={attempt} HTTP={status} ERROR={data.get("error")}')
+              print(f'RADAR_V6194_CONNECTOR_WAIT={attempt} HTTP={status} ERROR={data.get("error")}')
               if status==400 and data.get('error')=='GAME_TOKEN_REQUIRED':
-                  print('RADAR_V6193_CONNECTOR_ROUTE=READY')
+                  print('RADAR_V6194_CONNECTOR_ROUTE=READY')
                   raise SystemExit(0)
               time.sleep(5)
-          raise SystemExit('RADAR_V6193_CONNECTOR_ROUTE_TIMEOUT')
+          raise SystemExit('RADAR_V6194_CONNECTOR_ROUTE_TIMEOUT')
           PY
 
       - name: Resolve Cloudflare deployment context
@@ -295,8 +306,8 @@ jobs:
             sleep 5
           done
           curl -fsSL "$RADAR_URL/live-radar.html?probe=$GITHUB_SHA" -o /tmp/live-radar.html
-          grep -Fq 'WFGG_RADAR_SEED_SCOUT_UI_V6193' /tmp/live-radar.html
+          grep -Fq 'WFGG_RADAR_SEED_SCOUT_UI_V6194' /tmp/live-radar.html
           grep -Fq 'DÉCOUVRIR LA PROCHAINE GRAPPE' /tmp/live-radar.html
           echo "RADAR_PRODUCTION_URL=$RADAR_URL"
           echo "RADAR_LIVE_UI_URL=$RADAR_URL/live-radar.html"
-          echo RADAR_V6193_CLOUDFLARE_PRODUCTION=PASS
+          echo RADAR_V6194_CLOUDFLARE_PRODUCTION=PASS
