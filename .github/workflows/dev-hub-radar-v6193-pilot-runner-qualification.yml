@@ -42,7 +42,7 @@ jobs:
           set -euo pipefail
           F=dev-hub/bin/run-radar-v6193-pilot-via-chacha-dev.sh
           grep -Fq 'APPROVAL_ID="production-release"' "$F"
-          grep -Fq 'J’approuve le déploiement PILOT Radar V6.19.3 Seed Scout en lecture seule.' "$F"
+          grep -Fq 'J’approuve le redéploiement PILOT Radar V6.19.3 Seed Scout corrigé en lecture seule.' "$F"
           grep -Fq 'PRODUCTION_RELEASE_APPROVAL_REVOKED=PASS' "$F"
           grep -Fq 'close_pilot' "$F"
           grep -Fq 'revoke_approval' "$F"
