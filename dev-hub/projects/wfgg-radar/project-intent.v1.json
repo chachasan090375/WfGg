@@ -42,7 +42,7 @@
     "Production promotion requires a separate explicit human approval.",
     "After the guard-only pilot passes, a separate explicitly approved functional pilot may run exactly one normal @federated:8131 search.",
     "The V6.19.8 functional pilot must recover the inherited stale cycle with STALE_RUNNING_CYCLE_RECOVERED_V6197 before observing a fresh cycle.",
-    "The fresh @federated:8131 cycle must leave RUNNING and reach SUCCESS or FAILED with finished_at within 300 seconds of being observed.",
+    "The fresh @federated:8131 cycle must leave RUNNING and reach SUCCESS or FAILED with finished_at within 960 seconds of being observed, allowing the full 12-minute Connector search budget plus bounded V6.19.8 terminalization retries.",
     "If the fresh cycle reaches FAILED, its Collector error must be non-empty and must not end with _CYCLE_TERMINALIZATION_FAILED.",
     "The functional pilot keeps Last War READ-ONLY and limits Collector mutation to stale recovery, the fresh targeted evidence cycle, and its terminalization."
   ],
