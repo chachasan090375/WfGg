@@ -53,6 +53,9 @@ func collectorFinishCycleReliableV6198(id int64, status, errorCode string) error
 	if status != "SUCCESS" && status != "FAILED" {
 		return errors.New("COLLECTOR_CYCLE_TERMINAL_STATUS_INVALID")
 	}
+	if collectorCycleTerminalStateV6198(id, status) {
+		return nil
+	}
 
 	var lastErr error
 	for attempt := 1; attempt <= collectorTerminalizationAttemptsV6198; attempt++ {
