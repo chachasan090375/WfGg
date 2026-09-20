@@ -214,10 +214,12 @@ class RadarRuntimeAdapterContract(unittest.TestCase):
                 conn.commit()
             finally:
                 conn.close()
+            connector = pathlib.Path(td) / "radar-connector"
+            connector.write_bytes(b"test")
             with mock.patch.dict(os.environ, {"WFGG_COLLECTOR_DB": str(db)}, clear=False), \
                  mock.patch.object(mod, "state", return_value="active"), \
                  mock.patch.object(mod, "sha256_file", return_value="a"*64), \
-                 mock.patch.object(mod.CONNECTOR, "is_file", return_value=True):
+                 mock.patch.object(mod, "CONNECTOR", connector):
                 snap = mod.autopilot_progress_snapshot()
             self.assertEqual(snap["latest_cycle_id"], 2)
             self.assertEqual(snap["latest_query"], "@federated:954")
