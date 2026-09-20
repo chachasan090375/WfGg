@@ -82,7 +82,7 @@ jobs:
 
           grep -Fq 'WFGG_RADAR_CLUSTER_CATALOG_BUDGET_V6192' /tmp/wfgg-radar/connector-go/cmd/radar-connector/server_cluster_catalog_v613.go
           grep -Fq 'WFGG_RADAR_SEED_SCOUT_V6193' /tmp/wfgg-radar/connector-go/cmd/radar-connector/server_seed_scout_v6193.go
-          grep -Fq 'WFGG_RADAR_AUTOPILOT_CONTINUE_NO_DATA_V6198' /tmp/wfgg-radar/connector-go/cmd/radar-connector/server_autopilot_v6194.go
+          grep -Fq 'WFGG_RADAR_AUTOPILOT_CONTINUE_NO_DATA_V6196' /tmp/wfgg-radar/connector-go/cmd/radar-connector/server_autopilot_v6194.go
           grep -Fq 'SEED_SKIPPED_NO_DATA' /tmp/wfgg-radar/connector-go/cmd/radar-connector/server_autopilot_v6194.go
           grep -Fq 'AUTOPILOT_NO_DATA' /tmp/wfgg-radar/connector-go/cmd/radar-connector/server_autopilot_v6194.go
           echo RADAR_V6198_PRODUCTION_RECONSTRUCT=PASS
