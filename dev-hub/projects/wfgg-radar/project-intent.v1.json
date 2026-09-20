@@ -10,25 +10,26 @@
     "Keep production changes bounded, approval-gated, reversible and independently observable."
   ],
   "non_goals": [
-    "Do not change game protocol semantics as part of the V6.19.2 catalog-budget pilot.",
+    "Do not change Last War game state or invoke mutating game commands.",
     "Do not rescan server 972.",
     "Do not replace authoritative NAS persistence with VPS-local project storage.",
     "Do not expose raw player data, credentials or runtime secrets."
   ],
   "current_change": {
-    "id": "radar-v6192-cluster-catalog-budget",
-    "purpose": "Temporarily increase only the server-cluster-catalog handler timeout from 30 seconds to 75 seconds so the existing history-backed catalog can finish and return the next recommended discovery seed.",
-    "discovery_mode": "targeted-federated-sequential",
+    "id": "radar-v6193-seed-scout",
+    "purpose": "Add a read-only one-region Seed Scout that tries small non-overlapping batches of candidate server IDs, without creating Collector cycles or enriching profiles, and returns an observed seed for the existing targeted @federated workflow.",
+    "discovery_mode": "read-only-one-region-seed-scout-then-targeted-federated",
     "pilot_only": true,
     "rollback_required": true
   },
   "acceptance_criteria": [
-    "V6.19.2 build and tests pass on a pinned Git revision.",
-    "Pilot binaries are SHA256 pinned before runtime installation.",
+    "V6.19.3 build and tests pass on a pinned Git revision.",
+    "Pilot binaries and staged Cloudflare surfaces are SHA256 pinned before any runtime deployment.",
+    "Seed Scout creates zero Collector cycles, performs zero Collector ingestion, and performs zero profile enrichment.",
+    "Seed Scout uses only one map region per candidate and exposes aggregate server counts only.",
+    "Numeric proximity is used only to order candidate probes and never to infer cluster membership.",
     "Production-deploy permission requires explicit human approval recorded in ChaCha DEV Evidence Ledger.",
-    "Catalog probe returns HTTP 200 and a read-only catalog result, or the pilot is closed without continuing discovery.",
-    "Radar Sentinel protection is restored after the pilot window.",
-    "The production-release approval is revoked after the pilot window."
+    "Radar Sentinel protection is restored after the pilot window and the production-release approval is revoked."
   ],
   "architecture_invariants": [
     "GitHub stores code, branches, CI and release artifacts.",
