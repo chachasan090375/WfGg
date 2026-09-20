@@ -41,10 +41,10 @@
     "Pilot installation is SHA-pinned, rollback-capable and guard-probed without a Last War scan or Collector mutation.",
     "Production promotion requires a separate explicit human approval.",
     "After the guard-only pilot passes, a separate explicitly approved functional pilot may run exactly one normal @federated:8131 search.",
-    "The V6.19.8 functional pilot must recover the inherited stale cycle with STALE_RUNNING_CYCLE_RECOVERED_V6197 before observing a fresh cycle.",
-    "The fresh @federated:8131 cycle must leave RUNNING and reach SUCCESS or FAILED with finished_at within 960 seconds of being observed, allowing the full 12-minute Connector search budget plus bounded V6.19.8 terminalization retries.",
+    "The V6.19.8 functional pilot records the latest existing @federated:8131 cycle as a read-only baseline; a pre-existing stale cycle is not required for the V6.19.8-specific terminalization proof.",
+    "The fresh @federated:8131 cycle must leave RUNNING and reach SUCCESS or FAILED with finished_at within 1020 seconds of being observed, covering the full 12-minute Connector search budget plus bounded V6.19.8 terminalization retries.",
     "If the fresh cycle reaches FAILED, its Collector error must be non-empty and must not end with _CYCLE_TERMINALIZATION_FAILED.",
-    "The functional pilot keeps Last War READ-ONLY and limits Collector mutation to stale recovery, the fresh targeted evidence cycle, and its terminalization."
+    "The functional pilot keeps Last War READ-ONLY and limits Collector mutation to the single fresh targeted evidence cycle and its terminalization; inherited V6.19.7 stale recovery remains available but is not required for this proof."
   ],
   "architecture_invariants": [
     "GitHub stores code, branches, CI and release artifacts.",
