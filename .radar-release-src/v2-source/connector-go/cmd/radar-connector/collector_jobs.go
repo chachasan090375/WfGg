@@ -511,8 +511,13 @@ func collectorCycleRuntimeV6197Read(ctx context.Context, cycleID int64) (collect
 
 func collectorRecoverStaleJoinedCycleV6197(ctx context.Context, cycleID int64) (bool, error) {
 	snap, err := collectorCycleRuntimeV6197Read(ctx, cycleID)
-	if err != nil || !snap.Found || !collectorCycleStaleByStartedAtV6197(snap.Status, snap.StartedAt, time.Now().UTC()) {
-		return false, err
+	if err != nil {
+		// Inspection failure must never mutate or kill a possibly valid joined cycle.
+		// Fall back to the pre-V6.19.7 join/wait behavior.
+		return false, nil
+	}
+	if !snap.Found || !collectorCycleStaleByStartedAtV6197(snap.Status, snap.StartedAt, time.Now().UTC()) {
+		return false, nil
 	}
 	finishCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
