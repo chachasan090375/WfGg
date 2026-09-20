@@ -28,13 +28,14 @@ PY
 export KEY
 
 python3 - <<'PY'
-import hashlib,hmac,json,os,secrets,time,urllib.request,urllib.error
+import hashlib,hmac,json,os,secrets,time,urllib.request,urllib.error,urllib.parse
 
 def request(method,path,body_obj=None):
     body=b"" if body_obj is None else json.dumps(body_obj,separators=(",",":")).encode()
     ts=str(int(time.time()))
     nonce=secrets.token_hex(16)
-    canonical="\n".join([method,path,ts,nonce,hashlib.sha256(body).hexdigest()])
+    canonical_path=urllib.parse.urlsplit(path).path
+    canonical="\n".join([method,canonical_path,ts,nonce,hashlib.sha256(body).hexdigest()])
     sig=hmac.new(os.environ["KEY"].encode(),canonical.encode(),hashlib.sha256).hexdigest()
     req=urllib.request.Request(
         "http://127.0.0.1:8788"+path,
