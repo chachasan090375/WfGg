@@ -22,11 +22,11 @@ env:
   RADAR_WORKER: wfgg-radar
   RADAR_D1_NAME: wfgg-radar
   RADAR_CONNECTOR_URL: https://chachavps.tail3ab05a.ts.net
-  EXPECTED_CONNECTOR_SHA256: fb21a02feeaaa6a7013cf4e17c77bbb033a30a4bce021066fd947fc665360a9b
+  EXPECTED_CONNECTOR_SHA256: 5058159307ccb99e8e631fe71014608934b8575e69d5599e4388550306baab7f
   EXPECTED_NATIVE_SHA256: 274d040f5294cb09422e5d55cc4b5335ac7739924c33dcb67b3f279645814900
   EXPECTED_WORKER_SHA256: 052deb78c56aa6eb522f8808ffe0cc427c9d605d65a0e6983b6dbb9749da56ea
   EXPECTED_TRANSPORT_SHA256: 9dc489b759c75cc0a4882d29324965ca8171de84febae788ced52404b28ee573
-  EXPECTED_UI_SHA256: 3d67b6d7667e42ec95a618f1fb3c0f3722a0b59f220fe4658dd31dbd8c955cd7
+  EXPECTED_UI_SHA256: 4db99e9384ecc832ecfd2ae30a3afe9aa7dfba9aaa28b9405caed9fc3a50ba71
 
 jobs:
   deploy:
@@ -46,7 +46,7 @@ jobs:
           echo CLOUDFLARE_API_TOKEN=OK
           echo RADAR_CONNECTOR_SHARED_KEY=OK
 
-      - name: Reconstruct cumulative V6.19.8
+      - name: Reconstruct cumulative V6.19.9
         run: |
           set -euo pipefail
           rm -rf /tmp/wfgg-radar
@@ -72,6 +72,7 @@ jobs:
           python3 .github/scripts/patch-radar-autopilot-v6194.py
           python3 .github/scripts/patch-radar-autopilot-stale-cycle-v6197.py
           python3 .github/scripts/patch-radar-collector-cycle-terminalization-v6198.py
+          python3 .github/scripts/patch-radar-autopilot-targeted-history-v6199.py
 
           install -m 0644 .radar-release-src/v2-source/src/game/remote-transport.js /tmp/wfgg-radar/src/game/remote-transport.js
           python3 .github/scripts/patch-radar-async-collector-worker.py
@@ -86,7 +87,8 @@ jobs:
           python3 .github/scripts/patch-live-radar-autopilot-v6196.py
           python3 .github/scripts/patch-live-radar-autopilot-v6197.py
           python3 .github/scripts/patch-live-radar-autopilot-v6198.py
-          echo RADAR_V6198_PRODUCTION_RECONSTRUCT=PASS
+          python3 .github/scripts/patch-live-radar-autopilot-v6199.py
+          echo RADAR_V6199_PRODUCTION_RECONSTRUCT=PASS
 
       - name: Verify qualified Cloudflare surface digests
         run: |
@@ -113,9 +115,9 @@ jobs:
           grep -Fq 'SEED_SKIPPED_NO_DATA' /tmp/wfgg-radar/public/live-radar.html
           grep -Fq 'Aucune donnée exploitable' /tmp/wfgg-radar/public/live-radar.html
           grep -Fq 'WFGG_RADAR_AUTOPILOT_STALE_CYCLE_RECOVERY_UI_V6197' /tmp/wfgg-radar/public/live-radar.html
-          grep -Fq 'WFGG_RADAR_COLLECTOR_CYCLE_TERMINALIZATION_UI_V6198' /tmp/wfgg-radar/public/live-radar.html
-          grep -Fq 'AUTOPILOT V6.19.8 · ARRÊTÉ' /tmp/wfgg-radar/public/live-radar.html
-          echo RADAR_V6198_CLOUDFLARE_DIGESTS=PASS
+          grep -Fq 'WFGG_RADAR_COLLECTOR_CYCLE_TERMINALIZATION_UI_V6199' /tmp/wfgg-radar/public/live-radar.html
+          grep -Fq 'AUTOPILOT V6.19.9 · ARRÊTÉ' /tmp/wfgg-radar/public/live-radar.html
+          echo RADAR_V6199_CLOUDFLARE_DIGESTS=PASS
 
       - name: Guardian pre-deploy gate
         working-directory: /tmp/wfgg-radar
@@ -128,9 +130,9 @@ jobs:
           go vet ./...
           cd ..
           ! grep -REq 'building\.production\.collect|mail\.reward|al\.science\.donate|visitor\.operate' connector-go src || false
-          echo RADAR_V6198_GUARDIAN=PASS
+          echo RADAR_V6199_GUARDIAN=PASS
 
-      - name: Wait for Sentinel-promoted V6.19.8 connector
+      - name: Wait for Sentinel-promoted V6.19.9 connector
         env:
           RADAR_CONNECTOR_SHARED_KEY: ${{ secrets.RADAR_CONNECTOR_SHARED_KEY }}
         run: |
@@ -160,12 +162,12 @@ jobs:
                   status=e.code
                   try: data=json.loads(e.read().decode())
                   except Exception: data={}
-              print(f'RADAR_V6198_CONNECTOR_WAIT={attempt} HTTP={status} ERROR={data.get("error")}')
+              print(f'RADAR_V6199_CONNECTOR_WAIT={attempt} HTTP={status} ERROR={data.get("error")}')
               if status==400 and data.get('error')=='GAME_TOKEN_REQUIRED':
-                  print('RADAR_V6198_CONNECTOR_ROUTE=READY')
+                  print('RADAR_V6199_CONNECTOR_ROUTE=READY')
                   raise SystemExit(0)
               time.sleep(5)
-          raise SystemExit('RADAR_V6198_CONNECTOR_ROUTE_TIMEOUT')
+          raise SystemExit('RADAR_V6199_CONNECTOR_ROUTE_TIMEOUT')
           PY
 
       - name: Resolve Cloudflare deployment context
@@ -321,8 +323,8 @@ jobs:
           grep -Fq 'WFGG_RADAR_AUTOPILOT_CONTINUE_NO_DATA_UI_V6196' /tmp/live-radar.html
           grep -Fq 'SEED_SKIPPED_NO_DATA' /tmp/live-radar.html
           grep -Fq 'WFGG_RADAR_AUTOPILOT_STALE_CYCLE_RECOVERY_UI_V6197' /tmp/live-radar.html
-          grep -Fq 'WFGG_RADAR_COLLECTOR_CYCLE_TERMINALIZATION_UI_V6198' /tmp/live-radar.html
-          grep -Fq 'AUTOPILOT V6.19.8 · ARRÊTÉ' /tmp/live-radar.html
+          grep -Fq 'WFGG_RADAR_COLLECTOR_CYCLE_TERMINALIZATION_UI_V6199' /tmp/live-radar.html
+          grep -Fq 'AUTOPILOT V6.19.9 · ARRÊTÉ' /tmp/live-radar.html
           echo "RADAR_PRODUCTION_URL=$RADAR_URL"
           echo "RADAR_LIVE_UI_URL=$RADAR_URL/live-radar.html"
-          echo RADAR_V6198_CLOUDFLARE_PRODUCTION=PASS
+          echo RADAR_V6199_CLOUDFLARE_PRODUCTION=PASS
