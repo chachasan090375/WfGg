@@ -94,6 +94,12 @@ class RadarRuntimeAdapterContract(unittest.TestCase):
         self.assertIsNone(err)
         self.assertEqual(radar["action"], "email-auth-runtime-diagnostic")
 
+    def test_autopilot_progress_diagnostic_contract(self):
+        req = envelope("autopilot-progress-diagnostic", "read")
+        radar, err = mod.validate_request(req)
+        self.assertIsNone(err)
+        self.assertEqual(radar["action"], "autopilot-progress-diagnostic")
+
     def test_radar_signature_is_stable(self):
         got = mod.radar_signature("GET", "/x", "1", "n", b"", "s" * 32)
         self.assertEqual(len(got), 64)
@@ -189,6 +195,34 @@ class RadarRuntimeAdapterContract(unittest.TestCase):
             self.assertEqual(snap["failure_class"], "CYCLES_REQUIRED_COLUMNS_MISSING")
             self.assertIn("error", snap["missing_columns"])
             self.assertIn("query", snap["missing_columns"])
+
+    def test_autopilot_progress_snapshot_reads_targeted_cycles(self):
+        with tempfile.TemporaryDirectory() as td:
+            db = pathlib.Path(td) / "collector.db"
+            conn = sqlite3.connect(db)
+            try:
+                conn.execute("""CREATE TABLE cycles (
+                    id INTEGER PRIMARY KEY,
+                    status TEXT,
+                    error TEXT,
+                    query TEXT,
+                    started_at TEXT,
+                    finished_at TEXT
+                )""")
+                conn.execute("INSERT INTO cycles VALUES (1,'SUCCESS','','@federated:8122','2026-09-20T11:00:00Z','2026-09-20T11:05:00Z')")
+                conn.execute("INSERT INTO cycles VALUES (2,'RUNNING','','@federated:954','2026-09-20T11:06:00Z','')")
+                conn.commit()
+            finally:
+                conn.close()
+            with mock.patch.dict(os.environ, {"WFGG_COLLECTOR_DB": str(db)}, clear=False), \
+                 mock.patch.object(mod, "state", return_value="active"), \
+                 mock.patch.object(mod, "sha256_file", return_value="a"*64), \
+                 mock.patch.object(mod.CONNECTOR, "is_file", return_value=True):
+                snap = mod.autopilot_progress_snapshot()
+            self.assertEqual(snap["latest_cycle_id"], 2)
+            self.assertEqual(snap["latest_query"], "@federated:954")
+            self.assertEqual(snap["activity_evidence"], "ACTIVE_TARGETED_CYCLE")
+            self.assertEqual(len(snap["active_targeted_cycles"]), 1)
 
     def test_no_shell_true_in_source(self):
         source = ADAPTER.read_text(encoding="utf-8")
