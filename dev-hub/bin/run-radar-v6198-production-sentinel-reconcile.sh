@@ -58,6 +58,24 @@ assert x['status']=='OK',x
 print('PROJECT_CONTROL_INTEGRITY_BEFORE=PASS')
 PY
 
+# Wait until the immutable production release manifest actually contains the
+# approved V6.19.8 artifacts. This happens before approval ingestion, so an
+# early invocation cannot consume the one-shot approval against V6.19.6.
+PROD_SUMS_URL="https://raw.githubusercontent.com/chachasan090375/WfGg/radar-production-v1/radar-vps/release/SHA256SUMS"
+ready=0
+for i in $(seq 1 120); do
+  if curl -fsSL "$PROD_SUMS_URL?probe=$i" -o "$WORK/production-SHA256SUMS" 2>/dev/null \
+     && grep -Fq "$EXPECTED_CONNECTOR  radar-connector" "$WORK/production-SHA256SUMS" \
+     && grep -Fq "$EXPECTED_NATIVE  radar-native-template" "$WORK/production-SHA256SUMS"; then
+    echo "RADAR_V6198_PRODUCTION_RELEASE_MANIFEST=READY attempt=$i"
+    ready=1
+    break
+  fi
+  echo "RADAR_V6198_PRODUCTION_RELEASE_MANIFEST=WAIT attempt=$i"
+  sleep 5
+done
+[ "$ready" -eq 1 ] || die production_release_manifest_not_ready
+
 revoke_approval () {
   [ "$APPROVAL_ACTIVE" -eq 1 ] || return 0
   local ev="$EVIDENCE_DIR/approval-radar-v6198-production-promotion-revoked.json"
