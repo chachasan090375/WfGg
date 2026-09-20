@@ -172,7 +172,7 @@ obj={
   },
   "actor":"human-user",
   "source":"chat-explicit-approval",
-  "statement":"J’approuve le déploiement PILOT Radar V6.19.4 Autopilot avec probe de garde sans scan de jeu.",
+  "statement":"J’approuve le PILOT Radar V6.19.4 Autopilot révision debde73d468015d3f1287c4e976f2c8bb40fa46c avec probe de garde sans scan de jeu.",
   "observed_at":datetime.now(timezone.utc).isoformat(),
   "single_pilot_window":True
 }
