@@ -1,0 +1,114 @@
+name: Radar V6.19.5 session keepalive qualification
+
+on:
+  push:
+    branches: [radar-v6195-session-keepalive]
+    paths:
+      - '.github/scripts/patch-radar-session-keepalive-v6195.py'
+      - '.github/workflows/radar-v6195-session-keepalive-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: wfgg-radar-v6195-session-keepalive
+  cancel-in-progress: true
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: radar-v6195-session-keepalive
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.27.x'
+
+      - name: Reconstruct current production plus V6.19.5
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/wfgg-radar
+          mkdir -p /tmp/wfgg-radar
+          python3 .github/scripts/reconstruct-radar-release.py
+          echo '234df1dec57f6211bc625855bf13350c9f17fbd843fbe92d8cf1ab7cb5c081ef  /tmp/radar-src.tar.gz' | sha256sum -c -
+          tar -xzf /tmp/radar-src.tar.gz -C /tmp/wfgg-radar
+          rm -rf /tmp/wfgg-radar/connector-go
+          cp -a .radar-release-src/v2-source/connector-go /tmp/wfgg-radar/connector-go
+
+          python3 .github/scripts/patch-radar-target-profile-retry.py
+          python3 .github/scripts/patch-radar-federated-diagnostics-v65.py
+          python3 .github/scripts/patch-player-scan-v3.py
+          python3 .github/scripts/patch-player-scan-v4.py
+          python3 .github/scripts/patch-radar-protocol-discovery-v67.py
+          python3 .github/scripts/patch-radar-profile-isolation-v68.py
+          python3 .github/scripts/patch-radar-native-profile-v69.py
+          python3 .github/scripts/patch-radar-native-profile-handshake-v691.py
+          python3 .github/scripts/patch-radar-native-profile-exec-v692.py
+          python3 .github/scripts/patch-radar-connector-runtime-v693.py
+          python3 .github/scripts/patch-radar-cluster-catalog-budget-v6192.py
+          python3 .github/scripts/patch-radar-seed-scout-v6193.py
+          python3 .github/scripts/patch-radar-autopilot-v6194.py
+
+          install -m 0644 .radar-release-src/v2-source/src/game/remote-transport.js /tmp/wfgg-radar/src/game/remote-transport.js
+          python3 .github/scripts/patch-radar-async-collector-worker.py
+          python3 .github/scripts/patch-radar-worker-rich-profile-v6191.py
+          python3 .github/scripts/patch-radar-worker-seed-scout-v6193.py
+          python3 .github/scripts/patch-radar-worker-autopilot-v6194.py
+
+          install -m 0644 radar-ui-live/live-radar.html /tmp/wfgg-radar/public/live-radar.html
+          python3 .github/scripts/patch-live-radar-seed-scout-v6193.py
+          python3 .github/scripts/patch-live-radar-autopilot-v6194.py
+
+          python3 .github/scripts/patch-radar-session-keepalive-v6195.py
+          echo RADAR_V6195_RECONSTRUCT=PASS
+
+      - name: Qualify 12h sliding Worker session
+        run: |
+          set -euo pipefail
+          node --check /tmp/wfgg-radar/src/worker.js
+          grep -Fq 'WFGG_RADAR_SESSION_KEEPALIVE_V6195' /tmp/wfgg-radar/src/worker.js
+          grep -Fq "url.pathname === '/api/auth/session/refresh'" /tmp/wfgg-radar/src/worker.js
+          grep -Fq 'return Math.max(900, Math.min(Number(env.RADAR_SESSION_TTL || 43200), 43200));' /tmp/wfgg-radar/src/worker.js
+          grep -Fq "createSession({" /tmp/wfgg-radar/src/worker.js
+          grep -Fq "'set-cookie': sessionCookie(renewed, ttl)" /tmp/wfgg-radar/src/worker.js
+          ! grep -A35 -F 'async function renewRadarSessionV6195' /tmp/wfgg-radar/src/worker.js | grep -Eq 'decryptGameToken|connector\.authenticate|saveCredential'
+          echo RADAR_V6195_WORKER_SESSION=PASS
+
+      - name: Qualify automatic UI renewal
+        run: |
+          set -euo pipefail
+          grep -Fq 'WFGG_RADAR_SESSION_KEEPALIVE_UI_V6195' /tmp/wfgg-radar/public/live-radar.html
+          grep -Fq 'RADAR_SESSION_KEEPALIVE_INTERVAL_MS_V6195=3*60*60*1000' /tmp/wfgg-radar/public/live-radar.html
+          grep -Fq "/api/auth/session/refresh" /tmp/wfgg-radar/public/live-radar.html
+          grep -Fq 'visibilitychange' /tmp/wfgg-radar/public/live-radar.html
+          grep -Fq 'AUTO 12H' /tmp/wfgg-radar/public/live-radar.html
+          grep -Fq 'stopRadarSessionKeepaliveV6195' /tmp/wfgg-radar/public/live-radar.html
+          echo RADAR_V6195_UI_KEEPALIVE=PASS
+
+      - name: Run existing Guardian checks
+        working-directory: /tmp/wfgg-radar
+        run: |
+          set -euo pipefail
+          npm test
+          npm run check
+          cd connector-go
+          go test ./...
+          go vet ./...
+          echo RADAR_V6195_GUARDIAN=PASS
+
+      - name: Publish candidate digests
+        run: |
+          set -euo pipefail
+          echo "RADAR_V6195_WORKER_SHA256=$(sha256sum /tmp/wfgg-radar/src/worker.js | awk '{print $1}')"
+          echo "RADAR_V6195_UI_SHA256=$(sha256sum /tmp/wfgg-radar/public/live-radar.html | awk '{print $1}')"
+          echo "RADAR_V6195_TRANSPORT_SHA256=$(sha256sum /tmp/wfgg-radar/src/game/remote-transport.js | awk '{print $1}')"
+          echo RADAR_V6195_LASTWAR_TOKEN_POLICY=UNCHANGED
+          echo RADAR_V6195_CONNECTOR_CHANGE=NO
+          echo RADAR_V6195_SESSION_TTL_TARGET_SECONDS=43200
+          echo RADAR_V6195_KEEPALIVE_INTERVAL_SECONDS=10800
+          echo RADAR_V6195_QUALIFICATION=PASS
