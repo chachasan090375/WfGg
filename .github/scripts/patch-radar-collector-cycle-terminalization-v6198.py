@@ -16,60 +16,72 @@ for name in ('collector_cycle_terminalization_v6198.go', 'collector_cycle_termin
     shutil.copyfile(src, dst)
 
 text = COLLECTOR.read_text(encoding='utf-8')
-marker = 'finishFailedV6198 := func('
-if marker not in text:
-    anchor = 'cycle, joined, staleRecovered, err := collectorStartCycleWithStaleRecoveryV6197(ctx, query)'
-    if text.count(anchor) != 1:
-        raise SystemExit(f'V6198_FAIL_HELPER_ANCHOR_COUNT={text.count(anchor)}')
-    addition = '''// WFGG_RADAR_COLLECTOR_CYCLE_TERMINALIZATION_CALLSITE_V6198
-	finishFailedV6198 := func(cycleID int64, code string, cause error) {
-		if terminalErr := collectorFinishCycleReliableV6198(cycleID, "FAILED", code); terminalErr != nil {
-			if cause != nil {
-				fail(code+"_CYCLE_TERMINALIZATION_FAILED", fmt.Errorf("%v; %w", cause, terminalErr))
-			} else {
-				fail(code+"_CYCLE_TERMINALIZATION_FAILED", terminalErr)
-			}
-			return
-		}
-		if cause != nil {
-			fail(code, cause)
-		} else {
-			fail(code)
-		}
-	}
 
-	'''
-    text = text.replace(anchor, addition + anchor, 1)
+# Centralize robust terminalization in the existing fail path. This avoids
+# depending on the exact formatting of seven historical error call-sites.
+if 'WFGG_RADAR_COLLECTOR_CYCLE_TERMINALIZATION_CALLSITE_V6198' not in text:
+    fail_anchor = '''\t// WFGG_RADAR_FEDERATED_DIAGNOSTICS_V65
+\tfail := func(code string, causes ...error) {
+'''
+    if text.count(fail_anchor) != 1:
+        raise SystemExit(f'V6198_FAIL_CLOSURE_ANCHOR_COUNT={text.count(fail_anchor)}')
+    fail_repl = '''\t// WFGG_RADAR_FEDERATED_DIAGNOSTICS_V65
+\t// WFGG_RADAR_COLLECTOR_CYCLE_TERMINALIZATION_CALLSITE_V6198
+\tvar cycleIDV6198 int64
+\tvar ownsCycleV6198 bool
+\tfail := func(code string, causes ...error) {
+'''
+    text = text.replace(fail_anchor, fail_repl, 1)
 
-replacements = [
-    (
-        '''\t\t\t_ = collectorFinishCycle(context.Background(), cycle.ID, "FAILED", "MAP_INGEST_FAILED")
-\t\t\tfail("MAP_INGEST_FAILED", err)''',
-        '''\t\t\tfinishFailedV6198(cycle.ID, "MAP_INGEST_FAILED", err)'''
-    ),
-    (
-        '''\t\t_ = collectorFinishCycle(context.Background(), cycle.ID, "FAILED", "MAP_ALL_REGIONS_FAILED")
-\t\tfail("MAP_ALL_REGIONS_FAILED", errors.New("ALL_REGION_SCANS_FAILED"))''',
-        '''\t\tfinishFailedV6198(cycle.ID, "MAP_ALL_REGIONS_FAILED", errors.New("ALL_REGION_SCANS_FAILED"))'''
-    ),
-]
-for old, new in replacements:
-    if old in text:
-        text = text.replace(old, new, 1)
-    elif new not in text:
-        raise SystemExit('V6198_MAP_FAILURE_CALLSITE_ANCHOR_MISSING')
+    cause_anchor = '''\t\tif len(causes) > 0 {
+\t\t\tcause = causes[0]
+\t\t}
+\t\tradarCollectorJobs.update(jobID, func(j *collectorJob) {
+'''
+    if text.count(cause_anchor) != 1:
+        raise SystemExit(f'V6198_CAUSE_ANCHOR_COUNT={text.count(cause_anchor)}')
+    cause_repl = '''\t\tif len(causes) > 0 {
+\t\t\tcause = causes[0]
+\t\t}
+\t\tif ownsCycleV6198 && cycleIDV6198 > 0 {
+\t\t\tif terminalErr := collectorFinishCycleReliableV6198(cycleIDV6198, "FAILED", code); terminalErr != nil {
+\t\t\t\tif cause != nil {
+\t\t\t\t\tcause = fmt.Errorf("%v; %w", cause, terminalErr)
+\t\t\t\t} else {
+\t\t\t\t\tcause = terminalErr
+\t\t\t\t}
+\t\t\t\tcode = code + "_CYCLE_TERMINALIZATION_FAILED"
+\t\t\t}
+\t\t}
+\t\tradarCollectorJobs.update(jobID, func(j *collectorJob) {
+'''
+    text = text.replace(cause_anchor, cause_repl, 1)
 
-old_success = '''	if err := collectorFinishCycle(ctx, cycle.ID, "SUCCESS", ""); err != nil {
-		fail("COLLECTOR_CYCLE_FINISH_FAILED", err)
-		return
-	}'''
-new_success = '''	if err := collectorFinishCycleReliableV6198(cycle.ID, "SUCCESS", ""); err != nil {
-		fail("COLLECTOR_CYCLE_FINISH_FAILED", err)
-		return
-	}'''
-if old_success in text:
-    text = text.replace(old_success, new_success, 1)
-elif new_success not in text:
+    ownership_anchor = '''\tradarCollectorJobs.update(jobID, func(j *collectorJob) { j.CycleID = cycle.ID; j.Joined = joined })
+
+\tif joined {
+'''
+    if text.count(ownership_anchor) != 1:
+        raise SystemExit(f'V6198_OWNERSHIP_ANCHOR_COUNT={text.count(ownership_anchor)}')
+    ownership_repl = '''\tradarCollectorJobs.update(jobID, func(j *collectorJob) { j.CycleID = cycle.ID; j.Joined = joined })
+\tcycleIDV6198 = cycle.ID
+\townsCycleV6198 = !joined
+
+\tif joined {
+'''
+    text = text.replace(ownership_anchor, ownership_repl, 1)
+
+success_old = '''\tif err := collectorFinishCycle(ctx, cycle.ID, "SUCCESS", ""); err != nil {
+\t\tfail("COLLECTOR_CYCLE_FINISH_FAILED", err)
+\t\treturn
+\t}'''
+success_new = '''\tif err := collectorFinishCycleReliableV6198(cycle.ID, "SUCCESS", ""); err != nil {
+\t\tfail("COLLECTOR_CYCLE_FINISH_FAILED", err)
+\t\treturn
+\t}'''
+if success_old in text:
+    text = text.replace(success_old, success_new, 1)
+elif success_new not in text:
     raise SystemExit('V6198_SUCCESS_CALLSITE_ANCHOR_MISSING')
 
 COLLECTOR.write_text(text, encoding='utf-8')
