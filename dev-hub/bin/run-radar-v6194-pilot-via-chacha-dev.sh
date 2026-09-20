@@ -5,9 +5,9 @@ set -Eeuo pipefail
 
 REV="${WFGG_DEV_HUB_RADAR_V6194_DEPLOY_REV:-}"
 PROJECT="wfgg-radar"
-PILOT_REV="a426ad7c5d5f7c9e73908f3b54e4b2bac24a77e9"
+PILOT_REV="dd61b266c6d8d8c27805a9ac5fa1cd42328e90e2"
 PILOT_BRANCH="radar-v6194-autopilot"
-CONNECTOR_SHA="01ba325e8b02c16d22c197960172f6a9a252ac2f0d43ddefef893f6783846e52"
+CONNECTOR_SHA="48dc8e85825d71ae2cda8e23b6f92ce0a2f1a5756336fbfcf232b27d728df096"
 NATIVE_SHA="274d040f5294cb09422e5d55cc4b5335ac7739924c33dcb67b3f279645814900"
 INSTALLER="radar-vps/install-v6194-pilot.sh"
 PROBE="radar-vps/probe-v6194-pilot-runtime.sh"
@@ -166,7 +166,7 @@ obj={
   "project":"wfgg-radar",
   "scope":{
     "pilot":"V6.19.4",
-    "revision":"a426ad7c5d5f7c9e73908f3b54e4b2bac24a77e9",
+    "revision":"dd61b266c6d8d8c27805a9ac5fa1cd42328e90e2",
     "change":"server-side Autopilot orchestration",
     "purpose":"qualify the V6.19.4 Autopilot routes, SHA-pinned runtime and safety guards without executing a Last War scan or mutating Collector"
   },
