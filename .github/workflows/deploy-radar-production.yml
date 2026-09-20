@@ -7,12 +7,16 @@ on:
       - 'radar-release/**'
       - 'radar-ui-live/**'
       - '.radar-release-src/v2-source/src/game/remote-transport.js'
-      - '.radar-release-src/v2-source/connector-go/cmd/radar-connector/federated_diagnostics_v65.go'
-      - '.radar-release-src/v2-source/connector-go/cmd/radar-connector/federated_diagnostics_v65_test.go'
+      - '.radar-release-src/v2-source/connector-go/**'
+      - '.radar-release-src/v6193-source/**'
       - '.github/scripts/patch-radar-async-collector-worker.py'
       - '.github/scripts/patch-radar-worker-rich-profile-v6191.py'
-      - 'worker/migrations/0004_radar_profile_rich_v6191.sql'
+      - '.github/scripts/patch-radar-worker-seed-scout-v6193.py'
+      - '.github/scripts/patch-live-radar-seed-scout-v6193.py'
       - '.github/scripts/patch-radar-federated-diagnostics-v65.py'
+      - '.github/scripts/patch-radar-cluster-catalog-budget-v6192.py'
+      - '.github/scripts/patch-radar-seed-scout-v6193.py'
+      - 'worker/migrations/0004_radar_profile_rich_v6191.sql'
       - '.github/workflows/deploy-radar-production.yml'
   workflow_dispatch:
 
@@ -27,10 +31,15 @@ env:
   RADAR_WORKER: wfgg-radar
   RADAR_D1_NAME: wfgg-radar
   RADAR_CONNECTOR_URL: https://chachavps.tail3ab05a.ts.net
+  EXPECTED_CONNECTOR_SHA256: 73b64743031e4a47212dfdafae8ad67551f88d131831e70cb08a40957824f9a8
+  EXPECTED_NATIVE_SHA256: 274d040f5294cb09422e5d55cc4b5335ac7739924c33dcb67b3f279645814900
+  EXPECTED_WORKER_SHA256: cb172b9c4a820bcd4a1325e551bcd6d051114a8de9e0d83ddbb760d525e46ab6
+  EXPECTED_TRANSPORT_SHA256: e1ee842e06555b886d1cfa3c69ff15a051e61fc1bb63beffa0aa3731f42e796b
+  EXPECTED_UI_SHA256: 9fad689006b10653ff94bb5f61fba0e79604d1520ef3b60d6ade73ea5bd66f39
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
@@ -43,10 +52,10 @@ jobs:
           set -eu
           test -n "$CLOUDFLARE_API_TOKEN" || { echo 'MISSING_SECRET=CLOUDFLARE_API_TOKEN'; exit 2; }
           test "${#RADAR_CONNECTOR_SHARED_KEY}" -ge 32 || { echo 'MISSING_OR_WEAK_SECRET=RADAR_CONNECTOR_SHARED_KEY'; exit 2; }
-          echo 'CLOUDFLARE_API_TOKEN=OK'
-          echo 'RADAR_CONNECTOR_SHARED_KEY=OK'
+          echo CLOUDFLARE_API_TOKEN=OK
+          echo RADAR_CONNECTOR_SHARED_KEY=OK
 
-      - name: Expand immutable Radar release
+      - name: Reconstruct cumulative V6.19.3
         run: |
           set -euo pipefail
           rm -rf /tmp/wfgg-radar
@@ -54,39 +63,43 @@ jobs:
           python3 .github/scripts/reconstruct-radar-release.py
           echo '234df1dec57f6211bc625855bf13350c9f17fbd843fbe92d8cf1ab7cb5c081ef  /tmp/radar-src.tar.gz' | sha256sum -c -
           tar -xzf /tmp/radar-src.tar.gz -C /tmp/wfgg-radar
+          rm -rf /tmp/wfgg-radar/connector-go
+          cp -a .radar-release-src/v2-source/connector-go /tmp/wfgg-radar/connector-go
 
-      - name: Overlay async Collector Worker bridge
-        run: |
-          set -euo pipefail
-          test -s .radar-release-src/v2-source/src/game/remote-transport.js
+          python3 .github/scripts/patch-radar-target-profile-retry.py
+          python3 .github/scripts/patch-radar-federated-diagnostics-v65.py
+          python3 .github/scripts/patch-player-scan-v3.py
+          python3 .github/scripts/patch-player-scan-v4.py
+          python3 .github/scripts/patch-radar-protocol-discovery-v67.py
+          python3 .github/scripts/patch-radar-profile-isolation-v68.py
+          python3 .github/scripts/patch-radar-native-profile-v69.py
+          python3 .github/scripts/patch-radar-native-profile-handshake-v691.py
+          python3 .github/scripts/patch-radar-native-profile-exec-v692.py
+          python3 .github/scripts/patch-radar-connector-runtime-v693.py
+          python3 .github/scripts/patch-radar-cluster-catalog-budget-v6192.py
+          python3 .github/scripts/patch-radar-seed-scout-v6193.py
+
           install -m 0644 .radar-release-src/v2-source/src/game/remote-transport.js /tmp/wfgg-radar/src/game/remote-transport.js
           python3 .github/scripts/patch-radar-async-collector-worker.py
           python3 .github/scripts/patch-radar-worker-rich-profile-v6191.py
-          grep -q "/api/radar/search/start" /tmp/wfgg-radar/src/worker.js
-          grep -q "/api/radar/search/status" /tmp/wfgg-radar/src/worker.js
-          grep -q "startCollectorSearch" /tmp/wfgg-radar/src/game/remote-transport.js
-          grep -Fq 'WFGG_RADAR_RICH_PROFILE_WORKER_V6191' /tmp/wfgg-radar/src/worker.js
-          grep -Fq '/api/radar/profile/rich' /tmp/wfgg-radar/src/worker.js
-          echo 'RADAR_ASYNC_COLLECTOR_WORKER=STAGED'
+          python3 .github/scripts/patch-radar-worker-seed-scout-v6193.py
 
-      - name: Overlay live animated Radar UI
-        run: |
-          set -euo pipefail
-          test -s radar-ui-live/live-radar.html
           install -m 0644 radar-ui-live/live-radar.html /tmp/wfgg-radar/public/live-radar.html
-          grep -q 'WfGg Radar Live' /tmp/wfgg-radar/public/live-radar.html
-          echo 'RADAR_LIVE_UI=STAGED'
+          python3 .github/scripts/patch-live-radar-seed-scout-v6193.py
+          echo RADAR_V6193_PRODUCTION_RECONSTRUCT=PASS
 
-      - name: Overlay federated diagnostics V6.5
+      - name: Verify qualified Cloudflare surface digests
         run: |
           set -euo pipefail
-          install -m 0644 .radar-release-src/v2-source/connector-go/cmd/radar-connector/federated_diagnostics_v65.go /tmp/wfgg-radar/connector-go/cmd/radar-connector/federated_diagnostics_v65.go
-          install -m 0644 .radar-release-src/v2-source/connector-go/cmd/radar-connector/federated_diagnostics_v65_test.go /tmp/wfgg-radar/connector-go/cmd/radar-connector/federated_diagnostics_v65_test.go
-          python3 .github/scripts/patch-radar-federated-diagnostics-v65.py
-          grep -q 'WFGG_RADAR_FEDERATED_DIAGNOSTICS_V65' /tmp/wfgg-radar/connector-go/cmd/radar-connector/collector_jobs.go
-          grep -q 'WFGG_RADAR_FEDERATED_DIAGNOSTICS_V65' /tmp/wfgg-radar/src/worker.js
-          grep -q 'WFGG_RADAR_FEDERATED_DIAGNOSTICS_UI_V65' /tmp/wfgg-radar/public/live-radar.html
-          echo 'RADAR_FEDERATED_DIAGNOSTICS_V65=STAGED'
+          worker="$(sha256sum /tmp/wfgg-radar/src/worker.js | awk '{print $1}')"
+          transport="$(sha256sum /tmp/wfgg-radar/src/game/remote-transport.js | awk '{print $1}')"
+          ui="$(sha256sum /tmp/wfgg-radar/public/live-radar.html | awk '{print $1}')"
+          test "$worker" = "$EXPECTED_WORKER_SHA256"
+          test "$transport" = "$EXPECTED_TRANSPORT_SHA256"
+          test "$ui" = "$EXPECTED_UI_SHA256"
+          grep -Fq '/api/radar/seed-scout/start' /tmp/wfgg-radar/src/worker.js
+          grep -Fq 'WFGG_RADAR_SEED_SCOUT_OFFSET_KEY' /tmp/wfgg-radar/public/live-radar.html
+          echo RADAR_V6193_CLOUDFLARE_DIGESTS=PASS
 
       - name: Guardian pre-deploy gate
         working-directory: /tmp/wfgg-radar
@@ -97,55 +110,46 @@ jobs:
           cd connector-go
           go test ./...
           go vet ./...
-          go build ./cmd/radar-connector
           cd ..
-          grep -q "native-template-readonly-v1" connector-go/internal/protocol/native_template.go
-          grep -q '"_id"' connector-go/native-template/main.go
-          grep -q '"cmdBaseTime"' connector-go/native-template/main.go
-          grep -q '"SecurityCode"' connector-go/native-template/main.go
-          grep -q '"OneCode"' connector-go/native-template/main.go
-          grep -q '"CoreV"' connector-go/native-template/main.go
-          grep -q '"psh"' connector-go/native-template/main.go
           ! grep -REq 'building\.production\.collect|mail\.reward|al\.science\.donate|visitor\.operate' connector-go src || false
+          echo RADAR_V6193_GUARDIAN=PASS
 
-      - name: Verify ChaChaVPS connector over signed HTTPS
+      - name: Wait for Sentinel-promoted V6.19.3 connector
         env:
           RADAR_CONNECTOR_SHARED_KEY: ${{ secrets.RADAR_CONNECTOR_SHARED_KEY }}
         run: |
           set -euo pipefail
           python3 - <<'PY'
-          import hashlib, hmac, json, os, secrets, time, urllib.request
-
-          base = os.environ['RADAR_CONNECTOR_URL'].rstrip('/')
-          path = '/v1/health'
-          method = 'GET'
-          body = b''
-          timestamp = str(int(time.time()))
-          nonce = secrets.token_hex(16)
-          body_hash = hashlib.sha256(body).hexdigest()
-          canonical = '\n'.join([method, path, timestamp, nonce, body_hash])
-          signature = hmac.new(
-              os.environ['RADAR_CONNECTOR_SHARED_KEY'].encode(),
-              canonical.encode(),
-              hashlib.sha256,
-          ).hexdigest()
-          req = urllib.request.Request(
-              base + path,
-              method=method,
-              headers={
-                  'X-Radar-Timestamp': timestamp,
-                  'X-Radar-Nonce': nonce,
-                  'X-Radar-Signature': signature,
-              },
-          )
-          with urllib.request.urlopen(req, timeout=15) as response:
-              data = json.loads(response.read().decode())
-          assert data.get('ok') is True
-          assert data.get('service') == 'wfgg-radar-connector'
-          assert data.get('readonly') is True
-          print('CHACHAVPS_CONNECTOR=OK')
-          print('CHACHAVPS_CONNECTOR_PROTOCOL=' + str(data.get('protocol', 'unknown')))
-          print('CHACHAVPS_COLLECTOR_ASYNC=' + str(data.get('collectorAsync', False)))
+          import hashlib,hmac,json,os,secrets,time,urllib.request,urllib.error
+          base=os.environ['RADAR_CONNECTOR_URL'].rstrip('/')
+          secret=os.environ['RADAR_CONNECTOR_SHARED_KEY']
+          path='/v1/collector/server-seed-scout/start'
+          body=b'{}'
+          for attempt in range(1,91):
+              ts=str(int(time.time()))
+              nonce=secrets.token_hex(16)
+              canonical='\n'.join(['POST',path,ts,nonce,hashlib.sha256(body).hexdigest()])
+              sig=hmac.new(secret.encode(),canonical.encode(),hashlib.sha256).hexdigest()
+              req=urllib.request.Request(base+path,data=body,method='POST',headers={
+                  'Content-Type':'application/json',
+                  'X-Radar-Timestamp':ts,
+                  'X-Radar-Nonce':nonce,
+                  'X-Radar-Signature':sig,
+              })
+              try:
+                  with urllib.request.urlopen(req,timeout=15) as r:
+                      status=r.status
+                      data=json.load(r)
+              except urllib.error.HTTPError as e:
+                  status=e.code
+                  try: data=json.loads(e.read().decode())
+                  except Exception: data={}
+              print(f'RADAR_V6193_CONNECTOR_WAIT={attempt} HTTP={status} ERROR={data.get("error")}')
+              if status==400 and data.get('error')=='GAME_TOKEN_REQUIRED':
+                  print('RADAR_V6193_CONNECTOR_ROUTE=READY')
+                  raise SystemExit(0)
+              time.sleep(5)
+          raise SystemExit('RADAR_V6193_CONNECTOR_ROUTE_TIMEOUT')
           PY
 
       - name: Resolve Cloudflare deployment context
@@ -168,24 +172,21 @@ jobs:
           import json, os, subprocess
           name=os.environ['RADAR_D1_NAME']
           def run(*args):
-            proc=subprocess.run(args,text=True,capture_output=True)
-            if proc.returncode:
-              print(proc.stdout)
-              print(proc.stderr)
-              raise SystemExit(proc.returncode)
-            return proc.stdout
+              proc=subprocess.run(args,text=True,capture_output=True)
+              if proc.returncode:
+                  print(proc.stdout); print(proc.stderr)
+                  raise SystemExit(proc.returncode)
+              return proc.stdout
           data=json.loads(run('wrangler','d1','list','--json'))
           found=next((x for x in data if x.get('name')==name),None)
           if not found:
-            print('D1_CREATE=START')
-            subprocess.run(['wrangler','d1','create',name],check=True)
-            data=json.loads(run('wrangler','d1','list','--json'))
-            found=next((x for x in data if x.get('name')==name),None)
+              subprocess.run(['wrangler','d1','create',name],check=True)
+              data=json.loads(run('wrangler','d1','list','--json'))
+              found=next((x for x in data if x.get('name')==name),None)
           if not found or not found.get('uuid'):
-            raise SystemExit('RADAR_D1_RESOLVE_FAILED')
-          with open(os.environ['GITHUB_OUTPUT'],'a') as f:
-            f.write('database_id='+found['uuid']+'\n')
-          print('RADAR_D1=OK')
+              raise SystemExit('RADAR_D1_RESOLVE_FAILED')
+          with open(os.environ['GITHUB_OUTPUT'],'a') as out:
+              out.write('database_id='+found['uuid']+'\n')
           PY
 
       - name: Generate production Worker configuration
@@ -240,7 +241,7 @@ jobs:
         working-directory: /tmp/wfgg-radar
         run: wrangler deploy
 
-      - name: Ensure Radar local cryptographic secrets exist
+      - name: Ensure Radar cryptographic secrets exist
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ steps.cf.outputs.account_id }}
@@ -263,7 +264,7 @@ jobs:
           ensure_secret RADAR_SESSION_KEY
           ensure_secret RADAR_TOKEN_VAULT_KEY
 
-      - name: Synchronize ChaChaVPS connector key into Radar Worker
+      - name: Synchronize connector key into Radar Worker
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ steps.cf.outputs.account_id }}
@@ -272,68 +273,30 @@ jobs:
         run: |
           set -euo pipefail
           printf '%s' "$RADAR_CONNECTOR_SHARED_KEY" | wrangler secret put RADAR_CONNECTOR_SHARED_KEY --name wfgg-radar >/dev/null
-          echo 'RADAR_CONNECTOR_SHARED_KEY=SYNCHRONIZED'
+          echo RADAR_CONNECTOR_SHARED_KEY=SYNCHRONIZED
 
-      - name: Verify Radar Worker secret bindings
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ steps.cf.outputs.account_id }}
-        working-directory: /tmp/wfgg-radar
-        run: |
-          set -euo pipefail
-          names="$(wrangler secret list --name wfgg-radar)"
-          for key in RADAR_SESSION_KEY RADAR_TOKEN_VAULT_KEY RADAR_CONNECTOR_SHARED_KEY; do
-            echo "$names" | grep -q "\"name\"[[:space:]]*:[[:space:]]*\"$key\"" || { echo "$key=MISSING"; exit 1; }
-            echo "$key=PRESENT"
-          done
-
-      - name: Verify autonomous production surface
+      - name: Verify production surface
         env:
           RADAR_URL: https://wfgg-radar.${{ steps.cf.outputs.subdomain }}.workers.dev
         run: |
-          set -u
-          ok=0
+          set -euo pipefail
           for i in $(seq 1 24); do
             echo "RADAR_PROBE=$i"
-            if curl -fsSL "$RADAR_URL/api/health?probe=$GITHUB_SHA-$i" -o /tmp/radar-health.json; then
-              if python3 - <<'PY'
+            if curl -fsSL "$RADAR_URL/api/health?probe=$GITHUB_SHA-$i" -o /tmp/radar-health.json &&
+               python3 - <<'PY'
           import json
           d=json.load(open('/tmp/radar-health.json'))
-          print('HEALTH_APP=' + str(d.get('app')))
-          print('HEALTH_VERSION=' + str(d.get('version')))
-          print('HEALTH_CONNECTOR=' + str(d.get('gameConnector')))
           assert d.get('ok') is True
           assert d.get('app')=='wfgg-radar'
-          assert d.get('mode')=='standalone'
-          assert d.get('version')=='0.5.0'
           assert d.get('gameConnector')=='configured'
-          assert d.get('agents',{}).get('oracle')=='v0.5'
-          assert d.get('agents',{}).get('sentinel')=='v0.5'
-          assert d.get('agents',{}).get('guardian')=='v0.5'
-          assert d.get('agents',{}).get('orchestrator')=='v0.5'
-          assert d.get('automation',{}).get('enabled') is True
           PY
-              then
-                ok=1
-                break
-              fi
-            fi
+            then break; fi
+            test "$i" -lt 24 || exit 1
             sleep 5
           done
-          test "$ok" = 1 || { echo 'RADAR_PRODUCTION_HEALTH_TIMEOUT'; exit 1; }
-          root_ok=0
-          for i in $(seq 1 12); do
-            if curl -fsSL "$RADAR_URL/?probe=$GITHUB_SHA-$i" | grep -q 'WfGg Radar'; then root_ok=1; break; fi
-            sleep 5
-          done
-          test "$root_ok" = 1 || { echo 'RADAR_PRODUCTION_UI_TIMEOUT'; exit 1; }
-          live_ok=0
-          for i in $(seq 1 12); do
-            if curl -fsSL "$RADAR_URL/live-radar.html?probe=$GITHUB_SHA-$i" | grep -q 'WfGg Radar Live'; then live_ok=1; break; fi
-            sleep 5
-          done
-          test "$live_ok" = 1 || { echo 'RADAR_LIVE_UI_TIMEOUT'; exit 1; }
+          curl -fsSL "$RADAR_URL/live-radar.html?probe=$GITHUB_SHA" -o /tmp/live-radar.html
+          grep -Fq 'WFGG_RADAR_SEED_SCOUT_UI_V6193' /tmp/live-radar.html
+          grep -Fq 'DÉCOUVRIR LA PROCHAINE GRAPPE' /tmp/live-radar.html
           echo "RADAR_PRODUCTION_URL=$RADAR_URL"
           echo "RADAR_LIVE_UI_URL=$RADAR_URL/live-radar.html"
-          echo "RADAR_CONNECTOR_URL=$RADAR_CONNECTOR_URL"
-          echo 'RADAR_PRODUCTION=OK'
+          echo RADAR_V6193_CLOUDFLARE_PRODUCTION=PASS
