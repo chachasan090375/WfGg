@@ -103,7 +103,7 @@ jobs:
           grep -Fq 'collectorCycleStaleByStartedAtV6197' "$C"
           grep -Fq 'STALE_RUNNING_CYCLE_RECOVERED_V6197' "$C"
           grep -Fq 'collectorStartCycleWithStaleRecoveryV6197(ctx, query)' "$J"
-          grep -Fq 'Inspection failure must never mutate or kill a possibly valid joined cycle' "$C"
+          grep -Fq 'recovery fails closed and the pre-V6.19.7' "$C"
           grep -Eq 'autopilotVersionV6194[[:space:]]*=[[:space:]]*"v6\.19\.7"' "$A"
           grep -Fq 'AUTOPILOT_CONSECUTIVE_FAILURE_LIMIT' "$A"
           grep -Fq 'AUTOPILOT_AUTH_FAILED' "$A"
