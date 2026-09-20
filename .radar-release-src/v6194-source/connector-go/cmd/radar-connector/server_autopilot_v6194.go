@@ -14,6 +14,7 @@ import (
 
 // WFGG_RADAR_AUTOPILOT_V6194
 // WFGG_RADAR_AUTOPILOT_CONTINUE_NO_DATA_V6196
+// WFGG_RADAR_AUTOPILOT_STALE_CYCLE_RECOVERY_V6197
 //
 // Autopilot chains complete targeted Collector cycles and Seed Scout discovery
 // without requiring the browser to remain open. The Last War token is captured
@@ -23,7 +24,7 @@ import (
 // Last War operations remain READ-ONLY. Collector mutation is expected because
 // full targeted cycles are intentionally persisted as discovery evidence.
 const (
-	autopilotVersionV6194                    = "v6.19.6"
+	autopilotVersionV6194                    = "v6.19.7"
 	autopilotDefaultFullCyclesV6194          = 3
 	autopilotMaxFullCyclesV6194              = 5
 	autopilotDefaultMaxClustersV6194         = 5
