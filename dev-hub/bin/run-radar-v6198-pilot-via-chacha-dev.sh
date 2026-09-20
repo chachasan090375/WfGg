@@ -5,7 +5,7 @@ set -Eeuo pipefail
 
 REV="${WFGG_DEV_HUB_RADAR_V6198_DEPLOY_REV:-}"
 PROJECT="wfgg-radar"
-PILOT_REV="80cb17a0baa91ec534d0b54625f65113ba3d34e1"
+PILOT_REV="93d58f84a8182e141dbc86ac5b0d4dde893484bc"
 PILOT_BRANCH="radar-v6198-collector-cycle-terminalization"
 CONNECTOR_SHA="fb21a02feeaaa6a7013cf4e17c77bbb033a30a4bce021066fd947fc665360a9b"
 NATIVE_SHA="274d040f5294cb09422e5d55cc4b5335ac7739924c33dcb67b3f279645814900"
@@ -168,13 +168,13 @@ obj={
   "project":"wfgg-radar",
   "scope":{
     "pilot":"V6.19.8",
-    "revision":"80cb17a0baa91ec534d0b54625f65113ba3d34e1",
+    "revision":"93d58f84a8182e141dbc86ac5b0d4dde893484bc",
     "change":"Collector cycle terminalization orchestration",
     "purpose":"qualify the V6.19.8 Collector cycle-terminalization runtime and safety guards without executing a Last War scan or mutating Collector during the guard probe"
   },
   "actor":"human-user",
   "source":"chat-explicit-approval",
-  "statement":"J’approuve le PILOT Radar V6.19.8 Collector Cycle Terminalization révision 80cb17a0baa91ec534d0b54625f65113ba3d34e1 avec probe de garde sans scan de jeu.",
+  "statement":"J’approuve le PILOT Radar V6.19.8 Collector Cycle Terminalization révision 93d58f84a8182e141dbc86ac5b0d4dde893484bc avec probe de garde sans scan de jeu.",
   "observed_at":datetime.now(timezone.utc).isoformat(),
   "single_pilot_window":True
 }
