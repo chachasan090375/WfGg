@@ -17,6 +17,7 @@ on:
       - '.github/scripts/patch-radar-autopilot-v6194.py'
       - '.github/scripts/patch-radar-worker-autopilot-v6194.py'
       - '.github/scripts/patch-live-radar-autopilot-v6194.py'
+      - '.github/scripts/patch-live-radar-autopilot-v6196.py'
       - '.github/scripts/patch-radar-session-keepalive-v6195.py'
       - '.github/scripts/patch-radar-federated-diagnostics-v65.py'
       - '.github/scripts/patch-radar-cluster-catalog-budget-v6192.py'
@@ -36,11 +37,11 @@ env:
   RADAR_WORKER: wfgg-radar
   RADAR_D1_NAME: wfgg-radar
   RADAR_CONNECTOR_URL: https://chachavps.tail3ab05a.ts.net
-  EXPECTED_CONNECTOR_SHA256: dd3fa071deebe3a2c9efb8e6fcdce115d13497a542b9afae4f1133ddcb1b01e3
+  EXPECTED_CONNECTOR_SHA256: b7ff60476f3afe7c8bcb9b78963c46daa4e8b5507490cc83cbcbc4ced63e7c35
   EXPECTED_NATIVE_SHA256: 274d040f5294cb09422e5d55cc4b5335ac7739924c33dcb67b3f279645814900
   EXPECTED_WORKER_SHA256: 052deb78c56aa6eb522f8808ffe0cc427c9d605d65a0e6983b6dbb9749da56ea
   EXPECTED_TRANSPORT_SHA256: 9dc489b759c75cc0a4882d29324965ca8171de84febae788ced52404b28ee573
-  EXPECTED_UI_SHA256: 58f51e2c5f2ddca3bf1da21c91a887e808e2dfc038694de319cbf1da6b6238f9
+  EXPECTED_UI_SHA256: PENDING_V6196_UI_SHA256
 
 jobs:
   deploy:
@@ -60,7 +61,7 @@ jobs:
           echo CLOUDFLARE_API_TOKEN=OK
           echo RADAR_CONNECTOR_SHARED_KEY=OK
 
-      - name: Reconstruct cumulative V6.19.4
+      - name: Reconstruct cumulative V6.19.6
         run: |
           set -euo pipefail
           rm -rf /tmp/wfgg-radar
@@ -95,7 +96,8 @@ jobs:
           python3 .github/scripts/patch-live-radar-seed-scout-v6193.py
           python3 .github/scripts/patch-live-radar-autopilot-v6194.py
           python3 .github/scripts/patch-radar-session-keepalive-v6195.py
-          echo RADAR_V6195_PRODUCTION_RECONSTRUCT=PASS
+          python3 .github/scripts/patch-live-radar-autopilot-v6196.py
+          echo RADAR_V6196_PRODUCTION_RECONSTRUCT=PASS
 
       - name: Verify qualified Cloudflare surface digests
         run: |
@@ -118,7 +120,10 @@ jobs:
           grep -Fq '/api/auth/session/refresh' /tmp/wfgg-radar/src/worker.js
           grep -Fq 'WFGG_RADAR_SESSION_KEEPALIVE_UI_V6195' /tmp/wfgg-radar/public/live-radar.html
           grep -Fq 'AUTO 12H' /tmp/wfgg-radar/public/live-radar.html
-          echo RADAR_V6195_CLOUDFLARE_DIGESTS=PASS
+          grep -Fq 'WFGG_RADAR_AUTOPILOT_CONTINUE_NO_DATA_UI_V6196' /tmp/wfgg-radar/public/live-radar.html
+          grep -Fq 'SEED_SKIPPED_NO_DATA' /tmp/wfgg-radar/public/live-radar.html
+          grep -Fq 'Aucune donnée exploitable' /tmp/wfgg-radar/public/live-radar.html
+          echo RADAR_V6196_CLOUDFLARE_DIGESTS=PASS
 
       - name: Guardian pre-deploy gate
         working-directory: /tmp/wfgg-radar
@@ -131,9 +136,9 @@ jobs:
           go vet ./...
           cd ..
           ! grep -REq 'building\.production\.collect|mail\.reward|al\.science\.donate|visitor\.operate' connector-go src || false
-          echo RADAR_V6194_GUARDIAN=PASS
+          echo RADAR_V6196_GUARDIAN=PASS
 
-      - name: Wait for Sentinel-promoted V6.19.4 connector
+      - name: Wait for Sentinel-promoted V6.19.6 connector
         env:
           RADAR_CONNECTOR_SHARED_KEY: ${{ secrets.RADAR_CONNECTOR_SHARED_KEY }}
         run: |
@@ -163,12 +168,12 @@ jobs:
                   status=e.code
                   try: data=json.loads(e.read().decode())
                   except Exception: data={}
-              print(f'RADAR_V6194_CONNECTOR_WAIT={attempt} HTTP={status} ERROR={data.get("error")}')
+              print(f'RADAR_V6196_CONNECTOR_WAIT={attempt} HTTP={status} ERROR={data.get("error")}')
               if status==400 and data.get('error')=='GAME_TOKEN_REQUIRED':
-                  print('RADAR_V6194_CONNECTOR_ROUTE=READY')
+                  print('RADAR_V6196_CONNECTOR_ROUTE=READY')
                   raise SystemExit(0)
               time.sleep(5)
-          raise SystemExit('RADAR_V6194_CONNECTOR_ROUTE_TIMEOUT')
+          raise SystemExit('RADAR_V6196_CONNECTOR_ROUTE_TIMEOUT')
           PY
 
       - name: Resolve Cloudflare deployment context
@@ -321,6 +326,8 @@ jobs:
           grep -Fq 'ARRÊTER L’AUTOPILOT' /tmp/live-radar.html
           grep -Fq 'WFGG_RADAR_SESSION_KEEPALIVE_UI_V6195' /tmp/live-radar.html
           grep -Fq 'AUTO 12H' /tmp/live-radar.html
+          grep -Fq 'WFGG_RADAR_AUTOPILOT_CONTINUE_NO_DATA_UI_V6196' /tmp/live-radar.html
+          grep -Fq 'SEED_SKIPPED_NO_DATA' /tmp/live-radar.html
           echo "RADAR_PRODUCTION_URL=$RADAR_URL"
           echo "RADAR_LIVE_UI_URL=$RADAR_URL/live-radar.html"
-          echo RADAR_V6195_CLOUDFLARE_PRODUCTION=PASS
+          echo RADAR_V6196_CLOUDFLARE_PRODUCTION=PASS
