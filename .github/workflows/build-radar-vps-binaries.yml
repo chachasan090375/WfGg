@@ -29,6 +29,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 concurrency:
   group: wfgg-radar-vps-binaries
@@ -155,10 +156,14 @@ jobs:
           git add radar-vps/release/radar-connector radar-vps/release/radar-native-template radar-vps/release/SHA256SUMS
           if git diff --cached --quiet; then
             echo RADAR_V6198_RELEASE_BINARIES=UNCHANGED
+            GH_TOKEN="${{ github.token }}" gh workflow run deploy-radar-production.yml --ref radar-production-v1
+            echo RADAR_V6198_CLOUDFLARE_DISPATCH=TRIGGERED
             exit 0
           fi
-          git commit -m 'build(radar): publish V6.19.8 Continue-on-No-Data production binaries'
+          git commit -m 'build(radar): publish V6.19.8 Collector Cycle Terminalization production binaries'
           git fetch origin radar-production-v1
           git rebase origin/radar-production-v1
           git push origin HEAD:radar-production-v1
           echo RADAR_V6198_RELEASE_BINARIES=PUBLISHED
+          GH_TOKEN="${{ github.token }}" gh workflow run deploy-radar-production.yml --ref radar-production-v1
+          echo RADAR_V6198_CLOUDFLARE_DISPATCH=TRIGGERED
