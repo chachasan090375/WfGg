@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-REV="${WFGG_RADAR_V6198_REV:-radar-v6198-autopilot-stale-cycle-recovery}"
+REV="${WFGG_RADAR_V6198_REV:-radar-v6198-collector-cycle-terminalization}"
 BASE="https://raw.githubusercontent.com/chachasan090375/WfGg/${REV}/radar-vps/pilot-v6198"
 ROOT="/opt/wfgg-radar"
 BIN="${ROOT}/bin"
@@ -38,7 +38,7 @@ for c in curl sha256sum install systemctl mktemp cp mv date awk grep; do
 done
 systemctl is-active --quiet "$SERVICE" || fail SERVICE_NOT_ACTIVE
 
-log "=== WFGG RADAR V6.19.8 STALE-CYCLE RECOVERY PILOT INSTALL ==="
+log "=== WFGG RADAR V6.19.8 COLLECTOR CYCLE TERMINALIZATION PILOT INSTALL ==="
 log "RADAR_V6198_REV=$REV"
 
 BEFORE_CONNECTOR="$(sha256sum "$BIN/radar-connector" 2>/dev/null | awk '{print $1}' || true)"
