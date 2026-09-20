@@ -690,7 +690,8 @@ def signed_json_request(method: str, path: str, body_obj: dict[str, Any] | None 
     body = b"" if body_obj is None else json.dumps(body_obj, separators=(",", ":")).encode("utf-8")
     timestamp = str(int(time.time()))
     nonce = os.urandom(16).hex()
-    signature = radar_signature(method, path, timestamp, nonce, body, secret)
+    canonical_path = path.split("?", 1)[0]
+    signature = radar_signature(method, canonical_path, timestamp, nonce, body, secret)
     req = urllib.request.Request(
         "http://127.0.0.1:8788" + path,
         data=None if method.upper() == "GET" else body,
