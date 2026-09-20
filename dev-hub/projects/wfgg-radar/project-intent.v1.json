@@ -2,39 +2,42 @@
   "schema": "chacha.dev/project-intent/v1",
   "project": "wfgg-radar",
   "title": "WfGg Radar operational discovery and controlled runtime evolution",
-  "problem": "Extend the WfGg Radar UI session lifetime and add sliding renewal so long-running Autopilot monitoring does not require hourly reauthentication, without changing Last War token lifetime or weakening session security.",
+  "problem": "Prevent Radar Autopilot from stopping the whole discovery chain when a server seed repeatedly yields no exploitable map data, while preserving valid historical evidence and retaining hard stops for global/auth/network failures.",
   "goals": [
-    "Raise the Radar UI session TTL from 1 hour to the existing code maximum of 12 hours.",
-    "Add an authenticated same-origin session refresh endpoint that rotates the signed Radar session cookie without exposing or revalidating the Last War token.",
-    "Automatically renew the Radar UI session every 3 hours while the UI is active, and on return to a visible tab after a long pause.",
-    "Keep the server-side V6.19.4 Autopilot independent from the browser session so active discovery continues even if the UI session expires.",
-    "Preserve the encrypted Last War credential vault and all existing role/capability checks.",
-    "Use ChaCha DEV governance for qualification and production approval."
+    "Classify repeated all-region no-data failures for a single seed separately from global runtime failures.",
+    "Retry a no-data seed up to three times, then mark it SKIPPED_NO_DATA instead of failing the entire Autopilot.",
+    "Preserve any existing valid 9/9 evidence already associated with the skipped seed.",
+    "Do not count a skipped seed as a confirmed cluster.",
+    "Automatically continue with Seed Scout and the next candidate seed.",
+    "Keep authentication, network, decode, ingest and infrastructure failures as blocking safety conditions.",
+    "Keep Last War operations read-only and retain Collector writes only for normal discovery evidence.",
+    "Qualify and deploy the change through ChaCha DEV with a guard-only pilot probe that executes no Last War scan."
   ],
   "non_goals": [
-    "Do not create a permanent Last War token or bypass Last War authentication expiry.",
-    "Do not persist a plaintext Last War token in the browser, Worker logs, jobs, Collector DB, VPS filesystem, or ChaCha DEV.",
-    "Do not modify the V6.19.4 connector or its Autopilot discovery logic.",
-    "Do not launch or stop any active Autopilot job as part of the session keepalive deployment.",
-    "Do not weaken same-origin mutation checks, role checks, or signed session verification."
+    "Do not treat authentication, network, decode, ingest, timeout, disk or executable failures as empty/no-data servers.",
+    "Do not delete or rewrite historical Collector evidence.",
+    "Do not count partial or skipped seeds toward the three-cycle confirmation requirement.",
+    "Do not create a permanent Last War token or change the V6.19.5 12-hour sliding Radar UI session policy.",
+    "Do not execute a real game scan during the pilot guard probe."
   ],
   "current_change": {
-    "id": "radar-v6195-session-keepalive",
-    "purpose": "Cloudflare Worker/UI-only change: 12-hour Radar UI sessions plus sliding renewal every 3 hours. Last War token lifetime and V6.19.4 connector runtime remain unchanged.",
-    "discovery_mode": "unchanged-v6194-autopilot",
-    "pilot_only": false,
+    "id": "radar-v6196-autopilot-continue-no-data",
+    "purpose": "Server-side Autopilot continuation: after three conservative no-data failures on one seed, preserve existing valid evidence, record the seed as skipped, and continue Seed Scout instead of terminating the entire job.",
+    "discovery_mode": "v6196-autopilot-continue-on-no-data",
+    "pilot_only": true,
     "rollback_required": true
   },
   "acceptance_criteria": [
-    "The Worker session TTL is configured to 43200 seconds and remains capped at 12 hours.",
-    "POST /api/auth/session/refresh requires a valid existing Radar session and returns a rotated session cookie with the same identity and role.",
-    "The refresh endpoint never decrypts, validates, returns, or persists the Last War token.",
-    "The UI renews the Radar session every 3 hours while active and attempts renewal when returning to the visible tab after a long pause.",
-    "A 401 from the refresh endpoint stops keepalive and returns the UI to the normal login flow.",
-    "Logout stops keepalive and clears the Radar session as before.",
-    "V6.19.4 Autopilot jobs remain server-side and are not stopped or restarted by the session keepalive change.",
-    "No connector binary change is required.",
-    "Production deployment is explicit-approval gated and reversible."
+    "The connector reports Autopilot version v6.19.6.",
+    "Only a failed cycle with zero completed regions, at least nine failed regions, zero players, and nine region failures classified as PROTOCOL or SERVER_TARGET can enter the no-data retry path.",
+    "Auth, network, timeout, ingest, decode, template/binary/exec, disk, memory and permission indicators are excluded from the no-data path.",
+    "A no-data seed is retried three times by default before being recorded as SKIPPED_NO_DATA.",
+    "Existing valid 9/9 cycle IDs and counts for a skipped seed are preserved in skipped-seed evidence.",
+    "Skipped seeds do not increment ConfirmedClusters.",
+    "After a skip, CurrentSeed is cleared and Seed Scout continues automatically.",
+    "The existing AUTOPILOT_CONSECUTIVE_FAILURE_LIMIT and AUTOPILOT_AUTH_FAILED guards remain present for true failures.",
+    "Pilot installation is SHA-pinned, rollback-capable and verified with no Last War scan or Collector mutation.",
+    "Production promotion requires a separate explicit human approval."
   ],
   "architecture_invariants": [
     "GitHub stores code, branches, CI and release artifacts.",
