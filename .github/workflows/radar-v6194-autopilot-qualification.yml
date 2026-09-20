@@ -9,6 +9,8 @@ on:
       - '.github/scripts/patch-radar-worker-autopilot-v6194.py'
       - '.github/scripts/patch-live-radar-autopilot-v6194.py'
       - '.github/workflows/radar-v6194-autopilot-qualification.yml'
+      - 'radar-vps/install-v6194-pilot.sh'
+      - 'radar-vps/probe-v6194-pilot-runtime.sh'
   workflow_dispatch:
 
 permissions:
@@ -124,6 +126,8 @@ jobs:
       - name: Verify Autopilot safety contract
         run: |
           set -euo pipefail
+          bash -n radar-vps/install-v6194-pilot.sh
+          bash -n radar-vps/probe-v6194-pilot-runtime.sh
           SRC=.radar-release-src/v6194-source/connector-go/cmd/radar-connector/server_autopilot_v6194.go
           grep -Fq 'GameReadonly:' "$SRC"
           grep -Fq 'GameMutation:' "$SRC"
