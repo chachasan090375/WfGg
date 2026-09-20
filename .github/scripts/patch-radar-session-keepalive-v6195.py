@@ -53,15 +53,11 @@ async function renewRadarSessionV6195(request, env) {
     worker = worker.replace(old_ttl, "const ttl = radarSessionTtlV6195(env);")
     print(f'RADAR_V6195_SESSION_TTL_ISSUERS_PATCHED={ttl_anchor_count}')
 
-    route_anchor = """      if (url.pathname === '/api/auth/game-token' && request.method === 'POST') return await authenticateGameToken(request, env);
-
-      if (url.pathname === '/api/me' && request.method === 'GET') {
+    route_anchor = """      if (url.pathname === '/api/me' && request.method === 'GET') {
 """
     if worker.count(route_anchor) != 1:
         raise SystemExit(f'V6195_ROUTE_ANCHOR_COUNT={worker.count(route_anchor)}')
-    route = """      if (url.pathname === '/api/auth/game-token' && request.method === 'POST') return await authenticateGameToken(request, env);
-
-      if (url.pathname === '/api/auth/session/refresh' && request.method === 'POST') {
+    route = """      if (url.pathname === '/api/auth/session/refresh' && request.method === 'POST') {
         return await renewRadarSessionV6195(request, env);
       }
 
