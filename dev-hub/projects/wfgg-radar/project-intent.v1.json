@@ -38,7 +38,10 @@
     "Valid historical 9/9 evidence is preserved and stale/failed/skipped cycles never increment ConfirmedClusters.",
     "V6.19.5 session keepalive remains unchanged.",
     "Pilot installation is SHA-pinned, rollback-capable and verified with no Last War scan or Collector mutation during the guard probe.",
-    "Production promotion requires a separate explicit human approval."
+    "Production promotion requires a separate explicit human approval.",
+    "After the guard-only pilot passes, a separate explicitly approved functional pilot may run exactly one normal @federated:8131 search to verify recovery of the observed stale Collector cycle.",
+    "The functional pilot must prove the stale cycle is marked FAILED with STALE_RUNNING_CYCLE_RECOVERED_V6197 and that a fresh @federated:8131 cycle reaches a terminal status before the pilot window closes.",
+    "The functional pilot keeps Last War READ-ONLY and limits Collector mutation to stale-cycle recovery plus the fresh targeted evidence cycle."
   ],
   "architecture_invariants": [
     "GitHub stores code, branches, CI and release artifacts.",
