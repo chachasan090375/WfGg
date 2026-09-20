@@ -9,6 +9,7 @@ Supported actions:
 - cluster-catalog-probe      (read)
 - history-performance-diagnostic (read)
 - census-frontier-diagnostic  (read)
+- seed-scout-route-diagnostic (read)
 - pilot-open                 (production-deploy)
 - pilot-install     (production-deploy)
 - pilot-probe       (read)
@@ -168,6 +169,7 @@ def validate_request(request: dict[str, Any]) -> tuple[dict[str, Any] | None, st
         "cluster-catalog-probe": "read",
         "history-performance-diagnostic": "read",
         "census-frontier-diagnostic": "read",
+        "seed-scout-route-diagnostic": "read",
         "pilot-open": "production-deploy",
         "pilot-install": "production-deploy",
         "pilot-probe": "read",
@@ -683,6 +685,122 @@ def do_census_frontier_diagnostic(request: dict[str, Any]) -> int:
     }]))
 
 
+def signed_json_request(method: str, path: str, body_obj: dict[str, Any] | None = None, timeout_seconds: int = 20) -> tuple[int, dict[str, Any], int]:
+    secret = connector_shared_key()
+    body = b"" if body_obj is None else json.dumps(body_obj, separators=(",", ":")).encode("utf-8")
+    timestamp = str(int(time.time()))
+    nonce = os.urandom(16).hex()
+    signature = radar_signature(method, path, timestamp, nonce, body, secret)
+    req = urllib.request.Request(
+        "http://127.0.0.1:8788" + path,
+        data=None if method.upper() == "GET" else body,
+        method=method.upper(),
+        headers={
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "X-Radar-Timestamp": timestamp,
+            "X-Radar-Nonce": nonce,
+            "X-Radar-Signature": signature,
+        },
+    )
+    started = time.monotonic()
+    status = 0
+    raw = b""
+    try:
+        with urllib.request.urlopen(req, timeout=timeout_seconds) as response:
+            status = int(response.status)
+            raw = response.read(65537)
+    except urllib.error.HTTPError as exc:
+        status = int(exc.code)
+        raw = exc.read(65537)
+    elapsed_ms = int(round((time.monotonic() - started) * 1000))
+    if len(raw) > 65536:
+        raise RuntimeError("RADAR_ROUTE_DIAGNOSTIC_RESPONSE_TOO_LARGE")
+    try:
+        payload = json.loads(raw.decode("utf-8", "strict"))
+    except Exception:
+        payload = {"_invalid_json": True, "_body_length": len(raw)}
+    if not isinstance(payload, dict):
+        payload = {"_non_object_json": True}
+    return status, payload, elapsed_ms
+
+
+def seed_scout_route_snapshot() -> dict[str, Any]:
+    snap = status_snapshot()
+    out: dict[str, Any] = {
+        "radar_service": snap.get("radar_service"),
+        "connector_sha256": snap.get("connector_sha256"),
+        "native_sha256": snap.get("native_sha256"),
+        "expected_v6193_connector_sha256": "73b64743031e4a47212dfdafae8ad67551f88d131831e70cb08a40957824f9a8",
+        "expected_v6193_native_sha256": "274d040f5294cb09422e5d55cc4b5335ac7739924c33dcb67b3f279645814900",
+        "v6193_loaded": False,
+        "start_guard": {},
+        "status_guard": {},
+        "route_guards_ready": False,
+        "failure_class": None,
+    }
+    out["v6193_loaded"] = (
+        out["connector_sha256"] == out["expected_v6193_connector_sha256"]
+        and out["native_sha256"] == out["expected_v6193_native_sha256"]
+    )
+    try:
+        start_status, start_payload, start_ms = signed_json_request(
+            "POST", "/v1/collector/server-seed-scout/start", {}, 20
+        )
+        status_status, status_payload, status_ms = signed_json_request(
+            "GET", "/v1/collector/server-seed-scout/status?id=does-not-exist", None, 20
+        )
+    except RuntimeError as exc:
+        out["failure_class"] = str(exc)
+        return out
+
+    out["start_guard"] = {
+        "http_status": start_status,
+        "error": start_payload.get("error"),
+        "elapsed_ms": start_ms,
+    }
+    out["status_guard"] = {
+        "http_status": status_status,
+        "error": status_payload.get("error"),
+        "elapsed_ms": status_ms,
+    }
+
+    if start_status != 400:
+        out["failure_class"] = "SEED_SCOUT_START_GUARD_HTTP_UNEXPECTED"
+        return out
+    if start_payload.get("error") != "GAME_TOKEN_REQUIRED":
+        out["failure_class"] = "SEED_SCOUT_START_GUARD_ERROR_UNEXPECTED"
+        return out
+    if status_status != 404:
+        out["failure_class"] = "SEED_SCOUT_STATUS_GUARD_HTTP_UNEXPECTED"
+        return out
+    if status_payload.get("error") != "SEED_SCOUT_JOB_NOT_FOUND":
+        out["failure_class"] = "SEED_SCOUT_STATUS_GUARD_ERROR_UNEXPECTED"
+        return out
+
+    out["route_guards_ready"] = True
+    return out
+
+
+def do_seed_scout_route_diagnostic(request: dict[str, Any]) -> int:
+    try:
+        snap = seed_scout_route_snapshot()
+    except RuntimeError as exc:
+        return emit(result(request, "FAILED", str(exc)))
+    raw = json.dumps(snap, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    return emit(result(request, "OK", "RADAR_SEED_SCOUT_ROUTE_DIAGNOSTIC_OK", [{
+        "kind": "diagnostic",
+        "source": "http://127.0.0.1:8788/v1/collector/server-seed-scout",
+        "digest": sha256_bytes(raw),
+        "details": snap,
+    }], [{
+        "type": "artifact",
+        "id": "radar-seed-scout-route-diagnostic",
+        "status": "UNVERIFIED",
+        "reason": "Signed localhost guard-only diagnostic; no game token and no game scan.",
+    }]))
+
+
 def do_open(request: dict[str, Any]) -> int:
     approval_error = approval_required(request)
     if approval_error:
@@ -826,6 +944,8 @@ def main() -> int:
             return do_history_performance_diagnostic(request)
         if action == "census-frontier-diagnostic":
             return do_census_frontier_diagnostic(request)
+        if action == "seed-scout-route-diagnostic":
+            return do_seed_scout_route_diagnostic(request)
         if action == "pilot-open":
             return do_open(request)
         if action == "pilot-install":
