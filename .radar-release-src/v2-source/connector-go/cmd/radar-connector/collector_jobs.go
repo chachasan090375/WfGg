@@ -443,6 +443,7 @@ func collectorStartCycle(ctx context.Context, query string) (collectorCycle, boo
 }
 
 
+// WFGG_RADAR_AUTOPILOT_STALE_CYCLE_RECOVERY_V6197
 const collectorStaleCycleThresholdV6197 = 15 * time.Minute
 
 const collectorCycleRuntimePythonV6197 = `
