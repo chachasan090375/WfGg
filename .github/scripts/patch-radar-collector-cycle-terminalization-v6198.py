@@ -18,36 +18,28 @@ for name in ('collector_cycle_terminalization_v6198.go', 'collector_cycle_termin
 text = COLLECTOR.read_text(encoding='utf-8')
 marker = 'finishFailedV6198 := func('
 if marker not in text:
-    anchor = '''		})
-	}
-
-	radarCollectorJobs.update(jobID, func(j *collectorJob) { j.Status = "RUNNING"; j.Phase = "STARTING" })
-'''
+    anchor = '\tradarCollectorJobs.update(jobID, func(j *collectorJob) { j.Status = "RUNNING"; j.Phase = "STARTING" })\n'
     if text.count(anchor) != 1:
         raise SystemExit(f'V6198_FAIL_HELPER_ANCHOR_COUNT={text.count(anchor)}')
-    addition = '''		})
-	}
+    addition = '''\t// WFGG_RADAR_COLLECTOR_CYCLE_TERMINALIZATION_CALLSITE_V6198
+\tfinishFailedV6198 := func(cycleID int64, code string, cause error) {
+\t\tif terminalErr := collectorFinishCycleReliableV6198(cycleID, "FAILED", code); terminalErr != nil {
+\t\t\tif cause != nil {
+\t\t\t\tfail(code+"_CYCLE_TERMINALIZATION_FAILED", fmt.Errorf("%v; %w", cause, terminalErr))
+\t\t\t} else {
+\t\t\t\tfail(code+"_CYCLE_TERMINALIZATION_FAILED", terminalErr)
+\t\t\t}
+\t\t\treturn
+\t\t}
+\t\tif cause != nil {
+\t\t\tfail(code, cause)
+\t\t} else {
+\t\t\tfail(code)
+\t\t}
+\t}
 
-	// WFGG_RADAR_COLLECTOR_CYCLE_TERMINALIZATION_CALLSITE_V6198
-	finishFailedV6198 := func(cycleID int64, code string, cause error) {
-		if terminalErr := collectorFinishCycleReliableV6198(cycleID, "FAILED", code); terminalErr != nil {
-			if cause != nil {
-				fail(code+"_CYCLE_TERMINALIZATION_FAILED", fmt.Errorf("%v; %w", cause, terminalErr))
-			} else {
-				fail(code+"_CYCLE_TERMINALIZATION_FAILED", terminalErr)
-			}
-			return
-		}
-		if cause != nil {
-			fail(code, cause)
-		} else {
-			fail(code)
-		}
-	}
-
-	radarCollectorJobs.update(jobID, func(j *collectorJob) { j.Status = "RUNNING"; j.Phase = "STARTING" })
 '''
-    text = text.replace(anchor, addition, 1)
+    text = text.replace(anchor, addition + anchor, 1)
 
 replacements = [
     (
