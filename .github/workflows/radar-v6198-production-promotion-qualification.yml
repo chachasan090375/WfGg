@@ -13,6 +13,7 @@ env:
   EXPECTED_NATIVE_SHA256: 274d040f5294cb09422e5d55cc4b5335ac7739924c33dcb67b3f279645814900
   EXPECTED_WORKER_SHA256: 052deb78c56aa6eb522f8808ffe0cc427c9d605d65a0e6983b6dbb9749da56ea
   EXPECTED_TRANSPORT_SHA256: 9dc489b759c75cc0a4882d29324965ca8171de84febae788ced52404b28ee573
+  EXPECTED_UI_SHA256: 3d67b6d7667e42ec95a618f1fb3c0f3722a0b59f220fe4658dd31dbd8c955cd7
 
 jobs:
   qualify:
@@ -102,6 +103,7 @@ jobs:
           echo "RADAR_V6198_UI_SHA256=$ui"
           test "$worker" = "$EXPECTED_WORKER_SHA256"
           test "$transport" = "$EXPECTED_TRANSPORT_SHA256"
+          test "$ui" = "$EXPECTED_UI_SHA256"
           grep -Fq 'WFGG_RADAR_SESSION_KEEPALIVE_V6195' /tmp/wfgg-radar/src/worker.js
           grep -Fq '/api/auth/session/refresh' /tmp/wfgg-radar/src/worker.js
           grep -Fq 'WFGG_RADAR_AUTOPILOT_CONTINUE_NO_DATA_UI_V6196' /tmp/wfgg-radar/public/live-radar.html
@@ -119,12 +121,19 @@ jobs:
           echo RADAR_V6198_COLLECTOR_MUTATION=DISCOVERY_AND_TERMINALIZATION_ONLY
           echo RADAR_V6198_TOKEN_PERSISTENCE=NO
 
-      - name: Verify production binary workflow is pinned
+      - name: Verify guarded production workflows are pinned
         run: |
           set -euo pipefail
           B=.github/workflows/build-radar-vps-binaries.yml
+          D=.github/workflows/deploy-radar-production.yml
           grep -Fq 'EXPECTED_CONNECTOR_SHA256: fb21a02feeaaa6a7013cf4e17c77bbb033a30a4bce021066fd947fc665360a9b' "$B"
           grep -Fq 'patch-radar-autopilot-stale-cycle-v6197.py' "$B"
           grep -Fq 'patch-radar-collector-cycle-terminalization-v6198.py' "$B"
           grep -Fq "grep -aFq 'v6.19.8'" "$B"
-          echo RADAR_V6198_PRODUCTION_BINARY_WORKFLOW=QUALIFIED
+          grep -Fq 'EXPECTED_CONNECTOR_SHA256: fb21a02feeaaa6a7013cf4e17c77bbb033a30a4bce021066fd947fc665360a9b' "$D"
+          grep -Fq 'EXPECTED_UI_SHA256: 3d67b6d7667e42ec95a618f1fb3c0f3722a0b59f220fe4658dd31dbd8c955cd7' "$D"
+          grep -Fq 'patch-radar-autopilot-stale-cycle-v6197.py' "$D"
+          grep -Fq 'patch-radar-collector-cycle-terminalization-v6198.py' "$D"
+          grep -Fq 'patch-live-radar-autopilot-v6198.py' "$D"
+          grep -Fq 'RADAR_V6198_CLOUDFLARE_PRODUCTION=PASS' "$D"
+          echo RADAR_V6198_PRODUCTION_WORKFLOWS=QUALIFIED
