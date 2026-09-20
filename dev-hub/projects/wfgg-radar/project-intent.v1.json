@@ -2,42 +2,39 @@
   "schema": "chacha.dev/project-intent/v1",
   "project": "wfgg-radar",
   "title": "WfGg Radar operational discovery and controlled runtime evolution",
-  "problem": "Automate WfGg Radar cluster discovery end-to-end while preserving evidence quality, Last War read-only behavior, Collector integrity, and ChaCha DEV production governance.",
+  "problem": "Extend the WfGg Radar UI session lifetime and add sliding renewal so long-running Autopilot monitoring does not require hourly reauthentication, without changing Last War token lifetime or weakening session security.",
   "goals": [
-    "Run targeted @federated:<serverId> discovery cycles automatically until each cluster has three complete 9/9 evidence cycles.",
-    "Keep valid data from partial cycles while ensuring partial or joined cycles never count toward cluster confirmation.",
-    "After a cluster is confirmed, run Seed Scout automatically to discover the next observed seed and continue without manual browser actions.",
-    "Allow the browser/phone to disconnect or lock after Autopilot starts; execution remains server-side on the VPS.",
-    "Use ChaCha DEV Project Control, Scheduler, Run Controller and Radar Runtime Adapter for all runtime deployment changes.",
-    "Keep production changes bounded, approval-gated, reversible and independently observable."
+    "Raise the Radar UI session TTL from 1 hour to the existing code maximum of 12 hours.",
+    "Add an authenticated same-origin session refresh endpoint that rotates the signed Radar session cookie without exposing or revalidating the Last War token.",
+    "Automatically renew the Radar UI session every 3 hours while the UI is active, and on return to a visible tab after a long pause.",
+    "Keep the server-side V6.19.4 Autopilot independent from the browser session so active discovery continues even if the UI session expires.",
+    "Preserve the encrypted Last War credential vault and all existing role/capability checks.",
+    "Use ChaCha DEV governance for qualification and production approval."
   ],
   "non_goals": [
-    "Do not change Last War game state or invoke mutating game commands.",
-    "Do not rescan server 972.",
-    "Do not count partial 8/9 cycles, failed cycles, or joined cycles as cluster-confirmation evidence.",
-    "Do not persist the Last War token in jobs, Collector DB, logs, receipts, or filesystem.",
-    "Do not replace authoritative NAS persistence with VPS-local project storage.",
-    "Do not expose raw player data, credentials or runtime secrets."
+    "Do not create a permanent Last War token or bypass Last War authentication expiry.",
+    "Do not persist a plaintext Last War token in the browser, Worker logs, jobs, Collector DB, VPS filesystem, or ChaCha DEV.",
+    "Do not modify the V6.19.4 connector or its Autopilot discovery logic.",
+    "Do not launch or stop any active Autopilot job as part of the session keepalive deployment.",
+    "Do not weaken same-origin mutation checks, role checks, or signed session verification."
   ],
   "current_change": {
-    "id": "radar-v6194-autopilot",
-    "purpose": "Add a server-side Autopilot that chains targeted Collector cycles and Seed Scout discovery. It requires three quality-gated complete 9/9 cycles per seed, reuses already-valid V6.17 evidence, retries partial cycles without counting them, automatically discovers the next seed, and can continue while the browser is closed.",
-    "discovery_mode": "server-side-autopilot-3x-full-9of9-then-seed-scout",
-    "pilot_only": true,
+    "id": "radar-v6195-session-keepalive",
+    "purpose": "Cloudflare Worker/UI-only change: 12-hour Radar UI sessions plus sliding renewal every 3 hours. Last War token lifetime and V6.19.4 connector runtime remain unchanged.",
+    "discovery_mode": "unchanged-v6194-autopilot",
+    "pilot_only": false,
     "rollback_required": true
   },
   "acceptance_criteria": [
-    "V6.19.4 connector, Worker and UI build/tests pass on a pinned Git revision.",
-    "Pilot connector/native binaries and staged Cloudflare surfaces are SHA256 pinned before runtime installation.",
-    "Only V6.17 quality-eligible SUCCESS non-joined cycles with 9/9 evidence count toward the three-cycle confirmation target; already-valid targeted evidence may be reused.",
-    "Partial cycles preserve valid Collector observations but retain a non-empty quality marker and never count as cluster confirmation.",
-    "Autopilot retries the same seed after partial cycles, stops on bounded failure/authentication guards, and supports stop-after-current-step.",
-    "After three complete cycles for a seed, Seed Scout runs automatically and the next observed seed becomes the next targeted scan.",
-    "Last War operations remain read-only; normal full discovery cycles intentionally update Collector evidence.",
-    "The Last War token remains ephemeral in memory and is never persisted by Autopilot.",
-    "The Autopilot runner does not require the phone/browser to remain open after start.",
-    "Production-deploy permission requires explicit human approval recorded in ChaCha DEV Evidence Ledger.",
-    "The guard-only PILOT executes no Last War scan and no Collector mutation; Radar Sentinel protection is restored and the approval is revoked after the pilot window."
+    "The Worker session TTL is configured to 43200 seconds and remains capped at 12 hours.",
+    "POST /api/auth/session/refresh requires a valid existing Radar session and returns a rotated session cookie with the same identity and role.",
+    "The refresh endpoint never decrypts, validates, returns, or persists the Last War token.",
+    "The UI renews the Radar session every 3 hours while active and attempts renewal when returning to the visible tab after a long pause.",
+    "A 401 from the refresh endpoint stops keepalive and returns the UI to the normal login flow.",
+    "Logout stops keepalive and clears the Radar session as before.",
+    "V6.19.4 Autopilot jobs remain server-side and are not stopped or restarted by the session keepalive change.",
+    "No connector binary change is required.",
+    "Production deployment is explicit-approval gated and reversible."
   ],
   "architecture_invariants": [
     "GitHub stores code, branches, CI and release artifacts.",
