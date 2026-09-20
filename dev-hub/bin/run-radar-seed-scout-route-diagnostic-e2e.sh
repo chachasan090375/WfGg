@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-REV="${WFGG_DEV_HUB_RADAR_CENSUS_REV:-}"
+REV="${WFGG_DEV_HUB_RADAR_SEED_SCOUT_DIAG_REV:-}"
 PROJECT="wfgg-radar"
 RAW_ARCHIVE="https://codeload.github.com/chachasan090375/WfGg/tar.gz/${REV}"
 WORK="$(mktemp -d /tmp/chacha-radar-seed-scout-route.XXXXXX)"
@@ -19,7 +19,7 @@ for cmd in curl tar python3 systemctl grep; do
   command -v "$cmd" >/dev/null 2>&1 || die "missing_command:$cmd"
 done
 
-echo "=== CHACHA DEV RADAR CENSUS FRONTIER DIAGNOSTIC ==="
+echo "=== CHACHA DEV RADAR V6.19.3 SEED SCOUT ROUTE DIAGNOSTIC ==="
 echo "SOURCE_REV=$REV"
 
 curl -fsSL "$RAW_ARCHIVE" -o "$ARCHIVE"
