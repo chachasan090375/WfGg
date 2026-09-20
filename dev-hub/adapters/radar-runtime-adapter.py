@@ -11,6 +11,7 @@ Supported actions:
 - census-frontier-diagnostic  (read)
 - seed-scout-route-diagnostic (read)
 - email-auth-runtime-diagnostic (read)
+- autopilot-progress-diagnostic (read)
 - pilot-open                 (production-deploy)
 - pilot-install     (production-deploy)
 - pilot-probe       (read)
@@ -172,6 +173,7 @@ def validate_request(request: dict[str, Any]) -> tuple[dict[str, Any] | None, st
         "census-frontier-diagnostic": "read",
         "seed-scout-route-diagnostic": "read",
         "email-auth-runtime-diagnostic": "read",
+        "autopilot-progress-diagnostic": "read",
         "pilot-open": "production-deploy",
         "pilot-install": "production-deploy",
         "pilot-probe": "read",
@@ -964,6 +966,116 @@ def do_email_auth_runtime_diagnostic(request: dict[str, Any]) -> int:
     }]))
 
 
+
+def autopilot_progress_snapshot() -> dict[str, Any]:
+    db_path = collector_db_path()
+    snap: dict[str, Any] = {
+        "radar_service": state(RADAR_SERVICE),
+        "connector_sha256": sha256_file(CONNECTOR) if CONNECTOR.is_file() else None,
+        "db_exists": db_path.is_file(),
+        "db_readable": os.access(db_path, os.R_OK) if db_path.exists() else False,
+        "active_targeted_cycles": [],
+        "latest_targeted_cycles": [],
+        "latest_cycle_id": None,
+        "latest_query": None,
+        "latest_status": None,
+        "latest_started_at": None,
+        "latest_finished_at": None,
+        "latest_error": None,
+        "activity_evidence": "UNKNOWN",
+        "failure_class": None,
+    }
+    if not snap["db_exists"]:
+        snap["failure_class"] = "COLLECTOR_DB_NOT_FOUND"
+        return snap
+    if not snap["db_readable"]:
+        snap["failure_class"] = "COLLECTOR_DB_NOT_READABLE"
+        return snap
+    try:
+        conn = sqlite3.connect("file:" + str(db_path) + "?mode=ro", uri=True)
+        conn.row_factory = sqlite3.Row
+        try:
+            cols = {str(r[1]) for r in conn.execute("PRAGMA table_info(cycles)")}
+            required = {"id", "status", "error", "query", "started_at", "finished_at"}
+            missing = sorted(required.difference(cols))
+            if missing:
+                snap["failure_class"] = "CYCLES_PROGRESS_COLUMNS_MISSING:" + ",".join(missing)
+                return snap
+            rows = list(conn.execute(
+                """
+                SELECT id,status,COALESCE(error,'') AS error,COALESCE(query,'') AS query,
+                       COALESCE(started_at,'') AS started_at,COALESCE(finished_at,'') AS finished_at
+                FROM cycles
+                WHERE LOWER(TRIM(COALESCE(query,''))) LIKE '@federated:%'
+                ORDER BY id DESC
+                LIMIT 12
+                """
+            ))
+            latest = []
+            active = []
+            for r in rows:
+                item = {
+                    "id": int(r["id"]),
+                    "status": str(r["status"] or ""),
+                    "query": str(r["query"] or ""),
+                    "started_at": str(r["started_at"] or ""),
+                    "finished_at": str(r["finished_at"] or ""),
+                    "error": str(r["error"] or ""),
+                }
+                latest.append(item)
+                if item["status"].upper() == "RUNNING":
+                    active.append(item)
+            snap["latest_targeted_cycles"] = latest
+            snap["active_targeted_cycles"] = active
+            if latest:
+                x = latest[0]
+                snap["latest_cycle_id"] = x["id"]
+                snap["latest_query"] = x["query"]
+                snap["latest_status"] = x["status"]
+                snap["latest_started_at"] = x["started_at"]
+                snap["latest_finished_at"] = x["finished_at"]
+                snap["latest_error"] = x["error"]
+            snap["activity_evidence"] = "ACTIVE_TARGETED_CYCLE" if active else "NO_ACTIVE_TARGETED_CYCLE"
+        finally:
+            conn.close()
+    except sqlite3.Error as exc:
+        snap["failure_class"] = "SQLITE_READ_FAILED"
+        snap["sqlite_error_class"] = type(exc).__name__
+    return snap
+
+
+def do_autopilot_progress_diagnostic(request: dict[str, Any]) -> int:
+    first = autopilot_progress_snapshot()
+    time.sleep(8)
+    second = autopilot_progress_snapshot()
+    first_id = first.get("latest_cycle_id")
+    second_id = second.get("latest_cycle_id")
+    progressed = (
+        isinstance(first_id, int) and isinstance(second_id, int) and second_id > first_id
+    )
+    evidence = "NEW_TARGETED_CYCLE_OBSERVED" if progressed else str(second.get("activity_evidence") or "UNKNOWN")
+    snap = {
+        "first": first,
+        "second": second,
+        "new_targeted_cycle_observed": progressed,
+        "autopilot_activity_evidence": evidence,
+        "definitive_job_status_available": False,
+        "job_status_note": "Exact V6.19.4 job status requires its job id; this read-only diagnostic infers runtime activity from Collector cycle evidence only.",
+    }
+    raw = json.dumps(snap, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    return emit(result(request, "OK", "RADAR_AUTOPILOT_PROGRESS_DIAGNOSTIC_OK", [{
+        "kind": "diagnostic",
+        "source": "vps://localhost/wfgg-radar/autopilot-progress",
+        "digest": sha256_bytes(raw),
+        "details": snap,
+    }], [{
+        "type": "artifact",
+        "id": "radar-autopilot-progress-diagnostic",
+        "status": "UNVERIFIED",
+        "reason": "Read-only Collector cycle evidence; exact in-memory Autopilot job status requires its job id.",
+    }]))
+
+
 def do_open(request: dict[str, Any]) -> int:
     approval_error = approval_required(request)
     if approval_error:
@@ -1111,6 +1223,8 @@ def main() -> int:
             return do_seed_scout_route_diagnostic(request)
         if action == "email-auth-runtime-diagnostic":
             return do_email_auth_runtime_diagnostic(request)
+        if action == "autopilot-progress-diagnostic":
+            return do_autopilot_progress_diagnostic(request)
         if action == "pilot-open":
             return do_open(request)
         if action == "pilot-install":
