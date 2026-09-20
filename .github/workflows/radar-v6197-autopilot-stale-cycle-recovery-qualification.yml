@@ -6,6 +6,8 @@ on:
     paths:
       - '.radar-release-src/v2-source/connector-go/**'
       - '.radar-release-src/v6194-source/**'
+      - '.radar-release-src/v6197-source/**'
+      - '.github/scripts/patch-radar-autopilot-stale-cycle-v6197.py'
       - '.github/scripts/patch-live-radar-autopilot-v6197.py'
       - '.github/workflows/radar-v6197-autopilot-stale-cycle-recovery-qualification.yml'
   workflow_dispatch:
@@ -57,6 +59,7 @@ jobs:
           python3 .github/scripts/patch-radar-cluster-catalog-budget-v6192.py
           python3 .github/scripts/patch-radar-seed-scout-v6193.py
           python3 .github/scripts/patch-radar-autopilot-v6194.py
+          python3 .github/scripts/patch-radar-autopilot-stale-cycle-v6197.py
 
           install -m 0644 .radar-release-src/v2-source/src/game/remote-transport.js /tmp/wfgg-radar/src/game/remote-transport.js
           python3 .github/scripts/patch-radar-async-collector-worker.py
@@ -71,7 +74,7 @@ jobs:
           python3 .github/scripts/patch-live-radar-autopilot-v6196.py
           python3 .github/scripts/patch-live-radar-autopilot-v6197.py
 
-          grep -Fq 'WFGG_RADAR_AUTOPILOT_STALE_CYCLE_RECOVERY_V6197' /tmp/wfgg-radar/connector-go/cmd/radar-connector/collector_jobs.go
+          grep -Fq 'WFGG_RADAR_AUTOPILOT_STALE_CYCLE_RECOVERY_V6197' /tmp/wfgg-radar/connector-go/cmd/radar-connector/collector_stale_cycle_v6197.go
           grep -Fq 'WFGG_RADAR_AUTOPILOT_STALE_CYCLE_RECOVERY_V6197' /tmp/wfgg-radar/connector-go/cmd/radar-connector/server_autopilot_v6194.go
           grep -Fq 'WFGG_RADAR_AUTOPILOT_STALE_CYCLE_RECOVERY_UI_V6197' /tmp/wfgg-radar/public/live-radar.html
           echo RADAR_V6197_RECONSTRUCT=PASS
@@ -93,11 +96,13 @@ jobs:
       - name: Verify stale-cycle safety contract
         run: |
           set -euo pipefail
-          C=/tmp/wfgg-radar/connector-go/cmd/radar-connector/collector_jobs.go
+          C=/tmp/wfgg-radar/connector-go/cmd/radar-connector/collector_stale_cycle_v6197.go
+          J=/tmp/wfgg-radar/connector-go/cmd/radar-connector/collector_jobs.go
           A=/tmp/wfgg-radar/connector-go/cmd/radar-connector/server_autopilot_v6194.go
           grep -Fq 'collectorStaleCycleThresholdV6197 = 15 * time.Minute' "$C"
           grep -Fq 'collectorCycleStaleByStartedAtV6197' "$C"
           grep -Fq 'STALE_RUNNING_CYCLE_RECOVERED_V6197' "$C"
+          grep -Fq 'collectorStartCycleWithStaleRecoveryV6197(ctx, query)' "$J"
           grep -Fq 'Inspection failure must never mutate or kill a possibly valid joined cycle' "$C"
           grep -Eq 'autopilotVersionV6194[[:space:]]*=[[:space:]]*"v6\.19\.7"' "$A"
           grep -Fq 'AUTOPILOT_CONSECUTIVE_FAILURE_LIMIT' "$A"
