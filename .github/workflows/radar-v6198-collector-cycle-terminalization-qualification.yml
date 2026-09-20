@@ -102,7 +102,7 @@ jobs:
           C=/tmp/wfgg-radar/connector-go/cmd/radar-connector/collector_cycle_terminalization_v6198.go
           J=/tmp/wfgg-radar/connector-go/cmd/radar-connector/collector_jobs.go
           A=/tmp/wfgg-radar/connector-go/cmd/radar-connector/server_autopilot_v6194.go
-          grep -Fq 'collectorTerminalizationAttemptsV6198 = 12' "$C"
+          grep -Eq 'collectorTerminalizationAttemptsV6198[[:space:]]*=[[:space:]]*12' "$C"
           grep -Fq 'collectorFinishCycleReliableV6198' "$C"
           grep -Fq 'collectorCycleTerminalStateV6198' "$C"
           grep -Fq 'WFGG_RADAR_COLLECTOR_CYCLE_TERMINALIZATION_CALLSITE_V6198' "$J"
