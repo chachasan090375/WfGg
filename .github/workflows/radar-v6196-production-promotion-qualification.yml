@@ -15,6 +15,7 @@ env:
   EXPECTED_NATIVE_SHA256: 274d040f5294cb09422e5d55cc4b5335ac7739924c33dcb67b3f279645814900
   EXPECTED_WORKER_SHA256: 052deb78c56aa6eb522f8808ffe0cc427c9d605d65a0e6983b6dbb9749da56ea
   EXPECTED_TRANSPORT_SHA256: 9dc489b759c75cc0a4882d29324965ca8171de84febae788ced52404b28ee573
+  EXPECTED_UI_SHA256: e3565d7a3a475d475ad5eb46b541c9f0a000f042c0f82d945dfa9dde9b908ec1
 
 jobs:
   qualify:
@@ -98,6 +99,7 @@ jobs:
           echo "RADAR_V6196_WORKER_SHA256=$worker"
           echo "RADAR_V6196_TRANSPORT_SHA256=$transport"
           echo "RADAR_V6196_UI_SHA256=$ui"
+          test "$ui" = "$EXPECTED_UI_SHA256"
           test "$worker" = "$EXPECTED_WORKER_SHA256"
           test "$transport" = "$EXPECTED_TRANSPORT_SHA256"
           grep -Fq 'WFGG_RADAR_SESSION_KEEPALIVE_V6195' /tmp/wfgg-radar/src/worker.js
@@ -124,8 +126,8 @@ jobs:
           D=.github/workflows/deploy-radar-production.yml
           grep -Fq 'EXPECTED_CONNECTOR_SHA256: b7ff60476f3afe7c8bcb9b78963c46daa4e8b5507490cc83cbcbc4ced63e7c35' "$B"
           grep -Fq 'EXPECTED_CONNECTOR_SHA256: b7ff60476f3afe7c8bcb9b78963c46daa4e8b5507490cc83cbcbc4ced63e7c35' "$D"
-          grep -Fq 'EXPECTED_UI_SHA256: PENDING_V6196_UI_SHA256' "$D"
+          grep -Fq 'EXPECTED_UI_SHA256: e3565d7a3a475d475ad5eb46b541c9f0a000f042c0f82d945dfa9dde9b908ec1' "$D"
           grep -Fq 'patch-live-radar-autopilot-v6196.py' "$D"
           grep -Fq 'RADAR_SESSION_TTL = "43200"' "$D"
           grep -Fq 'RADAR_V6196_CLOUDFLARE_PRODUCTION=PASS' "$D"
-          echo RADAR_V6196_PRODUCTION_PROMOTION=DISCOVERY_PASS
+          echo RADAR_V6196_PRODUCTION_PROMOTION=QUALIFIED
