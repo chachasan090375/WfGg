@@ -17,8 +17,10 @@ on:
       - '.github/scripts/patch-radar-connector-runtime-v693.py'
       - '.github/scripts/patch-radar-cluster-catalog-budget-v6192.py'
       - '.github/scripts/patch-radar-seed-scout-v6193.py'
+      - '.github/scripts/patch-radar-autopilot-v6194.py'
       - '.radar-release-src/v2-source/connector-go/**'
       - '.radar-release-src/v6193-source/**'
+      - '.radar-release-src/v6194-source/**'
   workflow_dispatch:
 
 permissions:
@@ -30,7 +32,7 @@ concurrency:
 
 env:
   LASTWAR_CLIENT_REF: ee5f64de160a8051c2f9f98189b75038dd225a0a
-  EXPECTED_CONNECTOR_SHA256: 73b64743031e4a47212dfdafae8ad67551f88d131831e70cb08a40957824f9a8
+  EXPECTED_CONNECTOR_SHA256: dd3fa071deebe3a2c9efb8e6fcdce115d13497a542b9afae4f1133ddcb1b01e3
   EXPECTED_NATIVE_SHA256: 274d040f5294cb09422e5d55cc4b5335ac7739924c33dcb67b3f279645814900
 
 jobs:
@@ -47,7 +49,7 @@ jobs:
         with:
           go-version: '1.27.x'
 
-      - name: Reconstruct cumulative V6.19.3
+      - name: Reconstruct cumulative V6.19.4
         run: |
           set -euo pipefail
           rm -rf /tmp/wfgg-radar /tmp/lastwar-client
@@ -70,10 +72,11 @@ jobs:
           python3 .github/scripts/patch-radar-connector-runtime-v693.py
           python3 .github/scripts/patch-radar-cluster-catalog-budget-v6192.py
           python3 .github/scripts/patch-radar-seed-scout-v6193.py
+          python3 .github/scripts/patch-radar-autopilot-v6194.py
 
           grep -Fq 'WFGG_RADAR_CLUSTER_CATALOG_BUDGET_V6192' /tmp/wfgg-radar/connector-go/cmd/radar-connector/server_cluster_catalog_v613.go
           grep -Fq 'WFGG_RADAR_SEED_SCOUT_V6193' /tmp/wfgg-radar/connector-go/cmd/radar-connector/server_seed_scout_v6193.go
-          echo RADAR_V6193_PRODUCTION_RECONSTRUCT=PASS
+          echo RADAR_V6194_PRODUCTION_RECONSTRUCT=PASS
 
       - name: Test and build connector
         working-directory: /tmp/wfgg-radar/connector-go
@@ -86,7 +89,7 @@ jobs:
           CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w' -o "$GITHUB_WORKSPACE/radar-vps/release/radar-connector" ./cmd/radar-connector
           actual="$(sha256sum "$GITHUB_WORKSPACE/radar-vps/release/radar-connector" | awk '{print $1}')"
           test "$actual" = "$EXPECTED_CONNECTOR_SHA256"
-          echo "RADAR_V6193_CONNECTOR_SHA256=$actual"
+          echo "RADAR_V6194_CONNECTOR_SHA256=$actual"
 
       - name: Build qualified native helper
         run: |
@@ -109,7 +112,7 @@ jobs:
           CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -tags lastwar_native_template -trimpath -ldflags='-s -w' -o "$GITHUB_WORKSPACE/radar-vps/release/radar-native-template" ./cmd/wfgg-radar-native-template
           actual="$(sha256sum "$GITHUB_WORKSPACE/radar-vps/release/radar-native-template" | awk '{print $1}')"
           test "$actual" = "$EXPECTED_NATIVE_SHA256"
-          echo "RADAR_V6193_NATIVE_SHA256=$actual"
+          echo "RADAR_V6194_NATIVE_SHA256=$actual"
 
       - name: Verify read-only production release
         run: |
@@ -124,9 +127,11 @@ jobs:
           )
           grep -Fq "$EXPECTED_CONNECTOR_SHA256  radar-connector" radar-vps/release/SHA256SUMS
           grep -Fq "$EXPECTED_NATIVE_SHA256  radar-native-template" radar-vps/release/SHA256SUMS
-          echo RADAR_V6193_GAME_MUTATION=NO
-          echo RADAR_V6193_COLLECTOR_MUTATION=NO
-          echo RADAR_V6193_PRODUCTION_RELEASE=QUALIFIED
+          echo RADAR_V6194_GAME_MUTATION=NO
+          echo RADAR_V6194_LASTWAR_MUTATION=NO
+          echo RADAR_V6194_AUTOPILOT_COLLECTOR_MUTATION=YES
+          echo RADAR_V6194_TOKEN_PERSISTENCE=NO
+          echo RADAR_V6194_PRODUCTION_RELEASE=QUALIFIED
 
       - name: Commit production release binaries
         run: |
@@ -135,11 +140,11 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add radar-vps/release/radar-connector radar-vps/release/radar-native-template radar-vps/release/SHA256SUMS
           if git diff --cached --quiet; then
-            echo RADAR_V6193_RELEASE_BINARIES=UNCHANGED
+            echo RADAR_V6194_RELEASE_BINARIES=UNCHANGED
             exit 0
           fi
-          git commit -m 'build(radar): publish V6.19.3 Seed Scout production binaries'
+          git commit -m 'build(radar): publish V6.19.4 Autopilot production binaries'
           git fetch origin radar-production-v1
           git rebase origin/radar-production-v1
           git push origin HEAD:radar-production-v1
-          echo RADAR_V6193_RELEASE_BINARIES=PUBLISHED
+          echo RADAR_V6194_RELEASE_BINARIES=PUBLISHED
