@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # V6.19.3 runner; qualification workflow must be green before execution.
+# Radar runtime adapter provisioning revision: 1.5.1 (immutable version bump after digest change).
 set -Eeuo pipefail
 
 REV="${WFGG_DEV_HUB_RADAR_V6193_DEPLOY_REV:-}"
