@@ -13,7 +13,7 @@ permissions:
   contents: read
 
 env:
-  PILOT_REV: 80cb17a0baa91ec534d0b54625f65113ba3d34e1
+  PILOT_REV: 93d58f84a8182e141dbc86ac5b0d4dde893484bc
   EXPECTED_CONNECTOR_SHA256: fb21a02feeaaa6a7013cf4e17c77bbb033a30a4bce021066fd947fc665360a9b
   EXPECTED_NATIVE_SHA256: 274d040f5294cb09422e5d55cc4b5335ac7739924c33dcb67b3f279645814900
 
@@ -31,7 +31,7 @@ jobs:
           set -euo pipefail
           R=dev-hub/bin/run-radar-v6198-pilot-via-chacha-dev.sh
           bash -n "$R"
-          grep -Fq 'PILOT_REV="80cb17a0baa91ec534d0b54625f65113ba3d34e1"' "$R"
+          grep -Fq 'PILOT_REV="93d58f84a8182e141dbc86ac5b0d4dde893484bc"' "$R"
           grep -Fq 'PILOT_BRANCH="radar-v6198-collector-cycle-terminalization"' "$R"
           grep -Fq 'CONNECTOR_SHA="fb21a02feeaaa6a7013cf4e17c77bbb033a30a4bce021066fd947fc665360a9b"' "$R"
           grep -Fq 'NATIVE_SHA="274d040f5294cb09422e5d55cc4b5335ac7739924c33dcb67b3f279645814900"' "$R"
@@ -88,7 +88,7 @@ jobs:
         run: |
           set -euo pipefail
           R=dev-hub/bin/run-radar-v6198-pilot-via-chacha-dev.sh
-          grep -Fq 'J’approuve le PILOT Radar V6.19.8 Collector Cycle Terminalization révision 80cb17a0baa91ec534d0b54625f65113ba3d34e1 avec probe de garde sans scan de jeu.' "$R"
+          grep -Fq 'J’approuve le PILOT Radar V6.19.8 Collector Cycle Terminalization révision 93d58f84a8182e141dbc86ac5b0d4dde893484bc avec probe de garde sans scan de jeu.' "$R"
           grep -Fq 'PRODUCTION_RELEASE_APPROVAL_REVOKED=PASS' "$R"
           grep -Fq "RADAR_V6198_PILOT_CLOSE='+('PASS' if ok else 'FAIL')" "$R"
           echo RADAR_V6198_ONE_SHOT_APPROVAL=PASS
