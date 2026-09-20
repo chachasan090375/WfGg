@@ -43,46 +43,21 @@ if marker not in text:
 
 replacements = [
     (
-        '''		_ = collectorFinishCycle(context.Background(), cycle.ID, "FAILED", "REGION_SCANNER_UNAVAILABLE")
-		fail("REGION_SCANNER_UNAVAILABLE")''',
-        '''		finishFailedV6198(cycle.ID, "REGION_SCANNER_UNAVAILABLE", nil)'''
+        '''\t\t\t_ = collectorFinishCycle(context.Background(), cycle.ID, "FAILED", "MAP_INGEST_FAILED")
+\t\t\tfail("MAP_INGEST_FAILED", err)''',
+        '''\t\t\tfinishFailedV6198(cycle.ID, "MAP_INGEST_FAILED", err)'''
     ),
     (
-        '''			_ = collectorFinishCycle(context.Background(), cycle.ID, "FAILED", "MAP_INGEST_FAILED")
-			fail("MAP_INGEST_FAILED", err)''',
-        '''			finishFailedV6198(cycle.ID, "MAP_INGEST_FAILED", err)'''
-    ),
-    (
-        '''		_ = collectorFinishCycle(context.Background(), cycle.ID, "FAILED", "MAP_ALL_REGIONS_FAILED")
-		fail("MAP_ALL_REGIONS_FAILED", errors.New("ALL_REGION_SCANS_FAILED"))''',
-        '''		finishFailedV6198(cycle.ID, "MAP_ALL_REGIONS_FAILED", errors.New("ALL_REGION_SCANS_FAILED"))'''
-    ),
-    (
-        '''		_ = collectorFinishCycle(context.Background(), cycle.ID, "FAILED", "DELTA_READ_FAILED")
-		fail("DELTA_READ_FAILED", err)''',
-        '''		finishFailedV6198(cycle.ID, "DELTA_READ_FAILED", err)'''
-    ),
-    (
-        '''			_ = collectorFinishCycle(context.Background(), cycle.ID, "FAILED", "PROFILE_SCANNER_UNAVAILABLE")
-			fail("PROFILE_SCANNER_UNAVAILABLE")''',
-        '''			finishFailedV6198(cycle.ID, "PROFILE_SCANNER_UNAVAILABLE", nil)'''
-    ),
-    (
-        '''				_ = collectorFinishCycle(context.Background(), cycle.ID, "FAILED", "PROFILE_BATCH_FAILED")
-				fail("PROFILE_BATCH_FAILED", err)''',
-        '''				finishFailedV6198(cycle.ID, "PROFILE_BATCH_FAILED", err)'''
-    ),
-    (
-        '''				_ = collectorFinishCycle(context.Background(), cycle.ID, "FAILED", "PROFILE_INGEST_FAILED")
-				fail("PROFILE_INGEST_FAILED", err)''',
-        '''				finishFailedV6198(cycle.ID, "PROFILE_INGEST_FAILED", err)'''
+        '''\t\t_ = collectorFinishCycle(context.Background(), cycle.ID, "FAILED", "MAP_ALL_REGIONS_FAILED")
+\t\tfail("MAP_ALL_REGIONS_FAILED", errors.New("ALL_REGION_SCANS_FAILED"))''',
+        '''\t\tfinishFailedV6198(cycle.ID, "MAP_ALL_REGIONS_FAILED", errors.New("ALL_REGION_SCANS_FAILED"))'''
     ),
 ]
 for old, new in replacements:
     if old in text:
         text = text.replace(old, new, 1)
     elif new not in text:
-        raise SystemExit('V6198_FAILURE_CALLSITE_ANCHOR_MISSING')
+        raise SystemExit('V6198_MAP_FAILURE_CALLSITE_ANCHOR_MISSING')
 
 old_success = '''	if err := collectorFinishCycle(ctx, cycle.ID, "SUCCESS", ""); err != nil {
 		fail("COLLECTOR_CYCLE_FINISH_FAILED", err)
