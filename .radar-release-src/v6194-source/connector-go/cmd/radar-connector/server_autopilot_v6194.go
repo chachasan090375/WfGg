@@ -230,6 +230,38 @@ func autopilotStoppedV6194(id string) bool {
 	return ok && job.StopRequested
 }
 
+func autopilotConfirmCurrentClusterV6194(jobID string) bool {
+	job, ok := radarAutopilotJobsV6194.get(jobID)
+	if !ok || strings.TrimSpace(job.CurrentSeed) == "" || job.ValidatedCycles < job.RequiredFullCycles {
+		return false
+	}
+	cycleIDs := append([]int64(nil), job.CurrentFullCycleIDs...)
+	radarAutopilotJobsV6194.update(jobID, func(a *autopilotJobV6194) {
+		a.ConfirmedClusters++
+		a.History = append(a.History, autopilotClusterResultV6194{
+			Seed:          a.CurrentSeed,
+			Command:       "@federated:" + a.CurrentSeed,
+			FullCycles:    a.ValidatedCycles,
+			PartialCycles: a.PartialCycles,
+			FailedCycles:  a.FailedCycles,
+			CycleIDs:      cycleIDs,
+			ConfirmedAt:   utcNow(),
+		})
+		a.Phase = "CLUSTER_CONFIRMED"
+		a.CurrentSeed = ""
+		a.CurrentCommand = ""
+		a.CurrentFullCycleIDs = nil
+		a.ValidatedCycles = 0
+		a.PartialCycles = 0
+		a.FailedCycles = 0
+		a.JoinedCycles = 0
+		a.ConsecutiveFailures = 0
+		a.ScoutBatch = 0
+		a.ScoutOffset = 0
+	})
+	return true
+}
+
 func autopilotFailV6194(id, phase, errCode string) {
 	radarAutopilotJobsV6194.update(id, func(job *autopilotJobV6194) {
 		job.Status = "FAILED"
@@ -459,6 +491,11 @@ func (s *server) runAutopilotV6194(jobID, token string) {
 		}
 
 		job, _ = radarAutopilotJobsV6194.get(jobID)
+		if autopilotConfirmCurrentClusterV6194(jobID) {
+			time.Sleep(1200 * time.Millisecond)
+			continue
+		}
+		job, _ = radarAutopilotJobsV6194.get(jobID)
 		command := "@federated:" + job.CurrentSeed
 		child := radarCollectorJobs.add(command)
 		radarAutopilotJobsV6194.update(jobID, func(a *autopilotJobV6194) {
@@ -536,30 +573,10 @@ func (s *server) runAutopilotV6194(jobID, token string) {
 			continue
 		}
 
-		cycleIDs := append([]int64(nil), job.CurrentFullCycleIDs...)
-		radarAutopilotJobsV6194.update(jobID, func(a *autopilotJobV6194) {
-			a.ConfirmedClusters++
-			a.History = append(a.History, autopilotClusterResultV6194{
-				Seed:          a.CurrentSeed,
-				Command:       "@federated:" + a.CurrentSeed,
-				FullCycles:    a.ValidatedCycles,
-				PartialCycles: a.PartialCycles,
-				FailedCycles:  a.FailedCycles,
-				CycleIDs:      cycleIDs,
-				ConfirmedAt:   utcNow(),
-			})
-			a.Phase = "CLUSTER_CONFIRMED"
-			a.CurrentSeed = ""
-			a.CurrentCommand = ""
-			a.CurrentFullCycleIDs = nil
-			a.ValidatedCycles = 0
-			a.PartialCycles = 0
-			a.FailedCycles = 0
-			a.JoinedCycles = 0
-			a.ConsecutiveFailures = 0
-			a.ScoutBatch = 0
-			a.ScoutOffset = 0
-		})
+		if !autopilotConfirmCurrentClusterV6194(jobID) {
+			autopilotFailV6194(jobID, "CONFIRMATION_FAILED", "AUTOPILOT_CONFIRMATION_INVARIANT")
+			return
+		}
 		time.Sleep(1200 * time.Millisecond)
 	}
 }
