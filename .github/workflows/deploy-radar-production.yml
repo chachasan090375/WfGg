@@ -37,7 +37,7 @@ env:
   RADAR_CONNECTOR_URL: https://chachavps.tail3ab05a.ts.net
   EXPECTED_CONNECTOR_SHA256: dd3fa071deebe3a2c9efb8e6fcdce115d13497a542b9afae4f1133ddcb1b01e3
   EXPECTED_NATIVE_SHA256: 274d040f5294cb09422e5d55cc4b5335ac7739924c33dcb67b3f279645814900
-  EXPECTED_WORKER_SHA256: 21baaf37865cb7e1962d482d31944e182470dcd05924a89ef495a40fd9a941a0
+  EXPECTED_WORKER_SHA256: 4d9902a4be465598f9d8933cf42087af7d10299a8df34de0e7e8f53ff13583bb
   EXPECTED_TRANSPORT_SHA256: 9dc489b759c75cc0a4882d29324965ca8171de84febae788ced52404b28ee573
   EXPECTED_UI_SHA256: 3dbf0d7944295e9bc396522d0c9a0b109a99d556bdb347d7488c6ba918296ac5
 
@@ -108,6 +108,8 @@ jobs:
           grep -Fq '/api/radar/autopilot/start' /tmp/wfgg-radar/src/worker.js
           grep -Fq '/api/radar/autopilot/status' /tmp/wfgg-radar/src/worker.js
           grep -Fq '/api/radar/autopilot/stop' /tmp/wfgg-radar/src/worker.js
+          grep -Fq 'baseUrl: env.RADAR_CONNECTOR_URL' /tmp/wfgg-radar/src/worker.js
+          ! grep -Fq 'RADAR_CONECTOR_URL' /tmp/wfgg-radar/src/worker.js
           grep -Fq 'WFGG_RADAR_SEED_SCOUT_OFFSET_KEY' /tmp/wfgg-radar/public/live-radar.html
           grep -Fq 'WFGG_RADAR_AUTOPILOT_UI_V6194' /tmp/wfgg-radar/public/live-radar.html
           echo RADAR_V6194_CLOUDFLARE_DIGESTS=PASS
