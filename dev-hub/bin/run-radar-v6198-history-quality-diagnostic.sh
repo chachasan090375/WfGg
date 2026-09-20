@@ -25,6 +25,7 @@ test "$(systemctl is-active wfgg-radar-sentinel.timer)" = "active" || die sentin
 test "$(systemctl is-enabled wfgg-radar-sentinel.timer)" = "enabled" || die sentinel_not_enabled
 echo "RADAR_V6198_HISTORY_QUALITY_PREFLIGHT=PASS"
 
+set +e
 python3 - "$COLLECTOR_DB" "$TARGET_SEED" <<'PY'
 import hashlib,json,os,sqlite3,sys,time
 from collections import defaultdict
@@ -146,6 +147,7 @@ print("RADAR_V6198_HISTORY_QUALITY_90S_TIMEOUT=NO")
 print("RADAR_V6198_HISTORY_QUALITY_REPRO=PASS")
 PY
 RC=$?
+set -e
 
 echo "RADAR_V6198_HISTORY_QUALITY_DIAG_RC=$RC"
 echo "LASTWAR_CONTACT=NO"
