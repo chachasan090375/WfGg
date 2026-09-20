@@ -35,7 +35,7 @@ jobs:
           assert x['current_change']['pilot_only'] is True,x
           assert x['current_change']['rollback_required'] is True,x
           criteria='\n'.join(x.get('acceptance_criteria') or [])
-          assert 'three complete 9/9' in criteria,criteria
+          assert 'three complete cycles' in criteria,criteria
           assert 'Partial cycles' in criteria,criteria
           assert 'ephemeral' in criteria,criteria
           print('PROJECT_INTENT_V6194=PASS')
