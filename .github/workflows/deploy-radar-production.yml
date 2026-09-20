@@ -17,6 +17,7 @@ on:
       - '.github/scripts/patch-radar-autopilot-v6194.py'
       - '.github/scripts/patch-radar-worker-autopilot-v6194.py'
       - '.github/scripts/patch-live-radar-autopilot-v6194.py'
+      - '.github/scripts/patch-radar-session-keepalive-v6195.py'
       - '.github/scripts/patch-radar-federated-diagnostics-v65.py'
       - '.github/scripts/patch-radar-cluster-catalog-budget-v6192.py'
       - '.github/scripts/patch-radar-seed-scout-v6193.py'
@@ -37,9 +38,9 @@ env:
   RADAR_CONNECTOR_URL: https://chachavps.tail3ab05a.ts.net
   EXPECTED_CONNECTOR_SHA256: dd3fa071deebe3a2c9efb8e6fcdce115d13497a542b9afae4f1133ddcb1b01e3
   EXPECTED_NATIVE_SHA256: 274d040f5294cb09422e5d55cc4b5335ac7739924c33dcb67b3f279645814900
-  EXPECTED_WORKER_SHA256: 4d9902a4be465598f9d8933cf42087af7d10299a8df34de0e7e8f53ff13583bb
+  EXPECTED_WORKER_SHA256: 052deb78c56aa6eb522f8808ffe0cc427c9d605d65a0e6983b6dbb9749da56ea
   EXPECTED_TRANSPORT_SHA256: 9dc489b759c75cc0a4882d29324965ca8171de84febae788ced52404b28ee573
-  EXPECTED_UI_SHA256: 3dbf0d7944295e9bc396522d0c9a0b109a99d556bdb347d7488c6ba918296ac5
+  EXPECTED_UI_SHA256: 58f51e2c5f2ddca3bf1da21c91a887e808e2dfc038694de319cbf1da6b6238f9
 
 jobs:
   deploy:
@@ -93,7 +94,8 @@ jobs:
           install -m 0644 radar-ui-live/live-radar.html /tmp/wfgg-radar/public/live-radar.html
           python3 .github/scripts/patch-live-radar-seed-scout-v6193.py
           python3 .github/scripts/patch-live-radar-autopilot-v6194.py
-          echo RADAR_V6194_PRODUCTION_RECONSTRUCT=PASS
+          python3 .github/scripts/patch-radar-session-keepalive-v6195.py
+          echo RADAR_V6195_PRODUCTION_RECONSTRUCT=PASS
 
       - name: Verify qualified Cloudflare surface digests
         run: |
@@ -112,7 +114,11 @@ jobs:
           ! grep -Fq 'RADAR_CONECTOR_URL' /tmp/wfgg-radar/src/worker.js
           grep -Fq 'WFGG_RADAR_SEED_SCOUT_OFFSET_KEY' /tmp/wfgg-radar/public/live-radar.html
           grep -Fq 'WFGG_RADAR_AUTOPILOT_UI_V6194' /tmp/wfgg-radar/public/live-radar.html
-          echo RADAR_V6194_CLOUDFLARE_DIGESTS=PASS
+          grep -Fq 'WFGG_RADAR_SESSION_KEEPALIVE_V6195' /tmp/wfgg-radar/src/worker.js
+          grep -Fq '/api/auth/session/refresh' /tmp/wfgg-radar/src/worker.js
+          grep -Fq 'WFGG_RADAR_SESSION_KEEPALIVE_UI_V6195' /tmp/wfgg-radar/public/live-radar.html
+          grep -Fq 'AUTO 12H' /tmp/wfgg-radar/public/live-radar.html
+          echo RADAR_V6195_CLOUDFLARE_DIGESTS=PASS
 
       - name: Guardian pre-deploy gate
         working-directory: /tmp/wfgg-radar
@@ -225,7 +231,7 @@ jobs:
           database_id = "$D1_ID"
 
           [vars]
-          RADAR_SESSION_TTL = "3600"
+          RADAR_SESSION_TTL = "43200"
           RADAR_OWNER_PSEUDO = "__OWNER_BOOTSTRAP_PENDING__"
           RADAR_CONNECTOR_URL = "$RADAR_CONNECTOR_URL"
 
@@ -313,6 +319,8 @@ jobs:
           grep -Fq 'WFGG_RADAR_AUTOPILOT_UI_V6194' /tmp/live-radar.html
           grep -Fq 'DÉMARRER L’AUTOPILOT' /tmp/live-radar.html
           grep -Fq 'ARRÊTER L’AUTOPILOT' /tmp/live-radar.html
+          grep -Fq 'WFGG_RADAR_SESSION_KEEPALIVE_UI_V6195' /tmp/live-radar.html
+          grep -Fq 'AUTO 12H' /tmp/live-radar.html
           echo "RADAR_PRODUCTION_URL=$RADAR_URL"
           echo "RADAR_LIVE_UI_URL=$RADAR_URL/live-radar.html"
-          echo RADAR_V6194_CLOUDFLARE_PRODUCTION=PASS
+          echo RADAR_V6195_CLOUDFLARE_PRODUCTION=PASS
