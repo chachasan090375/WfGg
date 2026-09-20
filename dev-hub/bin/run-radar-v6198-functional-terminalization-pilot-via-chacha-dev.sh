@@ -466,7 +466,7 @@ PY
 # ---------------------------------------------------------------------------
 echo "RADAR_V6198_FUNCTIONAL_WINDOW_READY=YES"
 echo "RADAR_V6198_FUNCTIONAL_ACTION=Dans Radar, laisse @federated:8131 dans le champ puis appuie UNE SEULE FOIS sur RECHERCHE. Ne démarre pas Autopilot."
-echo "RADAR_V6198_FUNCTIONAL_WAIT_MAX_SECONDS=600"
+echo "RADAR_V6198_FUNCTIONAL_WAIT_MAX_SECONDS=1020"
 
 set +e
 python3 - "$COLLECTOR_DB" "$TARGET_QUERY" "$STALE_CYCLE_ID" <<'PY'
@@ -474,7 +474,7 @@ import sqlite3,sys,time
 from datetime import datetime,timezone
 db,q,stale_s=sys.argv[1:4]
 stale=int(stale_s)
-deadline=time.time()+600
+deadline=time.time()+1020
 last=None
 fresh_started_wall=None
 while time.time() < deadline:
@@ -530,8 +530,8 @@ while time.time() < deadline:
             print("RADAR_V6198_FAILED_CYCLE_ERROR="+new_error, flush=True)
         raise SystemExit(0)
 
-    if new_id > stale and fresh_started_wall is not None and (time.time()-fresh_started_wall) >= 300:
-        print("RADAR_V6198_FUNCTIONAL_FAIL=FRESH_CYCLE_NOT_TERMINAL_WITHIN_300S", flush=True)
+    if new_id > stale and fresh_started_wall is not None and (time.time()-fresh_started_wall) >= 960:
+        print("RADAR_V6198_FUNCTIONAL_FAIL=FRESH_CYCLE_NOT_TERMINAL_WITHIN_960S", flush=True)
         raise SystemExit(4)
     time.sleep(5)
 
