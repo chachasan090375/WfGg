@@ -1,0 +1,65 @@
+name: ChaCha DEV Radar V6.19.4 Autopilot governed pilot runner qualification
+
+on:
+  push:
+    branches: [dev-hub-v5-radar-cluster-quality-diagnostic-v1]
+    paths:
+      - 'dev-hub/bin/run-radar-v6194-pilot-via-chacha-dev.sh'
+      - 'dev-hub/projects/wfgg-radar/project-intent.v1.json'
+      - '.github/workflows/dev-hub-radar-v6194-pilot-runner-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev-hub-v5-radar-cluster-quality-diagnostic-v1
+
+      - name: Validate shell and project intent
+        run: |
+          set -euo pipefail
+          bash -n dev-hub/bin/run-radar-v6194-pilot-via-chacha-dev.sh
+          python3 - <<'PY'
+          import json
+          p='dev-hub/projects/wfgg-radar/project-intent.v1.json'
+          x=json.load(open(p,encoding='utf-8'))
+          assert x['schema']=='chacha.dev/project-intent/v1',x
+          assert x['project']=='wfgg-radar',x
+          assert x['current_change']['id']=='radar-v6194-autopilot',x
+          assert x['current_change']['pilot_only'] is True,x
+          assert x['current_change']['rollback_required'] is True,x
+          criteria='\n'.join(x.get('acceptance_criteria') or [])
+          assert 'three complete 9/9' in criteria,criteria
+          assert 'Partial cycles' in criteria,criteria
+          assert 'ephemeral' in criteria,criteria
+          print('PROJECT_INTENT_V6194=PASS')
+          PY
+
+      - name: Verify approval and pilot safety invariants
+        run: |
+          set -euo pipefail
+          F=dev-hub/bin/run-radar-v6194-pilot-via-chacha-dev.sh
+          grep -Fq 'APPROVAL_ID="production-release"' "$F"
+          grep -Fq 'J’approuve le déploiement PILOT Radar V6.19.4 Autopilot avec probe de garde sans scan de jeu.' "$F"
+          grep -Fq 'PRODUCTION_RELEASE_APPROVAL_REVOKED=PASS' "$F"
+          grep -Fq 'close_pilot' "$F"
+          grep -Fq 'revoke_approval' "$F"
+          grep -Fq 'radar-runtime:pilot-open-v6194' "$F"
+          grep -Fq 'radar-runtime:pilot-install-v6194' "$F"
+          grep -Fq 'radar-runtime:pilot-probe-v6194' "$F"
+          grep -Fq 'radar-runtime:pilot-close-v6194' "$F"
+          grep -Fq 'a426ad7c5d5f7c9e73908f3b54e4b2bac24a77e9' "$F"
+          grep -Fq '01ba325e8b02c16d22c197960172f6a9a252ac2f0d43ddefef893f6783846e52' "$F"
+          grep -Fq '274d040f5294cb09422e5d55cc4b5335ac7739924c33dcb67b3f279645814900' "$F"
+          grep -Fq 'radar-vps/install-v6194-pilot.sh' "$F"
+          grep -Fq 'radar-vps/probe-v6194-pilot-runtime.sh' "$F"
+          grep -Fq 'RADAR_V6194_GAME_SCAN_EXECUTED=NO' "$F"
+          grep -Fq 'RADAR_V6194_COLLECTOR_MUTATION=NO' "$F"
+          grep -Fq 'RADAR_V6194_PHONE_REQUIRED_FOR_RUNTIME=NO' "$F"
+          echo GOVERNED_V6194_AUTOPILOT_PILOT_RUNNER=QUALIFIED
