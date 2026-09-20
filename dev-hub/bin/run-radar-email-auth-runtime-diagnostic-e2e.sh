@@ -4,9 +4,11 @@ set -Eeuo pipefail
 REV="${WFGG_DEV_HUB_RADAR_EMAIL_AUTH_DIAG_REV:-}"
 PROJECT="wfgg-radar"
 RAW_ARCHIVE="https://codeload.github.com/chachasan090375/WfGg/tar.gz/${REV}"
-WORK="$(mktemp -d /tmp/chacha-radar-email-auth.XXXXXX)"
-ARCHIVE="$WORK/repo.tar.gz"
 RUNTIME="/opt/chacha-dev/runtime"
+WORK_ROOT="$RUNTIME/tmp"
+mkdir -p "$WORK_ROOT"
+WORK="$(mktemp -d "$WORK_ROOT/chacha-radar-email-auth.XXXXXX")"
+ARCHIVE="$WORK/repo.tar.gz"
 GRAPH="$RUNTIME/plans/$PROJECT/radar-email-auth-runtime-diagnostic.task-graph.json"
 
 cleanup(){ rm -rf "$WORK"; }
