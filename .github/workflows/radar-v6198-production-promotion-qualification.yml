@@ -137,8 +137,8 @@ jobs:
           grep -Fq 'patch-radar-autopilot-stale-cycle-v6197.py' "$D"
           grep -Fq 'patch-radar-collector-cycle-terminalization-v6198.py' "$D"
           grep -Fq 'patch-live-radar-autopilot-v6198.py' "$D"
-          grep -Fq "- 'radar-vps/release/**'" "$D"
-          ! grep -Fq "- '.radar-release-src/v6198-source/**'" "$D"
+          grep -Fq -- "- 'radar-vps/release/**'" "$D"
+          ! grep -Fq -- "- '.radar-release-src/v6198-source/**'" "$D"
           grep -Fq 'RADAR_V6198_CLOUDFLARE_PRODUCTION=PASS' "$D"
           echo RADAR_V6198_PRODUCTION_ORDERING=BINARIES_THEN_CLOUDFLARE
           echo RADAR_V6198_PRODUCTION_WORKFLOWS=QUALIFIED
