@@ -115,7 +115,8 @@ jobs:
           grep -Fq 'SEED_SKIPPED_NO_DATA' /tmp/wfgg-radar/public/live-radar.html
           grep -Fq 'Aucune donnée exploitable' /tmp/wfgg-radar/public/live-radar.html
           grep -Fq 'WFGG_RADAR_AUTOPILOT_STALE_CYCLE_RECOVERY_UI_V6197' /tmp/wfgg-radar/public/live-radar.html
-          grep -Fq 'WFGG_RADAR_COLLECTOR_CYCLE_TERMINALIZATION_UI_V6199' /tmp/wfgg-radar/public/live-radar.html
+          grep -Fq 'WFGG_RADAR_COLLECTOR_CYCLE_TERMINALIZATION_UI_V6198' /tmp/wfgg-radar/public/live-radar.html
+          grep -Fq 'WFGG_RADAR_AUTOPILOT_TARGETED_HISTORY_QUALITY_UI_V6199' /tmp/wfgg-radar/public/live-radar.html
           grep -Fq 'AUTOPILOT V6.19.9 · ARRÊTÉ' /tmp/wfgg-radar/public/live-radar.html
           echo RADAR_V6199_CLOUDFLARE_DIGESTS=PASS
 
@@ -323,7 +324,8 @@ jobs:
           grep -Fq 'WFGG_RADAR_AUTOPILOT_CONTINUE_NO_DATA_UI_V6196' /tmp/live-radar.html
           grep -Fq 'SEED_SKIPPED_NO_DATA' /tmp/live-radar.html
           grep -Fq 'WFGG_RADAR_AUTOPILOT_STALE_CYCLE_RECOVERY_UI_V6197' /tmp/live-radar.html
-          grep -Fq 'WFGG_RADAR_COLLECTOR_CYCLE_TERMINALIZATION_UI_V6199' /tmp/live-radar.html
+          grep -Fq 'WFGG_RADAR_COLLECTOR_CYCLE_TERMINALIZATION_UI_V6198' /tmp/live-radar.html
+          grep -Fq 'WFGG_RADAR_AUTOPILOT_TARGETED_HISTORY_QUALITY_UI_V6199' /tmp/live-radar.html
           grep -Fq 'AUTOPILOT V6.19.9 · ARRÊTÉ' /tmp/live-radar.html
           echo "RADAR_PRODUCTION_URL=$RADAR_URL"
           echo "RADAR_LIVE_UI_URL=$RADAR_URL/live-radar.html"
