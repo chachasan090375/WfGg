@@ -1,0 +1,46 @@
+name: ChaCha DEV Radar V6.19.9 production Sentinel reconcile qualification
+
+on:
+  push:
+    branches: [dev-hub-v5-radar-cluster-quality-diagnostic-v1]
+    paths:
+      - 'dev-hub/bin/run-radar-v6199-production-sentinel-reconcile.sh'
+      - '.github/workflows/dev-hub-radar-v6199-production-sentinel-reconcile-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev-hub-v5-radar-cluster-quality-diagnostic-v1
+
+      - name: Validate governed V6.19.9 production reconcile
+        run: |
+          set -euo pipefail
+          F=dev-hub/bin/run-radar-v6199-production-sentinel-reconcile.sh
+          bash -n "$F"
+          grep -Fq 'WFGG_DEV_HUB_RADAR_V6199_PROD_RECONCILE_REV' "$F"
+          grep -Fq 'RUNTIME="/opt/chacha-dev/runtime"' "$F"
+          grep -Fq 'WORK_ROOT="$RUNTIME/tmp"' "$F"
+          grep -Fq 'J’approuve la promotion production Radar V6.19.9 Autopilot Targeted History Quality et le déploiement des surfaces Cloudflare associées.' "$F"
+          grep -Fq 'RADAR_V6199_PRODUCTION_RELEASE_MANIFEST=READY' "$F"
+          grep -Fq 'radar-production-v1/radar-vps/release/SHA256SUMS' "$F"
+          grep -Fq '5058159307ccb99e8e631fe71014608934b8575e69d5599e4388550306baab7f' "$F"
+          grep -Fq '274d040f5294cb09422e5d55cc4b5335ac7739924c33dcb67b3f279645814900' "$F"
+          grep -Fq 'radar-runtime:production-sentinel-reconcile-v6199' "$F"
+          grep -Fq '"action":"pilot-close"' "$F"
+          grep -Fq 'RADAR_V6199_PRODUCTION_RUNTIME=PASS' "$F"
+          grep -Fq 'PRODUCTION_RELEASE_APPROVAL_REVOKED=PASS' "$F"
+          grep -Fq 'PROJECT_CONTROL_INTEGRITY_AFTER=PASS' "$F"
+          grep -Fq 'RADAR_V6199_PRODUCTION_APPROVAL_STANDING=NO' "$F"
+          grep -Fq 'RADAR_V6199_LASTWAR_MUTATION=NO' "$F"
+          grep -Fq 'RADAR_V6199_COLLECTOR_MUTATION=DISCOVERY_EVIDENCE_TERMINALIZATION_ONLY' "$F"
+          grep -Fq 'RADAR_V6199_HISTORY_MUTATION=NO' "$F"
+          grep -Fq 'RADAR_V6199_PROD_RECONCILE=PASS' "$F"
+          echo RADAR_V6199_PRODUCTION_SENTINEL_RECONCILE=QUALIFIED
