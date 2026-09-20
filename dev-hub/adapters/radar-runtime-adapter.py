@@ -12,6 +12,7 @@ Supported actions:
 - seed-scout-route-diagnostic (read)
 - email-auth-runtime-diagnostic (read)
 - autopilot-progress-diagnostic (read)
+- sentinel-release-diagnostic   (read)
 - pilot-open                 (production-deploy)
 - pilot-install     (production-deploy)
 - pilot-probe       (read)
@@ -174,6 +175,7 @@ def validate_request(request: dict[str, Any]) -> tuple[dict[str, Any] | None, st
         "seed-scout-route-diagnostic": "read",
         "email-auth-runtime-diagnostic": "read",
         "autopilot-progress-diagnostic": "read",
+        "sentinel-release-diagnostic": "read",
         "pilot-open": "production-deploy",
         "pilot-install": "production-deploy",
         "pilot-probe": "read",
@@ -1076,6 +1078,190 @@ def do_autopilot_progress_diagnostic(request: dict[str, Any]) -> int:
     }]))
 
 
+
+def _safe_systemd_property(unit: str, prop: str) -> str:
+    p = systemctl("show", "-p", prop, "--value", unit)
+    if p.returncode != 0:
+        return ""
+    return p.stdout.decode("utf-8", "replace").strip()
+
+
+def _extract_exec_path(exec_start: str) -> str:
+    m = re.search(r"(?:^|[;{ ])path=([^ ;}]+)", exec_start or "")
+    if m:
+        return m.group(1).strip()
+    first = (exec_start or "").strip().split()
+    return first[0] if first else ""
+
+
+def _extract_allowed_environment(environment: str) -> dict[str, str]:
+    out: dict[str, str] = {}
+    for key in ("RADAR_RELEASE_BASE", "RADAR_ROOT", "RADAR_SERVICE"):
+        m = re.search(r"(?:^|\s)" + re.escape(key) + r"=(\"[^\"]*\"|'[^']*'|\S+)", environment or "")
+        if not m:
+            continue
+        value = m.group(1).strip()
+        if len(value) >= 2 and value[0] == value[-1] and value[0] in ("\"", "'"):
+            value = value[1:-1]
+        out[key] = value
+    return out
+
+
+def _manifest_snapshot(base: str, cache_bust: bool = False) -> dict[str, Any]:
+    url = base.rstrip("/") + "/SHA256SUMS"
+    if cache_bust:
+        url += "?chacha_diag=" + str(int(time.time()))
+    req = urllib.request.Request(url, headers={"User-Agent": "ChaCha-DEV-HUB-RadarSentinelDiag/1"})
+    try:
+        with urllib.request.urlopen(req, timeout=20) as response:
+            raw = response.read(65537)
+        if len(raw) > 65536:
+            return {"ok": False, "error": "MANIFEST_TOO_LARGE"}
+        text_value = raw.decode("utf-8", "strict")
+    except Exception as exc:
+        return {"ok": False, "error": type(exc).__name__}
+    found: dict[str, str] = {}
+    for line in text_value.splitlines():
+        parts = line.split()
+        if len(parts) >= 2 and HEX64_RE.fullmatch(parts[0].lower()):
+            name = parts[-1].lstrip("*")
+            if name in ("radar-connector", "radar-native-template"):
+                found[name] = parts[0].lower()
+    return {
+        "ok": len(found) == 2,
+        "connector_sha256": found.get("radar-connector"),
+        "native_sha256": found.get("radar-native-template"),
+        "error": None if len(found) == 2 else "MANIFEST_INCOMPLETE",
+    }
+
+
+def sentinel_release_diagnostic_snapshot(radar: dict[str, Any]) -> dict[str, Any]:
+    production_revision = str(radar.get("production_revision") or "").strip().lower()
+    expected_connector = str(radar.get("expected_connector_sha256") or "").strip().lower()
+    expected_native = str(radar.get("expected_native_sha256") or "").strip().lower()
+    if not REV_RE.fullmatch(production_revision):
+        raise ValueError("RADAR_PRODUCTION_REVISION_INVALID")
+    if not HEX64_RE.fullmatch(expected_connector):
+        raise ValueError("RADAR_EXPECTED_CONNECTOR_SHA_INVALID")
+    if not HEX64_RE.fullmatch(expected_native):
+        raise ValueError("RADAR_EXPECTED_NATIVE_SHA_INVALID")
+
+    snap = status_snapshot()
+    exec_start = _safe_systemd_property(RADAR_SENTINEL_SERVICE, "ExecStart")
+    environment = _extract_allowed_environment(
+        _safe_systemd_property(RADAR_SENTINEL_SERVICE, "Environment")
+    )
+    exec_path = _extract_exec_path(exec_start)
+    script_info: dict[str, Any] = {
+        "exec_path": exec_path or None,
+        "sha256": None,
+        "release_base_line": None,
+        "readable": False,
+    }
+    if exec_path:
+        p = Path(exec_path)
+        allowed = (
+            str(p).startswith("/usr/local/sbin/")
+            or str(p).startswith("/opt/wfgg-radar/")
+            or str(p).startswith("/opt/chacha-dev/")
+        )
+        if allowed and p.is_file() and os.access(p, os.R_OK):
+            script_info["readable"] = True
+            script_info["sha256"] = sha256_file(p)
+            try:
+                body = p.read_text(encoding="utf-8", errors="replace")[:131072]
+                for line in body.splitlines():
+                    if "RELEASE_BASE=" in line and "RADAR_RELEASE_BASE" in line:
+                        script_info["release_base_line"] = line.strip()[:500]
+                        break
+            except OSError:
+                pass
+
+    state_values: dict[str, str] = {}
+    state_file = RADAR_ROOT / "data" / "sentinel-vps-state.env"
+    if state_file.is_file() and os.access(state_file, os.R_OK):
+        try:
+            for line in state_file.read_text(encoding="utf-8", errors="replace").splitlines():
+                if "=" not in line:
+                    continue
+                key, value = line.split("=", 1)
+                if key in {
+                    "SENTINEL_VPS_STATUS",
+                    "SENTINEL_VPS_LAST_CHECK",
+                    "SENTINEL_VPS_CONNECTOR_SHA",
+                    "SENTINEL_VPS_NATIVE_SHA",
+                    "SENTINEL_VPS_FAILED_CONNECTOR_SHA",
+                    "SENTINEL_VPS_FAILED_NATIVE_SHA",
+                }:
+                    state_values[key] = value[:256]
+        except OSError:
+            pass
+
+    mutable_base = "https://raw.githubusercontent.com/chachasan090375/WfGg/radar-production-v1/radar-vps/release"
+    immutable_base = f"https://raw.githubusercontent.com/chachasan090375/WfGg/{production_revision}/radar-vps/release"
+    mutable_manifest = _manifest_snapshot(mutable_base, cache_bust=True)
+    immutable_manifest = _manifest_snapshot(immutable_base, cache_bust=False)
+
+    runtime_matches = (
+        snap.get("connector_sha256") == expected_connector
+        and snap.get("native_sha256") == expected_native
+    )
+    mutable_matches = (
+        mutable_manifest.get("connector_sha256") == expected_connector
+        and mutable_manifest.get("native_sha256") == expected_native
+    )
+    immutable_matches = (
+        immutable_manifest.get("connector_sha256") == expected_connector
+        and immutable_manifest.get("native_sha256") == expected_native
+    )
+
+    configured_base = environment.get("RADAR_RELEASE_BASE")
+    failure_class = "NONE" if runtime_matches else "SENTINEL_RECONCILE_NOT_APPLIED"
+    if not immutable_matches:
+        failure_class = "IMMUTABLE_PRODUCTION_MANIFEST_MISMATCH"
+    elif configured_base and production_revision not in configured_base and "radar-production-v1" not in configured_base:
+        failure_class = "SENTINEL_RELEASE_BASE_PINNED_OTHER_REVISION"
+    elif not mutable_matches:
+        failure_class = "MUTABLE_PRODUCTION_MANIFEST_STALE"
+
+    snap.update({
+        "production_revision": production_revision,
+        "expected_connector_sha256": expected_connector,
+        "expected_native_sha256": expected_native,
+        "sentinel_exec": script_info,
+        "sentinel_environment": environment,
+        "sentinel_state_file": state_values,
+        "mutable_manifest": mutable_manifest,
+        "immutable_manifest": immutable_manifest,
+        "runtime_matches_expected": runtime_matches,
+        "mutable_manifest_matches_expected": mutable_matches,
+        "immutable_manifest_matches_expected": immutable_matches,
+        "failure_class": failure_class,
+        "runtime_mutation": False,
+        "game_scan_executed": False,
+        "collector_mutation": False,
+    })
+    return snap
+
+
+def do_sentinel_release_diagnostic(request: dict[str, Any], radar: dict[str, Any]) -> int:
+    try:
+        snap = sentinel_release_diagnostic_snapshot(radar)
+    except ValueError as exc:
+        return blocked(request, str(exc))
+    raw = json.dumps(snap, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    return emit(result(request, "OK", "RADAR_SENTINEL_RELEASE_DIAGNOSTIC_OK", [{
+        "kind": "diagnostic",
+        "source": "vps://localhost/wfgg-radar/sentinel-release",
+        "digest": sha256_bytes(raw),
+        "details": snap,
+    }], [{
+        "type": "artifact",
+        "id": "radar-sentinel-release-diagnostic",
+        "status": "UNVERIFIED",
+        "reason": "Read-only Sentinel configuration, release-manifest and runtime fingerprint diagnostic.",
+    }]))
+
 def do_open(request: dict[str, Any]) -> int:
     approval_error = approval_required(request)
     if approval_error:
@@ -1225,6 +1411,8 @@ def main() -> int:
             return do_email_auth_runtime_diagnostic(request)
         if action == "autopilot-progress-diagnostic":
             return do_autopilot_progress_diagnostic(request)
+        if action == "sentinel-release-diagnostic":
+            return do_sentinel_release_diagnostic(request, radar)
         if action == "pilot-open":
             return do_open(request)
         if action == "pilot-install":
