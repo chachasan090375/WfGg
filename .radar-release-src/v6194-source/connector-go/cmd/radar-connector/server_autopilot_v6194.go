@@ -13,6 +13,7 @@ import (
 )
 
 // WFGG_RADAR_AUTOPILOT_V6194
+// WFGG_RADAR_AUTOPILOT_CONTINUE_NO_DATA_V6196
 //
 // Autopilot chains complete targeted Collector cycles and Seed Scout discovery
 // without requiring the browser to remain open. The Last War token is captured
@@ -22,7 +23,7 @@ import (
 // Last War operations remain READ-ONLY. Collector mutation is expected because
 // full targeted cycles are intentionally persisted as discovery evidence.
 const (
-	autopilotVersionV6194                    = "v6.19.4"
+	autopilotVersionV6194                    = "v6.19.6"
 	autopilotDefaultFullCyclesV6194          = 3
 	autopilotMaxFullCyclesV6194              = 5
 	autopilotDefaultMaxClustersV6194         = 5
@@ -31,6 +32,8 @@ const (
 	autopilotMaxPartialRetryLimitV6194       = 12
 	autopilotDefaultFailureLimitV6194        = 3
 	autopilotMaxFailureLimitV6194            = 8
+	autopilotDefaultNoDataRetryLimitV6196   = 3
+	autopilotMaxNoDataRetryLimitV6196       = 5
 	autopilotDefaultScoutLimitV6194          = 8
 	autopilotDefaultScoutMaxBatchesV6194     = 20
 	autopilotMaxScoutMaxBatchesV6194         = 64
@@ -45,6 +48,7 @@ type autopilotStartRequestV6194 struct {
 	MaxClusters              int    `json:"maxClusters,omitempty"`
 	PartialRetryLimit        int    `json:"partialRetryLimit,omitempty"`
 	ConsecutiveFailureLimit  int    `json:"consecutiveFailureLimit,omitempty"`
+	NoDataRetryLimit          int    `json:"noDataRetryLimit,omitempty"`
 	ScoutLimit               int    `json:"scoutLimit,omitempty"`
 	ScoutMaxBatches          int    `json:"scoutMaxBatches,omitempty"`
 	ScoutRegion              *int   `json:"scoutRegion,omitempty"`
@@ -72,6 +76,16 @@ type autopilotClusterResultV6194 struct {
 	CycleIDs         []int64  `json:"cycleIds"`
 	ConfirmedAt      string   `json:"confirmedAt"`
 }
+type autopilotSkippedSeedV6196 struct {
+	Seed            string  `json:"seed"`
+	Command         string  `json:"command"`
+	Reason          string  `json:"reason"`
+	ValidatedCycles int     `json:"validatedCycles"`
+	PartialCycles   int     `json:"partialCycles"`
+	FailedCycles    int     `json:"failedCycles"`
+	CycleIDs        []int64 `json:"cycleIds"`
+	SkippedAt       string  `json:"skippedAt"`
+}
 
 type autopilotJobV6194 struct {
 	ID                      string                          `json:"id"`
@@ -93,8 +107,10 @@ type autopilotJobV6194 struct {
 	FailedCycles            int                             `json:"failedCycles"`
 	JoinedCycles            int                             `json:"joinedCycles"`
 	ConsecutiveFailures     int                             `json:"consecutiveFailures"`
+	ConsecutiveNoData       int                             `json:"consecutiveNoData"`
 	PartialRetryLimit       int                             `json:"partialRetryLimit"`
 	ConsecutiveFailureLimit int                             `json:"consecutiveFailureLimit"`
+	NoDataRetryLimit        int                             `json:"noDataRetryLimit"`
 	MaxClusters             int                             `json:"maxClusters"`
 	ConfirmedClusters       int                             `json:"confirmedClusters"`
 	CurrentChildJobID       string                          `json:"currentChildJobId,omitempty"`
@@ -107,6 +123,8 @@ type autopilotJobV6194 struct {
 	ScoutOffset             int                             `json:"scoutOffset"`
 	LastCycle               *autopilotCycleResultV6194     `json:"lastCycle,omitempty"`
 	History                 []autopilotClusterResultV6194   `json:"history"`
+	SkippedSeeds            []autopilotSkippedSeedV6196     `json:"skippedSeeds,omitempty"`
+	LastSkippedSeed         *autopilotSkippedSeedV6196      `json:"lastSkippedSeed,omitempty"`
 	LastError               string                          `json:"lastError,omitempty"`
 	StartedAt               string                          `json:"startedAt"`
 	UpdatedAt               string                          `json:"updatedAt"`
@@ -137,6 +155,15 @@ func cloneAutopilotJobV6194(src *autopilotJobV6194) autopilotJobV6194 {
 	out.History = append([]autopilotClusterResultV6194(nil), src.History...)
 	for i := range out.History {
 		out.History[i].CycleIDs = append([]int64(nil), src.History[i].CycleIDs...)
+	}
+	out.SkippedSeeds = append([]autopilotSkippedSeedV6196(nil), src.SkippedSeeds...)
+	for i := range out.SkippedSeeds {
+		out.SkippedSeeds[i].CycleIDs = append([]int64(nil), src.SkippedSeeds[i].CycleIDs...)
+	}
+	if src.LastSkippedSeed != nil {
+		x := *src.LastSkippedSeed
+		x.CycleIDs = append([]int64(nil), src.LastSkippedSeed.CycleIDs...)
+		out.LastSkippedSeed = &x
 	}
 	if src.LastCycle != nil {
 		x := *src.LastCycle
@@ -224,6 +251,68 @@ func autopilotIsAuthFailureV6194(job collectorJob) bool {
 	}, " "))
 	return strings.Contains(joined, "AUTH")
 }
+func autopilotIsNoDataFailureV6196(job collectorJob) bool {
+	if strings.ToUpper(strings.TrimSpace(job.Status)) != "FAILED" ||
+		strings.ToUpper(strings.TrimSpace(job.Error)) != "MAP_ALL_REGIONS_FAILED" ||
+		job.RegionsCompleted != 0 || job.RegionsFailed < 9 || job.PlayersSeen != 0 ||
+		len(job.RegionFailures) < 9 {
+		return false
+	}
+	blocked := []string{
+		"AUTH", "TIMEOUT", "DIAL", "NETWORK", "CONNECTION", "INGEST",
+		"DECODE", "REPORT_INVALID", "CAPTURE_INVALID", "TEMPLATE_NOT_FOUND",
+		"BINARY", "EXEC", "PERMISSION", "NO_SPACE", "DISK", "MEMORY", "OOM",
+	}
+	for _, region := range job.RegionFailures {
+		category := strings.ToUpper(strings.TrimSpace(region.Category))
+		if category != "PROTOCOL" && category != "SERVER_TARGET" {
+			return false
+		}
+		joined := strings.ToUpper(strings.Join([]string{region.Code, region.Cause}, " "))
+		for _, token := range blocked {
+			if strings.Contains(joined, token) {
+				return false
+			}
+		}
+	}
+	return true
+}
+
+func autopilotSkipCurrentSeedNoDataV6196(jobID string) bool {
+	job, ok := radarAutopilotJobsV6194.get(jobID)
+	if !ok || strings.TrimSpace(job.CurrentSeed) == "" {
+		return false
+	}
+	record := autopilotSkippedSeedV6196{
+		Seed:            job.CurrentSeed,
+		Command:         "@federated:" + job.CurrentSeed,
+		Reason:          "NO_DATA_AFTER_RETRIES",
+		ValidatedCycles: job.ValidatedCycles,
+		PartialCycles:   job.PartialCycles,
+		FailedCycles:    job.FailedCycles,
+		CycleIDs:        append([]int64(nil), job.CurrentFullCycleIDs...),
+		SkippedAt:       utcNow(),
+	}
+	radarAutopilotJobsV6194.update(jobID, func(a *autopilotJobV6194) {
+		a.SkippedSeeds = append(a.SkippedSeeds, record)
+		x := record
+		a.LastSkippedSeed = &x
+		a.Phase = "SEED_SKIPPED_NO_DATA"
+		a.CurrentSeed = ""
+		a.CurrentCommand = ""
+		a.CurrentFullCycleIDs = nil
+		a.ValidatedCycles = 0
+		a.PartialCycles = 0
+		a.FailedCycles = 0
+		a.JoinedCycles = 0
+		a.ConsecutiveFailures = 0
+		a.ConsecutiveNoData = 0
+		a.ScoutBatch = 0
+		a.ScoutOffset = 0
+		a.LastError = ""
+	})
+	return true
+}
 
 func autopilotStoppedV6194(id string) bool {
 	job, ok := radarAutopilotJobsV6194.get(id)
@@ -256,6 +345,7 @@ func autopilotConfirmCurrentClusterV6194(jobID string) bool {
 		a.FailedCycles = 0
 		a.JoinedCycles = 0
 		a.ConsecutiveFailures = 0
+		a.ConsecutiveNoData = 0
 		a.ScoutBatch = 0
 		a.ScoutOffset = 0
 	})
@@ -479,6 +569,7 @@ func (s *server) runAutopilotV6194(jobID, token string) {
 				a.FailedCycles = 0
 				a.JoinedCycles = 0
 				a.ConsecutiveFailures = 0
+				a.ConsecutiveNoData = 0
 				a.ScoutBatch = 0
 				a.ScoutOffset = 0
 				a.Phase = "COLLECTING"
@@ -510,6 +601,7 @@ func (s *server) runAutopilotV6194(jobID, token string) {
 			return
 		}
 		classification := classifyAutopilotCycleV6194(final)
+		noDataFailure := classification == "FAILED" && autopilotIsNoDataFailureV6196(final)
 		cycleResult := &autopilotCycleResultV6194{
 			CycleID:          final.CycleID,
 			Seed:             job.CurrentSeed,
@@ -534,20 +626,31 @@ func (s *server) runAutopilotV6194(jobID, token string) {
 					a.CurrentFullCycleIDs = append(a.CurrentFullCycleIDs, final.CycleID)
 				}
 				a.ConsecutiveFailures = 0
+				a.ConsecutiveNoData = 0
 				a.Phase = "CYCLE_FULL"
 			case "PARTIAL":
 				a.PartialCycles++
 				a.ConsecutiveFailures = 0
+				a.ConsecutiveNoData = 0
 				a.Phase = "CYCLE_PARTIAL_RETRY"
 			case "JOINED":
 				a.JoinedCycles++
 				a.ConsecutiveFailures = 0
+				a.ConsecutiveNoData = 0
 				a.Phase = "CYCLE_JOINED_RETRY"
 			default:
 				a.FailedCycles++
-				a.ConsecutiveFailures++
-				a.Phase = "CYCLE_FAILED_RETRY"
-				a.LastError = final.Error
+				if noDataFailure {
+					a.ConsecutiveNoData++
+					a.ConsecutiveFailures = 0
+					a.Phase = "CYCLE_NO_DATA_RETRY"
+					a.LastError = "AUTOPILOT_NO_DATA"
+				} else {
+					a.ConsecutiveNoData = 0
+					a.ConsecutiveFailures++
+					a.Phase = "CYCLE_FAILED_RETRY"
+					a.LastError = final.Error
+				}
 			}
 		})
 
@@ -556,6 +659,14 @@ func (s *server) runAutopilotV6194(jobID, token string) {
 			return
 		}
 		job, _ = radarAutopilotJobsV6194.get(jobID)
+		if noDataFailure && job.ConsecutiveNoData >= job.NoDataRetryLimit {
+			if !autopilotSkipCurrentSeedNoDataV6196(jobID) {
+				autopilotFailV6194(jobID, "NO_DATA_SKIP_FAILED", "AUTOPILOT_NO_DATA_SKIP_INVARIANT")
+				return
+			}
+			time.Sleep(1200 * time.Millisecond)
+			continue
+		}
 		if job.ConsecutiveFailures >= job.ConsecutiveFailureLimit {
 			autopilotFailV6194(jobID, "FAILURE_LIMIT", "AUTOPILOT_CONSECUTIVE_FAILURE_LIMIT")
 			return
@@ -624,6 +735,14 @@ func (s *server) serverAutopilotStartV6194(w http.ResponseWriter, r *http.Reques
 		writeJSON(w, http.StatusBadRequest, map[string]any{"error": "AUTOPILOT_FAILURE_LIMIT_INVALID"})
 		return
 	}
+	noDataRetryLimit := input.NoDataRetryLimit
+	if noDataRetryLimit == 0 {
+		noDataRetryLimit = autopilotDefaultNoDataRetryLimitV6196
+	}
+	if noDataRetryLimit < 1 || noDataRetryLimit > autopilotMaxNoDataRetryLimitV6196 {
+		writeJSON(w, http.StatusBadRequest, map[string]any{"error": "AUTOPILOT_NO_DATA_RETRY_LIMIT_INVALID"})
+		return
+	}
 	scoutLimit := input.ScoutLimit
 	if scoutLimit == 0 {
 		scoutLimit = autopilotDefaultScoutLimitV6194
@@ -674,12 +793,14 @@ func (s *server) serverAutopilotStartV6194(w http.ResponseWriter, r *http.Reques
 		RequiredFullCycles:      fullCycles,
 		PartialRetryLimit:       partialLimit,
 		ConsecutiveFailureLimit: failureLimit,
+		NoDataRetryLimit:        noDataRetryLimit,
 		MaxClusters:             maxClusters,
 		ScoutLimit:              scoutLimit,
 		ScoutMaxBatches:         scoutMaxBatches,
 		ScoutRegion:             scoutRegion,
 		ScoutMinPlayers:         scoutMinPlayers,
 		History:                 []autopilotClusterResultV6194{},
+		SkippedSeeds:            []autopilotSkippedSeedV6196{},
 		StartedAt:               now,
 		UpdatedAt:               now,
 	}
