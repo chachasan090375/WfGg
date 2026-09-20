@@ -71,18 +71,6 @@ if 'WFGG_RADAR_COLLECTOR_CYCLE_TERMINALIZATION_CALLSITE_V6198' not in text:
 '''
     text = text.replace(ownership_anchor, ownership_repl, 1)
 
-success_old = '''\tif err := collectorFinishCycle(ctx, cycle.ID, "SUCCESS", ""); err != nil {
-\t\tfail("COLLECTOR_CYCLE_FINISH_FAILED", err)
-\t\treturn
-\t}'''
-success_new = '''\tif err := collectorFinishCycleReliableV6198(cycle.ID, "SUCCESS", ""); err != nil {
-\t\tfail("COLLECTOR_CYCLE_FINISH_FAILED", err)
-\t\treturn
-\t}'''
-if success_old in text:
-    text = text.replace(success_old, success_new, 1)
-elif success_new not in text:
-    raise SystemExit('V6198_SUCCESS_CALLSITE_ANCHOR_MISSING')
 
 COLLECTOR.write_text(text, encoding='utf-8')
 
