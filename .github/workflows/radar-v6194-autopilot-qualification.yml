@@ -172,7 +172,5 @@ jobs:
             exit 0
           fi
           git commit -m 'build(radar): publish V6.19.4 Autopilot pilot'
-          git fetch origin radar-v6194-autopilot
-          git rebase origin/radar-v6194-autopilot
           git push origin HEAD:radar-v6194-autopilot
           echo RADAR_V6194_PILOT=PUBLISHED
