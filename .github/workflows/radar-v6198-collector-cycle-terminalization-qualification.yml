@@ -8,16 +8,19 @@ on:
       - '.github/scripts/patch-radar-collector-cycle-terminalization-v6198.py'
       - '.github/scripts/patch-live-radar-autopilot-v6198.py'
       - '.github/workflows/radar-v6198-collector-cycle-terminalization-qualification.yml'
+      - 'radar-vps/install-v6198-pilot.sh'
+      - 'radar-vps/probe-v6198-pilot-runtime.sh'
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: wfgg-radar-v6198-terminalization
   cancel-in-progress: true
 
 env:
+  EXPECTED_CONNECTOR_SHA256: fb21a02feeaaa6a7013cf4e17c77bbb033a30a4bce021066fd947fc665360a9b
   EXPECTED_NATIVE_SHA256: 274d040f5294cb09422e5d55cc4b5335ac7739924c33dcb67b3f279645814900
 
 jobs:
@@ -87,13 +90,15 @@ jobs:
           gofmt -w ./cmd ./internal
           go test ./...
           go vet ./...
-          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w' -o /tmp/radar-connector-v6198 ./cmd/radar-connector
-          actual="$(sha256sum /tmp/radar-connector-v6198 | awk '{print $1}')"
+          mkdir -p "$GITHUB_WORKSPACE/radar-vps/pilot-v6198"
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w' -o "$GITHUB_WORKSPACE/radar-vps/pilot-v6198/radar-connector" ./cmd/radar-connector
+          actual="$(sha256sum "$GITHUB_WORKSPACE/radar-vps/pilot-v6198/radar-connector" | awk '{print $1}')"
+          test "$actual" = "$EXPECTED_CONNECTOR_SHA256"
           echo "RADAR_V6198_CONNECTOR_SHA256=$actual"
-          grep -aFq 'v6.19.8' /tmp/radar-connector-v6198
-          grep -aFq 'COLLECTOR_CYCLE_TERMINALIZATION_FAILED' /tmp/radar-connector-v6198
-          grep -aFq 'STALE_RUNNING_CYCLE_RECOVERED_V6197' /tmp/radar-connector-v6198
-          grep -aFq 'SEED_SKIPPED_NO_DATA' /tmp/radar-connector-v6198
+          grep -aFq 'v6.19.8' "$GITHUB_WORKSPACE/radar-vps/pilot-v6198/radar-connector"
+          grep -aFq 'COLLECTOR_CYCLE_TERMINALIZATION_FAILED' "$GITHUB_WORKSPACE/radar-vps/pilot-v6198/radar-connector"
+          grep -aFq 'STALE_RUNNING_CYCLE_RECOVERED_V6197' "$GITHUB_WORKSPACE/radar-vps/pilot-v6198/radar-connector"
+          grep -aFq 'SEED_SKIPPED_NO_DATA' "$GITHUB_WORKSPACE/radar-vps/pilot-v6198/radar-connector"
           echo RADAR_V6198_CONNECTOR=PASS
 
       - name: Verify cycle terminalization safety contract
@@ -138,3 +143,54 @@ jobs:
           echo RADAR_V6198_NATIVE_CHANGE=NO
           echo RADAR_V6198_LASTWAR_MUTATION=NO
           echo RADAR_V6198_COLLECTOR_MUTATION=TERMINALIZATION_ONLY
+
+      - name: Verify pilot installer and guard-only probe
+        run: |
+          set -euo pipefail
+          bash -n radar-vps/install-v6198-pilot.sh
+          bash -n radar-vps/probe-v6198-pilot-runtime.sh
+          grep -Fq 'WFGG_RADAR_PILOT=V6.19.8' radar-vps/install-v6198-pilot.sh
+          grep -Fq "$EXPECTED_CONNECTOR_SHA256" radar-vps/probe-v6198-pilot-runtime.sh
+          grep -Fq 'GAME_TOKEN_REQUIRED' radar-vps/probe-v6198-pilot-runtime.sh
+          grep -Fq 'RADAR_V6198_GAME_SCAN_EXECUTED=NO' radar-vps/probe-v6198-pilot-runtime.sh
+          grep -Fq 'RADAR_V6198_COLLECTOR_MUTATION=NO' radar-vps/probe-v6198-pilot-runtime.sh
+          echo RADAR_V6198_PILOT_GUARD_PROBE=PASS
+
+      - name: Publish qualified V6.19.8 pilot artifacts
+        run: |
+          set -euo pipefail
+          install -m 0755 radar-vps/release/radar-native-template radar-vps/pilot-v6198/radar-native-template
+          test "$(sha256sum radar-vps/pilot-v6198/radar-native-template | awk '{print $1}')" = "$EXPECTED_NATIVE_SHA256"
+          chmod 0755 radar-vps/pilot-v6198/radar-connector radar-vps/pilot-v6198/radar-native-template
+          (
+            cd radar-vps/pilot-v6198
+            sha256sum radar-connector radar-native-template > SHA256SUMS
+          )
+          grep -Fq "$EXPECTED_CONNECTOR_SHA256  radar-connector" radar-vps/pilot-v6198/SHA256SUMS
+          grep -Fq "$EXPECTED_NATIVE_SHA256  radar-native-template" radar-vps/pilot-v6198/SHA256SUMS
+          {
+            echo "WFGG_RADAR_PILOT=V6.19.8"
+            echo "SOURCE_BRANCH=radar-v6198-collector-cycle-terminalization"
+            echo "SOURCE_SHA=$GITHUB_SHA"
+            echo "CHANGE=collector-cycle-terminalization"
+            echo "COLLECTOR_CYCLE_TERMINALIZATION=YES"
+            echo "TERMINALIZATION_ATTEMPTS=12"
+            echo "TERMINAL_STATE_VERIFIED=YES"
+            echo "STALE_CYCLE_RECOVERY_PRESERVED=YES"
+            echo "NO_DATA_CONTINUE_PRESERVED=YES"
+            echo "GLOBAL_FAILURE_GUARDS=PRESERVED"
+            echo "LASTWAR_MUTATION=NO"
+            echo "COLLECTOR_MUTATION=FAILURE_TERMINALIZATION_ONLY"
+            echo "TOKEN_PERSISTENCE=NO"
+          } > radar-vps/pilot-v6198/PILOT_INFO.txt
+
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add radar-vps/pilot-v6198
+          if git diff --cached --quiet; then
+            echo RADAR_V6198_PILOT=UNCHANGED
+            exit 0
+          fi
+          git commit -m 'build(radar): publish V6.19.8 Collector terminalization pilot'
+          git push origin HEAD:radar-v6198-collector-cycle-terminalization
+          echo RADAR_V6198_PILOT=PUBLISHED
