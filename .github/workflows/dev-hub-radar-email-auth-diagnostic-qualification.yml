@@ -36,6 +36,12 @@ jobs:
           A=dev-hub/adapters/radar-runtime-adapter.py
           R=dev-hub/bin/run-radar-email-auth-runtime-diagnostic-e2e.sh
           grep -Fq '"email-auth-runtime-diagnostic": "read"' "$A"
+          python3 - <<'PY'
+          import json
+          x=json.load(open('dev-hub/config/adapter-provisioning.v1.json',encoding='utf-8'))
+          assert x['adapters']['radar-runtime-adapter']['version']=='1.5.2',x
+          print('RADAR_RUNTIME_ADAPTER_VERSION=1.5.2')
+          PY
           grep -Fq 'EMAIL_AUTH_PUBLIC_BASE = "https://chachavps.tail3ab05a.ts.net"' "$A"
           grep -Fq '"gameUid": "x", "email": "invalid"' "$A"
           grep -Fq 'LASTWAR_GAME_UID_REQUIRED' "$A"
