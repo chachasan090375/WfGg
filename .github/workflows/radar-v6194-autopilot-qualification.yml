@@ -118,6 +118,8 @@ jobs:
           grep -Fq '/api/radar/autopilot/start' /tmp/wfgg-radar/src/worker.js
           grep -Fq '/api/radar/autopilot/status' /tmp/wfgg-radar/src/worker.js
           grep -Fq '/api/radar/autopilot/stop' /tmp/wfgg-radar/src/worker.js
+          grep -Fq 'baseUrl: env.RADAR_CONNECTOR_URL' /tmp/wfgg-radar/src/worker.js
+          ! grep -Fq 'RADAR_CONECTOR_URL' /tmp/wfgg-radar/src/worker.js
           grep -Fq 'DÉMARRER L’AUTOPILOT' /tmp/wfgg-radar/public/live-radar.html
           grep -Fq 'ARRÊTER L’AUTOPILOT' /tmp/wfgg-radar/public/live-radar.html
           grep -Fq 'fonctionne téléphone verrouillé' /tmp/wfgg-radar/public/live-radar.html
