@@ -24,7 +24,7 @@ jobs:
           set -euo pipefail
           F=dev-hub/bin/run-radar-v6194-production-sentinel-reconcile.sh
           bash -n "$F"
-          grep -Fq 'J'approuve la promotion production radar V6.19.4 Autopilot et le déploiement des surfaces Cloudflare associées.' "$F"
+          grep -Fq "J'approuve la promotion production radar V6.19.4 Autopilot et le déploiement des surfaces Cloudflare associées." "$F"
           grep -Fq 'production-release' "$F"
           grep -Fq 'radar-runtime:production-sentinel-reconcile-v6194' "$F"
           grep -Fq '"action":"pilot-close"' "$F"
