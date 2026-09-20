@@ -10,6 +10,7 @@ Supported actions:
 - history-performance-diagnostic (read)
 - census-frontier-diagnostic  (read)
 - seed-scout-route-diagnostic (read)
+- email-auth-runtime-diagnostic (read)
 - pilot-open                 (production-deploy)
 - pilot-install     (production-deploy)
 - pilot-probe       (read)
@@ -170,6 +171,7 @@ def validate_request(request: dict[str, Any]) -> tuple[dict[str, Any] | None, st
         "history-performance-diagnostic": "read",
         "census-frontier-diagnostic": "read",
         "seed-scout-route-diagnostic": "read",
+        "email-auth-runtime-diagnostic": "read",
         "pilot-open": "production-deploy",
         "pilot-install": "production-deploy",
         "pilot-probe": "read",
@@ -802,6 +804,166 @@ def do_seed_scout_route_diagnostic(request: dict[str, Any]) -> int:
     }]))
 
 
+
+EMAIL_AUTH_HELPER_DEFAULT = Path("/opt/wfgg-radar/bin/radar-lastwar-auth-client")
+EMAIL_AUTH_PUBLIC_BASE = "https://chachavps.tail3ab05a.ts.net"
+
+
+def connector_process_env_value(name: str) -> str | None:
+    proc = systemctl("show", "-p", "MainPID", "--value", RADAR_SERVICE)
+    if proc.returncode != 0:
+        return None
+    pid = proc.stdout.decode("utf-8", "replace").strip()
+    if not pid.isdigit() or pid == "0":
+        return None
+    try:
+        raw = Path(f"/proc/{pid}/environ").read_bytes()
+    except OSError:
+        return None
+    prefix = (name + "=").encode("utf-8")
+    for item in raw.split(b"\x00"):
+        if item.startswith(prefix):
+            return item.split(b"=", 1)[1].decode("utf-8", "replace").strip()
+    return None
+
+
+def signed_json_request_base(base_url: str, method: str, path: str,
+                             body_obj: dict[str, Any] | None = None,
+                             timeout_seconds: int = 20) -> tuple[int, dict[str, Any], int, bool]:
+    secret = connector_shared_key()
+    body = b"" if body_obj is None else json.dumps(body_obj, separators=(",", ":")).encode("utf-8")
+    timestamp = str(int(time.time()))
+    nonce = os.urandom(16).hex()
+    canonical_path = path.split("?", 1)[0]
+    signature = radar_signature(method, canonical_path, timestamp, nonce, body, secret)
+    req = urllib.request.Request(
+        base_url.rstrip("/") + path,
+        data=None if method.upper() == "GET" else body,
+        method=method.upper(),
+        headers={
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "X-Radar-Timestamp": timestamp,
+            "X-Radar-Nonce": nonce,
+            "X-Radar-Signature": signature,
+            "User-Agent": "ChaCha-DEV-HUB-RadarRuntime/1",
+        },
+    )
+    started = time.monotonic()
+    status = 0
+    raw = b""
+    try:
+        with urllib.request.urlopen(req, timeout=timeout_seconds) as response:
+            status = int(response.status)
+            raw = response.read(65537)
+    except urllib.error.HTTPError as exc:
+        status = int(exc.code)
+        raw = exc.read(65537)
+    except Exception:
+        elapsed_ms = int(round((time.monotonic() - started) * 1000))
+        return 0, {"error": "TRANSPORT_EXCEPTION"}, elapsed_ms, False
+    elapsed_ms = int(round((time.monotonic() - started) * 1000))
+    if len(raw) > 65536:
+        return status, {"error": "RESPONSE_TOO_LARGE"}, elapsed_ms, False
+    try:
+        payload = json.loads(raw.decode("utf-8", "strict"))
+    except Exception:
+        return status, {"error": "NON_JSON_RESPONSE", "body_length": len(raw)}, elapsed_ms, False
+    if not isinstance(payload, dict):
+        return status, {"error": "NON_OBJECT_JSON"}, elapsed_ms, False
+    return status, payload, elapsed_ms, True
+
+
+def email_auth_runtime_snapshot() -> dict[str, Any]:
+    snap = status_snapshot()
+    helper_raw = connector_process_env_value("LASTWAR_AUTH_CLIENT_BIN")
+    helper = Path(helper_raw) if helper_raw else EMAIL_AUTH_HELPER_DEFAULT
+    connector_bytes = b""
+    try:
+        connector_bytes = CONNECTOR.read_bytes()
+    except OSError:
+        pass
+
+    out: dict[str, Any] = {
+        "radar_service": snap.get("radar_service"),
+        "connector_sha256": snap.get("connector_sha256"),
+        "native_sha256": snap.get("native_sha256"),
+        "email_auth_helper_path_source": "environment" if helper_raw else "default",
+        "email_auth_helper_exists": helper.is_file(),
+        "email_auth_helper_executable": helper.is_file() and os.access(helper, os.X_OK),
+        "email_auth_helper_sha256": sha256_file(helper) if helper.is_file() else None,
+        "connector_has_email_start_route": b"/v1/auth/email/start" in connector_bytes,
+        "connector_has_email_finish_route": b"/v1/auth/email/finish" in connector_bytes,
+        "local_guard": {},
+        "public_guard": {},
+        "local_route_ready": False,
+        "public_route_ready": False,
+        "failure_class": None,
+    }
+
+    guard_body = {"gameUid": "x", "email": "invalid"}
+    try:
+        local_status, local_payload, local_ms = signed_json_request(
+            "POST", "/v1/auth/email/start", guard_body, 15
+        )
+    except Exception as exc:
+        local_status, local_payload, local_ms = 0, {"error": type(exc).__name__}, 0
+    out["local_guard"] = {
+        "http_status": local_status,
+        "error": local_payload.get("error"),
+        "elapsed_ms": local_ms,
+        "json": True,
+    }
+    out["local_route_ready"] = (
+        local_status == 400 and local_payload.get("error") == "LASTWAR_GAME_UID_REQUIRED"
+    )
+
+    public_status, public_payload, public_ms, public_json = signed_json_request_base(
+        EMAIL_AUTH_PUBLIC_BASE, "POST", "/v1/auth/email/start", guard_body, 20
+    )
+    out["public_guard"] = {
+        "http_status": public_status,
+        "error": public_payload.get("error"),
+        "elapsed_ms": public_ms,
+        "json": public_json,
+    }
+    out["public_route_ready"] = (
+        public_status == 400
+        and public_json
+        and public_payload.get("error") == "LASTWAR_GAME_UID_REQUIRED"
+    )
+
+    if out["radar_service"] != "active":
+        out["failure_class"] = "RADAR_SERVICE_NOT_ACTIVE"
+    elif not out["connector_has_email_start_route"] or not out["connector_has_email_finish_route"]:
+        out["failure_class"] = "EMAIL_AUTH_CONNECTOR_ROUTES_MISSING"
+    elif not out["email_auth_helper_exists"]:
+        out["failure_class"] = "EMAIL_AUTH_HELPER_MISSING"
+    elif not out["email_auth_helper_executable"]:
+        out["failure_class"] = "EMAIL_AUTH_HELPER_NOT_EXECUTABLE"
+    elif not out["local_route_ready"]:
+        out["failure_class"] = "EMAIL_AUTH_LOCAL_ROUTE_FAILED"
+    elif not out["public_route_ready"]:
+        out["failure_class"] = "EMAIL_AUTH_PUBLIC_PROXY_FAILED"
+    return out
+
+
+def do_email_auth_runtime_diagnostic(request: dict[str, Any]) -> int:
+    snap = email_auth_runtime_snapshot()
+    raw = json.dumps(snap, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    return emit(result(request, "OK", "RADAR_EMAIL_AUTH_RUNTIME_DIAGNOSTIC_OK", [{
+        "kind": "diagnostic",
+        "source": "vps://localhost/wfgg-radar/email-auth-runtime",
+        "digest": sha256_bytes(raw),
+        "details": snap,
+    }], [{
+        "type": "artifact",
+        "id": "radar-email-auth-runtime-diagnostic",
+        "status": "UNVERIFIED",
+        "reason": "Read-only route/helper/proxy diagnostic; invalid guard input prevents any Last War email-code request.",
+    }]))
+
+
 def do_open(request: dict[str, Any]) -> int:
     approval_error = approval_required(request)
     if approval_error:
@@ -947,6 +1109,8 @@ def main() -> int:
             return do_census_frontier_diagnostic(request)
         if action == "seed-scout-route-diagnostic":
             return do_seed_scout_route_diagnostic(request)
+        if action == "email-auth-runtime-diagnostic":
+            return do_email_auth_runtime_diagnostic(request)
         if action == "pilot-open":
             return do_open(request)
         if action == "pilot-install":
