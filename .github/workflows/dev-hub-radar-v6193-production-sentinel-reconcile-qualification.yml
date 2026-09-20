@@ -1,0 +1,35 @@
+name: ChaCha DEV Radar V6.19.3 production Sentinel reconcile qualification
+
+on:
+  push:
+    branches: [dev-hub-v5-radar-cluster-quality-diagnostic-v1]
+    paths:
+      - 'dev-hub/bin/run-radar-v6193-production-sentinel-reconcile.sh'
+      - '.github/workflows/dev-hub-radar-v6193-production-sentinel-reconcile-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev-hub-v5-radar-cluster-quality-diagnostic-v1
+
+      - name: Validate governed production reconcile
+        run: |
+          set -euo pipefail
+          F=dev-hub/bin/run-radar-v6193-production-sentinel-reconcile.sh
+          bash -n "$F"
+          grep -Fq 'J’approuve la promotion production Radar V6.19.3 Seed Scout et le déploiement des surfaces Cloudflare associées.' "$F"
+          grep -Fq 'production-release' "$F"
+          grep -Fq 'radar-runtime:production-sentinel-reconcile-v6193' "$F"
+          grep -Fq '"action":"pilot-close"' "$F"
+          grep -Fq '73b64743031e4a47212dfdafae8ad67551f88d131831e70cb08a40957824f9a8' "$F"
+          grep -Fq '274d040f5294cb09422e5d55cc4b5335ac7739924c33dcb67b3f279645814900' "$F"
+          grep -Fq 'PRODUCTION_RELEASE_APPROVAL_REVOKED=PASS' "$F"
+          grep -Fq 'RADAR_V6193_PROD_RECONCILE=PASS' "$F"
+          echo RADAR_V6193_PRODUCTION_SENTINEL_RECONCILE=QUALIFIED
