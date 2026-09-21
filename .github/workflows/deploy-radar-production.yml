@@ -130,7 +130,6 @@ jobs:
           grep -Fq 'WFGG_RADAR_MANUAL_SEARCH_STOP_TRANSPORT_V61911' /tmp/wfgg-radar/src/game/remote-transport.js
           grep -Fq 'WFGG_RADAR_AUTOPILOT_NO_RESCAN_QUALIFIED_V61912' /tmp/wfgg-radar/connector-go/cmd/radar-connector/server_autopilot_v6194.go
           grep -Fq 'WFGG_RADAR_AUTOPILOT_NO_RESCAN_QUALIFIED_UI_V61912' /tmp/wfgg-radar/public/live-radar.html
-          grep -Fq 'AUTOPILOT V6.19.12 · ARRÊTÉ' /tmp/wfgg-radar/public/live-radar.html
           grep -Fq 'seeds déjà qualifiées jamais rescannées' /tmp/wfgg-radar/public/live-radar.html
           grep -Fq 'WFGG_RADAR_AUTOPILOT_PERSISTENT_LEDGER_V61913' /tmp/wfgg-radar/connector-go/cmd/radar-connector/server_autopilot_v6194.go
           grep -Fq 'WFGG_RADAR_AUTOPILOT_PERSISTENT_LEDGER_UI_V61913' /tmp/wfgg-radar/public/live-radar.html
@@ -348,7 +347,6 @@ jobs:
           grep -Fq "go.textContent=manualSearchRunning?(manualSearchStopping?'ARRÊT…':'STOP'):'RECHERCHER'" /tmp/live-radar.html
           grep -Fq 'requestManualSearchStop' /tmp/live-radar.html
           grep -Fq 'WFGG_RADAR_AUTOPILOT_NO_RESCAN_QUALIFIED_UI_V61912' /tmp/live-radar.html
-          grep -Fq 'AUTOPILOT V6.19.12 · ARRÊTÉ' /tmp/live-radar.html
           grep -Fq 'seeds déjà qualifiées jamais rescannées' /tmp/live-radar.html
           grep -Fq 'WFGG_RADAR_AUTOPILOT_PERSISTENT_LEDGER_UI_V61913' /tmp/live-radar.html
           grep -Fq 'AUTOPILOT V6.19.13 · ARRÊTÉ' /tmp/live-radar.html
