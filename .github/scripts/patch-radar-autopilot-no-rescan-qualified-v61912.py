@@ -87,8 +87,8 @@ if marker not in text:
 AUTOPILOT.write_text(text, encoding='utf-8')
 
 main_text = MAIN.read_text(encoding='utf-8')
-health_old = '"version": "0.5.0-collector-async-email-auth-v1"'
-health_new = '"version": "v6.19.12-no-rescan-qualified-seeds"'
+health_old = 'payload["version"] = "0.5.0-collector-async-email-auth-v1-v693"'
+health_new = 'payload["version"] = "v6.19.12-no-rescan-qualified-seeds"'
 if health_new not in main_text:
     if main_text.count(health_old) != 1:
         raise SystemExit(f'V61912_HEALTH_VERSION_ANCHOR_COUNT={main_text.count(health_old)}')
