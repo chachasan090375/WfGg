@@ -1,0 +1,17 @@
+WFGG_RADAR_PRODUCTION_APPROVAL=V6.19.16
+APPROVED_SOURCE_REV=67b899ad13360cce1c8b842a99ea06b366aef50f
+QUALIFICATION_RESULT=PASS
+PILOT_AUTOMATED_RESULT=PASS
+STATEMENT=J’approuve la promotion production Radar V6.19.16 Failure Scope Continue, candidat 67b899ad13360cce1c8b842a99ea06b366aef50f, après qualification et PILOT automatisés PASS, avec continuation automatique sur les limites d’échecs locaux PROTOCOL/SERVER_TARGET, conservation des preuves déjà acquises et exclusion de la seed concernée, maintien bloquant des erreurs AUTH/NETWORK/CONNECTOR/SYSTEM, conservation de Coverage Completion, de l’animation radar Autopilot, de Persistent Ledger, No-Rescan et Manual Search Stop, Last War strictement READ-ONLY, aucune persistance de token, rollback disponible et déploiement Cloudflare associé.
+SEED_LOCAL_PROTOCOL_SERVER_TARGET=CONTINUE
+BLOCKING_AUTH_NETWORK_CONNECTOR_SYSTEM=YES
+PRESERVE_EVIDENCE=YES
+EXCLUDE_SEED_AFTER_LOCAL_LIMIT=YES
+PRESERVE_V61915_ANIMATION_AND_COVERAGE=YES
+PRESERVE_V61913_LEDGER=YES
+PRESERVE_V61912_NO_RESCAN=YES
+PRESERVE_V61911_MANUAL_STOP=YES
+LASTWAR_MODE=READ_ONLY
+TOKEN_PERSISTENCE=NO
+ROLLBACK_REQUIRED=YES
+CLOUDFLARE_DEPLOYMENT=APPROVED
