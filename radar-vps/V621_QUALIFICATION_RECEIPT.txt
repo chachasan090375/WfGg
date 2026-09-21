@@ -1,6 +1,6 @@
 WFGG_RADAR_QUALIFICATION=V6.21
 RESULT=failure
-SOURCE_REV=02216d9bb48608dde7a3aec620e92ede7859d778
+SOURCE_REV=826964db046fe8dd75e8c2b899a86b221508c57e
 COUNTRY_OPTIONS_SOURCE=LASTWAR_OBSERVED_VALUES
 GENERIC_WORLD_COUNTRY_LIST=NO
 LASTWAR_MODE=READ_ONLY
@@ -9,31 +9,31 @@ PRODUCTION_DEPLOYMENT=NO
 
 ===== v621-tests.log =====
 === RUN   TestPlayerIntelligenceCountryOptionsAreGameObservedV621
---- PASS: TestPlayerIntelligenceCountryOptionsAreGameObservedV621 (0.06s)
+--- PASS: TestPlayerIntelligenceCountryOptionsAreGameObservedV621 (0.07s)
 === RUN   TestPlayerIntelligenceUnsupportedCountryIsGracefulV621
 --- PASS: TestPlayerIntelligenceUnsupportedCountryIsGracefulV621 (0.05s)
 === RUN   TestPlayerIntelligenceNormalizedChipsV621
 --- PASS: TestPlayerIntelligenceNormalizedChipsV621 (0.05s)
 === RUN   TestPlayerIntelligenceIncludeAliasV621
---- PASS: TestPlayerIntelligenceIncludeAliasV621 (0.05s)
+--- PASS: TestPlayerIntelligenceIncludeAliasV621 (0.06s)
 === RUN   TestPlayerIntelligenceAliasSearchStillWorksV621
---- PASS: TestPlayerIntelligenceAliasSearchStillWorksV621 (0.05s)
+--- PASS: TestPlayerIntelligenceAliasSearchStillWorksV621 (0.06s)
 PASS
-ok  	wfgg-radar-connector/cmd/radar-connector	0.262s
+ok  	wfgg-radar-connector/cmd/radar-connector	0.294s
 
 ===== v620-tests.log =====
 === RUN   TestAutopilotFullAfterPartialPersistsAndConfirmsV620
---- PASS: TestAutopilotFullAfterPartialPersistsAndConfirmsV620 (0.08s)
+--- PASS: TestAutopilotFullAfterPartialPersistsAndConfirmsV620 (0.09s)
 === RUN   TestAutopilotLedgerRetryableV620
 --- PASS: TestAutopilotLedgerRetryableV620 (0.00s)
 === RUN   TestPlayerIntelligenceAliasSearchV620
 --- PASS: TestPlayerIntelligenceAliasSearchV620 (0.05s)
 === RUN   TestPlayerIntelligenceAllianceSearchV620
---- PASS: TestPlayerIntelligenceAllianceSearchV620 (0.05s)
+--- PASS: TestPlayerIntelligenceAllianceSearchV620 (0.06s)
 === RUN   TestPlayerIntelligenceRecruitmentFiltersV620
 --- PASS: TestPlayerIntelligenceRecruitmentFiltersV620 (0.05s)
 PASS
-ok  	wfgg-radar-connector/cmd/radar-connector	0.224s
+ok  	wfgg-radar-connector/cmd/radar-connector	0.265s
 
 ===== v61917-tests.log =====
 === RUN   TestAutopilotResolveVerificationV61917
@@ -46,6 +46,21 @@ PASS
 ok  	wfgg-radar-connector/cmd/radar-connector	0.003s
 
 ===== v620-regression.log =====
-ok  	wfgg-radar-connector/cmd/radar-connector	7.153s
+ok  	wfgg-radar-connector/cmd/radar-connector	7.271s
 ok  	wfgg-radar-connector/internal/authsig	0.003s
-ok  	wfgg-radar-connector/internal/protocol	0.108s
+ok  	wfgg-radar-connector/internal/protocol	0.062s
+PASS v6.20.0
+PASS v6.21.0
+PASS ADAPTIVE_FAST
+PASS AUTOPILOT_ADAPTIVE_FULL_CYCLES_CONFLICT_V61917
+PASS SEED_LOCAL_FAILURE_LIMIT
+PASS COVERAGE_COMPLETE
+PASS radar_autopilot_ledger_v61913
+PASS MANUAL_SEARCH_STOPPED
+PASS AUTOPILOT_LEDGER_PERSIST_FAILED_V620
+PASS PLAYER_INTELLIGENCE_REQUEST_INVALID_V620
+PASS /v1/collector/intelligence/search
+PASS /v1/collector/intelligence/search-v621
+PASS lastwar-observed-values
+MISS country_unavailable
+V621_BINARY_MARKERS_MISSING=country_unavailable
