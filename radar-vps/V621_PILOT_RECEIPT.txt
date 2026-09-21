@@ -1,0 +1,45 @@
+WFGG_RADAR_PILOT=V6.21
+RESULT=success
+SOURCE_REV=a6dbce9bbb47030fe79ed1e4285b53a33a8fc159
+COUNTRY_OPTIONS_SOURCE=LASTWAR_OBSERVED_VALUES
+GENERIC_WORLD_COUNTRY_LIST=NO
+GAME_SCAN_EXECUTED=NO
+LASTWAR_MODE=READ_ONLY
+TOKEN_PERSISTENCE=NO
+PRODUCTION_DEPLOYMENT=NO
+
+===== v621-pilot-intel.log =====
+=== RUN   TestPlayerIntelligenceCountryOptionsAreGameObservedV621
+--- PASS: TestPlayerIntelligenceCountryOptionsAreGameObservedV621 (0.08s)
+=== RUN   TestPlayerIntelligenceUnsupportedCountryIsGracefulV621
+--- PASS: TestPlayerIntelligenceUnsupportedCountryIsGracefulV621 (0.05s)
+=== RUN   TestPlayerIntelligenceNormalizedChipsV621
+--- PASS: TestPlayerIntelligenceNormalizedChipsV621 (0.05s)
+=== RUN   TestPlayerIntelligenceIncludeAliasV621
+--- PASS: TestPlayerIntelligenceIncludeAliasV621 (0.05s)
+=== RUN   TestPlayerIntelligenceAliasSearchStillWorksV621
+--- PASS: TestPlayerIntelligenceAliasSearchStillWorksV621 (0.05s)
+PASS
+ok  	wfgg-radar-connector/cmd/radar-connector	0.293s
+
+===== v620-pilot-regression.log =====
+=== RUN   TestAutopilotFullAfterPartialPersistsAndConfirmsV620
+--- PASS: TestAutopilotFullAfterPartialPersistsAndConfirmsV620 (0.07s)
+=== RUN   TestAutopilotLedgerRetryableV620
+--- PASS: TestAutopilotLedgerRetryableV620 (0.00s)
+=== RUN   TestPlayerIntelligenceAliasSearchV620
+--- PASS: TestPlayerIntelligenceAliasSearchV620 (0.05s)
+=== RUN   TestPlayerIntelligenceAllianceSearchV620
+--- PASS: TestPlayerIntelligenceAllianceSearchV620 (0.05s)
+=== RUN   TestPlayerIntelligenceRecruitmentFiltersV620
+--- PASS: TestPlayerIntelligenceRecruitmentFiltersV620 (0.05s)
+PASS
+ok  	wfgg-radar-connector/cmd/radar-connector	0.230s
+
+===== v61917-pilot.log =====
+=== RUN   TestAutopilotAdaptiveOneFullCycleConfirmsV61917
+--- PASS: TestAutopilotAdaptiveOneFullCycleConfirmsV61917 (0.00s)
+=== RUN   TestAutopilotAdaptivePartialDoesNotConfirmV61917
+--- PASS: TestAutopilotAdaptivePartialDoesNotConfirmV61917 (0.00s)
+PASS
+ok  	wfgg-radar-connector/cmd/radar-connector	0.005s
