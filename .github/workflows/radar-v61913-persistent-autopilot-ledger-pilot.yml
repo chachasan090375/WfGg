@@ -1,0 +1,155 @@
+name: Radar V6.19.13 persistent Autopilot ledger automated PILOT
+
+on:
+  push:
+    branches: [radar-v61913-persistent-autopilot-ledger]
+    paths:
+      - '.github/scripts/patch-radar-autopilot-persistent-ledger-v61913.py'
+      - '.github/scripts/patch-live-radar-autopilot-v61913.py'
+      - '.github/workflows/radar-v61913-persistent-autopilot-ledger-pilot.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pilot:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: radar-v61913-persistent-autopilot-ledger
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.27.x'
+
+      - name: Reconstruct exact V6.19.13 candidate
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/wfgg-radar
+          mkdir -p /tmp/wfgg-radar
+          python3 .github/scripts/reconstruct-radar-release.py
+          echo '234df1dec57f6211bc625855bf13350c9f17fbd843fbe92d8cf1ab7cb5c081ef  /tmp/radar-src.tar.gz' | sha256sum -c -
+          tar -xzf /tmp/radar-src.tar.gz -C /tmp/wfgg-radar
+          rm -rf /tmp/wfgg-radar/connector-go
+          cp -a .radar-release-src/v2-source/connector-go /tmp/wfgg-radar/connector-go
+
+          python3 .github/scripts/patch-radar-target-profile-retry.py
+          python3 .github/scripts/patch-radar-federated-diagnostics-v65.py
+          python3 .github/scripts/patch-player-scan-v3.py
+          python3 .github/scripts/patch-player-scan-v4.py
+          python3 .github/scripts/patch-radar-protocol-discovery-v67.py
+          python3 .github/scripts/patch-radar-profile-isolation-v68.py
+          python3 .github/scripts/patch-radar-native-profile-v69.py
+          python3 .github/scripts/patch-radar-native-profile-handshake-v691.py
+          python3 .github/scripts/patch-radar-native-profile-exec-v692.py
+          python3 .github/scripts/patch-radar-connector-runtime-v693.py
+          python3 .github/scripts/patch-radar-cluster-catalog-budget-v6192.py
+          python3 .github/scripts/patch-radar-seed-scout-v6193.py
+          python3 .github/scripts/patch-radar-autopilot-v6194.py
+          python3 .github/scripts/patch-radar-autopilot-stale-cycle-v6197.py
+          python3 .github/scripts/patch-radar-collector-cycle-terminalization-v6198.py
+          python3 .github/scripts/patch-radar-autopilot-targeted-history-v6199.py
+          python3 .github/scripts/patch-radar-autopilot-continue-partial-v61910.py
+
+          install -m 0644 .radar-release-src/v2-source/src/game/remote-transport.js /tmp/wfgg-radar/src/game/remote-transport.js
+          python3 .github/scripts/patch-radar-async-collector-worker.py
+          python3 .github/scripts/patch-radar-worker-rich-profile-v6191.py
+          python3 .github/scripts/patch-radar-worker-seed-scout-v6193.py
+          python3 .github/scripts/patch-radar-worker-autopilot-v6194.py
+
+          install -m 0644 radar-ui-live/live-radar.html /tmp/wfgg-radar/public/live-radar.html
+          python3 .github/scripts/patch-live-radar-seed-scout-v6193.py
+          python3 .github/scripts/patch-live-radar-autopilot-v6194.py
+          python3 .github/scripts/patch-radar-session-keepalive-v6195.py
+          python3 .github/scripts/patch-live-radar-autopilot-v6196.py
+          python3 .github/scripts/patch-live-radar-autopilot-v6197.py
+          python3 .github/scripts/patch-live-radar-autopilot-v6198.py
+          python3 .github/scripts/patch-live-radar-autopilot-v6199.py
+          python3 .github/scripts/patch-live-radar-autopilot-v61910.py
+
+          python3 .github/scripts/patch-radar-manual-search-stop-v61911.py
+          python3 .github/scripts/patch-radar-autopilot-no-rescan-qualified-v61912.py
+          python3 .github/scripts/patch-live-radar-autopilot-v61912.py
+          python3 .github/scripts/patch-radar-autopilot-persistent-ledger-v61913.py
+          python3 .github/scripts/patch-live-radar-autopilot-v61913.py
+          echo RADAR_V61913_PILOT_RECONSTRUCT=PASS
+
+      - name: Simulate restart and resume from durable Collector ledger
+        working-directory: /tmp/wfgg-radar/connector-go
+        run: |
+          set -euo pipefail
+          gofmt -w ./cmd ./internal
+          go test ./cmd/radar-connector -run '^TestAutopilotPersistentLedgerRestartResumeV61913$' -count=1 -v | tee /tmp/v61913-pilot.log
+          grep -Fq -- '--- PASS: TestAutopilotPersistentLedgerRestartResumeV61913' /tmp/v61913-pilot.log
+          echo RADAR_V61913_RESTART_RESUME_PILOT=PASS
+
+      - name: Verify persistent outcome model
+        working-directory: /tmp/wfgg-radar/connector-go
+        run: |
+          set -euo pipefail
+          go test ./cmd/radar-connector -run '^(TestAutopilotPersistentLedgerUpsertV61913|TestAutopilotLedgerTerminalStatesV61913)$' -count=1 -v | tee /tmp/v61913-ledger.log
+          grep -Fq -- '--- PASS: TestAutopilotPersistentLedgerUpsertV61913' /tmp/v61913-ledger.log
+          grep -Fq -- '--- PASS: TestAutopilotLedgerTerminalStatesV61913' /tmp/v61913-ledger.log
+          echo RADAR_V61913_TERMINAL_STATES=QUALIFIED_NO_DATA_PARTIAL_LIMIT
+          echo RADAR_V61913_RETRYABLE_FAILURES=RETAINED_FOR_RETRY
+          echo RADAR_V61913_LEDGER_UPSERT=PASS
+
+      - name: Verify ledger gate precedes Seed Scout
+        run: |
+          set -euo pipefail
+          A=/tmp/wfgg-radar/connector-go/cmd/radar-connector/server_autopilot_v6194.go
+          python3 - "$A" <<'PY'
+          import sys
+          t=open(sys.argv[1],encoding='utf-8').read()
+          ledger=t.index('autopilotFilterLedgerCandidatesV61913')
+          history=t.index('autopilotFilterQualifiedCandidatesV61912', ledger)
+          scout=t.index('scout := &seedScoutJobV6193', history)
+          scan=t.index('s.runSeedScoutV6193', scout)
+          assert ledger < history < scout < scan,(ledger,history,scout,scan)
+          print('RADAR_V61913_LEDGER_BEFORE_HISTORY_AND_SEED_SCOUT=PASS')
+          PY
+          echo RADAR_V61913_GAME_SCAN_EXECUTED=NO
+          echo RADAR_V61913_LASTWAR_MODE=READ_ONLY
+
+      - name: Full regression suite and candidate digests
+        working-directory: /tmp/wfgg-radar/connector-go
+        run: |
+          set -euo pipefail
+          go test ./...
+          go vet ./...
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w' -o /tmp/radar-connector ./cmd/radar-connector
+          grep -aFq 'v6.19.13' /tmp/radar-connector
+          grep -aFq 'radar_autopilot_ledger_v61913' /tmp/radar-connector
+          grep -aFq 'SCOUT_SKIPPED_PERSISTED' /tmp/radar-connector
+          grep -aFq 'MANUAL_SEARCH_STOPPED' /tmp/radar-connector
+          echo "RADAR_V61913_PILOT_CONNECTOR_SHA256=$(sha256sum /tmp/radar-connector | awk '{print $1}')"
+          echo RADAR_V61913_REGRESSION_SUITE=PASS
+
+      - name: Verify UI and safety contract
+        run: |
+          set -euo pipefail
+          U=/tmp/wfgg-radar/public/live-radar.html
+          P=.github/scripts/patch-radar-autopilot-persistent-ledger-v61913.py
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          h=Path('/tmp/wfgg-radar/public/live-radar.html').read_text(encoding='utf-8')
+          m=re.search(r'<script>(.*)</script>',h,re.S)
+          assert m
+          Path('/tmp/v61913-ui.js').write_text(m.group(1),encoding='utf-8')
+          PY
+          node --check /tmp/v61913-ui.js
+          grep -Fq 'AUTOPILOT V6.19.13 · ARRÊTÉ' "$U"
+          grep -Fq 'reprise après redémarrage avec token frais' "$U"
+          grep -Fq 'WFGG_RADAR_AUTOPILOT_NO_RESCAN_QUALIFIED_UI_V61912' "$U"
+          grep -Fq 'WFGG_RADAR_MANUAL_SEARCH_STOP_UI_V61911' "$U"
+          ! grep -REiq 'localStorage.*token|sessionStorage.*token|INSERT.*token|token.*INSERT|access_token' "$P"
+          echo "RADAR_V61913_PILOT_UI_SHA256=$(sha256sum "$U" | awk '{print $1}')"
+          echo RADAR_V61913_COLLECTOR_MUTATION=SYNTHETIC_LEDGER_ONLY
+          echo RADAR_V61913_TOKEN_PERSISTENCE=NO
+          echo RADAR_V61913_PRODUCTION_DEPLOYMENT=NO
+          echo RADAR_V61913_PILOT=PASS
