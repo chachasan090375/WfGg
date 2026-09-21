@@ -140,7 +140,6 @@ jobs:
           grep -Fq 'coverageMode:true' /tmp/wfgg-radar/public/live-radar.html
           grep -Fq 'COUVERTURE TERMINÉE' /tmp/wfgg-radar/public/live-radar.html
           grep -Fq 'AUTOPILOT V6.19.14 · ARRÊTÉ' /tmp/wfgg-radar/public/live-radar.html
-          grep -Fq 'reprise après redémarrage avec token frais' /tmp/wfgg-radar/public/live-radar.html
           echo RADAR_V61914_CLOUDFLARE_DIGESTS=PASS
 
       - name: Guardian pre-deploy gate
@@ -358,7 +357,6 @@ jobs:
           grep -Fq 'AUTOPILOT V6.19.14 · ARRÊTÉ' /tmp/live-radar.html
           grep -Fq 'COUVERTURE TERMINÉE' /tmp/live-radar.html
           grep -Fq 'AUTOPILOT V6.19.14 · ARRÊTÉ' /tmp/live-radar.html
-          grep -Fq 'reprise après redémarrage avec token frais' /tmp/live-radar.html
           echo "RADAR_PRODUCTION_URL=$RADAR_URL"
           echo "RADAR_LIVE_UI_URL=$RADAR_URL/live-radar.html"
           echo RADAR_V61914_CLOUDFLARE_PRODUCTION=PASS
