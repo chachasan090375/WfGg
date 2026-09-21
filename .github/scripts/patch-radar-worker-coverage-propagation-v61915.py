@@ -19,17 +19,28 @@ if marker not in worker:
           throw Object.assign(new Error('AUTOPILOT_MAX_CLUSTERS_INVALID'), { status: 400 });
         }
 """
-    new = """        // WFGG_RADAR_AUTOPILOT_WORKER_COVERAGE_PROPAGATION_V61915
-        const initialSeed = String(body.initialSeed || '').trim();
-        const fullCyclesPerCluster = body.fullCyclesPerCluster == null ? 3 : Number(body.fullCyclesPerCluster);
-        const coverageMode = body.coverageMode === true;
-        const maxClusters = coverageMode ? 0 : (body.maxClusters == null ? 5 : Number(body.maxClusters));
-        if (!Number.isInteger(fullCyclesPerCluster) || fullCyclesPerCluster < 1 || fullCyclesPerCluster > 5) {
-          throw Object.assign(new Error('AUTOPILOT_FULL_CYCLES_INVALID'), { status: 400 });
-        }
-        if (!coverageMode && (!Number.isInteger(maxClusters) || maxClusters < 1 || maxClusters > 20)) {
-          throw Object.assign(new Error('AUTOPILOT_MAX_CLUSTERS_INVALID'), { status: 400 });
-        }
+    helper_anchor = "export default {\n"
+    if worker.count(helper_anchor) != 1:
+        raise SystemExit(f'V61915_WORKER_HELPER_ANCHOR_COUNT={worker.count(helper_anchor)}')
+    helper = """// WFGG_RADAR_AUTOPILOT_WORKER_COVERAGE_PROPAGATION_V61915
+function normalizeAutopilotStartOptionsV61915(body = {}) {
+  const initialSeed = String(body.initialSeed || '').trim();
+  const fullCyclesPerCluster = body.fullCyclesPerCluster == null ? 3 : Number(body.fullCyclesPerCluster);
+  const coverageMode = body.coverageMode === true;
+  const maxClusters = coverageMode ? 0 : (body.maxClusters == null ? 5 : Number(body.maxClusters));
+  if (!Number.isInteger(fullCyclesPerCluster) || fullCyclesPerCluster < 1 || fullCyclesPerCluster > 5) {
+    throw Object.assign(new Error('AUTOPILOT_FULL_CYCLES_INVALID'), { status: 400 });
+  }
+  if (!coverageMode && (!Number.isInteger(maxClusters) || maxClusters < 1 || maxClusters > 20)) {
+    throw Object.assign(new Error('AUTOPILOT_MAX_CLUSTERS_INVALID'), { status: 400 });
+  }
+  return { initialSeed, fullCyclesPerCluster, coverageMode, maxClusters };
+}
+
+"""
+    worker = worker.replace(helper_anchor, helper + helper_anchor, 1)
+
+    new = """        const { initialSeed, fullCyclesPerCluster, coverageMode, maxClusters } = normalizeAutopilotStartOptionsV61915(body);
 """
     if worker.count(old) != 1:
         raise SystemExit(f'V61915_WORKER_PARSE_ANCHOR_COUNT={worker.count(old)}')
