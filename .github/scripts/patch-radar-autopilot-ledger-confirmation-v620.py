@@ -145,6 +145,7 @@ LEDGER.write_text(ledger, encoding='utf-8')
 TEST.write_text(r'''package main
 
 import (
+    "context"
     "errors"
     "testing"
 )
@@ -174,7 +175,7 @@ func TestAutopilotV620FullAfterPartialPersistsAndConfirms(t *testing.T) {
         t.Fatalf("history=%#v", job.History[0])
     }
 
-    rows, err := autopilotLedgerReadV61913(t.Context(), db, []string{"8117"})
+    rows, err := autopilotLedgerReadV61913(context.Background(), db, []string{"8117"})
     if err != nil {
         t.Fatal(err)
     }
