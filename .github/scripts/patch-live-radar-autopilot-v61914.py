@@ -23,7 +23,7 @@ text = text.replace(old_title, new_title, 1)
 old_progress = "  let progress=`Grappe ${Number(job.confirmedClusters||0)+1}/${job.maxClusters||5} · seed ${seed} · cycles 9/9 ${job.validatedCycles||0}/${job.requiredFullCycles||3} · partiels ${job.partialCycles||0}`;"
 if text.count(old_progress) != 1:
     raise SystemExit(f'V61914_UI_PROGRESS_ANCHOR_COUNT={text.count(old_progress)}')
-new_progress = "  let progress=job.coverageMode?\`Couverture · grappes confirmées \${Number(job.confirmedClusters||0)} · seed \${seed} · cycles 9/9 \${job.validatedCycles||0}/\${job.requiredFullCycles||3} · partiels \${job.partialCycles||0}\`:\`Grappe \${Number(job.confirmedClusters||0)+1}/\${job.maxClusters||5} · seed \${seed} · cycles 9/9 \${job.validatedCycles||0}/\${job.requiredFullCycles||3} · partiels \${job.partialCycles||0}\`;"
+new_progress = "  let progress=job.coverageMode?`Couverture · grappes confirmées ${Number(job.confirmedClusters||0)} · seed ${seed} · cycles 9/9 ${job.validatedCycles||0}/${job.requiredFullCycles||3} · partiels ${job.partialCycles||0}`:`Grappe ${Number(job.confirmedClusters||0)+1}/${job.maxClusters||5} · seed ${seed} · cycles 9/9 ${job.validatedCycles||0}/${job.requiredFullCycles||3} · partiels ${job.partialCycles||0}`;"
 text = text.replace(old_progress, new_progress, 1)
 
 meta_anchor = "  if(job.persistentLedgerWrites)progress+=` · écritures ledger ${job.persistentLedgerWrites}`;"
@@ -32,7 +32,7 @@ if text.count(meta_anchor) != 1:
 text = text.replace(
     meta_anchor,
     meta_anchor
-    + "\n  if(job.coverageMode)progress+=\` · fenêtres \${job.coverageWindows||0} · probes \${job.coverageCandidatesScouted||0}\`;"
+    + "\n  if(job.coverageMode)progress+=` · fenêtres ${job.coverageWindows||0} · probes ${job.coverageCandidatesScouted||0}`;"
     + "\n  if(job.coverageComplete)progress+=' · COUVERTURE TERMINÉE';",
     1,
 )
