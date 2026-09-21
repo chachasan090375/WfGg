@@ -215,16 +215,12 @@ func (s *server) collectorSearchStopV61911(w http.ResponseWriter, _ *http.Reques
 '''
         ),
         (
-'''\t\t// PROFILE_TARGET_RETRY_V1: a joined SEARCH must still refresh its own
-\t\t// target, but a transient profile miss must not discard the valid map row.
-\t\t_ = s.refreshSearchTarget(ctx, token, query, 0, jobID)
-\t\tplayer, _ := collectorGetPlayer(ctx, query)
+'''\t\tplayer, _ := collectorGetPlayer(ctx, query)
+\t\tcompleteCollectorJob(jobID, player)
 ''',
-'''\t\t// PROFILE_TARGET_RETRY_V1: a joined SEARCH must still refresh its own
-\t\t// target, but a transient profile miss must not discard the valid map row.
-\t\t_ = s.refreshSearchTarget(ctx, token, query, 0, jobID)
-\t\tif manualStopIfCancelledV61911() { return }
+'''\t\tif manualStopIfCancelledV61911() { return }
 \t\tplayer, _ := collectorGetPlayer(ctx, query)
+\t\tcompleteCollectorJob(jobID, player)
 '''
         ),
         (
