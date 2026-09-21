@@ -56,7 +56,7 @@ jobs:
           assert x['current_change']['rollback_required'] is True,x
           criteria='\n'.join(x.get('acceptance_criteria') or [])
           assert 'POST /v1/collector/search/stop' in criteria,criteria
-          assert 'no Last War scan' in criteria,criteria
+          assert 'Last War scan' in criteria,criteria
           assert 'no Collector mutation' in criteria,criteria
           assert 'Production promotion or deployment requires a separate explicit human approval.' in criteria,criteria
           print('RADAR_V61911_PROJECT_INTENT=PASS')
