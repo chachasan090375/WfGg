@@ -1,6 +1,6 @@
 WFGG_RADAR_QUALIFICATION=V6.20
 RESULT=failure
-SOURCE_REV=55517c49dd086ffd551a2c148e64359c34f66fb6
+SOURCE_REV=7a8428c59a5609571973f542bb569aaf3d85932a
 LASTWAR_MODE=READ_ONLY
 TOKEN_PERSISTENCE=NO
 PRODUCTION_DEPLOYMENT=NO
@@ -128,12 +128,25 @@ RADAR_V620_PLAYER_INTELLIGENCE_UI_WORKER=READY
 RADAR_V620_RECONSTRUCT=PASS
 
 ===== v620-tests-step.log =====
-# wfgg-radar-connector/cmd/radar-connector
-# [wfgg-radar-connector/cmd/radar-connector]
-cmd/radar-connector/autopilot_confirmation_resilience_v620_test.go:33:43: testing.(*B).Context requires go1.24 or later (module is go1.23)
-FAIL	wfgg-radar-connector/cmd/radar-connector [build failed]
-FAIL
+=== RUN   TestAutopilotLedgerRetryableV620
+--- PASS: TestAutopilotLedgerRetryableV620 (0.00s)
+=== RUN   TestPlayerIntelligenceAliasSearchV620
+--- PASS: TestPlayerIntelligenceAliasSearchV620 (0.06s)
+=== RUN   TestPlayerIntelligenceAllianceSearchV620
+--- PASS: TestPlayerIntelligenceAllianceSearchV620 (0.05s)
+=== RUN   TestPlayerIntelligenceRecruitmentFiltersV620
+--- PASS: TestPlayerIntelligenceRecruitmentFiltersV620 (0.05s)
+PASS
+ok  	wfgg-radar-connector/cmd/radar-connector	0.155s
 
 ===== v620-tests.log =====
-FAIL	wfgg-radar-connector/cmd/radar-connector [build failed]
-FAIL
+=== RUN   TestAutopilotLedgerRetryableV620
+--- PASS: TestAutopilotLedgerRetryableV620 (0.00s)
+=== RUN   TestPlayerIntelligenceAliasSearchV620
+--- PASS: TestPlayerIntelligenceAliasSearchV620 (0.06s)
+=== RUN   TestPlayerIntelligenceAllianceSearchV620
+--- PASS: TestPlayerIntelligenceAllianceSearchV620 (0.05s)
+=== RUN   TestPlayerIntelligenceRecruitmentFiltersV620
+--- PASS: TestPlayerIntelligenceRecruitmentFiltersV620 (0.05s)
+PASS
+ok  	wfgg-radar-connector/cmd/radar-connector	0.155s
