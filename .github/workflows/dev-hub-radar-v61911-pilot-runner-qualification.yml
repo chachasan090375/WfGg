@@ -16,7 +16,7 @@ env:
   APPROVED_REV: cbf67e46308e925f1ba5fad0be3f58764231935d
   PILOT_REV: 759bfb3fe4620f544cc84fdea34e54bfa3efbdcf
   EXPECTED_CONNECTOR_SHA256: 4d66709f10d3a6b27ac255a1dfdc62e51d2817652634409ffe2edc071762c69f
-  EXPECTED_NATIVE_SHA256: 274d040f5294cb09422e5d55cc4b5335ac7739924c33bcb67b3f279645814900
+  EXPECTED_NATIVE_SHA256: 274d040f5294cb09422e5d55cc4b5335ac7739924c33dcb67b3f279645814900
 
 jobs:
   qualify:
@@ -36,7 +36,7 @@ jobs:
           grep -Fq 'PILOT_REV="759bfb3fe4620f544cc84fdea34e54bfa3efbdcf"' "$R"
           grep -Fq 'PILOT_BRANCH="radar-v61911-manual-search-stop"' "$R"
           grep -Fq 'CONNECTOR_SHA="4d66709f10d3a6b27ac255a1dfdc62e51d2817652634409ffe2edc071762c69f"' "$R"
-          grep -Fq 'NATIVE_SHA="274d040f5294cb09422e5d55cc4b5335ac7739924c33bcb67b3f279645814900"' "$R"
+          grep -Fq 'NATIVE_SHA="274d040f5294cb09422e5d55cc4b5335ac7739924c33dcb67b3f279645814900"' "$R"
           grep -Fq 'radar-vps/install-v61911-pilot.sh' "$R"
           grep -Fq 'radar-vps/probe-v61911-pilot-runtime.sh' "$R"
           grep -Fq 'RADAR_V61911_GAME_SCAN_EXECUTED=NO' "$R"
