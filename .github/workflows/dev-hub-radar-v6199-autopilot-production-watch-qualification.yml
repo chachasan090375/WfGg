@@ -1,0 +1,38 @@
+name: ChaCha DEV Radar V6.19.9 Autopilot production watch qualification
+
+on:
+  push:
+    branches: [dev-hub-v5-radar-cluster-quality-diagnostic-v1]
+    paths:
+      - 'dev-hub/bin/run-radar-v6199-autopilot-production-watch.sh'
+      - '.github/workflows/dev-hub-radar-v6199-autopilot-production-watch-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev-hub-v5-radar-cluster-quality-diagnostic-v1
+
+      - name: Validate read-only production watch
+        run: |
+          set -euo pipefail
+          R=dev-hub/bin/run-radar-v6199-autopilot-production-watch.sh
+          bash -n "$R"
+          grep -Fq 'TARGET_CYCLE_ID=67' "$R"
+          grep -Fq 'EXPECTED_CONNECTOR="5058159307ccb99e8e631fe71014608934b8575e69d5599e4388550306baab7f"' "$R"
+          grep -Fq 'EXPECTED_NATIVE="274d040f5294cb09422e5d55cc4b5335ac7739924c33dcb67b3f279645814900"' "$R"
+          grep -Fq "file:'+db+'?mode=ro" "$R"
+          grep -Fq 'RADAR_V6199_AUTOPILOT_CYCLE_67_TERMINAL=PASS' "$R"
+          grep -Fq 'RADAR_V6199_AUTOPILOT_CONTINUATION_OBSERVED=PASS' "$R"
+          grep -Fq 'RADAR_V6199_AUTOPILOT_PRODUCTION_WATCH=PASS' "$R"
+          grep -Fq 'LASTWAR_CONTACT=NO' "$R"
+          grep -Fq 'RADAR_PRODUCTION_MUTATION=NO' "$R"
+          grep -Fq 'COLLECTOR_DATA_MUTATION=NO' "$R"
+          echo RADAR_V6199_AUTOPILOT_PRODUCTION_WATCH=QUALIFIED
