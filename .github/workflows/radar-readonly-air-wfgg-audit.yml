@@ -64,6 +64,20 @@ jobs:
           print('AIR_WFGG_AUDIT_JSON='+json.dumps({'readonly':True,'gameScanExecuted':False,'checks':out},ensure_ascii=False,separators=(',',':')))
           PY
 
+      - name: Query V6.19.1 rich profile cache for A i R
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          npm install --no-save wrangler@4 >/dev/null 2>&1
+          npx wrangler d1 execute wfgg-radar --remote --command="SELECT subject_uid,army_power,army_kill,svip_level,country,avatar_ref,observed_at,source_command FROM radar_profile_rich WHERE subject_uid='1205983201000992';" --json > /tmp/air-rich.json
+          python3 - <<'PY'
+          import json
+          d=json.load(open('/tmp/air-rich.json'))
+          print('AIR_WFGG_RICH_JSON='+json.dumps(d,separators=(',',':')))
+          PY
+
       - name: Safety receipt
         run: |
           echo LASTWAR_MODE=READ_ONLY
