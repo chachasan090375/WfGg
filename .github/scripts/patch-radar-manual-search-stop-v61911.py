@@ -198,14 +198,6 @@ func (s *server) collectorSearchStopV61911(w http.ResponseWriter, _ *http.Reques
         1,
     )
 
-    refresh_anchor = '\t_ = s.refreshSearchTarget(ctx, token, query, cycle.ID, jobID)\n'
-    if text.count(refresh_anchor) != 1:
-        raise SystemExit(f'V61911_REFRESH_ANCHOR_COUNT={text.count(refresh_anchor)}')
-    text = text.replace(
-        refresh_anchor,
-        refresh_anchor + '\tif manualStopIfCancelledV61911() { return }\n',
-        1,
-    )
 
 COLLECTOR.write_text(text, encoding='utf-8')
 
