@@ -1,0 +1,158 @@
+name: Radar V6.19.10 pilot publication qualification
+
+on:
+  push:
+    branches: [radar-v61910-autopilot-continue-partial-limit]
+    paths:
+      - '.github/scripts/patch-radar-autopilot-continue-partial-v61910.py'
+      - '.github/scripts/patch-live-radar-autopilot-v61910.py'
+      - 'radar-vps/install-v61910-pilot.sh'
+      - 'radar-vps/probe-v61910-pilot-runtime.sh'
+      - '.github/workflows/radar-v61910-pilot-publication-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: wfgg-radar-v61910-pilot-publication
+  cancel-in-progress: true
+
+env:
+  EXPECTED_CONNECTOR_SHA256: 18b972ebd63ea34de6e67c432c863598da1769fa33559115728a2e20d5015863
+  EXPECTED_NATIVE_SHA256: 274d040f5294cb09422e5d55cc4b5335ac7739924c33dcb67b3f279645814900
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: radar-v61910-autopilot-continue-partial-limit
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.27.x'
+
+      - name: Reconstruct cumulative V6.19.10 candidate
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/wfgg-radar
+          mkdir -p /tmp/wfgg-radar
+          python3 .github/scripts/reconstruct-radar-release.py
+          echo '234df1dec57f6211bc625855bf13350c9f17fbd843fbe92d8cf1ab7cb5c081ef  /tmp/radar-src.tar.gz' | sha256sum -c -
+          tar -xzf /tmp/radar-src.tar.gz -C /tmp/wfgg-radar
+          rm -rf /tmp/wfgg-radar/connector-go
+          cp -a .radar-release-src/v2-source/connector-go /tmp/wfgg-radar/connector-go
+
+          python3 .github/scripts/patch-radar-target-profile-retry.py
+          python3 .github/scripts/patch-radar-federated-diagnostics-v65.py
+          python3 .github/scripts/patch-player-scan-v3.py
+          python3 .github/scripts/patch-player-scan-v4.py
+          python3 .github/scripts/patch-radar-protocol-discovery-v67.py
+          python3 .github/scripts/patch-radar-profile-isolation-v68.py
+          python3 .github/scripts/patch-radar-native-profile-v69.py
+          python3 .github/scripts/patch-radar-native-profile-handshake-v691.py
+          python3 .github/scripts/patch-radar-native-profile-exec-v692.py
+          python3 .github/scripts/patch-radar-connector-runtime-v693.py
+          python3 .github/scripts/patch-radar-cluster-catalog-budget-v6192.py
+          python3 .github/scripts/patch-radar-seed-scout-v6193.py
+          python3 .github/scripts/patch-radar-autopilot-v6194.py
+          python3 .github/scripts/patch-radar-autopilot-stale-cycle-v6197.py
+          python3 .github/scripts/patch-radar-collector-cycle-terminalization-v6198.py
+          python3 .github/scripts/patch-radar-autopilot-targeted-history-v6199.py
+          python3 .github/scripts/patch-radar-autopilot-continue-partial-v61910.py
+
+          install -m 0644 .radar-release-src/v2-source/src/game/remote-transport.js /tmp/wfgg-radar/src/game/remote-transport.js
+          python3 .github/scripts/patch-radar-async-collector-worker.py
+          python3 .github/scripts/patch-radar-worker-rich-profile-v6191.py
+          python3 .github/scripts/patch-radar-worker-seed-scout-v6193.py
+          python3 .github/scripts/patch-radar-worker-autopilot-v6194.py
+
+          install -m 0644 radar-ui-live/live-radar.html /tmp/wfgg-radar/public/live-radar.html
+          python3 .github/scripts/patch-live-radar-seed-scout-v6193.py
+          python3 .github/scripts/patch-live-radar-autopilot-v6194.py
+          python3 .github/scripts/patch-radar-session-keepalive-v6195.py
+          python3 .github/scripts/patch-live-radar-autopilot-v6196.py
+          python3 .github/scripts/patch-live-radar-autopilot-v6197.py
+          python3 .github/scripts/patch-live-radar-autopilot-v6198.py
+          python3 .github/scripts/patch-live-radar-autopilot-v6199.py
+          python3 .github/scripts/patch-live-radar-autopilot-v61910.py
+
+          echo RADAR_V61910_RECONSTRUCT=PASS
+
+      - name: Build and verify connector
+        working-directory: /tmp/wfgg-radar/connector-go
+        run: |
+          set -euo pipefail
+          gofmt -w ./cmd ./internal
+          go test ./...
+          go vet ./...
+          mkdir -p "$GITHUB_WORKSPACE/radar-vps/pilot-v61910"
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w' -o "$GITHUB_WORKSPACE/radar-vps/pilot-v61910/radar-connector" ./cmd/radar-connector
+          actual="$(sha256sum "$GITHUB_WORKSPACE/radar-vps/pilot-v61910/radar-connector" | awk '{print $1}')"
+          test "$actual" = "$EXPECTED_CONNECTOR_SHA256"
+          grep -aFq 'v6.19.10' "$GITHUB_WORKSPACE/radar-vps/pilot-v61910/radar-connector"
+          grep -aFq 'SEED_SKIPPED_PARTIAL' "$GITHUB_WORKSPACE/radar-vps/pilot-v61910/radar-connector"
+          grep -aFq 'PARTIAL_AFTER_RETRIES' "$GITHUB_WORKSPACE/radar-vps/pilot-v61910/radar-connector"
+          grep -aFq 'AUTOPILOT_PARTIAL_SKIP_INVARIANT' "$GITHUB_WORKSPACE/radar-vps/pilot-v61910/radar-connector"
+          grep -aFq 'AUTOPILOT_TARGET_HISTORY_TIMEOUT_V6199' "$GITHUB_WORKSPACE/radar-vps/pilot-v61910/radar-connector"
+          grep -aFq 'COLLECTOR_CYCLE_TERMINALIZATION_FAILED' "$GITHUB_WORKSPACE/radar-vps/pilot-v61910/radar-connector"
+          grep -aFq 'STALE_RUNNING_CYCLE_RECOVERED_V6197' "$GITHUB_WORKSPACE/radar-vps/pilot-v61910/radar-connector"
+          grep -aFq 'SEED_SKIPPED_NO_DATA' "$GITHUB_WORKSPACE/radar-vps/pilot-v61910/radar-connector"
+          echo RADAR_V61910_CONNECTOR=PASS
+
+      - name: Verify safety and pilot scripts
+        run: |
+          set -euo pipefail
+          test "$(sha256sum radar-vps/release/radar-native-template | awk '{print $1}')" = "$EXPECTED_NATIVE_SHA256"
+          bash -n radar-vps/install-v61910-pilot.sh
+          bash -n radar-vps/probe-v61910-pilot-runtime.sh
+          grep -Fq 'SEED_SKIPPED_PARTIAL' radar-vps/probe-v61910-pilot-runtime.sh
+          grep -Fq 'PARTIAL_AFTER_RETRIES' radar-vps/probe-v61910-pilot-runtime.sh
+          grep -Fq 'RADAR_V61910_GAME_SCAN_EXECUTED=NO' radar-vps/probe-v61910-pilot-runtime.sh
+          grep -Fq 'RADAR_V61910_COLLECTOR_MUTATION=NO' radar-vps/probe-v61910-pilot-runtime.sh
+          ! grep -REiq 'building\.production\.collect|mail\.reward|al\.science\.donate|visitor\.operate|march|attack|purchase'             .github/scripts/patch-radar-autopilot-continue-partial-v61910.py
+          echo RADAR_V61910_PILOT_GUARD_PROBE=PASS
+          echo RADAR_V61910_LASTWAR_MUTATION=NO
+
+      - name: Publish qualified V6.19.10 pilot artifacts
+        run: |
+          set -euo pipefail
+          install -m 0755 radar-vps/release/radar-native-template radar-vps/pilot-v61910/radar-native-template
+          (
+            cd radar-vps/pilot-v61910
+            sha256sum radar-connector radar-native-template > SHA256SUMS
+          )
+          grep -Fq "$EXPECTED_CONNECTOR_SHA256  radar-connector" radar-vps/pilot-v61910/SHA256SUMS
+          grep -Fq "$EXPECTED_NATIVE_SHA256  radar-native-template" radar-vps/pilot-v61910/SHA256SUMS
+          {
+            echo "WFGG_RADAR_PILOT=V6.19.10"
+            echo "SOURCE_BRANCH=radar-v61910-autopilot-continue-partial-limit"
+            echo "SOURCE_SHA=$GITHUB_SHA"
+            echo "CHANGE=autopilot-continue-partial-limit"
+            echo "AUTOPILOT_CONTINUE_PARTIAL_LIMIT=YES"
+            echo "PARTIAL_LIMIT_GLOBAL_STOP=NO"
+            echo "PARTIAL_VALID_EVIDENCE_PRESERVED=YES"
+            echo "HISTORY_READONLY=YES"
+            echo "TARGETED_HISTORY_PRESERVED=YES"
+            echo "COLLECTOR_CYCLE_TERMINALIZATION_PRESERVED=YES"
+            echo "STALE_CYCLE_RECOVERY_PRESERVED=YES"
+            echo "NO_DATA_CONTINUE_PRESERVED=YES"
+            echo "GLOBAL_FAILURE_GUARDS=PRESERVED"
+            echo "LASTWAR_MUTATION=NO"
+            echo "COLLECTOR_MUTATION=NO_FOR_GUARD_PROBE"
+            echo "TOKEN_PERSISTENCE=NO"
+          } > radar-vps/pilot-v61910/PILOT_INFO.txt
+
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add radar-vps/pilot-v61910
+          if git diff --cached --quiet; then
+            echo RADAR_V61910_PILOT=UNCHANGED
+            exit 0
+          fi
+          git commit -m 'build(radar): publish V6.19.10 continue-on-partial-limit pilot'
+          git push origin HEAD:radar-v61910-autopilot-continue-partial-limit
+          echo RADAR_V61910_PILOT=PUBLISHED
