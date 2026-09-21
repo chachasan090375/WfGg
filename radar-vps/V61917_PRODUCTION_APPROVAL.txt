@@ -1,0 +1,17 @@
+WFGG_RADAR_PRODUCTION_APPROVAL=V6.19.17
+APPROVED_SOURCE_REV=28f6324d2608c17b3c30bbe6bc7af81603a0d82a
+QUALIFICATION_RESULT=PASS
+PILOT_AUTOMATED_RESULT=PASS
+STATEMENT=J’approuve la promotion production Radar V6.19.17 Adaptive Verification / Fast Coverage, candidat 28f6324d2608c17b3c30bbe6bc7af81603a0d82a, après qualification et PILOT automatisés PASS, avec validation d’une grappe après un seul cycle complet 9/9 valide en mode adaptatif, nouvelles tentatives uniquement en cas de cycle partiel ou d’échec, conservation de Failure Scope Continue, Coverage Completion, animation radar Autopilot, Persistent Ledger, No-Rescan et Manual Search Stop, Last War strictement READ-ONLY, aucune persistance de token, rollback disponible et déploiement Cloudflare associé.
+ADAPTIVE_VERIFICATION=YES
+FAST_COVERAGE_ONE_FULL_9_OF_9=QUALIFIES
+PARTIAL_OR_FAILED=RETRY_ONLY
+PRESERVE_V61916_FAILURE_SCOPE_CONTINUE=YES
+PRESERVE_V61915_ANIMATION_AND_COVERAGE=YES
+PRESERVE_V61913_LEDGER=YES
+PRESERVE_V61912_NO_RESCAN=YES
+PRESERVE_V61911_MANUAL_STOP=YES
+LASTWAR_MODE=READ_ONLY
+TOKEN_PERSISTENCE=NO
+ROLLBACK_REQUIRED=YES
+CLOUDFLARE_DEPLOYMENT=APPROVED
