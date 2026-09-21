@@ -1,0 +1,154 @@
+name: Radar V6.19.14 coverage completion automated PILOT
+
+on:
+  push:
+    branches: [radar-v61914-coverage-completion]
+    paths:
+      - '.github/scripts/patch-radar-autopilot-coverage-completion-v61914.py'
+      - '.github/scripts/patch-live-radar-autopilot-v61914.py'
+      - '.github/workflows/radar-v61914-coverage-completion-pilot.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pilot:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: radar-v61914-coverage-completion
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.27.x'
+
+      - name: Reconstruct exact V6.19.14 candidate
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/wfgg-radar
+          mkdir -p /tmp/wfgg-radar
+          python3 .github/scripts/reconstruct-radar-release.py
+          echo '234df1dec57f6211bc625855bf13350c9f17fbd843fbe92d8cf1ab7cb5c081ef  /tmp/radar-src.tar.gz' | sha256sum -c -
+          tar -xzf /tmp/radar-src.tar.gz -C /tmp/wfgg-radar
+          rm -rf /tmp/wfgg-radar/connector-go
+          cp -a .radar-release-src/v2-source/connector-go /tmp/wfgg-radar/connector-go
+
+          python3 .github/scripts/patch-radar-target-profile-retry.py
+          python3 .github/scripts/patch-radar-federated-diagnostics-v65.py
+          python3 .github/scripts/patch-player-scan-v3.py
+          python3 .github/scripts/patch-player-scan-v4.py
+          python3 .github/scripts/patch-radar-protocol-discovery-v67.py
+          python3 .github/scripts/patch-radar-profile-isolation-v68.py
+          python3 .github/scripts/patch-radar-native-profile-v69.py
+          python3 .github/scripts/patch-radar-native-profile-handshake-v691.py
+          python3 .github/scripts/patch-radar-native-profile-exec-v692.py
+          python3 .github/scripts/patch-radar-connector-runtime-v693.py
+          python3 .github/scripts/patch-radar-cluster-catalog-budget-v6192.py
+          python3 .github/scripts/patch-radar-seed-scout-v6193.py
+          python3 .github/scripts/patch-radar-autopilot-v6194.py
+          python3 .github/scripts/patch-radar-autopilot-stale-cycle-v6197.py
+          python3 .github/scripts/patch-radar-collector-cycle-terminalization-v6198.py
+          python3 .github/scripts/patch-radar-autopilot-targeted-history-v6199.py
+          python3 .github/scripts/patch-radar-autopilot-continue-partial-v61910.py
+
+          install -m 0644 .radar-release-src/v2-source/src/game/remote-transport.js /tmp/wfgg-radar/src/game/remote-transport.js
+          python3 .github/scripts/patch-radar-async-collector-worker.py
+          python3 .github/scripts/patch-radar-worker-rich-profile-v6191.py
+          python3 .github/scripts/patch-radar-worker-seed-scout-v6193.py
+          python3 .github/scripts/patch-radar-worker-autopilot-v6194.py
+
+          install -m 0644 radar-ui-live/live-radar.html /tmp/wfgg-radar/public/live-radar.html
+          python3 .github/scripts/patch-live-radar-seed-scout-v6193.py
+          python3 .github/scripts/patch-live-radar-autopilot-v6194.py
+          python3 .github/scripts/patch-radar-session-keepalive-v6195.py
+          python3 .github/scripts/patch-live-radar-autopilot-v6196.py
+          python3 .github/scripts/patch-live-radar-autopilot-v6197.py
+          python3 .github/scripts/patch-live-radar-autopilot-v6198.py
+          python3 .github/scripts/patch-live-radar-autopilot-v6199.py
+          python3 .github/scripts/patch-live-radar-autopilot-v61910.py
+
+          python3 .github/scripts/patch-radar-manual-search-stop-v61911.py
+          python3 .github/scripts/patch-radar-autopilot-no-rescan-qualified-v61912.py
+          python3 .github/scripts/patch-live-radar-autopilot-v61912.py
+          python3 .github/scripts/patch-radar-autopilot-persistent-ledger-v61913.py
+          python3 .github/scripts/patch-live-radar-autopilot-v61913.py
+          python3 .github/scripts/patch-radar-autopilot-coverage-completion-v61914.py
+          python3 .github/scripts/patch-live-radar-autopilot-v61914.py
+          echo RADAR_V61914_PILOT_RECONSTRUCT=PASS
+
+      - name: Simulate coverage windows and true completion
+        working-directory: /tmp/wfgg-radar/connector-go
+        run: |
+          set -euo pipefail
+          gofmt -w ./cmd ./internal
+          go test ./cmd/radar-connector -run 'V61914$' -count=1 -v | tee /tmp/v61914-pilot.log
+          grep -Fq -- '--- PASS: TestAutopilotCoverageIgnoresClusterCeilingV61914' /tmp/v61914-pilot.log
+          grep -Fq -- '--- PASS: TestAutopilotCoverageScoutOffsetV61914' /tmp/v61914-pilot.log
+          grep -Fq -- '--- PASS: TestAutopilotCoverageWindowAndCompletionV61914' /tmp/v61914-pilot.log
+          echo RADAR_V61914_COVERAGE_WINDOW_PILOT=PASS
+          echo RADAR_V61914_COVERAGE_COMPLETION_PILOT=PASS
+
+      - name: Verify coverage branch ordering
+        run: |
+          set -euo pipefail
+          A=/tmp/wfgg-radar/connector-go/cmd/radar-connector/server_autopilot_v6194.go
+          python3 - "$A" <<'PY'
+          import sys
+          t=open(sys.argv[1],encoding='utf-8').read()
+          scout=t.index('rec, errCode := s.autopilotScoutNextSeedV6194')
+          batch=t.index('job.CoverageMode && errCode == "AUTOPILOT_SCOUT_BATCH_LIMIT"',scout)
+          cont=t.index('autopilotContinueCoverageWindowV61914(jobID)',batch)
+          exhausted=t.index('errCode == "AUTOPILOT_SCOUT_NO_CANDIDATES"',cont)
+          complete=t.index('autopilotCompleteCoverageV61914(jobID, "SEED_SCOUT_FRONTIER_EXHAUSTED")',exhausted)
+          assert scout < batch < cont < exhausted < complete
+          print('RADAR_V61914_WINDOW_BEFORE_TRUE_COMPLETION=PASS')
+          PY
+          echo RADAR_V61914_GAME_SCAN_EXECUTED=NO
+          echo RADAR_V61914_LASTWAR_MODE=READ_ONLY
+
+      - name: Full regression and candidate digests
+        working-directory: /tmp/wfgg-radar/connector-go
+        run: |
+          set -euo pipefail
+          go test ./...
+          go vet ./...
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w' -o /tmp/radar-connector ./cmd/radar-connector
+          grep -aFq 'v6.19.14' /tmp/radar-connector
+          grep -aFq 'COVERAGE_COMPLETE' /tmp/radar-connector
+          grep -aFq 'COVERAGE_FRONTIER_CONTINUE' /tmp/radar-connector
+          grep -aFq 'radar_autopilot_ledger_v61913' /tmp/radar-connector
+          grep -aFq 'SCOUT_SKIPPED_QUALIFIED' /tmp/radar-connector
+          grep -aFq 'MANUAL_SEARCH_STOPPED' /tmp/radar-connector
+          echo "RADAR_V61914_PILOT_CONNECTOR_SHA256=$(sha256sum /tmp/radar-connector | awk '{print $1}')"
+          echo RADAR_V61914_REGRESSION_SUITE=PASS
+
+      - name: Verify UI and safety contract
+        run: |
+          set -euo pipefail
+          U=/tmp/wfgg-radar/public/live-radar.html
+          P=.github/scripts/patch-radar-autopilot-coverage-completion-v61914.py
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          h=Path('/tmp/wfgg-radar/public/live-radar.html').read_text(encoding='utf-8')
+          m=re.search(r'<script>(.*)</script>',h,re.S)
+          assert m
+          Path('/tmp/v61914-ui.js').write_text(m.group(1),encoding='utf-8')
+          PY
+          node --check /tmp/v61914-ui.js
+          grep -Fq 'AUTOPILOT V6.19.14 · ARRÊTÉ' "$U"
+          grep -Fq 'coverageMode:true' "$U"
+          grep -Fq 'COUVERTURE TERMINÉE' "$U"
+          grep -Fq 'mode couverture continue' "$U"
+          grep -Fq 'WFGG_RADAR_AUTOPILOT_PERSISTENT_LEDGER_UI_V61913' "$U"
+          grep -Fq 'WFGG_RADAR_MANUAL_SEARCH_STOP_UI_V61911' "$U"
+          ! grep -REiq 'localStorage.*token|sessionStorage.*token|INSERT.*token|token.*INSERT|access_token' "$P"
+          echo "RADAR_V61914_PILOT_UI_SHA256=$(sha256sum "$U" | awk '{print $1}')"
+          echo RADAR_V61914_COLLECTOR_MUTATION=NONE_IN_PILOT
+          echo RADAR_V61914_TOKEN_PERSISTENCE=NO
+          echo RADAR_V61914_PRODUCTION_DEPLOYMENT=NO
+          echo RADAR_V61914_PILOT=PASS
