@@ -294,12 +294,12 @@ async function requestManualSearchStop(){if(!manualSearchRunning||manualSearchSt
 """
     text = text.replace(state_anchor, state_repl, 1)
 
-    start_anchor = "function startScan(q){screen.classList.remove('found');screen.classList.add('scanning');target.classList.remove('hit');result.classList.remove('show');go.disabled=true;steps(1);setStatus('DÉMARRAGE DU CYCLE',q);tone(420,.04,.018);clearInterval(phaseTimer)}"
+    start_anchor = "result.classList.remove('show');go.disabled=true;steps(1);"
     if text.count(start_anchor) != 1:
         raise SystemExit(f'V61911_UI_START_SCAN_ANCHOR_COUNT={text.count(start_anchor)}')
     text = text.replace(
         start_anchor,
-        "function startScan(q){screen.classList.remove('found');screen.classList.add('scanning');target.classList.remove('hit');result.classList.remove('show');manualSearchJobId='';manualSearchStopPending=false;setManualSearchButton(true,false);steps(1);setStatus('DÉMARRAGE DU CYCLE',q);tone(420,.04,.018);clearInterval(phaseTimer)}",
+        "result.classList.remove('show');manualSearchJobId='';manualSearchStopPending=false;setManualSearchButton(true,false);steps(1);",
         1,
     )
 
@@ -318,10 +318,10 @@ async function requestManualSearchStop(){if(!manualSearchRunning||manualSearchSt
     run_repl = """async function runCollectorSearch(q){let job=await loadOrStartCollectorJob(q);manualSearchJobId=String(job.id||'');rememberCollectorJob(job,q);if(manualSearchStopPending)await requestManualSearchStop();for(;;){renderJob(job);if(job.status==='SUCCESS'){forgetCollectorJob();return {job,player:job.player||null}}if(job.status==='FAILED'){forgetCollectorJob();const e=new Error(job.error||'COLLECTOR_SEARCH_FAILED');e.code=String(job.error||'COLLECTOR_SEARCH_FAILED');throw e}await sleep(2000);job=await fetchCollectorJobResilient(job.id,job);manualSearchJobId=String(job.id||manualSearchJobId);rememberCollectorJob(job,q)}}"""
     text = text.replace(run_anchor, run_repl, 1)
 
-    submit_anchor = "$('searchForm').onsubmit=async e=>{e.preventDefault();const q=$('q').value.trim();if(!q)return;startScan(q);try{"
+    submit_anchor = "$('searchForm').onsubmit=async e=>{e.preventDefault();"
     if text.count(submit_anchor) != 1:
         raise SystemExit(f'V61911_UI_SUBMIT_ANCHOR_COUNT={text.count(submit_anchor)}')
-    submit_repl = "$('searchForm').onsubmit=async e=>{e.preventDefault();if(manualSearchRunning){await requestManualSearchStop();return}const q=$('q').value.trim();if(!q)return;startScan(q);try{"
+    submit_repl = submit_anchor + "if(manualSearchRunning){await requestManualSearchStop();return}"
     text = text.replace(submit_anchor, submit_repl, 1)
 
     catch_anchor = "}catch(err){stopScan();screen.classList.remove('found');if(err.status===401){"
