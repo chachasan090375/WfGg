@@ -99,7 +99,62 @@ jobs:
         run: |
           set -euo pipefail
           gofmt -w ./cmd ./internal
-          go test ./cmd/radar-connector -run 'V6191
+          go test ./cmd/radar-connector -run 'V6191$' -count=1 -v | tee /tmp/v622-profile-tests.log
+          grep -Fq -- '--- PASS: TestCollectorBasePlayerV6191' /tmp/v622-profile-tests.log
+          grep -Fq -- '--- PASS: TestRichObservedV6191' /tmp/v622-profile-tests.log
+          python3 - <<'PY'
+          from pathlib import Path
+          jobs=Path('/tmp/wfgg-radar/connector-go/cmd/radar-connector/collector_jobs.go').read_text()
+          main=Path('/tmp/wfgg-radar/connector-go/cmd/radar-connector/main.go').read_text()
+          refresh=Path('/tmp/wfgg-radar/connector-go/cmd/radar-connector/profile_refresh_v6191.go').read_text()
+          marker='WFGG_RADAR_PROFILE_ONLY_JOB_V6191'
+          i=jobs.find(marker)
+          cycle=jobs.find('collectorStartCycle(ctx, query)',i)
+          assert i>=0 and cycle>i, 'profile-only branch must precede collectorStartCycle'
+          segment=jobs[i:cycle]
+          assert '@profile:' in segment
+          assert 'runTargetProfileRefreshV6191' in segment
+          assert 'collectorStartCycle' not in segment
+          assert 'WFGG_RADAR_TARGET_PROFILE_REFRESH_ROUTE_V6191' in main
+          assert '/v1/collector/profile/refresh' in main
+          assert 'get.user.info.multi' in refresh
+          assert 'ScanProfiles' in refresh
+          assert 'ScanPlayerRegion' not in refresh
+          print('RADAR_V622_PROFILE_ONLY_NO_MAP=PASS')
+          PY
+
+      - name: Verify V6.22 automatic live profile UI pipeline
+        run: |
+          set -euo pipefail
+          U=/tmp/wfgg-radar/public/live-radar.html
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          h=Path('/tmp/wfgg-radar/public/live-radar.html').read_text(encoding='utf-8')
+          m=re.search(r'<script>(.*)</script>',h,re.S); assert m
+          Path('/tmp/v622-ui.js').write_text(m.group(1),encoding='utf-8')
+          required=[
+            'WFGG_RADAR_LIVE_PROFILE_RESOLUTION_UI_V622',
+            'scheduleResolvedProfileRefreshV622',
+            "runCollectorSearch('@profile:'+uid)",
+            'applyPlayerCoreV622',
+            'get.user.info.multi · LIVE',
+            'aucun scan MAP',
+            'Donnée Collector affichée · actualisation Last War en temps réel',
+          ]
+          missing=[x for x in required if x not in h]
+          if missing:
+              raise SystemExit('V622_UI_PIPELINE_MISSING='+','.join(missing))
+          v=h.find('WFGG_RADAR_LIVE_PROFILE_RESOLUTION_UI_V622')
+          tail=h[v:v+7000]
+          if '@federated:' in tail:
+              raise SystemExit('V622_AUTO_PROFILE_MUST_NOT_USE_FEDERATED_SCAN')
+          print('RADAR_V622_UI_PIPELINE=PASS')
+          PY
+          node --check /tmp/v622-ui.js
+          echo "RADAR_V622_UI_SHA256=$(sha256sum "$U" | awk '{print $1}')"
+
+      - name: Verify V6.21 normalized recruitment filters
         working-directory: /tmp/wfgg-radar/connector-go
         run: |
           set -euo pipefail
