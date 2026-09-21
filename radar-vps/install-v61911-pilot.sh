@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-REV="${WFGG_RADAR_V61911_REV:-radar-v61911-manual-search-stop}"
+REV="${WFGG_RADAR_V61911_REV:-${WFGG_RADAR_V6191_REV:-radar-v61911-manual-search-stop}}"
 BASE="https://raw.githubusercontent.com/chachasan090375/WfGg/${REV}/radar-vps/pilot-v61911"
 ROOT="/opt/wfgg-radar"
 BIN="${ROOT}/bin"
