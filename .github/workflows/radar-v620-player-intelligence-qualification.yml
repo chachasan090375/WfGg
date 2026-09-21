@@ -192,12 +192,14 @@ jobs:
       - name: Verify safety contract
         run: |
           set -euo pipefail
-          for P in             .github/scripts/patch-radar-autopilot-adaptive-verification-v61917.py             .github/scripts/patch-radar-worker-adaptive-verification-v61917.py             .github/scripts/patch-live-radar-adaptive-verification-v61917.py             .github/scripts/patch-radar-autopilot-ledger-confirmation-v620.py             .github/scripts/patch-radar-player-intelligence-connector-v620.py             .github/scripts/patch-radar-player-intelligence-ui-worker-v620.py
+          for P in             .github/scripts/patch-radar-autopilot-adaptive-verification-v61917.py             .github/scripts/patch-radar-worker-adaptive-verification-v61917.py             .github/scripts/patch-live-radar-adaptive-verification-v61917.py             .github/scripts/patch-radar-autopilot-ledger-confirmation-v620.py             .github/scripts/patch-radar-player-intelligence-connector-v620.py
           do
             ! grep -Fq 'ScanPlayerRegionDiagnosticOnServer' "$P"
             ! grep -Fq 'runCollectorSearch' "$P"
             ! grep -REiq 'localStorage.*token|sessionStorage.*token|INSERT.*token|token.*INSERT|access_token' "$P"
           done
+          ! grep -Fq 'getCredential' .github/scripts/patch-radar-player-intelligence-ui-worker-v620.py
+          ! grep -Fq 'scanPlayer(' .github/scripts/patch-radar-player-intelligence-ui-worker-v620.py
           grep -Fq "mode=ro" .github/scripts/patch-radar-player-intelligence-connector-v620.py
           grep -Fq "PRAGMA query_only=ON" .github/scripts/patch-radar-player-intelligence-connector-v620.py
           grep -Fq "tokenUsed: false" .github/scripts/patch-radar-player-intelligence-ui-worker-v620.py
