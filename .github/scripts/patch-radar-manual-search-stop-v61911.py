@@ -146,28 +146,22 @@ func (s *server) collectorSearchStopV61911(w http.ResponseWriter, _ *http.Reques
         raise SystemExit(f'V61911_RUN_ANCHOR_COUNT={text.count(run_anchor)}')
     text = text.replace(run_anchor, 'func (s *server) runCollectorSearch(ctx context.Context, jobID, token, query string) {\n', 1)
 
-    fail_end_anchor = '''	}
+    running_anchor = '\\tradarCollectorJobs.update(jobID, func(j *collectorJob) { j.Status = "RUNNING"; j.Phase = "STARTING" })\\n'
+    if text.count(running_anchor) != 1:
+        raise SystemExit(f'V61911_RUNNING_ANCHOR_COUNT={text.count(running_anchor)}')
+    cancel_helper = '''\tmanualStopIfCancelledV61911 := func() bool {
+\t\tif !errors.Is(ctx.Err(), context.Canceled) {
+\t\t\treturn false
+\t\t}
+\t\tfail("MANUAL_SEARCH_STOPPED", ctx.Err())
+\t\treturn true
+\t}
+\tif manualStopIfCancelledV61911() {
+\t\treturn
+\t}
 
-	radarCollectorJobs.update(jobID, func(j *collectorJob) { j.Status = "RUNNING"; j.Phase = "STARTING" })
 '''
-    if text.count(fail_end_anchor) != 1:
-        raise SystemExit(f'V61911_FAIL_END_ANCHOR_COUNT={text.count(fail_end_anchor)}')
-    cancel_helper = '''	}
-
-	manualStopIfCancelledV61911 := func() bool {
-		if !errors.Is(ctx.Err(), context.Canceled) {
-			return false
-		}
-		fail("MANUAL_SEARCH_STOPPED", ctx.Err())
-		return true
-	}
-	if manualStopIfCancelledV61911() {
-		return
-	}
-
-	radarCollectorJobs.update(jobID, func(j *collectorJob) { j.Status = "RUNNING"; j.Phase = "STARTING" })
-'''
-    text = text.replace(fail_end_anchor, cancel_helper, 1)
+    text = text.replace(running_anchor, cancel_helper + running_anchor, 1)
 
     replacements = [
         (
