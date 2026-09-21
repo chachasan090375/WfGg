@@ -262,7 +262,7 @@ for a in uniq(req.get('excludeAlliances')):
     where.append('NOT ('+' OR '.join(ors)+')')
 
 for p in uniq(req.get('excludePlayers')):
-    where.append('(lower(COALESCE('+qi(pseudo)+",'')) <> ? AND CAST("+qi(uid)+" AS TEXT) <> ?)')
+    where.append("(lower(COALESCE("+qi(pseudo)+",'') ) <> ? AND CAST("+qi(uid)+" AS TEXT) <> ?)")
     params.extend([p.lower(),p])
 
 def add_num(col,op,key):
@@ -283,9 +283,9 @@ if svip:
 country_filter=txt(req.get('country')).upper()
 if country_filter:
     if country_filter in ('FR','FRA','FRANCE'):
-        where.append('upper(trim(COALESCE('+qi(country)+",''))) IN ('FR','FRA','FRANCE')")
+        where.append("upper(trim(COALESCE("+qi(country)+",''))) IN ('FR','FRA','FRANCE')")
     else:
-        where.append('upper(trim(COALESCE('+qi(country)+",''))) = ?'); params.append(country_filter)
+        where.append("upper(trim(COALESCE("+qi(country)+",''))) = ?"); params.append(country_filter)
 
 if seen:
     within=req.get('observedWithinDays')
