@@ -3,8 +3,6 @@ name: Radar V6.19.11 production promotion qualification
 on:
   push:
     branches: [radar-v61911-production-promotion]
-  pull_request:
-    branches: [radar-production-v1]
   workflow_dispatch:
 
 permissions:
