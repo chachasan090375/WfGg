@@ -45,6 +45,8 @@ jobs:
             ('bul_de_king',{'query':'Bul de king','limit':100,'offset':0}),
             ('wfgg_hq33_45_65m',{'includeAlliances':['WFGG'],'minHQ':33,'maxHQ':33,'minPower':45000000,'maxPower':65000000,'limit':100,'offset':0}),
             ('wfgg_all',{'includeAlliances':['WFGG'],'limit':100,'offset':0}),
+            ('server992_recent',{'includeServers':['992'],'sort':'observed_desc','limit':100,'offset':0}),
+            ('server993_recent',{'includeServers':['993'],'sort':'observed_desc','limit':20,'offset':0}),
           ]
           out=[]
           for label,payload in checks:
