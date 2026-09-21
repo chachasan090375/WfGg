@@ -683,12 +683,12 @@ echo "RADAR_V61911_FUNCTIONAL_WINDOW_READY=YES"
 echo "RADAR_V61911_FUNCTIONAL_URL=http://$TS_IP:$PILOT_PORT/live-radar.html"
 echo "RADAR_V61911_FUNCTIONAL_ACTION=Ouvre cette URL sur ton téléphone avec Tailscale actif. Connecte Last War par e-mail/code (laisse Mémoriser décoché), saisis $TARGET_QUERY, appuie sur RECHERCHER, attends que le scan affiche une région en cours puis appuie sur STOP une seule fois."
 echo "RADAR_V61911_FUNCTIONAL_EXPECTED_UI=RECHERCHER>STOP>ARRÊT…>RECHERCHER"
-echo "RADAR_V61911_FUNCTIONAL_WAIT_MAX_SECONDS=1200"
+echo "RADAR_V61911_FUNCTIONAL_WAIT_MAX_SECONDS=3600"
 echo "RADAR_V61911_LASTWAR_MODE=READ_ONLY"
 echo "RADAR_V61911_TOKEN_PERSISTENCE=NO"
 
 FUNCTIONAL_RC=0
-deadline=$((SECONDS+1200))
+deadline=$((SECONDS+3600))
 while [[ $SECONDS -lt $deadline ]]; do
   if [[ -s "$PILOT_EVIDENCE" ]]; then break; fi
   if ! kill -0 "$PILOT_SERVER_PID" >/dev/null 2>&1; then
