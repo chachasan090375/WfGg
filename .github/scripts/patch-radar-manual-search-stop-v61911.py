@@ -66,32 +66,6 @@ func (s *collectorJobCancelStoreV61911) cancel(id string) bool {
 '''
     text = text.replace(store_anchor, store_repl, 1)
 
-    start_fn = "function startScan(q){"
-    stop_fn = "function stopScan(){"
-    start_pos = text.find(start_fn)
-    stop_pos = text.find(stop_fn, start_pos + len(start_fn))
-    if start_pos < 0 or stop_pos < 0:
-        raise SystemExit('V61911_UI_STARTSCAN_FUNCTION_MISSING')
-    start_segment = text[start_pos:stop_pos]
-    disabled_anchor = 'go.disabled=true;'
-    if start_segment.count(disabled_anchor) != 1:
-        raise SystemExit(f'V61911_UI_STARTSCAN_DISABLE_COUNT={start_segment.count(disabled_anchor)}')
-    start_segment = start_segment.replace(
-        disabled_anchor,
-        "manualSearchJobId='';manualSearchStopPending=false;setManualSearchButton(true,false);",
-        1,
-    )
-    text = text[:start_pos] + start_segment + text[stop_pos:]
-
-    stop_anchor = "function stopScan(){clearInterval(phaseTimer);screen.classList.remove('scanning');go.disabled=false}"
-    if text.count(stop_anchor) != 1:
-        raise SystemExit(f'V61911_UI_STOP_SCAN_ANCHOR_COUNT={text.count(stop_anchor)}')
-    text = text.replace(
-        stop_anchor,
-        "function stopScan(){clearInterval(phaseTimer);screen.classList.remove('scanning');manualSearchJobId='';manualSearchStopPending=false;setManualSearchButton(false,false)}",
-        1,
-    )
-
     run_anchor = "async function runCollectorSearch(q){let job=await loadOrStartCollectorJob(q);rememberCollectorJob(job,q);for(;;){renderJob(job);if(job.status==='SUCCESS'){forgetCollectorJob();return {job,player:job.player||null}}if(job.status==='FAILED'){forgetCollectorJob();throw new Error(job.error||'COLLECTOR_SEARCH_FAILED')}await sleep(2000);job=await fetchCollectorJobResilient(job.id,job);rememberCollectorJob(job,q)}}"
     if text.count(run_anchor) != 1:
         raise SystemExit(f'V61911_UI_RUN_ANCHOR_COUNT={text.count(run_anchor)}')
@@ -104,10 +78,30 @@ func (s *collectorJobCancelStoreV61911) cancel(id string) bool {
     submit_repl = submit_anchor + "if(manualSearchRunning){await requestManualSearchStop();return}"
     text = text.replace(submit_anchor, submit_repl, 1)
 
-    catch_anchor = "}catch(err){stopScan();screen.classList.remove('found');if(err.status===401){"
+    submit_start = text.index(submit_repl)
+    submit_end = text.find("\nhealth();", submit_start)
+    if submit_end < 0:
+        raise SystemExit('V61911_UI_SUBMIT_END_MISSING')
+    submit_segment = text[submit_start:submit_end]
+    if submit_segment.count("startScan(q);") != 1:
+        raise SystemExit(f'V61911_UI_START_CALL_COUNT={submit_segment.count("startScan(q);")}')
+    submit_segment = submit_segment.replace(
+        "startScan(q);",
+        "startScan(q);setManualSearchButton(true,false);",
+        1,
+    )
+    if submit_segment.count("stopScan();") < 2:
+        raise SystemExit(f'V61911_UI_STOP_CALL_COUNT={submit_segment.count("stopScan();")}')
+    submit_segment = submit_segment.replace(
+        "stopScan();",
+        "stopScan();setManualSearchButton(false,false);",
+    )
+    text = text[:submit_start] + submit_segment + text[submit_end:]
+
+    catch_anchor = "}catch(err){stopScan();setManualSearchButton(false,false);screen.classList.remove('found');if(err.status===401){"
     if text.count(catch_anchor) != 1:
         raise SystemExit(f'V61911_UI_CATCH_ANCHOR_COUNT={text.count(catch_anchor)}')
-    catch_repl = "}catch(err){stopScan();screen.classList.remove('found');if(String(err?.code||err?.message||'')==='MANUAL_SEARCH_STOPPED'){steps(0);setStatus('RADAR ARRÊTÉ','Recherche manuelle interrompue','ok');$('federatedTitle').textContent='COLLECTOR FÉDÉRÉ · ARRÊTÉ';$('federatedMeta').textContent='Recherche manuelle interrompue par l’utilisateur.';tone(300,.06,.018)}else if(err.status===401){"
+    catch_repl = "}catch(err){stopScan();setManualSearchButton(false,false);screen.classList.remove('found');if(String(err?.code||err?.message||'')==='MANUAL_SEARCH_STOPPED'){steps(0);setStatus('RADAR ARRÊTÉ','Recherche manuelle interrompue','ok');$('federatedTitle').textContent='COLLECTOR FÉDÉRÉ · ARRÊTÉ';$('federatedMeta').textContent='Recherche manuelle interrompue par l’utilisateur.';tone(300,.06,.018)}else if(err.status===401){"
     text = text.replace(catch_anchor, catch_repl, 1)
 
 UI.write_text(text, encoding='utf-8')
