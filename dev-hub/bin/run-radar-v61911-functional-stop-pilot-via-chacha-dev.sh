@@ -96,7 +96,13 @@ PY
 )"
 echo "RADAR_V61911_FUNCTIONAL_BASELINE_CYCLE_ID=$BASELINE_CYCLE_ID"
 echo "RADAR_V61911_FUNCTIONAL_BASELINE_RUNNING_FEDERATED=$BASELINE_RUNNING_FEDERATED"
-[ "$BASELINE_RUNNING_FEDERATED" -eq 0 ] || die active_federated_cycle_preexists
+if [ "$BASELINE_RUNNING_FEDERATED" -gt 0 ]; then
+  [ "$BASELINE_RUNNING_FEDERATED" -eq 1 ] || die multiple_active_federated_cycles_preexist
+  [ "$BASELINE_CYCLE_ID" -eq 81 ] || die unexpected_active_federated_cycle_preexists
+  echo "RADAR_V61911_FUNCTIONAL_EXPECT_STALE_RECOVERY_CYCLE=81"
+else
+  echo "RADAR_V61911_FUNCTIONAL_EXPECT_STALE_RECOVERY_CYCLE=NONE"
+fi
 echo "RADAR_V61911_FUNCTIONAL_PREFLIGHT=PASS"
 
 "${PC[@]}" verify-state --project "$PROJECT" > "$WORK/verify-before.json"
