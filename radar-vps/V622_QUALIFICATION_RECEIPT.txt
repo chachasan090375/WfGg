@@ -1,9 +1,17 @@
 WFGG_RADAR_QUALIFICATION=V6.22
 RESULT=failure
-SOURCE_REV=e9b475a9332475c740f1ea0f1476f7fb416ca753
+SOURCE_REV=e35adf3c2cd3418cb8ae968bab1bd70e6efd2312
 PIPELINE=LOCAL_UID_THEN_LIVE_PROFILE
 LASTWAR_COMMAND=get.user.info.multi
 PROFILE_MAP_SCAN=NO
 LASTWAR_MODE=READ_ONLY
 TOKEN_PERSISTENCE=NO
 PRODUCTION_DEPLOYMENT=NO
+
+===== v622-profile-tests.log =====
+=== RUN   TestCollectorBasePlayerV6191
+--- PASS: TestCollectorBasePlayerV6191 (0.00s)
+=== RUN   TestRichObservedV6191
+--- PASS: TestRichObservedV6191 (0.00s)
+PASS
+ok  	wfgg-radar-connector/cmd/radar-connector	0.003s
