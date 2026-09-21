@@ -74,5 +74,38 @@ if ui_marker not in ui:
         raise SystemExit(f'V61915_UI_TITLE_ANCHOR_COUNT={ui.count(old_title)}')
     ui = ui.replace(old_title, new_title, 1)
 
+    render_anchor = 'function renderAutopilotV6194(payload){'
+    if ui.count(render_anchor) != 1:
+        raise SystemExit(f'V61915_UI_RENDER_ANCHOR_COUNT={ui.count(render_anchor)}')
+    visual = r'''/* WFGG_RADAR_AUTOPILOT_RADAR_ANIMATION_V61915 */
+function renderAutopilotRadarVisualV61915(payload){
+  const job=payload?.job||payload||{};
+  const status=String(job.status||'').toUpperCase();
+  const phase=String(job.phase||'').toUpperCase();
+  if(typeof manualSearchRunning!=='undefined'&&manualSearchRunning)return;
+  if(status==='RUNNING'||status==='QUEUED'){
+    screen.classList.remove('found');
+    screen.classList.add('scanning');
+    return;
+  }
+  screen.classList.remove('scanning');
+  if(status==='SUCCESS'||phase==='COVERAGE_COMPLETE'){
+    screen.classList.add('found');
+    return;
+  }
+  screen.classList.remove('found');
+}
+'''
+    ui = ui.replace(render_anchor, visual + render_anchor, 1)
+
+    render_body_anchor = "  const status=String(job.status||'—').toUpperCase(),phase=String(job.phase||'—').toUpperCase(),seed=String(job.currentSeed||'—');\n"
+    if ui.count(render_body_anchor) != 1:
+        raise SystemExit(f'V61915_UI_RENDER_BODY_ANCHOR_COUNT={ui.count(render_body_anchor)}')
+    ui = ui.replace(
+        render_body_anchor,
+        render_body_anchor + "  renderAutopilotRadarVisualV61915(payload);\n",
+        1,
+    )
+
 UI.write_text(ui, encoding='utf-8')
 print('RADAR_V61915_WORKER_COVERAGE_PROPAGATION=READY')
