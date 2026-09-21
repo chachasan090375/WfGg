@@ -264,8 +264,8 @@ function v621ParseMetric(value){
   return Math.round(Number(m[1])*mult);
 }
 function v621ParseInt(value){const s=String(value==null?'':value).trim();if(!s)return null;const n=Number(s);return Number.isFinite(n)?Math.trunc(n):NaN}
-function v621FieldMetric(id){const n=v621ParseMetric($(id).value);if(Number.isNaN(n))throw new Error('INVALID_FILTER');return n}
-function v621FieldInt(id){const n=v621ParseInt($(id).value);if(Number.isNaN(n))throw new Error('INVALID_FILTER');return n}
+function v621FieldMetric(id){const e=$(id),n=v621ParseMetric(e&&e.value);if(Number.isNaN(n)){if(e)e.setAttribute('aria-invalid','true');v621SetWarning(['Vérifie les valeurs numériques indiquées. Formats acceptés : 100M, 1.2B ou un nombre complet.']);return null}if(e)e.removeAttribute('aria-invalid');return n}
+function v621FieldInt(id){const e=$(id),n=v621ParseInt(e&&e.value);if(Number.isNaN(n)){if(e)e.setAttribute('aria-invalid','true');v621SetWarning(['Vérifie les valeurs numériques indiquées.']);return null}if(e)e.removeAttribute('aria-invalid');return n}
 
 function filtersFromUI(){
   return {
