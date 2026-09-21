@@ -2,6 +2,7 @@
 from pathlib import Path
 
 AUTOPILOT = Path('/tmp/wfgg-radar/connector-go/cmd/radar-connector/server_autopilot_v6194.go')
+AUTOPILOT_TEST = Path('/tmp/wfgg-radar/connector-go/cmd/radar-connector/server_autopilot_v6194_test.go')
 text = AUTOPILOT.read_text(encoding='utf-8')
 marker = '// WFGG_RADAR_AUTOPILOT_CONTINUE_PARTIAL_LIMIT_V61910'
 
@@ -78,3 +79,55 @@ elif 'autopilotVersionV6194                    = "v6.19.10"' not in text:
 
 AUTOPILOT.write_text(text, encoding='utf-8')
 print('RADAR_V61910_AUTOPILOT_CONTINUE_PARTIAL_LIMIT=READY')
+
+test_text = AUTOPILOT_TEST.read_text(encoding='utf-8')
+test_marker = 'func TestAutopilotSkipPartialPreservesEvidenceV61910'
+if test_marker not in test_text:
+    test_text += r'''
+
+func TestAutopilotSkipPartialPreservesEvidenceV61910(t *testing.T) {
+	id := "test-skip-partial-v61910"
+	radarAutopilotJobsV6194.add(&autopilotJobV6194{
+		ID: id, Status: "RUNNING", Phase: "CYCLE_PARTIAL_RETRY",
+		CurrentSeed: "8120", CurrentCommand: "@federated:8120",
+		CurrentFullCycleIDs: []int64{71}, RequiredFullCycles: 3,
+		ValidatedCycles: 1, PartialCycles: 5, PartialRetryLimit: 5,
+		MaxClusters: 5,
+		History: []autopilotClusterResultV6194{},
+		SkippedSeeds: []autopilotSkippedSeedV6196{},
+	})
+	if !autopilotSkipCurrentSeedPartialV61910(id) {
+		t.Fatal("expected partial-limited seed skip")
+	}
+	job, ok := radarAutopilotJobsV6194.get(id)
+	if !ok {
+		t.Fatal("job missing")
+	}
+	if job.CurrentSeed != "" || job.ValidatedCycles != 0 || job.PartialCycles != 0 {
+		t.Fatalf("current seed state not reset: %#v", job)
+	}
+	if job.ConfirmedClusters != 0 {
+		t.Fatalf("skipped partial seed must not count as confirmed: %d", job.ConfirmedClusters)
+	}
+	if len(job.SkippedSeeds) != 1 || job.SkippedSeeds[0].Seed != "8120" {
+		t.Fatalf("missing skipped partial seed evidence: %#v", job.SkippedSeeds)
+	}
+	skipped := job.SkippedSeeds[0]
+	if skipped.Reason != "PARTIAL_AFTER_RETRIES" {
+		t.Fatalf("wrong skip reason: %#v", skipped)
+	}
+	if skipped.ValidatedCycles != 1 || skipped.PartialCycles != 5 {
+		t.Fatalf("quality counters not preserved in skip evidence: %#v", skipped)
+	}
+	if len(skipped.CycleIDs) != 1 || skipped.CycleIDs[0] != 71 {
+		t.Fatalf("valid 9/9 evidence IDs not preserved: %#v", skipped)
+	}
+	if job.LastSkippedSeed == nil || job.LastSkippedSeed.Reason != "PARTIAL_AFTER_RETRIES" {
+		t.Fatalf("last skipped partial seed missing: %#v", job.LastSkippedSeed)
+	}
+}
+'''
+    AUTOPILOT_TEST.write_text(test_text, encoding='utf-8')
+    print('RADAR_V61910_PARTIAL_SKIP_TEST=ADDED')
+else:
+    print('RADAR_V61910_PARTIAL_SKIP_TEST=ALREADY_PRESENT')
