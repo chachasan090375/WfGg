@@ -22,11 +22,11 @@ env:
   RADAR_WORKER: wfgg-radar
   RADAR_D1_NAME: wfgg-radar
   RADAR_CONNECTOR_URL: https://chachavps.tail3ab05a.ts.net
-  EXPECTED_CONNECTOR_SHA256: 91b6858713b07a0a1ef0ecd1921f9358d83b2467076a30115ca426e7f05d35e1
+  EXPECTED_CONNECTOR_SHA256: da12aad924564309615b71c249262294f4ba4e5d0aad54a7921c315d07c016fe
   EXPECTED_NATIVE_SHA256: 274d040f5294cb09422e5d55cc4b5335ac7739924c33dcb67b3f279645814900
-  EXPECTED_WORKER_SHA256: 966efa5d1c46b44e6d6d7340698266cc53fa454cf8729c6a2b354b4f11afdad7
-  EXPECTED_TRANSPORT_SHA256: 807c3c65f082a404ac809d748244d381c68076ec739ee05d020e29dd72d77f53
-  EXPECTED_UI_SHA256: 6427984d60c015240c5545d2eda1c7dabc9e2dc6d65599fdaad58b0d0ecebfd8
+  EXPECTED_WORKER_SHA256: b4434c02abf740ea224c5ea60aebebfb0baa11ac7f02fffd68838970ba50d27d
+  EXPECTED_TRANSPORT_SHA256: c194a13d35ed436278fb11221c73249f89fa9cb9b979122103b9ba20f73e2b5c
+  EXPECTED_UI_SHA256: dd6a4c6c565aaf0607f1dafb18264032390468a74f0a0c9ec78cb90ae3eb557b
 
 jobs:
   deploy:
@@ -46,7 +46,7 @@ jobs:
           echo CLOUDFLARE_API_TOKEN=OK
           echo RADAR_CONNECTOR_SHARED_KEY=OK
 
-      - name: Reconstruct cumulative V6.20
+      - name: Reconstruct cumulative V6.21
         run: |
           set -euo pipefail
           rm -rf /tmp/wfgg-radar
@@ -105,7 +105,9 @@ jobs:
           python3 .github/scripts/patch-radar-autopilot-ledger-confirmation-v620.py
           python3 .github/scripts/patch-radar-player-intelligence-connector-v620.py
           python3 .github/scripts/patch-radar-player-intelligence-ui-worker-v620.py
-          echo RADAR_V620_PRODUCTION_RECONSTRUCT=PASS
+          python3 .github/scripts/patch-radar-recruitment-filter-normalization-v621.py
+          python3 .github/scripts/patch-radar-recruitment-ux-ui-worker-v621.py
+          echo RADAR_V621_PRODUCTION_RECONSTRUCT=PASS
 
       - name: Verify qualified Cloudflare surface digests
         run: |
@@ -158,8 +160,16 @@ jobs:
           grep -Fq '/api/radar/intelligence/search' /tmp/wfgg-radar/src/worker.js
           grep -Fq 'WFGG_RADAR_PLAYER_INTELLIGENCE_UI_V620' /tmp/wfgg-radar/public/live-radar.html
           grep -Fq 'id="filterButton"' /tmp/wfgg-radar/public/live-radar.html
-          grep -Fq 'PRESET RECRUTEMENT FR' /tmp/wfgg-radar/public/live-radar.html
           grep -Fq 'ANCIENS PSEUDOS' /tmp/wfgg-radar/public/live-radar.html
+          grep -Fq 'WFGG_RADAR_RECRUITMENT_FILTER_NORMALIZATION_V621' /tmp/wfgg-radar/connector-go/cmd/radar-connector/player_intelligence_v621.go
+          grep -Fq 'WFGG_RADAR_RECRUITMENT_UX_WORKER_V621' /tmp/wfgg-radar/src/worker.js
+          grep -Fq 'WFGG_RADAR_RECRUITMENT_UX_UI_V621' /tmp/wfgg-radar/public/live-radar.html
+          grep -Fq 'PAYS PROPOSÉS PAR LAST WAR' /tmp/wfgg-radar/public/live-radar.html
+          grep -Fq 'RECRUTEMENT FR' /tmp/wfgg-radar/public/live-radar.html
+          grep -Fq 'data-kind="servers"' /tmp/wfgg-radar/public/live-radar.html
+          grep -Fq 'data-kind="alliances"' /tmp/wfgg-radar/public/live-radar.html
+          grep -Fq 'data-kind="players"' /tmp/wfgg-radar/public/live-radar.html
+          grep -Fq 'lastwar-observed-values' /tmp/wfgg-radar/connector-go/cmd/radar-connector/player_intelligence_v621.go
           grep -Fq 'AUTOPILOT V6.20.0 · ARRÊTÉ' /tmp/wfgg-radar/public/live-radar.html
           grep -Fq 'fullCyclesPerCluster:1,adaptiveVerification:true,coverageMode:true' /tmp/wfgg-radar/public/live-radar.html
           grep -Fq '1×9/9 valide par grappe' /tmp/wfgg-radar/public/live-radar.html
@@ -170,7 +180,7 @@ jobs:
           grep -Fq 'coverageMode:true' /tmp/wfgg-radar/public/live-radar.html
           grep -Fq 'COUVERTURE TERMINÉE' /tmp/wfgg-radar/public/live-radar.html
           grep -Fq 'AUTOPILOT V6.20.0 · ARRÊTÉ' /tmp/wfgg-radar/public/live-radar.html
-          echo RADAR_V620_CLOUDFLARE_DIGESTS=PASS
+          echo RADAR_V621_CLOUDFLARE_DIGESTS=PASS
 
       - name: Guardian pre-deploy gate
         working-directory: /tmp/wfgg-radar
@@ -183,7 +193,7 @@ jobs:
           go vet ./...
           cd ..
           ! grep -REq 'building\.production\.collect|mail\.reward|al\.science\.donate|visitor\.operate' connector-go src || false
-          echo RADAR_V620_GUARDIAN=PASS
+          echo RADAR_V621_GUARDIAN=PASS
 
       - name: Wait for Sentinel reconciliation and connector availability
         env:
@@ -215,12 +225,12 @@ jobs:
                   status=e.code
                   try: data=json.loads(e.read().decode())
                   except Exception: data={}
-              print(f'RADAR_V620_CONNECTOR_WAIT={attempt} HTTP={status} ERROR={data.get("error")}')
+              print(f'RADAR_V621_CONNECTOR_WAIT={attempt} HTTP={status} ERROR={data.get("error")}')
               if status==400 and data.get('error')=='COLLECTOR_JOB_ID_REQUIRED':
-                  print('RADAR_V620_CONNECTOR_SIGNED_SURFACE=READY')
+                  print('RADAR_V621_CONNECTOR_SIGNED_SURFACE=READY')
                   raise SystemExit(0)
               time.sleep(5)
-          raise SystemExit('RADAR_V620_CONNECTOR_SURFACE_TIMEOUT')
+          raise SystemExit('RADAR_V621_CONNECTOR_SURFACE_TIMEOUT')
           PY
       - name: Resolve Cloudflare deployment context
         id: cf
@@ -389,8 +399,13 @@ jobs:
           grep -Fq 'WFGG_RADAR_AUTOPILOT_ADAPTIVE_VERIFICATION_UI_V61917' /tmp/live-radar.html
           grep -Fq 'WFGG_RADAR_PLAYER_INTELLIGENCE_UI_V620' /tmp/live-radar.html
           grep -Fq 'id="filterButton"' /tmp/live-radar.html
-          grep -Fq 'PRESET RECRUTEMENT FR' /tmp/live-radar.html
           grep -Fq 'ANCIENS PSEUDOS' /tmp/live-radar.html
+          grep -Fq 'WFGG_RADAR_RECRUITMENT_UX_UI_V621' /tmp/live-radar.html
+          grep -Fq 'PAYS PROPOSÉS PAR LAST WAR' /tmp/live-radar.html
+          grep -Fq 'RECRUTEMENT FR' /tmp/live-radar.html
+          grep -Fq 'data-kind="servers"' /tmp/live-radar.html
+          grep -Fq 'data-kind="alliances"' /tmp/live-radar.html
+          grep -Fq 'data-kind="players"' /tmp/live-radar.html
           grep -Fq 'AUTOPILOT V6.20.0 · ARRÊTÉ' /tmp/live-radar.html
           grep -Fq '1×9/9 valide par grappe' /tmp/live-radar.html
           grep -Fq 'vérification adaptative' /tmp/live-radar.html
@@ -403,4 +418,4 @@ jobs:
           grep -Fq 'AUTOPILOT V6.20.0 · ARRÊTÉ' /tmp/live-radar.html
           echo "RADAR_PRODUCTION_URL=$RADAR_URL"
           echo "RADAR_LIVE_UI_URL=$RADAR_URL/live-radar.html"
-          echo RADAR_V620_CLOUDFLARE_PRODUCTION=PASS
+          echo RADAR_V621_CLOUDFLARE_PRODUCTION=PASS
