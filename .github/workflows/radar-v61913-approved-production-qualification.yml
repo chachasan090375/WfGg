@@ -140,7 +140,7 @@ jobs:
           test "$transport" = "$EXPECTED_TRANSPORT_SHA256"
           test "$ui" = "$EXPECTED_UI_SHA256"
           grep -Fq 'WFGG_RADAR_MANUAL_SEARCH_STOP_UI_V61911' /tmp/wfgg-radar/public/live-radar.html
-          grep -Fq 'WFGG_RADAR_AUTOPILOT_NO_RESCAN_QUALIFIED_UI_V61913' /tmp/wfgg-radar/public/live-radar.html
+          grep -Fq 'WFGG_RADAR_AUTOPILOT_NO_RESCAN_QUALIFIED_UI_V61912' /tmp/wfgg-radar/public/live-radar.html
           grep -Fq 'AUTOPILOT V6.19.13 · ARRÊTÉ' /tmp/wfgg-radar/public/live-radar.html
           grep -Fq 'seeds déjà qualifiées jamais rescannées' /tmp/wfgg-radar/public/live-radar.html
           grep -Fq 'WFGG_RADAR_AUTOPILOT_PERSISTENT_LEDGER_UI_V61913' /tmp/wfgg-radar/public/live-radar.html
