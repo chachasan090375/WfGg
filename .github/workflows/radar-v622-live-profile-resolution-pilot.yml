@@ -144,12 +144,15 @@ jobs:
           m=re.search(r'<script>(.*)</script>',h,re.S); assert m
           js=m.group(1)
           Path('/tmp/v622-pilot-ui.js').write_text(js,encoding='utf-8')
-          show=re.search(r'function showPlayer\(p,data,q\)\{.*?\n?\}',js,re.S)
-          assert show, 'showPlayer missing'
-          assert 'scheduleResolvedProfileRefreshV622(currentProfileUID)' in show.group(0)
-          refresh=re.search(r'async function refreshResolvedProfileV622\(uid,\{manual=false\}=\{\}\)\{[\s\S]*?\n\}',js)
-          assert refresh, 'refreshResolvedProfileV622 missing'
-          body=refresh.group(0)
+          show_start=js.find('function showPlayer(p,data,q){')
+          show_end=js.find('async function api(',show_start)
+          assert show_start>=0 and show_end>show_start, 'showPlayer range missing'
+          show=js[show_start:show_end]
+          assert 'scheduleResolvedProfileRefreshV622(currentProfileUID)' in show
+          refresh_start=js.find('async function refreshResolvedProfileV622')
+          refresh_end=js.find('function scheduleResolvedProfileRefreshV622',refresh_start)
+          assert refresh_start>=0 and refresh_end>refresh_start, 'refreshResolvedProfileV622 range missing'
+          body=js[refresh_start:refresh_end]
           assert "runCollectorSearch('@profile:'+uid)" in body
           assert '@federated:' not in body
           assert 'applyPlayerCoreV622(p)' in body
