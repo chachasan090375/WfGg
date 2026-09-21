@@ -79,6 +79,26 @@ jobs:
           print('AIR_WFGG_RICH_JSON='+json.dumps(d,separators=(',',':')))
           PY
 
+      - name: Summarize latest A i R state
+        env:
+          RADAR_CONNECTOR_SHARED_KEY: ${{ secrets.RADAR_CONNECTOR_SHARED_KEY }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib,hmac,json,os,secrets,time,urllib.request
+          base=os.environ['RADAR_CONNECTOR_URL'].rstrip('/')
+          key=os.environ['RADAR_CONNECTOR_SHARED_KEY'].encode()
+          path='/v1/collector/intelligence/search-v621'
+          body=json.dumps({'query':'1205983201000992','limit':10,'offset':0},separators=(',',':')).encode()
+          ts=str(int(time.time())); nonce=secrets.token_hex(16)
+          sig=hmac.new(key,'\n'.join(['POST',path,ts,nonce,hashlib.sha256(body).hexdigest()]).encode(),hashlib.sha256).hexdigest()
+          req=urllib.request.Request(base+path,data=body,method='POST',headers={'Content-Type':'application/json','X-Radar-Timestamp':ts,'X-Radar-Nonce':nonce,'X-Radar-Signature':sig})
+          with urllib.request.urlopen(req,timeout=25) as r:
+              data=json.load(r)
+          p=(data.get('players') or [None])[0]
+          print('AIR_LATEST_PLAYER_JSON='+json.dumps(p,ensure_ascii=False,separators=(',',':')))
+          PY
+
       - name: Safety receipt
         run: |
           echo LASTWAR_MODE=READ_ONLY
