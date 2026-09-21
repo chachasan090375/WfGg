@@ -101,7 +101,24 @@ jobs:
         run: |
           set -euo pipefail
           gofmt -w ./cmd ./internal
-          go test ./cmd/radar-connector -run 'V621
+          go test ./cmd/radar-connector -run 'V621$' -count=1 -v | tee /tmp/v621-tests.log
+          python3 - <<'PY'
+          from pathlib import Path
+          log=Path('/tmp/v621-tests.log').read_text(encoding='utf-8')
+          required=[
+            'TestPlayerIntelligenceCountryOptionsAreGameObservedV621',
+            'TestPlayerIntelligenceUnsupportedCountryIsGracefulV621',
+            'TestPlayerIntelligenceNormalizedChipsV621',
+            'TestPlayerIntelligenceIncludeAliasV621',
+            'TestPlayerIntelligenceAliasSearchStillWorksV621',
+          ]
+          missing=[name for name in required if ('--- PASS: '+name) not in log]
+          if missing:
+              raise SystemExit('V621_TEST_ASSERTIONS_MISSING='+','.join(missing))
+          print('RADAR_V621_FILTER_NORMALIZATION=PASS')
+          PY
+
+      - name: Verify V6.20 ledger confirmation and player intelligence
         working-directory: /tmp/wfgg-radar/connector-go
         run: |
           set -euo pipefail
