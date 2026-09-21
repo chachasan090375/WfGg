@@ -180,7 +180,8 @@ jobs:
             b'/v1/collector/intelligence/search',
             b'/v1/collector/intelligence/search-v621',
             b'lastwar-observed-values',
-            b'country_unavailable',
+            b'ignoredFilters',
+            b'warnings',
           ]
           missing=[]
           for m in markers:
