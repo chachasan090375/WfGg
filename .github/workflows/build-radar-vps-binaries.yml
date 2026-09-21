@@ -192,6 +192,9 @@ jobs:
             exit 0
           fi
           git commit -m 'build(radar): publish V6.19.11 Manual Search Stop production binaries'
+          # Discard only ephemeral runner worktree changes; the release artifacts are already committed.
+          git reset --hard HEAD
+          git clean -fd
           git fetch origin radar-production-v1
           git rebase origin/radar-production-v1
           git push origin HEAD:radar-production-v1
