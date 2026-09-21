@@ -60,7 +60,7 @@ if text.count(old_payload) != 1:
     raise SystemExit(f'V61914_UI_START_PAYLOAD_ANCHOR_COUNT={text.count(old_payload)}')
 text = text.replace(old_payload, new_payload, 1)
 
-old_status = "setStatus('AUTOPILOT DÉMARRÉ',initialSeed?`Seed ${initialSeed} · preuve fraîche 3×9/9`:'Seed Scout automatique','ok');"
+old_status = "setStatus('AUTOPILOT DÉMARRÉ',initialSeed?`Seed ${initialSeed} · objectif 3×9/9 · preuves valides existantes réutilisées`:'Seed Scout automatique','ok');"
 if text.count(old_status) != 1:
     raise SystemExit(f'V61914_UI_START_STATUS_ANCHOR_COUNT={text.count(old_status)}')
 new_status = "setStatus('AUTOPILOT DÉMARRÉ',initialSeed?`Seed ${initialSeed} · couverture continue · preuve 3×9/9`:'Couverture automatique jusqu’à épuisement de la frontière Seed Scout','ok');"
