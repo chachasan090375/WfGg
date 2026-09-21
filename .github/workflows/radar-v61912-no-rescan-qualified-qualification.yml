@@ -86,6 +86,7 @@ jobs:
           CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w' -o /tmp/radar-connector ./cmd/radar-connector
 
           grep -aFq 'v6.19.12' /tmp/radar-connector
+          grep -aFq 'v6.19.12-no-rescan-qualified-seeds' /tmp/radar-connector
           grep -aFq 'AUTOPILOT_SCOUT_HISTORY_QUALITY_UNAVAILABLE_V61912' /tmp/radar-connector
           grep -aFq 'SCOUT_SKIPPED_QUALIFIED' /tmp/radar-connector
           grep -aFq 'MANUAL_SEARCH_STOPPED' /tmp/radar-connector
