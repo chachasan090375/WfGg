@@ -157,6 +157,8 @@ jobs:
           grep -Fq 'RADAR_V61911_TOKEN_READ=NO' radar-vps/probe-v61911-pilot-runtime.sh
           grep -Fq 'RADAR_V61911_TOKEN_PERSISTENCE=NO' radar-vps/probe-v61911-pilot-runtime.sh
           grep -Fq 'RADAR_V61911_PRODUCTION_DEPLOYMENT=NO' radar-vps/probe-v61911-pilot-runtime.sh
+          grep -Fq 'RADAR_V61911_RUNTIME_PROBE=PASS' radar-vps/probe-v61911-pilot-runtime.sh
+          grep -Fq 'WFGG_RADAR_V6191_REV' radar-vps/install-v61911-pilot.sh
           ! grep -Fq 'request("POST","/v1/collector/search",' radar-vps/probe-v61911-pilot-runtime.sh
           ! grep -Fq '/v1/collector/autopilot/start' radar-vps/probe-v61911-pilot-runtime.sh
           ! grep -REiq 'building\.production\.collect|mail\.reward|al\.science\.donate|visitor\.operate|march|attack|purchase' .github/scripts/patch-radar-manual-search-stop-v61911.py
