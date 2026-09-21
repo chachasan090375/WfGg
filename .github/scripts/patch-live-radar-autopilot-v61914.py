@@ -20,10 +20,10 @@ if text.count(old_title) != 1:
     raise SystemExit(f'V61914_UI_TITLE_ANCHOR_COUNT={text.count(old_title)}')
 text = text.replace(old_title, new_title, 1)
 
-old_progress = "  let progress=`Grappe ${Number(job.confirmedClusters||0)+1}/${job.maxClusters||5} · seed ${seed} · cycles 9/9 ${job.validatedCycles||0}/${job.requiredFullCycles||3} · partiels ${job.partialCycles||0}`;"
+old_progress = "let progress=`Grappe ${Number(job.confirmedClusters||0)+1}/${job.maxClusters||5} · seed ${seed} · cycles 9/9 ${job.validatedCycles||0}/${job.requiredFullCycles||3} · partiels ${job.partialCycles||0} · ignorées ${job.skippedSeeds?.length||0}`;"
 if text.count(old_progress) != 1:
     raise SystemExit(f'V61914_UI_PROGRESS_ANCHOR_COUNT={text.count(old_progress)}')
-new_progress = "  let progress=job.coverageMode?`Couverture · grappes confirmées ${Number(job.confirmedClusters||0)} · seed ${seed} · cycles 9/9 ${job.validatedCycles||0}/${job.requiredFullCycles||3} · partiels ${job.partialCycles||0}`:`Grappe ${Number(job.confirmedClusters||0)+1}/${job.maxClusters||5} · seed ${seed} · cycles 9/9 ${job.validatedCycles||0}/${job.requiredFullCycles||3} · partiels ${job.partialCycles||0}`;"
+new_progress = "let progress=job.coverageMode?`Couverture · grappes confirmées ${Number(job.confirmedClusters||0)} · seed ${seed} · cycles 9/9 ${job.validatedCycles||0}/${job.requiredFullCycles||3} · partiels ${job.partialCycles||0} · ignorées ${job.skippedSeeds?.length||0}`:`Grappe ${Number(job.confirmedClusters||0)+1}/${job.maxClusters||5} · seed ${seed} · cycles 9/9 ${job.validatedCycles||0}/${job.requiredFullCycles||3} · partiels ${job.partialCycles||0} · ignorées ${job.skippedSeeds?.length||0}`;"
 text = text.replace(old_progress, new_progress, 1)
 
 meta_anchor = "  if(job.persistentLedgerWrites)progress+=` · écritures ledger ${job.persistentLedgerWrites}`;"
