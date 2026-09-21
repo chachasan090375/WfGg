@@ -163,19 +163,34 @@ jobs:
           go test ./...
           go vet ./...
           CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w' -o /tmp/radar-connector ./cmd/radar-connector
-          grep -aFq 'v6.20.0' /tmp/radar-connector
-          grep -aFq 'ADAPTIVE_FAST' /tmp/radar-connector
-          grep -aFq 'AUTOPILOT_ADAPTIVE_FULL_CYCLES_CONFLICT_V61917' /tmp/radar-connector
-          grep -aFq 'SEED_LOCAL_FAILURE_LIMIT' /tmp/radar-connector
-          grep -aFq 'COVERAGE_COMPLETE' /tmp/radar-connector
-          grep -aFq 'radar_autopilot_ledger_v61913' /tmp/radar-connector
-          grep -aFq 'MANUAL_SEARCH_STOPPED' /tmp/radar-connector
-          grep -aFq 'AUTOPILOT_LEDGER_PERSIST_FAILED_V620' /tmp/radar-connector
-          grep -aFq 'PLAYER_INTELLIGENCE_REQUEST_INVALID_V620' /tmp/radar-connector
-          grep -aFq '/v1/collector/intelligence/search' /tmp/radar-connector
-          grep -aFq '/v1/collector/intelligence/search-v621' /tmp/radar-connector
-          grep -aFq 'lastwar-observed-values' /tmp/radar-connector
-          grep -aFq 'country_unavailable' /tmp/radar-connector
+          python3 - <<'PY'
+          from pathlib import Path
+          b=Path('/tmp/radar-connector').read_bytes()
+          markers=[
+            b'v6.20.0',
+            b'v6.21.0',
+            b'ADAPTIVE_FAST',
+            b'AUTOPILOT_ADAPTIVE_FULL_CYCLES_CONFLICT_V61917',
+            b'SEED_LOCAL_FAILURE_LIMIT',
+            b'COVERAGE_COMPLETE',
+            b'radar_autopilot_ledger_v61913',
+            b'MANUAL_SEARCH_STOPPED',
+            b'AUTOPILOT_LEDGER_PERSIST_FAILED_V620',
+            b'PLAYER_INTELLIGENCE_REQUEST_INVALID_V620',
+            b'/v1/collector/intelligence/search',
+            b'/v1/collector/intelligence/search-v621',
+            b'lastwar-observed-values',
+            b'country_unavailable',
+          ]
+          missing=[]
+          for m in markers:
+              ok=m in b
+              print(('PASS ' if ok else 'MISS ')+m.decode())
+              if not ok: missing.append(m.decode())
+          if missing:
+              raise SystemExit('V621_BINARY_MARKERS_MISSING='+','.join(missing))
+          print('RADAR_V621_BINARY_MARKERS=PASS')
+          PY
           echo "RADAR_V621_CONNECTOR_SHA256=$(sha256sum /tmp/radar-connector | awk '{print $1}')"
           echo RADAR_V621_CONNECTOR_REGRESSION=PASS
 
