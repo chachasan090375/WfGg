@@ -1,6 +1,6 @@
 WFGG_RADAR_QUALIFICATION=V6.20
 RESULT=success
-SOURCE_REV=3d7a450125f97d11fb920b05aeef7ddcbb110ce8
+SOURCE_REV=dc21eaaffff180276f37931992b7521e1f89696e
 LASTWAR_MODE=READ_ONLY
 TOKEN_PERSISTENCE=NO
 PRODUCTION_DEPLOYMENT=NO
@@ -129,34 +129,34 @@ RADAR_V620_RECONSTRUCT=PASS
 
 ===== v620-tests-step.log =====
 === RUN   TestAutopilotFullAfterPartialPersistsAndConfirmsV620
---- PASS: TestAutopilotFullAfterPartialPersistsAndConfirmsV620 (0.19s)
+--- PASS: TestAutopilotFullAfterPartialPersistsAndConfirmsV620 (0.09s)
 === RUN   TestAutopilotLedgerRetryableV620
 --- PASS: TestAutopilotLedgerRetryableV620 (0.00s)
 === RUN   TestPlayerIntelligenceAliasSearchV620
---- PASS: TestPlayerIntelligenceAliasSearchV620 (0.04s)
+--- PASS: TestPlayerIntelligenceAliasSearchV620 (0.03s)
 === RUN   TestPlayerIntelligenceAllianceSearchV620
---- PASS: TestPlayerIntelligenceAllianceSearchV620 (0.04s)
+--- PASS: TestPlayerIntelligenceAllianceSearchV620 (0.03s)
 === RUN   TestPlayerIntelligenceRecruitmentFiltersV620
---- PASS: TestPlayerIntelligenceRecruitmentFiltersV620 (0.11s)
+--- PASS: TestPlayerIntelligenceRecruitmentFiltersV620 (0.03s)
 PASS
-ok  	wfgg-radar-connector/cmd/radar-connector	0.383s
+ok  	wfgg-radar-connector/cmd/radar-connector	0.199s
 RADAR_V620_TEST_ASSERTIONS=PASS
 RADAR_V620_LEDGER_CONFIRMATION=PASS
 RADAR_V620_PLAYER_INTELLIGENCE=PASS
 
 ===== v620-tests.log =====
 === RUN   TestAutopilotFullAfterPartialPersistsAndConfirmsV620
---- PASS: TestAutopilotFullAfterPartialPersistsAndConfirmsV620 (0.19s)
+--- PASS: TestAutopilotFullAfterPartialPersistsAndConfirmsV620 (0.09s)
 === RUN   TestAutopilotLedgerRetryableV620
 --- PASS: TestAutopilotLedgerRetryableV620 (0.00s)
 === RUN   TestPlayerIntelligenceAliasSearchV620
---- PASS: TestPlayerIntelligenceAliasSearchV620 (0.04s)
+--- PASS: TestPlayerIntelligenceAliasSearchV620 (0.03s)
 === RUN   TestPlayerIntelligenceAllianceSearchV620
---- PASS: TestPlayerIntelligenceAllianceSearchV620 (0.04s)
+--- PASS: TestPlayerIntelligenceAllianceSearchV620 (0.03s)
 === RUN   TestPlayerIntelligenceRecruitmentFiltersV620
---- PASS: TestPlayerIntelligenceRecruitmentFiltersV620 (0.11s)
+--- PASS: TestPlayerIntelligenceRecruitmentFiltersV620 (0.03s)
 PASS
-ok  	wfgg-radar-connector/cmd/radar-connector	0.383s
+ok  	wfgg-radar-connector/cmd/radar-connector	0.199s
 
 ===== v61917-tests.log =====
 === RUN   TestAutopilotResolveVerificationV61917
@@ -166,11 +166,11 @@ ok  	wfgg-radar-connector/cmd/radar-connector	0.383s
 === RUN   TestAutopilotAdaptivePartialDoesNotConfirmV61917
 --- PASS: TestAutopilotAdaptivePartialDoesNotConfirmV61917 (0.00s)
 PASS
-ok  	wfgg-radar-connector/cmd/radar-connector	0.004s
+ok  	wfgg-radar-connector/cmd/radar-connector	0.003s
 
 ===== v620-regression.log =====
-ok  	wfgg-radar-connector/cmd/radar-connector	7.926s
+ok  	wfgg-radar-connector/cmd/radar-connector	6.654s
 ok  	wfgg-radar-connector/internal/authsig	0.003s
-ok  	wfgg-radar-connector/internal/protocol	0.042s
+ok  	wfgg-radar-connector/internal/protocol	0.040s
 RADAR_V620_CONNECTOR_SHA256=91b6858713b07a0a1ef0ecd1921f9358d83b2467076a30115ca426e7f05d35e1
 RADAR_V620_CONNECTOR_REGRESSION=PASS
