@@ -136,18 +136,13 @@ func (s *server) collectorSearchStopV61911(w http.ResponseWriter, _ *http.Reques
 \t\twriteJSON(w, http.StatusOK, map[string]any{"ok": true, "alreadyTerminal": true, "job": j})
 \t\treturn
 \t}
-\tupdated := radarCollectorJobs.update(id, func(job *collectorJob) {
-\t\tjob.Phase = "STOPPING"
-\t})
 \tif !radarCollectorJobCancelsV61911.cancel(id) {
-\t\tradarCollectorJobs.update(id, func(job *collectorJob) {
-\t\t\tif job.Phase == "STOPPING" {
-\t\t\t\tjob.Phase = "RUNNING"
-\t\t\t}
-\t\t})
 \t\twriteJSON(w, http.StatusConflict, map[string]any{"error": "COLLECTOR_JOB_NOT_CANCELLABLE"})
 \t\treturn
 \t}
+\tupdated := radarCollectorJobs.update(id, func(job *collectorJob) {
+\t\tjob.Phase = "STOPPING"
+\t})
 \twriteJSON(w, http.StatusAccepted, map[string]any{"ok": true, "stopping": true, "job": updated})
 }
 '''
