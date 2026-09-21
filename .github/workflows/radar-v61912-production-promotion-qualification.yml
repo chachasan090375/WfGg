@@ -12,7 +12,7 @@ permissions:
 
 env:
   APPROVED_SOURCE_REV: 173ebf8ce560876110b0b11530230aac7b330009
-  EXPECTED_CONNECTOR_SHA256: 75b340a2d3474aaf0216080d5853064dd0cff2ec4bda62e13ce82b59e51d105e
+  EXPECTED_CONNECTOR_SHA256: 5e5721c7be5e31f31e0ad927a808160b124a94df218870752360fc32c5e64207
   EXPECTED_NATIVE_SHA256: 274d040f5294cb09422e5d55cc4b5335ac7739924c33dcb67b3f279645814900
   EXPECTED_WORKER_SHA256: 7c557fb6850a188eb354c2ff52680c2ce0c0c6765e9e93dc0436012e1b8abfe2
   EXPECTED_TRANSPORT_SHA256: 074de8c1574781c5974ae4ba34266b76afaaac89d4ef9cd161dba88e6278cc3c
@@ -178,16 +178,17 @@ jobs:
           B=.github/workflows/build-radar-vps-binaries.yml
           D=.github/workflows/deploy-radar-production.yml
           S=radar-vps/sentinel-vps-reconcile.sh
-          grep -Fq 'EXPECTED_CONNECTOR_SHA256: 75b340a2d3474aaf0216080d5853064dd0cff2ec4bda62e13ce82b59e51d105e' "$B"
+          grep -Fq 'EXPECTED_CONNECTOR_SHA256: 5e5721c7be5e31f31e0ad927a808160b124a94df218870752360fc32c5e64207' "$B"
           grep -Fq 'patch-radar-autopilot-continue-partial-v61910.py' "$B"
           grep -Fq 'patch-radar-manual-search-stop-v61911.py' "$B"
           grep -Fq 'patch-radar-autopilot-no-rescan-qualified-v61912.py' "$B"
-          grep -Fq 'EXPECTED_CONNECTOR_SHA256: 75b340a2d3474aaf0216080d5853064dd0cff2ec4bda62e13ce82b59e51d105e' "$D"
+          grep -Fq 'EXPECTED_CONNECTOR_SHA256: 5e5721c7be5e31f31e0ad927a808160b124a94df218870752360fc32c5e64207' "$D"
           grep -Fq 'EXPECTED_WORKER_SHA256: 7c557fb6850a188eb354c2ff52680c2ce0c0c6765e9e93dc0436012e1b8abfe2' "$D"
           grep -Fq 'EXPECTED_UI_SHA256: ce0ed32702c64c165e516d2d86a90dca90b3144d2a08909ab538da4296bf7219' "$D"
           grep -Fq "path='/v1/health'" "$D"
           grep -Fq 'sleep 75' "$D"
-          grep -Fq 'RADAR_V61912_CONNECTOR_SIGNED_SURFACE=READY' "$D"
+          grep -Fq "expected='v6.19.12-no-rescan-qualified-seeds'" "$D"
+          grep -Fq 'RADAR_V61912_CONNECTOR_HEALTH_IDENTITY=READY' "$D"
           grep -Fq 'patch-radar-autopilot-no-rescan-qualified-v61912.py' "$D"
           grep -Fq 'WFGG_RADAR_AUTOPILOT_NO_RESCAN_QUALIFIED_UI_V61912' "$D"
           grep -Fq 'RADAR_V61912_CLOUDFLARE_PRODUCTION=PASS' "$D"
