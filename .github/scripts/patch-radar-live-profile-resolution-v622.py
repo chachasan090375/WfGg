@@ -96,7 +96,7 @@ new_note="$('profileNote').textContent=currentProfileUID?'Donnée Collector affi
 ui=replace_once(ui,old_note,new_note,'V622 profile note')
 
 uid_anchor="currentProfileUID=uid?String(uid):'';"
-uid_replacement="currentProfileUID=uid?String(uid):'';if(currentProfileUID)scheduleResolvedProfileRefreshV622(currentProfileUID);"
+uid_replacement="currentProfileUID=uid?String(uid):'';if(currentProfileUID){scheduleResolvedProfileRefreshV622(currentProfileUID);}"
 ui=replace_once(ui,uid_anchor,uid_replacement,'V622 auto refresh hook')
 
 UI.write_text(ui,encoding='utf-8')
