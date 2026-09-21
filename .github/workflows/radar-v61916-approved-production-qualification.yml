@@ -1,0 +1,190 @@
+name: Radar V6.19.16 approved production promotion qualification
+
+on:
+  push:
+    branches: [radar-v61916-production-approved-67b8]
+  pull_request:
+    branches: [radar-production-v1]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  APPROVED_SOURCE_REV: 67b899ad13360cce1c8b842a99ea06b366aef50f
+  EXPECTED_CONNECTOR_SHA256: 77e1518a9bd9e1ac4329b61f26dea06063ddc0c0e46d391ecf0f024d8be90dfc
+  EXPECTED_NATIVE_SHA256: 274d040f5294cb09422e5d55cc4b5335ac7739924c33dcb67b3f279645814900
+  EXPECTED_WORKER_SHA256: a2294468c72cdf02c807f2fd62cac06ab0e2d26a6299d52cf7527e4680e77d33
+  EXPECTED_TRANSPORT_SHA256: 074de8c1574781c5974ae4ba34266b76afaaac89d4ef9cd161dba88e6278cc3c
+  EXPECTED_UI_SHA256: 707943505432e9d132c1ad23492f82c837fe0e5accaa5c611a4ff2b13faccc84
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: radar-v61916-production-approved-67b8
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.27.x'
+
+      - name: Verify explicit production approval
+        run: |
+          set -euo pipefail
+          A=radar-vps/V61916_PRODUCTION_APPROVAL.txt
+          grep -Fq 'WFGG_RADAR_PRODUCTION_APPROVAL=V6.19.16' "$A"
+          grep -Fq 'APPROVED_SOURCE_REV=67b899ad13360cce1c8b842a99ea06b366aef50f' "$A"
+          grep -Fq 'QUALIFICATION_RESULT=PASS' "$A"
+          grep -Fq 'PILOT_AUTOMATED_RESULT=PASS' "$A"
+          grep -Fq 'SEED_LOCAL_PROTOCOL_SERVER_TARGET=CONTINUE' "$A"
+          grep -Fq 'BLOCKING_AUTH_NETWORK_CONNECTOR_SYSTEM=YES' "$A"
+          grep -Fq 'PRESERVE_EVIDENCE=YES' "$A"
+          grep -Fq 'EXCLUDE_SEED_AFTER_LOCAL_LIMIT=YES' "$A"
+          grep -Fq 'LASTWAR_MODE=READ_ONLY' "$A"
+          grep -Fq 'TOKEN_PERSISTENCE=NO' "$A"
+          grep -Fq 'ROLLBACK_REQUIRED=YES' "$A"
+          grep -Fq 'CLOUDFLARE_DEPLOYMENT=APPROVED' "$A"
+          echo RADAR_V61916_PRODUCTION_APPROVAL=PASS
+
+      - name: Reconstruct cumulative V6.19.16
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/wfgg-radar
+          mkdir -p /tmp/wfgg-radar
+          python3 .github/scripts/reconstruct-radar-release.py
+          echo '234df1dec57f6211bc625855bf13350c9f17fbd843fbe92d8cf1ab7cb5c081ef  /tmp/radar-src.tar.gz' | sha256sum -c -
+          tar -xzf /tmp/radar-src.tar.gz -C /tmp/wfgg-radar
+          rm -rf /tmp/wfgg-radar/connector-go
+          cp -a .radar-release-src/v2-source/connector-go /tmp/wfgg-radar/connector-go
+
+          python3 .github/scripts/patch-radar-target-profile-retry.py
+          python3 .github/scripts/patch-radar-federated-diagnostics-v65.py
+          python3 .github/scripts/patch-player-scan-v3.py
+          python3 .github/scripts/patch-player-scan-v4.py
+          python3 .github/scripts/patch-radar-protocol-discovery-v67.py
+          python3 .github/scripts/patch-radar-profile-isolation-v68.py
+          python3 .github/scripts/patch-radar-native-profile-v69.py
+          python3 .github/scripts/patch-radar-native-profile-handshake-v691.py
+          python3 .github/scripts/patch-radar-native-profile-exec-v692.py
+          python3 .github/scripts/patch-radar-connector-runtime-v693.py
+          python3 .github/scripts/patch-radar-cluster-catalog-budget-v6192.py
+          python3 .github/scripts/patch-radar-seed-scout-v6193.py
+          python3 .github/scripts/patch-radar-autopilot-v6194.py
+          python3 .github/scripts/patch-radar-autopilot-stale-cycle-v6197.py
+          python3 .github/scripts/patch-radar-collector-cycle-terminalization-v6198.py
+          python3 .github/scripts/patch-radar-autopilot-targeted-history-v6199.py
+          python3 .github/scripts/patch-radar-autopilot-continue-partial-v61910.py
+
+          install -m 0644 .radar-release-src/v2-source/src/game/remote-transport.js /tmp/wfgg-radar/src/game/remote-transport.js
+          python3 .github/scripts/patch-radar-async-collector-worker.py
+          python3 .github/scripts/patch-radar-worker-rich-profile-v6191.py
+          python3 .github/scripts/patch-radar-worker-seed-scout-v6193.py
+          python3 .github/scripts/patch-radar-worker-autopilot-v6194.py
+
+          install -m 0644 radar-ui-live/live-radar.html /tmp/wfgg-radar/public/live-radar.html
+          python3 .github/scripts/patch-live-radar-seed-scout-v6193.py
+          python3 .github/scripts/patch-live-radar-autopilot-v6194.py
+          python3 .github/scripts/patch-radar-session-keepalive-v6195.py
+          python3 .github/scripts/patch-live-radar-autopilot-v6196.py
+          python3 .github/scripts/patch-live-radar-autopilot-v6197.py
+          python3 .github/scripts/patch-live-radar-autopilot-v6198.py
+          python3 .github/scripts/patch-live-radar-autopilot-v6199.py
+          python3 .github/scripts/patch-live-radar-autopilot-v61910.py
+
+          python3 .github/scripts/patch-radar-manual-search-stop-v61911.py
+          python3 .github/scripts/patch-radar-autopilot-no-rescan-qualified-v61912.py
+          python3 .github/scripts/patch-live-radar-autopilot-v61912.py
+          python3 .github/scripts/patch-radar-autopilot-persistent-ledger-v61913.py
+          python3 .github/scripts/patch-live-radar-autopilot-v61913.py
+          python3 .github/scripts/patch-radar-autopilot-coverage-completion-v61914.py
+          python3 .github/scripts/patch-live-radar-autopilot-v61914.py
+          python3 .github/scripts/patch-radar-worker-coverage-propagation-v61915.py
+          python3 .github/scripts/patch-radar-autopilot-failure-scope-v61916.py
+
+          echo RADAR_V61916_PRODUCTION_RECONSTRUCT=PASS
+
+      - name: Qualify exact Connector
+        working-directory: /tmp/wfgg-radar/connector-go
+        run: |
+          set -euo pipefail
+          gofmt -w ./cmd ./internal
+          go test ./...
+          go vet ./...
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w' -o /tmp/radar-connector ./cmd/radar-connector
+          actual="$(sha256sum /tmp/radar-connector | awk '{print $1}')"
+          echo "RADAR_V61916_CONNECTOR_SHA256=$actual"
+          test "$actual" = "$EXPECTED_CONNECTOR_SHA256"
+          grep -aFq 'v6.19.16' /tmp/radar-connector
+          grep -aFq 'SEED_LOCAL_FAILURE_LIMIT' /tmp/radar-connector
+          grep -aFq 'SEED_SKIPPED_FAILURE_SCOPE' /tmp/radar-connector
+          grep -aFq 'AUTOPILOT_CONSECUTIVE_FAILURE_LIMIT' /tmp/radar-connector
+          grep -aFq 'COVERAGE_COMPLETE' /tmp/radar-connector
+          grep -aFq 'radar_autopilot_ledger_v61913' /tmp/radar-connector
+          grep -aFq 'SCOUT_SKIPPED_QUALIFIED' /tmp/radar-connector
+          grep -aFq 'MANUAL_SEARCH_STOPPED' /tmp/radar-connector
+          echo RADAR_V61916_CONNECTOR=PASS
+
+      - name: Qualify exact Cloudflare surfaces
+        run: |
+          set -euo pipefail
+          node --check /tmp/wfgg-radar/src/worker.js
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          h=Path('/tmp/wfgg-radar/public/live-radar.html').read_text(encoding='utf-8')
+          m=re.search(r'<script>(.*)</script>',h,re.S); assert m
+          Path('/tmp/v61916-ui.js').write_text(m.group(1),encoding='utf-8')
+          PY
+          node --check /tmp/v61916-ui.js
+          worker="$(sha256sum /tmp/wfgg-radar/src/worker.js | awk '{print $1}')"
+          transport="$(sha256sum /tmp/wfgg-radar/src/game/remote-transport.js | awk '{print $1}')"
+          ui="$(sha256sum /tmp/wfgg-radar/public/live-radar.html | awk '{print $1}')"
+          test "$worker" = "$EXPECTED_WORKER_SHA256"
+          test "$transport" = "$EXPECTED_TRANSPORT_SHA256"
+          test "$ui" = "$EXPECTED_UI_SHA256"
+          grep -Fq 'WFGG_RADAR_AUTOPILOT_FAILURE_SCOPE_CONTINUE_UI_V61916' /tmp/wfgg-radar/public/live-radar.html
+          grep -Fq 'AUTOPILOT V6.19.16 · ARRÊTÉ' /tmp/wfgg-radar/public/live-radar.html
+          grep -Fq 'SEED_SKIPPED_FAILURE_SCOPE' /tmp/wfgg-radar/public/live-radar.html
+          grep -Fq 'WFGG_RADAR_AUTOPILOT_RADAR_ANIMATION_V61915' /tmp/wfgg-radar/public/live-radar.html
+          grep -Fq 'WFGG_RADAR_AUTOPILOT_PERSISTENT_LEDGER_UI_V61913' /tmp/wfgg-radar/public/live-radar.html
+          grep -Fq 'WFGG_RADAR_MANUAL_SEARCH_STOP_UI_V61911' /tmp/wfgg-radar/public/live-radar.html
+          echo RADAR_V61916_CLOUDFLARE_SURFACES=PASS
+
+      - name: Verify failure scope and safety invariants
+        run: |
+          set -euo pipefail
+          P=.github/scripts/patch-radar-autopilot-failure-scope-v61916.py
+          grep -Fq 'autopilotFailureScopeV61916' "$P"
+          grep -Fq 'autopilotSkipCurrentSeedFailureScopeV61916' "$P"
+          grep -Fq '"AUTH", "NETWORK", "CONNECTOR", "SYSTEM"' "$P"
+          grep -Fq '"PROTOCOL"' "$P"
+          grep -Fq '"SERVER_TARGET"' "$P"
+          ! grep -Fq 'ScanPlayerRegionDiagnosticOnServer' "$P"
+          ! grep -Fq 'runCollectorSearch' "$P"
+          ! grep -REiq 'localStorage.*token|sessionStorage.*token|INSERT.*token|token.*INSERT|access_token' "$P"
+          ! grep -REiq 'building\.production\.collect|mail\.reward|al\.science\.donate|visitor\.operate|march|attack|purchase' "$P"
+          echo RADAR_V61916_LASTWAR_MODE=READ_ONLY
+          echo RADAR_V61916_TOKEN_PERSISTENCE=NO
+          echo RADAR_V61916_FAILURE_SCOPE=QUALIFIED
+
+      - name: Verify production workflows and rollback
+        run: |
+          set -euo pipefail
+          B=.github/workflows/build-radar-vps-binaries.yml
+          D=.github/workflows/deploy-radar-production.yml
+          S=radar-vps/sentinel-vps-reconcile.sh
+          grep -Fq 'EXPECTED_CONNECTOR_SHA256: 77e1518a9bd9e1ac4329b61f26dea06063ddc0c0e46d391ecf0f024d8be90dfc' "$B"
+          grep -Fq 'patch-radar-autopilot-failure-scope-v61916.py' "$B"
+          grep -Fq 'EXPECTED_CONNECTOR_SHA256: 77e1518a9bd9e1ac4329b61f26dea06063ddc0c0e46d391ecf0f024d8be90dfc' "$D"
+          grep -Fq 'EXPECTED_UI_SHA256: 707943505432e9d132c1ad23492f82c837fe0e5accaa5c611a4ff2b13faccc84' "$D"
+          grep -Fq 'WFGG_RADAR_AUTOPILOT_FAILURE_SCOPE_CONTINUE_UI_V61916' "$D"
+          grep -Fq 'RADAR_V61916_CONNECTOR_SIGNED_SURFACE=READY' "$D"
+          grep -Fq 'RADAR_V61916_CLOUDFLARE_PRODUCTION=PASS' "$D"
+          grep -Fq 'SENTINEL_VPS=ROLLBACK' "$S"
+          grep -Fq 'sentinel-backups' "$S"
+          echo RADAR_V61916_ROLLBACK=AVAILABLE
+          echo RADAR_V61916_PRODUCTION_WORKFLOWS=QUALIFIED
