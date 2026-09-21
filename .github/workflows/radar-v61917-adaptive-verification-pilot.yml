@@ -113,9 +113,9 @@ jobs:
           grep -Fq 'fullCyclesPerCluster:1,adaptiveVerification:true,coverageMode:true' "$U"
           grep -Fq 'const adaptiveVerification = body.adaptiveVerification === true;' "$W"
           grep -Fq 'adaptiveVerification,' "$W"
-          grep -Fq 'AdaptiveVerification     bool' "$A"
+          grep -Eq 'AdaptiveVerification[[:space:]]+bool' "$A"
           grep -Fq 'autopilotResolveVerificationV61917' "$A"
-          grep -Fq 'AdaptiveVerification:    input.AdaptiveVerification' "$A"
+          grep -Eq 'AdaptiveVerification:[[:space:]]+input.AdaptiveVerification' "$A"
           echo RADAR_V61917_UI_WORKER_CONNECTOR_CONTRACT=PASS
 
       - name: Full regression and digests
