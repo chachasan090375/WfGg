@@ -145,7 +145,7 @@ jobs:
           test "$worker" = "$EXPECTED_WORKER_SHA256"
           test "$transport" = "$EXPECTED_TRANSPORT_SHA256"
           test "$ui" = "$EXPECTED_UI_SHA256"
-          grep -Fq 'WFGG_RADAR_AUTOPILOT_COVERAGE_COMPLETION_UI_V61915' /tmp/wfgg-radar/public/live-radar.html
+          grep -Fq 'WFGG_RADAR_AUTOPILOT_COVERAGE_COMPLETION_UI_V61914' /tmp/wfgg-radar/public/live-radar.html
           grep -Fq 'AUTOPILOT V6.19.15 · ARRÊTÉ' /tmp/wfgg-radar/public/live-radar.html
           grep -Fq 'coverageMode:true' /tmp/wfgg-radar/public/live-radar.html
           grep -Fq 'COUVERTURE TERMINÉE' /tmp/wfgg-radar/public/live-radar.html
@@ -158,9 +158,11 @@ jobs:
         run: |
           set -euo pipefail
           P=.github/scripts/patch-radar-worker-coverage-propagation-v61915.py
-          grep -Fq 'autopilotContinueCoverageWindowV61915' "$P"
-          grep -Fq 'autopilotCompleteCoverageV61915' "$P"
-          grep -Fq 'SEED_SCOUT_FRONTIER_EXHAUSTED' "$P"
+          grep -Fq 'normalizeAutopilotStartOptionsV61915' "$P"
+          grep -Fq 'renderAutopilotRadarVisualV61915' "$P"
+          grep -Fq 'const coverageMode = body.coverageMode === true;' "$P"
+          grep -Fq "screen.classList.add('scanning')" "$P"
+          grep -Fq "screen.classList.add('found')" "$P"
           ! grep -Fq 'ScanPlayerRegionDiagnosticOnServer' "$P"
           ! grep -Fq 'runCollectorSearch' "$P"
           ! grep -REiq 'localStorage.*token|sessionStorage.*token|INSERT.*token|token.*INSERT|access_token' "$P"
@@ -181,7 +183,7 @@ jobs:
           grep -Fq 'patch-radar-worker-coverage-propagation-v61915.py' "$B"
           grep -Fq 'EXPECTED_CONNECTOR_SHA256: 64c7ce844df5772e8a7a7d0812449186c10d16239969797a85ec4adb022f73e8' "$D"
           grep -Fq 'EXPECTED_UI_SHA256: e3d89a692d98c39bf180288cbcf4c0913bdd82d35376895bf78cc323551c4999' "$D"
-          grep -Fq 'WFGG_RADAR_AUTOPILOT_COVERAGE_COMPLETION_UI_V61915' "$D"
+          grep -Fq 'WFGG_RADAR_AUTOPILOT_COVERAGE_COMPLETION_UI_V61914' "$D"
           grep -Fq 'RADAR_V61915_CONNECTOR_SIGNED_SURFACE=READY' "$D"
           grep -Fq 'RADAR_V61915_CLOUDFLARE_PRODUCTION=PASS' "$D"
           grep -Fq 'SENTINEL_VPS=ROLLBACK' "$S"
