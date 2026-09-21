@@ -22,11 +22,11 @@ env:
   RADAR_WORKER: wfgg-radar
   RADAR_D1_NAME: wfgg-radar
   RADAR_CONNECTOR_URL: https://chachavps.tail3ab05a.ts.net
-  EXPECTED_CONNECTOR_SHA256: 5058159307ccb99e8e631fe71014608934b8575e69d5599e4388550306baab7f
+  EXPECTED_CONNECTOR_SHA256: 4d66709f10d3a6b27ac255a1dfdc62e51d2817652634409ffe2edc071762c69f
   EXPECTED_NATIVE_SHA256: 274d040f5294cb09422e5d55cc4b5335ac7739924c33dcb67b3f279645814900
-  EXPECTED_WORKER_SHA256: 052deb78c56aa6eb522f8808ffe0cc427c9d605d65a0e6983b6dbb9749da56ea
-  EXPECTED_TRANSPORT_SHA256: 9dc489b759c75cc0a4882d29324965ca8171de84febae788ced52404b28ee573
-  EXPECTED_UI_SHA256: 4db99e9384ecc832ecfd2ae30a3afe9aa7dfba9aaa28b9405caed9fc3a50ba71
+  EXPECTED_WORKER_SHA256: 7c557fb6850a188eb354c2ff52680c2ce0c0c6765e9e93dc0436012e1b8abfe2
+  EXPECTED_TRANSPORT_SHA256: 074de8c1574781c5974ae4ba34266b76afaaac89d4ef9cd161dba88e6278cc3c
+  EXPECTED_UI_SHA256: 6e6827e660597549bdc8c4c06e06a644a16215aacabdd20a56993a15f651c060
 
 jobs:
   deploy:
@@ -46,7 +46,7 @@ jobs:
           echo CLOUDFLARE_API_TOKEN=OK
           echo RADAR_CONNECTOR_SHARED_KEY=OK
 
-      - name: Reconstruct cumulative V6.19.9
+      - name: Reconstruct cumulative V6.19.11
         run: |
           set -euo pipefail
           rm -rf /tmp/wfgg-radar
@@ -73,6 +73,7 @@ jobs:
           python3 .github/scripts/patch-radar-autopilot-stale-cycle-v6197.py
           python3 .github/scripts/patch-radar-collector-cycle-terminalization-v6198.py
           python3 .github/scripts/patch-radar-autopilot-targeted-history-v6199.py
+          python3 .github/scripts/patch-radar-autopilot-continue-partial-v61910.py
 
           install -m 0644 .radar-release-src/v2-source/src/game/remote-transport.js /tmp/wfgg-radar/src/game/remote-transport.js
           python3 .github/scripts/patch-radar-async-collector-worker.py
@@ -88,7 +89,9 @@ jobs:
           python3 .github/scripts/patch-live-radar-autopilot-v6197.py
           python3 .github/scripts/patch-live-radar-autopilot-v6198.py
           python3 .github/scripts/patch-live-radar-autopilot-v6199.py
-          echo RADAR_V6199_PRODUCTION_RECONSTRUCT=PASS
+          python3 .github/scripts/patch-live-radar-autopilot-v61910.py
+          python3 .github/scripts/patch-radar-manual-search-stop-v61911.py
+          echo RADAR_V61911_PRODUCTION_RECONSTRUCT=PASS
 
       - name: Verify qualified Cloudflare surface digests
         run: |
@@ -117,8 +120,12 @@ jobs:
           grep -Fq 'WFGG_RADAR_AUTOPILOT_STALE_CYCLE_RECOVERY_UI_V6197' /tmp/wfgg-radar/public/live-radar.html
           grep -Fq 'WFGG_RADAR_COLLECTOR_CYCLE_TERMINALIZATION_UI_V6198' /tmp/wfgg-radar/public/live-radar.html
           grep -Fq 'WFGG_RADAR_AUTOPILOT_TARGETED_HISTORY_QUALITY_UI_V6199' /tmp/wfgg-radar/public/live-radar.html
-          grep -Fq 'AUTOPILOT V6.19.9 · ARRÊTÉ' /tmp/wfgg-radar/public/live-radar.html
-          echo RADAR_V6199_CLOUDFLARE_DIGESTS=PASS
+          grep -Fq 'AUTOPILOT V6.19.10 · ARRÊTÉ' /tmp/wfgg-radar/public/live-radar.html
+          grep -Fq 'WFGG_RADAR_AUTOPILOT_CONTINUE_PARTIAL_LIMIT_UI_V61910' /tmp/wfgg-radar/public/live-radar.html
+          grep -Fq 'WFGG_RADAR_MANUAL_SEARCH_STOP_UI_V61911' /tmp/wfgg-radar/public/live-radar.html
+          grep -Fq '/api/radar/search/stop' /tmp/wfgg-radar/src/worker.js
+          grep -Fq 'WFGG_RADAR_MANUAL_SEARCH_STOP_TRANSPORT_V61911' /tmp/wfgg-radar/src/game/remote-transport.js
+          echo RADAR_V61911_CLOUDFLARE_DIGESTS=PASS
 
       - name: Guardian pre-deploy gate
         working-directory: /tmp/wfgg-radar
@@ -131,9 +138,9 @@ jobs:
           go vet ./...
           cd ..
           ! grep -REq 'building\.production\.collect|mail\.reward|al\.science\.donate|visitor\.operate' connector-go src || false
-          echo RADAR_V6199_GUARDIAN=PASS
+          echo RADAR_V61911_GUARDIAN=PASS
 
-      - name: Wait for Sentinel-promoted V6.19.9 connector
+      - name: Wait for Sentinel-promoted V6.19.11 connector
         env:
           RADAR_CONNECTOR_SHARED_KEY: ${{ secrets.RADAR_CONNECTOR_SHARED_KEY }}
         run: |
@@ -142,8 +149,8 @@ jobs:
           import hashlib,hmac,json,os,secrets,time,urllib.request,urllib.error
           base=os.environ['RADAR_CONNECTOR_URL'].rstrip('/')
           secret=os.environ['RADAR_CONNECTOR_SHARED_KEY']
-          path='/v1/collector/autopilot/start'
-          body=b'{}'
+          path='/v1/collector/search/stop'
+          body=b'{"id":""}'
           for attempt in range(1,91):
               ts=str(int(time.time()))
               nonce=secrets.token_hex(16)
@@ -163,14 +170,13 @@ jobs:
                   status=e.code
                   try: data=json.loads(e.read().decode())
                   except Exception: data={}
-              print(f'RADAR_V6199_CONNECTOR_WAIT={attempt} HTTP={status} ERROR={data.get("error")}')
-              if status==400 and data.get('error')=='GAME_TOKEN_REQUIRED':
-                  print('RADAR_V6199_CONNECTOR_ROUTE=READY')
+              print(f'RADAR_V61911_CONNECTOR_WAIT={attempt} HTTP={status} ERROR={data.get("error")}')
+              if status==400 and data.get('error')=='COLLECTOR_JOB_ID_REQUIRED':
+                  print('RADAR_V61911_CONNECTOR_STOP_ROUTE=READY')
                   raise SystemExit(0)
               time.sleep(5)
-          raise SystemExit('RADAR_V6199_CONNECTOR_ROUTE_TIMEOUT')
+          raise SystemExit('RADAR_V61911_CONNECTOR_ROUTE_TIMEOUT')
           PY
-
       - name: Resolve Cloudflare deployment context
         id: cf
         env:
@@ -326,7 +332,11 @@ jobs:
           grep -Fq 'WFGG_RADAR_AUTOPILOT_STALE_CYCLE_RECOVERY_UI_V6197' /tmp/live-radar.html
           grep -Fq 'WFGG_RADAR_COLLECTOR_CYCLE_TERMINALIZATION_UI_V6198' /tmp/live-radar.html
           grep -Fq 'WFGG_RADAR_AUTOPILOT_TARGETED_HISTORY_QUALITY_UI_V6199' /tmp/live-radar.html
-          grep -Fq 'AUTOPILOT V6.19.9 · ARRÊTÉ' /tmp/live-radar.html
+          grep -Fq 'AUTOPILOT V6.19.10 · ARRÊTÉ' /tmp/live-radar.html
+          grep -Fq 'WFGG_RADAR_AUTOPILOT_CONTINUE_PARTIAL_LIMIT_UI_V61910' /tmp/live-radar.html
+          grep -Fq 'WFGG_RADAR_MANUAL_SEARCH_STOP_UI_V61911' /tmp/live-radar.html
+          grep -Fq "go.textContent=manualSearchRunning?(manualSearchStopping?'ARRÊT…':'STOP'):'RECHERCHER'" /tmp/live-radar.html
+          grep -Fq 'requestManualSearchStop' /tmp/live-radar.html
           echo "RADAR_PRODUCTION_URL=$RADAR_URL"
           echo "RADAR_LIVE_UI_URL=$RADAR_URL/live-radar.html"
-          echo RADAR_V6199_CLOUDFLARE_PRODUCTION=PASS
+          echo RADAR_V61911_CLOUDFLARE_PRODUCTION=PASS
