@@ -1,0 +1,168 @@
+name: Radar V6.19.15 Worker coverage propagation qualification
+
+on:
+  push:
+    branches: [radar-v61915-worker-coverage-propagation]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: radar-v61915-worker-coverage-propagation
+          fetch-depth: 0
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.27.x'
+
+      - name: Reconstruct cumulative V6.19.15 candidate
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/wfgg-radar
+          mkdir -p /tmp/wfgg-radar
+          python3 .github/scripts/reconstruct-radar-release.py
+          echo '234df1dec57f6211bc625855bf13350c9f17fbd843fbe92d8cf1ab7cb5c081ef  /tmp/radar-src.tar.gz' | sha256sum -c -
+          tar -xzf /tmp/radar-src.tar.gz -C /tmp/wfgg-radar
+          rm -rf /tmp/wfgg-radar/connector-go
+          cp -a .radar-release-src/v2-source/connector-go /tmp/wfgg-radar/connector-go
+          python3 .github/scripts/patch-radar-target-profile-retry.py
+          python3 .github/scripts/patch-radar-federated-diagnostics-v65.py
+          python3 .github/scripts/patch-player-scan-v3.py
+          python3 .github/scripts/patch-player-scan-v4.py
+          python3 .github/scripts/patch-radar-protocol-discovery-v67.py
+          python3 .github/scripts/patch-radar-profile-isolation-v68.py
+          python3 .github/scripts/patch-radar-native-profile-v69.py
+          python3 .github/scripts/patch-radar-native-profile-handshake-v691.py
+          python3 .github/scripts/patch-radar-native-profile-exec-v692.py
+          python3 .github/scripts/patch-radar-connector-runtime-v693.py
+          python3 .github/scripts/patch-radar-cluster-catalog-budget-v6192.py
+          python3 .github/scripts/patch-radar-seed-scout-v6193.py
+          python3 .github/scripts/patch-radar-autopilot-v6194.py
+          python3 .github/scripts/patch-radar-autopilot-stale-cycle-v6197.py
+          python3 .github/scripts/patch-radar-collector-cycle-terminalization-v6198.py
+          python3 .github/scripts/patch-radar-autopilot-targeted-history-v6199.py
+          python3 .github/scripts/patch-radar-autopilot-continue-partial-v61910.py
+          install -m 0644 .radar-release-src/v2-source/src/game/remote-transport.js /tmp/wfgg-radar/src/game/remote-transport.js
+          python3 .github/scripts/patch-radar-async-collector-worker.py
+          python3 .github/scripts/patch-radar-worker-rich-profile-v6191.py
+          python3 .github/scripts/patch-radar-worker-seed-scout-v6193.py
+          python3 .github/scripts/patch-radar-worker-autopilot-v6194.py
+          install -m 0644 radar-ui-live/live-radar.html /tmp/wfgg-radar/public/live-radar.html
+          python3 .github/scripts/patch-live-radar-seed-scout-v6193.py
+          python3 .github/scripts/patch-live-radar-autopilot-v6194.py
+          python3 .github/scripts/patch-radar-session-keepalive-v6195.py
+          python3 .github/scripts/patch-live-radar-autopilot-v6196.py
+          python3 .github/scripts/patch-live-radar-autopilot-v6197.py
+          python3 .github/scripts/patch-live-radar-autopilot-v6198.py
+          python3 .github/scripts/patch-live-radar-autopilot-v6199.py
+          python3 .github/scripts/patch-live-radar-autopilot-v61910.py
+          python3 .github/scripts/patch-radar-manual-search-stop-v61911.py
+          python3 .github/scripts/patch-radar-autopilot-no-rescan-qualified-v61912.py
+          python3 .github/scripts/patch-live-radar-autopilot-v61912.py
+          python3 .github/scripts/patch-radar-autopilot-persistent-ledger-v61913.py
+          python3 .github/scripts/patch-live-radar-autopilot-v61913.py
+          python3 .github/scripts/patch-radar-autopilot-coverage-completion-v61914.py
+          python3 .github/scripts/patch-live-radar-autopilot-v61914.py
+          python3 .github/scripts/patch-radar-worker-coverage-propagation-v61915.py
+          echo RADAR_V61915_RECONSTRUCT=PASS
+
+      - name: Test exact Worker coverage normalization
+        run: |
+          set -euo pipefail
+          node - <<'JS'
+          const fs=require('fs'),assert=require('assert');
+          const src=fs.readFileSync('/tmp/wfgg-radar/src/worker.js','utf8');
+          const m=src.match(/function normalizeAutopilotStartOptionsV61915\(body = \{\}\) \{[\s\S]*?\n\}/);
+          if(!m) throw new Error('V61915_NORMALIZER_MISSING');
+          eval(m[0]);
+          const coverage=normalizeAutopilotStartOptionsV61915({initialSeed:' 8120 ',fullCyclesPerCluster:3,coverageMode:true,maxClusters:5});
+          assert.strictEqual(coverage.initialSeed,'8120');
+          assert.strictEqual(coverage.coverageMode,true);
+          assert.strictEqual(coverage.maxClusters,0);
+          const bounded=normalizeAutopilotStartOptionsV61915({fullCyclesPerCluster:3,maxClusters:5});
+          assert.strictEqual(bounded.coverageMode,false);
+          assert.strictEqual(bounded.maxClusters,5);
+          let rejected=false;
+          try{normalizeAutopilotStartOptionsV61915({coverageMode:false,maxClusters:0})}catch(e){rejected=e.message==='AUTOPILOT_MAX_CLUSTERS_INVALID'}
+          assert.strictEqual(rejected,true);
+          console.log('RADAR_V61915_WORKER_NORMALIZATION=PASS');
+          JS
+          W=/tmp/wfgg-radar/src/worker.js
+          grep -Fq 'coverageMode,' "$W"
+          grep -Fq 'maxClusters,' "$W"
+          node --check "$W"
+          echo "RADAR_V61915_WORKER_SHA256=$(sha256sum "$W" | awk '{print $1}')"
+
+      - name: Test Autopilot radar animation parity
+        run: |
+          set -euo pipefail
+          node - <<'JS'
+          const fs=require('fs'),assert=require('assert');
+          const html=fs.readFileSync('/tmp/wfgg-radar/public/live-radar.html','utf8');
+          const m=html.match(/function renderAutopilotRadarVisualV61915\(payload\)\{[\s\S]*?\n\}/);
+          if(!m) throw new Error('V61915_VISUAL_HELPER_MISSING');
+          const classes=new Set();
+          global.screen={classList:{add:(x)=>classes.add(x),remove:(x)=>classes.delete(x)}};
+          global.manualSearchRunning=false;
+          eval(m[0]);
+          renderAutopilotRadarVisualV61915({job:{status:'RUNNING',phase:'COLLECTING'}});
+          assert(classes.has('scanning'));
+          assert(!classes.has('found'));
+          renderAutopilotRadarVisualV61915({job:{status:'SUCCESS',phase:'COVERAGE_COMPLETE'}});
+          assert(!classes.has('scanning'));
+          assert(classes.has('found'));
+          renderAutopilotRadarVisualV61915({job:{status:'FAILED',phase:'SCOUT_FAILED'}});
+          assert(!classes.has('scanning'));
+          assert(!classes.has('found'));
+          console.log('RADAR_V61915_AUTOPILOT_RADAR_ANIMATION=PASS');
+          JS
+          U=/tmp/wfgg-radar/public/live-radar.html
+          grep -Fq 'WFGG_RADAR_AUTOPILOT_RADAR_ANIMATION_V61915' "$U"
+          grep -Fq "screen.classList.add('scanning')" "$U"
+          grep -Fq "screen.classList.add('found')" "$U"
+          grep -Fq 'AUTOPILOT V6.19.15 · ARRÊTÉ' "$U"
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          h=Path('/tmp/wfgg-radar/public/live-radar.html').read_text(encoding='utf-8')
+          m=re.search(r'<script>(.*)</script>',h,re.S)
+          assert m
+          Path('/tmp/v61915-ui.js').write_text(m.group(1),encoding='utf-8')
+          PY
+          node --check /tmp/v61915-ui.js
+          echo "RADAR_V61915_UI_SHA256=$(sha256sum "$U" | awk '{print $1}')"
+
+      - name: Connector regression and safety
+        working-directory: /tmp/wfgg-radar/connector-go
+        run: |
+          set -euo pipefail
+          gofmt -w ./cmd ./internal
+          go test ./...
+          go vet ./...
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w' -o /tmp/radar-connector ./cmd/radar-connector
+          grep -aFq 'v6.19.15' /tmp/radar-connector
+          grep -aFq 'COVERAGE_COMPLETE' /tmp/radar-connector
+          grep -aFq 'radar_autopilot_ledger_v61913' /tmp/radar-connector
+          grep -aFq 'SCOUT_SKIPPED_QUALIFIED' /tmp/radar-connector
+          grep -aFq 'MANUAL_SEARCH_STOPPED' /tmp/radar-connector
+          echo "RADAR_V61915_CONNECTOR_SHA256=$(sha256sum /tmp/radar-connector | awk '{print $1}')"
+          echo RADAR_V61915_CONNECTOR_REGRESSION=PASS
+
+      - name: Verify no new game mutation or token persistence
+        run: |
+          set -euo pipefail
+          P=.github/scripts/patch-radar-worker-coverage-propagation-v61915.py
+          ! grep -Fq 'ScanPlayerRegionDiagnosticOnServer' "$P"
+          ! grep -Fq 'runCollectorSearch' "$P"
+          ! grep -REiq 'localStorage.*token|sessionStorage.*token|INSERT.*token|token.*INSERT|access_token' "$P"
+          ! grep -REiq 'building\.production\.collect|mail\.reward|al\.science\.donate|visitor\.operate|march|attack|purchase' "$P"
+          echo RADAR_V61915_LASTWAR_MODE=READ_ONLY
+          echo RADAR_V61915_TOKEN_PERSISTENCE=NO
+          echo RADAR_V61915_PRODUCTION_DEPLOYMENT=NO
+          echo RADAR_V61915_QUALIFICATION=PASS
