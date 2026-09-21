@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   qualify:
@@ -294,3 +294,26 @@ jobs:
           echo RADAR_V61917_TOKEN_PERSISTENCE=NO
           echo RADAR_V61917_PRODUCTION_DEPLOYMENT=NO
           echo RADAR_V61917_QUALIFICATION=PASS
+
+      - name: Record V6.20 qualification receipt
+        if: always()
+        env:
+          QUAL_RESULT: ${{ job.status }}
+        run: |
+          set -euo pipefail
+          mkdir -p radar-vps
+          {
+            echo "WFGG_RADAR_QUALIFICATION=V6.20"
+            echo "RESULT=$QUAL_RESULT"
+            echo "SOURCE_REV=$(git rev-parse HEAD)"
+            echo "LASTWAR_MODE=READ_ONLY"
+            echo "TOKEN_PERSISTENCE=NO"
+            echo "PRODUCTION_DEPLOYMENT=NO"
+          } > radar-vps/V620_QUALIFICATION_RECEIPT.txt
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add radar-vps/V620_QUALIFICATION_RECEIPT.txt
+          if ! git diff --cached --quiet; then
+            git commit -m "ci(radar): record V6.20 qualification $QUAL_RESULT [skip ci]"
+            git push origin HEAD:radar-v620-player-intelligence-ledger-resilience
+          fi
