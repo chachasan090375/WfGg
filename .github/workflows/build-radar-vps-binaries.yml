@@ -1,4 +1,4 @@
-# V6.21 production trigger — approved candidate a6dbce9bbb47030fe79ed1e4285b53a33a8fc159
+# V6.22 production trigger — approved candidate 5ac4161fa544f90f510ac4951e62a4d5da757b3a
 name: Build Radar VPS production binaries
 
 on:
@@ -46,6 +46,7 @@ on:
       - '.github/scripts/patch-radar-player-intelligence-ui-worker-v620.py'
       - '.github/scripts/patch-radar-recruitment-filter-normalization-v621.py'
       - '.github/scripts/patch-radar-recruitment-ux-ui-worker-v621.py'
+      - '.github/scripts/patch-radar-live-profile-resolution-v622.py'
   workflow_dispatch:
 
 permissions:
@@ -75,7 +76,7 @@ jobs:
         with:
           go-version: '1.27.x'
 
-      - name: Reconstruct cumulative V6.21
+      - name: Reconstruct cumulative V6.22
         run: |
           set -euo pipefail
           rm -rf /tmp/wfgg-radar /tmp/lastwar-client
@@ -96,6 +97,7 @@ jobs:
           python3 .github/scripts/patch-radar-native-profile-handshake-v691.py
           python3 .github/scripts/patch-radar-native-profile-exec-v692.py
           python3 .github/scripts/patch-radar-connector-runtime-v693.py
+          python3 .github/scripts/patch-radar-profile-refresh-v6191.py
           python3 .github/scripts/patch-radar-cluster-catalog-budget-v6192.py
           python3 .github/scripts/patch-radar-seed-scout-v6193.py
           python3 .github/scripts/patch-radar-autopilot-v6194.py
@@ -138,6 +140,7 @@ jobs:
           python3 .github/scripts/patch-radar-player-intelligence-ui-worker-v620.py
           python3 .github/scripts/patch-radar-recruitment-filter-normalization-v621.py
           python3 .github/scripts/patch-radar-recruitment-ux-ui-worker-v621.py
+          python3 .github/scripts/patch-radar-live-profile-resolution-v622.py
 
           grep -Fq 'WFGG_RADAR_CLUSTER_CATALOG_BUDGET_V6192' /tmp/wfgg-radar/connector-go/cmd/radar-connector/server_cluster_catalog_v613.go
           grep -Fq 'WFGG_RADAR_SEED_SCOUT_V6193' /tmp/wfgg-radar/connector-go/cmd/radar-connector/server_seed_scout_v6193.go
@@ -172,7 +175,12 @@ jobs:
           grep -Fq 'WFGG_RADAR_RECRUITMENT_UX_UI_V621' /tmp/wfgg-radar/public/live-radar.html
           grep -Fq 'PAYS PROPOSÉS PAR LAST WAR' /tmp/wfgg-radar/public/live-radar.html
           grep -Fq 'RECRUTEMENT FR' /tmp/wfgg-radar/public/live-radar.html
-          echo RADAR_V621_PRODUCTION_RECONSTRUCT=PASS
+          grep -Fq 'WFGG_RADAR_PROFILE_ONLY_JOB_V6191' /tmp/wfgg-radar/connector-go/cmd/radar-connector/collector_jobs.go
+          grep -Fq 'WFGG_RADAR_TARGET_PROFILE_REFRESH_ROUTE_V6191' /tmp/wfgg-radar/connector-go/cmd/radar-connector/main.go
+          grep -Fq 'WFGG_RADAR_LIVE_PROFILE_RESOLUTION_UI_V622' /tmp/wfgg-radar/public/live-radar.html
+          grep -Fq 'scheduleResolvedProfileRefreshV622' /tmp/wfgg-radar/public/live-radar.html
+          grep -Fq 'get.user.info.multi · LIVE' /tmp/wfgg-radar/public/live-radar.html
+          echo RADAR_V622_PRODUCTION_RECONSTRUCT=PASS
 
       - name: Test and build connector
         working-directory: /tmp/wfgg-radar/connector-go
@@ -185,7 +193,7 @@ jobs:
           CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w' -o "$GITHUB_WORKSPACE/radar-vps/release/radar-connector" ./cmd/radar-connector
           actual="$(sha256sum "$GITHUB_WORKSPACE/radar-vps/release/radar-connector" | awk '{print $1}')"
           test "$actual" = "$EXPECTED_CONNECTOR_SHA256"
-          echo "RADAR_V621_CONNECTOR_SHA256=$actual"
+          echo "RADAR_V622_CONNECTOR_SHA256=$actual"
 
       - name: Build qualified native helper
         run: |
@@ -230,6 +238,8 @@ jobs:
           grep -aFq 'v6.21.0' radar-vps/release/radar-connector
           grep -aFq '/v1/collector/intelligence/search-v621' radar-vps/release/radar-connector
           grep -aFq 'lastwar-observed-values' radar-vps/release/radar-connector
+          grep -aFq '/v1/collector/profile/refresh' radar-vps/release/radar-connector
+          grep -aFq 'get.user.info.multi' radar-vps/release/radar-connector
           grep -aFq 'COVERAGE_COMPLETE' radar-vps/release/radar-connector
           grep -aFq 'COVERAGE_FRONTIER_CONTINUE' radar-vps/release/radar-connector
           grep -aFq 'SEED_LOCAL_FAILURE_LIMIT' radar-vps/release/radar-connector
@@ -247,11 +257,11 @@ jobs:
           grep -aFq 'STALE_RUNNING_CYCLE_RECOVERED_V6197' radar-vps/release/radar-connector
           grep -aFq 'COLLECTOR_CYCLE_TERMINALIZATION_FAILED' radar-vps/release/radar-connector
           grep -aFq 'AUTOPILOT_TARGET_HISTORY_TIMEOUT_V6199' radar-vps/release/radar-connector
-          echo RADAR_V621_GAME_MUTATION=NO
-          echo RADAR_V621_LASTWAR_MUTATION=NO
-          echo RADAR_V621_AUTOPILOT_COLLECTOR_MUTATION=YES
-          echo RADAR_V621_TOKEN_PERSISTENCE=NO
-          echo RADAR_V621_PRODUCTION_RELEASE=QUALIFIED
+          echo RADAR_V622_GAME_MUTATION=NO
+          echo RADAR_V622_LASTWAR_MUTATION=NO
+          echo RADAR_V622_AUTOPILOT_COLLECTOR_MUTATION=YES
+          echo RADAR_V622_TOKEN_PERSISTENCE=NO
+          echo RADAR_V622_PRODUCTION_RELEASE=QUALIFIED
 
       - name: Commit production release binaries
         run: |
@@ -260,18 +270,18 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add radar-vps/release/radar-connector radar-vps/release/radar-native-template radar-vps/release/SHA256SUMS
           if git diff --cached --quiet; then
-            echo RADAR_V621_RELEASE_BINARIES=UNCHANGED
+            echo RADAR_V622_RELEASE_BINARIES=UNCHANGED
             GH_TOKEN="${{ github.token }}" gh workflow run deploy-radar-production.yml --ref radar-production-v1
-            echo RADAR_V621_CLOUDFLARE_DISPATCH=TRIGGERED
+            echo RADAR_V622_CLOUDFLARE_DISPATCH=TRIGGERED
             exit 0
           fi
-          git commit -m 'build(radar): publish V6.21 Recruitment UX and Filter Normalization production binaries'
+          git commit -m 'build(radar): publish V6.22 Live Profile Resolution production binaries'
           # Discard only ephemeral runner worktree changes; the release artifacts are already committed.
           git reset --hard HEAD
           git clean -fd
           git fetch origin radar-production-v1
           git rebase origin/radar-production-v1
           git push origin HEAD:radar-production-v1
-          echo RADAR_V621_RELEASE_BINARIES=PUBLISHED
+          echo RADAR_V622_RELEASE_BINARIES=PUBLISHED
           GH_TOKEN="${{ github.token }}" gh workflow run deploy-radar-production.yml --ref radar-production-v1
-          echo RADAR_V621_CLOUDFLARE_DISPATCH=TRIGGERED
+          echo RADAR_V622_CLOUDFLARE_DISPATCH=TRIGGERED
