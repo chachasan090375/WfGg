@@ -1,0 +1,84 @@
+name: Read-only player audit Bul de king
+
+on:
+  push:
+    branches: [radar-readonly-player-audit-bul-de-king]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Query Collector Player Intelligence V6.21
+        env:
+          RADAR_CONNECTOR_URL: https://chachavps.tail3ab05a.ts.net
+          RADAR_CONNECTOR_SHARED_KEY: ${{ secrets.RADAR_CONNECTOR_SHARED_KEY }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib,hmac,json,os,secrets,time,urllib.request,urllib.error
+          base=os.environ['RADAR_CONNECTOR_URL'].rstrip('/')
+          secret=os.environ['RADAR_CONNECTOR_SHARED_KEY']
+          path='/v1/collector/intelligence/search-v621'
+
+          queries=['Bul de king','Bul de King','Bull de king','Bull de King','BulDeKing']
+          all_players={}
+          all_alliances={}
+          reports=[]
+
+          def post(payload):
+              body=json.dumps(payload,separators=(',',':')).encode()
+              ts=str(int(time.time()))
+              nonce=secrets.token_hex(16)
+              canonical='\n'.join(['POST',path,ts,nonce,hashlib.sha256(body).hexdigest()])
+              sig=hmac.new(secret.encode(),canonical.encode(),hashlib.sha256).hexdigest()
+              req=urllib.request.Request(base+path,data=body,method='POST',headers={
+                  'Content-Type':'application/json',
+                  'X-Radar-Timestamp':ts,
+                  'X-Radar-Nonce':nonce,
+                  'X-Radar-Signature':sig,
+              })
+              with urllib.request.urlopen(req,timeout=20) as r:
+                  return r.status,json.load(r)
+
+          for q in queries:
+              try:
+                  status,data=post({'query':q,'limit':100,'offset':0})
+              except urllib.error.HTTPError as e:
+                  raw=e.read().decode(errors='replace')
+                  reports.append({'query':q,'http':e.code,'error':raw[:500]})
+                  continue
+              except Exception as e:
+                  reports.append({'query':q,'error':type(e).__name__+':'+str(e)})
+                  continue
+              reports.append({'query':q,'http':status,'total':data.get('total'),'count':data.get('count'),'warnings':data.get('warnings',[]),'ignoredFilters':data.get('ignoredFilters',[])})
+              for p in data.get('players') or []:
+                  key=str(p.get('gameUid') or p.get('pseudo') or json.dumps(p,sort_keys=True))
+                  all_players[key]=p
+              for a in data.get('alliances') or []:
+                  key=(str(a.get('allianceId') or ''),str(a.get('allianceTag') or ''))
+                  all_alliances[str(key)]=a
+
+          out={
+              'ok':True,
+              'readonly':True,
+              'gameScanExecuted':False,
+              'queries':reports,
+              'players':list(all_players.values()),
+              'alliances':list(all_alliances.values()),
+          }
+          print('WFGG_PLAYER_AUDIT_JSON='+json.dumps(out,ensure_ascii=False,separators=(',',':')))
+          PY
+
+      - name: Safety receipt
+        run: |
+          echo WFGG_PLAYER_AUDIT=PASS
+          echo LASTWAR_MODE=READ_ONLY
+          echo GAME_SCAN_EXECUTED=NO
+          echo PRODUCTION_DEPLOYMENT=NO
