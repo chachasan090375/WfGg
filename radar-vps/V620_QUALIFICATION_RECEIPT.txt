@@ -1,12 +1,11 @@
 WFGG_RADAR_QUALIFICATION=V6.20
 RESULT=failure
-SOURCE_REV=6ac524f629d77203e684b28f0e0f61cee3affdfa
+SOURCE_REV=55517c49dd086ffd551a2c148e64359c34f66fb6
 LASTWAR_MODE=READ_ONLY
 TOKEN_PERSISTENCE=NO
 PRODUCTION_DEPLOYMENT=NO
 
 ===== v620-reconstruct.log =====
-RADAR_FULL_PROFILE_UNIVERSE_V697=READY
 RADAR_V699_ROUTE=PATCHED
 RADAR_COLLECTOR_LIVE_AUDIT_V699=READY
 RADAR_V610_ROUTE=PATCHED
@@ -125,4 +124,16 @@ RADAR_V61917_WORKER_ADAPTIVE_VERIFICATION=READY
 RADAR_V61917_UI_ADAPTIVE_VERIFICATION=READY
 RADAR_V620_LEDGER_CONFIRMATION_RESILIENCE=READY
 RADAR_V620_PLAYER_INTELLIGENCE_CONNECTOR=READY
-V620 submit range missing 71229/-1
+RADAR_V620_PLAYER_INTELLIGENCE_UI_WORKER=READY
+RADAR_V620_RECONSTRUCT=PASS
+
+===== v620-tests-step.log =====
+# wfgg-radar-connector/cmd/radar-connector
+# [wfgg-radar-connector/cmd/radar-connector]
+cmd/radar-connector/autopilot_confirmation_resilience_v620_test.go:33:43: testing.(*B).Context requires go1.24 or later (module is go1.23)
+FAIL	wfgg-radar-connector/cmd/radar-connector [build failed]
+FAIL
+
+===== v620-tests.log =====
+FAIL	wfgg-radar-connector/cmd/radar-connector [build failed]
+FAIL
