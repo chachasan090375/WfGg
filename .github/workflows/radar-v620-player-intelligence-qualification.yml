@@ -93,7 +93,7 @@ jobs:
           exec > >(tee /tmp/v620-tests-step.log) 2>&1
           gofmt -w ./cmd ./internal
           go test ./cmd/radar-connector -run 'V620$' -count=1 -v | tee /tmp/v620-tests.log
-          grep -Fq -- '--- PASS: TestAutopilotV620FullAfterPartialPersistsAndConfirms' /tmp/v620-tests.log
+          grep -Fq -- '--- PASS: TestAutopilotFullAfterPartialPersistsAndConfirmsV620' /tmp/v620-tests.log
           grep -Fq -- '--- PASS: TestAutopilotLedgerRetryableV620' /tmp/v620-tests.log
           grep -Fq -- '--- PASS: TestPlayerIntelligenceAliasSearchV620' /tmp/v620-tests.log
           grep -Fq -- '--- PASS: TestPlayerIntelligenceAllianceSearchV620' /tmp/v620-tests.log
