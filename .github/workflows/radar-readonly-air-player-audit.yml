@@ -41,9 +41,11 @@ jobs:
                   return r.status,json.load(r)
 
           checks=[
-            ('air_exact_space',{'query':'A i R','includeAlliances':['WfGg'],'limit':100,'offset':0}),
-            ('air_compact',{'query':'AiR','includeAlliances':['WfGg'],'limit':100,'offset':0}),
-            ('air_upper_space',{'query':'A I R','includeAlliances':['WfGg'],'limit':100,'offset':0}),
+            ('air_exact_space_wfgg',{'query':'A i R','includeAlliances':['WfGg'],'limit':100,'offset':0}),
+            ('air_compact_wfgg',{'query':'AiR','includeAlliances':['WfGg'],'limit':100,'offset':0}),
+            ('air_exact_space_global',{'query':'A i R','limit':100,'offset':0}),
+            ('air_compact_global',{'query':'AiR','limit':100,'offset':0}),
+            ('air_upper_space_global',{'query':'A I R','limit':100,'offset':0}),
             ('wfgg_all',{'includeAlliances':['WfGg'],'limit':100,'offset':0}),
           ]
 
