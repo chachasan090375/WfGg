@@ -3,6 +3,11 @@ name: Radar V6.20 player intelligence and ledger resilience qualification
 on:
   push:
     branches: [radar-v620-player-intelligence-ledger-resilience]
+    paths:
+      - '.github/scripts/patch-radar-autopilot-ledger-confirmation-v620.py'
+      - '.github/scripts/patch-radar-player-intelligence-connector-v620.py'
+      - '.github/scripts/patch-radar-player-intelligence-ui-worker-v620.py'
+      - '.github/workflows/radar-v620-player-intelligence-qualification.yml'
   workflow_dispatch:
 
 permissions:
