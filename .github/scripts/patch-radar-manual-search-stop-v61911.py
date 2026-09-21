@@ -211,16 +211,16 @@ func (s *server) collectorSearchStopV61911(w http.ResponseWriter, _ *http.Reques
         1,
     )
 
-    scan_error_anchor = '''\t\tplayers, err := regionScanner.ScanPlayerRegion(ctx, token, "*", region)
+    scan_error_anchor = '''\t\tplayers, regionDiag, err := scanCollectorRegionV67(ctx, s.game, regionScanner, token, region)
 \t\tif err != nil {
 '''
     if text.count(scan_error_anchor) != 1:
         raise SystemExit(f'V61911_MAP_SCAN_ANCHOR_COUNT={text.count(scan_error_anchor)}')
     text = text.replace(
         scan_error_anchor,
-        '''\t\tplayers, err := regionScanner.ScanPlayerRegion(ctx, token, "*", region)
+        '''\t\tplayers, regionDiag, err := scanCollectorRegionV67(ctx, s.game, regionScanner, token, region)
+\t\tif manualStopIfCancelledV61911() { return }
 \t\tif err != nil {
-\t\t\tif manualStopIfCancelledV61911() { return }
 ''',
         1,
     )
