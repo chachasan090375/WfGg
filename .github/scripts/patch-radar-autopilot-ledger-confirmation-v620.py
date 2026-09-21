@@ -150,7 +150,7 @@ import (
     "testing"
 )
 
-func TestAutopilotV620FullAfterPartialPersistsAndConfirms(t *testing.T) {
+func TestAutopilotFullAfterPartialPersistsAndConfirmsV620(t *testing.T) {
     db := newLedgerDBV61913(t)
     t.Setenv("WFGG_COLLECTOR_DB", db)
     id := "v620-full-after-partial"
