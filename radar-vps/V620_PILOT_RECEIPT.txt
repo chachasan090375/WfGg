@@ -1,0 +1,37 @@
+WFGG_RADAR_PILOT=V6.20
+RESULT=success
+SOURCE_REV=34af2da90f468426b1b6372e3f5e7d17c8bd9fb3
+GAME_SCAN_EXECUTED=NO
+LASTWAR_MODE=READ_ONLY
+TOKEN_PERSISTENCE=NO
+PRODUCTION_DEPLOYMENT=NO
+
+===== v620-pilot-ledger.log =====
+=== RUN   TestAutopilotFullAfterPartialPersistsAndConfirmsV620
+--- PASS: TestAutopilotFullAfterPartialPersistsAndConfirmsV620 (0.10s)
+=== RUN   TestAutopilotLedgerRetryableV620
+--- PASS: TestAutopilotLedgerRetryableV620 (0.00s)
+PASS
+ok  	wfgg-radar-connector/cmd/radar-connector	0.109s
+
+===== v620-pilot-intel.log =====
+=== RUN   TestPlayerIntelligenceAliasSearchV620
+--- PASS: TestPlayerIntelligenceAliasSearchV620 (0.06s)
+=== RUN   TestPlayerIntelligenceAllianceSearchV620
+--- PASS: TestPlayerIntelligenceAllianceSearchV620 (0.08s)
+=== RUN   TestPlayerIntelligenceRecruitmentFiltersV620
+--- PASS: TestPlayerIntelligenceRecruitmentFiltersV620 (0.06s)
+PASS
+ok  	wfgg-radar-connector/cmd/radar-connector	0.203s
+
+===== v61917-full.log =====
+=== RUN   TestAutopilotAdaptiveOneFullCycleConfirmsV61917
+--- PASS: TestAutopilotAdaptiveOneFullCycleConfirmsV61917 (0.00s)
+PASS
+ok  	wfgg-radar-connector/cmd/radar-connector	0.004s
+
+===== v61917-partial.log =====
+=== RUN   TestAutopilotAdaptivePartialDoesNotConfirmV61917
+--- PASS: TestAutopilotAdaptivePartialDoesNotConfirmV61917 (0.00s)
+PASS
+ok  	wfgg-radar-connector/cmd/radar-connector	0.003s
