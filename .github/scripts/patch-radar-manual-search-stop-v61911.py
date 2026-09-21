@@ -146,7 +146,7 @@ func (s *server) collectorSearchStopV61911(w http.ResponseWriter, _ *http.Reques
         raise SystemExit(f'V61911_RUN_ANCHOR_COUNT={text.count(run_anchor)}')
     text = text.replace(run_anchor, 'func (s *server) runCollectorSearch(ctx context.Context, jobID, token, query string) {\n', 1)
 
-    running_anchor = '\\tradarCollectorJobs.update(jobID, func(j *collectorJob) { j.Status = "RUNNING"; j.Phase = "STARTING" })\\n'
+    running_anchor = '\tradarCollectorJobs.update(jobID, func(j *collectorJob) { j.Status = "RUNNING"; j.Phase = "STARTING" })\n'
     if text.count(running_anchor) != 1:
         raise SystemExit(f'V61911_RUNNING_ANCHOR_COUNT={text.count(running_anchor)}')
     cancel_helper = '''\tmanualStopIfCancelledV61911 := func() bool {
