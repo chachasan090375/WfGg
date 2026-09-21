@@ -169,7 +169,7 @@ async function executeIntelligenceSearch(query){const q=String(query||'').trim()
 
     start_marker = "/* WFGG_RADAR_FAST_LOOKUP_UI_V611 */\n$('searchForm').onsubmit=async e=>{"
     start = ui.find(start_marker)
-    end = ui.find('\nhealth();session();', start)
+    end = ui.find('\nhealth();', start)
     if start < 0 or end < 0:
         raise SystemExit(f'V620 submit range missing {start}/{end}')
     submit = r'''/* WFGG_RADAR_FAST_LOOKUP_UI_V611 */
@@ -178,7 +178,7 @@ $('searchForm').onsubmit=async e=>{e.preventDefault();if(manualSearchRunning){aw
 '''
     ui = ui[:start] + submit + ui[end:]
 
-    event_anchor = '\nhealth();session();'
+    event_anchor = '\nhealth();'
     events = r'''
 $('filterButton').addEventListener('click',()=>intelOpen('filterOverlay'));
 $('filterClose').addEventListener('click',()=>intelClose('filterOverlay'));
