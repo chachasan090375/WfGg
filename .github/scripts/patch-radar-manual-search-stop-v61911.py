@@ -187,9 +187,9 @@ func (s *server) collectorSearchStopV61911(w http.ResponseWriter, _ *http.Reques
         1,
     )
 
-    running_anchor = '\tradarCollectorJobs.update(jobID, func(j *collectorJob) { j.Status = "RUNNING"; j.Phase = "STARTING" })\n'
-    if text.count(running_anchor) != 1:
-        raise SystemExit(f'V61911_RUNNING_ANCHOR_COUNT={text.count(running_anchor)}')
+    cycle_start_anchor = '\tcycle, joined, staleRecovered, err := collectorStartCycleWithStaleRecoveryV6197(ctx, query)\n'
+    if text.count(cycle_start_anchor) != 1:
+        raise SystemExit(f'V61911_CYCLE_START_ANCHOR_COUNT={text.count(cycle_start_anchor)}')
     cancel_helper = '''\tmanualStopIfCancelledV61911 := func() bool {
 \t\tif !errors.Is(ctx.Err(), context.Canceled) {
 \t\t\treturn false
@@ -197,9 +197,10 @@ func (s *server) collectorSearchStopV61911(w http.ResponseWriter, _ *http.Reques
 \t\tfail("MANUAL_SEARCH_STOPPED", ctx.Err())
 \t\treturn true
 \t}
+\tif manualStopIfCancelledV61911() { return }
 
 '''
-    text = text.replace(running_anchor, cancel_helper + running_anchor, 1)
+    text = text.replace(cycle_start_anchor, cancel_helper + cycle_start_anchor, 1)
 
     loop_anchor = '\tfor region := 0; region < 9; region++ {\n'
     if text.count(loop_anchor) != 1:
