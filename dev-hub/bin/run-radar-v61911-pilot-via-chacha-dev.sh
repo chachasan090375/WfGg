@@ -7,7 +7,7 @@ REV="${WFGG_DEV_HUB_RADAR_V61911_DEPLOY_REV:-}"
 PROJECT="wfgg-radar"
 APPROVED_REV="cbf67e46308e925f1ba5fad0be3f58764231935d"
 PILOT_REV="759bfb3fe4620f544cc84fdea34e54bfa3efbdcf"
-PILOT_BRANCH="radar-v61911-autopilot-continue-partial-limit"
+PILOT_BRANCH="radar-v61911-manual-search-stop"
 CONNECTOR_SHA="4d66709f10d3a6b27ac255a1dfdc62e51d2817652634409ffe2edc071762c69f"
 NATIVE_SHA="274d040f5294cb09422e5d55cc4b5335ac7739924c33dcb67b3f279645814900"
 INSTALLER="radar-vps/install-v61911-pilot.sh"
@@ -170,7 +170,7 @@ obj={
   "project":"wfgg-radar",
   "scope":{
     "pilot":"V6.19.11",
-    "revision":"759bfb3fe4620f544cc84fdea34e54bfa3efbdcf",
+    "revision":"cbf67e46308e925f1ba5fad0be3f58764231935d",
     "change":"Manual Search Stop",
     "approved_revision":"cbf67e46308e925f1ba5fad0be3f58764231935d",
     "artifact_revision":"759bfb3fe4620f544cc84fdea34e54bfa3efbdcf",
@@ -380,7 +380,7 @@ finalize () {
 trap finalize EXIT
 
 # ---------------------------------------------------------------------------
-# 3) ChaCha DEV governed pilot: open -> install -> guard-only Autopilot route probe.
+# 3) ChaCha DEV governed pilot: open -> install -> guard-only Manual Search Stop route probe.
 #    No Last War scan or Collector mutation is executed by the probe; close is guaranteed in the EXIT path.
 # ---------------------------------------------------------------------------
 PILOT_GRAPH="$PLAN_DIR/radar-v61911-pilot.task-graph.json"
