@@ -25,6 +25,7 @@ jobs:
       - name: Reconstruct cumulative V6.20 candidate
         run: |
           set -euo pipefail
+          exec > >(tee /tmp/v620-reconstruct.log) 2>&1
           rm -rf /tmp/wfgg-radar
           mkdir -p /tmp/wfgg-radar
           python3 .github/scripts/reconstruct-radar-release.py
@@ -89,6 +90,7 @@ jobs:
         working-directory: /tmp/wfgg-radar/connector-go
         run: |
           set -euo pipefail
+          exec > >(tee /tmp/v620-tests-step.log) 2>&1
           gofmt -w ./cmd ./internal
           go test ./cmd/radar-connector -run 'V620$' -count=1 -v | tee /tmp/v620-tests.log
           grep -Fq -- '--- PASS: TestAutopilotV620FullAfterPartialPersistsAndConfirms' /tmp/v620-tests.log
@@ -115,6 +117,7 @@ jobs:
         working-directory: /tmp/wfgg-radar/connector-go
         run: |
           set -euo pipefail
+          exec > >(tee /tmp/v620-regression.log) 2>&1
           go test ./...
           go vet ./...
           CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w' -o /tmp/radar-connector ./cmd/radar-connector
@@ -218,6 +221,13 @@ jobs:
             echo "LASTWAR_MODE=READ_ONLY"
             echo "TOKEN_PERSISTENCE=NO"
             echo "PRODUCTION_DEPLOYMENT=NO"
+            for F in /tmp/v620-reconstruct.log /tmp/v620-tests-step.log /tmp/v620-tests.log /tmp/v61917-tests.log /tmp/v620-regression.log; do
+              if [ -f "$F" ]; then
+                echo
+                echo "===== $(basename "$F") ====="
+                tail -n 120 "$F"
+              fi
+            done
           } > radar-vps/V620_QUALIFICATION_RECEIPT.txt
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
