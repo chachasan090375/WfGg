@@ -47,6 +47,7 @@ jobs:
             ('wfgg_exact',{'includeAlliances':['WfGg'],'includePlayers':['A i R'],'limit':100,'offset':0}),
             ('wfgg_compact',{'includeAlliances':['WfGg'],'includePlayers':['AiR'],'limit':100,'offset':0}),
             ('wfgg_all',{'includeAlliances':['WfGg'],'limit':100,'offset':0}),
+            ('wfgg_tail',{'includeAlliances':['WfGg'],'limit':100,'offset':100}),
           ]
           out=[]
           for label,payload in checks:
