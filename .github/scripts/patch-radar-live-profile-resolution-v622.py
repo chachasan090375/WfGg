@@ -95,9 +95,9 @@ old_note="$('profileNote').textContent='Recherche normale = cache local. Actuali
 new_note="$('profileNote').textContent=currentProfileUID?'Donnée Collector affichée · actualisation Last War en temps réel…':'Aucun UID connu : actualisation live impossible.';"
 ui=replace_once(ui,old_note,new_note,'V622 profile note')
 
-old_tail="if(currentProfileUID)queueMicrotask(()=>loadCachedRichProfile(currentProfileUID));const job=data?.job;"
-new_tail="if(currentProfileUID){queueMicrotask(()=>loadCachedRichProfile(currentProfileUID));scheduleResolvedProfileRefreshV622(currentProfileUID)}const job=data?.job;"
-ui=replace_once(ui,old_tail,new_tail,'V622 auto refresh hook')
+uid_anchor="currentProfileUID=uid?String(uid):'';"
+uid_replacement="currentProfileUID=uid?String(uid):'';if(currentProfileUID)scheduleResolvedProfileRefreshV622(currentProfileUID)"
+ui=replace_once(ui,uid_anchor,uid_replacement,'V622 auto refresh hook')
 
 UI.write_text(ui,encoding='utf-8')
 print('RADAR_V622_LIVE_PROFILE_RESOLUTION_UI=READY')
