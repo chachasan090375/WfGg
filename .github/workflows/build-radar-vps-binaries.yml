@@ -36,6 +36,7 @@ on:
       - '.github/scripts/patch-radar-autopilot-coverage-completion-v61914.py'
       - '.github/scripts/patch-live-radar-autopilot-v61914.py'
       - '.github/scripts/patch-radar-worker-coverage-propagation-v61915.py'
+      - '.github/scripts/patch-radar-autopilot-failure-scope-v61916.py'
   workflow_dispatch:
 
 permissions:
@@ -48,7 +49,7 @@ concurrency:
 
 env:
   LASTWAR_CLIENT_REF: ee5f64de160a8051c2f9f98189b75038dd225a0a
-  EXPECTED_CONNECTOR_SHA256: 64c7ce844df5772e8a7a7d0812449186c10d16239969797a85ec4adb022f73e8
+  EXPECTED_CONNECTOR_SHA256: 77e1518a9bd9e1ac4329b61f26dea06063ddc0c0e46d391ecf0f024d8be90dfc
   EXPECTED_NATIVE_SHA256: 274d040f5294cb09422e5d55cc4b5335ac7739924c33dcb67b3f279645814900
 
 jobs:
@@ -65,7 +66,7 @@ jobs:
         with:
           go-version: '1.27.x'
 
-      - name: Reconstruct cumulative V6.19.15
+      - name: Reconstruct cumulative V6.19.16
         run: |
           set -euo pipefail
           rm -rf /tmp/wfgg-radar /tmp/lastwar-client
@@ -118,6 +119,7 @@ jobs:
           python3 .github/scripts/patch-radar-autopilot-coverage-completion-v61914.py
           python3 .github/scripts/patch-live-radar-autopilot-v61914.py
           python3 .github/scripts/patch-radar-worker-coverage-propagation-v61915.py
+          python3 .github/scripts/patch-radar-autopilot-failure-scope-v61916.py
 
           grep -Fq 'WFGG_RADAR_CLUSTER_CATALOG_BUDGET_V6192' /tmp/wfgg-radar/connector-go/cmd/radar-connector/server_cluster_catalog_v613.go
           grep -Fq 'WFGG_RADAR_SEED_SCOUT_V6193' /tmp/wfgg-radar/connector-go/cmd/radar-connector/server_seed_scout_v6193.go
@@ -136,7 +138,9 @@ jobs:
           grep -Fq 'WFGG_RADAR_AUTOPILOT_WORKER_COVERAGE_PROPAGATION_V61915' /tmp/wfgg-radar/src/worker.js
           grep -Fq 'WFGG_RADAR_AUTOPILOT_RADAR_ANIMATION_V61915' /tmp/wfgg-radar/public/live-radar.html
           grep -Fq 'WFGG_RADAR_AUTOPILOT_WORKER_COVERAGE_PROPAGATION_UI_V61915' /tmp/wfgg-radar/public/live-radar.html
-          echo RADAR_V61915_PRODUCTION_RECONSTRUCT=PASS
+          grep -Fq 'WFGG_RADAR_AUTOPILOT_FAILURE_SCOPE_CONTINUE_V61916' /tmp/wfgg-radar/connector-go/cmd/radar-connector/server_autopilot_v6194.go
+          grep -Fq 'WFGG_RADAR_AUTOPILOT_FAILURE_SCOPE_CONTINUE_UI_V61916' /tmp/wfgg-radar/public/live-radar.html
+          echo RADAR_V61916_PRODUCTION_RECONSTRUCT=PASS
 
       - name: Test and build connector
         working-directory: /tmp/wfgg-radar/connector-go
@@ -149,7 +153,7 @@ jobs:
           CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w' -o "$GITHUB_WORKSPACE/radar-vps/release/radar-connector" ./cmd/radar-connector
           actual="$(sha256sum "$GITHUB_WORKSPACE/radar-vps/release/radar-connector" | awk '{print $1}')"
           test "$actual" = "$EXPECTED_CONNECTOR_SHA256"
-          echo "RADAR_V61915_CONNECTOR_SHA256=$actual"
+          echo "RADAR_V61916_CONNECTOR_SHA256=$actual"
 
       - name: Build qualified native helper
         run: |
@@ -190,9 +194,11 @@ jobs:
           grep -aFq 'radar_autopilot_ledger_v61913' radar-vps/release/radar-connector
           grep -aFq 'SCOUT_SKIPPED_PERSISTED' radar-vps/release/radar-connector
           grep -aFq 'LEDGER_RESUME_SKIPPED_TERMINAL' radar-vps/release/radar-connector
-          grep -aFq 'v6.19.15' radar-vps/release/radar-connector
+          grep -aFq 'v6.19.16' radar-vps/release/radar-connector
           grep -aFq 'COVERAGE_COMPLETE' radar-vps/release/radar-connector
           grep -aFq 'COVERAGE_FRONTIER_CONTINUE' radar-vps/release/radar-connector
+          grep -aFq 'SEED_LOCAL_FAILURE_LIMIT' radar-vps/release/radar-connector
+          grep -aFq 'AUTOPILOT_CONSECUTIVE_FAILURE_LIMIT' radar-vps/release/radar-connector
           grep -aFq 'SEED_SCOUT_FRONTIER_EXHAUSTED' radar-vps/release/radar-connector
           grep -aFq 'PARTIAL_AFTER_RETRIES' radar-vps/release/radar-connector
           grep -aFq 'MANUAL_SEARCH_STOPPED' radar-vps/release/radar-connector
@@ -219,10 +225,10 @@ jobs:
           if git diff --cached --quiet; then
             echo RADAR_V61915_RELEASE_BINARIES=UNCHANGED
             GH_TOKEN="${{ github.token }}" gh workflow run deploy-radar-production.yml --ref radar-production-v1
-            echo RADAR_V61915_CLOUDFLARE_DISPATCH=TRIGGERED
+            echo RADAR_V61916_CLOUDFLARE_DISPATCH=TRIGGERED
             exit 0
           fi
-          git commit -m 'build(radar): publish V6.19.15 Worker Coverage Propagation & Autopilot Radar Animation production binaries'
+          git commit -m 'build(radar): publish V6.19.16 Failure Scope Continue production binaries'
           # Discard only ephemeral runner worktree changes; the release artifacts are already committed.
           git reset --hard HEAD
           git clean -fd
@@ -231,4 +237,4 @@ jobs:
           git push origin HEAD:radar-production-v1
           echo RADAR_V61915_RELEASE_BINARIES=PUBLISHED
           GH_TOKEN="${{ github.token }}" gh workflow run deploy-radar-production.yml --ref radar-production-v1
-          echo RADAR_V61915_CLOUDFLARE_DISPATCH=TRIGGERED
+          echo RADAR_V61916_CLOUDFLARE_DISPATCH=TRIGGERED
