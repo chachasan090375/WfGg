@@ -1,0 +1,82 @@
+name: ChaCha DEV Radar V6.19.10 functional partial-limit qualification
+
+on:
+  push:
+    branches: [dev-hub-v5-radar-cluster-quality-diagnostic-v1]
+    paths:
+      - 'dev-hub/bin/run-radar-v61910-functional-partial-limit-pilot-via-chacha-dev.sh'
+      - 'dev-hub/projects/wfgg-radar/project-intent.v1.json'
+      - '.github/workflows/dev-hub-radar-v61910-functional-partial-limit-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  PILOT_REV: 6761a1b7383143a40883af3373d6fd9d43a80359
+  EXPECTED_CONNECTOR_SHA256: 18b972ebd63ea34de6e67c432c863598da1769fa33559115728a2e20d5015863
+  EXPECTED_NATIVE_SHA256: 274d040f5294cb09422e5d55cc4b5335ac7739924c33dcb67b3f279645814900
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev-hub-v5-radar-cluster-quality-diagnostic-v1
+
+      - name: Validate functional runner
+        run: |
+          set -euo pipefail
+          R=dev-hub/bin/run-radar-v61910-functional-partial-limit-pilot-via-chacha-dev.sh
+          bash -n "$R"
+          grep -Fq 'PILOT_REV="6761a1b7383143a40883af3373d6fd9d43a80359"' "$R"
+          grep -Fq 'CONNECTOR_SHA="18b972ebd63ea34de6e67c432c863598da1769fa33559115728a2e20d5015863"' "$R"
+          grep -Fq 'NATIVE_SHA="274d040f5294cb09422e5d55cc4b5335ac7739924c33dcb67b3f279645814900"' "$R"
+          grep -Fq 'TARGET_SEED="8120"' "$R"
+          grep -Fq 'TARGET_QUERY="@federated:8120"' "$R"
+          grep -Fq "sqlite3.connect('file:'+db+'?mode=ro'" "$R"
+          grep -Fq "PRAGMA query_only=ON" "$R"
+          grep -Fq 'RADAR_V61910_FUNCTIONAL_PREFLIGHT=PASS' "$R"
+          grep -Fq 'RADAR_V61910_FUNCTIONAL_WINDOW_READY=YES' "$R"
+          grep -Fq 'DÉMARRER L’AUTOPILOT' "$R"
+          grep -Fq 'RADAR_V61910_FUNCTIONAL_PARTIAL_RETRY_LIMIT_EXPECTED=5' "$R"
+          grep -Fq 'RADAR_V61910_FUNCTIONAL_WAIT_MAX_SECONDS=3600' "$R"
+          grep -Fq 'RADAR_V61910_PARTIAL_LIMIT_GLOBAL_FAILURE_REPRODUCED=NO' "$R"
+          grep -Fq 'RADAR_V61910_SEED_8120_NOT_GLOBAL_STOP=PASS' "$R"
+          grep -Fq 'RADAR_V61910_AUTOPILOT_CONTINUATION_OBSERVED=PASS' "$R"
+          grep -Fq 'ARRÊTER L’AUTOPILOT' "$R"
+          grep -Fq 'RADAR_V61910_FUNCTIONAL_AUTOPILOT_QUIET_AFTER_STOP=PASS' "$R"
+          grep -Fq 'RADAR_V61910_LASTWAR_MUTATION=NO' "$R"
+          grep -Fq 'RADAR_V61910_FUNCTIONAL_COLLECTOR_MUTATION=DISCOVERY_EVIDENCE_TERMINALIZATION_ONLY' "$R"
+          grep -Fq 'RADAR_V61910_HISTORY_MUTATION=NO' "$R"
+          grep -Fq 'RADAR_V61910_FUNCTIONAL_PROOF=PASS' "$R"
+          echo RADAR_V61910_FUNCTIONAL_RUNNER=PASS
+
+      - name: Validate one-shot functional approval
+        run: |
+          set -euo pipefail
+          R=dev-hub/bin/run-radar-v61910-functional-partial-limit-pilot-via-chacha-dev.sh
+          grep -Fq 'J’approuve le PILOT fonctionnel Radar V6.19.10 Autopilot Continue-on-Partial-Limit révision 6761a1b7383143a40883af3373d6fd9d43a80359 avec démarrage Autopilot READ-ONLY sur @federated:8120, mutations Collector limitées aux cycles de découverte, preuves et terminalisation, puis arrêt manuel après preuve de continuation.' "$R"
+          grep -Fq 'PRODUCTION_RELEASE_APPROVAL_INGESTED=PASS' "$R"
+          grep -Fq 'PRODUCTION_RELEASE_APPROVAL_REVOKED=PASS' "$R"
+          grep -Fq 'RADAR_V61910_PILOT_CLOSE=' "$R"
+          grep -Fq 'RADAR_V61910_PRODUCTION_APPROVAL_STANDING=NO' "$R"
+          grep -Fq 'RADAR_V61910_PILOT_WINDOW_CLOSED=YES' "$R"
+          echo RADAR_V61910_FUNCTIONAL_APPROVAL=PASS
+
+      - name: Validate pinned pilot assets
+        run: |
+          set -euo pipefail
+          BASE="https://raw.githubusercontent.com/chachasan090375/WfGg/$PILOT_REV"
+          curl -fsSL "$BASE/radar-vps/pilot-v61910/SHA256SUMS" -o /tmp/SHA256SUMS
+          curl -fsSL "$BASE/radar-vps/pilot-v61910/radar-connector" -o /tmp/radar-connector
+          curl -fsSL "$BASE/radar-vps/pilot-v61910/radar-native-template" -o /tmp/radar-native-template
+          grep -Fq "$EXPECTED_CONNECTOR_SHA256  radar-connector" /tmp/SHA256SUMS
+          grep -Fq "$EXPECTED_NATIVE_SHA256  radar-native-template" /tmp/SHA256SUMS
+          test "$(sha256sum /tmp/radar-connector | awk '{print $1}')" = "$EXPECTED_CONNECTOR_SHA256"
+          test "$(sha256sum /tmp/radar-native-template | awk '{print $1}')" = "$EXPECTED_NATIVE_SHA256"
+          grep -aFq 'SEED_SKIPPED_PARTIAL' /tmp/radar-connector
+          grep -aFq 'PARTIAL_AFTER_RETRIES' /tmp/radar-connector
+          echo RADAR_V61910_FUNCTIONAL_PINNED_ASSETS=PASS
