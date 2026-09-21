@@ -22,7 +22,7 @@ env:
   RADAR_WORKER: wfgg-radar
   RADAR_D1_NAME: wfgg-radar
   RADAR_CONNECTOR_URL: https://chachavps.tail3ab05a.ts.net
-  EXPECTED_CONNECTOR_SHA256: 75b340a2d3474aaf0216080d5853064dd0cff2ec4bda62e13ce82b59e51d105e
+  EXPECTED_CONNECTOR_SHA256: 5e5721c7be5e31f31e0ad927a808160b124a94df218870752360fc32c5e64207
   EXPECTED_NATIVE_SHA256: 274d040f5294cb09422e5d55cc4b5335ac7739924c33dcb67b3f279645814900
   EXPECTED_WORKER_SHA256: 7c557fb6850a188eb354c2ff52680c2ce0c0c6765e9e93dc0436012e1b8abfe2
   EXPECTED_TRANSPORT_SHA256: 074de8c1574781c5974ae4ba34266b76afaaac89d4ef9cd161dba88e6278cc3c
@@ -155,15 +155,15 @@ jobs:
           import hashlib,hmac,json,os,secrets,time,urllib.request,urllib.error
           base=os.environ['RADAR_CONNECTOR_URL'].rstrip('/')
           secret=os.environ['RADAR_CONNECTOR_SHARED_KEY']
-          path='/v1/collector/search/stop'
-          body=b'{"id":""}'
+          path='/v1/health'
+          body=b''
+          expected='v6.19.12-no-rescan-qualified-seeds'
           for attempt in range(1,91):
               ts=str(int(time.time()))
               nonce=secrets.token_hex(16)
-              canonical='\n'.join(['POST',path,ts,nonce,hashlib.sha256(body).hexdigest()])
+              canonical='\n'.join(['GET',path,ts,nonce,hashlib.sha256(body).hexdigest()])
               sig=hmac.new(secret.encode(),canonical.encode(),hashlib.sha256).hexdigest()
-              req=urllib.request.Request(base+path,data=body,method='POST',headers={
-                  'Content-Type':'application/json',
+              req=urllib.request.Request(base+path,method='GET',headers={
                   'X-Radar-Timestamp':ts,
                   'X-Radar-Nonce':nonce,
                   'X-Radar-Signature':sig,
@@ -176,12 +176,13 @@ jobs:
                   status=e.code
                   try: data=json.loads(e.read().decode())
                   except Exception: data={}
-              print(f'RADAR_V61912_CONNECTOR_WAIT={attempt} HTTP={status} ERROR={data.get("error")}')
-              if status==400 and data.get('error')=='COLLECTOR_JOB_ID_REQUIRED':
-                  print('RADAR_V61912_CONNECTOR_STOP_ROUTE=READY')
+              version=str(data.get('version') or '')
+              print(f'RADAR_V61912_CONNECTOR_WAIT={attempt} HTTP={status} VERSION={version}')
+              if status==200 and data.get('readonly') is True and version==expected:
+                  print('RADAR_V61912_CONNECTOR_HEALTH_IDENTITY=READY')
                   raise SystemExit(0)
               time.sleep(5)
-          raise SystemExit('RADAR_V61912_CONNECTOR_ROUTE_TIMEOUT')
+          raise SystemExit('RADAR_V61912_CONNECTOR_IDENTITY_TIMEOUT')
           PY
       - name: Resolve Cloudflare deployment context
         id: cf
