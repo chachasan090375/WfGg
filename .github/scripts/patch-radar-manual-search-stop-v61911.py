@@ -7,6 +7,7 @@ MAIN = ROOT / 'connector-go' / 'cmd' / 'radar-connector' / 'main.go'
 TRANSPORT = ROOT / 'src' / 'game' / 'remote-transport.js'
 WORKER = ROOT / 'src' / 'worker.js'
 UI = ROOT / 'public' / 'live-radar.html'
+TEST = ROOT / 'connector-go' / 'cmd' / 'radar-connector' / 'manual_search_stop_v61911_test.go'
 
 # ---------------------------------------------------------------------------
 # Connector: cancellable MANUAL Collector jobs only.
@@ -392,5 +393,85 @@ async function requestManualSearchStop(){if(!manualSearchRunning||manualSearchSt
     text = text.replace(catch_anchor, catch_repl, 1)
 
 UI.write_text(text, encoding='utf-8')
+
+
+# ---------------------------------------------------------------------------
+# Connector unit tests for the one-job manual stop contract.
+# ---------------------------------------------------------------------------
+if not TEST.exists():
+    TEST.write_text(r'''package main
+
+import (
+	"context"
+	"net/http"
+	"net/http/httptest"
+	"testing"
+)
+
+func withIsolatedManualStopStoresV61911(t *testing.T) {
+	t.Helper()
+	oldJobs := radarCollectorJobs
+	oldCancels := radarCollectorJobCancelsV61911
+	radarCollectorJobs = &collectorJobStore{jobs: map[string]*collectorJob{}}
+	radarCollectorJobCancelsV61911 = &collectorJobCancelStoreV61911{cancels: map[string]context.CancelFunc{}}
+	t.Cleanup(func() {
+		radarCollectorJobs = oldJobs
+		radarCollectorJobCancelsV61911 = oldCancels
+	})
+}
+
+func TestCollectorSearchStopV61911CancelsActiveJob(t *testing.T) {
+	withIsolatedManualStopStoresV61911(t)
+	j := radarCollectorJobs.add("@federated:8120")
+	radarCollectorJobs.update(j.ID, func(x *collectorJob) {
+		x.Status = "RUNNING"
+		x.Phase = "MAP"
+	})
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	radarCollectorJobCancelsV61911.set(j.ID, cancel)
+
+	rr := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodPost, "/v1/collector/search/stop", nil)
+	body := []byte(`{"id":"` + j.ID + `"}`)
+	(&server{}).collectorSearchStopV61911(rr, req, body)
+
+	if rr.Code != http.StatusAccepted {
+		t.Fatalf("status=%d body=%s", rr.Code, rr.Body.String())
+	}
+	select {
+	case <-ctx.Done():
+	default:
+		t.Fatal("expected manual stop to cancel the job context")
+	}
+	got, ok := radarCollectorJobs.get(j.ID)
+	if !ok || got.Phase != "STOPPING" {
+		t.Fatalf("job not marked STOPPING: %#v", got)
+	}
+}
+
+func TestCollectorSearchStopV61911LeavesTerminalJobAlone(t *testing.T) {
+	withIsolatedManualStopStoresV61911(t)
+	j := radarCollectorJobs.add("Player")
+	radarCollectorJobs.update(j.ID, func(x *collectorJob) {
+		x.Status = "SUCCESS"
+		x.Phase = "DONE"
+		x.FinishedAt = utcNow()
+	})
+
+	rr := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodPost, "/v1/collector/search/stop", nil)
+	body := []byte(`{"id":"` + j.ID + `"}`)
+	(&server{}).collectorSearchStopV61911(rr, req, body)
+
+	if rr.Code != http.StatusOK {
+		t.Fatalf("status=%d body=%s", rr.Code, rr.Body.String())
+	}
+	got, _ := radarCollectorJobs.get(j.ID)
+	if got.Status != "SUCCESS" || got.Phase != "DONE" {
+		t.Fatalf("terminal job changed: %#v", got)
+	}
+}
+''', encoding='utf-8')
 
 print('RADAR_V61911_MANUAL_SEARCH_STOP=READY')
