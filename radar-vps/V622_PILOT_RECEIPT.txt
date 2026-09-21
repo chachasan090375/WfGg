@@ -1,0 +1,19 @@
+WFGG_RADAR_PILOT=V6.22
+RESULT=failure
+SOURCE_REV=122395674aaafade205eb9cb308a9aa9142d44fc
+QUALIFIED_SOURCE_REV=2cec98487059d7500dc02d91fbc683d3492ae3f3
+PIPELINE=LOCAL_UID_THEN_LIVE_PROFILE
+LASTWAR_COMMAND=get.user.info.multi
+PROFILE_MAP_SCAN=NO
+GAME_SCAN_EXECUTED=NO
+LASTWAR_MODE=READ_ONLY
+TOKEN_PERSISTENCE=NO
+PRODUCTION_DEPLOYMENT=NO
+
+===== v622-pilot-profile.log =====
+=== RUN   TestCollectorBasePlayerV6191
+--- PASS: TestCollectorBasePlayerV6191 (0.00s)
+=== RUN   TestRichObservedV6191
+--- PASS: TestRichObservedV6191 (0.00s)
+PASS
+ok  	wfgg-radar-connector/cmd/radar-connector	0.003s
