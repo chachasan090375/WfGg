@@ -1,0 +1,162 @@
+name: Radar V6.19.16 failure-scope continue qualification
+
+on:
+  push:
+    branches: [radar-v61916-failure-scope-continue]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: radar-v61916-failure-scope-continue
+          fetch-depth: 0
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.27.x'
+
+      - name: Reconstruct cumulative V6.19.16 candidate
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/wfgg-radar
+          mkdir -p /tmp/wfgg-radar
+          python3 .github/scripts/reconstruct-radar-release.py
+          echo '234df1dec57f6211bc625855bf13350c9f17fbd843fbe92d8cf1ab7cb5c081ef  /tmp/radar-src.tar.gz' | sha256sum -c -
+          tar -xzf /tmp/radar-src.tar.gz -C /tmp/wfgg-radar
+          rm -rf /tmp/wfgg-radar/connector-go
+          cp -a .radar-release-src/v2-source/connector-go /tmp/wfgg-radar/connector-go
+          python3 .github/scripts/patch-radar-target-profile-retry.py
+          python3 .github/scripts/patch-radar-federated-diagnostics-v65.py
+          python3 .github/scripts/patch-player-scan-v3.py
+          python3 .github/scripts/patch-player-scan-v4.py
+          python3 .github/scripts/patch-radar-protocol-discovery-v67.py
+          python3 .github/scripts/patch-radar-profile-isolation-v68.py
+          python3 .github/scripts/patch-radar-native-profile-v69.py
+          python3 .github/scripts/patch-radar-native-profile-handshake-v691.py
+          python3 .github/scripts/patch-radar-native-profile-exec-v692.py
+          python3 .github/scripts/patch-radar-connector-runtime-v693.py
+          python3 .github/scripts/patch-radar-cluster-catalog-budget-v6192.py
+          python3 .github/scripts/patch-radar-seed-scout-v6193.py
+          python3 .github/scripts/patch-radar-autopilot-v6194.py
+          python3 .github/scripts/patch-radar-autopilot-stale-cycle-v6197.py
+          python3 .github/scripts/patch-radar-collector-cycle-terminalization-v6198.py
+          python3 .github/scripts/patch-radar-autopilot-targeted-history-v6199.py
+          python3 .github/scripts/patch-radar-autopilot-continue-partial-v61910.py
+          install -m 0644 .radar-release-src/v2-source/src/game/remote-transport.js /tmp/wfgg-radar/src/game/remote-transport.js
+          python3 .github/scripts/patch-radar-async-collector-worker.py
+          python3 .github/scripts/patch-radar-worker-rich-profile-v6191.py
+          python3 .github/scripts/patch-radar-worker-seed-scout-v6193.py
+          python3 .github/scripts/patch-radar-worker-autopilot-v6194.py
+          install -m 0644 radar-ui-live/live-radar.html /tmp/wfgg-radar/public/live-radar.html
+          python3 .github/scripts/patch-live-radar-seed-scout-v6193.py
+          python3 .github/scripts/patch-live-radar-autopilot-v6194.py
+          python3 .github/scripts/patch-radar-session-keepalive-v6195.py
+          python3 .github/scripts/patch-live-radar-autopilot-v6196.py
+          python3 .github/scripts/patch-live-radar-autopilot-v6197.py
+          python3 .github/scripts/patch-live-radar-autopilot-v6198.py
+          python3 .github/scripts/patch-live-radar-autopilot-v6199.py
+          python3 .github/scripts/patch-live-radar-autopilot-v61910.py
+          python3 .github/scripts/patch-radar-manual-search-stop-v61911.py
+          python3 .github/scripts/patch-radar-autopilot-no-rescan-qualified-v61912.py
+          python3 .github/scripts/patch-live-radar-autopilot-v61912.py
+          python3 .github/scripts/patch-radar-autopilot-persistent-ledger-v61913.py
+          python3 .github/scripts/patch-live-radar-autopilot-v61913.py
+          python3 .github/scripts/patch-radar-autopilot-coverage-completion-v61914.py
+          python3 .github/scripts/patch-live-radar-autopilot-v61914.py
+          python3 .github/scripts/patch-radar-worker-coverage-propagation-v61915.py
+          python3 .github/scripts/patch-radar-autopilot-failure-scope-v61916.py
+          echo RADAR_V61916_RECONSTRUCT=PASS
+
+      - name: Verify failure-scope semantics
+        working-directory: /tmp/wfgg-radar/connector-go
+        run: |
+          set -euo pipefail
+          gofmt -w ./cmd ./internal
+          go test ./cmd/radar-connector -run 'V61916$' -count=1 -v | tee /tmp/v61916-tests.log
+          grep -Fq -- '--- PASS: TestAutopilotFailureScopeV61916' /tmp/v61916-tests.log
+          grep -Fq -- '--- PASS: TestAutopilotSkipFailureScopePreservesEvidenceV61916' /tmp/v61916-tests.log
+          grep -Fq -- '--- PASS: TestAutopilotLedgerSeedLocalLimitTerminalV61916' /tmp/v61916-tests.log
+          echo RADAR_V61916_FAILURE_SCOPE_TESTS=PASS
+
+      - name: Full connector regression
+        working-directory: /tmp/wfgg-radar/connector-go
+        run: |
+          set -euo pipefail
+          go test ./...
+          go vet ./...
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w' -o /tmp/radar-connector ./cmd/radar-connector
+          grep -aFq 'v6.19.16' /tmp/radar-connector
+          grep -aFq 'SEED_LOCAL_FAILURE_LIMIT' /tmp/radar-connector
+          grep -aFq 'SEED_SKIPPED_FAILURE_SCOPE' /tmp/radar-connector
+          grep -aFq 'AUTOPILOT_CONSECUTIVE_FAILURE_LIMIT' /tmp/radar-connector
+          grep -aFq 'COVERAGE_COMPLETE' /tmp/radar-connector
+          grep -aFq 'radar_autopilot_ledger_v61913' /tmp/radar-connector
+          grep -aFq 'MANUAL_SEARCH_STOPPED' /tmp/radar-connector
+          echo "RADAR_V61916_CONNECTOR_SHA256=$(sha256sum /tmp/radar-connector | awk '{print $1}')"
+          echo RADAR_V61916_CONNECTOR_REGRESSION=PASS
+
+      - name: Verify exact integration ordering
+        run: |
+          set -euo pipefail
+          A=/tmp/wfgg-radar/connector-go/cmd/radar-connector/server_autopilot_v6194.go
+          python3 - "$A" <<'PY'
+          import sys
+          t=open(sys.argv[1],encoding='utf-8').read()
+          lim=t.index('if job.ConsecutiveFailures >= job.ConsecutiveFailureLimit')
+          scope=t.index('autopilotFailureScopeV61916(final)',lim)
+          persist=t.index('autopilotPersistCurrentSeedOutcomeV61913(jobID, "SEED_LOCAL_LIMIT"',scope)
+          skip=t.index('autopilotSkipCurrentSeedFailureScopeV61916(jobID)',persist)
+          cont=t.index('continue',skip)
+          block=t.index('autopilotFailV6194(jobID, "FAILURE_LIMIT", "AUTOPILOT_CONSECUTIVE_FAILURE_LIMIT")',cont)
+          assert lim < scope < persist < skip < cont < block
+          print('RADAR_V61916_SEED_LOCAL_CONTINUE_BEFORE_GLOBAL_BLOCK=PASS')
+          PY
+          H=/tmp/wfgg-radar/connector-go/cmd/radar-connector/autopilot_persistent_ledger_v61913.go
+          grep -Fq '"SEED_LOCAL_LIMIT"' "$H"
+          echo RADAR_V61916_LEDGER_NO_RESCAN=PASS
+
+      - name: Verify UI and preserved V6.19.15 behavior
+        run: |
+          set -euo pipefail
+          U=/tmp/wfgg-radar/public/live-radar.html
+          W=/tmp/wfgg-radar/src/worker.js
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          h=Path('/tmp/wfgg-radar/public/live-radar.html').read_text(encoding='utf-8')
+          m=re.search(r'<script>(.*)</script>',h,re.S); assert m
+          Path('/tmp/v61916-ui.js').write_text(m.group(1),encoding='utf-8')
+          PY
+          node --check /tmp/v61916-ui.js
+          node --check "$W"
+          grep -Fq 'AUTOPILOT V6.19.16 · ARRÊTÉ' "$U"
+          grep -Fq 'SEED_SKIPPED_FAILURE_SCOPE' "$U"
+          grep -Fq 'AUTH/NETWORK/CONNECTOR/SYSTEM' "$U"
+          grep -Fq 'WFGG_RADAR_AUTOPILOT_RADAR_ANIMATION_V61915' "$U"
+          grep -Fq 'WFGG_RADAR_AUTOPILOT_WORKER_COVERAGE_PROPAGATION_V61915' "$W"
+          grep -Fq 'coverageMode,' "$W"
+          echo "RADAR_V61916_WORKER_SHA256=$(sha256sum "$W" | awk '{print $1}')"
+          echo "RADAR_V61916_UI_SHA256=$(sha256sum "$U" | awk '{print $1}')"
+          echo RADAR_V61916_V61915_REGRESSION=PASS
+
+      - name: Verify safety contract
+        run: |
+          set -euo pipefail
+          P=.github/scripts/patch-radar-autopilot-failure-scope-v61916.py
+          ! grep -Fq 'ScanPlayerRegionDiagnosticOnServer' "$P"
+          ! grep -Fq 'runCollectorSearch' "$P"
+          ! grep -REiq 'localStorage.*token|sessionStorage.*token|INSERT.*token|token.*INSERT|access_token' "$P"
+          ! grep -REiq 'building\.production\.collect|mail\.reward|al\.science\.donate|visitor\.operate|march|attack|purchase' "$P"
+          grep -Fq '"AUTH", "NETWORK", "CONNECTOR", "SYSTEM"' "$P"
+          echo RADAR_V61916_AUTH_NETWORK_CONNECTOR_SYSTEM=BLOCKING
+          echo RADAR_V61916_SEED_LOCAL_PROTOCOL_SERVER_TARGET=CONTINUE
+          echo RADAR_V61916_LASTWAR_MODE=READ_ONLY
+          echo RADAR_V61916_TOKEN_PERSISTENCE=NO
+          echo RADAR_V61916_PRODUCTION_DEPLOYMENT=NO
+          echo RADAR_V61916_QUALIFICATION=PASS
