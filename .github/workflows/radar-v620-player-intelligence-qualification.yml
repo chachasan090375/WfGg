@@ -93,11 +93,21 @@ jobs:
           exec > >(tee /tmp/v620-tests-step.log) 2>&1
           gofmt -w ./cmd ./internal
           go test ./cmd/radar-connector -run 'V620$' -count=1 -v | tee /tmp/v620-tests.log
-          grep -Fq -- '--- PASS: TestAutopilotFullAfterPartialPersistsAndConfirmsV620' /tmp/v620-tests.log
-          grep -Fq -- '--- PASS: TestAutopilotLedgerRetryableV620' /tmp/v620-tests.log
-          grep -Fq -- '--- PASS: TestPlayerIntelligenceAliasSearchV620' /tmp/v620-tests.log
-          grep -Fq -- '--- PASS: TestPlayerIntelligenceAllianceSearchV620' /tmp/v620-tests.log
-          grep -Fq -- '--- PASS: TestPlayerIntelligenceRecruitmentFiltersV620' /tmp/v620-tests.log
+          python3 - <<'PY'
+          from pathlib import Path
+          log=Path('/tmp/v620-tests.log').read_text(encoding='utf-8')
+          required=[
+              'TestAutopilotFullAfterPartialPersistsAndConfirmsV620',
+              'TestAutopilotLedgerRetryableV620',
+              'TestPlayerIntelligenceAliasSearchV620',
+              'TestPlayerIntelligenceAllianceSearchV620',
+              'TestPlayerIntelligenceRecruitmentFiltersV620',
+          ]
+          missing=[name for name in required if ('--- PASS: '+name) not in log]
+          if missing:
+              raise SystemExit('V620_TEST_ASSERTIONS_MISSING='+','.join(missing))
+          print('RADAR_V620_TEST_ASSERTIONS=PASS')
+          PY
           echo RADAR_V620_LEDGER_CONFIRMATION=PASS
           echo RADAR_V620_PLAYER_INTELLIGENCE=PASS
 
