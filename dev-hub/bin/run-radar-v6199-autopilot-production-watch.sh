@@ -59,6 +59,7 @@ while time.time()<deadline:
             print("RADAR_V6199_AUTOPILOT_NEXT_CYCLE_ID="+str(next_row['id']),flush=True)
             print("RADAR_V6199_AUTOPILOT_NEXT_QUERY="+str(next_row['query']),flush=True)
             print("RADAR_V6199_AUTOPILOT_NEXT_STATUS="+str(next_row['status']),flush=True)
+            print("RADAR_V6199_AUTOPILOT_NEXT_ERROR="+(str(next_row['error']) or 'NONE'),flush=True)
         last=state
 
     status=str(target_row['status']).upper()
@@ -74,9 +75,17 @@ while time.time()<deadline:
             if err.endswith('_CYCLE_TERMINALIZATION_FAILED'):
                 print("RADAR_V6199_AUTOPILOT_WATCH_FAIL=TERMINALIZATION_RETRIES_EXHAUSTED",flush=True)
                 raise SystemExit(5)
+            if err=='STALE_RUNNING_CYCLE_RECOVERED_V6197':
+                print("RADAR_V6199_AUTOPILOT_WATCH_FAIL=TARGET_BECAME_STALE",flush=True)
+                raise SystemExit(7)
 
     if next_row:
+        nerr=str(next_row['error'] or '')
+        if nerr=='AUTOPILOT_HISTORY_QUALITY_UNAVAILABLE' or 'HISTORY_QUALITY' in nerr:
+            print("RADAR_V6199_AUTOPILOT_WATCH_FAIL=HISTORY_QUALITY_REGRESSION",flush=True)
+            raise SystemExit(8)
         next_seen=True
+        print("RADAR_V6199_HISTORY_QUALITY_REGRESSION=NO",flush=True)
         print("RADAR_V6199_AUTOPILOT_CONTINUATION_OBSERVED=PASS",flush=True)
 
     if target_terminal and next_seen:
@@ -97,4 +106,5 @@ PY
 echo "LASTWAR_CONTACT=NO"
 echo "RADAR_PRODUCTION_MUTATION=NO"
 echo "COLLECTOR_DATA_MUTATION=NO"
+echo "RADAR_V6199_HISTORY_MUTATION=NO"
 echo "RADAR_V6199_AUTOPILOT_WATCH=PASS"
