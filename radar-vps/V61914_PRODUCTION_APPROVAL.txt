@@ -1,0 +1,13 @@
+WFGG_RADAR_PRODUCTION_APPROVAL=V6.19.14
+APPROVED_SOURCE_REV=ecfead1019a254f8d27ad5075a77821e20737875
+QUALIFICATION_RESULT=PASS
+PILOT_AUTOMATED_RESULT=PASS
+STATEMENT=J’approuve la promotion production Radar V6.19.14 Coverage Completion, candidat ecfead1019a254f8d27ad5075a77821e20737875, après qualification et PILOT automatisés PASS, avec remplacement contrôlé de V6.19.13 par V6.19.14, mode couverture continue jusqu’à épuisement réel de la frontière Seed Scout, conservation de Persistent Autopilot Ledger & Resume, No-Rescan Qualified Seeds et Manual Search Stop, Last War strictement READ-ONLY, aucune persistance de token, rollback disponible et déploiement des surfaces Cloudflare associées.
+COVERAGE_MODE=UNTIL_TRUE_SEED_SCOUT_FRONTIER_EXHAUSTION
+PRESERVE_V61913_LEDGER=YES
+PRESERVE_V61912_NO_RESCAN=YES
+PRESERVE_V61911_MANUAL_STOP=YES
+LASTWAR_MODE=READ_ONLY
+TOKEN_PERSISTENCE=NO
+ROLLBACK_REQUIRED=YES
+CLOUDFLARE_DEPLOYMENT=APPROVED
