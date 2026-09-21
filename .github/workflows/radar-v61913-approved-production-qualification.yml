@@ -111,7 +111,7 @@ jobs:
           actual="$(sha256sum /tmp/radar-connector | awk '{print $1}')"
           echo "RADAR_V61913_CONNECTOR_SHA256=$actual"
           test "$actual" = "$EXPECTED_CONNECTOR_SHA256"
-          grep -aFq 'v6.19.12' /tmp/radar-connector
+          grep -aFq 'v6.19.13' /tmp/radar-connector
           grep -aFq 'SCOUT_SKIPPED_QUALIFIED' /tmp/radar-connector
           grep -aFq 'AUTOPILOT_SCOUT_HISTORY_QUALITY_UNAVAILABLE_V61912' /tmp/radar-connector
           grep -aFq 'MANUAL_SEARCH_STOPPED' /tmp/radar-connector
