@@ -25,7 +25,7 @@ if text.count(meta_anchor) != 1:
     raise SystemExit(f'V61912_UI_META_ANCHOR_COUNT={text.count(meta_anchor)}')
 text = text.replace(
     meta_anchor,
-    "  if(Array.isArray(job.qualifiedSeedsSkipped)&&job.qualifiedSeedsSkipped.length)progress+=\` · déjà qualifiées ignorées \${job.qualifiedSeedsSkipped.length}\`;\n  meta.textContent=progress;",
+    "  if(Array.isArray(job.qualifiedSeedsSkipped)&&job.qualifiedSeedsSkipped.length)progress+=` · déjà qualifiées ignorées ${job.qualifiedSeedsSkipped.length}`;\n  meta.textContent=progress;",
     1,
 )
 
