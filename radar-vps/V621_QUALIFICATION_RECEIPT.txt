@@ -1,6 +1,6 @@
 WFGG_RADAR_QUALIFICATION=V6.21
 RESULT=failure
-SOURCE_REV=826964db046fe8dd75e8c2b899a86b221508c57e
+SOURCE_REV=5d4e858990d72c3f8ef8c5ba8577fa20107d3741
 COUNTRY_OPTIONS_SOURCE=LASTWAR_OBSERVED_VALUES
 GENERIC_WORLD_COUNTRY_LIST=NO
 LASTWAR_MODE=READ_ONLY
@@ -9,31 +9,31 @@ PRODUCTION_DEPLOYMENT=NO
 
 ===== v621-tests.log =====
 === RUN   TestPlayerIntelligenceCountryOptionsAreGameObservedV621
---- PASS: TestPlayerIntelligenceCountryOptionsAreGameObservedV621 (0.07s)
+--- PASS: TestPlayerIntelligenceCountryOptionsAreGameObservedV621 (0.10s)
 === RUN   TestPlayerIntelligenceUnsupportedCountryIsGracefulV621
---- PASS: TestPlayerIntelligenceUnsupportedCountryIsGracefulV621 (0.05s)
+--- PASS: TestPlayerIntelligenceUnsupportedCountryIsGracefulV621 (0.04s)
 === RUN   TestPlayerIntelligenceNormalizedChipsV621
---- PASS: TestPlayerIntelligenceNormalizedChipsV621 (0.05s)
+--- PASS: TestPlayerIntelligenceNormalizedChipsV621 (0.04s)
 === RUN   TestPlayerIntelligenceIncludeAliasV621
---- PASS: TestPlayerIntelligenceIncludeAliasV621 (0.06s)
+--- PASS: TestPlayerIntelligenceIncludeAliasV621 (0.04s)
 === RUN   TestPlayerIntelligenceAliasSearchStillWorksV621
---- PASS: TestPlayerIntelligenceAliasSearchStillWorksV621 (0.06s)
+--- PASS: TestPlayerIntelligenceAliasSearchStillWorksV621 (0.04s)
 PASS
-ok  	wfgg-radar-connector/cmd/radar-connector	0.294s
+ok  	wfgg-radar-connector/cmd/radar-connector	0.279s
 
 ===== v620-tests.log =====
 === RUN   TestAutopilotFullAfterPartialPersistsAndConfirmsV620
---- PASS: TestAutopilotFullAfterPartialPersistsAndConfirmsV620 (0.09s)
+--- PASS: TestAutopilotFullAfterPartialPersistsAndConfirmsV620 (0.30s)
 === RUN   TestAutopilotLedgerRetryableV620
 --- PASS: TestAutopilotLedgerRetryableV620 (0.00s)
 === RUN   TestPlayerIntelligenceAliasSearchV620
---- PASS: TestPlayerIntelligenceAliasSearchV620 (0.05s)
+--- PASS: TestPlayerIntelligenceAliasSearchV620 (0.24s)
 === RUN   TestPlayerIntelligenceAllianceSearchV620
---- PASS: TestPlayerIntelligenceAllianceSearchV620 (0.06s)
+--- PASS: TestPlayerIntelligenceAllianceSearchV620 (0.04s)
 === RUN   TestPlayerIntelligenceRecruitmentFiltersV620
---- PASS: TestPlayerIntelligenceRecruitmentFiltersV620 (0.05s)
+--- PASS: TestPlayerIntelligenceRecruitmentFiltersV620 (0.04s)
 PASS
-ok  	wfgg-radar-connector/cmd/radar-connector	0.265s
+ok  	wfgg-radar-connector/cmd/radar-connector	0.624s
 
 ===== v61917-tests.log =====
 === RUN   TestAutopilotResolveVerificationV61917
@@ -46,9 +46,9 @@ PASS
 ok  	wfgg-radar-connector/cmd/radar-connector	0.003s
 
 ===== v620-regression.log =====
-ok  	wfgg-radar-connector/cmd/radar-connector	7.271s
+ok  	wfgg-radar-connector/cmd/radar-connector	7.009s
 ok  	wfgg-radar-connector/internal/authsig	0.003s
-ok  	wfgg-radar-connector/internal/protocol	0.062s
+ok  	wfgg-radar-connector/internal/protocol	0.047s
 PASS v6.20.0
 PASS v6.21.0
 PASS ADAPTIVE_FAST
@@ -62,5 +62,8 @@ PASS PLAYER_INTELLIGENCE_REQUEST_INVALID_V620
 PASS /v1/collector/intelligence/search
 PASS /v1/collector/intelligence/search-v621
 PASS lastwar-observed-values
-MISS country_unavailable
-V621_BINARY_MARKERS_MISSING=country_unavailable
+PASS ignoredFilters
+PASS warnings
+RADAR_V621_BINARY_MARKERS=PASS
+RADAR_V621_CONNECTOR_SHA256=da12aad924564309615b71c249262294f4ba4e5d0aad54a7921c315d07c016fe
+RADAR_V621_CONNECTOR_REGRESSION=PASS
