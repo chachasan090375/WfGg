@@ -235,32 +235,44 @@ jobs:
           h=Path('/tmp/wfgg-radar/public/live-radar.html').read_text(encoding='utf-8')
           m=re.search(r'<script>(.*)</script>',h,re.S); assert m
           Path('/tmp/v621-ui.js').write_text(m.group(1),encoding='utf-8')
+          markers=[
+            'AUTOPILOT V6.20.0 · ARRÊTÉ',
+            'fullCyclesPerCluster:1,adaptiveVerification:true,coverageMode:true',
+            '1×9/9 valide par grappe',
+            'vérification adaptative',
+            'WFGG_RADAR_AUTOPILOT_RADAR_ANIMATION_V61915',
+            'WFGG_RADAR_AUTOPILOT_FAILURE_SCOPE_CONTINUE_UI_V61916',
+            'WFGG_RADAR_MANUAL_SEARCH_STOP_UI_V61911',
+            'WFGG_RADAR_PLAYER_INTELLIGENCE_UI_V620',
+            'id="filterButton"',
+            'PRESET RECRUTEMENT FR',
+            'ANCIENS PSEUDOS',
+            '/api/radar/intelligence/search',
+            'WFGG_RADAR_RECRUITMENT_UX_UI_V621',
+            'PAYS PROPOSÉS PAR LAST WAR',
+            'La liste Pays est construite uniquement avec les valeurs réellement fournies par Last War',
+            'data-kind="servers"',
+            'data-kind="alliances"',
+            'data-kind="players"',
+            'INCLURE',
+            'EXCLURE',
+            'v621ParseMetric',
+            'v621ApplyFRPreset',
+            'Le filtre Pays n’est pas encore disponible',
+          ]
+          missing=[]
+          for marker in markers:
+              ok=marker in h
+              print(('PASS ' if ok else 'MISS ')+marker)
+              if not ok: missing.append(marker)
+          raw='FILTER_UNSUPPORTED_V620:country'
+          print(('PASS absent ' if raw not in h else 'MISS raw-visible ')+raw)
+          if raw in h: missing.append('raw-filter-error-visible')
+          if missing:
+              raise SystemExit('V621_UI_MARKERS_MISSING='+','.join(missing))
+          print('RADAR_V621_UI_MARKERS=PASS')
           PY
           node --check /tmp/v621-ui.js
-          grep -Fq 'AUTOPILOT V6.20.0 · ARRÊTÉ' "$U"
-          grep -Fq 'fullCyclesPerCluster:1,adaptiveVerification:true,coverageMode:true' "$U"
-          grep -Fq '1×9/9 valide par grappe' "$U"
-          grep -Fq 'vérification adaptative' "$U"
-          grep -Fq 'WFGG_RADAR_AUTOPILOT_RADAR_ANIMATION_V61915' "$U"
-          grep -Fq 'WFGG_RADAR_AUTOPILOT_FAILURE_SCOPE_CONTINUE_UI_V61916' "$U"
-          grep -Fq 'WFGG_RADAR_MANUAL_SEARCH_STOP_UI_V61911' "$U"
-          grep -Fq 'WFGG_RADAR_PLAYER_INTELLIGENCE_UI_V620' "$U"
-          grep -Fq 'id="filterButton"' "$U"
-          grep -Fq 'PRESET RECRUTEMENT FR' "$U"
-          grep -Fq 'ANCIENS PSEUDOS' "$U"
-          grep -Fq '/api/radar/intelligence/search' "$U"
-          grep -Fq 'WFGG_RADAR_RECRUITMENT_UX_UI_V621' "$U"
-          grep -Fq 'PAYS PROPOSÉS PAR LAST WAR' "$U"
-          grep -Fq 'La liste Pays est construite uniquement avec les valeurs réellement fournies par Last War' "$U"
-          grep -Fq 'data-kind="servers"' "$U"
-          grep -Fq 'data-kind="alliances"' "$U"
-          grep -Fq 'data-kind="players"' "$U"
-          grep -Fq 'INCLURE' "$U"
-          grep -Fq 'EXCLURE' "$U"
-          grep -Fq 'v621ParseMetric' "$U"
-          grep -Fq 'v621ApplyFRPreset' "$U"
-          grep -Fq 'Le filtre Pays n’est pas encore disponible' "$U"
-          ! grep -Fq 'FILTER_UNSUPPORTED_V620:country' "$U"
           echo "RADAR_V621_UI_SHA256=$(sha256sum "$U" | awk '{print $1}')"
           echo RADAR_V621_UI=PASS
 
