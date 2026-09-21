@@ -1,6 +1,6 @@
 WFGG_RADAR_PILOT=V6.22
-RESULT=failure
-SOURCE_REV=122395674aaafade205eb9cb308a9aa9142d44fc
+RESULT=success
+SOURCE_REV=5ac4161fa544f90f510ac4951e62a4d5da757b3a
 QUALIFIED_SOURCE_REV=2cec98487059d7500dc02d91fbc683d3492ae3f3
 PIPELINE=LOCAL_UID_THEN_LIVE_PROFILE
 LASTWAR_COMMAND=get.user.info.multi
@@ -17,3 +17,37 @@ PRODUCTION_DEPLOYMENT=NO
 --- PASS: TestRichObservedV6191 (0.00s)
 PASS
 ok  	wfgg-radar-connector/cmd/radar-connector	0.003s
+
+===== v621-pilot.log =====
+=== RUN   TestPlayerIntelligenceCountryOptionsAreGameObservedV621
+--- PASS: TestPlayerIntelligenceCountryOptionsAreGameObservedV621 (0.14s)
+=== RUN   TestPlayerIntelligenceUnsupportedCountryIsGracefulV621
+--- PASS: TestPlayerIntelligenceUnsupportedCountryIsGracefulV621 (0.05s)
+=== RUN   TestPlayerIntelligenceNormalizedChipsV621
+--- PASS: TestPlayerIntelligenceNormalizedChipsV621 (0.04s)
+=== RUN   TestPlayerIntelligenceIncludeAliasV621
+--- PASS: TestPlayerIntelligenceIncludeAliasV621 (0.05s)
+=== RUN   TestPlayerIntelligenceAliasSearchStillWorksV621
+--- PASS: TestPlayerIntelligenceAliasSearchStillWorksV621 (0.81s)
+PASS
+ok  	wfgg-radar-connector/cmd/radar-connector	1.083s
+
+===== v622-pilot-regression.log =====
+=== RUN   TestAutopilotResolveVerificationV61917
+--- PASS: TestAutopilotResolveVerificationV61917 (0.00s)
+=== RUN   TestAutopilotAdaptiveOneFullCycleConfirmsV61917
+--- PASS: TestAutopilotAdaptiveOneFullCycleConfirmsV61917 (0.00s)
+=== RUN   TestAutopilotAdaptivePartialDoesNotConfirmV61917
+--- PASS: TestAutopilotAdaptivePartialDoesNotConfirmV61917 (0.00s)
+=== RUN   TestAutopilotFullAfterPartialPersistsAndConfirmsV620
+--- PASS: TestAutopilotFullAfterPartialPersistsAndConfirmsV620 (0.44s)
+=== RUN   TestAutopilotLedgerRetryableV620
+--- PASS: TestAutopilotLedgerRetryableV620 (0.00s)
+=== RUN   TestPlayerIntelligenceAliasSearchV620
+--- PASS: TestPlayerIntelligenceAliasSearchV620 (0.05s)
+=== RUN   TestPlayerIntelligenceAllianceSearchV620
+--- PASS: TestPlayerIntelligenceAllianceSearchV620 (0.04s)
+=== RUN   TestPlayerIntelligenceRecruitmentFiltersV620
+--- PASS: TestPlayerIntelligenceRecruitmentFiltersV620 (0.04s)
+PASS
+ok  	wfgg-radar-connector/cmd/radar-connector	0.581s
