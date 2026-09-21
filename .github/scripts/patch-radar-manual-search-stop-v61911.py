@@ -146,7 +146,7 @@ func (s *server) collectorSearchStopV61911(w http.ResponseWriter, _ *http.Reques
         raise SystemExit(f'V61911_RUN_ANCHOR_COUNT={text.count(run_anchor)}')
     text = text.replace(run_anchor, 'func (s *server) runCollectorSearch(ctx context.Context, jobID, token, query string) {\n', 1)
 
-    running_anchor = '\tradarCollectorJobs.update(jobID, func(j *collectorJob) { j.Status = "RUNNING"; j.Phase = "STARTING" })\n'
+    running_anchor = 'radarCollectorJobs.update(jobID, func(j *collectorJob) { j.Status = "RUNNING"; j.Phase = "STARTING" })'
     if text.count(running_anchor) != 1:
         raise SystemExit(f'V61911_RUNNING_ANCHOR_COUNT={text.count(running_anchor)}')
     cancel_helper = '''\tmanualStopIfCancelledV61911 := func() bool {
@@ -161,19 +161,27 @@ func (s *server) collectorSearchStopV61911(w http.ResponseWriter, _ *http.Reques
 \t}
 
 '''
-    text = text.replace(running_anchor, cancel_helper + running_anchor, 1)
+    running_pos = text.index(running_anchor)
+    running_line_start = text.rfind('\n', 0, running_pos) + 1
+    text = text[:running_line_start] + cancel_helper + text[running_line_start:]
 
     replacements = [
         (
-''' 	cycle, joined, err := collectorStartCycle(ctx, query)
-	if err != nil {
-		fail("COLLECTOR_CYCLE_START_FAILED", err)
-'''.lstrip(),
-''' 	cycle, joined, err := collectorStartCycle(ctx, query)
-	if err != nil {
-		if manualStopIfCancelledV61911() { return }
-		fail("COLLECTOR_CYCLE_START_FAILED", err)
-'''.lstrip()
+'''\tcycle, joined, staleRecovered, err := collectorStartCycleWithStaleRecoveryV6197(ctx, query)
+\tif staleRecovered {
+\t\tradarCollectorJobs.update(jobID, func(j *collectorJob) { j.Phase = "STALE_CYCLE_RECOVERED" })
+\t}
+\tif err != nil {
+\t\tfail("COLLECTOR_CYCLE_START_FAILED", err)
+''',
+'''\tcycle, joined, staleRecovered, err := collectorStartCycleWithStaleRecoveryV6197(ctx, query)
+\tif staleRecovered {
+\t\tradarCollectorJobs.update(jobID, func(j *collectorJob) { j.Phase = "STALE_CYCLE_RECOVERED" })
+\t}
+\tif err != nil {
+\t\tif manualStopIfCancelledV61911() { return }
+\t\tfail("COLLECTOR_CYCLE_START_FAILED", err)
+'''
         ),
         (
 '''		if err := waitCollectorCycle(ctx, cycle.ID); err != nil {
