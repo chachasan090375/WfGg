@@ -109,12 +109,17 @@ jobs:
           refresh=Path('/tmp/wfgg-radar/connector-go/cmd/radar-connector/profile_refresh_v6191.go').read_text()
           marker='WFGG_RADAR_PROFILE_ONLY_JOB_V6191'
           i=jobs.find(marker)
-          cycle=jobs.find('collectorStartCycle(ctx, query)',i)
-          assert i>=0 and cycle>i, 'profile-only branch must precede collectorStartCycle'
-          segment=jobs[i:cycle]
+          assert i>=0, 'profile-only marker missing'
+          segment=jobs[i:i+3500]
           assert '@profile:' in segment
           assert 'runTargetProfileRefreshV6191' in segment
-          assert 'collectorStartCycle' not in segment
+          assert 'completeCollectorJob' in segment
+          refresh_call=segment.find('runTargetProfileRefreshV6191')
+          complete=segment.find('completeCollectorJob',refresh_call)
+          ret=segment.find('return',complete)
+          assert refresh_call>=0 and complete>refresh_call and ret>complete, 'profile-only completion/return order invalid'
+          assert 'ScanPlayerRegion' not in segment[:ret]
+          assert 'scanCollectorRegions' not in segment[:ret]
           assert 'WFGG_RADAR_TARGET_PROFILE_REFRESH_ROUTE_V6191' in main
           assert '/v1/collector/profile/refresh' in main
           assert 'get.user.info.multi' in refresh
