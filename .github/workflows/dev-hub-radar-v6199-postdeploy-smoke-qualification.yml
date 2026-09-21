@@ -1,0 +1,55 @@
+name: ChaCha DEV Radar V6.19.9 post-deploy smoke qualification
+
+on:
+  push:
+    branches: [dev-hub-v5-radar-cluster-quality-diagnostic-v1]
+    paths:
+      - 'dev-hub/bin/run-radar-v6199-postdeploy-smoke-e2e.sh'
+      - '.github/workflows/dev-hub-radar-v6199-postdeploy-smoke-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev-hub-v5-radar-cluster-quality-diagnostic-v1
+
+      - name: Validate read-only V6.19.9 post-deploy smoke
+        run: |
+          set -euo pipefail
+          R=dev-hub/bin/run-radar-v6199-postdeploy-smoke-e2e.sh
+          A=dev-hub/adapters/radar-runtime-adapter.py
+          bash -n "$R"
+          python3 -m py_compile "$A"
+          python3 dev-hub/tests/test_radar_runtime_adapter_contract.py >/dev/null
+          grep -Fq 'PRODUCTION_REV="c058125c78d273b32f2412953977ede8bee15dca"' "$R"
+          grep -Fq 'EXPECTED_CONNECTOR="5058159307ccb99e8e631fe71014608934b8575e69d5599e4388550306baab7f"' "$R"
+          grep -Fq 'EXPECTED_NATIVE="274d040f5294cb09422e5d55cc4b5335ac7739924c33dcb67b3f279645814900"' "$R"
+          grep -Fq '"sentinel-release-diagnostic": "read"' "$A"
+          grep -Fq "assert d.get('runtime_matches_expected') is True" "$R"
+          grep -Fq "assert d.get('mutable_manifest_matches_expected') is True" "$R"
+          grep -Fq "assert d.get('immutable_manifest_matches_expected') is True" "$R"
+          grep -Fq "assert d.get('runtime_mutation') is False" "$R"
+          grep -Fq "assert d.get('game_scan_executed') is False" "$R"
+          grep -Fq "assert d.get('collector_mutation') is False" "$R"
+          grep -Fq 'https://wfgg-radar.chachasan090375.workers.dev' "$R"
+          grep -Fq '/api/health?postdeploy=' "$R"
+          grep -Fq 'WFGG_RADAR_SESSION_KEEPALIVE_UI_V6195' "$R"
+          grep -Fq 'WFGG_RADAR_AUTOPILOT_CONTINUE_NO_DATA_UI_V6196' "$R"
+          grep -Fq 'WFGG_RADAR_AUTOPILOT_STALE_CYCLE_RECOVERY_UI_V6197' "$R"
+          grep -Fq 'WFGG_RADAR_COLLECTOR_CYCLE_TERMINALIZATION_UI_V6198' "$R"
+          grep -Fq 'WFGG_RADAR_AUTOPILOT_TARGETED_HISTORY_QUALITY_UI_V6199' "$R"
+          grep -Fq 'AUTOPILOT V6.19.9 · ARRÊTÉ' "$R"
+          grep -Fq 'LASTWAR_CONTACT=NO' "$R"
+          grep -Fq 'RADAR_PRODUCTION_MUTATION=NO' "$R"
+          grep -Fq 'COLLECTOR_DATA_MUTATION=NO' "$R"
+          grep -Fq 'RADAR_V6199_GAME_SCAN_EXECUTED=NO' "$R"
+          grep -Fq 'RADAR_V6199_HISTORY_MUTATION=NO' "$R"
+          grep -Fq 'RADAR_V6199_POSTDEPLOY_SMOKE_E2E=PASS' "$R"
+          echo RADAR_V6199_POSTDEPLOY_SMOKE=QUALIFIED
