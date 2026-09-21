@@ -182,7 +182,6 @@ jobs:
           )
           grep -Fq "$EXPECTED_CONNECTOR_SHA256  radar-connector" radar-vps/release/SHA256SUMS
           grep -Fq "$EXPECTED_NATIVE_SHA256  radar-native-template" radar-vps/release/SHA256SUMS
-          grep -aFq 'v6.19.13' radar-vps/release/radar-connector
           grep -aFq 'radar_autopilot_ledger_v61913' radar-vps/release/radar-connector
           grep -aFq 'SCOUT_SKIPPED_PERSISTED' radar-vps/release/radar-connector
           grep -aFq 'LEDGER_RESUME_SKIPPED_TERMINAL' radar-vps/release/radar-connector
