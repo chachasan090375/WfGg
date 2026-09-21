@@ -169,6 +169,24 @@ func (s *server) collectorSearchStopV61911(w http.ResponseWriter, _ *http.Reques
 '''
     text = text[:running_line_start] + cancel_helper + text[running_line_start:]
 
+    fail_cause_anchor = '''\t\tif len(causes) > 0 {
+\t\t\tcause = causes[0]
+\t\t}
+\t\tif ownsCycleV6198 && cycleIDV6198 > 0 {
+'''
+    if text.count(fail_cause_anchor) != 1:
+        raise SystemExit(f'V61911_FAIL_CAUSE_ANCHOR_COUNT={text.count(fail_cause_anchor)}')
+    fail_cause_repl = '''\t\tif len(causes) > 0 {
+\t\t\tcause = causes[0]
+\t\t}
+\t\tif current, ok := radarCollectorJobs.get(jobID); ok && current.Phase == "STOPPING" && errors.Is(ctx.Err(), context.Canceled) {
+\t\t\tcode = "MANUAL_SEARCH_STOPPED"
+\t\t\tcause = ctx.Err()
+\t\t}
+\t\tif ownsCycleV6198 && cycleIDV6198 > 0 {
+'''
+    text = text.replace(fail_cause_anchor, fail_cause_repl, 1)
+
     replacements = [
         (
 '''\tcycle, joined, staleRecovered, err := collectorStartCycleWithStaleRecoveryV6197(ctx, query)
@@ -188,77 +206,95 @@ func (s *server) collectorSearchStopV61911(w http.ResponseWriter, _ *http.Reques
 '''
         ),
         (
-'''		if err := waitCollectorCycle(ctx, cycle.ID); err != nil {
-			fail("COLLECTOR_JOINED_CYCLE_FAILED", err)
+'''\t\tif err := waitCollectorCycle(ctx, cycle.ID); err != nil {
+\t\t\tfail("COLLECTOR_JOINED_CYCLE_FAILED", err)
 ''',
-'''		if err := waitCollectorCycle(ctx, cycle.ID); err != nil {
-			if manualStopIfCancelledV61911() { return }
-			fail("COLLECTOR_JOINED_CYCLE_FAILED", err)
+'''\t\tif err := waitCollectorCycle(ctx, cycle.ID); err != nil {
+\t\t\tif manualStopIfCancelledV61911() { return }
+\t\t\tfail("COLLECTOR_JOINED_CYCLE_FAILED", err)
 '''
         ),
         (
-'''		players, err := regionScanner.ScanPlayerRegion(ctx, token, "*", region)
-		if err != nil {
+'''\t\t// PROFILE_TARGET_RETRY_V1: a joined SEARCH must still refresh its own
+\t\t// target, but a transient profile miss must not discard the valid map row.
+\t\t_ = s.refreshSearchTarget(ctx, token, query, 0, jobID)
+\t\tplayer, _ := collectorGetPlayer(ctx, query)
 ''',
-'''		players, err := regionScanner.ScanPlayerRegion(ctx, token, "*", region)
-		if err != nil {
-			if manualStopIfCancelledV61911() { return }
+'''\t\t// PROFILE_TARGET_RETRY_V1: a joined SEARCH must still refresh its own
+\t\t// target, but a transient profile miss must not discard the valid map row.
+\t\t_ = s.refreshSearchTarget(ctx, token, query, 0, jobID)
+\t\tif manualStopIfCancelledV61911() { return }
+\t\tplayer, _ := collectorGetPlayer(ctx, query)
 '''
         ),
         (
-'''		accepted, err := collectorIngest(ctx, players, cycle.ID)
-		if err != nil {
+'''\tregionScanner, ok := s.game.(protocol.RegionScanner)
 ''',
-'''		accepted, err := collectorIngest(ctx, players, cycle.ID)
-		if err != nil {
-			if manualStopIfCancelledV61911() { return }
+'''\tif manualStopIfCancelledV61911() { return }
+\tregionScanner, ok := s.game.(protocol.RegionScanner)
 '''
         ),
         (
-'''	uids, err := collectorChangedUIDs(ctx, cycle.ID)
-	if err != nil {
+'''\tfor region := 0; region < 9; region++ {
 ''',
-'''	uids, err := collectorChangedUIDs(ctx, cycle.ID)
-	if err != nil {
-		if manualStopIfCancelledV61911() { return }
+'''\tfor region := 0; region < 9; region++ {
+\t\tif manualStopIfCancelledV61911() { return }
 '''
         ),
         (
-'''			players, err := profileScanner.ScanProfiles(ctx, token, uids[start:end])
-			if err != nil {
+'''\t\taccepted, err := collectorIngest(ctx, players, cycle.ID)
+\t\tif err != nil {
+\t\t\t_ = collectorFinishCycle(context.Background(), cycle.ID, "FAILED", "MAP_INGEST_FAILED")
 ''',
-'''			players, err := profileScanner.ScanProfiles(ctx, token, uids[start:end])
-			if err != nil {
-				if manualStopIfCancelledV61911() { return }
+'''\t\taccepted, err := collectorIngest(ctx, players, cycle.ID)
+\t\tif err != nil {
+\t\t\tif manualStopIfCancelledV61911() { return }
+\t\t\t_ = collectorFinishCycle(context.Background(), cycle.ID, "FAILED", "MAP_INGEST_FAILED")
 '''
         ),
         (
-'''			accepted, err := collectorIngest(ctx, players, cycle.ID)
-			if err != nil {
+'''\tif current, ok := radarCollectorJobs.get(jobID); ok && current.RegionsCompleted == 0 && current.RegionsFailed > 0 {
 ''',
-'''			accepted, err := collectorIngest(ctx, players, cycle.ID)
-			if err != nil {
-				if manualStopIfCancelledV61911() { return }
+'''\tif manualStopIfCancelledV61911() { return }
+\tif current, ok := radarCollectorJobs.get(jobID); ok && current.RegionsCompleted == 0 && current.RegionsFailed > 0 {
 '''
         ),
         (
-'''	_ = s.refreshSearchTarget(ctx, token, query, cycle.ID, jobID)
+'''\tuids, err := collectorChangedUIDs(ctx, cycle.ID)
+\tif err != nil {
+\t\t_ = collectorFinishCycle(context.Background(), cycle.ID, "FAILED", "DELTA_READ_FAILED")
+''',
+'''\tuids, err := collectorChangedUIDs(ctx, cycle.ID)
+\tif err != nil {
+\t\tif manualStopIfCancelledV61911() { return }
+\t\t_ = collectorFinishCycle(context.Background(), cycle.ID, "FAILED", "DELTA_READ_FAILED")
+'''
+        ),
+        (
+'''\t// Give the searched player a dedicated retry pass after bulk enrichment.
+''',
+'''\tif manualStopIfCancelledV61911() { return }
+\t// Give the searched player a dedicated retry pass after bulk enrichment.
+'''
+        ),
+        (
+'''\t_ = s.refreshSearchTarget(ctx, token, query, cycle.ID, jobID)
 
-	radarCollectorJobs.update(jobID, func(j *collectorJob) { j.Phase = "FINALIZING" })
+\tradarCollectorJobs.update(jobID, func(j *collectorJob) { j.Phase = "FINALIZING" })
 ''',
-'''	_ = s.refreshSearchTarget(ctx, token, query, cycle.ID, jobID)
-	if manualStopIfCancelledV61911() { return }
+'''\t_ = s.refreshSearchTarget(ctx, token, query, cycle.ID, jobID)
+\tif manualStopIfCancelledV61911() { return }
 
-	radarCollectorJobs.update(jobID, func(j *collectorJob) { j.Phase = "FINALIZING" })
+\tradarCollectorJobs.update(jobID, func(j *collectorJob) { j.Phase = "FINALIZING" })
 '''
         ),
         (
-'''	if err := collectorFinishCycle(ctx, cycle.ID, "SUCCESS", ""); err != nil {
-		fail("COLLECTOR_CYCLE_FINISH_FAILED", err)
+'''\tif err := collectorFinishCycle(ctx, cycle.ID, "SUCCESS", ""); err != nil {
+\t\tfail("COLLECTOR_CYCLE_FINISH_FAILED", err)
 ''',
-'''	if err := collectorFinishCycle(ctx, cycle.ID, "SUCCESS", ""); err != nil {
-		if manualStopIfCancelledV61911() { return }
-		fail("COLLECTOR_CYCLE_FINISH_FAILED", err)
+'''\tif err := collectorFinishCycle(ctx, cycle.ID, "SUCCESS", ""); err != nil {
+\t\tif manualStopIfCancelledV61911() { return }
+\t\tfail("COLLECTOR_CYCLE_FINISH_FAILED", err)
 '''
         ),
     ]
