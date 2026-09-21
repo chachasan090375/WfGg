@@ -3,6 +3,7 @@ from pathlib import Path
 
 ROOT = Path('/tmp/wfgg-radar')
 AUTOPILOT = ROOT / 'connector-go/cmd/radar-connector/server_autopilot_v6194.go'
+MAIN = ROOT / 'connector-go/cmd/radar-connector/main.go'
 HELPER = ROOT / 'connector-go/cmd/radar-connector/autopilot_no_rescan_v61912.go'
 TEST = ROOT / 'connector-go/cmd/radar-connector/autopilot_no_rescan_v61912_test.go'
 
@@ -84,6 +85,15 @@ if marker not in text:
     text = text.replace(func_anchor, marker + '\n' + func_anchor, 1)
 
 AUTOPILOT.write_text(text, encoding='utf-8')
+
+main_text = MAIN.read_text(encoding='utf-8')
+health_old = '"version": "0.5.0-collector-async-email-auth-v1"'
+health_new = '"version": "v6.19.12-no-rescan-qualified-seeds"'
+if health_new not in main_text:
+    if main_text.count(health_old) != 1:
+        raise SystemExit(f'V61912_HEALTH_VERSION_ANCHOR_COUNT={main_text.count(health_old)}')
+    main_text = main_text.replace(health_old, health_new, 1)
+    MAIN.write_text(main_text, encoding='utf-8')
 
 HELPER.write_text(r'''package main
 
