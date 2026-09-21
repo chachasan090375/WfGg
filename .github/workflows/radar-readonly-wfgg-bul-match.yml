@@ -1,0 +1,82 @@
+name: Read-only WFGG Bul de King match
+
+on:
+  push:
+    branches: [radar-readonly-wfgg-bul-match]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  match:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      RADAR_CONNECTOR_URL: https://chachavps.tail3ab05a.ts.net
+    steps:
+      - name: Query V6.21 Collector intelligence
+        env:
+          RADAR_CONNECTOR_SHARED_KEY: ${{ secrets.RADAR_CONNECTOR_SHARED_KEY }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib,hmac,json,os,secrets,time,urllib.request,urllib.error
+          base=os.environ['RADAR_CONNECTOR_URL'].rstrip('/')
+          key=os.environ['RADAR_CONNECTOR_SHARED_KEY'].encode()
+          path='/v1/collector/intelligence/search-v621'
+
+          def post(payload):
+              body=json.dumps(payload,separators=(',',':')).encode()
+              ts=str(int(time.time()))
+              nonce=secrets.token_hex(16)
+              sig=hmac.new(key,'\n'.join(['POST',path,ts,nonce,hashlib.sha256(body).hexdigest()]).encode(),hashlib.sha256).hexdigest()
+              req=urllib.request.Request(base+path,data=body,method='POST',headers={
+                  'Content-Type':'application/json',
+                  'X-Radar-Timestamp':ts,
+                  'X-Radar-Nonce':nonce,
+                  'X-Radar-Signature':sig,
+              })
+              with urllib.request.urlopen(req,timeout=25) as r:
+                  return r.status,json.load(r)
+
+          checks=[
+            ('bul_global',{'query':'Bul','limit':100,'offset':0}),
+            ('bul_de_king',{'query':'Bul de king','limit':100,'offset':0}),
+            ('wfgg_hq33_45_65m',{'includeAlliances':['WFGG'],'minHQ':33,'maxHQ':33,'minPower':45000000,'maxPower':65000000,'limit':100,'offset':0}),
+            ('wfgg_all',{'includeAlliances':['WFGG'],'limit':100,'offset':0}),
+          ]
+          out=[]
+          for label,payload in checks:
+              try:
+                  status,data=post(payload)
+                  players=[]
+                  for p in data.get('players') or []:
+                      players.append({
+                        'gameUid':p.get('gameUid'),
+                        'pseudo':p.get('pseudo'),
+                        'serverId':p.get('serverId'),
+                        'allianceId':p.get('allianceId'),
+                        'allianceTag':p.get('allianceTag'),
+                        'hqLevel':p.get('hqLevel'),
+                        'power':p.get('power'),
+                        'observedAt':p.get('observedAt'),
+                        'aliases':p.get('aliases'),
+                        'country':p.get('country'),
+                        'armyPower':p.get('armyPower'),
+                        'armyKill':p.get('armyKill'),
+                        'svipLevel':p.get('svipLevel'),
+                        'x':p.get('x'),'y':p.get('y'),
+                        'matchedBy':p.get('matchedBy'),'matchedAlias':p.get('matchedAlias'),
+                      })
+                  out.append({'label':label,'http':status,'total':data.get('total'),'count':data.get('count'),'players':players})
+              except Exception as e:
+                  out.append({'label':label,'error':type(e).__name__+':'+str(e)})
+          print('WFGG_BUL_MATCH_JSON='+json.dumps({'readonly':True,'gameScanExecuted':False,'checks':out},ensure_ascii=False,separators=(',',':')))
+          PY
+
+      - name: Safety receipt
+        run: |
+          echo LASTWAR_MODE=READ_ONLY
+          echo GAME_SCAN_EXECUTED=NO
+          echo PRODUCTION_DEPLOYMENT=NO
