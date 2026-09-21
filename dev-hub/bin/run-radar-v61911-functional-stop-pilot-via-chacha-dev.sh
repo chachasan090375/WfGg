@@ -205,11 +205,11 @@ obj={
     "change":"Manual Search Stop",
     "approved_revision":"cbf67e46308e925f1ba5fad0be3f58764231935d",
     "artifact_revision":"759bfb3fe4620f544cc84fdea34e54bfa3efbdcf",
-    "purpose":"run one real manual @federated:8120 search through the exact V6.19.11 candidate UI, stop only that active manual job with STOP, prove MANUAL_SEARCH_STOPPED and Collector terminalization, with Last War strictly READ-ONLY and no persistent token storage"
+    "purpose":"reopen one functional V6.19.11 window; allow only the previously validated V6.19.7 stale recovery of cycle 81, then run one real manual @federated:8120 READ-ONLY search and stop only that active manual job with STOP; no persistent token storage and no production promotion/deployment"
   },
   "actor":"human-user",
   "source":"chat-explicit-approval",
-  "statement":"J’approuve le PILOT fonctionnel Radar V6.19.11 Manual Search Stop, sur le candidat qualifié issu de cbf67e46308e925f1ba5fad0be3f58764231935d, avec une recherche manuelle Last War strictement READ-ONLY, arrêt du seul job manuel en cours via STOP, mutations Collector limitées à la découverte/preuves/terminalisation nécessaires au test, aucune persistance de token et aucune promotion/déploiement production.",
+  "statement":"J’approuve la réouverture du PILOT fonctionnel Radar V6.19.11 Manual Search Stop avec le runner 3dceb68a89a82836b85163bf3bd40c8b7b7da4c5, candidat issu de cbf67e46308e925f1ba5fad0be3f58764231935d, récupération préalable du cycle stale 81 exclusivement via le mécanisme V6.19.7 validé, puis une recherche manuelle @federated:8120 Last War strictement READ-ONLY et arrêt du seul job manuel via STOP, mutations Collector limitées à la récupération stale/découverte/preuves/terminalisation, aucune persistance de token et aucune promotion/déploiement production.",
   "observed_at":datetime.now(timezone.utc).isoformat(),
   "single_pilot_window":True
 }
