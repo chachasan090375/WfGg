@@ -1,0 +1,71 @@
+name: Read-only A i R WFGG audit
+
+on:
+  push:
+    branches: [radar-readonly-air-wfgg-audit]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      RADAR_CONNECTOR_URL: https://chachavps.tail3ab05a.ts.net
+    steps:
+      - name: Query Collector intelligence for A i R
+        env:
+          RADAR_CONNECTOR_SHARED_KEY: ${{ secrets.RADAR_CONNECTOR_SHARED_KEY }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib,hmac,json,os,secrets,time,urllib.request
+          base=os.environ['RADAR_CONNECTOR_URL'].rstrip('/')
+          key=os.environ['RADAR_CONNECTOR_SHARED_KEY'].encode()
+          path='/v1/collector/intelligence/search-v621'
+
+          def post(payload):
+              body=json.dumps(payload,separators=(',',':')).encode()
+              ts=str(int(time.time()))
+              nonce=secrets.token_hex(16)
+              sig=hmac.new(key,'\n'.join(['POST',path,ts,nonce,hashlib.sha256(body).hexdigest()]).encode(),hashlib.sha256).hexdigest()
+              req=urllib.request.Request(base+path,data=body,method='POST',headers={
+                  'Content-Type':'application/json',
+                  'X-Radar-Timestamp':ts,
+                  'X-Radar-Nonce':nonce,
+                  'X-Radar-Signature':sig,
+              })
+              with urllib.request.urlopen(req,timeout=25) as r:
+                  return r.status,json.load(r)
+
+          checks=[
+            ('exact_spaced',{'query':'A i R','limit':100,'offset':0}),
+            ('compact',{'query':'AiR','limit':100,'offset':0}),
+            ('uppercase',{'query':'AIR','limit':100,'offset':0}),
+            ('wfgg_exact',{'includeAlliances':['WfGg'],'includePlayers':['A i R'],'limit':100,'offset':0}),
+            ('wfgg_compact',{'includeAlliances':['WfGg'],'includePlayers':['AiR'],'limit':100,'offset':0}),
+            ('wfgg_all',{'includeAlliances':['WfGg'],'limit':100,'offset':0}),
+          ]
+          out=[]
+          for label,payload in checks:
+              try:
+                  status,data=post(payload)
+                  out.append({
+                    'label':label,'http':status,'total':data.get('total'),'count':data.get('count'),
+                    'players':data.get('players') or [],
+                    'alliances':data.get('alliances') or [],
+                    'warnings':data.get('warnings') or [],
+                    'ignoredFilters':data.get('ignoredFilters') or [],
+                  })
+              except Exception as e:
+                  out.append({'label':label,'error':type(e).__name__+':'+str(e)})
+          print('AIR_WFGG_AUDIT_JSON='+json.dumps({'readonly':True,'gameScanExecuted':False,'checks':out},ensure_ascii=False,separators=(',',':')))
+          PY
+
+      - name: Safety receipt
+        run: |
+          echo LASTWAR_MODE=READ_ONLY
+          echo GAME_SCAN_EXECUTED=NO
+          echo PRODUCTION_DEPLOYMENT=NO
