@@ -146,9 +146,15 @@ func (s *server) collectorSearchStopV61911(w http.ResponseWriter, _ *http.Reques
         raise SystemExit(f'V61911_RUN_ANCHOR_COUNT={text.count(run_anchor)}')
     text = text.replace(run_anchor, 'func (s *server) runCollectorSearch(ctx context.Context, jobID, token, query string) {\n', 1)
 
-    running_anchor = 'radarCollectorJobs.update(jobID, func(j *collectorJob) { j.Status = "RUNNING"; j.Phase = "STARTING" })'
-    if text.count(running_anchor) != 1:
-        raise SystemExit(f'V61911_RUNNING_ANCHOR_COUNT={text.count(running_anchor)}')
+    run_func_pos = text.index('func (s *server) runCollectorSearch(ctx context.Context, jobID, token, query string) {')
+    running_status = 'j.Status = "RUNNING"'
+    running_status_pos = text.find(running_status, run_func_pos)
+    if running_status_pos < 0:
+        raise SystemExit('V61911_RUNNING_STATUS_ANCHOR_MISSING')
+    running_stmt_pos = text.rfind('radarCollectorJobs.update(jobID', run_func_pos, running_status_pos)
+    if running_stmt_pos < 0:
+        raise SystemExit('V61911_RUNNING_UPDATE_ANCHOR_MISSING')
+    running_line_start = text.rfind('\n', run_func_pos, running_stmt_pos) + 1
     cancel_helper = '''\tmanualStopIfCancelledV61911 := func() bool {
 \t\tif !errors.Is(ctx.Err(), context.Canceled) {
 \t\t\treturn false
@@ -161,8 +167,6 @@ func (s *server) collectorSearchStopV61911(w http.ResponseWriter, _ *http.Reques
 \t}
 
 '''
-    running_pos = text.index(running_anchor)
-    running_line_start = text.rfind('\n', 0, running_pos) + 1
     text = text[:running_line_start] + cancel_helper + text[running_line_start:]
 
     replacements = [
