@@ -65,6 +65,18 @@ jobs:
                   key=(str(a.get('allianceId') or ''),str(a.get('allianceTag') or ''))
                   all_alliances[str(key)]=a
 
+          filter_checks=[]
+          for alliance in ['WFGG','Wnda']:
+              try:
+                  status,data=post({'includePlayers':['Bul de king'],'includeAlliances':[alliance],'limit':100,'offset':0})
+                  filter_checks.append({'alliance':alliance,'http':status,'total':data.get('total'),'count':data.get('count'),'players':data.get('players') or []})
+              except Exception as e:
+                  filter_checks.append({'alliance':alliance,'error':type(e).__name__+':'+str(e)})
+          try:
+              status,data=post({'query':'1928277075000945','limit':100,'offset':0})
+              uid_check={'http':status,'total':data.get('total'),'count':data.get('count'),'players':data.get('players') or []}
+          except Exception as e:
+              uid_check={'error':type(e).__name__+':'+str(e)}
           out={
               'ok':True,
               'readonly':True,
@@ -72,6 +84,8 @@ jobs:
               'queries':reports,
               'players':list(all_players.values()),
               'alliances':list(all_alliances.values()),
+              'allianceChecks':filter_checks,
+              'uidCheck':uid_check,
           }
           print('WFGG_PLAYER_AUDIT_JSON='+json.dumps(out,ensure_ascii=False,separators=(',',':')))
           PY
