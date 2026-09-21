@@ -1,0 +1,10 @@
+WFGG_RADAR_PRODUCTION_APPROVAL=V6.19.13
+APPROVED_SOURCE_REV=6679fe7fffb6168ac0725fb5e36bc8c6cce8db37
+PILOT_AUTOMATED_RESULT=PASS
+STATEMENT=J’approuve la promotion production Radar V6.19.13 Persistent Autopilot Ledger & Resume, candidat 6679fe7fffb6168ac0725fb5e36bc8c6cce8db37, après qualification et PILOT automatisés PASS, avec remplacement contrôlé de V6.19.12 par V6.19.13, persistance Collector limitée au ledger Autopilot des états de seeds et de leurs preuves, conservation de No-Rescan Qualified Seeds et Manual Search Stop, Last War strictement READ-ONLY, aucune persistance de token, reprise avec authentification fraîche après redémarrage, rollback disponible et déploiement des surfaces Cloudflare associées.
+LASTWAR_MODE=READ_ONLY
+TOKEN_PERSISTENCE=NO
+COLLECTOR_LEDGER_MUTATION=AUTOPILOT_SEED_STATES_AND_EVIDENCE_ONLY
+FRESH_AUTH_REQUIRED_AFTER_RESTART=YES
+ROLLBACK_REQUIRED=YES
+CLOUDFLARE_DEPLOYMENT=APPROVED
