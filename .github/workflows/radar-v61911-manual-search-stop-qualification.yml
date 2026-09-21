@@ -94,7 +94,7 @@ jobs:
           C=/tmp/wfgg-radar/connector-go/cmd/radar-connector/collector_jobs.go
           M=/tmp/wfgg-radar/connector-go/cmd/radar-connector/main.go
           grep -Fq 'radarCollectorJobCancelsV61911' "$C"
-          grep -Fq 'context.WithTimeout(context.Background(), 12*time.Minute)' "$C"
+          grep -Fq 'context.WithTimeout(parentCtx, 12*time.Minute)' "$C"
           grep -Fq 'manualStopIfCancelledV61911' "$C"
           grep -Fq 'fail("MANUAL_SEARCH_STOPPED", ctx.Err())' "$C"
           grep -Fq 'job.Phase = "STOPPING"' "$C"
