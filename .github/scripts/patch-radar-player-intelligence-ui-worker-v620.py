@@ -92,6 +92,8 @@ if 'WFGG_RADAR_PLAYER_INTELLIGENCE_UI_V620' not in ui:
     </form>'''
     ui = replace_once(ui, form_old, form_new, 'V620 filter button')
 
+    ui = replace_once(ui, 'AUTOPILOT V6.19.17 · ARRÊTÉ', 'AUTOPILOT V6.20.0 · ARRÊTÉ', 'V620 UI version')
+
     uid_field = '<div class="field"><div class="k">UID</div><div id="ruid" class="v">—</div></div>'
     ui = replace_once(ui, uid_field, uid_field + '<div class="field"><div class="k">ANCIENS PSEUDOS</div><div id="raliases" class="v">—</div></div>', 'V620 alias field')
 
