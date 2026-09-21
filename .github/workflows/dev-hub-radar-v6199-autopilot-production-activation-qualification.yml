@@ -1,0 +1,49 @@
+name: ChaCha DEV Radar V6.19.9 production Autopilot activation qualification
+
+on:
+  push:
+    branches: [dev-hub-v5-radar-cluster-quality-diagnostic-v1]
+    paths:
+      - 'dev-hub/bin/run-radar-v6199-autopilot-production-activation-via-chacha-dev.sh'
+      - '.github/workflows/dev-hub-radar-v6199-autopilot-production-activation-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev-hub-v5-radar-cluster-quality-diagnostic-v1
+
+      - name: Validate governed activation window
+        run: |
+          set -euo pipefail
+          R=dev-hub/bin/run-radar-v6199-autopilot-production-activation-via-chacha-dev.sh
+          bash -n "$R"
+          grep -Fq 'EXPECTED_CONNECTOR="5058159307ccb99e8e631fe71014608934b8575e69d5599e4388550306baab7f"' "$R"
+          grep -Fq 'EXPECTED_NATIVE="274d040f5294cb09422e5d55cc4b5335ac7739924c33dcb67b3f279645814900"' "$R"
+          grep -Fq 'https://wfgg-radar.chachasan090375.workers.dev' "$R"
+          grep -Fq 'WFGG_RADAR_COLLECTOR_CYCLE_TERMINALIZATION_UI_V6198' "$R"
+          grep -Fq 'WFGG_RADAR_AUTOPILOT_TARGETED_HISTORY_QUALITY_UI_V6199' "$R"
+          grep -Fq 'AUTOPILOT V6.19.9 · ARRÊTÉ' "$R"
+          grep -Fq 'J’approuve l’activation production de Radar Autopilot V6.19.9 en mode READ-ONLY Last War, avec mutations Collector limitées aux cycles de découverte, preuves et terminalisation.' "$R"
+          grep -Fq 'radar-autopilot-production-activation' "$R"
+          grep -Fq 'active_targeted_cycle_preexists' "$R"
+          grep -Fq 'RADAR_V6199_AUTOPILOT_ACTIVATION_WINDOW_READY=YES' "$R"
+          grep -Fq 'DÉMARRER L’AUTOPILOT' "$R"
+          grep -Fq 'RADAR_V6199_AUTOPILOT_ACTIVATION_WAIT_MAX_SECONDS=1200' "$R"
+          grep -Fq 'RADAR_V6199_LASTWAR_MODE=READ_ONLY' "$R"
+          grep -Fq 'RADAR_V6199_TOKEN_CAPTURE=NO' "$R"
+          grep -Fq 'RADAR_V6199_TOKEN_PERSISTENCE=NO' "$R"
+          grep -Fq "lower(query) LIKE '@federated:%'" "$R"
+          grep -Fq 'RADAR_V6199_AUTOPILOT_ACTIVITY_OBSERVED=PASS' "$R"
+          grep -Fq 'RADAR_V6199_AUTOPILOT_ACTIVATION_APPROVAL_REVOKED=PASS' "$R"
+          grep -Fq 'RADAR_V6199_AUTOPILOT_ACTIVATION_APPROVAL_STANDING=NO' "$R"
+          grep -Fq 'RADAR_V6199_AUTOPILOT_PRODUCTION=ACTIVE_OBSERVED' "$R"
+          grep -Fq 'RADAR_V6199_AUTOPILOT_ACTIVATION=PASS' "$R"
+          echo RADAR_V6199_AUTOPILOT_PRODUCTION_ACTIVATION=QUALIFIED
