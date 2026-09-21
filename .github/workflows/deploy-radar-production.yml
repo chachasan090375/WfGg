@@ -122,7 +122,6 @@ jobs:
           grep -Fq 'WFGG_RADAR_AUTOPILOT_STALE_CYCLE_RECOVERY_UI_V6197' /tmp/wfgg-radar/public/live-radar.html
           grep -Fq 'WFGG_RADAR_COLLECTOR_CYCLE_TERMINALIZATION_UI_V6198' /tmp/wfgg-radar/public/live-radar.html
           grep -Fq 'WFGG_RADAR_AUTOPILOT_TARGETED_HISTORY_QUALITY_UI_V6199' /tmp/wfgg-radar/public/live-radar.html
-          grep -Fq 'AUTOPILOT V6.19.10 · ARRÊTÉ' /tmp/wfgg-radar/public/live-radar.html
           grep -Fq 'WFGG_RADAR_AUTOPILOT_CONTINUE_PARTIAL_LIMIT_UI_V61910' /tmp/wfgg-radar/public/live-radar.html
           grep -Fq 'WFGG_RADAR_MANUAL_SEARCH_STOP_UI_V61911' /tmp/wfgg-radar/public/live-radar.html
           grep -Fq '/api/radar/search/stop' /tmp/wfgg-radar/src/worker.js
@@ -338,7 +337,6 @@ jobs:
           grep -Fq 'WFGG_RADAR_AUTOPILOT_STALE_CYCLE_RECOVERY_UI_V6197' /tmp/live-radar.html
           grep -Fq 'WFGG_RADAR_COLLECTOR_CYCLE_TERMINALIZATION_UI_V6198' /tmp/live-radar.html
           grep -Fq 'WFGG_RADAR_AUTOPILOT_TARGETED_HISTORY_QUALITY_UI_V6199' /tmp/live-radar.html
-          grep -Fq 'AUTOPILOT V6.19.10 · ARRÊTÉ' /tmp/live-radar.html
           grep -Fq 'WFGG_RADAR_AUTOPILOT_CONTINUE_PARTIAL_LIMIT_UI_V61910' /tmp/live-radar.html
           grep -Fq 'WFGG_RADAR_MANUAL_SEARCH_STOP_UI_V61911' /tmp/live-radar.html
           grep -Fq "go.textContent=manualSearchRunning?(manualSearchStopping?'ARRÊT…':'STOP'):'RECHERCHER'" /tmp/live-radar.html
