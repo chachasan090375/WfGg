@@ -462,23 +462,7 @@ PILOT_EVIDENCE="$WORK/manual-stop-evidence.json"
 PILOT_SERVER="$WORK/v61911-functional-server.py"
 PILOT_LOG="$WORK/v61911-functional-server.log"
 TS_IP="$(tailscale ip -4 | head -1 | tr -d '[:space:]')"
-printf '%s' "$TS_IP" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+
-"${PC[@]}" verify-state --project "$PROJECT" > "$WORK/verify-after.json"
-python3 - "$WORK/verify-after.json" <<'PY'
-import json,sys
-x=json.load(open(sys.argv[1],encoding='utf-8'))
-assert x['status']=='OK',x
-print('PROJECT_CONTROL_INTEGRITY_AFTER=PASS')
-PY
-
-echo "RADAR_V61911_PRODUCTION_APPROVAL_STANDING=NO"
-echo "RADAR_V61911_PILOT_WINDOW_CLOSED=YES"
-echo "RADAR_V61911_CHACHA_PATH=PROJECT_CONTROL>SCHEDULER>RUN_CONTROLLER>RADAR_RUNTIME_ADAPTER"
-echo "RADAR_V61911_FUNCTIONAL_CHACHA_DEPLOY=PASS"
-
-trap - EXIT
-cleanup
- || die tailscale_ipv4_unavailable
+printf '%s' "$TS_IP" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$' || die tailscale_ipv4_unavailable
 
 curl -fsSL "https://raw.githubusercontent.com/chachasan090375/WfGg/$PILOT_REV/radar-vps/pilot-v61911/cloudflare/live-radar.html" -o "$PILOT_UI"
 test "$(sha256sum "$PILOT_UI" | awk '{print $1}')" = "$PILOT_UI_SHA256" || die pilot_ui_sha_mismatch
@@ -519,12 +503,7 @@ def connector(method,path,obj=None,timeout=75):
     canonical_path=urllib.parse.urlsplit(path).path
     canonical="\n".join([method,canonical_path,ts,nonce,hashlib.sha256(body).hexdigest()])
     sig=hmac.new(shared_key.encode(),canonical.encode(),hashlib.sha256).hexdigest()
-    req=urllib.request.Request(
-        "http://127.0.0.1:8788"+path,
-        data=body if method!="GET" else None,
-        method=method,
-        headers={"Content-Type":"application/json","X-Radar-Timestamp":ts,"X-Radar-Nonce":nonce,"X-Radar-Signature":sig},
-    )
+    req=urllib.request.Request("http://127.0.0.1:8788"+path,data=body if method!="GET" else None,method=method,headers={"Content-Type":"application/json","X-Radar-Timestamp":ts,"X-Radar-Nonce":nonce,"X-Radar-Signature":sig})
     try:
         with urllib.request.urlopen(req,timeout=timeout) as r:
             raw=r.read().decode()
@@ -541,36 +520,19 @@ def write_evidence(payload):
     tmp.write_text(json.dumps(safe,indent=2,sort_keys=True)+"\n",encoding="utf-8")
     os.replace(tmp,evidence_path)
 
-def watch_terminal(session_id,job_id,pre_stop):
+def watch_terminal(job_id,pre_stop):
     deadline=time.time()+120
     while time.time()<deadline:
         status,payload=connector("GET","/v1/collector/search/status?id="+urllib.parse.quote(job_id),None,30)
         job=(payload or {}).get("job") or {}
         if status==200 and str(job.get("status","")).upper() in {"SUCCESS","FAILED"}:
-            write_evidence({
-                "proof":"RADAR_V61911_MANUAL_SEARCH_STOP_FUNCTIONAL",
-                "jobId":job_id,
-                "query":job.get("query"),
-                "cycleId":job.get("cycleId"),
-                "status":job.get("status"),
-                "phase":job.get("phase"),
-                "error":job.get("error"),
-                "failureCode":job.get("failureCode"),
-                "regionsCompleted":job.get("regionsCompleted"),
-                "regionsFailed":job.get("regionsFailed"),
-                "preStop":pre_stop,
-                "observedAt":time.strftime("%Y-%m-%dT%H:%M:%SZ",time.gmtime()),
-                "tokenPersisted":False,
-                "lastWarMode":"READ_ONLY",
-                "stopScope":"MANUAL_SEARCH_ONLY",
-            })
+            write_evidence({"proof":"RADAR_V61911_MANUAL_SEARCH_STOP_FUNCTIONAL","jobId":job_id,"query":job.get("query"),"cycleId":job.get("cycleId"),"status":job.get("status"),"phase":job.get("phase"),"error":job.get("error"),"failureCode":job.get("failureCode"),"regionsCompleted":job.get("regionsCompleted"),"regionsFailed":job.get("regionsFailed"),"preStop":pre_stop,"observedAt":time.strftime("%Y-%m-%dT%H:%M:%SZ",time.gmtime()),"tokenPersisted":False,"lastWarMode":"READ_ONLY","stopScope":"MANUAL_SEARCH_ONLY"})
             return
         time.sleep(1)
 
 class Handler(BaseHTTPRequestHandler):
     server_version="WfGgRadarV61911Pilot/1"
     def log_message(self,fmt,*args):
-        # Never log bodies, credentials, codes, or cookies.
         sys.stdout.write("%s %s\n"%(self.command,self.path.split("?",1)[0])); sys.stdout.flush()
 
     def send_json(self,status,data,cookie=None):
@@ -692,10 +654,7 @@ class Handler(BaseHTTPRequestHandler):
             pre=(pp or {}).get("job") or {}
             st,payload=connector("POST","/v1/collector/search/stop",{"id":job_id},30)
             if st in (200,202):
-                threading.Thread(target=watch_terminal,args=(sid,job_id,{
-                    "status":pre.get("status"),"phase":pre.get("phase"),"region":pre.get("region"),
-                    "cycleId":pre.get("cycleId"),"query":pre.get("query")
-                }),daemon=True).start()
+                threading.Thread(target=watch_terminal,args=(job_id,{"status":pre.get("status"),"phase":pre.get("phase"),"region":pre.get("region"),"cycleId":pre.get("cycleId"),"query":pre.get("query")}),daemon=True).start()
             self.send_json(st,payload); return
 
         self.send_json(404,{"error":"NOT_FOUND"})
@@ -784,14 +743,13 @@ if [[ "$FUNCTIONAL_RC" -eq 0 ]]; then
   echo "RADAR_V61911_MANUAL_SEARCH_STOPPED=PASS"
   echo "RADAR_V61911_STOP_SCOPE=MANUAL_SEARCH_ONLY"
   echo "RADAR_V61911_LASTWAR_MUTATION=NO"
-  echo "RADAR_V61911_FUNCTIONAL_COLLECTOR_MUTATION=DISCOVERY_EVIDENCE_TERMINALIZATION_ONLY"
+  echo "RADAR_V61911_FUNCTIONAL_COLLECTOR_MUTATION=DISCOVERY_EVIDENCE_TERMINIZATION_ONLY"
   echo "RADAR_V61911_TOKEN_PERSISTENCE=NO"
   echo "RADAR_V61911_FUNCTIONAL_PROOF=PASS"
 else
   echo "RADAR_V61911_FUNCTIONAL_PROOF=FAIL rc=$FUNCTIONAL_RC"
 fi
 
-# Stop the ephemeral UI/proxy before closing the pilot. No credentials survive.
 if [[ -n "$PILOT_SERVER_PID" ]]; then
   kill "$PILOT_SERVER_PID" >/dev/null 2>&1 || true
   wait "$PILOT_SERVER_PID" >/dev/null 2>&1 || true
@@ -815,7 +773,7 @@ PY
 echo "RADAR_V61911_PRODUCTION_APPROVAL_STANDING=NO"
 echo "RADAR_V61911_PILOT_WINDOW_CLOSED=YES"
 echo "RADAR_V61911_CHACHA_PATH=PROJECT_CONTROL>SCHEDULER>RUN_CONTROLLER>RADAR_RUNTIME_ADAPTER"
-echo "RADAR_V61911_CHACHA_DEPLOY=PASS"
+echo "RADAR_V61911_FUNCTIONAL_CHACHA_DEPLOY=PASS"
 
 trap - EXIT
 cleanup
