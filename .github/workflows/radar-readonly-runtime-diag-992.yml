@@ -1,0 +1,47 @@
+name: Read-only Radar runtime diag 992
+
+on:
+  push:
+    branches: [radar-readonly-runtime-diag-992]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  diag:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      RADAR_CONNECTOR_URL: https://chachavps.tail3ab05a.ts.net
+    steps:
+      - name: Probe signed connector health and Collector audit
+        env:
+          RADAR_CONNECTOR_SHARED_KEY: ${{ secrets.RADAR_CONNECTOR_SHARED_KEY }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib,hmac,json,os,secrets,time,urllib.request,urllib.error
+          base=os.environ['RADAR_CONNECTOR_URL'].rstrip('/')
+          key=os.environ['RADAR_CONNECTOR_SHARED_KEY'].encode()
+          def signed(method,path,body=b''):
+              ts=str(int(time.time()))
+              nonce=secrets.token_hex(16)
+              bh=hashlib.sha256(body).hexdigest()
+              canonical='\n'.join([method,path,ts,nonce,bh])
+              sig=hmac.new(key,canonical.encode(),hashlib.sha256).hexdigest()
+              req=urllib.request.Request(base+path,data=body if method!='GET' else None,method=method,headers={
+                  'X-Radar-Timestamp':ts,
+                  'X-Radar-Nonce':nonce,
+                  'X-Radar-Signature':sig,
+                  'Content-Type':'application/json'
+              })
+              with urllib.request.urlopen(req,timeout=20) as r:
+                  return r.status,json.load(r)
+          for path in ['/v1/health','/v1/collector/audit']:
+              try:
+                  status,data=signed('GET',path)
+                  print('RADAR_DIAG '+path+' HTTP='+str(status)+' BODY='+json.dumps(data,separators=(',',':')))
+              except Exception as e:
+                  print('RADAR_DIAG '+path+' ERROR='+type(e).__name__+':'+str(e))
+          PY
