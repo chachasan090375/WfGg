@@ -163,6 +163,8 @@ TEST.write_text(r'''package main
 import (
     "context"
     "errors"
+    "os/exec"
+    "path/filepath"
     "reflect"
     "testing"
 )
@@ -212,6 +214,49 @@ func TestAppendUniqueStringsV61912(t *testing.T) {
     want := []string{"8120", "8121", "8122"}
     if !reflect.DeepEqual(got, want) {
         t.Fatalf("got=%v want=%v", got, want)
+    }
+}
+
+
+func TestAutopilotNoRescanRealHistoryV61912(t *testing.T) {
+    if _, err := exec.LookPath("python3"); err != nil {
+        t.Skip("python3 unavailable")
+    }
+    db := filepath.Join(t.TempDir(), "collector.db")
+    script := `
+import hashlib,json,sqlite3,sys
+db=sys.argv[1]
+con=sqlite3.connect(db)
+con.execute("CREATE TABLE cycles(id INTEGER PRIMARY KEY,status TEXT,error TEXT,query TEXT)")
+con.execute("CREATE TABLE cycle_seen(cycle_id INTEGER,game_uid TEXT,state_hash TEXT)")
+con.execute("CREATE TABLE cycle_baseline(cycle_id INTEGER,game_uid TEXT,state_json TEXT)")
+con.execute("CREATE TABLE cycle_changes(id INTEGER PRIMARY KEY AUTOINCREMENT,cycle_id INTEGER,game_uid TEXT,after_json TEXT)")
+def add(cid,seed):
+    raw=json.dumps({"server_id":seed},separators=(",",":"))
+    h=hashlib.sha256(raw.encode()).hexdigest()
+    uid=f"u{cid}"
+    con.execute("INSERT INTO cycles(id,status,error,query) VALUES(?,?,?,?)",(cid,"SUCCESS","","@federated:"+seed))
+    con.execute("INSERT INTO cycle_seen(cycle_id,game_uid,state_hash) VALUES(?,?,?)",(cid,uid,h))
+    con.execute("INSERT INTO cycle_baseline(cycle_id,game_uid,state_json) VALUES(?,?,?)",(cid,uid,raw))
+for cid in (1,2,3): add(cid,"8120")
+for cid in (4,5): add(cid,"8121")
+con.commit(); con.close()
+`
+    cmd := exec.Command("python3", "-c", script, db)
+    if out, err := cmd.CombinedOutput(); err != nil {
+        t.Fatalf("fixture failed: %v: %s", err, out)
+    }
+    kept, skipped, err := autopilotFilterQualifiedCandidatesV61912(
+        context.Background(), db, []string{"8120", "8121"}, 3,
+    )
+    if err != nil {
+        t.Fatal(err)
+    }
+    if !reflect.DeepEqual(kept, []string{"8121"}) {
+        t.Fatalf("kept=%v", kept)
+    }
+    if !reflect.DeepEqual(skipped, []string{"8120"}) {
+        t.Fatalf("skipped=%v", skipped)
     }
 }
 ''', encoding='utf-8')
