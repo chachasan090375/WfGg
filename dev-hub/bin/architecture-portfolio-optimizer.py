@@ -93,6 +93,7 @@ def main():
     ap.add_argument("--agent-topology",type=Path,required=True)
     ap.add_argument("--architecture-memory-db",type=Path,required=True)
     ap.add_argument("--policy",type=Path,required=True)
+    ap.add_argument("--comparative-pilot-result",type=Path)
     ap.add_argument("--output",type=Path,required=True)
     a=ap.parse_args()
     root=a.repo_root.resolve();pre=load(a.preplan);branch=load(a.branch_topology);agent=load(a.agent_topology);policy=load(a.policy)
@@ -114,6 +115,7 @@ def main():
     valid=[x for x in candidates if x["hard_valid"]]
     valid.sort(key=evidence_rank)
     historical_best=valid[0] if valid else None
+    pilot=load(a.comparative_pilot_result) if a.comparative_pilot_result and a.comparative_pilot_result.is_file() else None
 
     if not foundry_zero:
         mode="BLOCKED"
@@ -132,14 +134,32 @@ def main():
         reason="HISTORICAL_BEST_AND_CURRENT_FOUNDRIES_AGREE"
         decision_ready=True
     else:
-        mode="COMPARATIVE_PILOT_REQUIRED"
-        selected=None
-        reason="HISTORICAL_BEST_CONFLICTS_WITH_CURRENT_FOUNDRY_SYNTHESIS"
-        decision_ready=False
+        pilot_valid=bool(
+          isinstance(pilot,dict) and pilot.get("schema")=="chacha.dev/architecture-comparative-pilot-result/v1"
+          and pilot.get("resolved") is True
+          and str(pilot.get("functional_signature") or "")==str(historical_best.get("functional_signature") or "")
+          and pilot.get("winner") in {"HISTORICAL","CURRENT"}
+        )
+        if pilot_valid and pilot.get("winner")=="HISTORICAL":
+            mode="COMPARATIVE_PILOT_RESOLVED"
+            selected={"source":"REUSABLE_COMPLETE_ARCHITECTURE",
+                      "architecture_id":historical_best["architecture_id"],"version":historical_best["version"]}
+            reason="COMPARATIVE_PILOT_SELECTED_HISTORICAL"
+            decision_ready=True
+        elif pilot_valid and pilot.get("winner")=="CURRENT":
+            mode="COMPARATIVE_PILOT_RESOLVED"
+            selected={"source":"CURRENT_FOUNDRY_SYNTHESIS"}
+            reason="COMPARATIVE_PILOT_SELECTED_CURRENT"
+            decision_ready=True
+        else:
+            mode="COMPARATIVE_PILOT_REQUIRED"
+            selected=None
+            reason="HISTORICAL_BEST_CONFLICTS_WITH_CURRENT_FOUNDRY_SYNTHESIS"
+            decision_ready=False
 
     out={
       "schema":"chacha.dev/architecture-portfolio-optimizer/v1",
-      "version":"6.14.0",
+      "version":"6.15.0",
       "selection_principle":"HARD_CONSTRAINTS_THEN_ZERO_SPEND_THEN_PROVEN_EVIDENCE_WITH_CURRENT_FOUNDRY_CONSENSUS",
       "current_foundry_candidate":{"zero_spend":foundry_zero,"packages":current},
       "memory_candidate_count":len(candidates),
@@ -150,12 +170,13 @@ def main():
       "reason":reason,
       "decision_ready":decision_ready,
       "comparative_pilot_required":mode=="COMPARATIVE_PILOT_REQUIRED",
+      "comparative_pilot_result":pilot,
       "ranked_memory_candidates":valid,
       "automatic_external_spend_eur":0
     }
     a.output.parent.mkdir(parents=True,exist_ok=True)
     a.output.write_text(json.dumps(out,indent=2,ensure_ascii=False)+"\n",encoding="utf-8")
-    print("CHACHA_DEV_V614_ARCHITECTURE_PORTFOLIO_OPTIMIZER=PASS")
+    print("CHACHA_DEV_V615_ARCHITECTURE_PORTFOLIO_OPTIMIZER=PASS")
     print("MODE="+mode)
     print("DECISION_READY="+("YES" if decision_ready else "NO"))
 if __name__=="__main__":main()
