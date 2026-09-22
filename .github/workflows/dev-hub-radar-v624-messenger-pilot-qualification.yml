@@ -6,6 +6,7 @@ on:
     paths:
       - 'dev-hub/adapters/radar-runtime-adapter.py'
       - 'dev-hub/config/adapter-provisioning.v1.json'
+      - 'dev-hub/config/provider-adapters.v1.json'
       - 'dev-hub/tests/test_radar_runtime_adapter_contract.py'
       - 'dev-hub/bin/run-radar-v624-messenger-pilot-via-chacha-dev.sh'
       - '.github/workflows/dev-hub-radar-v624-messenger-pilot-qualification.yml'
@@ -39,6 +40,24 @@ jobs:
           print('RADAR_RUNTIME_ADAPTER_VERSION=1.5.5')
           PY
           grep -Fq '"messenger-pilot-install": "workspace-write"' dev-hub/adapters/radar-runtime-adapter.py
+          python3 - <<'PY'
+          import importlib.util,json,pathlib
+          root=pathlib.Path('.').resolve()
+          reg=json.load(open(root/'dev-hub/config/provider-adapters.v1.json',encoding='utf-8'))
+          a=reg['adapters']['radar-runtime-adapter']
+          assert a['status']=='ENABLED',a
+          assert 'workspace-write' in a['supports'],a
+          spec=importlib.util.spec_from_file_location('rc',root/'dev-hub/bin/run-controller.py')
+          rc=importlib.util.module_from_spec(spec); spec.loader.exec_module(rc)
+          binding,errors=rc.adapter_binding(
+              {'provider':'radar-vps-runtime','capability':'radar-pilot-control','health_state':'HEALTHY'},
+              'workspace-write',reg,True
+          )
+          assert errors==[],errors
+          assert binding['adapter']=='radar-runtime-adapter',binding
+          assert binding['executable']=='/opt/chacha-dev/adapters/radar-runtime/current/radar-runtime-adapter',binding
+          print('RADAR_V624_WORKSPACE_WRITE_BINDING=PASS')
+          PY
           grep -Fq '"messenger-pilot-probe": "read"' dev-hub/adapters/radar-runtime-adapter.py
           grep -Fq 'RADAR_MESSENGER_PILOT_INSTALL_OK' dev-hub/adapters/radar-runtime-adapter.py
           grep -Fq 'RADAR_MESSENGER_PILOT_PROBE_OK' dev-hub/adapters/radar-runtime-adapter.py
