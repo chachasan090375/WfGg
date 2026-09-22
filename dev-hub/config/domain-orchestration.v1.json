@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/domain-orchestration/v1",
-  "version": "6.0.0",
+  "version": "6.1.0",
   "core_orchestrator": "chacha-core-orchestrator",
   "principles": {
     "functional_intent_is_source_of_truth": true,
@@ -11,8 +11,17 @@
     "free_first": true,
     "evidence_required": true,
     "cross_domain_review_required": true,
-    "technology_radar_advises_all_domains": true,
-    "production_change_requires_human_approval": true
+    "production_change_requires_human_approval": false,
+    "platform_is_application_agnostic": true,
+    "every_application_is_a_project_instance": true,
+    "every_project_gets_project_collector": true,
+    "every_active_domain_gets_project_domain_collector": true,
+    "reusable_knowledge_promotes_to_generic_domain_collectors": true,
+    "assembly_orchestrator_reconciles_domain_outputs": true,
+    "technology_watch_drives_architecture_optimization": true,
+    "self_improvement_is_continuous": true,
+    "autonomous_safe_self_upgrade": true,
+    "sensitive_change_requires_human_approval": true
   },
   "request_modes": {
     "simple_question": {
@@ -389,6 +398,101 @@
         "github"
       ],
       "reviews": []
+    },
+    "translation": {
+      "orchestrator": "domain-translation-orchestrator",
+      "roles": [
+        "translation-specialist"
+      ],
+      "capabilities": [
+        "translation",
+        "terminology-management",
+        "translation-quality-review"
+      ],
+      "keywords": [
+        "traduction",
+        "translate",
+        "translation",
+        "localisation",
+        "localization",
+        "langue",
+        "français",
+        "anglais",
+        "italien",
+        "espagnol"
+      ],
+      "toolchain": [
+        "project-glossary",
+        "generic-language-memory",
+        "local-or-included-model"
+      ],
+      "reviews": [
+        "documentation",
+        "publication"
+      ]
+    },
+    "publication": {
+      "orchestrator": "domain-publication-orchestrator",
+      "roles": [
+        "publication-specialist"
+      ],
+      "capabilities": [
+        "publication-writing",
+        "style-transformation",
+        "channel-formatting"
+      ],
+      "keywords": [
+        "publication",
+        "publier",
+        "article",
+        "post",
+        "discord",
+        "newsletter",
+        "communiqué",
+        "style",
+        "ton",
+        "réécris",
+        "reecris"
+      ],
+      "toolchain": [
+        "style-registry",
+        "documentation-knowledge",
+        "translation-memory"
+      ],
+      "reviews": [
+        "documentation"
+      ]
+    },
+    "assembly": {
+      "orchestrator": "domain-assembly-orchestrator",
+      "roles": [
+        "integration-architect",
+        "test-engineer"
+      ],
+      "capabilities": [
+        "integration-design",
+        "api-contract-review",
+        "acceptance-criteria",
+        "smoke-test-web"
+      ],
+      "keywords": [
+        "assembler",
+        "assemblage",
+        "intégration finale",
+        "integration final",
+        "livrable",
+        "acceptance"
+      ],
+      "toolchain": [
+        "contract-registry",
+        "acceptance-engine",
+        "project-collector"
+      ],
+      "reviews": [
+        "qa",
+        "cybersecurity",
+        "documentation"
+      ]
     }
   },
   "dependencies": {
@@ -420,6 +524,23 @@
     ],
     "qa": [
       "platform-release"
+    ],
+    "translation": [
+      "publication",
+      "qa"
+    ],
+    "publication": [
+      "qa"
+    ],
+    "assembly": [
+      "platform-release"
     ]
+  },
+  "assembly_policy": {
+    "required_for_multi_domain_change": true,
+    "required_for_delivery": true,
+    "contract_reconciliation": true,
+    "unresolved_contract_mismatch_blocks_delivery": true,
+    "returns_to_core_orchestrator_after_assembly": true
   }
 }
