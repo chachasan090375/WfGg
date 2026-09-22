@@ -39,10 +39,14 @@ def derive_key_id(private_key:Path)->str:
     return "central-"+hashlib.sha256(pub.encode()).hexdigest()[:16]
 
 def sign(private_key:Path,message:bytes)->str:
-    p=subprocess.run(
-        ["/usr/bin/openssl","pkeyutl","-sign","-rawin","-inkey",str(private_key)],
-        input=message,stdout=subprocess.PIPE,stderr=subprocess.PIPE,check=False,timeout=15
-    )
+    # OpenSSL Ed25519 is a one-shot operation and requires a seekable input
+    # so it can determine the complete message size before signing.
+    with tempfile.NamedTemporaryFile(prefix="chacha-ed25519-msg-",delete=True) as msg:
+        msg.write(message); msg.flush()
+        p=subprocess.run(
+            ["/usr/bin/openssl","pkeyutl","-sign","-rawin","-inkey",str(private_key),"-in",msg.name],
+            stdout=subprocess.PIPE,stderr=subprocess.PIPE,check=False,timeout=15
+        )
     if p.returncode!=0:
         raise RuntimeError("CENTRAL_SIGN_FAILED:"+p.stderr.decode(errors="replace")[-300:])
     return base64.urlsafe_b64encode(p.stdout).decode().rstrip("=")
