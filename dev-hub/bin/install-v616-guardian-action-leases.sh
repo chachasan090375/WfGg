@@ -71,7 +71,11 @@ curl -fsS "$GUARDIAN_URL/healthz" -o "$WORK/guardian-health.json"
 grep -Fq '"external_governance_plane":true' "$WORK/guardian-health.json"
 grep -Fq '"action_lease_protocol":true' "$WORK/guardian-health.json"
 grep -Fq '"coverage_watch":true' "$WORK/guardian-health.json"
+grep -Fq '"authenticated_watchdog_sweep":true' "$WORK/guardian-health.json"
+grep -Fq '"scheduled_watchdog":true' "$WORK/guardian-health.json"
 echo "CHACHA_DEV_V616_EXTERNAL_GUARDIAN_HEALTH=PASS"
+echo "CHACHA_DEV_V616_AUTHENTICATED_WATCHDOG_SWEEP=PASS"
+echo "CHACHA_DEV_V616_SCHEDULED_WATCHDOG=PASS"
 
 ln -sfn "$RELEASE" "$CURRENT"
 
