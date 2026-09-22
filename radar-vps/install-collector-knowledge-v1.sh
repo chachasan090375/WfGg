@@ -19,6 +19,7 @@ install -d -m 0750 "$DATA"
 
 if [ -n "$REPO_RAW" ]; then
   curl -fsSL "$REPO_RAW/collector-knowledge/knowledge_engine.py" -o "$APP/knowledge_engine.py"
+  curl -fsSL "$REPO_RAW/collector-knowledge/source_refresh.py" -o "$APP/source_refresh.py"
   curl -fsSL "$REPO_RAW/collector-knowledge/config.example.json" -o "$APP/config.json"
   curl -fsSL "$REPO_RAW/radar-vps/wfgg-collector-knowledge-worker.service" -o /etc/systemd/system/wfgg-collector-knowledge-worker.service
   curl -fsSL "$REPO_RAW/radar-vps/wfgg-collector-knowledge-api.service" -o /etc/systemd/system/wfgg-collector-knowledge-api.service
@@ -26,13 +27,14 @@ else
   [ -n "$REV" ] || fail REV_OR_RAW_BASE_REQUIRED
   BASE="https://raw.githubusercontent.com/chachasan090375/WfGg/$REV"
   curl -fsSL "$BASE/collector-knowledge/knowledge_engine.py" -o "$APP/knowledge_engine.py"
+  curl -fsSL "$BASE/collector-knowledge/source_refresh.py" -o "$APP/source_refresh.py"
   curl -fsSL "$BASE/collector-knowledge/config.example.json" -o "$APP/config.json"
   curl -fsSL "$BASE/radar-vps/wfgg-collector-knowledge-worker.service" -o /etc/systemd/system/wfgg-collector-knowledge-worker.service
   curl -fsSL "$BASE/radar-vps/wfgg-collector-knowledge-api.service" -o /etc/systemd/system/wfgg-collector-knowledge-api.service
 fi
 
-chmod 0755 "$APP/knowledge_engine.py"
-python3 -m py_compile "$APP/knowledge_engine.py"
+chmod 0755 "$APP/knowledge_engine.py" "$APP/source_refresh.py"
+python3 -m py_compile "$APP/knowledge_engine.py" "$APP/source_refresh.py"
 python3 "$APP/knowledge_engine.py" --db "$DATA/knowledge.db" stats >/dev/null
 
 systemctl daemon-reload
