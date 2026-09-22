@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/provider-economics/v1",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "budget_policy": {
     "mode": "ZERO_INCREMENTAL_COST_DEFAULT",
     "automatic_external_spend_eur": 0,
@@ -8,7 +8,8 @@
     "quota_provider_requires_human_approval_when_free_quota_exhausted": true,
     "prefer_existing_subscription": true,
     "prefer_local_or_owned_runtime": true,
-    "prefer_cache_and_reuse": true
+    "prefer_cache_and_reuse": true,
+    "optimization_objective": "MIN_TOTAL_COST_SUBJECT_TO_ACCEPTANCE_AND_SECURITY"
   },
   "cost_classes": {
     "free": {
@@ -53,6 +54,28 @@
     "paid_fallback_requires_reason": true,
     "paid_fallback_requires_cost_estimate": true,
     "paid_fallback_requires_approval_id": true,
-    "domain_orchestrator_must_record_candidates": true
+    "domain_orchestrator_must_record_candidates": true,
+    "cheapest_valid_candidate_wins": true,
+    "quality_or_security_must_not_be_traded_for_cost": true,
+    "compare_total_cost_not_provider_price_only": true
+  },
+  "total_cost_of_ownership": {
+    "dimensions": [
+      "external_spend_eur",
+      "model_or_token_cost",
+      "cpu_seconds",
+      "ram_mb_seconds",
+      "disk_gb_hours",
+      "network_egress",
+      "startup_latency",
+      "maintenance_complexity",
+      "operational_risk"
+    ],
+    "external_spend_eur_weight": 100,
+    "owned_compute_is_not_free_but_is_preferred_when_capacity_exists": true,
+    "idle_runtime_is_penalized": true,
+    "reuse_is_credited": true,
+    "cache_hit_is_credited": true,
+    "maintenance_complexity_is_costed": true
   }
 }
