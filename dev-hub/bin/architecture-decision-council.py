@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import argparse,json,subprocess,sys
+import argparse,json,subprocess,sys,tempfile,uuid
 from pathlib import Path
 from typing import Any
 import technology_watch_runtime as tw
@@ -37,6 +37,44 @@ def architecture_memory_package(candidate:dict[str,Any],domain:str,caps:list[str
     return None
 
 
+def guardian_subcomponent(root:Path,subject_role:str,task_kind:str,phase:str,action_id:str,output:Path|None=None)->None:
+    if not Path("/opt/chacha-dev/runtime").exists():
+        return
+    client=root/"dev-hub/bin/guardian-client.py"
+    policy=root/"dev-hub/config/guardian-runtime-policy.v1.json"
+    if not client.is_file() or not policy.is_file():
+        raise RuntimeError("GUARDIAN_SUBCOMPONENT_UNAVAILABLE:CLIENT_OR_POLICY_MISSING")
+    event={
+      "schema":"chacha.dev/governance-action/v1",
+      "event_id":"gov-"+uuid.uuid4().hex,
+      "action_id":action_id,
+      "phase":phase,
+      "actor":"architecture-decision-council",
+      "subject_role":subject_role,
+      "action":"INVOKE_COMPONENT",
+      "task_kind":task_kind,
+      "permission":"plan",
+      "project_id":"platform-bootstrap",
+      "run_id":None,
+      "adapters":[],
+      "evidence":{"emergency_stop_active":False,"output_exists":bool(output and output.exists())},
+      "context":{"resource_class":"light","human_approval_required":False,
+                 "storage_preflight_required":False,"deadline_seconds":90}
+    }
+    with tempfile.TemporaryDirectory(prefix="chacha-council-guardian-") as td:
+        ep=Path(td)/"event.json"
+        ep.write_text(json.dumps(event,ensure_ascii=False)+"\n",encoding="utf-8")
+        p=subprocess.run([sys.executable,str(client),"--policy",str(policy),"check","--event",str(ep)],
+                         stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=25)
+    try:v=json.loads(p.stdout.strip())
+    except Exception:v={"status":"UNAVAILABLE"}
+    state=str(v.get("verdict") or v.get("status") or "UNAVAILABLE")
+    if state in {"BLOCK","CRITICAL"}:
+        raise RuntimeError("GUARDIAN_SUBCOMPONENT_BLOCK:"+subject_role+":"+str(v.get("reason_codes") or []))
+    if state not in {"PASS","WARNING"}:
+        raise RuntimeError("GUARDIAN_SUBCOMPONENT_UNAVAILABLE:"+subject_role)
+
+
 def run_architecture_portfolio(root:Path,preplan:Path,branch_topology:Path,agent_topology:Path,
                                architecture_db:Path,policy_path:Path,output:Path,
                                comparative_pilot_result:Path|None=None)->dict[str,Any]:
@@ -46,10 +84,13 @@ def run_architecture_portfolio(root:Path,preplan:Path,branch_topology:Path,agent
          "--policy",str(policy_path),"--output",str(output)]
     if comparative_pilot_result and comparative_pilot_result.is_file():
         cmd+=["--comparative-pilot-result",str(comparative_pilot_result)]
+    action_id="portfolio-"+uuid.uuid4().hex
+    guardian_subcomponent(root,"architecture-portfolio-optimizer","architecture-portfolio-optimizer","PRE_ACTION",action_id,output)
     p=subprocess.run(cmd,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=45)
     if p.returncode!=0:
         return {"schema":"chacha.dev/architecture-portfolio-optimizer/v1","decision_ready":False,
                 "mode":"BLOCKED","reason":"PORTFOLIO_OPTIMIZER_FAILED","error":(p.stderr or p.stdout)[-700:]}
+    guardian_subcomponent(root,"architecture-portfolio-optimizer","architecture-portfolio-optimizer","POST_ACTION",action_id,output)
     return json.loads(output.read_text(encoding="utf-8"))
 
 
