@@ -17,6 +17,8 @@ import urllib.parse
 from dataclasses import dataclass
 from pathlib import Path
 
+from source_refresh import refresh_all
+
 ENGINE_VERSION = "1.0.0"
 SCHEMA_VERSION = 1
 
@@ -659,6 +661,8 @@ def run_worker(config_path):
     cfg=load_config(config_path);db=KnowledgeDB(Path(cfg["database"]))
     interval=max(30,int(cfg.get("intervalSeconds",300)))
     while True:
+        refreshed=refresh_all(cfg,False)
+        print(json.dumps({"collectorKnowledgeRefresh":refreshed},ensure_ascii=False),flush=True)
         for src in cfg.get("sources",[]):
             if not src.get("enabled",True):continue
             result=scan_source(db,str(src["name"]),str(src.get("kind","FILESYSTEM")),Path(src["root"]),str(src.get("version","")))
