@@ -169,6 +169,71 @@
         "expected_producer": "architecture-specialist-adapter",
         "expected_verification_status": "UNVERIFIED"
       }
+    },
+    "collector-knowledge-adapter": {
+      "source": "dev-hub/adapters/collector-knowledge-adapter.py",
+      "namespace": "collector-knowledge",
+      "version": "1.0.0",
+      "executable_name": "collector-knowledge-adapter",
+      "mode": "0755",
+      "current_link_name": "current",
+      "probe": {
+        "input": {
+          "schema": "chacha.dev/dispatch-envelope/v1",
+          "project": "wfgg-radar",
+          "transition": "OPERATE->OPERATE",
+          "run_id": "collector-knowledge-provisioning-probe",
+          "wave": 1,
+          "task": {
+            "id": "collector-knowledge:status",
+            "kind": "runtime-status",
+            "description": "Provisioning probe for WfGg Collector Knowledge runtime adapter.",
+            "owner_role": "sre-observability",
+            "permission": "read",
+            "outputs": [
+              {
+                "type": "artifact",
+                "id": "collector-knowledge-status"
+              }
+            ],
+            "verification": {
+              "mode": "machine",
+              "self_certification_allowed": false,
+              "required_evidence": [
+                "source",
+                "timestamp",
+                "digest"
+              ]
+            }
+          },
+          "bindings": [
+            {
+              "capability": "collector-knowledge-inspect",
+              "provider": "collector-knowledge-runtime",
+              "adapter": "collector-knowledge-adapter",
+              "fallback_used": false,
+              "health_state": "HEALTHY"
+            }
+          ],
+          "policy_context": {
+            "resource_class": "light",
+            "requires_storage_preflight": false,
+            "human_approval_required": false,
+            "approval_id": null,
+            "timeout_seconds": 20
+          },
+          "workspace": null,
+          "metadata": {
+            "collector_knowledge": {
+              "action": "status"
+            }
+          }
+        },
+        "expected_schema": "chacha.dev/task-result/v1",
+        "expected_status": "BLOCKED",
+        "expected_producer": "collector-knowledge-adapter",
+        "expected_verification_status": "UNVERIFIED"
+      }
     }
   }
 }
