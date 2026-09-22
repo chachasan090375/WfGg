@@ -35,13 +35,104 @@ systemctl daemon-reload
 systemctl start chacha-dev-technology-watch.service
 systemctl enable --now chacha-dev-technology-watch.timer
 systemctl enable chacha-dev-emergency-stop-surface.service
-# The unit may already be active from an older release. enable --now does not
-# restart an active service, which can leave a stale process behind. Force a
-# restart so the surface always runs the pinned PILOT revision.
-if ! systemctl restart chacha-dev-emergency-stop-surface.service; then
+# Stop the managed unit first. A previous failed/manual PILOT may nevertheless
+# have left an orphaned emergency-stop surface listening on 127.0.0.1:8788.
+# Recover only a listener whose command line is our own emergency surface; an
+# unrelated listener is a hard safety conflict and is never killed.
+systemctl stop chacha-dev-emergency-stop-surface.service 2>/dev/null || true
+python3 - <<'PY'
+import os,socket,time,signal,sys
+
+HOST="127.0.0.1"; PORT=8788
+
+def port_free():
+    s=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+    try:
+        s.bind((HOST,PORT))
+        return True
+    except OSError:
+        return False
+    finally:
+        s.close()
+
+def listener_inodes():
+    wanted=f"{PORT:04X}"
+    out=set()
+    for fn in ("/proc/net/tcp","/proc/net/tcp6"):
+        try:
+            rows=open(fn,encoding="ascii").read().splitlines()[1:]
+        except OSError:
+            continue
+        for row in rows:
+            p=row.split()
+            if len(p)<10 or p[3]!="0A":
+                continue
+            local=p[1]
+            if local.rsplit(":",1)[-1].upper()!=wanted:
+                continue
+            out.add(p[9])
+    return out
+
+if not port_free():
+    inodes=listener_inodes()
+    owners=[]
+    for name in os.listdir("/proc"):
+        if not name.isdigit():
+            continue
+        pid=int(name)
+        fdroot=f"/proc/{pid}/fd"
+        try:
+            fds=os.listdir(fdroot)
+        except OSError:
+            continue
+        owns=False
+        for fd in fds:
+            try:
+                link=os.readlink(f"{fdroot}/{fd}")
+            except OSError:
+                continue
+            if link.startswith("socket:[") and link[8:-1] in inodes:
+                owns=True
+                break
+        if not owns:
+            continue
+        try:
+            cmd=open(f"/proc/{pid}/cmdline","rb").read().replace(b"\\0",b" ").decode(errors="replace").strip()
+        except OSError:
+            cmd=""
+        owners.append((pid,cmd))
+
+    foreign=[(pid,cmd) for pid,cmd in owners if "emergency-stop-surface.py" not in cmd]
+    ours=[(pid,cmd) for pid,cmd in owners if "emergency-stop-surface.py" in cmd]
+    if foreign or not ours:
+        print("CHACHA_DEV_V64_EMERGENCY_PORT_CONFLICT=BLOCKED", file=sys.stderr)
+        for pid,cmd in owners:
+            print(f"listener_pid={pid} cmd={cmd}", file=sys.stderr)
+        raise SystemExit(3)
+
+    for pid,_ in ours:
+        try: os.kill(pid,signal.SIGTERM)
+        except ProcessLookupError: pass
+    deadline=time.time()+3
+    while time.time()<deadline and not port_free():
+        time.sleep(.1)
+    if not port_free():
+        for pid,_ in ours:
+            try: os.kill(pid,signal.SIGKILL)
+            except ProcessLookupError: pass
+        time.sleep(.2)
+    if not port_free():
+        print("CHACHA_DEV_V64_EMERGENCY_PORT_RECOVERY=FAILED", file=sys.stderr)
+        raise SystemExit(4)
+    print("CHACHA_DEV_V64_EMERGENCY_PORT_RECOVERY=PASS")
+else:
+    print("CHACHA_DEV_V64_EMERGENCY_PORT_FREE=PASS")
+PY
+systemctl reset-failed chacha-dev-emergency-stop-surface.service 2>/dev/null || true
+if ! systemctl start chacha-dev-emergency-stop-surface.service; then
   systemctl status --no-pager chacha-dev-emergency-stop-surface.service || true
   journalctl -u chacha-dev-emergency-stop-surface.service -n 80 --no-pager || true
-  echo "CHACHA_DEV_V64_RUNTIME_PILOT=BLOCKED reason=emergency_surface_restart_failed"
+  echo "CHACHA_DEV_V64_RUNTIME_PILOT=BLOCKED reason=emergency_surface_start_failed"
   exit 2
 fi
 systemctl is-active --quiet chacha-dev-technology-watch.timer
