@@ -12,6 +12,10 @@ function stable(v){
   if(Array.isArray(v)) return "["+v.map(stable).join(",")+"]";
   return "{"+Object.keys(v).sort().map(k=>JSON.stringify(k)+":"+stable(v[k])).join(",")+"}";
 }
+async function sha256Hex(text){
+  const d=await crypto.subtle.digest("SHA-256",enc.encode(text));
+  return [...new Uint8Array(d)].map(x=>x.toString(16).padStart(2,"0")).join("");
+}
 function b64uToBytes(s){
   s=String(s).replace(/-/g,"+").replace(/_/g,"/");
   while(s.length%4)s+="=";
@@ -62,6 +66,17 @@ async function resolveRoleContract(env,role){
   if(lower.includes("orchestrator"))return contractById(env,"role:__orchestrator__");
   return contractById(env,"role:__unknown__");
 }
+async function dynamicContract(env,contractId,version){
+  if(!contractId)return null;
+  if(version){
+    return env.DB.prepare(
+      "SELECT * FROM dynamic_role_contracts WHERE contract_id=?1 AND version=?2 AND status='ACTIVE'"
+    ).bind(String(contractId),String(version)).first();
+  }
+  return env.DB.prepare(
+    "SELECT * FROM dynamic_role_contracts WHERE contract_id=?1 AND status='ACTIVE' ORDER BY created_at DESC LIMIT 1"
+  ).bind(String(contractId)).first();
+}
 function order(sev){return ({INFO:0,WARNING:1,BLOCK:2,CRITICAL:3})[sev]??0;}
 function mergeEval(a,b){
   const severity=order(b.severity)>order(a.severity)?b.severity:a.severity;
@@ -96,7 +111,13 @@ async function evaluate(event,env){
   if(!action)addReason(state,"BLOCK","ACTION_MISSING");
 
   const actorContract=await contractById(env,"component:"+actor)||await resolveRoleContract(env,actor);
-  const roleContract=await resolveRoleContract(env,subjectRole);
+  const subjectContractId=String(event.subject_contract_id||"");
+  const subjectContractVersion=String(event.subject_contract_version||"");
+  const dyn=subjectContractId?await dynamicContract(env,subjectContractId,subjectContractVersion):null;
+  let roleContract=dyn||await resolveRoleContract(env,subjectRole);
+  const dynamicAgentRole=subjectRole.endsWith(":ephemeral-agent")||subjectRole.endsWith(":reusable-agent");
+  if(dynamicAgentRole&&!subjectContractId)addReason(state,"BLOCK","DYNAMIC_AGENT_CONTRACT_REQUIRED");
+  if(subjectContractId&&!dyn)addReason(state,"BLOCK","DYNAMIC_AGENT_CONTRACT_NOT_FOUND");
 
   if(!actorContract)addReason(state,"BLOCK","ACTOR_CONTRACT_MISSING");
   else{
@@ -119,6 +140,18 @@ async function evaluate(event,env){
     if(phase==="POST_ACTION"&&action==="FINAL_ARCHITECTURE_DECISION"){
       for(const key of arr(roleContract.required_evidence_json))
         if(!truthyEvidence(evidence,key))addReason(state,"BLOCK","REQUIRED_EVIDENCE_MISSING:"+key);
+    }
+    if(dyn){
+      if(String(dyn.agent_id)!==subjectRole)addReason(state,"CRITICAL","DYNAMIC_AGENT_IDENTITY_MISMATCH");
+      if(String(dyn.project_id)!==String(event.project_id||""))addReason(state,"CRITICAL","DYNAMIC_AGENT_PROJECT_SCOPE_MISMATCH");
+      if(subjectContractVersion&&String(dyn.version)!==subjectContractVersion)addReason(state,"BLOCK","DYNAMIC_AGENT_CONTRACT_VERSION_MISMATCH");
+      const allowedCaps=new Set(arr(dyn.allowed_capabilities_json));
+      const requestedCaps=Array.isArray(event.capabilities)?event.capabilities.map(String):[];
+      for(const cap of requestedCaps)if(!allowedCaps.has(cap))addReason(state,"BLOCK","CAPABILITY_OUTSIDE_AGENT_MISSION:"+cap);
+      const eventDomain=String((event.context||{}).domain||"");
+      if(eventDomain&&String(dyn.domain)!==eventDomain)addReason(state,"BLOCK","DOMAIN_OUTSIDE_AGENT_MISSION");
+      const eventPackage=String((event.context||{}).package_id||"");
+      if(eventPackage&&String(dyn.package_id)!==eventPackage)addReason(state,"BLOCK","PACKAGE_OUTSIDE_AGENT_MISSION");
     }
   }
 
@@ -214,6 +247,57 @@ async function storeEvent(env,event,evaluation){
       reasons:evaluation.reason_codes,payload:event
     });
   }
+}
+
+async function registerDynamicContract(req,env){
+  const body=await req.text();
+  const auth=await requireCentral(req,env,body);if(!auth.ok)return auth.response;
+  let x;try{x=JSON.parse(body);}catch{return json({error:"invalid_json"},400);}
+  if(!x||x.schema!=="chacha.dev/dynamic-agent-role-contract/v1")return json({error:"dynamic_contract_schema_invalid"},400);
+  if(String(x.issued_by||"")!=="agent-foundry")return json({error:"dynamic_contract_issuer_invalid"},409);
+  if(String(x.template_contract_id||"")!=="role:__agent__")return json({error:"dynamic_contract_template_invalid"},409);
+  const contractId=String(x.contract_id||""),version=String(x.version||""),agentId=String(x.agent_id||"");
+  const projectId=String(x.project_id||""),domain=String(x.domain||""),packageId=String(x.package_id||"");
+  if(!contractId.startsWith("agent:")||!version||!agentId||!projectId||!domain||!packageId)
+    return json({error:"dynamic_contract_identity_incomplete"},400);
+  if(contractId!=="agent:"+agentId)return json({error:"dynamic_contract_id_agent_mismatch"},409);
+
+  const template=await contractById(env,"role:__agent__");
+  if(!template)return json({error:"dynamic_contract_template_missing"},503);
+  const allowedActions=Array.isArray(x.allowed_actions)?x.allowed_actions.map(String):[];
+  const forbiddenActions=Array.isArray(x.forbidden_actions)?x.forbidden_actions.map(String):[];
+  const permissions=Array.isArray(x.allowed_permissions)?x.allowed_permissions.map(String):[];
+  const capabilities=Array.isArray(x.allowed_capabilities)?x.allowed_capabilities.map(String):[];
+  const tools=Array.isArray(x.allowed_tools)?x.allowed_tools:[];
+  const templateActions=arr(template.allowed_actions_json),templateForbidden=arr(template.forbidden_actions_json),templatePerms=arr(template.allowed_permissions_json);
+  if(allowedActions.some(v=>!allows(templateActions,v)))return json({error:"dynamic_contract_action_escalation"},409);
+  if(permissions.some(v=>!allows(templatePerms,v)))return json({error:"dynamic_contract_permission_escalation"},409);
+  if(templateForbidden.some(v=>!forbiddenActions.includes(v)))return json({error:"dynamic_contract_forbidden_rule_removed"},409);
+  if(permissions.some(v=>["production-deploy","production-data-write","secret-change","destructive-operation"].includes(v)))
+    return json({error:"dynamic_contract_production_permission_forbidden"},409);
+  if(x.production_permissions_allowed!==false)return json({error:"dynamic_contract_production_boundary_invalid"},409);
+
+  const digestInput={...x};delete digestInput.version;delete digestInput.contract_digest;
+  const actualDigest=await sha256Hex(stable(digestInput));
+  if(String(x.contract_digest||"")!==actualDigest||version!=="v1-"+actualDigest.slice(0,12))
+    return json({error:"dynamic_contract_digest_invalid"},409);
+
+  await env.DB.prepare(
+    "UPDATE dynamic_role_contracts SET status='RETIRED',retired_at=datetime('now') WHERE contract_id=?1 AND status='ACTIVE' AND version<>?2"
+  ).bind(contractId,version).run();
+  await env.DB.prepare(
+    `INSERT INTO dynamic_role_contracts
+      (contract_id,version,status,template_contract_id,agent_id,project_id,domain,package_id,allowed_actions_json,forbidden_actions_json,allowed_permissions_json,allowed_capabilities_json,allowed_tools_json,source_digest,created_at,retired_at)
+      VALUES(?1,?2,'ACTIVE',?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,datetime('now'),NULL)
+      ON CONFLICT(contract_id,version) DO UPDATE SET status='ACTIVE',retired_at=NULL,source_digest=excluded.source_digest`
+  ).bind(contractId,version,String(x.template_contract_id),agentId,projectId,domain,packageId,
+         JSON.stringify(allowedActions),JSON.stringify(forbiddenActions),JSON.stringify(permissions),
+         JSON.stringify(capabilities),JSON.stringify(tools),actualDigest).run();
+  return json({
+    schema:"chacha.dev/dynamic-agent-role-contract-registration/v1",
+    status:"PASS",contract_id:contractId,version,agent_id:agentId,project_id:projectId,
+    immutable_template:"role:__agent__",privilege_escalation_allowed:false,registered_at:new Date().toISOString()
+  });
 }
 
 async function check(req,env){
@@ -350,10 +434,12 @@ export default {
     const u=new URL(req.url);
     if(req.method==="GET"&&u.pathname==="/healthz")return json({
       status:"ok",service:"chacha-dev-guardian",external_governance_plane:true,
-      runtime_contract_mutation_api:false,tunnel_required:false,action_lease_protocol:true,coverage_watch:true,
+      runtime_contract_mutation_api:false,dynamic_instance_contract_registration:true,
+      dynamic_contract_policy_escalation_allowed:false,tunnel_required:false,action_lease_protocol:true,coverage_watch:true,
       authenticated_watchdog_sweep:true,scheduled_watchdog:true
     });
     if(req.method==="POST"&&u.pathname==="/v1/check")return check(req,env);
+    if(req.method==="POST"&&u.pathname==="/v1/dynamic-contracts/register")return registerDynamicContract(req,env);
     if(req.method==="POST"&&u.pathname==="/v1/coverage")return coverage(req,env);
     if(req.method==="POST"&&u.pathname==="/v1/watchdog/sweep")return watchdogSweep(req,env);
     if(req.method==="GET"&&u.pathname==="/v1/alerts")return alerts(req,env);
