@@ -2,7 +2,7 @@ name: ChaCha DEV V6.19 task contract binding qualification
 
 on:
   push:
-    branches: [dev-hub-v619-dynamic-component-contracts]
+    branches: [dev-hub-v619-task-contract-binding]
     paths:
       - 'dev-hub/guardian/**'
       - 'dev-hub/bin/guardian-client.py'
@@ -40,7 +40,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: dev-hub-v619-dynamic-component-contracts
+          ref: dev-hub-v619-task-contract-binding
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -64,8 +64,8 @@ jobs:
           python3 -m json.tool dev-hub/config/guardian-runtime-policy.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/guardian-coverage-manifest.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/run-controller.v1.json >/dev/null
-          if [ -f dev-hub/bin/install-v619-dynamic-component-contracts.sh ]; then
-            bash -n dev-hub/bin/install-v619-dynamic-component-contracts.sh
+          if [ -f dev-hub/bin/install-v619-task-contract-binding.sh ]; then
+            bash -n dev-hub/bin/install-v619-task-contract-binding.sh
           fi
           echo CHACHA_DEV_V619_STATIC=PASS
 
