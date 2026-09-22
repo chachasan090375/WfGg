@@ -92,6 +92,29 @@ jobs:
           ! grep -Fq '"/opt/wfgg-messenger/' "$F"
           echo RADAR_V624_PRODUCTION_RUNTIME_CONFINEMENT=PASS
 
+      - name: Validate production Messenger install probe and rollback scripts
+        run: |
+          set -euo pipefail
+          I=radar-vps/install-v624-messenger-production.sh
+          P=radar-vps/probe-v624-messenger-production-runtime.sh
+          R=radar-vps/rollback-v624-messenger-production.sh
+          bash -n "$I"
+          bash -n "$P"
+          bash -n "$R"
+          grep -Fq '/opt/wfgg-radar' "$I"
+          grep -Fq '3cf5d175325a319d601667e50388e8472057bcc152df7a618938daf357a3dfa1' "$I"
+          grep -Fq 'RADAR_V624_PRODUCTION_CONNECTOR_TOUCHED=NO' "$I"
+          grep -Fq 'RADAR_V624_PRODUCTION_SERVICE_RESTARTED=NO' "$I"
+          grep -Fq 'RADAR_V624_MESSENGER_PRODUCTION_PROBE=PASS' "$P"
+          grep -Fq 'RADAR_V624_MAIL_SEND_EXECUTED=NO' "$P"
+          grep -Fq 'RADAR_V624_MESSENGER_PRODUCTION_ROLLBACK=PASS' "$R"
+          grep -Fq 'RADAR_V624_MESSENGER_LEDGER_PRESERVED=YES' "$R"
+          if grep -Eq 'systemctl (restart|stop|start).*wfgg-radar-connector' "$I" "$P" "$R"; then
+            echo RADAR_V624_MESSENGER_SCRIPT_CONNECTOR_RESTART=FOUND
+            exit 1
+          fi
+          echo RADAR_V624_MESSENGER_PRODUCTION_SCRIPTS=PASS
+
       - name: Build and verify qualified Messenger
         working-directory: .radar-release-src/v624-messenger-source
         run: |
