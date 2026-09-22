@@ -16,7 +16,7 @@ permissions:
   contents: read
 
 env:
-  RADAR_REV: 5e88b3275a0d6f09edec0b9014bdaf693790eaa9
+  RADAR_REV: 2ab32595ee31ba219c75e31f5b11069e1cb7a921
   EXPECTED_MESSENGER_SHA256: 3cf5d175325a319d601667e50388e8472057bcc152df7a618938daf357a3dfa1
 
 jobs:
@@ -75,7 +75,7 @@ jobs:
           set -euo pipefail
           R=dev-hub/bin/run-radar-v624-messenger-production-via-chacha-dev.sh
           bash -n "$R"
-          grep -Fq 'RADAR_REV="5e88b3275a0d6f09edec0b9014bdaf693790eaa9"' "$R"
+          grep -Fq 'RADAR_REV="2ab32595ee31ba219c75e31f5b11069e1cb7a921"' "$R"
           grep -Fq 'MESSENGER_SHA="3cf5d175325a319d601667e50388e8472057bcc152df7a618938daf357a3dfa1"' "$R"
           grep -Fq 'messenger-production-install' "$R"
           grep -Fq 'messenger-production-probe' "$R"
