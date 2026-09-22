@@ -73,7 +73,7 @@ def guardian_stage(script:Path,args,phase:str,action_id:str):
     if not _GUARDIAN_CONTEXT.get("enabled"): return {"status":"NON_RUNTIME_TEST_BYPASS"}
     client=Path(_GUARDIAN_CONTEXT["client"]);policy=Path(_GUARDIAN_CONTEXT["policy"])
     if not client.is_file() or not policy.is_file():
-        return {"status":"UNAVAILABLE","reason":"CLIENT_OR_POLICY_MISSING"}
+        raise RuntimeError("GUARDIAN_STAGE_UNAVAILABLE:CLIENT_OR_POLICY_MISSING")
     role=_STAGE_ROLE.get(script.name,"orchestrator")
     out=_output_arg(args)
     action="INVOKE_COMPONENT"
@@ -109,10 +109,14 @@ def guardian_stage(script:Path,args,phase:str,action_id:str):
     p=subprocess.run([sys.executable,str(client),"--policy",str(policy),"check","--event",str(ep)],
                      stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=25)
     try:verdict=json.loads(p.stdout.strip())
-    except Exception:verdict={"status":"UNAVAILABLE","reason":"INVALID_GUARDIAN_RESPONSE"}
+    except Exception:
+        verdict={"status":"UNAVAILABLE","reason":"INVALID_GUARDIAN_RESPONSE"}
     save(event_dir/(event["event_id"]+".verdict.json"),verdict)
-    if str(verdict.get("verdict")) in {"BLOCK","CRITICAL"}:
+    state=str(verdict.get("verdict") or verdict.get("status") or "UNAVAILABLE")
+    if state in {"BLOCK","CRITICAL"}:
         raise RuntimeError("GUARDIAN_STAGE_BLOCK:"+script.name+":"+str(verdict.get("reason_codes") or []))
+    if state not in {"PASS","WARNING"}:
+        raise RuntimeError("GUARDIAN_STAGE_UNAVAILABLE:"+script.name+":"+str(verdict.get("reason") or state))
     return verdict
 
 def run(script,args):
