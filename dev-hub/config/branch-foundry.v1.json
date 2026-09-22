@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/branch-foundry/v1",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "mandatory_preflight": true,
   "invocation_point": "parallel-with-agent-foundry-after-core-preplan",
   "returns_to": "chacha-core-orchestrator",
@@ -24,7 +24,15 @@
     "project_specific_branch_is_not_platform_global": true,
     "branch_creation_requires_capability_gap": true,
     "core_reconciles_branch_and_agent_topologies": true,
-    "only_changed_packages_repeat_preflight": true
+    "only_changed_packages_repeat_preflight": true,
+    "every_branch_blueprint_is_optimized": true,
+    "no_fixed_orchestrator_architecture_or_agent_stack": true,
+    "hard_constraints_before_cost": true,
+    "minimum_total_cost_among_valid_blueprints": true,
+    "technology_watch_supplies_candidates": true,
+    "component_registry_supplies_reuse_candidates": true,
+    "agent_foundry_supplies_agent_topology": true,
+    "architecture_arena_required_when_choice_is_material": true
   },
   "fast_path": {
     "enabled": true,
@@ -110,5 +118,65 @@
     "rerun_branch_foundry_if_agent_requirements_change_resource_profile": true,
     "max_automatic_iterations": 4,
     "fail_on_non_convergence": true
+  },
+  "optimization": {
+    "strategy": "CONSTRAINT_FIRST_MIN_TOTAL_COST",
+    "hard_constraints": [
+      "functional_coverage",
+      "required_quality",
+      "security_policy",
+      "acceptance_contract",
+      "available_compute",
+      "license_compatibility",
+      "rollback_capability",
+      "declared_latency_or_throughput"
+    ],
+    "objective_order": [
+      "min_external_spend",
+      "min_incremental_runtime_memory",
+      "min_incremental_disk",
+      "min_compute_time",
+      "min_model_or_token_consumption",
+      "min_time_to_ready",
+      "min_maintenance_complexity",
+      "max_component_reuse",
+      "max_quality_margin",
+      "max_future_reuse"
+    ],
+    "compare_complete_blueprints": true,
+    "record_rejected_candidates": true,
+    "pareto_frontier": true,
+    "equivalent_quality_cost_tolerance_percent": 5,
+    "benchmark_if_estimates_too_close": true
+  },
+  "blueprint_dimensions": [
+    "branch_mode",
+    "orchestrator_strategy",
+    "agent_topology",
+    "toolchain",
+    "architecture",
+    "components",
+    "storage",
+    "runtime_profile",
+    "parallelism",
+    "cache_policy",
+    "lifecycle"
+  ],
+  "orchestrator_strategies": {
+    "SHARED_CORE": {
+      "incremental_processes": 0,
+      "maintenance_score": 100,
+      "use_when": "simple-or-low-complexity"
+    },
+    "LIGHTWEIGHT_DOMAIN": {
+      "incremental_processes": 0,
+      "maintenance_score": 90,
+      "use_when": "domain-coordination-needed-without-dedicated-daemon"
+    },
+    "DEDICATED_EPHEMERAL": {
+      "incremental_processes": 1,
+      "maintenance_score": 75,
+      "use_when": "complex-or-high-parallelism"
+    }
   }
 }
