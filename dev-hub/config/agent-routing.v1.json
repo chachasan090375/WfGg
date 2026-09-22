@@ -165,6 +165,30 @@
         "ui-layout-review"
       ],
       "default_risk": "low"
+    },
+    "translation-specialist": {
+      "capabilities": [
+        "translation",
+        "terminology-management",
+        "translation-quality-review"
+      ],
+      "default_risk": "low"
+    },
+    "publication-specialist": {
+      "capabilities": [
+        "publication-writing",
+        "style-transformation",
+        "channel-formatting"
+      ],
+      "default_risk": "low"
+    },
+    "integration-architect": {
+      "capabilities": [
+        "integration-design",
+        "api-contract-review",
+        "acceptance-criteria"
+      ],
+      "default_risk": "medium"
     }
   },
   "routing_rules": [
@@ -406,6 +430,47 @@
       "primary_role": "ui-layout-specialist",
       "review_roles": [
         "test-engineer"
+      ]
+    },
+    {
+      "match": [
+        "traduction",
+        "translate",
+        "translation",
+        "localisation",
+        "localization"
+      ],
+      "primary_role": "translation-specialist",
+      "review_roles": [
+        "documentation-adr-agent"
+      ]
+    },
+    {
+      "match": [
+        "publication",
+        "article",
+        "discord",
+        "newsletter",
+        "communiqué",
+        "style",
+        "ton"
+      ],
+      "primary_role": "publication-specialist",
+      "review_roles": [
+        "documentation-adr-agent"
+      ]
+    },
+    {
+      "match": [
+        "assemblage",
+        "livrable",
+        "intégration finale",
+        "acceptance"
+      ],
+      "primary_role": "integration-architect",
+      "review_roles": [
+        "test-engineer",
+        "security-reviewer"
       ]
     }
   ],
