@@ -7,7 +7,9 @@ import http.server
 import json
 import mimetypes
 import re
+import shutil
 import sqlite3
+import subprocess
 import struct
 import threading
 import time
@@ -261,13 +263,70 @@ class KnowledgeDB:
                    updated_at=excluded.updated_at""",
                 (task_type,artifact_id,target,priority,now,now))
 
+    def claim_task(self):
+        now=now_iso()
+        with self._lock,self.db:
+            row=self.db.execute(
+                """SELECT id,task_type,artifact_id,target,priority,attempts
+                   FROM tasks WHERE state='PENDING'
+                   ORDER BY priority DESC,id LIMIT 1"""
+            ).fetchone()
+            if not row:return None
+            self.db.execute(
+                "UPDATE tasks SET state='RUNNING',attempts=attempts+1,updated_at=? WHERE id=? AND state='PENDING'",
+                (now,int(row["id"])))
+            return dict(row)
+
+    def finish_task(self,task_id,state,error=""):
+        with self._lock,self.db:
+            self.db.execute(
+                "UPDATE tasks SET state=?,last_error=?,updated_at=? WHERE id=?",
+                (state,error[:2000],now_iso(),task_id))
+
+    def artifact_context(self,artifact_id):
+        if artifact_id is None:return None
+        row=self.db.execute(
+            """SELECT a.*,s.root source_root,s.version source_version
+               FROM artifacts a JOIN sources s ON s.id=a.source_id WHERE a.id=?""",
+            (artifact_id,)).fetchone()
+        return dict(row) if row else None
+
+    def knowledge_gaps(self,limit=100):
+        tasks=[dict(r) for r in self.db.execute(
+            """SELECT t.id,t.task_type,t.target,t.state,t.priority,t.attempts,t.last_error,
+                      a.logical_path,a.layer
+               FROM tasks t LEFT JOIN artifacts a ON a.id=t.artifact_id
+               WHERE t.state!='DONE'
+               ORDER BY t.priority DESC,t.id LIMIT ?""",(max(1,min(int(limit),500)),))]
+        unknown=[dict(r) for r in self.db.execute(
+            """SELECT id,logical_path,layer,media_type,analyzer,last_seen
+               FROM artifacts WHERE status='NEEDS_DECODER'
+               ORDER BY last_seen DESC LIMIT ?""",(max(1,min(int(limit),500)),))]
+        return {"tasks":tasks,"unknownArtifacts":unknown}
+
     def stats(self):
         tables=("sources","artifacts","entities","evidence","assertions","edges","tasks","scan_runs")
         out={t:int(self.db.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]) for t in tables}
         out["pendingTasks"]=int(self.db.execute("SELECT COUNT(*) FROM tasks WHERE state='PENDING'").fetchone()[0])
+        out["waitingTasks"]=int(self.db.execute("SELECT COUNT(*) FROM tasks WHERE state LIKE 'WAITING_%'").fetchone()[0])
         out["unknownArtifacts"]=int(self.db.execute("SELECT COUNT(*) FROM artifacts WHERE status='NEEDS_DECODER'").fetchone()[0])
+        out["taskStates"]={r["state"]:r["n"] for r in self.db.execute(
+            "SELECT state,COUNT(*) n FROM tasks GROUP BY state ORDER BY state")}
         out["layers"]={r["layer"]:r["n"] for r in self.db.execute(
             "SELECT layer,COUNT(*) n FROM entities GROUP BY layer ORDER BY n DESC")}
+        coverage={}
+        for r in self.db.execute(
+            """SELECT layer,COUNT(*) total,
+                      SUM(CASE WHEN status='NEEDS_DECODER' THEN 1 ELSE 0 END) unknown
+               FROM artifacts GROUP BY layer ORDER BY layer"""):
+            total=int(r["total"]);unknown=int(r["unknown"] or 0)
+            coverage[r["layer"]]={
+                "artifacts":total,
+                "unknown":unknown,
+                "understood":total-unknown,
+                "coverage":round((total-unknown)/total,6) if total else 1.0,
+            }
+        out["coverageByLayer"]=coverage
         return out
 
     def search(self,q,limit=25):
@@ -465,6 +524,104 @@ def scan_source(db,name,kind,root,version=""):
                       (now_iso(),status,seen,changed,errors,run_id))
     return {"status":status,"seen":seen,"changed":changed,"errors":errors,"runId":run_id}
 
+def _read7(data,off):
+    value=0;shift=0
+    for _ in range(5):
+        b=data[off];off+=1;value|=(b&0x7f)<<shift
+        if not b&0x80:return value,off
+        shift+=7
+    raise ValueError("invalid 7-bit integer")
+
+def _lwlf_module(data,target):
+    if len(data)<16 or data[:4]!=b"LWLF":return None
+    _,_,_,count=struct.unpack_from("<4sIII",data,0)
+    pos=16
+    for idx in range(count):
+        n,pos=_read7(data,pos)
+        name=data[pos:pos+n].decode("utf-8","replace");pos+=n
+        size=struct.unpack_from("<I",data,pos)[0];pos+=4
+        chunk=data[pos:pos+size];pos+=size
+        if name==target:return idx,chunk
+    return None
+
+def _normalize_lastwar_lua53(chunk):
+    if len(chunk)>=15 and chunk[:4]==b"\x1bLua" and chunk[4]==0x53 and chunk[5]==1:
+        return chunk[:5]+b"\x00"+chunk[6:14]+b"\x04"+chunk[14:]
+    return chunk
+
+def process_one_task(db):
+    task=db.claim_task()
+    if not task:return None
+    tid=int(task["id"]);kind=str(task["task_type"]);target=str(task["target"])
+    ctx=db.artifact_context(task.get("artifact_id"))
+    try:
+        if kind in {"DECOMPILE_PROTOCOL_MODULE","DECODE_LUA_ANIMATION_BEHAVIOR"}:
+            if not ctx:
+                db.finish_task(tid,"FAILED","ARTIFACT_NOT_FOUND");return {"id":tid,"state":"FAILED"}
+            source_path=Path(ctx["source_root"])/ctx["logical_path"]
+            data=source_path.read_bytes()
+            found=_lwlf_module(data,target)
+            if not found:
+                db.finish_task(tid,"FAILED","LWLF_MODULE_NOT_FOUND");return {"id":tid,"state":"FAILED"}
+            idx,chunk=found
+            luac=shutil.which("luac5.3") or shutil.which("luac")
+            if not luac:
+                db.finish_task(tid,"WAITING_DECODER","LUAC_5_3_NOT_AVAILABLE")
+                return {"id":tid,"state":"WAITING_DECODER"}
+            import tempfile
+            with tempfile.TemporaryDirectory(prefix="collector-knowledge-lua-") as td:
+                p=Path(td)/"module.luac";p.write_bytes(_normalize_lastwar_lua53(chunk))
+                cp=subprocess.run([luac,"-l","-l",str(p)],stdout=subprocess.PIPE,stderr=subprocess.PIPE,timeout=30)
+            if cp.returncode!=0:
+                db.finish_task(tid,"WAITING_DECODER",cp.stderr.decode("utf-8","replace")[:1000])
+                return {"id":tid,"state":"WAITING_DECODER"}
+            module=db.entity("LUA_MODULE",target,classify_layer(target),ctx.get("source_version") or "")
+            ev=db.add_evidence(int(ctx["id"]),module,"LUA53_DISASSEMBLY",f"{target}:entry:{idx}",
+                               cp.stdout.decode("utf-8","replace")[:2000])
+            db.add_assertion(module,"bytecode_disassembly","available",ev,0.9)
+            db.finish_task(tid,"DONE")
+            return {"id":tid,"state":"DONE","decoder":"lua53-disassembly"}
+
+        if kind=="DECODE_UNKNOWN_FORMAT":
+            if not ctx:
+                db.finish_task(tid,"FAILED","ARTIFACT_NOT_FOUND");return {"id":tid,"state":"FAILED"}
+            p=Path(ctx["source_root"])/ctx["logical_path"]
+            data=p.read_bytes()
+            sig=data[:16].hex()
+            ent=db.entity("ARTIFACT",ctx["logical_path"],ctx["layer"],ctx.get("source_version") or "")
+            ev=db.add_evidence(int(ctx["id"]),ent,"UNKNOWN_FORMAT_SIGNATURE",ctx["logical_path"],sig)
+            db.add_assertion(ent,"decoder_status","waiting",ev,0.5)
+            db.finish_task(tid,"WAITING_DECODER","NO_REGISTERED_DECODER")
+            return {"id":tid,"state":"WAITING_DECODER","signature":sig}
+
+        if kind in {"DECODE_ANIMATION","VISUAL_SEMANTIC_INDEX"}:
+            if not ctx:
+                db.finish_task(tid,"FAILED","ARTIFACT_NOT_FOUND");return {"id":tid,"state":"FAILED"}
+            ent=db.entity("ARTIFACT",ctx["logical_path"],ctx["layer"],ctx.get("source_version") or "")
+            capability="ANIMATION_DECODER_REQUIRED" if kind=="DECODE_ANIMATION" else "VISUAL_MODEL_REQUIRED"
+            ev=db.add_evidence(int(ctx["id"]),ent,"CAPABILITY_GAP",ctx["logical_path"],capability)
+            db.add_assertion(ent,"analysis_capability",capability,ev,0.5)
+            db.finish_task(tid,"WAITING_CAPABILITY",capability)
+            return {"id":tid,"state":"WAITING_CAPABILITY","capability":capability}
+
+        if kind=="ANALYSIS_ERROR":
+            db.finish_task(tid,"WAITING_RETRY","SOURCE_RESCAN_REQUIRED")
+            return {"id":tid,"state":"WAITING_RETRY"}
+
+        db.finish_task(tid,"WAITING_DECODER","NO_TASK_HANDLER")
+        return {"id":tid,"state":"WAITING_DECODER"}
+    except Exception as exc:
+        db.finish_task(tid,"FAILED",f"{type(exc).__name__}:{exc}")
+        return {"id":tid,"state":"FAILED","error":type(exc).__name__}
+
+def process_tasks(db,limit=50):
+    results=[]
+    for _ in range(max(0,int(limit))):
+        result=process_one_task(db)
+        if result is None:break
+        results.append(result)
+    return results
+
 class APIHandler(http.server.BaseHTTPRequestHandler):
     db=None
     def _json(self,code,payload):
@@ -475,6 +632,9 @@ class APIHandler(http.server.BaseHTTPRequestHandler):
         u=urllib.parse.urlparse(self.path);q=urllib.parse.parse_qs(u.query)
         if u.path=="/knowledge/health":self._json(200,{"ok":True,"engineVersion":ENGINE_VERSION,"readonly":True});return
         if u.path=="/knowledge/stats":self._json(200,{"ok":True,"stats":self.db.stats()});return
+        if u.path=="/knowledge/gaps":
+            limit=int((q.get("limit") or ["100"])[0])
+            self._json(200,{"ok":True,"gaps":self.db.knowledge_gaps(limit)});return
         if u.path in {"/knowledge/search","/knowledge/ask"}:
             query=(q.get("q") or [""])[0];limit=int((q.get("limit") or ["25"])[0])
             self._json(200,{"ok":True,"query":query,"results":self.db.search(query,limit)});return
@@ -496,6 +656,8 @@ def run_worker(config_path):
             if not src.get("enabled",True):continue
             result=scan_source(db,str(src["name"]),str(src.get("kind","FILESYSTEM")),Path(src["root"]),str(src.get("version","")))
             print(json.dumps({"collectorKnowledgeScan":src["name"],**result},ensure_ascii=False),flush=True)
+        decoded=process_tasks(db,int(cfg.get("tasksPerCycle",50)))
+        print(json.dumps({"collectorKnowledgeTasks":len(decoded),"results":decoded[:20]},ensure_ascii=False),flush=True)
         time.sleep(interval)
 
 def serve(config_path):
@@ -512,6 +674,8 @@ def main():
     q=sub.add_parser("query");q.add_argument("q");q.add_argument("--limit",type=int,default=25)
     e=sub.add_parser("entity");e.add_argument("id",type=int)
     sub.add_parser("stats")
+    t=sub.add_parser("tasks");t.add_argument("--limit",type=int,default=50)
+    sub.add_parser("gaps")
     w=sub.add_parser("worker");w.add_argument("--config",required=True)
     h=sub.add_parser("serve");h.add_argument("--config",required=True)
     args=ap.parse_args()
@@ -523,5 +687,7 @@ def main():
     elif args.cmd=="query":print(json.dumps({"ok":True,"results":db.search(args.q,args.limit)},ensure_ascii=False,indent=2))
     elif args.cmd=="entity":print(json.dumps({"ok":True,"result":db.entity_detail(args.id)},ensure_ascii=False,indent=2))
     elif args.cmd=="stats":print(json.dumps({"ok":True,"stats":db.stats()},ensure_ascii=False,indent=2))
+    elif args.cmd=="tasks":print(json.dumps({"ok":True,"results":process_tasks(db,args.limit)},ensure_ascii=False,indent=2))
+    elif args.cmd=="gaps":print(json.dumps({"ok":True,"gaps":db.knowledge_gaps()},ensure_ascii=False,indent=2))
 
 if __name__=="__main__":main()
