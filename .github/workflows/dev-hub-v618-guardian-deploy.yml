@@ -2,7 +2,7 @@ name: ChaCha DEV V6.18 deploy external Guardian
 
 on:
   push:
-    branches: [dev-hub-v618-dynamic-agent-role-contracts]
+    branches: [dev-hub-v618-dynamic-component-contracts]
     paths:
       - 'dev-hub/guardian/**'
       - 'dev-hub/config/guardian-role-contracts.v1.json'
@@ -27,7 +27,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: dev-hub-v618-dynamic-agent-role-contracts
+          ref: dev-hub-v618-dynamic-component-contracts
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
