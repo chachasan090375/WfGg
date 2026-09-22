@@ -1,0 +1,55 @@
+{
+  "schema": "chacha.dev/technology-watch-runtime/v1",
+  "version": "1.0.0",
+  "mode": "CONTINUOUS_ZERO_SPEND_FIRST",
+  "snapshot": "/opt/chacha-dev/runtime/technology-watch/optimizer-input.json",
+  "maximum_snapshot_age_minutes": 60,
+  "background_refresh_minutes": 30,
+  "targeted_refresh_if_missing_or_stale": true,
+  "targeted_refresh_does_not_replace_global_snapshot": true,
+  "full_ecosystem_rescan_per_materialization": false,
+  "automatic_external_spend_eur": 0,
+  "registries": [
+    "dev-hub/config/capability-registry.v1.json",
+    "dev-hub/config/domain-orchestration.v1.json",
+    "dev-hub/config/provider-economics.v1.json",
+    "dev-hub/config/mcp-provider-catalog.v1.json"
+  ],
+  "consumers": [
+    "branch-foundry",
+    "agent-foundry",
+    "capability-foundry",
+    "architecture-optimizer"
+  ],
+  "admissible_provider_statuses": [
+    "ADOPT",
+    "ENABLED"
+  ],
+  "nonautomatic_provider_statuses": [
+    "PILOT",
+    "WATCH",
+    "ASSESS",
+    "DESIGNED",
+    "CATALOG_ONLY",
+    "DISABLED",
+    "DEFER",
+    "REJECT"
+  ],
+  "zero_external_cost_classes": [
+    "free",
+    "owned",
+    "local",
+    "included"
+  ],
+  "conditional_zero_cost_classes": [
+    "quota"
+  ],
+  "zero_spend_rule": "IF_ANY_ADMISSIBLE_HARD_VALID_ZERO_SPEND_CANDIDATE_EXISTS_EXCLUDE_NONZERO_CANDIDATES",
+  "paid_candidate_requires_explicit_human_approval": true,
+  "source_collection": {
+    "deterministic_registries_first": true,
+    "official_sources_first": true,
+    "network_refresh_optional": true,
+    "network_failure_is_nonfatal_when_current_registry_evidence_exists": true
+  }
+}

@@ -8,6 +8,8 @@ import json
 from pathlib import Path
 from typing import Any
 
+import technology_watch_runtime as tw
+
 SCHEMA="chacha.dev/branch-foundry/v1"
 OUT="chacha.dev/branch-topology/v1"
 
@@ -43,16 +45,25 @@ def build(preplan:dict[str,Any],cfg:dict[str,Any],project_id:str,
 
     decisions=[]
     blocked=[]
+    repo_root=Path(__file__).resolve().parents[2]
     for pkg in preplan.get("packages") or []:
         pid=str(pkg.get("id"))
-        opt=optimizer.optimize(pkg,preplan,cfg,agent_map.get(pid))
+        domain=str(pkg.get("domain") or "")
+        watch=tw.consult(
+            repo_root,
+            consumer="branch-foundry",
+            domain=domain,
+            capabilities=[str(x) for x in pkg.get("capabilities") or []],
+        )
+        pkg_for_opt=dict(pkg)
+        pkg_for_opt["technology_candidates"]=watch.get("branch_blueprints") or []
+        opt=optimizer.optimize(pkg_for_opt,preplan,cfg,agent_map.get(pid))
         if opt.get("state")!="READY":
             blocked.append({"package_id":pid,"reason":opt.get("reason"),"optimization":opt})
             continue
         chosen=opt["chosen"]
         profile=profile_for(chosen)
         runtime=chosen.get("branch_mode")=="MATERIALIZE_EPHEMERAL_BRANCH"
-        domain=str(pkg.get("domain"))
         branch_id=f"{project_id}:{domain}:{'review' if pkg.get('kind')=='review' else 'primary'}"
         resources=chosen.get("resources") or {}
         decisions.append({
@@ -71,6 +82,16 @@ def build(preplan:dict[str,Any],cfg:dict[str,Any],project_id:str,
             "pareto_frontier":opt.get("pareto_frontier"),
             "candidate_count":len(opt.get("candidates") or []),
             "rejected_candidates":opt.get("rejected") or [],
+            "technology_watch":{
+                "consulted":True,
+                "snapshot_freshness":watch.get("snapshot_freshness"),
+                "targeted_refresh_performed":watch.get("targeted_refresh_performed"),
+                "source_snapshot_digest":watch.get("source_snapshot_digest"),
+                "eligible_provider_candidates":watch.get("eligible_provider_candidates") or [],
+                "zero_spend_candidate_available":watch.get("zero_spend_candidate_available"),
+                "selection_rule":watch.get("selection_rule"),
+                "automatic_external_spend_eur":0,
+            },
             "ttl_seconds":0 if not runtime else int((cfg.get("runtime_capsules") or {}).get("teardown_after_idle_seconds",900)),
             "resource_budget":{
                 "memory_hard_limit_mb":int(resources.get("memory_mb",0)),
@@ -106,7 +127,8 @@ def build(preplan:dict[str,Any],cfg:dict[str,Any],project_id:str,
         "agent_topology_digest":digest(agent_topology) if agent_topology else None,
         "intent":preplan.get("intent"),
         "mandatory_preflight":True,
-        "optimization_strategy":"CONSTRAINT_FIRST_MIN_TOTAL_COST",
+        "technology_watch_consulted":True,
+        "optimization_strategy":"CONSTRAINT_FIRST_ZERO_SPEND_THEN_MIN_TOTAL_COST",
         "decisions":decisions,
         "blocked":blocked,
         "summary":{
@@ -136,6 +158,7 @@ def main():
     out=build(load(a.preplan),load(a.config),a.project_id,topo)
     a.output.write_text(json.dumps(out,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     print("CHACHA_BRANCH_FOUNDRY=PASS")
+    print("CHACHA_BRANCH_FOUNDRY_TECHNOLOGY_WATCH=CONSULTED")
     print("BRANCHES="+str(out["summary"]["branches"]))
     print("MATERIALIZED="+str(out["summary"]["materialized"]))
     print("MEMORY_ONLY="+str(out["summary"]["memory_only"]))

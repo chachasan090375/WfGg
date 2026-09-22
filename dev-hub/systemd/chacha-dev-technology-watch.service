@@ -1,0 +1,17 @@
+[Unit]
+Description=ChaCha DEV permanent Technology Watch snapshot refresh
+After=network-online.target
+Wants=network-online.target
+ConditionPathExists=/opt/chacha-dev/platform/current/dev-hub/bin/technology-watch-service.py
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+WorkingDirectory=/opt/chacha-dev/platform/current
+ExecStart=/usr/bin/python3 /opt/chacha-dev/platform/current/dev-hub/bin/technology-watch-service.py --repo-root /opt/chacha-dev/platform/current refresh
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/chacha-dev/runtime/technology-watch

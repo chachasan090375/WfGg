@@ -7,6 +7,8 @@ import json
 from pathlib import Path
 from typing import Any
 
+import technology_watch_runtime as tw
+
 SCHEMA="chacha.dev/agent-foundry/v1"
 OUT="chacha.dev/agent-topology/v1"
 
@@ -130,7 +132,30 @@ def decide_package(pkg:dict[str,Any],routing:dict[str,Any],cfg:dict[str,Any],pro
 def build(preplan:dict[str,Any],cfg:dict[str,Any],routing:dict[str,Any],project_id:str)->dict[str,Any]:
     if cfg.get("schema")!=SCHEMA:raise SystemExit("AGENT_FOUNDRY_SCHEMA_INVALID")
     if preplan.get("schema")!="chacha.dev/domain-plan/v1":raise SystemExit("PREPLAN_SCHEMA_INVALID")
-    decisions=[decide_package(p,routing,cfg,project_id) for p in preplan.get("packages") or []]
+    decisions=[]
+    repo_root=Path(__file__).resolve().parents[2]
+    for p in preplan.get("packages") or []:
+        watch=tw.consult(
+            repo_root,
+            consumer="agent-foundry",
+            domain=str(p.get("domain") or ""),
+            capabilities=[str(x) for x in p.get("capabilities") or []],
+        )
+        decision=decide_package(p,routing,cfg,project_id)
+        providers=watch.get("eligible_provider_candidates") or []
+        decision["technology_watch"]={
+            "consulted":True,
+            "snapshot_freshness":watch.get("snapshot_freshness"),
+            "targeted_refresh_performed":watch.get("targeted_refresh_performed"),
+            "source_snapshot_digest":watch.get("source_snapshot_digest"),
+            "zero_spend_candidate_available":watch.get("zero_spend_candidate_available"),
+            "selection_rule":watch.get("selection_rule"),
+            "automatic_external_spend_eur":0,
+        }
+        if isinstance(decision.get("manifest"),dict):
+            decision["manifest"]["provider_candidates"]=providers
+            decision["manifest"]["preferred_provider_candidate"]=(providers[0].get("id") if providers else None)
+        decisions.append(decision)
     created=[x for x in decisions if x["decision"].startswith("CREATE_")]
     composed=[x for x in decisions if x["decision"]=="COMPOSE_EXISTING_AGENTS"]
     tools=[x for x in decisions if x["decision"]=="TOOL_ONLY"]
@@ -140,6 +165,7 @@ def build(preplan:dict[str,Any],cfg:dict[str,Any],routing:dict[str,Any],project_
         "preplan_digest":digest(preplan),
         "intent":preplan.get("intent"),
         "mandatory_preflight":True,
+        "technology_watch_consulted":True,
         "decisions":decisions,
         "summary":{
             "packages":len(decisions),
@@ -163,6 +189,7 @@ def main():
     out=build(load(a.preplan),load(a.config),load(a.routing),a.project_id)
     a.output.write_text(json.dumps(out,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     print("CHACHA_AGENT_FOUNDRY=PASS")
+    print("CHACHA_AGENT_FOUNDRY_TECHNOLOGY_WATCH=CONSULTED")
     print("CREATED_AGENTS="+str(out["summary"]["created_agents"]))
     print("REPLAN_REQUIRED=YES")
 

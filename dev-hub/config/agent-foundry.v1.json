@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/agent-foundry/v1",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "branch": "agent-foundry",
   "mandatory_preflight": true,
   "invocation_point": "after-core-intent-understanding-before-domain-dispatch",
@@ -34,7 +34,9 @@
     "project_specific_context_never_leaks_into_generic_agent": true,
     "foundry_output_may_rewrite_project_plan": true,
     "branch_foundry_runs_in_parallel": true,
-    "agent_choice_must_feed_branch_optimizer": true
+    "agent_choice_must_feed_branch_optimizer": true,
+    "technology_watch_consulted_on_every_materialization": true,
+    "valid_zero_spend_provider_candidates_dominate_nonzero_candidates": true
   },
   "scoring": {
     "capability_fit": 30,
@@ -146,5 +148,12 @@
       "verification_cost"
     ],
     "cheapest_valid_execution_topology_wins": true
+  },
+  "technology_watch": {
+    "snapshot": "/opt/chacha-dev/runtime/technology-watch/optimizer-input.json",
+    "maximum_snapshot_age_minutes": 60,
+    "targeted_refresh_if_missing_or_stale": true,
+    "full_ecosystem_rescan_per_materialization": false,
+    "automatic_external_spend_eur": 0
   }
 }
