@@ -1,0 +1,156 @@
+name: ChaCha DEV V6.9 deploy Worker learning relay v2
+
+on:
+  push:
+    branches: [dev-hub-v69-worker-learning-relay]
+    paths:
+      - 'dev-hub/config/worker-learning-central-identity.v1.json'
+      - 'dev-hub/learning-relay/**'
+      - '.github/workflows/dev-hub-v69-worker-learning-relay-deploy-v2.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev-hub-v69-worker-learning-relay
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Validate central public identity
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          x=json.load(open('dev-hub/config/worker-learning-central-identity.v1.json',encoding='utf-8'))
+          assert x['schema']=='chacha.dev/central-learning-public-key/v1'
+          assert x['algorithm']=='Ed25519'
+          assert x['private_key_exported'] is False
+          assert x['key_id'].startswith('central-')
+          assert len(x['public_key_spki_b64']) > 40
+          print('CHACHA_DEV_V69_CENTRAL_PUBLIC_IDENTITY=PASS')
+          PY
+
+      - name: Resolve Cloudflare account and D1
+        id: cf
+        env:
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json,os,sys,urllib.parse,urllib.request,urllib.error
+          token=os.environ.get('CF_API_TOKEN','').strip()
+          if not token: raise SystemExit('MISSING_SECRET=CLOUDFLARE_API_TOKEN')
+          headers={'Authorization':'Bearer '+token,'Content-Type':'application/json'}
+          def call(url,method='GET',body=None):
+              data=None if body is None else json.dumps(body).encode()
+              req=urllib.request.Request(url,headers=headers,method=method,data=data)
+              try:
+                  with urllib.request.urlopen(req,timeout=30) as r: return r.status,json.loads(r.read())
+              except urllib.error.HTTPError as e:
+                  raw=e.read().decode('utf-8','replace')
+                  try: payload=json.loads(raw)
+                  except Exception: payload={'raw':raw[:500]}
+                  return e.code,payload
+          account_id=os.environ.get('CF_ACCOUNT_ID','').strip()
+          if not account_id:
+              status,payload=call('https://api.cloudflare.com/client/v4/accounts?per_page=50')
+              accounts=(payload.get('result') or []) if status==200 else []
+              if len(accounts)!=1: raise SystemExit('CLOUDFLARE_ACCOUNT_ID_REQUIRED')
+              account_id=accounts[0]['id']
+          name='chacha-dev-learning-relay'
+          status,payload=call('https://api.cloudflare.com/client/v4/accounts/'+account_id+'/d1/database?name='+urllib.parse.quote(name))
+          if status!=200: raise SystemExit('CLOUDFLARE_D1_LIST_FAILED')
+          rows=payload.get('result') or []
+          db=next((x for x in rows if x.get('name')==name),None)
+          if not db:
+              status,payload=call('https://api.cloudflare.com/client/v4/accounts/'+account_id+'/d1/database','POST',{'name':name,'jurisdiction':'eu'})
+              if status not in (200,201): raise SystemExit('CLOUDFLARE_D1_CREATE_FAILED')
+              db=payload.get('result')
+          status,payload=call('https://api.cloudflare.com/client/v4/accounts/'+account_id+'/workers/subdomain')
+          if status!=200 or not (payload.get('result') or {}).get('subdomain'): raise SystemExit('WORKERS_SUBDOMAIN_RESOLUTION_FAILED')
+          subdomain=payload['result']['subdomain']
+          with open(os.environ['GITHUB_OUTPUT'],'a',encoding='utf-8') as f:
+              f.write('account_id='+account_id+'\n')
+              f.write('database_id='+db['uuid']+'\n')
+              f.write('workers_subdomain='+subdomain+'\n')
+          print('CHACHA_DEV_V69_D1_READY=PASS')
+          PY
+
+      - name: Prepare Wrangler config in repository root
+        run: |
+          cat > .wrangler-learning.jsonc <<EOF
+          {
+            "name": "chacha-dev-learning-relay",
+            "main": "dev-hub/learning-relay/worker.js",
+            "compatibility_date": "2026-09-22",
+            "workers_dev": true,
+            "d1_databases": [{
+              "binding": "DB",
+              "database_name": "chacha-dev-learning-relay",
+              "database_id": "${{ steps.cf.outputs.database_id }}"
+            }]
+          }
+          EOF
+
+      - name: Apply D1 schema
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ steps.cf.outputs.account_id }}
+        run: |
+          set -euo pipefail
+          npx --yes wrangler@4.45.0 d1 execute chacha-dev-learning-relay --remote --file=dev-hub/learning-relay/migrations/0001.sql --config=.wrangler-learning.jsonc
+          echo CHACHA_DEV_V69_D1_MIGRATION=PASS
+
+      - name: Bootstrap central public identity
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ steps.cf.outputs.account_id }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          x=json.load(open('dev-hub/config/worker-learning-central-identity.v1.json',encoding='utf-8'))
+          def q(s): return "'" + str(s).replace("'","''") + "'"
+          sql=("INSERT INTO identities(key_id,role,status,public_key_spki_b64,project_id,deployment_id,created_at) VALUES("
+               +q(x['key_id'])+",'CENTRAL','ACTIVE',"+q(x['public_key_spki_b64'])+",NULL,NULL,datetime('now')) "
+               "ON CONFLICT(key_id) DO UPDATE SET status='ACTIVE', public_key_spki_b64=excluded.public_key_spki_b64;")
+          open('.bootstrap-central.sql','w',encoding='utf-8').write(sql+'\n')
+          PY
+          npx --yes wrangler@4.45.0 d1 execute chacha-dev-learning-relay --remote --file=.bootstrap-central.sql --config=.wrangler-learning.jsonc
+          echo CHACHA_DEV_V69_CENTRAL_IDENTITY_BOOTSTRAP=PASS
+
+      - name: Deploy Worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ steps.cf.outputs.account_id }}
+        run: |
+          set -euo pipefail
+          npx --yes wrangler@4.45.0 deploy --config=.wrangler-learning.jsonc
+          echo CHACHA_DEV_V69_WORKER_DEPLOY=PASS
+
+      - name: Verify public HTTPS health
+        env:
+          SUBDOMAIN: ${{ steps.cf.outputs.workers_subdomain }}
+        run: |
+          set -euo pipefail
+          URL="https://chacha-dev-learning-relay.$SUBDOMAIN.workers.dev"
+          ok=0
+          for i in $(seq 1 30); do
+            if curl -fsS "$URL/healthz" -o /tmp/health.json && grep -Fq '"tunnel_required":false' /tmp/health.json; then ok=1; break; fi
+            sleep 3
+          done
+          test "$ok" = 1
+          echo "CHACHA_DEV_V69_PUBLIC_RELAY_URL=$URL"
+          echo CHACHA_DEV_V69_PUBLIC_HTTPS_HEALTH=PASS
+          echo CHACHA_DEV_V69_TUNNEL_REQUIRED=NO
+          echo AUTOMATIC_EXTERNAL_SPEND_EUR=0
