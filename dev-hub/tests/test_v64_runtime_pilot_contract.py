@@ -37,7 +37,7 @@ assert "CHACHA_DEV_V64_EMERGENCY_DYNAMIC_ENDPOINT=PASS" in pilot
 assert "EMERGENCY_ENDPOINT_FILE" in pilot
 assert "EMERGENCY_BASE_URL" in pilot
 assert "127.0.0.1:8788" not in pilot
-assert "emergency-stop-surface.py" in surface
+assert "emergency-stop-surface.py" in unit
 assert "CHACHA_DEV_V64_EMERGENCY_SURFACE_READY=PASS" in pilot
 assert "reason=emergency_surface_not_ready" in pilot
 print("CHACHA_DEV_V64_CAPSULE_RUNTIME_CONTRACT=PASS")
