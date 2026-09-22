@@ -5,6 +5,7 @@ on:
     branches: [dev-hub-v5-radar-messenger-v624-pilot]
     paths:
       - 'dev-hub/adapters/radar-runtime-adapter.py'
+      - 'dev-hub/config/adapter-provisioning.v1.json'
       - 'dev-hub/tests/test_radar_runtime_adapter_contract.py'
       - 'dev-hub/bin/run-radar-v624-messenger-pilot-via-chacha-dev.sh'
       - '.github/workflows/dev-hub-radar-v624-messenger-pilot-qualification.yml'
@@ -31,6 +32,12 @@ jobs:
           set -euo pipefail
           python3 -m py_compile dev-hub/adapters/radar-runtime-adapter.py
           python3 dev-hub/tests/test_radar_runtime_adapter_contract.py
+          python3 - <<'PY'
+          import json
+          x=json.load(open('dev-hub/config/adapter-provisioning.v1.json',encoding='utf-8'))
+          assert x['adapters']['radar-runtime-adapter']['version']=='1.5.5',x['adapters']['radar-runtime-adapter']
+          print('RADAR_RUNTIME_ADAPTER_VERSION=1.5.5')
+          PY
           grep -Fq '"messenger-pilot-install": "workspace-write"' dev-hub/adapters/radar-runtime-adapter.py
           grep -Fq '"messenger-pilot-probe": "read"' dev-hub/adapters/radar-runtime-adapter.py
           grep -Fq 'RADAR_MESSENGER_PILOT_INSTALL_OK' dev-hub/adapters/radar-runtime-adapter.py
