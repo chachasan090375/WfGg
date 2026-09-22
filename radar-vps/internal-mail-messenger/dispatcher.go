@@ -26,14 +26,14 @@ const (
 )
 
 type OutboxEntry struct {
-	ID             string            `json:"id"`
-	State          OutboxState       `json:"state"`
-	Command        string            `json:"command"`
-	Request        PlayerMailRequest `json:"request"`
-	PreparedAt     string            `json:"preparedAt"`
-	LastWarMutation bool             `json:"lastWarMutation"`
-	GameConnection string            `json:"gameConnection"`
-	Reason         string            `json:"reason,omitempty"`
+	ID              string            `json:"id"`
+	State           OutboxState       `json:"state"`
+	Command         string            `json:"command"`
+	Request         PlayerMailRequest `json:"request"`
+	PreparedAt      string            `json:"preparedAt"`
+	LastWarMutation bool              `json:"lastWarMutation"`
+	GameConnection  string            `json:"gameConnection"`
+	Reason          string            `json:"reason,omitempty"`
 }
 
 func ParseMode(raw string) (Mode, error) {
@@ -57,7 +57,7 @@ func Prepare(mode Mode, req PlayerMailRequest, now time.Time) (OutboxEntry, erro
 	}
 	entry := OutboxEntry{
 		ID: id, Command: CommandMailSend, Request: req,
-		PreparedAt: now.UTC().Format(time.RFC3339Nano),
+		PreparedAt:      now.UTC().Format(time.RFC3339Nano),
 		LastWarMutation: false, GameConnection: "NONE",
 	}
 	switch mode {
