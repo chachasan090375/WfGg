@@ -1,0 +1,29 @@
+{
+  "schema": "chacha.dev/architecture-portfolio-optimizer-policy/v1",
+  "version": "1.0.0",
+  "scope": "PLATFORM_GLOBAL",
+  "candidate_limit": 10,
+  "memory_gate": {
+    "maximum_technology_revalidation_age_minutes": 60,
+    "minimum_success_rate": 0.95,
+    "maximum_incident_count": 0
+  },
+  "hard_constraints_first": true,
+  "zero_spend_valid_solution_dominates_paid": true,
+  "current_foundry_synthesis_always_candidate": true,
+  "historical_best_requires_current_foundry_agreement_for_fast_reuse": true,
+  "conflict_action": "COMPARATIVE_PILOT_REQUIRED",
+  "comparative_pilot_is_blocking_before_production_dispatch": true,
+  "evidence_ranking": [
+    "fewest_incidents",
+    "fewest_failures",
+    "highest_quality",
+    "highest_success_rate",
+    "highest_success_count",
+    "lowest_latency",
+    "lowest_memory",
+    "latest_version"
+  ],
+  "explainable_selection": true,
+  "automatic_external_spend_eur": 0
+}
