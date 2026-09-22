@@ -1,0 +1,35 @@
+{
+  "schema": "chacha.dev/comparative-pilot-policy/v1",
+  "version": "1.0.0",
+  "scope": "PLATFORM_GLOBAL",
+  "trigger": "ARCHITECTURE_PORTFOLIO_CONFLICT",
+  "automatic": true,
+  "real_harness_required": true,
+  "no_synthetic_harness_for_production_decision": true,
+  "same_benchmark_contract_for_all_variants": true,
+  "isolated_ephemeral_capsules": true,
+  "emergency_stop_respected": true,
+  "hard_constraints_before_metrics": true,
+  "zero_external_spend_valid_variant_dominates_paid": true,
+  "metrics_priority": [
+    "acceptance_pass",
+    "zero_external_spend",
+    "quality_score",
+    "stability_score",
+    "error_rate",
+    "latency_ms",
+    "memory_mb"
+  ],
+  "unresolved_or_tie_action": "BLOCK_PRODUCTION",
+  "default_resource_budget": {
+    "memory_mb": 256,
+    "cpu_weight": 50,
+    "tasks_max": 8,
+    "timeout_seconds": 120
+  },
+  "harness_search_order": [
+    "<project-output>/comparative-pilot-harness.json",
+    "<platform-config>/comparative-pilot-harness.v1.json"
+  ],
+  "automatic_external_spend_eur": 0
+}
