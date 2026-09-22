@@ -31,6 +31,10 @@ assert "--port 0" in unit
 assert "--endpoint-file /opt/chacha-dev/runtime/control/emergency-stop-surface.json" in unit
 pilot=(BIN/"run-v64-runtime-pilot-via-chacha-dev.sh").read_text(encoding="utf-8")
 assert "--nas" in pilot and "EXPERIENCE_LEDGER_NAS_E2E=PASS" in pilot
+assert "CHACHA_NAS_ADAPTER=" in pilot
+assert "NAS_ADAPTER_STAGED" in pilot
+assert "NAS_ADAPTER_PROMOTED=PASS" in pilot
+assert "dev-hub/adapters/nas-ssh-adapter.py" in pilot
 assert "api/emergency-stop/activate" in pilot
 assert "systemctl stop chacha-dev-emergency-stop-surface.service" in pilot
 assert "CHACHA_DEV_V64_EMERGENCY_DYNAMIC_ENDPOINT=PASS" in pilot
