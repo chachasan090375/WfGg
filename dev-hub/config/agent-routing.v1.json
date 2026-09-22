@@ -139,6 +139,32 @@
         "protocol-watch"
       ],
       "default_risk": "low"
+    },
+    "graphics-specialist": {
+      "capabilities": [
+        "3d-pipeline",
+        "graphics-pipeline",
+        "asset-analysis"
+      ],
+      "default_risk": "low"
+    },
+    "animation-specialist": {
+      "capabilities": [
+        "3d-pipeline",
+        "animation-pipeline",
+        "asset-analysis"
+      ],
+      "default_risk": "medium"
+    },
+    "ui-layout-specialist": {
+      "capabilities": [
+        "browser-automation",
+        "browser-diagnostics",
+        "accessibility-review",
+        "frontend-performance",
+        "ui-layout-review"
+      ],
+      "default_risk": "low"
     }
   },
   "routing_rules": [
@@ -332,6 +358,54 @@
       "review_roles": [
         "security-reviewer",
         "platform-cloud-engineer"
+      ]
+    },
+    {
+      "match": [
+        "graphisme",
+        "graphic",
+        "texture",
+        "sprite",
+        "atlas",
+        "icon",
+        "illustration",
+        "asset",
+        "3d"
+      ],
+      "primary_role": "graphics-specialist",
+      "review_roles": [
+        "ui-layout-specialist"
+      ]
+    },
+    {
+      "match": [
+        "animation",
+        "timeline",
+        "spine",
+        "lottie",
+        "motion",
+        "transition",
+        "vfx",
+        "particle"
+      ],
+      "primary_role": "animation-specialist",
+      "review_roles": [
+        "graphics-specialist",
+        "ui-layout-specialist"
+      ]
+    },
+    {
+      "match": [
+        "mise en page",
+        "layout",
+        "design-system",
+        "storybook",
+        "responsive",
+        "visual-regression"
+      ],
+      "primary_role": "ui-layout-specialist",
+      "review_roles": [
+        "test-engineer"
       ]
     }
   ],
