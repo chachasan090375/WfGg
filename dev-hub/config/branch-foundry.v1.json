@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/branch-foundry/v1",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "mandatory_preflight": true,
   "invocation_point": "parallel-with-agent-foundry-after-core-preplan",
   "returns_to": "chacha-core-orchestrator",
@@ -32,7 +32,11 @@
     "technology_watch_supplies_candidates": true,
     "component_registry_supplies_reuse_candidates": true,
     "agent_foundry_supplies_agent_topology": true,
-    "architecture_arena_required_when_choice_is_material": true
+    "architecture_arena_required_when_choice_is_material": true,
+    "previous_blueprint_is_candidate_not_default": true,
+    "revalidate_technology_on_every_materialization": true,
+    "never_reuse_architecture_without_current_fit_check": true,
+    "cheapest_zero_spend_valid_blueprint_preferred": true
   },
   "fast_path": {
     "enabled": true,
@@ -160,7 +164,13 @@
     "record_rejected_candidates": true,
     "pareto_frontier": true,
     "equivalent_quality_cost_tolerance_percent": 5,
-    "benchmark_if_estimates_too_close": true
+    "benchmark_if_estimates_too_close": true,
+    "zero_external_spend_filter": {
+      "enabled": true,
+      "rule": "IF_ANY_HARD_VALID_ZERO_SPEND_BLUEPRINT_EXISTS_EXCLUDE_NONZERO_BLUEPRINTS",
+      "paid_only_if_no_zero_spend_viable": true,
+      "paid_requires_human_approval": true
+    }
   },
   "blueprint_dimensions": [
     "branch_mode",
@@ -191,5 +201,27 @@
       "maintenance_score": 75,
       "use_when": "complex-or-high-parallelism"
     }
+  },
+  "technology_revalidation": {
+    "required_on_every_materialization": true,
+    "source": "technology-watch-agent",
+    "snapshot": "/opt/chacha-dev/runtime/technology-watch/optimizer-input.json",
+    "consult_snapshot_every_time": true,
+    "continuous_background_watch": true,
+    "maximum_snapshot_age_minutes": 60,
+    "targeted_refresh_if_missing_or_stale": true,
+    "targeted_refresh_if_material_signal": true,
+    "material_signals": [
+      "critical-security-advisory",
+      "provider-deprecation",
+      "breaking-change",
+      "pricing-change",
+      "quota-change",
+      "new-zero-cost-candidate",
+      "major-performance-improvement"
+    ],
+    "previous_blueprint_role": "BASELINE_CANDIDATE",
+    "full_ecosystem_rescan_per_materialization": false,
+    "reason": "Keep construction fast while always comparing against current known evidence."
   }
 }
