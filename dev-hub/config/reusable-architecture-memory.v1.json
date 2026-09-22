@@ -1,0 +1,42 @@
+{
+  "schema": "chacha.dev/reusable-architecture-memory-policy/v1",
+  "version": "1.0.0",
+  "scope": "PLATFORM_GLOBAL",
+  "learn_on_accepted_delivery": true,
+  "nas_authoritative": true,
+  "hot_index": "/opt/chacha-dev/runtime/knowledge/reusable-architectures.db",
+  "exact_functional_signature_required": true,
+  "promotion": {
+    "accepted_required": true,
+    "council_dispatch_allowed_required": true,
+    "qualification_status_required": "PASS",
+    "maximum_external_spend_eur": 0,
+    "minimum_quality_score": 95,
+    "maximum_incident_count": 0
+  },
+  "reuse_gate": {
+    "state_required": "ADOPT",
+    "qualification_status_required": "PASS",
+    "maximum_technology_revalidation_age_minutes": 60,
+    "minimum_success_rate": 0.95,
+    "maximum_incident_count": 0
+  },
+  "decision_rules": {
+    "central_council_remains_final_decider": true,
+    "complete_architecture_is_baseline_candidate": true,
+    "branch_level_revalidated_memory_has_priority_for_individual_branch": true,
+    "current_foundry_opinions_remain_mandatory": true,
+    "technology_watch_pre_and_final_remain_mandatory": true
+  },
+  "ranking_order": [
+    "zero_external_spend",
+    "fewest_incidents",
+    "fewest_failures",
+    "highest_quality",
+    "highest_success_count",
+    "lowest_latency",
+    "lowest_memory",
+    "latest_version"
+  ],
+  "automatic_external_spend_eur": 0
+}
