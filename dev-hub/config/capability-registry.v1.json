@@ -889,6 +889,101 @@
           "fallback": []
         }
       ]
+    },
+    "graphics-pipeline": {
+      "class": "execution",
+      "providers": [
+        {
+          "id": "blender",
+          "status": "ADOPT",
+          "health": "runtime-check",
+          "cost_class": "free",
+          "scope": "vps",
+          "fallback": [
+            "unitypy"
+          ]
+        },
+        {
+          "id": "unitypy",
+          "status": "ADOPT",
+          "health": "runtime-check",
+          "cost_class": "free",
+          "scope": "vps",
+          "fallback": []
+        }
+      ]
+    },
+    "animation-pipeline": {
+      "class": "execution",
+      "providers": [
+        {
+          "id": "blender",
+          "status": "ADOPT",
+          "health": "runtime-check",
+          "cost_class": "free",
+          "scope": "vps",
+          "fallback": []
+        }
+      ]
+    },
+    "asset-analysis": {
+      "class": "knowledge",
+      "providers": [
+        {
+          "id": "unitypy",
+          "status": "ADOPT",
+          "health": "runtime-check",
+          "cost_class": "free",
+          "scope": "vps",
+          "fallback": [
+            "collector-knowledge-runtime"
+          ]
+        },
+        {
+          "id": "collector-knowledge-runtime",
+          "status": "PILOT",
+          "health": "runtime",
+          "cost_class": "owned",
+          "scope": "wfgg-radar-vps",
+          "fallback": []
+        }
+      ]
+    },
+    "ui-layout-review": {
+      "class": "verification",
+      "providers": [
+        {
+          "id": "chrome-devtools-mcp",
+          "status": "ADOPT",
+          "health": "runtime",
+          "cost_class": "free",
+          "scope": "test-preview-readonly",
+          "fallback": [
+            "playwright-mcp"
+          ]
+        },
+        {
+          "id": "playwright-mcp",
+          "status": "ADOPT",
+          "health": "runtime",
+          "cost_class": "free",
+          "scope": "test-preview-readonly",
+          "fallback": []
+        }
+      ]
+    },
+    "prose-lint": {
+      "class": "verification",
+      "providers": [
+        {
+          "id": "vale",
+          "status": "WATCH",
+          "health": "runtime-check",
+          "cost_class": "free",
+          "scope": "project",
+          "fallback": []
+        }
+      ]
     }
   }
 }
