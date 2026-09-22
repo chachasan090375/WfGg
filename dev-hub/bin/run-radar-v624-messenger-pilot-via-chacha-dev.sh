@@ -169,7 +169,19 @@ required=(
 )
 for tid in required:
     t=by.get(tid) or {}
-    print(tid.replace('radar-runtime:','').upper().replace('-','_')+'_STATUS='+str(t.get('status')))
+    label=tid.replace('radar-runtime:','').upper().replace('-','_')
+    print(label+'_STATUS='+str(t.get('status')))
+    blockers=t.get('blockers') or []
+    if blockers:
+        print(label+'_BLOCKERS='+','.join(map(str,blockers)))
+    rp=t.get('task_result')
+    if rp:
+        try:
+            tr=json.load(open(rp,encoding='utf-8'))
+            print(label+'_RESULT_STATUS='+str(tr.get('status')))
+            print(label+'_RESULT_SUMMARY='+str(tr.get('summary')))
+        except Exception as exc:
+            print(label+'_RESULT_READ_ERROR='+type(exc).__name__)
     if t.get('status')!='SUCCEEDED':
         raise SystemExit('PILOT_TASK_NOT_SUCCEEDED:'+tid)
 probe=by['radar-runtime:messenger-pilot-probe-v624']
