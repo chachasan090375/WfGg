@@ -98,14 +98,23 @@ jobs:
           set -euo pipefail
           go test ./... -count=1 -v | tee /tmp/v624-messenger-tests.log
           go vet ./...
-          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w' -o /tmp/wfgg-messenger-outbox ./cmd/wfgg-messenger-outbox
-          actual="$(sha256sum /tmp/wfgg-messenger-outbox | awk '{print $1}')"
+          # Rebuild validates the source, but Go embeds the current VCS revision.
+          # Production promotes the exact binary that passed the VPS PILOT.
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w' -o /tmp/wfgg-messenger-outbox-rebuilt ./cmd/wfgg-messenger-outbox
+          test -x /tmp/wfgg-messenger-outbox-rebuilt
+          artifact="$GITHUB_WORKSPACE/radar-vps/pilot-v624-messenger/wfgg-messenger-outbox"
+          test -x "$artifact"
+          actual="$(sha256sum "$artifact" | awk '{print $1}')"
+          echo "RADAR_V624_PILOT_ARTIFACT_SHA256=$actual"
           test "$actual" = "$EXPECTED_MESSENGER_SHA256"
+          cp "$artifact" /tmp/wfgg-messenger-outbox
+          chmod 0755 /tmp/wfgg-messenger-outbox
           if grep -RFn --include='*.go' -E '"net"|"net/http"|"crypto/tls"|net\.Dial|http\.|tls\.|SendExtension|RADAR_CONNECTOR_SHARED_KEY|LASTWAR_NATIVE_TEMPLATE' .; then
             echo V624_MESSENGER_NETWORK_CAPABILITY=FOUND
             exit 1
           fi
           echo "RADAR_V624_MESSENGER_SHA256=$actual"
+          echo RADAR_V624_MESSENGER_EXACT_PILOT_BINARY=YES
           echo RADAR_V624_MESSENGER_NETWORK_CAPABILITY=ABSENT
 
       - name: Reconstruct cumulative V6.23 baseline
