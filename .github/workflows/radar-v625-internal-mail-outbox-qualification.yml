@@ -1,0 +1,116 @@
+name: Radar V6.25 internal mail outbox dry-run qualification
+
+on:
+  push:
+    branches: [radar-v625-internal-mail-outbox-dryrun]
+    paths:
+      - 'radar-vps/v625-mailer/**'
+      - '.github/workflows/radar-v625-internal-mail-outbox-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: radar-v625-internal-mail-outbox-dryrun
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.27.x'
+
+      - name: Test V6.25 outbox contract
+        working-directory: radar-vps/v625-mailer
+        run: |
+          set -euo pipefail
+          gofmt -w .
+          git diff --exit-code -- .
+          go test ./... -count=1
+          go vet ./...
+          go build -trimpath -o /tmp/radar-mailer-v625 ./cmd/radar-mailer
+          test -s /tmp/radar-mailer-v625
+          echo V625_OUTBOX_TESTS=PASS
+
+      - name: Prove dry-run safety boundary
+        run: |
+          set -euo pipefail
+          ROOT=radar-vps/v625-mailer
+          grep -RFn 'LASTWAR_MAIL_WRITE_DISABLED_V625' "$ROOT"
+          grep -RFn 'LastWarMutation:    false' "$ROOT"
+          grep -RFn 'TokenPersisted:     false' "$ROOT"
+          grep -RFn 'RequiresServerTime: true' "$ROOT"
+
+          if grep -REn --include='*.go'             'net\.Dial|http\.NewRequest|http\.Post|websocket|SendExtension|SendMessage\(|WritePacket|mail\.send.*Send'             "$ROOT"; then
+            echo V625_FORBIDDEN_NETWORK_EMITTER=FOUND
+            exit 1
+          fi
+
+          if grep -REn --include='*.go'             'gameToken|accessToken|refreshToken|loginKey|RADAR_TOKEN_VAULT_KEY'             "$ROOT"; then
+            echo V625_TOKEN_FIELD=FOUND
+            exit 1
+          fi
+
+          /tmp/radar-mailer-v625 --dry-run | tee /tmp/v625-dry-run.json
+          python3 - <<'PY'
+          import json
+          d=json.load(open('/tmp/v625-dry-run.json'))
+          assert d['version']=='v6.25.0'
+          assert d['command']=='mail.send'
+          assert d['mailTypeSelf']==21
+          assert d['lastwarWrite'] is False
+          assert d['lastwarMutation'] is False
+          assert d['tokenPersistence'] is False
+          assert d['outboxOnly'] is True
+          print('V625_DRY_RUN_BOUNDARY=PASS')
+          PY
+
+      - name: Verify V6.24 evidence is inherited
+        run: |
+          set -euo pipefail
+          R=radar-vps/V624_DISCOVERY_RECEIPT.txt
+          test -f "$R"
+          grep -Fq 'RESULT=success' "$R"
+          grep -Fq 'MAIL_SEND_TYPE_SELF=21' "$R"
+          grep -Fq 'MAIL_SEND_TARGET_FIELD=targetUid' "$R"
+          grep -Fq 'RADAR_LASTWAR_MODE=READ_ONLY' "$R"
+          grep -Fq 'MAIL_SEND_EXECUTED=NO' "$R"
+          echo V625_V624_EVIDENCE=PASS
+
+      - name: Write qualification receipt
+        run: |
+          set -euo pipefail
+          cat > /tmp/V625_QUALIFICATION_RECEIPT.txt <<'EOF'
+          WFGG_RADAR_QUALIFICATION=V6.25
+          RESULT=success
+          COMPONENT=radar-mailer
+          MODE=OUTBOX_DRY_RUN
+          MAIL_SEND_COMMAND=mail.send
+          MAIL_SEND_TYPE_SELF=21
+          OUTBOX_PERSISTENCE=JSONL_0600
+          DEDUPE=CAMPAIGN_TARGET_TITLE_CONTENT_SHA256
+          SERVER_TIME=PENDING_DISPATCH_INJECTION
+          LASTWAR_WRITE=DISABLED
+          LASTWAR_MUTATION=NO
+          NETWORK_TRANSPORT=ABSENT
+          TOKEN_PERSISTENCE=NO
+          MAIL_SEND_EXECUTED=NO
+          PRODUCTION_DEPLOYMENT=NO
+          RADAR_PRODUCTION_CHANGED=NO
+          EOF
+          cat /tmp/V625_QUALIFICATION_RECEIPT.txt
+
+      - name: Upload V6.25 evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: radar-v625-outbox-dry-run
+          path: |
+            /tmp/V625_QUALIFICATION_RECEIPT.txt
+            /tmp/v625-dry-run.json
+            /tmp/radar-mailer-v625
+          if-no-files-found: error
+          retention-days: 30
