@@ -27,6 +27,9 @@ assert "X-ChaCha-Stop-Token" in surface
 pilot=(BIN/"run-v64-runtime-pilot-via-chacha-dev.sh").read_text(encoding="utf-8")
 assert "--nas" in pilot and "EXPERIENCE_LEDGER_NAS_E2E=PASS" in pilot
 assert "api/emergency-stop/activate" in pilot
+assert "systemctl restart chacha-dev-emergency-stop-surface.service" in pilot
+assert "CHACHA_DEV_V64_EMERGENCY_SURFACE_READY=PASS" in pilot
+assert "reason=emergency_surface_not_ready" in pilot
 print("CHACHA_DEV_V64_CAPSULE_RUNTIME_CONTRACT=PASS")
 print("CHACHA_DEV_V64_EMERGENCY_SURFACE_CONTRACT=PASS")
 print("CHACHA_DEV_V64_NAS_E2E_PILOT_CONTRACT=PASS")
