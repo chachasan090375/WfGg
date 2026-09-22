@@ -193,7 +193,7 @@ function setupMailOutboxV626(){
   b.id='mailOutboxV626';b.type='button';b.className='mail-v626-btn';b.textContent='✉ MESSAGE · OUTBOX';
   b.disabled=true;b.addEventListener('click',openMailOutboxV626);
   refresh.insertAdjacentElement('afterend',b);
-  document.body.insertAdjacentHTML('beforeend',\`
+  document.body.insertAdjacentHTML('beforeend',`
     <div id="mailV626Overlay" class="mail-v626-overlay" aria-hidden="true">
       <div class="mail-v626-modal" role="dialog" aria-modal="true" aria-labelledby="mailV626Heading">
         <div class="mail-v626-head"><div id="mailV626Heading" class="mail-v626-title">MESSAGE INTERNE · OUTBOX DRY-RUN</div><button id="mailV626Close" class="mail-v626-close" type="button">FERMER</button></div>
@@ -204,7 +204,7 @@ function setupMailOutboxV626(){
         <button id="mailV626Queue" class="mail-v626-queue" type="button" disabled>AJOUTER À L’OUTBOX · DRY-RUN</button>
         <div id="mailV626Status" class="mail-v626-status"></div>
       </div>
-    </div>\`);
+    </div>`);
   $('mailV626Close').addEventListener('click',closeMailOutboxV626);
   $('mailV626Overlay').addEventListener('click',e=>{if(e.target===$('mailV626Overlay'))closeMailOutboxV626()});
   $('mailV626Title').addEventListener('input',validateMailDraftV626);
