@@ -9,26 +9,54 @@ def module(path,name):
 
 core=module(ROOT/"dev-hub/bin/functional-intent-orchestrator.py","core")
 resolver=module(ROOT/"dev-hub/bin/domain-provider-resolver.py","resolver")
+foundry=module(ROOT/"dev-hub/bin/agent-foundry-planner.py","foundry")
 
 class DomainV6Tests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.cfg=json.loads((ROOT/"dev-hub/config/domain-orchestration.v1.json").read_text())
         cls.econ=json.loads((ROOT/"dev-hub/config/provider-economics.v1.json").read_text())
+        cls.foundry_cfg=json.loads((ROOT/"dev-hub/config/agent-foundry.v1.json").read_text())
+        cls.routing=json.loads((ROOT/"dev-hub/config/agent-routing.v1.json").read_text())
 
-    def test_simple_question_routes_one_domain(self):
+    def test_simple_question_still_requires_foundry_before_dispatch(self):
         p=core.make_plan({"text":"Comment fonctionne le Collector ?","domains":["knowledge-research"]},self.cfg)
         self.assertEqual(p["mode"],"simple_question")
         self.assertEqual(p["primary_domains"],["knowledge-research"])
         self.assertFalse(p["implementation_allowed"])
+        self.assertEqual(p["plan_stage"],"PREPLAN")
+        self.assertFalse(p["dispatch_allowed"])
+        self.assertTrue(p["agent_foundry"]["required"])
 
-    def test_multidomain_graphics_animation_backend(self):
+    def test_multidomain_preplan_blocks_dispatch(self):
         p=core.make_plan({"text":"Ajoute une animation avec de nouveaux graphismes et une API backend documentée"},self.cfg)
         self.assertIn("animation",p["primary_domains"])
         self.assertIn("graphics",p["primary_domains"])
         self.assertIn("development",p["primary_domains"])
         self.assertIn("documentation",p["primary_domains"])
-        self.assertTrue(p["implementation_allowed"])
+        self.assertFalse(p["dispatch_allowed"])
+
+    def test_foundry_then_core_replan_unlocks_dispatch(self):
+        intent={"text":"Ajoute une animation avec de nouveaux graphismes et une API backend documentée"}
+        pre=core.make_plan(intent,self.cfg)
+        topo=foundry.build(pre,self.foundry_cfg,self.routing,"project-test")
+        self.assertTrue(topo["replan_required"])
+        final=core.make_plan(intent,self.cfg,topo)
+        self.assertEqual(final["plan_stage"],"REPLANNED")
+        self.assertTrue(final["dispatch_allowed"])
+        self.assertFalse(final["replan_required"])
+        self.assertTrue(all(p["agent_topology_status"]=="RESOLVED" for p in final["packages"]))
+
+    def test_foundry_created_domain_forces_second_iteration(self):
+        intent={"text":"Documente le projet","domains":["documentation"]}
+        pre=core.make_plan(intent,self.cfg)
+        topo=foundry.build(pre,self.foundry_cfg,self.routing,"project-test")
+        topo["replan_directives"]={"add_domains":["translation"]}
+        revised=core.make_plan(intent,self.cfg,topo)
+        self.assertEqual(revised["plan_stage"],"PREPLAN_REVISED")
+        self.assertFalse(revised["dispatch_allowed"])
+        self.assertTrue(revised["replan_required"])
+        self.assertIn("translation",revised["agent_foundry"]["added_domains"])
 
     def test_free_provider_beats_paid_without_approval(self):
         registry={
