@@ -1,0 +1,36 @@
+name: Radar V6.24 Messenger ledger permission hotfix
+
+on:
+  push:
+    branches: [radar-v624-messenger-ledger-permission-hotfix]
+    paths:
+      - 'radar-vps/sentinel-vps-reconcile.sh'
+      - 'radar-vps/install-v624-messenger-production.sh'
+      - '.github/workflows/radar-v624-messenger-ledger-permission-hotfix.yml'
+  pull_request:
+    branches: [radar-production-v1]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate permission hotfix
+        run: |
+          set -euo pipefail
+          bash -n radar-vps/sentinel-vps-reconcile.sh
+          bash -n radar-vps/install-v624-messenger-production.sh
+          grep -Fq 'DATA_OWNER_REF="$DATA_DIR/autopilot-ledger.db"' radar-vps/sentinel-vps-reconcile.sh
+          grep -Fq 'chown --reference="$DATA_OWNER_REF" "$DATA_DIR/messenger"' radar-vps/sentinel-vps-reconcile.sh
+          grep -Fq 'DATA_OWNER_REF="$ROOT/data/autopilot-ledger.db"' radar-vps/install-v624-messenger-production.sh
+          grep -Fq 'chown --reference="$DATA_OWNER_REF" "$DATA_DIR"' radar-vps/install-v624-messenger-production.sh
+          ! grep -Eq 'mail\.send|SendExtension|LASTWAR_NATIVE_TEMPLATE' radar-vps/sentinel-vps-reconcile.sh
+          echo RADAR_V624_MESSENGER_LEDGER_PERMISSION_HOTFIX=PASS
+          echo RADAR_V624_LASTWAR_MUTATION=NO
+          echo RADAR_V624_NETWORK_SEND=NO
+          echo RADAR_V624_PRODUCTION_CONNECTOR_BINARY_CHANGE=NO
