@@ -305,10 +305,12 @@ async function ackAlerts(req,env){
 }
 
 async function sweep(env){
+  let expiredCount=0, staleCoverageCount=0;
   const expired=(await env.DB.prepare(
     "SELECT * FROM action_leases WHERE status='OPEN' AND deadline_at < datetime('now') LIMIT 100"
   ).all()).results||[];
   for(const row of expired){
+    expiredCount++;
     const severity=SENSITIVE.has(String(row.permission||""))?"CRITICAL":"BLOCK";
     await env.DB.prepare("UPDATE action_leases SET status='EXPIRED',last_verdict=?2 WHERE action_id=?1").bind(row.action_id,severity).run();
     await createAlert(env,{alertId:"lease-expired-"+String(row.action_id),eventId:String(row.pre_event_id),severity,
@@ -321,10 +323,26 @@ async function sweep(env){
      WHERE h.component_id IS NULL OR h.hook_active=0 OR h.last_seen < datetime('now','-180 seconds') LIMIT 100`
   ).all()).results||[];
   for(const row of stale){
+    staleCoverageCount++;
     await createAlert(env,{alertId:"coverage-stale-"+String(row.component_id),eventId:"coverage-sweep",
       severity:String(row.criticality),summary:"Guardian coverage stale: "+String(row.component_id),
       reasons:["COVERAGE_HEARTBEAT_STALE"],payload:row});
   }
+  return {expired_action_leases:expiredCount,stale_coverage_components:staleCoverageCount};
+}
+
+async function watchdogSweep(req,env){
+  const body=await req.text();
+  const auth=await requireCentral(req,env,body);if(!auth.ok)return auth.response;
+  const result=await sweep(env);
+  return json({
+    schema:"chacha.dev/guardian-watchdog-sweep/v1",
+    status:"PASS",
+    external_guardian:true,
+    scheduled_watchdog_remains_enabled:true,
+    ...result,
+    swept_at:new Date().toISOString()
+  });
 }
 
 export default {
@@ -332,10 +350,12 @@ export default {
     const u=new URL(req.url);
     if(req.method==="GET"&&u.pathname==="/healthz")return json({
       status:"ok",service:"chacha-dev-guardian",external_governance_plane:true,
-      runtime_contract_mutation_api:false,tunnel_required:false,action_lease_protocol:true,coverage_watch:true
+      runtime_contract_mutation_api:false,tunnel_required:false,action_lease_protocol:true,coverage_watch:true,
+      authenticated_watchdog_sweep:true,scheduled_watchdog:true
     });
     if(req.method==="POST"&&u.pathname==="/v1/check")return check(req,env);
     if(req.method==="POST"&&u.pathname==="/v1/coverage")return coverage(req,env);
+    if(req.method==="POST"&&u.pathname==="/v1/watchdog/sweep")return watchdogSweep(req,env);
     if(req.method==="GET"&&u.pathname==="/v1/alerts")return alerts(req,env);
     if(req.method==="POST"&&u.pathname==="/v1/alerts/ack")return ackAlerts(req,env);
     return json({error:"not_found"},404);
