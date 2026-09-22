@@ -146,9 +146,26 @@
           "metadata": {
             "type": "object",
             "additionalProperties": true
+          },
+          "guardian_binding": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "guardian_binding_errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         }
       }
+    },
+    "guardian_binding": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "dispatch_allowed": {
+      "type": "boolean"
     }
   }
 }
