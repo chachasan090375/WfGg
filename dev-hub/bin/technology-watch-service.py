@@ -10,7 +10,7 @@ def main():
     sub=ap.add_subparsers(dest="cmd",required=True)
     sub.add_parser("refresh")
     c=sub.add_parser("consult")
-    c.add_argument("--consumer",required=True,choices=["branch-foundry","agent-foundry","capability-foundry","architecture-optimizer"])
+    c.add_argument("--consumer",required=True,choices=["branch-foundry","agent-foundry","capability-foundry","architecture-optimizer","architecture-decision-council","reuse-memory"])
     c.add_argument("--domain",default="")
     c.add_argument("--capability",action="append",default=[])
     sub.add_parser("status")
