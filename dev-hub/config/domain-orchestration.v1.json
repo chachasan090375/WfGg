@@ -373,10 +373,11 @@
     "knowledge-research": {
       "orchestrator": "domain-knowledge-orchestrator",
       "roles": [
-        "technology-radar-agent"
+        "technology-watch-agent"
       ],
       "capabilities": [
         "technology-radar",
+        "architecture-optimization",
         "web-research",
         "library-docs",
         "collector-knowledge-inspect"
