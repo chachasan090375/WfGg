@@ -1,0 +1,230 @@
+name: Radar V6.27 mail campaign autoqueue dry-run qualification
+
+on:
+  push:
+    branches: [radar-v627-mail-campaign-autoqueue-dryrun]
+    paths:
+      - 'radar-vps/v625-mailer/**'
+      - '.github/scripts/patch-radar-internal-mail-outbox-v626.py'
+      - '.github/scripts/patch-radar-mail-campaign-autoqueue-v627.py'
+      - '.github/workflows/radar-v626-internal-mail-outbox-ui-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: radar-v627-mail-campaign-autoqueue-dryrun
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.27.x'
+
+      - name: Qualify V6.27 campaign Outbox service
+        working-directory: radar-vps/v625-mailer
+        run: |
+          set -euo pipefail
+          gofmt -w .
+          go test ./... -count=1
+          go vet ./...
+          go build -trimpath -o /tmp/radar-mailer-v626 ./cmd/radar-mailer
+          test -s /tmp/radar-mailer-v626
+          /tmp/radar-mailer-v626 --dry-run | tee /tmp/v626-mailer-dryrun.json
+          python3 - <<'PY'
+          import json
+          d=json.load(open('/tmp/v626-mailer-dryrun.json'))
+          assert d['version']=='v6.26.0'
+          assert d['mailTypeSelf']==21
+          assert d['lastwarWrite'] is False
+          assert d['lastwarMutation'] is False
+          assert d['tokenPersistence'] is False
+          assert d['outboxOnly'] is True
+          assert d['signedOutboxAPI'] is True
+          print('V626_MAILER_DRY_RUN=PASS')
+          PY
+          grep -RFn 'LASTWAR_MAIL_WRITE_DISABLED_V625' .
+          if grep -REn --include='*.go' 'http\.NewRequest|http\.Get\(|http\.Post\(|net\.Dial|tls\.Dial|SendExtension|SendMessage\(|WritePacket' .; then
+            echo V626_OUTBOUND_GAME_TRANSPORT=FOUND
+            exit 1
+          fi
+          grep -Fq 'CampaignVersion      = "v6.27.0"' campaign_v627.go
+          grep -Fq 'MaxCampaignTargets   = 25' campaign_v627.go
+          echo V627_CAMPAIGN_ENGINE=PASS
+          echo V626_OUTBOUND_GAME_TRANSPORT=ABSENT
+
+      - name: Prove V6.26 patch cannot access Last War credentials
+        run: |
+          set -euo pipefail
+          P=.github/scripts/patch-radar-internal-mail-outbox-v626.py
+          python3 -m py_compile "$P"
+          ! grep -Eq 'decryptGameToken|getCredential|RADAR_TOKEN_VAULT_KEY|RADAR_CONNECTOR_URL|RADAR_CONNECTOR_SHARED_KEY' "$P"
+          grep -Fq 'RADAR_MAILER_URL' "$P"
+          grep -Fq 'RADAR_MAILER_SHARED_KEY' "$P"
+          grep -Fq 'mailSendExecuted: false' "$P"
+          grep -Fq 'tokenUsed: false' "$P"
+          echo V626_WORKER_CREDENTIAL_ISOLATION=PASS
+
+      - name: Prove V6.27 campaign patch cannot access Last War credentials
+        run: |
+          set -euo pipefail
+          P=.github/scripts/patch-radar-mail-campaign-autoqueue-v627.py
+          python3 -m py_compile "$P"
+          ! grep -Eq 'decryptGameToken|getCredential|RADAR_TOKEN_VAULT_KEY|RADAR_CONNECTOR_URL|RADAR_CONNECTOR_SHARED_KEY' "$P"
+          grep -Fq "mailerRequestV626(env, '/v1/outbox/queue-batch'" "$P"
+          grep -Fq 'mailSendExecuted: false' "$P"
+          grep -Fq 'tokenUsed: false' "$P"
+          echo V627_WORKER_CREDENTIAL_ISOLATION=PASS
+
+      - name: Reconstruct production Radar plus V6.27 dry-run patches
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/wfgg-radar
+          mkdir -p /tmp/wfgg-radar
+          python3 .github/scripts/reconstruct-radar-release.py
+          echo '234df1dec57f6211bc625855bf13350c9f17fbd843fbe92d8cf1ab7cb5c081ef  /tmp/radar-src.tar.gz' | sha256sum -c -
+          tar -xzf /tmp/radar-src.tar.gz -C /tmp/wfgg-radar
+          rm -rf /tmp/wfgg-radar/connector-go
+          cp -a .radar-release-src/v2-source/connector-go /tmp/wfgg-radar/connector-go
+
+          python3 .github/scripts/patch-radar-target-profile-retry.py
+          python3 .github/scripts/patch-radar-federated-diagnostics-v65.py
+          python3 .github/scripts/patch-player-scan-v3.py
+          python3 .github/scripts/patch-player-scan-v4.py
+          python3 .github/scripts/patch-radar-protocol-discovery-v67.py
+          python3 .github/scripts/patch-radar-profile-isolation-v68.py
+          python3 .github/scripts/patch-radar-native-profile-v69.py
+          python3 .github/scripts/patch-radar-native-profile-handshake-v691.py
+          python3 .github/scripts/patch-radar-native-profile-exec-v692.py
+          python3 .github/scripts/patch-radar-connector-runtime-v693.py
+          python3 .github/scripts/patch-radar-profile-refresh-v6191.py
+          python3 .github/scripts/patch-radar-cluster-catalog-budget-v6192.py
+          python3 .github/scripts/patch-radar-seed-scout-v6193.py
+          python3 .github/scripts/patch-radar-autopilot-v6194.py
+          python3 .github/scripts/patch-radar-autopilot-stale-cycle-v6197.py
+          python3 .github/scripts/patch-radar-collector-cycle-terminalization-v6198.py
+          python3 .github/scripts/patch-radar-autopilot-targeted-history-v6199.py
+          python3 .github/scripts/patch-radar-autopilot-continue-partial-v61910.py
+
+          install -m 0644 .radar-release-src/v2-source/src/game/remote-transport.js /tmp/wfgg-radar/src/game/remote-transport.js
+          python3 .github/scripts/patch-radar-async-collector-worker.py
+          python3 .github/scripts/patch-radar-worker-rich-profile-v6191.py
+          python3 .github/scripts/patch-radar-worker-seed-scout-v6193.py
+          python3 .github/scripts/patch-radar-worker-autopilot-v6194.py
+
+          install -m 0644 radar-ui-live/live-radar.html /tmp/wfgg-radar/public/live-radar.html
+          python3 .github/scripts/patch-live-radar-seed-scout-v6193.py
+          python3 .github/scripts/patch-live-radar-autopilot-v6194.py
+          python3 .github/scripts/patch-radar-session-keepalive-v6195.py
+          python3 .github/scripts/patch-live-radar-autopilot-v6196.py
+          python3 .github/scripts/patch-live-radar-autopilot-v6197.py
+          python3 .github/scripts/patch-live-radar-autopilot-v6198.py
+          python3 .github/scripts/patch-live-radar-autopilot-v6199.py
+          python3 .github/scripts/patch-live-radar-autopilot-v61910.py
+
+          python3 .github/scripts/patch-radar-manual-search-stop-v61911.py
+          python3 .github/scripts/patch-radar-autopilot-no-rescan-qualified-v61912.py
+          python3 .github/scripts/patch-live-radar-autopilot-v61912.py
+          python3 .github/scripts/patch-radar-autopilot-persistent-ledger-v61913.py
+          python3 .github/scripts/patch-live-radar-autopilot-v61913.py
+          python3 .github/scripts/patch-radar-autopilot-coverage-completion-v61914.py
+          python3 .github/scripts/patch-live-radar-autopilot-v61914.py
+          python3 .github/scripts/patch-radar-worker-coverage-propagation-v61915.py
+          python3 .github/scripts/patch-radar-autopilot-failure-scope-v61916.py
+          python3 .github/scripts/patch-radar-autopilot-adaptive-verification-v61917.py
+          python3 .github/scripts/patch-radar-worker-adaptive-verification-v61917.py
+          python3 .github/scripts/patch-live-radar-adaptive-verification-v61917.py
+
+          python3 .github/scripts/patch-radar-autopilot-ledger-confirmation-v620.py
+          python3 .github/scripts/patch-radar-player-intelligence-connector-v620.py
+          python3 .github/scripts/patch-radar-player-intelligence-ui-worker-v620.py
+          python3 .github/scripts/patch-radar-recruitment-filter-normalization-v621.py
+          python3 .github/scripts/patch-radar-recruitment-ux-ui-worker-v621.py
+          python3 .github/scripts/patch-radar-live-profile-resolution-v622.py
+
+          python3 .github/scripts/patch-radar-internal-mail-outbox-v626.py
+          python3 .github/scripts/patch-radar-mail-campaign-autoqueue-v627.py
+
+          grep -Fq 'WFGG_RADAR_INTERNAL_MAIL_OUTBOX_WORKER_V626' /tmp/wfgg-radar/src/worker.js
+          grep -Fq "url.pathname === '/api/radar/mail/outbox'" /tmp/wfgg-radar/src/worker.js
+          grep -Fq 'WFGG_RADAR_INTERNAL_MAIL_OUTBOX_UI_V626' /tmp/wfgg-radar/public/live-radar.html
+          grep -Fq 'MESSAGE INTERNE · OUTBOX DRY-RUN' /tmp/wfgg-radar/public/live-radar.html
+          grep -Fq 'AJOUTER À L’OUTBOX · DRY-RUN' /tmp/wfgg-radar/public/live-radar.html
+          grep -Fq '0/50 octets' /tmp/wfgg-radar/public/live-radar.html
+          grep -Fq '0/2000 octets' /tmp/wfgg-radar/public/live-radar.html
+          grep -Fq 'WFGG_RADAR_MAIL_CAMPAIGN_AUTOQUEUE_WORKER_V627' /tmp/wfgg-radar/src/worker.js
+          grep -Fq "url.pathname === '/api/radar/mail/campaign/queue'" /tmp/wfgg-radar/src/worker.js
+          grep -Fq 'WFGG_RADAR_MAIL_CAMPAIGN_AUTOQUEUE_UI_V627' /tmp/wfgg-radar/public/live-radar.html
+          grep -Fq 'CAMPAGNE RECRUTEMENT · OUTBOX DRY-RUN' /tmp/wfgg-radar/public/live-radar.html
+          grep -Fq 'PRÉPARER LA CAMPAGNE DANS L’OUTBOX' /tmp/wfgg-radar/public/live-radar.html
+          echo V627_RECONSTRUCT=PASS
+
+      - name: Syntax-check generated Worker and UI script
+        run: |
+          set -euo pipefail
+          node --check /tmp/wfgg-radar/src/worker.js
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          s=Path('/tmp/wfgg-radar/public/live-radar.html').read_text()
+          blocks=re.findall(r'<script[^>]*>(.*?)</script>',s,re.S|re.I)
+          if not blocks:
+              raise SystemExit('V626_UI_SCRIPT_MISSING')
+          Path('/tmp/v626-ui.js').write_text('\n'.join(blocks))
+          print('V626_UI_SCRIPT_BLOCKS='+str(len(blocks)))
+          PY
+          node --check /tmp/v626-ui.js
+          echo V626_JS_SYNTAX=PASS
+
+      - name: Verify inherited V6.26 qualification
+        run: |
+          set -euo pipefail
+          R=radar-vps/V626_QUALIFICATION_RECEIPT.txt
+          test -f "$R"
+          grep -Fq 'RESULT=success' "$R"
+          grep -Fq 'LASTWAR_WRITE=DISABLED' "$R"
+          grep -Fq 'LASTWAR_CONNECTOR_ACCESS=NO' "$R"
+          grep -Fq 'LASTWAR_TOKEN_ACCESS=NO' "$R"
+          grep -Fq 'MAIL_SEND_EXECUTED=NO' "$R"
+          echo V627_V626_EVIDENCE=PASS
+
+      - name: Write V6.27 qualification receipt
+        run: |
+          set -euo pipefail
+          cat > /tmp/V627_QUALIFICATION_RECEIPT.txt <<'EOF'
+          WFGG_RADAR_QUALIFICATION=V6.27
+          RESULT=success
+          MODE=RECRUITMENT_CAMPAIGN_AUTOQUEUE_DRY_RUN
+          CAMPAIGN_BATCH_QUEUE=YES
+          MAX_TARGETS_PER_BATCH=25
+          PERSISTENT_DEDUPE=YES
+          UI_RECRUITMENT_RESULTS_INTEGRATION=YES
+          TITLE_LIMIT=UTF8_BYTES_50
+          CONTENT_LIMIT=UTF8_BYTES_2000
+          LASTWAR_WRITE=DISABLED
+          LASTWAR_MUTATION=NO
+          LASTWAR_CONNECTOR_ACCESS=NO
+          LASTWAR_TOKEN_ACCESS=NO
+          MAIL_SEND_EXECUTED=NO
+          WFGG_NETWORK=WORKER_TO_MAILER_ONLY
+          PRODUCTION_DEPLOYMENT=NO
+          RADAR_PRODUCTION_CHANGED=NO
+          EOF
+          cat /tmp/V627_QUALIFICATION_RECEIPT.txt
+
+      - name: Upload V6.27 evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: radar-v627-campaign-autoqueue-dry-run
+          path: |
+            /tmp/V627_QUALIFICATION_RECEIPT.txt
+            /tmp/v626-mailer-dryrun.json
+            /tmp/radar-mailer-v626
+          if-no-files-found: error
+          retention-days: 30
