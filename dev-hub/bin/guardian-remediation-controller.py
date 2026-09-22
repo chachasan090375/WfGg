@@ -33,18 +33,22 @@ def main()->int:
     stop_file=Path(policy["critical_stop_required_file"])
     root.mkdir(parents=True,exist_ok=True)
 
-    p=subprocess.run(
-      ["/usr/bin/python3",str(a.client),"--policy",str(a.policy),"remediations","--status","OPEN","--limit","100"],
-      stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=30
-    )
-    if p.returncode!=0:
-        print("CHACHA_DEV_GUARDIAN_REMEDIATION_PULL=DEFERRED")
-        return 0
-    try:batch=json.loads(p.stdout)
-    except Exception:
-        print("CHACHA_DEV_GUARDIAN_REMEDIATION_PULL=INVALID")
-        return 0
-    items=[x for x in (batch.get("items") or []) if isinstance(x,dict) and x.get("directive_id")]
+    items=[]
+    for remote_status in ("OPEN","DELIVERED"):
+        p=subprocess.run(
+          ["/usr/bin/python3",str(a.client),"--policy",str(a.policy),"remediations","--status",remote_status,"--limit","100"],
+          stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=30
+        )
+        if p.returncode!=0:
+            print("CHACHA_DEV_GUARDIAN_REMEDIATION_PULL=DEFERRED")
+            return 0
+        try:batch=json.loads(p.stdout)
+        except Exception:
+            print("CHACHA_DEV_GUARDIAN_REMEDIATION_PULL=INVALID")
+            return 0
+        items.extend(x for x in (batch.get("items") or []) if isinstance(x,dict) and x.get("directive_id"))
+    dedup={str(x["directive_id"]):x for x in items}
+    items=list(dedup.values())
     delivered=[]
     for d in items:
         did=str(d["directive_id"])
@@ -53,7 +57,7 @@ def main()->int:
         inbox=root/"inbox"/safe(target)
         atomic(inbox/(safe(did)+".json"),d)
         atomic(inbox/"latest.json",d)
-        delivered.append(did)
+        if str(d.get("status") or "")=="OPEN": delivered.append(did)
         msg="ChaCha Guardian corrective directive "+did+" -> "+target+": "+str(d.get("required_action") or "")
         subprocess.run(["/usr/bin/logger","-t","chacha-dev-guardian-remediation","--",msg],check=False)
         if str(d.get("severity"))=="CRITICAL":
