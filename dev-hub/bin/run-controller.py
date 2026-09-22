@@ -314,9 +314,7 @@ def guardian_gate(
             "event": str(event_path),
         }
         save(response_path, outcome)
-        if permission in fail_closed:
-            return ["GUARDIAN_UNAVAILABLE_FAIL_CLOSED"], outcome
-        return [], outcome
+        return ["GUARDIAN_UNAVAILABLE_FAIL_CLOSED"], outcome
 
     try:
         proc = subprocess.run(
@@ -335,9 +333,7 @@ def guardian_gate(
             "event": str(event_path),
         }
         save(response_path, outcome)
-        if permission in fail_closed:
-            return ["GUARDIAN_UNAVAILABLE_FAIL_CLOSED"], outcome
-        return [], outcome
+        return ["GUARDIAN_UNAVAILABLE_FAIL_CLOSED"], outcome
 
     try:
         outcome = json.loads(proc.stdout.strip())
@@ -356,9 +352,7 @@ def guardian_gate(
         return ["GUARDIAN_BLOCK:" + ",".join(outcome.get("reason_codes") or [])], outcome
     if verdict in {"PASS", "WARNING"}:
         return [], outcome
-    if permission in fail_closed:
-        return ["GUARDIAN_UNAVAILABLE_FAIL_CLOSED"], outcome
-    return [], outcome
+    return ["GUARDIAN_UNAVAILABLE_FAIL_CLOSED"], outcome
 
 
 def acquire_lock(project: str, policy: dict[str, Any]) -> tuple[Path, int]:
