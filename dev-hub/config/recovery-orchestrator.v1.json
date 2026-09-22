@@ -1,0 +1,40 @@
+{
+  "schema": "chacha.dev/recovery-orchestrator/v1",
+  "version": "1.0.0",
+  "inputs": [
+    "health",
+    "logs",
+    "metrics",
+    "acceptance-regressions",
+    "deployment-events",
+    "contract-violations"
+  ],
+  "actions": [
+    "diagnose",
+    "restart-safe-service",
+    "rollback",
+    "restore",
+    "disable-candidate",
+    "rerun-acceptance",
+    "open-incident"
+  ],
+  "autonomous_actions": [
+    "diagnose",
+    "restart-safe-service",
+    "rollback-reversible-release",
+    "disable-candidate",
+    "rerun-acceptance"
+  ],
+  "approval_required": [
+    "destructive-restore",
+    "data-loss-possible",
+    "security-boundary-change",
+    "credential-rotation-with-external-impact"
+  ],
+  "incident_learning": {
+    "project_collector": true,
+    "generic_domain_collectors": true,
+    "knowledge_compiler": true,
+    "technology_watch": true
+  }
+}
