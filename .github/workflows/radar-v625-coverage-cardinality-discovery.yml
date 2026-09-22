@@ -1,0 +1,127 @@
+name: Radar V6.25 coverage cardinality static discovery
+
+on:
+  push:
+    branches: [radar-v625-coverage-cardinality-discovery]
+    paths:
+      - '.github/workflows/radar-v625-coverage-cardinality-discovery.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  discover:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install offline tools
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq unzip python3-pip
+          python3 -m pip install --quiet remotezip
+
+      - name: Range-fetch Last War APK script pack
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from remotezip import RemoteZip
+          from pathlib import Path
+          url='https://d.apkpure.net/b/XAPK/com.fun.lastwar.gp?nc=arm64-v8a%2Carmeabi-v7a&sv=23&versionCode=1835'
+          with RemoteZip(url, headers={'User-Agent':'Mozilla/5.0'}) as rz:
+              matches=[n for n in rz.namelist() if n.endswith('install_time_pack.apk')]
+              if len(matches)!=1:
+                  raise SystemExit(f'V625_INSTALL_TIME_PACK_MATCHES={matches}')
+              Path('/tmp/install_time_pack.apk').write_bytes(rz.read(matches[0]))
+          PY
+          unzip -p /tmp/install_time_pack.apk assets/lwScripts/LWScripts.data > /tmp/LWScripts.data
+          test -s /tmp/LWScripts.data
+          echo V625_LWSCRIPTS_READY=YES
+
+      - name: Scan Lua chunks for population and ranking cardinality signals
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import struct,re,json
+          data=Path('/tmp/LWScripts.data').read_bytes()
+          if data[:4]!=b'LWLF':
+              raise SystemExit('V625_LWLF_MAGIC_INVALID')
+          _,_,count=struct.unpack_from('<III',data,4)
+          pos=16
+          def r7(off):
+              value=0; shift=0
+              for _ in range(5):
+                  x=data[off]; off+=1
+                  value |= (x & 0x7f) << shift
+                  if not x & 0x80: return value,off
+                  shift += 7
+              raise ValueError('bad 7bit')
+          count_terms=[
+              'totalnum','totalcount','playernum','playercount','rolenum','rolecount',
+              'usernum','usercount','membernum','membercount','onlinenum','onlinecount',
+              'register','registered','population','ranknum','rankcount','maxrank',
+              'totalplayer','totalrole','totaluser','allnum'
+          ]
+          context_terms=['server','rank','player','role','user','world','alliance','zone']
+          hits=[]
+          for i in range(count):
+              n,pos=r7(pos)
+              name=data[pos:pos+n].decode('utf-8','replace'); pos+=n
+              size=struct.unpack_from('<I',data,pos)[0]; pos+=4
+              chunk=data[pos:pos+size]; pos+=size
+              text=chunk.decode('latin1','ignore')
+              low=text.lower()
+              found=[x for x in count_terms if x in low]
+              context=[x for x in context_terms if x in low or x in name.lower()]
+              if found and context:
+                  strings=[m.group(0) for m in re.finditer(r'[ -~]{4,}',text)]
+                  selected=[]
+                  for st in strings:
+                      sl=st.lower()
+                      if any(t in sl for t in found+context_terms):
+                          if st not in selected:
+                              selected.append(st)
+                  hits.append({
+                      'index':i,'module':name,'terms':found,'context':context,
+                      'strings':selected[:80]
+                  })
+          hits.sort(key=lambda x:(-len(x['terms']),x['module']))
+          Path('/tmp/v625-cardinality-hits.json').write_text(json.dumps(hits,indent=2))
+          print('V625_ENTRY_COUNT='+str(count))
+          print('V625_CARDINALITY_MODULES='+str(len(hits)))
+          for h in hits[:120]:
+              print('V625_MODULE='+h['module'])
+              print('V625_TERMS='+','.join(h['terms']))
+              for st in h['strings'][:30]:
+                  print('  '+st[:240])
+          PY
+
+      - name: Summarize ranking/server candidates
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          rows=json.load(open('/tmp/v625-cardinality-hits.json'))
+          strong=[]
+          for r in rows:
+              name=r['module'].lower()
+              if any(x in name for x in ('rank','server','role','player','world')):
+                  strong.append(r)
+          print('V625_STRONG_CANDIDATES='+str(len(strong)))
+          for r in strong[:80]:
+              print('V625_STRONG_MODULE='+r['module'])
+              print('V625_STRONG_TERMS='+','.join(r['terms']))
+          PY
+          echo V625_LASTWAR_CONNECTION=NONE
+          echo V625_LASTWAR_MUTATION=NO
+          echo V625_GAME_SCAN_EXECUTED=NO
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: radar-v625-coverage-cardinality-discovery
+          path: /tmp/v625-cardinality-hits.json
+          retention-days: 30
