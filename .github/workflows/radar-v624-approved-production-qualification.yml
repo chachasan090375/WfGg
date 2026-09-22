@@ -75,7 +75,281 @@ jobs:
           git merge-base --is-ancestor "$QUALIFIED_SOURCE_REV" HEAD
           bad="$(
             git diff --name-only "$QUALIFIED_SOURCE_REV"..HEAD |
-            grep -Ev '^(.github/workflows/radar-v624-messenger-vps-pilot-build.yml|.github/workflows/radar-v624-approved-production-qualification.yml|.radar-release-src/v624-source/connector-go/cmd/radar-connector/messenger_outbox_v624.go|radar-vps/V624_(QUALIFICATION_RECEIPT|PILOT_RECEIPT|PRODUCTION_APPROVAL).txt|radar-vps/install-v624-messenger-pilot.sh|radar-vps/probe-v624-messenger-pilot-runtime.sh|radar-vps/pilot-v624-messenger/.*)$' || true
+            grep -Ev '^(.github/workflows/radar-v624-messenger-vps-pilot-build.yml|.github/workflows/radar-v624-approved-production-qualification.yml|.radar-release-src/v624-source/connector-go/cmd/radar-connector/messenger_outbox_v624.go|radar-vps/V624_(QUALIFICATION_RECEIPT|PILOT_RECEIPT|PRODUCTION_APPROVAL).txt|radar-vps/install-v624-messenger-pilot.sh|radar-vps/probe-v624-messenger-pilot-runtime.sh|radar-vps/install-v624-messenger-production.sh|radar-vps/probe-v624-messenger-production-runtime.sh|radar-vps/rollback-v624-messenger-production.sh|radar-vps/pilot-v624-messenger/.*)
+          )"
+          if [ -n "$bad" ]; then
+            echo "V624_UNQUALIFIED_DRIFT=$bad"
+            exit 1
+          fi
+          echo RADAR_V624_QUALIFIED_SOURCE_DRIFT_GUARD=PASS
+
+      - name: Verify production runtime confinement
+        run: |
+          set -euo pipefail
+          F=.radar-release-src/v624-source/connector-go/cmd/radar-connector/messenger_outbox_v624.go
+          grep -Fq '/opt/wfgg-radar/messenger/bin/wfgg-messenger-outbox' "$F"
+          grep -Fq '/opt/wfgg-radar/data/messenger/outbox.jsonl' "$F"
+          ! grep -Fq '"/opt/wfgg-messenger/' "$F"
+          echo RADAR_V624_PRODUCTION_RUNTIME_CONFINEMENT=PASS
+
+      - name: Validate production Messenger install probe and rollback scripts
+        run: |
+          set -euo pipefail
+          I=radar-vps/install-v624-messenger-production.sh
+          P=radar-vps/probe-v624-messenger-production-runtime.sh
+          R=radar-vps/rollback-v624-messenger-production.sh
+          bash -n "$I"
+          bash -n "$P"
+          bash -n "$R"
+          grep -Fq '/opt/wfgg-radar' "$I"
+          grep -Fq '3cf5d175325a319d601667e50388e8472057bcc152df7a618938daf357a3dfa1' "$I"
+          grep -Fq 'RADAR_V624_PRODUCTION_CONNECTOR_TOUCHED=NO' "$I"
+          grep -Fq 'RADAR_V624_PRODUCTION_SERVICE_RESTARTED=NO' "$I"
+          grep -Fq 'RADAR_V624_MESSENGER_PRODUCTION_PROBE=PASS' "$P"
+          grep -Fq 'RADAR_V624_MAIL_SEND_EXECUTED=NO' "$P"
+          grep -Fq 'RADAR_V624_MESSENGER_PRODUCTION_ROLLBACK=PASS' "$R"
+          grep -Fq 'RADAR_V624_MESSENGER_LEDGER_PRESERVED=YES' "$R"
+          if grep -Eq 'systemctl (restart|stop|start).*wfgg-radar-connector' "$I" "$P" "$R"; then
+            echo RADAR_V624_MESSENGER_SCRIPT_CONNECTOR_RESTART=FOUND
+            exit 1
+          fi
+          echo RADAR_V624_MESSENGER_PRODUCTION_SCRIPTS=PASS
+
+      - name: Build and verify qualified Messenger
+        working-directory: .radar-release-src/v624-messenger-source
+        run: |
+          set -euo pipefail
+          go test ./... -count=1 -v | tee /tmp/v624-messenger-tests.log
+          go vet ./...
+          # Rebuild validates the source, but Go embeds the current VCS revision.
+          # Production promotes the exact binary that passed the VPS PILOT.
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w' -o /tmp/wfgg-messenger-outbox-rebuilt ./cmd/wfgg-messenger-outbox
+          test -x /tmp/wfgg-messenger-outbox-rebuilt
+          artifact="$GITHUB_WORKSPACE/radar-vps/pilot-v624-messenger/wfgg-messenger-outbox"
+          test -x "$artifact"
+          actual="$(sha256sum "$artifact" | awk '{print $1}')"
+          echo "RADAR_V624_PILOT_ARTIFACT_SHA256=$actual"
+          test "$actual" = "$EXPECTED_MESSENGER_SHA256"
+          cp "$artifact" /tmp/wfgg-messenger-outbox
+          chmod 0755 /tmp/wfgg-messenger-outbox
+          if grep -RFn --include='*.go' -E '"net"|"net/http"|"crypto/tls"|net\.Dial|http\.|tls\.|SendExtension|RADAR_CONNECTOR_SHARED_KEY|LASTWAR_NATIVE_TEMPLATE' .; then
+            echo V624_MESSENGER_NETWORK_CAPABILITY=FOUND
+            exit 1
+          fi
+          echo "RADAR_V624_MESSENGER_SHA256=$actual"
+          echo RADAR_V624_MESSENGER_EXACT_PILOT_BINARY=YES
+          echo RADAR_V624_MESSENGER_NETWORK_CAPABILITY=ABSENT
+
+      - name: Reconstruct cumulative V6.23 baseline
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/wfgg-radar
+          mkdir -p /tmp/wfgg-radar
+          python3 .github/scripts/reconstruct-radar-release.py
+          echo '234df1dec57f6211bc625855bf13350c9f17fbd843fbe92d8cf1ab7cb5c081ef  /tmp/radar-src.tar.gz' | sha256sum -c -
+          tar -xzf /tmp/radar-src.tar.gz -C /tmp/wfgg-radar
+          rm -rf /tmp/wfgg-radar/connector-go
+          cp -a .radar-release-src/v2-source/connector-go /tmp/wfgg-radar/connector-go
+
+          python3 .github/scripts/patch-radar-target-profile-retry.py
+          python3 .github/scripts/patch-radar-federated-diagnostics-v65.py
+          python3 .github/scripts/patch-player-scan-v3.py
+          python3 .github/scripts/patch-player-scan-v4.py
+          python3 .github/scripts/patch-radar-protocol-discovery-v67.py
+          python3 .github/scripts/patch-radar-profile-isolation-v68.py
+          python3 .github/scripts/patch-radar-native-profile-v69.py
+          python3 .github/scripts/patch-radar-native-profile-handshake-v691.py
+          python3 .github/scripts/patch-radar-native-profile-exec-v692.py
+          python3 .github/scripts/patch-radar-connector-runtime-v693.py
+          python3 .github/scripts/patch-radar-profile-refresh-v6191.py
+          python3 .github/scripts/patch-radar-cluster-catalog-budget-v6192.py
+          python3 .github/scripts/patch-radar-seed-scout-v6193.py
+          python3 .github/scripts/patch-radar-autopilot-v6194.py
+          python3 .github/scripts/patch-radar-autopilot-stale-cycle-v6197.py
+          python3 .github/scripts/patch-radar-collector-cycle-terminalization-v6198.py
+          python3 .github/scripts/patch-radar-autopilot-targeted-history-v6199.py
+          python3 .github/scripts/patch-radar-autopilot-continue-partial-v61910.py
+
+          install -m 0644 .radar-release-src/v2-source/src/game/remote-transport.js /tmp/wfgg-radar/src/game/remote-transport.js
+          python3 .github/scripts/patch-radar-async-collector-worker.py
+          python3 .github/scripts/patch-radar-worker-rich-profile-v6191.py
+          python3 .github/scripts/patch-radar-worker-seed-scout-v6193.py
+          python3 .github/scripts/patch-radar-worker-autopilot-v6194.py
+
+          install -m 0644 radar-ui-live/live-radar.html /tmp/wfgg-radar/public/live-radar.html
+          python3 .github/scripts/patch-live-radar-seed-scout-v6193.py
+          python3 .github/scripts/patch-live-radar-autopilot-v6194.py
+          python3 .github/scripts/patch-radar-session-keepalive-v6195.py
+          python3 .github/scripts/patch-live-radar-autopilot-v6196.py
+          python3 .github/scripts/patch-live-radar-autopilot-v6197.py
+          python3 .github/scripts/patch-live-radar-autopilot-v6198.py
+          python3 .github/scripts/patch-live-radar-autopilot-v6199.py
+          python3 .github/scripts/patch-live-radar-autopilot-v61910.py
+          python3 .github/scripts/patch-radar-manual-search-stop-v61911.py
+          python3 .github/scripts/patch-radar-autopilot-no-rescan-qualified-v61912.py
+          python3 .github/scripts/patch-live-radar-autopilot-v61912.py
+          python3 .github/scripts/patch-radar-autopilot-persistent-ledger-v61913.py
+          python3 .github/scripts/patch-live-radar-autopilot-v61913.py
+          python3 .github/scripts/patch-radar-autopilot-coverage-completion-v61914.py
+          python3 .github/scripts/patch-live-radar-autopilot-v61914.py
+          python3 .github/scripts/patch-radar-worker-coverage-propagation-v61915.py
+          python3 .github/scripts/patch-radar-autopilot-failure-scope-v61916.py
+          python3 .github/scripts/patch-radar-autopilot-adaptive-verification-v61917.py
+          python3 .github/scripts/patch-radar-worker-adaptive-verification-v61917.py
+          python3 .github/scripts/patch-live-radar-adaptive-verification-v61917.py
+          python3 .github/scripts/patch-radar-autopilot-ledger-confirmation-v620.py
+          python3 .github/scripts/patch-radar-player-intelligence-connector-v620.py
+          python3 .github/scripts/patch-radar-player-intelligence-ui-worker-v620.py
+          python3 .github/scripts/patch-radar-recruitment-filter-normalization-v621.py
+          python3 .github/scripts/patch-radar-recruitment-ux-ui-worker-v621.py
+          python3 .github/scripts/patch-radar-live-profile-resolution-v622.py
+          echo RADAR_V624_BASE_V623=PASS
+
+      - name: Apply V6.24 Internal Mail Outbox
+        run: |
+          set -euo pipefail
+          python3 .github/scripts/patch-radar-messenger-outbox-connector-v624.py
+          python3 .github/scripts/patch-radar-messenger-outbox-worker-v624.py
+          python3 .github/scripts/patch-live-radar-messenger-outbox-v624.py
+          echo RADAR_V624_PATCHES=PASS
+
+      - name: Full Connector regression and fingerprint
+        working-directory: /tmp/wfgg-radar/connector-go
+        run: |
+          set -euo pipefail
+          gofmt -w ./cmd ./internal
+          go test ./... -count=1
+          go vet ./...
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w' -o /tmp/radar-connector ./cmd/radar-connector
+          grep -aFq '/v1/messenger/outbox/create' /tmp/radar-connector
+          grep -aFq 'v6.24.0-dry-run' /tmp/radar-connector
+          grep -aFq '/opt/wfgg-radar/messenger/bin/wfgg-messenger-outbox' /tmp/radar-connector
+          grep -aFq '/opt/wfgg-radar/data/messenger/outbox.jsonl' /tmp/radar-connector
+          if grep -RFn --include='*.go' 'mail.send' .; then
+            echo RADAR_V624_CONNECTOR_MAIL_SEND_EMITTER=FOUND
+            exit 1
+          fi
+          sha="$(sha256sum /tmp/radar-connector | awk '{print $1}')"
+          echo "RADAR_V624_CONNECTOR_SHA256=$sha"
+          echo RADAR_V624_CONNECTOR_MAIL_SEND_EMITTER=ABSENT
+
+      - name: Worker and UI regression and fingerprints
+        run: |
+          set -euo pipefail
+          W=/tmp/wfgg-radar/src/worker.js
+          T=/tmp/wfgg-radar/src/game/remote-transport.js
+          U=/tmp/wfgg-radar/public/live-radar.html
+          node --check "$W"
+          node --check "$T"
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          w=Path('/tmp/wfgg-radar/src/worker.js').read_text()
+          t=Path('/tmp/wfgg-radar/src/game/remote-transport.js').read_text()
+          h=Path('/tmp/wfgg-radar/public/live-radar.html').read_text()
+          req=[
+            'WFGG_RADAR_MESSENGER_OUTBOX_WORKER_V624',
+            '/api/radar/messenger/outbox',
+            'tokenUsed: false',
+            'lastwarMutation: false',
+            'networkSend: false',
+            'messengerOutboxCreate',
+            'messengerOutboxQueue',
+          ]
+          assert all(x in w+t for x in req),[x for x in req if x not in w+t]
+          i=w.index('WFGG_RADAR_MESSENGER_OUTBOX_WORKER_V624')
+          j=w.index("if (url.pathname === '/api/admin/users'",i)
+          route=w[i:j]
+          for forbidden in ['getCredential(', 'decryptGameToken(', 'scanPlayer(', 'startCollectorSearch(', 'snapshot(']:
+              assert forbidden not in route,forbidden
+          ui=[
+            'WFGG_RADAR_MESSENGER_OUTBOX_UI_V624',
+            'id="messagePlayer"',
+            'id="mailComposer"',
+            'METTRE EN FILE',
+            'DRY-RUN V6.24',
+            '/api/radar/messenger/outbox',
+            'aucun message n’est envoyé à Last War',
+          ]
+          assert all(x in h for x in ui),[x for x in ui if x not in h]
+          assert '>ENVOYER<' not in h
+          m=re.search(r'<script>(.*)</script>',h,re.S); assert m
+          Path('/tmp/v624-ui.js').write_text(m.group(1))
+          print('RADAR_V624_WORKER_NO_GAME_CREDENTIAL_ACCESS=PASS')
+          print('RADAR_V624_UI_QUEUE_ONLY=PASS')
+          PY
+          node --check /tmp/v624-ui.js
+          echo "RADAR_V624_WORKER_SHA256=$(sha256sum "$W" | awk '{print $1}')"
+          echo "RADAR_V624_TRANSPORT_SHA256=$(sha256sum "$T" | awk '{print $1}')"
+          echo "RADAR_V624_UI_SHA256=$(sha256sum "$U" | awk '{print $1}')"
+
+      - name: Application regression
+        working-directory: /tmp/wfgg-radar
+        run: |
+          set -euo pipefail
+          npm test
+          npm run check
+          echo RADAR_V624_APPLICATION_REGRESSION=PASS
+
+      - name: Functional dry-run Outbox proof
+        run: |
+          set -euo pipefail
+          LEDGER=/tmp/v624-prod-qualification-outbox.jsonl
+          cat >/tmp/v624-prod-draft.json <<'JSON'
+          {"targetName":"ProdQualification","targetUid":"6240000000000020","title":"Qualification","contents":"Dry-run production qualification","sendLocalTime":1700000000,"senderServer":8120,"targetServer":8120}
+          JSON
+          /tmp/wfgg-messenger-outbox -ledger "$LEDGER" create </tmp/v624-prod-draft.json >/tmp/v624-prod-create.json
+          ID="$(python3 -c "import json; print(json.load(open('/tmp/v624-prod-create.json'))['record']['id'])")"
+          /tmp/wfgg-messenger-outbox -ledger "$LEDGER" queue "$ID" >/tmp/v624-prod-queue.json
+          /tmp/wfgg-messenger-outbox -ledger "$LEDGER" history "$ID" >/tmp/v624-prod-history.json
+          python3 - <<'PY'
+          import json
+          c=json.load(open('/tmp/v624-prod-create.json'))
+          q=json.load(open('/tmp/v624-prod-queue.json'))
+          h=json.load(open('/tmp/v624-prod-history.json'))
+          assert c['record']['dryRun']['command']=='mail.send'
+          assert c['record']['dryRun']['networkEnabled'] is False
+          assert c['record']['dryRun']['mutationExecuted'] is False
+          assert q['state']=='QUEUED'
+          assert [x['state'] for x in h]==['DRAFT','QUEUED']
+          print('RADAR_V624_PRODUCTION_DRY_RUN=PASS')
+          PY
+
+      - name: Production qualification receipt
+        run: |
+          set -euo pipefail
+          {
+            echo WFGG_RADAR_PRODUCTION_QUALIFICATION=V6.24
+            echo RESULT=success
+            echo SOURCE_REV="$(git rev-parse HEAD)"
+            echo QUALIFIED_SOURCE_REV="$QUALIFIED_SOURCE_REV"
+            echo CONNECTOR_SHA256="$(sha256sum /tmp/radar-connector | awk '{print $1}')"
+            echo NATIVE_SHA256="$EXPECTED_NATIVE_SHA256"
+            echo MESSENGER_SHA256="$(sha256sum /tmp/wfgg-messenger-outbox | awk '{print $1}')"
+            echo WORKER_SHA256="$(sha256sum /tmp/wfgg-radar/src/worker.js | awk '{print $1}')"
+            echo TRANSPORT_SHA256="$(sha256sum /tmp/wfgg-radar/src/game/remote-transport.js | awk '{print $1}')"
+            echo UI_SHA256="$(sha256sum /tmp/wfgg-radar/public/live-radar.html | awk '{print $1}')"
+            echo MESSENGER_MODE=DRY_RUN_ONLY
+            echo RADAR_LASTWAR_MODE=READ_ONLY
+            echo MAIL_SEND_EXECUTED=NO
+            echo LASTWAR_MUTATION=NO
+            echo NETWORK_SEND=NO
+            echo CROSS_SERVER_PRIVATE_MAIL=BLOCKED_UNPROVEN
+            echo PRODUCTION_DEPLOYMENT=NO
+          } | tee /tmp/V624_PRODUCTION_QUALIFICATION_RECEIPT.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: radar-v624-approved-production-qualification
+          path: |
+            /tmp/V624_PRODUCTION_QUALIFICATION_RECEIPT.txt
+            /tmp/v624-messenger-tests.log
+            /tmp/v624-prod-create.json
+            /tmp/v624-prod-queue.json
+            /tmp/v624-prod-history.json
+          if-no-files-found: error
+          retention-days: 30
+ || true
           )"
           if [ -n "$bad" ]; then
             echo "V624_UNQUALIFIED_DRIFT=$bad"
