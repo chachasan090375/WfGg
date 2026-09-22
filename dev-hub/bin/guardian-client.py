@@ -89,6 +89,19 @@ def check(event_path:Path,policy_path:Path)->int:
     if verdict=="CRITICAL":return 21
     return 30
 
+def report_anomaly(policy_path:Path,anomaly_path:Path)->int:
+    _,url,key=policy_values(policy_path)
+    if not key.is_file():return 30
+    payload=load(anomaly_path)
+    body=json.dumps(payload,sort_keys=True,ensure_ascii=False,separators=(",",":")).encode()
+    try:
+        status,x=http_json(signed_request("POST",url+"/v1/learning-anomalies/report",key,body))
+    except Exception as exc:
+        print(json.dumps({"schema":"chacha.dev/guardian-client-result/v1","status":"UNAVAILABLE","reason":str(exc)[:300]}))
+        return 30
+    print(json.dumps(x,ensure_ascii=False))
+    return 0 if status==202 and x.get("status")=="DIRECTIVE_ISSUED" else 30
+
 def remediations(policy_path:Path,status_filter:str,limit:int)->int:
     _,url,key=policy_values(policy_path)
     if not key.is_file():return 30
@@ -199,6 +212,7 @@ def main()->int:
     k=sub.add_parser("ack");k.add_argument("--alert-id",action="append",required=True)
     m=sub.add_parser("remediations");m.add_argument("--status",default="OPEN");m.add_argument("--limit",type=int,default=50)
     md=sub.add_parser("mark-remediations-delivered");md.add_argument("--directive-id",action="append",required=True)
+    ra=sub.add_parser("report-anomaly");ra.add_argument("--anomaly",type=Path,required=True)
     v=sub.add_parser("coverage");v.add_argument("--snapshot",type=Path,required=True)
     r=sub.add_parser("register-contract");r.add_argument("--contract",type=Path,required=True)
     rc=sub.add_parser("register-component-contract");rc.add_argument("--contract",type=Path,required=True)
@@ -208,6 +222,7 @@ def main()->int:
     if args.cmd=="alerts":return alerts(args.policy,args.status,args.limit)
     if args.cmd=="remediations":return remediations(args.policy,args.status,args.limit)
     if args.cmd=="mark-remediations-delivered":return mark_remediations_delivered(args.policy,args.directive_id)
+    if args.cmd=="report-anomaly":return report_anomaly(args.policy,args.anomaly)
     if args.cmd=="coverage":return coverage(args.policy,args.snapshot)
     if args.cmd=="register-contract":return register_contract(args.policy,args.contract)
     if args.cmd=="register-component-contract":return register_component_contract(args.policy,args.contract)
