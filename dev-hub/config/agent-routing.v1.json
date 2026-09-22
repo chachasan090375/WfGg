@@ -198,9 +198,35 @@
         "library-docs"
       ],
       "default_risk": "medium"
+    },
+    "agent-foundry-architect": {
+      "capabilities": [
+        "agent-needs-analysis",
+        "agent-blueprint",
+        "agent-evaluation",
+        "agent-lifecycle",
+        "agent-composition"
+      ],
+      "default_risk": "medium"
     }
   },
   "routing_rules": [
+    {
+      "match": [
+        "agent-foundry",
+        "agent need",
+        "besoin d'agent",
+        "create agent",
+        "nouvel agent",
+        "agent spécialisé",
+        "agent specialise"
+      ],
+      "primary_role": "agent-foundry-architect",
+      "review_roles": [
+        "security-reviewer",
+        "technology-watch-agent"
+      ]
+    },
     {
       "match": [
         "requirement",
