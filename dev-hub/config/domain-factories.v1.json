@@ -1,0 +1,40 @@
+{
+  "schema": "chacha.dev/domain-factories/v1",
+  "version": "1.0.0",
+  "model": "EVERY_DOMAIN_IS_A_COMPONENT_FACTORY",
+  "factory_cycle": [
+    "SPECIFY",
+    "SEARCH_REUSE",
+    "DESIGN",
+    "BUILD",
+    "VERIFY",
+    "BENCHMARK",
+    "QUALIFY",
+    "CATALOG",
+    "DELIVER",
+    "LEARN"
+  ],
+  "required_outputs": [
+    "component-manifest",
+    "component-contract",
+    "verification-evidence",
+    "compatibility-metadata",
+    "version",
+    "provenance"
+  ],
+  "reuse_policy": {
+    "search_component_registry_first": true,
+    "prefer_qualified_reuse": true,
+    "fork_only_when_constraints_require": true
+  },
+  "catalog_policy": {
+    "project_specific_allowed": true,
+    "generic_promotion_requires_reuse_value": true,
+    "evidence_required": true
+  },
+  "parallelism": {
+    "independent_components_parallel": true,
+    "contract_dependencies_control_order": true
+  },
+  "domains_from": "dev-hub/config/domain-orchestration.v1.json"
+}
