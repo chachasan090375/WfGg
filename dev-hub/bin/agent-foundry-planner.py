@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any
 
 import technology_watch_runtime as tw
+import agent_role_contracts as arc
 
 SCHEMA="chacha.dev/agent-foundry/v1"
 OUT="chacha.dev/agent-topology/v1"
@@ -95,6 +96,34 @@ def decide_package(pkg:dict[str,Any],routing:dict[str,Any],cfg:dict[str,Any],pro
     elif decision=="COMPOSE_EXISTING_AGENTS":
         agent_id="+".join(roles)
 
+    scope="project" if decision!="CREATE_REUSABLE_AGENT_CANDIDATE" else "catalog-candidate"
+    manifest={
+        "agent_id":agent_id,
+        "purpose":f"Execute {pkg['id']} for project {project_id}",
+        "scope":scope,
+        "project_id":project_id,
+        "domain":domain,
+        "capabilities":caps,
+        "provider_strategy":"domain-provider-resolver",
+        "tools":pkg.get("toolchain") or [],
+        "context_sources":[f"project-collector:{project_id}",f"project-domain-collector:{project_id}:{domain}"],
+        "collector_bindings":[
+            f"project-agent-collector:{project_id}",
+            f"agent-collector:{project_id}:{agent_id}" if agent_id else None,
+            "generic-domain-collector:agent-foundry"
+        ],
+        "memory_policy":"project-scoped-with-reusable-distillation",
+        "permissions":"least-privilege-derived-from-work-package",
+        "budget_policy":"ZERO_INCREMENTAL_COST_DEFAULT",
+        "verification":"qualification-required-before-dispatch",
+        "termination_policy":"retire-ephemeral-after-accepted-delivery",
+        "promotion_policy":"qualify-generalize-and-promote-only-if-reusable"
+    } if agent_id else None
+    if manifest is not None and decision.startswith("CREATE_"):
+        manifest["guardian_role_contract"]=arc.build_contract(
+            agent_id=agent_id,project_id=project_id,domain=domain,package_id=str(pkg["id"]),
+            capabilities=caps,tools=pkg.get("toolchain") or [],scope=scope
+        )
     return {
         "package_id":pkg["id"],
         "domain":domain,
@@ -105,28 +134,7 @@ def decide_package(pkg:dict[str,Any],routing:dict[str,Any],cfg:dict[str,Any],pro
         "existing_role_fit":round(fit,2),
         "agent_creation_score":score,
         "toolchain":pkg.get("toolchain") or [],
-        "manifest":{
-            "agent_id":agent_id,
-            "purpose":f"Execute {pkg['id']} for project {project_id}",
-            "scope":"project" if decision!="CREATE_REUSABLE_AGENT_CANDIDATE" else "catalog-candidate",
-            "project_id":project_id,
-            "domain":domain,
-            "capabilities":caps,
-            "provider_strategy":"domain-provider-resolver",
-            "tools":pkg.get("toolchain") or [],
-            "context_sources":[f"project-collector:{project_id}",f"project-domain-collector:{project_id}:{domain}"],
-            "collector_bindings":[
-                f"project-agent-collector:{project_id}",
-                f"agent-collector:{project_id}:{agent_id}" if agent_id else None,
-                "generic-domain-collector:agent-foundry"
-            ],
-            "memory_policy":"project-scoped-with-reusable-distillation",
-            "permissions":"least-privilege-derived-from-work-package",
-            "budget_policy":"ZERO_INCREMENTAL_COST_DEFAULT",
-            "verification":"qualification-required-before-dispatch",
-            "termination_policy":"retire-ephemeral-after-accepted-delivery",
-            "promotion_policy":"qualify-generalize-and-promote-only-if-reusable"
-        } if agent_id else None
+        "manifest":manifest
     }
 
 def build(preplan:dict[str,Any],cfg:dict[str,Any],routing:dict[str,Any],project_id:str)->dict[str,Any]:
