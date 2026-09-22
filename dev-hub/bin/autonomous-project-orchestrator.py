@@ -163,6 +163,15 @@ def main():
     ])
 
     final_v=load(final);branch_v=load(branch_topology)
+
+    wave_plan=out/"runtime-wave-plan.json"
+    run(bin_dir/"capsule-scheduler.py",[
+        "--topology",branch_topology,
+        "--policy",cfg/"branch-foundry.v1.json",
+        "--output",wave_plan
+    ])
+    wave_v=load(wave_plan)
+
     fast_path=(not bool(final_v.get("implementation_allowed"))
                and int((branch_v.get("summary") or {}).get("materialized") or 0)==0)
     if fast_path:
@@ -181,6 +190,9 @@ def main():
       "preplan":str(active_pre),
       "agent_topology":str(agent_topology),
       "branch_topology":str(branch_topology),
+      "runtime_wave_plan":str(wave_plan),
+      "runtime_wave_count":int(wave_v.get("wave_count") or 0),
+      "runtime_schedulable":bool(wave_v.get("schedulable")),
       "capability_foundry":str(foundry_plan),
       "final_plan":str(final),
       "capability_foundry_created_domains":foundry_v.get("created_domain_count",0),
@@ -199,6 +211,7 @@ def main():
     print("NEXT_STAGE="+next_stage)
     print("FAST_PATH="+("YES" if fast_path else "NO"))
     print("MATERIALIZED_BRANCHES="+str(state["runtime_materialized_branches"]))
+    print("RUNTIME_WAVES="+str(state["runtime_wave_count"]))
     print("RUNTIME_MEMORY_MB="+str(state["runtime_memory_hard_limit_mb"]))
     print("EXTERNAL_SPEND_EUR="+str(state["external_spend_eur"]))
 
