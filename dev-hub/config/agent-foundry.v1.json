@@ -1,0 +1,113 @@
+{
+  "schema": "chacha.dev/agent-foundry/v1",
+  "version": "1.0.0",
+  "branch": "agent-foundry",
+  "mandatory_preflight": true,
+  "invocation_point": "after-core-intent-understanding-before-domain-dispatch",
+  "returns_to": "chacha-core-orchestrator",
+  "purpose": "Determine the optimal execution topology before any domain work starts.",
+  "decisions": [
+    "TOOL_ONLY",
+    "REUSE_EXISTING_AGENT",
+    "COMPOSE_EXISTING_AGENTS",
+    "CREATE_EPHEMERAL_AGENT",
+    "CREATE_REUSABLE_AGENT_CANDIDATE"
+  ],
+  "decision_order": [
+    "TOOL_ONLY",
+    "REUSE_EXISTING_AGENT",
+    "COMPOSE_EXISTING_AGENTS",
+    "CREATE_EPHEMERAL_AGENT",
+    "CREATE_REUSABLE_AGENT_CANDIDATE"
+  ],
+  "principles": {
+    "agent_is_not_default": true,
+    "prefer_deterministic_tool_when_sufficient": true,
+    "prefer_existing_agent_when_fit_is_sufficient": true,
+    "create_agent_only_for_measurable_gain": true,
+    "every_created_agent_is_tested": true,
+    "every_created_agent_has_permissions": true,
+    "every_created_agent_has_budget": true,
+    "every_created_agent_has_collector_bindings": true,
+    "every_created_agent_has_termination_policy": true,
+    "reusable_agent_requires_generalization_and_qualification": true,
+    "project_specific_context_never_leaks_into_generic_agent": true,
+    "foundry_output_may_rewrite_project_plan": true
+  },
+  "scoring": {
+    "capability_fit": 30,
+    "task_complexity": 15,
+    "autonomy_gain": 15,
+    "expected_reuse": 10,
+    "context_specialization": 10,
+    "determinism_penalty_for_agent": 8,
+    "cost_efficiency": 7,
+    "latency": 3,
+    "operational_risk": 2
+  },
+  "create_thresholds": {
+    "ephemeral_agent_min_score": 65,
+    "reusable_agent_min_score": 78,
+    "existing_agent_min_fit": 80
+  },
+  "required_agent_manifest": [
+    "agent_id",
+    "purpose",
+    "scope",
+    "project_id",
+    "domain",
+    "capabilities",
+    "provider_strategy",
+    "tools",
+    "context_sources",
+    "collector_bindings",
+    "memory_policy",
+    "permissions",
+    "budget_policy",
+    "verification",
+    "termination_policy",
+    "promotion_policy"
+  ],
+  "lifecycle": {
+    "ephemeral": [
+      "DESIGN",
+      "BUILD",
+      "QUALIFY",
+      "ACTIVE",
+      "RETIRE"
+    ],
+    "reusable": [
+      "DESIGN",
+      "BUILD",
+      "QUALIFY",
+      "PILOT",
+      "CATALOG_CANDIDATE",
+      "ADOPT",
+      "DEPRECATE",
+      "RETIRE"
+    ]
+  },
+  "collectors": {
+    "foundry_collector": "generic-domain-collector:agent-foundry",
+    "project_agent_collector_template": "project-agent-collector:{project_id}",
+    "created_agent_collector_template": "agent-collector:{project_id}:{agent_id}",
+    "reusable_learning_target": "generic-domain-collector:agent-foundry"
+  },
+  "replan_contract": {
+    "required": true,
+    "core_may_add_domains": true,
+    "core_may_remove_domains": true,
+    "core_may_merge_work_packages": true,
+    "core_may_split_work_packages": true,
+    "core_may_change_parallelism": true,
+    "core_may_change_dependencies": true,
+    "core_must_preserve_functional_intent": true,
+    "core_must_preserve_acceptance_contract": true
+  },
+  "approval_boundaries": [
+    "new_external_spend",
+    "credential_or_identity_boundary",
+    "destructive_permission",
+    "security_boundary_reduction"
+  ]
+}
