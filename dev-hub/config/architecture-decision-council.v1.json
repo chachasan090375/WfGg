@@ -1,10 +1,11 @@
 {
   "schema": "chacha.dev/architecture-decision-council-policy/v1",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "central_orchestrator_is_final_decider": true,
   "no_single_foundry_may_select_final_architecture": true,
   "mandatory_advisors": [
     "technology-watch-pre",
+    "architecture-memory",
     "reuse-memory",
     "branch-foundry",
     "agent-foundry",
@@ -25,7 +26,8 @@
     "consult_before_foundry_synthesis": true,
     "consult_after_foundry_synthesis": true,
     "taxonomy_must_cover_all_known_domains_capabilities_and_reusable_branches": true,
-    "material_signal_triggers_immediate_targeted_refresh": true
+    "material_signal_triggers_immediate_targeted_refresh": true,
+    "taxonomy_must_cover_reusable_architectures": true
   },
   "experts": {
     "dynamic_on_demand": true,
@@ -43,6 +45,17 @@
     "store_architecture_decision": true,
     "feed_global_project_memory": true,
     "feed_reusable_branch_registry_after_qualification": true,
-    "record_rejected_alternatives": true
+    "record_rejected_alternatives": true,
+    "feed_reusable_architecture_registry_after_qualification": true
+  },
+  "architecture_memory": {
+    "exact_functional_signature_required": true,
+    "qualification_required": "PASS",
+    "state_required": "ADOPT",
+    "maximum_technology_revalidation_age_minutes": 60,
+    "minimum_success_rate": 0.95,
+    "maximum_incident_count": 0,
+    "use_as_baseline_candidate_only": true,
+    "branch_level_fresher_evidence_can_override": true
   }
 }
