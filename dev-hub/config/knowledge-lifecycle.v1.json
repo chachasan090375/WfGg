@@ -1,0 +1,52 @@
+{
+  "schema": "chacha.dev/knowledge-lifecycle/v1",
+  "version": "1.0.0",
+  "states": [
+    "OBSERVED",
+    "INFERRED",
+    "CONFIRMED",
+    "SUPERSEDED",
+    "OBSOLETE",
+    "RETRACTED"
+  ],
+  "required_metadata": [
+    "source",
+    "version",
+    "observed_at",
+    "confidence",
+    "evidence",
+    "domain",
+    "compatibility"
+  ],
+  "supersession": {
+    "retain_history": true,
+    "prefer_latest_confirmed_compatible": true,
+    "link_replacement": true
+  },
+  "compiler": {
+    "enabled": true,
+    "inputs": [
+      "project-collectors",
+      "project-domain-collectors",
+      "generic-domain-collectors",
+      "arena-results",
+      "incidents",
+      "technology-watch"
+    ],
+    "outputs": [
+      "reusable-rule",
+      "decision-pattern",
+      "anti-pattern",
+      "fixture",
+      "component-recommendation"
+    ],
+    "minimum_distinct_evidence": 2,
+    "contradiction_detection": true,
+    "rule_versioning": true
+  },
+  "forgetting": {
+    "delete_evidence": false,
+    "exclude_obsolete_from_default_decisions": true,
+    "compact_redundant_derived_facts": true
+  }
+}
