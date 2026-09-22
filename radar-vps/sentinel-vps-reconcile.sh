@@ -22,12 +22,20 @@ log() { printf '%s %s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$*"; }
 fail() { log "SENTINEL_VPS=FAILED reason=$*"; exit 1; }
 
 [[ "$(id -u)" -eq 0 ]] || fail "ROOT_REQUIRED"
-for c in curl sha256sum install systemctl grep flock mktemp cp mv; do
+for c in curl sha256sum install systemctl grep flock mktemp cp mv chown; do
   command -v "$c" >/dev/null 2>&1 || fail "COMMAND_MISSING:$c"
 done
 
 install -d -m 0755 "$BIN_DIR" "$MESSENGER_BIN_DIR"
-install -d -m 0750 "$DATA_DIR" "$DATA_DIR/messenger" "$BACKUP_DIR"
+install -d -m 0750 "$DATA_DIR" "$BACKUP_DIR"
+install -d -m 0750 "$DATA_DIR/messenger"
+DATA_OWNER_REF="$DATA_DIR"
+if [[ -e "$DATA_DIR/autopilot-ledger.db" ]]; then
+  DATA_OWNER_REF="$DATA_DIR/autopilot-ledger.db"
+fi
+chown --reference="$DATA_OWNER_REF" "$DATA_DIR/messenger"
+chmod 0750 "$DATA_DIR/messenger"
+log "SENTINEL_VPS_MESSENGER_DATA_OWNER_REF=$DATA_OWNER_REF"
 
 exec 9>"$LOCK_FILE"
 if ! flock -n 9; then

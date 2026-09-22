@@ -21,7 +21,7 @@ trap cleanup EXIT
 [[ "$(id -u)" -eq 0 ]] || fail ROOT_REQUIRED
 [[ "$REV" =~ ^[0-9a-f]{40}$ ]] || fail PINNED_REVISION_REQUIRED
 [[ "$EXPECTED" =~ ^[0-9a-f]{64}$ ]] || fail EXPECTED_SHA_INVALID
-for c in curl sha256sum install mkdir cp mv date; do
+for c in curl sha256sum install mkdir cp mv date chown; do
   command -v "$c" >/dev/null 2>&1 || fail "COMMAND_MISSING:$c"
 done
 
@@ -40,6 +40,13 @@ DOWNLOADED="$(sha256sum "$TMP/wfgg-messenger-outbox" | awk '{print $1}')"
 
 install -d -m 0755 "$BIN_DIR"
 install -d -m 0750 "$DATA_DIR" "$BACKUP_ROOT"
+DATA_OWNER_REF="$ROOT/data"
+if [[ -e "$ROOT/data/autopilot-ledger.db" ]]; then
+  DATA_OWNER_REF="$ROOT/data/autopilot-ledger.db"
+fi
+chown --reference="$DATA_OWNER_REF" "$DATA_DIR"
+chmod 0750 "$DATA_DIR"
+log "RADAR_V624_MESSENGER_DATA_OWNER_REF=$DATA_OWNER_REF"
 STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
 BACKUP="$BACKUP_ROOT/$STAMP"
 PREVIOUS_PRESENT=NO
