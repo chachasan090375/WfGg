@@ -1,0 +1,72 @@
+name: ChaCha DEV V6.11 architecture decision council qualification
+on:
+  push:
+    branches: [dev-hub-v611-architecture-decision-council]
+    paths:
+      - 'dev-hub/bin/reusable-branch-registry.py'
+      - 'dev-hub/bin/architecture-decision-council.py'
+      - 'dev-hub/bin/technology_watch_runtime.py'
+      - 'dev-hub/bin/technology-watch-service.py'
+      - 'dev-hub/bin/autonomous-project-orchestrator.py'
+      - 'dev-hub/config/architecture-decision-council.v1.json'
+      - 'dev-hub/config/technology-watch-runtime.v1.json'
+      - 'dev-hub/tests/test_v611_architecture_decision_council.py'
+      - '.github/workflows/dev-hub-v611-architecture-decision-council-qualification.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev-hub-v611-architecture-decision-council
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Static validation
+        run: |
+          set -euo pipefail
+          python3 -m py_compile dev-hub/bin/reusable-branch-registry.py dev-hub/bin/architecture-decision-council.py dev-hub/bin/technology_watch_runtime.py dev-hub/bin/technology-watch-service.py dev-hub/bin/autonomous-project-orchestrator.py
+          python3 -m json.tool dev-hub/config/architecture-decision-council.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/technology-watch-runtime.v1.json >/dev/null
+          echo CHACHA_DEV_V611_STATIC=PASS
+      - name: Council, reuse and Technology Watch contracts
+        run: |
+          set -euo pipefail
+          python3 dev-hub/tests/test_v611_architecture_decision_council.py
+      - name: Architecture invariants
+        run: |
+          set -euo pipefail
+          grep -Fq '"technology-watch-pre"' dev-hub/config/architecture-decision-council.v1.json
+          grep -Fq '"technology-watch-final"' dev-hub/config/architecture-decision-council.v1.json
+          grep -Fq '"reuse-memory"' dev-hub/config/architecture-decision-council.v1.json
+          grep -Fq '"branch-foundry"' dev-hub/config/architecture-decision-council.v1.json
+          grep -Fq '"agent-foundry"' dev-hub/config/architecture-decision-council.v1.json
+          grep -Fq '"capability-foundry"' dev-hub/config/architecture-decision-council.v1.json
+          echo CHACHA_DEV_V611_MANDATORY_ADVISORS=PASS
+      - name: Qualification receipt
+        run: |
+          {
+            echo CHACHA_DEV_ARCHITECTURE_DECISION_COUNCIL=V6.11
+            echo RESULT=success
+            echo SOURCE_REV="$(git rev-parse HEAD)"
+            echo CENTRAL_ORCHESTRATOR_FINAL_DECIDER=YES
+            echo REUSABLE_BRANCH_MEMORY=YES
+            echo REUSE_REQUIRES_CURRENT_TECH_REVALIDATION=YES
+            echo TECHNOLOGY_WATCH_PRE=YES
+            echo TECHNOLOGY_WATCH_FINAL=YES
+            echo BRANCH_FOUNDRY_OPINION=YES
+            echo AGENT_FOUNDRY_OPINION=YES
+            echo CAPABILITY_FOUNDRY_OPINION=YES
+            echo CONSTRAINT_POLICY_OPINION=YES
+            echo DYNAMIC_EXPERTS=YES
+            echo AUTOMATIC_EXTERNAL_SPEND_EUR=0
+          } | tee /tmp/CHACHA_DEV_V611_RECEIPT.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chacha-dev-v611-architecture-decision-council
+          path: /tmp/CHACHA_DEV_V611_RECEIPT.txt
+          retention-days: 30

@@ -1,0 +1,48 @@
+{
+  "schema": "chacha.dev/architecture-decision-council-policy/v1",
+  "version": "1.0.0",
+  "central_orchestrator_is_final_decider": true,
+  "no_single_foundry_may_select_final_architecture": true,
+  "mandatory_advisors": [
+    "technology-watch-pre",
+    "reuse-memory",
+    "branch-foundry",
+    "agent-foundry",
+    "capability-foundry",
+    "constraint-policy",
+    "technology-watch-final"
+  ],
+  "reuse": {
+    "prefer_reuse_when_still_best": true,
+    "qualification_required": "PASS",
+    "state_required": "ADOPT",
+    "maximum_technology_revalidation_age_minutes": 60,
+    "stale_branch_action": "REVALIDATE_BEFORE_REUSE",
+    "previous_version_is_candidate_not_default": true
+  },
+  "technology_watch": {
+    "continuous_background_watch": true,
+    "consult_before_foundry_synthesis": true,
+    "consult_after_foundry_synthesis": true,
+    "taxonomy_must_cover_all_known_domains_capabilities_and_reusable_branches": true,
+    "material_signal_triggers_immediate_targeted_refresh": true
+  },
+  "experts": {
+    "dynamic_on_demand": true,
+    "permanent_expert_daemons": false,
+    "derive_from_active_domains": true
+  },
+  "constraints": {
+    "hard_before_scoring": true,
+    "zero_spend_valid_solution_dominates_paid": true,
+    "paid_requires_human_approval": true,
+    "security_boundary_reduction_requires_human_approval": true,
+    "rollback_required": true
+  },
+  "decision_memory": {
+    "store_architecture_decision": true,
+    "feed_global_project_memory": true,
+    "feed_reusable_branch_registry_after_qualification": true,
+    "record_rejected_alternatives": true
+  }
+}
