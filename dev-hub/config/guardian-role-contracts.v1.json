@@ -1,0 +1,310 @@
+{
+  "schema": "chacha.dev/guardian-role-contracts/v1",
+  "version": "1.0.0",
+  "scope": "PLATFORM_GLOBAL",
+  "principles": {
+    "guardian_is_external_to_central_brain": true,
+    "guardian_cannot_build_or_choose_architecture": true,
+    "guardian_cannot_modify_own_contracts_at_runtime": true,
+    "every_governed_action_requires_actor_and_subject_contract": true,
+    "sensitive_actions_fail_closed": true,
+    "low_risk_guardian_unavailability_may_continue_unverified": true,
+    "pass_requires_evidence_not_self_assertion": true
+  },
+  "sensitive_permissions": [
+    "repository-write",
+    "preview-deploy",
+    "production-deploy",
+    "production-data-write",
+    "secret-change",
+    "destructive-operation",
+    "technology-replacement"
+  ],
+  "contracts": [
+    {
+      "contract_id": "component:run-controller",
+      "kind": "component",
+      "allowed_actions": [
+        "DISPATCH_TASK",
+        "REPORT_TASK_RESULT"
+      ],
+      "forbidden_actions": [
+        "FINAL_ARCHITECTURE_DECISION",
+        "MODIFY_GUARDIAN_CONTRACTS"
+      ],
+      "allowed_permissions": [
+        "*"
+      ],
+      "required_evidence": [
+        "adapter_binding_valid"
+      ]
+    },
+    {
+      "contract_id": "component:central-orchestrator",
+      "kind": "component",
+      "allowed_actions": [
+        "INVOKE_COMPONENT",
+        "FINALIZE_PROJECT_PLAN"
+      ],
+      "forbidden_actions": [
+        "EXECUTE_PROVIDER_DIRECTLY",
+        "MODIFY_GUARDIAN_CONTRACTS"
+      ],
+      "allowed_permissions": [
+        "read",
+        "plan",
+        "workspace-write"
+      ],
+      "required_evidence": []
+    },
+    {
+      "contract_id": "role:orchestrator",
+      "kind": "role",
+      "allowed_actions": [
+        "DISPATCH_TASK",
+        "INVOKE_COMPONENT",
+        "FINALIZE_PROJECT_PLAN"
+      ],
+      "forbidden_actions": [
+        "MODIFY_GUARDIAN_CONTRACTS"
+      ],
+      "allowed_permissions": [
+        "*"
+      ],
+      "required_evidence": []
+    },
+    {
+      "contract_id": "role:branch-foundry",
+      "kind": "role",
+      "allowed_actions": [
+        "INVOKE_COMPONENT",
+        "PLAN_BRANCH",
+        "REPORT_PLAN"
+      ],
+      "forbidden_actions": [
+        "FINAL_ARCHITECTURE_DECISION",
+        "EXECUTE_PROVIDER_DIRECTLY"
+      ],
+      "allowed_permissions": [
+        "read",
+        "plan",
+        "workspace-write"
+      ],
+      "required_evidence": []
+    },
+    {
+      "contract_id": "role:agent-foundry",
+      "kind": "role",
+      "allowed_actions": [
+        "INVOKE_COMPONENT",
+        "PLAN_AGENT",
+        "REPORT_PLAN"
+      ],
+      "forbidden_actions": [
+        "FINAL_ARCHITECTURE_DECISION",
+        "EXECUTE_PROVIDER_DIRECTLY"
+      ],
+      "allowed_permissions": [
+        "read",
+        "plan",
+        "workspace-write"
+      ],
+      "required_evidence": []
+    },
+    {
+      "contract_id": "role:capability-foundry",
+      "kind": "role",
+      "allowed_actions": [
+        "INVOKE_COMPONENT",
+        "PLAN_CAPABILITY",
+        "REPORT_PLAN"
+      ],
+      "forbidden_actions": [
+        "FINAL_ARCHITECTURE_DECISION",
+        "EXECUTE_PROVIDER_DIRECTLY"
+      ],
+      "allowed_permissions": [
+        "read",
+        "plan",
+        "workspace-write"
+      ],
+      "required_evidence": []
+    },
+    {
+      "contract_id": "role:technology-watch",
+      "kind": "role",
+      "allowed_actions": [
+        "INVOKE_COMPONENT",
+        "OBSERVE_TECHNOLOGY",
+        "REPORT_TECHNOLOGY"
+      ],
+      "forbidden_actions": [
+        "FINAL_ARCHITECTURE_DECISION",
+        "EXECUTE_PROVIDER_DIRECTLY",
+        "MUTATE_APPLICATION"
+      ],
+      "allowed_permissions": [
+        "read",
+        "plan"
+      ],
+      "required_evidence": []
+    },
+    {
+      "contract_id": "role:architecture-decision-council",
+      "kind": "role",
+      "allowed_actions": [
+        "INVOKE_COMPONENT",
+        "FINAL_ARCHITECTURE_DECISION",
+        "REPORT_DECISION"
+      ],
+      "forbidden_actions": [
+        "EXECUTE_PROVIDER_DIRECTLY",
+        "MODIFY_GUARDIAN_CONTRACTS"
+      ],
+      "allowed_permissions": [
+        "read",
+        "plan"
+      ],
+      "required_evidence": [
+        "technology_watch_pre",
+        "technology_watch_final",
+        "reuse_memory",
+        "architecture_memory",
+        "architecture_portfolio",
+        "branch_foundry",
+        "agent_foundry",
+        "capability_foundry",
+        "constraint_policy"
+      ]
+    },
+    {
+      "contract_id": "role:architecture-portfolio-optimizer",
+      "kind": "role",
+      "allowed_actions": [
+        "INVOKE_COMPONENT",
+        "COMPARE_ARCHITECTURES",
+        "REPORT_COMPARISON"
+      ],
+      "forbidden_actions": [
+        "FINAL_ARCHITECTURE_DECISION",
+        "EXECUTE_PROVIDER_DIRECTLY"
+      ],
+      "allowed_permissions": [
+        "read",
+        "plan"
+      ],
+      "required_evidence": []
+    },
+    {
+      "contract_id": "role:comparative-pilot",
+      "kind": "role",
+      "allowed_actions": [
+        "INVOKE_COMPONENT",
+        "RUN_COMPARATIVE_PILOT",
+        "REPORT_COMPARISON"
+      ],
+      "forbidden_actions": [
+        "PRODUCTION_DEPLOY",
+        "MODIFY_GUARDIAN_CONTRACTS"
+      ],
+      "allowed_permissions": [
+        "read",
+        "plan",
+        "workspace-write",
+        "preview-deploy"
+      ],
+      "required_evidence": [
+        "isolated_capsules",
+        "same_benchmark_contract"
+      ]
+    },
+    {
+      "contract_id": "role:reusable-memory",
+      "kind": "role",
+      "allowed_actions": [
+        "INVOKE_COMPONENT",
+        "READ_MEMORY",
+        "WRITE_MEMORY",
+        "REPORT_MEMORY"
+      ],
+      "forbidden_actions": [
+        "FINAL_ARCHITECTURE_DECISION",
+        "PRODUCTION_DEPLOY"
+      ],
+      "allowed_permissions": [
+        "read",
+        "workspace-write"
+      ],
+      "required_evidence": []
+    },
+    {
+      "contract_id": "role:__foundry__",
+      "kind": "fallback",
+      "allowed_actions": [
+        "INVOKE_COMPONENT",
+        "REPORT_PLAN"
+      ],
+      "forbidden_actions": [
+        "FINAL_ARCHITECTURE_DECISION",
+        "EXECUTE_PROVIDER_DIRECTLY"
+      ],
+      "allowed_permissions": [
+        "read",
+        "plan",
+        "workspace-write"
+      ],
+      "required_evidence": []
+    },
+    {
+      "contract_id": "role:__agent__",
+      "kind": "fallback",
+      "allowed_actions": [
+        "DISPATCH_TASK",
+        "INVOKE_COMPONENT",
+        "REPORT_TASK_RESULT"
+      ],
+      "forbidden_actions": [
+        "MODIFY_GUARDIAN_CONTRACTS"
+      ],
+      "allowed_permissions": [
+        "read",
+        "plan",
+        "workspace-write",
+        "preview-deploy"
+      ],
+      "required_evidence": []
+    },
+    {
+      "contract_id": "role:__orchestrator__",
+      "kind": "fallback",
+      "allowed_actions": [
+        "DISPATCH_TASK",
+        "INVOKE_COMPONENT",
+        "FINALIZE_PROJECT_PLAN"
+      ],
+      "forbidden_actions": [
+        "MODIFY_GUARDIAN_CONTRACTS"
+      ],
+      "allowed_permissions": [
+        "*"
+      ],
+      "required_evidence": []
+    },
+    {
+      "contract_id": "role:__unknown__",
+      "kind": "fallback",
+      "allowed_actions": [
+        "DISPATCH_TASK"
+      ],
+      "forbidden_actions": [
+        "MODIFY_GUARDIAN_CONTRACTS"
+      ],
+      "allowed_permissions": [
+        "read",
+        "plan"
+      ],
+      "required_evidence": [],
+      "unknown_role": true
+    }
+  ]
+}
