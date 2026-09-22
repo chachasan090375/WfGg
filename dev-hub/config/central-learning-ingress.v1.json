@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/central-learning-ingress/v1",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "scope": "PLATFORM_GLOBAL",
   "app_specific": false,
   "principle": "ChaCha DEV is the central learning platform. Applications are independent producers/consumers, never the architectural center.",
@@ -47,12 +47,17 @@
       "embedded-application-agent",
       "application-learning-module",
       "runtime-monitor"
-    ]
+    ],
+    "universal_producer_contract": "dev-hub/config/universal-learning.v1.json",
+    "background_delivery_required": true,
+    "incremental_change_detection_at_origin": true
   },
   "remediation": {
     "high_or_critical_anomalies_queue_candidate": true,
     "automatic_apply_default": false,
-    "policy_engine_required_before_apply": true
+    "policy_engine_required_before_apply": true,
+    "guardian_bridge_required": true,
+    "production_anomaly_direct_mutation": false
   },
   "economics": {
     "automatic_external_spend_eur": 0
