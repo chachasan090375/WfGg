@@ -150,6 +150,30 @@ def build_candidates(package:dict[str,Any],preplan:dict[str,Any],branch_policy:d
         candidates[2]["hard_constraints"]["functional_coverage"]=False
         candidates[3]["hard_constraints"]["functional_coverage"]=False
 
+    # Current/previous blueprint is only another candidate. It receives no implicit priority.
+    previous=package.get("previous_blueprint")
+    if isinstance(previous,dict) and previous.get("id"):
+        p=dict(previous)
+        p.setdefault("baseline_candidate",True)
+        p.setdefault("reuse_credit",100)
+        p.setdefault("hard_constraints",dict(common_hard))
+        candidates.append(p)
+
+    # Technology Watch may inject current candidates at materialization time.
+    for item in package.get("technology_candidates") or []:
+        if not isinstance(item,dict) or not item.get("id"):
+            continue
+        c=dict(item)
+        c.setdefault("source","technology-watch")
+        c.setdefault("hard_constraints",dict(common_hard))
+        c.setdefault("external_spend_eur",0)
+        c.setdefault("model_units",0)
+        c.setdefault("startup_ms",0)
+        c.setdefault("maintenance",0)
+        c.setdefault("reuse_credit",0)
+        c.setdefault("resources",{"memory_mb":0,"disk_mb":0,"cpu_weight":0})
+        candidates.append(c)
+
     return candidates
 
 def optimize(package:dict[str,Any],preplan:dict[str,Any],branch_policy:dict[str,Any],
@@ -158,18 +182,32 @@ def optimize(package:dict[str,Any],preplan:dict[str,Any],branch_policy:dict[str,
     valid=[c for c in candidates if hard_valid(c)]
     if not valid:
         return {"state":"BLOCKED","reason":"NO_HARD_CONSTRAINT_VALID_BLUEPRINT","candidates":candidates}
-    valid.sort(key=cost_key)
-    chosen=valid[0]
+
+    zero_spend=[c for c in valid if float(c.get("external_spend_eur",0))<=0.0]
+    zero_spend_dominates=bool(
+        ((branch_policy.get("optimization") or {}).get("zero_external_spend_filter") or {}).get("enabled",True)
+    )
+    eligible=zero_spend if (zero_spend_dominates and zero_spend) else valid
+    eligible.sort(key=cost_key)
+    chosen=eligible[0]
     frontier=pareto(candidates)
     return {
         "state":"READY",
-        "strategy":"CONSTRAINT_FIRST_MIN_TOTAL_COST",
+        "strategy":"CONSTRAINT_FIRST_ZERO_SPEND_THEN_MIN_TOTAL_COST",
+        "zero_spend_candidate_available":bool(zero_spend),
+        "nonzero_candidates_excluded":bool(zero_spend_dominates and zero_spend),
         "chosen":chosen,
         "chosen_cost":candidate_cost(chosen),
         "pareto_frontier":frontier,
         "candidates":candidates,
-        "rejected":[{"id":c["id"],"reason":"HARD_CONSTRAINT_FAILED" if not hard_valid(c) else "HIGHER_TOTAL_COST"}
-                    for c in candidates if c["id"]!=chosen["id"]]
+        "rejected":[{
+            "id":c["id"],
+            "reason":(
+                "HARD_CONSTRAINT_FAILED" if not hard_valid(c)
+                else ("NONZERO_SPEND_EXCLUDED" if (zero_spend_dominates and zero_spend and float(c.get("external_spend_eur",0))>0)
+                      else "HIGHER_TOTAL_COST")
+            )
+        } for c in candidates if c["id"]!=chosen["id"]]
     }
 
 def main():
