@@ -191,7 +191,7 @@ out={
  "project":e["project"],
  "task_id":e["task"]["id"],
  "status":"OK",
- "producer":"v619-pilot-adapter",
+ "producer":"python-runtime-adapter",
  "observed_at":datetime.datetime.now(datetime.timezone.utc).isoformat(),
  "summary":"V6.19 task contract binding pilot",
  "evidence":[],
@@ -205,9 +205,9 @@ chmod 0755 "$WORK/pilot-adapter.py"
 cat >"$WORK/adapters.json" <<JSON
 {
   "schema":"chacha.dev/provider-adapters/v1",
-  "providers":{"v619-local-pilot":{"adapter":"v619-pilot-adapter","execution":"vps"}},
+  "providers":{"v619-local-pilot":{"adapter":"python-runtime-adapter","execution":"vps"}},
   "adapters":{
-    "v619-pilot-adapter":{
+    "python-runtime-adapter":{
       "status":"ENABLED",
       "kind":"local-pilot",
       "supports":["read"],
