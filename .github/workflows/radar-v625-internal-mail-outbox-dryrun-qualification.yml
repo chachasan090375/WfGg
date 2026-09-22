@@ -1,0 +1,156 @@
+name: Radar V6.25 internal mail outbox dry-run qualification
+
+on:
+  push:
+    branches: [radar-v625-internal-mail-outbox-dry-run]
+    paths:
+      - '.radar-release-src/v625-outbox-source/**'
+      - '.github/workflows/radar-v625-internal-mail-outbox-dryrun-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: radar-v625-internal-mail-outbox-dry-run
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.23.x'
+
+      - name: Test and build V6.25 outbox
+        working-directory: .radar-release-src/v625-outbox-source
+        run: |
+          set -euo pipefail
+          gofmt -w ./cmd ./internal
+          git diff --exit-code -- .
+          go test ./...
+          go vet ./...
+          CGO_ENABLED=0 go build -trimpath -o /tmp/wfgg-mail-outbox-v625 ./cmd/wfgg-mail-outbox-dryrun
+          test -s /tmp/wfgg-mail-outbox-v625
+          echo V625_OUTBOX_TESTS=PASS
+          echo V625_OUTBOX_BUILD=PASS
+
+      - name: Exercise durable anti-duplicate dry-run
+        run: |
+          set -euo pipefail
+          store=/tmp/v625-outbox.json
+          cat >/tmp/v625-request-1.json <<'JSON'
+          {
+            "campaignKey":"recruitment-s6",
+            "trigger":"RADAR_RECRUITMENT_MATCH",
+            "draft":{
+              "targetName":"Player",
+              "targetUid":"123456789",
+              "title":"WfGg",
+              "contents":"Hello",
+              "sendLocalTime":100,
+              "senderServer":8120,
+              "targetServer":8120
+            }
+          }
+          JSON
+          cat >/tmp/v625-request-2.json <<'JSON'
+          {
+            "campaignKey":"recruitment-s6",
+            "trigger":"RADAR_RECRUITMENT_MATCH",
+            "draft":{
+              "targetName":"Player",
+              "targetUid":"123456789",
+              "title":"WfGg",
+              "contents":"Hello",
+              "sendLocalTime":200,
+              "senderServer":8120,
+              "targetServer":8120
+            }
+          }
+          JSON
+          /tmp/wfgg-mail-outbox-v625 -outbox "$store" </tmp/v625-request-1.json >/tmp/v625-response-1.json
+          /tmp/wfgg-mail-outbox-v625 -outbox "$store" </tmp/v625-request-2.json >/tmp/v625-response-2.json
+          python3 - <<'PY'
+          import json,stat,os
+          a=json.load(open('/tmp/v625-response-1.json'))
+          b=json.load(open('/tmp/v625-response-2.json'))
+          store=json.load(open('/tmp/v625-outbox.json'))
+          assert a['ok'] is True and a['created'] is True
+          assert b['ok'] is True and b['created'] is False
+          assert a['item']['id']==b['item']['id']
+          assert a['item']['status']=='PREPARED_DRY_RUN'
+          assert a['item']['preview']['command']=='mail.send'
+          assert a['item']['preview']['mailType']==21
+          assert a['item']['preview']['networkEnabled'] is False
+          assert a['item']['preview']['mutationExecuted'] is False
+          assert len(store['items'])==1
+          mode=stat.S_IMODE(os.stat('/tmp/v625-outbox.json').st_mode)
+          assert mode==0o600, oct(mode)
+          print('V625_OUTBOX_FIRST_CREATED=YES')
+          print('V625_OUTBOX_DUPLICATE_CREATED=NO')
+          print('V625_OUTBOX_ITEMS=1')
+          print('V625_OUTBOX_MODE=0600')
+          print('V625_MAIL_TYPE=21')
+          PY
+
+      - name: Prove safety boundary
+        run: |
+          set -euo pipefail
+          root='.radar-release-src/v625-outbox-source'
+          if grep -REn --include='*.go' '"net"|"net/http"|"os/exec"|net\.Dial|http\.NewRequest|SendExtension|syscall|unsafe' "$root"; then
+            echo V625_NETWORK_CAPABLE_CODE=FOUND
+            exit 1
+          fi
+          if grep -REn --include='*.go' '"SENT"|StatusSent|SendNow|ExecuteSend|GAME_TOKEN|gameToken' "$root"; then
+            echo V625_SEND_OR_TOKEN_PATH=FOUND
+            exit 1
+          fi
+          echo V625_NETWORK_CAPABLE_CODE=ABSENT
+          echo V625_SEND_TRANSITION=ABSENT
+          echo V625_TOKEN_HANDLING=ABSENT
+          echo V625_LASTWAR_MUTATION=NO
+          echo V625_MAIL_SEND_EXECUTED=NO
+          echo V625_RADAR_LASTWAR_MODE=READ_ONLY
+          echo V625_CROSS_SERVER_PRIVATE_MAIL=BLOCKED_UNPROVEN
+
+      - name: Write qualification receipt
+        run: |
+          set -euo pipefail
+          cat >/tmp/V625_OUTBOX_QUALIFICATION_RECEIPT.txt <<'EOF'
+          WFGG_RADAR_INTERNAL_MAIL_OUTBOX=V6.25
+          RESULT=success
+          MODE=DRY_RUN_ONLY
+          COMMAND=mail.send
+          MAIL_SELF_SEND=21
+          STATUS=PREPARED_DRY_RUN
+          IDEMPOTENCY=CAMPAIGN_KEY_PLUS_TARGET_UID
+          IDEMPOTENCY_CONFLICT=BLOCKING
+          PERSISTENCE=ATOMIC_JSON_0600
+          TITLE_LIMIT_BYTES=50
+          CONTENT_LIMIT_BYTES=2000
+          NETWORK_CAPABLE_CODE=ABSENT
+          SEND_TRANSITION=ABSENT
+          TOKEN_HANDLING=ABSENT
+          LASTWAR_MUTATION=NO
+          MAIL_SEND_EXECUTED=NO
+          RADAR_LASTWAR_MODE=READ_ONLY
+          CROSS_SERVER_PRIVATE_MAIL=BLOCKED_UNPROVEN
+          PRODUCTION_DEPLOYMENT=NO
+          EOF
+          cat /tmp/V625_OUTBOX_QUALIFICATION_RECEIPT.txt
+
+      - name: Upload qualification evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: radar-v625-outbox-qualification
+          path: |
+            /tmp/V625_OUTBOX_QUALIFICATION_RECEIPT.txt
+            /tmp/v625-outbox.json
+            /tmp/v625-response-1.json
+            /tmp/v625-response-2.json
+          if-no-files-found: error
+          retention-days: 30
