@@ -1,0 +1,58 @@
+{
+  "schema": "chacha.dev/provider-economics/v1",
+  "version": "1.0.0",
+  "budget_policy": {
+    "mode": "ZERO_INCREMENTAL_COST_DEFAULT",
+    "automatic_external_spend_eur": 0,
+    "paid_provider_requires_human_approval": true,
+    "quota_provider_requires_human_approval_when_free_quota_exhausted": true,
+    "prefer_existing_subscription": true,
+    "prefer_local_or_owned_runtime": true,
+    "prefer_cache_and_reuse": true
+  },
+  "cost_classes": {
+    "free": {
+      "score": 100,
+      "automatic": true
+    },
+    "owned": {
+      "score": 100,
+      "automatic": true
+    },
+    "local": {
+      "score": 95,
+      "automatic": true
+    },
+    "included": {
+      "score": 95,
+      "automatic": true
+    },
+    "low": {
+      "score": 55,
+      "automatic": false
+    },
+    "quota": {
+      "score": 45,
+      "automatic": true,
+      "condition": "within-known-free-or-existing-quota"
+    },
+    "paid": {
+      "score": 0,
+      "automatic": false
+    }
+  },
+  "selection_weights": {
+    "capability_fit": 40,
+    "health": 20,
+    "cost": 20,
+    "evidence_quality": 10,
+    "privacy_and_security": 10
+  },
+  "guardrails": {
+    "never_choose_paid_only_for_convenience": true,
+    "paid_fallback_requires_reason": true,
+    "paid_fallback_requires_cost_estimate": true,
+    "paid_fallback_requires_approval_id": true,
+    "domain_orchestrator_must_record_candidates": true
+  }
+}
