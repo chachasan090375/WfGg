@@ -55,6 +55,12 @@ cat >"$WORK/preplan.json" <<'JSON'
 JSON
 
 python3 "$CURRENT/dev-hub/bin/reusable-architecture-registry.py"   --db "$ARCH_DB" search --preplan "$WORK/preplan.json" --limit 1 >/dev/null
+python3 - "$ARCH_DB" <<'PY'
+import sqlite3,sys
+db=sqlite3.connect(sys.argv[1])
+with db:
+    db.execute("DELETE FROM reusable_architectures WHERE payload LIKE '%__v613_pilot__%'")
+PY
 echo "CHACHA_DEV_V613_ARCHITECTURE_DB_MIGRATION=PASS"
 
 PYTHONPATH="$CURRENT/dev-hub/bin" CHACHA_REUSABLE_BRANCH_DB="$BRANCH_DB" CHACHA_REUSABLE_ARCHITECTURE_DB="$ARCH_DB" python3 "$CURRENT/dev-hub/bin/technology-watch-service.py" --repo-root "$CURRENT" refresh >/dev/null
