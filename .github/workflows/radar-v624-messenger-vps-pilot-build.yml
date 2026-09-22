@@ -147,6 +147,11 @@ jobs:
             exit 0
           fi
           git commit -m 'build(radar): publish V6.24 isolated Messenger Outbox pilot'
+          # gofmt may have touched tracked source files in the runner workspace.
+          # The pilot artifacts are already committed, so discard only those
+          # ephemeral uncommitted formatting changes before rebasing.
+          git reset --hard HEAD
+          git clean -fd
           git fetch origin radar-v624-internal-mail-protocol-discovery
           git rebase origin/radar-v624-internal-mail-protocol-discovery
           git push origin HEAD:radar-v624-internal-mail-protocol-discovery
