@@ -180,6 +180,13 @@
           "minimum": 0
         }
       }
+    },
+    "guardian_binding": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": true
     }
   }
 }
