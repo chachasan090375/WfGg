@@ -5,7 +5,8 @@ from http.server import BaseHTTPRequestHandler,ThreadingHTTPServer
 from pathlib import Path
 
 DEFAULT_BIND="127.0.0.1"
-DEFAULT_PORT=8788
+DEFAULT_PORT=0
+DEFAULT_ENDPOINT=Path("/opt/chacha-dev/runtime/control/emergency-stop-surface.json")
 DEFAULT_TOKEN=Path("/opt/chacha-dev/runtime/control/emergency-stop-ui.token")
 DEFAULT_CONTROLLER=Path("/opt/chacha-dev/platform/current/dev-hub/bin/emergency-stop-controller.py")
 
@@ -15,6 +16,14 @@ def token(path:Path)->str:
     value=secrets.token_urlsafe(32)
     path.write_text(value+"\n",encoding="utf-8"); os.chmod(path,0o600)
     return value
+
+def write_endpoint(path:Path,bind:str,port:int,token_file:Path)->None:
+    path.parent.mkdir(parents=True,exist_ok=True)
+    payload={"schema":"chacha.dev/emergency-stop-surface/v1","bind":bind,"port":port,"pid":os.getpid(),"token_file":str(token_file)}
+    tmp=path.with_suffix(path.suffix+".tmp")
+    tmp.write_text(json.dumps(payload,separators=(",",":"))+"\n",encoding="utf-8")
+    os.chmod(tmp,0o600)
+    os.replace(tmp,path)
 
 def call(controller:Path,args:list[str])->dict:
     p=subprocess.run(["/usr/bin/python3",str(controller),*args],stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=35)
@@ -77,10 +86,15 @@ class Handler(BaseHTTPRequestHandler):
 
 def main():
     ap=argparse.ArgumentParser();ap.add_argument("--bind",default=DEFAULT_BIND);ap.add_argument("--port",type=int,default=DEFAULT_PORT)
+    ap.add_argument("--endpoint-file",type=Path,default=DEFAULT_ENDPOINT)
     ap.add_argument("--token-file",type=Path,default=DEFAULT_TOKEN);ap.add_argument("--controller",type=Path,default=DEFAULT_CONTROLLER)
     a=ap.parse_args()
     if a.bind not in {"127.0.0.1","::1","localhost"}: raise SystemExit("EMERGENCY_SURFACE_BIND_MUST_BE_LOOPBACK")
+    if not 0 <= a.port <= 65535: raise SystemExit("EMERGENCY_SURFACE_PORT_INVALID")
     srv=ThreadingHTTPServer((a.bind,a.port),Handler);srv.stop_token=token(a.token_file);srv.controller=a.controller
-    print(f"CHACHA_EMERGENCY_SURFACE=READY bind={a.bind} port={a.port}",flush=True);srv.serve_forever()
+    actual_port=int(srv.server_address[1])
+    write_endpoint(a.endpoint_file,a.bind,actual_port,a.token_file)
+    print(f"CHACHA_EMERGENCY_SURFACE=READY bind={a.bind} port={actual_port}",flush=True)
+    srv.serve_forever()
 if __name__=="__main__":
     main()
