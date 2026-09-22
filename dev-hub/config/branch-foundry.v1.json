@@ -1,0 +1,114 @@
+{
+  "schema": "chacha.dev/branch-foundry/v1",
+  "version": "1.0.0",
+  "mandatory_preflight": true,
+  "invocation_point": "parallel-with-agent-foundry-after-core-preplan",
+  "returns_to": "chacha-core-orchestrator",
+  "purpose": "Select and materialize only the logical domain factories required for the current request.",
+  "decisions": [
+    "MEMORY_ONLY",
+    "REUSE_VIRTUAL_FACTORY",
+    "MATERIALIZE_EPHEMERAL_BRANCH",
+    "MATERIALIZE_SHARED_BRANCH",
+    "CREATE_PROJECT_LOCAL_BRANCH",
+    "PROMOTE_GENERIC_BRANCH_CANDIDATE"
+  ],
+  "principles": {
+    "central_memory_is_persistent": true,
+    "branch_runtime_is_disposable": true,
+    "branch_definition_is_lightweight": true,
+    "collectors_survive_branch_teardown": true,
+    "simple_question_never_requires_runtime_branch_by_default": true,
+    "reuse_factory_template_before_build": true,
+    "warm_materialization_cache_allowed": true,
+    "project_specific_branch_is_not_platform_global": true,
+    "branch_creation_requires_capability_gap": true,
+    "core_reconciles_branch_and_agent_topologies": true,
+    "only_changed_packages_repeat_preflight": true
+  },
+  "fast_path": {
+    "enabled": true,
+    "applies_to": [
+      "simple_question",
+      "knowledge_lookup",
+      "documentation_lookup",
+      "status_lookup"
+    ],
+    "decision": "MEMORY_ONLY",
+    "runtime_materialization": false,
+    "query_order": [
+      "current-project-collector",
+      "project-domain-collectors",
+      "generic-domain-collectors",
+      "global-knowledge-graph",
+      "official-external-sources"
+    ],
+    "target_planning_latency_ms": 500
+  },
+  "runtime_capsules": {
+    "default": "EPHEMERAL",
+    "persistent_processes_for_factories": false,
+    "materialization_strategy": "MANIFEST_PLUS_CACHED_COMPONENTS",
+    "teardown_after_idle_seconds": 900,
+    "maximum_idle_cache_seconds": 3600,
+    "preserve": [
+      "project-collector",
+      "project-domain-collector",
+      "generic-domain-collector",
+      "component-manifests",
+      "contracts",
+      "evidence",
+      "qualified-components"
+    ],
+    "discard": [
+      "temporary-workspace",
+      "ephemeral-agent-processes",
+      "build-cache-over-budget",
+      "preview-runtime",
+      "scratch-files"
+    ],
+    "resource_budget": {
+      "cpu_weight_default": 50,
+      "memory_soft_limit_mb_default": 256,
+      "memory_hard_limit_mb_default": 512,
+      "disk_soft_limit_mb_default": 512
+    }
+  },
+  "materialization_profiles": {
+    "MEMORY_ONLY": {
+      "processes": 0,
+      "workspace": false,
+      "collector_read": true
+    },
+    "LIGHT": {
+      "processes_max": 1,
+      "memory_hard_limit_mb": 256,
+      "disk_soft_limit_mb": 256
+    },
+    "STANDARD": {
+      "processes_max": 2,
+      "memory_hard_limit_mb": 512,
+      "disk_soft_limit_mb": 768
+    },
+    "BURST": {
+      "processes_max": 2,
+      "memory_hard_limit_mb": 768,
+      "disk_soft_limit_mb": 1024,
+      "ttl_seconds": 600
+    }
+  },
+  "collectors": {
+    "project_branch_collector_template": "project-branch-collector:{project_id}",
+    "branch_collector_template": "project-domain-collector:{project_id}:{branch_id}",
+    "generic_factory_collector_template": "generic-domain-collector:{domain}",
+    "runtime_capsule_state_not_authoritative": true
+  },
+  "convergence": {
+    "initial_branch_and_agent_foundries_parallel": true,
+    "reconcile_in_core": true,
+    "rerun_agent_foundry_if_branch_set_changes": true,
+    "rerun_branch_foundry_if_agent_requirements_change_resource_profile": true,
+    "max_automatic_iterations": 4,
+    "fail_on_non_convergence": true
+  }
+}
