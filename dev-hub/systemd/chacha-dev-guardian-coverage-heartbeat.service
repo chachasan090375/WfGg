@@ -1,0 +1,20 @@
+[Unit]
+Description=ChaCha DEV Guardian runtime coverage heartbeat
+Wants=network-online.target
+After=network-online.target
+ConditionPathExists=/opt/chacha-dev/runtime/secrets/central-learning-key.pem
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+ExecStart=/usr/bin/python3 /opt/chacha-dev/platform/current/dev-hub/bin/guardian-coverage-heartbeat.py --repo-root /opt/chacha-dev/platform/current --manifest /opt/chacha-dev/platform/current/dev-hub/config/guardian-coverage-manifest.v1.json --policy /opt/chacha-dev/platform/current/dev-hub/config/guardian-runtime-policy.v1.json --client /opt/chacha-dev/platform/current/dev-hub/bin/guardian-client.py --output /opt/chacha-dev/runtime/guardian/coverage-latest.json
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadOnlyPaths=/opt/chacha-dev/runtime/secrets/central-learning-key.pem
+ReadWritePaths=/opt/chacha-dev/runtime/guardian /opt/chacha-dev/runtime/control
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+MemoryMax=128M
+TasksMax=24
