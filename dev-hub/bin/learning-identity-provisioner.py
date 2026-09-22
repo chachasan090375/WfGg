@@ -105,7 +105,7 @@ def provision(args:argparse.Namespace)->dict[str,Any]:
             "source_scope":source_scope,
             "endpoint":args.endpoint.rstrip("/")+"/v1/learning-deltas",
             "created_at":reg["keys"][key_id]["created_at"],
-            "secret_in_this_file":False
+            "credential_material_in_this_file":False
         },indent=2)+"\n",encoding="utf-8")
         os.chmod(public_path,0o644)
         return {
