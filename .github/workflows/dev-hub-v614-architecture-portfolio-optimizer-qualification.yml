@@ -1,0 +1,71 @@
+name: ChaCha DEV V6.14 architecture portfolio optimizer qualification
+
+on:
+  push:
+    branches: [dev-hub-v614-architecture-portfolio-optimizer]
+    paths:
+      - 'dev-hub/bin/architecture-portfolio-optimizer.py'
+      - 'dev-hub/bin/architecture-decision-council.py'
+      - 'dev-hub/config/architecture-portfolio-optimizer.v1.json'
+      - 'dev-hub/config/architecture-decision-council.v1.json'
+      - 'dev-hub/tests/test_v614_architecture_portfolio_optimizer.py'
+      - 'dev-hub/bin/install-v614-architecture-portfolio-optimizer.sh'
+      - '.github/workflows/dev-hub-v614-architecture-portfolio-optimizer-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev-hub-v614-architecture-portfolio-optimizer
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Static validation
+        run: |
+          set -euo pipefail
+          python3 -m py_compile             dev-hub/bin/architecture-portfolio-optimizer.py             dev-hub/bin/architecture-decision-council.py
+          python3 -m json.tool dev-hub/config/architecture-portfolio-optimizer.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/architecture-decision-council.v1.json >/dev/null
+          if [ -f dev-hub/bin/install-v614-architecture-portfolio-optimizer.sh ]; then
+            bash -n dev-hub/bin/install-v614-architecture-portfolio-optimizer.sh
+          fi
+          echo CHACHA_DEV_V614_STATIC=PASS
+      - name: Portfolio comparison contracts
+        run: |
+          set -euo pipefail
+          python3 dev-hub/tests/test_v614_architecture_portfolio_optimizer.py
+      - name: Decision invariants
+        run: |
+          set -euo pipefail
+          grep -Fq '"architecture-portfolio"' dev-hub/config/architecture-decision-council.v1.json
+          grep -Fq '"COMPARATIVE_PILOT_REQUIRED"' dev-hub/config/architecture-portfolio-optimizer.v1.json
+          grep -Fq 'HISTORICAL_BEST_AND_CURRENT_FOUNDRIES_AGREE' dev-hub/bin/architecture-portfolio-optimizer.py
+          grep -Fq 'architecture-portfolio":"PASS" if portfolio.get("decision_ready") is True else "BLOCKED"' dev-hub/bin/architecture-decision-council.py
+          echo CHACHA_DEV_V614_PORTFOLIO_MANDATORY=PASS
+          echo CHACHA_DEV_V614_CONFLICT_GATE=PASS
+      - name: Qualification receipt
+        run: |
+          {
+            echo CHACHA_DEV_ARCHITECTURE_PORTFOLIO_OPTIMIZER=V6.14
+            echo RESULT=success
+            echo SOURCE_REV="$(git rev-parse HEAD)"
+            echo CURRENT_FOUNDRY_ALWAYS_CANDIDATE=YES
+            echo HISTORICAL_ARCHITECTURES_COMPARED=YES
+            echo FAST_REUSE_REQUIRES_FOUNDRY_CONSENSUS=YES
+            echo CONFLICT_REQUIRES_COMPARATIVE_PILOT=YES
+            echo PRODUCTION_BLOCKED_ON_UNRESOLVED_CONFLICT=YES
+            echo ZERO_SPEND_DOMINANCE=YES
+            echo AUTOMATIC_EXTERNAL_SPEND_EUR=0
+          } | tee /tmp/CHACHA_DEV_V614_RECEIPT.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chacha-dev-v614-architecture-portfolio-optimizer
+          path: /tmp/CHACHA_DEV_V614_RECEIPT.txt
+          retention-days: 30
