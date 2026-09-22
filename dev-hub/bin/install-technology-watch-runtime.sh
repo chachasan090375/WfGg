@@ -1,7 +1,12 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 REV="${CHACHA_DEV_TECH_WATCH_REV:-}"
-if ! printf '%s' "$REV" | grep -Eq '^[0-9a-f]{40}BASE="/opt/chacha-dev/platform"
+if ! printf '%s' "$REV" | grep -Eq '^[0-9a-f]{40}$'; then
+  echo "CHACHA_TECHNOLOGY_WATCH_INSTALL=BLOCKED reason=pinned_revision_required"
+  exit 2
+fi
+RAW="https://raw.githubusercontent.com/chachasan090375/WfGg/${REV}"
+BASE="/opt/chacha-dev/platform"
 STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
 RELEASE="$BASE/releases/$STAMP"
 CURRENT="$BASE/current"
