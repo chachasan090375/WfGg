@@ -73,8 +73,10 @@
   "output": {
     "recommendation_snapshot": "/opt/chacha-dev/runtime/technology-radar/domain-recommendations.json",
     "health_snapshot": "/opt/chacha-dev/runtime/health/domain-providers.json",
-    "maximum_recommendation_age_hours": 168,
-    "optimizer_input": "/opt/chacha-dev/runtime/technology-watch/optimizer-input.json"
+    "maximum_recommendation_age_hours": 24,
+    "optimizer_input": "/opt/chacha-dev/runtime/technology-watch/optimizer-input.json",
+    "materialization_snapshot": "/opt/chacha-dev/runtime/technology-watch/optimizer-input.json",
+    "materialization_snapshot_max_age_minutes": 60
   },
   "governance": {
     "catalog_mutation_allowed": false,
@@ -100,7 +102,20 @@
       "pricing-change",
       "quota-change",
       "new-capability",
-      "better-zero-cost-candidate"
+      "better-zero-cost-candidate",
+      "new-zero-cost-candidate",
+      "major-performance-improvement"
     ]
+  },
+  "materialization_contract": {
+    "consulted_for_every_branch_build": true,
+    "consulted_for_every_agent_build": true,
+    "consulted_for_every_capability_factory_build": true,
+    "current_solution_is_baseline_candidate": true,
+    "targeted_refresh_if_snapshot_stale": true,
+    "targeted_refresh_if_cost_or_security_signal": true,
+    "prefer_zero_external_cost_candidates": true,
+    "include_pricing_and_quota_in_candidate_evidence": true,
+    "include_resource_requirements_in_candidate_evidence": true
   }
 }
