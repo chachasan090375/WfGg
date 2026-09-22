@@ -33,19 +33,23 @@ install -m 0755 "$SRC/dev-hub/bin/learning-identity-provisioner.py" /opt/chacha-
 python3 -m py_compile /opt/chacha-dev/learning-ingress/current/learning-identity-provisioner.py
 systemctl daemon-reload
 
-if [ -z "$TOKEN" ]; then
+mkdir -p /opt/chacha-dev/runtime/secrets
+if [ -n "$TOKEN" ]; then
+  umask 077
+  printf '%s\n' "$TOKEN" >"$TOKEN_FILE"
+  chmod 0600 "$TOKEN_FILE"
+  unset TOKEN CHACHA_CF_TUNNEL_TOKEN
+  echo "CHACHA_DEV_V68_TUNNEL_TOKEN_SOURCE=ENV_MIGRATED_TO_FILE"
+elif [ -s "$TOKEN_FILE" ]; then
+  chmod 0600 "$TOKEN_FILE"
+  echo "CHACHA_DEV_V68_TUNNEL_TOKEN_SOURCE=EXISTING_PROTECTED_FILE"
+else
   echo "CHACHA_DEV_V68_EDGE_PREPARED=PASS"
   echo "CHACHA_DEV_V68_TUNNEL_TOKEN_REQUIRED=YES"
   echo "CHACHA_DEV_V68_PUBLIC_ROUTE_REQUIRED=YES"
   echo "CHACHA_DEV_V68_AUTOMATIC_EXTERNAL_SPEND_EUR=0"
   exit 0
 fi
-
-mkdir -p /opt/chacha-dev/runtime/secrets
-umask 077
-printf '%s\n' "$TOKEN" >"$TOKEN_FILE"
-chmod 0600 "$TOKEN_FILE"
-unset TOKEN CHACHA_CF_TUNNEL_TOKEN
 
 systemctl enable "$SERVICE"
 systemctl restart "$SERVICE"
