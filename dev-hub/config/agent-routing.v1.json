@@ -189,6 +189,15 @@
         "acceptance-criteria"
       ],
       "default_risk": "medium"
+    },
+    "technology-watch-agent": {
+      "capabilities": [
+        "technology-radar",
+        "architecture-optimization",
+        "web-research",
+        "library-docs"
+      ],
+      "default_risk": "medium"
     }
   },
   "routing_rules": [
