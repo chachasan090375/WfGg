@@ -12,6 +12,53 @@ Le noyau comprend :
 4. **Technology Radar transversal** — surveille tous les domaines et recommande les évolutions ;
 5. **Run Controller / Gates / Evidence** — conservent la gouvernance déjà validée dans ChaCha DEV V5.
 
+## Séquence V6.2 : Agent Foundry d'abord
+
+La première branche exécutée après la compréhension minimale de la consigne est toujours **Agent Foundry**.
+
+Le Core produit d'abord un **préplan non exécutable**. Ce préplan sert uniquement à donner à Agent Foundry assez de structure pour analyser le besoin.
+
+```text
+Besoin fonctionnel
+        |
+        v
+Core : compréhension minimale
+        |
+        v
+CORE_PREPLAN  [dispatch interdit]
+        |
+        v
+AGENT_FOUNDRY
+        |
+        +-- outil déterministe suffisant ?
+        +-- agent existant ?
+        +-- composition d'agents existants ?
+        +-- agent éphémère à créer ?
+        +-- agent réutilisable à industrialiser ?
+        |
+        v
+Topologie d'exécution
+        |
+        v
+CORE_REPLAN
+        |
+        +-- ajoute / retire des domaines
+        +-- fusionne / découpe des lots
+        +-- recalcule les dépendances
+        +-- recalcule le parallélisme
+        |
+        v
+DOMAIN_EXECUTION
+```
+
+Aucune branche métier ne peut être dispatchée avant le retour d'Agent Foundry.
+
+Si Agent Foundry introduit un nouveau domaine, le plan repasse une nouvelle fois par Agent Foundry avant d'être libéré. Le besoin fonctionnel et le contrat d'acceptation restent invariants pendant ces replanifications.
+
+Chaque agent créé dispose obligatoirement d'un manifeste : rôle, capacités, provider strategy, outils, contexte, Collectors, mémoire, permissions, budget, tests, terminaison et politique de promotion.
+
+Les agents éphémères sont retirés après livraison acceptée. Les agents réutilisables ne rejoignent le catalogue générique qu'après généralisation, qualification et preuve de leur intérêt au-delà du projet d'origine.
+
 ## Flux
 
 ```text
