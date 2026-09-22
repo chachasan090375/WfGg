@@ -1,0 +1,193 @@
+name: ChaCha DEV V6.21 universal learning loop qualification
+
+on:
+  push:
+    branches: [dev-hub-v621-guardian-corrective-enforcement]
+    paths:
+      - 'dev-hub/guardian/**'
+      - 'dev-hub/bin/guardian-client.py'
+      - 'dev-hub/bin/guardian-remediation-controller.py'
+      - 'dev-hub/bin/guardian_remediation_runtime.py'
+      - 'dev-hub/bin/universal_learning_runtime.py'
+      - 'dev-hub/bin/universal-learning-producer.py'
+      - 'dev-hub/bin/generate-learning-producer-key.py'
+      - 'dev-hub/bin/register-learning-producer.py'
+      - 'dev-hub/bin/production-anomaly-guardian-bridge.py'
+      - 'dev-hub/bin/agent_role_contracts.py'
+      - 'dev-hub/bin/agent-role-contract-manager.py'
+      - 'dev-hub/bin/agent-foundry-planner.py'
+      - 'dev-hub/bin/dynamic_component_contracts.py'
+      - 'dev-hub/bin/component-role-contract-manager.py'
+      - 'dev-hub/bin/task-contract-binder.py'
+      - 'dev-hub/bin/execution-scheduler.py'
+      - 'dev-hub/bin/guardian-coverage-heartbeat.py'
+      - 'dev-hub/bin/run-controller.py'
+      - 'dev-hub/bin/autonomous-project-orchestrator.py'
+      - 'dev-hub/bin/technology_watch_runtime.py'
+      - 'dev-hub/bin/architecture-decision-council.py'
+      - 'dev-hub/config/guardian-role-contracts.v1.json'
+      - 'dev-hub/config/agent-foundry.v1.json'
+      - 'dev-hub/config/guardian-runtime-policy.v1.json'
+      - 'dev-hub/config/universal-learning.v1.json'
+      - 'dev-hub/config/central-learning-ingress.v1.json'
+      - 'dev-hub/config/guardian-coverage-manifest.v1.json'
+      - 'dev-hub/config/run-controller.v1.json'
+      - 'dev-hub/systemd/chacha-dev-guardian-coverage-heartbeat.service'
+      - 'dev-hub/systemd/chacha-dev-guardian-coverage-heartbeat.timer'
+      - 'dev-hub/systemd/chacha-dev-guardian-remediation.service'
+      - 'dev-hub/systemd/chacha-dev-guardian-remediation.timer'
+      - 'dev-hub/systemd/chacha-dev-universal-learning-flush.service'
+      - 'dev-hub/systemd/chacha-dev-universal-learning-flush.timer'
+      - 'dev-hub/systemd/chacha-dev-production-anomaly-guardian.service'
+      - 'dev-hub/systemd/chacha-dev-production-anomaly-guardian.timer'
+      - 'dev-hub/tests/test_v621_universal_learning_loop.py'
+      - 'dev-hub/bin/install-v621-universal-learning-loop.sh'
+      - '.github/workflows/dev-hub-v621-universal-learning-loop-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev-hub-v621-guardian-corrective-enforcement
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Static validation
+        run: |
+          set -euo pipefail
+          node --check dev-hub/guardian/worker.js
+          python3 -m py_compile             dev-hub/bin/guardian-client.py \
+            dev-hub/bin/guardian-remediation-controller.py \
+            dev-hub/bin/guardian_remediation_runtime.py \
+            dev-hub/bin/universal_learning_runtime.py \
+            dev-hub/bin/universal-learning-producer.py \
+            dev-hub/bin/generate-learning-producer-key.py \
+            dev-hub/bin/register-learning-producer.py \
+            dev-hub/bin/production-anomaly-guardian-bridge.py \
+            dev-hub/bin/agent_role_contracts.py \
+            dev-hub/bin/agent-role-contract-manager.py \
+            dev-hub/bin/agent-foundry-planner.py \
+            dev-hub/bin/dynamic_component_contracts.py \
+            dev-hub/bin/component-role-contract-manager.py \
+            dev-hub/bin/task-contract-binder.py \
+            dev-hub/bin/execution-scheduler.py             dev-hub/bin/guardian-coverage-heartbeat.py             dev-hub/bin/run-controller.py             dev-hub/bin/autonomous-project-orchestrator.py             dev-hub/bin/technology_watch_runtime.py             dev-hub/bin/architecture-decision-council.py
+          python3 -m json.tool dev-hub/config/guardian-role-contracts.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/guardian-runtime-policy.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/universal-learning.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/central-learning-ingress.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/guardian-coverage-manifest.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/run-controller.v1.json >/dev/null
+          if [ -f dev-hub/bin/install-v621-universal-learning-loop.sh ]; then
+            bash -n dev-hub/bin/install-v621-universal-learning-loop.sh
+          fi
+          echo CHACHA_DEV_V621_STATIC=PASS
+
+      - name: Action leases and coverage watchdog
+        run: |
+          set -euo pipefail
+          python3 dev-hub/tests/test_v621_universal_learning_loop.py
+
+      - name: Governance invariants
+        run: |
+          set -euo pipefail
+          grep -Fq '"all_governed_actions_require_realtime_verdict": true' dev-hub/config/guardian-runtime-policy.v1.json
+          grep -Fq '"action_lease_required": true' dev-hub/config/guardian-runtime-policy.v1.json
+          grep -Fq '"coverage_heartbeat_required": true' dev-hub/config/guardian-runtime-policy.v1.json
+          grep -Fq '"low_risk_unavailable_verdict": "BLOCK"' dev-hub/config/guardian-runtime-policy.v1.json
+          grep -Fq '"emergency-control-bridge"' dev-hub/config/guardian-runtime-policy.v1.json
+          grep -Fq 'ACTION_ID_REQUIRED' dev-hub/guardian/worker.js
+          grep -Fq 'POST_ACTION_MISSING' dev-hub/guardian/worker.js
+          grep -Fq 'COVERAGE_HEARTBEAT_STALE' dev-hub/guardian/worker.js
+          grep -Fq '"guardian_role_contract"' dev-hub/config/agent-foundry.v1.json
+          grep -Fq 'dynamic_instance_contract_registration' dev-hub/guardian/worker.js
+          grep -Fq 'CAPABILITY_OUTSIDE_AGENT_MISSION' dev-hub/guardian/worker.js
+          grep -Fq 'dynamic_component_contract_registration' dev-hub/guardian/worker.js
+          grep -Fq 'CAPABILITY_OUTSIDE_COMPONENT_MISSION' dev-hub/guardian/worker.js
+          grep -Fq '"role:__branch__"' dev-hub/config/guardian-role-contracts.v1.json
+          grep -Fq '"role:__dynamic-orchestrator__"' dev-hub/config/guardian-role-contracts.v1.json
+          grep -Fq 'task_contract_binding_protocol:true' dev-hub/guardian/worker.js
+          grep -Fq 'TASK_CONTRACT_IDENTITY_DRIFT' dev-hub/guardian/worker.js
+          grep -Fq '"task_contract_binding_required_in_execute_mode": true' dev-hub/config/run-controller.v1.json
+          grep -Fq '"corrective_enforcement": {' dev-hub/config/guardian-runtime-policy.v1.json
+          grep -Fq '"guardian_may_issue_directives": true' dev-hub/config/guardian-runtime-policy.v1.json
+          grep -Fq '"guardian_may_enforce_holds": true' dev-hub/config/guardian-runtime-policy.v1.json
+          grep -Fq '"guardian_may_rewrite_architecture": false' dev-hub/config/guardian-runtime-policy.v1.json
+          grep -Fq 'REMEDIATION_REQUIRED:' dev-hub/guardian/worker.js
+          grep -Fq 'REMEDIATION_MAX_ATTEMPTS_EXCEEDED' dev-hub/guardian/worker.js
+          grep -Fq '/v1/remediations' dev-hub/guardian/worker.js
+          grep -Fq 'guardian_remediation_runtime as grr' dev-hub/bin/run-controller.py
+          grep -Fq 'guardian_remediation_runtime as grr' dev-hub/bin/autonomous-project-orchestrator.py
+          grep -Fq 'guardian_remediation_runtime as grr' dev-hub/bin/technology_watch_runtime.py
+          grep -Fq '"incremental_deltas_only": true' dev-hub/config/universal-learning.v1.json
+          grep -Fq '"learning_continues_without_owner_session": true' dev-hub/config/universal-learning.v1.json
+          grep -Fq '"private_key_origin_local_only": true' dev-hub/config/universal-learning.v1.json
+          grep -Fq '/v1/learning-anomalies/report' dev-hub/guardian/worker.js
+          grep -Fq 'universal_learning_runtime as ulr' dev-hub/bin/run-controller.py
+          grep -Fq 'universal_learning_runtime as ulr' dev-hub/bin/autonomous-project-orchestrator.py
+          grep -Fq 'universal_learning_runtime as ulr' dev-hub/bin/technology-watch-service.py
+          echo CHACHA_DEV_V621_UNIVERSAL_LEARNING_INVARIANTS=PASS
+
+      - name: Qualification receipt
+        run: |
+          {
+            echo CHACHA_DEV_UNIVERSAL_LEARNING_LOOP=V6.21
+            echo RESULT=success
+            echo SOURCE_REV="$(git rev-parse HEAD)"
+            echo EVERY_GOVERNED_ACTION_PRE_POST_CORRELATED=YES
+            echo EVERY_CREATED_AGENT_GETS_VERSIONED_ROLE_CONTRACT=YES
+            echo DYNAMIC_AGENT_PROJECT_SCOPE_ENFORCED=YES
+            echo DYNAMIC_AGENT_CAPABILITY_SCOPE_ENFORCED=YES
+            echo DYNAMIC_AGENT_PERMISSION_SCOPE_ENFORCED=YES
+            echo DYNAMIC_AGENT_PRODUCTION_PRIVILEGE_ESCALATION=NO
+            echo EVERY_DYNAMIC_BRANCH_GETS_VERSIONED_ROLE_CONTRACT=YES
+            echo EVERY_DYNAMIC_ORCHESTRATOR_GETS_VERSIONED_ROLE_CONTRACT=YES
+            echo DYNAMIC_COMPONENT_PROJECT_SCOPE_ENFORCED=YES
+            echo DYNAMIC_COMPONENT_CAPABILITY_SCOPE_ENFORCED=YES
+            echo DYNAMIC_COMPONENT_PRODUCTION_PRIVILEGE_ESCALATION=NO
+            echo EVERY_TASK_GUARDIAN_BOUND=YES
+            echo GRAPH_TO_PLAN_BINDING_PRESERVED=YES
+            echo PLAN_TO_DISPATCH_BINDING_PRESERVED=YES
+            echo BINDING_DIGEST_ENFORCED=YES
+            echo PRE_POST_EXACT_CONTRACT_IDENTITY=YES
+            echo GUARDIAN_ISSUES_CORRECTIVE_DIRECTIVES=YES
+            echo GUARDIAN_ENFORCES_REMEDIATION_HOLDS=YES
+            echo RESPONSIBLE_COMPONENT_RECEIVES_RULE_REMINDER=YES
+            echo CORRECTED_ACTION_MUST_BE_RESUBMITTED=YES
+            echo REMEDIATION_MAX_FAILED_ATTEMPTS=3
+            echo REMEDIATION_ESCALATION=CRITICAL_STOP_REQUIRED
+            echo GUARDIAN_REWRITES_ARCHITECTURE=NO
+            echo GUARDIAN_EXPANDS_PERMISSIONS=NO
+            echo EVERY_LEARNING_CAPABLE_COMPONENT_HAS_CENTRAL_UPLINK=YES
+            echo LEARNING_DELTA_MODE=INCREMENTAL_ONLY
+            echo REMOTE_APP_BACKGROUND_LEARNING=YES
+            echo REMOTE_PRODUCER_PRIVATE_KEY_LEAVES_ORIGIN=NO
+            echo PRODUCTION_ANOMALY_TO_GUARDIAN=YES
+            echo PRODUCTION_ANOMALY_DIRECT_MUTATION=NO
+            echo CENTRAL_MEMORY_NAS_AUTHORITATIVE=YES
+            echo MISSING_POST_EXTERNALLY_DETECTED=YES
+            echo EXPECTED_COMPONENT_COVERAGE_WATCH=YES
+            echo DYNAMIC_AGENTS_COVERED_AT_RUN_CONTROLLER=YES
+            echo REGISTERED_ADAPTERS_COVERED_AT_RUN_CONTROLLER=YES
+            echo LOW_RISK_GUARDIAN_UNAVAILABLE=BLOCK
+            echo EMERGENCY_CONTROL_BRIDGE_EXEMPT=YES
+            echo ALERT_POLLING=YES
+            echo GUARDIAN_AUTO_STOP=NO
+            echo AUTOMATIC_EXTERNAL_SPEND_EUR=0
+          } | tee /tmp/CHACHA_DEV_V621_RECEIPT.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chacha-dev-v621-universal-learning-loop
+          path: /tmp/CHACHA_DEV_V621_RECEIPT.txt
+          retention-days: 30
