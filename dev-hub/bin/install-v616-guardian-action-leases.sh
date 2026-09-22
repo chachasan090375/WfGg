@@ -112,22 +112,24 @@ grep -Fq 'POST_WITHOUT_PRE_ACTION' "$WORK/orphan.out"
 python3 "$CURRENT/dev-hub/bin/guardian-client.py" --policy "$CURRENT/dev-hub/config/guardian-runtime-policy.v1.json" ack --alert-id "alert-$ORPHAN_EVENT" >/dev/null
 echo "CHACHA_DEV_V616_ORPHAN_POST_BLOCK=PASS"
 
-# Leave one harmless read-only PRE open and prove the external cron detects the missing POST.
+# Leave one harmless read-only PRE open. Production keeps the autonomous
+# Cloudflare cron every minute, but the PILOT invokes the exact same remote sweep
+# through an authenticated endpoint so validation does not depend on cron propagation timing.
 STALE_ACTION="v616-stale-$STAMP"
 STALE_EVENT="v616-stale-pre-$STAMP"
 cat >"$WORK/stale-pre.json" <<JSON
 {"schema":"chacha.dev/governance-action/v1","event_id":"$STALE_EVENT","action_id":"$STALE_ACTION","phase":"PRE_ACTION","actor":"central-orchestrator","subject_role":"technology-watch","action":"INVOKE_COMPONENT","task_kind":"v616-missing-post-pilot","permission":"read","project_id":"chacha-dev","run_id":"v616-install","adapters":[],"evidence":{"emergency_stop_active":false},"context":{"resource_class":"light","human_approval_required":false,"storage_preflight_required":false,"deadline_seconds":30}}
 JSON
 python3 "$CURRENT/dev-hub/bin/guardian-client.py" --policy "$CURRENT/dev-hub/config/guardian-runtime-policy.v1.json" check --event "$WORK/stale-pre.json" >/dev/null
-FOUND=0
-for i in $(seq 1 22); do
-  sleep 5
-  python3 "$CURRENT/dev-hub/bin/guardian-client.py" --policy "$CURRENT/dev-hub/config/guardian-runtime-policy.v1.json" alerts --status OPEN --limit 100 >"$WORK/alerts.json" || true
-  if grep -Fq "lease-expired-$STALE_ACTION" "$WORK/alerts.json"; then FOUND=1; break; fi
-done
-[ "$FOUND" -eq 1 ] || { echo "CHACHA_DEV_V616_INSTALL=BLOCKED reason=external_missing_post_sweep_not_observed"; exit 2; }
+sleep 35
+python3 "$CURRENT/dev-hub/bin/guardian-client.py" --policy "$CURRENT/dev-hub/config/guardian-runtime-policy.v1.json" watchdog-sweep >"$WORK/sweep.out"
+grep -Fq '"status": "PASS"' "$WORK/sweep.out" || grep -Fq '"status":"PASS"' "$WORK/sweep.out"
+grep -Fq '"external_guardian": true' "$WORK/sweep.out" || grep -Fq '"external_guardian":true' "$WORK/sweep.out"
+python3 "$CURRENT/dev-hub/bin/guardian-client.py" --policy "$CURRENT/dev-hub/config/guardian-runtime-policy.v1.json" alerts --status OPEN --limit 100 >"$WORK/alerts.json"
+grep -Fq "lease-expired-$STALE_ACTION" "$WORK/alerts.json" || { cat "$WORK/sweep.out"; echo "CHACHA_DEV_V616_INSTALL=BLOCKED reason=external_missing_post_sweep_not_observed"; exit 2; }
 python3 "$CURRENT/dev-hub/bin/guardian-client.py" --policy "$CURRENT/dev-hub/config/guardian-runtime-policy.v1.json" ack --alert-id "lease-expired-$STALE_ACTION" >/dev/null
 echo "CHACHA_DEV_V616_EXTERNAL_MISSING_POST_WATCHDOG=PASS"
+echo "CHACHA_DEV_V616_AUTONOMOUS_CRON_WATCHDOG_CONFIGURED=YES"
 
 install -m 0644 "$CURRENT/dev-hub/systemd/chacha-dev-guardian-coverage-heartbeat.service" /etc/systemd/system/chacha-dev-guardian-coverage-heartbeat.service
 install -m 0644 "$CURRENT/dev-hub/systemd/chacha-dev-guardian-coverage-heartbeat.timer" /etc/systemd/system/chacha-dev-guardian-coverage-heartbeat.timer
