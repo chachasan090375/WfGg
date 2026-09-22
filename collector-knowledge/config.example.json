@@ -1,0 +1,29 @@
+{
+  "database": "/opt/wfgg-radar/data/collector-knowledge/knowledge.db",
+  "intervalSeconds": 300,
+  "listenHost": "127.0.0.1",
+  "listenPort": 8791,
+  "sources": [
+    {
+      "name": "wfgg-source",
+      "kind": "SOURCE_TREE",
+      "root": "/opt/wfgg-radar/knowledge/sources/wfgg",
+      "version": "production",
+      "enabled": true
+    },
+    {
+      "name": "lastwar-static",
+      "kind": "LASTWAR_STATIC",
+      "root": "/opt/wfgg-radar/knowledge/sources/lastwar",
+      "version": "auto",
+      "enabled": true
+    },
+    {
+      "name": "game-assets",
+      "kind": "ASSET_TREE",
+      "root": "/opt/wfgg-radar/knowledge/sources/assets",
+      "version": "auto",
+      "enabled": true
+    }
+  ]
+}
