@@ -4,19 +4,60 @@
   "tasksPerCycle": 100,
   "listenHost": "127.0.0.1",
   "listenPort": 8791,
+  "refreshState": "/opt/wfgg-radar/data/collector-knowledge/source-refresh.json",
+  "refreshCache": "/opt/wfgg-radar/data/collector-knowledge/downloads",
+  "allowedRefreshHosts": [
+    "codeload.github.com",
+    "d.apkpure.net"
+  ],
+  "refreshSources": [
+    {
+      "name": "wfgg-production",
+      "kind": "GITHUB_TARBALL",
+      "url": "https://codeload.github.com/chachasan090375/WfGg/tar.gz/c5c1d6c23924cd9128d05fa8ed43df4617e62c8e",
+      "destination": "/opt/wfgg-radar/knowledge/sources/wfgg",
+      "stripTopLevel": true,
+      "refreshSeconds": 21600,
+      "enabled": true
+    },
+    {
+      "name": "lastwar-public-reference",
+      "kind": "GITHUB_TARBALL",
+      "url": "https://codeload.github.com/ljagiello/lastwar-client/tar.gz/ee5f64de160a8051c2f9f98189b75038dd225a0a",
+      "destination": "/opt/wfgg-radar/knowledge/sources/lastwar-reference",
+      "stripTopLevel": true,
+      "refreshSeconds": 86400,
+      "enabled": true
+    },
+    {
+      "name": "lastwar-android-1.0.351-lua",
+      "kind": "LASTWAR_XAPK_LWLF",
+      "url": "https://d.apkpure.net/b/XAPK/com.fun.lastwar.gp?nc=arm64-v8a%2Carmeabi-v7a&sv=23&versionCode=1835",
+      "destination": "/opt/wfgg-radar/knowledge/sources/lastwar",
+      "refreshSeconds": 604800,
+      "enabled": true
+    }
+  ],
   "sources": [
     {
       "name": "wfgg-source",
       "kind": "SOURCE_TREE",
       "root": "/opt/wfgg-radar/knowledge/sources/wfgg",
-      "version": "production",
+      "version": "c5c1d6c23924cd9128d05fa8ed43df4617e62c8e",
+      "enabled": true
+    },
+    {
+      "name": "lastwar-reference",
+      "kind": "REFERENCE_SOURCE",
+      "root": "/opt/wfgg-radar/knowledge/sources/lastwar-reference",
+      "version": "ee5f64de160a8051c2f9f98189b75038dd225a0a",
       "enabled": true
     },
     {
       "name": "lastwar-static",
       "kind": "LASTWAR_STATIC",
       "root": "/opt/wfgg-radar/knowledge/sources/lastwar",
-      "version": "auto",
+      "version": "1.0.351",
       "enabled": true
     },
     {
