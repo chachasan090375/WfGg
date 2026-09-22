@@ -13,7 +13,9 @@
     "secrets_are_redacted_from_logs": true,
     "task_result_is_not_self_verified": true,
     "provider_failover_reenters_policy": true,
-    "production_dispatch_requires_human_approval": true
+    "production_dispatch_requires_human_approval": true,
+    "external_guardian_pre_dispatch_required": true,
+    "external_guardian_post_result_required": true
   },
   "locking": {
     "strategy": "project-file-lock",
@@ -97,5 +99,23 @@
     "allow_unregistered_adapter": false,
     "allow_unknown_provider_health": false,
     "allow_implicit_production_change": false
+  },
+  "guardian": {
+    "enabled": true,
+    "runtime_root": "/opt/chacha-dev/runtime",
+    "client": "/opt/chacha-dev/platform/current/dev-hub/bin/guardian-client.py",
+    "policy": "/opt/chacha-dev/platform/current/dev-hub/config/guardian-runtime-policy.v1.json",
+    "timeout_seconds": 20,
+    "fail_closed_permissions": [
+      "repository-write",
+      "preview-deploy",
+      "production-deploy",
+      "production-data-write",
+      "secret-change",
+      "destructive-operation",
+      "technology-replacement"
+    ],
+    "low_risk_unavailable": "ALLOW_WITH_UNVERIFIED_GUARDIAN_WARNING",
+    "sensitive_unavailable": "BLOCK"
   }
 }
