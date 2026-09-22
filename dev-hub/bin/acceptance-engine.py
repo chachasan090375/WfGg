@@ -14,6 +14,8 @@ def main():
     ap.add_argument("--branch-topology");ap.add_argument("--preplan");ap.add_argument("--technology-snapshot")
     ap.add_argument("--reusable-registry");ap.add_argument("--reusable-registry-db");ap.add_argument("--learning-output")
     ap.add_argument("--metrics");ap.add_argument("--incidents");ap.add_argument("--learning-nas-mode",choices=["REQUIRED","OPTIONAL","DISABLED"],default="REQUIRED")
+    ap.add_argument("--architecture-council");ap.add_argument("--agent-topology");ap.add_argument("--capability-foundry");ap.add_argument("--runtime-wave-plan")
+    ap.add_argument("--architecture-registry");ap.add_argument("--architecture-registry-db");ap.add_argument("--architecture-learning-output")
     a=ap.parse_args();contract=load(a.contract);evidence=load(a.evidence)
     emap={str(x.get("criterion_id")):x for x in evidence.get("criteria") or []}
     rows=[];routes={}
@@ -46,6 +48,33 @@ def main():
         print("CHACHA_DEV_V612_ACCEPTANCE_TO_REUSE_MEMORY=PASS")
     elif ok and any([a.branch_topology,a.preplan,a.technology_snapshot,a.reusable_registry,a.reusable_registry_db,a.learning_output]):
         raise SystemExit("ACCEPTANCE_BRANCH_LEARNING_CONTEXT_INCOMPLETE")
+
+    architecture_learning_requested=all([
+        a.preplan,a.technology_snapshot,a.architecture_council,a.branch_topology,a.agent_topology,
+        a.capability_foundry,a.runtime_wave_plan,a.architecture_registry,a.architecture_registry_db,
+        a.architecture_learning_output
+    ])
+    if ok and architecture_learning_requested:
+        learner=Path(__file__).with_name("reusable-architecture-learning.py")
+        cmd=[sys.executable,str(learner),"--acceptance",str(a.output),"--preplan",a.preplan,
+             "--architecture-council",a.architecture_council,"--branch-topology",a.branch_topology,
+             "--agent-topology",a.agent_topology,"--capability-foundry",a.capability_foundry,
+             "--runtime-wave-plan",a.runtime_wave_plan,"--technology-snapshot",a.technology_snapshot,
+             "--registry",a.architecture_registry,"--registry-db",a.architecture_registry_db,
+             "--output",a.architecture_learning_output,"--nas-mode",a.learning_nas_mode]
+        if a.metrics: cmd+=["--metrics",a.metrics]
+        if a.incidents: cmd+=["--incidents",a.incidents]
+        p=subprocess.run(cmd,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=90)
+        if p.returncode!=0:
+            raise SystemExit("ACCEPTANCE_ARCHITECTURE_LEARNING_FAILED:"+p.stderr+p.stdout)
+        result["reusable_architecture_learning"]=a.architecture_learning_output
+        Path(a.output).write_text(json.dumps(result,indent=2,ensure_ascii=False)+"\n")
+        print("CHACHA_DEV_V613_ACCEPTANCE_TO_ARCHITECTURE_MEMORY=PASS")
+    elif ok and any([
+        a.architecture_council,a.agent_topology,a.capability_foundry,a.runtime_wave_plan,
+        a.architecture_registry,a.architecture_registry_db,a.architecture_learning_output
+    ]):
+        raise SystemExit("ACCEPTANCE_ARCHITECTURE_LEARNING_CONTEXT_INCOMPLETE")
     print("CHACHA_ACCEPTANCE_ENGINE=PASS")
     print("ACCEPTED="+("YES" if ok else "NO"))
 if __name__=="__main__":main()
