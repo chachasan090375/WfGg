@@ -1,0 +1,172 @@
+name: ChaCha DEV Collector Knowledge V1 pilot qualification
+
+on:
+  push:
+    branches: [dev-hub-v5-collector-knowledge-v1-pilot]
+    paths:
+      - 'dev-hub/adapters/collector-knowledge-adapter.py'
+      - 'dev-hub/tests/test_collector_knowledge_adapter_contract.py'
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - 'dev-hub/config/capability-registry.v1.json'
+      - 'dev-hub/config/adapter-provisioning.v1.json'
+      - 'dev-hub/bin/install-collector-knowledge-adapter-pilot.sh'
+      - 'dev-hub/bin/run-collector-knowledge-v1-pilot-via-chacha-dev.sh'
+      - '.github/workflows/dev-hub-collector-knowledge-v1-pilot-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  COLLECTOR_KNOWLEDGE_REV: 6ddbc5d848cf2aebc2c6175b2aa9ba1645c2e2ae
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev-hub-v5-collector-knowledge-v1-pilot
+
+      - name: Validate adapter contract
+        run: |
+          set -euo pipefail
+          python3 -m py_compile dev-hub/adapters/collector-knowledge-adapter.py
+          python3 dev-hub/tests/test_collector_knowledge_adapter_contract.py -v
+          grep -Fq 'ADAPTER_ID="collector-knowledge-adapter"' dev-hub/adapters/collector-knowledge-adapter.py
+          grep -Fq 'PROVIDER_ID="collector-knowledge-runtime"' dev-hub/adapters/collector-knowledge-adapter.py
+          grep -Fq 'API_BASE="http://127.0.0.1:8791"' dev-hub/adapters/collector-knowledge-adapter.py
+          echo COLLECTOR_KNOWLEDGE_ADAPTER_CONTRACT=PASS
+
+      - name: Validate registries and binding
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import importlib.util,json,pathlib
+          root=pathlib.Path('.').resolve()
+          preg=json.load(open(root/'dev-hub/config/provider-adapters.v1.json',encoding='utf-8'))
+          caps=json.load(open(root/'dev-hub/config/capability-registry.v1.json',encoding='utf-8'))
+          prov=json.load(open(root/'dev-hub/config/adapter-provisioning.v1.json',encoding='utf-8'))
+
+          p=preg['providers']['collector-knowledge-runtime']
+          assert p=={
+              'adapter':'collector-knowledge-adapter',
+              'kind':'local-runtime',
+              'execution':'vps',
+          },p
+          a=preg['adapters']['collector-knowledge-adapter']
+          assert a['status']=='ENABLED',a
+          assert set(a['supports'])=={'read','workspace-write'},a
+          assert a['executable']=='/opt/chacha-dev/adapters/collector-knowledge/current/collector-knowledge-adapter',a
+
+          for name in ('collector-knowledge-inspect','collector-knowledge-control'):
+              entry=caps['capabilities'][name]
+              provider=entry['providers'][0]
+              assert provider['id']=='collector-knowledge-runtime',entry
+              assert provider['status']=='PILOT',entry
+
+          cfg=prov['adapters']['collector-knowledge-adapter']
+          assert cfg['version']=='1.0.0',cfg
+          assert cfg['namespace']=='collector-knowledge',cfg
+          assert cfg['probe']['expected_status']=='BLOCKED',cfg
+
+          spec=importlib.util.spec_from_file_location('rc',root/'dev-hub/bin/run-controller.py')
+          rc=importlib.util.module_from_spec(spec); spec.loader.exec_module(rc)
+          binding,errors=rc.adapter_binding(
+              {
+                'capability':'collector-knowledge-control',
+                'provider':'collector-knowledge-runtime',
+                'health_state':'HEALTHY',
+              },
+              'workspace-write',preg,True
+          )
+          assert errors==[],errors
+          assert binding['adapter']=='collector-knowledge-adapter',binding
+          binding2,errors2=rc.adapter_binding(
+              {
+                'capability':'collector-knowledge-inspect',
+                'provider':'collector-knowledge-runtime',
+                'health_state':'HEALTHY',
+              },
+              'read',preg,True
+          )
+          assert errors2==[],errors2
+          print('COLLECTOR_KNOWLEDGE_RUNTIME_BINDING=PASS')
+          PY
+
+      - name: Validate bootstrap and governed runner
+        run: |
+          set -euo pipefail
+          B=dev-hub/bin/install-collector-knowledge-adapter-pilot.sh
+          R=dev-hub/bin/run-collector-knowledge-v1-pilot-via-chacha-dev.sh
+          bash -n "$B"
+          bash -n "$R"
+          grep -Fq 'collector-knowledge-adapter' "$B"
+          grep -Fq 'COLLECTOR_KNOWLEDGE_PROVIDER_HEALTH=HEALTHY' "$B"
+          grep -Fq 'KNOWLEDGE_REV="6ddbc5d848cf2aebc2c6175b2aa9ba1645c2e2ae"' "$R"
+          grep -Fq '"action":"pilot-install"' "$R"
+          grep -Fq '"permission":"workspace-write"' "$R"
+          grep -Fq '"action":"pilot-probe"' "$R"
+          grep -Fq '"action":"query"' "$R"
+          grep -Fq 'PROJECT_CONTROL>SCHEDULER>RUN_CONTROLLER>COLLECTOR_KNOWLEDGE_ADAPTER' "$R"
+          if grep -Eq '"permission":"production-deploy"|pilot-open|pilot-close|production-release' "$R"; then
+            echo COLLECTOR_KNOWLEDGE_PRODUCTION_PATH=FOUND
+            exit 1
+          fi
+          echo COLLECTOR_KNOWLEDGE_GOVERNED_RUNNER=PASS
+
+      - name: Validate qualified Collector assets
+        run: |
+          set -euo pipefail
+          BASE="https://raw.githubusercontent.com/chachasan090375/WfGg/$COLLECTOR_KNOWLEDGE_REV"
+          mkdir -p /tmp/collector-knowledge-v1
+          for f in             collector-knowledge/knowledge_engine.py             collector-knowledge/source_refresh.py             collector-knowledge/config.example.json             radar-vps/install-collector-knowledge-v1.sh             radar-vps/probe-collector-knowledge-v1-runtime.sh             radar-vps/wfgg-collector-knowledge-worker.service             radar-vps/wfgg-collector-knowledge-api.service
+          do
+            curl -fsSL "$BASE/$f" -o "/tmp/collector-knowledge-v1/$(basename "$f")"
+          done
+          python3 -m py_compile             /tmp/collector-knowledge-v1/knowledge_engine.py             /tmp/collector-knowledge-v1/source_refresh.py
+          bash -n /tmp/collector-knowledge-v1/install-collector-knowledge-v1.sh
+          bash -n /tmp/collector-knowledge-v1/probe-collector-knowledge-v1-runtime.sh
+          grep -Fq 'source_refresh.py' /tmp/collector-knowledge-v1/install-collector-knowledge-v1.sh
+          grep -Fq 'COLLECTOR_KNOWLEDGE_RUNTIME_PROBE=PASS' /tmp/collector-knowledge-v1/probe-collector-knowledge-v1-runtime.sh
+          grep -Fq '"listenHost": "127.0.0.1"' /tmp/collector-knowledge-v1/config.example.json
+          grep -Fq '"tasksPerCycle": 100' /tmp/collector-knowledge-v1/config.example.json
+          echo COLLECTOR_KNOWLEDGE_PINNED_ASSETS=PASS
+
+      - name: Verify Last War isolation
+        run: |
+          set -euo pipefail
+          if grep -REn 'SendExtension|mail\.reward|building\.production\.collect|visitor\.operate|decryptGameToken|RADAR_CONNECTOR_SHARED_KEY'             dev-hub/adapters/collector-knowledge-adapter.py             dev-hub/bin/run-collector-knowledge-v1-pilot-via-chacha-dev.sh; then
+            echo COLLECTOR_KNOWLEDGE_LASTWAR_MUTATION_CAPABILITY=FOUND
+            exit 1
+          fi
+          grep -Fq 'COLLECTOR_KNOWLEDGE_LASTWAR_GAME_CONNECTION=NONE' dev-hub/bin/run-collector-knowledge-v1-pilot-via-chacha-dev.sh
+          grep -Fq 'COLLECTOR_KNOWLEDGE_LASTWAR_MUTATION=NO' dev-hub/bin/run-collector-knowledge-v1-pilot-via-chacha-dev.sh
+          grep -Fq 'COLLECTOR_KNOWLEDGE_PRODUCTION_CONNECTOR_TOUCHED=NO' dev-hub/bin/run-collector-knowledge-v1-pilot-via-chacha-dev.sh
+          echo COLLECTOR_KNOWLEDGE_LASTWAR_ISOLATION=PASS
+
+      - name: Qualification receipt
+        run: |
+          {
+            echo WFGG_COLLECTOR_KNOWLEDGE_CHACHA=V1
+            echo RESULT=success
+            echo SOURCE_REV="$(git rev-parse HEAD)"
+            echo COLLECTOR_KNOWLEDGE_REV="$COLLECTOR_KNOWLEDGE_REV"
+            echo ADAPTER=collector-knowledge-adapter
+            echo ADAPTER_VERSION=1.0.0
+            echo PROVIDER=collector-knowledge-runtime
+            echo INSTALL_PERMISSION=workspace-write
+            echo PROBE_PERMISSION=read
+            echo QUERY_PERMISSION=read
+            echo CHACHA_PATH=PROJECT_CONTROL_SCHEDULER_RUN_CONTROLLER_COLLECTOR_KNOWLEDGE_ADAPTER
+            echo PRODUCTION_DEPLOYMENT=NO
+            echo LASTWAR_GAME_CONNECTION=NONE
+            echo LASTWAR_MUTATION=NO
+          } | tee /tmp/COLLECTOR_KNOWLEDGE_CHACHA_V1_QUALIFICATION.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: collector-knowledge-chacha-v1-qualification
+          path: /tmp/COLLECTOR_KNOWLEDGE_CHACHA_V1_QUALIFICATION.txt
+          retention-days: 30
