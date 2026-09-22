@@ -224,7 +224,7 @@ def _guardian_observe_consult(repo_root: Path, feed: dict[str, Any], phase: str,
     client=repo_root/"dev-hub/bin/guardian-client.py"
     policy=repo_root/"dev-hub/config/guardian-runtime-policy.v1.json"
     if not client.is_file() or not policy.is_file():
-        return
+        raise RuntimeError("TECHNOLOGY_WATCH_GUARDIAN_UNAVAILABLE:CLIENT_OR_POLICY_MISSING")
     event={
       "schema":"chacha.dev/governance-action/v1",
       "event_id":"gov-"+uuid.uuid4().hex,
@@ -257,8 +257,11 @@ def _guardian_observe_consult(repo_root: Path, feed: dict[str, Any], phase: str,
     try: verdict=json.loads(p.stdout.strip())
     except Exception:
         verdict={"status":"UNAVAILABLE"}
-    if str(verdict.get("verdict")) in {"BLOCK","CRITICAL"}:
+    state=str(verdict.get("verdict") or verdict.get("status") or "UNAVAILABLE")
+    if state in {"BLOCK","CRITICAL"}:
         raise RuntimeError("TECHNOLOGY_WATCH_GUARDIAN_BLOCK:"+str(verdict.get("reason_codes") or []))
+    if state not in {"PASS","WARNING"}:
+        raise RuntimeError("TECHNOLOGY_WATCH_GUARDIAN_UNAVAILABLE:"+state)
 
 
 def consult(repo_root: Path, *, consumer: str, domain: str,
