@@ -1,0 +1,120 @@
+name: ChaCha DEV V6 domain orchestration qualification
+
+on:
+  push:
+    branches: [dev-hub-v6-domain-orchestration-kernel]
+    paths:
+      - 'dev-hub/config/domain-orchestration.v1.json'
+      - 'dev-hub/config/provider-economics.v1.json'
+      - 'dev-hub/config/technology-radar-domain-watch.v2.json'
+      - 'dev-hub/config/agent-routing.v1.json'
+      - 'dev-hub/config/capability-registry.v1.json'
+      - 'dev-hub/bin/functional-intent-orchestrator.py'
+      - 'dev-hub/bin/domain-provider-resolver.py'
+      - 'dev-hub/bin/technology-radar-domain-watch-validate.py'
+      - 'dev-hub/tests/test_domain_orchestration_v6.py'
+      - 'dev-hub/docs/DOMAIN_ORCHESTRATION_V6.md'
+      - '.github/workflows/dev-hub-v6-domain-orchestration-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev-hub-v6-domain-orchestration-kernel
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Static validation
+        run: |
+          set -euo pipefail
+          python3 -m py_compile             dev-hub/bin/functional-intent-orchestrator.py             dev-hub/bin/domain-provider-resolver.py             dev-hub/bin/technology-radar-domain-watch-validate.py             dev-hub/tests/test_domain_orchestration_v6.py
+          python3 -m json.tool dev-hub/config/domain-orchestration.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/provider-economics.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/technology-radar-domain-watch.v2.json >/dev/null
+          echo CHACHA_DEV_V6_STATIC=PASS
+
+      - name: Architecture validation
+        run: |
+          set -euo pipefail
+          python3 dev-hub/bin/technology-radar-domain-watch-validate.py
+
+      - name: Unit tests
+        run: |
+          set -euo pipefail
+          python3 -m unittest -v dev-hub/tests/test_domain_orchestration_v6.py | tee /tmp/v6-tests.log
+
+      - name: Functional decomposition smoke
+        run: |
+          set -euo pipefail
+          cat >/tmp/v6-intent.json <<'JSON'
+          {
+            "text": "Ajoute une nouvelle fiche joueur avec une API backend, une mise en page responsive, des graphismes, une animation et la documentation. Prévois les tests et la sécurité."
+          }
+          JSON
+          python3 dev-hub/bin/functional-intent-orchestrator.py             --config dev-hub/config/domain-orchestration.v1.json             --intent /tmp/v6-intent.json             --output /tmp/v6-plan.json
+          python3 - <<'PY'
+          import json
+          p=json.load(open('/tmp/v6-plan.json'))
+          required={'development','documentation','ui-layout','graphics','animation','cybersecurity','qa'}
+          assert required <= set(p['primary_domains']),p
+          assert p['provider_selection']['technology_radar_required'] is True
+          assert p['provider_selection']['economics_policy_required'] is True
+          assert p['production_change_allowed'] is False
+          print('CHACHA_DEV_V6_FUNCTIONAL_DECOMPOSITION=PASS')
+          PY
+
+      - name: Zero-cost resolver smoke
+        run: |
+          set -euo pipefail
+          cat >/tmp/health.json <<'JSON'
+          {
+            "schema":"chacha.dev/provider-health-snapshot/v1",
+            "providers":{
+              "blender":{"state":"HEALTHY","source":"qualification","checked_at":"now"},
+              "unitypy":{"state":"HEALTHY","source":"qualification","checked_at":"now"}
+            }
+          }
+          JSON
+          python3 dev-hub/bin/domain-provider-resolver.py             --registry dev-hub/config/capability-registry.v1.json             --health /tmp/health.json             --economics dev-hub/config/provider-economics.v1.json             --domain graphics             graphics-pipeline >/tmp/v6-resolution.json
+          python3 - <<'PY'
+          import json
+          r=json.load(open('/tmp/v6-resolution.json'))
+          assert r['ready'] is True,r
+          x=r['resolutions'][0]
+          assert x['cost_class'] in {'free','owned','local','included'},x
+          print('CHACHA_DEV_V6_ZERO_COST_RESOLUTION=PASS')
+          PY
+
+      - name: Qualification receipt
+        run: |
+          {
+            echo CHACHA_DEV_DOMAIN_ORCHESTRATION=V6
+            echo RESULT=success
+            echo SOURCE_REV="$(git rev-parse HEAD)"
+            echo CORE_ORCHESTRATOR=YES
+            echo DOMAIN_ORCHESTRATORS=YES
+            echo TECHNOLOGY_RADAR_ALL_DOMAINS=YES
+            echo ZERO_INCREMENTAL_COST_DEFAULT=YES
+            echo AUTOMATIC_EXTERNAL_SPEND_EUR=0
+            echo PAID_PROVIDER_REQUIRES_HUMAN_APPROVAL=YES
+            echo PRODUCTION_CHANGE=NO
+          } | tee /tmp/CHACHA_DEV_V6_DOMAIN_ORCHESTRATION_RECEIPT.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chacha-dev-v6-domain-orchestration-qualification
+          path: |
+            /tmp/CHACHA_DEV_V6_DOMAIN_ORCHESTRATION_RECEIPT.txt
+            /tmp/v6-tests.log
+            /tmp/v6-plan.json
+            /tmp/v6-resolution.json
+          retention-days: 30
