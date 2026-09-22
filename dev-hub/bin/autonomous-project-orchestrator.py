@@ -70,12 +70,21 @@ def capability_gaps(preplan,contract,capability_registry,project_id,out):
     uniq={str(x.get("id")):x for x in gaps if x.get("id")}
     save(out,{"project_id":project_id,"missing_capabilities":list(uniq.values())})
 
+def emergency_stop_active(path=Path("/opt/chacha-dev/runtime/control/emergency-stop.json")):
+    try:
+        x=json.loads(path.read_text(encoding="utf-8"))
+        return bool(x.get("active"))
+    except Exception:
+        return False
+
 def main():
     ap=argparse.ArgumentParser()
     ap.add_argument("--repo-root",default=".",type=Path)
     ap.add_argument("--intent",required=True,type=Path)
     ap.add_argument("--output-dir",required=True,type=Path)
     a=ap.parse_args()
+    if emergency_stop_active():
+        raise SystemExit("CHACHA_DEV_EMERGENCY_STOP_ACTIVE")
     root=a.repo_root.resolve();out=a.output_dir.resolve();out.mkdir(parents=True,exist_ok=True)
     cfg=root/"dev-hub/config";bin_dir=root/"dev-hub/bin"
 
