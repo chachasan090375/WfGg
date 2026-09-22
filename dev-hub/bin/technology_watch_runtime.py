@@ -218,7 +218,7 @@ def _filter_snapshot(snapshot: dict[str, Any], capabilities: list[str]) -> list[
     pool=zero if zero else eligible
     return sorted(pool,key=lambda x:(str(x.get("cost_class")),str(x.get("id")),str(x.get("capability"))))
 
-def _guardian_observe_consult(repo_root: Path, feed: dict[str, Any]) -> None:
+def _guardian_observe_consult(repo_root: Path, feed: dict[str, Any], phase: str, action_id: str) -> None:
     if not Path("/opt/chacha-dev/runtime").exists():
         return
     client=repo_root/"dev-hub/bin/guardian-client.py"
@@ -228,7 +228,8 @@ def _guardian_observe_consult(repo_root: Path, feed: dict[str, Any]) -> None:
     event={
       "schema":"chacha.dev/governance-action/v1",
       "event_id":"gov-"+uuid.uuid4().hex,
-      "phase":"POST_ACTION",
+      "action_id":action_id,
+      "phase":phase,
       "actor":"technology-watch",
       "subject_role":"technology-watch",
       "action":"OBSERVE_TECHNOLOGY",
@@ -243,7 +244,8 @@ def _guardian_observe_consult(repo_root: Path, feed: dict[str, Any]) -> None:
         "consumer":feed.get("consumer"),
         "zero_spend_candidate_available":feed.get("zero_spend_candidate_available")
       },
-      "context":{"resource_class":"light","human_approval_required":False,"storage_preflight_required":False}
+      "context":{"resource_class":"light","human_approval_required":False,
+                 "storage_preflight_required":False,"deadline_seconds":120}
     }
     with tempfile.TemporaryDirectory(prefix="chacha-techwatch-guardian-") as td:
         ep=Path(td)/"event.json"
@@ -253,13 +255,18 @@ def _guardian_observe_consult(repo_root: Path, feed: dict[str, Any]) -> None:
           stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=20
         )
     try: verdict=json.loads(p.stdout.strip())
-    except Exception: return
+    except Exception:
+        verdict={"status":"UNAVAILABLE"}
     if str(verdict.get("verdict")) in {"BLOCK","CRITICAL"}:
         raise RuntimeError("TECHNOLOGY_WATCH_GUARDIAN_BLOCK:"+str(verdict.get("reason_codes") or []))
 
 
 def consult(repo_root: Path, *, consumer: str, domain: str,
             capabilities: list[str]) -> dict[str, Any]:
+    action_id="techwatch-"+uuid.uuid4().hex
+    _guardian_observe_consult(repo_root,{
+        "consumer":consumer,"domain":domain,"capabilities":capabilities
+    },"PRE_ACTION",action_id)
     cfg=load_config(repo_root); path=_snapshot_path(cfg)
     status=snapshot_status(repo_root)
     targeted=False
@@ -285,5 +292,5 @@ def consult(repo_root: Path, *, consumer: str, domain: str,
         "eligible_provider_candidates":pool,
         "branch_blueprints":snap.get("branch_blueprints") or [],
     }
-    _guardian_observe_consult(repo_root,feed)
+    _guardian_observe_consult(repo_root,feed,"POST_ACTION",action_id)
     return feed
