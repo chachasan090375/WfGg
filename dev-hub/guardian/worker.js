@@ -77,6 +77,17 @@ async function dynamicContract(env,contractId,version){
     "SELECT * FROM dynamic_role_contracts WHERE contract_id=?1 AND status='ACTIVE' ORDER BY created_at DESC LIMIT 1"
   ).bind(String(contractId)).first();
 }
+async function dynamicComponentContract(env,contractId,version){
+  if(!contractId)return null;
+  if(version){
+    return env.DB.prepare(
+      "SELECT * FROM dynamic_component_contracts WHERE contract_id=?1 AND version=?2 AND status='ACTIVE'"
+    ).bind(String(contractId),String(version)).first();
+  }
+  return env.DB.prepare(
+    "SELECT * FROM dynamic_component_contracts WHERE contract_id=?1 AND status='ACTIVE' ORDER BY created_at DESC LIMIT 1"
+  ).bind(String(contractId)).first();
+}
 function order(sev){return ({INFO:0,WARNING:1,BLOCK:2,CRITICAL:3})[sev]??0;}
 function mergeEval(a,b){
   const severity=order(b.severity)>order(a.severity)?b.severity:a.severity;
@@ -113,11 +124,14 @@ async function evaluate(event,env){
   const actorContract=await contractById(env,"component:"+actor)||await resolveRoleContract(env,actor);
   const subjectContractId=String(event.subject_contract_id||"");
   const subjectContractVersion=String(event.subject_contract_version||"");
-  const dyn=subjectContractId?await dynamicContract(env,subjectContractId,subjectContractVersion):null;
-  let roleContract=dyn||await resolveRoleContract(env,subjectRole);
+  const dynAgent=subjectContractId?await dynamicContract(env,subjectContractId,subjectContractVersion):null;
+  const dynComponent=subjectContractId?await dynamicComponentContract(env,subjectContractId,subjectContractVersion):null;
+  let roleContract=dynAgent||dynComponent||await resolveRoleContract(env,subjectRole);
   const dynamicAgentRole=subjectRole.endsWith(":ephemeral-agent")||subjectRole.endsWith(":reusable-agent");
+  const dynamicComponentClaim=subjectContractId.startsWith("branch:")||subjectContractId.startsWith("orchestrator:");
   if(dynamicAgentRole&&!subjectContractId)addReason(state,"BLOCK","DYNAMIC_AGENT_CONTRACT_REQUIRED");
-  if(subjectContractId&&!dyn)addReason(state,"BLOCK","DYNAMIC_AGENT_CONTRACT_NOT_FOUND");
+  if(subjectContractId&&!dynAgent&&!dynComponent)addReason(state,"BLOCK","DYNAMIC_SUBJECT_CONTRACT_NOT_FOUND");
+  if(dynamicComponentClaim&&!dynComponent)addReason(state,"BLOCK","DYNAMIC_COMPONENT_CONTRACT_NOT_FOUND");
 
   if(!actorContract)addReason(state,"BLOCK","ACTOR_CONTRACT_MISSING");
   else{
@@ -141,17 +155,29 @@ async function evaluate(event,env){
       for(const key of arr(roleContract.required_evidence_json))
         if(!truthyEvidence(evidence,key))addReason(state,"BLOCK","REQUIRED_EVIDENCE_MISSING:"+key);
     }
-    if(dyn){
-      if(String(dyn.agent_id)!==subjectRole)addReason(state,"CRITICAL","DYNAMIC_AGENT_IDENTITY_MISMATCH");
-      if(String(dyn.project_id)!==String(event.project_id||""))addReason(state,"CRITICAL","DYNAMIC_AGENT_PROJECT_SCOPE_MISMATCH");
-      if(subjectContractVersion&&String(dyn.version)!==subjectContractVersion)addReason(state,"BLOCK","DYNAMIC_AGENT_CONTRACT_VERSION_MISMATCH");
-      const allowedCaps=new Set(arr(dyn.allowed_capabilities_json));
+    if(dynAgent){
+      if(String(dynAgent.agent_id)!==subjectRole)addReason(state,"CRITICAL","DYNAMIC_AGENT_IDENTITY_MISMATCH");
+      if(String(dynAgent.project_id)!==String(event.project_id||""))addReason(state,"CRITICAL","DYNAMIC_AGENT_PROJECT_SCOPE_MISMATCH");
+      if(subjectContractVersion&&String(dynAgent.version)!==subjectContractVersion)addReason(state,"BLOCK","DYNAMIC_AGENT_CONTRACT_VERSION_MISMATCH");
+      const allowedCaps=new Set(arr(dynAgent.allowed_capabilities_json));
       const requestedCaps=Array.isArray(event.capabilities)?event.capabilities.map(String):[];
       for(const cap of requestedCaps)if(!allowedCaps.has(cap))addReason(state,"BLOCK","CAPABILITY_OUTSIDE_AGENT_MISSION:"+cap);
       const eventDomain=String((event.context||{}).domain||"");
-      if(eventDomain&&String(dyn.domain)!==eventDomain)addReason(state,"BLOCK","DOMAIN_OUTSIDE_AGENT_MISSION");
+      if(eventDomain&&String(dynAgent.domain)!==eventDomain)addReason(state,"BLOCK","DOMAIN_OUTSIDE_AGENT_MISSION");
       const eventPackage=String((event.context||{}).package_id||"");
-      if(eventPackage&&String(dyn.package_id)!==eventPackage)addReason(state,"BLOCK","PACKAGE_OUTSIDE_AGENT_MISSION");
+      if(eventPackage&&String(dynAgent.package_id)!==eventPackage)addReason(state,"BLOCK","PACKAGE_OUTSIDE_AGENT_MISSION");
+    }
+    if(dynComponent){
+      if(String(dynComponent.component_id)!==subjectRole)addReason(state,"CRITICAL","DYNAMIC_COMPONENT_IDENTITY_MISMATCH");
+      if(String(dynComponent.project_id)!==String(event.project_id||""))addReason(state,"CRITICAL","DYNAMIC_COMPONENT_PROJECT_SCOPE_MISMATCH");
+      if(subjectContractVersion&&String(dynComponent.version)!==subjectContractVersion)addReason(state,"BLOCK","DYNAMIC_COMPONENT_CONTRACT_VERSION_MISMATCH");
+      const allowedCaps=new Set(arr(dynComponent.allowed_capabilities_json));
+      const requestedCaps=Array.isArray(event.capabilities)?event.capabilities.map(String):[];
+      for(const cap of requestedCaps)if(!allowedCaps.has(cap))addReason(state,"BLOCK","CAPABILITY_OUTSIDE_COMPONENT_MISSION:"+cap);
+      const eventDomain=String((event.context||{}).domain||"");
+      if(eventDomain&&String(dynComponent.domain)!==eventDomain)addReason(state,"BLOCK","DOMAIN_OUTSIDE_COMPONENT_MISSION");
+      const eventPackage=String((event.context||{}).package_id||"");
+      if(eventPackage&&String(dynComponent.package_id)!==eventPackage)addReason(state,"BLOCK","PACKAGE_OUTSIDE_COMPONENT_MISSION");
     }
   }
 
@@ -300,6 +326,58 @@ async function registerDynamicContract(req,env){
   });
 }
 
+async function registerDynamicComponentContract(req,env){
+  const body=await req.text();
+  const auth=await requireCentral(req,env,body);if(!auth.ok)return auth.response;
+  let x;try{x=JSON.parse(body);}catch{return json({error:"invalid_json"},400);}
+  if(!x||x.schema!=="chacha.dev/dynamic-component-role-contract/v1")return json({error:"dynamic_component_contract_schema_invalid"},400);
+  const kind=String(x.component_kind||"");
+  if(!["branch","orchestrator"].includes(kind))return json({error:"dynamic_component_kind_invalid"},409);
+  const expectedTemplate=kind==="branch"?"role:__branch__":"role:__dynamic-orchestrator__";
+  if(String(x.template_contract_id||"")!==expectedTemplate)return json({error:"dynamic_component_template_invalid"},409);
+  const issuer=String(x.issued_by||"");
+  if(!["branch-foundry","capability-foundry"].includes(issuer))return json({error:"dynamic_component_issuer_invalid"},409);
+  const contractId=String(x.contract_id||""),version=String(x.version||""),componentId=String(x.component_id||"");
+  const projectId=String(x.project_id||""),domain=String(x.domain||""),packageId=String(x.package_id||"");
+  const prefix=kind+":";
+  if(!contractId.startsWith(prefix)||!version||!componentId||!projectId||!domain||!packageId)
+    return json({error:"dynamic_component_identity_incomplete"},400);
+  if(contractId!==prefix+componentId)return json({error:"dynamic_component_id_mismatch"},409);
+  const template=await contractById(env,expectedTemplate);
+  if(!template)return json({error:"dynamic_component_template_missing"},503);
+  const allowedActions=Array.isArray(x.allowed_actions)?x.allowed_actions.map(String):[];
+  const forbiddenActions=Array.isArray(x.forbidden_actions)?x.forbidden_actions.map(String):[];
+  const permissions=Array.isArray(x.allowed_permissions)?x.allowed_permissions.map(String):[];
+  const capabilities=Array.isArray(x.allowed_capabilities)?x.allowed_capabilities.map(String):[];
+  const templateActions=arr(template.allowed_actions_json),templateForbidden=arr(template.forbidden_actions_json),templatePerms=arr(template.allowed_permissions_json);
+  if(allowedActions.some(v=>!allows(templateActions,v)))return json({error:"dynamic_component_action_escalation"},409);
+  if(permissions.some(v=>!allows(templatePerms,v)))return json({error:"dynamic_component_permission_escalation"},409);
+  if(templateForbidden.some(v=>!forbiddenActions.includes(v)))return json({error:"dynamic_component_forbidden_rule_removed"},409);
+  if(permissions.some(v=>["production-deploy","production-data-write","secret-change","destructive-operation"].includes(v)))
+    return json({error:"dynamic_component_production_permission_forbidden"},409);
+  if(x.production_permissions_allowed!==false)return json({error:"dynamic_component_production_boundary_invalid"},409);
+  const digestInput={...x};delete digestInput.version;delete digestInput.contract_digest;
+  const actualDigest=await sha256Hex(stable(digestInput));
+  if(String(x.contract_digest||"")!==actualDigest||version!=="v1-"+actualDigest.slice(0,12))
+    return json({error:"dynamic_component_contract_digest_invalid"},409);
+  await env.DB.prepare(
+    "UPDATE dynamic_component_contracts SET status='RETIRED',retired_at=datetime('now') WHERE contract_id=?1 AND status='ACTIVE' AND version<>?2"
+  ).bind(contractId,version).run();
+  await env.DB.prepare(
+    `INSERT INTO dynamic_component_contracts
+      (contract_id,version,status,template_contract_id,component_kind,component_id,project_id,domain,package_id,allowed_actions_json,forbidden_actions_json,allowed_permissions_json,allowed_capabilities_json,source_digest,created_at,retired_at)
+      VALUES(?1,?2,'ACTIVE',?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,datetime('now'),NULL)
+      ON CONFLICT(contract_id,version) DO UPDATE SET status='ACTIVE',retired_at=NULL,source_digest=excluded.source_digest`
+  ).bind(contractId,version,expectedTemplate,kind,componentId,projectId,domain,packageId,
+         JSON.stringify(allowedActions),JSON.stringify(forbiddenActions),JSON.stringify(permissions),
+         JSON.stringify(capabilities),actualDigest).run();
+  return json({
+    schema:"chacha.dev/dynamic-component-role-contract-registration/v1",
+    status:"PASS",contract_id:contractId,version,component_kind:kind,component_id:componentId,project_id:projectId,
+    immutable_template:expectedTemplate,privilege_escalation_allowed:false,registered_at:new Date().toISOString()
+  });
+}
+
 async function check(req,env){
   const body=await req.text();
   const auth=await requireCentral(req,env,body);if(!auth.ok)return auth.response;
@@ -435,11 +513,13 @@ export default {
     if(req.method==="GET"&&u.pathname==="/healthz")return json({
       status:"ok",service:"chacha-dev-guardian",external_governance_plane:true,
       runtime_contract_mutation_api:false,dynamic_instance_contract_registration:true,
-      dynamic_contract_policy_escalation_allowed:false,tunnel_required:false,action_lease_protocol:true,coverage_watch:true,
+      dynamic_component_contract_registration:true,dynamic_contract_policy_escalation_allowed:false,
+      dynamic_component_policy_escalation_allowed:false,tunnel_required:false,action_lease_protocol:true,coverage_watch:true,
       authenticated_watchdog_sweep:true,scheduled_watchdog:true
     });
     if(req.method==="POST"&&u.pathname==="/v1/check")return check(req,env);
     if(req.method==="POST"&&u.pathname==="/v1/dynamic-contracts/register")return registerDynamicContract(req,env);
+    if(req.method==="POST"&&u.pathname==="/v1/dynamic-components/register")return registerDynamicComponentContract(req,env);
     if(req.method==="POST"&&u.pathname==="/v1/coverage")return coverage(req,env);
     if(req.method==="POST"&&u.pathname==="/v1/watchdog/sweep")return watchdogSweep(req,env);
     if(req.method==="GET"&&u.pathname==="/v1/alerts")return alerts(req,env);
