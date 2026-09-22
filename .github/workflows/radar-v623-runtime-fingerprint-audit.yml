@@ -1,0 +1,75 @@
+name: Radar V6.23 runtime fingerprint audit
+
+on:
+  push:
+    branches: [radar-production-v1]
+    paths:
+      - '.github/workflows/radar-v623-runtime-fingerprint-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  RADAR_CONNECTOR_URL: https://chachavps.tail3ab05a.ts.net
+  EXPECTED_CONNECTOR_SHA256: 232fcbd1037da45d1c460eef20e7627aac7c90425f04ab0e58d47b74fb56249b
+  EXPECTED_NATIVE_SHA256: 274d040f5294cb09422e5d55cc4b5335ac7739924c33dcb67b3f279645814900
+
+jobs:
+  audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: radar-production-v1
+
+      - name: Verify installed V6.23 Connector fingerprint
+        env:
+          RADAR_CONNECTOR_SHARED_KEY: ${{ secrets.RADAR_CONNECTOR_SHARED_KEY }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib,hmac,json,os,secrets,time,urllib.request
+          base=os.environ['RADAR_CONNECTOR_URL'].rstrip('/')
+          key=os.environ['RADAR_CONNECTOR_SHARED_KEY'].encode()
+          expected_connector=os.environ['EXPECTED_CONNECTOR_SHA256']
+          expected_native=os.environ['EXPECTED_NATIVE_SHA256']
+
+          def signed_get(path):
+              ts=str(int(time.time())); nonce=secrets.token_hex(16); body=b''
+              canonical='\n'.join(['GET',path,ts,nonce,hashlib.sha256(body).hexdigest()])
+              sig=hmac.new(key,canonical.encode(),hashlib.sha256).hexdigest()
+              req=urllib.request.Request(base+path,method='GET',headers={
+                  'X-Radar-Timestamp':ts,'X-Radar-Nonce':nonce,'X-Radar-Signature':sig,
+              })
+              with urllib.request.urlopen(req,timeout=15) as r:
+                  return json.loads(r.read().decode())
+
+          last=None
+          for attempt in range(1,19):
+              try:
+                  d=signed_get('/v1/health')
+                  runtime=d.get('connectorRuntime') or {}
+                  native=d.get('nativeHelper') or {}
+                  connector_sha=runtime.get('sha256','')
+                  native_sha=native.get('helperSha256','')
+                  print(f'RADAR_V623_RUNTIME_PROBE={attempt}')
+                  print('CONNECTOR_STATE='+str(runtime.get('state')))
+                  print('CONNECTOR_SHA256='+connector_sha)
+                  print('NATIVE_STATE='+str(native.get('helperState')))
+                  print('NATIVE_SHA256='+native_sha)
+                  if d.get('ok') is True and connector_sha==expected_connector and native_sha==expected_native:
+                      print('RADAR_V623_RUNTIME_FINGERPRINT=PASS')
+                      print('RADAR_V623_LASTWAR_MODE=READ_ONLY')
+                      print('RADAR_V623_GAME_SCAN_EXECUTED=NO')
+                      raise SystemExit(0)
+                  last=(connector_sha,native_sha)
+              except Exception as exc:
+                  print('RADAR_V623_RUNTIME_PROBE_ERROR='+type(exc).__name__)
+                  last=str(exc)
+              time.sleep(10)
+          print('RADAR_V623_RUNTIME_FINGERPRINT=FAILED')
+          print('RADAR_V623_LAST_STATE='+str(last))
+          raise SystemExit(1)
+          PY
