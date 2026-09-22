@@ -13,7 +13,7 @@ def main():
     ap.add_argument("--contract",required=True);ap.add_argument("--evidence",required=True);ap.add_argument("--output",required=True)
     ap.add_argument("--branch-topology");ap.add_argument("--preplan");ap.add_argument("--technology-snapshot")
     ap.add_argument("--reusable-registry");ap.add_argument("--reusable-registry-db");ap.add_argument("--learning-output")
-    ap.add_argument("--metrics");ap.add_argument("--incidents");ap.add_argument("--learning-nas",action="store_true");ap.add_argument("--learning-require-nas",action="store_true")
+    ap.add_argument("--metrics");ap.add_argument("--incidents");ap.add_argument("--learning-nas-mode",choices=["REQUIRED","OPTIONAL","DISABLED"],default="REQUIRED")
     a=ap.parse_args();contract=load(a.contract);evidence=load(a.evidence)
     emap={str(x.get("criterion_id")):x for x in evidence.get("criteria") or []}
     rows=[];routes={}
@@ -38,8 +38,7 @@ def main():
              "--registry",a.reusable_registry,"--registry-db",a.reusable_registry_db,"--output",a.learning_output]
         if a.metrics: cmd+=["--metrics",a.metrics]
         if a.incidents: cmd+=["--incidents",a.incidents]
-        if a.learning_nas: cmd+=["--nas"]
-        if a.learning_require_nas: cmd+=["--require-nas"]
+        cmd+=["--nas-mode",a.learning_nas_mode]
         p=subprocess.run(cmd,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=60)
         if p.returncode!=0: raise SystemExit("ACCEPTANCE_BRANCH_LEARNING_FAILED:"+p.stderr+p.stdout)
         result["reusable_branch_learning"]=a.learning_output
