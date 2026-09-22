@@ -4,7 +4,7 @@ import argparse,hashlib,json,os,sqlite3,subprocess,time
 from pathlib import Path
 
 DB_DEFAULT=Path("/opt/chacha-dev/runtime/knowledge/experience.db")
-NAS_ADAPTER=Path("/opt/chacha-dev/adapters/nas-ssh/current/nas-ssh-adapter")
+NAS_ADAPTER=Path(os.environ.get("CHACHA_NAS_ADAPTER","/opt/chacha-dev/adapters/nas-ssh/current/nas-ssh-adapter"))
 
 def now_iso(): return time.strftime("%Y-%m-%dT%H:%M:%SZ",time.gmtime())
 def canon(x): return json.dumps(x,sort_keys=True,ensure_ascii=False,separators=(",",":"))
@@ -58,7 +58,12 @@ def publish_nas(event,event_digest,workspace):
     except Exception:return {"status":"DEFERRED","reason":"NAS_RESPONSE_INVALID"}
     if r.get("status")=="OK":return {"status":"PERSISTED","remote":remote}
     if r.get("summary")=="NAS_DESTINATION_ALREADY_EXISTS":return {"status":"PERSISTED","remote":remote,"deduplicated":True}
-    return {"status":"DEFERRED","reason":str(r.get("summary") or r.get("status"))}
+    return {
+        "status":"DEFERRED",
+        "reason":str(r.get("summary") or r.get("status")),
+        "adapter_status":r.get("status"),
+        "adapter_evidence":r.get("evidence") or [],
+    }
 
 def record(args):
     payload=json.loads(Path(args.event).read_text(encoding="utf-8"))
