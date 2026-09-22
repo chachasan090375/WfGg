@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/domain-orchestration/v1",
-  "version": "6.1.0",
+  "version": "6.2.0",
   "core_orchestrator": "chacha-core-orchestrator",
   "principles": {
     "functional_intent_is_source_of_truth": true,
@@ -21,7 +21,9 @@
     "technology_watch_drives_architecture_optimization": true,
     "self_improvement_is_continuous": true,
     "autonomous_safe_self_upgrade": true,
-    "sensitive_change_requires_human_approval": true
+    "sensitive_change_requires_human_approval": true,
+    "agent_foundry_precedes_all_domain_execution": true,
+    "core_replans_after_agent_topology": true
   },
   "request_modes": {
     "simple_question": {
@@ -543,5 +545,22 @@
     "contract_reconciliation": true,
     "unresolved_contract_mismatch_blocks_delivery": true,
     "returns_to_core_orchestrator_after_assembly": true
+  },
+  "execution_pipeline": [
+    "INTENT_UNDERSTANDING",
+    "CORE_PREPLAN",
+    "AGENT_FOUNDRY",
+    "CORE_REPLAN",
+    "DOMAIN_EXECUTION",
+    "ASSEMBLY",
+    "ACCEPTANCE",
+    "DELIVERY",
+    "KNOWLEDGE_PROMOTION"
+  ],
+  "preflight": {
+    "first_executable_branch": "agent-foundry",
+    "policy": "dev-hub/config/agent-foundry.v1.json",
+    "domain_dispatch_before_foundry": false,
+    "core_replan_after_foundry": true
   }
 }
