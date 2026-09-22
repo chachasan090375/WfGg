@@ -64,8 +64,7 @@ def main():
     ap.add_argument("--metrics",type=Path)
     ap.add_argument("--incidents",type=Path)
     ap.add_argument("--output",required=True,type=Path)
-    ap.add_argument("--nas",action="store_true")
-    ap.add_argument("--require-nas",action="store_true")
+    ap.add_argument("--nas-mode",choices=["REQUIRED","OPTIONAL","DISABLED"],default="REQUIRED")
     a=ap.parse_args()
     acc,topo,pre,snap=map(load,[a.acceptance,a.branch_topology,a.preplan,a.technology_snapshot])
     if acc.get("accepted") is not True:
@@ -112,11 +111,9 @@ def main():
             "incidents":incidents
           }
         }
-        nas={"status":"NOT_REQUESTED"}
-        if a.nas or a.require_nas:
-            nas=publish_nas(record)
-            if a.require_nas and nas.get("status")!="PERSISTED":
-                raise SystemExit("BRANCH_MEMORY_NAS_NOT_PERSISTED:"+str(nas.get("reason") or nas.get("status")))
+        nas={"status":"DISABLED_FOR_TEST"} if a.nas_mode=="DISABLED" else publish_nas(record)
+        if a.nas_mode=="REQUIRED" and nas.get("status")!="PERSISTED":
+            raise SystemExit("BRANCH_MEMORY_NAS_NOT_PERSISTED:"+str(nas.get("reason") or nas.get("status")))
         record["nas"]=nas
         tmp=a.output.parent/(version+"-"+hashlib.sha256(branch_id.encode()).hexdigest()[:8]+".json")
         tmp.parent.mkdir(parents=True,exist_ok=True);tmp.write_text(json.dumps(record,indent=2,ensure_ascii=False)+"\n",encoding="utf-8")
