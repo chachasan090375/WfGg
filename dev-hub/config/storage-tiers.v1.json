@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/storage-tiers/v1",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "providers": {
     "hot_vps": {
       "root": "/opt/chacha-dev/runtime",
@@ -28,7 +28,9 @@
     "project_evidence": "projects/{project_id}/evidence",
     "project_deliverables": "projects/{project_id}/deliverables",
     "project_history": "projects/{project_id}/history",
-    "project_backups": "projects/{project_id}/backups"
+    "project_backups": "projects/{project_id}/backups",
+    "production_learning_events": "knowledge/learning-deltas/{project_id}/{source_id}/{date}",
+    "global_project_index_snapshots": "knowledge/projects/index/snapshots"
   },
   "vps_keep": [
     "active-capsule-workspace",
@@ -37,7 +39,9 @@
     "dispatch-queue",
     "runtime-locks",
     "health-snapshots",
-    "emergency-stop-latch"
+    "emergency-stop-latch",
+    "learning-uplink-spool",
+    "global-project-memory-hot-index"
   ],
   "nas_keep": [
     "project-collectors",
@@ -53,7 +57,9 @@
     "historical-plans",
     "arena-results",
     "incident-history",
-    "knowledge-compiler-rules"
+    "knowledge-compiler-rules",
+    "production-learning-deltas",
+    "global-project-index-snapshots"
   ],
   "caching": {
     "hot_index_on_vps": true,

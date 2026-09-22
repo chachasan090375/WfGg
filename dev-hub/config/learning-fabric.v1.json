@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/learning-fabric/v1",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "learners": [
     "core-orchestrator",
     "domain-orchestrators",
@@ -64,5 +64,77 @@
     "preserve_raw_evidence": true,
     "downrank_obsolete_strategies": true,
     "retain_failed_patterns_as_anti_patterns": true
+  },
+  "learner_registration": {
+    "required_for_every_learning_capable_component": true,
+    "includes_platform_components": true,
+    "includes_embedded_application_agents": true,
+    "includes_remote_production_modules": true,
+    "unregistered_learning_source_action": "QUARANTINE_DELTA"
+  },
+  "central_brain_uplink": {
+    "enabled": true,
+    "sink": "chacha-central-memory",
+    "incremental_only": true,
+    "full_state_upload_default": false,
+    "session_independent": true,
+    "reports_when_application_is_used_by_other_users": true,
+    "local_offline_spool": true,
+    "idempotent_delta_ids": true,
+    "monotonic_source_sequence": true
+  },
+  "remote_production_learning": {
+    "continuous_after_release": true,
+    "transmit": [
+      "changed_knowledge",
+      "outcome_metrics",
+      "anomaly_signals",
+      "correction_results",
+      "resource_deltas",
+      "version_context",
+      "evidence_references"
+    ],
+    "privacy": {
+      "raw_user_content_default": false,
+      "secrets_forbidden": true,
+      "credentials_forbidden": true,
+      "data_minimization_required": true,
+      "personal_data_requires_explicit_policy_and_lawful_basis": true
+    },
+    "security": {
+      "https_required": true,
+      "per_deployment_authentication": true,
+      "signed_delta_required": true,
+      "source_revocation_supported": true,
+      "replay_protection": true
+    }
+  },
+  "anomaly_feedback_loop": {
+    "enabled": true,
+    "stages": [
+      "observe-production",
+      "emit-incremental-delta",
+      "correlate-central-memory",
+      "classify-anomaly",
+      "reproduce-if-possible",
+      "generate-correction-candidate",
+      "verify",
+      "canary-or-sandbox",
+      "apply-within-policy",
+      "observe-post-correction"
+    ],
+    "automatic_correction_classes": [
+      "rollback-to-known-good",
+      "restart-ephemeral-runtime",
+      "configuration-within-preapproved-bounds"
+    ],
+    "approval_gated_classes": [
+      "production-code-change",
+      "production-data-write",
+      "permission-or-secret-change",
+      "technology-replacement"
+    ],
+    "rollback_required": true,
+    "evidence_required": true
   }
 }

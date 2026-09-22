@@ -1,0 +1,49 @@
+{
+  "schema": "chacha.dev/production-learning-policy/v1",
+  "version": "1.0.0",
+  "principle": "Every component that can learn must report only incremental learning deltas to central brain memory, including deployed application agents and learning modules when applications are used by other users.",
+  "uplink": {
+    "session_independent": true,
+    "incremental_only": true,
+    "offline_spool": true,
+    "idempotent": true,
+    "authenticated": true,
+    "signed": true,
+    "https_required": true
+  },
+  "central_memory": {
+    "authoritative_events": "NAS",
+    "hot_index": "VPS",
+    "global_project_index": true,
+    "cross_project_learning": true
+  },
+  "production_observability": {
+    "anomaly_detection": true,
+    "behavior_drift": true,
+    "outcome_feedback": true,
+    "resource_feedback": true
+  },
+  "remediation": {
+    "auto_generate_candidate": true,
+    "verify_before_apply": true,
+    "canary_or_sandbox_required": true,
+    "rollback_required": true,
+    "auto_apply_preapproved_classes": [
+      "rollback-to-known-good",
+      "restart-ephemeral-runtime",
+      "configuration-within-preapproved-bounds"
+    ],
+    "approval_required_classes": [
+      "production-code-change",
+      "production-data-write",
+      "permission-or-secret-change",
+      "technology-replacement"
+    ]
+  },
+  "privacy": {
+    "raw_user_content_default": false,
+    "secrets_forbidden": true,
+    "data_minimization": true,
+    "personal_data_requires_policy": true
+  }
+}

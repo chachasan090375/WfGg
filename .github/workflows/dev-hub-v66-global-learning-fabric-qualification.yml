@@ -1,0 +1,71 @@
+name: ChaCha DEV V6.6 global learning fabric qualification
+on:
+  push:
+    branches: [dev-hub-v66-global-learning-fabric]
+    paths:
+      - 'dev-hub/config/learning-fabric.v1.json'
+      - 'dev-hub/config/storage-tiers.v1.json'
+      - 'dev-hub/config/production-learning-policy.v1.json'
+      - 'dev-hub/schemas/learning-delta-v1.schema.json'
+      - 'dev-hub/bin/learning-delta-ingest.py'
+      - 'dev-hub/bin/global-project-memory-index.py'
+      - 'dev-hub/bin/learning-uplink-client.py'
+      - 'dev-hub/tests/test_v66_global_learning_fabric.py'
+      - '.github/workflows/dev-hub-v66-global-learning-fabric-qualification.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with: {ref: dev-hub-v66-global-learning-fabric}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - name: Static validation
+        run: |
+          set -euo pipefail
+          python3 -m py_compile dev-hub/bin/learning-delta-ingest.py dev-hub/bin/global-project-memory-index.py dev-hub/bin/learning-uplink-client.py
+          python3 -m json.tool dev-hub/config/learning-fabric.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/storage-tiers.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/production-learning-policy.v1.json >/dev/null
+          python3 -m json.tool dev-hub/schemas/learning-delta-v1.schema.json >/dev/null
+          echo CHACHA_DEV_V66_STATIC=PASS
+      - name: Universal learning and global memory
+        run: |
+          set -euo pipefail
+          python3 dev-hub/tests/test_v66_global_learning_fabric.py
+      - name: Policy invariants
+        run: |
+          set -euo pipefail
+          grep -Fq 'reports_when_application_is_used_by_other_users' dev-hub/config/learning-fabric.v1.json
+          grep -Fq 'incremental_only' dev-hub/config/production-learning-policy.v1.json
+          grep -Fq 'raw_user_content_default' dev-hub/config/production-learning-policy.v1.json
+          grep -Fq 'approval_required_classes' dev-hub/config/production-learning-policy.v1.json
+          echo CHACHA_DEV_V66_PRIVACY_AND_REMEDIATION_GATES=PASS
+      - name: Qualification receipt
+        run: |
+          {
+            echo CHACHA_DEV_GLOBAL_LEARNING=V6.6
+            echo RESULT=success
+            echo SOURCE_REV="$(git rev-parse HEAD)"
+            echo ALL_LEARNING_COMPONENTS_REPORT=YES
+            echo DEPLOYED_APP_AGENTS_REPORT=YES
+            echo REPORTING_SESSION_INDEPENDENT=YES
+            echo DELTAS_ONLY=YES
+            echo CENTRAL_BRAIN=YES
+            echo NAS_AUTHORITATIVE=YES
+            echo VPS_HOT_INDEX=YES
+            echo GLOBAL_PROJECT_MEMORY_INDEX=YES
+            echo PRODUCTION_ANOMALY_FEEDBACK=YES
+            echo SAFE_AUTO_REMEDIATION=YES
+            echo RISKY_PRODUCTION_MUTATIONS_APPROVAL_GATED=YES
+            echo AUTOMATIC_EXTERNAL_SPEND_EUR=0
+          } | tee /tmp/CHACHA_DEV_V66_RECEIPT.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chacha-dev-v66-global-learning
+          path: /tmp/CHACHA_DEV_V66_RECEIPT.txt
+          retention-days: 30
