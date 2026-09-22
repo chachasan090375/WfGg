@@ -188,6 +188,17 @@ async function evaluate(event,env){
   if(truthyEvidence(evidence,"emergency_stop_active"))addReason(state,"CRITICAL","EMERGENCY_STOP_ACTIVE");
   if(actor==="run-controller"&&phase==="PRE_ACTION"&&!truthyEvidence(evidence,"adapter_binding_valid"))
     addReason(state,"BLOCK","ADAPTER_BINDING_NOT_VALIDATED");
+  if(actor==="run-controller"&&action==="DISPATCH_TASK"){
+    const bindingDigest=String(context.guardian_binding_digest||"");
+    const claimedPolicy=String(context.guardian_policy_contract_ref||"");
+    if(!bindingDigest)addReason(state,"BLOCK","TASK_GUARDIAN_BINDING_DIGEST_MISSING");
+    if(dynAgent&&claimedPolicy&&claimedPolicy!==String(dynAgent.template_contract_id||""))
+      addReason(state,"BLOCK","TASK_GUARDIAN_POLICY_CONTRACT_DRIFT");
+    if(dynComponent&&claimedPolicy&&claimedPolicy!==String(dynComponent.template_contract_id||""))
+      addReason(state,"BLOCK","TASK_GUARDIAN_POLICY_CONTRACT_DRIFT");
+    if(!dynAgent&&!dynComponent&&claimedPolicy&&roleContract&&claimedPolicy!==String(roleContract.contract_id||""))
+      addReason(state,"BLOCK","TASK_GUARDIAN_STATIC_ROLE_CONTRACT_DRIFT");
+  }
 
   for(const binding of (Array.isArray(event.adapters)?event.adapters:[])){
     if(!binding||!binding.adapter){addReason(state,"BLOCK","ADAPTER_ID_MISSING");continue;}
@@ -213,6 +224,10 @@ async function actionLease(event,env,current){
   const phase=String(event.phase||"");
   const actionId=String(event.action_id||"");
   const permission=String(event.permission||"read");
+  const isDispatch=String(event.actor||"")==="run-controller"&&String(event.action||"")==="DISPATCH_TASK";
+  const bindingDigest=String((event.context||{}).guardian_binding_digest||"");
+  const subjectContractId=String(event.subject_contract_id||"");
+  const subjectContractVersion=String(event.subject_contract_version||"");
   if(!actionId){
     return {severity:"BLOCK",reason_codes:["ACTION_ID_REQUIRED"]};
   }
@@ -228,6 +243,12 @@ async function actionLease(event,env,current){
     ).bind(actionId,String(event.event_id),String(event.actor||""),String(event.subject_role||""),String(event.action||""),
            permission,event.project_id?String(event.project_id):null,event.run_id?String(event.run_id):null,
            "+"+deadline+" seconds",current.verdict).run();
+    if(isDispatch&&["PASS","WARNING"].includes(current.verdict)){
+      await env.DB.prepare(
+        `INSERT OR REPLACE INTO task_contract_leases(action_id,subject_role,subject_contract_id,subject_contract_version,binding_digest,opened_at,closed_at,status)
+         VALUES(?1,?2,?3,?4,?5,datetime('now'),NULL,'OPEN')`
+      ).bind(actionId,String(event.subject_role||""),subjectContractId||null,subjectContractVersion||null,bindingDigest).run();
+    }
     return {severity:"INFO",reason_codes:[]};
   }
   if(phase==="POST_ACTION"){
@@ -243,6 +264,19 @@ async function actionLease(event,env,current){
     await env.DB.prepare(
       "UPDATE action_leases SET post_event_id=?2,closed_at=datetime('now'),status='CLOSED',last_verdict=?3 WHERE action_id=?1"
     ).bind(actionId,String(event.event_id),current.verdict).run();
+    if(isDispatch){
+      const lease=await env.DB.prepare("SELECT * FROM task_contract_leases WHERE action_id=?1").bind(actionId).first();
+      if(!lease)return {severity:"CRITICAL",reason_codes:["TASK_CONTRACT_LEASE_MISSING"]};
+      const contractMismatch=
+        String(lease.subject_role||"")!==String(event.subject_role||"")||
+        String(lease.subject_contract_id||"")!==subjectContractId||
+        String(lease.subject_contract_version||"")!==subjectContractVersion||
+        String(lease.binding_digest||"")!==bindingDigest;
+      await env.DB.prepare(
+        "UPDATE task_contract_leases SET closed_at=datetime('now'),status=?2 WHERE action_id=?1"
+      ).bind(actionId,contractMismatch?"MISMATCH":"CLOSED").run();
+      if(contractMismatch)return {severity:"CRITICAL",reason_codes:["TASK_CONTRACT_IDENTITY_DRIFT"]};
+    }
     return mismatch?{severity:"CRITICAL",reason_codes:["ACTION_IDENTITY_DRIFT"]}:{severity:"INFO",reason_codes:[]};
   }
   return {severity:"INFO",reason_codes:[]};
@@ -514,7 +548,8 @@ export default {
       status:"ok",service:"chacha-dev-guardian",external_governance_plane:true,
       runtime_contract_mutation_api:false,dynamic_instance_contract_registration:true,
       dynamic_component_contract_registration:true,dynamic_contract_policy_escalation_allowed:false,
-      dynamic_component_policy_escalation_allowed:false,tunnel_required:false,action_lease_protocol:true,coverage_watch:true,
+      dynamic_component_policy_escalation_allowed:false,tunnel_required:false,action_lease_protocol:true,
+      task_contract_binding_protocol:true,task_contract_identity_lease:true,coverage_watch:true,
       authenticated_watchdog_sweep:true,scheduled_watchdog:true
     });
     if(req.method==="POST"&&u.pathname==="/v1/check")return check(req,env);
