@@ -1,0 +1,118 @@
+name: Radar V6.24 offline mail module index
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [radar-v624-internal-mail-protocol-discovery]
+    paths:
+      - '.github/workflows/radar-v624-offline-mail-module-index.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: radar-v624-internal-mail-protocol-discovery
+
+      - name: Download public Last War 1.0.351 XAPK
+        run: |
+          set -euo pipefail
+          url='https://d.apkpure.net/b/XAPK/com.fun.lastwar.gp?nc=arm64-v8a%2Carmeabi-v7a&sv=23&versionCode=1835'
+          curl -fL --retry 5 --retry-all-errors --connect-timeout 30 --max-time 1200             -A 'Mozilla/5.0' -o /tmp/lastwar.xapk "$url"
+          test -s /tmp/lastwar.xapk
+          unzip -tq /tmp/lastwar.xapk >/dev/null
+          echo V624_XAPK=READY
+
+      - name: Extract LWLF
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/xapk && mkdir -p /tmp/xapk
+          unzip -q /tmp/lastwar.xapk '*.apk' -d /tmp/xapk
+          target=''
+          while IFS= read -r -d '' apk; do
+            if unzip -Z1 "$apk" | grep -Fxq 'assets/lwScripts/LWScripts.data'; then
+              target="$apk"; break
+            fi
+          done < <(find /tmp/xapk -type f -name '*.apk' -print0)
+          test -n "$target"
+          unzip -p "$target" assets/lwScripts/LWScripts.data > /tmp/LWScripts.data
+          test -s /tmp/LWScripts.data
+          echo "V624_LWLF_BYTES=$(stat -c %s /tmp/LWScripts.data)"
+
+      - name: Index Mail modules and extract candidate chunks
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import json,re,struct,string
+
+          data=Path('/tmp/LWScripts.data').read_bytes()
+          if data[:4]!=b'LWLF':
+              raise SystemExit('V624_LWLF_MAGIC_INVALID')
+          fv,ver,count=struct.unpack_from('<III',data,4)
+          pos=16
+          rows=[]
+
+          def r7(off):
+              value=0; shift=0
+              for _ in range(5):
+                  x=data[off]; off+=1
+                  value |= (x & 0x7f) << shift
+                  if not x & 0x80: return value,off
+                  shift+=7
+              raise ValueError('bad 7bit')
+
+          out=Path('/tmp/v624-mail-modules'); out.mkdir(exist_ok=True)
+          for i in range(count):
+              n,pos=r7(pos)
+              name=data[pos:pos+n].decode('utf-8','replace'); pos+=n
+              size=struct.unpack_from('<I',data,pos)[0]; pos+=4
+              chunk=data[pos:pos+size]; pos+=size
+              low=name.lower()
+              if 'mail' in low:
+                  has_send=('send' in low)
+                  has_cmd=(b'mail.send' in chunk)
+                  fn=''
+                  if has_send or has_cmd or '/mail/' in low or 'msgs/mail' in low:
+                      safe=re.sub(r'[^A-Za-z0-9_.-]+','_',name)
+                      p=out/f'{i:05d}_{safe}.luac'
+                      p.write_bytes(chunk); fn=str(p)
+                  rows.append({'index':i,'name':name,'size':size,'nameHasSend':has_send,'containsMailSend':has_cmd,'path':fn})
+          Path('/tmp/v624-mail-module-index.json').write_text(json.dumps({
+              'fileVersion':fv,'version':ver,'entryCount':count,'rows':rows
+          },indent=2)+'\n')
+          print('V624_ENTRY_COUNT='+str(count))
+          print('V624_MAIL_MODULE_COUNT='+str(len(rows)))
+          for r in rows:
+              if r['nameHasSend'] or r['containsMailSend'] or '/mail/' in r['name'].lower() or 'msgs/mail' in r['name'].lower():
+                  print('V624_MAIL_MODULE='+str(r['index'])+'|'+r['name']+'|sendName='+str(r['nameHasSend'])+'|mailSendConst='+str(r['containsMailSend']))
+          PY
+
+      - name: Extract symbolic constants from candidate chunks
+        run: |
+          set -euo pipefail
+          : > /tmp/v624-mail-symbols.txt
+          for f in /tmp/v624-mail-modules/*.luac; do
+            [ -e "$f" ] || continue
+            echo "===== $(basename "$f") =====" >> /tmp/v624-mail-symbols.txt
+            strings -a -n 2 "$f" | grep -Ei 'mail\.send|put(utf|string|int|long|bool)|uid|user|to|target|title|subject|content|body|msg|message|type|alliance|name|text|send'               | head -n 300 >> /tmp/v624-mail-symbols.txt || true
+          done
+          cat /tmp/v624-mail-symbols.txt
+          echo V624_LASTWAR_MUTATION=NO
+          echo V624_GAME_CONNECTION=NONE
+
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: radar-v624-mail-module-index
+          path: |
+            /tmp/v624-mail-module-index.json
+            /tmp/v624-mail-symbols.txt
+          if-no-files-found: warn
+          retention-days: 14
