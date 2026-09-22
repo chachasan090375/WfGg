@@ -20,7 +20,7 @@ var messengerOutboxIDV624 = regexp.MustCompile(`^[a-f0-9]{24}$`)
 func messengerOutboxBinV624() string {
 	p := strings.TrimSpace(os.Getenv("WFGG_MESSENGER_OUTBOX_BIN"))
 	if p == "" {
-		p = "/opt/wfgg-messenger/bin/wfgg-messenger-outbox"
+		p = "/opt/wfgg-radar/messenger/bin/wfgg-messenger-outbox"
 	}
 	return p
 }
@@ -28,7 +28,7 @@ func messengerOutboxBinV624() string {
 func messengerOutboxLedgerV624() string {
 	p := strings.TrimSpace(os.Getenv("WFGG_MESSENGER_OUTBOX_LEDGER"))
 	if p == "" {
-		p = "/opt/wfgg-messenger/data/outbox.jsonl"
+		p = "/opt/wfgg-radar/data/messenger/outbox.jsonl"
 	}
 	return p
 }
