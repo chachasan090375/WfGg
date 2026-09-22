@@ -23,8 +23,9 @@ jobs:
         run: |
           set -euo pipefail
           sudo apt-get update -qq
-          sudo apt-get install -y -qq unzip lua5.3
-          command -v luac5.3 >/dev/null || command -v luac >/dev/null
+          sudo apt-get install -y -qq unzip default-jdk-headless
+          java -version
+          javac -version
           echo V624_OFFLINE_TOOLS=READY
 
       - name: Download public Last War 1.0.351 XAPK
@@ -46,10 +47,8 @@ jobs:
           rm -rf /tmp/v624-xapk
           mkdir -p /tmp/v624-xapk
           unzip -q /tmp/lastwar-1.0.351.xapk '*.apk' -d /tmp/v624-xapk
-          : > /tmp/v624-apk-list.txt
           target=''
           while IFS= read -r -d '' apk; do
-            echo "$apk" >> /tmp/v624-apk-list.txt
             if unzip -Z1 "$apk" | grep -Fxq 'assets/lwScripts/LWScripts.data'; then
               target="$apk"
               break
@@ -69,142 +68,178 @@ jobs:
               raise SystemExit('V624_LWSCRIPTS_MAGIC_INVALID')
           PY
 
-      - name: Parse LWLF and isolate mail.send chunks
+      - name: Parse LWLF and isolate mail-related chunks
         run: |
           set -euo pipefail
           python3 - <<'PY'
           from pathlib import Path
-          import json, struct
+          import json, struct, re
 
-          src=Path('/tmp/LWScripts.data')
-          data=src.read_bytes()
+          data=Path('/tmp/LWScripts.data').read_bytes()
           if data[:4] != b'LWLF':
               raise SystemExit('LWLF_MAGIC_INVALID')
           file_version, version, count = struct.unpack_from('<III', data, 4)
           pos=16
           outdir=Path('/tmp/v624-mail-chunks'); outdir.mkdir(exist_ok=True)
           rows=[]
+          names=[]
 
           def read_7bit(buf, off):
               value=0; shift=0
               for _ in range(5):
-                  if off >= len(buf):
-                      raise ValueError('EOF_7BIT')
+                  if off >= len(buf): raise ValueError('EOF_7BIT')
                   x=buf[off]; off+=1
                   value |= (x & 0x7f) << shift
-                  if not (x & 0x80):
-                      return value, off
+                  if not (x & 0x80): return value, off
                   shift += 7
               raise ValueError('INVALID_7BIT')
 
           for i in range(count):
-              n, pos = read_7bit(data, pos)
+              n,pos=read_7bit(data,pos)
               name=data[pos:pos+n].decode('utf-8','replace'); pos+=n
-              if pos+4 > len(data): raise ValueError('EOF_LEN')
-              size=struct.unpack_from('<I', data, pos)[0]; pos+=4
-              start=pos; end=pos+size
-              if end > len(data): raise ValueError('EOF_CHUNK')
-              chunk=data[start:end]; pos=end
-              if b'mail.send' in chunk:
+              size=struct.unpack_from('<I',data,pos)[0]; pos+=4
+              chunk=data[pos:pos+size]; pos+=size
+              if re.search(r'(?i)mail.*send|send.*mail', name):
+                  names.append(name)
+              command_hit=b'mail.send' in chunk
+              name_hit=bool(re.search(r'(?i)mail.*send|send.*mail', name))
+              if command_hit or name_hit:
                   fn=outdir / f'{i:05d}.luac'
                   fn.write_bytes(chunk)
-                  rows.append({'index':i,'name':name,'size':size,'path':str(fn)})
+                  rows.append({
+                    'index':i,'name':name,'size':size,'path':str(fn),
+                    'commandLiteral':command_hit,'nameMatch':name_hit,
+                    'headerHex':chunk[:32].hex()
+                  })
+
           report={
-              'magic':'LWLF','fileVersion':file_version,'version':version,
-              'entryCount':count,'mailSendChunkCount':len(rows),'chunks':rows,
-              'lastwarMutation':False,'gameConnection':'NONE'
+            'magic':'LWLF','fileVersion':file_version,'version':version,
+            'entryCount':count,'candidateCount':len(rows),'nameMatches':names,
+            'chunks':rows,'lastwarMutation':False,'gameConnection':'NONE'
           }
           Path('/tmp/v624-lwlf-report.json').write_text(json.dumps(report,indent=2)+'\n')
-          print('V624_LWLF_FILE_VERSION='+str(file_version))
-          print('V624_LWLF_VERSION='+str(version))
           print('V624_LWLF_ENTRY_COUNT='+str(count))
-          print('V624_MAIL_SEND_CHUNKS='+str(len(rows)))
+          print('V624_MAIL_CANDIDATES='+str(len(rows)))
+          print('V624_MAIL_NAME_MATCHES='+str(len(names)))
           for row in rows:
-              print('V624_MAIL_SEND_CHUNK='+str(row['index'])+'|'+row['name']+'|'+str(row['size']))
+              print('V624_MAIL_CHUNK='+str(row['index'])+'|'+row['name']+'|'+str(row['size'])+'|literal='+str(row['commandLiteral']))
+              print('V624_MAIL_CHUNK_HEADER='+row['headerHex'])
           if not rows:
-              raise SystemExit('V624_MAIL_SEND_CHUNK_NOT_FOUND')
+              raise SystemExit('V624_MAIL_CHUNKS_NOT_FOUND')
           PY
 
-      - name: Normalize modified Lua headers and disassemble mail.send chunks
+      - name: Build patched unluac for Last War Lua format
         run: |
           set -euo pipefail
-          mkdir -p /tmp/v624-mail-disasm
+          rm -rf /tmp/unluac
+          git clone --quiet --depth 1 https://github.com/HansWessels/unluac.git /tmp/unluac
           python3 - <<'PY'
           from pathlib import Path
-          import json
-          rep=json.loads(Path('/tmp/v624-lwlf-report.json').read_text())
-          for row in rep['chunks']:
-              src=Path(row['path'])
-              b=src.read_bytes()
-              dst=Path('/tmp/v624-mail-disasm')/(src.stem+'-standard.luac')
-              if len(b) < 24 or b[:4] != b'\x1bLua':
-                  print('V624_CHUNK_NOT_LUA53='+row['name'])
-                  continue
-              if b[4] != 0x53:
-                  print('V624_CHUNK_LUA_VERSION='+hex(b[4])+'|'+row['name'])
-                  continue
-              if b[5] == 1:
-                  # Game-specific Lua 5.3 header: format=1 and the standard
-                  # one-byte sizeof(Instruction) field is omitted.
-                  fixed=b[:5]+b'\x00'+b[6:14]+b'\x04'+b[14:]
-              else:
-                  fixed=b
-              dst.write_bytes(fixed)
-              print('V624_STANDARD_CHUNK='+str(dst))
+          p=Path('/tmp/unluac/src/unluac/parse/LHeaderType.java')
+          s=p.read_text()
+          old='''    if(format != 0) {
+              throw new IllegalStateException("The input chunk reports a non-standard lua format: " + format);
+            }'''
+          new='''    if(format != 0 && format != 1) {
+              throw new IllegalStateException("The input chunk reports a non-standard lua format: " + format);
+            }'''
+          if old not in s:
+              raise SystemExit('V624_UNLUAC_FORMAT_ANCHOR_MISSING')
+          s=s.replace(old,new,1)
+          old53='''    parse_int_size(buffer, header, s);
+            parse_size_t_size(buffer, header, s);
+            parse_instruction_size(buffer, header, s);
+            parse_integer_size(buffer, header, s);
+            parse_float_size(buffer, header, s);'''
+          new53='''    parse_int_size(buffer, header, s);
+            parse_size_t_size(buffer, header, s);
+            if(s.format != 1) {
+              parse_instruction_size(buffer, header, s);
+            }
+            parse_integer_size(buffer, header, s);
+            parse_float_size(buffer, header, s);'''
+          # TYPE53 is the last occurrence of this exact sequence; replace last.
+          idx=s.rfind(old53)
+          if idx < 0:
+              raise SystemExit('V624_UNLUAC_53_ANCHOR_MISSING')
+          s=s[:idx]+new53+s[idx+len(old53):]
+          p.write_text(s)
           PY
-          luac_bin="$(command -v luac5.3 || command -v luac)"
-          found=0
-          for f in /tmp/v624-mail-disasm/*-standard.luac; do
+          cd /tmp/unluac
+          bash build.sh
+          test -s bin/unluac.jar
+          echo V624_UNLUAC_PATCHED=READY
+
+      - name: Decompile static mail candidates
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/v624-mail-decompiled
+          ok=0
+          for f in /tmp/v624-mail-chunks/*.luac; do
             [ -e "$f" ] || continue
-            out="/tmp/v624-mail-disasm/$(basename "$f" .luac).txt"
-            if "$luac_bin" -l -l "$f" > "$out" 2>&1; then
-              found=$((found+1))
-              echo "V624_LUAC_DISASSEMBLY=PASS|$(basename "$f")"
+            base="$(basename "$f" .luac)"
+            out="/tmp/v624-mail-decompiled/$base.lua"
+            err="/tmp/v624-mail-decompiled/$base.err"
+            if java -jar /tmp/unluac/bin/unluac.jar "$f" >"$out" 2>"$err"; then
+              ok=$((ok+1))
+              echo "V624_UNLUAC=PASS|$base"
             else
-              echo "V624_LUAC_DISASSEMBLY=FAILED|$(basename "$f")"
-              cat "$out"
+              echo "V624_UNLUAC=FAILED|$base"
+              cat "$err"
             fi
           done
-          test "$found" -gt 0
+          test "$ok" -gt 0
+          echo "V624_DECOMPILED_CHUNKS=$ok"
 
-      - name: Extract schema evidence from disassembly
+      - name: Extract exact mail.send schema evidence
         run: |
           set -euo pipefail
           python3 - <<'PY'
           from pathlib import Path
-          import re, json
-          files=sorted(Path('/tmp/v624-mail-disasm').glob('*.txt'))
-          combined='\n'.join(p.read_text(errors='replace') for p in files)
-          # Preserve only protocol-relevant symbolic evidence. No game/account data
-          # exists in these static bytecode chunks.
-          needles=[
-              'mail.send','PutUtfString','PutInt','PutLong','PutBool',
-              'uid','toUser','title','subject','content','msg','message',
-              'type','alliance','allianceId','name','text'
-          ]
-          hits={}
-          for n in needles:
-              if n.lower() in combined.lower():
-                  hits[n]=len(re.findall(re.escape(n), combined, re.I))
-          Path('/tmp/v624-schema-symbols.json').write_text(json.dumps(hits,indent=2,sort_keys=True)+'\n')
-          print('V624_SCHEMA_SYMBOLS='+','.join(sorted(hits)))
-          print('V624_SCHEMA_EVIDENCE_FILES='+str(len(files)))
+          import json,re
+          rep=json.loads(Path('/tmp/v624-lwlf-report.json').read_text())
+          rows=[]
+          for src in sorted(Path('/tmp/v624-mail-decompiled').glob('*.lua')):
+              text=src.read_text(errors='replace')
+              relevant=bool(
+                  'mail.send' in text
+                  or re.search(r'(?i)Mail.*Send|Send.*Mail', text)
+              )
+              if not relevant:
+                  continue
+              puts=[]
+              for m in re.finditer(r'Put(UtfString|Int|Long|Bool|Double)\s*\(\s*["\']([^"\']+)["\']\s*,\s*([^\n\r\)]*)', text):
+                  puts.append({'type':m.group(1),'key':m.group(2),'valueExpr':m.group(3).strip()})
+              rows.append({'file':src.name,'putFields':puts,'containsMailSend':('mail.send' in text)})
+          report={
+            'version':'V6.24','mode':'OFFLINE_APK_STATIC',
+            'lastwarMutation':False,'gameConnection':'NONE',
+            'schemaCandidates':rows
+          }
+          Path('/tmp/v624-mail-schema.json').write_text(json.dumps(report,indent=2)+'\n')
+          print('V624_SCHEMA_CANDIDATE_FILES='+str(len(rows)))
+          for row in rows:
+              print('V624_SCHEMA_FILE='+row['file']+'|fields='+str(len(row['putFields']))+'|literal='+str(row['containsMailSend']))
+              for f in row['putFields']:
+                  print('V624_SCHEMA_FIELD='+f['type']+'|'+f['key']+'|'+f['valueExpr'])
           print('V624_LASTWAR_MUTATION=NO')
           print('V624_GAME_CONNECTION=NONE')
           PY
-          cat /tmp/v624-schema-symbols.json
-          echo '===== MAIL.SEND DISASSEMBLY CONTEXT ====='
-          grep -Rni -C 20 -E 'mail\.send|PutUtfString|PutInt|PutLong|PutBool|toUser|subject|title|content|message'             /tmp/v624-mail-disasm/*.txt | head -n 800 | tee /tmp/v624-mail-schema-context.txt || true
+          echo '===== DECOMPILED MAIL CONTEXT ====='
+          grep -Rni -C 40 -E 'mail\.send|Mail.*Send|Send.*Mail|PutUtfString|PutInt|PutLong|PutBool'             /tmp/v624-mail-decompiled/*.lua | head -n 1200 | tee /tmp/v624-mail-schema-context.txt || true
+          cat /tmp/v624-mail-schema.json
 
       - name: Upload offline schema evidence
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: radar-v624-offline-mail-schema
           path: |
             /tmp/v624-xapk-sha256.txt
             /tmp/v624-lwlf-report.json
-            /tmp/v624-schema-symbols.json
+            /tmp/v624-mail-schema.json
             /tmp/v624-mail-schema-context.txt
-            /tmp/v624-mail-disasm/*.txt
-          if-no-files-found: error
+            /tmp/v624-mail-decompiled/*.lua
+            /tmp/v624-mail-decompiled/*.err
+          if-no-files-found: warn
           retention-days: 14
