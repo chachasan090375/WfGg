@@ -2,7 +2,7 @@ name: ChaCha DEV V6.21 universal learning loop qualification
 
 on:
   push:
-    branches: [dev-hub-v621-guardian-corrective-enforcement]
+    branches: [dev-hub-v621-universal-learning-loop]
     paths:
       - 'dev-hub/guardian/**'
       - 'dev-hub/bin/guardian-client.py'
@@ -55,7 +55,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: dev-hub-v621-guardian-corrective-enforcement
+          ref: dev-hub-v621-universal-learning-loop
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
