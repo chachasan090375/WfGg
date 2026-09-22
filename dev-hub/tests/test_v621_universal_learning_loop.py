@@ -36,6 +36,24 @@ with tempfile.TemporaryDirectory(prefix="v621-learning-") as td:
                      stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False)
     assert p.returncode==0,(p.stdout,p.stderr)
     flushed=json.loads(p.stdout);assert len(flushed["sent"])==2 and flushed["pending"]==0,flushed
+    assert [x["sequence"] for x in flushed["sent"]]==[1,2],flushed
+    assert flushed["ordering"]=="SOURCE_DEPLOYMENT_SEQUENCE_ASC",flushed
+
+    # Regression: filenames are intentionally reverse-ordered versus sequence.
+    ordered_outbox=td/"ordered-outbox";ordered_sent=td/"ordered-sent"
+    ordered_outbox.mkdir();ordered_sent.mkdir()
+    base={"schema":"chacha.dev/learning-delta/v1","project_id":"p2","source_id":"agent-order",
+          "source_kind":"agent","deployment_id":"deploy-order","observed_at":"2026-09-22T20:00:00Z",
+          "changes":[{"path":"/x","op":"set","value":1}],
+          "privacy":{"raw_user_content":False,"contains_secrets":False,"personal_data_class":"none"}}
+    (ordered_outbox/"ld-z-seq1.json").write_text(json.dumps({**base,"delta_id":"ld-z-seq1","sequence":1}),encoding="utf-8")
+    (ordered_outbox/"ld-a-seq2.json").write_text(json.dumps({**base,"delta_id":"ld-a-seq2","sequence":2}),encoding="utf-8")
+    p2=subprocess.run(["python3",str(BIN/"universal-learning-producer.py"),"flush","--transport","local",
+                       "--outbox",str(ordered_outbox),"--sent",str(ordered_sent),"--ingest",str(fake),"--db",str(td/"y.db")],
+                      stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False)
+    assert p2.returncode==0,(p2.stdout,p2.stderr)
+    ordered=json.loads(p2.stdout)
+    assert [x["sequence"] for x in ordered["sent"]]==[1,2],ordered
 
 cfg=json.load(open(CFG/"universal-learning.v1.json",encoding="utf-8"))
 assert cfg["requirements"]["incremental_deltas_only"] is True
