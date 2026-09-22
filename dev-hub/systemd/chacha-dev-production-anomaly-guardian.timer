@@ -1,0 +1,13 @@
+[Unit]
+Description=ChaCha DEV production anomaly Guardian bridge schedule
+
+[Timer]
+OnBootSec=20s
+OnUnitActiveSec=30s
+AccuracySec=3s
+RandomizedDelaySec=2s
+Persistent=true
+Unit=chacha-dev-production-anomaly-guardian.service
+
+[Install]
+WantedBy=timers.target
