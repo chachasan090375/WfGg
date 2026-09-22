@@ -20,20 +20,37 @@
     "rollback-plan",
     "project-agent-registry",
     "agent-foundry-plan",
-    "project-agent-collector"
+    "project-agent-collector",
+    "functional-contract",
+    "component-registry",
+    "contract-registry",
+    "architecture-arena-ledger",
+    "agent-arena-ledger",
+    "digital-twin-plan",
+    "acceptance-ledger",
+    "uncertainty-ledger",
+    "recovery-ledger",
+    "knowledge-compiler-ledger",
+    "autonomy-audit-ledger"
   ],
   "provision_per_active_domain": [
     "domain-workspace",
     "project-domain-collector",
     "domain-contract",
-    "domain-evidence-stream"
+    "domain-evidence-stream",
+    "component-catalog",
+    "component-contract",
+    "factory-fixtures"
   ],
   "orchestrators": {
     "core": "chacha-core-orchestrator",
     "assembly": "domain-assembly-orchestrator",
     "context": "context-resolver",
     "acceptance": "acceptance-engine",
-    "agent_foundry": "agent-foundry-orchestrator"
+    "agent_foundry": "agent-foundry-orchestrator",
+    "capability_foundry": "capability-foundry-orchestrator",
+    "recovery": "recovery-orchestrator",
+    "knowledge_compiler": "knowledge-compiler"
   },
   "collectors": {
     "project_collector": {
@@ -61,7 +78,10 @@
     "acceptance_required": true,
     "unresolved_contracts_block_delivery": true,
     "documentation_projection_required": true,
-    "project_collector_snapshot_required": true
+    "project_collector_snapshot_required": true,
+    "digital_twin_required": true,
+    "contract_reconciliation_required": true,
+    "autonomy_audit_required": true
   },
   "autonomy": {
     "normal_reversible_work": "AUTO_WITH_GATES",
