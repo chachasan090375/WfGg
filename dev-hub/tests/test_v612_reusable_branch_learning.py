@@ -27,7 +27,7 @@ with tempfile.TemporaryDirectory(prefix="chacha-v612-") as td:
       "python3",str(ACCEPT),"--contract",str(td/"contract.json"),"--evidence",str(td/"evidence.json"),"--output",str(out),
       "--branch-topology",str(td/"branch.json"),"--preplan",str(td/"pre.json"),"--technology-snapshot",str(td/"snap.json"),
       "--reusable-registry",str(REG),"--reusable-registry-db",str(db),"--learning-output",str(learning),
-      "--metrics",str(td/"metrics.json"),"--incidents",str(td/"incidents.json")
+      "--metrics",str(td/"metrics.json"),"--incidents",str(td/"incidents.json"),"--learning-nas-mode","DISABLED"
     ],stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=60)
     assert p.returncode==0,(p.stdout,p.stderr)
     assert "CHACHA_DEV_V612_ACCEPTANCE_TO_REUSE_MEMORY=PASS" in p.stdout
