@@ -1,0 +1,72 @@
+{
+  "schema": "chacha.dev/storage-tiers/v1",
+  "version": "1.0.0",
+  "providers": {
+    "hot_vps": {
+      "root": "/opt/chacha-dev/runtime",
+      "purpose": "active execution, small indexes, locks, queues, current manifests",
+      "authoritative": false
+    },
+    "persistent_nas": {
+      "provider": "nas",
+      "host": "chachanas",
+      "root": "/share/CACHEDEV1_DATA/ChaCha-DEV-HUB",
+      "purpose": "authoritative persistent knowledge and project artifacts",
+      "authoritative": true
+    }
+  },
+  "paths": {
+    "platform_knowledge": "knowledge/platform",
+    "generic_domain_collectors": "knowledge/domains/{domain}",
+    "orchestrator_experience": "knowledge/orchestrators/{orchestrator}",
+    "foundry_experience": "knowledge/foundries/{foundry}",
+    "global_project_index": "knowledge/projects/index",
+    "project_root": "projects/{project_id}",
+    "project_collectors": "projects/{project_id}/knowledge",
+    "project_components": "projects/{project_id}/components",
+    "project_contracts": "projects/{project_id}/contracts",
+    "project_evidence": "projects/{project_id}/evidence",
+    "project_deliverables": "projects/{project_id}/deliverables",
+    "project_history": "projects/{project_id}/history",
+    "project_backups": "projects/{project_id}/backups"
+  },
+  "vps_keep": [
+    "active-capsule-workspace",
+    "hot-knowledge-index",
+    "current-project-context-cache",
+    "dispatch-queue",
+    "runtime-locks",
+    "health-snapshots",
+    "emergency-stop-latch"
+  ],
+  "nas_keep": [
+    "project-collectors",
+    "generic-domain-collectors",
+    "agent-and-branch-foundry-experience",
+    "orchestrator-experience",
+    "global-project-index",
+    "component-catalogs",
+    "contracts",
+    "evidence",
+    "qualified-assets",
+    "deliverables",
+    "historical-plans",
+    "arena-results",
+    "incident-history",
+    "knowledge-compiler-rules"
+  ],
+  "caching": {
+    "hot_index_on_vps": true,
+    "lazy_fetch_from_nas": true,
+    "write_through_metadata": true,
+    "bulk_artifacts_write_back": true,
+    "cache_eviction": "LRU_WITH_PROJECT_AFFINITY",
+    "cache_rebuild_from_nas": true
+  },
+  "resilience": {
+    "nas_unavailable_mode": "READ_ONLY_FROM_HOT_CACHE",
+    "never_claim_persistence_when_nas_write_failed": true,
+    "checksum_on_transfer": true,
+    "immutable_evidence": true
+  }
+}
