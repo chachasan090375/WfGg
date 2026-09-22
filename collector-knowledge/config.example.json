@@ -1,6 +1,7 @@
 {
   "database": "/opt/wfgg-radar/data/collector-knowledge/knowledge.db",
   "intervalSeconds": 300,
+  "tasksPerCycle": 100,
   "listenHost": "127.0.0.1",
   "listenPort": 8791,
   "sources": [
