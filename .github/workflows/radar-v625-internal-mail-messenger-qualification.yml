@@ -1,0 +1,126 @@
+name: Radar V6.25 guarded internal mail messenger qualification
+
+on:
+  push:
+    branches: [radar-v625-internal-mail-messenger-guarded]
+    paths:
+      - 'radar-vps/internal-mail-messenger/**'
+      - 'docs/RADAR_INTERNAL_MAIL_MESSENGER_V625.md'
+      - '.github/workflows/radar-v625-internal-mail-messenger-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: radar-v625-internal-mail-messenger-guarded
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.27.x'
+
+      - name: Test guarded messenger module
+        working-directory: radar-vps/internal-mail-messenger
+        run: |
+          set -euo pipefail
+          test -z "$(gofmt -l .)"
+          go test ./...
+          go vet ./...
+          go build -trimpath -o /tmp/radar-mail-messenger ./cmd/radar-mail-messenger
+          test -s /tmp/radar-mail-messenger
+          echo RADAR_V625_GO=PASS
+
+      - name: Prove no Last War write transport exists
+        run: |
+          set -euo pipefail
+          root=radar-vps/internal-mail-messenger
+          ! grep -RFn --include='*.go' 'net.Dial' "$root"
+          ! grep -RFn --include='*.go' 'SendExtension' "$root"
+          ! grep -RFn --include='*.go' 'conn.Write' "$root"
+          ! grep -RFn --include='*.go' 'lastwar-client/' "$root"
+          ! grep -RFn --include='*.go' 'ModeEnabled' "$root"
+          ! grep -RFn --include='*.go' '"ENABLED"' "$root"
+          echo RADAR_V625_NETWORK_TRANSPORT=ABSENT
+          echo RADAR_V625_LASTWAR_MUTATION=NO
+          echo RADAR_V625_TOKEN_PERSISTENCE=NO
+
+      - name: Qualify exact 1-to-1 contract
+        run: |
+          set -euo pipefail
+          grep -Fq 'CommandMailSend = "mail.send"' radar-vps/internal-mail-messenger/contract.go
+          grep -Fq 'MailSelfSend    = int32(21)' radar-vps/internal-mail-messenger/contract.go
+          grep -Fq 'MaxTitleBytes   = 50' radar-vps/internal-mail-messenger/contract.go
+          grep -Fq 'MaxContentBytes = 2000' radar-vps/internal-mail-messenger/contract.go
+          grep -Fq '{Name: "targetUid", SFSType: "UtfString"' radar-vps/internal-mail-messenger/contract.go
+          grep -Fq '{Name: "sendLocalTime", SFSType: "Long"' radar-vps/internal-mail-messenger/contract.go
+          grep -Fq '{Name: "type", SFSType: "Int"' radar-vps/internal-mail-messenger/contract.go
+          echo RADAR_V625_MAIL_CONTRACT=PASS
+
+      - name: Runtime guard smoke test
+        run: |
+          set -euo pipefail
+          now="$(date +%s000)"
+          payload="$(printf '{"campaignKey":"qualification-v625","recipientName":"Player","targetUid":"123456789","title":"Bonjour","contents":"Test dry run","sendLocalTime":%s,"type":21}' "$now")"
+
+          out_disabled="$(printf '%s' "$payload" | /tmp/radar-mail-messenger)"
+          echo "$out_disabled"
+          printf '%s' "$out_disabled" | grep -Fq '"state":"BLOCKED"'
+          printf '%s' "$out_disabled" | grep -Fq '"lastWarMutation":false'
+          printf '%s' "$out_disabled" | grep -Fq '"gameConnection":"NONE"'
+
+          out_dry="$(printf '%s' "$payload" | WFGG_MAIL_MESSENGER_MODE=DRY_RUN /tmp/radar-mail-messenger)"
+          echo "$out_dry"
+          printf '%s' "$out_dry" | grep -Fq '"state":"DRY_RUN_READY"'
+          printf '%s' "$out_dry" | grep -Fq '"lastWarMutation":false'
+          printf '%s' "$out_dry" | grep -Fq '"gameConnection":"NONE"'
+
+          if printf '%s' "$payload" | WFGG_MAIL_MESSENGER_MODE=ENABLED /tmp/radar-mail-messenger >/tmp/v625-enabled.out 2>&1; then
+            echo RADAR_V625_ENABLED_GUARD=FAILED
+            exit 1
+          fi
+          grep -Fq 'MAIL_LIVE_MODE_NOT_IMPLEMENTED_V625' /tmp/v625-enabled.out
+          echo RADAR_V625_ENABLED_GUARD=PASS
+
+      - name: Prove Radar production boundary unchanged
+        run: |
+          set -euo pipefail
+          ! grep -RFn --include='*.go' --include='*.js' --include='*.html' 'mail.send'             .radar-release-src/v2-source/connector-go radar-ui-live frontend 2>/dev/null
+          echo RADAR_V625_RADAR_CONNECTOR_MAIL_SEND=ABSENT
+          echo RADAR_V625_RADAR_LASTWAR_MODE=READ_ONLY
+          echo RADAR_V625_PRODUCTION_DEPLOYMENT=NO
+
+      - name: Write qualification receipt
+        run: |
+          cat > /tmp/V625_QUALIFICATION_RECEIPT.txt <<'EOF'
+          WFGG_RADAR_QUALIFICATION=V6.25
+          RESULT=success
+          COMPONENT=INTERNAL_MAIL_MESSENGER_GUARDED
+          MAIL_SEND_COMMAND=mail.send
+          MAIL_SELF_SEND_TYPE=21
+          TITLE_MAX_BYTES=50
+          CONTENT_MAX_BYTES=2000
+          DEFAULT_MODE=DISABLED
+          DRY_RUN=SUPPORTED
+          LIVE_MODE=NOT_IMPLEMENTED
+          NETWORK_TRANSPORT=ABSENT
+          LASTWAR_MUTATION=NO
+          TOKEN_PERSISTENCE=NO
+          RADAR_CONNECTOR_WRITE_PATH=ABSENT
+          RADAR_LASTWAR_MODE=READ_ONLY
+          PRODUCTION_DEPLOYMENT=NO
+          EOF
+          cat /tmp/V625_QUALIFICATION_RECEIPT.txt
+
+      - name: Upload qualification evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: radar-v625-guarded-mail-messenger
+          path: /tmp/V625_QUALIFICATION_RECEIPT.txt
+          if-no-files-found: error
+          retention-days: 30
