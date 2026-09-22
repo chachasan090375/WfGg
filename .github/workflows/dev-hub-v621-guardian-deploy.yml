@@ -2,7 +2,7 @@ name: ChaCha DEV V6.21 deploy external Guardian
 
 on:
   push:
-    branches: [dev-hub-v621-guardian-corrective-enforcement]
+    branches: [dev-hub-v621-universal-learning-loop]
     paths:
       - 'dev-hub/guardian/**'
       - 'dev-hub/config/guardian-role-contracts.v1.json'
@@ -43,7 +43,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: dev-hub-v621-guardian-corrective-enforcement
+          ref: dev-hub-v621-universal-learning-loop
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
