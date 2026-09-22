@@ -65,5 +65,42 @@ class KnowledgeEngineTests(unittest.TestCase):
         self.assertEqual(first["changed"],1)
         self.assertEqual(second["changed"],0)
 
+    def test_decoder_backlog_is_consumed_and_gap_remains_visible(self):
+        src=self.root/"src"; src.mkdir()
+        (src/"mystery.bin").write_bytes(b"\x00\x01\x02\x03")
+        ke.scan_source(self.db,"bin","ASSET_TREE",src,"v1")
+        before=self.db.stats()
+        self.assertEqual(before["pendingTasks"],1)
+        result=ke.process_tasks(self.db,10)
+        self.assertEqual(len(result),1)
+        self.assertEqual(result[0]["state"],"WAITING_DECODER")
+        after=self.db.stats()
+        self.assertEqual(after["pendingTasks"],0)
+        self.assertGreaterEqual(after["waitingTasks"],1)
+        gaps=self.db.knowledge_gaps()
+        self.assertTrue(any(x["state"]=="WAITING_DECODER" for x in gaps["tasks"]))
+
+    def test_coverage_by_layer_reports_unknowns(self):
+        src=self.root/"src"; src.mkdir()
+        (src/"known.json").write_text('{"serverId":8120}')
+        (src/"unknown.bin").write_bytes(b"\x00\x01")
+        ke.scan_source(self.db,"mix","SOURCE_TREE",src,"v1")
+        stats=self.db.stats()
+        self.assertIn("DATA",stats["coverageByLayer"])
+        layer=stats["coverageByLayer"]["DATA"]
+        self.assertGreaterEqual(layer["artifacts"],1)
+        self.assertGreaterEqual(layer["unknown"],1)
+        self.assertLess(layer["coverage"],1.0)
+
+    def test_database_survives_reopen(self):
+        src=self.root/"src"; src.mkdir()
+        (src/"a.json").write_text('{"serverId":8120,"totalNum":42}')
+        ke.scan_source(self.db,"persist","SOURCE_TREE",src,"v1")
+        self.db.db.close()
+        db2=ke.KnowledgeDB(self.root/"knowledge.db")
+        self.assertTrue(db2.search("serverId"))
+        self.assertGreaterEqual(db2.stats()["artifacts"],1)
+        db2.db.close()
+
 if __name__=="__main__":
     unittest.main()
