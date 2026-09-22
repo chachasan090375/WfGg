@@ -1,0 +1,56 @@
+WFGG_RADAR_QUALIFICATION=V6.23
+RESULT=failure
+SOURCE_REV=fc86cb870f9d57072e65e1ca41c365af4532597a
+LEDGER_STORAGE=/opt/wfgg-radar/data/autopilot-ledger.db
+LEGACY_COLLECTOR_LEDGER=READ_ONLY_COMPATIBILITY
+COLLECTOR_DB_WRITE=NO
+NO_RESCAN=PRESERVED
+LASTWAR_MODE=READ_ONLY
+TOKEN_PERSISTENCE=NO
+PRODUCTION_DEPLOYMENT=NO
+
+===== v623-tests.log =====
+=== RUN   TestAutopilotLedgerRetryClassificationV623
+--- PASS: TestAutopilotLedgerRetryClassificationV623 (0.00s)
+=== RUN   TestAutopilotLedgerStorageBoundaryV623
+--- PASS: TestAutopilotLedgerStorageBoundaryV623 (0.13s)
+PASS
+ok  	wfgg-radar-connector/cmd/radar-connector	0.138s
+
+===== v622-profile-tests.log =====
+=== RUN   TestCollectorBasePlayerV6191
+--- PASS: TestCollectorBasePlayerV6191 (0.00s)
+=== RUN   TestRichObservedV6191
+--- PASS: TestRichObservedV6191 (0.00s)
+PASS
+ok  	wfgg-radar-connector/cmd/radar-connector	0.003s
+
+===== v621-tests.log =====
+=== RUN   TestPlayerIntelligenceCountryOptionsAreGameObservedV621
+--- PASS: TestPlayerIntelligenceCountryOptionsAreGameObservedV621 (0.06s)
+=== RUN   TestPlayerIntelligenceUnsupportedCountryIsGracefulV621
+--- PASS: TestPlayerIntelligenceUnsupportedCountryIsGracefulV621 (0.05s)
+=== RUN   TestPlayerIntelligenceNormalizedChipsV621
+--- PASS: TestPlayerIntelligenceNormalizedChipsV621 (0.05s)
+=== RUN   TestPlayerIntelligenceIncludeAliasV621
+--- PASS: TestPlayerIntelligenceIncludeAliasV621 (0.05s)
+=== RUN   TestPlayerIntelligenceAliasSearchStillWorksV621
+--- PASS: TestPlayerIntelligenceAliasSearchStillWorksV621 (0.06s)
+PASS
+ok  	wfgg-radar-connector/cmd/radar-connector	0.278s
+
+===== v620-tests.log =====
+=== RUN   TestAutopilotFullAfterPartialPersistsAndConfirmsV620
+    autopilot_confirmation_resilience_v620_test.go:39: ledger=[]main.autopilotLedgerEntryV61913(nil)
+--- FAIL: TestAutopilotFullAfterPartialPersistsAndConfirmsV620 (0.08s)
+=== RUN   TestAutopilotLedgerRetryableV620
+--- PASS: TestAutopilotLedgerRetryableV620 (0.00s)
+=== RUN   TestPlayerIntelligenceAliasSearchV620
+--- PASS: TestPlayerIntelligenceAliasSearchV620 (0.05s)
+=== RUN   TestPlayerIntelligenceAllianceSearchV620
+--- PASS: TestPlayerIntelligenceAllianceSearchV620 (0.05s)
+=== RUN   TestPlayerIntelligenceRecruitmentFiltersV620
+--- PASS: TestPlayerIntelligenceRecruitmentFiltersV620 (0.05s)
+FAIL
+FAIL	wfgg-radar-connector/cmd/radar-connector	0.233s
+FAIL
