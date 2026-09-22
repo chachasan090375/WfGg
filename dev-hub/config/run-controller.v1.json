@@ -16,7 +16,10 @@
     "production_dispatch_requires_human_approval": true,
     "external_guardian_pre_dispatch_required": true,
     "external_guardian_post_result_required": true,
-    "external_guardian_realtime_verdict_required_for_every_dispatch": true
+    "external_guardian_realtime_verdict_required_for_every_dispatch": true,
+    "task_guardian_binding_required_for_execute": true,
+    "task_guardian_binding_digest_must_match_graph_and_plan": true,
+    "dynamic_contract_identity_must_match_pre_and_post": true
   },
   "locking": {
     "strategy": "project-file-lock",
@@ -118,6 +121,8 @@
     ],
     "low_risk_unavailable": "BLOCK",
     "sensitive_unavailable": "BLOCK",
-    "all_actions_fail_closed_when_unverified": true
-  }
+    "all_actions_fail_closed_when_unverified": true,
+    "task_contract_binding_required_in_execute_mode": true
+  },
+  "version": "1.3.0"
 }
