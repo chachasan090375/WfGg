@@ -96,10 +96,17 @@ jobs:
           curl -fsSL --max-time 20 "$RELEASE_BASE/SHA256SUMS" -o "$tmp/SHA256SUMS"
           curl -fsSL --max-time 60 "$RELEASE_BASE/radar-connector" -o "$tmp/radar-connector"
           curl -fsSL --max-time 60 "$RELEASE_BASE/radar-native-template" -o "$tmp/radar-native-template"
+          curl -fsSL --max-time 60 "$RELEASE_BASE/wfgg-messenger-outbox" -o "$tmp/wfgg-messenger-outbox"
           (cd "$tmp" && sha256sum -c SHA256SUMS)
           grep -aFq 'native-template-readonly-v4' "$tmp/radar-native-template"
           grep -aFq 'world.get.block' "$tmp/radar-native-template"
           grep -aFq 'get.user.info.multi' "$tmp/radar-native-template"
+          grep -aFq 'mail.send' "$tmp/wfgg-messenger-outbox"
+          grep -aFq 'cross-server private mail is not proven' "$tmp/wfgg-messenger-outbox"
+          if grep -aEq 'RADAR_CONNECTOR_SHARED_KEY|LASTWAR_NATIVE_TEMPLATE|/v1/scan/player|/v1/authenticate|SendExtension' "$tmp/wfgg-messenger-outbox"; then
+            echo 'SENTINEL_GUARDIAN_MESSENGER_NETWORK_CAPABILITY=FOUND'
+            exit 1
+          fi
           echo 'SENTINEL_GUARDIAN_RELEASE=OK'
 
       - name: Dispatch known-good Radar recovery deployment
