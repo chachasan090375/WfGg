@@ -16,15 +16,15 @@ const (
 )
 
 var (
-	ErrTargetRequired       = errors.New("MAIL_TARGET_UID_REQUIRED_V625")
+	ErrTargetRequired        = errors.New("MAIL_TARGET_UID_REQUIRED_V625")
 	ErrRecipientNameRequired = errors.New("MAIL_RECIPIENT_NAME_REQUIRED_V625")
-	ErrTitleRequired        = errors.New("MAIL_TITLE_REQUIRED_V625")
-	ErrContentRequired      = errors.New("MAIL_CONTENT_REQUIRED_V625")
-	ErrTitleTooLong         = errors.New("MAIL_TITLE_TOO_LONG_V625")
-	ErrContentTooLong       = errors.New("MAIL_CONTENT_TOO_LONG_V625")
-	ErrMailTypeInvalid      = errors.New("MAIL_TYPE_INVALID_V625")
-	ErrSendTimeInvalid      = errors.New("MAIL_SEND_TIME_INVALID_V625")
-	ErrCampaignRequired     = errors.New("MAIL_CAMPAIGN_REQUIRED_V625")
+	ErrTitleRequired         = errors.New("MAIL_TITLE_REQUIRED_V625")
+	ErrContentRequired       = errors.New("MAIL_CONTENT_REQUIRED_V625")
+	ErrTitleTooLong          = errors.New("MAIL_TITLE_TOO_LONG_V625")
+	ErrContentTooLong        = errors.New("MAIL_CONTENT_TOO_LONG_V625")
+	ErrMailTypeInvalid       = errors.New("MAIL_TYPE_INVALID_V625")
+	ErrSendTimeInvalid       = errors.New("MAIL_SEND_TIME_INVALID_V625")
+	ErrCampaignRequired      = errors.New("MAIL_CAMPAIGN_REQUIRED_V625")
 )
 
 type PlayerMailRequest struct {
