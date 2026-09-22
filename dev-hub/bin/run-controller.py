@@ -28,6 +28,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+import guardian_remediation_runtime as grr
+
 PLAN_SCHEMA = "chacha.dev/execution-plan/v1"
 GRAPH_SCHEMA = "chacha.dev/task-graph/v1"
 LEDGER_SCHEMA = "chacha.dev/evidence-ledger/v1"
@@ -296,13 +298,24 @@ def guardian_gate(
     task_guardian = task.get("guardian_binding") if isinstance(task.get("guardian_binding"), dict) else {}
 
     action_id = "dispatch:" + safe_name(str(envelope.get("run_id") or "run")) + ":" + str(envelope.get("wave") or 0) + ":" + safe_name(str(task.get("id") or basename))
+    subject_role = str(task_guardian.get("subject_role") or task.get("owner_role") or "orchestrator")
+    event_context = grr.inject_context({
+        "resource_class": context.get("resource_class"),
+        "human_approval_required": approval_required,
+        "storage_preflight_required": storage_required,
+        "deadline_seconds": min(3600, max(30, int(context.get("timeout_seconds") or 300) + 60)),
+        "domain": task_guardian.get("domain"),
+        "package_id": task_guardian.get("package_id"),
+        "guardian_binding_digest": task_guardian.get("binding_digest"),
+        "guardian_policy_contract_ref": task_guardian.get("policy_contract_ref"),
+    }, actor="run-controller", subject_role=subject_role, project_id=str(envelope.get("project") or ""))
     event = {
         "schema": "chacha.dev/governance-action/v1",
         "event_id": "gov-" + uuid.uuid4().hex,
         "action_id": action_id,
         "phase": phase,
         "actor": "run-controller",
-        "subject_role": str(task_guardian.get("subject_role") or task.get("owner_role") or "orchestrator"),
+        "subject_role": subject_role,
         "subject_contract_id": task_guardian.get("dynamic_contract_id"),
         "subject_contract_version": task_guardian.get("dynamic_contract_version"),
         "action": "DISPATCH_TASK",
@@ -329,16 +342,7 @@ def guardian_gate(
             "emergency_stop_active": emergency_stop_active(),
             "result_status": result_status,
         },
-        "context": {
-            "resource_class": context.get("resource_class"),
-            "human_approval_required": approval_required,
-            "storage_preflight_required": storage_required,
-            "deadline_seconds": min(3600, max(30, int(context.get("timeout_seconds") or 300) + 60)),
-            "domain": task_guardian.get("domain"),
-            "package_id": task_guardian.get("package_id"),
-            "guardian_binding_digest": task_guardian.get("binding_digest"),
-            "guardian_policy_contract_ref": task_guardian.get("policy_contract_ref"),
-        },
+        "context": event_context,
     }
 
     guardian_dir.mkdir(parents=True, exist_ok=True)
