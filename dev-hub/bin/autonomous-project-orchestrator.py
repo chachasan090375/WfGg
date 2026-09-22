@@ -27,6 +27,7 @@ _STAGE_ROLE={
     "branch-foundry-planner.py":"branch-foundry",
     "capability-foundry.py":"capability-foundry",
     "architecture-decision-council.py":"architecture-decision-council",
+    "architecture-comparative-pilot.py":"comparative-pilot",
     "capsule-scheduler.py":"capsule-scheduler",
 }
 
@@ -302,6 +303,41 @@ def main():
     ])
     architecture_council_v=load(architecture_council)
 
+    # V6.15: when proven history conflicts with today's Foundries, run the same
+    # benchmark contract in isolated ephemeral capsules. Without a real harness,
+    # production remains fail-closed instead of fabricating a winner.
+    comparative_pilot=out/"architecture-comparative-pilot.json"
+    comparative_pilot_v={"schema":"chacha.dev/architecture-comparative-pilot-result/v1","status":"NOT_REQUIRED","resolved":False}
+    portfolio_v=architecture_council_v.get("architecture_portfolio") or {}
+    if portfolio_v.get("comparative_pilot_required") is True:
+        portfolio_file=architecture_council.with_name(architecture_council.stem+"-portfolio.json")
+        harness_candidates=[
+            out/"comparative-pilot-harness.json",
+            cfg/"comparative-pilot-harness.v1.json"
+        ]
+        harness=next((p for p in harness_candidates if p.is_file()),None)
+        args=[
+            "--repo-root",root,
+            "--portfolio",portfolio_file,
+            "--output",comparative_pilot
+        ]
+        if harness is not None:
+            args+=["--harness",harness]
+        run(bin_dir/"architecture-comparative-pilot.py",args)
+        comparative_pilot_v=load(comparative_pilot)
+        if comparative_pilot_v.get("resolved") is True:
+            run(bin_dir/"architecture-decision-council.py",[
+                "--repo-root",root,
+                "--preplan",active_pre,
+                "--branch-topology",branch_topology,
+                "--agent-topology",agent_topology,
+                "--capability-foundry",foundry_plan,
+                "--policy",cfg/"architecture-decision-council.v1.json",
+                "--comparative-pilot-result",comparative_pilot,
+                "--output",architecture_council
+            ])
+            architecture_council_v=load(architecture_council)
+
     # The Council is not advisory-only: its selected/revalidated architecture becomes
     # the effective topology consumed by planning and runtime scheduling.
     effective_branch_topology=out/"branch-topology-effective.json"
@@ -335,6 +371,8 @@ def main():
         next_stage="KNOWLEDGE_FAST_PATH"
     elif final_v.get("dispatch_allowed"):
         next_stage="DOMAIN_FACTORIES"
+    elif bool((architecture_council_v.get("architecture_portfolio") or {}).get("comparative_pilot_required")):
+        next_stage="ARCHITECTURE_COMPARATIVE_PILOT_REQUIRED"
     else:
         next_stage="REPLAN_REQUIRED"
 
@@ -357,6 +395,9 @@ def main():
       "architecture_decision_allowed":bool(architecture_council_v.get("dispatch_allowed")),
       "architecture_portfolio_mode":((architecture_council_v.get("architecture_portfolio") or {}).get("mode")),
       "architecture_comparative_pilot_required":bool((architecture_council_v.get("architecture_portfolio") or {}).get("comparative_pilot_required")),
+      "architecture_comparative_pilot":str(comparative_pilot) if comparative_pilot.exists() else None,
+      "architecture_comparative_pilot_status":comparative_pilot_v.get("status"),
+      "architecture_comparative_pilot_resolved":bool(comparative_pilot_v.get("resolved")),
       "architecture_mandatory_advisors":architecture_council_v.get("mandatory_advisors") or [],
       "capability_foundry_created_domains":foundry_v.get("created_domain_count",0),
       "capability_foundry_created_capabilities":foundry_v.get("created_capability_count",0),
