@@ -23,6 +23,7 @@ on:
       - 'dev-hub/bin/capsule-worker.py'
       - 'dev-hub/bin/emergency-stop-surface.py'
       - 'dev-hub/bin/run-v64-runtime-pilot-via-chacha-dev.sh'
+      - 'dev-hub/bin/run-v64-nas-persistence-resume.sh'
       - 'dev-hub/systemd/chacha-dev-technology-watch.service'
       - 'dev-hub/systemd/chacha-dev-emergency-stop-surface.service'
       - 'dev-hub/systemd/chacha-dev-technology-watch.timer'
@@ -58,7 +59,7 @@ jobs:
         run: |
           set -euo pipefail
           python3 -m py_compile             dev-hub/adapters/nas-ssh-adapter.py             dev-hub/bin/branch-foundry-planner.py             dev-hub/bin/agent-foundry-planner.py             dev-hub/bin/capability-foundry.py             dev-hub/bin/technology_watch_runtime.py             dev-hub/bin/technology-watch-service.py             dev-hub/bin/capsule-runtime-controller.py             dev-hub/bin/capsule-worker.py             dev-hub/bin/emergency-stop-surface.py             dev-hub/bin/branch-blueprint-optimizer.py             dev-hub/bin/capsule-scheduler.py             dev-hub/bin/autonomous-project-orchestrator.py             dev-hub/bin/emergency-stop-controller.py             dev-hub/bin/experience-ledger.py
-          bash -n dev-hub/bin/install-technology-watch-runtime.sh dev-hub/bin/run-v64-runtime-pilot-via-chacha-dev.sh
+          bash -n dev-hub/bin/install-technology-watch-runtime.sh dev-hub/bin/run-v64-runtime-pilot-via-chacha-dev.sh dev-hub/bin/run-v64-nas-persistence-resume.sh
           for f in             dev-hub/config/branch-foundry.v1.json             dev-hub/config/agent-foundry.v1.json             dev-hub/config/capability-foundry.v1.json             dev-hub/config/technology-watch-runtime.v1.json             dev-hub/config/domain-orchestration.v1.json             dev-hub/config/provider-economics.v1.json             dev-hub/config/storage-tiers.v1.json             dev-hub/config/learning-fabric.v1.json             dev-hub/config/emergency-stop.v1.json; do
             python3 -m json.tool "$f" >/dev/null
           done
@@ -79,6 +80,8 @@ jobs:
           grep -Fq 'systemd-run' dev-hub/bin/capsule-runtime-controller.py
           grep -Fq '127.0.0.1' dev-hub/bin/emergency-stop-surface.py
           grep -Fq 'experience-ledger.py' dev-hub/bin/run-v64-runtime-pilot-via-chacha-dev.sh
+          grep -Fq 'CHACHA_DEV_V64_RUNTIME_PILOT_RESUME_NAS=PASS' dev-hub/bin/run-v64-nas-persistence-resume.sh
+          grep -Fq 'CHACHA_NAS_ADAPTER=' dev-hub/bin/run-v64-nas-persistence-resume.sh
 
       - name: Minimum-cost blueprint smoke
         run: |
