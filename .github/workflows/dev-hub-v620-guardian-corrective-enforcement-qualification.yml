@@ -2,7 +2,7 @@ name: ChaCha DEV V6.20 Guardian corrective enforcement qualification
 
 on:
   push:
-    branches: [dev-hub-v620-task-contract-binding]
+    branches: [dev-hub-v620-guardian-corrective-enforcement]
     paths:
       - 'dev-hub/guardian/**'
       - 'dev-hub/bin/guardian-client.py'
@@ -44,7 +44,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: dev-hub-v620-task-contract-binding
+          ref: dev-hub-v620-guardian-corrective-enforcement
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
