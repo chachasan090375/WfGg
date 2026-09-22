@@ -153,6 +153,19 @@ def register_contract(policy_path:Path,contract:Path)->int:
     print(json.dumps(x,ensure_ascii=False))
     return 0 if status==200 and x.get("status")=="PASS" else 20 if status==409 else 30
 
+def register_component_contract(policy_path:Path,contract:Path)->int:
+    _,url,key=policy_values(policy_path)
+    if not key.is_file():return 30
+    payload=load(contract)
+    body=json.dumps(payload,sort_keys=True,ensure_ascii=False,separators=(",",":")).encode()
+    try:
+        status,x=http_json(signed_request("POST",url+"/v1/dynamic-components/register",key,body))
+    except Exception as exc:
+        print(json.dumps({"schema":"chacha.dev/guardian-client-result/v1","status":"UNAVAILABLE","reason":str(exc)[:300]}))
+        return 30
+    print(json.dumps(x,ensure_ascii=False))
+    return 0 if status==200 and x.get("status")=="PASS" else 20 if status==409 else 30
+
 def main()->int:
     ap=argparse.ArgumentParser()
     ap.add_argument("--policy",type=Path,default=DEFAULT_POLICY)
@@ -162,12 +175,14 @@ def main()->int:
     k=sub.add_parser("ack");k.add_argument("--alert-id",action="append",required=True)
     v=sub.add_parser("coverage");v.add_argument("--snapshot",type=Path,required=True)
     r=sub.add_parser("register-contract");r.add_argument("--contract",type=Path,required=True)
+    rc=sub.add_parser("register-component-contract");rc.add_argument("--contract",type=Path,required=True)
     sub.add_parser("watchdog-sweep")
     args=ap.parse_args()
     if args.cmd=="check":return check(args.event,args.policy)
     if args.cmd=="alerts":return alerts(args.policy,args.status,args.limit)
     if args.cmd=="coverage":return coverage(args.policy,args.snapshot)
     if args.cmd=="register-contract":return register_contract(args.policy,args.contract)
+    if args.cmd=="register-component-contract":return register_component_contract(args.policy,args.contract)
     if args.cmd=="watchdog-sweep":return watchdog_sweep(args.policy)
     return ack(args.policy,args.alert_id)
 
