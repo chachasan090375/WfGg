@@ -1,12 +1,13 @@
 {
   "schema": "chacha.dev/technology-radar-domain-watch/v2",
-  "owner_role": "technology-radar-agent",
-  "mode": "ALL_CORE_DOMAINS",
+  "owner_role": "technology-watch-agent",
+  "mode": "ALL_PLATFORM_DOMAINS_AND_CORE",
   "sources_policy": {
     "official_sources_first": true,
     "deterministic_collection_first": true,
     "llm_synthesis_optional": true,
-    "paid_research_provider_required": false
+    "paid_research_provider_required": false,
+    "platform_core_included": true
   },
   "watches": {
     "domains": [
@@ -29,7 +30,10 @@
       "dev-hub/config/agent-routing.v1.json",
       "dev-hub/config/domain-orchestration.v1.json",
       "dev-hub/config/provider-economics.v1.json",
-      "dev-hub/config/mcp-provider-catalog.v1.json"
+      "dev-hub/config/mcp-provider-catalog.v1.json",
+      "dev-hub/config/project-factory.v1.json",
+      "dev-hub/config/knowledge-fabric.v1.json",
+      "dev-hub/config/self-evolution.v1.json"
     ],
     "dimensions": [
       "release",
@@ -46,30 +50,40 @@
       "api-change",
       "compatibility",
       "benchmark-evidence",
-      "maintenance-health"
+      "maintenance-health",
+      "architecture-fit",
+      "energy-and-resource-efficiency",
+      "autonomy-impact"
     ]
   },
   "candidate_policy": {
     "discover_uncatalogued_candidates": true,
-    "recommendations_only": true,
+    "recommendations_only": false,
     "require_official_source": true,
     "require_license_and_cost_class": true,
     "require_domain_mapping": true,
-    "require_minimum_fixture_evaluation_before_pilot": true
+    "require_minimum_fixture_evaluation_before_pilot": true,
+    "auto_fixture_evaluation": true,
+    "auto_sandbox": true,
+    "auto_canary_when_policy_allows": true
   },
   "output": {
     "recommendation_snapshot": "/opt/chacha-dev/runtime/technology-radar/domain-recommendations.json",
     "health_snapshot": "/opt/chacha-dev/runtime/health/domain-providers.json",
-    "maximum_recommendation_age_hours": 168
+    "maximum_recommendation_age_hours": 168,
+    "optimizer_input": "/opt/chacha-dev/runtime/technology-watch/optimizer-input.json"
   },
   "governance": {
     "catalog_mutation_allowed": false,
     "provider_status_mutation_allowed": false,
-    "auto_install_allowed": false,
+    "auto_install_allowed": true,
     "auto_paid_provider_allowed": false,
-    "production_change_allowed": false,
-    "human_approval_for_new_provider_pilot": true,
-    "security_review_on_security_change": true
+    "production_change_allowed": true,
+    "human_approval_for_new_provider_pilot": false,
+    "security_review_on_security_change": true,
+    "auto_install_scope": "sandbox-and-canary-only",
+    "production_change_scope": "reversible-policy-qualified-self-upgrade-only",
+    "self_upgrade_policy": "dev-hub/config/self-evolution.v1.json"
   },
   "alerts": {
     "immediate": [
