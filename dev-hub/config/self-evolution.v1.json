@@ -1,0 +1,64 @@
+{
+  "schema": "chacha.dev/self-evolution/v1",
+  "version": "1.0.0",
+  "objective": "best-fit architecture for the current functional need under declared constraints",
+  "loop": [
+    "observe-platform-and-ecosystem",
+    "discover-candidates",
+    "build-comparable-fixtures",
+    "benchmark",
+    "security-and-license-review",
+    "cost-and-resource-review",
+    "sandbox",
+    "shadow-or-canary",
+    "compare-to-current",
+    "promote-if-better",
+    "observe-after-promotion",
+    "rollback-on-regression",
+    "teach-generic-collectors"
+  ],
+  "scoring": {
+    "functional_fit": 30,
+    "reliability": 18,
+    "quality": 15,
+    "security": 12,
+    "cost": 10,
+    "latency_and_throughput": 5,
+    "maintainability": 5,
+    "resource_efficiency": 3,
+    "portability": 2
+  },
+  "hard_constraints": [
+    "functional_requirements",
+    "budget_policy",
+    "security_policy",
+    "available_compute",
+    "license_compatibility",
+    "data_residency_if_declared",
+    "rollback_capability"
+  ],
+  "auto_promotion": {
+    "enabled": true,
+    "minimum_score_gain": 3,
+    "minimum_fixture_pass_rate": 1,
+    "regression_tolerance": 0,
+    "rollback_required": true,
+    "canary_required": true,
+    "evidence_required": true,
+    "allowed_risk_classes": [
+      "LOW",
+      "MEDIUM_REVERSIBLE"
+    ]
+  },
+  "approval_boundaries": [
+    "new_external_spend",
+    "credential_or_identity_model_change",
+    "destructive_or_irreversible_migration",
+    "security_boundary_reduction",
+    "legal_or_license_exception",
+    "no_valid_rollback"
+  ],
+  "current_architecture_is_not_privileged": true,
+  "newest_candidate_is_not_privileged": true,
+  "recommendation_is_context_specific": true
+}
