@@ -87,6 +87,36 @@ def safe_name(value: str) -> str:
     return cleaned or "task"
 
 
+def canonical_json(value: Any) -> str:
+    return json.dumps(value, sort_keys=True, ensure_ascii=False, separators=(",", ":"))
+
+
+def guardian_binding_errors(source_task: dict[str, Any], scheduled: dict[str, Any], required: bool) -> list[str]:
+    source = source_task.get("guardian_binding") if isinstance(source_task.get("guardian_binding"), dict) else None
+    planned = scheduled.get("guardian_binding") if isinstance(scheduled.get("guardian_binding"), dict) else None
+    if not required and source is None and planned is None:
+        return []
+    errors: list[str] = []
+    if source is None:
+        errors.append("TASK_GUARDIAN_BINDING_MISSING")
+        return errors
+    if planned is None:
+        errors.append("SCHEDULED_GUARDIAN_BINDING_MISSING")
+    elif canonical_json(source) != canonical_json(planned):
+        errors.append("TASK_GUARDIAN_BINDING_DRIFT")
+    expected = source.get("binding_digest")
+    base = {k: v for k, v in source.items() if k != "binding_digest"}
+    actual = "sha256:" + hashlib.sha256(canonical_json(base).encode("utf-8")).hexdigest()
+    if expected != actual:
+        errors.append("TASK_GUARDIAN_BINDING_DIGEST_INVALID")
+    if not source.get("subject_role"):
+        errors.append("TASK_GUARDIAN_SUBJECT_MISSING")
+    if str(source.get("mode") or "").startswith("DYNAMIC_"):
+        if not source.get("dynamic_contract_id") or not source.get("dynamic_contract_version"):
+            errors.append("TASK_DYNAMIC_GUARDIAN_CONTRACT_INCOMPLETE")
+    return sorted(set(errors))
+
+
 def task_index(graph: dict[str, Any]) -> dict[str, dict[str, Any]]:
     return {
         str(t["id"]): t
@@ -179,6 +209,8 @@ def prepare_envelope(
             "kind": source_task.get("kind"),
             "description": source_task.get("description", ""),
             "owner_role": source_task.get("owner_role", "orchestrator"),
+            "capabilities": source_task.get("capabilities") or [],
+            "guardian_binding": source_task.get("guardian_binding"),
             "permission": permission,
             "outputs": source_task.get("outputs") or [],
             "verification": source_task.get("verification") or {},
@@ -261,6 +293,7 @@ def guardian_gate(
     preflight_id = str(((policy.get("storage") or {}).get("preflight_artifact") or "storage-preflight"))
     storage_preflight = bool(not storage_required or storage_ok(ledger, preflight_id))
     task = envelope.get("task") if isinstance(envelope.get("task"), dict) else {}
+    task_guardian = task.get("guardian_binding") if isinstance(task.get("guardian_binding"), dict) else {}
 
     action_id = "dispatch:" + safe_name(str(envelope.get("run_id") or "run")) + ":" + str(envelope.get("wave") or 0) + ":" + safe_name(str(task.get("id") or basename))
     event = {
@@ -269,9 +302,9 @@ def guardian_gate(
         "action_id": action_id,
         "phase": phase,
         "actor": "run-controller",
-        "subject_role": str(task.get("agent_id") or task.get("component_id") or task.get("owner_role") or "orchestrator"),
-        "subject_contract_id": task.get("guardian_contract_id") or task.get("guardian_component_contract_id"),
-        "subject_contract_version": task.get("guardian_contract_version") or task.get("guardian_component_contract_version"),
+        "subject_role": str(task_guardian.get("subject_role") or task.get("owner_role") or "orchestrator"),
+        "subject_contract_id": task_guardian.get("dynamic_contract_id"),
+        "subject_contract_version": task_guardian.get("dynamic_contract_version"),
         "action": "DISPATCH_TASK",
         "task_kind": str(task.get("kind") or ""),
         "capabilities": [str(x) for x in (task.get("capabilities") or [])],
@@ -301,8 +334,10 @@ def guardian_gate(
             "human_approval_required": approval_required,
             "storage_preflight_required": storage_required,
             "deadline_seconds": min(3600, max(30, int(context.get("timeout_seconds") or 300) + 60)),
-            "domain": task.get("domain"),
-            "package_id": task.get("package_id"),
+            "domain": task_guardian.get("domain"),
+            "package_id": task_guardian.get("package_id"),
+            "guardian_binding_digest": task_guardian.get("binding_digest"),
+            "guardian_policy_contract_ref": task_guardian.get("policy_contract_ref"),
         },
     }
 
@@ -592,6 +627,8 @@ def main() -> None:
 
             bindings: list[dict[str, Any]] = []
             binding_errors: list[str] = []
+            guardian_required = bool(args.execute and ((policy.get("guardian") or {}).get("enabled") is True))
+            binding_errors.extend(guardian_binding_errors(source, scheduled, guardian_required))
             for pb in scheduled.get("provider_bindings") or []:
                 binding, errors = adapter_binding(pb, str(scheduled.get("permission", source.get("permission", "read"))), adapters, args.execute)
                 binding_errors.extend(errors)
