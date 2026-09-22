@@ -2,7 +2,7 @@ name: ChaCha DEV V6.17 dynamic agent role contracts qualification
 
 on:
   push:
-    branches: [dev-hub-v617-guardian-action-leases]
+    branches: [dev-hub-v617-dynamic-agent-role-contracts]
     paths:
       - 'dev-hub/guardian/**'
       - 'dev-hub/bin/guardian-client.py'
@@ -22,8 +22,8 @@ on:
       - 'dev-hub/systemd/chacha-dev-guardian-coverage-heartbeat.service'
       - 'dev-hub/systemd/chacha-dev-guardian-coverage-heartbeat.timer'
       - 'dev-hub/tests/test_v617_dynamic_agent_role_contracts.py'
-      - 'dev-hub/bin/install-v617-guardian-action-leases.sh'
-      - '.github/workflows/dev-hub-v617-guardian-action-leases-qualification.yml'
+      - 'dev-hub/bin/install-v617-dynamic-agent-role-contracts.sh'
+      - '.github/workflows/dev-hub-v617-dynamic-agent-role-contracts-qualification.yml'
   workflow_dispatch:
 
 permissions:
@@ -36,7 +36,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: dev-hub-v617-guardian-action-leases
+          ref: dev-hub-v617-dynamic-agent-role-contracts
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -56,8 +56,8 @@ jobs:
           python3 -m json.tool dev-hub/config/guardian-runtime-policy.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/guardian-coverage-manifest.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/run-controller.v1.json >/dev/null
-          if [ -f dev-hub/bin/install-v617-guardian-action-leases.sh ]; then
-            bash -n dev-hub/bin/install-v617-guardian-action-leases.sh
+          if [ -f dev-hub/bin/install-v617-dynamic-agent-role-contracts.sh ]; then
+            bash -n dev-hub/bin/install-v617-dynamic-agent-role-contracts.sh
           fi
           echo CHACHA_DEV_V617_STATIC=PASS
 
