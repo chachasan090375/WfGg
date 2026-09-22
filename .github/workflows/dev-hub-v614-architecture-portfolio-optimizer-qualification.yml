@@ -6,6 +6,7 @@ on:
     paths:
       - 'dev-hub/bin/architecture-portfolio-optimizer.py'
       - 'dev-hub/bin/architecture-decision-council.py'
+      - 'dev-hub/bin/autonomous-project-orchestrator.py'
       - 'dev-hub/config/architecture-portfolio-optimizer.v1.json'
       - 'dev-hub/config/architecture-decision-council.v1.json'
       - 'dev-hub/tests/test_v614_architecture_portfolio_optimizer.py'
@@ -48,6 +49,7 @@ jobs:
           grep -Fq '"COMPARATIVE_PILOT_REQUIRED"' dev-hub/config/architecture-portfolio-optimizer.v1.json
           grep -Fq 'HISTORICAL_BEST_AND_CURRENT_FOUNDRIES_AGREE' dev-hub/bin/architecture-portfolio-optimizer.py
           grep -Fq 'architecture-portfolio":"PASS" if portfolio.get("decision_ready") is True else "BLOCKED"' dev-hub/bin/architecture-decision-council.py
+          grep -Fq 'architecture_comparative_pilot_required' dev-hub/bin/autonomous-project-orchestrator.py
           echo CHACHA_DEV_V614_PORTFOLIO_MANDATORY=PASS
           echo CHACHA_DEV_V614_CONFLICT_GATE=PASS
       - name: Qualification receipt
