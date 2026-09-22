@@ -9,6 +9,8 @@ import sys
 import uuid
 from pathlib import Path
 
+import guardian_remediation_runtime as grr
+
 def load(p):
     x=json.loads(Path(p).read_text(encoding="utf-8"))
     if not isinstance(x,dict):raise SystemExit("JSON_ROOT_NOT_OBJECT")
@@ -90,6 +92,10 @@ def guardian_stage(script:Path,args,phase:str,action_id:str):
             action="FINAL_ARCHITECTURE_DECISION"
         else:
             action="REPORT_DECISION"
+    event_context=grr.inject_context(
+      {"resource_class":"light","human_approval_required":False,"storage_preflight_required":False,"deadline_seconds":180},
+      actor="central-orchestrator",subject_role=role,project_id="platform-bootstrap"
+    )
     event={
       "schema":"chacha.dev/governance-action/v1",
       "event_id":"gov-"+uuid.uuid4().hex,
@@ -104,7 +110,7 @@ def guardian_stage(script:Path,args,phase:str,action_id:str):
       "run_id":None,
       "adapters":[],
       "evidence":evidence,
-      "context":{"resource_class":"light","human_approval_required":False,"storage_preflight_required":False,"deadline_seconds":180}
+      "context":event_context
     }
     event_dir=Path(_GUARDIAN_CONTEXT["event_dir"]);event_dir.mkdir(parents=True,exist_ok=True)
     ep=event_dir/(event["event_id"]+".json");save(ep,event)
