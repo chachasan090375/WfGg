@@ -55,7 +55,7 @@ systemctl enable "$SERVICE"
 systemctl restart "$SERVICE"
 
 READY=0
-for _ in {1..80}; do
+for _ in {1..240}; do
   if systemctl is-active --quiet "$SERVICE" && curl -fsS http://127.0.0.1:20042/ready >/dev/null 2>&1; then READY=1;break;fi
   sleep .25
 done
