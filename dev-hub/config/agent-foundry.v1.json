@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/agent-foundry/v1",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "branch": "agent-foundry",
   "mandatory_preflight": true,
   "invocation_point": "after-core-intent-understanding-before-domain-dispatch",
@@ -32,7 +32,9 @@
     "every_created_agent_has_termination_policy": true,
     "reusable_agent_requires_generalization_and_qualification": true,
     "project_specific_context_never_leaks_into_generic_agent": true,
-    "foundry_output_may_rewrite_project_plan": true
+    "foundry_output_may_rewrite_project_plan": true,
+    "branch_foundry_runs_in_parallel": true,
+    "agent_choice_must_feed_branch_optimizer": true
   },
   "scoring": {
     "capability_fit": 30,
@@ -109,5 +111,40 @@
     "credential_or_identity_boundary",
     "destructive_permission",
     "security_boundary_reduction"
-  ]
+  ],
+  "optimization": {
+    "strategy": "CONSTRAINT_FIRST_MIN_TOTAL_COST",
+    "hard_constraints": [
+      "required_capabilities",
+      "functional_contract",
+      "security_policy",
+      "permissions",
+      "budget_policy",
+      "verification",
+      "available_compute"
+    ],
+    "preference_order": [
+      "deterministic_tool",
+      "reuse_existing_agent",
+      "compose_existing_agents",
+      "create_ephemeral_agent",
+      "create_reusable_agent_candidate"
+    ],
+    "create_agent_only_if": {
+      "measurable_quality_gain": true,
+      "measurable_autonomy_gain": true,
+      "or_no_existing_valid_solution": true
+    },
+    "cost_dimensions": [
+      "external_spend",
+      "model_or_token_usage",
+      "ram",
+      "cpu",
+      "startup_latency",
+      "context_loading",
+      "maintenance",
+      "verification_cost"
+    ],
+    "cheapest_valid_execution_topology_wins": true
+  }
 }
