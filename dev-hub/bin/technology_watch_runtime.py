@@ -13,6 +13,8 @@ import subprocess
 import tempfile
 import uuid
 
+import guardian_remediation_runtime as grr
+
 DEFAULT_CONFIG = Path("dev-hub/config/technology-watch-runtime.v1.json")
 ZERO_DEFAULT = {"free", "owned", "local", "included"}
 ADMISSIBLE_DEFAULT = {"ADOPT", "ENABLED"}
@@ -225,6 +227,11 @@ def _guardian_observe_consult(repo_root: Path, feed: dict[str, Any], phase: str,
     policy=repo_root/"dev-hub/config/guardian-runtime-policy.v1.json"
     if not client.is_file() or not policy.is_file():
         raise RuntimeError("TECHNOLOGY_WATCH_GUARDIAN_UNAVAILABLE:CLIENT_OR_POLICY_MISSING")
+    event_context=grr.inject_context(
+      {"resource_class":"light","human_approval_required":False,
+       "storage_preflight_required":False,"deadline_seconds":120},
+      actor="technology-watch",subject_role="technology-watch",project_id="platform-global"
+    )
     event={
       "schema":"chacha.dev/governance-action/v1",
       "event_id":"gov-"+uuid.uuid4().hex,
@@ -244,8 +251,7 @@ def _guardian_observe_consult(repo_root: Path, feed: dict[str, Any], phase: str,
         "consumer":feed.get("consumer"),
         "zero_spend_candidate_available":feed.get("zero_spend_candidate_available")
       },
-      "context":{"resource_class":"light","human_approval_required":False,
-                 "storage_preflight_required":False,"deadline_seconds":120}
+      "context":event_context
     }
     with tempfile.TemporaryDirectory(prefix="chacha-techwatch-guardian-") as td:
         ep=Path(td)/"event.json"
