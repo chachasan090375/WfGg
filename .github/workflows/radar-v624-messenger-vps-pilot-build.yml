@@ -41,6 +41,265 @@ jobs:
           bad="$(
             git diff --name-only "$QUALIFIED_SOURCE_REV"..HEAD |
             grep -Ev '^(.github/workflows/radar-v624-messenger-vps-pilot-build.yml|radar-vps/install-v624-messenger-pilot.sh|radar-vps/probe-v624-messenger-pilot-runtime.sh|radar-vps/pilot-v624-messenger/.*)
+          if [ -n "$bad" ]; then
+            echo "V624_UNQUALIFIED_SOURCE_CHANGE=$bad"
+            exit 1
+          fi
+          echo V624_QUALIFIED_SOURCE_ANCESTRY=PASS
+
+      - name: Validate pilot scripts
+        run: |
+          set -euo pipefail
+          bash -n radar-vps/install-v624-messenger-pilot.sh
+          bash -n radar-vps/probe-v624-messenger-pilot-runtime.sh
+          grep -Fq 'ROOT="/opt/wfgg-messenger-pilot"' radar-vps/install-v624-messenger-pilot.sh
+          grep -Fq 'PRODUCTION_CONNECTOR_RESTART=NO' radar-vps/install-v624-messenger-pilot.sh
+          ! grep -Eq 'systemctl restart|systemctl stop|systemctl start|/opt/wfgg-radar/bin/radar-connector' radar-vps/install-v624-messenger-pilot.sh
+          echo V624_PILOT_ISOLATION_SCRIPT=PASS
+
+      - name: Test and build Messenger Outbox
+        working-directory: .radar-release-src/v624-messenger-source
+        run: |
+          set -euo pipefail
+          gofmt -w ./cmd ./internal
+          go test ./... -count=1 -v | tee /tmp/v624-pilot-tests.log
+          go vet ./...
+          mkdir -p "$GITHUB_WORKSPACE/radar-vps/pilot-v624-messenger"
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w'             -o "$GITHUB_WORKSPACE/radar-vps/pilot-v624-messenger/wfgg-messenger-outbox"             ./cmd/wfgg-messenger-outbox
+          test -x "$GITHUB_WORKSPACE/radar-vps/pilot-v624-messenger/wfgg-messenger-outbox"
+          echo V624_MESSENGER_BUILD=PASS
+
+      - name: Functional pilot on runner
+        run: |
+          set -euo pipefail
+          BIN=radar-vps/pilot-v624-messenger/wfgg-messenger-outbox
+          LEDGER=/tmp/v624-runner-pilot.jsonl
+          cat >/tmp/v624-draft.json <<'JSON'
+          {"targetName":"V624RunnerPilot","targetUid":"6240000000000010","title":"Pilot","contents":"Dry-run only","sendLocalTime":1700000000,"senderServer":8120,"targetServer":8120}
+          JSON
+          "$BIN" -ledger "$LEDGER" create </tmp/v624-draft.json >/tmp/v624-create.json
+          ID="$(python3 -c "import json; print(json.load(open('/tmp/v624-create.json'))['record']['id'])")"
+          "$BIN" -ledger "$LEDGER" queue "$ID" >/tmp/v624-queue.json
+          "$BIN" -ledger "$LEDGER" history "$ID" >/tmp/v624-history.json
+          python3 - <<'PY'
+          import json
+          c=json.load(open('/tmp/v624-create.json'))
+          q=json.load(open('/tmp/v624-queue.json'))
+          h=json.load(open('/tmp/v624-history.json'))
+          assert c['record']['state']=='DRAFT'
+          assert c['record']['dryRun']['command']=='mail.send'
+          assert c['record']['dryRun']['mailType']==21
+          assert c['record']['dryRun']['networkEnabled'] is False
+          assert c['record']['dryRun']['mutationExecuted'] is False
+          assert q['state']=='QUEUED'
+          assert [x['state'] for x in h]==['DRAFT','QUEUED']
+          print('V624_RUNNER_PILOT_DRAFT_QUEUE_HISTORY=PASS')
+          PY
+          cat >/tmp/v624-cross.json <<'JSON'
+          {"targetName":"Cross","targetUid":"6240000000000011","title":"X","contents":"X","sendLocalTime":1700000000,"senderServer":8120,"targetServer":8131}
+          JSON
+          if "$BIN" -ledger "$LEDGER" create </tmp/v624-cross.json >/tmp/cross.out 2>/tmp/cross.err; then
+            echo V624_RUNNER_PILOT_CROSS_SERVER_GUARD=FAIL
+            exit 1
+          fi
+          grep -Fq 'cross-server private mail is not proven' /tmp/cross.err
+          echo V624_RUNNER_PILOT_CROSS_SERVER_GUARD=PASS
+
+      - name: Create immutable pilot manifest
+        run: |
+          set -euo pipefail
+          D=radar-vps/pilot-v624-messenger
+          chmod 0755 "$D/wfgg-messenger-outbox"
+          (
+            cd "$D"
+            sha256sum wfgg-messenger-outbox > SHA256SUMS
+          )
+          {
+            echo WFGG_RADAR_PILOT=V6.24-MESSENGER-OUTBOX
+            echo QUALIFIED_SOURCE_REV="$QUALIFIED_SOURCE_REV"
+            echo BUILD_SOURCE_REV="$GITHUB_SHA"
+            echo MESSENGER_MODE=DRY_RUN_ONLY
+            echo LASTWAR_COMMAND_MODEL=mail.send
+            echo PRIVATE_MAIL_TYPE=21
+            echo OUTBOX_STATES=DRAFT,QUEUED,CANCELLED
+            echo CROSS_SERVER_PRIVATE_MAIL=BLOCKED_UNPROVEN
+            echo GAME_CONNECTION=NONE
+            echo GAME_SCAN_EXECUTED=NO
+            echo TOKEN_USED=NO
+            echo MAIL_SEND_EXECUTED=NO
+            echo NETWORK_SEND=NO
+            echo LASTWAR_MUTATION=NO
+            echo PRODUCTION_CONNECTOR_RESTART=NO
+            echo PRODUCTION_DEPLOYMENT=NO
+          } > "$D/PILOT_INFO.txt"
+          cat "$D/PILOT_INFO.txt"
+          cat "$D/SHA256SUMS"
+
+      - name: Publish isolated pilot artifacts
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add radar-vps/pilot-v624-messenger
+          if git diff --cached --quiet; then
+            echo RADAR_V624_PILOT_ARTIFACTS=UNCHANGED
+            exit 0
+          fi
+          git commit -m 'build(radar): publish V6.24 isolated Messenger Outbox pilot'
+          # gofmt may have touched tracked source files in the runner workspace.
+          # The pilot artifacts are already committed, so discard only those
+          # ephemeral uncommitted formatting changes before rebasing.
+          git reset --hard HEAD
+          git clean -fd
+          git fetch origin radar-v624-internal-mail-protocol-discovery
+          git rebase origin/radar-v624-internal-mail-protocol-discovery
+          git push origin HEAD:radar-v624-internal-mail-protocol-discovery
+          echo RADAR_V624_PILOT_ARTIFACTS=PUBLISHED
+
+      - name: Upload pilot evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: radar-v624-messenger-vps-pilot
+          path: |
+            radar-vps/pilot-v624-messenger/PILOT_INFO.txt
+            radar-vps/pilot-v624-messenger/SHA256SUMS
+            /tmp/v624-pilot-tests.log
+            /tmp/v624-create.json
+            /tmp/v624-queue.json
+            /tmp/v624-history.json
+          if-no-files-found: error
+          retention-days: 30
+ || true
+          )"
+          if [ -n "$bad" ]; then
+            echo "V624_UNQUALIFIED_SOURCE_CHANGE=$bad"
+            exit 1
+          fi
+          echo V624_QUALIFIED_SOURCE_ANCESTRY=PASS
+
+      - name: Validate pilot scripts
+        run: |
+          set -euo pipefail
+          bash -n radar-vps/install-v624-messenger-pilot.sh
+          bash -n radar-vps/probe-v624-messenger-pilot-runtime.sh
+          grep -Fq 'ROOT="/opt/wfgg-messenger-pilot"' radar-vps/install-v624-messenger-pilot.sh
+          grep -Fq 'PRODUCTION_CONNECTOR_RESTART=NO' radar-vps/install-v624-messenger-pilot.sh
+          ! grep -Eq 'systemctl restart|systemctl stop|systemctl start|/opt/wfgg-radar/bin/radar-connector' radar-vps/install-v624-messenger-pilot.sh
+          echo V624_PILOT_ISOLATION_SCRIPT=PASS
+
+      - name: Test and build Messenger Outbox
+        working-directory: .radar-release-src/v624-messenger-source
+        run: |
+          set -euo pipefail
+          gofmt -w ./cmd ./internal
+          go test ./... -count=1 -v | tee /tmp/v624-pilot-tests.log
+          go vet ./...
+          mkdir -p "$GITHUB_WORKSPACE/radar-vps/pilot-v624-messenger"
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w'             -o "$GITHUB_WORKSPACE/radar-vps/pilot-v624-messenger/wfgg-messenger-outbox"             ./cmd/wfgg-messenger-outbox
+          test -x "$GITHUB_WORKSPACE/radar-vps/pilot-v624-messenger/wfgg-messenger-outbox"
+          echo V624_MESSENGER_BUILD=PASS
+
+      - name: Functional pilot on runner
+        run: |
+          set -euo pipefail
+          BIN=radar-vps/pilot-v624-messenger/wfgg-messenger-outbox
+          LEDGER=/tmp/v624-runner-pilot.jsonl
+          cat >/tmp/v624-draft.json <<'JSON'
+          {"targetName":"V624RunnerPilot","targetUid":"6240000000000010","title":"Pilot","contents":"Dry-run only","sendLocalTime":1700000000,"senderServer":8120,"targetServer":8120}
+          JSON
+          "$BIN" -ledger "$LEDGER" create </tmp/v624-draft.json >/tmp/v624-create.json
+          ID="$(python3 -c "import json; print(json.load(open('/tmp/v624-create.json'))['record']['id'])")"
+          "$BIN" -ledger "$LEDGER" queue "$ID" >/tmp/v624-queue.json
+          "$BIN" -ledger "$LEDGER" history "$ID" >/tmp/v624-history.json
+          python3 - <<'PY'
+          import json
+          c=json.load(open('/tmp/v624-create.json'))
+          q=json.load(open('/tmp/v624-queue.json'))
+          h=json.load(open('/tmp/v624-history.json'))
+          assert c['record']['state']=='DRAFT'
+          assert c['record']['dryRun']['command']=='mail.send'
+          assert c['record']['dryRun']['mailType']==21
+          assert c['record']['dryRun']['networkEnabled'] is False
+          assert c['record']['dryRun']['mutationExecuted'] is False
+          assert q['state']=='QUEUED'
+          assert [x['state'] for x in h]==['DRAFT','QUEUED']
+          print('V624_RUNNER_PILOT_DRAFT_QUEUE_HISTORY=PASS')
+          PY
+          cat >/tmp/v624-cross.json <<'JSON'
+          {"targetName":"Cross","targetUid":"6240000000000011","title":"X","contents":"X","sendLocalTime":1700000000,"senderServer":8120,"targetServer":8131}
+          JSON
+          if "$BIN" -ledger "$LEDGER" create </tmp/v624-cross.json >/tmp/cross.out 2>/tmp/cross.err; then
+            echo V624_RUNNER_PILOT_CROSS_SERVER_GUARD=FAIL
+            exit 1
+          fi
+          grep -Fq 'cross-server private mail is not proven' /tmp/cross.err
+          echo V624_RUNNER_PILOT_CROSS_SERVER_GUARD=PASS
+
+      - name: Create immutable pilot manifest
+        run: |
+          set -euo pipefail
+          D=radar-vps/pilot-v624-messenger
+          chmod 0755 "$D/wfgg-messenger-outbox"
+          (
+            cd "$D"
+            sha256sum wfgg-messenger-outbox > SHA256SUMS
+          )
+          {
+            echo WFGG_RADAR_PILOT=V6.24-MESSENGER-OUTBOX
+            echo QUALIFIED_SOURCE_REV="$QUALIFIED_SOURCE_REV"
+            echo BUILD_SOURCE_REV="$GITHUB_SHA"
+            echo MESSENGER_MODE=DRY_RUN_ONLY
+            echo LASTWAR_COMMAND_MODEL=mail.send
+            echo PRIVATE_MAIL_TYPE=21
+            echo OUTBOX_STATES=DRAFT,QUEUED,CANCELLED
+            echo CROSS_SERVER_PRIVATE_MAIL=BLOCKED_UNPROVEN
+            echo GAME_CONNECTION=NONE
+            echo GAME_SCAN_EXECUTED=NO
+            echo TOKEN_USED=NO
+            echo MAIL_SEND_EXECUTED=NO
+            echo NETWORK_SEND=NO
+            echo LASTWAR_MUTATION=NO
+            echo PRODUCTION_CONNECTOR_RESTART=NO
+            echo PRODUCTION_DEPLOYMENT=NO
+          } > "$D/PILOT_INFO.txt"
+          cat "$D/PILOT_INFO.txt"
+          cat "$D/SHA256SUMS"
+
+      - name: Publish isolated pilot artifacts
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add radar-vps/pilot-v624-messenger
+          if git diff --cached --quiet; then
+            echo RADAR_V624_PILOT_ARTIFACTS=UNCHANGED
+            exit 0
+          fi
+          git commit -m 'build(radar): publish V6.24 isolated Messenger Outbox pilot'
+          # gofmt may have touched tracked source files in the runner workspace.
+          # The pilot artifacts are already committed, so discard only those
+          # ephemeral uncommitted formatting changes before rebasing.
+          git reset --hard HEAD
+          git clean -fd
+          git fetch origin radar-v624-internal-mail-protocol-discovery
+          git rebase origin/radar-v624-internal-mail-protocol-discovery
+          git push origin HEAD:radar-v624-internal-mail-protocol-discovery
+          echo RADAR_V624_PILOT_ARTIFACTS=PUBLISHED
+
+      - name: Upload pilot evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: radar-v624-messenger-vps-pilot
+          path: |
+            radar-vps/pilot-v624-messenger/PILOT_INFO.txt
+            radar-vps/pilot-v624-messenger/SHA256SUMS
+            /tmp/v624-pilot-tests.log
+            /tmp/v624-create.json
+            /tmp/v624-queue.json
+            /tmp/v624-history.json
+          if-no-files-found: error
+          retention-days: 30
+ || true
           )"
           if [ -n "$bad" ]; then
             echo "V624_UNQUALIFIED_SOURCE_CHANGE=$bad"
