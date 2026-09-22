@@ -1,0 +1,32 @@
+{
+  "schema": "chacha.dev/acceptance-engine/v1",
+  "version": "1.0.0",
+  "source_of_truth": "functional-contract",
+  "criterion_states": [
+    "PENDING",
+    "PASS",
+    "FAIL",
+    "BLOCKED",
+    "UNVERIFIED"
+  ],
+  "required_dimensions": [
+    "functional",
+    "integration",
+    "quality",
+    "security",
+    "performance",
+    "accessibility",
+    "localization",
+    "documentation",
+    "operability",
+    "rollback"
+  ],
+  "policy": {
+    "all_required_criteria_must_pass": true,
+    "unverified_required_criterion_blocks_delivery": true,
+    "failure_routes_to_owning_factory": true,
+    "retest_impacted_dependents": true,
+    "evidence_required": true,
+    "human_acceptance_only_when_criterion_is_intrinsically_subjective": true
+  }
+}
