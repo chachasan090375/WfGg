@@ -1,0 +1,284 @@
+name: Radar V6.23 Autopilot ledger storage boundary automated PILOT
+
+on:
+  push:
+    branches: [radar-v623-autopilot-ledger-storage-boundary]
+    paths:
+      - '.github/scripts/patch-radar-autopilot-persistent-ledger-v61913.py'
+      - '.github/scripts/patch-radar-autopilot-ledger-confirmation-v620.py'
+      - '.github/workflows/radar-v623-autopilot-ledger-storage-boundary-pilot.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  pilot:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: radar-v623-autopilot-ledger-storage-boundary
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.27.x'
+
+      - name: Require V6.23 qualification PASS
+        run: |
+          set -euo pipefail
+          Q=radar-vps/V623_QUALIFICATION_RECEIPT.txt
+          test -f "$Q"
+          grep -Fq 'WFGG_RADAR_QUALIFICATION=V6.23' "$Q"
+          grep -Fq 'RESULT=success' "$Q"
+          grep -Fq 'SOURCE_REV=8fea9310ec6ad7b192338dcbffe124e040779541' "$Q"
+          grep -Fq 'LEDGER_STORAGE=/opt/wfgg-radar/data/autopilot-ledger.db' "$Q"
+          grep -Fq 'LEGACY_COLLECTOR_LEDGER=READ_ONLY_COMPATIBILITY' "$Q"
+          grep -Fq 'COLLECTOR_DB_WRITE=NO' "$Q"
+          grep -Fq 'NO_RESCAN=PRESERVED' "$Q"
+          grep -Fq 'LASTWAR_MODE=READ_ONLY' "$Q"
+          grep -Fq 'TOKEN_PERSISTENCE=NO' "$Q"
+          grep -Fq 'PRODUCTION_DEPLOYMENT=NO' "$Q"
+          echo RADAR_V623_QUALIFICATION_GATE=PASS
+
+      - name: Reconstruct exact V6.23 candidate
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/wfgg-radar
+          mkdir -p /tmp/wfgg-radar
+          python3 .github/scripts/reconstruct-radar-release.py
+          echo '234df1dec57f6211bc625855bf13350c9f17fbd843fbe92d8cf1ab7cb5c081ef  /tmp/radar-src.tar.gz' | sha256sum -c -
+          tar -xzf /tmp/radar-src.tar.gz -C /tmp/wfgg-radar
+          rm -rf /tmp/wfgg-radar/connector-go
+          cp -a .radar-release-src/v2-source/connector-go /tmp/wfgg-radar/connector-go
+
+          python3 .github/scripts/patch-radar-target-profile-retry.py
+          python3 .github/scripts/patch-radar-federated-diagnostics-v65.py
+          python3 .github/scripts/patch-player-scan-v3.py
+          python3 .github/scripts/patch-player-scan-v4.py
+          python3 .github/scripts/patch-radar-protocol-discovery-v67.py
+          python3 .github/scripts/patch-radar-profile-isolation-v68.py
+          python3 .github/scripts/patch-radar-native-profile-v69.py
+          python3 .github/scripts/patch-radar-native-profile-handshake-v691.py
+          python3 .github/scripts/patch-radar-native-profile-exec-v692.py
+          python3 .github/scripts/patch-radar-connector-runtime-v693.py
+          python3 .github/scripts/patch-radar-profile-refresh-v6191.py
+          python3 .github/scripts/patch-radar-cluster-catalog-budget-v6192.py
+          python3 .github/scripts/patch-radar-seed-scout-v6193.py
+          python3 .github/scripts/patch-radar-autopilot-v6194.py
+          python3 .github/scripts/patch-radar-autopilot-stale-cycle-v6197.py
+          python3 .github/scripts/patch-radar-collector-cycle-terminalization-v6198.py
+          python3 .github/scripts/patch-radar-autopilot-targeted-history-v6199.py
+          python3 .github/scripts/patch-radar-autopilot-continue-partial-v61910.py
+
+          install -m 0644 .radar-release-src/v2-source/src/game/remote-transport.js /tmp/wfgg-radar/src/game/remote-transport.js
+          python3 .github/scripts/patch-radar-async-collector-worker.py
+          python3 .github/scripts/patch-radar-worker-rich-profile-v6191.py
+          python3 .github/scripts/patch-radar-worker-seed-scout-v6193.py
+          python3 .github/scripts/patch-radar-worker-autopilot-v6194.py
+
+          install -m 0644 radar-ui-live/live-radar.html /tmp/wfgg-radar/public/live-radar.html
+          python3 .github/scripts/patch-live-radar-seed-scout-v6193.py
+          python3 .github/scripts/patch-live-radar-autopilot-v6194.py
+          python3 .github/scripts/patch-radar-session-keepalive-v6195.py
+          python3 .github/scripts/patch-live-radar-autopilot-v6196.py
+          python3 .github/scripts/patch-live-radar-autopilot-v6197.py
+          python3 .github/scripts/patch-live-radar-autopilot-v6198.py
+          python3 .github/scripts/patch-live-radar-autopilot-v6199.py
+          python3 .github/scripts/patch-live-radar-autopilot-v61910.py
+          python3 .github/scripts/patch-radar-manual-search-stop-v61911.py
+          python3 .github/scripts/patch-radar-autopilot-no-rescan-qualified-v61912.py
+          python3 .github/scripts/patch-live-radar-autopilot-v61912.py
+          python3 .github/scripts/patch-radar-autopilot-persistent-ledger-v61913.py
+          python3 .github/scripts/patch-live-radar-autopilot-v61913.py
+          python3 .github/scripts/patch-radar-autopilot-coverage-completion-v61914.py
+          python3 .github/scripts/patch-live-radar-autopilot-v61914.py
+          python3 .github/scripts/patch-radar-worker-coverage-propagation-v61915.py
+          python3 .github/scripts/patch-radar-autopilot-failure-scope-v61916.py
+          python3 .github/scripts/patch-radar-autopilot-adaptive-verification-v61917.py
+          python3 .github/scripts/patch-radar-worker-adaptive-verification-v61917.py
+          python3 .github/scripts/patch-live-radar-adaptive-verification-v61917.py
+          python3 .github/scripts/patch-radar-autopilot-ledger-confirmation-v620.py
+          python3 .github/scripts/patch-radar-player-intelligence-connector-v620.py
+          python3 .github/scripts/patch-radar-player-intelligence-ui-worker-v620.py
+          python3 .github/scripts/patch-radar-recruitment-filter-normalization-v621.py
+          python3 .github/scripts/patch-radar-recruitment-ux-ui-worker-v621.py
+          python3 .github/scripts/patch-radar-live-profile-resolution-v622.py
+          echo RADAR_V623_PILOT_RECONSTRUCT=PASS
+
+      - name: PILOT V6.23 dedicated ledger and legacy-read boundary
+        working-directory: /tmp/wfgg-radar/connector-go
+        run: |
+          set -euo pipefail
+          gofmt -w ./cmd ./internal
+          go test ./cmd/radar-connector -run 'V623$' -count=1 -v | tee /tmp/v623-pilot-ledger.log
+          grep -Fq -- '--- PASS: TestAutopilotLedgerStorageBoundaryV623' /tmp/v623-pilot-ledger.log
+          grep -Fq -- '--- PASS: TestAutopilotLedgerRetryClassificationV623' /tmp/v623-pilot-ledger.log
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('cmd/radar-connector/autopilot_persistent_ledger_v61913.go').read_text()
+          a=Path('cmd/radar-connector/server_autopilot_v6194.go').read_text()
+          assert '/opt/wfgg-radar/data/autopilot-ledger.db' in p
+          assert 'autopilotLegacyCollectorLedgerDBPathV623' in p
+          assert 'v6.23.0' in a
+          write_fn=p[p.index('func autopilotPersistCurrentSeedOutcomeV61913'):p.index('func autopilotPersistAndConfirmCurrentClusterV61913')]
+          assert 'autopilotLedgerDBPathV61913()' in write_fn
+          print('RADAR_V623_PILOT_DEDICATED_LEDGER=PASS')
+          print('RADAR_V623_PILOT_COLLECTOR_DB_WRITE=NO')
+          PY
+
+      - name: PILOT profile-only route never enters MAP
+        working-directory: /tmp/wfgg-radar/connector-go
+        run: |
+          set -euo pipefail
+          gofmt -w ./cmd ./internal
+          go test ./cmd/radar-connector -run 'V6191$' -count=1 -v | tee /tmp/v622-pilot-profile.log
+          grep -Fq -- '--- PASS: TestCollectorBasePlayerV6191' /tmp/v622-pilot-profile.log
+          grep -Fq -- '--- PASS: TestRichObservedV6191' /tmp/v622-pilot-profile.log
+          python3 - <<'PY'
+          from pathlib import Path
+          jobs=Path('cmd/radar-connector/collector_jobs.go').read_text()
+          refresh=Path('cmd/radar-connector/profile_refresh_v6191.go').read_text()
+          i=jobs.index('WFGG_RADAR_PROFILE_ONLY_JOB_V6191')
+          segment=jobs[i:i+3500]
+          for marker in ['@profile:','runTargetProfileRefreshV6191','completeCollectorJob']:
+              assert marker in segment, marker
+          rc=segment.index('runTargetProfileRefreshV6191')
+          cc=segment.index('completeCollectorJob',rc)
+          ret=segment.index('return',cc)
+          assert rc < cc < ret
+          assert 'ScanPlayerRegion' not in segment[:ret]
+          assert 'scanCollectorRegions' not in segment[:ret]
+          assert 'get.user.info.multi' in refresh
+          assert 'ScanProfiles' in refresh
+          assert 'ScanPlayerRegion' not in refresh
+          print('RADAR_V622_PROFILE_ONLY_NO_MAP=PASS')
+          PY
+
+      - name: PILOT automatic local UID to live profile contract
+        run: |
+          set -euo pipefail
+          U=/tmp/wfgg-radar/public/live-radar.html
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          h=Path('/tmp/wfgg-radar/public/live-radar.html').read_text(encoding='utf-8')
+          m=re.search(r'<script>(.*)</script>',h,re.S); assert m
+          js=m.group(1)
+          Path('/tmp/v622-pilot-ui.js').write_text(js,encoding='utf-8')
+          show_start=js.find('function showPlayer(p,data,q){')
+          show_end=js.find('async function api(',show_start)
+          assert show_start>=0 and show_end>show_start, 'showPlayer range missing'
+          show=js[show_start:show_end]
+          assert 'scheduleResolvedProfileRefreshV622(currentProfileUID)' in show
+          refresh_start=js.find('async function refreshResolvedProfileV622')
+          refresh_end=js.find('function scheduleResolvedProfileRefreshV622',refresh_start)
+          assert refresh_start>=0 and refresh_end>refresh_start, 'refreshResolvedProfileV622 range missing'
+          body=js[refresh_start:refresh_end]
+          assert "runCollectorSearch('@profile:'+uid)" in body
+          assert '@federated:' not in body
+          assert 'applyPlayerCoreV622(p)' in body
+          assert 'applyRichProfile(p)' in body
+          assert "get.user.info.multi · LIVE" in body
+          assert 'aucun scan MAP' in body
+          print('RADAR_V622_LOCAL_UID_THEN_LIVE_PROFILE=PASS')
+          PY
+          node --check /tmp/v622-pilot-ui.js
+
+      - name: PILOT preserve V6.21 Player Intelligence and filters
+        working-directory: /tmp/wfgg-radar/connector-go
+        run: |
+          set -euo pipefail
+          go test ./cmd/radar-connector -run 'V621$' -count=1 -v | tee /tmp/v621-pilot.log
+          grep -Fq -- '--- PASS: TestPlayerIntelligenceCountryOptionsAreGameObservedV621' /tmp/v621-pilot.log
+          grep -Fq -- '--- PASS: TestPlayerIntelligenceNormalizedChipsV621' /tmp/v621-pilot.log
+          grep -Fq -- '--- PASS: TestPlayerIntelligenceIncludeAliasV621' /tmp/v621-pilot.log
+          echo RADAR_V623_PRESERVE_V621=PASS
+
+      - name: PILOT preserve V6.20 and Adaptive Verification
+        working-directory: /tmp/wfgg-radar/connector-go
+        run: |
+          set -euo pipefail
+          go test ./cmd/radar-connector -run 'V620$|V61917$' -count=1 -v | tee /tmp/v622-pilot-regression.log
+          grep -Fq -- '--- PASS: TestAutopilotFullAfterPartialPersistsAndConfirmsV620' /tmp/v622-pilot-regression.log
+          grep -Fq -- '--- PASS: TestPlayerIntelligenceAliasSearchV620' /tmp/v622-pilot-regression.log
+          grep -Fq -- '--- PASS: TestAutopilotAdaptiveOneFullCycleConfirmsV61917' /tmp/v622-pilot-regression.log
+          grep -Fq -- '--- PASS: TestAutopilotAdaptivePartialDoesNotConfirmV61917' /tmp/v622-pilot-regression.log
+          echo RADAR_V623_PRESERVE_V620_AND_V61917=PASS
+
+      - name: PILOT full regression and immutable digests
+        working-directory: /tmp/wfgg-radar/connector-go
+        run: |
+          set -euo pipefail
+          go test ./...
+          go vet ./...
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w' -o /tmp/radar-connector ./cmd/radar-connector
+          grep -aFq 'v6.23.0' /tmp/radar-connector
+          grep -aFq 'autopilot-ledger.db' /tmp/radar-connector
+          grep -aFq 'AUTOPILOT_LEDGER_PERMISSION_DENIED_V623' /tmp/radar-connector
+          grep -aFq 'AUTOPILOT_LEDGER_LOCKED_V623' /tmp/radar-connector
+          grep -aFq '/v1/collector/profile/refresh' /tmp/radar-connector
+          grep -aFq 'get.user.info.multi' /tmp/radar-connector
+          test "$(sha256sum /tmp/radar-connector | awk '{print $1}')" = "232fcbd1037da45d1c460eef20e7627aac7c90425f04ab0e58d47b74fb56249b"
+          test "$(sha256sum /tmp/wfgg-radar/src/worker.js | awk '{print $1}')" = "b4434c02abf740ea224c5ea60aebebfb0baa11ac7f02fffd68838970ba50d27d"
+          test "$(sha256sum /tmp/wfgg-radar/src/game/remote-transport.js | awk '{print $1}')" = "c194a13d35ed436278fb11221c73249f89fa9cb9b979122103b9ba20f73e2b5c"
+          test "$(sha256sum /tmp/wfgg-radar/public/live-radar.html | awk '{print $1}')" = "0e7a226a7dc4c82ef83128d87d4f0458f9054dfe72dd55d574d61b3bb619145e"
+          echo RADAR_V623_PILOT_CONNECTOR_SHA256=232fcbd1037da45d1c460eef20e7627aac7c90425f04ab0e58d47b74fb56249b
+          echo RADAR_V623_PILOT_WORKER_SHA256=b4434c02abf740ea224c5ea60aebebfb0baa11ac7f02fffd68838970ba50d27d
+          echo RADAR_V623_PILOT_TRANSPORT_SHA256=c194a13d35ed436278fb11221c73249f89fa9cb9b979122103b9ba20f73e2b5c
+          echo RADAR_V623_PILOT_UI_SHA256=0e7a226a7dc4c82ef83128d87d4f0458f9054dfe72dd55d574d61b3bb619145e
+          echo RADAR_V623_FULL_REGRESSION=PASS
+
+      - name: Verify V6.23 PILOT safety
+        run: |
+          set -euo pipefail
+          P=.github/scripts/patch-radar-autopilot-persistent-ledger-v61913.py
+          C=.github/scripts/patch-radar-autopilot-ledger-confirmation-v620.py
+          grep -Fq 'WFGG_RADAR_AUTOPILOT_LEDGER_STORAGE_BOUNDARY_V623' "$P"
+          grep -Fq '/opt/wfgg-radar/data/autopilot-ledger.db' "$P"
+          grep -Fq 'v6.23.0' "$C"
+          ! grep -REiq 'localStorage.*token|sessionStorage.*token|INSERT.*token|token.*INSERT|access_token' "$P" "$C"
+          echo RADAR_V623_GAME_SCAN_EXECUTED=NO
+          echo RADAR_V623_COLLECTOR_DB_WRITE=NO
+          echo RADAR_V623_LASTWAR_MODE=READ_ONLY
+          echo RADAR_V623_TOKEN_PERSISTENCE=NO
+          echo RADAR_V623_PRODUCTION_DEPLOYMENT=NO
+          echo RADAR_V623_PILOT=PASS
+
+      - name: Record V6.23 PILOT receipt
+        if: always()
+        env:
+          PILOT_RESULT: ${{ job.status }}
+        run: |
+          set -euo pipefail
+          mkdir -p radar-vps
+          {
+            echo "WFGG_RADAR_PILOT=V6.23"
+            echo "RESULT=$PILOT_RESULT"
+            echo "SOURCE_REV=$(git rev-parse HEAD)"
+            echo "QUALIFIED_SOURCE_REV=8fea9310ec6ad7b192338dcbffe124e040779541"
+            echo "LEDGER_STORAGE=/opt/wfgg-radar/data/autopilot-ledger.db"
+            echo "LEGACY_COLLECTOR_LEDGER=READ_ONLY_COMPATIBILITY"
+            echo "COLLECTOR_DB_WRITE=NO"
+            echo "NO_RESCAN=PRESERVED"
+            echo "GAME_SCAN_EXECUTED=NO"
+            echo "LASTWAR_MODE=READ_ONLY"
+            echo "TOKEN_PERSISTENCE=NO"
+            echo "PRODUCTION_DEPLOYMENT=NO"
+            for F in /tmp/v623-pilot-ledger.log /tmp/v622-pilot-profile.log /tmp/v621-pilot.log /tmp/v622-pilot-regression.log; do
+              if [ -f "$F" ]; then
+                echo
+                echo "===== $(basename "$F") ====="
+                tail -n 140 "$F"
+              fi
+            done
+          } > radar-vps/V623_PILOT_RECEIPT.txt
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add radar-vps/V623_PILOT_RECEIPT.txt
+          if ! git diff --cached --quiet; then
+            git commit -m "ci(radar): record V6.23 PILOT $PILOT_RESULT [skip ci]"
+            git push origin HEAD:radar-v623-autopilot-ledger-storage-boundary
+          fi
