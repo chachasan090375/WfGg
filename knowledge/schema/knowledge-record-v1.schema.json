@@ -1,0 +1,111 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://wfgg.invalid/schema/knowledge-record-v1.json",
+  "title": "WfGg Knowledge Record V1",
+  "type": "object",
+  "required": [
+    "id",
+    "kind",
+    "name",
+    "status",
+    "provenance",
+    "version"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "kind": {
+      "type": "string",
+      "enum": [
+        "file",
+        "lua_module",
+        "unity_asset",
+        "ui",
+        "animation",
+        "protocol",
+        "rule",
+        "localization",
+        "entity",
+        "evidence",
+        "unknown"
+      ]
+    },
+    "name": {
+      "type": "string"
+    },
+    "path": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "OBSERVED",
+        "INFERRED",
+        "CONFIRMED",
+        "OBSOLETE",
+        "UNKNOWN"
+      ]
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "version": {
+      "type": "string"
+    },
+    "sha256": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "domain": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "traits": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "aliases": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "required": [
+        "source_type",
+        "source"
+      ],
+      "additionalProperties": true
+    },
+    "relations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "type",
+          "target",
+          "status"
+        ],
+        "additionalProperties": true
+      }
+    },
+    "fields": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}
