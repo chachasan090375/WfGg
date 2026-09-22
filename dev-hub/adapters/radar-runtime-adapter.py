@@ -17,6 +17,8 @@ Supported actions:
 - pilot-install     (production-deploy)
 - pilot-probe       (read)
 - pilot-close       (production-deploy)
+- messenger-pilot-install (production-deploy; isolated /opt/wfgg-messenger-pilot only)
+- messenger-pilot-probe   (read; local dry-run probe only)
 
 The adapter accepts only structured dispatch envelopes, uses no shell
 interpolation, never accepts arbitrary URLs or service names, requires a pinned
@@ -62,6 +64,10 @@ HEX64_RE = re.compile(r"^[0-9a-f]{64}$")
 ABSOLUTE_MAX_TIMEOUT = 180
 COLLECTOR_DB_DEFAULT = Path("/opt/wfgg-collector/data/collector.db")
 QUALITY_REQUIRED_COLUMNS = {"id", "status", "error", "query"}
+MESSENGER_PILOT_ROOT = Path(os.environ.get("CHACHA_MESSENGER_PILOT_ROOT", "/opt/wfgg-messenger-pilot"))
+MESSENGER_PILOT_BIN = MESSENGER_PILOT_ROOT / "bin" / "wfgg-messenger-outbox"
+MESSENGER_INSTALLER_V624 = "radar-vps/install-v624-messenger-pilot.sh"
+MESSENGER_PROBE_V624 = "radar-vps/probe-v624-messenger-pilot-runtime.sh"
 
 
 def now_iso() -> str:
@@ -180,6 +186,8 @@ def validate_request(request: dict[str, Any]) -> tuple[dict[str, Any] | None, st
         "pilot-install": "production-deploy",
         "pilot-probe": "read",
         "pilot-close": "production-deploy",
+        "messenger-pilot-install": "production-deploy",
+        "messenger-pilot-probe": "read",
     }.get(action)
     if expected_permission is None:
         return None, "RADAR_RUNTIME_ACTION_NOT_ALLOWED"
@@ -1262,6 +1270,176 @@ def do_sentinel_release_diagnostic(request: dict[str, Any], radar: dict[str, Any
         "reason": "Read-only Sentinel configuration, release-manifest and runtime fingerprint diagnostic.",
     }]))
 
+def validate_messenger_pilot_metadata(
+    radar: dict[str, Any], need_probe: bool = False
+) -> tuple[str, str, str | None, str]:
+    revision = str(radar.get("revision") or "").strip().lower()
+    installer = str(radar.get("installer") or "").strip()
+    probe = str(radar.get("probe") or "").strip() if need_probe else None
+    messenger_sha = str(radar.get("expected_messenger_sha256") or "").strip().lower()
+    if not REV_RE.fullmatch(revision):
+        raise ValueError("RADAR_MESSENGER_REVISION_INVALID")
+    if installer != MESSENGER_INSTALLER_V624:
+        raise ValueError("RADAR_MESSENGER_INSTALLER_PATH_INVALID")
+    if need_probe and probe != MESSENGER_PROBE_V624:
+        raise ValueError("RADAR_MESSENGER_PROBE_PATH_INVALID")
+    if not HEX64_RE.fullmatch(messenger_sha):
+        raise ValueError("RADAR_EXPECTED_MESSENGER_SHA_INVALID")
+    return revision, installer, probe, messenger_sha
+
+
+def messenger_pilot_snapshot() -> dict[str, Any]:
+    snap = status_snapshot()
+    snap["messenger_pilot_root"] = str(MESSENGER_PILOT_ROOT)
+    snap["messenger_pilot_binary"] = str(MESSENGER_PILOT_BIN)
+    snap["messenger_pilot_sha256"] = (
+        sha256_file(MESSENGER_PILOT_BIN) if MESSENGER_PILOT_BIN.is_file() else None
+    )
+    return snap
+
+
+def production_runtime_unchanged(before: dict[str, Any], after: dict[str, Any]) -> bool:
+    keys = (
+        "connector_sha256",
+        "native_sha256",
+        "radar_service",
+        "radar_sentinel_timer",
+        "radar_sentinel_enabled",
+        "collector_sentinel_timer",
+    )
+    return all(before.get(key) == after.get(key) for key in keys)
+
+
+def do_messenger_pilot_install(request: dict[str, Any], radar: dict[str, Any]) -> int:
+    approval_error = approval_required(request)
+    if approval_error:
+        return blocked(request, approval_error)
+    try:
+        revision, installer, _probe, expected_messenger = validate_messenger_pilot_metadata(radar, False)
+    except ValueError as exc:
+        return blocked(request, str(exc))
+
+    before = messenger_pilot_snapshot()
+    if before["radar_service"] != "active":
+        return blocked(request, "RADAR_PRODUCTION_SERVICE_NOT_ACTIVE")
+    if before["radar_sentinel_timer"] != "active":
+        return blocked(request, "RADAR_SENTINEL_MUST_REMAIN_ACTIVE")
+    if before["collector_sentinel_timer"] != "active":
+        return blocked(request, "COLLECTOR_SENTINEL_NOT_ACTIVE")
+
+    timeout = timeout_from(request)
+    with tempfile.TemporaryDirectory(prefix="chacha-radar-v624-messenger-install-") as td:
+        script = Path(td) / "installer.sh"
+        try:
+            download_asset(revision, installer, script, min(timeout, 60))
+        except Exception as exc:
+            return emit(result(request, "FAILED", f"RADAR_MESSENGER_INSTALLER_DOWNLOAD_FAILED:{type(exc).__name__}"))
+        env = os.environ.copy()
+        env["WFGG_RADAR_V624_REV"] = revision
+        proc = run(["/usr/bin/bash", str(script)], timeout=timeout, env=env)
+
+    digest = sha256_bytes(proc.stdout[:65536] + proc.stderr[:65536])
+    if proc.returncode != 0 or b"RADAR_V624_MESSENGER_PILOT_INSTALL=PASS" not in proc.stdout:
+        return emit(result(request, "FAILED", "RADAR_MESSENGER_PILOT_INSTALL_FAILED", [{
+            "kind": "command",
+            "source": "local://radar-v624-messenger-pilot-installer",
+            "digest": digest,
+            "details": {"returncode": proc.returncode},
+        }]))
+
+    after = messenger_pilot_snapshot()
+    if after["messenger_pilot_sha256"] != expected_messenger:
+        return emit(result(request, "FAILED", "RADAR_MESSENGER_PILOT_SHA_MISMATCH",
+                           evidence_snapshot("messenger-pilot-install-after", after)))
+    if not production_runtime_unchanged(before, after):
+        return emit(result(request, "FAILED", "RADAR_PRODUCTION_RUNTIME_CHANGED_BY_MESSENGER_PILOT",
+                           evidence_snapshot("messenger-pilot-install-before", before) +
+                           evidence_snapshot("messenger-pilot-install-after", after)))
+
+    return emit(result(request, "OK", "RADAR_MESSENGER_PILOT_INSTALL_OK", [
+        {
+            "kind": "command",
+            "source": "local://radar-v624-messenger-pilot-installer",
+            "digest": digest,
+            "details": {
+                "returncode": proc.returncode,
+                "messenger_sha256": expected_messenger,
+                "production_runtime_unchanged": True,
+                "lastwar_mutation": False,
+                "network_send": False,
+            },
+        },
+        *evidence_snapshot("messenger-pilot-install-after", after),
+    ], [{
+        "type": "artifact",
+        "id": "radar-v624-messenger-pilot",
+        "status": "UNVERIFIED",
+        "reason": "Isolated dry-run Messenger installed; production Radar runtime unchanged.",
+    }]))
+
+
+def do_messenger_pilot_probe(request: dict[str, Any], radar: dict[str, Any]) -> int:
+    try:
+        revision, _installer, probe, expected_messenger = validate_messenger_pilot_metadata(radar, True)
+    except ValueError as exc:
+        return blocked(request, str(exc))
+
+    before = messenger_pilot_snapshot()
+    if before["messenger_pilot_sha256"] != expected_messenger:
+        return emit(result(request, "FAILED", "RADAR_MESSENGER_PILOT_NOT_LOADED",
+                           evidence_snapshot("messenger-pilot-probe-before", before)))
+    timeout = timeout_from(request)
+    with tempfile.TemporaryDirectory(prefix="chacha-radar-v624-messenger-probe-") as td:
+        script = Path(td) / "probe.sh"
+        try:
+            assert probe is not None
+            download_asset(revision, probe, script, min(timeout, 60))
+        except Exception as exc:
+            return emit(result(request, "FAILED", f"RADAR_MESSENGER_PROBE_DOWNLOAD_FAILED:{type(exc).__name__}"))
+        env = os.environ.copy()
+        env["WFGG_V624_MESSENGER_SHA256"] = expected_messenger
+        proc = run(["/usr/bin/bash", str(script)], timeout=timeout, env=env)
+
+    digest = sha256_bytes(proc.stdout[:65536] + proc.stderr[:65536])
+    marker = b"RADAR_V624_MESSENGER_RUNTIME_PROBE=PASS"
+    if proc.returncode != 0 or marker not in proc.stdout:
+        return emit(result(request, "FAILED", "RADAR_MESSENGER_PILOT_PROBE_FAILED", [{
+            "kind": "command",
+            "source": "local://radar-v624-messenger-pilot-probe",
+            "digest": digest,
+            "details": {"returncode": proc.returncode},
+        }]))
+
+    after = messenger_pilot_snapshot()
+    if after["messenger_pilot_sha256"] != expected_messenger:
+        return emit(result(request, "FAILED", "RADAR_MESSENGER_PILOT_SHA_DRIFT",
+                           evidence_snapshot("messenger-pilot-probe-after", after)))
+    if not production_runtime_unchanged(before, after):
+        return emit(result(request, "FAILED", "RADAR_PRODUCTION_RUNTIME_CHANGED_BY_MESSENGER_PROBE",
+                           evidence_snapshot("messenger-pilot-probe-before", before) +
+                           evidence_snapshot("messenger-pilot-probe-after", after)))
+
+    return emit(result(request, "OK", "RADAR_MESSENGER_PILOT_PROBE_OK", [{
+        "kind": "command",
+        "source": "local://radar-v624-messenger-pilot-probe",
+        "digest": digest,
+        "details": {
+            "returncode": proc.returncode,
+            "pass_marker": True,
+            "production_runtime_unchanged": True,
+            "game_connection": "NONE",
+            "game_scan_executed": False,
+            "lastwar_mutation": False,
+            "network_send": False,
+        },
+    }], [{
+        "type": "gate",
+        "id": "radar-v624-messenger-pilot-runtime",
+        "status": "UNVERIFIED",
+        "reason": "Isolated local DRAFT->QUEUED->HISTORY probe passed; no game connection.",
+    }]))
+
+
 def do_open(request: dict[str, Any]) -> int:
     approval_error = approval_required(request)
     if approval_error:
@@ -1413,6 +1591,10 @@ def main() -> int:
             return do_autopilot_progress_diagnostic(request)
         if action == "sentinel-release-diagnostic":
             return do_sentinel_release_diagnostic(request, radar)
+        if action == "messenger-pilot-install":
+            return do_messenger_pilot_install(request, radar)
+        if action == "messenger-pilot-probe":
+            return do_messenger_pilot_probe(request, radar)
         if action == "pilot-open":
             return do_open(request)
         if action == "pilot-install":
