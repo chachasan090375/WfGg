@@ -30,28 +30,33 @@ jobs:
           from pathlib import Path
           p=Path('/tmp/unluac/src/unluac/parse/LHeaderType.java')
           s=p.read_text()
-          s=s.replace(
-'''    if(format != 0) {
+          old='''    if(format != 0) {
       throw new IllegalStateException("The input chunk reports a non-standard lua format: " + format);
-    }''',
-'''    if(format != 0 && format != 1) {
+    }'''
+          new='''    if(format != 0 && format != 1) {
       throw new IllegalStateException("The input chunk reports an unsupported lua format: " + format);
-    }''',1)
-          s=s.replace(
-'''    parse_size_t_size(buffer, header, s);
+    }'''
+          if old not in s: raise SystemExit('V625_UNLUAC_FORMAT_ANCHOR_MISSING')
+          s=s.replace(old,new,1)
+          old2='''    parse_size_t_size(buffer, header, s);
     parse_instruction_size(buffer, header, s);
-    parse_integer_size(buffer, header, s);''',
-'''    parse_size_t_size(buffer, header, s);
+    parse_integer_size(buffer, header, s);'''
+          new2='''    parse_size_t_size(buffer, header, s);
+    // Last War custom Lua 5.3 format=1 omits the instruction-size byte.
     if(s.format != 1) {
       parse_instruction_size(buffer, header, s);
     }
-    parse_integer_size(buffer, header, s);''',1)
+    parse_integer_size(buffer, header, s);'''
+          if old2 not in s: raise SystemExit('V625_UNLUAC_INSTRUCTION_ANCHOR_MISSING')
+          s=s.replace(old2,new2,1)
           p.write_text(s)
           PY
           cd src
           mkdir -p build
           javac -d build unluac/*.java
           jar cfe /tmp/unluac-v625.jar unluac.Main -C build .
+          test -s /tmp/unluac-v625.jar
+          echo V625_UNLUAC_PATCHED=READY
 
       - name: Fetch Lua pack
         run: |
