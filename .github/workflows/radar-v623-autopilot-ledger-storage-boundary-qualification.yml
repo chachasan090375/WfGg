@@ -100,7 +100,31 @@ jobs:
         run: |
           set -euo pipefail
           gofmt -w ./cmd ./internal
-          go test ./cmd/radar-connector -run 'V623
+          go test ./cmd/radar-connector -run 'V623$' -count=1 -v | tee /tmp/v623-tests.log
+          grep -Fq -- '--- PASS: TestAutopilotLedgerStorageBoundaryV623' /tmp/v623-tests.log
+          grep -Fq -- '--- PASS: TestAutopilotLedgerRetryClassificationV623' /tmp/v623-tests.log
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('cmd/radar-connector/autopilot_persistent_ledger_v61913.go').read_text()
+          a=Path('cmd/radar-connector/server_autopilot_v6194.go').read_text()
+          assert 'WFGG_RADAR_AUTOPILOT_LEDGER_STORAGE_BOUNDARY_V623' in p
+          assert 'WFGG_RADAR_AUTOPILOT_LEDGER_DB' in p
+          assert '/opt/wfgg-radar/data/autopilot-ledger.db' in p
+          assert 'autopilotLegacyCollectorLedgerDBPathV623' in p
+          assert 'AUTOPILOT_LEDGER_PERMISSION_DENIED_V623' in p
+          assert 'AUTOPILOT_LEDGER_LOCKED_V623' in p
+          assert 'AUTOPILOT_LEDGER_DISK_FULL_V623' in p
+          assert 'AUTOPILOT_LEDGER_OPEN_FAILED_V623' in p
+          assert 'v6.23.0' in a
+          fn=p[p.index('func autopilotLedgerDBPathV61913'):p.index('func autopilotLegacyCollectorLedgerDBPathV623')]
+          assert 'WFGG_COLLECTOR_DB' not in fn
+          assert '/opt/wfgg-collector/data/collector.db' not in fn
+          print('RADAR_V623_COLLECTOR_DB_WRITES=NO')
+          print('RADAR_V623_LEGACY_LEDGER_READONLY=YES')
+          print('RADAR_V623_STORAGE_BOUNDARY=PASS')
+          PY
+
+      - name: Verify V6.22 profile-only Connector path
         working-directory: /tmp/wfgg-radar/connector-go
         run: |
           set -euo pipefail
