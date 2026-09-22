@@ -68,6 +68,14 @@ def extract_candidates(pack: Path, out: Path) -> list[dict]:
         print("V625_POP_MODULE="+x["name"])
     return picked
 
+def normalize_lua53(chunk: bytes) -> bytes:
+    if len(chunk) >= 15 and chunk[:4] == b"\\x1bLua" and chunk[4] == 0x53 and chunk[5] == 1:
+        return chunk[:5] + b"\\x00" + chunk[6:14] + b"\\x04" + chunk[14:]
+    return chunk
+
+def ascii_strings(data: bytes):
+    return [m.group(0).decode("ascii","replace") for m in re.finditer(rb"[ -~]{4,}", data)]
+
 def decompile(jar: Path, src: Path, out: Path) -> None:
     out.mkdir(parents=True,exist_ok=True)
     for p in sorted(src.glob("*.luac")):
@@ -76,11 +84,32 @@ def decompile(jar: Path, src: Path, out: Path) -> None:
         cp=subprocess.run(["java","-jar",str(jar),str(p)],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
         dst.write_bytes(cp.stdout)
         err.write_bytes(cp.stderr)
-        print(("V625_DECOMPILE_OK=" if cp.returncode==0 else "V625_DECOMPILE_FAIL=")+p.stem)
+        if cp.returncode==0:
+            print("V625_DECOMPILE_OK="+p.stem)
+        else:
+            print("V625_DECOMPILE_FAIL="+p.stem)
+            msg=cp.stderr.decode("utf-8","replace").replace("\\n"," ")[:500]
+            print("V625_DECOMPILE_ERROR="+msg)
+        fixed=out/(p.stem+".normalized.luac")
+        fixed.write_bytes(normalize_lua53(p.read_bytes()))
+        dis=out/(p.stem+".disasm.txt")
+        lp=subprocess.run(["luac5.3","-l","-l",str(fixed)],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+        dis.write_bytes(lp.stdout + b"\\n--- STDERR ---\\n" + lp.stderr)
+        print(("V625_LUAC_DISASM_OK=" if lp.returncode==0 else "V625_LUAC_DISASM_FAIL=")+p.stem)
+        raw=out/(p.stem+".strings.txt")
+        strings=ascii_strings(p.read_bytes())
+        raw.write_text("\\n".join(strings))
+        for i,st in enumerate(strings):
+            if any(term in st.lower() for term in COUNT_TERMS):
+                lo=max(0,i-8); hi=min(len(strings),i+12)
+                print("V625_STRING_CONTEXT_MODULE="+p.stem)
+                for ctx in strings[lo:hi]:
+                    print("  "+ctx[:260])
 
 def analyze(src: Path) -> None:
     report=[]
-    for p in sorted(src.glob("*.lua")):
+    candidates=sorted(list(src.glob("*.lua"))+list(src.glob("*.disasm.txt"))+list(src.glob("*.strings.txt")))
+    for p in candidates:
         s=p.read_text(errors="replace")
         low=s.lower()
         terms=[x for x in COUNT_TERMS if x in low]
@@ -90,12 +119,12 @@ def analyze(src: Path) -> None:
         selected=[]
         for i,line in enumerate(lines):
             ll=line.lower()
-            if any(x in ll for x in terms+["serverid","cmd =","message","rank","oncreate","handleresponse"]):
-                selected.extend(lines[max(0,i-5):min(len(lines),i+9)])
+            if any(x in ll for x in terms+["serverid","cmd","message","rank","oncreate","handleresponse","seasonserver"]):
+                selected.extend(lines[max(0,i-6):min(len(lines),i+12)])
         dedup=[]
         for x in selected:
             if x not in dedup: dedup.append(x)
-        report.append({"file":p.name,"terms":terms,"evidence":dedup[:240]})
+        report.append({"file":p.name,"terms":terms,"evidence":dedup[:320]})
     Path("/tmp/v625-population-evidence.json").write_text(json.dumps(report,indent=2))
     print(f"V625_EVIDENCE_MODULES={len(report)}")
     for r in report:
