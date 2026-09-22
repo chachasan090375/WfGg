@@ -1,0 +1,19 @@
+[Unit]
+Description=ChaCha DEV production learning anomaly to Guardian bridge
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+ExecStart=/usr/bin/python3 /opt/chacha-dev/platform/current/dev-hub/bin/production-anomaly-guardian-bridge.py
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadOnlyPaths=/opt/chacha-dev/runtime/secrets/central-learning-key.pem
+ReadWritePaths=/opt/chacha-dev/runtime/learning /opt/chacha-dev/runtime/guardian
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+MemoryMax=128M
+TasksMax=24
