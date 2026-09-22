@@ -29,7 +29,10 @@
     "every_project_is_factory_provisioned": true,
     "project_knowledge_promotes_to_generic_knowledge": true,
     "agent_foundry_precedes_domain_dispatch": true,
-    "core_replan_required_after_foundry": true
+    "core_replan_required_after_foundry": true,
+    "branch_foundry_parallel_with_agent_foundry": true,
+    "lazy_branch_materialization": true,
+    "central_memory_survives_branch_teardown": true
   },
   "interfaces": {
     "cli": {
@@ -86,7 +89,8 @@
     "knowledge_lifecycle": "dev-hub/config/knowledge-lifecycle.v1.json",
     "recovery_orchestrator": "dev-hub/config/recovery-orchestrator.v1.json",
     "uncertainty_policy": "dev-hub/config/uncertainty-policy.v1.json",
-    "autonomy_definition": "dev-hub/config/autonomy-definition.v1.json"
+    "autonomy_definition": "dev-hub/config/autonomy-definition.v1.json",
+    "branch_foundry": "dev-hub/config/branch-foundry.v1.json"
   },
   "engine_paths": {
     "control_plane_store": "dev-hub/bin/control-plane-store.py",
@@ -118,7 +122,9 @@
     "knowledge_compiler": "dev-hub/bin/knowledge-compiler.py",
     "uncertainty_resolver": "dev-hub/bin/uncertainty-resolver.py",
     "recovery_orchestrator": "dev-hub/bin/recovery-orchestrator.py",
-    "autonomy_audit": "dev-hub/bin/autonomy-audit.py"
+    "autonomy_audit": "dev-hub/bin/autonomy-audit.py",
+    "branch_foundry_planner": "dev-hub/bin/branch-foundry-planner.py",
+    "branch_blueprint_optimizer": "dev-hub/bin/branch-blueprint-optimizer.py"
   },
   "status_model": [
     "READY",
@@ -232,6 +238,13 @@
         "CORE_REPLAN"
       ],
       "domain_dispatch_after_success": true
+    },
+    "branch-foundry-plan": {
+      "class": "plan",
+      "mutating": false,
+      "mandatory_before_domain_dispatch": true,
+      "parallel_with": "agent-foundry-plan",
+      "returns_to_core_orchestrator": true
     }
   },
   "transaction_policy": {
