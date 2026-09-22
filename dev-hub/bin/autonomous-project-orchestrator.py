@@ -69,7 +69,7 @@ def _council_guardian_evidence(output_path:Path|None):
     })
     return evidence
 
-def guardian_stage(script:Path,args,phase:str):
+def guardian_stage(script:Path,args,phase:str,action_id:str):
     if not _GUARDIAN_CONTEXT.get("enabled"): return {"status":"NON_RUNTIME_TEST_BYPASS"}
     client=Path(_GUARDIAN_CONTEXT["client"]);policy=Path(_GUARDIAN_CONTEXT["policy"])
     if not client.is_file() or not policy.is_file():
@@ -91,6 +91,7 @@ def guardian_stage(script:Path,args,phase:str):
     event={
       "schema":"chacha.dev/governance-action/v1",
       "event_id":"gov-"+uuid.uuid4().hex,
+      "action_id":action_id,
       "phase":phase,
       "actor":"central-orchestrator",
       "subject_role":role,
@@ -101,7 +102,7 @@ def guardian_stage(script:Path,args,phase:str):
       "run_id":None,
       "adapters":[],
       "evidence":evidence,
-      "context":{"resource_class":"light","human_approval_required":False,"storage_preflight_required":False}
+      "context":{"resource_class":"light","human_approval_required":False,"storage_preflight_required":False,"deadline_seconds":180}
     }
     event_dir=Path(_GUARDIAN_CONTEXT["event_dir"]);event_dir.mkdir(parents=True,exist_ok=True)
     ep=event_dir/(event["event_id"]+".json");save(ep,event)
@@ -115,12 +116,13 @@ def guardian_stage(script:Path,args,phase:str):
     return verdict
 
 def run(script,args):
-    guardian_stage(Path(script),args,"PRE_ACTION")
+    action_id="stage-"+uuid.uuid4().hex
+    guardian_stage(Path(script),args,"PRE_ACTION",action_id)
     p=subprocess.run([sys.executable,str(script),*map(str,args)],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
                      text=True,check=False,timeout=120)
     if p.returncode!=0:
         raise RuntimeError(f"{script.name}: {p.stderr.strip()} {p.stdout.strip()}")
-    guardian_stage(Path(script),args,"POST_ACTION")
+    guardian_stage(Path(script),args,"POST_ACTION",action_id)
     return p.stdout
 
 def merge_domain(base,overlay,out):
