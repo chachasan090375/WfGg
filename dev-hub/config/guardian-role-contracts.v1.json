@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/guardian-role-contracts/v1",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "scope": "PLATFORM_GLOBAL",
   "principles": {
     "guardian_is_external_to_central_brain": true,
@@ -8,8 +8,11 @@
     "guardian_cannot_modify_own_contracts_at_runtime": true,
     "every_governed_action_requires_actor_and_subject_contract": true,
     "sensitive_actions_fail_closed": true,
-    "low_risk_guardian_unavailability_may_continue_unverified": true,
-    "pass_requires_evidence_not_self_assertion": true
+    "low_risk_guardian_unavailability_may_continue_unverified": false,
+    "pass_requires_evidence_not_self_assertion": true,
+    "guardian_static_policy_cannot_self_mutate_at_runtime": true,
+    "dynamic_instance_contracts_may_be_registered_only_under_immutable_template": true,
+    "dynamic_instance_contracts_cannot_escalate_template_privileges": true
   },
   "sensitive_permissions": [
     "production-deploy",
@@ -352,6 +355,25 @@
       "forbidden_actions": [
         "FINAL_ARCHITECTURE_DECISION",
         "PRODUCTION_DEPLOY"
+      ],
+      "allowed_permissions": [
+        "read",
+        "plan",
+        "workspace-write"
+      ],
+      "required_evidence": []
+    },
+    {
+      "contract_id": "role:agent-contract-registry",
+      "kind": "role",
+      "allowed_actions": [
+        "INVOKE_COMPONENT",
+        "REPORT_PLAN"
+      ],
+      "forbidden_actions": [
+        "FINAL_ARCHITECTURE_DECISION",
+        "EXECUTE_PROVIDER_DIRECTLY",
+        "MODIFY_GUARDIAN_CONTRACTS"
       ],
       "allowed_permissions": [
         "read",
