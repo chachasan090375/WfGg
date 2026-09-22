@@ -1,0 +1,57 @@
+{
+  "schema": "chacha.dev/universal-learning/v1",
+  "version": "1.0.0",
+  "scope": "PLATFORM_GLOBAL",
+  "app_specific": false,
+  "principle": "Every component that can learn or evolve emits privacy-filtered incremental deltas to the central ChaCha DEV memory, including deployed applications when no human is actively using ChaCha DEV.",
+  "source_kinds": [
+    "core-orchestrator",
+    "domain-orchestrator",
+    "foundry",
+    "agent",
+    "embedded-application-agent",
+    "learning-module",
+    "runtime-monitor"
+  ],
+  "requirements": {
+    "incremental_deltas_only": true,
+    "no_full_state_resend_when_unchanged": true,
+    "durable_outbox": true,
+    "at_least_once_delivery": true,
+    "central_deduplication": true,
+    "nas_authoritative": true,
+    "vps_hot_index": true,
+    "global_project_memory_index": true,
+    "privacy_filtered": true,
+    "raw_user_content_forbidden": true,
+    "secrets_forbidden": true,
+    "remote_private_key_never_leaves_origin": true
+  },
+  "platform_hooks": {
+    "central-orchestrator": "automatic",
+    "run-controller": "automatic",
+    "technology-watch": "automatic",
+    "foundries": "covered-by-central-orchestrator-wrapper",
+    "runtime-agents": "covered-by-run-controller"
+  },
+  "remote_app_contract": {
+    "producer_required_if_component_can_learn": true,
+    "transport": "HTTPS_ED25519_RELAY",
+    "producer_identity_per_deployment": true,
+    "private_key_origin_local_only": true,
+    "background_flush_required": true,
+    "learning_continues_without_owner_session": true
+  },
+  "anomaly_feedback_loop": {
+    "high_or_critical_to_guardian": true,
+    "high_guardian_severity": "BLOCK",
+    "critical_guardian_severity": "CRITICAL",
+    "guardian_target": "central-orchestrator",
+    "guardian_directive": "INVESTIGATE_REPLAN_PATCH_AND_VERIFY_PRODUCTION_ANOMALY",
+    "production_mutation_directly_by_guardian": false,
+    "corrected_action_resubmitted_to_guardian": true
+  },
+  "economics": {
+    "automatic_external_spend_eur": 0
+  }
+}
