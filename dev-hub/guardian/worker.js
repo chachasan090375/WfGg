@@ -179,7 +179,6 @@ async function actionLease(event,env,current){
     const mismatch=
       String(row.actor)!==String(event.actor||"")||
       String(row.subject_role)!==String(event.subject_role||"")||
-      String(row.action)!==String(event.action||"")||
       String(row.permission)!==permission||
       String(row.project_id||"")!==String(event.project_id||"")||
       String(row.run_id||"")!==String(event.run_id||"");
