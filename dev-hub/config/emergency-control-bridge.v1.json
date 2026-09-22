@@ -1,0 +1,41 @@
+{
+  "schema": "chacha.dev/emergency-control-bridge/v1",
+  "version": "1.0.0",
+  "purpose": "Out-of-band activation-only emergency control path independent from ChaCha DEV Core.",
+  "transport": {
+    "provider": "github-raw",
+    "repository": "chachasan090375/WfGg",
+    "branch": "chacha-emergency-control",
+    "path": "dev-hub/control/emergency-stop-command.json",
+    "public_read": true,
+    "repository_write_required_to_issue_command": true,
+    "poll_seconds": 10
+  },
+  "authority": {
+    "allowed_remote_actions": [
+      "STOP"
+    ],
+    "remote_reset_allowed": false,
+    "remote_resume_allowed": false,
+    "reset_requires_human_operator": true
+  },
+  "safety": {
+    "persistent_latch": true,
+    "replay_protection": "persisted-request-id-history",
+    "baseline_requires_neutral_command": true,
+    "source_change_without_STOP": "record-only",
+    "preserve_collectors": true,
+    "preserve_persistent_memory": true,
+    "preserve_evidence": true
+  },
+  "independence": {
+    "separate_release_root": "/opt/chacha-dev/emergency-bridge",
+    "separate_systemd_service": "chacha-dev-emergency-control-bridge.service",
+    "controller_copy_is_pinned_with_bridge_release": true,
+    "depends_on_core_orchestrator": false,
+    "depends_on_foundries": false
+  },
+  "economics": {
+    "automatic_external_spend_eur": 0
+  }
+}

@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/emergency-stop/v1",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "control_plane": "OUT_OF_BAND",
   "state_file": "/opt/chacha-dev/runtime/control/emergency-stop.json",
   "latch_persists_across_restart": true,
@@ -20,7 +20,8 @@
     "collector-memory",
     "knowledge-index",
     "storage-governor",
-    "emergency-stop-controller"
+    "emergency-stop-controller",
+    "emergency-control-bridge"
   ],
   "transient_unit_patterns": [
     "chacha-dev-branch@*.service",
@@ -38,6 +39,15 @@
     "runaway-loop-detector",
     "resource-pressure-critical",
     "repeated-non-convergence",
-    "security-circuit-breaker"
-  ]
+    "security-circuit-breaker",
+    "chatgpt-github-control-bridge"
+  ],
+  "remote_control": {
+    "channel": "github-dedicated-branch",
+    "branch": "chacha-emergency-control",
+    "activation_only": true,
+    "remote_reset_allowed": false,
+    "remote_resume_allowed": false,
+    "bridge_service": "chacha-dev-emergency-control-bridge.service"
+  }
 }

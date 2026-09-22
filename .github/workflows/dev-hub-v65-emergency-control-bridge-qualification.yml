@@ -1,0 +1,97 @@
+name: ChaCha DEV V6.5 emergency control bridge qualification
+
+on:
+  push:
+    branches: [dev-hub-v65-emergency-control-bridge]
+    paths:
+      - 'dev-hub/bin/emergency-control-bridge.py'
+      - 'dev-hub/bin/emergency-stop-controller.py'
+      - 'dev-hub/bin/install-emergency-control-bridge.sh'
+      - 'dev-hub/systemd/chacha-dev-emergency-control-bridge.service'
+      - 'dev-hub/config/emergency-control-bridge.v1.json'
+      - 'dev-hub/config/emergency-stop.v1.json'
+      - 'dev-hub/tests/test_v65_emergency_control_bridge.py'
+      - '.github/workflows/dev-hub-v65-emergency-control-bridge-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev-hub-v65-emergency-control-bridge
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Static validation
+        run: |
+          set -euo pipefail
+          python3 -m py_compile dev-hub/bin/emergency-control-bridge.py dev-hub/bin/emergency-stop-controller.py
+          bash -n dev-hub/bin/install-emergency-control-bridge.sh
+          python3 -m json.tool dev-hub/config/emergency-control-bridge.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/emergency-stop.v1.json >/dev/null
+          echo CHACHA_DEV_V65_STATIC=PASS
+
+      - name: Activation-only bridge contract
+        run: |
+          set -euo pipefail
+          python3 dev-hub/tests/test_v65_emergency_control_bridge.py
+
+      - name: Out-of-band safety invariants
+        run: |
+          set -euo pipefail
+          grep -Fq 'chacha-emergency-control' dev-hub/bin/emergency-control-bridge.py
+          grep -Fq '/opt/chacha-dev/emergency-bridge/current/emergency-stop-controller.py' dev-hub/systemd/chacha-dev-emergency-control-bridge.service
+          grep -Fq 'REMOTE_RESET=NO' dev-hub/bin/install-emergency-control-bridge.sh
+          if grep -Eq 'reset.*subprocess|remote.*reset.*allowed.*true' dev-hub/bin/emergency-control-bridge.py; then
+            echo CHACHA_DEV_V65_REMOTE_RESET_PATH=FOUND
+            exit 1
+          fi
+          echo CHACHA_DEV_V65_REMOTE_RESET_PATH=NONE
+          echo CHACHA_DEV_V65_OUT_OF_BAND=PASS
+
+      - name: Emergency latch compatibility
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/chacha-v65-emergency
+          python3 dev-hub/bin/emergency-stop-controller.py --state /tmp/chacha-v65-emergency/stop.json activate --reason qualification --actor ci >/tmp/chacha-v65-emergency/active.json
+          python3 - <<'PY'
+          import json
+          x=json.load(open('/tmp/chacha-v65-emergency/active.json'))
+          assert x['active'] is True,x
+          assert x['new_dispatch_blocked'] is True,x
+          assert x['persistent_memory_preserved'] is True,x
+          print('CHACHA_DEV_V65_LATCH_COMPATIBILITY=PASS')
+          PY
+
+      - name: Qualification receipt
+        run: |
+          {
+            echo CHACHA_DEV_EMERGENCY_CONTROL=V6.5
+            echo RESULT=success
+            echo SOURCE_REV="$(git rev-parse HEAD)"
+            echo CONTROL_CHANNEL=GITHUB_DEDICATED_BRANCH
+            echo CONTROL_BRANCH=chacha-emergency-control
+            echo REMOTE_ACTION=STOP_ONLY
+            echo REMOTE_RESET=NO
+            echo REMOTE_RESUME=NO
+            echo POLL_SECONDS=10
+            echo CORE_DEPENDENCY=NO
+            echo FOUNDRY_DEPENDENCY=NO
+            echo PERSISTENT_LATCH=YES
+            echo REPLAY_PROTECTION=YES
+            echo AUTOMATIC_EXTERNAL_SPEND_EUR=0
+          } | tee /tmp/CHACHA_DEV_V65_EMERGENCY_CONTROL_RECEIPT.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chacha-dev-v65-emergency-control-qualification
+          path: /tmp/CHACHA_DEV_V65_EMERGENCY_CONTROL_RECEIPT.txt
+          retention-days: 30
