@@ -33,7 +33,7 @@ with tempfile.TemporaryDirectory(prefix="chacha-v613-") as td:
         "architecture_source":"FOUNDRY_SYNTHESIS","agent_decision":"TOOL_ONLY"
       }],"agent_topology":[],"capability_foundry":[],"runtime_waves":[]},
       "qualification_status":"PASS","state":"ADOPT",
-      "technology_revalidated_at":time.strftime("%Y-%m-%dT%H:%M:%SZ",time.gmtime()),
+      "technology_revalidated_at":time.strftime("%Y-%m-%dT%H:%M:%S",time.gmtime())+".123456Z",
       "technology_snapshot_digest":"snap-v613","external_spend_eur":0,"quality_score":99,
       "success_count":4,"failure_count":0,"incident_count":0
     }
