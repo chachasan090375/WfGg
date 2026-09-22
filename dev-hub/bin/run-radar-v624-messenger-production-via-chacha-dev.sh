@@ -5,7 +5,7 @@ set -Eeuo pipefail
 
 REV="${WFGG_DEV_HUB_RADAR_V624_MESSENGER_PRODUCTION_REV:-}"
 PROJECT="wfgg-radar"
-RADAR_REV="5e88b3275a0d6f09edec0b9014bdaf693790eaa9"
+RADAR_REV="2ab32595ee31ba219c75e31f5b11069e1cb7a921"
 MESSENGER_SHA="3cf5d175325a319d601667e50388e8472057bcc152df7a618938daf357a3dfa1"
 INSTALLER="radar-vps/install-v624-messenger-production.sh"
 PROBE="radar-vps/probe-v624-messenger-production-runtime.sh"
