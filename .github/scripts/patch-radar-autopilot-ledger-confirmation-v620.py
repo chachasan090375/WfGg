@@ -154,6 +154,7 @@ import (
 func TestAutopilotFullAfterPartialPersistsAndConfirmsV620(t *testing.T) {
     db := newLedgerDBV61913(t)
     t.Setenv("WFGG_COLLECTOR_DB", db)
+    t.Setenv("WFGG_RADAR_AUTOPILOT_LEDGER_DB", db)
     id := "v620-full-after-partial"
     radarAutopilotJobsV6194.add(&autopilotJobV6194{
         ID: id, Status: "RUNNING", Phase: "CYCLE_FULL",
