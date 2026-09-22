@@ -1,0 +1,13 @@
+[Unit]
+Description=ChaCha DEV central learning relay pull schedule
+
+[Timer]
+OnBootSec=30s
+OnUnitActiveSec=60s
+AccuracySec=5s
+RandomizedDelaySec=3s
+Persistent=true
+Unit=chacha-dev-central-learning-relay-pull.service
+
+[Install]
+WantedBy=timers.target

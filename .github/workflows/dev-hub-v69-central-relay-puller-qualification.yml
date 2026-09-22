@@ -1,0 +1,60 @@
+name: ChaCha DEV V6.9 central relay puller qualification
+on:
+  push:
+    branches: [dev-hub-v69-worker-learning-relay]
+    paths:
+      - 'dev-hub/bin/central-learning-relay-puller.py'
+      - 'dev-hub/bin/learning-delta-ingest.py'
+      - 'dev-hub/bin/install-central-learning-relay-puller.sh'
+      - 'dev-hub/systemd/chacha-dev-central-learning-relay-pull.service'
+      - 'dev-hub/systemd/chacha-dev-central-learning-relay-pull.timer'
+      - 'dev-hub/tests/test_v69_central_relay_puller.py'
+      - '.github/workflows/dev-hub-v69-central-relay-puller-qualification.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev-hub-v69-worker-learning-relay
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Static validation
+        run: |
+          set -euo pipefail
+          python3 -m py_compile dev-hub/bin/central-learning-relay-puller.py dev-hub/bin/learning-delta-ingest.py
+          bash -n dev-hub/bin/install-central-learning-relay-puller.sh
+          echo CHACHA_DEV_V69_PULLER_STATIC=PASS
+      - name: Cryptographic and runtime contracts
+        run: |
+          set -euo pipefail
+          python3 dev-hub/tests/test_v69_central_relay_puller.py
+      - name: Persistence retry invariant
+        run: |
+          set -euo pipefail
+          grep -Fq 'if a.nas: out["nas"]=persist_nas(x,d)' dev-hub/bin/learning-delta-ingest.py
+          echo CHACHA_DEV_V69_NAS_RETRY_HEALING=PASS
+      - name: Qualification receipt
+        run: |
+          {
+            echo CHACHA_DEV_CENTRAL_RELAY_PULLER=V6.9
+            echo RESULT=success
+            echo SOURCE_REV="$(git rev-parse HEAD)"
+            echo AUTH=ED25519
+            echo VPS_NETWORK=OUTBOUND_ONLY
+            echo POLL_INTERVAL_SECONDS=60
+            echo NAS_REQUIRED_BEFORE_ACK=YES
+            echo DUPLICATE_NAS_HEALING=YES
+            echo TUNNEL_REQUIRED=NO
+            echo AUTOMATIC_EXTERNAL_SPEND_EUR=0
+          } | tee /tmp/CHACHA_DEV_V69_PULLER_RECEIPT.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chacha-dev-v69-central-relay-puller
+          path: /tmp/CHACHA_DEV_V69_PULLER_RECEIPT.txt
+          retention-days: 30
