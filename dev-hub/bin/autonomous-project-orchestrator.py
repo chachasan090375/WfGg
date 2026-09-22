@@ -163,6 +163,21 @@ def main():
     branch_topology=out/"branch-topology.json"
     refine_branch_with_agents(bin_dir,cfg,active_pre,pid,agent_topology,branch_topology)
 
+    # V6.11: the central brain does not accept any single foundry as the final architect.
+    # It must synthesize Technology Watch, reusable memory, Branch/Agent/Capability Foundries,
+    # hard policy constraints, dynamic domain experts, and then perform a fresh Technology Watch check.
+    architecture_council=out/"architecture-decision-council.json"
+    run(bin_dir/"architecture-decision-council.py",[
+        "--repo-root",root,
+        "--preplan",active_pre,
+        "--branch-topology",branch_topology,
+        "--agent-topology",agent_topology,
+        "--capability-foundry",foundry_plan,
+        "--policy",cfg/"architecture-decision-council.v1.json",
+        "--output",architecture_council
+    ])
+    architecture_council_v=load(architecture_council)
+
     final=out/"final-plan.json"
     run(bin_dir/"functional-intent-orchestrator.py",[
         "--config",active_domain,"--intent",active_intent,
@@ -172,6 +187,10 @@ def main():
     ])
 
     final_v=load(final);branch_v=load(branch_topology)
+    final_v["architecture_council"]=str(architecture_council)
+    final_v["architecture_decision_allowed"]=bool(architecture_council_v.get("dispatch_allowed"))
+    final_v["dispatch_allowed"]=bool(final_v.get("dispatch_allowed")) and bool(architecture_council_v.get("dispatch_allowed"))
+    save(final,final_v)
 
     wave_plan=out/"runtime-wave-plan.json"
     run(bin_dir/"capsule-scheduler.py",[
@@ -192,7 +211,7 @@ def main():
 
     state={
       "schema":"chacha.dev/autonomous-project-bootstrap/v1",
-      "version":"6.4.0",
+      "version":"6.11.0",
       "project_id":pid,
       "functional_contract":str(contract),
       "project":str(project),
@@ -204,6 +223,9 @@ def main():
       "runtime_schedulable":bool(wave_v.get("schedulable")),
       "capability_foundry":str(foundry_plan),
       "final_plan":str(final),
+      "architecture_decision_council":str(architecture_council),
+      "architecture_decision_allowed":bool(architecture_council_v.get("dispatch_allowed")),
+      "architecture_mandatory_advisors":architecture_council_v.get("mandatory_advisors") or [],
       "capability_foundry_created_domains":foundry_v.get("created_domain_count",0),
       "capability_foundry_created_capabilities":foundry_v.get("created_capability_count",0),
       "domain_dispatch_allowed":bool(final_v.get("dispatch_allowed")),
