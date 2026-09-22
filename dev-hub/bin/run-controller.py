@@ -262,9 +262,11 @@ def guardian_gate(
     storage_preflight = bool(not storage_required or storage_ok(ledger, preflight_id))
     task = envelope.get("task") if isinstance(envelope.get("task"), dict) else {}
 
+    action_id = "dispatch:" + safe_name(str(envelope.get("run_id") or "run")) + ":" + str(envelope.get("wave") or 0) + ":" + safe_name(str(task.get("id") or basename))
     event = {
         "schema": "chacha.dev/governance-action/v1",
         "event_id": "gov-" + uuid.uuid4().hex,
+        "action_id": action_id,
         "phase": phase,
         "actor": "run-controller",
         "subject_role": str(task.get("owner_role") or "orchestrator"),
@@ -295,6 +297,7 @@ def guardian_gate(
             "resource_class": context.get("resource_class"),
             "human_approval_required": approval_required,
             "storage_preflight_required": storage_required,
+            "deadline_seconds": min(3600, max(30, int(context.get("timeout_seconds") or 300) + 60)),
         },
     }
 
