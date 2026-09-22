@@ -13,10 +13,19 @@ PILOT_PRODUCER_KEY="/opt/chacha-dev/runtime/secrets/v621-pilot-learning-producer
 GUARDIAN_URL="https://chacha-dev-guardian.chachasan090375.workers.dev"
 RELAY_URL="https://chacha-dev-learning-relay.chachasan090375.workers.dev"
 PREVIOUS=""
+STAGE="bootstrap"
+
+stage(){ STAGE="$1"; echo "CHACHA_DEV_V621_STAGE=$STAGE"; }
 
 cleanup(){ rm -rf "$WORK" 2>/dev/null || true; }
 rollback(){
   rc=$?
+  if [ "$rc" -ne 0 ]; then
+    echo "CHACHA_DEV_V621_FAILURE_STAGE=$STAGE"
+    for f in "$WORK"/local-observe-1.json "$WORK"/local-observe-same.json "$WORK"/local-observe-2.json "$WORK"/local-flush.json "$WORK"/local-flush.stderr "$WORK"/remote-flush.json "$WORK"/register.out "$WORK"/anomaly-bridge.out "$WORK"/remediation-pull.out; do
+      if [ -s "$f" ]; then echo "=== $(basename "$f") ==="; cat "$f"; fi
+    done
+  fi
   if [ "$rc" -ne 0 ] && [ -n "$PREVIOUS" ] && [ -e "$PREVIOUS" ]; then
     ln -sfn "$PREVIOUS" "$CURRENT"
     systemctl daemon-reload >/dev/null 2>&1 || true
@@ -61,6 +70,7 @@ cp -a "$SRC/dev-hub" "$RELEASE/dev-hub"
 PYTHONPATH="$RELEASE/dev-hub/bin" python3 -m py_compile   "$RELEASE/dev-hub/bin/universal_learning_runtime.py"   "$RELEASE/dev-hub/bin/universal-learning-producer.py"   "$RELEASE/dev-hub/bin/generate-learning-producer-key.py"   "$RELEASE/dev-hub/bin/register-learning-producer.py"   "$RELEASE/dev-hub/bin/production-anomaly-guardian-bridge.py"   "$RELEASE/dev-hub/bin/central-learning-relay-puller.py"   "$RELEASE/dev-hub/bin/guardian-client.py"
 printf '%s\n' "$REV" >"$RELEASE/.revision"
 
+stage central-key
 ACTUAL_PUB="$(openssl pkey -in "$PRIVATE_KEY" -pubout -outform DER | base64 -w0)"
 EXPECTED_PUB="$(python3 - "$RELEASE/dev-hub/config/worker-learning-central-identity.v1.json" <<'PY'
 import json,sys
@@ -70,6 +80,7 @@ PY
 [ "$ACTUAL_PUB" = "$EXPECTED_PUB" ] || { echo "CHACHA_DEV_V621_INSTALL=BLOCKED reason=central_key_mismatch"; exit 2; }
 echo "CHACHA_DEV_V621_CENTRAL_KEY_MATCH=PASS"
 
+stage external-health
 curl -fsS "$GUARDIAN_URL/healthz" -o "$WORK/guardian-health.json"
 grep -Fq '"external_governance_plane":true' "$WORK/guardian-health.json"
 grep -Fq '"corrective_enforcement":true' "$WORK/guardian-health.json"
@@ -82,6 +93,7 @@ grep -Fq '"service":"chacha-dev-learning-relay"' "$WORK/relay-health.json"
 grep -Fq '"tunnel_required":false' "$WORK/relay-health.json"
 echo "CHACHA_DEV_V621_LEARNING_RELAY_HEALTH=PASS"
 
+stage activate-release
 ln -sfn "$RELEASE" "$CURRENT"
 
 install -m 0644 "$CURRENT/dev-hub/systemd/chacha-dev-universal-learning-flush.service" /etc/systemd/system/chacha-dev-universal-learning-flush.service
@@ -94,6 +106,7 @@ systemctl is-active --quiet chacha-dev-universal-learning-flush.timer
 systemctl is-active --quiet chacha-dev-production-anomaly-guardian.timer
 echo "CHACHA_DEV_V621_BACKGROUND_LEARNING_TIMERS=PASS"
 
+stage local-incremental-learning
 cat >"$WORK/local-state-1.json" <<JSON
 {"revision":"$REV","pilot":"local-incremental","quality_score":1}
 JSON
@@ -107,11 +120,29 @@ PYTHONPATH="$CURRENT/dev-hub/bin" python3 "$CURRENT/dev-hub/bin/universal-learni
 grep -Fq '"status": "NO_CHANGE"' "$WORK/local-observe-same.json"
 PYTHONPATH="$CURRENT/dev-hub/bin" python3 "$CURRENT/dev-hub/bin/universal-learning-producer.py" observe   --project-id "chacha-dev-v621-pilot" --source-id "v621-local-agent" --source-kind agent   --deployment-id "v621-local-$STAMP" --state "$WORK/local-state-2.json"   --outbox "$WORK/local-outbox" --state-root "$WORK/local-state" >"$WORK/local-observe-2.json"
 grep -Fq '"change_count": 1' "$WORK/local-observe-2.json"
-PYTHONPATH="$CURRENT/dev-hub/bin" python3 "$CURRENT/dev-hub/bin/universal-learning-producer.py" flush   --transport local --outbox "$WORK/local-outbox" --sent "$WORK/local-sent"   --ingest "$CURRENT/dev-hub/bin/learning-delta-ingest.py"   --db /opt/chacha-dev/runtime/knowledge/learning-deltas.db >"$WORK/local-flush.json"
-grep -Fq '"pending": 0' "$WORK/local-flush.json"
+LOCAL_FLUSH_OK=0
+for i in 1 2 3; do
+  set +e
+  PYTHONPATH="$CURRENT/dev-hub/bin" python3 "$CURRENT/dev-hub/bin/universal-learning-producer.py" flush   --transport local --outbox "$WORK/local-outbox" --sent "$WORK/local-sent"   --ingest "$CURRENT/dev-hub/bin/learning-delta-ingest.py"   --db /opt/chacha-dev/runtime/knowledge/learning-deltas.db >"$WORK/local-flush.json" 2>"$WORK/local-flush.stderr"
+  LOCAL_RC=$?
+  set -e
+  if [ "$LOCAL_RC" -eq 0 ] && grep -Fq '"pending": 0' "$WORK/local-flush.json"; then
+    LOCAL_FLUSH_OK=1
+    break
+  fi
+  echo "CHACHA_DEV_V621_LOCAL_FLUSH_RETRY=$i"
+  cat "$WORK/local-flush.json" 2>/dev/null || true
+  cat "$WORK/local-flush.stderr" 2>/dev/null || true
+  sleep 2
+done
+if [ "$LOCAL_FLUSH_OK" -ne 1 ]; then
+  echo "CHACHA_DEV_V621_INSTALL=BLOCKED reason=local_learning_flush_not_persisted"
+  exit 2
+fi
 echo "CHACHA_DEV_V621_LOCAL_INCREMENTAL_LEARNING_NAS_E2E=PASS"
 echo "CHACHA_DEV_V621_NO_CHANGE_NO_DELTA=PASS"
 
+stage remote-producer-enrollment
 python3 "$CURRENT/dev-hub/bin/generate-learning-producer-key.py"   --private-key "$PILOT_PRODUCER_KEY"   --project-id "chacha-dev-v621-pilot"   --deployment-id "v621-remote-pilot"   --output "$WORK/producer-enrollment.json" >"$WORK/keygen.out"
 grep -Fq 'CHACHA_DEV_LEARNING_PRODUCER_KEYGEN=PASS' "$WORK/keygen.out"
 chmod 600 "$PILOT_PRODUCER_KEY"
@@ -120,6 +151,7 @@ grep -Fq 'CHACHA_DEV_LEARNING_PRODUCER_REGISTER=PASS' "$WORK/register.out"
 grep -Fq '"private_key_exported": false' "$WORK/producer-enrollment.json"
 echo "CHACHA_DEV_V621_REMOTE_PRODUCER_IDENTITY=PASS"
 
+stage remote-background-uplink
 cat >"$WORK/remote-state.json" <<JSON
 {"revision":"$REV","runtime_health":"degraded","error_rate_bucket":"high","pilot_stamp":"$STAMP"}
 JSON
@@ -137,6 +169,7 @@ PYTHONPATH="$CURRENT/dev-hub/bin" python3 "$CURRENT/dev-hub/bin/universal-learni
 grep -Fq '"pending": 0' "$WORK/remote-flush.json"
 echo "CHACHA_DEV_V621_REMOTE_BACKGROUND_UPLINK=PASS"
 
+stage central-relay-ingest
 FOUND=0
 for i in 1 2 3 4 5; do
   python3 "$CURRENT/dev-hub/bin/central-learning-relay-puller.py"     --relay-url "$RELAY_URL"     --private-key "$PRIVATE_KEY"     --ingest "$CURRENT/dev-hub/bin/learning-delta-ingest.py"     --db /opt/chacha-dev/runtime/knowledge/learning-deltas.db     --anomaly-queue "$WORK/anomaly-queue"     --batch-limit 100     --experience-db /opt/chacha-dev/runtime/knowledge/experience.db     --global-indexer "$CURRENT/dev-hub/bin/global-project-memory-index.py"     --global-index /opt/chacha-dev/runtime/knowledge/global-project-memory-index.json >"$WORK/central-pull-$i.out"
@@ -149,6 +182,7 @@ grep -Fq '"global_project_memory_index_updated": true' "$WORK/central-pull-$i.ou
 echo "CHACHA_DEV_V621_REMOTE_TO_CENTRAL_MEMORY_NAS_E2E=PASS"
 echo "CHACHA_DEV_V621_GLOBAL_MEMORY_INDEX_REFRESH=PASS"
 
+stage guardian-anomaly-bridge
 python3 "$CURRENT/dev-hub/bin/production-anomaly-guardian-bridge.py"   --queue "$WORK/anomaly-queue" --processed "$WORK/anomaly-processed"   --client "$CURRENT/dev-hub/bin/guardian-client.py"   --policy "$CURRENT/dev-hub/config/guardian-runtime-policy.v1.json" >"$WORK/anomaly-bridge.out"
 grep -Fq 'CHACHA_DEV_PRODUCTION_ANOMALY_GUARDIAN_BRIDGE=PASS' "$WORK/anomaly-bridge.out"
 [ -f "$WORK/anomaly-processed/$REMOTE_DELTA_ID.json" ] || { echo "CHACHA_DEV_V621_INSTALL=BLOCKED reason=guardian_anomaly_receipt_missing"; exit 2; }
@@ -168,6 +202,7 @@ grep -Fq 'CHACHA_DEV_GUARDIAN_REMEDIATION_PULL=PASS' "$WORK/remediation-pull.out
 grep -Fq "$DIRECTIVE_ID" /opt/chacha-dev/runtime/guardian/remediation-index.json
 echo "CHACHA_DEV_V621_GUARDIAN_CORRECTION_ORDER_DELIVERED=PASS"
 
+stage guardian-controlled-correction
 ACTION_ID="v621-remediation-$STAMP"
 cat >"$WORK/corrected-pre.json" <<JSON
 {"schema":"chacha.dev/governance-action/v1","event_id":"v621-remediation-pre-$STAMP","action_id":"$ACTION_ID","phase":"PRE_ACTION","actor":"central-orchestrator","subject_role":"central-orchestrator","action":"INVOKE_COMPONENT","task_kind":"production-anomaly-remediation","permission":"plan","project_id":"chacha-dev-v621-pilot","run_id":"v621-remediation","adapters":[],"evidence":{"emergency_stop_active":false},"context":{"resource_class":"light","deadline_seconds":180,"remediation_directive_id":"$DIRECTIVE_ID"}}
@@ -183,6 +218,7 @@ grep -Eq '"verdict"[[:space:]]*:[[:space:]]*"PASS"' "$WORK/corrected-post.out"
 python3 "$CURRENT/dev-hub/bin/guardian-client.py" --policy "$CURRENT/dev-hub/config/guardian-runtime-policy.v1.json" ack --alert-id "$ALERT_ID" >/dev/null
 echo "CHACHA_DEV_V621_GUARDIAN_CONTROLLED_CORRECTION_LOOP=PASS"
 
+stage guardian-coverage
 python3 "$CURRENT/dev-hub/bin/guardian-coverage-heartbeat.py"   --repo-root "$CURRENT"   --manifest "$CURRENT/dev-hub/config/guardian-coverage-manifest.v1.json"   --policy "$CURRENT/dev-hub/config/guardian-runtime-policy.v1.json"   --client "$CURRENT/dev-hub/bin/guardian-client.py"   --output /opt/chacha-dev/runtime/guardian/coverage-latest.json >"$WORK/coverage.out"
 grep -Fq 'CHACHA_DEV_GUARDIAN_COVERAGE_HEARTBEAT=PASS' "$WORK/coverage.out"
 grep -Fq 'ALL_HOOKS_ACTIVE=YES' "$WORK/coverage.out"
