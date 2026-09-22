@@ -1,0 +1,38 @@
+{
+  "schema": "chacha.dev/reusable-branch-learning-policy/v1",
+  "version": "1.0.0",
+  "scope": "PLATFORM_GLOBAL",
+  "learn_on_accepted_delivery": true,
+  "nas_authoritative": true,
+  "hot_index": "/opt/chacha-dev/runtime/knowledge/reusable-branches.db",
+  "promotion": {
+    "project_local_never_auto_adopt": true,
+    "accepted_required": true,
+    "qualification_status_required": "PASS",
+    "maximum_external_spend_eur": 0,
+    "minimum_quality_score": 95,
+    "maximum_incident_count": 0
+  },
+  "reuse_gate": {
+    "state_required": "ADOPT",
+    "qualification_status_required": "PASS",
+    "maximum_technology_revalidation_age_minutes": 60,
+    "minimum_success_rate": 0.95,
+    "maximum_incident_count": 0
+  },
+  "ranking_order": [
+    "zero_external_spend",
+    "fewest_incidents",
+    "fewest_failures",
+    "highest_quality",
+    "highest_success_count",
+    "lowest_latency",
+    "lowest_memory",
+    "latest_version"
+  ],
+  "technology_watch": {
+    "revalidate_before_reuse": true,
+    "previous_version_is_candidate_not_default": true
+  },
+  "automatic_external_spend_eur": 0
+}
