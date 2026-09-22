@@ -22,15 +22,22 @@ with tempfile.TemporaryDirectory(prefix="capsule-contract-") as td:
     assert sum(c["resource_budget"]["memory_hard_limit_mb"] for c in x["capsules"])<=1024,x
 surface=(BIN/"emergency-stop-surface.py").read_text(encoding="utf-8")
 assert 'DEFAULT_BIND="127.0.0.1"' in surface
+assert "DEFAULT_PORT=0" in surface
+assert "emergency-stop-surface.json" in surface
 assert "STOP D’URGENCE" in surface
 assert "X-ChaCha-Stop-Token" in surface
+unit=(ROOT/"dev-hub/systemd/chacha-dev-emergency-stop-surface.service").read_text(encoding="utf-8")
+assert "--port 0" in unit
+assert "--endpoint-file /opt/chacha-dev/runtime/control/emergency-stop-surface.json" in unit
 pilot=(BIN/"run-v64-runtime-pilot-via-chacha-dev.sh").read_text(encoding="utf-8")
 assert "--nas" in pilot and "EXPERIENCE_LEDGER_NAS_E2E=PASS" in pilot
 assert "api/emergency-stop/activate" in pilot
 assert "systemctl stop chacha-dev-emergency-stop-surface.service" in pilot
-assert "CHACHA_DEV_V64_EMERGENCY_PORT_RECOVERY=PASS" in pilot
-assert "CHACHA_DEV_V64_EMERGENCY_PORT_CONFLICT=BLOCKED" in pilot
-assert "emergency-stop-surface.py" in pilot
+assert "CHACHA_DEV_V64_EMERGENCY_DYNAMIC_ENDPOINT=PASS" in pilot
+assert "EMERGENCY_ENDPOINT_FILE" in pilot
+assert "EMERGENCY_BASE_URL" in pilot
+assert "127.0.0.1:8788" not in pilot
+assert "emergency-stop-surface.py" in surface
 assert "CHACHA_DEV_V64_EMERGENCY_SURFACE_READY=PASS" in pilot
 assert "reason=emergency_surface_not_ready" in pilot
 print("CHACHA_DEV_V64_CAPSULE_RUNTIME_CONTRACT=PASS")
