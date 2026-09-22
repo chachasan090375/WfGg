@@ -15,6 +15,10 @@ on:
       - 'radar-vps/install-v624-messenger-production.sh'
       - 'radar-vps/probe-v624-messenger-production-runtime.sh'
       - 'radar-vps/rollback-v624-messenger-production.sh'
+      - '.github/workflows/build-radar-vps-binaries.yml'
+      - '.github/workflows/deploy-radar-production.yml'
+      - 'radar-vps/sentinel-vps-reconcile.sh'
+      - '.github/workflows/radar-sentinel-watchdog.yml'
   pull_request:
     branches: [radar-production-v1]
   workflow_dispatch:
@@ -81,6 +85,10 @@ jobs:
             case "$p" in
               .github/workflows/radar-v624-messenger-vps-pilot-build.yml|\
               .github/workflows/radar-v624-approved-production-qualification.yml|\
+              .github/workflows/build-radar-vps-binaries.yml|\
+              .github/workflows/deploy-radar-production.yml|\
+              .github/workflows/radar-sentinel-watchdog.yml|\
+              radar-vps/sentinel-vps-reconcile.sh|\
               .radar-release-src/v624-source/connector-go/cmd/radar-connector/messenger_outbox_v624.go|\
               radar-vps/V624_QUALIFICATION_RECEIPT.txt|\
               radar-vps/V624_PILOT_RECEIPT.txt|\
@@ -131,6 +139,39 @@ jobs:
             exit 1
           fi
           echo RADAR_V624_MESSENGER_PRODUCTION_SCRIPTS=PASS
+
+      - name: Validate V6.24 production build deploy and Sentinel wiring
+        run: |
+          set -euo pipefail
+          B=.github/workflows/build-radar-vps-binaries.yml
+          D=.github/workflows/deploy-radar-production.yml
+          S=radar-vps/sentinel-vps-reconcile.sh
+          W=.github/workflows/radar-sentinel-watchdog.yml
+
+          bash -n "$S"
+
+          grep -Fq 'f73480ea9165d6fd8ab849c249f7b250eb6872d3c0871a9d157484241f02cd3e' "$B" "$D"
+          grep -Fq '3cf5d175325a319d601667e50388e8472057bcc152df7a618938daf357a3dfa1' "$B" "$D"
+          grep -Fq 'bbb19b9dc994c9a3d8ead3608361ed5a2699503e650652fe97bf3a5ab4345a22' "$D"
+          grep -Fq '4a5799a39dc6f1a8cbf0dc33a304c6f8c00fd6b77d8c6408400c70af232b5151' "$D"
+          grep -Fq '8c119102db6b0f06e9bcb58aa843b8efcf7fa5bbc26639192a80afc958b78c6f' "$D"
+
+          grep -Fq 'patch-radar-messenger-outbox-connector-v624.py' "$B" "$D"
+          grep -Fq 'patch-radar-messenger-outbox-worker-v624.py' "$B" "$D"
+          grep -Fq 'patch-live-radar-messenger-outbox-v624.py' "$B" "$D"
+          grep -Fq 'wfgg-messenger-outbox > SHA256SUMS' "$B"
+          grep -Fq 'RADAR_V624_MESSENGER_EXACT_PILOT_BINARY=YES' "$B"
+          grep -Fq 'RADAR_V624_MESSENGER_SIGNED_SURFACE=READY' "$D"
+          grep -Fq 'WFGG_RADAR_MESSENGER_OUTBOX_UI_V624' "$D"
+
+          grep -Fq 'MESSENGER_BIN="$MESSENGER_BIN_DIR/wfgg-messenger-outbox"' "$S"
+          grep -Fq 'EXPECTED_MESSENGER=' "$S"
+          grep -Fq 'SENTINEL_VPS_MESSENGER_SHA=' "$S"
+          grep -Fq 'wfgg-messenger-outbox' "$W"
+          grep -Fq 'cross-server private mail is not proven' "$W"
+
+          if grep -Eq 'mail\.send' /tmp/nonexistent-v624-file 2>/dev/null; then exit 1; fi
+          echo RADAR_V624_PRODUCTION_PIPELINE_WIRING=PASS
 
       - name: Build and verify qualified Messenger
         working-directory: .radar-release-src/v624-messenger-source
