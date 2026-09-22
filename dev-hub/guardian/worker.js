@@ -291,6 +291,7 @@ function remediationPlan(reasons,severity,payload){
   else if(rs.some(x=>x.includes("POST_ACTION_MISSING")))requiredAction="RECONCILE_ACTION_STATE";
   else if(rs.some(x=>x.includes("HUMAN_APPROVAL")))requiredAction="REQUEST_HUMAN_APPROVAL";
   else if(rs.some(x=>x.includes("EMERGENCY_STOP")))requiredAction="HALT_AND_ESCALATE";
+  else if(rs.some(x=>x.includes("PRODUCTION_ANOMALY")))requiredAction="INVESTIGATE_REPLAN_PATCH_AND_VERIFY_PRODUCTION_ANOMALY";
   else if(rs.some(x=>x.includes("PROJECT_SCOPE")||x.includes("CAPABILITY_OUTSIDE")||x.includes("DOMAIN_OUTSIDE")||x.includes("PACKAGE_OUTSIDE")))requiredAction="REPLAN_WITHIN_AUTHORIZED_SCOPE";
   const p=payload&&typeof payload==="object"?payload:{};
   const actor=String(p.actor||p.component_id||"central-orchestrator");
@@ -502,6 +503,42 @@ async function registerDynamicComponentContract(req,env){
   });
 }
 
+async function reportLearningAnomaly(req,env){
+  const body=await req.text();
+  const auth=await requireCentral(req,env,body);if(!auth.ok)return auth.response;
+  let x;try{x=JSON.parse(body);}catch{return json({error:"invalid_json"},400);}
+  if(!x||x.schema!=="chacha.dev/production-learning-anomaly/v1")return json({error:"anomaly_schema_invalid"},400);
+  const severity=String(x.severity||"").toLowerCase();
+  if(!["high","critical"].includes(severity))return json({error:"anomaly_severity_not_actionable"},409);
+  const deltaId=String(x.delta_id||"");
+  const projectId=String(x.project_id||"");
+  const sourceId=String(x.source_id||"");
+  const deploymentId=String(x.deployment_id||"");
+  if(!deltaId||!projectId||!sourceId||!deploymentId)return json({error:"anomaly_identity_incomplete"},400);
+  const guardianSeverity=severity==="critical"?"CRITICAL":"BLOCK";
+  const alertId="learning-anomaly-"+deltaId;
+  const eventId="learning-anomaly-event-"+deltaId;
+  const payload={
+    actor:"runtime-monitor",subject_role:"central-orchestrator",
+    project_id:projectId,run_id:"production-learning:"+deltaId,
+    action:"REPORT_PRODUCTION_ANOMALY",source_id:sourceId,deployment_id:deploymentId,
+    delta_id:deltaId,anomaly:x.anomaly||{},evidence_refs:x.evidence_refs||[]
+  };
+  const directiveId=await createAlert(env,{
+    alertId,eventId,severity:guardianSeverity,
+    summary:guardianSeverity+" production anomaly "+projectId+" / "+sourceId,
+    reasons:["PRODUCTION_ANOMALY_"+severity.toUpperCase()],
+    payload
+  });
+  return json({
+    schema:"chacha.dev/production-learning-anomaly-guardian-ack/v1",
+    status:"DIRECTIVE_ISSUED",alert_id:alertId,directive_id:directiveId,
+    project_id:projectId,source_id:sourceId,deployment_id:deploymentId,
+    severity:guardianSeverity,guardian:"external-worker",
+    production_mutation_performed:false,checked_at:new Date().toISOString()
+  },202);
+}
+
 async function check(req,env){
   const body=await req.text();
   const auth=await requireCentral(req,env,body);if(!auth.ok)return auth.response;
@@ -691,9 +728,11 @@ export default {
       dynamic_component_policy_escalation_allowed:false,tunnel_required:false,action_lease_protocol:true,
       task_contract_binding_protocol:true,task_contract_identity_lease:true,coverage_watch:true,
       authenticated_watchdog_sweep:true,scheduled_watchdog:true,
-      corrective_enforcement:true,remediation_holds:true,remediation_retry_limit:3
+      corrective_enforcement:true,remediation_holds:true,remediation_retry_limit:3,
+      production_learning_anomaly_bridge:true,production_anomaly_direct_mutation:false
     });
     if(req.method==="POST"&&u.pathname==="/v1/check")return check(req,env);
+    if(req.method==="POST"&&u.pathname==="/v1/learning-anomalies/report")return reportLearningAnomaly(req,env);
     if(req.method==="POST"&&u.pathname==="/v1/dynamic-contracts/register")return registerDynamicContract(req,env);
     if(req.method==="POST"&&u.pathname==="/v1/dynamic-components/register")return registerDynamicComponentContract(req,env);
     if(req.method==="POST"&&u.pathname==="/v1/coverage")return coverage(req,env);
