@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Any
 import technology_watch_runtime as tw
 
-MANDATORY=("technology-watch-pre","architecture-memory","reuse-memory","branch-foundry","agent-foundry","capability-foundry","constraint-policy","technology-watch-final")
+MANDATORY=("technology-watch-pre","architecture-memory","architecture-portfolio","reuse-memory","branch-foundry","agent-foundry","capability-foundry","constraint-policy","technology-watch-final")
 
 def load(p:Path)->dict[str,Any]:
     x=json.loads(p.read_text(encoding="utf-8"))
@@ -35,6 +35,19 @@ def architecture_memory_package(candidate:dict[str,Any],domain:str,caps:list[str
         if sorted(set(map(str,p.get("capabilities") or [])))!=want_caps: continue
         return p
     return None
+
+
+def run_architecture_portfolio(root:Path,preplan:Path,branch_topology:Path,agent_topology:Path,
+                               architecture_db:Path,policy_path:Path,output:Path)->dict[str,Any]:
+    cmd=[sys.executable,str(root/"dev-hub/bin/architecture-portfolio-optimizer.py"),
+         "--repo-root",str(root),"--preplan",str(preplan),"--branch-topology",str(branch_topology),
+         "--agent-topology",str(agent_topology),"--architecture-memory-db",str(architecture_db),
+         "--policy",str(policy_path),"--output",str(output)]
+    p=subprocess.run(cmd,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=45)
+    if p.returncode!=0:
+        return {"schema":"chacha.dev/architecture-portfolio-optimizer/v1","decision_ready":False,
+                "mode":"BLOCKED","reason":"PORTFOLIO_OPTIMIZER_FAILED","error":(p.stderr or p.stdout)[-700:]}
+    return json.loads(output.read_text(encoding="utf-8"))
 
 
 def by_package(topology:dict[str,Any])->dict[str,dict[str,Any]]:
@@ -69,6 +82,15 @@ def main():
     architecture_memory=search_architecture_memory(architecture_registry_script,a.architecture_memory_db,a.preplan,max_age)
     architecture_memory_ready=[x for x in architecture_memory.get("candidates") or [] if x.get("reuse_ready") is True]
     selected_architecture_memory=architecture_memory_ready[0] if architecture_memory_ready else None
+    portfolio_path=a.output.with_name(a.output.stem+"-portfolio.json")
+    portfolio_policy=root/"dev-hub/config/architecture-portfolio-optimizer.v1.json"
+    portfolio=run_architecture_portfolio(root,a.preplan,a.branch_topology,a.agent_topology,
+                                         a.architecture_memory_db,portfolio_policy,portfolio_path)
+    if portfolio.get("mode")=="FAST_REUSE":
+        selected=portfolio.get("selected") or {}
+        aid=str(selected.get("architecture_id") or "");ver=str(selected.get("version") or "")
+        selected_architecture_memory=next((x for x in architecture_memory_ready
+                                           if str(x.get("architecture_id"))==aid and str(x.get("version"))==ver),None)
     for pkg in pre.get("packages") or []:
         pid=str(pkg.get("id"));domain=str(pkg.get("domain") or "");caps=[str(x) for x in pkg.get("capabilities") or []];kind=str(pkg.get("kind") or "")
         experts.add(domain)
@@ -110,6 +132,7 @@ def main():
         advisor_state={
           "technology-watch-pre":"PASS" if prewatch else "MISSING",
           "architecture-memory":"PASS",
+          "architecture-portfolio":"PASS" if portfolio.get("decision_ready") is True else "BLOCKED",
           "reuse-memory":"PASS",
           "branch-foundry":"PASS" if branch_op else "MISSING",
           "agent-foundry":"PASS" if agent_op else "MISSING",
@@ -140,11 +163,12 @@ def main():
         if missing: blocked.append({"package_id":pid,"reasons":missing})
     out={
       "schema":"chacha.dev/architecture-decision-council/v1",
-      "version":"6.13.0",
+      "version":"6.14.0",
       "mandatory_advisors":list(MANDATORY),
       "decision_rule":"CENTRAL_ORCHESTRATOR_DECIDES_ONLY_AFTER_ALL_MANDATORY_ADVISORS_AND_FINAL_TECHNOLOGY_REVALIDATION",
       "dynamic_expert_domains":sorted(x for x in experts if x),
       "architecture_memory":{"candidate_count":len(architecture_memory.get("candidates") or []),"selected":({"architecture_id":selected_architecture_memory.get("architecture_id"),"version":selected_architecture_memory.get("version")} if selected_architecture_memory else None)},
+      "architecture_portfolio":portfolio,
       "decisions":decisions,
       "blocked":blocked,
       "dispatch_allowed":not blocked,
