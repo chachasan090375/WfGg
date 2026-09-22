@@ -155,8 +155,7 @@ async function actionLease(event,env,current){
   const actionId=String(event.action_id||"");
   const permission=String(event.permission||"read");
   if(!actionId){
-    return {severity:SENSITIVE.has(permission)?"BLOCK":"WARNING",
-            reason_codes:[SENSITIVE.has(permission)?"ACTION_ID_REQUIRED":"LEGACY_ACTION_ID_MISSING"]};
+    return {severity:"BLOCK",reason_codes:["ACTION_ID_REQUIRED"]};
   }
   if(phase==="PRE_ACTION"){
     const existing=await env.DB.prepare("SELECT status FROM action_leases WHERE action_id=?1").bind(actionId).first();
