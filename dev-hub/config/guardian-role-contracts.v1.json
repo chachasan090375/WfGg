@@ -43,7 +43,8 @@
       "allowed_actions": [
         "INVOKE_COMPONENT",
         "FINALIZE_PROJECT_PLAN",
-        "FINAL_ARCHITECTURE_DECISION"
+        "FINAL_ARCHITECTURE_DECISION",
+        "REPORT_DECISION"
       ],
       "forbidden_actions": [
         "EXECUTE_PROVIDER_DIRECTLY",
