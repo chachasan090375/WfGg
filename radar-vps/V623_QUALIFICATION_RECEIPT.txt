@@ -1,6 +1,6 @@
 WFGG_RADAR_QUALIFICATION=V6.23
-RESULT=failure
-SOURCE_REV=fc86cb870f9d57072e65e1ca41c365af4532597a
+RESULT=success
+SOURCE_REV=8fea9310ec6ad7b192338dcbffe124e040779541
 LEDGER_STORAGE=/opt/wfgg-radar/data/autopilot-ledger.db
 LEGACY_COLLECTOR_LEDGER=READ_ONLY_COMPATIBILITY
 COLLECTOR_DB_WRITE=NO
@@ -13,9 +13,9 @@ PRODUCTION_DEPLOYMENT=NO
 === RUN   TestAutopilotLedgerRetryClassificationV623
 --- PASS: TestAutopilotLedgerRetryClassificationV623 (0.00s)
 === RUN   TestAutopilotLedgerStorageBoundaryV623
---- PASS: TestAutopilotLedgerStorageBoundaryV623 (0.13s)
+--- PASS: TestAutopilotLedgerStorageBoundaryV623 (0.29s)
 PASS
-ok  	wfgg-radar-connector/cmd/radar-connector	0.138s
+ok  	wfgg-radar-connector/cmd/radar-connector	0.290s
 
 ===== v622-profile-tests.log =====
 === RUN   TestCollectorBasePlayerV6191
@@ -27,30 +27,66 @@ ok  	wfgg-radar-connector/cmd/radar-connector	0.003s
 
 ===== v621-tests.log =====
 === RUN   TestPlayerIntelligenceCountryOptionsAreGameObservedV621
---- PASS: TestPlayerIntelligenceCountryOptionsAreGameObservedV621 (0.06s)
+--- PASS: TestPlayerIntelligenceCountryOptionsAreGameObservedV621 (0.11s)
 === RUN   TestPlayerIntelligenceUnsupportedCountryIsGracefulV621
---- PASS: TestPlayerIntelligenceUnsupportedCountryIsGracefulV621 (0.05s)
+--- PASS: TestPlayerIntelligenceUnsupportedCountryIsGracefulV621 (0.13s)
 === RUN   TestPlayerIntelligenceNormalizedChipsV621
---- PASS: TestPlayerIntelligenceNormalizedChipsV621 (0.05s)
+--- PASS: TestPlayerIntelligenceNormalizedChipsV621 (0.09s)
 === RUN   TestPlayerIntelligenceIncludeAliasV621
---- PASS: TestPlayerIntelligenceIncludeAliasV621 (0.05s)
+--- PASS: TestPlayerIntelligenceIncludeAliasV621 (0.04s)
 === RUN   TestPlayerIntelligenceAliasSearchStillWorksV621
---- PASS: TestPlayerIntelligenceAliasSearchStillWorksV621 (0.06s)
+--- PASS: TestPlayerIntelligenceAliasSearchStillWorksV621 (0.20s)
 PASS
-ok  	wfgg-radar-connector/cmd/radar-connector	0.278s
+ok  	wfgg-radar-connector/cmd/radar-connector	0.568s
 
 ===== v620-tests.log =====
 === RUN   TestAutopilotFullAfterPartialPersistsAndConfirmsV620
-    autopilot_confirmation_resilience_v620_test.go:39: ledger=[]main.autopilotLedgerEntryV61913(nil)
---- FAIL: TestAutopilotFullAfterPartialPersistsAndConfirmsV620 (0.08s)
+--- PASS: TestAutopilotFullAfterPartialPersistsAndConfirmsV620 (0.25s)
 === RUN   TestAutopilotLedgerRetryableV620
 --- PASS: TestAutopilotLedgerRetryableV620 (0.00s)
 === RUN   TestPlayerIntelligenceAliasSearchV620
---- PASS: TestPlayerIntelligenceAliasSearchV620 (0.05s)
+--- PASS: TestPlayerIntelligenceAliasSearchV620 (0.11s)
 === RUN   TestPlayerIntelligenceAllianceSearchV620
---- PASS: TestPlayerIntelligenceAllianceSearchV620 (0.05s)
+--- PASS: TestPlayerIntelligenceAllianceSearchV620 (0.06s)
 === RUN   TestPlayerIntelligenceRecruitmentFiltersV620
---- PASS: TestPlayerIntelligenceRecruitmentFiltersV620 (0.05s)
-FAIL
-FAIL	wfgg-radar-connector/cmd/radar-connector	0.233s
-FAIL
+--- PASS: TestPlayerIntelligenceRecruitmentFiltersV620 (0.13s)
+PASS
+ok  	wfgg-radar-connector/cmd/radar-connector	0.556s
+
+===== v61917-tests.log =====
+=== RUN   TestAutopilotResolveVerificationV61917
+--- PASS: TestAutopilotResolveVerificationV61917 (0.00s)
+=== RUN   TestAutopilotAdaptiveOneFullCycleConfirmsV61917
+--- PASS: TestAutopilotAdaptiveOneFullCycleConfirmsV61917 (0.00s)
+=== RUN   TestAutopilotAdaptivePartialDoesNotConfirmV61917
+--- PASS: TestAutopilotAdaptivePartialDoesNotConfirmV61917 (0.00s)
+PASS
+ok  	wfgg-radar-connector/cmd/radar-connector	0.003s
+
+===== v620-regression.log =====
+ok  	wfgg-radar-connector/cmd/radar-connector	10.713s
+ok  	wfgg-radar-connector/internal/authsig	0.003s
+ok  	wfgg-radar-connector/internal/protocol	0.157s
+PASS v6.23.0
+PASS v6.21.0
+PASS ADAPTIVE_FAST
+PASS AUTOPILOT_ADAPTIVE_FULL_CYCLES_CONFLICT_V61917
+PASS SEED_LOCAL_FAILURE_LIMIT
+PASS COVERAGE_COMPLETE
+PASS radar_autopilot_ledger_v61913
+PASS MANUAL_SEARCH_STOPPED
+PASS AUTOPILOT_LEDGER_PERSIST_FAILED_V620
+PASS PLAYER_INTELLIGENCE_REQUEST_INVALID_V620
+PASS /v1/collector/intelligence/search
+PASS /v1/collector/intelligence/search-v621
+PASS lastwar-observed-values
+PASS ignoredFilters
+PASS warnings
+PASS /v1/collector/profile/refresh
+PASS get.user.info.multi
+PASS autopilot-ledger.db
+PASS AUTOPILOT_LEDGER_PERMISSION_DENIED_V623
+PASS AUTOPILOT_LEDGER_LOCKED_V623
+RADAR_V623_BINARY_MARKERS=PASS
+RADAR_V623_CONNECTOR_SHA256=232fcbd1037da45d1c460eef20e7627aac7c90425f04ab0e58d47b74fb56249b
+RADAR_V623_CONNECTOR_REGRESSION=PASS
