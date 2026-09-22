@@ -57,6 +57,31 @@ def refine_branch_with_agents(bin_dir,cfg_dir,preplan,project_id,agent_topology,
         "--project-id",project_id,"--agent-topology",agent_topology,"--output",branch_out
     ])
 
+def apply_architecture_council(branch_topology,council,out):
+    b=load(branch_topology); council_v=load(council)
+    cmap={str(x.get("package_id")):x for x in council_v.get("decisions") or [] if isinstance(x,dict)}
+    applied=0
+    for row in b.get("decisions") or []:
+        if not isinstance(row,dict): continue
+        d=cmap.get(str(row.get("package_id")))
+        if not d or d.get("decision_ready") is not True: continue
+        if isinstance(d.get("architecture"),dict):
+            row["foundry_architecture"]=row.get("architecture")
+            row["architecture"]=d["architecture"]
+            row["architecture_source"]=d.get("architecture_source")
+            row["selected_reuse"]=d.get("selected_reuse")
+            row["architecture_council_applied"]=True
+            applied+=1
+    b["architecture_council"]={
+      "schema":council_v.get("schema"),"version":council_v.get("version"),
+      "dispatch_allowed":council_v.get("dispatch_allowed"),"applied_decisions":applied,
+      "architecture_memory":council_v.get("architecture_memory")
+    }
+    if council_v.get("dispatch_allowed") is not True:
+        b.setdefault("blocked",[]).append({"scope":"architecture-council","reason":"COUNCIL_NOT_READY"})
+    save(out,b)
+
+
 def capability_gaps(preplan,contract,capability_registry,project_id,out):
     pre=load(preplan);contract_v=load(contract);capreg=load(capability_registry)
     known=set((capreg.get("capabilities") or {}).keys())
@@ -178,15 +203,20 @@ def main():
     ])
     architecture_council_v=load(architecture_council)
 
+    # The Council is not advisory-only: its selected/revalidated architecture becomes
+    # the effective topology consumed by planning and runtime scheduling.
+    effective_branch_topology=out/"branch-topology-effective.json"
+    apply_architecture_council(branch_topology,architecture_council,effective_branch_topology)
+
     final=out/"final-plan.json"
     run(bin_dir/"functional-intent-orchestrator.py",[
         "--config",active_domain,"--intent",active_intent,
         "--agent-topology",agent_topology,
-        "--branch-topology",branch_topology,
+        "--branch-topology",effective_branch_topology,
         "--output",final
     ])
 
-    final_v=load(final);branch_v=load(branch_topology)
+    final_v=load(final);branch_v=load(effective_branch_topology)
     final_v["architecture_council"]=str(architecture_council)
     final_v["architecture_decision_allowed"]=bool(architecture_council_v.get("dispatch_allowed"))
     final_v["dispatch_allowed"]=bool(final_v.get("dispatch_allowed")) and bool(architecture_council_v.get("dispatch_allowed"))
@@ -194,7 +224,7 @@ def main():
 
     wave_plan=out/"runtime-wave-plan.json"
     run(bin_dir/"capsule-scheduler.py",[
-        "--topology",branch_topology,
+        "--topology",effective_branch_topology,
         "--policy",cfg/"branch-foundry.v1.json",
         "--output",wave_plan
     ])
@@ -211,13 +241,14 @@ def main():
 
     state={
       "schema":"chacha.dev/autonomous-project-bootstrap/v1",
-      "version":"6.11.0",
+      "version":"6.13.0",
       "project_id":pid,
       "functional_contract":str(contract),
       "project":str(project),
       "preplan":str(active_pre),
       "agent_topology":str(agent_topology),
-      "branch_topology":str(branch_topology),
+      "branch_topology":str(effective_branch_topology),
+      "branch_topology_foundry":str(branch_topology),
       "runtime_wave_plan":str(wave_plan),
       "runtime_wave_count":int(wave_v.get("wave_count") or 0),
       "runtime_schedulable":bool(wave_v.get("schedulable")),
