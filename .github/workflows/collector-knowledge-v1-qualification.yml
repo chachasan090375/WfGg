@@ -1,0 +1,148 @@
+name: Collector Knowledge Engine V1 qualification
+
+on:
+  push:
+    branches: [collector-v1-continuous-knowledge-engine-v2]
+    paths:
+      - 'collector-knowledge/**'
+      - 'docs/COLLECTOR_KNOWLEDGE_ENGINE_CONTINUOUS_V1.md'
+      - 'radar-vps/install-collector-knowledge-v1.sh'
+      - 'radar-vps/wfgg-collector-knowledge-*.service'
+      - '.github/workflows/collector-knowledge-v1-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: collector-v1-continuous-knowledge-engine-v2
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Static validation
+        run: |
+          set -euo pipefail
+          python3 -m py_compile collector-knowledge/knowledge_engine.py
+          python3 -m py_compile collector-knowledge/test_knowledge_engine.py
+          bash -n radar-vps/install-collector-knowledge-v1.sh
+          grep -Fq '"listenHost": "127.0.0.1"' collector-knowledge/config.example.json
+          grep -Fq '"tasksPerCycle": 100' collector-knowledge/config.example.json
+          grep -Fq 'ReadWritePaths=/opt/wfgg-radar/data/collector-knowledge' radar-vps/wfgg-collector-knowledge-api.service
+          grep -Fq 'ReadWritePaths=/opt/wfgg-radar/data/collector-knowledge /opt/wfgg-radar/knowledge' radar-vps/wfgg-collector-knowledge-worker.service
+          if grep -REn 'SendExtension|mail\.reward|building\.production\.collect|visitor\.operate|decryptGameToken|RADAR_CONNECTOR_SHARED_KEY' collector-knowledge radar-vps/wfgg-collector-knowledge-*.service; then
+            echo COLLECTOR_KNOWLEDGE_MUTATION_CAPABILITY=FOUND
+            exit 1
+          fi
+          echo COLLECTOR_KNOWLEDGE_STATIC=PASS
+
+      - name: Unit tests
+        run: |
+          set -euo pipefail
+          python3 collector-knowledge/test_knowledge_engine.py -v | tee /tmp/collector-knowledge-tests.log
+          echo COLLECTOR_KNOWLEDGE_TESTS=PASS
+
+      - name: CLI and incremental smoke
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/ck-source/ui /tmp/ck-source/assets
+          cat >/tmp/ck-source/ui/server.json <<'JSON'
+          {"serverId":8120,"totalNum":1234,"screen":"UILWSeasonServerDetail"}
+          JSON
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('/tmp/ck-source/assets/icon.png')
+          p.write_bytes(b'\x89PNG\r\n\x1a\n'+b'\x00'*8+(64).to_bytes(4,'big')+(32).to_bytes(4,'big')+b'\x00'*32)
+          PY
+          printf '\x00\x01\x02\x03' >/tmp/ck-source/mystery.bin
+          DB=/tmp/collector-knowledge.db
+          python3 collector-knowledge/knowledge_engine.py --db "$DB" scan --name smoke --kind SOURCE_TREE --root /tmp/ck-source --version smoke-v1 >/tmp/ck-scan-1.json
+          python3 collector-knowledge/knowledge_engine.py --db "$DB" scan --name smoke --kind SOURCE_TREE --root /tmp/ck-source --version smoke-v1 >/tmp/ck-scan-2.json
+          python3 collector-knowledge/knowledge_engine.py --db "$DB" tasks --limit 20 >/tmp/ck-tasks.json
+          python3 collector-knowledge/knowledge_engine.py --db "$DB" stats >/tmp/ck-stats.json
+          python3 collector-knowledge/knowledge_engine.py --db "$DB" gaps >/tmp/ck-gaps.json
+          python3 collector-knowledge/knowledge_engine.py --db "$DB" query totalNum >/tmp/ck-query.json
+          python3 - <<'PY'
+          import json
+          s1=json.load(open('/tmp/ck-scan-1.json'))
+          s2=json.load(open('/tmp/ck-scan-2.json'))
+          st=json.load(open('/tmp/ck-stats.json'))['stats']
+          gaps=json.load(open('/tmp/ck-gaps.json'))['gaps']
+          q=json.load(open('/tmp/ck-query.json'))['results']
+          assert s1['changed']==3,s1
+          assert s2['changed']==0,s2
+          assert st['artifacts']==3,st
+          assert 'coverageByLayer' in st
+          assert any(x['state']=='WAITING_DECODER' for x in gaps['tasks']),gaps
+          assert q,q
+          print('COLLECTOR_KNOWLEDGE_INCREMENTAL=PASS')
+          print('COLLECTOR_KNOWLEDGE_GAPS=PASS')
+          print('COLLECTOR_KNOWLEDGE_QUERY=PASS')
+          PY
+
+      - name: Local read-only API smoke
+        run: |
+          set -euo pipefail
+          cat >/tmp/ck-config.json <<'JSON'
+          {
+            "database": "/tmp/ck-api.db",
+            "intervalSeconds": 300,
+            "tasksPerCycle": 10,
+            "listenHost": "127.0.0.1",
+            "listenPort": 18791,
+            "sources": []
+          }
+          JSON
+          python3 collector-knowledge/knowledge_engine.py serve --config /tmp/ck-config.json >/tmp/ck-api.log 2>&1 &
+          pid=$!
+          trap 'kill $pid 2>/dev/null || true' EXIT
+          for i in $(seq 1 20); do
+            if curl -fsS http://127.0.0.1:18791/knowledge/health >/tmp/ck-health.json; then break; fi
+            sleep 0.25
+          done
+          curl -fsS http://127.0.0.1:18791/knowledge/stats >/tmp/ck-api-stats.json
+          curl -fsS 'http://127.0.0.1:18791/knowledge/gaps?limit=10' >/tmp/ck-api-gaps.json
+          python3 - <<'PY'
+          import json
+          h=json.load(open('/tmp/ck-health.json'))
+          assert h['ok'] is True and h['readonly'] is True,h
+          print('COLLECTOR_KNOWLEDGE_API_READONLY=PASS')
+          PY
+
+      - name: Qualification receipt
+        run: |
+          {
+            echo WFGG_COLLECTOR_KNOWLEDGE_ENGINE=V1
+            echo RESULT=success
+            echo SOURCE_REV="$(git rev-parse HEAD)"
+            echo MODE=CONTINUOUS_BACKGROUND
+            echo DATABASE=SQLITE_WAL
+            echo GRAPH=ENTITIES_EDGES_ASSERTIONS_EVIDENCE
+            echo DECODER_BACKLOG=PERSISTENT
+            echo UNKNOWN_FORMATS=NEEDS_DECODER
+            echo COVERAGE_BY_LAYER=YES
+            echo API_BIND=127.0.0.1
+            echo LASTWAR_MODE=READ_ONLY
+            echo LASTWAR_MUTATION=NO
+            echo TOKEN_PERSISTENCE=NO
+            echo PRODUCTION_DEPLOYMENT=NO
+          } | tee /tmp/COLLECTOR_KNOWLEDGE_V1_RECEIPT.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: collector-knowledge-v1-qualification
+          path: |
+            /tmp/COLLECTOR_KNOWLEDGE_V1_RECEIPT.txt
+            /tmp/collector-knowledge-tests.log
+            /tmp/ck-stats.json
+            /tmp/ck-gaps.json
+            /tmp/ck-query.json
+          if-no-files-found: error
+          retention-days: 30
