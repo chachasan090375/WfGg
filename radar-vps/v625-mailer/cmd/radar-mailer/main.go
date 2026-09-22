@@ -20,13 +20,13 @@ func main() {
 	}
 	if *dryRun {
 		_ = json.NewEncoder(os.Stdout).Encode(map[string]any{
-			"version":           mailer.Version,
-			"command":           mailer.LastWarCommand,
-			"mailTypeSelf":      mailer.MailTypeSelf,
-			"lastwarWrite":      false,
-			"lastwarMutation":   false,
-			"tokenPersistence":  false,
-			"outboxOnly":        true,
+			"version":          mailer.Version,
+			"command":          mailer.LastWarCommand,
+			"mailTypeSelf":     mailer.MailTypeSelf,
+			"lastwarWrite":     false,
+			"lastwarMutation":  false,
+			"tokenPersistence": false,
+			"outboxOnly":       true,
 		})
 		return
 	}
