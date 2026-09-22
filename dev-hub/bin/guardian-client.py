@@ -111,6 +111,18 @@ def ack(policy_path:Path,ids:list[str])->int:
     print(json.dumps(x,ensure_ascii=False))
     return 0 if status==200 else 30
 
+def watchdog_sweep(policy_path:Path)->int:
+    _,url,key=policy_values(policy_path)
+    if not key.is_file():return 30
+    body=b"{}"
+    try:
+        status,x=http_json(signed_request("POST",url+"/v1/watchdog/sweep",key,body))
+    except Exception as exc:
+        print(json.dumps({"schema":"chacha.dev/guardian-client-result/v1","status":"UNAVAILABLE","reason":str(exc)[:300]}))
+        return 30
+    print(json.dumps(x,ensure_ascii=False))
+    return 0 if status==200 and x.get("status")=="PASS" else 30
+
 def coverage(policy_path:Path,snapshot:Path)->int:
     _,url,key=policy_values(policy_path)
     if not key.is_file():return 30
@@ -136,10 +148,12 @@ def main()->int:
     a=sub.add_parser("alerts");a.add_argument("--status",default="OPEN");a.add_argument("--limit",type=int,default=25)
     k=sub.add_parser("ack");k.add_argument("--alert-id",action="append",required=True)
     v=sub.add_parser("coverage");v.add_argument("--snapshot",type=Path,required=True)
+    sub.add_parser("watchdog-sweep")
     args=ap.parse_args()
     if args.cmd=="check":return check(args.event,args.policy)
     if args.cmd=="alerts":return alerts(args.policy,args.status,args.limit)
     if args.cmd=="coverage":return coverage(args.policy,args.snapshot)
+    if args.cmd=="watchdog-sweep":return watchdog_sweep(args.policy)
     return ack(args.policy,args.alert_id)
 
 if __name__=="__main__":
