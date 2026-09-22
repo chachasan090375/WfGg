@@ -8,6 +8,7 @@ on:
       - 'dev-hub/bin/technology_watch_runtime.py'
       - 'dev-hub/bin/technology-watch-service.py'
       - 'dev-hub/bin/autonomous-project-orchestrator.py'
+      - 'dev-hub/bin/install-v611-architecture-decision-council.sh'
       - 'dev-hub/config/architecture-decision-council.v1.json'
       - 'dev-hub/config/technology-watch-runtime.v1.json'
       - 'dev-hub/tests/test_v611_architecture_decision_council.py'
@@ -32,6 +33,8 @@ jobs:
           python3 -m py_compile dev-hub/bin/reusable-branch-registry.py dev-hub/bin/architecture-decision-council.py dev-hub/bin/technology_watch_runtime.py dev-hub/bin/technology-watch-service.py dev-hub/bin/autonomous-project-orchestrator.py
           python3 -m json.tool dev-hub/config/architecture-decision-council.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/technology-watch-runtime.v1.json >/dev/null
+          bash -n dev-hub/bin/install-v611-architecture-decision-council.sh
+          grep -Fq 'CHACHA_DEV_V611_INSTALL=PASS' dev-hub/bin/install-v611-architecture-decision-council.sh
           echo CHACHA_DEV_V611_STATIC=PASS
       - name: Council, reuse and Technology Watch contracts
         run: |
