@@ -29,6 +29,7 @@ from pathlib import Path
 from typing import Any
 
 import guardian_remediation_runtime as grr
+import universal_learning_runtime as ulr
 
 PLAN_SCHEMA = "chacha.dev/execution-plan/v1"
 GRAPH_SCHEMA = "chacha.dev/task-graph/v1"
@@ -254,6 +255,30 @@ def task_blockers(
             blockers.append(f"STORAGE_PREFLIGHT_MISSING:{artifact_id}")
     return sorted(set(blockers))
 
+
+
+def record_task_learning(task_rec:dict[str,Any],envelope:dict[str,Any])->dict[str,Any]:
+    task=envelope.get("task") if isinstance(envelope.get("task"),dict) else {}
+    gb=task.get("guardian_binding") if isinstance(task.get("guardian_binding"),dict) else {}
+    subject=str(gb.get("subject_role") or task.get("owner_role") or "run-controller")
+    lower=subject.lower()
+    kind="foundry" if "foundry" in lower else "domain-orchestrator" if "orchestrator" in lower else "agent" if "agent" in lower else "runtime-monitor"
+    state={
+      "task_id":str(task.get("id") or ""),
+      "status":str(task_rec.get("status") or ""),
+      "failure_class":task_rec.get("failure_class"),
+      "attempts":int(task_rec.get("attempts") or 0),
+      "permission":str(task.get("permission") or "read"),
+      "capabilities":[str(x) for x in (task.get("capabilities") or [])],
+      "guardian_pre":str((task_rec.get("guardian_pre") or {}).get("verdict") or (task_rec.get("guardian_pre") or {}).get("status") or ""),
+      "guardian_post":str((task_rec.get("guardian_post") or {}).get("verdict") or (task_rec.get("guardian_post") or {}).get("status") or "")
+    }
+    try:
+        return ulr.observe_platform(project_id=str(envelope.get("project") or "platform-global"),
+                                    source_id=subject,source_kind=kind,state=state,
+                                    evidence_refs=[str(task_rec.get("dispatch_envelope") or "")])
+    except Exception as exc:
+        return {"status":"LEARNING_QUEUE_ERROR","queued":False,"reason":type(exc).__name__+":"+str(exc)[:240]}
 
 def emergency_stop_active() -> bool:
     path = Path("/opt/chacha-dev/runtime/control/emergency-stop.json")
@@ -677,6 +702,7 @@ def main() -> None:
             if blockers:
                 task_rec["finished_at"] = now_iso()
                 record["summary"]["blocked"] += 1
+                task_rec["learning_delta"]=record_task_learning(task_rec,envelope)
                 wave_record["tasks"].append(task_rec)
                 if args.execute:
                     abort_remaining = True
@@ -684,6 +710,7 @@ def main() -> None:
 
             record["summary"]["prepared"] += 1
             if not args.execute:
+                task_rec["learning_delta"]=record_task_learning(task_rec,envelope)
                 wave_record["tasks"].append(task_rec)
                 continue
 
@@ -790,6 +817,7 @@ def main() -> None:
                 abort_remaining = True
             finally:
                 release_lock(lock_path, lock_fd)
+            task_rec["learning_delta"]=record_task_learning(task_rec,envelope)
             wave_record["tasks"].append(task_rec)
         record["waves"].append(wave_record)
 
