@@ -308,6 +308,7 @@
       "executable": "/opt/chacha-dev/adapters/radar-runtime/current/radar-runtime-adapter",
       "supports": [
         "read",
+        "workspace-write",
         "production-deploy"
       ]
     },
