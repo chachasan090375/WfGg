@@ -1,0 +1,87 @@
+name: ChaCha DEV V6.9 Worker learning relay qualification
+
+on:
+  push:
+    branches: [dev-hub-v69-worker-learning-relay]
+    paths:
+      - 'dev-hub/learning-relay/**'
+      - 'dev-hub/config/worker-learning-relay.v1.json'
+      - 'dev-hub/bin/generate-central-learning-key.sh'
+      - '.github/workflows/dev-hub-v69-worker-learning-relay-qualification.yml'
+      - '.github/workflows/dev-hub-v69-worker-learning-relay-deploy.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev-hub-v69-worker-learning-relay
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Static validation
+        run: |
+          set -euo pipefail
+          node --check dev-hub/learning-relay/worker.js
+          bash -n dev-hub/bin/generate-central-learning-key.sh
+          python3 -m json.tool dev-hub/config/worker-learning-relay.v1.json >/dev/null
+          echo CHACHA_DEV_V69_STATIC=PASS
+
+      - name: Architecture invariants
+        run: |
+          set -euo pipefail
+          grep -Fq '"scope": "PLATFORM_GLOBAL"' dev-hub/config/worker-learning-relay.v1.json
+          grep -Fq '"app_specific": false' dev-hub/config/worker-learning-relay.v1.json
+          grep -Fq '"cloudflare_tunnel_required": false' dev-hub/config/worker-learning-relay.v1.json
+          grep -Fq '"ED25519_PER_DEPLOYMENT"' dev-hub/config/worker-learning-relay.v1.json
+          grep -Fq '"ED25519_CENTRAL_BRAIN"' dev-hub/config/worker-learning-relay.v1.json
+          grep -Fq '/v1/learning-deltas' dev-hub/learning-relay/worker.js
+          grep -Fq '/v1/central/pull' dev-hub/learning-relay/worker.js
+          grep -Fq '/v1/central/ack' dev-hub/learning-relay/worker.js
+          grep -Fq '/v1/central/identities' dev-hub/learning-relay/worker.js
+          ! grep -Eiq 'last war|rotation|radar|train app' dev-hub/learning-relay/worker.js dev-hub/config/worker-learning-relay.v1.json
+          echo CHACHA_DEV_V69_PLATFORM_GLOBAL=PASS
+          echo CHACHA_DEV_V69_TUNNEL_DEPENDENCY=NONE
+          echo CHACHA_DEV_V69_OUTBOUND_PULL=PASS
+
+      - name: Deployment workflow invariants
+        run: |
+          set -euo pipefail
+          grep -Fq 'secrets.CLOUDFLARE_API_TOKEN' .github/workflows/dev-hub-v69-worker-learning-relay-deploy.yml
+          grep -Fq 'workers_dev' .github/workflows/dev-hub-v69-worker-learning-relay-deploy.yml
+          grep -Fq 'd1 execute' .github/workflows/dev-hub-v69-worker-learning-relay-deploy.yml
+          grep -Fq 'CHACHA_DEV_V69_PUBLIC_RELAY_URL=' .github/workflows/dev-hub-v69-worker-learning-relay-deploy.yml
+          grep -Fq 'AUTOMATIC_EXTERNAL_SPEND_EUR=0' .github/workflows/dev-hub-v69-worker-learning-relay-deploy.yml
+          echo CHACHA_DEV_V69_AUTOMATED_DEPLOY_CONTRACT=PASS
+
+      - name: Qualification receipt
+        run: |
+          {
+            echo CHACHA_DEV_WORKER_LEARNING_RELAY=V6.9
+            echo RESULT=success
+            echo SOURCE_REV="$(git rev-parse HEAD)"
+            echo SCOPE=PLATFORM_GLOBAL
+            echo CLOUDFLARE_TUNNEL=NOT_REQUIRED
+            echo VPS_INBOUND_PORT=NOT_REQUIRED
+            echo REMOTE_APPS=HTTPS_PUSH
+            echo CENTRAL_BRAIN=HTTPS_PULL
+            echo MAILBOX=D1
+            echo PRODUCER_AUTH=ED25519_PER_DEPLOYMENT
+            echo CENTRAL_AUTH=ED25519
+            echo DEPLOYMENT=GITHUB_ACTIONS
+            echo AUTOMATIC_EXTERNAL_SPEND_EUR=0
+          } | tee /tmp/CHACHA_DEV_V69_RECEIPT.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chacha-dev-v69-worker-learning-relay
+          path: /tmp/CHACHA_DEV_V69_RECEIPT.txt
+          retention-days: 30
