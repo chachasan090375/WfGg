@@ -863,6 +863,32 @@
           "fallback": []
         }
       ]
+    },
+    "collector-knowledge-inspect": {
+      "class": "knowledge",
+      "providers": [
+        {
+          "id": "collector-knowledge-runtime",
+          "status": "PILOT",
+          "health": "runtime",
+          "cost_class": "owned",
+          "scope": "wfgg-radar-vps",
+          "fallback": []
+        }
+      ]
+    },
+    "collector-knowledge-control": {
+      "class": "delivery",
+      "providers": [
+        {
+          "id": "collector-knowledge-runtime",
+          "status": "PILOT",
+          "health": "runtime",
+          "cost_class": "owned",
+          "scope": "wfgg-radar-vps",
+          "fallback": []
+        }
+      ]
     }
   }
 }
