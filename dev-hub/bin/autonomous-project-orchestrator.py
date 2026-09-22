@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import argparse,json,subprocess,sys,tempfile
+
+import argparse
+import concurrent.futures
+import json
+import subprocess
+import sys
 from pathlib import Path
 
 def load(p):
@@ -13,7 +18,8 @@ def save(p,x):
     Path(p).write_text(json.dumps(x,indent=2,ensure_ascii=False)+"\n",encoding="utf-8")
 
 def run(script,args):
-    p=subprocess.run([sys.executable,str(script),*map(str,args)],stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=120)
+    p=subprocess.run([sys.executable,str(script),*map(str,args)],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+                     text=True,check=False,timeout=120)
     if p.returncode!=0:
         raise RuntimeError(f"{script.name}: {p.stderr.strip()} {p.stdout.strip()}")
     return p.stdout
@@ -33,89 +39,167 @@ def merge_routing(base,overlay,out):
     b.setdefault("roles",{}).update(o.get("roles") or {})
     save(out,b)
 
+def run_parallel_foundries(bin_dir,cfg_dir,preplan,project_id,routing,agent_out,branch_out):
+    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as ex:
+        af=ex.submit(run,bin_dir/"agent-foundry-planner.py",[
+            "--preplan",preplan,"--config",cfg_dir/"agent-foundry.v1.json",
+            "--routing",routing,"--project-id",project_id,"--output",agent_out
+        ])
+        bf=ex.submit(run,bin_dir/"branch-foundry-planner.py",[
+            "--preplan",preplan,"--config",cfg_dir/"branch-foundry.v1.json",
+            "--project-id",project_id,"--output",branch_out
+        ])
+        af.result();bf.result()
+
+def refine_branch_with_agents(bin_dir,cfg_dir,preplan,project_id,agent_topology,branch_out):
+    run(bin_dir/"branch-foundry-planner.py",[
+        "--preplan",preplan,"--config",cfg_dir/"branch-foundry.v1.json",
+        "--project-id",project_id,"--agent-topology",agent_topology,"--output",branch_out
+    ])
+
+def capability_gaps(preplan,contract,capability_registry,project_id,out):
+    pre=load(preplan);contract_v=load(contract);capreg=load(capability_registry)
+    known=set((capreg.get("capabilities") or {}).keys())
+    gaps=[]
+    for pkg in pre.get("packages") or []:
+        for cap in pkg.get("capabilities") or []:
+            if cap not in known:gaps.append({"id":cap,"domain":pkg.get("domain")})
+    for hint in contract_v.get("capability_hints") or []:
+        if isinstance(hint,str) and hint not in known:gaps.append({"id":hint})
+        elif isinstance(hint,dict) and str(hint.get("id") or "") not in known:gaps.append(hint)
+    uniq={str(x.get("id")):x for x in gaps if x.get("id")}
+    save(out,{"project_id":project_id,"missing_capabilities":list(uniq.values())})
+
 def main():
     ap=argparse.ArgumentParser()
     ap.add_argument("--repo-root",default=".",type=Path)
     ap.add_argument("--intent",required=True,type=Path)
     ap.add_argument("--output-dir",required=True,type=Path)
-    a=ap.parse_args();root=a.repo_root.resolve();out=a.output_dir.resolve();out.mkdir(parents=True,exist_ok=True)
-    cfg=root/"dev-hub/config";bin=root/"dev-hub/bin"
+    a=ap.parse_args()
+    root=a.repo_root.resolve();out=a.output_dir.resolve();out.mkdir(parents=True,exist_ok=True)
+    cfg=root/"dev-hub/config";bin_dir=root/"dev-hub/bin"
 
     contract=out/"functional-contract.json"
-    run(bin/"specification-compiler.py",["--intent",a.intent,"--output",contract])
+    run(bin_dir/"specification-compiler.py",["--intent",a.intent,"--output",contract])
 
     pre=out/"preplan.json"
-    run(bin/"functional-intent-orchestrator.py",["--config",cfg/"domain-orchestration.v1.json","--intent",a.intent,"--output",pre])
+    run(bin_dir/"functional-intent-orchestrator.py",[
+        "--config",cfg/"domain-orchestration.v1.json","--intent",a.intent,"--output",pre
+    ])
     pre_v=load(pre)
     assert pre_v.get("dispatch_allowed") is False
 
     project=out/"project.json"
-    run(bin/"project-factory.py",["--intent",a.intent,"--domain-plan",pre,
-        "--config",cfg/"project-factory.v1.json","--knowledge-fabric",cfg/"knowledge-fabric.v1.json","--output",project])
-    project_v=load(project);pid=project_v["project_id"]
+    run(bin_dir/"project-factory.py",[
+        "--intent",a.intent,"--domain-plan",pre,
+        "--config",cfg/"project-factory.v1.json",
+        "--knowledge-fabric",cfg/"knowledge-fabric.v1.json",
+        "--output",project
+    ])
+    pid=load(project)["project_id"]
 
-    topology=out/"agent-topology.json"
-    run(bin/"agent-foundry-planner.py",["--preplan",pre,"--config",cfg/"agent-foundry.v1.json",
-        "--routing",cfg/"agent-routing.v1.json","--project-id",pid,"--output",topology])
+    # First preflight pass: Agent Foundry and Branch Foundry truly run in parallel.
+    initial_agent=out/"agent-topology-initial.json"
+    initial_branch=out/"branch-topology-initial.json"
+    run_parallel_foundries(bin_dir,cfg,pre,pid,cfg/"agent-routing.v1.json",initial_agent,initial_branch)
 
-    capreg=load(cfg/"capability-registry.v1.json");known=set((capreg.get("capabilities") or {}).keys())
-    contract_v=load(contract)
-    gaps=[]
-    for pkg in pre_v.get("packages") or []:
-        for cap in pkg.get("capabilities") or []:
-            if cap not in known:gaps.append({"id":cap,"domain":pkg.get("domain")})
-    for hint in contract_v.get("capability_hints") or []:
-        if isinstance(hint,str) and hint not in known:gaps.append({"id":hint})
-        elif isinstance(hint,dict) and hint.get("id") not in known:gaps.append(hint)
-    uniq={str(x.get("id")):x for x in gaps if x.get("id")}
-    gapreq=out/"capability-gaps.json";save(gapreq,{"project_id":pid,"missing_capabilities":list(uniq.values())})
-
+    # Capability gaps may create project-local branches/capabilities.
+    gapreq=out/"capability-gaps.json"
+    capability_gaps(pre,contract,cfg/"capability-registry.v1.json",pid,gapreq)
     foundry_plan=out/"capability-foundry.json"
     dom_overlay=out/"domain-overlay.json";cap_overlay=out/"capability-overlay.json";routing_overlay=out/"routing-overlay.json"
-    run(bin/"capability-foundry.py",["--request",gapreq,"--policy",cfg/"capability-foundry.v1.json",
-       "--domains",cfg/"domain-orchestration.v1.json","--capabilities",cfg/"capability-registry.v1.json",
-       "--output",foundry_plan,"--domain-overlay",dom_overlay,"--capability-overlay",cap_overlay,"--routing-overlay",routing_overlay])
+    run(bin_dir/"capability-foundry.py",[
+       "--request",gapreq,"--policy",cfg/"capability-foundry.v1.json",
+       "--domains",cfg/"domain-orchestration.v1.json",
+       "--capabilities",cfg/"capability-registry.v1.json",
+       "--output",foundry_plan,
+       "--domain-overlay",dom_overlay,
+       "--capability-overlay",cap_overlay,
+       "--routing-overlay",routing_overlay
+    ])
     foundry_v=load(foundry_plan)
 
-    final=out/"final-plan.json"
+    active_pre=pre
+    active_intent=a.intent
+    active_domain=cfg/"domain-orchestration.v1.json"
+    active_routing=cfg/"agent-routing.v1.json"
+
     if foundry_v.get("created_domain_count") or foundry_v.get("created_capability_count"):
-        merged_domain=out/"runtime-domain-orchestration.json";merged_caps=out/"runtime-capabilities.json";merged_routing=out/"runtime-routing.json"
+        merged_domain=out/"runtime-domain-orchestration.json"
+        merged_caps=out/"runtime-capabilities.json"
+        merged_routing=out/"runtime-routing.json"
         merge_domain(cfg/"domain-orchestration.v1.json",dom_overlay,merged_domain)
         merge_caps(cfg/"capability-registry.v1.json",cap_overlay,merged_caps)
         merge_routing(cfg/"agent-routing.v1.json",routing_overlay,merged_routing)
-        # New branch/capability exists project-locally; force it into the revised plan and rerun Agent Foundry.
+
         revised_intent=out/"revised-intent.json"
         intent_v=load(a.intent)
         generated_domains=[str(x.get("owner_domain")) for x in foundry_v.get("plans") or [] if x.get("create_domain")]
         existing_primary=[str(x) for x in pre_v.get("primary_domains") or []]
         intent_v["domains"]=list(dict.fromkeys(existing_primary+generated_domains))
         save(revised_intent,intent_v)
-        revised_pre=out/"revised-preplan.json"
-        run(bin/"functional-intent-orchestrator.py",["--config",merged_domain,"--intent",revised_intent,"--output",revised_pre])
-        revised_topology=out/"revised-agent-topology.json"
-        run(bin/"agent-foundry-planner.py",["--preplan",revised_pre,"--config",cfg/"agent-foundry.v1.json",
-            "--routing",merged_routing,"--project-id",pid,"--output",revised_topology])
-        run(bin/"functional-intent-orchestrator.py",["--config",merged_domain,"--intent",revised_intent,
-            "--agent-topology",revised_topology,"--output",final])
-        used_topology=revised_topology
-    else:
-        run(bin/"functional-intent-orchestrator.py",["--config",cfg/"domain-orchestration.v1.json","--intent",a.intent,
-            "--agent-topology",topology,"--output",final])
-        used_topology=topology
 
-    final_v=load(final)
+        revised_pre=out/"revised-preplan.json"
+        run(bin_dir/"functional-intent-orchestrator.py",[
+            "--config",merged_domain,"--intent",revised_intent,"--output",revised_pre
+        ])
+        active_pre=revised_pre;active_intent=revised_intent;active_domain=merged_domain;active_routing=merged_routing
+
+    # Final foundry pass on the stable branch/capability set.
+    agent_topology=out/"agent-topology.json"
+    branch_parallel=out/"branch-topology-parallel.json"
+    run_parallel_foundries(bin_dir,cfg,active_pre,pid,active_routing,agent_topology,branch_parallel)
+
+    # Cheap cross-optimization: Branch Foundry recalculates only its blueprints with Agent Foundry topology.
+    branch_topology=out/"branch-topology.json"
+    refine_branch_with_agents(bin_dir,cfg,active_pre,pid,agent_topology,branch_topology)
+
+    final=out/"final-plan.json"
+    run(bin_dir/"functional-intent-orchestrator.py",[
+        "--config",active_domain,"--intent",active_intent,
+        "--agent-topology",agent_topology,
+        "--branch-topology",branch_topology,
+        "--output",final
+    ])
+
+    final_v=load(final);branch_v=load(branch_topology)
+    fast_path=(not bool(final_v.get("implementation_allowed"))
+               and int((branch_v.get("summary") or {}).get("materialized") or 0)==0)
+    if fast_path:
+        next_stage="KNOWLEDGE_FAST_PATH"
+    elif final_v.get("dispatch_allowed"):
+        next_stage="DOMAIN_FACTORIES"
+    else:
+        next_stage="REPLAN_REQUIRED"
+
     state={
-      "schema":"chacha.dev/autonomous-project-bootstrap/v1","project_id":pid,
-      "functional_contract":str(contract),"project":str(project),
-      "preplan":str(pre),"agent_topology":str(used_topology),
-      "capability_foundry":str(foundry_plan),"final_plan":str(final),
+      "schema":"chacha.dev/autonomous-project-bootstrap/v1",
+      "version":"6.4.0",
+      "project_id":pid,
+      "functional_contract":str(contract),
+      "project":str(project),
+      "preplan":str(active_pre),
+      "agent_topology":str(agent_topology),
+      "branch_topology":str(branch_topology),
+      "capability_foundry":str(foundry_plan),
+      "final_plan":str(final),
       "capability_foundry_created_domains":foundry_v.get("created_domain_count",0),
       "capability_foundry_created_capabilities":foundry_v.get("created_capability_count",0),
       "domain_dispatch_allowed":bool(final_v.get("dispatch_allowed")),
-      "next_stage":"DOMAIN_FACTORIES" if final_v.get("dispatch_allowed") else "REPLAN_REQUIRED"
+      "fast_path":fast_path,
+      "runtime_materialized_branches":int((branch_v.get("summary") or {}).get("materialized") or 0),
+      "runtime_memory_hard_limit_mb":int((branch_v.get("summary") or {}).get("runtime_memory_hard_limit_mb") or 0),
+      "runtime_disk_soft_limit_mb":int((branch_v.get("summary") or {}).get("runtime_disk_soft_limit_mb") or 0),
+      "external_spend_eur":float((branch_v.get("summary") or {}).get("external_spend_eur") or 0),
+      "next_stage":next_stage
     }
     save(out/"bootstrap-result.json",state)
     print("CHACHA_AUTONOMOUS_PROJECT_BOOTSTRAP=PASS")
     print("PROJECT_ID="+pid)
-    print("NEXT_STAGE="+state["next_stage"])
+    print("NEXT_STAGE="+next_stage)
+    print("FAST_PATH="+("YES" if fast_path else "NO"))
+    print("MATERIALIZED_BRANCHES="+str(state["runtime_materialized_branches"]))
+    print("RUNTIME_MEMORY_MB="+str(state["runtime_memory_hard_limit_mb"]))
+    print("EXTERNAL_SPEND_EUR="+str(state["external_spend_eur"]))
+
 if __name__=="__main__":main()
