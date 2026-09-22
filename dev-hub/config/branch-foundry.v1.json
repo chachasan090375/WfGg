@@ -80,7 +80,20 @@
       "memory_soft_limit_mb_default": 256,
       "memory_hard_limit_mb_default": 512,
       "disk_soft_limit_mb_default": 512
-    }
+    },
+    "global_runtime_budget": {
+      "detection": "AUTO_CGROUP_OR_PROC",
+      "planning_fallback_memory_hard_limit_mb": 1024,
+      "memory_hard_limit_mb": 1024,
+      "active_disk_soft_limit_mb": 2048,
+      "cpu_weight": 100,
+      "processes_max": 3,
+      "maximum_parallel_capsules": 2,
+      "reserve_capacity_for_platform": true,
+      "never_swap_for_branch_materialization": true
+    },
+    "scheduler": "dev-hub/bin/capsule-scheduler.py",
+    "wave_execution": true
   },
   "materialization_profiles": {
     "MEMORY_ONLY": {
