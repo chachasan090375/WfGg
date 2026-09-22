@@ -71,6 +71,12 @@ def main() -> int:
             cmd.append("--apply")
         if args.get("report"):
             cmd += ["--report", str(args["report"])]
+    elif operation == "functional-orchestrate":
+        if not args.get("intent"):
+            fail("REQUEST_FUNCTIONAL_INTENT_REQUIRED", project, operation)
+        cmd += [operation, "--project", project, "--intent", str(args["intent"])]
+        if args.get("output"):
+            cmd += ["--output", str(args["output"])]
     elif operation == "technical-design":
         if not args.get("requirement") or not args.get("manifest"):
             fail("REQUEST_REQUIREMENT_AND_MANIFEST_REQUIRED", project, operation)
