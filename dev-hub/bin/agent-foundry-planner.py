@@ -117,7 +117,17 @@ def decide_package(pkg:dict[str,Any],routing:dict[str,Any],cfg:dict[str,Any],pro
         "budget_policy":"ZERO_INCREMENTAL_COST_DEFAULT",
         "verification":"qualification-required-before-dispatch",
         "termination_policy":"retire-ephemeral-after-accepted-delivery",
-        "promotion_policy":"qualify-generalize-and-promote-only-if-reusable"
+        "promotion_policy":"qualify-generalize-and-promote-only-if-reusable",
+        "learning_uplink":{
+            "required":True,
+            "mode":"incremental-deltas-only",
+            "central_memory":"chacha-dev",
+            "durable_outbox":True,
+            "remote_capable":True,
+            "background_delivery":True,
+            "raw_user_content":False,
+            "contains_secrets":False
+        }
     } if agent_id else None
     if manifest is not None and decision.startswith("CREATE_"):
         manifest["guardian_role_contract"]=arc.build_contract(
