@@ -6,6 +6,7 @@ on:
     paths:
       - '.github/workflows/radar-v625-server-population-schema.yml'
       - '.github/scripts/v625_server_population_schema.py'
+      - '.github/scripts/v625_server_detail_strings.py'
   workflow_dispatch:
 
 permissions:
@@ -48,6 +49,11 @@ jobs:
           set -euo pipefail
           python3 .github/scripts/v625_server_population_schema.py --pack /tmp/LWScripts.data --jar /tmp/unluac-v625.jar
 
+      - name: Extract exact server-detail constants
+        run: |
+          set -euo pipefail
+          python3 .github/scripts/v625_server_detail_strings.py | tee /tmp/v625-server-detail-strings.log
+
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -56,5 +62,7 @@ jobs:
             /tmp/v625-picked.json
             /tmp/v625-population-evidence.json
             /tmp/v625-decompiled
+            /tmp/v625-server-detail-strings.json
+            /tmp/v625-server-detail-strings.log
           if-no-files-found: warn
           retention-days: 30
