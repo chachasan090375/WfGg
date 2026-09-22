@@ -137,32 +137,21 @@ jobs:
           from pathlib import Path
           p=Path('/tmp/unluac/src/unluac/parse/LHeaderType.java')
           s=p.read_text()
-          old='''    if(format != 0) {
-              throw new IllegalStateException("The input chunk reports a non-standard lua format: " + format);
-            }'''
-          new='''    if(format != 0 && format != 1) {
-              throw new IllegalStateException("The input chunk reports a non-standard lua format: " + format);
-            }'''
+          old='if(format != 0) {'
           if old not in s:
               raise SystemExit('V624_UNLUAC_FORMAT_ANCHOR_MISSING')
-          s=s.replace(old,new,1)
-          old53='''    parse_int_size(buffer, header, s);
-            parse_size_t_size(buffer, header, s);
-            parse_instruction_size(buffer, header, s);
-            parse_integer_size(buffer, header, s);
-            parse_float_size(buffer, header, s);'''
-          new53='''    parse_int_size(buffer, header, s);
-            parse_size_t_size(buffer, header, s);
-            if(s.format != 1) {
-              parse_instruction_size(buffer, header, s);
-            }
-            parse_integer_size(buffer, header, s);
-            parse_float_size(buffer, header, s);'''
-          # TYPE53 is the last occurrence of this exact sequence; replace last.
-          idx=s.rfind(old53)
+          s=s.replace(old,'if(format != 0 && format != 1) {',1)
+          marker='class LHeaderType53 extends LHeaderType'
+          idx=s.find(marker)
           if idx < 0:
-              raise SystemExit('V624_UNLUAC_53_ANCHOR_MISSING')
-          s=s[:idx]+new53+s[idx+len(old53):]
+              raise SystemExit('V624_UNLUAC_53_CLASS_MISSING')
+          head=s[:idx]
+          tail=s[idx:]
+          oldcall='    parse_instruction_size(buffer, header, s);'
+          if oldcall not in tail:
+              raise SystemExit('V624_UNLUAC_53_INSTRUCTION_ANCHOR_MISSING')
+          tail=tail.replace(oldcall,'    if(s.format != 1) {\\n      parse_instruction_size(buffer, header, s);\\n    }',1)
+          s=head+tail
           p.write_text(s)
           PY
           cd /tmp/unluac
