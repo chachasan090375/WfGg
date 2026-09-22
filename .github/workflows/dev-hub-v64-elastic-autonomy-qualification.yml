@@ -19,9 +19,15 @@ on:
       - 'dev-hub/bin/technology_watch_runtime.py'
       - 'dev-hub/bin/technology-watch-service.py'
       - 'dev-hub/bin/install-technology-watch-runtime.sh'
+      - 'dev-hub/bin/capsule-runtime-controller.py'
+      - 'dev-hub/bin/capsule-worker.py'
+      - 'dev-hub/bin/emergency-stop-surface.py'
+      - 'dev-hub/bin/run-v64-runtime-pilot-via-chacha-dev.sh'
       - 'dev-hub/systemd/chacha-dev-technology-watch.service'
+      - 'dev-hub/systemd/chacha-dev-emergency-stop-surface.service'
       - 'dev-hub/systemd/chacha-dev-technology-watch.timer'
       - 'dev-hub/tests/test_v64_technology_watch_runtime.py'
+      - 'dev-hub/tests/test_v64_runtime_pilot_contract.py'
       - 'dev-hub/bin/branch-blueprint-optimizer.py'
       - 'dev-hub/bin/capsule-scheduler.py'
       - 'dev-hub/bin/autonomous-project-orchestrator.py'
@@ -49,7 +55,8 @@ jobs:
       - name: Static validation
         run: |
           set -euo pipefail
-          python3 -m py_compile             dev-hub/bin/branch-foundry-planner.py             dev-hub/bin/agent-foundry-planner.py             dev-hub/bin/capability-foundry.py             dev-hub/bin/technology_watch_runtime.py             dev-hub/bin/technology-watch-service.py             dev-hub/bin/branch-blueprint-optimizer.py             dev-hub/bin/capsule-scheduler.py             dev-hub/bin/autonomous-project-orchestrator.py             dev-hub/bin/emergency-stop-controller.py             dev-hub/bin/experience-ledger.py
+          python3 -m py_compile             dev-hub/bin/branch-foundry-planner.py             dev-hub/bin/agent-foundry-planner.py             dev-hub/bin/capability-foundry.py             dev-hub/bin/technology_watch_runtime.py             dev-hub/bin/technology-watch-service.py             dev-hub/bin/capsule-runtime-controller.py             dev-hub/bin/capsule-worker.py             dev-hub/bin/emergency-stop-surface.py             dev-hub/bin/branch-blueprint-optimizer.py             dev-hub/bin/capsule-scheduler.py             dev-hub/bin/autonomous-project-orchestrator.py             dev-hub/bin/emergency-stop-controller.py             dev-hub/bin/experience-ledger.py
+          bash -n dev-hub/bin/install-technology-watch-runtime.sh dev-hub/bin/run-v64-runtime-pilot-via-chacha-dev.sh
           for f in             dev-hub/config/branch-foundry.v1.json             dev-hub/config/agent-foundry.v1.json             dev-hub/config/capability-foundry.v1.json             dev-hub/config/technology-watch-runtime.v1.json             dev-hub/config/domain-orchestration.v1.json             dev-hub/config/provider-economics.v1.json             dev-hub/config/storage-tiers.v1.json             dev-hub/config/learning-fabric.v1.json             dev-hub/config/emergency-stop.v1.json; do
             python3 -m json.tool "$f" >/dev/null
           done
@@ -59,6 +66,16 @@ jobs:
         run: |
           set -euo pipefail
           python3 dev-hub/tests/test_v64_technology_watch_runtime.py
+
+      - name: Real runtime PILOT contracts
+        run: |
+          set -euo pipefail
+          python3 dev-hub/tests/test_v64_runtime_pilot_contract.py
+          grep -Fq 'CHACHA_DEV_TECH_WATCH_REV' dev-hub/bin/install-technology-watch-runtime.sh
+          grep -Fq 'pinned_revision_required' dev-hub/bin/install-technology-watch-runtime.sh
+          grep -Fq 'systemd-run' dev-hub/bin/capsule-runtime-controller.py
+          grep -Fq '127.0.0.1' dev-hub/bin/emergency-stop-surface.py
+          grep -Fq 'experience-ledger.py' dev-hub/bin/run-v64-runtime-pilot-via-chacha-dev.sh
 
       - name: Minimum-cost blueprint smoke
         run: |
@@ -249,6 +266,9 @@ jobs:
             echo RESOURCE_WAVES=YES
             echo TECHNOLOGY_WATCH=PERMANENT_BACKGROUND_PLUS_TARGETED_MATERIALIZATION
             echo TECHNOLOGY_WATCH_CONSUMERS=BRANCH_AGENT_CAPABILITY_FOUNDRIES
+            echo CAPSULE_RUNTIME_PILOT=PINNED_REAL_SYSTEMD_READY
+            echo EXPERIENCE_LEDGER_NAS_PILOT=END_TO_END_READY
+            echo EMERGENCY_STOP_SURFACE=LOOPBACK_GRAPHICAL_READY
             echo ZERO_SPEND_DOMINANCE=HARD_VALID_ZERO_FIRST
             echo AUTOMATIC_EXTERNAL_SPEND_EUR=0
           } | tee /tmp/CHACHA_DEV_V64_RECEIPT.txt
