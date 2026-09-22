@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 import os
 import subprocess
 import time
@@ -101,7 +102,7 @@ def main():
     else:
         out=read_state(args.state)
     print(json.dumps(out,indent=2,ensure_ascii=False))
-    if out.get("active"):print("CHACHA_DEV_EMERGENCY_STOP=ACTIVE")
-    else:print("CHACHA_DEV_EMERGENCY_STOP=INACTIVE")
+    marker="CHACHA_DEV_EMERGENCY_STOP=ACTIVE" if out.get("active") else "CHACHA_DEV_EMERGENCY_STOP=INACTIVE"
+    print(marker,file=sys.stderr)
 
 if __name__=="__main__":main()
