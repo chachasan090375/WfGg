@@ -76,15 +76,30 @@ jobs:
         run: |
           set -euo pipefail
           git merge-base --is-ancestor "$QUALIFIED_SOURCE_REV" HEAD
-          bad="$(
-            git diff --name-only "$QUALIFIED_SOURCE_REV"..HEAD |
-            grep -Ev '^(.github/workflows/radar-v624-messenger-vps-pilot-build.yml|.github/workflows/radar-v624-approved-production-qualification.yml|.radar-release-src/v624-source/connector-go/cmd/radar-connector/messenger_outbox_v624.go|radar-vps/V624_(QUALIFICATION_RECEIPT|PILOT_RECEIPT|PRODUCTION_APPROVAL).txt|radar-vps/install-v624-messenger-pilot.sh|radar-vps/probe-v624-messenger-pilot-runtime.sh|radar-vps/install-v624-messenger-production.sh|radar-vps/probe-v624-messenger-production-runtime.sh|radar-vps/rollback-v624-messenger-production.sh|radar-vps/pilot-v624-messenger/.*)
-          )"
-          if [ -n "$bad" ]; then
-            echo "V624_UNQUALIFIED_DRIFT=$bad"
-            exit 1
-          fi
-          echo RADAR_V624_QUALIFIED_SOURCE_DRIFT_GUARD=PASS
+          git diff --name-only "$QUALIFIED_SOURCE_REV"..HEAD > /tmp/v624-changed-paths.txt
+          python3 - <<'PY'
+          from pathlib import Path
+          allowed_exact={
+            '.github/workflows/radar-v624-messenger-vps-pilot-build.yml',
+            '.github/workflows/radar-v624-approved-production-qualification.yml',
+            '.radar-release-src/v624-source/connector-go/cmd/radar-connector/messenger_outbox_v624.go',
+            'radar-vps/V624_QUALIFICATION_RECEIPT.txt',
+            'radar-vps/V624_PILOT_RECEIPT.txt',
+            'radar-vps/V624_PRODUCTION_APPROVAL.txt',
+            'radar-vps/install-v624-messenger-pilot.sh',
+            'radar-vps/probe-v624-messenger-pilot-runtime.sh',
+            'radar-vps/install-v624-messenger-production.sh',
+            'radar-vps/probe-v624-messenger-production-runtime.sh',
+            'radar-vps/rollback-v624-messenger-production.sh',
+          }
+          allowed_prefix=('radar-vps/pilot-v624-messenger/',)
+          paths=[x.strip() for x in Path('/tmp/v624-changed-paths.txt').read_text().splitlines() if x.strip()]
+          bad=[p for p in paths if p not in allowed_exact and not p.startswith(allowed_prefix)]
+          if bad:
+              print('V624_UNQUALIFIED_DRIFT='+';'.join(bad))
+              raise SystemExit(1)
+          print('RADAR_V624_QUALIFIED_SOURCE_DRIFT_GUARD=PASS')
+          PY
 
       - name: Verify production runtime confinement
         run: |
