@@ -20,7 +20,7 @@ from typing import Any
 POLICY_SCHEMA = "chacha.dev/project-control/v1"
 RESPONSE_SCHEMA = "chacha.dev/project-control-response/v1"
 RECOVERY_OPERATIONS = {"transactions", "recover-transaction"}
-ROUTED_OPERATIONS = RECOVERY_OPERATIONS | {"platform-readiness", "technical-design", "functional-orchestrate"}
+ROUTED_OPERATIONS = RECOVERY_OPERATIONS | {"platform-readiness", "technical-design", "functional-orchestrate", "autonomous-bootstrap"}
 
 
 def now_iso() -> str:
@@ -127,6 +127,11 @@ def routed_parser() -> argparse.ArgumentParser:
     orchestrate.add_argument("--project", required=True)
     orchestrate.add_argument("--intent", required=True, type=Path)
     orchestrate.add_argument("--output", type=Path)
+
+    autonomous = sub.add_parser("autonomous-bootstrap")
+    autonomous.add_argument("--project", required=True)
+    autonomous.add_argument("--intent", required=True, type=Path)
+    autonomous.add_argument("--output-dir", type=Path)
 
     design = sub.add_parser("technical-design")
     design.add_argument("--project", required=True)
@@ -272,6 +277,61 @@ def handle_readiness(args: argparse.Namespace, policy: dict[str, Any]) -> int:
         )
     emit(result, args.json)
     return 0 if result["status"] in {"OK", "READY"} else 2
+
+
+def handle_autonomous_bootstrap(args: argparse.Namespace, policy: dict[str, Any]) -> int:
+    tools = policy.get("engine_paths") or {}
+    engine = resolve(args.repo_root, str(tools.get("autonomous_project_orchestrator")))
+    intent = args.intent if args.intent.is_absolute() else args.repo_root / args.intent
+    runtime = policy.get("runtime") or {}
+    plans_root = Path(str(runtime.get("plans_root", "/opt/chacha-dev/runtime/plans")))
+    out_dir = args.output_dir or (plans_root / args.project / "autonomous-bootstrap")
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    try:
+        intent_value = load(intent)
+    except SystemExit as exc:
+        result = response(args.project,args.command,"FAILED","Functional intent could not be loaded.",
+                          {"error":str(exc)},["FUNCTIONAL_INTENT_INVALID"])
+        emit(result,args.json);return 2
+
+    project_in_intent=str(intent_value.get("project") or "")
+    if project_in_intent and project_in_intent != args.project:
+        result=response(args.project,args.command,"BLOCKED",
+                        "Functional intent project does not match requested Project Control project.",
+                        {"intent_project":project_in_intent},["FUNCTIONAL_INTENT_PROJECT_MISMATCH"])
+        emit(result,args.json);return 2
+
+    proc=subprocess.run(
+        [sys.executable,str(engine),"--repo-root",str(args.repo_root),"--intent",str(intent),"--output-dir",str(out_dir)],
+        stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,shell=False,timeout=180,check=False
+    )
+    result_path=out_dir/"bootstrap-result.json"
+    if proc.returncode != 0 or not result_path.exists():
+        result=response(args.project,args.command,"FAILED","Autonomous project bootstrap failed.",
+                        {"stdout":proc.stdout.strip(),"stderr":proc.stderr.strip()},
+                        ["AUTONOMOUS_BOOTSTRAP_FAILED"])
+        emit(result,args.json);return 2
+
+    boot=load(result_path)
+    dispatch=bool(boot.get("domain_dispatch_allowed"))
+    status="READY" if dispatch else "BLOCKED"
+    blockers=[] if dispatch else ["AUTONOMOUS_REPLAN_REQUIRED"]
+    result=response(
+        args.project,args.command,status,
+        "Autonomous V6.3 project bootstrap completed." if dispatch else "Autonomous V6.3 bootstrap requires another planning iteration.",
+        boot,blockers,
+        ["dispatch domain factories"] if dispatch else ["resolve generated capability/domain overlays and rerun bootstrap"],
+        [
+          {"type":"functional-contract","path":boot.get("functional_contract")},
+          {"type":"project-instance","path":boot.get("project")},
+          {"type":"agent-topology","path":boot.get("agent_topology")},
+          {"type":"capability-foundry-plan","path":boot.get("capability_foundry")},
+          {"type":"domain-plan","path":boot.get("final_plan")}
+        ]
+    )
+    emit(result,args.json)
+    return 0 if status=="READY" else 2
 
 
 def handle_functional_orchestrate(args: argparse.Namespace, policy: dict[str, Any]) -> int:
@@ -496,6 +556,8 @@ def main() -> int:
             raise SystemExit(f"POLICY_SCHEMA_INVALID={policy.get('schema')}")
         if command in RECOVERY_OPERATIONS:
             return handle_recovery(args, policy)
+        if command == "autonomous-bootstrap":
+            return handle_autonomous_bootstrap(args, policy)
         if command == "functional-orchestrate":
             return handle_functional_orchestrate(args, policy)
         if command == "technical-design":
