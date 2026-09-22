@@ -27,7 +27,9 @@
     "sensitive_changes_require_explicit_human_approval": true,
     "platform_is_application_agnostic": true,
     "every_project_is_factory_provisioned": true,
-    "project_knowledge_promotes_to_generic_knowledge": true
+    "project_knowledge_promotes_to_generic_knowledge": true,
+    "agent_foundry_precedes_domain_dispatch": true,
+    "core_replan_required_after_foundry": true
   },
   "interfaces": {
     "cli": {
@@ -73,7 +75,8 @@
     "technology_radar_domain_watch": "dev-hub/config/technology-radar-domain-watch.v2.json",
     "project_factory": "dev-hub/config/project-factory.v1.json",
     "knowledge_fabric": "dev-hub/config/knowledge-fabric.v1.json",
-    "self_evolution": "dev-hub/config/self-evolution.v1.json"
+    "self_evolution": "dev-hub/config/self-evolution.v1.json",
+    "agent_foundry": "dev-hub/config/agent-foundry.v1.json"
   },
   "engine_paths": {
     "control_plane_store": "dev-hub/bin/control-plane-store.py",
@@ -92,7 +95,8 @@
     "functional_intent_orchestrator": "dev-hub/bin/functional-intent-orchestrator.py",
     "domain_provider_resolver": "dev-hub/bin/domain-provider-resolver.py",
     "project_factory": "dev-hub/bin/project-factory.py",
-    "architecture_optimizer": "dev-hub/bin/architecture-optimizer.py"
+    "architecture_optimizer": "dev-hub/bin/architecture-optimizer.py",
+    "agent_foundry_planner": "dev-hub/bin/agent-foundry-planner.py"
   },
   "status_model": [
     "READY",
@@ -186,6 +190,12 @@
       "mutating": false,
       "technology_watch_required": true,
       "self_evolution_policy_required": true
+    },
+    "agent-foundry-plan": {
+      "class": "plan",
+      "mutating": false,
+      "mandatory_before_domain_dispatch": true,
+      "returns_to_core_orchestrator": true
     }
   },
   "transaction_policy": {
