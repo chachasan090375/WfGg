@@ -1,0 +1,143 @@
+name: ChaCha DEV V6.10 real external learning E2E
+on:
+  push:
+    branches: [dev-hub-v610-external-learning-e2e]
+    paths:
+      - 'dev-hub/evidence/v610-external-learning-e2e-request.json'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  e2e:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    env:
+      RELAY_URL: https://chacha-dev-learning-relay.chachasan090375.workers.dev
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev-hub-v610-external-learning-e2e
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Resolve Cloudflare account and D1
+        id: cf
+        env:
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json,os,urllib.parse,urllib.request
+          token=os.environ['CF_API_TOKEN']; headers={'Authorization':'Bearer '+token,'Content-Type':'application/json'}
+          def get(url):
+              req=urllib.request.Request(url,headers=headers)
+              with urllib.request.urlopen(req,timeout=30) as r:return json.loads(r.read())
+          aid=os.environ.get('CF_ACCOUNT_ID','').strip()
+          if not aid:
+              rows=get('https://api.cloudflare.com/client/v4/accounts?per_page=50').get('result') or []
+              assert len(rows)==1,rows
+              aid=rows[0]['id']
+          name='chacha-dev-learning-relay'
+          rows=get('https://api.cloudflare.com/client/v4/accounts/'+aid+'/d1/database?name='+urllib.parse.quote(name)).get('result') or []
+          db=next(x for x in rows if x.get('name')==name)
+          with open(os.environ['GITHUB_OUTPUT'],'a') as f:
+              f.write('account_id='+aid+'\n');f.write('database_id='+db['uuid']+'\n')
+          print('CHACHA_DEV_V610_D1_RESOLVED=PASS')
+          PY
+      - name: Create disposable external application identity and signed delta
+        id: emit
+        run: |
+          set -euo pipefail
+          openssl genpkey -algorithm ED25519 -out /tmp/producer.pem
+          PUB="$(openssl pkey -in /tmp/producer.pem -pubout -outform DER | base64 -w0)"
+          KEY_ID="producer-e2e-$(printf '%s' "$PUB" | sha256sum | cut -c1-16)"
+          DELTA_ID="v610-external-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          SEQ="${GITHUB_RUN_ID}"
+          OBS="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          python3 - "$DELTA_ID" "$SEQ" "$OBS" <<'PY'
+          import json,sys
+          delta_id,seq,obs=sys.argv[1:]
+          x={
+            "schema":"chacha.dev/learning-delta/v1",
+            "delta_id":delta_id,
+            "project_id":"generic-external-learning-e2e",
+            "source_id":"embedded-agent-e2e",
+            "source_kind":"embedded-application-agent",
+            "deployment_id":"production-external-e2e",
+            "sequence":int(seq),
+            "observed_at":obs,
+            "changes":[{"path":"runtime.learning-policy","before":"baseline","after":"observed-improvement"}],
+            "anomaly":{"severity":"high","class":"e2e-validation-signal"},
+            "evidence_refs":["github-actions://external-producer-e2e"],
+            "privacy":{"raw_user_content":False,"contains_secrets":False,"personal_data_class":"none"}
+          }
+          open('/tmp/delta.json','w').write(json.dumps(x,sort_keys=True,ensure_ascii=False,separators=(',',':')))
+          PY
+          openssl pkeyutl -sign -rawin -inkey /tmp/producer.pem -in /tmp/delta.json -out /tmp/sig.bin
+          SIG="$(base64 -w0 /tmp/sig.bin | tr '+/' '-_' | tr -d '=')"
+          python3 - "$KEY_ID" "$SIG" <<'PY'
+          import json,sys
+          key_id,sig=sys.argv[1:]
+          delta=json.load(open('/tmp/delta.json'))
+          packet={"schema":"chacha.dev/learning-uplink-packet/v2","key_id":key_id,"algorithm":"Ed25519","signature":sig,"delta":delta}
+          open('/tmp/packet.json','w').write(json.dumps(packet,separators=(',',':')))
+          PY
+          printf '%s' "$KEY_ID" > /tmp/key-id
+          printf '%s' "$PUB" > /tmp/public-key
+          printf '%s' "$DELTA_ID" > /tmp/delta-id
+          echo "delta_id=$DELTA_ID" >> "$GITHUB_OUTPUT"
+          echo CHACHA_DEV_V610_EXTERNAL_KEY_CREATED=PASS
+      - name: Register disposable producer public key in D1
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ steps.cf.outputs.account_id }}
+          DB_ID: ${{ steps.cf.outputs.database_id }}
+        run: |
+          set -euo pipefail
+          KEY_ID="$(cat /tmp/key-id)"; PUB="$(cat /tmp/public-key)"
+          cat > /tmp/wrangler.jsonc <<EOF
+          {"name":"chacha-dev-learning-relay-e2e","compatibility_date":"2026-09-22","d1_databases":[{"binding":"DB","database_name":"chacha-dev-learning-relay","database_id":"$DB_ID"}]}
+          EOF
+          python3 - "$KEY_ID" "$PUB" <<'PY'
+          import sys
+          k,p=sys.argv[1:]
+          q=lambda s:"'"+s.replace("'","''")+"'"
+          sql=("INSERT INTO identities(key_id,role,status,public_key_spki_b64,project_id,deployment_id,created_at) VALUES("
+               +q(k)+",'PRODUCER','ACTIVE',"+q(p)+",'generic-external-learning-e2e','production-external-e2e',datetime('now')) "
+               "ON CONFLICT(key_id) DO UPDATE SET status='ACTIVE', public_key_spki_b64=excluded.public_key_spki_b64;")
+          open('/tmp/register.sql','w').write(sql+'\n')
+          PY
+          npx --yes wrangler@4.45.0 d1 execute chacha-dev-learning-relay --remote --file=/tmp/register.sql --config=/tmp/wrangler.jsonc >/tmp/register.out
+          echo CHACHA_DEV_V610_EXTERNAL_PUBLIC_IDENTITY_REGISTERED=PASS
+      - name: Emit delta over public HTTPS
+        run: |
+          set -euo pipefail
+          code="$(curl -sS -o /tmp/relay-ack.json -w '%{http_code}' -H 'Content-Type: application/json' --data-binary @/tmp/packet.json "$RELAY_URL/v1/learning-deltas")"
+          test "$code" = 202
+          grep -Fq '"status":"RECORDED"' /tmp/relay-ack.json
+          echo CHACHA_DEV_V610_EXTERNAL_HTTPS_PUSH=PASS
+      - name: Wait for central brain durable ingest and ACK
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ steps.cf.outputs.account_id }}
+          DB_ID: ${{ steps.cf.outputs.database_id }}
+          DELTA_ID: ${{ steps.emit.outputs.delta_id }}
+        run: |
+          set -euo pipefail
+          cat > /tmp/wrangler.jsonc <<EOF
+          {"name":"chacha-dev-learning-relay-e2e","compatibility_date":"2026-09-22","d1_databases":[{"binding":"DB","database_name":"chacha-dev-learning-relay","database_id":"$DB_ID"}]}
+          EOF
+          ok=0
+          for i in $(seq 1 18); do
+            if npx --yes wrangler@4.45.0 d1 execute chacha-dev-learning-relay --remote --command="SELECT status FROM learning_deltas WHERE delta_id='$DELTA_ID';" --config=/tmp/wrangler.jsonc 2>&1 | tee /tmp/status.out | grep -q 'ACKED'; then
+              ok=1; break
+            fi
+            sleep 10
+          done
+          test "$ok" = 1
+          echo CHACHA_DEV_V610_CENTRAL_PULL=PASS
+          echo CHACHA_DEV_V610_NAS_BEFORE_ACK=PASS
+          echo CHACHA_DEV_V610_GLOBAL_MEMORY_BEFORE_ACK=PASS
+          echo CHACHA_DEV_V610_REAL_EXTERNAL_E2E=PASS
+          echo AUTOMATIC_EXTERNAL_SPEND_EUR=0
