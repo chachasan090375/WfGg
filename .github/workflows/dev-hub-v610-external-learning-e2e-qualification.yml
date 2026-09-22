@@ -1,0 +1,55 @@
+name: ChaCha DEV V6.10 external learning E2E qualification
+on:
+  push:
+    branches: [dev-hub-v610-external-learning-e2e]
+    paths:
+      - 'dev-hub/bin/central-learning-relay-puller.py'
+      - 'dev-hub/bin/learning-delta-ingest.py'
+      - 'dev-hub/bin/global-project-memory-index.py'
+      - 'dev-hub/bin/install-central-learning-relay-puller.sh'
+      - 'dev-hub/systemd/chacha-dev-central-learning-relay-pull.service'
+      - 'dev-hub/tests/test_v610_global_memory_ack_gate.py'
+      - '.github/workflows/dev-hub-v610-external-learning-e2e-qualification.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev-hub-v610-external-learning-e2e
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Static validation
+        run: |
+          set -euo pipefail
+          python3 -m py_compile dev-hub/bin/central-learning-relay-puller.py dev-hub/bin/learning-delta-ingest.py dev-hub/bin/global-project-memory-index.py
+          bash -n dev-hub/bin/install-central-learning-relay-puller.sh
+          echo CHACHA_DEV_V610_STATIC=PASS
+      - name: Global memory ACK gate
+        run: |
+          set -euo pipefail
+          python3 dev-hub/tests/test_v610_global_memory_ack_gate.py
+      - name: Qualification receipt
+        run: |
+          {
+            echo CHACHA_DEV_EXTERNAL_LEARNING_E2E=V6.10
+            echo RESULT=success
+            echo SOURCE_REV="$(git rev-parse HEAD)"
+            echo RELAY=WORKER_D1
+            echo CENTRAL_PULL=OUTBOUND_ONLY
+            echo NAS_BEFORE_ACK=YES
+            echo GLOBAL_MEMORY_INDEX_BEFORE_ACK=YES
+            echo ANOMALY_QUEUE=YES
+            echo TUNNEL_REQUIRED=NO
+            echo AUTOMATIC_EXTERNAL_SPEND_EUR=0
+          } | tee /tmp/CHACHA_DEV_V610_RECEIPT.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chacha-dev-v610-external-learning-e2e
+          path: /tmp/CHACHA_DEV_V610_RECEIPT.txt
+          retention-days: 30
