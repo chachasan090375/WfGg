@@ -38,10 +38,11 @@ def match_domains(text: str,cfg: dict[str,Any],explicit: list[str]) -> tuple[lis
     for d in explicit:
         if d in domains:
             reasons.setdefault(d,[]).append("explicit")
-    for domain,spec in domains.items():
-        hits=sorted({str(k) for k in spec.get("keywords") or [] if normalize(str(k)) in text})
-        if hits:
-            reasons.setdefault(domain,[]).append("keywords:"+",".join(hits[:8]))
+    if not explicit:
+        for domain,spec in domains.items():
+            hits=sorted({str(k) for k in spec.get("keywords") or [] if normalize(str(k)) in text})
+            if hits:
+                reasons.setdefault(domain,[]).append("keywords:"+",".join(hits[:8]))
     if not reasons:
         reasons["product"]=["fallback:intent-normalization"]
         reasons["knowledge-research"]=["fallback:unknown-domain-research"]
