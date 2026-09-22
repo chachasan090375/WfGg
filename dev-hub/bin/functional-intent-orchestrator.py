@@ -11,6 +11,7 @@ from typing import Any
 SCHEMA="chacha.dev/domain-orchestration/v1"
 OUTPUT="chacha.dev/domain-plan/v1"
 TOPOLOGY_SCHEMA="chacha.dev/agent-topology/v1"
+BRANCH_TOPOLOGY_SCHEMA="chacha.dev/branch-topology/v1"
 
 QUESTION_HINTS=("?","qu'est-ce","comment ","pourquoi ","où ","quel ","quelle ","peux-tu m'expliquer","explique")
 CHANGE_HINTS=("crée","cree","ajoute","modifie","corrige","déploie","deploy","implémente","implemente","construis","installe","migration","remplace")
@@ -207,23 +208,77 @@ def apply_topology(preplan:dict[str,Any],topology:dict[str,Any],cfg:dict[str,Any
     })
     return out
 
-def make_plan(intent: dict[str,Any],cfg: dict[str,Any],topology:dict[str,Any]|None=None) -> dict[str,Any]:
+def apply_branch_topology(plan:dict[str,Any],branch_topology:dict[str,Any]) -> dict[str,Any]:
+    if branch_topology.get("schema")!=BRANCH_TOPOLOGY_SCHEMA:
+        raise SystemExit("BRANCH_TOPOLOGY_SCHEMA_INVALID")
+    if str(branch_topology.get("intent") or "") != str(plan.get("intent") or ""):
+        raise SystemExit("BRANCH_TOPOLOGY_INTENT_MISMATCH")
+    decisions={str(x.get("package_id")):x for x in branch_topology.get("decisions") or [] if isinstance(x,dict)}
+    unresolved=[]
+    packages=[]
+    for pkg in plan.get("packages") or []:
+        x=dict(pkg)
+        b=decisions.get(str(pkg.get("id")))
+        if b is None:
+            x["branch_topology_status"]="UNRESOLVED"
+            unresolved.append(str(pkg.get("id")))
+        else:
+            x["branch_topology_status"]="RESOLVED"
+            x["branch_id"]=b.get("branch_id")
+            x["branch_decision"]=b.get("decision")
+            x["runtime_required"]=b.get("runtime_required")
+            x["materialization_profile"]=b.get("materialization_profile")
+            x["orchestrator_strategy"]=b.get("orchestrator_strategy")
+            x["runtime_architecture"]=b.get("architecture")
+            x["component_strategy"]=b.get("component_strategy")
+            x["resource_budget"]=b.get("resource_budget")
+            x["branch_cost"]=b.get("chosen_cost")
+            x["collector_bindings"]=b.get("collector_bindings")
+        packages.append(x)
+    out=dict(plan)
+    out["packages"]=packages
+    out["branch_foundry"]={
+        "required":True,
+        "completed":not unresolved and not bool(branch_topology.get("blocked")),
+        "topology_digest":canonical_digest(branch_topology),
+        "unresolved_packages":unresolved,
+        "runtime_summary":branch_topology.get("summary") or {}
+    }
+    ready=bool((out.get("agent_foundry") or {}).get("completed")) and out["branch_foundry"]["completed"]
+    out["dispatch_allowed"]=ready and not bool(out.get("replan_required"))
+    if ready and not out.get("replan_required"):
+        out["plan_stage"]="TOPOLOGIES_RECONCILED"
+    return out
+
+def make_plan(intent: dict[str,Any],cfg: dict[str,Any],topology:dict[str,Any]|None=None,
+              branch_topology:dict[str,Any]|None=None) -> dict[str,Any]:
     if cfg.get("schema")!=SCHEMA:
         raise SystemExit("DOMAIN_ORCHESTRATION_SCHEMA_INVALID")
     preplan=_preplan(intent,cfg)
-    if topology is None:
+    if topology is None and branch_topology is None:
         return preplan
-    return apply_topology(preplan,topology,cfg)
+    plan=preplan
+    if topology is not None:
+        plan=apply_topology(plan,topology,cfg)
+    if branch_topology is not None:
+        plan=apply_branch_topology(plan,branch_topology)
+    else:
+        plan=dict(plan)
+        plan["branch_foundry"]={"required":True,"completed":False}
+        plan["dispatch_allowed"]=False
+    return plan
 
 def main():
     ap=argparse.ArgumentParser()
     ap.add_argument("--config",required=True,type=Path)
     ap.add_argument("--intent",required=True,type=Path)
     ap.add_argument("--agent-topology",type=Path)
+    ap.add_argument("--branch-topology",type=Path)
     ap.add_argument("--output",type=Path)
     args=ap.parse_args()
     topology=load(args.agent_topology) if args.agent_topology else None
-    plan=make_plan(load(args.intent),load(args.config),topology)
+    branch_topology=load(args.branch_topology) if args.branch_topology else None
+    plan=make_plan(load(args.intent),load(args.config),topology,branch_topology)
     payload=json.dumps(plan,ensure_ascii=False,indent=2)+"\n"
     if args.output:args.output.write_text(payload,encoding="utf-8")
     else:print(payload,end="")
