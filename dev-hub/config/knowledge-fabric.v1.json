@@ -1,0 +1,52 @@
+{
+  "schema": "chacha.dev/knowledge-fabric/v1",
+  "version": "1.0.0",
+  "layers": {
+    "project": [
+      "project-collector",
+      "project-domain-collectors"
+    ],
+    "platform": [
+      "generic-domain-collectors",
+      "global-knowledge-graph",
+      "experience-ledger"
+    ],
+    "external": [
+      "official-documentation",
+      "technology-watch",
+      "security-advisories",
+      "package-registries"
+    ]
+  },
+  "promotion_pipeline": [
+    "observe",
+    "prove",
+    "classify-project-specific-vs-reusable",
+    "redact-project-secrets",
+    "deduplicate",
+    "generalize",
+    "validate",
+    "promote-to-generic-domain-collector"
+  ],
+  "reusable_knowledge_requirements": {
+    "evidence_required": true,
+    "project_secret_free": true,
+    "project_identifier_free_when_not_semantically_required": true,
+    "reproducible_when_possible": true,
+    "versioned": true,
+    "source_project_trace_retained": true
+  },
+  "global_query_gateway": {
+    "name": "knowledge-gateway",
+    "query_order": [
+      "current-project-collector",
+      "current-project-domain-collectors",
+      "generic-domain-collectors",
+      "global-knowledge-graph",
+      "official-external-sources"
+    ],
+    "return_evidence": true,
+    "return_confidence": true,
+    "expose_unknowns": true
+  }
+}
