@@ -269,9 +269,12 @@ def guardian_gate(
         "action_id": action_id,
         "phase": phase,
         "actor": "run-controller",
-        "subject_role": str(task.get("owner_role") or "orchestrator"),
+        "subject_role": str(task.get("agent_id") or task.get("owner_role") or "orchestrator"),
+        "subject_contract_id": task.get("guardian_contract_id"),
+        "subject_contract_version": task.get("guardian_contract_version"),
         "action": "DISPATCH_TASK",
         "task_kind": str(task.get("kind") or ""),
+        "capabilities": [str(x) for x in (task.get("capabilities") or [])],
         "permission": permission,
         "project_id": envelope.get("project"),
         "transition": envelope.get("transition"),
@@ -298,6 +301,8 @@ def guardian_gate(
             "human_approval_required": approval_required,
             "storage_preflight_required": storage_required,
             "deadline_seconds": min(3600, max(30, int(context.get("timeout_seconds") or 300) + 60)),
+            "domain": task.get("domain"),
+            "package_id": task.get("package_id"),
         },
     }
 
