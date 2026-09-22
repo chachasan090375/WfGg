@@ -25,6 +25,7 @@ _STAGE_ROLE={
     "project-factory.py":"project-factory",
     "agent-foundry-planner.py":"agent-foundry",
     "agent-role-contract-manager.py":"agent-contract-registry",
+    "component-role-contract-manager.py":"component-contract-registry",
     "branch-foundry-planner.py":"branch-foundry",
     "capability-foundry.py":"capability-foundry",
     "architecture-decision-council.py":"architecture-decision-council",
@@ -364,6 +365,22 @@ def main():
     effective_branch_topology=out/"branch-topology-effective.json"
     apply_architecture_council(branch_topology,architecture_council,effective_branch_topology)
 
+    # V6.18: every dynamic branch and every dedicated/project-local orchestrator
+    # gets a precise versioned Guardian contract before final dispatch planning.
+    component_contracts=out/"component-role-contracts.json"
+    component_contract_args=[
+        "--preplan",active_pre,
+        "--branch-topology",effective_branch_topology,
+        "--capability-foundry",foundry_plan,
+        "--output",component_contracts,
+        "--client",bin_dir/"guardian-client.py",
+        "--policy",cfg/"guardian-runtime-policy.v1.json"
+    ]
+    if bool(_GUARDIAN_CONTEXT.get("enabled")):
+        component_contract_args+=["--register"]
+    run(bin_dir/"component-role-contract-manager.py",component_contract_args)
+    component_contracts_v=load(component_contracts)
+
     final=out/"final-plan.json"
     run(bin_dir/"functional-intent-orchestrator.py",[
         "--config",active_domain,"--intent",active_intent,
@@ -399,7 +416,7 @@ def main():
 
     state={
       "schema":"chacha.dev/autonomous-project-bootstrap/v1",
-      "version":"6.17.0",
+      "version":"6.18.0",
       "project_id":pid,
       "functional_contract":str(contract),
       "project":str(project),
@@ -409,6 +426,12 @@ def main():
       "dynamic_agent_contract_count":int(agent_contracts_v.get("contract_count") or 0),
       "dynamic_agent_contracts_registered":bool(agent_contracts_v.get("registered")),
       "dynamic_agent_contracts_all_registered":bool(agent_contracts_v.get("all_registered")),
+      "component_role_contracts":str(component_contracts),
+      "dynamic_component_contract_count":int(component_contracts_v.get("contract_count") or 0),
+      "dynamic_component_contracts_registered":bool(component_contracts_v.get("registered")),
+      "dynamic_component_contracts_all_registered":bool(component_contracts_v.get("all_registered")),
+      "dynamic_branch_contract_count":int((component_contracts_v.get("kinds") or {}).get("branch") or 0),
+      "dynamic_orchestrator_contract_count":int((component_contracts_v.get("kinds") or {}).get("orchestrator") or 0),
       "branch_topology":str(effective_branch_topology),
       "branch_topology_foundry":str(branch_topology),
       "runtime_wave_plan":str(wave_plan),
