@@ -1145,6 +1145,71 @@
           "fallback": []
         }
       ]
+    },
+    "agent-needs-analysis": {
+      "class": "knowledge",
+      "providers": [
+        {
+          "id": "chacha-dev-architect",
+          "status": "ADOPT",
+          "health": "runtime-check",
+          "cost_class": "local",
+          "scope": "project",
+          "fallback": []
+        }
+      ]
+    },
+    "agent-blueprint": {
+      "class": "knowledge",
+      "providers": [
+        {
+          "id": "chacha-dev-architect",
+          "status": "ADOPT",
+          "health": "runtime-check",
+          "cost_class": "local",
+          "scope": "project",
+          "fallback": []
+        }
+      ]
+    },
+    "agent-evaluation": {
+      "class": "verification",
+      "providers": [
+        {
+          "id": "chacha-dev-architect",
+          "status": "ADOPT",
+          "health": "runtime-check",
+          "cost_class": "local",
+          "scope": "project",
+          "fallback": []
+        }
+      ]
+    },
+    "agent-lifecycle": {
+      "class": "execution",
+      "providers": [
+        {
+          "id": "chacha-dev-architect",
+          "status": "ADOPT",
+          "health": "runtime-check",
+          "cost_class": "local",
+          "scope": "platform",
+          "fallback": []
+        }
+      ]
+    },
+    "agent-composition": {
+      "class": "execution",
+      "providers": [
+        {
+          "id": "chacha-dev-architect",
+          "status": "ADOPT",
+          "health": "runtime-check",
+          "cost_class": "local",
+          "scope": "project",
+          "fallback": []
+        }
+      ]
     }
   }
 }
