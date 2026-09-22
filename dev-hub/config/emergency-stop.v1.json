@@ -1,0 +1,43 @@
+{
+  "schema": "chacha.dev/emergency-stop/v1",
+  "version": "1.0.0",
+  "control_plane": "OUT_OF_BAND",
+  "state_file": "/opt/chacha-dev/runtime/control/emergency-stop.json",
+  "latch_persists_across_restart": true,
+  "activation": {
+    "immediate": true,
+    "block_new_dispatch": true,
+    "block_new_capsule_materialization": true,
+    "freeze_core_orchestrator": true,
+    "freeze_foundries": true,
+    "terminate_ephemeral_agents": true,
+    "terminate_ephemeral_branches": true,
+    "keep_collectors": true,
+    "keep_persistent_memory": true,
+    "preserve_logs_and_evidence": true
+  },
+  "protected_persistent_services": [
+    "collector-memory",
+    "knowledge-index",
+    "storage-governor",
+    "emergency-stop-controller"
+  ],
+  "transient_unit_patterns": [
+    "chacha-dev-branch@*.service",
+    "chacha-dev-agent@*.service",
+    "chacha-dev-preview@*.service"
+  ],
+  "reset": {
+    "explicit_only": true,
+    "health_check_required": true,
+    "incident_snapshot_required": true,
+    "resume_is_not_automatic": true
+  },
+  "triggers": [
+    "human-button",
+    "runaway-loop-detector",
+    "resource-pressure-critical",
+    "repeated-non-convergence",
+    "security-circuit-breaker"
+  ]
+}
