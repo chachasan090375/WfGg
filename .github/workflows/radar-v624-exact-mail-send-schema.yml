@@ -94,29 +94,13 @@ jobs:
           from pathlib import Path
           p=Path('/tmp/unluac/src/unluac/parse/LHeaderType.java')
           s=p.read_text()
-          old='''    if(format != 0) {
-      throw new IllegalStateException("The input chunk reports a non-standard lua format: " + format);
-    }
-'''
-          new='''    if(format != 0 && format != 1) {
-      throw new IllegalStateException("The input chunk reports an unsupported lua format: " + format);
-    }
-'''
+          old="    if(format != 0) {\n      throw new IllegalStateException(\"The input chunk reports a non-standard lua format: \" + format);\n    }\n"
+          new="    if(format != 0 && format != 1) {\n      throw new IllegalStateException(\"The input chunk reports an unsupported lua format: \" + format);\n    }\n"
           if old not in s:
               raise SystemExit('V624_UNLUAC_FORMAT_ANCHOR_MISSING')
           s=s.replace(old,new,1)
-          old2='''    parse_size_t_size(buffer, header, s);
-    parse_instruction_size(buffer, header, s);
-    parse_integer_size(buffer, header, s);
-'''
-          new2='''    parse_size_t_size(buffer, header, s);
-    // Last War Lua 5.3 uses format=1 and omits the one-byte
-    // sizeof(Instruction) field. Standard format=0 keeps it.
-    if(s.format != 1) {
-      parse_instruction_size(buffer, header, s);
-    }
-    parse_integer_size(buffer, header, s);
-'''
+          old2="    parse_size_t_size(buffer, header, s);\n    parse_instruction_size(buffer, header, s);\n    parse_integer_size(buffer, header, s);\n"
+          new2="    parse_size_t_size(buffer, header, s);\n    // Last War Lua 5.3 uses format=1 and omits the one-byte\n    // sizeof(Instruction) field. Standard format=0 keeps it.\n    if(s.format != 1) {\n      parse_instruction_size(buffer, header, s);\n    }\n    parse_integer_size(buffer, header, s);\n"
           if old2 not in s:
               raise SystemExit('V624_UNLUAC_INSTRUCTION_ANCHOR_MISSING')
           s=s.replace(old2,new2,1)
