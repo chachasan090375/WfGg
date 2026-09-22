@@ -76,7 +76,7 @@ jobs:
           test -f "$R"
           grep -Fq 'RESULT=success' "$R"
           grep -Fq 'MAIL_SEND_TYPE_SELF=21' "$R"
-          grep -Fq 'MAIL_SEND_TARGET_FIELD=targetUid' "$R"
+          grep -Fq 'MAIL_SELF_SEND_TARGET_FIELD=targetUid' "$R"
           grep -Fq 'RADAR_LASTWAR_MODE=READ_ONLY' "$R"
           grep -Fq 'MAIL_SEND_EXECUTED=NO' "$R"
           echo V625_V624_EVIDENCE=PASS
