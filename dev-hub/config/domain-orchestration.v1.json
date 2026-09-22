@@ -1,0 +1,425 @@
+{
+  "schema": "chacha.dev/domain-orchestration/v1",
+  "version": "6.0.0",
+  "core_orchestrator": "chacha-core-orchestrator",
+  "principles": {
+    "functional_intent_is_source_of_truth": true,
+    "decompose_before_dispatch": true,
+    "route_by_domain_then_capability": true,
+    "domain_orchestrator_selects_provider": true,
+    "provider_choice_is_runtime_not_product_decision": true,
+    "free_first": true,
+    "evidence_required": true,
+    "cross_domain_review_required": true,
+    "technology_radar_advises_all_domains": true,
+    "production_change_requires_human_approval": true
+  },
+  "request_modes": {
+    "simple_question": {
+      "max_primary_domains": 1,
+      "implementation_allowed": false
+    },
+    "focused_change": {
+      "max_primary_domains": 2,
+      "implementation_allowed": true
+    },
+    "multi_domain_change": {
+      "max_primary_domains": 12,
+      "implementation_allowed": true
+    }
+  },
+  "domains": {
+    "product": {
+      "orchestrator": "domain-product-orchestrator",
+      "roles": [
+        "product-domain-architect"
+      ],
+      "capabilities": [
+        "requirements-analysis",
+        "domain-modeling",
+        "acceptance-criteria"
+      ],
+      "keywords": [
+        "objectif",
+        "fonctionnel",
+        "cahier-des-charges",
+        "requirement",
+        "règle métier",
+        "product"
+      ],
+      "reviews": [
+        "documentation"
+      ]
+    },
+    "development": {
+      "orchestrator": "domain-development-orchestrator",
+      "roles": [
+        "frontend-architect",
+        "backend-api-architect"
+      ],
+      "capabilities": [
+        "code-edit",
+        "library-docs",
+        "api-contract-review",
+        "integration-design"
+      ],
+      "keywords": [
+        "code",
+        "développement",
+        "frontend",
+        "backend",
+        "api",
+        "worker",
+        "service",
+        "component",
+        "bug",
+        "refactor"
+      ],
+      "reviews": [
+        "qa",
+        "cybersecurity"
+      ]
+    },
+    "data-backend": {
+      "orchestrator": "domain-data-orchestrator",
+      "roles": [
+        "data-architect",
+        "backend-api-architect"
+      ],
+      "capabilities": [
+        "database-migrate",
+        "data-model-review",
+        "backup-design",
+        "api-contract-review"
+      ],
+      "keywords": [
+        "database",
+        "d1",
+        "sqlite",
+        "schema",
+        "index",
+        "migration",
+        "persistence",
+        "data",
+        "collector"
+      ],
+      "reviews": [
+        "cybersecurity",
+        "recovery"
+      ]
+    },
+    "documentation": {
+      "orchestrator": "domain-documentation-orchestrator",
+      "roles": [
+        "documentation-adr-agent"
+      ],
+      "capabilities": [
+        "documentation",
+        "architecture-documentation",
+        "adr-management",
+        "runbook-maintenance",
+        "library-docs"
+      ],
+      "keywords": [
+        "documentation",
+        "doc",
+        "guide",
+        "adr",
+        "runbook",
+        "manuel",
+        "explication",
+        "architecture-doc"
+      ],
+      "toolchain": [
+        "context7-mcp",
+        "vale",
+        "markdownlint",
+        "git"
+      ],
+      "reviews": []
+    },
+    "ui-layout": {
+      "orchestrator": "domain-ui-layout-orchestrator",
+      "roles": [
+        "frontend-architect"
+      ],
+      "capabilities": [
+        "browser-automation",
+        "browser-diagnostics",
+        "accessibility-review",
+        "frontend-performance"
+      ],
+      "keywords": [
+        "ui",
+        "ux",
+        "mise en page",
+        "layout",
+        "responsive",
+        "accessibilité",
+        "component",
+        "storybook",
+        "design system"
+      ],
+      "toolchain": [
+        "playwright",
+        "chrome-devtools-mcp",
+        "storybook",
+        "lighthouse",
+        "axe-core"
+      ],
+      "reviews": [
+        "qa"
+      ]
+    },
+    "graphics": {
+      "orchestrator": "domain-graphics-orchestrator",
+      "roles": [
+        "graphics-specialist"
+      ],
+      "capabilities": [
+        "3d-pipeline",
+        "graphics-pipeline",
+        "asset-analysis"
+      ],
+      "keywords": [
+        "graphisme",
+        "graphic",
+        "image",
+        "texture",
+        "sprite",
+        "atlas",
+        "icon",
+        "logo",
+        "asset",
+        "3d",
+        "illustration"
+      ],
+      "toolchain": [
+        "blender",
+        "inkscape",
+        "imagemagick",
+        "unitypy"
+      ],
+      "reviews": [
+        "ui-layout"
+      ]
+    },
+    "animation": {
+      "orchestrator": "domain-animation-orchestrator",
+      "roles": [
+        "animation-specialist"
+      ],
+      "capabilities": [
+        "3d-pipeline",
+        "animation-pipeline",
+        "asset-analysis"
+      ],
+      "keywords": [
+        "animation",
+        "anim",
+        "timeline",
+        "spine",
+        "lottie",
+        "motion",
+        "transition",
+        "vfx",
+        "particle"
+      ],
+      "toolchain": [
+        "blender",
+        "ffmpeg",
+        "lottie-web",
+        "unitypy"
+      ],
+      "reviews": [
+        "graphics",
+        "ui-layout"
+      ]
+    },
+    "cybersecurity": {
+      "orchestrator": "domain-security-orchestrator",
+      "roles": [
+        "security-reviewer"
+      ],
+      "capabilities": [
+        "security-scan-js",
+        "threat-model",
+        "secrets-review",
+        "dependency-review",
+        "digital-signature-verification"
+      ],
+      "keywords": [
+        "sécurité",
+        "security",
+        "auth",
+        "secret",
+        "token",
+        "permission",
+        "vulnerability",
+        "cve",
+        "dependency",
+        "signature"
+      ],
+      "toolchain": [
+        "semgrep-ce",
+        "trivy",
+        "gitleaks",
+        "owasp-zap",
+        "npm-audit",
+        "pip-audit"
+      ],
+      "reviews": [
+        "development",
+        "platform-release"
+      ]
+    },
+    "qa": {
+      "orchestrator": "domain-qa-orchestrator",
+      "roles": [
+        "test-engineer",
+        "performance-engineer"
+      ],
+      "capabilities": [
+        "unit-test-js",
+        "e2e-test-web",
+        "smoke-test-web",
+        "performance-test-web",
+        "test-strategy"
+      ],
+      "keywords": [
+        "test",
+        "qa",
+        "e2e",
+        "unit",
+        "integration",
+        "regression",
+        "performance",
+        "benchmark"
+      ],
+      "toolchain": [
+        "vitest",
+        "node-test",
+        "playwright",
+        "lighthouse"
+      ],
+      "reviews": []
+    },
+    "platform-release": {
+      "orchestrator": "domain-platform-release-orchestrator",
+      "roles": [
+        "platform-cloud-engineer",
+        "release-engineer",
+        "sre-observability-engineer"
+      ],
+      "capabilities": [
+        "ci",
+        "cloud-deploy-edge",
+        "storage-governance",
+        "health-checks",
+        "logging",
+        "metrics",
+        "alerts"
+      ],
+      "keywords": [
+        "deploy",
+        "production",
+        "cloudflare",
+        "ci",
+        "runtime",
+        "vps",
+        "systemd",
+        "release",
+        "rollback",
+        "monitoring"
+      ],
+      "reviews": [
+        "qa",
+        "cybersecurity"
+      ]
+    },
+    "recovery": {
+      "orchestrator": "domain-recovery-orchestrator",
+      "roles": [
+        "recovery-engineer"
+      ],
+      "capabilities": [
+        "backup-store",
+        "restore-drill",
+        "rpo-rto-validation",
+        "signed-checkpoint-recovery-validation"
+      ],
+      "keywords": [
+        "backup",
+        "restore",
+        "recovery",
+        "rollback",
+        "rpo",
+        "rto"
+      ],
+      "reviews": [
+        "data-backend",
+        "platform-release"
+      ]
+    },
+    "knowledge-research": {
+      "orchestrator": "domain-knowledge-orchestrator",
+      "roles": [
+        "technology-radar-agent"
+      ],
+      "capabilities": [
+        "technology-radar",
+        "web-research",
+        "library-docs",
+        "collector-knowledge-inspect"
+      ],
+      "keywords": [
+        "recherche",
+        "veille",
+        "technology",
+        "radar",
+        "mcp",
+        "provider",
+        "alternative",
+        "documentation externe",
+        "comprendre"
+      ],
+      "toolchain": [
+        "collector-knowledge-runtime",
+        "context7-mcp",
+        "github"
+      ],
+      "reviews": []
+    }
+  },
+  "dependencies": {
+    "product": [
+      "development",
+      "data-backend",
+      "ui-layout",
+      "graphics",
+      "animation"
+    ],
+    "graphics": [
+      "animation",
+      "ui-layout"
+    ],
+    "development": [
+      "qa"
+    ],
+    "data-backend": [
+      "qa"
+    ],
+    "ui-layout": [
+      "qa"
+    ],
+    "animation": [
+      "qa"
+    ],
+    "cybersecurity": [
+      "platform-release"
+    ],
+    "qa": [
+      "platform-release"
+    ]
+  }
+}
