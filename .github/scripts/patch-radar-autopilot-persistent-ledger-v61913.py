@@ -183,6 +183,7 @@ import (
     "errors"
     "os"
     "os/exec"
+    "path/filepath"
     "strings"
     "time"
 )
@@ -206,7 +207,18 @@ type autopilotLedgerReportV61913 struct {
     Entries []autopilotLedgerEntryV61913 `json:"entries"`
 }
 
+// WFGG_RADAR_AUTOPILOT_LEDGER_STORAGE_BOUNDARY_V623
+// Collector DB stays Collector-owned. New Autopilot writes use a dedicated
+// Radar-owned ledger. The old Collector ledger is compatibility-read-only.
 func autopilotLedgerDBPathV61913() string {
+    dbPath := strings.TrimSpace(os.Getenv("WFGG_RADAR_AUTOPILOT_LEDGER_DB"))
+    if dbPath == "" {
+        dbPath = "/opt/wfgg-radar/data/autopilot-ledger.db"
+    }
+    return dbPath
+}
+
+func autopilotLegacyCollectorLedgerDBPathV623() string {
     dbPath := strings.TrimSpace(os.Getenv("WFGG_COLLECTOR_DB"))
     if dbPath == "" {
         dbPath = "/opt/wfgg-collector/data/collector.db"
@@ -316,6 +328,9 @@ func autopilotLedgerReadV61913(ctx context.Context, dbPath string, seeds []strin
         return nil, errors.New("AUTOPILOT_LEDGER_DB_PATH_EMPTY_V61913")
     }
     if _, err := os.Stat(dbPath); err != nil {
+        if os.IsNotExist(err) {
+            return []autopilotLedgerEntryV61913{}, nil
+        }
         return nil, errors.New("AUTOPILOT_LEDGER_DB_UNAVAILABLE_V61913")
     }
     if _, err := exec.LookPath("python3"); err != nil {
@@ -358,6 +373,12 @@ func autopilotLedgerWriteV61913(ctx context.Context, dbPath string, entry autopi
     if _, err := exec.LookPath("python3"); err != nil {
         return errors.New("AUTOPILOT_LEDGER_PYTHON3_MISSING_V61913")
     }
+    if err := os.MkdirAll(filepath.Dir(dbPath), 0750); err != nil {
+        if os.IsPermission(err) {
+            return errors.New("AUTOPILOT_LEDGER_PERMISSION_DENIED_V623")
+        }
+        return errors.New("AUTOPILOT_LEDGER_DIR_CREATE_FAILED_V623")
+    }
     entry.State = strings.ToUpper(strings.TrimSpace(entry.State))
     if entry.UpdatedAt == "" {
         entry.UpdatedAt = utcNow()
@@ -368,8 +389,19 @@ func autopilotLedgerWriteV61913(ctx context.Context, dbPath string, entry autopi
         if errors.Is(ctx.Err(), context.DeadlineExceeded) {
             return errors.New("AUTOPILOT_LEDGER_WRITE_TIMEOUT_V61913")
         }
-        _ = out
-        return errors.New("AUTOPILOT_LEDGER_WRITE_FAILED_V61913")
+        msg := strings.ToLower(string(out))
+        switch {
+        case strings.Contains(msg, "readonly"), strings.Contains(msg, "permission denied"), strings.Contains(msg, "not authorized"):
+            return errors.New("AUTOPILOT_LEDGER_PERMISSION_DENIED_V623")
+        case strings.Contains(msg, "locked"), strings.Contains(msg, "busy"):
+            return errors.New("AUTOPILOT_LEDGER_LOCKED_V623")
+        case strings.Contains(msg, "disk is full"), strings.Contains(msg, "database or disk is full"), strings.Contains(msg, "no space left"):
+            return errors.New("AUTOPILOT_LEDGER_DISK_FULL_V623")
+        case strings.Contains(msg, "unable to open database file"):
+            return errors.New("AUTOPILOT_LEDGER_OPEN_FAILED_V623")
+        default:
+            return errors.New("AUTOPILOT_LEDGER_WRITE_FAILED_V623")
+        }
     }
     return nil
 }
@@ -378,6 +410,31 @@ func autopilotFilterLedgerCandidatesV61913(ctx context.Context, dbPath string, c
     entries, err := autopilotLedgerReadV61913(ctx, dbPath, candidates)
     if err != nil {
         return nil, nil, err
+    }
+    merged := map[string]autopilotLedgerEntryV61913{}
+    for _, entry := range entries {
+        merged[strings.TrimSpace(entry.Seed)] = entry
+    }
+    if filepath.Clean(dbPath) == filepath.Clean(autopilotLedgerDBPathV61913()) {
+        legacyPath := autopilotLegacyCollectorLedgerDBPathV623()
+        if filepath.Clean(legacyPath) != filepath.Clean(dbPath) {
+            legacyEntries, legacyErr := autopilotLedgerReadV61913(ctx, legacyPath, candidates)
+            if legacyErr != nil {
+                return nil, nil, legacyErr
+            }
+            for _, entry := range legacyEntries {
+                seed := strings.TrimSpace(entry.Seed)
+                if _, exists := merged[seed]; !exists {
+                    merged[seed] = entry
+                }
+            }
+        }
+    }
+    entries = entries[:0]
+    for _, seed := range candidates {
+        if entry, ok := merged[strings.TrimSpace(seed)]; ok {
+            entries = append(entries, entry)
+        }
     }
     terminal := map[string]bool{}
     for _, entry := range entries {
@@ -536,6 +593,50 @@ func TestAutopilotLedgerTerminalStatesV61913(t *testing.T) {
         }
     }
 }
+
+func TestAutopilotLedgerStorageBoundaryV623(t *testing.T) {
+    root := t.TempDir()
+    collector := filepath.Join(root, "collector", "collector.db")
+    radar := filepath.Join(root, "radar", "autopilot-ledger.db")
+    ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+    defer cancel()
+
+    if err := autopilotLedgerWriteV61913(ctx, collector, autopilotLedgerEntryV61913{
+        Seed:"8117", State:"QUALIFIED", Reason:"LEGACY", RequiredFullCycles:1, ValidatedCycles:1,
+    }); err != nil {
+        t.Fatal(err)
+    }
+    t.Setenv("WFGG_COLLECTOR_DB", collector)
+    t.Setenv("WFGG_RADAR_AUTOPILOT_LEDGER_DB", radar)
+
+    if got := autopilotLedgerDBPathV61913(); got != radar {
+        t.Fatalf("dedicated ledger=%q want=%q", got, radar)
+    }
+    kept, skipped, err := autopilotFilterLedgerCandidatesV61913(ctx, radar, []string{"8117","8118"})
+    if err != nil { t.Fatal(err) }
+    if !reflect.DeepEqual(kept, []string{"8118"}) || !reflect.DeepEqual(skipped, []string{"8117"}) {
+        t.Fatalf("kept=%v skipped=%v", kept, skipped)
+    }
+    if err := autopilotLedgerWriteV61913(ctx, radar, autopilotLedgerEntryV61913{
+        Seed:"8118", State:"QUALIFIED", Reason:"V623", RequiredFullCycles:1, ValidatedCycles:1,
+    }); err != nil {
+        t.Fatal(err)
+    }
+    legacyRows, err := autopilotLedgerReadV61913(ctx, collector, []string{"8117","8118"})
+    if err != nil { t.Fatal(err) }
+    if len(legacyRows) != 1 || legacyRows[0].Seed != "8117" {
+        t.Fatalf("Collector-owned DB mutated: %#v", legacyRows)
+    }
+    radarRows, err := autopilotLedgerReadV61913(ctx, radar, []string{"8117","8118"})
+    if err != nil { t.Fatal(err) }
+    if len(radarRows) != 1 || radarRows[0].Seed != "8118" {
+        t.Fatalf("Radar ledger=%#v", radarRows)
+    }
+}
+
 ''', encoding='utf-8')
 
 print('RADAR_V61913_PERSISTENT_AUTOPILOT_LEDGER=READY')
+print('RADAR_V623_LEDGER_STORAGE_BOUNDARY=READY')
+print('RADAR_V623_COLLECTOR_DB_WRITES=NO')
+print('RADAR_V623_DEDICATED_LEDGER=/opt/wfgg-radar/data/autopilot-ledger.db')

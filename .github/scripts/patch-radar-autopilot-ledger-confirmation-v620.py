@@ -13,7 +13,7 @@ bt = chr(96)
 if marker not in text:
     text = text.replace(
         'autopilotVersionV6194                    = "v6.19.17"',
-        'autopilotVersionV6194                    = "v6.20.0"',
+        'autopilotVersionV6194                    = "v6.23.0"',
         1,
     )
     field_anchor = '\tVerificationMode        string                          ' + bt + 'json:"verificationMode,omitempty"' + bt + '\n'
@@ -89,7 +89,8 @@ func autopilotLedgerRetryableV620(err error) bool {
     }
     code := strings.ToUpper(strings.TrimSpace(err.Error()))
     return strings.Contains(code, "AUTOPILOT_LEDGER_WRITE_FAILED_V61913") ||
-        strings.Contains(code, "AUTOPILOT_LEDGER_WRITE_TIMEOUT_V61913")
+        strings.Contains(code, "AUTOPILOT_LEDGER_WRITE_TIMEOUT_V61913") ||
+        strings.Contains(code, "AUTOPILOT_LEDGER_LOCKED_V623")
 }
 
 // V6.20 keeps the durable-ledger-before-confirm ordering, but a temporary
@@ -153,6 +154,7 @@ import (
 func TestAutopilotFullAfterPartialPersistsAndConfirmsV620(t *testing.T) {
     db := newLedgerDBV61913(t)
     t.Setenv("WFGG_COLLECTOR_DB", db)
+    t.Setenv("WFGG_RADAR_AUTOPILOT_LEDGER_DB", db)
     id := "v620-full-after-partial"
     radarAutopilotJobsV6194.add(&autopilotJobV6194{
         ID: id, Status: "RUNNING", Phase: "CYCLE_FULL",
@@ -195,6 +197,22 @@ func TestAutopilotLedgerRetryableV620(t *testing.T) {
         t.Fatal("structural ledger errors must remain blocking")
     }
 }
+
+func TestAutopilotLedgerRetryClassificationV623(t *testing.T) {
+    if !autopilotLedgerRetryableV620(errors.New("AUTOPILOT_LEDGER_LOCKED_V623")) {
+        t.Fatal("sqlite lock must be retryable")
+    }
+    for _, code := range []string{
+        "AUTOPILOT_LEDGER_PERMISSION_DENIED_V623",
+        "AUTOPILOT_LEDGER_DISK_FULL_V623",
+        "AUTOPILOT_LEDGER_OPEN_FAILED_V623",
+    } {
+        if autopilotLedgerRetryableV620(errors.New(code)) {
+            t.Fatalf("structural storage failure must block: %s", code)
+        }
+    }
+}
 ''', encoding='utf-8')
 
 print('RADAR_V620_LEDGER_CONFIRMATION_RESILIENCE=READY')
+print('RADAR_V623_AUTOPILOT_VERSION=v6.23.0')
