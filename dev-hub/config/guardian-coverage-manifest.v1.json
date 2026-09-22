@@ -1,0 +1,181 @@
+{
+  "schema": "chacha.dev/guardian-coverage-manifest/v1",
+  "version": "1.0.0",
+  "scope": "PLATFORM_GLOBAL",
+  "heartbeat_max_age_seconds": 180,
+  "action_lease_default_seconds": 300,
+  "expected_components": [
+    {
+      "component_id": "central-orchestrator",
+      "role": "orchestrator",
+      "kind": "orchestrator",
+      "enforcement_point": "autonomous-project-orchestrator.guardian_stage",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/autonomous-project-orchestrator.py",
+        "marker": "guardian_stage("
+      }
+    },
+    {
+      "component_id": "specification-compiler",
+      "role": "specification-compiler",
+      "kind": "component",
+      "enforcement_point": "central-orchestrator-wrapper",
+      "criticality": "BLOCK",
+      "proof": {
+        "file": "dev-hub/bin/autonomous-project-orchestrator.py",
+        "marker": "specification-compiler.py"
+      }
+    },
+    {
+      "component_id": "functional-intent-orchestrator",
+      "role": "orchestrator",
+      "kind": "orchestrator",
+      "enforcement_point": "central-orchestrator-wrapper",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/autonomous-project-orchestrator.py",
+        "marker": "functional-intent-orchestrator.py"
+      }
+    },
+    {
+      "component_id": "project-factory",
+      "role": "project-factory",
+      "kind": "foundry",
+      "enforcement_point": "central-orchestrator-wrapper",
+      "criticality": "BLOCK",
+      "proof": {
+        "file": "dev-hub/bin/autonomous-project-orchestrator.py",
+        "marker": "project-factory.py"
+      }
+    },
+    {
+      "component_id": "agent-foundry",
+      "role": "agent-foundry",
+      "kind": "foundry",
+      "enforcement_point": "central-orchestrator-wrapper",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/autonomous-project-orchestrator.py",
+        "marker": "agent-foundry-planner.py"
+      }
+    },
+    {
+      "component_id": "branch-foundry",
+      "role": "branch-foundry",
+      "kind": "foundry",
+      "enforcement_point": "central-orchestrator-wrapper",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/autonomous-project-orchestrator.py",
+        "marker": "branch-foundry-planner.py"
+      }
+    },
+    {
+      "component_id": "capability-foundry",
+      "role": "capability-foundry",
+      "kind": "foundry",
+      "enforcement_point": "central-orchestrator-wrapper",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/autonomous-project-orchestrator.py",
+        "marker": "capability-foundry.py"
+      }
+    },
+    {
+      "component_id": "architecture-decision-council",
+      "role": "architecture-decision-council",
+      "kind": "orchestrator",
+      "enforcement_point": "central-orchestrator-wrapper",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/autonomous-project-orchestrator.py",
+        "marker": "architecture-decision-council.py"
+      }
+    },
+    {
+      "component_id": "architecture-portfolio-optimizer",
+      "role": "architecture-portfolio-optimizer",
+      "kind": "orchestrator",
+      "enforcement_point": "architecture-decision-council-subprocess",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/architecture-decision-council.py",
+        "marker": "architecture-portfolio-optimizer.py"
+      }
+    },
+    {
+      "component_id": "comparative-pilot",
+      "role": "comparative-pilot",
+      "kind": "orchestrator",
+      "enforcement_point": "central-orchestrator-wrapper",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/autonomous-project-orchestrator.py",
+        "marker": "architecture-comparative-pilot.py"
+      }
+    },
+    {
+      "component_id": "capsule-scheduler",
+      "role": "capsule-scheduler",
+      "kind": "scheduler",
+      "enforcement_point": "central-orchestrator-wrapper",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/autonomous-project-orchestrator.py",
+        "marker": "capsule-scheduler.py"
+      }
+    },
+    {
+      "component_id": "technology-watch",
+      "role": "technology-watch",
+      "kind": "observer",
+      "enforcement_point": "technology_watch_runtime.guardian",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/technology_watch_runtime.py",
+        "marker": "_guardian_observe_consult"
+      }
+    },
+    {
+      "component_id": "run-controller",
+      "role": "orchestrator",
+      "kind": "dispatcher",
+      "enforcement_point": "run-controller.guardian_gate",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/run-controller.py",
+        "marker": "guardian_gate("
+      }
+    },
+    {
+      "component_id": "class:dynamic-agents",
+      "role": "__agent__",
+      "kind": "dynamic-class",
+      "enforcement_point": "run-controller-owner-role",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/run-controller.py",
+        "marker": "owner_role"
+      }
+    },
+    {
+      "component_id": "class:registered-adapters",
+      "role": "adapter",
+      "kind": "dynamic-class",
+      "enforcement_point": "run-controller-adapter-contract",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/run-controller.py",
+        "marker": "ADAPTER_PERMISSION_OUTSIDE_CONTRACT"
+      }
+    }
+  ],
+  "safety_exemptions": [
+    {
+      "component_id": "emergency-control-bridge",
+      "reason": "OUT_OF_BAND_STOP_PATH_MUST_NOT_DEPEND_ON_GUARDIAN_AVAILABILITY"
+    }
+  ],
+  "automatic_external_spend_eur": 0
+}
