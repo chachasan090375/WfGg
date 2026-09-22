@@ -59,7 +59,9 @@ def main():
     existing=db.execute("SELECT digest FROM deltas WHERE delta_id=?",(x["delta_id"],)).fetchone()
     if existing:
         if existing[0]!=d: raise SystemExit("LEARNING_DELTA_ID_COLLISION")
-        print(json.dumps({"status":"DEDUPLICATED","delta_id":x["delta_id"],"digest":d})); return
+        out={"status":"DEDUPLICATED","delta_id":x["delta_id"],"digest":d}
+        if a.nas: out["nas"]=persist_nas(x,d)
+        print(json.dumps(out,indent=2,ensure_ascii=False)); return
     if prev is not None and int(x["sequence"])<=int(prev): raise SystemExit("LEARNING_DELTA_SEQUENCE_NON_MONOTONIC")
     sev=str((x.get("anomaly") or {}).get("severity") or "").lower() or None
     with db:
