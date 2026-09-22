@@ -1,11 +1,12 @@
 {
   "schema": "chacha.dev/architecture-decision-council-policy/v1",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "central_orchestrator_is_final_decider": true,
   "no_single_foundry_may_select_final_architecture": true,
   "mandatory_advisors": [
     "technology-watch-pre",
     "architecture-memory",
+    "architecture-portfolio",
     "reuse-memory",
     "branch-foundry",
     "agent-foundry",
@@ -57,5 +58,12 @@
     "maximum_incident_count": 0,
     "use_as_baseline_candidate_only": true,
     "branch_level_fresher_evidence_can_override": true
+  },
+  "architecture_portfolio": {
+    "optimizer_policy": "architecture-portfolio-optimizer.v1.json",
+    "current_foundry_synthesis_always_compared": true,
+    "fast_reuse_requires_current_foundry_agreement": true,
+    "conflict_action": "COMPARATIVE_PILOT_REQUIRED",
+    "conflict_blocks_production_dispatch": true
   }
 }
