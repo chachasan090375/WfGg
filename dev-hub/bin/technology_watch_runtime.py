@@ -8,6 +8,7 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+import sqlite3
 
 DEFAULT_CONFIG = Path("dev-hub/config/technology-watch-runtime.v1.json")
 ZERO_DEFAULT = {"free", "owned", "local", "included"}
@@ -58,6 +59,53 @@ def _provider_candidate(provider: dict[str, Any], capability: str, cfg: dict[str
         "evidence":"capability-registry",
     }
 
+def _reusable_branch_taxonomy(db_path: Path) -> dict[str, Any]:
+    if not db_path.is_file():
+        return {"branch_count":0,"domains":{}}
+    try:
+        db=sqlite3.connect(db_path)
+        rows=db.execute("""SELECT domain,branch_id,version,qualification_status,state,
+                          technology_revalidated_at,external_spend_eur,quality_score
+                          FROM reusable_branches""").fetchall()
+    except Exception:
+        return {"branch_count":0,"domains":{}}
+    domains={}
+    for domain,branch_id,version,qualification,state,revalidated,cost,quality in rows:
+        domains.setdefault(str(domain),[]).append({
+            "branch_id":branch_id,"version":version,"qualification_status":qualification,
+            "state":state,"technology_revalidated_at":revalidated,
+            "external_spend_eur":cost,"quality_score":quality
+        })
+    return {"branch_count":len(rows),"domains":domains}
+
+
+def _technology_taxonomy(domains: dict[str, Any], capreg: dict[str, Any], candidates: list[dict[str, Any]]) -> dict[str, Any]:
+    out={}
+    domain_specs=domains.get("domains") or {}
+    cap_specs=capreg.get("capabilities") or {}
+    for domain,spec in domain_specs.items():
+        if not isinstance(spec,dict): continue
+        caps=[str(x) for x in spec.get("capabilities") or []]
+        providers=sorted({str(x.get("id")) for x in candidates if isinstance(x,dict) and str(x.get("capability")) in set(caps)})
+        out[str(domain)]={
+            "capabilities":sorted(caps),
+            "known_provider_ids":providers,
+            "orchestrator":spec.get("orchestrator"),
+            "roles":spec.get("roles") or [],
+            "reviews":spec.get("reviews") or []
+        }
+    unowned=[]
+    owned={cap for spec in out.values() for cap in spec.get("capabilities") or []}
+    for cap in cap_specs:
+        if cap not in owned: unowned.append(str(cap))
+    return {
+        "domain_categories":out,
+        "unowned_capabilities":sorted(unowned),
+        "known_domain_count":len(out),
+        "known_capability_count":len(cap_specs)
+    }
+
+
 def build_snapshot(repo_root: Path, *, scope_domain: str|None=None,
                    scope_capabilities: list[str]|None=None,
                    targeted: bool=False) -> dict[str, Any]:
@@ -79,6 +127,9 @@ def build_snapshot(repo_root: Path, *, scope_domain: str|None=None,
     zero=[x for x in eligible if x["zero_external_spend"]]
     selected_pool=zero if zero else eligible
     selected_pool=sorted(selected_pool,key=lambda x:(x["cost_class"],x["id"],x["capability"]))
+    reusable_db=Path(os.environ.get("CHACHA_REUSABLE_BRANCH_DB","/opt/chacha-dev/runtime/knowledge/reusable-branches.db"))
+    taxonomy=_technology_taxonomy(domains,capreg,candidates)
+    reusable_taxonomy=_reusable_branch_taxonomy(reusable_db)
     body={
         "schema":"chacha.dev/technology-watch-snapshot/v1",
         "generated_at":_utcnow(),
@@ -100,6 +151,8 @@ def build_snapshot(repo_root: Path, *, scope_domain: str|None=None,
         "provider_candidates":candidates,
         "eligible_provider_candidates":selected_pool,
         "branch_blueprints":[],
+        "technology_taxonomy":taxonomy,
+        "reusable_branch_taxonomy":reusable_taxonomy,
         "provider_economics_digest":_digest(economics),
     }
     body["snapshot_digest"]=_digest(body)
