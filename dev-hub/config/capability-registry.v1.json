@@ -1379,6 +1379,58 @@
           "fallback": []
         }
       ]
+    },
+    "branch-needs-analysis": {
+      "class": "knowledge",
+      "providers": [
+        {
+          "id": "chacha-dev-architect",
+          "status": "ADOPT",
+          "health": "runtime-check",
+          "cost_class": "local",
+          "scope": "project",
+          "fallback": []
+        }
+      ]
+    },
+    "branch-materialization": {
+      "class": "execution",
+      "providers": [
+        {
+          "id": "chacha-dev-architect",
+          "status": "ADOPT",
+          "health": "runtime-check",
+          "cost_class": "local",
+          "scope": "project",
+          "fallback": []
+        }
+      ]
+    },
+    "runtime-capsule-design": {
+      "class": "knowledge",
+      "providers": [
+        {
+          "id": "chacha-dev-architect",
+          "status": "ADOPT",
+          "health": "runtime-check",
+          "cost_class": "local",
+          "scope": "platform",
+          "fallback": []
+        }
+      ]
+    },
+    "branch-lifecycle": {
+      "class": "execution",
+      "providers": [
+        {
+          "id": "chacha-dev-architect",
+          "status": "ADOPT",
+          "health": "runtime-check",
+          "cost_class": "local",
+          "scope": "platform",
+          "fallback": []
+        }
+      ]
     }
   }
 }
