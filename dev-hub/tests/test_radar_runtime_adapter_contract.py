@@ -314,7 +314,7 @@ class RadarRuntimeAdapterContract(unittest.TestCase):
     def test_messenger_actions_do_not_require_production_window(self):
         source = ADAPTER.read_text(encoding="utf-8")
         install = source[source.index("def do_messenger_pilot_install"):source.index("def do_messenger_pilot_probe")]
-        probe = source[source.index("def do_messenger_pilot_probe"):source.index("def do_status")]
+        probe = source[source.index("def do_messenger_pilot_probe"):source.index("def messenger_production_snapshot")]
         self.assertNotIn("approval_required(", install)
         self.assertNotIn("pilot-open", install)
         self.assertNotIn("systemctl(", install)
