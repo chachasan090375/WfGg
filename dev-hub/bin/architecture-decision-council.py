@@ -38,11 +38,14 @@ def architecture_memory_package(candidate:dict[str,Any],domain:str,caps:list[str
 
 
 def run_architecture_portfolio(root:Path,preplan:Path,branch_topology:Path,agent_topology:Path,
-                               architecture_db:Path,policy_path:Path,output:Path)->dict[str,Any]:
+                               architecture_db:Path,policy_path:Path,output:Path,
+                               comparative_pilot_result:Path|None=None)->dict[str,Any]:
     cmd=[sys.executable,str(root/"dev-hub/bin/architecture-portfolio-optimizer.py"),
          "--repo-root",str(root),"--preplan",str(preplan),"--branch-topology",str(branch_topology),
          "--agent-topology",str(agent_topology),"--architecture-memory-db",str(architecture_db),
          "--policy",str(policy_path),"--output",str(output)]
+    if comparative_pilot_result and comparative_pilot_result.is_file():
+        cmd+=["--comparative-pilot-result",str(comparative_pilot_result)]
     p=subprocess.run(cmd,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=45)
     if p.returncode!=0:
         return {"schema":"chacha.dev/architecture-portfolio-optimizer/v1","decision_ready":False,
@@ -70,6 +73,7 @@ def main():
     ap.add_argument("--policy",type=Path,required=True)
     ap.add_argument("--reuse-db",type=Path,default=Path("/opt/chacha-dev/runtime/knowledge/reusable-branches.db"))
     ap.add_argument("--architecture-memory-db",type=Path,default=Path("/opt/chacha-dev/runtime/knowledge/reusable-architectures.db"))
+    ap.add_argument("--comparative-pilot-result",type=Path)
     ap.add_argument("--output",type=Path,required=True)
     a=ap.parse_args()
     root=a.repo_root.resolve()
@@ -85,8 +89,9 @@ def main():
     portfolio_path=a.output.with_name(a.output.stem+"-portfolio.json")
     portfolio_policy=root/"dev-hub/config/architecture-portfolio-optimizer.v1.json"
     portfolio=run_architecture_portfolio(root,a.preplan,a.branch_topology,a.agent_topology,
-                                         a.architecture_memory_db,portfolio_policy,portfolio_path)
-    if portfolio.get("mode")=="FAST_REUSE":
+                                         a.architecture_memory_db,portfolio_policy,portfolio_path,
+                                         a.comparative_pilot_result)
+    if portfolio.get("mode") in {"FAST_REUSE","COMPARATIVE_PILOT_RESOLVED"} and (portfolio.get("selected") or {}).get("source")=="REUSABLE_COMPLETE_ARCHITECTURE":
         selected=portfolio.get("selected") or {}
         aid=str(selected.get("architecture_id") or "");ver=str(selected.get("version") or "")
         selected_architecture_memory=next((x for x in architecture_memory_ready
@@ -163,7 +168,7 @@ def main():
         if missing: blocked.append({"package_id":pid,"reasons":missing})
     out={
       "schema":"chacha.dev/architecture-decision-council/v1",
-      "version":"6.14.0",
+      "version":"6.15.0",
       "mandatory_advisors":list(MANDATORY),
       "decision_rule":"CENTRAL_ORCHESTRATOR_DECIDES_ONLY_AFTER_ALL_MANDATORY_ADVISORS_AND_FINAL_TECHNOLOGY_REVALIDATION",
       "dynamic_expert_domains":sorted(x for x in experts if x),
@@ -176,7 +181,7 @@ def main():
     }
     a.output.parent.mkdir(parents=True,exist_ok=True)
     a.output.write_text(json.dumps(out,indent=2,ensure_ascii=False)+"\n",encoding="utf-8")
-    print("CHACHA_DEV_V611_ARCHITECTURE_DECISION_COUNCIL=PASS")
+    print("CHACHA_DEV_V615_ARCHITECTURE_DECISION_COUNCIL=PASS")
     print("DISPATCH_ALLOWED="+("YES" if out["dispatch_allowed"] else "NO"))
     print("ADVISORS="+str(len(MANDATORY)))
 if __name__=="__main__":main()
