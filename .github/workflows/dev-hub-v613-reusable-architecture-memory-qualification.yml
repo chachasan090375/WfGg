@@ -1,0 +1,81 @@
+name: ChaCha DEV V6.13 reusable architecture memory qualification
+
+on:
+  push:
+    branches: [dev-hub-v613-reusable-architecture-memory]
+    paths:
+      - 'dev-hub/bin/reusable-architecture-registry.py'
+      - 'dev-hub/bin/reusable-architecture-learning.py'
+      - 'dev-hub/bin/architecture-decision-council.py'
+      - 'dev-hub/bin/autonomous-project-orchestrator.py'
+      - 'dev-hub/bin/acceptance-engine.py'
+      - 'dev-hub/bin/technology_watch_runtime.py'
+      - 'dev-hub/config/architecture-decision-council.v1.json'
+      - 'dev-hub/config/reusable-architecture-memory.v1.json'
+      - 'dev-hub/config/technology-watch-runtime.v1.json'
+      - 'dev-hub/tests/test_v613_reusable_architecture_memory.py'
+      - 'dev-hub/bin/install-v613-reusable-architecture-memory.sh'
+      - '.github/workflows/dev-hub-v613-reusable-architecture-memory-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev-hub-v613-reusable-architecture-memory
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Static validation
+        run: |
+          set -euo pipefail
+          python3 -m py_compile             dev-hub/bin/reusable-architecture-registry.py             dev-hub/bin/reusable-architecture-learning.py             dev-hub/bin/architecture-decision-council.py             dev-hub/bin/autonomous-project-orchestrator.py             dev-hub/bin/acceptance-engine.py             dev-hub/bin/technology_watch_runtime.py
+          python3 -m json.tool dev-hub/config/architecture-decision-council.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/reusable-architecture-memory.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/technology-watch-runtime.v1.json >/dev/null
+          if [ -f dev-hub/bin/install-v613-reusable-architecture-memory.sh ]; then
+            bash -n dev-hub/bin/install-v613-reusable-architecture-memory.sh
+          fi
+          echo CHACHA_DEV_V613_STATIC=PASS
+      - name: Architecture memory and executable council
+        run: |
+          set -euo pipefail
+          python3 dev-hub/tests/test_v613_reusable_architecture_memory.py
+      - name: Architecture memory invariants
+        run: |
+          set -euo pipefail
+          grep -Fq '"architecture-memory"' dev-hub/config/architecture-decision-council.v1.json
+          grep -Fq '"nas_authoritative": true' dev-hub/config/reusable-architecture-memory.v1.json
+          grep -Fq 'reusable_architecture_taxonomy' dev-hub/bin/technology_watch_runtime.py
+          grep -Fq 'REUSE_REVALIDATED_COMPLETE_ARCHITECTURE' dev-hub/bin/architecture-decision-council.py
+          grep -Fq 'architecture_council_applied' dev-hub/bin/autonomous-project-orchestrator.py
+          echo CHACHA_DEV_V613_ARCHITECTURE_MEMORY_ADVISOR=PASS
+          echo CHACHA_DEV_V613_NAS_AUTHORITATIVE=PASS
+          echo CHACHA_DEV_V613_TECHNOLOGY_WATCH_ARCHITECTURE_AWARE=PASS
+      - name: Qualification receipt
+        run: |
+          {
+            echo CHACHA_DEV_REUSABLE_ARCHITECTURE_MEMORY=V6.13
+            echo RESULT=success
+            echo SOURCE_REV="$(git rev-parse HEAD)"
+            echo COMPLETE_ARCHITECTURE_MEMORY=YES
+            echo ACCEPTANCE_AUTO_LEARNING=YES
+            echo NAS_AUTHORITATIVE=YES
+            echo EXACT_FUNCTIONAL_SIGNATURE=YES
+            echo TECHNOLOGY_REVALIDATION_REQUIRED=YES
+            echo CURRENT_FOUNDRIES_MANDATORY=YES
+            echo TECHNOLOGY_WATCH_PRE_FINAL=YES
+            echo COUNCIL_SELECTION_EXECUTABLE=YES
+            echo AUTOMATIC_EXTERNAL_SPEND_EUR=0
+          } | tee /tmp/CHACHA_DEV_V613_RECEIPT.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chacha-dev-v613-reusable-architecture-memory
+          path: /tmp/CHACHA_DEV_V613_RECEIPT.txt
+          retention-days: 30
