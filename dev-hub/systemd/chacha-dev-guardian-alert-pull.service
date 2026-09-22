@@ -1,0 +1,20 @@
+[Unit]
+Description=ChaCha DEV external Guardian alert pull
+Wants=network-online.target
+After=network-online.target
+ConditionPathExists=/opt/chacha-dev/runtime/secrets/central-learning-key.pem
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+ExecStart=/usr/bin/python3 /opt/chacha-dev/platform/current/dev-hub/bin/guardian-alert-poller.py --policy /opt/chacha-dev/platform/current/dev-hub/config/guardian-runtime-policy.v1.json --client /opt/chacha-dev/platform/current/dev-hub/bin/guardian-client.py
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadOnlyPaths=/opt/chacha-dev/runtime/secrets/central-learning-key.pem
+ReadWritePaths=/opt/chacha-dev/runtime/guardian /opt/chacha-dev/runtime/control
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+MemoryMax=128M
+TasksMax=24
