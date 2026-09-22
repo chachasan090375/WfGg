@@ -1,0 +1,133 @@
+name: ChaCha DEV Radar V6.24 Messenger production qualification
+
+on:
+  push:
+    branches: [dev-hub-v5-radar-messenger-v624-production]
+    paths:
+      - 'dev-hub/adapters/radar-runtime-adapter.py'
+      - 'dev-hub/config/adapter-provisioning.v1.json'
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - 'dev-hub/tests/test_radar_runtime_adapter_contract.py'
+      - 'dev-hub/bin/run-radar-v624-messenger-production-via-chacha-dev.sh'
+      - '.github/workflows/dev-hub-radar-v624-messenger-production-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  RADAR_REV: 5e88b3275a0d6f09edec0b9014bdaf693790eaa9
+  EXPECTED_MESSENGER_SHA256: 3cf5d175325a319d601667e50388e8472057bcc152df7a618938daf357a3dfa1
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev-hub-v5-radar-messenger-v624-production
+
+      - name: Validate adapter 1.5.6 contract
+        run: |
+          set -euo pipefail
+          python3 -m py_compile dev-hub/adapters/radar-runtime-adapter.py
+          python3 dev-hub/tests/test_radar_runtime_adapter_contract.py
+          python3 - <<'PY'
+          import json
+          p=json.load(open('dev-hub/config/adapter-provisioning.v1.json',encoding='utf-8'))
+          assert p['adapters']['radar-runtime-adapter']['version']=='1.5.6'
+          r=json.load(open('dev-hub/config/provider-adapters.v1.json',encoding='utf-8'))
+          a=r['adapters']['radar-runtime-adapter']
+          assert a['status']=='ENABLED'
+          assert {'read','workspace-write','production-deploy'}.issubset(a['supports'])
+          print('RADAR_RUNTIME_ADAPTER_VERSION=1.5.6')
+          print('RADAR_V624_MESSENGER_PRODUCTION_ADAPTER_REGISTRY=PASS')
+          PY
+          grep -Fq '"messenger-production-install": "production-deploy"' dev-hub/adapters/radar-runtime-adapter.py
+          grep -Fq '"messenger-production-probe": "read"' dev-hub/adapters/radar-runtime-adapter.py
+          grep -Fq '"messenger-production-rollback": "production-deploy"' dev-hub/adapters/radar-runtime-adapter.py
+          grep -Fq 'RADAR_MESSENGER_PRODUCTION_INSTALL_OK' dev-hub/adapters/radar-runtime-adapter.py
+          grep -Fq 'RADAR_MESSENGER_PRODUCTION_PROBE_OK' dev-hub/adapters/radar-runtime-adapter.py
+          grep -Fq 'RADAR_MESSENGER_PRODUCTION_ROLLBACK_OK' dev-hub/adapters/radar-runtime-adapter.py
+          echo RADAR_V624_MESSENGER_PRODUCTION_ADAPTER=PASS
+
+      - name: Validate production action safety
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          s=Path('dev-hub/adapters/radar-runtime-adapter.py').read_text()
+          install=s[s.index('def do_messenger_production_install'):s.index('def do_messenger_production_probe')]
+          probe=s[s.index('def do_messenger_production_probe'):s.index('def do_messenger_production_rollback')]
+          rollback=s[s.index('def do_messenger_production_rollback'):s.index('def do_status')]
+          assert 'approval_required(request)' in install
+          assert 'approval_required(request)' in rollback
+          assert 'approval_required(request)' not in probe
+          for chunk in (install,probe,rollback):
+              assert 'systemctl(' not in chunk
+              assert 'production_runtime_unchanged' in chunk
+          print('RADAR_V624_MESSENGER_PRODUCTION_ACTION_SAFETY=PASS')
+          PY
+
+      - name: Validate governed production runner
+        run: |
+          set -euo pipefail
+          R=dev-hub/bin/run-radar-v624-messenger-production-via-chacha-dev.sh
+          bash -n "$R"
+          grep -Fq 'RADAR_REV="5e88b3275a0d6f09edec0b9014bdaf693790eaa9"' "$R"
+          grep -Fq 'MESSENGER_SHA="3cf5d175325a319d601667e50388e8472057bcc152df7a618938daf357a3dfa1"' "$R"
+          grep -Fq 'messenger-production-install' "$R"
+          grep -Fq 'messenger-production-probe' "$R"
+          grep -Fq '"permission":"production-deploy"' "$R"
+          grep -Fq 'RADAR_V624_PRODUCTION_RELEASE_APPROVAL_INGESTED=PASS' "$R"
+          grep -Fq 'PRODUCTION_RELEASE_APPROVAL_REVOKED=PASS' "$R"
+          grep -Fq 'RADAR_V624_MESSENGER_ROLLBACK=AVAILABLE_NOT_EXECUTED' "$R"
+          grep -Fq 'J’approuve la promotion production Radar V6.24 Internal Mail Outbox' "$R"
+          echo RADAR_V624_MESSENGER_PRODUCTION_RUNNER=PASS
+
+      - name: Validate pinned Radar production scripts
+        run: |
+          set -euo pipefail
+          BASE="https://raw.githubusercontent.com/chachasan090375/WfGg/$RADAR_REV"
+          mkdir -p /tmp/v624prod
+          for f in             radar-vps/install-v624-messenger-production.sh             radar-vps/probe-v624-messenger-production-runtime.sh             radar-vps/rollback-v624-messenger-production.sh             radar-vps/V624_PRODUCTION_APPROVAL.txt             radar-vps/pilot-v624-messenger/SHA256SUMS             radar-vps/pilot-v624-messenger/wfgg-messenger-outbox
+          do
+            curl -fsSL "$BASE/$f" -o "/tmp/v624prod/$(basename "$f")"
+          done
+          bash -n /tmp/v624prod/install-v624-messenger-production.sh
+          bash -n /tmp/v624prod/probe-v624-messenger-production-runtime.sh
+          bash -n /tmp/v624prod/rollback-v624-messenger-production.sh
+          test "$(sha256sum /tmp/v624prod/wfgg-messenger-outbox | awk '{print $1}')" = "$EXPECTED_MESSENGER_SHA256"
+          grep -Fq 'MESSENGER_MODE=DRY_RUN_ONLY' /tmp/v624prod/V624_PRODUCTION_APPROVAL.txt
+          grep -Fq 'RADAR_LASTWAR_MODE=READ_ONLY' /tmp/v624prod/V624_PRODUCTION_APPROVAL.txt
+          grep -Fq 'LASTWAR_MUTATION=NO' /tmp/v624prod/V624_PRODUCTION_APPROVAL.txt
+          grep -Fq 'RADAR_V624_PRODUCTION_CONNECTOR_TOUCHED=NO' /tmp/v624prod/install-v624-messenger-production.sh
+          grep -Fq 'RADAR_V624_MESSENGER_PRODUCTION_PROBE=PASS' /tmp/v624prod/probe-v624-messenger-production-runtime.sh
+          grep -Fq 'RADAR_V624_MESSENGER_LEDGER_PRESERVED=YES' /tmp/v624prod/rollback-v624-messenger-production.sh
+          echo RADAR_V624_MESSENGER_PINNED_PRODUCTION_ASSETS=PASS
+
+      - name: Qualification receipt
+        run: |
+          {
+            echo WFGG_DEV_HUB_RADAR_MESSENGER_PRODUCTION=V6.24
+            echo RESULT=success
+            echo RADAR_REV="$RADAR_REV"
+            echo EXPECTED_MESSENGER_SHA256="$EXPECTED_MESSENGER_SHA256"
+            echo ADAPTER_VERSION=1.5.6
+            echo INSTALL_PERMISSION=production-deploy
+            echo PROBE_PERMISSION=read
+            echo ROLLBACK_PERMISSION=production-deploy
+            echo HUMAN_APPROVAL_REQUIRED=YES
+            echo APPROVAL_REVOKED_AFTER_WINDOW=YES
+            echo MESSENGER_MODE=DRY_RUN_ONLY
+            echo RADAR_LASTWAR_MODE=READ_ONLY
+            echo MAIL_SEND_EXECUTED=NO
+            echo LASTWAR_MUTATION=NO
+          } | tee /tmp/V624_MESSENGER_PRODUCTION_CHACHA_QUALIFICATION.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dev-hub-radar-v624-messenger-production-qualification
+          path: /tmp/V624_MESSENGER_PRODUCTION_CHACHA_QUALIFICATION.txt
+          retention-days: 30
