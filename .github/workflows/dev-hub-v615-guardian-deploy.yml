@@ -1,0 +1,199 @@
+name: ChaCha DEV V6.15 deploy external Guardian
+
+on:
+  push:
+    branches: [dev-hub-v615-guardian-comparative-pilot]
+    paths:
+      - 'dev-hub/guardian/**'
+      - 'dev-hub/config/guardian-role-contracts.v1.json'
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - 'dev-hub/config/worker-learning-central-identity.v1.json'
+      - '.github/workflows/dev-hub-v615-guardian-deploy.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev-hub-v615-guardian-comparative-pilot
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Static Guardian validation
+        run: |
+          set -euo pipefail
+          node --check dev-hub/guardian/worker.js
+          python3 -m json.tool dev-hub/config/guardian-role-contracts.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/provider-adapters.v1.json >/dev/null
+          echo CHACHA_DEV_V615_GUARDIAN_STATIC=PASS
+
+      - name: Resolve Cloudflare account and Guardian D1
+        id: cf
+        env:
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json,os,urllib.parse,urllib.request,urllib.error,sys
+          token=os.environ.get('CF_API_TOKEN','').strip()
+          if not token: raise SystemExit('MISSING_SECRET=CLOUDFLARE_API_TOKEN')
+          headers={'Authorization':'Bearer '+token,'Content-Type':'application/json'}
+          def call(url,method='GET',body=None):
+              data=None if body is None else json.dumps(body).encode()
+              req=urllib.request.Request(url,headers=headers,method=method,data=data)
+              try:
+                  with urllib.request.urlopen(req,timeout=30) as r:return r.status,json.loads(r.read())
+              except urllib.error.HTTPError as e:
+                  raw=e.read().decode('utf-8','replace')
+                  try:payload=json.loads(raw)
+                  except Exception:payload={'raw':raw[:500]}
+                  return e.code,payload
+          aid=os.environ.get('CF_ACCOUNT_ID','').strip()
+          if not aid:
+              status,payload=call('https://api.cloudflare.com/client/v4/accounts?per_page=50')
+              rows=(payload.get('result') or []) if status==200 else []
+              if len(rows)!=1:
+                  print('CLOUDFLARE_ACCOUNT_RESOLUTION=AMBIGUOUS count='+str(len(rows)))
+                  sys.exit(4)
+              aid=rows[0]['id']
+          name='chacha-dev-guardian'
+          status,payload=call('https://api.cloudflare.com/client/v4/accounts/'+aid+'/d1/database?name='+urllib.parse.quote(name))
+          if status!=200: raise SystemExit('GUARDIAN_D1_LIST_FAILED')
+          rows=payload.get('result') or []
+          db=next((x for x in rows if x.get('name')==name),None)
+          if not db:
+              status,payload=call('https://api.cloudflare.com/client/v4/accounts/'+aid+'/d1/database','POST',{'name':name,'jurisdiction':'eu'})
+              if status not in (200,201): raise SystemExit('GUARDIAN_D1_CREATE_FAILED')
+              db=payload.get('result')
+          status,payload=call('https://api.cloudflare.com/client/v4/accounts/'+aid+'/workers/subdomain')
+          if status!=200 or not (payload.get('result') or {}).get('subdomain'): raise SystemExit('WORKERS_SUBDOMAIN_RESOLUTION_FAILED')
+          subdomain=payload['result']['subdomain']
+          with open(os.environ['GITHUB_OUTPUT'],'a',encoding='utf-8') as f:
+              f.write('account_id='+aid+'\n')
+              f.write('database_id='+db['uuid']+'\n')
+              f.write('workers_subdomain='+subdomain+'\n')
+          print('CHACHA_DEV_V615_GUARDIAN_D1_READY=PASS')
+          PY
+
+      - name: Prepare Wrangler config
+        run: |
+          cat > .wrangler-guardian.jsonc <<EOF
+          {
+            "name": "chacha-dev-guardian",
+            "main": "dev-hub/guardian/worker.js",
+            "compatibility_date": "2026-09-22",
+            "workers_dev": true,
+            "d1_databases": [{
+              "binding": "DB",
+              "database_name": "chacha-dev-guardian",
+              "database_id": "${{ steps.cf.outputs.database_id }}"
+            }]
+          }
+          EOF
+
+      - name: Apply Guardian D1 schema
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ steps.cf.outputs.account_id }}
+        run: |
+          set -euo pipefail
+          npx --yes wrangler@4.45.0 d1 execute chacha-dev-guardian --remote             --file=dev-hub/guardian/migrations/0001.sql --config=.wrangler-guardian.jsonc
+          echo CHACHA_DEV_V615_GUARDIAN_SCHEMA=PASS
+
+      - name: Generate immutable governance contracts seed
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib,json
+          roles=json.load(open('dev-hub/config/guardian-role-contracts.v1.json',encoding='utf-8'))
+          adapters=json.load(open('dev-hub/config/provider-adapters.v1.json',encoding='utf-8'))
+          identity=json.load(open('dev-hub/config/worker-learning-central-identity.v1.json',encoding='utf-8'))
+          q=lambda s:"'"+str(s).replace("'","''")+"'"
+          def j(v):return json.dumps(v,separators=(',',':'),sort_keys=True)
+          lines=[]
+          lines.append(
+            "INSERT INTO guardian_identities(key_id,status,public_key_spki_b64,created_at) VALUES("
+            +q(identity['key_id'])+",'ACTIVE',"+q(identity['public_key_spki_b64'])+",datetime('now')) "
+            "ON CONFLICT(key_id) DO UPDATE SET status='ACTIVE', public_key_spki_b64=excluded.public_key_spki_b64;"
+          )
+          for c in roles['contracts']:
+              raw=j(c);dig=hashlib.sha256(raw.encode()).hexdigest()
+              lines.append(
+                "INSERT INTO role_contracts(contract_id,kind,allowed_actions_json,forbidden_actions_json,allowed_permissions_json,required_evidence_json,unknown_role,source_digest,updated_at) VALUES("
+                +q(c['contract_id'])+","+q(c.get('kind','role'))+","+q(j(c.get('allowed_actions',[])))+","
+                +q(j(c.get('forbidden_actions',[])))+","+q(j(c.get('allowed_permissions',[])))+","
+                +q(j(c.get('required_evidence',[])))+","+str(1 if c.get('unknown_role') else 0)+","+q(dig)+",datetime('now')) "
+                "ON CONFLICT(contract_id) DO UPDATE SET kind=excluded.kind,allowed_actions_json=excluded.allowed_actions_json,"
+                "forbidden_actions_json=excluded.forbidden_actions_json,allowed_permissions_json=excluded.allowed_permissions_json,"
+                "required_evidence_json=excluded.required_evidence_json,unknown_role=excluded.unknown_role,"
+                "source_digest=excluded.source_digest,updated_at=datetime('now');"
+              )
+          for adapter_id,a in (adapters.get('adapters') or {}).items():
+              c={
+                'contract_id':'adapter:'+adapter_id,'kind':'adapter',
+                'allowed_actions':['EXECUTE_ADAPTER'],
+                'forbidden_actions':['FINAL_ARCHITECTURE_DECISION','MODIFY_GUARDIAN_CONTRACTS'],
+                'allowed_permissions':a.get('supports') or [],
+                'required_evidence':[]
+              }
+              raw=j(c);dig=hashlib.sha256(raw.encode()).hexdigest()
+              lines.append(
+                "INSERT INTO role_contracts(contract_id,kind,allowed_actions_json,forbidden_actions_json,allowed_permissions_json,required_evidence_json,unknown_role,source_digest,updated_at) VALUES("
+                +q(c['contract_id'])+","+q(c['kind'])+","+q(j(c['allowed_actions']))+","+q(j(c['forbidden_actions']))+","
+                +q(j(c['allowed_permissions']))+","+q('[]')+",0,"+q(dig)+",datetime('now')) "
+                "ON CONFLICT(contract_id) DO UPDATE SET kind=excluded.kind,allowed_actions_json=excluded.allowed_actions_json,"
+                "forbidden_actions_json=excluded.forbidden_actions_json,allowed_permissions_json=excluded.allowed_permissions_json,"
+                "required_evidence_json=excluded.required_evidence_json,source_digest=excluded.source_digest,updated_at=datetime('now');"
+              )
+          open('.guardian-seed.sql','w',encoding='utf-8').write('\n'.join(lines)+'\n')
+          print('CHACHA_DEV_V615_GUARDIAN_CONTRACT_SEED_GENERATED=PASS')
+          print('ROLE_CONTRACTS='+str(len(roles['contracts'])))
+          print('ADAPTER_CONTRACTS='+str(len(adapters.get('adapters') or {})))
+          PY
+
+      - name: Seed Guardian public identity and contracts
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ steps.cf.outputs.account_id }}
+        run: |
+          set -euo pipefail
+          npx --yes wrangler@4.45.0 d1 execute chacha-dev-guardian --remote             --file=.guardian-seed.sql --config=.wrangler-guardian.jsonc
+          echo CHACHA_DEV_V615_GUARDIAN_CONTRACTS=PASS
+
+      - name: Deploy external Guardian Worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ steps.cf.outputs.account_id }}
+        run: |
+          set -euo pipefail
+          npx --yes wrangler@4.45.0 deploy --config=.wrangler-guardian.jsonc
+          echo CHACHA_DEV_V615_GUARDIAN_DEPLOY=PASS
+
+      - name: Verify external Guardian health
+        env:
+          SUBDOMAIN: ${{ steps.cf.outputs.workers_subdomain }}
+        run: |
+          set -euo pipefail
+          URL="https://chacha-dev-guardian.$SUBDOMAIN.workers.dev"
+          ok=0
+          for i in $(seq 1 30); do
+            if curl -fsS "$URL/healthz" -o /tmp/guardian-health.json &&
+               grep -Fq '"external_governance_plane":true' /tmp/guardian-health.json &&
+               grep -Fq '"runtime_contract_mutation_api":false' /tmp/guardian-health.json; then
+              ok=1; break
+            fi
+            sleep 3
+          done
+          test "$ok" = 1
+          echo "CHACHA_DEV_V615_GUARDIAN_URL=$URL"
+          echo CHACHA_DEV_V615_EXTERNAL_GUARDIAN_HEALTH=PASS
+          echo CHACHA_DEV_V615_GUARDIAN_TUNNEL_REQUIRED=NO
+          echo AUTOMATIC_EXTERNAL_SPEND_EUR=0
