@@ -40,7 +40,8 @@ jobs:
           git merge-base --is-ancestor "$QUALIFIED_SOURCE_REV" HEAD
           bad="$(
             git diff --name-only "$QUALIFIED_SOURCE_REV"..HEAD |
-            grep -Ev '^(.github/workflows/radar-v624-messenger-vps-pilot-build.yml|radar-vps/install-v624-messenger-pilot.sh|radar-vps/probe-v624-messenger-pilot-runtime.sh|radar-vps/pilot-v624-messenger/.*)
+            grep -Ev '^(\.github/workflows/radar-v624-messenger-vps-pilot-build\.yml|radar-vps/install-v624-messenger-pilot\.sh|radar-vps/probe-v624-messenger-pilot-runtime\.sh|radar-vps/pilot-v624-messenger/.*)$' || true
+          )"
           if [ -n "$bad" ]; then
             echo "V624_UNQUALIFIED_SOURCE_CHANGE=$bad"
             exit 1
