@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/guardian-role-contracts/v1",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "scope": "PLATFORM_GLOBAL",
   "principles": {
     "guardian_is_external_to_central_brain": true,
@@ -12,7 +12,9 @@
     "pass_requires_evidence_not_self_assertion": true,
     "guardian_static_policy_cannot_self_mutate_at_runtime": true,
     "dynamic_instance_contracts_may_be_registered_only_under_immutable_template": true,
-    "dynamic_instance_contracts_cannot_escalate_template_privileges": true
+    "dynamic_instance_contracts_cannot_escalate_template_privileges": true,
+    "dynamic_branch_and_orchestrator_contracts_are_versioned": true,
+    "dynamic_component_contracts_cannot_escalate_template_privileges": true
   },
   "sensitive_permissions": [
     "production-deploy",
@@ -365,6 +367,69 @@
     },
     {
       "contract_id": "role:agent-contract-registry",
+      "kind": "role",
+      "allowed_actions": [
+        "INVOKE_COMPONENT",
+        "REPORT_PLAN"
+      ],
+      "forbidden_actions": [
+        "FINAL_ARCHITECTURE_DECISION",
+        "EXECUTE_PROVIDER_DIRECTLY",
+        "MODIFY_GUARDIAN_CONTRACTS"
+      ],
+      "allowed_permissions": [
+        "read",
+        "plan",
+        "workspace-write"
+      ],
+      "required_evidence": []
+    },
+    {
+      "contract_id": "role:__branch__",
+      "kind": "fallback",
+      "allowed_actions": [
+        "INVOKE_COMPONENT",
+        "DISPATCH_TASK",
+        "REPORT_TASK_RESULT"
+      ],
+      "forbidden_actions": [
+        "FINAL_ARCHITECTURE_DECISION",
+        "EXECUTE_PROVIDER_DIRECTLY",
+        "MODIFY_GUARDIAN_CONTRACTS",
+        "PRODUCTION_DEPLOY"
+      ],
+      "allowed_permissions": [
+        "read",
+        "plan",
+        "workspace-write",
+        "preview-deploy"
+      ],
+      "required_evidence": []
+    },
+    {
+      "contract_id": "role:__dynamic-orchestrator__",
+      "kind": "fallback",
+      "allowed_actions": [
+        "INVOKE_COMPONENT",
+        "DISPATCH_TASK",
+        "FINALIZE_PROJECT_PLAN",
+        "REPORT_PLAN"
+      ],
+      "forbidden_actions": [
+        "FINAL_ARCHITECTURE_DECISION",
+        "EXECUTE_PROVIDER_DIRECTLY",
+        "MODIFY_GUARDIAN_CONTRACTS",
+        "PRODUCTION_DEPLOY"
+      ],
+      "allowed_permissions": [
+        "read",
+        "plan",
+        "workspace-write"
+      ],
+      "required_evidence": []
+    },
+    {
+      "contract_id": "role:component-contract-registry",
       "kind": "role",
       "allowed_actions": [
         "INVOKE_COMPONENT",
