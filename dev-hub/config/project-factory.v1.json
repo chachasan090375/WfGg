@@ -31,7 +31,10 @@
     "uncertainty-ledger",
     "recovery-ledger",
     "knowledge-compiler-ledger",
-    "autonomy-audit-ledger"
+    "autonomy-audit-ledger",
+    "branch-foundry-plan",
+    "branch-runtime-manifest",
+    "project-branch-collector"
   ],
   "provision_per_active_domain": [
     "domain-workspace",
@@ -50,7 +53,8 @@
     "agent_foundry": "agent-foundry-orchestrator",
     "capability_foundry": "capability-foundry-orchestrator",
     "recovery": "recovery-orchestrator",
-    "knowledge_compiler": "knowledge-compiler"
+    "knowledge_compiler": "knowledge-compiler",
+    "branch_foundry": "branch-foundry-orchestrator"
   },
   "collectors": {
     "project_collector": {
@@ -71,6 +75,12 @@
       "project_scope": "project-agent-collector:{project_id}",
       "generic_scope": "generic-domain-collector:agent-foundry",
       "created_agent_scope": "agent-collector:{project_id}:{agent_id}"
+    },
+    "branch_foundry": {
+      "project_scope": "project-branch-collector:{project_id}",
+      "branch_scope": "project-domain-collector:{project_id}:{branch_id}",
+      "generic_scope": "generic-domain-collector:{domain}",
+      "runtime_state_authoritative": false
     }
   },
   "delivery": {
@@ -97,5 +107,19 @@
     "before_domain_dispatch": true,
     "replan_after_foundry": true,
     "policy": "dev-hub/config/agent-foundry.v1.json"
+  },
+  "branch_preflight": {
+    "required": true,
+    "parallel_with_agent_foundry": true,
+    "before_domain_dispatch": true,
+    "policy": "dev-hub/config/branch-foundry.v1.json",
+    "lazy_materialization": true,
+    "preserve_collectors_after_teardown": true
+  },
+  "runtime_materialization": {
+    "default": "LAZY_EPHEMERAL",
+    "provision_workspace_only_when_runtime_required": true,
+    "teardown_on_idle": true,
+    "central_memory_persists": true
   }
 }
