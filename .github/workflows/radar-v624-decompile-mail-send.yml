@@ -1,0 +1,169 @@
+name: Radar V6.24 decompile MailSendMessage
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [radar-v624-internal-mail-protocol-discovery]
+    paths:
+      - '.github/workflows/radar-v624-decompile-mail-send.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  decompile:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: radar-v624-internal-mail-protocol-discovery
+
+      - name: Prepare tools
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq default-jdk unzip python3-pip
+          python3 -m pip install --quiet remotezip
+          git clone --quiet https://github.com/HansWessels/unluac.git /tmp/unluac
+          cd /tmp/unluac
+          git checkout --quiet 1b2bfed6045eb719a27f026311744d7a674847f5
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('/tmp/unluac/src/unluac/parse/LHeaderType.java')
+          s=p.read_text()
+          old='''    if(format != 0) {
+      throw new IllegalStateException("The input chunk reports a non-standard lua format: " + format);
+    }'''
+          new='''    if(format != 0 && format != 1) {
+      throw new IllegalStateException("The input chunk reports an unsupported lua format: " + format);
+    }'''
+          if old not in s: raise SystemExit('V624_UNLUAC_FORMAT_ANCHOR_MISSING')
+          s=s.replace(old,new,1)
+          old2='''    parse_size_t_size(buffer, header, s);
+    parse_instruction_size(buffer, header, s);
+    parse_integer_size(buffer, header, s);'''
+          new2='''    parse_size_t_size(buffer, header, s);
+    // Last War custom Lua 5.3 format=1 omits the instruction-size byte.
+    if(s.format != 1) {
+      parse_instruction_size(buffer, header, s);
+    }
+    parse_integer_size(buffer, header, s);'''
+          if old2 not in s: raise SystemExit('V624_UNLUAC_INSTRUCTION_ANCHOR_MISSING')
+          s=s.replace(old2,new2,1)
+          p.write_text(s)
+          PY
+          cd src
+          mkdir -p build
+          javac -d build unluac/*.java
+          jar cfe /tmp/unluac-v624.jar unluac.Main -C build .
+          test -s /tmp/unluac-v624.jar
+          echo V624_UNLUAC_PATCHED=READY
+
+      - name: Range-fetch install_time_pack.apk only
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from remotezip import RemoteZip
+          from pathlib import Path
+          url='https://d.apkpure.net/b/XAPK/com.fun.lastwar.gp?nc=arm64-v8a%2Carmeabi-v7a&sv=23&versionCode=1835'
+          headers={'User-Agent':'Mozilla/5.0'}
+          with RemoteZip(url, headers=headers) as rz:
+              names=rz.namelist()
+              matches=[n for n in names if n.endswith('install_time_pack.apk')]
+              print('V624_XAPK_ENTRIES='+str(len(names)))
+              print('V624_INSTALL_TIME_PACK_MATCHES='+str(matches))
+              if len(matches)!=1:
+                  raise SystemExit('V624_INSTALL_TIME_PACK_NOT_UNIQUE')
+              data=rz.read(matches[0])
+          Path('/tmp/install_time_pack.apk').write_bytes(data)
+          print('V624_INSTALL_TIME_PACK_BYTES='+str(len(data)))
+          PY
+          unzip -tq /tmp/install_time_pack.apk >/dev/null
+          unzip -p /tmp/install_time_pack.apk assets/lwScripts/LWScripts.data > /tmp/LWScripts.data
+          test -s /tmp/LWScripts.data
+          echo "V624_LWSCRIPTS_BYTES=$(stat -c %s /tmp/LWScripts.data)"
+
+      - name: Extract MailSendMessage.luac
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import struct
+          data=Path('/tmp/LWScripts.data').read_bytes()
+          if data[:4] != b'LWLF': raise SystemExit('V624_LWLF_MAGIC_INVALID')
+          _,_,count=struct.unpack_from('<III',data,4)
+          pos=16
+          target='Net/Msgs/Mail/MailSendMessage.luac'
+          def r7(off):
+              value=0; shift=0
+              for _ in range(5):
+                  x=data[off]; off+=1
+                  value |= (x & 0x7f) << shift
+                  if not x & 0x80: return value,off
+                  shift += 7
+              raise ValueError('bad 7bit')
+          found=None
+          for i in range(count):
+              n,pos=r7(pos)
+              name=data[pos:pos+n].decode('utf-8','replace'); pos+=n
+              size=struct.unpack_from('<I',data,pos)[0]; pos+=4
+              chunk=data[pos:pos+size]; pos+=size
+              if name==target:
+                  found=(i,chunk)
+                  break
+          if not found: raise SystemExit('V624_MAIL_SEND_MODULE_NOT_FOUND')
+          i,chunk=found
+          Path('/tmp/MailSendMessage.luac').write_bytes(chunk)
+          print('V624_MAIL_SEND_INDEX='+str(i))
+          print('V624_MAIL_SEND_BYTES='+str(len(chunk)))
+          print('V624_MAIL_SEND_HEADER='+chunk[:24].hex())
+          PY
+
+      - name: Decompile exact MailSendMessage module
+        run: |
+          set -euo pipefail
+          java -jar /tmp/unluac-v624.jar /tmp/MailSendMessage.luac > /tmp/MailSendMessage.lua
+          test -s /tmp/MailSendMessage.lua
+          echo '===== V6.24 MAIL SEND DECOMPILED ====='
+          cat /tmp/MailSendMessage.lua
+          echo V624_DECOMPILE=PASS
+          echo V624_LASTWAR_MUTATION=NO
+          echo V624_GAME_CONNECTION=NONE
+
+      - name: Extract protocol contract
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import re,json
+          s=Path('/tmp/MailSendMessage.lua').read_text(errors='replace')
+          puts=re.findall(r'Put(?:UtfString|Int|Long|Bool|Double|IntArray|UtfStringArray)\([^\n]+',s)
+          oncreate=''
+          m=re.search(r'OnCreate\s*=\s*function\(([^)]*)\)',s)
+          if not m:
+              m=re.search(r'function\s+[^\n]*OnCreate\s*\(([^)]*)\)',s)
+          if m: oncreate=m.group(1)
+          report={
+            'module':'Net/Msgs/Mail/MailSendMessage.luac',
+            'onCreateParameters':oncreate,
+            'putCalls':puts,
+            'lastwarMutation':False,
+            'gameConnection':'NONE'
+          }
+          Path('/tmp/v624-mail-send-contract.json').write_text(json.dumps(report,indent=2)+'\n')
+          print('V624_ONCREATE_PARAMS='+oncreate)
+          for x in puts: print('V624_PUT='+x)
+          PY
+          cat /tmp/v624-mail-send-contract.json
+
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: radar-v624-mail-send-decompiled
+          path: |
+            /tmp/MailSendMessage.lua
+            /tmp/v624-mail-send-contract.json
+          if-no-files-found: warn
+          retention-days: 30
