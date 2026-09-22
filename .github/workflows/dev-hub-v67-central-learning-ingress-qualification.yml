@@ -1,0 +1,67 @@
+name: ChaCha DEV V6.7 central learning ingress qualification
+on:
+  push:
+    branches: [dev-hub-v67-central-learning-ingress]
+    paths:
+      - 'dev-hub/bin/central-learning-ingress.py'
+      - 'dev-hub/bin/install-central-learning-ingress.sh'
+      - 'dev-hub/systemd/chacha-dev-central-learning-ingress.service'
+      - 'dev-hub/config/central-learning-ingress.v1.json'
+      - 'dev-hub/config/learning-ingress-keys.example.json'
+      - 'dev-hub/tests/test_v67_central_learning_ingress.py'
+      - '.github/workflows/dev-hub-v67-central-learning-ingress-qualification.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with: {ref: dev-hub-v67-central-learning-ingress}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - name: Static validation
+        run: |
+          set -euo pipefail
+          python3 -m py_compile dev-hub/bin/central-learning-ingress.py dev-hub/bin/learning-delta-ingest.py
+          bash -n dev-hub/bin/install-central-learning-ingress.sh
+          python3 -m json.tool dev-hub/config/central-learning-ingress.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/learning-ingress-keys.example.json >/dev/null
+          echo CHACHA_DEV_V67_STATIC=PASS
+      - name: Generic platform ingress contract
+        run: |
+          set -euo pipefail
+          python3 dev-hub/tests/test_v67_central_learning_ingress.py
+      - name: Architecture invariants
+        run: |
+          set -euo pipefail
+          grep -Fq '"scope": "PLATFORM_GLOBAL"' dev-hub/config/central-learning-ingress.v1.json
+          grep -Fq '"app_specific": false' dev-hub/config/central-learning-ingress.v1.json
+          grep -Fq '"provider_neutral": true' dev-hub/config/central-learning-ingress.v1.json
+          ! grep -Eiq 'wfgg-radar|last war|train app|rotation' dev-hub/bin/central-learning-ingress.py dev-hub/config/central-learning-ingress.v1.json
+          echo CHACHA_DEV_V67_NOT_APP_CENTRIC=PASS
+      - name: Qualification receipt
+        run: |
+          {
+            echo CHACHA_DEV_CENTRAL_LEARNING_INGRESS=V6.7
+            echo RESULT=success
+            echo SOURCE_REV="$(git rev-parse HEAD)"
+            echo SCOPE=PLATFORM_GLOBAL
+            echo APP_SPECIFIC=NO
+            echo REMOTE_PRODUCERS=YES
+            echo DELTAS_ONLY=YES
+            echo AUTH=PER_DEPLOYMENT_HMAC_SHA256
+            echo NAS_AUTHORITATIVE=YES
+            echo VPS_HOT_INDEX=YES
+            echo ANOMALY_QUEUE=YES
+            echo EDGE=PROVIDER_NEUTRAL_HTTPS_REQUIRED
+            echo DIRECT_PUBLIC_VPS_PORT=NO
+            echo AUTOMATIC_EXTERNAL_SPEND_EUR=0
+          } | tee /tmp/CHACHA_DEV_V67_RECEIPT.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chacha-dev-v67-central-learning-ingress
+          path: /tmp/CHACHA_DEV_V67_RECEIPT.txt
+          retention-days: 30

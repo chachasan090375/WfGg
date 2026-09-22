@@ -1,0 +1,16 @@
+{
+  "schema": "chacha.dev/learning-ingress-keys/v1",
+  "version": "1.0.0",
+  "keys": {
+    "example-deployment": {
+      "status": "ACTIVE",
+      "secret": "REPLACE_AT_RUNTIME_NEVER_COMMIT_REAL_SECRET",
+      "project_ids": [
+        "example-project"
+      ],
+      "deployment_ids": [
+        "production-1"
+      ]
+    }
+  }
+}

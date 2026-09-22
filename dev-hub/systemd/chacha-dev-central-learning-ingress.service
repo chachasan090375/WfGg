@@ -1,0 +1,26 @@
+[Unit]
+Description=ChaCha DEV central learning ingress
+Wants=network-online.target
+After=network-online.target
+ConditionPathExists=/opt/chacha-dev/learning-ingress/current/central-learning-ingress.py
+
+[Service]
+Type=simple
+User=root
+Group=root
+Environment=PYTHONUNBUFFERED=1
+Environment=CHACHA_NAS_ADAPTER=/opt/chacha-dev/adapters/nas-ssh/current/nas-ssh-adapter
+ExecStart=/usr/bin/python3 /opt/chacha-dev/learning-ingress/current/central-learning-ingress.py --bind 127.0.0.1 --port 8791 --key-registry /opt/chacha-dev/runtime/secrets/learning-ingress-keys.json --delta-db /opt/chacha-dev/runtime/knowledge/learning-deltas.db --ingest /opt/chacha-dev/learning-ingress/current/learning-delta-ingest.py --anomaly-queue /opt/chacha-dev/runtime/learning/anomaly-queue --nas
+Restart=always
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/chacha-dev/runtime
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+MemoryMax=192M
+TasksMax=32
+
+[Install]
+WantedBy=multi-user.target

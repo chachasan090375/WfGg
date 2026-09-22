@@ -1,0 +1,60 @@
+{
+  "schema": "chacha.dev/central-learning-ingress/v1",
+  "version": "1.0.0",
+  "scope": "PLATFORM_GLOBAL",
+  "app_specific": false,
+  "principle": "ChaCha DEV is the central learning platform. Applications are independent producers/consumers, never the architectural center.",
+  "core": {
+    "bind": "127.0.0.1",
+    "port": 8791,
+    "public_bind_forbidden": true,
+    "route": "/v1/learning-deltas",
+    "health": "/healthz",
+    "max_body_bytes": 262144
+  },
+  "edge": {
+    "required_for_remote_producers": true,
+    "https_required": true,
+    "provider_neutral": true,
+    "zero_incremental_spend_preferred": true,
+    "candidate_classes": [
+      "existing-reverse-proxy",
+      "cloudflare-tunnel-free",
+      "equivalent-zero-spend-secure-edge"
+    ],
+    "direct_public_vps_port": false
+  },
+  "auth": {
+    "mode": "per-deployment-hmac-sha256",
+    "per_deployment_keys": true,
+    "key_registry_runtime_only": true,
+    "secrets_in_repository": false,
+    "replay_protection": [
+      "delta_id",
+      "source_sequence"
+    ]
+  },
+  "ingestion": {
+    "incremental_deltas_only": true,
+    "nas_authoritative": true,
+    "vps_hot_index": true,
+    "global_project_memory_index": true,
+    "session_independent": true,
+    "producer_classes": [
+      "platform-orchestrator",
+      "platform-foundry",
+      "platform-agent",
+      "embedded-application-agent",
+      "application-learning-module",
+      "runtime-monitor"
+    ]
+  },
+  "remediation": {
+    "high_or_critical_anomalies_queue_candidate": true,
+    "automatic_apply_default": false,
+    "policy_engine_required_before_apply": true
+  },
+  "economics": {
+    "automatic_external_spend_eur": 0
+  }
+}
