@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/guardian-coverage-manifest/v1",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "scope": "PLATFORM_GLOBAL",
   "heartbeat_max_age_seconds": 180,
   "action_lease_default_seconds": 300,
@@ -212,6 +212,28 @@
       "proof": {
         "file": "dev-hub/bin/guardian-remediation-controller.py",
         "marker": "CHACHA_DEV_GUARDIAN_REMEDIATION_PULL=PASS"
+      }
+    },
+    {
+      "component_id": "universal-learning-producer",
+      "role": "universal-learning-producer",
+      "kind": "learning-plane",
+      "enforcement_point": "central-orchestrator+run-controller+technology-watch+remote-producer-contract",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/universal-learning-producer.py",
+        "marker": "chacha.dev/universal-learning-flush/v1"
+      }
+    },
+    {
+      "component_id": "production-anomaly-guardian-bridge",
+      "role": "runtime-monitor",
+      "kind": "feedback-controller",
+      "enforcement_point": "learning-anomaly-queue+external-guardian",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/production-anomaly-guardian-bridge.py",
+        "marker": "CHACHA_DEV_PRODUCTION_ANOMALY_GUARDIAN_BRIDGE=PASS"
       }
     }
   ],
