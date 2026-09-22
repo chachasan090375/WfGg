@@ -54,14 +54,112 @@ jobs:
       - name: Verify no Last War network capability
         run: |
           set -euo pipefail
+          SRC=.radar-release-src/v624-messenger-source
           BIN=radar-vps/pilot-v624-messenger/wfgg-messenger-outbox
-          if grep -aEq 'RADAR_CONNECTOR_SHARED_KEY|LASTWAR_NATIVE_TEMPLATE|/v1/scan/player|/v1/authenticate|net/http|SendExtension' "$BIN"; then
-            echo RADAR_V624_PILOT_NETWORK_CAPABILITY=FOUND
+
+          # Source-level capability check: the dry-run Messenger must not import
+          # networking or contain a Last War transport/emitter.
+          if grep -RFn --include='*.go' -E '"net"|"net/http"|"crypto/tls"|net\.Dial|http\.|tls\.|SendExtension|RADAR_CONNECTOR_SHARED_KEY|LASTWAR_NATIVE_TEMPLATE' "$SRC"; then
+            echo RADAR_V624_PILOT_SOURCE_NETWORK_CAPABILITY=FOUND
+            exit 1
+          fi
+
+          # Dependency graph is authoritative for compiled Go imports; binary
+          # string scans are not, because Go runtime/build metadata may carry
+          # unrelated package names.
+          (
+            cd "$SRC"
+            go list -deps ./cmd/wfgg-messenger-outbox > /tmp/v624-deps.txt
+          )
+          if grep -Eq '^(net|net/http|net/url|crypto/tls)
+      - name: Functional local PILOT
+        run: |
+          set -euo pipefail
+          BIN=radar-vps/pilot-v624-messenger/wfgg-messenger-outbox
+          LEDGER=/tmp/v624-pilot-build.jsonl
+          cat >/tmp/v624-pilot-draft.json <<'JSON'
+          {"targetName":"BuildPilot","targetUid":"6240000000000004","title":"WfGg V6.24","contents":"Dry-run build pilot","sendLocalTime":1700000000,"senderServer":8120,"targetServer":8120}
+          JSON
+          "$BIN" -ledger "$LEDGER" create </tmp/v624-pilot-draft.json >/tmp/v624-create.json
+          ID="$(python3 - <<'PY'
+          import json
+          d=json.load(open('/tmp/v624-create.json'))
+          assert d['record']['state']=='DRAFT'
+          assert d['record']['dryRun']['command']=='mail.send'
+          assert d['record']['dryRun']['mailType']==21
+          assert d['record']['dryRun']['networkEnabled'] is False
+          assert d['record']['dryRun']['mutationExecuted'] is False
+          print(d['record']['id'])
+          PY
+          )"
+          "$BIN" -ledger "$LEDGER" queue "$ID" >/tmp/v624-queue.json
+          "$BIN" -ledger "$LEDGER" history "$ID" >/tmp/v624-history.json
+          python3 - <<'PY'
+          import json
+          q=json.load(open('/tmp/v624-queue.json'))
+          h=json.load(open('/tmp/v624-history.json'))
+          assert q['state']=='QUEUED'
+          assert [x['state'] for x in h]==['DRAFT','QUEUED']
+          print('RADAR_V624_PILOT_LOCAL_DRAFT_QUEUE_HISTORY=PASS')
+          PY
+
+      - name: Write PILOT manifest
+        run: |
+          set -euo pipefail
+          DIR=radar-vps/pilot-v624-messenger
+          SHA="$(sha256sum "$DIR/wfgg-messenger-outbox" | awk '{print $1}')"
+          cat >"$DIR/PILOT_INFO.txt" <<EOF
+          WFGG_RADAR_PILOT=V6.24-MESSENGER-OUTBOX
+          RESULT=qualified
+          SOURCE_REV=$(git rev-parse HEAD)
+          MESSENGER_SHA256=$SHA
+          INSTALL_ROOT=/opt/wfgg-messenger-pilot
+          OUTBOX_LEDGER=/opt/wfgg-messenger-pilot/data/outbox-pilot.jsonl
+          PROTOCOL_COMMAND=mail.send
+          PRIVATE_MAIL_TYPE=21
+          MESSENGER_MODE=DRY_RUN_ONLY
+          OUTBOX_STATES=DRAFT,QUEUED,CANCELLED
+          CROSS_SERVER_PRIVATE_MAIL=BLOCKED_UNPROVEN
+          NETWORK_SEND=NO
+          GAME_CONNECTION=NONE
+          GAME_SCAN_EXECUTED=NO
+          TOKEN_PERSISTENCE=NO
+          LASTWAR_MUTATION=NO
+          PRODUCTION_CONNECTOR_RESTART=NO
+          PRODUCTION_DEPLOYMENT=NO
+          EOF
+          (cd "$DIR" && sha256sum wfgg-messenger-outbox > SHA256SUMS)
+          cat "$DIR/PILOT_INFO.txt"
+          cat "$DIR/SHA256SUMS"
+
+      - name: Publish PILOT bundle to branch
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add radar-vps/pilot-v624-messenger
+          if git diff --cached --quiet; then
+            echo RADAR_V624_PILOT_BUNDLE=UNCHANGED
+            exit 0
+          fi
+          git commit -m 'build(radar): publish V6.24 Messenger isolated PILOT [skip ci]'
+          git push origin HEAD:radar-v624-internal-mail-protocol-discovery
+          echo RADAR_V624_PILOT_BUNDLE=PUBLISHED
+ /tmp/v624-deps.txt; then
+            echo RADAR_V624_PILOT_NETWORK_DEPENDENCY=FOUND
+            cat /tmp/v624-deps.txt
+            exit 1
+          fi
+
+          if grep -aEq 'RADAR_CONNECTOR_SHARED_KEY|LASTWAR_NATIVE_TEMPLATE|/v1/scan/player|/v1/authenticate|SendExtension' "$BIN"; then
+            echo RADAR_V624_PILOT_LASTWAR_CONNECTOR_CAPABILITY=FOUND
             exit 1
           fi
           grep -aFq 'mail.send' "$BIN"
           grep -aFq 'cross-server private mail is not proven' "$BIN"
-          echo RADAR_V624_PILOT_NETWORK_CAPABILITY=ABSENT
+          echo RADAR_V624_PILOT_SOURCE_NETWORK_CAPABILITY=ABSENT
+          echo RADAR_V624_PILOT_NETWORK_DEPENDENCY=ABSENT
+          echo RADAR_V624_PILOT_LASTWAR_CONNECTOR_CAPABILITY=ABSENT
           echo RADAR_V624_PILOT_LASTWAR_MUTATION=NO
 
       - name: Functional local PILOT
