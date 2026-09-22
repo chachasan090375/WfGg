@@ -202,6 +202,17 @@
         "file": "dev-hub/bin/task-contract-binder.py",
         "marker": "CHACHA_DEV_TASK_CONTRACT_BINDING=PASS"
       }
+    },
+    {
+      "component_id": "guardian-remediation-controller",
+      "role": "guardian-remediation-controller",
+      "kind": "controller",
+      "enforcement_point": "guardian-remediation-timer+signed-external-directives",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/guardian-remediation-controller.py",
+        "marker": "CHACHA_DEV_GUARDIAN_REMEDIATION_PULL=PASS"
+      }
     }
   ],
   "safety_exemptions": [
