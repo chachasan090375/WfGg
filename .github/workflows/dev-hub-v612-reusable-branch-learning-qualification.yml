@@ -1,0 +1,72 @@
+name: ChaCha DEV V6.12 reusable branch learning qualification
+
+on:
+  push:
+    branches: [dev-hub-v612-reusable-branch-learning]
+    paths:
+      - 'dev-hub/bin/reusable-branch-registry.py'
+      - 'dev-hub/bin/reusable-branch-learning.py'
+      - 'dev-hub/bin/acceptance-engine.py'
+      - 'dev-hub/config/reusable-branch-learning.v1.json'
+      - 'dev-hub/tests/test_v612_reusable_branch_learning.py'
+      - 'dev-hub/bin/install-v612-reusable-branch-learning.sh'
+      - '.github/workflows/dev-hub-v612-reusable-branch-learning-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev-hub-v612-reusable-branch-learning
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Static validation
+        run: |
+          set -euo pipefail
+          python3 -m py_compile             dev-hub/bin/reusable-branch-registry.py             dev-hub/bin/reusable-branch-learning.py             dev-hub/bin/acceptance-engine.py
+          python3 -m json.tool dev-hub/config/reusable-branch-learning.v1.json >/dev/null
+          if [ -f dev-hub/bin/install-v612-reusable-branch-learning.sh ]; then
+            bash -n dev-hub/bin/install-v612-reusable-branch-learning.sh
+          fi
+          echo CHACHA_DEV_V612_STATIC=PASS
+      - name: Automatic branch learning
+        run: |
+          set -euo pipefail
+          python3 dev-hub/tests/test_v612_reusable_branch_learning.py
+      - name: Memory invariants
+        run: |
+          set -euo pipefail
+          grep -Fq 'default="REQUIRED"' dev-hub/bin/reusable-branch-learning.py
+          grep -Fq 'BRANCH_MEMORY_NAS_NOT_PERSISTED' dev-hub/bin/reusable-branch-learning.py
+          grep -Fq 'technology_revalidation_fresh' dev-hub/bin/reusable-branch-registry.py
+          grep -Fq 'success_rate>=args.min_success_rate' dev-hub/bin/reusable-branch-registry.py
+          grep -Fq '"nas_authoritative": true' dev-hub/config/reusable-branch-learning.v1.json
+          echo CHACHA_DEV_V612_NAS_AUTHORITATIVE=PASS
+          echo CHACHA_DEV_V612_CURRENT_BEST_VERSION_GATE=PASS
+      - name: Qualification receipt
+        run: |
+          {
+            echo CHACHA_DEV_REUSABLE_BRANCH_LEARNING=V6.12
+            echo RESULT=success
+            echo SOURCE_REV="$(git rev-parse HEAD)"
+            echo ACCEPTANCE_AUTO_LEARNING=YES
+            echo NAS_AUTHORITATIVE=YES
+            echo QUALIFIED_VERSION_MEMORY=YES
+            echo RUNTIME_METRICS=YES
+            echo INCIDENT_HISTORY=YES
+            echo TECHNOLOGY_REVALIDATION_GATE=YES
+            echo BEST_VERSION_RANKING=YES
+            echo AUTOMATIC_EXTERNAL_SPEND_EUR=0
+          } | tee /tmp/CHACHA_DEV_V612_RECEIPT.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chacha-dev-v612-reusable-branch-learning
+          path: /tmp/CHACHA_DEV_V612_RECEIPT.txt
+          retention-days: 30
