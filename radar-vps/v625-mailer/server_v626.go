@@ -46,6 +46,7 @@ func NewHTTPHandler(store *Store, sharedKey string) (http.Handler, error) {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /v1/health", s.health)
 	mux.HandleFunc("POST /v1/outbox/queue", s.queue)
+	mux.HandleFunc("POST /v1/outbox/queue-batch", s.queueBatchV627)
 	return mux, nil
 }
 
