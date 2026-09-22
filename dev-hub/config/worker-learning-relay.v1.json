@@ -1,0 +1,30 @@
+{
+  "schema": "chacha.dev/worker-learning-relay/v1",
+  "version": "1.0.0",
+  "scope": "PLATFORM_GLOBAL",
+  "app_specific": false,
+  "topology": {
+    "remote_apps_to_worker": "HTTPS_PUSH",
+    "worker_to_d1": "DURABLE_MAILBOX",
+    "chacha_vps_to_worker": "HTTPS_PULL_OUTBOUND_ONLY",
+    "inbound_vps_port_required": false,
+    "cloudflare_tunnel_required": false
+  },
+  "authentication": {
+    "producer": "ED25519_PER_DEPLOYMENT",
+    "central": "ED25519_CENTRAL_BRAIN",
+    "shared_tunnel_token": false,
+    "private_keys_leave_origin": false
+  },
+  "automation": {
+    "deploy_via_github_actions": true,
+    "existing_secret": "CLOUDFLARE_API_TOKEN",
+    "d1_create_or_reuse": true,
+    "migrations_apply": true,
+    "worker_deploy": true
+  },
+  "economics": {
+    "target_external_spend_eur": 0,
+    "free_tier_guard": true
+  }
+}
