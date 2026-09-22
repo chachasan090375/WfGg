@@ -13,6 +13,8 @@ Supported actions:
 - email-auth-runtime-diagnostic (read)
 - autopilot-progress-diagnostic (read)
 - sentinel-release-diagnostic   (read)
+- messenger-pilot-install       (workspace-write)
+- messenger-pilot-probe         (read)
 - pilot-open                 (production-deploy)
 - pilot-install     (production-deploy)
 - pilot-probe       (read)
@@ -58,7 +60,11 @@ RAW_BASE = "https://raw.githubusercontent.com/chachasan090375/WfGg"
 REV_RE = re.compile(r"^[0-9a-f]{40}$")
 INSTALL_RE = re.compile(r"^radar-vps/install-v[0-9]+-pilot\.sh$")
 PROBE_RE = re.compile(r"^radar-vps/probe-v[0-9]+-pilot-runtime\.sh$")
+MESSENGER_INSTALL_RE = re.compile(r"^radar-vps/install-v[0-9]+-messenger-pilot\.sh$")
+MESSENGER_PROBE_RE = re.compile(r"^radar-vps/probe-v[0-9]+-messenger-pilot-runtime\.sh$")
 HEX64_RE = re.compile(r"^[0-9a-f]{64}$")
+MESSENGER_PILOT_ROOT = Path(os.environ.get("CHACHA_MESSENGER_PILOT_ROOT", "/opt/wfgg-messenger-pilot"))
+MESSENGER_PILOT_BIN = MESSENGER_PILOT_ROOT / "bin" / "wfgg-messenger-outbox"
 ABSOLUTE_MAX_TIMEOUT = 180
 COLLECTOR_DB_DEFAULT = Path("/opt/wfgg-collector/data/collector.db")
 QUALITY_REQUIRED_COLUMNS = {"id", "status", "error", "query"}
@@ -176,6 +182,8 @@ def validate_request(request: dict[str, Any]) -> tuple[dict[str, Any] | None, st
         "email-auth-runtime-diagnostic": "read",
         "autopilot-progress-diagnostic": "read",
         "sentinel-release-diagnostic": "read",
+        "messenger-pilot-install": "workspace-write",
+        "messenger-pilot-probe": "read",
         "pilot-open": "production-deploy",
         "pilot-install": "production-deploy",
         "pilot-probe": "read",
@@ -267,6 +275,196 @@ def validate_pilot_metadata(radar: dict[str, Any], need_probe: bool = False) -> 
     if not HEX64_RE.fullmatch(native_sha):
         raise ValueError("RADAR_EXPECTED_NATIVE_SHA_INVALID")
     return revision, installer, probe, connector_sha, native_sha
+
+
+def messenger_pilot_snapshot() -> dict[str, Any]:
+    return {
+        "root": str(MESSENGER_PILOT_ROOT),
+        "binary": str(MESSENGER_PILOT_BIN),
+        "binary_exists": MESSENGER_PILOT_BIN.is_file(),
+        "binary_sha256": sha256_file(MESSENGER_PILOT_BIN) if MESSENGER_PILOT_BIN.is_file() else None,
+        "network_send": False,
+        "game_connection": "NONE",
+        "lastwar_mutation": False,
+    }
+
+
+def validate_messenger_pilot_metadata(
+    radar: dict[str, Any], need_probe: bool = False
+) -> tuple[str, str, str | None, str]:
+    revision = str(radar.get("revision") or "").strip().lower()
+    installer = str(radar.get("installer") or "").strip()
+    probe = str(radar.get("probe") or "").strip() if need_probe else None
+    messenger_sha = str(radar.get("expected_messenger_sha256") or "").strip().lower()
+    if not REV_RE.fullmatch(revision):
+        raise ValueError("RADAR_MESSENGER_REVISION_INVALID")
+    if not MESSENGER_INSTALL_RE.fullmatch(installer):
+        raise ValueError("RADAR_MESSENGER_INSTALLER_PATH_INVALID")
+    if need_probe and (probe is None or not MESSENGER_PROBE_RE.fullmatch(probe)):
+        raise ValueError("RADAR_MESSENGER_PROBE_PATH_INVALID")
+    if not HEX64_RE.fullmatch(messenger_sha):
+        raise ValueError("RADAR_MESSENGER_EXPECTED_SHA_INVALID")
+    return revision, installer, probe, messenger_sha
+
+
+def production_runtime_unchanged(before: dict[str, Any], after: dict[str, Any]) -> bool:
+    keys = (
+        "radar_service",
+        "radar_sentinel_timer",
+        "radar_sentinel_enabled",
+        "collector_sentinel_timer",
+        "connector_sha256",
+        "native_sha256",
+    )
+    return all(before.get(k) == after.get(k) for k in keys)
+
+
+def do_messenger_pilot_install(request: dict[str, Any], radar: dict[str, Any]) -> int:
+    try:
+        revision, installer, _probe, expected_messenger = validate_messenger_pilot_metadata(radar, False)
+    except ValueError as exc:
+        return blocked(request, str(exc))
+
+    before = status_snapshot()
+    if before.get("radar_service") != "active":
+        return blocked(request, "RADAR_PRODUCTION_SERVICE_NOT_ACTIVE")
+    if before.get("radar_sentinel_timer") != "active" or before.get("radar_sentinel_enabled") != "enabled":
+        return blocked(request, "RADAR_SENTINEL_NOT_ACTIVE")
+    if before.get("collector_sentinel_timer") != "active":
+        return blocked(request, "COLLECTOR_SENTINEL_NOT_ACTIVE")
+
+    timeout = timeout_from(request)
+    with tempfile.TemporaryDirectory(prefix="chacha-radar-messenger-pilot-") as td:
+        script = Path(td) / "installer.sh"
+        try:
+            download_asset(revision, installer, script, min(timeout, 60))
+        except Exception as exc:
+            return emit(result(
+                request,
+                "FAILED",
+                f"RADAR_MESSENGER_INSTALLER_DOWNLOAD_FAILED:{type(exc).__name__}",
+            ))
+        env = os.environ.copy()
+        env["WFGG_RADAR_V624_REV"] = revision
+        proc = run(["/usr/bin/bash", str(script)], timeout=timeout, env=env)
+
+    if proc.returncode != 0:
+        digest = sha256_bytes(proc.stderr[:65536] + proc.stdout[:65536])
+        return emit(result(request, "FAILED", "RADAR_MESSENGER_PILOT_INSTALL_FAILED", [{
+            "kind": "command",
+            "source": "local://radar-messenger-pilot-installer",
+            "digest": digest,
+            "details": {"returncode": proc.returncode},
+        }]))
+
+    after = status_snapshot()
+    if not production_runtime_unchanged(before, after):
+        return emit(result(
+            request,
+            "FAILED",
+            "RADAR_MESSENGER_PILOT_PRODUCTION_RUNTIME_CHANGED",
+            evidence_snapshot("messenger-pilot-before", before)
+            + evidence_snapshot("messenger-pilot-after", after),
+        ))
+
+    messenger = messenger_pilot_snapshot()
+    if messenger.get("binary_sha256") != expected_messenger:
+        raw = json.dumps(messenger, sort_keys=True, separators=(",", ":")).encode("utf-8")
+        return emit(result(request, "FAILED", "RADAR_MESSENGER_PILOT_SHA_MISMATCH", [{
+            "kind": "metric",
+            "source": "vps://localhost/wfgg-messenger-pilot/install",
+            "digest": sha256_bytes(raw),
+            "details": messenger,
+        }]))
+
+    details = {
+        **messenger,
+        "production_connector_touched": False,
+        "production_service_restarted": False,
+        "token_used": False,
+        "mail_send_executed": False,
+    }
+    raw = json.dumps(details, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    return emit(result(request, "OK", "RADAR_MESSENGER_PILOT_INSTALL_OK", [{
+        "kind": "artifact",
+        "source": "vps://localhost/wfgg-messenger-pilot/install",
+        "digest": sha256_bytes(raw),
+        "details": details,
+    }], [{
+        "type": "artifact",
+        "id": "wfgg-messenger-outbox-v624-pilot",
+        "status": "UNVERIFIED",
+        "reason": "Isolated Messenger dry-run binary installed; independent verification required.",
+    }]))
+
+
+def do_messenger_pilot_probe(request: dict[str, Any], radar: dict[str, Any]) -> int:
+    try:
+        revision, _installer, probe, expected_messenger = validate_messenger_pilot_metadata(radar, True)
+    except ValueError as exc:
+        return blocked(request, str(exc))
+
+    before = status_snapshot()
+    messenger = messenger_pilot_snapshot()
+    if messenger.get("binary_sha256") != expected_messenger:
+        return emit(result(request, "FAILED", "RADAR_MESSENGER_PILOT_NOT_LOADED"))
+
+    timeout = timeout_from(request)
+    with tempfile.TemporaryDirectory(prefix="chacha-radar-messenger-probe-") as td:
+        script = Path(td) / "probe.sh"
+        try:
+            assert probe is not None
+            download_asset(revision, probe, script, min(timeout, 60))
+        except Exception as exc:
+            return emit(result(
+                request,
+                "FAILED",
+                f"RADAR_MESSENGER_PROBE_DOWNLOAD_FAILED:{type(exc).__name__}",
+            ))
+        env = os.environ.copy()
+        env["WFGG_V624_MESSENGER_SHA256"] = expected_messenger
+        proc = run(["/usr/bin/bash", str(script)], timeout=timeout, env=env)
+
+    digest = sha256_bytes(proc.stdout[:65536] + proc.stderr[:65536])
+    if proc.returncode != 0 or b"RADAR_V624_MESSENGER_RUNTIME_PROBE=PASS" not in proc.stdout:
+        return emit(result(request, "FAILED", "RADAR_MESSENGER_PILOT_PROBE_FAILED", [{
+            "kind": "command",
+            "source": "local://radar-messenger-pilot-probe",
+            "digest": digest,
+            "details": {"returncode": proc.returncode},
+        }]))
+
+    after = status_snapshot()
+    if not production_runtime_unchanged(before, after):
+        return emit(result(
+            request,
+            "FAILED",
+            "RADAR_MESSENGER_PROBE_PRODUCTION_RUNTIME_CHANGED",
+            evidence_snapshot("messenger-probe-before", before)
+            + evidence_snapshot("messenger-probe-after", after),
+        ))
+
+    return emit(result(request, "OK", "RADAR_MESSENGER_PILOT_PROBE_OK", [{
+        "kind": "command",
+        "source": "local://radar-messenger-pilot-probe",
+        "digest": digest,
+        "details": {
+            "returncode": proc.returncode,
+            "pass_marker": True,
+            "production_connector_touched": False,
+            "production_service_restarted": False,
+            "game_connection": "NONE",
+            "game_scan_executed": False,
+            "token_used": False,
+            "mail_send_executed": False,
+            "lastwar_mutation": False,
+        },
+    }], [{
+        "type": "gate",
+        "id": "radar-messenger-v624-runtime-pilot",
+        "status": "UNVERIFIED",
+        "reason": "Isolated Messenger runtime probe passed; independent verification required.",
+    }]))
 
 
 def do_status(request: dict[str, Any]) -> int:
@@ -1413,6 +1611,10 @@ def main() -> int:
             return do_autopilot_progress_diagnostic(request)
         if action == "sentinel-release-diagnostic":
             return do_sentinel_release_diagnostic(request, radar)
+        if action == "messenger-pilot-install":
+            return do_messenger_pilot_install(request, radar)
+        if action == "messenger-pilot-probe":
+            return do_messenger_pilot_probe(request, radar)
         if action == "pilot-open":
             return do_open(request)
         if action == "pilot-install":
