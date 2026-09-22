@@ -20,6 +20,9 @@ DEFAULT_PRIVATE_KEY=Path("/opt/chacha-dev/runtime/secrets/central-learning-key.p
 DEFAULT_INGEST=Path("/opt/chacha-dev/learning-relay/current/learning-delta-ingest.py")
 DEFAULT_DB=Path("/opt/chacha-dev/runtime/knowledge/learning-deltas.db")
 DEFAULT_ANOMALY_QUEUE=Path("/opt/chacha-dev/runtime/learning/anomaly-queue")
+DEFAULT_EXPERIENCE_DB=Path("/opt/chacha-dev/runtime/knowledge/experience.db")
+DEFAULT_GLOBAL_INDEXER=Path("/opt/chacha-dev/learning-relay/current/global-project-memory-index.py")
+DEFAULT_GLOBAL_INDEX=Path("/opt/chacha-dev/runtime/knowledge/global-project-memory-index.json")
 MAX_RESPONSE=2*1024*1024
 
 def now_iso()->str:
@@ -133,7 +136,18 @@ def queue_anomaly(root:Path,delta:dict[str,Any])->str|None:
     os.replace(tmp,target)
     return str(target)
 
-def run_once(relay_url:str,private_key:Path,ingest:Path,db:Path,anomaly_queue:Path,batch_limit:int)->dict[str,Any]:
+def rebuild_global_index(indexer:Path,experience_db:Path,delta_db:Path,output:Path)->None:
+    if not indexer.is_file():
+        raise RuntimeError("GLOBAL_PROJECT_MEMORY_INDEXER_MISSING")
+    proc=subprocess.run(
+        ["/usr/bin/python3",str(indexer),"--experience-db",str(experience_db),"--delta-db",str(delta_db),"--output",str(output)],
+        stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=45
+    )
+    if proc.returncode!=0 or "CHACHA_DEV_GLOBAL_PROJECT_MEMORY_INDEX=PASS" not in proc.stdout:
+        raise RuntimeError("GLOBAL_PROJECT_MEMORY_INDEX_REBUILD_FAILED:"+(proc.stderr.strip() or proc.stdout.strip())[-700:])
+
+
+def run_once(relay_url:str,private_key:Path,ingest:Path,db:Path,anomaly_queue:Path,batch_limit:int,indexer:Path,experience_db:Path,global_index:Path)->dict[str,Any]:
     if not private_key.is_file():
         raise RuntimeError("CENTRAL_PRIVATE_KEY_MISSING")
     if not ingest.is_file():
@@ -158,7 +172,12 @@ def run_once(relay_url:str,private_key:Path,ingest:Path,db:Path,anomaly_queue:Pa
         if queue_anomaly(anomaly_queue,delta):
             anomalies+=1
         ack_ids.append(str(item["delta_id"]))
+    global_index_updated=False
     if ack_ids:
+        # ACK is deliberately held until durable NAS persistence and the
+        # central cross-project memory index have both been refreshed.
+        rebuild_global_index(indexer,experience_db,db,global_index)
+        global_index_updated=True
         body=json.dumps({"delta_ids":ack_ids},separators=(",",":")).encode()
         ack_url=relay_url.rstrip("/")+"/v1/central/ack"
         ack=http_json(signed_request("POST",ack_url,private_key,key_id,body,"application/json"))
@@ -173,6 +192,7 @@ def run_once(relay_url:str,private_key:Path,ingest:Path,db:Path,anomaly_queue:Pa
         "acked":len(ack_ids),
         "anomaly_candidates":anomalies,
         "nas_required":True,
+        "global_project_memory_index_updated":global_index_updated,
         "relay_url":relay_url
     }
 
@@ -184,6 +204,9 @@ def main()->int:
     ap.add_argument("--db",type=Path,default=DEFAULT_DB)
     ap.add_argument("--anomaly-queue",type=Path,default=DEFAULT_ANOMALY_QUEUE)
     ap.add_argument("--batch-limit",type=int,default=25)
+    ap.add_argument("--experience-db",type=Path,default=DEFAULT_EXPERIENCE_DB)
+    ap.add_argument("--global-indexer",type=Path,default=DEFAULT_GLOBAL_INDEXER)
+    ap.add_argument("--global-index",type=Path,default=DEFAULT_GLOBAL_INDEX)
     ap.add_argument("--print-identity",action="store_true")
     a=ap.parse_args()
     if not a.relay_url.startswith("https://"):
@@ -199,7 +222,7 @@ def main()->int:
             "private_key_exported":False
         },indent=2))
         return 0
-    out=run_once(a.relay_url,a.private_key,a.ingest,a.db,a.anomaly_queue,a.batch_limit)
+    out=run_once(a.relay_url,a.private_key,a.ingest,a.db,a.anomaly_queue,a.batch_limit,a.global_indexer,a.experience_db,a.global_index)
     print(json.dumps(out,indent=2,ensure_ascii=False))
     print("CHACHA_DEV_V69_CENTRAL_PULL=PASS")
     return 0
