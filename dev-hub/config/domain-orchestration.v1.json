@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/domain-orchestration/v1",
-  "version": "6.2.0",
+  "version": "6.3.0",
   "core_orchestrator": "chacha-core-orchestrator",
   "principles": {
     "functional_intent_is_source_of_truth": true,
@@ -547,20 +547,52 @@
     "returns_to_core_orchestrator_after_assembly": true
   },
   "execution_pipeline": [
-    "INTENT_UNDERSTANDING",
+    "SPEC",
+    "CONTEXT",
+    "PROJECT_FACTORY",
     "CORE_PREPLAN",
     "AGENT_FOUNDRY",
+    "CAPABILITY_GAP_ANALYSIS",
+    "CAPABILITY_FOUNDRY_IF_NEEDED",
     "CORE_REPLAN",
-    "DOMAIN_EXECUTION",
+    "AGENT_FOUNDRY_RECHECK_IF_PLAN_CHANGED",
+    "DOMAIN_FACTORIES",
+    "CONTRACT_RECONCILIATION",
     "ASSEMBLY",
+    "DIGITAL_TWIN",
     "ACCEPTANCE",
     "DELIVERY",
-    "KNOWLEDGE_PROMOTION"
+    "OBSERVABILITY",
+    "RECOVERY",
+    "KNOWLEDGE_COMPILER",
+    "KNOWLEDGE_PROMOTION",
+    "AUTONOMY_AUDIT"
   ],
   "preflight": {
     "first_executable_branch": "agent-foundry",
     "policy": "dev-hub/config/agent-foundry.v1.json",
     "domain_dispatch_before_foundry": false,
-    "core_replan_after_foundry": true
+    "core_replan_after_foundry": true,
+    "capability_foundry_policy": "dev-hub/config/capability-foundry.v1.json",
+    "capability_foundry_before_domain_dispatch": true,
+    "agent_foundry_rerun_after_capability_creation": true
+  },
+  "factories": {
+    "policy": "dev-hub/config/domain-factories.v1.json",
+    "every_domain_is_component_factory": true,
+    "component_registry_per_project": true,
+    "reusable_components_promote_to_platform_catalog": true
+  },
+  "integration": {
+    "contract_registry": "dev-hub/config/contract-registry.v1.json",
+    "digital_twin": "dev-hub/config/digital-twin.v1.json",
+    "acceptance_engine": "dev-hub/config/acceptance-engine.v1.json"
+  },
+  "learning": {
+    "knowledge_lifecycle": "dev-hub/config/knowledge-lifecycle.v1.json",
+    "competition_arena": "dev-hub/config/competition-arena.v1.json",
+    "uncertainty_policy": "dev-hub/config/uncertainty-policy.v1.json",
+    "recovery_orchestrator": "dev-hub/config/recovery-orchestrator.v1.json",
+    "autonomy_definition": "dev-hub/config/autonomy-definition.v1.json"
   }
 }
