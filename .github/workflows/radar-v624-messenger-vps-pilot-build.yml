@@ -1,0 +1,143 @@
+name: Radar V6.24 isolated Messenger VPS pilot build
+
+on:
+  push:
+    branches: [radar-v624-internal-mail-protocol-discovery]
+    paths:
+      - '.radar-release-src/v624-messenger-source/**'
+      - 'radar-vps/install-v624-messenger-pilot.sh'
+      - 'radar-vps/probe-v624-messenger-pilot-runtime.sh'
+      - 'radar-vps/pilot-v624-messenger/**'
+      - '.github/workflows/radar-v624-messenger-vps-pilot-build.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  QUALIFIED_SOURCE_REV: ae3857c3a47c0e465fe727e5de37b526505256af
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: radar-v624-internal-mail-protocol-discovery
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.27.x'
+
+      - name: Validate qualified ancestry and PILOT isolation
+        run: |
+          set -euo pipefail
+          git merge-base --is-ancestor "$QUALIFIED_SOURCE_REV" HEAD
+          bash -n radar-vps/install-v624-messenger-pilot.sh
+          bash -n radar-vps/probe-v624-messenger-pilot-runtime.sh
+          grep -Fq 'ROOT="/opt/wfgg-messenger-pilot"' radar-vps/install-v624-messenger-pilot.sh
+          grep -Fq 'PRODUCTION_CONNECTOR_RESTART=NO' radar-vps/install-v624-messenger-pilot.sh
+          if grep -Eq 'systemctl (restart|stop|start).*wfgg-radar-connector|/opt/wfgg-radar/bin/radar-connector' radar-vps/install-v624-messenger-pilot.sh; then
+            echo V624_PRODUCTION_CONNECTOR_TOUCH=FOUND
+            exit 1
+          fi
+          echo V624_PILOT_ISOLATION=PASS
+
+      - name: Test and rebuild Messenger
+        working-directory: .radar-release-src/v624-messenger-source
+        run: |
+          set -euo pipefail
+          go test ./... -count=1 -v | tee /tmp/v624-pilot-tests.log
+          go vet ./...
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w' -o /tmp/wfgg-messenger-outbox ./cmd/wfgg-messenger-outbox
+          test -x /tmp/wfgg-messenger-outbox
+          echo V624_MESSENGER_REBUILD=PASS
+
+      - name: Verify published artifact contract
+        run: |
+          set -euo pipefail
+          D=radar-vps/pilot-v624-messenger
+          test -s "$D/wfgg-messenger-outbox"
+          (cd "$D" && sha256sum -c SHA256SUMS)
+          grep -Fq 'WFGG_RADAR_PILOT=V6.24-MESSENGER-OUTBOX' "$D/PILOT_INFO.txt"
+          grep -Fq 'QUALIFIED_SOURCE_REV=ae3857c3a47c0e465fe727e5de37b526505256af' "$D/PILOT_INFO.txt"
+          grep -Fq 'MESSENGER_MODE=DRY_RUN_ONLY' "$D/PILOT_INFO.txt"
+          grep -Fq 'NETWORK_SEND=NO' "$D/PILOT_INFO.txt"
+          grep -Fq 'LASTWAR_MUTATION=NO' "$D/PILOT_INFO.txt"
+          grep -Fq 'PRODUCTION_CONNECTOR_RESTART=NO' "$D/PILOT_INFO.txt"
+          echo V624_PUBLISHED_PILOT_ARTIFACT=PASS
+
+      - name: Verify no network-capable source
+        run: |
+          set -euo pipefail
+          SRC=.radar-release-src/v624-messenger-source
+          if grep -RFn --include='*.go' -E '"net"|"net/http"|"crypto/tls"|net\.Dial|http\.|tls\.|SendExtension|RADAR_CONNECTOR_SHARED_KEY|LASTWAR_NATIVE_TEMPLATE' "$SRC"; then
+            echo V624_NETWORK_CAPABILITY=FOUND
+            exit 1
+          fi
+          (
+            cd "$SRC"
+            go list -deps ./cmd/wfgg-messenger-outbox > /tmp/v624-deps.txt
+          )
+          if grep -Eq '^(net/http|crypto/tls)$' /tmp/v624-deps.txt; then
+            echo V624_NETWORK_DEPENDENCY=FOUND
+            exit 1
+          fi
+          echo V624_NETWORK_CAPABILITY=ABSENT
+          echo V624_LASTWAR_MUTATION=NO
+
+      - name: Functional local PILOT
+        run: |
+          set -euo pipefail
+          BIN=/tmp/wfgg-messenger-outbox
+          LEDGER=/tmp/v624-pilot.jsonl
+          cat >/tmp/v624-draft.json <<'JSON'
+          {"targetName":"V624Pilot","targetUid":"6240000000000010","title":"Pilot","contents":"Dry-run only","sendLocalTime":1700000000,"senderServer":8120,"targetServer":8120}
+          JSON
+          "$BIN" -ledger "$LEDGER" create </tmp/v624-draft.json >/tmp/v624-create.json
+          ID="$(python3 -c "import json; print(json.load(open('/tmp/v624-create.json'))['record']['id'])")"
+          "$BIN" -ledger "$LEDGER" queue "$ID" >/tmp/v624-queue.json
+          "$BIN" -ledger "$LEDGER" history "$ID" >/tmp/v624-history.json
+          python3 - <<'PY'
+          import json
+          c=json.load(open('/tmp/v624-create.json'))
+          q=json.load(open('/tmp/v624-queue.json'))
+          h=json.load(open('/tmp/v624-history.json'))
+          assert c['record']['state']=='DRAFT'
+          assert c['record']['dryRun']['command']=='mail.send'
+          assert c['record']['dryRun']['mailType']==21
+          assert c['record']['dryRun']['networkEnabled'] is False
+          assert c['record']['dryRun']['mutationExecuted'] is False
+          assert q['state']=='QUEUED'
+          assert [x['state'] for x in h]==['DRAFT','QUEUED']
+          print('V624_DRAFT_QUEUE_HISTORY=PASS')
+          PY
+          cat >/tmp/v624-cross.json <<'JSON'
+          {"targetName":"Cross","targetUid":"6240000000000011","title":"X","contents":"X","sendLocalTime":1700000000,"senderServer":8120,"targetServer":8131}
+          JSON
+          if "$BIN" -ledger "$LEDGER" create </tmp/v624-cross.json >/tmp/cross.out 2>/tmp/cross.err; then
+            echo V624_CROSS_SERVER_GUARD=FAIL
+            exit 1
+          fi
+          grep -Fq 'cross-server private mail is not proven' /tmp/cross.err
+          echo V624_CROSS_SERVER_GUARD=PASS
+          echo V624_GAME_CONNECTION=NONE
+          echo V624_GAME_SCAN_EXECUTED=NO
+          echo V624_MAIL_SEND_EXECUTED=NO
+          echo V624_PRODUCTION_DEPLOYMENT=NO
+
+      - name: Upload PILOT evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: radar-v624-messenger-vps-pilot-validation
+          path: |
+            radar-vps/pilot-v624-messenger/PILOT_INFO.txt
+            radar-vps/pilot-v624-messenger/SHA256SUMS
+            /tmp/v624-pilot-tests.log
+            /tmp/v624-create.json
+            /tmp/v624-queue.json
+            /tmp/v624-history.json
+          if-no-files-found: error
+          retention-days: 30

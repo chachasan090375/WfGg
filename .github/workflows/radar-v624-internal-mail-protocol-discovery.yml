@@ -1,0 +1,101 @@
+name: Radar V6.24 internal mail protocol discovery
+
+on:
+  push:
+    branches: [radar-v624-internal-mail-protocol-discovery]
+    paths:
+      - '.github/scripts/probe-lastwar-internal-mail-v624.py'
+      - '.github/workflows/radar-v624-internal-mail-protocol-discovery.yml'
+      - 'docs/RADAR_INTERNAL_MAIL_PROTOCOL_DISCOVERY_V624.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  LASTWAR_CLIENT_REF: ee5f64de160a8051c2f9f98189b75038dd225a0a
+
+jobs:
+  discover:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: radar-v624-internal-mail-protocol-discovery
+          fetch-depth: 0
+
+      - name: Fetch exact pinned Last War reference
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/lastwar-client
+          git clone --quiet --filter=blob:none --no-checkout https://github.com/ljagiello/lastwar-client.git /tmp/lastwar-client
+          cd /tmp/lastwar-client
+          git fetch --quiet --depth 1 origin "$LASTWAR_CLIENT_REF"
+          git checkout --quiet --detach FETCH_HEAD
+          test "$(git rev-parse HEAD)" = "$LASTWAR_CLIENT_REF"
+          echo V624_PINNED_LASTWAR_REF=PASS
+
+      - name: Run static-only mail protocol discovery
+        env:
+          LASTWAR_CLIENT_ROOT: /tmp/lastwar-client
+          V624_REPORT: /tmp/v624-mail-protocol.json
+        run: |
+          set -euo pipefail
+          python3 .github/scripts/probe-lastwar-internal-mail-v624.py | tee /tmp/v624-discovery.log
+          grep -Fq 'DISCOVERY_MODE=STATIC_ONLY' /tmp/v624-discovery.log
+          grep -Fq 'LASTWAR_MUTATION=NO' /tmp/v624-discovery.log
+          grep -Fq 'GAME_SCAN_EXECUTED=NO' /tmp/v624-discovery.log
+          grep -Fq 'MAIL_SEND_COMMAND=mail.send' /tmp/v624-discovery.log
+          grep -Fq 'MAIL_SEND_TRANSPORT=SFS' /tmp/v624-discovery.log
+          grep -Fq 'MAIL_SEND_SCOPE=1_TO_1_OR_ALLIANCE_WIDE' /tmp/v624-discovery.log
+
+      - name: Prove Radar runtime still has no mail.send emitter
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/wfgg-radar
+          mkdir -p /tmp/wfgg-radar
+          python3 .github/scripts/reconstruct-radar-release.py
+          tar -xzf /tmp/radar-src.tar.gz -C /tmp/wfgg-radar
+          if grep -RFn --include='*.go' --include='*.js' --include='*.html' 'mail.send'             /tmp/wfgg-radar/connector-go /tmp/wfgg-radar/src /tmp/wfgg-radar/public 2>/tmp/v624-grep.err; then
+            echo V624_RUNTIME_MAIL_SEND_EMITTER=FOUND
+            exit 1
+          fi
+          echo V624_RUNTIME_MAIL_SEND_EMITTER=ABSENT
+          echo V624_RADAR_LASTWAR_MODE=READ_ONLY
+
+      - name: Write discovery receipt
+        run: |
+          set -euo pipefail
+          schema="$(python3 - <<'PY'
+          import json
+          print(json.load(open('/tmp/v624-mail-protocol.json'))['schemaStatus'])
+          PY
+          )"
+          cat > /tmp/V624_DISCOVERY_RECEIPT.txt <<EOF
+          WFGG_RADAR_DISCOVERY=V6.24
+          RESULT=success
+          LASTWAR_CLIENT_REF=$LASTWAR_CLIENT_REF
+          MAIL_SEND_COMMAND=mail.send
+          MAIL_SEND_TRANSPORT=SFS
+          MAIL_SEND_SCOPE=1_TO_1_OR_ALLIANCE_WIDE
+          MAIL_SEND_SCHEMA_STATUS=$schema
+          DISCOVERY_MODE=STATIC_ONLY
+          LASTWAR_MUTATION=NO
+          GAME_SCAN_EXECUTED=NO
+          RADAR_RUNTIME_MAIL_SEND_EMITTER=ABSENT
+          RADAR_LASTWAR_MODE=READ_ONLY
+          PRODUCTION_DEPLOYMENT=NO
+          EOF
+          cat /tmp/V624_DISCOVERY_RECEIPT.txt
+
+      - name: Upload discovery evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: radar-v624-internal-mail-discovery
+          path: |
+            /tmp/V624_DISCOVERY_RECEIPT.txt
+            /tmp/v624-mail-protocol.json
+            /tmp/v624-discovery.log
+          if-no-files-found: error
+          retention-days: 30

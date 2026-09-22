@@ -22,11 +22,12 @@ env:
   RADAR_WORKER: wfgg-radar
   RADAR_D1_NAME: wfgg-radar
   RADAR_CONNECTOR_URL: https://chachavps.tail3ab05a.ts.net
-  EXPECTED_CONNECTOR_SHA256: 232fcbd1037da45d1c460eef20e7627aac7c90425f04ab0e58d47b74fb56249b
+  EXPECTED_CONNECTOR_SHA256: f73480ea9165d6fd8ab849c249f7b250eb6872d3c0871a9d157484241f02cd3e
   EXPECTED_NATIVE_SHA256: 274d040f5294cb09422e5d55cc4b5335ac7739924c33dcb67b3f279645814900
-  EXPECTED_WORKER_SHA256: b4434c02abf740ea224c5ea60aebebfb0baa11ac7f02fffd68838970ba50d27d
-  EXPECTED_TRANSPORT_SHA256: c194a13d35ed436278fb11221c73249f89fa9cb9b979122103b9ba20f73e2b5c
-  EXPECTED_UI_SHA256: 0e7a226a7dc4c82ef83128d87d4f0458f9054dfe72dd55d574d61b3bb619145e
+  EXPECTED_MESSENGER_SHA256: 3cf5d175325a319d601667e50388e8472057bcc152df7a618938daf357a3dfa1
+  EXPECTED_WORKER_SHA256: bbb19b9dc994c9a3d8ead3608361ed5a2699503e650652fe97bf3a5ab4345a22
+  EXPECTED_TRANSPORT_SHA256: 4a5799a39dc6f1a8cbf0dc33a304c6f8c00fd6b77d8c6408400c70af232b5151
+  EXPECTED_UI_SHA256: 8c119102db6b0f06e9bcb58aa843b8efcf7fa5bbc26639192a80afc958b78c6f
 
 jobs:
   deploy:
@@ -109,6 +110,13 @@ jobs:
           python3 .github/scripts/patch-radar-recruitment-filter-normalization-v621.py
           python3 .github/scripts/patch-radar-recruitment-ux-ui-worker-v621.py
           python3 .github/scripts/patch-radar-live-profile-resolution-v622.py
+          python3 .github/scripts/patch-radar-messenger-outbox-connector-v624.py
+          python3 .github/scripts/patch-radar-messenger-outbox-worker-v624.py
+          python3 .github/scripts/patch-live-radar-messenger-outbox-v624.py
+          grep -Fq 'WFGG_RADAR_MESSENGER_OUTBOX_WORKER_V624' /tmp/wfgg-radar/src/worker.js
+          grep -Fq 'WFGG_RADAR_MESSENGER_OUTBOX_UI_V624' /tmp/wfgg-radar/public/live-radar.html
+          grep -Fq '/v1/messenger/outbox/create' /tmp/wfgg-radar/connector-go/cmd/radar-connector/main.go
+          echo RADAR_V624_PRODUCTION_RECONSTRUCT=PASS
           grep -Fq 'WFGG_RADAR_AUTOPILOT_LEDGER_STORAGE_BOUNDARY_V623' /tmp/wfgg-radar/connector-go/cmd/radar-connector/autopilot_persistent_ledger_v61913.go
           grep -Fq '/opt/wfgg-radar/data/autopilot-ledger.db' /tmp/wfgg-radar/connector-go/cmd/radar-connector/autopilot_persistent_ledger_v61913.go
           echo RADAR_V623_PRODUCTION_RECONSTRUCT=PASS
@@ -122,6 +130,14 @@ jobs:
           test "$worker" = "$EXPECTED_WORKER_SHA256"
           test "$transport" = "$EXPECTED_TRANSPORT_SHA256"
           test "$ui" = "$EXPECTED_UI_SHA256"
+          grep -Fq 'WFGG_RADAR_MESSENGER_OUTBOX_WORKER_V624' /tmp/wfgg-radar/src/worker.js
+          grep -Fq '/api/radar/messenger/outbox' /tmp/wfgg-radar/src/worker.js
+          grep -Fq 'tokenUsed: false' /tmp/wfgg-radar/src/worker.js
+          grep -Fq 'networkSend: false' /tmp/wfgg-radar/src/worker.js
+          grep -Fq 'WFGG_RADAR_MESSENGER_OUTBOX_UI_V624' /tmp/wfgg-radar/public/live-radar.html
+          grep -Fq 'id="messagePlayer"' /tmp/wfgg-radar/public/live-radar.html
+          grep -Fq 'METTRE EN FILE' /tmp/wfgg-radar/public/live-radar.html
+          ! grep -Fq '>ENVOYER<' /tmp/wfgg-radar/public/live-radar.html
           grep -Fq '/api/radar/seed-scout/start' /tmp/wfgg-radar/src/worker.js
           grep -Fq '/api/radar/autopilot/start' /tmp/wfgg-radar/src/worker.js
           grep -Fq '/api/radar/autopilot/status' /tmp/wfgg-radar/src/worker.js
@@ -190,7 +206,25 @@ jobs:
           grep -Fq 'coverageMode:true' /tmp/wfgg-radar/public/live-radar.html
           grep -Fq 'COUVERTURE TERMINÉE' /tmp/wfgg-radar/public/live-radar.html
           grep -Fq 'AUTOPILOT V6.20.0 · ARRÊTÉ' /tmp/wfgg-radar/public/live-radar.html
-          echo RADAR_V623_CLOUDFLARE_DIGESTS=PASS
+          echo RADAR_V624_CLOUDFLARE_DIGESTS=PASS
+
+      - name: Verify V6.24 Guardian release artifacts
+        run: |
+          set -euo pipefail
+          D=radar-vps/release
+          test -s "$D/SHA256SUMS"
+          test -x "$D/radar-connector"
+          test -x "$D/radar-native-template"
+          test -x "$D/wfgg-messenger-outbox"
+          (cd "$D" && sha256sum -c SHA256SUMS)
+          test "$(sha256sum "$D/radar-connector" | awk '{print $1}')" = "$EXPECTED_CONNECTOR_SHA256"
+          test "$(sha256sum "$D/radar-native-template" | awk '{print $1}')" = "$EXPECTED_NATIVE_SHA256"
+          test "$(sha256sum "$D/wfgg-messenger-outbox" | awk '{print $1}')" = "$EXPECTED_MESSENGER_SHA256"
+          grep -aFq '/v1/messenger/outbox/create' "$D/radar-connector"
+          grep -aFq 'v6.24.0-dry-run' "$D/radar-connector"
+          grep -aFq 'mail.send' "$D/wfgg-messenger-outbox"
+          grep -aFq 'cross-server private mail is not proven' "$D/wfgg-messenger-outbox"
+          echo RADAR_V624_GUARDIAN_RELEASE=PASS
 
       - name: Guardian pre-deploy gate
         working-directory: /tmp/wfgg-radar
@@ -203,7 +237,10 @@ jobs:
           go vet ./...
           cd ..
           ! grep -REq 'building\.production\.collect|mail\.reward|al\.science\.donate|visitor\.operate' connector-go src || false
-          echo RADAR_V623_GUARDIAN=PASS
+          ! grep -REq 'mail\.send' connector-go src
+          grep -Fq 'lastwarMutation: false' src/worker.js
+          grep -Fq 'networkSend: false' src/worker.js
+          echo RADAR_V624_GUARDIAN=PASS
 
       - name: Wait for Sentinel reconciliation and connector availability
         env:
@@ -241,6 +278,34 @@ jobs:
                   raise SystemExit(0)
               time.sleep(5)
           raise SystemExit('RADAR_V623_CONNECTOR_SURFACE_TIMEOUT')
+          PY
+
+          python3 - <<'PY'
+          import hashlib,hmac,json,os,secrets,time,urllib.request,urllib.error
+          base=os.environ['RADAR_CONNECTOR_URL'].rstrip('/')
+          secret=os.environ['RADAR_CONNECTOR_SHARED_KEY']
+          path='/v1/messenger/outbox/list'
+          body=b''
+          for attempt in range(1,25):
+              ts=str(int(time.time())); nonce=secrets.token_hex(16)
+              canonical='\n'.join(['GET',path,ts,nonce,hashlib.sha256(body).hexdigest()])
+              sig=hmac.new(secret.encode(),canonical.encode(),hashlib.sha256).hexdigest()
+              req=urllib.request.Request(base+path,method='GET',headers={
+                  'X-Radar-Timestamp':ts,'X-Radar-Nonce':nonce,'X-Radar-Signature':sig,
+              })
+              try:
+                  with urllib.request.urlopen(req,timeout=15) as r:
+                      status=r.status; data=json.load(r)
+              except urllib.error.HTTPError as e:
+                  status=e.code
+                  try: data=json.loads(e.read().decode())
+                  except Exception: data={}
+              print(f'RADAR_V624_MESSENGER_WAIT={attempt} HTTP={status} ERROR={data.get("error")}')
+              if status==200 and data.get('ok') is True and data.get('mode')=='DRY_RUN_ONLY' and data.get('lastwarMutation') is False and data.get('networkSend') is False:
+                  print('RADAR_V624_MESSENGER_SIGNED_SURFACE=READY')
+                  raise SystemExit(0)
+              time.sleep(5)
+          raise SystemExit('RADAR_V624_MESSENGER_SURFACE_TIMEOUT')
           PY
       - name: Resolve Cloudflare deployment context
         id: cf
@@ -430,6 +495,11 @@ jobs:
           grep -Fq 'AUTOPILOT V6.20.0 · ARRÊTÉ' /tmp/live-radar.html
           grep -Fq 'COUVERTURE TERMINÉE' /tmp/live-radar.html
           grep -Fq 'AUTOPILOT V6.20.0 · ARRÊTÉ' /tmp/live-radar.html
+          grep -Fq 'WFGG_RADAR_MESSENGER_OUTBOX_UI_V624' /tmp/live-radar.html
+          grep -Fq 'id="messagePlayer"' /tmp/live-radar.html
+          grep -Fq 'METTRE EN FILE' /tmp/live-radar.html
+          grep -Fq 'DRY-RUN V6.24' /tmp/live-radar.html
+          ! grep -Fq '>ENVOYER<' /tmp/live-radar.html
           echo "RADAR_PRODUCTION_URL=$RADAR_URL"
           echo "RADAR_LIVE_UI_URL=$RADAR_URL/live-radar.html"
-          echo RADAR_V623_CLOUDFLARE_PRODUCTION=PASS
+          echo RADAR_V624_CLOUDFLARE_PRODUCTION=PASS

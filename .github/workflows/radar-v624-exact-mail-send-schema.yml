@@ -1,0 +1,187 @@
+name: Radar V6.24 exact mail.send schema
+
+on:
+  push:
+    branches: [radar-v624-internal-mail-protocol-discovery]
+    paths:
+      - '.github/workflows/radar-v624-exact-mail-send-schema.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  schema:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: radar-v624-internal-mail-protocol-discovery
+
+      - name: Download public Last War 1.0.351 XAPK
+        run: |
+          set -euo pipefail
+          url='https://d.apkpure.net/b/XAPK/com.fun.lastwar.gp?nc=arm64-v8a%2Carmeabi-v7a&sv=23&versionCode=1835'
+          curl -fL --retry 5 --retry-all-errors --connect-timeout 30 --max-time 1200 \
+            -A 'Mozilla/5.0' -o /tmp/lastwar.xapk "$url"
+          test -s /tmp/lastwar.xapk
+          unzip -tq /tmp/lastwar.xapk >/dev/null
+          echo V624_XAPK=READY
+
+      - name: Extract exact Lua modules
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/xapk /tmp/v624-exact
+          mkdir -p /tmp/xapk /tmp/v624-exact
+          unzip -q /tmp/lastwar.xapk '*.apk' -d /tmp/xapk
+          target=''
+          while IFS= read -r -d '' apk; do
+            if unzip -Z1 "$apk" | grep -Fxq 'assets/lwScripts/LWScripts.data'; then
+              target="$apk"; break
+            fi
+          done < <(find /tmp/xapk -type f -name '*.apk' -print0)
+          test -n "$target"
+          unzip -p "$target" assets/lwScripts/LWScripts.data > /tmp/LWScripts.data
+
+          python3 - <<'PY'
+          from pathlib import Path
+          import json,re,struct
+          data=Path('/tmp/LWScripts.data').read_bytes()
+          if data[:4] != b'LWLF':
+              raise SystemExit('V624_LWLF_MAGIC_INVALID')
+          _,_,count=struct.unpack_from('<III',data,4)
+          pos=16
+          wanted={
+            'Net/Msgs/Mail/MailSendMessage.luac',
+            'Net/Msgs/Mail/AlGroupMailSendMessage.luac',
+            'UI/UIMailNew/UIMailSend/Controller/UIMailSendCtrl.luac',
+            'UI/UIMailNew/UIMailSend/View/UIMailSendView.luac',
+          }
+          def r7(off):
+              value=0; shift=0
+              for _ in range(5):
+                  x=data[off]; off+=1
+                  value |= (x & 0x7f) << shift
+                  if not x & 0x80: return value,off
+                  shift += 7
+              raise ValueError('bad 7bit')
+          found={}
+          out=Path('/tmp/v624-exact')
+          for i in range(count):
+              n,pos=r7(pos)
+              name=data[pos:pos+n].decode('utf-8','replace'); pos+=n
+              size=struct.unpack_from('<I',data,pos)[0]; pos+=4
+              chunk=data[pos:pos+size]; pos+=size
+              if name in wanted:
+                  safe=re.sub(r'[^A-Za-z0-9_.-]+','_',name)
+                  p=out/f'{i:05d}_{safe}'
+                  p.write_bytes(chunk)
+                  found[name]=str(p)
+                  print(f'V624_EXTRACTED={i}|{name}|{size}')
+          missing=sorted(wanted-set(found))
+          if missing:
+              raise SystemExit('V624_MISSING='+','.join(missing))
+          Path('/tmp/v624-exact-index.json').write_text(json.dumps(found,indent=2)+'\n')
+          PY
+
+      - name: Build patched unluac for Last War format 1
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/unluac
+          git clone --quiet --depth 1 https://github.com/HansWessels/unluac.git /tmp/unluac
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('/tmp/unluac/src/unluac/parse/LHeaderType.java')
+          s=p.read_text()
+          old="    if(format != 0) {\n      throw new IllegalStateException(\"The input chunk reports a non-standard lua format: \" + format);\n    }\n"
+          new="    if(format != 0 && format != 1) {\n      throw new IllegalStateException(\"The input chunk reports an unsupported lua format: \" + format);\n    }\n"
+          if old not in s:
+              raise SystemExit('V624_UNLUAC_FORMAT_ANCHOR_MISSING')
+          s=s.replace(old,new,1)
+          old2="    parse_size_t_size(buffer, header, s);\n    parse_instruction_size(buffer, header, s);\n    parse_integer_size(buffer, header, s);\n"
+          new2="    parse_size_t_size(buffer, header, s);\n    // Last War Lua 5.3 uses format=1 and omits the one-byte\n    // sizeof(Instruction) field. Standard format=0 keeps it.\n    if(s.format != 1) {\n      parse_instruction_size(buffer, header, s);\n    }\n    parse_integer_size(buffer, header, s);\n"
+          if old2 not in s:
+              raise SystemExit('V624_UNLUAC_INSTRUCTION_ANCHOR_MISSING')
+          s=s.replace(old2,new2,1)
+          p.write_text(s)
+          print('V624_UNLUAC_LASTWAR_PATCH=READY')
+          PY
+          cd /tmp/unluac
+          mkdir -p build
+          javac -encoding UTF-8 -d build $(find src -name '*.java' -print)
+          test -f build/unluac/Main.class
+          echo V624_UNLUAC_BUILD=PASS
+
+      - name: Decompile exact modules
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/v624-decompiled
+          python3 - <<'PY'
+          import json, pathlib, subprocess
+          idx=json.loads(pathlib.Path('/tmp/v624-exact-index.json').read_text())
+          for name,path in idx.items():
+              out=pathlib.Path('/tmp/v624-decompiled')/(pathlib.Path(name).stem+'.lua')
+              cp=subprocess.run(
+                  ['java','-cp','/tmp/unluac/build','unluac.Main',path],
+                  stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True
+              )
+              out.write_text(cp.stdout)
+              print(f'V624_DECOMPILE={name}|RC={cp.returncode}|OUT={out}')
+              if cp.returncode != 0:
+                  print(cp.stdout[:4000])
+                  raise SystemExit('V624_DECOMPILE_FAILED='+name)
+          PY
+
+      - name: Extract exact mail.send contract
+        run: |
+          set -euo pipefail
+          echo '===== MailSendMessage.lua ====='
+          cat /tmp/v624-decompiled/MailSendMessage.lua | tee /tmp/v624-mail-send-contract.txt
+          echo '===== UIMailSendCtrl.lua relevant calls ====='
+          grep -n -C 12 -E 'MailSendMessage|SendMessage|mailTitle|mailContent|allianceId' \
+            /tmp/v624-decompiled/UIMailSendCtrl.lua | tee /tmp/v624-ui-send-context.txt || true
+          echo '===== UIMailSendView limits ====='
+          grep -n -C 8 -E 'maxTitleL|maxContentL|mailTitle|mailContent' \
+            /tmp/v624-decompiled/UIMailSendView.lua | tee /tmp/v624-ui-limit-context.txt || true
+          python3 - <<'PY'
+          from pathlib import Path
+          import re,json
+          s=Path('/tmp/v624-decompiled/MailSendMessage.lua').read_text()
+          fields=[]
+          for typ,key in re.findall(r'self\.sfsObj:(Put\w+)\("([^"]+)"',s):
+              fields.append({'method':typ,'key':key})
+          m=re.search(r'local OnCreate = function\(self,([^)]*)\)',s)
+          params=[x.strip() for x in m.group(1).split(',')] if m else []
+          report={
+            'version':'V6.24',
+            'command':'mail.send',
+            'class':'Net/Msgs/Mail/MailSendMessage.lua',
+            'onCreateParams':params,
+            'wireFields':fields,
+            'lastwarMutation':False,
+            'gameConnection':'NONE',
+            'mailSendExecuted':False,
+          }
+          Path('/tmp/V624_MAIL_SEND_SCHEMA.json').write_text(json.dumps(report,indent=2)+'\n')
+          print('V624_ONCREATE_PARAMS='+','.join(params))
+          print('V624_WIRE_FIELDS='+','.join(f["method"]+':'+f["key"] for f in fields))
+          print('V624_LASTWAR_MUTATION=NO')
+          print('V624_GAME_CONNECTION=NONE')
+          print('V624_MAIL_SEND_EXECUTED=NO')
+          PY
+          cat /tmp/V624_MAIL_SEND_SCHEMA.json
+
+      - name: Upload exact schema evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: radar-v624-exact-mail-send-schema
+          path: |
+            /tmp/V624_MAIL_SEND_SCHEMA.json
+            /tmp/v624-mail-send-contract.txt
+            /tmp/v624-ui-send-context.txt
+            /tmp/v624-ui-limit-context.txt
+            /tmp/v624-decompiled/*.lua
+          if-no-files-found: warn
+          retention-days: 14

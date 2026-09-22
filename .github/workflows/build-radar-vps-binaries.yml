@@ -47,6 +47,12 @@ on:
       - '.github/scripts/patch-radar-recruitment-filter-normalization-v621.py'
       - '.github/scripts/patch-radar-recruitment-ux-ui-worker-v621.py'
       - '.github/scripts/patch-radar-live-profile-resolution-v622.py'
+      - '.github/scripts/patch-radar-messenger-outbox-connector-v624.py'
+      - '.github/scripts/patch-radar-messenger-outbox-worker-v624.py'
+      - '.github/scripts/patch-live-radar-messenger-outbox-v624.py'
+      - '.radar-release-src/v624-source/**'
+      - '.radar-release-src/v624-messenger-source/**'
+      - 'radar-vps/pilot-v624-messenger/**'
   workflow_dispatch:
 
 permissions:
@@ -59,8 +65,9 @@ concurrency:
 
 env:
   LASTWAR_CLIENT_REF: ee5f64de160a8051c2f9f98189b75038dd225a0a
-  EXPECTED_CONNECTOR_SHA256: 232fcbd1037da45d1c460eef20e7627aac7c90425f04ab0e58d47b74fb56249b
+  EXPECTED_CONNECTOR_SHA256: f73480ea9165d6fd8ab849c249f7b250eb6872d3c0871a9d157484241f02cd3e
   EXPECTED_NATIVE_SHA256: 274d040f5294cb09422e5d55cc4b5335ac7739924c33dcb67b3f279645814900
+  EXPECTED_MESSENGER_SHA256: 3cf5d175325a319d601667e50388e8472057bcc152df7a618938daf357a3dfa1
 
 jobs:
   build:
@@ -141,6 +148,13 @@ jobs:
           python3 .github/scripts/patch-radar-recruitment-filter-normalization-v621.py
           python3 .github/scripts/patch-radar-recruitment-ux-ui-worker-v621.py
           python3 .github/scripts/patch-radar-live-profile-resolution-v622.py
+          python3 .github/scripts/patch-radar-messenger-outbox-connector-v624.py
+          python3 .github/scripts/patch-radar-messenger-outbox-worker-v624.py
+          python3 .github/scripts/patch-live-radar-messenger-outbox-v624.py
+          grep -Fq 'WFGG_RADAR_MESSENGER_OUTBOX_WORKER_V624' /tmp/wfgg-radar/src/worker.js
+          grep -Fq 'WFGG_RADAR_MESSENGER_OUTBOX_UI_V624' /tmp/wfgg-radar/public/live-radar.html
+          grep -Fq '/v1/messenger/outbox/create' /tmp/wfgg-radar/connector-go/cmd/radar-connector/main.go
+          echo RADAR_V624_PRODUCTION_RECONSTRUCT=PASS
 
           grep -Fq 'WFGG_RADAR_CLUSTER_CATALOG_BUDGET_V6192' /tmp/wfgg-radar/connector-go/cmd/radar-connector/server_cluster_catalog_v613.go
           grep -Fq 'WFGG_RADAR_SEED_SCOUT_V6193' /tmp/wfgg-radar/connector-go/cmd/radar-connector/server_seed_scout_v6193.go
@@ -193,7 +207,7 @@ jobs:
           CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w' -o "$GITHUB_WORKSPACE/radar-vps/release/radar-connector" ./cmd/radar-connector
           actual="$(sha256sum "$GITHUB_WORKSPACE/radar-vps/release/radar-connector" | awk '{print $1}')"
           test "$actual" = "$EXPECTED_CONNECTOR_SHA256"
-          echo "RADAR_V623_CONNECTOR_SHA256=$actual"
+          echo "RADAR_V624_CONNECTOR_SHA256=$actual"
 
       - name: Build qualified native helper
         run: |
@@ -218,19 +232,43 @@ jobs:
           test "$actual" = "$EXPECTED_NATIVE_SHA256"
           echo "RADAR_V61915_NATIVE_SHA256=$actual"
 
+      - name: Stage exact V6.24 Messenger PILOT binary
+        run: |
+          set -euo pipefail
+          src=radar-vps/pilot-v624-messenger/wfgg-messenger-outbox
+          test -x "$src"
+          actual="$(sha256sum "$src" | awk '{print $1}')"
+          test "$actual" = "$EXPECTED_MESSENGER_SHA256"
+          install -m 0755 "$src" radar-vps/release/wfgg-messenger-outbox
+          grep -aFq 'mail.send' radar-vps/release/wfgg-messenger-outbox
+          grep -aFq 'cross-server private mail is not proven' radar-vps/release/wfgg-messenger-outbox
+          if grep -aEq 'RADAR_CONNECTOR_SHARED_KEY|LASTWAR_NATIVE_TEMPLATE|/v1/scan/player|/v1/authenticate|SendExtension' radar-vps/release/wfgg-messenger-outbox; then
+            echo RADAR_V624_MESSENGER_NETWORK_CAPABILITY=FOUND
+            exit 1
+          fi
+          echo "RADAR_V624_MESSENGER_SHA256=$actual"
+          echo RADAR_V624_MESSENGER_EXACT_PILOT_BINARY=YES
+
       - name: Verify read-only production release
         run: |
           set -euo pipefail
-          chmod 0755 radar-vps/release/radar-connector radar-vps/release/radar-native-template
+          chmod 0755 radar-vps/release/radar-connector radar-vps/release/radar-native-template radar-vps/release/wfgg-messenger-outbox
           grep -aFq 'native-template-readonly-v4' radar-vps/release/radar-native-template
           grep -aFq 'world.get.block' radar-vps/release/radar-native-template
           grep -aFq 'get.user.info.multi' radar-vps/release/radar-native-template
           (
             cd radar-vps/release
-            sha256sum radar-connector radar-native-template > SHA256SUMS
+            sha256sum radar-connector radar-native-template wfgg-messenger-outbox > SHA256SUMS
           )
           grep -Fq "$EXPECTED_CONNECTOR_SHA256  radar-connector" radar-vps/release/SHA256SUMS
           grep -Fq "$EXPECTED_NATIVE_SHA256  radar-native-template" radar-vps/release/SHA256SUMS
+          grep -Fq "$EXPECTED_MESSENGER_SHA256  wfgg-messenger-outbox" radar-vps/release/SHA256SUMS
+          grep -aFq '/v1/messenger/outbox/create' radar-vps/release/radar-connector
+          grep -aFq 'v6.24.0-dry-run' radar-vps/release/radar-connector
+          grep -aFq '/opt/wfgg-radar/messenger/bin/wfgg-messenger-outbox' radar-vps/release/radar-connector
+          grep -aFq '/opt/wfgg-radar/data/messenger/outbox.jsonl' radar-vps/release/radar-connector
+          grep -aFq 'mail.send' radar-vps/release/wfgg-messenger-outbox
+          grep -aFq 'cross-server private mail is not proven' radar-vps/release/wfgg-messenger-outbox
           grep -aFq 'radar_autopilot_ledger_v61913' radar-vps/release/radar-connector
           grep -aFq 'SCOUT_SKIPPED_PERSISTED' radar-vps/release/radar-connector
           grep -aFq 'LEDGER_RESUME_SKIPPED_TERMINAL' radar-vps/release/radar-connector
@@ -260,31 +298,31 @@ jobs:
           grep -aFq 'STALE_RUNNING_CYCLE_RECOVERED_V6197' radar-vps/release/radar-connector
           grep -aFq 'COLLECTOR_CYCLE_TERMINALIZATION_FAILED' radar-vps/release/radar-connector
           grep -aFq 'AUTOPILOT_TARGET_HISTORY_TIMEOUT_V6199' radar-vps/release/radar-connector
-          echo RADAR_V623_GAME_MUTATION=NO
-          echo RADAR_V623_LASTWAR_MUTATION=NO
-          echo RADAR_V623_AUTOPILOT_COLLECTOR_MUTATION=YES
-          echo RADAR_V623_TOKEN_PERSISTENCE=NO
-          echo RADAR_V623_PRODUCTION_RELEASE=QUALIFIED
+          echo RADAR_V624_GAME_MUTATION=NO
+          echo RADAR_V624_LASTWAR_MUTATION=NO
+          echo RADAR_V624_AUTOPILOT_COLLECTOR_MUTATION=YES
+          echo RADAR_V624_TOKEN_PERSISTENCE=NO
+          echo RADAR_V624_PRODUCTION_RELEASE=QUALIFIED
 
       - name: Commit production release binaries
         run: |
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add radar-vps/release/radar-connector radar-vps/release/radar-native-template radar-vps/release/SHA256SUMS
+          git add radar-vps/release/radar-connector radar-vps/release/radar-native-template radar-vps/release/wfgg-messenger-outbox radar-vps/release/SHA256SUMS
           if git diff --cached --quiet; then
-            echo RADAR_V623_RELEASE_BINARIES=UNCHANGED
+            echo RADAR_V624_RELEASE_BINARIES=UNCHANGED
             GH_TOKEN="${{ github.token }}" gh workflow run deploy-radar-production.yml --ref radar-production-v1
-            echo RADAR_V623_CLOUDFLARE_DISPATCH=TRIGGERED
+            echo RADAR_V624_CLOUDFLARE_DISPATCH=TRIGGERED
             exit 0
           fi
-          git commit -m 'build(radar): publish V6.23 Autopilot Ledger Storage Boundary production binaries'
+          git commit -m 'build(radar): publish V6.24 Internal Mail Outbox production binaries'
           # Discard only ephemeral runner worktree changes; the release artifacts are already committed.
           git reset --hard HEAD
           git clean -fd
           git fetch origin radar-production-v1
           git rebase origin/radar-production-v1
           git push origin HEAD:radar-production-v1
-          echo RADAR_V623_RELEASE_BINARIES=PUBLISHED
+          echo RADAR_V624_RELEASE_BINARIES=PUBLISHED
           GH_TOKEN="${{ github.token }}" gh workflow run deploy-radar-production.yml --ref radar-production-v1
-          echo RADAR_V623_CLOUDFLARE_DISPATCH=TRIGGERED
+          echo RADAR_V624_CLOUDFLARE_DISPATCH=TRIGGERED

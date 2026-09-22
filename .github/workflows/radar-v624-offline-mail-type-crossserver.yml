@@ -1,0 +1,165 @@
+name: Radar V6.24 offline mail type and cross-server discovery
+# V6.24 explicit run trigger after exact mail.send schema PASS
+
+on:
+  push:
+    branches: [radar-v624-internal-mail-protocol-discovery]
+    paths:
+      - '.github/workflows/radar-v624-offline-mail-type-crossserver.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  discover:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: radar-v624-internal-mail-protocol-discovery
+
+      - name: Install tools
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq unzip default-jdk-headless
+          echo V624_TOOLS=READY
+
+      - name: Download and extract Last War 1.0.351 Lua bundle
+        run: |
+          set -euo pipefail
+          url='https://d.apkpure.net/b/XAPK/com.fun.lastwar.gp?nc=arm64-v8a%2Carmeabi-v7a&sv=23&versionCode=1835'
+          curl -fL --retry 5 --retry-all-errors --connect-timeout 30 --max-time 1200 -A 'Mozilla/5.0' -o /tmp/lastwar.xapk "$url"
+          rm -rf /tmp/xapk && mkdir -p /tmp/xapk
+          unzip -q /tmp/lastwar.xapk '*.apk' -d /tmp/xapk
+          target=''
+          while IFS= read -r -d '' apk; do
+            if unzip -Z1 "$apk" | grep -Fxq 'assets/lwScripts/LWScripts.data'; then target="$apk"; break; fi
+          done < <(find /tmp/xapk -type f -name '*.apk' -print0)
+          test -n "$target"
+          unzip -p "$target" assets/lwScripts/LWScripts.data > /tmp/LWScripts.data
+          test -s /tmp/LWScripts.data
+          echo "V624_LWLF_BYTES=$(stat -c %s /tmp/LWScripts.data)"
+
+      - name: Select mail type and MailSend call-site chunks
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import json,re,struct
+          data=Path('/tmp/LWScripts.data').read_bytes()
+          if data[:4]!=b'LWLF': raise SystemExit('V624_LWLF_MAGIC_INVALID')
+          fv,ver,count=struct.unpack_from('<III',data,4); pos=16
+          out=Path('/tmp/v624-selected'); out.mkdir(exist_ok=True)
+          rows=[]
+          def r7(off):
+              val=0; shift=0
+              for _ in range(5):
+                  x=data[off]; off+=1; val|=(x&0x7f)<<shift
+                  if not x&0x80:return val,off
+                  shift+=7
+              raise ValueError('bad7bit')
+          needles=(b'MAIL_SELF_SEND',b'MAIL_ALLIANCE_ALL',b'MAIL_PRESIDENT_SEND')
+          for i in range(count):
+              n,pos=r7(pos); name=data[pos:pos+n].decode('utf-8','replace');pos+=n
+              sz=struct.unpack_from('<I',data,pos)[0];pos+=4
+              chunk=data[pos:pos+sz];pos+=sz
+              flags={
+                'self':b'MAIL_SELF_SEND' in chunk,
+                'alliance':b'MAIL_ALLIANCE_ALL' in chunk,
+                'president':b'MAIL_PRESIDENT_SEND' in chunk,
+                'mailSendSym':b'MailSend' in chunk,
+                'serverId':b'serverId' in chunk,
+                'targetUid':b'targetUid' in chunk,
+              }
+              if any(flags.values()) and (flags['self'] or flags['alliance'] or flags['president'] or (flags['mailSendSym'] and (flags['serverId'] or flags['targetUid']))):
+                  p=out/f'{i:05d}.luac'; p.write_bytes(chunk)
+                  rows.append({'index':i,'name':name,'size':sz,'flags':flags,'path':str(p)})
+          Path('/tmp/v624-selected.json').write_text(json.dumps(rows,indent=2)+'\n')
+          print('V624_SELECTED='+str(len(rows)))
+          for r in rows: print('V624_SELECTED_CHUNK='+str(r['index'])+'|'+r['name']+'|'+json.dumps(r['flags'],sort_keys=True))
+          PY
+
+      - name: Build Last War compatible unluac
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/unluac
+          git clone --quiet --depth 1 https://github.com/HansWessels/unluac.git /tmp/unluac
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('/tmp/unluac/src/unluac/parse/LHeaderType.java')
+          s=p.read_text()
+          s=s.replace('if(format != 0) {','if(format != 0 && format != 1) {',1)
+          marker='class LHeaderType53 extends LHeaderType'
+          idx=s.find(marker)
+          if idx<0: raise SystemExit('V624_UNLUAC_53_CLASS_MISSING')
+          head,tail=s[:idx],s[idx:]
+          old='    parse_instruction_size(buffer, header, s);'
+          replacement='''    if(s.format != 1) {
+              parse_instruction_size(buffer, header, s);
+            }'''
+          if old not in tail: raise SystemExit('V624_UNLUAC_INSTRUCTION_MISSING')
+          tail=tail.replace(old,replacement,1)
+          p.write_text(head+tail)
+          PY
+          cd /tmp/unluac
+          rm -rf build bin && mkdir -p build bin
+          javac -deprecation -Werror -d build -sourcepath src src/unluac/*.java
+          jar -cfm bin/unluac.jar src/unluac/Manifest.mf -C build .
+          jar tf bin/unluac.jar | grep -Fq 'unluac/Main.class'
+          echo V624_UNLUAC=READY
+
+      - name: Decompile selected chunks
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/v624-decompiled
+          for f in /tmp/v624-selected/*.luac; do
+            base="$(basename "$f" .luac)"
+            java -jar /tmp/unluac/bin/unluac.jar "$f" > "/tmp/v624-decompiled/$base.lua"
+          done
+          echo "V624_DECOMPILED=$(find /tmp/v624-decompiled -name '*.lua' | wc -l)"
+
+      - name: Resolve mail type constants and cross-server call sites
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import json,re
+          selected=json.loads(Path('/tmp/v624-selected.json').read_text())
+          bybase={f"{r['index']:05d}":r for r in selected}
+          result={'mailTypeAssignments':[],'mailSendCalls':[],'lastwarMutation':False,'gameConnection':'NONE'}
+          for p in sorted(Path('/tmp/v624-decompiled').glob('*.lua')):
+              text=p.read_text(errors='replace')
+              name=bybase.get(p.stem,{}).get('name',p.name)
+              for key in ('MAIL_SELF_SEND','MAIL_ALLIANCE_ALL','MAIL_PRESIDENT_SEND'):
+                  for m in re.finditer(r'\b'+key+r'\s*=\s*(-?\d+)',text):
+                      result['mailTypeAssignments'].append({'module':name,'key':key,'value':int(m.group(1))})
+              for lineno,line in enumerate(text.splitlines(),1):
+                  if 'MsgDefines.MailSend' in line or 'MailSend,' in line:
+                      result['mailSendCalls'].append({'module':name,'line':lineno,'text':line.strip()})
+          Path('/tmp/v624-mail-type-crossserver.json').write_text(json.dumps(result,indent=2)+'\n')
+          for x in result['mailTypeAssignments']:
+              print(f"V624_MAIL_TYPE={x['key']}|{x['value']}|{x['module']}")
+          for x in result['mailSendCalls']:
+              print(f"V624_MAIL_SEND_CALL={x['module']}:{x['line']}|{x['text']}")
+          print('V624_LASTWAR_MUTATION=NO')
+          print('V624_GAME_CONNECTION=NONE')
+          PY
+          echo '===== MAIL TYPE / SEND CONTEXT ====='
+          grep -Rni -C 30 -E 'MAIL_SELF_SEND|MAIL_ALLIANCE_ALL|MAIL_PRESIDENT_SEND|MsgDefines\.MailSend|MailSend,' /tmp/v624-decompiled/*.lua             | head -n 2000 | tee /tmp/v624-mail-type-context.txt || true
+          cat /tmp/v624-mail-type-crossserver.json
+
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: radar-v624-mail-type-crossserver
+          path: |
+            /tmp/v624-selected.json
+            /tmp/v624-mail-type-crossserver.json
+            /tmp/v624-mail-type-context.txt
+            /tmp/v624-decompiled/*.lua
+          if-no-files-found: warn
+          retention-days: 14
