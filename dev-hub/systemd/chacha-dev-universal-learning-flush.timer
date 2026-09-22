@@ -1,0 +1,13 @@
+[Unit]
+Description=ChaCha DEV universal learning outbox flush schedule
+
+[Timer]
+OnBootSec=20s
+OnUnitActiveSec=30s
+AccuracySec=3s
+RandomizedDelaySec=2s
+Persistent=true
+Unit=chacha-dev-universal-learning-flush.service
+
+[Install]
+WantedBy=timers.target
