@@ -7,6 +7,7 @@ on:
       - 'collector-knowledge/**'
       - 'docs/COLLECTOR_KNOWLEDGE_ENGINE_CONTINUOUS_V1.md'
       - 'radar-vps/install-collector-knowledge-v1.sh'
+      - 'radar-vps/probe-collector-knowledge-v1-runtime.sh'
       - 'radar-vps/wfgg-collector-knowledge-*.service'
       - '.github/workflows/collector-knowledge-v1-qualification.yml'
   workflow_dispatch:
@@ -33,6 +34,9 @@ jobs:
           python3 -m py_compile collector-knowledge/knowledge_engine.py
           python3 -m py_compile collector-knowledge/test_knowledge_engine.py
           bash -n radar-vps/install-collector-knowledge-v1.sh
+          bash -n radar-vps/probe-collector-knowledge-v1-runtime.sh
+          grep -Fq 'source_refresh.py' radar-vps/install-collector-knowledge-v1.sh
+          grep -Fq 'COLLECTOR_KNOWLEDGE_RUNTIME_PROBE=PASS' radar-vps/probe-collector-knowledge-v1-runtime.sh
           grep -Fq '"listenHost": "127.0.0.1"' collector-knowledge/config.example.json
           grep -Fq '"tasksPerCycle": 100' collector-knowledge/config.example.json
           grep -Fq 'ReadWritePaths=/opt/wfgg-radar/data/collector-knowledge' radar-vps/wfgg-collector-knowledge-api.service
