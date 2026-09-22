@@ -1,0 +1,68 @@
+{
+  "schema": "chacha.dev/learning-fabric/v1",
+  "version": "1.0.0",
+  "learners": [
+    "core-orchestrator",
+    "domain-orchestrators",
+    "agent-foundry",
+    "branch-foundry",
+    "capability-foundry",
+    "assembly-orchestrator",
+    "acceptance-engine",
+    "recovery-orchestrator"
+  ],
+  "experience_record": {
+    "required_fields": [
+      "project_id",
+      "learner",
+      "intent_signature",
+      "context_signature",
+      "plan_or_strategy",
+      "outcome",
+      "acceptance_score",
+      "cost",
+      "latency",
+      "resource_usage",
+      "failures",
+      "corrections",
+      "reusable_lessons",
+      "evidence"
+    ]
+  },
+  "project_memory_index": {
+    "enabled": true,
+    "similarity_search": true,
+    "retrieves_previous_project_patterns": true,
+    "use_before_planning": true,
+    "never_copy_project_secret_by_similarity": true
+  },
+  "learning_cycle": [
+    "record-plan",
+    "record-outcome",
+    "compare-estimate-to-reality",
+    "extract-reusable-patterns",
+    "compile-rules",
+    "update-strategy-priors",
+    "retain-counterexamples",
+    "promote-qualified-knowledge"
+  ],
+  "optimization_learning": {
+    "branch_blueprint_cost_prediction": true,
+    "agent_fit_prediction": true,
+    "component_reuse_prediction": true,
+    "runtime_resource_prediction": true,
+    "acceptance_failure_prediction": true
+  },
+  "persistence": {
+    "authoritative_tier": "NAS",
+    "hot_index_tier": "VPS",
+    "orchestrator_history_path": "knowledge/orchestrators/{orchestrator}",
+    "foundry_history_path": "knowledge/foundries/{foundry}",
+    "global_project_index_path": "knowledge/projects/index"
+  },
+  "forgetting": {
+    "preserve_raw_evidence": true,
+    "downrank_obsolete_strategies": true,
+    "retain_failed_patterns_as_anti_patterns": true
+  }
+}
