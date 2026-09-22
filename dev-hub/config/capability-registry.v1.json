@@ -1210,6 +1210,175 @@
           "fallback": []
         }
       ]
+    },
+    "capability-gap-analysis": {
+      "class": "knowledge",
+      "providers": [
+        {
+          "id": "chacha-dev-architect",
+          "status": "ADOPT",
+          "health": "runtime-check",
+          "cost_class": "local",
+          "scope": "project",
+          "fallback": []
+        }
+      ]
+    },
+    "domain-factory-design": {
+      "class": "knowledge",
+      "providers": [
+        {
+          "id": "chacha-dev-architect",
+          "status": "ADOPT",
+          "health": "runtime-check",
+          "cost_class": "local",
+          "scope": "platform",
+          "fallback": []
+        }
+      ]
+    },
+    "capability-qualification": {
+      "class": "verification",
+      "providers": [
+        {
+          "id": "chacha-dev-architect",
+          "status": "ADOPT",
+          "health": "runtime-check",
+          "cost_class": "local",
+          "scope": "platform",
+          "fallback": []
+        }
+      ]
+    },
+    "component-factory": {
+      "class": "execution",
+      "providers": [
+        {
+          "id": "chacha-dev-architect",
+          "status": "ADOPT",
+          "health": "runtime-check",
+          "cost_class": "local",
+          "scope": "project",
+          "fallback": []
+        }
+      ]
+    },
+    "contract-reconciliation": {
+      "class": "verification",
+      "providers": [
+        {
+          "id": "chacha-dev-architect",
+          "status": "ADOPT",
+          "health": "runtime-check",
+          "cost_class": "local",
+          "scope": "project",
+          "fallback": []
+        }
+      ]
+    },
+    "acceptance-validation": {
+      "class": "verification",
+      "providers": [
+        {
+          "id": "chacha-dev-architect",
+          "status": "ADOPT",
+          "health": "runtime-check",
+          "cost_class": "local",
+          "scope": "project",
+          "fallback": []
+        }
+      ]
+    },
+    "digital-twin-planning": {
+      "class": "execution",
+      "providers": [
+        {
+          "id": "chacha-dev-architect",
+          "status": "ADOPT",
+          "health": "runtime-check",
+          "cost_class": "local",
+          "scope": "project",
+          "fallback": []
+        }
+      ]
+    },
+    "architecture-arena": {
+      "class": "verification",
+      "providers": [
+        {
+          "id": "chacha-dev-architect",
+          "status": "ADOPT",
+          "health": "runtime-check",
+          "cost_class": "local",
+          "scope": "project",
+          "fallback": []
+        }
+      ]
+    },
+    "agent-arena": {
+      "class": "verification",
+      "providers": [
+        {
+          "id": "chacha-dev-architect",
+          "status": "ADOPT",
+          "health": "runtime-check",
+          "cost_class": "local",
+          "scope": "project",
+          "fallback": []
+        }
+      ]
+    },
+    "knowledge-compilation": {
+      "class": "knowledge",
+      "providers": [
+        {
+          "id": "chacha-dev-architect",
+          "status": "ADOPT",
+          "health": "runtime-check",
+          "cost_class": "local",
+          "scope": "platform",
+          "fallback": []
+        }
+      ]
+    },
+    "uncertainty-resolution": {
+      "class": "knowledge",
+      "providers": [
+        {
+          "id": "chacha-dev-architect",
+          "status": "ADOPT",
+          "health": "runtime-check",
+          "cost_class": "local",
+          "scope": "project",
+          "fallback": []
+        }
+      ]
+    },
+    "recovery-orchestration": {
+      "class": "execution",
+      "providers": [
+        {
+          "id": "chacha-dev-architect",
+          "status": "ADOPT",
+          "health": "runtime-check",
+          "cost_class": "local",
+          "scope": "platform",
+          "fallback": []
+        }
+      ]
+    },
+    "autonomy-audit": {
+      "class": "verification",
+      "providers": [
+        {
+          "id": "chacha-dev-architect",
+          "status": "ADOPT",
+          "health": "runtime-check",
+          "cost_class": "local",
+          "scope": "project",
+          "fallback": []
+        }
+      ]
     }
   }
 }
