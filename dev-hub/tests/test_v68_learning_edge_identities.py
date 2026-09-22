@@ -20,7 +20,12 @@ with tempfile.TemporaryDirectory(prefix="chacha-v68-id-") as td:
     env=Path(out["bundle_path"]);pub=Path(out["public_identity_path"])
     assert oct(env.stat().st_mode & 0o777)=="0o600"
     txt=env.read_text();assert "CHACHA_LEARNING_UPLINK_SECRET=" in txt
-    assert "SECRET" not in pub.read_text().upper()
+    public_identity=json.load(open(pub,encoding="utf-8"))
+    assert "secret" not in public_identity
+    assert public_identity["credential_material_in_this_file"] is False
+    secret_line=[line for line in txt.splitlines() if line.startswith("CHACHA_LEARNING_UPLINK_SECRET=")][0]
+    secret_value=secret_line.split("=",1)[1]
+    assert secret_value not in pub.read_text(encoding="utf-8")
     stat=json.loads(subprocess.check_output(["python3",str(P),"--registry",str(reg),"status"],text=True))
     assert stat["secret_values_exposed"] is False
     key=out["key_id"]
