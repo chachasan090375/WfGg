@@ -98,6 +98,8 @@ class NasSshAdapterContractTests(unittest.TestCase):
         self.assertIn("shell=False", text)
         self.assertNotIn("shell=True", text)
         self.assertIn("NAS_DESTINATION_ALREADY_EXISTS", text)
+        self.assertIn("NAS_PARENT_PREPARE_FAILED", text)
+        self.assertIn('["mkdir", "-p", parent]', text)
         self.assertIn("create-only atomic file publication", text)
         self.assertNotIn("rmtree(", text)
 
