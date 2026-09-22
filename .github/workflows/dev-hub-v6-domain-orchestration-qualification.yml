@@ -9,8 +9,15 @@ on:
       - 'dev-hub/config/technology-radar-domain-watch.v2.json'
       - 'dev-hub/config/agent-routing.v1.json'
       - 'dev-hub/config/capability-registry.v1.json'
+      - 'dev-hub/config/agent-foundry.v1.json'
+      - 'dev-hub/config/project-factory.v1.json'
+      - 'dev-hub/config/knowledge-fabric.v1.json'
+      - 'dev-hub/config/self-evolution.v1.json'
       - 'dev-hub/bin/functional-intent-orchestrator.py'
+      - 'dev-hub/bin/agent-foundry-planner.py'
       - 'dev-hub/bin/domain-provider-resolver.py'
+      - 'dev-hub/bin/project-factory.py'
+      - 'dev-hub/bin/architecture-optimizer.py'
       - 'dev-hub/bin/technology-radar-domain-watch-validate.py'
       - 'dev-hub/tests/test_domain_orchestration_v6.py'
       - 'dev-hub/docs/DOMAIN_ORCHESTRATION_V6.md'
@@ -36,11 +43,11 @@ jobs:
       - name: Static validation
         run: |
           set -euo pipefail
-          python3 -m py_compile             dev-hub/bin/functional-intent-orchestrator.py             dev-hub/bin/domain-provider-resolver.py             dev-hub/bin/technology-radar-domain-watch-validate.py             dev-hub/tests/test_domain_orchestration_v6.py
-          python3 -m json.tool dev-hub/config/domain-orchestration.v1.json >/dev/null
-          python3 -m json.tool dev-hub/config/provider-economics.v1.json >/dev/null
-          python3 -m json.tool dev-hub/config/technology-radar-domain-watch.v2.json >/dev/null
-          echo CHACHA_DEV_V6_STATIC=PASS
+          python3 -m py_compile             dev-hub/bin/functional-intent-orchestrator.py             dev-hub/bin/agent-foundry-planner.py             dev-hub/bin/domain-provider-resolver.py             dev-hub/bin/project-factory.py             dev-hub/bin/architecture-optimizer.py             dev-hub/bin/technology-radar-domain-watch-validate.py             dev-hub/tests/test_domain_orchestration_v6.py
+          for f in             dev-hub/config/domain-orchestration.v1.json             dev-hub/config/provider-economics.v1.json             dev-hub/config/technology-radar-domain-watch.v2.json             dev-hub/config/agent-routing.v1.json             dev-hub/config/capability-registry.v1.json             dev-hub/config/agent-foundry.v1.json             dev-hub/config/project-factory.v1.json             dev-hub/config/knowledge-fabric.v1.json             dev-hub/config/self-evolution.v1.json; do
+            python3 -m json.tool "$f" >/dev/null
+          done
+          echo CHACHA_DEV_V62_STATIC=PASS
 
       - name: Architecture validation
         run: |
@@ -50,26 +57,91 @@ jobs:
       - name: Unit tests
         run: |
           set -euo pipefail
-          python3 -m unittest -v dev-hub/tests/test_domain_orchestration_v6.py | tee /tmp/v6-tests.log
+          python3 -m unittest -v dev-hub/tests/test_domain_orchestration_v6.py | tee /tmp/v62-tests.log
 
-      - name: Functional decomposition smoke
+      - name: Foundry-first end-to-end planning smoke
         run: |
           set -euo pipefail
-          cat >/tmp/v6-intent.json <<'JSON'
+          cat >/tmp/v62-intent.json <<'JSON'
           {
-            "text": "Ajoute une nouvelle fiche joueur avec une API backend, une mise en page responsive, des graphismes, une animation et la documentation. Prévois les tests et la sécurité."
+            "name":"qualification-app",
+            "text":"Crée une application avec une API backend, une interface responsive, des graphismes, une animation, quatre langues, une documentation et les tests de sécurité."
           }
           JSON
-          python3 dev-hub/bin/functional-intent-orchestrator.py             --config dev-hub/config/domain-orchestration.v1.json             --intent /tmp/v6-intent.json             --output /tmp/v6-plan.json
+
+          python3 dev-hub/bin/functional-intent-orchestrator.py             --config dev-hub/config/domain-orchestration.v1.json             --intent /tmp/v62-intent.json             --output /tmp/v62-preplan.json
+
           python3 - <<'PY'
           import json
-          p=json.load(open('/tmp/v6-plan.json'))
-          required={'development','documentation','ui-layout','graphics','animation','cybersecurity','qa'}
-          assert required <= set(p['primary_domains']),p
-          assert p['provider_selection']['technology_radar_required'] is True
-          assert p['provider_selection']['economics_policy_required'] is True
-          assert p['production_change_allowed'] is False
-          print('CHACHA_DEV_V6_FUNCTIONAL_DECOMPOSITION=PASS')
+          p=json.load(open('/tmp/v62-preplan.json'))
+          assert p['plan_stage']=='PREPLAN',p
+          assert p['dispatch_allowed'] is False,p
+          assert p['agent_foundry']['required'] is True,p
+          print('CHACHA_DEV_V62_PREPLAN_BLOCKED=PASS')
+          PY
+
+          python3 dev-hub/bin/project-factory.py             --intent /tmp/v62-intent.json             --domain-plan /tmp/v62-preplan.json             --config dev-hub/config/project-factory.v1.json             --knowledge-fabric dev-hub/config/knowledge-fabric.v1.json             --output /tmp/v62-project.json
+
+          PROJECT_ID="$(python3 -c "import json; print(json.load(open('/tmp/v62-project.json'))['project_id'])")"
+
+          python3 dev-hub/bin/agent-foundry-planner.py             --preplan /tmp/v62-preplan.json             --config dev-hub/config/agent-foundry.v1.json             --routing dev-hub/config/agent-routing.v1.json             --project-id "$PROJECT_ID"             --output /tmp/v62-agent-topology.json
+
+          python3 dev-hub/bin/functional-intent-orchestrator.py             --config dev-hub/config/domain-orchestration.v1.json             --intent /tmp/v62-intent.json             --agent-topology /tmp/v62-agent-topology.json             --output /tmp/v62-final-plan.json
+
+          python3 - <<'PY'
+          import json
+          pre=json.load(open('/tmp/v62-preplan.json'))
+          topo=json.load(open('/tmp/v62-agent-topology.json'))
+          final=json.load(open('/tmp/v62-final-plan.json'))
+          project=json.load(open('/tmp/v62-project.json'))
+          required={'development','documentation','ui-layout','graphics','animation','cybersecurity','qa','translation'}
+          assert required <= set(pre['primary_domains']),pre
+          assert topo['mandatory_preflight'] is True,topo
+          assert topo['return_to']=='chacha-core-orchestrator',topo
+          assert final['plan_stage']=='REPLANNED',final
+          assert final['dispatch_allowed'] is True,final
+          assert final['replan_required'] is False,final
+          assert all(x['agent_topology_status']=='RESOLVED' for x in final['packages']),final
+          assert project['application_agnostic'] is True,project
+          assert project['collectors']['project'].startswith('project-collector:'),project
+          print('CHACHA_DEV_V62_AGENT_FOUNDRY_FIRST=PASS')
+          print('CHACHA_DEV_V62_CORE_REPLAN=PASS')
+          print('CHACHA_DEV_V62_GENERIC_PROJECT_FACTORY=PASS')
+          PY
+
+      - name: Autonomous architecture optimizer smoke
+        run: |
+          set -euo pipefail
+          cat >/tmp/v62-optimizer-input.json <<'JSON'
+          {
+            "current":{
+              "id":"current",
+              "metrics":{
+                "functional_fit":80,"reliability":85,"quality":80,"security":90,"cost":100,
+                "latency_and_throughput":70,"maintainability":75,"resource_efficiency":70,"portability":80
+              }
+            },
+            "candidates":[
+              {
+                "id":"better-free-candidate",
+                "metrics":{
+                  "functional_fit":95,"reliability":94,"quality":92,"security":95,"cost":100,
+                  "latency_and_throughput":85,"maintainability":90,"resource_efficiency":85,"portability":90
+                },
+                "hard_constraints":{"budget":true,"security":true,"compute":true,"license":true,"rollback":true},
+                "approval_flags":[],
+                "risk_class":"LOW",
+                "gates":{"fixture_pass_rate":1.0,"canary_ready":true,"rollback_ready":true,"evidence_ready":true}
+              }
+            ]
+          }
+          JSON
+          python3 dev-hub/bin/architecture-optimizer.py             --policy dev-hub/config/self-evolution.v1.json             --input /tmp/v62-optimizer-input.json             --output /tmp/v62-optimizer-result.json
+          python3 - <<'PY'
+          import json
+          x=json.load(open('/tmp/v62-optimizer-result.json'))
+          assert x['decision']=='PROMOTE_CANARY',x
+          print('CHACHA_DEV_V62_AUTONOMOUS_SAFE_EVOLUTION=PASS')
           PY
 
       - name: Zero-cost resolver smoke
@@ -84,37 +156,49 @@ jobs:
             }
           }
           JSON
-          python3 dev-hub/bin/domain-provider-resolver.py             --registry dev-hub/config/capability-registry.v1.json             --health /tmp/health.json             --economics dev-hub/config/provider-economics.v1.json             --domain graphics             graphics-pipeline >/tmp/v6-resolution.json
+          python3 dev-hub/bin/domain-provider-resolver.py             --registry dev-hub/config/capability-registry.v1.json             --health /tmp/health.json             --economics dev-hub/config/provider-economics.v1.json             --domain graphics             graphics-pipeline >/tmp/v62-resolution.json
           python3 - <<'PY'
           import json
-          r=json.load(open('/tmp/v6-resolution.json'))
+          r=json.load(open('/tmp/v62-resolution.json'))
           assert r['ready'] is True,r
           x=r['resolutions'][0]
           assert x['cost_class'] in {'free','owned','local','included'},x
-          print('CHACHA_DEV_V6_ZERO_COST_RESOLUTION=PASS')
+          print('CHACHA_DEV_V62_ZERO_COST_RESOLUTION=PASS')
           PY
 
       - name: Qualification receipt
         run: |
           {
-            echo CHACHA_DEV_DOMAIN_ORCHESTRATION=V6
+            echo CHACHA_DEV_DOMAIN_ORCHESTRATION=V6.2
             echo RESULT=success
             echo SOURCE_REV="$(git rev-parse HEAD)"
-            echo CORE_ORCHESTRATOR=YES
-            echo DOMAIN_ORCHESTRATORS=YES
-            echo TECHNOLOGY_RADAR_ALL_DOMAINS=YES
+            echo PLATFORM_APPLICATION_AGNOSTIC=YES
+            echo PROJECT_FACTORY=YES
+            echo PROJECT_COLLECTOR=MANDATORY
+            echo PROJECT_DOMAIN_COLLECTORS=MANDATORY
+            echo AGENT_FOUNDRY=FIRST_EXECUTABLE_BRANCH
+            echo CORE_REPLAN_AFTER_FOUNDRY=YES
+            echo DOMAIN_DISPATCH_BEFORE_FOUNDRY=NO
+            echo ASSEMBLY_ORCHESTRATOR=YES
+            echo TRANSLATION_BRANCH=YES
+            echo PUBLICATION_BRANCH=YES
+            echo TECHNOLOGY_WATCH_ALL_DOMAINS_AND_CORE=YES
+            echo AUTONOMOUS_REVERSIBLE_SELF_EVOLUTION=YES
             echo ZERO_INCREMENTAL_COST_DEFAULT=YES
             echo AUTOMATIC_EXTERNAL_SPEND_EUR=0
-            echo PAID_PROVIDER_REQUIRES_HUMAN_APPROVAL=YES
-            echo PRODUCTION_CHANGE=NO
-          } | tee /tmp/CHACHA_DEV_V6_DOMAIN_ORCHESTRATION_RECEIPT.txt
+            echo SENSITIVE_CHANGES_REQUIRE_HUMAN_APPROVAL=YES
+          } | tee /tmp/CHACHA_DEV_V62_DOMAIN_ORCHESTRATION_RECEIPT.txt
 
       - uses: actions/upload-artifact@v4
         with:
-          name: chacha-dev-v6-domain-orchestration-qualification
+          name: chacha-dev-v62-domain-orchestration-qualification
           path: |
-            /tmp/CHACHA_DEV_V6_DOMAIN_ORCHESTRATION_RECEIPT.txt
-            /tmp/v6-tests.log
-            /tmp/v6-plan.json
-            /tmp/v6-resolution.json
+            /tmp/CHACHA_DEV_V62_DOMAIN_ORCHESTRATION_RECEIPT.txt
+            /tmp/v62-tests.log
+            /tmp/v62-preplan.json
+            /tmp/v62-agent-topology.json
+            /tmp/v62-final-plan.json
+            /tmp/v62-project.json
+            /tmp/v62-optimizer-result.json
+            /tmp/v62-resolution.json
           retention-days: 30
