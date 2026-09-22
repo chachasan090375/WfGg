@@ -1,0 +1,66 @@
+{
+  "schema": "chacha.dev/project-factory/v1",
+  "version": "1.0.0",
+  "platform": "ChaCha DEV",
+  "application_agnostic": true,
+  "project_identity": {
+    "generated_project_id": true,
+    "no_special_application_names": true,
+    "functional_intent_is_seed": true,
+    "project_profile_is_dynamic": true
+  },
+  "provision_on_project_creation": [
+    "project-manifest",
+    "project-collector",
+    "acceptance-contract",
+    "context-index",
+    "style-registry",
+    "terminology-registry",
+    "evidence-ledger",
+    "rollback-plan"
+  ],
+  "provision_per_active_domain": [
+    "domain-workspace",
+    "project-domain-collector",
+    "domain-contract",
+    "domain-evidence-stream"
+  ],
+  "orchestrators": {
+    "core": "chacha-core-orchestrator",
+    "assembly": "domain-assembly-orchestrator",
+    "context": "context-resolver",
+    "acceptance": "acceptance-engine"
+  },
+  "collectors": {
+    "project_collector": {
+      "scope": "project",
+      "authoritative_for_project_specific_knowledge": true,
+      "persists_across_conversations": true
+    },
+    "project_domain_collectors": {
+      "scope": "project-domain",
+      "created_only_for_active_domains": true
+    },
+    "generic_domain_collectors": {
+      "scope": "platform-domain",
+      "one_per_domain": true,
+      "receive_only_reusable_distilled_knowledge": true
+    }
+  },
+  "delivery": {
+    "assembly_required": true,
+    "acceptance_required": true,
+    "unresolved_contracts_block_delivery": true,
+    "documentation_projection_required": true,
+    "project_collector_snapshot_required": true
+  },
+  "autonomy": {
+    "normal_reversible_work": "AUTO_WITH_GATES",
+    "previews": "AUTO_WITH_GATES",
+    "reversible_production_release": "AUTO_WITH_GATES",
+    "paid_spend": "APPROVAL_REQUIRED",
+    "secrets_or_identity_boundary": "APPROVAL_REQUIRED",
+    "destructive_or_irreversible_change": "APPROVAL_REQUIRED",
+    "security_boundary_reduction": "APPROVAL_REQUIRED"
+  }
+}
