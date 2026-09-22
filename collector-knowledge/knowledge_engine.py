@@ -32,6 +32,10 @@ ANIMATION_EXTS = {".anim", ".controller", ".skel", ".skeleton", ".timeline", ".s
 ARCHIVE_EXTS = {".apk", ".xapk", ".zip", ".pak", ".bundle", ".assetbundle"}
 
 COMMAND_RE = re.compile(r"\b[a-z][a-z0-9_]*(?:\.[a-z0-9_]+){1,5}\b")
+FIELD_TERMS = {
+    "totalnum","totalcount","playercount","playernum","rolecount","rolenum",
+    "usercount","usernum","serverid","totalscore","totalrank","rankcount","maxrank"
+}
 REFERENCE_RE = re.compile(r"([A-Za-z0-9_./\\-]+\.(?:png|jpe?g|webp|atlas|json|prefab|anim|controller|skel|wav|ogg|mp3|lua|bytes|assetbundle))", re.I)
 
 @dataclass(frozen=True)
@@ -443,9 +447,9 @@ class Analyzer:
         strings=[m.group(0).decode("ascii","replace") for m in re.finditer(rb"[ -~]{4,}",data)]
         useful=False
         for st in strings[:20000]:
-            if COMMAND_RE.fullmatch(st):
+            for command in sorted(set(COMMAND_RE.findall(st))):
                 useful=True
-                eid=self.db.entity("COMMAND_OR_KEY",st,"PROTOCOL",self.source_version)
+                eid=self.db.entity("COMMAND_OR_KEY",command,"PROTOCOL",self.source_version)
                 ev=self.db.add_evidence(aid,eid,"BINARY_STRING",rel,st)
                 self.db.add_edge(file_entity,"REFERENCES",eid,ev,0.7)
             for ref in REFERENCE_RE.findall(st):
@@ -476,14 +480,17 @@ class Analyzer:
             self.db.add_edge(file_entity,"CONTAINS_MODULE",mod,mev,1.0)
             strings=[m.group(0).decode("ascii","replace") for m in re.finditer(rb"[ -~]{4,}",chunk)]
             for st in strings[:5000]:
-                if COMMAND_RE.fullmatch(st):
-                    cmd=self.db.entity("COMMAND",st,"PROTOCOL",self.source_version)
+                for command in sorted(set(COMMAND_RE.findall(st))):
+                    cmd=self.db.entity("COMMAND",command,"PROTOCOL",self.source_version)
                     cev=self.db.add_evidence(aid,cmd,"LUA_CONSTANT",f"{name}:entry:{idx}",st)
                     self.db.add_edge(mod,"REFERENCES_COMMAND",cmd,cev,0.95)
-                elif st.lower() in {"totalnum","totalcount","playercount","playernum","rolecount","rolenum","usercount","serverid","totalscore","totalrank","rankcount","maxrank"}:
-                    fld=self.db.entity("FIELD",st,layer,self.source_version)
-                    fev=self.db.add_evidence(aid,fld,"LUA_CONSTANT",f"{name}:entry:{idx}",st)
-                    self.db.add_edge(mod,"REFERENCES_FIELD",fld,fev,0.9)
+                lowered=st.lower()
+                for term in sorted(FIELD_TERMS):
+                    if re.search(r"(?<![a-z0-9_])"+re.escape(term)+r"(?![a-z0-9_])",lowered):
+                        original=next((m.group(0) for m in re.finditer(re.escape(term),st,re.I)),term)
+                        fld=self.db.entity("FIELD",original,layer,self.source_version)
+                        fev=self.db.add_evidence(aid,fld,"LUA_CONSTANT",f"{name}:entry:{idx}",st)
+                        self.db.add_edge(mod,"REFERENCES_FIELD",fld,fev,0.9)
             if any(x in name.lower() for x in ("anim","timeline","spine","skeleton","effect","particle")):
                 self.db.enqueue("DECODE_LUA_ANIMATION_BEHAVIOR",aid,name,25)
             if layer=="PROTOCOL":
