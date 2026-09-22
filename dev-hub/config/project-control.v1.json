@@ -76,7 +76,17 @@
     "project_factory": "dev-hub/config/project-factory.v1.json",
     "knowledge_fabric": "dev-hub/config/knowledge-fabric.v1.json",
     "self_evolution": "dev-hub/config/self-evolution.v1.json",
-    "agent_foundry": "dev-hub/config/agent-foundry.v1.json"
+    "agent_foundry": "dev-hub/config/agent-foundry.v1.json",
+    "capability_foundry": "dev-hub/config/capability-foundry.v1.json",
+    "domain_factories": "dev-hub/config/domain-factories.v1.json",
+    "contract_registry": "dev-hub/config/contract-registry.v1.json",
+    "acceptance_engine": "dev-hub/config/acceptance-engine.v1.json",
+    "digital_twin": "dev-hub/config/digital-twin.v1.json",
+    "competition_arena": "dev-hub/config/competition-arena.v1.json",
+    "knowledge_lifecycle": "dev-hub/config/knowledge-lifecycle.v1.json",
+    "recovery_orchestrator": "dev-hub/config/recovery-orchestrator.v1.json",
+    "uncertainty_policy": "dev-hub/config/uncertainty-policy.v1.json",
+    "autonomy_definition": "dev-hub/config/autonomy-definition.v1.json"
   },
   "engine_paths": {
     "control_plane_store": "dev-hub/bin/control-plane-store.py",
@@ -96,7 +106,19 @@
     "domain_provider_resolver": "dev-hub/bin/domain-provider-resolver.py",
     "project_factory": "dev-hub/bin/project-factory.py",
     "architecture_optimizer": "dev-hub/bin/architecture-optimizer.py",
-    "agent_foundry_planner": "dev-hub/bin/agent-foundry-planner.py"
+    "agent_foundry_planner": "dev-hub/bin/agent-foundry-planner.py",
+    "specification_compiler": "dev-hub/bin/specification-compiler.py",
+    "autonomous_project_orchestrator": "dev-hub/bin/autonomous-project-orchestrator.py",
+    "capability_foundry": "dev-hub/bin/capability-foundry.py",
+    "component_factory": "dev-hub/bin/component-factory.py",
+    "contract_registry": "dev-hub/bin/contract-registry.py",
+    "acceptance_engine": "dev-hub/bin/acceptance-engine.py",
+    "digital_twin_planner": "dev-hub/bin/digital-twin-planner.py",
+    "competition_arena": "dev-hub/bin/competition-arena.py",
+    "knowledge_compiler": "dev-hub/bin/knowledge-compiler.py",
+    "uncertainty_resolver": "dev-hub/bin/uncertainty-resolver.py",
+    "recovery_orchestrator": "dev-hub/bin/recovery-orchestrator.py",
+    "autonomy_audit": "dev-hub/bin/autonomy-audit.py"
   },
   "status_model": [
     "READY",
@@ -196,6 +218,20 @@
       "mutating": false,
       "mandatory_before_domain_dispatch": true,
       "returns_to_core_orchestrator": true
+    },
+    "autonomous-bootstrap": {
+      "class": "plan",
+      "mutating": false,
+      "application_agnostic": true,
+      "sequence": [
+        "SPEC",
+        "PROJECT_FACTORY",
+        "CORE_PREPLAN",
+        "AGENT_FOUNDRY",
+        "CAPABILITY_FOUNDRY_IF_NEEDED",
+        "CORE_REPLAN"
+      ],
+      "domain_dispatch_after_success": true
     }
   },
   "transaction_policy": {
