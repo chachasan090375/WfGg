@@ -79,6 +79,25 @@ def _reusable_branch_taxonomy(db_path: Path) -> dict[str, Any]:
     return {"branch_count":len(rows),"domains":domains}
 
 
+def _reusable_architecture_taxonomy(db_path: Path) -> dict[str, Any]:
+    if not db_path.is_file():
+        return {"architecture_count":0,"functional_signatures":{}}
+    try:
+        db=sqlite3.connect(db_path)
+        rows=db.execute("""SELECT functional_signature,architecture_id,version,qualification_status,state,
+                          technology_revalidated_at,external_spend_eur,quality_score
+                          FROM reusable_architectures""").fetchall()
+    except Exception:
+        return {"architecture_count":0,"functional_signatures":{}}
+    groups={}
+    for sig,aid,version,qualification,state,revalidated,cost,quality in rows:
+        groups.setdefault(str(sig),[]).append({
+            "architecture_id":aid,"version":version,"qualification_status":qualification,"state":state,
+            "technology_revalidated_at":revalidated,"external_spend_eur":cost,"quality_score":quality
+        })
+    return {"architecture_count":len(rows),"functional_signatures":groups}
+
+
 def _technology_taxonomy(domains: dict[str, Any], capreg: dict[str, Any], candidates: list[dict[str, Any]]) -> dict[str, Any]:
     out={}
     domain_specs=domains.get("domains") or {}
@@ -128,8 +147,10 @@ def build_snapshot(repo_root: Path, *, scope_domain: str|None=None,
     selected_pool=zero if zero else eligible
     selected_pool=sorted(selected_pool,key=lambda x:(x["cost_class"],x["id"],x["capability"]))
     reusable_db=Path(os.environ.get("CHACHA_REUSABLE_BRANCH_DB","/opt/chacha-dev/runtime/knowledge/reusable-branches.db"))
+    reusable_arch_db=Path(os.environ.get("CHACHA_REUSABLE_ARCHITECTURE_DB","/opt/chacha-dev/runtime/knowledge/reusable-architectures.db"))
     taxonomy=_technology_taxonomy(domains,capreg,candidates)
     reusable_taxonomy=_reusable_branch_taxonomy(reusable_db)
+    reusable_architecture_taxonomy=_reusable_architecture_taxonomy(reusable_arch_db)
     body={
         "schema":"chacha.dev/technology-watch-snapshot/v1",
         "generated_at":_utcnow(),
@@ -153,6 +174,7 @@ def build_snapshot(repo_root: Path, *, scope_domain: str|None=None,
         "branch_blueprints":[],
         "technology_taxonomy":taxonomy,
         "reusable_branch_taxonomy":reusable_taxonomy,
+        "reusable_architecture_taxonomy":reusable_architecture_taxonomy,
         "provider_economics_digest":_digest(economics),
     }
     body["snapshot_digest"]=_digest(body)
