@@ -241,7 +241,7 @@ def main():
 
     state={
       "schema":"chacha.dev/autonomous-project-bootstrap/v1",
-      "version":"6.13.0",
+      "version":"6.14.0",
       "project_id":pid,
       "functional_contract":str(contract),
       "project":str(project),
@@ -256,6 +256,8 @@ def main():
       "final_plan":str(final),
       "architecture_decision_council":str(architecture_council),
       "architecture_decision_allowed":bool(architecture_council_v.get("dispatch_allowed")),
+      "architecture_portfolio_mode":((architecture_council_v.get("architecture_portfolio") or {}).get("mode")),
+      "architecture_comparative_pilot_required":bool((architecture_council_v.get("architecture_portfolio") or {}).get("comparative_pilot_required")),
       "architecture_mandatory_advisors":architecture_council_v.get("mandatory_advisors") or [],
       "capability_foundry_created_domains":foundry_v.get("created_domain_count",0),
       "capability_foundry_created_capabilities":foundry_v.get("created_capability_count",0),
