@@ -5,6 +5,7 @@ on:
     branches: [radar-v625-coverage-cardinality-discovery]
     paths:
       - '.github/workflows/radar-v625-server-population-schema.yml'
+      - '.github/scripts/v625_server_population_schema.py'
   workflow_dispatch:
 
 permissions:
@@ -26,142 +27,34 @@ jobs:
           git clone --quiet https://github.com/HansWessels/unluac.git /tmp/unluac
           cd /tmp/unluac
           git checkout --quiet 1b2bfed6045eb719a27f026311744d7a674847f5
-          python3 - <<'PY'
-          from pathlib import Path
-          p=Path('/tmp/unluac/src/unluac/parse/LHeaderType.java')
-          s=p.read_text()
-          old='''    if(format != 0) {
-      throw new IllegalStateException("The input chunk reports a non-standard lua format: " + format);
-    }'''
-          new='''    if(format != 0 && format != 1) {
-      throw new IllegalStateException("The input chunk reports an unsupported lua format: " + format);
-    }'''
-          if old not in s: raise SystemExit('V625_UNLUAC_FORMAT_ANCHOR_MISSING')
-          s=s.replace(old,new,1)
-          old2='''    parse_size_t_size(buffer, header, s);
-    parse_instruction_size(buffer, header, s);
-    parse_integer_size(buffer, header, s);'''
-          new2='''    parse_size_t_size(buffer, header, s);
-    // Last War custom Lua 5.3 format=1 omits the instruction-size byte.
-    if(s.format != 1) {
-      parse_instruction_size(buffer, header, s);
-    }
-    parse_integer_size(buffer, header, s);'''
-          if old2 not in s: raise SystemExit('V625_UNLUAC_INSTRUCTION_ANCHOR_MISSING')
-          s=s.replace(old2,new2,1)
-          p.write_text(s)
-          PY
-          cd src
+          cd "$GITHUB_WORKSPACE"
+          python3 .github/scripts/v625_server_population_schema.py --patch-unluac /tmp/unluac
+          cd /tmp/unluac/src
           mkdir -p build
           javac -d build unluac/*.java
           jar cfe /tmp/unluac-v625.jar unluac.Main -C build .
           test -s /tmp/unluac-v625.jar
-          echo V625_UNLUAC_PATCHED=READY
 
       - name: Fetch Lua pack
         run: |
           set -euo pipefail
-          python3 - <<'PY'
-          from remotezip import RemoteZip
-          from pathlib import Path
-          url='https://d.apkpure.net/b/XAPK/com.fun.lastwar.gp?nc=arm64-v8a%2Carmeabi-v7a&sv=23&versionCode=1835'
-          with RemoteZip(url, headers={'User-Agent':'Mozilla/5.0'}) as rz:
-              matches=[n for n in rz.namelist() if n.endswith('install_time_pack.apk')]
-              if len(matches)!=1: raise SystemExit(matches)
-              Path('/tmp/install_time_pack.apk').write_bytes(rz.read(matches[0]))
-          PY
+          python3 -c "from remotezip import RemoteZip; from pathlib import Path; u='https://d.apkpure.net/b/XAPK/com.fun.lastwar.gp?nc=arm64-v8a%2Carmeabi-v7a&sv=23&versionCode=1835'; r=RemoteZip(u,headers={'User-Agent':'Mozilla/5.0'}); m=[n for n in r.namelist() if n.endswith('install_time_pack.apk')]; assert len(m)==1,m; Path('/tmp/install_time_pack.apk').write_bytes(r.read(m[0])); r.close()"
           unzip -p /tmp/install_time_pack.apk assets/lwScripts/LWScripts.data > /tmp/LWScripts.data
+          test -s /tmp/LWScripts.data
+          echo "V625_LWSCRIPTS_BYTES=$(stat -c %s /tmp/LWScripts.data)"
 
-      - name: Extract server-detail and population-related modules
+      - name: Decompile and analyze population candidates
         run: |
           set -euo pipefail
-          python3 - <<'PY'
-          from pathlib import Path
-          import struct,re,json
-          data=Path('/tmp/LWScripts.data').read_bytes()
-          _,_,count=struct.unpack_from('<III',data,4)
-          pos=16
-          out=Path('/tmp/v625-pop'); out.mkdir()
-          def r7(off):
-              value=0; shift=0
-              for _ in range(5):
-                  x=data[off]; off+=1
-                  value|=(x&0x7f)<<shift
-                  if not x&0x80:return value,off
-                  shift+=7
-              raise ValueError
-          picked=[]
-          for i in range(count):
-              n,pos=r7(pos); name=data[pos:pos+n].decode('utf-8','replace'); pos+=n
-              size=struct.unpack_from('<I',data,pos)[0]; pos+=4
-              chunk=data[pos:pos+size]; pos+=size
-              low=name.lower()
-              raw=chunk.decode('latin1','ignore').lower()
-              match=(
-                  'seasonserverdetail' in low or
-                  ('server' in low and ('detail' in low or 'info' in low) and any(x in raw for x in ('totalnum','playernum','playercount','usercount','rolenum','rolecount'))) or
-                  ('net/msgs/' in low and 'server' in low and any(x in raw for x in ('totalnum','playernum','playercount','usercount','rolenum','rolecount')))
-              )
-              if match:
-                  fn=f'{i:05d}_'+name.replace('/','_')
-                  Path(out/fn).write_bytes(chunk)
-                  picked.append({'index':i,'name':name,'file':fn,'size':size})
-          Path('/tmp/v625-picked.json').write_text(json.dumps(picked,indent=2))
-          print('V625_POP_MODULE_COUNT='+str(len(picked)))
-          for x in picked: print('V625_POP_MODULE='+x['name'])
-          PY
-
-      - name: Decompile candidates
-        run: |
-          set -euo pipefail
-          mkdir -p /tmp/v625-decompiled
-          for f in /tmp/v625-pop/*.luac; do
-            [ -e "$f" ] || continue
-            base="$(basename "$f" .luac)"
-            if java -jar /tmp/unluac-v625.jar "$f" > "/tmp/v625-decompiled/$base.lua" 2>"/tmp/v625-decompiled/$base.err"; then
-              echo "V625_DECOMPILE_OK=$base"
-            else
-              echo "V625_DECOMPILE_FAIL=$base"
-            fi
-          done
-
-      - name: Extract semantic evidence
-        run: |
-          set -euo pipefail
-          python3 - <<'PY'
-          from pathlib import Path
-          import re,json
-          report=[]
-          for p in sorted(Path('/tmp/v625-decompiled').glob('*.lua')):
-              s=p.read_text(errors='replace')
-              low=s.lower()
-              if not any(x in low for x in ('totalnum','playernum','playercount','usercount','rolenum','rolecount')):
-                  continue
-              lines=s.splitlines()
-              selected=[]
-              for i,line in enumerate(lines):
-                  ll=line.lower()
-                  if any(x in ll for x in ('totalnum','playernum','playercount','usercount','rolenum','rolecount','serverid','cmd =','message','rank')):
-                      selected.extend(lines[max(0,i-4):min(len(lines),i+7)])
-              dedup=[]
-              for x in selected:
-                  if x not in dedup: dedup.append(x)
-              report.append({'file':p.name,'evidence':dedup[:180]})
-          Path('/tmp/v625-population-evidence.json').write_text(json.dumps(report,indent=2))
-          print('V625_EVIDENCE_MODULES='+str(len(report)))
-          for r in report:
-              print('===== '+r['file']+' =====')
-              for x in r['evidence'][:120]:
-                  print(x[:260])
-          PY
-          echo V625_LASTWAR_CONNECTION=NONE
-          echo V625_LASTWAR_MUTATION=NO
+          python3 .github/scripts/v625_server_population_schema.py --pack /tmp/LWScripts.data --jar /tmp/unluac-v625.jar
 
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: radar-v625-server-population-schema
           path: |
             /tmp/v625-picked.json
             /tmp/v625-population-evidence.json
             /tmp/v625-decompiled
+          if-no-files-found: warn
           retention-days: 30
