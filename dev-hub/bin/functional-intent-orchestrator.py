@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import re
 from pathlib import Path
@@ -9,6 +10,7 @@ from typing import Any
 
 SCHEMA="chacha.dev/domain-orchestration/v1"
 OUTPUT="chacha.dev/domain-plan/v1"
+TOPOLOGY_SCHEMA="chacha.dev/agent-topology/v1"
 
 QUESTION_HINTS=("?","qu'est-ce","comment ","pourquoi ","où ","quel ","quelle ","peux-tu m'expliquer","explique")
 CHANGE_HINTS=("crée","cree","ajoute","modifie","corrige","déploie","deploy","implémente","implemente","construis","installe","migration","remplace")
@@ -20,6 +22,10 @@ def load(path: Path) -> dict[str,Any]:
 
 def normalize(text: str) -> str:
     return re.sub(r"\s+"," ",text.strip().lower())
+
+def canonical_digest(value: Any) -> str:
+    raw=json.dumps(value,sort_keys=True,ensure_ascii=False,separators=(",",":")).encode()
+    return hashlib.sha256(raw).hexdigest()
 
 def infer_mode(text: str, matched: list[str], explicit_mode: str|None) -> str:
     if explicit_mode:
@@ -97,9 +103,7 @@ def dependency_edges(packages: list[dict[str,Any]],cfg: dict[str,Any]) -> list[d
                 edges.append({"from":src,"to":dst})
     return edges
 
-def make_plan(intent: dict[str,Any],cfg: dict[str,Any]) -> dict[str,Any]:
-    if cfg.get("schema")!=SCHEMA:
-        raise SystemExit("DOMAIN_ORCHESTRATION_SCHEMA_INVALID")
+def _preplan(intent: dict[str,Any],cfg: dict[str,Any]) -> dict[str,Any]:
     raw=str(intent.get("text") or intent.get("objective") or "").strip()
     if not raw:raise SystemExit("INTENT_TEXT_MISSING")
     text=normalize(raw)
@@ -113,6 +117,7 @@ def make_plan(intent: dict[str,Any],cfg: dict[str,Any]) -> dict[str,Any]:
     packages=work_packages(primary,reviews,cfg,raw)
     return {
         "schema":OUTPUT,
+        "plan_stage":"PREPLAN",
         "mode":mode,
         "intent":raw,
         "primary_domains":primary,
@@ -124,19 +129,101 @@ def make_plan(intent: dict[str,Any],cfg: dict[str,Any]) -> dict[str,Any]:
         "provider_selection":{
             "owner":"domain-orchestrator",
             "resolver":"domain-provider-resolver",
-            "technology_radar_required":True,
+            "technology_watch_required":True,
             "economics_policy_required":True
         },
+        "agent_foundry":{
+            "required":True,
+            "branch":"agent-foundry",
+            "policy":(cfg.get("preflight") or {}).get("policy","dev-hub/config/agent-foundry.v1.json"),
+            "returns_to":"chacha-core-orchestrator"
+        },
+        "dispatch_allowed":False,
+        "replan_required":True,
         "production_change_allowed":False
     }
+
+def apply_topology(preplan:dict[str,Any],topology:dict[str,Any],cfg:dict[str,Any]) -> dict[str,Any]:
+    if topology.get("schema")!=TOPOLOGY_SCHEMA:
+        raise SystemExit("AGENT_TOPOLOGY_SCHEMA_INVALID")
+    if str(topology.get("intent") or "") != str(preplan.get("intent") or ""):
+        raise SystemExit("AGENT_TOPOLOGY_INTENT_MISMATCH")
+
+    directives=topology.get("replan_directives") if isinstance(topology.get("replan_directives"),dict) else {}
+    domains_cfg=cfg.get("domains") or {}
+    primary=list(preplan["primary_domains"])
+    reasons={k:list(v) for k,v in (preplan.get("reasons") or {}).items()}
+
+    for d in directives.get("remove_domains") or []:
+        if d in primary:
+            primary.remove(d)
+            reasons.setdefault(d,[]).append("agent-foundry:removed")
+    added=[]
+    for d in directives.get("add_domains") or []:
+        if d in domains_cfg and d not in primary:
+            primary.append(d);added.append(d)
+            reasons.setdefault(d,[]).append("agent-foundry:added")
+
+    order=list(domains_cfg)
+    primary=[d for d in order if d in primary]
+    reviews=expand_reviews(primary,cfg)
+    packages=work_packages(primary,reviews,cfg,preplan["intent"])
+    decisions={str(x.get("package_id")):x for x in topology.get("decisions") or [] if isinstance(x,dict)}
+
+    unresolved=[]
+    for pkg in packages:
+        decision=decisions.get(pkg["id"])
+        if decision is None:
+            pkg["agent_topology_status"]="UNRESOLVED"
+            unresolved.append(pkg["id"])
+        else:
+            pkg["agent_topology_status"]="RESOLVED"
+            pkg["execution_mode"]=decision.get("decision")
+            pkg["agent_id"]=decision.get("agent_id")
+            pkg["agent_creation_score"]=decision.get("agent_creation_score")
+            pkg["agent_manifest"]=decision.get("manifest")
+
+    # If Foundry adds a domain, that new domain must itself pass Foundry before dispatch.
+    foundry_iteration_required=bool(added or unresolved)
+    out=dict(preplan)
+    out.update({
+        "plan_stage":"REPLANNED" if not foundry_iteration_required else "PREPLAN_REVISED",
+        "primary_domains":primary,
+        "review_domains":reviews,
+        "reasons":reasons,
+        "packages":packages,
+        "dependencies":dependency_edges(packages,cfg),
+        "agent_foundry":{
+            "required":True,
+            "completed":not foundry_iteration_required,
+            "topology_digest":canonical_digest(topology),
+            "iterations_required":2 if foundry_iteration_required else 1,
+            "added_domains":added,
+            "unresolved_packages":unresolved
+        },
+        "dispatch_allowed":not foundry_iteration_required,
+        "replan_required":foundry_iteration_required,
+        "production_change_allowed":False
+    })
+    return out
+
+def make_plan(intent: dict[str,Any],cfg: dict[str,Any],topology:dict[str,Any]|None=None) -> dict[str,Any]:
+    if cfg.get("schema")!=SCHEMA:
+        raise SystemExit("DOMAIN_ORCHESTRATION_SCHEMA_INVALID")
+    preplan=_preplan(intent,cfg)
+    if topology is None:
+        return preplan
+    return apply_topology(preplan,topology,cfg)
 
 def main():
     ap=argparse.ArgumentParser()
     ap.add_argument("--config",required=True,type=Path)
     ap.add_argument("--intent",required=True,type=Path)
+    ap.add_argument("--agent-topology",type=Path)
     ap.add_argument("--output",type=Path)
     args=ap.parse_args()
-    plan=make_plan(load(args.intent),load(args.config))
+    topology=load(args.agent_topology) if args.agent_topology else None
+    plan=make_plan(load(args.intent),load(args.config),topology)
     payload=json.dumps(plan,ensure_ascii=False,indent=2)+"\n"
     if args.output:args.output.write_text(payload,encoding="utf-8")
     else:print(payload,end="")
