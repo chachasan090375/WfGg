@@ -6,6 +6,7 @@ import concurrent.futures
 import json
 import subprocess
 import sys
+import uuid
 from pathlib import Path
 
 def load(p):
@@ -17,11 +18,100 @@ def save(p,x):
     Path(p).parent.mkdir(parents=True,exist_ok=True)
     Path(p).write_text(json.dumps(x,indent=2,ensure_ascii=False)+"\n",encoding="utf-8")
 
+_GUARDIAN_CONTEXT={"enabled":False}
+_STAGE_ROLE={
+    "specification-compiler.py":"specification-compiler",
+    "functional-intent-orchestrator.py":"orchestrator",
+    "project-factory.py":"project-factory",
+    "agent-foundry-planner.py":"agent-foundry",
+    "branch-foundry-planner.py":"branch-foundry",
+    "capability-foundry.py":"capability-foundry",
+    "architecture-decision-council.py":"architecture-decision-council",
+    "capsule-scheduler.py":"capsule-scheduler",
+}
+
+def configure_guardian(root:Path,out:Path):
+    _GUARDIAN_CONTEXT.clear()
+    _GUARDIAN_CONTEXT.update({
+      "enabled":Path("/opt/chacha-dev/runtime").exists(),
+      "client":root/"dev-hub/bin/guardian-client.py",
+      "policy":root/"dev-hub/config/guardian-runtime-policy.v1.json",
+      "event_dir":out/"guardian",
+    })
+
+def _output_arg(args):
+    vals=list(map(str,args))
+    for i,v in enumerate(vals[:-1]):
+        if v=="--output": return Path(vals[i+1])
+    return None
+
+def _council_guardian_evidence(output_path:Path|None):
+    evidence={"emergency_stop_active":emergency_stop_active()}
+    if not output_path or not output_path.exists():
+        return evidence
+    try:x=load(output_path)
+    except Exception:return evidence
+    decisions=[d for d in x.get("decisions") or [] if isinstance(d,dict)]
+    def all_pass(key):
+        return bool(decisions) and all((d.get("mandatory_advisors") or {}).get(key)=="PASS" for d in decisions)
+    evidence.update({
+      "technology_watch_pre":all_pass("technology-watch-pre"),
+      "technology_watch_final":all_pass("technology-watch-final"),
+      "reuse_memory":all_pass("reuse-memory"),
+      "architecture_memory":all_pass("architecture-memory"),
+      "architecture_portfolio":all_pass("architecture-portfolio"),
+      "branch_foundry":all_pass("branch-foundry"),
+      "agent_foundry":all_pass("agent-foundry"),
+      "capability_foundry":all_pass("capability-foundry"),
+      "constraint_policy":all_pass("constraint-policy"),
+      "dispatch_allowed":bool(x.get("dispatch_allowed")),
+    })
+    return evidence
+
+def guardian_stage(script:Path,args,phase:str):
+    if not _GUARDIAN_CONTEXT.get("enabled"): return {"status":"NON_RUNTIME_TEST_BYPASS"}
+    client=Path(_GUARDIAN_CONTEXT["client"]);policy=Path(_GUARDIAN_CONTEXT["policy"])
+    if not client.is_file() or not policy.is_file():
+        return {"status":"UNAVAILABLE","reason":"CLIENT_OR_POLICY_MISSING"}
+    role=_STAGE_ROLE.get(script.name,"orchestrator")
+    action="FINAL_ARCHITECTURE_DECISION" if (script.name=="architecture-decision-council.py" and phase=="POST_ACTION") else "INVOKE_COMPONENT"
+    out=_output_arg(args)
+    evidence={"emergency_stop_active":emergency_stop_active(),"output_exists":bool(out and out.exists())}
+    if script.name=="architecture-decision-council.py" and phase=="POST_ACTION":
+        evidence=_council_guardian_evidence(out)
+    event={
+      "schema":"chacha.dev/governance-action/v1",
+      "event_id":"gov-"+uuid.uuid4().hex,
+      "phase":phase,
+      "actor":"central-orchestrator",
+      "subject_role":role,
+      "action":action,
+      "task_kind":script.stem,
+      "permission":"plan",
+      "project_id":"platform-bootstrap",
+      "run_id":None,
+      "adapters":[],
+      "evidence":evidence,
+      "context":{"resource_class":"light","human_approval_required":False,"storage_preflight_required":False}
+    }
+    event_dir=Path(_GUARDIAN_CONTEXT["event_dir"]);event_dir.mkdir(parents=True,exist_ok=True)
+    ep=event_dir/(event["event_id"]+".json");save(ep,event)
+    p=subprocess.run([sys.executable,str(client),"--policy",str(policy),"check","--event",str(ep)],
+                     stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=25)
+    try:verdict=json.loads(p.stdout.strip())
+    except Exception:verdict={"status":"UNAVAILABLE","reason":"INVALID_GUARDIAN_RESPONSE"}
+    save(event_dir/(event["event_id"]+".verdict.json"),verdict)
+    if str(verdict.get("verdict")) in {"BLOCK","CRITICAL"}:
+        raise RuntimeError("GUARDIAN_STAGE_BLOCK:"+script.name+":"+str(verdict.get("reason_codes") or []))
+    return verdict
+
 def run(script,args):
+    guardian_stage(Path(script),args,"PRE_ACTION")
     p=subprocess.run([sys.executable,str(script),*map(str,args)],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
                      text=True,check=False,timeout=120)
     if p.returncode!=0:
         raise RuntimeError(f"{script.name}: {p.stderr.strip()} {p.stdout.strip()}")
+    guardian_stage(Path(script),args,"POST_ACTION")
     return p.stdout
 
 def merge_domain(base,overlay,out):
@@ -112,6 +202,7 @@ def main():
         raise SystemExit("CHACHA_DEV_EMERGENCY_STOP_ACTIVE")
     root=a.repo_root.resolve();out=a.output_dir.resolve();out.mkdir(parents=True,exist_ok=True)
     cfg=root/"dev-hub/config";bin_dir=root/"dev-hub/bin"
+    configure_guardian(root,out)
 
     contract=out/"functional-contract.json"
     run(bin_dir/"specification-compiler.py",["--intent",a.intent,"--output",contract])
@@ -241,7 +332,7 @@ def main():
 
     state={
       "schema":"chacha.dev/autonomous-project-bootstrap/v1",
-      "version":"6.14.0",
+      "version":"6.15.0",
       "project_id":pid,
       "functional_contract":str(contract),
       "project":str(project),
@@ -267,6 +358,8 @@ def main():
       "runtime_memory_hard_limit_mb":int((branch_v.get("summary") or {}).get("runtime_memory_hard_limit_mb") or 0),
       "runtime_disk_soft_limit_mb":int((branch_v.get("summary") or {}).get("runtime_disk_soft_limit_mb") or 0),
       "external_spend_eur":float((branch_v.get("summary") or {}).get("external_spend_eur") or 0),
+      "guardian_external_enabled":bool(_GUARDIAN_CONTEXT.get("enabled")),
+      "guardian_event_dir":str(_GUARDIAN_CONTEXT.get("event_dir")),
       "next_stage":next_stage
     }
     save(out/"bootstrap-result.json",state)
