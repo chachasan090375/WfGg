@@ -35,99 +35,10 @@ systemctl daemon-reload
 systemctl start chacha-dev-technology-watch.service
 systemctl enable --now chacha-dev-technology-watch.timer
 systemctl enable chacha-dev-emergency-stop-surface.service
-# Stop the managed unit first. A previous failed/manual PILOT may nevertheless
-# have left an orphaned emergency-stop surface listening on 127.0.0.1:8788.
-# Recover only a listener whose command line is our own emergency surface; an
-# unrelated listener is a hard safety conflict and is never killed.
 systemctl stop chacha-dev-emergency-stop-surface.service 2>/dev/null || true
-python3 - <<'PY'
-import os,socket,time,signal,sys
-
-HOST="127.0.0.1"; PORT=8788
-
-def port_free():
-    s=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-    try:
-        s.bind((HOST,PORT))
-        return True
-    except OSError:
-        return False
-    finally:
-        s.close()
-
-def listener_inodes():
-    wanted=f"{PORT:04X}"
-    out=set()
-    for fn in ("/proc/net/tcp","/proc/net/tcp6"):
-        try:
-            rows=open(fn,encoding="ascii").read().splitlines()[1:]
-        except OSError:
-            continue
-        for row in rows:
-            p=row.split()
-            if len(p)<10 or p[3]!="0A":
-                continue
-            local=p[1]
-            if local.rsplit(":",1)[-1].upper()!=wanted:
-                continue
-            out.add(p[9])
-    return out
-
-if not port_free():
-    inodes=listener_inodes()
-    owners=[]
-    for name in os.listdir("/proc"):
-        if not name.isdigit():
-            continue
-        pid=int(name)
-        fdroot=f"/proc/{pid}/fd"
-        try:
-            fds=os.listdir(fdroot)
-        except OSError:
-            continue
-        owns=False
-        for fd in fds:
-            try:
-                link=os.readlink(f"{fdroot}/{fd}")
-            except OSError:
-                continue
-            if link.startswith("socket:[") and link[8:-1] in inodes:
-                owns=True
-                break
-        if not owns:
-            continue
-        try:
-            cmd=open(f"/proc/{pid}/cmdline","rb").read().replace(b"\\0",b" ").decode(errors="replace").strip()
-        except OSError:
-            cmd=""
-        owners.append((pid,cmd))
-
-    foreign=[(pid,cmd) for pid,cmd in owners if "emergency-stop-surface.py" not in cmd]
-    ours=[(pid,cmd) for pid,cmd in owners if "emergency-stop-surface.py" in cmd]
-    if foreign or not ours:
-        print("CHACHA_DEV_V64_EMERGENCY_PORT_CONFLICT=BLOCKED", file=sys.stderr)
-        for pid,cmd in owners:
-            print(f"listener_pid={pid} cmd={cmd}", file=sys.stderr)
-        raise SystemExit(3)
-
-    for pid,_ in ours:
-        try: os.kill(pid,signal.SIGTERM)
-        except ProcessLookupError: pass
-    deadline=time.time()+3
-    while time.time()<deadline and not port_free():
-        time.sleep(.1)
-    if not port_free():
-        for pid,_ in ours:
-            try: os.kill(pid,signal.SIGKILL)
-            except ProcessLookupError: pass
-        time.sleep(.2)
-    if not port_free():
-        print("CHACHA_DEV_V64_EMERGENCY_PORT_RECOVERY=FAILED", file=sys.stderr)
-        raise SystemExit(4)
-    print("CHACHA_DEV_V64_EMERGENCY_PORT_RECOVERY=PASS")
-else:
-    print("CHACHA_DEV_V64_EMERGENCY_PORT_FREE=PASS")
-PY
+EMERGENCY_ENDPOINT_FILE="/opt/chacha-dev/runtime/control/emergency-stop-surface.json"
+EMERGENCY_TOKEN_FILE="/opt/chacha-dev/runtime/control/emergency-stop-ui.token"
+rm -f "$EMERGENCY_ENDPOINT_FILE"
 systemctl reset-failed chacha-dev-emergency-stop-surface.service 2>/dev/null || true
 if ! systemctl start chacha-dev-emergency-stop-surface.service; then
   systemctl status --no-pager chacha-dev-emergency-stop-surface.service || true
@@ -137,16 +48,30 @@ if ! systemctl start chacha-dev-emergency-stop-surface.service; then
 fi
 systemctl is-active --quiet chacha-dev-technology-watch.timer
 
-# Readiness is stronger than "active": the new surface must have created its
-# token and be answering on loopback before the PILOT can continue.
-EMERGENCY_TOKEN_FILE="/opt/chacha-dev/runtime/control/emergency-stop-ui.token"
+# The emergency surface binds an OS-assigned loopback port and publishes the
+# endpoint atomically. This avoids collisions with Radar or any other service.
 EMERGENCY_SURFACE_READY=0
+EMERGENCY_SURFACE_PORT=""
 for _ in {1..50}; do
   if systemctl is-active --quiet chacha-dev-emergency-stop-surface.service \
      && test -s "$EMERGENCY_TOKEN_FILE" \
-     && curl -fsS http://127.0.0.1:8788/ >/dev/null 2>&1; then
-    EMERGENCY_SURFACE_READY=1
-    break
+     && test -s "$EMERGENCY_ENDPOINT_FILE"; then
+    EMERGENCY_SURFACE_PORT="$(python3 - "$EMERGENCY_ENDPOINT_FILE" <<'PY'
+import json,sys
+try:
+    x=json.load(open(sys.argv[1],encoding="utf-8"))
+    assert x.get("bind") in {"127.0.0.1","::1","localhost"}
+    p=int(x["port"]); assert 1 <= p <= 65535
+    print(p)
+except Exception:
+    raise SystemExit(1)
+PY
+)" || EMERGENCY_SURFACE_PORT=""
+    if [[ "$EMERGENCY_SURFACE_PORT" =~ ^[0-9]+$ ]] \
+       && curl -fsS "http://127.0.0.1:$EMERGENCY_SURFACE_PORT/" >/dev/null 2>&1; then
+      EMERGENCY_SURFACE_READY=1
+      break
+    fi
   fi
   sleep 0.2
 done
@@ -156,6 +81,8 @@ if [ "$EMERGENCY_SURFACE_READY" != 1 ]; then
   echo "CHACHA_DEV_V64_RUNTIME_PILOT=BLOCKED reason=emergency_surface_not_ready"
   exit 2
 fi
+EMERGENCY_BASE_URL="http://127.0.0.1:$EMERGENCY_SURFACE_PORT"
+echo "CHACHA_DEV_V64_EMERGENCY_DYNAMIC_ENDPOINT=PASS port=$EMERGENCY_SURFACE_PORT"
 test -s /opt/chacha-dev/runtime/technology-watch/optimizer-input.json
 echo "CHACHA_DEV_V64_EMERGENCY_SURFACE_READY=PASS"
 echo "CHACHA_DEV_V64_TECHNOLOGY_WATCH_RUNTIME=PASS"
@@ -179,7 +106,7 @@ print('CHACHA_DEV_V64_REAL_CAPSULE_MATERIALIZATION=PASS')
 PY
 
 TOKEN="$(cat "$EMERGENCY_TOKEN_FILE")"
-curl -fsS -H "X-ChaCha-Stop-Token: $TOKEN" -H 'Content-Type: application/json'   -d '{"reason":"v64-runtime-pilot-emergency-path"}' http://127.0.0.1:8788/api/emergency-stop/activate >"$WORK/stop.json"
+curl -fsS -H "X-ChaCha-Stop-Token: $TOKEN" -H 'Content-Type: application/json'   -d '{"reason":"v64-runtime-pilot-emergency-path"}' $EMERGENCY_BASE_URL/api/emergency-stop/activate >"$WORK/stop.json"
 python3 - "$WORK/stop.json" <<'PY'
 import json,sys
 x=json.load(open(sys.argv[1])); assert x['active'] is True,x
@@ -188,14 +115,14 @@ assert x['persistent_memory_preserved'] is True,x
 assert len(x.get('transient_units_stopped') or [])>=2,x
 print('CHACHA_DEV_V64_EMERGENCY_STOP_REAL_CAPSULES=PASS')
 PY
-curl -fsS -H "X-ChaCha-Stop-Token: $TOKEN" -H 'Content-Type: application/json'   -d '{"reason":"v64-runtime-pilot-reset","confirm":"RESET"}' http://127.0.0.1:8788/api/emergency-stop/reset >"$WORK/reset.json"
+curl -fsS -H "X-ChaCha-Stop-Token: $TOKEN" -H 'Content-Type: application/json'   -d '{"reason":"v64-runtime-pilot-reset","confirm":"RESET"}' $EMERGENCY_BASE_URL/api/emergency-stop/reset >"$WORK/reset.json"
 python3 - "$WORK/reset.json" <<'PY'
 import json,sys
 x=json.load(open(sys.argv[1])); assert x['active'] is False,x
 assert x['resume_authorized'] is False,x
 print('CHACHA_DEV_V64_EMERGENCY_RESET_MANUAL_RESUME=PASS')
 PY
-curl -fsS http://127.0.0.1:8788/ | grep -Fq "STOP D’URGENCE"
+curl -fsS "$EMERGENCY_BASE_URL/" | grep -Fq "STOP D’URGENCE"
 echo "CHACHA_DEV_V64_GRAPHICAL_STOP_SURFACE=PASS"
 
 NAS_ADAPTER="/opt/chacha-dev/adapters/nas-ssh/current/nas-ssh-adapter"
