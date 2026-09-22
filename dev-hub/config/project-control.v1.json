@@ -6,7 +6,7 @@
     "api_and_cli_share_same_engine": true,
     "read_and_plan_are_default": true,
     "execution_is_never_implicit": true,
-    "production_changes_require_explicit_human_approval": true,
+    "production_changes_require_explicit_human_approval": false,
     "cryptographic_release_requirements_are_visible_in_status": true,
     "private_signing_material_is_never_returned": true,
     "all_mutating_control_actions_are_auditable": true,
@@ -22,7 +22,12 @@
     "technical_design_precedes_implementation": true,
     "functional_intent_precedes_domain_decomposition": true,
     "domain_orchestration_precedes_specialist_provider_resolution": true,
-    "zero_incremental_cost_is_default": true
+    "zero_incremental_cost_is_default": true,
+    "reversible_policy_qualified_changes_may_autopromote": true,
+    "sensitive_changes_require_explicit_human_approval": true,
+    "platform_is_application_agnostic": true,
+    "every_project_is_factory_provisioned": true,
+    "project_knowledge_promotes_to_generic_knowledge": true
   },
   "interfaces": {
     "cli": {
@@ -65,7 +70,10 @@
     "technical_design": "dev-hub/config/technical-design.v1.json",
     "domain_orchestration": "dev-hub/config/domain-orchestration.v1.json",
     "provider_economics": "dev-hub/config/provider-economics.v1.json",
-    "technology_radar_domain_watch": "dev-hub/config/technology-radar-domain-watch.v2.json"
+    "technology_radar_domain_watch": "dev-hub/config/technology-radar-domain-watch.v2.json",
+    "project_factory": "dev-hub/config/project-factory.v1.json",
+    "knowledge_fabric": "dev-hub/config/knowledge-fabric.v1.json",
+    "self_evolution": "dev-hub/config/self-evolution.v1.json"
   },
   "engine_paths": {
     "control_plane_store": "dev-hub/bin/control-plane-store.py",
@@ -82,7 +90,9 @@
     "platform_readiness": "dev-hub/bin/platform-readiness.py",
     "technical_design_router": "dev-hub/bin/technical-design-router.py",
     "functional_intent_orchestrator": "dev-hub/bin/functional-intent-orchestrator.py",
-    "domain_provider_resolver": "dev-hub/bin/domain-provider-resolver.py"
+    "domain_provider_resolver": "dev-hub/bin/domain-provider-resolver.py",
+    "project_factory": "dev-hub/bin/project-factory.py",
+    "architecture_optimizer": "dev-hub/bin/architecture-optimizer.py"
   },
   "status_model": [
     "READY",
@@ -164,6 +174,18 @@
       "provider_resolution": "domain-owned",
       "technology_radar_required": true,
       "automatic_external_spend_eur": 0
+    },
+    "create-project": {
+      "class": "plan",
+      "mutating": false,
+      "application_agnostic": true,
+      "provisions_collectors": true
+    },
+    "optimize-architecture": {
+      "class": "plan",
+      "mutating": false,
+      "technology_watch_required": true,
+      "self_evolution_policy_required": true
     }
   },
   "transaction_policy": {
@@ -192,12 +214,12 @@
     ]
   },
   "approval_boundaries": {
-    "dispatch_production": "explicit-human",
-    "advance_to_release": "explicit-human",
-    "signing_key_activation": "explicit-human",
-    "signing_key_rotation": "explicit-human",
-    "signing_key_revocation": "explicit-human",
-    "retirement": "explicit-human"
+    "new_external_spend": "explicit-human",
+    "credential_or_identity_model_change": "explicit-human",
+    "destructive_or_irreversible_migration": "explicit-human",
+    "security_boundary_reduction": "explicit-human",
+    "legal_or_license_exception": "explicit-human",
+    "no_valid_rollback": "explicit-human"
   },
   "safety": {
     "allow_network_listener": false,
