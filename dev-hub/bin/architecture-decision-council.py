@@ -60,6 +60,13 @@ def main():
           "zero_spend_rule_respected":float((branch_op.get("chosen_cost") or {}).get("external_spend_eur") or 0)==0,
           "security_boundary_reduction":False
         }
+        constraints_pass=(
+          constraints["branch_ready"] and
+          constraints["agent_ready"] and
+          constraints["capability_gaps_resolved"] and
+          constraints["zero_spend_rule_respected"] and
+          not constraints["security_boundary_reduction"]
+        )
         finalwatch=tw.consult(root,consumer="architecture-decision-council",domain=domain,capabilities=caps)
         reuse_candidates=reuse.get("candidates") or []
         reuse_ready=[x for x in reuse_candidates if x.get("reuse_ready") is True]
@@ -77,7 +84,7 @@ def main():
           "branch-foundry":"PASS" if branch_op else "MISSING",
           "agent-foundry":"PASS" if agent_op else "MISSING",
           "capability-foundry":"PASS",
-          "constraint-policy":"PASS" if all(constraints.values()) else "BLOCKED",
+          "constraint-policy":"PASS" if constraints_pass else "BLOCKED",
           "technology-watch-final":"PASS" if finalwatch else "MISSING"
         }
         missing=[x for x in MANDATORY if advisor_state.get(x)!="PASS"]
