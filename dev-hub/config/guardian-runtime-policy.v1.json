@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/guardian-runtime-policy/v1",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "scope": "PLATFORM_GLOBAL",
   "external_url": "https://chacha-dev-guardian.chachasan090375.workers.dev",
   "private_key": "/opt/chacha-dev/runtime/secrets/central-learning-key.pem",
@@ -27,5 +27,19 @@
   "coverage_heartbeat_max_age_seconds": 180,
   "safety_exemptions": [
     "emergency-control-bridge"
-  ]
+  ],
+  "local_remediation_dir": "/opt/chacha-dev/runtime/guardian/remediations",
+  "local_remediation_index": "/opt/chacha-dev/runtime/guardian/remediation-index.json",
+  "corrective_enforcement": {
+    "enabled": true,
+    "guardian_may_issue_directives": true,
+    "guardian_may_enforce_holds": true,
+    "guardian_may_rewrite_architecture": false,
+    "guardian_may_expand_permissions": false,
+    "responsible_component_must_reapply_rules": true,
+    "corrected_action_must_be_resubmitted": true,
+    "max_failed_correction_attempts": 3,
+    "escalation_after_max_attempts": "CRITICAL_STOP_REQUIRED",
+    "remediation_poll_seconds": 30
+  }
 }
