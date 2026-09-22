@@ -96,7 +96,6 @@ jobs:
         working-directory: .radar-release-src/v624-messenger-source
         run: |
           set -euo pipefail
-          gofmt -w ./cmd ./internal
           go test ./... -count=1 -v | tee /tmp/v624-messenger-tests.log
           go vet ./...
           CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags='-s -w' -o /tmp/wfgg-messenger-outbox ./cmd/wfgg-messenger-outbox
