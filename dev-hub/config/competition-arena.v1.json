@@ -1,0 +1,49 @@
+{
+  "schema": "chacha.dev/competition-arena/v1",
+  "version": "1.0.0",
+  "arenas": {
+    "architecture": {
+      "enabled": true,
+      "minimum_candidates": 2,
+      "when": [
+        "high-impact-choice",
+        "technology-watch-challenger",
+        "architecture-optimizer-uncertain"
+      ]
+    },
+    "agent": {
+      "enabled": true,
+      "minimum_candidates": 2,
+      "when": [
+        "new-agent",
+        "challenger-agent",
+        "quality-regression",
+        "provider-change"
+      ]
+    }
+  },
+  "common_fixture_required": true,
+  "blind_scoring_when_possible": true,
+  "dimensions": [
+    "functional_quality",
+    "correctness",
+    "reliability",
+    "security",
+    "latency",
+    "resource_use",
+    "cost",
+    "maintainability",
+    "evidence_quality"
+  ],
+  "winner_policy": {
+    "minimum_gain_required": true,
+    "no_hard_constraint_regression": true,
+    "canary_before_adopt": true
+  },
+  "learning": {
+    "store_all_results": true,
+    "feed_technology_watch": true,
+    "feed_agent_foundry": true,
+    "feed_knowledge_compiler": true
+  }
+}
