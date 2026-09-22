@@ -38,6 +38,7 @@ jobs:
         run: |
           set -euo pipefail
           grep -Fq -- '--token-file /opt/chacha-dev/runtime/secrets/learning-ingress-tunnel.token' dev-hub/systemd/chacha-dev-learning-edge-cloudflared.service
+          grep -Fq -- '--protocol http2' dev-hub/systemd/chacha-dev-learning-edge-cloudflared.service
           ! grep -Fq -- '--token ' dev-hub/systemd/chacha-dev-learning-edge-cloudflared.service
           grep -Fq '"app_specific": false' dev-hub/config/learning-edge.v1.json
           grep -Fq '"central_ingress_remains_loopback_only": true' dev-hub/config/learning-edge.v1.json
