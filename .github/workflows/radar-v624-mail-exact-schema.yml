@@ -1,0 +1,193 @@
+name: Radar V6.24 exact mail.send schema constants
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [radar-v624-internal-mail-protocol-discovery]
+    paths:
+      - '.github/workflows/radar-v624-mail-exact-schema.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  schema:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: radar-v624-internal-mail-protocol-discovery
+
+      - name: Download public Last War 1.0.351 XAPK
+        run: |
+          set -euo pipefail
+          url='https://d.apkpure.net/b/XAPK/com.fun.lastwar.gp?nc=arm64-v8a%2Carmeabi-v7a&sv=23&versionCode=1835'
+          curl -fL --retry 5 --retry-all-errors --connect-timeout 30 --max-time 1200             -A 'Mozilla/5.0' -o /tmp/lastwar.xapk "$url"
+          test -s /tmp/lastwar.xapk
+          unzip -tq /tmp/lastwar.xapk >/dev/null
+          echo V624_XAPK=READY
+
+      - name: Extract targeted Lua chunks
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/xapk /tmp/v624-targets
+          mkdir -p /tmp/xapk /tmp/v624-targets
+          unzip -q /tmp/lastwar.xapk '*.apk' -d /tmp/xapk
+          target=''
+          while IFS= read -r -d '' apk; do
+            if unzip -Z1 "$apk" | grep -Fxq 'assets/lwScripts/LWScripts.data'; then
+              target="$apk"; break
+            fi
+          done < <(find /tmp/xapk -type f -name '*.apk' -print0)
+          test -n "$target"
+          unzip -p "$target" assets/lwScripts/LWScripts.data > /tmp/LWScripts.data
+          python3 - <<'PY'
+          from pathlib import Path
+          import struct,re,json
+          wanted={
+            'Net/Msgs/Mail/MailSendMessage.luac',
+            'UI/UIMailNew/UIMailSend/Controller/UIMailSendCtrl.luac',
+            'UI/UIMailNew/UIMailSend/View/UIMailSendView.luac',
+          }
+          data=Path('/tmp/LWScripts.data').read_bytes()
+          if data[:4]!=b'LWLF': raise SystemExit('LWLF_MAGIC_INVALID')
+          _,_,count=struct.unpack_from('<III',data,4); pos=16
+          def r7(off):
+            v=0;s=0
+            for _ in range(5):
+              x=data[off];off+=1;v|=(x&127)<<s
+              if not x&128:return v,off
+              s+=7
+            raise ValueError
+          found={}
+          for i in range(count):
+            n,pos=r7(pos); name=data[pos:pos+n].decode('utf-8','replace'); pos+=n
+            size=struct.unpack_from('<I',data,pos)[0];pos+=4
+            chunk=data[pos:pos+size];pos+=size
+            if name in wanted:
+              p=Path('/tmp/v624-targets')/(re.sub(r'[^A-Za-z0-9_.-]+','_',name))
+              p.write_bytes(chunk);found[name]={'index':i,'size':size,'path':str(p)}
+          print(json.dumps(found,indent=2))
+          if set(found)!=wanted:
+            raise SystemExit('V624_TARGET_CHUNKS_INCOMPLETE')
+          PY
+
+      - name: Parse custom Lua 5.3 constants
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import struct,json
+
+          def parse_chunk(path):
+            b=Path(path).read_bytes()
+            if b[:4]!=b'\x1bLua' or b[4]!=0x53:
+              raise ValueError('NOT_LUA53')
+            custom=(b[5]==1)
+            pos=6
+            data_sig=b[pos:pos+6];pos+=6
+            cint=b[pos]; sizet=b[pos+1]
+            if custom:
+              ins=4; lint=b[pos+2]; lnum=b[pos+3]; pos+=4
+            else:
+              ins=b[pos+2]; lint=b[pos+3]; lnum=b[pos+4]; pos+=5
+            endian='<'
+            pos += lint + lnum
+            main_nups=b[pos];pos+=1
+
+            def uint(n):
+              nonlocal pos
+              v=int.from_bytes(b[pos:pos+n],'little',signed=False);pos+=n;return v
+            def sint(n):
+              nonlocal pos
+              v=int.from_bytes(b[pos:pos+n],'little',signed=True);pos+=n;return v
+            def num(n):
+              nonlocal pos
+              if n==8: v=struct.unpack_from('<d',b,pos)[0]
+              elif n==4: v=struct.unpack_from('<f',b,pos)[0]
+              else: v=None
+              pos+=n;return v
+            def lstr():
+              nonlocal pos
+              if pos>=len(b): raise EOFError
+              first=b[pos];pos+=1
+              if first==0:return None
+              if first==0xff:
+                n=uint(sizet)
+              else:n=first
+              if n==0:return ''
+              raw=b[pos:pos+n-1];pos+=n-1
+              return raw.decode('utf-8','replace')
+            funcs=[]
+            def proto(depth=0,parent_source=None):
+              nonlocal pos
+              source=lstr() or parent_source
+              line=uint(cint); last=uint(cint)
+              numparams=b[pos]; isvar=b[pos+1]; maxstack=b[pos+2]; pos+=3
+              ncode=uint(cint); code_pos=pos; pos+=ncode*ins
+              nk=uint(cint); const=[]
+              for _ in range(nk):
+                tag=b[pos];pos+=1
+                if tag==0: val=None
+                elif tag==1: val=bool(b[pos]);pos+=1
+                elif tag==3: val=num(lnum)
+                elif tag==19: val=sint(lint)
+                elif tag in (4,20): val=lstr()
+                else:
+                  raise ValueError(f'UNKNOWN_CONST_TAG_{tag}_AT_{pos-1}')
+                const.append({'tag':tag,'value':val})
+              nup=uint(cint); pos+=nup*2
+              np=uint(cint)
+              idx=len(funcs)
+              rec={'index':idx,'depth':depth,'source':source,'lineDefined':line,'lastLineDefined':last,
+                   'numParams':numparams,'isVararg':isvar,'maxStack':maxstack,'codeCount':ncode,'constants':const,'children':[]}
+              funcs.append(rec)
+              for _ in range(np):
+                child=proto(depth+1,source);rec['children'].append(child)
+              nline=uint(cint);pos+=nline*cint
+              nloc=uint(cint)
+              for _ in range(nloc):
+                _=lstr();pos+=2*cint
+              nun=uint(cint)
+              for _ in range(nun): _=lstr()
+              return idx
+            root=proto()
+            return {
+              'customFormat':custom,'cint':cint,'size_t':sizet,'instruction':ins,
+              'luaInteger':lint,'luaNumber':lnum,'mainUpvalues':main_nups,
+              'root':root,'functions':funcs
+            }
+
+          reports={}
+          for p in sorted(Path('/tmp/v624-targets').glob('*.luac')):
+            rep=parse_chunk(p)
+            reports[p.name]=rep
+            print('===== '+p.name+' =====')
+            print('HEADER cint=%d size_t=%d instruction=%d luaInteger=%d luaNumber=%d custom=%s'%
+                  (rep['cint'],rep['size_t'],rep['instruction'],rep['luaInteger'],rep['luaNumber'],rep['customFormat']))
+            for fn in rep['functions']:
+              vals=[c['value'] for c in fn['constants']]
+              interesting=[v for v in vals if isinstance(v,(str,int,float,bool)) and (
+                  not isinstance(v,str) or any(k.lower() in v.lower() for k in [
+                    'put','mail','send','title','content','alliance','target','uid','message','max','length'
+                  ])
+              )]
+              if interesting:
+                print('FUNC index=%d depth=%d lines=%d-%d params=%d constants=%s'%
+                      (fn['index'],fn['depth'],fn['lineDefined'],fn['lastLineDefined'],fn['numParams'],json.dumps(interesting,ensure_ascii=False)))
+          Path('/tmp/v624-exact-schema-constants.json').write_text(json.dumps(reports,indent=2,ensure_ascii=False)+'\n')
+          print('V624_LASTWAR_MUTATION=NO')
+          print('V624_GAME_CONNECTION=NONE')
+          PY
+
+      - name: Upload exact schema evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: radar-v624-exact-mail-schema
+          path: |
+            /tmp/v624-exact-schema-constants.json
+            /tmp/v624-targets/*.luac
+          if-no-files-found: warn
+          retention-days: 14
