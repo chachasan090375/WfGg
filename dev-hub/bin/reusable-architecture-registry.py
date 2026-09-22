@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 import argparse,hashlib,json,sqlite3,time
+from datetime import datetime,timezone
 from pathlib import Path
 
 DEFAULT_DB=Path("/opt/chacha-dev/runtime/knowledge/reusable-architectures.db")
@@ -102,8 +103,12 @@ def search(args):
     for raw,reval,snap,cost,q,succ,fail,lat,mem,inc,last_inc,last_used,state,qualification in rows:
         x=json.loads(raw);fresh=False
         if reval:
-            try:fresh=(now-time.mktime(time.strptime(reval,"%Y-%m-%dT%H:%M:%SZ"))) <= args.max_revalidation_age_minutes*60
-            except Exception:fresh=False
+            try:
+                ts=datetime.fromisoformat(str(reval).replace("Z","+00:00"))
+                if ts.tzinfo is None: ts=ts.replace(tzinfo=timezone.utc)
+                fresh=(now-ts.timestamp()) <= args.max_revalidation_age_minutes*60
+            except Exception:
+                fresh=False
         attempts=int(succ or 0)+int(fail or 0)
         success_rate=float(succ or 0)/attempts if attempts else 0.0
         ready=bool(fresh and float(cost or 0)==0 and attempts>0 and success_rate>=args.min_success_rate and int(inc or 0)<=args.max_incidents)
