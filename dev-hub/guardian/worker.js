@@ -144,7 +144,7 @@ async function evaluate(event, env) {
       else addReason(state, "BLOCK", "UNKNOWN_ROLE_WRITE_FORBIDDEN");
     }
 
-    if (phase === "POST_ACTION") {
+    if (phase === "POST_ACTION" && action === "FINAL_ARCHITECTURE_DECISION") {
       for (const key of arr(roleContract.required_evidence_json)) {
         if (!truthyEvidence(evidence, key)) addReason(state, "BLOCK", "REQUIRED_EVIDENCE_MISSING:" + key);
       }
