@@ -22,7 +22,7 @@ jobs:
         run: |
           set -euo pipefail
           sudo apt-get update -qq
-          sudo apt-get install -y -qq default-jdk unzip python3-pip
+          sudo apt-get install -y -qq default-jdk unzip python3-pip lua5.3
           python3 -m pip install --quiet remotezip
           git clone --quiet https://github.com/HansWessels/unluac.git /tmp/unluac
           cd /tmp/unluac
