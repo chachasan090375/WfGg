@@ -15,11 +15,11 @@ import (
 )
 
 const (
-	Version          = "v6.25.0"
-	LastWarCommand   = "mail.send"
-	MailTypeSelf     = 21
-	MaxTitleBytes    = 50
-	MaxContentBytes  = 2000
+	Version           = "v6.25.0"
+	LastWarCommand    = "mail.send"
+	MailTypeSelf      = 21
+	MaxTitleBytes     = 50
+	MaxContentBytes   = 2000
 	DefaultOutboxPath = "/opt/wfgg-radar/data/mail-outbox-v625.jsonl"
 )
 
@@ -45,19 +45,19 @@ type WirePayload struct {
 }
 
 type OutboxRecord struct {
-	ID                 string       `json:"id"`
-	State              string       `json:"state"`
-	CampaignID         string       `json:"campaignId"`
-	TargetUID          string       `json:"targetUid"`
-	TargetName         string       `json:"targetName"`
-	Title              string       `json:"title"`
-	Contents           string       `json:"contents"`
-	Command            string       `json:"command"`
-	Type               int          `json:"type"`
-	RequiresServerTime bool         `json:"requiresServerTime"`
-	LastWarMutation    bool         `json:"lastwarMutation"`
-	TokenPersisted     bool         `json:"tokenPersisted"`
-	WireTemplate       WirePayload  `json:"wireTemplate"`
+	ID                 string      `json:"id"`
+	State              string      `json:"state"`
+	CampaignID         string      `json:"campaignId"`
+	TargetUID          string      `json:"targetUid"`
+	TargetName         string      `json:"targetName"`
+	Title              string      `json:"title"`
+	Contents           string      `json:"contents"`
+	Command            string      `json:"command"`
+	Type               int         `json:"type"`
+	RequiresServerTime bool        `json:"requiresServerTime"`
+	LastWarMutation    bool        `json:"lastwarMutation"`
+	TokenPersisted     bool        `json:"tokenPersisted"`
+	WireTemplate       WirePayload `json:"wireTemplate"`
 }
 
 type QueueResult struct {
