@@ -24,6 +24,7 @@ _STAGE_ROLE={
     "functional-intent-orchestrator.py":"orchestrator",
     "project-factory.py":"project-factory",
     "agent-foundry-planner.py":"agent-foundry",
+    "agent-role-contract-manager.py":"agent-contract-registry",
     "branch-foundry-planner.py":"branch-foundry",
     "capability-foundry.py":"capability-foundry",
     "architecture-decision-council.py":"architecture-decision-council",
@@ -290,6 +291,20 @@ def main():
     branch_parallel=out/"branch-topology-parallel.json"
     run_parallel_foundries(bin_dir,cfg,active_pre,pid,active_routing,agent_topology,branch_parallel)
 
+    # V6.17: every newly created agent gets a precise, versioned Guardian contract.
+    # Runtime registration is fail-closed and constrained by Guardian's immutable agent template.
+    agent_contracts=out/"agent-role-contracts.json"
+    contract_args=[
+        "--agent-topology",agent_topology,
+        "--output",agent_contracts,
+        "--client",bin_dir/"guardian-client.py",
+        "--policy",cfg/"guardian-runtime-policy.v1.json"
+    ]
+    if bool(_GUARDIAN_CONTEXT.get("enabled")):
+        contract_args+=["--register"]
+    run(bin_dir/"agent-role-contract-manager.py",contract_args)
+    agent_contracts_v=load(agent_contracts)
+
     # Cheap cross-optimization: Branch Foundry recalculates only its blueprints with Agent Foundry topology.
     branch_topology=out/"branch-topology.json"
     refine_branch_with_agents(bin_dir,cfg,active_pre,pid,agent_topology,branch_topology)
@@ -384,12 +399,16 @@ def main():
 
     state={
       "schema":"chacha.dev/autonomous-project-bootstrap/v1",
-      "version":"6.15.0",
+      "version":"6.17.0",
       "project_id":pid,
       "functional_contract":str(contract),
       "project":str(project),
       "preplan":str(active_pre),
       "agent_topology":str(agent_topology),
+      "agent_role_contracts":str(agent_contracts),
+      "dynamic_agent_contract_count":int(agent_contracts_v.get("contract_count") or 0),
+      "dynamic_agent_contracts_registered":bool(agent_contracts_v.get("registered")),
+      "dynamic_agent_contracts_all_registered":bool(agent_contracts_v.get("all_registered")),
       "branch_topology":str(effective_branch_topology),
       "branch_topology_foundry":str(branch_topology),
       "runtime_wave_plan":str(wave_plan),
