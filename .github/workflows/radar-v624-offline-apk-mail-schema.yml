@@ -150,13 +150,19 @@ jobs:
           oldcall='    parse_instruction_size(buffer, header, s);'
           if oldcall not in tail:
               raise SystemExit('V624_UNLUAC_53_INSTRUCTION_ANCHOR_MISSING')
-          tail=tail.replace(oldcall,'    if(s.format != 1) {\\n      parse_instruction_size(buffer, header, s);\\n    }',1)
+          replacement='''    if(s.format != 1) {
+              parse_instruction_size(buffer, header, s);
+            }'''
+          tail=tail.replace(oldcall,replacement,1)
           s=head+tail
           p.write_text(s)
           PY
           cd /tmp/unluac
-          bash build.sh
-          test -s bin/unluac.jar
+          rm -rf build bin
+          mkdir -p build bin
+          javac -deprecation -Werror -d build -sourcepath src src/unluac/*.java
+          jar -cfm bin/unluac.jar src/unluac/Manifest.mf -C build .
+          jar tf bin/unluac.jar | grep -Fq 'unluac/Main.class'
           echo V624_UNLUAC_PATCHED=READY
 
       - name: Decompile static mail candidates
