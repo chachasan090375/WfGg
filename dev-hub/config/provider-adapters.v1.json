@@ -150,6 +150,11 @@
       "adapter": "radar-runtime-adapter",
       "kind": "local-runtime",
       "execution": "vps"
+    },
+    "collector-knowledge-runtime": {
+      "adapter": "collector-knowledge-adapter",
+      "kind": "local-runtime",
+      "execution": "vps"
     }
   },
   "adapters": {
@@ -318,6 +323,14 @@
       "supports": [
         "read",
         "plan"
+      ]
+    },
+    "collector-knowledge-adapter": {
+      "status": "ENABLED",
+      "executable": "/opt/chacha-dev/adapters/collector-knowledge/current/collector-knowledge-adapter",
+      "supports": [
+        "read",
+        "workspace-write"
       ]
     }
   }
