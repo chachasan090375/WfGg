@@ -1,0 +1,97 @@
+name: ChaCha DEV V6.16 Guardian action leases qualification
+
+on:
+  push:
+    branches: [dev-hub-v616-guardian-action-leases]
+    paths:
+      - 'dev-hub/guardian/**'
+      - 'dev-hub/bin/guardian-client.py'
+      - 'dev-hub/bin/guardian-coverage-heartbeat.py'
+      - 'dev-hub/bin/run-controller.py'
+      - 'dev-hub/bin/autonomous-project-orchestrator.py'
+      - 'dev-hub/bin/technology_watch_runtime.py'
+      - 'dev-hub/bin/architecture-decision-council.py'
+      - 'dev-hub/config/guardian-role-contracts.v1.json'
+      - 'dev-hub/config/guardian-runtime-policy.v1.json'
+      - 'dev-hub/config/guardian-coverage-manifest.v1.json'
+      - 'dev-hub/config/run-controller.v1.json'
+      - 'dev-hub/systemd/chacha-dev-guardian-coverage-heartbeat.service'
+      - 'dev-hub/systemd/chacha-dev-guardian-coverage-heartbeat.timer'
+      - 'dev-hub/tests/test_v616_guardian_action_leases.py'
+      - 'dev-hub/bin/install-v616-guardian-action-leases.sh'
+      - '.github/workflows/dev-hub-v616-guardian-action-leases-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev-hub-v616-guardian-action-leases
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Static validation
+        run: |
+          set -euo pipefail
+          node --check dev-hub/guardian/worker.js
+          python3 -m py_compile             dev-hub/bin/guardian-client.py             dev-hub/bin/guardian-coverage-heartbeat.py             dev-hub/bin/run-controller.py             dev-hub/bin/autonomous-project-orchestrator.py             dev-hub/bin/technology_watch_runtime.py             dev-hub/bin/architecture-decision-council.py
+          python3 -m json.tool dev-hub/config/guardian-role-contracts.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/guardian-runtime-policy.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/guardian-coverage-manifest.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/run-controller.v1.json >/dev/null
+          if [ -f dev-hub/bin/install-v616-guardian-action-leases.sh ]; then
+            bash -n dev-hub/bin/install-v616-guardian-action-leases.sh
+          fi
+          echo CHACHA_DEV_V616_STATIC=PASS
+
+      - name: Action leases and coverage watchdog
+        run: |
+          set -euo pipefail
+          python3 dev-hub/tests/test_v616_guardian_action_leases.py
+
+      - name: Governance invariants
+        run: |
+          set -euo pipefail
+          grep -Fq '"all_governed_actions_require_realtime_verdict": true' dev-hub/config/guardian-runtime-policy.v1.json
+          grep -Fq '"action_lease_required": true' dev-hub/config/guardian-runtime-policy.v1.json
+          grep -Fq '"coverage_heartbeat_required": true' dev-hub/config/guardian-runtime-policy.v1.json
+          grep -Fq '"low_risk_unavailable_verdict": "BLOCK"' dev-hub/config/guardian-runtime-policy.v1.json
+          grep -Fq '"emergency-control-bridge"' dev-hub/config/guardian-runtime-policy.v1.json
+          grep -Fq 'ACTION_ID_REQUIRED' dev-hub/guardian/worker.js
+          grep -Fq 'POST_ACTION_MISSING' dev-hub/guardian/worker.js
+          grep -Fq 'COVERAGE_HEARTBEAT_STALE' dev-hub/guardian/worker.js
+          echo CHACHA_DEV_V616_REALTIME_GOVERNANCE_INVARIANTS=PASS
+
+      - name: Qualification receipt
+        run: |
+          {
+            echo CHACHA_DEV_GUARDIAN_ACTION_LEASES=V6.16
+            echo RESULT=success
+            echo SOURCE_REV="$(git rev-parse HEAD)"
+            echo EVERY_GOVERNED_ACTION_PRE_POST_CORRELATED=YES
+            echo MISSING_POST_EXTERNALLY_DETECTED=YES
+            echo EXPECTED_COMPONENT_COVERAGE_WATCH=YES
+            echo DYNAMIC_AGENTS_COVERED_AT_RUN_CONTROLLER=YES
+            echo REGISTERED_ADAPTERS_COVERED_AT_RUN_CONTROLLER=YES
+            echo LOW_RISK_GUARDIAN_UNAVAILABLE=BLOCK
+            echo EMERGENCY_CONTROL_BRIDGE_EXEMPT=YES
+            echo ALERT_POLLING=YES
+            echo GUARDIAN_AUTO_STOP=NO
+            echo AUTOMATIC_EXTERNAL_SPEND_EUR=0
+          } | tee /tmp/CHACHA_DEV_V616_RECEIPT.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chacha-dev-v616-guardian-action-leases
+          path: /tmp/CHACHA_DEV_V616_RECEIPT.txt
+          retention-days: 30
