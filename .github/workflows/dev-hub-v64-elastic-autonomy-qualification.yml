@@ -33,6 +33,8 @@ on:
       - 'dev-hub/bin/autonomous-project-orchestrator.py'
       - 'dev-hub/bin/emergency-stop-controller.py'
       - 'dev-hub/bin/experience-ledger.py'
+      - 'dev-hub/adapters/nas-ssh-adapter.py'
+      - 'dev-hub/tests/test_nas_ssh_adapter_contract.py'
       - '.github/workflows/dev-hub-v64-elastic-autonomy-qualification.yml'
   workflow_dispatch:
 
@@ -55,7 +57,7 @@ jobs:
       - name: Static validation
         run: |
           set -euo pipefail
-          python3 -m py_compile             dev-hub/bin/branch-foundry-planner.py             dev-hub/bin/agent-foundry-planner.py             dev-hub/bin/capability-foundry.py             dev-hub/bin/technology_watch_runtime.py             dev-hub/bin/technology-watch-service.py             dev-hub/bin/capsule-runtime-controller.py             dev-hub/bin/capsule-worker.py             dev-hub/bin/emergency-stop-surface.py             dev-hub/bin/branch-blueprint-optimizer.py             dev-hub/bin/capsule-scheduler.py             dev-hub/bin/autonomous-project-orchestrator.py             dev-hub/bin/emergency-stop-controller.py             dev-hub/bin/experience-ledger.py
+          python3 -m py_compile             dev-hub/adapters/nas-ssh-adapter.py             dev-hub/bin/branch-foundry-planner.py             dev-hub/bin/agent-foundry-planner.py             dev-hub/bin/capability-foundry.py             dev-hub/bin/technology_watch_runtime.py             dev-hub/bin/technology-watch-service.py             dev-hub/bin/capsule-runtime-controller.py             dev-hub/bin/capsule-worker.py             dev-hub/bin/emergency-stop-surface.py             dev-hub/bin/branch-blueprint-optimizer.py             dev-hub/bin/capsule-scheduler.py             dev-hub/bin/autonomous-project-orchestrator.py             dev-hub/bin/emergency-stop-controller.py             dev-hub/bin/experience-ledger.py
           bash -n dev-hub/bin/install-technology-watch-runtime.sh dev-hub/bin/run-v64-runtime-pilot-via-chacha-dev.sh
           for f in             dev-hub/config/branch-foundry.v1.json             dev-hub/config/agent-foundry.v1.json             dev-hub/config/capability-foundry.v1.json             dev-hub/config/technology-watch-runtime.v1.json             dev-hub/config/domain-orchestration.v1.json             dev-hub/config/provider-economics.v1.json             dev-hub/config/storage-tiers.v1.json             dev-hub/config/learning-fabric.v1.json             dev-hub/config/emergency-stop.v1.json; do
             python3 -m json.tool "$f" >/dev/null
@@ -71,6 +73,7 @@ jobs:
         run: |
           set -euo pipefail
           python3 dev-hub/tests/test_v64_runtime_pilot_contract.py
+          python3 dev-hub/tests/test_nas_ssh_adapter_contract.py
           grep -Fq 'CHACHA_DEV_TECH_WATCH_REV' dev-hub/bin/install-technology-watch-runtime.sh
           grep -Fq 'pinned_revision_required' dev-hub/bin/install-technology-watch-runtime.sh
           grep -Fq 'systemd-run' dev-hub/bin/capsule-runtime-controller.py
