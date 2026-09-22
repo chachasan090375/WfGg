@@ -83,13 +83,19 @@ def main():
         merge_domain(cfg/"domain-orchestration.v1.json",dom_overlay,merged_domain)
         merge_caps(cfg/"capability-registry.v1.json",cap_overlay,merged_caps)
         merge_routing(cfg/"agent-routing.v1.json",routing_overlay,merged_routing)
-        # New branch/capability exists project-locally; Foundry must rerun on the revised platform view.
+        # New branch/capability exists project-locally; force it into the revised plan and rerun Agent Foundry.
+        revised_intent=out/"revised-intent.json"
+        intent_v=load(a.intent)
+        generated_domains=[str(x.get("owner_domain")) for x in foundry_v.get("plans") or [] if x.get("create_domain")]
+        existing_primary=[str(x) for x in pre_v.get("primary_domains") or []]
+        intent_v["domains"]=list(dict.fromkeys(existing_primary+generated_domains))
+        save(revised_intent,intent_v)
         revised_pre=out/"revised-preplan.json"
-        run(bin/"functional-intent-orchestrator.py",["--config",merged_domain,"--intent",a.intent,"--output",revised_pre])
+        run(bin/"functional-intent-orchestrator.py",["--config",merged_domain,"--intent",revised_intent,"--output",revised_pre])
         revised_topology=out/"revised-agent-topology.json"
         run(bin/"agent-foundry-planner.py",["--preplan",revised_pre,"--config",cfg/"agent-foundry.v1.json",
             "--routing",merged_routing,"--project-id",pid,"--output",revised_topology])
-        run(bin/"functional-intent-orchestrator.py",["--config",merged_domain,"--intent",a.intent,
+        run(bin/"functional-intent-orchestrator.py",["--config",merged_domain,"--intent",revised_intent,
             "--agent-topology",revised_topology,"--output",final])
         used_topology=revised_topology
     else:
