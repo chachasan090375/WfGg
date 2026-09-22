@@ -1,0 +1,126 @@
+name: ChaCha DEV Radar V6.24 Messenger pilot qualification
+
+on:
+  push:
+    branches: [dev-hub-v5-radar-messenger-v624-pilot]
+    paths:
+      - 'dev-hub/adapters/radar-runtime-adapter.py'
+      - 'dev-hub/tests/test_radar_runtime_adapter_contract.py'
+      - 'dev-hub/bin/run-radar-v624-messenger-pilot-via-chacha-dev.sh'
+      - '.github/workflows/dev-hub-radar-v624-messenger-pilot-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  PILOT_REV: e8af95cf05be2446836226628a5facb9887f9509
+  EXPECTED_MESSENGER_SHA256: 3cf5d175325a319d601667e50388e8472057bcc152df7a618938daf357a3dfa1
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev-hub-v5-radar-messenger-v624-pilot
+
+      - name: Validate adapter contract
+        run: |
+          set -euo pipefail
+          python3 -m py_compile dev-hub/adapters/radar-runtime-adapter.py
+          python3 dev-hub/tests/test_radar_runtime_adapter_contract.py
+          grep -Fq '"messenger-pilot-install": "workspace-write"' dev-hub/adapters/radar-runtime-adapter.py
+          grep -Fq '"messenger-pilot-probe": "read"' dev-hub/adapters/radar-runtime-adapter.py
+          grep -Fq 'RADAR_MESSENGER_PILOT_INSTALL_OK' dev-hub/adapters/radar-runtime-adapter.py
+          grep -Fq 'RADAR_MESSENGER_PILOT_PROBE_OK' dev-hub/adapters/radar-runtime-adapter.py
+          grep -Fq 'production_runtime_unchanged' dev-hub/adapters/radar-runtime-adapter.py
+          echo RADAR_V624_MESSENGER_ADAPTER_CONTRACT=PASS
+
+      - name: Validate governed runner
+        run: |
+          set -euo pipefail
+          R=dev-hub/bin/run-radar-v624-messenger-pilot-via-chacha-dev.sh
+          bash -n "$R"
+          grep -Fq 'PILOT_REV="e8af95cf05be2446836226628a5facb9887f9509"' "$R"
+          grep -Fq 'MESSENGER_SHA="3cf5d175325a319d601667e50388e8472057bcc152df7a618938daf357a3dfa1"' "$R"
+          grep -Fq 'radar-vps/install-v624-messenger-pilot.sh' "$R"
+          grep -Fq 'radar-vps/probe-v624-messenger-pilot-runtime.sh' "$R"
+          grep -Fq '"action":"messenger-pilot-install"' "$R"
+          grep -Fq '"permission":"workspace-write"' "$R"
+          grep -Fq '"action":"messenger-pilot-probe"' "$R"
+          grep -Fq '"permission":"read"' "$R"
+          grep -Fq 'PROJECT_CONTROL>SCHEDULER>RUN_CONTROLLER>RADAR_RUNTIME_ADAPTER' "$R"
+          if grep -Eq '"permission":"production-deploy"|pilot-open|pilot-close|production-release' "$R"; then
+            echo RADAR_V624_MESSENGER_RUNNER_PRODUCTION_PATH=FOUND
+            exit 1
+          fi
+          echo RADAR_V624_MESSENGER_RUNNER=PASS
+
+      - name: Validate pinned Radar PILOT assets
+        run: |
+          set -euo pipefail
+          BASE="https://raw.githubusercontent.com/chachasan090375/WfGg/$PILOT_REV"
+          mkdir -p /tmp/v624
+          for f in             radar-vps/pilot-v624-messenger/SHA256SUMS             radar-vps/pilot-v624-messenger/PILOT_INFO.txt             radar-vps/pilot-v624-messenger/wfgg-messenger-outbox             radar-vps/install-v624-messenger-pilot.sh             radar-vps/probe-v624-messenger-pilot-runtime.sh
+          do
+            curl -fsSL "$BASE/$f" -o "/tmp/v624/$(basename "$f")"
+          done
+          grep -Fq 'WFGG_RADAR_PILOT=V6.24-MESSENGER-OUTBOX' /tmp/v624/PILOT_INFO.txt
+          grep -Fq 'MESSENGER_MODE=DRY_RUN_ONLY' /tmp/v624/PILOT_INFO.txt
+          grep -Fq 'NETWORK_SEND=NO' /tmp/v624/PILOT_INFO.txt
+          grep -Fq 'LASTWAR_MUTATION=NO' /tmp/v624/PILOT_INFO.txt
+          grep -Fq 'PRODUCTION_CONNECTOR_RESTART=NO' /tmp/v624/PILOT_INFO.txt
+          test "$(sha256sum /tmp/v624/wfgg-messenger-outbox | awk '{print $1}')" = "$EXPECTED_MESSENGER_SHA256"
+          bash -n /tmp/v624/install-v624-messenger-pilot.sh
+          bash -n /tmp/v624/probe-v624-messenger-pilot-runtime.sh
+          grep -Fq 'RADAR_V624_MESSENGER_RUNTIME_PROBE=PASS' /tmp/v624/probe-v624-messenger-pilot-runtime.sh
+          echo RADAR_V624_MESSENGER_PINNED_ASSETS=PASS
+
+      - name: Verify isolation invariants
+        run: |
+          set -euo pipefail
+          A=dev-hub/adapters/radar-runtime-adapter.py
+          R=dev-hub/bin/run-radar-v624-messenger-pilot-via-chacha-dev.sh
+          python3 - <<'PY'
+          from pathlib import Path
+          s=Path('dev-hub/adapters/radar-runtime-adapter.py').read_text()
+          install=s[s.index('def do_messenger_pilot_install'):s.index('def do_messenger_pilot_probe')]
+          probe=s[s.index('def do_messenger_pilot_probe'):s.index('def do_status')]
+          for name,chunk in [('install',install),('probe',probe)]:
+              assert 'approval_required(' not in chunk,(name,'approval')
+              assert 'systemctl(' not in chunk,(name,'systemctl')
+              assert 'pilot-open' not in chunk,(name,'pilot-open')
+              assert 'pilot-close' not in chunk,(name,'pilot-close')
+          print('RADAR_V624_MESSENGER_NO_PRODUCTION_WINDOW=PASS')
+          PY
+          grep -Fq 'RADAR_V624_GAME_CONNECTION=NONE' "$R"
+          grep -Fq 'RADAR_V624_GAME_SCAN_EXECUTED=NO' "$R"
+          grep -Fq 'RADAR_V624_MAIL_SEND_EXECUTED=NO' "$R"
+          grep -Fq 'RADAR_V624_LASTWAR_MUTATION=NO' "$R"
+          grep -Fq 'RADAR_V624_PRODUCTION_CONNECTOR_TOUCHED=NO' "$R"
+          echo RADAR_V624_MESSENGER_ISOLATION=PASS
+
+      - name: Qualification receipt
+        run: |
+          {
+            echo WFGG_DEV_HUB_RADAR_MESSENGER=V6.24
+            echo RESULT=success
+            echo PILOT_REV="$PILOT_REV"
+            echo EXPECTED_MESSENGER_SHA256="$EXPECTED_MESSENGER_SHA256"
+            echo INSTALL_PERMISSION=workspace-write
+            echo PROBE_PERMISSION=read
+            echo CHACHA_PATH=PROJECT_CONTROL_SCHEDULER_RUN_CONTROLLER_RADAR_RUNTIME_ADAPTER
+            echo PRODUCTION_WINDOW=NO
+            echo PRODUCTION_DEPLOYMENT=NO
+            echo GAME_CONNECTION=NONE
+            echo MAIL_SEND_EXECUTED=NO
+            echo LASTWAR_MUTATION=NO
+          } | tee /tmp/V624_MESSENGER_CHACHA_QUALIFICATION.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dev-hub-radar-v624-messenger-pilot-qualification
+          path: /tmp/V624_MESSENGER_CHACHA_QUALIFICATION.txt
+          retention-days: 30
