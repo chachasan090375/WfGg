@@ -1,0 +1,23 @@
+{
+  "schema": "chacha.dev/guardian-runtime-policy/v1",
+  "version": "1.0.0",
+  "scope": "PLATFORM_GLOBAL",
+  "external_url": "https://chacha-dev-guardian.chachasan090375.workers.dev",
+  "private_key": "/opt/chacha-dev/runtime/secrets/central-learning-key.pem",
+  "fail_closed_permissions": [
+    "repository-write",
+    "preview-deploy",
+    "production-deploy",
+    "production-data-write",
+    "secret-change",
+    "destructive-operation",
+    "technology-replacement"
+  ],
+  "low_risk_unavailable_verdict": "WARNING",
+  "sensitive_unavailable_verdict": "BLOCK",
+  "alert_poll_seconds": 60,
+  "local_alert_dir": "/opt/chacha-dev/runtime/guardian/alerts",
+  "critical_stop_required_file": "/opt/chacha-dev/runtime/control/guardian-stop-required.json",
+  "auto_activate_emergency_stop": false,
+  "automatic_external_spend_eur": 0
+}
