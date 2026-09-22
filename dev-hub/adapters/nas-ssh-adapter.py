@@ -262,7 +262,6 @@ def put_file(request: dict[str, Any], storage: dict[str, Any]) -> int:
         return blocked(request, "NAS_DESTINATION_ALREADY_EXISTS")
 
     size_mb = local.stat().st_size / (1024 * 1024)
-    gate_request = dict(request)
     pre = run(ssh_args(host) + ["df", "-Pk", root], timeout)
     if pre.returncode != 0:
         return emit(result(request, "FAILED", "NAS_PREFLIGHT_SSH_FAILED"))
@@ -274,6 +273,21 @@ def put_file(request: dict[str, Any], storage: dict[str, Any]) -> int:
     reserve_mb = float(storage.get("reserve_mb") or DEFAULT_RESERVE_MB)
     if free_mb < size_mb + reserve_mb:
         return blocked(request, "NAS_PREFLIGHT_INSUFFICIENT_SPACE")
+
+    # The destination may be several levels below the NAS root. The original
+    # V1 pilot prepared its parent directory out-of-band, which made later
+    # immutable Experience Ledger writes fail with NAS_COPY_FAILED. Directory
+    # preparation belongs inside the storage adapter so every create-only put
+    # is self-contained and still constrained to the validated allowlisted path.
+    parent = posixpath.dirname(final)
+    prepare = run(ssh_args(host) + ["mkdir", "-p", parent], timeout)
+    if prepare.returncode != 0:
+        return emit(result(request, "FAILED", "NAS_PARENT_PREPARE_FAILED", [{
+            "kind": "report",
+            "source": f"nas://{host}{root}",
+            "digest": sha256_bytes(prepare.stderr[:4096]),
+            "details": {"returncode": prepare.returncode},
+        }]))
 
     copy = run([scp_bin(), "-q", "--", str(local), f"{host}:{temp}"], timeout)
     if copy.returncode != 0:
