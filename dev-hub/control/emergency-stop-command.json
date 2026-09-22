@@ -1,8 +1,8 @@
 {
   "schema": "chacha.dev/emergency-stop-command/v1",
-  "action": "NOOP",
-  "request_id": "baseline-v65",
-  "issued_at": "2026-09-22T13:58:00Z",
-  "actor": "bootstrap",
-  "reason": "Initial neutral command for the out-of-band emergency control channel."
+  "action": "STOP",
+  "request_id": "chatgpt-v65-controlled-stop-001",
+  "issued_at": "2026-09-22T14:07:00Z",
+  "actor": "chatgpt",
+  "reason": "Controlled end-to-end V6.5 emergency stop validation requested after bridge installation."
 }
