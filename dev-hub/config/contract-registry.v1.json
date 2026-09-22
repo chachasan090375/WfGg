@@ -1,0 +1,43 @@
+{
+  "schema": "chacha.dev/contract-registry/v1",
+  "version": "1.0.0",
+  "contract_types": [
+    "api",
+    "data",
+    "ui",
+    "graphics",
+    "animation",
+    "translation",
+    "publication",
+    "security",
+    "qa",
+    "platform",
+    "component",
+    "integration"
+  ],
+  "required_fields": [
+    "contract_id",
+    "type",
+    "producer",
+    "consumers",
+    "version",
+    "inputs",
+    "outputs",
+    "invariants",
+    "compatibility",
+    "verification",
+    "provenance"
+  ],
+  "reconciliation": {
+    "assembly_orchestrator_owner": true,
+    "mismatches_block_assembly": true,
+    "auto_adapter_allowed_if_semantics_preserved": true,
+    "silent_contract_rewrite_forbidden": true,
+    "incompatible_changes_return_to_factories": true
+  },
+  "versioning": {
+    "semantic_versioning": true,
+    "breaking_change_detection": true,
+    "consumer_impact_analysis": true
+  }
+}
