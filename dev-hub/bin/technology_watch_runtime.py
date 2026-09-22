@@ -9,6 +9,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 import sqlite3
+import subprocess
+import tempfile
+import uuid
 
 DEFAULT_CONFIG = Path("dev-hub/config/technology-watch-runtime.v1.json")
 ZERO_DEFAULT = {"free", "owned", "local", "included"}
@@ -215,6 +218,46 @@ def _filter_snapshot(snapshot: dict[str, Any], capabilities: list[str]) -> list[
     pool=zero if zero else eligible
     return sorted(pool,key=lambda x:(str(x.get("cost_class")),str(x.get("id")),str(x.get("capability"))))
 
+def _guardian_observe_consult(repo_root: Path, feed: dict[str, Any]) -> None:
+    if not Path("/opt/chacha-dev/runtime").exists():
+        return
+    client=repo_root/"dev-hub/bin/guardian-client.py"
+    policy=repo_root/"dev-hub/config/guardian-runtime-policy.v1.json"
+    if not client.is_file() or not policy.is_file():
+        return
+    event={
+      "schema":"chacha.dev/governance-action/v1",
+      "event_id":"gov-"+uuid.uuid4().hex,
+      "phase":"POST_ACTION",
+      "actor":"technology-watch",
+      "subject_role":"technology-watch",
+      "action":"OBSERVE_TECHNOLOGY",
+      "task_kind":"technology-watch-consult",
+      "permission":"read",
+      "project_id":"platform-global",
+      "run_id":None,
+      "adapters":[],
+      "evidence":{
+        "emergency_stop_active":False,
+        "snapshot_available":bool(feed.get("source_snapshot_digest")),
+        "consumer":feed.get("consumer"),
+        "zero_spend_candidate_available":feed.get("zero_spend_candidate_available")
+      },
+      "context":{"resource_class":"light","human_approval_required":False,"storage_preflight_required":False}
+    }
+    with tempfile.TemporaryDirectory(prefix="chacha-techwatch-guardian-") as td:
+        ep=Path(td)/"event.json"
+        ep.write_text(json.dumps(event,ensure_ascii=False)+"\n",encoding="utf-8")
+        p=subprocess.run(
+          ["/usr/bin/python3",str(client),"--policy",str(policy),"check","--event",str(ep)],
+          stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=20
+        )
+    try: verdict=json.loads(p.stdout.strip())
+    except Exception: return
+    if str(verdict.get("verdict")) in {"BLOCK","CRITICAL"}:
+        raise RuntimeError("TECHNOLOGY_WATCH_GUARDIAN_BLOCK:"+str(verdict.get("reason_codes") or []))
+
+
 def consult(repo_root: Path, *, consumer: str, domain: str,
             capabilities: list[str]) -> dict[str, Any]:
     cfg=load_config(repo_root); path=_snapshot_path(cfg)
@@ -227,7 +270,7 @@ def consult(repo_root: Path, *, consumer: str, domain: str,
         targeted=True
     pool=_filter_snapshot(snap,capabilities)
     zero=any(x.get("zero_external_spend") is True for x in pool)
-    return {
+    feed={
         "schema":"chacha.dev/technology-watch-materialization-feed/v1",
         "consumer":consumer,
         "domain":domain,
@@ -242,3 +285,5 @@ def consult(repo_root: Path, *, consumer: str, domain: str,
         "eligible_provider_candidates":pool,
         "branch_blueprints":snap.get("branch_blueprints") or [],
     }
+    _guardian_observe_consult(repo_root,feed)
+    return feed
