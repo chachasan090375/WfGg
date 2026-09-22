@@ -1,0 +1,51 @@
+{
+  "schema": "chacha.dev/capability-foundry/v1",
+  "version": "1.0.0",
+  "purpose": "Create a missing platform capability or logical domain factory when the current kernel cannot satisfy a functional requirement.",
+  "trigger": {
+    "missing_registered_capability": true,
+    "no_policy_eligible_provider": true,
+    "repeated_project_specific_solution": true
+  },
+  "outputs": [
+    "capability-definition",
+    "domain-factory-definition",
+    "provider-strategy",
+    "collector-definition",
+    "contracts",
+    "fixtures",
+    "sandbox-plan",
+    "rollback-plan"
+  ],
+  "lifecycle": [
+    "DISCOVER",
+    "DESIGN",
+    "BUILD",
+    "QUALIFY",
+    "PILOT",
+    "ADOPT",
+    "IMPROVE",
+    "DEPRECATE",
+    "RETIRE"
+  ],
+  "rules": {
+    "reuse_existing_domain_when_possible": true,
+    "create_new_domain_only_when_existing_domain_cannot_own_capability": true,
+    "technology_watch_required": true,
+    "architecture_competition_required_when_multiple_viable_patterns": true,
+    "zero_incremental_cost_default": true,
+    "sandbox_before_adopt": true,
+    "rollback_required": true,
+    "generic_collector_required": true,
+    "no_project_secret_in_generic_factory": true,
+    "core_replan_required_after_creation": true,
+    "agent_foundry_rerun_required_after_creation": true
+  },
+  "human_approval_only_for": [
+    "new_external_spend",
+    "credential_or_identity_boundary",
+    "irreversible_migration",
+    "security_boundary_reduction",
+    "license_exception"
+  ]
+}
