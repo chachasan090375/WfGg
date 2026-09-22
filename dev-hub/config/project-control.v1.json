@@ -19,7 +19,10 @@
     "external_runtime_bindings_are_ephemeral_and_runner_owned": true,
     "independent_provider_results_never_self_verify": true,
     "product_requirement_enters_before_technical_design": true,
-    "technical_design_precedes_implementation": true
+    "technical_design_precedes_implementation": true,
+    "functional_intent_precedes_domain_decomposition": true,
+    "domain_orchestration_precedes_specialist_provider_resolution": true,
+    "zero_incremental_cost_is_default": true
   },
   "interfaces": {
     "cli": {
@@ -59,7 +62,10 @@
     "platform_readiness": "dev-hub/config/platform-readiness.v1.json",
     "external_runtime_binding": "dev-hub/config/external-runtime-binding.v1.json",
     "agent_routing": "dev-hub/config/agent-routing.v1.json",
-    "technical_design": "dev-hub/config/technical-design.v1.json"
+    "technical_design": "dev-hub/config/technical-design.v1.json",
+    "domain_orchestration": "dev-hub/config/domain-orchestration.v1.json",
+    "provider_economics": "dev-hub/config/provider-economics.v1.json",
+    "technology_radar_domain_watch": "dev-hub/config/technology-radar-domain-watch.v2.json"
   },
   "engine_paths": {
     "control_plane_store": "dev-hub/bin/control-plane-store.py",
@@ -74,7 +80,9 @@
     "crypto_trust": "dev-hub/bin/crypto-trust.py",
     "transaction_recovery": "dev-hub/bin/transaction-recovery.py",
     "platform_readiness": "dev-hub/bin/platform-readiness.py",
-    "technical_design_router": "dev-hub/bin/technical-design-router.py"
+    "technical_design_router": "dev-hub/bin/technical-design-router.py",
+    "functional_intent_orchestrator": "dev-hub/bin/functional-intent-orchestrator.py",
+    "domain_provider_resolver": "dev-hub/bin/domain-provider-resolver.py"
   },
   "status_model": [
     "READY",
@@ -149,6 +157,13 @@
       "class": "plan",
       "mutating": false,
       "implementation_gate": "blocked-until-specialist-design-complete"
+    },
+    "functional-orchestrate": {
+      "class": "plan",
+      "mutating": false,
+      "provider_resolution": "domain-owned",
+      "technology_radar_required": true,
+      "automatic_external_spend_eur": 0
     }
   },
   "transaction_policy": {
