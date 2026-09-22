@@ -7,12 +7,12 @@ import (
 )
 
 const (
-	Version          = "V6.25"
-	Command          = "mail.send"
-	Transport        = "SFS"
-	MailSelfSend int32 = 21
-	MaxTitleBytes    = 50
-	MaxContentsBytes = 2000
+	Version                = "V6.25"
+	Command                = "mail.send"
+	Transport              = "SFS"
+	MailSelfSend     int32 = 21
+	MaxTitleBytes          = 50
+	MaxContentsBytes       = 2000
 )
 
 type Draft struct {
