@@ -256,9 +256,32 @@
         "library-docs"
       ],
       "default_risk": "low"
+    },
+    "branch-foundry-architect": {
+      "capabilities": [
+        "branch-needs-analysis",
+        "branch-materialization",
+        "runtime-capsule-design",
+        "branch-lifecycle"
+      ],
+      "default_risk": "medium"
     }
   },
   "routing_rules": [
+    {
+      "match": [
+        "branch-foundry",
+        "branch factory",
+        "usine de branche",
+        "branche nécessaire",
+        "runtime capsule"
+      ],
+      "primary_role": "branch-foundry-architect",
+      "review_roles": [
+        "agent-foundry-architect",
+        "platform-cloud-engineer"
+      ]
+    },
     {
       "match": [
         "capability-foundry",
