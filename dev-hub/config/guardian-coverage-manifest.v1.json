@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/guardian-coverage-manifest/v1",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "scope": "PLATFORM_GLOBAL",
   "heartbeat_max_age_seconds": 180,
   "action_lease_default_seconds": 300,
@@ -58,6 +58,17 @@
       "proof": {
         "file": "dev-hub/bin/autonomous-project-orchestrator.py",
         "marker": "agent-foundry-planner.py"
+      }
+    },
+    {
+      "component_id": "agent-contract-registry",
+      "role": "agent-contract-registry",
+      "kind": "registry",
+      "enforcement_point": "central-orchestrator-wrapper+guardian-dynamic-registration",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/autonomous-project-orchestrator.py",
+        "marker": "agent-role-contract-manager.py"
       }
     },
     {
