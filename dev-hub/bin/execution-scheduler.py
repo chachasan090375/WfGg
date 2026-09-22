@@ -8,6 +8,7 @@ serializes writes, and blocks unsafe work. It plans execution only.
 from __future__ import annotations
 
 import argparse
+import importlib.util
 import json
 from datetime import datetime, timezone
 from pathlib import Path
@@ -38,6 +39,14 @@ def load(path: Path) -> dict[str, Any]:
 def require(value: dict[str, Any], schema: str, label: str) -> None:
     if value.get("schema") != schema:
         raise SystemExit(f"SCHEMA_MISMATCH={label}:expected={schema}:actual={value.get('schema')}")
+
+
+def load_task_contract_binder():
+    path=Path(__file__).with_name("task-contract-binder.py")
+    spec=importlib.util.spec_from_file_location("task_contract_binder",path)
+    if spec is None or spec.loader is None:
+        raise SystemExit("TASK_CONTRACT_BINDER_LOAD_FAILED")
+    mod=importlib.util.module_from_spec(spec);spec.loader.exec_module(mod);return mod
 
 
 def bind(capability: str, permission: str, registry: dict[str, Any], health: dict[str, Any], policy: dict[str, Any]) -> dict[str, Any]:
@@ -192,6 +201,11 @@ def main() -> None:
     parser.add_argument("--registry", required=True, type=Path)
     parser.add_argument("--health", required=True, type=Path)
     parser.add_argument("--policy", required=True, type=Path)
+    parser.add_argument("--agent-contracts", type=Path)
+    parser.add_argument("--component-contracts", type=Path)
+    parser.add_argument("--role-contracts", type=Path)
+    parser.add_argument("--bound-graph-output", type=Path)
+    parser.add_argument("--require-guardian-binding", action="store_true")
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
 
@@ -200,6 +214,18 @@ def main() -> None:
     require(registry, REGISTRY_SCHEMA, "registry")
     require(health, HEALTH_SCHEMA, "health")
     require(policy, POLICY_SCHEMA, "scheduler-policy")
+
+    contract_inputs=[args.agent_contracts,args.component_contracts,args.role_contracts]
+    if any(contract_inputs) and not all(contract_inputs):
+        raise SystemExit("TASK_CONTRACT_BINDING_INPUTS_INCOMPLETE")
+    if all(contract_inputs):
+        binder=load_task_contract_binder()
+        graph=binder.bind_graph(graph,load(args.agent_contracts),load(args.component_contracts),load(args.role_contracts))
+        if args.bound_graph_output:
+            args.bound_graph_output.parent.mkdir(parents=True,exist_ok=True)
+            args.bound_graph_output.write_text(json.dumps(graph,indent=2,ensure_ascii=False)+"\n",encoding="utf-8")
+    if args.require_guardian_binding and graph.get("guardian_binding") is None:
+        raise SystemExit("TASK_GUARDIAN_BINDING_REQUIRED")
 
     prepared, blocked = prepare_tasks(graph, registry, health, policy)
     waves = schedule(prepared, blocked, policy)
@@ -210,6 +236,7 @@ def main() -> None:
         "project": graph.get("project"),
         "transition": graph.get("transition"),
         "generated_at": datetime.now(timezone.utc).isoformat(),
+        "guardian_binding": graph.get("guardian_binding"),
         "waves": waves,
         "blocked_tasks": [{"task_id": tid, "reasons": reasons} for tid, reasons in sorted(blocked.items())],
         "summary": {
@@ -229,6 +256,9 @@ def main() -> None:
         print(f"BLOCKED={len(blocked)}")
         print(f"WAVES={len(waves)}")
         print(f"FAILOVERS={fallbacks}")
+        if graph.get("guardian_binding") is not None:
+            print("TASK_GUARDIAN_BINDING=PASS")
+            print("TASK_GUARDIAN_DYNAMIC="+str((graph.get("guardian_binding") or {}).get("dynamic_task_count",0)))
     else:
         print(rendered, end="")
 
