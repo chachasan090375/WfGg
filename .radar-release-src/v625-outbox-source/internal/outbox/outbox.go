@@ -79,6 +79,9 @@ func idempotencyKey(campaign, uid string) string {
 }
 
 func draftHash(d mailcontract.Draft) (string, error) {
+	// sendLocalTime is transport-time metadata, not message identity.
+	// Retrying preparation later must not create an idempotency conflict.
+	d.SendLocalTime = 0
 	b, err := json.Marshal(d)
 	if err != nil {
 		return "", err
