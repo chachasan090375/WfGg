@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/branch-foundry/v1",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "mandatory_preflight": true,
   "invocation_point": "parallel-with-agent-foundry-after-core-preplan",
   "returns_to": "chacha-core-orchestrator",
@@ -36,7 +36,8 @@
     "previous_blueprint_is_candidate_not_default": true,
     "revalidate_technology_on_every_materialization": true,
     "never_reuse_architecture_without_current_fit_check": true,
-    "cheapest_zero_spend_valid_blueprint_preferred": true
+    "cheapest_zero_spend_valid_blueprint_preferred": true,
+    "every_materialized_learning_capable_branch_reports_incremental_learning": true
   },
   "fast_path": {
     "enabled": true,
@@ -223,5 +224,12 @@
     "previous_blueprint_role": "BASELINE_CANDIDATE",
     "full_ecosystem_rescan_per_materialization": false,
     "reason": "Keep construction fast while always comparing against current known evidence."
+  },
+  "universal_learning": {
+    "required_for_learning_capable_components": true,
+    "incremental_deltas_only": true,
+    "covered_by_runtime_orchestrator_hooks": true,
+    "central_memory": "chacha-dev",
+    "automatic_external_spend_eur": 0
   }
 }
