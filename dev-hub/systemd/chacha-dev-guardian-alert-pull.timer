@@ -1,0 +1,13 @@
+[Unit]
+Description=ChaCha DEV external Guardian alert schedule
+
+[Timer]
+OnBootSec=20s
+OnUnitActiveSec=60s
+AccuracySec=5s
+RandomizedDelaySec=3s
+Persistent=true
+Unit=chacha-dev-guardian-alert-pull.service
+
+[Install]
+WantedBy=timers.target
