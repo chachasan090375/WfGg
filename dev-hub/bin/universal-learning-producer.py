@@ -60,18 +60,33 @@ def send_relay(delta_path:Path,relay_url:str,private_key:Path)->dict[str,Any]:
 
 def flush(outbox:Path,sent:Path,transport:str,ingest:Path,db:Path,relay_url:str,private_key:Path|None,limit:int)->dict[str,Any]:
     outbox.mkdir(parents=True,exist_ok=True);sent.mkdir(parents=True,exist_ok=True)
-    done=[];failed=[]
-    for p in sorted(outbox.glob("ld-*.json"))[:limit]:
+    done=[];failed=[];blocked_streams=set()
+    candidates=[]
+    for p in outbox.glob("ld-*.json"):
+        try:
+            x=load(p)
+            stream=(str(x.get("source_id") or ""),str(x.get("deployment_id") or ""))
+            seq=int(x.get("sequence") or 0)
+            candidates.append((stream,seq,str(x.get("observed_at") or ""),str(x.get("delta_id") or p.stem),p))
+        except Exception as exc:
+            failed.append({"delta_id":p.stem,"reason":"OUTBOX_DELTA_INVALID:"+type(exc).__name__+":"+str(exc)[:240]})
+    candidates.sort(key=lambda row:(row[0][0],row[0][1],row[1],row[2],row[3]))
+    for stream,seq,_,_,p in candidates[:limit]:
+        if stream in blocked_streams:
+            failed.append({"delta_id":p.stem,"reason":"DEFERRED_AFTER_PRIOR_STREAM_FAILURE"})
+            continue
         try:
             result=send_local(p,ingest,db) if transport=="local" else send_relay(p,relay_url,private_key or Path("/nonexistent"))
             target=sent/p.name
             if target.exists():p.unlink()
             else:shutil.move(str(p),str(target))
-            done.append({"delta_id":p.stem,"status":result.get("status")})
+            done.append({"delta_id":p.stem,"sequence":seq,"source_id":stream[0],"deployment_id":stream[1],"status":result.get("status")})
         except Exception as exc:
-            failed.append({"delta_id":p.stem,"reason":type(exc).__name__+":"+str(exc)[:300]})
-    return {"schema":"chacha.dev/universal-learning-flush/v1","transport":transport,"sent":done,"failed":failed,
-            "pending":len(list(outbox.glob("ld-*.json"))),"automatic_external_spend_eur":0}
+            blocked_streams.add(stream)
+            failed.append({"delta_id":p.stem,"sequence":seq,"source_id":stream[0],"deployment_id":stream[1],
+                           "reason":type(exc).__name__+":"+str(exc)[:300]})
+    return {"schema":"chacha.dev/universal-learning-flush/v1","transport":transport,"ordering":"SOURCE_DEPLOYMENT_SEQUENCE_ASC",
+            "sent":done,"failed":failed,"pending":len(list(outbox.glob("ld-*.json"))),"automatic_external_spend_eur":0}
 
 def main()->int:
     ap=argparse.ArgumentParser()
