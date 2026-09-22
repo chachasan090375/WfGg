@@ -15,7 +15,8 @@
     "provider_failover_reenters_policy": true,
     "production_dispatch_requires_human_approval": true,
     "external_guardian_pre_dispatch_required": true,
-    "external_guardian_post_result_required": true
+    "external_guardian_post_result_required": true,
+    "external_guardian_realtime_verdict_required_for_every_dispatch": true
   },
   "locking": {
     "strategy": "project-file-lock",
@@ -115,7 +116,8 @@
       "destructive-operation",
       "technology-replacement"
     ],
-    "low_risk_unavailable": "ALLOW_WITH_UNVERIFIED_GUARDIAN_WARNING",
-    "sensitive_unavailable": "BLOCK"
+    "low_risk_unavailable": "BLOCK",
+    "sensitive_unavailable": "BLOCK",
+    "all_actions_fail_closed_when_unverified": true
   }
 }
