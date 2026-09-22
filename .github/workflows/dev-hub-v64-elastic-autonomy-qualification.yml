@@ -1,0 +1,248 @@
+name: ChaCha DEV V6.4 elastic autonomy qualification
+
+on:
+  push:
+    branches: [dev-hub-v64-elastic-runtime-capsules]
+    paths:
+      - 'dev-hub/config/branch-foundry.v1.json'
+      - 'dev-hub/config/agent-foundry.v1.json'
+      - 'dev-hub/config/domain-orchestration.v1.json'
+      - 'dev-hub/config/provider-economics.v1.json'
+      - 'dev-hub/config/storage-tiers.v1.json'
+      - 'dev-hub/config/learning-fabric.v1.json'
+      - 'dev-hub/config/emergency-stop.v1.json'
+      - 'dev-hub/bin/branch-foundry-planner.py'
+      - 'dev-hub/bin/branch-blueprint-optimizer.py'
+      - 'dev-hub/bin/capsule-scheduler.py'
+      - 'dev-hub/bin/autonomous-project-orchestrator.py'
+      - 'dev-hub/bin/emergency-stop-controller.py'
+      - 'dev-hub/bin/experience-ledger.py'
+      - '.github/workflows/dev-hub-v64-elastic-autonomy-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev-hub-v64-elastic-runtime-capsules
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Static validation
+        run: |
+          set -euo pipefail
+          python3 -m py_compile             dev-hub/bin/branch-foundry-planner.py             dev-hub/bin/branch-blueprint-optimizer.py             dev-hub/bin/capsule-scheduler.py             dev-hub/bin/autonomous-project-orchestrator.py             dev-hub/bin/emergency-stop-controller.py             dev-hub/bin/experience-ledger.py
+          for f in             dev-hub/config/branch-foundry.v1.json             dev-hub/config/agent-foundry.v1.json             dev-hub/config/domain-orchestration.v1.json             dev-hub/config/provider-economics.v1.json             dev-hub/config/storage-tiers.v1.json             dev-hub/config/learning-fabric.v1.json             dev-hub/config/emergency-stop.v1.json; do
+            python3 -m json.tool "$f" >/dev/null
+          done
+          echo CHACHA_DEV_V64_STATIC=PASS
+
+      - name: Minimum-cost blueprint smoke
+        run: |
+          set -euo pipefail
+          cat >/tmp/pkg.json <<'JSON'
+          {"id":"domain:documentation","domain":"documentation","kind":"primary","capabilities":["documentation"]}
+          JSON
+          cat >/tmp/pre.json <<'JSON'
+          {"schema":"chacha.dev/domain-plan/v1","mode":"focused_change","implementation_allowed":true,"intent":"write docs","packages":[]}
+          JSON
+          cat >/tmp/agent.json <<'JSON'
+          {"package_id":"domain:documentation","decision":"REUSE_EXISTING_AGENT","agent_id":"documentation-adr-agent"}
+          JSON
+          python3 dev-hub/bin/branch-blueprint-optimizer.py             --package /tmp/pkg.json --preplan /tmp/pre.json             --policy dev-hub/config/branch-foundry.v1.json             --agent-decision /tmp/agent.json --output /tmp/blueprint.json
+          python3 - <<'PY'
+          import json
+          x=json.load(open('/tmp/blueprint.json'))
+          assert x['state']=='READY',x
+          assert x['chosen_cost']['external_spend_eur']==0,x
+          assert x['chosen']['branch_mode']=='MATERIALIZE_EPHEMERAL_BRANCH',x
+          print('CHACHA_DEV_V64_MIN_COST_BLUEPRINT=PASS')
+          PY
+
+      - name: Fast question uses central memory only
+        run: |
+          set -euo pipefail
+          cat >/tmp/q-pre.json <<'JSON'
+          {
+            "schema":"chacha.dev/domain-plan/v1",
+            "plan_stage":"PREPLAN",
+            "mode":"simple_question",
+            "intent":"Comment fonctionne le Collector ?",
+            "implementation_allowed":false,
+            "packages":[
+              {"id":"domain:knowledge-research","domain":"knowledge-research","kind":"primary",
+               "roles":["technology-watch-agent"],
+               "capabilities":["collector-knowledge-inspect","library-docs"],"toolchain":[]}
+            ]
+          }
+          JSON
+          python3 dev-hub/bin/branch-foundry-planner.py             --preplan /tmp/q-pre.json --config dev-hub/config/branch-foundry.v1.json             --project-id question-test --output /tmp/q-branches.json
+          python3 dev-hub/bin/capsule-scheduler.py             --topology /tmp/q-branches.json --policy dev-hub/config/branch-foundry.v1.json             --output /tmp/q-waves.json
+          python3 - <<'PY'
+          import json
+          b=json.load(open('/tmp/q-branches.json')); w=json.load(open('/tmp/q-waves.json'))
+          assert b['summary']['materialized']==0,b
+          assert b['summary']['memory_only']==1,b
+          assert b['summary']['external_spend_eur']==0,b
+          assert w['wave_count']==0,w
+          print('CHACHA_DEV_V64_FAST_PATH_MEMORY_ONLY=PASS')
+          PY
+
+      - name: Emergency stop latch blocks bootstrap
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/emergency
+          python3 dev-hub/bin/emergency-stop-controller.py             --state /tmp/emergency/stop.json activate --reason qualification --actor ci >/tmp/stop.json
+          python3 - <<'PY'
+          import json
+          x=json.load(open('/tmp/stop.json'))
+          assert x['active'] is True,x
+          assert x['new_dispatch_blocked'] is True,x
+          assert x['persistent_memory_preserved'] is True,x
+          print('CHACHA_DEV_V64_EMERGENCY_LATCH=PASS')
+          PY
+          python3 dev-hub/bin/emergency-stop-controller.py             --state /tmp/emergency/stop.json reset --reason qualification-complete --actor ci >/tmp/reset.json
+          python3 - <<'PY'
+          import json
+          x=json.load(open('/tmp/reset.json'))
+          assert x['active'] is False,x
+          assert x['resume_authorized'] is False,x
+          print('CHACHA_DEV_V64_EMERGENCY_RESET_SAFE=PASS')
+          PY
+
+      - name: Cross-project experience learning smoke
+        run: |
+          set -euo pipefail
+          cat >/tmp/experience.json <<'JSON'
+          {
+            "project_id":"project-a",
+            "learner":"branch-foundry",
+            "intent_signature":"creative-audio",
+            "context_signature":"small-vps",
+            "plan_or_strategy":"lean-ephemeral",
+            "outcome":"PASS",
+            "acceptance_score":1.0,
+            "external_spend_eur":0,
+            "latency_ms":1200,
+            "memory_mb":192,
+            "reusable_lessons":["prefer lean ephemeral branch for short creative pipeline"],
+            "evidence":["qualification"]
+          }
+          JSON
+          python3 dev-hub/bin/experience-ledger.py --db /tmp/experience.db record --event /tmp/experience.json >/tmp/experience-record.json
+          python3 dev-hub/bin/experience-ledger.py --db /tmp/experience.db search --query "creative audio" --limit 5 >/tmp/experience-search.json
+          python3 - <<'PY'
+          import json
+          x=json.load(open('/tmp/experience-search.json'))
+          assert x['results'],x
+          assert x['results'][0]['learner']=='branch-foundry',x
+          print('CHACHA_DEV_V64_CROSS_PROJECT_LEARNING=PASS')
+          PY
+
+      - name: Unknown music capability creates project-local branch
+        run: |
+          set -euo pipefail
+          cat >/tmp/music-gap.json <<'JSON'
+          {
+            "project_id":"song-apero",
+            "missing_capabilities":[
+              {
+                "id":"music-composition",
+                "domain":"creative-audio",
+                "architecture_candidates":["local-midi-render","model-assisted-composition"]
+              }
+            ]
+          }
+          JSON
+          python3 dev-hub/bin/capability-foundry.py             --request /tmp/music-gap.json             --policy dev-hub/config/capability-foundry.v1.json             --domains dev-hub/config/domain-orchestration.v1.json             --capabilities dev-hub/config/capability-registry.v1.json             --output /tmp/music-foundry.json             --domain-overlay /tmp/music-domain.json             --capability-overlay /tmp/music-cap.json             --routing-overlay /tmp/music-routing.json
+          python3 - <<'PY'
+          import json
+          x=json.load(open('/tmp/music-foundry.json'))
+          assert x['created_domain_count']==1,x
+          assert x['created_capability_count']==1,x
+          assert x['core_replan_required'] is True,x
+          assert x['agent_foundry_rerun_required'] is True,x
+          d=list(x['domain_overlay'].keys())[0]
+          assert d=='domain-creative-audio',x
+          print('CHACHA_DEV_V64_DYNAMIC_MUSIC_BRANCH=PASS')
+          PY
+
+      - name: Capsule scheduler respects VPS budget
+        run: |
+          set -euo pipefail
+          cat >/tmp/topology.json <<'JSON'
+          {
+            "decisions":[
+              {"branch_id":"a","runtime_required":true,"resource_budget":{"memory_hard_limit_mb":640,"disk_soft_limit_mb":512,"cpu_weight":60,"processes_max":1}},
+              {"branch_id":"b","runtime_required":true,"resource_budget":{"memory_hard_limit_mb":320,"disk_soft_limit_mb":256,"cpu_weight":35,"processes_max":1}},
+              {"branch_id":"c","runtime_required":true,"resource_budget":{"memory_hard_limit_mb":320,"disk_soft_limit_mb":256,"cpu_weight":35,"processes_max":1}}
+            ]
+          }
+          JSON
+          python3 dev-hub/bin/capsule-scheduler.py             --topology /tmp/topology.json             --policy dev-hub/config/branch-foundry.v1.json             --output /tmp/waves.json
+          python3 - <<'PY'
+          import json
+          x=json.load(open('/tmp/waves.json'))
+          assert x['schedulable'] is True,x
+          assert x['wave_count']>=2,x
+          assert all(w['memory_mb']<=1024 for w in x['waves']),x
+          print('CHACHA_DEV_V64_RESOURCE_WAVES=PASS')
+          PY
+
+      - name: Storage tiering contract
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          s=json.load(open('dev-hub/config/storage-tiers.v1.json'))
+          l=json.load(open('dev-hub/config/learning-fabric.v1.json'))
+          assert s['providers']['persistent_nas']['authoritative'] is True
+          assert s['providers']['hot_vps']['authoritative'] is False
+          assert s['providers']['persistent_nas']['root']=='/share/CACHEDEV1_DATA/ChaCha-DEV-HUB'
+          assert l['project_memory_index']['use_before_planning'] is True
+          assert 'core-orchestrator' in l['learners']
+          assert 'branch-foundry' in l['learners']
+          assert 'agent-foundry' in l['learners']
+          print('CHACHA_DEV_V64_NAS_AUTHORITATIVE_MEMORY=PASS')
+          print('CHACHA_DEV_V64_ORCHESTRATOR_LEARNING=PASS')
+          PY
+
+      - name: Qualification receipt
+        run: |
+          {
+            echo CHACHA_DEV_ELASTIC_AUTONOMY=V6.4
+            echo RESULT=success
+            echo SOURCE_REV="$(git rev-parse HEAD)"
+            echo EMERGENCY_STOP=OUT_OF_BAND_LATCHED
+            echo SIMPLE_QUESTION=MEMORY_ONLY_FAST_PATH
+            echo BRANCH_FOUNDRY=OPTIMIZED_MIN_TOTAL_COST
+            echo AGENT_FOUNDRY=OPTIMIZED_MIN_TOTAL_COST
+            echo CENTRAL_MEMORY=NAS_AUTHORITATIVE
+            echo HOT_INDEX=VPS
+            echo ORCHESTRATORS_LEARN=YES
+            echo FOUNDRIES_LEARN=YES
+            echo UNKNOWN_BRANCH_CREATION=PROJECT_LOCAL_AUTOMATIC
+            echo RUNTIME_CAPSULES=LAZY_EPHEMERAL
+            echo RESOURCE_WAVES=YES
+            echo AUTOMATIC_EXTERNAL_SPEND_EUR=0
+          } | tee /tmp/CHACHA_DEV_V64_RECEIPT.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chacha-dev-v64-elastic-autonomy-qualification
+          path: |
+            /tmp/CHACHA_DEV_V64_RECEIPT.txt
+            /tmp/q-branches.json
+            /tmp/q-waves.json
+            /tmp/experience-search.json
+            /tmp/music-foundry.json
+            /tmp/waves.json
+          retention-days: 30
