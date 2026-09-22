@@ -322,6 +322,69 @@ class RadarRuntimeAdapterContract(unittest.TestCase):
         self.assertNotIn("pilot-close", probe)
         self.assertNotIn("systemctl(", probe)
 
+    def test_messenger_production_install_contract(self):
+        req = envelope("messenger-production-install", "production-deploy", approval=True)
+        radar, err = mod.validate_request(req)
+        self.assertIsNone(err)
+        self.assertEqual(radar["action"], "messenger-production-install")
+        self.assertIsNone(mod.approval_required(req))
+
+    def test_messenger_production_probe_contract(self):
+        req = envelope("messenger-production-probe", "read")
+        radar, err = mod.validate_request(req)
+        self.assertIsNone(err)
+        self.assertEqual(radar["action"], "messenger-production-probe")
+
+    def test_messenger_production_rollback_contract(self):
+        req = envelope("messenger-production-rollback", "production-deploy", approval=True)
+        radar, err = mod.validate_request(req)
+        self.assertIsNone(err)
+        self.assertEqual(radar["action"], "messenger-production-rollback")
+        self.assertIsNone(mod.approval_required(req))
+
+    def test_messenger_production_write_requires_production_permission(self):
+        for action in ("messenger-production-install", "messenger-production-rollback"):
+            req = envelope(action, "workspace-write", approval=False)
+            _radar, err = mod.validate_request(req)
+            self.assertEqual(err, "RADAR_RUNTIME_PERMISSION_REQUIRED:production-deploy")
+
+    def test_messenger_production_metadata_paths_are_pinned(self):
+        base = {
+            "revision": "a" * 40,
+            "expected_messenger_sha256": "b" * 64,
+        }
+        got = mod.validate_messenger_production_metadata({
+            **base, "installer": "radar-vps/install-v624-messenger-production.sh"
+        }, "install")
+        self.assertEqual(got[1], "radar-vps/install-v624-messenger-production.sh")
+        got = mod.validate_messenger_production_metadata({
+            **base, "probe": "radar-vps/probe-v624-messenger-production-runtime.sh"
+        }, "probe")
+        self.assertEqual(got[1], "radar-vps/probe-v624-messenger-production-runtime.sh")
+        got = mod.validate_messenger_production_metadata({
+            **base, "rollback": "radar-vps/rollback-v624-messenger-production.sh"
+        }, "rollback")
+        self.assertEqual(got[1], "radar-vps/rollback-v624-messenger-production.sh")
+
+    def test_messenger_production_arbitrary_path_rejected(self):
+        with self.assertRaisesRegex(ValueError, "RADAR_MESSENGER_PRODUCTION_INSTALLER_PATH_INVALID"):
+            mod.validate_messenger_production_metadata({
+                "revision": "a" * 40,
+                "installer": "../../evil.sh",
+                "expected_messenger_sha256": "b" * 64,
+            }, "install")
+
+    def test_messenger_production_actions_do_not_control_systemd(self):
+        source = ADAPTER.read_text(encoding="utf-8")
+        install = source[source.index("def do_messenger_production_install"):source.index("def do_messenger_production_probe")]
+        probe = source[source.index("def do_messenger_production_probe"):source.index("def do_messenger_production_rollback")]
+        rollback = source[source.index("def do_messenger_production_rollback"):source.index("def do_status")]
+        self.assertIn("approval_required(request)", install)
+        self.assertIn("approval_required(request)", rollback)
+        for chunk in (install, probe, rollback):
+            self.assertNotIn("systemctl(", chunk)
+            self.assertIn("production_runtime_unchanged", chunk)
+
     def test_no_shell_true_in_source(self):
         source = ADAPTER.read_text(encoding="utf-8")
         self.assertIn("shell=False", source)
