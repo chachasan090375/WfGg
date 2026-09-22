@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/technology-watch-runtime/v1",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "mode": "CONTINUOUS_ZERO_SPEND_FIRST",
   "snapshot": "/opt/chacha-dev/runtime/technology-watch/optimizer-input.json",
   "maximum_snapshot_age_minutes": 60,
@@ -19,7 +19,9 @@
     "branch-foundry",
     "agent-foundry",
     "capability-foundry",
-    "architecture-optimizer"
+    "architecture-optimizer",
+    "architecture-decision-council",
+    "reuse-memory"
   ],
   "admissible_provider_statuses": [
     "ADOPT",
@@ -51,5 +53,12 @@
     "official_sources_first": true,
     "network_refresh_optional": true,
     "network_failure_is_nonfatal_when_current_registry_evidence_exists": true
+  },
+  "taxonomy": {
+    "all_known_domains": true,
+    "all_known_capabilities": true,
+    "reusable_branch_versions": true,
+    "refresh_with_background_snapshot": true,
+    "revalidate_before_reuse": true
   }
 }
