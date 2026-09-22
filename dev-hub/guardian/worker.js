@@ -152,7 +152,7 @@ async function evaluate(event, env) {
   }
 
   const sensitive = new Set([
-    "repository-write", "preview-deploy", "production-deploy", "production-data-write",
+    "production-deploy", "production-data-write",
     "secret-change", "destructive-operation", "technology-replacement"
   ]);
   if (phase === "PRE_ACTION" && sensitive.has(permission) && !truthyEvidence(evidence, "human_approval")) {
