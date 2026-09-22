@@ -10,6 +10,7 @@ import uuid
 from pathlib import Path
 
 import guardian_remediation_runtime as grr
+import universal_learning_runtime as ulr
 
 def load(p):
     x=json.loads(Path(p).read_text(encoding="utf-8"))
@@ -132,6 +133,21 @@ def run(script,args):
     guardian_stage(Path(script),args,"PRE_ACTION",action_id)
     p=subprocess.run([sys.executable,str(script),*map(str,args)],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
                      text=True,check=False,timeout=120)
+    role=_STAGE_ROLE.get(Path(script).name,"orchestrator")
+    lower=role.lower()
+    kind="foundry" if "foundry" in lower else "core-orchestrator" if role=="orchestrator" else "domain-orchestrator" if "orchestrator" in lower else "agent"
+    project_id="platform-global"
+    for i,v in enumerate(args):
+        if str(v)=="--project-id" and i+1<len(args):
+            project_id=str(args[i+1]);break
+    try:
+        ulr.observe_platform(project_id=project_id,source_id=role,source_kind=kind,state={
+          "stage":Path(script).name,"returncode":int(p.returncode),
+          "stdout_digest":"sha256:"+__import__("hashlib").sha256(p.stdout.encode()).hexdigest(),
+          "stderr_digest":"sha256:"+__import__("hashlib").sha256(p.stderr.encode()).hexdigest()
+        })
+    except Exception:
+        pass
     if p.returncode!=0:
         raise RuntimeError(f"{script.name}: {p.stderr.strip()} {p.stdout.strip()}")
     guardian_stage(Path(script),args,"POST_ACTION",action_id)
