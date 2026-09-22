@@ -119,6 +119,12 @@ def prepare_tasks(graph: dict[str, Any], registry: dict[str, Any], health: dict[
         if fallback_count and permission in failover_approval:
             reasons.append("FAILOVER_APPROVAL_REQUIRED")
         rclass = resource_class(task)
+        guardian_binding = task.get("guardian_binding") if isinstance(task.get("guardian_binding"), dict) else None
+        if graph.get("guardian_binding") is not None:
+            if guardian_binding is None:
+                reasons.append("TASK_GUARDIAN_BINDING_MISSING")
+            for err in task.get("guardian_binding_errors") or []:
+                reasons.append("TASK_GUARDIAN_BINDING_INVALID:"+str(err))
         prepared[tid] = {
             "task_id": tid,
             "permission": permission,
@@ -128,6 +134,8 @@ def prepare_tasks(graph: dict[str, Any], registry: dict[str, Any], health: dict[
             "depends_on": list(task.get("depends_on") or []),
             "kind": task.get("kind"),
             "owner_role": task.get("owner_role"),
+            "capabilities": list(task.get("capabilities") or []),
+            "guardian_binding": guardian_binding,
         }
         if reasons:
             blocked[tid] = sorted(set(reasons))
