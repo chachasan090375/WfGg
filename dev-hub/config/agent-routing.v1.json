@@ -208,9 +208,126 @@
         "agent-composition"
       ],
       "default_risk": "medium"
+    },
+    "capability-foundry-architect": {
+      "capabilities": [
+        "capability-gap-analysis",
+        "domain-factory-design",
+        "capability-qualification"
+      ],
+      "default_risk": "medium"
+    },
+    "contract-integrator": {
+      "capabilities": [
+        "contract-reconciliation",
+        "api-contract-review",
+        "integration-design"
+      ],
+      "default_risk": "medium"
+    },
+    "acceptance-engineer": {
+      "capabilities": [
+        "acceptance-validation",
+        "test-strategy",
+        "integration-design"
+      ],
+      "default_risk": "medium"
+    },
+    "knowledge-compiler-agent": {
+      "capabilities": [
+        "knowledge-compilation",
+        "collector-knowledge-inspect",
+        "comparative-evaluation"
+      ],
+      "default_risk": "low"
+    },
+    "autonomous-recovery-agent": {
+      "capabilities": [
+        "recovery-orchestration",
+        "rollback-validation",
+        "health-checks"
+      ],
+      "default_risk": "high"
+    },
+    "uncertainty-resolution-agent": {
+      "capabilities": [
+        "uncertainty-resolution",
+        "web-research",
+        "library-docs"
+      ],
+      "default_risk": "low"
     }
   },
   "routing_rules": [
+    {
+      "match": [
+        "capability-foundry",
+        "capability missing",
+        "missing capability",
+        "nouveau domaine"
+      ],
+      "primary_role": "capability-foundry-architect",
+      "review_roles": [
+        "technology-watch-agent",
+        "security-reviewer"
+      ]
+    },
+    {
+      "match": [
+        "contract mismatch",
+        "contract-reconciliation",
+        "incompatibilité contrat"
+      ],
+      "primary_role": "contract-integrator",
+      "review_roles": [
+        "test-engineer"
+      ]
+    },
+    {
+      "match": [
+        "acceptance",
+        "critère d'acceptation",
+        "definition of done"
+      ],
+      "primary_role": "acceptance-engineer",
+      "review_roles": [
+        "test-engineer"
+      ]
+    },
+    {
+      "match": [
+        "knowledge compiler",
+        "compile knowledge",
+        "règle réutilisable"
+      ],
+      "primary_role": "knowledge-compiler-agent",
+      "review_roles": [
+        "technology-watch-agent"
+      ]
+    },
+    {
+      "match": [
+        "recovery autonomous",
+        "self-heal",
+        "auto rollback"
+      ],
+      "primary_role": "autonomous-recovery-agent",
+      "review_roles": [
+        "recovery-engineer",
+        "security-reviewer"
+      ]
+    },
+    {
+      "match": [
+        "uncertainty",
+        "incertitude",
+        "confidence"
+      ],
+      "primary_role": "uncertainty-resolution-agent",
+      "review_roles": [
+        "product-domain-architect"
+      ]
+    },
     {
       "match": [
         "agent-foundry",
