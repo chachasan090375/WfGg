@@ -34,10 +34,39 @@ install -m 0644 "$CURRENT/dev-hub/systemd/chacha-dev-emergency-stop-surface.serv
 systemctl daemon-reload
 systemctl start chacha-dev-technology-watch.service
 systemctl enable --now chacha-dev-technology-watch.timer
-systemctl enable --now chacha-dev-emergency-stop-surface.service
+systemctl enable chacha-dev-emergency-stop-surface.service
+# The unit may already be active from an older release. enable --now does not
+# restart an active service, which can leave a stale process behind. Force a
+# restart so the surface always runs the pinned PILOT revision.
+if ! systemctl restart chacha-dev-emergency-stop-surface.service; then
+  systemctl status --no-pager chacha-dev-emergency-stop-surface.service || true
+  journalctl -u chacha-dev-emergency-stop-surface.service -n 80 --no-pager || true
+  echo "CHACHA_DEV_V64_RUNTIME_PILOT=BLOCKED reason=emergency_surface_restart_failed"
+  exit 2
+fi
 systemctl is-active --quiet chacha-dev-technology-watch.timer
-systemctl is-active --quiet chacha-dev-emergency-stop-surface.service
+
+# Readiness is stronger than "active": the new surface must have created its
+# token and be answering on loopback before the PILOT can continue.
+EMERGENCY_TOKEN_FILE="/opt/chacha-dev/runtime/control/emergency-stop-ui.token"
+EMERGENCY_SURFACE_READY=0
+for _ in {1..50}; do
+  if systemctl is-active --quiet chacha-dev-emergency-stop-surface.service \
+     && test -s "$EMERGENCY_TOKEN_FILE" \
+     && curl -fsS http://127.0.0.1:8788/ >/dev/null 2>&1; then
+    EMERGENCY_SURFACE_READY=1
+    break
+  fi
+  sleep 0.2
+done
+if [ "$EMERGENCY_SURFACE_READY" != 1 ]; then
+  systemctl status --no-pager chacha-dev-emergency-stop-surface.service || true
+  journalctl -u chacha-dev-emergency-stop-surface.service -n 80 --no-pager || true
+  echo "CHACHA_DEV_V64_RUNTIME_PILOT=BLOCKED reason=emergency_surface_not_ready"
+  exit 2
+fi
 test -s /opt/chacha-dev/runtime/technology-watch/optimizer-input.json
+echo "CHACHA_DEV_V64_EMERGENCY_SURFACE_READY=PASS"
 echo "CHACHA_DEV_V64_TECHNOLOGY_WATCH_RUNTIME=PASS"
 
 cat >"$WORK/topology.json" <<'JSON'
@@ -58,7 +87,7 @@ assert sum(c['resource_budget']['memory_hard_limit_mb'] for c in x['capsules'])<
 print('CHACHA_DEV_V64_REAL_CAPSULE_MATERIALIZATION=PASS')
 PY
 
-TOKEN="$(cat /opt/chacha-dev/runtime/control/emergency-stop-ui.token)"
+TOKEN="$(cat "$EMERGENCY_TOKEN_FILE")"
 curl -fsS -H "X-ChaCha-Stop-Token: $TOKEN" -H 'Content-Type: application/json'   -d '{"reason":"v64-runtime-pilot-emergency-path"}' http://127.0.0.1:8788/api/emergency-stop/activate >"$WORK/stop.json"
 python3 - "$WORK/stop.json" <<'PY'
 import json,sys
