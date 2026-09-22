@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/technology-watch-runtime/v1",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "mode": "CONTINUOUS_ZERO_SPEND_FIRST",
   "snapshot": "/opt/chacha-dev/runtime/technology-watch/optimizer-input.json",
   "maximum_snapshot_age_minutes": 60,
@@ -59,6 +59,8 @@
     "all_known_capabilities": true,
     "reusable_branch_versions": true,
     "refresh_with_background_snapshot": true,
-    "revalidate_before_reuse": true
+    "revalidate_before_reuse": true,
+    "reusable_architecture_versions": true,
+    "complete_architecture_functional_signatures": true
   }
 }
