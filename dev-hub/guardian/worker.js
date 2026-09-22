@@ -282,12 +282,100 @@ async function actionLease(event,env,current){
   return {severity:"INFO",reason_codes:[]};
 }
 
+function remediationPlan(reasons,severity,payload){
+  const rs=(reasons||[]).map(String);
+  let requiredAction="RELOAD_CONTRACT_AND_REPLAN";
+  if(rs.some(x=>x.includes("BINDING")||x.includes("TASK_CONTRACT")))requiredAction="RESTORE_AUTHORITATIVE_TASK_BINDING";
+  else if(rs.some(x=>x.startsWith("ADAPTER_")))requiredAction="REBIND_REGISTERED_ADAPTER";
+  else if(rs.some(x=>x.includes("COVERAGE")||x.includes("GUARDIAN_HOOK")))requiredAction="RESTORE_GUARDIAN_HOOK";
+  else if(rs.some(x=>x.includes("POST_ACTION_MISSING")))requiredAction="RECONCILE_ACTION_STATE";
+  else if(rs.some(x=>x.includes("HUMAN_APPROVAL")))requiredAction="REQUEST_HUMAN_APPROVAL";
+  else if(rs.some(x=>x.includes("EMERGENCY_STOP")))requiredAction="HALT_AND_ESCALATE";
+  else if(rs.some(x=>x.includes("PROJECT_SCOPE")||x.includes("CAPABILITY_OUTSIDE")||x.includes("DOMAIN_OUTSIDE")||x.includes("PACKAGE_OUTSIDE")))requiredAction="REPLAN_WITHIN_AUTHORIZED_SCOPE";
+  const p=payload&&typeof payload==="object"?payload:{};
+  const actor=String(p.actor||p.component_id||"central-orchestrator");
+  const subject=String(p.subject_role||p.component_id||actor);
+  const adapterRelated=rs.some(x=>x.startsWith("ADAPTER_")||x.includes("BINDING"));
+  const target=adapterRelated?actor:subject;
+  return {
+    target_actor:target,target_role:target,
+    project_id:p.project_id?String(p.project_id):null,
+    run_id:p.run_id?String(p.run_id):null,
+    required_action:requiredAction,
+    instructions:[
+      "RELOAD_AUTHORITATIVE_ROLE_CONTRACT",
+      requiredAction,
+      "RETRY_ONLY_WITHIN_DECLARED_PROJECT_DOMAIN_CAPABILITIES_AND_PERMISSIONS",
+      severity==="CRITICAL"?"DO_NOT_RESUME_UNTIL_GUARDIAN_ACCEPTS_CORRECTED_ACTION":"RESUBMIT_CORRECTED_ACTION_TO_GUARDIAN"
+    ]
+  };
+}
+
+async function createRemediation(env,{alertId,eventId,severity,reasons,payload}){
+  if(payload&&payload.suppress_remediation===true)return null;
+  const plan=remediationPlan(reasons,severity,payload);
+  const directiveId="remed-"+String(alertId);
+  await env.DB.prepare(
+    `INSERT OR IGNORE INTO remediation_directives
+      (directive_id,source_alert_id,source_event_id,target_actor,target_role,project_id,run_id,severity,required_action,rule_codes_json,instructions_json,status,attempt_count,max_attempts,created_at)
+      VALUES(?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,'OPEN',0,3,datetime('now'))`
+  ).bind(directiveId,String(alertId),String(eventId),plan.target_actor,plan.target_role,
+         plan.project_id,plan.run_id,String(severity),plan.required_action,
+         JSON.stringify(reasons||[]),JSON.stringify(plan.instructions)).run();
+  if(["BLOCK","CRITICAL"].includes(String(severity))){
+    const holdKey=[plan.target_actor,plan.project_id||"*"].join("|");
+    await env.DB.prepare(
+      `INSERT OR IGNORE INTO remediation_holds
+        (hold_key,directive_id,target_actor,target_role,project_id,run_id,severity,active,created_at)
+        VALUES(?1,?2,?3,?4,?5,?6,?7,1,datetime('now'))`
+    ).bind(holdKey,directiveId,plan.target_actor,plan.target_role,plan.project_id,plan.run_id,String(severity)).run();
+  }
+  return directiveId;
+}
+
+async function activeRemediationHold(event,env){
+  const actor=String(event.actor||""),subject=String(event.subject_role||""),project=String(event.project_id||"");
+  return env.DB.prepare(
+    `SELECT * FROM remediation_holds
+      WHERE active=1 AND (target_actor=?1 OR target_role=?2)
+        AND (project_id IS NULL OR project_id='' OR project_id=?3)
+      ORDER BY created_at ASC LIMIT 1`
+  ).bind(actor,subject,project).first();
+}
+
+async function applyRemediationProgress(event,env,evaluation,hold){
+  const rid=String((event.context||{}).remediation_directive_id||"");
+  if(!rid||!hold||rid!==String(hold.directive_id||"")||String(event.phase||"")!=="PRE_ACTION")return {applied:false,escalated:false};
+  if(["PASS","WARNING"].includes(String(evaluation.verdict))){
+    await env.DB.prepare(
+      "UPDATE remediation_directives SET status='APPLIED',applied_at=datetime('now'),resolution_evidence_json=?2 WHERE directive_id=?1"
+    ).bind(rid,stable({event_id:event.event_id,action_id:event.action_id,verdict:evaluation.verdict})).run();
+    await env.DB.prepare("UPDATE remediation_holds SET active=0,cleared_at=datetime('now') WHERE directive_id=?1").bind(rid).run();
+    return {applied:true,escalated:false};
+  }
+  const row=await env.DB.prepare("SELECT attempt_count,max_attempts FROM remediation_directives WHERE directive_id=?1").bind(rid).first();
+  const attempt=Number((row&&row.attempt_count)||0)+1,max=Number((row&&row.max_attempts)||3);
+  await env.DB.prepare("UPDATE remediation_directives SET attempt_count=?2 WHERE directive_id=?1").bind(rid,attempt).run();
+  if(attempt>=max){
+    await env.DB.prepare("UPDATE remediation_directives SET status='ESCALATED' WHERE directive_id=?1").bind(rid).run();
+    await createAlert(env,{
+      alertId:"remediation-escalated-"+rid,eventId:String(event.event_id||rid),severity:"CRITICAL",
+      summary:"Guardian remediation failed repeatedly: "+rid,
+      reasons:["REMEDIATION_MAX_ATTEMPTS_EXCEEDED"],
+      payload:{actor:event.actor,subject_role:event.subject_role,project_id:event.project_id,run_id:event.run_id,suppress_remediation:true}
+    });
+    return {applied:false,escalated:true};
+  }
+  return {applied:false,escalated:false};
+}
+
 async function createAlert(env,{alertId,eventId,severity,summary,reasons,payload}){
   await env.DB.prepare(
     `INSERT OR REPLACE INTO guardian_alerts
       (alert_id,event_id,created_at,severity,status,summary,reason_codes_json,payload_json)
       VALUES(?1,?2,datetime('now'),?3,'OPEN',?4,?5,?6)`
   ).bind(alertId,eventId,severity,summary,JSON.stringify(reasons||[]),stable(payload||{})).run();
+  return createRemediation(env,{alertId,eventId,severity,reasons,payload});
 }
 
 async function storeEvent(env,event,evaluation){
@@ -300,13 +388,15 @@ async function storeEvent(env,event,evaluation){
          String(event.action||""),event.task_kind?String(event.task_kind):null,event.permission?String(event.permission):null,
          event.project_id?String(event.project_id):null,event.run_id?String(event.run_id):null,evaluation.verdict,
          evaluation.severity,evaluation.subject_contract_id,JSON.stringify(evaluation.reason_codes),payload).run();
+  let directiveId=null;
   if(evaluation.severity!=="INFO"){
-    await createAlert(env,{
+    directiveId=await createAlert(env,{
       alertId:"alert-"+String(event.event_id),eventId:String(event.event_id),severity:evaluation.severity,
       summary:evaluation.severity+" "+String(event.actor||"")+" -> "+String(event.subject_role||"")+" / "+String(event.action||""),
       reasons:evaluation.reason_codes,payload:event
     });
   }
+  return directiveId;
 }
 
 async function registerDynamicContract(req,env){
@@ -417,15 +507,31 @@ async function check(req,env){
   const auth=await requireCentral(req,env,body);if(!auth.ok)return auth.response;
   let event;try{event=JSON.parse(body);}catch{return json({error:"invalid_json"},400);}
   if(!event||typeof event!=="object")return json({error:"event_invalid"},400);
+  const hold=await activeRemediationHold(event,env);
+  const claimedDirective=String((event.context||{}).remediation_directive_id||"");
   let evaluation=await evaluate(event,env);
+  if(hold&&claimedDirective!==String(hold.directive_id||"")){
+    evaluation=mergeEval(evaluation,{
+      severity:String(hold.severity)==="CRITICAL"?"CRITICAL":"BLOCK",
+      reason_codes:["REMEDIATION_REQUIRED:"+String(hold.directive_id)]
+    });
+  }
   evaluation=mergeEval(evaluation,await actionLease(event,env,evaluation));
-  await storeEvent(env,event,evaluation);
+  const progress=await applyRemediationProgress(event,env,evaluation,hold);
+  if(progress.escalated){
+    evaluation=mergeEval(evaluation,{severity:"CRITICAL",reason_codes:["REMEDIATION_MAX_ATTEMPTS_EXCEEDED"]});
+  }
+  const createdDirectiveId=await storeEvent(env,event,evaluation);
   return json({
-    schema:"chacha.dev/guardian-verdict/v2",event_id:String(event.event_id||""),action_id:String(event.action_id||""),
+    schema:"chacha.dev/guardian-verdict/v3",event_id:String(event.event_id||""),action_id:String(event.action_id||""),
     verdict:evaluation.verdict,severity:evaluation.severity,reason_codes:evaluation.reason_codes,
     actor_contract_id:evaluation.actor_contract_id,subject_contract_id:evaluation.subject_contract_id,
+    remediation_required:Boolean(hold||createdDirectiveId),
+    remediation_directive_id:hold?String(hold.directive_id):createdDirectiveId,
+    remediation_applied:progress.applied===true,
+    remediation_escalated:progress.escalated===true,
     stop_recommended:evaluation.severity==="CRITICAL",guardian:"external-worker",
-    action_lease_protocol:true,checked_at:new Date().toISOString()
+    action_lease_protocol:true,corrective_enforcement:true,checked_at:new Date().toISOString()
   },["PASS","WARNING"].includes(evaluation.verdict)?200:409);
 }
 
@@ -473,6 +579,40 @@ async function coverage(req,env){
     expected_count:expected.length,reported_count:components.length,missing,inactive,unknown,
     coverage_ratio:expected.length?Number(((expected.length-missing.length-inactive.length)/expected.length).toFixed(4)):1,
     checked_at:new Date().toISOString()},["PASS","WARNING"].includes(verdict)?200:409);
+}
+
+async function remediations(req,env){
+  const auth=await requireCentral(req,env);if(!auth.ok)return auth.response;
+  const u=new URL(req.url),status=String(u.searchParams.get("status")||"OPEN").toUpperCase();
+  const limit=Math.max(1,Math.min(100,Number(u.searchParams.get("limit")||50)));
+  const rows=await env.DB.prepare(
+    `SELECT directive_id,source_alert_id,source_event_id,target_actor,target_role,project_id,run_id,severity,required_action,
+            rule_codes_json,instructions_json,status,attempt_count,max_attempts,created_at,delivered_at,applied_at,resolution_evidence_json
+       FROM remediation_directives WHERE status=?1 ORDER BY created_at ASC LIMIT ?2`
+  ).bind(status,limit).all();
+  return json({schema:"chacha.dev/guardian-remediation-batch/v1",items:(rows.results||[]).map(r=>({
+    directive_id:r.directive_id,source_alert_id:r.source_alert_id,source_event_id:r.source_event_id,
+    target_actor:r.target_actor,target_role:r.target_role,project_id:r.project_id,run_id:r.run_id,
+    severity:r.severity,required_action:r.required_action,rule_codes:JSON.parse(r.rule_codes_json||"[]"),
+    instructions:JSON.parse(r.instructions_json||"[]"),status:r.status,attempt_count:r.attempt_count,max_attempts:r.max_attempts,
+    created_at:r.created_at,delivered_at:r.delivered_at,applied_at:r.applied_at,
+    resolution_evidence:r.resolution_evidence_json?JSON.parse(r.resolution_evidence_json):null
+  }))});
+}
+
+async function markRemediationsDelivered(req,env){
+  const body=await req.text();const auth=await requireCentral(req,env,body);if(!auth.ok)return auth.response;
+  let payload;try{payload=JSON.parse(body);}catch{return json({error:"invalid_json"},400);}
+  const ids=Array.isArray(payload.directive_ids)?payload.directive_ids.map(String).slice(0,100):[];
+  if(!ids.length)return json({error:"directive_ids_required"},400);
+  let count=0;
+  for(const id of ids){
+    const r=await env.DB.prepare(
+      "UPDATE remediation_directives SET status='DELIVERED',delivered_at=datetime('now') WHERE directive_id=?1 AND status='OPEN'"
+    ).bind(id).run();
+    count+=r.meta.changes||0;
+  }
+  return json({schema:"chacha.dev/guardian-remediation-delivery/v1",status:"DELIVERED",count});
 }
 
 async function alerts(req,env){
@@ -550,13 +690,16 @@ export default {
       dynamic_component_contract_registration:true,dynamic_contract_policy_escalation_allowed:false,
       dynamic_component_policy_escalation_allowed:false,tunnel_required:false,action_lease_protocol:true,
       task_contract_binding_protocol:true,task_contract_identity_lease:true,coverage_watch:true,
-      authenticated_watchdog_sweep:true,scheduled_watchdog:true
+      authenticated_watchdog_sweep:true,scheduled_watchdog:true,
+      corrective_enforcement:true,remediation_holds:true,remediation_retry_limit:3
     });
     if(req.method==="POST"&&u.pathname==="/v1/check")return check(req,env);
     if(req.method==="POST"&&u.pathname==="/v1/dynamic-contracts/register")return registerDynamicContract(req,env);
     if(req.method==="POST"&&u.pathname==="/v1/dynamic-components/register")return registerDynamicComponentContract(req,env);
     if(req.method==="POST"&&u.pathname==="/v1/coverage")return coverage(req,env);
     if(req.method==="POST"&&u.pathname==="/v1/watchdog/sweep")return watchdogSweep(req,env);
+    if(req.method==="GET"&&u.pathname==="/v1/remediations")return remediations(req,env);
+    if(req.method==="POST"&&u.pathname==="/v1/remediations/delivered")return markRemediationsDelivered(req,env);
     if(req.method==="GET"&&u.pathname==="/v1/alerts")return alerts(req,env);
     if(req.method==="POST"&&u.pathname==="/v1/alerts/ack")return ackAlerts(req,env);
     return json({error:"not_found"},404);
