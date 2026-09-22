@@ -74,11 +74,19 @@ def guardian_stage(script:Path,args,phase:str):
     if not client.is_file() or not policy.is_file():
         return {"status":"UNAVAILABLE","reason":"CLIENT_OR_POLICY_MISSING"}
     role=_STAGE_ROLE.get(script.name,"orchestrator")
-    action="FINAL_ARCHITECTURE_DECISION" if (script.name=="architecture-decision-council.py" and phase=="POST_ACTION") else "INVOKE_COMPONENT"
     out=_output_arg(args)
+    action="INVOKE_COMPONENT"
     evidence={"emergency_stop_active":emergency_stop_active(),"output_exists":bool(out and out.exists())}
     if script.name=="architecture-decision-council.py" and phase=="POST_ACTION":
         evidence=_council_guardian_evidence(out)
+        try:
+            council_preview=load(out) if out and out.exists() else {}
+        except Exception:
+            council_preview={}
+        if bool(council_preview.get("dispatch_allowed")):
+            action="FINAL_ARCHITECTURE_DECISION"
+        else:
+            action="REPORT_DECISION"
     event={
       "schema":"chacha.dev/governance-action/v1",
       "event_id":"gov-"+uuid.uuid4().hex,
