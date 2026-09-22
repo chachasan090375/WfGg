@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Any
 import technology_watch_runtime as tw
 
-MANDATORY=("technology-watch-pre","reuse-memory","branch-foundry","agent-foundry","capability-foundry","constraint-policy","technology-watch-final")
+MANDATORY=("technology-watch-pre","architecture-memory","reuse-memory","branch-foundry","agent-foundry","capability-foundry","constraint-policy","technology-watch-final")
 
 def load(p:Path)->dict[str,Any]:
     x=json.loads(p.read_text(encoding="utf-8"))
@@ -18,6 +18,24 @@ def search_reuse(script:Path,db:Path,domain:str,caps:list[str],max_age:int)->dic
     p=subprocess.run(cmd,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=30)
     if p.returncode!=0: return {"candidates":[],"error":(p.stderr or p.stdout)[-500:]}
     return json.loads(p.stdout)
+
+def search_architecture_memory(script:Path,db:Path,preplan:Path,max_age:int)->dict[str,Any]:
+    cmd=[sys.executable,str(script),"--db",str(db),"search","--preplan",str(preplan),
+         "--limit","3","--max-revalidation-age-minutes",str(max_age)]
+    p=subprocess.run(cmd,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=30)
+    if p.returncode!=0: return {"candidates":[],"error":(p.stderr or p.stdout)[-500:]}
+    return json.loads(p.stdout)
+
+def architecture_memory_package(candidate:dict[str,Any],domain:str,caps:list[str],kind:str)->dict[str,Any]|None:
+    want_caps=sorted(set(map(str,caps or [])))
+    for p in (candidate.get("components") or {}).get("packages") or []:
+        if not isinstance(p,dict): continue
+        if str(p.get("domain") or "")!=domain: continue
+        if str(p.get("kind") or "")!=kind: continue
+        if sorted(set(map(str,p.get("capabilities") or [])))!=want_caps: continue
+        return p
+    return None
+
 
 def by_package(topology:dict[str,Any])->dict[str,dict[str,Any]]:
     return {str(x.get("package_id")):x for x in topology.get("decisions") or [] if isinstance(x,dict)}
@@ -38,6 +56,7 @@ def main():
     ap.add_argument("--capability-foundry",type=Path,required=True)
     ap.add_argument("--policy",type=Path,required=True)
     ap.add_argument("--reuse-db",type=Path,default=Path("/opt/chacha-dev/runtime/knowledge/reusable-branches.db"))
+    ap.add_argument("--architecture-memory-db",type=Path,default=Path("/opt/chacha-dev/runtime/knowledge/reusable-architectures.db"))
     ap.add_argument("--output",type=Path,required=True)
     a=ap.parse_args()
     root=a.repo_root.resolve()
@@ -46,8 +65,12 @@ def main():
     max_age=int((policy.get("reuse") or {}).get("maximum_technology_revalidation_age_minutes",60))
     decisions=[];blocked=[];experts=set()
     registry_script=root/"dev-hub/bin/reusable-branch-registry.py"
+    architecture_registry_script=root/"dev-hub/bin/reusable-architecture-registry.py"
+    architecture_memory=search_architecture_memory(architecture_registry_script,a.architecture_memory_db,a.preplan,max_age)
+    architecture_memory_ready=[x for x in architecture_memory.get("candidates") or [] if x.get("reuse_ready") is True]
+    selected_architecture_memory=architecture_memory_ready[0] if architecture_memory_ready else None
     for pkg in pre.get("packages") or []:
-        pid=str(pkg.get("id"));domain=str(pkg.get("domain") or "");caps=[str(x) for x in pkg.get("capabilities") or []]
+        pid=str(pkg.get("id"));domain=str(pkg.get("domain") or "");caps=[str(x) for x in pkg.get("capabilities") or []];kind=str(pkg.get("kind") or "")
         experts.add(domain)
         prewatch=tw.consult(root,consumer="architecture-decision-council",domain=domain,capabilities=caps)
         reuse=search_reuse(registry_script,a.reuse_db,domain,caps,max_age)
@@ -70,16 +93,23 @@ def main():
         finalwatch=tw.consult(root,consumer="architecture-decision-council",domain=domain,capabilities=caps)
         reuse_candidates=reuse.get("candidates") or []
         reuse_ready=[x for x in reuse_candidates if x.get("reuse_ready") is True]
+        architecture_memory_package_match=architecture_memory_package(selected_architecture_memory or {},domain,caps,kind) if selected_architecture_memory else None
         if reuse_ready:
             architecture_source="REUSE_REVALIDATED_BRANCH"
             architecture=reuse_ready[0].get("architecture")
             selected_reuse={"branch_id":reuse_ready[0]["branch_id"],"version":reuse_ready[0]["version"]}
+        elif architecture_memory_package_match and architecture_memory_package_match.get("architecture"):
+            architecture_source="REUSE_REVALIDATED_COMPLETE_ARCHITECTURE"
+            architecture=architecture_memory_package_match.get("architecture")
+            selected_reuse={"architecture_id":selected_architecture_memory["architecture_id"],
+                            "version":selected_architecture_memory["version"]}
         else:
             architecture_source="FOUNDRY_SYNTHESIS"
             architecture=branch_op.get("architecture")
             selected_reuse=None
         advisor_state={
           "technology-watch-pre":"PASS" if prewatch else "MISSING",
+          "architecture-memory":"PASS",
           "reuse-memory":"PASS",
           "branch-foundry":"PASS" if branch_op else "MISSING",
           "agent-foundry":"PASS" if agent_op else "MISSING",
@@ -92,6 +122,7 @@ def main():
           "package_id":pid,"domain":domain,"capabilities":caps,
           "mandatory_advisors":advisor_state,
           "dynamic_expert_advisors":[{"domain":domain,"mode":"ON_DEMAND"}],
+          "architecture_memory_candidate":({"architecture_id":selected_architecture_memory.get("architecture_id"),"version":selected_architecture_memory.get("version"),"reuse_ready":selected_architecture_memory.get("reuse_ready")} if selected_architecture_memory else None),
           "reuse_candidates":reuse_candidates,
           "selected_reuse":selected_reuse,
           "branch_foundry_opinion":branch_op,
@@ -109,10 +140,11 @@ def main():
         if missing: blocked.append({"package_id":pid,"reasons":missing})
     out={
       "schema":"chacha.dev/architecture-decision-council/v1",
-      "version":"6.11.0",
+      "version":"6.13.0",
       "mandatory_advisors":list(MANDATORY),
       "decision_rule":"CENTRAL_ORCHESTRATOR_DECIDES_ONLY_AFTER_ALL_MANDATORY_ADVISORS_AND_FINAL_TECHNOLOGY_REVALIDATION",
       "dynamic_expert_domains":sorted(x for x in experts if x),
+      "architecture_memory":{"candidate_count":len(architecture_memory.get("candidates") or []),"selected":({"architecture_id":selected_architecture_memory.get("architecture_id"),"version":selected_architecture_memory.get("version")} if selected_architecture_memory else None)},
       "decisions":decisions,
       "blocked":blocked,
       "dispatch_allowed":not blocked,
