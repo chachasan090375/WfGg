@@ -221,6 +221,143 @@ def task_blockers(
     return sorted(set(blockers))
 
 
+def emergency_stop_active() -> bool:
+    path = Path("/opt/chacha-dev/runtime/control/emergency-stop.json")
+    try:
+        value = json.loads(path.read_text(encoding="utf-8"))
+        return bool(value.get("active"))
+    except Exception:
+        return False
+
+
+def guardian_gate(
+    envelope: dict[str, Any],
+    ledger: dict[str, Any],
+    policy: dict[str, Any],
+    binding_errors: list[str],
+    guardian_dir: Path,
+    basename: str,
+    phase: str,
+    result_status: str | None = None,
+) -> tuple[list[str], dict[str, Any]]:
+    cfg = policy.get("guardian") if isinstance(policy.get("guardian"), dict) else {}
+    if not cfg or cfg.get("enabled") is not True:
+        return [], {"status": "DISABLED"}
+
+    # CI/unit environments do not have the ChaCha DEV runtime tree. The real VPS does.
+    runtime_root = Path(str(cfg.get("runtime_root") or "/opt/chacha-dev/runtime"))
+    if not runtime_root.exists():
+        return [], {"status": "NON_RUNTIME_TEST_BYPASS"}
+
+    client = Path(str(cfg.get("client") or "/opt/chacha-dev/platform/current/dev-hub/bin/guardian-client.py"))
+    guardian_policy = Path(str(cfg.get("policy") or "/opt/chacha-dev/platform/current/dev-hub/config/guardian-runtime-policy.v1.json"))
+    permission = str(((envelope.get("task") or {}).get("permission")) or "read")
+    fail_closed = set(str(x) for x in (cfg.get("fail_closed_permissions") or []))
+    context = envelope.get("policy_context") if isinstance(envelope.get("policy_context"), dict) else {}
+    approval_required = bool(context.get("human_approval_required"))
+    approval_id = context.get("approval_id")
+    approval_ok = bool(not approval_required or (approval_id and approved(ledger, str(approval_id))))
+    storage_required = bool(context.get("requires_storage_preflight"))
+    preflight_id = str(((policy.get("storage") or {}).get("preflight_artifact") or "storage-preflight"))
+    storage_preflight = bool(not storage_required or storage_ok(ledger, preflight_id))
+    task = envelope.get("task") if isinstance(envelope.get("task"), dict) else {}
+
+    event = {
+        "schema": "chacha.dev/governance-action/v1",
+        "event_id": "gov-" + uuid.uuid4().hex,
+        "phase": phase,
+        "actor": "run-controller",
+        "subject_role": str(task.get("owner_role") or "orchestrator"),
+        "action": "DISPATCH_TASK",
+        "task_kind": str(task.get("kind") or ""),
+        "permission": permission,
+        "project_id": envelope.get("project"),
+        "transition": envelope.get("transition"),
+        "run_id": envelope.get("run_id"),
+        "wave": envelope.get("wave"),
+        "adapters": [
+            {
+                "adapter": x.get("adapter"),
+                "provider": x.get("provider"),
+                "capability": x.get("capability"),
+            }
+            for x in (envelope.get("bindings") or [])
+            if isinstance(x, dict)
+        ],
+        "evidence": {
+            "adapter_binding_valid": not bool(binding_errors),
+            "human_approval": approval_ok,
+            "storage_preflight": storage_preflight,
+            "emergency_stop_active": emergency_stop_active(),
+            "result_status": result_status,
+        },
+        "context": {
+            "resource_class": context.get("resource_class"),
+            "human_approval_required": approval_required,
+            "storage_preflight_required": storage_required,
+        },
+    }
+
+    guardian_dir.mkdir(parents=True, exist_ok=True)
+    event_path = guardian_dir / f"{basename}.{phase.lower()}.event.json"
+    response_path = guardian_dir / f"{basename}.{phase.lower()}.verdict.json"
+    save(event_path, event)
+
+    if not client.is_file() or not guardian_policy.is_file():
+        outcome = {
+            "schema": "chacha.dev/guardian-local-verdict/v1",
+            "status": "UNAVAILABLE",
+            "reason": "GUARDIAN_CLIENT_OR_POLICY_MISSING",
+            "event": str(event_path),
+        }
+        save(response_path, outcome)
+        if permission in fail_closed:
+            return ["GUARDIAN_UNAVAILABLE_FAIL_CLOSED"], outcome
+        return [], outcome
+
+    try:
+        proc = subprocess.run(
+            ["/usr/bin/python3", str(client), "--policy", str(guardian_policy), "check", "--event", str(event_path)],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            check=False,
+            timeout=int(cfg.get("timeout_seconds") or 20),
+        )
+    except Exception as exc:
+        outcome = {
+            "schema": "chacha.dev/guardian-local-verdict/v1",
+            "status": "UNAVAILABLE",
+            "reason": f"{type(exc).__name__}:{exc}",
+            "event": str(event_path),
+        }
+        save(response_path, outcome)
+        if permission in fail_closed:
+            return ["GUARDIAN_UNAVAILABLE_FAIL_CLOSED"], outcome
+        return [], outcome
+
+    try:
+        outcome = json.loads(proc.stdout.strip())
+    except Exception:
+        outcome = {
+            "schema": "chacha.dev/guardian-local-verdict/v1",
+            "status": "UNAVAILABLE",
+            "reason": "GUARDIAN_RESPONSE_INVALID",
+            "stderr": proc.stderr[-500:],
+        }
+    save(response_path, outcome)
+    verdict = str(outcome.get("verdict") or outcome.get("status") or "UNAVAILABLE")
+    if verdict == "CRITICAL":
+        return ["GUARDIAN_CRITICAL:" + ",".join(outcome.get("reason_codes") or [])], outcome
+    if verdict == "BLOCK":
+        return ["GUARDIAN_BLOCK:" + ",".join(outcome.get("reason_codes") or [])], outcome
+    if verdict in {"PASS", "WARNING"}:
+        return [], outcome
+    if permission in fail_closed:
+        return ["GUARDIAN_UNAVAILABLE_FAIL_CLOSED"], outcome
+    return [], outcome
+
+
 def acquire_lock(project: str, policy: dict[str, Any]) -> tuple[Path, int]:
     root = Path(((policy.get("locking") or {}).get("root") or "/tmp/chacha-dev-locks"))
     root.mkdir(parents=True, exist_ok=True)
@@ -403,7 +540,8 @@ def main() -> None:
     envelopes_dir = run_dir / "envelopes"
     results_dir = run_dir / "results"
     logs_dir = run_dir / "logs"
-    for path in (envelopes_dir, results_dir, logs_dir):
+    guardian_dir = run_dir / "guardian"
+    for path in (envelopes_dir, results_dir, logs_dir, guardian_dir):
         path.mkdir(parents=True, exist_ok=True)
 
     record: dict[str, Any] = {
@@ -468,6 +606,12 @@ def main() -> None:
             else:
                 chosen = None
             blockers = task_blockers(envelope, ledger, policy, binding_errors)
+            guardian_pre: dict[str, Any] = {"status": "NOT_RUN"}
+            if args.execute:
+                guardian_blockers, guardian_pre = guardian_gate(
+                    envelope, ledger, policy, binding_errors, guardian_dir, basename, "PRE_ACTION"
+                )
+                blockers = sorted(set(blockers + guardian_blockers))
             envelope_path = envelopes_dir / f"{basename}.json"
             save(envelope_path, envelope)
             task_rec: dict[str, Any] = {
@@ -484,6 +628,8 @@ def main() -> None:
                 "stdout_digest": None,
                 "stderr_digest": None,
                 "blockers": blockers,
+                "guardian_pre": guardian_pre,
+                "guardian_post": {"status": "NOT_RUN"},
             }
             if blockers:
                 task_rec["finished_at"] = now_iso()
@@ -548,8 +694,18 @@ def main() -> None:
                     result_path = results_dir / f"{basename}.task-result.json"
                     save(result_path, parsed)
                     task_rec["task_result"] = str(result_path)
+                    post_blockers, guardian_post = guardian_gate(
+                        envelope, ledger, policy, binding_errors, guardian_dir, basename,
+                        "POST_ACTION", result_status=result_status
+                    )
+                    task_rec["guardian_post"] = guardian_post
+                    if post_blockers:
+                        semantic_success = False
+                        task_rec["blockers"] = sorted(set((task_rec.get("blockers") or []) + post_blockers))
+                        task_rec["failure_class"] = "guardian-post-block"
+                    else:
+                        task_rec["failure_class"] = None if semantic_success else f"adapter-result:{result_status}"
                     task_rec["status"] = "SUCCEEDED" if semantic_success else "FAILED"
-                    task_rec["failure_class"] = None if semantic_success else f"adapter-result:{result_status}"
                     task_rec["finished_at"] = now_iso()
                     if semantic_success:
                         record["summary"]["succeeded"] += 1
@@ -576,6 +732,11 @@ def main() -> None:
                     result_path = results_dir / f"{basename}.task-result.json"
                     save(result_path, failure_result)
                     task_rec["task_result"] = str(result_path)
+                    _, guardian_post = guardian_gate(
+                        envelope, ledger, policy, binding_errors, guardian_dir, basename,
+                        "POST_ACTION", result_status="FAILED"
+                    )
+                    task_rec["guardian_post"] = guardian_post
                     record["summary"]["failed"] += 1
                     abort_remaining = True
             except Exception as exc:
