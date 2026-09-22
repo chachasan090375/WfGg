@@ -7,7 +7,7 @@ on:
       - 'radar-vps/v625-mailer/**'
       - '.github/scripts/patch-radar-internal-mail-outbox-v626.py'
       - '.github/scripts/patch-radar-mail-campaign-autoqueue-v627.py'
-      - '.github/workflows/radar-v626-internal-mail-outbox-ui-qualification.yml'
+      - '.github/workflows/radar-v627-mail-campaign-autoqueue-qualification.yml'
   workflow_dispatch:
 
 permissions:
