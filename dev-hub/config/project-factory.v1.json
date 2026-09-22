@@ -17,7 +17,10 @@
     "style-registry",
     "terminology-registry",
     "evidence-ledger",
-    "rollback-plan"
+    "rollback-plan",
+    "project-agent-registry",
+    "agent-foundry-plan",
+    "project-agent-collector"
   ],
   "provision_per_active_domain": [
     "domain-workspace",
@@ -29,7 +32,8 @@
     "core": "chacha-core-orchestrator",
     "assembly": "domain-assembly-orchestrator",
     "context": "context-resolver",
-    "acceptance": "acceptance-engine"
+    "acceptance": "acceptance-engine",
+    "agent_foundry": "agent-foundry-orchestrator"
   },
   "collectors": {
     "project_collector": {
@@ -45,6 +49,11 @@
       "scope": "platform-domain",
       "one_per_domain": true,
       "receive_only_reusable_distilled_knowledge": true
+    },
+    "agent_foundry": {
+      "project_scope": "project-agent-collector:{project_id}",
+      "generic_scope": "generic-domain-collector:agent-foundry",
+      "created_agent_scope": "agent-collector:{project_id}:{agent_id}"
     }
   },
   "delivery": {
@@ -62,5 +71,11 @@
     "secrets_or_identity_boundary": "APPROVAL_REQUIRED",
     "destructive_or_irreversible_change": "APPROVAL_REQUIRED",
     "security_boundary_reduction": "APPROVAL_REQUIRED"
+  },
+  "agent_preflight": {
+    "required": true,
+    "before_domain_dispatch": true,
+    "replan_after_foundry": true,
+    "policy": "dev-hub/config/agent-foundry.v1.json"
   }
 }
