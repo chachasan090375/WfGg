@@ -1,0 +1,50 @@
+{
+  "schema": "chacha.dev/learning-edge/v1",
+  "version": "1.0.0",
+  "scope": "PLATFORM_GLOBAL",
+  "app_specific": false,
+  "origin": "http://127.0.0.1:8791",
+  "public_path": "/v1/learning-deltas",
+  "selected_provider": {
+    "id": "cloudflare-tunnel",
+    "mode": "named-remotely-managed-tunnel",
+    "selection_reason": [
+      "zero-incremental-spend-compatible",
+      "outbound-only-origin-connection",
+      "no-public-vps-port",
+      "managed-https-edge",
+      "stable-hostname"
+    ]
+  },
+  "rejected_for_production": [
+    {
+      "id": "direct-public-vps-port",
+      "reason": "increases-origin-attack-surface"
+    },
+    {
+      "id": "cloudflare-quick-tunnel",
+      "reason": "temporary-random-hostname-not-production-stable"
+    }
+  ],
+  "provider_abstraction": {
+    "required": true,
+    "future_replaceable_without_changing_ingress_contract": true
+  },
+  "tunnel": {
+    "token_file": "/opt/chacha-dev/runtime/secrets/learning-ingress-tunnel.token",
+    "token_in_process_args": false,
+    "token_in_repository": false,
+    "service": "chacha-dev-learning-edge-cloudflared.service",
+    "metrics": "127.0.0.1:20042",
+    "readiness_path": "/ready"
+  },
+  "security": {
+    "inbound_vps_firewall_change_required": false,
+    "central_ingress_remains_loopback_only": true,
+    "application_auth_remains_per_deployment_hmac": true,
+    "edge_tls_required": true
+  },
+  "economics": {
+    "automatic_external_spend_eur": 0
+  }
+}

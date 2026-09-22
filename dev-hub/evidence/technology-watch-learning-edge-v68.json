@@ -1,0 +1,46 @@
+{
+  "schema": "chacha.dev/technology-watch-decision/v1",
+  "observed_at": "2026-09-22T16:00:00Z",
+  "domain": "central-learning-edge",
+  "requirement": "Stable HTTPS ingress for remote learning deltas without exposing ChaChaVPS inbound ports.",
+  "hard_constraints": [
+    "viable",
+    "stable-production-hostname",
+    "HTTPS",
+    "no-direct-public-origin-port",
+    "zero-incremental-spend-preferred"
+  ],
+  "candidates": [
+    {
+      "id": "cloudflare-tunnel",
+      "status": "ADOPT",
+      "external_spend_eur": 0,
+      "notes": [
+        "available-on-all-cloudflare-plans",
+        "outbound-only-origin",
+        "named-tunnel-stable-hostname"
+      ]
+    },
+    {
+      "id": "cloudflare-quick-tunnel",
+      "status": "PILOT_ONLY",
+      "external_spend_eur": 0,
+      "notes": [
+        "temporary",
+        "random-hostname",
+        "not-production-target"
+      ]
+    },
+    {
+      "id": "direct-public-vps-port",
+      "status": "REJECT",
+      "external_spend_eur": 0,
+      "notes": [
+        "unnecessary-origin-exposure"
+      ]
+    }
+  ],
+  "selected": "cloudflare-tunnel",
+  "automatic_external_spend_eur": 0,
+  "paid_approval_required": false
+}

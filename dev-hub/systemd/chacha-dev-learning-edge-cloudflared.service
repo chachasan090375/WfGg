@@ -1,0 +1,24 @@
+[Unit]
+Description=ChaCha DEV learning HTTPS edge via Cloudflare Tunnel
+Wants=network-online.target chacha-dev-central-learning-ingress.service
+After=network-online.target chacha-dev-central-learning-ingress.service
+ConditionPathExists=/opt/chacha-dev/runtime/secrets/learning-ingress-tunnel.token
+
+[Service]
+Type=simple
+User=root
+Group=root
+ExecStart=/usr/bin/cloudflared tunnel --no-autoupdate --loglevel info --metrics 127.0.0.1:20042 run --token-file /opt/chacha-dev/runtime/secrets/learning-ingress-tunnel.token
+Restart=always
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadOnlyPaths=/opt/chacha-dev/runtime/secrets/learning-ingress-tunnel.token
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+MemoryMax=160M
+TasksMax=48
+
+[Install]
+WantedBy=multi-user.target
