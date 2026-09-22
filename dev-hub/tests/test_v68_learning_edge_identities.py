@@ -5,6 +5,7 @@ from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]
 P=ROOT/"dev-hub/bin/learning-identity-provisioner.py"
 INSTALLER=ROOT/"dev-hub/bin/install-learning-edge-cloudflare.sh"
+UNIT=ROOT/"dev-hub/systemd/chacha-dev-learning-edge-cloudflared.service"
 CFG=json.load(open(ROOT/"dev-hub/config/learning-edge.v1.json",encoding="utf-8"))
 D=json.load(open(ROOT/"dev-hub/evidence/technology-watch-learning-edge-v68.json",encoding="utf-8"))
 assert CFG["scope"]=="PLATFORM_GLOBAL"
@@ -16,6 +17,8 @@ assert D["selected"]=="cloudflare-tunnel" and D["automatic_external_spend_eur"]=
 installer=INSTALLER.read_text(encoding="utf-8")
 assert 'elif [ -s "$TOKEN_FILE" ]' in installer
 assert "EXISTING_PROTECTED_FILE" in installer
+unit=UNIT.read_text(encoding="utf-8")
+assert "--protocol http2" in unit
 with tempfile.TemporaryDirectory(prefix="chacha-v68-id-") as td:
     td=Path(td);reg=td/"keys.json";bundles=td/"bundles"
     cmd=["python3",str(P),"--registry",str(reg),"provision","--project-id","app-generic","--deployment-id","prod-1","--source-scope","all-learning-capable-components","--endpoint","https://learning.example.test","--bundle-dir",str(bundles)]
