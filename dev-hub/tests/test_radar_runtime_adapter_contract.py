@@ -244,6 +244,84 @@ class RadarRuntimeAdapterContract(unittest.TestCase):
             self.assertEqual(snap["activity_evidence"], "ACTIVE_TARGETED_CYCLE")
             self.assertEqual(len(snap["active_targeted_cycles"]), 1)
 
+
+    def test_messenger_pilot_install_contract(self):
+        req = envelope("messenger-pilot-install", "workspace-write")
+        radar, err = mod.validate_request(req)
+        self.assertIsNone(err)
+        self.assertEqual(radar["action"], "messenger-pilot-install")
+
+    def test_messenger_pilot_install_rejects_production_permission(self):
+        req = envelope("messenger-pilot-install", "production-deploy", approval=True)
+        _radar, err = mod.validate_request(req)
+        self.assertEqual(err, "RADAR_RUNTIME_PERMISSION_REQUIRED:workspace-write")
+
+    def test_messenger_pilot_probe_contract(self):
+        req = envelope("messenger-pilot-probe", "read")
+        radar, err = mod.validate_request(req)
+        self.assertIsNone(err)
+        self.assertEqual(radar["action"], "messenger-pilot-probe")
+
+    def test_messenger_pilot_metadata_is_pinned(self):
+        radar = {
+            "revision": "a" * 40,
+            "installer": "radar-vps/install-v624-messenger-pilot.sh",
+            "probe": "radar-vps/probe-v624-messenger-pilot-runtime.sh",
+            "expected_messenger_sha256": "b" * 64,
+        }
+        got = mod.validate_messenger_pilot_metadata(radar, True)
+        self.assertEqual(got, (
+            "a" * 40,
+            "radar-vps/install-v624-messenger-pilot.sh",
+            "radar-vps/probe-v624-messenger-pilot-runtime.sh",
+            "b" * 64,
+        ))
+
+    def test_messenger_pilot_arbitrary_asset_paths_rejected(self):
+        radar = {
+            "revision": "a" * 40,
+            "installer": "../../evil.sh",
+            "probe": "radar-vps/probe-v624-messenger-pilot-runtime.sh",
+            "expected_messenger_sha256": "b" * 64,
+        }
+        with self.assertRaisesRegex(ValueError, "RADAR_MESSENGER_INSTALLER_PATH_INVALID"):
+            mod.validate_messenger_pilot_metadata(radar, True)
+
+    def test_messenger_pilot_invalid_sha_rejected(self):
+        radar = {
+            "revision": "a" * 40,
+            "installer": "radar-vps/install-v624-messenger-pilot.sh",
+            "probe": "radar-vps/probe-v624-messenger-pilot-runtime.sh",
+            "expected_messenger_sha256": "short",
+        }
+        with self.assertRaisesRegex(ValueError, "RADAR_MESSENGER_EXPECTED_SHA_INVALID"):
+            mod.validate_messenger_pilot_metadata(radar, True)
+
+    def test_production_runtime_unchanged_guard(self):
+        before = {
+            "radar_service": "active",
+            "radar_sentinel_timer": "active",
+            "radar_sentinel_enabled": "enabled",
+            "collector_sentinel_timer": "active",
+            "connector_sha256": "1" * 64,
+            "native_sha256": "2" * 64,
+        }
+        self.assertTrue(mod.production_runtime_unchanged(before, dict(before)))
+        after = dict(before)
+        after["connector_sha256"] = "3" * 64
+        self.assertFalse(mod.production_runtime_unchanged(before, after))
+
+    def test_messenger_actions_do_not_require_production_window(self):
+        source = ADAPTER.read_text(encoding="utf-8")
+        install = source[source.index("def do_messenger_pilot_install"):source.index("def do_messenger_pilot_probe")]
+        probe = source[source.index("def do_messenger_pilot_probe"):source.index("def do_status")]
+        self.assertNotIn("approval_required(", install)
+        self.assertNotIn("pilot-open", install)
+        self.assertNotIn("systemctl(", install)
+        self.assertNotIn("approval_required(", probe)
+        self.assertNotIn("pilot-close", probe)
+        self.assertNotIn("systemctl(", probe)
+
     def test_no_shell_true_in_source(self):
         source = ADAPTER.read_text(encoding="utf-8")
         self.assertIn("shell=False", source)
