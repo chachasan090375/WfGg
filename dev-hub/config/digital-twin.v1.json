@@ -1,0 +1,28 @@
+{
+  "schema": "chacha.dev/digital-twin/v1",
+  "version": "1.0.0",
+  "purpose": "Assemble a disposable representation of the deliverable before release.",
+  "isolation": [
+    "preview-environment",
+    "isolated-data",
+    "synthetic-identities",
+    "non-production-secrets"
+  ],
+  "exercises": [
+    "contract-tests",
+    "integration-tests",
+    "e2e",
+    "performance",
+    "security",
+    "accessibility",
+    "localization",
+    "failure-injection",
+    "rollback-rehearsal"
+  ],
+  "rules": {
+    "production_data_write": false,
+    "production_secret_copy": false,
+    "destructive_test_isolation_required": true,
+    "acceptance_evidence_export": true
+  }
+}
