@@ -1,0 +1,56 @@
+{
+  "schema": "chacha.dev/autonomy-definition/v1",
+  "version": "1.0.0",
+  "target": "FUNCTIONAL_SPEC_TO_ACCEPTED_DELIVERABLE",
+  "mandatory_stages": [
+    "SPEC",
+    "CONTEXT",
+    "PROJECT_FACTORY",
+    "CORE_PREPLAN",
+    "AGENT_FOUNDRY",
+    "CAPABILITY_GAP_ANALYSIS",
+    "CAPABILITY_FOUNDRY_IF_NEEDED",
+    "CORE_REPLAN",
+    "DOMAIN_FACTORIES",
+    "ASSEMBLY",
+    "DIGITAL_TWIN",
+    "ACCEPTANCE",
+    "DELIVERY",
+    "OBSERVABILITY",
+    "RECOVERY",
+    "KNOWLEDGE_PROMOTION"
+  ],
+  "autonomous_by_default": [
+    "analysis",
+    "research",
+    "tool-selection",
+    "agent-selection",
+    "agent-creation",
+    "domain-creation",
+    "component-build",
+    "tests",
+    "preview",
+    "documentation",
+    "translation",
+    "publication",
+    "reversible-self-upgrade",
+    "reversible-release",
+    "rollback"
+  ],
+  "approval_boundaries": [
+    "new_external_spend",
+    "credential_or_identity_boundary",
+    "irreversible_or_destructive_operation",
+    "security_boundary_reduction",
+    "license_exception"
+  ],
+  "score_dimensions": [
+    "stage_coverage",
+    "automatic_decision_rate",
+    "acceptance_pass_rate",
+    "rollback_readiness",
+    "knowledge_reuse",
+    "human_interrupt_rate"
+  ],
+  "target_score": 0.95
+}
