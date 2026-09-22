@@ -1,0 +1,48 @@
+{
+  "schema": "chacha.dev/uncertainty-policy/v1",
+  "version": "1.0.0",
+  "confidence_bands": {
+    "high": [
+      0.85,
+      1
+    ],
+    "medium": [
+      0.6,
+      0.849999
+    ],
+    "low": [
+      0,
+      0.599999
+    ]
+  },
+  "self_resolution_order": [
+    "project-knowledge",
+    "generic-knowledge",
+    "official-docs",
+    "technology-watch",
+    "static-analysis",
+    "prototype",
+    "fixture",
+    "benchmark",
+    "sandbox"
+  ],
+  "ask_human_only_if": {
+    "functional_preference_is_underdetermined": true,
+    "irreversible_choice_requires_owner": true,
+    "sensitive_approval_boundary": true,
+    "self_resolution_exhausted": true
+  },
+  "never_ask_human_for": [
+    "tool-choice",
+    "agent-choice",
+    "implementation-detail",
+    "reversible-architecture-choice",
+    "test-strategy"
+  ],
+  "decision_record": {
+    "confidence": true,
+    "assumptions": true,
+    "unknowns": true,
+    "evidence_quality": true
+  }
+}
