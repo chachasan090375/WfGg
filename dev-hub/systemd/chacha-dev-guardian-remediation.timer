@@ -1,0 +1,13 @@
+[Unit]
+Description=ChaCha DEV Guardian corrective remediation schedule
+
+[Timer]
+OnBootSec=15s
+OnUnitActiveSec=30s
+AccuracySec=3s
+RandomizedDelaySec=2s
+Persistent=true
+Unit=chacha-dev-guardian-remediation.service
+
+[Install]
+WantedBy=timers.target
