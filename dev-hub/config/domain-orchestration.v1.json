@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/domain-orchestration/v1",
-  "version": "6.3.0",
+  "version": "6.4.0",
   "core_orchestrator": "chacha-core-orchestrator",
   "principles": {
     "functional_intent_is_source_of_truth": true,
@@ -23,7 +23,12 @@
     "autonomous_safe_self_upgrade": true,
     "sensitive_change_requires_human_approval": true,
     "agent_foundry_precedes_all_domain_execution": true,
-    "core_replans_after_agent_topology": true
+    "core_replans_after_agent_topology": true,
+    "branch_foundry_and_agent_foundry_parallel": true,
+    "simple_question_fast_path_memory_only": true,
+    "no_project_runtime_for_memory_only_question": true,
+    "branch_blueprint_optimization_required": true,
+    "minimum_total_cost_subject_to_acceptance": true
   },
   "request_modes": {
     "simple_question": {
@@ -549,13 +554,14 @@
   "execution_pipeline": [
     "SPEC",
     "CONTEXT",
-    "PROJECT_FACTORY",
     "CORE_PREPLAN",
-    "AGENT_FOUNDRY",
+    "PARALLEL_AGENT_AND_BRANCH_FOUNDRIES",
+    "CORE_TOPOLOGY_RECONCILIATION",
     "CAPABILITY_GAP_ANALYSIS",
     "CAPABILITY_FOUNDRY_IF_NEEDED",
     "CORE_REPLAN",
-    "AGENT_FOUNDRY_RECHECK_IF_PLAN_CHANGED",
+    "TARGETED_FOUNDRY_RECHECK_IF_CHANGED",
+    "PROJECT_FACTORY_IF_IMPLEMENTATION",
     "DOMAIN_FACTORIES",
     "CONTRACT_RECONCILIATION",
     "ASSEMBLY",
@@ -569,13 +575,20 @@
     "AUTONOMY_AUDIT"
   ],
   "preflight": {
-    "first_executable_branch": "agent-foundry",
     "policy": "dev-hub/config/agent-foundry.v1.json",
     "domain_dispatch_before_foundry": false,
     "core_replan_after_foundry": true,
     "capability_foundry_policy": "dev-hub/config/capability-foundry.v1.json",
     "capability_foundry_before_domain_dispatch": true,
-    "agent_foundry_rerun_after_capability_creation": true
+    "agent_foundry_rerun_after_capability_creation": true,
+    "first_executable_branches": [
+      "agent-foundry",
+      "branch-foundry"
+    ],
+    "parallel_foundries": true,
+    "branch_foundry_policy": "dev-hub/config/branch-foundry.v1.json",
+    "core_reconciles_agent_and_branch_topologies": true,
+    "targeted_recheck_only": true
   },
   "factories": {
     "policy": "dev-hub/config/domain-factories.v1.json",
