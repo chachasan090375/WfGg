@@ -1,0 +1,13 @@
+[Unit]
+Description=ChaCha DEV Guardian coverage heartbeat schedule
+
+[Timer]
+OnBootSec=15s
+OnUnitActiveSec=60s
+AccuracySec=5s
+RandomizedDelaySec=3s
+Persistent=true
+Unit=chacha-dev-guardian-coverage-heartbeat.service
+
+[Install]
+WantedBy=timers.target
