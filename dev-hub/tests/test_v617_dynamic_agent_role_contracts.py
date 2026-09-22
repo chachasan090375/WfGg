@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import importlib.util,json,subprocess,tempfile
+import importlib.util,json,subprocess,tempfile,sys
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[2]
 BIN=ROOT/"dev-hub/bin"
 CFG=ROOT/"dev-hub/config"
+sys.path.insert(0,str(BIN))
 
 def loadmod(name,path):
     s=importlib.util.spec_from_file_location(name,path)
