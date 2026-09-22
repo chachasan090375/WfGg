@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse,json
 from pathlib import Path
 import technology_watch_runtime as tw
+import universal_learning_runtime as ulr
 
 def main():
     ap=argparse.ArgumentParser()
@@ -18,6 +19,13 @@ def main():
     root=a.repo_root.resolve()
     if a.cmd=="refresh":
         out=tw.write_full_snapshot(root)
+        try:
+            ulr.observe_platform(project_id="platform-global",source_id="technology-watch",source_kind="agent",
+                                state={"snapshot_digest":out.get("digest") or out.get("source_snapshot_digest"),
+                                       "candidate_count":len(out.get("technology_candidates") or out.get("candidates") or []),
+                                       "status":"FRESH"})
+        except Exception:
+            pass
         print(json.dumps(out,indent=2,ensure_ascii=False))
         print("CHACHA_TECHNOLOGY_WATCH_REFRESH=PASS")
         print("AUTOMATIC_EXTERNAL_SPEND_EUR=0")
