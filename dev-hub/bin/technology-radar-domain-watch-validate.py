@@ -15,19 +15,20 @@ assert econ["schema"]=="chacha.dev/provider-economics/v1"
 assert radar["schema"]=="chacha.dev/technology-radar-domain-watch/v2"
 assert econ["budget_policy"]["automatic_external_spend_eur"]==0
 assert econ["budget_policy"]["paid_provider_requires_human_approval"] is True
-assert radar["mode"]=="ALL_CORE_DOMAINS"
+assert radar["mode"]=="ALL_PLATFORM_DOMAINS_AND_CORE"
 assert radar["governance"]["auto_paid_provider_allowed"] is False
-assert radar["governance"]["production_change_allowed"] is False
+assert radar["governance"]["production_change_allowed"] is True
+assert radar["governance"]["production_change_scope"]=="reversible-policy-qualified-self-upgrade-only"
 
-required={"development","documentation","ui-layout","graphics","animation","cybersecurity","qa","platform-release","knowledge-research"}
+required={"development","documentation","ui-layout","graphics","animation","cybersecurity","qa","platform-release","knowledge-research","translation","publication","assembly"}
 assert required <= set(domain["domains"]), sorted(required-set(domain["domains"]))
 assert set(domain["domains"]) == set(radar["watches"]["domains"])
 
 roles=routing["roles"]
-for role in ("graphics-specialist","animation-specialist","ui-layout-specialist","technology-radar-agent"):
+for role in ("graphics-specialist","animation-specialist","ui-layout-specialist","technology-watch-agent","translation-specialist","publication-specialist","integration-architect"):
     assert role in roles,role
 
-for capability in ("graphics-pipeline","animation-pipeline","asset-analysis","ui-layout-review","prose-lint"):
+for capability in ("graphics-pipeline","animation-pipeline","asset-analysis","ui-layout-review","prose-lint","translation","publication-writing","architecture-optimization","project-factory"):
     assert capability in caps["capabilities"],capability
 
 for d,spec in domain["domains"].items():
