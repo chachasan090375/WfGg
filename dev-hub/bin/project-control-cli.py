@@ -20,7 +20,7 @@ from typing import Any
 POLICY_SCHEMA = "chacha.dev/project-control/v1"
 RESPONSE_SCHEMA = "chacha.dev/project-control-response/v1"
 RECOVERY_OPERATIONS = {"transactions", "recover-transaction"}
-ROUTED_OPERATIONS = RECOVERY_OPERATIONS | {"platform-readiness", "technical-design"}
+ROUTED_OPERATIONS = RECOVERY_OPERATIONS | {"platform-readiness", "technical-design", "functional-orchestrate"}
 
 
 def now_iso() -> str:
@@ -122,6 +122,11 @@ def routed_parser() -> argparse.ArgumentParser:
     ready.add_argument("--run-recovery-drill", action="store_true")
     ready.add_argument("--required-provider", action="append", default=[])
     ready.add_argument("--report", type=Path)
+
+    orchestrate = sub.add_parser("functional-orchestrate")
+    orchestrate.add_argument("--project", required=True)
+    orchestrate.add_argument("--intent", required=True, type=Path)
+    orchestrate.add_argument("--output", type=Path)
 
     design = sub.add_parser("technical-design")
     design.add_argument("--project", required=True)
@@ -269,6 +274,118 @@ def handle_readiness(args: argparse.Namespace, policy: dict[str, Any]) -> int:
     return 0 if result["status"] in {"OK", "READY"} else 2
 
 
+def handle_functional_orchestrate(args: argparse.Namespace, policy: dict[str, Any]) -> int:
+    refs = policy.get("repository_paths") or {}
+    tools = policy.get("engine_paths") or {}
+    engine = resolve(args.repo_root, str(tools.get("functional_intent_orchestrator")))
+    config = resolve(args.repo_root, str(refs.get("domain_orchestration")))
+    economics = resolve(args.repo_root, str(refs.get("provider_economics")))
+    radar = resolve(args.repo_root, str(refs.get("technology_radar_domain_watch")))
+
+    intent = args.intent if args.intent.is_absolute() else args.repo_root / args.intent
+    try:
+        intent_value = load(intent)
+    except SystemExit as exc:
+        result = response(args.project, args.command, "FAILED", "Functional intent could not be loaded.",
+                          {"error": str(exc)}, ["FUNCTIONAL_INTENT_INVALID"])
+        emit(result, args.json)
+        return 2
+
+    intent_project = str(intent_value.get("project") or "")
+    if intent_project and intent_project != args.project:
+        result = response(
+            args.project, args.command, "BLOCKED",
+            "Functional intent project does not match requested Project Control project.",
+            {"intent_project": intent_project},
+            ["FUNCTIONAL_INTENT_PROJECT_MISMATCH"],
+        )
+        emit(result, args.json)
+        return 2
+
+    runtime = policy.get("runtime") or {}
+    plans_root = Path(str(runtime.get("plans_root", "/opt/chacha-dev/runtime/plans")))
+    out_dir = plans_root / args.project / "domain-orchestration"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    intent_id = str(intent_value.get("id") or "functional-intent")
+    safe_id = "".join(ch if ch.isalnum() or ch in "._-" else "-" for ch in intent_id)
+    snapshot = out_dir / f"{safe_id}.intent.json"
+    output = args.output or (out_dir / f"{safe_id}.domain-plan.json")
+    snapshot.write_bytes(intent.read_bytes())
+
+    proc = subprocess.run(
+        [
+            sys.executable, str(engine),
+            "--config", str(config),
+            "--intent", str(snapshot),
+            "--output", str(output),
+        ],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        shell=False,
+        timeout=60,
+        check=False,
+    )
+    if proc.returncode != 0 or not output.exists():
+        result = response(
+            args.project, args.command, "FAILED",
+            "Functional intent orchestration failed.",
+            {"stdout": proc.stdout.strip(), "stderr": proc.stderr.strip()},
+            ["FUNCTIONAL_ORCHESTRATION_FAILED"],
+        )
+        emit(result, args.json)
+        return 2
+
+    plan = load(output)
+    if plan.get("schema") != "chacha.dev/domain-plan/v1":
+        result = response(args.project, args.command, "FAILED", "Domain plan schema is invalid.",
+                          {"schema": plan.get("schema")}, ["DOMAIN_PLAN_SCHEMA_INVALID"])
+        emit(result, args.json)
+        return 2
+
+    econ = load(economics)
+    watch = load(radar)
+    zero_cost = int((econ.get("budget_policy") or {}).get("automatic_external_spend_eur", -1)) == 0
+    if not zero_cost:
+        result = response(args.project, args.command, "BLOCKED",
+                          "Automatic external spend policy is not zero.",
+                          blockers=["ZERO_INCREMENTAL_COST_POLICY_NOT_ACTIVE"])
+        emit(result, args.json)
+        return 2
+
+    result = response(
+        args.project,
+        args.command,
+        "READY",
+        "Functional intent was decomposed into governed ChaCha DEV domain work packages.",
+        {
+            "mode": plan.get("mode"),
+            "primary_domains": plan.get("primary_domains") or [],
+            "review_domains": plan.get("review_domains") or [],
+            "packages": plan.get("packages") or [],
+            "dependencies": plan.get("dependencies") or [],
+            "implementation_allowed_by_intent": bool(plan.get("implementation_allowed")),
+            "provider_selection_owner": ((plan.get("provider_selection") or {}).get("owner")),
+            "technology_radar_required": bool((plan.get("provider_selection") or {}).get("technology_radar_required")),
+            "automatic_external_spend_eur": 0,
+            "paid_provider_requires_human_approval": bool((econ.get("budget_policy") or {}).get("paid_provider_requires_human_approval")),
+            "technology_radar_mode": watch.get("mode"),
+            "production_change_allowed": False,
+        },
+        [],
+        [
+            "resolve providers inside each domain using health, economics and Technology Radar recommendations",
+            "route implementation packages through technical-design before code generation",
+        ],
+        [
+            {"type": "functional-intent-snapshot", "path": str(snapshot)},
+            {"type": "domain-plan", "path": str(output)},
+        ],
+    )
+    emit(result, args.json)
+    return 0
+
+
 def handle_technical_design(args: argparse.Namespace, policy: dict[str, Any]) -> int:
     refs = policy.get("repository_paths") or {}
     tools = policy.get("engine_paths") or {}
@@ -379,6 +496,8 @@ def main() -> int:
             raise SystemExit(f"POLICY_SCHEMA_INVALID={policy.get('schema')}")
         if command in RECOVERY_OPERATIONS:
             return handle_recovery(args, policy)
+        if command == "functional-orchestrate":
+            return handle_functional_orchestrate(args, policy)
         if command == "technical-design":
             return handle_technical_design(args, policy)
         return handle_readiness(args, policy)
