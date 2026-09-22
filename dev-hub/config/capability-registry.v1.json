@@ -984,6 +984,167 @@
           "fallback": []
         }
       ]
+    },
+    "translation": {
+      "class": "knowledge",
+      "providers": [
+        {
+          "id": "skywork",
+          "status": "ADOPT",
+          "health": "runtime-check",
+          "cost_class": "local",
+          "scope": "project",
+          "fallback": [
+            "antigravity"
+          ]
+        },
+        {
+          "id": "antigravity",
+          "status": "ADOPT",
+          "health": "runtime-check",
+          "cost_class": "quota",
+          "scope": "project",
+          "fallback": []
+        }
+      ]
+    },
+    "terminology-management": {
+      "class": "knowledge",
+      "providers": [
+        {
+          "id": "collector-knowledge-runtime",
+          "status": "PILOT",
+          "health": "runtime",
+          "cost_class": "owned",
+          "scope": "project",
+          "fallback": [
+            "skywork"
+          ]
+        },
+        {
+          "id": "skywork",
+          "status": "ADOPT",
+          "health": "runtime-check",
+          "cost_class": "local",
+          "scope": "project",
+          "fallback": []
+        }
+      ]
+    },
+    "translation-quality-review": {
+      "class": "verification",
+      "providers": [
+        {
+          "id": "skywork",
+          "status": "ADOPT",
+          "health": "runtime-check",
+          "cost_class": "local",
+          "scope": "project",
+          "fallback": [
+            "antigravity"
+          ]
+        },
+        {
+          "id": "antigravity",
+          "status": "ADOPT",
+          "health": "runtime-check",
+          "cost_class": "quota",
+          "scope": "project",
+          "fallback": []
+        }
+      ]
+    },
+    "publication-writing": {
+      "class": "knowledge",
+      "providers": [
+        {
+          "id": "skywork",
+          "status": "ADOPT",
+          "health": "runtime-check",
+          "cost_class": "local",
+          "scope": "project",
+          "fallback": [
+            "antigravity"
+          ]
+        }
+      ]
+    },
+    "style-transformation": {
+      "class": "knowledge",
+      "providers": [
+        {
+          "id": "skywork",
+          "status": "ADOPT",
+          "health": "runtime-check",
+          "cost_class": "local",
+          "scope": "project",
+          "fallback": [
+            "antigravity"
+          ]
+        }
+      ]
+    },
+    "channel-formatting": {
+      "class": "execution",
+      "providers": [
+        {
+          "id": "skywork",
+          "status": "ADOPT",
+          "health": "runtime-check",
+          "cost_class": "local",
+          "scope": "project",
+          "fallback": []
+        }
+      ]
+    },
+    "project-factory": {
+      "class": "execution",
+      "providers": [
+        {
+          "id": "chacha-dev-architect",
+          "status": "ADOPT",
+          "health": "runtime-check",
+          "cost_class": "local",
+          "scope": "platform",
+          "fallback": []
+        }
+      ]
+    },
+    "architecture-optimization": {
+      "class": "knowledge",
+      "providers": [
+        {
+          "id": "chacha-tech-watch",
+          "status": "ADOPT",
+          "health": "runtime-check",
+          "cost_class": "local",
+          "scope": "platform",
+          "fallback": [
+            "chacha-dev-architect"
+          ]
+        },
+        {
+          "id": "chacha-dev-architect",
+          "status": "ADOPT",
+          "health": "runtime-check",
+          "cost_class": "local",
+          "scope": "platform",
+          "fallback": []
+        }
+      ]
+    },
+    "knowledge-promotion": {
+      "class": "execution",
+      "providers": [
+        {
+          "id": "collector-knowledge-runtime",
+          "status": "PILOT",
+          "health": "runtime",
+          "cost_class": "owned",
+          "scope": "platform",
+          "fallback": []
+        }
+      ]
     }
   }
 }
