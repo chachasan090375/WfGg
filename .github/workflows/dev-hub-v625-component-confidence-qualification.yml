@@ -1,0 +1,115 @@
+name: ChaCha DEV V6.25 component confidence qualification
+
+on:
+  push:
+    branches: [dev-hub-v625-component-confidence]
+    paths:
+      - 'dev-hub/bin/component-confidence-engine.py'
+      - 'dev-hub/bin/guardian-governed-component-confidence.py'
+      - 'dev-hub/bin/production-lineage-feedback.py'
+      - 'dev-hub/bin/universal_learning_runtime.py'
+      - 'dev-hub/bin/universal-learning-producer.py'
+      - 'dev-hub/bin/reusable-branch-registry.py'
+      - 'dev-hub/bin/reusable-architecture-registry.py'
+      - 'dev-hub/bin/central-memory-assimilator.py'
+      - 'dev-hub/bin/central-memory-recall.py'
+      - 'dev-hub/bin/architecture-decision-council.py'
+      - 'dev-hub/guardian/worker.js'
+      - 'dev-hub/config/component-confidence.v1.json'
+      - 'dev-hub/config/production-lineage-feedback.v1.json'
+      - 'dev-hub/config/universal-learning.v1.json'
+      - 'dev-hub/config/central-memory-recall.v1.json'
+      - 'dev-hub/config/guardian-role-contracts.v1.json'
+      - 'dev-hub/config/guardian-coverage-manifest.v1.json'
+      - 'dev-hub/schemas/learning-delta-v1.schema.json'
+      - 'dev-hub/systemd/chacha-dev-component-confidence.service'
+      - 'dev-hub/systemd/chacha-dev-component-confidence.timer'
+      - 'dev-hub/systemd/chacha-dev-production-lineage-feedback.service'
+      - 'dev-hub/tests/test_v625_component_confidence.py'
+      - 'dev-hub/bin/install-v625-component-confidence.sh'
+      - '.github/workflows/dev-hub-v625-component-confidence-qualification.yml'
+      - '.github/workflows/dev-hub-v625-guardian-deploy.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev-hub-v625-component-confidence
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Static validation
+        run: |
+          set -euo pipefail
+          node --check dev-hub/guardian/worker.js
+          python3 -m py_compile             dev-hub/bin/component-confidence-engine.py             dev-hub/bin/guardian-governed-component-confidence.py             dev-hub/bin/production-lineage-feedback.py             dev-hub/bin/universal_learning_runtime.py             dev-hub/bin/universal-learning-producer.py             dev-hub/bin/reusable-branch-registry.py             dev-hub/bin/reusable-architecture-registry.py             dev-hub/bin/central-memory-assimilator.py             dev-hub/bin/central-memory-recall.py             dev-hub/bin/architecture-decision-council.py
+          python3 -m json.tool dev-hub/config/component-confidence.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/production-lineage-feedback.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/universal-learning.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/central-memory-recall.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/guardian-role-contracts.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/guardian-coverage-manifest.v1.json >/dev/null
+          python3 -m json.tool dev-hub/schemas/learning-delta-v1.schema.json >/dev/null
+          if [ -f dev-hub/bin/install-v625-component-confidence.sh ]; then
+            bash -n dev-hub/bin/install-v625-component-confidence.sh
+          fi
+          echo CHACHA_DEV_V625_STATIC=PASS
+
+      - name: Evolving component confidence semantics
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v625_component_confidence.py
+
+      - name: V6.24 production lineage regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v624_production_lineage_feedback.py
+
+      - name: V6.23 contextual memory regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v623_contextual_memory_recall.py
+
+      - name: V6.22 central memory regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v622_central_memory_assimilation.py
+
+      - name: Qualification receipt
+        run: |
+          {
+            echo CHACHA_DEV_COMPONENT_CONFIDENCE=V6.25
+            echo RESULT=success
+            echo SOURCE_REV="$(git rev-parse HEAD)"
+            echo VERIFIED_SUCCESS_REQUIRED_FOR_POSITIVE_CONFIDENCE=YES
+            echo ABSENCE_OF_ANOMALY_COUNTS_AS_SUCCESS=NO
+            echo MIN_VERIFIED_SUCCESSES_FOR_TRUSTED=3
+            echo HIGH_ANOMALY_DEGRADES=YES
+            echo CRITICAL_ANOMALY_QUARANTINES=YES
+            echo VERIFIED_RECOVERY_AUTO_READOPT=NO
+            echo NEGATIVE_CONFIDENCE_EXCLUDED_FROM_FAST_REUSE=YES
+            echo UNKNOWN_CONFIDENCE_AUTO_BLOCKS=NO
+            echo CONFIDENCE_AUTHORITY=ADVISORY
+            echo TECHNOLOGY_REVALIDATION_REQUIRED=YES
+            echo ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=YES
+            echo GUARDIAN_COMPONENT_CONFIDENCE_GATE=YES
+            echo NAS_AUTHORITATIVE=YES
+            echo AUTOMATIC_EXTERNAL_SPEND_EUR=0
+          } | tee /tmp/CHACHA_DEV_V625_RECEIPT.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chacha-dev-v625-component-confidence
+          path: /tmp/CHACHA_DEV_V625_RECEIPT.txt
+          retention-days: 30
