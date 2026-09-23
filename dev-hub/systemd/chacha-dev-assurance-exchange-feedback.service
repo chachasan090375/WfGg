@@ -1,0 +1,9 @@
+[Unit]
+Description=ChaCha DEV Assurance Exchange recommendation pull
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 /opt/chacha-dev/platform/current/dev-hub/bin/assurance-exchange-feedback-controller.py
+User=root
