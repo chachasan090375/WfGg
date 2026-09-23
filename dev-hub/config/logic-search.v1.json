@@ -1,0 +1,46 @@
+{
+  "schema": "chacha.dev/logic-search-policy/v1",
+  "version": "1.0.0",
+  "max_virtual_paths": 50000,
+  "max_repository_matches_per_package": 12,
+  "route_choices": [
+    "CURRENT_PLAN",
+    "EXISTING_ARTIFACT",
+    "CURRENT_BEST_REUSE",
+    "MINIMAL_SYNTHESIS"
+  ],
+  "execution_modes": [
+    "DEPENDENCY_ORDERED",
+    "PARALLEL_WHERE_INDEPENDENT",
+    "EVIDENCE_FIRST"
+  ],
+  "scoring": {
+    "base": 100,
+    "step_penalty": 1.4,
+    "synthesis_penalty": 4,
+    "uncertainty_penalty": 2.5,
+    "existing_artifact_bonus": 3,
+    "current_best_reuse_bonus": 4,
+    "parallelism_bonus": 1.5,
+    "evidence_first_bonus": 1
+  },
+  "challenge_thresholds": {
+    "reconsider_gain": 4,
+    "replan_gain": 10
+  },
+  "hard_constraints": {
+    "automatic_external_spend_eur": 0,
+    "permission_expansion": false,
+    "security_boundary_reduction": false,
+    "rollback_required": true
+  },
+  "principles": {
+    "search_is_advisory_until_central_reconsideration": true,
+    "better_eligible_path_must_be_answered": true,
+    "current_plan_has_no_incumbency_privilege": true,
+    "search_budget_is_adaptive": true,
+    "repository_existing_artifacts_checked_before_new_creation": true,
+    "technology_watch_required_for_architecture_change": true,
+    "architecture_council_final_authority": true
+  }
+}
