@@ -779,6 +779,34 @@ async function dualReleaseGate(req,env){
   },verdict==="PASS"?200:409);
 }
 
+async function projectEvents(req,env){
+  const body=await req.text();
+  const auth=await requireCentral(req,env,body);if(!auth.ok)return auth.response;
+  let p;try{p=JSON.parse(body);}catch{return json({error:"invalid_json"},400);}
+  if(p.schema!=="chacha.dev/project-assurance-event-batch/v1")return json({error:"project_event_batch_schema_invalid"},400);
+  const rows=Array.isArray(p.events)?p.events:[];
+  if(!rows.length||rows.length>50)return json({error:"project_event_batch_size_invalid"},400);
+  let accepted=0;
+  for(const e of rows){
+    if(!e||e.schema!=="chacha.dev/project-assurance-event/v1")return json({error:"project_event_schema_invalid"},400);
+    if(String(e.assurance_role||"")!=="guardian")return json({error:"guardian_role_required"},400);
+    if((e.privacy||{}).raw_user_content!==false)return json({error:"raw_user_content_denied"},400);
+    if(e.direct_mutation!==false)return json({error:"direct_mutation_denied"},400);
+    const eventId=String(e.event_id||""),projectId=String(e.project_id||""),version=String(e.application_version||"");
+    const fields=e.fields&&typeof e.fields==="object"&&!Array.isArray(e.fields)?e.fields:{};
+    const type=String(fields.event_type||""),severity=String(fields.severity||"INFO");
+    if(!eventId||!projectId||!version||!type)return json({error:"project_event_identity_invalid"},400);
+    await env.DB.prepare(
+      `INSERT OR IGNORE INTO project_functional_events
+       (event_id,project_id,application_version,assurance_role,event_type,severity,event_digest,fields_json,observed_at,received_at)
+       VALUES(?1,?2,?3,'guardian',?4,?5,?6,?7,?8,datetime('now'))`
+    ).bind(eventId,projectId,version,type,severity,String(e.event_digest||""),JSON.stringify(fields),String(e.observed_at||"")).run();
+    accepted++;
+  }
+  return json({schema:"chacha.dev/project-assurance-event-ack/v1",role:"guardian",accepted,
+               incremental:true,raw_user_content:false,direct_mutation:false});
+}
+
 async function check(req,env){
   const body=await req.text();
   const auth=await requireCentral(req,env,body);if(!auth.ok)return auth.response;
@@ -1039,6 +1067,7 @@ export default {
       coverage_remediation_auto_resolution:true,coverage_remediation_batched:true,
       remediation_dependency_auto_resolution:true,remediation_cascade_suppression:true,
       functional_acceptance_gate:true,external_dual_release_gate:true,functional_contract_source_of_truth:true,
+      embedded_guardian_local_ingest:true,project_event_raw_user_content:false,
       original_functional_contract_pinned:true,dual_external_assurance_required_for_production:true,
       sentinel_receipt_verified_externally:true,sentinel_external_url_configured:Boolean(env.SENTINEL_URL),
       assurance_exchange_enabled:Boolean(env.ASSURANCE_EXCHANGE_URL||env.ASSURANCE_EXCHANGE_SERVICE),
@@ -1047,6 +1076,7 @@ export default {
       functional_receipt_exchange_publish:true,functional_direct_mutation:false
     });
     if(req.method==="POST"&&u.pathname==="/v1/check")return check(req,env);
+    if(req.method==="POST"&&u.pathname==="/v1/project-events")return projectEvents(req,env);
     if(req.method==="POST"&&u.pathname==="/v1/functional-acceptance")return functionalAcceptance(req,env);
     if(req.method==="GET"&&u.pathname.startsWith("/v1/functional-receipts/"))
       return publicFunctionalReceipt(req,env,decodeURIComponent(u.pathname.slice("/v1/functional-receipts/".length)));
