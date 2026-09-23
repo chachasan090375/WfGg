@@ -312,7 +312,7 @@ export default{
       technical_scope_only:true,continuous_commit_assurance:true,preproduction_release_gate:true,
       embedded_sentinel_local_ingest:true,project_assurance_identity_registration:true,project_event_project_identity_required:true,project_event_raw_user_content:false,
       github_workflow_verification:true,stored_workflow_attestation_verification:true,
-      technical_verification_primary:"D1_WORKFLOW_ATTESTATION",
+      technical_verification_primary:"D1_WORKFLOW_ATTESTATION",release_check_d1_first_runtime:true,
       github_api_fallback_only:true,github_api_not_primary:true,public_receipt_verification:true,
       assurance_exchange_enabled:Boolean(env.ASSURANCE_EXCHANGE_URL||env.ASSURANCE_EXCHANGE_SERVICE),
       assurance_exchange_service_binding:Boolean(env.ASSURANCE_EXCHANGE_SERVICE),
