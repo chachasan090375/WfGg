@@ -351,8 +351,8 @@
       ]
     },
     "cloudflare-pages-production-adapter": {
-      "status": "CONTRACT_OK",
-      "executable": null,
+      "status": "PILOT",
+      "executable": "/opt/chacha-dev/adapters/cloudflare-pages-production/current/cloudflare-pages-production-adapter",
       "supports": [
         "read",
         "production-deploy"
