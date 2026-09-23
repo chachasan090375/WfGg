@@ -148,6 +148,15 @@ assert '--challenge-dossier' in council_script
 assert '"logic-ux-compromise"' in council_script
 assert '"logic_ux_compromise"' in guardian_worker
 
+lifecycle=load(CFG/"lifecycle.v1.json")
+quality=load(CFG/"quality-gates.v1.json")
+release_transition=lifecycle["transitions"]["PREVIEW->RELEASE"]
+assert "compromise-release-receipt" in release_transition["required_artifacts"],release_transition
+assert "compromise-release" in release_transition["required_gates"],release_transition
+assert lifecycle["release_policy"]["compromise_release_receipt_required"] is True
+assert quality["gates"]["compromise-release"]["default_blocking"] is True
+assert quality["principles"]["final_delivery_requires_multi_agent_compromise"] is True
+
 release_policy=load(CFG/"compromise-release-gate.v1.json")
 assert len(release_policy["required_agents"])==7
 assert release_policy["rules"]["release_is_fail_closed"] is True
@@ -161,6 +170,7 @@ print("CHACHA_DEV_V634_CENTRAL_COMPROMISE_FIRST=PASS")
 print("CHACHA_DEV_V634_AGENT_REVISION_ONLY_AFTER_FAILED_COMPROMISE=PASS")
 print("CHACHA_DEV_V634_ARCHITECTURE_COUNCIL_CONSUMES_COMPROMISE=PASS")
 print("CHACHA_DEV_V634_SEVEN_AGENT_RELEASE_GATE=PASS")
+print("CHACHA_DEV_V634_RELEASE_LIFECYCLE_ENFORCEMENT=PASS")
 print("CHACHA_DEV_V634_MISSING_AGENT_FAIL_CLOSED=PASS")
 print("CHACHA_DEV_V634_NO_MAJORITY_VOTE=PASS")
 print("CHACHA_DEV_V634_CURRENT_PLAN_INCUMBENCY_PRIVILEGE=NO")
