@@ -240,7 +240,8 @@ adapter_entry=registry["adapters"]["cloudflare-pages-production-adapter"]
 assert provider["adapter"]=="cloudflare-pages-production-adapter"
 assert provider["execution"]=="vps"
 assert adapter_entry["status"]=="PILOT"
-assert adapter_entry["executable"] is None
+assert adapter_entry["executable"]=="/opt/chacha-dev/adapters/cloudflare-pages-production/current/cloudflare-pages-production-adapter"
+assert Path(adapter_entry["executable"]).is_absolute()
 contract_receipt=load(ROOT/"dev-hub/evidence/v639/cloudflare-pages-production-contract-ok-promotion-receipt.json")
 assert contract_receipt["transition"]=="DESIGNED->CONTRACT_OK"
 assert contract_receipt["status"]=="COMMITTED"
