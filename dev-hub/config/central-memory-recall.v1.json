@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/central-memory-recall-policy/v1",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "scope": "PLATFORM_GLOBAL",
   "source": "/opt/chacha-dev/runtime/knowledge/central-memory-assimilation.json",
   "retrieval": {
@@ -12,7 +12,9 @@
     "global_generalizable_weight": 70,
     "token_overlap_weight": 10,
     "exact_domain_weight": 40,
-    "exact_capability_weight": 25
+    "exact_capability_weight": 25,
+    "component_confidence_weight": 30,
+    "trusted_component_bonus": 20
   },
   "trust": {
     "actionable_states": [
@@ -30,7 +32,14 @@
     "current_best_only": true,
     "previous_solution_is_candidate_not_default": true,
     "technology_revalidation_required": true,
-    "architecture_council_final_authority": true
+    "architecture_council_final_authority": true,
+    "exclude_component_confidence_states": [
+      "DEGRADED",
+      "QUARANTINED",
+      "RECOVERY_CANDIDATE"
+    ],
+    "unknown_component_confidence_does_not_auto_block": true,
+    "component_confidence_is_advisory_not_final_authority": true
   },
   "behavior": {
     "central_orchestrator_recall_before_foundries": true,
