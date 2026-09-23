@@ -76,6 +76,14 @@ def escalate(a)->int:
     status,x=http(signed_request("POST",url+"/v1/incidents/escalate",key,body))
     print(json.dumps(x,ensure_ascii=False))
     return 0 if status==200 and x.get("status")=="PASS" else 30
+def mark_directives(a)->int:
+    _,url,key=policy_values(a.policy)
+    payload={"directive_ids":a.directive_id}
+    body=json.dumps(payload,sort_keys=True,separators=(",",":")).encode()
+    status,x=http(signed_request("POST",url+"/v1/incidents/directives/delivered",key,body))
+    print(json.dumps(x,ensure_ascii=False))
+    return 0 if status==200 and x.get("status")=="PASS" else 30
+
 def main()->int:
     ap=argparse.ArgumentParser();ap.add_argument("--policy",type=Path,required=True)
     sub=ap.add_subparsers(dest="cmd",required=True)
@@ -83,11 +91,13 @@ def main()->int:
     v=sub.add_parser("review");v.add_argument("--project-id",required=True);v.add_argument("--revision",required=True)
     v.add_argument("--compromise-digest",required=True);v.add_argument("--implementation-verified",action="store_true")
     d=sub.add_parser("directives")
+    m=sub.add_parser("mark-directives-delivered");m.add_argument("--directive-id",action="append",required=True)
     e=sub.add_parser("escalate");e.add_argument("--incident-id",required=True);e.add_argument("--scope",choices=["PROJECT","CORE","PLATFORM"],required=True)
     e.add_argument("--corroborations",type=int,default=0)
     a=ap.parse_args()
     if a.cmd=="register-project-assurance-identity":return register_identity(a)
     if a.cmd=="review":return review(a)
     if a.cmd=="directives":return directives(a)
+    if a.cmd=="mark-directives-delivered":return mark_directives(a)
     return escalate(a)
 if __name__=="__main__":raise SystemExit(main())
