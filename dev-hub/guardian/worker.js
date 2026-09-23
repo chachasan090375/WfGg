@@ -209,7 +209,7 @@ async function evaluate(event,env){
   }
 
   if(action==="FINAL_ARCHITECTURE_DECISION"&&phase==="POST_ACTION"){
-    for(const key of ["technology_watch_pre","technology_watch_final","central_memory_assimilation","central_memory_recall",
+    for(const key of ["technology_watch_pre","technology_watch_final","central_memory_assimilation","component_confidence","central_memory_recall",
       "reuse_memory","architecture_memory","architecture_portfolio","branch_foundry","agent_foundry","capability_foundry","constraint_policy"])
       if(!truthyEvidence(evidence,key))addReason(state,"BLOCK","ARCHITECTURE_COUNCIL_EVIDENCE_MISSING:"+key);
   }
@@ -828,7 +828,7 @@ export default {
       authenticated_watchdog_sweep:true,scheduled_watchdog:true,
       corrective_enforcement:true,remediation_holds:true,remediation_retry_limit:3,
       production_learning_anomaly_bridge:true,production_anomaly_direct_mutation:false,
-      central_memory_assimilation_evidence_required:true,contextual_memory_recall_evidence_required:true,
+      central_memory_assimilation_evidence_required:true,component_confidence_evidence_required:true,contextual_memory_recall_evidence_required:true,
       coverage_remediation_auto_resolution:true,coverage_remediation_batched:true,
       remediation_dependency_auto_resolution:true,remediation_cascade_suppression:true
     });
