@@ -40,6 +40,110 @@ async function requireCentral(req,env,body=""){
   const ok=await verifyEd25519(row.public_key_spki_b64,sig,requestMessage(req,ts,body));
   return ok?{ok:true,keyId}:{ok:false,response:json({error:"exchange_signature_invalid"},403)};
 }
+async function requireProjectAssurance(req,env,body,projectId){
+  const keyId=req.headers.get("x-chacha-key-id")||"";
+  const ts=req.headers.get("x-chacha-timestamp")||"";
+  const sig=req.headers.get("x-chacha-signature")||"";
+  const millis=Date.parse(ts);
+  if(!keyId||!sig||!Number.isFinite(millis)||Math.abs(Date.now()-millis)>120000)
+    return {ok:false,response:json({error:"project_assurance_auth_invalid"},401)};
+  const row=await env.DB.prepare(
+    "SELECT project_id,public_key_spki_b64 FROM project_assurance_identities WHERE key_id=?1 AND status='ACTIVE'"
+  ).bind(keyId).first();
+  if(!row)return {ok:false,response:json({error:"project_assurance_identity_unknown"},403)};
+  if(String(row.project_id||"")!==String(projectId||""))
+    return {ok:false,response:json({error:"project_assurance_identity_project_mismatch"},403)};
+  const ok=await verifyEd25519(row.public_key_spki_b64,sig,requestMessage(req,ts,body));
+  return ok?{ok:true,keyId,projectId:String(row.project_id)}:
+    {ok:false,response:json({error:"project_assurance_signature_invalid"},403)};
+}
+
+async function registerProjectAssuranceIdentity(req,env){
+  const body=await req.text();
+  const auth=await requireCentral(req,env,body);if(!auth.ok)return auth.response;
+  let p;try{p=JSON.parse(body);}catch{return json({error:"invalid_json"},400);}
+  if(p.schema!=="chacha.dev/project-assurance-identity-registration/v1")
+    return json({error:"project_assurance_identity_schema_invalid"},400);
+  const projectId=String(p.project_id||""),keyId=String(p.key_id||""),pub=String(p.public_key_spki_b64||"");
+  if(!projectId||!/^project-[a-f0-9]{16}$/.test(keyId)||!pub)
+    return json({error:"project_assurance_identity_invalid"},400);
+  await env.DB.prepare(
+    `INSERT INTO project_assurance_identities(key_id,project_id,status,public_key_spki_b64,created_at)
+     VALUES(?1,?2,'ACTIVE',?3,datetime('now'))
+     ON CONFLICT(key_id) DO UPDATE SET project_id=excluded.project_id,status='ACTIVE',
+       public_key_spki_b64=excluded.public_key_spki_b64,revoked_at=NULL`
+  ).bind(keyId,projectId,pub).run();
+  return json({
+    schema:"chacha.dev/project-assurance-identity-registration-result/v1",
+    status:"PASS",project_id:projectId,key_id:keyId,scope:"PERIPHERAL_ASSURANCE",
+    direct_mutation:false,client_secret_allowed:false
+  });
+}
+
+function peripheralEventPrivacyOk(e){
+  const privacy=e&&e.privacy&&typeof e.privacy==="object"?e.privacy:{};
+  return privacy.raw_user_content===false&&privacy.credentials===false&&privacy.secrets===false&&e.direct_mutation===false;
+}
+
+async function peripheralEvents(req,env){
+  const body=await req.text();
+  let p;try{p=JSON.parse(body);}catch{return json({error:"invalid_json"},400);}
+  if(p.schema!=="chacha.dev/project-assurance-event-batch/v1")
+    return json({error:"project_event_batch_schema_invalid"},400);
+  const projectId=String(p.project_id||"");
+  if(!projectId)return json({error:"project_event_batch_project_required"},400);
+  const auth=await requireProjectAssurance(req,env,body,projectId);if(!auth.ok)return auth.response;
+  const events=Array.isArray(p.events)?p.events:[];
+  if(!events.length||events.length>50)return json({error:"project_event_batch_size_invalid"},400);
+  const acceptedRoles=new Set(["curator","bastion","intendant"]);
+  let accepted=0;
+  for(const e of events){
+    if(!e||e.schema!=="chacha.dev/project-assurance-event/v1")
+      return json({error:"project_event_schema_invalid"},400);
+    const eventId=String(e.event_id||""),eventProjectId=String(e.project_id||"");
+    const version=String(e.application_version||""),role=String(e.assurance_role||"");
+    const fields=e.fields&&typeof e.fields==="object"&&!Array.isArray(e.fields)?e.fields:{};
+    if(eventProjectId!==projectId)return json({error:"project_event_project_mismatch"},403);
+    if(!acceptedRoles.has(role))return json({error:"peripheral_role_invalid"},400);
+    if(!eventId||!version||!peripheralEventPrivacyOk(e))
+      return json({error:"project_event_identity_or_privacy_invalid"},400);
+    const eventType=String(fields.event_type||""),severity=String(fields.severity||"INFO");
+    const componentId=String(fields.component_id||"")||null;
+    const componentVersion=String(fields.component_version||"")||null;
+    const eventDigest=String(e.event_digest||await sha256Hex(stable(e)));
+    await env.DB.prepare(
+      `INSERT OR IGNORE INTO peripheral_project_events
+       (event_id,project_id,application_version,assurance_role,event_type,severity,component_id,component_version,event_digest,fields_json,observed_at,ingested_at)
+       VALUES(?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,datetime('now'))`
+    ).bind(eventId,projectId,version,role,eventType,severity,componentId,componentVersion,
+           eventDigest,stable(fields),String(e.observed_at||new Date().toISOString())).run();
+    accepted++;
+  }
+  return json({
+    schema:"chacha.dev/peripheral-project-event-ingest/v1",
+    status:"PASS",project_id:projectId,accepted,roles:[...new Set(events.map(e=>String(e.assurance_role||"")))].sort(),
+    incremental:true,raw_user_content:false,direct_mutation:false,
+    central_orchestrator_owns_remediation:true
+  });
+}
+
+async function peripheralEventsQuery(req,env){
+  const auth=await requireCentral(req,env);if(!auth.ok)return auth.response;
+  const u=new URL(req.url),project=String(u.searchParams.get("project_id")||"");
+  const role=String(u.searchParams.get("role")||"");
+  let q="SELECT * FROM peripheral_project_events WHERE 1=1",args=[];
+  if(project){q+=" AND project_id=?"+(args.length+1);args.push(project);}
+  if(role){q+=" AND assurance_role=?"+(args.length+1);args.push(role);}
+  q+=" ORDER BY observed_at DESC LIMIT 200";
+  let stmt=env.DB.prepare(q);if(args.length)stmt=stmt.bind(...args);
+  const rows=(await stmt.all()).results||[];
+  return json({
+    schema:"chacha.dev/peripheral-project-event-batch/v1",
+    items:rows.map(r=>({...r,fields:JSON.parse(r.fields_json||"{}")})),
+    count:rows.length,source_evidence_preserved:true,direct_mutation:false
+  });
+}
+
 function uniq(xs){return [...new Set((xs||[]).map(String).filter(Boolean))].sort();}
 function severityFor(source,receipt){
   const verdict=String(receipt.verdict||"");
@@ -236,10 +340,17 @@ export default{
       guardian_sentinel_correlation:true,evidence_preserving:true,causality_not_invented:true,
       guardian_service_binding:Boolean(env.GUARDIAN_SERVICE),
       sentinel_service_binding:Boolean(env.SENTINEL_SERVICE),
+      project_assurance_identity_registration:true,
+      curator_local_ingest:true,bastion_local_ingest:true,intendant_local_ingest:true,
+      five_agent_local_probe_fabric:true,incremental_peripheral_events:true,
       direct_mutation:false,central_orchestrator_owns_remediation:true,
       technology_watch_guard:true,architecture_council_guard:true,
       automatic_external_spend_eur:0
     });
+    if(req.method==="POST"&&u.pathname==="/v1/project-assurance-identities/register")
+      return registerProjectAssuranceIdentity(req,env);
+    if(req.method==="POST"&&u.pathname==="/v1/peripheral-events")return peripheralEvents(req,env);
+    if(req.method==="GET"&&u.pathname==="/v1/peripheral-events")return peripheralEventsQuery(req,env);
     if(req.method==="POST"&&u.pathname==="/v1/observations")return observe(req,env);
     if(req.method==="GET"&&u.pathname==="/v1/recommendations")return recommendations(req,env);
     if(req.method==="POST"&&u.pathname==="/v1/recommendations/delivered")return markDelivered(req,env);
