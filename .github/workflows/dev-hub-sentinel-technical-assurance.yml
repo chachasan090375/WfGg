@@ -100,3 +100,32 @@ jobs:
           print('EXACT_REVISION=PASS')
           print('AUTOMATIC_EXTERNAL_SPEND_EUR=0')
           PY
+
+      - name: Persist exact-revision Sentinel attestation
+        if: success() && github.event_name != 'pull_request'
+        continue-on-error: true
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY' >/tmp/sentinel-attestation.sql
+          import json,os
+          x=json.load(open('/tmp/sentinel-technical-audit.json',encoding='utf-8'))
+          q=lambda s:"'"+str(s).replace("'","''")+"'"
+          sql=(
+            "INSERT INTO technical_workflow_attestations"
+            "(repository,revision,workflow_name,workflow_run_id,audit_digest,conclusion,attested_at) VALUES("
+            +q(os.environ['GITHUB_REPOSITORY'])+","+q(os.environ['GITHUB_SHA'])+","
+            +q('ChaCha DEV Sentinel technical assurance')+","+q(os.environ['GITHUB_RUN_ID'])+","
+            +q(x['audit_digest'])+",'PASS',datetime('now')) "
+            "ON CONFLICT(repository,revision,workflow_name) DO UPDATE SET "
+            "workflow_run_id=excluded.workflow_run_id,audit_digest=excluded.audit_digest,"
+            "conclusion='PASS',attested_at=datetime('now');"
+          )
+          print(sql)
+          PY
+          SQL="$(cat /tmp/sentinel-attestation.sql)"
+          npx --yes wrangler@4.45.0 d1 execute chacha-dev-sentinel --remote --command="$SQL"
+          echo CHACHA_DEV_SENTINEL_WORKFLOW_ATTESTATION=PASS
