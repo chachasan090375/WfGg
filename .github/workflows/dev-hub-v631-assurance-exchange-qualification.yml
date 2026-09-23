@@ -95,6 +95,11 @@ jobs:
           set -euo pipefail
           PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v623_contextual_memory_recall.py
 
+      - name: V6.23 contextual memory regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v623_contextual_memory_recall.py
+
       - name: Qualification receipt
         run: |
           {
