@@ -39,7 +39,23 @@ trap rollback EXIT
 stage_set(){ LAST_STAGE="$1"; stage "$1"; }
 
 [ "$(id -u)" -eq 0 ] || { echo "CHACHA_DEV_V638_INSTALL=BLOCKED reason=root_required"; exit 2; }
-printf '%s' "$REV" | grep -Eq '^[0-9a-f]{40}
+printf '%s' "$REV" | grep -Eq '^[0-9a-f]{40}$' || { echo "CHACHA_DEV_V638_INSTALL=BLOCKED reason=pinned_revision_required"; exit 2; }
+
+if [ -n "$APPROVAL_ID" ] || [ -n "$HUMAN_ACTOR" ]; then
+  [ -n "$APPROVAL_ID" ] || { echo "CHACHA_DEV_V638_INSTALL=BLOCKED reason=explicit_human_approval_id_required"; exit 2; }
+  [ -n "$HUMAN_ACTOR" ] || { echo "CHACHA_DEV_V638_INSTALL=BLOCKED reason=human_actor_required"; exit 2; }
+  case "$HUMAN_ACTOR" in
+    central-orchestrator|guardian|sentinel|curator|bastion|intendant|logician|ergonomist)
+      echo "CHACHA_DEV_V638_INSTALL=BLOCKED reason=human_actor_cannot_be_agent"; exit 2;;
+  esac
+  RESUME=1
+fi
+
+if [ "$RESUME" -eq 1 ]; then
+  [ -s "$PENDING_FILE" ] || { echo "CHACHA_DEV_V638_INSTALL=BLOCKED reason=awaiting_approval_checkpoint_missing"; exit 2; }
+else
+  [ ! -e "$PENDING_FILE" ] || { echo "CHACHA_DEV_V638_INSTALL=BLOCKED reason=awaiting_approval_checkpoint_exists"; exit 2; }
+fi
 for cmd in curl tar python3 node openssl ln readlink grep cp find rm mkdir; do
   command -v "$cmd" >/dev/null || { echo "CHACHA_DEV_V638_INSTALL=BLOCKED reason=missing_command:$cmd"; exit 2; }
 done
