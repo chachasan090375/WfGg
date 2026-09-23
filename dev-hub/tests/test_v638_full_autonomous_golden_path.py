@@ -222,7 +222,24 @@ assert '"prepare":"PREPARED"' in source
 assert '"build":"BUILT"' in source
 assert '"verify":"VERIFIED"' in source
 assert '"preview":"PREVIEWED"' in source
+assert "--resume-from-awaiting-approval" in source
+assert "V638_INITIAL_RUN_MUST_NOT_PRELOAD_APPROVAL" in source
+assert "CHACHA_DEV_V638_RESUMED_SAME_PROJECT=PASS" in source
+assert "CHACHA_DEV_V638_HUMAN_APPROVAL_AFTER_BOUNDARY=PASS" in source
 
+installer=(BIN/"install-v638-full-autonomous-golden-path.sh").read_text(encoding="utf-8")
+for marker in [
+  "CHACHA_DEV_V638_INSTALL=AWAITING_APPROVAL",
+  "CHACHA_DEV_V638_AWAITING_APPROVAL_CHECKPOINT=PASS",
+  "CHACHA_DEV_V638_RESUME_CHECKPOINT=PASS",
+  "--resume-from-awaiting-approval",
+  "CHACHA_DEV_V638_PREAPPROVAL_RELEASE_MUTATION=NO",
+]:
+    assert marker in installer,marker
+assert '--human-approval-id "$APPROVAL_ID"' in installer
+assert 'if [ "$RESUME" -eq 0 ]; then' in installer
+
+print("CHACHA_DEV_V638_TRUE_TWO_PHASE_HUMAN_RESUME=PASS")
 print("CHACHA_DEV_V638_LIFECYCLE_STAGED_MATERIALIZATION=PASS")
 print("CHACHA_DEV_V638_CANONICAL_MATERIALIZER_REAL=PASS")
 print("CHACHA_DEV_V638_REAL_NODE_TEST_BUILD_PREVIEW_RESTORE=PASS")
