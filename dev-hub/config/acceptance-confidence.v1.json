@@ -1,0 +1,33 @@
+{
+  "schema": "chacha.dev/acceptance-confidence-policy/v1",
+  "version": "1.0.0",
+  "scope": "PLATFORM_GLOBAL",
+  "positive_learning": {
+    "require_full_acceptance": true,
+    "require_exact_component_lineage": true,
+    "require_explicit_verified_evaluation": true,
+    "acceptance_outcome": "PASS",
+    "duplicate_acceptance_digest_is_idempotent": true
+  },
+  "negative_learning": {
+    "project_level_rejection_does_not_penalize_all_components": true,
+    "exact_negative_attribution_remains_anomaly_or_component_specific_evidence": true
+  },
+  "integration": {
+    "universal_learning_outbox": "/opt/chacha-dev/runtime/learning/outbox",
+    "marker_root": "/opt/chacha-dev/runtime/knowledge/acceptance-confidence-applied",
+    "production_lineage_feedback_consumes_delta": true,
+    "component_confidence_refreshes_after_feedback": true,
+    "central_memory_refreshes_after_confidence": true
+  },
+  "safety": {
+    "guardian_governed": true,
+    "no_direct_application_mutation": true,
+    "no_automatic_re_adoption_after_recovery": true,
+    "technology_revalidation_required": true,
+    "architecture_council_final_authority": true
+  },
+  "economics": {
+    "automatic_external_spend_eur": 0
+  }
+}
