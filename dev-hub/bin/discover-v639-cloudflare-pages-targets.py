@@ -115,7 +115,23 @@ def main()->int:
       os.environ.get("CLOUDFLARE_ACCOUNT_ID","")
     ])
     if not tokens:
-        raise SystemExit("V639_CF_PAGES_DISCOVERY_TOKEN_MISSING")
+        out={
+          "schema":SCHEMA,
+          "status":"BLOCKED",
+          "reason":"TOKEN_MISSING",
+          "observed_at":now_iso(),
+          "account_id_disclosed":False,
+          "network_write":False,
+          "production_mutation":False,
+          "real_production_deployment_authorized":False,
+          "project_count":0,
+          "projects":[]
+        }
+        args.output.parent.mkdir(parents=True,exist_ok=True)
+        args.output.write_text(json.dumps(out,indent=2,ensure_ascii=False)+"\n",encoding="utf-8")
+        print("CHACHA_DEV_V639_CF_PAGES_TARGET_DISCOVERY=BLOCKED")
+        print("CHACHA_DEV_V639_CF_PAGES_TARGET_DISCOVERY_REASON=TOKEN_MISSING")
+        return 0
 
     chosen_token=None
     account_id=None
@@ -132,7 +148,24 @@ def main()->int:
         except Exception as exc:
             errors.append(type(exc).__name__+":"+str(exc))
     if chosen_token is None or account_id is None:
-        raise SystemExit("V639_CF_PAGES_ACCOUNT_RESOLUTION_FAILED:"+"|".join(errors))
+        out={
+          "schema":SCHEMA,
+          "status":"BLOCKED",
+          "reason":"ACCOUNT_RESOLUTION_FAILED",
+          "observed_at":now_iso(),
+          "account_id_disclosed":False,
+          "network_write":False,
+          "production_mutation":False,
+          "real_production_deployment_authorized":False,
+          "diagnostic_classes":errors,
+          "project_count":0,
+          "projects":[]
+        }
+        args.output.parent.mkdir(parents=True,exist_ok=True)
+        args.output.write_text(json.dumps(out,indent=2,ensure_ascii=False)+"\n",encoding="utf-8")
+        print("CHACHA_DEV_V639_CF_PAGES_TARGET_DISCOVERY=BLOCKED")
+        print("CHACHA_DEV_V639_CF_PAGES_TARGET_DISCOVERY_REASON=ACCOUNT_RESOLUTION_FAILED")
+        return 0
 
     aid=urllib.parse.quote(account_id,safe="")
     status,payload=request_json(
@@ -140,7 +173,24 @@ def main()->int:
         chosen_token
     )
     if status!=200 or payload.get("success") is not True:
-        raise SystemExit("V639_CF_PAGES_PROJECT_LIST_FAILED_HTTP_"+str(status))
+        out={
+          "schema":SCHEMA,
+          "status":"BLOCKED",
+          "reason":"PROJECT_LIST_FAILED",
+          "http_status":status,
+          "observed_at":now_iso(),
+          "account_id_disclosed":False,
+          "network_write":False,
+          "production_mutation":False,
+          "real_production_deployment_authorized":False,
+          "project_count":0,
+          "projects":[]
+        }
+        args.output.parent.mkdir(parents=True,exist_ok=True)
+        args.output.write_text(json.dumps(out,indent=2,ensure_ascii=False)+"\n",encoding="utf-8")
+        print("CHACHA_DEV_V639_CF_PAGES_TARGET_DISCOVERY=BLOCKED")
+        print("CHACHA_DEV_V639_CF_PAGES_TARGET_DISCOVERY_REASON=PROJECT_LIST_FAILED_HTTP_"+str(status))
+        return 0
 
     rows=payload.get("result") or []
     projects=[project_row(x) for x in rows if isinstance(x,dict)]
