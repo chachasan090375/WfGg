@@ -35,6 +35,9 @@ _STAGE_ROLE={
     "branch-foundry-planner.py":"branch-foundry",
     "capability-foundry.py":"capability-foundry",
     "central-memory-recall.py":"central-memory-recall",
+    "logic-search-engine.py":"logician",
+    "ux-planning-engine.py":"ergonomist",
+    "multi-agent-compromise-engine.py":"orchestrator",
     "architecture-decision-council.py":"architecture-decision-council",
     "architecture-comparative-pilot.py":"comparative-pilot",
     "capsule-scheduler.py":"capsule-scheduler",
@@ -362,6 +365,45 @@ def main():
         "--intent",active_intent,"--preplan",active_pre,"--project-id",pid,"--output",memory_brief
     ])
 
+    # V6.34: Logician and Ergonomist challenge the stable plan before final architecture.
+    # The central brain must first try to synthesize an admissible compromise itself.
+    logic_report=out/"logic-search-report.json"
+    run(bin_dir/"logic-search-engine.py",[
+        "--repo-root",root,
+        "--intent",active_intent,
+        "--contract",contract,
+        "--preplan",active_pre,
+        "--memory-brief",memory_brief,
+        "--policy",cfg/"logic-search.v1.json",
+        "--output",logic_report
+    ])
+    ux_report=out/"ux-planning-report.json"
+    run(bin_dir/"ux-planning-engine.py",[
+        "--intent",active_intent,
+        "--contract",contract,
+        "--preplan",active_pre,
+        "--policy",cfg/"ux-planning.v1.json",
+        "--output",ux_report
+    ])
+    compromise=out/"multi-agent-compromise.json"
+    run(bin_dir/"multi-agent-compromise-engine.py",[
+        "--policy",cfg/"decision-challenge.v1.json",
+        "--logic-report",logic_report,
+        "--ux-report",ux_report,
+        "--output",compromise
+    ])
+    compromise_v=load(compromise)
+    if compromise_v.get("central_compromise_found") is not True:
+        revision_path=out/"agent-revision-requests.json"
+        save(revision_path,{
+          "schema":"chacha.dev/agent-revision-request-batch/v1",
+          "project_id":pid,
+          "requests":compromise_v.get("revision_requests") or [],
+          "reason":"CENTRAL_COMPROMISE_SEARCH_FAILED",
+          "central_brain_attempted_compromise":True
+        })
+        raise RuntimeError("MULTI_AGENT_COMPROMISE_REQUIRED:"+str(revision_path))
+
     # Final foundry pass on the stable branch/capability set.
     agent_topology=out/"agent-topology.json"
     branch_parallel=out/"branch-topology-parallel.json"
@@ -496,7 +538,7 @@ def main():
 
     state={
       "schema":"chacha.dev/autonomous-project-bootstrap/v1",
-      "version":"6.33.0",
+      "version":"6.34.0",
       "project_id":pid,
       "functional_contract":str(contract),
       "project":str(project),
@@ -565,6 +607,13 @@ def main():
       "external_spend_eur":float((branch_v.get("summary") or {}).get("external_spend_eur") or 0),
       "guardian_external_enabled":bool(_GUARDIAN_CONTEXT.get("enabled")),
       "guardian_event_dir":str(_GUARDIAN_CONTEXT.get("event_dir")),
+      "logic_search_report":str(logic_report),
+      "ux_planning_report":str(ux_report),
+      "multi_agent_compromise":str(compromise),
+      "logic_challenge_status":load(logic_report).get("challenge_status"),
+      "ux_challenge_status":load(ux_report).get("challenge_status"),
+      "central_compromise_found":bool(compromise_v.get("central_compromise_found")),
+      "revision_request_only_after_failed_compromise":True,
       "assurance_exchange_recommendations":assurance_recommendations,
       "assurance_exchange_recommendation_count":len(assurance_recommendations),
       "assurance_exchange_blocker_count":sum(1 for x in assurance_recommendations if x.get("priority")=="BLOCKER"),
@@ -585,6 +634,10 @@ def main():
     print("AGENT_FOUNDRY_MEMORY_GUIDED_DECISIONS="+str(state["agent_foundry_memory_guided_decisions"]))
     print("BRANCH_FOUNDRY_MEMORY_GUIDED_DECISIONS="+str(state["branch_foundry_memory_guided_decisions"]))
     print("CAPABILITY_FOUNDRY_MEMORY_GUIDED_PLANS="+str(state["capability_foundry_memory_guided_plans"]))
+    print("LOGIC_CHALLENGE_STATUS="+str(state["logic_challenge_status"]))
+    print("UX_CHALLENGE_STATUS="+str(state["ux_challenge_status"]))
+    print("CENTRAL_COMPROMISE_FOUND="+("YES" if state["central_compromise_found"] else "NO"))
+    print("REVISION_REQUEST_ONLY_AFTER_FAILED_COMPROMISE=YES")
     print("ASSURANCE_EXCHANGE_RECOMMENDATIONS="+str(state["assurance_exchange_recommendation_count"]))
     print("ASSURANCE_EXCHANGE_BLOCKERS="+str(state["assurance_exchange_blocker_count"]))
     print("ASSURANCE_EXCHANGE_OPTIMIZE="+str(state["assurance_exchange_optimize_count"]))
