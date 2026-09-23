@@ -269,6 +269,93 @@ async function correlate(env,projectId,revision){
          JSON.stringify(evidence)).run();
   return {status:"CORRELATED",correlation_id:correlationId,priority:cls.priority,recommendation_type:cls.type,causality_status:causality};
 }
+function finalReviewBinding(env,source){
+  if(source==="GUARDIAN")return env.GUARDIAN_SERVICE;
+  if(source==="SENTINEL")return env.SENTINEL_SERVICE;
+  if(source==="CURATOR")return env.CURATOR_SERVICE;
+  if(source==="BASTION")return env.BASTION_SERVICE;
+  if(source==="INTENDANT")return env.INTENDANT_SERVICE;
+  return null;
+}
+function finalReviewPath(source,receiptId){
+  const id=encodeURIComponent(receiptId);
+  if(source==="GUARDIAN"||source==="SENTINEL")return "/v1/final-reviews/"+id;
+  return "/v1/reviews/"+id;
+}
+async function fetchExternalFinalReview(env,source,receiptId){
+  const binding=finalReviewBinding(env,source);
+  if(!binding)return {ok:false,reason:source+"_SERVICE_BINDING_MISSING"};
+  let r;try{
+    r=await binding.fetch(new Request("https://final-review-source.internal"+finalReviewPath(source,receiptId),{
+      method:"GET",headers:{"accept":"application/json","user-agent":"ChaCha-DEV-Assurance-Exchange/1.3"}
+    }));
+  }catch{return {ok:false,reason:source+"_FINAL_REVIEW_UNAVAILABLE"};}
+  if(!r.ok)return {ok:false,reason:source+"_FINAL_REVIEW_UNKNOWN"};
+  let x;try{x=await r.json();}catch{return {ok:false,reason:source+"_FINAL_REVIEW_INVALID"};}
+  if(x.schema!=="chacha.dev/compromise-agent-review/v1")return {ok:false,reason:"FINAL_REVIEW_SCHEMA_INVALID"};
+  if(String(x.agent||"").toUpperCase()!==source)return {ok:false,reason:"FINAL_REVIEW_SOURCE_MISMATCH"};
+  return {ok:true,review:x};
+}
+async function finalReviewRef(req,env){
+  let p;try{p=await req.json();}catch{return json({error:"invalid_json"},400);}
+  if(p.schema!=="chacha.dev/final-review-ref/v1")return json({error:"schema_invalid"},400);
+  const source=String(p.source||"").toUpperCase(),receiptId=String(p.receipt_id||"");
+  if(!["GUARDIAN","SENTINEL","CURATOR","BASTION","INTENDANT"].includes(source)||!receiptId)
+    return json({error:"source_or_receipt_invalid"},400);
+  const fr=await fetchExternalFinalReview(env,source,receiptId);
+  if(!fr.ok)return json({error:fr.reason},409);
+  const x=fr.review,projectId=String(x.project_id||""),revision=String(x.revision||""),
+        compromise=String(x.compromise_digest||"");
+  if(!projectId||!/^[0-9a-f]{40}$/.test(revision)||!compromise)
+    return json({error:"final_review_identity_invalid"},409);
+  const payloadDigest="sha256:"+await sha256Hex(stable(x));
+  await env.DB.prepare(`INSERT INTO external_final_reviews
+    (source,receipt_id,project_id,revision,compromise_digest,verdict,hard_objections_json,soft_objections_json,
+     evidence_refs_json,implementation_verified,source_payload_digest,created_at)
+    VALUES(?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,datetime('now'))
+    ON CONFLICT(source,receipt_id) DO UPDATE SET
+      verdict=excluded.verdict,hard_objections_json=excluded.hard_objections_json,
+      soft_objections_json=excluded.soft_objections_json,evidence_refs_json=excluded.evidence_refs_json,
+      implementation_verified=excluded.implementation_verified,source_payload_digest=excluded.source_payload_digest`)
+    .bind(source,receiptId,projectId,revision,compromise,String(x.verdict||"UNKNOWN"),
+      JSON.stringify(x.hard_objections||[]),JSON.stringify(x.soft_objections||[]),JSON.stringify(x.evidence_refs||[]),
+      x.implementation_verified===true?1:0,payloadDigest).run();
+  return json({
+    schema:"chacha.dev/final-review-exchange-result/v1",status:"RECORDED",
+    source,receipt_id:receiptId,project_id:projectId,revision,compromise_digest:compromise,
+    source_reverified:true,direct_mutation:false
+  });
+}
+async function finalReviews(req,env){
+  const auth=await requireCentral(req,env);if(!auth.ok)return auth.response;
+  const u=new URL(req.url),project=String(u.searchParams.get("project_id")||""),
+        revision=String(u.searchParams.get("revision")||""),
+        compromise=String(u.searchParams.get("compromise_digest")||"");
+  if(!project||!revision||!compromise)return json({error:"project_revision_compromise_required"},400);
+  const rows=(await env.DB.prepare(
+    `SELECT * FROM external_final_reviews
+     WHERE project_id=?1 AND revision=?2 AND compromise_digest=?3 ORDER BY source ASC`
+  ).bind(project,revision,compromise).all()).results||[];
+  return json({
+    schema:"chacha.dev/external-final-review-batch/v1",
+    project_id:project,revision,compromise_digest:compromise,
+    items:rows.map(r=>({
+      schema:"chacha.dev/compromise-agent-review/v1",
+      agent:String(r.source||"").toLowerCase(),receipt_id:r.receipt_id,
+      project_id:r.project_id,revision:r.revision,compromise_digest:r.compromise_digest,
+      verdict:r.verdict,hard_objections:JSON.parse(r.hard_objections_json||"[]"),
+      soft_objections:JSON.parse(r.soft_objections_json||"[]"),
+      evidence_refs:JSON.parse(r.evidence_refs_json||"[]"),
+      implementation_verified:Boolean(r.implementation_verified),
+      source_authority:"EXTERNAL",source_reverified:true,
+      source_payload_digest:r.source_payload_digest,post_implementation_second_read:true,
+      direct_mutation:false,reviewed_at:r.created_at
+    })),
+    count:rows.length,required_external_agents:["guardian","sentinel","curator","bastion","intendant"],
+    source_reverified:true,direct_mutation:false
+  });
+}
+
 function specialistBinding(env,source){
   if(source==="CURATOR")return env.CURATOR_SERVICE;
   if(source==="BASTION")return env.BASTION_SERVICE;
@@ -422,6 +509,8 @@ export default{
       bastion_service_binding:Boolean(env.BASTION_SERVICE),
       intendant_service_binding:Boolean(env.INTENDANT_SERVICE),
       specialist_review_source_reverification:true,
+      five_external_final_review_reverification:true,
+      seven_agent_final_compromise_support:true,
       direct_mutation:false,central_orchestrator_owns_remediation:true,
       technology_watch_guard:true,architecture_council_guard:true,
       automatic_external_spend_eur:0
@@ -433,6 +522,8 @@ export default{
     if(req.method==="POST"&&u.pathname==="/v1/observations")return observe(req,env);
     if(req.method==="POST"&&u.pathname==="/v1/specialist-reviews")return specialistReviewRef(req,env);
     if(req.method==="GET"&&u.pathname==="/v1/specialist-reviews")return specialistReviews(req,env);
+    if(req.method==="POST"&&u.pathname==="/v1/final-reviews")return finalReviewRef(req,env);
+    if(req.method==="GET"&&u.pathname==="/v1/final-reviews")return finalReviews(req,env);
     if(req.method==="GET"&&u.pathname==="/v1/recommendations")return recommendations(req,env);
     if(req.method==="POST"&&u.pathname==="/v1/recommendations/delivered")return markDelivered(req,env);
     if(req.method==="GET"&&u.pathname.startsWith("/v1/correlations/"))
