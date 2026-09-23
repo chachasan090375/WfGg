@@ -1,0 +1,150 @@
+name: ChaCha DEV V6.33 deploy five-agent Exchange ingress
+
+on:
+  push:
+    branches: [dev-hub-v633-five-agent-embedded-probes]
+    paths:
+      - 'dev-hub/assurance-exchange/**'
+      - 'dev-hub/config/assurance-exchange-runtime-policy.v1.json'
+      - '.github/workflows/dev-hub-v633-five-agent-embedded-probes-deploy.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev-hub-v633-five-agent-embedded-probes
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Static Exchange validation
+        run: |
+          set -euo pipefail
+          node --check dev-hub/assurance-exchange/worker.js
+          grep -Fq 'peripheral_project_events' dev-hub/assurance-exchange/migrations/0002_project_peripheral_events.sql
+          echo CHACHA_DEV_V633_EXCHANGE_STATIC=PASS
+
+      - name: Resolve Cloudflare account and Exchange database
+        id: cf
+        env:
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json,os,urllib.parse,urllib.request,urllib.error
+          token=os.environ.get('CF_API_TOKEN','').strip()
+          if not token: raise SystemExit('MISSING_SECRET=CLOUDFLARE_API_TOKEN')
+          headers={'Authorization':'Bearer '+token,'Content-Type':'application/json'}
+          def call(url,method='GET',body=None):
+              data=None if body is None else json.dumps(body).encode()
+              req=urllib.request.Request(url,headers=headers,method=method,data=data)
+              try:
+                  with urllib.request.urlopen(req,timeout=30) as r:return r.status,json.loads(r.read())
+              except urllib.error.HTTPError as e:
+                  raw=e.read().decode('utf-8','replace')
+                  try:payload=json.loads(raw)
+                  except Exception:payload={'raw':raw[:500]}
+                  return e.code,payload
+          aid=os.environ.get('CF_ACCOUNT_ID','').strip()
+          if not aid:
+              status,payload=call('https://api.cloudflare.com/client/v4/accounts?per_page=50')
+              rows=(payload.get('result') or []) if status==200 else []
+              if len(rows)!=1: raise SystemExit('CLOUDFLARE_ACCOUNT_RESOLUTION_AMBIGUOUS_'+str(len(rows)))
+              aid=rows[0]['id']
+          status,payload=call('https://api.cloudflare.com/client/v4/accounts/'+aid+'/d1/database?name='+urllib.parse.quote('chacha-dev-assurance-exchange'))
+          if status!=200: raise SystemExit('D1_LIST_FAILED')
+          rows=payload.get('result') or []
+          db=next((x for x in rows if x.get('name')=='chacha-dev-assurance-exchange'),None)
+          if not db: raise SystemExit('EXCHANGE_D1_MISSING')
+          status,payload=call('https://api.cloudflare.com/client/v4/accounts/'+aid+'/workers/subdomain')
+          if status!=200 or not (payload.get('result') or {}).get('subdomain'): raise SystemExit('WORKERS_SUBDOMAIN_RESOLUTION_FAILED')
+          sub=payload['result']['subdomain']
+          with open(os.environ['GITHUB_OUTPUT'],'a',encoding='utf-8') as f:
+              f.write('account_id='+aid+'\n')
+              f.write('exchange_database_id='+db['uuid']+'\n')
+              f.write('workers_subdomain='+sub+'\n')
+          print('CHACHA_DEV_V633_EXCHANGE_D1_READY=PASS')
+          PY
+
+      - name: Prepare Exchange config
+        run: |
+          set -euo pipefail
+          SUBDOMAIN="${{ steps.cf.outputs.workers_subdomain }}"
+          GUARDIAN_URL="https://chacha-dev-guardian.$SUBDOMAIN.workers.dev"
+          SENTINEL_URL="https://chacha-dev-sentinel.$SUBDOMAIN.workers.dev"
+          cat > .wrangler-exchange.jsonc <<EOF
+          {
+            "name": "chacha-dev-assurance-exchange",
+            "main": "dev-hub/assurance-exchange/worker.js",
+            "compatibility_date": "2026-09-23",
+            "workers_dev": true,
+            "vars": {
+              "GUARDIAN_URL": "$GUARDIAN_URL",
+              "SENTINEL_URL": "$SENTINEL_URL"
+            },
+            "services": [
+              {"binding": "GUARDIAN_SERVICE", "service": "chacha-dev-guardian"},
+              {"binding": "SENTINEL_SERVICE", "service": "chacha-dev-sentinel"}
+            ],
+            "d1_databases": [{
+              "binding": "DB",
+              "database_name": "chacha-dev-assurance-exchange",
+              "database_id": "${{ steps.cf.outputs.exchange_database_id }}"
+            }]
+          }
+          EOF
+
+      - name: Apply Exchange migrations
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ steps.cf.outputs.account_id }}
+        run: |
+          set -euo pipefail
+          for f in dev-hub/assurance-exchange/migrations/*.sql; do
+            npx --yes wrangler@4.45.0 d1 execute chacha-dev-assurance-exchange --remote --file="$f" --config=.wrangler-exchange.jsonc
+          done
+          echo CHACHA_DEV_V633_EXCHANGE_SCHEMA=PASS
+
+      - name: Deploy Exchange
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ steps.cf.outputs.account_id }}
+        run: |
+          set -euo pipefail
+          npx --yes wrangler@4.45.0 deploy --config=.wrangler-exchange.jsonc
+          echo CHACHA_DEV_V633_EXCHANGE_DEPLOY=PASS
+
+      - name: Verify five-agent Exchange ingress
+        env:
+          SUBDOMAIN: ${{ steps.cf.outputs.workers_subdomain }}
+        run: |
+          set -euo pipefail
+          EXCHANGE="https://chacha-dev-assurance-exchange.$SUBDOMAIN.workers.dev"
+          ok=0
+          for i in $(seq 1 30); do
+            if curl -fsS "$EXCHANGE/healthz" -o /tmp/exchange.json &&
+               grep -Fq '"project_assurance_identity_registration":true' /tmp/exchange.json &&
+               grep -Fq '"curator_local_ingest":true' /tmp/exchange.json &&
+               grep -Fq '"bastion_local_ingest":true' /tmp/exchange.json &&
+               grep -Fq '"intendant_local_ingest":true' /tmp/exchange.json &&
+               grep -Fq '"five_agent_local_probe_fabric":true' /tmp/exchange.json &&
+               grep -Fq '"incremental_peripheral_events":true' /tmp/exchange.json; then
+              ok=1;break
+            fi
+            sleep 3
+          done
+          test "$ok" = 1
+          code="$(curl -sS -o /tmp/peripheral-probe.json -w '%{http_code}'             -X POST "$EXCHANGE/v1/peripheral-events"             -H 'content-type: application/json'             --data '{"schema":"invalid-probe"}')"
+          test "$code" = "400"
+          grep -Fq '"project_event_batch_schema_invalid"' /tmp/peripheral-probe.json
+          echo CHACHA_DEV_V633_FIVE_AGENT_EXCHANGE_INGRESS=PASS
+          echo CHACHA_DEV_V633_DIRECT_MUTATION=NO
+          echo AUTOMATIC_EXTERNAL_SPEND_EUR=0
