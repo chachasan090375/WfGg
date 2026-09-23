@@ -48,5 +48,6 @@ def main()->int:
     check(post)
     print(p.stdout,end="")
     print("CHACHA_DEV_V624_GUARDIAN_GOVERNED_FEEDBACK=PASS")
+    print("CHACHA_DEV_V625_GUARDIAN_GOVERNED_FEEDBACK=PASS")
     return 0
 if __name__=="__main__":raise SystemExit(main())
