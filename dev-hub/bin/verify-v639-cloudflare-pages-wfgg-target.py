@@ -58,7 +58,7 @@ def main()->int:
     expected_branch=b["production_branch"]
     expected_url=b["production_url"]
 
-    token=first_env("CLOUDFLARE_API_TOKEN","CF_API_TOKEN")
+    token=first_env("CLOUDFLARE_PAGES_API_TOKEN","CLOUDFLARE_API_TOKEN","CF_API_TOKEN")
     account=first_env("CLOUDFLARE_ACCOUNT_ID","CF_ACCOUNT_ID")
     if not token or not account:
         reason="TOKEN_MISSING" if not token else "ACCOUNT_ID_MISSING"
