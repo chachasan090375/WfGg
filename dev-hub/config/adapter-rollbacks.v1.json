@@ -118,6 +118,32 @@
         "previous provisioning promotion and rollback receipts remain readable",
         "provisioned executable remains unchanged for forensics"
       ]
+    },
+    "cloudflare-pages-production-adapter": {
+      "enabled": true,
+      "from_status": "ENABLED",
+      "target_status": "DISABLED",
+      "owner_role": "platform-cloud-engineer",
+      "triggers": [
+        "repeatable-runtime-failure",
+        "provider-health-unavailable",
+        "production-rollback-failure",
+        "policy-or-security-block"
+      ],
+      "executable_strategy": "retain-for-forensics",
+      "steps": [
+        "stop scheduling new production deployments to cloudflare-pages-production-adapter",
+        "apply ENABLED->DISABLED through adapter-promotion with policy-or-security-block evidence",
+        "record the promotion receipt and triggering evidence",
+        "retain source and prior deployment receipts for forensics",
+        "leave Cloudflare Pages production mutation fail-closed until re-qualified"
+      ],
+      "verification": [
+        "adapter registry status is DISABLED",
+        "scheduler no longer selects cloudflare-pages-production-adapter",
+        "previous deployment and rollback receipts remain readable",
+        "no automatic provider fallback performs production mutation"
+      ]
     }
   }
 }
