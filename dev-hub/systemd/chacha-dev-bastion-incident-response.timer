@@ -1,0 +1,11 @@
+[Unit]
+Description=ChaCha DEV Bastion incident response timer
+
+[Timer]
+OnBootSec=5s
+OnUnitActiveSec=10s
+AccuracySec=2s
+Unit=chacha-dev-bastion-incident-response.service
+
+[Install]
+WantedBy=timers.target
