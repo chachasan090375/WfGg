@@ -23,6 +23,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+import trusted_dispatch_learning as tdl
+
 POLICY_SCHEMA = "chacha.dev/project-control/v1"
 STATE_SCHEMA = "chacha.dev/control-plane-state/v1"
 LEDGER_SCHEMA = "chacha.dev/evidence-ledger/v1"
@@ -627,13 +629,33 @@ def verify_result_operation(project: str, result_path: Path, graph: Path, method
                         {"transaction_id": txid, "report": str(report), "stdout": stdout.strip(), "stderr": stderr.strip(), **values},
                         [f"VERIFICATION_STATUS:{values.get('VERIFICATION_STATUS') or 'FAILED'}"],
                         artifacts=[{"type": "verification-report", "path": str(report)}])
+
+    graph_value = load(graph)
+    adapters_path = resolve_repo(repo_root, refs["provider_adapters"])
+    adapters_value = load(adapters_path)
+    verified_value = load(verified)
+    verified_value, learning_context_status, dispatch_envelope = tdl.enrich_verified_result(
+        verified=verified_value,
+        source_result_path=result_path,
+        graph=graph_value,
+        adapters=adapters_value,
+    )
+    save(verified, verified_value)
+    trusted_learning_context = isinstance(verified_value.get("learning_context"), dict)
+
     if not ingest:
         write_receipt(receipt, {
             "transaction_id": txid, "project": project, "operation": "verify-result", "status": "VERIFIED_ONLY",
             "verification_status": "VERIFIED", "verified_result": str(verified), "report": str(report),
+            "learning_context_status": learning_context_status,
+            "trusted_learning_context": trusted_learning_context,
+            "dispatch_envelope": str(dispatch_envelope) if dispatch_envelope else None,
         })
         return response(project, "verify-result", "OK", "Task result independently verified; Evidence Ledger was not mutated.",
-                        {"transaction_id": txid, "verification_status": "VERIFIED", "report": str(report), "verified_result": str(verified)},
+                        {"transaction_id": txid, "verification_status": "VERIFIED", "report": str(report), "verified_result": str(verified),
+                         "learning_context_status": learning_context_status,
+                         "trusted_learning_context": trusted_learning_context,
+                         "dispatch_envelope": str(dispatch_envelope) if dispatch_envelope else None},
                         artifacts=[{"type": "verification-report", "path": str(report)},
                                    {"type": "verified-task-result", "path": str(verified)}])
     if not p["ledger"].exists():
@@ -657,9 +679,12 @@ def verify_result_operation(project: str, result_path: Path, graph: Path, method
             return response(project, "verify-result", "BLOCKED", "Evidence ledger schema invalid.", blockers=["EVIDENCE_LEDGER_SCHEMA_INVALID"])
         staged = txdir / "staged-ledger.json"
         shutil.copy2(p["ledger"], staged)
-        rc_ing, out_ing, err_ing = run_tool(resolve_repo(repo_root, tools["evidence_collector"]), [
+        ingest_args = [
             "ingest", "--graph", str(graph), "--result", str(verified), "--ledger", str(staged),
-        ])
+        ]
+        if trusted_learning_context and dispatch_envelope is not None:
+            ingest_args += ["--dispatch-envelope", str(dispatch_envelope), "--adapters", str(adapters_path)]
+        rc_ing, out_ing, err_ing = run_tool(resolve_repo(repo_root, tools["evidence_collector"]), ingest_args)
         if rc_ing != 0:
             write_receipt(receipt, {
                 "transaction_id": txid, "project": project, "operation": "verify-result", "status": "FAILED",
@@ -676,6 +701,9 @@ def verify_result_operation(project: str, result_path: Path, graph: Path, method
             "transaction_id": txid, "project": project, "operation": "verify-result", "status": "PREPARED",
             "verification_status": "VERIFIED", "old_ledger_digest": old_digest, "new_ledger_digest": new_digest,
             "verified_result": str(verified), "report": str(report), "staged_ledger": str(staged),
+            "learning_context_status": learning_context_status,
+            "trusted_learning_context": trusted_learning_context,
+            "dispatch_envelope": str(dispatch_envelope) if dispatch_envelope else None,
         })
         payload_path = txdir / "audit-payload.json"
         save(payload_path, {
@@ -741,7 +769,10 @@ def verify_result_operation(project: str, result_path: Path, graph: Path, method
                         {"transaction_id": txid, "verification_status": "VERIFIED",
                          "event_sequence": event_values.get("EVENT_SEQUENCE"),
                          "event_digest": event_values.get("EVENT_DIGEST"),
-                         "ledger_digest": new_digest, "receipt": str(receipt)},
+                         "ledger_digest": new_digest, "receipt": str(receipt),
+                         "learning_context_status": learning_context_status,
+                         "trusted_learning_context": trusted_learning_context,
+                         "dispatch_envelope": str(dispatch_envelope) if dispatch_envelope else None},
                         artifacts=[{"type": "verification-report", "path": str(report)},
                                    {"type": "verified-task-result", "path": str(verified)},
                                    {"type": "control-transaction-receipt", "path": str(receipt)}])
