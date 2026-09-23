@@ -68,7 +68,12 @@ jobs:
           if [ -f dev-hub/bin/install-v638-full-autonomous-golden-path.sh ]; then
             bash -n dev-hub/bin/install-v638-full-autonomous-golden-path.sh
           fi
-          echo CHACHA_DEV_V638_STATIC=PASS
+          echo CHACHA_DEV_V639_STATIC=PASS
+
+      - name: V6.39 controlled production handoff
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v639_controlled_production_handoff.py
 
       - name: V6.38 full autonomous Golden Path
         run: |
@@ -170,5 +175,5 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: chacha-dev-v639-controlled-production-handoff
-          path: /tmp/CHACHA_DEV_V638_RECEIPT.txt
+          path: /tmp/CHACHA_DEV_V639_RECEIPT.txt
           retention-days: 30
