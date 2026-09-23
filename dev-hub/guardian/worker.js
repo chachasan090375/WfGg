@@ -227,7 +227,8 @@ async function evaluate(event,env){
 
   if(action==="FINAL_ARCHITECTURE_DECISION"&&phase==="POST_ACTION"){
     for(const key of ["technology_watch_pre","technology_watch_final","central_memory_assimilation","component_confidence","central_memory_recall",
-      "reuse_memory","architecture_memory","architecture_portfolio","branch_foundry","agent_foundry","capability_foundry","constraint_policy"])
+      "reuse_memory","architecture_memory","architecture_portfolio","branch_foundry","agent_foundry","capability_foundry","constraint_policy",
+      "logic_ux_compromise"])
       if(!truthyEvidence(evidence,key))addReason(state,"BLOCK","ARCHITECTURE_COUNCIL_EVIDENCE_MISSING:"+key);
   }
 
@@ -1115,7 +1116,10 @@ export default {
       assurance_exchange_enabled:Boolean(env.ASSURANCE_EXCHANGE_URL||env.ASSURANCE_EXCHANGE_SERVICE),
       assurance_exchange_service_binding:Boolean(env.ASSURANCE_EXCHANGE_SERVICE),
       sentinel_service_binding:Boolean(env.SENTINEL_SERVICE),
-      functional_receipt_exchange_publish:true,functional_direct_mutation:false
+      functional_receipt_exchange_publish:true,
+      logic_ux_compromise_evidence_required:true,
+      compromise_release_gate_external_enforcement_ready:true,
+      functional_direct_mutation:false
     });
     if(req.method==="POST"&&u.pathname==="/v1/check")return check(req,env);
     if(req.method==="POST"&&u.pathname==="/v1/project-assurance-identities/register")
