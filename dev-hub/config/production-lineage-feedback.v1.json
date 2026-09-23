@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/production-lineage-feedback-policy/v1",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "scope": "PLATFORM_GLOBAL",
   "source_db": "/opt/chacha-dev/runtime/knowledge/learning-deltas.db",
   "feedback_db": "/opt/chacha-dev/runtime/knowledge/production-lineage-feedback.db",
@@ -12,7 +12,9 @@
     "verified_recovery_state": "RECOVERY_CANDIDATE",
     "verified_recovery_does_not_auto_adopt": true,
     "promotion_requires_acceptance": true,
-    "technology_revalidation_required": true
+    "technology_revalidation_required": true,
+    "verified_success_updates_success_count": true,
+    "verified_failure_updates_failure_count": true
   },
   "all_components": {
     "reputation_index": true,
@@ -28,14 +30,17 @@
       "runtime"
     ],
     "positive_success_inferred_from_absence_of_anomaly": false,
-    "negative_anomaly_recorded": true
+    "negative_anomaly_recorded": true,
+    "explicit_verified_success_supported": true,
+    "explicit_verified_failure_supported": true
   },
   "safety": {
     "no_direct_architecture_rewrite": true,
     "no_direct_application_mutation": true,
     "no_automatic_paid_action": true,
     "idempotent_feedback_required": true,
-    "guardian_governed": true
+    "guardian_governed": true,
+    "explicit_verified_evidence_required_for_positive_confidence": true
   },
   "persistence": {
     "nas_authoritative": true,
