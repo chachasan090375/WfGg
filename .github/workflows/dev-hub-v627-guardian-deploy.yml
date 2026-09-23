@@ -36,7 +36,9 @@ on:
       - 'dev-hub/config/run-controller.v1.json'
       - 'dev-hub/config/provider-adapters.v1.json'
       - 'dev-hub/config/worker-learning-central-identity.v1.json'
-      - 'dev-hub/config/verified-evidence-learning.v1.json'\n      - 'dev-hub/bin/verified-evidence-learning.py'\n      - '.github/workflows/dev-hub-v627-guardian-deploy.yml'
+      - 'dev-hub/config/verified-evidence-learning.v1.json'
+      - 'dev-hub/bin/verified-evidence-learning.py'
+      - '.github/workflows/dev-hub-v627-guardian-deploy.yml'
   workflow_dispatch:
 
 permissions:
