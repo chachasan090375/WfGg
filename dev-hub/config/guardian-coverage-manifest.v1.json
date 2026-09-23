@@ -428,7 +428,7 @@
       "role": "project-factory",
       "kind": "canonical-materializer",
       "enforcement_point": "v638-canonical-build",
-      "criticality": "HIGH",
+      "criticality": "CRITICAL",
       "proof": {
         "file": "dev-hub/bin/golden-path-materializer.py",
         "marker": "CHACHA_DEV_V638_CANONICAL_MATERIALIZATION"
