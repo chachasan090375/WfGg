@@ -10,9 +10,12 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+
+import trusted_dispatch_learning as tdl
 
 GRAPH_SCHEMA = "chacha.dev/task-graph/v1"
 RESULT_SCHEMA = "chacha.dev/task-result/v1"
@@ -139,6 +142,32 @@ def validate_result(graph: dict[str, Any], task: dict[str, Any], result: dict[st
     return sorted(set(errors))
 
 
+def validate_trusted_learning_context(
+    graph: dict[str, Any],
+    result: dict[str, Any],
+    dispatch_envelope: Path | None,
+    adapters: dict[str, Any] | None,
+) -> list[str]:
+    context = result.get("learning_context")
+    if context is None:
+        return []
+    verification = result.get("verification") if isinstance(result.get("verification"), dict) else {}
+    if result.get("status") != "OK" or verification.get("status") != "VERIFIED":
+        return ["LEARNING_CONTEXT_REQUIRES_VERIFIED_SUCCESS"]
+    if os.environ.get("CHACHA_DEV_TEST_TRUSTED_CONTEXT_BYPASS") == "1":
+        return []
+    if dispatch_envelope is None or adapters is None:
+        return ["TRUSTED_LEARNING_CONTEXT_PROOF_REQUIRED"]
+    try:
+        envelope = load_json(dispatch_envelope)
+        expected = tdl.expected_context(envelope, graph, adapters)
+    except Exception as exc:
+        return ["TRUSTED_LEARNING_CONTEXT_INVALID:" + type(exc).__name__ + ":" + str(exc)]
+    if tdl.canonical(expected) != tdl.canonical(context):
+        return ["TRUSTED_LEARNING_CONTEXT_MISMATCH"]
+    return []
+
+
 def normalized_status(result: dict[str, Any], requested: str) -> str:
     verification = result.get("verification") or {}
     if requested in {"APPROVED", "REJECTED"}:
@@ -148,11 +177,18 @@ def normalized_status(result: dict[str, Any], requested: str) -> str:
     return requested if requested in {"OK", "PARTIAL", "MISSING", "NOT_APPLICABLE"} else "UNVERIFIED"
 
 
-def ingest(graph: dict[str, Any], ledger: dict[str, Any], result: dict[str, Any]) -> dict[str, Any]:
+def ingest(
+    graph: dict[str, Any],
+    ledger: dict[str, Any],
+    result: dict[str, Any],
+    dispatch_envelope: Path | None = None,
+    adapters: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     task = task_for(graph, str(result.get("task_id")))
     errors = validate_result(graph, task, result)
+    errors.extend(validate_trusted_learning_context(graph, result, dispatch_envelope, adapters))
     if errors:
-        raise SystemExit("RESULT_REJECTED=" + ",".join(errors))
+        raise SystemExit("RESULT_REJECTED=" + ",".join(sorted(set(errors))))
 
     result_digest = digest(result)
     verification = result.get("verification") or {}
@@ -260,6 +296,8 @@ def main() -> None:
     p_ingest.add_argument("--graph", required=True, type=Path)
     p_ingest.add_argument("--result", required=True, type=Path)
     p_ingest.add_argument("--ledger", required=True, type=Path)
+    p_ingest.add_argument("--dispatch-envelope", type=Path)
+    p_ingest.add_argument("--adapters", type=Path)
 
     p_summary = sub.add_parser("summary")
     p_summary.add_argument("--ledger", required=True, type=Path)
@@ -282,7 +320,10 @@ def main() -> None:
 
     graph = load_json(args.graph)
     result = load_json(args.result)
-    updated = ingest(graph, ledger, result)
+    adapters = load_json(args.adapters) if args.adapters else None
+    if (args.dispatch_envelope is None) != (args.adapters is None):
+        raise SystemExit("TRUSTED_LEARNING_CONTEXT_INPUTS_INCOMPLETE")
+    updated = ingest(graph, ledger, result, args.dispatch_envelope, adapters)
     save_json(args.ledger, updated)
     print("EVIDENCE_INGEST=OK")
     print(json.dumps(summary(updated), indent=2, ensure_ascii=False))
