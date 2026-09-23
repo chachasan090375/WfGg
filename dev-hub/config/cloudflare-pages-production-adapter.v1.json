@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/cloudflare-pages-production-adapter/v1",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "provider": "cloudflare-pages-production",
   "adapter": "cloudflare-pages-production-adapter",
   "execution": "vps",
@@ -21,7 +21,7 @@
   },
   "deployment": {
     "mechanism": "wrangler-pages-deploy",
-    "wrangler_version": "4.45.0",
+    "wrangler_version": "3.114.17",
     "exact_revision_required": true,
     "production_branch_required": true,
     "build_directory_required": true,
@@ -30,7 +30,9 @@
     "custom_domain_mutation_forbidden": true,
     "secrets_mutation_forbidden": true,
     "production_data_write": false,
-    "destructive_migration": false
+    "destructive_migration": false,
+    "runtime_node_compatibility": "node18",
+    "security_note": "wrangler>=3.114.17 required for GHSA-36p8-mvp6-cv38 fix"
   },
   "rollback": {
     "capture_current_production_before_deploy": true,
