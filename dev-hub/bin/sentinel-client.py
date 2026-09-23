@@ -90,6 +90,20 @@ def delivered(a)->int:
     try:status,x=http(signed_request("POST",url+"/v1/directives/delivered",key,body))
     except Exception:return 30
     print(json.dumps(x,ensure_ascii=False));return 0 if status==200 else 30
+def final_review(a)->int:
+    _,url,key=policy(a.policy)
+    payload={"schema":"chacha.dev/final-agent-review-request/v1","project_id":a.project_id,"revision":a.revision,
+             "compromise_digest":a.compromise_digest,"source_receipt_id":a.source_receipt_id,
+             "implementation_verified":a.implementation_verified}
+    body=json.dumps(payload,sort_keys=True,ensure_ascii=False,separators=(",",":")).encode()
+    try:status,x=http(signed_request("POST",url+"/v1/final-review",key,body))
+    except Exception as exc:
+        print(json.dumps({"schema":"chacha.dev/sentinel-client-result/v1","status":"UNAVAILABLE","reason":str(exc)[:300]}));return 30
+    print(json.dumps(x,ensure_ascii=False))
+    if x.get("schema")=="chacha.dev/compromise-agent-review/v1":
+        return 0 if x.get("verdict")=="ACCEPT" and status==200 else 20
+    return 30
+
 def main()->int:
     ap=argparse.ArgumentParser();ap.add_argument("--policy",type=Path,default=DEFAULT_POLICY)
     sub=ap.add_subparsers(dest="cmd",required=True)
@@ -98,9 +112,13 @@ def main()->int:
     r.add_argument("--revision");r.add_argument("--workflow-name");r.add_argument("--audit",type=Path,required=True)
     d=sub.add_parser("directives");d.add_argument("--status",default="OPEN")
     m=sub.add_parser("mark-delivered");m.add_argument("--directive-id",action="append",required=True)
+    fr=sub.add_parser("final-review");fr.add_argument("--project-id",required=True);fr.add_argument("--revision",required=True)
+    fr.add_argument("--compromise-digest",required=True);fr.add_argument("--source-receipt-id",required=True)
+    fr.add_argument("--implementation-verified",action="store_true")
     a=ap.parse_args()
     if a.cmd=="release-check":return release_check(a)
     if a.cmd=="register-project-assurance-identity":return register_project_assurance_identity(a.policy,a.registration)
     if a.cmd=="directives":return directives(a)
+    if a.cmd=="final-review":return final_review(a)
     return delivered(a)
 if __name__=="__main__":raise SystemExit(main())
