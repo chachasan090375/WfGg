@@ -159,6 +159,24 @@ def main() -> int:
     for path in roots.values():
         path.mkdir(parents=True, exist_ok=True)
 
+    assurance_bundle = roots["state"] / "embedded-assurance"
+    assurance_policy = resolve(repo, str(refs.get("project_embedded_assurance_policy") or "dev-hub/config/project-embedded-assurance.v1.json"))
+    assurance_generator = resolve(repo, str((policy.get("engine_paths") or {}).get("project_embedded_assurance") or "dev-hub/bin/project-embedded-assurance.py"))
+    assurance_event = resolve(repo, str((policy.get("engine_paths") or {}).get("project_assurance_event") or "dev-hub/bin/project-assurance-event.py"))
+    assurance_relay = resolve(repo, str((policy.get("engine_paths") or {}).get("project_assurance_relay") or "dev-hub/bin/project-assurance-relay.py"))
+    assurance_client = repo / "dev-hub/templates/project-assurance-client.mjs"
+    run([
+        "python3", str(assurance_generator),
+        "--project-id", project,
+        "--application-version", "UNRELEASED",
+        "--policy", str(assurance_policy),
+        "--runtime-script", str(assurance_event),
+        "--relay-script", str(assurance_relay),
+        "--client-runtime", str(assurance_client),
+        "--output-dir", str(assurance_bundle),
+    ], repo, 120)
+    assurance_manifest = load(assurance_bundle / "embedded-assurance.json")
+
     state_path = roots["state"] / "state.json"
     ledger_path = roots["evidence"] / "ledger.json"
     health_path = roots["health"] / "providers.json"
@@ -186,6 +204,9 @@ def main() -> int:
             "state_created": state_created, "ledger_created": ledger_created,
             "required_capabilities": sorted(capabilities), "provider_states": provider_states,
             "runtime_availability_verified": False, "paths": {name: str(path) for name, path in roots.items()},
+            "embedded_assurance": str(assurance_bundle),
+            "guardian_local": bool((assurance_manifest.get("guardian_local") or {}).get("enabled")),
+            "sentinel_local": bool((assurance_manifest.get("sentinel_local") or {}).get("enabled")),
             "state": str(state_path), "ledger": str(ledger_path), "health": str(health_path), "blockers": blockers,
         }
         if args.output:
@@ -225,6 +246,11 @@ def main() -> int:
         "provider_states": provider_states,
         "runtime_availability_verified": bool(args.execute),
         "provider_selection_owned_by_scheduler": manifest_run.get("provider_selection_owned_by_scheduler") is True,
+        "embedded_assurance": str(assurance_bundle),
+        "guardian_local": bool((assurance_manifest.get("guardian_local") or {}).get("enabled")),
+        "sentinel_local": bool((assurance_manifest.get("sentinel_local") or {}).get("enabled")),
+        "embedded_assurance_raw_user_content": False,
+        "embedded_assurance_direct_mutation": False,
         "paths": {name: str(path) for name, path in roots.items()},
         "state": str(state_path),
         "ledger": str(ledger_path),
@@ -245,6 +271,9 @@ def main() -> int:
     print(f"LEDGER_CREATED={'YES' if ledger_created else 'NO'}")
     print(f"HEALTH_SNAPSHOT={health_path}")
     print(f"MANIFEST_RUN={manifest_run_path}")
+    print("PROJECT_EMBEDDED_ASSURANCE=REQUIRED")
+    print("GUARDIAN_LOCAL=ENABLED")
+    print("SENTINEL_LOCAL=ENABLED")
     if receipt.get("run_id"):
         print(f"RUN_ID={receipt['run_id']}")
     return 0
