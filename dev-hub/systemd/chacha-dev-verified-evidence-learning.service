@@ -1,0 +1,19 @@
+[Unit]
+Description=ChaCha DEV verified evidence to central learning reconciler
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+ExecStart=/usr/bin/python3 /opt/chacha-dev/platform/current/dev-hub/bin/verified-evidence-learning.py --evidence-root /opt/chacha-dev/runtime/evidence
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadOnlyPaths=/opt/chacha-dev/runtime/evidence
+ReadWritePaths=/opt/chacha-dev/runtime/learning /opt/chacha-dev/runtime/knowledge /opt/chacha-dev/runtime/guardian
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+MemoryMax=128M
+TasksMax=24
