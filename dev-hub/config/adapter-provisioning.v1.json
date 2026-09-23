@@ -234,6 +234,71 @@
         "expected_producer": "collector-knowledge-adapter",
         "expected_verification_status": "UNVERIFIED"
       }
+    },
+    "cloudflare-pages-production-adapter": {
+      "source": "dev-hub/adapters/cloudflare-pages-production-adapter.py",
+      "namespace": "cloudflare-pages-production",
+      "version": "1.0.0",
+      "executable_name": "cloudflare-pages-production-adapter",
+      "mode": "0755",
+      "current_link_name": "current",
+      "probe": {
+        "input": {
+          "schema": "chacha.dev/dispatch-envelope/v1",
+          "project": "cloudflare-pages-production-provisioning-probe",
+          "transition": "RELEASE->RELEASE",
+          "run_id": "cloudflare-pages-production-provisioning-probe",
+          "wave": 1,
+          "task": {
+            "id": "cloudflare-pages-production:contract-status",
+            "kind": "runtime-status",
+            "description": "Non-mutating provisioning probe for the Cloudflare Pages production adapter.",
+            "owner_role": "platform-cloud-engineer",
+            "permission": "read",
+            "outputs": [
+              {
+                "type": "artifact",
+                "id": "cloudflare-pages-production-contract"
+              }
+            ],
+            "verification": {
+              "mode": "machine",
+              "self_certification_allowed": false,
+              "required_evidence": [
+                "source",
+                "timestamp",
+                "digest"
+              ]
+            }
+          },
+          "bindings": [
+            {
+              "capability": "cloud-deploy-static",
+              "provider": "cloudflare-pages-production",
+              "adapter": "cloudflare-pages-production-adapter",
+              "fallback_used": false,
+              "health_state": "UNKNOWN"
+            }
+          ],
+          "policy_context": {
+            "resource_class": "light",
+            "requires_storage_preflight": false,
+            "human_approval_required": false,
+            "approval_id": null,
+            "timeout_seconds": 20
+          },
+          "workspace": null,
+          "metadata": {
+            "cloudflare_pages_production": {
+              "action": "contract-status"
+            }
+          }
+        },
+        "expected_schema": "chacha.dev/task-result/v1",
+        "expected_status": "OK",
+        "expected_producer": "cloudflare-pages-production-adapter",
+        "expected_verification_status": "UNVERIFIED"
+      }
     }
   }
 }
