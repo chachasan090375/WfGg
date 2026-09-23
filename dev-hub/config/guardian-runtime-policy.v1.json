@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/guardian-runtime-policy/v1",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "scope": "PLATFORM_GLOBAL",
   "external_url": "https://chacha-dev-guardian.chachasan090375.workers.dev",
   "private_key": "/opt/chacha-dev/runtime/secrets/central-learning-key.pem",
@@ -41,5 +41,16 @@
     "max_failed_correction_attempts": 3,
     "escalation_after_max_attempts": "CRITICAL_STOP_REQUIRED",
     "remediation_poll_seconds": 30
+  },
+  "external_dual_assurance": {
+    "enabled": true,
+    "production_requires_guardian_functional_receipt": true,
+    "production_requires_sentinel_technical_receipt": true,
+    "exact_revision_match_required": true,
+    "functional_contract_pinned_externally": true,
+    "sentinel_receipt_verified_by_guardian": true,
+    "guardian_may_modify_application": false,
+    "sentinel_may_modify_application": false,
+    "remediation_owner": "central-orchestrator"
   }
 }
