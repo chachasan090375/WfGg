@@ -17,6 +17,7 @@ on:
       - 'dev-hub/tests/test_v623_contextual_memory_recall.py'
       - 'dev-hub/bin/install-v623-contextual-memory-recall.sh'
       - '.github/workflows/dev-hub-v623-contextual-memory-recall-qualification.yml'
+      - '.github/workflows/dev-hub-v623-guardian-deploy.yml'
   workflow_dispatch:
 
 permissions:
