@@ -154,6 +154,14 @@ def build_graph(project: str, transition: str, lifecycle: dict[str, Any], qualit
         gate_ids = list(rule.get("required_gates") or [])
     elif gate_policy == "release":
         gate_ids = list((quality.get("gates") or {}).keys())
+    elif gate_policy == "release+compromise":
+        # All normal release-quality gates must be independently assessed.
+        # compromise-release is intentionally excluded here because V6.37 owns
+        # that receipt/gate and materializes it only after the seven-agent final loop.
+        gate_ids = [x for x in (quality.get("gates") or {}).keys() if x != "compromise-release"]
+        for required in rule.get("required_gates") or []:
+            if required != "compromise-release" and required not in gate_ids:
+                gate_ids.append(required)
     else:
         gate_ids = []
 
