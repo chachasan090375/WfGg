@@ -1,0 +1,77 @@
+name: ChaCha DEV V6.38 deploy Guardian Golden Path coverage
+
+on:
+  push:
+    branches: [dev-hub-v638-full-autonomous-golden-path]
+    paths:
+      - 'dev-hub/config/guardian-coverage-manifest.v1.json'
+      - '.github/workflows/dev-hub-v638-full-autonomous-golden-path-deploy.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev-hub-v638-full-autonomous-golden-path
+
+      - name: Resolve Guardian D1 and seed coverage
+        env:
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib,json,os,urllib.parse,urllib.request,urllib.error
+          token=os.environ.get("CF_API_TOKEN","").strip()
+          if not token: raise SystemExit("MISSING_SECRET=CLOUDFLARE_API_TOKEN")
+          headers={"Authorization":"Bearer "+token,"Content-Type":"application/json"}
+          def call(url,method="GET",body=None):
+              data=None if body is None else json.dumps(body).encode()
+              req=urllib.request.Request(url,headers=headers,method=method,data=data)
+              try:
+                  with urllib.request.urlopen(req,timeout=30) as r:return r.status,json.loads(r.read())
+              except urllib.error.HTTPError as e:
+                  raw=e.read().decode("utf-8","replace")
+                  try:p=json.loads(raw)
+                  except Exception:p={"raw":raw[:800]}
+                  return e.code,p
+          aid=os.environ.get("CF_ACCOUNT_ID","").strip()
+          if not aid:
+              status,payload=call("https://api.cloudflare.com/client/v4/accounts?per_page=50")
+              rows=(payload.get("result") or []) if status==200 else []
+              if len(rows)!=1: raise SystemExit("CLOUDFLARE_ACCOUNT_RESOLUTION_FAILED")
+              aid=rows[0]["id"]
+          status,payload=call("https://api.cloudflare.com/client/v4/accounts/"+aid+"/d1/database?name="+urllib.parse.quote("chacha-dev-guardian"))
+          if status!=200: raise SystemExit("GUARDIAN_D1_LOOKUP_FAILED:"+str(status))
+          rows=payload.get("result") or []
+          db=next((x for x in rows if x.get("name")=="chacha-dev-guardian"),None)
+          if not db: raise SystemExit("GUARDIAN_D1_MISSING")
+          query=f"https://api.cloudflare.com/client/v4/accounts/{aid}/d1/database/{db['uuid']}/query"
+          coverage=json.load(open("dev-hub/config/guardian-coverage-manifest.v1.json",encoding="utf-8"))
+          q=lambda s:"'"+str(s).replace("'","''")+"'"
+          j=lambda v:json.dumps(v,separators=(",",":"),sort_keys=True)
+          sql=["DELETE FROM expected_components;"]
+          for c in coverage.get("expected_components") or []:
+              dig=hashlib.sha256(j(c).encode()).hexdigest()
+              sql.append("INSERT INTO expected_components(component_id,role,kind,enforcement_point,criticality,source_digest,updated_at) VALUES("
+                         +q(c["component_id"])+","+q(c["role"])+","+q(c["kind"])+","+q(c["enforcement_point"])+","
+                         +q(c["criticality"])+","+q(dig)+",datetime('now'));")
+          status,payload=call(query,"POST",{"sql":"\n".join(sql)})
+          if status!=200 or not payload.get("success"):
+              raise SystemExit("GUARDIAN_COVERAGE_SEED_FAILED:"+str(status)+":"+json.dumps(payload)[:600])
+          expected=len(coverage.get("expected_components") or [])
+          status,payload=call(query,"POST",{"sql":"SELECT count(*) AS n FROM expected_components"})
+          actual=[]
+          for block in payload.get("result") or []:actual.extend(block.get("results") or [])
+          if status!=200 or not payload.get("success") or len(actual)!=1 or int(actual[0]["n"])!=expected:
+              raise SystemExit("GUARDIAN_COVERAGE_READBACK_FAILED")
+          print("CHACHA_DEV_V638_REAL_GUARDIAN_COVERAGE_SEED=PASS")
+          print("EXPECTED_COMPONENTS="+str(expected))
+          print("AUTOMATIC_EXTERNAL_SPEND_EUR=0")
+          PY
