@@ -951,7 +951,8 @@ export default {
       remediation_dependency_auto_resolution:true,remediation_cascade_suppression:true,
       functional_acceptance_gate:true,functional_contract_source_of_truth:true,
       original_functional_contract_pinned:true,dual_external_assurance_required_for_production:true,
-      sentinel_receipt_verified_externally:true,functional_direct_mutation:false
+      sentinel_receipt_verified_externally:true,sentinel_external_url_configured:Boolean(env.SENTINEL_URL),
+      functional_direct_mutation:false
     });
     if(req.method==="POST"&&u.pathname==="/v1/check")return check(req,env);
     if(req.method==="POST"&&u.pathname==="/v1/functional-acceptance")return functionalAcceptance(req,env);
