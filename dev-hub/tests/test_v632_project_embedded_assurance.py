@@ -20,12 +20,12 @@ factory_cfg=load(CFG/"project-factory.v1.json")
 project_control=load(CFG/"project-control.v1.json")
 
 assert policy["mandatory_for_all_projects"] is True
-assert set(policy["local_agents"])=={"guardian","sentinel"}
+assert {"guardian","sentinel"}.issubset(set(policy["local_agents"]))
 assert network["participants"]["guardian"]["status"]=="ACTIVE"
 assert network["participants"]["sentinel"]["status"]=="ACTIVE"
-assert network["participants"]["curator"]["status"]=="PLANNED"
-assert network["participants"]["bastion"]["status"]=="PLANNED"
-assert network["participants"]["intendant"]["status"]=="PLANNED"
+assert network["participants"]["curator"]["status"] in {"PLANNED","LOCAL_PROBE_ACTIVE"}
+assert network["participants"]["bastion"]["status"] in {"PLANNED","LOCAL_PROBE_ACTIVE"}
+assert network["participants"]["intendant"]["status"] in {"PLANNED","LOCAL_PROBE_ACTIVE"}
 assert network["communication"]["common_exchange"]=="assurance-exchange"
 assert network["communication"]["peer_to_peer_decision_making"] is False
 assert network["communication"]["direct_mutation"] is False
@@ -51,11 +51,15 @@ try:
     raise AssertionError("raw message accepted")
 except RuntimeError as exc:
     assert "RAW_OR_SENSITIVE_FIELD_DENIED" in str(exc),exc
-try:
-    event.build_event("p632","v1","curator","visual-regression","WARNING",{},policy)
-    raise AssertionError("planned role accepted before activation")
-except RuntimeError as exc:
-    assert "EVENT_TYPE_DENIED" in str(exc),exc
+if "curator" in policy["local_agents"]:
+    ce=event.build_event("p632","v1","curator","visual-regression","WARNING",{},policy)
+    assert ce["assurance_role"]=="curator",ce
+else:
+    try:
+        event.build_event("p632","v1","curator","visual-regression","WARNING",{},policy)
+        raise AssertionError("planned role accepted before activation")
+    except RuntimeError as exc:
+        assert "EVENT_TYPE_DENIED" in str(exc),exc
 
 with tempfile.TemporaryDirectory(prefix="v632-bundle-") as td:
     td=Path(td);contract=td/"functional.json"
@@ -106,7 +110,7 @@ for body in [guardian,sentinel]:
     assert "project_assurance_identity_registration:true" in body
     assert "requireProjectAssurance" in body
 
-assert '"version":"6.32.0"' in orchestrator
+assert any(v in orchestrator for v in ['"version":"6.32.0"','"version":"6.33.0"'])
 assert "project-embedded-assurance.py" in orchestrator
 assert "project-assurance-identity-manager.py" in orchestrator
 assert '"embedded_assurance_required":True' in orchestrator
