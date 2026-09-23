@@ -50,6 +50,7 @@ def component_score(row:dict[str,Any],query:set[str],domains:set[str],caps:set[s
     raw=canon(row).lower()
     if any(d and d in raw for d in domains):score+=int(r["exact_domain_weight"])
     if any(c and c in raw for c in caps):score+=int(r["exact_capability_weight"])
+    if score<=0:return 0
     score+=int(round(float(row.get("confidence") or 0)*int(r.get("component_confidence_weight",0))))
     if str(row.get("state") or "")=="TRUSTED":score+=int(r.get("trusted_component_bonus",0))
     return score
