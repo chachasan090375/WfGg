@@ -1,0 +1,59 @@
+{
+  "schema": "chacha.dev/component-confidence-policy/v1",
+  "version": "1.0.0",
+  "scope": "PLATFORM_GLOBAL",
+  "inputs": {
+    "lineage_feedback_db": "/opt/chacha-dev/runtime/knowledge/production-lineage-feedback.db",
+    "reusable_branch_db": "/opt/chacha-dev/runtime/knowledge/reusable-branches.db",
+    "reusable_architecture_db": "/opt/chacha-dev/runtime/knowledge/reusable-architectures.db"
+  },
+  "outputs": {
+    "hot_db": "/opt/chacha-dev/runtime/knowledge/component-confidence.db",
+    "snapshot": "/opt/chacha-dev/runtime/knowledge/component-confidence.json",
+    "authoritative_archive": "NAS"
+  },
+  "trust": {
+    "minimum_verified_successes_for_trusted": 3,
+    "maximum_verified_failures_for_trusted": 0,
+    "maximum_incidents_for_trusted": 0,
+    "high_anomaly_weight": 2,
+    "critical_anomaly_weight": 4,
+    "prior_positive": 1,
+    "prior_negative": 1,
+    "states": [
+      "OBSERVED",
+      "PROVISIONAL",
+      "TRUSTED",
+      "DEGRADED",
+      "QUARANTINED",
+      "RECOVERY_CANDIDATE"
+    ],
+    "negative_state_precedence": true,
+    "recovery_candidate_requires_acceptance_before_readopt": true
+  },
+  "reuse": {
+    "confidence_is_advisory_not_final_authority": true,
+    "exclude_states_from_fast_reuse": [
+      "DEGRADED",
+      "QUARANTINED",
+      "RECOVERY_CANDIDATE"
+    ],
+    "technology_revalidation_required": true,
+    "architecture_council_final_authority": true,
+    "unknown_confidence_does_not_auto_block": true
+  },
+  "evidence": {
+    "explicit_verified_success_required": true,
+    "absence_of_anomaly_is_not_success": true,
+    "exact_component_lineage_required_for_runtime_attribution": true,
+    "legacy_registry_bootstrap_allowed_when_no_lineage_reputation_exists": true
+  },
+  "safety": {
+    "no_direct_application_mutation": true,
+    "no_automatic_re_adoption_after_recovery": true,
+    "no_automatic_paid_action": true
+  },
+  "economics": {
+    "automatic_external_spend_eur": 0
+  }
+}
