@@ -95,24 +95,36 @@ stage_set activate-release
 ln -sfn "$RELEASE" "$CURRENT"
 
 stage_set external-authorities-health
-python3 - "$CURRENT" "$WORK" <<'PY'
-import json,sys,urllib.request,pathlib
-root=pathlib.Path(sys.argv[1]);out=pathlib.Path(sys.argv[2])
-roles=["guardian","sentinel","curator","bastion","intendant"]
-for role in roles:
-    p=root/"dev-hub/config"/f"{role}-runtime-policy.v1.json"
-    cfg=json.load(open(p))
-    url=cfg["external_url"].rstrip("/")+"/healthz"
-    with urllib.request.urlopen(url,timeout=15) as r:
-        data=json.loads(r.read())
-    if not isinstance(data,dict):
-        raise SystemExit("HEALTH_INVALID:"+role)
-    json.dump(data,open(out/f"{role}-health.json","w"),indent=2)
-ex=json.load(open(root/"dev-hub/config/assurance-exchange-runtime-policy.v1.json"))
-with urllib.request.urlopen(ex["external_url"].rstrip("/")+"/healthz",timeout=15) as r:
-    data=json.loads(r.read())
-json.dump(data,open(out/"exchange-health.json","w"),indent=2)
+for role in guardian sentinel curator bastion intendant; do
+  url="$(python3 - "$CURRENT/dev-hub/config/$role-runtime-policy.v1.json" <<'PY'
+import json,sys
+print(json.load(open(sys.argv[1]))["external_url"])
+PY
+)"
+  curl -fsS "$url/healthz" -o "$WORK/$role-health.json"
+done
+EXCHANGE_URL="$(python3 - "$CURRENT/dev-hub/config/assurance-exchange-runtime-policy.v1.json" <<'PY'
+import json,sys
+print(json.load(open(sys.argv[1]))["external_url"])
+PY
+)"
+curl -fsS "$EXCHANGE_URL/healthz" -o "$WORK/exchange-health.json"
+python3 - "$WORK" <<'PY'
+import json,sys,pathlib
+root=pathlib.Path(sys.argv[1])
+g=json.load(open(root/"guardian-health.json"))
+s=json.load(open(root/"sentinel-health.json"))
+c=json.load(open(root/"curator-health.json"))
+b=json.load(open(root/"bastion-health.json"))
+i=json.load(open(root/"intendant-health.json"))
+e=json.load(open(root/"exchange-health.json"))
+assert g.get("status")=="ok" and g.get("external_governance_plane") is True,g
+assert s.get("status")=="ok" and s.get("external_technical_assurance") is True,s
+for role,x in (("curator",c),("bastion",b),("intendant",i)):
+    assert x.get("status")=="ok" and x.get("authority")==role and x.get("external_authority") is True,(role,x)
+assert e.get("status")=="ok" and e.get("external_control_plane") is True,e
 print("CHACHA_DEV_V638_REAL_EXTERNAL_AUTHORITIES=PASS")
+print("CHACHA_DEV_V638_EXTERNAL_HEALTH_TRANSPORT=CURL")
 PY
 
 if [ "$RESUME" -eq 0 ]; then
