@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/guardian-role-contracts/v1",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "scope": "PLATFORM_GLOBAL",
   "principles": {
     "guardian_is_external_to_central_brain": true,
@@ -176,6 +176,27 @@
       "required_evidence": []
     },
     {
+      "contract_id": "role:component-confidence-engine",
+      "kind": "role",
+      "allowed_actions": [
+        "INVOKE_COMPONENT",
+        "READ_MEMORY",
+        "WRITE_MEMORY",
+        "REPORT_MEMORY"
+      ],
+      "forbidden_actions": [
+        "FINAL_ARCHITECTURE_DECISION",
+        "EXECUTE_PROVIDER_DIRECTLY",
+        "MUTATE_APPLICATION",
+        "MODIFY_GUARDIAN_CONTRACTS"
+      ],
+      "allowed_permissions": [
+        "read",
+        "workspace-write"
+      ],
+      "required_evidence": []
+    },
+    {
       "contract_id": "role:central-memory-recall",
       "kind": "role",
       "allowed_actions": [
@@ -222,7 +243,8 @@
         "capability_foundry",
         "constraint_policy",
         "central_memory_assimilation",
-        "central_memory_recall"
+        "central_memory_recall",
+        "component_confidence"
       ]
     },
     {
