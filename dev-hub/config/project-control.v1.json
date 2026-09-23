@@ -50,7 +50,14 @@
     "curator_bastion_intendant_incremental_feedback_to_exchange": true,
     "specialized_peripheral_agents_never_self_authorize_architecture_change": true,
     "all_peripheral_agents_must_communicate_via_assurance_exchange": true,
-    "cross_agent_optimization_feedback_returns_to_central_orchestrator": true
+    "cross_agent_optimization_feedback_returns_to_central_orchestrator": true,
+    "logician_challenges_backend_plan_before_final_architecture": true,
+    "ergonomist_challenges_user_experience_before_final_architecture": true,
+    "central_brain_must_try_compromise_before_agent_revision": true,
+    "current_plan_has_no_incumbency_privilege": true,
+    "agent_revision_request_requires_failed_central_compromise": true,
+    "final_version_requires_seven_agent_compromise_release_receipt": true,
+    "missing_specialist_agent_review_blocks_final_delivery": true
   },
   "interfaces": {
     "cli": {
@@ -112,7 +119,11 @@
     "verified_evidence_learning": "dev-hub/config/verified-evidence-learning.v1.json",
     "assurance_exchange_runtime_policy": "dev-hub/config/assurance-exchange-runtime-policy.v1.json",
     "project_embedded_assurance_policy": "dev-hub/config/project-embedded-assurance.v1.json",
-    "peripheral_assurance_network": "dev-hub/config/peripheral-assurance-network.v1.json"
+    "peripheral_assurance_network": "dev-hub/config/peripheral-assurance-network.v1.json",
+    "logic_search": "dev-hub/config/logic-search.v1.json",
+    "ux_planning": "dev-hub/config/ux-planning.v1.json",
+    "decision_challenge": "dev-hub/config/decision-challenge.v1.json",
+    "compromise_release_gate": "dev-hub/config/compromise-release-gate.v1.json"
   },
   "engine_paths": {
     "control_plane_store": "dev-hub/bin/control-plane-store.py",
@@ -154,7 +165,11 @@
     "project_embedded_assurance": "dev-hub/bin/project-embedded-assurance.py",
     "project_assurance_event": "dev-hub/bin/project-assurance-event.py",
     "project_assurance_relay": "dev-hub/bin/project-assurance-relay.py",
-    "project_assurance_identity_manager": "dev-hub/bin/project-assurance-identity-manager.py"
+    "project_assurance_identity_manager": "dev-hub/bin/project-assurance-identity-manager.py",
+    "logic_search_engine": "dev-hub/bin/logic-search-engine.py",
+    "ux_planning_engine": "dev-hub/bin/ux-planning-engine.py",
+    "multi_agent_compromise_engine": "dev-hub/bin/multi-agent-compromise-engine.py",
+    "compromise_release_gate": "dev-hub/bin/compromise-release-gate.py"
   },
   "status_model": [
     "READY",
