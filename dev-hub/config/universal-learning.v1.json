@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/universal-learning/v1",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "scope": "PLATFORM_GLOBAL",
   "app_specific": false,
   "principle": "Every component that can learn or evolve emits privacy-filtered incremental deltas to the central ChaCha DEV memory, including deployed applications when no human is actively using ChaCha DEV.",
@@ -25,7 +25,12 @@
     "privacy_filtered": true,
     "raw_user_content_forbidden": true,
     "secrets_forbidden": true,
-    "remote_private_key_never_leaves_origin": true
+    "remote_private_key_never_leaves_origin": true,
+    "component_lineage_supported": true,
+    "exact_lineage_required_for_reuse_feedback": true,
+    "missing_lineage_must_not_mutate_reuse_registry": true,
+    "production_feedback_idempotent": true,
+    "verified_recovery_does_not_auto_adopt": true
   },
   "platform_hooks": {
     "central-orchestrator": "automatic",
@@ -40,7 +45,9 @@
     "producer_identity_per_deployment": true,
     "private_key_origin_local_only": true,
     "background_flush_required": true,
-    "learning_continues_without_owner_session": true
+    "learning_continues_without_owner_session": true,
+    "lineage_manifest_required_for_reuse_feedback": true,
+    "learning_without_lineage_still_allowed": true
   },
   "anomaly_feedback_loop": {
     "high_or_critical_to_guardian": true,
@@ -53,5 +60,15 @@
   },
   "economics": {
     "automatic_external_spend_eur": 0
+  },
+  "production_reuse_feedback": {
+    "branch_and_architecture_health_updates": true,
+    "all_component_reputation_index": true,
+    "high_anomaly_degrades": true,
+    "critical_anomaly_quarantines": true,
+    "verified_recovery_becomes_candidate_only": true,
+    "technology_revalidation_before_reuse": true,
+    "acceptance_before_re_adopt": true,
+    "direct_application_mutation": false
   }
 }
