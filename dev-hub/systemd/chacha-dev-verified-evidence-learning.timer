@@ -1,0 +1,13 @@
+[Unit]
+Description=Run ChaCha DEV verified evidence learning reconciliation
+
+[Timer]
+OnBootSec=3min
+OnUnitActiveSec=2min
+RandomizedDelaySec=20s
+AccuracySec=20s
+Persistent=true
+Unit=chacha-dev-verified-evidence-learning.service
+
+[Install]
+WantedBy=timers.target
