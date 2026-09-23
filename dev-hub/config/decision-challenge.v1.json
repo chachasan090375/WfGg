@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/decision-challenge-policy/v1",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "priority": [
     "KEEP",
     "RECONSIDER",
@@ -19,7 +19,9 @@
     "central_brain_must_answer_better_supported_alternative": true,
     "central_brain_may_request_targeted_revision": true,
     "agent_revision_must_consider_cross_agent_constraints": true,
-    "current_plan_has_no_incumbency_privilege": true
+    "current_plan_has_no_incumbency_privilege": true,
+    "central_brain_must_try_compromise_before_requesting_revision": true,
+    "central_brain_must_not_send_revision_request_when_admissible_compromise_exists": true
   },
   "automatic_external_spend_eur": 0,
   "participants": {
@@ -39,8 +41,10 @@
   "negotiation": {
     "cycle": [
       "PROPOSE",
-      "CONFLICT",
-      "REVISION_REQUEST",
+      "CENTRAL_COMPROMISE_SEARCH",
+      "COMPROMISE_IF_ADMISSIBLE",
+      "CONFLICT_ONLY_IF_NO_ADMISSIBLE_COMPROMISE",
+      "REVISION_REQUEST_IF_NEEDED",
       "REVISE",
       "RECOMPARE",
       "COMPROMISE"
@@ -53,7 +57,12 @@
     "unresolved_hard_conflict_after_limit": "HUMAN_ARBITRATION_REQUIRED",
     "no_majority_vote": true,
     "no_agent_veto_on_soft_preference": true,
-    "hard_objection_requires_resolution_or_evidence_backed_arbitration": true
+    "hard_objection_requires_resolution_or_evidence_backed_arbitration": true,
+    "brain_first_attempts_compromise": true,
+    "revision_request_only_if_compromise_search_fails": true,
+    "revision_request_is_not_default_response_to_disagreement": true,
+    "soft_disagreement_must_be_absorbed_by_compromise_when_possible": true,
+    "hard_conflict_triggers_targeted_revision_only_after_failed_compromise": true
   },
   "compromise_release": {
     "target_rule": "VERSION_DELIVERABLE_ONLY_AFTER_MULTI_AGENT_COMPROMISE",
@@ -64,6 +73,8 @@
     "selected_solution_must_be_non_dominated_among_admissible_candidates": true,
     "architecture_change_requires_technology_watch": true,
     "final_architecture_authority": "architecture-council",
-    "remediation_owner": "central-orchestrator"
+    "remediation_owner": "central-orchestrator",
+    "central_compromise_search_precedes_revision_requests": true,
+    "revision_request_requires_failed_compromise_proof": true
   }
 }
