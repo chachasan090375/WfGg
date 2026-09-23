@@ -9,6 +9,7 @@ on:
       - 'dev-hub/bin/pilot-v639-cloudflare-pages-production-adapter-runtime.sh'
       - 'dev-hub/bin/pilot-v639-cloudflare-pages-enablement-readiness.sh'
       - 'dev-hub/bin/enable-v639-cloudflare-pages-production-adapter.sh'
+      - 'dev-hub/bin/verify-v639-cloudflare-pages-enabled-sync.sh'
       - 'dev-hub/bin/controlled-production-adapter.py'
       - 'dev-hub/adapters/cloudflare-pages-production-adapter.py'
       - 'dev-hub/bin/qualify-cloudflare-pages-production-adapter.py'
@@ -91,6 +92,7 @@ jobs:
           bash -n dev-hub/bin/pilot-v639-cloudflare-pages-production-adapter-runtime.sh
           bash -n dev-hub/bin/pilot-v639-cloudflare-pages-enablement-readiness.sh
           bash -n dev-hub/bin/enable-v639-cloudflare-pages-production-adapter.sh
+          bash -n dev-hub/bin/verify-v639-cloudflare-pages-enabled-sync.sh
           echo CHACHA_DEV_V639_STATIC=PASS
 
       - name: V6.39 controlled production handoff
@@ -199,6 +201,7 @@ jobs:
             echo CLOUDFLARE_PAGES_ENABLEMENT_APPLY=PASS
             echo CLOUDFLARE_PAGES_ENABLEMENT_APPROVAL=RECORDED
             echo CLOUDFLARE_PAGES_RUNTIME_IDEMPOTENCE=PASS
+            echo CLOUDFLARE_PAGES_ENABLED_SYNC_VERIFIER=AVAILABLE
             echo REAL_PRODUCTION_DEPLOYMENT_AUTHORIZED=NO
             echo CLOUDFLARE_PAGES_PRODUCTION_EXECUTION=BLOCKED_AFTER_ENABLE
             echo CLOUDFLARE_PAGES_PILOT_PROMOTION_APPLIED=YES
