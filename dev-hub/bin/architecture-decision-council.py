@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Any
 import technology_watch_runtime as tw
 
-MANDATORY=("technology-watch-pre","central-memory-assimilation","central-memory-recall","architecture-memory","architecture-portfolio","reuse-memory","branch-foundry","agent-foundry","capability-foundry","constraint-policy","technology-watch-final")
+MANDATORY=("technology-watch-pre","central-memory-assimilation","component-confidence","central-memory-recall","architecture-memory","architecture-portfolio","reuse-memory","branch-foundry","agent-foundry","capability-foundry","constraint-policy","technology-watch-final")
 
 def load(p:Path)->dict[str,Any]:
     x=json.loads(p.read_text(encoding="utf-8"))
@@ -33,6 +33,7 @@ def central_memory_assimilation() -> dict[str,Any]:
       "trusted_generalizable_count":int(x.get("trusted_generalizable_count") or 0),
       "single_observation_never_trusted":bool(x.get("single_observation_never_trusted") is True),
       "technology_revalidation_required_before_reuse":bool(x.get("technology_revalidation_required_before_reuse") is True),
+      "component_confidence":x.get("component_confidence") or {"available":False},
       "reuse_catalog":x.get("reuse_catalog") or {"branches":[],"architectures":[]}
     }
 
@@ -245,6 +246,7 @@ def main():
         advisor_state={
           "technology-watch-pre":"PASS" if prewatch else "MISSING",
           "central-memory-assimilation":"PASS" if memory.get("available") and memory.get("single_observation_never_trusted") and memory.get("technology_revalidation_required_before_reuse") else "BLOCKED",
+          "component-confidence":"PASS" if (memory.get("component_confidence") or {}).get("available") else "BLOCKED",
           "central-memory-recall":"PASS" if recall_ok else "BLOCKED",
           "architecture-memory":"PASS",
           "architecture-portfolio":"PASS" if portfolio.get("decision_ready") is True else "BLOCKED",
@@ -275,6 +277,14 @@ def main():
             "bootstrap_empty":bool(memory.get("bootstrap_empty")),
             "reuse_current_best_filter_applied":bool(current_branch or current_arch)
           },
+          "component_confidence":{
+            "snapshot_digest":(memory.get("component_confidence") or {}).get("snapshot_digest"),
+            "trusted_count":int((memory.get("component_confidence") or {}).get("trusted_count") or 0),
+            "negative_state_count":int((memory.get("component_confidence") or {}).get("negative_state_count") or 0),
+            "negative_states_excluded_from_current_best":bool((memory.get("component_confidence") or {}).get("negative_states_excluded_from_current_best")),
+            "authority":"ADVISORY",
+            "technology_revalidation_required":True
+          },
           "central_memory_recall":{
             "brief_digest":recall.get("brief_digest"),
             "source_memory_snapshot_digest":recall.get("source_memory_snapshot_digest"),
@@ -295,9 +305,9 @@ def main():
         if missing: blocked.append({"package_id":pid,"reasons":missing})
     out={
       "schema":"chacha.dev/architecture-decision-council/v1",
-      "version":"6.23.0",
+      "version":"6.25.0",
       "mandatory_advisors":list(MANDATORY),
-      "decision_rule":"CENTRAL_ORCHESTRATOR_DECIDES_ONLY_AFTER_CONTEXTUAL_MEMORY_ALL_MANDATORY_ADVISORS_AND_FINAL_TECHNOLOGY_REVALIDATION",
+      "decision_rule":"CENTRAL_ORCHESTRATOR_DECIDES_ONLY_AFTER_CONTEXTUAL_MEMORY_COMPONENT_CONFIDENCE_ALL_MANDATORY_ADVISORS_AND_FINAL_TECHNOLOGY_REVALIDATION",
       "dynamic_expert_domains":sorted(x for x in experts if x),
       "architecture_memory":{"candidate_count":len(architecture_memory.get("candidates") or []),"selected":({"architecture_id":selected_architecture_memory.get("architecture_id"),"version":selected_architecture_memory.get("version")} if selected_architecture_memory else None)},
       "architecture_portfolio":portfolio,
@@ -307,6 +317,14 @@ def main():
         "snapshot_digest":memory.get("snapshot_digest"),
         "state_counts":memory.get("state_counts") or {},
         "trusted_generalizable_count":int(memory.get("trusted_generalizable_count") or 0)
+      },
+      "component_confidence":{
+        "available":bool((memory.get("component_confidence") or {}).get("available")),
+        "snapshot_digest":(memory.get("component_confidence") or {}).get("snapshot_digest"),
+        "trusted_count":int((memory.get("component_confidence") or {}).get("trusted_count") or 0),
+        "negative_state_count":int((memory.get("component_confidence") or {}).get("negative_state_count") or 0),
+        "negative_states_excluded_from_current_best":bool((memory.get("component_confidence") or {}).get("negative_states_excluded_from_current_best")),
+        "authority":"ADVISORY"
       },
       "central_memory_recall":{
         "valid":bool(recall_ok),
