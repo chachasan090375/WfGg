@@ -1,0 +1,100 @@
+name: ChaCha DEV V6.30 external dual assurance qualification
+
+on:
+  push:
+    branches: [dev-hub-v630-external-dual-assurance]
+    paths:
+      - 'dev-hub/sentinel/**'
+      - 'dev-hub/guardian/**'
+      - 'dev-hub/bin/sentinel-technical-audit.py'
+      - 'dev-hub/bin/sentinel-client.py'
+      - 'dev-hub/bin/sentinel-remediation-controller.py'
+      - 'dev-hub/bin/external-assurance-release-gate.py'
+      - 'dev-hub/bin/guardian-client.py'
+      - 'dev-hub/config/sentinel-technical-policy.v1.json'
+      - 'dev-hub/config/sentinel-runtime-policy.v1.json'
+      - 'dev-hub/config/guardian-runtime-policy.v1.json'
+      - 'dev-hub/systemd/chacha-dev-sentinel-remediation.service'
+      - 'dev-hub/systemd/chacha-dev-sentinel-remediation.timer'
+      - 'dev-hub/tests/test_v630_external_dual_assurance.py'
+      - 'dev-hub/tests/test_v629_memory_guided_foundry_planning.py'
+      - 'dev-hub/tests/test_v628_trusted_dispatch_lineage.py'
+      - 'dev-hub/tests/test_v627_verified_evidence_learning.py'
+      - '.github/workflows/dev-hub-sentinel-technical-assurance.yml'
+      - '.github/workflows/dev-hub-v630-external-dual-assurance-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev-hub-v630-external-dual-assurance
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Static validation
+        run: |
+          set -euo pipefail
+          node --check dev-hub/guardian/worker.js
+          node --check dev-hub/sentinel/worker.js
+          python3 -m py_compile             dev-hub/bin/sentinel-technical-audit.py             dev-hub/bin/sentinel-client.py             dev-hub/bin/sentinel-remediation-controller.py             dev-hub/bin/external-assurance-release-gate.py             dev-hub/bin/guardian-client.py
+          python3 -m json.tool dev-hub/config/sentinel-technical-policy.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/sentinel-runtime-policy.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/guardian-runtime-policy.v1.json >/dev/null
+          grep -Fq 'functional_acceptance_receipts' dev-hub/guardian/migrations/0007_functional_acceptance.sql
+          grep -Fq 'technical_release_receipts' dev-hub/sentinel/migrations/0001.sql
+          echo CHACHA_DEV_V630_STATIC=PASS
+
+      - name: V6.30 external dual assurance
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v630_external_dual_assurance.py
+
+      - name: V6.29 learning consumer regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v629_memory_guided_foundry_planning.py
+
+      - name: V6.28 trusted dispatch regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v628_trusted_dispatch_lineage.py
+
+      - name: V6.27 verified evidence regression
+        env:
+          CHACHA_DEV_TEST_TRUSTED_CONTEXT_BYPASS: '1'
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v627_verified_evidence_learning.py
+
+      - name: Qualification receipt
+        run: |
+          {
+            echo CHACHA_DEV_EXTERNAL_DUAL_ASSURANCE=V6.30
+            echo RESULT=success
+            echo SOURCE_REV="$(git rev-parse HEAD)"
+            echo GUARDIAN_EXTERNAL_FUNCTIONAL_ASSURANCE=YES
+            echo SENTINEL_EXTERNAL_TECHNICAL_ASSURANCE=YES
+            echo SENTINEL_CONTINUOUS_COMMIT_TESTING=YES
+            echo EXACT_RELEASE_REVISION_REQUIRED=YES
+            echo PRODUCTION_REQUIRES_BOTH_EXTERNAL_RECEIPTS=YES
+            echo EXTERNAL_AGENTS_DIRECT_MUTATION=NO
+            echo REMEDIATION_OWNER=central-orchestrator
+            echo AUTOMATIC_EXTERNAL_SPEND_EUR=0
+          } | tee /tmp/CHACHA_DEV_V630_RECEIPT.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chacha-dev-v630-external-dual-assurance
+          path: /tmp/CHACHA_DEV_V630_RECEIPT.txt
+          retention-days: 30
