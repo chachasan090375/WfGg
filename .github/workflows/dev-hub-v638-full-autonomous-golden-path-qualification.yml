@@ -10,6 +10,7 @@ on:
       - 'dev-hub/bin/pilot-v639-cloudflare-pages-enablement-readiness.sh'
       - 'dev-hub/bin/enable-v639-cloudflare-pages-production-adapter.sh'
       - 'dev-hub/bin/verify-v639-cloudflare-pages-enabled-sync.sh'
+      - 'dev-hub/bin/discover-v639-cloudflare-pages-targets.py'
       - 'dev-hub/bin/controlled-production-adapter.py'
       - 'dev-hub/adapters/cloudflare-pages-production-adapter.py'
       - 'dev-hub/bin/qualify-cloudflare-pages-production-adapter.py'
@@ -81,7 +82,7 @@ jobs:
       - name: Static validation
         run: |
           set -euo pipefail
-          python3 -m py_compile             dev-hub/bin/controlled-production-handoff-controller.py             dev-hub/bin/controlled-production-adapter.py             dev-hub/adapters/cloudflare-pages-production-adapter.py             dev-hub/bin/qualify-cloudflare-pages-production-adapter.py             dev-hub/bin/qualify-cloudflare-pages-provider-health.py             dev-hub/bin/adapter-provision.py             dev-hub/tests/test_v639_controlled_production_handoff.py             dev-hub/bin/autonomous-golden-path-controller.py             dev-hub/bin/golden-path-materializer.py             dev-hub/bin/project-assurance-event.py             dev-hub/bin/project-control.py             dev-hub/bin/task-graph-engine.py
+          python3 -m py_compile             dev-hub/bin/controlled-production-handoff-controller.py             dev-hub/bin/controlled-production-adapter.py             dev-hub/adapters/cloudflare-pages-production-adapter.py             dev-hub/bin/qualify-cloudflare-pages-production-adapter.py             dev-hub/bin/qualify-cloudflare-pages-provider-health.py             dev-hub/bin/discover-v639-cloudflare-pages-targets.py             dev-hub/bin/adapter-provision.py             dev-hub/tests/test_v639_controlled_production_handoff.py             dev-hub/bin/autonomous-golden-path-controller.py             dev-hub/bin/golden-path-materializer.py             dev-hub/bin/project-assurance-event.py             dev-hub/bin/project-control.py             dev-hub/bin/task-graph-engine.py
           for f in             dev-hub/config/controlled-production-handoff.v1.json             dev-hub/config/controlled-production-adapter-dry-run.v1.json             dev-hub/config/cloudflare-pages-production-adapter.v1.json             dev-hub/config/provider-adapters.v1.json             dev-hub/config/adapter-rollbacks.v1.json             dev-hub/config/adapter-provisioning.v1.json             dev-hub/config/lifecycle.v1.json             dev-hub/config/autonomous-golden-path.v1.json             dev-hub/config/project-control.v1.json             dev-hub/config/evidence-catalog.v1.json             dev-hub/config/guardian-coverage-manifest.v1.json             dev-hub/config/sentinel-technical-policy.v1.json; do
             python3 -m json.tool "$f" >/dev/null
           done
@@ -106,6 +107,17 @@ jobs:
           python3 dev-hub/bin/qualify-cloudflare-pages-provider-health.py \
             --report /tmp/v639-cf-pages-provider-health-report.json \
             --evidence /tmp/v639-cf-pages-provider-health-evidence.json
+
+      - name: V6.39 Cloudflare Pages target discovery read-only
+        env:
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          python3 dev-hub/bin/discover-v639-cloudflare-pages-targets.py \
+            --output /tmp/v639-cf-pages-target-discovery.json
 
       - name: V6.38 full autonomous Golden Path
         run: |
@@ -202,6 +214,8 @@ jobs:
             echo CLOUDFLARE_PAGES_ENABLEMENT_APPROVAL=RECORDED
             echo CLOUDFLARE_PAGES_RUNTIME_IDEMPOTENCE=PASS
             echo CLOUDFLARE_PAGES_ENABLED_SYNC_VERIFIER=AVAILABLE
+            echo CLOUDFLARE_PAGES_TARGET_DISCOVERY=READ_ONLY
+            echo REAL_PRODUCTION_TARGET_SELECTED=NO
             echo REAL_PRODUCTION_DEPLOYMENT_AUTHORIZED=NO
             echo CLOUDFLARE_PAGES_PRODUCTION_EXECUTION=BLOCKED_AFTER_ENABLE
             echo CLOUDFLARE_PAGES_PILOT_PROMOTION_APPLIED=YES
@@ -232,4 +246,5 @@ jobs:
             /tmp/CHACHA_DEV_V639_RECEIPT.txt
             /tmp/v639-cf-pages-provider-health-report.json
             /tmp/v639-cf-pages-provider-health-evidence.json
+            /tmp/v639-cf-pages-target-discovery.json
           retention-days: 30
