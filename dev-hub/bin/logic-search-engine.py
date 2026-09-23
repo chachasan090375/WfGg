@@ -14,8 +14,20 @@ def canon(v:Any)->str:return json.dumps(v,sort_keys=True,ensure_ascii=False,sepa
 def digest(v:Any)->str:return "sha256:"+hashlib.sha256(canon(v).encode()).hexdigest()
 def git_files(root:Path)->list[str]:
     p=subprocess.run(["git","ls-files"],cwd=root,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=30)
-    if p.returncode!=0:return []
-    return [x.strip() for x in p.stdout.splitlines() if x.strip()]
+    if p.returncode==0:
+        rows=[x.strip() for x in p.stdout.splitlines() if x.strip()]
+        if rows:return rows
+    # Pinned production releases are extracted archives, not necessarily Git working trees.
+    skip={".git","node_modules",".venv","venv","__pycache__","dist","build"}
+    rows=[]
+    for path in root.rglob("*"):
+        try:rel=path.relative_to(root)
+        except Exception:continue
+        if any(part in skip for part in rel.parts):continue
+        if path.is_file():
+            rows.append(str(rel))
+            if len(rows)>=20000:break
+    return sorted(rows)
 def tokens(row:dict[str,Any])->list[str]:
     xs=[str(row.get("domain") or ""),str(row.get("kind") or "")]
     xs.extend(map(str,row.get("capabilities") or []))
