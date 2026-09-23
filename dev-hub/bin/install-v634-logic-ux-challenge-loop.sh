@@ -61,10 +61,13 @@ for required in \
   dev-hub/bin/compromise-release-gate.py \
   dev-hub/bin/autonomous-project-orchestrator.py \
   dev-hub/bin/architecture-decision-council.py \
+  dev-hub/bin/guardian-client.py \
   dev-hub/config/logic-search.v1.json \
   dev-hub/config/ux-planning.v1.json \
   dev-hub/config/decision-challenge.v1.json \
   dev-hub/config/compromise-release-gate.v1.json \
+  dev-hub/config/lifecycle.v1.json \
+  dev-hub/config/quality-gates.v1.json \
   dev-hub/config/guardian-runtime-policy.v1.json \
   dev-hub/tests/test_v634_logic_ux_compromise_release.py; do
   [ -f "$SRC/$required" ] || {
@@ -87,7 +90,9 @@ for f in \
   "$RELEASE/dev-hub/config/logic-search.v1.json" \
   "$RELEASE/dev-hub/config/ux-planning.v1.json" \
   "$RELEASE/dev-hub/config/decision-challenge.v1.json" \
-  "$RELEASE/dev-hub/config/compromise-release-gate.v1.json"; do
+  "$RELEASE/dev-hub/config/compromise-release-gate.v1.json" \
+  "$RELEASE/dev-hub/config/lifecycle.v1.json" \
+  "$RELEASE/dev-hub/config/quality-gates.v1.json"; do
   python3 -m json.tool "$f" >/dev/null
 done
 echo "CHACHA_DEV_V634_STATIC=PASS"
@@ -104,6 +109,7 @@ for marker in \
   CHACHA_DEV_V634_AGENT_REVISION_ONLY_AFTER_FAILED_COMPROMISE=PASS \
   CHACHA_DEV_V634_ARCHITECTURE_COUNCIL_CONSUMES_COMPROMISE=PASS \
   CHACHA_DEV_V634_SEVEN_AGENT_RELEASE_GATE=PASS \
+  CHACHA_DEV_V634_RELEASE_LIFECYCLE_ENFORCEMENT=PASS \
   CHACHA_DEV_V634_MISSING_AGENT_FAIL_CLOSED=PASS; do
   grep -Fq "$marker" "$WORK/semantic.out"
 done
@@ -121,6 +127,63 @@ x=json.load(open(sys.argv[1]))
 assert x.get("logic_ux_compromise_evidence_required") is True,x
 assert x.get("compromise_release_gate_external_enforcement_ready") is True,x
 print("CHACHA_DEV_V634_REAL_EXTERNAL_GUARDIAN_COMPROMISE_GOVERNANCE=PASS")
+PY
+
+stage external-guardian-compromise-proof
+python3 - "$WORK/guardian-negative.json" "$PROJECT" <<'PY'
+import json,sys,uuid
+keys=["technology_watch_pre","technology_watch_final","central_memory_assimilation","component_confidence",
+      "central_memory_recall","reuse_memory","architecture_memory","architecture_portfolio","branch_foundry",
+      "agent_foundry","capability_foundry","constraint_policy"]
+x={
+ "schema":"chacha.dev/governance-action/v1","event_id":"gov-"+uuid.uuid4().hex,
+ "action_id":"v634-negative","phase":"POST_ACTION","actor":"central-orchestrator",
+ "subject_role":"architecture-decision-council","action":"FINAL_ARCHITECTURE_DECISION",
+ "task_kind":"architecture-decision-council","permission":"plan","project_id":sys.argv[2],
+ "run_id":None,"adapters":[],"evidence":{k:True for k in keys},
+ "context":{"resource_class":"light","human_approval_required":False,
+            "storage_preflight_required":False,"deadline_seconds":180,"external_spend_eur":0}
+}
+json.dump(x,open(sys.argv[1],"w"),indent=2)
+PY
+set +e
+python3 "$CURRENT/dev-hub/bin/guardian-client.py" \
+  --policy "$CURRENT/dev-hub/config/guardian-runtime-policy.v1.json" \
+  check --event "$WORK/guardian-negative.json" >"$WORK/guardian-negative.out" 2>"$WORK/guardian-negative.err"
+neg_rc=$?
+set -e
+test "$neg_rc" -eq 20
+python3 - "$WORK/guardian-negative.out" <<'PY'
+import json,sys
+x=json.load(open(sys.argv[1]))
+assert x.get("verdict")=="BLOCK",x
+assert any("ARCHITECTURE_COUNCIL_EVIDENCE_MISSING:logic_ux_compromise" in str(r) for r in x.get("reason_codes") or []),x
+PY
+python3 - "$WORK/guardian-negative.json" "$WORK/guardian-positive.json" <<'PY'
+import json,sys
+x=json.load(open(sys.argv[1]));x["event_id"]=x["event_id"]+"-positive";x["action_id"]="v634-positive"
+x["evidence"]["logic_ux_compromise"]=True
+json.dump(x,open(sys.argv[2],"w"),indent=2)
+PY
+python3 "$CURRENT/dev-hub/bin/guardian-client.py" \
+  --policy "$CURRENT/dev-hub/config/guardian-runtime-policy.v1.json" \
+  check --event "$WORK/guardian-positive.json" >"$WORK/guardian-positive.out"
+python3 - "$WORK/guardian-positive.out" <<'PY'
+import json,sys
+x=json.load(open(sys.argv[1]));assert x.get("verdict")=="PASS",x
+print("CHACHA_DEV_V634_REAL_EXTERNAL_GUARDIAN_COMPROMISE_GATE=PASS")
+PY
+
+stage release-lifecycle-proof
+python3 - "$CURRENT/dev-hub/config/lifecycle.v1.json" "$CURRENT/dev-hub/config/quality-gates.v1.json" <<'PY'
+import json,sys
+l,q=[json.load(open(p)) for p in sys.argv[1:]]
+t=l["transitions"]["PREVIEW->RELEASE"]
+assert "compromise-release-receipt" in t["required_artifacts"],t
+assert "compromise-release" in t["required_gates"],t
+assert l["release_policy"]["compromise_release_receipt_required"] is True,l
+assert q["gates"]["compromise-release"]["default_blocking"] is True,q
+print("CHACHA_DEV_V634_REAL_RELEASE_LIFECYCLE_GATE=PASS")
 PY
 
 stage build-real-search-dossier
@@ -324,6 +387,8 @@ cat >"/opt/chacha-dev/evidence/v634-logic-ux-challenge-$STAMP.json" <<JSON
   "central_compromise_first":"PASS",
   "targeted_revision_only_after_failed_compromise":"PASS",
   "external_guardian_compromise_governance":"PASS",
+  "external_guardian_compromise_gate":"PASS",
+  "release_lifecycle_gate":"PASS",
   "release_gate_fail_closed_pending_central_specialists":"PASS",
   "pending_specialists":["curator","bastion","intendant"],
   "direct_mutation":false,
@@ -337,6 +402,8 @@ echo "CHACHA_DEV_V634_CENTRAL_COMPROMISE_FIRST=YES"
 echo "CHACHA_DEV_V634_AGENT_REVISION_ONLY_AFTER_FAILED_COMPROMISE=YES"
 echo "CHACHA_DEV_V634_CURRENT_PLAN_INCUMBENCY_PRIVILEGE=NO"
 echo "CHACHA_DEV_V634_EXTERNAL_GUARDIAN_COMPROMISE_GOVERNANCE=PASS"
+echo "CHACHA_DEV_V634_EXTERNAL_GUARDIAN_COMPROMISE_GATE=PASS"
+echo "CHACHA_DEV_V634_RELEASE_LIFECYCLE_GATE=PASS"
 echo "CHACHA_DEV_V634_RELEASE_GATE=FAIL_CLOSED_UNTIL_7_REAL_REVIEWS"
 echo "CHACHA_DEV_V634_PENDING_CENTRAL_SPECIALISTS=curator,bastion,intendant"
 echo "CHACHA_DEV_V634_DIRECT_MUTATION=NO"
