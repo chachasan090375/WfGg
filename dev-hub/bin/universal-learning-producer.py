@@ -93,7 +93,7 @@ def main()->int:
     sub=ap.add_subparsers(dest="cmd",required=True)
     o=sub.add_parser("observe")
     o.add_argument("--project-id",required=True);o.add_argument("--source-id",required=True);o.add_argument("--source-kind",required=True)
-    o.add_argument("--deployment-id",required=True);o.add_argument("--state",type=Path,required=True);o.add_argument("--anomaly",type=Path)
+    o.add_argument("--deployment-id",required=True);o.add_argument("--state",type=Path,required=True);o.add_argument("--anomaly",type=Path);o.add_argument("--lineage",type=Path)
     o.add_argument("--evidence-ref",action="append",default=[]);o.add_argument("--personal-data-class",default="none")
     o.add_argument("--outbox",type=Path,default=ul.DEFAULT_OUTBOX);o.add_argument("--state-root",type=Path,default=ul.DEFAULT_STATE)
     f=sub.add_parser("flush")
@@ -104,8 +104,9 @@ def main()->int:
     a=ap.parse_args()
     if a.cmd=="observe":
         anomaly=load(a.anomaly) if a.anomaly else None
+        lineage=load(a.lineage) if a.lineage else None
         out=ul.observe(project_id=a.project_id,source_id=a.source_id,source_kind=a.source_kind,deployment_id=a.deployment_id,
-                       state=load(a.state),anomaly=anomaly,evidence_refs=a.evidence_ref,
+                       state=load(a.state),anomaly=anomaly,evidence_refs=a.evidence_ref,lineage=lineage,
                        personal_data_class=a.personal_data_class,outbox_root=a.outbox,state_root=a.state_root)
     else:
         out=flush(a.outbox,a.sent,a.transport,a.ingest,a.db,a.relay_url,a.private_key,a.limit)
