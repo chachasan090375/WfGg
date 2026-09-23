@@ -115,8 +115,8 @@ def main()->int:
     if not isinstance(entry,dict):
         blockers.append("ADAPTER_REGISTRY_ENTRY_MISSING")
         entry={}
-    if entry.get("status")!="DESIGNED":
-        blockers.append("ADAPTER_STATUS_NOT_DESIGNED")
+    if entry.get("status") not in {"DESIGNED","CONTRACT_OK"}:
+        blockers.append("ADAPTER_STATUS_NOT_CONTRACT_QUALIFIABLE")
     if entry.get("executable") is not None:
         blockers.append("DESIGNED_ADAPTER_EXECUTABLE_MUST_BE_NULL")
     if set(entry.get("supports") or [])!={"read","production-deploy"}:
@@ -239,6 +239,7 @@ def main()->int:
       "provider":PROVIDER_ID,
       "status":status,
       "blockers":sorted(set(blockers)),
+      "current_status":entry.get("status"),
       "production_mutation":False,
       "network_write_test":False,
       "real_production_target":False,
