@@ -147,7 +147,8 @@ def decide_package(pkg:dict[str,Any],routing:dict[str,Any],cfg:dict[str,Any],pro
         "manifest":manifest
     }
 
-def build(preplan:dict[str,Any],cfg:dict[str,Any],routing:dict[str,Any],project_id:str)->dict[str,Any]:
+def build(preplan:dict[str,Any],cfg:dict[str,Any],routing:dict[str,Any],project_id:str,
+          memory_brief:dict[str,Any]|None=None)->dict[str,Any]:
     if cfg.get("schema")!=SCHEMA:raise SystemExit("AGENT_FOUNDRY_SCHEMA_INVALID")
     if preplan.get("schema")!="chacha.dev/domain-plan/v1":raise SystemExit("PREPLAN_SCHEMA_INVALID")
     decisions=[]
@@ -161,6 +162,20 @@ def build(preplan:dict[str,Any],cfg:dict[str,Any],routing:dict[str,Any],project_
         )
         decision=decide_package(p,routing,cfg,project_id)
         providers=watch.get("eligible_provider_candidates") or []
+        mem=memory_brief or {}
+        domain_reuse=[x for x in mem.get("current_best_reuse_candidates") or []
+                      if isinstance(x,dict) and (str(x.get("kind"))=="architecture" or str(x.get("domain") or "")==str(p.get("domain") or ""))]
+        decision["central_memory_recall"]={
+            "consumed":bool(memory_brief),
+            "brief_digest":mem.get("brief_digest"),
+            "source_memory_snapshot_digest":mem.get("source_memory_snapshot_digest"),
+            "trusted_memory_count":int(mem.get("trusted_memory_count") or 0),
+            "caution_count":int(mem.get("caution_count") or 0),
+            "current_best_reuse_candidates":domain_reuse[:5],
+            "memory_authority":mem.get("memory_authority") or "ADVISORY",
+            "technology_revalidation_required":True,
+            "automatic_external_spend_eur":0
+        }
         decision["technology_watch"]={
             "consulted":True,
             "snapshot_freshness":watch.get("snapshot_freshness"),
@@ -173,6 +188,12 @@ def build(preplan:dict[str,Any],cfg:dict[str,Any],routing:dict[str,Any],project_
         if isinstance(decision.get("manifest"),dict):
             decision["manifest"]["provider_candidates"]=providers
             decision["manifest"]["preferred_provider_candidate"]=(providers[0].get("id") if providers else None)
+            decision["manifest"]["memory_context"]={
+                "brief_digest":mem.get("brief_digest"),
+                "trusted_memory_count":int(mem.get("trusted_memory_count") or 0),
+                "caution_count":int(mem.get("caution_count") or 0),
+                "technology_revalidation_required":True
+            }
         decisions.append(decision)
     created=[x for x in decisions if x["decision"].startswith("CREATE_")]
     composed=[x for x in decisions if x["decision"]=="COMPOSE_EXISTING_AGENTS"]
@@ -184,6 +205,8 @@ def build(preplan:dict[str,Any],cfg:dict[str,Any],routing:dict[str,Any],project_
         "intent":preplan.get("intent"),
         "mandatory_preflight":True,
         "technology_watch_consulted":True,
+        "central_memory_recall_consumed":bool(memory_brief),
+        "central_memory_brief_digest":(memory_brief or {}).get("brief_digest"),
         "decisions":decisions,
         "summary":{
             "packages":len(decisions),
@@ -202,12 +225,15 @@ def main():
     ap.add_argument("--config",required=True,type=Path)
     ap.add_argument("--routing",required=True,type=Path)
     ap.add_argument("--project-id",required=True)
+    ap.add_argument("--memory-brief",type=Path)
     ap.add_argument("--output",required=True,type=Path)
     a=ap.parse_args()
-    out=build(load(a.preplan),load(a.config),load(a.routing),a.project_id)
+    mem=load(a.memory_brief) if a.memory_brief else None
+    out=build(load(a.preplan),load(a.config),load(a.routing),a.project_id,mem)
     a.output.write_text(json.dumps(out,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     print("CHACHA_AGENT_FOUNDRY=PASS")
     print("CHACHA_AGENT_FOUNDRY_TECHNOLOGY_WATCH=CONSULTED")
+    print("CHACHA_AGENT_FOUNDRY_CENTRAL_MEMORY_RECALL="+("CONSUMED" if out.get("central_memory_recall_consumed") else "ABSENT"))
     print("CREATED_AGENTS="+str(out["summary"]["created_agents"]))
     print("REPLAN_REQUIRED=YES")
 
