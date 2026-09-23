@@ -153,7 +153,8 @@
     "bastion_authority": "dev-hub/config/bastion-authority.v1.json",
     "intendant_authority": "dev-hub/config/intendant-authority.v1.json",
     "seven_agent_final_compromise_policy": "dev-hub/config/seven-agent-final-compromise.v1.json",
-    "automatic_seven_agent_finalization": "dev-hub/config/automatic-seven-agent-finalization.v1.json"
+    "automatic_seven_agent_finalization": "dev-hub/config/automatic-seven-agent-finalization.v1.json",
+    "autonomous_golden_path": "dev-hub/config/autonomous-golden-path.v1.json"
   },
   "engine_paths": {
     "control_plane_store": "dev-hub/bin/control-plane-store.py",
@@ -204,7 +205,9 @@
     "internal_final_review": "dev-hub/bin/internal-final-review.py",
     "seven_agent_final_compromise_controller": "dev-hub/bin/seven-agent-final-compromise-controller.py",
     "seven_agent_finalization_inputs": "dev-hub/bin/seven-agent-finalization-inputs.py",
-    "automatic_seven_agent_finalizer": "dev-hub/bin/automatic-seven-agent-finalizer.py"
+    "automatic_seven_agent_finalizer": "dev-hub/bin/automatic-seven-agent-finalizer.py",
+    "autonomous_golden_path_controller": "dev-hub/bin/autonomous-golden-path-controller.py",
+    "golden_path_materializer": "dev-hub/bin/golden-path-materializer.py"
   },
   "status_model": [
     "READY",
@@ -334,6 +337,17 @@
       "transactionally_updates_evidence_ledger": true,
       "idempotent_same_actor_evidence": true,
       "conflicting_replay_fail_closed": true
+    },
+    "full-autonomous-golden-path": {
+      "class": "execution",
+      "mutating": true,
+      "application_agnostic": true,
+      "canonical_profile": "static-interaction-v1",
+      "project_control_lifecycle_only": true,
+      "verified_evidence_only": true,
+      "human_boundary": "production-release",
+      "seven_agent_finalization": "automatic-v637",
+      "automatic_external_spend_eur": 0
     }
   },
   "transaction_policy": {
