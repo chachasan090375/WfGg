@@ -100,7 +100,7 @@ def observe(*,project_id:str,source_id:str,source_kind:str,deployment_id:str,
         delta={
           "schema":SCHEMA,"delta_id":delta_id,"project_id":str(project_id),"source_id":str(source_id),
           "source_kind":source_kind,"deployment_id":str(deployment_id),"sequence":seq,"observed_at":now_iso(),
-          "changes":changes or [{"path":"/anomaly","op":"signal","value":"anomaly-only"}],
+          "changes":changes or ([{"path":"/anomaly","op":"signal","value":"anomaly-only"}] if anomaly else [{"path":"/evaluation","op":"signal","value":"verified-evaluation-only"}]),
           "anomaly":anomaly,
           "evaluation":evaluation,
           "lineage":lineage,
