@@ -112,7 +112,7 @@ cat >"$WORK/lineage.json" <<'JSON'
 ]}
 JSON
 PYTHONPATH="$CURRENT/dev-hub/bin" python3 "$CURRENT/dev-hub/bin/universal-learning-producer.py" observe   --project-id v624-runtime-pilot --source-id v624-pilot-agent --source-kind agent   --deployment-id v624-pilot --state "$WORK/state.json" --lineage "$WORK/lineage.json"   --outbox "$WORK/outbox" --state-root "$WORK/state-root" >"$WORK/producer.out"
-python3 - "$WORK/producer.out" <<'PY'
+PILOT_OUTBOX="$(python3 - "$WORK/producer.out" <<'PY'
 import json,sys
 x=json.load(open(sys.argv[1],encoding="utf-8"))
 assert x.get("status")=="QUEUED",x
@@ -120,7 +120,20 @@ p=x.get("outbox");d=json.load(open(p,encoding="utf-8"))
 lin=d.get("lineage") or {}
 assert lin.get("schema")=="chacha.dev/component-lineage/v1",lin
 assert len(lin.get("components") or [])==2,lin
-print("CHACHA_DEV_V624_REAL_PRODUCER_LINEAGE=PASS")
+print(p)
+PY
+)"
+[ -s "$PILOT_OUTBOX" ] || { echo "CHACHA_DEV_V624_INSTALL=BLOCKED reason=pilot_outbox_missing"; exit 2; }
+echo "CHACHA_DEV_V624_REAL_PRODUCER_LINEAGE=PASS"
+
+stage real-lineage-central-ingest
+python3 "$CURRENT/dev-hub/bin/learning-delta-ingest.py"   --db /opt/chacha-dev/runtime/knowledge/learning-deltas.db   --delta "$PILOT_OUTBOX" --nas >"$WORK/ingest.out"
+python3 - "$WORK/ingest.out" <<'PY'
+import json,sys
+x=json.load(open(sys.argv[1],encoding="utf-8"))
+assert x.get("status") in {"RECORDED","DEDUPLICATED"},x
+assert (x.get("nas") or {}).get("status")=="PERSISTED",x
+print("CHACHA_DEV_V624_REAL_LINEAGE_CENTRAL_INGEST=PASS")
 PY
 
 stage guardian-governed-real-reconciliation
@@ -145,7 +158,9 @@ assert x["positive_success_inferred_from_absence_of_anomaly"] is False,x
 assert x["verified_recovery_auto_adopt"] is False,x
 assert x["technology_revalidation_required"] is True,x
 assert x["nas"]["status"]=="PERSISTED",x["nas"]
+assert int(x.get("lineage_components",0))>=2,x
 print("CHACHA_DEV_V624_REAL_FEEDBACK_NAS=PASS")
+print("CHACHA_DEV_V624_REAL_LINEAGE_FEEDBACK_E2E=PASS")
 print("CHACHA_DEV_V624_RUNTIME_LINEAGE_COMPONENTS="+str(x.get("lineage_components",0)))
 print("CHACHA_DEV_V624_RUNTIME_REUSE_UPDATES="+str(x.get("reuse_updates",0)))
 print("CHACHA_DEV_V624_RUNTIME_MISSING_LINEAGE="+str(x.get("missing_lineage",0)))
@@ -168,7 +183,7 @@ systemctl is-active --quiet chacha-dev-production-lineage-feedback.timer
 echo "CHACHA_DEV_V624_BACKGROUND_FEEDBACK_TIMER=PASS"
 
 cat >"/opt/chacha-dev/evidence/v624-production-lineage-feedback-$STAMP.json" <<JSON
-{"schema":"chacha.dev/v624-production-lineage-feedback-evidence/v1","revision":"$REV","observed_at":"$STAMP","semantic_pilot":"PASS","guardian_coverage":"PASS","producer_lineage":"PASS","guardian_governed_feedback":"PASS","nas_persistence":"PASS","central_memory_refresh":"PASS","background_timer":"PASS","automatic_external_spend_eur":0}
+{"schema":"chacha.dev/v624-production-lineage-feedback-evidence/v1","revision":"$REV","observed_at":"$STAMP","semantic_pilot":"PASS","guardian_coverage":"PASS","producer_lineage":"PASS","central_ingest":"PASS","lineage_feedback_e2e":"PASS","guardian_governed_feedback":"PASS","nas_persistence":"PASS","central_memory_refresh":"PASS","background_timer":"PASS","automatic_external_spend_eur":0}
 JSON
 
 echo "CHACHA_DEV_V624_EXACT_LINEAGE_REQUIRED_FOR_REUSE_MUTATION=YES"
