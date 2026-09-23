@@ -45,7 +45,12 @@
     "embedded_assurance_is_mandatory_for_every_project": true,
     "embedded_assurance_local_probes_never_mutate_application": true,
     "project_assurance_identity_is_project_scoped": true,
-    "peripheral_assurance_communicates_through_common_exchange": true
+    "peripheral_assurance_communicates_through_common_exchange": true,
+    "five_local_assurance_probes_mandatory_for_every_project": true,
+    "curator_bastion_intendant_incremental_feedback_to_exchange": true,
+    "specialized_peripheral_agents_never_self_authorize_architecture_change": true,
+    "all_peripheral_agents_must_communicate_via_assurance_exchange": true,
+    "cross_agent_optimization_feedback_returns_to_central_orchestrator": true
   },
   "interfaces": {
     "cli": {
