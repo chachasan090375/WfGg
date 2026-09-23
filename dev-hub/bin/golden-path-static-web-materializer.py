@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
-import argparse, hashlib, http.server, json, os, re, shutil, socketserver, subprocess, tarfile, tempfile, threading, time
+import argparse, hashlib, html, http.server, json, os, re, shutil, socketserver, subprocess, tarfile, tempfile, threading, time
 from pathlib import Path
 from urllib.request import urlopen
 from typing import Any
@@ -86,11 +86,12 @@ def main()->int:
     ws.mkdir(parents=True);ev.mkdir(parents=True,exist_ok=True)
     (ws/"src").mkdir();(ws/"tests").mkdir()
 
-    safe_title=title.replace("&","&amp;").replace("<","&lt;").replace(">","&gt;")
-    html=f"""<!doctype html>
+    safe_title=html.escape(title,quote=True)
+    safe_objective=html.escape(objective,quote=True)
+    page=f"""<!doctype html>
 <html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{safe_title}</title><link rel="stylesheet" href="styles.css"></head>
-<body><main><h1>{safe_title}</h1><p id="objective">{objective}</p>
+<body><main><h1>{safe_title}</h1><p id="objective">{safe_objective}</p>
 <button id="primary-action" type="button">Continuer</button><p id="status" aria-live="polite">Prêt</p></main>
 <script type="module" src="app.mjs"></script></body></html>
 """
@@ -104,7 +105,7 @@ button?.addEventListener("click",()=>{status.textContent=nextStatus(status.textC
     test="""import test from "node:test";import assert from "node:assert/strict";import {nextStatus} from "../src/logic.mjs";
 test("primary state toggles",()=>{assert.equal(nextStatus("Prêt"),"Action confirmée");assert.equal(nextStatus("Action confirmée"),"Prêt")});
 """
-    (ws/"src/index.html").write_text(html,encoding="utf-8")
+    (ws/"src/index.html").write_text(page,encoding="utf-8")
     (ws/"src/logic.mjs").write_text(logic,encoding="utf-8")
     (ws/"src/app.mjs").write_text(app,encoding="utf-8")
     (ws/"src/styles.css").write_text(css,encoding="utf-8")
