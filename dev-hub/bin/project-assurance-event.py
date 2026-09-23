@@ -55,13 +55,14 @@ def append_event(outbox:Path,event:dict[str,Any],max_events:int)->Path:
     return path
 def main()->int:
     ap=argparse.ArgumentParser();ap.add_argument("--policy",type=Path,required=True);ap.add_argument("--bundle",type=Path,required=True)
-    ap.add_argument("--role",choices=["guardian","sentinel"],required=True);ap.add_argument("--event-type",required=True)
+    ap.add_argument("--role",required=True);ap.add_argument("--event-type",required=True)
     ap.add_argument("--severity",choices=["INFO","WARNING","BLOCK","CRITICAL"],default="INFO");ap.add_argument("--fields-json",default="{}")
     a=ap.parse_args();policy=load(a.policy);manifest=load(a.bundle/"embedded-assurance.json")
     if policy.get("schema")!=POLICY_SCHEMA:raise SystemExit("ASSURANCE_POLICY_SCHEMA_INVALID")
     try:fields=json.loads(a.fields_json)
     except Exception:raise SystemExit("ASSURANCE_FIELDS_JSON_INVALID")
     if not isinstance(fields,dict):raise SystemExit("ASSURANCE_FIELDS_NOT_OBJECT")
+    if a.role not in (policy.get("local_agents") or {}):raise SystemExit("ASSURANCE_ROLE_NOT_ACTIVE:"+str(a.role))
     try:event=build_event(str(manifest["project_id"]),str(manifest["application_version"]),a.role,a.event_type,a.severity,fields,policy)
     except RuntimeError as exc:raise SystemExit(str(exc))
     p=append_event(a.bundle/"outbox"/a.role,event,int((policy.get("transport") or {}).get("max_outbox_events") or 5000))
