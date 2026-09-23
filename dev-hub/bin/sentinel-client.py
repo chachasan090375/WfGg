@@ -49,6 +49,17 @@ def http(req:urllib.request.Request)->tuple[int,dict[str,Any]]:
         return e.code,x
 def policy(p:Path)->tuple[dict[str,Any],str,Path]:
     x=load(p);return x,str(x["external_url"]).rstrip("/"),Path(x["private_key"])
+def register_project_assurance_identity(policy_path:Path,registration:Path)->int:
+    _,url,key=policy(policy_path)
+    if not key.is_file():return 30
+    payload=load(registration)
+    body=json.dumps(payload,sort_keys=True,ensure_ascii=False,separators=(",",":")).encode()
+    try:status,x=http(signed_request("POST",url+"/v1/project-assurance-identities/register",key,body))
+    except Exception as exc:
+        print(json.dumps({"schema":"chacha.dev/sentinel-client-result/v1","status":"UNAVAILABLE","reason":str(exc)[:300]}));return 30
+    print(json.dumps(x,ensure_ascii=False))
+    return 0 if status==200 and x.get("status")=="PASS" else 30
+
 def release_check(a)->int:
     p,url,key=policy(a.policy)
     if not key.is_file():return 30
@@ -83,11 +94,13 @@ def main()->int:
     ap=argparse.ArgumentParser();ap.add_argument("--policy",type=Path,default=DEFAULT_POLICY)
     sub=ap.add_subparsers(dest="cmd",required=True)
     r=sub.add_parser("release-check");r.add_argument("--project-id",required=True);r.add_argument("--repository")
+    pi=sub.add_parser("register-project-assurance-identity");pi.add_argument("--registration",type=Path,required=True)
     r.add_argument("--revision");r.add_argument("--workflow-name");r.add_argument("--audit",type=Path,required=True)
     d=sub.add_parser("directives");d.add_argument("--status",default="OPEN")
     m=sub.add_parser("mark-delivered");m.add_argument("--directive-id",action="append",required=True)
     a=ap.parse_args()
     if a.cmd=="release-check":return release_check(a)
+    if a.cmd=="register-project-assurance-identity":return register_project_assurance_identity(a.policy,a.registration)
     if a.cmd=="directives":return directives(a)
     return delivered(a)
 if __name__=="__main__":raise SystemExit(main())
