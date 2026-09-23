@@ -1,0 +1,111 @@
+name: ChaCha DEV V6.23 contextual memory recall qualification
+
+on:
+  push:
+    branches: [dev-hub-v623-contextual-memory-recall]
+    paths:
+      - 'dev-hub/bin/central-memory-recall.py'
+      - 'dev-hub/bin/autonomous-project-orchestrator.py'
+      - 'dev-hub/bin/agent-foundry-planner.py'
+      - 'dev-hub/bin/branch-foundry-planner.py'
+      - 'dev-hub/bin/architecture-decision-council.py'
+      - 'dev-hub/guardian/worker.js'
+      - 'dev-hub/config/central-memory-recall.v1.json'
+      - 'dev-hub/config/guardian-role-contracts.v1.json'
+      - 'dev-hub/tests/test_v623_contextual_memory_recall.py'
+      - 'dev-hub/bin/install-v623-contextual-memory-recall.sh'
+      - '.github/workflows/dev-hub-v623-contextual-memory-recall-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev-hub-v623-contextual-memory-recall
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Static validation
+        run: |
+          set -euo pipefail
+          node --check dev-hub/guardian/worker.js
+          python3 -m py_compile \
+            dev-hub/bin/central-memory-recall.py \
+            dev-hub/bin/autonomous-project-orchestrator.py \
+            dev-hub/bin/agent-foundry-planner.py \
+            dev-hub/bin/branch-foundry-planner.py \
+            dev-hub/bin/architecture-decision-council.py
+          python3 -m json.tool dev-hub/config/central-memory-recall.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/guardian-role-contracts.v1.json >/dev/null
+          if [ -f dev-hub/bin/install-v623-contextual-memory-recall.sh ]; then
+            bash -n dev-hub/bin/install-v623-contextual-memory-recall.sh
+          fi
+          echo CHACHA_DEV_V623_STATIC=PASS
+
+      - name: Contextual memory recall semantics
+        run: |
+          set -euo pipefail
+          python3 dev-hub/tests/test_v623_contextual_memory_recall.py
+
+      - name: V6.22 central memory regression
+        run: |
+          set -euo pipefail
+          python3 dev-hub/tests/test_v622_central_memory_assimilation.py
+
+      - name: V6.21 universal learning regression
+        run: |
+          set -euo pipefail
+          python3 dev-hub/tests/test_v621_universal_learning_loop.py
+
+      - name: Memory decision invariants
+        run: |
+          set -euo pipefail
+          grep -Fq '"mode": "DETERMINISTIC_CONTEXTUAL_RECALL"' dev-hub/config/central-memory-recall.v1.json
+          grep -Fq '"single_observation_never_actionable": true' dev-hub/config/central-memory-recall.v1.json
+          grep -Fq '"technology_revalidation_required": true' dev-hub/config/central-memory-recall.v1.json
+          grep -Fq '"architecture_council_final_authority": true' dev-hub/config/central-memory-recall.v1.json
+          grep -Fq '"central-memory-recall"' dev-hub/bin/architecture-decision-council.py
+          grep -Fq -- '--memory-brief' dev-hub/bin/agent-foundry-planner.py
+          grep -Fq -- '--memory-brief' dev-hub/bin/branch-foundry-planner.py
+          grep -Fq -- '--memory-brief' dev-hub/bin/autonomous-project-orchestrator.py
+          grep -Fq '"central_memory_assimilation","central_memory_recall"' dev-hub/guardian/worker.js
+          echo CHACHA_DEV_V623_MEMORY_DECISION_INVARIANTS=PASS
+
+      - name: Qualification receipt
+        run: |
+          {
+            echo CHACHA_DEV_CONTEXTUAL_MEMORY_RECALL=V6.23
+            echo RESULT=success
+            echo SOURCE_REV="$(git rev-parse HEAD)"
+            echo CENTRAL_ORCHESTRATOR_RECALLS_BEFORE_FOUNDRIES=YES
+            echo CENTRAL_ORCHESTRATOR_RECALLS_AFTER_CAPABILITY_DISCOVERY=YES
+            echo PROJECT_MEMORY_PRIORITY=YES
+            echo TRUSTED_GLOBAL_MEMORY_REQUIRES_GENERALIZATION=YES
+            echo PROVISIONAL_MEMORY_ACTIONABLE=NO
+            echo NEGATIVE_MEMORY_RETURNED_AS_CAUTION=YES
+            echo REUSE_CANDIDATES_CURRENT_BEST_ONLY=YES
+            echo PREVIOUS_SOLUTION_DEFAULT=NO
+            echo TECHNOLOGY_REVALIDATION_REQUIRED=YES
+            echo AGENT_FOUNDRY_CONSUMES_CONTEXTUAL_MEMORY=YES
+            echo BRANCH_FOUNDRY_CONSUMES_CONTEXTUAL_MEMORY=YES
+            echo ARCHITECTURE_COUNCIL_CONSUMES_CONTEXTUAL_MEMORY=YES
+            echo GUARDIAN_REQUIRES_MEMORY_EVIDENCE=YES
+            echo MEMORY_AUTHORITY=ADVISORY
+            echo AUTOMATIC_EXTERNAL_SPEND_EUR=0
+          } | tee /tmp/CHACHA_DEV_V623_RECEIPT.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chacha-dev-v623-contextual-memory-recall
+          path: /tmp/CHACHA_DEV_V623_RECEIPT.txt
+          retention-days: 30
