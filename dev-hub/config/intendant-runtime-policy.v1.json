@@ -1,0 +1,18 @@
+{
+  "schema": "chacha.dev/intendant-runtime-policy/v1",
+  "version": "1.0.0",
+  "scope": "PLATFORM_GLOBAL",
+  "external_url": "https://chacha-dev-intendant.chachasan090375.workers.dev",
+  "private_key": "/opt/chacha-dev/runtime/secrets/central-learning-key.pem",
+  "fail_closed_on_unavailable": true,
+  "local_event_role": "intendant",
+  "reviews_publish_to_assurance_exchange": true,
+  "principles": {
+    "external_authority": true,
+    "exact_project_revision_review": true,
+    "no_direct_application_mutation": true,
+    "no_direct_architecture_mutation": true,
+    "central_orchestrator_owns_remediation": true
+  },
+  "automatic_external_spend_eur": 0
+}
