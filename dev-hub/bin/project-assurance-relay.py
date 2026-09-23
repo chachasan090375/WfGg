@@ -50,8 +50,12 @@ def post(url:str,key:Path,payload:dict[str,Any])->tuple[int,dict[str,Any]]:
         return e.code,x
 def relay_role(bundle:Path,policy:dict[str,Any],key:Path,role:str)->dict[str,Any]:
     transport=policy.get("transport") or {};central=policy.get("central_authority") or {}
-    base=str(central["guardian_url"] if role=="guardian" else central["sentinel_url"]).rstrip("/")
-    url=base+str(transport["guardian_path"] if role=="guardian" else transport["sentinel_path"])
+    endpoint=(transport.get("role_endpoints") or {}).get(role)
+    if not isinstance(endpoint,dict):raise RuntimeError("ROLE_ENDPOINT_MISSING:"+role)
+    base_key=str(endpoint.get("base_key") or "")
+    base=str(central.get(base_key) or "").rstrip("/")
+    if not base:raise RuntimeError("ROLE_CENTRAL_AUTHORITY_MISSING:"+role+":"+base_key)
+    url=base+str(endpoint.get("path") or "")
     limit=int(transport.get("incremental_batch_max_events") or 50)
     src=bundle/"outbox"/role;dst=bundle/"delivered"/role;dst.mkdir(parents=True,exist_ok=True)
     files=sorted(src.glob("*.json"),key=lambda p:p.stat().st_mtime)[:limit]
@@ -71,11 +75,17 @@ def relay_role(bundle:Path,policy:dict[str,Any],key:Path,role:str)->dict[str,Any
     return {"role":role,"status":"DELIVERED","delivered":len(events),"http_status":status,"ack":ack}
 def main()->int:
     ap=argparse.ArgumentParser();ap.add_argument("--bundle",type=Path,required=True);ap.add_argument("--policy",type=Path,required=True)
-    ap.add_argument("--private-key",type=Path);ap.add_argument("--role",choices=["guardian","sentinel","both"],default="both")
+    ap.add_argument("--private-key",type=Path);ap.add_argument("--role",default="all")
     a=ap.parse_args();policy=load(a.policy)
     key=a.private_key or (Path(os.environ["CHACHA_PROJECT_ASSURANCE_PRIVATE_KEY"]) if os.environ.get("CHACHA_PROJECT_ASSURANCE_PRIVATE_KEY") else None)
     if key is None or not key.is_file():raise SystemExit("SERVER_SIDE_ASSURANCE_PRIVATE_KEY_REQUIRED")
-    roles=["guardian","sentinel"] if a.role=="both" else [a.role]
+    active=[
+      str(role) for role,cfg in (policy.get("local_agents") or {}).items()
+      if isinstance(cfg,dict) and str(cfg.get("status") or "")=="ACTIVE"
+    ]
+    roles=active if a.role in {"all","both"} else [a.role]
+    unknown=[r for r in roles if r not in active]
+    if unknown:raise SystemExit("ASSURANCE_ROLE_NOT_ACTIVE:"+",".join(unknown))
     rows=[relay_role(a.bundle,policy,key,r) for r in roles]
     print(json.dumps({"schema":"chacha.dev/project-assurance-relay-result/v1","results":rows,
                       "client_secret_embedded":False,"direct_mutation":False},ensure_ascii=False))
