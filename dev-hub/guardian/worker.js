@@ -209,8 +209,8 @@ async function evaluate(event,env){
   }
 
   if(action==="FINAL_ARCHITECTURE_DECISION"&&phase==="POST_ACTION"){
-    for(const key of ["technology_watch_pre","technology_watch_final","reuse_memory","architecture_memory",
-      "architecture_portfolio","branch_foundry","agent_foundry","capability_foundry","constraint_policy"])
+    for(const key of ["technology_watch_pre","technology_watch_final","central_memory_assimilation","central_memory_recall",
+      "reuse_memory","architecture_memory","architecture_portfolio","branch_foundry","agent_foundry","capability_foundry","constraint_policy"])
       if(!truthyEvidence(evidence,key))addReason(state,"BLOCK","ARCHITECTURE_COUNCIL_EVIDENCE_MISSING:"+key);
   }
 
@@ -729,7 +729,8 @@ export default {
       task_contract_binding_protocol:true,task_contract_identity_lease:true,coverage_watch:true,
       authenticated_watchdog_sweep:true,scheduled_watchdog:true,
       corrective_enforcement:true,remediation_holds:true,remediation_retry_limit:3,
-      production_learning_anomaly_bridge:true,production_anomaly_direct_mutation:false
+      production_learning_anomaly_bridge:true,production_anomaly_direct_mutation:false,
+      central_memory_assimilation_evidence_required:true,contextual_memory_recall_evidence_required:true
     });
     if(req.method==="POST"&&u.pathname==="/v1/check")return check(req,env);
     if(req.method==="POST"&&u.pathname==="/v1/learning-anomalies/report")return reportLearningAnomaly(req,env);
