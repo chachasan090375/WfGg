@@ -8,6 +8,7 @@ on:
       - 'dev-hub/bin/pilot-v639-controlled-production-handoff-dry-run.sh'
       - 'dev-hub/bin/pilot-v639-cloudflare-pages-production-adapter-runtime.sh'
       - 'dev-hub/bin/pilot-v639-cloudflare-pages-enablement-readiness.sh'
+      - 'dev-hub/bin/enable-v639-cloudflare-pages-production-adapter.sh'
       - 'dev-hub/bin/controlled-production-adapter.py'
       - 'dev-hub/adapters/cloudflare-pages-production-adapter.py'
       - 'dev-hub/bin/qualify-cloudflare-pages-production-adapter.py'
@@ -87,6 +88,7 @@ jobs:
           bash -n dev-hub/bin/pilot-v639-controlled-production-handoff-dry-run.sh
           bash -n dev-hub/bin/pilot-v639-cloudflare-pages-production-adapter-runtime.sh
           bash -n dev-hub/bin/pilot-v639-cloudflare-pages-enablement-readiness.sh
+          bash -n dev-hub/bin/enable-v639-cloudflare-pages-production-adapter.sh
           echo CHACHA_DEV_V639_STATIC=PASS
 
       - name: V6.39 controlled production handoff
@@ -192,6 +194,8 @@ jobs:
             echo CLOUDFLARE_PAGES_PROVIDER_HEALTH_CREDENTIALS=NONE
             echo CLOUDFLARE_PAGES_ENABLEMENT_APPROVAL=HUMAN_REQUIRED
             echo CLOUDFLARE_PAGES_ENABLEMENT_READINESS=SCRIPTED
+            echo CLOUDFLARE_PAGES_ENABLEMENT_APPLY=HUMAN_APPROVAL_REQUIRED
+            echo REAL_PRODUCTION_DEPLOYMENT_AUTHORIZED=NO
             echo CLOUDFLARE_PAGES_PILOT_PROMOTION_APPLIED=YES
             echo V638_REGRESSION=YES
             echo RESULT=success
