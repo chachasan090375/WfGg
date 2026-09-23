@@ -11,6 +11,7 @@ on:
       - 'dev-hub/bin/enable-v639-cloudflare-pages-production-adapter.sh'
       - 'dev-hub/bin/verify-v639-cloudflare-pages-enabled-sync.sh'
       - 'dev-hub/bin/discover-v639-cloudflare-pages-targets.py'
+      - 'dev-hub/bin/read-v639-cloudflare-pages-target-discovery.sh'
       - 'dev-hub/bin/controlled-production-adapter.py'
       - 'dev-hub/adapters/cloudflare-pages-production-adapter.py'
       - 'dev-hub/bin/qualify-cloudflare-pages-production-adapter.py'
@@ -94,6 +95,7 @@ jobs:
           bash -n dev-hub/bin/pilot-v639-cloudflare-pages-enablement-readiness.sh
           bash -n dev-hub/bin/enable-v639-cloudflare-pages-production-adapter.sh
           bash -n dev-hub/bin/verify-v639-cloudflare-pages-enabled-sync.sh
+          bash -n dev-hub/bin/read-v639-cloudflare-pages-target-discovery.sh
           echo CHACHA_DEV_V639_STATIC=PASS
 
       - name: V6.39 controlled production handoff
@@ -215,6 +217,7 @@ jobs:
             echo CLOUDFLARE_PAGES_RUNTIME_IDEMPOTENCE=PASS
             echo CLOUDFLARE_PAGES_ENABLED_SYNC_VERIFIER=AVAILABLE
             echo CLOUDFLARE_PAGES_TARGET_DISCOVERY=READ_ONLY
+            echo CLOUDFLARE_PAGES_TARGET_DISCOVERY_READER=AVAILABLE
             echo REAL_PRODUCTION_TARGET_SELECTED=NO
             echo REAL_PRODUCTION_DEPLOYMENT_AUTHORIZED=NO
             echo CLOUDFLARE_PAGES_PRODUCTION_EXECUTION=BLOCKED_AFTER_ENABLE
