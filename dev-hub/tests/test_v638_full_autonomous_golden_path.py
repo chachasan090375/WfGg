@@ -242,6 +242,12 @@ assert "urllib.request" not in installer
 assert 'curl -fsS "$url/healthz"' in installer
 assert "CHACHA_DEV_V638_EXTERNAL_HEALTH_TRANSPORT=CURL" in installer
 
+sentinel_worker=(ROOT/"dev-hub/sentinel/worker.js").read_text(encoding="utf-8")
+assert "const stored=await storedWorkflowAttestation(env,repository,revision,workflowName);" in sentinel_worker
+assert "const gh=await githubRuns(repository,revision,workflowName,env);" in sentinel_worker
+assert "const gh=await technicalAssuranceForRevision(repository,revision,workflowName,env);" in sentinel_worker
+assert "technical_verification_source:gh.source||\"UNKNOWN\"" in sentinel_worker
+
 print("CHACHA_DEV_V638_TRUE_TWO_PHASE_HUMAN_RESUME=PASS")
 print("CHACHA_DEV_V638_LIFECYCLE_STAGED_MATERIALIZATION=PASS")
 print("CHACHA_DEV_V638_CANONICAL_MATERIALIZER_REAL=PASS")
