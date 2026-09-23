@@ -379,7 +379,7 @@ async function createAlert(env,{alertId,eventId,severity,summary,reasons,payload
   return createRemediation(env,{alertId,eventId,severity,reasons,payload});
 }
 
-async function storeEvent(env,event,evaluation){
+async function storeEvent(env,event,evaluation,suppressRemediation=false){
   const payload=stable(event);
   await env.DB.prepare(
     `INSERT OR REPLACE INTO governance_events
@@ -390,7 +390,7 @@ async function storeEvent(env,event,evaluation){
          event.project_id?String(event.project_id):null,event.run_id?String(event.run_id):null,evaluation.verdict,
          evaluation.severity,evaluation.subject_contract_id,JSON.stringify(evaluation.reason_codes),payload).run();
   let directiveId=null;
-  if(evaluation.severity!=="INFO"){
+  if(evaluation.severity!=="INFO"&&!suppressRemediation){
     directiveId=await createAlert(env,{
       alertId:"alert-"+String(event.event_id),eventId:String(event.event_id),severity:evaluation.severity,
       summary:evaluation.severity+" "+String(event.actor||"")+" -> "+String(event.subject_role||"")+" / "+String(event.action||""),
@@ -558,7 +558,7 @@ async function check(req,env){
   if(progress.escalated){
     evaluation=mergeEval(evaluation,{severity:"CRITICAL",reason_codes:["REMEDIATION_MAX_ATTEMPTS_EXCEEDED"]});
   }
-  const createdDirectiveId=await storeEvent(env,event,evaluation);
+  const createdDirectiveId=await storeEvent(env,event,evaluation,Boolean(hold));
   return json({
     schema:"chacha.dev/guardian-verdict/v3",event_id:String(event.event_id||""),action_id:String(event.action_id||""),
     verdict:evaluation.verdict,severity:evaluation.severity,reason_codes:evaluation.reason_codes,
@@ -572,6 +572,44 @@ async function check(req,env){
   },["PASS","WARNING"].includes(evaluation.verdict)?200:409);
 }
 
+async function resolveCoverageRemediations(env,componentId,snapshotId){
+  const alertIds=["coverage-missing-","coverage-inactive-","coverage-stale-"].map(p=>p+componentId);
+  let resolved=0;
+  for(const alertId of alertIds){
+    const roots=(await env.DB.prepare(
+      "SELECT directive_id,source_alert_id FROM remediation_directives WHERE source_alert_id=?1 AND status IN ('OPEN','DELIVERED') ORDER BY created_at ASC"
+    ).bind(alertId).all()).results||[];
+    for(const row of roots){
+      const rid=String(row.directive_id);
+      await env.DB.prepare(
+        "UPDATE remediation_directives SET status='APPLIED',applied_at=datetime('now'),resolution_evidence_json=?2 WHERE directive_id=?1 AND status IN ('OPEN','DELIVERED')"
+      ).bind(rid,stable({source:"coverage-heartbeat",snapshot_id:snapshotId,component_id:componentId,hook_active:true})).run();
+      await env.DB.prepare(
+        "UPDATE remediation_holds SET active=0,cleared_at=datetime('now') WHERE directive_id=?1 AND active=1"
+      ).bind(rid).run();
+      await env.DB.prepare("UPDATE guardian_alerts SET status='ACKED' WHERE alert_id=?1 AND status='OPEN'").bind(alertId).run();
+      resolved++;
+      const dependents=(await env.DB.prepare(
+        "SELECT directive_id,source_alert_id FROM remediation_directives WHERE status IN ('OPEN','DELIVERED') AND rule_codes_json LIKE ?1 ORDER BY created_at ASC"
+      ).bind("%REMEDIATION_REQUIRED:"+rid+"%").all()).results||[];
+      for(const dep of dependents){
+        const did=String(dep.directive_id);
+        await env.DB.prepare(
+          "UPDATE remediation_directives SET status='APPLIED',applied_at=datetime('now'),resolution_evidence_json=?2 WHERE directive_id=?1 AND status IN ('OPEN','DELIVERED')"
+        ).bind(did,stable({source:"upstream-coverage-remediation-resolved",upstream_directive_id:rid,snapshot_id:snapshotId,component_id:componentId})).run();
+        await env.DB.prepare(
+          "UPDATE remediation_holds SET active=0,cleared_at=datetime('now') WHERE directive_id=?1 AND active=1"
+        ).bind(did).run();
+        if(dep.source_alert_id)await env.DB.prepare(
+          "UPDATE guardian_alerts SET status='ACKED' WHERE alert_id=?1 AND status='OPEN'"
+        ).bind(String(dep.source_alert_id)).run();
+        resolved++;
+      }
+    }
+  }
+  return resolved;
+}
+
 async function coverage(req,env){
   const body=await req.text();
   const auth=await requireCentral(req,env,body);if(!auth.ok)return auth.response;
@@ -583,7 +621,7 @@ async function coverage(req,env){
   const got=new Map(components.filter(x=>x&&x.component_id).map(x=>[String(x.component_id),x]));
   const expected=(await env.DB.prepare("SELECT * FROM expected_components ORDER BY component_id").all()).results||[];
   const missing=[],inactive=[],unknown=[];
-  let severity="INFO";
+  let severity="INFO",resolvedRemediations=0;
   for(const e of expected){
     const c=got.get(String(e.component_id));
     if(!c){
@@ -601,6 +639,9 @@ async function coverage(req,env){
        ON CONFLICT(component_id) DO UPDATE SET snapshot_id=excluded.snapshot_id,last_seen=datetime('now'),
        hook_active=excluded.hook_active,details_json=excluded.details_json`
     ).bind(String(e.component_id),snapshotId,active?1:0,stable(c)).run();
+    if(active){
+      resolvedRemediations+=await resolveCoverageRemediations(env,String(e.component_id),snapshotId);
+    }
     if(!active){
       inactive.push(String(e.component_id));
       if(order(String(e.criticality))>order(severity))severity=String(e.criticality);
@@ -615,6 +656,7 @@ async function coverage(req,env){
   return json({schema:"chacha.dev/guardian-coverage-verdict/v1",snapshot_id:snapshotId,verdict,severity,
     expected_count:expected.length,reported_count:components.length,missing,inactive,unknown,
     coverage_ratio:expected.length?Number(((expected.length-missing.length-inactive.length)/expected.length).toFixed(4)):1,
+    resolved_remediations:resolvedRemediations,
     checked_at:new Date().toISOString()},["PASS","WARNING"].includes(verdict)?200:409);
 }
 
@@ -730,7 +772,8 @@ export default {
       authenticated_watchdog_sweep:true,scheduled_watchdog:true,
       corrective_enforcement:true,remediation_holds:true,remediation_retry_limit:3,
       production_learning_anomaly_bridge:true,production_anomaly_direct_mutation:false,
-      central_memory_assimilation_evidence_required:true,contextual_memory_recall_evidence_required:true
+      central_memory_assimilation_evidence_required:true,contextual_memory_recall_evidence_required:true,
+      coverage_remediation_auto_resolution:true,remediation_cascade_suppression:true
     });
     if(req.method==="POST"&&u.pathname==="/v1/check")return check(req,env);
     if(req.method==="POST"&&u.pathname==="/v1/learning-anomalies/report")return reportLearningAnomaly(req,env);
