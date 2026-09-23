@@ -43,6 +43,7 @@ def main()->int:
     ap.add_argument("--secret-root",type=Path,default=Path("/opt/chacha-dev/runtime/secrets/project-assurance"))
     ap.add_argument("--guardian-client",type=Path,required=True);ap.add_argument("--guardian-policy",type=Path,required=True)
     ap.add_argument("--sentinel-client",type=Path,required=True);ap.add_argument("--sentinel-policy",type=Path,required=True)
+    ap.add_argument("--exchange-client",type=Path,required=True);ap.add_argument("--exchange-policy",type=Path,required=True)
     ap.add_argument("--registration",type=Path,required=True);ap.add_argument("--receipt",type=Path,required=True)
     ap.add_argument("--bundle",type=Path)
     a=ap.parse_args()
@@ -56,10 +57,11 @@ def main()->int:
     save(a.registration,registration)
     g=register(a.guardian_client,a.guardian_policy,a.registration)
     s=register(a.sentinel_client,a.sentinel_policy,a.registration)
+    e=register(a.exchange_client,a.exchange_policy,a.registration)
     receipt={
       "schema":"chacha.dev/project-assurance-identity-provisioning-receipt/v1",
       "project_id":a.project_id,"key_id":kid,"guardian_status":g.get("status"),
-      "sentinel_status":s.get("status"),"private_key_path":str(key),
+      "sentinel_status":s.get("status"),"exchange_status":e.get("status"),"private_key_path":str(key),
       "private_key_exported":False,"client_secret_allowed":False,
       "project_identity_active":True,"created_at":now()
     }
@@ -77,7 +79,7 @@ def main()->int:
         save(manifest_path,manifest)
     print("CHACHA_DEV_PROJECT_ASSURANCE_IDENTITY=PASS")
     print("PROJECT_ID="+a.project_id);print("KEY_ID="+kid)
-    print("GUARDIAN_REGISTRATION=PASS");print("SENTINEL_REGISTRATION=PASS")
+    print("GUARDIAN_REGISTRATION=PASS");print("SENTINEL_REGISTRATION=PASS");print("EXCHANGE_REGISTRATION=PASS")
     print("CLIENT_SECRET=NO");print("PRIVATE_KEY_EXPORT=NO")
     return 0
 
