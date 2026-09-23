@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/acceptance-engine/v1",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "source_of_truth": "functional-contract",
   "criterion_states": [
     "PENDING",
@@ -27,6 +27,9 @@
     "failure_routes_to_owning_factory": true,
     "retest_impacted_dependents": true,
     "evidence_required": true,
-    "human_acceptance_only_when_criterion_is_intrinsically_subjective": true
+    "human_acceptance_only_when_criterion_is_intrinsically_subjective": true,
+    "local_acceptance_is_provisional": true,
+    "final_delivery_requires_seven_agent_compromise_receipt": true,
+    "final_delivery_authority": "seven-agent-final-compromise"
   }
 }
