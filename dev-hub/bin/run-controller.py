@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""ChaCha DEV HUB Run Controller / Execution Dispatcher V1.1.
+"""ChaCha DEV HUB Run Controller / Execution Dispatcher V1.2.
 
 Consumes an Execution Plan and its source Task Graph. In the default
 `dispatch-only` policy it produces dispatch envelopes and a run record without
 invoking any provider. Execution is fail-closed and requires an execute-enabled
 policy plus an ENABLED registered adapter with an explicit executable.
 
-V1.1 makes the provider-adapter boundary explicit: adapter stdout MUST be one
+V1.2 preserves the V1.1 provider-adapter boundary and adds controller-owned trusted learning lineage: adapter stdout MUST be one
 chacha.dev/task-result/v1 object, identity-bound to the dispatched task and
 producer, and MUST remain UNVERIFIED. The controller preserves that immutable
 producer result instead of converting a zero exit code into success. Logs are
@@ -171,16 +171,104 @@ def adapter_binding(
             errors.append(f"ADAPTER_EXECUTABLE_MISSING:{adapter_id}")
         if provider_binding.get("health_state") not in {None, "HEALTHY"}:
             errors.append(f"PROVIDER_HEALTH_NOT_HEALTHY:{provider}:{provider_binding.get('health_state')}")
+    identity = {
+        "provider": provider,
+        "provider_definition": pdef,
+        "adapter": adapter_id,
+        "adapter_definition": adef,
+    }
     return {
         "capability": provider_binding.get("capability"),
         "provider": provider,
         "adapter": adapter_id,
         "adapter_kind": adef.get("kind", pdef.get("kind")),
+        "binding_version": "sha256:" + hashlib.sha256(canonical_json(identity).encode("utf-8")).hexdigest(),
         "execution": pdef.get("execution"),
         "executable": adef.get("executable"),
         "fallback_used": bool(provider_binding.get("fallback_used")),
         "health_state": provider_binding.get("health_state"),
     }, errors
+
+
+def learning_subject_kind(binding: dict[str, Any]) -> str:
+    explicit = str(binding.get("subject_kind") or "").strip()
+    if explicit:
+        return explicit
+    mode = str(binding.get("mode") or "")
+    role = str(binding.get("subject_role") or "").lower()
+    if mode == "DYNAMIC_AGENT":
+        return "agent"
+    if mode == "DYNAMIC_COMPONENT":
+        return "component"
+    if "foundry" in role:
+        return "foundry"
+    if "orchestrator" in role:
+        return "orchestrator"
+    if "agent" in role:
+        return "agent"
+    if "connector" in role or "adapter" in role:
+        return "connector"
+    if "runtime" in role:
+        return "runtime"
+    return "component"
+
+
+def learning_adapter_kind(value: str) -> str:
+    lower = value.lower()
+    if "connector" in lower or "mcp" in lower or "provider-api" in lower:
+        return "connector"
+    if "runtime" in lower:
+        return "runtime"
+    return "adapter"
+
+
+def build_trusted_learning_context(
+    run_id: str,
+    source_task: dict[str, Any],
+    bindings: list[dict[str, Any]],
+) -> dict[str, Any] | None:
+    guardian = source_task.get("guardian_binding") if isinstance(source_task.get("guardian_binding"), dict) else None
+    if guardian is None:
+        return None
+    subject = str(guardian.get("subject_role") or "")
+    subject_version = str(guardian.get("dynamic_contract_version") or guardian.get("binding_digest") or "")
+    task_id = str(source_task.get("id") or "")
+    if not subject or not subject_version or not task_id:
+        return None
+    components = [{
+        "kind": learning_subject_kind(guardian),
+        "component_id": subject,
+        "version": subject_version,
+    }]
+    for binding in bindings:
+        adapter = str(binding.get("adapter") or "")
+        version = str(binding.get("binding_version") or "")
+        if not adapter or not version:
+            continue
+        components.append({
+            "kind": learning_adapter_kind(str(binding.get("adapter_kind") or "")),
+            "component_id": adapter,
+            "version": version,
+        })
+    deduped = []
+    seen = set()
+    for row in components:
+        key = (row["kind"], row["component_id"], row["version"])
+        if key in seen:
+            continue
+        seen.add(key)
+        deduped.append(row)
+    return {
+        "schema": "chacha.dev/verified-evidence-learning-context/v1",
+        "deployment_id": run_id + ":" + task_id,
+        "source_id": subject,
+        "surface_kind": "trusted-dispatch-result",
+        "evidence_refs": ["dispatch:" + run_id + ":" + task_id],
+        "component_lineage": {
+            "schema": "chacha.dev/component-lineage/v1",
+            "components": deduped,
+        },
+    }
 
 
 def prepare_envelope(
@@ -200,7 +288,8 @@ def prepare_envelope(
     timeout = min(timeout, int(((policy.get("dispatch") or {}).get("max_timeout_seconds") or 3600)))
     metadata = dict(source_task.get("metadata") or {})
     metadata.update(scheduled.get("metadata") or {})
-    metadata.update({"prepared_at": now_iso(), "controller": "run-controller-v1.1"})
+    metadata.update({"prepared_at": now_iso(), "controller": "run-controller-v1.2"})
+    learning_context = build_trusted_learning_context(run_id, source_task, bindings)
     return {
         "schema": ENVELOPE_SCHEMA,
         "project": scheduled.get("project"),
@@ -223,11 +312,14 @@ def prepare_envelope(
                 "capability": b.get("capability"),
                 "provider": b.get("provider"),
                 "adapter": b.get("adapter"),
+                "adapter_kind": b.get("adapter_kind"),
+                "binding_version": b.get("binding_version"),
                 "fallback_used": bool(b.get("fallback_used")),
                 "health_state": b.get("health_state"),
             }
             for b in bindings
         ],
+        "learning_context": learning_context,
         "policy_context": {
             "resource_class": scheduled.get("resource_class", "light"),
             "requires_storage_preflight": bool(scheduled.get("requires_storage_preflight")),
@@ -562,6 +654,8 @@ def parse_adapter_result(
         return None, "ADAPTER_RESULT_EVIDENCE_INVALID"
     if value.get("outputs") is not None and not isinstance(value.get("outputs"), list):
         return None, "ADAPTER_RESULT_OUTPUTS_INVALID"
+    if value.get("learning_context") is not None:
+        return None, "ADAPTER_LEARNING_CONTEXT_FORBIDDEN"
     return value, None
 
 
@@ -620,7 +714,7 @@ def main() -> None:
         "finished_at": None,
         "waves": [],
         "summary": {"prepared": 0, "blocked": 0, "dispatched": 0, "succeeded": 0, "failed": 0},
-        "metadata": {"execution_plan": str(args.plan), "task_graph": str(args.graph), "controller": "run-controller-v1.1"},
+        "metadata": {"execution_plan": str(args.plan), "task_graph": str(args.graph), "controller": "run-controller-v1.2"},
     }
 
     max_bytes = int(((policy.get("logs") or {}).get("max_bytes_per_stream") or 1048576))
