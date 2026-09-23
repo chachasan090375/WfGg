@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/universal-learning/v1",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "scope": "PLATFORM_GLOBAL",
   "app_specific": false,
   "principle": "Every component that can learn or evolve emits privacy-filtered incremental deltas to the central ChaCha DEV memory, including deployed applications when no human is actively using ChaCha DEV.",
@@ -30,7 +30,9 @@
     "exact_lineage_required_for_reuse_feedback": true,
     "missing_lineage_must_not_mutate_reuse_registry": true,
     "production_feedback_idempotent": true,
-    "verified_recovery_does_not_auto_adopt": true
+    "verified_recovery_does_not_auto_adopt": true,
+    "verified_component_evaluation_supported": true,
+    "absence_of_anomaly_is_not_positive_evidence": true
   },
   "platform_hooks": {
     "central-orchestrator": "automatic",
@@ -47,7 +49,8 @@
     "background_flush_required": true,
     "learning_continues_without_owner_session": true,
     "lineage_manifest_required_for_reuse_feedback": true,
-    "learning_without_lineage_still_allowed": true
+    "learning_without_lineage_still_allowed": true,
+    "verified_evaluation_optional_but_required_for_positive_component_confidence": true
   },
   "anomaly_feedback_loop": {
     "high_or_critical_to_guardian": true,
@@ -69,6 +72,8 @@
     "verified_recovery_becomes_candidate_only": true,
     "technology_revalidation_before_reuse": true,
     "acceptance_before_re_adopt": true,
-    "direct_application_mutation": false
+    "direct_application_mutation": false,
+    "verified_success_increases_confidence": true,
+    "verified_failure_decreases_confidence": true
   }
 }
