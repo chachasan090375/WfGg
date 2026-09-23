@@ -45,7 +45,13 @@ def main()->int:
       "requested_at":now()
     }
     save(root/"project-assurance-identity-request.json",identity_request)
-    for role in ("guardian","sentinel"):
+    active_roles=[
+      str(role) for role,cfg in (policy.get("local_agents") or {}).items()
+      if isinstance(cfg,dict) and str(cfg.get("status") or "")=="ACTIVE"
+    ]
+    if set(active_roles)!={"guardian","sentinel","curator","bastion","intendant"}:
+        raise SystemExit("EMBEDDED_ASSURANCE_FIVE_ACTIVE_PROBES_REQUIRED")
+    for role in active_roles:
         (root/"outbox"/role).mkdir(parents=True,exist_ok=True)
         (root/"delivered"/role).mkdir(parents=True,exist_ok=True)
     manifest={
@@ -53,6 +59,10 @@ def main()->int:
       "created_at":now(),"mandatory":True,
       "guardian_local":{"enabled":True,"mode":"LOCAL_EVENT_PROBE","direct_mutation":False},
       "sentinel_local":{"enabled":True,"mode":"LOCAL_EVENT_PROBE","direct_mutation":False},
+      "curator_local":{"enabled":True,"mode":"LOCAL_EVENT_PROBE","direct_mutation":False},
+      "bastion_local":{"enabled":True,"mode":"LOCAL_EVENT_PROBE","direct_mutation":False},
+      "intendant_local":{"enabled":True,"mode":"LOCAL_EVENT_PROBE","direct_mutation":False},
+      "local_probes":{role:{"enabled":True,"mode":"LOCAL_EVENT_PROBE","direct_mutation":False} for role in active_roles},
       "relay":{"mode":"SERVER_SIDE_ONLY","client_direct_to_central":False,
                "private_key_embedded_in_client":False,"incremental":True,
                "same_origin_client_endpoint":"/__chacha/assurance/v1/events",
@@ -67,8 +77,13 @@ def main()->int:
                "policy":str(policy_copy),
                "identity_request":str(root/"project-assurance-identity-request.json"),
                "guardian_outbox":str(root/"outbox/guardian"),
-               "sentinel_outbox":str(root/"outbox/sentinel")},
+               "sentinel_outbox":str(root/"outbox/sentinel"),
+               "curator_outbox":str(root/"outbox/curator"),
+               "bastion_outbox":str(root/"outbox/bastion"),
+               "intendant_outbox":str(root/"outbox/intendant")},
       "production_readiness":{"guardian_local":True,"sentinel_local":True,
+                              "curator_local":True,"bastion_local":True,"intendant_local":True,
+                              "five_local_probes":True,
                               "privacy_contract":True,
                               "functional_contract_bound":functional_contract_digest is not None,
                               "relay_identity_active":False,
@@ -79,6 +94,7 @@ def main()->int:
     save(root/"embedded-assurance.json",manifest)
     print("CHACHA_DEV_PROJECT_EMBEDDED_ASSURANCE=PASS")
     print("PROJECT_ID="+a.project_id);print("GUARDIAN_LOCAL=ENABLED");print("SENTINEL_LOCAL=ENABLED")
+    print("CURATOR_LOCAL=ENABLED");print("BASTION_LOCAL=ENABLED");print("INTENDANT_LOCAL=ENABLED")
     print("ASSURANCE_RELAY=SERVER_SIDE_ONLY");print("PROJECT_ASSURANCE_IDENTITY=PENDING_APPROVAL")
     print("RAW_USER_CONTENT=NO");print("CLIENT_CENTRAL_SECRET=NO");print("DIRECT_MUTATION=NO");return 0
 if __name__=="__main__":raise SystemExit(main())
