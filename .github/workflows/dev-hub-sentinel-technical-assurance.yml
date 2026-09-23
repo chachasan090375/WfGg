@@ -4,7 +4,7 @@ on:
   push:
     paths:
       - 'dev-hub/**'
-      - '.github/workflows/dev-hub-sentinel-technical-assurance.yml'
+      - '.github/workflows/dev-hub-*.yml'
   pull_request:
     paths:
       - 'dev-hub/**'
