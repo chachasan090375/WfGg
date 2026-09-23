@@ -1,0 +1,17 @@
+[Unit]
+Description=ChaCha DEV central memory assimilation
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+Environment=PYTHONPATH=/opt/chacha-dev/platform/current/dev-hub/bin
+ExecStart=/usr/bin/python3 /opt/chacha-dev/platform/current/dev-hub/bin/central-memory-assimilator.py --policy /opt/chacha-dev/platform/current/dev-hub/config/central-memory-assimilation.v1.json --nas
+ExecStartPost=/usr/bin/systemctl start chacha-dev-technology-watch.service
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=false
+MemoryMax=256M
+TasksMax=32
