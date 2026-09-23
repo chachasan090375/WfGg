@@ -50,12 +50,13 @@
       "verification": "machine"
     },
     "architecture-decisions-resolved": {
-      "owner_role": "orchestrator",
+      "owner_role": "architecture-decision-council",
       "capabilities": [
-        "documentation"
+        "architecture-audit"
       ],
       "permission": "plan",
-      "verification": "human"
+      "verification": "independent-agent",
+      "notes": "Architecture Council is final authority for normal architecture decisions; explicit human approval remains required only at configured sensitive boundaries."
     },
     "workspace-health": {
       "owner_role": "platform",
