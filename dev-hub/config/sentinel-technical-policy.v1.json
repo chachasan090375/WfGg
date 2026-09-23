@@ -35,6 +35,10 @@
   },
   "mandatory_platform_tests": [
     {
+      "path": "dev-hub/tests/test_v636_seven_agent_final_compromise.py",
+      "env": {}
+    },
+    {
       "path": "dev-hub/tests/test_v635_central_specialist_authorities.py",
       "env": {}
     },
