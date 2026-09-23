@@ -31,6 +31,7 @@ _STAGE_ROLE={
     "component-role-contract-manager.py":"component-contract-registry",
     "branch-foundry-planner.py":"branch-foundry",
     "capability-foundry.py":"capability-foundry",
+    "central-memory-recall.py":"central-memory-recall",
     "architecture-decision-council.py":"architecture-decision-council",
     "architecture-comparative-pilot.py":"comparative-pilot",
     "capsule-scheduler.py":"capsule-scheduler",
@@ -63,6 +64,8 @@ def _council_guardian_evidence(output_path:Path|None):
     evidence.update({
       "technology_watch_pre":all_pass("technology-watch-pre"),
       "technology_watch_final":all_pass("technology-watch-final"),
+      "central_memory_assimilation":all_pass("central-memory-assimilation"),
+      "central_memory_recall":all_pass("central-memory-recall"),
       "reuse_memory":all_pass("reuse-memory"),
       "architecture_memory":all_pass("architecture-memory"),
       "architecture_portfolio":all_pass("architecture-portfolio"),
@@ -168,22 +171,22 @@ def merge_routing(base,overlay,out):
     b.setdefault("roles",{}).update(o.get("roles") or {})
     save(out,b)
 
-def run_parallel_foundries(bin_dir,cfg_dir,preplan,project_id,routing,agent_out,branch_out):
+def run_parallel_foundries(bin_dir,cfg_dir,preplan,project_id,routing,memory_brief,agent_out,branch_out):
     with concurrent.futures.ThreadPoolExecutor(max_workers=2) as ex:
         af=ex.submit(run,bin_dir/"agent-foundry-planner.py",[
             "--preplan",preplan,"--config",cfg_dir/"agent-foundry.v1.json",
-            "--routing",routing,"--project-id",project_id,"--output",agent_out
+            "--routing",routing,"--project-id",project_id,"--memory-brief",memory_brief,"--output",agent_out
         ])
         bf=ex.submit(run,bin_dir/"branch-foundry-planner.py",[
             "--preplan",preplan,"--config",cfg_dir/"branch-foundry.v1.json",
-            "--project-id",project_id,"--output",branch_out
+            "--project-id",project_id,"--memory-brief",memory_brief,"--output",branch_out
         ])
         af.result();bf.result()
 
-def refine_branch_with_agents(bin_dir,cfg_dir,preplan,project_id,agent_topology,branch_out):
+def refine_branch_with_agents(bin_dir,cfg_dir,preplan,project_id,agent_topology,memory_brief,branch_out):
     run(bin_dir/"branch-foundry-planner.py",[
         "--preplan",preplan,"--config",cfg_dir/"branch-foundry.v1.json",
-        "--project-id",project_id,"--agent-topology",agent_topology,"--output",branch_out
+        "--project-id",project_id,"--agent-topology",agent_topology,"--memory-brief",memory_brief,"--output",branch_out
     ])
 
 def apply_architecture_council(branch_topology,council,out):
@@ -262,10 +265,19 @@ def main():
     ])
     pid=load(project)["project_id"]
 
+    # V6.23: the central brain recalls only context-relevant memory before asking the Foundries.
+    # Recall is advisory; current Technology Watch and Council remain mandatory.
+    initial_memory_brief=out/"central-memory-brief-initial.json"
+    run(bin_dir/"central-memory-recall.py",[
+        "--memory",Path("/opt/chacha-dev/runtime/knowledge/central-memory-assimilation.json"),
+        "--policy",cfg/"central-memory-recall.v1.json",
+        "--intent",a.intent,"--preplan",pre,"--project-id",pid,"--output",initial_memory_brief
+    ])
+
     # First preflight pass: Agent Foundry and Branch Foundry truly run in parallel.
     initial_agent=out/"agent-topology-initial.json"
     initial_branch=out/"branch-topology-initial.json"
-    run_parallel_foundries(bin_dir,cfg,pre,pid,cfg/"agent-routing.v1.json",initial_agent,initial_branch)
+    run_parallel_foundries(bin_dir,cfg,pre,pid,cfg/"agent-routing.v1.json",initial_memory_brief,initial_agent,initial_branch)
 
     # Capability gaps may create project-local branches/capabilities.
     gapreq=out/"capability-gaps.json"
@@ -309,10 +321,18 @@ def main():
         ])
         active_pre=revised_pre;active_intent=revised_intent;active_domain=merged_domain;active_routing=merged_routing
 
+    # V6.23: capability discovery may change context, so recall is refreshed before final Foundry decisions.
+    memory_brief=out/"central-memory-brief.json"
+    run(bin_dir/"central-memory-recall.py",[
+        "--memory",Path("/opt/chacha-dev/runtime/knowledge/central-memory-assimilation.json"),
+        "--policy",cfg/"central-memory-recall.v1.json",
+        "--intent",active_intent,"--preplan",active_pre,"--project-id",pid,"--output",memory_brief
+    ])
+
     # Final foundry pass on the stable branch/capability set.
     agent_topology=out/"agent-topology.json"
     branch_parallel=out/"branch-topology-parallel.json"
-    run_parallel_foundries(bin_dir,cfg,active_pre,pid,active_routing,agent_topology,branch_parallel)
+    run_parallel_foundries(bin_dir,cfg,active_pre,pid,active_routing,memory_brief,agent_topology,branch_parallel)
 
     # V6.17: every newly created agent gets a precise, versioned Guardian contract.
     # Runtime registration is fail-closed and constrained by Guardian's immutable agent template.
@@ -330,7 +350,7 @@ def main():
 
     # Cheap cross-optimization: Branch Foundry recalculates only its blueprints with Agent Foundry topology.
     branch_topology=out/"branch-topology.json"
-    refine_branch_with_agents(bin_dir,cfg,active_pre,pid,agent_topology,branch_topology)
+    refine_branch_with_agents(bin_dir,cfg,active_pre,pid,agent_topology,memory_brief,branch_topology)
 
     # V6.11: the central brain does not accept any single foundry as the final architect.
     # It must synthesize Technology Watch, reusable memory, Branch/Agent/Capability Foundries,
@@ -343,6 +363,7 @@ def main():
         "--agent-topology",agent_topology,
         "--capability-foundry",foundry_plan,
         "--policy",cfg/"architecture-decision-council.v1.json",
+        "--memory-brief",memory_brief,
         "--output",architecture_council
     ])
     architecture_council_v=load(architecture_council)
@@ -377,6 +398,7 @@ def main():
                 "--agent-topology",agent_topology,
                 "--capability-foundry",foundry_plan,
                 "--policy",cfg/"architecture-decision-council.v1.json",
+                "--memory-brief",memory_brief,
                 "--comparative-pilot-result",comparative_pilot,
                 "--output",architecture_council
             ])
@@ -438,11 +460,17 @@ def main():
 
     state={
       "schema":"chacha.dev/autonomous-project-bootstrap/v1",
-      "version":"6.18.0",
+      "version":"6.23.0",
       "project_id":pid,
       "functional_contract":str(contract),
       "project":str(project),
       "preplan":str(active_pre),
+      "central_memory_brief":str(memory_brief),
+      "central_memory_brief_digest":load(memory_brief).get("brief_digest"),
+      "central_memory_source_snapshot_digest":load(memory_brief).get("source_memory_snapshot_digest"),
+      "central_memory_trusted_count":int(load(memory_brief).get("trusted_memory_count") or 0),
+      "central_memory_caution_count":int(load(memory_brief).get("caution_count") or 0),
+      "central_memory_current_best_reuse_count":int(load(memory_brief).get("reuse_candidate_count") or 0),
       "agent_topology":str(agent_topology),
       "agent_role_contracts":str(agent_contracts),
       "dynamic_agent_contract_count":int(agent_contracts_v.get("contract_count") or 0),
