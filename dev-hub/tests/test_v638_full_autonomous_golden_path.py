@@ -238,6 +238,9 @@ for marker in [
     assert marker in installer,marker
 assert '--human-approval-id "$APPROVAL_ID"' in installer
 assert 'if [ "$RESUME" -eq 0 ]; then' in installer
+assert "urllib.request" not in installer
+assert 'curl -fsS "$url/healthz"' in installer
+assert "CHACHA_DEV_V638_EXTERNAL_HEALTH_TRANSPORT=CURL" in installer
 
 print("CHACHA_DEV_V638_TRUE_TWO_PHASE_HUMAN_RESUME=PASS")
 print("CHACHA_DEV_V638_LIFECYCLE_STAGED_MATERIALIZATION=PASS")
