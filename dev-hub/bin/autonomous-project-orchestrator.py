@@ -80,6 +80,7 @@ def _council_guardian_evidence(output_path:Path|None):
       "agent_foundry":all_pass("agent-foundry"),
       "capability_foundry":all_pass("capability-foundry"),
       "constraint_policy":all_pass("constraint-policy"),
+      "logic_ux_compromise":all_pass("logic-ux-compromise") if "logic-ux-compromise" in (x.get("mandatory_advisors") or []) else True,
       "dispatch_allowed":bool(x.get("dispatch_allowed")),
     })
     return evidence
@@ -440,6 +441,7 @@ def main():
         "--capability-foundry",foundry_plan,
         "--policy",cfg/"architecture-decision-council.v1.json",
         "--memory-brief",memory_brief,
+        "--challenge-dossier",compromise,
         "--output",architecture_council
     ])
     architecture_council_v=load(architecture_council)
@@ -475,6 +477,7 @@ def main():
                 "--capability-foundry",foundry_plan,
                 "--policy",cfg/"architecture-decision-council.v1.json",
                 "--memory-brief",memory_brief,
+                "--challenge-dossier",compromise,
                 "--comparative-pilot-result",comparative_pilot,
                 "--output",architecture_council
             ])
@@ -613,6 +616,7 @@ def main():
       "logic_challenge_status":load(logic_report).get("challenge_status"),
       "ux_challenge_status":load(ux_report).get("challenge_status"),
       "central_compromise_found":bool(compromise_v.get("central_compromise_found")),
+      "architecture_council_consumed_compromise":bool((architecture_council_v.get("logic_ux_compromise") or {}).get("valid")),
       "revision_request_only_after_failed_compromise":True,
       "assurance_exchange_recommendations":assurance_recommendations,
       "assurance_exchange_recommendation_count":len(assurance_recommendations),
@@ -637,6 +641,7 @@ def main():
     print("LOGIC_CHALLENGE_STATUS="+str(state["logic_challenge_status"]))
     print("UX_CHALLENGE_STATUS="+str(state["ux_challenge_status"]))
     print("CENTRAL_COMPROMISE_FOUND="+("YES" if state["central_compromise_found"] else "NO"))
+    print("ARCHITECTURE_COUNCIL_CONSUMED_COMPROMISE="+("YES" if state["architecture_council_consumed_compromise"] else "NO"))
     print("REVISION_REQUEST_ONLY_AFTER_FAILED_COMPROMISE=YES")
     print("ASSURANCE_EXCHANGE_RECOMMENDATIONS="+str(state["assurance_exchange_recommendation_count"]))
     print("ASSURANCE_EXCHANGE_BLOCKERS="+str(state["assurance_exchange_blocker_count"]))
