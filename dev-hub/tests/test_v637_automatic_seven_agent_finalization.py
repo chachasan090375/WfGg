@@ -126,6 +126,8 @@ with tempfile.TemporaryDirectory(prefix="v637-") as td:
     assert task["blocking"] is True,task
 
 source=(BIN/"project-control.py").read_text(encoding="utf-8")
+finalizer_source=(BIN/"automatic-seven-agent-finalizer.py").read_text(encoding="utf-8")
+assert "run_dir=a.output_dir/revision/safe_digest" in finalizer_source
 for marker in [
   "automatic_finalization_eligible",
   "run_automatic_finalization",
@@ -135,6 +137,8 @@ for marker in [
 ]:
     assert marker in source,marker
 assert source.index("run_automatic_finalization(project,actor,policy,repo_root,p)") < source.index('txid = "ctx-" + uuid.uuid4().hex')
+assert 'projection=load(p["state"])' in source
+assert "AUTOMATIC_FINALIZATION_CONTROL_PLANE_STAGE_CHANGED" in source
 
 control=load(CFG/"project-control.v1.json")
 assert control["principles"]["automatic_seven_agent_finalization_on_preview_release"] is True
@@ -148,6 +152,8 @@ print("CHACHA_DEV_V637_NON_FINALIZATION_BLOCKER_GUARD=PASS")
 print("CHACHA_DEV_V637_IDEMPOTENT_REUSE=PASS")
 print("CHACHA_DEV_V637_AMBIGUOUS_SOURCE_FAIL_CLOSED=PASS")
 print("CHACHA_DEV_V637_TRANSACTIONAL_LEDGER_COMMIT=PASS")
+print("CHACHA_DEV_V637_CONTROL_PLANE_PRECONDITION_REFRESH=PASS")
+print("CHACHA_DEV_V637_REVISION_SCOPED_EVIDENCE=PASS")
 print("CHACHA_DEV_V637_FAILURE_NEVER_PROMOTES_RELEASE=PASS")
 print("CHACHA_DEV_V637_CENTRAL_REMEDIATION_BEFORE_RENEGOTIATION=PASS")
 print("CHACHA_DEV_V637_DIRECT_MUTATION=NO")
