@@ -232,4 +232,112 @@ print("CHACHA_DEV_V639_CONTROLLED_ADAPTER_DRY_RUN=PASS")
 print("CHACHA_DEV_V639_ROLLBACK_PROVEN=PASS")
 print("CHACHA_DEV_V639_OPERATE_ADVANCED=NO")
 print("CHACHA_DEV_V639_REAL_PRODUCTION_TARGET=NO")
+
+# Cloudflare Pages production adapter exists as a separate fail-closed DESIGNED adapter.
+registry=load(CFG/"provider-adapters.v1.json")
+provider=registry["providers"]["cloudflare-pages-production"]
+adapter_entry=registry["adapters"]["cloudflare-pages-production-adapter"]
+assert provider["adapter"]=="cloudflare-pages-production-adapter"
+assert provider["execution"]=="vps"
+assert adapter_entry["status"]=="DESIGNED"
+assert adapter_entry["executable"] is None
+assert set(adapter_entry["supports"])=={"read","production-deploy"}
+
+cf_policy=load(CFG/"cloudflare-pages-production-adapter.v1.json")
+assert cf_policy["schema"]=="chacha.dev/cloudflare-pages-production-adapter/v1"
+assert cf_policy["production_capable"] is True
+assert cf_policy["status_required_for_execution"]=="ENABLED"
+assert cf_policy["mutation_guard"]["protected_approval_id"]=="production-deployment"
+assert cf_policy["mutation_guard"]["project_control_receipt_required"] is True
+assert cf_policy["rollback"]["capture_current_production_before_deploy"] is True
+assert cf_policy["rollback"]["previous_successful_production_deployment_required"] is True
+assert cf_policy["rollback"]["verify_restored_deployment"] is True
+assert cf_policy["economics"]["automatic_external_spend_eur"]==0
+assert cf_policy["qualification"]["real_production_execution"] is False
+assert cf_policy["qualification"]["network_write_test"] is False
+
+cf_source=ROOT/"dev-hub/adapters/cloudflare-pages-production-adapter.py"
+source_text=cf_source.read_text(encoding="utf-8")
+assert "shell=False" in source_text
+assert "os.system" not in source_text
+assert "pages\",\"deploy" in source_text
+assert "/rollback" in source_text
+assert "PREVIOUS_SUCCESSFUL_PRODUCTION_DEPLOYMENT_REQUIRED" in source_text
+assert "PROJECT_CONTROL_APPROVAL_RECEIPT_MISSING" in source_text
+assert "REAL_PRODUCTION_EXECUTION_SWITCH_NOT_ENABLED" in source_text
+assert "project create" not in source_text.lower()
+
+with tempfile.TemporaryDirectory(prefix="v639-cf-pages-") as tmp:
+    td=Path(tmp);build=td/"build";build.mkdir()
+    (build/"index.html").write_text("<!doctype html><title>v639</title>",encoding="utf-8")
+    env={
+      **__import__("os").environ,
+      "CHACHA_CF_PAGES_PROD_ALLOWED_PROJECTS":"v639-test-project",
+      "CHACHA_CF_PAGES_PROD_POLICY":str(CFG/"cloudflare-pages-production-adapter.v1.json")
+    }
+    base={
+      "schema":"chacha.dev/dispatch-envelope/v1",
+      "project":"v639-cf-adapter-test",
+      "transition":"RELEASE->OPERATE",
+      "run_id":"v639-cf-pages-contract",
+      "wave":1,
+      "bindings":[{
+        "capability":"cloud-deploy-static","provider":"cloudflare-pages-production",
+        "adapter":"cloudflare-pages-production-adapter",
+        "fallback_used":False,"health_state":"HEALTHY"
+      }],
+      "policy_context":{
+        "resource_class":"light","requires_storage_preflight":False,
+        "human_approval_required":False,"approval_id":None,"timeout_seconds":30
+      },
+      "workspace":str(td),
+      "metadata":{"cloudflare_pages_production":{"action":"contract-status"}}
+    }
+    p=subprocess.run([sys.executable,cf_source],input=json.dumps(base),text=True,
+                     stdout=subprocess.PIPE,stderr=subprocess.PIPE,cwd=str(ROOT),env=env,check=False)
+    assert p.returncode==0,(p.stdout,p.stderr)
+    contract=json.loads(p.stdout)
+    assert contract["status"]=="OK"
+    assert contract["producer"]=="cloudflare-pages-production-adapter"
+
+    plan=json.loads(json.dumps(base))
+    plan["task"]={"id":"cf-pages-plan","permission":"read"}
+    plan["metadata"]["cloudflare_pages_production"]={
+      "action":"deployment-plan","project_name":"v639-test-project",
+      "production_branch":"main","revision":"c"*40,"build_directory":str(build)
+    }
+    p=subprocess.run([sys.executable,cf_source],input=json.dumps(plan),text=True,
+                     stdout=subprocess.PIPE,stderr=subprocess.PIPE,cwd=str(ROOT),env=env,check=False)
+    assert p.returncode==0,(p.stdout,p.stderr)
+    planned=json.loads(p.stdout)
+    assert planned["status"]=="OK"
+    assert planned["evidence"][0]["details"]["production_mutation"] is False
+    assert planned["evidence"][0]["details"]["rollback_capture_required"] is True
+    assert planned["evidence"][0]["details"]["execution_switch_enabled"] is False
+
+    deploy=json.loads(json.dumps(plan))
+    deploy["task"]={"id":"cf-pages-deploy","permission":"production-deploy"}
+    deploy["policy_context"]={
+      "resource_class":"light","requires_storage_preflight":False,
+      "human_approval_required":True,"approval_id":"production-deployment","timeout_seconds":30
+    }
+    deploy["metadata"]["cloudflare_pages_production"]["action"]="production-deploy"
+    deploy["metadata"]["cloudflare_pages_production"]["approval_receipt"]=str(td/"missing-receipt.json")
+    p=subprocess.run([sys.executable,cf_source],input=json.dumps(deploy),text=True,
+                     stdout=subprocess.PIPE,stderr=subprocess.PIPE,cwd=str(ROOT),env=env,check=False)
+    assert p.returncode==2,(p.stdout,p.stderr)
+    blocked=json.loads(p.stdout)
+    assert blocked["status"]=="BLOCKED"
+    assert blocked["summary"]=="REAL_PRODUCTION_EXECUTION_SWITCH_NOT_ENABLED"
+
+rollback_registry=load(CFG/"adapter-rollbacks.v1.json")
+rb=rollback_registry["adapters"]["cloudflare-pages-production-adapter"]
+assert rb["enabled"] is True
+assert rb["from_status"]=="ENABLED"
+assert rb["target_status"]=="DISABLED"
+assert "production-rollback-failure" in rb["triggers"]
+
+print("CHACHA_DEV_V639_CLOUDFLARE_PAGES_PRODUCTION_ADAPTER=DESIGNED")
+print("CHACHA_DEV_V639_CLOUDFLARE_PAGES_PRODUCTION_EXECUTION=BLOCKED")
+print("CHACHA_DEV_V639_CLOUDFLARE_PAGES_ROLLBACK_CONTRACT=PASS")
 print("CHACHA_DEV_V639_AUTOMATIC_EXTERNAL_SPEND_EUR=0")
