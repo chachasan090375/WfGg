@@ -1,0 +1,25 @@
+{
+  "schema": "chacha.dev/curator-authority-policy/v1",
+  "version": "1.0.0",
+  "role": "curator",
+  "scope": "VISUAL_UX",
+  "local_probe_role": "curator",
+  "accept_severities": [
+    "INFO",
+    "WARNING"
+  ],
+  "revise_severities": [
+    "BLOCK"
+  ],
+  "block_severities": [
+    "CRITICAL"
+  ],
+  "review_rules": {
+    "visual_regression_is_evidence_not_absolute_truth": true,
+    "design_contract_context_required_when_available": true,
+    "ergonomist_handoff_consumed": true,
+    "accessibility_regression_can_block": true,
+    "unresolved_critical_visual_break_blocks_release": true
+  },
+  "direct_mutation": false
+}
