@@ -28,6 +28,9 @@ def normalize_review(x:dict[str,Any])->dict[str,Any]:
       "evidence_refs":[str(v) for v in x.get("evidence_refs") or []],
       "implementation_verified":x.get("implementation_verified") is True,
       "source_authority":str(x.get("source_authority") or ""),
+      "source_reverified":x.get("source_reverified") is True,
+      "original_proposal_referenced":x.get("original_proposal_referenced") is True,
+      "post_implementation_second_read":x.get("post_implementation_second_read") is True,
       "reviewed_at":x.get("reviewed_at")
     }
 
@@ -44,7 +47,9 @@ def main()->int:
     a=ap.parse_args()
 
     policy=load(a.policy);comp=load(a.compromise);council=load(a.council);verify=load(a.implementation_verification)
-    required=[str(x.get("id")) for x in policy.get("required_agents") or [] if isinstance(x,dict)]
+    required_defs=[x for x in policy.get("required_agents") or [] if isinstance(x,dict)]
+    required=[str(x.get("id")) for x in required_defs]
+    required_kind={str(x.get("id")):str(x.get("kind") or "") for x in required_defs}
     reviews=[normalize_review(load(p)) for p in a.agent_review]
     by_agent={r["agent"]:r for r in reviews if r["agent"]}
     reasons=[]
@@ -92,6 +97,11 @@ def main()->int:
         if r["hard_objections"]:reasons.append("UNRESOLVED_HARD_OBJECTION:"+agent)
         if not r["implementation_verified"]:reasons.append("AGENT_IMPLEMENTATION_NOT_VERIFIED:"+agent)
         if not r["evidence_refs"]:reasons.append("AGENT_EVIDENCE_MISSING:"+agent)
+        if required_kind.get(agent)=="external" and not r["source_reverified"]:
+            reasons.append("EXTERNAL_REVIEW_NOT_SOURCE_REVERIFIED:"+agent)
+        if required_kind.get(agent)=="internal":
+            if not r["original_proposal_referenced"]:reasons.append("INTERNAL_ORIGINAL_PROPOSAL_NOT_REFERENCED:"+agent)
+            if not r["post_implementation_second_read"]:reasons.append("INTERNAL_POST_IMPLEMENTATION_SECOND_READ_MISSING:"+agent)
 
     release_allowed=not reasons
     result={
@@ -103,6 +113,15 @@ def main()->int:
       "required_agents":required,
       "accounted_agents":accounted,
       "all_required_agents_accounted_for":set(accounted)==set(required),
+      "external_reviews_source_reverified":all(
+        (by_agent.get(agent) or {}).get("source_reverified") is True
+        for agent in required if required_kind.get(agent)=="external"
+      ),
+      "internal_second_reads_verified":all(
+        (by_agent.get(agent) or {}).get("original_proposal_referenced") is True and
+        (by_agent.get(agent) or {}).get("post_implementation_second_read") is True
+        for agent in required if required_kind.get(agent)=="internal"
+      ),
       "unanimous_preferences_required":False,
       "majority_vote_used":False,
       "central_compromise_search_attempted":comp.get("central_compromise_search_attempted") is True,
