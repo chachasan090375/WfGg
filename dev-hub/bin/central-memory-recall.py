@@ -45,6 +45,12 @@ def item_score(item:dict[str,Any],project_id:str,query:set[str],domains:set[str]
 def reuse_score(row:dict[str,Any],query:set[str],domains:set[str],caps:set[str],policy:dict[str,Any])->int:
     r=policy["retrieval"];score=0
     if str(row.get("version_status"))!="CURRENT_BEST":return -1
+    conf=row.get("component_confidence") if isinstance(row.get("component_confidence"),dict) else None
+    if conf:
+        excluded=set((policy.get("reuse") or {}).get("exclude_component_confidence_states") or [])
+        if str(conf.get("state") or "") in excluded:return -1
+        score+=int(round(float(conf.get("confidence") or 0)*int(r.get("component_confidence_weight",0))))
+        if str(conf.get("state") or "")=="TRUSTED":score+=int(r.get("trusted_component_bonus",0))
     domain=str(row.get("domain") or "").lower()
     if domain and domain in domains:score+=int(r["exact_domain_weight"])
     text=tokens(row)
@@ -94,6 +100,14 @@ def recall(memory:dict[str,Any],intent:dict[str,Any],pre:dict[str,Any],project_i
       "trusted_memory_count":min(len(trusted),max_t),
       "caution_count":min(len(cautions),max_c),
       "reuse_candidate_count":min(len(reuse),max_r),
+      "component_confidence":{
+        "available":bool((memory.get("component_confidence") or {}).get("available")),
+        "snapshot_digest":(memory.get("component_confidence") or {}).get("snapshot_digest"),
+        "trusted_count":int((memory.get("component_confidence") or {}).get("trusted_count") or 0),
+        "negative_state_count":int((memory.get("component_confidence") or {}).get("negative_state_count") or 0),
+        "negative_states_excluded_from_reuse":True,
+        "confidence_is_advisory":True
+      },
       "memory_authority":"ADVISORY",
       "provisional_is_actionable":False,
       "single_observation_is_actionable":False,
@@ -120,7 +134,7 @@ def main()->int:
     out=recall(memory,load(a.intent),load(a.preplan),str(a.project_id),policy)
     a.output.parent.mkdir(parents=True,exist_ok=True)
     a.output.write_text(json.dumps(out,indent=2,ensure_ascii=False)+"\n",encoding="utf-8")
-    print("CHACHA_DEV_V623_CENTRAL_MEMORY_RECALL=PASS")
+    print("CHACHA_DEV_V625_CENTRAL_MEMORY_RECALL=PASS")
     print("TRUSTED_MEMORY="+str(out["trusted_memory_count"]))
     print("CAUTIONS="+str(out["caution_count"]))
     print("CURRENT_BEST_REUSE="+str(out["reuse_candidate_count"]))
