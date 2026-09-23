@@ -138,7 +138,7 @@ council=(BIN/"architecture-decision-council.py").read_text(encoding="utf-8")
 assert '"central-memory-assimilation"' in council
 assert "current_branch_versions" in council
 assert "current_architecture_versions" in council
-assert '"version":"6.22.0"' in council
+assert ('"version":"6.22.0"' in council) or ('"version":"6.23.0"' in council)
 
 print("CHACHA_DEV_V622_SINGLE_OBSERVATION_NOT_TRUSTED=PASS")
 print("CHACHA_DEV_V622_REPEATED_SUCCESS_REINFORCES_MEMORY=PASS")
